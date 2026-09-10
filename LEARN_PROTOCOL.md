@@ -23,6 +23,7 @@ parlandogli in lingua naturale.
 > | [D. Parole, forme e ruoli](#d-parole-forme-e-ruoli) | `"superficie" è un <classe>` · `the italian for X is Y` |
 > | [E. Condotta e ragionamento](#e-condotta-e-ragionamento) | `quando <situazione> allora <mossa>` · `step for X is …` |
 > | [F. Procedure eseguibili](#f-procedure-eseguibili) | `rule for X is <operatore>` · `apply X to <testo>` |
+| [**G. Ordine superiore**](#g-superfici-di-ordine-superiore--insegnare-sulle-relazioni) | `in <contesto> V stands for W` · `V behaves like W` · `V is W followed by Z` — **insegnare *sulle* relazioni: è qui che la conoscenza scala** |
 >
 > **[→ §6-ter: le 50 forme DA IMPLEMENTARE](#6-ter-le-50-forme-da-implementare--la-mappa-in-anticipo)** — la mappa
 > scritta in anticipo: quali forme mancano, che cosa aprirebbero, e in che ordine
@@ -488,11 +489,89 @@ classe intera invece di un membro.*
 
 ### G. Superfici di ordine superiore — insegnare *sulle* relazioni
 
-*Queste non insegnano un fatto né una proprietà: insegnano un **legame fra due
-predicati**. Sono possibili perché il solver ha `apply/2`, il confine a
-**predicato variabile** dove il nome di una relazione è un dato e non codice
-(`docs/plans/thinking.md` §0.1). Il motore non sa quali relazioni si implichino:
-lo chiede, con `holds(Relazione, X, Y)`.*
+> **Questa è la sezione che fa scalare la conoscenza, e vale la pena capire
+> perché prima di usarla.**
+
+#### G.0 Il meccanismo: il predicato variabile
+
+Il solver ha `apply/2` — il confine dove **il nome di una relazione è un dato,
+non codice** (`src/kb.c`, documentato in [`docs/plans/thinking.md`
+§0.1](docs/plans/thinking.md) come *«il pezzo più prezioso che già c'è»*):
+
+```prolog
+criterion_finding($S, $C, evidence($Measure, $V, above, $B)) :-
+    quality_criterion($C, $D, threshold($Measure, above, $B)),
+    apply($Measure, cons($S, cons($V, nil))),   % ← $Measure è un NOME
+    gt($V, $B).
+```
+
+Da lì la conclusione che regge tutta la sezione: **non serve un dispatcher di
+operatori, serve dichiararli.**
+
+Sopra `apply/2` stanno tre predicati che il motore interroga al posto di quello
+nudo:
+
+| | domanda | perché
+|---|---|---|
+| `holds(V, X, Y)` | «questa relazione vale fra questi due?» | la **relazione è un argomento** |
+| `holds1(C, X)` | «questo appartiene a questa classe?» | la **classe è un argomento** |
+| `relation_note(V, Nota)` | «che cosa so *di* questa relazione?» | la scheda, come vista |
+
+**La conseguenza operativa, ed è tutta qui:** un lettore che chiede `holds/3`
+eredita *ogni ponte futuro* fra due relazioni senza sapere che esiste. Aggiungere
+un modo nuovo di legare i predicati è **una clausola `holds/3` in un `.p0`** — non
+una riga di C, non un modulo, non una precedenza da decidere.
+
+#### G.1 Perché scala
+
+Con le superfici ordinarie, la conoscenza cresce **per fatti**: *n* cose dette,
+*n* cose sapute. Con queste cresce **per legami**: una riga su due relazioni
+mette in comunicazione tutti i fatti dell'una e dell'altra, presenti *e futuri*.
+
+Tre moltiplicatori misurati in questa campagna:
+
+1. **Un ponte vale per i fatti che non esistono ancora.** `in sport plays stands
+   for belongs` non converte i fatti già detti: fa sì che *ogni* «X plays Y»
+   futuro risponda anche a «belongs». Il costo è costante, il guadagno cresce.
+2. **Le proprietà si ereditano.** `covers behaves like ancestor` fa sì che
+   `covers` sia transitiva — e la sua scheda lo dichiara:
+   ```
+   > tell me about the relation covers
+     About «covers» I hold 2: chains, behaves like ancestor.
+   ```
+   Sette proprietà × ogni relazione che le somiglia, dette una volta sola.
+3. **Le relazioni si generano.** `grandparent is parent followed by parent`
+   definisce una relazione **che non ha un solo fatto proprio** e risponde. Da
+   *k* relazioni popolate se ne ottengono molte di più senza popolarne nessuna.
+
+#### G.2 Dove si incastra con il resto
+
+Questa sezione non è un'isola: è il tessuto che lega le altre.
+
+| si combina con | che cosa diventa possibile |
+|---|---|
+| **i piani** (§E) | una mossa può interrogare `holds/3` invece di un predicato fisso, quindi la stessa condotta vale per relazioni che nessuno aveva in mente quando il piano è stato insegnato |
+| **il ragionamento** (`/34`, `/35`) | il passo «mi sono chiesto di che cosa è fatta» consulta `composition_relation/1`; con i ponti, «di che cosa è fatta» raggiunge anche le relazioni che *contano come* composizione in un dominio |
+| **le procedure** (§F) | un operatore che filtra per `char_class` è già un predicato variabile in piccolo; la stessa mossa porta le procedure a filtrare per *qualunque* relazione insegnata |
+| **l'inferenza logica** | `V holds where both W and Z`, `V holds wherever W`, `V holds where W except where Z` sono **congiunzione, disgiunzione e negazione per eccezione** — dette a voce, non compilate. È il mantra #19 applicato alle relazioni |
+| **le misure** (`/69`) | `magnitude/3` + `compare_cue/3` sono già relazioni-come-dato: un ponte fra due scale, o una scala derivata da una relazione, cade in questa stessa forma |
+
+#### G.3 La regola di prudenza
+
+**Un ponte che vale sempre non è un ponte, è una fusione.** Le superfici con
+vincolo — `for a <classe> V counts as W`, `V holds where W except where Z` — sono
+quelle da preferire: dicono anche *dove non vale*. La prova che un ponte è sano è
+che esiste una domanda vicina a cui parrot0 risponde ancora «non lo so»:
+
+```
+> anna leads team   →  does anna guides team?   Yes.     (anna è una persona)
+> river leads sea   →  does river guides sea?   I don't know…
+```
+
+---
+
+*Le superfici. Sono possibili perché il nome di una relazione è un dato: non
+insegnano un fatto né una proprietà, ma un **legame fra due predicati**.*
 
 | si dice | parrot0 ne ricava |
 |---|---|
@@ -502,6 +581,8 @@ lo chiede, con `holds(Relazione, X, Y)`.*
 | `V holds where both W and Z` | una **relazione definita da due**: insegnare una *regola*, non un fatto — il mantra #19 applicato alle relazioni (gen507/82) |
 | `V is W followed by Z` | la **composizione**: «nonno» è «genitore» seguito da «genitore». Due relazioni note ne definiscono una terza che nessuno popola (gen507/83) |
 | `V holds where W holds except where Z` | l'**eccezione detta insieme alla regola**, invece di una regola falsa che qualcuno correggerà poi (gen507/83) |
+| `tell me about the relation V` | la **scheda** di una relazione: tutto ciò che è stato dichiarato *su* di lei — proprietà, ponti, definizioni (gen507/84) |
+| `what relations do you know?` | l'elenco delle relazioni (gen507/84) |
 | `V holds wherever W` | la disgiunzione: `V` vale ovunque valga `W` (gen507/82) |
 | `V behaves like W` | `V` eredita la **scheda** di `W` — transitiva, simmetrica, riflessiva, funzionale — senza che nessuno la ripeta: il predicato variabile applicato alle *proprietà* invece che ai fatti (gen507/81) |
 

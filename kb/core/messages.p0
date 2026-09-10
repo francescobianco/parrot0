@@ -2238,6 +2238,26 @@ turn_form_act(teach_rel_unless, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_rel_unless, "op(assert, relation_unless, [subject, order, object])").
 turn_form_reply(teach_rel_unless, learned_rel_unless).
 
+% (superficie superiore #9) — LA SCHEDA DI UNA RELAZIONE. Dopo cinque lezioni su
+% una relazione si vuole vedere che cosa parrot0 ne ha capito, e finora l'unico
+% modo era leggere i file.
+response_template(relation_card, "About «{subject}» I hold {count}: {result}.").
+response_template(relation_card, it, "Di «{subject}» tengo {count}: {result}.").
+
+turn_form(ask_rel_card, 1, text("tell me about the relation")).
+turn_form(ask_rel_card, 2, slot(subject)).
+turn_form_act(ask_rel_card, "op(match, relation_note, [subject, free])").
+turn_form_reply(ask_rel_card, relation_card).
+
+% (superficie superiore #10) — quali relazioni conosce.
+response_template(relation_list, "I hold {count} relations: {result}.").
+response_template(relation_list, it, "Tengo {count} relazioni: {result}.").
+
+turn_form(ask_rel_list, 1, text("what relations do you know")).
+turn_form(ask_rel_list, 2, bind(relation, relation_verb)).
+turn_form_act(ask_rel_list, "op(match, relation, [free])").
+turn_form_reply(ask_rel_list, relation_list).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

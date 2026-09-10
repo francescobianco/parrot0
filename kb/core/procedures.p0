@@ -1748,3 +1748,24 @@ holds($V, $X, $Y) :-
     relation_unless($V, $W, $Z),
     apply($W, cons($X, cons($Y, nil))),
     naf(apply($Z, cons($X, cons($Y, nil)))).
+
+% (l) LA SCHEDA DI UNA RELAZIONE, come vista. `relation_note(V, Nota)` raccoglie
+%     in un posto solo tutto cio' che e' stato dichiarato SU una relazione:
+%     proprieta', ponti, definizioni. Serve a chi insegna — dopo cinque lezioni
+%     su una relazione si vuole vedere che cosa parrot0 ne ha capito, e finora
+%     l'unico modo era leggere i file.
+machinery(relation_note).
+relation_note($V, "chains")              :- transitive_relation($V).
+relation_note($V, "goes both ways")      :- symmetric_relation($V).
+relation_note($V, "holds of itself")     :- reflexive_relation($V).
+relation_note($V, "has one value")       :- functional_relation($V).
+relation_note($V, $Note) :- inverse_relation($V, $W), concat_atoms("opposite of ", $W, $Note).
+relation_note($V, $Note) :- inverse_relation($W, $V), concat_atoms("opposite of ", $W, $Note).
+relation_note($V, $Note) :- implies_relation($V, $W), concat_atoms("implies ", $W, $Note).
+relation_note($V, $Note) :- excludes_relation($V, $W), concat_atoms("rules out ", $W, $Note).
+relation_note($V, $Note) :- relation_like($V, $W), concat_atoms("behaves like ", $W, $Note).
+relation_note($V, $Note) :- context_alias($C, $V, $W), concat_atoms("stands for ", $W, $Note).
+relation_note($V, $Note) :- relation_chain($V, $W, $Z), concat_atoms("composed from ", $W, $Note).
+relation_note($V, $Note) :- relation_and($V, $W, $Z), concat_atoms("needs both, starting with ", $W, $Note).
+relation_note($V, $Note) :- relation_or($V, $W), concat_atoms("holds wherever ", $W, $Note).
+relation_note($V, $Note) :- relation_unless($V, $W, $Z), concat_atoms("has an exception: ", $Z, $Note).
