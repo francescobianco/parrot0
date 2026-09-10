@@ -1840,6 +1840,12 @@ has_part(pizza, tomato).
 has_part(pizza, cheese).
 precedes(monday, tuesday).
 precedes(preprint, peer_review).
+precedes(sapling, tree).
+precedes(seedling, sapling).
+precedes(seed, seedling).
+precedes(chrysalis, butterfly).
+precedes(caterpillar, chrysalis).
+precedes(egg, caterpillar).
 physicist(curie).
 
 part_of(arm, human_body).

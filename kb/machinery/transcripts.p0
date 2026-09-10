@@ -59,6 +59,7 @@ utterance(5, user, "veryovkina has depth 2212").
 utterance(5, user, "reversible is the opposite of irreversible").
 utterance(5, user, "peregrine is a member of falcon").
 utterance(5, user, "radar is short for radio detection and ranging").
+utterance(5, user, "chrysalis comes before butterfly").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -97,6 +98,7 @@ utterance(6, self, "Held: veryovkina scores 2212 on depth.").
 utterance(6, self, "Held: the opposite of reversible is irreversible.").
 utterance(6, self, "Held: peregrine is one of the falcon -- it inherits what they have.").
 utterance(6, self, "Held: «radar» is short for «radio_detection_and_ranging».").
+utterance(6, self, "Tengo: chrysalis viene prima di butterfly — e la catena si percorre.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -547,6 +549,7 @@ utterance(7, user, "krubera has depth 2197").
 utterance(7, user, "explicit is the opposite of implicit").
 utterance(7, user, "falcon are typically fast").
 utterance(7, user, "scuba is short for self contained underwater breathing apparatus").
+utterance(7, user, "seed comes before seedling").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -682,6 +685,17 @@ utterance(22, self, "oak inherits: leafless in winter, does photosynthesis, has 
 utterance(8, self, "Held: «scuba» is short for «self_contained_underwater_breathing_apparatus».").
 utterance(9, user, "pdf is short for portable document format").
 utterance(10, self, "Held: «pdf» is short for «portable_document_format».").
+utterance(8, self, "Tengo: seed viene prima di seedling — e la catena si percorre.").
+utterance(9, user, "seedling comes before sapling").
+utterance(10, self, "Tengo: seedling viene prima di sapling — e la catena si percorre.").
+utterance(11, user, "sapling comes before tree").
+utterance(12, self, "Tengo: sapling viene prima di albero — e la catena si percorre.").
+utterance(13, user, "does egg precedes butterfly?").
+utterance(14, self, "Yes.").
+utterance(15, user, "does butterfly follows egg?").
+utterance(16, self, "I don't know: nothing I hold says butterfly follows egg, and nothing says it isn't so. Tell me either way and I will hold it.").
+utterance(17, user, "does seed precedes tree?").
+utterance(18, self, "Yes.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -967,6 +981,7 @@ utterance(2, self, "Held: «deeper» ranks by depth.").
 utterance(2, self, "Held: the opposite of abundance is scarcity.").
 utterance(2, self, "Held: kestrel is one of the falcon -- it inherits what they have.").
 utterance(2, self, "Held: «crispr» is short for «clustered_regularly_interspaced_short_palindromic_repeats».").
+utterance(2, self, "Tengo: uovo viene prima di caterpillar — e la catena si percorre.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1004,6 +1019,7 @@ utterance(1, user, "deeper is the most depth").
 utterance(1, user, "abundance is the opposite of scarcity").
 utterance(1, user, "kestrel is a member of falcon").
 utterance(1, user, "crispr is short for clustered regularly interspaced short palindromic repeats").
+utterance(1, user, "egg comes before caterpillar").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1035,6 +1051,7 @@ utterance(4, self, "Held: «shallower» ranks by depth.").
 utterance(4, self, "Held: the opposite of centralised is distributed.").
 utterance(4, self, "Held: merlin is one of the falcon -- it inherits what they have.").
 utterance(4, self, "Held: «laser» is short for «light_amplification_by_stimulated_emission_of_radiation».").
+utterance(4, self, "Tengo: caterpillar viene prima di chrysalis — e la catena si percorre.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1067,6 +1084,7 @@ utterance(3, user, "shallower is the least depth").
 utterance(3, user, "centralised is the opposite of distributed").
 utterance(3, user, "merlin is a member of falcon").
 utterance(3, user, "laser is short for light amplification by stimulated emission of radiation").
+utterance(3, user, "caterpillar comes before chrysalis").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

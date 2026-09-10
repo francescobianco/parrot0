@@ -12486,6 +12486,15 @@ static int p0_relation_inverse(Brain *b, const char *rel,
             if (!*other || !strcmp(other, rel)) continue;
             const char *ia[2] = { to, from };      /* l'inverso scambia i posti */
             if (kb_query(b->kb, other, ia, 2)) return 1;
+            /* gen507/75 — E L'INVERSO COMPONE CON LA CATENA.
+             * «egg precedes butterfly» rispondeva Yes per transitivita', e
+             * «butterfly follows egg» no: le due proprieta' esistevano e non si
+             * parlavano. Ma sono la stessa cosa detta dai due lati — se la
+             * catena porta da egg a butterfly, allora butterfly segue egg, e
+             * chiederlo al rovescio non puo' dare una risposta diversa. */
+            const char *tq9[1] = { other };
+            if (kb_query(b->kb, "transitive_relation", tq9, 1) &&
+                p0_relation_chain(b, other, to, from, 6)) return 1;
         }
     }
     return 0;

@@ -419,6 +419,7 @@ classe intera invece di un membro.*
 | `V goes both ways` | la relazione è simmetrica: `X V Y` risponde anche a `Y V X` (gen507/41) |
 | `V has one value` | funzionale: se il posto è occupato da un altro valore, il «no» è **guadagnato** senza elencare il mondo (gen507/45, forma #2) |
 | `V implies W` | sussunzione: chi tiene `X V Y` risponde anche a `X W Y`, **in un verso solo** (gen507/46, forma #3) |
+| `X comes before Y` | l'**ordine nel tempo**: pone il fatto *e* dichiara che la catena si percorre e che il verso opposto si chiama `follows` — tre fatti in una frase (gen507/75, forma #17) |
 | `V holds of itself` | riflessiva: `X V X` è vero senza che nessuno lo dica — e resta falso per le relazioni che non lo sono (gen507/48, forma #1) |
 | `V rules out W` | esclusione fra relazioni: chi tiene `X V Y` ha già il «no» su `X W Y`. Una sola riga risponde per tutte le coppie, presenti e future (gen507/47, forma #4) |
 
@@ -593,7 +594,8 @@ altre cose che sa fare e non sa **quando**.
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 1 | `V holds of itself` | riflessiva: `X V X` vale sempre | ✅ gen507/48 |
+| 1 | `X comes before Y` | l'**ordine nel tempo**: pone il fatto *e* dichiara che la catena si percorre e che il verso opposto si chiama `follows` — tre fatti in una frase (gen507/75, forma #17) |
+| `V holds of itself` | riflessiva: `X V X` vale sempre | ✅ gen507/48 |
 | 2 | `V has one value` | funzionale: un secondo valore è una **correzione o un conflitto**, non un fatto in più — estende a ogni relazione ciò che il giro /16 fa per gli attributi | ✅ gen507/45 |
 | 3 | `V implies W` | se `X V Y` allora `X W Y`: sussunzione fra relazioni | ✅ gen507/46 |
 | 4 | `V excludes W` — reso `V rules out W` | se `X V Y` allora **non** `X W Y`: un «no» guadagnato senza elencare | ✅ gen507/47 |
@@ -625,7 +627,7 @@ altre cose che sa fare e non sa **quando**.
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 17 | `X happened before Y` | ordine temporale (transitivo, con l'inverso `after`) | 🔴 |
+| 17 | `X happened before Y` — reso `X comes before Y` | ordine temporale, con transitività e inverso dichiarati insieme | ✅ gen507/75 |
 | 18 | `X lasts N <unità di tempo>` | durata | 🔴 |
 | 19 | `X happens every <periodo>` | ricorrenza | 🔴 |
 | 20 | `X was true until Y` | validità che finisce: un fatto con una scadenza | 🔴 |

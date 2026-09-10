@@ -1938,6 +1938,25 @@ turn_form_mood(teach_abbrev, statement).
 turn_form_act(teach_abbrev, "op(assert, entity_alias, [surface, concept])").
 turn_form_reply(teach_abbrev, learned_abbrev).
 
+% ══ gen507/75 (forma #17) — L'ORDINE NEL TEMPO ════════════════════════════
+% «X viene prima di Y» non e' un fatto isolato: e' un fatto piu' due proprieta'
+% — la catena si percorre e il verso opposto ha un nome. Dirle ogni volta
+% sarebbe chiedere a chi insegna di ricordarsi la meccanica; la forma le
+% dichiara insieme al fatto, e riasserirle non fa danno.
+response_template(learned_precedes, "Held: {subject} comes before {object} -- and the chain carries.").
+response_template(learned_precedes, it, "Tengo: {subject} viene prima di {object} — e la catena si percorre.").
+
+turn_form(teach_before, 1, slot(subject)).
+turn_form(teach_before, 2, text("comes before")).
+turn_form(teach_before, 3, rest(object)).
+turn_form_mood(teach_before, statement).
+turn_form_act(teach_before, "op(assert, relation_verb, [precedes])").
+turn_form_act(teach_before, "op(assert, relation_verb, [follows])").
+turn_form_act(teach_before, "op(assert, transitive_relation, [precedes])").
+turn_form_act(teach_before, "op(assert, inverse_relation, [precedes, follows])").
+turn_form_act(teach_before, "op(assert, precedes, [subject, object])").
+turn_form_reply(teach_before, learned_precedes).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

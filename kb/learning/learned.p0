@@ -130,3 +130,5 @@ falcon(peregrine).
 deciduous(oak).
 deciduous(beech).
 deciduous(maple).
+transitive_relation(precedes).
+inverse_relation(precedes, follows).
