@@ -1241,6 +1241,47 @@ move_cue("di' che non lo sai", decline_steps).
 response_template(learned_plan_move, "Held: in that situation, move {order} is «{move}».").
 response_template(learned_plan_move, it, "Tengo: in quella situazione, la mossa {order} è «{move}».").
 
+% ══ gen507/38 — INSEGNARE I PASSI DI UNA PROCEDURA ════════════════════════
+%
+% Fino a qui parrot0 sapeva DICHIARARE di non avere i passi (giro /33) e
+% ricavare qualcosa d'altro (/34, /37), ma i passi non si potevano dargli: la
+% catena finiva in una lacuna nominata che nessuna frase poteva colmare. Con
+% questa forma il cerchio si chiude — il muro dice che cosa manca, e quel che
+% manca si insegna parlando.
+%
+%     > to make a raft you cut logs
+%       Held: for raft, 1 is «cut logs».
+%     > to make a raft you tie the logs together
+%       Held: for raft, 2 is «tie the logs together».
+%     > how do i make a raft?
+%       1. Cut logs  2. Tie the logs together
+%
+% L'ordine non si dice: e' quello in cui i passi vengono insegnati, come quando
+% si spiega qualcosa a voce. Chiedere a chi insegna di numerare sarebbe
+% chiedergli di conoscere lo stato interno.
+response_template(learned_ordered_item, "Held: for {subject}, {order} is «{object}».").
+response_template(learned_ordered_item, it, "Tengo: per {subject}, {order} è «{object}».").
+
+% ⚠ «to make X you …» NON si usa: quella superficie e' gia' del sintetizzatore
+% di artefatti, che la legge come una RICHIESTA di produrre («I understood the
+% request — produce «raft you cut logs»»). Non le si ruba il turno: si sceglie
+% un'apertura che dichiara di essere una LEZIONE, non una domanda.
+turn_form(teach_step, 1, text("step for")).
+turn_form(teach_step, 2, slot(key)).
+turn_form(teach_step, 3, text("is")).
+turn_form(teach_step, 4, rest(text)).
+turn_form(teach_step, 5, bind(relation, process_step)).
+turn_form_mood(teach_step, statement).
+turn_form_act(teach_step, assert_ordered).
+
+turn_form(teach_step2, 1, text("passo per")).
+turn_form(teach_step2, 2, slot(key)).
+turn_form(teach_step2, 3, text("is")).
+turn_form(teach_step2, 4, rest(text)).
+turn_form(teach_step2, 5, bind(relation, process_step)).
+turn_form_mood(teach_step2, statement).
+turn_form_act(teach_step2, assert_ordered).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

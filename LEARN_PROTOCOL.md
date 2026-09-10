@@ -396,6 +396,7 @@ classe intera invece di un membro.*
 | si dice | parrot0 ne ricava |
 |---|---|
 | `quando <situazione> allora <mossa>` | un PIANO: `plan_move(Situazione, Ordine, Mossa)`. L'ordine è quello in cui le mosse vengono insegnate (gen507/36) |
+| `step for X is <cosa fare>` | un PASSO della procedura per X, in coda ai precedenti (gen507/38). ⚠ non `to make X you …`: quella superficie è del sintetizzatore di artefatti |
 | `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
 
 ### Trappole misurate

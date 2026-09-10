@@ -13066,6 +13066,55 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "assert_ordered")) {
+            /* gen507/38 — INSEGNARE UNA COSA CHE HA UN ORDINE.
+             *
+             * Un piano e una procedura sono la stessa figura: una chiave, e
+             * dietro una lista di cose in ordine. L'atto e' uno solo e la
+             * relazione la dice la forma (`bind(relation, …)`), cosi' la stessa
+             * lezione serve i passi di una ricetta, le mosse di un piano, e
+             * qualunque lista ordinata che qualcuno dichiarera' domani.
+             *
+             * L'ordine non si dice: e' quello in cui le cose vengono insegnate.
+             * E' come si spiega qualcosa a voce — «prima questo, poi questo» —
+             * e chiedere a chi insegna di numerare sarebbe chiedergli di
+             * conoscere lo stato interno. */
+            const char *key = p0_form_slot(slots, ns, "key");
+            const char *txt = p0_form_slot(slots, ns, "text");
+            if (!rel || !key || !txt) continue;
+            long next = 1;
+            for (long o = 1; o <= 64; o++) {
+                char ob2[24]; snprintf(ob2, sizeof ob2, "%ld", o);
+                char tmp3[1][KB_TERM_LEN];
+                const char *pq3[3] = { key, ob2, NULL };
+                if (kb_match(b->kb, rel, pq3, 3, tmp3, 1) > 0) next = o + 1;
+            }
+            char ob3[24]; snprintf(ob3, sizeof ob3, "%ld", next);
+            char qtxt[KB_TERM_LEN];
+            { char tmp4[KB_TERM_LEN]; snprintf(tmp4, sizeof tmp4, "%s", txt);
+              for (char *c = tmp4; *c; c++) if (*c == '_') *c = ' ';
+              snprintf(qtxt, sizeof qtxt, "\"%s\"", tmp4); }
+            const char *pa[3] = { key, ob3, qtxt };
+            int prev2 = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            ok = kb_assert(b->kb, rel, pa, 3);
+            kb_set_origin(b->kb, prev2);
+            if (ok) {
+                char shown[KB_TERM_LEN];
+                { char tmp5[KB_TERM_LEN]; snprintf(tmp5, sizeof tmp5, "%s", txt);
+                  for (char *c = tmp5; *c; c++) if (*c == '_') *c = ' ';
+                  snprintf(shown, sizeof shown, "%s", tmp5); }
+                char msg3[320];
+                const KbResponseSlot ls[] = { { "subject", key },
+                                              { "order", ob3 },
+                                              { "object", shown } };
+                if (kb_response_slots(b, "learned_ordered_item", ls, 3,
+                                      msg3, sizeof msg3)) {
+                    put(msg3, out, out_size);
+                    free(forms);
+                    return 1;
+                }
+            }
         } else if (!strcmp(act, "assert_plan_move")) {
             /* gen507/36 — INSEGNARE UN PIANO PARLANDO.
              * «quando non hai i passi, allora guarda di che cosa e' fatta»
