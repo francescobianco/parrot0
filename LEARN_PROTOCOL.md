@@ -364,10 +364,26 @@ classe intera invece di un membro.*
 > ricava. Dove c'è ⚠, è una trappola misurata: la forma esiste ma qualcosa la
 > intercetta, e chi insegna deve saperlo.
 >
-> **Come si aggiunge una riga.** Si trova un muro, si chiude con una *forma*
-> (`turn_form/3` + `turn_form_act/2`, o una `learnable/3`, o una regola in
-> `.p0`), si verifica sul prompt che l'ha scoperta, e si aggiorna questa lista.
-> Non si aggiunge una riga per un fatto: un fatto non è una forma.
+> **Come si aggiunge una riga.** Si trova un muro, si chiude con una *forma*, si
+> verifica sul prompt che l'ha scoperta, e si aggiorna questa lista. Non si
+> aggiunge una riga per un fatto: un fatto non è una forma.
+>
+> **E dal gen507/62 una forma non costa C.** L'atto è un *termine*, non
+> un'etichetta che il motore smista:
+>
+> ```prolog
+> turn_form(forget_fact, 1, text("forget that")).
+> turn_form(forget_fact, 2, slot(subject)).
+> turn_form(forget_fact, 3, relation(relation)).
+> turn_form(forget_fact, 4, rest(object)).
+> turn_form_act(forget_fact, "op(retract, relation, [subject, object])").
+> turn_form_reply(forget_fact, forgot_fact).
+> ```
+>
+> **Operazioni:** `assert` · `assert_neg` · `retract` · `retract_all` · `match` ·
+> `count`. **Argomenti:** il nome di uno slot · `free` (il posto della risposta)
+> · `next` (il prossimo indice libero, per tutto ciò che è ordinato).
+> Nel template si possono usare gli slot della forma più `{result}` e `{count}`.
 
 ### A. Classi e appartenenza
 
@@ -440,6 +456,7 @@ classe intera invece di un membro.*
 | `what situations do you know?` | le situazioni per cui ha un piano (gen507/61, forma #92) |
 | `step for X is <cosa fare>` | un PASSO della procedura per X, in coda ai precedenti (gen507/38). ⚠ non `to make X you …`: quella superficie è del sintetizzatore di artefatti |
 | `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
+| `forget that X V Y` | ritratta un **fatto binario** (gen507/62, forma #66) — ed è la prima forma costata **zero righe di C** |
 
 ### F. Procedure eseguibili
 
@@ -695,7 +712,7 @@ non è una domanda che qualcuno fa.*
 | 63 | enumerare tutti i fatti | `list everything you know about V` | 🔴 |
 | 64 | contare | `how many things does X V?` | 🔴 |
 | 65 | correggere il secondo termine | `X V Z, not Y` | 🔴 |
-| 66 | ritrattare un fatto | `forget that X V Y` — esiste per le classi, non per le relazioni | 🔴 |
+| 66 | ritrattare un fatto | `forget that X V Y` — esiste per le classi, non per le relazioni | ✅ gen507/62 |
 | 67 | confrontare | `does X V more things than Z?` | 🔴 |
 | 68 | ordinare | `order the Y by V` | 🔴 |
 | 69 | spiegare | `why does X V Y?` — deve dire **quale regola o catena** l'ha prodotto | 🔴 |

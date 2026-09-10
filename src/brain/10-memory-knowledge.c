@@ -13452,6 +13452,167 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", acts[0]);
         const char *act = kb_dequote(ab);
 
+        /* ══ gen507/62 — L'ATTO E' UN TERMINE, NON UN'ETICHETTA ═══════════
+         *
+         * F., 2026-09-10: «stai mascherando ogni abilita' dentro un case C
+         * mascherato». Aveva ragione: i quattordici rami qui sotto fanno tutti
+         * le stesse tre cose — leggere valori che il matcher ha gia' estratto,
+         * chiamare UNA funzione della KB con quei valori in un certo ordine,
+         * rendere una frase — e ognuno era un'abilita' in piu' chiusa nel C.
+         *
+         *     turn_form_act(Forma, op(Operazione, Predicato, [Argomenti])).
+         *
+         * Qui il motore non sa che cosa sia «asserire una relazione» o
+         * «ritrattare una procedura». Sa applicare SEI OPERAZIONI della KB —
+         * assert, assert_neg, retract, retract_all, match, count — a una lista
+         * di argomenti che qualcun altro ha nominato. Il predicato e' uno slot
+         * (o un nome letterale); un argomento e' uno slot, oppure `free` (il
+         * posto da riempire con la risposta) oppure `next` (il prossimo indice
+         * libero, che serve a tutto cio' che e' ordinato).
+         *
+         * Il test che questo passa e il `case` non passava: una forma nuova
+         * costa UNA RIGA DI .p0 e zero C. I rami storici restano e diventano
+         * ridondanti — non si cancella, si smette di aggiungere. */
+        if (!strncmp(act, "op(", 3)) {
+            char body[KB_TERM_LEN];
+            snprintf(body, sizeof body, "%s", act + 3);
+            { size_t bl = strlen(body); while (bl && (body[bl-1] == ')' || body[bl-1] == ' ')) body[--bl] = '\0'; }
+            char opname[KB_TERM_LEN] = "", predname[KB_TERM_LEN] = "";
+            const char *c1 = strchr(body, ',');
+            if (!c1) continue;
+            { size_t l = (size_t)(c1 - body); if (l >= sizeof opname) continue;
+              memcpy(opname, body, l); opname[l] = '\0'; }
+            const char *p2 = c1 + 1; while (*p2 == ' ') p2++;
+            const char *c2 = strchr(p2, ',');
+            if (!c2) continue;
+            { size_t l = (size_t)(c2 - p2); if (l >= sizeof predname) continue;
+              memcpy(predname, p2, l); predname[l] = '\0';
+              size_t pl = strlen(predname);
+              while (pl && predname[pl-1] == ' ') predname[--pl] = '\0'; }
+            const char *lb = strchr(c2, '[');
+            if (!lb) continue;
+            char arglist[KB_TERM_LEN];
+            snprintf(arglist, sizeof arglist, "%s", lb + 1);
+            { char *rb = strchr(arglist, ']'); if (rb) *rb = '\0'; }
+
+            /* il predicato: uno slot se ne esiste uno con quel nome, altrimenti
+             * il nome stesso — cosi' una forma puo' dichiararlo o portarlo */
+            const char *pred = p0_form_slot(slots, ns, predname);
+            if (!pred) pred = predname;
+            if (!*pred) continue;
+
+            const char *argv2[KB_MAX_ARGS]; size_t argc2 = 0;
+            char built[KB_MAX_ARGS][KB_TERM_LEN];
+            int free_at = -1;
+            char *ap = arglist;
+            while (*ap && argc2 < KB_MAX_ARGS) {
+                while (*ap == ' ' || *ap == ',') ap++;
+                char nm[KB_TERM_LEN]; size_t nl = 0;
+                while (*ap && *ap != ',' && nl + 1 < sizeof nm) nm[nl++] = *ap++;
+                while (nl && nm[nl-1] == ' ') nl--;
+                nm[nl] = '\0';
+                if (!nl) break;
+                if (!strcmp(nm, "free")) {
+                    if (free_at < 0) free_at = (int)argc2;
+                    argv2[argc2++] = NULL;
+                } else if (!strcmp(nm, "next")) {
+                    /* il prossimo indice libero, sondando con gli argomenti
+                     * gia' costruiti piu' un posto libero in coda */
+                    long nx = 1;
+                    for (long o = 1; o <= 64; o++) {
+                        char ob[24]; snprintf(ob, sizeof ob, "%ld", o);
+                        const char *probe[KB_MAX_ARGS];
+                        for (size_t k = 0; k < argc2; k++) probe[k] = argv2[k];
+                        probe[argc2] = ob; probe[argc2 + 1] = NULL;
+                        char row[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, pred, probe, argc2 + 2, row, 1) > 0) nx = o + 1;
+                    }
+                    snprintf(built[argc2], KB_TERM_LEN, "%ld", nx);
+                    argv2[argc2] = built[argc2]; argc2++;
+                } else {
+                    const char *v = p0_form_slot(slots, ns, nm);
+                    if (!v) v = nm;
+                    snprintf(built[argc2], KB_TERM_LEN, "%s", v);
+                    /* un valore che porta spazi si conserva citato: e' testo */
+                    if (strchr(built[argc2], '_')) {
+                        char tmp[KB_TERM_LEN];
+                        snprintf(tmp, sizeof tmp, "%s", built[argc2]);
+                        for (char *c = tmp; *c; c++) if (*c == '_') *c = ' ';
+                        snprintf(built[argc2], KB_TERM_LEN, "\"%s\"", tmp);
+                    }
+                    argv2[argc2] = built[argc2]; argc2++;
+                }
+            }
+            if (argc2 == 0) continue;
+
+            char result[500]; result[0] = '\0'; size_t nres = 0;
+            int done2 = 0;
+            if (!strcmp(opname, "assert"))       done2 = kb_assert(b->kb, pred, argv2, argc2);
+            else if (!strcmp(opname, "assert_neg")) done2 = kb_assert_neg(b->kb, pred, argv2, argc2);
+            else if (!strcmp(opname, "retract"))    done2 = kb_retract(b->kb, pred, argv2, argc2);
+            else if (!strcmp(opname, "retract_all")) {
+                char rows[64][KB_TERM_LEN];
+                size_t nr = kb_match(b->kb, pred, argv2, argc2, rows, 64);
+                for (size_t k = 0; k < nr; k++) {
+                    const char *ra[KB_MAX_ARGS];
+                    for (size_t y = 0; y < argc2; y++) ra[y] = argv2[y];
+                    if (free_at >= 0) ra[free_at] = rows[k];
+                    if (kb_retract(b->kb, pred, ra, argc2)) { done2 = 1; nres++; }
+                }
+            } else if (!strcmp(opname, "match") || !strcmp(opname, "count")) {
+                char rows[64][KB_TERM_LEN];
+                size_t nr = kb_match(b->kb, pred, argv2, argc2, rows, 64);
+                size_t off2 = 0;
+                for (size_t k = 0; k < nr; k++) {
+                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rows[k]);
+                    char shown2[KB_TERM_LEN];
+                    present_atom(b, kb_dequote(rb2), shown2, sizeof shown2);
+                    if (!shown2[0]) continue;
+                    int dup2 = 0;
+                    for (size_t y = 0; y < k && !dup2; y++)
+                        if (!strcmp(rows[y], rows[k])) dup2 = 1;
+                    if (dup2) continue;
+                    if (off2 + 1 < sizeof result)
+                        off2 += (size_t)snprintf(result + off2, sizeof result - off2,
+                                                 "%s%s", nres ? ", " : "", shown2);
+                    nres++;
+                }
+                done2 = nres > 0;
+            }
+            if (!done2) continue;
+
+            char cnt2[24]; snprintf(cnt2, sizeof cnt2, "%zu", nres);
+            char msg2[600];
+            char tplname[KB_TERM_LEN] = "";
+            { char tr[4][KB_TERM_LEN];
+              const char *tq[2] = { forms[f], NULL };
+              if (kb_match(b->kb, "turn_form_reply", tq, 2, tr, 4) == 1) {
+                  char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tr[0]);
+                  snprintf(tplname, sizeof tplname, "%s", kb_dequote(tb));
+              } }
+            if (tplname[0]) {
+                KbResponseSlot fill[P0_FORM_SLOTS + 3];
+                size_t nf2 = 0;
+                for (size_t k = 0; k < ns && nf2 < P0_FORM_SLOTS; k++) {
+                    fill[nf2].name = slots[k].name;
+                    fill[nf2].value = slots[k].value;
+                    nf2++;
+                }
+                fill[nf2].name = "result"; fill[nf2].value = result; nf2++;
+                fill[nf2].name = "count";  fill[nf2].value = cnt2;   nf2++;
+                if (kb_response_slots(b, tplname, fill, nf2, msg2, sizeof msg2)) {
+                    put(msg2, out, out_size);
+                    free(forms);
+                    return 1;
+                }
+            }
+            if (nres) { char m3[520]; snprintf(m3, sizeof m3, "%s.", result);
+                        put(m3, out, out_size); }
+            else put("Held.", out, out_size);
+            free(forms);
+            return 1;
+        }
+
         const char *sub = p0_form_slot(slots, ns, "subject");
         const char *rel = p0_form_slot(slots, ns, "relation");
         const char *obj = p0_form_slot(slots, ns, "object");

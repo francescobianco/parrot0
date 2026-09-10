@@ -1666,6 +1666,28 @@ turn_form(list_situations, 2, bind(relation, plan_move)).
 turn_form_act(list_situations, list_keys).
 turn_form_reply(list_situations, known_situations).
 
+% ══ gen507/62 (forma #66) — LA PRIMA FORMA A COSTO ZERO DI C ══════════════
+%
+% Da qui un'abilita' nuova e' UNA RIGA. L'atto non e' piu' un'etichetta che il C
+% smista in un `case`: e' un TERMINE — un'operazione della KB applicata a una
+% lista di argomenti che la forma nomina.
+%
+%     turn_form_act(Forma, op(Operazione, Predicato, [Argomenti])).
+%
+% Operazioni: assert · assert_neg · retract · retract_all · match · count.
+% Argomenti: il nome di uno slot, oppure `free` (il posto della risposta),
+% oppure `next` (il prossimo indice libero, per tutto cio' che e' ordinato).
+response_template(forgot_fact, "Forgotten: {subject} {relation} {object}.").
+response_template(forgot_fact, it, "Dimenticato: {subject} {relation} {object}.").
+
+turn_form(forget_fact, 1, text("forget that")).
+turn_form(forget_fact, 2, slot(subject)).
+turn_form(forget_fact, 3, relation(relation)).
+turn_form(forget_fact, 4, rest(object)).
+turn_form_mood(forget_fact, statement).
+turn_form_act(forget_fact, "op(retract, relation, [subject, object])").
+turn_form_reply(forget_fact, forgot_fact).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
