@@ -497,6 +497,8 @@ lo chiede, con `holds(Relazione, X, Y)`.*
 | si dice | parrot0 ne ricava |
 |---|---|
 | `in <contesto> V stands for W` | dentro quel contesto la relazione locale `V` è un caso della generale `W`: chi insegna parla il vocabolario del proprio dominio e non deve tradurlo (gen507/80). ⚠ non `means`: è il pivot del maestro delle costruzioni |
+| `for a <classe> V counts as W` | il ponte **stretto di un grado**: vale solo quando il soggetto è di quella classe — «dirige» vale come «guida» per una persona, non per un fiume (gen507/81) |
+| `V behaves like W` | `V` eredita la **scheda** di `W` — transitiva, simmetrica, riflessiva, funzionale — senza che nessuno la ripeta: il predicato variabile applicato alle *proprietà* invece che ai fatti (gen507/81) |
 
 ```
 > in sport plays stands for belongs

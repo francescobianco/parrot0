@@ -2134,6 +2134,35 @@ turn_form_act(teach_ctx_alias, "op(assert, relation_verb, [object])").
 turn_form_act(teach_ctx_alias, "op(assert, context_alias, [order, subject, object])").
 turn_form_reply(teach_ctx_alias, learned_context_alias).
 
+% (superficie superiore #2) — la specializzazione con vincolo di classe.
+response_template(learned_scoped_alias, "Held: for a {order}, «{subject}» counts as «{object}».").
+response_template(learned_scoped_alias, it, "Tengo: per un {order}, «{subject}» vale come «{object}».").
+
+turn_form(teach_scoped, 1, text("for a")).
+turn_form(teach_scoped, 2, slot(order)).
+turn_form(teach_scoped, 3, slot(subject)).
+turn_form(teach_scoped, 4, text("counts as")).
+turn_form(teach_scoped, 5, rest(object)).
+turn_form_mood(teach_scoped, statement).
+turn_form_act(teach_scoped, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_scoped, "op(assert, relation_verb, [object])").
+turn_form_act(teach_scoped, "op(assert, class_scoped_alias, [order, subject, object])").
+turn_form_reply(teach_scoped, learned_scoped_alias).
+
+% (superficie superiore #3) — una relazione si comporta come un'altra: eredita
+% la sua SCHEDA (transitiva, simmetrica, riflessiva, funzionale) senza che
+% nessuno la ripeta. Il predicato variabile applicato alle proprieta'.
+response_template(learned_relation_like, "Held: «{subject}» behaves like «{object}» -- it takes its properties.").
+response_template(learned_relation_like, it, "Tengo: «{subject}» si comporta come «{object}» — ne prende le proprietà.").
+
+turn_form(teach_like, 1, slot(subject)).
+turn_form(teach_like, 2, text("behaves like")).
+turn_form(teach_like, 3, rest(object)).
+turn_form_mood(teach_like, statement).
+turn_form_act(teach_like, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_like, "op(assert, relation_like, [subject, object])").
+turn_form_reply(teach_like, learned_relation_like).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

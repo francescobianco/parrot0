@@ -1684,3 +1684,24 @@ holds($Rel, $X, $Y) :- apply($Rel, cons($X, cons($Y, nil))).
 holds($General, $X, $Y) :-
     context_alias($Context, $Local, $General),
     apply($Local, cons($X, cons($Y, nil))).
+
+% (c) LA SPECIALIZZAZIONE CON VINCOLO DI CLASSE. `class_scoped_alias(Classe,
+%     Locale, Generale)` dice che la locale vale come la generale SOLO quando il
+%     soggetto e' di quella classe. E' il ponte del contesto stretto di un
+%     grado: «dirige» vale come «guida» per una persona, non per un fiume.
+machinery(class_scoped_alias).
+holds($General, $X, $Y) :-
+    class_scoped_alias($Class, $Local, $General),
+    apply($Local, cons($X, cons($Y, nil))),
+    apply($Class, cons($X, nil)).
+
+% (d) LE PROPRIETA' SI EREDITANO FRA RELAZIONI. `relation_like(V, W)` dice che V
+%     si comporta come W: quello che e' stato dichiarato di W vale per V senza
+%     ripeterlo. E' il predicato variabile applicato alle PROPRIETA' invece che
+%     ai fatti — si insegna una volta la scheda di una relazione, e ogni
+%     relazione che le somiglia la eredita.
+machinery(relation_like).
+transitive_relation($V) :- relation_like($V, $W), transitive_relation($W).
+symmetric_relation($V)  :- relation_like($V, $W), symmetric_relation($W).
+reflexive_relation($V)  :- relation_like($V, $W), reflexive_relation($W).
+functional_relation($V) :- relation_like($V, $W), functional_relation($W).
