@@ -1772,6 +1772,48 @@ turn_form_mood(drop_step, statement).
 turn_form_act(drop_step, "op(retract_all, proc_step, [key, order, free])").
 turn_form_reply(drop_step, step_removed).
 
+% ══ gen507/69 (forma #13) — INSEGNARE UNA MISURA SU UNA SCALA ═════════════
+%
+% `magnitude(Dimensione, Cosa, Numero)` e' la scala su cui parrot0 confronta e
+% ordina: e' quella che risponde ai superlativi e ai «quale dei due». Era
+% scrivibile solo in un file, quindi una cosa nuova non entrava mai nelle
+% classifiche — e le classifiche sono il posto dove la conoscenza si mette in
+% relazione con se' stessa invece di stare ferma.
+%
+%     > krubera has depth 2197
+%     > the deepest cave is krubera    (e da qui i confronti funzionano)
+response_template(learned_magnitude, "Held: {subject} scores {object} on {order}.").
+response_template(learned_magnitude, it, "Tengo: {subject} vale {object} su {order}.").
+
+turn_form(teach_magnitude, 1, slot(subject)).
+turn_form(teach_magnitude, 2, text("has")).
+turn_form(teach_magnitude, 3, slot(order)).
+turn_form(teach_magnitude, 4, rest(object)).
+turn_form_mood(teach_magnitude, statement).
+turn_form_act(teach_magnitude, "op(assert, magnitude, [order, subject, object])").
+turn_form_reply(teach_magnitude, learned_magnitude).
+
+% E la PAROLA del confronto: `compare_cue(Parola, Dimensione, Verso)` mappa
+% «piu' profondo» sulla scala e sul verso in cui si legge. Insegnare una misura
+% senza poter insegnare la parola che la interroga sarebbe conoscenza muta: la
+% scala esisterebbe e nessuna domanda ci arriverebbe.
+response_template(learned_compare_cue, "Held: «{subject}» ranks by {order}.").
+response_template(learned_compare_cue, it, "Tengo: «{subject}» ordina per {order}.").
+
+turn_form(teach_cmp_max, 1, slot(subject)).
+turn_form(teach_cmp_max, 2, text("is the most")).
+turn_form(teach_cmp_max, 3, rest(order)).
+turn_form_mood(teach_cmp_max, statement).
+turn_form_act(teach_cmp_max, "op(assert, compare_cue, [subject, order, max])").
+turn_form_reply(teach_cmp_max, learned_compare_cue).
+
+turn_form(teach_cmp_min, 1, slot(subject)).
+turn_form(teach_cmp_min, 2, text("is the least")).
+turn_form(teach_cmp_min, 3, rest(order)).
+turn_form_mood(teach_cmp_min, statement).
+turn_form_act(teach_cmp_min, "op(assert, compare_cue, [subject, order, min])").
+turn_form_reply(teach_cmp_min, learned_compare_cue).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

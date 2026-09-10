@@ -433,6 +433,8 @@ classe intera invece di un membro.*
 |---|---|
 | `X è rosso` | l'attributo, sotto la relazione che il GENERE del valore dichiara |
 | `correction: X è Y` · `actually X is Y` | SOSTITUISCE invece di aggiungere (gen507/16-17) |
+| `X has <dimensione> N` | una **misura su una scala** (`magnitude/3`): da lì X entra nei confronti e nelle classifiche (gen507/69, forma #13) |
+| `<parola> is the most <dimensione>` · `is the least <dimensione>` | la **parola del confronto** (`compare_cue/3`): senza, la scala esiste e nessuna domanda ci arriva (gen507/69) |
 | `X pesa N` · `X costa N` · `X è stato costruito nel N` | forme dichiarate: peso, prezzo, anno (gen507/20-22) |
 | `X viene da Y` · `X serve a Y` · `X può Y` · `X somiglia a Y` | origine, scopo, abilità, somiglianza (gen507/21-25) |
 
@@ -607,7 +609,7 @@ altre cose che sa fare e non sa **quando**.
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 13 | `X is N <unità> long` | misura con unità, non un numero nudo | 🔴 |
+| 13 | `X is N <unità> long` — reso `X has <dimensione> N` | misura su una scala | ✅ gen507/69 · resta l'unità di misura |
 | 14 | `N <unità> is M <unità>` | conversione: apre i confronti fra misure dette in unità diverse | 🔴 |
 | 15 | `X is N times bigger than Y` | rapporto, non solo ordine | 🔴 |
 | 16 | `X is between A and B` | intervallo | 🔴 |

@@ -2488,6 +2488,7 @@ world_superlative(smallest, ocean, "The Arctic is the smallest ocean").
 world_superlative(largest, sea, "The Philippine Sea is the largest sea").
 world_superlative(largest, lake, "The Caspian Sea is the largest lake by area").
 world_superlative(deepest, lake, "Lake Baikal is the deepest lake, about 1,642 metres").
+world_superlative(deepest, cave, "veryovkina").
 world_superlative(largest, waterfall, "Victoria Falls is the largest curtain of falling water").
 world_superlative(tallest, waterfall, "Angel Falls is the tallest waterfall, about 979 metres").
 world_superlative(shortest, river, "The Roe River in Montana is among the shortest named rivers").

@@ -85,6 +85,8 @@ compare_cue(slower, speed, min).
 compare_cue(smaller, size, min).
 compare_cue(wins, games_won, max).
 compare_cue(won, games_won, max).
+compare_cue(shallower, depth, min).
+compare_cue(deeper, depth, max).
 concise_explain(sky_blue, 3, "air scatters blue").
 concise_topic(sky_blue, blue).
 concise_topic(sky_blue, day).

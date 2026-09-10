@@ -55,6 +55,7 @@ utterance(5, user, "petrichor rises when rain falls on dry ground").
 utterance(5, user, "hysteresis is defined as the dependence of a system on its own history").
 utterance(5, user, "sonder is defined as the realisation that every stranger has a life as vivid as your own").
 utterance(5, user, "forget that smith owner zelnik").
+utterance(5, user, "veryovkina has depth 2212").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -89,6 +90,7 @@ utterance(6, self, "Hmm, I don't know about petrichor yet. Want me to learn abou
 utterance(6, self, "Held: hysteresis — dependence_of_a_system_on_its_own_history.").
 utterance(6, self, "Held: sonder — realisation. Scartato: has_part(sonder_every_stranger, life_as_vivid_as_your_own) non e' fatto di concetti.").
 utterance(6, self, "Forgotten: smith owner zelnik.").
+utterance(6, self, "Held: veryovkina scores 2212 on depth.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -535,6 +537,7 @@ utterance(7, user, "petrichor is defined as the earthy smell that rises when rai
 utterance(7, user, "apophenia is defined as the tendency to see connections between unrelated things").
 utterance(7, user, "saudade is defined as a longing for something absent").
 utterance(7, user, "does smith owner zelnik?").
+utterance(7, user, "krubera has depth 2197").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -634,6 +637,19 @@ utterance(19, user, "apply quiet to BANANA").
 utterance(20, self, "Every small sound in the house became enormous.").
 utterance(21, user, "apply squash to baaaad").
 utterance(22, self, "squash(«bad») — that is what the steps give.").
+utterance(8, self, "Held: krubera scores 2197 on depth.").
+utterance(9, user, "sarma has depth 1830").
+utterance(10, self, "Held: sarma scores 1830 on depth.").
+utterance(11, user, "snezhnaya has depth 1760").
+utterance(12, self, "Held: snezhnaya scores 1760 on depth.").
+utterance(13, user, "lamprechtsofen has depth 1735").
+utterance(14, self, "Held: lamprechtsofen scores 1735 on depth.").
+utterance(15, user, "the deepest cave is veryovkina").
+utterance(16, self, "Held: among cave, the deepest is «veryovkina».").
+utterance(17, user, "which is deeper, krubera or sarma?").
+utterance(18, self, "Krubera.").
+utterance(19, user, "which cave is the deepest?").
+utterance(20, self, "veryovkina.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -915,6 +931,7 @@ utterance(2, self, "It was a mysterious it. Then one day, it discovered what it 
 utterance(2, self, "Held: kintsugi — japanese_art_of_mending_pottery_with_gold.").
 utterance(2, self, "Held: sonder — realisation.").
 utterance(2, self, "Learned: owner is a relation verb.").
+utterance(2, self, "Held: «deeper» ranks by depth.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -948,6 +965,7 @@ utterance(1, user, "kintsugi is defined as the japanese art of mending broken po
 utterance(1, user, "kintsugi is defined as the japanese art of mending pottery with gold").
 utterance(1, user, "sonder is defined as the realisation").
 utterance(1, user, "owner is a relation verb").
+utterance(1, user, "deeper is the most depth").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -975,6 +993,7 @@ utterance(4, self, "Held: petrichor — earthy_smell.").
 utterance(4, self, "Held: petrichor — earthy_smell_of_rain_on_dry_ground.").
 utterance(4, self, "Scartato: has_part(sonder_every_stranger, life_as_vivid_as_your_own) non e' fatto di concetti.").
 utterance(4, self, "Learned: smith owner zelnik.").
+utterance(4, self, "Held: «shallower» ranks by depth.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1003,6 +1022,7 @@ utterance(3, user, "petrichor is defined as the earthy smell").
 utterance(3, user, "petrichor is defined as the earthy smell of rain on dry ground").
 utterance(3, user, "sonder every stranger has a life as vivid as your own").
 utterance(3, user, "smith owner zelnik").
+utterance(3, user, "shallower is the least depth").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
