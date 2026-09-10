@@ -772,6 +772,8 @@ unsatisfying_outcome(recognized_register, surface).
 machinery(register_hint).
 machinery(register_hint_min).
 machinery(gap_register).
+machinery(turn_plan_step).
+machinery(plan_step_text).
 register_hint_min(2).
 
 % Logica: implicazione, quantificazione, modalita', contraddizione.

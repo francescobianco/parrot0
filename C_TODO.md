@@ -1,5 +1,25 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-10 — l'identita' di una sonda e' il suo PREDICATO, non il suo numero
+
+`/debug` (src/main.c) enumera le sonde per NUMERO D'ORDINE e risale da li' al
+predicato: il numero fa da chiave. Due sonde con lo stesso numero e una delle due
+sparisce, **senza dirlo**. Al gen507/35 erano doppi 11, 12, 13, 15 e 16 — quindi
+**cinque sonde dichiarate da qualcuno non comparivano mai**, fra cui tutte e tre
+quelle della cessione del turno. Uno strumento di diagnosi che tace una riga che
+c'e' mente al supervisore, ed e' peggio di uno che non ce l'ha
+([[debug-tools-must-grow]]).
+
+Rinumerate in `kb/core/debug.p0`, ma la cura vera e' nel renderer: l'identita' di
+una sonda e' il **predicato** — e' quello che interroga — e il numero serve solo
+a ORDINARE, dove due sonde possono legittimamente stare allo stesso posto.
+
+**Attenzione al primo tentativo, che ho sbagliato:** enumerare i predicati e poi
+risalire con `kb_match(kb, "debug_probe", {NULL, pred, NULL, NULL}, 4, …)` NON
+funziona — `kb_match` restituisce il primo argomento LIBERO, che li' e' il
+numero, non la chiave. Serve o una lettura riga-per-riga, o un ordinamento a
+valle su una lista di quadruple raccolte in un colpo.
+
 ## 2026-09-10 — ⛔ LA SPECIE CHE SI NASCONDE MEGLIO: LE SEQUENZE DI TENTATIVI
 
 > **«Hai dovuto invertire l'ordine. Se quell'ordine era in KB, tu avresti potuto

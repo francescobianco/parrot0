@@ -66,6 +66,19 @@ debug_probe(40, pending_gap, any, "parole opache in attesa").
 debug_probe(41, open_issue, any, "il TABELLONE (issues.p0): le questioni aperte, per genere").
 debug_probe(42, max_qud, any, "la questione MASSIMA: quella su cui il turno si legge per primo").
 debug_probe(50, gap_register, turn, "registro riconosciuto").
+% gen507/35 — F., 2026-09-10: «meglio un PIANO INTERNO o un reasoning; per
+% adesso non scomodiamo il thinking multi-inferenza». Un piano interno che non
+% si puo' interrogare non e' un ragionamento: e' un ripiego travestito. Qui i
+% passi che parrot0 ha fatto DENTRO un turno diventano visibili, in ordine.
+% ⚠ gen507/35 — IL NUMERO D'ORDINE E' USATO COME CHIAVE DAL RENDERER.
+% `/debug` enumera le sonde per NUMERO e risale da li' al predicato: due sonde
+% con lo stesso numero e una delle due sparisce, senza dirlo. Erano doppi 11, 12,
+% 13 e 15 — quindi QUATTRO sonde dichiarate da qualcuno non comparivano mai, fra
+% cui le tre della cessione del turno. Uno strumento di diagnosi che tace una
+% riga che c'e' mente al supervisore, ed e' peggio di uno che non ce l'ha.
+% Rinumerate qui; il difetto vero — l'identita' di una sonda e' il suo
+% PREDICATO, il numero serve solo a ordinare — e' scritto in C_TODO.md.
+debug_probe(21, turn_plan_step, now, "il PIANO INTERNO: i passi fatti dentro questo turno, in ordine").
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").
 
@@ -115,6 +128,6 @@ debug_pred_arity_max(4).
 % essere visto. Le tre sonde qui sotto lo mostrano da sole, e la prima e' quella
 % che l'avrebbe chiuso in un secondo: se `source` non e' lungo quanto il turno,
 % la decomposizione ha perso la lettura globale.
-debug_probe(11, turn_yield_view, now, "cessione: quanto e' lunga OGNI vista consultata").
-debug_probe(12, turn_yield_probe, now, "cessione: quale vista ha visto la classe").
-debug_probe(13, turn_yield_outcome, now, "cessione: chi ha ceduto il turno").
+debug_probe(17, turn_yield_view, now, "cessione: quanto e' lunga OGNI vista consultata").
+debug_probe(18, turn_yield_probe, now, "cessione: quale vista ha visto la classe").
+debug_probe(19, turn_yield_outcome, now, "cessione: chi ha ceduto il turno").

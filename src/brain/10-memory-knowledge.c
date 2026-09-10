@@ -12709,6 +12709,40 @@ static int p0_polar_attribute(Brain *b, const char *norm,
  * lettore; poi si risponde con la prova che quella lettura ha depositato. Non
  * c'e' ricorsione: il turno interno non porta piu' l'apertura. Quali parole
  * aprano una richiesta di ragione e' conoscenza (`why_cue/1`). */
+/* gen507/35 — UN PASSO DEL PIANO INTERNO, POSATO COME FATTO DEL TURNO.
+ *
+ * Il motore non sa che cosa significhi una mossa: ne posa il NOME e l'ordine.
+ * Che cosa voglia dire lo dice la KB (`plan_step_text/2`), e chi la legge —
+ * `/debug`, la richiesta di ragione — la rende senza sapere quale funzione
+ * l'abbia fatta. Una mossa nuova e' una riga di .p0 piu' una chiamata dove
+ * quella mossa avviene davvero. */
+static void p0_plan_step(Brain *b, long order, const char *move) {
+    if (!b || !b->kb || !move || !*move) return;
+    /* Il piano resta finche' non se ne fa un altro, non finche' non finisce il
+     * turno: chiedere «perche' hai risposto cosi'» e' un turno NUOVO, e un
+     * piano azzerato alla chiusura sarebbe gia' sparito quando lo si va a
+     * guardare. Lo cancella il primo passo del piano seguente. */
+    if (order == 1) kb_retract_pred(b->kb, "turn_plan_step");
+    /* Il NOME della mossa e' del motore; le parole della mossa sono della KB.
+     * Il passo si posa gia' detto, cosi' chi lo legge — `/debug`, un resoconto —
+     * non deve sapere che cosa significhi nessuna mossa. */
+    char said[KB_TERM_LEN];
+    {
+        char row[1][KB_TERM_LEN];
+        const char *tq[2] = { move, NULL };
+        if (kb_match(b->kb, "plan_step_text", tq, 2, row, 1) == 1) {
+            char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", row[0]);
+            snprintf(said, sizeof said, "%ld) %s", order, kb_dequote(rb));
+        } else snprintf(said, sizeof said, "%ld) %s", order, move);
+    }
+    char q[KB_TERM_LEN]; snprintf(q, sizeof q, "\"%s\"", said);
+    const char *a[2] = { "current_turn", q };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "turn_plan_step", a, 2);
+    kb_set_origin(b->kb, prev);
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size);
 
@@ -17463,6 +17497,27 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             free(rels);
             if (found) {
+                /* gen507/35 — UN PIANO INTERNO CHE NON SI PUO' INTERROGARE NON
+                 * E' UN RAGIONAMENTO.
+                 *
+                 * F., 2026-09-10: «meglio un piano interno o un reasoning; per
+                 * adesso non scomodiamo il thinking multi-inferenza». Giusto: il
+                 * giro /34 non pensa, fa DUE PASSI dichiarati — non ho i passi,
+                 * allora mi chiedo di che cosa e' fatta. Ma finche' restano
+                 * dentro una funzione sono un ripiego travestito da mossa.
+                 *
+                 * Qui i passi si posano come fatti del turno: `/debug` li mostra
+                 * in ordine, e `why?` li rende a parole. Le parole delle mosse
+                 * sono conoscenza (`plan_step_text/2`), non stampate dal C: una
+                 * mossa nuova si nomina in KB. */
+                p0_plan_step(b, 1, "steps_missing");
+                p0_plan_step(b, 2, "asked_composition");
+                p0_plan_step(b, 3, "derived_materials");
+                char why[420];
+                snprintf(why, sizeof why,
+                         "no process_step for %s, so composition_relation gave %s",
+                         topic, list);
+                store_proof(b, why);
                 const KbResponseSlot ps[] = { { "topic", topic }, { "list", list } };
                 if (kb_response_slots(b, "process_gap_but_parts", ps, 2,
                                       out, out_size))
