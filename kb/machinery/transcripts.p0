@@ -57,6 +57,7 @@ utterance(5, user, "sonder is defined as the realisation that every stranger has
 utterance(5, user, "forget that smith owner zelnik").
 utterance(5, user, "veryovkina has depth 2212").
 utterance(5, user, "reversible is the opposite of irreversible").
+utterance(5, user, "peregrine is a member of falcon").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -93,6 +94,7 @@ utterance(6, self, "Held: sonder — realisation. Scartato: has_part(sonder_ever
 utterance(6, self, "Forgotten: smith owner zelnik.").
 utterance(6, self, "Held: veryovkina scores 2212 on depth.").
 utterance(6, self, "Held: the opposite of reversible is irreversible.").
+utterance(6, self, "Held: peregrine is one of the falcon -- it inherits what they have.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -541,6 +543,7 @@ utterance(7, user, "saudade is defined as a longing for something absent").
 utterance(7, user, "does smith owner zelnik?").
 utterance(7, user, "krubera has depth 2197").
 utterance(7, user, "explicit is the opposite of implicit").
+utterance(7, user, "falcon are typically fast").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -658,6 +661,21 @@ utterance(9, user, "signal is the opposite of noise").
 utterance(10, self, "Held: the opposite of signal is noise.").
 utterance(11, user, "convergent is the opposite of divergent").
 utterance(12, self, "Held: the opposite of convergent is divergent.").
+utterance(8, self, "Held: every falcon is fast -- and so is each one I meet.").
+utterance(9, user, "falcon are typically predatory").
+utterance(10, self, "Held: every falcon is predatory -- and so is each one I meet.").
+utterance(11, user, "oak is a member of deciduous").
+utterance(12, self, "Held: oak is one of the deciduous -- it inherits what they have.").
+utterance(13, user, "beech is a member of deciduous").
+utterance(14, self, "Held: beech is one of the deciduous -- it inherits what they have.").
+utterance(15, user, "maple is a member of deciduous").
+utterance(16, self, "Held: maple is one of the deciduous -- it inherits what they have.").
+utterance(17, user, "deciduous are typically leafless in winter").
+utterance(18, self, "Held: every deciduous is leafless_in_winter -- and so is each one I meet.").
+utterance(19, user, "what does peregrine get from the kind?").
+utterance(20, self, "peregrine inherits: fast, predatory.").
+utterance(21, user, "what does oak get from the kind?").
+utterance(22, self, "oak inherits: leafless in winter, does photosynthesis, has roots, grows, reproduces.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -941,6 +959,7 @@ utterance(2, self, "Held: sonder — realisation.").
 utterance(2, self, "Learned: owner is a relation verb.").
 utterance(2, self, "Held: «deeper» ranks by depth.").
 utterance(2, self, "Held: the opposite of abundance is scarcity.").
+utterance(2, self, "Held: kestrel is one of the falcon -- it inherits what they have.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -976,6 +995,7 @@ utterance(1, user, "sonder is defined as the realisation").
 utterance(1, user, "owner is a relation verb").
 utterance(1, user, "deeper is the most depth").
 utterance(1, user, "abundance is the opposite of scarcity").
+utterance(1, user, "kestrel is a member of falcon").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1005,6 +1025,7 @@ utterance(4, self, "Scartato: has_part(sonder_every_stranger, life_as_vivid_as_y
 utterance(4, self, "Learned: smith owner zelnik.").
 utterance(4, self, "Held: «shallower» ranks by depth.").
 utterance(4, self, "Held: the opposite of centralised is distributed.").
+utterance(4, self, "Held: merlin is one of the falcon -- it inherits what they have.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1035,6 +1056,7 @@ utterance(3, user, "sonder every stranger has a life as vivid as your own").
 utterance(3, user, "smith owner zelnik").
 utterance(3, user, "shallower is the least depth").
 utterance(3, user, "centralised is the opposite of distributed").
+utterance(3, user, "merlin is a member of falcon").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

@@ -124,3 +124,9 @@ copper_carbonate_mineral(azurite).
 copper_carbonate_mineral(malachite).
 copper_mineral($X) :- copper_sulfide_mineral($X).
 copper_mineral($X) :- copper_carbonate_mineral($X).
+falcon(kestrel).
+falcon(merlin).
+falcon(peregrine).
+deciduous(oak).
+deciduous(beech).
+deciduous(maple).

@@ -13,4 +13,10 @@ category_surface(risk, risk_turn_phase).
 category_member(risk_turn_phase, reinforce).
 category_member(risk_turn_phase, attack).
 category_member(risk_turn_phase, fortify).
+category_member(deciduous, maple).
+category_member(deciduous, beech).
+category_member(deciduous, oak).
+category_member(falcon, peregrine).
+category_member(falcon, merlin).
+category_member(falcon, kestrel).
 risk_can_attack($From, $To) :- risk_adjacent($From, $To), controlled_by($From, $Player), controlled_by($To, $Enemy), dif($Player, $Enemy).

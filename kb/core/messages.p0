@@ -1872,6 +1872,59 @@ turn_form_mood(forget_plan, statement).
 turn_form_act(forget_plan, "op(retract_all, plan_move, [situation, free, free])").
 turn_form_reply(forget_plan, plan_forgotten).
 
+% gen507/73 (forma #78) — una proprieta' della SPECIE, che i membri ereditano.
+% `has_prop/2` alimenta `inherits/2` (procedures.p0), che risale anche le
+% sottoclassi: dirlo una volta della specie vale per ogni membro presente e
+% futuro, ed e' la differenza fra insegnare un fatto e insegnare una regola.
+response_template(learned_class_prop, "Held: every {subject} is {object} -- and so is each one I meet.").
+response_template(learned_class_prop, it, "Tengo: ogni {subject} è {object} — e così ciascuno che incontro.").
+
+turn_form(teach_class_prop, 1, slot(subject)).
+turn_form(teach_class_prop, 2, text("are typically")).
+turn_form(teach_class_prop, 3, rest(object)).
+turn_form_mood(teach_class_prop, statement).
+turn_form_act(teach_class_prop, "op(assert, has_prop, [subject, object])").
+turn_form_reply(teach_class_prop, learned_class_prop).
+
+% E il ponte che serviva perche' l'ereditarieta' arrivi: `category_member/2`.
+% «X e' un Y» pone il predicato unario `Y(X)`, che risponde alle domande di
+% classe ma NON entra in `is_a/2`, e quindi non fa scattare `inherits/2`. Le due
+% conoscenze sono diverse — una dice a che classe appartiene, l'altra la mette
+% nella tassonomia percorribile — e finora la seconda si scriveva solo in un
+% file.
+response_template(learned_membership, "Held: {object} is one of the {subject} -- it inherits what they have.").
+response_template(learned_membership, it, "Tengo: {object} è uno dei {subject} — eredita quello che hanno.").
+
+% Il nome della classe si dice al SINGOLARE, perche' e' la chiave con cui la
+% tassonomia e le proprieta' la nominano: «one of the falcons» avrebbe messo il
+% membro sotto `falcons` e la proprieta' sotto `falcon`, due mucchi diversi.
+turn_form(teach_member, 1, slot(object)).
+turn_form(teach_member, 2, text("is a member of")).
+turn_form(teach_member, 3, rest(subject)).
+turn_form_mood(teach_member, statement).
+% Due operazioni: il legame percorribile della tassonomia E il predicato unario
+% che risponde alle domande di classe. Sono due conoscenze diverse sullo stesso
+% fatto, e a voce si dicono in una frase sola.
+turn_form_act(teach_member, "op(assert, category_member, [subject, object])").
+turn_form_act(teach_member, "op(assert, subject, [object])").
+turn_form_reply(teach_member, learned_membership).
+
+% E la domanda che rende visibile l'eredita': `inherits/2` esisteva come regola
+% e nessuna superficie ci arrivava. Una regola che nessuno puo' interrogare e'
+% una regola che non si sa di avere.
+response_template(inherited_props, "{subject} inherits: {result}.").
+response_template(inherited_props, it, "{subject} eredita: {result}.").
+
+turn_form(ask_inherit, 1, text("what does")).
+turn_form(ask_inherit, 2, slot(subject)).
+% ⚠ non «…from ITS kind»: il pronome manda il turno al lettore che cerca un
+% numero («What number should I use for «its»?»). E' la trappola gia' scritta
+% nel protocollo, incontrata per la seconda volta.
+turn_form(ask_inherit, 3, text("get from the kind")).
+turn_form_mood(ask_inherit, question).
+turn_form_act(ask_inherit, "op(match, inherits, [subject, free])").
+turn_form_reply(ask_inherit, inherited_props).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

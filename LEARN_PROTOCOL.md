@@ -400,6 +400,9 @@ classe intera invece di un membro.*
 | `ogni Y è P` | una REGOLA che il risolutore concatena — non un fatto |
 | `ogni Y ha Z` | un fatto sulla SPECIE; i membri lo ereditano (gen507/15) |
 | `nessun A è un B` | esclusione fra classi: chiude il mondo su entrambe |
+| `X is a member of <classe>` | mette X nella **tassonomia percorribile** *e* nella classe: due conoscenze diverse sullo stesso fatto, una frase sola (gen507/73) |
+| `<classe> are typically P` | una proprietà della **specie**: ogni membro presente e futuro la eredita (gen507/73, forma #78) |
+| `what does X get from the kind?` | che cosa X **eredita** — `inherits/2` esisteva come regola e nessuna superficie ci arrivava (gen507/73) |
 | `the <classe>s are A, B and C` | **l'estensione dichiarata completa**: pone i membri *e* dichiara che sono tutti. Da lì «no» è una risposta guadagnata, non un'alzata di spalle (gen507/44, forma #7) |
 
 ### B. Relazioni
@@ -742,7 +745,7 @@ non è una domanda che qualcuno fa.*
 | 75 | negare il valore | `X is not red` — oggi si nega la classe, non l'attributo | 🔴 |
 | 76 | confrontare | `is X redder than Y?` — solo per attributi **ordinabili**, e chi lo sia si dichiara | 🔴 |
 | 77 | ordinare | `sort the Y by colour` | ⚪ scartata: ordinare per un valore non ordinabile non ha senso — è la 76 che va dichiarata prima |
-| 78 | valore di default | `Y are usually red` — il valore che vale se nessuno dice altro | 🔴 |
+| 78 | valore di default | reso `<classe> are typically P` | ✅ gen507/73 |
 | 79 | intervallo di validità | `X is red in <periodo>` | 🔴 |
 | 80 | provenienza del valore | `<entità> is <valore> according to <fonte>` — **chi lo dice**: apre il disaccordo fra fonti | 🔴 |
 

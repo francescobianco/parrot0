@@ -114,6 +114,9 @@ has_prop(living_thing, reproduces).
 has_prop(metal, conducts_electricity).
 has_prop(metal, is_shiny).
 has_prop(gas, has_no_fixed_shape).
+has_prop(deciduous, "leafless in winter").
+has_prop(falcon, predatory).
+has_prop(falcon, fast).
 
 % ============================================================
 % CROSS-DOMAIN REQUIREMENTS (L15) — requires/lacks for "why can't X live in Y".
