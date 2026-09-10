@@ -462,6 +462,12 @@ semplici**, ed è la catena che si insegna.*
 | `apply <altra procedura>` | **chiama** un'altra procedura: una lezione si costruisce su quelle già date invece di ripeterne i passi (gen507/51, forma #43) |
 | `replace <a> with <b>` | sostituzione (gen507/52, forma #46) |
 | `repeat <passo> until stable` | **il ciclo**: rifà il passo finché il valore smette di cambiare — il punto fisso, non un numero di giri deciso a caso (gen507/54, forma #41) |
+| `repeat <passo> until <condizione>` | il ciclo con un arresto **dichiarato** (gen507/55, forma #41b) |
+| `if <condizione> then <passo>` | **il ramo**: se la condizione non regge, il passo non si fa — e non è un fallimento, è la procedura che ha deciso (gen507/55, forma #42) |
+
+**Condizioni disponibili** (valgono sia per `until` sia per `if`, perché sono la
+stessa cosa): `empty` · `any` · `has <classe>` · `length N` · `shorter N` ·
+`longer N` · `starts <testo>` · `is <testo>`.
 
 | `the <nome> letters are A, B, C` | **insegna una classe di caratteri**, e da subito è un operatore in più da comporre (gen507/53, forma #44) |
 
@@ -480,11 +486,10 @@ operatore in più da comporre.
 > apply howmany to parrot                howmany(«2»)
 ```
 
-⚠ **Il ciclo c'è** (`repeat … until stable`, gen507/54); manca ancora la
-**condizione esplicita** — `until <test>` con un test diverso dal punto fisso — e
-il ramo `if <cond> then <op>`. Senza quelli la radice quadrata a mano resta
-inesprimibile: il suo arresto non è «finché non cambia più», è «finché la
-precisione basta».
+⚠ **Ciclo, arresto dichiarato e ramo ci sono** (gen507/54-55). Alla radice
+quadrata a mano manca ancora altro: gli operatori sono **su testo**, non su
+numeri, e una procedura ha **un solo registro** — l'iterazione di Newton
+(`x ← (x + n/x)/2`) ne vuole due. Sono due primitive del motore, non due forme.
 
 ⚠ **Non `step for X is …`** per le procedure: quella superficie è dei passi di una
 *ricetta* (`process_step`, gen507/38). La distinzione è anche giusta nel merito —
@@ -633,7 +638,7 @@ mano resta inesprimibile.*
 | # | si dice | ne ricava | |
 |---|---|---|---|
 | 41 | `rule for X is repeat <op> until stable` | il **ciclo**, con la condizione del punto fisso | ✅ gen507/54 · restano le condizioni diverse da `stable` |
-| 42 | `rule for X is if <cond> then <op>` | la **condizione** | 🔴 |
+| 42 | `rule for X is if <cond> then <op>` | la **condizione** | ✅ gen507/55 |
 | 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | ✅ gen507/51 |
 | 44 | `<classe> contains <caratteri>` — reso `the <nome> letters are …` | insegnare una classe di caratteri parlando | ✅ gen507/53 |
 | 45 | `rule for X is split on <char>` · `join with <char>` | dalle stringhe alle **liste** | 🔴 |

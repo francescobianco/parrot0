@@ -13146,6 +13146,39 @@ static const char *p0_form_slot(P0FormSlot *slots, size_t n, const char *name) {
  *
  * Gli operatori restano pochi e le CLASSI DI CARATTERI restano conoscenza: il
  * motore non sa che cosa sia una vocale. */
+/* gen507/55 (forma #42) — UNA CONDIZIONE SUL VALORE CORRENTE.
+ *
+ * Serve a due cose che sembrano diverse e sono la stessa: il RAMO («if … then
+ * …») e l'ARRESTO del ciclo («until …»). Averla una volta sola vuol dire che
+ * ogni condizione nuova vale subito per tutti e due.
+ *
+ * Le condizioni sono poche e sul valore, non sul mondo: e' il valore che una
+ * procedura ha in mano. Quali CARATTERI stiano in una classe resta conoscenza,
+ * quindi `has <classe>` cresce con la KB e non con il C. */
+static int p0_cond_holds(Brain *b, const char *cond, const char *cur) {
+    if (!b || !cond || !cur) return 0;
+    char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cond);
+    char *cw[8]; size_t cn = split_words(cb, cw, 8);
+    if (cn == 0) return 0;
+    const char *op = cw[0], *arg = cn > 1 ? cw[1] : NULL;
+    if (!strcmp(op, "empty")) return cur[0] == '\0';
+    if (!strcmp(op, "any"))   return cur[0] != '\0';
+    if (!strcmp(op, "has") && arg) {
+        for (const char *c = cur; *c; c++) {
+            char ch[2] = { (char)tolower((unsigned char)*c), 0 };
+            const char *q[2] = { arg, ch };
+            if (kb_query(b->kb, "char_class", q, 2)) return 1;
+        }
+        return 0;
+    }
+    if (!strcmp(op, "length") && arg) return strlen(cur) == (size_t)strtol(arg, NULL, 10);
+    if (!strcmp(op, "shorter") && arg) return strlen(cur) < (size_t)strtol(arg, NULL, 10);
+    if (!strcmp(op, "longer") && arg)  return strlen(cur) > (size_t)strtol(arg, NULL, 10);
+    if (!strcmp(op, "starts") && arg)  return !strncasecmp(cur, arg, strlen(arg));
+    if (!strcmp(op, "is") && arg)      return !strcasecmp(cur, arg);
+    return 0;
+}
+
 /* Un passo, applicato. Estratto dal ciclo perche' il CICLO deve poterlo
  * rieseguire: `repeat <passo> until stable` non e' un operatore in piu', e' lo
  * stesso operatore chiamato finche' il valore smette di cambiare. */
@@ -13165,6 +13198,25 @@ static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
     {
         char probe[KB_TERM_LEN]; snprintf(probe, sizeof probe, "%s", stepbuf);
         char *pw[16]; size_t pn = split_words(probe, pw, 16);
+        if (pn >= 4 && !strcmp(pw[0], "if")) {
+            /* `if <condizione> then <passo>`: il ramo. Se la condizione non
+             * regge il passo non si fa, e non e' un fallimento — e' la
+             * procedura che ha deciso. */
+            size_t ti = pn;
+            for (size_t k = 1; k < pn; k++) if (!strcmp(pw[k], "then")) { ti = k; break; }
+            if (ti < pn && ti > 1) {
+                char cond2[KB_TERM_LEN]; size_t c2 = 0; cond2[0] = '\0';
+                for (size_t k = 1; k < ti && c2 + 1 < sizeof cond2; k++)
+                    c2 += (size_t)snprintf(cond2 + c2, sizeof cond2 - c2,
+                                           "%s%s", c2 ? " " : "", pw[k]);
+                char then2[KB_TERM_LEN]; size_t t2 = 0; then2[0] = '\0';
+                for (size_t k = ti + 1; k < pn && t2 + 1 < sizeof then2; k++)
+                    t2 += (size_t)snprintf(then2 + t2, sizeof then2 - t2,
+                                           "%s%s", t2 ? " " : "", pw[k]);
+                if (!p0_cond_holds(b, cond2, cur)) return 1;   /* deciso: non fare */
+                return p0_apply_op(b, then2, cur, cursz, pname, depth);
+            }
+        }
         if (pn >= 3 && !strcmp(pw[0], "repeat")) {
             size_t ui = pn;
             for (size_t k = 1; k < pn; k++) if (!strcmp(pw[k], "until")) { ui = k; break; }
@@ -13173,13 +13225,20 @@ static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
                 for (size_t k = 1; k < ui && io + 1 < sizeof inner; k++)
                     io += (size_t)snprintf(inner + io, sizeof inner - io,
                                            "%s%s", io ? " " : "", pw[k]);
+                char cond[KB_TERM_LEN]; size_t co = 0; cond[0] = '\0';
+                for (size_t k = ui + 1; k < pn && co + 1 < sizeof cond; k++)
+                    co += (size_t)snprintf(cond + co, sizeof cond - co,
+                                           "%s%s", co ? " " : "", pw[k]);
+                int fixpoint = !strcmp(cond, "stable");
                 int did = 0;
                 for (int turn = 0; turn < 64; turn++) {
+                    if (!fixpoint && p0_cond_holds(b, cond, cur)) break;
                     char before[KB_TERM_LEN];
                     snprintf(before, sizeof before, "%s", cur);
                     if (!p0_apply_op(b, inner, cur, cursz, pname, depth)) break;
                     did = 1;
-                    if (!strcmp(before, cur)) break;   /* punto fisso */
+                    if (fixpoint && !strcmp(before, cur)) break;   /* punto fisso */
+                    if (!fixpoint && !strcmp(before, cur)) break;  /* non avanza */
                 }
                 return did;
             }
