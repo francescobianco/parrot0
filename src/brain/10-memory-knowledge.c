@@ -12652,6 +12652,16 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * `located_in`. Qui si provano TUTTE le letture dichiarate per la
      * superficie detta e per la relazione risolta: risponde quella che ha un
      * fatto, e se nessuna ce l'ha resta l'onesta' di prima. */
+    {
+        /* gen507/41 — UNA RELAZIONE CHE VALE NEI DUE VERSI.
+         * «zelnik somiglia a grum» dice anche che grum somiglia a zelnik, ma
+         * solo per certe relazioni: «zelnik e' piu' grande di grum» non si
+         * gira. Quali vadano nei due versi e' conoscenza, e si insegna. */
+        const char *sq5[1] = { rel };
+        const char *ra[2] = { obj, subj };
+        if (kb_query(b->kb, "symmetric_relation", sq5, 1) &&
+            kb_query(b->kb, rel, ra, 2)) { put("Yes.", out, out_size); return 1; }
+    }
     if (p0_relation_inverse(b, rel, subj, obj)) {
         put("Yes.", out, out_size); return 1;
     }

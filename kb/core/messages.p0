@@ -1349,6 +1349,31 @@ turn_form_mood(teach_inverse2, statement).
 turn_form_act(teach_inverse2, assert_relation).
 turn_form_reply(teach_inverse2, learned_inverse).
 
+% ══ gen507/41 — INSEGNARE CHE UNA RELAZIONE VALE NEI DUE VERSI ════════════
+%
+% «zelnik somiglia a grum» dice anche che grum somiglia a zelnik. Ma non tutte
+% le relazioni si girano — «zelnik e' piu' grande di grum» no — quindi il motore
+% sa SCAMBIARE i posti e non sa quando: quando lo dice la conoscenza. Terza
+% proprieta' di relazione insegnabile, dopo la transitivita' (/27) e l'inverso
+% (/40); insieme coprono le tre domande che si fanno su una relazione nuova.
+machinery(symmetric_relation).
+response_template(learned_symmetric, "Held: {subject} goes both ways -- if a {subject} b then b {subject} a.").
+response_template(learned_symmetric, it, "Tengo: {subject} vale nei due versi — se a {subject} b allora b {subject} a.").
+
+turn_form(teach_symmetric, 1, slot(subject)).
+turn_form(teach_symmetric, 2, text("goes both ways")).
+turn_form(teach_symmetric, 3, bind(class, symmetric_relation)).
+turn_form_mood(teach_symmetric, statement).
+turn_form_act(teach_symmetric, assert_unary).
+turn_form_reply(teach_symmetric, learned_symmetric).
+
+turn_form(teach_symmetric_it, 1, slot(subject)).
+turn_form(teach_symmetric_it, 2, text("vale nei due versi")).
+turn_form(teach_symmetric_it, 3, bind(class, symmetric_relation)).
+turn_form_mood(teach_symmetric_it, statement).
+turn_form_act(teach_symmetric_it, assert_unary).
+turn_form_reply(teach_symmetric_it, learned_symmetric).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

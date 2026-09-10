@@ -369,6 +369,13 @@ classe intera invece di un membro.*
 | `X is a relation` | `relation_noun`: apre insieme `il V di X è Y` **e** `che V è X?` (gen507/5) |
 | `V chains` | la relazione è transitiva: la catena si percorre (gen507/27) |
 | `V is the inverse of W` | un fatto solo, visto dai due lati: asserire `X V Y` risponde anche a `Y W X`, e si legge nei due sensi (gen507/40) |
+| `V goes both ways` | la relazione è simmetrica: `X V Y` risponde anche a `Y V X` (gen507/41) |
+
+> **Le tre proprietà di una relazione** — transitiva (`V chains`), inversa (`V is
+> the inverse of W`), simmetrica (`V goes both ways`) — sono le tre domande che
+> conviene farsi su ogni relazione nuova appena la si insegna. Il motore sa
+> *percorrere la catena* e *scambiare i posti*; non sa **quando**, e quel «quando»
+> è esattamente la conoscenza che si dice.
 | `X è più V di Y` | il comparativo, una volta che `V` è un verbo di relazione (gen507/8) |
 | `X ha un Y` | `has_part` (gen507/14) |
 
