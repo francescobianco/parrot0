@@ -1552,6 +1552,25 @@ turn_form_mood(teach_reflexive, statement).
 turn_form_act(teach_reflexive, assert_unary).
 turn_form_reply(teach_reflexive, learned_reflexive).
 
+% ══ gen507/49 (forma #24) — INSEGNARE UN PLURALE IRREGOLARE ═══════════════
+% `plural_of/2` decide se una parola e' plurale, e da li' l'accordo, la
+% singolarizzazione e mezza dozzina di lettori. Le irregolari si scrivevano in
+% un file: ora una parola nuova costa una frase.
+%
+%     > the plural of mouse is mice
+%     > how many mice are there?     (da qui «mice» si riduce a «mouse»)
+response_template(learned_plural, "Held: «{subject}» is the plural of «{object}».").
+response_template(learned_plural, it, "Tengo: «{subject}» è il plurale di «{object}».").
+
+turn_form(teach_plural, 1, text("the plural of")).
+turn_form(teach_plural, 2, slot(object)).
+turn_form(teach_plural, 3, text("is")).
+turn_form(teach_plural, 4, rest(subject)).
+turn_form(teach_plural, 5, bind(relation, plural_of)).
+turn_form_mood(teach_plural, statement).
+turn_form_act(teach_plural, assert_relation).
+turn_form_reply(teach_plural, learned_plural).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

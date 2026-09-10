@@ -15345,11 +15345,22 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char members[64][KB_TERM_LEN];
                 const char *aq[1] = { NULL };
                 size_t nm = kb_match(b->kb, noun, aq, 1, members, 64);
+                /* gen507/49 — il plurale lo decide la KB, non una «s» finale.
+                 * `singularize_kb` legge `plural_of/2` e le regole di suffisso;
+                 * lo strip ingenuo che stava qui rendeva muta ogni irregolare
+                 * insegnata a voce — la lezione entrava e non la usava nessuno. */
                 char sing[64]; snprintf(sing, sizeof sing, "%s", noun);
-                size_t sl = strlen(sing);
-                if (nm == 0 && sl > 1 && sing[sl - 1] == 's') {
-                    sing[sl - 1] = '\0';
-                    nm = kb_match(b->kb, sing, aq, 1, members, 64);
+                if (nm == 0) {
+                    singularize_kb(b, noun, sing, sizeof sing);
+                    if (sing[0] && strcmp(sing, noun))
+                        nm = kb_match(b->kb, sing, aq, 1, members, 64);
+                }
+                if (nm == 0) {
+                    size_t sl = strlen(sing);
+                    if (sl > 1 && sing[sl - 1] == 's') {
+                        sing[sl - 1] = '\0';
+                        nm = kb_match(b->kb, sing, aq, 1, members, 64);
+                    }
                 }
                 if (nm == 0) continue;
                 /* gen507 — chiedere UN esempio e' chiedere un elenco corto, e

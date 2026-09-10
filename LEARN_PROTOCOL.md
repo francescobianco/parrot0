@@ -426,6 +426,7 @@ classe intera invece di un membro.*
 | `X è un modo per chiedere Y` | `answer_frame`: una FORMA DI DOMANDA in più |
 | `X è un altro modo per introdurre Y` | `segment_role`: un introduttore di span |
 | `X è un marcatore di condizione` | la classe grammaticale di una parola |
+| `the plural of X is Y` | `plural_of/2` — un plurale irregolare, e da lì l'enumerazione e il conteggio lo riconoscono (gen507/49, forma #24) |
 | `the <primato> <classe> is <risposta>` | un primato del mondo: `the deepest cave is krubera` → `which cave is the deepest?` risponde (gen507/42) |
 | `the italian for X is Y` | `tr/2` — e da lì la parola italiana entra in **tutte** le classi inglesi che X tocca (gen507/39). ⚠ non `X in italian is Y`: quella la prende il lettore che cambia lingua |
 
@@ -587,7 +588,7 @@ altre cose che sa fare e non sa **quando**.
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 24 | `the plural of X is Y` | `plural_of/2`: oggi le irregolari si scrivono in un file | 🔴 |
+| 24 | `the plural of X is Y` | `plural_of/2`: oggi le irregolari si scrivono in un file | ✅ gen507/49 |
 | 25 | `the past of X is Y` | `irregular_verb_form/2`: idem — ed è ciò che manca a «owns/own» del giro /14 | 🔴 |
 | 26 | `X means Y` | glossa: una definizione a parole | 🟡 |
 | 27 | `X is short for Y` | sigle e abbreviazioni | 🔴 |
