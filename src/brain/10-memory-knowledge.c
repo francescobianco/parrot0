@@ -12735,6 +12735,28 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
             }
         }
     }
+    {
+        /* gen507/47 (forma #4) — DUE RELAZIONI CHE NON POSSONO VALERE INSIEME.
+         * «X precede Y» esclude «X segue Y»: chi tiene la prima ha gia' la
+         * risposta sulla seconda, e non serve elencare niente. E' il modo piu'
+         * fertile di guadagnare un «no» — una sola esclusione risponde per tutte
+         * le coppie, presenti e future. L'esclusione e' simmetrica: si legge nei
+         * due sensi, cosi' chi insegna non deve scegliere l'ordine. */
+        for (int side = 0; side < 2; side++) {
+            char ex9[16][KB_TERM_LEN];
+            const char *eq9[2] = { side == 0 ? rel : NULL, side == 0 ? NULL : rel };
+            size_t nex = kb_match(b->kb, "excludes_relation", eq9, 2, ex9, 16);
+            for (size_t k = 0; k < nex; k++) {
+                char xb[KB_TERM_LEN]; snprintf(xb, sizeof xb, "%s", ex9[k]);
+                const char *other = kb_dequote(xb);
+                if (!*other || !strcmp(other, rel)) continue;
+                if (kb_query(b->kb, other, args, 2)) {
+                    put("No.", out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
     char ss[KB_TERM_LEN], os[KB_TERM_LEN], rr[KB_TERM_LEN];
     present_atom(b, subj, ss, sizeof ss);
     present_atom(b, obj, os, sizeof os);

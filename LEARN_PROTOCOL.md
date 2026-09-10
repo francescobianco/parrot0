@@ -396,6 +396,7 @@ classe intera invece di un membro.*
 | `V goes both ways` | la relazione è simmetrica: `X V Y` risponde anche a `Y V X` (gen507/41) |
 | `V has one value` | funzionale: se il posto è occupato da un altro valore, il «no» è **guadagnato** senza elencare il mondo (gen507/45, forma #2) |
 | `V implies W` | sussunzione: chi tiene `X V Y` risponde anche a `X W Y`, **in un verso solo** (gen507/46, forma #3) |
+| `V rules out W` | esclusione fra relazioni: chi tiene `X V Y` ha già il «no» su `X W Y`. Una sola riga risponde per tutte le coppie, presenti e future (gen507/47, forma #4) |
 
 > **Le tre proprietà di una relazione** — transitiva (`V chains`), inversa (`V is
 > the inverse of W`), simmetrica (`V goes both ways`) — sono le tre domande che
@@ -540,7 +541,7 @@ altre cose che sa fare e non sa **quando**.
 | 1 | `V holds of itself` | riflessiva: `X V X` vale sempre | 🔴 |
 | 2 | `V has one value` | funzionale: un secondo valore è una **correzione o un conflitto**, non un fatto in più — estende a ogni relazione ciò che il giro /16 fa per gli attributi | ✅ gen507/45 |
 | 3 | `V implies W` | se `X V Y` allora `X W Y`: sussunzione fra relazioni | ✅ gen507/46 |
-| 4 | `V excludes W` | se `X V Y` allora **non** `X W Y`: un «no» guadagnato senza elencare | 🔴 |
+| 4 | `V excludes W` — reso `V rules out W` | se `X V Y` allora **non** `X W Y`: un «no» guadagnato senza elencare | ✅ gen507/47 |
 | 5 | `V goes from <classe> to <classe>` | vincolo di tipo: parrot0 può **rifiutare** un fatto assurdo invece di tenerlo | 🔴 |
 | 6 | `V is measured in <unità>` | l'unità del valore, per la resa e per i confronti | 🔴 |
 

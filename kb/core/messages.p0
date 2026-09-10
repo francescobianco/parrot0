@@ -1521,6 +1521,23 @@ turn_form_mood(teach_implies, statement).
 turn_form_act(teach_implies, assert_relation).
 turn_form_reply(teach_implies, learned_implication).
 
+% ══ gen507/47 (forma #4) — DUE RELAZIONI CHE NON VALGONO INSIEME ══════════
+% «X precede Y» esclude «X segue Y»: chi tiene la prima ha gia' la risposta
+% sulla seconda. E' il modo piu' fertile di guadagnare un «no» — una sola
+% esclusione risponde per tutte le coppie, presenti e future — e si legge nei
+% due sensi, perche' escludersi e' reciproco.
+machinery(excludes_relation).
+response_template(learned_exclusion_rel, "Held: {subject} and {object} cannot both hold -- one rules the other out.").
+response_template(learned_exclusion_rel, it, "Tengo: {subject} e {object} non possono valere insieme — l'una esclude l'altra.").
+
+turn_form(teach_excludes, 1, slot(subject)).
+turn_form(teach_excludes, 2, text("rules out")).
+turn_form(teach_excludes, 3, rest(object)).
+turn_form(teach_excludes, 4, bind(relation, excludes_relation)).
+turn_form_mood(teach_excludes, statement).
+turn_form_act(teach_excludes, assert_relation).
+turn_form_reply(teach_excludes, learned_exclusion_rel).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
