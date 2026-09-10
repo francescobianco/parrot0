@@ -1166,6 +1166,16 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
     const char *args[] = { subj };
     int yes = kb_query(b->kb, cls, args, 1);
     if (!yes) yes = p0_class_via_subclass(b, cls, subj, 3);
+    if (!yes) {
+        /* gen507/82 — CHIEDERE ALLA KB CHE COSA VUOL DIRE «APPARTENERE».
+         * `holds1(Classe, X)` e' il gemello unario di `holds/3`: la classe e'
+         * un argomento, quindi una classe puo' essere DEFINITA da una regola
+         * invece che elencata. «Un genitore e' chi ha un figlio» non e' una
+         * lista di genitori. Come per `holds/3`, ogni modo futuro di definire
+         * una classe vale da subito qui. */
+        const char *h1[2] = { cls, subj };
+        yes = kb_query(b->kb, "holds1", h1, 2);
+    }
 
     KbInferenceReport rep;
     kb_inference_report(b->kb, &rep);

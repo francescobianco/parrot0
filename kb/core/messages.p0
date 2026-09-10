@@ -2163,6 +2163,51 @@ turn_form_act(teach_like, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_like, "op(assert, relation_like, [subject, object])").
 turn_form_reply(teach_like, learned_relation_like).
 
+% (superficie superiore #4) — una CLASSE DEFINITA da una relazione, invece che
+% elencata. «Un genitore e' chi ha un figlio»: non una lista, una regola.
+response_template(learned_class_rule, "Held: anything with a {object} is a {subject}.").
+response_template(learned_class_rule, it, "Tengo: chi ha un {object} è un {subject}.").
+
+% ⚠ Ne' «a X is anything that V» ne' «X is anything that V» arrivano: il turno
+% e' preso prima da chi registra una parola sconosciuta. La forma si apre con
+% una parola che dichiara di essere una definizione.
+turn_form(teach_class_rule, 1, text("whoever")).
+turn_form(teach_class_rule, 2, slot(object)).
+turn_form(teach_class_rule, 3, text("is a")).
+turn_form(teach_class_rule, 4, rest(subject)).
+turn_form_mood(teach_class_rule, statement).
+turn_form_act(teach_class_rule, "op(assert, relation_verb, [object])").
+turn_form_act(teach_class_rule, "op(assert, class_from_relation, [subject, object])").
+turn_form_reply(teach_class_rule, learned_class_rule).
+
+% (superficie superiore #5) — una RELAZIONE DEFINITA DA DUE: insegnare una
+% REGOLA invece di un fatto. E' il mantra #19 applicato alle relazioni: la
+% congiunzione si dichiara, non si compila.
+response_template(learned_rel_and, "Held: {subject} holds wherever both {order} and {object} hold.").
+response_template(learned_rel_and, it, "Tengo: {subject} vale dove valgono sia {order} sia {object}.").
+
+turn_form(teach_rel_and, 1, slot(subject)).
+turn_form(teach_rel_and, 2, text("holds where both")).
+turn_form(teach_rel_and, 3, slot(order)).
+turn_form(teach_rel_and, 4, text("and")).
+turn_form(teach_rel_and, 5, rest(object)).
+turn_form_mood(teach_rel_and, statement).
+turn_form_act(teach_rel_and, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_rel_and, "op(assert, relation_and, [subject, order, object])").
+turn_form_reply(teach_rel_and, learned_rel_and).
+
+% (superficie superiore #6) — e la disgiunzione.
+response_template(learned_rel_or, "Held: {subject} holds wherever {object} holds.").
+response_template(learned_rel_or, it, "Tengo: {subject} vale ovunque valga {object}.").
+
+turn_form(teach_rel_or, 1, slot(subject)).
+turn_form(teach_rel_or, 2, text("holds wherever")).
+turn_form(teach_rel_or, 3, rest(object)).
+turn_form_mood(teach_rel_or, statement).
+turn_form_act(teach_rel_or, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_rel_or, "op(assert, relation_or, [subject, object])").
+turn_form_reply(teach_rel_or, learned_rel_or).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

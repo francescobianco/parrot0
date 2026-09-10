@@ -498,6 +498,9 @@ lo chiede, con `holds(Relazione, X, Y)`.*
 |---|---|
 | `in <contesto> V stands for W` | dentro quel contesto la relazione locale `V` è un caso della generale `W`: chi insegna parla il vocabolario del proprio dominio e non deve tradurlo (gen507/80). ⚠ non `means`: è il pivot del maestro delle costruzioni |
 | `for a <classe> V counts as W` | il ponte **stretto di un grado**: vale solo quando il soggetto è di quella classe — «dirige» vale come «guida» per una persona, non per un fiume (gen507/81) |
+| `whoever V is a <classe>` | una **classe definita da una regola** invece che elencata: «chi cresce qualcuno è un tutore» dice che cos'è un tutore *prima* che se ne conosca uno (gen507/82) |
+| `V holds where both W and Z` | una **relazione definita da due**: insegnare una *regola*, non un fatto — il mantra #19 applicato alle relazioni (gen507/82) |
+| `V holds wherever W` | la disgiunzione: `V` vale ovunque valga `W` (gen507/82) |
 | `V behaves like W` | `V` eredita la **scheda** di `W` — transitiva, simmetrica, riflessiva, funzionale — senza che nessuno la ripeta: il predicato variabile applicato alle *proprietà* invece che ai fatti (gen507/81) |
 
 ```

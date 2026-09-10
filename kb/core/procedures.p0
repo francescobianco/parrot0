@@ -1705,3 +1705,27 @@ transitive_relation($V) :- relation_like($V, $W), transitive_relation($W).
 symmetric_relation($V)  :- relation_like($V, $W), symmetric_relation($W).
 reflexive_relation($V)  :- relation_like($V, $W), reflexive_relation($W).
 functional_relation($V) :- relation_like($V, $W), functional_relation($W).
+
+% (e) UNA CLASSE DEFINITA DA UNA RELAZIONE. `holds1(Classe, X)` e' l'appartenenza
+%     posta con la CLASSE come argomento — il gemello unario di `holds/3`. Serve
+%     perche' una classe possa essere definita invece che elencata: «un genitore
+%     e' chi ha un figlio» non e' una lista di genitori, e' una regola.
+machinery(holds1).
+machinery(class_from_relation).
+holds1($Class, $X) :- apply($Class, cons($X, nil)).
+holds1($Class, $X) :-
+    class_from_relation($Class, $Rel),
+    apply($Rel, cons($X, cons($Any, nil))).
+
+% (f) UNA RELAZIONE DEFINITA DA DUE. Insegnare una REGOLA invece di un fatto:
+%     `relation_and(V, W, Z)` dice che V vale dove valgono entrambe. E'
+%     congiunzione dichiarata — il mantra #19 applicato alle relazioni.
+machinery(relation_and).
+holds($V, $X, $Y) :-
+    relation_and($V, $W, $Z),
+    apply($W, cons($X, cons($Y, nil))),
+    apply($Z, cons($X, cons($Y, nil))).
+
+% (g) E la disgiunzione: V vale dove ne vale almeno una.
+machinery(relation_or).
+holds($V, $X, $Y) :- relation_or($V, $W), apply($W, cons($X, cons($Y, nil))).

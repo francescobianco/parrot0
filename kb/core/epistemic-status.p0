@@ -82,6 +82,12 @@ closed_world_answer($Class, $Subject) :- class_defined_by_rule($Class), naf(clas
 % nuova di vincolo domani e' una clausola in piu' e vale subito, senza
 % ricompilare. Il motore chiede «posso parlare di questa classe?», non decide.
 class_constrained($Class) :- class_excludes($Class, $Other).
+% gen507/82 — e una classe DEFINITA da una relazione esiste anche quando non ha
+% ancora membri: «chi cresce qualcuno e' un tutore» dice che cosa sia un tutore
+% prima che se ne conosca uno. Senza questa riga la classe non era nemmeno
+% nominabile, e la domanda riceveva «non so di che parli» invece della risposta
+% che la regola sapeva gia' dare.
+class_constrained($Class) :- class_from_relation($Class, $Rel).
 
 % ── 2. ESCLUSIONE FRA CLASSI ──────────────────────────────────────────────
 % class_excludes(A, B): niente puo' essere insieme A e B. La relazione e'
