@@ -825,6 +825,13 @@ e il terzo è il peggiore:
    un `means/2` e quello era il primo. Una definizione di *kintsugi* dentro il
    file del Risiko si trova solo per caso.
 
+**Il posto sbagliato non è casuale: è sempre il primo che capita.** Quando un
+predicato non ha una casa dichiarata nel `savemap.tsv`, `/save` lo instrada nel
+primo file che quel predicato lo usa già. È così che le definizioni sono finite
+nel file del Risiko e le profondità delle grotte in quello del poker — che ha
+`magnitude/3` per i punti delle mani. **Prima di insegnare una classe nuova di
+fatti, si dichiara la sua casa**, o si controlla il diff subito dopo.
+
 **La regola.** La sessione di prova e la sessione di lezione sono due sessioni.
 Si prova con entità inventate e **non si salva**; si insegna con conoscenza vera
 e **si salva**. E dopo un `/save` si legge il diff: `git diff kb/` dice sempre

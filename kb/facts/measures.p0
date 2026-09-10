@@ -1,0 +1,20 @@
+% measures.p0 — LE MISURE SU UNA SCALA, INSEGNATE PARLANDO
+%
+% `magnitude(Dimensione, Cosa, Numero)` e' la scala su cui parrot0 confronta e
+% ordina: la usano i superlativi, i «quale dei due» e le classifiche. Dal
+% gen507/69 si insegna parlando — «X has <dimensione> N» — e la parola che la
+% interroga si insegna con «<parola> is the most <dimensione>».
+%
+% ⚠ Questo file esiste per la SECONDA volta che lo stesso difetto ha colpito.
+% Il save-map, quando un predicato non ha una casa dichiarata, lo instrada nel
+% primo file che quel predicato lo usa gia'. Le definizioni erano finite nel
+% file del Risiko (gen507/67); le profondita' delle grotte in quello del poker,
+% che ha `magnitude/3` per i punti delle mani. Conoscenza vera nel posto
+% sbagliato si trova solo per caso — e il posto sbagliato non e' casuale, e'
+% sempre il primo che capita.
+
+magnitude(depth, veryovkina, 2212).
+magnitude(depth, krubera, 2197).
+magnitude(depth, sarma, 1830).
+magnitude(depth, snezhnaya, 1760).
+magnitude(depth, lamprechtsofen, 1735).

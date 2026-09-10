@@ -49,11 +49,6 @@ magnitude(hand_rank, flush, 6).
 magnitude(hand_rank, full_house, 7).
 magnitude(hand_rank, four_of_a_kind, 8).
 magnitude(hand_rank, straight_flush, 9).
-magnitude(depth, lamprechtsofen, 1735).
-magnitude(depth, snezhnaya, 1760).
-magnitude(depth, sarma, 1830).
-magnitude(depth, krubera, 2197).
-magnitude(depth, veryovkina, 2212).
 
 % Le parole con cui si chiede quel confronto, e i nomi italiani delle mani —
 % che NON sono la traduzione delle parole inglesi ("full house" e' il "full",
