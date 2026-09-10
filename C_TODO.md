@@ -1,5 +1,77 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-10 — ⛔ LO SWITCH SPOSTATO: quando «KB-first» maschera un `case`
+
+> **«Ogni cosa che hai fatto c'è troppo C: di fatto stai mascherando ogni
+> abilità dentro un case C mascherato. Vuol dire che non stai KB-first, la
+> comprensione universale non sta lavorando col massimo grado di astrazione.»**
+> — F., 2026-09-10
+
+**La diagnosi.** L'interprete di forme (gen507/19) ha portato in KB le
+*condizioni* di un turno (`turn_form/3`) e il *vocabolario*. Ma ogni abilità
+nuova è finita come un ramo in più dello stesso switch:
+
+```c
+} else if (!strcmp(act, "assert_ordered"))  { … }
+} else if (!strcmp(act, "retract_ordered")) { … }
+} else if (!strcmp(act, "recite_plan"))     { … }
+```
+
+Quattordici rami al gen507/61, e ognuno dei giri /19–/61 ne aggiungeva uno.
+Risultato: **l'insieme delle cose che parrot0 può FARE resta chiuso in C.** A
+runtime si insegna un *membro* di un'abilità che esiste, mai un'abilità nuova.
+È lo stesso difetto che il mantra #19 descrive per la congiunzione — un `&&`
+compilato — applicato agli **atti** invece che alle condizioni. Il fatto che le
+etichette del `case` abbiano nomi KB-shaped (`assert_relation`) non cambia
+niente: **una stringa che indicizza un `case` è un numero, non conoscenza.**
+
+**La prova che è uno switch e non un'astrazione:** i quattordici rami fanno
+tutti le stesse tre cose — leggere valori che il matcher ha già estratto,
+chiamare *una* funzione della KB con quei valori in un certo ordine, rendere una
+frase. Cambia solo **quale funzione** e **in che ordine gli argomenti**:
+
+| atto | operazione | argomenti |
+|---|---|---|
+| `assert_relation` | assert | `[relation, subject, object]` |
+| `assert_negative` | assert_neg | `[relation, subject, object]` |
+| `assert_unary` | assert | `[class, subject]` |
+| `assert_ternary` | assert | `[relation, arg1, arg2, arg3]` |
+| `answer_relation` | match | `[relation, subject, free]` |
+| `assert_ordered` | assert | `[relation, key, next, text]` |
+| `retract_ordered` | retract-tutti | `[relation, key, free, free]` |
+| `list_keys` | match-distinti | `[relation, free, free, free]` |
+
+**La forma di arrivo.** Le operazioni vere sono **cinque** — `assert`,
+`assert_neg`, `retract`, `match`, `count` — più due generatori di argomento:
+`next` (il prossimo indice libero, che serve a tutto ciò che è ordinato) e
+`free` (lo slot da riempire con la risposta). L'atto va portato in KB **come
+termine**, non come etichetta:
+
+```prolog
+turn_form_act(forget_fact, op(retract, relation, [subject, object])).
+turn_form_act(teach_step,  op(assert,  relation, [key, next, text])).
+turn_form_act(ask_year,    op(match,   relation, [subject, free])).
+```
+
+Il C smette di sapere che cosa sia «asserire una relazione» o «ritrattare una
+procedura»: sa solo **applicare cinque operazioni della KB a una lista di
+argomenti che qualcun altro ha nominato**.
+
+**Il test, ed è quello che conta:** *se una forma nuova costa ancora una riga di
+C, non si è astratto abbastanza.* Con la via dichiarativa `forget that X V Y`
+costa una riga di `.p0` e zero C.
+
+**Il costo onesto:** i quattordici atti esistenti restano
+([[keep-secondary-structures]]) e diventano ridondanti; le forme nuove passano
+dalla via dichiarativa. Non si cancella, si smette di aggiungere.
+
+**Come si riconosce altrove.** Un `case`/`if-else` che smista su una STRINGA
+che viene dalla KB è sempre questo difetto: la KB sceglie fra alternative che
+solo il C conosce. Gli altri residui noti di questa specie sono in fondo a
+questo file (le tre strade della risoluzione superficie→relazione, l'ordine di
+base del `registry[]`) e in `docs/plans/kb-first.md` §4-bis (l'ORDINE dei
+tentativi).
+
 ## 2026-09-10 — l'identita' di una sonda e' il suo PREDICATO, non il suo numero
 
 `/debug` (src/main.c) enumera le sonde per NUMERO D'ORDINE e risale da li' al

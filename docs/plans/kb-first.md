@@ -181,6 +181,32 @@ a sapere **quali** e **in che ordine**. Aggiungere un *modo* costa C — ed è g
 è un posto nuovo dove guardare. Aggiungere o riordinare i tentativi non deve
 costare niente.
 
+## 4-ter. LO SWITCH SPOSTATO — la terza specie, e la più insidiosa
+
+Il §4-bis dice che l'**ordine** dei tentativi è conoscenza. Questa è la sorella
+maggiore: **l'insieme delle AZIONI possibili è conoscenza quanto il vocabolario
+su cui agiscono.**
+
+> **«Stai mascherando ogni abilità dentro un case C mascherato.»** — F., 2026-09-10
+
+Si riconosce da un sintomo solo: un `case`/`if-else` che smista su una **stringa
+che viene dalla KB**. Sembra KB-first — l'etichetta è un fatto, la si legge da un
+`.p0` — ma la KB sta solo **scegliendo fra alternative che solo il C conosce**.
+Una stringa che indicizza un `case` è un numero.
+
+Il segnale operativo è infallibile: *ogni abilità nuova aggiunge un ramo*. Se la
+curva «una capacità in più = una riga di C in più» non si appiattisce mai, la
+struttura non sta astraendo, sta enumerando.
+
+La cura è la stessa dell'ordine: portare in KB **il termine**, non l'etichetta.
+Un atto è `op(Operazione, Predicato, [Argomenti])` — un'operazione della KB,
+applicata a una lista di argomenti che la forma ha nominato. Il C conosce le
+operazioni (poche, e sono cose da *fare*: asserire, ritrattare, cercare); non
+conosce nessuna abilità.
+
+Il caso lavorato completo — la diagnosi, la tabella dei quattordici rami che
+fanno la stessa cosa, e la forma di arrivo — è in [`C_TODO.md`](../../C_TODO.md).
+
 ## 5. Le regole di onestà (non negoziabili)
 
 - **Declina quando la catena non regge.** Se manca un fatto o un anello, parrot0 ammette
