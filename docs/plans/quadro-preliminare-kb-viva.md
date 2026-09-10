@@ -270,6 +270,10 @@ inventare un altro linguaggio interno per le stesse distinzioni.
 
 ### 3.6 Due aperture dello stesso livello del predicato variabile
 
+> **gen508:** entrambe le aperture hanno una prima realizzazione, descritta in
+> [due-strutture-kb-viva.md §0](due-strutture-kb-viva.md) e in
+> LEARN_PROTOCOL.md §G.7–G.8. Le prove restano da eseguire.
+
 Il criterio per cercare altre intuizioni non è «quale capacità utile possiamo
 aggiungere?». È **quale parte della rappresentazione oggi fissa può diventare
 conoscenza e aprire una classe di costruzioni prima inaccessibile?** La

@@ -6,6 +6,35 @@ dalla lettura della codebase a `8e33072`. Si affiancano a
 e al [quadro preliminare della KB viva](quadro-preliminare-kb-viva.md).
 **Sono ipotesi strutturali, non implementazioni o prestazioni certificate.**
 
+## 0. Stato — gen508 (11 settembre 2026)
+
+Entrambe le strutture hanno una prima realizzazione, **non ancora certificata
+da prove** (i test li decide F.). Il dettaglio operativo è in
+[LEARN_PROTOCOL.md §G.7 e §G.8](../../LEARN_PROTOCOL.md#g7-gen508--le-definizioni-sono-espressioni-su-cui-inferire).
+
+| Struttura | Realizzazione | Dove |
+|---|---|---|
+| Definizioni come espressioni (§3) | `relation_def/2` + `eval_rel/3`, famiglie gen507 come viste, costruzioni parametriche `use/2` come fatti con variabile, `norm_expr/2` con due equivalenze, proprietà per struttura (`*_form/1`), `same_relation/2`, resa `expr_words/2` | `kb/core/procedures.p0`, blocco «LA DEFINIZIONE E' UN'ESPRESSIONE» |
+| Fatto a ruoli aperti (§2) | `occurrence/2` = appartenenza a uno schema, `role/3` = `Ruolo_of(O, V)`, `relation_role/2`, `required_role/2`, `missing_role/2`, proiezioni `roles/3` e `roles_where/4` come espressioni, viste `schema_view/2` + `role_alias/3`, adattatore `fact(R,X,Y)` per i binari | stesso file, blocco «IL FATTO COME NODO A RUOLI APERTI» |
+| Superfici (#21–#32) | usare/definire/chiedere/disfare definizioni; schema, ruoli richiesti, proiezioni, viste, scheda e mancanze di un'istanza | `kb/core/messages.p0` |
+| C | una sola porta: lo slot `expr(Nome)`/`construct(Nome)` che legge un'espressione in parole come termine (`p0_relation_expr`) | `src/brain/10-memory-knowledge.c` |
+
+Scelte che il documento lasciava aperte e che sono state prese:
+
+- **Direzione delle famiglie G:** forniscono descrizioni all'interpretazione
+  comune (viste), non vengono riscritte. Più definizioni della stessa relazione
+  sono supporti alternativi (unione), come `relation_or` già faceva.
+- **Il parametro** di una costruzione è una variabile Prolog vera, dentro un
+  fatto non ground che il solver standardizza (nessuna sostituzione testuale).
+  Il nome della costruzione è un dato in `use(C, E)`: nessun `functor/3`.
+- **Nessun archivio nuovo per i ruoli:** l'identità dell'istanza è un atomo,
+  il ruolo è il predicato binario che il lettore «the R of X is Y» produce
+  già. È l'«adattatore dichiarato in KB» del §2.5, non una tabella.
+
+Che cosa **non** è ancora dimostrato: il rendimento su definizioni profonde e
+schemi grandi (§2.6, §3.7), la prova decisiva del §5, e il produttore
+prosa→istanza per gli eventi non nominati.
+
 ## 1. Il criterio: aprire uno spazio, non aggiungere un comportamento
 
 `apply/2` ha un effetto maggiore di una singola feature perché sposta un

@@ -1720,34 +1720,28 @@ holds1($Class, $X) :-
 % (f) UNA RELAZIONE DEFINITA DA DUE. Insegnare una REGOLA invece di un fatto:
 %     `relation_and(V, W, Z)` dice che V vale dove valgono entrambe. E'
 %     congiunzione dichiarata — il mantra #19 applicato alle relazioni.
+%
+%     gen508: le famiglie (f)(g)(h)(i)(s) non hanno piu' una clausola di
+%     `holds/3` ciascuna. Sono DESCRIZIONI della stessa espressione — vedi il
+%     blocco «LA DEFINIZIONE E' UN'ESPRESSIONE» piu' sotto — e la interpreta
+%     `eval_rel/3`, che passa da `holds/3` per ogni operando. Prima gli operandi
+%     passavano da `apply/2`, cioe' dal predicato nudo: una relazione definita
+%     soltanto da un ponte non era un operando possibile (LEARN_PROTOCOL §G.5).
 machinery(relation_and).
-holds($V, $X, $Y) :-
-    relation_and($V, $W, $Z),
-    apply($W, cons($X, cons($Y, nil))),
-    apply($Z, cons($X, cons($Y, nil))).
 
 % (g) E la disgiunzione: V vale dove ne vale almeno una.
 machinery(relation_or).
-holds($V, $X, $Y) :- relation_or($V, $W), apply($W, cons($X, cons($Y, nil))).
 
 % (h) LA COMPOSIZIONE DI DUE RELAZIONI. `relation_chain(V, W, Z)` dice che V e'
 %     W seguita da Z: «nonno» e' «genitore» seguito da «genitore». E' la mossa
 %     che genera relazioni NUOVE invece di collegare quelle che ci sono — con
 %     due relazioni note se ne definisce una terza che nessuno ha mai popolato.
 machinery(relation_chain).
-holds($V, $X, $Z) :-
-    relation_chain($V, $W, $Z2),
-    apply($W, cons($X, cons($Y, nil))),
-    apply($Z2, cons($Y, cons($Z, nil))).
 
 % (i) L'ECCEZIONE DICHIARATA. `relation_unless(V, W, Z)`: V vale dove vale W
 %     tranne dove vale Z. Una regola con la sua eccezione detta insieme, invece
 %     di una regola falsa che qualcuno correggera' poi.
 machinery(relation_unless).
-holds($V, $X, $Y) :-
-    relation_unless($V, $W, $Z),
-    apply($W, cons($X, cons($Y, nil))),
-    naf(apply($Z, cons($X, cons($Y, nil)))).
 
 % (l) LA SCHEDA DI UNA RELAZIONE, come vista. `relation_note(V, Nota)` raccoglie
 %     in un posto solo tutto cio' che e' stato dichiarato SU una relazione:
@@ -1765,10 +1759,9 @@ relation_note($V, $Note) :- implies_relation($V, $W), concat_atoms("implies ", $
 relation_note($V, $Note) :- excludes_relation($V, $W), concat_atoms("rules out ", $W, $Note).
 relation_note($V, $Note) :- relation_like($V, $W), concat_atoms("behaves like ", $W, $Note).
 relation_note($V, $Note) :- context_alias($C, $V, $W), concat_atoms("stands for ", $W, $Note).
-relation_note($V, $Note) :- relation_chain($V, $W, $Z), concat_atoms("composed from ", $W, $Note).
-relation_note($V, $Note) :- relation_and($V, $W, $Z), concat_atoms("needs both, starting with ", $W, $Note).
-relation_note($V, $Note) :- relation_or($V, $W), concat_atoms("holds wherever ", $W, $Note).
-relation_note($V, $Note) :- relation_unless($V, $W, $Z), concat_atoms("has an exception: ", $Z, $Note).
+% gen508: catena, congiunzione, unione ed eccezione non hanno piu' una nota
+% ciascuna che nominava UN solo operando: la scheda rende la definizione intera
+% («defined as parent followed by parent») tramite `expr_words/2`, piu' sotto.
 
 % (m) UN FATTO CHE VALE SOLO DENTRO UN CONTESTO. `context_fact(Contesto, V, X,
 %     Y)` e' un fatto SOSPESO: vale quando quel contesto e' attivo, e tace
@@ -1786,13 +1779,15 @@ holds($V, $X, $Y) :-
 %     usato per GUARDARSI INTORNO invece che per rispondere a una domanda
 %     precisa. E' la differenza fra sapere e sapere di sapere.
 machinery(about).
-about($X, $V, $Y) :- relation_verb($V), apply($V, cons($X, cons($Y, nil))).
+% gen508: si guarda intorno con `holds/3`, non col predicato nudo — cosi' vede
+% anche le relazioni DEFINITE e i ponti, che `apply/2` da solo non attraversa.
+about($X, $V, $Y) :- relation_verb($V), holds($V, $X, $Y).
 
 % (o) CHE COSA LEGA DUE COSE. `between(X, Y, V)` enumera le relazioni che valgono
 %     fra due cose date: il gemello a due argomenti di `about/3`. E' la domanda
 %     che si fa guardando due nomi e chiedendosi che rapporto ci sia.
 machinery(between_rel).
-between_rel($X, $Y, $V) :- relation_verb($V), apply($V, cons($X, cons($Y, nil))).
+between_rel($X, $Y, $V) :- relation_verb($V), holds($V, $X, $Y).
 
 % (p) LA FIRMA DI UNA RELAZIONE: da quale classe parte e a quale arriva.
 %     Dichiararla non serve solo a documentare — dice DOVE una relazione ha
@@ -1826,9 +1821,311 @@ holds($V, $X, $Y) :-
 
 % (s) IL VERSO ROVESCIO, dentro `holds/3`: cosi' compone con i contesti, le
 %     catene e le eccezioni, cosa che `inverse_relation/2` da sola non fa perche'
-%     e' letta da un lettore solo.
+%     e' letta da un lettore solo. (gen508: e' la descrizione `flip(W)`.)
 machinery(relation_reverse).
-holds($V, $X, $Y) :- relation_reverse($V, $W), apply($W, cons($Y, cons($X, nil))).
+
+% ══ gen508 — LA DEFINIZIONE E' UN'ESPRESSIONE: `relation_def/2`, `eval_rel/3` ══
+%
+% docs/plans/due-strutture-kb-viva.md §3 (F., 2026-09-11): «una relazione
+% derivata potrebbe denotare una struttura i cui operandi sono altre
+% definizioni. La stessa inferenza potrebbe eseguirla e interrogarne la forma».
+%
+% Al gen507 ogni famiglia (catena, congiunzione, unione, eccezione, rovescio)
+% aveva la propria clausola di `holds/3` e risolveva gli operandi con `apply/2`:
+% cinque interpreti a un grado di profondita', chiusi l'uno all'altro. Qui c'e'
+% UN linguaggio delle definizioni, chiuso per composizione:
+%
+%     relation_def(V, Espressione)       V e' definita da questa espressione
+%
+%     flip(E)          il verso rovescio di E
+%     both(A, B)       dove valgono entrambe          (intersezione)
+%     either(A, B)     dove ne vale almeno una         (unione)
+%     then(A, B)       A seguita da B                  (composizione)
+%     unless(A, B)     A tranne dove vale B            (eccezione)
+%     within(C, E)     E, ma solo dentro il contesto C
+%     use(C, A)        la costruzione C applicata ad A (parametrica, vedi sotto)
+%     un nome          una relazione: fatti, regole, ponti E la sua definizione
+%
+% Ogni operando e' a sua volta un'espressione: una definizione insegnata oggi
+% puo' stare dentro una insegnata domani senza una famiglia C per la coppia.
+% Le famiglie del gen507 NON sono state riscritte: forniscono descrizioni a
+% questa interpretazione (viste), e le lezioni gia' date restano valide.
+machinery(relation_def).
+machinery(eval_rel).
+
+% ── (1) le famiglie sono viste sulla descrizione comune ─────────────────────
+relation_def($V, both($W, $Z))   :- relation_and($V, $W, $Z).
+relation_def($V, $W)             :- relation_or($V, $W).
+relation_def($V, then($W, $Z))   :- relation_chain($V, $W, $Z).
+relation_def($V, unless($W, $Z)) :- relation_unless($V, $W, $Z).
+relation_def($V, flip($W))       :- relation_reverse($V, $W).
+% (`context_alias/3` resta nella clausola (b) di `holds/3`: al gen507 il ponte
+%  di contesto non richiede il contesto attivo, e cambiarlo e' una decisione
+%  semantica, non una migrazione. `within/2` e' il costruttore che la richiede.)
+
+% ── (2) l'interprete: una clausola per costruttore, e il nome passa da holds ─
+% Piu' definizioni della stessa relazione sono SUPPORTI alternativi (unione):
+% e' il contratto che `relation_or` gia' aveva, esteso a tutto il linguaggio.
+holds($V, $X, $Y) :- relation_def($V, $D), eval_rel($D, $X, $Y).
+
+eval_rel(flip($E), $X, $Y)       :- eval_rel($E, $Y, $X).
+eval_rel(both($A, $B), $X, $Y)   :- eval_rel($A, $X, $Y), eval_rel($B, $X, $Y).
+eval_rel(either($A, $B), $X, $Y) :- eval_rel($A, $X, $Y).
+eval_rel(either($A, $B), $X, $Y) :- eval_rel($B, $X, $Y).
+eval_rel(then($A, $B), $X, $Z)   :- eval_rel($A, $X, $Y), eval_rel($B, $Y, $Z).
+eval_rel(unless($A, $B), $X, $Y) :- eval_rel($A, $X, $Y), naf(eval_rel($B, $X, $Y)).
+eval_rel(within($C, $E), $X, $Y) :- active_context($C), eval_rel($E, $X, $Y).
+% un nome — o un'istanza `use(C, A)`, che ha una definizione come un nome —
+% torna a `holds/3`: fatti, regole, ponti di contesto e di classe, definizione.
+eval_rel($E, $X, $Y)             :- holds($E, $X, $Y).
+
+% ── (3) LE COSTRUZIONI PARAMETRICHE ─────────────────────────────────────────
+% «reciprocal x holds where both x and flipped x» e' una definizione con una
+% VARIABILE: il lettore la salva come fatto non ground, `relation_and(
+% use(reciprocal, $x), $x, use(flipped, $x))`, e il solver la standardizza a
+% ogni uso come una regola. «friendship is reciprocal likes» produce allora
+% `relation_def(friendship, use(reciprocal, likes))`, e `use(reciprocal, likes)`
+% trova la propria definizione per unificazione, senza un dispatcher per la
+% costruzione. E' l'effetto di `apply/2` portato alle famiglie: un'intera
+% costruzione e' un oggetto parametrico della KB, riusabile su ogni dominio.
+%
+% Una parola e' una costruzione se esiste una definizione parametrica che la
+% usa come tale: la licenza e' l'esistenza della lezione, e si ritira
+% ritirando la lezione («forget that flipped x is x read backwards»).
+machinery(relation_construction).
+relation_construction($C) :- relation_def(use($C, $P), $D).
+
+% ── (4) LA FORMA NORMALE: costruzioni e nomi definiti si espandono ──────────
+% Le leggi che seguono valgono per relazioni pure lette come insiemi di coppie;
+% per applicarle a una definizione bisogna prima vederla nei costruttori di
+% base. Qui stanno anche due EQUIVALENZE della costruzione:
+%   flip(flip(E))   = E                        la legge del doppio inverso
+%   flip(then(A,B)) = then(flip(B), flip(A))   la legge dell'ordine scambiato
+machinery(norm_expr).
+machinery(compound_expr).
+compound_expr(flip($E)).       compound_expr(both($A, $B)).   compound_expr(either($A, $B)).
+compound_expr(then($A, $B)).   compound_expr(unless($A, $B)). compound_expr(within($C, $E)).
+compound_expr(use($C, $A)).
+base_expr($E) :- naf(compound_expr($E)).
+has_def($E)   :- relation_def($E, $D).
+
+norm_expr(flip($E), $N)                :- norm_expr($E, $M), flip_norm($M, $N).
+norm_expr(both($A, $B), both($NA, $NB))     :- norm_expr($A, $NA), norm_expr($B, $NB).
+norm_expr(either($A, $B), either($NA, $NB)) :- norm_expr($A, $NA), norm_expr($B, $NB).
+norm_expr(then($A, $B), then($NA, $NB))     :- norm_expr($A, $NA), norm_expr($B, $NB).
+norm_expr(unless($A, $B), unless($NA, $NB)) :- norm_expr($A, $NA), norm_expr($B, $NB).
+norm_expr(within($C, $E), within($C, $N))   :- norm_expr($E, $N).
+norm_expr(use($C, $A), $N)             :- relation_def(use($C, $A), $D), norm_expr($D, $N).
+norm_expr($V, $N)                      :- base_expr($V), relation_def($V, $D), norm_expr($D, $N).
+norm_expr($V, $V)                      :- base_expr($V), naf(has_def($V)).
+
+flip_norm(flip($E), $E).
+flip_norm(then($A, $B), then($FB, $FA))     :- flip_norm($B, $FB), flip_norm($A, $FA).
+flip_norm(both($A, $B), both($FA, $FB))     :- flip_norm($A, $FA), flip_norm($B, $FB).
+flip_norm(either($A, $B), either($FA, $FB)) :- flip_norm($A, $FA), flip_norm($B, $FB).
+flip_norm(unless($A, $B), unless($FA, $FB)) :- flip_norm($A, $FA), flip_norm($B, $FB).
+flip_norm(within($C, $E), within($C, $F))   :- flip_norm($E, $F).
+flip_norm($A, flip($A))                     :- base_expr($A).
+
+% ── (5) LE PROPRIETA' SEGUONO DALLA COSTRUZIONE ─────────────────────────────
+% Un passo oltre `behaves like`: la' una proprieta' si eredita da un NOME
+% simile, qui segue da COME la relazione e' fatta. «both(R, flip(R))» e'
+% simmetrica per ogni R, prima che esista un solo fatto della relazione nuova:
+% (x,y) vi appartiene esattamente quando R(x,y) e R(y,x), e scambiare x e y
+% chiede le stesse due premesse. Anche l'ASSENZA di una legge e' informativa:
+% l'unione di due transitive non e' transitiva, e qui non c'e' una clausola che
+% lo dica — il sistema non distribuisce proprieta' per somiglianza.
+symmetric_relation($V)  :- relation_def($V, $D), norm_expr($D, $N), symmetric_form($N).
+transitive_relation($V) :- relation_def($V, $D), norm_expr($D, $N), transitive_form($N).
+reflexive_relation($V)  :- relation_def($V, $D), norm_expr($D, $N), reflexive_form($N).
+functional_relation($V) :- relation_def($V, $D), norm_expr($D, $N), functional_form($N).
+
+symmetric_form($R)               :- base_expr($R), symmetric_relation($R).
+symmetric_form(flip($E))         :- symmetric_form($E).
+symmetric_form(both($E, flip($E))).
+symmetric_form(both(flip($E), $E)).
+symmetric_form(either($E, flip($E))).
+symmetric_form(either(flip($E), $E)).
+symmetric_form(then($E, flip($E))).
+symmetric_form(then(flip($E), $E)).
+symmetric_form(both($A, $B))     :- symmetric_form($A), symmetric_form($B).
+symmetric_form(either($A, $B))   :- symmetric_form($A), symmetric_form($B).
+symmetric_form(unless($A, $B))   :- symmetric_form($A), symmetric_form($B).
+symmetric_form(within($C, $E))   :- symmetric_form($E).
+
+transitive_form($R)              :- base_expr($R), transitive_relation($R).
+transitive_form(flip($E))        :- transitive_form($E).
+transitive_form(both($A, $B))    :- transitive_form($A), transitive_form($B).
+transitive_form(within($C, $E))  :- transitive_form($E).
+
+reflexive_form($R)               :- base_expr($R), reflexive_relation($R).
+reflexive_form(flip($E))         :- reflexive_form($E).
+reflexive_form(both($A, $B))     :- reflexive_form($A), reflexive_form($B).
+reflexive_form(either($A, $B))   :- reflexive_form($A).
+reflexive_form(either($A, $B))   :- reflexive_form($B).
+reflexive_form(then($A, $B))     :- reflexive_form($A), reflexive_form($B).
+reflexive_form(within($C, $E))   :- reflexive_form($E).
+
+functional_form($R)              :- base_expr($R), functional_relation($R).
+functional_form(both($A, $B))    :- functional_form($A).
+functional_form(both($A, $B))    :- functional_form($B).
+functional_form(then($A, $B))    :- functional_form($A), functional_form($B).
+functional_form(unless($A, $B))  :- functional_form($A).
+functional_form(within($C, $E))  :- functional_form($E).
+
+% ── (6) DUE DEFINIZIONI POSSONO ESSERE LA STESSA RELAZIONE ──────────────────
+% Stessa forma normale, o la stessa a meno dell'ordine di `both`/`either`: la
+% scheda lo dice («same as W»). E' il seme dell'analisi delle equivalenze; le
+% leggi restano valide solo per relazioni pure a contesto fisso (§3.5).
+machinery(same_relation).
+same_relation($V, $W) :-
+    relation_def($V, $D1), norm_expr($D1, $N),
+    relation_def($W, $D2), norm_expr($D2, $N2),
+    dif($V, $W), same_form($N, $N2).
+same_form($N, $N).
+same_form(both($A, $B), both($B, $A)).
+same_form(either($A, $B), either($B, $A)).
+
+% ── (7) LA RESA IN PAROLE — cio' che parrot0 dice e' conoscenza (mantra #16) ─
+machinery(expr_words).
+expr_infix(both,   "both ",   " and ").
+expr_infix(either, "either ", " or ").
+expr_infix(then,   "",        " followed by ").
+expr_infix(unless, "",        " except where ").
+expr_suffix(flip,  " read backwards").
+
+expr_words($R, $R)               :- base_expr($R).
+expr_words(flip($E), $W)         :- expr_words($E, $A), expr_suffix(flip, $S), concat_atoms($A, $S, $W).
+expr_words(both($A, $B), $W)     :- expr_pair_words(both, $A, $B, $W).
+expr_words(either($A, $B), $W)   :- expr_pair_words(either, $A, $B, $W).
+expr_words(then($A, $B), $W)     :- expr_pair_words(then, $A, $B, $W).
+expr_words(unless($A, $B), $W)   :- expr_pair_words(unless, $A, $B, $W).
+expr_words(within($C, $E), $W)   :- expr_words($E, $A), concat_atoms("in ", $C, $H), concat_atoms($H, ", ", $H2), concat_atoms($H2, $A, $W).
+expr_words(use($C, $A), $W)      :- expr_words($A, $WA), concat_atoms($C, " ", $H), concat_atoms($H, $WA, $W).
+expr_pair_words($F, $A, $B, $W) :-
+    expr_infix($F, $Pre, $Mid), expr_words($A, $WA), expr_words($B, $WB),
+    concat_atoms($Pre, $WA, $H1), concat_atoms($H1, $Mid, $H2), concat_atoms($H2, $WB, $W).
+
+% la scheda rende la definizione intera, e le equivalenze scoperte
+relation_note($V, $Note) :- relation_def($V, $D), expr_words($D, $W), concat_atoms("defined as ", $W, $Note).
+relation_note($V, $Note) :- same_relation($V, $W), concat_atoms("same as ", $W, $Note).
+% «how is V defined?»
+machinery(relation_def_words).
+relation_def_words($V, $W) :- relation_def($V, $D), expr_words($D, $W).
+
+% ══ gen508/2 — IL FATTO COME NODO A RUOLI APERTI: `occurrence/2`, `role/3` ═══
+%
+% docs/plans/due-strutture-kb-viva.md §2 (F., 2026-09-11): «rendere variabile R
+% in R(X,Y) lascia fissi numero, posizione e significato degli argomenti».
+% Aggiungere a uno scambio chi riceve, quando e a quale titolo non deve
+% obbligare a creare `scambio_con_data` e una nuova famiglia di lettori.
+%
+% La forma minima, costruita con cio' che la KB ha gia':
+%
+%     occurrence(O, R)      O e' un'istanza della relazione/evento R — cioe' un
+%                           MEMBRO della categoria R («sale1 is a sale»)
+%     role(O, Ruolo, V)     in O il ruolo vale V — cioe' il fatto binario
+%                           `Ruolo_of(O, V)` che «the seller of sale1 is anna»
+%                           gia' produce, per ogni ruolo dichiarato
+%     relation_role(R, Ruolo)   lo schema: R ha quel ruolo (aperto: si estende)
+%     required_role(R, Ruolo)   e quali ruoli deve avere per essere completa
+%
+% L'identita' dell'istanza e' l'atomo O: i ruoli restano COAPPARTENENTI a quella
+% istanza e due vendite non si mescolano. Nessuna tabella universale: i predicati
+% ordinari restano come sono, e questa e' l'interfaccia che li rende visibili
+% attraverso un contratto di ruoli. Aggiungere un ruolo domani e' una riga di
+% schema piu' i fatti; nessun consumer che chiede `role/3` deve cambiare.
+machinery(occurrence).
+machinery(role).
+machinery(relation_role).
+machinery(required_role).
+machinery(role_name).
+
+role_name($Role) :- relation_role($R, $Role).
+% dichiarare un ruolo apre anche il lettore «the Ruolo of O is V» (grammar.p0,
+% `relation_noun/2` sopra `relation/1`) e la domanda «what is the Ruolo of O?»
+relation($Role) :- role_name($Role).
+
+% (1) un'istanza e' un membro di una categoria che ha uno schema di ruoli.
+occurrence($O, $R) :- relation_role($R, $Any), holds1($R, $O).
+
+% (2) un ruolo e' il predicato binario `Ruolo_of` con l'istanza come soggetto.
+role($O, $Role, $V) :-
+    role_name($Role), concat_atoms($Role, "_of", $P),
+    apply($P, cons($O, cons($V, nil))).
+
+% (3) i fatti binari ordinari VISTI come nodi: `fact(R, X, Y)` e' l'identita'
+%     dell'occorrenza, con i ruoli posizionali `subject` e `object`. Cosi' una
+%     proiezione o una vista puo' parlare anche di cio' che e' gia' in KB.
+occurrence(fact($R, $X, $Y), $R) :- relation_verb($R), apply($R, cons($X, cons($Y, nil))).
+role(fact($R, $X, $Y), subject, $X).
+role(fact($R, $X, $Y), object, $Y).
+
+% (4) LA PROIEZIONE E' UN'ESPRESSIONE: due ruoli di un'istanza, e a scelta una
+%     condizione su un terzo. Cosi' una proiezione compone con `flip`, `both`,
+%     `then` e le costruzioni come qualunque altra definizione — e il verso
+%     rovescio di una proiezione e' la proiezione con i ruoli scambiati.
+%       roles(R, A, B)                       la A di una R verso la sua B
+%       roles_where(R, A, B, is_a(C, K))     ...quando la sua C e' una K
+eval_rel(roles($R, $A, $B), $X, $Y) :-
+    occurrence($O, $R), role($O, $A, $X), role($O, $B, $Y).
+eval_rel(roles_where($R, $A, $B, is_a($C, $K)), $X, $Y) :-
+    occurrence($O, $R), role($O, $A, $X), role($O, $B, $Y),
+    role($O, $C, $V), holds1($K, $V).
+compound_expr(roles($R, $A, $B)).
+compound_expr(roles_where($R, $A, $B, $C)).
+norm_expr(roles($R, $A, $B), roles($R, $A, $B)).
+norm_expr(roles_where($R, $A, $B, $C), roles_where($R, $A, $B, $C)).
+flip_norm(roles($R, $A, $B), roles($R, $B, $A)).
+flip_norm(roles_where($R, $A, $B, $C), roles_where($R, $B, $A, $C)).
+expr_words(roles($R, $A, $B), $W) :-
+    concat_atoms("the ", $A, $H1), concat_atoms($H1, " of a ", $H2),
+    concat_atoms($H2, $R, $H3), concat_atoms($H3, " to its ", $H4),
+    concat_atoms($H4, $B, $W).
+expr_words(roles_where($R, $A, $B, is_a($C, $K)), $W) :-
+    expr_words(roles($R, $A, $B), $H1), concat_atoms($H1, " when its ", $H2),
+    concat_atoms($H2, $C, $H3), concat_atoms($H3, " is a ", $H4),
+    concat_atoms($H4, $K, $W).
+
+% la lezione «sold_to links the seller of a sale to its buyer» e' una famiglia
+% come le altre: fornisce la descrizione, non un interprete.
+machinery(relation_projection).
+machinery(projection_condition).
+has_condition($V) :- projection_condition($V, $C, $K).
+relation_def($V, roles($R, $A, $B)) :-
+    relation_projection($V, $R, $A, $B), naf(has_condition($V)).
+relation_def($V, roles_where($R, $A, $B, is_a($C, $K))) :-
+    relation_projection($V, $R, $A, $B), projection_condition($V, $C, $K).
+
+% (5) CONOSCENZA PARZIALE SENZA FATTI FALSI. Un ruolo assente e' «non ancora
+%     noto», non «inesistente»: la completezza e' relativa allo schema, e cio'
+%     che manca e' interrogabile — e' lo spazio negativo della KB
+%     (docs/plans/question-emergence.md) reso per ruoli.
+has_role($O, $Role) :- role($O, $Role, $V).
+missing_role($O, $Role) :- occurrence($O, $R), required_role($R, $Role), naf(has_role($O, $Role)).
+occurrence_incomplete($O) :- missing_role($O, $Role).
+occurrence_complete($O)   :- occurrence($O, $R), naf(occurrence_incomplete($O)).
+
+% (6) LO STESSO EVENTO DA UN ALTRO PUNTO DI VISTA. `schema_view(Vista, R)` dice
+%     che una vista legge le istanze di R; `role_alias(Vista, RuoloVista,
+%     RuoloR)` dice come si chiamano i ruoli da li'. Un acquisto e' una vendita
+%     vista dal compratore: stesse istanze, nessun fatto copiato, e la licenza
+%     semantica e' la dichiarazione della vista, non la somiglianza dei nomi.
+machinery(schema_view).
+machinery(role_alias).
+occurrence($O, $View) :- schema_view($View, $R), occurrence($O, $R).
+role($O, $VRole, $V)  :- role_alias($View, $VRole, $SRole), schema_view($View, $R), occurrence($O, $R), role($O, $SRole, $V).
+relation_role($View, $VRole) :- role_alias($View, $VRole, $SRole).
+
+% (7) LA SCHEDA DI UN'ISTANZA: ruoli noti e ruoli mancanti — cio' che parrot0
+%     dice e' conoscenza (mantra #16).
+machinery(occurrence_note).
+occurrence_note($O, $Note) :- role($O, $Role, $V), concat_atoms($Role, ": ", $H), concat_atoms($H, $V, $Note).
+occurrence_note($O, $Note) :- missing_role($O, $Role), concat_atoms("missing: ", $Role, $Note).
+% e la scheda di uno schema: quali ruoli ha, quali richiede
+schema_note($R, $Note) :- relation_role($R, $Role), naf(required_role($R, $Role)), concat_atoms("has a ", $Role, $Note).
+schema_note($R, $Note) :- required_role($R, $Role), concat_atoms("requires a ", $Role, $Note).
+schema_note($V, $Note) :- schema_view($V, $R), concat_atoms("a view of ", $R, $Note).
 
 % (t) LA FAMIGLIA di una relazione — temporale, spaziale, sociale, causale.
 %     Serve a chi insegna per orientarsi, e a parrot0 per dire che cosa sa di un

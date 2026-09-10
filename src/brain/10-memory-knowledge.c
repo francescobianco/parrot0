@@ -13034,6 +13034,109 @@ static int p0_form_piece_kind(const char *piece, char *kind, size_t ksz,
     return 1;
 }
 
+/* ══ gen508 — UN'ESPRESSIONE DI RELAZIONE E' UN TERMINE, NON UN NOME ═══════
+ *
+ * docs/plans/due-strutture-kb-viva.md §3: la definizione di una relazione
+ * deve poter CONTENERE altre definizioni, e la KB deve poterne interrogare la
+ * forma. Le superfici del gen507 leggevano ogni operando come UN token — un
+ * nome — e la composizione si fermava al primo grado.
+ *
+ * Questa e' l'unica porta in C che serve: leggere uno span di parole come
+ * un'espressione e renderlo un termine che il solver unifica per struttura.
+ * La grammatica e' minima e non contiene vocabolario:
+ *
+ *     espr := VARIABILE            una parola di `rule_variable/1` -> $x
+ *           | COSTRUZIONE espr     per giustapposizione -> use(costruzione, espr)
+ *           | NOME                 tutto lo span, unito come un atomo
+ *
+ * Una parola e' una costruzione se la KB la riconosce (`relation_construction/1`,
+ * derivata dall'esistenza di una definizione parametrica) oppure se l'espressione
+ * che segue contiene una variabile: e' il sito in cui la costruzione viene
+ * DEFINITA («reciprocal x holds where both x and flipped x»). Il termine
+ * `use(C, A)` porta il nome della costruzione come DATO, cosi' nessuna regola
+ * deve conoscere il funtore: e' il predicato variabile applicato ai costruttori.
+ *
+ * Il C non sa che cosa significhi nessun costruttore: `both`, `flip`, `then`,
+ * `use` sono interpretati da `eval_rel/3` in procedures.p0. */
+static int p0_expr_var(Brain *b, const char *t) {
+    const char *q[1] = { t };
+    return t && *t && kb_query(b->kb, "rule_variable", q, 1);
+}
+
+static int p0_expr_span_has_var(Brain *b, char **w, size_t from, size_t to) {
+    for (size_t k = from; k < to; k++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+        char lc[KB_TERM_LEN]; lowercase_copy(lc, sizeof lc, strip_edge_punct(t));
+        if (p0_expr_var(b, lc)) return 1;
+    }
+    return 0;
+}
+
+static int p0_relation_expr(Brain *b, char **w, size_t from, size_t to,
+                            char *term, size_t tsz, char *said, size_t ssz,
+                            int *top_ctor) {
+    if (from >= to) return 0;
+    char t0b[KB_TERM_LEN]; snprintf(t0b, sizeof t0b, "%s", w[from]);
+    char t0[KB_TERM_LEN]; lowercase_copy(t0, sizeof t0, strip_edge_punct(t0b));
+    if (!*t0) return 0;
+    *top_ctor = 0;
+    if (to == from + 1 && p0_expr_var(b, t0)) {          /* la variabile della lezione */
+        snprintf(term, tsz, "$%s", t0);
+        snprintf(said, ssz, "%s", t0);
+        return 1;
+    }
+    if (to > from + 1) {                                  /* una costruzione applicata */
+        const char *cq[1] = { t0 };
+        int defining = p0_expr_span_has_var(b, w, from + 1, to);
+        if (defining || kb_query(b->kb, "relation_construction", cq, 1)) {
+            char inner[KB_TERM_LEN], insaid[KB_TERM_LEN]; int ic = 0;
+            if (p0_relation_expr(b, w, from + 1, to, inner, sizeof inner,
+                                 insaid, sizeof insaid, &ic)) {
+                if (snprintf(term, tsz, "use(%s, %s)", t0, inner) >= (int)tsz) return 0;
+                if (snprintf(said, ssz, "%s %s", t0, insaid) >= (int)ssz) return 0;
+                *top_ctor = 1;
+                return 1;
+            }
+        }
+    }
+    char v[KB_TERM_LEN];                                  /* altrimenti: UN nome */
+    if (!p0_join(w, from, to, v, sizeof v)) return 0;
+    for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
+    if (!*v) return 0;
+    lowercase_copy(term, tsz, v);
+    size_t o = 0; said[0] = '\0';
+    for (size_t k = from; k < to && o + 1 < ssz; k++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+        char lc[KB_TERM_LEN]; lowercase_copy(lc, sizeof lc, strip_edge_punct(t));
+        for (char *c = lc; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
+        int n = snprintf(said + o, ssz - o, "%s%s", o ? " " : "", lc);
+        if (n < 0) return 0;
+        o += (size_t)n;
+    }
+    return 1;
+}
+
+/* Fin dove arriva un'espressione dentro una forma: fino alla prima parola
+ * della prossima ancora `text(...)`, o fino alla fine del turno. */
+static size_t p0_expr_span_end(Brain *b, const char *form, long ord,
+                               char **w, size_t nw, size_t i) {
+    char ob[24]; snprintf(ob, sizeof ob, "%ld", ord + 1);
+    char nxt[4][KB_TERM_LEN];
+    const char *nq[3] = { form, ob, NULL };
+    if (kb_match(b->kb, "turn_form", nq, 3, nxt, 4) < 1) return nw;
+    char nb[KB_TERM_LEN]; snprintf(nb, sizeof nb, "%s", nxt[0]);
+    char nk[KB_TERM_LEN], na[KB_TERM_LEN];
+    if (!p0_form_piece_kind(kb_dequote(nb), nk, sizeof nk, na, sizeof na) ||
+        strcmp(nk, "text") != 0)
+        return nw;
+    char *sp = strchr(na, ' '); if (sp) *sp = '\0';
+    for (size_t k = i + 1; k < nw; k++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+        if (!strcasecmp(strip_edge_punct(t), na)) return k;
+    }
+    return nw;
+}
+
 /* Prova UNA forma sul turno. Torna 1 se ogni pezzo combacia e il turno finisce. */
 static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
                          P0FormSlot *slots, size_t *nslot) {
@@ -13148,6 +13251,28 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", nm);
             snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", vl);
             (*nslot)++;
+        } else if (!strcmp(kind, "expr") || !strcmp(kind, "construct")) {
+            /* gen508 — `expr(Nome)`: qui sta un'ESPRESSIONE di relazione, resa
+             * termine (vedi p0_relation_expr). `construct(Nome)` e' la stessa
+             * lettura con una guardia: tiene solo se la cima e' una costruzione
+             * applicata — cosi' «rex is a dog» non diventa una definizione. Lo
+             * slot `Nome_said` conserva le parole, per la resa. */
+            if (i >= nw || *nslot + 2 > P0_FORM_SLOTS) return 0;
+            size_t upto = p0_expr_span_end(b, form, ord, w, nw, i);
+            if (i + 1 < upto && p0_lead_det(b, w[i])) i++;
+            char term[KB_TERM_LEN], said[KB_TERM_LEN]; int top = 0;
+            if (!p0_relation_expr(b, w, i, upto, term, sizeof term,
+                                  said, sizeof said, &top)) return 0;
+            if (!strcmp(kind, "construct") && !top) return 0;
+            snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg);
+            snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", term);
+            slots[*nslot].is_text = 0;
+            (*nslot)++;
+            snprintf(slots[*nslot].name, KB_TERM_LEN, "%s_said", arg);
+            snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", said);
+            slots[*nslot].is_text = 1;
+            (*nslot)++;
+            i = upto;
         } else if (!strcmp(kind, "slot") || !strcmp(kind, "rest")) {
             if (i >= nw || *nslot >= P0_FORM_SLOTS) return 0;
             size_t upto = !strcmp(kind, "rest") ? nw : i + 1;

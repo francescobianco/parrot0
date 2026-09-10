@@ -2183,26 +2183,29 @@ turn_form_reply(teach_class_rule, learned_class_rule).
 % (superficie superiore #5) — una RELAZIONE DEFINITA DA DUE: insegnare una
 % REGOLA invece di un fatto. E' il mantra #19 applicato alle relazioni: la
 % congiunzione si dichiara, non si compila.
-response_template(learned_rel_and, "Held: {subject} holds wherever both {order} and {object} hold.").
-response_template(learned_rel_and, it, "Tengo: {subject} vale dove valgono sia {order} sia {object}.").
+response_template(learned_rel_and, "Held: {subject_said} holds wherever both {order_said} and {object_said} hold.").
+response_template(learned_rel_and, it, "Tengo: {subject_said} vale dove valgono sia {order_said} sia {object_said}.").
 
-turn_form(teach_rel_and, 1, slot(subject)).
+% gen508: gli operandi sono ESPRESSIONI (`expr`), non piu' un token: «mutual
+% holds where both likes and flipped likes» annida una costruzione, e «reciprocal
+% x holds where both x and flipped x» definisce una costruzione parametrica.
+turn_form(teach_rel_and, 1, expr(subject)).
 turn_form(teach_rel_and, 2, text("holds where both")).
-turn_form(teach_rel_and, 3, slot(order)).
+turn_form(teach_rel_and, 3, expr(order)).
 turn_form(teach_rel_and, 4, text("and")).
-turn_form(teach_rel_and, 5, rest(object)).
+turn_form(teach_rel_and, 5, expr(object)).
 turn_form_mood(teach_rel_and, statement).
 turn_form_act(teach_rel_and, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_rel_and, "op(assert, relation_and, [subject, order, object])").
 turn_form_reply(teach_rel_and, learned_rel_and).
 
 % (superficie superiore #6) — e la disgiunzione.
-response_template(learned_rel_or, "Held: {subject} holds wherever {object} holds.").
-response_template(learned_rel_or, it, "Tengo: {subject} vale ovunque valga {object}.").
+response_template(learned_rel_or, "Held: {subject_said} holds wherever {object_said} holds.").
+response_template(learned_rel_or, it, "Tengo: {subject_said} vale ovunque valga {object_said}.").
 
-turn_form(teach_rel_or, 1, slot(subject)).
+turn_form(teach_rel_or, 1, expr(subject)).
 turn_form(teach_rel_or, 2, text("holds wherever")).
-turn_form(teach_rel_or, 3, rest(object)).
+turn_form(teach_rel_or, 3, expr(object)).
 turn_form_mood(teach_rel_or, statement).
 turn_form_act(teach_rel_or, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_rel_or, "op(assert, relation_or, [subject, object])").
@@ -2210,14 +2213,14 @@ turn_form_reply(teach_rel_or, learned_rel_or).
 
 % (superficie superiore #7) — LA COMPOSIZIONE. «nonno» e' «genitore» seguito da
 % «genitore»: due relazioni note ne definiscono una terza che nessuno popola.
-response_template(learned_rel_chain, "Held: {subject} is {order} followed by {object}.").
-response_template(learned_rel_chain, it, "Tengo: {subject} è {order} seguito da {object}.").
+response_template(learned_rel_chain, "Held: {subject_said} is {order_said} followed by {object_said}.").
+response_template(learned_rel_chain, it, "Tengo: {subject_said} è {order_said} seguito da {object_said}.").
 
-turn_form(teach_rel_chain, 1, slot(subject)).
+turn_form(teach_rel_chain, 1, expr(subject)).
 turn_form(teach_rel_chain, 2, text("is")).
-turn_form(teach_rel_chain, 3, slot(order)).
+turn_form(teach_rel_chain, 3, expr(order)).
 turn_form(teach_rel_chain, 4, text("followed by")).
-turn_form(teach_rel_chain, 5, rest(object)).
+turn_form(teach_rel_chain, 5, expr(object)).
 turn_form_mood(teach_rel_chain, statement).
 turn_form_act(teach_rel_chain, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_rel_chain, "op(assert, relation_chain, [subject, order, object])").
@@ -2225,14 +2228,14 @@ turn_form_reply(teach_rel_chain, learned_rel_chain).
 
 % (superficie superiore #8) — L'ECCEZIONE DETTA INSIEME ALLA REGOLA, invece di
 % una regola falsa che qualcuno correggera' poi.
-response_template(learned_rel_unless, "Held: {subject} holds where {order} holds, except where {object} does.").
-response_template(learned_rel_unless, it, "Tengo: {subject} vale dove vale {order}, tranne dove vale {object}.").
+response_template(learned_rel_unless, "Held: {subject_said} holds where {order_said} holds, except where {object_said} does.").
+response_template(learned_rel_unless, it, "Tengo: {subject_said} vale dove vale {order_said}, tranne dove vale {object_said}.").
 
-turn_form(teach_rel_unless, 1, slot(subject)).
+turn_form(teach_rel_unless, 1, expr(subject)).
 turn_form(teach_rel_unless, 2, text("holds where")).
-turn_form(teach_rel_unless, 3, slot(order)).
+turn_form(teach_rel_unless, 3, expr(order)).
 turn_form(teach_rel_unless, 4, text("holds except where")).
-turn_form(teach_rel_unless, 5, rest(object)).
+turn_form(teach_rel_unless, 5, expr(object)).
 turn_form_mood(teach_rel_unless, statement).
 turn_form_act(teach_rel_unless, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_rel_unless, "op(assert, relation_unless, [subject, order, object])").
@@ -2326,12 +2329,12 @@ turn_form_act(teach_signature, "op(assert, relation_signature, [subject, order, 
 turn_form_reply(teach_signature, learned_signature).
 
 % (superficie superiore #16) — la composizione con se' stessa, detta in breve.
-response_template(learned_twice, "Held: {subject} is {object} applied twice.").
-response_template(learned_twice, it, "Tengo: {subject} è {object} applicato due volte.").
+response_template(learned_twice, "Held: {subject_said} is {object_said} applied twice.").
+response_template(learned_twice, it, "Tengo: {subject_said} è {object_said} applicato due volte.").
 
-turn_form(teach_twice, 1, slot(subject)).
+turn_form(teach_twice, 1, expr(subject)).
 turn_form(teach_twice, 2, text("is")).
-turn_form(teach_twice, 3, slot(object)).
+turn_form(teach_twice, 3, expr(object)).
 turn_form(teach_twice, 4, text("twice")).
 turn_form_mood(teach_twice, statement).
 turn_form_act(teach_twice, "op(assert, relation_verb, [subject])").
@@ -2353,12 +2356,12 @@ turn_form_reply(teach_ctx_name, learned_ctx_name).
 
 % (superficie superiore #18) — il verso rovescio dentro `holds/3`, cosi' compone
 % con i contesti e le catene.
-response_template(learned_reverse, "Held: {subject} is {object} read backwards.").
-response_template(learned_reverse, it, "Tengo: {subject} è {object} letto al contrario.").
+response_template(learned_reverse, "Held: {subject_said} is {object_said} read backwards.").
+response_template(learned_reverse, it, "Tengo: {subject_said} è {object_said} letto al contrario.").
 
-turn_form(teach_reverse, 1, slot(subject)).
+turn_form(teach_reverse, 1, expr(subject)).
 turn_form(teach_reverse, 2, text("is")).
-turn_form(teach_reverse, 3, slot(object)).
+turn_form(teach_reverse, 3, expr(object)).
 turn_form(teach_reverse, 4, text("read backwards")).
 turn_form_mood(teach_reverse, statement).
 turn_form_act(teach_reverse, "op(assert, relation_verb, [subject])").
@@ -2389,6 +2392,293 @@ turn_form(unteach_like, 4, rest(object)).
 turn_form_mood(unteach_like, statement).
 turn_form_act(unteach_like, "op(retract, relation_like, [subject, object])").
 turn_form_reply(unteach_like, unlearned_like).
+
+% ══ gen508 — LA DEFINIZIONE E' UN'ESPRESSIONE (docs/plans/due-strutture-kb-viva.md §3)
+%
+% Le superfici #5-#8, #16 e #18 leggono ora ESPRESSIONI (`expr`): ogni operando
+% puo' essere un nome, una costruzione applicata («flipped likes») o la
+% variabile di una lezione («x», `rule_variable/1`). Qui stanno le superfici
+% che il linguaggio chiuso rende possibili: usare una costruzione, chiedere
+% una definizione, e disfarla.
+
+% (superficie superiore #21) — USARE UNA COSTRUZIONE. «friendship is reciprocal
+% likes»: il nome della costruzione e' un dato (`use/2`), e `construct` tiene
+% solo se la cima e' una costruzione gia' definita — «rex is a dog» non passa.
+response_template(learned_def_use, "Held: {subject_said} is {object_said}.").
+response_template(learned_def_use, it, "Tengo: {subject_said} è {object_said}.").
+
+turn_form(teach_def_use, 1, expr(subject)).
+turn_form(teach_def_use, 2, text("is")).
+turn_form(teach_def_use, 3, construct(object)).
+turn_form_mood(teach_def_use, statement).
+turn_form_act(teach_def_use, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_def_use, "op(assert, relation_def, [subject, object])").
+turn_form_reply(teach_def_use, learned_def_use).
+
+% La stessa lezione con un'apertura che dichiara di essere una definizione:
+% «define friendship as reciprocal likes». Come «whoever» per la #4, e' la
+% superficie che non puo' essere presa prima da chi registra una parola nuova.
+turn_form(teach_def_as, 1, text("define")).
+turn_form(teach_def_as, 2, expr(subject)).
+turn_form(teach_def_as, 3, text("as")).
+turn_form(teach_def_as, 4, expr(object)).
+turn_form_mood(teach_def_as, statement).
+turn_form_act(teach_def_as, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_def_as, "op(assert, relation_def, [subject, object])").
+turn_form_reply(teach_def_as, learned_def_use).
+
+% (superficie superiore #22) — CHIEDERE LA DEFINIZIONE, resa per intero.
+response_template(relation_definition, "«{subject}» is defined as: {result}.").
+response_template(relation_definition, it, "«{subject}» è definita così: {result}.").
+
+turn_form(ask_rel_def, 1, text("how is")).
+turn_form(ask_rel_def, 2, slot(subject)).
+turn_form(ask_rel_def, 3, text("defined")).
+turn_form_act(ask_rel_def, "op(match, relation_def_words, [subject, free])").
+turn_form_reply(ask_rel_def, relation_definition).
+
+turn_form(ask_rel_def2, 1, text("what is the definition of")).
+turn_form(ask_rel_def2, 2, slot(subject)).
+turn_form_act(ask_rel_def2, "op(match, relation_def_words, [subject, free])").
+turn_form_reply(ask_rel_def2, relation_definition).
+
+% (superficie superiore #23) — DISFARE UNA DEFINIZIONE, dicendola di nuovo.
+% Vale per una relazione concreta e per una costruzione parametrica: tolta la
+% lezione «flipped x is x read backwards», ogni «flipped R» smette di valere.
+response_template(unlearned_definition, "Forgotten: {subject_said} is no longer defined that way.").
+response_template(unlearned_definition, it, "Dimenticato: {subject_said} non è più definita così.").
+
+turn_form(unteach_rel_and, 1, text("forget that")).
+turn_form(unteach_rel_and, 2, expr(subject)).
+turn_form(unteach_rel_and, 3, text("holds where both")).
+turn_form(unteach_rel_and, 4, expr(order)).
+turn_form(unteach_rel_and, 5, text("and")).
+turn_form(unteach_rel_and, 6, expr(object)).
+turn_form_mood(unteach_rel_and, statement).
+turn_form_act(unteach_rel_and, "op(retract, relation_and, [subject, order, object])").
+turn_form_reply(unteach_rel_and, unlearned_definition).
+
+turn_form(unteach_rel_or, 1, text("forget that")).
+turn_form(unteach_rel_or, 2, expr(subject)).
+turn_form(unteach_rel_or, 3, text("holds wherever")).
+turn_form(unteach_rel_or, 4, expr(object)).
+turn_form_mood(unteach_rel_or, statement).
+turn_form_act(unteach_rel_or, "op(retract, relation_or, [subject, object])").
+turn_form_reply(unteach_rel_or, unlearned_definition).
+
+turn_form(unteach_rel_chain, 1, text("forget that")).
+turn_form(unteach_rel_chain, 2, expr(subject)).
+turn_form(unteach_rel_chain, 3, text("is")).
+turn_form(unteach_rel_chain, 4, expr(order)).
+turn_form(unteach_rel_chain, 5, text("followed by")).
+turn_form(unteach_rel_chain, 6, expr(object)).
+turn_form_mood(unteach_rel_chain, statement).
+turn_form_act(unteach_rel_chain, "op(retract, relation_chain, [subject, order, object])").
+turn_form_reply(unteach_rel_chain, unlearned_definition).
+
+turn_form(unteach_rel_unless, 1, text("forget that")).
+turn_form(unteach_rel_unless, 2, expr(subject)).
+turn_form(unteach_rel_unless, 3, text("holds where")).
+turn_form(unteach_rel_unless, 4, expr(order)).
+turn_form(unteach_rel_unless, 5, text("holds except where")).
+turn_form(unteach_rel_unless, 6, expr(object)).
+turn_form_mood(unteach_rel_unless, statement).
+turn_form_act(unteach_rel_unless, "op(retract, relation_unless, [subject, order, object])").
+turn_form_reply(unteach_rel_unless, unlearned_definition).
+
+turn_form(unteach_reverse, 1, text("forget that")).
+turn_form(unteach_reverse, 2, expr(subject)).
+turn_form(unteach_reverse, 3, text("is")).
+turn_form(unteach_reverse, 4, expr(object)).
+turn_form(unteach_reverse, 5, text("read backwards")).
+turn_form_mood(unteach_reverse, statement).
+turn_form_act(unteach_reverse, "op(retract, relation_reverse, [subject, object])").
+turn_form_reply(unteach_reverse, unlearned_definition).
+
+turn_form(unteach_twice, 1, text("forget that")).
+turn_form(unteach_twice, 2, expr(subject)).
+turn_form(unteach_twice, 3, text("is")).
+turn_form(unteach_twice, 4, expr(object)).
+turn_form(unteach_twice, 5, text("twice")).
+turn_form_mood(unteach_twice, statement).
+turn_form_act(unteach_twice, "op(retract, relation_twice, [subject, object])").
+turn_form_reply(unteach_twice, unlearned_definition).
+
+turn_form(unteach_def_use, 1, text("forget that")).
+turn_form(unteach_def_use, 2, expr(subject)).
+turn_form(unteach_def_use, 3, text("is")).
+turn_form(unteach_def_use, 4, construct(object)).
+turn_form_mood(unteach_def_use, statement).
+turn_form_act(unteach_def_use, "op(retract, relation_def, [subject, object])").
+turn_form_reply(unteach_def_use, unlearned_definition).
+
+% ══ gen508/2 — IL FATTO COME NODO A RUOLI APERTI (docs/plans/due-strutture-kb-viva.md §2)
+%
+% Le istanze si dicono come membri («sale1 is a sale») e i ruoli con il lettore
+% che c'era gia' («the seller of sale1 is anna»); qui stanno le superfici che
+% aprono lo SCHEMA, le proiezioni e le viste, e quelle che interrogano cio'
+% che un'istanza ha e cio' che le manca.
+
+% (superficie superiore #24) — LO SCHEMA: un ruolo di una relazione/evento.
+response_template(learned_role, "Held: a {order} has a {object}.").
+response_template(learned_role, it, "Tengo: un {order} ha un {object}.").
+
+turn_form(teach_role, 1, text("a")).
+turn_form(teach_role, 2, slot(order)).
+turn_form(teach_role, 3, text("involves a")).
+turn_form(teach_role, 4, slot(object)).
+turn_form_mood(teach_role, statement).
+turn_form_act(teach_role, "op(assert, relation_role, [order, object])").
+turn_form_reply(teach_role, learned_role).
+
+% (superficie superiore #25) — un ruolo RICHIESTO: senza, l'istanza e' incompleta.
+response_template(learned_required_role, "Held: a {order} requires a {object}.").
+response_template(learned_required_role, it, "Tengo: un {order} richiede un {object}.").
+
+turn_form(teach_required_role, 1, text("a")).
+turn_form(teach_required_role, 2, slot(order)).
+turn_form(teach_required_role, 3, text("requires a")).
+turn_form(teach_required_role, 4, slot(object)).
+turn_form_mood(teach_required_role, statement).
+turn_form_act(teach_required_role, "op(assert, relation_role, [order, object])").
+turn_form_act(teach_required_role, "op(assert, required_role, [order, object])").
+turn_form_reply(teach_required_role, learned_required_role).
+
+% (superficie superiore #26) — LA PROIEZIONE: una relazione binaria che sceglie
+% due ruoli di un'istanza. «sold_to links the seller of a sale to its buyer».
+response_template(learned_projection, "Held: {subject} links the {role1} of a {order} to its {role2}.").
+response_template(learned_projection, it, "Tengo: {subject} lega il {role1} di un {order} al suo {role2}.").
+
+turn_form(teach_projection, 1, slot(subject)).
+turn_form(teach_projection, 2, text("links the")).
+turn_form(teach_projection, 3, slot(role1)).
+turn_form(teach_projection, 4, text("of a")).
+turn_form(teach_projection, 5, slot(order)).
+turn_form(teach_projection, 6, text("to its")).
+turn_form(teach_projection, 7, slot(role2)).
+turn_form_mood(teach_projection, statement).
+turn_form_act(teach_projection, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_projection, "op(assert, relation_projection, [subject, order, role1, role2])").
+turn_form_reply(teach_projection, learned_projection).
+
+% (superficie superiore #27) — e la proiezione CONDIZIONATA da un terzo ruolo:
+% «sold_house links the seller of a sale to its buyer when its item is a house».
+response_template(learned_projection_where, "Held: {subject} links the {role1} of a {order} to its {role2}, when its {role3} is a {class}.").
+response_template(learned_projection_where, it, "Tengo: {subject} lega il {role1} di un {order} al suo {role2}, quando il suo {role3} è un {class}.").
+
+turn_form(teach_projection_where, 1, slot(subject)).
+turn_form(teach_projection_where, 2, text("links the")).
+turn_form(teach_projection_where, 3, slot(role1)).
+turn_form(teach_projection_where, 4, text("of a")).
+turn_form(teach_projection_where, 5, slot(order)).
+turn_form(teach_projection_where, 6, text("to its")).
+turn_form(teach_projection_where, 7, slot(role2)).
+turn_form(teach_projection_where, 8, text("when its")).
+turn_form(teach_projection_where, 9, slot(role3)).
+turn_form(teach_projection_where, 10, text("is a")).
+turn_form(teach_projection_where, 11, slot(class)).
+turn_form_mood(teach_projection_where, statement).
+turn_form_act(teach_projection_where, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_projection_where, "op(assert, projection_condition, [subject, role3, class])").
+turn_form_act(teach_projection_where, "op(assert, relation_projection, [subject, order, role1, role2])").
+turn_form_reply(teach_projection_where, learned_projection_where).
+
+% (superficie superiore #28) — UNA VISTA: lo stesso evento da un altro punto di
+% vista, con i ruoli rinominati. «a purchase is a view of a sale», poi
+% «in a purchase the seller is called the vendor».
+response_template(learned_schema_view, "Held: a {subject} is a {object} seen from another side.").
+response_template(learned_schema_view, it, "Tengo: un {subject} è un {object} visto da un altro lato.").
+
+turn_form(teach_schema_view, 1, text("a")).
+turn_form(teach_schema_view, 2, slot(subject)).
+turn_form(teach_schema_view, 3, text("is a view of a")).
+turn_form(teach_schema_view, 4, slot(object)).
+turn_form_mood(teach_schema_view, statement).
+turn_form_act(teach_schema_view, "op(assert, schema_view, [subject, object])").
+turn_form_reply(teach_schema_view, learned_schema_view).
+
+response_template(learned_role_alias, "Held: in a {order}, the {object} is called the {subject}.").
+response_template(learned_role_alias, it, "Tengo: in un {order}, il {object} si chiama {subject}.").
+
+turn_form(teach_role_alias, 1, text("in a")).
+turn_form(teach_role_alias, 2, slot(order)).
+turn_form(teach_role_alias, 3, text("the")).
+turn_form(teach_role_alias, 4, slot(object)).
+turn_form(teach_role_alias, 5, text("is called the")).
+turn_form(teach_role_alias, 6, slot(subject)).
+turn_form_mood(teach_role_alias, statement).
+turn_form_act(teach_role_alias, "op(assert, role_alias, [order, subject, object])").
+turn_form_reply(teach_role_alias, learned_role_alias).
+
+% (superficie superiore #29) — LA SCHEDA DI UN'ISTANZA: ruoli noti e mancanti.
+response_template(occurrence_card, "About {subject} I hold {count}: {result}.").
+response_template(occurrence_card, it, "Di {subject} tengo {count}: {result}.").
+
+turn_form(ask_occurrence, 1, text("describe")).
+turn_form(ask_occurrence, 2, slot(subject)).
+turn_form_act(ask_occurrence, "op(match, occurrence_note, [subject, free])").
+turn_form_reply(ask_occurrence, occurrence_card).
+
+% (superficie superiore #30) — CHE COSA MANCA: lo spazio negativo per ruoli.
+response_template(missing_roles, "About {subject} I still miss {count}: {result}.").
+response_template(missing_roles, it, "Di {subject} mi mancano ancora {count}: {result}.").
+
+turn_form(ask_missing, 1, text("what is missing about")).
+turn_form(ask_missing, 2, slot(subject)).
+turn_form_act(ask_missing, "op(match, missing_role, [subject, free])").
+turn_form_reply(ask_missing, missing_roles).
+
+% (superficie superiore #31) — LA SCHEDA DI UNO SCHEMA.
+response_template(schema_card, "A {subject} I hold {count}: {result}.").
+response_template(schema_card, it, "Di un {subject} tengo {count}: {result}.").
+
+turn_form(ask_schema, 1, text("what does a")).
+turn_form(ask_schema, 2, slot(subject)).
+turn_form(ask_schema, 3, text("involve")).
+turn_form_act(ask_schema, "op(match, schema_note, [subject, free])").
+turn_form_reply(ask_schema, schema_card).
+
+% (superficie superiore #32) — DISFARE un ruolo o una proiezione.
+response_template(unlearned_role, "Forgotten: a {order} no longer involves a {object}.").
+response_template(unlearned_role, it, "Dimenticato: un {order} non ha più un {object}.").
+
+turn_form(unteach_role, 1, text("forget that a")).
+turn_form(unteach_role, 2, slot(order)).
+turn_form(unteach_role, 3, text("involves a")).
+turn_form(unteach_role, 4, slot(object)).
+turn_form_mood(unteach_role, statement).
+turn_form_act(unteach_role, "op(retract, required_role, [order, object])").
+turn_form_act(unteach_role, "op(retract, relation_role, [order, object])").
+turn_form_reply(unteach_role, unlearned_role).
+
+turn_form(unteach_projection, 1, text("forget that")).
+turn_form(unteach_projection, 2, slot(subject)).
+turn_form(unteach_projection, 3, text("links the")).
+turn_form(unteach_projection, 4, slot(role1)).
+turn_form(unteach_projection, 5, text("of a")).
+turn_form(unteach_projection, 6, slot(order)).
+turn_form(unteach_projection, 7, text("to its")).
+turn_form(unteach_projection, 8, slot(role2)).
+turn_form_mood(unteach_projection, statement).
+turn_form_act(unteach_projection, "op(retract, relation_projection, [subject, order, role1, role2])").
+turn_form_reply(unteach_projection, unlearned_definition).
+
+turn_form(unteach_projection_where, 1, text("forget that")).
+turn_form(unteach_projection_where, 2, slot(subject)).
+turn_form(unteach_projection_where, 3, text("links the")).
+turn_form(unteach_projection_where, 4, slot(role1)).
+turn_form(unteach_projection_where, 5, text("of a")).
+turn_form(unteach_projection_where, 6, slot(order)).
+turn_form(unteach_projection_where, 7, text("to its")).
+turn_form(unteach_projection_where, 8, slot(role2)).
+turn_form(unteach_projection_where, 9, text("when its")).
+turn_form(unteach_projection_where, 10, slot(role3)).
+turn_form(unteach_projection_where, 11, text("is a")).
+turn_form(unteach_projection_where, 12, slot(class)).
+turn_form_mood(unteach_projection_where, statement).
+turn_form_act(unteach_projection_where, "op(retract, projection_condition, [subject, role3, class])").
+turn_form_act(unteach_projection_where, "op(retract, relation_projection, [subject, order, role1, role2])").
+turn_form_reply(unteach_projection_where, unlearned_definition).
 
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).

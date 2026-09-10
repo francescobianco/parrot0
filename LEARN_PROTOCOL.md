@@ -658,6 +658,20 @@ ne dichiarano proprietà, contesti e firme o permettono di interrogarli.*
 | `what relations do you know?` | l'elenco di `relation_verb/1`, non il censimento di ogni predicato risolvibile (gen507/84) |
 | `V holds wherever W` | un'inclusione `W → V`; ripetendola con sorgenti diverse si definisce la loro unione (gen507/82) |
 | `V behaves like W` | `V` eredita le quattro proprietà supportate di `W`, non i suoi fatti né tutta la scheda (gen507/81) |
+| **gen508 — la definizione è un'espressione** (§G.7) | |
+| `V holds where both A and B` · `V is A followed by B` · `V is A read backwards` · `V holds where A holds except where B` · `V holds wherever A` · `V is A twice` | **gli operandi sono espressioni**, non più un token: un nome, una costruzione applicata («flipped likes») o la variabile di una lezione («x»). Ogni operando passa da `holds/3`, quindi una relazione definita solo da un ponte è un operando possibile (gen508) |
+| `<costruzione> x holds where both x and flipped x` (e ogni altra superficie definitoria, con `x` di `rule_variable/1`) | una **costruzione parametrica**: si insegna *come costruire* una relazione a partire da qualunque altra. Salvata come fatto con variabile, standardizzata a ogni uso (gen508) |
+| `V is <costruzione> W` · `define V as <costruzione> W` | **usare una costruzione**: `relation_def(V, use(costruzione, W))`. La forma tiene solo se la costruzione è già definita: «rex is a dog» non passa (gen508) |
+| `how is V defined?` · `what is the definition of V?` | la definizione resa per intero, a qualunque profondità, da `expr_words/2` (gen508) |
+| `tell me about the relation V` | ora include «defined as …» e le **proprietà che seguono dalla costruzione**: «goes both ways» per `both(R, flip(R))` senza un fatto di V, e «same as W» per due definizioni equivalenti (gen508) |
+| `forget that <la stessa lezione>` | disfa una definizione, concreta o parametrica: tolta «flipped x is x read backwards», ogni «flipped R» smette di valere (gen508) |
+| **gen508/2 — il fatto come nodo a ruoli aperti** (§G.8) | |
+| `a <schema> involves a <ruolo>` · `a <schema> requires a <ruolo>` | lo **schema aperto** di un evento/relazione: `relation_role/2`, `required_role/2`. Dichiarare un ruolo apre subito «the <ruolo> of <istanza> is <valore>» e «what is the <ruolo> of <istanza>?» (gen508/2) |
+| `<istanza> is a <schema>` · `the <ruolo> of <istanza> is <valore>` | forme **preesistenti**: l'istanza è un membro, il ruolo è `<ruolo>_of(istanza, valore)`. L'identità dell'istanza tiene insieme i ruoli (gen508/2) |
+| `V links the <r1> of a <schema> to its <r2>` [`when its <r3> is a <classe>`] | una **proiezione**: `relation_def(V, roles(schema, r1, r2))`, un'espressione come le altre — il suo rovescio è la proiezione con i ruoli scambiati (gen508/2) |
+| `a <vista> is a view of a <schema>` · `in a <vista> the <ruolo> is called the <nome>` | lo stesso evento da un altro lato: stesse istanze, ruoli rinominati, nessun fatto copiato (gen508/2) |
+| `describe <istanza>` · `what is missing about <istanza>?` · `what does a <schema> involve?` | la scheda di un'istanza (ruoli noti e mancanti), lo spazio negativo per ruoli, la scheda di uno schema (gen508/2) |
+| `forget that a <schema> involves a <ruolo>` · `forget that V links …` | ablazione dello schema e della proiezione (gen508/2) |
 
 ```
 > in sport plays stands for belongs
@@ -734,13 +748,13 @@ ragionamenti. Non è un difetto di `apply`: sono due viste diverse.
 | `context_alias/3` | `$Context` non viene confrontato con `active_context/1` | il nome del contesto non è oggi una guardia: verificare anche fuori contesto |
 | `class_scoped_alias/3` | relazione locale e classe sono interrogate con `apply` | una classe nota soltanto tramite `holds1` può rispondere alla domanda di appartenenza e non attivare il ponte |
 | `class_from_relation/2` | cerca la relazione sorgente direttamente | una relazione derivata soltanto da `holds` non genera automaticamente i membri della classe |
-| `relation_and/or/chain/unless/reverse` | gli operandi passano da `apply`, non da `holds` | le famiglie coesistono nella vista; la loro nidificazione generale resta da verificare e aprire |
+| `relation_and/or/chain/unless/reverse` | **gen508: aperto.** Sono viste su `relation_def/2`; gli operandi passano da `eval_rel/3` → `holds/3`, a ogni profondità | resta da misurare il costo su definizioni profonde e su cicli (il budget del solver è il solo limite) |
 | `relation_like/2` | quattro regole ereditano quattro proprietà | non importa fatti, firma, famiglia, inversi o definizioni; non rende identiche le relazioni |
 | Proprietà delle relazioni | simmetria, inverso, transitività e altri percorsi sono consumati anche da helper C nella risposta polare | un «sì» polare non prova che una catena dentro `holds` veda la stessa chiusura |
 | `context_fact/4`, `context_name/3` | richiedono `active_context`; i nomi riscritti passano poi al predicato diretto | attivazione reale presente, ma niente prova automatica di annidamento o precedenze fra mondi |
-| `about/3`, `between_rel/3` | enumerano `relation_verb`, poi chiamano il predicato diretto | possono omettere conseguenze visibili alla domanda polare; `about` considera solo X soggetto |
+| `about/3`, `between_rel/3` | gen508: enumerano `relation_verb`, poi chiamano `holds/3` | vedono anche definizioni e ponti; `about` considera ancora solo X soggetto |
 | `relation_signature/3`, `relation_family/2` | alimentano la scheda | non attivano da sole validazione, inferenza di tipi o una politica di ricerca |
-| `relation_note/2` | la nota del ponte omette il contesto; catena e congiunzione non rendono entrambi gli operandi; manca una nota dedicata al ponte di classe | la scheda non è ancora inventario completo né prova di una risposta |
+| `relation_note/2` | la nota del ponte omette il contesto; manca una nota dedicata al ponte di classe (gen508: le definizioni sono rese per intero da `expr_words/2`) | la scheda non è ancora inventario completo né prova di una risposta |
 
 **Il passo ulteriore è rendere riutilizzabile anche il risultato di un ponte.**
 È una classe di lavoro generale; non si chiude aggiungendo una regola per ogni
@@ -749,6 +763,78 @@ resta però una proposta da dimostrare: introduce ricorsione, cicli, percorsi
 equivalenti e interazioni con la negazione. Deve preservare supporti, scope,
 terminazione osservabile e distinzione fra fallimento e ricerca incompleta.
 Il protocollo registra il confine; non autorizza fix di dominio per mascherarlo.
+
+#### G.7 gen508 — Le definizioni sono espressioni su cui inferire
+
+Realizza la seconda struttura di
+[due-strutture-kb-viva.md](docs/plans/due-strutture-kb-viva.md) §3. Il
+linguaggio delle definizioni è **uno**, chiuso per composizione, e vive in
+`procedures.p0` (blocco «LA DEFINIZIONE E' UN'ESPRESSIONE»):
+
+```text
+relation_def(V, E)     V è definita dall'espressione E
+E := nome | flip(E) | both(E,E) | either(E,E) | then(E,E) | unless(E,E)
+   | within(Contesto, E) | use(Costruzione, E) | roles(Schema, R1, R2)
+   | roles_where(Schema, R1, R2, is_a(R3, Classe))
+```
+
+- **Le famiglie gen507 non sono state riscritte:** `relation_chain`,
+  `relation_and`, `relation_or`, `relation_unless`, `relation_reverse`
+  forniscono descrizioni a `relation_def/2` (viste). Le lezioni già date
+  valgono; è caduta solo la clausola privata di `holds/3` di ciascuna.
+- **L'interprete** è `eval_rel/3`: una clausola per costruttore, e un nome
+  torna a `holds/3` — fatti, regole, ponti di contesto e classe, definizione.
+  È il passo che chiude il confine di §G.5.
+- **Le costruzioni parametriche** sono fatti con una variabile
+  (`relation_and(use(reciprocal, $x), $x, use(flipped, $x))`): il solver li
+  standardizza a ogni uso come regole. Il nome della costruzione è un DATO in
+  `use/2`, quindi nessuna regola conosce il funtore. La licenza è l'esistenza
+  della definizione (`relation_construction/1` è derivato) e si ritira
+  ritirando la lezione.
+- **Le proprietà seguono dalla costruzione**: `norm_expr/2` porta una
+  definizione ai costruttori di base (espandendo costruzioni e nomi definiti,
+  con le leggi del doppio inverso e dell'ordine scambiato), poi
+  `symmetric_form/1`, `transitive_form/1`, `reflexive_form/1`,
+  `functional_form/1` decidono per struttura. Manca *di proposito* una
+  clausola che renda transitiva un'unione: l'assenza di legge è informativa.
+- **La sola porta in C** è lo slot `expr(Nome)` / `construct(Nome)` del
+  lettore di forme (`p0_relation_expr`, `10-memory-knowledge.c`): legge uno
+  span di parole come termine — variabile, costruzione per giustapposizione, o
+  nome — senza sapere che cosa significhi nessun costruttore.
+
+Limiti da conoscere: la ritrattazione di una definizione parametrica deve
+usare la **stessa** lettera di variabile; `context_alias/3` resta nella
+clausola (b) di `holds/3` e non è stato portato a `within/2` (è una decisione
+semantica: al gen507 il ponte non richiede il contesto attivo); le superfici
+sono in inglese; le leggi valgono per relazioni pure a contesto fisso (§3.5
+del documento) e una relazione che ha una definizione **e** fatti propri
+riceve le proprietà della definizione.
+
+#### G.8 gen508/2 — Il fatto come nodo a ruoli aperti
+
+Realizza la prima struttura (§2 dello stesso documento) **senza una tabella
+universale**: `occurrence(O, R)` è l'appartenenza di O alla categoria R quando
+R ha uno schema (`relation_role/2`); `role(O, Ruolo, V)` è il fatto binario
+`Ruolo_of(O, V)` che il lettore «the R of X is Y» produce già per ogni nome in
+`relation/1` — e `relation(Ruolo) :- role_name(Ruolo)` è il ponte che apre
+lettura e domanda dichiarando il ruolo. I fatti binari ordinari sono visti
+come nodi `fact(R, X, Y)` con i ruoli `subject`/`object`.
+
+- **La proiezione è un'espressione** (`roles/3`, `roles_where/4`), quindi
+  compone con tutto il §G.7, e il suo `flip` è la proiezione con i ruoli
+  scambiati (`flip_norm`).
+- **Conoscenza parziale**: `missing_role/2`, `occurrence_complete/1` — un
+  ruolo assente è «non ancora noto». È lo spazio negativo per ruoli.
+- **Viste fra schemi**: `schema_view/2` + `role_alias/3`: stesse istanze,
+  nessun fatto copiato. Limite: un ruolo rinominato è visibile a chi chiede
+  `role/3` (scheda, proiezioni), non alla domanda `<ruolo>_of` diretta.
+- Altri limiti: nomi di ruolo a una parola; le istanze vanno nominate (il
+  produttore prosa→istanza con identità coniata è lavoro successivo); la
+  molteplicità dei ruoli è «più fatti», senza politica di revisione.
+
+**La prova decisiva** (§5 del documento) resta da eseguire quando F. lo
+decide: una lezione che estende ruoli o costruzioni e viene usata da una
+lezione successiva senza raccordo specifico, con ablazione.
 
 #### G.6 Che cosa significa ciascun legame
 
