@@ -9,6 +9,25 @@ Il risultato atteso non è una demo, una patch cosmetica o una suite verde. È u
 incremento verificato e persistente della conoscenza di parrot0, ottenuto
 parlandogli in lingua naturale.
 
+> ## 📖 [→ IL CATALOGO DELLE FORME DI APPRENDIMENTO (§6-bis)](#6-bis-forme-di-apprendimento--che-cosa-si-può-insegnare-parlando)
+>
+> **Che cosa si può insegnare a parrot0 parlando, oggi.** È la prima cosa da
+> leggere prima di aprire una chat: si sceglie la *forma* da lì, invece di
+> scoprire a metà lezione che quella frase non entra da nessuna parte.
+>
+> | | |
+> |---|---|
+> | [A. Classi e appartenenza](#a-classi-e-appartenenza) | `X è un Y` · `ogni Y è P` · `nessun A è un B` |
+> | [B. Relazioni](#b-relazioni) | `V is a relation verb` · `V chains` · `V is the inverse of W` · `V goes both ways` |
+> | [C. Attributi e valori](#c-attributi-e-valori) | `X è rosso` · `correction: X è Y` · `X pesa N` |
+> | [D. Parole, forme e ruoli](#d-parole-forme-e-ruoli) | `"superficie" è un <classe>` · `the italian for X is Y` |
+> | [E. Condotta e ragionamento](#e-condotta-e-ragionamento) | `quando <situazione> allora <mossa>` · `step for X is …` |
+> | [F. Procedure eseguibili](#f-procedure-eseguibili) | `rule for X is <operatore>` · `apply X to <testo>` |
+>
+> In coda alla sezione ci sono le **trappole misurate**: superfici che sembrano
+> giuste e vengono intercettate da un altro lettore. Leggerle prima costa un
+> minuto e fa risparmiare una lezione.
+
 ## ⛔ Disclaimer: addestramento reale, mai testing
 
 Questo protocollo si usa **soltanto per insegnare conoscenza vera sul mondo
