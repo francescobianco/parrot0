@@ -2277,6 +2277,9 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 % expanded world geography/science/history/vocabulary and contrast facts.
 :- include(../facts/encyclopedia.p0).
 :- include(../facts/foundations.p0).
+% gen507: le definizioni insegnate parlando hanno una casa propria — prima
+% finivano nel file del Risiko, che e' dove il save-map trovava un `means/2`.
+:- include(../facts/definitions.p0).
 % gen360: reusable semantic atoms for complete open-ended answer plans.
 :- include(../facts/analysis.p0).
 :- include(../facts/llmscore-arcs.p0).

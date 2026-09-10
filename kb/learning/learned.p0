@@ -114,8 +114,6 @@ discourse_referent(5, bornite).
 discourse_referent(8, azurite).
 discourse_referent(9, malachite).
 discourse_referent(10, eutrophication).
-discourse_referent(12, smith).
-discourse_referent(11, owner).
 iron_ore_mineral(hematite).
 iron_ore_mineral(magnetite).
 iron_ore_mineral(siderite).

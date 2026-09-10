@@ -797,6 +797,38 @@ non è una domanda che qualcuno fa.*
 > Le meno urgenti sono quelle di dominio (L, M, I): utili, ma aggiungono
 > *membri*, non *classi*.
 
+### ⛔ La lezione che si lascia in KB dev'essere VERA e UTILE
+
+*Errore commesso e corretto al gen507/67. Vale come regola, non come aneddoto.*
+
+Quando si prova una forma nuova si usano entità inventate — `smith`, `zelnik`,
+`grum` — perché una prova non deve dipendere da ciò che parrot0 sa già. **Ma
+quelle non si salvano.** Un `/save` dopo una sessione di prova instrada nella KB
+curata cose come:
+
+```prolog
+fact_source(owner(smith, zelnik), smith, "smith owner zelnik").
+discourse_referent(12, smith).
+```
+
+che non sono conoscenza: sono i resti di un banco di prova. Tre danni distinti,
+e il terzo è il peggiore:
+
+1. **Dati falsi** — `owner(smith, zelnik)` non è vero di niente.
+2. **Fatti mozzati** — `means(sonder, realisation)`: la definizione era stata
+   tagliata dal divisore di clausole, e ciò che resta *non è una definizione
+   sbagliata, è una parola*. Peggio di un'assenza, perché risponde.
+3. **Conoscenza vera nel posto sbagliato** — le nove definizioni erano finite in
+   `kb/experts/games/risk.p0`, perché il save-map cercava un file che avesse già
+   un `means/2` e quello era il primo. Una definizione di *kintsugi* dentro il
+   file del Risiko si trova solo per caso.
+
+**La regola.** La sessione di prova e la sessione di lezione sono due sessioni.
+Si prova con entità inventate e **non si salva**; si insegna con conoscenza vera
+e **si salva**. E dopo un `/save` si legge il diff: `git diff kb/` dice sempre
+che cosa è entrato e dove — se una riga non si vorrebbe difendere fra un mese,
+non è una lezione.
+
 ### Trappole misurate
 
 - ⚠ **Le lettere singole che sono anche parole del registro chat spariscono.**

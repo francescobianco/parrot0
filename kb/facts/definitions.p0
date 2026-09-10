@@ -1,0 +1,23 @@
+% definitions.p0 — LE DEFINIZIONI A PAROLE, INSEGNATE PARLANDO
+%
+% `means(Termine, "…")` e' la glossa che parrot0 rende a «definition of X» e
+% «meaning of X». Dal gen507/64 si insegna parlando — «X is defined as …» — e
+% questo file e' la casa che quella lezione non aveva: il save-map la instradava
+% in `kb/experts/games/risk.p0`, perche' li' c'era gia' un `means/2`. Una
+% definizione di kintsugi dentro il file del Risiko e' conoscenza vera nel posto
+% sbagliato: si trova solo per caso, e chi cerca non la cerca li'.
+%
+% ⚠ Le definizioni si insegnano in UNA FRASE SOLA, senza subordinate: il
+% divisore di clausole taglia su «che»/«so»/«not only», e una definizione lunga
+% arriva mozzata. Misurato al gen507/64-65: «sonder» era entrata come
+% «realisation», che non e' una definizione — e' la prima parola.
+
+means(kintsugi, "the japanese art of mending pottery with gold").
+means(petrichor, "the earthy smell of rain on dry ground").
+means(hysteresis, "the dependence of a system on its own history").
+means(apophenia, "the tendency to see connections between unrelated things").
+means(ikigai, "the reason a person gets up in the morning").
+means(entropy, "a measure of how many arrangements a state can have").
+means(saudade, "a longing for something absent").
+means(sonder, "the awareness of every stranger having a life as vivid as yours").
+means(eutrophication, "the enrichment of water by nutrients").
