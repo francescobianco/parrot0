@@ -1571,6 +1571,32 @@ turn_form_mood(teach_plural, statement).
 turn_form_act(teach_plural, assert_relation).
 turn_form_reply(teach_plural, learned_plural).
 
+% ══ gen507/50 (forma #25) — INSEGNARE UNA FORMA VERBALE IRREGOLARE ════════
+% Le regole di suffisso arrivano a «owns» e non a «owned»/«ate»/«went»: quelle
+% sono FATTI della lingua. `irregular_verb_form/2` esisteva ed era scrivibile
+% solo in un file — e il debito del giro /14 («owns» che non si legava a «own»)
+% e' esattamente di questa famiglia.
+response_template(learned_verb_form, "Held: «{object}» is another form of «{subject}».").
+response_template(learned_verb_form, it, "Tengo: «{object}» è un'altra forma di «{subject}».").
+
+turn_form(teach_verbform, 1, text("the past of")).
+turn_form(teach_verbform, 2, slot(subject)).
+turn_form(teach_verbform, 3, text("is")).
+turn_form(teach_verbform, 4, rest(object)).
+turn_form(teach_verbform, 5, bind(relation, irregular_verb_form)).
+turn_form_mood(teach_verbform, statement).
+turn_form_act(teach_verbform, assert_relation).
+turn_form_reply(teach_verbform, learned_verb_form).
+
+turn_form(teach_verbform2, 1, text("another form of")).
+turn_form(teach_verbform2, 2, slot(subject)).
+turn_form(teach_verbform2, 3, text("is")).
+turn_form(teach_verbform2, 4, rest(object)).
+turn_form(teach_verbform2, 5, bind(relation, irregular_verb_form)).
+turn_form_mood(teach_verbform2, statement).
+turn_form_act(teach_verbform2, assert_relation).
+turn_form_reply(teach_verbform2, learned_verb_form).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
