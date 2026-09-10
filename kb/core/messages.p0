@@ -1617,6 +1617,29 @@ turn_form(teach_charclass, 5, bind(relation, char_class)).
 turn_form_mood(teach_charclass, statement).
 turn_form_act(teach_charclass, assert_many).
 
+% ══ gen507/59-60 (forme #83, #87) — ELENCARE E DISFARE LE PROCEDURE ═══════
+% Una procedura insegnata e' conoscenza come un fatto: come un fatto va potuta
+% ELENCARE (senza, chi insegna non sa che cosa ha gia' dato) e RITRATTARE (una
+% lezione che non si puo' disfare non e' una lezione, e' un vincolo).
+response_template(known_keys, "I know how to: {list}.").
+response_template(known_keys, it, "So fare: {list}.").
+response_template(forgot_ordered, "Forgotten: all {count} steps of {subject}.").
+response_template(forgot_ordered, it, "Dimenticato: tutti i {count} passi di {subject}.").
+
+turn_form(list_procs, 1, text("what procedures do you know")).
+turn_form(list_procs, 2, bind(relation, proc_step)).
+turn_form_act(list_procs, list_keys).
+
+turn_form(list_procs_it, 1, text("che procedure sai")).
+turn_form(list_procs_it, 2, bind(relation, proc_step)).
+turn_form_act(list_procs_it, list_keys).
+
+turn_form(forget_proc, 1, text("forget the procedure")).
+turn_form(forget_proc, 2, slot(key)).
+turn_form(forget_proc, 3, bind(relation, proc_step)).
+turn_form_mood(forget_proc, statement).
+turn_form_act(forget_proc, retract_ordered).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

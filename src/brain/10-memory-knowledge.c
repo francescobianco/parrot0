@@ -13462,6 +13462,64 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "list_keys")) {
+            /* gen507/59 (forma #83) — CHE COSA SO FARE.
+             * Una procedura insegnata e' conoscenza come un fatto, e come un
+             * fatto deve poter essere ELENCATA: senza, chi insegna non ha modo
+             * di sapere che cosa ha gia' dato, e la seconda lezione ripete la
+             * prima. Vale per qualunque relazione a chiave, non solo per le
+             * procedure: la relazione la dice la forma. */
+            if (!rel) continue;
+            char keys[64][KB_TERM_LEN];
+            const char *kq[3] = { NULL, NULL, NULL };
+            size_t nk = kb_match(b->kb, rel, kq, 3, keys, 64);
+            char list10[500]; size_t lo = 0, seen10 = 0;
+            for (size_t k = 0; k < nk && lo + 1 < sizeof list10; k++) {
+                char kb10[KB_TERM_LEN]; snprintf(kb10, sizeof kb10, "%s", keys[k]);
+                const char *nm = kb_dequote(kb10);
+                if (!*nm) continue;
+                int dup = 0;
+                for (size_t y = 0; y < k && !dup; y++)
+                    if (!strcmp(keys[y], keys[k])) dup = 1;
+                if (dup) continue;
+                lo += (size_t)snprintf(list10 + lo, sizeof list10 - lo,
+                                       "%s%s", seen10 ? ", " : "", nm);
+                seen10++;
+            }
+            if (!seen10) continue;
+            char msg10[560];
+            const KbResponseSlot ks[] = { { "list", list10 } };
+            if (kb_response_slots(b, "known_keys", ks, 1, msg10, sizeof msg10)) {
+                put(msg10, out, out_size);
+                free(forms);
+                return 1;
+            }
+        } else if (!strcmp(act, "retract_ordered")) {
+            /* gen507/60 (forma #87) — DISFARE UNA PROCEDURA.
+             * Una lezione che non si puo' ritrattare non e' una lezione, e' un
+             * vincolo. Si toglie tutta la lista, non un passo: dimenticare una
+             * procedura a meta' lascerebbe una catena che fa qualcosa di
+             * diverso da entrambe le cose. */
+            const char *key10 = p0_form_slot(slots, ns, "key");
+            if (!rel || !key10) continue;
+            size_t gone = 0;
+            for (long o = 1; o <= 64; o++) {
+                char ob10[24]; snprintf(ob10, sizeof ob10, "%ld", o);
+                char row10[4][KB_TERM_LEN];
+                const char *q10[3] = { key10, ob10, NULL };
+                if (kb_match(b->kb, rel, q10, 3, row10, 4) < 1) continue;
+                const char *ra[3] = { key10, ob10, row10[0] };
+                if (kb_retract(b->kb, rel, ra, 3)) gone++;
+            }
+            if (!gone) continue;
+            char cnt10[24]; snprintf(cnt10, sizeof cnt10, "%zu", gone);
+            char msg11[300];
+            const KbResponseSlot fs[] = { { "subject", key10 }, { "count", cnt10 } };
+            if (kb_response_slots(b, "forgot_ordered", fs, 2, msg11, sizeof msg11)) {
+                put(msg11, out, out_size);
+                free(forms);
+                return 1;
+            }
         } else if (!strcmp(act, "assert_many")) {
             /* gen507/53 (forma #44) — UNA CLASSE CON PIU' MEMBRI, DETTA IN UN
              * TURNO SOLO, con la relazione dichiarata dalla forma.
