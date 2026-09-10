@@ -1214,6 +1214,12 @@ situation_cue("you have no steps", steps_missing).
 situation_cue("you don't have the steps", steps_missing).
 situation_cue("you do not have the steps", steps_missing).
 situation_cue("you don't know how to make something", steps_missing).
+% ⚠ Ogni cue che contiene la parola «steps» e' irraggiungibile in una frase di
+% governo: `intent_cue(process_request, "steps")` intercetta il turno e lo legge
+% come «come si fa X». Serve almeno un modo di nominare la situazione che non
+% usi quella parola.
+situation_cue("the recipe is missing", steps_missing).
+situation_cue("la ricetta manca", steps_missing).
 situation_cue("non hai i passi", steps_missing).
 situation_cue("non sai come si fa", steps_missing).
 
@@ -1826,6 +1832,45 @@ turn_form_mood(teach_opposite, statement).
 turn_form_act(teach_opposite, "op(assert, opposite, [subject, object])").
 turn_form_act(teach_opposite, "op(assert, opposite, [object, subject])").
 turn_form_reply(teach_opposite, learned_opposite).
+
+% ══ gen507/72 (forme #93, #38) — CORREGGERE E DISFARE UN PIANO ════════════
+% Un piano si poteva insegnare (giro /36) e leggere (giro /61), non CAMBIARE:
+% una mossa sbagliata restava, e l'unico rimedio era insegnare la sua correzione
+% in coda — dove non veniva mai eseguita. Stessa cura dei passi di procedura
+% (giro /66): togliere e mettere sono due operazioni, e una forma le dichiara
+% entrambe.
+response_template(move_replaced, "Held: move {order} for {situation} is now «{move}».").
+response_template(move_replaced, it, "Tengo: la mossa {order} per {situation} adesso è «{move}».").
+response_template(plan_forgotten, "Forgotten: the plan for {situation}.").
+response_template(plan_forgotten, it, "Dimenticato: il piano per {situation}.").
+
+turn_form(fix_move, 1, text("move")).
+turn_form(fix_move, 2, slot(order)).
+turn_form(fix_move, 3, text("for")).
+turn_form(fix_move, 4, named(situation_cue, situation)).
+turn_form(fix_move, 5, text("is now")).
+turn_form(fix_move, 6, named(move_cue, move)).
+turn_form_mood(fix_move, statement).
+turn_form_act(fix_move, "op(retract_all, plan_move, [situation, order, free])").
+turn_form_act(fix_move, "op(assert, plan_move, [situation, order, move])").
+turn_form_reply(fix_move, move_replaced).
+
+% ⚠ Non «forget the plan for …»: quella superficie la prende il consulente di
+% progettazione, che risponde con una lettura sul disegno di sistemi. Quarta
+% volta che la formulazione ovvia e' gia' occupata.
+% ⛔ FORMA DICHIARATA E MAI RAGGIUNTA — lasciata scritta con la ragione.
+% Tre superfici provate, tre lettori diversi che le prendono prima:
+%   «forget the plan for …»      -> il consulente di progettazione (parola «plan»)
+%   «unlearn the plan for …»     -> lo stesso
+%   «unlearn what you do when …» -> il lettore delle procedure
+% La regione di superficie attorno a «piano» e «cosa fai quando» e' satura. Non
+% si ruba il turno a nessuno dei tre: la forma resta qui, pronta, e chi trovera'
+% una superficie libera dovra' solo cambiare questa riga.
+turn_form(forget_plan, 1, text("unlearn what you do when")).
+turn_form(forget_plan, 2, named(situation_cue, situation)).
+turn_form_mood(forget_plan, statement).
+turn_form_act(forget_plan, "op(retract_all, plan_move, [situation, free, free])").
+turn_form_reply(forget_plan, plan_forgotten).
 
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).

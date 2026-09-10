@@ -12949,6 +12949,12 @@ static int p0_why_question(Brain *b, const char *norm, char *out, size_t out_siz
 typedef struct {
     char name[KB_TERM_LEN];
     char value[KB_TERM_LEN];
+    /* gen507/72 — se il valore e' TESTO (viene da `rest`) o un ATOMO (da
+     * `slot`, `named`, `bind`). La differenza non e' cosmetica: un testo si
+     * conserva citato e con gli spazi, un atomo no — e `say_purpose` e' un
+     * atomo che contiene un underscore. Indovinarlo dalla forma del valore
+     * faceva citare gli atomi e rompeva le lezioni che li nominano. */
+    int is_text;
 } P0FormSlot;
 
 /* La superficie piu' lunga di `cls` che comincia al token `i`. Copre in un
@@ -13118,6 +13124,7 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             if (!*v) return 0;
             snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg);
             lowercase_copy(slots[*nslot].value, KB_TERM_LEN, v);
+            slots[*nslot].is_text = !strcmp(kind, "rest");
             (*nslot)++;
             i = upto;
         } else return 0;
@@ -13471,10 +13478,14 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                     argv2[argc2] = built[argc2]; argc2++;
                 } else {
                     const char *v = p0_form_slot(slots, ns, nm);
+                    int as_text = 0;
+                    for (size_t k = 0; k < ns; k++)
+                        if (!strcmp(slots[k].name, nm)) as_text = slots[k].is_text;
                     if (!v) v = nm;
                     snprintf(built[argc2], KB_TERM_LEN, "%s", v);
-                    /* un valore che porta spazi si conserva citato: e' testo */
-                    if (strchr(built[argc2], '_')) {
+                    /* Solo un TESTO si conserva citato e con gli spazi. Un atomo
+                     * resta un atomo, anche quando contiene un underscore. */
+                    if (as_text && strchr(built[argc2], '_')) {
                         char tmp[KB_TERM_LEN];
                         snprintf(tmp, sizeof tmp, "%s", built[argc2]);
                         for (char *c = tmp; *c; c++) if (*c == '_') *c = ' ';

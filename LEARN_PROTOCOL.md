@@ -458,6 +458,7 @@ classe intera invece di un membro.*
 | si dice | parrot0 ne ricava |
 |---|---|
 | `quando <situazione> allora <mossa>` | un PIANO: `plan_move(Situazione, Ordine, Mossa)`. L'ordine è quello in cui le mosse vengono insegnate (gen507/36) |
+| `move N for <situazione> is now <mossa>` | **corregge** una mossa del piano invece di accodarla (gen507/72, forma #93) |
 | `your plan when <situazione>?` | parrot0 **racconta la propria condotta**: chi insegna verifica che la lezione sia arrivata senza aprire uno strumento (gen507/61, forma #91). ⚠ non `what do you do when …`: quella è del registro delle capacità |
 | `what situations do you know?` | le situazioni per cui ha un piano (gen507/61, forma #92) |
 | `step for X is <cosa fare>` | un PASSO della procedura per X, in coda ai precedenti (gen507/38). ⚠ non `to make X you …`: quella superficie è del sintetizzatore di artefatti |
@@ -662,7 +663,7 @@ altre cose che sa fare e non sa **quando**.
 | 35 | `"<frase>" means <situazione>` | **meta-forma**: insegnare una SITUAZIONE nuova, non solo una mossa dentro una situazione che esiste | 🔴 |
 | 36 | `never <mossa> when <situazione>` | un divieto: la condotta si dice anche in negativo | 🔴 |
 | 37 | `first <mossa A> then <mossa B>` | riordinare un piano già insegnato senza rifarlo | 🔴 |
-| 38 | `forget the plan for <situazione>` | ritrattare un piano | 🔴 |
+| 38 | `forget the plan for <situazione>` | ritrattare un piano | ⛔ dichiarata e mai raggiunta: tre superfici provate, tre lettori diversi le prendono prima (gen507/72). La regione attorno a «piano» è satura |
 | 39 | `if you are not sure, <mossa>` | condotta sull'incertezza, che oggi è cablata nel declino | 🔴 |
 | 40 | `X is uncertain` | marcare conoscenza dubbia: la risposta deve **dirlo**, non tacerlo | 🔴 |
 
@@ -770,7 +771,7 @@ non è una domanda che qualcuno fa.*
 |---|---|---|---|
 | 91 | chiedere il piano | reso `your plan when <situazione>?` — parrot0 recita la propria condotta | ✅ gen507/61 |
 | 92 | enumerare le situazioni | `what situations do you know?` | ✅ gen507/61 |
-| 93 | correggere una mossa | `move 1 for <situazione> is <altra>` | 🔴 |
+| 93 | correggere una mossa | reso `move N for <situazione> is now <mossa>` | ✅ gen507/72 |
 | 94 | condizionare | `when <situazione> and <condizione> then <mossa>` — due condizioni | 🔴 |
 | 95 | dare una ragione | `when <situazione> then <mossa> because <ragione>` — la condotta con il suo perché, e il perché è interrogabile | 🔴 |
 | 96 | portata | `always <mossa>` · `never <mossa>` | 🔴 |
