@@ -17419,6 +17419,56 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 break;
             }
         }
+        /* gen507/34 — IL PASSO CHE MANCAVA: SE NON SO COME, MI CHIEDO CHE COSA SO.
+         *
+         * F., 2026-09-10: «questo tipo di prompt e' interessante per implementare
+         * il pensiero, perche' il passo, se non sa, dovrebbe essere: conosco X?
+         * … sapra' com'e' fatto e potrebbe rispondere dicendo ti potrebbe
+         * servire un …».
+         *
+         * Fino a qui il muro era onesto e fermo: «non ho i passi». Ma non avere
+         * la PROCEDURA non vuol dire non sapere niente della cosa, e la domanda
+         * successiva parrot0 puo' farsela da solo — «di che cosa e' fatta?».
+         * Sapere che una zattera e' fatta di tronchi e ha una corda non e' sapere
+         * come si costruisce, ed e' molto piu' di niente: dice CHE COSA SERVE.
+         *
+         * Il gradino sta tutto qui: una domanda in piu' rivolta a se stesso
+         * prima di arrendersi, e una risposta che dichiara di essere un ricavato
+         * — «e' com'e' fatta, non come si fa» — invece di travestirsi da
+         * procedura. Quali relazioni dicano la composizione e' conoscenza
+         * (`composition_relation/1`): il motore non ne conosce nessuna, le
+         * enumera, e una relazione nuova — insegnata parlando, o estratta domani
+         * dalla prosa che parrot0 legge — entra nel ragionamento senza C. */
+        if (topic[0]) {
+            char list[400]; size_t off = 0; size_t found = 0;
+            char (*rels)[KB_TERM_LEN] = NULL; size_t nrel = 0;
+            const char *rq2[1] = { NULL };
+            if (kb_match_all(b->kb, "composition_relation", rq2, 1, &rels, &nrel)) {
+                for (size_t ri = 0; ri < nrel; ri++) {
+                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rels[ri]);
+                    const char *rel = kb_dequote(rb2);
+                    if (!*rel) continue;
+                    char parts[16][KB_TERM_LEN];
+                    const char *pq2[2] = { topic, NULL };
+                    size_t npart = kb_match(b->kb, rel, pq2, 2, parts, 16);
+                    for (size_t pi = 0; pi < npart && off + 1 < sizeof list; pi++) {
+                        char shown[KB_TERM_LEN];
+                        present_atom(b, parts[pi], shown, sizeof shown);
+                        if (!shown[0]) continue;
+                        off += (size_t)snprintf(list + off, sizeof list - off,
+                                                "%s%s", found ? ", " : "", shown);
+                        found++;
+                    }
+                }
+            }
+            free(rels);
+            if (found) {
+                const KbResponseSlot ps[] = { { "topic", topic }, { "list", list } };
+                if (kb_response_slots(b, "process_gap_but_parts", ps, 2,
+                                      out, out_size))
+                    return 1;
+            }
+        }
         const KbResponseSlot gs[] = { { "topic", topic } };
         if (kb_response_slots(b, "process_step_gap", gs, 1, out, out_size))
             return 1;

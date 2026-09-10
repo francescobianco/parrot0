@@ -1640,6 +1640,22 @@ extract_frame("@S have a @O", has_part).
 extract_frame("@S have @O", has_part).
 extract_frame("@S ha un @O", has_part).
 extract_frame("@S ha una @O", has_part).
+% ── gen507/34 — DI CHE COSA E' FATTA UNA COSA ──────────────────────────────
+% `made_of` mancava del tutto: parrot0 poteva tenere le PARTI di una cosa e non
+% la sua MATERIA. Sono due relazioni diverse — una zattera ha un remo e e' fatta
+% di tronchi — e servono entrambe al passo del giro /34.
+machinery(made_of).
+relation(material).
+relation_noun(made_of, material).
+extract_frame("@S is made of @O", made_of).
+extract_frame("@S are made of @O", made_of).
+extract_frame("@S is built from @O", made_of).
+extract_frame("@S e' fatto di @O", made_of).
+extract_frame("@S e' fatta di @O", made_of).
+extract_frame("@S sono fatti di @O", made_of).
+answer_frame("made of", made_of).
+answer_frame("built from", made_of).
+
 answer_frame("has", has_part).
 answer_frame("have", has_part).
 answer_frame("ha", has_part).

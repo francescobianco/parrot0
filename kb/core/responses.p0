@@ -770,6 +770,12 @@ response_template(repair_commit_conflict, "The base of {path} changed while the 
 % "for that topic", generico; da quando mod_plan declina sui goal senza prerequisiti
 % questo e' l'unico messaggio che l'utente vede, e deve dire DI COSA non sa i passi.
 response_template(process_step_gap, "I understood you're asking how to make {topic}, but I don't have the steps for it yet.").
+% gen507/34 — IL PASSO CHE MANCAVA: quando i passi non ci sono, la domanda
+% successiva la fa parrot0 a se stesso — «che cosa so di questa cosa?». Sapere
+% di che cosa e' fatta non e' sapere come si fa, ed e' molto piu' di niente:
+% dice cosa serve, e dichiara che e' un ricavato, non una procedura.
+response_template(process_gap_but_parts, "I don't have the steps for {topic} yet. But I know what one is made of, so you would need: {list}. That is what it is, not how to do it.").
+response_template(process_gap_but_parts, it, "Non ho ancora i passi per {topic}. Però so di che cosa è fatta, quindi ti servirebbero: {list}. È com'è fatta, non come si fa.").
 response_template(activity_step_gap, "I understood you're asking for a recommendation, but I don't have a grounded plan for that situation yet.").
 response_template(activity_intro, "From what I know, a good plan is:").
 response_template(activity_intro, it, "Per quanto ne so, un buon piano è:").

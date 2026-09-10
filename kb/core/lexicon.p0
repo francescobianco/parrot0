@@ -3341,6 +3341,14 @@ singleton_word(single).
 % porta l'italiano DENTRO la classe invece che fuori: `come`->`how` da nemico
 % diventa alleato. Un verbo di realizzazione nuovo costa una riga, non una
 % frase intera.
+% gen507/34 — quali relazioni dicono DI CHE COSA e' fatta una cosa. Il motore
+% non ne conosce nessuna: le enumera. Una relazione nuova — insegnata parlando,
+% o letta domani dalla prosa — entra nel ragionamento senza toccare il C.
+machinery(composition_relation).
+composition_relation(made_of).
+composition_relation(has_part).
+composition_relation(constituent_of).
+
 machinery(manner_question).
 manner_question(how).
 

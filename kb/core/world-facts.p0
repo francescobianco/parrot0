@@ -1775,6 +1775,50 @@ pair_magnitude(border, kazakhstan, russia, 7644).
 % («x goes by the name of y», «x is mostly made of y»): non avevano una casa e
 % cadevano nella ricaduta.
 constituent_of(water, blood).
+
+% ══ gen507/34 — CHE COSA SERVE, quando i passi non ci sono ════════════════
+% Sapere DI CHE COSA e' fatta una cosa non e' sapere come si fa, ed e' molto
+% piu' di niente: e' cio' che permette a parrot0 di dire «non ho i passi, ma ti
+% servirebbero…» invece di murare. Un piccolo corredo per far vedere il gradino.
+made_of(raft, logs).
+has_part(raft, rope).
+has_part(raft, paddle).
+made_of(bread, flour).
+has_part(bread, water).
+has_part(bread, yeast).
+has_part(bread, salt).
+made_of(paper, wood_pulp).
+made_of(glass, sand).
+made_of(steel, iron).
+has_part(steel, carbon).
+made_of(concrete, cement).
+has_part(concrete, sand).
+has_part(concrete, gravel).
+has_part(concrete, water).
+made_of(bicycle, steel).
+has_part(bicycle, wheels).
+has_part(bicycle, chain).
+has_part(bicycle, handlebars).
+made_of(kite, paper).
+has_part(kite, string).
+has_part(kite, sticks).
+made_of(candle, wax).
+has_part(candle, wick).
+made_of(soap, fat).
+has_part(soap, lye).
+made_of(wine, grapes).
+made_of(beer, barley).
+has_part(beer, hops).
+has_part(beer, yeast).
+made_of(cheese, milk).
+has_part(cheese, rennet).
+made_of(butter, cream).
+made_of(omelette, eggs).
+made_of(pasta, flour).
+has_part(pasta, water).
+made_of(pizza, dough).
+has_part(pizza, tomato).
+has_part(pizza, cheese).
 precedes(monday, tuesday).
 precedes(preprint, peer_review).
 physicist(curie).
