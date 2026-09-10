@@ -1395,6 +1395,76 @@ turn_form(teach_superlative, 6, bind(relation, world_superlative)).
 turn_form_mood(teach_superlative, statement).
 turn_form_act(teach_superlative, assert_ternary).
 
+% ══ gen507/43 — PROCEDURE COMPLESSE: INSEGNARLE ED ESEGUIRLE ══════════════
+%
+% F., 2026-09-10: «rendi insegnabili anche procedure complesse — per esempio
+% come estrarre le vocali da una parola — tecnicamente lui dovra' storare nella
+% KB le procedure: KB-first significa anche procedure e processi nella KB».
+%
+% Una procedura complessa non e' un operatore complesso: e' una CATENA di
+% operatori semplici, ed e' la catena che si insegna.
+%
+%     > step for vowels is keep vowel
+%     > apply vowels to parrot          ->  vowels(parrot) = «ao».
+%     > step for shout is keep consonant
+%     > step for shout is upper
+%     > apply shout to parrot           ->  shout(parrot) = «PRRT».
+%
+% Gli operatori sono pochi apposta — tenere, togliere, contare, rovesciare,
+% tagliare, alzare/abbassare. Quali CARATTERI stiano in una classe e'
+% conoscenza: «vocale» non e' scritto nel C, e una classe nuova (le consonanti
+% di un'altra lingua, le cifre pari) e' una riga di .p0 e da subito un
+% operatore in piu' da comporre.
+machinery(proc_step).
+machinery(char_class).
+
+char_class(vowel, a). char_class(vowel, e). char_class(vowel, i).
+char_class(vowel, o). char_class(vowel, u).
+char_class(vowel, "à"). char_class(vowel, "è"). char_class(vowel, "é").
+char_class(vowel, "ì"). char_class(vowel, "ò"). char_class(vowel, "ù").
+char_class(consonant, b). char_class(consonant, c). char_class(consonant, d).
+char_class(consonant, f). char_class(consonant, g). char_class(consonant, h).
+char_class(consonant, j). char_class(consonant, k). char_class(consonant, l).
+char_class(consonant, m). char_class(consonant, n). char_class(consonant, p).
+char_class(consonant, q). char_class(consonant, r). char_class(consonant, s).
+char_class(consonant, t). char_class(consonant, v). char_class(consonant, w).
+char_class(consonant, x). char_class(consonant, y). char_class(consonant, z).
+char_class(digit, 0). char_class(digit, 1). char_class(digit, 2).
+char_class(digit, 3). char_class(digit, 4). char_class(digit, 5).
+char_class(digit, 6). char_class(digit, 7). char_class(digit, 8).
+char_class(digit, 9).
+
+response_template(procedure_result, "{subject}(«{object}») — that is what the steps give.").
+response_template(procedure_result, it, "{subject}(«{object}») — è quello che danno i passi.").
+
+% Definire un passo della procedura: la stessa forma dei passi di una ricetta
+% (giro /38), con un'altra relazione. Un piano, una ricetta e una procedura sono
+% la stessa figura: una chiave e una lista in ordine.
+% ⚠ NON «step for X»: e' gia' la superficie dei passi di una RICETTA (giro /38),
+% e le due lezioni finivano in relazioni diverse con la stessa frase — chi vince
+% dipendeva dall'ordine di enumerazione. La distinzione e' anche giusta nel
+% merito: un passo di ricetta e' un'istruzione a una persona, un passo di
+% procedura e' una REGOLA di trasformazione che parrot0 esegue.
+turn_form(teach_proc, 1, text("rule for")).
+turn_form(teach_proc, 2, slot(key)).
+turn_form(teach_proc, 3, text("is")).
+turn_form(teach_proc, 4, rest(text)).
+turn_form(teach_proc, 5, bind(relation, proc_step)).
+turn_form_mood(teach_proc, statement).
+turn_form_act(teach_proc, assert_ordered).
+
+turn_form(run_proc, 1, text("apply")).
+turn_form(run_proc, 2, slot(key)).
+turn_form(run_proc, 3, text("to")).
+turn_form(run_proc, 4, rest(text)).
+turn_form_act(run_proc, run_procedure).
+
+turn_form(run_proc_it, 1, text("applica")).
+turn_form(run_proc_it, 2, slot(key)).
+turn_form(run_proc_it, 3, text("a")).
+turn_form(run_proc_it, 4, rest(text)).
+turn_form_act(run_proc_it, run_procedure).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

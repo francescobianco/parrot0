@@ -13121,6 +13121,94 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "run_procedure")) {
+            /* ══ gen507/43 — ESEGUIRE UNA PROCEDURA CHE QUALCUNO HA INSEGNATO ══
+             *
+             * F., 2026-09-10: «rendi insegnabili anche procedure complesse — per
+             * esempio come estrarre le vocali da una parola — tecnicamente lui
+             * dovra' storare nella KB le procedure: KB-first significa anche
+             * procedure e processi nella KB».
+             *
+             * L'interprete c'era gia' (`procedure_apply_steps` in
+             * assisted-learning.p0) ma i suoi operatori erano solo aritmetici:
+             * niente di cio' che si fa su una PAROLA era esprimibile. Qui ci
+             * sono gli operatori su testo, e sono pochi apposta — tenere,
+             * togliere, contare, rovesciare, tagliare — perche' una procedura
+             * complessa non e' un operatore complesso: e' una CATENA di
+             * operatori semplici, ed e' la catena che si insegna.
+             *
+             * Quali caratteri stiano in una classe e' conoscenza
+             * (`char_class/2`): «vocale» non e' scritto nel C, e una classe
+             * nuova — le consonanti di un'altra lingua, le cifre pari — e' una
+             * riga di .p0 e da subito un operatore in piu' da comporre. */
+            const char *pname = p0_form_slot(slots, ns, "key");
+            const char *input = p0_form_slot(slots, ns, "text");
+            if (!pname || !input) continue;
+            char cur[KB_TERM_LEN];
+            snprintf(cur, sizeof cur, "%s", input);
+            for (char *c = cur; *c; c++) if (*c == '_') *c = ' ';
+            int ran = 0;
+            for (long o = 1; o <= 32; o++) {
+                char ob5[24]; snprintf(ob5, sizeof ob5, "%ld", o);
+                char stepv[4][KB_TERM_LEN];
+                const char *sq6[3] = { pname, ob5, NULL };
+                if (kb_match(b->kb, "proc_step", sq6, 3, stepv, 4) < 1) continue;
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stepv[0]);
+                char stepbuf[KB_TERM_LEN];
+                snprintf(stepbuf, sizeof stepbuf, "%s", kb_dequote(sb));
+                char *sw[8]; size_t snw = split_words(stepbuf, sw, 8);
+                if (snw == 0) continue;
+                const char *op = sw[0];
+                const char *oparg = snw > 1 ? sw[1] : NULL;
+                char next[KB_TERM_LEN]; size_t no = 0;
+                if (!strcmp(op, "keep") || !strcmp(op, "drop")) {
+                    if (!oparg) continue;
+                    int keep = !strcmp(op, "keep");
+                    for (const char *c = cur; *c && no + 1 < sizeof next; c++) {
+                        char ch[2] = { (char)tolower((unsigned char)*c), 0 };
+                        const char *cq7[2] = { oparg, ch };
+                        int in_class = kb_query(b->kb, "char_class", cq7, 2);
+                        if (in_class == keep) next[no++] = *c;
+                    }
+                    next[no] = '\0';
+                } else if (!strcmp(op, "reverse")) {
+                    size_t l = strlen(cur);
+                    if (l >= sizeof next) continue;
+                    for (size_t k = 0; k < l; k++) next[k] = cur[l - 1 - k];
+                    next[l] = '\0';
+                } else if (!strcmp(op, "count")) {
+                    snprintf(next, sizeof next, "%zu", strlen(cur));
+                } else if (!strcmp(op, "upper") || !strcmp(op, "lower")) {
+                    size_t l = strlen(cur);
+                    if (l >= sizeof next) continue;
+                    for (size_t k = 0; k < l; k++)
+                        next[k] = !strcmp(op, "upper")
+                                    ? (char)toupper((unsigned char)cur[k])
+                                    : (char)tolower((unsigned char)cur[k]);
+                    next[l] = '\0';
+                } else if (!strcmp(op, "first") || !strcmp(op, "last")) {
+                    long take = oparg ? strtol(oparg, NULL, 10) : 1;
+                    size_t l = strlen(cur);
+                    if (take < 0) take = 0;
+                    if ((size_t)take > l) take = (long)l;
+                    if (!strcmp(op, "first"))
+                        snprintf(next, sizeof next, "%.*s", (int)take, cur);
+                    else
+                        snprintf(next, sizeof next, "%s", cur + (l - (size_t)take));
+                } else continue;           /* operatore che il motore non sa */
+                snprintf(cur, sizeof cur, "%s", next);
+                ran = 1;
+            }
+            if (!ran) continue;
+            char msg5[320];
+            const KbResponseSlot rs5[] = { { "subject", pname },
+                                           { "object", cur } };
+            if (kb_response_slots(b, "procedure_result", rs5, 2,
+                                  msg5, sizeof msg5)) {
+                put(msg5, out, out_size);
+                free(forms);
+                return 1;
+            }
         } else if (!strcmp(act, "assert_ternary")) {
             /* gen507/42 — un fatto a TRE posti, con la relazione dichiarata
              * dalla forma. Serve a tutto cio' che non e' soggetto-verbo-oggetto:

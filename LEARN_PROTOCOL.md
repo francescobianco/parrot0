@@ -409,6 +409,52 @@ classe intera invece di un membro.*
 | `step for X is <cosa fare>` | un PASSO della procedura per X, in coda ai precedenti (gen507/38). ⚠ non `to make X you …`: quella superficie è del sintetizzatore di artefatti |
 | `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
 
+### F. Procedure eseguibili
+
+*KB-first non è solo fatti: sono anche **procedure e processi** nella KB. Una
+procedura complessa non è un operatore complesso — è una **catena di operatori
+semplici**, ed è la catena che si insegna.*
+
+| si dice | parrot0 ne ricava |
+|---|---|
+| `rule for X is <operatore>` | un passo della procedura X, in coda ai precedenti (gen507/43) |
+| `apply X to <testo>` · `applica X a <testo>` | esegue la catena e rende il risultato |
+
+**Operatori disponibili** (il motore li esegue; le *classi di caratteri* sono KB):
+
+| operatore | effetto |
+|---|---|
+| `keep <classe>` · `drop <classe>` | tiene / toglie i caratteri della classe |
+| `reverse` | rovescia |
+| `count` | sostituisce col numero di caratteri |
+| `upper` · `lower` | maiuscolo / minuscolo |
+| `first N` · `last N` | i primi / gli ultimi N caratteri |
+
+Classi già in KB: `vowel`, `consonant`, `digit`. Una classe nuova — le consonanti
+di un'altra lingua, le cifre pari — è **una riga di `.p0`**, e da subito un
+operatore in più da comporre.
+
+```
+> rule for vowels is keep vowel          Held: for vowels, 1 is «keep vowel».
+> apply vowels to parrot                 vowels(«ao»)
+> rule for shout is keep consonant
+> rule for shout is upper
+> apply shout to parrot                  shout(«PRRT»)
+> rule for howmany is keep vowel
+> rule for howmany is count
+> apply howmany to parrot                howmany(«2»)
+```
+
+⚠ **Non ancora esprimibile:** una procedura con **cicli o condizioni** — la radice
+quadrata a mano, per dire. Serve un operatore che ripeta finché una condizione
+regge, e va progettato come primitiva del motore (un modo nuovo di *fare*, non un
+ordine nuovo): è il prossimo gradino di questa sezione.
+
+⚠ **Non `step for X is …`** per le procedure: quella superficie è dei passi di una
+*ricetta* (`process_step`, gen507/38). La distinzione è anche giusta nel merito —
+un passo di ricetta è un'istruzione a una persona, un passo di procedura è una
+**regola di trasformazione** che parrot0 esegue.
+
 ### Trappole misurate
 
 - ⚠ **Le cue con «it» dentro non arrivano.** Un lettore che cerca un numero per
