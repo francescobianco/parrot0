@@ -380,6 +380,7 @@ classe intera invece di un membro.*
 | `ogni Y è P` | una REGOLA che il risolutore concatena — non un fatto |
 | `ogni Y ha Z` | un fatto sulla SPECIE; i membri lo ereditano (gen507/15) |
 | `nessun A è un B` | esclusione fra classi: chiude il mondo su entrambe |
+| `the <classe>s are A, B and C` | **l'estensione dichiarata completa**: pone i membri *e* dichiara che sono tutti. Da lì «no» è una risposta guadagnata, non un'alzata di spalle (gen507/44, forma #7) |
 
 ### B. Relazioni
 
@@ -519,7 +520,13 @@ catalogo §6-bis con il numero del giro.*
 > del lotto.
 
 **Legenda:** 🔴 da implementare · 🟡 esiste in parte, va aperta alla voce ·
-✅ fatta (allora sta in §6-bis)
+✅ fatta (allora sta anche in §6-bis)
+
+**Notazione.** In queste tabelle `X`, `Y`, `V`, `<valore>`, `<fonte>` sono
+**segnaposto**: vanno sostituiti. Dove compare una parola concreta — `red`,
+`vowels` — è solo un esempio di riempimento, non un letterale che parrot0
+cerca. La regola per leggere una riga: *se la parola potrebbe essere un'altra
+senza cambiare la forma, è un segnaposto.*
 
 ### G. Altre proprietà di una relazione
 
@@ -539,7 +546,7 @@ altre cose che sa fare e non sa **quando**.
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 7 | `the X are A, B and C` | estensione **dichiarata completa** → da lì il «no» è chiuso, non «non l'ho derivato» | 🔴 |
+| 7 | `the X are A, B and C` | estensione **dichiarata completa** → da lì il «no» è chiuso, non «non l'ho derivato» | ✅ gen507/44 |
 | 8 | `X and Y are the same thing` | identità fra entità: ciò che vale per uno vale per l'altro | 🔴 |
 | 9 | `every X is either Y or Z` | partizione: se non è Y allora è Z | 🔴 |
 | 10 | `the opposite of X is Y` | antonimia fra concetti (oggi c'è `opposite` come dominio, non come lezione) | 🟡 |
@@ -683,7 +690,7 @@ non è una domanda che qualcuno fa.*
 | 77 | ordinare | `sort the Y by colour` | ⚪ scartata: ordinare per un valore non ordinabile non ha senso — è la 76 che va dichiarata prima |
 | 78 | valore di default | `Y are usually red` — il valore che vale se nessuno dice altro | 🔴 |
 | 79 | intervallo di validità | `X is red in <periodo>` | 🔴 |
-| 80 | provenienza del valore | `X is red according to Y` — **chi lo dice**: apre il disaccordo fra fonti | 🔴 |
+| 80 | provenienza del valore | `<entità> is <valore> according to <fonte>` — **chi lo dice**: apre il disaccordo fra fonti | 🔴 |
 
 ### V. Procedura × atti
 
@@ -740,6 +747,11 @@ non è una domanda che qualcuno fa.*
 
 ### Trappole misurate
 
+- ⚠ **Le lettere singole che sono anche parole del registro chat spariscono.**
+  In `the vowels are a, e, i, o and u` la «u» diventa `you` (`function_word(u,
+  "you")`) e non entra come membro; la «e» sopravvive solo perché una lettera
+  sola non viene mai letta come congiunzione. Per elencare lettere, usarne
+  nomi (`the letter u`) o classi già in KB (`char_class`).
 - ⚠ **Le cue con «it» dentro non arrivano.** Un lettore che cerca un numero per
   il pronome prende il turno («What number should I use for «it»?»). Usare
   formulazioni senza pronome.

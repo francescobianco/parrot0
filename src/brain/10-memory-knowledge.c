@@ -13121,6 +13121,70 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "assert_closed_extension")) {
+            /* ══ gen507/44 — DIRE CHE UNA CLASSE E' FINITA ══════════════════
+             *
+             * Finche' una classe riceve membri uno alla volta e' APERTA, e il
+             * fallimento della prova vale «non l'ho derivato», mai «no» — e'
+             * l'onesta' del gen504. Ma certe classi sono chiuse per natura, e
+             * chi lo sa puo' dirlo: le vocali sono cinque, i continenti sette.
+             *
+             * Da quel momento il «no» e' GUADAGNATO invece di sospeso, e non
+             * per una classe sola: `condition_closed_world/1` e' la vista che
+             * il motore interroga per ogni classe, quindi una dichiarazione qui
+             * cambia tutte le domande su quella classe, presenti e future.
+             *
+             * L'atto fa due cose insieme perche' sono una cosa sola detta a
+             * voce: pone i membri E dichiara che sono tutti. Separarle
+             * lascerebbe una classe elencata ma ancora aperta, cioe' il
+             * peggiore dei due mondi — sembra completa e risponde «non so». */
+            const char *cls0 = p0_form_slot(slots, ns, "key");
+            const char *mems = p0_form_slot(slots, ns, "text");
+            if (!cls0 || !mems) continue;
+            char cls[KB_TERM_LEN];
+            singularize_kb(b, cls0, cls, sizeof cls);
+            if (!cls[0]) snprintf(cls, sizeof cls, "%s", cls0);
+            char buf9[KB_TERM_LEN];
+            snprintf(buf9, sizeof buf9, "%s", mems);
+            for (char *c = buf9; *c; c++) if (*c == '_' || *c == ',') *c = ' ';
+            char *mw[32]; size_t mn = split_words(buf9, mw, 32);
+            char shown9[400]; size_t so = 0; size_t put9 = 0;
+            int prev9 = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            for (size_t mi = 0; mi < mn; mi++) {
+                const char *m = strip_edge_punct(mw[mi]);
+                if (!*m) continue;
+                /* Un token di UNA lettera in un elenco e' un membro, non un
+                 * connettivo — anche quando quella lettera e' anche una
+                 * congiunzione. «the vowels are a, e, i, o and u» perdeva la
+                 * «e», mangiata come congiunzione italiana. Nel verso opposto
+                 * («… o e u») la «e» finale entra come membro gia' presente, e
+                 * asserirlo due volte non fa danno: l'ambiguita' si risolve
+                 * dalla parte che non perde conoscenza. */
+                const char *cjq[1] = { m };
+                if (strlen(m) > 1 && kb_query(b->kb, "conjunction", cjq, 1)) continue;
+                const char *ma[1] = { m };
+                if (!kb_assert(b->kb, cls, ma, 1)) continue;
+                so += (size_t)snprintf(shown9 + so, sizeof shown9 - so,
+                                       "%s%s", put9 ? ", " : "", m);
+                put9++;
+            }
+            if (put9) {
+                const char *ca[1] = { cls };
+                kb_assert(b->kb, "condition_closed_world", ca, 1);
+            }
+            kb_set_origin(b->kb, prev9);
+            if (!put9) continue;
+            char cnt9[24]; snprintf(cnt9, sizeof cnt9, "%zu", put9);
+            char msg9[520];
+            const KbResponseSlot es[] = { { "klass", cls }, { "count", cnt9 },
+                                          { "list", shown9 } };
+            if (kb_response_slots(b, "learned_closed_extension", es, 3,
+                                  msg9, sizeof msg9)) {
+                put(msg9, out, out_size);
+                free(forms);
+                return 1;
+            }
         } else if (!strcmp(act, "run_procedure")) {
             /* ══ gen507/43 — ESEGUIRE UNA PROCEDURA CHE QUALCUNO HA INSEGNATO ══
              *

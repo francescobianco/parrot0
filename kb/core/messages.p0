@@ -1465,6 +1465,30 @@ turn_form(run_proc_it, 3, text("a")).
 turn_form(run_proc_it, 4, rest(text)).
 turn_form_act(run_proc_it, run_procedure).
 
+% ══ gen507/44 (forma #7) — DIRE CHE UNA CLASSE E' FINITA ══════════════════
+%
+% Finche' una classe riceve membri uno alla volta e' APERTA, e il fallimento
+% della prova vale «non l'ho derivato», mai «no». Ma certe classi sono chiuse
+% per natura, e chi lo sa puo' dirlo:
+%
+%     > the vowels are a, e, i, o and u
+%       Held: those are all 5 vowels there are: a, e, i, o, u.
+%     > is a a vowel?   ->  Yes.
+%     > is k a vowel?   ->  No.        (guadagnato, non «non so»)
+%
+% Pone i membri E dichiara che sono tutti, perche' a voce e' una cosa sola.
+% Separarle lascerebbe una classe elencata ma ancora aperta — sembra completa e
+% risponde «non so», il peggiore dei due mondi.
+response_template(learned_closed_extension, "Held: those are all {count} {klass}s there are: {list}. From now on «no» is an answer, not a shrug.").
+response_template(learned_closed_extension, it, "Tengo: sono tutti — i {klass} sono {count}: {list}. Da qui in poi «no» è una risposta, non un'alzata di spalle.").
+
+turn_form(teach_closed, 1, text("the")).
+turn_form(teach_closed, 2, slot(key)).
+turn_form(teach_closed, 3, text("are")).
+turn_form(teach_closed, 4, rest(text)).
+turn_form_mood(teach_closed, statement).
+turn_form_act(teach_closed, assert_closed_extension).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
