@@ -1709,6 +1709,26 @@ turn_form_mood(teach_identity, statement).
 turn_form_act(teach_identity, "op(assert, entity_alias, [surface, concept])").
 turn_form_reply(teach_identity, learned_identity).
 
+% ══ gen507/64 (forma #26) — INSEGNARE UNA DEFINIZIONE A PAROLE ════════════
+% `means/2` e' la glossa che parrot0 rende quando gli si chiede che cosa sia una
+% cosa, e c'erano centinaia di righe scritte a mano e nessun modo di aggiungerne
+% una parlando. Il valore si conserva CITATO, perche' una definizione e' testo:
+% l'atto lo cita da se' quando l'argomento porta piu' parole.
+%
+% ⚠ Non «X means Y» (e' del maestro delle costruzioni, «x V y means x W y») e
+% NEMMENO «the meaning of X is …», che e' del lettore di analisi letteraria:
+% risponde con una lettura ravvicinata. Terza superficie provata, e la regola si
+% conferma — quella piu' naturale e' quasi sempre gia' di qualcun altro.
+response_template(learned_meaning, "Held: {subject} — {object}.").
+response_template(learned_meaning, it, "Tengo: {subject} — {object}.").
+
+turn_form(teach_meaning, 1, slot(subject)).
+turn_form(teach_meaning, 2, text("is defined as")).
+turn_form(teach_meaning, 3, rest(object)).
+turn_form_mood(teach_meaning, statement).
+turn_form_act(teach_meaning, "op(assert, means, [subject, object])").
+turn_form_reply(teach_meaning, learned_meaning).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

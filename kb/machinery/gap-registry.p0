@@ -90,6 +90,7 @@ machinery_gap("a leap year has 366 days").
 machinery_gap("known is an irregular participle").
 machinery_gap("shall is a necessity marker").
 machinery_gap("because is a ground connector").
+machinery_gap("petrichor rises when rain falls on dry ground").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
 gap_opaque("dropout prevents what?", dropout).
@@ -110,6 +111,11 @@ gap_opaque("known is an irregular participle", known).
 gap_opaque("shall is a necessity marker", marker).
 gap_opaque("shall is a necessity marker", necessity).
 gap_opaque("because is a ground connector", ground).
+gap_opaque("petrichor rises when rain falls on dry ground", ground).
+gap_opaque("petrichor rises when rain falls on dry ground", dry).
+gap_opaque("petrichor rises when rain falls on dry ground", falls).
+gap_opaque("petrichor rises when rain falls on dry ground", rises).
+gap_opaque("petrichor rises when rain falls on dry ground", petrichor).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
@@ -118,8 +124,10 @@ gap_kind("how many days in march?", reachability).
 gap_kind("a leap year has 366 days", reachability).
 gap_kind("known is an irregular participle", reachability).
 gap_kind("dropout prevents what?", reachability).
+gap_kind("petrichor rises when rain falls on dry ground", reachability).
 gap_kind("shall is a necessity marker", reachability).
 gap_anchor("because is a ground connector", connector).
+gap_anchor("petrichor rises when rain falls on dry ground", rain).
 gap_kind("because is a ground connector", reachability).
 gap_source("the metaphor maps what?", "the metaphor maps what?").
 gap_anchor("what is measured by the farad?", farad).
@@ -145,4 +153,5 @@ gap_source("a leap year has 366 days", "a leap year has 366 days").
 gap_source("known is an irregular participle", "known is an irregular participle").
 gap_source("shall is a necessity marker", "shall is a necessity marker").
 gap_source("because is a ground connector", "because is a ground connector").
+gap_source("petrichor rises when rain falls on dry ground", "petrichor rises when rain falls on dry ground").
 gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").

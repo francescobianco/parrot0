@@ -1224,6 +1224,7 @@ causes(pollution, climate_change).
 causes(rain, wet_ground).
 causes(sun, plant_growth).
 causes(wet_ground, slippery_surfaces).
+causes(eutrophication, algae).
 chemical_symbol(actinium, Ac).
 chemical_symbol(ag, silver).
 chemical_symbol(al, aluminium).

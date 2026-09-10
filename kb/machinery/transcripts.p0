@@ -51,6 +51,8 @@ utterance(5, user, "no carbonate mineral is an iron oxide mineral").
 utterance(5, user, "bornite is a copper sulfide mineral").
 utterance(5, user, "is malachite a copper mineral?").
 utterance(5, user, "kinetic energy law is also called legge dell energia cinetica").
+utterance(5, user, "petrichor rises when rain falls on dry ground").
+utterance(5, user, "hysteresis is defined as the dependence of a system on its own history").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -81,6 +83,8 @@ utterance(6, self, "Held: nothing is both carbonate mineral and iron oxide miner
 utterance(6, self, "Learned: bornite is a copper sulfide mineral.").
 utterance(6, self, "Yes.").
 utterance(6, self, "Learned: kinetic energy law also known as 'legge dell energia cinetica'.").
+utterance(6, self, "Hmm, I don't know about petrichor yet. Want me to learn about it? Or teach me: if «x rises y» says what you already say another way, say «x rises y means x <known verb> y»; if rises is something one thing does to another, say «rises is a relation verb».").
+utterance(6, self, "Held: hysteresis — dependence_of_a_system_on_its_own_history.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -523,6 +527,8 @@ utterance(7, user, "is siderite an iron oxide mineral?").
 utterance(7, user, "why is bornite a copper sulfide mineral?").
 utterance(7, user, "why is malachite a copper mineral?").
 utterance(7, user, "density law is also called formula della densità").
+utterance(7, user, "petrichor is defined as the earthy smell that rises when rain falls on dry ground").
+utterance(7, user, "apophenia is defined as the tendency to see connections between unrelated things").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -574,6 +580,24 @@ utterance(13, user, "learn italian definition of kinetic energy law: 'La energia
 utterance(14, self, "Got it - kinetic_energy_law: La energia cinetica di un corpo di massa m e velocita v vale E = 0.5 * m * v * v nel regime non relativistico.").
 utterance(15, user, "learn italian definition of density law: 'La densita media di un corpo si calcola dividendo la massa per il volume: rho = m / V. Il volume deve essere positivo'").
 utterance(16, self, "Got it - density_law: La densita media di un corpo si calcola dividendo la massa per il volume: rho = m / V. Il volume deve essere positivo.").
+utterance(8, self, "Held: petrichor — earthy_smell. Hmm, I don't know about petrichor yet. Want me to learn about it? Or teach me: if «x rises y» says what you already say another way, say «x rises y means x <known verb> y»; if rises is something one thing does to another, say «rises is a relation verb».").
+utterance(9, user, "hysteresis is defined as the dependence of a system on its own history not only on its present state").
+utterance(10, self, "It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence.").
+utterance(11, user, "apophenia is defined as the tendency to perceive meaningful connections between unrelated things").
+utterance(12, self, "It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence.").
+utterance(13, user, "eutrophication is defined as the enrichment of water by nutrients").
+utterance(14, self, "Held: eutrophication — enrichment_of_water_by_nutrients.").
+utterance(15, user, "eutrophication causes algae to grow and oxygen to fall").
+utterance(16, self, "Learned: eutrophication causes algae.").
+utterance(17, user, "eutrophication is defined as the enrichment of water by nutrients that causes algae to grow and oxygen to fall").
+utterance(18, self, "Held: eutrophication — enrichment_of_water_by_nutrients. Learned: eutrophication causes algae.").
+utterance(8, self, "Held: apophenia — tendency_to_see_connections_between_unrelated_things.").
+utterance(9, user, "definition of kintsugi").
+utterance(10, self, "Japanese art of mending pottery with gold.").
+utterance(11, user, "definition of hysteresis").
+utterance(12, self, "Dependence of a system on its own history.").
+utterance(13, user, "definition of apophenia").
+utterance(14, self, "Tendency to see connections between unrelated things.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -851,6 +875,8 @@ utterance(2, self, "I don't know about copper sulfide mineral.").
 utterance(2, self, "Learned: azurite is a copper carbonate mineral.").
 utterance(2, self, "Learned: malachite is a copper carbonate mineral.").
 utterance(2, self, "Learned: ohms law also known as 'legge di ohm'.").
+utterance(2, self, "It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence.").
+utterance(2, self, "Held: kintsugi — japanese_art_of_mending_pottery_with_gold.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -880,6 +906,8 @@ utterance(1, user, "is bornite a copper sulfide mineral?").
 utterance(1, user, "azurite is a copper carbonate mineral").
 utterance(1, user, "malachite is a copper carbonate mineral").
 utterance(1, user, "ohms law is also called legge di ohm").
+utterance(1, user, "kintsugi is defined as the japanese art of mending broken pottery with gold so the repair becomes part of the history").
+utterance(1, user, "kintsugi is defined as the japanese art of mending pottery with gold").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -903,6 +931,8 @@ utterance(4, self, "I can't show that.").
 utterance(4, self, "I don't know: nothing I hold says azurite is a copper sulfide mineral, and nothing says it isn't. Knowing some copper sulfide minerals does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(4, self, "Learned rule: copper_mineral(X) :- copper_carbonate_mineral(X). Induced: chess_rank(X) :- is_prime(X). philosopher(X) :- man(X). humanities_topic(X) :- man(X). humanities_topic(X) :- philosopher(X). humanities_topic(X) :- anthropologist(X). go_edge_intersection(X) :- go_corner_intersection(X). iron_ore_mineral(X) :- iron_oxide_mineral(X).").
 utterance(4, self, "Learned: newtons second law also known as 'seconda legge di newton'.").
+utterance(4, self, "Held: petrichor — earthy_smell.").
+utterance(4, self, "Held: petrichor — earthy_smell_of_rain_on_dry_ground.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -927,6 +957,8 @@ utterance(3, user, "why is bornite a copper sulfide mineral?").
 utterance(3, user, "is azurite a copper sulfide mineral?").
 utterance(3, user, "every copper carbonate mineral is a copper mineral").
 utterance(3, user, "newtons second law is also called seconda legge di newton").
+utterance(3, user, "petrichor is defined as the earthy smell").
+utterance(3, user, "petrichor is defined as the earthy smell of rain on dry ground").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

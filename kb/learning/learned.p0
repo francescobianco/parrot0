@@ -113,6 +113,7 @@ discourse_referent(6, chalcocite).
 discourse_referent(5, bornite).
 discourse_referent(8, azurite).
 discourse_referent(9, malachite).
+discourse_referent(10, eutrophication).
 iron_ore_mineral(hematite).
 iron_ore_mineral(magnetite).
 iron_ore_mineral(siderite).
