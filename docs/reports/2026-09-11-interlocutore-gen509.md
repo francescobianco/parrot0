@@ -338,6 +338,20 @@ perche' le cause sono state insegnate in inglese; «senza paracadute» non entra
 ancora nella risposta (manca la relazione di attenuazione); gli atomi di una
 causa restano entro tre parole.
 
+## 7-quater. gen510, quinto giro (interrotto) — il muro italiano
+
+Il muro italiano ha tre cause distinte, non una:
+
+1. **una parola funzione non raggiunta**: «è» e «cos'è» avevano la loro
+   riga, ma quotata, e la ricerca nuda non la trovava (corretto);
+2. **una cue senza posizione**: «si» e «dai» valevano come assenso ovunque,
+   e una domanda nuova accettava l'offerta precedente (corretto);
+3. **la parola flessa**: «vulcani», «pinguini», «vivono» restano italiane
+   perche' il dizionario conosce un'altra forma. Il piano `translate_turn`
+   (gloss.p0) prova la flessione, dichiara la lettura ottenuta per ipotesi e,
+   quando non traduce, chiede la lezione. E' scritto ma non ancora attivo:
+   vedi l'handoff in TEST_TODO.md.
+
 ## 8. Da dove ripartire
 
 Le tre cause del §4.3 sono tre classi di lavoro, non trentatré prompt:

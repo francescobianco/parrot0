@@ -2163,6 +2163,41 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             }
         }
     }
+    /* gen510 — PASSO 5 DEL PIANO DI TRADUZIONE: una parola rimasta senza
+     * traduzione nel testo canonico e' il punto esatto in cui la lettura si e'
+     * fermata, e ha una lezione che la ripara. Quali parole contano lo dice
+     * `turn_untranslated/2`; qui si controlla solo che la parola sia davvero
+     * arrivata intatta al testo che le facolta' hanno letto.
+     * TODO(handoff gen510): molti turni italiani NON arrivano qui — li prende
+     * prima un'offerta di lacuna («Hmm, I don't know about scritto yet») o una
+     * facolta' che legge male il testo misto («Happy to. Pick a thread»).
+     * Quelle vie dovrebbero chiedere anch'esse `turn_untranslated/2` e cedere
+     * a questo muro (una `faculty_yield` in KB, non un if qui). */
+    if (b && b->kb && canon) {
+        char (*uw)[KB_TERM_LEN] = NULL; size_t nu = 0;
+        const char *uq[2] = { "current_turn", NULL };
+        if (kb_match_all(b->kb, "turn_untranslated", uq, 2, &uw, &nu) && nu) {
+            char cb[256]; snprintf(cb, sizeof cb, "%s", canon);
+            char *cw[64]; size_t ncw = split_words(cb, cw, 64);
+            for (size_t k = 0; k < nu; k++) {
+                char wb[KB_TERM_LEN]; snprintf(wb, sizeof wb, "%s", uw[k]);
+                const char *word = kb_dequote(wb);
+                int present = 0;
+                for (size_t q = 0; q < ncw && !present; q++)
+                    if (!strcmp(strip_edge_punct(cw[q]), word)) present = 1;
+                if (!present) continue;
+                const KbResponseSlot sl[] = { { "word", word } };
+                char msg[512];
+                if (kb_response_slots(b, "wall_untranslated", sl, 1, msg, sizeof msg) && *msg) {
+                    gap_record_as(b, canon, raw, "untranslated");
+                    put(msg, out, out_size);
+                    free(uw);
+                    return;
+                }
+            }
+        }
+        free(uw);
+    }
     char classicbuf[512];
     kb_term_say(b, "wall_classic", NULL, 0, classicbuf, sizeof classicbuf);
     const char *classic = classicbuf;
@@ -3437,6 +3472,28 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
                                   out, out_size))
                 snprintf(b->last_module, sizeof b->last_module,
                          "%s", "saturation_guard");
+        }
+    }
+    /* gen510 — PASSO 4 DEL PIANO DI TRADUZIONE (gloss.p0, `translate_turn`):
+     * la lettura ottenuta per ipotesi resta nel contesto della risposta. Se
+     * c'e' e che cosa dire lo decide `turn_reply_preface/2`; un muro non ha
+     * niente da qualificare.
+     * TODO(handoff gen510): mostra solo la PRIMA ipotesi; con due parole
+     * indovinate («mangiano i gatti») andrebbero dette entrambe (fold in KB).
+     * TODO(handoff gen510): le vie che rispondono senza passare da turn_done
+     * (i `return strlen(out)` di brain_respond) non ricevono la premessa. */
+    if (b && b->kb && out && *out && strcmp(b->last_module, "fallback") != 0) {
+        const char *pq[2] = { "current_turn", NULL };
+        char pf[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "turn_reply_preface", pq, 2, pf, 1) == 1) {
+            const char *pre = kb_dequote(pf[0]);
+            size_t pl = strlen(pre);
+            if (pl && strncmp(out, pre, pl) != 0) {
+                char joined[4096];
+                snprintf(joined, sizeof joined, "%s%s%s", pre,
+                         pre[pl - 1] == ' ' ? "" : " ", out);
+                put(joined, out, out_size);
+            }
         }
     }
     note_arith_result(b, out);

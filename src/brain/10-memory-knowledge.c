@@ -1675,7 +1675,23 @@ static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
             got = kb_match(b->kb, "function_word", q3, 3, hit, 1) == 1;
         }
         const char *q[2] = { w, NULL };
-        if (got || kb_match(b->kb, "function_word", q, 2, hit, 1) == 1) {
+        if (!got) got = kb_match(b->kb, "function_word", q, 2, hit, 1) == 1;
+        /* gen510: una parola funzione con un carattere non ASCII («è»,
+         * «cos'è») sta nella KB come stringa quotata, e cercarla nuda non la
+         * trovava mai: «il sole è una stella?» arrivava come «the sun è a
+         * star?». Si riprova la forma quotata, come fa gia' `entity_alias`. */
+        /* TODO(handoff gen510): misurare accentless_copula.p0t e i test
+         * italiani: «è» ora diventa «is» ovunque arrivi da solo. */
+        if (!got) {
+            char qw[KB_TERM_LEN];
+            snprintf(qw, sizeof qw, "\"%s\"", w);
+            char lang[8]; current_lang(b, lang, sizeof lang);
+            const char *q3q[3] = { lang, qw, NULL };
+            const char *qq[2] = { qw, NULL };
+            got = kb_match(b->kb, "function_word", q3q, 3, hit, 1) == 1 ||
+                  kb_match(b->kb, "function_word", qq, 2, hit, 1) == 1;
+        }
+        if (got) {
             snprintf(buf, bufsz, "%s", hit[0]);
             size_t l = strlen(buf);
             if (l >= 2 && buf[0] == '"' && buf[l - 1] == '"') {
@@ -1724,6 +1740,18 @@ static int kb_tr_it_en(Brain *b, const char *it, char *en, size_t en_sz) {
  * knowledge lives in gloss.p0. Per PRINCIPLES.md and universal-input.md, the
  * engine is fixed — knowledge learns. */
 static char *kb_dequote(char *s);   /* gen382s: defined below; the phrase layer needs it */
+/* gen510 — IL PASSO 2 DEL PIANO DI TRADUZIONE (gloss.p0, `translate_turn`).
+ * Una parola senza traduzione diretta puo' essere una forma flessa di una che
+ * ne ha una. Quale desinenza, in che lingua e se il passo e' attivo lo dice
+ * `translation_guess/2`; qui c'e' solo la domanda. */
+static int kb_translation_guess(Brain *b, const char *w, char *en, size_t en_sz) {
+    if (!b || !b->kb || !w || !*w || en_sz == 0) return 0;
+    const char *q[] = { w, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "translation_guess", q, 2, hit, 1) != 1) return 0;
+    snprintf(en, en_sz, "%s", kb_dequote(hit[0]));
+    return en[0] != '\0';
+}
 static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_size) {
     if (out_size == 0) return;
     char buf[256];
@@ -2067,6 +2095,9 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
              * to the original token if no translation is known. */
             char en[KB_TERM_LEN];
             if (kb_tr_it_en(b, tok, en, sizeof en))
+                off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                        lead, en, tail);
+            else if (kb_translation_guess(b, tok, en, sizeof en))
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                         lead, en, tail);
             else

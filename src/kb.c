@@ -1949,7 +1949,39 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         char a0[KB_TERM_LEN], a1[KB_TERM_LEN];
         deep_resolve(s, g->args[0], a0, sizeof a0, 0);
         deep_resolve(s, g->args[1], a1, sizeof a1, 0);
-        if (is_var(a0) || is_var(a1)) return 0;   /* both inputs must be ground */
+        if (is_var(a0) || is_var(a1)) {
+            /* gen510: IL VERSO INVERSO. Con il risultato noto e UNA delle due
+             * parti nota, l'altra e' il resto: `concat_atoms(S, i, vulcani)`
+             * lega S a «vulcan». Serve a una regola di flessione per togliere
+             * una desinenza — che desinenza, e di che lingua, lo dice la KB;
+             * qui c'e' solo il confronto di byte, come nel verso diretto. Il
+             * resto non puo' essere vuoto: una parte vuota non e' una parte. */
+            if (is_var(a0) && is_var(a1)) return 0;
+            /* TODO(handoff gen510): auditare le regole che chiamano
+             * concat_atoms con un argomento libero: prima fallivano, ora
+             * possono riuscire (grep `concat_atoms(` in kb/). */
+            char a2[KB_TERM_LEN];
+            deep_resolve(s, g->args[2], a2, sizeof a2, 0);
+            if (is_var(a2)) return 0;
+            char *t2 = a2, *tk = is_var(a0) ? a1 : a0;
+            size_t l2 = strlen(t2), lk = strlen(tk);
+            if (l2 >= 2 && t2[0] == '"' && t2[l2 - 1] == '"') { t2[l2 - 1] = '\0'; t2++; l2 -= 2; }
+            if (lk >= 2 && tk[0] == '"' && tk[lk - 1] == '"') { tk[lk - 1] = '\0'; tk++; lk -= 2; }
+            if (lk >= l2) return 0;
+            char rest[KB_TERM_LEN];
+            if (is_var(a0)) {
+                if (strcmp(t2 + (l2 - lk), tk) != 0) return 0;
+                snprintf(rest, sizeof rest, "%.*s", (int)(l2 - lk), t2);
+            } else {
+                if (strncmp(t2, tk, lk) != 0) return 0;
+                snprintf(rest, sizeof rest, "%s", t2 + lk);
+            }
+            Subst *s2 = &scratch->subst;
+            subst_copy(s2, s);
+            if (unify(s2, is_var(a0) ? g->args[0] : g->args[1], rest))
+                return solve(S, goals, ngoals, idx + 1, s2, depth);
+            return 0;
+        }
         char *t0 = a0, *t1 = a1;
         size_t l0 = strlen(t0), l1 = strlen(t1);
         if (l0 >= 2 && t0[0] == '"' && t0[l0 - 1] == '"') { t0[l0 - 1] = '\0'; t0++; }

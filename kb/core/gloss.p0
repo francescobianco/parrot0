@@ -1149,3 +1149,102 @@ tr(fall, cado).
 tr(fall, cadendo).
 tr(cliff, burrone).
 
+
+% ══ gen510 — IL PIANO DI TRADUZIONE: UN TURNO IN UN'ALTRA LINGUA ════════════
+% ⛔ HANDOFF gen510 — STATO DI QUESTO BLOCCO (2026-09-11): scritto, compilato,
+% NON ancora efficace. In chat «cosa mangiano i gatti?» non riceve la premessa
+% e «dove vive un pinguino?» cade sul muro generico in inglese. Ipotesi:
+% `turn_language_selected(current_turn, it)` non vale (le risposte escono in
+% inglese). Da sondare con `!query` prima di cambiare le regole. Poi:
+%   - la premessa dice solo la prima ipotesi: un fold per dirle tutte;
+%   - il passo 5 va ceduto anche dalle offerte di lacuna (`faculty_yield`);
+%   - una lezione per la flessione («in italian a word ending in -i can be the
+%     plural of one ending in -o») renderebbe insegnabile `inflection/3`
+%     (radici-insegnabilita.md: oggi e' una riga a mano);
+%   - verificare che `translation_guess/2` non scatti su turni inglesi
+%     (non ci sono fatti `inflection(en, …)`, quindi dovrebbe fallire subito).
+%
+% F., 2026-09-11: «mi arriva un prompt italiano … parrot0 sempre come piano
+% nella KB non come comportamento cablato dovrebbe tentare di tradurre e
+% riproporsi la domanda tradotta tenendo a contesto la traduzione come elemento
+% che ne cambia la precisione della risposta».
+%
+% La canonicalizzazione e' gia' una prima traduzione, parola per parola. Il muro
+% arrivava quando una parola restava italiana: «dimmi qualcosa sui vulcani»
+% diventava «tell me qualcosa on the vulcani», e nessuna facolta' sapeva che
+% «vulcani» e' il plurale di una parola che parrot0 sa tradurre.
+%
+% Lo schema dice i passi; il motore ne ha solo gli agganci, e ogni aggancio
+% chiede qui se il suo passo c'e'. Togliere un passo e' togliere una riga.
+thinking_scheme(translate_turn, "read a turn said in another language by translating it, and say how the reading was obtained").
+thinking_step(translate_turn, 1,
+    step(translate_words, turn_heard, turn_canonical, meta(1, local))).
+thinking_step(translate_turn, 2,
+    step(guess_inflection, turn_canonical, turn_translated, meta(1, local))).
+thinking_step(translate_turn, 3,
+    step(pose_translated, turn_translated, turn_answered, meta(1, local))).
+thinking_step(translate_turn, 4,
+    step(qualify_reading, turn_answered, reply_qualified, meta(1, local))).
+thinking_step(translate_turn, 5,
+    step(name_untranslated, turn_canonical, lesson_asked, meta(1, local))).
+thinking_after(translate_turn, 1, 2).
+thinking_after(translate_turn, 2, 3).
+thinking_after(translate_turn, 3, 4).
+thinking_after(translate_turn, 1, 5).
+thinking_stop(translate_turn, reply_qualified).
+thinking_stop(translate_turn, lesson_asked).
+machinery(translation_step).
+translation_step($Op) :- thinking_step(translate_turn, $N, step($Op, $Pre, $Eff, $Meta)).
+
+% Passo 2 — una parola che non si sa tradurre puo' essere una FORMA di una che
+% si sa: «vulcani» di «vulcano», «vivono» di «vive». La flessione e' una
+% tabella di desinenze per lingua (forma letta, forma che il dizionario
+% conosce); il motore toglie e rimette byte e non sa che lingua sia.
+machinery(inflection).
+inflection(it, i, o).      % vulcani -> vulcano, gatti -> gatto
+inflection(it, i, e).      % fiori -> fiore
+inflection(it, e, a).      % stelle -> stella
+inflection(it, he, a).     % amiche -> amica
+inflection(it, hi, o).     % laghi -> lago
+inflection(it, a, o).      % bianca -> bianco
+inflection(it, ono, e).    % vivono -> vive
+inflection(it, ano, a).    % mangiano -> mangia
+machinery(translation_guess).
+translation_guess($W, $En) :-
+    translation_step(guess_inflection),
+    turn_language_selected(current_turn, $L),
+    inflection($L, $S, $R),
+    concat_atoms($Stem, $S, $W),
+    concat_atoms($Stem, $R, $Form),
+    tr($En, $Form).
+
+% Passo 4 — la traduzione resta nel contesto della risposta: una lettura
+% ottenuta per ipotesi non ha la stessa precisione di una letta nel dizionario,
+% e chi ascolta deve poterlo sapere. La frase la dice la KB.
+machinery(turn_translation_guess).
+machinery(turn_reply_preface).
+machinery(translation_preface).
+turn_translation_guess($T, $W, $En) :-
+    turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $W),
+    naf(tr($X, $W)), translation_guess($W, $En).
+turn_reply_preface($T, $Text) :-
+    translation_step(qualify_reading),
+    turn_translation_guess($T, $W, $En),
+    current_language($L), translation_preface($L, $A, $B, $C),
+    concat_atoms($A, $W, $X1), concat_atoms($X1, $B, $X2),
+    concat_atoms($X2, $En, $X3), concat_atoms($X3, $C, $Text).
+translation_preface(it, "Leggo «", "» come «", "». ").
+translation_preface(en, "Reading «", "» as «", "». ").
+
+% Passo 5 — quando una parola resta senza traduzione, il muro la nomina e dice
+% come insegnarla: la lezione «the italian for X is Y» esiste gia'. E' il
+% declino informato del gen384 nella lingua in cui il vocabolario NON e'
+% completo (`lexicon_language/1`): li' «non conosco questa parola» era privo
+% di senso, «non so ancora tradurla» e' vero e insegnabile.
+machinery(turn_untranslated).
+turn_untranslated($T, $W) :-
+    translation_step(name_untranslated),
+    turn_language_selected($T, $L), naf(lexicon_language($L)),
+    turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $W),
+    naf(tr($E, $W)), naf(function_word($W, $F)), naf(function_word($L2, $W, $F2)),
+    naf(stopword($W)), naf(proper_name($W)), naf(translation_guess($W, $G)).

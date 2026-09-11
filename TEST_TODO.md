@@ -39,6 +39,50 @@ opener» non letto), `lexicon_it` (1), `literal_forms` (4: «was born in» → �
 from», e un turno di 9-12 s su «zorak vurbles nivora»), `assisted_construction_ternary`
 (turni di 6-9 s: da profilare), `taught_lexicon` 153/157 (il sandbox).
 
+**⛔ HANDOFF — quinto giro interrotto (2026-09-11, tardi). RIPARTIRE DA QUI.**
+
+Stato: compila senza warning, `make soft-test` verde in 5s. **Nessun test
+mirato rilanciato dopo queste modifiche**: prima di tutto un lotto da 5 minuti
+con `accentless_copula`, `taught_lexicon`, `question_does_not_teach`,
+`higher_order_lesson`, `multigoal`, `conditional_plans*`, `one_act_of_learning`.
+
+Fatto in questo giro (non ancora verificato dalla suite):
+
+1. **Offerta rubata da una domanda** (network.p0, `turn_assent_placed/2`) —
+   VERIFICATO in chat: «che lingua si parla in brasile?» sotto «Vuoi che
+   cerchi fotone?» partiva a cercare fotone, perche' «si» (riflessivo) e «dai»
+   (preposizione) sono `assent_word` e la cue valeva in qualunque punto. Ora
+   l'assenso accetta solo in una risposta corta o in apertura di un turno che
+   non e' domanda.
+2. **«è» e «cos'è» non si traducevano** (10-memory-knowledge.c,
+   `canonical_token_kb`) — VERIFICATO: le `function_word` con caratteri non
+   ASCII sono stringhe quotate e la ricerca nuda non le trovava; ora si
+   riprova la forma quotata. «il sole è una stella?» arriva come «the sun is a
+   star?». Probabile effetto su `accentless_copula.p0t` (rosso preesistente):
+   da misurare.
+3. **`concat_atoms/3` in verso inverso** (kb.c): con risultato e una parte
+   noti lega l'altra. ⚠ Da auditare: una regola che prima FALLIVA con un
+   argomento libero ora puo' riuscire (grep `concat_atoms(` in kb/, 157 usi).
+4. **Il piano di traduzione** (gloss.p0, fondo: schema `translate_turn` a 5
+   passi; agganci in C nel canonicalizzatore, in `turn_done`, in
+   `not_understood`; template `wall_untranslated` in responses.p0). ⚠ NON HA
+   ANCORA EFFETTO VISIBILE: in chat nessuna premessa «Leggo «gatti» come
+   «cat».» e nessun muro «Non so ancora tradurre «pinguino»». Ipotesi
+   principale, coerente con le risposte in inglese a domande italiane:
+   `turn_language_selected(current_turn, it)` non vale per questi turni (la
+   lingua resta `en`). Primo passo: una sonda `.p0t` con
+   `!query turn_language_selected(current_turn, X)` dopo «cosa mangiano i
+   gatti?», poi `!query translation_guess(gatti, X)`.
+
+Muri italiani misurati (scratchpad it1/it2, da rifare dopo il punto 4):
+«come si chiama X» → «how is called» (serve una `phrase_canon`); «che lingua
+si parla in brasile?» → «c, python.» (manca il fatto sul portoghese, e il
+lettore prende «language» per linguaggio di programmazione); «dimmi qualcosa
+sui vulcani» → invito generico; «il sole è una stella?» → «I don't know about
+star.»; «che cosa fa un idraulico?» → risposta fuori luogo. Parole da
+insegnare in `make chat` con fatti veri: pinguino, fotone, scritto,
+qualcosa, idraulico, monte, zampa.
+
 **Terzo e quarto giro (2026-09-11 notte)** — chiusi: NA8 (Guerra fredda), NA9
 (il piano raccontato: `module_result_policy(lessonform, terminal)`),
 `taught_lexicon:228` (un turno non rivendicato accetta un'offerta solo se la
