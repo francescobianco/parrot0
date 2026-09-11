@@ -6402,6 +6402,11 @@ static int p0_parse_mention_membership(Brain *b, const char *norm,
 
     size_t class_begin = i;
     if (!p0_join(w, i, n, cls, cls_size)) return 0;
+    /* gen512 (glm-test D1/D4): «A wombat is a marsupial.» teneva il punto
+     * dentro il nome della classe («marsupial.»): la domanda polare non la
+     * ritrovava e la resa diceva «marsupial..». */
+    { size_t cl = strlen(cls); while (cl && strchr(".!,;:", cls[cl - 1])) cls[--cl] = '\0';
+      if (!cl) return 0; }
     if (!p0_atom_within_cap(b, cls)) return 0;
 
     if (label && !p0_words_label(w, class_begin, n, label, label_size)) return 0;
@@ -6488,6 +6493,8 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     if (!p0_parse_mention_membership(
             b, norm, mentioned, sizeof mentioned, cls, sizeof cls,
             label, sizeof label, &asking)) return 0;
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[mention] mentioned=«%s» cls=«%s» label=«%s» asking=%d\n", mentioned, cls, label, asking);
 
     /* La domanda non asserisce: interroga la stessa classe che l'asserzione
      * avrebbe scritto, e non registra nulla. */
@@ -14474,6 +14481,9 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         const char *rel = p0_form_slot(slots, ns, "relation");
         const char *obj = p0_form_slot(slots, ns, "object");
         int ok = 0;
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[form] %s act=%s sub=%s rel=%s obj=%s\n", forms[f], act,
+                    sub ? sub : "-", rel ? rel : "-", obj ? obj : "-");
         if (!strcmp(act, "assert_negative") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert_neg(b->kb, rel, fa, 2);
@@ -14921,6 +14931,31 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             put(msg2, out, out_size);
             free(forms);
             return 1;
+        } else if (!strcmp(act, "answer_polar") && sub && rel && obj) {
+            /* gen512 (glm-test §5.3): la domanda polare di una forma — «can
+             * fish fly?» — risponde si', no (un negato esplicito), o non so,
+             * con la frase che la forma dichiara (`turn_form_empty_reply`). */
+            const char *pa[2] = { sub, obj };
+            const char *hq3[3] = { rel, sub, obj };
+            if (kb_query(b->kb, rel, pa, 2) || kb_query(b->kb, "holds", hq3, 3)) {
+                kb_say(b, "yes", "Yes.", out, out_size); free(forms); return 1;
+            }
+            if (kb_is_negated(b->kb, rel, pa, 2)) {
+                kb_say(b, "no", "No.", out, out_size); free(forms); return 1;
+            }
+            char er[4][KB_TERM_LEN];
+            const char *eq[2] = { forms[f], NULL };
+            if (kb_match(b->kb, "turn_form_empty_reply", eq, 2, er, 4) == 1) {
+                char eb[KB_TERM_LEN]; snprintf(eb, sizeof eb, "%s", er[0]);
+                char ss[KB_TERM_LEN], os[KB_TERM_LEN];
+                present_atom(b, sub, ss, sizeof ss); present_atom(b, obj, os, sizeof os);
+                const KbResponseSlot rs[] = { { "subject", ss }, { "object", os } };
+                char m2[400];
+                if (kb_response_slots(b, kb_dequote(eb), rs, 2, m2, sizeof m2)) {
+                    put(m2, out, out_size); free(forms); return 1;
+                }
+            }
+            continue;
         } else if (!strcmp(act, "answer_relation") && sub && rel) {
             /* Interrogare e' un ATTO come asserire: la forma dice quale
              * relazione e su quale soggetto, il motore la legge e la rende. */
@@ -15127,6 +15162,191 @@ static int p0_try_reading(Brain *b, const char *text) {
 
 /* Il bersaglio con parole che nessuno conosce al posto delle variabili: una
  * lettura che tiene con «qzxa» tiene per la forma, non per un caso noto. */
+/* gen512 — LEGGERE A SECCO E RIPORTARE IL GIORNALE. Come p0_try_reading, ma il
+ * figlio consegna le righe del giornale della KB (kb_journal_*): che cosa la
+ * lettura ha provato ad asserire, senza che il padre ne subisca un effetto. */
+static size_t p0_dry_read_journal(Brain *b, const char *text, char *buf, size_t bufsz) {
+    if (!b || !b->kb || !text || !*text || !buf || bufsz == 0) return 0;
+    buf[0] = '\0';
+    int fd[2];
+    if (pipe(fd) != 0) return 0;
+    fflush(stdout); fflush(stderr);
+    pid_t pid = fork();
+    if (pid < 0) { close(fd[0]); close(fd[1]); return 0; }
+    if (pid == 0) {
+        close(fd[0]);
+        alarm(10);
+        int devnull = open("/dev/null", O_WRONLY);
+        if (devnull >= 0) { dup2(devnull, STDOUT_FILENO); dup2(devnull, STDERR_FILENO); close(devnull); }
+        kb_journal_start(b->kb);
+        char reply[2048]; reply[0] = '\0';
+        brain_respond(b, text, reply, sizeof reply);
+        char (*rows)[KB_TERM_LEN] = NULL;
+        size_t n = kb_journal_stop(b->kb, &rows);
+        for (size_t i = 0; i < n; i++) {
+            size_t l = strlen(rows[i]);
+            if (write(fd[1], rows[i], l) != (ssize_t)l || write(fd[1], "\n", 1) != 1) break;
+        }
+        _exit(0);
+    }
+    close(fd[1]);
+    size_t off = 0;
+    for (;;) {
+        if (off + 1 >= bufsz) break;
+        ssize_t r = read(fd[0], buf + off, bufsz - 1 - off);
+        if (r <= 0) break;
+        off += (size_t)r;
+    }
+    buf[off] = '\0';
+    close(fd[0]);
+    int st = 0;
+    waitpid(pid, &st, 0);
+    return off;
+}
+
+/* ══ gen512 — LA NEGAZIONE E' LA FRASE POSITIVA, LETTA E RIBALTATA ═══════════
+ *
+ * glm-test §3.2/3.3: «penguins do not live in the Arctic» diventava
+ * «Held: penguins does not habitat in_the_arctic», un fatto che nessuna domanda
+ * ritrova; «the sky is not green» murava; e niente si poteva RITIRARE
+ * parlando. La forma negativa non ha bisogno di un secondo lettore: si toglie
+ * il marcatore (o lo si sostituisce con la sua forma positiva — «cannot» ->
+ * «can»), si legge la frase positiva a secco in un processo figlio, e i fatti
+ * che quella lettura avrebbe asserito si negano nel padre — ritirando i
+ * positivi creduti. Cosi' la negazione conosce ogni frame, ogni coreferenza e
+ * ogni plurale che conosce l'affermazione, oggi e domani.
+ *
+ * Quali parole neghino (`negation_marker/1`) e con che cosa si sostituiscano
+ * (`negation_positive/2`), quali predicati siano macchina o provenienza e non
+ * conoscenza (`machinery/1`, `turn_scratch/1`, `provenance_predicate/1`), e
+ * come si risponda: tutto KB. Qui c'e' la meccanica. */
+static int p0_neg_pred_is_knowledge(Brain *b, const char *pred) {
+    const char *q[1] = { pred };
+    if (!strncmp(pred, "turn_", 5) || !strncmp(pred, "input_", 6)) return 0;
+    if (kb_query(b->kb, "machinery", q, 1)) return 0;
+    if (kb_query(b->kb, "turn_scratch", q, 1)) return 0;
+    if (kb_query(b->kb, "provenance_predicate", q, 1)) return 0;
+    return 1;
+}
+
+static int p0_negation_lead(Brain *b, const char *canon, const char *input,
+                            char *out, size_t out_size) {
+    if (!b || !b->kb || !canon || !*canon || !out || out_size == 0) return 0;
+    size_t L = strlen(canon);
+    if (L < 6 || canon[L - 1] == '?' || strchr(canon, '"') || strstr(canon, "«")) return 0;
+    { const char *q[2] = { "current_turn", "question" };
+      if (kb_query(b->kb, "turn_illocution", q, 2)) return 0; }
+    char (*ms)[KB_TERM_LEN] = NULL; size_t nm = 0;
+    const char *mq[1] = { NULL };
+    if (!kb_match_all(b->kb, "negation_marker", mq, 1, &ms, &nm) || !nm) { free(ms); return 0; }
+
+    char buf[512]; snprintf(buf, sizeof buf, "%s", canon);
+    char *w[96]; size_t nw = split_words(buf, w, 96);
+    if (nw < 2) { free(ms); return 0; }
+    char cleanbuf[96][KB_TERM_LEN]; const char *clean[96];
+    for (size_t i = 0; i < nw; i++) {
+        snprintf(cleanbuf[i], KB_TERM_LEN, "%s", w[i]);
+        clean[i] = strip_edge_punct(cleanbuf[i]);
+    }
+    size_t at = nw, len = 0; char marker[KB_TERM_LEN] = "";
+    int opener = 0;
+    for (size_t k = 0; k < nm; k++) {
+        char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", ms[k]);
+        char *md = kb_dequote(mb);
+        char mw_buf[KB_TERM_LEN]; snprintf(mw_buf, sizeof mw_buf, "%s", md);
+        char *mw[6]; size_t nmw = split_words(mw_buf, mw, 6);
+        if (!nmw) continue;
+        for (size_t i = 0; i + nmw <= nw; i++) {
+            size_t m = 0;
+            for (; m < nmw; m++) if (strcmp(clean[i + m], mw[m]) != 0) break;
+            if (m != nmw) continue;
+            if (i == 0 && nmw == 1) { opener = 1; continue; }   /* «no, …»: correzione */
+            if (at == nw || i < at || (i == at && nmw > len)) {
+                at = i; len = nmw; snprintf(marker, sizeof marker, "%s", md);
+            }
+            break;
+        }
+    }
+    free(ms);
+    if (at == nw) return 0;
+
+    char pos[KB_TERM_LEN] = "";
+    { char qm[KB_TERM_LEN + 2]; snprintf(qm, sizeof qm, "\"%s\"", marker);
+      const char *pq[2] = { qm, NULL }; char pr[1][KB_TERM_LEN];
+      if (kb_match(b->kb, "negation_positive", pq, 2, pr, 1) == 1)
+          snprintf(pos, sizeof pos, "%s", kb_dequote(pr[0])); }
+    char positive[512]; size_t off = 0; positive[0] = '\0';
+    for (size_t i = opener ? 1 : 0; i < nw && off + 1 < sizeof positive; i++) {
+        if (i == at) {
+            if (pos[0]) off += (size_t)snprintf(positive + off, sizeof positive - off, "%s%s", off ? " " : "", pos);
+            i += len - 1;
+            continue;
+        }
+        off += (size_t)snprintf(positive + off, sizeof positive - off, "%s%s", off ? " " : "", w[i]);
+    }
+    while (off && (positive[off - 1] == '.' || positive[off - 1] == ' ')) positive[--off] = '\0';
+    if (!positive[0] || !strcmp(positive, canon)) return 0;
+
+    char journal[65536];
+    if (!p0_dry_read_journal(b, positive, journal, sizeof journal)) return 0;
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[negation] marker=«%s» positive=«%s» journal=%zu bytes\n", marker, positive, strlen(journal));
+
+    int negated = 0, retracted = 0;
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    for (char *line = strtok(journal, "\n"); line; line = strtok(NULL, "\n")) {
+        if (line[0] != '+' && line[0] != '=') continue;
+        char *term = line + 1;
+        char *lp = strchr(term, '('); char *rp = strrchr(term, ')');
+        if (!lp || !rp || rp < lp) continue;
+        *lp = '\0'; *rp = '\0';
+        const char *pred = term;
+        if (!*pred || !p0_neg_pred_is_knowledge(b, pred)) continue;
+        char *inner = lp + 1;
+        const char *args[KB_MAX_ARGS]; size_t argc = 0;
+        char abuf[KB_MAX_ARGS][KB_TERM_LEN];
+        char *p = inner; int bad = 0;
+        while (*p && argc < KB_MAX_ARGS) {
+            while (*p == ' ') p++;
+            char *c = NULL;
+            if (*p == '"') { char *e = strchr(p + 1, '"'); c = e ? strchr(e, ',') : NULL; }
+            else c = strchr(p, ',');
+            if (c) *c = '\0';
+            size_t l = strlen(p); while (l && p[l - 1] == ' ') p[--l] = '\0';
+            if (!l) { bad = 1; break; }
+            snprintf(abuf[argc], KB_TERM_LEN, "%s", p); args[argc] = abuf[argc]; argc++;
+            if (!c) break;
+            p = c + 1;
+        }
+        if (bad || !argc) continue;
+        if (kb_retract(b->kb, pred, args, argc)) retracted++;
+        if (kb_assert_neg(b->kb, pred, args, argc)) negated++;
+        char ft[KB_TERM_LEN]; int fo = snprintf(ft, sizeof ft, "%s(", pred);
+        for (size_t i = 0; i < argc && fo > 0 && (size_t)fo < sizeof ft; i++)
+            fo += snprintf(ft + fo, sizeof ft - (size_t)fo, "%s%s", i ? ", " : "", args[i]);
+        if (fo > 0 && (size_t)fo + 1 < sizeof ft) { ft[fo++] = ')'; ft[fo] = '\0'; }
+        { const char *fs[3] = { ft, NULL, NULL }; kb_retract_match(b->kb, "fact_source", fs, 3);
+          const char *rf[2] = { ft, NULL }; kb_retract_match(b->kb, "reading_fact", rf, 2); }
+        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[negation] %s %s\n", line[0] == '=' ? "retracted" : "denied", ft);
+    }
+    kb_set_origin(b->kb, prev);
+    if (!negated) return 0;
+
+    char clause[512]; snprintf(clause, sizeof clause, "%s", input ? input : canon);
+    { char *c = clause;
+      if (opener) { while (*c && !isspace((unsigned char)*c)) c++; while (*c && (isspace((unsigned char)*c) || *c == ',')) c++; }
+      size_t cl = strlen(c); while (cl && (c[cl - 1] == '.' || c[cl - 1] == ' ')) c[--cl] = '\0';
+      if (*c) *c = (char)tolower((unsigned char)*c);
+      memmove(clause, c, strlen(c) + 1); }
+    const KbResponseSlot sl[] = { { "clause", clause } };
+    char msg[700];
+    if (!kb_response_slots(b, retracted ? "learned_negation_retracted" : "learned_negation", sl, 1, msg, sizeof msg))
+        snprintf(msg, sizeof msg, "Held: %s.", clause);
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int p0_rewrite_target_tried(Brain *b, const char *rhs) {
     char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rhs);
     char *rw[48]; size_t rn = split_words(rb, rw, 48);

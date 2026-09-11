@@ -324,6 +324,9 @@ response_template(i_can_t_translate_x_yet, "I can't translate «{tok}» yet.").
 %% che le due istruzioni siano adiacenti.
 
 response_template(your_name_is_x, "Your name is {nm}.").
+% gen512 (glm-test §5.4): «Come mi chiamo?» rispondeva in inglese: la famiglia
+% aveva una lingua sola (`name_recall` ne aveva gia' due).
+response_template(your_name_is_x, it, "Ti chiami {nm}.").
 response_template(nice_to_meet_you_x, "Nice to meet you, {nm}!").
 response_template(directly_x_is_a_known_fact, "Directly: {ex} — no reasoning needed.").
 response_template(compared_measure_x_x_x_x_with_measure_x_x_x, "Compared measure({dim},{ca},{mva},{mua}) with measure({dim2},{cc},{mvc},{muc}).").
@@ -972,6 +975,29 @@ negation_marker("doesn't").
 negation_marker("don't").
 negation_marker("is not").
 negation_marker("non").
+% gen512 — la negazione parlata (p0_negation_lead): il marcatore si toglie, o
+% si sostituisce con la sua forma positiva, e la frase positiva si legge a
+% secco; i fatti che produrrebbe si negano. Un marcatore nuovo e' una riga.
+negation_marker("are not").
+negation_marker("cannot").
+negation_marker("can't").
+negation_marker("isn't").
+negation_marker("aren't").
+negation_marker("non è").
+negation_marker("non sono").
+machinery(negation_positive).
+negation_positive("is not", "is").
+negation_positive("isn't", "is").
+negation_positive("are not", "are").
+negation_positive("aren't", "are").
+negation_positive("cannot", "can").
+negation_positive("can't", "can").
+negation_positive("non è", "è").
+negation_positive("non sono", "sono").
+response_template(learned_negation, "Held: {clause}.").
+response_template(learned_negation, it, "Tengo: {clause}.").
+response_template(learned_negation_retracted, "Held: {clause}. I no longer hold the opposite.").
+response_template(learned_negation_retracted, it, "Tengo: {clause}. Non credo più il contrario.").
 response_template(learned_negative_relation, "Held: {subject} does not {rel} {object}.").
 response_template(learned_negative_relation, it, "Tengo: {subject} non {rel} {object}.").
 
@@ -1178,6 +1204,19 @@ turn_form_reply(ability_stated, learned_ability).
 
 machinery(ability_marker).
 ability_marker("can").  ability_marker("is able to").  ability_marker("knows how to").
+% gen512 (glm-test §5.3): la DOMANDA di abilita' non aveva un lettore: «can
+% birds fly?» murava anche dopo «birds can fly». Polare: si', no (negato
+% esplicito: «fish cannot fly»), o non so, senza inventare un «no» dall'assenza.
+turn_form(ability_asked, 1, text("can")).
+turn_form(ability_asked, 2, slot(subject)).
+turn_form(ability_asked, 3, rest(object)).
+turn_form(ability_asked, 4, bind(relation, ability_of)).
+turn_form_mood(ability_asked, question).
+turn_form_act(ability_asked, answer_polar).
+turn_form_empty_reply(ability_asked, ability_unknown).
+turn_form_priority(ability_asked, early).
+response_template(ability_unknown, "I don't know whether {subject} can {object}: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
+response_template(ability_unknown, it, "Non so se {subject} può {object}: niente di ciò che tengo lo dice, e niente dice il contrario. Dimmelo e lo terrò.").
 
 turn_form(ability_asked, 1, text("what can")).
 turn_form(ability_asked, 2, slot(subject)).
@@ -3163,6 +3202,7 @@ turn_form(teach_kind_excludes, 1, slot(kind)).
 turn_form(teach_kind_excludes, 2, text("are not")).
 turn_form(teach_kind_excludes, 3, slot(property)).
 turn_form_slot_form(teach_kind_excludes, kind, singular).
+turn_form_slot_form(teach_kind_excludes, property, singular).
 turn_form_act(teach_kind_excludes, "op(assert, exclusive_classes, [kind, property])").
 turn_form_reply(teach_kind_excludes, kind_excludes_learned).
 turn_form_priority(teach_kind_excludes, early).

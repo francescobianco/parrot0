@@ -246,6 +246,12 @@ struct KB {
     char saturation_pred[KB_TERM_LEN];
 
     SaveMap smap;              /* dove abita ogni fatto: vedi SaveMap sopra */
+    /* gen512 — IL GIORNALE: che cosa una lettura ha PROVATO ad asserire, fatto
+     * nuovo («+») o gia' noto («=»). Serve alla negazione parlata: la frase
+     * positiva si legge in un processo figlio e il padre ribalta i suoi fatti. */
+    char (*journal)[KB_TERM_LEN];
+    size_t journal_n, journal_cap;
+    int journal_on;
 
     /* gen422 — LA FIRMA DEL FLUSSO DI INFERENZA (F.).
      *
@@ -369,8 +375,39 @@ void kb_saturation_commit(KB *kb) {
     kb->saturation_pred[0] = '\0';
 }
 
+static void journal_note(KB *kb, const Fact *f, char mark) {
+    if (!kb || !kb->journal_on || !f) return;
+    if (kb->journal_n == kb->journal_cap) {
+        size_t cap = kb->journal_cap ? kb->journal_cap * 2 : 64;
+        char (*g)[KB_TERM_LEN] = realloc(kb->journal, cap * sizeof *g);
+        if (!g) return;
+        kb->journal = g; kb->journal_cap = cap;
+    }
+    char *o = kb->journal[kb->journal_n];
+    int off = snprintf(o, KB_TERM_LEN, "%c%s(", mark, f->pred);
+    for (size_t i = 0; i < f->argc && off > 0 && (size_t)off < KB_TERM_LEN; i++)
+        off += snprintf(o + off, KB_TERM_LEN - (size_t)off, "%s%s", i ? ", " : "", f->args[i]);
+    if (off > 0 && (size_t)off + 1 < KB_TERM_LEN) { o[off++] = ')'; o[off] = '\0'; kb->journal_n++; }
+}
+
+void kb_journal_start(KB *kb) {
+    if (!kb) return;
+    free(kb->journal); kb->journal = NULL; kb->journal_n = kb->journal_cap = 0;
+    kb->journal_on = 1;
+}
+
+size_t kb_journal_stop(KB *kb, char (**out)[KB_TERM_LEN]) {
+    if (!kb) { if (out) *out = NULL; return 0; }
+    kb->journal_on = 0;
+    size_t n = kb->journal_n;
+    if (out) *out = kb->journal; else free(kb->journal);
+    kb->journal = NULL; kb->journal_n = kb->journal_cap = 0;
+    return n;
+}
+
 void kb_destroy(KB *kb) {
     if (!kb) return;
+    free(kb->journal);
     free(kb->facts);
     free(kb->fact_index);
     free(kb->neg);
@@ -807,6 +844,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     }
     Fact *known = (Fact *)kb_find(kb, &f);
     if (known) {
+        journal_note(kb, &f, '=');
         /* A taught fact must outlive the cache that happened to contain it. */
         if (known->origin == KB_DERIVED && kb->origin != KB_DERIVED) {
             known->origin = kb->origin;
@@ -819,6 +857,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
                              &kb->fact_index, &kb->fact_index_cap, &f)) return 0;
     pred_stats_note(kb, kb->n - 1);
+    journal_note(kb, &f, '+');
     if (f.origin == KB_DERIVED) kb->n_derived++;
     else kb_views_changed(kb, pred);
     return 1;

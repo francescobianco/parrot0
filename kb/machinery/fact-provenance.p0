@@ -304,3 +304,8 @@ reading_fact(taught_form_source(taught_form_3, "how do you act when x"), "how do
 reading_fact(taught_form_source(taught_form_4, "what vuol dire x"), "cosa vuol dire x means what does x mean").
 reading_fact(taught_form_source(taught_form_11, "what is the significato of x"), "qual è il significato di x means what is the meaning of x").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
+
+% gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
+% nega la provenienza di un fatto, la ritira insieme al fatto.
+provenance_predicate(fact_source).
+provenance_predicate(reading_fact).

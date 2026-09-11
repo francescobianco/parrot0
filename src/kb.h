@@ -86,6 +86,13 @@ size_t kb_retract_pred(KB *kb, const char *pred);
  * kb_save's origin_mask: a layer you can write, scope and now discard. */
 size_t kb_retract_origin(KB *kb, int origin_mask);
 
+/* gen512 — IL GIORNALE DELLE ASSERZIONI. Fra start e stop ogni kb_assert
+ * lascia una riga «+pred(a, b)» (fatto nuovo) o «=pred(a, b)» (gia' noto).
+ * stop consegna le righe al chiamante, che le libera. Meccanica: non decide
+ * niente, registra cio' che una lettura ha provato a far entrare. */
+void   kb_journal_start(KB *kb);
+size_t kb_journal_stop(KB *kb, char (**out)[KB_TERM_LEN]);
+
 /* Is `pred(args…)` a GROUND fact recorded in one of `origin_mask`'s layers?
  *
  * The scoped counterpart of kb_query, and deliberately narrower: it inspects the

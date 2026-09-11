@@ -1,5 +1,107 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🧭 HANDOFF — 11 settembre 2026, notte (`gen512`, decimo giro): LO SCENARIO E' VERDE, LA NEGAZIONE PARLATA E' NATA, glm-test A META'. RIPARTIRE DA QUI.
+
+> F.: «continua da LEARN_TODO.md e poi fixa tutti i problemi segnalati in
+> docs/issues/glm-test.md» — poi «fai handoff e fermati». Tutto committato.
+
+## Chiuso e verificato
+
+- **Scenario (nono giro di F.)**: profilato con `/debug` — 734 ms a turno, 275 ms
+  in sette chiamate a `turn_assumes*`, ognuna ricalcolava la lettura; le viste
+  materializzate non aiutavano perche' `kb_view_ensure` costruisce solo a una
+  domanda di primo livello. Ora `turn_premise/2` (situation.p0): una riga per
+  premessa come termine, una chiamata sola. EN 532 ms, IT 570 ms. **Banco
+  `scenario_inference.p0t` 64/64**, soft-test verde (commit c23b45a).
+- **glm-test §5.4** `language_marker(en, hi)`; «Come mi chiamo?» ora in italiano
+  (`your_name_is_x` ha la variante `it`).
+- **glm-test §3.3, la retrazione parlando — FUNZIONA**: «penguins live in ice»
+  → «penguins do not live in ice» → *«Held: penguins do not live in ice. I no
+  longer hold the opposite.»* → «do penguins live in ice?» → **«No.»**.
+  Meccanica nuova, tutta generale (commit di questo giro):
+  - `kb_journal_start/stop` (kb.c/kb.h): fra start e stop ogni `kb_assert` lascia
+    «+pred(a, b)» (nuovo) o «=pred(a, b)» (gia' noto);
+  - `p0_dry_read_journal` (10-memory-knowledge.c): legge una frase in un processo
+    figlio (fork, come `p0_try_reading`) e riporta il giornale;
+  - `p0_negation_lead` (10-memory-knowledge.c, chiamato in brain_respond prima di
+    `pragma_peel`): toglie il marcatore (`negation_marker/1`) o lo sostituisce con
+    la forma positiva (`negation_positive/2`: cannot→can, is not→is…), legge la
+    positiva a secco, e nel padre RITIRA i positivi creduti e ASSERISCE i negati
+    (saltando `machinery`, `turn_scratch`, `provenance_predicate` e i `turn_*`);
+    risposte `learned_negation[_retracted]` EN/IT. «fish cannot fly» → nega
+    `ability_of(fish, fly)`. Tracce: `P0_READ_TRACE=1` → `[negation] …`.
+- **Piu' frasi dichiarative in un turno** (glm §3.2): `sentence_boundary_cue`
+  + forza `compound_statement` (turn-frames.p0; la negazione e' ground:
+  `turn_has_question_mark/1`), e `compound_turn_lead` la accetta; chiamato
+  subito dopo il lead universale (che pubblica le cue). «penguins live in
+  antarctica. they eat fish.» ora legge la prima frase — la seconda vedi sotto.
+- Il lettore delle forme mostra i valori con gli spazi; `plural_suffix(ous)`,
+  `plural_of` per -oes; `teach_kind_excludes` legge kind e property al singolare;
+  traccia `[form] F act= sub= rel= obj=` e `[mention] …` sotto P0_READ_TRACE.
+
+## ⛔ Aperto, con la diagnosi esatta (in ordine di attacco)
+
+1. **«they eat fish.» → «A bear.»** (modulo `knowledge`, anche come turno a se'
+   dopo «penguins live in antarctica»). Un lettore di indovinelli/quiz prende
+   «X eat fish» come domanda «che cosa mangia pesce?». «they live in the arctic»
+   invece risolve la coreferenza e impara. Da trovare con `who answered?` +
+   traccia il ramo che risponde «A bear.» e fargli cedere il turno alle
+   affermazioni con soggetto pronominale (conduct KB, `faculty_yield_force`).
+2. **La domanda di abilita' arriva al C con l'atto sbagliato**: la forma
+   `ability_asked` (messages.p0) dichiara `answer_polar`, ma la traccia dice
+   `[form] ability_asked act=answer_relation` → «can birds fly?» risponde «fly.»
+   e «can fish fly?» mura. Nessuna regola KB riscrive `turn_form_act`
+   (grep fatto): cercare nel C dove l'atto di una forma con
+   `turn_form_mood(question)` + `bind(relation, …)` viene forzato ad
+   `answer_relation` (grep `"answer_relation"` fuori dalla catena `strcmp(act`).
+   Il ramo `answer_polar` (10-memory-knowledge.c, prima di `answer_relation`) e'
+   scritto e pronto: si'/no (negato esplicito)/`turn_form_empty_reply`.
+3. **glm D1/D4, «A wombat is a marsupial.»**: la classe resta «marsupial.» (col
+   punto): «Is a wombat a marsupial?» → «I don't know about marsupial», «What is
+   the wombat?» → «marsupial..». NON e' `mod_mention` (traccia `[mention]` muta) e
+   NON e' `p0_parse_mention_membership` (li' il punto ora si toglie, senza
+   effetto). `learned_class_fact` e' emesso solo da 10-memory-knowledge.c:6534
+   (mod_mention)… eppure la risposta e' quella: cercare chi la produce con gdb
+   (`break kb_term_say if $_streq(…)`) o con `grep -rn learned_class_fact src/`.
+   Senza punto («A quokka is a marsupial») tutto funziona.
+   Collegato: «Is a wombat an animal?» → **«No.»** e' un no per mondo chiuso
+   (`closed_world_answer` ramo (c): `animal` e' definita solo da regole) su un
+   soggetto di cui parrot0 non sa NULLA: aggiungere al ramo (c) la condizione
+   che il soggetto sia noto (un fatto qualsiasi su di lui), altrimenti «non so».
+4. **«The sky is not green»** (glm §3.2): la positiva «the sky is green» non
+   asserisce nulla perche' `color(sky, blue)` e' tenuto («I already hold…»), quindi
+   il giornale e' vuoto e il lead declina → muro. Cura: quando la positiva e'
+   respinta per un valore diverso gia' tenuto, la negazione e' GIA' vera: la
+   risposta giusta e' «Right: I hold that the sky is blue» (leggere dal giornale
+   del figlio anche i «=»? no: qui non c'e' neanche quello — serve che il lettore
+   del conflitto lasci una riga, es. `kb_journal` anche per i fatti RESPINTI).
+5. **taught_rules.p0t 6/8** (prima di oggi? da bisecare su 132942b): riga 39 e'
+   un timeout (1.26 s, «if x is the parent of y and y is the parent of z…»);
+   riga 55: «se x è il genitore di y…» → *«Leggo «se» come «sa». It was a
+   mysterious it…»* — **la congettura di flessione** (gloss.p0, `inflection(it,
+   e, a)`, resa efficace dal gen511) legge «se» come «sa» (= knows) e poi parte
+   un racconto. Cura KB: la congettura non si applica a parole funzione /
+   stopword / parole sotto le 4 lettere (`translation_guess` con una guardia
+   `naf(stopword($W))`, `naf(is_function_word($W))`), e il racconto non deve
+   prendere una lezione «se … allora».
+6. Restano dal glm-test: §3.5 conoscenza fresca invisibile (Eiffel, rete), D2
+   menu non consumato (rete), §4.2 numeri con ruoli, §5.2 comparativi, §4.5
+   multi-domanda, §4.7 «first» (piano), §6.1 minuscole, D3 «book_red» nell'ack
+   italiano (`learned_located_in_x_x` riceve la chiave: passare da
+   `present_atom`, e la resa italiana delle chiavi inglesi e' un problema a se').
+7. Costo: `input_frame_observe` 131 ms sul turno lungo; 6-13 ricostruzioni
+   dell'indice a turno (una per `kb_retract`): un `kb_retract` a lotti
+   ridurrebbe il tempo fuori dal solver (259-358 ms).
+
+## Verifiche fatte prima di fermarsi
+
+`make soft-test` verde in 8 s; scenario_inference 64, behavior_gen512 22,
+taught_lesson_form 42 verdi; taught_rules 6/8 (punto 5). Suite intera non
+lanciata. Nessun `/save` in questo giro: le lezioni delle sonde (pinguini,
+vombato, «birds can fly») NON sono in KB.
+
+---
+
 # 🐝 HANDOFF — 11 settembre 2026 (`gen512`, nono giro): LO SCENARIO RISPONDE, RESTANO COSTO E VERIFICA FINALE
 
 > **Pausa richiesta da F. per esaurimento token. Ripartire da questo blocco.**

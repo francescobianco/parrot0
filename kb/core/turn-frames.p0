@@ -165,6 +165,24 @@ turn_declared_act($Turn, question) :- turn_cue($Turn, taught_question_cue, $Cue)
 % compound_inquiry)`). Quali superfici separino le clausole e' conoscenza —
 % una lingua nuova o una congiunzione nuova e' una riga.
 turn_cue_registry(clause_boundary_cue, 1).
+% gen512 — PIU' FRASI DICHIARATIVE IN UN TURNO. «penguins live in antarctica.
+% they eat fish.» riceveva «A bear.»: nessuno divideva le frasi, e un lettore
+% leggeva la prima con dentro la seconda. Il confine di FRASE e' piu' stretto
+% del confine di clausola («, and » resta una clausola sola per chi gia' la
+% legge intera); un turno con un confine di frase e nessuna domanda e' un
+% `compound_statement`, e il motore lo legge una frase alla volta.
+turn_cue_registry(sentence_boundary_cue, 1).
+sentence_boundary_cue(". ").
+sentence_boundary_cue("! ").
+sentence_boundary_cue("; ").
+% (La negazione e' su un predicato ground: `naf` con una variabile libera
+% fallisce sempre — la lezione del gen511.)
+machinery(turn_has_question_mark).
+turn_has_question_mark($Turn) :- turn_cue($Turn, question_mark_cue, $Mark).
+turn_declared_act($Turn, compound_statement) :-
+    turn_cue($Turn, sentence_boundary_cue, $Boundary),
+    naf(turn_has_question_mark($Turn)),
+    naf(turn_opens_question($Turn)).
 clause_boundary_cue(", and ").
 clause_boundary_cue(", but ").
 clause_boundary_cue(", so ").

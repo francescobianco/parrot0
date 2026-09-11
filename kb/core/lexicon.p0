@@ -1783,6 +1783,9 @@ language_marker(en, language).
 language_marker(en, speaking).
 language_marker(en, we).
 language_marker(en, hello).
+% gen512 (glm-test §5.4): «hi» come primo turno riceveva «Ciao!», perche' senza
+% un marcatore la lingua resta quella predefinita (quella del sistema).
+language_marker(en, hi).
 language_marker(en, thanks).
 % gen510 — il lessico delle LEZIONI e' inglese anch'esso. Una sessione che parte
 % dal locale italiano teneva l'italiano davanti a «a battle involves a winner»,

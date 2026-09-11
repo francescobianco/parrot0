@@ -5286,13 +5286,22 @@ static int reply_is_wall(Brain *b, const char *reply) {
 static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb || !input || !*input || out_size == 0) return 0;
     if (b->compound_depth > 0) return 0;
+    /* gen512 (glm-test §3.2, «penguins live in antarctica. they eat fish.» ->
+     * «A bear.»): anche un turno di piu' FRASI dichiarative si legge una frase
+     * alla volta. La forza `compound_statement` e i suoi confini
+     * (`sentence_boundary_cue`) sono in turn-frames.p0. */
+    int statement = 0;
     {
         const char *cq[2] = { "current_turn", "compound_inquiry" };
-        if (!kb_query(b->kb, "turn_illocution", cq, 2)) return 0;
+        const char *cs[2] = { "current_turn", "compound_statement" };
+        if (!kb_query(b->kb, "turn_illocution", cq, 2)) {
+            if (!kb_query(b->kb, "turn_illocution", cs, 2)) return 0;
+            statement = 1;
+        }
     }
     char cues[32][KB_TERM_LEN];
     const char *q[1] = { NULL };
-    size_t nc = kb_match(b->kb, "clause_boundary_cue", q, 1, cues, 32);
+    size_t nc = kb_match(b->kb, statement ? "sentence_boundary_cue" : "clause_boundary_cue", q, 1, cues, 32);
     if (nc == 0) return 0;
 
     char buf[4096];
@@ -5955,6 +5964,21 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return turn_done(b, norm, input, out, out_size);
     }
 
+    /* gen512: piu' frasi dichiarative in un turno si leggono UNA ALLA VOLTA, e
+     * PRIMA che un lettore prenda la prima frase e si mangi le altre (la forma
+     * negativa leggeva «in_the_arctic_they_live_in_antarctica»). La forza e' KB
+     * (turn-frames.p0, `compound_statement`); le cue del turno sono appena
+     * state pubblicate dal lead universale. */
+    if (b && b->compound_depth == 0) {
+        const char *cs[2] = { "current_turn", "compound_statement" };
+        if (kb_query(b->kb, "turn_illocution", cs, 2) &&
+            compound_turn_lead(b, input, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "compound");
+            return turn_done(b, norm, input, out, out_size);
+        }
+    }
+
     /* gen43: canonicalize the parsing surface (function words -> English tokens)
      * before dispatch, so the reasoning core answers in any mapped language
      * without duplicating a module. `raw` (input) is left untouched, so the
@@ -6194,6 +6218,14 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * ("anyway, is socrates a man" -> "Yes."). Only claims when the residue is
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
+    /* gen512: la negazione parlata — vedi p0_negation_lead. Prima dei lettori
+     * di forme, che altrimenti leggono la negativa con un lettore proprio. */
+    if (b && p0_negation_lead(b, canon, input, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "negation");
+        return turn_done(b, canon, input, out, out_size);
+    }
+
     if (b && pragma_peel(b, canon, input, out, out_size))
         { return turn_done(b, canon, input, out, out_size); }
 
