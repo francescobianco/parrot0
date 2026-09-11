@@ -13327,8 +13327,11 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
                 char rows[1][KB_TERM_LEN];
                 const char *sq2[2] = { acc, NULL };
                 const char *sq3[2] = { q2, NULL };
-                if (kb_match(b->kb, rel, sq2, 2, rows, 1) == 1 ||
-                    kb_match(b->kb, rel, sq3, 2, rows, 1) == 1) {
+                int nhit = kb_match(b->kb, rel, sq2, 2, rows, 1) == 1 ||
+                           kb_match(b->kb, rel, sq3, 2, rows, 1) == 1;
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[named] %s acc=«%s» %s\n", rel, acc, nhit ? "HIT" : "-");
+                if (nhit) {
                     char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[0]);
                     snprintf(bestname, sizeof bestname, "%s", kb_dequote(rb));
                     best = k - i + 1;
@@ -13367,6 +13370,26 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             if (i >= upto || !p0_join(w, i, upto, v, sizeof v)) return 0;
             for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
             if (!*v) return 0;
+            /* La frase insegnata si conserva come il lettore la VEDRA': canonica.
+             * Fra virgolette la menzione la protegge dalla canonicalizzazione del
+             * turno, quindi qui arriva grezza («non hai i passi») mentre la
+             * domanda arrivera' canonica («not hai the passi»). Stessa regola
+             * della lezione di parafrasi (00-lex.c): l'ancora si canonicalizza con
+             * la funzione che il replay usera' sul turno. */
+            {
+                char spaced[KB_TERM_LEN], canon_v[KB_TERM_LEN];
+                snprintf(spaced, sizeof spaced, "%s", v);
+                for (char *c = spaced; *c; c++) if (*c == '_') *c = ' ';
+                canon_v[0] = '\0';
+                brain_canonical(b, spaced, canon_v, sizeof canon_v);
+                if (canon_v[0]) {
+                    size_t cl = strlen(canon_v);
+                    while (cl && (canon_v[cl - 1] == '?' || canon_v[cl - 1] == '.' ||
+                                  canon_v[cl - 1] == ' ')) canon_v[--cl] = '\0';
+                    for (char *c = canon_v; *c; c++) if (*c == ' ') *c = '_';
+                    if (canon_v[0]) snprintf(v, sizeof v, "%s", canon_v);
+                }
+            }
             snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg);
             lowercase_copy(slots[*nslot].value, KB_TERM_LEN, v);
             slots[*nslot].is_text = 1;
@@ -13995,6 +14018,9 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * chi insegna deve poter verificare che la lezione sia arrivata
              * senza aprire uno strumento. */
             const char *sit10 = p0_form_slot(slots, ns, "situation");
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[form] %s recite_plan situation=%s out_before=«%.50s»\n",
+                        forms[f], sit10 ? sit10 : "(none)", out);
             if (!sit10) continue;
             char list11[500]; size_t l11 = 0, n11 = 0;
             for (long o = 1; o <= 16; o++) {
@@ -14020,10 +14046,14 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const KbResponseSlot ps12[] = { { "situation", sit10 },
                                             { "list", list11 } };
             if (kb_response_slots(b, "plan_recited", ps12, 2, msg12, sizeof msg12)) {
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[form] %s recited: «%.60s»\n", forms[f], msg12);
                 put(msg12, out, out_size);
                 free(forms);
                 return 1;
             }
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[form] %s plan_recited template failed (n=%zu)\n", forms[f], n11);
         } else if (!strcmp(act, "list_keys")) {
             /* gen507/59 (forma #83) — CHE COSA SO FARE.
              * Una procedura insegnata e' conoscenza come un fatto, e come un

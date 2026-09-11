@@ -381,5 +381,14 @@ machinery(turn_names_relation).
 turn_names_relation($T) :- input_node_atom($T, $Id, $W), relation_verb($W).
 turn_names_relation($T) :- input_node_atom($T, $Id, $W), relation_noun($P, $W).
 turn_names_relation($T) :- input_node_atom($T, $Id, $W), family_relation($W).
-unclaimed_turn_captured($Kind) :- naf(turn_illocution(current_turn, question)).
+% gen510 — ...e solo se il turno RIGUARDA la questione aperta: ne nomina il
+% tema, oppure e' una risposta breve («ok», «vai», «fallo»). Un turno che parla
+% d'altro non accetta l'offerta: «rex is zup dog» sotto un'offerta su
+% «trigger» faceva partire la ricerca e imparare `trigger(leak, outage)`
+% (taught_lexicon.p0t). E' la mossa che non indirizza la QUD massima (L2).
+machinery(turn_addresses_pending).
+turn_addresses_pending($T) :- pending_gap($Topic), input_node_atom($T, $Id, $Topic).
+turn_addresses_pending($T) :- turn_short_reply($T).
+unclaimed_turn_captured($Kind) :- naf(turn_illocution(current_turn, question)),
+    turn_addresses_pending(current_turn).
 

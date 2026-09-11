@@ -779,12 +779,25 @@ response_template(process_step_gap, "I understood you're asking how to make {top
 response_template(process_gap_but_parts, "I don't have the steps for {topic} yet. But I know what one is made of, so you would need: {list}. That is what it is, not how to do it.").
 % gen507/35 — i passi del piano interno, detti a parole. Sono conoscenza: una
 % mossa nuova si nomina qui, non si stampa dal C.
-plan_step_text(steps_missing, "non avevo i passi").
-plan_step_text(asked_composition, "mi sono chiesto di che cosa e' fatta").
-plan_step_text(derived_materials, "dalla composizione ho ricavato che cosa serve").
-plan_step_text(list_composition, "mi sono chiesto di che cosa e' fatta").
-plan_step_text(decline_steps, "ho detto che i passi non ce li ho").
-plan_step_text(say_purpose, "mi sono chiesto a che cosa serve").
+% gen510 — i passi si dicono nella LINGUA della conversazione: in una sessione
+% inglese «your plan when …?» rispondeva «1) mi sono chiesto di che cosa e'
+% fatta». Il C chiede `plan_step_text/2` come prima; la lingua la sceglie la KB.
+machinery(plan_step_text_lang).
+plan_step_text_lang(steps_missing, it, "non avevo i passi").
+plan_step_text_lang(asked_composition, it, "mi sono chiesto di che cosa e' fatta").
+plan_step_text_lang(derived_materials, it, "dalla composizione ho ricavato che cosa serve").
+plan_step_text_lang(list_composition, it, "mi sono chiesto di che cosa e' fatta").
+plan_step_text_lang(decline_steps, it, "ho detto che i passi non ce li ho").
+plan_step_text_lang(say_purpose, it, "mi sono chiesto a che cosa serve").
+plan_step_text_lang(steps_missing, en, "I didn't have the steps").
+plan_step_text_lang(asked_composition, en, "I asked myself what it is made of").
+plan_step_text_lang(derived_materials, en, "from what it is made of I worked out what is needed").
+plan_step_text_lang(list_composition, en, "I look at what it is made of").
+plan_step_text_lang(decline_steps, en, "I say that I don't have the steps").
+plan_step_text_lang(say_purpose, en, "I say what it is for").
+has_step_text_in($S, $L) :- plan_step_text_lang($S, $L, $T).
+plan_step_text($S, $T) :- current_language($L), plan_step_text_lang($S, $L, $T).
+plan_step_text($S, $T) :- current_language($L), naf(has_step_text_in($S, $L)), plan_step_text_lang($S, en, $T).
 % gen507/37 — la seconda mossa che il piano di `steps_missing` puo' chiamare.
 response_template(process_gap_but_purpose, "I don't have the steps for {topic} yet. What I do know is what it is for: {list}. That is the problem it solves, not how to build it.").
 response_template(process_gap_but_purpose, it, "Non ho ancora i passi per {topic}. Quello che so è a che cosa serve: {list}. È il problema che risolve, non come si costruisce.").

@@ -3353,6 +3353,9 @@ intent_cue(lexical_relation_request, "opposite of").
 intent_cue(lexical_relation_request, "antonym of").
 intent_cue(lexical_relation_request, "contrario di").
 compound_guard(semantic_summary, lexical_relation_request).
+% ...e anche il modulo delle cornici, che arriva allo stesso riassunto per la
+% superficie «what is» (`answer_frame("what is", semantic_summary)`).
+compound_guard(answerframe, lexical_relation_request).
 % gen510 — «your plan when you don't have the steps?» riceveva sei punti sulla
 % progettazione di un sistema: l'analisi strutturata la prende per la parola
 % «plan» (report gen509, NA9). E' una domanda sulla PROPRIA condotta, e la

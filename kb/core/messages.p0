@@ -1626,6 +1626,30 @@ turn_form_priority(teach_question_cue, early).
 turn_form_priority(teach_question_cue_if, early).
 turn_form_priority(teach_question_cue_it, early).
 turn_form_priority(unteach_question_cue, early).
+% gen510 — UNA SITUAZIONE SI PUO' DIRE IN UN ALTRO MODO, E SI INSEGNA PARLANDO.
+% Le situazioni dei piani avevano solo le formulazioni scritte in KB (report gen509
+% NL7): «"non hai i passi" is another way to say "you don't have the steps"» veniva
+% rifiutata, perche' l'ancora non e' un turno che parrot0 serve da solo. Qui la
+% situazione si riconosce dall'ancora (`named`), e la frase nuova si conserva come
+% il lettore la vedra', gia' canonica (`span`).
+response_template(learned_situation_cue, "Held: «{surface}» names the same situation as «{situation}».").
+response_template(learned_situation_cue, it, "Tengo: «{surface}» nomina la stessa situazione di «{situation}».").
+turn_form(teach_situation_cue, 1, span(surface)).
+turn_form(teach_situation_cue, 2, text("means the same situation as")).
+turn_form(teach_situation_cue, 3, named(situation_cue, situation)).
+turn_form_act(teach_situation_cue, "op(assert, situation_cue, [surface, situation])").
+turn_form_reply(teach_situation_cue, learned_situation_cue).
+turn_form_priority(teach_situation_cue, early).
+
+% Una domanda sulla PROPRIA condotta si legge prima dei lettori generici: altrimenti
+% «your plan when you don't have the steps?» finiva all'analisi di ultima istanza.
+turn_form_priority(ask_plan, early).
+turn_form_priority(ask_plan_it, early).
+% E il risultato di una forma di lezione e' un ESITO, non una resa travestita:
+% dice che cosa ha appreso o racconta un piano, e non deve ripetere le parole
+% del turno per valere. Senza, l'analisi di ultima istanza sostituiva il piano
+% raccontato con un saggio di progettazione (report gen509, NA9).
+module_result_policy(lessonform, terminal).
 
 % ══ gen507/49 (forma #24) — INSEGNARE UN PLURALE IRREGOLARE ═══════════════
 % `plural_of/2` decide se una parola e' plurale, e da li' l'accordo, la
@@ -1736,10 +1760,17 @@ turn_form(ask_plan_it, 1, text("il tuo piano quando")).
 turn_form(ask_plan_it, 2, named(situation_cue, situation)).
 turn_form_act(ask_plan_it, recite_plan).
 
+% gen510 — le situazioni si dicono con una frase, non col nome interno
+% («Situations I have a plan for: steps_missing.»).
+machinery(situation_label).
+situation_label(steps_missing, en, "you don't have the steps").
+situation_label(steps_missing, it, "non hai i passi").
+known_situation_text($T) :- plan_move($S, 1, $M), current_language($L), situation_label($S, $L, $T).
+response_template(known_situations_text, "I have a plan for when {result}.").
+response_template(known_situations_text, it, "Ho un piano per quando {result}.").
 turn_form(list_situations, 1, text("what situations do you know")).
-turn_form(list_situations, 2, bind(relation, plan_move)).
-turn_form_act(list_situations, list_keys).
-turn_form_reply(list_situations, known_situations).
+turn_form_act(list_situations, "op(match, known_situation_text, [free])").
+turn_form_reply(list_situations, known_situations_text).
 
 % ══ gen507/62 (forma #66) — LA PRIMA FORMA A COSTO ZERO DI C ══════════════
 %
