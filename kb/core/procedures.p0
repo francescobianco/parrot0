@@ -1977,10 +1977,21 @@ flip_norm($A, flip($A))                     :- base_expr($A).
 % chiede le stesse due premesse. Anche l'ASSENZA di una legge e' informativa:
 % l'unione di due transitive non e' transitiva, e qui non c'e' una clausola che
 % lo dica — il sistema non distribuisce proprieta' per somiglianza.
-symmetric_relation($V)  :- relation_def($V, $D), norm_expr($D, $N), symmetric_form($N).
-transitive_relation($V) :- relation_def($V, $D), norm_expr($D, $N), transitive_form($N).
-reflexive_relation($V)  :- relation_def($V, $D), norm_expr($D, $N), reflexive_form($N).
-functional_relation($V) :- relation_def($V, $D), norm_expr($D, $N), functional_form($N).
+% gen510 — PIU' DEFINIZIONI SONO UN'UNIONE, E LA PROPRIETA' DEVE VALERE PER
+% L'UNIONE. «parent holds wherever mother» e «… wherever father» sono due
+% supporti alternativi della stessa relazione: derivare una proprieta' da UNO
+% dei due (come faceva la prima stesura) e' falso — se `mother` fosse
+% funzionale, `parent` non lo sarebbe. Si ragiona sulla definizione intera:
+% `either(D1, either(D2, …))`, e le leggi dell'unione decidono.
+machinery(structural_def).
+machinery(fold_union).
+structural_def($V, $E) :- findall($D, relation_def($V, $D), $L), fold_union($L, $E).
+fold_union(cons($D, nil), $D).
+fold_union(cons($D, cons($D2, $T)), either($D, $R)) :- fold_union(cons($D2, $T), $R).
+symmetric_relation($V)  :- structural_def($V, $D), norm_expr($D, $N), symmetric_form($N).
+transitive_relation($V) :- structural_def($V, $D), norm_expr($D, $N), transitive_form($N).
+reflexive_relation($V)  :- structural_def($V, $D), norm_expr($D, $N), reflexive_form($N).
+functional_relation($V) :- structural_def($V, $D), norm_expr($D, $N), functional_form($N).
 
 symmetric_form($R)               :- base_expr($R), symmetric_relation($R).
 symmetric_form(flip($E))         :- symmetric_form($E).
@@ -2021,8 +2032,8 @@ functional_form(within($C, $E))  :- functional_form($E).
 % leggi restano valide solo per relazioni pure a contesto fisso (§3.5).
 machinery(same_relation).
 same_relation($V, $W) :-
-    relation_def($V, $D1), norm_expr($D1, $N),
-    relation_def($W, $D2), norm_expr($D2, $N2),
+    structural_def($V, $D1), norm_expr($D1, $N),
+    relation_def($W, $X2), structural_def($W, $D2), norm_expr($D2, $N2),
     dif($V, $W), same_form($N, $N2).
 same_form($N, $N).
 same_form(both($A, $B), both($B, $A)).

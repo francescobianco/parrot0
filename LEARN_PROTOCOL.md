@@ -24,6 +24,7 @@ parlandogli in lingua naturale.
 > | [E. Condotta e ragionamento](#e-condotta-e-ragionamento) | `quando <situazione> allora <mossa>` · `step for X is …` |
 > | [F. Procedure eseguibili](#f-procedure-eseguibili) | `rule for X is <operatore>` · `apply X to <testo>` |
 > | [**G. Ordine superiore**](#g-superfici-di-ordine-superiore--insegnare-sulle-relazioni) | `in <contesto> V stands for W` · `V behaves like W` · `V is W followed by Z` — **insegnare *sulle* relazioni: è qui che la conoscenza scala** |
+> | [**Radici dell'insegnabilità**](#le-radici-dellinsegnabilità--da-ogni-abilità-alla-superficie-che-la-insegna) | per ogni abilità, la superficie che la insegna e, a ritroso, la superficie che insegna quella: dove finisce la catena dice se parrot0 potrebbe **riapprendere** ciò che sa fare |
 >
 > **[→ §6-ter: le 50 forme DA IMPLEMENTARE](#6-ter-le-50-forme-da-implementare--la-mappa-in-anticipo)** — la mappa
 > scritta in anticipo: quali forme mancano, che cosa aprirebbero, e in che ordine
@@ -1194,6 +1195,48 @@ un passo di ricetta è un'istruzione a una persona, un passo di procedura è una
 **regola di trasformazione** che parrot0 esegue.
 
 ---
+
+## Le radici dell'insegnabilità — da ogni abilità alla superficie che la insegna
+
+> Concetto posto da F. il 2026-09-11, sviluppato in
+> [`docs/plans/radici-insegnabilita.md`](docs/plans/radici-insegnabilita.md).
+> Qui la parte operativa, da applicare a ogni sessione.
+
+Ogni forma di questo catalogo insegna un'abilità. Ma una forma è essa stessa
+un'abilità di parrot0 — riconoscere quella frase ed eseguirne l'atto — e la
+domanda si ripete un gradino sopra: **con quale superficie si insegna questa
+superficie?** Risalendo si costruisce una **catena di insegnabilità**, che può
+finire in tre modi:
+
+| Fine | Esempio | Che cosa fare |
+|---|---|---|
+| **radice**: una primitiva del motore | la meccanica di uno slot (`slot`, `rest`, `span`), l'esecuzione di un `op(…)` | niente: il C esiste per questo |
+| **circolo**: una lezione che estende anche la propria forma | «"X" is another way to say "Y"» scrive `phrase_canon/2`, e una parafrasi di questa stessa lezione si legge come lei | niente: la classe si nutre da sé |
+| **riga a mano**: una clausola che nessuna superficie produce | le righe `turn_form(…)` di una forma di lezione nuova | è il **prossimo lavoro**: aprire la superficie che la produce |
+
+**Il vantaggio è che il punto di partenza è fissato.** Ogni abilità che parrot0
+ha già — ogni asserzione della suite, ogni forma di questo catalogo, ogni ramo
+C che decide qualcosa — è una catena che esiste. La domanda per ciascuna non è
+«funziona?», ma **«parrot0 potrebbe riapprenderla da una lezione di ordine
+superiore?»**. Una capacità che ha soltanto perché qualcuno l'ha scritta è
+presente, non viva.
+
+**Durante una sessione di addestramento**, per ogni lezione riuscita:
+
+1. annotare la superficie usata e l'abilità che apre;
+2. risalire di un gradino: quale lezione avrebbe potuto creare questa
+   superficie? Se nessuna, è una riga a mano: registrarla nel report;
+3. verificare che ogni anello raggiunga il proprio lettore **parlando**: una
+   forma presente ma catturata da un altro lettore è un anello rotto (report
+   gen509, e il caso di «if a turn contains X then it is a question», presa
+   dal lettore delle regole «if … then»);
+4. se una lezione di ordine superiore ricrea un'abilità già scritta a mano —
+   come la costruzione parametrica «doubled x is x followed by x» ricrea la
+   superficie «V is W twice» — registrarlo: è una radice che si accorcia.
+
+**Nel report di sessione** aggiungere la tabella delle catene toccate, con la
+loro fine. La misura che conta è la **vitalità**: catene che finiscono in una
+radice o in un circolo, sul totale di quelle censite.
 
 ## 6-ter. IL CATALOGO ESTESO — le forme da implementare, scritte in anticipo
 

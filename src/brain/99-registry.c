@@ -325,6 +325,10 @@ static const Module registry[] = {
     /* gen382h: insegnare una REGOLA con variabili corre prima di chi legge le
      * frasi come domande — "if someone is a X then they are a Y" ha la forma di
      * un condizionale e il contenuto di una quantificazione. */
+    /* gen510: le forme di lezione dichiarate prioritarie in KB
+     * (`turn_form_priority(Forma, early)`) si leggono prima di ogni lettore
+     * generico: una lezione deve raggiungere il proprio lettore. */
+    {"lessonform", mod_lesson_form},
     {"teachconstruction", mod_teach_construction},
     /* M1: cio' che una LEZIONE ha reso leggibile si legge prima che un modulo
      * generico risponda. Vale solo per i pattern nati da una lezione. */
@@ -1649,12 +1653,27 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
     return done;
 }
 
+/* gen510 — IL BOOT SI MISURA PER FASI. `PARROT0_BOOT_TRACE=1` stampa quanto
+ * costa ogni fase dell'avvio: il totale oscilla di un secondo fra due corse
+ * identiche, una fase sola molto meno, ed e' la fase che dice dove guardare
+ * (mantra #20: si profila, non si indovina). */
+static double boot_ms(void) {
+    struct timespec ts; timespec_get(&ts, TIME_UTC);
+    return (double)ts.tv_sec * 1000.0 + (double)ts.tv_nsec / 1e6;
+}
+#define BOOT_MARK(label) do { if (btrace) { double _n = boot_ms(); \
+    fprintf(stderr, "[boot] %-14s %8.1f ms\n", label, _n - bt0); bt0 = _n; } } while (0)
+
 void brain_boot(Brain *b) {
     if (!b) return;
+    const char *bte = getenv("PARROT0_BOOT_TRACE");
+    int btrace = bte && strcmp(bte, "1") == 0;
+    double bt0 = btrace ? boot_ms() : 0.0;
     const char *base = p0env("PARROT0_BASE");
     const char *profile = p0env("PARROT0_PROFILE");
     if (!base) base = "kb/core/base.p0";
     brain_load(b, base, 1);
+    BOOT_MARK("base");
     /* gen382g — la SESSIONE NON E' UN INPUT.
      *
      * session.p0 veniva caricato qui come se fosse un file di conoscenza, ed era
@@ -1670,9 +1689,12 @@ void brain_boot(Brain *b) {
      * cio' che sta in memoria e' leggibile dal DUMP (brain_session_dump), che si
      * scrive e non si rilegge mai. */
     brain_load(b, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain */
+    BOOT_MARK("coding");
     if (profile && *profile)
         brain_load(b, profile, 1);                        /* gen150: expert/skill profile */
+    BOOT_MARK("profile");
     brain_policy(b);                                      /* gen331: the effective policy */
+    BOOT_MARK("policy");
     /* gen491 — LE VISTE SI SCALDANO AL BOOT, non dentro un turno.
      *
      * Il congelamento costa una volta per cambio di conoscenza, ma «una volta»
@@ -1681,7 +1703,19 @@ void brain_boot(Brain *b) {
      * su `facts.p0t` appena il lessico dei verbi si e' allargato. Al boot il
      * costo e' avvio, che e' infrastruttura, esattamente come il caricamento
      * della KB. Chi non dichiara viste non paga niente. */
+    if (btrace) { kb_profile_set(b->kb, 1); kb_profile_reset(b->kb); }
     kb_views_warm(b->kb);
+    BOOT_MARK("views_warm");
+    if (btrace) {
+        KbProfileRow top[12];
+        size_t n = kb_profile_top(b->kb, top, 12);
+        fprintf(stderr, "[boot] views_warm: %.1f ms nel solver · %zu query · %lu passi\n",
+                kb_profile_ms(b->kb), kb_profile_calls(b->kb), kb_profile_steps(b->kb));
+        for (size_t i = 0; i < n && top[i].calls > 0; i++)
+            fprintf(stderr, "[boot]   %8.1f ms  %9lu passi  %6zu call  %s\n",
+                    top[i].ms, top[i].steps, top[i].calls, top[i].pred);
+        kb_profile_set(b->kb, 0);
+    }
 }
 
 /* gen276: rebuild the brain's knowledge and session state in place from the
@@ -4591,6 +4625,14 @@ static void turn_publish_cues(Brain *b, const char *surface) {
      * gia' (`active_turn_norm`, la stessa che la cessione congiunta usa dal
      * gen502): qui la si consulta. */
     const char *full = (b->active_turn_norm && *b->active_turn_norm) ? b->active_turn_norm : surface;
+    /* gen510 — e anche la forma CANONICA del turno intero. Una lezione si legge
+     * sul turno canonico, quindi un indizio insegnato in italiano («cosa
+     * succede») entra in KB gia' tradotto («what succede»): confrontato solo con
+     * la superficie detta non combaciava mai, e la lezione restava muta. */
+    /* Calcolata al primo bisogno e solo per i registri che la KB dichiara
+     * canonici (`turn_cue_canonical/1`): un turno qualunque non la paga. */
+    char cfull[512]; cfull[0] = '\0';
+    int cfull_done = 0;
     if (!kb_match_all(b->kb, "turn_cue_registry", rq, 2, &regs, &nr)) { free(regs); return; }
     for (size_t i = 0; i < nr; i++) {
         char reg[KB_TERM_LEN];
@@ -4624,12 +4666,20 @@ static void turn_publish_cues(Brain *b, const char *surface) {
         char posbuf[KB_TERM_LEN];
         snprintf(posbuf, sizeof posbuf, "%s", pos[0]);
         int second = strcmp(kb_dequote(posbuf), "2") == 0;
+        {
+            const char *cq[1] = { regs[i] };
+            if (!cfull_done && kb_query(b->kb, "turn_cue_canonical", cq, 1)) {
+                brain_canonical(b, full, cfull, sizeof cfull);
+                cfull_done = 1;
+            }
+        }
         for (size_t k = 0; k < nrows && k < TURN_MAX_CUES; k++) {
             if (!second) {
                 char probe[KB_TERM_LEN];
                 snprintf(probe, sizeof probe, "%s", rows[k]);
                 const char *needle = kb_dequote(probe);
-                if (!*needle || (!cue(surface, needle) && !cue(elided, needle) && !cue(full, needle))) continue;
+                if (!*needle || (!cue(surface, needle) && !cue(elided, needle) && !cue(full, needle) &&
+                                 !(cfull[0] && cue(cfull, needle)))) continue;
                 char quoted[KB_TERM_LEN];
                 if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
                     continue;
@@ -4647,7 +4697,8 @@ static void turn_publish_cues(Brain *b, const char *surface) {
                 char probe[KB_TERM_LEN];
                 snprintf(probe, sizeof probe, "%s", inner[j]);
                 const char *needle = kb_dequote(probe);
-                if (!*needle || (!cue(surface, needle) && !cue(elided, needle) && !cue(full, needle))) continue;
+                if (!*needle || (!cue(surface, needle) && !cue(elided, needle) && !cue(full, needle) &&
+                                 !(cfull[0] && cue(cfull, needle)))) continue;
                 char quoted[KB_TERM_LEN];
                 if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
                     continue;
@@ -5626,6 +5677,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * reader still induces its generative model from the original prose. */
     char canon[256];
     canonicalize_lang(b, norm, canon, sizeof canon);
+    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[canon] «%s» -> «%s»\n", norm, canon);
     p0_publish_question_focus(b, canon);
 
     /* gen431 — UNA RICHIESTA INCOMPLETA SI DICE SUBITO, PRIMA DI OGNI FACOLTA'.

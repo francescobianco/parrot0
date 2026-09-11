@@ -9,6 +9,41 @@
 > abilita' cognitive, la crescita della KB o l'apprendimento (KB viva) i test
 > non si fanno. Stessa nota nel Makefile (target `test`) e in CLAUDE.md.
 
+# 🔧 AGGIORNAMENTO gen510, secondo giro (2026-09-11 sera) — leggere prima dell'handoff sotto
+
+Il metodo di questo giro: lotti di test **sotto i 5 minuti**, niente processi
+lunghi, e ogni rosso classificato con una **bisezione** sul worktree del commit
+`ec7d4b5` (prima della sessione): `git worktree add <dir> ec7d4b5`, `make build`
+lì dentro, demone con `rm -f obj/test-engine.sock` prima dell'avvio, e fermato
+per numero di processo (`pgrep -x parrot0` + `/proc/PID/cwd`: un `pgrep -f`
+che contiene la stringa cercata uccide il comando stesso).
+
+**Chiusi in questo giro**
+
+| Rosso | Causa | Cura |
+|---|---|---|
+| `multigoal.p0t` «who is the grandparent of ann?» → «Kim.» | `answer_frame($V,$V) :- relation_verb($V)` + la crescita gen509 (`relation_verb(grandparent)`): la cornice generica provava l'entita' nei due versi | `answer_frame_defers/1` (grammar.p0): una relazione DEFINITA si interroga col lettore «R of»; il C la cede |
+| `multigoal.p0t` «Learned: parent(tom, bob).» | resa piu' naturale | attesa aggiornata: «Learned: tom is the parent of bob.» (`say_frame_preferred/2`) |
+| `multigoal.p0t` «is tom the grandparent of bob?» → «No.» | «No.» senza licenza | attesa aggiornata alla risposta onesta della scala del verdetto |
+| `taught_lexicon.p0t:128` | resa piu' naturale | attesa aggiornata |
+| `question_does_not_teach.p0t`, `deep_memory.p0t` (turni a 1,13 s) | `construction_frame/3` rienumerato 1194 volte per turno da `p0_frame_is_taught` | l'insieme dei pattern insegnati si raccoglie una volta per chiamata: 707k → 32k passi di solver |
+
+⚠ **Una vista materializzata su `construction_frame/3` NON va dichiarata**:
+provata, non accelerava niente (le chiamate avvengono dentro una risoluzione) e
+rompeva la lettura di «tom is the parent of bob». Tolta.
+
+**Preesistenti (rossi identici su `ec7d4b5`), da sistemare**: `accentless_copula`
+(4), `coref` (1), `compose_coref.it` (1), `prefix_before_assertion` (9),
+`string_transform` (1), `taught_cue_ladder` (8: «forget that … is a casual
+opener» non letto), `lexicon_it` (1), `literal_forms` (4: «was born in» → «dates
+from», e un turno di 9-12 s su «zorak vurbles nivora»), `assisted_construction_ternary`
+(turni di 6-9 s: da profilare), `taught_lexicon` 153/157 (il sandbox).
+
+**Aperti di questo giro**: la forma canonica del turno si vede ora con
+`P0_READ_TRACE=1` (`[canon] «…» -> «…»`), e le cornici di domanda con `[aframe]`
+e `[qshape]`. Le domande di conseguenza e il piano di traduzione del muro sono il
+prossimo lavoro (report gen509 §7-bis).
+
 # 🌙 HANDOFF — gen508 → gen510, 2026-09-11. RIPRENDERE DA QUI.
 
 > Prevale sui due handoff qui sotto per lo **stato del codice**; il metodo del

@@ -478,6 +478,22 @@ intent_cue(self_location, "weather where you're").
 intent_cue(self_location, "weather over there").
 intent_cue(self_location, "where are you right now").
 intent_cue(self_location, "where do you live").
+% gen510 — LE DOMANDE SU DI SE' SONO UN ELENCO DELLA KB, NON UN ARRAY C.
+% `40-meta-reflection.c` le percorreva da un array compilato: una famiglia
+% nuova di domande su parrot0 costava una ricompilazione (mantra #2). L'ordine
+% e' quello di insegnamento, e conta: la prima che combacia risponde.
+machinery(self_question_intent).
+self_question_intent(ai_not_llm).     self_question_intent(ai_no_params).
+self_question_intent(ai_what_model).  self_question_intent(ai_opensource).
+self_question_intent(self_embodiment). self_question_intent(self_preference).
+self_question_intent(self_location).  self_question_intent(self_origin).
+% «di dove sei?» era un muro (report gen509): parrot0 non ha un luogo d'origine,
+% e lo dice con onesta' invece di non capire la domanda.
+intent_cue(self_origin, "where are you from").
+intent_cue(self_origin, "where do you come from").
+intent_cue(self_origin, "where were you born").
+intent_cue(self_origin, "di dove sei").
+intent_cue(self_origin, "da dove vieni").
 intent_cue(self_location, "where are you located").
 intent_cue(self_location, "che tempo fa dove sei").
 intent_cue(self_location, "che tempo fa lì").

@@ -13,13 +13,20 @@
 # language, then resolved by backward chaining.
 > if x is the parent of y and y is the parent of z then x is the grandparent of z
 < Learned rule: grandparent($V1, $V3) :- parent($V1, $V2), parent($V2, $V3).
+# gen510: la conferma dice il fatto in lingua («tom is the parent of bob»), non
+# nella notazione interna: `say_frame_preferred/2` (grammar.p0) da' ai nomi di
+# parentela la forma con la copula. Il fatto salvato e' lo stesso.
 > tom is the parent of bob
-< Learned: parent(tom, bob).
+< Learned: tom is the parent of bob.
 > bob is the parent of ann
-< Learned: parent(bob, ann).
+< Learned: bob is the parent of ann.
 > is tom the grandparent of ann?
 < Yes.
+# gen510: senza una licenza di mondo chiuso il «No.» era un'assenza travestita
+# da conoscenza (mantra #7): tom e' genitore di bob, ma nessuna premessa dice
+# che non ne sia anche nonno. La risposta onesta viene dalla stessa scala del
+# verdetto della domanda polare (`p0_relation_verdict`).
 > is tom the grandparent of bob?
-< No.
+<~ I don't know: nothing I hold says tom grandparent bob
 > who is the grandparent of ann?
 < tom.

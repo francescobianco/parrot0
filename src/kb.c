@@ -2672,10 +2672,45 @@ int kb_view_ensure(KB *kb, const char *pred) {
     }
     v->building = 1;
     int complete = 1;
+    /* gen510 — UNA VISTA BINARIA SI ENUMERA UNA VOLTA, NON UNA PER RIGA.
+     *
+     * La strada qui sotto raccoglieva i primi argomenti distinti e poi, PER
+     * OGNUNO, rienumerava il predicato con quell'argomento legato. Quando il
+     * primo argomento e' costruito da `concat_atoms` — i pattern di
+     * `extract_frame` — legarlo non restringe niente: ogni giro rideriva tutte
+     * le regole. Misurato con PARROT0_BOOT_TRACE: 1202 pattern, 5,8 milioni di
+     * passi, 6 secondi di boot. Costo quadratico nel numero di pattern, cioe'
+     * nella crescita della KB (mantra #20).
+     *
+     * `view_pair/2` (grammar.p0) restituisce le COPPIE in una sola
+     * enumerazione; qui si separano i due argomenti. Se la KB non la dichiara,
+     * resta la strada di prima. */
+    int pairs_done = 0;
+    if (v->argc == 2 && kb_knows_pred(kb, "view_pair")) {
+        char (*pairs)[KB_TERM_LEN] = NULL; size_t npairs = 0;
+        const char *pq[2] = { pred, NULL };
+        if (kb_match_all(kb, "view_pair", pq, 2, &pairs, &npairs)) {
+            pairs_done = 1;
+            for (size_t i = 0; i < npairs && complete; i++) {
+                char fun[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN];
+                size_t np = 0;
+                if (!split_compound(pairs[i], fun, parts, &np) || np != 2 ||
+                    strcmp(fun, "pair") != 0 ||
+                    term_contains_var(parts[0], 0) || term_contains_var(parts[1], 0)) {
+                    complete = 0; break;
+                }
+                const char *a[2] = { parts[0], parts[1] };
+                int origin = kb->origin; kb->origin = KB_DERIVED;
+                complete = kb_assert(kb, pred, a, 2);
+                kb->origin = origin;
+            }
+        }
+        free(pairs);
+    }
     char (*firsts)[KB_TERM_LEN] = NULL; size_t n1 = 0;
     const char *q[2] = { NULL, NULL };
-    if (!kb_match_all(kb, pred, q, v->argc, &firsts, &n1)) complete = 0;
-    for (size_t i = 0; i < n1 && complete; i++) {
+    if (!pairs_done && !kb_match_all(kb, pred, q, v->argc, &firsts, &n1)) complete = 0;
+    for (size_t i = 0; !pairs_done && i < n1 && complete; i++) {
         if (term_contains_var(firsts[i], 0)) { complete = 0; break; }
         if (v->argc == 1) {
             const char *a[1] = { firsts[i] };

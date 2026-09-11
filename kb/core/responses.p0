@@ -68,6 +68,8 @@ response_template(self_embodiment, "No meals or sleep here: I don't have a body.
 % --- gen241 (LLMSCORE-check): honest reply to location/weather-of-self probes. No
 % body and no place, so no weather to report - engages rather than walling. ---
 response_template(self_location, "I don't have a body or a place to be, so I can't feel the weather -- but I'm here and ready whenever you are.").
+response_template(self_origin, "I'm not from a place: I'm {name}, a program written in C, and I live wherever someone runs me. Where are you from?").
+response_template(self_origin, it, "Non vengo da un luogo: sono {name}, un programma scritto in C, e vivo dove qualcuno mi avvia. E tu di dove sei?").
 response_template(self_location, "There's no weather where I am: I'm a program with no location. How's it where you are?").
 
 % --- gen231 (LLMSCORE): honest reply to opinion/preference probes. No lived

@@ -257,6 +257,44 @@ Anche un rosso della suite, preesistente, è stato chiuso: «what is the
 opposite of hot», senza «?», veniva letta come lezione (`basics.p0t`). Il
 modo del turno ora consulta la lettura pubblicata dell'illocuzione.
 
+## 7-bis. gen510, secondo giro — i muri trovati da F. e lo strato delle domande
+
+F. ha trovato due muri in `make chat`: «di dove sei» e «se sto cadendo da un
+burrone senza paracadute cosa succedera». La domanda che ne è seguita — *come è
+possibile, dopo tanti livelli di astrazione?* — ha una risposta misurata.
+
+**Le astrazioni sono motori; i muri erano a monte e a valle dei motori.**
+Con `/debug` e con la forma canonica ora tracciata (`P0_READ_TRACE=1`):
+
+| Turno | Forma canonica | Forza del turno | Che cosa mancava |
+|---|---|---|---|
+| «di dove sei» | «of where are» | `expressive` | la domanda non era riconosciuta come domanda, la frase non aveva traduzione, parrot0 non sapeva nulla della propria origine |
+| «se sto cadendo da un burrone senza paracadute cosa succedera» | «se sto cadendo from a burrone senza paracadute what succedera» | `expressive` | domanda non riconosciuta, nessuna conoscenza causale sulle cadute, nessun lettore «what happens if X» da `causes/2` |
+
+Le definizioni componibili e i ruoli non possono lavorare su un turno che non
+arriva a nessun lettore, né su una catena causale che la KB non contiene.
+
+**Riparato in questo giro**
+
+| Che cosa | Come | Addestrabile parlando? |
+|---|---|---|
+| Una domanda aperta da una preposizione («di dove», «da dove», «from where») | regola strutturale in grammar.p0 + `question_preposition/1` | sì, la classe è KB |
+| Una condizione con un interrogativo («se …, cosa succede») | regola in turn-frames.p0 sullo span `condition` | la classe `interrogative_pronoun/1` è KB |
+| «Tieni conto che se un turno contiene X allora è una domanda» | forme `teach_question_cue` (inglese e italiano) → `taught_question_cue/1` | **sì**: è la lezione chiesta da F. |
+| Le lezioni raggiungono il loro lettore | `mod_lesson_form` + `turn_form_priority/2`: le forme dichiarate si leggono prima dei lettori generici | la priorità è un fatto KB |
+| L'origine di parrot0 | `self_origin` + l'elenco delle domande su di sé portato dall'array C a `self_question_intent/1` | le forme italiane si insegnano: «"di dove sei" is another way to say "where are you from"» → verificato, risponde in italiano |
+| Rese naturali | `say_frame_preferred/2`: «tom is the parent of bob» | KB |
+| «Kim» e il «No.» senza licenza | `answer_frame_defers/1`; scala del verdetto condivisa | KB |
+| Il costo di un turno qualunque | `construction_frame` raccolto una volta per chiamata | — |
+
+**Resta aperto**: il lettore delle conseguenze (il burrone è ora una domanda, ma
+parrot0 non sa che cosa succede cadendo da un'altezza, e non ha un lettore che
+risponda da `causes/2`); il piano di traduzione del muro proposto da F.; i rossi
+preesistenti elencati in `TEST_TODO.md`. Il concetto delle **radici
+dell'insegnabilità** nato in questo giro è in
+[docs/plans/radici-insegnabilita.md](../plans/radici-insegnabilita.md), con
+questi casi come esempi lavorati.
+
 ## 8. Da dove ripartire
 
 Le tre cause del §4.3 sono tre classi di lavoro, non trentatré prompt:

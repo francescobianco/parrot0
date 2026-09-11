@@ -119,6 +119,36 @@ question_mark_cue("?").
 turn_declared_act($Turn, question) :-
     turn_cue($Turn, question_mark_cue, $Cue).
 
+% ── gen510 — UNA CONDIZIONE CON UN INTERROGATIVO E' UNA DOMANDA ─────────────
+% «se sto cadendo da un burrone senza paracadute cosa succedera» non ha il «?»
+% e non apre con l'interrogativo: la condizione viene prima, la domanda dopo.
+% Il segmentatore pubblica gia' lo span `condition` (logic_connector «if»/«se»);
+% un pronome interrogativo nello stesso turno lo rende una domanda. Solo i
+% pronomi che non fanno anche da congiunzione o da comparativo: «come» e
+% «quando» aprono clausole dichiarative, e restano fuori.
+machinery(interrogative_pronoun).
+interrogative_pronoun(what).  interrogative_pronoun(who).  interrogative_pronoun(which).
+interrogative_pronoun(cosa).  interrogative_pronoun(chi).  interrogative_pronoun(quale).
+interrogative_pronoun(qual).
+turn_declared_act($Turn, question) :-
+    turn_span($Turn, $Index, condition, $Payload),
+    input_node_atom($Turn, $Id, $W), interrogative_pronoun($W).
+
+% ── gen510 — CHE COSA RENDE UNA DOMANDA SI INSEGNA PARLANDO ─────────────────
+% F., 2026-09-11: «una volta capita la base di come parrot0 mappa una domanda
+% dobbiamo lasciare lo strato in grado di essere addestrato con cose del tipo
+% "tieni conto che se … allora e' una domanda"». Le regole qui sopra sono la
+% base; questa e' la porta aperta: una superficie insegnata («cosa succede»)
+% marca il turno che la contiene come domanda, dal turno dopo, e si ritratta
+% allo stesso modo (messages.p0, `teach_question_cue`).
+turn_cue_registry(taught_question_cue, 1).
+machinery(taught_question_cue).
+% Una lezione si legge sul turno CANONICO, quindi l'indizio entra gia' tradotto:
+% questo registro si confronta anche con la forma canonica del turno.
+machinery(turn_cue_canonical).
+turn_cue_canonical(taught_question_cue).
+turn_declared_act($Turn, question) :- turn_cue($Turn, taught_question_cue, $Cue).
+
 % ── gen506b — IL TURNO COMPOSTO: PIU' CLAUSOLE, E UNA DOMANDA ALLA FINE ─────
 %
 % Il banco di comprensione (tests/comprehension-probe) e' fatto di turni cosi':

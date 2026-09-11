@@ -124,8 +124,9 @@
 
 # 1. PRIMA — `zibb` non e' un interrogativo, quindi la frase e' un'ASSERZIONE e
 #    il fatto viene memorizzato.
+# gen510: la conferma dice il fatto in lingua (`say_frame_preferred/2`).
 > zibb is the parent of ann
-< Learned: parent(zibb, ann).
+< Learned: zibb is the parent of ann.
 
 # 2. INSEGNAMENTO — `zibb` chiede il primo argomento (il soggetto).
 > zibb is the asks_slot of subject

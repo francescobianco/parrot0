@@ -101,6 +101,20 @@ sbagliata*, quella ha la precedenza su qualunque muro.
 
 ---
 
+### 0.7 Dove finisce la catena di ciò che un giro apre
+
+> *«preso una qualsiasi cosa che può essere insegnata a parrot0 si può
+> individuare la superficie che la insegna e chiedersi quale superficie serve
+> per insegnare quella abilità di insegnamento»* — F., 2026-09-11
+
+Un giro apre una superficie. Da ora ogni giro dice anche **dove finisce la
+catena** di quella superficie: in una primitiva del motore (radice), in una
+lezione che sa estendere la propria forma (circolo), o in una riga `.p0`
+scritta a mano che nessuna lezione produce. Il terzo caso non è un difetto del
+giro, è l'informazione che serve per scegliere il prossimo: il buco più vicino
+alla radice che chiude più catene insieme. Il metodo e la misura della
+**vitalità** sono in [radici-insegnabilita.md](radici-insegnabilita.md).
+
 ## 1. Che cos'è un giro
 
 Sette passi. Il ciclo dura pochi minuti quando la cura è in KB.

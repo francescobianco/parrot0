@@ -4690,11 +4690,6 @@ static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
     return next_literal ? -1 : (int)n;
 }
 
-static int p0_frame_is_taught(Brain *b, const char *raw_pattern) {
-    const char *q[3] = { raw_pattern, NULL, NULL };
-    char row[1][KB_TERM_LEN];
-    return kb_match(b->kb, "construction_frame", q, 3, row, 1) > 0;
-}
 
 /* ── SC2-B: LA FASE PURA DELLA LETTURA ────────────────────────────────────
  *
@@ -5115,11 +5110,26 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
      * conoscenza. Un tetto fisso qui non e' un limite di memoria: e' un limite
      * a quanti verbi di relazione parrot0 puo' imparare prima di cominciare a
      * dimenticarne senza dirlo. */
+    /* gen510 — L'INSIEME DEI PATTERN INSEGNATI SI RACCOGLIE UNA VOLTA.
+     * `p0_frame_is_taught` chiedeva `construction_frame(Pattern, _, _)` per
+     * OGNI schema candidato: la regola che deriva le costruzioni comparative da
+     * ogni verbo di relazione non sa lavorare all'indietro da `concat_atoms`,
+     * quindi ogni domanda la rienumerava da capo. Misurato con /debug: 1194
+     * chiamate e ~200 ms per turno, il costo maggiore di un turno qualunque.
+     * Qui la si enumera una volta e il ciclo controlla l'appartenenza. */
+    char (*taught)[KB_TERM_LEN] = NULL;
+    size_t ntaught = 0;
+    if (taught_only) {
+        const char *tq3[3] = { NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, "construction_frame", tq3, 3, &taught, &ntaught)) {
+            free(taught); taught = NULL; ntaught = 0;
+        }
+    }
     char (*pats)[KB_TERM_LEN] = NULL;
     const char *anyq[] = { NULL, NULL };
     size_t np = 0;
     if (!kb_match_all(b->kb, "extract_frame", anyq, 2, &pats, &np)) {
-        free(pats);
+        free(pats); free(taught);
         return 0;
     }
 
@@ -5129,7 +5139,16 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
          * quindi l'unica con cui si puo' rileggere la sua seconda colonna. */
         char raw[KB_TERM_LEN];
         snprintf(raw, sizeof raw, "%s", pats[pi]);
-        if (taught_only && !p0_frame_is_taught(b, raw)) continue;
+        if (taught_only) {
+            char rawd[KB_TERM_LEN]; snprintf(rawd, sizeof rawd, "%s", raw);
+            const char *rd = kb_dequote(rawd);
+            int found = 0;
+            for (size_t ti = 0; ti < ntaught && !found; ti++) {
+                char td[KB_TERM_LEN]; snprintf(td, sizeof td, "%s", taught[ti]);
+                if (!strcmp(kb_dequote(td), rd)) found = 1;
+            }
+            if (!found) continue;
+        }
 
         /* SC2-B: legare lo schema e' la FASE PURA, e vive fuori di qui. Questa
          * funzione conserva soltanto cio' che la fase pura non deve fare —
@@ -5174,7 +5193,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
              * un altro posto — il segnale che la lettura va condivisa, non la
              * guardia ripetuta (§R2). Un valore non risponde a una domanda che
              * ne propone uno; se la proposta non regge, questa via tace. */
-            if (nh > 0 && p0_turn_is_polar(b, w, n)) { free(pats); return 0; }
+            if (nh > 0 && p0_turn_is_polar(b, w, n)) { free(pats); free(taught); return 0; }
             if (nh > 0) {
                 char hb[KB_TERM_LEN];
                 snprintf(hb, sizeof hb, "%s", hits[0]);
@@ -5183,7 +5202,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                 for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
                 kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                 { "value", pretty } }, 1, out, out_size);
-                free(pats);
+                free(pats); free(taught);
                 return 1;
             }
             continue;          /* e' una domanda: non diventa mai un fatto */
@@ -5237,7 +5256,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
                             { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                         3, out, out_size);
-            free(pats);
+            free(pats); free(taught);
             return 2;                       /* 2 = respinto, ma non silenzioso */
         }
         if (kb_assert(b->kb, pred, fa, fact_nslots)) {
@@ -5298,11 +5317,11 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                 3, msg, sizeof msg);
             }
             put(msg, out, out_size);
-            free(pats);
+            free(pats); free(taught);
             return 1;
         }
     }
-    free(pats);
+    free(pats); free(taught);
     return 0;
 }
 
@@ -7748,6 +7767,8 @@ static int question_shape_generalize(Brain *b, const char *norm) {
             char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", surf);
             const char *already[2] = { quoted, relname };
             if (!kb_query(b->kb, "answer_frame", already, 2)) {
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[qshape] induced answer_frame(%s, %s)\n", quoted, relname);
                 int prev = kb_origin(b->kb);
                 kb_set_origin(b->kb, KB_INDUCED);
                 kb_assert(b->kb, "answer_frame", already, 2);
@@ -7875,9 +7896,20 @@ static void p0_say_class(Brain *b, const char *cls, const char *subj,
 static int p0_say_fact(Brain *b, const char *pred, const char *a1,
                        const char *a2, char *out, size_t out_size) {
     if (!b || !b->kb || !pred || !a1 || !a2 || !out || out_size == 0) return 0;
+    /* gen510 — una forma PREFERITA, se la KB ne dichiara una, vince sulla
+     * scelta per brevita': «tom is the parent of bob», non «tom parent bob». */
+    char best[KB_TERM_LEN] = "";
+    {
+        char pref[1][KB_TERM_LEN];
+        const char *prq[2] = { pred, NULL };
+        if (kb_match(b->kb, "say_frame_preferred", prq, 2, pref, 1) == 1) {
+            char pb0[KB_TERM_LEN]; snprintf(pb0, sizeof pb0, "%s", pref[0]);
+            snprintf(best, sizeof best, "%s", kb_dequote(pb0));
+        }
+    }
     char (*pats)[KB_TERM_LEN] = NULL; size_t np = 0;
     const char *pq[2] = { pred, NULL };
-    if (!kb_match_all(b->kb, "say_frame", pq, 2, &pats, &np) || np == 0) {
+    if (!*best && (!kb_match_all(b->kb, "say_frame", pq, 2, &pats, &np) || np == 0)) {
         free(pats); return 0;
     }
     /* Il nome della relazione E' gia' la sua forma canonica letta a parole:
@@ -7889,8 +7921,9 @@ static int p0_say_fact(Brain *b, const char *pred, const char *a1,
     snprintf(canon, sizeof canon, "%s", pred);
     for (char *c = canon; *c; c++) if (*c == '_') *c = ' ';
 
-    char best[KB_TERM_LEN] = ""; size_t blen = 0; int best_canon = 0;
-    for (size_t i = 0; i < np; i++) {
+    size_t blen = 0; int best_canon = 0;
+    int best_preset = best[0] != '\0';
+    for (size_t i = 0; !best_preset && i < np; i++) {
         char pb[KB_TERM_LEN];
         snprintf(pb, sizeof pb, "%s", pats[i]);
         const char *t = kb_dequote(pb);
@@ -8110,6 +8143,25 @@ static int p0_inherit_relation(Brain *b, const char *norm,
 
     /* (b) il turno contiene un riferimento? Le forme le elenca la KB. */
     if (!p0_turn_refers(b, norm)) return 0;
+    /* gen510 — un turno che NOMINA una relazione non e' un'ellissi: «who is the
+     * grandparent of ann?» ereditava la relazione del discorso e la provava nei
+     * due versi, rispondendo «Kim» (`grandparent(ann, kim)`). Quali parole
+     * nominino una relazione lo dice la KB (`turn_names_relation/1`). */
+    {
+        const char *tq[1] = { "current_turn" };
+        if (kb_query(b->kb, "turn_names_relation", tq, 1)) return 0;
+    }
+    /* ...e nemmeno un turno in cui una parola nomina un predicato che la KB
+     * conosce: la relazione c'e', e' quella. (In un contesto dove «grandparent»
+     * esiste solo come regola appresa, nessuna classe lessicale la nomina.) */
+    {
+        char tb[300]; snprintf(tb, sizeof tb, "%s", norm ? norm : "");
+        char *tw[48]; size_t tn = split_words(tb, tw, 48);
+        for (size_t k = 0; k < tn; k++) {
+            char *t = strip_edge_punct(tw[k]);
+            if (strlen(t) >= 3 && !is_stopword(b, t) && kb_knows_pred(b->kb, t)) return 0;
+        }
+    }
 
     /* (c) la relazione in gioco — una vista sugli scambi, non un campo. */
     char rel[1][KB_TERM_LEN];
@@ -8204,6 +8256,14 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         char pred[KB_TERM_LEN];
         snprintf(pred, sizeof pred, "%s", kb_dequote(preds[p]));
         if (!*pred) continue;
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[aframe] cue=%s pred=%s%s\n", cues[i], pred, *cues[i] ? "" : " (inherited)");
+        /* gen510 — la KB puo' dire che una relazione si interroga altrove
+         * (`answer_frame_defers/1`): la cornice generica la cede. */
+        {
+            const char *dq[1] = { pred };
+            if (kb_query(b->kb, "answer_frame_defers", dq, 1)) continue;
+        }
         /* gen505x: prima di QUALUNQUE emissione di valore, la forma della
          * domanda. Una polare non chiede il valore: propone il proprio. */
         {
@@ -13296,6 +13356,22 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", nm);
             snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", vl);
             (*nslot)++;
+        } else if (!strcmp(kind, "span")) {
+            /* gen510 — `span(Nome)`: le parole fino alla prossima ancora di testo
+             * della forma, conservate come TESTO. E' il pezzo che mancava alle
+             * lezioni con una frase in mezzo — «if a turn contains … then it is
+             * a question» — dove `rest` prenderebbe anche la chiusura. */
+            if (i >= nw || *nslot >= P0_FORM_SLOTS) return 0;
+            size_t upto = p0_expr_span_end(b, form, ord, w, nw, i);
+            char v[KB_TERM_LEN];
+            if (i >= upto || !p0_join(w, i, upto, v, sizeof v)) return 0;
+            for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
+            if (!*v) return 0;
+            snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg);
+            lowercase_copy(slots[*nslot].value, KB_TERM_LEN, v);
+            slots[*nslot].is_text = 1;
+            (*nslot)++;
+            i = upto;
         } else if (!strcmp(kind, "expr") || !strcmp(kind, "construct")) {
             /* gen508 — `expr(Nome)`: qui sta un'ESPRESSIONE di relazione, resa
              * termine (vedi p0_relation_expr). `construct(Nome)` e' la stessa
@@ -13794,6 +13870,10 @@ static int p0_run_op(Brain *b, const char *act, P0FormSlot *slots, size_t ns,
     return p0_run_op_named(b, act, slots, ns, "", out, out_size);
 }
 
+/* gen510 — vedi `mod_lesson_form`: nel passaggio anticipato si leggono solo le
+ * forme dichiarate `turn_form_priority(Forma, early)`. */
+static int p0_forms_early_only = 0;
+
 static int p0_turn_form_reader(Brain *b, const char *norm,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
@@ -13806,7 +13886,13 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
 
     char (*forms)[KB_TERM_LEN] = NULL; size_t nf = 0;
     const char *fq[2] = { NULL, NULL };
-    if (!kb_match_all(b->kb, "turn_form_act", fq, 2, &forms, &nf)) { free(forms); return 0; }
+    /* gen510: nel passaggio anticipato si enumerano SOLO le forme dichiarate
+     * prioritarie — percorrerle tutte a ogni turno costava (misurato: il turno
+     * di question_does_not_teach passava 1 s). */
+    if (p0_forms_early_only) {
+        const char *eq[2] = { NULL, "early" };
+        if (!kb_match_all(b->kb, "turn_form_priority", eq, 2, &forms, &nf)) { free(forms); return 0; }
+    } else if (!kb_match_all(b->kb, "turn_form_act", fq, 2, &forms, &nf)) { free(forms); return 0; }
     int done = 0;
     for (size_t f = 0; f < nf && !done; f++) {
         char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forms[f]);
@@ -14351,6 +14437,27 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
     }
     free(forms);
     return done;
+}
+
+/* gen510 — UNA LEZIONE DEVE RAGGIUNGERE IL PROPRIO LETTORE.
+ *
+ * Le forme di lezione stanno dentro `mod_knowledge`, che nel registro viene
+ * tardi: «if a turn contains what happens then it is a question» veniva presa
+ * prima dal lettore delle regole «if … then» (`teachrule`) e diventava una regola
+ * proposizionale spazzatura. Un anello di insegnabilita' presente ma catturato
+ * da un altro lettore e' un anello rotto (docs/plans/radici-insegnabilita.md).
+ *
+ * Quali forme vadano lette PRIMA dei lettori generici e' condotta, quindi un
+ * fatto (`turn_form_priority(Forma, early)`, mantra #17): questo modulo, in
+ * testa al registro, legge solo quelle. */
+static int mod_lesson_form(Brain *b, const char *norm, const char *raw,
+                           char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm || !kb_knows_pred(b->kb, "turn_form_priority")) return 0;
+    p0_forms_early_only = 1;
+    int r = p0_turn_form_reader(b, norm, out, out_size);
+    p0_forms_early_only = 0;
+    return r;
 }
 
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,

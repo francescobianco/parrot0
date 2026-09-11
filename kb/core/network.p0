@@ -374,5 +374,12 @@ machinery(option_hit_word).
 machinery(unclaimed_turn_captured).
 option_hit_word($Topic, $N, $W) :- option_word($W, $Topic, $N), turn_cue(current_turn, option_word, $W), naf(stopword($W)), turn_short_reply(current_turn).
 option_hit($Topic, $N) :- option_hit_word($Topic, $N, $W).
+
+% gen510 — un turno che nomina una relazione porta la PROPRIA relazione: non
+% eredita quella del discorso (il ramo ellittico di `mod_answer_frame`).
+machinery(turn_names_relation).
+turn_names_relation($T) :- input_node_atom($T, $Id, $W), relation_verb($W).
+turn_names_relation($T) :- input_node_atom($T, $Id, $W), relation_noun($P, $W).
+turn_names_relation($T) :- input_node_atom($T, $Id, $W), family_relation($W).
 unclaimed_turn_captured($Kind) :- naf(turn_illocution(current_turn, question)).
 

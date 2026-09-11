@@ -620,6 +620,19 @@ e risposta: esaurire il lavoro disponibile non autorizza un «no» né un defaul
 che richiede assenza provata dalla ricerca. Una KB teoricamente espressiva
 ma incapace di dichiarare questo limite non sarebbe una KB viva affidabile.
 
+### 5.7 Le radici dell'insegnabilità: riapprendere ciò che si sa fare
+
+Il §5.3 chiede che una lezione apra una lezione successiva. Il concetto posto
+da F. il 2026-09-11 dà a questa richiesta una direzione di lavoro: per ogni
+abilità si risale alla superficie che la insegna, poi alla superficie che
+insegna quella superficie, fino a una **radice** (una primitiva del motore), a
+un **circolo** (una lezione che estende la propria forma) o a una **riga a
+mano** (un buco). Il punto di partenza è fissato da ciò che parrot0 già sa
+fare: la suite e i piani non sono solo un elenco di capacità da proteggere, ma
+l'elenco di ciò che parrot0 dovrebbe poter **riapprendere** da lezioni di
+ordine superiore. Una KB viva è quella in cui ogni catena finisce in una radice
+o in un circolo. Sviluppo in [radici-insegnabilita.md](radici-insegnabilita.md).
+
 ## 6. Le decisioni che precedono un eventuale piano
 
 Le domande seguenti non sono una coda di task. Identificano scelte ancora

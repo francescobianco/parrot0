@@ -375,19 +375,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     {
         if (topic_action_move(b, norm, raw, out, out_size)) return 1;
         if (topic_preference_move(b, norm, raw, out, out_size)) return 1;
-        static const char *const ai[] = {
-            "ai_not_llm", "ai_no_params", "ai_what_model", "ai_opensource",
-            /* gen229: behavioural self-model — embodiment/daily-life probes
-             * ("what did you have for breakfast", "do you sleep"). Answered the
-             * same honest way an LLM does ("I don't eat or sleep"); it states a
-             * truth, makes no identity claim, and engages instead of walling. */
-            "self_embodiment",
-            /* gen231: opinion/preference probes ("what's your favorite thing to do
-             * on a rainy day") — honest "no genuine preferences", engages not walls. */
-            "self_preference",
-            /* gen241: location/weather-of-self probes ("what's the weather like where
-             * you are") — honest "I have no body or place", engages not walls. */
-            "self_location", NULL };
+        /* gen510 — le famiglie di domande su di se' (ai_*, self_embodiment
+         * gen229, self_preference gen231, self_location gen241, self_origin
+         * gen510) non sono piu' un array qui: sono `self_question_intent/1`
+         * (intents.p0), enumerate piu' sotto, appena prima del ciclo. */
         /* gen240: "favorite color" gets a KB-grounded answer (an honestly-picked
          * colour, not a dodge). In a role, mod_role answers from likes_color/2;
          * out of role, answer here from default_color/1 before the generic
@@ -496,18 +487,29 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 }
             }
         }
-        for (size_t i = 0; ai[i]; i++) {
-            if (is_color_q && strcmp(ai[i], "self_preference") == 0) continue;
-            if (situated_activity_fav && strcmp(ai[i], "self_preference") == 0) continue;
-            if (kb_cue_match(b, ai[i], buf)) {
+        char (*ai)[KB_TERM_LEN] = NULL; size_t n_ai = 0;
+        {
+            const char *aiq[1] = { NULL };
+            if (!b->kb || !kb_match_all(b->kb, "self_question_intent", aiq, 1, &ai, &n_ai)) {
+                free(ai); ai = NULL; n_ai = 0;
+            }
+        }
+        for (size_t i = 0; i < n_ai; i++) {
+            char ib[KB_TERM_LEN]; snprintf(ib, sizeof ib, "%s", ai[i]);
+            const char *intent = kb_dequote(ib);
+            if (is_color_q && strcmp(intent, "self_preference") == 0) continue;
+            if (situated_activity_fav && strcmp(intent, "self_preference") == 0) continue;
+            if (kb_cue_match(b, intent, buf)) {
                 const char *var[] = {NULL};
                 char id[1][KB_TERM_LEN];
                 size_t k = b->kb ? kb_match(b->kb, "i_am", var, 1, id, 1) : 0;
-                if (!kb_response(b, ai[i], k ? id[0] : "parrot0", out, out_size))
+                if (!kb_response(b, intent, k ? id[0] : "parrot0", out, out_size))
                     kb_term_say(b, "i_m_parrot0_a_small_program_written_in_c_not", NULL, 0, out, out_size);
+                free(ai);
                 return 1;
             }
         }
+        free(ai);
     }
 
     int repeat = kb_cue_match(b, "40_meta_reflection_cue425", buf) ||

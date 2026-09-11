@@ -1172,6 +1172,12 @@ extract_frame($Pat, $Pred) :-
     passive_frame_coordinate($Pat, $Pred, $Aux, $By).
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
+% gen510 — una relazione DEFINITA per lezione («grandparent is parent twice») si
+% interroga con il lettore «R of» (holds/3 e la scala del verdetto), non con la
+% cornice generica, che provava l'entita' nei due versi e rispondeva «Kim»
+% leggendo `grandparent(ann, kim)`. La cessione e' condotta, quindi un fatto.
+machinery(answer_frame_defers).
+answer_frame_defers($Pred) :- relation_def($Pred, $D).
 
 % ── E QUANDO I RUOLI SONO TRE (M3) ───────────────────────────────────────────
 %
@@ -2183,6 +2189,24 @@ interrogative_clause_opener($T, $Id) :-
     input_node_atom($T, $Next, $V), clause_inverter($V).
 turn_opens_question($T) :- interrogative_clause_opener($T, $Id).
 
+% ── gen510 — LA PREPOSIZIONE DAVANTI ALL'INTERROGATIVO ──────────────────────
+% «di dove sei», «da dove vieni», «con chi parli», «from where …»: la
+% domanda non si apre con l'interrogativo ma con la preposizione che lo regge,
+% e le tre regole sopra — che vogliono l'interrogativo come PRIMO nodo — la
+% leggevano come un turno espressivo, cioe' come nessuna domanda (report gen509,
+% il muro di «di dove sei»). Quali parole siano preposizioni e' una classe
+% aperta: quelle inglesi le da' `preposition/1`, le altre sono righe qui.
+machinery(question_preposition).
+question_preposition($P) :- preposition($P).
+question_preposition(di).  question_preposition(da).  question_preposition(a).
+question_preposition(con). question_preposition(per). question_preposition(su).
+question_preposition(tra). question_preposition(fra).
+turn_opens_question($T) :-
+    input_node_atom($T, $Id, $P), naf(input_node_precedes($T, $Id)),
+    question_preposition($P),
+    input_node_next($T, $Id, $Next), input_node_atom($T, $Next, $W),
+    question_word($W), naf(complementizer($W)).
+
 % E l'ordine in cui offrirle, che e' esso stesso conoscenza: davanti a una forma
 % binaria la costruzione viene prima, perche' e' la lezione che non richiede di
 % sapere gia' come parrot0 chiama quella relazione.
@@ -2348,6 +2372,11 @@ indefinite_opener(an).
 % Insegnare un `extract_frame` nuovo rende la relazione dicibile senza altro.
 machinery(say_frame).
 say_frame($Predicate, $Pattern) :- extract_frame($Pattern, $Predicate).
+% gen510 — un nome di parentela si dice con la copula: «tom is the parent of
+% bob», non «tom parent bob» (la forma piu' breve che `say_frame` sceglieva).
+machinery(say_frame_preferred).
+say_frame_preferred($R, $Pat) :-
+    family_relation($R), concat_atoms("@S is the ", $R, $A), concat_atoms($A, " of @O", $Pat).
 
 % ── gen491: QUALE ARTICOLO INDETERMINATIVO, E PERCHE' STA IN KB ──────────────
 %
@@ -2470,6 +2499,12 @@ linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
 machinery(materialized_view).
 materialized_view(extract_frame, 2).
 materialized_view(verb_stem, 2).
+% gen510 — le COPPIE di una vista binaria in una sola enumerazione. Il motore
+% (`kb_view_ensure`) la usa per congelare una vista senza rienumerarla una volta
+% per ogni primo argomento: con `extract_frame` era un costo quadratico nel
+% numero di pattern, 6 secondi a ogni avvio.
+machinery(view_pair).
+view_pair($P, pair($X, $Y)) :- apply($P, cons($X, cons($Y, nil))).
 
 % Da CHE COSA dipende una vista: i predicati la cui variazione la invalida. E'
 % la chiave della cache, e dev'essere stretta — la prima versione usava la

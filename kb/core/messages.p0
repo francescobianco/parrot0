@@ -1580,6 +1580,53 @@ turn_form_mood(unteach_irreflexive, statement).
 turn_form_act(unteach_irreflexive, "op(retract, irreflexive_relation, [subject])").
 turn_form_reply(unteach_irreflexive, unlearned_irreflexive).
 
+% gen510 — INSEGNARE CHE COSA E' UNA DOMANDA (turn-frames.p0,
+% `taught_question_cue`). La superficie sta fra l'apertura e la chiusura della
+% lezione (`span`), quindi puo' essere di piu' parole.
+response_template(learned_question_cue, "Held: a turn that contains «{object}» is a question.").
+response_template(learned_question_cue, it, "Tengo: un turno che contiene «{object}» è una domanda.").
+response_template(unlearned_question_cue, "Forgotten: «{object}» no longer marks a question.").
+response_template(unlearned_question_cue, it, "Dimenticato: «{object}» non segna più una domanda.").
+
+turn_form(teach_question_cue, 1, text("treat as a question any turn that contains")).
+turn_form(teach_question_cue, 2, rest(object)).
+turn_form_mood(teach_question_cue, statement).
+turn_form_act(teach_question_cue, "op(assert, taught_question_cue, [object])").
+turn_form_reply(teach_question_cue, learned_question_cue).
+
+turn_form(teach_question_cue_if, 1, text("if a turn contains")).
+turn_form(teach_question_cue_if, 2, span(object)).
+turn_form(teach_question_cue_if, 3, text("then it is a question")).
+% (nessuna guardia del modo: la lezione contiene essa stessa una condizione e un
+%  interrogativo, e la regola di turn-frames.p0 la leggerebbe come domanda.)
+turn_form_act(teach_question_cue_if, "op(assert, taught_question_cue, [object])").
+turn_form_reply(teach_question_cue_if, learned_question_cue).
+
+turn_form(unteach_question_cue, 1, text("stop treating as a question turns that contain")).
+turn_form(unteach_question_cue, 2, rest(object)).
+turn_form_mood(unteach_question_cue, statement).
+turn_form_act(unteach_question_cue, "op(retract, taught_question_cue, [object])").
+turn_form_reply(unteach_question_cue, unlearned_question_cue).
+
+% La forma italiana, «tieni conto che se un turno contiene X allora è una
+% domanda», dichiarata su cio' che il lettore VEDE dopo la canonicalizzazione
+% (misurato con P0_READ_TRACE: «tieni conto what se a turno contiene … allora è
+% a question»). La trappola e' quella del catalogo: una forma si scrive sulla
+% superficie canonica, non su quella detta.
+turn_form(teach_question_cue_it, 1, text("tieni conto what se a turno contiene")).
+turn_form(teach_question_cue_it, 2, span(object)).
+turn_form(teach_question_cue_it, 3, text("allora è a question")).
+turn_form_act(teach_question_cue_it, "op(assert, taught_question_cue, [object])").
+turn_form_reply(teach_question_cue_it, learned_question_cue).
+
+% Queste lezioni si leggono PRIMA dei lettori generici (`mod_lesson_form`): la
+% versione inglese con «if … then» veniva presa dal lettore delle regole.
+machinery(turn_form_priority).
+turn_form_priority(teach_question_cue, early).
+turn_form_priority(teach_question_cue_if, early).
+turn_form_priority(teach_question_cue_it, early).
+turn_form_priority(unteach_question_cue, early).
+
 % ══ gen507/49 (forma #24) — INSEGNARE UN PLURALE IRREGOLARE ═══════════════
 % `plural_of/2` decide se una parola e' plurale, e da li' l'accordo, la
 % singolarizzazione e mezza dozzina di lettori. Le irregolari si scrivevano in
