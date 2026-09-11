@@ -779,6 +779,7 @@ machinery(plural_suffix).
 % Eccezioni esatte: irregolari e invarianti.
 plural_of(men, man).        plural_of(women, woman).
 plural_of(people, person).  plural_of(children, child).
+plural_of(grandchildren, grandchild).
 plural_of(feet, foot).      plural_of(teeth, tooth).
 plural_of(mice, mouse).     plural_of(geese, goose).
 plural_of(fish, fish).      plural_of(sheep, sheep).
@@ -1371,6 +1372,54 @@ extract_frame($Pat, $Pred) :-
     relation_noun_it($Pred, $Noun), naf(relation_value_first($Pred)),
     concat_atoms("la ", $Noun, $A),
     concat_atoms($A, " di @S e' @O", $Pat).
+
+% ── gen510 — «X IS THE R OF Y» CON UN SOGGETTO DI PIU' PAROLE ───────────────
+% L'unico lettore di questa forma era posizionale e voleva SEI parole: «william
+% is the father of george» entrava, «charles iii is the father of william»
+% cadeva nel lettore delle classi e diventava `father(charles_iii)`, perdendo
+% William (report gen509, NL1). Le cornici chiudono lo slot sulla parola
+% letterale «is», quindi il soggetto puo' avere quante parole vuole.
+%  - un nome di PARENTELA (`family_relation/1`, social.p0) legge come il lettore
+%    posizionale: «X is the father of Y» e' `father(X, Y)`;
+%  - un nome di RELAZIONE (`relation_noun/2`) legge nel verso che la relazione
+%    dichiara (`relation_value_first/1`), come la forma «the R of X is Y».
+extract_frame($Pat, $R) :-
+    family_relation($R),
+    concat_atoms("@S is the ", $R, $A),
+    concat_atoms($A, " of @O", $Pat).
+extract_frame($Pat, $Pred) :-
+    relation_noun($Pred, $Noun), relation_value_first($Pred),
+    concat_atoms("@S is the ", $Noun, $A),
+    concat_atoms($A, " of @O", $Pat).
+extract_frame($Pat, $Pred) :-
+    relation_noun($Pred, $Noun), naf(relation_value_first($Pred)),
+    concat_atoms("@O is the ", $Noun, $A),
+    concat_atoms($A, " of @S", $Pat).
+
+% ── gen510 — UN REFERENTE CHE LA KB CONOSCE GIA' ────────────────────────────
+% Uno span di piu' parole diventa un atomo per sola struttura, e la guardia del
+% soggetto lo rifiuta se contiene «the» o «of»: «william the conqueror» era un
+% valore salvato (`winner_of(hastings, william_the_conqueror)`) e un soggetto
+% impossibile (report gen509, NA5). Un atomo che la KB conosce gia' come nome,
+% come valore di un ruolo o come riempitivo di un frame e' UN referente.
+machinery(known_referent).
+known_referent($A) :- proper_name($A).
+known_referent($A) :- entity_role($A, $I).
+known_referent($V) :-
+    relation_role($R, $Role), concat_atoms($Role, "_of", $P),
+    apply($P, cons($O, cons($V, nil))).
+
+% ── gen510 — UNA FRASE SU UN NOME NON DICE DOVE STA UNA COSA ─────────────────
+% Una ricerca su «charles» ha letto «Charles is a male given name predominantly
+% found in English and French speaking countries» e ha appreso
+% `located_in(charles, english_and_french_speaking_countries)`: un fatto falso
+% (report gen509, NL8). Quando la classe e' un NOME o una PAROLA, la frase parla
+% della lingua, non del mondo. Quali teste siano metalinguistiche e' conoscenza.
+machinery(metalinguistic_head).
+metalinguistic_head(name).     metalinguistic_head(names).
+metalinguistic_head(surname).  metalinguistic_head(nickname).
+metalinguistic_head(word).     metalinguistic_head(term).
+metalinguistic_head(spelling). metalinguistic_head(abbreviation).
 
 % ── gen505e — UNA RELAZIONE NUOVA SI PUO' DIRE, NON SOLO SCRIVERE ───────────
 %
@@ -2143,7 +2192,8 @@ turn_gap_middle($T, $W) :-
     input_node_atom($T, $Id, $W),
     turn_gap_flanked($T, before, $Id),
     turn_gap_flanked($T, after, $Id),
-    naf(clause_copula($W)).
+    naf(clause_copula($W)),
+    naf(stopword($W)).
 
 turn_teaching_offer($T, construction) :- turn_gap_shape($T, binary_frame).
 turn_teaching_offer($T, relation_verb) :- turn_gap_shape($T, binary_frame).

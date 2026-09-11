@@ -4359,6 +4359,13 @@ static int p0_bad_subject(Brain *b, const char *t) {
      * quali parole siano tali e' `subject_guard/1`, conoscenza. (Erano le
      * «tre cure» dell'handoff gen505w: non scattavano perche' il demone di
      * test girava con il C di tre giorni prima.) */
+    /* gen510 — UN REFERENTE GIA' NOTO E' UN NOME, ANCHE SE CONTIENE «THE».
+     * «william the conqueror» era un valore accettato (`winner_of(hastings,
+     * william_the_conqueror)`) e un soggetto rifiutato: la guardia per parola
+     * trovava lo stopword «the» e la domanda polare si arrendeva (report gen509,
+     * NA5). Se l'atomo intero e' un referente che la KB conosce gia' —
+     * `known_referent/1`, grammar.p0 — le sue parole non si guardano una a una. */
+    if (kb_query(b->kb, "known_referent", q, 1)) return 0;
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", t);
     for (char *p = buf, *tok = buf; ; p++) {
@@ -6720,7 +6727,22 @@ static int extract_class_statement(Brain *b, const char *norm,
         const char *lp[1] = { strip_edge_punct(w[p]) };
         if (kb_query(b->kb, "location_participle", lp, 1)) p++;
     }
-    if (p < n && p0_is_loc_prep(b, w[p])) {         /* trailing PP -> located_in (4) */
+    /* gen510 — UNA FRASE SU UN NOME NON DICE DOVE STA UNA COSA. «Charles is a
+     * male given name predominantly found in English and French speaking
+     * countries» produceva `located_in(charles, …)`: la classe parla di un NOME,
+     * e il complemento di luogo e' dove si usa quel nome, non dove sta Charles
+     * (report gen509, NL8). Quali teste siano metalinguistiche lo dice
+     * `metalinguistic_head/1` (grammar.p0); qui si chiede per ogni parola della
+     * classe. */
+    int meta_class = 0;
+    for (size_t i = 0; i < ncls && !meta_class; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", classes[i]);
+        for (char *tok = strtok(cb, "_"); tok && !meta_class; tok = strtok(NULL, "_")) {
+            const char *mq[1] = { tok };
+            if (kb_query(b->kb, "metalinguistic_head", mq, 1)) meta_class = 1;
+        }
+    }
+    if (!meta_class && p < n && p0_is_loc_prep(b, w[p])) {  /* trailing PP -> located_in (4) */
         size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n) loc = p0_join(w, os, n, obj, sizeof obj);
     }
@@ -12527,140 +12549,19 @@ static int p0_relation_inherited(Brain *b, const char *rel,
     return 0;
 }
 
-static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_size) {
-    if (!b || !b->kb || !norm) return 0;
-    size_t L = strlen(norm);
-    if (L < 8 || L >= 300) return 0;
-    char s[300]; memcpy(s, norm, L + 1);
-    char *w[32]; size_t nw = split_words(s, w, 32);
-    if (nw < 4) return 0;
-    /* gen505f — DUE FORME, UNA LETTURA. «does the senate govern rome?» ha
-     * l'ausiliare in testa; «what does the senate govern?» ha l'interrogativo e
-     * poi l'ausiliare, e lascia ignoto l'OGGETTO invece di chiederne conferma.
-     * La differenza e' di un token e le due classi sono gia' in KB. */
-    size_t base = 0;
-    if (lex_class_member(b, "polar_fronted", w[0])) base = 0;
-    else if (lex_class_member(b, "question_word", w[0]) && nw >= 4 &&
-             lex_class_member(b, "polar_fronted", w[1])) base = 1;
-    else return 0;
-
-    size_t vi = 0;
-    char rel[KB_TERM_LEN]; rel[0] = '\0';
-    char form_particle[KB_TERM_LEN]; form_particle[0] = '\0';
-    /* La superficie DETTA, che non coincide sempre con la relazione risolta:
-     * `verb_stem/2` puo' restituire una forma flessa, e la lezione che sa
-     * tradurre la superficie in relazione e' indicizzata sulla superficie. */
-    char said[KB_TERM_LEN]; said[0] = '\0';
-    for (size_t i = base + 2; i < nw && !vi; i++) {
-        char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
-        const char *bare = strip_edge_punct(vb);
-        const char *cand[] = { bare };
-        snprintf(said, sizeof said, "%s", bare);
-        if (kb_query(b->kb, "relation_verb", cand, 1)) {
-            snprintf(rel, sizeof rel, "%s", bare); vi = i; break;
-        }
-        /* gen507 — UNA LEZIONE BATTE UNA DERIVAZIONE MORFOLOGICA.
-         * `verb_stem/2` indovina la radice dalla forma; `answer_frame/2` la
-         * DICHIARA. Con «have» la derivazione restituiva «had» e la domanda
-         * moriva li', mentre la stessa domanda in terza persona («has»)
-         * rispondeva: due superfici dello stesso verbo, due esiti. Chiedere
-         * prima a cio' che e' stato detto e' anche l'ordine giusto.
-         *
-         * e la terza strada, che il gen507/8 aveva lasciata scritta
-         * come debito: `answer_frame(Superficie, Relazione)` dice quale
-         * relazione una superficie INTERROGA. «zelnik lives in turin» entrava
-         * correttamente come `habitat(zelnik, turin)`, ma «where does zelnik
-         * live?» non trovava nessun verbo — `live` non e' un `relation_verb`,
-         * e' la superficie di una relazione che ne porta un altro nome. */
-        char infl[1][KB_TERM_LEN];
-        const char *sq[] = { NULL, bare };          /* verb_stem(Flessa, Radice) */
-        if (kb_match(b->kb, "verb_stem", sq, 2, infl, 1) == 1) {
-            snprintf(rel, sizeof rel, "%s", infl[0]); vi = i; break;
-        }
-        char taught[KB_TERM_LEN];
-        if (p0_relation_taught_as_p(b, bare, taught, sizeof taught,
-                                    form_particle, sizeof form_particle)) {
-            snprintf(rel, sizeof rel, "%s", taught); vi = i; break;
-        }
-    }
-    if (!vi) return 0;
-
-    size_t sbeg = p0_lead_det(b, w[base + 1]) ? base + 2 : base + 1;
-    char subj[KB_TERM_LEN], obj[KB_TERM_LEN];
-    if (sbeg >= vi || !p0_join(w, sbeg, vi, subj, sizeof subj)) return 0;
-    if (!*subj) return 0;
-    /* gen505y — L'INTERLOCUTORE NON E' UN SOGGETTO DEL MONDO. «how do you know
-     * zibo is a quux?» e «what do you know about axicr?» venivano letti come
-     * relazioni know(you, …) e ricevevano «nothing I hold says you knew …»:
-     * la facolta' della prova (howknow.p0t) e la risposta di ignoranza
-     * (syllogism.p0t), verdi al gen491, perdevano il turno a un lettore nato
-     * dopo. Ogni altro lettore di relazioni chiede a `subject_guard/1` se il
-     * soggetto puo' essere la chiave di un fatto; questo non lo chiedeva. */
-    if (p0_bad_subject(b, subj)) return 0;
-
-    /* L'oggetto manca: e' la domanda «che cosa …?», e si risponde ENUMERANDO.
-     * Il registro degli elenchi e' quello di `who governs rome?`, che gia'
-     * funziona nel verso opposto — qui cambia solo quale slot resta libero. */
-    if (vi + 1 >= nw) {
-        const char *pat[] = { subj, NULL };
-        char hits[64][KB_TERM_LEN];
-        size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
-        if (k == 0) {
-            char via[KB_TERM_LEN];
-            if (p0_relation_taught_as(b, rel, via, sizeof via))
-                k = kb_match(b->kb, via, pat, 2, hits, 64);
-        }
-        if (k == 0) {
-            /* gen507/40 — e dall'altro verso: chi sta nel SECONDO posto della
-             * relazione inversa risponde alla stessa domanda. */
-            for (int side = 0; side < 2 && k == 0; side++) {
-                char rows[8][KB_TERM_LEN];
-                const char *iq2[2] = { side == 0 ? rel : NULL,
-                                       side == 0 ? NULL : rel };
-                size_t ni2 = kb_match(b->kb, "inverse_relation", iq2, 2, rows, 8);
-                for (size_t i2 = 0; i2 < ni2 && k == 0; i2++) {
-                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rows[i2]);
-                    const char *other = kb_dequote(rb2);
-                    if (!*other || !strcmp(other, rel)) continue;
-                    const char *bp[2] = { NULL, subj };
-                    k = kb_match(b->kb, other, bp, 2, hits, 64);
-                }
-            }
-        }
-        if (k == 0) return 0;
-        char list[900]; size_t off = 0;
-        for (size_t i = 0; i < k && off + 1 < sizeof list; i++) {
-            char shown[KB_TERM_LEN];
-            present_atom(b, hits[i], shown, sizeof shown);
-            off += (size_t)snprintf(list + off, sizeof list - off, "%s%s",
-                                    i ? ", " : "", shown);
-        }
-        char msg[960]; snprintf(msg, sizeof msg, "%s.", list);
-        put(msg, out, out_size);
-        return 1;
-    }
-
-    /* gen507 — il LEGANTE non e' parte dell'oggetto. «is zelnik bigger than
-     * grum?» dava obj = «than grum» e non trovava niente, mentre l'asserzione
-     * corrispondente era gia' in KB come `bigger(zelnik, grum)`. Quali parole
-     * leghino una relazione al suo secondo termine e' conoscenza
-     * (`relation_particle/1`): una lingua nuova costa una riga. */
-    size_t obeg = vi + 1;
-    /* gen507 — l'ARTICOLO che apre l'oggetto non fa parte del suo nome.
-     * «does zelnik have A handle?» cercava «a handle». La classe dei
-     * determinanti e' gia' quella che il lettore usa per il soggetto. */
-    if (obeg + 1 < nw && p0_lead_det(b, w[obeg])) obeg++;
-    if (obeg + 1 < nw) {
-        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[obeg]);
-        const char *pt = strip_edge_punct(pb);
-        const char *pq[1] = { pt };
-        if (*pt && (kb_query(b->kb, "relation_particle", pq, 1) ||
-                    (form_particle[0] && !strcmp(pt, form_particle)))) obeg++;
-    }
-    if (!p0_join(w, obeg, nw, obj, sizeof obj)) return 0;
-    for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
-    if (!*obj) return 0;
-
+/* gen510 — LA SCALA DEL VERDETTO, SCRITTA UNA VOLTA SOLA.
+ *
+ * Era in coda a `p0_polar_relation`, quindi solo «does X V Y?» la percorreva.
+ * «is X the R of Y?» rispondeva invece `kb_query(rel) ? "Yes." : "No."`: un
+ * «No.» senza licenza, detto anche quando la relazione era DEFINITA e valeva
+ * («is elizabeth the grandparent of william?» → «No.», report gen509, NA2).
+ * Ora le due domande chiedono alla stessa scala: «si'» dai fatti e dalle viste,
+ * «no» solo se guadagnato (negazione detta, valore unico occupato, esclusione),
+ * altrimenti l'onesta' di `no_support_relation`. */
+static int p0_relation_verdict(Brain *b, const char *rel, const char *said,
+                               const char *subj, const char *obj,
+                               char *out, size_t out_size) {
+    if (!said) said = "";
     const char *args[] = { subj, obj };
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
     /* Un «no» detto e' un «no» guadagnato, esattamente come per le classi. */
@@ -12808,6 +12709,143 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     present_atom(b, rel, rr, sizeof rr);
     const KbResponseSlot rs[] = { { "subject", ss }, { "rel", rr }, { "object", os } };
     return kb_response_slots(b, "no_support_relation", rs, 3, out, out_size);
+}
+
+static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 8 || L >= 300) return 0;
+    char s[300]; memcpy(s, norm, L + 1);
+    char *w[32]; size_t nw = split_words(s, w, 32);
+    if (nw < 4) return 0;
+    /* gen505f — DUE FORME, UNA LETTURA. «does the senate govern rome?» ha
+     * l'ausiliare in testa; «what does the senate govern?» ha l'interrogativo e
+     * poi l'ausiliare, e lascia ignoto l'OGGETTO invece di chiederne conferma.
+     * La differenza e' di un token e le due classi sono gia' in KB. */
+    size_t base = 0;
+    if (lex_class_member(b, "polar_fronted", w[0])) base = 0;
+    else if (lex_class_member(b, "question_word", w[0]) && nw >= 4 &&
+             lex_class_member(b, "polar_fronted", w[1])) base = 1;
+    else return 0;
+
+    size_t vi = 0;
+    char rel[KB_TERM_LEN]; rel[0] = '\0';
+    char form_particle[KB_TERM_LEN]; form_particle[0] = '\0';
+    /* La superficie DETTA, che non coincide sempre con la relazione risolta:
+     * `verb_stem/2` puo' restituire una forma flessa, e la lezione che sa
+     * tradurre la superficie in relazione e' indicizzata sulla superficie. */
+    char said[KB_TERM_LEN]; said[0] = '\0';
+    for (size_t i = base + 2; i < nw && !vi; i++) {
+        char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
+        const char *bare = strip_edge_punct(vb);
+        const char *cand[] = { bare };
+        snprintf(said, sizeof said, "%s", bare);
+        if (kb_query(b->kb, "relation_verb", cand, 1)) {
+            snprintf(rel, sizeof rel, "%s", bare); vi = i; break;
+        }
+        /* gen507 — UNA LEZIONE BATTE UNA DERIVAZIONE MORFOLOGICA.
+         * `verb_stem/2` indovina la radice dalla forma; `answer_frame/2` la
+         * DICHIARA. Con «have» la derivazione restituiva «had» e la domanda
+         * moriva li', mentre la stessa domanda in terza persona («has»)
+         * rispondeva: due superfici dello stesso verbo, due esiti. Chiedere
+         * prima a cio' che e' stato detto e' anche l'ordine giusto.
+         *
+         * e la terza strada, che il gen507/8 aveva lasciata scritta
+         * come debito: `answer_frame(Superficie, Relazione)` dice quale
+         * relazione una superficie INTERROGA. «zelnik lives in turin» entrava
+         * correttamente come `habitat(zelnik, turin)`, ma «where does zelnik
+         * live?» non trovava nessun verbo — `live` non e' un `relation_verb`,
+         * e' la superficie di una relazione che ne porta un altro nome. */
+        char infl[1][KB_TERM_LEN];
+        const char *sq[] = { NULL, bare };          /* verb_stem(Flessa, Radice) */
+        if (kb_match(b->kb, "verb_stem", sq, 2, infl, 1) == 1) {
+            snprintf(rel, sizeof rel, "%s", infl[0]); vi = i; break;
+        }
+        char taught[KB_TERM_LEN];
+        if (p0_relation_taught_as_p(b, bare, taught, sizeof taught,
+                                    form_particle, sizeof form_particle)) {
+            snprintf(rel, sizeof rel, "%s", taught); vi = i; break;
+        }
+    }
+    if (!vi) return 0;
+
+    size_t sbeg = p0_lead_det(b, w[base + 1]) ? base + 2 : base + 1;
+    char subj[KB_TERM_LEN], obj[KB_TERM_LEN];
+    if (sbeg >= vi || !p0_join(w, sbeg, vi, subj, sizeof subj)) return 0;
+    if (!*subj) return 0;
+    /* gen505y — L'INTERLOCUTORE NON E' UN SOGGETTO DEL MONDO. «how do you know
+     * zibo is a quux?» e «what do you know about axicr?» venivano letti come
+     * relazioni know(you, …) e ricevevano «nothing I hold says you knew …»:
+     * la facolta' della prova (howknow.p0t) e la risposta di ignoranza
+     * (syllogism.p0t), verdi al gen491, perdevano il turno a un lettore nato
+     * dopo. Ogni altro lettore di relazioni chiede a `subject_guard/1` se il
+     * soggetto puo' essere la chiave di un fatto; questo non lo chiedeva. */
+    if (p0_bad_subject(b, subj)) return 0;
+
+    /* L'oggetto manca: e' la domanda «che cosa …?», e si risponde ENUMERANDO.
+     * Il registro degli elenchi e' quello di `who governs rome?`, che gia'
+     * funziona nel verso opposto — qui cambia solo quale slot resta libero. */
+    if (vi + 1 >= nw) {
+        const char *pat[] = { subj, NULL };
+        char hits[64][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
+        if (k == 0) {
+            char via[KB_TERM_LEN];
+            if (p0_relation_taught_as(b, rel, via, sizeof via))
+                k = kb_match(b->kb, via, pat, 2, hits, 64);
+        }
+        if (k == 0) {
+            /* gen507/40 — e dall'altro verso: chi sta nel SECONDO posto della
+             * relazione inversa risponde alla stessa domanda. */
+            for (int side = 0; side < 2 && k == 0; side++) {
+                char rows[8][KB_TERM_LEN];
+                const char *iq2[2] = { side == 0 ? rel : NULL,
+                                       side == 0 ? NULL : rel };
+                size_t ni2 = kb_match(b->kb, "inverse_relation", iq2, 2, rows, 8);
+                for (size_t i2 = 0; i2 < ni2 && k == 0; i2++) {
+                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rows[i2]);
+                    const char *other = kb_dequote(rb2);
+                    if (!*other || !strcmp(other, rel)) continue;
+                    const char *bp[2] = { NULL, subj };
+                    k = kb_match(b->kb, other, bp, 2, hits, 64);
+                }
+            }
+        }
+        if (k == 0) return 0;
+        char list[900]; size_t off = 0;
+        for (size_t i = 0; i < k && off + 1 < sizeof list; i++) {
+            char shown[KB_TERM_LEN];
+            present_atom(b, hits[i], shown, sizeof shown);
+            off += (size_t)snprintf(list + off, sizeof list - off, "%s%s",
+                                    i ? ", " : "", shown);
+        }
+        char msg[960]; snprintf(msg, sizeof msg, "%s.", list);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* gen507 — il LEGANTE non e' parte dell'oggetto. «is zelnik bigger than
+     * grum?» dava obj = «than grum» e non trovava niente, mentre l'asserzione
+     * corrispondente era gia' in KB come `bigger(zelnik, grum)`. Quali parole
+     * leghino una relazione al suo secondo termine e' conoscenza
+     * (`relation_particle/1`): una lingua nuova costa una riga. */
+    size_t obeg = vi + 1;
+    /* gen507 — l'ARTICOLO che apre l'oggetto non fa parte del suo nome.
+     * «does zelnik have A handle?» cercava «a handle». La classe dei
+     * determinanti e' gia' quella che il lettore usa per il soggetto. */
+    if (obeg + 1 < nw && p0_lead_det(b, w[obeg])) obeg++;
+    if (obeg + 1 < nw) {
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[obeg]);
+        const char *pt = strip_edge_punct(pb);
+        const char *pq[1] = { pt };
+        if (*pt && (kb_query(b->kb, "relation_particle", pq, 1) ||
+                    (form_particle[0] && !strcmp(pt, form_particle)))) obeg++;
+    }
+    if (!p0_join(w, obeg, nw, obj, sizeof obj)) return 0;
+    for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
+    if (!*obj) return 0;
+
+    return p0_relation_verdict(b, rel, said, subj, obj, out, out_size);
 }
 
 /* gen507 — VERIFICARE UN ATTRIBUTO CHE SI TIENE GIA'.
@@ -13696,6 +13734,27 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                 }
                 done2 = nres > 0;
             }
+            /* gen510 — UNA DOMANDA SENZA RISPOSTA NON E' UN TURNO DI NESSUNO.
+             * Una forma di domanda che trova zero righe cedeva in silenzio, e il
+             * turno lo prendeva chi rispondeva d'altro: «what can you say about
+             * napoleon?» riceveva la chiacchiera (report gen509, NA11). Se la
+             * forma dichiara che cosa dire quando non trova niente
+             * (`turn_form_empty_reply/2`), lo dice. */
+            if (!done2 && formname && *formname &&
+                (!strcmp(opname, "match") || !strcmp(opname, "count"))) {
+                char er[2][KB_TERM_LEN];
+                const char *eq[2] = { formname, NULL };
+                if (kb_match(b->kb, "turn_form_empty_reply", eq, 2, er, 2) >= 1) {
+                    char eb[KB_TERM_LEN]; snprintf(eb, sizeof eb, "%s", er[0]);
+                    KbResponseSlot ef[P0_FORM_SLOTS];
+                    size_t nef = 0;
+                    for (size_t k = 0; k < ns && nef < P0_FORM_SLOTS; k++) {
+                        ef[nef].name = slots[k].name; ef[nef].value = slots[k].value; nef++;
+                    }
+                    if (kb_response_slots(b, kb_dequote(eb), ef, nef, out, out_size))
+                        return 1;
+                }
+            }
             if (!done2) return 0;
 
             char cnt2[24]; snprintf(cnt2, sizeof cnt2, "%zu", nres);
@@ -13765,7 +13824,13 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             if (nm2 > 0) {
                 char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mood[0]);
                 const char *want = kb_dequote(mb);
-                int isq = norm[L - 1] == '?';
+                /* gen510 — il «?» non e' l'unico segno di una domanda: «what is
+                 * the opposite of hot», senza punto, veniva letta dalla forma
+                 * DICHIARATIVA «X is the opposite of Y» con soggetto «what»
+                 * (basics.p0t, rosso dal gen507/71). Si consuma la lettura
+                 * pubblicata del turno (`turn_illocution`), come fa gia' il
+                 * lettore delle regole universali (gen506c). */
+                int isq = norm[L - 1] == '?' || p0_turn_is(b, "question", norm);
                 if (!strcmp(want, "question") && !isq) continue;
                 if (!strcmp(want, "statement") && isq) continue;
             }
@@ -19961,8 +20026,24 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * the relational preposition — are closed lexical classes, so they are read
      * from the KB (definite_article/1, relation_preposition/1 in grammar.p0)
      * rather than compared against English literals here. */
-    if (nw == 6 && is_definite_article(b, w[2]) && is_relation_prep(b, w[4])) {
-        const char *rel = w[3], *obj = w[5];
+    /* gen510 — le DOMANDE di questa forma accettano soggetto e oggetto di piu'
+     * parole: si cerca l'articolo seguito da «of», invece di volerlo in terza
+     * posizione. «who are the grandchildren of elizabeth ii?», «is elizabeth ii
+     * the grandparent of william?» (report gen509, NL1 e NA3). L'ASSERZIONE resta
+     * a sei parole: le frasi piu' lunghe le leggono le cornici «@S is the R of
+     * @O» (grammar.p0). */
+    size_t rart = 0;
+    if (is_definite_article(b, w[2]) && nw >= 6 && is_relation_prep(b, w[4])) rart = 2;
+    else if (nw > 6 && lex_class_member(b, "10_memory_knowledge_lex12427", w[0])) {
+        for (size_t a = 3; a + 3 < nw && !rart; a++)
+            if (is_definite_article(b, w[a]) && is_relation_prep(b, w[a + 2])) rart = a;
+    }
+    char rjoin_obj[KB_TERM_LEN], rjoin_subj[KB_TERM_LEN];
+    rjoin_subj[0] = '\0';
+    if (rart && p0_join(w, rart + 3, nw, rjoin_obj, sizeof rjoin_obj) &&
+        (rart == 2 || p0_join(w, 1, rart, rjoin_subj, sizeof rjoin_subj))) {
+        for (char *c = rjoin_obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
+        const char *rel = w[rart + 1], *obj = rjoin_obj;
         /* gen505e — LA DOMANDA DEVE CONSULTARE LA STESSA MAPPA DELL'ASSERZIONE.
          *
          * `w[3]` e' il nome COMUNE della relazione («mordant»), mentre il fatto
@@ -19990,7 +20071,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *slot_q[] = { w[0], NULL };
         if (kb_match(b->kb, "asks_slot", slot_q, 2, slot, 1) == 1 &&
             lex_class_member(b, "10_memory_knowledge_lex12406", w[1])) {
-            if (!kb_knows_pred(b->kb, rel)) { idk(b, rel, out, out_size); return 1; }
+            int rknown = kb_knows_pred(b->kb, rel);
             const char *subj_pat[] = {NULL, obj};   /* rel(X, y) — asks the 1st arg */
             const char *obj_pat[]  = {obj, NULL};   /* rel(y, X) — asks the 2nd arg */
             const char *const *pat =
@@ -20006,8 +20087,37 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     pat = subj_pat;
             }
             char hits[64][KB_TERM_LEN];
-            size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
-            if (k == 0) { kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size); return 1; }
+            size_t k = rknown ? kb_match(b->kb, rel, pat, 2, hits, 64) : 0;
+            if (k == 0) {
+                /* gen510 — la domanda aperta chiede alla stessa vista della
+                 * polare. «who is the grandparent of william?» e «who is the
+                 * winner of waterloo?» cercavano il predicato nudo, e «who»
+                 * sceglieva il posto del SOGGETTO per animatezza, mentre il
+                 * posto del valore e' gia' conoscenza (report gen509, NA1, NA3).
+                 * `holds(R, X, Y)` legge «X is the R of Y» per fatti, ponti,
+                 * definizioni e nomi di relazione; il nome si porta al singolare
+                 * con la KB («grandchildren» → «grandchild»). */
+                char rnoun[KB_TERM_LEN]; rnoun[0] = '\0';
+                singularize_kb(b, w[rart + 1], rnoun, sizeof rnoun);
+                if (!rnoun[0]) snprintf(rnoun, sizeof rnoun, "%s", w[rart + 1]);
+                const char *hq[3] = { rnoun, NULL, obj };
+                char hh[64][KB_TERM_LEN];
+                size_t kh = kb_match(b->kb, "holds", hq, 3, hh, 64);
+                if (kh > 0) {
+                    char list[900]; size_t off = 0;
+                    for (size_t i2 = 0; i2 < kh && off + 1 < sizeof list; i2++) {
+                        char shown[KB_TERM_LEN];
+                        present_atom(b, hh[i2], shown, sizeof shown);
+                        off += (size_t)snprintf(list + off, sizeof list - off,
+                                                "%s%s", i2 ? ", " : "", shown);
+                    }
+                    char msg[960]; snprintf(msg, sizeof msg, "%s.", list);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+                if (!rknown) { idk(b, rel, out, out_size); return 1; }
+                kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size); return 1;
+            }
             char list[512];
             size_t off = 0;
             for (size_t i = 0; i < k && off < sizeof list; i++)
@@ -20021,13 +20131,26 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
         /* ground query: "is <x> the <rel> of <y>?" -> rel(x, y)? */
         if (lex_class_member(b, "10_memory_knowledge_lex12427", w[0])) {
-            const char *subj = w[1];
+            const char *subj = rart == 2 ? w[1] : rjoin_subj;
             const char *args[] = {subj, obj};
-            if (!kb_knows_pred(b->kb, rel)) idk(b, rel, out, out_size);
-            else if (kb_is_conflicted(b->kb, rel, args, 2))
+            /* gen510 — nel verso che la relazione dichiara, se il predicato viene
+             * da un nome di relazione; e il verdetto dalla scala condivisa. */
+            if (rel != w[rart + 1]) {
+                const char *vq[] = { rel };
+                if (!kb_query(b->kb, "relation_value_first", vq, 1)) { args[0] = obj; args[1] = subj; }
+            }
+            char rnoun[KB_TERM_LEN]; rnoun[0] = '\0';
+            singularize_kb(b, w[rart + 1], rnoun, sizeof rnoun);
+            if (!rnoun[0]) snprintf(rnoun, sizeof rnoun, "%s", w[rart + 1]);
+            const char *hq[3] = { rnoun, subj, obj };
+            int rknown = kb_knows_pred(b->kb, rel);
+            if (rknown && kb_is_conflicted(b->kb, rel, args, 2))
                 kb_term_say(b, "conflicted", NULL, 0, out, out_size);
-            else put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.",
-                     out, out_size);
+            else if (kb_query(b->kb, "holds", hq, 3) ||
+                     (rknown && kb_query(b->kb, rel, args, 2)))
+                put("Yes.", out, out_size);
+            else if (!rknown) idk(b, rel, out, out_size);
+            else p0_relation_verdict(b, rel, w[rart + 1], args[0], args[1], out, out_size);
             return 1;
         }
 
@@ -20041,7 +20164,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * direttive sono gia' KB (`imperative_opener(give|dammi|…)`,
          * `request_opener`, lexicon.p0); chi impara le consulta come consulta
          * la domanda: si verifica l'atto prima di scrivere. */
-        if (lex_class_member(b, "10_memory_knowledge_lex12439", w[1]) &&
+        if (nw == 6 && lex_class_member(b, "10_memory_knowledge_lex12439", w[1]) &&
             !interrogative && !p0_turn_is(b, "question", norm) &&
             !p0_turn_opens_directive(b, norm) &&
             !lex_class_member(b, "question_word", w[0])) {
@@ -20057,6 +20180,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 const char *nq[] = { NULL, rel };
                 if (kb_match(b->kb, "relation_noun", nq, 2, mapped, 1) == 1)
                     rel = mapped[0];
+            }
+            /* gen510 — IL VERSO E' CONOSCENZA ANCHE QUI. Un predicato che viene
+             * da un nome di relazione (`relation_noun/2`) ha il valore SECONDO,
+             * salvo `relation_value_first/1`: «arthur is the winner of waterloo»
+             * e' `winner_of(waterloo, arthur)`, lo stesso fatto che scrive «the
+             * winner of waterloo is arthur». Prima questo lettore lo scriveva al
+             * contrario, e le due forme della stessa lezione divergevano. */
+            if (rel != w[3]) {
+                const char *vq[] = { rel };
+                if (!kb_query(b->kb, "relation_value_first", vq, 1)) {
+                    args[0] = obj; args[1] = subj;
+                }
             }
             if (kb_assert(b->kb, rel, args, 2)) {
                 char said[256];

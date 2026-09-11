@@ -1769,6 +1769,15 @@ language_marker(en, speaking).
 language_marker(en, we).
 language_marker(en, hello).
 language_marker(en, thanks).
+% gen510 — il lessico delle LEZIONI e' inglese anch'esso. Una sessione che parte
+% dal locale italiano teneva l'italiano davanti a «a battle involves a winner»,
+% perche' nessuna parola della lezione era un indizio: la conferma arrivava
+% come «Tengo: un battle ha un anno» (report gen509, NA10).
+language_marker(en, involves).  language_marker(en, requires).
+language_marker(en, wherever).  language_marker(en, backwards).
+language_marker(en, followed).  language_marker(en, twice).
+language_marker(en, holds).     language_marker(en, links).
+language_marker(en, contains).  language_marker(en, defined).
 
 % gen240: localized replies (response_template/3 — additive next to the /2 forms,
 % selected by current_language via lang_template()). Slots: {map} {n} {total}.
@@ -2255,6 +2264,8 @@ file_kind_word(java, "*.java").
 10_memory_knowledge_lex12323(is).
 10_memory_knowledge_lex12373(is).
 10_memory_knowledge_lex12406(is).
+% gen510 — «who ARE the grandchildren of elizabeth?» (report gen509, NA3).
+10_memory_knowledge_lex12406(are).
 10_memory_knowledge_lex12411(object).
 10_memory_knowledge_lex12427(is).
 10_memory_knowledge_lex12439(is).
@@ -3348,6 +3359,11 @@ machinery(composition_relation).
 composition_relation(made_of).
 composition_relation(has_part).
 composition_relation(constituent_of).
+% gen510 — «bronze contains copper» scrive `part_of(copper, bronze)` (gen507/76),
+% ma le relazioni di composizione leggono il TUTTO come primo argomento: il
+% bronzo era appreso e «what is bronze made of?» non lo trovava (report gen509,
+% NA7). `has_part` e' lo stesso legame visto dal contenitore.
+has_part($Whole, $Part) :- part_of($Part, $Whole).
 
 machinery(manner_question).
 manner_question(how).

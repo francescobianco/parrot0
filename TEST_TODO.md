@@ -9,6 +9,150 @@
 > abilita' cognitive, la crescita della KB o l'apprendimento (KB viva) i test
 > non si fanno. Stessa nota nel Makefile (target `test`) e in CLAUDE.md.
 
+# 🌙 HANDOFF — gen508 → gen510, 2026-09-11. RIPRENDERE DA QUI.
+
+> Prevale sui due handoff qui sotto per lo **stato del codice**; il metodo del
+> gen506b (turno appeso = rosso con nome, budget duro che non si alza) resta.
+
+## 1. Lo stato in cinque righe
+
+- **gen508** (`faf665f`): le due strutture di `docs/plans/due-strutture-kb-viva.md`
+  — la definizione come espressione (`relation_def/2`, `eval_rel/3`) e il fatto
+  a ruoli aperti (`occurrence/2`, `role/3`). Stato in quel documento, §0.
+- **gen509** (`755e7e5`): addestramento soltanto via `make chat`, 19 fatti veri
+  salvati (quattro battaglie, il bronzo) e il report dei limiti
+  `docs/reports/2026-09-11-interlocutore-gen509.md`.
+- **gen510** (questo commit): le riparazioni dei limiti del report. Il §7 del
+  report dice limite per limite che cosa e' riparato, verificato o aperto.
+- **Test: NON rifatti dopo le riparazioni.** Girato solo `make soft-test` (§3).
+  Un giro mirato su `language/` e `knowledge/` e' stato fatto A META' e con un
+  binario intermedio (§4). La suite intera la decide F.
+
+## 2. Che cosa e' cambiato, e che cosa puo' spostare le attese
+
+**C — `src/brain/10-memory-knowledge.c`** (tutto commentato `gen508`–`gen510`):
+
+| # | Modifica | Rischio per i test |
+|---|---|---|
+| C1 | `p0_turn_form_reader`: il modo del turno consulta `turn_illocution` oltre al «?» | una forma DICHIARATIVA ora salta se il turno e' letto come domanda senza «?»: se un'affermazione viene letta come domanda, una lezione che prima entrava puo' non entrare |
+| C2 | slot `expr(N)` / `construct(N)` (gen508); un nome nudo e' UNA parola (gen509) | le superfici #5–#8, #16, #18 leggono espressioni: un operando di piu' parole che non comincia con una costruzione ora fa fallire la forma |
+| C3 | `p0_bad_subject`: salta il controllo per parola se l'atomo e' `known_referent/1` | soggetti con «the»/«of» interni, se noti, ora passano |
+| C4 | estrattore delle classi: nessun `located_in` se la classe ha una `metalinguistic_head/1` | frasi di prosa «X is a … name/word/term … in Y» non producono piu' il luogo |
+| C5 | lettore «X is the R of Y» (~riga 19990): verso dichiarato nell'asserzione a sei parole; domande con soggetto/oggetto di piu' parole; `who/what is the R of X?` ricade su `holds/3`; `is X the R of Y?` usa `holds/3` e poi la scala condivisa | **«No.» diventa «I don't know: nothing I hold says …»** quando non c'e' licenza; «Nobody that I know of» puo' diventare una risposta vera o un «I don't know about R» |
+| C6 | `p0_relation_verdict`: la scala del verdetto estratta da `p0_polar_relation` | refactor a comportamento invariato per «does X V Y?»; da verificare |
+| C7 | `p0_run_op_named`: `turn_form_empty_reply/2` — una forma di domanda che trova zero righe dice la sua resa invece di cedere | oggi solo `ask_about` la dichiara |
+
+**KB**
+
+| File | Modifica |
+|---|---|
+| `kb/core/procedures.p0` | gen508: famiglie G come viste di `relation_def/2`, `eval_rel/3`, `norm_expr/2`, `*_form/1`, `same_relation/2`, ruoli e proiezioni; gen510: ponte `holds(R,X,Y)` ↔ `R_of` nel verso dichiarato, `self_pair_allowed/3` + `irreflexive_relation/1`, `about/3` sui ruoli, aiutanti `machinery/1` |
+| `kb/core/messages.p0` | superfici #21–#32 (gen508); `ask_abbrev`/`ask_abbrev_expanded` («what does X stand for?»); `teach_irreflexive`/`unteach_irreflexive` («V never holds of itself»); `ask_about` con `rest(subject)` e `about_nothing` |
+| `kb/core/grammar.p0` | cornici `@S is the R of @O` da `family_relation/1` e `relation_noun/2`; `known_referent/1`; `metalinguistic_head/1`; `turn_gap_middle` non propone stopword |
+| `kb/core/network.p0` | `turn_short_reply/1` + `offer_reply_max_words(3)`: un'offerta si accetta nominandone il tema solo con una risposta breve; stessa condizione su `option_hit_word` |
+| `kb/core/intents.p0` | `lexical_relation_request` + `compound_guard(semantic_summary, …)`; `own_plan_question` + guardie — **NON hanno effetto**, vedi §5 |
+| `kb/core/lexicon.p0` | marcatori d'inglese per il lessico delle lezioni; «are» nella classe della domanda «R of»; `has_part(W,P) :- part_of(P,W)` |
+| `kb/core/social.p0` | `sibling_of` con `dif`: nessuno e' fratello di se' stesso |
+| `kb/machinery/question-frames.p0` | `answer_frame("made of", has_part)` |
+| `kb/core/world-facts.p0`, `kb/learning/*`, `kb/machinery/*` | la crescita salvata del gen509 |
+
+## 3. Che cosa e' stato verificato
+
+- `make soft-test` dopo tutte le modifiche: vedi il commit (ultimo risultato
+  registrato qui sotto, §3a). Prima delle ultime modifiche era verde in 12 s.
+- `basics.p0t` [antonym] era ROSSO dal gen507/71 («what is the opposite of
+  hot», senza «?», letta come lezione): chiuso da C1.
+- Due chat di verifica (non salvate, nessun `.p0t`), gli esiti per limite nel
+  §7 del report. Riassunto: NL1, NL4 (lezione), NL6, NA1, NA3, NA5, NA6, NA7,
+  NA10, NA11 verdi in chat; NA2, NA8, NA9 ancora aperti.
+
+### 3a. Ultimo soft-test
+
+`make soft-test` dopo TUTTE le modifiche C e KB del gen510: **verde in 13 s**
+(budget 15 s) — `health` 2/2, `basics` 5/5, `facts` 9/9.
+
+## 4. Il giro mirato interrotto — che cosa si sa
+
+Lanciato con il binario che aveva C1 e C2 ma NON C3–C7 (e KB cambiata a meta'
+giro: `!reset` rilegge i file, quindi i file successivi hanno visto KB piu'
+nuova). Si e' fermato su `language/document_claims.p0t`: il client e' stato
+ucciso dal `timeout 180` che avevo messo io e il demone e' morto scrivendo su
+un socket chiuso (log vuoto). **Non e' un turno appeso registrato**; ma quel
+file durava 133 s il 2026-09-08 e va rimisurato (le clausole nuove di
+`holds/3`, le cornici derivate e `known_referent` a ogni soggetto costano).
+
+| File | Esito ora | Riferimento 2026-09-08 | Da fare |
+|---|---|---|---|
+| `language/accentless_copula.p0t` | 5 ok / 4 FAIL | fuori da `make test` | bisezione contro `ec7d4b5` |
+| `language/assisted_construction.p0t` | 54 / 12 | LEARN_TODO: 65/1 | **probabile regressione**: bisezione (C1? C2?) |
+| `language/assisted_construction_ternary.p0t` | 27 / 6 | LEARN_TODO: 33 ok | **probabile regressione**, come sopra |
+| `language/compose_coref.it.p0t` | 3 / 1 | ok | candidata regressione |
+| `language/compose_coref.p0t` | 4 / 2 | 4 / 2 | invariato |
+| `language/coref.p0t` | 7 / 1 | ok | candidata regressione |
+| i primi file di `language/` fino a `document_claims` esclusi | ok | | |
+| tutto il resto di `language/` e tutto `knowledge/` | **non eseguito** | | rifare |
+
+## 5. Le attese da rivedere e i difetti aperti, in ordine di leva
+
+1. **`reasoning/multigoal.p0t:22-23`** attende «No.» per «is tom the grandparent
+   of bob?» in un contesto amputato (`PARROT0_BASE=`). Con C5 la risposta
+   diventa «I don't know: nothing I hold says …»: quel «No.» era senza licenza
+   (mantra #7). Decidere: cambiare l'attesa, oppure dare una LICENZA di mondo
+   chiuso per le relazioni — il gemello relazionale di `closed_world_answer/2`
+   (`epistemic-status.p0`). Qualunque altro test che attenda «No.» da «is X the
+   R of Y?» su un fatto non dimostrabile ha la stessa causa.
+2. **NA2 aperto**: «is elizabeth ii the grandparent of william?» → ancora
+   «No.», mentre «who is the grandparent of william?» → «elizabeth ii.». La
+   domanda NON arriva al lettore «R of» riparato: la prende prima un altro
+   lettore. Sonda: `make chat`, poi `/debug` e la domanda; il tracciato dice
+   quale facolta' la rivendica (candidati dall'agente di ieri:
+   `polar_class_answer` ~riga 1207, `p0_polar_reply` ~7441).
+3. **NA8 aperto**: «what is the opposite of cold?» → la Guerra fredda.
+   `compound_guard(semantic_summary, lexical_relation_request)` non ha effetto:
+   verificare come `answer_consumer_guarded` (≈10694–10735) legge le classi di
+   guardia, e se `semantic_alias(cold, cold_war)` (`kb/facts/encyclopedia.p0`)
+   vada ristretto.
+4. **NA9 aperto**: «your plan when you don't have the steps?» → il saggio di
+   progettazione. `faculty_yield(analysis_family, open, own_plan_question)` e
+   `compound_guard(analysis_plan, own_plan_question)` non hanno effetto:
+   capire quale livello di `structured_analysis_lead` risponde (0 o 1) e che
+   cosa legge.
+5. **NA (photon)**: la definizione ora si SALVA («Held: photon —
+   elementary_particle_of_light»), ma «what is a photon?» non la usa e parte
+   la ricerca. `means/2` va consultato prima dell'offerta.
+6. **Resa del verdetto** per i predicati da nome di relazione: «is napoleon the
+   winner of waterloo?» → «nothing I hold says waterloo winner of napoleon»
+   (argomenti nel verso del predicato). Onesto ma goffo: passare a
+   `p0_relation_verdict` anche la superficie e l'ordine detto.
+7. **Rischi di C1 e della soglia di `offer_reply_max_words(3)`**: una risposta
+   lunga a un'offerta che ne nomina il tema non fa piu' partire la ricerca.
+   E' voluto, ma va guardato nei test di `network`/`gap_dialogue`.
+8. **Non verificati**: NL5 (`sibling_of` con `dif` e «never holds of
+   itself»), NL8 (`metalinguistic_head`), la ritrattazione delle definizioni
+   parametriche.
+9. **Aperti, non toccati**: NL2 («the battle of waterloo» — «of» dentro un
+   nome; proposta in `docs/reports/…gen509.md` e dall'agente: `np_denotes/3`),
+   NL7 (le situazioni di un piano sono chiuse: una sola, `steps_missing`),
+   NA4 («did wellington defeat napoleon?» con la relazione `defeated`: forme
+   verbali del nome di relazione).
+
+## 6. Come si riprende
+
+```sh
+make test-engine
+# il giro mirato, file per file, con il tempo di ciascuno (nessun timeout corto:
+# un client ucciso a meta' turno fa morire il demone)
+for f in tests/p0t/language/*.p0t tests/p0t/knowledge/*.p0t tests/p0t/reasoning/multigoal.p0t; do
+  t0=$(date +%s); r=$(./bin/parrot0 --test "$f" 2>&1 | tail -n 1)
+  echo "$f | $(( $(date +%s) - t0 ))s | $r"
+done
+```
+
+Confrontare con `docs/reports/suite-run.txt` (2026-09-08, `0b860d96`). Per
+bisecare un rosso senza fermare il demone: `make build BIN=obj/p0next` e il
+demone su `obj/next.sock` (vedi l'handoff gen506b qui sotto). I rossi nuovi si
+guardano col «got» prima di toccare l'attesa.
+
 # 🏁 HANDOFF — il cane da guardia, 2026-09-08 (`gen506b`)
 
 > Prevale sul gen505y qui sotto per il METODO; le classi di attese invecchiate

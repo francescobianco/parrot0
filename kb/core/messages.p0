@@ -1558,6 +1558,28 @@ turn_form_mood(teach_reflexive, statement).
 turn_form_act(teach_reflexive, assert_unary).
 turn_form_reply(teach_reflexive, learned_reflexive).
 
+% gen510 — la DUALE: una relazione che non vale MAI di se' stessa. «sibling is
+% child followed by parent» rendeva ognuno fratello di se' stesso, e non c'era
+% una superficie per dire «purche' siano due diversi» (report gen509, NL5).
+response_template(learned_irreflexive, "Held: nothing {subject} itself.").
+response_template(learned_irreflexive, it, "Tengo: niente {subject} se stesso.").
+
+turn_form(teach_irreflexive, 1, slot(subject)).
+turn_form(teach_irreflexive, 2, text("never holds of itself")).
+turn_form_mood(teach_irreflexive, statement).
+turn_form_act(teach_irreflexive, "op(assert, irreflexive_relation, [subject])").
+turn_form_reply(teach_irreflexive, learned_irreflexive).
+
+response_template(unlearned_irreflexive, "Forgotten: {subject} may hold of itself again.").
+response_template(unlearned_irreflexive, it, "Dimenticato: {subject} può di nuovo valere di se stesso.").
+
+turn_form(unteach_irreflexive, 1, text("forget that")).
+turn_form(unteach_irreflexive, 2, slot(subject)).
+turn_form(unteach_irreflexive, 3, text("never holds of itself")).
+turn_form_mood(unteach_irreflexive, statement).
+turn_form_act(unteach_irreflexive, "op(retract, irreflexive_relation, [subject])").
+turn_form_reply(unteach_irreflexive, unlearned_irreflexive).
+
 % ══ gen507/49 (forma #24) — INSEGNARE UN PLURALE IRREGOLARE ═══════════════
 % `plural_of/2` decide se una parola e' plurale, e da li' l'accordo, la
 % singolarizzazione e mezza dozzina di lettori. Le irregolari si scrivevano in
@@ -1938,6 +1960,34 @@ turn_form_mood(teach_abbrev, statement).
 turn_form_act(teach_abbrev, "op(assert, entity_alias, [surface, concept])").
 turn_form_reply(teach_abbrev, learned_abbrev).
 
+% gen510 — e la domanda che la USA. «nasa is short for …» entrava, e «what does
+% nasa stand for?» cercava la parola «national» (report gen509, NA6): la sigla
+% era appresa e nessuna forma di domanda la interrogava.
+response_template(abbrev_answer, "«{surface}» stands for {result}.").
+response_template(abbrev_answer, it, "«{surface}» sta per {result}.").
+
+turn_form(ask_abbrev, 1, text("what does")).
+turn_form(ask_abbrev, 2, slot(surface)).
+turn_form(ask_abbrev, 3, text("stand for")).
+turn_form_mood(ask_abbrev, question).
+turn_form_act(ask_abbrev, "op(match, entity_alias, [surface, free])").
+turn_form_reply(ask_abbrev, abbrev_answer).
+
+% La sigla arriva ai lettori GIA' ESPANSA: il canonicalizzatore riscrive ogni
+% parola che ha un `entity_alias` nel suo concetto, quindi «what does nasa stand
+% for?» diventa «what does national aeronautics and space administration stand
+% for». La forma riconosce allora il nome esteso con `named/2` e ne recupera la
+% sigla tramite la stessa relazione, letta al contrario: nessun vocabolario nuovo.
+machinery(alias_concept).
+alias_concept($Concept, $Surface) :- entity_alias($Surface, $Concept).
+
+turn_form(ask_abbrev_expanded, 1, text("what does")).
+turn_form(ask_abbrev_expanded, 2, named(alias_concept, surface)).
+turn_form(ask_abbrev_expanded, 3, text("stand for")).
+turn_form_mood(ask_abbrev_expanded, question).
+turn_form_act(ask_abbrev_expanded, "op(match, entity_alias, [surface, free])").
+turn_form_reply(ask_abbrev_expanded, abbrev_answer).
+
 % ══ gen507/75 (forma #17) — L'ORDINE NEL TEMPO ════════════════════════════
 % «X viene prima di Y» non e' un fatto isolato: e' un fatto piu' due proprieta'
 % — la catena si percorre e il verso opposto ha un nome. Dirle ogni volta
@@ -2299,7 +2349,13 @@ response_template(about_list, "About {subject} I can say {count} things: {result
 response_template(about_list, it, "Di {subject} posso dire {count} cose: {result}.").
 
 turn_form(ask_about, 1, text("what can you say about")).
-turn_form(ask_about, 2, slot(subject)).
+% gen510: `rest`, non `slot` — «what can you say about arthur wellesley?»
+turn_form(ask_about, 2, rest(subject)).
+% gen510 — e se non trova niente lo DICE, invece di cedere il turno a chi
+% risponde d'altro (`turn_form_empty_reply/2`, letto da p0_run_op_named).
+response_template(about_nothing, "I don't hold anything about {subject} yet.").
+response_template(about_nothing, it, "Di {subject} non tengo ancora niente.").
+turn_form_empty_reply(ask_about, about_nothing).
 turn_form_act(ask_about, "op(match, about, [subject, free, free])").
 turn_form_reply(ask_about, about_list).
 

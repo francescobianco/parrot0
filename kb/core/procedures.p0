@@ -1782,6 +1782,12 @@ machinery(about).
 % gen508: si guarda intorno con `holds/3`, non col predicato nudo — cosi' vede
 % anche le relazioni DEFINITE e i ponti, che `apply/2` da solo non attraversa.
 about($X, $V, $Y) :- relation_verb($V), holds($V, $X, $Y).
+% gen510 — e i RUOLI in cui X compare: Napoleone e' solo un valore
+% (`loser_of(waterloo, napoleon)`), e «what can you say about napoleon?»
+% trovava zero righe, cedeva, e riceveva la chiacchiera (report gen509, NA11).
+about($X, $Role, $O) :- role_name($Role), role($O, $Role, $X).
+% (solo i ruoli di uno SCHEMA: `subject`/`object` dell'adattatore `fact/3`
+%  sono posizioni interne, e comparivano nella risposta.)
 
 % (o) CHE COSA LEGA DUE COSE. `between(X, Y, V)` enumera le relazioni che valgono
 %     fra due cose date: il gemello a due argomenti di `about/3`. E' la domanda
@@ -1866,7 +1872,18 @@ relation_def($V, flip($W))       :- relation_reverse($V, $W).
 % ── (2) l'interprete: una clausola per costruttore, e il nome passa da holds ─
 % Piu' definizioni della stessa relazione sono SUPPORTI alternativi (unione):
 % e' il contratto che `relation_or` gia' aveva, esteso a tutto il linguaggio.
-holds($V, $X, $Y) :- relation_def($V, $D), eval_rel($D, $X, $Y).
+holds($V, $X, $Y) :- relation_def($V, $D), eval_rel($D, $X, $Y), self_pair_allowed($V, $X, $Y).
+
+% gen510 — una definizione puo' produrre la coppia (x, x) senza volerlo:
+% «child followed by parent» rende ognuno fratello di se' stesso. Se la
+% relazione e' dichiarata irriflessiva («sibling never holds of itself»), la
+% coppia con se' stessi non vale. Riguarda solo cio' che una DEFINIZIONE
+% deriva: un fatto detto resta com'e' stato detto.
+machinery(irreflexive_relation).
+machinery(self_pair_allowed).
+self_pair_allowed($V, $X, $Y) :- naf(irreflexive_relation($V)).
+self_pair_allowed($V, $X, $Y) :- irreflexive_relation($V), dif($X, $Y).
+relation_note($V, "never holds of itself") :- irreflexive_relation($V).
 
 eval_rel(flip($E), $X, $Y)       :- eval_rel($E, $Y, $X).
 eval_rel(both($A, $B), $X, $Y)   :- eval_rel($A, $X, $Y), eval_rel($B, $X, $Y).
@@ -1894,6 +1911,21 @@ eval_rel($E, $X, $Y)             :- holds($E, $X, $Y).
 % ritirando la lezione («forget that flipped x is x read backwards»).
 machinery(relation_construction).
 relation_construction($C) :- relation_def(use($C, $P), $D).
+
+% ── (3b) gen510 — «X is the R of Y» e «the R of Y is X» sono LO STESSO LEGAME ─
+% Le due superfici scrivevano due predicati: `mother(elizabeth, charles)` e
+% `mother_of(irene_joliot-curie, marie_curie)`. Chi insegna nomina la relazione
+% con la parola che usa («mother»), mai con `mother_of`, quindi «parent holds
+% wherever mother» non raggiungeva mai i fatti detti nella seconda forma
+% (report gen509, NL6). Il verso sta gia' in KB (`relation_value_first/1`,
+% grammar.p0): per le relazioni col valore secondo, «X is the R of Y» e'
+% `R_of(Y, X)`; per quelle col valore primo e' `R_of(X, Y)`.
+holds($Noun, $X, $Y) :-
+    relation_noun($Pred, $Noun), naf(relation_value_first($Pred)),
+    apply($Pred, cons($Y, cons($X, nil))).
+holds($Noun, $X, $Y) :-
+    relation_noun($Pred, $Noun), relation_value_first($Pred),
+    apply($Pred, cons($X, cons($Y, nil))).
 
 % ── (4) LA FORMA NORMALE: costruzioni e nomi definiti si espandono ──────────
 % Le leggi che seguono valgono per relazioni pure lette come insiemi di coppie;

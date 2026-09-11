@@ -340,7 +340,20 @@ offer_resolution($T, accept) :- turn_cue($T, assent_word, $W), naf(offer_resolut
 % lettura; la forma giusta e' `move_addresses(T, Issue, answer|unrelated)`
 % quando la forza del turno non e' un assenso (dialogica L2, incremento I2).
 offer_resolution($T, accept) :-
-    pending_gap($Topic), input_node_atom($T, $Id, $Topic), naf(offer_resolution($T, refuse)).
+    pending_gap($Topic), input_node_atom($T, $Id, $Topic), turn_short_reply($T),
+    naf(offer_resolution($T, refuse)).
+% gen510 — il residuo qui sopra, misurato insegnando: «a battle involves a
+% winner» sotto un'offerta su «winner», e «photon is defined as the elementary
+% particle of light» sotto una su «photon», valevano come assenso — partiva una
+% ricerca, e la LEZIONE era persa (report gen509, NL3 e NL4). Chi risponde a
+% un'offerta nominandone il tema lo fa in poche parole; una frase lunga che lo
+% nomina sta dicendo altro. Quante parole bastano e' una politica, non C.
+machinery(turn_short_reply).
+machinery(offer_reply_max_words).
+offer_reply_max_words(3).
+turn_short_reply($T) :-
+    findall($I, input_node_atom($T, $I, $A), $L), list_len($L, $N),
+    offer_reply_max_words($M), le($N, $M).
 offer_unclaimed_turn(accept).
 conduct_lesson1("non cercare se non dico di si", offer_unclaimed_turn, ask).
 conduct_lesson1("don't look things up unless i say yes", offer_unclaimed_turn, ask).
@@ -359,7 +372,7 @@ machinery(option_word).
 machinery(option_hit).
 machinery(option_hit_word).
 machinery(unclaimed_turn_captured).
-option_hit_word($Topic, $N, $W) :- option_word($W, $Topic, $N), turn_cue(current_turn, option_word, $W), naf(stopword($W)).
+option_hit_word($Topic, $N, $W) :- option_word($W, $Topic, $N), turn_cue(current_turn, option_word, $W), naf(stopword($W)), turn_short_reply(current_turn).
 option_hit($Topic, $N) :- option_hit_word($Topic, $N, $W).
 unclaimed_turn_captured($Kind) :- naf(turn_illocution(current_turn, question)).
 

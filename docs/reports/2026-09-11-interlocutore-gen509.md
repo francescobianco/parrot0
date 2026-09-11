@@ -5,7 +5,8 @@
 **Metodo:** soltanto `make chat`, con i turni mandati sulla stdin e le risposte
 lette una per una. Nessuna suite, nessun `.p0t`, nessun `!assert`.
 **Stato finale:** `partial` — 19 fatti veri del mondo salvati e riletti da un
-processo nuovo, una domanda di verifica su dodici fallita (§5).
+processo nuovo, una domanda di verifica su dodici fallita (§5). Le riparazioni
+del gen510 sono nel §7.
 
 ## 1. Che cosa si è cercato di fare
 
@@ -225,7 +226,38 @@ completi non si possono insegnare (NL1, NL6).
 Dopo le riparazioni, «describe waterloo» → «waterloo is a battle.», e la
 ritrattazione della definizione funziona (sessione 5).
 
-## 7. Da dove ripartire
+## 7. gen510 — che cosa è stato riparato, e che cosa resta
+
+Dopo il report, le tre cause del §4.3 sono state affrontate nel gen510. Lo
+stato di ogni limite è stato misurato con `make chat` in due sessioni di
+verifica non salvate; il dettaglio operativo e le prove da rifare sono
+nell'handoff in testa a `TEST_TODO.md`.
+
+| Limite | Stato | Come |
+|---|---|---|
+| NL1 soggetto di più parole | **riparato, verificato** | cornici `@S is the R of @O` derivate da `family_relation/1` e da `relation_noun/2` (grammar.p0) |
+| NL3 lezione presa da un'offerta aperta | **riparato** | un'offerta si accetta nominandone il tema solo con una risposta breve (`offer_reply_max_words/1`, network.p0) |
+| NL4 definizione presa dalla ricerca | **riparato, verificato**; resta NA | «photon is defined as …» ora si salva; «what is a photon?» non la usa ancora |
+| NL5 nessuna superficie per «persone diverse» | **riparato** | «V never holds of itself» (irriflessiva) + `dif` in `sibling_of/2`; da riverificare |
+| NL6 due dialetti `mother` / `mother_of` | **riparato, verificato** | ponte in `holds/3`: «X is the R of Y» = `R_of(Y, X)` nel verso dichiarato |
+| NL8 fatto falso da una frase su un nome | **riparato, non verificato** | `metalinguistic_head/1` spegne il luogo nell'estrattore delle classi |
+| NA1 «who is the winner of waterloo?» | **riparato, verificato** | la domanda aperta chiede a `holds/3` quando il predicato nudo tace |
+| NA2 «No.» falso su «is X the R of Y?» | **aperto** | il lettore «R of» ora usa la scala del verdetto condivisa, ma la domanda con soggetto di più parole la prende un altro lettore che risponde ancora «No.» |
+| NA3 domande aperte e plurali | **riparato, verificato** | «who are the grandchildren of elizabeth ii?» → «william, harry.» |
+| NA5 soggetto con «the» interno | **riparato, verificato** | `known_referent/1` prima della guardia per parola |
+| NA6 sigla non usata | **riparato, verificato** | forma «what does X stand for?», anche sulla sigla già espansa |
+| NA7 «what is bronze made of?» | **riparato, verificato** | `has_part` è `part_of` visto dal contenitore; cornice «made of» |
+| NA8 antonimo → Guerra fredda | **aperto** | la guardia `compound_guard(semantic_summary, lexical_relation_request)` non ha effetto |
+| NA9 piano raccontato come saggio | **aperto** | le guardie su `analysis_family` e `analysis_plan` non hanno effetto |
+| NA10 conferma in italiano | **riparato, verificato** | marcatori d'inglese per il lessico delle lezioni |
+| NA11 «what can you say about X?» | **riparato, verificato** | `about/3` legge i ruoli; la forma dice «non tengo niente» invece di cedere |
+| NL2, NL7, NA4 | **aperti** | nome con «of» interno; situazioni di un piano chiuse; forme verbali del nome di relazione |
+
+Anche un rosso della suite, preesistente, è stato chiuso: «what is the
+opposite of hot», senza «?», veniva letta come lezione (`basics.p0t`). Il
+modo del turno ora consulta la lettura pubblicata dell'illocuzione.
+
+## 8. Da dove ripartire
 
 Le tre cause del §4.3 sono tre classi di lavoro, non trentatré prompt:
 

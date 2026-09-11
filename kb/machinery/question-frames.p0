@@ -35,6 +35,8 @@ answer_frame("continent", continent_of).
 answer_frame("hardest", hardest_natural_substance).
 answer_frame("river", capital_on_river).
 answer_frame("short for", chemical_symbol).
+% gen510 — «what is X made of?» legge anche le parti (report gen509, NA7).
+answer_frame("made of", has_part).
 answer_frame("symbol", chemical_symbol).
 answer_frame("true flight", mammal_true_flight).
 answer_frame("wrote", wrote).   answer_frame("author of", wrote).
