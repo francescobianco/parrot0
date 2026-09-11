@@ -639,6 +639,16 @@ np_closer(located).
 np_closer(situated).
 np_closer(known).
 np_closer(called).
+% gen512 (settimo giro): la definizione italiana di «veleno», letta attraverso
+% la canonicalizzazione, dava la classe «sostanza what assunta» e un luogo di
+% quindici parole («organismo vivente has effetti …»). Un «what» dopo un nome
+% e' la relativa «che» tradotta male, e un verbo finito non sta dentro un
+% sintagma nominale: entrambi chiudono il sintagma.
+np_closer(what).
+np_closer(has).
+% E la «o» italiana (or) chiude come la «e» qui sotto: «un organo o una parte
+% del corpo» dava la classe «leave» (da «parte», prima traduzione del dizionario).
+np_closer(o).
 % E questi due, oltre a chiudere la classe, introducono un LUOGO: «located in»
 % dice quello che dice «in». Il lettore di classe salta il participio e legge
 % il sintagma preposizionale come prima (10-memory-knowledge.c, frame 4).

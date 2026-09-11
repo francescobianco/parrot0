@@ -1,5 +1,12 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+**gen512, settimo giro (2026-09-11)**: `behavior_gen512.p0t` +1 blocco
+(turno di lezione, «ehi» davanti a una domanda). Lotto verde: behavior_gen512,
+taught_lesson_form 42, accentless_copula 9, structural_reader_live 12,
+question_does_not_teach 21, greet, compose_social, pragma, pragma.it, mixed.
+Rossi preesistenti invariati: `lexicon_it` riga 30; `taught_lexicon` 153/157
+(turni da 1.1 s su un limite di 1.0 s). `make soft-test` verde in 7 s.
+
 > **⛔ Politica dei test (F., 8 settembre 2026), vale sopra tutto il resto:**
 > la suite intera va approvata da F. prima di lanciarla; mentre si lavora
 > solo test puntuali e contingenti e `make soft-test` con il budget come

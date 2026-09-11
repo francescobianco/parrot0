@@ -1270,4 +1270,11 @@ turn_untranslated($T, $W) :-
     turn_language_selected($T, $L), naf(lexicon_language($L)),
     turn_kept($T, $W),
     naf(is_function_word($W)),
-    naf(stopword($W)), naf(proper_name($W)).
+    naf(stopword($W)), naf(proper_name($W)), naf(known_topic_word($W)).
+% gen512 (settimo giro): «dove vivono gli scorpioni?» riceveva «Non so ancora
+% tradurre «scorpioni»» subito dopo che parrot0 aveva LETTO la pagina degli
+% scorpioni. Una parola che e' gia' un tema della memoria non e' una parola da
+% tradurre: la lacuna li' e' un'altra. (Negazione ground: vedi gen511.)
+machinery(known_topic_word).
+known_topic_word($W) :- topic_definition($W, $D).
+known_topic_word($W) :- topic_read($W, $A).

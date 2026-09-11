@@ -191,6 +191,15 @@ fact_source(causes(fall_from_height, violent_impact), fall_from_height, "a fall 
 fact_source(taught_form_source(taught_form_2, "stop believing that x"), taught_form_2, "stop believing that x means forget that x").
 fact_source(taught_form_source(taught_form_1, "what is your plan when x"), taught_form_1, "what is your plan when x means your plan when x?").
 fact_source(taught_form_source(taught_form_3, "how do you act when x"), taught_form_3, "how do you act when x means your plan when x?").
+fact_source(ordine(scorpioni), scorpioni, "the scorpioni am a ordine of artropodi velenosi of the classe of the aracnidi").
+fact_source(taught_form_source(taught_form_10, "was bedeutet x"), taught_form_10, "was bedeutet x means what does x mean").
+fact_source(taught_form_source(taught_form_9, "que veut dire x"), taught_form_9, "que veut dire x means what does x mean").
+fact_source(taught_form_source(taught_form_8, "que signifie x"), taught_form_8, "que signifie x means what does x mean").
+fact_source(taught_form_source(taught_form_7, "qué significa x"), taught_form_7, "qué significa x means what does x mean").
+fact_source(taught_form_source(taught_form_6, "what significa x"), taught_form_6, "cosa significa x means what does x mean").
+fact_source(taught_form_source(taught_form_5, "what want dire x"), taught_form_5, "cosa vuole dire x means what does x mean").
+fact_source(taught_form_source(taught_form_4, "what vuol dire x"), taught_form_4, "cosa vuol dire x means what does x mean").
+fact_source(taught_form_source(taught_form_11, "what is the significato of x"), taught_form_11, "qual è il significato di x means what is the meaning of x").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -278,11 +287,20 @@ reading_fact(also_known_as(ohms_law, "legge di ohm"), "ohms_law is also called l
 reading_fact(winner_of(waterloo, gebhard_von_blucher), "the winner of waterloo is gebhard von blucher").
 reading_fact(causes(eutrophication, algae), "eutrophication causes algae to grow and oxygen to fall").
 reading_fact(winner_of(waterloo, arthur_wellesley), "the winner of waterloo is arthur wellesley").
+reading_fact(ordine(scorpioni), "the scorpioni am a ordine of artropodi velenosi of the classe of the aracnidi").
 reading_fact(relation_verb(owner), "owner is a relation verb").
+reading_fact(taught_form_source(taught_form_10, "was bedeutet x"), "was bedeutet x means what does x mean").
 reading_fact(causes(violent_impact, serious_injury), "a violent impact causes serious injury").
+reading_fact(taught_form_source(taught_form_9, "que veut dire x"), "que veut dire x means what does x mean").
 reading_fact(battle(waterloo), "waterloo is a battle").
+reading_fact(taught_form_source(taught_form_8, "que signifie x"), "que signifie x means what does x mean").
 reading_fact(taught_form_source(taught_form_2, "stop believing that x"), "stop believing that x means forget that x").
+reading_fact(taught_form_source(taught_form_7, "qué significa x"), "qué significa x means what does x mean").
 reading_fact(causes(fall_from_height, violent_impact), "a fall from height causes a violent impact").
+reading_fact(taught_form_source(taught_form_6, "what significa x"), "cosa significa x means what does x mean").
 reading_fact(taught_form_source(taught_form_1, "what is your plan when x"), "what is your plan when x means your plan when x?").
+reading_fact(taught_form_source(taught_form_5, "what want dire x"), "cosa vuole dire x means what does x mean").
 reading_fact(taught_form_source(taught_form_3, "how do you act when x"), "how do you act when x means your plan when x?").
+reading_fact(taught_form_source(taught_form_4, "what vuol dire x"), "cosa vuol dire x means what does x mean").
+reading_fact(taught_form_source(taught_form_11, "what is the significato of x"), "qual è il significato di x means what is the meaning of x").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

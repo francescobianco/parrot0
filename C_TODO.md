@@ -1,5 +1,18 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-11 — gen512 (settimo giro): la conversazione degli scorpioni, finita
+
+- `kb_fill_slots` (00-lex.c): un valore che chiude gia' la frase non riceve il
+  punto del modello («chimico..»). Tipografia, non conoscenza.
+- `acquire_and_report`: se la domanda ridetta risponde CON la definizione
+  trovata, la sostituisce (buffer 1024). ⚠ Resta il letterale inglese
+  `strstr(re_ans, "look it up")`, preesistente: e' un elenco in C.
+- `p0_run_op_named`: la questione aperta da una risposta vuota ricorda il turno
+  (`active_turn_norm`), non il tema: il «si» ridice la domanda.
+- Tutto il resto e' KB: `lesson_turn`, `meaning_via`, `found_by_search`,
+  `known_topic_word`, `opener_before_question`, `np_closer(what|has|o)`,
+  `turn_scratch(last_acquisition)`.
+
 ## 2026-09-11 — gen512 (quinto giro): la demo — la CLASSE delle richieste, non una frase
 
 Tre banchi-sonda verdi (tests/demo/, 35 + 23 mai visto + 14 difficile). Le

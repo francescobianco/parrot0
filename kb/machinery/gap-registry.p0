@@ -92,6 +92,9 @@ machinery_gap("shall is a necessity marker").
 machinery_gap("because is a ground connector").
 machinery_gap("petrichor rises when rain falls on dry ground").
 machinery_gap("saudade may never return").
+machinery_gap("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni").
+machinery_gap("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno").
+machinery_gap("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
 gap_opaque("dropout prevents what?", dropout).
@@ -118,22 +121,65 @@ gap_opaque("petrichor rises when rain falls on dry ground", falls).
 gap_opaque("petrichor rises when rain falls on dry ground", rises).
 gap_opaque("petrichor rises when rain falls on dry ground", petrichor).
 gap_opaque("saudade may never return", return).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", radiazioni).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", emissione).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", meccanica).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", azione).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", dannosi).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", effetti).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", sostanze).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", veleni).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", considerate).
+gap_opaque("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", invece).
 gap_opaque("saudade may never return", saudade).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", veleno).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", iniettato).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", comes).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", cui).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", pungiglione).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", termina).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", segmentata).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", tail).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", allungato).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", corpo).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", caratterizzati).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", specie).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", duemila).
+gap_opaque("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", circa).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", close).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", fauci).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", perforano).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", mentre).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", inietta).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", azione).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", yourself).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", grazie).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", perfora).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", fatto).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", perforanti).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", strutture).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", altre).
+gap_opaque("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", differenzia).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
 gap_anchor("dropout prevents what?", prevents).
 gap_kind("how many days in march?", reachability).
 gap_kind("a leap year has 366 days", reachability).
+gap_anchor("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", teeth).
 gap_kind("known is an irregular participle", reachability).
+gap_anchor("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", veleno).
 gap_kind("dropout prevents what?", reachability).
 gap_kind("petrichor rises when rain falls on dry ground", reachability).
 gap_kind("shall is a necessity marker", reachability).
 gap_anchor("because is a ground connector", connector).
 gap_anchor("petrichor rises when rain falls on dry ground", rain).
+gap_anchor("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", world).
+gap_anchor("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", scorpioni).
 gap_kind("because is a ground connector", reachability).
 gap_kind("saudade may never return", reachability).
 gap_source("the metaphor maps what?", "the metaphor maps what?").
+gap_anchor("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", pungiglione).
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("what is measured by the farad?", reachability).
 gap_kind("what does the heart pump?", reachability).
@@ -146,6 +192,7 @@ gap_source("what measures resistance?", "what measures resistance?").
 gap_source("which unit measures electrical resistance?", "which unit measures electrical resistance?").
 gap_source("a counterexample refutes a universal claim", "a counterexample refutes a universal claim").
 gap_source("what measures electrical resistance?", "what measures electrical resistance?").
+gap_source("not am invece considerate veleni the sostanze what have effetti dannosi per azione meccanica o per emissione of radiazioni", " Non sono invece considerate veleni le sostanze che hanno effetti dannosi per azione meccanica o per emissione di radiazioni").
 gap_source("the ohm measures electrical resistance", "the ohm measures electrical resistance").
 gap_source("what does a metaphor do?", "what does a metaphor do?").
 gap_source("is a diode a passive component?", "is a diode a passive component?").
@@ -163,4 +210,6 @@ gap_source("petrichor rises when rain falls on dry ground", "petrichor rises whe
 gap_source("saudade may never return", "saudade may never return").
 gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").
 gap_source("what does the heart pump?", "what does the heart pump?").
+gap_source("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", " Ci sono circa duemila specie di scorpioni nel mondo, caratterizzati da un corpo allungato e una coda segmentata che termina con un pungiglione da cui viene iniettato il veleno").
+gap_source("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", " Un pungiglione si differenzia da altre strutture perforanti per il fatto che perfora grazie alla sua stessa azione e inietta il veleno, mentre i denti perforano per azione di fauci che si chiudono").
 gap_source("which moon is the largest?", "which moon is the largest?").

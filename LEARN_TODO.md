@@ -31,28 +31,57 @@
   («Ho estratto 1 fatto», «posso dire una cosa»).
 - Tracce nuove: `[offer] open topic= confirm=`, `[acquire] candidate`.
 
-## ⛔ Da fare, in ordine
+## ✅ Settimo giro (gen512): i cinque punti chiusi
 
-1. **La sessione VERA di insegnamento non e' stata fatta** (F. doveva andare):
-   `make chat < ` il file con le lezioni di significato (vedi elenco sopra), poi
-   la conversazione degli scorpioni, `/save`, leggere il diff (nessun
-   `current_turn`), riverificare in un processo nuovo che «che significa
-   velenosi?» risponda DALLA MEMORIA (via `search_found_as` + `topic_definition`:
-   **da verificare che la definizione letta si salvi davvero come
-   `topic_definition(veleno, …)`**), commit.
-2. **«qual è il significato di x means what is the meaning of x»** la ruba
-   `analysis_family`. Rimedio pronto: una forza «turno di lezione» in
-   turn-frames.p0 = perno di lezione (`intent_cue(teach_construction, P)`) + una
-   variabile di lezione nel turno (`rule_variable/1`; verificato che `"x"` e `x`
-   si unificano), e `faculty_yield_force(analysis_family, open, lesson_turn)`.
-3. La risposta sul significato cita la definizione del sostantivo trovato
-   (««velenosi» vuol dire: Un veleno è…»): un modello dedicato quando il
-   significato viene da `search_found_as` («velenosi viene da veleno: …»).
-4. «cosa significa velenoso» senza la lezione italiana finisce al lettore delle
-   traduzioni («Non so ancora tradurre»): la lezione del punto 1 lo chiude.
-5. Lo smalltalk/chitchat risponde «Ehilà!» a turni che sono domande con una
-   parola interrogativa: una cessione per forza `question` andrebbe valutata
-   (mantra #21: prima la maturita' del modulo).
+1. **La sessione vera e' fatta**, due volte, in `make chat` a rete accesa: le
+   lezioni di significato (IT «cosa vuol dire / vuole dire / significa / che
+   significa», ES, FR ×2, DE), la conversazione degli scorpioni, «si» su
+   «velenosi» (trovato come «veleno»), poi la lezione del punto 2 e «pungiglione».
+   Due `/save` letti riga per riga: nessun `current_turn`; **tre fatti falsi
+   tolti a mano** (vedi residui) e `last_acquisition` ora `turn_scratch`.
+   Riverificato in un processo nuovo: «che significa velenosi?», «qual è il
+   significato di pungiglione?», «ehi cosa vuol dire velenoso» rispondono dalla
+   memoria. `topic_definition(veleno, …)` si salva davvero.
+2. **Il turno di lezione** (turn-frames.p0, `lesson_turn`): perno di lezione +
+   variabile di lezione, e l'analisi cede. ⚠ «"x" e x si unificano» era vero solo
+   nel `!query` del .p0t: dentro una regola il token quotato va convertito con
+   `span_atom/2`. Cricchetto in behavior_gen512.p0t.
+3. **La risposta dice da dove viene il significato**: «velenosi» vuol dire: ha
+   a che fare con «veleno». Un veleno è… (`meaning_via/3`, EN e IT).
+4. **Una forma sorella risponde dalla memoria**: «velenoso» passa dagli stessi
+   `search_candidate/2` della ricerca fino a «veleno». La negazione sulla
+   ricerca e' ground (`found_by_search/1`): con una variabile libera falliva
+   dentro la forma e riusciva nel `!query` (stesso difetto del gen511).
+5. **«ehi» davanti a una domanda si stacca** (`opener_before_question`,
+   lexicon.p0): «ehi cosa vuol dire aracnidi» arriva al lettore del significato;
+   «ehi tranquillo» resta un saluto (lexicon_it). Senza saluto il reperto era
+   gia' chiuso dalle forme del punto 1.
+
+Anche: il «si» a un'offerta di significato non aggiunge piu' «Che cosa vorresti
+sapere su velenosi?» (la questione ricorda il TURNO, non il tema, e la domanda
+ridetta sostituisce la definizione nuda); niente piu' «chimico..»; «dove vivono
+gli scorpioni?» non dice piu' «Non so ancora tradurre «scorpioni»» (un tema
+letto non e' una parola da tradurre).
+
+## ⛔ Residui, in ordine
+
+1. **Le definizioni italiane lette dal lettore inglese producono fatti falsi**:
+   `located_in(veleno, organismo_vivente_has_…)` (quindici parole), la classe
+   «sostanza what assunta», `leave(pungiglione)` («parte» -> «leave», prima
+   traduzione di `tr/2`). Tolti dai due `/save`; `np_closer(what|has|o)`
+   (grammar.p0) cura i tre sintomi visti, non la causa. La cura: non estrarre
+   fatti da una frase la cui lettura ha parole tenute (`turn_kept`) o parole con
+   piu' traduzioni, oppure leggere la definizione nella sua lingua. Finche' non
+   c'e', **ogni /save dopo una ricerca italiana va letto riga per riga**.
+2. «dove vivono gli scorpioni?», «gli scorpioni sono pericolosi?», «quanto è
+   lungo uno scorpione?» -> muro generico onesto. La definizione dice
+   «velenosi»: la catena scorpioni -> velenosi -> veleno -> pericolosi e' il
+   prossimo passo naturale della conversazione.
+3. Le sorgenti delle forme insegnate si salvano canonicalizzate a meta' («what
+   want dire x»): funzionano, ma non si leggono.
+4. I candidati della ricerca leggono solo `topic_definition/2`: una definizione
+   insegnata con «X is defined as …» (`means/2`) non vale ancora per le forme
+   sorelle.
 
 ---
 

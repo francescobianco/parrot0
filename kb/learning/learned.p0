@@ -118,6 +118,7 @@ class_surface(copper_sulfide_mineral, copper sulfide mineral).
 class_surface(copper_carbonate_mineral, copper carbonate mineral).
 class_surface(relation_verb, relation verb).
 class_surface(battle, battle).
+class_surface(ordine, ordine).
 copper_sulfide_mineral(chalcocite).
 copper_sulfide_mineral(covellite).
 copper_sulfide_mineral(bornite).
@@ -168,3 +169,19 @@ relation_chain(great-grandparent, grandparent, parent).
 taught_form_source(taught_form_1, "what is your plan when x").
 taught_form_source(taught_form_2, "stop believing that x").
 taught_form_source(taught_form_3, "how do you act when x").
+taught_form_source(taught_form_10, "was bedeutet x").
+taught_form_source(taught_form_9, "que veut dire x").
+taught_form_source(taught_form_8, "que signifie x").
+taught_form_source(taught_form_7, "qué significa x").
+taught_form_source(taught_form_6, "what significa x").
+taught_form_source(taught_form_5, "what want dire x").
+taught_form_source(taught_form_4, "what vuol dire x").
+taught_form_source(taught_form_11, "what is the significato of x").
+ordine(scorpioni).
+topic_read(scorpioni, wiki_address(it, "Scorpiones", 152103202, lead)).
+topic_read(pungiglione, wiki_address(it, "Pungiglione", 152143431, lead)).
+topic_definition(pungiglione, "Il pungiglione è un organo o una parte del corpo di alcuni animali che trasmette del veleno.").
+topic_definition(scorpioni, "Gli scorpioni sono un ordine di artropodi velenosi della classe degli aracnidi.").
+topic_read(veleno, wiki_address(it, "Veleno", 152309605, lead)).
+topic_definition(veleno, "Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
+search_found_as(velenosi, veleno).

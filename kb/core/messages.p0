@@ -2681,7 +2681,30 @@ word_meaning($W, $T) :- tr($E, $W), means($E, $T).
 % E la forma sotto cui una parola e' stata TROVATA cercando («velenosi» ->
 % «veleno», `search_found_as/2`, scritto dalla ricerca accettata): la seconda
 % volta il significato viene dalla memoria, non da un'altra ricerca.
-word_meaning($W, $T) :- search_found_as($W, $B), topic_definition($B, $T).
+% gen512 (settimo giro): la risposta DICE che il significato viene dalla parola
+% base («velenosi» ha a che fare con «veleno»), invece di dare la definizione
+% del sostantivo come se fosse quella dell'aggettivo. E una forma sorella della
+% parola cercata («velenoso») risponde dalla stessa memoria, attraverso gli
+% stessi candidati della ricerca (morphology.p0), senza cercare di nuovo.
+word_meaning($W, $T) :- search_found_as($W, $B), topic_definition($B, $D),
+    meaning_via_text($B, $D, $T).
+% ⚠ La negazione e' su un predicato a UN argomento: `naf` con una variabile
+% libera fallisce quando la forma interroga attraverso il solver (lo stesso
+% difetto del gen511, `is_function_word/1`).
+word_meaning($W, $T) :- naf(found_by_search($W)),
+    candidate_with_definition($W, $B),
+    topic_definition($B, $D), meaning_via_text($B, $D, $T).
+machinery(candidate_with_definition).
+machinery(found_by_search).
+found_by_search($W) :- search_found_as($W, $B).
+candidate_with_definition($W, $B) :- search_candidate($W, $B), dif($B, $W),
+    topic_definition($B, $D).
+machinery(meaning_via_text).
+machinery(meaning_via).
+meaning_via_text($B, $D, $T) :- current_language($L), meaning_via($L, $A, $C),
+    concat_atoms($A, $B, $X1), concat_atoms($X1, $C, $X2), concat_atoms($X2, $D, $T).
+meaning_via(it, "ha a che fare con «", "». ").
+meaning_via(en, "it has to do with «", "». ").
 response_template(word_meaning_answer, "«{word}» means: {result}.").
 response_template(word_meaning_answer, it, "«{word}» vuol dire: {result}.").
 response_template(word_meaning_unknown, "I don't know yet what «{word}» means. Shall I look it up?").
@@ -2981,13 +3004,45 @@ turn_form(taught_form_1, 2, span(x)).
 turn_form(taught_form_1, 1, text("what is your plan when")).
 turn_form(taught_form_3, 2, span(x)).
 turn_form(taught_form_3, 1, text("how do you act when")).
+turn_form(taught_form_10, 2, span(x)).
+turn_form(taught_form_10, 1, text("was bedeutet")).
+turn_form(taught_form_9, 2, span(x)).
+turn_form(taught_form_9, 1, text("que veut dire")).
+turn_form_act(taught_form_10, reread(what does {x} mean)).
+turn_form(taught_form_8, 2, span(x)).
+turn_form(taught_form_8, 1, text("que signifie")).
+turn_form_act(taught_form_9, reread(what does {x} mean)).
+turn_form(taught_form_7, 2, span(x)).
+turn_form(taught_form_7, 1, text("qué significa")).
+turn_form_priority(taught_form_10, early).
+turn_form_act(taught_form_8, reread(what does {x} mean)).
+turn_form(taught_form_6, 2, span(x)).
+turn_form(taught_form_6, 1, text("what significa")).
+turn_form_priority(taught_form_9, early).
+turn_form_act(taught_form_7, reread(what does {x} mean)).
+turn_form(taught_form_5, 2, span(x)).
+turn_form(taught_form_5, 1, text("what want dire")).
+turn_form_priority(taught_form_8, early).
+turn_form_act(taught_form_6, reread(what does {x} mean)).
+turn_form(taught_form_4, 2, span(x)).
+turn_form(taught_form_4, 1, text("what vuol dire")).
+turn_form(taught_form_11, 2, span(x)).
+turn_form(taught_form_11, 1, text("what is the significato of")).
+turn_form_priority(taught_form_7, early).
+turn_form_act(taught_form_5, reread(what does {x} mean)).
 turn_form_act(taught_form_1, reread(your plan when {x})).
 turn_form_act(taught_form_3, reread(your plan when {x})).
+turn_form_priority(taught_form_6, early).
+turn_form_act(taught_form_4, reread(what does {x} mean)).
+turn_form_act(taught_form_11, reread(what is the meaning of {x})).
 turn_form_mood(teach_plan_it, statement).
 turn_form_act(teach_plan_it, assert_plan_move).
+turn_form_priority(taught_form_5, early).
 % gen512 — ora arriva. Le forme si provano anche sul turno com'e' stato detto
 % (`p0_turn_form_views`), e questa si legge prima dei lettori generici: con due
 % pezzi `named` (una situazione nota, una mossa nota) non puo' prendere un turno
+turn_form_priority(taught_form_4, early).
+turn_form_priority(taught_form_11, early).
 % che non sia una lezione di piano, e lo smalltalk che rispondeva «Ehila'!» a
 % una lezione non occupava un posto legittimo — era un furto.
 turn_form_priority(teach_plan_it, early).

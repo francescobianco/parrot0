@@ -350,6 +350,9 @@ static int kb_fill_slots(const char *tpl, const KbResponseSlot *slots,
                         out[o] = (char)toupper((unsigned char)out[o]);
                     o += vl;
                     c = r + 1; filled = 1;
+                    /* gen512: un valore che chiude gia' la frase non riceve
+                     * un secondo punto dal modello («chimico..»). */
+                    if (vl && strchr(".!?", v[vl - 1]) && *c == '.') c++;
                     break;
                 }
                 if (!filled && strict) return 0;

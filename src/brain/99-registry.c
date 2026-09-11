@@ -5446,13 +5446,19 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
     /* Re-dispatch the original question through dispatch_one
      * (NOT brain_respond — that would recurse and corrupt state).
      * dispatch_one normalizes+canonicalizes and walks the registry. */
-    char re_ans[256] = "";
+    char re_ans[1024] = "";
     int re_ok = stored_q && stored_q[0] ? dispatch_one(b, stored_q, re_ans, sizeof re_ans) : 0;
+    /* gen512 (settimo giro): la domanda ridetta che ora risponde CON la
+     * definizione trovata («cosa vuol dire velenosi» -> «velenosi» vuol dire:
+     * … Un veleno e'…) la sostituisce: dirle entrambe ripeteva la frase. */
+    int re_has_def = re_ok && re_ans[0] && def[0] && strstr(re_ans, def) != NULL;
 
     /* gen396: acknowledgement, then the ANSWER, then the bookkeeping.
      * gen505y: si e' appena LETTO — la definizione letta viene prima,
      * e la risposta alla domanda, se c'e' ed e' un'altra cosa, dopo. */
-    if (nf_prose > 0 && def[0]) {
+    if (re_has_def)
+        snprintf(out + ol, out_size - ol, " %s", re_ans);
+    else if (nf_prose > 0 && def[0]) {
         snprintf(out + ol, out_size - ol, " %s", def);
         if (re_ok && re_ans[0] && strcmp(re_ans, def) != 0 && !strstr(re_ans, "look it up")) {
             size_t o2 = strlen(out);

@@ -14171,7 +14171,19 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                                     const char *rq[2] = { topic, NULL };
                                     if (kb_match(b->kb, "research_topic", rq, 2, rt, 1) == 1)
                                         snprintf(topic, sizeof topic, "%s", kb_dequote(rt[0]));
-                                    char qq[KB_TERM_LEN + 2]; snprintf(qq, sizeof qq, "\"%s\"", topic);
+                                    /* gen512 (settimo giro): la domanda della
+                                     * questione e' il TURNO, non il tema. Con il
+                                     * tema, il «si» ridiceva «velenosi» da solo e
+                                     * riceveva «Che cosa vorresti sapere su
+                                     * velenosi?»; con il turno ridice la domanda
+                                     * di significato, che dopo la ricerca ha la
+                                     * sua risposta. */
+                                    char qsrc[KB_TERM_LEN];
+                                    snprintf(qsrc, sizeof qsrc, "%s",
+                                             b->active_turn_norm && *b->active_turn_norm
+                                             ? b->active_turn_norm : topic);
+                                    for (char *c = qsrc; *c; c++) if (*c == '"') *c = '\'';
+                                    char qq[KB_TERM_LEN + 2]; snprintf(qq, sizeof qq, "\"%s\"", qsrc);
                                     board_close_kind(b, kind);
                                     board_open(b, kind, topic, qq);
                                 }

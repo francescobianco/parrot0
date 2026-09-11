@@ -255,6 +255,16 @@ faculty_yield_force(turn_plan, open, production_request).
 % E l'analisi di ultima istanza: «How would you code Newton's second law in
 % Python?» riceveva un saggio sulle tre leggi invece del codice.
 faculty_yield_force(analysis_family, open, production_request).
+% ── IL TURNO DI LEZIONE (gen512, settimo giro) ──────────────────────────────
+% «qual è il significato di x means what is the meaning of x» riceveva un
+% saggio di analisi letteraria: «qual è» ne faceva una domanda, e l'analisi di
+% ultima istanza la serviva. Un turno che contiene un perno di lezione (la
+% stessa cue del lettore delle costruzioni) E una variabile di lezione e' una
+% lezione, e l'analisi lo cede. Un perno o una variabile nuovi entrano da soli.
+turn_declared_act($Turn, lesson_turn) :-
+    turn_span_token($Turn, $S, $I, $Pivot), intent_cue(teach_construction, $Pivot),
+    turn_span_token($Turn, $S2, $J, $Tok), span_atom($Tok, $Var), rule_variable($Var).
+faculty_yield_force(analysis_family, open, lesson_turn).
 % E il lettore delle procedure: «show me how to implement X in Python» non chiede
 % i passi per fabbricare «python».
 faculty_yield_force(process_steps, open, production_request).

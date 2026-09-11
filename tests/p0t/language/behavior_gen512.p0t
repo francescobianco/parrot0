@@ -85,3 +85,21 @@
 > cosa significa velenoso
 <! lettura univoca
 <! Ehil
+
+[test un turno di lezione non e' un'analisi, e «ehi» si stacca davanti a una domanda]
+!reset
+!timeout 12
+# gen512 (settimo giro). «qual è il significato di x means …» riceveva un saggio
+# di analisi letteraria: un perno di lezione con una variabile di lezione e'
+# una lezione (forza `lesson_turn`, turn-frames.p0), e l'analisi la cede.
+# (La lezione e' anche nella KB salvata dalla sessione vera: la risposta puo'
+# essere «From now on I'll read …» o «I already read …». Conta che sia letta.)
+> qual è il significato di x means what is the meaning of x
+<~ read «
+<! close reading
+# «ehi cosa vuol dire …» riceveva il saluto di chitchat e la domanda si perdeva.
+# Davanti a una domanda «ehi» si stacca (lexicon.p0, `opener_before_question`);
+# «ehi tranquillo» resta un saluto (lexicon_it.p0t).
+> ehi cosa vuol dire zorbiano
+<~ zorbiano
+<! Ehil

@@ -1830,6 +1830,17 @@ discourse_opener(actually).
 discourse_opener(right).
 discourse_opener(alright).
 discourse_opener(hey).
+% gen512 (settimo giro): «ehi cosa vuol dire aracnidi» riceveva il saluto di
+% chitchat e la domanda andava persa. «ehi» era gia' `social_marker(opening,
+% ehi)` ma non un'apertura da staccare. (Derivare TUTTE le aperture sociali
+% staccherebbe anche «hello» da «hello world in python»: si aggiunge la parola.)
+% Ma solo DAVANTI A UNA DOMANDA: «ehi tranquillo» resta un saluto (lexicon_it),
+% e staccarlo lasciava «tranquillo» da solo a una reazione.
+machinery(opener_before_question).
+discourse_opener(ehi) :- opener_before_question.
+opener_before_question :- turn_cue(current_turn, question_mark_cue, $Mark).
+opener_before_question :- turn_span_token(current_turn, $S, 1, $Tok),
+    span_atom($Tok, $W), interrogative_pronoun($W).
 discourse_opener(um).
 discourse_opener(uh).
 discourse_opener(hmm).

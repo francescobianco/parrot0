@@ -96,6 +96,9 @@ answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sente
 % e' pero' CONOSCENZA, non un elenco nel C: un predicato effimero nuovo domani
 % e' una riga qui, non una ricompilazione.
 machinery(turn_scratch).
+% gen512: «che cosa ho trovato l'ultima volta» e' stato della sessione, non
+% conoscenza; il /save della conversazione degli scorpioni lo salvava.
+turn_scratch(last_acquisition).
 turn_scratch(turn_counter).
 turn_scratch(turn_span_token).
 % gen512 — anche gli span del turno sono del turno. Un `/save` dopo «show me the
