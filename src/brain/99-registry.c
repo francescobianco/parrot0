@@ -5374,6 +5374,50 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
         int na = network_acquire(b, topic, def, sizeof def, &nf_prose);   /* 3 = disambigua */
         if (na) got = na;
     }
+    /* gen512 — QUANDO LA PAROLA DETTA NON TROVA NIENTE, SI PROVANO LE SUE
+     * FORME CERCABILI (`search_candidate/2`, morphology.p0): il lemma
+     * («velenosi» -> «velenoso») e la base da cui l'aggettivo deriva
+     * («velenoso» -> «veleno»). Quali forme, e in che ordine, e' KB; qui si
+     * provano soltanto, e il resoconto dice che cosa e' stato cercato davvero. */
+    char eff_topic[KB_TERM_LEN]; snprintf(eff_topic, sizeof eff_topic, "%s", topic);
+    if (!got) {
+        char (*cands)[KB_TERM_LEN] = NULL; size_t nc = 0;
+        const char *cq[2] = { topic, NULL };
+        if (kb_match_all(b->kb, "search_candidate", cq, 2, &cands, &nc)) {
+            for (size_t ci = 0; ci < nc && !got; ci++) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", kb_dequote(cands[ci]));
+                if (!cb[0] || !strcmp(cb, topic)) continue;
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[acquire] candidate «%s»\n", cb);
+                def[0] = '\0'; nf_prose = 0;
+                int g2 = acquire_knowledge(b, cb, def, sizeof def);
+                if (g2 != 2) {
+                    int na2 = network_acquire(b, cb, def, sizeof def, &nf_prose);
+                    if (na2) g2 = na2;
+                }
+                if (g2) {
+                    got = g2; snprintf(eff_topic, sizeof eff_topic, "%s", cb);
+                    /* il legame trovato e' conoscenza: la seconda volta
+                     * «velenosi» si legge sotto «veleno» senza cercare
+                     * (`search_found_as/2`, seguito da `word_meaning/2`) */
+                    int po = kb_origin(b->kb);
+                    kb_set_origin(b->kb, KB_SESSION);
+                    const char *fa2[2] = { topic, cb };
+                    kb_assert(b->kb, "search_found_as", fa2, 2);
+                    kb_set_origin(b->kb, po);
+                }
+            }
+        }
+        free(cands);
+        if (got && strcmp(eff_topic, topic)) {
+            snprintf(shown, sizeof shown, "%s", eff_topic);
+            for (char *c = shown; *c; c++) if (*c == '_') *c = ' ';
+            const KbResponseSlot slots2[] = { {"topic", shown} };
+            kb_response_slots(b, "gap_looking_up", slots2, 1, out, out_size);
+            ol = strlen(out);
+        }
+    }
+    topic = eff_topic;
     if (got == 3) {
         char options[1024] = "";
         disambiguation_render(b, topic, options, sizeof options);
@@ -5436,6 +5480,18 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
     if (re_ok || got) {
         conv_log(b, input, out);
         return 1;
+    }
+    /* gen512 — un'offerta ACCETTATA che non trova niente lo DICE, e offre la
+     * lezione (`acquisition_nothing_found`). Prima si restituiva 0 e il «si»
+     * cadeva nel registro: «Ricevuto — che cosa vuoi fare?». */
+    {
+        char sh[KB_TERM_LEN]; snprintf(sh, sizeof sh, "%s", topic);
+        for (char *c = sh; *c; c++) if (*c == '_') *c = ' ';
+        const KbResponseSlot nsl[] = { {"topic", sh} };
+        if (kb_response_slots(b, "acquisition_nothing_found", nsl, 1, out, out_size)) {
+            conv_log(b, input, out);
+            return 1;
+        }
     }
     return 0;
 }
@@ -6251,6 +6307,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             int confirm = (!refused_kb && kb_query(b->kb, "offer_resolution", acc, 2)) ||
                           p0_is_confirmation(b, clow) ||
                           p0_is_confirmation(b, rlow);
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[offer] open topic=«%s» confirm=%d refused=%d raw=«%s» canon=«%s»\n",
+                        topic, confirm, refused_kb, rlow, clow);
 
             /* ── gen505x — ACCETTARE E' UNA FAMIGLIA, NON UN ELENCO ──────────
              *

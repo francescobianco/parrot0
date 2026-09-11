@@ -69,3 +69,19 @@
 > which moon is the largest?
 <~ ganymede
 !forget world_superlative(largest, moon, ganymede)
+
+[test la domanda di significato ha un lettore, e una domanda non e' una lezione]
+!reset
+!timeout 12
+# Reperto di F.: «cosa vuol dire velenosi» -> «Ehila'! Sono qui.»; «cosa
+# significa velenoso» -> «non ho una lettura univoca per @S velenoso @O». Le
+# forme inglesi sono in messages.p0 (`ask_word_meaning*`); le altre lingue si
+# insegnano parlando. Senza rete: la parola nota risponde, l'ignota offre di
+# cercare, e la domanda italiana non diventa una lezione.
+> what does kintsugi mean
+<~ the japanese art of mending pottery with gold
+> what does venomous mean
+<~ Shall I look it up
+> cosa significa velenoso
+<! lettura univoca
+<! Ehil

@@ -1,6 +1,62 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# 🎯 HANDOFF — 11 settembre 2026, notte (`gen512`, quinto giro): LA DEMO DEL CODICE DELLA LEGGE DI NEWTON. RIPARTIRE DA QUI.
+# 🦂 HANDOFF — 11 settembre 2026, notte (`gen512`, sesto giro): LA CONVERSAZIONE DEGLI SCORPIONI. RIPARTIRE DA QUI.
+
+> F. (reperto dal vivo): «parlami degli scorpioni» → «si» → «Gli scorpioni sono
+> un ordine di artropodi velenosi… Ho estratto 1 fatti.» → **«cosa vuol dire
+> velenosi» → «Ehilà! Sono qui. Chiedimi qualcosa…»**.
+
+## Che cosa e' stato fatto (committato, cricchetti verdi)
+
+- **Il lettore della domanda di significato non esisteva.** Ora: forme inglesi
+  `ask_word_meaning` / `ask_word_meaning_of` / `ask_word_define` (messages.p0),
+  regola `word_meaning/2` (means/2, topic_definition/2, lemma, traduzione, e
+  `search_found_as/2`). Le altre lingue si insegnano PARLANDO con la lezione S2:
+  «cosa vuol dire x means what does x mean» (provato a secco: IT «cosa vuol
+  dire», «cosa vuole dire», «cosa/che significa», ES «qué significa», FR «que
+  signifie», «que veut dire», DE «was bedeutet» vengono tutte imparate).
+- **Parola ignota → offerta di cercare**, la stessa degli argomenti:
+  `turn_form_empty_opens(Forma, gap_offer, Slot)` apre la questione sul
+  tabellone; «si» la esegue. Se la parola detta non trova niente si provano i
+  `search_candidate/2` (morphology.p0: lemma, poi base dell'aggettivo:
+  velenosi → velenoso → **veleno**; venomous → venom). Provato a rete accesa:
+  «Vediamo cosa trovo su veleno... Un veleno è una sostanza che…».
+- **Un'offerta accettata che non trova niente lo dice** (`acquisition_nothing_found`,
+  con la lezione «X is defined as …»), invece di «Ricevuto — che cosa vuoi fare?».
+- **Una domanda non e' una lezione**: il lato sinistro di «S significa T» non puo'
+  essere una sola parola interrogativa; il perno della lezione e' l'ULTIMO e una
+  parola intera («significa» dentro «significato» combaciava); la guardia del
+  `reread` chiede al parser se il turno E' una lezione, non se ne contiene la parola.
+- **Accordo del numero** generale in `kb_response_slots`: `count` = 1 → `<chiave>_one`
+  («Ho estratto 1 fatto», «posso dire una cosa»).
+- Tracce nuove: `[offer] open topic= confirm=`, `[acquire] candidate`.
+
+## ⛔ Da fare, in ordine
+
+1. **La sessione VERA di insegnamento non e' stata fatta** (F. doveva andare):
+   `make chat < ` il file con le lezioni di significato (vedi elenco sopra), poi
+   la conversazione degli scorpioni, `/save`, leggere il diff (nessun
+   `current_turn`), riverificare in un processo nuovo che «che significa
+   velenosi?» risponda DALLA MEMORIA (via `search_found_as` + `topic_definition`:
+   **da verificare che la definizione letta si salvi davvero come
+   `topic_definition(veleno, …)`**), commit.
+2. **«qual è il significato di x means what is the meaning of x»** la ruba
+   `analysis_family`. Rimedio pronto: una forza «turno di lezione» in
+   turn-frames.p0 = perno di lezione (`intent_cue(teach_construction, P)`) + una
+   variabile di lezione nel turno (`rule_variable/1`; verificato che `"x"` e `x`
+   si unificano), e `faculty_yield_force(analysis_family, open, lesson_turn)`.
+3. La risposta sul significato cita la definizione del sostantivo trovato
+   (««velenosi» vuol dire: Un veleno è…»): un modello dedicato quando il
+   significato viene da `search_found_as` («velenosi viene da veleno: …»).
+4. «cosa significa velenoso» senza la lezione italiana finisce al lettore delle
+   traduzioni («Non so ancora tradurre»): la lezione del punto 1 lo chiude.
+5. Lo smalltalk/chitchat risponde «Ehilà!» a turni che sono domande con una
+   parola interrogativa: una cessione per forza `question` andrebbe valutata
+   (mantra #21: prima la maturita' del modulo).
+
+---
+
+# 🎯 HANDOFF — 11 settembre 2026, notte (`gen512`, quinto giro): LA DEMO DEL CODICE DELLA LEGGE DI NEWTON.
 
 > F.: *«devo fare la demo … il prompt non lo avremo in anticipo … non sappiamo
 > neanche la lingua … massimizza la KB affinché non falliamo.»*

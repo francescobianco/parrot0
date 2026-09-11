@@ -77,6 +77,18 @@ singular(deer, deer).
 % lo consuma sa che e' un candidato; chi decide sul primo che trova ha bisogno di
 % una tabella curata, e continua ad averla.
 lemma_candidate($Word, $Lemma) :- singular($Word, $Lemma).
+
+% gen512 — CHE COSA CERCARE quando la parola detta non trova niente.
+% «cosa vuol dire velenosi» -> «si»: la ricerca su «velenosi» non trova una
+% pagina. Si prova il lemma (velenosi -> velenoso) e poi la BASE da cui
+% l'aggettivo deriva (velenoso -> veleno; venomous -> venom), in quest'ordine.
+% Sono candidati, non verita': uno sbagliato costa una ricerca vuota, e la
+% risposta dice che cosa e' stato cercato davvero.
+search_candidate($W, $L) :- lemma_candidate($W, $L).
+search_candidate($W, $N) :- lemma_candidate($W, $L), concat_atoms($S, "oso", $L), concat_atoms($S, "o", $N).
+search_candidate($W, $N) :- concat_atoms($S, "oso", $W), concat_atoms($S, "o", $N).
+search_candidate($W, $N) :- concat_atoms($S, "osa", $W), concat_atoms($S, "o", $N).
+search_candidate($W, $S) :- concat_atoms($S, "ous", $W).
 lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(i, nil), $Chars), append_list($Stem, cons(o, nil), $SingChars), chars($Singular, $SingChars).
 lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(i, nil), $Chars), append_list($Stem, cons(e, nil), $SingChars), chars($Singular, $SingChars).
 lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(e, nil), $Chars), append_list($Stem, cons(a, nil), $SingChars), chars($Singular, $SingChars).

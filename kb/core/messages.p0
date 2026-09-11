@@ -2649,6 +2649,70 @@ turn_form_reply(ask_rel_def, relation_definition).
 turn_form(ask_rel_def2, 1, text("what is the definition of")).
 turn_form(ask_rel_def2, 2, slot(subject)).
 turn_form_act(ask_rel_def2, "op(match, relation_def_words, [subject, free])").
+
+% ══ gen512 — CHE COSA VUOL DIRE UNA PAROLA ═══════════════════════════════════
+%
+% Reperto di F.: dopo aver letto «gli scorpioni sono un ordine di artropodi
+% velenosi», «cosa vuol dire velenosi» riceveva «Ehila'! Sono qui.» (chitchat),
+% «cosa significa velenoso» diventava una LEZIONE («non ho una lettura univoca»),
+% «what does venomous mean» proponeva «something is a venomous». Mancava il
+% lettore della domanda di significato. Qui le forme inglesi (il circuito); le
+% altre lingue si insegnano PARLANDO («cosa vuol dire x means what does x
+% mean»), cioe' con la lezione S2 del gen511.
+%
+% Il significato lo dice `word_meaning/2`: le definizioni dette (`means/2`), cio'
+% che la ricerca ha imparato su un tema (`topic_definition/2`), sotto la parola
+% o il suo lemma (`lemma_candidate/2`: «velenosi» -> «velenoso») o la sua
+% traduzione. Se non c'e', la forma lo DICE e apre l'offerta di cercare (la
+% stessa degli argomenti: «si» fa partire la ricerca), sul lemma.
+machinery(word_meaning).
+% ⚠ Il tema dell'offerta di ricerca e' la parola COME E' DETTA, non il lemma:
+% `lemma_candidate` toglie la «s» finale anche all'inglese («venomous» ->
+% «venomou»), e un'offerta sul lemma non sopravvive alla fine del turno, perche'
+% la ritenzione chiede che la risposta ne nomini il tema (gen506j). La ricerca
+% in rete gestisce da se' le flessioni. (`research_topic/2`, se un giorno
+% servira', resta il punto dove dichiararlo.)
+machinery(research_topic).
+word_meaning($W, $T) :- means($W, $T).
+word_meaning($W, $T) :- topic_definition($W, $T).
+word_meaning($W, $T) :- lemma_candidate($W, $L), means($L, $T).
+word_meaning($W, $T) :- lemma_candidate($W, $L), topic_definition($L, $T).
+word_meaning($W, $T) :- tr($E, $W), means($E, $T).
+% E la forma sotto cui una parola e' stata TROVATA cercando («velenosi» ->
+% «veleno», `search_found_as/2`, scritto dalla ricerca accettata): la seconda
+% volta il significato viene dalla memoria, non da un'altra ricerca.
+word_meaning($W, $T) :- search_found_as($W, $B), topic_definition($B, $T).
+response_template(word_meaning_answer, "«{word}» means: {result}.").
+response_template(word_meaning_answer, it, "«{word}» vuol dire: {result}.").
+response_template(word_meaning_unknown, "I don't know yet what «{word}» means. Shall I look it up?").
+response_template(word_meaning_unknown, it, "Non so ancora cosa vuol dire «{word}». Vuoi che cerchi?").
+machinery(turn_form_empty_opens).
+turn_form(ask_word_meaning, 1, text("what does")).
+turn_form(ask_word_meaning, 2, span(word)).
+turn_form(ask_word_meaning, 3, text("mean")).
+turn_form_act(ask_word_meaning, "op(match, word_meaning, [word, free])").
+turn_form_reply(ask_word_meaning, word_meaning_answer).
+turn_form_empty_reply(ask_word_meaning, word_meaning_unknown).
+turn_form_empty_opens(ask_word_meaning, gap_offer, word).
+turn_form_priority(ask_word_meaning, early).
+turn_form(ask_word_meaning_of, 1, text("what is the meaning of")).
+turn_form(ask_word_meaning_of, 2, span(word)).
+turn_form_act(ask_word_meaning_of, "op(match, word_meaning, [word, free])").
+turn_form_reply(ask_word_meaning_of, word_meaning_answer).
+turn_form_empty_reply(ask_word_meaning_of, word_meaning_unknown).
+turn_form_empty_opens(ask_word_meaning_of, gap_offer, word).
+turn_form_priority(ask_word_meaning_of, early).
+turn_form(ask_word_define, 1, text("define")).
+turn_form(ask_word_define, 2, span(word)).
+turn_form_act(ask_word_define, "op(match, word_meaning, [word, free])").
+turn_form_reply(ask_word_define, word_meaning_answer).
+turn_form_empty_reply(ask_word_define, word_meaning_unknown).
+turn_form_empty_opens(ask_word_define, gap_offer, word).
+turn_form_priority(ask_word_define, early).
+% L'accordo del numero (gen512, `kb_response_slots`): con {count} = 1 vale la
+% variante `_one`, se c'e'. «Di X posso dire 1 cose» era la stessa classe.
+response_template(about_list_one, "About {subject} I can say one thing: {result}.").
+response_template(about_list_one, it, "Di {subject} posso dire una cosa: {result}.").
 turn_form_reply(ask_rel_def2, relation_definition).
 
 % (superficie superiore #23) — DISFARE UNA DEFINIZIONE, dicendola di nuovo.

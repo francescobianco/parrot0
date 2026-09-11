@@ -373,6 +373,20 @@ static int kb_response_slots(Brain *b, const char *intent,
                              const KbResponseSlot *slots, size_t nslots,
                              char *out, size_t outsz) {
     if (!b || !b->kb || !intent || !out || outsz == 0) return 0;
+    /* gen512 — L'ACCORDO DEL NUMERO. «Ho estratto 1 fatti», «posso dire 1
+     * cose»: con lo slot {count} uguale a 1 vale la variante `<chiave>_one`,
+     * se la KB la dichiara. Nessuna regola di plurale qui: quale frase si dica
+     * al singolare e' conoscenza, e una frase nuova si corregge con una riga. */
+    char one_key[KB_TERM_LEN];
+    for (size_t i = 0; i < nslots; i++) {
+        if (!slots[i].name || strcmp(slots[i].name, "count") || !slots[i].value ||
+            strcmp(slots[i].value, "1")) continue;
+        snprintf(one_key, sizeof one_key, "%s_one", intent);
+        const char *oq[2] = { one_key, NULL };
+        char ot[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "response_template", oq, 2, ot, 1) >= 1) intent = one_key;
+        break;
+    }
     char tpl[16][KB_TERM_LEN];
     /* gen240 (universal-comprehension): prefer a LOCALIZED template for the current
      * conversation language — response_template(intent, Lang, "…") — falling back to

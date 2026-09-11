@@ -634,6 +634,18 @@ response_template(gap_not_found, " I couldn't find information.").
 response_template(gap_not_found, it, " Non ho trovato niente.").
 response_template(gap_extracted, " I extracted {count} facts.").
 response_template(gap_extracted, it, " Ho estratto {count} fatti.").
+% gen512 — il singolare («Ho estratto 1 fatti»): con {count} = 1 vale `_one`.
+response_template(learn_extracted_one, " I extracted 1 fact.").
+response_template(learn_extracted_one, it, " Ho estratto 1 fatto.").
+response_template(gap_extracted_one, " I extracted 1 fact.").
+response_template(gap_extracted_one, it, " Ho estratto 1 fatto.").
+% gen512 — un'offerta ACCETTATA che non trova niente lo dice, e mette chi parla
+% in condizione di insegnare: la lezione «X is defined as …» scrive `means/2`,
+% che la domanda di significato legge anche attraverso il lemma. Prima il
+% fallimento ricadeva su «Ricevuto — che cosa vuoi fare?», come se il «si» non
+% avesse avuto senso.
+response_template(acquisition_nothing_found, "I looked up «{topic}» but found nothing. If you know it, teach me: «{topic} is defined as …».").
+response_template(acquisition_nothing_found, it, "Ho cercato «{topic}» ma non ho trovato niente. Se lo sai, insegnamelo: «{topic} is defined as …».").
 % gen506d — la disambiguazione (network.p0 §9). La testata e la riga di ogni
 % opzione sono scelte PER NOME dallo stile insegnato: `_list`, `_table`, …
 response_template(acquisition_disambiguates, "«{topic}» can mean several things:\n{options}\nWhich one do you mean?").

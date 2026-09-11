@@ -5549,16 +5549,30 @@ static const char *p0_construction_pivot(Brain *b, const char *text,
     char cues[32][KB_TERM_LEN];
     const char *q[2] = { "teach_construction", NULL };
     size_t n = kb_match(b->kb, "intent_cue", q, 2, cues, 32);
+    /* gen512 — IL PERNO E' L'ULTIMO, E UNA PAROLA INTERA.
+     *
+     * «cosa significa x means what does x mean» ha DUE perni: la sorgente di
+     * una lezione viene prima e puo' contenere la parola del perno, il
+     * bersaglio raramente. Si prendeva il primo, e il lato sinistro era
+     * «cosa». E «qual è il significato di x means …» trovava «significa» dentro
+     * «significato»: si verifica il confine a destra oltre che a sinistra, e un
+     * byte UTF-8 conta come lettera. */
     const char *best = NULL; size_t best_len = 0;
     for (size_t i = 0; i < n; i++) {
         char cb[KB_TERM_LEN];
         snprintf(cb, sizeof cb, "%s", cues[i]);
         const char *surface = kb_dequote(cb);
-        const char *hit = p0_bounded_phrase(text, surface);
-        if (!hit) continue;
         size_t sl = strlen(surface);
-        if (!best || hit < best || (hit == best && sl > best_len)) {
-            best = hit; best_len = sl;
+        if (!sl) continue;
+        for (const char *hit = strstr(text, surface); hit; hit = strstr(hit + 1, surface)) {
+            unsigned char lc = hit > text ? (unsigned char)hit[-1] : ' ';
+            unsigned char rc = (unsigned char)hit[sl];
+            int lb = hit == text || !(isalnum(lc) || lc >= 0x80 || lc == '_');
+            int rb = rc == '\0' || !(isalnum(rc) || rc >= 0x80 || rc == '_');
+            if (!lb || !rb) continue;
+            if (!best || hit > best || (hit == best && sl > best_len)) {
+                best = hit; best_len = sl;
+            }
         }
     }
     if (pivot_len) *pivot_len = best_len;
@@ -5810,6 +5824,18 @@ static int p0_parse_construction_lesson(Brain *b, const char *text,
     snprintf(right, sizeof right, "%s", pivot + pivot_len);
     char *lhs = trim_mut(left), *rhs = trim_mut(right);
     if (!*lhs || !*rhs) return P0_CONSTRUCTION_BAD_SHAPE;
+    /* gen512 — «cosa significa velenoso» e' una DOMANDA, non la lezione
+     * «cosa significa velenoso»: una lezione non ha come lato sinistro una sola
+     * parola interrogativa (`question_word/1`). Misurato: diventava «non ho una
+     * lettura univoca per @S velenoso @O». */
+    {
+        char gb[KB_TERM_LEN]; snprintf(gb, sizeof gb, "%s", lhs);
+        char *gw[4]; size_t gn = split_words(gb, gw, 4);
+        if (gn == 1) {
+            const char *gq[1] = { strip_edge_punct(gw[0]) };
+            if (kb_query(b->kb, "question_word", gq, 1)) return P0_CONSTRUCTION_NONE;
+        }
+    }
     snprintf(lesson->said_source, sizeof lesson->said_source, "%s", lhs);
     snprintf(lesson->said_target, sizeof lesson->said_target, "%s", rhs);
 
@@ -13348,6 +13374,11 @@ static int p0_form_piece_kind(const char *piece, char *kind, size_t ksz,
  *
  * Il C non sa che cosa significhi nessun costruttore: `both`, `flip`, `then`,
  * `use` sono interpretati da `eval_rel/3` in procedures.p0. */
+/* gen512 — il tabellone delle questioni aperte (50-self-research-loop.c): la
+ * risposta vuota di una forma puo' aprire un'offerta (`turn_form_empty_opens`). */
+static void board_open(Brain *b, const char *kind, const char *topic, const char *question_quoted);
+static void board_close_kind(Brain *b, const char *kind);
+
 static int p0_expr_var(Brain *b, const char *t) {
     const char *q[1] = { t };
     return t && *t && kb_query(b->kb, "rule_variable", q, 1);
@@ -14116,8 +14147,38 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                     for (size_t k = 0; k < ns && nef < P0_FORM_SLOTS; k++) {
                         ef[nef].name = slots[k].name; ef[nef].value = slots[k].value; nef++;
                     }
-                    if (kb_response_slots(b, kb_dequote(eb), ef, nef, out, out_size))
+                    if (kb_response_slots(b, kb_dequote(eb), ef, nef, out, out_size)) {
+                        /* gen512 — la forma puo' dichiarare che cosa APRIRE quando
+                         * non trova niente (`turn_form_empty_opens(Forma, Tipo,
+                         * Slot)`): «Non so ancora cosa vuol dire «velenosi».
+                         * Vuoi che cerchi?» apre sul tabellone l'offerta di
+                         * ricerca, cosi' il «si» successivo la esegue — la stessa
+                         * strada degli argomenti. Il tema preferito lo dice la KB
+                         * (`research_topic/2`: il lemma). */
+                        char ok1[1][KB_TERM_LEN];
+                        const char *okq[3] = { formname, NULL, NULL };
+                        if (kb_match(b->kb, "turn_form_empty_opens", okq, 3, ok1, 1) == 1) {
+                            char kind[KB_TERM_LEN]; snprintf(kind, sizeof kind, "%s", kb_dequote(ok1[0]));
+                            const char *okq2[3] = { formname, ok1[0], NULL };
+                            char sl1[1][KB_TERM_LEN];
+                            if (kb_match(b->kb, "turn_form_empty_opens", okq2, 3, sl1, 1) == 1) {
+                                char sb1[KB_TERM_LEN]; snprintf(sb1, sizeof sb1, "%s", kb_dequote(sl1[0]));
+                                const char *val = p0_form_slot(slots, ns, sb1);
+                                if (val && *val) {
+                                    char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", val);
+                                    for (char *c = topic; *c; c++) if (*c == '_') *c = ' ';
+                                    char rt[1][KB_TERM_LEN];
+                                    const char *rq[2] = { topic, NULL };
+                                    if (kb_match(b->kb, "research_topic", rq, 2, rt, 1) == 1)
+                                        snprintf(topic, sizeof topic, "%s", kb_dequote(rt[0]));
+                                    char qq[KB_TERM_LEN + 2]; snprintf(qq, sizeof qq, "\"%s\"", topic);
+                                    board_close_kind(b, kind);
+                                    board_open(b, kind, topic, qq);
+                                }
+                            }
+                        }
                         return 1;
+                    }
                 }
             }
             if (!done2) return 0;
@@ -14323,8 +14384,14 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * altro lettore (radici-insegnabilita.md §5, passo 5). Quali parole
              * facciano di un turno una lezione lo dice la KB
              * (`intent_cue(teach_construction, …)`). */
-            { size_t pl = 0;
-              if (p0_construction_pivot(b, norm, &pl)) continue; }
+            /* gen512 — il turno deve ESSERE una lezione, non contenerne la
+             * parola: «che significa velenosi?» ha «significa» come verbo della
+             * domanda, e la rilettura veniva saltata (poi lo prendeva lo
+             * smalltalk). Lo decide il parser della lezione, che rifiuta un lato
+             * sinistro fatto di una sola parola interrogativa. */
+            { P0ConstructionLesson probe;
+              if (p0_parse_construction_lesson(b, norm, &probe) != P0_CONSTRUCTION_NONE)
+                  continue; }
             char tpl[KB_TERM_LEN]; snprintf(tpl, sizeof tpl, "%s", act + 7);
             char *rp = strrchr(tpl, ')'); if (rp) *rp = '\0';
             char vals[P0_FORM_SLOTS][KB_TERM_LEN];
