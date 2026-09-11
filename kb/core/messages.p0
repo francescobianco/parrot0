@@ -994,8 +994,12 @@ negation_positive("cannot", "can").
 negation_positive("can't", "can").
 negation_positive("non è", "è").
 negation_positive("non sono", "sono").
-response_template(learned_negation, "Held: {clause}.").
-response_template(learned_negation, it, "Tengo: {clause}.").
+% gen512 (undicesimo giro): una negazione che non ritira niente e' una lezione
+% come le altre, e si annuncia con la stessa parola («Learned:») — «Held:» la
+% faceva sembrare una posizione presa invece di un fatto appreso, e il banco
+% `earned_negation.p0t` la leggeva come una risposta diversa.
+response_template(learned_negation, "Learned: {clause}.").
+response_template(learned_negation, it, "Imparato: {clause}.").
 response_template(learned_negation_retracted, "Held: {clause}. I no longer hold the opposite.").
 response_template(learned_negation_retracted, it, "Tengo: {clause}. Non credo più il contrario.").
 response_template(learned_negative_relation, "Held: {subject} does not {rel} {object}.").

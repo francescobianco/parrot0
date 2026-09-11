@@ -71,7 +71,27 @@ closed_world_answer($Class, $Subject) :- class_excludes($Subject, $Class).
 %     (i fatti diretti): la KB guarda la propria forma, il C non ne sa niente.
 class_defined_by_rule($Class) :- kb_rule($Class, $Head).
 class_has_observed_member($Class) :- kb_fact($Class, $Args).
-closed_world_answer($Class, $Subject) :- class_defined_by_rule($Class), naf(class_has_observed_member($Class)).
+closed_world_answer($Class, $Subject) :-
+    class_defined_by_rule($Class), naf(class_has_observed_member($Class)),
+    naf(class_rests_on_facts($Class)).
+
+% (c-bis) — E UNA DEFINIZIONE E' CHIUSA SOLO QUANTO CIO' SU CUI POGGIA.
+%     Trovato al gen512 con glm-test D1: «Un vombato e' un marsupiale.» → «Un
+%     vombato e' un animale?» → **«No.»**. `animal` e' una classe con una regola
+%     sola e nessun fatto diretto — per la (c) era chiusa — ma quella regola dice
+%     `animal($X) :- is_a_t($X, animal)`, e `is_a_t` si nutre di `is_a`, che
+%     riceve un fatto alla volta. La definizione non dichiarava completezza:
+%     delegava a una relazione aperta. Il «no» era la stessa negazione non
+%     guadagnata che la (c) doveva impedire, entrata dalla porta di servizio.
+%
+%     La riflessione che mancava e' `kb_rule_body/2` — i predicati del CORPO,
+%     il gemello che `kb_rule/2` aveva rimandato «finche' nessun consumer lo
+%     chiede». Due gradini bastano a scendere dal ponte alla relazione che lo
+%     regge (`animal` → `is_a_t` → `is_a`): piu' in giu' si rischia l'anello
+%     delle relazioni transitive, che si definiscono per ricorsione su se stesse.
+class_rests_on_facts($Class) :- kb_rule_body($Class, $P), kb_fact($P, $Args).
+class_rests_on_facts($Class) :-
+    kb_rule_body($Class, $P), kb_rule_body($P, $Q), kb_fact($Q, $Args).
 
 % ── 1-bis. UNA CLASSE NOMINATA DA UN VINCOLO E' UNA CLASSE DI CUI SI SA ────
 % Trovato al gen505 addestrando (LEARN_TODO §2-bis): insegnata l'esclusione fra

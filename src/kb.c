@@ -459,6 +459,22 @@ static int fact_make(Fact *f, const char *pred, const char *const *args,
     return 1;
 }
 
+/* gen512 — E IL RIFIUTO E' UN'INFORMAZIONE. Una lettura puo' RICONOSCERE una
+ * proposizione e non scriverla: «the sky is green» arriva a un valore gia'
+ * occupato («sky is blue») e si ferma con una domanda all'interlocutore. Per il
+ * giornale quella lettura era muta — zero righe — e chi legge il giornale
+ * («the sky is not green») concludeva di non aver capito niente. La riga «!»
+ * dice: «questa l'ho vista, e ho scelto di non tenerla». Chi nega ci trova
+ * esattamente la proposizione da negare. */
+void kb_journal_refused(KB *kb, const char *pred, const char *const *args,
+                        size_t argc) {
+    if (!kb || !kb->journal_on || !pred || argc > KB_MAX_ARGS) return;
+    Fact f;
+    if (!fact_make(&f, pred, args, argc)) return;
+    journal_note(kb, &f, '!');
+}
+
+
 static int fact_eq(const Fact *a, const Fact *b) {
     if (a->argc != b->argc) return 0;
     if (strcmp(a->pred, b->pred) != 0) return 0;
@@ -1008,6 +1024,26 @@ int kb_query_origin(const KB *kb, int origin_mask, const char *pred,
     return 0;
 }
 
+/* gen512 — NEGARE SENZA CANCELLARE. `kb_assert_neg` toglie il positivo della
+ * stessa provenienza: e' la mossa di chi CORREGGE. Ma due affermazioni contrarie
+ * ricevute dalla stessa bocca sono uno STATO — il conflitto che
+ * `kb_is_conflicted` esiste per vedere e che la calibrazione nomina — e
+ * cancellare il positivo lo fa sparire insieme alla domanda. Questa e' la meta'
+ * additiva: aggiunge il negativo e lascia stare il resto. Chi corregge chiama
+ * la gemella qui sotto, che toglie e poi chiama questa. */
+int kb_assert_neg_only(KB *kb, const char *pred, const char *const *args,
+                       size_t argc) {
+    if (!kb || argc > KB_MAX_ARGS) return 0;
+    Fact f;
+    if (!fact_make(&f, pred, args, argc)) return 0;
+    if (kb_find_neg(kb, &f)) return 1; /* already known false */
+    f.origin = kb->origin;
+    int added = fact_append_indexed(&kb->neg, &kb->nn, &kb->ncap,
+                                    &kb->neg_index, &kb->neg_index_cap, &f);
+    if (added) kb_views_changed(kb, pred);
+    return added;
+}
+
 int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                   size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
@@ -1022,12 +1058,7 @@ int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                                         kb->facts, kb->n);
         pred_stats_invalidate(kb);
     }
-    if (kb_find_neg(kb, &f)) return 1; /* already known false */
-    f.origin = kb->origin;
-    int added = fact_append_indexed(&kb->neg, &kb->nn, &kb->ncap,
-                                    &kb->neg_index, &kb->neg_index_cap, &f);
-    if (added) kb_views_changed(kb, pred);
-    return added;
+    return kb_assert_neg_only(kb, pred, args, argc);
 }
 
 int kb_is_negated(const KB *kb, const char *pred, const char *const *args,
@@ -1877,6 +1908,46 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                 !unify(s2, g->args[1], list))
                 continue;
             if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+        }
+        return 0;
+    }
+
+    /* gen512 — LA META' CHE MANCAVA: `kb_rule_body(Testa, PredicatoDelCorpo)`.
+     * Il gemello qui sopra diceva «il corpo non e' esposto: nessun consumer lo
+     * chiede ancora». Ora lo chiede `kb/core/epistemic-status.p0`, e la domanda
+     * e' quella giusta: una classe DEFINITA da regole e' chiusa dalla propria
+     * definizione **solo se lo e' cio' su cui la definizione poggia**. «animal»
+     * e' una regola sola (`animal($X) :- is_a_t($X, animal)`), ma `is_a_t` si
+     * nutre di `is_a`, che riceve un fatto alla volta: «un vombato e' un
+     * marsupiale» e' il prossimo. Senza il corpo, la KB vedeva una classe
+     * chiusa e rispondeva «No.» a un vombato di cui sapeva solo cose vere.
+     *
+     * Una soluzione per ogni goal di ogni regola con quella testa. Nessun
+     * argomento: chi deve sapere gli argomenti ha gia' `kb_rule/2`, e i termini
+     * del corpo costano la rappresentazione annidata che il gemello evitava. */
+    if (strcmp(g->pred, "kb_rule_body") == 0 && g->argc == 2) {
+        char rp[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], rp, sizeof rp, 0);
+        PredBucket rbk = { NULL, 0, 0, 0 };
+        int bound = !is_var(rp) && term_ok(rp) && !term_contains_var(rp, 0);
+        if (bound) {
+            rbk = rule_bucket(S->kb, rp);
+            if (rbk.live && rbk.n == 0) return 0;   /* nessuna regola qui */
+        }
+        size_t visits = bound ? PRED_VISITS(rbk, S->kb) : S->kb->nr;
+        for (size_t vi = 0; vi < visits; vi++) {
+            size_t i = bound ? PRED_AT(rbk, vi) : vi;
+            if (i >= S->kb->nr) continue;
+            const Rule *r = &S->kb->rules[i];
+            if (bound && strcmp(r->head.pred, rp) != 0) continue;
+            for (size_t bi = 0; bi < r->nbody; bi++) {
+                Subst *s2 = &scratch->subst;
+                subst_copy(s2, s);
+                if (!unify(s2, g->args[0], r->head.pred) ||
+                    !unify(s2, g->args[1], r->body[bi].pred))
+                    continue;
+                if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+            }
         }
         return 0;
     }
@@ -2742,6 +2813,7 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
         snprintf(pred, sizeof pred, "%s", v->deps[i]);
         if (!strcmp(pred, "call") || !strcmp(pred, "apply") ||
             !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
+            !strcmp(pred, "kb_rule_body") ||
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
             !strcmp(pred, "prob")) return 0;
@@ -3106,6 +3178,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
                                   strcmp(pred, "atom_words") == 0 ||
         strcmp(pred,"upcase_first")==0 || strcmp(pred,"concat_atoms")==0 ||
         strcmp(pred,"kb_fact")==0 || strcmp(pred,"kb_rule")==0 ||
+        strcmp(pred,"kb_rule_body")==0 ||
         strcmp(pred,"apply")==0 ||
         strcmp(pred,"is")==0 || strcmp(pred,"lt")==0 || strcmp(pred,"le")==0 ||
         strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||
@@ -3228,6 +3301,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0 &&
                     strcmp(pred, "atom_words") != 0 &&
                     strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
+                    strcmp(pred, "kb_rule_body") != 0 &&
                     strcmp(pred, "apply") != 0;
     for (size_t i = 0; i < argc; i++) {
         if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
@@ -6616,7 +6690,8 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
     static const char *const builtins[] = {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
-        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","apply", "atom_words", NULL };
+        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body",
+        "apply", "atom_words", NULL };
     for (size_t i = 0; builtins[i]; i++)
         if (strcmp(pred, builtins[i]) == 0) return 1;
     /* L'indice per predicato esiste dal gen401 e va usato: una scansione

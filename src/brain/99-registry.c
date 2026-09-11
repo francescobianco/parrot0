@@ -5130,6 +5130,33 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     if (b) b->respond_depth++;
     size_t n = brain_respond_dispatch(b, input, out, out_size);
     if (b) b->respond_depth--;
+    /* gen512 (glm-test §3.2) — E ORA I NOMI CHE STAVANO DOPO IL PRONOME.
+     *
+     * La meta' differita della raccolta dei nomi propri (vedi il commento in
+     * `brain_respond_dispatch`): un'anafora si risolve su cio' che e' stato
+     * detto PRIMA di lei, quindi «Antarctica» in «They live in Antarctica.» non
+     * puo' essere l'antecedente di «They». A turno CHIUSO — dopo il dispatch e
+     * dopo la coreferenza di ripiego, che e' l'ultima a leggerli — entra nella
+     * storia come ogni altro nome, e il turno successivo lo trova. */
+    if (b && b->kb) {
+        char nbuf[256]; snprintf(nbuf, sizeof nbuf, "%s", input);
+        char *nwds[64]; size_t nn2 = split_words(nbuf, nwds, 64);
+        int past2 = 0;
+        for (size_t i = 0; i < nn2; i++) {
+            if (!past2) {
+                char pr[KB_TERM_LEN]; size_t k = 0;
+                for (size_t c = 0; nwds[i][c] && k + 1 < sizeof pr; c++) {
+                    unsigned char ch = (unsigned char)nwds[i][c];
+                    if (isalnum(ch) || ch == '_') pr[k++] = (char)tolower(ch);
+                }
+                pr[k] = '\0';
+                if (k && is_entity_pronoun(b, pr)) past2 = 1;
+                continue;
+            }
+            if (isupper((unsigned char)nwds[i][0]) && strlen(nwds[i]) >= 2)
+                note_entity_seq(b, nwds[i]);
+        }
+    }
     if (b && turn_view) b->active_turn_norm = outer_view;
     free(turn_view);
     /* SC40-B: la fotografia precedente e quella corrente rendono osservabile il
@@ -6220,7 +6247,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * and its pragmatic shape is read by mod_pragma. */
     /* gen512: la negazione parlata — vedi p0_negation_lead. Prima dei lettori
      * di forme, che altrimenti leggono la negativa con un lettore proprio. */
-    if (b && p0_negation_lead(b, canon, input, out, out_size)) {
+    if (b && !getenv("P0_NO_NEG_LEAD") && p0_negation_lead(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "negation");
         return turn_done(b, canon, input, out, out_size);
@@ -6527,9 +6554,35 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         snprintf(rbuf, sizeof rbuf, "%s", input);
         char *rw[64];
         size_t rnw = split_words(rbuf, rw, 64);
+        /* gen512 (glm-test §3.2) — UN PRONOME GUARDA INDIETRO.
+         *
+         * «Penguins are birds.» / «They live in Antarctica.» imparava
+         * `habitat(antarctica, antarctica)`: i nomi con la maiuscola del turno
+         * entravano TUTTI nella storia del discorso prima che il turno fosse
+         * letto, e «Antarctica» — che sta DOPO «They» nella stessa frase —
+         * diventava la menzione piu' recente, quindi l'antecedente. Lo stesso
+         * turno scritto in minuscolo imparava la cosa giusta: una differenza di
+         * maiuscole non e' una differenza di senso.
+         *
+         * Un'anafora si risolve su cio' che e' stato detto PRIMA di lei. I nomi
+         * che seguono il primo pronome del turno entrano nella storia a turno
+         * finito (vedi `note_turn_names_after_pronoun`), dove servono al turno
+         * successivo senza rubare l'antecedente a questo. Quali superfici siano
+         * pronomi resta conoscenza (`entity_pronoun/1`). */
+        int past_pronoun = 0;
         for (size_t i = 0; i < rnw; i++) {
+            if (!past_pronoun) {
+                char pr[KB_TERM_LEN]; size_t k = 0;
+                for (size_t c = 0; rw[i][c] && k + 1 < sizeof pr; c++) {
+                    unsigned char ch = (unsigned char)rw[i][c];
+                    if (isalnum(ch) || ch == '_') pr[k++] = (char)tolower(ch);
+                }
+                pr[k] = '\0';
+                if (k && is_entity_pronoun(b, pr)) past_pronoun = 1;
+            }
             if (!(isupper((unsigned char)rw[i][0]) && strlen(rw[i]) >= 2)) continue;
-            note_entity_seq(b, rw[i]);      /* R2: unbounded KB history for ordinals */
+            if (!past_pronoun)
+                note_entity_seq(b, rw[i]);  /* R2: unbounded KB history for ordinals */
             if (b->entity_count >= 8) continue;
             int dup = 0;
             for (size_t j = 0; j < b->entity_count; j++)

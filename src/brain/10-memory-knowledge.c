@@ -12024,6 +12024,14 @@ static int p0_learn_attribute_t(Brain *b, const char *thing, const char *value,
                 const KbResponseSlot cs[] = { { "thing", tk }, { "old", oldv },
                                               { "value", vk }, { "prop", prop } };
                 if (kb_response_slots(b, "attribute_clash", cs, 4, msg2, sizeof msg2)) {
+                    /* gen512 (glm-test §3.2, «the sky is not green») — la
+                     * proposizione l'ho RICONOSCIUTA, e ho scelto di non
+                     * tenerla. Chi legge questa frase per negarla (la lettura a
+                     * secco della negazione parlata) deve poterlo sapere:
+                     * altrimenti vede un giornale vuoto e conclude di non aver
+                     * capito la frase. */
+                    { const char *ja[2] = { tk, vk };
+                      kb_journal_refused(b->kb, rel, ja, 2); }
                     put(msg2, out, out_size);
                     return 1;
                 }
@@ -13157,14 +13165,25 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     size_t obeg = vi + 1;
     /* gen507 — l'ARTICOLO che apre l'oggetto non fa parte del suo nome.
      * «does zelnik have A handle?» cercava «a handle». La classe dei
-     * determinanti e' gia' quella che il lettore usa per il soggetto. */
-    if (obeg + 1 < nw && p0_lead_det(b, w[obeg])) obeg++;
-    if (obeg + 1 < nw) {
+     * determinanti e' gia' quella che il lettore usa per il soggetto.
+     *
+     * gen512 (glm-test §3.2) — E NON C'E' UN ORDINE FRA LE DUE SCORZE. Il
+     * legante e l'articolo si presentavano una volta ciascuno e in quell'ordine:
+     * «do penguins live IN THE arctic?» toglieva «in», trovava «the» dove
+     * cercava un legante, e interrogava `habitat(penguins, the arctic)` — che
+     * nessuno tiene, mentre `habitat(penguins, arctic)` era in KB e la stessa
+     * domanda senza «the» rispondeva «Yes.». Si sbuccia finche' c'e' scorza:
+     * quali parole siano scorza resta detto in KB (`determiner`,
+     * `relation_particle`), qui c'e' solo il fatto che se ne possono
+     * incontrare piu' d'una, in qualunque ordine. */
+    while (obeg + 1 < nw) {
+        if (p0_lead_det(b, w[obeg])) { obeg++; continue; }
         char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[obeg]);
         const char *pt = strip_edge_punct(pb);
         const char *pq[1] = { pt };
         if (*pt && (kb_query(b->kb, "relation_particle", pq, 1) ||
-                    (form_particle[0] && !strcmp(pt, form_particle)))) obeg++;
+                    (form_particle[0] && !strcmp(pt, form_particle)))) { obeg++; continue; }
+        break;
     }
     if (!p0_join(w, obeg, nw, obj, sizeof obj)) return 0;
     for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
@@ -13192,16 +13211,28 @@ static int p0_polar_attribute(Brain *b, const char *norm,
     if (L < 6 || L >= 300 || norm[L - 1] != '?') return 0;
     char s[300]; memcpy(s, norm, L + 1);
     char *w[16]; size_t n = split_words(s, w, 16);
-    if (n != 3) return 0;                    /* «is <soggetto> <valore>?» */
+    /* gen512 (glm-test §3.2) — L'ARTICOLO NON CAMBIA LA DOMANDA. La forma
+     * chiedeva TRE parole esatte: «is zelnik red?» rispondeva e «is THE sky
+     * green?» cadeva nel muro — la stessa domanda con l'articolo che la lingua
+     * mette per forza davanti a un nome comune. Il determinante si sbuccia come
+     * ovunque (`p0_lead_det`, la classe e' in KB), e la forma resta di tre
+     * parole. */
+    size_t sb = 1;
+    if (n == 4 && p0_lead_det(b, strip_edge_punct(w[1]))) sb = 2;
+    else if (n != 3) return 0;               /* «is <soggetto> <valore>?» */
     if (!lex_class_member(b, "clause_copula", w[0])) return 0;
     char subj[KB_TERM_LEN], val[KB_TERM_LEN];
-    lowercase_copy(subj, sizeof subj, strip_edge_punct(w[1]));
-    lowercase_copy(val, sizeof val, strip_edge_punct(w[2]));
+    lowercase_copy(subj, sizeof subj, strip_edge_punct(w[sb]));
+    lowercase_copy(val, sizeof val, strip_edge_punct(w[n - 1]));
     if (!*subj || !*val) return 0;
     char rel[KB_TERM_LEN];
     if (!p0_attribute_relation(b, val, rel, sizeof rel)) return 0;
     const char *args[] = { subj, val };
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
+    /* Un «no» DETTO e' un «no» guadagnato, come per le classi e per le
+     * relazioni: «the sky is not green» si risponde «No.», non «non so»
+     * (gen512, glm-test §3.2). */
+    if (kb_is_negated(b->kb, rel, args, 2)) { put("No.", out, out_size); return 1; }
     /* Un valore diverso per la STESSA proprieta' e' un «no» guadagnato: una
      * cosa ha un colore solo. Altrimenti resta l'onesta' del gen504. */
     char held[1][KB_TERM_LEN];
@@ -15336,7 +15367,11 @@ static int p0_negation_lead(Brain *b, const char *canon, const char *input,
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_SESSION);
     for (char *line = strtok(journal, "\n"); line; line = strtok(NULL, "\n")) {
-        if (line[0] != '+' && line[0] != '=') continue;
+        /* «!» — la lettura ha riconosciuto la proposizione e ha scelto di non
+         * tenerla (un valore unico gia' occupato). Per la negazione e' una
+         * proposizione come le altre: si nega, e non c'e' niente da ritirare —
+         * il valore che occupa il posto non e' quello di cui si parla. */
+        if (line[0] != '+' && line[0] != '=' && line[0] != '!') continue;
         char *term = line + 1;
         char *lp = strchr(term, '('); char *rp = strrchr(term, ')');
         if (!lp || !rp || rp < lp) continue;
@@ -15360,14 +15395,58 @@ static int p0_negation_lead(Brain *b, const char *canon, const char *input,
             p = c + 1;
         }
         if (bad || !argc) continue;
-        if (kb_retract(b->kb, pred, args, argc)) retracted++;
-        if (kb_assert_neg(b->kb, pred, args, argc)) negated++;
+        /* gen512 (undicesimo giro) — NEGARE NON E' CORREGGERE.
+         *
+         * La prima versione ritirava sempre il positivo: «alice is not a
+         * person» cancellava «alice is a person» e il turno dopo parrot0 diceva
+         * «non ho nessun appoggio» su una coppia di affermazioni che aveva
+         * ricevuto entrambe. Il banco della calibrazione (`calibrate.p0t`)
+         * chiede l'opposto, e ha ragione: due testimonianze contrarie sono uno
+         * STATO — «tengo affermazioni in conflitto» — non un'ultima parola che
+         * vince. Il conflitto e' conoscenza; l'ultima parola la cancella.
+         *
+         * Il ritiro resta, e resta parlando: lo chiede chi CORREGGE, e la lingua
+         * lo dice. «No, penguins do not live in the Arctic» apre con il
+         * marcatore (`opener`): e' una correzione, e ritira. La forma piatta
+         * «alice is not a person» aggiunge la polarita' e lascia decidere alla
+         * calibrazione. L'altro canale esplicito — «forget that …» — non e'
+         * toccato. */
+        if (opener && line[0] != '!' && kb_retract(b->kb, pred, args, argc)) retracted++;
+        if ((opener ? kb_assert_neg(b->kb, pred, args, argc)
+                    : kb_assert_neg_only(b->kb, pred, args, argc))) negated++;
         char ft[KB_TERM_LEN]; int fo = snprintf(ft, sizeof ft, "%s(", pred);
         for (size_t i = 0; i < argc && fo > 0 && (size_t)fo < sizeof ft; i++)
             fo += snprintf(ft + fo, sizeof ft - (size_t)fo, "%s%s", i ? ", " : "", args[i]);
         if (fo > 0 && (size_t)fo + 1 < sizeof ft) { ft[fo++] = ')'; ft[fo] = '\0'; }
+        /* La provenienza si toglie solo con il fatto: chi non ritira non deve
+         * cancellare la memoria di CHI l'aveva detto — e' quella che la
+         * calibrazione nomina («me l'hai detto tu»). */
+        if (opener)
         { const char *fs[3] = { ft, NULL, NULL }; kb_retract_match(b->kb, "fact_source", fs, 3);
           const char *rf[2] = { ft, NULL }; kb_retract_match(b->kb, "reading_fact", rf, 2); }
+        /* gen512 — E CHI E' STATO NEGATO RESTA UN REFERENTE DEL DISCORSO.
+         *
+         * «No, penguins do not live in the Arctic. They live in Antarctica.»:
+         * la seconda frase non trovava nessun antecedente per «they», perche'
+         * la prima era stata letta dalla negazione, che non lasciava traccia
+         * nella storia delle menzioni — mentre ogni lettura di frame la lascia
+         * (vedi `p0_try_extract_frames_only`). Stessa riga, stesso ruolo: il
+         * parallelismo di ruolo fa poi preferire, per il soggetto, chi il
+         * soggetto lo ha gia' fatto. */
+        {
+            int po = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            for (size_t ai = 0; ai < argc; ai++) {
+                if (!args[ai] || !*args[ai] || args[ai][0] == '"') continue;
+                if (is_entity_pronoun(b, args[ai])) continue;
+                char idx[16]; snprintf(idx, sizeof idx, "%zu", ai);
+                const char *ra[2] = { args[ai], idx };
+                if (!kb_query(b->kb, "entity_role", ra, 2))
+                    kb_assert(b->kb, "entity_role", ra, 2);
+                note_entity_seq(b, args[ai]);
+            }
+            kb_set_origin(b->kb, po);
+        }
         if (getenv("P0_READ_TRACE")) fprintf(stderr, "[negation] %s %s\n", line[0] == '=' ? "retracted" : "denied", ft);
     }
     kb_set_origin(b->kb, prev);

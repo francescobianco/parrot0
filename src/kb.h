@@ -93,6 +93,13 @@ size_t kb_retract_origin(KB *kb, int origin_mask);
 void   kb_journal_start(KB *kb);
 size_t kb_journal_stop(KB *kb, char (**out)[KB_TERM_LEN]);
 
+/* gen512 — e la riga del RIFIUTO: «!pred(a, b)» dice che la lettura ha
+ * riconosciuto la proposizione e ha scelto di non tenerla (un valore unico gia'
+ * occupato, per esempio). Per chi nega e' la stessa cosa di un fatto nuovo:
+ * la proposizione esiste, e va negata — senza ritirare niente. */
+void   kb_journal_refused(KB *kb, const char *pred, const char *const *args,
+                          size_t argc);
+
 /* Is `pred(args…)` a GROUND fact recorded in one of `origin_mask`'s layers?
  *
  * The scoped counterpart of kb_query, and deliberately narrower: it inspects the
@@ -109,6 +116,14 @@ int    kb_query_origin(const KB *kb, int origin_mask, const char *pred,
  * if any; opposite claims from distinct layers are preserved as conflicts. */
 int    kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                      size_t argc);
+
+/* gen512: la meta' ADDITIVA. Aggiunge il negativo e non tocca il positivo,
+ * nemmeno quello dello stesso strato: due affermazioni contrarie ricevute dalla
+ * stessa bocca restano un CONFLITTO da nominare (kb_is_conflicted), non
+ * un'ultima parola che vince. La chiama chi NEGA; chi CORREGGE chiama la
+ * gemella qui sopra. */
+int    kb_assert_neg_only(KB *kb, const char *pred, const char *const *args,
+                          size_t argc);
 
 /* gen504: retract an explicit negative ground fact, the twin of kb_retract.
  * Returns 1 if a negative was removed, 0 if none was held. Leaves positive
