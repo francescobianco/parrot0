@@ -400,6 +400,7 @@ machinery(turn_span).
 machinery(turn_span_cue).
 machinery(turn_span_surface).
 machinery(turn_span_token).
+machinery(turn_surface_token).
 machinery(turn_span_binding).
 machinery(input_node).
 machinery(input_node_surface).

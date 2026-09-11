@@ -54,6 +54,100 @@
 > questo: e' aumentato, perche' le sonde erano abbastanza precise da falsificare
 > la propria spiegazione.
 
+---
+
+# ANALISI CRITICA — nuova intervista dell'11 settembre 2026 (`gen512`), `make chat` soltanto
+
+> Autore: Buffy (GLM, agente Freebuff). Stesso metodo del report: sonde via pipe
+> su stdin, sessioni indipendenti, `make chat` soltanto (tools on, fetch on),
+> ~55 turni in 11 sessioni. Albero: `gen512 (ottavo giro, interrotto)@59be1ad0`,
+> albero pulito; il binario e' stampato `[gen510-riparazioni@8995295c]` per quasi
+> tutte le sonde e `[…@59be1ad0]` per l'ultima. Differenziale con `git stash`
+> eseguito sui due casi anomali di oggi (§4.2, polar su fatto insegnato): si
+> comportano **uguale** sull'albero pulito, quindi non sono artefatti del lavoro
+> in corso. Non riprovate in questa passata: frame WWII (§2.4), ledger derivato
+> (§2.8), richieste MCP/tools.
+
+## A. Verdetto per sezione — che cosa regge e che cosa no
+
+### Chiusi dopo il report, confermati al vivo oggi
+
+| § | prova d'oggi |
+|---|---|
+| **3.1** | «Ice.» e' **sparito**. «Do penguins live in the Arctic?» → declinazione onesta: *«I don't know: nothing I hold says penguins habitat the arctic, and nothing says it isn't so. Tell me either way and I will hold it.»* — esattamente la cura chiesta alla voce 2 dell'ordine d'attacco. Nessuna risposta sbagliata presentata come fatto in tutta la rivista |
+| **4.1** | «Is Rome the capital of Italy?» → **«Yes.»** (non piu' «Italy.»). Il canale polare e' booleano |
+| **4.3** | «Every dog is a mammal. Rex is a dog. Is Rex a mammal?» → **«Yes.»** Il quantificatore non devia piu' il turno |
+| **4.6** | «A wombat is a marsupial that lives in Australia» → *«Learned: wombat is a marsupial. Learned: wombat live in australia.»* — **due fatti, un solo ack**; «Where does the wombat live?» → «australia.» |
+| **6.3** | «no» nudo ora **declina**: *«All right, I won't look it up.»* (chi negava riceveva conferma) |
+| **3.6** | «ok learn about it» e «yes» portano **entrambi** al fetch (quokka, capybara: appresi nello stesso turno) |
+| **3.4** | «My name is Marco and I live in Turin» → nome **e** citta' memorizzati: «what is my name?» → «Your name is Marco.»; «where do I live?» → «Turin.» |
+| **6.2** | il messaggio d'offerta dice oggi «say «something is **an** eiffel»»» — l'articolo legge la politica comune (gen506, verificato a runtime) |
+| **4.4** (parte) | «Ciao, mi chiamo Giulia» → «Piacere di conoscerti, Giulia!» + richiamo ok; «Il libro rosso e sul tavolo» → «Dove si trova il libro rosso?» → «tavolo.»; «Come si prepara un caffè?» → piano in 4 passi. Il conversazionale italiano esiste |
+| **5.1** | il controfattuale ora dà **contenuto dal mondo**: «What would happen if the sun stopped shining?» → *«From what I've learned: sun causes plant_growth, and plant_growth causes oxygen.»* — niente piu' ponte d'oro di metodo; resta parziale (una catena, non la conseguenza chiesta) |
+
+### Ancora validi — riprodotti oggi, quasi sempre nella stessa forma
+
+| § | prova d'oggi | nota |
+|---|---|---|
+| **3.2 / 3.3** | «No, penguins do not live in the Arctic. They live in Antarctica.» → *«Held: penguins does not habitat in_the_arctic_they_live_in_antarctica.»* | La mangled e' **cambiata di forma** (niente piu' «penguins do not live»), ma il «fatto» resta non retrazione e non affermazione usabile. E «X is not Y» semplice («The sky is not green») non atterra: «I don't understand that yet.» **Il canale di correzione resta il difetto #1: si impara, non si ritira.** |
+| **3.5** | «What is the Eiffel Tower?» → «eiffel tower is about 330 meters.»; subito dopo «How tall is the Eiffel Tower?» → muro + offerta di insegnare **eiffel** | La conoscenza fresca e' invisibile alla forma nuova, identico al report. Il learn dello stesso turno non collima con l'entita' che le domande successive cercano |
+| **4.2** | «I have 12 apples and I eat 5 apples. How many apples do I have?» → *«I couldn't read «I have 12 apples and I eat 5 apples». A i has 12 apples.»* | Muro come allora, ma la lettura e' ora **evidenziata** (diagnosi a regalo: «A i» — il soggetto viene letto come articolo) |
+| **4.5** | «What is your name and where do you live and what can you do?» → risposta che non aggancia nessun subgoal in modo pertinente (e il ledger, evocabile da solo, non arriva) | Aperto |
+| **4.7** | «I want to make pasta carbonara. What do I need to do first?» → «I am not sure what you mean by «first».» | Aperto: la facoltà di piano resta irraggiungibile da questo shape |
+| **5.2** | «Tom baked a cake and gave half to Anna. Who has less cake?» → «I don't understand that yet.» | Aperto |
+| **5.3** | «Can fish fly?» → «I didn't quite catch that.» | Muro onesto ma nessun «No» inferito da assenza |
+| **5.4** | «hi» → «**Ciao!**» in sessione inglese; e ora «Come mi chiamo?» risponde «**Your name is Giulia.**» in sessione italiana | La famiglia esiste ed e' instabile in **entrambe** le direzioni — la scheda 5.4 (decide `entity_pronoun` per coincidenza) resta valida e non scade |
+| **6.1** | «eiffel tower is about 330 meters.» — minuscole in output | Aperto; v. nuovo D3 sotto, stessa radice |
+| **6.7** | eiffel: fetch instradato ma la resa non aggancia l'entita'; quokka/capybara: fetch+estrazione ok | Affidabilita' non uniforme, confermata |
+
+## B. Nuovi finding di oggi (non nel report)
+
+- **D1 🟠 Polar su un fatto appena insegnato mura.** «A wombat is a marsupial.» → «Is a wombat a marsupial?» → *«I don't know about marsupial.»* — mentre la stessa catena con nomi propri («Rex…») passa (§4.3). Il gen506 aveva chiuso §3.5 sul ramo *what-is* («what is the wombat» oggi risponde davvero il fatto insegnato — verificato); il ramo **sì/no sull'insegnato** con articolo indeterminativo e' ancora senza maniglia. E' la stessa malattia di §3.5 vista da un'altra forma di domanda: articolo+comune insegnato non diventa l'entita' che il percettore polare cerca.
+- **D2 ⚪ Il menu di disambiguazione non consuma la scelta.** Multi-hop su «eiffel» apre un menu («Which one do you mean?»); rispondere «Eiffel Tower» al turno dopo produce una nuova offerta di insegnamento, non la ripresa. Nuova superficie d'offerta, stessa famiglia frammentata di ripresa di §3.6: **il ciclo si riapre su ogni nuova superficie che lo produce.**
+- **D3 ⚪ Il token canonico trapela nell'ack italiano.** «Il libro rosso e sul tavolo.» → *«Imparato: book_red si trova in tavolo.»* — la canonicalizzazione parla all'utente. Stessa radice di §6.1: la superficie dell'entita' non e' ricostruita alla stampa, e l'output e' conoscenza (mantra #16).
+- **D4 ⚪ Doppio punto sulla resa del fatto insegnato.** «What is the wombat?» → *«wombat is a marsupial..»* — il template concatena il punto del fatto al punto della resa.
+
+## C. Giudizio aggiornato sul report — che cosa resta valido come documento
+
+1. **La tesi centrale regge, con perimetro spostato.** «Oggi parrot0 risponde; non ancora impara dallo scambio» era corretto al gen501 e resta corretto al gen512 — ma il difetto #1 non e' piu' «il canale di correzione non esiste»: e' **presente in ingresso e rotto in uscita**. Si impara (anche da soggetti plurali e da clausole relative, che il report dava perse); non si ritira. §9 voce 1 (retrazione parlando) resta il primo lavoro per danno.
+2. **Le tre malattie del §7 reggono tutte e tre**, con pesi cambiati:
+   - *le facoltà sono isole* — il vivo piu' forte di oggi: la stessa entita' insegnata e' prodotta da un lettore e non trovata da un altro (§3.5, D1); il menu D2 e' un'isola nuova nata **dopo** il report.
+   - *il canale di correzione non esiste* — mezzo chiuso: ingresso sì (§3.3 porta d'ingresso aperta, confermata), uscita no (§3.2 di oggi).
+   - *rispondere vs rispondere bene* — **molto migliorato**: zero confabulazioni in ~55 turni; i muri sono onesti e la maggior parte porta la porta aperta. Il rischio residuo si e' spostato dal contenuto alla **forma** (lingua sbagliata, token canonico, doppio punto): sono difetti di resa, non di verita'.
+3. **Le diagnosi del report non sono state smentite da questa rivista.** Le due che il gen505x aveva corretto (§3.1 confabulazione, §3.3 soggetti plurali) sono oggi superate **anche nei fatti**: la prima cura (declinazione onesta) e' in produzione, la seconda (penguins si impara) e' in produzione. Il metodo delle sonde si e' confermato: riproduzioni deterministiche, un differenziale con stash per escludere l'albero di lavoro, diagnosi che il codice puo' falsificare.
+4. **L'ordine d'attacco del §9, aggiornato al gen512:** fatte (da marcare) le voci **2** (guardia anti-confabulazione — «Ice.» non risponde piu'), **4** (famiglia di accettazione — salvo D2: ogni nuova superficie d'offerta riapre il ciclo), **5** (frattura dell'input composto), **6** (italiano conversazionale di base). Restano in testa, in quest'ordine: **1** (retrazione parlando — §3.2/3.3 di oggi), **3** (maniglia unica dell'entita' attraverso le forme — §3.5 + D1), **7** (numeri/comparativi con ruoli — §4.2/5.2). La voce 8 (pulizia superficie) ha oggi tre esempi in piu': D2, D3, D4.
+5. **Che cosa il report non aveva e oggi servirebbe:** una sezione sulle **risposte di ripresa** (menu, offerte, selezioni) come classe a sé — e' la famiglia che genera D2 e ha generato §3.6, e cresce piu' in fretta delle altre: ogni nuova superficie interattiva aggiunge un ramo di ripresa non condiviso. Il test comportamentale da cricchetare: *menu → scelta → la scelta deve portare al fatto, non a una nuova offerta.*
+
+## D. Riproduzioni rapide di oggi (da appendere a quelle del report)
+
+```sh
+# A. §3.1 chiuso: declinazione onesta al posto di «Ice.»
+printf 'Do penguins live in the Arctic?\nIs Rome the capital of Italy?\n/quit\n' | \
+  make -s chat
+
+# B. §3.2/3.3 aperto: la negazione produce un fatto non usabile
+printf 'No, penguins do not live in the Arctic. They live in Antarctica.\nDo penguins live in Antarctica?\n/quit\n' | \
+  make -s chat
+
+# C. D1: polar su fatto appena insegnato con articolo indeterminativo
+printf 'A wombat is a marsupial.\nIs a wombat a marsupial?\n/quit\n' | \
+  make -s chat
+
+# D. D2: la selezione del menu non viene consumata
+printf 'What is the capital of the country where the Eiffel Tower is located?\nEiffel Tower\n/quit\n' | \
+  make -s chat
+
+# E. §3.5: conoscenza fresca invisibile alla forma nuova (invariato dal gen501)
+printf 'What is the Eiffel Tower?\nHow tall is the Eiffel Tower?\n/quit\n' | \
+  make -s chat
+
+# F. 5.4 in entrambe le direzioni
+printf 'hi\n/quit\n' | make -s chat
+printf 'Ciao, mi chiamo Giulia\nCome mi chiamo?\n/quit\n' | PARROT0_LANG=it make -s chat
+```
+
+— fine analisi critica —
+
 
 > Autore: Buffy (GLM, agente Freebuff) — valutazione comportamentale su ca. **45 sonde**
 > in **10 sessioni** indipendenti, due passate (base + acquisizione).

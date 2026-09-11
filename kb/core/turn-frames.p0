@@ -15,7 +15,8 @@
 % Il turno arriva gia' spezzato dall'unico producer universale, che pubblica due
 % meta' complementari:
 %
-%   turn_span_token/4   le parole che il turno HA DETTO, citate, non promosse
+%   turn_span_token/4   token dei payload, dopo le cue, citati e non promossi
+%   turn_surface_token/4 tutti i token originali, comprese le cue; span 0
 %   turn_cue/3          quali superfici DICHIARATE DALLA KB il turno contiene
 %
 % La seconda meta' e' nuova. Il C cerca stringhe dentro byte — meccanica — ma

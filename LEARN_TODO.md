@@ -1,5 +1,174 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🐝 HANDOFF — 11 settembre 2026 (`gen512`, nono giro): LO SCENARIO RISPONDE, RESTANO COSTO E VERIFICA FINALE
+
+> **Pausa richiesta da F. per esaurimento token. Ripartire da questo blocco.**
+> Le modifiche sono nel worktree, **non committate**. Il banco non è verde:
+> ultima esecuzione **52 proprietà passate, 12 timeout**. Nessun `/save`,
+> nessun training fattuale promosso, nessun `make soft-test` ancora eseguito.
+
+## Che cosa è stato corretto realmente
+
+1. **La diagnosi dell'ottavo giro era sbagliata a monte.** Il boot scartava
+   **22 clausole** di `situation.p0`: arità >4 e corpi >8. `scenario_asks`
+   non era una regola funzionante con un problema numerico: chiamava un
+   predicato che non caricava. Ora posizioni, premesse e descrizioni sono
+   termini composti (`at(T,S,I)`, `c(Subj,rel(Rel,Words),np(Art,Kind))`),
+   tutti i goal rispettano i limiti. `sub` eliminato; `is(add(...))` funziona
+   sia per legare sia per controllare le posizioni. **Non alzare i limiti.**
+2. **L'IR perdeva le cue nella vista dei token.** Nel prompt EN c'erano DUE
+   span, non uno: il secondo aveva superficie `is in danger?`, cue `is in`,
+   unico token `danger`. Quindi nessuna regola sui payload poteva leggere
+   `in danger`. `99-registry.c` ora pubblica **`turn_surface_token/4`**, un
+   flusso completo del turno originale (indice span `0`), tramite lo STESSO
+   tokenizzatore dei payload, senza il limite di 24 token per questo flusso.
+   `turn_span_token` mantiene il contratto precedente. `scenario_tok` legge
+   la nuova vista; `input.p0` la dichiara machinery, `turn-frames.p0` la documenta.
+3. **`findall` non accetta il template composto come Prolog standard.** In
+   `src/kb.c` usa il primo argomento come variabile; se è composto cerca `$Q`
+   senza legarlo e produce `nil`. La cura KB è
+   `findall($Claim, scenario_claim($T,$Claim), ...)`, con il termine costruito
+   dalla regola, non nel template. La raccolta vuota ora non dà una risposta
+   vuota: il piano richiede `cons($First,$Rest)`.
+4. **Renderer troppo profondo.** La vecchia `scenario_cat` ricorsiva su liste
+   lunghe falliva per la profondità del solver. Un tentativo di enumerare
+   direttamente tutte le righe tramite `findall` ha perfino provocato un
+   SIGSEGV in `deep_resolve` (visto con gdb); quel tentativo è stato RITIRATO.
+   Il renderer corrente usa `scenario_join3` + concatenazioni corte, senza
+   ricorsione sulla lista dei pezzi della frase. La lista delle persone resta
+   ricorsiva: ciascuna deve produrre una riga, niente omissioni silenziose.
+5. **Negare l'antecedente non nega la conclusione.** La regola insegnata è
+   sufficiente (`Q ⊒ ∃R.P`), non un bicondizionale. Sapere che la zanzara non
+   è velenosa NON prova che Luca non sia in pericolo. Il renderer distingue
+   `yes`, `excluded` (proprietà esclusa, conclusione non determinata) e
+   `unknown`. `scenario_reason` cerca prima una restrizione supportata, poi
+   quelle non soddisfatte. **Non ripristinare il falso «Luca no» dell'handoff
+   precedente per rendere verde il suo esempio.**
+6. **Scoping delle premesse.** Il precedente cleanup cancellava TUTTO
+   `KB_HYPOTHETICAL`, anche ipotesi di altri contesti. Ora `TurnPremise` registra
+   solo fatti introdotti dal piano, li ritira uno per uno e lascia intatti
+   fatti preesistenti di qualsiasi origine (anche cache derivate). Il banco
+   verifica conservazione dei fatti di sessione e rimozione delle premesse
+   nuove; **manca ancora la prova specifica di un'ipotesi preesistente**.
+
+## Prova parlata osservata, non solo una query interna
+
+Con `PARROT0_SESSION=` e KB completa, lezioni:
+
+```text
+scorpions are venomous
+mosquitoes are not venomous
+if someone is stung by something venomous then they are in danger
+the italian for scorpion is scorpione
+the italian for mosquito is zanzara
+the italian for venomous is velenoso
+Marco è stato punto da uno scorpione e Luca da una zanzara: chi dei due è in pericolo?
+```
+
+Risposta effettiva dopo la correzione del renderer:
+
+```text
+Marco è in pericolo: è stato punto da uno scorpione, che è velenoso.
+Luca: è stato punto da una zanzara, che non è velenosa.
+Questa regola non basta a decidere se è in pericolo.
+```
+
+La risposta EN corrispondente funziona. Sono prove di meccanica con lezioni
+nella sessione di sviluppo, **non conoscenza medica verificata da salvare**.
+L'istruzione precedente di promuovere queste lezioni con `/save` richiede prima
+un riesame delle fonti e dello scope: non persistere la regola semplificata come
+verità generale sul pericolo.
+
+## Banco e stato ESATTO dei controlli
+
+Creato **`tests/p0t/reasoning/scenario_inference.p0t`**, aggiunto al Makefile
+subito dopo `situation_plan.p0t`. KB reale completa. Copre lezioni NL, ruoli
+scambiati, due positivi, due antecedenti esclusi, ignoto, morso, premesse piene
+con relazioni diverse, singolare con UNA premessa, retract/reteach della
+restrizione, crescita/retract di `relation_surface`, conservazione dei fatti,
+italiano con accordo femminile e domanda ordinaria finale.
+
+Ultimo comando:
+
+```sh
+make test-engine && ./bin/parrot0 --test tests/p0t/reasoning/scenario_inference.p0t
+```
+
+Esito: **52 pass, 12 fail, tutti i 12 fail sono timeout da 1 secondo**.
+EN circa **1.05–1.32 s**, IT circa **1.31–1.73 s**. Attenzione: il test-engine
+assorbe la prima attesa dopo un timeout (`poisoned`), quindi NON si può dire
+che tutte le risposte siano state verificate integralmente. Le attese successive
+non hanno più dato errori di contenuto, ma serve un giro interamente valido.
+
+Dopo quell'esecuzione sono state fatte solo queste piccole modifiche:
+
+- `machinery(turn_surface_token)` spostato da situation.p0 a input.p0;
+- documentazione del contratto in turn-frames.p0;
+- aggiunta del test al Makefile;
+- nel test le lezioni di traduzione di `bee` e `dog` sono state sostituite da
+  query sui fatti REALI GIÀ ESISTENTI `tr(bee,ape)` e `tr(dog,cane)` in gloss.p0.
+  Le lezioni ridondanti rispondevano «Held: bee/dog» per canonicalizzazione:
+  non scambiare questo difetto del receipt per mancanza delle traduzioni.
+
+`make build` è passato, senza warning nuovi. `git diff --check` passato prima
+ delle ultime modifiche documentali. `make soft-test` **non ancora consumato**.
+Boot senza errori di situation.p0; resta **un errore preesistente in gloss.p0**:
+`turn_untranslated` ha nove goal nel corpo. Non corretto in questo giro.
+
+## Ripresa, in ordine
+
+1. **Profilare il costo prima di altre ottimizzazioni.** Non limitarsi ad alzare
+   `!timeout`. `/debug` accende `kb_profile_top`; `src/main.c` attorno a 1482 e
+   1524 contiene il controllo e il report. Sonda breve con una regola e poi due
+   restrizioni, stesso prompt. Separare pubblicazione IR, enumerazione delle
+   premesse, inferenza e resa. `turn_assume_rows` ancora enumera predicato,
+   soggetto e oggetto con più `kb_match_all`: possibile costo, NON diagnosi.
+2. Ho aggiunto **sperimentalmente** `materialized_view(scenario_claim,2)` e
+   `materialized_view(scenario_asks,3)` con dipendenze esplicite sulle fonti.
+   **Non hanno mostrato un miglioramento apprezzabile** nell'ultimo banco.
+   Verificare con profilo se vengono materializzate/usate e se convengono;
+   testare anche l'ablazione della dichiarazione prima di tenerle come fix.
+   Non rivendicare un'accelerazione già riuscita.
+3. Chiudere il banco e controllare le risposte integrali, poi **una sola**
+   esecuzione di `make soft-test`. Il gate è già agganciato alla suite completa;
+   non aggiungerlo tutto al soft-test (budget 15 s).
+4. Rafforzare i confini senza allargare il dominio: ipotesi preesistenti,
+   caso di piano che declina dopo aver assunto, vista completa oltre 24 token,
+   crescita/retract anche della superficie dello stato e delle cache.
+5. **Residui semantici non coperti:** due premesse con domanda su un solo nome
+   (il banco singolare ha una sola premessa); predicazione negata/citata;
+   nomi multiparola; tre congiunte ellittiche; più cause sullo stesso soggetto;
+   proprietà italiane invarianti senza `agree_f`. Non dichiarare comprensione
+   universale completa: questo è un circuito di scenario ancora circoscritto.
+6. Dopo verifica, aggiornare questo checkpoint e versionare soltanto i file
+   pertinenti. Il lavoro è tutto nel worktree, nessun commit/push eseguito.
+
+## File e strumenti per non rifare diagnosi già pagate
+
+Modifiche di questo giro:
+`src/brain/99-registry.c`, `kb/core/situation.p0`, `kb/core/input.p0`,
+`kb/core/turn-frames.p0`, `Makefile`, nuovo
+`tests/p0t/reasoning/scenario_inference.p0t`, questo TODO.
+
+**`docs/issues/glm-test.md` risulta modificato (+94 righe) da lavoro esterno a
+questo giro: NON l'ho scritto, non sovrascriverlo o includerlo per accidente.**
+
+Scratch (può sparire, non è la fonte permanente):
+`/tmp/scenario-it.input`, `/tmp/scenario-it.out`, `/tmp/scenario-it.err`,
+`/tmp/scenario-chat.out`, `/tmp/scenario-chat.err`, `/tmp/scenario*.p0t`.
+I test diagnostici scratch contengono attese volutamente false per stampare i
+binding: non confonderli con il banco finale.
+
+Nella sandbox il socket Unix del test-engine e `ptrace` sono stati bloccati:
+serviva escalation per `make test-engine`/gdb. Il demone non è rimasto affidabilmente
+vivo fra tool call: avvio e invio del test nello stesso comando. `!mcp kb.match`
+usa `null` per i buchi, non stringhe `"$X"`; attese con `!expect mcp`, non `<`.
+
+**Stato: meta-capability in sviluppo; W=0; /save non eseguito; lavoro sospeso
+su richiesta dell'utente.**
+
+---
+
 # 🐝 HANDOFF — 11 settembre 2026, notte (`gen512`, ottavo giro): «CHI DEI DUE È IN PERICOLO?». RIPARTIRE DA QUI.
 
 > F.: *«creare un prompt di verifica delle abilità di induzione, deduzione,

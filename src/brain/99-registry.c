@@ -3682,7 +3682,8 @@ static int turn_quote(const char *src, size_t start, size_t len,
  * was SAID; only a rule may promote a surface to a term. */
 #define TURN_MAX_TOKENS 24
 static void turn_publish_tokens(Brain *b, const char *surface,
-                                const InputSpan *span, const char *index) {
+                                const InputSpan *span, const char *index,
+                                const char *pred, size_t token_limit) {
     size_t start = span->start + (span->cue_len > span->len ? span->len
                                                             : span->cue_len);
     size_t end = span->start + span->len;
@@ -3718,7 +3719,7 @@ static void turn_publish_tokens(Brain *b, const char *surface,
      * del turno come «mu», «strame», «c», «digo», e nessuna regola KB sui token
      * li poteva vedere (vale per l'italiano: «è», «perché», «città»). */
 #define P0_WORDCH(c) (isalnum((unsigned char)(c)) || (c) == '_' || (unsigned char)(c) >= 0x80)
-    for (size_t p = start; p < end && k < TURN_MAX_TOKENS; ) {
+    for (size_t p = start; p < end && k < token_limit; ) {
         if (!P0_WORDCH(surface[p])) { p++; continue; }
         size_t t = p;
         /* gen399: un punto FRA DUE CIFRE appartiene al numero. Spezzando «3.14»
@@ -3741,7 +3742,7 @@ static void turn_publish_tokens(Brain *b, const char *surface,
         char pos[24];
         snprintf(pos, sizeof pos, "%zu", k++);
         const char *args[] = { "current_turn", index, pos, tok };
-        kb_assert(b->kb, "turn_span_token", args, 4);
+        kb_assert(b->kb, pred, args, 4);
     }
 }
 
@@ -4816,7 +4817,30 @@ static void turn_publish_cues(Brain *b, const char *surface) {
  * e ritirarle subito dopo. E' il percorso storico del sillogismo in un turno
  * (`KB_HYPOTHETICAL`), reso generale: la forma delle premesse non e' piu' «if
  * …, is …?» scritta nel C, ma cio' che la KB sa leggere. */
-static int turn_assume_rows(Brain *b, const char *pred, size_t arity) {
+typedef struct TurnPremise {
+    char pred[KB_TERM_LEN], args[2][KB_TERM_LEN];
+    size_t arity;
+    struct TurnPremise *next;
+} TurnPremise;
+
+/* Record only newly introduced facts. Existing hypotheses belong to their
+ * caller, and derived/base/session facts must retain their original owner. */
+static int turn_assume_fact(Brain *b, TurnPremise **scope, const char *pred,
+                            const char *const *args, size_t arity) {
+    if (kb_query_origin(b->kb, ~0, pred, args, arity)) return 0;
+    TurnPremise *p = calloc(1, sizeof *p);
+    if (!p) return 0;
+    snprintf(p->pred, sizeof p->pred, "%s", pred);
+    p->arity = arity;
+    for (size_t i = 0; i < arity; i++)
+        snprintf(p->args[i], sizeof p->args[i], "%s", args[i]);
+    if (!kb_assert(b->kb, pred, args, arity)) { free(p); return 0; }
+    p->next = *scope;
+    *scope = p;
+    return 1;
+}
+
+static int turn_assume_rows(Brain *b, const char *pred, size_t arity, TurnPremise **scope) {
     int n = 0;
     char (*ps)[KB_TERM_LEN] = NULL; size_t np = 0;
     const char *pq[4] = { "current_turn", NULL, NULL, NULL };
@@ -4833,7 +4857,7 @@ static int turn_assume_rows(Brain *b, const char *pred, size_t arity) {
                 char a[KB_TERM_LEN]; snprintf(a, sizeof a, "%s", as[j]);
                 if (arity == 1) {
                     const char *fa[1] = { a };
-                    if (kb_assert(b->kb, rel, fa, 1)) n++;
+                    n += turn_assume_fact(b, scope, rel, fa, 1);
                     continue;
                 }
                 char (*bs)[KB_TERM_LEN] = NULL; size_t nb = 0;
@@ -4841,7 +4865,7 @@ static int turn_assume_rows(Brain *b, const char *pred, size_t arity) {
                 if (kb_match_all(b->kb, pred, bq, 4, &bs, &nb)) {
                     for (size_t k = 0; k < nb; k++) {
                         const char *fa[2] = { a, bs[k] };
-                        if (kb_assert(b->kb, rel, fa, 2)) n++;
+                        n += turn_assume_fact(b, scope, rel, fa, 2);
                     }
                 }
                 free(bs);
@@ -4853,11 +4877,11 @@ static int turn_assume_rows(Brain *b, const char *pred, size_t arity) {
     return n;
 }
 
-static int turn_assume_premises(Brain *b) {
+static int turn_assume_premises(Brain *b, TurnPremise **scope) {
     if (!b || !b->kb) return 0;
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_HYPOTHETICAL);
-    int n = turn_assume_rows(b, "turn_assumes", 2) + turn_assume_rows(b, "turn_assumes1", 1);
+    int n = turn_assume_rows(b, "turn_assumes", 2, scope) + turn_assume_rows(b, "turn_assumes1", 1, scope);
     kb_set_origin(b->kb, prev);
     if (getenv("P0_READ_TRACE") && n) fprintf(stderr, "[turn] assumed %d premise(s)\n", n);
     return n;
@@ -4905,10 +4929,17 @@ static int universal_turn_lead(Brain *b, const char *surface,
     kb_retract_pred(b->kb, "turn_span_cue");
     kb_retract_pred(b->kb, "turn_span_surface");
     kb_retract_pred(b->kb, "turn_span_token");
+    kb_retract_pred(b->kb, "turn_surface_token");
     kb_retract_pred(b->kb, "turn_span_binding");
     kb_retract_pred(b->kb, "turn_cue");
     input_structure_clear(b->kb, "current_turn");
     kb_set_origin(b->kb, KB_REFLECTIVE);
+    /* Keep the entire token stream beside segmented payloads. A cue belongs
+     * to the original utterance too; another reading may need its words.
+     * Reuse the tokenizer, with the input length as its natural upper bound. */
+    InputSpan whole = {0};
+    whole.len = strlen(surface);
+    turn_publish_tokens(b, surface, &whole, "0", "turn_surface_token", whole.len);
     turn_publish_cues(b, surface);
     turn_publish_transcodes(b, surface);
     for (size_t i = 0; i < ns; i++) {
@@ -4931,7 +4962,7 @@ static int universal_turn_lead(Brain *b, const char *surface,
         kb_assert(b->kb, "turn_span_surface", surface_args, 3);
         kb_assert(b->kb, "turn_span_cue", cue_args, 3);
         input_structure_publish(b->kb, surface, &spans[i], "current_turn");
-        turn_publish_tokens(b, surface, &spans[i], index);
+        turn_publish_tokens(b, surface, &spans[i], index, "turn_span_token", TURN_MAX_TOKENS);
         turn_publish_state(b, surface, &spans[i], index);
     }
 
@@ -4978,9 +5009,16 @@ static int universal_turn_lead(Brain *b, const char *surface,
      * richiesta di produzione si serve, non si chiarisce. La forza e' gia'
      * pubblicata qui sopra, con i token del turno. */
     if (p0_faculty_yields(b, "turn_plan", "open", surface, surface)) return 0;
-    int assumed = turn_assume_premises(b);
+    TurnPremise *scope = NULL;
+    turn_assume_premises(b, &scope);
     int rc = turn_plan_answer(b, out, out_size);
-    if (assumed) kb_retract_origin(b->kb, KB_HYPOTHETICAL);
+    while (scope) {
+        TurnPremise *next = scope->next;
+        const char *args[] = { scope->args[0], scope->args[1] };
+        kb_retract(b->kb, scope->pred, args, scope->arity);
+        free(scope);
+        scope = next;
+    }
     return rc;
 }
 

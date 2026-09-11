@@ -511,7 +511,7 @@ turn_response($T, $Text) :- consequence_one($T, $E, $X), current_language($L), a
 % F., 2026-09-11: una domanda sola che mette alla prova induzione, deduzione e
 % inferenza. «Marco è stato punto da uno scorpione e Luca da una zanzara: chi
 % dei due è in pericolo?». E' lavoro della comprensione universale: il turno si
-% legge dall'IR (i token del turno, `turn_span_token/4`), le premesse diventano
+% legge dall'IR (i token del turno, `turn_surface_token/4`), le premesse diventano
 % ipotesi del turno (`turn_assumes`, asserite dal motore solo mentre risponde),
 % e la risposta e' un'interrogazione dell'IR piu' l'inferenza della KB.
 %
@@ -524,7 +524,7 @@ turn_response($T, $Text) :- consequence_one($T, $E, $X), current_language($L), a
 %     («scorpions are venomous») valgono per lui;
 %   - lo STATO si decide con una restrizione esistenziale (procedures.p0), e
 %     la risposta dice il perche' leggendo quella stessa restrizione: si',
-%     no (un'esclusione detta: «mosquitoes are not venomous»), o non so.
+%     proprieta' esclusa oppure ignota. Negare l'antecedente non nega lo stato.
 machinery(scenario_tok).
 machinery(scenario_words_at).
 machinery(scenario_relation_words).
@@ -554,12 +554,29 @@ machinery(scenario_feminine).
 machinery(scenario_translated_en).
 machinery(scenario_render).
 machinery(scenario_words_text).
-machinery(scenario_cat).
+machinery(scenario_join3).
+scenario_join3($A, $B, $C, $Text) :- concat_atoms($A, $B, $AB), concat_atoms($AB, $C, $Text).
 
-scenario_tok($T, $S, $I, $W) :- turn_span_token($T, $S, $I, $Tok), span_atom($Tok, $W).
-scenario_words_at($T, $S, $I, nil, $I).
-scenario_words_at($T, $S, $I, cons($W, $R), $E) :-
-    scenario_tok($T, $S, $I, $W), is($J, add($I, 1)), scenario_words_at($T, $S, $J, $R, $E).
+% Le letture condivise si calcolano una volta; ogni fonte del riconoscimento
+% invalida la vista. La superficie nuova e la sua ablazione valgono subito.
+materialized_view(scenario_claim, 2).
+view_depends(scenario_claim, turn_surface_token).
+view_depends(scenario_claim, relation_surface).
+view_depends(scenario_claim, np_opener).
+view_depends(scenario_claim, article).
+view_depends(scenario_claim, conjunction).
+materialized_view(scenario_asks, 3).
+view_depends(scenario_asks, turn_surface_token).
+view_depends(scenario_asks, exists_restriction).
+view_depends(scenario_asks, state_surface).
+view_depends(scenario_asks, turn_cue).
+view_depends(scenario_asks, interrogative_pronoun).
+
+% Posizioni e letture sono termini: nessun goal supera l'arieta' quattro.
+scenario_tok($T, $S, $I, $W) :- turn_surface_token($T, $S, $I, $Tok), span_atom($Tok, $W).
+scenario_words_at(at($T, $S, $I), nil, $I).
+scenario_words_at(at($T, $S, $I), cons($W, $R), $E) :-
+    scenario_tok($T, $S, $I, $W), is($J, add($I, 1)), scenario_words_at(at($T, $S, $J), $R, $E).
 scenario_relation_words($Rel, $Words) :- relation_surface($Rel, $Surface), atom_words($Surface, $Words).
 scenario_state_words($State, $Words) :- state_surface($State, $Surface), atom_words($Surface, $Words).
 scenario_last_word(cons($W, nil), $W).
@@ -568,33 +585,35 @@ scenario_first_word(cons($W, $R), $W).
 machinery(scenario_first_word).
 scenario_article($W) :- np_opener($W).
 scenario_article($W) :- article($D, $G, $V, $W).
-scenario_object($T, $S, $E, $Art, $K, $End) :-
+scenario_object(at($T, $S, $E), np($Art, $K), $End) :-
     scenario_tok($T, $S, $E, $Art), scenario_article($Art),
     is($F, add($E, 1)), scenario_tok($T, $S, $F, $K), is($End, add($F, 1)).
-scenario_object($T, $S, $E, none, $K, $End) :-
+scenario_object(at($T, $S, $E), np(none, $K), $End) :-
     scenario_tok($T, $S, $E, $K), naf(scenario_article($K)), is($End, add($E, 1)).
 
-% Una premessa piena: soggetto, superficie della relazione, oggetto.
-scenario_premise($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW, $End) :-
+machinery(scenario_subject).
+scenario_subject(at($T, $S, $I), $Subj, $J) :-
+    scenario_tok($T, $S, $I, $Subj), is($J, add($I, 1)),
+    naf(scenario_article($Subj)), naf(conjunction($Subj)).
+% Una premessa piena: soggetto, relazione, sintagma oggetto.
+scenario_premise(at($T, $S, $I), c($Subj, rel($Rel, $Words), $NP), $End) :-
     scenario_relation_words($Rel, $Words), scenario_first_word($Words, $First),
-    scenario_tok($T, $S, $J, $First), is($I, sub($J, 1)),
-    scenario_words_at($T, $S, $J, $Words, $E),
-    scenario_tok($T, $S, $I, $Subj),
-    naf(scenario_article($Subj)), naf(conjunction($Subj)),
-    scenario_object($T, $S, $E, $Art, $KW, $End).
-% La congiunta ellittica: soggetto, marcatore d'agente, oggetto. La relazione
-% e le parole che la dicono NON sono sue: le lega la congiunta parallela.
-scenario_gapped($T, $S, $P, $Subj, $Rel, $Words, $Art, $KW, $End) :-
-    scenario_premise($T, $S, $I, $Subj1, $Rel, $Words, $Art1, $KW1, $End1),
-    scenario_tok($T, $S, $End1, $C), conjunction($C),
-    is($P, add($End1, 1)), scenario_tok($T, $S, $P, $Subj),
+    scenario_tok($T, $S, $J, $First), scenario_subject(at($T, $S, $I), $Subj, $J),
+    scenario_words_at(at($T, $S, $J), $Words, $E),
+    scenario_object(at($T, $S, $E), $NP, $End).
+% La congiunta eredita relazione e superficie dalla premessa parallela.
+machinery(scenario_parallel).
+scenario_parallel(at($T, $S, $E), $Subj, $Marker, $R) :-
+    scenario_tok($T, $S, $E, $C), conjunction($C),
+    is($P, add($E, 1)), scenario_subject(at($T, $S, $P), $Subj, $Q),
+    scenario_tok($T, $S, $Q, $Marker), is($R, add($Q, 1)).
+scenario_gapped(at($T, $S, $I), c($Subj, rel($Rel, $Words), $NP), $End) :-
+    scenario_premise(at($T, $S, $I), c($Subj1, rel($Rel, $Words), $NP1), $End1),
     scenario_last_word($Words, $Marker),
-    is($Q, add($P, 1)), scenario_tok($T, $S, $Q, $Marker),
-    is($R, add($Q, 1)), scenario_object($T, $S, $R, $Art, $KW, $End).
-scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW) :-
-    scenario_premise($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW, $E).
-scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW) :-
-    scenario_gapped($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW, $E).
+    scenario_parallel(at($T, $S, $End1), $Subj, $Marker, $R),
+    scenario_object(at($T, $S, $R), $NP, $End).
+scenario_claim($T, $C) :- scenario_premise(at($T, $S, $I), $C, $E).
+scenario_claim($T, $C) :- scenario_gapped(at($T, $S, $I), $C, $E).
 
 scenario_translated($W) :- tr($K, $W).
 scenario_kind($W, $K) :- tr($K, $W).
@@ -608,51 +627,59 @@ scenario_marked($T) :- scenario_tok($T, $S, $I, $W), interrogative_pronoun($W).
 scenario_asks($T, $State, $QW) :-
     exists_restriction($State, $R0, $P0), scenario_state_words($State, $QW),
     scenario_first_word($QW, $First), scenario_tok($T, $S, $I, $First),
-    scenario_words_at($T, $S, $I, $QW, $E), scenario_marked($T).
+    scenario_words_at(at($T, $S, $I), $QW, $E), scenario_marked($T).
 
 turn_assumes($T, $Rel, $Subj, $Ind) :-
     scenario_asks($T, $State, $QW),
-    scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW),
+    scenario_claim($T, c($Subj, rel($Rel, $Words), np($Art, $KW))),
     scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind).
 turn_assumes1($T, $K, $Ind) :-
     scenario_asks($T, $State, $QW),
-    scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW),
+    scenario_claim($T, c($Subj, rel($Rel, $Words), np($Art, $KW))),
     scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind).
 
 turn_plan_candidate($T) :-
-    scenario_asks($T, $State, $QW), scenario_claim($T, $S, $I, $Subj, $R, $W, $A, $KW).
+    scenario_asks($T, $State, $QW), scenario_claim($T, $Claim).
 turn_response($T, $Text) :- scenario_answer($T, $Text).
 
 scenario_answer($T, $Text) :-
     scenario_asks($T, $State, $QW),
-    findall(c($Subj, $Rel, $Words, $Art, $KW),
-            scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW), $Cs),
+    findall($Claim, scenario_claim($T, $Claim), cons($First, $Rest)),
     scenario_words_text($QW, $St),
-    scenario_lines($Cs, $State, $St, "", $Text).
-scenario_lines(nil, $State, $St, $Acc, $Acc).
-scenario_lines(cons($C, $R), $State, $St, $Acc, $Text) :-
-    scenario_line($C, $State, $St, $Line),
-    scenario_join($Acc, $Line, $Acc2),
-    scenario_lines($R, $State, $St, $Acc2, $Text).
+    scenario_lines(cons($First, $Rest), state($State, $St), "", $Text).
+scenario_lines(nil, $State, $Acc, $Acc).
+scenario_lines(cons($C, $R), state($State, $St), $Acc, $Text) :-
+    scenario_line($C, $State, $St, $Line), scenario_join($Acc, $Line, $Next),
+    scenario_lines($R, state($State, $St), $Next, $Text).
 scenario_join("", $L, $L).
 scenario_join($A, $L, $X) :- dif($A, ""), concat_atoms($A, " ", $Y), concat_atoms($Y, $L, $X).
 
 % Il verdetto di una persona legge la restrizione che la sua premessa tocca.
-scenario_line(c($Subj, $Rel, $Words, $Art, $KW), $State, $St, $Line) :-
+scenario_line(c($Subj, rel($Rel, $Words), np($Art, $KW)), $State, $St, $Line) :-
     scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind),
-    exists_restriction($State, $Rel, $P),
-    scenario_verdict($P, $Ind, $V),
-    current_language($L),
-    upcase_first($Subj, $Sc),
+    scenario_reason($State, rel($Rel, $Ind), $P, $V),
+    scenario_description(c($Subj, rel($Rel, $Words), np($Art, $KW)), $P, $L, desc($Sc, $Surf, $NP, $PW)),
+    scenario_render($L, $V, desc($Sc, $Surf, prop($NP, $PW), $St), $Line).
+machinery(scenario_description).
+scenario_description(c($Subj, rel($Rel, $Words), np($Art, $KW)), $P, $L, desc($Sc, $Surf, $NP, $PW)) :-
+    current_language($L), upcase_first($Subj, $Sc),
     scenario_words_text($Words, $Surf),
     scenario_np($Art, $KW, $NP),
-    scenario_prop_word($L, $P, $Art, $PW),
-    scenario_render($L, $V, $Sc, $Surf, $NP, $PW, $St, $Line).
+    scenario_prop_word($L, $P, $Art, $PW).
+machinery(scenario_supported).
+machinery(scenario_reason).
+scenario_supported($State, $Rel, $Ind) :-
+    exists_restriction($State, $Rel, $P), holds1($P, $Ind).
+scenario_reason($State, rel($Rel, $Ind), $P, yes) :-
+    exists_restriction($State, $Rel, $P), holds1($P, $Ind).
+scenario_reason($State, rel($Rel, $Ind), $P, $V) :-
+    naf(scenario_supported($State, $Rel, $Ind)),
+    exists_restriction($State, $Rel, $P), scenario_verdict($P, $Ind, $V).
 scenario_verdict($P, $Ind, yes) :- holds1($P, $Ind).
-scenario_verdict($P, $Ind, no) :- naf(holds1($P, $Ind)), scenario_excluded($P, $Ind).
+scenario_verdict($P, $Ind, excluded) :- naf(holds1($P, $Ind)), scenario_excluded($P, $Ind).
 scenario_verdict($P, $Ind, unknown) :- naf(holds1($P, $Ind)), naf(scenario_excluded($P, $Ind)).
-% Un «no» solo se un'esclusione detta lo autorizza: che una proprieta' non si
-% derivi non e' saperla falsa (epistemic-status.p0, ramo (b)).
+% L'esclusione nega la proprieta' dell'oggetto, NON lo stato del soggetto.
+% La restrizione e' sufficiente, non una definizione bicondizionale.
 scenario_excluded($P, $Ind) :- class_excludes($Other, $P), apply($Other, cons($Ind, nil)).
 
 scenario_np(none, $KW, $KW).
@@ -667,18 +694,48 @@ scenario_prop_word(en, $P, $Art, $P).
 scenario_words_text(cons($W, nil), $W).
 scenario_words_text(cons($W, cons($X, $R)), $T) :-
     scenario_words_text(cons($X, $R), $T2), concat_atoms($W, " ", $Y), concat_atoms($Y, $T2, $T).
-scenario_cat(cons($A, nil), $A).
-scenario_cat(cons($A, cons($B, $R)), $T) :- concat_atoms($A, $B, $AB), scenario_cat(cons($AB, $R), $T).
-
-scenario_render(it, yes, $Sc, $Surf, $NP, $PW, $St, $Line) :-
-    scenario_cat(cons($Sc, cons(" è ", cons($St, cons(": ", cons($Surf, cons(" ", cons($NP, cons(", che è ", cons($PW, cons(".", nil)))))))))), $Line).
-scenario_render(it, no, $Sc, $Surf, $NP, $PW, $St, $Line) :-
-    scenario_cat(cons($Sc, cons(" no: ", cons($Surf, cons(" ", cons($NP, cons(", che non è ", cons($PW, cons(".", nil)))))))), $Line).
-scenario_render(it, unknown, $Sc, $Surf, $NP, $PW, $St, $Line) :-
-    scenario_cat(cons("Di ", cons($Sc, cons(" non posso dirlo: ", cons($Surf, cons(" ", cons($NP, cons(", e non so se sia ", cons($PW, cons(".", nil))))))))), $Line).
-scenario_render(en, yes, $Sc, $Surf, $NP, $PW, $St, $Line) :-
-    scenario_cat(cons($Sc, cons(" is ", cons($St, cons(": ", cons($Sc, cons(" ", cons($Surf, cons(" ", cons($NP, cons(", which is ", cons($PW, cons(".", nil)))))))))))), $Line).
-scenario_render(en, no, $Sc, $Surf, $NP, $PW, $St, $Line) :-
-    scenario_cat(cons($Sc, cons(" is not ", cons($St, cons(": ", cons($Sc, cons(" ", cons($Surf, cons(" ", cons($NP, cons(", which is not ", cons($PW, cons(".", nil)))))))))))), $Line).
-scenario_render(en, unknown, $Sc, $Surf, $NP, $PW, $St, $Line) :-
-    scenario_cat(cons("I can't tell whether ", cons($Sc, cons(" is ", cons($St, cons(": ", cons($Sc, cons(" ", cons($Surf, cons(" ", cons($NP, cons(", and I don't know whether it is ", cons($PW, cons(".", nil))))))))))))), $Line).
+scenario_render(it, yes, desc($Sc, $Surf, prop($NP, $PW), $St), $Line) :-
+    scenario_join3($Sc, " è ", $St, $Part0),
+    scenario_join3(": ", $Surf, " ", $Part3),
+    scenario_join3($NP, ", che è ", $PW, $Part6),
+    concat_atoms($Part0, $Part3, $Joined0),
+    concat_atoms($Joined0, $Part6, $Joined1),
+    concat_atoms($Joined1, ".", $Line).
+scenario_render(it, excluded, desc($Sc, $Surf, prop($NP, $PW), $St), $Line) :-
+    scenario_join3($Sc, ": ", $Surf, $Part0),
+    scenario_join3(" ", $NP, ", che non è ", $Part3),
+    scenario_join3($PW, ". Questa regola non basta a decidere se è ", $St, $Part6),
+    concat_atoms($Part0, $Part3, $Joined0),
+    concat_atoms($Joined0, $Part6, $Joined1),
+    concat_atoms($Joined1, ".", $Line).
+scenario_render(it, unknown, desc($Sc, $Surf, prop($NP, $PW), $St), $Line) :-
+    scenario_join3("Di ", $Sc, " non posso dirlo: ", $Part0),
+    scenario_join3($Surf, " ", $NP, $Part3),
+    scenario_join3(", e non so se sia ", $PW, ".", $Part6),
+    concat_atoms($Part0, $Part3, $Joined0),
+    concat_atoms($Joined0, $Part6, $Line).
+scenario_render(en, yes, desc($Sc, $Surf, prop($NP, $PW), $St), $Line) :-
+    scenario_join3($Sc, " is ", $St, $Part0),
+    scenario_join3(": ", $Sc, " ", $Part3),
+    scenario_join3($Surf, " ", $NP, $Part6),
+    scenario_join3(", which is ", $PW, ".", $Part9),
+    concat_atoms($Part0, $Part3, $Joined0),
+    concat_atoms($Joined0, $Part6, $Joined1),
+    concat_atoms($Joined1, $Part9, $Line).
+scenario_render(en, excluded, desc($Sc, $Surf, prop($NP, $PW), $St), $Line) :-
+    scenario_join3($Sc, " ", $Surf, $Part0),
+    scenario_join3(" ", $NP, ", which is not ", $Part3),
+    scenario_join3($PW, ". This rule does not establish whether ", $Sc, $Part6),
+    scenario_join3(" is ", $St, ".", $Part9),
+    concat_atoms($Part0, $Part3, $Joined0),
+    concat_atoms($Joined0, $Part6, $Joined1),
+    concat_atoms($Joined1, $Part9, $Line).
+scenario_render(en, unknown, desc($Sc, $Surf, prop($NP, $PW), $St), $Line) :-
+    scenario_join3("I can't tell whether ", $Sc, " is ", $Part0),
+    scenario_join3($St, ": ", $Sc, $Part3),
+    scenario_join3(" ", $Surf, " ", $Part6),
+    scenario_join3($NP, ", and I don't know whether it is ", $PW, $Part9),
+    concat_atoms($Part0, $Part3, $Joined0),
+    concat_atoms($Joined0, $Part6, $Joined1),
+    concat_atoms($Joined1, $Part9, $Joined2),
+    concat_atoms($Joined2, ".", $Line).

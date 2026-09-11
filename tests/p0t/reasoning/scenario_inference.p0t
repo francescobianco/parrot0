@@ -1,0 +1,152 @@
+# Inferenza su premesse nello stesso turno, KB completa. Le lezioni qui sono
+# input del test della meccanica, NON training fattuale da persistere.
+# La regola sul pericolo e' un'ipotesi didattica sufficiente: l'antecedente
+# escluso non autorizza la negazione della conclusione (negazione antecedente).
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test lessons are received in natural language]
+> scorpions are venomous
+<~ Learned rule: venomous(X) :- scorpion(X).
+> bees are venomous
+<~ Learned rule:
+> wasps are venomous
+<~ Learned rule:
+> vipers are venomous
+<~ Learned rule:
+> mosquitoes are not venomous
+<~ no mosquito is venomous
+> dogs are not venomous
+<~ no dog is venomous
+> if someone is stung by something venomous then they are in danger
+<~ Learned: whoever is stung by something venomous is endangered.
+> if someone is bitten by something venomous then they are in danger
+<~ Learned: whoever is bitten by something venomous is endangered.
+
+[test ellipsis binds the relation and preserves both people]
+> Marco was stung by a scorpion and Luca by a mosquito: which of the two is in danger?
+<~ Marco is in danger: Marco was stung by a scorpion, which is venomous.
+<~ Luca was stung by a mosquito, which is not venomous.
+<~ This rule does not establish whether Luca is in danger.
+<! Luca is not in danger
+!query! stung_by(marco, scorpion_of_marco)
+!query! scorpion(scorpion_of_marco)
+!query! mosquito(mosquito_of_luca)
+!query! holds1(endangered, marco)
+
+[test exchanged roles]
+> Luca was stung by a scorpion and Marco by a mosquito: which of the two is in danger?
+<~ Luca is in danger:
+<~ This rule does not establish whether Marco is in danger.
+<! Marco is not in danger
+
+[test two supported conclusions]
+> Anna was stung by a bee and Sara by a wasp: which of the two is in danger?
+<~ Anna is in danger:
+<~ Sara is in danger:
+
+[test two excluded antecedents do not prove either conclusion false]
+> Anna was stung by a mosquito and Sara by a mosquito: which of the two is in danger?
+<~ This rule does not establish whether Anna is in danger.
+<~ This rule does not establish whether Sara is in danger.
+<! is not in danger
+
+[test an unknown kind is not a negative fact]
+> Marco was stung by a scorpion and Luca by a jellyfish: which of the two is in danger?
+<~ Marco is in danger:
+<~ I can't tell whether Luca is in danger:
+<! Luca is not in danger
+
+[test another relation uses the same reading and inference]
+> Paolo was bitten by a viper and Carlo by a dog: which of the two is in danger?
+<~ Paolo is in danger: Paolo was bitten by a viper, which is venomous.
+<~ Carlo was bitten by a dog, which is not venomous.
+<! Carlo is not in danger
+
+[test two full premises and a mixed relation]
+> Marco was stung by a scorpion and Luca was bitten by a viper: which of the two is in danger?
+<~ Marco is in danger:
+<~ Luca is in danger: Luca was bitten by a viper
+
+[test singular question]
+> Marco was stung by a scorpion: is Marco in danger?
+<~ Marco is in danger:
+
+[test restriction retract and spoken reteach]
+!forget exists_restriction(endangered, stung_by, venomous)
+> Marco was stung by a scorpion: is Marco in danger?
+<! Marco is in danger:
+> if someone is stung by something venomous then they are in danger
+<~ Learned:
+> Marco was stung by a scorpion: is Marco in danger?
+<~ Marco is in danger:
+
+[test new surface grows and retracts without rebuilding]
+> Marco was pricked by a scorpion: is Marco in danger?
+<! Marco is in danger:
+!assert relation_surface(stung_by, "was pricked by")
+> Marco was pricked by a scorpion: is Marco in danger?
+<~ Marco is in danger: Marco was pricked by a scorpion
+!forget relation_surface(stung_by, "was pricked by")
+> Marco was pricked by a scorpion: is Marco in danger?
+<! Marco is in danger:
+
+[test existing knowledge survives hypothetical cleanup]
+!assert scorpion(scorpion_of_marco)
+!assert stung_by(marco, scorpion_of_marco)
+> Marco was stung by a scorpion and Luca by a mosquito: which of the two is in danger?
+<~ Marco is in danger:
+!query scorpion(scorpion_of_marco)
+!query stung_by(marco, scorpion_of_marco)
+!query! mosquito(mosquito_of_luca)
+!forget scorpion(scorpion_of_marco)
+!forget stung_by(marco, scorpion_of_marco)
+
+[test translations are taught]
+> the italian for scorpion is scorpione
+<~ scorpione
+> the italian for mosquito is zanzara
+<~ zanzara
+# Questa traduzione e quella di dog sono gia' nella KB viva.
+!query tr(bee, ape)
+> the italian for wasp is vespa
+<~ vespa
+> the italian for viper is vipera
+<~ vipera
+!query tr(dog, cane)
+> the italian for venomous is velenoso
+<~ velenoso
+
+[test italian ellipsis and feminine agreement]
+> Marco è stato punto da uno scorpione e Luca da una zanzara: chi dei due è in pericolo?
+<~ Marco è in pericolo:
+<~ Luca: è stato punto da una zanzara, che non è velenosa.
+<~ Questa regola non basta a decidere se è in pericolo.
+<! Luca no:
+!query! stung_by(marco, scorpion_of_marco)
+!query! scorpion(scorpion_of_marco)
+
+[test italian all positive]
+> Anna è stata punta da un'ape e Sara da una vespa: chi dei due è in pericolo?
+<~ Anna è in pericolo:
+<~ Sara è in pericolo:
+
+[test italian bite with a full second premise]
+> Paolo è stato morso da una vipera e Carlo è stato morso da un cane: chi dei due è in pericolo?
+<~ Paolo è in pericolo:
+<~ Carlo: è stato morso da un cane, che non è velenoso.
+
+[test italian unknown is not no]
+> Marco è stato punto da uno scorpione e Luca da una medusa: chi dei due è in pericolo?
+<~ Marco è in pericolo:
+<~ Di Luca non posso dirlo:
+<! Luca no:
+
+[test ordinary question still uses the real world]
+> what is the capital of france
+< Paris.
