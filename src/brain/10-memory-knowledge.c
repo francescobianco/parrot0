@@ -11599,7 +11599,7 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
              * contenuto dopo la cue di mossa viene ripassato allo stesso
              * allineatore usato per insegnarla; la sua fact_source resta come
              * traccia, mentre soltanto le viste attive vengono ritratte. */
-            const char *content = norm;
+            const char *content = norm, *said_whole = NULL;
             size_t best_end = 0;
             for (size_t i = 0; i < nm2; i++) {
                 char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", mv[i]);
@@ -11611,6 +11611,7 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
             if (best_end) {
                 content = norm + best_end;
                 while (*content && isspace((unsigned char)*content)) content++;
+                said_whole = content;
                 /* Complementatori e articoli di apertura sono conoscenza
                  * `stopword/1`; si scavalcano senza nominarli nel motore. */
                 for (;;) {
@@ -11630,6 +11631,22 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                     content += fl;
                     while (*content && isspace((unsigned char)*content)) content++;
                 }
+            }
+            /* gen512 — «la stessa frase» puo' cominciare con le parole che qui
+             * sopra si scavalcano come stopword: «forget that what about x means
+             * your plan when x?» diventava «x means …», una sorgente senza
+             * parole, e la forma insegnata come «what about x» non si disfaceva
+             * mai. Quale inizio sia la sorgente non lo sa il motore: si prova
+             * ogni inizio di parola prima di scavalcare, e decide la chiave in
+             * KB (`taught_form_source/2`) — senza chiave non succede niente. */
+            for (const char *p = said_whole; p && p < content; ) {
+                P0ConstructionLesson whole;
+                if (p0_parse_construction_lesson(b, p, &whole) ==
+                        P0_CONSTRUCTION_UNKNOWN_TARGET &&
+                    p0_teach_rewrite(b, &whole, NULL, 1, out, out_size))
+                    return 1;
+                while (*p && !isspace((unsigned char)*p)) p++;
+                while (*p && isspace((unsigned char)*p)) p++;
             }
             P0ConstructionLesson lesson;
             int cp = p0_parse_construction_lesson(b, content, &lesson);
@@ -14931,6 +14948,8 @@ static int p0_teach_rewrite(Brain *b, const P0ConstructionLesson *lesson,
     char have[1][KB_TERM_LEN];
     int known = kb_match(b->kb, "taught_form_source", sq, 2, have, 1) == 1;
     const KbResponseSlot rs[] = { { "source", lhs }, { "target", rhs } };
+    if (forget && getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[form] forget taught form «%s»: %s\n", lhs, known ? "known" : "no key");
     if (forget) {
         if (!known) return 0;
         char nb[KB_TERM_LEN]; snprintf(nb, sizeof nb, "%s", have[0]);

@@ -245,10 +245,20 @@ heart pumps blood», poi reinsegnato). La lezione sui piani con un atto
 piano, `decline_steps`, ne sta fuori per scelta (messages.p0), e le altre
 sarebbero duplicati.
 
-**Che cosa resta fuori, e perché:** le lezioni e le ritrattazioni che nominano
-un «plan» le prende l'analisi di progettazione (`analysis_act_cue(design_analysis,
-keyword(plan))`), che nel registro sta prima del lettore delle lezioni; la
-forma italiana («smetti di credere che x significa …») si salva mezza tradotta
+**Secondo giro: due anelli rotti che sembravano un furto.** Al primo giro avevo
+scritto che l'analisi di progettazione rubava le lezioni che nominano «plan».
+Era sbagliato: «who answered?» diceva `analysis_last_resort`. La lezione
+«how do you act when x means your plan when x?» **imparava**, e l'annuncio
+veniva coperto a valle dal saggio, perché il dispatcher tratta come resa ogni
+risposta che non ripete il soggetto del turno, e un annuncio di lezione non lo
+ripete mai. Lo stesso per la ritrattazione, che in più perdeva la chiave:
+scavalcava come stopword le parole iniziali («what», «how», «do») che erano la
+sorgente stessa della forma. È un anello rotto del tipo del §5 passo 5 in una
+variante nuova: **l'anello raggiunge il suo lettore, e la sua RISPOSTA non
+raggiunge chi insegna.** Una catena di insegnabilità in cui parrot0 impara
+senza dirlo è rotta quanto una che non impara.
+
+**Che cosa resta fuori, e perché:** la forma italiana («smetti di credere che x significa …») si salva mezza tradotta
 («smetti of credere what x») e l'uso lo prende un altro lettore — il muro
 italiano del gen510.
 

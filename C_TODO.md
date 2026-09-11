@@ -21,12 +21,16 @@ Residui aperti, in ordine di leva:
    legge il modulo compilato degli attributi, che vuole un valore noto. Portare
    quel lettore in una forma con `named` sul valore la chiude senza altro
    lavoro (è il punto 4 del gen511 qui sotto, con un primo candidato preciso).
-2. **L'analisi di progettazione ruba le lezioni che nominano «plan»**
-   (`analysis_act_cue(design_analysis, keyword(plan))`, e il modulo sta prima di
-   `mod_knowledge` nel registro). Una lezione non è una richiesta di analisi:
-   la guardia va dichiarata come condotta (mantra #17), dopo aver letto la
-   maturità del modulo (mantra #21) — non come una cessione a un modulo
-   immaturo.
+2. ✅ (secondo giro) **Non era un furto: era la copertura a valle degli
+   esiti.** Il dispatcher sostituisce con l'analisi di ultima istanza ogni
+   risposta che non ripete il soggetto (`analysis_reply_ignores_subject`), e
+   l'annuncio di una lezione o di una ritrattazione non lo ripete mai. Chiuso
+   con `module_result_policy(teachconstruction|forget, terminal)`, e la
+   ritrattazione prova ogni inizio di parola invece di perdere le stopword che
+   erano la sorgente. **Residuo di condotta:** il criterio «una risposta che
+   riferisce un cambiamento di stato non è una resa» è ora un elenco di moduli;
+   la forma giusta è sulla provenienza della risposta (`turn_frame`, come fa
+   già `gap_frame/1` per le rese), e dovrebbe potersi dire parlando.
 3. `p0_try_reading` resta la sola via per i bersagli letti da moduli
    compilati: finché i sette lettori non sono forme, la verifica costa un fork.
 

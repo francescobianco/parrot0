@@ -167,3 +167,4 @@ relation_reverse(grandchild, grandparent).
 relation_chain(great-grandparent, grandparent, parent).
 taught_form_source(taught_form_1, "what is your plan when x").
 taught_form_source(taught_form_2, "stop believing that x").
+taught_form_source(taught_form_3, "how do you act when x").

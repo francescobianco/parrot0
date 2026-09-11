@@ -40,14 +40,24 @@ segno d'uso reale») e nel metodo, `radici-insegnabilita.md` §5 passo 7.
 
 ## 2. ⛔ Come continuare — in ordine di leva
 
-1. **L'analisi di progettazione ruba le lezioni che nominano «plan»** — la
-   lezione «how do you act when x means your plan when x?» e ogni ritrattazione
-   «forget that … your plan when x?» diventano un saggio di progettazione.
-   Grilletto: `analysis_act_cue(design_analysis, keyword(plan))`
-   (intents.p0:3622), modulo prima di `mod_knowledge`. È il circuito del
-   prossimo giro: «un turno che insegna non è una richiesta di analisi», come
-   condotta dichiarata (mantra #17), dopo aver letto la maturità del modulo
-   (#21). Finché resta, **`taught_form_1` non si può ritrattare parlando**.
+1. ✅ **Chiuso nel secondo giro gen512 — e la diagnosi scritta qui era
+   SBAGLIATA.** Non c'era nessun furto dell'analisi di progettazione:
+   «who answered?» diceva `analysis_last_resort`. Erano due difetti diversi.
+   (a) La lezione IMPARAVA, e l'annuncio veniva coperto a valle dal saggio,
+   perché il dispatcher tratta come resa ogni risposta che non ripete il
+   soggetto (`analysis_reply_ignores_subject`, 99-registry.c) e né
+   `teachconstruction` né `forget` avevano il contratto
+   `module_result_policy(…, terminal)` che `lessonform` aveva già. (b) La
+   ritrattazione scavalcava le stopword iniziali («what», «how», «do»…), che
+   erano la sorgente stessa della forma: ora prova ogni inizio di parola, e
+   decide la chiave in KB. La lezione di metodo: **prima di dare un nome al
+   ladro, chiedere a parrot0 chi ha risposto**. Segno d'uso reale del giro:
+   `taught_form_3` «how do you act when x» insegnata in `make chat`, usata su
+   due situazioni vere, ritrattata e reinsegnata parlando nella stessa
+   sessione, salvata e riverificata in un processo nuovo con «… when you do not
+   have the steps?». Cricchetto 37/37, soft-test verde in 6 s. ⚠ Le due righe
+   `module_result_policy` sono una condotta promossa a mano: nessuna superficie
+   parlata sa ancora dire «la tua risposta a una lezione è un esito».
 2. **`correction: x is y`**, l'ultima delle 34: il lettore compilato degli
    attributi vuole un valore noto. Portarlo in una forma con `named` sul valore
    (C_TODO gen512 punto 1); la modalità buchi lo coprirà da sola.

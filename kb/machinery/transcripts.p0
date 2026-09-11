@@ -570,6 +570,7 @@ utterance(7, user, "the italian for cliff is burrone").
 utterance(7, user, "what is your plan when the recipe is missing?").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
+utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
 utterance(26, self, "No.").
 utterance(27, user, "is hematite an iron oxide mineral?").
@@ -849,7 +850,22 @@ utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
 utterance(10, self, "Hmm, I don't know about passive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a passive»; if passive is a word you want to talk ABOUT, say «the word passive is a …».").
+utterance(11, user, "how do you act when you don't know how to make something?").
 utterance(11, user, "the ohm is the SI unit of electrical resistance").
+utterance(13, user, "forget that how do you act when x means your plan when x?").
+utterance(14, self, "I no longer read «how do you act when x» as «your plan when x?».").
+utterance(15, user, "how do you act when the recipe is missing?").
+utterance(16, self, "On you act when the recipe is missing, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effe").
+utterance(17, user, "how do you act when x means your plan when x?").
+utterance(18, self, "From now on I'll read «how do you act when x» as «your plan when x?».").
+utterance(19, user, "your plan when the recipe is missing").
+utterance(20, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
+utterance(21, user, "how do you act when the recipe is missing?").
+utterance(22, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
+utterance(23, user, "your plan when you have no steps").
+utterance(24, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
+utterance(25, user, "what is your plan when you have no steps?").
+utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(12, self, "Learned: is_unit(ohm).").
 utterance(13, user, "what is the SI unit of electrical resistance?").
 utterance(14, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if «x of y» says what you already say another way, say «x of y means x <known verb> y»; if of is something one thing does to another, say «of is a relation verb».").
@@ -1136,6 +1152,7 @@ utterance(2, self, "Held: the capital of bhutan is thimphu.").
 utterance(2, self, "Tengo: un battle ha un winner.").
 utterance(2, self, "Learned: fall from height causes violent impact.").
 utterance(2, self, "On the recipe is missing, a workable design turns on what would count as success, what cannot be violated and how it fails in practice. Treat the requested design as a system with an objective, inputs, constraints, users, failure modes, and feedback rather than as a single feature. Define the objective as measurable outcomes rather than a technology or policy by itself, including who should benefit and which constraints cannot be violated. Use several coordinated levers, assign responsibility for each o").
+utterance(2, self, "On you act when the recipe is missing, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effe").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1180,6 +1197,7 @@ utterance(1, user, "thimphu is the capital of bhutan").
 utterance(1, user, "a battle involves a winner").
 utterance(1, user, "a fall from height causes a violent impact").
 utterance(1, user, "what is your plan when the recipe is missing?").
+utterance(1, user, "how do you act when the recipe is missing?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1218,6 +1236,7 @@ utterance(4, self, "Held: the capital of laos is vientiane.").
 utterance(4, self, "Tengo: un battle ha un loser.").
 utterance(4, self, "Learned: violent impact causes serious injury.").
 utterance(4, self, "From now on I'll read «what is your plan when x» as «your plan when x?».").
+utterance(4, self, "From now on I'll read «how do you act when x» as «your plan when x?».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1257,6 +1276,7 @@ utterance(3, user, "vientiane is the capital of laos").
 utterance(3, user, "a battle involves a loser").
 utterance(3, user, "a violent impact causes serious injury").
 utterance(3, user, "what is your plan when x means your plan when x?").
+utterance(3, user, "how do you act when x means your plan when x?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

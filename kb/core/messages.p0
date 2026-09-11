@@ -1653,11 +1653,24 @@ turn_form_priority(ask_plan, early).
 turn_form_priority(ask_plan_it, early).
 turn_form_priority(taught_form_2, early).
 turn_form_priority(taught_form_1, early).
+turn_form_priority(taught_form_3, early).
 % E il risultato di una forma di lezione e' un ESITO, non una resa travestita:
 % dice che cosa ha appreso o racconta un piano, e non deve ripetere le parole
 % del turno per valere. Senza, l'analisi di ultima istanza sostituiva il piano
 % raccontato con un saggio di progettazione (report gen509, NA9).
 module_result_policy(lessonform, terminal).
+% gen512 — la stessa condotta per il lettore delle lezioni «S means T». Anche la
+% sua risposta e' un esito («From now on I'll read …», o il declino che dice
+% perche' non ha imparato) e non ripete le parole del turno. Misurato: «how do
+% you act when x means your plan when x?» IMPARAVA la forma, e l'analisi di
+% ultima istanza sostituiva l'annuncio con un saggio di progettazione — parrot0
+% imparava senza dirlo.
+module_result_policy(teachconstruction, terminal).
+% E per il suo verso opposto: dimenticare e' una mossa sullo stato, e la sua
+% risposta («Forgotten: …», «I no longer read …») riferisce il cambiamento
+% senza ripetere il turno. Misurato: «forget that how do you act when x means
+% your plan when x?» RITRATTAVA la forma, e il saggio copriva l'annuncio.
+module_result_policy(forget, terminal).
 
 % ══ gen507/49 (forma #24) — INSEGNARE UN PLURALE IRREGOLARE ═══════════════
 % `plural_of/2` decide se una parola e' plurale, e da li' l'accordo, la
@@ -2841,7 +2854,10 @@ turn_form_act(taught_form_2, reread(forget that {x})).
 turn_form(teach_plan_it, 4, named(move_cue, move)).
 turn_form(taught_form_1, 2, span(x)).
 turn_form(taught_form_1, 1, text("what is your plan when")).
+turn_form(taught_form_3, 2, span(x)).
+turn_form(taught_form_3, 1, text("how do you act when")).
 turn_form_act(taught_form_1, reread(your plan when {x})).
+turn_form_act(taught_form_3, reread(your plan when {x})).
 turn_form_mood(teach_plan_it, statement).
 turn_form_act(teach_plan_it, assert_plan_move).
 % ⚠ La forma italiana e' dichiarata ma NON arriva: lo smalltalk prende il turno

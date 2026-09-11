@@ -109,9 +109,21 @@
 # e una mossa note, un fatto da togliere. Con parole nuove la prova murava; ora
 # la variabile del bersaglio vale per cio' che la forma dichiara in quel posto
 # (`named`), e l'ultima copre il resto della frase.
-# ⚠ Non qui «… means your plan when x?»: si impara e si usa, ma la sua
-# ritrattazione la prende l'analisi di progettazione (`keyword(plan)`), e il
-# file non resterebbe idempotente (LEARN_TODO gen512).
+> what about x means your plan when x?
+<~ From now on I'll read «what about x»
+> what about you don't have the steps
+<~ When that happens I
+# L'annuncio di una lezione e' un esito, non una resa: senza
+# `module_result_policy(teachconstruction, terminal)` l'analisi di ultima
+# istanza lo copriva con un saggio, e parrot0 imparava senza dirlo.
+> how do you act when x means your plan when x?
+<~ From now on I'll read «how do you act when x»
+# La forma si disfa con la stessa frase anche quando la sorgente comincia con
+# parole che la ritrattazione scavalca come stopword («what», «how», «do»).
+> forget that what about x means your plan when x?
+<~ no longer
+> forget that how do you act when x means your plan when x?
+<~ no longer
 > dismiss x means forget that x
 <~ From now on I'll read «dismiss x»
 > vorlik is a zendrat

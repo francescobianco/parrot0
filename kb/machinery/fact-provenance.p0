@@ -189,6 +189,7 @@ fact_source(causes(violent_impact, serious_injury), violent_impact, "a violent i
 fact_source(causes(fall_from_height, violent_impact), fall_from_height, "a fall from height causes a violent impact").
 fact_source(taught_form_source(taught_form_2, "stop believing that x"), taught_form_2, "stop believing that x means forget that x").
 fact_source(taught_form_source(taught_form_1, "what is your plan when x"), taught_form_1, "what is your plan when x means your plan when x?").
+fact_source(taught_form_source(taught_form_3, "how do you act when x"), taught_form_3, "how do you act when x means your plan when x?").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -282,4 +283,5 @@ reading_fact(battle(waterloo), "waterloo is a battle").
 reading_fact(taught_form_source(taught_form_2, "stop believing that x"), "stop believing that x means forget that x").
 reading_fact(causes(fall_from_height, violent_impact), "a fall from height causes a violent impact").
 reading_fact(taught_form_source(taught_form_1, "what is your plan when x"), "what is your plan when x means your plan when x?").
+reading_fact(taught_form_source(taught_form_3, "how do you act when x"), "how do you act when x means your plan when x?").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
