@@ -19553,7 +19553,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * in C — fourteen phrasings the KB could not see, extend or retract. They are
      * now `intent_cue(process_request, …)` rows, so the whole class is one call
      * to the universal matcher and a new phrasing is one fact. */
-    if (kb_cue_match(b, "process_request", buf)) {
+    /* gen512 — il lettore delle procedure («how to make X») ha anche lui una
+     * condotta di cessione dichiarata (`faculty_yield*` su `process_steps`):
+     * «Could you show me how to implement Newton's second law in Python?»
+     * diventava «how to make python». */
+    if (kb_cue_match(b, "process_request", buf) &&
+        !p0_faculty_yields(b, "process_steps", "open", buf, raw)) {
         char tb[512]; snprintf(tb, sizeof tb, "%s", buf);
         char *tw[96]; size_t tn = split_words(tb, tw, 96);
         char task[KB_TERM_LEN];

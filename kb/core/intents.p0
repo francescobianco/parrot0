@@ -994,11 +994,23 @@ intent_cue(make_verb, "implement").
 intent_cue(make_verb, "implementa").
 intent_cue(make_verb, "produce").
 intent_cue(make_verb, "produci").
+intent_cue(make_verb, "schreib").
+intent_cue(make_verb, "schreibe").
+intent_cue(make_verb, "écrivez").
+intent_cue(make_verb, "écris").
+intent_cue(make_verb, "escreva").
+intent_cue(make_verb, "escriba").
+intent_cue(make_verb, "escribe").
 % gen512 — MOSTRARE non e' PRODURRE. Una sessione aveva salvato «show» e
 % «mostrami» come verbi di produzione (lezione «"show" is another way to say
 % "write"»): una generalizzazione falsa — «show me the capital of France» non
 % chiede di scrivere niente. Il vero e' piu' stretto: mostrare diventa una
 % richiesta di produzione quando cio' che si chiede di mostrare e' CODICE. La
+intent_cue(display_verb, "zeige").
+intent_cue(display_verb, "zeig").
+intent_cue(display_verb, "montre").
+intent_cue(display_verb, "muestra").
+intent_cue(display_verb, "muéstrame").
 % congiunzione e' una regola (turn-frames.p0, `production_request`); qui stanno
 % le due classi, che si allargano parlando («"display" is another way to say
 % "show"»).
@@ -1013,6 +1025,46 @@ intent_cue(code_noun, "codice").
 intent_cue(code_noun, "funzione").
 intent_cue(code_noun, "snippet").
 intent_cue(code_noun, "programma").
+% I nomi di codice nelle altre lingue della demo, e i sinonimi che una richiesta
+% di codice usa. Stanno qui come membri della classe e NON si insegnano con
+% «"X" is another way to say "Y"»: quella lezione scrive anche una riscrittura
+% globale (`phrase_canon`), e per un nome e' falsa fuori dal contesto del codice
+% («what is an algorithm?» diventerebbe «what is an code?»). Limite della
+% lezione, scritto in LEARN_TODO gen512.
+% gen512 — le aperture con cui un turno CONTINUA il precedente invece di aprire
+% una richiesta nuova («and in javascript?», «ora in java»): il lettore delle
+% richieste di codice le usa per ereditare la cosa di cui si parlava. Classe
+% lessicale, estendibile parlando.
+intent_cue(continuation_opener, "and").
+intent_cue(continuation_opener, "now").
+intent_cue(continuation_opener, "also").
+% ⚠ non «what» ne' «how»: «how do I sort a list in python?» dopo una richiesta
+% su Newton e' una domanda nuova, e ereditare la legge mostrerebbe il codice
+% sbagliato.
+intent_cue(continuation_opener, "e").
+intent_cue(continuation_opener, "ed").
+intent_cue(continuation_opener, "ora").
+intent_cue(continuation_opener, "adesso").
+intent_cue(continuation_opener, "anche").
+intent_cue(continuation_opener, "y").
+intent_cue(continuation_opener, "et").
+intent_cue(continuation_opener, "und").
+intent_cue(code_noun, "script").
+intent_cue(code_noun, "algorithm").
+intent_cue(code_noun, "algoritmo").
+intent_cue(code_noun, "funzioncina").
+intent_cue(code_noun, "código").
+intent_cue(code_noun, "codigo").
+intent_cue(code_noun, "función").
+intent_cue(code_noun, "funcion").
+intent_cue(code_noun, "programa").
+intent_cue(code_noun, "fonction").
+intent_cue(lang_name, "js").
+intent_cue(code_noun, "programme").
+intent_cue(code_noun, "funktion").
+intent_cue(code_noun, "programm").
+intent_cue(code_noun, "função").
+intent_cue(code_noun, "funcao").
 intent_cue(lang_name, "c").
 intent_cue(lang_name, "python").
 intent_cue(lang_name, "javascript").

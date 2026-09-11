@@ -105,6 +105,9 @@ turn_scratch(turn_span_token).
 turn_scratch(turn_span).
 turn_scratch(turn_span_surface).
 turn_scratch(turn_span_cue).
+% gen512 — il tema del seguito di una richiesta di codice («and in javascript?»)
+% e' discorso di questa conversazione: vive fra i turni, non si salva.
+turn_scratch(artifact_topic).
 % `exchange/3` e `exchange_turn/2` sono la salienza della conversazione VIVA.
 % Salvarli e ricaricarli trasforma un archivio in stato corrente: una chat nuova
 % nasceva gia' «su Paris». Gli utterance restano nell'archivio transcript; una

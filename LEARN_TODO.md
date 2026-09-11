@@ -1,6 +1,44 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# 🌱 HANDOFF — 11 settembre 2026, notte (`gen512`, quarto giro): LA MISSIONE DEL CODICE DI FISICA. RIPARTIRE DA QUI.
+# 🎯 HANDOFF — 11 settembre 2026, notte (`gen512`, quinto giro): LA DEMO DEL CODICE DELLA LEGGE DI NEWTON. RIPARTIRE DA QUI.
+
+> F.: *«devo fare la demo … il prompt non lo avremo in anticipo … non sappiamo
+> neanche la lingua … massimizza la KB affinché non falliamo.»*
+
+**Stato: tre banchi verdi** — `tests/demo/newton_code_bench.p0t` 35/35,
+`newton_code_heldout.p0t` 23/23 (scritto DOPO le correzioni del primo, mai
+usato per progettarle), `newton_code_hard.p0t` 14/14 (cortesia, abbreviazioni,
+«F = m·a», seguito «and in javascript?»). Sono SONDE, non nel `make test`:
+prima della demo si rilanciano con `make test-engine` e `./bin/parrot0 --test
+tests/demo/<file>`. Un campione sta nel cricchetto `law_code.p0t` (nel make test).
+
+**Assi coperti**: formulazione (write / show / give / implement / «can you…?» /
+«how do I…?» / senza verbo / solo nome + lingua); lingue naturali (EN, IT, ES,
+FR, DE, PT); linguaggi (Python, JavaScript/«js», C, Java); leggi (seconda,
+«newton's law» senza numero = seconda per scelta dichiarata, terza, gravitazione;
+la prima si SPIEGA, non ha funzione); per grandezze («force from mass and
+acceleration», «F = m·a», «F=ma»); cortesia in coda; seguito.
+
+**Le radici di questo giro** (tutte generali): forza `production_request` come
+regole KB (turn-frames.p0) e cessione delle facolta' che rubavano il turno
+(answerframe, turn_plan, analysis_family, process_steps, social); risoluzione
+della cosa per varianti d'apostrofo e per grandezze/simboli; parametri tipati per
+linguaggio (`lang_list_item`); il nome della lingua canonico via `phrase_canon`;
+il tema del seguito (`artifact_topic`, scratch); **i token con lettere accentate
+nel frame del turno** (difetto generale: «muéstrame», «perché» arrivavano spezzati,
+e la mia prima correzione li perdeva del tutto — vedi C_TODO).
+
+**Scoperto, noto**: una lingua non supportata (per es. Rust, TypeScript) dice
+onestamente che non ne conosce la resa; una cosa che parrot0 non sa calcolare
+(«gravity» senza la parola «force», «sort a list») riceve il declino onesto. Le
+risposte sono in inglese o in italiano (i modelli per ES/FR/DE non esistono: il
+codice resta leggibile). La lezione «"X" is another way to say "Y"» scrive una
+riscrittura GLOBALE: va bene per i verbi (traduzioni vere), non per i nomi —
+per questo i nomi di codice stranieri sono membri di classe, non lezioni.
+
+---
+
+# 🌱 HANDOFF — 11 settembre 2026, notte (`gen512`, quarto giro): LA MISSIONE DEL CODICE DI FISICA.
 
 > F.: *«lavora per rendere la crescita di parrot0 auto guidata: un interlocutore
 > venga sempre in maniera dialogica messo in condizione di far crescere parrot0.

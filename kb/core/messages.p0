@@ -638,6 +638,8 @@ response_template(artifact_code_unverified_asked, it, "Ecco il codice {lang} per
 % che parrot0 non sa ancora ricevere.
 response_template(artifact_gap_no_shape, "I know {entity}, but not as something I can compute, so I have no {lang} code to show for it.").
 response_template(artifact_gap_no_shape, it, "Conosco {entity}, ma non come qualcosa che so calcolare, quindi non ho codice {lang} da mostrare.").
+response_template(artifact_gap_no_shape_described, "{entity} says that {prose}. It states no quantity to compute, so there is no {lang} function to write for it — I can show code for a law with a formula, such as newton's second law.").
+response_template(artifact_gap_no_shape_described, it, "{entity} dice che {prose}. Non definisce una grandezza da calcolare, quindi non c'è una funzione {lang} da scrivere — posso mostrare il codice di una legge con una formula, come la seconda legge di newton.").
 response_template(artifact_gap_no_language, "I know how to compute {entity}, but I don't know yet how {lang} writes that kind of function.").
 response_template(artifact_gap_no_language, it, "So calcolare {entity}, ma non so ancora come {lang} scrive quel tipo di funzione.").
 % Chi chiede di NON eseguire: la frase lo dice, e parrot0 lo deve capire dalla
@@ -650,6 +652,16 @@ intent_cue(no_execution_request, "do not run it").
 intent_cue(no_execution_request, "senza eseguirlo").
 intent_cue(no_execution_request, "senza eseguire").
 intent_cue(no_execution_request, "non eseguirlo").
+intent_cue(no_execution_request, "sin ejecutarlo").
+intent_cue(no_execution_request, "sin ejecutar").
+intent_cue(no_execution_request, "sans l'exécuter").
+intent_cue(no_execution_request, "sans l'executer").
+intent_cue(no_execution_request, "sans exécuter").
+intent_cue(no_execution_request, "ohne es auszuführen").
+intent_cue(no_execution_request, "ohne auszuführen").
+intent_cue(no_execution_request, "sem executar").
+intent_cue(no_execution_request, "without executing it").
+intent_cue(no_execution_request, "don't execute it").
 response_template(verified_by_execution_it_prints_x_and_exits,"Verified by execution: it prints «{msg}» and exits 0 (print_message schema, run via the code_run oracle).\n\n```c\n{src}\n```").
 response_template(tools_disabled_i_understood_that_it_is_a_x_r, "tools_disabled: I understood that — it is a {kind} request, and I can do it — but in {mode} mode I may not touch the filesystem. Start me with `make chat-agent` and I will run it.").
 response_template(type_mismatch_a_string_is_assigned_to_an_int, "Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.").

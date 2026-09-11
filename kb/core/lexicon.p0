@@ -877,6 +877,19 @@ phrase_canon("di nome", "named").
 phrase_canon("quanto vale", "what is").
 phrase_canon("snippet", "code").
 phrase_canon("display", "show").
+phrase_canon("js", "javascript").
+phrase_canon("zeige", "show").
+phrase_canon("zeig", "show").
+phrase_canon("montre", "show").
+phrase_canon("muestra", "show").
+phrase_canon("muéstrame", "show").
+phrase_canon("schreib", "write").
+phrase_canon("schreibe", "write").
+phrase_canon("écrivez", "write").
+phrase_canon("écris", "write").
+phrase_canon("escreva", "write").
+phrase_canon("escriba", "write").
+phrase_canon("escribe", "write").
 
 % Le parole singole NON sono locuzioni: stanno in tr/2, sotto, dove il motore
 % le cerca gia'. Metterle qui avrebbe funzionato e sarebbe stato il posto

@@ -201,10 +201,66 @@ turn_declared_act($Turn, production_request) :-
     intent_cue(display_verb, $First),
     turn_span_token($Turn, 0, $At, $Noun),
     intent_cue(code_noun, $Noun).
+% E anche SENZA verbo: una lingua di programmazione accanto a un nome di codice
+% («python code for F = m * a»), o dopo «in» («Newton's second law in Python»,
+% «how do I compute … in python?»). Quali parole siano lingue e nomi di codice
+% e' conoscenza (`lang_name`, `code_noun`).
+% ⚠ Su TUTTO il turno, non sullo span 0: il segmentatore divide in piu' span
+% una frase come «muéstrame el código python de la segunda ley de newton», e la
+% regola che leggeva solo il primo non la vedeva (misurato, gen512).
+turn_declared_act($Turn, production_request) :-
+    turn_span_token($Turn, $S1, $I, $Lang),
+    intent_cue(lang_name, $Lang),
+    turn_span_token($Turn, $S2, $J, $Noun),
+    intent_cue(code_noun, $Noun).
+turn_declared_act($Turn, production_request) :-
+    turn_span_token($Turn, $S, $I, "in"),
+    turn_span_token($Turn, $S, $J, $Lang),
+    is($J, add($I, 1)),
+    intent_cue(lang_name, $Lang).
+% Un verbo di mostrare o di produrre fra le prime parole («pls show python for
+% newtons 2nd law», «could you write …»), con una lingua nel turno.
+turn_declared_act($Turn, production_request) :-
+    turn_span_token($Turn, $S, $I, $Verb),
+    lt($I, 3),
+    intent_cue(display_verb, $Verb),
+    turn_span_token($Turn, $S2, $J, $Lang),
+    intent_cue(lang_name, $Lang).
+turn_declared_act($Turn, production_request) :-
+    turn_span_token($Turn, $S, $I, $Verb),
+    lt($I, 3),
+    intent_cue(make_verb, $Verb),
+    turn_span_token($Turn, $S2, $J, $Lang),
+    intent_cue(lang_name, $Lang).
+% E una cosa che si sa calcolare, NOMINATA, accanto a una lingua o a un nome di
+% codice: «newtons second law python», «Newton's law code please». I nomi sono
+% gia' conoscenza (`law_surface/2`); registrarli come cue li fa pubblicare nel
+% frame del turno quando compaiono.
+turn_cue_registry(law_surface, 2).
+turn_declared_act($Turn, production_request) :-
+    turn_cue($Turn, law_surface, $Name),
+    turn_span_token($Turn, $S, $I, $Lang),
+    intent_cue(lang_name, $Lang).
+turn_declared_act($Turn, production_request) :-
+    turn_cue($Turn, law_surface, $Name),
+    turn_span_token($Turn, $S, $I, $Noun),
+    intent_cue(code_noun, $Noun).
 % Chi risponde alle domande cede un ordine di produzione (condotta, mantra #17;
 % la cornice e' KB-first, quindi le si insegna invece di retrocederla, #21).
 faculty_yield_force(answerframe, open, production_request).
 faculty_yield_force(answer_frame, open, production_request).
+% E il piano di turno universale non la chiarisce: «newton's first law» ha un
+% ordinale dentro un nome, non un riferimento da risolvere.
+faculty_yield_force(turn_plan, open, production_request).
+% E l'analisi di ultima istanza: «How would you code Newton's second law in
+% Python?» riceveva un saggio sulle tre leggi invece del codice.
+faculty_yield_force(analysis_family, open, production_request).
+% E il lettore delle procedure: «show me how to implement X in Python» non chiede
+% i passi per fabbricare «python».
+faculty_yield_force(process_steps, open, production_request).
+% E la cortesia: una richiesta che finisce con «Thanks!» riceveva «You're
+% welcome!» invece del codice.
+faculty_yield_force(social, open, production_request).
 
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %

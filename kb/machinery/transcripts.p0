@@ -69,6 +69,7 @@ utterance(5, user, "your plan when the recipe is missing").
 utterance(5, user, "which moon is the largest?").
 utterance(5, user, "show me the python code that computes ohms law, without running it").
 utterance(5, user, "display the python code that computes the density law, without running it").
+utterance(5, user, "'escreva' is another way to say 'write'").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -117,6 +118,7 @@ utterance(6, self, "When that happens I: 1) I look at what it is made of  2) I s
 utterance(6, self, "Hmm, I don't know about largest yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a largest»; if largest is a word you want to talk ABOUT, say «the word largest is a …».").
 utterance(6, self, "Here is python code for ohms law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def voltage(current, resistance):     return (current * resistance) ```").
 utterance(6, self, "Here is python code for density law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def density(mass, volume):     return (mass / volume) ```").
+utterance(6, self, "Got it - «escreva» asks for the same thing as «write».").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -578,6 +580,7 @@ utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "the largest moon is ganymede").
 utterance(7, user, "'mostrami' is another way to say 'scrivi'").
 utterance(7, user, "show me a python snippet that computes ohms law, without running it").
+utterance(7, user, "'écris' is another way to say 'write'").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -864,7 +867,11 @@ utterance(60, self, "Held: great-grandparent is grandparent followed by parent."
 utterance(8, self, "Here is python code for ohms law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def voltage(current, resistance):     return (current * resistance) ```").
 utterance(9, user, "display the capital of france").
 utterance(10, self, "Paris.").
+utterance(8, self, "Got it - «écris» asks for the same thing as «write».").
+utterance(9, user, "'écrivez' is another way to say 'write'").
+utterance(10, self, "Got it - «écrivez» asks for the same thing as «write».").
 utterance(11, user, "show me the rust code that computes newtons second law, without running it").
+utterance(11, user, "'schreibe' is another way to say 'write'").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -880,6 +887,31 @@ utterance(18, self, "From now on I'll read «how do you act when x» as «your p
 utterance(19, user, "your plan when the recipe is missing").
 utterance(20, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(12, self, "I know how to compute newtons second law, but I don't know yet how rust writes that kind of function.").
+utterance(12, self, "Got it - «schreibe» asks for the same thing as «write».").
+utterance(13, user, "'schreib' is another way to say 'write'").
+utterance(14, self, "Got it - «schreib» asks for the same thing as «write».").
+utterance(15, user, "'muéstrame' is another way to say 'show'").
+utterance(16, self, "Got it - «muéstrame» asks for the same thing as «show».").
+utterance(17, user, "'muestra' is another way to say 'show'").
+utterance(18, self, "Got it - «muestra» asks for the same thing as «show».").
+utterance(19, user, "'montre' is another way to say 'show'").
+utterance(20, self, "Got it - «montre» asks for the same thing as «show».").
+utterance(21, user, "'zeig' is another way to say 'show'").
+utterance(22, self, "Got it - «zeig» asks for the same thing as «show».").
+utterance(23, user, "'zeige' is another way to say 'show'").
+utterance(24, self, "Got it - «zeige» asks for the same thing as «show».").
+utterance(25, user, "'js' is another way to say 'javascript'").
+utterance(26, self, "Got it - «js» asks for the same thing as «javascript».").
+utterance(27, user, "escribe un código en python que calcule la segunda ley de newton, sin ejecutarlo").
+utterance(28, self, "Here is python code for segunda ley de newton, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def force(mass, acceleration):     return (mass * acceleration) ```").
+utterance(29, user, "muéstrame el código python de la segunda ley de newton").
+utterance(30, self, "Here is python code for segunda ley de newton, composed from what I know about it. I have not run it, so it is not verified.  ```python def force(mass, acceleration):     return (mass * acceleration) ```").
+utterance(31, user, "écris une fonction python pour la deuxième loi de newton").
+utterance(32, self, "Here is python code for deuxième loi de newton, composed from what I know about it. I have not run it, so it is not verified.  ```python def force(mass, acceleration):     return (mass * acceleration) ```").
+utterance(33, user, "zeig mir den python code für das zweite newtonsche gesetz").
+utterance(34, self, "Here is python code for zweite newtonsche gesetz, composed from what I know about it. I have not run it, so it is not verified.  ```python def force(mass, acceleration):     return (mass * acceleration) ```").
+utterance(35, user, "write the newton's second law in js").
+utterance(36, self, "Here is javascript code for newton's second law, composed from what I know about it. I have not run it, so it is not verified.  ```javascript function force(mass, acceleration) { return (mass * acceleration); } ```").
 utterance(21, user, "how do you act when the recipe is missing?").
 utterance(22, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(23, user, "your plan when you have no steps").
@@ -1176,6 +1208,7 @@ utterance(2, self, "On you act when the recipe is missing, a causal account turn
 utterance(2, self, "Quando succede: 1) guardo di che cosa e' fatta  2) dico a che cosa serve.").
 utterance(2, self, "Got it - «show» asks for the same thing as «write».").
 utterance(2, self, "Got it - «display» asks for the same thing as «show».").
+utterance(2, self, "Got it - «escribe» asks for the same thing as «write».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1224,6 +1257,7 @@ utterance(1, user, "how do you act when the recipe is missing?").
 utterance(1, user, "il tuo piano quando la ricetta manca?").
 utterance(1, user, "'show' is another way to say 'write'").
 utterance(1, user, "'display' is another way to say 'show'").
+utterance(1, user, "'escribe' is another way to say 'write'").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1266,6 +1300,7 @@ utterance(4, self, "From now on I'll read «how do you act when x» as «your pl
 utterance(4, self, "Already in the plan: move 2 is «I say what it is for».").
 utterance(4, self, "Here is python code for newtons second law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def force(mass, acceleration):     return (mass * acceleration) ```").
 utterance(4, self, "Got it - «snippet» asks for the same thing as «code».").
+utterance(4, self, "Got it - «escriba» asks for the same thing as «write».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1309,6 +1344,7 @@ utterance(3, user, "how do you act when x means your plan when x?").
 utterance(3, user, "when you don't have the steps then say what problem it solves").
 utterance(3, user, "show me the python code that computes newtons second law, without running it").
 utterance(3, user, "'snippet' is another way to say 'code'").
+utterance(3, user, "'escriba' is another way to say 'write'").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

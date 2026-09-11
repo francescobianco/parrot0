@@ -186,3 +186,133 @@ artifact_shape_for($Law, formula_function) :- law_formula($Law, $Out, $E).
 artifact_binding($Law, name, $Out) :- law_defines($Law, $Out).
 artifact_binding($Law, params, $Q) :- law_formula($Law, $Out, $E), expr_uses($E, $Q).
 artifact_binding($Law, body, $T) :- law_expression($Law, $T).
+% Per chi la chiede per GRANDEZZE («force from mass and acceleration»): che
+% cosa una cosa calcola, e con che cosa. Il lettore sceglie quella che definisce
+% una grandezza nominata e ne usa di piu'.
+machinery(artifact_output).
+machinery(artifact_input).
+machinery(artifact_description).
+artifact_output($Law, $Q) :- law_defines($Law, $Q).
+artifact_input($Law, $Q) :- law_formula($Law, $Out, $E), expr_uses($E, $Q).
+% Una cosa senza formula si sa comunque DIRE: l'arresto lo dice.
+artifact_description($Law, $P) :- law_prose($Law, $P).
+
+% ── 7. LE ALTRE LEGGI DI NEWTON (gen512) ────────────────────────────────────
+% Chi chiede «il codice della legge di Newton» puo' intendere una qualunque
+% delle tre leggi del moto o la gravitazione universale. Sono gli enunciati di
+% ogni testo di fisica (formulazione nostra; SI).
+%
+% La prima legge (inerzia) non ha una grandezza da calcolare: si sa dire, non
+% scrivere come funzione, e l'arresto lo spiega invece di inventarne una.
+law_prose(newtons_first_law, "the law that a body stays at rest or keeps moving at constant velocity unless a net force acts on it").
+law_surface(newtons_first_law, "newtons first law").
+%
+% La terza legge: la forza di reazione e' uguale e opposta a quella d'azione.
+law_defines(newtons_third_law, reaction_force).
+law_formula(newtons_third_law, reaction_force, negation(action_force)).
+law_prose(newtons_third_law, "the law that for every action force there is an equal and opposite reaction force").
+law_surface(newtons_third_law, "newtons third law").
+quantity_unit(reaction_force, newton).
+quantity_unit(action_force, newton).
+%
+% La gravitazione universale: F = G * m1 * m2 / r^2, con G costante.
+law_defines(newtons_law_of_universal_gravitation, gravitational_force).
+law_formula(newtons_law_of_universal_gravitation, gravitational_force, quotient(product(gravitational_constant, product(mass_1, mass_2)), square(distance))).
+law_prose(newtons_law_of_universal_gravitation, "the law that two masses attract each other with a force equal to G times the product of the masses divided by the square of their distance").
+law_surface(newtons_law_of_universal_gravitation, "newtons law of universal gravitation").
+law_surface(newtons_law_of_universal_gravitation, "law of universal gravitation").
+quantity_unit(gravitational_force, newton).   quantity_symbol(gravitational_force, "F").
+quantity_unit(mass_1, kilogram).              quantity_symbol(mass_1, "m1").
+quantity_unit(mass_2, kilogram).              quantity_symbol(mass_2, "m2").
+quantity_unit(distance, metre).               quantity_symbol(distance, "r").
+code_literal(gravitational_constant, "6.674e-11").
+%
+% ── I NOMI con cui le leggi si chiedono, nelle lingue in cui si chiedono ────
+% Sono nomi veri, non parafrasi inventate. Le chiavi si scrivono senza apostrofo
+% («newtons»): il lettore delle richieste prova anche la parola senza apostrofo
+% e senza possessivo, quindi «newton's», «newton’s» e «newton» ci arrivano.
+% ⚠ SCELTA DICHIARATA: «newton's law» / «legge di newton» senza numero vale la
+% SECONDA legge (F = m·a), che e' l'uso comune; la gravitazione ha i suoi nomi.
+law_surface(newtons_second_law, "newtons law").
+law_surface(newtons_second_law, "newton law").
+law_surface(newtons_second_law, "second law of motion").
+law_surface(newtons_second_law, "newtons second law of motion").
+law_surface(newtons_second_law, "second law of newton").
+law_surface(newtons_second_law, "fundamental law of dynamics").
+law_surface(newtons_second_law, "seconda legge di newton").
+law_surface(newtons_second_law, "secondo principio della dinamica").
+law_surface(newtons_second_law, "seconda legge della dinamica").
+law_surface(newtons_second_law, "legge fondamentale della dinamica").
+law_surface(newtons_second_law, "legge di newton").
+law_surface(newtons_second_law, "segunda ley de newton").
+law_surface(newtons_second_law, "ley de newton").
+law_surface(newtons_second_law, "deuxième loi de newton").
+law_surface(newtons_second_law, "deuxieme loi de newton").
+law_surface(newtons_second_law, "loi de newton").
+law_surface(newtons_second_law, "principe fondamental de la dynamique").
+law_surface(newtons_second_law, "zweites newtonsches gesetz").
+law_surface(newtons_second_law, "zweite newtonsche gesetz").
+law_surface(newtons_second_law, "zweiten newtonschen gesetz").
+law_surface(newtons_second_law, "newtonsches gesetz").
+law_surface(newtons_second_law, "segunda lei de newton").
+law_surface(newtons_second_law, "newton second law").
+% Le forme con l'apostrofo, dritto e tipografico: il risolutore delle richieste
+% prova le varianti da se', ma le cue di superficie del frame del turno si
+% cercano come sono scritte.
+law_surface(newtons_second_law, "newton's second law").
+law_surface(newtons_second_law, "newton’s second law").
+law_surface(newtons_second_law, "newton's law").
+law_surface(newtons_second_law, "newton’s law").
+law_surface(newtons_second_law, "newton's 2nd law").
+law_surface(newtons_first_law, "newton's first law").
+law_surface(newtons_third_law, "newton's third law").
+law_surface(newtons_law_of_universal_gravitation, "newton's law of universal gravitation").
+law_surface(newtons_second_law, "newtons 2nd law").
+law_surface(newtons_second_law, "newton 2nd law").
+law_surface(newtons_second_law, "2nd law of motion").
+% La forza di gravita' si chiede anche per GRANDEZZA, e per grandezze
+% «forza» porterebbe alla seconda legge: il nome composto la porta dove deve.
+law_surface(newtons_law_of_universal_gravitation, "gravitational force").
+law_surface(newtons_law_of_universal_gravitation, "force of gravity").
+law_surface(newtons_law_of_universal_gravitation, "gravity force").
+law_surface(newtons_law_of_universal_gravitation, "forza di gravità").
+law_surface(newtons_law_of_universal_gravitation, "forza di gravita").
+law_surface(newtons_law_of_universal_gravitation, "forza gravitazionale").
+law_surface(newtons_law_of_universal_gravitation, "fuerza de gravedad").
+law_surface(newtons_law_of_universal_gravitation, "force de gravitation").
+law_surface(newtons_first_law, "first law of motion").
+law_surface(newtons_first_law, "law of inertia").
+law_surface(newtons_first_law, "prima legge di newton").
+law_surface(newtons_first_law, "principio di inerzia").
+law_surface(newtons_first_law, "primera ley de newton").
+law_surface(newtons_first_law, "première loi de newton").
+law_surface(newtons_first_law, "premiere loi de newton").
+law_surface(newtons_first_law, "erstes newtonsches gesetz").
+law_surface(newtons_third_law, "third law of motion").
+law_surface(newtons_third_law, "terza legge di newton").
+law_surface(newtons_third_law, "principio di azione e reazione").
+law_surface(newtons_third_law, "tercera ley de newton").
+law_surface(newtons_third_law, "troisième loi de newton").
+law_surface(newtons_third_law, "troisieme loi de newton").
+law_surface(newtons_third_law, "drittes newtonsches gesetz").
+law_surface(newtons_law_of_universal_gravitation, "newtons law of gravitation").
+law_surface(newtons_law_of_universal_gravitation, "law of gravitation").
+law_surface(newtons_law_of_universal_gravitation, "universal gravitation").
+law_surface(newtons_law_of_universal_gravitation, "legge di gravitazione universale").
+law_surface(newtons_law_of_universal_gravitation, "gravitazione universale").
+law_surface(newtons_law_of_universal_gravitation, "ley de gravitacion universal").
+law_surface(newtons_law_of_universal_gravitation, "ley de gravitación universal").
+law_surface(newtons_law_of_universal_gravitation, "loi de la gravitation universelle").
+law_surface(newtons_law_of_universal_gravitation, "gravitationsgesetz").
+law_surface(ohms_law, "legge di ohm").
+law_surface(kinetic_energy_law, "energia cinetica").
+law_surface(density_law, "legge della densità").
+law_surface(density_law, "densità").
+
+% Una richiesta di codice che non nomina la lingua: si scrive in Python.
+machinery(artifact_default_language).
+artifact_default_language(python).
+
+% L'opposto di una grandezza: una forma nuova dell'albero, resa e percorsa.
+code_expr(negation($A), $T) :- code_expr($A, $TA), concat_atoms("(-", $TA, $X), concat_atoms($X, ")", $T).
+expr_uses(negation($A), $Q) :- expr_uses($A, $Q).

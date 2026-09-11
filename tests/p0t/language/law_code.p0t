@@ -58,3 +58,47 @@
 <~ def force(mass, acceleration):
 > show me the capital of france
 <~ Paris
+
+[test la demo: la classe delle richieste del codice della legge di newton]
+!reset
+!timeout 15
+# gen512 — la demo non avra' un prompt noto: qui un campione per ogni asse di
+# varianza (formulazione, lingua naturale, linguaggio, legge, cortesia). I
+# banchi completi sono sonde in tests/demo/ (non nel make test).
+> write python code for newton's second law
+<~ def force(mass, acceleration):
+> Newton's second law in Python, please
+<~ def force
+> python code for F = m * a
+<~ def force
+> write the python code for Newton's first law
+<~ It states no quantity
+> write python code for the gravitational force between two masses
+<~ def gravitational_force(mass_1, mass_2, distance):
+> write javascript code for newton's second law
+<~ function force(mass, acceleration)
+> write c code for newton's second law
+<~ double force(double mass, double acceleration)
+> Could you please write a small Python program for Newton's 2nd law? Thanks!
+<~ def force
+<! You're welcome
+
+[test la demo: il seguito eredita la legge, una richiesta nuova no]
+!reset
+!timeout 15
+> show me the code for newton's second law
+<~ def force
+> and in javascript?
+<~ function force
+> write python code for gravity
+<! def force
+
+[test la demo in altre lingue]
+!reset
+!timeout 15
+> come si calcola la seconda legge di newton in python?
+<~ def force
+> escribe un código en python que calcule la segunda ley de newton
+<~ def force
+> schreibe eine python funktion für das zweite newtonsche gesetz
+<~ def force

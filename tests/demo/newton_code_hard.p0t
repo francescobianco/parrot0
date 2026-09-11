@@ -1,0 +1,60 @@
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test z01]
+!timeout 15
+> Hi! Could you please write me a small Python program that calculates the force of an object, given its mass and acceleration (Newton's 2nd law)? Thanks!
+<~ def force
+[test z02]
+!timeout 15
+> pls show python for newtons 2nd law
+<~ def force
+[test z03]
+!timeout 15
+> newtons second law python
+<~ def force
+[test z04]
+!timeout 15
+> F = m·a in python
+<~ def force
+[test z05]
+!timeout 15
+> Scrivimi in Python la formula F=ma
+<~ def force
+[test z06]
+!timeout 15
+> come implemento F = m a in python?
+<~ def force
+[test z07]
+!timeout 15
+> voglio il codice python della legge di newton
+<~ def force
+[test z08]
+!timeout 15
+> Can you give me an example in Python of Newton's second law?
+<~ def force
+[test z09]
+!timeout 15
+> Write Python code to compute the gravitational force between the Earth and the Moon
+<~ def gravitational_force
+[test z10]
+!timeout 15
+> show me the code for newton's second law
+<~ def force
+> and in javascript?
+<~ function force
+[test z11]
+!timeout 15
+> write python code for newton's second law
+<~ def force
+> ora in java
+<~ force(
+[test z12]
+!timeout 15
+> Newton's law code please
+<~ def force

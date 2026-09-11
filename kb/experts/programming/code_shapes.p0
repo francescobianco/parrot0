@@ -204,6 +204,18 @@ code_shape_signature(formula_function, python, "def {name}({params})").
 code_shape_step(formula_function, ff_1, root, return_value).
 code_shape_order(formula_function, ff_1, 1).
 code_shape_slot(ff_1, 0, "{body}").
+% La stessa forma in altre lingue: firma, blocco, `return`. Un parametro puo'
+% avere una forma nella lingua (`lang_list_item/3`): in C e in Java ha un tipo.
+machinery(lang_list_item).
+code_shape_signature(formula_function, javascript, "function {name}({params})").
+code_shape_signature(formula_function, c, "double {name}({params})").
+code_shape_signature(formula_function, java, "public static double {name}({params})").
+lang_block(javascript, "{", "}").
+lang_block(java, "{", "}").
+lang_syntax(javascript, return_value, "return {0};").
+lang_syntax(java, return_value, "return {0};").
+lang_list_item(c, params, "double {0}").
+lang_list_item(java, params, "double {0}").
 
 % ══ M4 — SCEGLIERE LA FORMA DAL CONTRATTO, NON DAL NOME ═════════════════════
 %

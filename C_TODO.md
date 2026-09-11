@@ -1,5 +1,34 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-11 — gen512 (quinto giro): la demo — la CLASSE delle richieste, non una frase
+
+Tre banchi-sonda verdi (tests/demo/, 35 + 23 mai visto + 14 difficile). Le
+radici, tutte generali e senza nomi di leggi o lingue nel C:
+- la forza `production_request` e' un insieme di regole KB (verbo di produzione
+  o di mostrare, lingua + nome di codice, «in» + lingua, legge NOMINATA + lingua
+  o nome di codice via `turn_cue_registry(law_surface, 2)`), su tutto il turno e
+  non sullo span 0; le facolta' che rubavano il turno la CEDONO con una riga
+  (`faculty_yield_force`: answerframe, turn_plan, analysis_family,
+  process_steps, social). `universal_turn_lead` e il lettore delle procedure
+  ora consultano le cessioni per nome;
+- `mod_reqgen`: domanda o assenza di verbo ammesse se la forza lo dice;
+  risoluzione per varianti d'apostrofo e per grandezze/simboli; parametri
+  tipati (`lang_list_item/3`); lingua canonica via `phrase_canon`; lingua
+  predefinita (`artifact_default_language/1`); il tema del seguito
+  (`artifact_topic/2`, scratch) per un turno che si apre con una continuazione.
+- ⚠ **I token del frame del turno scartavano le lettere UTF-8**
+  (`turn_publish_tokens`): «muéstrame», «perché», «città» arrivavano spezzati a
+  ogni regola KB sui token. Corretto — e la PRIMA correzione era sbagliata:
+  cambiava solo l'inizio della parola, non l'estensione, e un token vuoto
+  bloccava il ciclo fino al tetto, perdendo il resto del turno. Ora c'e' anche
+  la guardia sul token vuoto. Tracce nuove: `[turn] publish`, `[turn] not
+  published`, `[reqgen] verb= force=`.
+
+Residui: la lezione «"X" is another way to say "Y"» scrive una riscrittura
+globale (vera per i verbi tradotti, falsa per i nomi fuori contesto); nessun
+modello di risposta per ES/FR/DE; `mod_reqgen` resta un modulo con catene
+compilate, il suo ramo nuovo e' KB-first.
+
 ## 2026-09-11 — gen512 (quarto giro): il codice di una legge, mostrato e dichiarato
 
 Missione di F.: la crescita auto-guidata, a partire dai compiti di codice su

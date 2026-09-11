@@ -3712,19 +3712,30 @@ static void turn_publish_tokens(Brain *b, const char *surface,
         }
     }
     size_t k = 0;
+    /* gen512 — UNA LETTERA ACCENTATA E' UNA LETTERA. I byte >= 0x80 sono
+     * sempre parte di un carattere UTF-8, cioe' di una lettera come «é» o
+     * «ó»: trattati da separatori, «muéstrame» e «código» arrivavano al frame
+     * del turno come «mu», «strame», «c», «digo», e nessuna regola KB sui token
+     * li poteva vedere (vale per l'italiano: «è», «perché», «città»). */
+#define P0_WORDCH(c) (isalnum((unsigned char)(c)) || (c) == '_' || (unsigned char)(c) >= 0x80)
     for (size_t p = start; p < end && k < TURN_MAX_TOKENS; ) {
-        if (!(isalnum((unsigned char)surface[p]) || surface[p] == '_')) { p++; continue; }
+        if (!P0_WORDCH(surface[p])) { p++; continue; }
         size_t t = p;
         /* gen399: un punto FRA DUE CIFRE appartiene al numero. Spezzando «3.14»
          * in «3» e «14» la memoria di lavoro non registrava piu' cio' che il
          * turno aveva detto — e «which is greater, 3.14 or 3.41?» rispondeva
          * «41», che e' un pezzo di una parola. Il confine e' stretto apposta: il
          * punto di fine frase non ha una cifra dopo, quindi resta un confine. */
-        while (p < end && (isalnum((unsigned char)surface[p]) || surface[p] == '_' ||
+        /* stessa definizione di carattere di parola dell'inizio: con `isalnum`
+         * qui «muéstrame» si fermava a «mu», la «é» apriva un token vuoto e il
+         * ciclo, senza avanzare, riempiva il tetto di token vuoti — il resto del
+         * turno («python») non veniva pubblicato affatto (gen512). */
+        while (p < end && (P0_WORDCH(surface[p]) ||
                            ((surface[p] == '.' || memchr(seps, surface[p], nsep)) &&
                             p > t && p + 1 < end &&
                             isdigit((unsigned char)surface[p - 1]) &&
                             isdigit((unsigned char)surface[p + 1])))) p++;
+        if (p == t) { p++; continue; }   /* un token vuoto non esiste: si avanza */
         char tok[KB_TERM_LEN];
         if (!turn_quote(surface, t, p - t, tok, sizeof tok)) continue;
         char pos[24];
@@ -4797,10 +4808,18 @@ static void turn_publish_cues(Brain *b, const char *surface) {
 static int universal_turn_lead(Brain *b, const char *surface,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !surface || !*surface) return 0;
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[turn] publish «%s»\n", surface);
     InputSpan spans[64];
     int ambiguous = 0;
     size_t ns = input_segment(b->kb, surface, spans, 64, &ambiguous);
-    if (ambiguous || ns == 0) return 0;
+    if (ambiguous || ns == 0) {
+        /* gen512: senza segmentazione il turno resta senza token e senza
+         * forza, e ogni regola KB sui token tace. Si dice perche'. */
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[turn] not published: %s\n", ambiguous ? "ambiguous segmentation" : "no span");
+        return 0;
+    }
 
     kb_retract_pred(b->kb, "turn_span");
     kb_retract_pred(b->kb, "turn_span_cue");
@@ -4872,6 +4891,13 @@ static int universal_turn_lead(Brain *b, const char *surface,
         kb_query(b->kb, "turn_bookkeeping", one, 2);
     }
 
+    /* gen512 — anche il piano di turno ha una condotta di cessione, e la
+     * dichiara come ogni facolta' (`faculty_yield*` sul nome `turn_plan`).
+     * «write the python code for Newton's first law» veniva CHIARITO («not
+     * sure what you mean by first»): l'ordinale sta dentro un nome, e una
+     * richiesta di produzione si serve, non si chiarisce. La forza e' gia'
+     * pubblicata qui sopra, con i token del turno. */
+    if (p0_faculty_yields(b, "turn_plan", "open", surface, surface)) return 0;
     const char *candidate[] = { "current_turn" };
     if (!kb_query(b->kb, "turn_plan_candidate", candidate, 1)) return 0;
 

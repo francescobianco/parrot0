@@ -1,0 +1,100 @@
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test r01]
+!timeout 15
+> Write a Python script to calculate force using Newton's second law
+<~ def force
+[test r02]
+!timeout 15
+> Could you show me how to implement Newton's second law in Python?
+<~ def force
+[test r03]
+!timeout 15
+> I need a python function for F = ma
+<~ def force
+[test r04]
+!timeout 15
+> write python code for the gravitational force between two masses
+<~ def gravitational_force
+[test r05]
+!timeout 15
+> give me a javascript function for newton's second law
+<~ function force
+[test r06]
+!timeout 15
+> calculate force = mass * acceleration in python
+<~ def force
+[test r07]
+!timeout 15
+> Write a function in Python that returns the force given mass and acceleration
+<~ def force
+[test r08]
+!timeout 15
+> How would you code Newton's second law in Python?
+<~ def force
+[test r09]
+!timeout 15
+> code newton's second law in python
+<~ def force
+[test r10]
+!timeout 15
+> python code newton second law
+<~ def force
+[test r11]
+!timeout 15
+> write python code for newton's 2nd law
+<~ def force
+[test r12]
+!timeout 15
+> write me python code that uses newton's law to compute force
+<~ def force
+[test q01]
+!timeout 15
+> Mi scrivi il codice in python della legge di Newton?
+<~ def force
+[test q02]
+!timeout 15
+> scrivi l'algoritmo della seconda legge di newton in python
+<~ def force
+[test q03]
+!timeout 15
+> Scrivi il codice Python per calcolare la forza di gravità tra due masse
+<~ def gravitational_force
+[test q04]
+!timeout 15
+> Genera il codice python che calcola F=m*a
+<~ def force
+[test q05]
+!timeout 15
+> fammi vedere il codice python della seconda legge di newton
+<~ def force
+[test q06]
+!timeout 15
+> puoi mostrarmi un esempio di codice python per la legge di newton?
+<~ def force
+[test q07]
+!timeout 15
+> codice per calcolare la forza in python
+<~ def force
+[test x01]
+!timeout 15
+> escribe una función en python para la segunda ley de newton
+<~ def force
+[test x02]
+!timeout 15
+> écris une fonction python pour la deuxième loi de newton
+<~ def force
+[test x03]
+!timeout 15
+> schreibe eine python funktion für das zweite newtonsche gesetz
+<~ def force
+[test x04]
+!timeout 15
+> escreva um código python para a segunda lei de newton
+<~ def force

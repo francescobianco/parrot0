@@ -2670,7 +2670,11 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
     {
         const char *first = strip_edge_punct(w[0]);
         const char *q[] = { first };
-        if (*first && kb_query(b->kb, "question_word", q, 1)) return 0;
+        /* gen512 — «how do I compute newton's second law in python?» e' una
+         * domanda nella forma e una richiesta di produzione nella sostanza: la
+         * forza pubblicata dalla KB (`production_request`) decide. */
+        if (*first && kb_query(b->kb, "question_word", q, 1) &&
+            !p0_turn_is(b, "production_request", norm)) return 0;
     }
 
     /* gen335 (long-conversation): "cosa fai nel tempo libero" / "what do you do for fun"
@@ -2784,18 +2788,30 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < nw && i < 3; i++)
             if (reqgen_in_class(b, "display_verb", strip_edge_punct(w[i]))) { vi = i; break; }
     }
-    if (vi == (size_t)-1 || vi + 1 >= nw) return 0;
+    /* gen512 — anche una richiesta SENZA verbo e' una richiesta, se la KB lo
+     * dice: «python code for F = m * a», «Newton's second law in Python,
+     * please». La forza `production_request` (turn-frames.p0) la riconosce da
+     * una lingua di programmazione accanto a un nome di codice o dopo «in»;
+     * l'oggetto allora e' il turno intero. */
+    int verbless = 0;
+    if (vi == (size_t)-1 && p0_turn_is(b, "production_request", norm)) verbless = 1;
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[reqgen] verb=%s force=%s\n",
+                vi == (size_t)-1 ? "-" : w[vi],
+                p0_turn_is(b, "production_request", norm) ? "production_request" : "-");
+    if (!verbless && (vi == (size_t)-1 || vi + 1 >= nw)) return 0;
+    size_t start = verbless ? 0 : vi + 1;
 
     char lang[16] = "";                     /* trailing "in <lang_name>" */
     size_t end = nw;
     char *lastw = strip_edge_punct(w[nw-1]);
-    if (nw >= vi + 3 && lex_class_member(b, "60_agent_tools_lex1746", strip_edge_punct(w[nw-2])) &&
+    if (nw >= start + 2 && lex_class_member(b, "60_agent_tools_lex1746", strip_edge_punct(w[nw-2])) &&
         reqgen_in_class(b, "lang_name", lastw)) {
         snprintf(lang, sizeof lang, "%s", lastw);
         end = nw - 2;
     }
 
-    size_t oi = vi + 1;                     /* the object NP, articles skipped */
+    size_t oi = start;                      /* the object NP, articles skipped */
     while (oi < end && is_stopword(b, strip_edge_punct(w[oi]))) oi++;
     if (oi >= end) return 0;
     char obj[256] = "";
@@ -2985,22 +3001,238 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < on && !alang[0]; i++)
             if (reqgen_in_class(b, "lang_name", ow[i]))
                 snprintf(alang, sizeof alang, "%s", ow[i]);
-        char ent[KB_TERM_LEN] = "", ent_said[256] = "";
-        for (size_t len = on; len >= 1 && !ent[0]; len--) {
-            for (size_t s = 0; s + len <= on && !ent[0]; s++) {
-                char span[256]; size_t so = 0; span[0] = '\0';
-                for (size_t k = s; k < s + len && so + 1 < sizeof span; k++)
-                    so += (size_t)snprintf(span + so, sizeof span - so, "%s%s",
-                                           k > s ? " " : "", ow[k]);
-                if (entity_alias_lookup(b, span, ent, sizeof ent))
-                    snprintf(ent_said, sizeof ent_said, "%s", span);
+        /* gen512 — il nome di una lingua detto in un altro modo («js») si porta
+         * al nome con cui la KB ne conosce la resa, usando la parafrasi che la
+         * lezione «"js" is another way to say "javascript"» ha gia' scritto
+         * (`phrase_canon/2`), purche' anche quella sia una lingua. */
+        if (alang[0]) {
+            char pc[2][KB_TERM_LEN];
+            char ql[48]; snprintf(ql, sizeof ql, "\"%s\"", alang);
+            const char *pq1[2] = { ql, NULL };
+            const char *pq2[2] = { alang, NULL };
+            size_t np = kb_match(b->kb, "phrase_canon", pq1, 2, pc, 1);
+            if (np == 0) np = kb_match(b->kb, "phrase_canon", pq2, 2, pc, 1);
+            if (np == 1) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", kb_dequote(pc[0]));
+                if (reqgen_in_class(b, "lang_name", cb)) snprintf(alang, sizeof alang, "%s", cb);
             }
         }
+        char ent[KB_TERM_LEN] = "", ent_said[256] = "";
+        /* gen512 — tre viste della stessa parola: come e' detta, senza
+         * apostrofo («newton's» -> «newtons», come lo scrivono gli alias), e
+         * senza il possessivo («newton»). L'apostrofo tipografico (’, U+2019) e'
+         * lo stesso segno. E' punteggiatura: meccanica, non vocabolario. */
+        char ovar[48][KB_TERM_LEN];
+        for (int v = 0; v < 3 && !ent[0]; v++) {
+            for (size_t i = 0; i < on; i++) {
+                const char *t = ow[i]; size_t tl = strlen(t), o = 0;
+                for (size_t c = 0; c < tl && o + 1 < KB_TERM_LEN; ) {
+                    size_t al = t[c] == '\'' ? 1
+                              : ((unsigned char)t[c] == 0xE2 && c + 2 < tl &&
+                                 (unsigned char)t[c + 1] == 0x80 &&
+                                 (unsigned char)t[c + 2] == 0x99) ? 3 : 0;
+                    if (al && v > 0) {
+                        if (v == 2 && c + al < tl && t[c + al] == 's' && c + al + 1 == tl) break;
+                        c += al; continue;
+                    }
+                    ovar[i][o++] = t[c++];
+                }
+                ovar[i][o] = '\0';
+            }
+            for (size_t len = on; len >= 1 && !ent[0]; len--) {
+                for (size_t s = 0; s + len <= on && !ent[0]; s++) {
+                    char span[256]; size_t so = 0; span[0] = '\0';
+                    char shown[256]; size_t sho = 0; shown[0] = '\0';
+                    for (size_t k = s; k < s + len && so + 1 < sizeof span; k++) {
+                        so += (size_t)snprintf(span + so, sizeof span - so, "%s%s",
+                                               k > s ? " " : "", ovar[k]);
+                        sho += (size_t)snprintf(shown + sho, sizeof shown - sho, "%s%s",
+                                                k > s ? " " : "", ow[k]);
+                    }
+                    if (entity_alias_lookup(b, span, ent, sizeof ent))
+                        snprintf(ent_said, sizeof ent_said, "%s", shown);
+                }
+            }
+        }
+        /* gen512 — PER GRANDEZZE, quando nessun nome la nomina: «force from
+         * mass and acceleration», «la forza da massa e accelerazione», «F = m
+         * * a». Si raccolgono le grandezze nominate (la parola, la sua
+         * traduzione `tr/2`, o il simbolo se il turno scrive una formula) e si
+         * sceglie la cosa che DEFINISCE una di esse e ne usa di piu'
+         * (`artifact_output/2`, `artifact_input/2`); un pareggio non sceglie. */
+        if (!ent[0]) {
+            char qs[16][KB_TERM_LEN]; size_t nq = 0;
+            /* il segno di una formula si legge sul TURNO: nell'oggetto «=» e «*»
+             * sono gia' stati tolti come punteggiatura */
+            int has_eq = strchr(buf, '=') != NULL || strchr(raw, '=') != NULL;
+            for (size_t i = 0; i < on && nq < 16; ) {
+                size_t took = 0; char q[KB_TERM_LEN] = "";
+                for (size_t len = 3; len >= 1 && !took; len--) {
+                    if (i + len > on) continue;
+                    char key[KB_TERM_LEN]; size_t ko = 0; key[0] = '\0';
+                    for (size_t k = i; k < i + len && ko + 1 < sizeof key; k++)
+                        ko += (size_t)snprintf(key + ko, sizeof key - ko, "%s%s",
+                                               k > i ? "_" : "", ovar[k]);
+                    char tmp[4][KB_TERM_LEN];
+                    const char *uq[2] = { key, NULL };
+                    if (kb_match(b->kb, "quantity_unit", uq, 2, tmp, 1) == 1) {
+                        snprintf(q, sizeof q, "%s", key); took = len; break;
+                    }
+                    const char *tq[2] = { NULL, key };
+                    size_t ne = kb_match(b->kb, "tr", tq, 2, tmp, 4);
+                    for (size_t e = 0; e < ne && !took; e++) {
+                        const char *uq2[2] = { tmp[e], NULL };
+                        char t2[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "quantity_unit", uq2, 2, t2, 1) == 1) {
+                            snprintf(q, sizeof q, "%s", kb_dequote(tmp[e])); took = len;
+                        }
+                    }
+                    if (!took && has_eq && len == 1 && strlen(key) <= 3) {
+                        char sy[2][16];
+                        snprintf(sy[0], sizeof sy[0], "\"%s\"", key);
+                        snprintf(sy[1], sizeof sy[1], "\"%c%s\"",
+                                 toupper((unsigned char)key[0]), key + 1);
+                        for (int z = 0; z < 2 && !took; z++) {
+                            const char *sq2[2] = { NULL, sy[z] };
+                            if (kb_match(b->kb, "quantity_symbol", sq2, 2, tmp, 1) == 1) {
+                                snprintf(q, sizeof q, "%s", kb_dequote(tmp[0])); took = 1;
+                            }
+                        }
+                    }
+                }
+                if (took) {
+                    int dup = 0;
+                    for (size_t j = 0; j < nq; j++) if (!strcmp(qs[j], q)) dup = 1;
+                    if (!dup) snprintf(qs[nq++], KB_TERM_LEN, "%s", q);
+                    i += took;
+                } else i++;
+            }
+            /* «F=ma»: in un turno che scrive una formula, la formula sta anche
+             * dentro una parola sola. Si divide il turno sui segni d'operazione
+             * e un pezzo corto che non e' un simbolo si prova lettera per
+             * lettera (m·a): meccanica della notazione, i simboli sono KB. */
+            if (has_eq) {
+                char fb[512]; snprintf(fb, sizeof fb, "%s", raw);
+                for (char *c = fb; *c; c++)
+                    if (strchr("=*/+-()^", *c)) *c = ' ';
+                char *fw[64]; size_t fn = split_words(fb, fw, 64);
+                for (size_t i = 0; i < fn && nq < 16; i++) {
+                    char *p = strip_edge_punct(fw[i]);
+                    size_t pl = strlen(p);
+                    if (pl == 0 || pl > 3) continue;
+                    for (int whole = 1; whole >= 0; whole--) {
+                        size_t parts = whole ? 1 : pl;
+                        int all = 1; char got[3][KB_TERM_LEN];
+                        for (size_t k = 0; k < parts && all; k++) {
+                            char s1[8];
+                            if (whole) snprintf(s1, sizeof s1, "%s", p);
+                            else { s1[0] = p[k]; s1[1] = '\0'; }
+                            char sy[2][16]; char tmp[1][KB_TERM_LEN];
+                            snprintf(sy[0], sizeof sy[0], "\"%s\"", s1);
+                            snprintf(sy[1], sizeof sy[1], "\"%c%s\"",
+                                     toupper((unsigned char)s1[0]), s1 + 1);
+                            int hit = 0;
+                            for (int z = 0; z < 2 && !hit; z++) {
+                                const char *sq2[2] = { NULL, sy[z] };
+                                if (kb_match(b->kb, "quantity_symbol", sq2, 2, tmp, 1) == 1) {
+                                    snprintf(got[k], KB_TERM_LEN, "%s", kb_dequote(tmp[0])); hit = 1;
+                                }
+                            }
+                            if (!hit) all = 0;
+                        }
+                        if (!all) continue;
+                        for (size_t k = 0; k < parts && nq < 16; k++) {
+                            int dup = 0;
+                            for (size_t j = 0; j < nq; j++) if (!strcmp(qs[j], got[k])) dup = 1;
+                            if (!dup) snprintf(qs[nq++], KB_TERM_LEN, "%s", got[k]);
+                        }
+                        break;
+                    }
+                }
+            }
+            char best[KB_TERM_LEN] = ""; int best_score = 0, tie = 0;
+            for (size_t j = 0; j < nq; j++) {
+                char (*es)[KB_TERM_LEN] = NULL; size_t nes = 0;
+                const char *oq[2] = { NULL, qs[j] };
+                if (!kb_match_all(b->kb, "artifact_output", oq, 2, &es, &nes)) { free(es); continue; }
+                for (size_t e = 0; e < nes; e++) {
+                    char eb[KB_TERM_LEN]; snprintf(eb, sizeof eb, "%s", kb_dequote(es[e]));
+                    int score = 1;
+                    for (size_t k = 0; k < nq; k++) {
+                        const char *iq[2] = { eb, qs[k] };
+                        if (k != j && kb_query(b->kb, "artifact_input", iq, 2)) score++;
+                    }
+                    if (score > best_score) { best_score = score; tie = 0; snprintf(best, sizeof best, "%s", eb); }
+                    else if (score == best_score && strcmp(best, eb)) tie = 1;
+                }
+                free(es);
+            }
+            if (best[0] && !tie) {
+                snprintf(ent, sizeof ent, "%s", best);
+                snprintf(ent_said, sizeof ent_said, "%s", best);
+                for (char *c = ent_said; *c; c++) if (*c == '_') *c = ' ';
+            }
+        }
+        /* gen512 — IL SEGUITO: «and in javascript?», «ora in java». Il turno
+         * ha la lingua ma non la cosa: vale l'ultima cosa di cui si e' parlato
+         * in una richiesta di codice (`artifact_topic/2`, discorso di sessione,
+         * mai salvato). Solo se il turno SI APRE con una continuazione
+         * (`continuation_opener`): «write python code for gravity» e' una
+         * richiesta nuova, non un seguito, e non eredita la legge di prima. */
+        if (!ent[0] && alang[0] && nw > 0 &&
+            reqgen_in_class(b, "continuation_opener", strip_edge_punct(w[0]))) {
+            char ta[1][KB_TERM_LEN];
+            const char *tq[2] = { NULL, NULL };
+            if (kb_match(b->kb, "artifact_topic", tq, 2, ta, 1) == 1) {
+                snprintf(ent, sizeof ent, "%s", kb_dequote(ta[0]));
+                char ts[1][KB_TERM_LEN];
+                const char *tq2[2] = { ent, NULL };
+                if (kb_match(b->kb, "artifact_topic", tq2, 2, ts, 1) == 1)
+                    snprintf(ent_said, sizeof ent_said, "%s", kb_dequote(ts[0]));
+                else snprintf(ent_said, sizeof ent_said, "%s", ent);
+                /* una chiave non si dice: «newtons_second_law» -> «newtons second law» */
+                for (char *c = ent_said; *c; c++) if (*c == '_') *c = ' ';
+            }
+        }
+        /* gen512 — «show me the code for newton's second law»: nessuna lingua
+         * detta. Quale si usi allora e' conoscenza (`artifact_default_language/1`),
+         * e vale solo quando la cosa richiesta e' stata riconosciuta. */
+        if (ent[0] && !alang[0]) {
+            char dl[1][KB_TERM_LEN];
+            const char *dlq[1] = { NULL };
+            if (kb_match(b->kb, "artifact_default_language", dlq, 1, dl, 1) == 1)
+                snprintf(alang, sizeof alang, "%s", kb_dequote(dl[0]));
+        }
         if (ent[0] && alang[0]) {
+            /* la cosa di cui si parla resta il tema del seguito */
+            {
+                const char *ra[2] = { NULL, NULL };
+                kb_retract_match(b->kb, "artifact_topic", ra, 2);
+                char qs2[300]; snprintf(qs2, sizeof qs2, "\"%s\"", ent_said);
+                const char *aa[2] = { ent, qs2 };
+                int prevo = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_SESSION);
+                kb_assert(b->kb, "artifact_topic", aa, 2);
+                kb_set_origin(b->kb, prevo);
+            }
             const KbResponseSlot gs[] = { { "entity", ent_said }, { "lang", alang } };
             char shq[1][KB_TERM_LEN];
             const char *sq[2] = { ent, NULL };
             if (kb_match(b->kb, "artifact_shape_for", sq, 2, shq, 1) != 1) {
+                /* gen512 — se la cosa si sa DIRE (la prima legge di Newton non ha
+                 * una grandezza da calcolare), l'arresto dice che cosa afferma. */
+                char dq[1][KB_TERM_LEN];
+                const char *dsq[2] = { ent, NULL };
+                if (kb_match(b->kb, "artifact_description", dsq, 2, dq, 1) == 1) {
+                    char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", kb_dequote(dq[0]));
+                    const char *pr = db;
+                    if (!strncmp(pr, "the law that ", 13)) pr += 13;
+                    const KbResponseSlot ds[] = { { "entity", ent_said }, { "lang", alang },
+                                                  { "prose", pr } };
+                    kb_term_say(b, "artifact_gap_no_shape_described", ds, 3, out, out_size);
+                    store_proof(b, out);
+                    return 1;
+                }
                 kb_term_say(b, "artifact_gap_no_shape", gs, 2, out, out_size);
                 store_proof(b, out);
                 return 1;
@@ -3036,8 +3268,22 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
                                         (p[pl] == '\0' || p[pl] == ',')) { dup = 1; break; }
                                 }
                                 if (dup) continue;
+                                /* gen512 — un elemento della lista puo' avere una
+                                 * forma nella lingua (`lang_list_item/3`: in C un
+                                 * parametro e' «double mass»). */
+                                char item[KB_TERM_LEN]; snprintf(item, sizeof item, "%s", vb);
+                                {
+                                    const char *lq[3] = { alang, kb2, NULL };
+                                    char tpl[1][KB_TERM_LEN];
+                                    if (kb_match(b->kb, "lang_list_item", lq, 3, tpl, 1) == 1) {
+                                        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", kb_dequote(tpl[0]));
+                                        char *h = strstr(tb, "{0}");
+                                        if (h) { *h = '\0';
+                                            snprintf(item, sizeof item, "%s%s%s", tb, vb, h + 3); }
+                                    }
+                                }
                                 vo += (size_t)snprintf(vals[nk] + vo, sizeof vals[nk] - vo,
-                                                       "%s%s", vo ? ", " : "", vb);
+                                                       "%s%s", vo ? ", " : "", item);
                             }
                         }
                         free(vs);

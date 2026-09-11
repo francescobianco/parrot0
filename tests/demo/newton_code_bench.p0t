@@ -1,0 +1,148 @@
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test e01]
+!timeout 15
+> show me the python code that computes newton's second law
+<~ def force
+[test e02]
+!timeout 15
+> write python code for newton's second law
+<~ def force
+[test e03]
+!timeout 15
+> can you write a python function that calculates newton's second law?
+<~ def force
+[test e04]
+!timeout 15
+> give me python code to calculate force using newton's second law
+<~ def force
+[test e05]
+!timeout 15
+> python code for F = m * a
+<~ def force
+[test e06]
+!timeout 15
+> write a python program that computes force from mass and acceleration
+<~ def force
+[test e07]
+!timeout 15
+> how do I compute newton's second law in python?
+<~ def force
+[test e08]
+!timeout 15
+> show me code that calculates force given mass and acceleration
+<~ def force
+[test e09]
+!timeout 15
+> implement newton's second law in python
+<~ def force
+[test e10]
+!timeout 15
+> write a function in python for newton's law
+<~ def force
+[test e11]
+!timeout 15
+> code for newton's second law of motion in python
+<~ def force
+[test e12]
+!timeout 15
+> Newton's second law in Python, please
+<~ def force
+[test e13]
+!timeout 15
+> F=ma in python
+<~ def force
+[test e14]
+!timeout 15
+> write a python function that computes force = mass times acceleration
+<~ def force
+[test e15]
+!timeout 15
+> show me the code for newton's second law
+<~ def force
+[test e16]
+!timeout 15
+> write javascript code for newton's second law
+<~ function force
+[test e17]
+!timeout 15
+> write c code for newton's second law
+<~ force(
+[test e18]
+!timeout 15
+> write java code that computes newton's second law
+<~ force(
+[test e19]
+!timeout 15
+> write the python code for Newton's first law
+<~ It states no quantity
+[test e20]
+!timeout 15
+> write python code for newton's law of universal gravitation
+<~ def
+[test e21]
+!timeout 15
+> write python code for newton's third law
+<~ def
+[test i01]
+!timeout 15
+> mostrami il codice python che calcola la seconda legge di newton
+<~ def force
+[test i02]
+!timeout 15
+> scrivi un programma in python che calcola la forza secondo la seconda legge di newton
+<~ def force
+[test i03]
+!timeout 15
+> puoi scrivere una funzione python per la seconda legge di Newton?
+<~ def force
+[test i04]
+!timeout 15
+> codice python per la legge di newton F = m*a
+<~ def force
+[test i05]
+!timeout 15
+> come si calcola la seconda legge di newton in python?
+<~ def force
+[test i06]
+!timeout 15
+> scrivimi il codice della seconda legge della dinamica in python
+<~ def force
+[test i07]
+!timeout 15
+> dammi il codice python per calcolare la forza da massa e accelerazione
+<~ def force
+[test i08]
+!timeout 15
+> implementa la seconda legge di newton in python
+<~ def force
+[test s01]
+!timeout 15
+> escribe un código en python que calcule la segunda ley de newton
+<~ def force
+[test s02]
+!timeout 15
+> muéstrame el código python de la segunda ley de newton
+<~ def force
+[test f01]
+!timeout 15
+> écris un code python qui calcule la deuxième loi de newton
+<~ def force
+[test f02]
+!timeout 15
+> montre-moi le code python pour la deuxième loi de Newton
+<~ def force
+[test d01]
+!timeout 15
+> schreibe python code für das zweite newtonsche gesetz
+<~ def force
+[test d02]
+!timeout 15
+> zeig mir den python code für das zweite newtonsche gesetz
+<~ def force
