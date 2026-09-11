@@ -295,6 +295,49 @@ dell'insegnabilità** nato in questo giro è in
 [docs/plans/radici-insegnabilita.md](../plans/radici-insegnabilita.md), con
 questi casi come esempi lavorati.
 
+## 7-ter. gen510, terzo e quarto giro — le conseguenze, e un anello rotto nel lettore delle forme
+
+**Il burrone ha una risposta.** Nel processo nuovo, senza ripetere lezioni:
+
+```text
+> se sto cadendo da un burrone senza paracadute cosa succedera
+  Da quello che ho imparato: a fall from height causes a violent impact, e a
+  violent impact causes serious injury.
+> what happens if you fall from a cliff?
+  From what I've learned: a fall from height causes a violent impact, and a
+  violent impact causes serious injury.
+> what happens if you eat a cloud?
+  I don't know yet what happens in that case. If you tell me what it causes --
+  «X causes Y» -- I'll hold it and use it next time.
+```
+
+La catena attraversa soltanto lezioni dette: «cadendo» e «cado» sono *fall*
+(`tr/2`, ora una forma di `linguistic_form/4`), «burrone» è *cliff*, *cliff* è
+una specie di *height* (`kind_of`), e `causes` a due passi. La risposta usa le
+frasi con cui le cause sono state insegnate (`fact_source/3`).
+
+| Pezzo | Dove | Nota |
+|---|---|---|
+| Produttore delle conseguenze | situation.p0, contratto `turn_plan_candidate/1` + `turn_response/2` | indizi EN/IT; evento riconosciuto se ogni sua parola compare nel turno, come forma o per specie |
+| Risposta onesta senza conoscenza | situation.p0 | invita alla lezione «X causes Y» |
+| `atom_words/2` | kb.c, primitiva del solver | divide un atomo nelle sue parole: una **radice**, nel senso di radici-insegnabilita.md |
+| L'analisi cede alle affermazioni e alle domande di conseguenza | intents.p0 | una lezione causale non riceve piu' un saggio |
+| Preposizione interna nei sintagmi | guardia del soggetto e `p0_atom_is_concept` | «fall from height» e' un concetto |
+| **Il limite dello slot dopo l'articolo** | lettore delle forme | **preesistente**: ogni forma che apre con uno slot falliva davanti a un soggetto con l'articolo («a cliff is a kind of height») |
+
+**Crescita salvata** (`/save`: 25 clausole): W = 3 (`causes` ×2,
+`kind_of(cliff, height)`), L = 4 (`tr` per burrone, cado, cadendo,
+paracadute), P = 4, O = 14, X = 0.
+
+**Un test cambiato con motivo**: `higher_order_lesson.p0t` usa «encloses»
+invece di «contains». Passava solo grazie al difetto dello slot: con la KB
+completa «X contains Y» ha gia' la lettura `part_of(Y, X)` (gen507/76).
+
+**Limiti aperti di questo tratto**: la risposta italiana cita frasi inglesi,
+perche' le cause sono state insegnate in inglese; «senza paracadute» non entra
+ancora nella risposta (manca la relazione di attenuazione); gli atomi di una
+causa restano entro tre parole.
+
 ## 8. Da dove ripartire
 
 Le tre cause del §4.3 sono tre classi di lavoro, non trentatré prompt:

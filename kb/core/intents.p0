@@ -3363,6 +3363,16 @@ compound_guard(answerframe, lexical_relation_request).
 intent_cue(own_plan_question, "your plan when").
 intent_cue(own_plan_question, "il tuo piano quando").
 compound_guard(analysis_plan, own_plan_question).
+% gen510 — «what happens if X?» chiede una CONSEGUENZA: la risponde il produttore
+% delle conseguenze (situation.p0) da ciò che parrot0 sa di X, e se non sa niente
+% lo dice. Un saggio sull'analisi delle conseguenze non e' una conseguenza.
+intent_cue(consequence_question, "what happens if").
+intent_cue(consequence_question, "what would happen if").
+intent_cue(consequence_question, "what will happen if").
+intent_cue(consequence_question, "cosa succede se").
+intent_cue(consequence_question, "che succede se").
+compound_guard(analysis_plan, consequence_question).
+faculty_yield(analysis_family, open, consequence_question).
 faculty_yield(analysis_family, open, own_plan_question).
 % gen376 — guardia RIMOSSA. Esisteva perche' mod_plan rivendicava OGNI process
 % request e, non avendo prerequisiti, rispondeva "I don't know the steps", cosi'
@@ -5953,6 +5963,10 @@ faculty_yield_both(gen, open, codebase_referent, source_change_directive).
 % riceveva «Luca.», cioe' la risposta a una domanda che nessuno aveva fatto.
 machinery(faculty_yield_force).
 faculty_yield_force(answer_frame, open, assertion).
+% gen510 — un'AFFERMAZIONE non chiede un saggio: «a fall from height causes a
+% violent impact», detta per insegnare, riceveva un'analisi delle conseguenze e
+% la lezione era persa (report gen509 §7-bis).
+faculty_yield_force(analysis_family, open, assertion).
 % gen506b — chi riconosce una cue non ha capito un turno COMPOSTO (turn-frames.p0,
 % `compound_inquiry`): il registro sociale, il pragma delle formule di
 % riparazione e i frame di analisi cedono il turno a chi legge le clausole —

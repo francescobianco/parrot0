@@ -39,6 +39,18 @@ opener» non letto), `lexicon_it` (1), `literal_forms` (4: «was born in» → �
 from», e un turno di 9-12 s su «zorak vurbles nivora»), `assisted_construction_ternary`
 (turni di 6-9 s: da profilare), `taught_lexicon` 153/157 (il sandbox).
 
+**Terzo e quarto giro (2026-09-11 notte)** — chiusi: NA8 (Guerra fredda), NA9
+(il piano raccontato: `module_result_policy(lessonform, terminal)`),
+`taught_lexicon:228` (un turno non rivendicato accetta un'offerta solo se la
+riguarda), le conseguenze (report §7-ter), e il **limite dello slot dopo
+l'articolo** nel lettore delle forme — preesistente, trovato con la traccia
+`[form] matched …`. Test aggiornato con motivo: `higher_order_lesson.p0t`
+(«encloses»). Da bisecare: `one_act_of_learning` 4/6 (riferimento 5/5; turni di
+prosa lunghi fuori tempo). Aperto: una frase di situazione insegnata dentro una
+lezione inglese si canonicalizza in inglese («non hai i passi» → «not hai i
+passi»), mentre la domanda italiana la canonicalizza in italiano («not hai the
+passi»): serve canonicalizzare il frammento nella propria lingua.
+
 **Aperti di questo giro**: la forma canonica del turno si vede ora con
 `P0_READ_TRACE=1` (`[canon] «…» -> «…»`), e le cornici di domanda con `[aframe]`
 e `[qshape]`. Le domande di conseguenza e il piano di traduzione del muro sono il

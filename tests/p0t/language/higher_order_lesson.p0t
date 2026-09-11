@@ -20,10 +20,16 @@
 !set PARROT0_SESSION=
 !reset
 
+# gen510: la relazione della prova e' «encloses», non «contains». Con la KB
+# completa «X contains Y» ha gia' un significato (gen507/76: `part_of(Y, X)`),
+# e da quando il lettore delle forme accetta un soggetto con l'articolo quella
+# lettura vince: la prova passava solo grazie al difetto. Serve una relazione
+# senza semantica precedente per provare che una regola FRA relazioni si insegna
+# e si ritratta (TEST_TODO R1: il contesto ermetico non esiste).
 [test una regola fra relazioni si insegna in una frase]
 !timeout 6
-> contains is a relation verb
-> if x contains y then y is part of x
+> encloses is a relation verb
+> if x encloses y then y is part of x
 <~ Learned rule
 # l'antecedente e' una RELAZIONE, non un atomo opaco: la lezione usa lo STESSO
 # legatore del lettore, quindi eredita ogni relazione che parrot0 sa leggere
@@ -33,14 +39,14 @@
 
 [test l_inferenza la porta su entita' mai viste]
 !timeout 6
-> the box contains the ring
-!query contains(box, ring)
+> the box encloses the ring
+!query encloses(box, ring)
 !query part_of(ring, box)
 # la domanda formata in lingua naturale trova il fatto DEDOTTO
 > what is the ring part of
 <~ Box
 # la regola non parla del suo esempio: vale su entita' introdotte dopo
-> the vault contains the crown
+> the vault encloses the crown
 !query part_of(crown, vault)
 
 [test ⛔ nessun «Learned rule» senza una regola]
@@ -56,8 +62,8 @@
 
 [test la lezione si ritratta, e cio' che aveva dedotto resta]
 !timeout 6
-> forget if x contains y then y is part of x
-!query contains(box, ring)
+> forget if x encloses y then y is part of x
+!query encloses(box, ring)
 # la capacita' se ne va: un'entita' nuova non produce piu' la deduzione
-> the crate contains the gem
+> the crate encloses the gem
 !query! part_of(gem, crate)

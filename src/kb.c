@@ -1875,6 +1875,61 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return 0;                              /* both unbound: flounder */
     }
 
+    /* gen510: `atom_words/2` — un atomo composto e' fatto di parole unite da
+     * «_»: `fall_from_height` <-> cons(fall, cons(from, cons(height, nil))).
+     * E' meccanica di byte come `chars/2`, un gradino piu' su: serve a chi
+     * deve riconoscere nel turno l'evento che un atomo nomina (le domande di
+     * conseguenza, situation.p0) senza che il C conosca nessuna parola. */
+    if (strcmp(g->pred, "atom_words") == 0 && g->argc == 2) {
+        char a0[KB_TERM_LEN], a1[KB_CHARLIST_MAX];
+        deep_resolve(s, g->args[0], a0, sizeof a0, 0);
+        deep_resolve(s, g->args[1], a1, sizeof a1, 0);
+        Subst *s2 = &scratch->subst;
+        subst_copy(s2, s);
+        if (!is_var(a0) && strchr(a0, '$') == NULL) {         /* atomo -> parole */
+            char word[KB_TERM_LEN][1];
+            (void)word;
+            const char *src = a0;
+            size_t sl = strlen(src);
+            if (sl >= 2 && src[0] == '"' && src[sl - 1] == '"') { src++; sl -= 2; }
+            char words[32][KB_TERM_LEN]; size_t nw = 0, wl = 0;
+            for (size_t i = 0; i <= sl && nw < 32; i++) {
+                char c = i < sl ? src[i] : '_';
+                if (c == '_' || c == ' ') {
+                    if (wl) { words[nw][wl] = '\0'; nw++; wl = 0; }
+                } else if (wl + 1 < KB_TERM_LEN) words[nw][wl++] = c;
+            }
+            if (nw == 0) return 0;
+            char list[KB_CHARLIST_MAX]; size_t o = 0; list[0] = '\0';
+            for (size_t i = 0; i < nw && o < sizeof list; i++)
+                o += (size_t)snprintf(list + o, sizeof list - o, "cons(%s, ", words[i]);
+            if (o < sizeof list) o += (size_t)snprintf(list + o, sizeof list - o, "nil");
+            for (size_t i = 0; i < nw && o < sizeof list; i++)
+                o += (size_t)snprintf(list + o, sizeof list - o, ")");
+            if (o >= sizeof list) return 0;
+            if (unify(s2, g->args[1], list)) return solve(S, goals, ngoals, idx + 1, s2, depth);
+            return 0;
+        }
+        if (!is_var(a1) && strchr(a1, '$') == NULL) {         /* parole -> atomo */
+            char atom[KB_TERM_LEN]; size_t o = 0; atom[0] = '\0';
+            const char *p = a1;
+            while (!strncmp(p, "cons(", 5)) {
+                p += 5;
+                const char *comma = strchr(p, ',');
+                if (!comma) return 0;
+                size_t wl = (size_t)(comma - p);
+                if (o + wl + 2 >= sizeof atom) return 0;
+                if (o) atom[o++] = '_';
+                memcpy(atom + o, p, wl); o += wl; atom[o] = '\0';
+                p = comma + 1; while (*p == ' ') p++;
+            }
+            if (strncmp(p, "nil", 3) || o == 0) return 0;
+            if (unify(s2, g->args[0], atom)) return solve(S, goals, ngoals, idx + 1, s2, depth);
+            return 0;
+        }
+        return 0;
+    }
+
     /* gen395: `concat_atoms/3` — la concatenazione come meccanica.
      *
      * Esisteva come procedura KB sopra `chars/2` e `append_list/3`, ed era la
@@ -2977,6 +3032,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
     int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
+                                  strcmp(pred, "atom_words") == 0 ||
         strcmp(pred,"upcase_first")==0 || strcmp(pred,"concat_atoms")==0 ||
         strcmp(pred,"kb_fact")==0 || strcmp(pred,"kb_rule")==0 ||
         strcmp(pred,"apply")==0 ||
@@ -3099,6 +3155,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * the solver path (distinct NULL variables; collect the first; deduplicate).
      * Compound patterns containing nested $/_ variables still use unification. */
     int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0 &&
+                    strcmp(pred, "atom_words") != 0 &&
                     strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
                     strcmp(pred, "apply") != 0;
     for (size_t i = 0; i < argc; i++) {
@@ -6481,7 +6538,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
     static const char *const builtins[] = {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
-        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","apply", NULL };
+        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","apply", "atom_words", NULL };
     for (size_t i = 0; builtins[i]; i++)
         if (strcmp(pred, builtins[i]) == 0) return 1;
     /* L'indice per predicato esiste dal gen401 e va usato: una scansione

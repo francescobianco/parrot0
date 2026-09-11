@@ -4366,6 +4366,28 @@ static int p0_bad_subject(Brain *b, const char *t) {
      * NA5). Se l'atomo intero e' un referente che la KB conosce gia' —
      * `known_referent/1`, grammar.p0 — le sue parole non si guardano una a una. */
     if (kb_query(b->kb, "known_referent", q, 1)) return 0;
+    /* gen510 — UNA PREPOSIZIONE FRA DUE PAROLE PIENE FA PARTE DEL SINTAGMA.
+     * «a fall from height causes a violent impact» veniva rifiutata perche'
+     * «from» e' una stopword, e la lezione causale finiva coperta da un saggio.
+     * Una preposizione interna — ne' prima ne' ultima — non rende cattivo un
+     * soggetto; pronomi, interrogativi e copule restano vietati come prima.
+     * Quali parole siano preposizioni lo dice la KB (`question_preposition/1`,
+     * che include `preposition/1`). */
+    {
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", t);
+        char *ptoks[16]; size_t pn = 0;
+        for (char *tok = strtok(pb, "_ "); tok && pn < 16; tok = strtok(NULL, "_ ")) ptoks[pn++] = tok;
+        if (pn >= 3) {
+            int bad = 0;
+            for (size_t k = 0; k < pn && !bad; k++) {
+                const char *tq[1] = { ptoks[k] };
+                int inner_prep = k > 0 && k + 1 < pn &&
+                                 kb_query(b->kb, "question_preposition", tq, 1);
+                if (!inner_prep && kb_query(b->kb, "subject_guard", tq, 1)) bad = 1;
+            }
+            if (!bad) return 0;
+        }
+    }
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", t);
     for (char *p = buf, *tok = buf; ; p++) {
@@ -5846,8 +5868,19 @@ static int p0_atom_is_concept(Brain *b, const char *atom) {
     if (!p0_atom_within_cap(b, atom)) return 0;
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", atom);
-    for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_"))
-        if (p0_np_closer(b, tok)) return 0;      /* ha attraversato un confine */
+    char *toks[16]; size_t nt = 0;
+    for (char *tok = strtok(buf, "_"); tok && nt < 16; tok = strtok(NULL, "_")) toks[nt++] = tok;
+    for (size_t k = 0; k < nt; k++) {
+        if (!p0_np_closer(b, toks[k])) continue;
+        /* gen510 — una preposizione FRA due parole piene non e' un confine
+         * attraversato: e' dentro il sintagma («fall_from_height»). Il confine
+         * attraversato e' quello in testa o in coda («island_country_located»,
+         * «from_height»). Stessa regola della guardia del soggetto. */
+        const char *tq[1] = { toks[k] };
+        if (nt >= 3 && k > 0 && k + 1 < nt &&
+            kb_query(brain_kb(b), "question_preposition", tq, 1)) continue;
+        return 0;                                  /* ha attraversato un confine */
+    }
     return 1;
 }
 
@@ -13419,8 +13452,13 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             i = upto;
         } else if (!strcmp(kind, "slot") || !strcmp(kind, "rest")) {
             if (i >= nw || *nslot >= P0_FORM_SLOTS) return 0;
-            size_t upto = !strcmp(kind, "rest") ? nw : i + 1;
+            /* gen510 — l'articolo si salta PRIMA di fissare il limite dello
+             * slot. Col limite calcolato prima, «a cliff is a kind of height»
+             * non combaciava mai: saltato «a» il lettore era gia' al limite, e
+             * OGNI forma che apre con uno slot falliva in silenzio davanti a un
+             * soggetto con l'articolo (trovato con la traccia [form]). */
             if (i + 1 < nw && p0_lead_det(b, w[i])) i++;
+            size_t upto = !strcmp(kind, "rest") ? nw : i + 1;
             char v[KB_TERM_LEN];
             if (i >= upto || !p0_join(w, i, upto, v, sizeof v)) return 0;
             for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
@@ -13948,6 +13986,8 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         char work[300]; memcpy(work, norm, L + 1);
         char *ww[48]; size_t nww = split_words(work, ww, 48);
         if (!p0_form_match(b, form, ww, nww, slots, &ns)) continue;
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[form] matched %s (%zu slots)\n", form, ns);
 
         /* gen507/66 — UNA FORMA PUO' DICHIARARE PIU' OPERAZIONI, IN ORDINE.
          *
@@ -13996,6 +14036,8 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 free(forms);
                 return 1;
             }
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[form] %s: op failed: %s\n", form, act);
             continue;
         }
 

@@ -106,6 +106,17 @@ Qui la catena mostra un'abilità che **si può già riapprendere**: la superfici
 «twice» è diventata una comodità, non una necessità. Il gen508 l'ha resa
 derivabile.
 
+### 4.3 Un anello rotto per un intero gradino
+
+Il gen510 ha trovato un difetto che rompeva **tutte** le catene di un tipo: nel
+lettore delle forme, il limite di uno `slot` si calcolava prima di saltare
+l'articolo iniziale. Ogni forma che apre con uno slot falliva in silenzio
+davanti a un soggetto con l'articolo — «a cliff is a kind of height», «the box
+contains the ring». Le forme esistevano, le lezioni sembravano insegnabili, e
+non lo erano. Un censimento che controlla solo che la forma ci sia non lo vede;
+lo vede il passo 5 del metodo, **parlando**. La traccia `P0_READ_TRACE=1`
+(`[form] matched …`) dice ora quale forma combacia con un turno.
+
 ## 5. Il metodo
 
 Per ogni abilità scelta, dalla suite o dai piani:

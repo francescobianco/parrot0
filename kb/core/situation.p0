@@ -429,3 +429,79 @@ answer_frame("applicable action", applicable).
 answer_frame_input_arg("applicable action", applicable, 1).
 answer_frame("blocked action", blocked_action).
 answer_frame_input_arg("blocked action", blocked_action, 1).
+
+
+% ══ gen510 — LE CONSEGUENZE: «what happens if X?» / «cosa succede se X?» ══════
+%
+% F. ha chiesto a parrot0 «se sto cadendo da un burrone senza paracadute cosa
+% succedera» e ha ricevuto un muro; in inglese un saggio di metodo. Nessun
+% lettore rispondeva a una domanda di conseguenza da `causes/2`.
+%
+% Stesso contratto dei piani (`turn_plan_candidate/1` + `turn_response/2`):
+% il turno e' candidato solo quando la KB possiede davvero una causa di cui il
+% turno nomina l'evento, e la risposta si compone dalle FRASI con cui quelle
+% cause sono state insegnate (`fact_source/3`) — la voce di chi ha insegnato,
+% non un'etichetta inventata.
+turn_cue_registry(consequence_cue, 1).
+machinery(consequence_cue).
+consequence_cue("what happens if").   consequence_cue("what would happen if").
+consequence_cue("what will happen if"). consequence_cue("what happens when").
+consequence_cue("cosa succede se").   consequence_cue("che succede se").
+consequence_cue("cosa succederebbe se"). consequence_cue("cosa succedera").
+consequence_cue("cosa succederà").
+turn_asks_consequence($T) :- turn_cue($T, consequence_cue, $C).
+
+% L'evento di una causa e' nominato quando OGNI sua parola compare nel turno:
+% detta, come forma di un'altra lingua (`linguistic_form/4`), come caso di una
+% specie (`kind_of_t/2`), o perche' e' una parola funzione.
+machinery(turn_word).
+turn_word($T, $W) :- turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $W).
+event_word_mentioned($T, $W) :- stopword($W).
+event_word_mentioned($T, $W) :- turn_word($T, $W).
+event_word_mentioned($T, $W) :- turn_word($T, $F), linguistic_form($F, $W, $L, $R).
+event_word_mentioned($T, $W) :- turn_word($T, $F), kind_of_t($F, $W).
+event_word_mentioned($T, $W) :- turn_word($T, $F), linguistic_form($F, $C, $L, $R), kind_of_t($C, $W).
+% ...o perche' il concetto della parola appartiene a una CLASSE che l'evento
+% nomina («a cliff is a height» dice che un burrone e' un'altezza).
+event_word_mentioned($T, $W) :- turn_word($T, $F), holds1($W, $F).
+event_word_mentioned($T, $W) :- turn_word($T, $F), linguistic_form($F, $C, $L, $R), holds1($W, $C).
+all_event_words($T, nil).
+all_event_words($T, cons($W, $R)) :- event_word_mentioned($T, $W), all_event_words($T, $R).
+consequence_event($T, $E) :- turn_asks_consequence($T), causes($E, $X), atom_words($E, $Ws), all_event_words($T, $Ws).
+
+has_second_link($X) :- causes($X, $Y).
+consequence_two($T, $E, $X, $Y) :- consequence_event($T, $E), causes($E, $X), causes($X, $Y).
+consequence_one($T, $E, $X) :- consequence_event($T, $E), causes($E, $X), naf(has_second_link($X)).
+
+% La frase che sostiene un anello: quella detta insegnando, se c'e'.
+has_cause_source($E, $X) :- fact_source(causes($E, $X), $K, $S).
+cause_sentence($E, $X, $S) :- fact_source(causes($E, $X), $K, $S).
+cause_sentence($E, $X, $S) :- causes($E, $X), naf(has_cause_source($E, $X)), concat_atoms($E, " causes ", $A), concat_atoms($A, $X, $S).
+
+consequence_opener(en, "From what I've learned: ").
+consequence_opener(it, "Da quello che ho imparato: ").
+consequence_and(en, ", and ").
+consequence_and(it, ", e ").
+answer_content(consequence_two($E, $X, $Y, $L), 0, opener, $P) :- consequence_opener($L, $P).
+answer_content(consequence_two($E, $X, $Y, $L), 1, first, $S) :- cause_sentence($E, $X, $S).
+answer_content(consequence_two($E, $X, $Y, $L), 2, connective, $P) :- consequence_and($L, $P).
+answer_content(consequence_two($E, $X, $Y, $L), 3, second, $S) :- cause_sentence($X, $Y, $S).
+answer_content(consequence_two($E, $X, $Y, $L), 4, terminator, $P) :- sentence_terminator($L, $P).
+answer_content(consequence_one($E, $X, $L), 0, opener, $P) :- consequence_opener($L, $P).
+answer_content(consequence_one($E, $X, $L), 1, first, $S) :- cause_sentence($E, $X, $S).
+answer_content(consequence_one($E, $X, $L), 2, terminator, $P) :- sentence_terminator($L, $P).
+
+turn_plan_candidate($T) :- consequence_event($T, $E).
+
+% E se la domanda chiede una conseguenza di qualcosa che parrot0 non conosce, lo
+% dice, e dice come insegnarglielo: e' la risposta onesta di un interlocutore, e
+% una porta di insegnamento. Prima il turno cadeva nella chiacchiera («I don't
+% have any of my own»).
+has_consequence_event($T) :- consequence_event($T, $E).
+consequence_unknown($T) :- turn_asks_consequence($T), naf(has_consequence_event($T)).
+consequence_unknown_text(en, "I don't know yet what happens in that case. If you tell me what it causes -- «X causes Y» -- I'll hold it and use it next time.").
+consequence_unknown_text(it, "Non so ancora che cosa succede in quel caso. Se mi dici che cosa causa -- «X causes Y» -- lo terrò e lo userò la prossima volta.").
+turn_plan_candidate($T) :- consequence_unknown($T).
+turn_response($T, $Text) :- consequence_unknown($T), current_language($L), consequence_unknown_text($L, $Text).
+turn_response($T, $Text) :- consequence_two($T, $E, $X, $Y), current_language($L), answer_text(consequence_two($E, $X, $Y, $L), $Text).
+turn_response($T, $Text) :- consequence_one($T, $E, $X), current_language($L), answer_text(consequence_one($E, $X, $L), $Text).

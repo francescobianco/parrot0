@@ -184,6 +184,8 @@ fact_source(loser_of(waterloo, napoleon), waterloo, "the loser of waterloo is na
 fact_source(winner_of(waterloo, gebhard_von_blucher), waterloo, "the winner of waterloo is gebhard von blucher").
 fact_source(winner_of(waterloo, arthur_wellesley), waterloo, "the winner of waterloo is arthur wellesley").
 fact_source(battle(waterloo), waterloo, "waterloo is a battle").
+fact_source(causes(violent_impact, serious_injury), violent_impact, "a violent impact causes serious injury").
+fact_source(causes(fall_from_height, violent_impact), fall_from_height, "a fall from height causes a violent impact").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -272,5 +274,7 @@ reading_fact(winner_of(waterloo, gebhard_von_blucher), "the winner of waterloo i
 reading_fact(causes(eutrophication, algae), "eutrophication causes algae to grow and oxygen to fall").
 reading_fact(winner_of(waterloo, arthur_wellesley), "the winner of waterloo is arthur wellesley").
 reading_fact(relation_verb(owner), "owner is a relation verb").
+reading_fact(causes(violent_impact, serious_injury), "a violent impact causes serious injury").
 reading_fact(battle(waterloo), "waterloo is a battle").
+reading_fact(causes(fall_from_height, violent_impact), "a fall from height causes a violent impact").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

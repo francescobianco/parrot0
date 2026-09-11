@@ -12,6 +12,10 @@
 % marcata e una non marcata lessicalizzano lo STESSO concetto nella STESSA
 % lingua; due registri entrambi legittimi non vengono ordinati per invenzione.
 linguistic_form($Form, $Concept, $Language, $Register) :- concept_label($Concept, $Language, $Register, $Form).
+% gen510 — una parola italiana insegnata con «the italian for X is Y» (`tr/2`) e'
+% una forma del concetto inglese: la lezione di traduzione nutre subito la
+% comprensione, senza una seconda tabella.
+linguistic_form($Form, $Concept, it, common) :- tr($Concept, $Form).
 form_mark($Form, $Status) :- label_status($Form, $Status).
 alternative_form($Form, $Alternative, $Language) :- linguistic_form($Form, $Concept, $Language, $Register), linguistic_form($Alternative, $Concept, $Language, $OtherRegister), dif($Form, $Alternative).
 marked_form($Form) :- form_mark($Form, $Status).

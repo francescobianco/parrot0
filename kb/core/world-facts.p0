@@ -1229,6 +1229,8 @@ causes("niacin deficiency", pellagra).
 causes("thiamine deficiency", beriberi).
 causes("vitamin d deficiency", rickets).
 causes("vitamin c deficiency", scurvy).
+causes(violent_impact, serious_injury).
+causes(fall_from_height, violent_impact).
 chemical_symbol(actinium, Ac).
 chemical_symbol(ag, silver).
 chemical_symbol(al, aluminium).
@@ -1639,6 +1641,7 @@ kind_of(poem, text).
 kind_of(sonnet, poem).
 kind_of(spider, invertebrate).
 kind_of(vertebrate, animal).
+kind_of(cliff, height).
 kind_of(whale, mammal).
 kind_of(whale, mammal).    kind_of(mammal, animal).  kind_of(sparrow, bird).
 larger_step(cat, mouse).       larger_step(mouse, ant).
