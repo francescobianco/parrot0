@@ -512,7 +512,7 @@ turn_response($T, $Text) :- consequence_one($T, $E, $X), current_language($L), a
 % inferenza. «Marco è stato punto da uno scorpione e Luca da una zanzara: chi
 % dei due è in pericolo?». E' lavoro della comprensione universale: il turno si
 % legge dall'IR (i token del turno, `turn_surface_token/4`), le premesse diventano
-% ipotesi del turno (`turn_assumes`, asserite dal motore solo mentre risponde),
+% ipotesi del turno (`turn_premise`, assunte dal motore solo mentre risponde),
 % e la risposta e' un'interrogazione dell'IR piu' l'inferenza della KB.
 %
 % I tre circuiti:
@@ -540,8 +540,6 @@ machinery(scenario_translated).
 machinery(scenario_individual).
 machinery(scenario_asks).
 machinery(scenario_marked).
-machinery(turn_assumes).
-machinery(turn_assumes1).
 machinery(scenario_answer).
 machinery(scenario_lines).
 machinery(scenario_line).
@@ -629,14 +627,22 @@ scenario_asks($T, $State, $QW) :-
     scenario_first_word($QW, $First), scenario_tok($T, $S, $I, $First),
     scenario_words_at(at($T, $S, $I), $QW, $E), scenario_marked($T).
 
-turn_assumes($T, $Rel, $Subj, $Ind) :-
+% Le premesse che il turno porta, UNA riga per fatto, come termine: il motore
+% le legge con una chiamata sola, le assume in ipotetico e le ritira a fine
+% turno. Il genere della premessa diventa un individuo (`scorpion_of_marco`),
+% e il fatto sul genere («e' uno scorpione») viaggia insieme alla relazione.
+machinery(turn_premise).
+machinery(scenario_premise_term).
+turn_premise($T, $Term) :-
     scenario_asks($T, $State, $QW),
     scenario_claim($T, c($Subj, rel($Rel, $Words), np($Art, $KW))),
-    scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind).
-turn_assumes1($T, $K, $Ind) :-
-    scenario_asks($T, $State, $QW),
-    scenario_claim($T, c($Subj, rel($Rel, $Words), np($Art, $KW))),
-    scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind).
+    scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind),
+    scenario_premise_term(rel($Rel, $Subj, $Ind), $K, $Term).
+scenario_premise_term(rel($Rel, $Subj, $Ind), $K, $Term) :-
+    concat_atoms($Rel, "(", $X1), concat_atoms($X1, $Subj, $X2),
+    concat_atoms($X2, ", ", $X3), concat_atoms($X3, $Ind, $X4), concat_atoms($X4, ")", $Term).
+scenario_premise_term(rel($Rel, $Subj, $Ind), $K, $Term) :-
+    concat_atoms($K, "(", $X1), concat_atoms($X1, $Ind, $X2), concat_atoms($X2, ")", $Term).
 
 turn_plan_candidate($T) :-
     scenario_asks($T, $State, $QW), scenario_claim($T, $Claim).

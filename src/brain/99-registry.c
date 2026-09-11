@@ -4811,8 +4811,8 @@ static void turn_publish_cues(Brain *b, const char *surface) {
  * «Marco e' stato punto da uno scorpione e Luca da una zanzara: chi dei due e'
  * in pericolo?» porta nel turno stesso le premesse della domanda. Non sono
  * conoscenza del mondo da salvare — sono l'ipotesi entro cui la domanda ha
- * senso. Quali premesse il turno porta lo dice la KB (`turn_assumes/4`,
- * `turn_assumes1/3`, letti dall'IR del turno in situation.p0); qui c'e' solo la
+ * senso. Quali premesse il turno porta lo dice la KB (`turn_premise/2`,
+ * letto dall'IR del turno in situation.p0); qui c'e' solo la
  * meccanica: asserirle con provenienza ipotetica prima che il piano risponda,
  * e ritirarle subito dopo. E' il percorso storico del sillogismo in un turno
  * (`KB_HYPOTHETICAL`), reso generale: la forma delle premesse non e' piu' «if
@@ -4840,51 +4840,59 @@ static int turn_assume_fact(Brain *b, TurnPremise **scope, const char *pred,
     return 1;
 }
 
-static int turn_assume_rows(Brain *b, const char *pred, size_t arity, TurnPremise **scope) {
-    int n = 0;
-    char (*ps)[KB_TERM_LEN] = NULL; size_t np = 0;
-    const char *pq[4] = { "current_turn", NULL, NULL, NULL };
-    if (!kb_match_all(b->kb, pred, pq, arity + 2, &ps, &np)) np = 0;
-    for (size_t i = 0; i < np; i++) {
-        char rel[KB_TERM_LEN]; snprintf(rel, sizeof rel, "%s", ps[i]);
-        int seen = 0;
-        for (size_t j = 0; j < i && !seen; j++) if (!strcmp(ps[j], ps[i])) seen = 1;
-        if (seen) continue;
-        char (*as)[KB_TERM_LEN] = NULL; size_t na = 0;
-        const char *aq[4] = { "current_turn", rel, NULL, NULL };
-        if (kb_match_all(b->kb, pred, aq, arity + 2, &as, &na)) {
-            for (size_t j = 0; j < na; j++) {
-                char a[KB_TERM_LEN]; snprintf(a, sizeof a, "%s", as[j]);
-                if (arity == 1) {
-                    const char *fa[1] = { a };
-                    n += turn_assume_fact(b, scope, rel, fa, 1);
-                    continue;
-                }
-                char (*bs)[KB_TERM_LEN] = NULL; size_t nb = 0;
-                const char *bq[4] = { "current_turn", rel, a, NULL };
-                if (kb_match_all(b->kb, pred, bq, 4, &bs, &nb)) {
-                    for (size_t k = 0; k < nb; k++) {
-                        const char *fa[2] = { a, bs[k] };
-                        n += turn_assume_fact(b, scope, rel, fa, 2);
-                    }
-                }
-                free(bs);
-            }
-        }
-        free(as);
+/* gen512 (decimo giro): UNA chiamata sola. La KB dice ogni premessa come un
+ * termine («stung_by(marco, scorpion_of_marco)», «scorpion(scorpion_of_marco)»)
+ * in `turn_premise/2`; prima il C enumerava predicato, soggetto e oggetto con
+ * sette chiamate, e ognuna ricalcolava la lettura dello scenario (misurato:
+ * 275 ms su 734). Le viste materializzate non aiutavano: si costruiscono solo
+ * a una domanda di primo livello, e la lettura e' sempre dentro una prova. */
+static int turn_premise_parse(const char *term, char *pred,
+                              char args[2][KB_TERM_LEN], size_t *arity) {
+    const char *lp = strchr(term, '(');
+    const char *rp = term ? strrchr(term, ')') : NULL;
+    if (!lp || !rp || rp < lp) return 0;
+    size_t pl = (size_t)(lp - term);
+    if (!pl || pl >= KB_TERM_LEN) return 0;
+    memcpy(pred, term, pl); pred[pl] = '\0';
+    char inner[KB_TERM_LEN];
+    size_t il = (size_t)(rp - lp - 1);
+    if (il >= sizeof inner) return 0;
+    memcpy(inner, lp + 1, il); inner[il] = '\0';
+    *arity = 0;
+    char *p = inner;
+    while (*p && *arity < 2) {
+        while (*p == ' ') p++;
+        char *c = strchr(p, ',');
+        if (c) *c = '\0';
+        size_t l = strlen(p);
+        while (l && p[l - 1] == ' ') p[--l] = '\0';
+        if (!l) return 0;
+        snprintf(args[(*arity)++], KB_TERM_LEN, "%s", p);
+        if (!c) break;
+        p = c + 1;
     }
-    free(ps);
-    return n;
+    return *arity > 0;
 }
 
 static int turn_assume_premises(Brain *b, TurnPremise **scope) {
     if (!b || !b->kb) return 0;
+    char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
+    const char *q[2] = { "current_turn", NULL };
+    if (!kb_match_all(b->kb, "turn_premise", q, 2, &rows, &n)) n = 0;
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_HYPOTHETICAL);
-    int n = turn_assume_rows(b, "turn_assumes", 2, scope) + turn_assume_rows(b, "turn_assumes1", 1, scope);
+    int added = 0;
+    for (size_t i = 0; i < n; i++) {
+        char pred[KB_TERM_LEN], args[2][KB_TERM_LEN]; size_t arity = 0;
+        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", rows[i]);
+        if (!turn_premise_parse(kb_dequote(tb), pred, args, &arity)) continue;
+        const char *fa[2] = { args[0], args[1] };
+        added += turn_assume_fact(b, scope, pred, fa, arity);
+    }
+    free(rows);
     kb_set_origin(b->kb, prev);
-    if (getenv("P0_READ_TRACE") && n) fprintf(stderr, "[turn] assumed %d premise(s)\n", n);
-    return n;
+    if (getenv("P0_READ_TRACE") && added) fprintf(stderr, "[turn] assumed %d premise(s)\n", added);
+    return added;
 }
 
 static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
