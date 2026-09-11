@@ -183,6 +183,75 @@ prova), cioè il prossimo gradino.
 Costo: ~1,4 s per una lezione che non ha una forma lettrice, soltanto quando si
 insegna.
 
+### 4.5 Un buco vale per ciò che la forma dichiara in quel posto (gen512)
+
+Il punto 1 della coda del gen511: le quattro lezioni che **presuppongono un
+referente**. La diagnosi, fatta leggendo le forme invece di aggiungere una
+«preparazione» per ciascuna: tre delle quattro sono lette da **forme**, e la
+verifica statica falliva per due ragioni meccaniche, non di contenuto.
+
+- Un pezzo `named(situation_cue, …)` non accettava una variabile: il buco non è
+  una situazione nota, e con parole nuove non lo diventa mai. Ma il buco **non
+  è una parola**: è il posto dove chi userà la forma metterà la sua, e la forma
+  stessa dice che cosa ci può andare. Quindi, in verifica, una variabile copre
+  un pezzo `named`.
+- «forget that x»: la `x` finale deve coprire soggetto, relazione e oggetto.
+  L'ultimo buco copre il resto della forma, come l'ultima variabile della
+  sorgente ne prende il resto.
+
+Una radice nuova del motore, senza vocabolario: la **modalità buchi** di
+`p0_form_match` (`p0_form_holes`), accesa solo mentre si verifica un bersaglio.
+
+**Tre corrispondenze spurie, trovate guardando anche gli «ok»** (mantra #9 — il
+circuito rispondeva bene, per il motivo sbagliato). Ognuna è una regola del
+buco, e insieme dicono che cosa un buco è:
+
+| Il bersaglio «correction: x is y» combaciava con | perché | la regola |
+|---|---|---|
+| `negate_relation` | `x` copriva `class(negation_marker)` | in mezzo, un buco sta solo per un **referente** (`named`), mai per una parola della grammatica (`class`, `relation`) |
+| `teach_rel_chain` | `y` finale copriva anche `text("followed by")` | l'ultimo buco copre il resto, ma **non un'ancora**: un `text` che la forma esige deve stare nel bersaglio |
+| `teach_def_use` | «correction: x» letto come la *definizione* di una costruzione | nel bersaglio una variabile è un buco, non la variabile di una definizione |
+
+Chiuse le tre, «correction: x is y» **declina di nuovo, onestamente**: la legge
+un modulo compilato che vuole un valore noto (anche con il referente preparato,
+«qzxa is qzxc» mura). È la sola catena delle 34 che finisce ancora nel C, e la
+sua via d'uscita è il punto 5 della coda: portato il lettore degli attributi in
+una forma con un pezzo `named` sul valore, la modalità buchi lo coprirà senza
+altro lavoro.
+
+| | gen511 | gen512 |
+|---|---|---|
+| catene che finiscono in un circolo, sulle 34 del catalogo | 30/34 | **33/34** |
+
+**Due anelli rotti a valle, trovati usando le forme sul serio.**
+
+1. L'ultima variabile della sorgente diventava `rest(x)`, e `rest` salta
+   l'articolo iniziale (gen510, per i soggetti delle forme a mano): «what about
+   the recipe is missing» si ridiceva «your plan when recipe is missing», e la
+   situazione nota non combaciava più. Ora resta uno `span`, come tutte le
+   altre: ciò che verrà ridetto si conserva come il lettore lo vedrà.
+2. `reread` prendeva il turno anche quando la frase ridetta murava: una
+   sorgente larga avrebbe restituito il muro di una frase che l'interlocutore
+   non ha detto. Ora la rilettura rivendica il turno solo se tiene, con lo
+   stesso criterio della prova nel figlio (`reply_is_wall`).
+
+**Il segno d'uso reale** (il passo 7 del §5, nato in questo giro): due lezioni
+vere insegnate in `make chat`, usate su conoscenza reale, salvate e
+riverificate in un processo nuovo — «what is your plan when x means your plan
+when x?» (il piano vero di parrot0, chiesto anche con «you have no steps», mai
+usato per insegnare) e «stop believing that x means forget that x» (su «the
+heart pumps blood», poi reinsegnato). La lezione sui piani con un atto
+`assert` (**upon x do y**) è provata ma **non salvata**: l'unica mossa fuori dal
+piano, `decline_steps`, ne sta fuori per scelta (messages.p0), e le altre
+sarebbero duplicati.
+
+**Che cosa resta fuori, e perché:** le lezioni e le ritrattazioni che nominano
+un «plan» le prende l'analisi di progettazione (`analysis_act_cue(design_analysis,
+keyword(plan))`), che nel registro sta prima del lettore delle lezioni; la
+forma italiana («smetti di credere che x significa …») si salva mezza tradotta
+(«smetti of credere what x») e l'uso lo prende un altro lettore — il muro
+italiano del gen510.
+
 ## 5. Il metodo
 
 Per ogni abilità scelta, dalla suite o dai piani:
@@ -198,6 +267,13 @@ Per ogni abilità scelta, dalla suite o dai piani:
    anche se la forma esiste.
 6. **Scegliere il lavoro**: il buco più vicino alla radice che chiude più
    catene insieme.
+7. **Lasciare il segno d'uso reale** (F., 2026-09-11, requisito di ogni giro):
+   un anello aperto si insegna in `make chat` con una lezione vera, si usa su
+   conoscenza reale, si salva, si legge il diff della KB, si committa e si
+   pusha. Le parole inventate provano la meccanica e non si salvano; se un uso
+   reale non c'è ancora, lo si scrive invece di inventarlo. Dettaglio in
+   `LEARN_PROTOCOL.md` §6, «Ogni superficie scoperta lascia un segno d'uso
+   reale».
 
 Il gradino S2 dell'esempio 4.1 chiude, se aperto, le catene di tutte le forme
 di lezione: è un buco ad alta leva.

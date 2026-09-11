@@ -1651,6 +1651,8 @@ turn_form_priority(teach_situation_cue, early).
 % «your plan when you don't have the steps?» finiva all'analisi di ultima istanza.
 turn_form_priority(ask_plan, early).
 turn_form_priority(ask_plan_it, early).
+turn_form_priority(taught_form_2, early).
+turn_form_priority(taught_form_1, early).
 % E il risultato di una forma di lezione e' un ESITO, non una resa travestita:
 % dice che cosa ha appreso o racconta un piano, e non deve ripetere le parole
 % del turno per valere. Senza, l'analisi di ultima istanza sostituiva il piano
@@ -2833,7 +2835,13 @@ turn_form_act(teach_plan, assert_plan_move).
 turn_form(teach_plan_it, 1, text("when")).
 turn_form(teach_plan_it, 2, named(situation_cue, situation)).
 turn_form(teach_plan_it, 3, text("allora")).
+turn_form(taught_form_2, 2, span(x)).
+turn_form(taught_form_2, 1, text("stop believing that")).
+turn_form_act(taught_form_2, reread(forget that {x})).
 turn_form(teach_plan_it, 4, named(move_cue, move)).
+turn_form(taught_form_1, 2, span(x)).
+turn_form(taught_form_1, 1, text("what is your plan when")).
+turn_form_act(taught_form_1, reread(your plan when {x})).
 turn_form_mood(teach_plan_it, statement).
 turn_form_act(teach_plan_it, assert_plan_move).
 % ⚠ La forma italiana e' dichiarata ma NON arriva: lo smalltalk prende il turno

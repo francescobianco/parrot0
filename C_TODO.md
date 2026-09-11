@@ -1,5 +1,35 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-11 — gen512: il buco tipato, e la condizione per cui una rilettura prende il turno
+
+Metodo e misure: `docs/plans/radici-insegnabilita.md` §4.5. **Bilancio onesto:
+C +81/−10, KB +41 (tutte da `/save` di lezioni vere, nessuna a mano).** Il C
+cresce: non è una migrazione, è una radice nuova del motore, senza vocabolario.
+
+- **`p0_form_holes`**: mentre si verifica il bersaglio di «S means T», una
+  variabile copre un pezzo `named` (un referente), e l'ultima copre il resto
+  della forma se il resto non contiene un'ancora `text`; in quella modalità
+  `p0_relation_expr` non legge una variabile come la variabile di una
+  definizione. Tre regole, ciascuna nata da una corrispondenza spuria misurata.
+- **`reread` rivendica il turno solo se la rilettura tiene** (`reply_is_wall`,
+  lo stesso criterio di `p0_try_reading`).
+- **L'ultima variabile della sorgente resta `span`**: `rest` saltava l'articolo.
+
+Residui aperti, in ordine di leva:
+
+1. **`correction: x is y`** è l'ultima catena delle 34 che finisce nel C: la
+   legge il modulo compilato degli attributi, che vuole un valore noto. Portare
+   quel lettore in una forma con `named` sul valore la chiude senza altro
+   lavoro (è il punto 4 del gen511 qui sotto, con un primo candidato preciso).
+2. **L'analisi di progettazione ruba le lezioni che nominano «plan»**
+   (`analysis_act_cue(design_analysis, keyword(plan))`, e il modulo sta prima di
+   `mod_knowledge` nel registro). Una lezione non è una richiesta di analisi:
+   la guardia va dichiarata come condotta (mantra #17), dopo aver letto la
+   maturità del modulo (mantra #21) — non come una cessione a un modulo
+   immaturo.
+3. `p0_try_reading` resta la sola via per i bersagli letti da moduli
+   compilati: finché i sette lettori non sono forme, la verifica costa un fork.
+
 ## 2026-09-11 — gen511: le LEZIONI compilate sono ora bersagli, e una forma nuova non costa C
 
 Metodo: `docs/plans/radici-insegnabilita.md` §4.4. Due primitive nuove del

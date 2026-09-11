@@ -1,6 +1,87 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# 🌱 HANDOFF — 11 settembre 2026 (`gen511`): LA MISSIONE DELLA FRONTIERA DI INSEGNABILITÀ. RIPARTIRE DA QUI.
+# 🌱 HANDOFF — 11 settembre 2026, sera (`gen512`): il buco tipato, 33/34, e il SEGNO D'USO REALE. RIPARTIRE DA QUI.
+
+La missione del gen511 continua (la teoria resta in
+`docs/plans/radici-insegnabilita.md`; **§4.5 è questo giro, con le misure**).
+
+## ⛔ 0. Il requisito nuovo di F., che vale per ogni giro da qui in poi
+
+> *«man mano che le lezioni vengono apprese insegna cose vere che verranno
+> committate e pusha … ogni cosa che scopriamo funzionare deve essere
+> verificata con make chat e il segno di ciò che è appreso usando solo fatti
+> reali deve rimanere in KB … è fondamentale.»*
+
+Un giro che apre una superficie **non è chiuso** finché la superficie non è
+stata insegnata in `make chat` con una lezione vera, usata su conoscenza reale,
+salvata (`/save`, diff letto, zero clausole false), riverificata in un processo
+nuovo, committata e pushata. Le parole inventate provano la meccanica e non si
+salvano. Scritto in `LEARN_PROTOCOL.md` §6 («Ogni superficie scoperta lascia un
+segno d'uso reale») e nel metodo, `radici-insegnabilita.md` §5 passo 7.
+
+## 1. Che cosa ha fatto il giro
+
+- **Punto 1 della coda gen511 chiuso per tre su quattro.** `forget that x`,
+  `when x then y`, `your plan when x?` sono ora bersagli di una forma insegnata:
+  in verifica una variabile vale per ciò che la forma dichiara in quel posto
+  (`named`), e l'ultima copre il resto (`p0_form_holes`). Vitalità del
+  catalogo: **30/34 → 33/34**.
+- **Tre corrispondenze spurie trovate e chiuse** leggendo la traccia di un
+  «ok» (la tabella in §4.5): è da lì che vengono le regole del buco.
+- **Due anelli rotti a valle**: l'ultima variabile perdeva l'articolo (`rest` →
+  `span`), e una rilettura che mura non prende più il turno.
+- **Il segno d'uso reale, salvato e pushato**: `taught_form_1` «what is your plan
+  when x» e `taught_form_2` «stop believing that x», in `kb/core/messages.p0`,
+  con provenienza e transcript. Verificate in un processo nuovo senza ripetere
+  le lezioni.
+- Cricchetto: `taught_lesson_form.p0t` 32/32 (casi nuovi: dimenticare
+  attraverso una forma, il piano con due `named`, il declino di `correction:`).
+  `make soft-test` verde in 7 s. Suite intera non lanciata (politica di F.).
+
+## 2. ⛔ Come continuare — in ordine di leva
+
+1. **L'analisi di progettazione ruba le lezioni che nominano «plan»** — la
+   lezione «how do you act when x means your plan when x?» e ogni ritrattazione
+   «forget that … your plan when x?» diventano un saggio di progettazione.
+   Grilletto: `analysis_act_cue(design_analysis, keyword(plan))`
+   (intents.p0:3622), modulo prima di `mod_knowledge`. È il circuito del
+   prossimo giro: «un turno che insegna non è una richiesta di analisi», come
+   condotta dichiarata (mantra #17), dopo aver letto la maturità del modulo
+   (#21). Finché resta, **`taught_form_1` non si può ritrattare parlando**.
+2. **`correction: x is y`**, l'ultima delle 34: il lettore compilato degli
+   attributi vuole un valore noto. Portarlo in una forma con `named` sul valore
+   (C_TODO gen512 punto 1); la modalità buchi lo coprirà da sola.
+3. **L'italiano delle forme insegnate**: «smetti di credere che x significa
+   forget that x» salva la sorgente come «smetti of credere what x», e l'uso
+   («smetti di credere che il cuore pompa il sangue») lo prende un lettore della
+   persona («Okay, I'm myself again»). Anche «il tuo piano quando non hai i
+   passi?» non arriva **già oggi** (smalltalk). È il muro italiano del gen510.
+4. I punti 2-6 della coda gen511 qui sotto restano validi (accordo di numero
+   fra le superfici, massimizzare parlando, S3 con due atti, migrazione dei
+   lettori compilati, censire le altre catene) — **e ognuno ora chiude solo con
+   il segno d'uso reale del §0**.
+
+## 3. Trappole di questo giro
+
+- ⚠ **Un «ok» della verifica può essere un ok per il motivo sbagliato.**
+  «correction: x is y» è stato accettato tre volte da tre forme che non
+  c'entravano: `P0_READ_TRACE=1` → `[form] rewrite target read by …` dice chi.
+- ⚠ **`assert_plan_move` non deduplica**: «upon you don't have the steps do say
+  what problem it solves» aggiunge la mossa 3 identica alla 2. Per questo la
+  lezione dei piani è provata ma non salvata. E «unlearn what you do when …»
+  toglie **tutte** le mosse, comprese quelle di base: mai in un `.p0t`.
+- ⚠ Il `/save` di una sessione che ha dimenticato apposta un fatto vero registra
+  anche il gap che quel vuoto ha prodotto (`gap-registry.p0`: «what does the
+  heart pump?», reachability). Il gap è storicamente vero e §8 vieta i filtri
+  distruttivi, quindi è rimasto: si tenga presente se il sogno lo ripesca.
+- `make chat` parte senza sessione persistente (main.c mette
+  `PARROT0_SESSION` a vuoto): l'unica persistenza è `/save`, e la REPL legge
+  righe da stdin, quindi una sessione vera si può guidare con `printf … | make
+  chat` e il transcript resta leggibile.
+
+---
+
+# 🌱 HANDOFF — 11 settembre 2026 (`gen511`): LA MISSIONE DELLA FRONTIERA DI INSEGNABILITÀ.
 
 > F.: *«cerca di ridurre le abilità congelate nel C, di renderle apprendibili
 > attraverso i principi KB-first … attraverso le idee di

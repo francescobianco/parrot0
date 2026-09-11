@@ -136,6 +136,7 @@ gap_kind("saudade may never return", reachability).
 gap_source("the metaphor maps what?", "the metaphor maps what?").
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("what is measured by the farad?", reachability).
+gap_kind("what does the heart pump?", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
@@ -160,3 +161,4 @@ gap_source("because is a ground connector", "because is a ground connector").
 gap_source("petrichor rises when rain falls on dry ground", "petrichor rises when rain falls on dry ground").
 gap_source("saudade may never return", "saudade may never return").
 gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").
+gap_source("what does the heart pump?", "what does the heart pump?").

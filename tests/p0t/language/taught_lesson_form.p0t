@@ -103,6 +103,31 @@
 !forget zendrat(vorlik)
 !forget taught_question_cue(forse)
 
+[test gen512 un buco vale per il referente che la forma dichiara]
+!timeout 12
+# «when x then y» e «forget that x» presuppongono un referente: una situazione
+# e una mossa note, un fatto da togliere. Con parole nuove la prova murava; ora
+# la variabile del bersaglio vale per cio' che la forma dichiara in quel posto
+# (`named`), e l'ultima copre il resto della frase.
+# ⚠ Non qui «… means your plan when x?»: si impara e si usa, ma la sua
+# ritrattazione la prende l'analisi di progettazione (`keyword(plan)`), e il
+# file non resterebbe idempotente (LEARN_TODO gen512).
+> dismiss x means forget that x
+<~ From now on I'll read «dismiss x»
+> vorlik is a zendrat
+> dismiss vorlik is a zendrat
+!query! zendrat(vorlik)
+> upon x do y means when x then y
+<~ From now on I'll read «upon x do y»
+# Il buco non copre un'ancora ne' una parola della grammatica: il lettore
+# compilato delle correzioni vuole un valore noto, e la lezione declina ancora.
+> x fixes y means correction: x is y
+<~ I cannot anchor that lesson yet
+> forget that dismiss x means forget that x
+<~ no longer
+> forget that upon x do y means when x then y
+<~ no longer
+
 [test R3: si ritira tutto cio' che si e' insegnato]
 !timeout 8
 > forget that x is interrogative means x counts as a question

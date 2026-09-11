@@ -13321,6 +13321,10 @@ static int p0_expr_span_has_var(Brain *b, char **w, size_t from, size_t to) {
     return 0;
 }
 
+/* gen512 — acceso mentre si verifica il bersaglio di una lezione «S means T»:
+ * le variabili sono BUCHI della forma nuova (vedi sopra `p0_form_match`). */
+static int p0_form_holes = 0;
+
 static int p0_relation_expr(Brain *b, char **w, size_t from, size_t to,
                             char *term, size_t tsz, char *said, size_t ssz,
                             int *top_ctor) {
@@ -13336,7 +13340,10 @@ static int p0_relation_expr(Brain *b, char **w, size_t from, size_t to,
     }
     if (to > from + 1) {                                  /* una costruzione applicata */
         const char *cq[1] = { t0 };
-        int defining = p0_expr_span_has_var(b, w, from + 1, to);
+        /* Nel bersaglio di una riscrittura una variabile e' un buco, non la
+         * variabile di una definizione: «correction: x» non definisce
+         * `correction` (misurato: combaciava con `teach_def_use`). */
+        int defining = !p0_form_holes && p0_expr_span_has_var(b, w, from + 1, to);
         if (defining || kb_query(b->kb, "relation_construction", cq, 1)) {
             char inner[KB_TERM_LEN], insaid[KB_TERM_LEN]; int ic = 0;
             if (p0_relation_expr(b, w, from + 1, to, inner, sizeof inner,
@@ -13393,6 +13400,22 @@ static size_t p0_expr_span_end(Brain *b, const char *form, long ord,
     return nw;
 }
 
+/* gen512 — UN BUCO VALE PER CIO' CHE LA FORMA DICHIARA IN QUEL POSTO.
+ *
+ * La verifica di una lezione «S means T» (gen511) chiede se una forma legge T
+ * con le variabili al posto dei valori. Una variabile passava per uno slot, ma
+ * non per un pezzo che vuole un REFERENTE — `named(situation_cue, …)`, una
+ * `relation`, una `class` — e le lezioni che puntano ai piani («when x then y»,
+ * «your plan when x?») declinavano: il buco non e' una situazione nota, e con
+ * parole nuove non lo diventa mai (radici-insegnabilita.md §4.4). Ma il buco
+ * non e' una parola: e' il posto dove chi usera' la forma mettera' la sua, e la
+ * forma stessa dice che cosa ci puo' andare. Quindi, qui, una variabile copre
+ * qualunque pezzo che consumi parole; e l'ULTIMA copre tutti i pezzi rimasti,
+ * come la variabile che chiude la sorgente ne diventa il `rest` («forget that
+ * x»: x sara' «vorlik is a zendrat»). Solo per la verifica: all'uso la frase
+ * ridetta ha le parole vere, e la legge chi la legge. La bandiera e' dichiarata
+ * sopra `p0_relation_expr`, che la legge anche lei. */
+
 /* Prova UNA forma sul turno. Torna 1 se ogni pezzo combacia e il turno finisce. */
 static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
                          P0FormSlot *slots, size_t *nslot) {
@@ -13414,6 +13437,36 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
         const char *piece = kb_dequote(pb);
         char kind[KB_TERM_LEN], arg[KB_TERM_LEN];
         if (!p0_form_piece_kind(piece, kind, sizeof kind, arg, sizeof arg)) return 0;
+        if (p0_form_holes && i < nw && strcmp(kind, "text") && strcmp(kind, "bind")) {
+            char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", w[i]);
+            char hl[KB_TERM_LEN]; lowercase_copy(hl, sizeof hl, strip_edge_punct(hb));
+            if (p0_expr_var(b, hl)) {
+                /* L'ultimo buco copre il resto, ma non un'ANCORA: un `text` che
+                 * la forma esige deve stare nel bersaglio. Misurato: «correction:
+                 * x is y» combaciava con `teach_rel_chain` perche' y copriva
+                 * anche il suo «followed by». */
+                if (i + 1 == nw) {
+                    int anchored = 0;
+                    for (long o2 = ord + 1; o2 <= 16 && !anchored; o2++) {
+                        char ob2[24]; snprintf(ob2, sizeof ob2, "%ld", o2);
+                        char p2[4][KB_TERM_LEN];
+                        const char *q2[3] = { form, ob2, NULL };
+                        if (kb_match(b->kb, "turn_form", q2, 3, p2, 4) == 0) break;
+                        char k2[KB_TERM_LEN], a2[KB_TERM_LEN];
+                        if (p0_form_piece_kind(kb_dequote(p2[0]), k2, sizeof k2, a2, sizeof a2) &&
+                            !strcmp(k2, "text")) anchored = 1;
+                    }
+                    if (!anchored) return 1;
+                }
+                /* In mezzo, un buco sta solo per un REFERENTE (`named`). Non per
+                 * una `class` o una `relation`: sono parole della grammatica, e
+                 * chi insegna non ci mette il suo contenuto. Misurato: con la
+                 * classe coperta, «correction: x is y» combaciava con
+                 * `negate_relation` («correction:» soggetto, x la negazione). Slot,
+                 * span e rest accettano gia' una parola qualunque. */
+                if (!strcmp(kind, "named")) { i++; continue; }
+            }
+        }
         if (!strcmp(kind, "class")) {
             size_t run = p0_form_class_run(b, w, nw, i, arg);
             if (!run) return 0;
@@ -14052,6 +14105,7 @@ static int p0_run_op(Brain *b, const char *act, P0FormSlot *slots, size_t ns,
 /* gen510 — vedi `mod_lesson_form`: nel passaggio anticipato si leggono solo le
  * forme dichiarate `turn_form_priority(Forma, early)`. */
 static int p0_forms_early_only = 0;
+static int reply_is_wall(Brain *b, const char *reply);   /* 99-registry.c */
 
 static int p0_turn_form_reader(Brain *b, const char *norm,
                                char *out, size_t out_size) {
@@ -14190,7 +14244,13 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             size_t rn = brain_respond(b, said, out, out_size);
             reread_depth--;
             p0_forms_early_only = saved_early;
-            if (rn && out[0]) { free(forms); return 1; }
+            /* gen512 — la rilettura rivendica il turno solo se TIENE, con lo
+             * stesso criterio della prova (`p0_try_reading`): una forma con una
+             * sorgente larga («what about x») ridiceva ogni turno che le
+             * somigliava e restituiva il muro della frase ridetta, invece di
+             * lasciare il turno a chi lo sa leggere. */
+            if (rn && out[0] && !reply_is_wall(b, out)) { free(forms); return 1; }
+            out[0] = '\0';
             continue;
         }
         if (!strncmp(act, "op(", 3)) {
@@ -14683,8 +14743,8 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
  *
  * Qui la stessa lezione produce una forma ORDINARIA, nella stessa
  * rappresentazione delle forme scritte a mano: i pezzi letterali di S diventano
- * `text(…)`, ogni variabile (`rule_variable/1`) diventa `span(x)` — o
- * `rest(x)` se chiude la frase — e l'atto e' `reread(T)` con i buchi {x}. Il
+ * `text(…)`, ogni variabile (`rule_variable/1`) diventa `span(x)` — anche
+ * quella che chiude la frase (gen512) — e l'atto e' `reread(T)` con i buchi {x}. Il
  * lettore e' quello che c'era; niente seconda lettura (mantra #22).
  *
  * Due guardie, entrambe dal metodo delle radici: il bersaglio deve essere LETTO
@@ -14727,12 +14787,12 @@ static int p0_rewrite_build(Brain *b, const char *lhs, const char *rhs,
         ntext++;
     }
     if (!ntext) return 0;
-    /* la variabile che chiude la frase ne prende il resto */
-    if (!strncmp(pieces[*npieces - 1], "span(", 5)) {
-        char v[KB_TERM_LEN]; snprintf(v, sizeof v, "%s", pieces[*npieces - 1] + 5);
-        size_t vl = strlen(v); if (vl) v[vl - 1] = '\0';
-        snprintf(pieces[*npieces - 1], KB_TERM_LEN, "rest(%s)", v);
-    }
+    /* gen512 — anche la variabile che chiude la frase resta uno `span`, che in
+     * fondo alla forma arriva fino alla fine del turno. Diventava `rest`, e
+     * `rest` salta l'articolo iniziale (gen510, per i soggetti delle forme
+     * scritte a mano): «what about the recipe is missing» si ridiceva «your
+     * plan when recipe is missing», e la situazione nota non combaciava piu'.
+     * Cio' che verra' ridetto si conserva come il lettore lo vedra'. */
     /* il bersaglio: le stesse variabili diventano buchi {x} */
     char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rhs);
     char *rw[48]; size_t rn = split_words(rb, rw, 48);
@@ -14762,6 +14822,16 @@ static int p0_rewrite_target_read(Brain *b, const char *rhs) {
     char (*fs)[KB_TERM_LEN] = NULL; size_t nfs = 0;
     const char *fq[2] = { NULL, NULL };
     int readable = 0;
+    /* un bersaglio di soli buchi combacerebbe con ogni forma (p0_form_holes) */
+    { char cb[300]; snprintf(cb, sizeof cb, "%s", rhs);
+      char *cw[48]; size_t cn = split_words(cb, cw, 48), lit = 0;
+      for (size_t k = 0; k < cn; k++) {
+          char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", cw[k]);
+          char lc[KB_TERM_LEN]; lowercase_copy(lc, sizeof lc, strip_edge_punct(t));
+          if (*lc && !p0_expr_var(b, lc)) lit++;
+      }
+      if (!lit) return 0; }
+    p0_form_holes = 1;
     if (kb_match_all(b->kb, "turn_form_act", fq, 2, &fs, &nfs)) {
         for (size_t k = 0; k < nfs && !readable; k++) {
             char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", fs[k]);
@@ -14775,6 +14845,7 @@ static int p0_rewrite_target_read(Brain *b, const char *rhs) {
             }
         }
     }
+    p0_form_holes = 0;
     free(fs);
     return readable;
 }
