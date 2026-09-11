@@ -470,6 +470,13 @@ size_t brain_canonical(Brain *b, const char *input, char *out, size_t out_size) 
     if (!b || !input || !out || out_size == 0) return 0;
     char norm[256];
     normalize(input, norm, sizeof norm);
+    /* gen511: dentro un turno il testo e' un frammento (un'ancora, un valore,
+     * la clausola di un replay): ha la sua lingua ma non sposta quella del
+     * discorso — vedi `canonicalize_fragment`. */
+    if (b->respond_depth > 0) {
+        canonicalize_fragment(b, norm, out, out_size);
+        return strlen(out);
+    }
     /* La lingua del turno si rileva PRIMA di canonicalizzare, esattamente come in
      * brain_respond: le parole funzione sono scoped per lingua, quindi ispezionare
      * senza rilevare mostrerebbe una forma che il turno vero non produce mai. */
@@ -3476,24 +3483,35 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
     }
     /* gen510 — PASSO 4 DEL PIANO DI TRADUZIONE (gloss.p0, `translate_turn`):
      * la lettura ottenuta per ipotesi resta nel contesto della risposta. Se
-     * c'e' e che cosa dire lo decide `turn_reply_preface/2`; un muro non ha
-     * niente da qualificare.
-     * TODO(handoff gen510): mostra solo la PRIMA ipotesi; con due parole
-     * indovinate («mangiano i gatti») andrebbero dette entrambe (fold in KB).
+     * c'e' e su quali parole lo decide `turn_reply_qualifies/3`, la frase la
+     * famiglia `translation_preface`; un muro non ha niente da qualificare.
+     * gen511: si dicono TUTTE le ipotesi usate, una frase per parola.
      * TODO(handoff gen510): le vie che rispondono senza passare da turn_done
      * (i `return strlen(out)` di brain_respond) non ricevono la premessa. */
     if (b && b->kb && out && *out && strcmp(b->last_module, "fallback") != 0) {
-        const char *pq[2] = { "current_turn", NULL };
-        char pf[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "turn_reply_preface", pq, 2, pf, 1) == 1) {
-            const char *pre = kb_dequote(pf[0]);
-            size_t pl = strlen(pre);
-            if (pl && strncmp(out, pre, pl) != 0) {
-                char joined[4096];
-                snprintf(joined, sizeof joined, "%s%s%s", pre,
-                         pre[pl - 1] == ' ' ? "" : " ", out);
-                put(joined, out, out_size);
+        const char *wq[3] = { "current_turn", NULL, NULL };
+        char (*ws)[KB_TERM_LEN] = NULL; size_t nws = 0;
+        char pre[2048]; size_t pl = 0; pre[0] = '\0';
+        if (kb_match_all(b->kb, "turn_reply_qualifies", wq, 3, &ws, &nws)) {
+            for (size_t k = 0; k < nws && pl + 1 < sizeof pre; k++) {
+                const char *eq[3] = { "current_turn", ws[k], NULL };
+                char en[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "turn_reply_qualifies", eq, 3, en, 1) != 1) continue;
+                char wb[KB_TERM_LEN]; snprintf(wb, sizeof wb, "%s", ws[k]);
+                const KbResponseSlot sl[] = {
+                    { "word", kb_dequote(wb) }, { "en", kb_dequote(en[0]) }
+                };
+                char line[512];
+                if (!kb_response_slots(b, "translation_preface", sl, 2, line, sizeof line) || !*line)
+                    continue;
+                pl += (size_t)snprintf(pre + pl, sizeof pre - pl, "%s ", line);
             }
+        }
+        free(ws);
+        if (pl && pl < sizeof pre && strncmp(out, pre, pl) != 0) {
+            char joined[4096];
+            snprintf(joined, sizeof joined, "%s%s", pre, out);
+            put(joined, out, out_size);
         }
     }
     note_arith_result(b, out);
@@ -4965,7 +4983,9 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     char *turn_view = (b && !b->active_turn_norm) ? normalize_full_alloc(input) : NULL;
     char *outer_view = b ? b->active_turn_norm : NULL;
     if (b && turn_view) b->active_turn_norm = turn_view;
+    if (b) b->respond_depth++;
     size_t n = brain_respond_dispatch(b, input, out, out_size);
+    if (b) b->respond_depth--;
     if (b && turn_view) b->active_turn_norm = outer_view;
     free(turn_view);
     /* SC40-B: la fotografia precedente e quella corrente rendono osservabile il
@@ -5634,8 +5654,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     /* gen240 (universal-comprehension): record the CURRENT conversation language as
      * a session KB fact (current_language/1), so replies can be localized and the
      * language is itself queryable — never a C variable. Detected from the raw
-     * normalized turn (before canonicalization folds Italian into English). */
-    detect_set_language(b, norm);
+     * normalized turn (before canonicalization folds Italian into English).
+     * gen511: soltanto il turno piu' esterno; uno annidato non la sposta. */
+    if (b->respond_depth <= 1) detect_set_language(b, norm);
 
     /* ── UN TURNO CHE LEGA UN FRAME DICHIARATIVO E' UN'ASSERZIONE ───────────
      *
@@ -5733,7 +5754,17 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * without duplicating a module. `raw` (input) is left untouched, so the
      * reader still induces its generative model from the original prose. */
     char canon[256];
-    canonicalize_lang(b, norm, canon, sizeof canon);
+    if (b->respond_depth > 1) canonicalize_fragment(b, norm, canon, sizeof canon);
+    else {
+        if (b->kb) {
+            const char *tq[3] = { "current_turn", NULL, NULL };
+            kb_retract_match(b->kb, "turn_translated", tq, 3);
+            kb_retract_match(b->kb, "turn_kept", tq, 2);
+        }
+        b->canon_turn = 1;
+        canonicalize_lang(b, norm, canon, sizeof canon);
+        b->canon_turn = 0;
+    }
     if (getenv("P0_READ_TRACE")) fprintf(stderr, "[canon] «%s» -> «%s»\n", norm, canon);
     p0_publish_question_focus(b, canon);
 

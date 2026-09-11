@@ -456,6 +456,7 @@ classe intera invece di un membro.*
 | `X V Y` | il fatto binario |
 | `X does not V Y` | il fatto negativo (gen507/19) |
 | `x V y means x W y` | una COSTRUZIONE: la superficie si riscrive in una che già funziona, e da gen507/14 vale anche in interrogazione |
+| `<frase con x, y> means <un'altra lezione, domanda o frase con x, y>` | una **FORMA NUOVA**: quando il secondo lato non è un fatto ma qualcosa che parrot0 legge — una lezione, una proprietà di relazione, una regola — la frase d'esempio diventa una forma che si ridice come il secondo lato (`reread`). «x counts as a question means treat as a question any turn that contains x». Una forma può puntare a un'altra forma insegnata; vale anche in italiano con «significa». Si disfa con `forget that …` (gen511, `taught_lesson_form.p0t`). ⚠ le lezioni che presuppongono un referente (`correction:`, `forget that`, i piani) non si verificano ancora; le parole passano come sono dette (un plurale non diventa singolare) |
 | `X is a relation` | `relation_noun`: apre insieme `il V di X è Y` **e** `che V è X?` (gen507/5) |
 | `V chains` | la relazione è transitiva: la catena si percorre (gen507/27) |
 | `V is the inverse of W` | un fatto solo, visto dai due lati: asserire `X V Y` risponde anche a `Y W X`, e si legge nei due sensi (gen507/40) |

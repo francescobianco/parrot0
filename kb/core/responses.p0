@@ -961,6 +961,14 @@ response_template(construction_forgotten, "The construction {source} -> {target}
 response_template(construction_forgotten, it, "La costruzione {source} -> {target} non è più attiva; ho conservato la traccia della lezione.").
 response_template(construction_not_known, "I did not have that construction active, so there was nothing to retract.").
 response_template(construction_not_known, it, "Non avevo quella costruzione attiva, quindi non c'era nulla da ritrarre.").
+% gen511 — S2: la lezione «S means T» con un bersaglio che una forma esistente
+% legge crea una forma nuova (`p0_teach_rewrite`).
+response_template(rewrite_learned, "From now on I'll read «{source}» as «{target}».").
+response_template(rewrite_learned, it, "D'ora in poi leggo «{source}» come «{target}».").
+response_template(rewrite_already_known, "I already read «{source}» as «{target}».").
+response_template(rewrite_already_known, it, "Leggo già «{source}» come «{target}».").
+response_template(rewrite_forgotten, "I no longer read «{source}» as «{target}».").
+response_template(rewrite_forgotten, it, "Non leggo più «{source}» come «{target}».").
 
 % gen382k: una premessa ASSERITIVA che contraddice cio' che parrot0 tiene. Non e'
 % un rifiuto — chi parla puo' avere ragione — ed e' esattamente cio' che la
@@ -1173,3 +1181,7 @@ response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_3, it, "Offro il 
 % gen510 — il muro della parola non tradotta (gloss.p0, piano `translate_turn`, passo 5).
 response_template(wall_untranslated, "I can't translate «{word}» yet. If you tell me «the italian for … is {word}», I'll understand it next time.").
 response_template(wall_untranslated, it, "Non so ancora tradurre «{word}». Se mi dici «the italian for … is {word}», la prossima volta capisco.").
+% gen511 — passo 4 del piano `translate_turn` (gloss.p0): la lettura ottenuta
+% per ipotesi si dice prima della risposta, una parola alla volta.
+response_template(translation_preface, "Reading «{word}» as «{en}».").
+response_template(translation_preface, it, "Leggo «{word}» come «{en}».").

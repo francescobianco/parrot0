@@ -1,5 +1,40 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-11 — gen511: le LEZIONI compilate sono ora bersagli, e una forma nuova non costa C
+
+Metodo: `docs/plans/radici-insegnabilita.md` §4.4. Due primitive nuove del
+motore, senza vocabolario, e nessun lettore di lezione riscritto:
+
+- **`reread(T)`**, l'atto di una forma creata da «S means T»: ridirsi T con i
+  buchi riempiti, come turno annidato nella lingua del discorso;
+- **`p0_try_reading`**, la lettura senza conseguenze in un processo figlio:
+  verifica che T si legga quando nessuna forma lo legge.
+
+Che cosa cambia per il C. I sette lettori di lezione ancora compilati — `x is
+a y`, `every x is y`, `every x has y`, `no x is a y`, `x is a relation verb`
+(mod_learn e vicini), `correction: x is y`, `forget that …` — **restano nel
+C, ma non sono più una catena di lunghezza zero**: ogni superficie NUOVA per
+le loro abilità si insegna parlando e costa zero righe di C. È la regola già
+scritta per i quattordici atti del switch («non si cancella, si smette di
+aggiungere»), estesa dagli atti ai lettori.
+
+Residui aperti, in ordine di leva:
+
+1. **Le lezioni che presuppongono un referente** (`correction:`, `forget
+   that`, i piani `when … then`, `your plan when …?`) non si verificano con
+   parole nuove: la prova mura perché non c'è niente su cui agire. Serve una
+   prova in un contesto che contenga il referente.
+2. **L'accordo di numero fra due superfici**: «x belongs among the y» con un
+   plurale al posto di un singolare («x is a y») passa la parola com'è, e
+   `zendrats(vorlik)` non incontra la regola su `zendrat`. La riscrittura è
+   letterale; l'adattamento morfologico dello slot è conoscenza da dichiarare.
+3. **La fonte della lezione si canonicalizza con la lingua del turno intero**
+   (vedi TEST_TODO gen511): una lezione mista italiano/inglese salva la
+   superficie mezza tradotta.
+4. I sette lettori compilati, portati a forme, renderebbero la verifica
+   economica (niente fork) e le abilità stesse insegnabili nella FORMA, non
+   solo nella superficie. È la migrazione vera; S2 la rende non urgente.
+
 ## 2026-09-10 — ⛔ LO SWITCH SPOSTATO: quando «KB-first» maschera un `case`
 
 > **«Ogni cosa che hai fatto c'è troppo C: di fatto stai mascherando ogni

@@ -1680,8 +1680,8 @@ static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
          * «cos'è») sta nella KB come stringa quotata, e cercarla nuda non la
          * trovava mai: «il sole è una stella?» arrivava come «the sun è a
          * star?». Si riprova la forma quotata, come fa gia' `entity_alias`. */
-        /* TODO(handoff gen510): misurare accentless_copula.p0t e i test
-         * italiani: «è» ora diventa «is» ovunque arrivi da solo. */
+        /* gen511: misurato — accentless_copula.p0t da 4 rossi a 9/9 (con
+         * `canonicalize_fragment`, che tiene la lingua del discorso). */
         if (!got) {
             char qw[KB_TERM_LEN];
             snprintf(qw, sizeof qw, "\"%s\"", w);
@@ -1751,6 +1751,30 @@ static int kb_translation_guess(Brain *b, const char *w, char *en, size_t en_sz)
     if (kb_match(b->kb, "translation_guess", q, 2, hit, 1) != 1) return 0;
     snprintf(en, en_sz, "%s", kb_dequote(hit[0]));
     return en[0] != '\0';
+}
+/* gen511 — LA LETTURA DICE CHE COSA HA FATTO. I passi 4 e 5 del piano
+ * (premessa, muro della parola non tradotta) chiedevano le parole del turno a
+ * `turn_span_token`, che non viene pubblicato su ogni turno: su «cosa mangiano
+ * i gatti?» non c'era, e la premessa non poteva nascere. Il canonicalizzatore
+ * registra invece cio' che ha davvero fatto — `turn_translated/3` per una
+ * traduzione per ipotesi, `turn_kept/2` per una parola lasciata com'era — e
+ * che cosa se ne dice lo decide la KB. Soltanto sul turno (`canon_turn`). */
+static void turn_reading_note(Brain *b, const char *pred, const char *w,
+                              const char *en) {
+    if (!b || !b->kb || !b->canon_turn || !w || !*w) return;
+    char qw[KB_TERM_LEN];
+    int plain = 1;
+    for (const char *c = w; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '_')) { plain = 0; break; }
+    if (plain) snprintf(qw, sizeof qw, "%s", w);
+    else snprintf(qw, sizeof qw, "\"%s\"", w);
+    const char *a[3] = { "current_turn", qw, en };
+    size_t n = en ? 3 : 2;
+    int prev_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_retract_match(b->kb, pred, a, n);
+    kb_assert(b->kb, pred, a, n);
+    kb_set_origin(b->kb, prev_origin);
 }
 static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_size) {
     if (out_size == 0) return;
@@ -2097,12 +2121,15 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             if (kb_tr_it_en(b, tok, en, sizeof en))
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                         lead, en, tail);
-            else if (kb_translation_guess(b, tok, en, sizeof en))
+            else if (kb_translation_guess(b, tok, en, sizeof en)) {
+                turn_reading_note(b, "turn_translated", tok, en);
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                         lead, en, tail);
-            else
+            } else {
+                turn_reading_note(b, "turn_kept", tok, NULL);
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                         lead, tok, tail);
+            }
         }
     }
 }
@@ -2333,20 +2360,57 @@ static int observe_language(Brain *b, const char *scope, const char *norm,
 /* The turn-selected language updates the conversation's sticky state. A tie
  * deliberately yields no binding, so it remains explicit and cannot silently
  * inherit the previous member. */
+static void language_set(Brain *b, const char *lang) {
+    int prev_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_retract_pred(b->kb, "current_language");
+    const char *a[] = { lang };
+    kb_assert(b->kb, "current_language", a, 1);
+    kb_set_origin(b->kb, prev_origin);
+}
+
+/* ⛔ gen511 — UN FRAMMENTO HA LA SUA LINGUA, MA NON SPOSTA QUELLA DEL DISCORSO.
+ *
+ * Misurato con una traccia su `detect_set_language`: dentro il turno italiano
+ * «la penna e sul tavolo» la sua forma canonica («the pen is on the table»)
+ * ripassava dalla rilevazione, vinceva l'inglese, e `current_language` passava
+ * a `en` A META' TURNO. Tre effetti da un solo difetto: la risposta usciva in
+ * inglese («Learned: pen is located in table»), le evidenze di `current_turn`
+ * erano sovrascritte con quelle del frammento (il piano di traduzione del
+ * gen510 non vedeva mai un turno italiano), e al turno dopo un pareggio
+ * («cosa» contro «i») lo vinceva la lingua sbagliata.
+ *
+ * Il frammento — un'ancora di lezione, una clausola, un replay — si legge
+ * nello scope `current_fragment` con la stessa politica KB
+ * (`turn_language_selected/2` e' generica nello scope), si canonicalizza
+ * nella lingua che la politica sceglie, e la lingua della conversazione
+ * torna com'era. E' anche la cura di «non hai i passi» canonicalizzato in
+ * inglese dentro una lezione inglese (TEST_TODO, terzo giro). */
+static void canonicalize_fragment(Brain *b, const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb) { canonicalize_lang(b, norm, out, out_size); return; }
+    char conv[KB_TERM_LEN], sel[KB_TERM_LEN];
+    current_lang(b, conv, sizeof conv);
+    if (observe_language(b, "current_fragment", norm, conv, sel, sizeof sel) &&
+        sel[0] && strcmp(sel, conv) != 0) {
+        language_set(b, sel);
+        canonicalize_lang(b, norm, out, out_size);
+        language_set(b, conv);
+        return;
+    }
+    canonicalize_lang(b, norm, out, out_size);
+}
+
 static void detect_set_language(Brain *b, const char *norm) {
     if (!b || !b->kb) return;
     char sticky[KB_TERM_LEN], selected[KB_TERM_LEN];
     current_lang(b, sticky, sizeof sticky);
-    if (observe_language(b, "current_turn", norm, sticky,
-                         selected, sizeof selected) &&
-        selected[0] && strcmp(sticky, selected) != 0) {
-        int prev_origin = kb_origin(b->kb);
-        kb_set_origin(b->kb, KB_REFLECTIVE);
-        kb_retract_pred(b->kb, "current_language");
-        const char *a[] = { selected };
-        kb_assert(b->kb, "current_language", a, 1);
-        kb_set_origin(b->kb, prev_origin);
-    }
+    int found = observe_language(b, "current_turn", norm, sticky,
+                                 selected, sizeof selected);
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[lang] «%s» sticky=%s selected=%s\n", norm, sticky,
+                found ? selected : "-");
+    if (found && selected[0] && strcmp(sticky, selected) != 0)
+        language_set(b, selected);
 }
 
 /* Fetch a localized response_template(Intent, Lang, "…") for the CURRENT language,
@@ -5446,6 +5510,11 @@ typedef struct {
     char predicate[KB_TERM_LEN];
     char answer_cue[KB_TERM_LEN];
     int has_answer_cue;
+    /* gen511: i due lati come sono stati DETTI — servono alla lezione che crea
+     * una forma (`p0_teach_rewrite`) e a nominare il bersaglio quando la
+     * costruzione declina (prima diceva «?»). */
+    char said_source[KB_TERM_LEN];
+    char said_target[KB_TERM_LEN];
 } P0ConstructionLesson;
 
 enum {
@@ -5741,6 +5810,8 @@ static int p0_parse_construction_lesson(Brain *b, const char *text,
     snprintf(right, sizeof right, "%s", pivot + pivot_len);
     char *lhs = trim_mut(left), *rhs = trim_mut(right);
     if (!*lhs || !*rhs) return P0_CONSTRUCTION_BAD_SHAPE;
+    snprintf(lesson->said_source, sizeof lesson->said_source, "%s", lhs);
+    snprintf(lesson->said_target, sizeof lesson->said_target, "%s", rhs);
 
     /* Scorciatoia lessicale ma non frasario: `glints means glorphs` dichiara la
      * costruzione binaria standard, con gli stessi due slot espliciti nel fatto
@@ -5794,13 +5865,20 @@ static int p0_construction_say(Brain *b, const char *key,
                                const P0ConstructionLesson *lesson,
                                char *out, size_t out_size) {
     const KbResponseSlot slots[] = {
-        { "source", lesson && lesson->source[0] ? lesson->source : "?" },
-        { "target", lesson && lesson->target[0] ? lesson->target : "?" }
+        { "source", lesson && lesson->source[0] ? lesson->source :
+                    lesson && lesson->said_source[0] ? lesson->said_source : "?" },
+        { "target", lesson && lesson->target[0] ? lesson->target :
+                    lesson && lesson->said_target[0] ? lesson->said_target : "?" }
     };
     if (kb_response_slots(b, key, slots, 2, out, out_size)) return 1;
     kb_term_say(b, "i_dont_understand_that_yet", NULL, 0, out, out_size);
     return 1;
 }
+
+/* gen511 — definita dopo il lettore delle forme, di cui riusa il matcher. */
+static int p0_teach_rewrite(Brain *b, const P0ConstructionLesson *lesson,
+                            const char *raw, int forget,
+                            char *out, size_t out_size);
 
 static int mod_teach_construction(Brain *b, const char *norm, const char *raw,
                                   char *out, size_t out_size) {
@@ -5811,9 +5889,14 @@ static int mod_teach_construction(Brain *b, const char *norm, const char *raw,
     if (parsed == P0_CONSTRUCTION_BAD_SHAPE)
         return p0_construction_say(b, "construction_shape_unsupported", &lesson,
                                    out, out_size);
-    if (parsed == P0_CONSTRUCTION_UNKNOWN_TARGET)
+    /* gen511: un bersaglio senza un fatto a cui ancorarsi puo' essere una
+     * LEZIONE (o una domanda, o una condotta) che una forma esistente legge:
+     * allora la lezione crea una forma nuova invece di declinare. */
+    if (parsed == P0_CONSTRUCTION_UNKNOWN_TARGET) {
+        if (p0_teach_rewrite(b, &lesson, raw, 0, out, out_size)) return 1;
         return p0_construction_say(b, "construction_target_unknown", &lesson,
                                    out, out_size);
+    }
 
     char qs[KB_TERM_LEN], qt[KB_TERM_LEN];
     p0_quote_pattern(lesson.source, qs, sizeof qs);
@@ -11554,9 +11637,13 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                 if (cp == P0_CONSTRUCTION_BAD_SHAPE)
                     return p0_construction_say(b, "construction_shape_unsupported",
                                                &lesson, out, out_size);
-                if (cp == P0_CONSTRUCTION_UNKNOWN_TARGET)
+                if (cp == P0_CONSTRUCTION_UNKNOWN_TARGET) {
+                    /* gen511: la forma creata da una lezione si disfa con la
+                     * stessa frase, preceduta da «forget that». */
+                    if (p0_teach_rewrite(b, &lesson, NULL, 1, out, out_size)) return 1;
                     return p0_construction_say(b, "construction_target_unknown",
                                                &lesson, out, out_size);
+                }
                 char qs[KB_TERM_LEN], qt[KB_TERM_LEN];
                 p0_quote_pattern(lesson.source, qs, sizeof qs);
                 p0_quote_pattern(lesson.target, qt, sizeof qt);
@@ -14062,6 +14149,50 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
          * Il test che questo passa e il `case` non passava: una forma nuova
          * costa UNA RIGA DI .p0 e zero C. I rami storici restano e diventano
          * ridondanti — non si cancella, si smette di aggiungere. */
+        /* gen511 — `reread(Modello)`: L'ATTO DI RIDIRSI LA FRASE.
+         *
+         * Una forma creata da una lezione («x counts as a question means treat
+         * as a question any turn that contains x») non opera sulla KB: dice
+         * come RILEGGERE il turno. Si riempiono i buchi {x} con gli slot che la
+         * forma ha legato e la frase si legge come un turno annidato, con la
+         * lingua del discorso (gen511, `respond_depth`). E' una primitiva del
+         * motore, cioe' una RADICE nel senso di radici-insegnabilita.md: da
+         * qui ogni lettore che esiste diventa bersaglio di una forma nuova, e
+         * una forma nuova puo' puntare a un'altra forma insegnata — il circolo. */
+        if (!strncmp(act, "reread(", 7)) {
+            static int reread_depth = 0;
+            if (reread_depth >= 3) continue;   /* una forma che rimanda a se' */
+            /* Una lezione SULLE forme viene prima dell'USO di una forma: «x is
+             * interrogative means x counts as a question» finisce con la
+             * superficie della forma appena insegnata, e il suo `span(x)` si
+             * mangiava «x is interrogative means x» — l'anello catturato da un
+             * altro lettore (radici-insegnabilita.md §5, passo 5). Quali parole
+             * facciano di un turno una lezione lo dice la KB
+             * (`intent_cue(teach_construction, …)`). */
+            { size_t pl = 0;
+              if (p0_construction_pivot(b, norm, &pl)) continue; }
+            char tpl[KB_TERM_LEN]; snprintf(tpl, sizeof tpl, "%s", act + 7);
+            char *rp = strrchr(tpl, ')'); if (rp) *rp = '\0';
+            char vals[P0_FORM_SLOTS][KB_TERM_LEN];
+            KbResponseSlot fill[P0_FORM_SLOTS];
+            for (size_t k = 0; k < ns && k < P0_FORM_SLOTS; k++) {
+                snprintf(vals[k], KB_TERM_LEN, "%s", slots[k].value);
+                for (char *c = vals[k]; *c; c++) if (*c == '_') *c = ' ';
+                fill[k].name = slots[k].name; fill[k].value = vals[k];
+            }
+            char said[KB_TERM_LEN];
+            if (!kb_fill_slots(tpl, fill, ns, 1, said, sizeof said) || !*said) continue;
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[form] %s: reread «%s»\n", form, said);
+            int saved_early = p0_forms_early_only;
+            p0_forms_early_only = 0;
+            reread_depth++;
+            size_t rn = brain_respond(b, said, out, out_size);
+            reread_depth--;
+            p0_forms_early_only = saved_early;
+            if (rn && out[0]) { free(forms); return 1; }
+            continue;
+        }
         if (!strncmp(act, "op(", 3)) {
             if (p0_run_op_named(b, act, slots, ns, forms[f], out, out_size)) {
                 free(forms);
@@ -14540,6 +14671,258 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
     }
     free(forms);
     return done;
+}
+
+/* ══ gen511 — S2: UNA LEZIONE CHE CREA UNA FORMA DI LEZIONE ════════════════
+ *
+ * docs/plans/radici-insegnabilita.md §4.1: ogni forma di lezione era una riga a
+ * mano (`turn_form/3` in messages.p0), e nessuna superficie ne creava una
+ * nuova. La lezione «S means T» esisteva gia', ma solo per i FATTI: con un
+ * bersaglio che e' una lezione («x counts as a question means treat as a
+ * question any turn that contains x») declinava con «cannot anchor».
+ *
+ * Qui la stessa lezione produce una forma ORDINARIA, nella stessa
+ * rappresentazione delle forme scritte a mano: i pezzi letterali di S diventano
+ * `text(…)`, ogni variabile (`rule_variable/1`) diventa `span(x)` — o
+ * `rest(x)` se chiude la frase — e l'atto e' `reread(T)` con i buchi {x}. Il
+ * lettore e' quello che c'era; niente seconda lettura (mantra #22).
+ *
+ * Due guardie, entrambe dal metodo delle radici: il bersaglio deve essere LETTO
+ * da una forma esistente (un anello che non raggiunge un lettore e' rotto), e
+ * la forma nuova ha almeno un pezzo letterale (una forma di sole variabili
+ * leggerebbe ogni turno). */
+#define P0_REWRITE_PIECES 12
+static int p0_rewrite_build(Brain *b, const char *lhs, const char *rhs,
+                            char pieces[][KB_TERM_LEN], size_t *npieces,
+                            char *tmpl, size_t tsz) {
+    char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", lhs);
+    char *w[32]; size_t n = split_words(lb, w, 32);
+    char vars[P0_REWRITE_PIECES][KB_TERM_LEN]; size_t nv = 0;
+    char run[KB_TERM_LEN]; size_t roff = 0; run[0] = '\0';
+    int ntext = 0, prev_var = 0;
+    *npieces = 0;
+    for (size_t i = 0; i < n; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!*t) continue;
+        if (p0_expr_var(b, t)) {
+            if (prev_var) return 0;          /* due variabili contigue: nessun confine */
+            for (size_t k = 0; k < nv; k++) if (!strcmp(vars[k], t)) return 0;
+            if (nv >= P0_REWRITE_PIECES || *npieces + 2 > P0_REWRITE_PIECES) return 0;
+            if (roff) {
+                snprintf(pieces[(*npieces)++], KB_TERM_LEN, "text(\"%s\")", run);
+                roff = 0; run[0] = '\0'; ntext++;
+            }
+            snprintf(vars[nv++], KB_TERM_LEN, "%s", t);
+            snprintf(pieces[(*npieces)++], KB_TERM_LEN, "span(%s)", t);
+            prev_var = 1;
+        } else {
+            int m = snprintf(run + roff, sizeof run - roff, "%s%s", roff ? " " : "", t);
+            if (m < 0 || (size_t)m >= sizeof run - roff) return 0;
+            roff += (size_t)m; prev_var = 0;
+        }
+    }
+    if (roff) {
+        if (*npieces >= P0_REWRITE_PIECES) return 0;
+        snprintf(pieces[(*npieces)++], KB_TERM_LEN, "text(\"%s\")", run);
+        ntext++;
+    }
+    if (!ntext) return 0;
+    /* la variabile che chiude la frase ne prende il resto */
+    if (!strncmp(pieces[*npieces - 1], "span(", 5)) {
+        char v[KB_TERM_LEN]; snprintf(v, sizeof v, "%s", pieces[*npieces - 1] + 5);
+        size_t vl = strlen(v); if (vl) v[vl - 1] = '\0';
+        snprintf(pieces[*npieces - 1], KB_TERM_LEN, "rest(%s)", v);
+    }
+    /* il bersaglio: le stesse variabili diventano buchi {x} */
+    char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rhs);
+    char *rw[48]; size_t rn = split_words(rb, rw, 48);
+    size_t off = 0; tmpl[0] = '\0';
+    for (size_t i = 0; i < rn; i++) {
+        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", rw[i]);
+        char *t = strip_edge_punct(tb);
+        const char *piece = rw[i];
+        char hole[KB_TERM_LEN];
+        if (*t && p0_expr_var(b, t)) {
+            int known = 0;
+            for (size_t k = 0; k < nv; k++) if (!strcmp(vars[k], t)) known = 1;
+            if (!known) return 0;            /* un buco che nessuno riempie */
+            snprintf(hole, sizeof hole, "{%s}", t);
+            piece = hole;
+        }
+        int m = snprintf(tmpl + off, tsz - off, "%s%s", off ? " " : "", piece);
+        if (m < 0 || (size_t)m >= tsz - off) return 0;
+        off += (size_t)m;
+    }
+    return off > 0 && strcmp(lhs, rhs) != 0;
+}
+
+/* Il bersaglio, con le variabili al posto dei valori, e' letto da una forma
+ * che esiste? */
+static int p0_rewrite_target_read(Brain *b, const char *rhs) {
+    char (*fs)[KB_TERM_LEN] = NULL; size_t nfs = 0;
+    const char *fq[2] = { NULL, NULL };
+    int readable = 0;
+    if (kb_match_all(b->kb, "turn_form_act", fq, 2, &fs, &nfs)) {
+        for (size_t k = 0; k < nfs && !readable; k++) {
+            char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", fs[k]);
+            P0FormSlot sl[P0_FORM_SLOTS]; size_t nsl = 0;
+            char wb[300]; snprintf(wb, sizeof wb, "%s", rhs);
+            char *ww[48]; size_t nww = split_words(wb, ww, 48);
+            if (nww && p0_form_match(b, kb_dequote(fb), ww, nww, sl, &nsl)) {
+                readable = 1;
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[form] rewrite target read by %s\n", kb_dequote(fb));
+            }
+        }
+    }
+    free(fs);
+    return readable;
+}
+
+/* ══ gen511 — PROVARE A LEGGERE SENZA CONSEGUENZE ══════════════════════════
+ *
+ * Il censimento del §4.4 di radici-insegnabilita.md: nove superfici del
+ * catalogo non erano bersaglio di una forma insegnata perche' non le legge una
+ * FORMA ma un modulo compilato — «x is a y», «every x is y», «no x is a y»…
+ * Portare ciascun lettore in una forma sarebbe una seconda lettura (mantra #5).
+ * La domanda giusta non e' «quale forma lo legge?» ma «SO LEGGERLO?», e ha una
+ * risposta generale: provarci, in un processo figlio che nessuno ascolta.
+ *
+ * Il figlio (fork, copia in scrittura) legge la frase con parole nuove al posto
+ * delle variabili, dice con un byte se la lettura ha tenuto (niente muro,
+ * niente fallback: `reply_is_wall`) ed esce con `_exit`, senza salvare niente
+ * e senza toccare i descrittori del padre. E' una primitiva del motore — una
+ * radice — e non contiene vocabolario. */
+static int reply_is_wall(Brain *b, const char *reply);
+static int p0_try_reading(Brain *b, const char *text) {
+    if (!b || !text || !*text) return 0;
+    int fd[2];
+    if (pipe(fd) != 0) return 0;
+    fflush(stdout); fflush(stderr);
+    pid_t pid = fork();
+    if (pid < 0) { close(fd[0]); close(fd[1]); return 0; }
+    if (pid == 0) {
+        close(fd[0]);
+        alarm(10);
+        int devnull = open("/dev/null", O_WRONLY);
+        if (devnull >= 0) { dup2(devnull, STDOUT_FILENO); close(devnull); }
+        char reply[2048]; reply[0] = '\0';
+        size_t n = brain_respond(b, text, reply, sizeof reply);
+        char ok = (n && reply[0] && !reply_is_wall(b, reply)) ? '1' : '0';
+        if (write(fd[1], &ok, 1) != 1) { /* il padre legge '0' */ }
+        _exit(0);
+    }
+    close(fd[1]);
+    char ok = '0';
+    if (read(fd[0], &ok, 1) != 1) ok = '0';
+    close(fd[0]);
+    int st = 0;
+    waitpid(pid, &st, 0);
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[form] try reading «%s»: %s\n", text, ok == '1' ? "reads" : "walls");
+    return ok == '1';
+}
+
+/* Il bersaglio con parole che nessuno conosce al posto delle variabili: una
+ * lettura che tiene con «qzxa» tiene per la forma, non per un caso noto. */
+static int p0_rewrite_target_tried(Brain *b, const char *rhs) {
+    char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rhs);
+    char *rw[48]; size_t rn = split_words(rb, rw, 48);
+    char said[KB_TERM_LEN]; size_t off = 0; said[0] = '\0';
+    char seen[P0_REWRITE_PIECES][KB_TERM_LEN]; size_t nseen = 0;
+    for (size_t i = 0; i < rn; i++) {
+        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", rw[i]);
+        char *t = strip_edge_punct(tb);
+        const char *piece = rw[i];
+        char fresh[16];
+        if (*t && p0_expr_var(b, t)) {
+            size_t k = 0;
+            while (k < nseen && strcmp(seen[k], t)) k++;
+            if (k == nseen && nseen < P0_REWRITE_PIECES) snprintf(seen[nseen++], KB_TERM_LEN, "%s", t);
+            snprintf(fresh, sizeof fresh, "qzx%c", (char)('a' + (k % 26)));
+            piece = fresh;
+        }
+        int m = snprintf(said + off, sizeof said - off, "%s%s", off ? " " : "", piece);
+        if (m < 0 || (size_t)m >= sizeof said - off) return 0;
+        off += (size_t)m;
+    }
+    return p0_try_reading(b, said);
+}
+
+static int p0_teach_rewrite(Brain *b, const P0ConstructionLesson *lesson,
+                            const char *raw, int forget,
+                            char *out, size_t out_size) {
+    if (!b || !b->kb || !lesson) return 0;
+    const char *lhs = lesson->said_source, *rhs = lesson->said_target;
+    if (!*lhs || !*rhs) return 0;
+    char ql[KB_TERM_LEN]; snprintf(ql, sizeof ql, "\"%s\"", lhs);
+    const char *sq[2] = { NULL, ql };
+    char have[1][KB_TERM_LEN];
+    int known = kb_match(b->kb, "taught_form_source", sq, 2, have, 1) == 1;
+    const KbResponseSlot rs[] = { { "source", lhs }, { "target", rhs } };
+    if (forget) {
+        if (!known) return 0;
+        char nb[KB_TERM_LEN]; snprintf(nb, sizeof nb, "%s", have[0]);
+        const char *name = kb_dequote(nb);
+        const char *p3[3] = { name, NULL, NULL };
+        const char *p2[2] = { name, NULL };
+        kb_retract_match(b->kb, "turn_form", p3, 3);
+        kb_retract_match(b->kb, "turn_form_act", p2, 2);
+        kb_retract_match(b->kb, "turn_form_priority", p2, 2);
+        kb_retract_match(b->kb, "taught_form_source", p2, 2);
+        return kb_response_slots(b, "rewrite_forgotten", rs, 2, out, out_size);
+    }
+    if (known) return kb_response_slots(b, "rewrite_already_known", rs, 2, out, out_size);
+    /* La superficie nuova si legge nella PROPRIA lingua, non in quella del
+     * turno che la insegna. Misurato: «x conta come domanda significa treat as
+     * a question any turn that contains x» e' un turno a maggioranza inglese,
+     * e la sua sorgente diventava «x conta come question»; il turno italiano
+     * che la usa diventa «forse conta how question», e la forma non combaciava
+     * mai. Si rilegge la sorgente come l'ha detta chi insegna e la si
+     * canonicalizza come un frammento (gen511), cioe' come la canonicalizzera'
+     * il turno che la usera'. */
+    char src_own[KB_TERM_LEN]; snprintf(src_own, sizeof src_own, "%s", lhs);
+    if (raw && *raw) {
+        char rn[512]; normalize(raw, rn, sizeof rn);
+        size_t pl = 0;
+        const char *pv = p0_construction_pivot(b, rn, &pl);
+        if (pv) {
+            char left[KB_TERM_LEN]; size_t ll = (size_t)(pv - rn);
+            if (ll >= sizeof left) ll = sizeof left - 1;
+            memcpy(left, rn, ll); left[ll] = '\0';
+            char own[KB_TERM_LEN]; own[0] = '\0';
+            canonicalize_fragment(b, trim_mut(left), own, sizeof own);
+            if (own[0]) snprintf(src_own, sizeof src_own, "%s", own);
+        }
+    }
+    char pieces[P0_REWRITE_PIECES][KB_TERM_LEN]; size_t np = 0;
+    char tmpl[KB_TERM_LEN];
+    if (!p0_rewrite_build(b, src_own, rhs, pieces, &np, tmpl, sizeof tmpl)) return 0;
+    /* prima la via economica (una forma lo legge), poi la prova */
+    if (!p0_rewrite_target_read(b, rhs) && !p0_rewrite_target_tried(b, rhs)) return 0;
+    char name[KB_TERM_LEN];
+    for (int k = 1; k < 100000; k++) {
+        snprintf(name, sizeof name, "taught_form_%d", k);
+        const char *q[2] = { name, NULL }; char h[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "turn_form_act", q, 2, h, 1) == 0) break;
+    }
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    for (size_t i = 0; i < np; i++) {
+        char ob[16]; snprintf(ob, sizeof ob, "%zu", i + 1);
+        const char *fa[3] = { name, ob, pieces[i] };
+        kb_assert(b->kb, "turn_form", fa, 3);
+    }
+    char act[KB_TERM_LEN]; snprintf(act, sizeof act, "reread(%s)", tmpl);
+    const char *aa[2] = { name, act };
+    kb_assert(b->kb, "turn_form_act", aa, 2);
+    const char *pa[2] = { name, "early" };
+    kb_assert(b->kb, "turn_form_priority", pa, 2);
+    const char *sa[2] = { name, ql };
+    kb_assert(b->kb, "taught_form_source", sa, 2);
+    p0_learn_source(b, "taught_form_source", sa, 2, raw && *raw ? raw : lhs);
+    kb_set_origin(b->kb, prev);
+    return kb_response_slots(b, "rewrite_learned", rs, 2, out, out_size);
 }
 
 /* gen510 — UNA LEZIONE DEVE RAGGIUNGERE IL PROPRIO LETTORE.

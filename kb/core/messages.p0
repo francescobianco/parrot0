@@ -918,6 +918,9 @@ response_template(existence_witness, it, "Sì — {witness}, per esempio.").
 % gruppo di righe .p0 e vale dal turno dopo, senza ricompilare.
 machinery(turn_form).
 machinery(turn_form_act).
+% gen511: una forma creata da una lezione «S means T» porta la frase che l'ha
+% creata — e' come la si ritrova per disfarla («forget that S means T»).
+machinery(taught_form_source).
 machinery(turn_form_reply).
 machinery(turn_form_mood).
 machinery(negation_marker).

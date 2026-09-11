@@ -578,6 +578,8 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/language/question_does_not_teach.p0t
 	@./$(BIN) --test tests/p0t/language/prefix_before_assertion.p0t
 	@./$(BIN) --test tests/p0t/language/mention.p0t
+	@./$(BIN) --test tests/p0t/language/taught_turn_form.p0t
+	@./$(BIN) --test tests/p0t/language/taught_lesson_form.p0t
 	@./$(BIN) --test tests/p0t/conversation/compound_inquiry.p0t
 	@./$(BIN) --test tests/p0t/knowledge/disambiguation.p0t
 	@./$(BIN) --test tests/p0t/knowledge/deep_memory.it.p0t

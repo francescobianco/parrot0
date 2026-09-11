@@ -1151,13 +1151,17 @@ tr(cliff, burrone).
 
 
 % ══ gen510 — IL PIANO DI TRADUZIONE: UN TURNO IN UN'ALTRA LINGUA ════════════
-% ⛔ HANDOFF gen510 — STATO DI QUESTO BLOCCO (2026-09-11): scritto, compilato,
-% NON ancora efficace. In chat «cosa mangiano i gatti?» non riceve la premessa
-% e «dove vive un pinguino?» cade sul muro generico in inglese. Ipotesi:
-% `turn_language_selected(current_turn, it)` non vale (le risposte escono in
-% inglese). Da sondare con `!query` prima di cambiare le regole. Poi:
-%   - la premessa dice solo la prima ipotesi: un fold per dirle tutte;
+% STATO (gen511, 2026-09-11): EFFICACE. «cosa mangiano i gatti?» -> «Leggo
+% «mangiano» come «mangia». Leggo «gatti» come «gatto». …»; «dove vive un
+% pinguino?» -> «Non so ancora tradurre «pinguino». …». Le tre cause del
+% gen510: la forma canonica inglese ripassava dalla rilevazione della lingua a
+% meta' turno (`canonicalize_fragment`, C); le parole si chiedevano a
+% `turn_span_token`, non pubblicato su ogni turno (ora `turn_translated/3` e
+% `turn_kept/2`, scritti dalla lettura); `naf` con variabili libere falliva
+% per floundering (`is_function_word/1`). Restano:
 %   - il passo 5 va ceduto anche dalle offerte di lacuna (`faculty_yield`);
+%   - la risposta mescola le lingue («A gatto eats Fish and mouse»): la resa
+%     della relazione non passa dalla presentazione italiana;
 %   - una lezione per la flessione («in italian a word ending in -i can be the
 %     plural of one ending in -o») renderebbe insegnabile `inflection/3`
 %     (radici-insegnabilita.md: oggi e' una riga a mano);
@@ -1210,9 +1214,12 @@ inflection(it, a, o).      % bianca -> bianco
 inflection(it, ono, e).    % vivono -> vive
 inflection(it, ano, a).    % mangiano -> mangia
 machinery(translation_guess).
+% gen511: la lingua e' quella del testo che si sta leggendo (`current_language`,
+% che per un frammento e' la sua), non quella del turno: una desinenza italiana
+% non si prova su una parola della forma canonica inglese.
 translation_guess($W, $En) :-
     translation_step(guess_inflection),
-    turn_language_selected(current_turn, $L),
+    current_language($L),
     inflection($L, $S, $R),
     concat_atoms($Stem, $S, $W),
     concat_atoms($Stem, $R, $Form),
@@ -1222,29 +1229,45 @@ translation_guess($W, $En) :-
 % ottenuta per ipotesi non ha la stessa precisione di una letta nel dizionario,
 % e chi ascolta deve poterlo sapere. La frase la dice la KB.
 machinery(turn_translation_guess).
-machinery(turn_reply_preface).
-machinery(translation_preface).
-turn_translation_guess($T, $W, $En) :-
-    turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $W),
-    naf(tr($X, $W)), translation_guess($W, $En).
-turn_reply_preface($T, $Text) :-
+machinery(turn_reply_qualifies).
+% gen511: la premessa nomina la traduzione che la lettura ha DAVVERO usato
+% (`turn_translated/3`, scritto dal canonicalizzatore), non una che si
+% potrebbe ricalcolare dalle parole del turno.
+machinery(turn_translated).
+machinery(turn_kept).
+turn_translation_guess($T, $W, $En) :- turn_translated($T, $W, $En).
+% gen511: la frase sta nella famiglia `translation_preface` (responses.p0),
+% come ogni resa; qui si decide soltanto SE e SU QUALI parole. (La versione
+% gen510 la cuciva con `concat_atoms`, e le stringhe con «» e spazi non
+% arrivavano nemmeno in KB.)
+turn_reply_qualifies($T, $W, $En) :-
     translation_step(qualify_reading),
-    turn_translation_guess($T, $W, $En),
-    current_language($L), translation_preface($L, $A, $B, $C),
-    concat_atoms($A, $W, $X1), concat_atoms($X1, $B, $X2),
-    concat_atoms($X2, $En, $X3), concat_atoms($X3, $C, $Text).
-translation_preface(it, "Leggo «", "» come «", "». ").
-translation_preface(en, "Reading «", "» as «", "». ").
+    turn_translation_guess($T, $W, $En).
 
 % Passo 5 — quando una parola resta senza traduzione, il muro la nomina e dice
 % come insegnarla: la lezione «the italian for X is Y» esiste gia'. E' il
 % declino informato del gen384 nella lingua in cui il vocabolario NON e'
 % completo (`lexicon_language/1`): li' «non conosco questa parola» era privo
 % di senso, «non so ancora tradurla» e' vero e insegnabile.
+% gen511: una negazione con una variabile libera («non e' parola funzione di
+% nessuna resa») il solver la rifiuta per FLOUNDERING, e l'intera regola
+% falliva in silenzio — il passo 5 del gen510 non era mai scattato. La
+% domanda si fa chiusa: `is_function_word/1` e' la classe, e la negazione
+% le chiede soltanto la parola.
+machinery(is_function_word).
+is_function_word($W) :- function_word($W, $F).
+is_function_word($W) :- function_word($L, $W, $F).
 machinery(turn_untranslated).
+% gen511: soltanto in una DOMANDA. In un'affermazione una parola non tradotta
+% diventa un atomo e non costa niente («il mio libro e nello zaino» si legge);
+% se l'affermazione non si legge la causa e' altrove, e «la prossima volta
+% capisco» sarebbe una promessa falsa (misurato: «la matita e nel cassetto»
+% senza la variante della copula accusava «cassetto»). In una domanda invece
+% la parola non tradotta impedisce di trovare cio' che parrot0 sa gia'.
 turn_untranslated($T, $W) :-
     translation_step(name_untranslated),
+    turn_opens_question($T),
     turn_language_selected($T, $L), naf(lexicon_language($L)),
-    turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $W),
-    naf(tr($E, $W)), naf(function_word($W, $F)), naf(function_word($L2, $W, $F2)),
-    naf(stopword($W)), naf(proper_name($W)), naf(translation_guess($W, $G)).
+    turn_kept($T, $W),
+    naf(is_function_word($W)),
+    naf(stopword($W)), naf(proper_name($W)).

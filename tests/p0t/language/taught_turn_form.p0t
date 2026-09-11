@@ -21,10 +21,16 @@
 [test forma congiuntiva insegnata a runtime]
 !timeout 8
 
+# gen511: la resa del chitchat segue la lingua del turno (TEST_TODO, classe
+# «la risposta segue la lingua del turno»): il turno e' italiano, quindi
+# «Possiamo parlare in entrambe le lingue». Gia' rosso cosi' su 83101f4 (bisezione).
+# Con l'atteso inglese il passo 3 (`<!`) passava A VUOTO anche se il chitchat
+# non cedeva: il cricchetto non poteva piu' vedere il difetto che custodisce.
+
 # 1. PRIMA — la perifrasi non e' una richiesta di traduzione per nessuno: il
 #    turno finisce al chitchat, che vede solo «in inglese».
 > potresti buttarmi giu in inglese il cane corre
-< We can chat in either language — I'll do my best.
+<~ entrambe le lingue
 
 # 2. LA LEZIONE — non una parola: una FORMA, cioe' due condizioni CONGIUNTE.
 #    `turn_pattern/3` porta le condizioni, `turn_pattern_intent/2` dice che cosa
@@ -37,14 +43,14 @@
 # 3. DOPO — lo stesso turno vale come richiesta di traduzione e il chitchat cede
 #    (la condotta del mantra #17 legge la classe, non la superficie).
 > potresti buttarmi giu in inglese il cane corre
-<! We can chat in either language
+<! entrambe le lingue
 
 # 4. L'ABLAZIONE — tolta UNA delle due condizioni la congiunzione non tiene piu'
 #    e il difetto torna. E' la prova che a decidere e' l'insieme, non una cue.
 !forget turn_pattern(forma_perifrastica, text, "in inglese")
 !assert turn_pattern(forma_perifrastica, text, "in tedesco")
 > potresti buttarmi giu in inglese il cane corre
-< We can chat in either language — I'll do my best.
+<~ entrambe le lingue
 
 # 5. E una forma NEGATIVA: `not_cue` chiude il verso che mancava — «vale solo se
 #    il turno NON e' anche un'altra cosa».
@@ -52,4 +58,4 @@
 !assert turn_pattern(forma_perifrastica, text, "in inglese")
 !assert turn_pattern(forma_perifrastica, not_cue, perifrasi_gentile)
 > potresti buttarmi giu in inglese il cane corre
-< We can chat in either language — I'll do my best.
+<~ entrambe le lingue

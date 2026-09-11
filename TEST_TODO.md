@@ -9,6 +9,88 @@
 > abilita' cognitive, la crescita della KB o l'apprendimento (KB viva) i test
 > non si fanno. Stessa nota nel Makefile (target `test`) e in CLAUDE.md.
 
+# 🌱 gen511, secondo giro — il gradino S2: una forma di lezione si insegna parlando
+
+Lavoro di radici (`docs/plans/radici-insegnabilita.md` §4.4, `C_TODO.md` in
+testa). «S means T», quando T non ha un fatto a cui ancorarsi ma qualcosa lo
+legge, crea una forma ordinaria (`turn_form/3`) con l'atto `reread(T)`. Se una
+forma legge T basta quella; altrimenti la lettura si PROVA in un processo figlio
+(`p0_try_reading`) con parole nuove. Si disfa con «forget that S means T».
+
+- Cricchetto nuovo: `tests/p0t/language/taught_lesson_form.p0t` (prima/dopo,
+  circolo, verbo-forma, bersaglio letto da un modulo, declinazione italiana,
+  ablazione, R3), idempotente; nel `make test` insieme a `taught_turn_form.p0t`,
+  che non c'era.
+- `assisted_construction`: 64/2, i due rossi (48 «Looking up glints...», 113
+  virgolette) identici su `83101f4`.
+- Censimento parlando, 34 superfici del catalogo: raggiunte 1/34 prima, 25/34
+  con le forme, 30/34 con la prova. Le quattro rimaste presuppongono un
+  referente (correction, forget, i piani).
+- Anelli rotti chiusi: la lezione del circolo catturata dalla forma appena
+  insegnata; il «?» nel declino; la sorgente canonicalizzata nella lingua del
+  turno invece che nella propria.
+- `make soft-test` verde. Nessuna suite lanciata.
+
+# 🧭 gen511 (2026-09-11) — la lingua del discorso, e il piano di traduzione che funziona. RIPARTIRE DA QUI.
+
+Ripreso dall'handoff del quinto giro (sotto). Lotto mirato rilanciato, sonde
+`.p0t` nello scratchpad, bisezione su un worktree di `83101f4`. **Non
+committato.** `make soft-test` verde in 6 s.
+
+**La causa unica di tre sintomi** (trovata con una traccia su
+`detect_set_language`, ora dietro `P0_READ_TRACE` come `[lang]`): la forma
+canonica inglese di un turno italiano («the pen is on the table») rientrava in
+un `brain_respond` annidato e ripassava dalla rilevazione della lingua; vinceva
+l'inglese e `current_language` passava a `en` A META' TURNO. Ne seguivano la
+risposta in inglese (`accentless_copula`), le evidenze di `current_turn`
+sovrascritte (il piano di traduzione non vedeva mai un turno italiano) e, al
+turno dopo, un pareggio («cosa» contro «i») vinto dalla lingua sbagliata.
+
+| Cura | Dove |
+|---|---|
+| `respond_depth`: solo il turno piu' esterno rileva e sposta la lingua; un annidato e `brain_canonical` dentro un turno usano `canonicalize_fragment` (scope `current_fragment`, stessa politica KB, lingua ripristinata) | `brain.c`, `10-memory-knowledge.c`, `99-registry.c` |
+| la lettura registra cio' che ha fatto: `turn_translated/3` (ipotesi usata), `turn_kept/2` (parola lasciata); solo sul turno (`canon_turn`). Prima i passi 4-5 chiedevano `turn_span_token`, non pubblicato su questi turni | `10-memory-knowledge.c`, `gloss.p0` |
+| la premessa e' una famiglia `translation_preface` (en/it) e dice TUTTE le ipotesi; tolta la versione cucita con `concat_atoms` (le stringhe con «» e spazi non arrivavano nemmeno in KB) | `responses.p0`, `gloss.p0`, `turn_done` |
+| `naf(function_word($W, $F))` falliva per FLOUNDERING (`kb.c`: naf non ground = rifiuto): il passo 5 non era mai scattato. Ora `is_function_word/1` | `gloss.p0` |
+| il passo 5 vale solo in una DOMANDA: in un'affermazione una parola non tradotta diventa un atomo; «la prossima volta capisco» sarebbe una promessa falsa (misurato su «la matita e nel cassetto» senza variante della copula) | `gloss.p0` |
+| `translation_guess` usa la lingua del testo in lettura (`current_language`), non quella del turno: nessuna desinenza italiana provata sulla forma canonica inglese | `gloss.p0` |
+
+Bilancio: C +135/−31 (in gran parte commenti), KB +49/−22. E' una cura del
+motore (chi puo' spostare la lingua), non una migrazione.
+
+**In chat (sonde):** «cosa mangiano i gatti?» → «Leggo «mangiano» come «mangia».
+Leggo «gatti» come «gatto». A gatto eats Fish and mouse.»; «dove vive un
+pinguino?» → «Non so ancora tradurre «pinguino». …»; «what do cats eat?» →
+nessuna premessa, lingua `en`.
+
+**Lotto (binario finale, demone fresco):**
+
+| File | Prima (quinto giro / `83101f4`) | Ora |
+|---|---|---|
+| `accentless_copula` | 4 rossi → 1 dopo il fix di «è» | **9/9** |
+| `lexicon_it` | 4/3 su `83101f4` | 6/1 — resta la riga 30, preesistente |
+| `taught_turn_form` | 1/3 su `83101f4` (preesistente) | **4/4**: attese all'italiano; col vecchio atteso il `<!` del passo 3 passava a vuoto |
+| `question_does_not_teach`, `higher_order_lesson`, `multigoal`, `compound_inquiry`, `compose_coref.it` | | verdi |
+| `conditional_plan` | 26/2 (tempi) | 27/1 — un turno a 1,05 s su `!timeout 1` |
+| `one_act_of_learning` | 4/6 | 4/6 invariato (prosa lunga fuori tempo, organism/carbohydrate) |
+| `taught_lexicon` | 33/2 | 33/2 — il sandbox 154/158, preesistente |
+| `coref` | 7/1 su `83101f4` | 7/1 — «why is she a teacher?» → «Because …», preesistente |
+
+**Aperti, in ordine di leva:**
+1. **Otto regole con `naf` su una variabile libera**, stesso difetto del passo 5
+   (falliscono sempre, in silenzio): `procedures.p0` address_identity /
+   address_external, `network.p0` disambiguation_style, `assisted-learning.p0` ×3,
+   `arrests.p0` compensation_step ×2. Due strade: classi ground come
+   `is_function_word/1` una per una, oppure il solver tratta come esistenziali
+   le variabili che compaiono SOLO dentro il naf (semantica standard, cambia il
+   comportamento di quelle regole: va misurato sulla suite, che decide F.).
+2. **La risposta mescola le lingue** («A gatto eats Fish and mouse»): la resa
+   della relazione non passa dalla presentazione italiana.
+3. Il passo 5 va ceduto anche dalle offerte di lacuna (`faculty_yield`), e
+   `concat_atoms/3` in verso inverso resta da auditare (punto 3 sotto).
+4. Muri italiani del quinto giro ancora da rifare dopo questa cura: «come si
+   chiama X», «che lingua si parla in brasile?», «il sole è una stella?».
+
 # 🔧 AGGIORNAMENTO gen510, secondo giro (2026-09-11 sera) — leggere prima dell'handoff sotto
 
 Il metodo di questo giro: lotti di test **sotto i 5 minuti**, niente processi
@@ -39,7 +121,9 @@ opener» non letto), `lexicon_it` (1), `literal_forms` (4: «was born in» → �
 from», e un turno di 9-12 s su «zorak vurbles nivora»), `assisted_construction_ternary`
 (turni di 6-9 s: da profilare), `taught_lexicon` 153/157 (il sandbox).
 
-**⛔ HANDOFF — quinto giro interrotto (2026-09-11, tardi). RIPARTIRE DA QUI.**
+**HANDOFF — quinto giro interrotto (2026-09-11, tardi).** ⚠ Superato dal gen511
+qui sopra: il lotto e' stato rilanciato e i punti 1, 2 e 4 sono chiusi o
+verificati; il punto 3 (audit di `concat_atoms`) resta aperto.
 
 Stato: compila senza warning, `make soft-test` verde in 5s. **Nessun test
 mirato rilanciato dopo queste modifiche**: prima di tutto un lotto da 5 minuti

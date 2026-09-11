@@ -1,0 +1,115 @@
+# gen511 — UNA FORMA DI LEZIONE SI INSEGNA PARLANDO (il gradino S2).
+#
+# docs/plans/radici-insegnabilita.md §4.1: il riconoscimento delle domande era
+# insegnabile («treat as a question any turn that contains X»), ma una forma di
+# lezione NUOVA era una riga a mano in messages.p0. La lezione «S means T»
+# esisteva solo per i fatti, e con un bersaglio che e' una lezione declinava:
+# «I cannot anchor that lesson yet … for ?».
+#
+# Ora «S means T», quando una forma esistente legge T, crea una forma nuova
+# nella stessa rappresentazione di quelle scritte a mano; il suo atto e'
+# `reread`: ridirsi T con i buchi riempiti. Da qui una forma nuova puo' puntare
+# a un'altra forma insegnata — il CIRCOLO del §2 — e si disfa con la stessa
+# frase preceduta da «forget that».
+#
+# Chi insegna non nomina nessuno schema interno: dice una frase d'esempio con
+# le variabili di `rule_variable/1` («x», «y») e la frase che vale al suo posto.
+# La KB e' quella vera; il file ritira tutto cio' che insegna (TEST_TODO R3).
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test prima: la superficie nuova non insegna niente]
+!timeout 8
+> perhaps counts as a question
+!query! taught_question_cue(perhaps)
+
+[test la lezione crea una forma di lezione]
+!timeout 8
+> x counts as a question means treat as a question any turn that contains x
+<~ From now on I'll read «x counts as a question»
+> perhaps counts as a question
+!query taught_question_cue(perhaps)
+
+[test il circolo: una forma nuova che punta a una forma insegnata]
+!timeout 8
+# La lezione finisce con la superficie della forma appena insegnata: senza la
+# precedenza delle lezioni sulle forme, quella la leggeva per prima.
+> x is interrogative means x counts as a question
+<~ From now on I'll read «x is interrogative»
+> maybe is interrogative
+!query taught_question_cue(maybe)
+
+[test un'altra famiglia: le forme delle parole]
+!timeout 8
+> x is the plural form of y means the plural of y is x
+<~ From now on
+> geese is the plural form of goose
+<~ geese
+!query plural_of(geese, goose)
+
+[test un bersaglio letto da un modulo compilato: si verifica PROVANDO]
+!timeout 12
+# Nessuna forma legge «x is a y»: la legge un modulo. La lezione prova la
+# lettura in un processo figlio con parole nuove (`p0_try_reading`), e la
+# prova non lascia tracce qui.
+> x belongs to the kind y means x is a y
+<~ From now on
+!query! qzxb(qzxa)
+> vorlik belongs to the kind zendrat
+!query zendrat(vorlik)
+> forget that x belongs to the kind y means x is a y
+<~ no longer
+!forget zendrat(vorlik)
+
+[test un bersaglio che nessuna forma legge declina ancora, e lo nomina]
+!timeout 8
+> x blorfs y means x zindles y
+<~ I cannot anchor that lesson yet
+<! for ?
+
+[test ablazione: si disfa con la stessa frase, e il difetto torna]
+!timeout 8
+> forget that x counts as a question means treat as a question any turn that contains x
+<~ I no longer read «x counts as a question»
+> possibly counts as a question
+!query! taught_question_cue(possibly)
+# la forma che puntava a quella tolta non ha piu' un lettore: non insegna
+> probably is interrogative
+!query! taught_question_cue(probably)
+
+[test la declinazione italiana]
+!timeout 12
+# Una lezione italiana con un bersaglio letto da un modulo compilato.
+> x fa parte dei y significa x è un y
+<~ D'ora in poi
+> vorlik fa parte dei zendrat
+<~ zendrat
+!query zendrat(vorlik)
+# Una superficie italiana verso una lezione inglese, in un turno misto: la
+# sorgente si canonicalizza nella PROPRIA lingua («come» -> «how»), come la
+# canonicalizzera' il turno italiano che la usa. Prima non combaciava mai.
+> x conta come domanda significa treat as a question any turn that contains x
+<~ x conta
+> forse conta come domanda
+!query taught_question_cue(forse)
+> forget that x conta come domanda significa treat as a question any turn that contains x
+<~ no longer
+> forget that x fa parte dei y significa x è un y
+!forget zendrat(vorlik)
+!forget taught_question_cue(forse)
+
+[test R3: si ritira tutto cio' che si e' insegnato]
+!timeout 8
+> forget that x is interrogative means x counts as a question
+<~ no longer
+> forget that x is the plural form of y means the plural of y is x
+<~ no longer
+!forget taught_question_cue(perhaps)
+!forget taught_question_cue(maybe)
+!forget plural_of(geese, goose)
+!query! taught_form_source(_, _)

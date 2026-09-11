@@ -1,5 +1,157 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🌱 HANDOFF — 11 settembre 2026 (`gen511`): LA MISSIONE DELLA FRONTIERA DI INSEGNABILITÀ. RIPARTIRE DA QUI.
+
+> F.: *«cerca di ridurre le abilità congelate nel C, di renderle apprendibili
+> attraverso i principi KB-first … attraverso le idee di
+> docs/plans/radici-insegnabilita.md cerca di allargare la base insegnabile di
+> parrot0 … fai il lavoro di ricerca della radice di insegnabilità, espandi
+> quella frontiera, cerchiamo di capire che forma ha e come farla allargare il
+> più possibile.»*
+
+Questa è una **missione**, non un giro: continua per sessioni. La teoria è in
+`docs/plans/radici-insegnabilita.md` (§1-3 il concetto, **§4.4 il primo giro
+con i numeri**, §5 il metodo); il bilancio per il C in testa a `C_TODO.md`; il
+catalogo delle forme in `LEARN_PROTOCOL.md` §6-bis (riga nuova in B).
+
+## 1. La forma della frontiera, come la vediamo dopo il primo giro
+
+Ogni abilità ha una **catena di insegnabilità**: la superficie che la insegna,
+la superficie che insegna quella, e così via. Una catena finisce in una
+**radice** (una primitiva del motore: legittima), in un **circolo** (una lezione
+che estende anche la propria forma: il caso migliore) o in una **riga a mano**
+(un buco: il prossimo lavoro). La frontiera è l'insieme delle catene che
+finiscono ancora in una riga a mano.
+
+La scoperta del giro: **il gradino più alto e più condiviso è S2 — «come si
+insegna una FORMA di lezione nuova»**. Ogni forma di lezione (`turn_form/3`,
+~130 forme in messages.p0) era una riga a mano. Aprire S2 apre in un colpo la
+superficie di TUTTE le abilità che parrot0 sa già leggere.
+
+## 2. Che cosa ha fatto il primo giro (gen511)
+
+**Due primitive nuove del motore — le due radici — e nessun lettore riscritto:**
+
+| Primitiva | Che cosa fa | Dove |
+|---|---|---|
+| `reread(T)` | l'atto di una forma creata da una lezione: ridirsi T con i buchi `{x}` riempiti, come turno annidato, nella lingua del discorso | `p0_turn_form_reader`, 10-memory-knowledge.c |
+| `p0_try_reading` | leggere senza conseguenze: fork, il figlio legge la frase con parole nuove (`qzxa`…), un byte di esito, `_exit` | 10-memory-knowledge.c |
+
+**La lezione:** «S means T» (o «significa»). Se T è un fatto resta la vecchia
+COSTRUZIONE; se no, e T si legge (una forma lo legge, oppure la prova tiene),
+nasce `taught_form_N`: pezzi `text`/`span`/`rest` da S (variabili =
+`rule_variable/1`: x, y, z, someone, something…), atto `reread(T)`,
+`turn_form_priority(early)`, chiave `taught_form_source/2`. Si disfa con
+«forget that S means T». Codice: `p0_teach_rewrite`, `p0_rewrite_build`,
+`p0_rewrite_target_read`, `p0_rewrite_target_tried`.
+
+**Esempi che funzionano (tutti in `tests/p0t/language/taught_lesson_form.p0t`,
+26 asserzioni, idempotente):**
+
+```text
+> x counts as a question means treat as a question any turn that contains x
+From now on I'll read «x counts as a question» as «treat as a question any turn that contains x».
+> perhaps counts as a question            -> taught_question_cue(perhaps)
+> x is interrogative means x counts as a question     (una forma che punta a una forma INSEGNATA: il circolo)
+> maybe is interrogative                   -> taught_question_cue(maybe)
+> x belongs to the kind y means x is a y   (bersaglio letto da un MODULO: verificato provando)
+> x fa parte dei y significa x è un y  /  vorlik fa parte dei zendrat -> Imparato: vorlik è un zendrat.
+> x conta come domanda significa treat as a question any turn that contains x
+> forse conta come domanda                 -> Tengo: un turno che contiene «forse» è una domanda.
+```
+
+**Il censimento, fatto parlando** (34 superfici del catalogo, ognuna bersaglio
+di «x qq y means …»; la sonda è riproducibile, vedi §4):
+
+| | prima | con le forme | con la prova |
+|---|---|---|---|
+| catene che finiscono in un circolo | 1/34 | 25/34 | **30/34** |
+
+**Anelli rotti trovati e chiusi** (il passo 5 del metodo: *ogni anello deve
+raggiungere il suo lettore*): la lezione del circolo finiva con la superficie
+della forma appena insegnata e quella la leggeva prima (ora una lezione sulle
+forme precede l'uso di una forma — la cue del pivot è KB); il declino diceva
+«for ?»; la sorgente di una lezione mista si canonicalizzava nella lingua del
+turno intero invece che nella propria («come» restava «come» nella lezione e
+diventava «how» nell'uso).
+
+**Lo stesso giro, prima (gen511 primo giro, vedi TEST_TODO):** la lingua non
+cambia più a metà turno (`respond_depth`, `canonicalize_fragment`) e il piano di
+traduzione del gen510 funziona — senza quella cura S2 non avrebbe retto in
+italiano.
+
+**Bilancio onesto:** C +459/−35, KB +60/−22 sui due giri. **Nessun lettore
+compilato è uscito dal C.** I sette lettori di lezione ancora compilati (`x is
+a y`, `every x is y`, `every x has y`, `no x is a y`, `x is a relation verb`,
+`correction:`, `forget that`) restano; ma una superficie NUOVA per le loro
+abilità ora costa zero C. Non è ancora la migrazione che F. chiede: è la
+condizione che la rende non urgente.
+
+## 3. ⛔ Come continuare — in ordine di leva
+
+1. **Le lezioni che presuppongono un referente** (le 4 su 34 rimaste:
+   `correction: x is y`, `forget that x`, `when x then y`, `your plan when
+   x?`). La prova con parole nuove mura perché non c'è niente su cui agire. Il
+   gradino: una prova in un contesto che CONTENGA il referente — nel figlio,
+   prima della frase, si pone il referente con una lezione che già funziona
+   («qzxa is a qzxb», una situazione nota). Quale lezione di preparazione
+   serve a quale forma è conoscenza: una relazione KB, non un `if`.
+2. **L'accordo fra le superfici**: la riscrittura passa le parole come sono
+   («x belongs among the y» con un plurale nel posto di un singolare dà
+   `zendrats(vorlik)`). Lo slot deve poter dichiarare la forma che il
+   bersaglio chiede (singolare, infinito), usando la morfologia che è già in
+   KB (`plural_of/2`, `plural_suffix/2`, `verb_stem/2`).
+3. **Massimizzare il circuito (mantra #22) — si fa PARLANDO, in `make chat`,
+   con `LEARN_PROTOCOL.md`**: per ogni forma del catalogo, insegnare 3-5
+   superfici alternative naturali, in inglese e in italiano, e salvarle. È la
+   parte gratis: il circuito c'è. Attenzione: le forme insegnate sono di
+   sessione (`KB_SESSION`); per restare devono passare dal salvataggio
+   (`kb.save` / save-map) — **verificare dove finiscono prima di farne tante**,
+   e mai da un `.p0t` (R3).
+4. **Il gradino S3 vero: insegnare una forma con un ATTO nuovo**, non solo
+   una superficie nuova per un atto esistente. Oggi `reread` riusa i lettori;
+   una lezione che dica «when I say x is spicy, remember that x has taste
+   spicy» crea già una forma che riusa l'atto «has». Mancano le forme che
+   compongono due atti («… means A and B»: due `reread` in sequenza — il
+   motore esegue già più atti per forma, gen507/66).
+5. **La migrazione dei sette lettori compilati in forme** (C_TODO in testa,
+   punto 4): con S2 aperto ogni lettore portato in una forma diventa anche
+   insegnabile nella FORMA, e la verifica non ha più bisogno del fork. Si
+   comincia dalla famiglia delle classi, la più usata. Il test del bilancio
+   (mantra #18a) vale: il C deve accorciarsi.
+6. **Censire le altre catene** (radici-insegnabilita.md §8): le abilità della
+   suite con un ramo C dedicato (catena di lunghezza zero), e le abilità che
+   il gen508 rende già derivabili. Il censimento si fa con la sonda del §4,
+   non con un `.p0t` nuovo (§7 del piano).
+
+## 4. Strumenti e trappole del primo giro
+
+- **La sonda di censimento**: un `.p0t` con `[mock live]`, e per ogni
+  superficie `> x qqNN y means <superficie>` e `<~ ZZZ`; poi
+  `./bin/parrot0 --test sonda.p0t | grep 'got:'` e si classifica «From now on»
+  (raggiunta) / «cannot anchor» (catena nel C). Riproducibile in 50 s.
+- **`P0_READ_TRACE=1`** sul demone: `[form] matched …`, `[form] … reread «…»`,
+  `[form] rewrite target read by …`, `[form] try reading «…»: reads|walls`,
+  `[lang] … sticky=… selected=…`, `[canon] … -> …`. Senza la traccia i tre
+  anelli rotti non si sarebbero visti.
+- **Due demoni**: il secondo con `--test-engine --sock obj/next.sock` e il
+  client con `--sock obj/next.sock`; un binario candidato con
+  `make build BIN=obj/p0next`. La bisezione su un worktree del commit di
+  partenza separa «l'ho rotto io» da «era già rosso».
+- ⚠ **`naf` con una variabile libera fallisce in silenzio** (floundering,
+  `kb.c`): scrivere la negazione su una classe ground. Otto regole della KB
+  hanno ancora questa forma (TEST_TODO gen511).
+- ⚠ `kb_match` restituisce il PRIMO argomento libero: per le coppie si
+  enumera la prima colonna e si interroga la seconda.
+- ⚠ Una forma di sole variabili leggerebbe ogni turno: `p0_rewrite_build`
+  esige almeno un pezzo letterale, e rifiuta due variabili contigue.
+- Test: `taught_lesson_form.p0t` e `taught_turn_form.p0t` sono nel `make
+  test`. `make soft-test` verde in 7 s. La suite intera non è stata lanciata
+  (politica di F.). Rossi preesistenti noti nei file toccati:
+  `assisted_construction` 48 e 113, `coref` 45, `lexicon_it` 30.
+
+---
+
 # 🏁 HANDOFF — 9 settembre 2026 (`gen506l`): altre due chat pessime — l'ordine imparato come fatto, la divisione per zero muta
 
 > F.: «1/0» -> «I don't understand that yet.»; «1 diviso 0» -> «Hmm, I don't

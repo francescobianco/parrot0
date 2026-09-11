@@ -117,6 +117,72 @@ non lo erano. Un censimento che controlla solo che la forma ci sia non lo vede;
 lo vede il passo 5 del metodo, **parlando**. La traccia `P0_READ_TRACE=1`
 (`[form] matched …`) dice ora quale forma combacia con un turno.
 
+### 4.4 Il gradino S2 aperto (gen511): una lezione che crea una forma di lezione
+
+Il buco ad alta leva del §4.1. Prima: «S means T» esisteva solo per i fatti
+(le costruzioni), e con un bersaglio che è una lezione declinava — «I cannot
+anchor that lesson yet … for ?». Ora, se una forma esistente legge T, la
+lezione crea una forma nuova **nella stessa rappresentazione** di quelle
+scritte a mano (`turn_form/3`): i pezzi letterali di S diventano `text`, ogni
+variabile (`rule_variable/1`) `span` o `rest`, e l'atto è una sola primitiva
+nuova, `reread(T)` — ridirsi T con i buchi riempiti, come turno annidato nella
+lingua del discorso. Si disfa con «forget that S means T».
+
+| Gradino | Superficie | Fine |
+|---|---|---|
+| A: «questo turno è una domanda» | `turn_declared_act(T, question)` | — |
+| S1: «treat as a question any turn that contains X» | forma scritta a mano | superficie |
+| S2: **«x counts as a question means treat as a question any turn that contains x»** | crea `taught_form_N` con atto `reread(…)` | **aperto** |
+| S3: «x is interrogative means x counts as a question» | una forma che punta a una forma INSEGNATA | **circolo** |
+| la primitiva `reread` | rileggere una frase come turno | **radice** del motore |
+
+Prova: `tests/p0t/language/taught_lesson_form.p0t` (prima/dopo, circolo,
+un'altra famiglia, ablazione, R3; idempotente).
+
+Due anelli rotti trovati e chiusi facendolo, entrambi del tipo del §5 passo 5:
+la lezione del circolo **finiva con la superficie della forma appena
+insegnata** e quella la leggeva per prima (una lezione sulle forme ora precede
+l'uso di una forma); e il declino nominava «?» invece del bersaglio.
+
+**Il censimento, parlando** (34 superfici del catalogo §6-bis, ognuna
+bersaglio di una lezione «x qq y means …»):
+
+| Esito | N | Superfici |
+|---|---|---|
+| **raggiunte**: la catena diventa un circolo | 24 | `x is not a y`, `kind of`, `are typically`, otto proprietà delle relazioni, plurale, passato, `the italian for`, sigla, contrario, stessa cosa, definizione, `step for`, l'indizio di domanda, quattro superfici di ordine superiore |
+| già circolo per costruzione di fatti | 1 | `x is a member of y` |
+| **la catena finisce nel C** | 9 | `x is a y`, `every x is y`, `every x has y`, `no x is a y`, `x is a relation verb`, `correction: x is y`, `forget that x`; e `when x then y`, `your plan when x?` |
+
+Le ultime due sono un **artefatto della verifica**: le forme dei piani hanno un
+pezzo `named(situazione)` che una variabile non soddisfa. Le altre sette sono
+lette da moduli compilati, non da forme: sono l'elenco preciso delle abilità
+di lezione ancora **congelate nel C** — e la famiglia delle classi è la più
+usata di tutte.
+
+Vitalità misurata su questo campione: **25/34 catene finiscono in un circolo**
+(prima di S2: 1/34).
+
+**Secondo giro: «so leggerlo?» invece di «quale forma lo legge?».** Portare in
+una forma ognuno dei lettori compilati sarebbe stata una seconda lettura
+(mantra #5). La domanda generale ha una risposta generale: **provarci**. Se
+nessuna forma legge il bersaglio, parrot0 lo legge in un processo figlio
+(`p0_try_reading`: fork, copia in scrittura, un byte di esito, `_exit`), con
+parole nuove al posto delle variabili. È una seconda primitiva-radice, senza
+vocabolario, e serve a qualunque futura «lettura ipotetica».
+
+Esito: **30/34**. La famiglia delle classi (`x is a y`, `every x is y`,
+`every x has y`, `no x is a y`) e `x is a relation verb` sono ora bersagli.
+Le quattro rimaste hanno la stessa forma: **presuppongono un referente** —
+`correction: x is y` un fatto da correggere, `forget that x` qualcosa da
+dimenticare, `when x then y` e `your plan when x?` una situazione nota. Con
+parole nuove non c'è niente su cui agire e la prova mura: è un limite della
+verifica con parole fresche, non del circuito. Chiuderlo chiede di provare la
+lettura in un contesto che contenga il referente (un «supponiamo che …» della
+prova), cioè il prossimo gradino.
+
+Costo: ~1,4 s per una lezione che non ha una forma lettrice, soltanto quando si
+insegna.
+
 ## 5. Il metodo
 
 Per ogni abilità scelta, dalla suite o dai piani:

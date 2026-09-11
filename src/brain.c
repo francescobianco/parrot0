@@ -33,6 +33,7 @@
 #include <string.h>
 #include <strings.h>
 #include <sys/stat.h>
+#include <sys/wait.h>   /* gen511: `p0_try_reading` legge in un processo figlio */
 #include <time.h>
 #include <unistd.h>
 
@@ -225,6 +226,15 @@ struct Brain {
     /* gen506c: profondita' della lettura per clausole di un turno composto
      * (compound_turn_lead, 99-registry.c) — una clausola non si rispezza. */
     int compound_depth;
+    /* gen511: quanti `brain_respond` sono aperti. La lingua e' del turno piu'
+     * esterno: un turno annidato (una clausola, un replay, la forma canonica
+     * riproposta) legge la PROPRIA lingua ma non sposta quella della
+     * conversazione. Vedi `canonicalize_fragment`. */
+    int respond_depth;
+    /* gen511: vale 1 soltanto mentre si canonicalizza il turno stesso (non un
+     * frammento, non un'ispezione): e' allora che la lettura registra che cosa
+     * ha tradotto per ipotesi e che cosa ha lasciato intatto. */
+    int canon_turn;
     /* gen506c: la prova per testimone di un soggetto generico (mod_knowledge)
      * rientra in mod_knowledge una volta sola. */
     int generic_witness_depth;
