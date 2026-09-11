@@ -4805,6 +4805,86 @@ static void turn_publish_cues(Brain *b, const char *surface) {
     }
     free(regs);
 }
+/* gen512 — LE PREMESSE DEL TURNO SONO ASSUNTE MENTRE SI RISPONDE.
+ *
+ * «Marco e' stato punto da uno scorpione e Luca da una zanzara: chi dei due e'
+ * in pericolo?» porta nel turno stesso le premesse della domanda. Non sono
+ * conoscenza del mondo da salvare — sono l'ipotesi entro cui la domanda ha
+ * senso. Quali premesse il turno porta lo dice la KB (`turn_assumes/4`,
+ * `turn_assumes1/3`, letti dall'IR del turno in situation.p0); qui c'e' solo la
+ * meccanica: asserirle con provenienza ipotetica prima che il piano risponda,
+ * e ritirarle subito dopo. E' il percorso storico del sillogismo in un turno
+ * (`KB_HYPOTHETICAL`), reso generale: la forma delle premesse non e' piu' «if
+ * …, is …?» scritta nel C, ma cio' che la KB sa leggere. */
+static int turn_assume_rows(Brain *b, const char *pred, size_t arity) {
+    int n = 0;
+    char (*ps)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *pq[4] = { "current_turn", NULL, NULL, NULL };
+    if (!kb_match_all(b->kb, pred, pq, arity + 2, &ps, &np)) np = 0;
+    for (size_t i = 0; i < np; i++) {
+        char rel[KB_TERM_LEN]; snprintf(rel, sizeof rel, "%s", ps[i]);
+        int seen = 0;
+        for (size_t j = 0; j < i && !seen; j++) if (!strcmp(ps[j], ps[i])) seen = 1;
+        if (seen) continue;
+        char (*as)[KB_TERM_LEN] = NULL; size_t na = 0;
+        const char *aq[4] = { "current_turn", rel, NULL, NULL };
+        if (kb_match_all(b->kb, pred, aq, arity + 2, &as, &na)) {
+            for (size_t j = 0; j < na; j++) {
+                char a[KB_TERM_LEN]; snprintf(a, sizeof a, "%s", as[j]);
+                if (arity == 1) {
+                    const char *fa[1] = { a };
+                    if (kb_assert(b->kb, rel, fa, 1)) n++;
+                    continue;
+                }
+                char (*bs)[KB_TERM_LEN] = NULL; size_t nb = 0;
+                const char *bq[4] = { "current_turn", rel, a, NULL };
+                if (kb_match_all(b->kb, pred, bq, 4, &bs, &nb)) {
+                    for (size_t k = 0; k < nb; k++) {
+                        const char *fa[2] = { a, bs[k] };
+                        if (kb_assert(b->kb, rel, fa, 2)) n++;
+                    }
+                }
+                free(bs);
+            }
+        }
+        free(as);
+    }
+    free(ps);
+    return n;
+}
+
+static int turn_assume_premises(Brain *b) {
+    if (!b || !b->kb) return 0;
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_HYPOTHETICAL);
+    int n = turn_assume_rows(b, "turn_assumes", 2) + turn_assume_rows(b, "turn_assumes1", 1);
+    kb_set_origin(b->kb, prev);
+    if (getenv("P0_READ_TRACE") && n) fprintf(stderr, "[turn] assumed %d premise(s)\n", n);
+    return n;
+}
+
+static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
+    const char *candidate[] = { "current_turn" };
+    if (!kb_query(b->kb, "turn_plan_candidate", candidate, 1)) return 0;
+    char replies[1][KB_TERM_LEN];
+    const char *q[] = { "current_turn", NULL };
+    /* A turn that can name its own arrest gets the first chance to speak.
+     * This is an open KB protocol, not a C list of states: the engine knows no
+     * gap kind, policy, language or wording.  Without the separate query, a
+     * relation-shaped missing-value turn must traverse every ordinary
+     * turn_response/2 family and can spend the bounded solver budget before
+     * reaching the rule that honestly names what is missing. */
+    size_t nr = kb_match(b->kb, "turn_priority_response", q, 2, replies, 1);
+    if (nr == 1) {
+        put(kb_dequote(replies[0]), out, out_size);
+        return 1;
+    }
+    nr = kb_match(b->kb, "turn_response", q, 2, replies, 1);
+    if (nr != 1) return 0;
+    put(kb_dequote(replies[0]), out, out_size);
+    return 1;
+}
+
 static int universal_turn_lead(Brain *b, const char *surface,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !surface || !*surface) return 0;
@@ -4898,26 +4978,10 @@ static int universal_turn_lead(Brain *b, const char *surface,
      * richiesta di produzione si serve, non si chiarisce. La forza e' gia'
      * pubblicata qui sopra, con i token del turno. */
     if (p0_faculty_yields(b, "turn_plan", "open", surface, surface)) return 0;
-    const char *candidate[] = { "current_turn" };
-    if (!kb_query(b->kb, "turn_plan_candidate", candidate, 1)) return 0;
-
-    char replies[1][KB_TERM_LEN];
-    const char *q[] = { "current_turn", NULL };
-    /* A turn that can name its own arrest gets the first chance to speak.
-     * This is an open KB protocol, not a C list of states: the engine knows no
-     * gap kind, policy, language or wording.  Without the separate query, a
-     * relation-shaped missing-value turn must traverse every ordinary
-     * turn_response/2 family and can spend the bounded solver budget before
-     * reaching the rule that honestly names what is missing. */
-    size_t nr = kb_match(b->kb, "turn_priority_response", q, 2, replies, 1);
-    if (nr == 1) {
-        put(kb_dequote(replies[0]), out, out_size);
-        return 1;
-    }
-    nr = kb_match(b->kb, "turn_response", q, 2, replies, 1);
-    if (nr != 1) return 0;
-    put(kb_dequote(replies[0]), out, out_size);
-    return 1;
+    int assumed = turn_assume_premises(b);
+    int rc = turn_plan_answer(b, out, out_size);
+    if (assumed) kb_retract_origin(b->kb, KB_HYPOTHETICAL);
+    return rc;
 }
 
 const char *brain_last_module(Brain *b) {

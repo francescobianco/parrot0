@@ -1,5 +1,146 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🐝 HANDOFF — 11 settembre 2026, notte (`gen512`, ottavo giro): «CHI DEI DUE È IN PERICOLO?». RIPARTIRE DA QUI.
+
+> F.: *«creare un prompt di verifica delle abilità di induzione, deduzione,
+> inferenza logica che mette in un'unica domanda due persone che sono state
+> punte uno da un animale, l'altro da un altro, e poi chiede chi dei due è in
+> pericolo … con le inferenze e logiche di predicato variabile e altri circuiti
+> di inferenza utili»* e poi: *«questo ovviamente è un lavoro per la
+> comprensione universale e per la IR da interrogare»*.
+
+## Il prompt di verifica (la meta)
+
+```text
+> Marco was stung by a scorpion and Luca by a mosquito: which of the two is in danger?
+  Marco is in danger: Marco was stung by a scorpion, which is venomous. Luca is not
+  in danger: Luca was stung by a mosquito, which is not venomous.
+> Marco è stato punto da uno scorpione e Luca da una zanzara: chi dei due è in pericolo?
+  Marco è in pericolo: è stato punto da uno scorpione, che è velenoso. Luca no: è
+  stato punto da una zanzara, che non è velenosa.
+```
+Varianti da mettere nel banco (`tests/p0t/reasoning/scenario_inference.p0t`, da
+scrivere, e da aggiungere al Makefile come gli altri cricchetti): ruoli
+scambiati; tutti e due velenosi («un'ape e una vespa»); nessuno; un animale di
+cui non si sa niente («una medusa» -> «non posso dirlo», MAI «no»); il morso
+(«è stato morso da una vipera» / «da un cane»); due premesse piene senza
+ellissi; la domanda al singolare («is Marco in danger?»). La conoscenza del
+banco si insegna in testa al file con le lezioni vere qui sotto.
+
+## Che cosa ogni pezzo deve fare (il disegno, sull'IR)
+
+1. **Lettura dall'IR** (situation.p0, blocco «DUE PERSONE PUNTE»): il turno e'
+   UNO span e UN nodo clausola (vedi brief), quindi il produttore KB legge i
+   token (`turn_span_token/4`) PRIMA della canonicalizzazione, via il contratto
+   del piano universale (`turn_plan_candidate/1` + `turn_response/2`).
+2. **Premessa piena**: soggetto + superficie della relazione
+   (`relation_surface/2`, lexicon.p0: una tabella sola, che genera anche
+   `phrase_canon/2` per la canonicalizzazione) + articolo + genere.
+3. **Ellissi come predicato variabile** (`scenario_gapped/9`): «e Luca da una
+   zanzara» eredita relazione e parole dalla congiunta parallela, riconosciuta
+   dal marcatore d'agente condiviso (ultima parola della superficie: by / da).
+4. **Il genere diventa un individuo** (`scenario_individual/3`:
+   `scorpion_of_marco`), cosi' «scorpions are venomous» (regola) vale per lui.
+5. **Premesse assunte solo mentre si risponde** (C, 99-registry.c,
+   `turn_assume_premises` + `turn_plan_answer`): il motore asserisce
+   `turn_assumes/4` e `turn_assumes1/3` in `KB_HYPOTHETICAL` prima del piano e
+   le ritira dopo. Niente su Marco e Luca sopravvive al turno.
+6. **Lo stato con una restrizione esistenziale** (procedures.p0):
+   `holds1(Q, X) :- exists_restriction(Q, R, P), holds(R, X, Y), holds1(P, Y).`
+   Q, R, P sono variabili di predicato; la conoscenza e' il fatto, insegnato con
+   la forma `teach_exists_restriction` (messages.p0). E' un dato, quindi la
+   spiegazione lo LEGGE: si' (P vale), no (SOLO se un'esclusione detta lo
+   autorizza: `class_excludes`), non so (altrimenti).
+7. **Risposta** (`scenario_render/8`, IT e EN): superficie e articolo come li
+   ha detti chi parla; accordo del femminile con `agree_f/2` quando l'articolo
+   e' femminile (article/4).
+
+## Stato: che cosa funziona (verificato con sonde .p0t, NON committato in chat)
+
+- «scorpions are venomous» -> `venomous(X) :- scorpion(X)` (prima: `venomou`):
+  `plural_suffix(ous, ous)` in grammar.p0.
+- «mosquitoes are not venomous» -> «Learned: no mosquito is venomous.»
+  (`exclusive_classes(mosquito, venomous)`), forma `teach_kind_excludes`
+  (messages.p0) con la radice nuova **`turn_form_slot_form(Forma, Slot,
+  singular)`** (10-memory-knowledge.c, il matcher delle forme singolarizza lo
+  slot con `plural_of`/`plural_suffix`). `plural_of` per i plurali in -oes.
+- `closed_world_answer(C, S) :- class_excludes(S, C)` (epistemic-status.p0):
+  il «no» vale anche per il genere stesso.
+- «if someone is stung by something venomous then they are in danger» ->
+  «Learned: whoever is stung by something venomous is endangered.» (i valori
+  degli slot nelle risposte delle forme si mostrano con gli spazi).
+- `article(indef, m, no, uno)` (grammar.p0).
+- `make soft-test` verde in 7 s con tutte le modifiche.
+
+## ⛔ Dove si e' fermato (diagnosi esatta, sonda scratch pd5.p0t)
+
+Il turno EN risponde «Hmm, I don't know about stung_by yet…» e quello IT «Non
+capisco ancora.»: il piano universale NON risponde, perche'
+`turn_plan_candidate(current_turn)` fallisce. Pezzo per pezzo, dopo le lezioni
+e il turno:
+
+| query | esito |
+|---|---|
+| `exists_restriction(endangered, stung_by, venomous)` | ✅ |
+| `is($X, sub(3, 1))` | ❌ **`sub` non esiste in is/2** |
+| `scenario_relation_words(stung_by, $W)` | ✅ |
+| `scenario_tok(current_turn, $S, $I, stung)` | ✅ |
+| `scenario_state_words(endangered, $W)` | ✅ |
+| `scenario_marked(current_turn)` | ✅ |
+| `scenario_asks(current_turn, $St, $Q)` | ❌ (i pezzi da soli passano) |
+| `scenario_premise(...)` | ❌ (usa `sub`) |
+| `turn_plan_candidate(current_turn)` | ❌ |
+
+**Primi due passi, in ordine:**
+1. `scenario_premise`: togliere `is($I, sub($J, 1))`; trovare il soggetto con
+   `scenario_tok($T, $S, $I, $Subj), is($J, add($I, 1))` (J gia' legato:
+   `is` controlla), come fanno le regole di `production_request`.
+2. `scenario_asks`: sondare `scenario_words_at(current_turn, $S, $I,
+   cons(in, cons(danger, nil)), $E)` e il tipo che `is/2` restituisce per le
+   posizioni (atomo "6" contro numero?). Le regole di turn-frames.p0 usano `is`
+   solo per CONTROLLARE posizioni gia' legate: se il calcolo non combacia, la
+   cura e' la stessa del punto 1 (enumerare il token e controllare).
+Poi: `P0_READ_TRACE=1` mostra «[turn] assumed N premise(s)».
+
+## Dopo lo sblocco
+
+- **Lezioni vere in `make chat`**, poi `/save` e verifica in un processo nuovo:
+  «scorpions are venomous», «bees are venomous», «wasps are venomous»,
+  «vipers are venomous», «mosquitoes are not venomous», «dogs are not
+  venomous», «if someone is stung by something venomous then they are in
+  danger», «if someone is bitten by something venomous then they are in
+  danger», e le traduzioni «the italian for scorpion is scorpione» (mosquito
+  zanzara, bee ape, wasp vespa, viper vipera, venomous velenoso). Leggere il
+  diff del /save riga per riga (nessun `turn_assumes`, nessun `*_of_marco`).
+- **Il banco** del prompt di verifica (sopra) e il cricchetto nel Makefile.
+- **Aperti noti**: «is a mosquito venomous?» risponde «I don't understand that
+  yet.» dopo l'esclusione (prima diceva «I don't know about mosquito»):
+  tracciare il lettore delle domande polari; la lezione italiana della
+  restrizione («se qualcuno è punto da qualcosa di velenoso allora è in
+  pericolo») si insegna con la lezione S2; il costo: `turn_assumes` si
+  interroga a OGNI turno (deve fallire subito: misurare con PARROT0_BOOT_TRACE
+  e un turno lungo), e `phrase_canon` ora ha due regole che la
+  canonicalizzazione enumera per ogni token.
+- **Il brief dell'IR** (sonda di questa sessione, da tenere): il turno e' uno
+  span e un nodo clausola; «:» e una «and» senza virgola non sono confini di
+  clausola; nell'IR non c'e' passivo, ne' domanda sul soggetto, ne' ellissi,
+  ne' riferimento plurale («of the two»/«dei due» sono `elidable_phrase`);
+  un'asserzione del turno non diventa un fatto relazionale; nessuna regola si
+  applica dentro un contesto (`holds_in`). Il sillogismo in un turno
+  (`one_turn_syllogism`, 10-memory-knowledge.c) vuole «if … , is …?».
+
+## File toccati in questo giro
+
+C: src/brain/99-registry.c (premesse assunte, `turn_plan_answer`),
+src/brain/10-memory-knowledge.c (`turn_form_slot_form`, spazi nelle risposte
+delle forme). KB: lexicon.p0 (superfici, relation_verb, plurali), grammar.p0
+(`plural_suffix(ous)`, `plural_of` -oes, `uno`), epistemic-status.p0
+(esclusione del genere), procedures.p0 (restrizione esistenziale), messages.p0
+(forme `teach_kind_excludes`, `teach_exists_restriction`), situation.p0 (il
+produttore dello scenario).
+
+---
+
 # 🦂 HANDOFF — 11 settembre 2026, notte (`gen512`, sesto giro): LA CONVERSAZIONE DEGLI SCORPIONI. RIPARTIRE DA QUI.
 
 > F. (reperto dal vivo): «parlami degli scorpioni» → «si» → «Gli scorpioni sono

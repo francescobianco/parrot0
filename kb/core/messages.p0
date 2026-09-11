@@ -3151,3 +3151,37 @@ response_template(story_subject_unrenderable, it, "Ho letto di che cosa vuoi la 
 response_template(wrote_file_x_with_y_bytes_verified, "Wrote {name} — {bytes} bytes, verified by reading it back.").
 response_template(rewrote_file_x_with_y_bytes_verified, "Rewrote {name} (it already existed) — {bytes} bytes, verified by reading it back.").
 response_template(i_could_not_write_x_and_i_do_not_say_i_did, "I could not write {name}, and I will not say that I did.").
+
+% ══ gen512 — «Xs are not Y»: L'ESCLUSIONE DETTA CON UN AGGETTIVO ══════════════
+% «mosquitoes are not venomous» diventava la classe «not venomou». La forma
+% dell'esclusione esisteva solo come «no A is a B», con l'articolo davanti alla
+% seconda classe, e un aggettivo non ce l'ha. Scrive la stessa conoscenza del
+% gen505 (`exclusive_classes/2`), che autorizza il «no» guadagnato
+% (epistemic-status.p0); il genere si legge al singolare.
+machinery(turn_form_slot_form).
+turn_form(teach_kind_excludes, 1, slot(kind)).
+turn_form(teach_kind_excludes, 2, text("are not")).
+turn_form(teach_kind_excludes, 3, slot(property)).
+turn_form_slot_form(teach_kind_excludes, kind, singular).
+turn_form_act(teach_kind_excludes, "op(assert, exclusive_classes, [kind, property])").
+turn_form_reply(teach_kind_excludes, kind_excludes_learned).
+turn_form_priority(teach_kind_excludes, early).
+response_template(kind_excludes_learned, "Learned: no {kind} is {property}.").
+response_template(kind_excludes_learned, it, "Imparato: nessun {kind} è {property}.").
+
+% ══ gen512 — «if someone R something P then they are Q» ═════════════════════
+% La lezione della restrizione esistenziale (procedures.p0). Si legge sul testo
+% canonico: le superfici della relazione e dello stato diventano i loro nomi
+% (lexicon.p0, `relation_surface`, `state_surface`).
+turn_form(teach_exists_restriction, 1, text("if someone")).
+turn_form(teach_exists_restriction, 2, slot(relation)).
+turn_form(teach_exists_restriction, 3, text("something")).
+turn_form(teach_exists_restriction, 4, slot(property)).
+turn_form(teach_exists_restriction, 5, text("then they are")).
+turn_form(teach_exists_restriction, 6, slot(state)).
+turn_form_slot_class(teach_exists_restriction, relation, relation_verb).
+turn_form_act(teach_exists_restriction, "op(assert, exists_restriction, [state, relation, property])").
+turn_form_reply(teach_exists_restriction, exists_restriction_learned).
+turn_form_priority(teach_exists_restriction, early).
+response_template(exists_restriction_learned, "Learned: whoever is {relation} something {property} is {state}.").
+response_template(exists_restriction_learned, it, "Imparato: chi è {relation} qualcosa di {property} è {state}.").

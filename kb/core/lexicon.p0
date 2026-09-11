@@ -3731,3 +3731,32 @@ function_word(cant, "can not").
 function_word(isnt, "is not").
 function_word("isn't", "is not").
 function_word(pls, "please").
+
+% ══ gen512 — LE SUPERFICI DI UNA RELAZIONE E DI UNO STATO, IN UNA TABELLA SOLA ══
+% «was stung by», «è stato punto da» sono la relazione `stung_by`; «in danger»,
+% «in pericolo» lo stato `endangered`. La stessa tabella la leggono la
+% canonicalizzazione (le due regole `phrase_canon/2` qui sotto), il lettore
+% delle lezioni e l'IR del turno (situation.p0): una forma nuova, o una lingua
+% nuova, e' una riga.
+machinery(relation_surface).
+machinery(state_surface).
+relation_verb(stung_by).
+relation_verb(bitten_by).
+relation_surface(stung_by, "was stung by").
+relation_surface(stung_by, "were stung by").
+relation_surface(stung_by, "is stung by").
+relation_surface(stung_by, "are stung by").
+relation_surface(stung_by, "got stung by").
+relation_surface(stung_by, "è stato punto da").
+relation_surface(stung_by, "è stata punta da").
+relation_surface(stung_by, "sono stati punti da").
+relation_surface(stung_by, "è punto da").
+relation_surface(bitten_by, "was bitten by").
+relation_surface(bitten_by, "is bitten by").
+relation_surface(bitten_by, "got bitten by").
+relation_surface(bitten_by, "è stato morso da").
+relation_surface(bitten_by, "è stata morsa da").
+state_surface(endangered, "in danger").
+state_surface(endangered, "in pericolo").
+phrase_canon($Surface, $Rel) :- relation_surface($Rel, $Surface).
+phrase_canon($Surface, $State) :- state_surface($State, $Surface).

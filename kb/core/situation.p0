@@ -505,3 +505,180 @@ turn_plan_candidate($T) :- consequence_unknown($T).
 turn_response($T, $Text) :- consequence_unknown($T), current_language($L), consequence_unknown_text($L, $Text).
 turn_response($T, $Text) :- consequence_two($T, $E, $X, $Y), current_language($L), answer_text(consequence_two($E, $X, $Y, $L), $Text).
 turn_response($T, $Text) :- consequence_one($T, $E, $X), current_language($L), answer_text(consequence_one($E, $X, $L), $Text).
+
+% ══ gen512 — DUE PERSONE PUNTE, E «CHI DEI DUE È IN PERICOLO?» ═══════════════
+%
+% F., 2026-09-11: una domanda sola che mette alla prova induzione, deduzione e
+% inferenza. «Marco è stato punto da uno scorpione e Luca da una zanzara: chi
+% dei due è in pericolo?». E' lavoro della comprensione universale: il turno si
+% legge dall'IR (i token del turno, `turn_span_token/4`), le premesse diventano
+% ipotesi del turno (`turn_assumes`, asserite dal motore solo mentre risponde),
+% e la risposta e' un'interrogazione dell'IR piu' l'inferenza della KB.
+%
+% I tre circuiti:
+%   - l'ELLISSI e' un predicato variabile: «e Luca da una zanzara» non ha
+%     verbo; la sua relazione e' la variabile che la congiunta parallela lega,
+%     riconosciuta dal marcatore d'agente condiviso («by», «da»);
+%   - il GENERE diventa un individuo: «punto da uno scorpione» dice che esiste
+%     uno scorpione; lo si nomina (`scorpion_of_marco`) e le regole generiche
+%     («scorpions are venomous») valgono per lui;
+%   - lo STATO si decide con una restrizione esistenziale (procedures.p0), e
+%     la risposta dice il perche' leggendo quella stessa restrizione: si',
+%     no (un'esclusione detta: «mosquitoes are not venomous»), o non so.
+machinery(scenario_tok).
+machinery(scenario_words_at).
+machinery(scenario_relation_words).
+machinery(scenario_state_words).
+machinery(scenario_last_word).
+machinery(scenario_article).
+machinery(scenario_object).
+machinery(scenario_premise).
+machinery(scenario_gapped).
+machinery(scenario_claim).
+machinery(scenario_kind).
+machinery(scenario_translated).
+machinery(scenario_individual).
+machinery(scenario_asks).
+machinery(scenario_marked).
+machinery(turn_assumes).
+machinery(turn_assumes1).
+machinery(scenario_answer).
+machinery(scenario_lines).
+machinery(scenario_line).
+machinery(scenario_join).
+machinery(scenario_verdict).
+machinery(scenario_excluded).
+machinery(scenario_np).
+machinery(scenario_prop_word).
+machinery(scenario_feminine).
+machinery(scenario_translated_en).
+machinery(scenario_render).
+machinery(scenario_words_text).
+machinery(scenario_cat).
+
+scenario_tok($T, $S, $I, $W) :- turn_span_token($T, $S, $I, $Tok), span_atom($Tok, $W).
+scenario_words_at($T, $S, $I, nil, $I).
+scenario_words_at($T, $S, $I, cons($W, $R), $E) :-
+    scenario_tok($T, $S, $I, $W), is($J, add($I, 1)), scenario_words_at($T, $S, $J, $R, $E).
+scenario_relation_words($Rel, $Words) :- relation_surface($Rel, $Surface), atom_words($Surface, $Words).
+scenario_state_words($State, $Words) :- state_surface($State, $Surface), atom_words($Surface, $Words).
+scenario_last_word(cons($W, nil), $W).
+scenario_last_word(cons($W, cons($X, $R)), $L) :- scenario_last_word(cons($X, $R), $L).
+scenario_first_word(cons($W, $R), $W).
+machinery(scenario_first_word).
+scenario_article($W) :- np_opener($W).
+scenario_article($W) :- article($D, $G, $V, $W).
+scenario_object($T, $S, $E, $Art, $K, $End) :-
+    scenario_tok($T, $S, $E, $Art), scenario_article($Art),
+    is($F, add($E, 1)), scenario_tok($T, $S, $F, $K), is($End, add($F, 1)).
+scenario_object($T, $S, $E, none, $K, $End) :-
+    scenario_tok($T, $S, $E, $K), naf(scenario_article($K)), is($End, add($E, 1)).
+
+% Una premessa piena: soggetto, superficie della relazione, oggetto.
+scenario_premise($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW, $End) :-
+    scenario_relation_words($Rel, $Words), scenario_first_word($Words, $First),
+    scenario_tok($T, $S, $J, $First), is($I, sub($J, 1)),
+    scenario_words_at($T, $S, $J, $Words, $E),
+    scenario_tok($T, $S, $I, $Subj),
+    naf(scenario_article($Subj)), naf(conjunction($Subj)),
+    scenario_object($T, $S, $E, $Art, $KW, $End).
+% La congiunta ellittica: soggetto, marcatore d'agente, oggetto. La relazione
+% e le parole che la dicono NON sono sue: le lega la congiunta parallela.
+scenario_gapped($T, $S, $P, $Subj, $Rel, $Words, $Art, $KW, $End) :-
+    scenario_premise($T, $S, $I, $Subj1, $Rel, $Words, $Art1, $KW1, $End1),
+    scenario_tok($T, $S, $End1, $C), conjunction($C),
+    is($P, add($End1, 1)), scenario_tok($T, $S, $P, $Subj),
+    scenario_last_word($Words, $Marker),
+    is($Q, add($P, 1)), scenario_tok($T, $S, $Q, $Marker),
+    is($R, add($Q, 1)), scenario_object($T, $S, $R, $Art, $KW, $End).
+scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW) :-
+    scenario_premise($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW, $E).
+scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW) :-
+    scenario_gapped($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW, $E).
+
+scenario_translated($W) :- tr($K, $W).
+scenario_kind($W, $K) :- tr($K, $W).
+scenario_kind($W, $W) :- naf(scenario_translated($W)).
+scenario_individual($Subj, $K, $Ind) :-
+    concat_atoms($K, "_of_", $X), concat_atoms($X, $Subj, $Ind).
+
+% La domanda: uno stato che parrot0 sa decidere, detto in un turno interrogativo.
+scenario_marked($T) :- turn_cue($T, question_mark_cue, $M).
+scenario_marked($T) :- scenario_tok($T, $S, $I, $W), interrogative_pronoun($W).
+scenario_asks($T, $State, $QW) :-
+    exists_restriction($State, $R0, $P0), scenario_state_words($State, $QW),
+    scenario_first_word($QW, $First), scenario_tok($T, $S, $I, $First),
+    scenario_words_at($T, $S, $I, $QW, $E), scenario_marked($T).
+
+turn_assumes($T, $Rel, $Subj, $Ind) :-
+    scenario_asks($T, $State, $QW),
+    scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW),
+    scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind).
+turn_assumes1($T, $K, $Ind) :-
+    scenario_asks($T, $State, $QW),
+    scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW),
+    scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind).
+
+turn_plan_candidate($T) :-
+    scenario_asks($T, $State, $QW), scenario_claim($T, $S, $I, $Subj, $R, $W, $A, $KW).
+turn_response($T, $Text) :- scenario_answer($T, $Text).
+
+scenario_answer($T, $Text) :-
+    scenario_asks($T, $State, $QW),
+    findall(c($Subj, $Rel, $Words, $Art, $KW),
+            scenario_claim($T, $S, $I, $Subj, $Rel, $Words, $Art, $KW), $Cs),
+    scenario_words_text($QW, $St),
+    scenario_lines($Cs, $State, $St, "", $Text).
+scenario_lines(nil, $State, $St, $Acc, $Acc).
+scenario_lines(cons($C, $R), $State, $St, $Acc, $Text) :-
+    scenario_line($C, $State, $St, $Line),
+    scenario_join($Acc, $Line, $Acc2),
+    scenario_lines($R, $State, $St, $Acc2, $Text).
+scenario_join("", $L, $L).
+scenario_join($A, $L, $X) :- dif($A, ""), concat_atoms($A, " ", $Y), concat_atoms($Y, $L, $X).
+
+% Il verdetto di una persona legge la restrizione che la sua premessa tocca.
+scenario_line(c($Subj, $Rel, $Words, $Art, $KW), $State, $St, $Line) :-
+    scenario_kind($KW, $K), scenario_individual($Subj, $K, $Ind),
+    exists_restriction($State, $Rel, $P),
+    scenario_verdict($P, $Ind, $V),
+    current_language($L),
+    upcase_first($Subj, $Sc),
+    scenario_words_text($Words, $Surf),
+    scenario_np($Art, $KW, $NP),
+    scenario_prop_word($L, $P, $Art, $PW),
+    scenario_render($L, $V, $Sc, $Surf, $NP, $PW, $St, $Line).
+scenario_verdict($P, $Ind, yes) :- holds1($P, $Ind).
+scenario_verdict($P, $Ind, no) :- naf(holds1($P, $Ind)), scenario_excluded($P, $Ind).
+scenario_verdict($P, $Ind, unknown) :- naf(holds1($P, $Ind)), naf(scenario_excluded($P, $Ind)).
+% Un «no» solo se un'esclusione detta lo autorizza: che una proprieta' non si
+% derivi non e' saperla falsa (epistemic-status.p0, ramo (b)).
+scenario_excluded($P, $Ind) :- class_excludes($Other, $P), apply($Other, cons($Ind, nil)).
+
+scenario_np(none, $KW, $KW).
+scenario_np($Art, $KW, $NP) :- dif($Art, none), concat_atoms($Art, " ", $X), concat_atoms($X, $KW, $NP).
+scenario_feminine($Art) :- article($D, f, $V, $Art).
+scenario_translated_en($P) :- tr($P, $M).
+scenario_prop_word(it, $P, $Art, $F) :- tr($P, $M), scenario_feminine($Art), agree_f($M, $F).
+scenario_prop_word(it, $P, $Art, $M) :- tr($P, $M), naf(scenario_feminine($Art)).
+scenario_prop_word(it, $P, $Art, $P) :- naf(scenario_translated_en($P)).
+scenario_prop_word(en, $P, $Art, $P).
+
+scenario_words_text(cons($W, nil), $W).
+scenario_words_text(cons($W, cons($X, $R)), $T) :-
+    scenario_words_text(cons($X, $R), $T2), concat_atoms($W, " ", $Y), concat_atoms($Y, $T2, $T).
+scenario_cat(cons($A, nil), $A).
+scenario_cat(cons($A, cons($B, $R)), $T) :- concat_atoms($A, $B, $AB), scenario_cat(cons($AB, $R), $T).
+
+scenario_render(it, yes, $Sc, $Surf, $NP, $PW, $St, $Line) :-
+    scenario_cat(cons($Sc, cons(" è ", cons($St, cons(": ", cons($Surf, cons(" ", cons($NP, cons(", che è ", cons($PW, cons(".", nil)))))))))), $Line).
+scenario_render(it, no, $Sc, $Surf, $NP, $PW, $St, $Line) :-
+    scenario_cat(cons($Sc, cons(" no: ", cons($Surf, cons(" ", cons($NP, cons(", che non è ", cons($PW, cons(".", nil)))))))), $Line).
+scenario_render(it, unknown, $Sc, $Surf, $NP, $PW, $St, $Line) :-
+    scenario_cat(cons("Di ", cons($Sc, cons(" non posso dirlo: ", cons($Surf, cons(" ", cons($NP, cons(", e non so se sia ", cons($PW, cons(".", nil))))))))), $Line).
+scenario_render(en, yes, $Sc, $Surf, $NP, $PW, $St, $Line) :-
+    scenario_cat(cons($Sc, cons(" is ", cons($St, cons(": ", cons($Sc, cons(" ", cons($Surf, cons(" ", cons($NP, cons(", which is ", cons($PW, cons(".", nil)))))))))))), $Line).
+scenario_render(en, no, $Sc, $Surf, $NP, $PW, $St, $Line) :-
+    scenario_cat(cons($Sc, cons(" is not ", cons($St, cons(": ", cons($Sc, cons(" ", cons($Surf, cons(" ", cons($NP, cons(", which is not ", cons($PW, cons(".", nil)))))))))))), $Line).
+scenario_render(en, unknown, $Sc, $Surf, $NP, $PW, $St, $Line) :-
+    scenario_cat(cons("I can't tell whether ", cons($Sc, cons(" is ", cons($St, cons(": ", cons($Sc, cons(" ", cons($Surf, cons(" ", cons($NP, cons(", and I don't know whether it is ", cons($PW, cons(".", nil))))))))))))), $Line).

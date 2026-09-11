@@ -30,6 +30,7 @@ article(def,   f, no,  la).
 article(def,   m, yes, l').
 article(def,   f, yes, l').
 article(indef, m, no,  un).
+article(indef, m, no,  uno).   % gen512: «uno scorpione», «uno zaino»
 article(indef, f, no,  una).
 article(indef, m, yes, un).
 article(indef, f, yes, un').
@@ -799,6 +800,11 @@ plural_of(species, species). plural_of(series, series).
 % eccezione dichiarata si risolve in una riga (era il bug notato in 20-math.c).
 plural_of(senses, sense).   plural_of(cases, case).
 plural_of(bases, base).     plural_of(phases, phase).
+% gen512: i plurali in -oes («mosquitoes are not venomous» -> «mosquitoe»). Come
+% eccezioni e non come desinenza: -oes e' anche «shoes», «toes», «does».
+plural_of(mosquitoes, mosquito). plural_of(volcanoes, volcano).
+plural_of(tomatoes, tomato).     plural_of(potatoes, potato).
+plural_of(heroes, hero).         plural_of(echoes, echo).
 
 % Desinenze, provate dalla piu' lunga alla piu' corta. La seconda colonna e'
 % cio' che prende il posto della prima; `nil` significa "togli e basta".
@@ -814,6 +820,10 @@ plural_suffix(zes, z).
 plural_suffix(men, man).   % craftsmen -> craftsman, firemen -> fireman
 plural_suffix(women, woman).
 plural_suffix(ss, ss).
+% gen512: un aggettivo in -ous non e' un plurale. «scorpions are venomous»
+% imparava `venomou(X) :- scorpion(X)`. Stessa forma di -ss: la desinenza piu'
+% lunga combacia e mappa la parola su se stessa.
+plural_suffix(ous, ous).
 plural_suffix(s, nil).      % roses -> rose
 
 % ── I FRAME DI ESTRAZIONE ────────────────────────────────────────────────────

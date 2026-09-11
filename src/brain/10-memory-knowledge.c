@@ -14207,9 +14207,14 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
             if (tplname[0]) {
                 KbResponseSlot fill[P0_FORM_SLOTS + 3];
                 size_t nf2 = 0;
+                /* gen512: nella risposta un valore si mostra con gli spazi
+                 * («stung by», non «stung_by»): l'indice non e' la lingua. */
+                char disp[P0_FORM_SLOTS][KB_TERM_LEN];
                 for (size_t k = 0; k < ns && nf2 < P0_FORM_SLOTS; k++) {
                     fill[nf2].name = slots[k].name;
-                    fill[nf2].value = slots[k].value;
+                    snprintf(disp[nf2], KB_TERM_LEN, "%s", slots[k].value);
+                    for (char *dc = disp[nf2]; *dc; dc++) if (*dc == '_') *dc = ' ';
+                    fill[nf2].value = disp[nf2];
                     nf2++;
                 }
                 fill[nf2].name = "result"; fill[nf2].value = result; nf2++;
@@ -14307,6 +14312,29 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
          * una classe, e quale, e' conoscenza della forma. */
         {
             char (*sc)[KB_TERM_LEN] = NULL; size_t nsc = 0;
+            /* gen512 — LA FORMA IN CUI SI LEGGE UNO SLOT. «mosquitoes are not
+             * venomous» dice una cosa sul genere «mosquito»: il plurale e' la
+             * forma della frase, non quella della conoscenza. Quale slot si
+             * legge al singolare lo dichiara la forma
+             * (`turn_form_slot_form(Forma, Slot, singular)`), e che cosa sia un
+             * singolare lo dicono `plural_of/2` e `plural_suffix/2`. */
+            {
+                char (*sf)[KB_TERM_LEN] = NULL; size_t nsf = 0;
+                const char *sfq[3] = { form, NULL, "singular" };
+                if (kb_match_all(b->kb, "turn_form_slot_form", sfq, 3, &sf, &nsf)) {
+                    for (size_t k = 0; k < nsf; k++) {
+                        char sfb[KB_TERM_LEN]; snprintf(sfb, sizeof sfb, "%s", sf[k]);
+                        const char *sname = kb_dequote(sfb);
+                        for (size_t q = 0; q < ns; q++) {
+                            if (strcmp(slots[q].name, sname)) continue;
+                            char sg[KB_TERM_LEN];
+                            singularize_kb(b, slots[q].value, sg, sizeof sg);
+                            if (sg[0]) snprintf(slots[q].value, KB_TERM_LEN, "%s", sg);
+                        }
+                    }
+                }
+                free(sf);
+            }
             const char *scq[3] = { form, NULL, NULL };
             int typed_ok = 1;
             if (kb_match_all(b->kb, "turn_form_slot_class", scq, 3, &sc, &nsc)) {

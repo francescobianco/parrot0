@@ -53,6 +53,9 @@ closed_world_answer($Class, $Subject) :- condition_closed_world($Class).
 %     piu' fertile di guadagnare un «no», perche' una sola esclusione risponde
 %     per tutti i membri presenti e futuri di entrambe le classi.
 closed_world_answer($Class, $Subject) :- class_excludes($Other, $Class), apply($Other, cons($Subject, nil)).
+% E la domanda sul GENERE stesso («is a mosquito venomous?») ha per soggetto il
+% genere: l'esclusione vale anche per lui, non solo per i suoi membri (gen512).
+closed_world_answer($Class, $Subject) :- class_excludes($Subject, $Class).
 
 % (c) la classe e' DEFINITA, non osservata. E' la distinzione che il §4 stava
 %     cercando, detta dalla forma della conoscenza invece che dal dominio:

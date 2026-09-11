@@ -1713,6 +1713,14 @@ functional_relation($V) :- relation_like($V, $W), functional_relation($W).
 machinery(holds1).
 machinery(class_from_relation).
 holds1($Class, $X) :- apply($Class, cons($X, nil)).
+% gen512 — LA RESTRIZIONE ESISTENZIALE: Q vale per X se X sta nella relazione R
+% con qualcosa che e' P (Q ⊒ ∃R.P). Una riga sola per ogni Q, R, P: sono
+% VARIABILI di predicato, e la conoscenza e' il fatto `exists_restriction/3`,
+% che si insegna parlando («if someone is stung by something venomous then they
+% are in danger») e che una spiegazione puo' leggere, perche' e' un dato e non
+% una regola opaca.
+machinery(exists_restriction).
+holds1($Q, $X) :- exists_restriction($Q, $R, $P), holds($R, $X, $Y), holds1($P, $Y).
 holds1($Class, $X) :-
     class_from_relation($Class, $Rel),
     apply($Rel, cons($X, cons($Any, nil))).
