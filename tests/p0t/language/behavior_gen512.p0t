@@ -1,0 +1,71 @@
+# gen512 — DIFETTI DI COMPORTAMENTO: un turno raggiunge il suo lettore, e un
+# lettore non risponde con cio' che non sa.
+#
+# Ogni caso e' un turno reale che rispondeva male, con la KB vera:
+#   - la domanda italiana sul piano la prendeva lo smalltalk: la forma era
+#     scritta come si dice, e si provava solo sul turno canonico;
+#   - la lezione di piano con «it» nella mossa la prendeva la riparazione («What
+#     number should I use for «it»?»), perche' `what` era una «cue aritmetica»;
+#   - una mossa gia' nel piano si accodava di nuovo;
+#   - «tell me what it is made of» rispondeva «Subject.»: la vista derivata
+#     `part_of` trattava la copula «is» come un contenitore;
+#   - «the red book is on the table» diventava un primato del mondo.
+# La KB e' quella vera; il file ritira cio' che insegna (TEST_TODO R3).
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test la domanda italiana sul piano raggiunge la sua forma]
+!timeout 10
+> il tuo piano quando non hai i passi?
+<~ Quando succede: 1) guardo di che cosa e' fatta
+
+[test una mossa gia' nel piano non si accoda, in italiano e in inglese]
+!timeout 10
+> quando la ricetta manca allora dimmi di che cosa e' fatta
+<~ È già nel piano
+> when you don't have the steps then say what problem it solves
+<~ Already in the plan: move 2
+<! What number
+
+[test un pronome senza antecedente non e' una chiave]
+!timeout 10
+> tell me what it is made of
+<! Subject
+> what is bronze made of?
+<~ Copper and tin
+
+[test una frase comune non e' un primato del mondo]
+!timeout 10
+> the red book is on the table
+<! among book
+!query! world_superlative(red, book, _)
+> the west coast is sunny
+!query! world_superlative(west, coast, _)
+
+[test un primato vero si impara ancora]
+!timeout 10
+> the deepest cave is krubera
+<~ Held: among cave, the deepest is
+!forget world_superlative(deepest, cave, krubera)
+!forget located_in(red_book, table)
+
+[test una domanda di primato raggiunge il fatto, qualunque sia il suo posto nel file]
+!timeout 10
+# Il lettore guardava 32 cue su 171 e 8 domini per grado: «largest» murava.
+> which bird is the largest?
+<~ ostrich
+# Un confronto fra un solo candidato, che per di piu' e' la categoria, non e'
+# un primato: la risposta era «Moon.».
+> which moon is the largest?
+<! Moon.
+# Un primato insegnato si richiama subito, anche se nessuna cue lo nomina.
+> the largest moon is ganymede
+<~ Held: among moon, the largest is
+> which moon is the largest?
+<~ ganymede
+!forget world_superlative(largest, moon, ganymede)

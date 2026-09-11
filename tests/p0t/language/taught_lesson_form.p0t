@@ -116,13 +116,13 @@
 # L'annuncio di una lezione e' un esito, non una resa: senza
 # `module_result_policy(teachconstruction, terminal)` l'analisi di ultima
 # istanza lo copriva con un saggio, e parrot0 imparava senza dirlo.
-> how do you act when x means your plan when x?
-<~ From now on I'll read «how do you act when x»
+> how do you behave when x means your plan when x?
+<~ From now on I'll read «how do you behave when x»
 # La forma si disfa con la stessa frase anche quando la sorgente comincia con
 # parole che la ritrattazione scavalca come stopword («what», «how», «do»).
 > forget that what about x means your plan when x?
 <~ no longer
-> forget that how do you act when x means your plan when x?
+> forget that how do you behave when x means your plan when x?
 <~ no longer
 > dismiss x means forget that x
 <~ From now on I'll read «dismiss x»
@@ -149,4 +149,12 @@
 !forget taught_question_cue(perhaps)
 !forget taught_question_cue(maybe)
 !forget plural_of(geese, goose)
-!query! taught_form_source(_, _)
+# Solo le sorgenti che questo file insegna: dal gen512 la KB vera contiene
+# forme insegnate parlando e salvate (`taught_form_1..3`), e un controllo su
+# TUTTE fallirebbe per la conoscenza che parrot0 ha davvero.
+!query! taught_form_source(_, "x counts as a question")
+!query! taught_form_source(_, "x is interrogative")
+!query! taught_form_source(_, "what about x")
+!query! taught_form_source(_, "how do you behave when x")
+!query! taught_form_source(_, "dismiss x")
+!query! taught_form_source(_, "upon x do y")

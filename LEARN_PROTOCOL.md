@@ -1583,9 +1583,15 @@ un segno d'uso reale nel diff della KB. Uno senza l'altro è un giro a metà.
   "you")`) e non entra come membro; la «e» sopravvive solo perché una lettera
   sola non viene mai letta come congiunzione. Per elencare lettere, usarne
   nomi (`the letter u`) o classi già in KB (`char_class`).
-- ⚠ **Le cue con «it» dentro non arrivano.** Un lettore che cerca un numero per
-  il pronome prende il turno («What number should I use for «it»?»). Usare
-  formulazioni senza pronome.
+- ✅ (gen512) ~~**Le cue con «it» dentro non arrivano.**~~ Non era un limite
+  della lingua ma un difetto: la riparazione decideva «è aritmetica» su
+  `arithmetic_word/1`, che contiene «what», «is», «the» (le parole AMMESSE in
+  un'espressione, non le sue cue), e stava nel registro prima delle forme di
+  lezione. Ora la cue è un operatore o un numero, e le forme `early` leggono
+  prima della riparazione: «when you don't have the steps then say what
+  problem it solves» arriva alla lezione di piano. Un «it» senza antecedente in
+  un turno che nessuna forma legge riceve ancora «Who or what does «it» refer
+  to?», com'è giusto.
 - ⚠ **Una cue scritta in italiano che comincia per «come» è morta.** Il matcher
   confronta il turno CANONICALIZZATO, dove `come` è già `how`. Vale per ogni
   parola funzione: si dichiara su ciò che il lettore vede, non su ciò che si

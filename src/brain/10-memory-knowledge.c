@@ -8553,6 +8553,17 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     !p0_is_demonstrative(b, strip_edge_punct(w[t]))) continue;
                 size_t ss = t;
                 if (p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
+                /* gen512 — un sintagma con un pronome senza antecedente non
+                 * DESCRIVE un'entita': «tell me what it is made of» leggeva
+                 * «what it» come descrizione con testa «it» e rispondeva
+                 * «Subject.» (vedi la stessa guardia nel passaggio per parole). */
+                { int has_pron = 0;
+                  for (size_t k = ss; k < (size_t)end && !has_pron; k++) {
+                      char pk[KB_TERM_LEN]; snprintf(pk, sizeof pk, "%s", w[k]);
+                      if (lex_class_member(b, "entity_pronoun", strip_edge_punct(pk)))
+                          has_pron = 1;
+                  }
+                  if (has_pron) continue; }
                 /* Anche un token solo passa di qui: la chiave esatta e' gia'
                  * coperta sotto, ma la risoluzione per DESCRIZIONE no — «il
                  * libro» e' una parola sola e descrive `book_red`. */
@@ -8650,6 +8661,8 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 if (na > 0 && p0_answer_subject_in_focus(b, norm, key)) {
+                    if (getenv("P0_READ_TRACE"))
+                        fprintf(stderr, "[aframe] phrase «%s» %s -> %s\n", key, pred, ans[0]);
                     size_t pick = p0_pick_in_force(b, pred, key, pfwd, ans, na);
                     char pretty[KB_TERM_LEN];
                     snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[pick]));
@@ -8669,6 +8682,15 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
              * match, and is_stopword already drops articles/function words. */
             if (strlen(v) < 1) continue;
             if (is_stopword(b, v) != (pass == 1)) continue;
+            /* gen512 — UN PRONOME E' UN RIFERIMENTO, NON UN NOME (come G3 per
+             * «il primo»). «tell me what it is made of» provava `it` come
+             * chiave: `it` e' anche il codice della lingua italiana, la vista
+             * derivata `part_of` (kb.c) ne ricava parti da qualunque testo che
+             * contenga la parola, e la risposta era «Subject.». Se l'antecedente
+             * c'e', la coreferenza ha gia' riscritto il turno; se non c'e', il
+             * pronome non nomina niente. Quali parole chiedano un antecedente e'
+             * conoscenza (`entity_pronoun/1`). */
+            if (lex_class_member(b, "entity_pronoun", v)) continue;
             char ans[16][KB_TERM_LEN]; size_t na;
             const char *ffw[2] = { v, NULL };
             na = allow_arg1 ? kb_match(b->kb, pred, ffw, 2, ans, 16) : 0;
@@ -8701,6 +8723,8 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 }
             }
             if (na == 0 || !p0_answer_subject_in_focus(b, norm, v)) continue;
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[aframe] token «%s» %s -> %s\n", v, pred, ans[0]);
             char msg[400]; size_t mo = 0;
             /* Il LAYOUT di un elenco e' conoscenza (gen382e).
              *
@@ -13536,20 +13560,36 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             { const char *v = comma + 1; while (*v == ' ') v++;
               snprintf(nm, sizeof nm, "%s", v); }
             char acc[KB_TERM_LEN]; size_t off = 0;
+            /* gen512 — la stessa superficie con gli apostrofi DENTRO le parole:
+             * «di' lo scopo», «dimmi di che cosa e' fatta» sono scritte cosi' in
+             * KB, e `strip_edge_punct` ne faceva «di», «e». Si toglie solo la
+             * punteggiatura che chiude la frase. */
+            char acc2[KB_TERM_LEN]; size_t off2 = 0;
             size_t best = 0; char bestname[KB_TERM_LEN] = "";
             for (size_t k = i; k < nw && k < i + 10; k++) {
                 char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+                char t2[KB_TERM_LEN]; snprintf(t2, sizeof t2, "%s", w[k]);
+                { size_t tl = strlen(t2);
+                  while (tl && strchr("?.!,;:", t2[tl - 1])) t2[--tl] = '\0'; }
                 const char *bare = strip_edge_punct(t);
                 int n2 = snprintf(acc + off, sizeof acc - off, "%s%s",
                                   off ? " " : "", bare);
                 if (n2 < 0 || (size_t)n2 >= sizeof acc - off) break;
                 off += (size_t)n2;
+                int n3 = snprintf(acc2 + off2, sizeof acc2 - off2, "%s%s",
+                                  off2 ? " " : "", t2);
+                if (n3 < 0 || (size_t)n3 >= sizeof acc2 - off2) break;
+                off2 += (size_t)n3;
                 char q2[KB_TERM_LEN]; snprintf(q2, sizeof q2, "\"%s\"", acc);
+                char q4[KB_TERM_LEN]; snprintf(q4, sizeof q4, "\"%s\"", acc2);
                 char rows[1][KB_TERM_LEN];
                 const char *sq2[2] = { acc, NULL };
                 const char *sq3[2] = { q2, NULL };
+                const char *sq4[2] = { q4, NULL };
                 int nhit = kb_match(b->kb, rel, sq2, 2, rows, 1) == 1 ||
-                           kb_match(b->kb, rel, sq3, 2, rows, 1) == 1;
+                           kb_match(b->kb, rel, sq3, 2, rows, 1) == 1 ||
+                           (strcmp(acc, acc2) &&
+                            kb_match(b->kb, rel, sq4, 2, rows, 1) == 1);
                 if (getenv("P0_READ_TRACE"))
                     fprintf(stderr, "[named] %s acc=«%s» %s\n", rel, acc, nhit ? "HIT" : "-");
                 if (nhit) {
@@ -14122,6 +14162,8 @@ static int p0_run_op(Brain *b, const char *act, P0FormSlot *slots, size_t ns,
 /* gen510 — vedi `mod_lesson_form`: nel passaggio anticipato si leggono solo le
  * forme dichiarate `turn_form_priority(Forma, early)`. */
 static int p0_forms_early_only = 0;
+/* gen512 — vedi `p0_turn_form_views`: sul turno detto solo le forme `said`. */
+static int p0_forms_said_only = 0;
 static int reply_is_wall(Brain *b, const char *reply);   /* 99-registry.c */
 
 static int p0_turn_form_reader(Brain *b, const char *norm,
@@ -14147,6 +14189,14 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
     for (size_t f = 0; f < nf && !done; f++) {
         char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forms[f]);
         const char *form = kb_dequote(fb);
+        /* gen512 — sul turno DETTO si provano solo le forme scritte come si
+         * dice (`turn_form_view(Forma, said)`); tutte le altre sono dichiarate
+         * sulla vista del lettore, e provarle sul grezzo sarebbe allargare le
+         * loro rivendicazioni a una vista per cui nessuno le ha scritte. */
+        if (p0_forms_said_only) {
+            const char *vq[2] = { form, "said" };
+            if (!kb_query(b->kb, "turn_form_view", vq, 2)) continue;
+        }
         /* gen507 — UNA FORMA DICHIARA ANCHE IL PROPRIO MODO.
          * Senza questo, «what can zelnik do?» veniva letta dalla forma
          * DICHIARATIVA «X can Y» e parrot0 imparava `ability_of(what,
@@ -14175,6 +14225,39 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         char work[300]; memcpy(work, norm, L + 1);
         char *ww[48]; size_t nww = split_words(work, ww, 48);
         if (!p0_form_match(b, form, ww, nww, slots, &ns)) continue;
+        /* gen512 — UNO SLOT PUO' DICHIARARE LA CLASSE DI CIO' CHE LEGGE.
+         * `turn_form_slot_class(Forma, Slot, Classe)`: il valore dello slot
+         * deve soddisfare `Classe(Valore)` — un fatto o una regola. Senza,
+         * `teach_superlative` («the X Y is Z») leggeva ogni frase con quella
+         * forma: «the red book is on the table» diventava il primato «among
+         * book, the red is on the table», un fatto falso. Quali slot abbiano
+         * una classe, e quale, e' conoscenza della forma. */
+        {
+            char (*sc)[KB_TERM_LEN] = NULL; size_t nsc = 0;
+            const char *scq[3] = { form, NULL, NULL };
+            int typed_ok = 1;
+            if (kb_match_all(b->kb, "turn_form_slot_class", scq, 3, &sc, &nsc)) {
+                for (size_t k = 0; k < nsc && typed_ok; k++) {
+                    char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", sc[k]);
+                    const char *sname = kb_dequote(sb);
+                    const char *val = p0_form_slot(slots, ns, sname);
+                    char cls[1][KB_TERM_LEN];
+                    const char *cq2[3] = { form, sc[k], NULL };
+                    if (!val || kb_match(b->kb, "turn_form_slot_class", cq2, 3, cls, 1) != 1) {
+                        typed_ok = 0; break;
+                    }
+                    char cb2[KB_TERM_LEN]; snprintf(cb2, sizeof cb2, "%s", cls[0]);
+                    const char *vq[1] = { val };
+                    if (!kb_query(b->kb, kb_dequote(cb2), vq, 1)) typed_ok = 0;
+                }
+            }
+            free(sc);
+            if (!typed_ok) {
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[form] %s: a typed slot does not hold\n", form);
+                continue;
+            }
+        }
         if (getenv("P0_READ_TRACE"))
             fprintf(stderr, "[form] matched %s (%zu slots)\n", form, ns);
 
@@ -14643,6 +14726,30 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *sit = p0_form_slot(slots, ns, "situation");
             const char *mv  = p0_form_slot(slots, ns, "move");
             if (!sit || !mv) continue;
+            /* gen512 — una mossa gia' nel piano non si accoda di nuovo: «upon
+             * you don't have the steps do say what problem it solves» diventava
+             * la mossa 3, identica alla 2, e il piano la recitava due volte. */
+            { char have[1][KB_TERM_LEN];
+              const char *dq[3] = { sit, NULL, mv };
+              if (kb_match(b->kb, "plan_move", dq, 3, have, 1) == 1) {
+                  char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", have[0]);
+                  char mtxt[KB_TERM_LEN]; snprintf(mtxt, sizeof mtxt, "%s", mv);
+                  { char row[1][KB_TERM_LEN]; const char *tq[2] = { mv, NULL };
+                    if (kb_match(b->kb, "plan_step_text", tq, 2, row, 1) == 1) {
+                        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", row[0]);
+                        snprintf(mtxt, sizeof mtxt, "%s", kb_dequote(rb));
+                    } }
+                  const KbResponseSlot ds[] = { { "order", kb_dequote(hb) },
+                                                { "move", mtxt } };
+                  char msgd[300];
+                  if (kb_response_slots(b, "plan_move_already_held", ds, 2,
+                                        msgd, sizeof msgd)) {
+                      put(msgd, out, out_size);
+                      free(forms);
+                      return 1;
+                  }
+                  continue;
+              } }
             long next = 1;
             for (long o = 1; o <= 16; o++) {
                 char ob2[24]; snprintf(ob2, sizeof ob2, "%ld", o);
@@ -15026,12 +15133,37 @@ static int p0_teach_rewrite(Brain *b, const P0ConstructionLesson *lesson,
  * Quali forme vadano lette PRIMA dei lettori generici e' condotta, quindi un
  * fatto (`turn_form_priority(Forma, early)`, mantra #17): questo modulo, in
  * testa al registro, legge solo quelle. */
+/* gen512 — UNA FORMA SI PROVA ANCHE SUL TURNO COME E' STATO DETTO.
+ *
+ * Le forme si confrontano con il turno canonico, e una forma dichiarata nella
+ * lingua di chi parla non combaciava mai: «il tuo piano quando non hai i
+ * passi?» diventa «the your piano when not hai the passi?», e `ask_plan_it`
+ * («il tuo piano quando» + le situazioni «non hai i passi») restava morta — il
+ * turno lo prendeva lo smalltalk. Chi scrive una forma, parlando o a mano, la
+ * scrive come si dice, non come la vede il lettore. Si prova quindi prima la
+ * vista canonica e poi, se e' diversa, quella detta: la stessa regola delle
+ * cessioni (`p0_yield_cue_holds`: chi decide deve vedere di piu'). */
+static int p0_turn_form_views(Brain *b, const char *norm, const char *raw,
+                              char *out, size_t out_size) {
+    if (p0_turn_form_reader(b, norm, out, out_size)) return 1;
+    if (!raw || !*raw || !kb_knows_pred(b->kb, "turn_form_view")) return 0;
+    char said[512]; normalize(raw, said, sizeof said);
+    if (!said[0] || !strcmp(said, norm)) return 0;
+    /* Solo le forme scritte come si dice: provare TUTTE le forme sul grezzo
+     * allargherebbe la rivendicazione di ognuna a una vista per cui nessuno
+     * l'ha scritta (`turn_form_view/2`). */
+    int saved = p0_forms_said_only;
+    p0_forms_said_only = 1;
+    int r = p0_turn_form_reader(b, said, out, out_size);
+    p0_forms_said_only = saved;
+    return r;
+}
+
 static int mod_lesson_form(Brain *b, const char *norm, const char *raw,
                            char *out, size_t out_size) {
-    (void)raw;
     if (!b || !b->kb || !norm || !kb_knows_pred(b->kb, "turn_form_priority")) return 0;
     p0_forms_early_only = 1;
-    int r = p0_turn_form_reader(b, norm, out, out_size);
+    int r = p0_turn_form_views(b, norm, raw, out, out_size);
     p0_forms_early_only = 0;
     return r;
 }
@@ -15040,7 +15172,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     if (p0_why_question(b, norm, out, out_size)) return 1;
-    if (p0_turn_form_reader(b, norm, out, out_size)) return 1;
+    if (p0_turn_form_views(b, norm, raw, out, out_size)) return 1;
     /* gen507 — L'ANNUNCIO DI UNA CORREZIONE VIENE PRIMA DEL SUO BERSAGLIO.
      *
      * «actually zelnik is green» arriva ai lettori gia' sbucciato: «actually»
@@ -15702,10 +15834,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                  * part_of, or substring). If a category is given but nothing
                  * matches, refuse to answer (don't return a wrong item). */
                 int keep[128]; size_t nf = 0;
+                /* gen512 — la CATEGORIA non e' un proprio membro. «which moon is
+                 * the largest?» teneva `moon` (il nome contiene «moon») come
+                 * unico candidato e rispondeva «Moon.»: il piu' grande fra le
+                 * lune diventava la Luna, un confronto fra uno. */
+                char cat_sg[KB_TERM_LEN] = "";
+                if (cat[0]) singularize_kb(b, cat, cat_sg, sizeof cat_sg);
                 for (size_t k = 0; k < ni; k++) {
                     keep[k] = 0;
                     if (!cat[0]) { keep[k] = 1; nf++; continue; }
                     char *it = kb_dequote(items[k]);
+                    if (!strcmp(it, cat) || (cat_sg[0] && !strcmp(it, cat_sg))) continue;
                     if (strstr(it, cat)) { keep[k] = 1; nf++; continue; }
                     /* gen311 fix: these are GROUND checks (both args bound), so
                      * use kb_query — kb_match reports free-variable bindings and
@@ -18326,9 +18465,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * world_superlative_cue(Cue, Property, Domain) facts teach multi-word request
      * forms ("shares a border with the most") without adding a C synonym. */
     {
-        char cues[32][KB_TERM_LEN];
+        /* gen512 — TUTTE le cue, non le prime 32. Il tetto fisso guardava 32
+         * superfici su 171: «which bird is the smallest?» rispondeva e «which
+         * bird is the largest?» murava, con il fatto e la cue entrambi in KB —
+         * quale primato rispondesse lo decideva l'ordine delle righe nel file.
+         * La KB cresce (mantra #20): un'enumerazione non ha un tetto. */
+        char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
         const char *cq[] = { NULL, NULL, NULL };
-        size_t ncue = kb_match(b->kb, "world_superlative_cue", cq, 3, cues, 32);
+        if (!kb_match_all(b->kb, "world_superlative_cue", cq, 3, &cues, &ncue)) ncue = 0;
         for (size_t ci = 0; ci < ncue; ci++) {
             char rawcue[KB_TERM_LEN]; snprintf(rawcue, sizeof rawcue, "%s", cues[ci]);
             char *cu = kb_dequote(rawcue);
@@ -18351,15 +18495,43 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                  (l > 0 && (p[l - 1] == '.' || p[l - 1] == '!' ||
                                   p[l - 1] == '?')) ? "" : ".");
                         put(msg, out, out_size);
+                        free(cues);
                         return 1;
                     }
                 }
             }
         }
+        free(cues);
 
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[32]; size_t qn = split_words(qb, qw, 32);
         for (size_t i = 0; i < qn; i++) qw[i] = strip_edge_punct(qw[i]);
+        /* gen512 — il turno nomina GIA' il grado e il dominio: si interroga con
+         * tutti e due legati, invece di enumerare i domini di un grado in un
+         * tetto di otto. «largest» ha piu' di otto domini, e un primato
+         * insegnato parlando («the largest moon is ganymede») restava fuori
+         * dagli otto: imparato e mai richiamabile. Nessuna enumerazione, nessun
+         * tetto; il ciclo sotto resta per i domini di piu' parole. */
+        for (size_t i = 0; i < qn; i++) {
+            if (!*qw[i] || is_stopword(b, qw[i])) continue;
+            for (size_t j = 0; j < qn; j++) {
+                if (j == i || !*qw[j] || is_stopword(b, qw[j])) continue;
+                char sg[KB_TERM_LEN];
+                singularize_kb(b, qw[j], sg, sizeof sg);
+                const char *bq[] = { qw[i], sg[0] ? sg : qw[j], NULL };
+                char ans[1][KB_TERM_LEN];
+                if (domain_match(b, "world_extreme", bq, 3, ans, 1) > 0) {
+                    char *p = kb_dequote(ans[0]);
+                    char msg[220];
+                    size_t l = strlen(p);
+                    snprintf(msg, sizeof msg, "%s%s", p,
+                             (l > 0 && (p[l - 1] == '.' || p[l - 1] == '!' ||
+                              p[l - 1] == '?')) ? "" : ".");
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
         for (size_t i = 0; i < qn; i++) {
             if (!*qw[i]) continue;
             const char *sq[] = { qw[i], NULL, NULL };

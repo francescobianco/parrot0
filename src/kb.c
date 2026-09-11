@@ -6475,6 +6475,13 @@ int kb_derive_part_of(KB *kb) {
         char key[KB_TERM_LEN], pred[KB_TERM_LEN];
         snprintf(key, sizeof key, "%s", f->args[0]);
         snprintf(pred, sizeof pred, "%s", f->pred);
+        /* gen512 — una PAROLA FUNZIONE non contiene concetti. I fatti che
+         * descrivono la copula «is» nominano «subject», e la vista ne ricavava
+         * `part_of(subject, is)`: «tell me what it is made of» rispondeva
+         * «Subject.» perche' la domanda aveva la parola «is». Quali parole
+         * siano funzione e' conoscenza (`stopword/1`). */
+        { const char *sq[1] = { key };
+          if (kb_query(kb, "stopword", sq, 1)) continue; }
         char (*ctoks)[KB_TERM_LEN] = scratch->tokens;
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {

@@ -3431,6 +3431,22 @@ machinery(superlative_word).
 superlative_word(least).
 superlative_word(most).
 
+% gen512 — CHE COSA E' UN SUPERLATIVO, per chi deve riconoscerne uno nuovo
+% («the deepest cave is krubera»). Non un elenco: la forma «-est» di una radice
+% GRADUABILE, e graduabile e' cio' che la KB sa gia' confrontare — una radice il
+% cui «-er» e' un comparativo noto (bigg-est / bigg-er), o che ha un contrario
+% (`opposite/2`, scritto dalla lezione parlata «X is the opposite of Y»:
+% «deep is the opposite of shallow» fa di «deepest» un superlativo). Piu' i
+% primati gia' attestati e i membri espliciti. «forest», «west», «honest»
+% finiscono in «-est» e non passano: nessuna delle radici e' graduabile.
+% Classe separata da `superlative_word/1`, che il ragionamento aritmetico
+% (25-wordmath) usa con un altro significato.
+superlative_form($W) :- superlative_word($W).
+superlative_form($W) :- world_superlative($W, $C, $X).
+superlative_form($W) :- concat_atoms($S, "est", $W), concat_atoms($S, "er", $C), comparative_more($C).
+superlative_form($W) :- concat_atoms($S, "est", $W), concat_atoms($S, "er", $C), comparative_less($C).
+superlative_form($W) :- concat_atoms($S, "est", $W), opposite($S, $O).
+
 machinery(time_meridiem).
 time_meridiem(am).
 time_meridiem(pm).

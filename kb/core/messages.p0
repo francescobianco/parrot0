@@ -1406,6 +1406,12 @@ turn_form(teach_superlative, 5, rest(arg3)).
 turn_form(teach_superlative, 6, bind(relation, world_superlative)).
 turn_form_mood(teach_superlative, statement).
 turn_form_act(teach_superlative, assert_ternary).
+% gen512 — il primo slot e' un SUPERLATIVO, non una parola qualunque. Senza il
+% vincolo «the red book is on the table» diventava il primato «among book, the
+% red is on the table», e «il libro rosso e' sul tavolo» (canonico «the book red
+% is on the table») «fra rosso, il piu' libro»: fatti falsi da una frase comune.
+machinery(turn_form_slot_class).
+turn_form_slot_class(teach_superlative, arg1, superlative_form).
 
 % ══ gen507/43 — PROCEDURE COMPLESSE: INSEGNARLE ED ESEGUIRLE ══════════════
 %
@@ -1777,6 +1783,12 @@ turn_form(ask_plan, 1, text("your plan when")).
 turn_form(ask_plan, 2, named(situation_cue, situation)).
 turn_form_act(ask_plan, recite_plan).
 
+% gen512 — IN QUALE VISTA E' SCRITTA UNA FORMA. Di norma sulla vista del lettore
+% (il turno canonico); queste due sono scritte come si DICE, e solo le forme
+% dichiarate cosi' si provano anche sul turno detto (`p0_turn_form_views`).
+machinery(turn_form_view).
+turn_form_view(ask_plan_it, said).
+turn_form_view(teach_plan_it, said).
 turn_form(ask_plan_it, 1, text("il tuo piano quando")).
 turn_form(ask_plan_it, 2, named(situation_cue, situation)).
 turn_form_act(ask_plan_it, recite_plan).
@@ -2841,11 +2853,18 @@ turn_form(teach_plan, 3, text("then")).
 turn_form(teach_plan, 4, named(move_cue, move)).
 turn_form_mood(teach_plan, statement).
 turn_form_act(teach_plan, assert_plan_move).
+% gen512 — due pezzi `named` (una situazione nota, una mossa nota): la forma non
+% puo' prendere un turno che non sia una lezione di piano, e letta tardi la
+% prendeva il lettore dei numeri per l'«it» della mossa («What number should I
+% use for «it»?»).
+turn_form_priority(teach_plan, early).
 
-% La forma italiana si dichiara su cio' che il LETTORE vede (lezione del giro
-% /22): «quando» e' una parola funzione e arriva gia' come «when»; «allora» e'
-% contenuto e resta. Non e' una forma inglese: e' l'italiano dopo la soglia.
-turn_form(teach_plan_it, 1, text("when")).
+% gen512 — la forma italiana si dichiara come si DICE. Era dichiarata sulla
+% vista del lettore («quando» arriva gia' come «when») ma con le situazioni e le
+% mosse scritte in italiano, cioe' in una vista mista che nessun turno aveva: la
+% canonica e' «when not hai the passi …», la detta e' «quando non hai i passi
+% …». Ora le forme si provano anche sul turno detto (`p0_turn_form_views`).
+turn_form(teach_plan_it, 1, text("quando")).
 turn_form(teach_plan_it, 2, named(situation_cue, situation)).
 turn_form(teach_plan_it, 3, text("allora")).
 turn_form(taught_form_2, 2, span(x)).
@@ -2860,7 +2879,15 @@ turn_form_act(taught_form_1, reread(your plan when {x})).
 turn_form_act(taught_form_3, reread(your plan when {x})).
 turn_form_mood(teach_plan_it, statement).
 turn_form_act(teach_plan_it, assert_plan_move).
-% ⚠ La forma italiana e' dichiarata ma NON arriva: lo smalltalk prende il turno
+% gen512 — ora arriva. Le forme si provano anche sul turno com'e' stato detto
+% (`p0_turn_form_views`), e questa si legge prima dei lettori generici: con due
+% pezzi `named` (una situazione nota, una mossa nota) non puo' prendere un turno
+% che non sia una lezione di piano, e lo smalltalk che rispondeva «Ehila'!» a
+% una lezione non occupava un posto legittimo — era un furto.
+turn_form_priority(teach_plan_it, early).
+response_template(plan_move_already_held, "Already in the plan: move {order} is «{move}».").
+response_template(plan_move_already_held, it, "È già nel piano: la mossa {order} è «{move}».").
+% (Storico, gen507:) La forma italiana e' dichiarata ma NON arriva: lo smalltalk prende il turno
 % prima. Non le rubo il posto (il dispatch e' first-match e le strutture
 % secondarie si tengono): resta una lacuna scritta, non una forma vinta a forza.
 

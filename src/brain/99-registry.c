@@ -306,6 +306,17 @@ static const Module registry[] = {
     {"toolplan",  mod_toolplan},
     {"piact",     mod_piact},
     {"compose",   mod_compose},
+    /* gen510: le forme di lezione dichiarate prioritarie in KB
+     * (`turn_form_priority(Forma, early)`) si leggono prima di ogni lettore
+     * generico: una lezione deve raggiungere il proprio lettore.
+     * gen512: e prima della RIPARAZIONE. Il modulo si dichiarava «in testa al
+     * registro» ma stava dopo `repair`, che chiedeva «What number should I use
+     * for «it»?» a «when you don't have the steps then say what problem it
+     * solves»: il pronome sta dentro la superficie di una mossa nota, e non
+     * c'e' niente da riparare. Ogni forma `early` apre con un'ancora letterale
+     * o esige una situazione nota, quindi non puo' togliere un turno a chi
+     * viene dopo (controllato sulle dodici forme `early` del gen512). */
+    {"lessonform", mod_lesson_form},
     {"repair",    mod_repair},
     /* M2: la menzione corre PRIMA del lettore universale. Misurato in italiano:
      * «il termine sebbene è un marcatore» veniva letto come appartenenza con
@@ -325,10 +336,7 @@ static const Module registry[] = {
     /* gen382h: insegnare una REGOLA con variabili corre prima di chi legge le
      * frasi come domande — "if someone is a X then they are a Y" ha la forma di
      * un condizionale e il contenuto di una quantificazione. */
-    /* gen510: le forme di lezione dichiarate prioritarie in KB
-     * (`turn_form_priority(Forma, early)`) si leggono prima di ogni lettore
-     * generico: una lezione deve raggiungere il proprio lettore. */
-    {"lessonform", mod_lesson_form},
+    /* (gen512: `lessonform` e' salito davanti a `repair`, qui sopra.) */
     {"teachconstruction", mod_teach_construction},
     /* M1: cio' che una LEZIONE ha reso leggibile si legge prima che un modulo
      * generico risponda. Vale solo per i pattern nati da una lezione. */

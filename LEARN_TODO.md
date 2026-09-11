@@ -5,6 +5,39 @@
 La missione del gen511 continua (la teoria resta in
 `docs/plans/radici-insegnabilita.md`; **§4.5 è questo giro, con le misure**).
 
+## ⭐ Terzo giro (gen512): difetti di comportamento — ogni turno arriva al suo lettore, e nessun lettore risponde con cio' che non sa
+
+F.: *«continua con il furto delle lezioni plan e fixa altri bug di
+comportamento»*. Ogni difetto e' nato da un turno reale; il cricchetto e'
+`tests/p0t/language/behavior_gen512.p0t` (14, nel `make test`); il bilancio e i
+residui in testa a `C_TODO.md`.
+
+| turno | prima | ora | la causa, e la radice |
+|---|---|---|---|
+| «il tuo piano quando non hai i passi?» | «Non ne ho di miei…» (smalltalk) | il piano, in italiano, al presente | la forma era scritta come si dice e si provava solo sul canonico → `turn_form_view(Forma, said)` |
+| «quando non hai i passi allora di' lo scopo» | «Ehilà!» | «È già nel piano: la mossa 2 …» | vista mista + apostrofi tolti nel pezzo `named` + nessuna deduplicazione |
+| «when … then say what problem it solves» | «What number should I use for «it»?» | «Already in the plan» | `has_arith_cue` su `arithmetic_word` (what, is, the…) → su `infix_operator`; `lessonform` davanti a `repair` |
+| «tell me what it is made of» | «Subject.» | «I don't understand that yet.» | la vista derivata `part_of` trattava «is» come contenitore; i pronomi erano chiavi |
+| «the red book is on the table» | un primato del mondo | `located_in(red_book, table)` | `teach_superlative` senza vincolo → `turn_form_slot_class` + `superlative_form/1` (gradabilita', non elenco) |
+| «which bird is the largest?» | muro, col fatto in KB | lo struzzo | il lettore guardava 32 cue su 171 e 8 domini per grado |
+| «which moon is the largest?» | «Moon.» | declino onesto; dopo la lezione, «ganymede.» | la categoria contava come proprio membro |
+
+**Segno d'uso reale**: `world_superlative(largest, moon, "ganymede")`,
+insegnato in `make chat` con «the largest moon is ganymede», salvato, e
+riverificato in un processo nuovo con due formulazioni. I primati piu' ovvi
+(giraffa, falco, struzzo, colibri') erano gia' noti e non sono stati duplicati.
+
+**Rossi preesistenti verificati per bisezione** (TEST_TODO gen512):
+`kb_first_round10` voice_role, `magnitude_compare` riga 49, `expert/knowledge`
+18/22. Nessuno e' del gen512.
+
+**⛔ Il primo reperto della MISSIONE che viene dopo** (crescita auto-guidata):
+davanti a «which moon is the largest?» senza il fatto, parrot0 dice «teach me:
+if it is a kind of thing, say «something is a largest»» — cioe' propone la
+lezione SBAGLIATA. La lezione giusta era «the largest moon is …». Un arresto
+deve nominare la lezione che lo sblocca: e' il punto di partenza della missione
+sui compiti di codice (sotto, §2 della coda).
+
 ## ⛔ 0. Il requisito nuovo di F., che vale per ogni giro da qui in poi
 
 > *«man mano che le lezioni vengono apprese insegna cose vere che verranno

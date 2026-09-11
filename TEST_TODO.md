@@ -9,6 +9,32 @@
 > abilita' cognitive, la crescita della KB o l'apprendimento (KB viva) i test
 > non si fanno. Stessa nota nel Makefile (target `test`) e in CLAUDE.md.
 
+# 🌱 gen512 — il buco tipato, i difetti di comportamento, e le forme salvate
+
+- Cricchetto nuovo: `tests/p0t/language/behavior_gen512.p0t` (10), nel `make
+  test`: la domanda e la lezione italiana sul piano, la deduplicazione delle
+  mosse, la lezione con «it» che non va alla riparazione, niente «Subject.»,
+  niente primati inventati da una frase comune, il primato vero che si impara.
+- `taught_lesson_form.p0t` 42, e ora idempotente anche davanti alla KB che
+  CRESCE PARLANDO: dal gen512 la KB vera contiene forme insegnate e salvate
+  (`taught_form_1..3`), quindi il file non insegna una sorgente salvata e il
+  ritiro si verifica sulle sorgenti che insegna, non su tutte. **Regola che ne
+  discende:** un `.p0t` che insegna parlando deve usare superfici che nessuna
+  sessione vera salvera', o controllarle una per una.
+- ⚠ Rosso PREESISTENTE, verificato per bisezione su un worktree di `3bd3d61c`
+  con la sua KB: `kb_first_round10.p0t` [voice_role_set_uses_kb_templates]
+  «you are a pirate» -> «Learned: you is a pirate.» invece di «Alright — I am a
+  pirate now.». `role` e' retrocesso a `fallback` dal gen502
+  (`module-review.p0`): il test chiede una condotta che la review ha tolto.
+  Da decidere con F.: aggiornare l'attesa o dare a `role` una forma matura.
+- ⚠ Rossi PREESISTENTI, stessa bisezione (worktree di `3bd3d61c` con la sua
+  KB, stesse righe): `knowledge/magnitude_compare.p0t` riga 49 («which river
+  is the longest» -> la frase lunga sul Nilo invece di «Nile.») e
+  `expert/knowledge.p0t` 18 su 22 (definizioni con l'operatore in testa,
+  «addition is +; …», «prime» non riconosciuto, il femore come primato invece
+  che come parte, un turno a 1,00 s con tetto 1 s). Nessuno cambia con il
+  gen512.
+
 # 🌱 gen511, secondo giro — il gradino S2: una forma di lezione si insegna parlando
 
 Lavoro di radici (`docs/plans/radici-insegnabilita.md` §4.4, `C_TODO.md` in

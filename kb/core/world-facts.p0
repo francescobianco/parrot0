@@ -2596,6 +2596,7 @@ world_superlative(largest, religion, "Christianity has the most adherents").
 world_superlative(most_spoken, language, "English is the most spoken language counting all speakers").
 world_superlative(oldest, university, "The University of Bologna is usually called the oldest university").
 world_superlative(largest, stadium, "Rungrado 1st of May Stadium is the largest stadium by capacity").
+world_superlative(largest, moon, "ganymede").
 
 % ══ gen507/30 — L'ORDINE DELLE PAROLE NON DEVE DECIDERE SE SI CAPISCE ═════
 %

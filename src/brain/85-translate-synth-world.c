@@ -1648,12 +1648,25 @@ static int is_question_opener(Brain *b, const char *w) {
  * than a referent when the gap is an operand. */
 static int has_arith_cue(Brain *b, char **w, size_t nw) {
     /* The spelling of an arithmetic word belongs to the KB; symbols remain
-     * punctuation mechanics. */
+     * punctuation mechanics.
+     *
+     * gen512 — la CUE e' un operatore o un numero, non una parola ammessa in
+     * un'espressione. Qui si interrogava `arithmetic_word/1`, che e' l'elenco
+     * delle parole che POSSONO stare in una domanda aritmetica (what, is, the,
+     * a, of, tell, me…: 20-math.c la usa per saltarle), e quasi ogni frase ne
+     * conteneva una. Misurato: «when you don't have the steps then say what
+     * problem it solves» riceveva «What number should I use for «it»?» — la
+     * trappola «le cue con "it" dentro non arrivano» di LEARN_PROTOCOL. Le
+     * parole operatore sono `infix_operator/2` (procedures.p0). */
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
         if (strpbrk(t, "+-*/")) return 1;
-        const char *q[] = { t };
-        if (b && b->kb && kb_query(b->kb, "arithmetic_word", q, 1)) return 1;
+        if (isdigit((unsigned char)t[0])) return 1;
+        char qt[KB_TERM_LEN]; snprintf(qt, sizeof qt, "\"%s\"", t);
+        const char *q[2] = { qt, NULL };
+        char op[1][KB_TERM_LEN];
+        if (b && b->kb && *t && kb_match(b->kb, "infix_operator", q, 2, op, 1) == 1)
+            return 1;
     }
     return 0;
 }

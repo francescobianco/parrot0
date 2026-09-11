@@ -1,5 +1,35 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-11 — gen512 (terzo giro): difetti di comportamento, e tre radici piccole
+
+Ogni difetto e' nato da un turno reale che rispondeva male; il cricchetto e'
+`tests/p0t/language/behavior_gen512.p0t` (10, nel `make test`).
+
+- **La vista di una forma e' conoscenza** (`turn_form_view(Forma, said)`): le
+  forme si provano sul turno canonico e, se nessuna combacia, quelle scritte
+  come si dice si provano sul turno detto (`p0_turn_form_views`). «il tuo piano
+  quando non hai i passi?» la prendeva lo smalltalk.
+- **Uno slot puo' dichiarare la classe di cio' che legge**
+  (`turn_form_slot_class(Forma, Slot, Classe)`): «the red book is on the table»
+  era un primato del mondo. La classe `superlative_form/1` e' una regola sulla
+  gradabilita' (comparativo noto o contrario noto), non un elenco.
+- **Una parola funzione non e' un contenitore** (vista derivata `part_of`,
+  `kb.c`), e **un pronome non e' una chiave** (`answerframe`): «tell me what it
+  is made of» rispondeva «Subject.».
+- **Una cue aritmetica e' un operatore o un numero** (`has_arith_cue` su
+  `infix_operator/2`, non su `arithmetic_word/1`, che e' l'elenco delle parole
+  AMMESSE in un'espressione): ogni «what … it» riceveva «What number should I
+  use for «it»?».
+- `lessonform` sale davanti a `repair` nel registro (si dichiarava «in testa»);
+  `assert_plan_move` non accoda una mossa gia' presente.
+
+⚠ Residui: l'ordine del registro e' ancora un array C (il mantra #17 lo vuole
+conoscenza; `faculty_dispatch(…, eager)` vale solo per le facolta' instradate
+da un segmento); `superlative_word/1` resta con due membri perche' wordmath la
+usa in un altro senso; diversi siti C chiedono se una LINGUA e' l'italiano con
+`lex_class_member(b, "entity_pronoun", lang)`, cioe' la stessa collisione fra
+il pronome «it» e il codice `it` vista dall'altro lato.
+
 ## 2026-09-11 — gen512: il buco tipato, e la condizione per cui una rilettura prende il turno
 
 Metodo e misure: `docs/plans/radici-insegnabilita.md` §4.5. **Bilancio onesto:
