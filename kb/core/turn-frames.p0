@@ -304,6 +304,13 @@ faculty_yield_force(social, open, production_request).
 % riceveva «Luca.» — una risposta a una domanda che nessuno aveva fatto.
 turn_declared_act($Turn, assertion) :-
     turn_reading($Turn, declarative, $Pred).
+% gen512 — PROVATO E RITIRATO: dichiarare affermazione ogni turno che si apre
+% con un pronome personale. Curava «they eat fish» -> «A bear.», ma quel difetto
+% era del ramo della dieta (rispondeva a chi non chiedeva) e li' e' stato curato.
+% La regola costava due volte: «i do not really agree with you» diventava
+% un'affermazione e la forma della negazione di relazione la prendeva al posto
+% della risposta pragmatica (pragma.p0t), e la forza del turno passava da poche
+% a 269 chiamate con scansione dei token — 420 ms su 1,4 s (transitivity.p0t).
 
 % ── L'ATTO CHE RESTA QUANDO NON CE N'E' NESSUNO ────────────────────────────
 %

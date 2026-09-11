@@ -38,13 +38,16 @@
 # modo comodo di portare tre variabili in una frase sola.
 > if x is the parent of y and y is the parent of z then x is the grandparent of z
 < Learned rule: grandparent($V1, $V3) :- parent($V1, $V2), parent($V2, $V3).
+# gen512: in inglese il fatto si restituisce in parole (il frame preferito,
+# gen510), non in forma predicativa; e la risposta apre la frase con la
+# maiuscola. La conoscenza verificata e' la stessa.
 > anna is the parent of bruno
-< Learned: parent(anna, bruno).
+< Learned: anna is the parent of bruno.
 > bruno is the parent of carla
-< Learned: parent(bruno, carla).
+< Learned: bruno is the parent of carla.
 # Nessuno ha mai detto chi sia il nonno di chi: la risposta esce dalla regola.
 > who is the grandparent of carla
-< anna.
+< Anna.
 
 [test the same rule taught in italian]
 # Le classi sono dichiarate nelle due lingue, quindi non cambia niente nel

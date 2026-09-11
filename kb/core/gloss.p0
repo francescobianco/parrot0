@@ -1219,11 +1219,24 @@ machinery(translation_guess).
 % non si prova su una parola della forma canonica inglese.
 translation_guess($W, $En) :-
     translation_step(guess_inflection),
+    translation_guess_allowed($W),
     current_language($L),
     inflection($L, $S, $R),
     concat_atoms($Stem, $S, $W),
     concat_atoms($Stem, $R, $Form),
     tr($En, $Form).
+
+% gen512 — QUALI PAROLE SI POSSONO INDOVINARE. «se x è il genitore di y…»
+% diventava «Leggo «se» come «sa»» e «anna è il genitore di bruno» «Leggo
+% «anna» come «anno»»: la desinenza si provava su parole funzione e su nomi. Una
+% parola corta e' quasi sempre una parola funzione o un nome, e una stopword o
+% un nome proprio non sono forme flesse di niente. La soglia e' un fatto.
+machinery(guess_min_length).
+machinery(translation_guess_allowed).
+guess_min_length(5).
+translation_guess_allowed($W) :-
+    chars($W, $Cs), list_len($Cs, $N), guess_min_length($M), le($M, $N),
+    naf(stopword($W)), naf(proper_name($W)).
 
 % Passo 4 — la traduzione resta nel contesto della risposta: una lettura
 % ottenuta per ipotesi non ha la stessa precisione di una letta nel dizionario,
@@ -1268,9 +1281,13 @@ turn_untranslated($T, $W) :-
     translation_step(name_untranslated),
     turn_opens_question($T),
     turn_language_selected($T, $L), naf(lexicon_language($L)),
-    turn_kept($T, $W),
-    naf(is_function_word($W)),
-    naf(stopword($W)), naf(proper_name($W)), naf(known_topic_word($W)).
+    turn_kept($T, $W), untranslated_candidate($W).
+% (Le quattro esclusioni stanno in una regola a parte: il caricatore scarta un
+% corpo di piu' di otto goal, e con la quarta questa regola non si caricava.)
+machinery(untranslated_candidate).
+untranslated_candidate($W) :-
+    naf(is_function_word($W)), naf(stopword($W)),
+    naf(proper_name($W)), naf(known_topic_word($W)).
 % gen512 (settimo giro): «dove vivono gli scorpioni?» riceveva «Non so ancora
 % tradurre «scorpioni»» subito dopo che parrot0 aveva LETTO la pagina degli
 % scorpioni. Una parola che e' gia' un tema della memoria non e' una parola da

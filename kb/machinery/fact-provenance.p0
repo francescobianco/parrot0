@@ -309,3 +309,9 @@ reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 % nega la provenienza di un fatto, la ritira insieme al fatto.
 provenance_predicate(fact_source).
 provenance_predicate(reading_fact).
+% E il REGISTRO della conversazione: ogni lettura lo scrive, anche quella a
+% secco della negazione. Senza questa riga «i do not really agree with you»
+% riceveva «Held: …» — la negazione di due righe di log — invece della risposta
+% pragmatica (pragma.p0t, misurato).
+provenance_predicate(utterance).
+provenance_predicate(archived_exchange).

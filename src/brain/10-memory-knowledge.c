@@ -6804,7 +6804,11 @@ static int extract_class_statement(Brain *b, const char *norm,
             }
             if (domain_assert(b, "location", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
-                char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
+                /* gen512 (glm-test D3): l'ack diceva la chiave («book_red»): la
+                 * superficie si ricostruisce alla stampa (mantra #16). */
+                char ps[KB_TERM_LEN], po[KB_TERM_LEN];
+                present_atom(b, subj, ps, sizeof ps); present_atom(b, obj, po, sizeof po);
+                char msg[256]; { const KbResponseSlot _rs[] = { { "subj", ps }, { "obj", po } };
    kb_term_say(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
             }
@@ -6849,7 +6853,11 @@ static int extract_class_statement(Brain *b, const char *norm,
             }
             if (domain_assert(b, "location", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
-                char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
+                /* gen512 (glm-test D3): l'ack diceva la chiave («book_red»): la
+                 * superficie si ricostruisce alla stampa (mantra #16). */
+                char ps[KB_TERM_LEN], po[KB_TERM_LEN];
+                present_atom(b, subj, ps, sizeof ps); present_atom(b, obj, po, sizeof po);
+                char msg[256]; { const KbResponseSlot _rs[] = { { "subj", ps }, { "obj", po } };
    kb_term_say(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
             }
@@ -7327,6 +7335,29 @@ static void present_atom(Brain *b, const char *in, char *out, size_t n) {
     char localized[KB_TERM_LEN];
     concept_label_lookup(b, in, localized, sizeof localized);
     if (localized[0]) in = localized;
+    else if (b && b->kb && strchr(in, '_')) {
+        /* gen512 (glm-test D3): una chiave a piu' parole («book_red») si rende
+         * parola per parola nel dizionario della lingua corrente, se il suo
+         * vocabolario non e' completo: «libro rosso», non «book red». L'ordine
+         * delle parole e' gia' quello della frase detta. */
+        char lg[8]; current_lang(b, lg, sizeof lg);
+        const char *llq[1] = { lg };
+        if (lg[0] && !kb_query(b->kb, "lexicon_language", llq, 1)) {
+            char kb2[KB_TERM_LEN]; snprintf(kb2, sizeof kb2, "%s", in);
+            size_t lo = 0; localized[0] = '\0'; int any = 0;
+            for (char *tok = strtok(kb2, "_"); tok && lo + 1 < sizeof localized; tok = strtok(NULL, "_")) {
+                char hit[1][KB_TERM_LEN];
+                const char *q[2] = { tok, NULL };
+                const char *word = tok;
+                char wb[KB_TERM_LEN];
+                if (kb_match(b->kb, "tr", q, 2, hit, 1) == 1) {
+                    snprintf(wb, sizeof wb, "%s", kb_dequote(hit[0])); word = wb; any = 1;
+                }
+                lo += (size_t)snprintf(localized + lo, sizeof localized - lo, "%s%s", lo ? "_" : "", word);
+            }
+            if (any) in = localized;
+        }
+    }
     else if (b && b->kb) {
         /* gen388: ricaduta su `tr/2`. `concept_label/4` porta le etichette
          * CURATE — quelle in cui il nome italiano non e' la traduzione della
@@ -8076,6 +8107,15 @@ static void p0_say_class(Brain *b, const char *cls, const char *subj,
 static int p0_say_fact(Brain *b, const char *pred, const char *a1,
                        const char *a2, char *out, size_t out_size) {
     if (!b || !b->kb || !pred || !a1 || !a2 || !out || out_size == 0) return 0;
+    /* gen512: i frame sono testo CANONICO (inglese). In una lingua il cui
+     * vocabolario non e' completo (`lexicon_language/1`) la frase uscirebbe
+     * mezza inglese — «Imparato: anna is the genitore of bruno» — e il chiamante
+     * torna alla forma predicativa, che non finge una lingua. */
+    {
+        char tl[8]; current_lang(b, tl, sizeof tl);
+        const char *llq[1] = { tl };
+        if (tl[0] && !kb_query(b->kb, "lexicon_language", llq, 1)) return 0;
+    }
     /* gen510 — una forma PREFERITA, se la KB ne dichiara una, vince sulla
      * scelta per brevita': «tom is the parent of bob», non «tom parent bob». */
     char best[KB_TERM_LEN] = "";
@@ -15838,6 +15878,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
     if (diet_q && p0_complete_riddle_sig(b, norm)) diet_q = 0;
+    /* gen512 (glm-test: «penguins live in antarctica. they eat fish.» ->
+     * «A bear.»): il ramo della dieta risponde a una DOMANDA sulla dieta. Una
+     * frase che dice che cosa mangia qualcuno non chiede niente, e il ramo le
+     * rispondeva con chi mangia pesce. La forza del turno e' della KB. */
+    if (diet_q && !strchr(norm, '?') && !p0_turn_is(b, "question", norm)) diet_q = 0;
     if (diet_q) {
         char eb[256]; snprintf(eb, sizeof eb, "%s", norm);
         char *ew[64]; size_t en = split_words(eb, ew, 64);
@@ -15848,6 +15893,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (tl > 1 && sg[tl - 1] == 's') sg[tl - 1] = '\0';
             const char *q[] = { sg, NULL }; char hit[16][KB_TERM_LEN];
             size_t nh = kb_match(b->kb, "eats", q, 2, hit, 16);
+            /* gen512: «penguins eat fish» si impara col plurale detto; la
+             * domanda «what do penguins eat?» cercava solo il singolare. */
+            if (nh == 0 && strcmp(sg, t) != 0) {
+                const char *q2[] = { t, NULL };
+                nh = kb_match(b->kb, "eats", q2, 2, hit, 16);
+            }
             if (nh > 0) {
                 char msg[200]; size_t mo = 0;
                 for (size_t h = 0; h < nh && mo + 4 < sizeof msg; h++) {
@@ -15856,7 +15907,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         kb_dequote(hit[h]));
                 }
                 if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
-                if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+                /* gen512: il cibo sta a meta' frase («A cat eats fish and
+                 * mouse.»): la maiuscola la mette il modello, non la lista. */
                 char outm[256];
                 kb_term_say(b, "animal_eats_answer", (const KbResponseSlot[]){
                                 { "animal", sg }, { "food", msg } }, 2,
@@ -20259,6 +20311,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * attached to its last word and turn that tail into a different KB key. */
     char *w[(sizeof buf + 1) / 2];
     size_t nw = split_words(buf, w, sizeof w / sizeof w[0]);
+    /* gen512 (glm-test D1/D4): il punto che chiude la frase non e' parte
+     * dell'ultima parola. «A wombat is a marsupial.» imparava la classe
+     * «marsupial.»: «Is a wombat a marsupial?» non la ritrovava e «What is the
+     * wombat?» rispondeva «marsupial..». Il «?» resta: lo leggono i rami
+     * interrogativi. */
+    if (nw) {
+        char *lw = w[nw - 1];
+        size_t ll = strlen(lw);
+        while (ll && (lw[ll - 1] == '.' || lw[ll - 1] == '!')) lw[--ll] = '\0';
+        if (!ll) nw--;
+    }
 
     /* gen298 (deep-reasoning M0, comprehension frame 2): PAST-TENSE copula. Wikipedia
      * lead sentences for historical subjects say "was"/"were" ("Socrates was a

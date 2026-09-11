@@ -975,7 +975,11 @@ verb_stem($Verb, $Stem) :-
     app($StemChars, $SuffixChars, $VerbChars),
     chars($Stem, $StemChars).
 
-extract_frame($Pat, $Stem) :-
+% gen512 (glm-test): la forma nuda LEGGE, ma la relazione resta UNA. Mappata
+% sulla radice, «penguins eat fish» scriveva `eat(penguins, fish)` mentre i 28
+% fatti della KB stanno sotto `eats`: «what do penguins eat?» non li trovava
+% piu'. La radice e' morfologia della superficie, non un secondo predicato.
+extract_frame($Pat, $Verb) :-
     verb_stem($Verb, $Stem),
     concat_atoms("@S ", $Stem, $A),
     concat_atoms($A, " @O", $Pat).

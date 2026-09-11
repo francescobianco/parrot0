@@ -1207,14 +1207,16 @@ ability_marker("can").  ability_marker("is able to").  ability_marker("knows how
 % gen512 (glm-test §5.3): la DOMANDA di abilita' non aveva un lettore: «can
 % birds fly?» murava anche dopo «birds can fly». Polare: si', no (negato
 % esplicito: «fish cannot fly»), o non so, senza inventare un «no» dall'assenza.
-turn_form(ability_asked, 1, text("can")).
-turn_form(ability_asked, 2, slot(subject)).
-turn_form(ability_asked, 3, rest(object)).
-turn_form(ability_asked, 4, bind(relation, ability_of)).
-turn_form_mood(ability_asked, question).
-turn_form_act(ability_asked, answer_polar).
-turn_form_empty_reply(ability_asked, ability_unknown).
-turn_form_priority(ability_asked, early).
+% (Nome proprio: `ability_asked` e' gia' la forma «what can X do?», e due forme
+% con lo stesso nome fondono i pezzi e gli atti.)
+turn_form(ability_polar, 1, text("can")).
+turn_form(ability_polar, 2, slot(subject)).
+turn_form(ability_polar, 3, rest(object)).
+turn_form(ability_polar, 4, bind(relation, ability_of)).
+turn_form_mood(ability_polar, question).
+turn_form_act(ability_polar, answer_polar).
+turn_form_empty_reply(ability_polar, ability_unknown).
+turn_form_priority(ability_polar, early).
 response_template(ability_unknown, "I don't know whether {subject} can {object}: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
 response_template(ability_unknown, it, "Non so se {subject} può {object}: niente di ciò che tengo lo dice, e niente dice il contrario. Dimmelo e lo terrò.").
 
