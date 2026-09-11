@@ -2776,6 +2776,14 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
     size_t vi = (size_t)-1;                 /* the make-verb, imperative slot */
     for (size_t i = 0; i < nw && i < 3; i++)
         if (reqgen_in_class(b, "make_verb", strip_edge_punct(w[i]))) { vi = i; break; }
+    /* gen512 — un verbo di MOSTRARE fa da verbo di produzione solo quando la KB
+     * dice che il turno e' una richiesta di produzione (`production_request`:
+     * mostrare + un nome di codice, turn-frames.p0). La congiunzione e' la
+     * regola; qui si chiede soltanto la forza pubblicata. */
+    if (vi == (size_t)-1 && p0_turn_is(b, "production_request", norm)) {
+        for (size_t i = 0; i < nw && i < 3; i++)
+            if (reqgen_in_class(b, "display_verb", strip_edge_punct(w[i]))) { vi = i; break; }
+    }
     if (vi == (size_t)-1 || vi + 1 >= nw) return 0;
 
     char lang[16] = "";                     /* trailing "in <lang_name>" */
@@ -2948,6 +2956,121 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
                     return 1;
                 }
             }
+        }
+    }
+
+    /* gen512 — IL CODICE DI UNA COSA CHE LA KB SA CALCOLARE.
+     *
+     * «show me the python code that computes newtons second law»: la legge ha
+     * una formula in KB (laws.p0), la formula ha una resa in codice
+     * (`law_expression`), e una funzione che la calcola e' una FORMA dell'
+     * emettitore (code_shapes.p0, `formula_function`). Qui ci sono solo gli
+     * adattatori: la lingua e' una parola della classe `lang_name` ovunque
+     * nella richiesta (non solo in un «in <lingua>» finale), la cosa e' il
+     * sintagma piu' lungo che `entity_alias` risolve, e il resto lo dice la KB
+     * — quale forma (`artifact_shape_for/2`) e con quali valori nei buchi
+     * (`artifact_binding/3`). Nessun nome di legge, di grandezza o di lingua.
+     *
+     * F., 2026-09-11 (kb-code-emitter.md §7): verificare e' uno strumento che si
+     * decide di usare, non un cancello. Per questa forma non c'e' ancora un
+     * oracolo, quindi il codice si mostra DICHIARANDO che non e' verificato; e
+     * se la richiesta ha chiesto di non eseguirlo (`no_execution_request`), la
+     * risposta lo riconosce. Quando manca un pezzo l'arresto dice quale. */
+    {
+        char alang[32] = "";
+        snprintf(alang, sizeof alang, "%s", lang);
+        char ob[256]; snprintf(ob, sizeof ob, "%s", obj);
+        char *ow[48]; size_t on = split_words(ob, ow, 48);
+        for (size_t i = 0; i < on; i++) ow[i] = strip_edge_punct(ow[i]);
+        for (size_t i = 0; i < on && !alang[0]; i++)
+            if (reqgen_in_class(b, "lang_name", ow[i]))
+                snprintf(alang, sizeof alang, "%s", ow[i]);
+        char ent[KB_TERM_LEN] = "", ent_said[256] = "";
+        for (size_t len = on; len >= 1 && !ent[0]; len--) {
+            for (size_t s = 0; s + len <= on && !ent[0]; s++) {
+                char span[256]; size_t so = 0; span[0] = '\0';
+                for (size_t k = s; k < s + len && so + 1 < sizeof span; k++)
+                    so += (size_t)snprintf(span + so, sizeof span - so, "%s%s",
+                                           k > s ? " " : "", ow[k]);
+                if (entity_alias_lookup(b, span, ent, sizeof ent))
+                    snprintf(ent_said, sizeof ent_said, "%s", span);
+            }
+        }
+        if (ent[0] && alang[0]) {
+            const KbResponseSlot gs[] = { { "entity", ent_said }, { "lang", alang } };
+            char shq[1][KB_TERM_LEN];
+            const char *sq[2] = { ent, NULL };
+            if (kb_match(b->kb, "artifact_shape_for", sq, 2, shq, 1) != 1) {
+                kb_term_say(b, "artifact_gap_no_shape", gs, 2, out, out_size);
+                store_proof(b, out);
+                return 1;
+            }
+            char shape[KB_TERM_LEN]; snprintf(shape, sizeof shape, "%s", kb_dequote(shq[0]));
+            /* i buchi e i loro valori; piu' valori per lo stesso buco sono una
+             * lista, nell'ordine in cui la KB li deriva */
+            char keys[8][KB_TERM_LEN], vals[8][512];
+            size_t nk = 0;
+            {
+                char (*ks)[KB_TERM_LEN] = NULL; size_t nks = 0;
+                const char *kq[3] = { ent, NULL, NULL };
+                if (kb_match_all(b->kb, "artifact_binding", kq, 3, &ks, &nks)) {
+                    for (size_t i = 0; i < nks && nk < 8; i++) {
+                        char kb2[KB_TERM_LEN]; snprintf(kb2, sizeof kb2, "%s", kb_dequote(ks[i]));
+                        int seen = 0;
+                        for (size_t j = 0; j < nk; j++) if (!strcmp(keys[j], kb2)) seen = 1;
+                        if (seen) continue;
+                        snprintf(keys[nk], sizeof keys[nk], "%s", kb2);
+                        vals[nk][0] = '\0';
+                        char (*vs)[KB_TERM_LEN] = NULL; size_t nvs = 0;
+                        const char *vq[3] = { ent, ks[i], NULL };
+                        if (kb_match_all(b->kb, "artifact_binding", vq, 3, &vs, &nvs)) {
+                            size_t vo = 0;
+                            for (size_t v = 0; v < nvs; v++) {
+                                char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", kb_dequote(vs[v]));
+                                char probe[KB_TERM_LEN + 4];
+                                snprintf(probe, sizeof probe, "%s", vb);
+                                int dup = 0;   /* una grandezza usata due volte e' un parametro */
+                                for (const char *p = vals[nk]; (p = strstr(p, probe)) != NULL; p++) {
+                                    size_t pl = strlen(probe);
+                                    if ((p == vals[nk] || p[-1] == ' ') &&
+                                        (p[pl] == '\0' || p[pl] == ',')) { dup = 1; break; }
+                                }
+                                if (dup) continue;
+                                vo += (size_t)snprintf(vals[nk] + vo, sizeof vals[nk] - vo,
+                                                       "%s%s", vo ? ", " : "", vb);
+                            }
+                        }
+                        free(vs);
+                        nk++;
+                    }
+                }
+                free(ks);
+            }
+            const char *kp[8], *vp[8];
+            const char *fname = NULL;
+            for (size_t i = 0; i < nk; i++) {
+                kp[i] = keys[i]; vp[i] = vals[i];
+                if (!strcmp(keys[i], "name")) fname = vals[i];
+            }
+            char src[2048];
+            if (fname && *fname &&
+                code_synth_from_shape_bound(b->kb, alang, shape, fname, kp, vp, nk,
+                                            src, sizeof src)) {
+                int asked = kb_cue_match(b, "no_execution_request", buf) ||
+                            kb_cue_match(b, "no_execution_request", raw);
+                const KbResponseSlot cs[] = { { "entity", ent_said }, { "lang", alang },
+                                              { "src", src } };
+                kb_term_say(b, asked ? "artifact_code_unverified_asked"
+                                     : "artifact_code_unverified", cs, 3, out, out_size);
+                /* Nessun `note_artifact`: MOSTRARE un codice non e' creare un
+                 * artefatto. Registrarlo lo faceva salvare come «creato», e una
+                 * sessione futura l'avrebbe detto creato da lei. */
+                store_proof(b, out);
+                return 1;
+            }
+            kb_term_say(b, "artifact_gap_no_language", gs, 2, out, out_size);
+            store_proof(b, out);
+            return 1;
         }
     }
 

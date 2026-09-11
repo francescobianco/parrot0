@@ -67,6 +67,8 @@ utterance(5, user, "a battle involves a year").
 utterance(5, user, "a cliff is a kind of height").
 utterance(5, user, "your plan when the recipe is missing").
 utterance(5, user, "which moon is the largest?").
+utterance(5, user, "show me the python code that computes ohms law, without running it").
+utterance(5, user, "display the python code that computes the density law, without running it").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -113,6 +115,8 @@ utterance(6, self, "Tengo: un battle ha un anno.").
 utterance(6, self, "Held: cliff is a kind of height -- and the chain of kinds carries.").
 utterance(6, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(6, self, "Hmm, I don't know about largest yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a largest»; if largest is a word you want to talk ABOUT, say «the word largest is a …».").
+utterance(6, self, "Here is python code for ohms law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def voltage(current, resistance):     return (current * resistance) ```").
+utterance(6, self, "Here is python code for density law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def density(mass, volume):     return (mass / volume) ```").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -572,6 +576,8 @@ utterance(7, user, "the italian for cliff is burrone").
 utterance(7, user, "what is your plan when the recipe is missing?").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "the largest moon is ganymede").
+utterance(7, user, "'mostrami' is another way to say 'scrivi'").
+utterance(7, user, "show me a python snippet that computes ohms law, without running it").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -851,7 +857,14 @@ utterance(24, self, "blood.").
 utterance(8, self, "Held: among moon, the largest is «ganymede».").
 utterance(9, user, "which moon is the largest?").
 utterance(10, self, "ganymede.").
+utterance(8, self, "Got it - «mostrami» asks for the same thing as «scrivi».").
+utterance(9, user, "mostrami il codice python che calcola la legge della densità, senza eseguirlo").
+utterance(10, self, "Ho capito la richiesta — produrre «codice python che calcola la legge della densità senza eseguirlo» — ma non la conosco ancora come qualcosa che so calcolare o costruire, quindi non ho codice da mostrare.").
 utterance(60, self, "Held: great-grandparent is grandparent followed by parent.").
+utterance(8, self, "Here is python code for ohms law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def voltage(current, resistance):     return (current * resistance) ```").
+utterance(9, user, "display the capital of france").
+utterance(10, self, "Paris.").
+utterance(11, user, "show me the rust code that computes newtons second law, without running it").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -866,6 +879,7 @@ utterance(17, user, "how do you act when x means your plan when x?").
 utterance(18, self, "From now on I'll read «how do you act when x» as «your plan when x?».").
 utterance(19, user, "your plan when the recipe is missing").
 utterance(20, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
+utterance(12, self, "I know how to compute newtons second law, but I don't know yet how rust writes that kind of function.").
 utterance(21, user, "how do you act when the recipe is missing?").
 utterance(22, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(23, user, "your plan when you have no steps").
@@ -1160,6 +1174,8 @@ utterance(2, self, "Learned: fall from height causes violent impact.").
 utterance(2, self, "On the recipe is missing, a workable design turns on what would count as success, what cannot be violated and how it fails in practice. Treat the requested design as a system with an objective, inputs, constraints, users, failure modes, and feedback rather than as a single feature. Define the objective as measurable outcomes rather than a technology or policy by itself, including who should benefit and which constraints cannot be violated. Use several coordinated levers, assign responsibility for each o").
 utterance(2, self, "On you act when the recipe is missing, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effe").
 utterance(2, self, "Quando succede: 1) guardo di che cosa e' fatta  2) dico a che cosa serve.").
+utterance(2, self, "Got it - «show» asks for the same thing as «write».").
+utterance(2, self, "Got it - «display» asks for the same thing as «show».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1206,6 +1222,8 @@ utterance(1, user, "a fall from height causes a violent impact").
 utterance(1, user, "what is your plan when the recipe is missing?").
 utterance(1, user, "how do you act when the recipe is missing?").
 utterance(1, user, "il tuo piano quando la ricetta manca?").
+utterance(1, user, "'show' is another way to say 'write'").
+utterance(1, user, "'display' is another way to say 'show'").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1246,6 +1264,8 @@ utterance(4, self, "Learned: violent impact causes serious injury.").
 utterance(4, self, "From now on I'll read «what is your plan when x» as «your plan when x?».").
 utterance(4, self, "From now on I'll read «how do you act when x» as «your plan when x?».").
 utterance(4, self, "Already in the plan: move 2 is «I say what it is for».").
+utterance(4, self, "Here is python code for newtons second law, composed from what I know about it. As you asked, I did not run it: it is not verified.  ```python def force(mass, acceleration):     return (mass * acceleration) ```").
+utterance(4, self, "Got it - «snippet» asks for the same thing as «code».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1287,6 +1307,8 @@ utterance(3, user, "a violent impact causes serious injury").
 utterance(3, user, "what is your plan when x means your plan when x?").
 utterance(3, user, "how do you act when x means your plan when x?").
 utterance(3, user, "when you don't have the steps then say what problem it solves").
+utterance(3, user, "show me the python code that computes newtons second law, without running it").
+utterance(3, user, "'snippet' is another way to say 'code'").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

@@ -169,3 +169,20 @@ code_expr(square($A), $T) :- code_binary(product, $A, $A, $T).
 
 % L'espressione di una legge, pronta da mettere dopo un `return`.
 law_expression($Law, $T) :- law_formula($Law, $Out, $E), code_expr($E, $T).
+
+% ── 6. DAL CALCOLO AL CODICE MOSTRATO (gen512) ──────────────────────────────
+%
+% «show me the python code that computes newtons second law»: il lettore delle
+% richieste di artefatti (60-agent-tools.c) risolve la cosa nominata e chiede
+% qui due cose generali, che non sanno niente di fisica ne' di Python:
+%   `artifact_shape_for(Cosa, Forma)`  — quale forma di codice la calcola;
+%   `artifact_binding(Cosa, Buco, V)`  — i valori dei buchi di quella forma
+%                                        (piu' valori per lo stesso buco: una lista).
+% La forma e la sua resa in ogni lingua stanno in code_shapes.p0. Una legge
+% nuova diventa codice mostrabile nel momento in cui ha la sua formula.
+machinery(artifact_shape_for).
+machinery(artifact_binding).
+artifact_shape_for($Law, formula_function) :- law_formula($Law, $Out, $E).
+artifact_binding($Law, name, $Out) :- law_defines($Law, $Out).
+artifact_binding($Law, params, $Q) :- law_formula($Law, $Out, $E), expr_uses($E, $Q).
+artifact_binding($Law, body, $T) :- law_expression($Law, $T).

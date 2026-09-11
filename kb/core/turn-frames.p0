@@ -180,6 +180,32 @@ turn_declared_act($Turn, compound_inquiry) :-
     turn_cue($Turn, clause_boundary_cue, $Boundary),
     turn_cue($Turn, question_mark_cue, $Mark).
 
+% ── LA RICHIESTA DI PRODURRE UN ARTEFATTO (gen512) ─────────────────────────
+%
+% «mostrami il codice python che calcola la seconda legge di newton» non e' la
+% domanda «che cosa calcola la seconda legge?»: la relativa sta dentro l'oggetto
+% di un ORDINE di produrre. Misurato: la cornice delle risposte ci leggeva la
+% cue «calcola» e rispondeva «Forza.». La forza e' una lettura di POSIZIONE — il
+% turno si APRE con un verbo di produzione (`make_verb`, lo stesso intento che
+% legge il lettore delle richieste) — non una cue da cercare ovunque, che
+% prenderebbe anche «what makes a rainbow?». Un verbo nuovo insegnato parlando
+% («"show" is another way to say "write"») entra qui da solo.
+turn_declared_act($Turn, production_request) :-
+    turn_span_token($Turn, 0, 0, $First),
+    intent_cue(make_verb, $First).
+% E MOSTRARE del codice e' chiedere di produrlo: il verbo di mostrare in
+% apertura, e un nome di codice nel turno. Senza il secondo congiunto «show me
+% the capital of France» diventerebbe un ordine di produzione.
+turn_declared_act($Turn, production_request) :-
+    turn_span_token($Turn, 0, 0, $First),
+    intent_cue(display_verb, $First),
+    turn_span_token($Turn, 0, $At, $Noun),
+    intent_cue(code_noun, $Noun).
+% Chi risponde alle domande cede un ordine di produzione (condotta, mantra #17;
+% la cornice e' KB-first, quindi le si insegna invece di retrocederla, #21).
+faculty_yield_force(answerframe, open, production_request).
+faculty_yield_force(answer_frame, open, production_request).
+
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %
 % Sopra e' scritto — e resta vero — che l'asserzione non ha cue proprie: marcarla

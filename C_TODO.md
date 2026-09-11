@@ -1,5 +1,38 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-11 — gen512 (quarto giro): il codice di una legge, mostrato e dichiarato
+
+Missione di F.: la crescita auto-guidata, a partire dai compiti di codice su
+algoritmi della fisica, addestrata via prompt; e (kb-code-emitter.md §7)
+l'oracolo e' uno strumento, il codice non verificato si mostra dichiarandolo.
+
+Il C aggiunge soltanto adattatori, senza nessun nome di legge, grandezza o lingua:
+- `code_synth_from_shape_bound` (code.c): l'emettitore delle forme accetta
+  legami nome->valore della richiesta, applicati a firma e passi;
+- `mod_reqgen`, prima del declino: la lingua e' una parola `lang_name` ovunque
+  nella richiesta; la cosa e' il sintagma piu' lungo che `entity_alias`
+  risolve; forma e legami li dice la KB (`artifact_shape_for/2`,
+  `artifact_binding/3`); resa con l'avviso KB; arresto che nomina il pezzo
+  mancante (nessuna forma per quella cosa, nessuna resa in quella lingua).
+
+In KB: la forma di un passo `formula_function` (code_shapes.p0); le regole
+`artifact_*` per le leggi (laws.p0); i modelli dell'avviso e degli arresti;
+`no_execution_request`; la forza `production_request` (un turno che si APRE con
+un verbo di produzione) e la cessione della cornice delle domande.
+
+Residui, in ordine di leva:
+1. **L'oracolo come strumento scelto** non esiste ancora per `formula_function`:
+   oggi il codice e' sempre non verificato. La forma giusta: una condotta KB che
+   decide se verificare (e che rispetta `no_execution_request`), un eseguitore
+   per lingua dichiarato in KB, e il valore atteso calcolato dalla formula.
+2. **La lezione che manca all'arresto «I don't know yet how rust writes that
+   kind of function»**: una superficie parlata che insegni la firma e il
+   `return` di una lingua (oggi sono righe di code_shapes.p0).
+3. **La lezione che manca a una cosa senza formula** («gravity», la prima legge
+   di Newton): una superficie parlata per insegnare una formula.
+4. `mod_reqgen` resta un modulo con catene `&&` compilate (TODO kb-first):
+   il ramo nuovo e' KB-first, il modulo no.
+
 ## 2026-09-11 — gen512 (terzo giro): difetti di comportamento, e tre radici piccole
 
 Ogni difetto e' nato da un turno reale che rispondeva male; il cricchetto e'

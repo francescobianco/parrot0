@@ -194,6 +194,17 @@ lang_syntax(python, declare_int,  "{0} = {1}").
 lang_syntax(python, accumulate,   "{0} = {0} + {1}").
 lang_syntax(python, return_value, "return {0}").
 
+% gen512 — UNA FUNZIONE CHE CALCOLA UNA FORMULA. La forma piu' piccola che
+% esista: un solo passo, `return`, con l'espressione come valore. I buchi
+% {params} e {body} non sono slot della forma ma LEGAMI della richiesta: li
+% fornisce `artifact_binding/3` (per le leggi: kb/experts/physics/laws.p0), e
+% una legge nuova, o una formula nuova di qualunque dominio, costa i suoi fatti
+% e nessuna riga qui. Una lingua nuova costa la sua firma e il suo `return`.
+code_shape_signature(formula_function, python, "def {name}({params})").
+code_shape_step(formula_function, ff_1, root, return_value).
+code_shape_order(formula_function, ff_1, 1).
+code_shape_slot(ff_1, 0, "{body}").
+
 % ══ M4 — SCEGLIERE LA FORMA DAL CONTRATTO, NON DAL NOME ═════════════════════
 %
 % Finora la forma si sceglieva perche' il turno NOMINAVA un algoritmo

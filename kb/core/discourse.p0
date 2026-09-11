@@ -98,6 +98,13 @@ answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sente
 machinery(turn_scratch).
 turn_scratch(turn_counter).
 turn_scratch(turn_span_token).
+% gen512 — anche gli span del turno sono del turno. Un `/save` dopo «show me the
+% python code …, without running it» salvava nella KB permanente
+% `turn_span(current_turn, 1, constraint, "running it")`: la prima domanda di
+% una sessione futura avrebbe visto un vincolo che nessuno le aveva detto.
+turn_scratch(turn_span).
+turn_scratch(turn_span_surface).
+turn_scratch(turn_span_cue).
 % `exchange/3` e `exchange_turn/2` sono la salienza della conversazione VIVA.
 % Salvarli e ricaricarli trasforma un archivio in stato corrente: una chat nuova
 % nasceva gia' «su Paris». Gli utterance restano nell'archivio transcript; una

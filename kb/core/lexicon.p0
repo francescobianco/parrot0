@@ -875,6 +875,8 @@ phrase_canon("quanto costa", "how much does it cost").
 % conoscenza vinca sul codice, e la cascata resti come struttura secondaria.
 phrase_canon("di nome", "named").
 phrase_canon("quanto vale", "what is").
+phrase_canon("snippet", "code").
+phrase_canon("display", "show").
 
 % Le parole singole NON sono locuzioni: stanno in tr/2, sotto, dove il motore
 % le cerca gia'. Metterle qui avrebbe funzionato e sarebbe stato il posto

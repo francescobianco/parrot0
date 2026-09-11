@@ -177,3 +177,41 @@ M5 ✅ una seconda lingua, per falsificare il taglio.
 Non dal numero di forme. Da **quanto costa la prossima**: se una forma nuova
 richiede una riga di C, il pezzo è ancora dalla parte sbagliata, per quanti
 `.p0` si siano aggiunti.
+
+## 7. ⛔ L'oracolo è uno STRUMENTO, non un cancello (F., 2026-09-11)
+
+> *«il meccanismo dell'oracolo che esegue il codice deve essere convertito a
+> tool che con coscienza decide di usare il codice generato; quando non passa
+> dall'oracolo deve essere mostrato, ma si avvisa l'utente che il codice non è
+> stato verificato. In questi esperimenti tu devi chiedere che non usi né
+> oracolo né creazione di file.»*
+
+Fino al gen512 la dottrina era *«sintetizzo solo ciò che un oracolo può
+controllare»*: un codice derivabile dalla KB ma non eseguibile dal giudice
+diventava un muro («I don't have a verified schema for that artifact yet»).
+Da qui la regola è un'altra, in tre punti.
+
+1. **Verificare è una DECISIONE**, presa come si prende un turno: una condotta
+   dichiarata in KB, che legge anche ciò che chiede chi parla. L'oracolo
+   (compilare, eseguire, confrontare con ciò che la KB calcola) è uno
+   strumento fra gli altri, non una porta obbligata.
+2. **Il codice non verificato si MOSTRA, dichiarandolo.** La frase che avvisa
+   è un `response_template` (mantra #16), e non si omette mai: un codice
+   presentato come verificato quando non lo è sarebbe il mantra #7.
+3. **Negli esperimenti di addestramento sui compiti di codice** (per esempio
+   «show me the python code that computes newton's second law») **è la
+   richiesta di chi insegna** a chiedere di non eseguire il codice e di non
+   creare file: «… without running it», «… senza eseguirlo, senza creare
+   file». Il vincolo sta nella conversazione e parrot0 lo deve CAPIRE dalla
+   frase; non si ottiene spegnendo gli strumenti. Una richiesta che non lo
+   dice resta libera di usare l'oracolo, quando esisterà per quella forma.
+
+**Stato al gen512 (quarto giro).** In piedi: il punto 2 e il punto 3. Una legge
+con la sua formula in KB diventa una funzione attraverso la forma
+`formula_function` e i legami della richiesta (`code_synth_from_shape_bound`,
+`artifact_binding/3`); il codice si mostra con l'avviso
+(`artifact_code_unverified`), e se la richiesta dice «without running it» /
+«senza eseguirlo» (`no_execution_request`) la risposta lo riconosce
+(`artifact_code_unverified_asked`). Cricchetto: `tests/p0t/language/law_code.p0t`.
+Manca il punto 1: per questa forma non c'e' ancora un oracolo da scegliere, e
+la decisione di verificare non e' ancora una condotta dichiarata.

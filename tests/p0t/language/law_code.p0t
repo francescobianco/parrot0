@@ -1,0 +1,60 @@
+# gen512 — IL CODICE DI UNA COSA CHE PARROT0 SA CALCOLARE, MOSTRATO E DICHIARATO.
+#
+# docs/plans/kb-code-emitter.md §7 (F., 2026-09-11): verificare e' uno
+# strumento, non un cancello. Una legge fisica con la sua formula in KB
+# (kb/experts/physics/laws.p0) diventa una funzione nella lingua chiesta
+# attraverso l'emettitore delle forme (code_shapes.p0, `formula_function`); il
+# codice si mostra DICHIARANDO che non e' stato eseguito, e se la richiesta ha
+# chiesto di non eseguirlo la risposta lo riconosce. Quando manca un pezzo,
+# l'arresto dice quale.
+#
+# Nessun file e nessun oracolo: e' la richiesta a chiederlo. Il file non
+# insegna niente (usa verbi di produzione gia' in KB), quindi e' idempotente.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test una legge diventa codice, dichiarato non verificato]
+!timeout 12
+> write a python function that computes newtons second law without running it
+<~ As you asked, I did not run it
+<~ def force(mass, acceleration):
+> write a python function that computes the density law
+<~ I have not run it, so it is not verified
+<~ def density(mass, volume):
+
+[test la grandezza usata due volte e' un parametro solo]
+!timeout 12
+> write a python function that computes the kinetic energy law
+<~ def kinetic_energy(mass, velocity):
+
+[test una lingua senza la resa della forma: l'arresto dice quale pezzo manca]
+!timeout 12
+> write a rust function that computes newtons second law
+<~ I don't know yet how rust writes that kind of function
+
+[test una cosa che non so calcolare: niente vecchia dottrina dell'oracolo]
+!timeout 12
+> write a python function that computes gravity
+<~ I don't know that yet as something I can compute or build
+<! oracle
+
+[test in italiano, e la cornice delle domande cede l'ordine di produzione]
+!timeout 12
+> scrivi una funzione python che calcola la seconda legge di newton, senza eseguirlo
+<~ Come mi hai chiesto non l'ho eseguito
+<~ def force(mass, acceleration):
+<! Forza.
+
+[test mostrare del codice e' chiederlo; mostrare altro no]
+!timeout 12
+> show me the python code that computes ohms law without running it
+<~ def voltage(current, resistance):
+> mostrami il codice python che calcola la seconda legge di newton, senza eseguirlo
+<~ def force(mass, acceleration):
+> show me the capital of france
+<~ Paris

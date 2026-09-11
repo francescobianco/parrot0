@@ -624,7 +624,33 @@ response_template(steps_shape_learned, "Learned: those steps describe the {shape
 response_template(starting_from_x_that_step_never_reaches_x_th, "Starting from {sb}, that step never reaches {tb} — the goal can't be met this way.").
 response_template(created_the_empty_file_x_in_the_working_dire, "Created the empty file {name} in the working directory — verified: it exists and is empty.").
 response_template(i_understood_create_the_file_x_but_a_file_wi, "I understood — create the file {name} — but a file with that name already exists here, and I won't overwrite it.").
-response_template(verified_by_execution_it_prints_x_and_exits, "Verified by execution: it prints «{msg}» and exits 0 (print_message schema, run via the code_run oracle).\n\n```c\n{src}\n```").
+% gen512 — IL CODICE NON VERIFICATO SI MOSTRA, E LO SI DICE (F., 2026-09-11;
+% docs/plans/kb-code-emitter.md §7). Verificare e' uno strumento che parrot0
+% decide di usare, non un cancello: un codice composto da cio' che la KB sa
+% calcolare si mostra anche senza esecuzione, e l'avviso non si omette mai.
+% Se la richiesta stessa ha chiesto di non eseguirlo, la risposta lo riconosce.
+response_template(artifact_code_unverified, "Here is {lang} code for {entity}, composed from what I know about it. I have not run it, so it is not verified.\n\n```{lang}\n{src}\n```").
+response_template(artifact_code_unverified, it, "Ecco il codice {lang} per {entity}, composto da ciò che ne so. Non l'ho eseguito, quindi non è verificato.\n\n```{lang}\n{src}\n```").
+response_template(artifact_code_unverified_asked, "Here is {lang} code for {entity}, composed from what I know about it. As you asked, I did not run it: it is not verified.\n\n```{lang}\n{src}\n```").
+response_template(artifact_code_unverified_asked, it, "Ecco il codice {lang} per {entity}, composto da ciò che ne so. Come mi hai chiesto non l'ho eseguito: non è verificato.\n\n```{lang}\n{src}\n```").
+% Quando un pezzo manca, l'arresto dice QUALE: la cosa senza una forma di
+% calcolo, o la lingua senza la resa di quella forma. Non promette una lezione
+% che parrot0 non sa ancora ricevere.
+response_template(artifact_gap_no_shape, "I know {entity}, but not as something I can compute, so I have no {lang} code to show for it.").
+response_template(artifact_gap_no_shape, it, "Conosco {entity}, ma non come qualcosa che so calcolare, quindi non ho codice {lang} da mostrare.").
+response_template(artifact_gap_no_language, "I know how to compute {entity}, but I don't know yet how {lang} writes that kind of function.").
+response_template(artifact_gap_no_language, it, "So calcolare {entity}, ma non so ancora come {lang} scrive quel tipo di funzione.").
+% Chi chiede di NON eseguire: la frase lo dice, e parrot0 lo deve capire dalla
+% frase (non da uno strumento spento). Una formulazione nuova si insegna con
+% «"X" is another way to say "without running it"».
+intent_cue(no_execution_request, "without running it").
+intent_cue(no_execution_request, "without running").
+intent_cue(no_execution_request, "don't run it").
+intent_cue(no_execution_request, "do not run it").
+intent_cue(no_execution_request, "senza eseguirlo").
+intent_cue(no_execution_request, "senza eseguire").
+intent_cue(no_execution_request, "non eseguirlo").
+response_template(verified_by_execution_it_prints_x_and_exits,"Verified by execution: it prints «{msg}» and exits 0 (print_message schema, run via the code_run oracle).\n\n```c\n{src}\n```").
 response_template(tools_disabled_i_understood_that_it_is_a_x_r, "tools_disabled: I understood that — it is a {kind} request, and I can do it — but in {mode} mode I may not touch the filesystem. Start me with `make chat-agent` and I will run it.").
 response_template(type_mismatch_a_string_is_assigned_to_an_int, "Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.").
 response_template(suspicious_assignment_a_number_assigned_to_a, "Suspicious assignment: a number assigned to a char * variable. If this is meant as a character literal, use single quotes: 'x'.").
@@ -725,8 +751,12 @@ response_template(x_functionx_now_in_the_kb, ". ({k} function{s} now in the KB.)
 
 response_template(i_understood_the_request_produce_x, "I understood the request — produce «{obj}»").
 response_template(i_understood_the_request_produce_x, it, "Ho capito la richiesta — produrre «{obj}»").
-response_template(but_i_don_t_have_a_verified_schema_for_that, " — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).").
-response_template(but_i_don_t_have_a_verified_schema_for_that, it, " — ma non ho ancora uno schema verificato per quell'artefatto; sintetizzo solo cio' che un oracolo puo' controllare (un ordinamento da una forma appresa, una composizione aritmetica, un gioco di conteggio fino a una soglia).").
+% gen512 — la dottrina e' cambiata (kb-code-emitter.md §7): verificare e' uno
+% strumento, non la condizione per mostrare. Il declino dice il pezzo che manca
+% davvero: parrot0 non conosce la cosa richiesta come qualcosa che sa calcolare
+% o costruire. (Prima: «I only synthesize what an oracle can check».)
+response_template(but_i_don_t_have_a_verified_schema_for_that, " — but I don't know that yet as something I can compute or build, so I have no code to show for it.").
+response_template(but_i_don_t_have_a_verified_schema_for_that, it, " — ma non la conosco ancora come qualcosa che so calcolare o costruire, quindi non ho codice da mostrare.").
 response_template(artifact_target_language, " in {lang}").
 response_template(artifact_target_language, it, " in {lang}").
 response_template(we_talked_about, "We talked about ").

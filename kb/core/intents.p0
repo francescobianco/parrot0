@@ -994,6 +994,25 @@ intent_cue(make_verb, "implement").
 intent_cue(make_verb, "implementa").
 intent_cue(make_verb, "produce").
 intent_cue(make_verb, "produci").
+% gen512 — MOSTRARE non e' PRODURRE. Una sessione aveva salvato «show» e
+% «mostrami» come verbi di produzione (lezione «"show" is another way to say
+% "write"»): una generalizzazione falsa — «show me the capital of France» non
+% chiede di scrivere niente. Il vero e' piu' stretto: mostrare diventa una
+% richiesta di produzione quando cio' che si chiede di mostrare e' CODICE. La
+% congiunzione e' una regola (turn-frames.p0, `production_request`); qui stanno
+% le due classi, che si allargano parlando («"display" is another way to say
+% "show"»).
+intent_cue(display_verb, "show").
+intent_cue(display_verb, "mostrami").
+intent_cue(display_verb, "mostra").
+intent_cue(display_verb, "display").
+intent_cue(code_noun, "code").
+intent_cue(code_noun, "function").
+intent_cue(code_noun, "program").
+intent_cue(code_noun, "codice").
+intent_cue(code_noun, "funzione").
+intent_cue(code_noun, "snippet").
+intent_cue(code_noun, "programma").
 intent_cue(lang_name, "c").
 intent_cue(lang_name, "python").
 intent_cue(lang_name, "javascript").

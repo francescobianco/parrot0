@@ -1,6 +1,93 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# 🌱 HANDOFF — 11 settembre 2026, sera (`gen512`): il buco tipato, 33/34, e il SEGNO D'USO REALE. RIPARTIRE DA QUI.
+# 🌱 HANDOFF — 11 settembre 2026, notte (`gen512`, quarto giro): LA MISSIONE DEL CODICE DI FISICA. RIPARTIRE DA QUI.
+
+> F.: *«lavora per rendere la crescita di parrot0 auto guidata: un interlocutore
+> venga sempre in maniera dialogica messo in condizione di far crescere parrot0.
+> Parti da compiti di coding di algoritmi estratti dal mondo della fisica —
+> "mostrami il codice che in python fa il calcolo della seconda legge di
+> newton" — e tutto via prompt devi addestrarlo. I prompt non devono richiedere
+> creazione di file ma solo mostrare codice.»* E poi: *«l'oracolo che esegue il
+> codice dev'essere uno strumento che decide di usare; il codice che non passa
+> dall'oracolo si mostra avvisando che non è verificato; in questi esperimenti
+> tu chiedi che non usi né oracolo né file»* (scritto in
+> `docs/plans/kb-code-emitter.md` §7).
+
+## 1. Che cosa funziona
+
+```text
+> "show" is another way to say "write"                         (lezione parlata, salvata)
+> show me the python code that computes newtons second law, without running it
+Here is python code for newtons second law, composed from what I know about it.
+As you asked, I did not run it: it is not verified.
+    def force(mass, acceleration):
+        return (mass * acceleration)
+> "mostrami" is another way to say "scrivi"                    (lezione parlata, salvata)
+> mostrami il codice python che calcola la seconda legge di newton, senza eseguirlo
+Ecco il codice python per seconda legge di newton … Come mi hai chiesto non l'ho eseguito …
+> show me the rust code that computes newtons second law
+I know how to compute newtons second law, but I don't know yet how rust writes that kind of function.
+```
+
+Le quattro leggi con formula in KB (Newton II, Ohm, energia cinetica, densita')
+diventano codice senza nessun modello per legge: la formula (laws.p0) → la
+sua resa (`law_expression`) → la forma `formula_function` (code_shapes.p0) con
+i legami della richiesta. Cricchetto `tests/p0t/language/law_code.p0t` (11).
+⚠ **Una lezione falsa, mia, tolta.** La prima sessione vera aveva insegnato
+`"show" is another way to say "write"`: `/save` ne ha fatto un verbo di
+produzione e una riscrittura globale show→write. Ma MOSTRARE non e' PRODURRE
+(«show me the capital of France»). Il vero e' piu' stretto e ora e' una regola:
+un turno che si apre con un verbo di mostrare (`display_verb`) e contiene un
+nome di codice (`code_noun`) ha la forza `production_request`
+(turn-frames.p0), e `mod_reqgen` chiede quella forza invece di un `&&` nel C.
+Le righe salvate sono state tolte; le cause (una lezione troppo larga) non
+erano un difetto di parrot0 ma di chi insegnava.
+
+**Segno d'uso reale salvato** (seconda sessione vera, lezioni vere):
+`"display" is another way to say "show"` e `"snippet" is another way to say
+"code"` → `intent_cue(display_verb, "display")`, `intent_cue(code_noun,
+"snippet")` e le due riscritture `phrase_canon`; usate su due leggi reali con
+«without running it», e riverificate in un processo nuovo con «display a
+python snippet that computes newtons second law, without running it».
+«display the capital of france» risponde ancora «Paris.».
+
+## 2. ⛔ La coda, in ordine di leva — e il punto e' la PARTE DIALOGICA
+
+La crescita e' auto-guidata solo se ogni arresto mette chi parla in condizione
+di insegnare. Oggi gli arresti dicono il pezzo che manca, ma non ancora la
+lezione che lo fornisce, perche' quelle lezioni non esistono ancora:
+1. **Insegnare una formula parlando** — «the formula of X is Q equals A times
+   B», «la formula di X è …» → `law_formula/3` + `law_defines/2` dalla lettura
+   delle parole degli operatori (`code_operator/2`, `infix_operator/2` esistono).
+   Apre: la prima legge di Newton, «gravity», ogni formula di ogni dominio.
+2. **Insegnare come una lingua scrive una funzione** — l'arresto di rust.
+   Oggi sono righe di code_shapes.p0 (`code_shape_signature`, `lang_syntax`).
+3. **Un arresto che OFFRE la lezione giusta**, per ciascun pezzo mancante
+   (nome sconosciuto → «"legge della densità" is another way to say "density
+   law"»; formula mancante → la lezione 1; lingua mancante → la lezione 2). Il
+   reperto del terzo giro va nello stesso punto: davanti a «which moon is the
+   largest?» parrot0 propone «something is a largest», la lezione sbagliata
+   (`fallback_gap_offer` in 99-registry.c, `word_teaching_offer/2`).
+4. **L'oracolo come strumento scelto** (kb-code-emitter.md §7 punto 1).
+5. Reperti di comportamento non inseguiti: «what makes a rainbow?» -> «Tell me
+   what you'd like me to account for…»; «what does newtons second law
+   compute?» -> muro su «compute»; «mostrami … la legge della densità» ->
+   declino (la conosce, non con quel nome).
+
+## 3. Trappole di questo giro
+
+- ⚠ **Mostrare non e' creare.** `note_artifact` sul codice mostrato lo salvava
+  come artefatto creato; tolto.
+- ⚠ **Gli span del turno finivano nella KB** con `/save` (`turn_span*` non
+  erano `turn_scratch`); dichiarati. Prima di un `/save`, cercare
+  `current_turn` nel diff.
+- ⚠ Una richiesta di produzione contiene spesso la domanda che produce («che
+  calcola X»): la cornice delle domande ora cede la forza `production_request`
+  (turn-frames.p0), che si legge sulla POSIZIONE del verbo, non su una cue.
+
+---
+
+# 🌱 HANDOFF — 11 settembre 2026, sera (`gen512`): il buco tipato, 33/34, e il SEGNO D'USO REALE.
 
 La missione del gen511 continua (la teoria resta in
 `docs/plans/radici-insegnabilita.md`; **§4.5 è questo giro, con le misure**).

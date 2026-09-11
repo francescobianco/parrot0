@@ -4868,6 +4868,21 @@ typedef struct {
     size_t nops;
 } ShapeLang;
 
+/* gen512 — LEGAMI DI UNA FORMA PARAMETRICA. Una forma come `formula_function`
+ * ha buchi che non sono slot fissi della forma ma valori della richiesta: la
+ * lista dei parametri, l'espressione. Il chiamante li passa come coppie
+ * nome->valore (`code_synth_from_shape_bound`) e si applicano a firma e passi
+ * dopo gli slot, con la stessa sostituzione `{nome}`. Nessun nome e' noto qui:
+ * quali legami esistano lo decide la KB che li fornisce. */
+static const char *const *shape_bind_keys = NULL;
+static const char *const *shape_bind_vals = NULL;
+static size_t shape_nbinds = 0;
+static void shape_apply_binds(char *text, size_t sz) {
+    for (size_t i = 0; i < shape_nbinds; i++)
+        if (shape_bind_keys[i] && shape_bind_vals[i])
+            shape_subst(text, sz, shape_bind_keys[i], shape_bind_vals[i]);
+}
+
 static int shape_emit(KB *kb, ShapeLang *L, const char *shape,
                       const char *parent, const char *name, char comparator,
                       int depth, char *out, size_t sz, size_t *at);
@@ -4907,6 +4922,7 @@ static int shape_emit_node(KB *kb, ShapeLang *L, const char *shape,
     char cmp[2] = { comparator, '\0' };
     shape_subst(tplb, sizeof tplb, "name", name);
     shape_subst(tplb, sizeof tplb, "cmp", cmp);
+    shape_apply_binds(tplb, sizeof tplb);
 
     int n;
     if (L->indented) {
@@ -5039,6 +5055,7 @@ int code_synth_from_shape_lang(KB *kb, const char *lang, const char *shape,
     char cmp[2] = { comparator, '\0' };
     shape_subst(sigb, sizeof sigb, "name", name);
     shape_subst(sigb, sizeof sigb, "cmp", cmp);
+    shape_apply_binds(sigb, sizeof sigb);
 
     char body[8192]; size_t at = 0; body[0] = '\0';
     if (!shape_emit(kb, &L, shape, "root", name, comparator, 0, body, sizeof body, &at))
@@ -5078,6 +5095,19 @@ int code_synth_from_shape_lang(KB *kb, const char *lang, const char *shape,
 int code_synth_from_shape(KB *kb, const char *shape, const char *name,
                           char comparator, char *out, size_t out_sz) {
     return code_synth_from_shape_lang(kb, "c", shape, name, comparator, out, out_sz);
+}
+
+/* gen512 — la stessa emissione, con i legami della richiesta (vedi
+ * `shape_apply_binds`). Il confronto non serve a una forma senza confronti:
+ * si passa il valore neutro che l'emettitore accetta. */
+int code_synth_from_shape_bound(KB *kb, const char *lang, const char *shape,
+                                const char *name,
+                                const char *const *keys, const char *const *vals,
+                                size_t nbinds, char *out, size_t out_sz) {
+    shape_bind_keys = keys; shape_bind_vals = vals; shape_nbinds = nbinds;
+    int r = code_synth_from_shape_lang(kb, lang, shape, name, '>', out, out_sz);
+    shape_bind_keys = NULL; shape_bind_vals = NULL; shape_nbinds = 0;
+    return r;
 }
 
 int code_read_file(const char *path, char *buf, size_t bufsz) {

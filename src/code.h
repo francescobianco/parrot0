@@ -548,5 +548,11 @@ int code_synth_from_shape_lang(KB *kb, const char *lang, const char *shape,
                                char *out, size_t out_sz);
 int code_synth_from_shape(KB *kb, const char *shape, const char *name, char comparator,
                           char *out, size_t out_sz);
+/* gen512: la stessa emissione con legami nome->valore della richiesta, applicati
+ * a firma e passi come `{nome}` (una forma parametrica: `formula_function`). */
+int code_synth_from_shape_bound(KB *kb, const char *lang, const char *shape,
+                                const char *name,
+                                const char *const *keys, const char *const *vals,
+                                size_t nbinds, char *out, size_t out_sz);
 
 #endif /* PARROT0_CODE_H */
