@@ -1,5 +1,145 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🧭 HANDOFF — 12 settembre 2026 (`gen512`, undicesimo e dodicesimo giro): LA NEGAZIONE PARLATA E' CHIUSA, glm-test A DUE TERZI. RIPARTIRE DA QUI.
+
+> F.: «fixa tutti i problemi segnalati in docs/issues/glm-test.md, riparti da
+> LEARN_TODO.md, non fare sessioni di test lunghe — te lo dico io quando fare i
+> test, fai solo test puntuali». Poi, a meta' giro: «basta fare test, applica le
+> lezioni di apprendimento e la conoscenza nella KB; quando i prompt espliciti
+> funzionano come ti aspetti, allora se ti do il permesso potrai fare test
+> ampi». **Tutto committato e pushato. Verifica fatta a PROMPT, non a suite.**
+
+## ⚠ LA COSA DA CAPIRE PRIMA DI RIPRENDERE
+
+F. ha chiesto, giustamente: «quanto e' grave? mi sembravano semplicemente cose
+da imparare». La risposta e' la chiave di tutto il documento:
+
+**Quasi nessuna voce di glm-test e' conoscenza mancante. Sono strade rotte.**
+
+| il sintomo | la causa vera |
+|---|---|
+| «Is a wombat a marsupial?» → non so | aveva imparato la classe **«marsupial.»**, col punto attaccato |
+| «can birds fly?» → muro | due forme in KB si chiamavano **entrambe** `ability_asked` e si fondevano |
+| «do penguins live in **the** arctic?» → non so | cercava `habitat(penguins, **the** arctic)`; senza «the» rispondeva «Yes.» |
+| «They live in Antarctica.» → `antarctica live in antarctica` | il pronome prendeva per antecedente un nome che stava **dopo** di lui |
+| «the sky is not green» → muro | la positiva veniva riconosciuta e scartata **in silenzio** |
+
+`habitat(penguins, arctic)` era gia' in KB. Non si chiudono parlando perche'
+**insegnare passa dalla stessa strada rotta**: glielo dici, lui lo impara, e la
+domanda dopo non lo ritrova lo stesso. La cura e' quasi sempre poche righe; il
+costo e' TROVARE dove la strada si rompe — per il pronome e' servito un
+breakpoint, la risposta sbagliata nasceva cinque livelli sotto il modulo che
+sembrava colpevole (`coref_resolve`, non `mod_knowledge`).
+
+## Chiuso e verificato a prompt (commit 8a9b41d3, 2a6626d6)
+
+- **§3.2 + §3.3 — il finding #1 del documento, «si impara, non si ritira».**
+  La sonda B del §D, parola per parola:
+  ```text
+  No, penguins do not live in the Arctic. They live in Antarctica.
+    -> Learned: penguins do not live in the Arctic. Learned: penguins live in antarctica.
+  Do penguins live in Antarctica?   -> Yes.
+  Do penguins live in the Arctic?   -> No.
+  ```
+  Quattro strade riparate: l'articolo dentro l'oggetto (si sbuccia finche' c'e'
+  scorza, in qualunque ordine fra legante e determinante); il pronome che guarda
+  indietro (i nomi dopo il primo pronome entrano nella storia a turno CHIUSO,
+  dopo `coref_resolve`); chi e' stato negato resta un referente (`entity_role` +
+  `note_entity_seq` nella negazione, come nei frame); il rifiuto silenzioso
+  (`kb_journal_refused` lascia «!pred(a, b)» — «l'ho vista e ho scelto di non
+  tenerla» — e chi nega ci trova la proposizione da negare).
+  Di rimbalzo: «The sky is not green.» → «Is the sky green?» → **«No.»**,
+  «Is the sky blue?» → **«Yes.»** (la forma polare d'attributo ora sbuccia
+  l'articolo e legge la negazione detta).
+- **§5.3 abilita'**: «can birds fly?» → «Yes.»; «can fish fly?» dopo «fish cannot
+  fly» → «No.»; «can penguins fly?» → declinazione onesta. **Non era il C**:
+  `ability_asked` esisteva gia' come «what can X do?» e due forme con lo stesso
+  nome fondono pezzi e atti. Rinominata `ability_polar`.
+- **D1/D4 il punto finale**: «A wombat is a marsupial.» → «Is a wombat a
+  marsupial?» → «Yes.», «What is the wombat?» → «wombat is a marsupial.»
+- **D1 il «No.» non guadagnato**: «Is a wombat an animal?» ora declina. `animal`
+  ha una regola sola e nessun fatto, ma la regola poggia su `is_a_t`, che si
+  nutre di `is_a`, che riceve un fatto alla volta. **Una definizione e' chiusa
+  solo quanto cio' su cui poggia**: `class_rests_on_facts/1` (epistemic-status.p0)
+  + `kb_rule_body/2`, la riflessione che `kb_rule/2` aveva rimandato «finche'
+  nessun consumer lo chiede».
+- **D3 il token canonico**: «Imparato: libro rosso si trova in tavolo».
+- **handoff 1, «they eat fish.» → «A bear.»**: il ramo della dieta rispondeva a
+  chi non chiedeva.
+- **handoff 5, la congettura di flessione**: «se x è il genitore di y…» non
+  diventa piu' «Leggo «se» come «sa»» (`translation_guess_allowed/1`).
+- **Condotta della negazione (trovata da `calibrate.p0t`): negare non e'
+  correggere.** Ritirare sempre il positivo faceva sparire il CONFLITTO: «alice
+  is a person» + «alice is not a person» diventava «non ho nessun appoggio». Ora
+  ritira solo chi CORREGGE, e la lingua lo dice («No, …» in apertura).
+  `kb_assert_neg_only` e' la meta' additiva di `kb_assert_neg`.
+
+## ⛔ Aperto — in ordine di attacco (l'ordine del §C.4 del documento)
+
+1. **§4.2 numeri con ruoli — ERA IL PROSSIMO, DIAGNOSI A META'.**
+   «Tom has 12 apples.» → *«Learned: tom has 12 apples.»* ma «How many apples
+   does Tom have?» → *«I don't know how many apples tom has.»* — di nuovo
+   **conoscenza scritta in una forma e cercata in un'altra**. Il muro esce da
+   `src/brain/25-wordmath-reasoning.c:3922`
+   (`i_don_t_know_how_many_x_x_has`): da li' si guarda quale predicato
+   interroga, e si confronta con quello che l'asserzione scrive (trovarlo con un
+   breakpoint su `kb_assert if $_streq(args[0], "tom")` — serve un build
+   `CFLAGS='-std=c11 -w -O0 -g -DPARROT0_HAVE_CURL'`, **e un `rm -rf obj bin`
+   prima, altrimenti make non ricompila**). Solo DOPO ha senso il problema
+   vero del §4.2, la frase composta con due numeri e due ruoli.
+   Collegato: «I have 12 apples» legge «i» come articolo → *«A i has 12
+   apples»* (vedi la memoria «i put …», guardia di lingua assente).
+2. **§4.7 la facolta' di piano e' irraggiungibile da «how do I make X?»**.
+   `intent_cue(process_request, "how do i make")` **c'e' gia'** (intents.p0:3732)
+   ma il turno viene letto come `production_request` e i passi cedono
+   (`faculty_yield_force(process_steps, open, production_request)`,
+   turn-frames.p0:289). «What are the steps to make coffee?» risponde. Da
+   vedere: QUALE regola `turn_declared_act(_, production_request)` scatta su
+   «how do I make coffee?» (turn-frames.p0:212-252) — nessuna sembra doverlo
+   fare, quindi o e' una cue, o e' il C. **E «What do I need to do first?» non
+   e' una maniglia sul primo passo del piano in corso**: e' la famiglia delle
+   RISPOSTE DI RIPRESA che il §C.5 del documento chiede come classe a se'.
+3. **§5.2 comparativi**: «Tom baked a cake and gave half to Anna. Who has less
+   cake?» → muro.
+4. **§4.5 multi-obiettivo**: «What is your name and where do you live and what
+   can you do?» → una risposta sola, non pertinente.
+5. **§3.5 + D2 (servono la rete)**: conoscenza fresca invisibile alla forma
+   nuova (Eiffel), e il menu di disambiguazione che non consuma la scelta. D2 e'
+   la stessa famiglia di ripresa del punto 2.
+6. **§6.1 minuscole in output**, e la resa italiana delle chiavi inglesi.
+7. **Costo**: `taught_rules.p0t` riga 39 e' un timeout (1.05 s su 1.00 s), non un
+   errore — 6-13 ricostruzioni dell'indice a turno, una per `kb_retract`.
+
+## Stato dei banchi — DA LEGGERE PRIMA DI LANCIARLI
+
+Nessuna suite lanciata nella seconda meta' del giro (richiesta di F.). L'ultimo
+stato noto, prima delle correzioni di condotta della negazione:
+
+- `earned_negation.p0t` **31/31 verde** (era 30/31).
+- `calibrate.p0t` era 14/20 e le correzioni di condotta ne hanno recuperati una
+  parte; **non riverificato dopo le ultime tre modifiche**. Due dei rossi
+  restanti sono attesi e **il banco potrebbe avere torto, non il motore**:
+  - riga 41, «is zara a dog?» attende «No.» e ora riceve la declinazione
+    onesta — e' proprio la cura chiesta dal §3.1 del documento, arrivata da
+    `class_rests_on_facts`. Il banco registra il comportamento vecchio;
+  - riga 51, «is alice a person?» attende «No.» e riceve «Conflicted.», che e'
+    piu' onesto quando si tengono entrambe le polarita'.
+  **Decidere con F. prima di toccare l'uno o l'altro.**
+- `soft-test` verde in 8 s all'inizio del giro; `taught_rules.p0t` 13/14.
+
+## Come si verifica a prompt (lo strumento di questo giro)
+
+```sh
+printf '%s\n' "<riga 1>" "<riga 2>" '/quit' | \
+  PARROT0_SESSION= PARROT0_WIKI_FETCH=0 PARROT0_TOOLS=1 PARROT0_LANG=en \
+  PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+```
+
+`P0_READ_TRACE=1` aggiunge `[negation]`, `[form]`, `[compound]`, `[canon]`.
+`who answered?` dice il modulo; `/debug` apre le sonde.
+
+---
+
 # 🧭 HANDOFF — 11 settembre 2026, notte (`gen512`, decimo giro): LO SCENARIO E' VERDE, LA NEGAZIONE PARLATA E' NATA, glm-test A META'. RIPARTIRE DA QUI.
 
 > F.: «continua da LEARN_TODO.md e poi fixa tutti i problemi segnalati in

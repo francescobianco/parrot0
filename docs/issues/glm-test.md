@@ -56,6 +56,33 @@
 
 ---
 
+> ## ✅ ESITO DELLA LAVORAZIONE — 12 settembre 2026 (`gen512`, undicesimo e dodicesimo giro)
+>
+> Commit `8a9b41d3` e `2a6626d6`. **Nove voci chiuse, verificate a PROMPT con le
+> sonde del §D — nessuna suite** (politica dei test di F.).
+>
+> | § | esito |
+> |---|---|
+> | **3.2 + 3.3** | **il finding #1 e' chiuso.** Sonda B parola per parola: «No, penguins do not live in the Arctic. They live in Antarctica.» → *«Learned: penguins do not live in the Arctic. Learned: penguins live in antarctica.»*; «Do penguins live in Antarctica?» → **«Yes.»**; «Do penguins live in the Arctic?» → **«No.»**. E «The sky is not green.» → «Is the sky green?» → **«No.»**, «Is the sky blue?» → **«Yes.»** |
+> | **5.3** | «can birds fly?» → «Yes.»; «can fish fly?» dopo «fish cannot fly» → «No.»; ignoto → declinazione onesta. Non era il C: due forme in KB con lo STESSO nome (`ability_asked`) fondevano pezzi e atti |
+> | **D1** (polare sull'insegnato) | «A wombat is a marsupial.» → «Is a wombat a marsupial?» → **«Yes.»**. Il punto che chiude la frase restava attaccato all'ultima parola: la classe imparata era «marsupial.» |
+> | **D1** (il «No.» non guadagnato) | «Is a wombat an animal?» ora declina. Una definizione e' chiusa solo quanto cio' su cui poggia: `animal` poggia su `is_a_t`, che si nutre di `is_a`, che riceve un fatto alla volta |
+> | **D3** | «Imparato: **libro rosso** si trova in tavolo» — la chiave non parla piu' all'utente |
+> | **D4** | «What is the wombat?» → «wombat is a marsupial.» — un punto solo |
+> | (handoff) | «penguins live in antarctica. they eat fish.» non risponde piu' «A bear.» |
+>
+> **La lezione del giro, per chi legge il documento:** quasi nessuna di queste
+> voci era conoscenza mancante. `habitat(penguins, arctic)` era GIA' in KB, e
+> «do penguins live in **the** arctic?» non lo trovava perche' cercava
+> `habitat(penguins, the arctic)`. Sono **strade rotte, non lacune** — ed e'
+> per questo che non si chiudono parlando: insegnare passa dalla stessa strada.
+>
+> Restano aperte, in ordine: **4.2** (numeri con ruoli — diagnosi a meta': «Tom
+> has 12 apples» si impara e «How many apples does Tom have?» non lo trova),
+> **4.7** (il piano irraggiungibile da «how do I make X?» e «first» senza
+> maniglia), **5.2**, **4.5**, **3.5** e **D2** (servono la rete), **6.1**.
+> Diagnosi e ordine di attacco in `LEARN_TODO.md`, handoff del 12 settembre.
+
 # ANALISI CRITICA — nuova intervista dell'11 settembre 2026 (`gen512`), `make chat` soltanto
 
 > Autore: Buffy (GLM, agente Freebuff). Stesso metodo del report: sonde via pipe
