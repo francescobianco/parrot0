@@ -280,7 +280,45 @@ ed esterne alla KB (lead di Wikipedia, fonti in `ladder/SOURCES.md`), una per
 piolo, **intere e coerenti, mai troncate**: leggere un frammento e' un problema
 diverso e si affronta dopo questo traguardo.
 
-Stato misurato dopo otto iterazioni (12 settembre):
+> ## ✅ TRAGUARDO — 12 settembre 2026: **153 parole, 4 domande su 4**
+>
+> ```text
+> tests/fixtures/prose/ladder/r150.txt — meridiana, 153 parole
+> (lead di https://en.wikipedia.org/wiki/Sundial, esterno alla KB)
+>
+>   What is a sundial?                        ->  sundial is a horological device.
+>   What does a sundial consist of?           ->  Flat plate.
+>   What does the gnomon cast?                ->  Broad shadow.
+>   What does the shadow of the style show?   ->  time.
+> ```
+>
+> Le quattro risposte vengono da **quattro frasi diverse** del testo, non dal
+> solo incipit; il banco rifiuta i muri che contengono la parola attesa, quindi
+> il 4/4 non e' regalato; la KB e' quella viva e intera; la prosa e' quella che
+> Wikipedia pubblica, senza troncamenti.
+>
+> **Che cosa e' servito, in undici iterazioni** — e nessuna di queste era
+> «conoscenza mancante»: erano tutte strade rotte, e quattro erano difetti
+> introdotti dal lavoro dei giorni prima.
+>
+> | # | la cura |
+> |---|---|
+> | 1 | «What is **a** X?» non rispondeva nemmeno per `dog` (disattivata di proposito per la lettura di appartenenza, che pero' non aveva niente da elencare) |
+> | 2 | la relativa ridotta e' una **seconda proposizione** sullo stesso soggetto |
+> | 3 | la definizione **con la coda** («a device used to weave cloth») veniva delegata a valle, dove la coda non si legge |
+> | 4 | il **passivo** insegnato come inverso dell'attivo |
+> | 5 | il **passato** di un verbo di relazione chiede la stessa cosa (`past/2` era un fatto senza consumatori) |
+> | 6 | ⚠ un sintagma nominale **non contiene un verbo finito** — chiuso un FATTO FALSO |
+> | 7 | le superfici di **domanda**, e il classificatore che non e' la classe |
+> | 8 | il tetto del nome di una classe (3 → 4 parole), e la prosa lunga senza copula |
+> | 9 | l'avverbiale che apre la frase non e' il soggetto |
+> | 10 | ⭐ il **soggetto con un sintagma dentro** — «the shadow of the style» |
+> | 11 | ⭐ l'**inciso** che apre la frase non e' la frase (`adjunct_peel`) |
+>
+> E il banco stesso e' stato corretto due volte: rifiutava i muri solo dopo
+> l'iterazione 5, e prima regalava un ✓ a una risposta che non c'era.
+
+Stato misurato dopo otto iterazioni (12 settembre, PRIMA delle iterazioni 9-11):
 
 | piolo | testo | parole | esito |
 |---|---|---|---|
