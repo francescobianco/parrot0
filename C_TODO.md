@@ -2046,6 +2046,16 @@ cambia, la cache cade.
 > verbo insegnato non veniva più letto. Verde e sbagliata: la sonda che l'ha
 > presa è `> zorble is a relation verb` seguito dall'uso.
 
+> ✅ **Chiuso il 2026-09-12 (the-magic-of-apply, seconda sessione): la firma
+> non esiste più.** Era un elenco C di famiglie generatrici, e mancava proprio
+> quella di un nome relazionale insegnato: «weft is a relation» genera lo schema
+> via `relation/1` → `relation_noun/2`, la stazza non cambiava e il lettore non
+> vedeva lo schema (`weft(flax)` al posto di `weft_of(linen_cloth, flax)`). La
+> cache ora usa `kb_view_stamp(kb, "extract_frame")`: l'orologio di
+> invalidazione della vista materializzata, il cui grafo delle dipendenze è
+> derivato dai corpi delle regole. Nessun elenco da tenere allineato. Prova:
+> `tests/p0t/reasoning/living_capabilities.p0t`, blocco del nome insegnato.
+
 **Resta da fare**: indicizzare gli schemi per la loro **parola-ancora** invece
 di scorrerli tutti. Uno schema che nomina una parola che il turno non contiene
 non può combaciare, e oggi lo si scopre confrontandolo. È il lavoro che rende

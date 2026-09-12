@@ -191,6 +191,7 @@ typedef struct {
     char (*deps)[KB_TERM_LEN];
     size_t ndeps, dep_cap;
     int live, building, dirty, attempted, broad;
+    size_t stamp;          /* kb->view_clock at the last invalidation */
 } KbView;
 
 struct KB {
@@ -238,6 +239,7 @@ struct KB {
     KbView *views;
     size_t nviews, view_cap;
     int views_loaded, views_reload, views_pending, views_preparing;
+    size_t view_clock;     /* grows on every view invalidation, never resets */
     size_t n_derived;      /* fatti con origine KB_DERIVED, esclusi dalla revisione */
 
     /* Turn-local metadata; the fact-table mutation happens once at commit. */
@@ -843,6 +845,7 @@ static void kb_views_changed(KB *kb, const char *pred) {
         v->live = 0;
         v->dirty = 1;
         v->attempted = 0;
+        v->stamp = ++kb->view_clock;
         kb->views_pending = 1;
     }
 }
@@ -2777,6 +2780,7 @@ static void kb_views_load(KB *kb) {
         snprintf(v->pred, sizeof v->pred, "%s", f->args[0]);
         v->argc = (size_t)ar;
         v->broad = 1;             /* no dependency graph compiled yet */
+        v->stamp = ++kb->view_clock;  /* a reloaded view is a new one */
     }
 }
 
@@ -2998,6 +3002,14 @@ void kb_views_warm(KB *kb) {
  * invalidare la vista dall'atto stesso di costruirla. */
 size_t kb_revision(const KB *kb) {
     return kb ? kb->n + kb->nr - kb->n_derived : 0;
+}
+
+/* The stamp changes exactly when the view's structural dependencies change,
+ * so a consumer cache keyed on it expires on the same knowledge as the view. */
+size_t kb_view_stamp(const KB *kb, const char *pred) {
+    if (!kb || !pred || !kb->views_loaded) return 0;
+    size_t k = kb_view_slot(kb, pred);
+    return k == (size_t)-1 ? 0 : kb->views[k].stamp;
 }
 
 int kb_retract_clause(KB *kb, const KbGoal *head,

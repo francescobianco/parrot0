@@ -20,138 +20,120 @@ Non certifica abduzione generale o autonomia nell'apprendimento.
 
 ## Handoff — riprendere da qui
 
-**Stato al 12 settembre 2026, interruzione richiesta da F.** Consegna richiesta:
-**commit e push dell'intera patch su `main`, senza eseguire altri test**.
-F. riprenderà le verifiche. Il commit di consegna include questo handoff;
-consultare la storia Git per il suo identificativo.
-La missione resta rendere la KB viva;
-questo incremento riguarda scoperta delle capacità, accesso alle relazioni e
-spiegazione di chiamate dinamiche. Non ricominciare dal progetto di un secondo
-solver o di un secondo lettore.
+**Stato al 12 settembre 2026, seconda sessione.** La prima sessione aveva
+consegnato la patch su `main` (`632a070e`) senza `soft-test` né test adiacenti
+e con un difetto aperto: la lettura di una frase che usa un nome relazionale
+**insegnato**. Questa sessione ha eseguito il piano di verifica e chiuso il
+difetto. La missione resta la KB viva; non ricominciare dal progetto di un
+secondo solver o di un secondo lettore.
 
-### Modifiche già presenti
+### Che cosa è stato verificato (punti 2–4 del vecchio handoff)
 
-| file | modifica |
-|---|---|
-| `kb/core/inference-capabilities.p0` — nuovo | catalogo derivato con arità e origine; invocazione; sorgenti di scoperta; domande EN/IT e metadati degli slot |
-| `kb/core/procedures.p0` | include del nuovo file; `between_rel` enumera il catalogo e continua a usare `holds` |
-| `kb/core/messages.p0` | il soggetto di `ask_between` passa da `slot` a `span` |
-| `src/brain/10-memory-knowledge.c` | il matcher consuma `turn_form_slot_form(Forma, Slot, atom)` e conserva le chiavi dei sintagmi |
-| `src/kb.c` | `kb_explain` attraversa `apply/2` insieme a `call/1`, mantenendo sostituzioni e continuazione |
-| `tests/p0t/reasoning/living_capabilities.p0t` — nuovo | regressione sulla KB completa, insegnamento, ablazioni e prove dinamiche |
-| questo documento | revisione delle ipotesi, contratti eseguibili, limiti e agenda del motore |
+- **Nessuna regressione della patch `apply`.** `make soft-test` è rosso, ma
+  identico sul commit precedente `742327d6`: `basics.p0t` sfora il limite di
+  1 s su due turni. Stesso esito per `howknow.p0t`, `taught_lesson_form.p0t`
+  115/131, `deepreason.p0t`, `taught_lexicon.p0t`. Dettaglio in `TEST_TODO.md`
+  in testa. Verdi: `facts`, `model_graph`, `materialized_view`,
+  `higher_order_lesson`, `structural_reader_live`, `taught_turn_form`.
+- **Ablazione isolata del modo `atom`.** Con la forma, la precedenza e la
+  risposta intatte, ritirare soltanto `turn_form_slot_form(F, subject, atom)`
+  fa tornare «haven't established» su *calcium carbonate* e *william
+  shakespeare*. Il contratto è necessario, non decorativo.
+- **Portatori reali via `capability_call`.** `shape_formula`, `law_formula`,
+  `law_prose` e `mechanics_concept` rispondono attraverso il contratto; famiglia
+  o arità sbagliata non producono prove. `taught_formula` è registrato e vuoto
+  al boot, come deve: nasce dalle lezioni.
 
-Non ci sono nuove parole naturali compilate nel C. Le aggiunte C sono
-meccaniche di rappresentazione degli slot e attraversamento delle prove.
-Il catalogo comprende inizialmente relazioni binarie, modelli e prosa dei
-modelli; **non tutti i consumatori esistenti sono stati migrati al catalogo**.
-`about/3`, per esempio, conserva il proprio percorso precedente.
+### Il difetto nominale: chiuso, ed era di classe
 
-### Verifica completata e verifica ancora da fare
+Il vecchio handoff chiedeva di «trovare chi non usa lo schema». Lo schema
+`the weft of @S is @O` esisteva e `!query` lo derivava, ma il **lettore** non lo
+vedeva. `p0_frame_patterns` (`src/brain/10-memory-knowledge.c`) tiene in cache
+gli schemi di `extract_frame/2`. La chiave era la **stazza di quattro famiglie
+scritte nel C**: `relation_verb`, `verb_particle`, `irregular_verb_form`,
+`past`. «weft is a relation» genera lo schema passando per `relation/1` e
+`relation_noun/2`, assenti dall'elenco. La cache non cadeva, e la frase finiva
+nel lettore delle classi: `weft(flax)`. Contare i fatti, inoltre, non vede un
+ritiro seguito da un'aggiunta.
 
-Ultima esecuzione riuscita:
+Non era un buco di `weft`: valeva per **ogni famiglia generatrice non elencata**,
+compresi i fatti `extract_frame` insegnati e le regole future. Era la stessa
+lista che il gen510 aveva già sbagliato una volta, sull'arità di `relation_verb`.
 
-```text
-make test-engine
-  health.p0t — 2 passed
-./bin/parrot0 --test tests/p0t/reasoning/living_capabilities.p0t
-  living_capabilities.p0t — 33 passed
-```
+**Il rimedio non aggiunge `relation` alla lista: la toglie.** Il motore mantiene
+già, per la vista `materialized_view(extract_frame, 2)`, il grafo delle
+dipendenze derivato dai corpi delle regole più `view_depends/2`, e la invalida
+sul cambiamento. Ora ogni invalidazione stampa un orologio monotono
+(`KbView.stamp`, `kb_view_stamp` in `src/kb.h`), e la cache del Brain usa quel
+timbro. Una famiglia generatrice nuova, fatto o regola, la fa cadere senza
+toccare il C. Senza la vista dichiarata la cache non ha chiave e si rideriva:
+più lento, mai cieco. Misurato: una sola ricostruzione per `!reset`, nessuna
+per turno; tempi di `basics.p0t` invariati.
 
-Build riuscita. Nei log di boot esaminati non sono comparsi `PARSE ERROR`.
-**Non sono ancora stati eseguiti `make soft-test` e i test di regressione
-adiacenti dopo la patch.** La suite completa non è stata lanciata. Dopo la
-richiesta finale di F. non vengono eseguiti altri test: le verifiche sotto
-sono un piano per la ripresa, non condizioni per il commit e il push.
+**Secondo difetto trovato nel percorso, stessa classe «dire ≠ scrivere»:** il
+lettore posizionale `X is the R of Y` salvava `currency_of(ruritania, zlot)`
+nel verso dichiarato, ma annunciava «the currency of zlot is ruritania». Ora
+annuncia gli argomenti scritti. È un misclaim su ciò che si è appena imparato,
+cioè il caso peggiore del mantra #7.
 
-I casi naturali verificati comprendono:
+Prova in `living_capabilities.p0t`, ora **55 asserti**: lettura multiparola,
+domanda, ricerca della relazione, ritiro con caduta della cache (una frase
+nuova non si legge più come `weft_of`), conferma nel verso del fatto. **I
+blocchi nuovi falliscono 9 asserti sul C precedente**: la verifica differenziale
+è stata eseguita, non presunta.
 
-- «what is the relation between ghana and cedi?» → relazione di valuta;
-- «what is the relation between william shakespeare and hamlet?» → autore;
-- «what holds between calcium carbonate and oxygen?» → `contains`;
-- «che relazione c'è tra ghana e cedi?» → risposta contenente «valuta»;
-- un verbo nuovo insegnato, usato in una frase, ricercato e poi ritrattato.
+### Reperti lasciati aperti (non inseguiti: un circuito per sessione)
 
-I simboli inventati nei test provano soltanto meccanica e crescita a runtime.
-Le prove sui fatti reali non iniettano il risultato atteso.
-
-### Il difetto incontrato e NON risolto
-
-La lezione «weft is a relation» funziona: genera `relation_noun(weft_of, weft)`,
-lo schema `extract_frame("the weft of @S is @O", weft_of)` e il candidato del
-catalogo. **La lettura della prosa che usa il nome nuovo non è chiusa.**
-
-Riproduzione osservata con KB completa:
-
-```text
-> weft is a relation
-Learned: weft is a relation.
-
-> flax is the weft of linen cloth
-Learned: flax is a weft.
-
-kb.match weft_of(_, _) → nessun risultato
-
-> read: The weft of linen cloth is flax.
-Learned 0 fact(s), skipped 1.
-```
-
-La frase nominale viene degradata ad appartenenza di classe, perdendo il
-complemento. La presenza dello schema non basta a renderlo effettivamente
-usato. **Non cambiare l'atteso in `weft(flax)` e non asserire a mano
-`weft_of(linen_cloth, flax)` per chiamare chiuso il problema.** Il test definitivo
-separa onestamente la crescita del catalogo nominale dal ciclo completo,
-che è provato sul verbo nuovo. L'end-to-end nominale resta da aggiungere
-quando il lettore reale sarà corretto.
-
-Un'altra correzione del piano: il fatto `made_of(coral, calcium_carbonate)`
-non è stato trovato. L'esempio iniziale sul corallo non è una prova acquisita.
-`provides/2` esiste già per le risorse degli habitat: non riusarlo come
-registro delle capacità.
+1. **La lezione di formula apprende e risponde con un muro.** «the power is
+   work divided by time» asserisce `taught_formula(power, power, …)`, ma la
+   risposta è «Hmm, I don't know about divided yet…»; «the momentum is mass
+   times velocity», l'esempio canonico di `model-lesson.p0`, risponde «I don't
+   understand that yet». Il file dichiara `turn_response/2` proprio per evitare
+   questo muro: la risposta si perde nell'arbitrato. «forget that …» non ritira
+   la formula. **Nessun `.p0t` copre `model_lesson`**, quindi la regressione è
+   passata in silenzio. Chiuderla richiede prima di tutto un cricchetto.
+2. **`make soft-test` rosso per tempo** (preesistente): profilare
+   «is a tiger a mammal» con `/debug` prima di toccare altro.
+3. **La resa vuota mostra la chiave**: a modo `atom` ritirato, `between_unknown`
+   dice «from calcium_carbonate to oxygen», con il trattino basso.
+4. **Esiti epistemici ed albero di prova strutturato** (Parte V §5.1, §5.3):
+   restano il prossimo incremento del motore. `kb_rule_body/2` da solo **non**
+   dimostra che una premessa sbloccherebbe una conclusione.
 
 ### Prossime azioni, in ordine
 
-1. Leggere `MANTRA.md` e `PRINCIPLES.md`, poi controllare `git diff`: le
-   modifiche di questo handoff sono nel commit di consegna su `main`: leggere
-   anche `git show` e preservare eventuali modifiche successive.
-2. Eseguire `make soft-test` con il suo budget invariato. Poi verificare i
-   percorsi adiacenti, in particolare `tests/p0t/proof/howknow.p0t`,
-   `tests/p0t/knowledge/model_graph.p0t` e il matcher delle forme insegnate
-   (`tests/p0t/language/taught_lesson_form.p0t`). Non avviare la suite intera
-   come verifica rapida.
-3. Rivedere il contratto `atom` e verificare esplicitamente che ritirarlo
-   riapra il difetto dei sintagmi, mantenendo distinta la conservazione di
-   prosa citata. Il test corrente copre il risultato positivo e l'ablazione
-   della forma, non ancora l'ablazione isolata del modo `atom`.
-4. Aggiungere una prova diretta dei portatori `model`/`model_prose` attraverso
-   `capability_call`, usando i modelli reali. La regressione corrente prova
-   il contratto generico con una famiglia aggiunta a runtime e la scoperta
-   delle relazioni, non tutta la matrice delle famiglie iniziali.
-5. Diagnosticare la lettura nominale dal matcher condiviso e dalla selezione
-   dei percorsi. Lo schema c'è già: trovare chi non lo usa o chi intercetta la
-   frase. Correggere il circuito generale, poi estendere il test con lettura,
-   risposta, ritrattazione e casi nuovi.
-6. Dopo la verifica, aggiornare questo referto e valutare l'incremento
-   successivo della Parte V: esiti epistemici e prove strutturate, poi vista
-   completa delle clausole e residui. `kb_rule_body/2` da solo **non** dimostra
-   che una premessa sbloccherebbe una conclusione.
+1. Leggere `MANTRA.md`, poi `git log -3` e `git show` per questa consegna.
+2. Reperto 1: scrivere il `.p0t` della lezione di formula (lezione, risposta,
+   codice, ritiro), vederlo rosso, poi cercare chi ruba il turno. Per il #21
+   la domanda è se il ladro è un modulo immaturo, da retrocedere, o maturo, a
+   cui insegnare una cessione.
+3. **Massimizzare il circuito nominale** (mantra #22): altri nomi relazionali
+   insegnati in forme diverse (plurale, italiano con `relation_noun_it`,
+   prefisso di stipulazione, `relation_value_first` insegnato), su prosa vera
+   con `read:`, controllando sempre la resa.
+4. Poi la Parte V: esiti epistemici e prove strutturate, quindi la vista delle
+   clausole complete.
 
 ### Note pratiche per ripetere i test
 
-Il test engine usa `obj/test-engine.sock`. In questa sessione il sandbox ha
-rifiutato il bind con `Operation not permitted`: la verifica riuscita è stata
-eseguita con escalation per il socket locale. Se il processo non sopravvive
+Il test engine usa `obj/test-engine.sock`. Se il processo non sopravvive
 alla fine della chiamata shell, avviare engine e test nella stessa chiamata:
 
 ```sh
 make test-engine && ./bin/parrot0 --test tests/p0t/reasoning/living_capabilities.p0t
 ```
 
-`!timeout` vale per il singolo blocco `[test …]`, non per tutto il file: i nuovi
-blocchi lo dichiarano ciascuno. `[mock live]` mantiene la KB completa; non
-svuotare profilo o mondo per far sparire interferenze. I tentativi diagnostici
-in `/tmp/apply-*.p0t` contengono aspettative `TESTOUTPUT` intenzionalmente false:
-non sono regressioni da adottare né test da eseguire in una suite.
+Per confrontare con il commit precedente senza toccare l'albero:
+`git stash push src/…` + `make build` + `make test-engine`, oppure un
+`git worktree` nello scratchpad. Ogni worktree lascia un proprio demone:
+va ucciso.
+
+`!timeout` vale per il singolo blocco `[test …]`, non per tutto il file. Il test
+engine è fail-fast **dentro il blocco**: un turno che sfora nasconde gli
+asserti successivi, ed è così che il rosso di `taught_lexicon` 89 sembrava
+nuovo. `[mock live]` mantiene la KB completa; non svuotare profilo o mondo per
+far sparire interferenze. `kb.match` via `!mcp` con argomenti `$X` ha tornato
+`bindings: []` anche su fatti presenti: per le prove usare `!query`/`!query!`.
 
 ---
 
@@ -359,10 +341,13 @@ un sistema di tipi né una prova di purezza, terminazione o correttezza del
 portatore. Registrare un predicato non garantisce che produrrà un risultato.
 
 **Due livelli di crescita, da non confondere.** Una nuova relazione nominale
-entra nel catalogo già parlando: «weft is a relation». Questa prova certifica
-la registrazione, non ancora la lettura della frase nominale che la usa: il
-problema osservato è descritto nell'handoff. Il ciclo completo di fatto,
-ricerca e ritrattazione è verificato con un verbo insegnato parlando.
+entra nel catalogo già parlando: «weft is a relation». Dalla seconda sessione
+anche la lettura che la usa è chiusa: «flax is the weft of linen cloth» scrive
+`weft_of(linen_cloth, flax)`, la domanda risponde, la ricerca trova «weft» e il
+ritiro fa cadere sia il candidato sia lo schema del lettore (vedi l'handoff:
+il difetto era una cache chiavata su una lista C). Il ciclo completo di fatto,
+ricerca e ritrattazione è verificato sia con un nome sia con un verbo insegnato
+parlando.
 La nuova famiglia di capacità è invece verificata mediante asserzioni
 strutturali. È una porta del motore aperta a runtime; manca ancora la lezione
 naturale generale per dichiarare contratti e registri senza conoscerne lo schema.
@@ -454,6 +439,9 @@ diversi:
 | Ghana → cedi; William Shakespeare → Hamlet | accesso a conoscenza relazionale già presente, tramite prompt naturale |
 | calcium carbonate → oxygen | la domanda esistente conserva i verbi e acquisisce soggetti composti |
 | nome relazionale insegnato e ritirato | la registrazione nel catalogo cresce parlando e scompare dopo la ritrattazione |
+| nome insegnato, frase multiparola, domanda, ricerca, ritiro | lo schema derivato arriva al lettore nel turno stesso e ne esce col ritiro; la conferma dice il fatto nel verso scritto |
+| modo `atom` ritirato da solo | il contratto di rappresentazione dello slot è necessario: senza, i sintagmi tornano testo e la ricerca fallisce |
+| portatori reali di `model` e `model_prose` | le famiglie iniziali passano dallo stesso contratto; famiglia o arità sbagliata non prova |
 | verbo nuovo, fatto naturale, ricerca e ritrattazione | il fatto rimane, ma la ricerca perde il candidato quando si ritira la dichiarazione del verbo |
 | nuova famiglia e nuovo registro, poi ablazione | crescita meccanica del catalogo; non certifica insegnamento naturale dei contratti |
 | arità errata e argomenti invertiti | una registrazione non autorizza chiamate fuori contratto |

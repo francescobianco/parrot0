@@ -1,5 +1,27 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+**the-magic-of-apply, ripresa (2026-09-12)**: `living_capabilities.p0t` 33 →
+**55** (ciclo nominale completo, conferma nel verso del fatto, ablazione
+isolata del modo `atom`, portatori reali di `model`/`model_prose`); i blocchi
+nuovi falliscono 9 asserti sul C precedente (verifica differenziale). Verdi:
+facts 9, model_graph 47, materialized_view 8, higher_order_lesson 11,
+structural_reader_live 12, taught_turn_form 4. **Rossi preesistenti,
+verificati identici sul commit `742327d6` (prima della patch `apply`):**
+- `make soft-test` ROSSO: `basics.p0t` [taxonomy] e [antonym], turni da
+  1.10–1.25 s su un limite di 1.0 s. Non e' un caso: e' il costo del turno.
+  Da profilare con `/debug`, non da coprire alzando il limite.
+- `proof/howknow.p0t` 0/4: la resa e' «Because quux(zibo).» invece di
+  «Directly: …»/«By N steps of reasoning: …», e «plouf is a warg» riceve la
+  resa epistemica lunga invece di «I can't show that.» — attese da rivedere o
+  resa regredita: da decidere.
+- `language/taught_lesson_form.p0t` righe 115 e 131 (gen512 «un buco vale per
+  il referente che la forma dichiara»).
+- `reasoning/deepreason.p0t` 3/4 rossi: «I couldn't find a source to reason
+  about …» (mock senza sorgenti?).
+- `language/taught_lexicon.p0t`: 88/89 («Learned: leak trigger outage.» contro
+  l'atteso predicativo — lo schema `@S trigger @O` c'era gia'), 94 («Leak.»
+  maiuscolo), 153/157/168 tempi.
+
 **gen512, settimo giro (2026-09-11)**: `behavior_gen512.p0t` +1 blocco
 (turno di lezione, «ehi» davanti a una domanda). Lotto verde: behavior_gen512,
 taught_lesson_form 42, accentless_copula 9, structural_reader_live 12,

@@ -400,6 +400,13 @@ size_t kb_revision(const KB *kb);
  * non analizzabili: in quei casi si continua con l'inferenza ordinaria. */
 int kb_view_ensure(KB *kb, const char *pred);
 
+/* Un timbro che cambia quando la vista di `pred` viene invalidata, cioe' quando
+ * cambia uno qualunque dei predicati da cui dipende (grafo strutturale delle
+ * regole piu' `view_depends/2`). Chi tiene una copia delle soluzioni la chiava
+ * qui invece che su un proprio elenco di dipendenze. 0 = nessuna vista
+ * dichiarata: la copia non ha una chiave onesta e non va tenuta. */
+size_t kb_view_stamp(const KB *kb, const char *pred);
+
 /* Costruisce subito ogni vista dichiarata: si chiama a fine boot, cosi' il
  * costo del congelamento e' avvio e non un turno. */
 void kb_views_warm(KB *kb);

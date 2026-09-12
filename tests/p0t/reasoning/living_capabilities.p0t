@@ -24,6 +24,41 @@
 > forget that weft is a relation
 !query! capability_provider(binary_relation, weft_of, 2)
 
+# Il ciclo completo sul nome: lo schema derivato da `relation/1` deve arrivare
+# al LETTORE nel turno stesso, non solo a `!query`. Il difetto era la cache
+# degli schemi chiavata su un elenco C di famiglie generatrici senza `relation`:
+# «flax is the weft of linen cloth» diventava `weft(flax)`. Dopo il ritiro la
+# stessa cache deve cadere: una frase nuova non si legge piu' come relazione.
+[test un nome relazionale insegnato si legge, si chiede, si cerca e si ritira]
+!timeout 8
+> weft is a relation
+> flax is the weft of linen cloth
+<~ the weft of linen cloth is flax
+!query weft_of(linen_cloth, flax)
+!query! weft(flax)
+> what is the weft of linen cloth?
+<~ flax
+> what is the relation between linen cloth and flax?
+<~ weft
+> the weft of silk is cotton
+!query weft_of(silk, cotton)
+> forget that weft is a relation
+!query weft_of(linen_cloth, flax)
+> what is the relation between linen cloth and flax?
+<~ haven't established
+> the weft of denim is cotton
+!query! weft_of(denim, cotton)
+
+# La conferma dice il fatto SCRITTO: il lettore posizionale salvava nel verso
+# dichiarato e annunciava nel verso della frase.
+[test la conferma di X is the R of Y rispetta il verso del fatto]
+!timeout 6
+> weft is a relation
+> flax is the weft of linen
+<~ the weft of linen is flax
+!query weft_of(linen, flax)
+> forget that weft is a relation
+
 [test una relazione verbale insegnata viene cercata e ritirata]
 !timeout 6
 > bindles is a relation verb
@@ -105,3 +140,40 @@
 !expect mcp "provable":false
 !mcp kb.explain {"pred":"apply","args":["dynamic_evidence","cons(alpha, cons(beta, cons(c, cons(d, cons(e, nil)))))"]}
 !expect mcp "provable":false
+
+# Il modo `atom` e' parte del contratto della forma: ritirato da solo (la forma,
+# la precedenza e la risposta restano) il soggetto composto torna testo citato
+# e la ricerca non trova piu' la relazione che la KB tiene.
+[test il modo atom dello slot, ritirato da solo, riapre il difetto dei sintagmi]
+!timeout 8
+!assert turn_form(atom_probe_question, 1, text("which link joins"))
+!assert turn_form(atom_probe_question, 2, span(subject))
+!assert turn_form(atom_probe_question, 3, text("and"))
+!assert turn_form(atom_probe_question, 4, rest(object))
+!assert turn_form_act(atom_probe_question, "op(match, between_relation_name, [subject, object, free])")
+!assert turn_form_reply(atom_probe_question, between_list)
+!assert turn_form_empty_reply(atom_probe_question, between_unknown)
+!assert turn_form_priority(atom_probe_question, early)
+!assert turn_form_slot_form(atom_probe_question, subject, atom)
+> which link joins calcium carbonate and oxygen?
+<~ contains
+> which link joins william shakespeare and hamlet?
+<~ author
+!forget turn_form_slot_form(atom_probe_question, subject, atom)
+> which link joins calcium carbonate and oxygen?
+<~ haven't established
+> which link joins william shakespeare and hamlet?
+<~ haven't established
+!forget turn_form(atom_probe_question, 1, text("which link joins"))
+
+# I portatori REALI delle famiglie iniziali, attraverso lo stesso contratto:
+# geometria, fisica e prosa dei modelli. Famiglia o arita' sbagliata: nessuna prova.
+[test i portatori reali di model e model_prose rispondono via capability_call]
+!timeout 6
+!query capability_call(model, shape_formula, cons(circle_area, cons(circle_area, cons($E, nil))))
+!query capability_call(model, law_formula, cons(ohms_law, cons(voltage, cons($E, nil))))
+!query capability_call(model_prose, law_prose, cons(ohms_law, cons($T, nil)))
+!query capability_call(model_prose, mechanics_concept, cons(momentum, cons($T, nil)))
+!query capability_provider(model, taught_formula, 3)
+!query! capability_call(model, law_prose, cons(ohms_law, cons($T, cons($U, nil))))
+!query! capability_call(model_prose, law_formula, cons(ohms_law, cons($T, nil)))

@@ -5360,41 +5360,28 @@ static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
  * verbi di relazione insegnati sono migliaia di schemi derivati dal solver, ed
  * era la meta' del costo di un turno.
  *
- * Gli schemi pero' non dipendono da quei fatti: dipendono dalle poche famiglie
- * che li generano. Qui se ne conta la STAZZA — quanti fatti hanno — e la cache
- * cade solo quando quel numero cambia, cioe' quando qualcuno INSEGNA una
- * relazione. Una relazione insegnata adesso resta visibile al turno stesso,
- * che era il requisito del gen510.
+ * Gli schemi pero' non dipendono da quei fatti: dipendono da cio' che li
+ * genera, e la cache cade solo quando QUELLO cambia.
  *
- * ⚠ L'assunzione, dichiarata: le REGOLE che generano schemi arrivano da
- * `kb_load`, cioe' prima di qualunque turno. Se un giorno si insegnera' una
- * regola che genera schemi, il suo predicato va aggiunto a questa firma —
- * altrimenti la cache resterebbe ferma senza dirlo. */
-static size_t p0_frame_signature(Brain *b) {
-    /* ⚠ L'ARIETA' GIUSTA PER OGNI FAMIGLIA. `relation_verb/1` chiesto con
-     * arieta' 2 non torna niente: la firma restava costante, la cache non
-     * cadeva mai, e un verbo insegnato adesso non veniva letto nel turno
-     * stesso — esattamente il requisito che questa cache deve rispettare
-     * (gen510). Trovato dalla sonda «zorble is a relation verb». */
-    static const struct { const char *pred; size_t arity; } gen[] = {
-        { "relation_verb", 1 }, { "verb_particle", 2 },
-        { "irregular_verb_form", 2 }, { "past", 2 }, { NULL, 0 }
-    };
-    size_t sig = 0;
-    for (size_t i = 0; gen[i].pred; i++) {
-        char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
-        const char *q[4] = { NULL, NULL, NULL, NULL };
-        if (kb_match_all(b->kb, gen[i].pred, q, gen[i].arity, &rows, &n))
-            sig += n * (i + 1);
-        free(rows);
-    }
-    return sig;
-}
-
+ * ── 12 settembre 2026 — CHI LI GENERA NON LO SA IL C ─────────────────────
+ * La prima chiave era la stazza di quattro famiglie scritte qui (`relation_verb`,
+ * `verb_particle`, `irregular_verb_form`, `past`). «weft is a relation» genera
+ * «the weft of @S is @O» attraverso `relation/1` e `relation_noun/2`, che
+ * nell'elenco non c'erano: lo schema esisteva, `!query` lo derivava, e il
+ * lettore non lo vedeva — «flax is the weft of linen cloth» diventava
+ * `weft(flax)`. Ed era lo stesso elenco che il gen510 aveva gia' sbagliato una
+ * volta (l'arieta' di `relation_verb`). Contare i fatti, poi, non vede un
+ * ritiro seguito da un'aggiunta.
+ * Il motore tiene gia' il grafo delle dipendenze della vista `extract_frame`,
+ * derivato dai corpi delle regole piu' `view_depends/2`, e la invalida sul
+ * CAMBIAMENTO: la cache usa lo stesso orologio. Una famiglia generatrice nuova
+ * — insegnata come regola o come fatto — la fa cadere senza toccare questo
+ * file. Senza `materialized_view(extract_frame, 2)` non c'e' una chiave onesta,
+ * e si rideriva: piu' lento, mai cieco. */
 static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]) {
     if (!b || !b->kb || !pats) return 0;
-    size_t rev = p0_frame_signature(b);
-    if (b->frame_pats_live && b->frame_pats_rev == rev) {
+    size_t stamp = kb_view_stamp(b->kb, "extract_frame");
+    if (stamp && b->frame_pats_live && b->frame_pats_rev == stamp) {
         *pats = b->frame_pats;
         return b->n_frame_pats;
     }
@@ -5408,7 +5395,8 @@ static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]) {
     free(b->frame_pats);
     b->frame_pats = rows;
     b->n_frame_pats = n;
-    b->frame_pats_rev = rev;
+    /* letto DOPO l'enumerazione: e' il timbro della conoscenza enumerata */
+    b->frame_pats_rev = kb_view_stamp(b->kb, "extract_frame");
     b->frame_pats_live = 1;
     *pats = rows;
     return n;
@@ -22079,13 +22067,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
             }
             if (kb_assert(b->kb, rel, args, 2)) {
+                /* Si annuncia il fatto SCRITTO, cioe' `args` nel verso appena
+                 * deciso: «zlot is the currency of ruritania» salvava
+                 * currency_of(ruritania, zlot) e diceva «the currency of zlot
+                 * is ruritania». */
                 char said[256];
-                if (p0_say_fact(b, rel, subj, obj, said, sizeof said))
+                if (p0_say_fact(b, rel, args[0], args[1], said, sizeof said))
                     kb_term_say(b, "learned_facts", (const KbResponseSlot[]){
                                     { "facts", said } }, 1, msg, sizeof msg);
                 else
                     kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
-                                    { "pred", rel }, { "arg1", subj }, { "arg2", obj } },
+                                    { "pred", rel }, { "arg1", args[0] }, { "arg2", args[1] } },
                                 3, msg, sizeof msg);
             }
             else
