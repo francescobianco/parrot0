@@ -4426,8 +4426,41 @@ static int p0_is_conj(Brain *b, const char *t) {
  * p0_is_prep/p0_is_conj restano, ma per il loro RUOLO (un locativo apre un
  * luogo, una congiunzione continua l'elenco delle classi), non per fare da
  * confine: erano due cose diverse dette dalla stessa lista. */
+/* ── gen513 — L'APPARTENENZA A UNA CLASSE GRANDE SI ENUMERA UNA VOLTA ──────
+ *
+ * `np_closer/1` e' una classe KB e deve restarlo: e' cosi' che un confine
+ * nuovo costa un fatto. Ma da quando include i verbi di relazione — «un verbo
+ * di relazione chiude un sintagma nominale», la riga che ha sbloccato il ponte
+ * genere→specie — la sua appartenenza si deriva su 279 fatti, e questa
+ * funzione sta dentro cicli su ogni token di ogni slot di ogni schema.
+ * Misurato: il turno di `basics.p0t` e' risalito da 0,95 s a oltre 1,1.
+ *
+ * La cura e' quella gia' usata per gli schemi e per `turn_illocution`: la
+ * classe si materializza una volta per revisione della CONOSCENZA che la
+ * genera, non a ogni domanda. La conoscenza resta dov'era. */
 static int p0_np_closer(Brain *b, const char *t) {
-    return lex_class_member(b, "np_closer", t);
+    if (!b || !b->kb || !t || !*t) return 0;
+    /* ⚠ La chiave e' `kb_revision`, non la firma della conoscenza degli schemi:
+     * quella costa quattro enumerazioni, e qui si entra una volta per TOKEN.
+     * Misurato: con la firma il turno saliva a 1,4 s, peggio della derivazione
+     * che doveva curare. Con la revisione si enumera una volta per turno —
+     * dieci volte meno di una volta per token, ed e' quello che serviva. */
+    size_t rev = kb_revision(b->kb);
+    if (!b->np_closers_live || b->np_closers_rev != rev) {
+        char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
+        const char *q[1] = { NULL };
+        if (!kb_match_all(b->kb, "np_closer", q, 1, &rows, &n)) { free(rows); return 0; }
+        free(b->np_closers);
+        b->np_closers = rows;
+        b->n_np_closers = n;
+        b->np_closers_rev = rev;
+        b->np_closers_live = 1;
+    }
+    for (size_t i = 0; i < b->n_np_closers; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", b->np_closers[i]);
+        if (!strcmp(kb_dequote(rb), t)) return 1;
+    }
+    return 0;
 }
 /* Does this token OPEN a noun phrase — "THE cause of x", "IL gatto"? (gen382)
  *
@@ -5254,6 +5287,42 @@ static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]);  /* cache
  * Nessun effetto. E' il punto di ingresso di chi deve NORMALIZZARE senza
  * commettere — il lettore di prosa riportata, oggi; domani chiunque debba
  * proporre una lettura prima di sapere se possa crederci. */
+/* ── gen513 — UNO SCHEMA CHE NOMINA UNA PAROLA ASSENTE NON PUO' COMBACIARE ──
+ *
+ * `extract_frame/2` non e' un elenco: sono regole che derivano uno schema per
+ * ogni verbo di relazione, per ogni sua forma, per ogni copula, per ogni
+ * particella. Con 279 verbi insegnati sono migliaia, e finora si PROVAVANO
+ * TUTTI su ogni frase — `p0_frame_bind` per ciascuno, token per token.
+ *
+ * Ma uno schema ha sempre almeno una parola letterale («@S occupy @O» ha
+ * «occupy»), e se quella parola non c'e' nella frase, lo schema non puo'
+ * combaciare: oggi lo si scopriva confrontandolo. Qui lo si scopre prima, con
+ * un confronto di stringhe.
+ *
+ * E' la meta' economica del lavoro dichiarato in C_TODO.md — indicizzare gli
+ * schemi per la loro parola-ancora. L'indice vero verra' dopo; questo filtro
+ * costa una scansione dei token per schema invece di un tentativo di binding,
+ * e toglie il grosso senza cambiare una sola risposta: cio' che scarta non
+ * poteva combaciare. */
+static int p0_frame_anchor_present(const char *pat, char **w, size_t n) {
+    char pb[KB_TERM_LEN];
+    snprintf(pb, sizeof pb, "%s", pat);
+    char *raw = pb;
+    size_t rl = strlen(raw);
+    if (rl >= 2 && raw[0] == '"' && raw[rl - 1] == '"') { raw[rl - 1] = '\0'; raw++; }
+    char *save = NULL;
+    for (char *tok = strtok_r(raw, " ", &save); tok; tok = strtok_r(NULL, " ", &save)) {
+        if (tok[0] == '@') continue;                 /* uno slot non e' un'ancora */
+        int seen = 0;
+        for (size_t i = 0; i < n && !seen; i++) {
+            char wb[KB_TERM_LEN]; snprintf(wb, sizeof wb, "%s", w[i]);
+            if (!strcmp(strip_edge_punct(wb), tok)) seen = 1;
+        }
+        if (!seen) return 0;                         /* una letterale manca: fuori */
+    }
+    return 1;
+}
+
 static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
     if (!b || !b->kb || !r) return 0;
     n = p0_frame_trim_tail(w, n);
@@ -5263,6 +5332,7 @@ static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
     if (np == 0) return 0;
     int found = 0;
     for (size_t pi = 0; pi < np && !found; pi++) {
+        if (!p0_frame_anchor_present(pats[pi], w, n)) continue;
         P0FrameReading cand;
         if (!p0_frame_bind(b, w, n, pats[pi], &cand)) continue;
         if (cand.nquestion > 0) continue;
@@ -5472,6 +5542,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         /* kb_dequote toglie le virgolette SUL POSTO: la forma originale va
          * conservata prima, perche' e' quella con cui il fatto e' memorizzato e
          * quindi l'unica con cui si puo' rileggere la sua seconda colonna. */
+        if (!p0_frame_anchor_present(pats[pi], w, n)) continue;
         char raw[KB_TERM_LEN];
         snprintf(raw, sizeof raw, "%s", pats[pi]);
         if (taught_only) {
@@ -6261,14 +6332,24 @@ static int p0_atom_within_cap(Brain *b, const char *atom) {
      * Quali parole siano cuciture lo dice la KB (`question_preposition/1`,
      * `np_opener/1` via `p0_lead_det`), quindi il tetto resta quello che e' e
      * cambia solo che cosa conta. */
+    /* ⚠ E si paga solo quando serve. Il caso normale — un atomo dentro il tetto
+     * — non deve chiedere niente alla KB: questa funzione e' chiamata su ogni
+     * atomo candidato di ogni slot, e due domande per token facevano salire il
+     * turno di `basics.p0t` da 0,95 s a 1,4. Prima si conta e basta; solo se il
+     * conto sfora si guarda quali token sono cuciture. */
     int words = 0;
+    for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_")) words++;
+    if (words == 0) return 0;
+    if (words <= maxw) return 1;
+    snprintf(buf, sizeof buf, "%s", atom);
+    int full = 0;
     for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_")) {
         const char *pq[1] = { tok };
         if (kb_query(brain_kb(b), "question_preposition", pq, 1)) continue;
         if (p0_lead_det(b, tok)) continue;
-        if (++words > maxw) return 0;
+        if (++full > maxw) return 0;
     }
-    return words > 0;
+    return full > 0;
 }
 
 /* Il test pieno: per i nomi RITAGLIATI dalla prosa. */

@@ -1276,7 +1276,8 @@ int brain_session_dump(Brain *b) {
 }
 
 void brain_destroy(Brain *b) {
-    if (b) { free(b->frame_pats); b->frame_pats = NULL; b->frame_pats_live = 0; }
+    if (b) { free(b->frame_pats); b->frame_pats = NULL; b->frame_pats_live = 0;
+             free(b->np_closers); b->np_closers = NULL; b->np_closers_live = 0; }
     if (!b) return;
     p0a_free(b->agent_store);
     kb_destroy(b->kb);

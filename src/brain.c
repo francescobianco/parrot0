@@ -348,6 +348,15 @@ struct Brain {
     size_t   n_frame_pats;
     size_t   frame_pats_rev;
     int      frame_pats_live;
+    /* gen513 — la classe `np_closer/1` materializzata. E' una classe KB, ma da
+     * quando include i verbi di relazione (`np_closer($V) :- relation_verb($V)`)
+     * la sua appartenenza si deriva su 279 fatti, e `p0_np_closer` sta in cicli
+     * stretti: il turno di `soft-test` era risalito sopra il budget. Si enumera
+     * una volta per revisione della conoscenza, come gli schemi. */
+    char   (*np_closers)[KB_TERM_LEN];
+    size_t   n_np_closers;
+    size_t   np_closers_rev;
+    int      np_closers_live;
 
     /* gen212 (KB-first responses): rotation cursor over response_template/2 phrasings,
      * so when more than one form is registered for an intent they alternate (the gen55
