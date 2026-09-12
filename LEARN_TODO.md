@@ -1,87 +1,129 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-12 (gen513, giro 2) — LA SCALA DELLA PROSA A 20 DOMANDE
+## ⛔ HANDOFF 2026-09-12 (gen513, giro 3) — PIOLO 300 AL 26%, OBIETTIVO 80%
 
-**Punto di ripresa autoritativo per la lettura della prosa.** Il piano vivo è
-[`docs/plans/lettura-della-prosa.md`](docs/plans/lettura-della-prosa.md), §«Giro 2».
+**Punto di ripresa autoritativo per la lettura della prosa.** Piani vivi:
+[`lettura-della-prosa.md`](docs/plans/lettura-della-prosa.md) (operativo),
+[`ir-e-predicato-variabile.md`](docs/plans/ir-e-predicato-variabile.md)
+(strutturale), [`the-magic-of-apply.md`](docs/plans/the-magic-of-apply.md).
 
-**Che cosa chiede F.** «Fai un giro progressivo 300 to 500, sempre iterazioni di
-20 più, però ogni iterazione deve rispondere a 20 domande mixate tra nel merito
-del testo e meta domande tipo di cosa parla e anche domande di struttura come è
-composto il testo.» E, come obiettivo laterale permanente: *«se scopri domande
-che parrot0 non sa gestire per limiti di KB, colmiamoli con l'addestramento del
-LEARN_PROTOCOL; questi esperimenti devono lasciare un segno del loro passaggio
-con dati veri in KB»*.
+### Che cosa chiede F.
 
-**Come si misura.** `P0_PROBE_STEP2=1 ./scripts/prose-probe.sh
-tests/fixtures/prose/ladder/rNNN.txt` (senza la variabile fa anche il passo 1,
-una sessione per frase: istruttivo ma un quarto d'ora a piolo). Il file `.q` ha
-quattro campi: domanda, attesa (ERE, alternative con `|`), parole minime,
-**specie** (`merito` / `meta` / `struttura`). Le attese di meta e struttura le
-genera `mkq.py` **dal testo**, non da parrot0.
+1. **Obiettivo attivo: 80% di precisione sulle domande del piolo 300**, con
+   **commit e push a ogni incremento superiore al 2%** (su 50 domande, +2% = una
+   domanda).
+2. **Il cancello**: la somma delle PAROLE delle domande nel merito risolte deve
+   superare le parole del testo. Lo stampa il banco.
+3. **Il banco è FISSO** e il successo deve tendere al **100%**: «parrot0 deve
+   sapere rispondere ad ogni domanda rispondibile sulla prosa; la stima non
+   implica crescere il set di domande ma migliorare la comprensione». Allargare
+   il banco per abbassare il tasso richiesto è barare.
+4. **KB-first, i mantra, la IR e la comprensione universale** — ripetuto tre
+   volte in un giro. E **committare la crescita della KB** (verbi, particelle,
+   fatti veri) a ogni interazione.
 
-**Stato dei pioli** (KB viva intera, `kb/profiles/agi.p0`, argomenti verificati
-ignoti a freddo, misurato il 2026-09-12 col passo di calibrazione attivo — e
-nessun piolo ha segnalato domande «già rispondibili a freddo», cioè nessuna
-contaminazione residua):
+### Stato misurato (12 settembre, fine giro 3)
 
-| piolo | testo | parole | merito | meta | struttura | tot |
-|---|---|---|---|---|---|---|
-| 300 | Coral reef | 299 | 6/13 | 2/2 | 5/5 | **13/20** |
-| 320 | Compost | 319 | 3/13 | 2/2 | 5/5 | **10/20** |
-| 340 | Charcoal | 338 | 1/13 | 2/2 | 5/5 | **8/20** |
-| 360 | Magnet | 356 | 2/13 | 2/2 | 5/5 | **9/20** |
-| 380 | Sugar | 374 | 3/13 | 2/2 | 5/5 | **10/20** |
-| 400 | Concrete | 395 | 1/13 | 2/2 | 5/5 | **8/20** |
-| 420 | Erosion | 427 | 1/13 | 2/2 | 5/5 | **8/20** |
-| 440 | Violin | 440 | 1/13 | 2/2 | 5/5 | **8/20** |
-| 460 | Clock | 464 | 1/13 | 2/2 | 5/5 | **8/20** |
-| 480 | Thunderstorm | 485 | 2/13 | 2/2 | 5/5 | **9/20** |
-| 500 | Steel | 497 | (vedi nota) | 2/2 | 5/5 | |
+| | |
+|---|---|
+| merito | **13/50 = 26%** (era 10/50 = 20% a inizio giro) |
+| meta | 2/2 |
+| struttura | 5/5 |
+| cancello | **72 parole** su 299 (era 52) |
+| soft-test | **verde in 9 s** — più veloce della baseline (11 s) |
 
-⚠ Il piolo 500 supera i 600 s del banco e va lanciato da solo: venti domande su
-una KB viva di 50 000 fatti costano, e il costo è il debito in cima a
-`C_TODO.md` (gli schemi di `extract_frame` si scorrono tutti).
+Comando: `P0_PROBE_STEP2=1 ./scripts/prose-probe.sh tests/fixtures/prose/ladder/r300.txt`
+(~8 minuti; senza la variabile fa anche il passo 1, una sessione per frase).
 
-**Il merito NON scende con la lunghezza**: 300 fa 6/13 e 440 ne fa 1/13 non
-perché il testo sia più lungo ma perché è scritto peggio per un lettore —
-subordinate incassate, apposizioni, soggetti coordinati. La lunghezza è stata
-risolta (i tre tetti muti del giro 2); la **forma** no.
+### Che cosa ha funzionato in questo giro, e perché
 
-**Meta e struttura sono chiuse: 2/2 e 5/5 su ogni piolo.** Il merito no, e i
-blocchi sono elencati in ordine di resa in fondo al §«Giro 2» del piano.
+- **`np_closer($V) :- relation_verb($V)`** — una riga, e ha sbloccato il ponte
+  genere→specie: il sintagma della domanda inglobava il verbo
+  (`coral_reefs_occupy`), quindi la chiave giusta non veniva mai costruita e la
+  risoluzione **per descrizione** (G2, che esiste dal gen505 e sa che «coral
+  reefs» descrive «shallow coral reefs») non poteva scattare. **La riparazione
+  migliore del giro è stata rendere raggiungibile una macchina che c'era già.**
+- **La relativa** — l'antecedente lo dà la IR (ultimo sintagma nominale prima
+  della virgola). «…Cnidaria, which includes sea anemones» ora lascia un fatto.
+- **La relativa ridotta** — il participio senza copula («characterized by»):
+  «made of» funzionava perché aveva il suo schema scritto a mano; ora ce l'hanno
+  tutti i verbi con particella.
+- **Il valore quantificato**, in tre pezzi: il punto fra due cifre non chiude
+  più una frase; un numero può avere un separatore dentro; un partitivo dopo una
+  misura appartiene al valore.
+- **Il filtro dell'ancora** — uno schema che nomina una parola assente dalla
+  frase non può combaciare, e non si prova più: 1,43 s → 9 s totali.
 
-**⛔ Le due cose da fare per prime** — sono risposte *confidenti e sbagliate*,
-e una bugia è peggio di un muro (mantra #7):
+### ⛔ LE 37 CHE RESTANO, raggruppate per causa (è la mappa da cui ripartire)
 
-1. **Il passivo.** «Most coral reefs **are built from** stony corals» →
-   «Colonies.», cioè la relazione della frase precedente. Non si legge il
-   passivo e invece di murare si riusa l'ultima relazione.
-2. **Il qualificatore della domanda ignorato.** «what **phylum** does coral
-   belong to?» → «Class anthozoa.» Giusto il verbo, sbagliato il valore.
+**A. Risposte confidenti e SBAGLIATE — prima di tutto il resto (4).** Un muro si
+conta, una bugia no (mantra #7).
+- «what are reefs made of?» → *«Parent, redox, reaction rate, chemical…»* —
+  spazzatura da un'altra parte della KB.
+- «what phylum does coral belong to?» → *«Class anthozoa.»* — il qualificatore
+  della domanda («phylum», non «class») è ignorato.
+- «what do shallow coral reefs form?» → *«Colonies.»* — relazione della frase
+  precedente.
+- «what is calcium carbonate for?» → *«calcium carbonate is CaCO3.»* — risponde
+  dalla KB fredda, non dal testo.
 
-**Poi**, per numero di domande sbloccate: la relazione dentro una subordinata;
-il soggetto coordinato; il participio in testa e con agente; l'anafora fra
-frasi; le domande non definitorie (dove/quando/quanto); la particella di due
-parole (`break down into` — `relation_particle/2` ne regge una sola).
+**B. La seconda relazione della frase non si legge (≈10).** «held together by
+calcium carbonate», «that support and protect the coral», «whose polyps cluster
+in groups», «including fish, mollusks…». È il **livello clausola** del piano
+strutturale: la frase va divisa ai confini già dichiarati in KB e il lettore
+deve leggere le foglie. **È il serbatoio più grosso.**
 
-**Da insegnare parlando (LEARN_PROTOCOL), continua a rendere:** `relation_verb`
-(ne sono stati aggiunti 138 in questo giro, `kb/learning/taught-lexicon.p0`) e
-`relation_particle/2` (15). Una frase apre lettura **e** domanda.
-⚠ Manca ancora la superficie parlata per la particella: «belongs to is a
-relation verb» perde il «to». Finché non c'è, i `relation_particle/2` si
-scrivono a mano — ed è il primo debito KB-first di questa coda.
+**C. Forme di domanda senza lettore (≈8).** «where do X grow best?», «in what
+kind of water…», «at what depths…», «how many X…», «how much of Y…», «since
+when…», «what lives in X?». Il lettore copre le definitorie e le transitive.
 
-# 🔴 TODO PRIORITARIO (F., 12 settembre 2026) — IL MODELLO SI ESTRAE DA UN PREDICATO QUALSIASI
+**D. Il quantificatore non universale (≈4).** «Most coral reefs are built
+from…», «Most reefs grow best in…» — oggi è un **rifiuto voluto**
+(`non_universal_quantifier/1`: né universale né di un individuo). Serve saper
+tenere una relazione **attenuata**, non tenerla come universale.
 
-> F.: «la demo del codice della legge di Newton ci ha fatto capire che i ponti
-> tra leggi o altre forme rappresentative non sono gestiti. Dobbiamo fare una
-> nuova demo che riguarda scrivere il codice di qualcosa di cui **non abbiamo il
-> modello**: il modello deve essere preso dalla **memoria profonda** e potrà
-> essere incodato con un predicato di legge, di schema, di regola — non lo
-> sappiamo. Quello che sappiamo è che grazie alla tecnica del **predicato
-> variabile** possiamo estrarre il modello da un predicato arbitrario e far
-> scrivere a parrot0 qualsiasi codice in qualsiasi linguaggio.»
+**E. Predicati nominali e light verbs (≈5).** «are under threat from», «provide
+a home for», «are sensitive to», «has been estimated at» (il soggetto è «the
+annual global economic value of coral reefs»).
+
+**F. Il participio in testa (≈2).** «Sometimes called rainforests of the sea, …»
+
+**G. Vocabolario residuo (≈4).** `include` non si è salvato con gli altri —
+ricontrollare; e mancano le forme per «most commonly found at».
+
+### L'ordine che consiglio per il prossimo giro
+
+1. **A** — le quattro bugie. Non spostano molto il numero, ma sono la cosa che
+   questo progetto non può permettersi.
+2. **B** — il livello clausola. Vale ~10 domande, ed è il lavoro strutturale già
+   progettato in `ir-e-predicato-variabile.md` §3a.
+3. **C** — le forme di domanda; molte sono una riga di `answer_frame` ciascuna.
+4. **D**, poi **E**, **F**, **G**.
+
+### Debiti di motore aperti (C_TODO.md)
+
+- 🔴 **`p0_join` non può chiedere alla KB** — 44 chiamanti, nessun `Brain`.
+  Decide da sola che cosa è un valore numerico (e quale segno separi i decimali
+  È conoscenza: in italiano la virgola). TODO prioritario chiesto da F.
+- L'**indice** vero degli schemi per parola-ancora (il filtro attuale è la metà
+  economica, non l'indice).
+- `input_structure` tronca a 64 parole e 128 nodi **per frase**, in silenzio.
+
+### Trappole trovate, da non ripetere
+
+- **Cachare dentro un ciclo per token** costa più di ciò che cura: due tentativi
+  (firma della conoscenza per `np_closer`, domande KB nel tetto delle parole)
+  hanno peggiorato il turno. La cura era **non provare**, non ricordare.
+- **`frame_copula("has")` e `("have")` nude** producono fatti senza oggetto e
+  risposte false: il perfetto passivo ha sempre «been» in mezzo.
+- **Il passo 1 induce una diagnosi falsa**: legge ogni frase DA SOLA, quindi i
+  pronomi non hanno antecedente e sembrano un difetto del lettore. La
+  coreferenza fra frasi **funziona** — verificato in differenziale.
+- **`/save` può contaminare il banco**: `made_of(reefs, colonies)` era finito in
+  `world-facts.p0` e il piolo contava un ✓ per una domanda rispondibile a
+  freddo. Ora il banco fa un **passo a freddo** e lo dichiara. Ciò che una
+  sessione di lettura deve lasciare è la conoscenza **generale** (verbi,
+  particelle, grammatica), non le risposte del proprio banco.
 
 ## Dove siamo davvero (misurato il 12 settembre, non ipotizzato)
 
