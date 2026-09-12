@@ -22,6 +22,21 @@
 # Il numero da guardare e' l'ultimo: quante domande, la cui risposta E' nel
 # testo, restano senza risposta. Deve scendere man mano che il lettore cresce.
 #
+# ── VERIFICA A TRE COLONNE (gen513, F.: «aumenta il livello di verifica») ───
+#
+# «ogni iterazione deve rispondere a 20 domande mixate tra nel merito del testo
+# e meta domande tipo di cosa parla e anche domande di struttura come e'
+# composto il testo». Sono tre cose diverse e vanno contate separate, perche'
+# passano per strade diverse:
+#
+#   merito     cio' che il testo DICE            -> lettura e fatti in KB
+#   meta       di che cosa parla, che genere e'  -> il testo come oggetto
+#   struttura  quante frasi, come comincia       -> la IR del testo trattenuto
+#
+# Un totale unico le mescolerebbe: 14 su 20 non dice se il lettore ha capito il
+# testo o se ha soltanto saputo contarne le frasi. Il quarto campo del file
+# `.q` dichiara di che specie e' la domanda.
+#
 # Uso:  ./scripts/prose-probe.sh tardigrade
 #       ./scripts/prose-probe.sh quipu
 #       ./scripts/prose-probe.sh tests/fixtures/prose/mio.txt
@@ -107,15 +122,18 @@ PROSE=$(cat "$CUT")
 # solo le domande la cui risposta e' gia' dentro il prefisso
 mapfile -t QS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $1}' "$QF")
 mapfile -t AS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $2}' "$QF")
+mapfile -t KS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print ($4==""?"merito":$4)}' "$QF")
 [ "${#QS[@]}" -gt 0 ] || { echo; echo "(nessuna domanda rispondibile entro $WORDS parole)"; exit 0; }
 mapfile -t REPLIES < <(run "$PROSE" "${QS[@]}" | tail -n +2)
 
 ok=0; n=0
-printf '\n  %-40s %-8s %s\n' "DOMANDA" "ESITO" "RISPOSTA"
+declare -A KOK KN
+printf '\n  %-34s %-10s %-6s %s\n' "DOMANDA" "SPECIE" "ESITO" "RISPOSTA"
 printf '  %s\n' "────────────────────────────────────────────────────────────────────────────────"
 for idx in "${!QS[@]}"; do
   n=$((n+1))
-  q="${QS[$idx]}"; want="${AS[$idx]}"; got="${REPLIES[$idx]:-}"
+  q="${QS[$idx]}"; want="${AS[$idx]}"; got="${REPLIES[$idx]:-}"; kind="${KS[$idx]:-merito}"
+  KN[$kind]=$(( ${KN[$kind]:-0} + 1 ))
   # il campo atteso puo' portare piu' risposte VERE separate da «|»: «What is
   # obsidian?» ha due risposte giuste nel testo, e accettarne una sola
   # misurerebbe quale frase e' stata letta, non se la domanda ha avuto risposta.
@@ -128,9 +146,15 @@ for idx in "${!QS[@]}"; do
   # che contarne una falsa.
   if printf '%s' "$got" | grep -qiE "I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read"; then
     verdict="·"
-  elif printf '%s' "$got" | grep -qiE -- "$want"; then verdict="✓"; ok=$((ok+1)); else verdict="·"; fi
-  printf '  %-40s %-8s %s\n' "$(printf '%s' "$q" | cut -c1-38)" "$verdict" "$(printf '%s' "$got" | cut_to 72)"
+  elif printf '%s' "$got" | grep -qiE -- "$want"; then
+    verdict="✓"; ok=$((ok+1)); KOK[$kind]=$(( ${KOK[$kind]:-0} + 1 ))
+  else verdict="·"; fi
+  printf '  %-34s %-10s %-6s %s\n' "$(printf '%s' "$q" | cut -c1-32)" "$kind" "$verdict" "$(printf '%s' "$got" | cut_to 62)"
 done
 printf '  %s\n' "────────────────────────────────────────────────────────────────────────────────"
+for k in merito meta struttura; do
+  [ -n "${KN[$k]:-}" ] || continue
+  printf '  %-10s %d/%d\n' "$k" "${KOK[$k]:-0}" "${KN[$k]}"
+done
 printf '\n  %d domande su %d hanno ricevuto quello che il testo dice.\n' "$ok" "$n"
 printf '  ⛔ %d restano senza: la risposta E'"'"' nel testo, e il lettore non la porta.\n\n' "$((n-ok))"

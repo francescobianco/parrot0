@@ -195,3 +195,96 @@ relation_verb(shows).
 relation_verb(casts).
 relation_verb(belongs).
 relation_verb(secrete).
+relation_verb(endanger).
+relation_verb(destroy).
+relation_verb(damage).
+relation_verb(restore).
+relation_verb(mitigate).
+relation_verb(trigger).
+relation_verb(amplify).
+relation_verb(scatter).
+relation_verb(refract).
+relation_verb(reflect).
+relation_verb(illuminate).
+relation_verb(rotate).
+relation_verb(stretch).
+relation_verb(compress).
+relation_verb(deposit).
+relation_verb(erode).
+relation_verb(shape).
+relation_verb(dominate).
+relation_verb(inhabit).
+relation_verb(spread).
+relation_verb(trap).
+relation_verb(capture).
+relation_verb(receive).
+relation_verb(transmit).
+relation_verb(consume).
+relation_verb(nourish).
+relation_verb(feed).
+relation_verb(shelter).
+relation_verb(host).
+relation_verb(maintain).
+relation_verb(sustain).
+relation_verb(operate).
+relation_verb(power).
+relation_verb(drive).
+relation_verb(attach).
+relation_verb(bind).
+relation_verb(combine).
+relation_verb(separate).
+relation_verb(absorb).
+relation_verb(dissolve).
+relation_verb(repel).
+relation_verb(attract).
+relation_verb(exceed).
+relation_verb(resemble).
+relation_verb(influence).
+relation_verb(affect).
+relation_verb(determine).
+relation_verb(record).
+relation_verb(measure).
+relation_verb(replace).
+relation_verb(increase).
+relation_verb(reduce).
+relation_verb(enable).
+relation_verb(allow).
+relation_verb(require).
+relation_verb(supply).
+relation_verb(threaten).
+relation_verb(provide).
+relation_verb(occupy).
+relation_verb(deliver).
+relation_verb(evolve).
+relation_verb(react).
+relation_verb(depend).
+relation_verb(appear).
+relation_verb(occur).
+relation_verb(grow).
+relation_verb(relate).
+relation_verb(refer).
+relation_verb(result).
+relation_verb(derive).
+relation_verb(consist).
+relation_verb(belong).
+
+% ── gen513 — LE PARTICELLE DEI VERBI DI RELAZIONE ───────────────────────────
+% Scoperte leggendo la scala della prosa: sono le forme con cui un lead di
+% enciclopedia lega un soggetto al suo oggetto. Una riga per verbo, e la
+% regola in kb/core/grammar.p0 ne genera le superfici (nuda, flessa,
+% irregolare). Sono fatti veri dell'inglese, non scorciatoie per un banco.
+relation_particle(belong, to).
+relation_particle(consist, of).
+relation_particle(derive, from).
+relation_particle(result, from).
+relation_particle(refer, to).
+relation_particle(relate, to).
+relation_particle(grow, in).
+relation_particle(live, in).
+relation_particle(occur, in).
+relation_particle(appear, in).
+relation_particle(depend, on).
+relation_particle(feed, on).
+relation_particle(react, with).
+relation_particle(combine, with).
+relation_particle(evolve, from).

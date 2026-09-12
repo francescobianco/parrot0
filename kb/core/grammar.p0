@@ -1167,6 +1167,51 @@ extract_frame($Pat, $Root) :-
     concat_atoms("@S ", $Form, $A),
     concat_atoms($A, " @O", $Pat).
 
+% ── gen513 — UNA RELAZIONE PUO' PORTARE UNA PARTICELLA ─────────────────────
+%
+% Reperto della scala della prosa, piolo 300 (Coral reef), verifica a venti
+% domande: «Coral belongs to the class Anthozoa» non veniva letta affatto, e
+% «what class does coral belong to?» riceveva «non so cosa sia belong». Il
+% verbo era insegnabile — `relation_verb(belong)` si dice parlando — ma lo
+% schema generato era «@S belong @O», e la frase vera ha una particella in
+% mezzo. In una prosa d'enciclopedia questa e' una delle forme piu' comuni che
+% esistano: appartiene a, consiste di, deriva da, si riferisce a, cresce in.
+%
+% La particella non e' un secondo verbo e non e' una seconda lezione: e' parte
+% della superficie di UNA relazione. Quindi un fatto per verbo, non un prodotto
+% cartesiano con tutte le preposizioni — quello moltiplicherebbe gli schemi per
+% otto e li farebbe pagare a OGNI turno (gen459: gli schemi si scorrono tutti).
+%
+% ⚠ Il predicato che ne esce e' la RADICE: «Coral belongs to the class
+% Anthozoa» da' `belong(coral, class_anthozoa)`, e la stessa relazione risponde
+% alla domanda con o senza particella.
+machinery(relation_particle).
+machinery(verb_reading_form).
+
+% Le forme con cui un verbo di relazione si presenta in un testo: nuda,
+% flessa, irregolare. Era conoscenza gia' presente tre volte, una per ogni
+% regola di `extract_frame`; qui si nomina una volta e si riusa.
+verb_reading_form($Root, $Root) :- relation_verb($Root).
+verb_reading_form($Root, $Form) :-
+    relation_verb($Root), inflection_suffix($Suffix),
+    concat_atoms($Root, $Suffix, $Form).
+verb_reading_form($Root, $Form) :-
+    relation_verb($Root), irregular_verb_form($Root, $Form).
+
+verb_particle_surface($Root, $Surface) :-
+    relation_particle($Root, $Particle), verb_reading_form($Root, $Form),
+    concat_atoms($Form, " ", $A), concat_atoms($A, $Particle, $Surface).
+
+extract_frame($Pat, $Root) :-
+    verb_particle_surface($Root, $Surface),
+    concat_atoms("@S ", $Surface, $A),
+    concat_atoms($A, " @O", $Pat).
+
+% E la stessa superficie deve INTERROGARE la relazione, non solo leggerla:
+% «what does coral belong to?» e «Coral belongs to X» sono la stessa relazione
+% vista dai due lati. Senza questa riga il fatto entrava e restava muto.
+answer_frame($Surface, $Root) :- verb_particle_surface($Root, $Surface).
+
 % ── gen507 — IL COMPARATIVO E' UNA FORMA, NON UN VERBO NUOVO ────────────────
 %
 % «zelnik is bigger than grum» finiva nel muro, e il muro proponeva «bigger is

@@ -82,6 +82,8 @@ utterance(5, user, "tells is a relation verb").
 utterance(5, user, "x built from y means x made of y").
 utterance(5, user, "a satellite placed into orbit").
 utterance(5, user, "a meadow characterized by tall grass").
+utterance(5, user, "provide is a relation verb").
+utterance(5, user, "derive is a relation verb").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -143,6 +145,8 @@ utterance(6, self, "Learned: tells is a relation verb.").
 utterance(6, self, "I learned a candidate construction: @S built from @O maps to @S made of @O. Test me with new names before we call it understood.").
 utterance(6, self, "Learned: satellite is located in orbit.").
 utterance(6, self, "Learned: meadow has tall grass.").
+utterance(6, self, "Learned: provide is a relation verb.").
+utterance(6, self, "Learned: derive is a relation verb.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -616,6 +620,8 @@ utterance(7, user, "indicates is a relation verb").
 utterance(7, user, "x are built from y means x made of y").
 utterance(7, user, "where is a satellite?").
 utterance(7, user, "what does a meadow have?").
+utterance(7, user, "threaten is a relation verb").
+utterance(7, user, "result is a relation verb").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -944,7 +950,15 @@ utterance(10, self, "Learned: secrete is a relation verb.").
 utterance(11, user, "removes is a relation verb").
 utterance(8, self, "Orbit.").
 utterance(8, self, "Tall grass.").
+utterance(8, self, "Learned: threaten is a relation verb.").
+utterance(9, user, "supply is a relation verb").
+utterance(10, self, "Learned: supply is a relation verb.").
 utterance(11, user, "secretes is a relation verb").
+utterance(8, self, "Learned: result is a relation verb.").
+utterance(9, user, "refer is a relation verb").
+utterance(10, self, "Learned: refer is a relation verb.").
+utterance(11, user, "generate is a relation verb").
+utterance(11, user, "relate is a relation verb").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1077,7 +1091,84 @@ utterance(15, user, "Reefs are formed of colonies of coral polyps.").
 utterance(16, self, "Learned: reefs made of colonies.").
 utterance(17, user, "what are reefs made of?").
 utterance(18, self, "Colonies.").
+utterance(12, self, "I understood the request — produce «relation verb» — but I don't know that yet as something I can compute or build, so I have no code to show for it.").
+utterance(13, user, "require is a relation verb").
+utterance(14, self, "Learned: require is a relation verb.").
+utterance(15, user, "allow is a relation verb").
+utterance(16, self, "Learned: allow is a relation verb.").
+utterance(17, user, "enable is a relation verb").
+utterance(18, self, "Learned: enable is a relation verb.").
+utterance(19, user, "reduce is a relation verb").
+utterance(20, self, "Learned: reduce is a relation verb.").
+utterance(21, user, "increase is a relation verb").
+utterance(22, self, "Learned: increase is a relation verb.").
+utterance(23, user, "replace is a relation verb").
+utterance(24, self, "Learned: replace is a relation verb.").
+utterance(25, user, "measure is a relation verb").
+utterance(26, self, "Learned: measure is a relation verb.").
+utterance(27, user, "record is a relation verb").
+utterance(28, self, "Learned: record is a relation verb.").
+utterance(29, user, "determine is a relation verb").
+utterance(30, self, "Learned: determine is a relation verb.").
+utterance(31, user, "affect is a relation verb").
+utterance(32, self, "Learned: affect is a relation verb.").
+utterance(33, user, "influence is a relation verb").
+utterance(34, self, "Learned: influence is a relation verb.").
+utterance(35, user, "resemble is a relation verb").
+utterance(36, self, "Learned: resemble is a relation verb.").
+utterance(37, user, "exceed is a relation verb").
+utterance(38, self, "Learned: exceed is a relation verb.").
+utterance(39, user, "attract is a relation verb").
+utterance(40, self, "Learned: attract is a relation verb.").
+utterance(41, user, "repel is a relation verb").
+utterance(42, self, "Learned: repel is a relation verb.").
+utterance(43, user, "dissolve is a relation verb").
 utterance(21, user, "how do you act when the recipe is missing?").
+utterance(44, self, "Learned: dissolve is a relation verb.").
+utterance(45, user, "absorb is a relation verb").
+utterance(46, self, "Learned: absorb is a relation verb.").
+utterance(47, user, "separate is a relation verb").
+utterance(48, self, "Learned: separate is a relation verb.").
+utterance(49, user, "combine is a relation verb").
+utterance(50, self, "Learned: combine is a relation verb.").
+utterance(51, user, "bind is a relation verb").
+utterance(52, self, "Learned: bind is a relation verb.").
+utterance(53, user, "attach is a relation verb").
+utterance(54, self, "Learned: attach is a relation verb.").
+utterance(55, user, "drive is a relation verb").
+utterance(56, self, "Learned: drive is a relation verb.").
+utterance(57, user, "power is a relation verb").
+utterance(58, self, "Learned: power is a relation verb.").
+utterance(59, user, "operate is a relation verb").
+utterance(60, self, "Learned: operate is a relation verb.").
+utterance(61, user, "sustain is a relation verb").
+utterance(62, self, "Learned: sustain is a relation verb.").
+utterance(63, user, "maintain is a relation verb").
+utterance(64, self, "Learned: maintain is a relation verb.").
+utterance(65, user, "host is a relation verb").
+utterance(66, self, "Learned: host is a relation verb.").
+utterance(67, user, "shelter is a relation verb").
+utterance(68, self, "Learned: shelter is a relation verb.").
+utterance(69, user, "feed is a relation verb").
+utterance(70, self, "Learned: feed is a relation verb.").
+utterance(71, user, "nourish is a relation verb").
+utterance(72, self, "Learned: nourish is a relation verb.").
+utterance(73, user, "consume is a relation verb").
+utterance(74, self, "Learned: consume is a relation verb.").
+utterance(12, self, "Learned: relate is a relation verb.").
+utterance(13, user, "grow is a relation verb").
+utterance(14, self, "Learned: grow is a relation verb.").
+utterance(15, user, "occur is a relation verb").
+utterance(16, self, "Learned: occur is a relation verb.").
+utterance(17, user, "appear is a relation verb").
+utterance(18, self, "Learned: appear is a relation verb.").
+utterance(19, user, "depend is a relation verb").
+utterance(20, self, "Learned: depend is a relation verb.").
+utterance(21, user, "react is a relation verb").
+utterance(22, self, "Learned: react is a relation verb.").
+utterance(23, user, "evolve is a relation verb").
+utterance(24, self, "Learned: evolve is a relation verb.").
+utterance(75, user, "transmit is a relation verb").
 utterance(22, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(23, user, "your plan when you have no steps").
 utterance(24, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
@@ -1167,6 +1258,10 @@ utterance(79, user, "learn 'che lingua parlano' as another way to ask language_o
 utterance(80, self, "Ricevuto — d'ora in poi prendo «che lingua parlano» come another way to ask language_of_country.").
 utterance(81, user, "learn 'si parla che lingua' as another way to ask language_of_country").
 utterance(389, user, "learn 'just kidding' as a playful remark").
+utterance(76, self, "Learned: transmit is a relation verb.").
+utterance(77, user, "receive is a relation verb").
+utterance(78, self, "Learned: receive is a relation verb.").
+utterance(79, user, "capture is a relation verb").
 utterance(388, self, "Got it - I'll take «no way» as a way to a playful remark now.").
 utterance(387, user, "learn 'no way' as a playful remark").
 utterance(386, self, "Got it - I'll take «you're a legend» as a way to a playful remark now.").
@@ -1212,43 +1307,81 @@ utterance(348, self, "Got it - I'll take «don't give up» as a way to an encour
 utterance(347, user, "learn 'don't give up' as an encouragement").
 utterance(346, self, "Got it - I'll take «hang in there» as a way to an encouragement now.").
 utterance(345, user, "learn 'hang in there' as an encouragement").
+utterance(122, self, "Learned: endanger is a relation verb.").
 utterance(344, self, "Got it - I'll take «keep going» as a way to an encouragement now.").
+utterance(121, user, "endanger is a relation verb").
 utterance(343, user, "learn 'keep going' as an encouragement").
+utterance(120, self, "Learned: destroy is a relation verb.").
 utterance(342, self, "Got it - I'll take «you got this» as a way to an encouragement now.").
+utterance(119, user, "destroy is a relation verb").
 utterance(341, user, "learn 'you got this' as an encouragement").
+utterance(118, self, "Learned: damage is a relation verb.").
 utterance(340, self, "Got it - I'll take «grande davvero» as a way to an encouragement now.").
+utterance(117, user, "damage is a relation verb").
 utterance(339, user, "learn 'grande davvero' as an encouragement").
+utterance(116, self, "Learned: restore is a relation verb.").
 utterance(338, self, "Got it - I'll take «continua così» as a way to an encouragement now.").
+utterance(115, user, "restore is a relation verb").
 utterance(337, user, "learn 'continua così' as an encouragement").
+utterance(114, self, "Learned: mitigate is a relation verb.").
 utterance(336, self, "Got it - I'll take «sei quasi» as a way to an encouragement now.").
+utterance(113, user, "mitigate is a relation verb").
 utterance(335, user, "learn 'sei quasi' as an encouragement").
+utterance(112, self, "Learned: trigger is a relation verb.").
 utterance(334, self, "Got it - I'll take «bravo così» as a way to an encouragement now.").
+utterance(111, user, "trigger is a relation verb").
 utterance(333, user, "learn 'bravo così' as an encouragement").
+utterance(110, self, "Learned: amplify is a relation verb.").
 utterance(332, self, "Got it - I'll take «avanti così» as a way to an encouragement now.").
+utterance(109, user, "amplify is a relation verb").
 utterance(331, user, "learn 'avanti così' as an encouragement").
+utterance(108, self, "Learned: scatter is a relation verb.").
 utterance(330, self, "Got it - I'll take «dai che ci sei» as a way to an encouragement now.").
+utterance(107, user, "scatter is a relation verb").
 utterance(329, user, "learn 'dai che ci sei' as an encouragement").
+utterance(106, self, "Learned: refract is a relation verb.").
 utterance(328, self, "Got it - I'll take «non mollare» as a way to an encouragement now.").
+utterance(105, user, "refract is a relation verb").
 utterance(327, user, "learn 'non mollare' as an encouragement").
+utterance(104, self, "Learned: reflect is a relation verb.").
 utterance(326, self, "Got it - I'll take «tieni duro» as a way to an encouragement now.").
+utterance(103, user, "reflect is a relation verb").
 utterance(325, user, "learn 'tieni duro' as an encouragement").
+utterance(102, self, "Learned: illuminate is a relation verb.").
 utterance(324, self, "Got it - I'll take «ce la fai» as a way to an encouragement now.").
+utterance(101, user, "illuminate is a relation verb").
 utterance(323, user, "learn 'ce la fai' as an encouragement").
+utterance(100, self, "Learned: rotate is a relation verb.").
 utterance(322, self, "Got it - I'll take «forza dai» as a way to an encouragement now.").
+utterance(99, user, "rotate is a relation verb").
 utterance(321, user, "learn 'forza dai' as an encouragement").
+utterance(98, self, "Learned: stretch is a relation verb.").
 utterance(84, self, "Got it - I'll take «sono cotto» as a way to a sign of tiredness now.").
+utterance(97, user, "stretch is a relation verb").
 utterance(76, self, "Learned: is_unit(forget).").
+utterance(96, self, "Learned: compress is a relation verb.").
 utterance(77, user, "the ohm measures what?").
+utterance(95, user, "compress is a relation verb").
 utterance(78, self, "Electrical resistance.").
+utterance(94, self, "Learned: deposit is a relation verb.").
 utterance(79, user, "forget that ohm is a is_unit").
+utterance(93, user, "deposit is a relation verb").
 utterance(83, user, "learn 'qual è il simbolo' as another way to ask chemical_symbol").
+utterance(92, self, "Learned: erode is a relation verb.").
 utterance(166, self, "Ricevuto — d'ora in poi prendo «su che cosa vale» come another way to ask predicate_domain.").
+utterance(91, user, "erode is a relation verb").
 utterance(165, user, "learn 'su che cosa vale' as another way to ask predicate_domain").
+utterance(90, self, "Learned: shape is a relation verb.").
 utterance(164, self, "Ricevuto — d'ora in poi prendo «a che cosa si applica» come another way to ask predicate_domain.").
+utterance(89, user, "shape is a relation verb").
 utterance(163, user, "learn 'a che cosa si applica' as another way to ask predicate_domain").
+utterance(88, self, "Learned: dominate is a relation verb.").
 utterance(162, self, "Ricevuto — d'ora in poi prendo «di che tipo è la relazione» come another way to ask relation_type.").
+utterance(87, user, "dominate is a relation verb").
 utterance(161, user, "learn 'di che tipo è la relazione' as another way to ask relation_type").
 utterance(160, self, "Ricevuto — d'ora in poi prendo «che tipo di relazione» come another way to ask relation_type.").
+utterance(80, self, "Learned: capture is a relation verb.").
+utterance(81, user, "trap is a relation verb").
 utterance(159, user, "learn 'che tipo di relazione' as another way to ask relation_type").
 utterance(158, self, "Ricevuto — d'ora in poi prendo «si trasmette» come another way to ask transitive.").
 utterance(157, user, "learn 'si trasmette' as another way to ask transitive").
@@ -1373,6 +1506,7 @@ utterance(2, self, "On you act when the recipe is missing, a causal account turn
 utterance(2, self, "Quando succede: 1) guardo di che cosa e' fatta  2) dico a che cosa serve.").
 utterance(2, self, "Got it - «show» asks for the same thing as «write».").
 utterance(2, self, "Got it - «display» asks for the same thing as «show».").
+utterance(82, self, "Learned: trap is a relation verb.").
 utterance(2, self, "Got it - «escribe» asks for the same thing as «write».").
 utterance(2, self, "From now on I'll read «what vuol dire x» as «what does x mean».").
 utterance(2, self, "From now on I'll read «what is the significato of x» as «what is the meaning of x».").
@@ -1387,6 +1521,8 @@ utterance(2, self, "I learned a candidate construction: @S formed of @O maps to 
 utterance(2, self, "I learned a candidate construction: @S placed into @O maps to @S is located in @O. Test me with new names before we call it understood.").
 utterance(2, self, "Learned: probe is located in orbit.").
 utterance(2, self, "I learned a candidate construction: @S characterized by @O maps to @S has @O. Test me with new names before we call it understood.").
+utterance(2, self, "Learned: deliver is a relation verb.").
+utterance(2, self, "Learned: belong is a relation verb.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1449,6 +1585,8 @@ utterance(1, user, "x formed of y means x made of y").
 utterance(1, user, "x placed into y means x is located in y").
 utterance(1, user, "a probe placed into orbit").
 utterance(1, user, "x characterized by y means x has y").
+utterance(1, user, "deliver is a relation verb").
+utterance(1, user, "belong is a relation verb").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1485,6 +1623,10 @@ utterance(4, self, "Held: vitamin_d_deficiency causes rickets.").
 utterance(4, self, "Tengo: morante ha scritto la_storia.").
 utterance(4, self, "Held: the capital of laos is vientiane.").
 utterance(4, self, "Tengo: un battle ha un loser.").
+utterance(83, user, "spread is a relation verb").
+utterance(86, self, "Learned: inhabit is a relation verb.").
+utterance(85, user, "inhabit is a relation verb").
+utterance(84, self, "Learned: spread is a relation verb.").
 utterance(4, self, "Learned: violent impact causes serious injury.").
 utterance(4, self, "From now on I'll read «what is your plan when x» as «your plan when x?».").
 utterance(4, self, "From now on I'll read «how do you act when x» as «your plan when x?».").
@@ -1505,6 +1647,8 @@ utterance(4, self, "I learned a candidate construction: @S are formed of @O maps
 utterance(4, self, "I learned a candidate construction: @S placed in @O maps to @S is located in @O. Test me with new names before we call it understood.").
 utterance(4, self, "Orbit.").
 utterance(4, self, "I learned a candidate construction: @S characterised by @O maps to @S has @O. Test me with new names before we call it understood.").
+utterance(4, self, "Learned: occupy is a relation verb.").
+utterance(4, self, "Learned: consist is a relation verb.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1562,6 +1706,8 @@ utterance(3, user, "x are formed of y means x made of y").
 utterance(3, user, "x placed in y means x is located in y").
 utterance(3, user, "where is a probe?").
 utterance(3, user, "x characterised by y means x has y").
+utterance(3, user, "occupy is a relation verb").
+utterance(3, user, "consist is a relation verb").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
