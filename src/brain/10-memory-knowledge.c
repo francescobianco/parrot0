@@ -4982,6 +4982,25 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                 if (comma_at[k]) { end = (int)k + 1; break; }
             char *dst = r->slot[r->nslots];
             size_t ss = wi;
+            /* ── gen513 — CIO' CHE APRE LA FRASE E FINISCE CON UNA VIRGOLA NON
+             * E' IL SOGGETTO.
+             *
+             * «In the narrowest sense of the word, it consists of a flat plate
+             * and a gnomon» (meridiana, piolo 150): il primo slot prendeva
+             * «in the narrowest sense of the word» — l'inciso — invece di «it».
+             * Un avverbiale che apre la frase e' circostanza, non soggetto.
+             *
+             * Vale per il PRIMO slot soltanto, e con l'ULTIMA virgola dello
+             * span: un oggetto finisce alla PRIMA virgola («water bears or moss
+             * piglets,»), un soggetto comincia dopo l'ULTIMA che lo precede
+             * («Tardigrades,» resta intero perche' la sua unica virgola e' li').
+             * Le due regole non si contraddicono: guardano due lati diversi. */
+            if (r->nslots == 0 && (size_t)end > wi) {
+                size_t last_comma = (size_t)-1;
+                for (size_t k = wi; k + 1 < (size_t)end && k < 64; k++)
+                    if (comma_at[k]) last_comma = k;
+                if (last_comma != (size_t)-1) ss = last_comma + 1;
+            }
             if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
             if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
                 return 0;

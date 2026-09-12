@@ -273,6 +273,60 @@ attribuite. Nessuna cura in questo giro: prima la misura.
 Debito di partenza: **`split_words` 130 / 54 / 33 = 217** nei tre lettori
 maggiori. Righe di C uscite: 0.
 
+### La SCALA (F., 12 settembre): 10 → 150 parole, una prosa per piolo
+
+`scripts/prose-ladder.sh` · `tests/fixtures/prose/ladder/` — quindici prose vere
+ed esterne alla KB (lead di Wikipedia, fonti in `ladder/SOURCES.md`), una per
+piolo, **intere e coerenti, mai troncate**: leggere un frammento e' un problema
+diverso e si affronta dopo questo traguardo.
+
+Stato misurato dopo otto iterazioni (12 settembre):
+
+| piolo | testo | parole | esito |
+|---|---|---|---|
+| 10 | incudine | 24 | 1/3 |
+| 20 | cairn | 21 | 1/3 |
+| 30 | quipu | 31 | 1/3 |
+| 40 | kelp | 35 | 0/3 |
+| 50 | telaio | 51 | 1/3 |
+| 60 | mulino a vento | 57 | 0/3 |
+| 70 | pomice | 54 | 1/3 |
+| 80 | savana | 82 | **2/4** |
+| 90 | abaco | 89 | **2/4** |
+| 100 | anfora | 100 | 0/3 |
+| 110 | ossidiana | 109 | 0/4 |
+| 120 | clavicembalo | 126 | 1/3 |
+| 130 | basalto | 128 | 0/3 |
+| 140 | mangrovia | 139 | 0/3 |
+| **150** | **meridiana** | **153** | **2/4** |
+
+Il piolo 150 risponde alla definizione **e** a una relazione presa da una frase
+in mezzo al testo:
+
+```text
+What is a sundial?           ->  sundial is a horological device.
+What does the gnomon cast?   ->  Broad shadow.
+```
+
+**Non e' ancora il traguardo** — comprendere una prosa di 150 parole vuol dire
+rispondere a tutto cio' che dice, non a meta'. Ma e' la prima volta che una
+prosa vera di quella lunghezza risponde su piu' di un fronte.
+
+### I blocchi che restano, in ordine di quante domande sbloccano
+
+1. **Il soggetto con un sintagma dentro.** «The shadow of the style shows the
+   time» non si legge affatto: il soggetto ha un «of» in mezzo, e il lettore lo
+   taglia. E' la forma piu' comune di soggetto della prosa d'enciclopedia.
+2. **L'acquisizione si prende i turni di prosa.** «In the narrowest sense of the
+   word, it consists of…» riceve «I looked up «narrowest» but found nothing»:
+   la cessione `faculty_yield_force(learn, open, prose_carried)` e' dichiarata
+   ma quel percorso non passa dal registro, quindi non la consulta.
+3. **La domanda a oggetto in testa** (M5): «What else is an abacus called?».
+4. **La coreferenza dentro un paragrafo**: «It is an igneous rock» dopo
+   «Obsidian is…» — il pronome non arriva al soggetto della frase precedente.
+5. **Il conteggio** («How many savanna forms exist?») e le relazioni dentro una
+   subordinata («until largely replaced by…»).
+
 ### Giro 1 — 12 settembre 2026 (gen513): M4 e M1 chiuse
 
 **G1 · M4 — la cessione (KB pura, zero righe di C).** Il turno di prosa non

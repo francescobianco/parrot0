@@ -343,6 +343,12 @@ turn_declared_act($Turn, prose_carried) :-
 % E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
 % (mantra #17): la facolta' ha gia' un nome pubblico.
 faculty_yield_force(gen, open, prose_carried).
+% gen513 — E CEDE ANCHE L'ACQUISIZIONE. «In the narrowest sense of the word, it
+% consists of a flat plate and a gnomon» riceveva «I looked up «narrowest» but
+% found nothing»: una frase che PORTA prosa non sta chiedendo di cercare una
+% parola. La lacuna resta registrata — quello e' un altro canale — ma il turno
+% appartiene a chi lo legge.
+faculty_yield_force(learn, open, prose_carried).
 
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %
