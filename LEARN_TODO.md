@@ -69,6 +69,52 @@ Il ponte diventa **una** regola che vale per ogni portatore dichiarato, oggi e
 domani, senza ricompilare — compreso un portatore che parrot0 si e' scritto da
 solo leggendo.
 
+## ✅ STATO AL 12 SETTEMBRE — T1, T2, T3 e T4 CHIUSI (commit 529d1d78, 3356e9aa, 70e5045e)
+
+    show me the python code that computes the momentum
+      -> def momentum(mass, velocity): return (mass * velocity)
+    where does momentum come from?
+      -> Mechanics concept and taught formula.
+
+Sessione pulita, nessuno gli dice niente. parrot0 non aveva nessun modello del
+momento; aveva da sempre `mechanics_concept(momentum, "product of mass and
+velocity -- p = mv")` — il modello, in un predicato che nessuno ha pensato per
+il codice e scritto in PROSA. **Sapeva dirlo e non sapeva scriverlo.** Ora
+rilegge quella prosa come se gliel'avessero appena detta, ne estrae
+`product(mass, velocity)`, e il ponte generico la scrive.
+
+| passo | esito |
+|---|---|
+| **T1** | il ponte non conosce nessun predicato: `model_carrier/1` + `apply/2` (`kb/core/model-bridge.p0`). Di fisica, in `laws.p0`, resta un fatto. Le quattro leggi producono lo stesso codice di prima in quattro lingue |
+| **T2** | `kb/experts/geometry/formulas.p0` — nove formule, zero righe di ponte. «area of a circle», «volume of a cylinder», «area of a triangle» in python/c/java, compresi gli alberi annidati e le funzioni a tre parametri |
+| **T3** | due porte: un modello si puo' DIRE (`kb/core/model-lesson.p0`, un lettore intero in KB, **zero righe di C**, agganciato a `bookkeeper/1`), e un modello si puo' RILEGGERE dalla memoria profonda (`model_prose_carrier/1` + `p0_model_from_prose`, ~20 righe) |
+| **T4** | gia' vero e riverificato: python, c, java, javascript dalla stessa forma |
+
+**L'arresto onesto regge**, ed e' la prova che non si sta indovinando: «show me
+the c code that computes the torque» → *«torque says that rotational force about
+an axis -- tau = r x F. It states no quantity to compute, so there is no c
+function to write for it»*. La prosa c'e' ma non porta un modello leggibile, e
+parrot0 declina invece di fabbricare una funzione plausibile.
+
+### ⛔ Che cosa resta
+
+1. **T5, il banco.** Un `.p0t` con N modelli x M linguaggi, dove N include
+   almeno un modello che nessuno ha scritto a mano (il momento dalla prosa). Deve
+   essere impossibile farlo passare con un ponte per dominio.
+2. **Il nome e' UNA parola.** «kinetic energy is half times mass times velocity
+   squared» impara `energy`, non `kinetic_energy`: la cosa e' il token che
+   precede la copula. Un sintagma nominale come soggetto e' il prossimo passo.
+3. **Niente precedenza nel fold.** «a times b divided by c» si legge da sinistra,
+   ed e' scritto nel file invece che nascosto. Chi vuole un altro ordine lo dice
+   con due frasi — ma una prosa vera non lo fa.
+4. **La prosa che il lettore non sa leggere resta prosa**: `torque` («tau = r x
+   F»), `power` («P = W/t»), `acceleration` («a = dv/dt»). Le formule scritte in
+   SIMBOLI sono una forma a se', e sono la maggioranza di quelle in memoria.
+   Leggerle e' il prossimo guadagno grosso, ed e' la stessa leva: un altro
+   portatore, non un altro ponte.
+5. **La rete.** Il giro ha usato la prosa gia' in memoria. Una pagina fresca
+   (`topic_read/2`) dovrebbe entrare dalla stessa porta — da verificare.
+
 ## I passi, in ordine, con la prova di chiusura
 
 1. **T1 — il ponte generico.** Riscrivere `artifact_shape_for`/`artifact_binding`
