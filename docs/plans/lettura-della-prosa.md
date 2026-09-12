@@ -247,11 +247,12 @@ modello di misura:
 
 | giro | malattia | cura prevista | prova |
 |---|---|---|---|
-| **G1** | **M4** cessione | condotta KB: una facoltà che PRODUCE prosa cede un turno che PORTA prosa (`faculty_yield_force`) | «Quipu, also spelled khipu, …» non riceve più un racconto |
-| **G2** | **M1** apposizione | il valore chiede all'IR dove finisce il suo nodo (`np_closer`, le virgole come confine) | la frase 1 lascia in KB i fatti giusti, non uno storto |
+| ~~G1~~ ✅ | **M4** cessione | condotta KB: una facoltà che PRODUCE prosa cede un turno che PORTA prosa (`faculty_yield_force`) | «Quipu, also spelled khipu, …» non riceve più un racconto |
+| ~~G2~~ ✅ | **M1** apposizione | il valore chiede all'IR dove finisce il suo nodo (`np_closer`, le virgole come confine) | la frase 1 lascia in KB i fatti giusti, non uno storto |
 | **G3** | **M2** ordinale | «first» dentro un avverbiale non è la domanda del turno | la frase 2 si legge; «who described tardigrades?» risponde |
 | **G4** | **M3** relativa | «which/who» aprono una relativa sul nodo precedente, non una lezione | la frase 3 lascia `means(tardigrada, "slow walkers")` |
 | **G5** | consumo | portare UN lettore grosso a consumare l'IR invece di `split_words` | il conteggio 217 scende, e il banco non peggiora |
+| **G6** | **M5** preposizione orfana | «What are X also known **as**?» — l'oggetto e' in testa, la preposizione resta in coda e viene presa per oggetto | la domanda trova il fatto che «What is another name for X?» trova gia' |
 
 **Ogni riga porta anche il suo conto KB-first**: quale porta KB è stata usata (o
 aperta), quanti `split_words` restano, quante righe di C sono uscite.
@@ -271,3 +272,46 @@ attribuite. Nessuna cura in questo giro: prima la misura.
 
 Debito di partenza: **`split_words` 130 / 54 / 33 = 217** nei tre lettori
 maggiori. Righe di C uscite: 0.
+
+### Giro 1 — 12 settembre 2026 (gen513): M4 e M1 chiuse
+
+**G1 · M4 — la cessione (KB pura, zero righe di C).** Il turno di prosa non
+dichiarava **nessuna forza**: `turn_declared_act($T, assertion)` pretende un
+frame dichiarativo completo, e una frase vera di enciclopedia — apposizione,
+coordinazione, participio — non lo lega. Cosi' il turno usciva dalla lettura
+senza etichetta e la prima facolta' che sapeva dire qualcosa lo prendeva.
+Aggiunta la lettura piu' DEBOLE che basta: `turn_declared_act($T, prose_carried)`
+— c'e' una copula, non c'e' il punto interrogativo, non si apre con una
+richiesta. Non pretende di aver capito la frase: dichiara che non e' un ordine.
+Con `faculty_yield_force(gen, open, prose_carried)`.
+
+> «Quipu, also spelled khipu, are record-keeping devices…» non riceve piu' un
+> racconto inventato. Il generatore di storie e' invariato (differenziale).
+
+**G2 · M1 — l'apposizione (la peggiore: un fatto storto, in silenzio).** La
+regola che chiude uno slot su una virgola **c'era gia'** (gen505y) e non poteva
+scattare: quando il legatore dei frame riceve i token, **le virgole sono gia'
+state tolte in place** da un chiamante piu' a monte. Una guardia giusta e cieca —
+la stessa specie delle radici morte del gen512. Il turno originale invece non e'
+stato toccato: ora la virgola si chiede a `active_turn_norm`, camminando sul
+turno in ordine insieme ai token.
+
+> «Tardigrades, also known as water bears or moss piglets, are …» →
+> `Learned: tardigrades also known as "water bears or moss piglets".`
+> E il fatto e' RAGGIUNGIBILE: «What is another name for tardigrades?» →
+> **«water bears or moss piglets.»**
+
+**Conto KB-first, onesto.** G1: **0 righe di C**, +35 di KB — porta gia' aperta
+(`faculty_yield_force`). G2: **+20 righe di C** in un punto solo, e nessuna
+uscita. Non e' una migrazione: e' un ponte. La forma giusta e' che il confine
+venga dall'IR come vista KB, ed e' il giro **G5** — finche' il legatore dei
+frame e' in C, la sua virgola resta in C. **Debito invariato: 217.**
+Sonda nuova: `P0_FRAME_TRACE=1` mostra pattern, token, virgole e slot legati —
+e' quella che ha trovato che la guardia era cieca.
+
+**Aperta in questo giro — M5, la preposizione orfana.** «What are tardigrades
+also known **as**?» → *«nothing I hold says tardigrades also known as **as**»*:
+l'oggetto e' in testa (e' il pronome interrogativo) e la preposizione resta
+sospesa in coda, dove il lettore la prende per oggetto. Il fatto c'e' e un'altra
+superficie lo trova: e' un difetto di forma della DOMANDA, non della lettura.
+Da mettere in coda ai giri.

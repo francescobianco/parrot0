@@ -4874,6 +4874,34 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
         size_t wl = strlen(w[ci]);
         comma_at[ci] = wl && w[ci][wl - 1] == ',';
     }
+    /* ── gen513 (prose-probe, malattia M1) — LA VIRGOLA SI CHIEDE AL TURNO ───
+     *
+     * «Tardigrades, also known as water bears, are animals.» imparava
+     * `also_known_as(tardigrades, "water bears are animals")`: il valore si
+     * mangiava il resto della frase. La regola che chiude uno slot su una
+     * virgola c'era gia' (gen505y, qui sotto) e non poteva scattare, perche'
+     * **quando questo legatore riceve i token le virgole sono gia' state tolte
+     * in place** da un chiamante piu' a monte. Una guardia giusta, cieca.
+     *
+     * Il turno originale invece non e' stato toccato: `active_turn_norm` e' la
+     * sua forma normalizzata, e `normalize` le virgole le tiene. Si cammina sul
+     * turno IN ORDINE insieme ai token — non si cerca ogni parola dappertutto,
+     * che su una parola ripetuta darebbe una virgola che non c'e'.
+     *
+     * E' la regola del piano (docs/plans/lettura-della-prosa.md §2): quando un
+     * lettore sbaglia un confine, non si aggiusta il lettore — gli si fa
+     * chiedere il confine a chi lo conosce ancora. */
+    if (b && b->active_turn_norm) {
+        const char *p = b->active_turn_norm;
+        for (size_t ci = 0; ci < n && ci < 64 && p; ci++) {
+            size_t wl = strlen(w[ci]);
+            if (!wl) continue;
+            const char *q = strstr(p, w[ci]);
+            if (!q) { p = NULL; break; }
+            if (q[wl] == ',') comma_at[ci] = 1;
+            p = q + wl;
+        }
+    }
 
     if (!b || !b->kb || !raw_pattern || !r) return 0;
     memset(r, 0, sizeof *r);
@@ -4957,6 +4985,14 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
     if (r->nslots < 2) return 0;
     for (size_t si = 0; si < r->nslots; si++)
         if (!r->slot[si][0]) return 0;
+    if (getenv("P0_FRAME_TRACE")) {
+        fprintf(stderr, "[frame] pat=«%s» toks=", r->pattern);
+        for (size_t k = 0; k < n && k < 20; k++)
+            fprintf(stderr, "%s%s", w[k], comma_at[k] ? "<," : "|");
+        fprintf(stderr, " slots=");
+        for (size_t si = 0; si < r->nslots; si++) fprintf(stderr, "[%s]", r->slot[si]);
+        fprintf(stderr, "\n");
+    }
     r->consumed = wi;
     r->total = n;
 

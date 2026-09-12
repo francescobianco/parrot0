@@ -291,6 +291,44 @@ faculty_yield_force(process_steps, open, production_request).
 % welcome!» invece del codice.
 faculty_yield_force(social, open, production_request).
 
+% ── gen513 — UN TURNO CHE *PORTA* PROSA NON NE *CHIEDE* ────────────────────
+%
+% Trovato con `make prose-probe` (docs/plans/lettura-della-prosa.md, malattia
+% M4). «Quipu, also spelled khipu, are record-keeping devices fashioned from
+% knotted cords.» riceveva *«Quipu was a mysterious Quipu. Then one day, quipu
+% discovered what it meant to be seen…»*: il GENERATORE di racconti si prendeva
+% un turno che portava un testo da LEGGERE.
+%
+% La causa non e' una parola sbagliata: e' che quel turno non dichiarava NESSUNA
+% forza. `turn_declared_act($T, assertion)` chiede che il turno leghi un frame
+% dichiarativo completo, e una frase vera di enciclopedia — con apposizione,
+% coordinazione e participio — non lo lega. Cosi' il turno usciva dalla lettura
+% senza etichetta, e la prima facolta' che sapeva dire qualcosa lo prendeva.
+%
+% Qui c'e' la lettura PIU' DEBOLE che basta a dire «questo turno afferma»: c'e'
+% una copula, non c'e' un punto interrogativo, e non si apre con una richiesta.
+% Non pretende di aver capito la frase — dichiara soltanto che NON e' un ordine,
+% ed e' esattamente quello che serve a chi deve tacere. Una lettura piu' fine
+% (l'IR sa gia' i nodi e i ruoli) la rende piu' precisa senza toglierla.
+machinery(turn_carries_prose).
+machinery(turn_prose_copula).
+machinery(turn_opens_request).
+turn_prose_copula($Turn) :-
+    turn_surface_token($Turn, 0, $I, $Tok), span_atom($Tok, $W), clause_copula($W).
+turn_opens_request($Turn) :-
+    turn_surface_token($Turn, 0, 0, $Tok), span_atom($Tok, $W), imperative_opener($W).
+turn_opens_request($Turn) :-
+    turn_surface_token($Turn, 0, 0, $Tok), span_atom($Tok, $W), question_word($W).
+turn_opens_request($Turn) :-
+    turn_surface_token($Turn, 0, 0, $Tok), span_atom($Tok, $W), request_auxiliary($W).
+turn_declared_act($Turn, prose_carried) :-
+    turn_prose_copula($Turn),
+    naf(turn_has_question_mark($Turn)),
+    naf(turn_opens_request($Turn)).
+% E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
+% (mantra #17): la facolta' ha gia' un nome pubblico.
+faculty_yield_force(gen, open, prose_carried).
+
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %
 % Sopra e' scritto — e resta vero — che l'asserzione non ha cue proprie: marcarla
