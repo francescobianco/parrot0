@@ -417,6 +417,37 @@ static int prose_touches_purpose(Brain *b, const char *sentence,
     return 0;
 }
 
+/* ── gen513 — UN PUNTO FRA DUE CIFRE NON CHIUDE UNA FRASE ──────────────────
+ *
+ * Reperto della scala della prosa, e la perdita era totale e muta:
+ *
+ *   «Coral reefs occupy 3.5 percent of the ocean area.»
+ *     -> Learned 1 facts: coral reefs occupy 3.
+ *
+ * Il lettore spezzava a OGNI `.`, quindi «3.5» diventava due frasi e tutto cio'
+ * che seguiva il numero spariva. In una prosa d'enciclopedia i decimali sono
+ * ovunque — «0.1%», «1.6 billion tons», «US$30-375 billion» — e ogni volta si
+ * perdeva il resto della frase senza un muro e senza una traccia.
+ *
+ * Il tokenizzatore questa regola ce l'ha dal gen399. Qui era duplicata male,
+ * cioe' non c'era: e' il caso peggiore dell'audit KB-first, la conoscenza
+ * scritta due volte di cui una sbagliata. Quali segni siano interessati lo dice
+ * la KB (`boundary_not_between_digits/1`), il confronto di byte resta qui. */
+static int p0_boundary_inside_number(Brain *b, const char *start,
+                                     const char *at) {
+    if (!b || !b->kb || !start || !at || at == start || !at[1]) return 0;
+    if (!isdigit((unsigned char)at[-1]) || !isdigit((unsigned char)at[1])) return 0;
+    char rows[8][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, "boundary_not_between_digits", q, 1, rows, 8);
+    for (size_t i = 0; i < n; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+        const char *m = kb_dequote(rb);
+        if (*m && *m == *at) return 1;
+    }
+    return 0;
+}
+
 static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
     size_t eo = strlen(extract);
 
@@ -483,7 +514,8 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
     if (purpose[0]) {
         for (char *r = extract; *r && !selective; ) {
             char *e = r;
-            while (*e && *e != '.' && *e != '!' && *e != '?') e++;
+            while (*e && !((*e == '.' || *e == '!' || *e == '?') &&
+                           !p0_boundary_inside_number(b, extract, e))) e++;
             size_t l = (size_t)(e - r);
             if (l > 4 && l < 380) {
                 char probe[400];
@@ -525,7 +557,8 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
     char *p = extract;
     while (*p) {
         char *q = p;
-        while (*q && !(nbc && strchr(bchars, *q))) q++;
+        while (*q && !(nbc && strchr(bchars, *q) &&
+                       !p0_boundary_inside_number(b, extract, q))) q++;
         size_t slen = (size_t)(q - p);
         if (selective && slen > 4 && slen < 380) {
             char probe[400];

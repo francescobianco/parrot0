@@ -2799,3 +2799,12 @@ relative_opener(who).
 relative_opener(whose).
 relative_opener(che).
 relative_opener(cui).
+
+% ── gen513 — UN SEGNO DI FINE FRASE FRA DUE CIFRE APPARTIENE AL NUMERO ──────
+% «0.1%», «3.5 percent», «1.6 billion tons»: il punto non chiude la frase, e
+% chi lo prendeva per un confine perdeva tutto cio' che seguiva il numero —
+% senza un muro e senza una traccia. Il tokenizzatore lo sa dal gen399; il
+% lettore di prosa no, ed e' il caso peggiore dell'audit KB-first: la stessa
+% conoscenza scritta due volte, di cui una sbagliata.
+machinery(boundary_not_between_digits).
+boundary_not_between_digits(".").
