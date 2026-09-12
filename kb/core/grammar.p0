@@ -1014,6 +1014,18 @@ machinery(relation_verb).
 machinery(frame_copula).
 frame_copula("is").
 frame_copula("are").
+% gen513 — e le forme composte, che una prosa d'enciclopedia usa per dire cio'
+% che e' stato fatto: «has been estimated at», «have declined by», «were used
+% by». Sono copule di frame a tutti gli effetti — cambia il tempo, non la
+% relazione — e senza queste righe quelle frasi non avevano nessuno schema.
+frame_copula("was").
+frame_copula("were").
+frame_copula("has been").
+frame_copula("have been").
+% ⚠ NON «has» e «have» nude: sono anche verbi di possesso, e lo schema «@S has
+% V @O» legava «coral reefs has declined» — un fatto senza oggetto, e la domanda
+% ci rispondeva «Coral reefs.», cioe' una bugia. Il perfetto passivo ha sempre
+% «been» in mezzo, e li' l'ambiguita' non c'e'.
 
 extract_frame($Pat, $Pred) :-
     relation_verb($Pred), frame_copula($Cop),
@@ -1280,6 +1292,26 @@ extract_frame($Pat, $Root) :-
     concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
     concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat).
 answer_frame($Surface, $Root) :- verb_particle_passive($Root, $Surface).
+
+% ── gen513 — LA RELATIVA RIDOTTA: IL PARTICIPIO SENZA COPULA ───────────────
+%
+% «A coral reef is an underwater ecosystem CHARACTERIZED BY reef-building
+% corals»: dopo che il lettore ha preso la definizione, rilegge la coda con il
+% soggetto al posto del predicato nominale — «coral_reef characterized by
+% reef-building corals». Quella coda non ha copula, e senza uno schema che la
+% preveda si perde.
+%
+% Che il meccanismo esista si vedeva da «made of», che funzionava: aveva il suo
+% schema senza copula scritto a mano fra i letterali. Ora ce l'hanno tutti i
+% verbi con particella, e «held together by», «built from», «divided into»
+% smettono di essere casi speciali.
+%
+% ⚠ E' la stessa superficie del passivo, senza il «is»/«are»: non e' una
+% relazione diversa, e' la stessa vista da dentro un sintagma.
+extract_frame($Pat, $Root) :-
+    verb_particle_passive($Root, $Surface),
+    concat_atoms("@S ", $Surface, $A),
+    concat_atoms($A, " @O", $Pat).
 
 % E la stessa superficie deve INTERROGARE la relazione, non solo leggerla:
 % «what does coral belong to?» e «Coral belongs to X» sono la stessa relazione

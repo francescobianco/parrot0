@@ -6248,9 +6248,26 @@ static int p0_atom_within_cap(Brain *b, const char *atom) {
     }
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", atom);
+    /* ── gen513 — IL TETTO CONTA LE PAROLE PIENE ──────────────────────────
+     *
+     * «the economic value of coral reefs» e' un soggetto normale di una prosa
+     * d'enciclopedia, e veniva respinto: cinque token contro un tetto di
+     * quattro. Ma «of» e «the» non sono parole del concetto — sono la cucitura
+     * fra le sue parti, ed e' la STESSA dottrina per cui `p0_atom_is_concept`
+     * gia' non le conta come confine attraversato (gen510, gen513). Contarle
+     * qui e non la' era la stessa conoscenza applicata due volte in modo
+     * diverso.
+     *
+     * Quali parole siano cuciture lo dice la KB (`question_preposition/1`,
+     * `np_opener/1` via `p0_lead_det`), quindi il tetto resta quello che e' e
+     * cambia solo che cosa conta. */
     int words = 0;
-    for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_"))
+    for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_")) {
+        const char *pq[1] = { tok };
+        if (kb_query(brain_kb(b), "question_preposition", pq, 1)) continue;
+        if (p0_lead_det(b, tok)) continue;
         if (++words > maxw) return 0;
+    }
     return words > 0;
 }
 

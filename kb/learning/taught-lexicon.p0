@@ -363,6 +363,15 @@ relation_verb(expose).
 relation_verb(obtain).
 relation_verb(descend).
 relation_verb(originate).
+relation_verb(harbour).
+relation_verb(thrive).
+relation_verb(find).
+relation_verb(estimate).
+relation_verb(decline).
+relation_verb(flourish).
+relation_verb(cluster).
+relation_verb(protect).
+relation_verb(characterize).
 
 % ── gen513 — LE PARTICELLE DEI VERBI DI RELAZIONE ───────────────────────────
 % Scoperte leggendo la scala della prosa: sono le forme con cui un lead di
@@ -420,3 +429,13 @@ verb_particle(expose, to).
 verb_particle(subject, to).
 verb_particle(classify, as).
 verb_particle(know, as).
+% gen513 — le particelle dei verbi del piolo 300 (lead Coral reef).
+verb_particle(characterize, by).
+verb_particle(flourish, in).
+verb_particle(cluster, in).
+verb_particle(decline, by).
+verb_particle(estimate, at).
+verb_particle(thrive, in).
+verb_particle(protect, from).
+verb_particle(inhabit, in).
+verb_particle(decline, since).

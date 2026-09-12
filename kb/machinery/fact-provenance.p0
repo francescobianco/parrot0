@@ -413,6 +413,15 @@ fact_source(relation_verb(expose), expose, "expose is a relation verb").
 fact_source(relation_verb(obtain), obtain, "obtain is a relation verb").
 fact_source(relation_verb(descend), descend, "descend is a relation verb").
 fact_source(relation_verb(originate), originate, "originate is a relation verb").
+fact_source(relation_verb(harbour), harbour, "harbour is a relation verb").
+fact_source(relation_verb(thrive), thrive, "thrive is a relation verb").
+fact_source(relation_verb(find), find, "find is a relation verb").
+fact_source(relation_verb(estimate), estimate, "estimate is a relation verb").
+fact_source(relation_verb(decline), decline, "decline is a relation verb").
+fact_source(relation_verb(flourish), flourish, "flourish is a relation verb").
+fact_source(relation_verb(cluster), cluster, "cluster is a relation verb").
+fact_source(relation_verb(protect), protect, "protect is a relation verb").
+fact_source(relation_verb(characterize), characterize, "characterize is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -721,14 +730,23 @@ reading_fact(relation_verb(contribute), "contribute is a relation verb").
 reading_fact(relation_verb(classify), "classify is a relation verb").
 reading_fact(relation_verb(compose), "compose is a relation verb").
 reading_fact(relation_verb(subject), "subject is a relation verb").
+reading_fact(relation_verb(harbour), "harbour is a relation verb").
 reading_fact(relation_verb(improve), "improve is a relation verb").
+reading_fact(relation_verb(thrive), "thrive is a relation verb").
 reading_fact(relation_verb(expose), "expose is a relation verb").
+reading_fact(relation_verb(find), "find is a relation verb").
 reading_fact(relation_verb(form), "form is a relation verb").
+reading_fact(relation_verb(estimate), "estimate is a relation verb").
 reading_fact(relation_verb(obtain), "obtain is a relation verb").
+reading_fact(relation_verb(decline), "decline is a relation verb").
 reading_fact(relation_verb(involve), "involve is a relation verb").
+reading_fact(relation_verb(flourish), "flourish is a relation verb").
 reading_fact(relation_verb(descend), "descend is a relation verb").
+reading_fact(relation_verb(cluster), "cluster is a relation verb").
 reading_fact(relation_verb(build), "build is a relation verb").
+reading_fact(relation_verb(protect), "protect is a relation verb").
 reading_fact(relation_verb(originate), "originate is a relation verb").
+reading_fact(relation_verb(characterize), "characterize is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
