@@ -1,0 +1,140 @@
+% model-bridge.p0 — DAL MODELLO AL CODICE, SENZA SAPERE DOVE STA IL MODELLO
+% (gen513, TODO prioritario di F. del 12 settembre 2026 — LEARN_TODO in testa).
+%
+% ── IL DIFETTO CHE QUESTO FILE CHIUDE ───────────────────────────────────────
+%
+% La demo della legge di Newton scriveva davvero il codice, in quattro
+% linguaggi, e sembrava generale. Non lo era: il PONTE fra il modello e
+% l'artefatto era scritto per predicato, quattro righe in
+% `kb/experts/physics/laws.p0`, che sapevano il nome `law_formula`.
+%
+%     artifact_shape_for($Law, formula_function) :- law_formula($Law, $Out, $E).
+%     artifact_binding($Law, name, $Out)         :- law_defines($Law, $Out).
+%     …
+%
+% Quindi: una relazione geometrica, una formula economica, uno schema letto da
+% una pagina — niente ponte, niente codice. F.: «i ponti tra leggi o altre forme
+% rappresentative non sono gestiti».
+%
+% ── LA LEVA: IL PREDICATO VARIABILE ─────────────────────────────────────────
+%
+% `apply/2` lascia che una regola chiami un predicato il cui NOME e' una
+% variabile — il confine che il solver ha gia' e che mezza KB usa. Quindi il
+% ponte non deve conoscere `law_formula`: chiede alla KB **quali predicati
+% portano un modello**, e li percorre.
+%
+%     model_carrier(law_formula).      % un fatto. Insegnabile parlando.
+%
+% Da quel fatto in poi la legge e' codice in ogni linguaggio dichiarato, e un
+% dominio nuovo costa **un fatto**, non una riga di questo file ne' del C.
+%
+% ⚠ IL CONFINE (mantra #7, PRINCIPLES anti-inganno). Un modello estratto qui
+% puo' essere sbagliato — chi l'ha scritto puo' aver capito male la pagina che
+% leggeva. La cura non e' nascondere il dubbio: e' che il modello sia
+% ISPEZIONABILE. `model_provenance/2` dice da QUALE predicato viene, e la
+% risposta dichiara gia' che il codice non e' stato eseguito.
+
+:- file_attribute(machinery).
+
+% ── 1. CHE COS'E' UN MODELLO ────────────────────────────────────────────────
+%
+% La forma minima che serve per scrivere una funzione: una COSA, cio' che
+% CALCOLA, e l'ESPRESSIONE con cui lo calcola. Tre posizioni, in quest'ordine.
+% Un predicato che le ha, in qualunque dominio e con qualunque nome, e' un
+% portatore di modelli — e lo dichiara con un fatto.
+%
+%     model_carrier(Predicato).
+%
+% Non c'e' nessun elenco qui dentro: gli elenchi stanno nei domini, che sono i
+% soli a sapere che cosa hanno. La fisica dichiara `law_formula`; domani un
+% altro dominio dichiara il suo, e questo file non cambia.
+model_of($P, $Thing, $Out, $Expr) :-
+    model_carrier($P),
+    apply($P, cons($Thing, cons($Out, cons($Expr, nil)))).
+
+% ── DA DOVE VIENE QUESTO MODELLO ────────────────────────────────────────────
+% E' la domanda che tiene onesto il ponte, e deve essere PONIBILE, non solo
+% interrogabile dall'interno: un codice che parrot0 mostra senza poter dire da
+% quale fatto viene sarebbe plausibile e non verificabile — il confine del
+% mantra #7. `answer_frame/2` fa della relazione una domanda, e una superficie
+% nuova (o una lingua nuova) e' un fatto in piu'.
+model_provenance($Thing, $P) :- model_of($P, $Thing, $Out, $Expr).
+answer_frame("comes from", model_provenance).
+answer_frame("come from", model_provenance).
+answer_frame("viene da", model_provenance).
+
+% ── 2. L'ALGEBRA DELL'ESPRESSIONE ───────────────────────────────────────────
+%
+% Una foglia dell'albero e' una VARIABILE del modello (che diventa un parametro
+% della funzione) oppure una COSTANTE dichiarata (che diventa un letterale).
+% Che cosa sia una variabile lo dice il dominio: in fisica e' una grandezza che
+% ha un'unita', altrove sara' altro. Qui c'e' solo la domanda.
+%
+% Prima queste due righe stavano in laws.p0 e chiedevano `quantity_unit/2`:
+% l'algebra delle espressioni parlava di fisica, e nessun altro dominio poteva
+% usarla.
+code_expr($V, $V) :- model_variable($V).
+code_expr($K, $Lit) :- code_literal($K, $Lit).
+
+% Le forme composte. Il simbolo lo dice `code_operator/2` (compose.p0): qui non
+% c'e' nessun operatore scritto a mano, e un operatore nuovo vale subito per
+% ogni modello che lo usa.
+code_expr(product($A, $B), $T) :- code_binary(product, $A, $B, $T).
+code_expr(quotient($A, $B), $T) :- code_binary(quotient, $A, $B, $T).
+code_expr(sum($A, $B), $T) :- code_binary(sum, $A, $B, $T).
+code_expr(difference($A, $B), $T) :- code_binary(difference, $A, $B, $T).
+% Il quadrato e' il prodotto di una cosa per se stessa: non serve un operatore
+% nuovo, serve dire che cos'e'.
+code_expr(square($A), $T) :- code_binary(product, $A, $A, $T).
+
+code_binary($Op, $A, $B, $T) :-
+    code_operator($Op, $Sym), code_expr($A, $TA), code_expr($B, $TB),
+    code_infix($TA, $Sym, $TB, $T).
+code_infix($TA, $Sym, $TB, $T) :-
+    concat_atoms("(", $TA, $X), concat_atoms($X, " ", $Y), concat_atoms($Y, $Sym, $Z),
+    concat_atoms($Z, " ", $W), concat_atoms($W, $TB, $V), concat_atoms($V, ")", $T).
+
+% ── 3. CHE COSA UN'ESPRESSIONE USA ──────────────────────────────────────────
+% La vista che risponde a «in quale formula e' coinvolta la massa?» e che da' i
+% PARAMETRI della funzione. Non e' inferibile dalla prosa: richiede che la
+% variabile sia un nodo dell'albero.
+expr_uses($V, $V) :- model_variable($V).
+expr_uses(product($A, $B), $Q) :- expr_uses($A, $Q).
+expr_uses(product($A, $B), $Q) :- expr_uses($B, $Q).
+expr_uses(quotient($A, $B), $Q) :- expr_uses($A, $Q).
+expr_uses(quotient($A, $B), $Q) :- expr_uses($B, $Q).
+expr_uses(sum($A, $B), $Q) :- expr_uses($A, $Q).
+expr_uses(sum($A, $B), $Q) :- expr_uses($B, $Q).
+expr_uses(difference($A, $B), $Q) :- expr_uses($A, $Q).
+expr_uses(difference($A, $B), $Q) :- expr_uses($B, $Q).
+expr_uses(square($A), $Q) :- expr_uses($A, $Q).
+
+% ── 4. IL PONTE VERSO L'ARTEFATTO ───────────────────────────────────────────
+%
+% Le quattro righe che erano in laws.p0, adesso scritte una volta sola sopra
+% `model_of/4`. Il lettore delle richieste di codice (60-agent-tools.c) chiede
+% soltanto «che forma ha questa cosa» e «quali sono i suoi buchi»: non sapeva
+% niente di fisica prima e non sa niente di nessun dominio adesso.
+%
+% `formula_function` e la sua resa in ogni linguaggio stanno in
+% kb/experts/programming/code_shapes.p0. Una lingua nuova costa la sua firma e
+% il suo `return`.
+artifact_shape_for($Thing, formula_function) :- model_of($P, $Thing, $Out, $E).
+artifact_binding($Thing, name, $Out) :- model_of($P, $Thing, $Out, $E).
+artifact_binding($Thing, params, $Q) :- model_of($P, $Thing, $Out, $E), expr_uses($E, $Q).
+artifact_binding($Thing, body, $T) :- model_of($P, $Thing, $Out, $E), code_expr($E, $T).
+
+% Per chi la chiede per GRANDEZZE («force from mass and acceleration»): che cosa
+% una cosa calcola, e con che cosa.
+artifact_output($Thing, $Out) :- model_of($P, $Thing, $Out, $E).
+artifact_input($Thing, $Q) :- model_of($P, $Thing, $Out, $E), expr_uses($E, $Q).
+
+% ── 5. COME SI CHIAMA, E CHE COSA DICE ──────────────────────────────────────
+%
+% Un modello che non si sa NOMINARE non si puo' chiedere. La fisica aveva la sua
+% riga (`entity_alias($S, $L) :- law_surface($L, $S).`): qui c'e' quella di tutti,
+% cosi' un dominio nuovo dichiara le sue superfici e basta.
+entity_alias($Surface, $Thing) :- model_surface($Thing, $Surface).
+% E una cosa senza formula si sa comunque DIRE: l'arresto del lettore lo usa per
+% dire che cosa afferma invece di tacere.
+artifact_description($Thing, $Prose) :- model_prose($Thing, $Prose).

@@ -994,8 +994,22 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/p0-language.p0");
 
+    /* gen513 — IL PONTE DAL MODELLO AL CODICE, che non sa dove sta il modello:
+     * `model_carrier/1` + `apply/2`. Prima di laws.p0, che ora e' solo uno dei
+     * suoi domini e lo dichiara con un fatto. Vedi kb/core/model-bridge.p0. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/model-bridge.p0");
+
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/experts/physics/laws.p0");
+
+    /* gen513 (T2 del TODO prioritario) — il SECONDO dominio che diventa codice.
+     * Non c'e' una riga di geometria nel ponte ne' qui: `formulas.p0` dichiara
+     * `model_carrier(shape_formula)` e il resto e' inferenza. Se un giorno
+     * questo `kb_load` fosse l'unica cosa da scrivere per un dominio nuovo,
+     * il passo T2 sara' davvero chiuso. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/experts/geometry/formulas.p0");
 
     /* gen505h — IL SIMBOLO DI UN'OPERAZIONE E' CONOSCENZA DI LINGUAGGIO, non un
      * privilegio dell'agente. `code_operator/2` viveva solo in agent mode

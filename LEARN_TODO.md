@@ -1,5 +1,110 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🔴 TODO PRIORITARIO (F., 12 settembre 2026) — IL MODELLO SI ESTRAE DA UN PREDICATO QUALSIASI
+
+> F.: «la demo del codice della legge di Newton ci ha fatto capire che i ponti
+> tra leggi o altre forme rappresentative non sono gestiti. Dobbiamo fare una
+> nuova demo che riguarda scrivere il codice di qualcosa di cui **non abbiamo il
+> modello**: il modello deve essere preso dalla **memoria profonda** e potrà
+> essere incodato con un predicato di legge, di schema, di regola — non lo
+> sappiamo. Quello che sappiamo è che grazie alla tecnica del **predicato
+> variabile** possiamo estrarre il modello da un predicato arbitrario e far
+> scrivere a parrot0 qualsiasi codice in qualsiasi linguaggio.»
+
+## Dove siamo davvero (misurato il 12 settembre, non ipotizzato)
+
+La catena che oggi produce codice e' questa:
+
+```text
+law_formula/3  ──4 righe scritte a mano in laws.p0──▶  artifact_shape_for/2
+                                                        artifact_binding/3
+                                                              │
+                                                     code_shapes.p0 (forme + lingue)
+                                                              │
+                                                              ▼
+                                                    def force(mass, acceleration):
+                                                        return (mass * acceleration)
+```
+
+**Delle tre giunzioni, due sono gia' giuste e una no.**
+
+- ✅ **Il C non sa niente di fisica.** `60-agent-tools.c` chiede soltanto
+  «che forma ha questa cosa» e «quali sono i suoi buchi». Giusto cosi'.
+- ✅ **La LINGUA e' gia' generica.** Verificato al vivo: `python`, `c`,
+  `javascript`, `java` escono tutti dalla stessa forma `formula_function`, e una
+  lingua nuova costa la sua firma e il suo `return` — fatti, non codice. Questa
+  meta' della frase di F. («in qualsiasi linguaggio») **e' gia' vera**.
+- ⛔ **Il PONTE dal modello all'artefatto e' scritto per predicato.** Sono
+  quattro righe in `kb/experts/physics/laws.p0`:
+
+  ```prolog
+  artifact_shape_for($Law, formula_function) :- law_formula($Law, $Out, $E).
+  artifact_binding($Law, name,   $Out) :- law_defines($Law, $Out).
+  artifact_binding($Law, params, $Q)   :- law_formula($Law, $Out, $E), expr_uses($E, $Q).
+  artifact_binding($Law, body,   $T)   :- law_expression($Law, $T).
+  ```
+
+  Sanno il NOME `law_formula`. Un modello nuovo — una relazione geometrica, una
+  reazione, una formula economica, una regola letta da una pagina — **non ha
+  ponte, e da lui non puo' nascere nessun codice**. E' questo il «ponte fra
+  leggi o altre forme rappresentative» che F. dice mancante.
+
+## La leva: il predicato variabile
+
+`apply/2` lascia che una regola chiami un predicato il cui NOME e' una
+variabile — il confine che il solver ha gia' e che tredici file della KB usano
+(`dialogue-frames.p0`, `conditional-plans.p0`, `code-ir.p0`, `issues.p0`…).
+Quindi il ponte non deve conoscere `law_formula`: deve **chiedere alla KB quali
+predicati portano un modello e in che posizioni**.
+
+```prolog
+% (forma di arrivo, da verificare in T1 — i nomi sono una proposta)
+model_carrier(law_formula, 3).          % questo predicato porta un modello
+model_role(law_formula, subject, 1).    % chi e' il modello
+model_role(law_formula, output,  2).    % che cosa calcola
+model_role(law_formula, body,    3).    % con quale espressione
+```
+
+Il ponte diventa **una** regola che vale per ogni portatore dichiarato, oggi e
+domani, senza ricompilare — compreso un portatore che parrot0 si e' scritto da
+solo leggendo.
+
+## I passi, in ordine, con la prova di chiusura
+
+1. **T1 — il ponte generico.** Riscrivere `artifact_shape_for`/`artifact_binding`
+   via `apply/2` sopra `model_carrier`/`model_role`. **Prova:** le quattro leggi
+   producono lo stesso codice di oggi in tutte e quattro le lingue, e in
+   `laws.p0` la fisica dichiara SOLO che `law_formula` e' un portatore.
+2. **T2 — un secondo dominio, zero righe di ponte.** Un portatore diverso
+   (p.es. `area_formula(circle, area, product(pi, square(radius)))`), dichiarato
+   con due fatti. **Prova:** «show me the python code that computes the area of a
+   circle» risponde, e il diff del ponte e' vuoto.
+3. **T3 — il modello dalla MEMORIA PROFONDA.** Il caso vero di F.: parrot0
+   legge una pagina (`topic_read/2`, `deep_memory_has/1`), ne ricava una
+   relazione, e **da quella** scrive il codice. Nessuno ha scritto il modello a
+   mano. Qui si decide anche la domanda aperta: quale predicato lo incoda —
+   legge? schema? regola? — e la risposta deve poter essere «uno qualsiasi»,
+   perche' la dichiarazione di portatore e' un fatto che si puo' insegnare
+   parlando.
+4. **T4 — qualsiasi linguaggio.** Gia' vero per quattro lingue; va riverificato
+   dopo T1 e riaperto solo se T3 introduce forme che non sono
+   `formula_function`.
+5. **T5 — il banco.** Un `.p0t` (e/o `make model-code`): N modelli x M
+   linguaggi, dove N include almeno un modello che nessuno ha scritto a mano.
+   Deve essere impossibile farlo passare con un ponte per dominio.
+
+## Il confine da non superare (mantra #7, PRINCIPLES anti-inganno)
+
+Il codice prodotto **non e' verificato** finche' non e' eseguito: la risposta lo
+dice gia' («I have not run it»). Un modello estratto dalla memoria profonda puo'
+essere sbagliato — la pagina puo' dire una cosa e parrot0 capirne un'altra — e
+la cura non e' nascondere il dubbio: e' che il modello sia ISPEZIONABILE
+(«da dove viene questo modello?» deve rispondere con `topic_read`) e che il
+codice si possa mettere alla prova. **Non si accetta un ponte che scriva codice
+plausibile senza poter dire da quale fatto viene.**
+
+---
+
 # 🧭 HANDOFF — 12 settembre 2026 (`gen512`, undicesimo e dodicesimo giro): LA NEGAZIONE PARLATA E' CHIUSA, glm-test A DUE TERZI. RIPARTIRE DA QUI.
 
 > F.: «fixa tutti i problemi segnalati in docs/issues/glm-test.md, riparti da

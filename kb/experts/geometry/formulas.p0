@@ -1,0 +1,109 @@
+% formulas.p0 — LA GEOMETRIA ELEMENTARE COME MODELLI (gen513).
+%
+% Questo file esiste per una ragione precisa, e non e' «parrot0 deve sapere la
+% geometria»: e' la **prova di chiusura del passo T2** del TODO prioritario di
+% F. (LEARN_TODO, 12 settembre 2026). La domanda era: un dominio che non e' la
+% fisica puo' diventare codice **senza aggiungere una riga al ponte**?
+%
+% Qui dentro non c'e' nessuna regola che parli di codice, di artefatti o di
+% linguaggi. Ci sono FATTI, e una riga sola che dichiara al ponte che questo
+% predicato porta modelli:
+%
+%     model_carrier(shape_formula).
+%
+% Da quel fatto in poi «show me the python code that computes the area of a
+% circle» risponde, e lo stesso vale per il C, Java e JavaScript — senza che
+% nessuno abbia scritto niente per la geometria in `kb/core/model-bridge.p0`
+% ne' in `src/brain/`.
+%
+% ⚠ Le formule sono quelle che ogni testo di geometria elementare enuncia allo
+% stesso modo; le unita' non entrano (una lunghezza e' una lunghezza). Non sono
+% un'invenzione e non sono un banco travestito: se un giorno servissero solo a
+% far passare una demo, sarebbe barare anche stando in KB.
+
+% ⚠ NIENTE `file_attribute(machinery)`: nasconderebbe le formule a «che cosa sai
+% di X?», cioe' al modo in cui una lezione si verifica. E' l'errore che laws.p0
+% documenta in testa, e si ripeterebbe qui identico.
+
+% ── 1. I MODELLI ────────────────────────────────────────────────────────────
+% shape_formula(Cosa, CheCosaCalcola, ConQualeEspressione).
+shape_formula(circle_area, circle_area, product(pi, square(radius))).
+shape_formula(circle_circumference, circle_circumference, product(two, product(pi, radius))).
+shape_formula(rectangle_area, rectangle_area, product(width, height)).
+shape_formula(triangle_area, triangle_area, product(half, product(base, height))).
+shape_formula(trapezoid_area, trapezoid_area, product(half, product(sum(base, top), height))).
+shape_formula(sphere_volume, sphere_volume, product(four_thirds, product(pi, product(radius, square(radius))))).
+shape_formula(cylinder_volume, cylinder_volume, product(pi, product(square(radius), height))).
+shape_formula(cone_volume, cone_volume, product(third, product(pi, product(square(radius), height)))).
+shape_formula(box_volume, box_volume, product(width, product(height, depth))).
+
+% ── 2. LA RIGA CHE FA TUTTO IL RESTO ────────────────────────────────────────
+% Il ponte (kb/core/model-bridge.p0) non conosce `shape_formula`: chiede quali
+% predicati portano un modello, e lo chiama con `apply/2`. Questa e' la
+% dichiarazione, ed e' un fatto — quindi si puo' anche insegnare parlando.
+model_carrier(shape_formula).
+
+% ── 3. LE VARIABILI DEL DOMINIO ─────────────────────────────────────────────
+% Che cosa sia una variabile lo dice il dominio: in fisica e' una grandezza che
+% ha un'unita', qui e' una misura di una figura. Una foglia che non e' fra
+% queste (ne' una costante dichiarata) non e' un parametro, e l'espressione non
+% si rende affatto — meglio tacere che scrivere una funzione con un buco.
+machinery(shape_measure).
+shape_measure(radius).
+shape_measure(width).
+shape_measure(height).
+shape_measure(depth).
+shape_measure(base).
+shape_measure(top).
+model_variable($M) :- shape_measure($M).
+
+% ── 4. LE COSTANTI ──────────────────────────────────────────────────────────
+% `half` lo dichiara gia' la fisica; le altre sono di qui. Sono letterali: il
+% ponte le rende com'e' scritto, senza saperne il significato.
+code_literal(pi, "3.141592653589793").
+code_literal(two, "2").
+code_literal(third, "(1.0 / 3.0)").
+code_literal(four_thirds, "(4.0 / 3.0)").
+
+% ── 5. COME SI CHIEDONO ─────────────────────────────────────────────────────
+% `model_surface(Cosa, Superficie)`: il ponte ne fa un `entity_alias`, lo stesso
+% meccanismo con cui si nomina una legge. Le forme italiane costano una riga.
+machinery(model_surface).
+model_surface(circle_area, "area of a circle").
+model_surface(circle_area, "circle area").
+model_surface(circle_area, "area del cerchio").
+model_surface(circle_circumference, "circumference of a circle").
+model_surface(circle_circumference, "circle circumference").
+model_surface(circle_circumference, "circonferenza del cerchio").
+model_surface(rectangle_area, "area of a rectangle").
+model_surface(rectangle_area, "rectangle area").
+model_surface(rectangle_area, "area del rettangolo").
+model_surface(triangle_area, "area of a triangle").
+model_surface(triangle_area, "triangle area").
+model_surface(triangle_area, "area del triangolo").
+model_surface(trapezoid_area, "area of a trapezoid").
+model_surface(trapezoid_area, "trapezoid area").
+model_surface(sphere_volume, "volume of a sphere").
+model_surface(sphere_volume, "sphere volume").
+model_surface(sphere_volume, "volume della sfera").
+model_surface(cylinder_volume, "volume of a cylinder").
+model_surface(cylinder_volume, "cylinder volume").
+model_surface(cylinder_volume, "volume del cilindro").
+model_surface(cone_volume, "volume of a cone").
+model_surface(cone_volume, "cone volume").
+model_surface(box_volume, "volume of a box").
+model_surface(box_volume, "box volume").
+
+% ── 6. CHE COSA SI SA DIRE ──────────────────────────────────────────────────
+% Il ponte ne fa la `artifact_description`: chi chiede il codice di una cosa
+% senza formula riceve almeno che cosa afferma, invece di un muro.
+machinery(model_prose).
+model_prose(circle_area, "the area of a circle is pi times the radius squared").
+model_prose(circle_circumference, "the circumference of a circle is two times pi times the radius").
+model_prose(rectangle_area, "the area of a rectangle is width times height").
+model_prose(triangle_area, "the area of a triangle is half of the base times the height").
+model_prose(trapezoid_area, "the area of a trapezoid is half of the sum of the two parallel sides times the height").
+model_prose(sphere_volume, "the volume of a sphere is four thirds of pi times the radius cubed").
+model_prose(cylinder_volume, "the volume of a cylinder is pi times the radius squared times the height").
+model_prose(cone_volume, "the volume of a cone is a third of pi times the radius squared times the height").
+model_prose(box_volume, "the volume of a box is width times height times depth").

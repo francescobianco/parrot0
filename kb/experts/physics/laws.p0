@@ -88,12 +88,12 @@ entity_alias($Surface, $Law) :- law_surface($Law, $Surface).
 % ── 3. IL PERCORSO — che cosa una legge COINVOLGE ──────────────────────────
 % E' la vista che risponde alla domanda di F., e non e' inferibile dalla prosa:
 % richiede che la grandezza sia un nodo dell'albero.
-expr_uses($Q, $Q) :- quantity_unit($Q, $U).
-expr_uses(product($A, $B), $Q) :- expr_uses($A, $Q).
-expr_uses(product($A, $B), $Q) :- expr_uses($B, $Q).
-expr_uses(quotient($A, $B), $Q) :- expr_uses($A, $Q).
-expr_uses(quotient($A, $B), $Q) :- expr_uses($B, $Q).
-expr_uses(square($A), $Q) :- expr_uses($A, $Q).
+% gen513 — l'algebra delle espressioni e' in kb/core/model-bridge.p0: non
+% parlava di fisica, parlava di alberi, e finche' e' stata qui nessun altro
+% dominio ha potuto usarla. Qui resta la sola cosa che e' davvero di fisica:
+% in questo dominio una VARIABILE di un modello e' una grandezza che ha
+% un'unita'.
+model_variable($Q) :- quantity_unit($Q, $U).
 
 law_involves($Law, $Q) :- law_defines($Law, $Q).
 law_involves($Law, $Q) :- law_formula($Law, $Out, $Expr), expr_uses($Expr, $Q).
@@ -143,29 +143,9 @@ machinery(code_expr).
 machinery(law_expression).
 machinery(law_signature).
 
-% Una grandezza e' un parametro: si rende con il proprio nome.
-code_expr($Q, $Q) :- quantity_unit($Q, $U).
-% Una costante dichiarata si rende col proprio letterale.
-code_expr($K, $Lit) :- code_literal($K, $Lit).
+% gen513 — `code_expr/2`, `code_binary/4`, `code_infix/4` sono in
+% kb/core/model-bridge.p0. La sola costante di questo dominio resta qui.
 code_literal(half, "0.5").
-
-% Le forme composte. Il simbolo lo dice `code_operator/2`: qui non c'e' nessun
-% operatore scritto a mano.
-code_expr(product($A, $B), $T) :- code_binary(product, $A, $B, $T).
-code_expr(quotient($A, $B), $T) :- code_binary(quotient, $A, $B, $T).
-code_expr(sum($A, $B), $T) :- code_binary(sum, $A, $B, $T).
-code_expr(difference($A, $B), $T) :- code_binary(difference, $A, $B, $T).
-
-code_binary($Op, $A, $B, $T) :-
-    code_operator($Op, $Sym), code_expr($A, $TA), code_expr($B, $TB),
-    code_infix($TA, $Sym, $TB, $T).
-code_infix($TA, $Sym, $TB, $T) :-
-    concat_atoms("(", $TA, $X), concat_atoms($X, " ", $Y), concat_atoms($Y, $Sym, $Z),
-    concat_atoms($Z, " ", $W), concat_atoms($W, $TB, $V), concat_atoms($V, ")", $T).
-
-% Il quadrato e' il prodotto di una cosa per se stessa: non serve un operatore
-% nuovo, serve dire che cos'e'.
-code_expr(square($A), $T) :- code_binary(product, $A, $A, $T).
 
 % L'espressione di una legge, pronta da mettere dopo un `return`.
 law_expression($Law, $T) :- law_formula($Law, $Out, $E), code_expr($E, $T).
@@ -180,20 +160,17 @@ law_expression($Law, $T) :- law_formula($Law, $Out, $E), code_expr($E, $T).
 %                                        (piu' valori per lo stesso buco: una lista).
 % La forma e la sua resa in ogni lingua stanno in code_shapes.p0. Una legge
 % nuova diventa codice mostrabile nel momento in cui ha la sua formula.
-machinery(artifact_shape_for).
-machinery(artifact_binding).
-artifact_shape_for($Law, formula_function) :- law_formula($Law, $Out, $E).
-artifact_binding($Law, name, $Out) :- law_defines($Law, $Out).
-artifact_binding($Law, params, $Q) :- law_formula($Law, $Out, $E), expr_uses($E, $Q).
-artifact_binding($Law, body, $T) :- law_expression($Law, $T).
-% Per chi la chiede per GRANDEZZE («force from mass and acceleration»): che
-% cosa una cosa calcola, e con che cosa. Il lettore sceglie quella che definisce
-% una grandezza nominata e ne usa di piu'.
-machinery(artifact_output).
-machinery(artifact_input).
+% ⛔ gen513 — QUESTE QUATTRO RIGHE SAPEVANO IL NOME `law_formula`, ED E' PER
+% QUESTO CHE NESSUN ALTRO DOMINIO POTEVA DIVENTARE CODICE. Adesso il ponte sta
+% in kb/core/model-bridge.p0 e non conosce nessun predicato: chiede alla KB
+% quali portano un modello. Di fisica qui resta UN FATTO.
+%
+%   (era: artifact_shape_for($Law, formula_function) :- law_formula($Law,…).
+%         artifact_binding($Law, name, $Out) :- law_defines($Law, $Out).  …)
+machinery(model_carrier).
+machinery(model_variable).
+model_carrier(law_formula).
 machinery(artifact_description).
-artifact_output($Law, $Q) :- law_defines($Law, $Q).
-artifact_input($Law, $Q) :- law_formula($Law, $Out, $E), expr_uses($E, $Q).
 % Una cosa senza formula si sa comunque DIRE: l'arresto lo dice.
 artifact_description($Law, $P) :- law_prose($Law, $P).
 
