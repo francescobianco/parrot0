@@ -7036,6 +7036,14 @@ static int extract_class_statement(Brain *b, const char *norm,
          * preposizioni, congiunzioni e (la novita' che sblocca la prosa vera)
          * i pronomi relativi e i subordinatori. */
         while (p < n && !p0_np_closer(b, strip_edge_punct(w[p]))) p++;
+        /* gen513 — E LA CLASSE FINISCE ALLA VIRGOLA, come il soggetto (gen505y).
+         * «A satellite is an object, typically a spacecraft, placed into orbit»
+         * dava una classe di sei parole, scartata dal cancello di qualita': la
+         * definizione della frase andava perduta per colpa di un'apposizione
+         * che non le apparteneva. L'apposizione la legge poi la rilettura come
+         * seconda proposizione, che e' il suo posto. */
+        for (size_t k = cstart; k < p && k < 32; k++)
+            if (comma_at[k]) { p = k + 1; break; }
         if (p > cstart && ncls < 4 &&
             p0_join(w, cstart, p, classes[ncls], sizeof classes[ncls])) ncls++;
         if (p < n && p0_is_conj(b, w[p])) {
@@ -7264,14 +7272,20 @@ static int extract_class_statement(Brain *b, const char *norm,
          * produce un muro invece di un fatto. La virgola e' l'unico segno che le
          * separa, ed e' gia' stata letta in cima a questa funzione — prima che
          * `strip_edge_punct` la togliesse in place. */
+        /* gen513 — la coda si rilegge fino alla prima virgola: una relativa
+         * finisce li'. (Rileggere TUTTI i pezzi separati da virgola e' stato
+         * provato e RITIRATO: ogni pezzo e' un turno annidato, e su un
+         * paragrafo di dieci frasi il costo esplode — il testo da 299 parole
+         * ha smesso di rispondere entro cento secondi. Se si riprende, il modo
+         * giusto non e' un turno annidato per pezzo.) */
         size_t tend = n;
         for (size_t k = p; k < n && k < 32; k++)
             if (comma_at[k]) { tend = k + 1; break; }
         char tail[512]; size_t to = 0; tail[0] = '\0';
         for (size_t k = p; k < tend && to + 1 < sizeof tail; k++)
             to += (size_t)snprintf(tail + to, sizeof tail - to, "%s%s", to ? " " : "", w[k]);
-        while (to && (tail[to - 1] == ',' || tail[to - 1] == ' ')) tail[--to] = '\0';
-        while (to && (tail[to - 1] == '.' || tail[to - 1] == ' ')) tail[--to] = '\0';
+        while (to && (tail[to - 1] == ',' || tail[to - 1] == '.' ||
+                      tail[to - 1] == ' ')) tail[--to] = '\0';
         if (to > 2) {
             char again[640];
             snprintf(again, sizeof again, "%s %s", subj, tail);

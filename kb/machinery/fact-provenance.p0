@@ -243,6 +243,9 @@ fact_source(construction_frame("@S are built from @O", "@S made of @O", made_of)
 fact_source(construction_frame("@S built from @O", "@S made of @O", made_of), "@S built from @O", "x built from y means x made of y").
 fact_source(construction_frame("@S are formed of @O", "@S made of @O", made_of), "@S are formed of @O", "x are formed of y means x made of y").
 fact_source(construction_frame("@S formed of @O", "@S made of @O", made_of), "@S formed of @O", "x formed of y means x made of y").
+fact_source(construction_frame("@S placed in @O", "@S is located in @O", located_in), "@S placed in @O", "x placed in y means x is located in y").
+fact_source(construction_frame("@S placed into @O", "@S is located in @O", located_in), "@S placed into @O", "x placed into y means x is located in y").
+fact_source(located_in(probe, orbit), probe, "a probe placed into orbit").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -388,7 +391,10 @@ reading_fact(construction_frame("@S built from @O", "@S made of @O", made_of), "
 reading_fact(construction_frame("@S consist of @O", "@S made of @O", made_of), "x consist of y means x made of y").
 reading_fact(construction_frame("@S are formed of @O", "@S made of @O", made_of), "x are formed of y means x made of y").
 reading_fact(relation_verb(casts), "casts is a relation verb").
+reading_fact(construction_frame("@S placed in @O", "@S is located in @O", located_in), "x placed in y means x is located in y").
 reading_fact(construction_frame("@S formed of @O", "@S made of @O", made_of), "x formed of y means x made of y").
+reading_fact(construction_frame("@S placed into @O", "@S is located in @O", located_in), "x placed into y means x is located in y").
+reading_fact(located_in(probe, orbit), "a probe placed into orbit").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

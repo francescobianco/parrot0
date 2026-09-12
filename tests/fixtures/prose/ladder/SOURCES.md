@@ -43,3 +43,4 @@
   r464.txt  464 parole  Clock  https://en.wikipedia.org/wiki/Clock
   r485.txt  485 parole  Thunderstorm  https://en.wikipedia.org/wiki/Thunderstorm
   r497.txt  497 parole  Steel  https://en.wikipedia.org/wiki/Steel
+  r508.txt  508 parole  Satellite  https://en.wikipedia.org/wiki/Satellite

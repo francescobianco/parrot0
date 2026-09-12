@@ -2461,6 +2461,7 @@ count_of(day_in_a_week, seven).
 element_type(gold, metal).
 located_in(machu_picchu, peru).
 located_in(bergamo, lombardy).
+located_in(probe, orbit).
 
 % gen353: grammar-error knowledge. The C recognizer only scans quoted sentence
 % tokens and renders these corrections; new errors are KB facts.
