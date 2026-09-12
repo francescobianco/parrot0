@@ -4480,7 +4480,19 @@ static int p0_bad_subject(Brain *b, const char *t) {
                 const char *tq[1] = { ptoks[k] };
                 int inner_prep = k > 0 && k + 1 < pn &&
                                  kb_query(b->kb, "question_preposition", tq, 1);
-                if (!inner_prep && kb_query(b->kb, "subject_guard", tq, 1)) bad = 1;
+                /* gen513 — E NEANCHE UN DETERMINANTE INTERNO. Stessa dottrina,
+                 * l'altra meta': «the shadow OF THE style shows the time» non si
+                 * leggeva affatto — «the» e' una stopword, quindi un
+                 * `subject_guard`, e la guardia per parola bocciava il soggetto.
+                 * Ma «shadow of A style» passava: due frasi identiche, due esiti,
+                 * per quale articolo c'era in mezzo. Un articolo APRE un
+                 * sintagma nominale; dentro un nome composto e' cucitura, non
+                 * confine. E' la forma piu' comune di soggetto della prosa
+                 * d'enciclopedia («the force of the wind», «the margins of the
+                 * flows»), trovata al piolo 150 della scala. */
+                int inner_det = k > 0 && k + 1 < pn && p0_lead_det(b, ptoks[k]);
+                if (!inner_prep && !inner_det &&
+                    kb_query(b->kb, "subject_guard", tq, 1)) bad = 1;
             }
             if (!bad) return 0;
         }
@@ -6132,6 +6144,13 @@ static int p0_atom_is_concept(Brain *b, const char *atom) {
         const char *tq[1] = { toks[k] };
         if (nt >= 3 && k > 0 && k + 1 < nt &&
             kb_query(brain_kb(b), "question_preposition", tq, 1)) continue;
+        /* gen513 — E NEANCHE UN DETERMINANTE IN MEZZO ATTRAVERSA UN CONFINE.
+         * Stessa dottrina del gen510, l'altra meta': «shadow_of_THE_style» e
+         * «force_of_THE_wind» venivano respinti, e con loro la forma piu' comune
+         * di soggetto della prosa d'enciclopedia — «The shadow of the style
+         * shows the time» non si leggeva affatto. Un articolo apre un sintagma
+         * nominale: dentro un nome composto e' cucitura, non confine. */
+        if (nt >= 3 && k > 0 && k + 1 < nt && p0_lead_det(b, toks[k])) continue;
         return 0;                                  /* ha attraversato un confine */
     }
     return 1;
