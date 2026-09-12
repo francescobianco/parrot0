@@ -76,19 +76,25 @@ sembrava colpevole (`coref_resolve`, non `mod_knowledge`).
 
 ## ⛔ Aperto — in ordine di attacco (l'ordine del §C.4 del documento)
 
-1. **§4.2 numeri con ruoli — ERA IL PROSSIMO, DIAGNOSI A META'.**
-   «Tom has 12 apples.» → *«Learned: tom has 12 apples.»* ma «How many apples
-   does Tom have?» → *«I don't know how many apples tom has.»* — di nuovo
-   **conoscenza scritta in una forma e cercata in un'altra**. Il muro esce da
-   `src/brain/25-wordmath-reasoning.c:3922`
-   (`i_don_t_know_how_many_x_x_has`): da li' si guarda quale predicato
-   interroga, e si confronta con quello che l'asserzione scrive (trovarlo con un
-   breakpoint su `kb_assert if $_streq(args[0], "tom")` — serve un build
-   `CFLAGS='-std=c11 -w -O0 -g -DPARROT0_HAVE_CURL'`, **e un `rm -rf obj bin`
-   prima, altrimenti make non ricompila**). Solo DOPO ha senso il problema
-   vero del §4.2, la frase composta con due numeri e due ruoli.
-   Collegato: «I have 12 apples» legge «i» come articolo → *«A i has 12
-   apples»* (vedi la memoria «i put …», guardia di lingua assente).
+> **§4.2 CHIUSO** il 12 settembre (commit `da4558d5`, `2c8b35ab`, `35630b1b`),
+> in tutte e due le lingue:
+> ```text
+> I have 12 apples and I eat 5 apples. How many apples do I have?  -> 7.
+> Ho 12 mele e mangio 5 mele. Quante mele ho?                      -> 7.
+> ```
+> Tre cause, tutte della stessa famiglia («la conoscenza c'e', la strada no»):
+> la lista delle cue della sottrazione era un **doppione incompleto** di
+> `removal_verb/1` (aveva «eats» e non «eat»: in prima persona il verbo non porta
+> la «s»); il punto finale finiva dentro l'unita' (`quantity(tom, apples., 12)`);
+> e chi parla si raccontava in terza persona («A i has 12 apples»), da cui le due
+> classi nuove `speaker_pronoun/1` e `addressee_pronoun/1`.
+> **Il lascito piu' grande e' il terzo commit**: `intent_cue/2` combacia per
+> PAROLA INTERA, quindi **23 righe scritte come RADICI** («quant», «mangi»,
+> «moltiplic», «trov»…) non potevano accendersi — conoscenza dichiarata che non
+> funziona e non si lamenta. Ora stanno in `intent_cue_stem/2`. Il censimento e'
+> ripetibile ed e' descritto nel commit: **conviene rifarlo per `lex_class`**,
+> che potrebbe avere la stessa malattia.
+
 2. **§4.7 la facolta' di piano e' irraggiungibile da «how do I make X?»**.
    `intent_cue(process_request, "how do i make")` **c'e' gia'** (intents.p0:3732)
    ma il turno viene letto come `production_request` e i passi cedono

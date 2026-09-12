@@ -77,11 +77,19 @@
 > `habitat(penguins, the arctic)`. Sono **strade rotte, non lacune** — ed e'
 > per questo che non si chiudono parlando: insegnare passa dalla stessa strada.
 >
-> Restano aperte, in ordine: **4.2** (numeri con ruoli — diagnosi a meta': «Tom
-> has 12 apples» si impara e «How many apples does Tom have?» non lo trova),
-> **4.7** (il piano irraggiungibile da «how do I make X?» e «first» senza
-> maniglia), **5.2**, **4.5**, **3.5** e **D2** (servono la rete), **6.1**.
-> Diagnosi e ordine di attacco in `LEARN_TODO.md`, handoff del 12 settembre.
+> | **4.2** | **chiuso** (commit `da4558d5`, `2c8b35ab`, `35630b1b`). «I have 12 apples and I eat 5 apples. How many apples do I have?» → **«7.»**, e «Ho 12 mele e mangio 5 mele. Quante mele ho?» → **«7.»**. Non era la prima persona: fra le cue della sottrazione c'erano «eats», «ate», «sells» — le terze persone — e non «eat», «sell». Le forme mancanti erano gia' in KB sotto `removal_verb/1`: la lista era un **doppione disallineato**, e ora l'operazione la sceglie la classe |
+>
+> Restano aperte, in ordine: **4.7** (il piano irraggiungibile da «how do I make
+> X?» e «first» senza maniglia), **5.2**, **4.5**, **3.5** e **D2** (servono la
+> rete), **6.1**. Diagnosi e ordine di attacco in `LEARN_TODO.md`, handoff del
+> 12 settembre.
+>
+> **Una specie nuova, trovata chiudendo il §4.2 nell'altra lingua:** `intent_cue/2`
+> combacia per PAROLA INTERA, e **23 righe erano scritte come RADICI** («quant»,
+> «mangi», «moltiplic», «trov»…). Erano giuste e non potevano accendersi mai —
+> conoscenza dichiarata che non funziona e non si lamenta. Spostate in
+> `intent_cue_stem/2`; il censimento e' ripetibile e conviene rifarlo per le
+> classi lessicali.
 
 # ANALISI CRITICA — nuova intervista dell'11 settembre 2026 (`gen512`), `make chat` soltanto
 
