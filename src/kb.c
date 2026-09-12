@@ -2867,6 +2867,35 @@ int kb_view_ensure(KB *kb, const char *pred) {
         kb->views_preparing = 0;
         return v->live;
     }
+    /* 12 settembre 2026 — LE DIPENDENZE PRIMA, ANCHE DENTRO UN TURNO.
+     * `kb_views_warm` costruisce una vista dopo quelle da cui dipende (gen505s),
+     * ma una vista invalidata a turno — un verbo insegnato adesso — si
+     * ricostruiva qui da sola: la dipendenza non era viva, veniva ri-derivata
+     * per ogni soluzione, e il turno passava da meno di un secondo a diciotto.
+     * Stesso ordine, stessa conoscenza (`view_depends/2`); `building` fa da
+     * guardia ai cicli mentre si scende. */
+    {
+        v->building = 1;
+        kb->views_preparing = 0;
+        char (*deps)[KB_TERM_LEN] = NULL; size_t nd = 0;
+        const char *dq[2] = { pred, NULL };
+        if (kb_match_all(kb, "view_depends", dq, 2, &deps, &nd)) {
+            for (size_t i = 0; i < nd; i++) {
+                if (!strcmp(deps[i], pred)) continue;
+                size_t dk = kb_view_slot(kb, deps[i]);
+                if (dk == (size_t)-1) continue;
+                const KbView *dv = &kb->views[dk];
+                if (dv->live || dv->attempted || dv->building) continue;
+                kb_view_ensure(kb, deps[i]);
+            }
+        }
+        free(deps);
+        kb->views_preparing = 1;
+        k = kb_view_slot(kb, pred);
+        if (k == (size_t)-1) { kb->views_preparing = 0; return 0; }
+        v = &kb->views[k];
+        v->building = 0;
+    }
     v->attempted = 1;
     if (!kb_view_dependencies(kb, v)) {
         kb->views_preparing = 0;
@@ -6632,6 +6661,12 @@ int kb_derive_part_of(KB *kb) {
                         strcmp(key_pred[ki], pred) != 0) { ok = 1; break; }
                 if (!ok) continue;
             }
+            /* E non e' nemmeno una PARTE: «electrons are transferred» nella
+             * descrizione di redox dava `part_of(are, redox)`, e «what are
+             * zorbs made of?» — su qualunque soggetto — elencava sedici
+             * «interi» della parola «are». Stessa conoscenza di sopra. */
+            { const char *sq[1] = { ctoks[c] };
+              if (kb_query(kb, "stopword", sq, 1)) continue; }
             const char *args[2] = { ctoks[c], key };
             if (kb_assert(kb, "part_of", args, 2)) added++;
         }

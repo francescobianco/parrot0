@@ -1,5 +1,108 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+## ⛔ HANDOFF 2026-09-12 (sessione 2, dopo gen513 giro 3) — PIOLO 300: 13 → 16/50
+
+**Punto di ripresa autoritativo per la lettura della prosa.** Sostituisce come
+stato quello del giro 3 qui sotto, che resta valido come mappa delle cause.
+
+### Stato misurato
+
+| | inizio sessione | iterazione 1 | iterazione 2 (committata) |
+|---|---|---|---|
+| merito | 13/50 | 15/50 | **16/50 = 32%** |
+| cancello | 72/299 | 82/299 | **91/299** |
+| risposte false nel banco | 4 (A1–A4) | 4 (A1 chiusa, «kind of corals» → «Colonies.» nuova) | **2** («calcium carbonate for?» → CaCO3; «what do reefs form?» → «some.») |
+
+Misurato con `P0_PROBE_STEP2=1 ./scripts/prose-probe.sh tests/fixtures/prose/ladder/r300.txt`
+su una **copia** di `kb/ bin/ scripts/ tests/fixtures` nello scratchpad, così si
+lavora nell'albero mentre il banco gira (~8 minuti). Da ripetere così.
+⚠ L'iterazione 2 è stata misurata **prima** di due correzioni di costo
+(ordinamento nella cache, comparative escluse dalle varianti) che non cambiano
+le letture: da rimisurare subito alla ripresa per conferma.
+
+### Che cosa è stato fatto — sei difetti, tutti di classe
+
+1. **A1, la bugia «what are X made of?»** (su *qualunque* X). La vista derivata
+   `part_of` (`kb_derive_part_of`, `src/kb.c`) prendeva «are» come PARTE di
+   `redox` («electrons are transferred»). La guardia `stopword/1` c'era solo
+   per il contenitore; ora vale anche per la parte.
+2. **Il passivo con particella nomina la propria relazione.** «Reefs are formed
+   of colonies» scriveva `form(reefs, colonies)`, cioè il fatto di «reefs form
+   colonies»: da lì «what do shallow coral reefs form?» → «Colonies.» (A3). Ora
+   la relazione è la superficie: `formed_of`, `built_from`, `made_of` (lo stesso
+   predicato di `world-facts`). `kb/core/grammar.p0`, `particle_passive_relation/4`.
+3. **Le lezioni di costruzione non erano più mute.** In
+   `kb/learning/constructions.p0` c'erano già «x are formed of y means x made of
+   y» ecc., ma il lettore generico combaciava sulla stessa stringa e vinceva per
+   ordine. Ora: una lezione copulare vale per ogni `frame_copula`
+   (`construction_variant/4`) e **toglie la superficie al generico**
+   (`construction_claims/1`, vista materializzata). *Strada interrotta, non
+   lacuna*: la conoscenza c'era.
+4. **Il tipo della risposta** (A2 e un nuovo falso). «what **phylum** does coral
+   belong to?» → «Class anthozoa.»; «what **kind of corals**…» → «Colonies.».
+   `asked_answer_type/2` legge il tipo dai token del turno (nome fra
+   interrogativo e ausiliare, o dopo `type_noun`), `answer_fits_type/2` decide
+   (parola, lemma, classe); il C (`p0_answer_type_filter`) tiene solo i
+   candidati che la KB accetta. Ora murano invece di mentire.
+5. **La relativa ridotta senza virgola** (serbatoio B). «colonies of coral
+   polyps HELD TOGETHER BY calcium carbonate»: `relative_rewrite`
+   (`99-registry.c`) spezza anche sulle superfici di `reduced_relative_surface/1`
+   non precedute da copula; se l'IR non ha un sintagma (plurale nudo) risale i
+   token fino a `antecedent_stop/1`. Guardia sul predicato nominale («is an
+   underwater ecosystem characterized by…» resta alla lettura della
+   definizione). Più `adverbial_particle/1` (together, apart) per «held together
+   by @O», e `np_closer` derivato dai participi dei verbi con particella.
+6. **Fra due schemi che combaciano vince il più specifico** (più parole
+   letterali), non il primo enumerato. La cache degli schemi si ordina una volta
+   alla ricostruzione (`p0_frame_patterns`).
+
+E due difetti di motore trovati per strada, entrambi da non ripetere:
+- **una vista invalidata a turno si ricostruiva prima delle sue dipendenze**:
+  dopo «X is a relation verb» un turno costava 18 s. `kb_view_ensure` ora
+  costruisce prima le viste di `view_depends/2`, come già il boot.
+- **le lezioni sono salvate fra virgolette e gli schemi costruiti no**, e
+  l'unificazione le distingue: una guardia che chiede una lezione per primo
+  argomento con uno schema costruito non la trova mai.
+
+### Costo — misurato A/B, da tenere d'occhio
+
+Boot 176 → ~230 ms. Dodici turni misti: ~+0,5 s (≈ +4% per turno), ridotto da
++10% togliendo due costi. `make soft-test` era già rosso per tempo prima della
+sessione (`basics.p0t`, verificato su `742327d6`) e resta tale. Il resto del
+costo non è ancora localizzato: la prima cosa da profilare alla ripresa.
+
+### Trappole pagate in questa sessione
+
+- **Una guardia `naf(...)` dentro una vista che enumera un predicato con regole
+  costose** porta il boot da 0,2 a 17 s: congelare la guardia come vista.
+- **Le varianti generate si moltiplicano per ogni regola del predicato**: le
+  comparative (272 verbi × copule) facevano +1459 schemi e +10% di turno.
+- **`pkill -f "parrot0 --test-engine"` uccide la shell che lo lancia**: usare il
+  pid di `obj/test-engine.pid`.
+
+### ⛔ LE 34 CHE RESTANO, e l'ordine consigliato
+
+1. **Ultima bugia**: «what is calcium carbonate for?» → «calcium carbonate is
+   CaCO3.» (risponde dalla KB fredda a una domanda di scopo).
+2. **«some of Earth's most diverse ecosystems»** → `form(reefs, some)`: il
+   partitivo dopo un quantificatore appartiene al valore (stessa mossa della
+   misura, gen513). Poi «what do shallow coral reefs form?» risponde.
+3. **La relativa «that» senza virgola** («ocean waters that provide few
+   nutrients») e **«in the animal phylum Cnidaria»** attaccato ad Anthozoa: con
+   il punto 4 sopra renderebbe rispondibile «what phylum…».
+4. **C — forme di domanda** (where … grow best, at what depths, how many, since
+   when, what lives in): molte sono una riga di `answer_frame`.
+5. **D — il quantificatore non universale** («Most coral reefs are built
+   from…»): serve tenere una relazione *attenuata*.
+6. **E — light verbs** (under threat from, provide a home for, sensitive to).
+7. **La valutazione `apply`** è in `docs/plans/the-magic-of-apply.md` Parte VI:
+   il catalogo delle capacità può diventare il registro dei *lettori* e delle
+   *forme di domanda*, e §5.3 (esiti epistemici) serve per non contare un muro
+   onesto come un difetto.
+
+---
+
+
 ## ⛔ HANDOFF 2026-09-12 (gen513, giro 3) — PIOLO 300 AL 26%, OBIETTIVO 80%
 
 **Punto di ripresa autoritativo per la lettura della prosa.** Piani vivi:

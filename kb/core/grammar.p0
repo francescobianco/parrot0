@@ -674,6 +674,19 @@ np_closer(characterised).
 np_closer(surrounded).
 np_closer(covered).
 np_closer(found).
+% 12 settembre 2026 — e la CLASSE, sotto l'elenco: il participio di un verbo con
+% particella apre la sua relativa ridotta. «colonies of coral polyps HELD
+% together by…» restava un sintagma solo fino a «by», e la domanda cercava una
+% chiave che il lettore non aveva mai scritto. L'elenco resta (additivo); un
+% verbo con particella insegnato domani chiude il sintagma senza una riga qui.
+% ⚠ Il cammino e' caldo (una domanda per token): la parola arriva LEGATA, quindi
+% prima si toglie il suffisso (`concat_atoms` inverso) e poi si chiede il verbo
+% per primo argomento — mai enumerare i verbi.
+np_closer($Form) :-
+    participle_suffix($Suffix), concat_atoms($Root, $Suffix, $Form),
+    verb_particle($Root, $Particle).
+np_closer($Form) :-
+    verb_stem($Form, $Root), verb_particle($Root, $Particle).
 % gen512 (settimo giro): la definizione italiana di «veleno», letta attraverso
 % la canonicalizzazione, dava la classe «sostanza what assunta» e un luogo di
 % quindici parole («organismo vivente has effetti …»). Un «what» dopo un nome
@@ -1287,11 +1300,56 @@ verb_particle_passive($Root, $Surface) :-
     verb_particle($Root, $Particle), verb_participle_form($Root, $Form),
     concat_atoms($Form, " ", $A), concat_atoms($A, $Particle, $Surface).
 
-extract_frame($Pat, $Root) :-
-    frame_copula($Cop), verb_particle_passive($Root, $Surface),
+% ── 12 settembre 2026 — IL PASSIVO NOMINA LA PROPRIA RELAZIONE ─────────────
+% Le righe sotto producevano la RADICE: «Reefs are formed of colonies» dava
+% `form(reefs, colonies)`, cioe' lo stesso fatto di «reefs form colonies» — il
+% verso opposto. Il soggetto del passivo e' cio' che viene formato, e l'attivo
+% ha per soggetto chi forma: due convenzioni nello stesso cassetto. Misurato
+% sul piolo 300: «what do shallow coral reefs form?» rispondeva «Colonies.»,
+% una bugia costruita da una frase vera.
+% La relazione di un passivo con particella e' la sua SUPERFICIE: «formed of»
+% e' `formed_of`, «built from» e' `built_from`, «made of» e' `made_of` — lo
+% stesso predicato che il mondo usa gia' (`made_of(bread, flour)`). Il nome
+% nasce dalla superficie, quindi un verbo con particella insegnato domani ha
+% la sua relazione passiva senza una riga nuova.
+machinery(verb_particle_passive_relation).
+machinery(particle_passive_relation).
+particle_passive_relation($Root, $Particle, $Pred, $Surface) :-
+    verb_particle($Root, $Particle), verb_participle_form($Root, $Form),
+    concat_atoms($Form, " ", $A), concat_atoms($A, $Particle, $Surface),
+    concat_atoms($Form, "_", $B), concat_atoms($B, $Particle, $Pred).
+verb_particle_passive_relation($Pred, $Surface) :-
+    particle_passive_relation($Root, $Particle, $Pred, $Surface).
+
+extract_frame($Pat, $Pred) :-
+    frame_copula($Cop), verb_particle_passive_relation($Pred, $Surface),
+    concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
+    concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat),
+    naf(construction_claims($Pat)).
+answer_frame($Surface, $Pred) :- verb_particle_passive_relation($Pred, $Surface).
+
+% E una particella AVVERBIALE non regge un oggetto: in «colonies HELD TOGETHER
+% BY calcium carbonate» il complemento arriva dopo il marcatore d'agente, e lo
+% schema «@S held together @O» legava «by calcium carbonate» come oggetto.
+% Quali particelle siano avverbiali e' lessico: una nuova («apart», «up») e'
+% una riga e vale per ogni verbo che la porta.
+machinery(adverbial_particle).
+machinery(verb_particle_agent_relation).
+adverbial_particle(together).
+adverbial_particle(apart).
+verb_particle_agent_relation($Pred, $Surface) :-
+    adverbial_particle($Particle), particle_passive_relation($Root, $Particle, $Bare, $BareSurface),
+    passive_agent_marker($By),
+    concat_atoms($BareSurface, " ", $A), concat_atoms($A, $By, $Surface),
+    concat_atoms($Bare, "_", $B), concat_atoms($B, $By, $Pred).
+extract_frame($Pat, $Pred) :-
+    frame_copula($Cop), verb_particle_agent_relation($Pred, $Surface),
     concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
     concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat).
-answer_frame($Surface, $Root) :- verb_particle_passive($Root, $Surface).
+extract_frame($Pat, $Pred) :-
+    verb_particle_agent_relation($Pred, $Surface),
+    concat_atoms("@S ", $Surface, $A), concat_atoms($A, " @O", $Pat).
+answer_frame($Surface, $Pred) :- verb_particle_agent_relation($Pred, $Surface).
 
 % ── gen513 — LA RELATIVA RIDOTTA: IL PARTICIPIO SENZA COPULA ───────────────
 %
@@ -1307,9 +1365,10 @@ answer_frame($Surface, $Root) :- verb_particle_passive($Root, $Surface).
 % smettono di essere casi speciali.
 %
 % ⚠ E' la stessa superficie del passivo, senza il «is»/«are»: non e' una
-% relazione diversa, e' la stessa vista da dentro un sintagma.
-extract_frame($Pat, $Root) :-
-    verb_particle_passive($Root, $Surface),
+% relazione diversa, e' la stessa vista da dentro un sintagma — quindi porta lo
+% stesso nome del passivo (`characterized_by`, `held_together`), non la radice.
+extract_frame($Pat, $Pred) :-
+    verb_particle_passive_relation($Pred, $Surface),
     concat_atoms("@S ", $Surface, $A),
     concat_atoms($A, " @O", $Pat).
 
@@ -1535,8 +1594,46 @@ extract_frame($Pat, located_in) :-
 machinery(construction_frame).
 machinery(construction_answer_cue).
 
-extract_frame($Source, $Predicate) :-
+machinery(construction_reading).
+extract_frame($Source, $Predicate) :- construction_reading($Source, $Predicate).
+construction_reading($Source, $Predicate) :-
     construction_frame($Source, $Target, $Predicate).
+
+% ── 12 settembre 2026 — LA COPULA DI UNA LEZIONE NON E' PARTE DELLA LEZIONE ─
+% «x is formed of y means x is made of y» si impara, e poi «Reefs ARE formed of
+% colonies» non la usa: lo schema insegnato porta la copula con cui e' stato
+% DETTO, e la prosa usa quella del proprio soggetto. Chi insegna una costruzione
+% copulare insegna la costruzione, non il numero del verbo: la stessa lezione
+% vale per ogni `frame_copula/1`. Nessuna copula nuova qui — la classe e' quella.
+machinery(copular_head).
+machinery(construction_variant).
+copular_head($Cop, $Head) :-
+    frame_copula($Cop), concat_atoms("@S ", $Cop, $A), concat_atoms($A, " ", $Head).
+% ⚠ Non per le comparative: quelle derivano da ogni verbo di relazione con il
+% legante di `comparative_frame/2`, e le loro varianti di copula erano 1459
+% schemi in piu' da scorrere a ogni lettura (+10% del turno, misurato).
+machinery(comparative_construction_source).
+comparative_construction_source($Source) :-
+    comparative_frame($Pre, $Post), concat_atoms($Body, $Post, $Source).
+construction_variant($Pattern, $Predicate, $Said, $Other) :-
+    construction_frame($Source, $Target, $Predicate),
+    naf(comparative_construction_source($Source)),
+    copular_head($Said, $Head), concat_atoms($Head, $Rest, $Source),
+    copular_head($Other, $OtherHead), concat_atoms($OtherHead, $Rest, $Pattern).
+construction_reading($Pattern, $Predicate) :-
+    construction_variant($Pattern, $Predicate, $Said, $Other), dif($Other, $Said).
+
+% Una lezione che dice che cosa SIGNIFICA una superficie la toglie ai lettori
+% generici della stessa superficie: «x is formed of y means x is made of y»
+% e il passivo generico (`formed_of`) combaciano sulla STESSA stringa, e senza
+% questa guardia vinceva chi veniva enumerato prima — la lezione era muta.
+% ⚠ Due trappole pagate. (1) Chiederla schema per schema rienumerava tutte le
+% costruzioni, comprese le comparative derivate da ogni verbo: boot da 0,2 a
+% 17 secondi. (2) Le lezioni sono salvate fra virgolette e gli schemi costruiti
+% no, e l'unificazione le distingue: per questo la guardia raccoglie le forme
+% COSTRUITE, compresa la copula originale, e si congela come vista.
+machinery(construction_claims).
+construction_claims($Pattern) :- construction_variant($Pattern, $Predicate, $Said, $Other).
 
 % E le costruzioni gia' imparate hanno una casa nell'albero curato, cosi' una
 % lezione data oggi vale ancora domani senza che nessuno la ricopi.
@@ -2799,6 +2896,9 @@ linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
 machinery(materialized_view).
 materialized_view(extract_frame, 2).
 materialized_view(verb_stem, 2).
+% Le superfici che una lezione di costruzione rivendica (vedi `construction_claims/1`):
+% la guardia del passivo generico le chiede una per schema, quindi si congelano.
+materialized_view(construction_claims, 1).
 % gen510 — le COPPIE di una vista binaria in una sola enumerazione. Il motore
 % (`kb_view_ensure`) la usa per congelare una vista senza rienumerarla una volta
 % per ogni primo argomento: con `extract_frame` era un costo quadratico nel
@@ -2817,6 +2917,7 @@ view_depends(extract_frame, relation_verb).
 view_depends(extract_frame, ternary_relation_verb).
 view_depends(extract_frame, verb_suffix).
 view_depends(extract_frame, verb_stem).
+view_depends(extract_frame, construction_claims).
 view_depends(verb_stem, relation_verb).
 view_depends(verb_stem, verb_suffix).
 
@@ -2878,3 +2979,66 @@ measured_value_max_words(9).
 % verbi; i verbi di relazione insegnati sono centinaia, e sono verbi a tutti
 % gli effetti. Un confine dichiarato una volta vale per il lettore E per la IR.
 np_closer($V) :- relation_verb($V).
+
+% ── 12 settembre 2026 — LA DOMANDA DICHIARA IL TIPO DELLA RISPOSTA ─────────
+% «what PHYLUM does coral belong to?» riceveva «Class anthozoa.», e «what KIND
+% OF CORALS are most reefs built from?» riceveva «Colonies.»: la relazione era
+% giusta, il valore no, perche' la parola che nomina il tipo chiesto non la
+% guardava nessuno. Una risposta confidente del tipo sbagliato e' una bugia
+% (mantra #7), non una risposta parziale.
+% Il tipo e' il nome fra l'interrogativo e l'ausiliare («what phylum DOES»),
+% oppure dopo un nome di tipo («what kind of corals ARE»). L'ausiliare dopo e'
+% la condizione che separa un tipo da un verbo: «what holds coral…» non chiede
+% un tipo «holds». Tutte le parole sono classi: una lingua nuova e' una riga.
+machinery(typed_wh_word).
+machinery(type_noun).
+machinery(asked_answer_type).
+machinery(answer_fits_type).
+machinery(answer_type_ok).
+typed_wh_word(what).
+typed_wh_word(which).
+type_noun(kind).
+type_noun(type).
+type_noun(sort).
+auxiliary(did).
+turn_word($T, $I, $W) :- turn_surface_token($T, 0, $I, $Tok), span_atom($Tok, $W).
+turn_word_opens_clause($T, $I) :- turn_word($T, $I, $W), auxiliary($W).
+turn_word_opens_clause($T, $I) :- turn_word($T, $I, $W), clause_copula($W).
+asked_answer_type($T, $Type) :-
+    turn_word($T, $I, $Wh), typed_wh_word($Wh), is($J, add($I, 1)),
+    turn_word($T, $J, $Type), naf(type_noun($Type)), naf(stopword($Type)),
+    is($K, add($I, 2)), turn_word_opens_clause($T, $K).
+asked_answer_type($T, $Type) :-
+    turn_word($T, $I, $Wh), typed_wh_word($Wh), is($J, add($I, 1)),
+    turn_word($T, $J, $N), type_noun($N), is($K, add($I, 3)),
+    turn_word($T, $K, $Type), typed_after_type_noun($T, $K).
+typed_after_type_noun($T, $K) :- is($L, add($K, 1)), turn_word_opens_clause($T, $L).
+% La risposta e' del tipo se lo NOMINA (anche al singolare o al plurale), o se
+% la KB la tiene come membro di quella classe.
+answer_fits_type($Ans, $Type) :- atom_words($Ans, $Ws), member($Type, $Ws).
+answer_fits_type($Ans, $Type) :- lemma_candidate($Type, $L), atom_words($Ans, $Ws), member($L, $Ws).
+answer_fits_type($Ans, $Type) :- atom_words($Ans, $Ws), member($W, $Ws), lemma_candidate($W, $Type).
+answer_fits_type($Ans, $Type) :- apply($Type, cons($Ans, nil)).
+answer_fits_type($Ans, $Type) :- lemma_candidate($Type, $L), apply($L, cons($Ans, nil)).
+has_asked_answer_type($T) :- asked_answer_type($T, $Type).
+answer_type_ok($T, $Ans) :- naf(has_asked_answer_type($T)).
+answer_type_ok($T, $Ans) :- asked_answer_type($T, $Type), answer_fits_type($Ans, $Type).
+
+% ── 12 settembre 2026 — CHE COSA APRE UNA RELATIVA RIDOTTA ─────────────────
+% Il participio di un verbo con particella, anche con il suo marcatore d'agente:
+% «colonies of coral polyps HELD TOGETHER BY calcium carbonate». Il lettore
+% (99-registry.c, `relative_rewrite`) spezza la frase qui e da' alla seconda
+% proposizione l'antecedente che la IR trova. Nessuna superficie e' scritta a
+% mano: sono quelle che la grammatica genera dai verbi con particella.
+machinery(reduced_relative_surface).
+reduced_relative_surface($Surface) :- verb_particle_passive_relation($Pred, $Surface).
+reduced_relative_surface($Surface) :- verb_particle_agent_relation($Pred, $Surface).
+% Dove finisce, all'indietro, l'antecedente di una relativa ridotta quando la IR
+% non ha un sintagma (plurale nudo): a un verbo, a una copula, a un determinante
+% o a un confine di sintagma — ma NON al partitivo, che tiene insieme «colonies
+% OF coral polyps».
+machinery(antecedent_stop).
+antecedent_stop($W) :- np_closer($W), naf(partitive_preposition($W)).
+antecedent_stop($W) :- phrase_boundary(np, breaker, $W).
+antecedent_stop($W) :- clause_copula($W).
+antecedent_stop($W) :- np_opener($W).

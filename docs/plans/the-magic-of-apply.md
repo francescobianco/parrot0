@@ -720,3 +720,70 @@ ritrattazione deve percorrere la stessa strada in senso inverso.** `apply` è
 una delle meccaniche che lo rende possibile, insieme a unificazione,
 composizione, controllo della ricerca e revisione. Non è da sola una teoria
 dell'intelligenza né l'unico meccanismo possibile di dispatch dinamico.
+
+---
+
+## Parte VI — Valutazione: `apply` come espansione della comprensione della prosa
+
+**12 settembre 2026, sessione 2**, dopo un giro sul piolo 300 (13 → 16/50,
+`LEARN_TODO.md` in testa). La domanda di F.: il lavoro di questo piano può
+alzare il livello di comprensione, e quali sezioni della Parte V servono davvero?
+
+### 6.1 Che cosa il giro ha mostrato
+
+Quattro dei sei difetti chiusi avevano **la stessa forma**: più lettori o più
+schemi per la stessa superficie, e il vincitore deciso dall'ordine di
+enumerazione, non dalla conoscenza.
+
+| difetto | chi competeva | come si è deciso ora |
+|---|---|---|
+| «Reefs are formed of colonies» | passivo generico ↔ lezione `made_of` | la lezione rivendica la superficie (`construction_claims/1`) |
+| «held together by» | «@S held @O» ↔ «@S held together by @O» | vince lo schema più specifico |
+| «what phylum…» | ogni valore della relazione ↔ il tipo chiesto | `answer_type_ok/2` filtra |
+| «what are X made of?» | `part_of` derivato da ogni testo ↔ nessuno | la parola funzione non è una parte |
+
+Sono esattamente il caso che la **porta del «chi»** (Parte I §1.3) risolve per
+le capacità: invece di elencare i produttori nel consumatore, i produttori si
+dichiarano e il consumatore sceglie **per contratto**. Oggi i lettori di prosa
+non sono ancora nel catalogo: sono ~5400 schemi in una lista piatta, e la scelta
+fra loro è una politica del C (primo che combacia, ora ordinato per parole
+letterali).
+
+### 6.2 Impatto proposto, in ordine di resa
+
+1. **I lettori come capacità** (`capability_registry(reader, …)`). Un lettore
+   dichiara la superficie che rivendica, la relazione che produce, il verso dei
+   ruoli e la sua *forza* (lezione esplicita > costruzione generica > schema
+   derivato). La guardia `construction_claims/1` di questo giro è un caso
+   particolare scritto a mano: generalizzata, diventa `capability_call` sul
+   lettore vincente. **Prova d'arrivo:** insegnare parlando una lettura in
+   conflitto con un generico la fa vincere senza nessuna guardia nuova; ritirarla
+   restituisce il generico.
+2. **Le forme di domanda come capacità.** Il serbatoio C del piolo (where … grow
+   best, at what depths, how many, since when) è un elenco di `answer_frame` e di
+   rami in `mod_answer_frame`. Con `apply` una forma di domanda è un portatore
+   `(superficie, relazione, ruolo chiesto, tipo atteso)`, e il tipo atteso di
+   questo giro (`asked_answer_type/2`) ne è un campo. **Prova:** una forma nuova
+   si insegna in una frase e risponde sulla prosa già letta.
+3. **`between_relation_name` sulla prosa letta.** «what is the relation between
+   coral and anthozoa?» è già rispondibile dal catalogo (Parte III): è una
+   domanda di comprensione a costo zero da aggiungere al banco solo se il banco
+   lo prevede — **il banco è fisso** (F.), quindi va usata come sonda, non come
+   punto.
+
+### 6.3 Quali sezioni della Parte V servono davvero alla prosa
+
+| sezione | necessaria? | perché, da questo giro |
+|---|---|---|
+| **5.3 esiti epistemici** | **sì, prima di tutte** | due false risposte sono diventate muri onesti; il banco li conta uguali a un'incomprensione. Serve distinguere *non letto* / *letto e non del tipo chiesto* / *letto con quantificatore attenuato* (serbatoio D, «Most reefs…») |
+| **5.8 contesti e revisioni atomiche** | **sì** | la vista `extract_frame` invalidata a turno si ricostruiva prima delle sue dipendenze (18 s). Una lezione deve cambiare insieme lettori, viste e risposte, nell'ordine giusto |
+| **5.6 contratti insegnabili** | sì, per 6.2.1 | il verso dei ruoli del passivo (`form` vs `formed_of`) è un contratto che oggi sta nel nome del predicato |
+| 5.1 prove strutturate | utile | spiegare *perché* si è letto `made_of` e non `formed_of` |
+| 5.4 abduzione | non ancora | nessuna delle 34 domande aperte la richiede |
+| 5.2 tabling, 5.5 vincoli, 5.7 analogia | no, per ora | nessun difetto del piolo cade lì |
+
+**Evidenza da mettere in fila:** il costo. Ogni lettore o variante in più è uno
+schema scorso a ogni lettura (+1459 varianti comparative = +10% di turno,
+misurato). Un catalogo dei lettori indicizzato per ancora (`C_TODO.md`, «l'indice
+vero degli schemi») è la condizione perché 6.2.1 non paghi in latenza ciò che
+guadagna in precisione.

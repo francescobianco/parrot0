@@ -5323,6 +5323,33 @@ static int p0_frame_anchor_present(const char *pat, char **w, size_t n) {
     return 1;
 }
 
+/* 12 settembre 2026 — FRA DUE SCHEMI CHE COMBACIANO VINCE IL PIU' SPECIFICO.
+ * «colonies of coral polyps held together by calcium carbonate» combaciava con
+ * «@S held @O» (il verbo irregolare) prima che con «@S held together by @O», e
+ * «together by» finiva nell'oggetto: vinceva l'ordine di enumerazione, cioe' la
+ * posizione di una regola in un file. Qui l'ordine lo decide l'evidenza — quante
+ * parole letterali lo schema ha trovato nella frase — come gia' per i formati
+ * (vince la superficie piu' lunga). A parita' resta l'ordine di prima.
+ * L'ordine si decide UNA volta, quando la cache degli schemi si ricostruisce
+ * (`p0_frame_patterns`): ordinare a ogni lettura costava il 10% del turno,
+ * perche' toglieva l'uscita al primo schema che combacia. */
+typedef struct { size_t lit, idx; } P0FrameRank;
+static int p0_frame_rank_cmp(const void *x, const void *y) {
+    const P0FrameRank *a = x, *b = y;
+    if (a->lit != b->lit) return a->lit > b->lit ? -1 : 1;
+    return a->idx < b->idx ? -1 : (a->idx > b->idx);
+}
+
+static size_t p0_frame_literals(const char *pat) {
+    size_t k = 0; int in = 0, slot = 0;
+    for (const char *p = pat; *p; p++) {
+        if (*p == ' ' || *p == '"') { if (in && !slot) k++; in = 0; slot = 0; continue; }
+        if (!in) { in = 1; slot = (*p == '@'); }
+    }
+    if (in && !slot) k++;
+    return k;
+}
+
 static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
     if (!b || !b->kb || !r) return 0;
     n = p0_frame_trim_tail(w, n);
@@ -5391,6 +5418,19 @@ static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]) {
     if (!kb_match_all(b->kb, "extract_frame", anyq, 2, &rows, &n)) {
         free(rows);
         return 0;
+    }
+    /* il piu' specifico prima (vedi `p0_frame_literals`): stabile, per indice */
+    {
+        P0FrameRank *rk = malloc((n ? n : 1) * sizeof *rk);
+        char (*sorted)[KB_TERM_LEN] = malloc((n ? n : 1) * sizeof *sorted);
+        if (rk && sorted) {
+            for (size_t i = 0; i < n; i++) { rk[i].lit = p0_frame_literals(rows[i]); rk[i].idx = i; }
+            qsort(rk, n, sizeof *rk, p0_frame_rank_cmp);
+            for (size_t i = 0; i < n; i++) memcpy(sorted[i], rows[rk[i].idx], KB_TERM_LEN);
+            free(rows);
+            rows = sorted; sorted = NULL;
+        }
+        free(rk); free(sorted);
     }
     free(b->frame_pats);
     b->frame_pats = rows;
@@ -7993,6 +8033,23 @@ static void p0_record_focus_rejection(Brain *b, const char *subject) {
     kb_set_origin(b->kb, prev);
 }
 
+/* 12 settembre 2026 — IL VALORE DEVE ESSERE DEL TIPO CHIESTO.
+ * «what phylum does coral belong to?» riceveva «Class anthozoa.»: relazione
+ * giusta, tipo sbagliato. Quale tipo chieda il turno e quando un valore lo
+ * soddisfi e' KB (`answer_type_ok/2`, grammar.p0); qui si tengono soltanto i
+ * candidati che la KB accetta. Nessun candidato: si tace, e il turno prosegue. */
+static size_t p0_answer_type_filter(Brain *b, char ans[][KB_TERM_LEN], size_t na) {
+    if (!b || !b->kb || na == 0) return na;
+    size_t kept = 0;
+    for (size_t i = 0; i < na; i++) {
+        const char *q[2] = { "current_turn", ans[i] };
+        if (!kb_query(b->kb, "answer_type_ok", q, 2)) continue;
+        if (kept != i) memmove(ans[kept], ans[i], KB_TERM_LEN);
+        kept++;
+    }
+    return kept;
+}
+
 /* Verify a resolved subject, AFTER looking up its answer. Do not filter the
  * words or relations competing for the turn: a domain remains useful context,
  * but its definition cannot substitute for the requested subject's answer. */
@@ -9171,6 +9228,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                         return 1;
                     }
                 }
+                na = p0_answer_type_filter(b, ans, na);
                 if (na > 0 && p0_answer_subject_in_focus(b, norm, key)) {
                     if (getenv("P0_READ_TRACE"))
                         fprintf(stderr, "[aframe] phrase «%s» %s -> %s\n", key, pred, ans[0]);
@@ -9233,6 +9291,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     }
                 }
             }
+            na = p0_answer_type_filter(b, ans, na);
             if (na == 0 || !p0_answer_subject_in_focus(b, norm, v)) continue;
             if (getenv("P0_READ_TRACE"))
                 fprintf(stderr, "[aframe] token «%s» %s -> %s\n", v, pred, ans[0]);

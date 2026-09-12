@@ -5573,6 +5573,19 @@ static int reply_is_wall(Brain *b, const char *reply) {
  *
  * ⚠ Se l'antecedente non si trova, NON si riscrive: meglio perdere la relativa
  * che attaccarle un soggetto sbagliato (mantra #7). */
+/* La parola che finisce subito prima di `at` (minuscola), o "" se non c'e'. */
+static void word_before(const char *text, const char *at, char *out, size_t n) {
+    out[0] = '\0';
+    const char *e = at;
+    while (e > text && (e[-1] == ' ' || e[-1] == ',')) e--;
+    const char *st = e;
+    while (st > text && st[-1] != ' ' && st[-1] != ',') st--;
+    size_t k = 0;
+    for (const char *p = st; p < e && k + 1 < n; p++)
+        out[k++] = (char)tolower((unsigned char)*p);
+    out[k] = '\0';
+}
+
 static int relative_rewrite(Brain *b, const char *sentence,
                             char *left, size_t left_size,
                             char *right, size_t right_size) {
@@ -5580,7 +5593,6 @@ static int relative_rewrite(Brain *b, const char *sentence,
     char openers[16][KB_TERM_LEN];
     const char *oq[1] = { NULL };
     size_t no = kb_match(b->kb, "relative_opener", oq, 1, openers, 16);
-    if (!no) return 0;
 
     const char *cut = NULL; size_t cutlen = 0;
     for (size_t i = 0; i < no; i++) {
@@ -5591,6 +5603,37 @@ static int relative_rewrite(Brain *b, const char *sentence,
         snprintf(needle, sizeof needle, ", %s ", w);
         const char *h = strstr(sentence, needle);
         if (h && (!cut || h < cut)) { cut = h; cutlen = strlen(needle); }
+    }
+    /* ── 12 settembre 2026 — LA RELATIVA RIDOTTA NON HA VIRGOLA ──────────────
+     * «Reefs are formed of colonies of coral polyps HELD TOGETHER BY calcium
+     * carbonate»: la seconda proposizione comincia con un participio e nessun
+     * pronome. Quali superfici la aprano e' KB (`reduced_relative_surface/1`,
+     * i participi dei verbi con particella); qui si cerca soltanto la prima che
+     * NON segua una copula — «are formed of» e' il verbo della principale, non
+     * una relativa. L'apertura resta nella seconda proposizione: e' il suo verbo. */
+    int keep_opener = 0;
+    if (!cut) {
+        char (*rs)[KB_TERM_LEN] = NULL; size_t nrs = 0;
+        const char *rq[1] = { NULL };
+        if (kb_match_all(b->kb, "reduced_relative_surface", rq, 1, &rs, &nrs)) {
+            for (size_t i = 0; i < nrs; i++) {
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", rs[i]);
+                const char *sf = kb_dequote(sb);
+                if (!*sf) continue;
+                char needle[KB_TERM_LEN];
+                snprintf(needle, sizeof needle, " %s ", sf);
+                for (const char *h = strstr(sentence, needle); h; h = strstr(h + 1, needle)) {
+                    char prev[KB_TERM_LEN];
+                    word_before(sentence, h, prev, sizeof prev);
+                    const char *pq[1] = { prev };
+                    if (!*prev || kb_query(b->kb, "clause_copula", pq, 1)) continue;
+                    if (!cut || h < cut) { cut = h; cutlen = 1; }
+                    break;
+                }
+            }
+        }
+        free(rs);
+        keep_opener = cut != NULL;
     }
     if (!cut || cut == sentence) return 0;
 
@@ -5614,7 +5657,55 @@ static int relative_rewrite(Brain *b, const char *sentence,
                 snprintf(antecedent, sizeof antecedent, "%s", nodes[i].surface);
             }
         }
+        /* Un plurale nudo («colonies of coral polyps») non apre un sintagma
+         * nella IR, che lo apre solo su un determinante. Per la ridotta si
+         * risalgono i token della IR finche' la KB dice che una parola ferma
+         * l'antecedente (`antecedent_stop/1`): la forma del sintagma resta
+         * conoscenza, qui c'e' solo il cammino all'indietro. */
+        if (!found && keep_opener) {
+            size_t first = 0, last = 0; int have = 0;
+            for (size_t i = nn; i-- > 0; ) {
+                if (strcmp(nodes[i].level, "token")) continue;
+                const char *tq[1] = { nodes[i].surface };
+                if (kb_query(b->kb, "antecedent_stop", tq, 1)) { if (have) break; continue; }
+                if (!have) { last = i; have = 1; }
+                first = i;
+            }
+            /* il partitivo tiene insieme il sintagma, ma non lo apre */
+            while (have && first < last) {
+                const char *fq[1] = { nodes[first].surface };
+                if (!kb_query(b->kb, "partitive_preposition", fq, 1)) break;
+                do first++; while (first < last && strcmp(nodes[first].level, "token"));
+            }
+            if (have) {
+                size_t st = nodes[first].start, en = nodes[last].start + nodes[last].len;
+                if (en > st && en - st < sizeof antecedent) {
+                    memcpy(antecedent, left + st, en - st);
+                    antecedent[en - st] = '\0';
+                    best_start = st; found = 1;
+                }
+            }
+        }
         if (!found) return 0;
+        /* Una ridotta dopo un PREDICATO NOMINALE («a coral reef is an
+         * underwater ecosystem characterized by…») parla del soggetto, e la
+         * lettura della definizione la riprende gia' con il soggetto giusto:
+         * riscriverla la attaccherebbe al predicato. Articoli e copule sono KB. */
+        if (keep_opener) {
+            const char *at = left + (best_start < llen ? best_start : llen);
+            char prev[KB_TERM_LEN];
+            word_before(left, at, prev, sizeof prev);
+            const char *oq2[1] = { prev };
+            if (*prev && kb_query(b->kb, "np_opener", oq2, 1)) {
+                const char *pw = at;
+                while (pw > left && pw[-1] == ' ') pw--;
+                pw -= strlen(prev);
+                if (pw < left) pw = left;
+                word_before(left, pw, prev, sizeof prev);
+            }
+            const char *cq[1] = { prev };
+            if (*prev && kb_query(b->kb, "clause_copula", cq, 1)) return 0;
+        }
     }
     if (!*antecedent) return 0;
 
