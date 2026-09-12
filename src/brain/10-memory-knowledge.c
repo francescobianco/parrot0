@@ -7007,6 +7007,27 @@ static int extract_class_statement(Brain *b, const char *norm,
         break;                                   /* prep, bare "and", or end */
     }
     if (ncls == 0) return 0;
+    /* gen513 — UN CLASSIFICATORE ANNUNCIA LA CLASSE, non la e'. «An amphora is
+     * a TYPE OF storage jar» dava `type(amphora)`: la vera classe, quella su cui
+     * si ragiona, andava perduta e al suo posto restava una parola che vale per
+     * ogni cosa al mondo. Quali parole siano classificatori lo dice la KB
+     * (`classifier_head/1`), quindi una lingua nuova costa una riga. */
+    if (ncls == 1 && p + 1 < n) {
+        const char *ch[1] = { classes[0] };
+        char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", w[p]);
+        const char *of = strip_edge_punct(ob);
+        if (kb_query(b->kb, "classifier_head", ch, 1) && *of && !strcmp(of, "of")) {
+            size_t q2 = p + 1;
+            if (q2 < n && p0_lead_det(b, strip_edge_punct(w[q2]))) q2++;
+            size_t cstart2 = q2;
+            while (q2 < n && !p0_np_closer(b, strip_edge_punct(w[q2]))) q2++;
+            char real[KB_TERM_LEN];
+            if (q2 > cstart2 && p0_join(w, cstart2, q2, real, sizeof real)) {
+                snprintf(classes[0], sizeof classes[0], "%s", real);
+                p = q2;                       /* la coda riparte da qui */
+            }
+        }
+    }
     /* La classe si nomina al singolare: `nucleic_acids` e' il modo in cui la
      * frase la dice, non il nome della categoria. */
     if (bare_plural) {

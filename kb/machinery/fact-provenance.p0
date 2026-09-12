@@ -220,6 +220,16 @@ fact_source(construction_frame("@O is used by @S", "@S uses @O", uses), "@O is u
 fact_source(construction_frame("@O used by @S", "@S uses @O", uses), "@O used by @S", "x used by y means y uses x").
 fact_source(relation_verb(operates), operates, "operates is a relation verb").
 fact_source(relation_verb(uses), uses, "uses is a relation verb").
+fact_source(made_of(bowl, clay), bowl, "a bowl comprises clay.").
+fact_source(made_of(abacus, array), abacus, "an abacus made of an array of beads").
+fact_source(relation_verb(allows), allows, "allows is a relation verb").
+fact_source(relation_verb(replaces), replaces, "replaces is a relation verb").
+fact_source(construction_frame("@S called @O", "@S is known as @O", also_known_as), "@S called @O", "x called y means x is known as y").
+fact_source(construction_frame("@S call @O", "@S is known as @O", also_known_as), "@S call @O", "x call y means x is known as y").
+fact_source(construction_frame("@S contain @O", "@S made of @O", made_of), "@S contain @O", "x contain y means x made of y").
+fact_source(construction_frame("@S comprises @O", "@S made of @O", made_of), "@S comprises @O", "x comprises y means x made of y").
+fact_source(construction_frame("@S comprise @O", "@S made of @O", made_of), "@S comprise @O", "x comprise y means x made of y").
+fact_source(construction_frame("@S consist of @O", "@S made of @O", made_of), "@S consist of @O", "x consist of y means x made of y").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -334,15 +344,25 @@ reading_fact(uses(merchants, abacus), "the abacus used by merchants").
 reading_fact(taught_form_source(taught_form_11, "what is the significato of x"), "qual è il significato di x means what is the meaning of x").
 reading_fact(construction_frame("@O is operated by @S", "@S operates @O", operates), "x is operated by y means y operates x").
 reading_fact(taught_form_source(taught_form_14, "x consists of y"), "x consists of y means x made of y").
+reading_fact(made_of(bowl, clay), "a bowl comprises clay.").
 reading_fact(construction_frame("@O operated by @S", "@S operates @O", operates), "x operated by y means y operates x").
+reading_fact(made_of(abacus, array), "an abacus made of an array of beads").
 reading_fact(construction_frame("@S is also spelled @O", "@S is known as @O", also_known_as), "x is also spelled y means x is known as y").
+reading_fact(relation_verb(allows), "allows is a relation verb").
 reading_fact(construction_frame("@O is used by @S", "@S uses @O", uses), "x is used by y means y uses x").
+reading_fact(relation_verb(replaces), "replaces is a relation verb").
 reading_fact(made_of(bell, bronze), "a bell made of bronze").
+reading_fact(construction_frame("@S called @O", "@S is known as @O", also_known_as), "x called y means x is known as y").
 reading_fact(construction_frame("@O used by @S", "@S uses @O", uses), "x used by y means y uses x").
+reading_fact(construction_frame("@S call @O", "@S is known as @O", also_known_as), "x call y means x is known as y").
 reading_fact(taught_form_source(taught_form_13, "x consisting of y"), "x consisting of y means x made of y").
+reading_fact(construction_frame("@S contain @O", "@S made of @O", made_of), "x contain y means x made of y").
 reading_fact(relation_verb(operates), "operates is a relation verb").
+reading_fact(construction_frame("@S comprises @O", "@S made of @O", made_of), "x comprises y means x made of y").
 reading_fact(construction_frame("@S made of @O", "@S is made of @O", made_of), "x made of y means x is made of y").
+reading_fact(construction_frame("@S comprise @O", "@S made of @O", made_of), "x comprise y means x made of y").
 reading_fact(relation_verb(uses), "uses is a relation verb").
+reading_fact(construction_frame("@S consist of @O", "@S made of @O", made_of), "x consist of y means x made of y").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

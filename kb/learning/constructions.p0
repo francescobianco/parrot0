@@ -33,12 +33,24 @@ construction_frame("@O is operated by @S", "@S operates @O", operates).
 construction_frame("@O operated by @S", "@S operates @O", operates).
 construction_frame("@O is used by @S", "@S uses @O", uses).
 construction_frame("@O used by @S", "@S uses @O", uses).
+construction_frame("@S called @O", "@S is known as @O", also_known_as).
+construction_frame("@S call @O", "@S is known as @O", also_known_as).
+construction_frame("@S contain @O", "@S made of @O", made_of).
+construction_frame("@S comprises @O", "@S made of @O", made_of).
+construction_frame("@S comprise @O", "@S made of @O", made_of).
+construction_frame("@S consist of @O", "@S made of @O", made_of).
 
 % E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
 construction_answer_cue("@S goes by the name of @O", "goes by the name of", also_known_as).
+construction_answer_cue("@S called @O", called, also_known_as).
 % vale solo per la forma diretta soggetto-verbo-oggetto, quindi ce n'e' una sola
+construction_answer_cue("@S call @O", call, also_known_as).
 % delle quattro imparate finora.
+construction_answer_cue("@S contain @O", contain, made_of).
 construction_answer_cue("@S forms part of @O", "forms part of", part_of).
+construction_answer_cue("@S comprises @O", comprises, made_of).
 construction_answer_cue("@S is also spelled @O", "is also spelled", also_known_as).
+construction_answer_cue("@S comprise @O", comprise, made_of).
 construction_answer_cue("@S made of @O", "made of", made_of).
+construction_answer_cue("@S consist of @O", "consist of", made_of).
 construction_answer_cue("@S revolves around @O", "revolves around", orbits).

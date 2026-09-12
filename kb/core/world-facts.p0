@@ -1857,6 +1857,8 @@ made_of(violin, spruce).
 made_of(quipu, knotted_cords).
 made_of(lens, glass).
 made_of(bell, bronze).
+made_of(bowl, clay).
+made_of(abacus, array).
 has_part(pizza, tomato).
 has_part(pizza, cheese).
 precedes(monday, tuesday).

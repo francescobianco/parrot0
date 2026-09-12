@@ -682,6 +682,24 @@ np_closer(o).
 % E questi due, oltre a chiudere la classe, introducono un LUOGO: «located in»
 % dice quello che dice «in». Il lettore di classe salta il participio e legge
 % il sintagma preposizionale come prima (10-memory-knowledge.c, frame 4).
+% ── gen513 — UN CLASSIFICATORE NON E' LA CLASSE ─────────────────────────────
+% «An amphora is a TYPE OF storage jar» dava `type(amphora)`: la classe di ogni
+% cosa al mondo diventa «type», e la vera classe — quella su cui si ragiona e
+% che risponde a «che cos'e'?» — va perduta. «Tipo», «specie», «forma» non
+% dicono a che cosa una cosa appartiene: annunciano la classe che segue.
+% Trovato con la scala della prosa, piolo 100 (anfora).
+machinery(classifier_head).
+classifier_head(type).
+classifier_head(kind).
+classifier_head(sort).
+classifier_head(form).
+classifier_head(variety).
+classifier_head(species).
+classifier_head(tipo).
+classifier_head(specie).
+classifier_head(genere).
+classifier_head(forma).
+
 machinery(location_participle).
 location_participle(located).
 location_participle(situated).

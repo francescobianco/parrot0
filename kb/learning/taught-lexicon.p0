@@ -186,3 +186,4 @@ relation_verb(grandparent).
 relation_verb(parent).
 relation_verb(defeated).
 relation_verb(operates).
+relation_verb(allows).
