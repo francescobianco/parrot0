@@ -4567,7 +4567,7 @@ intent_cue(25_wordmath_reasoning_chain2396, "their ages").
 intent_cue(25_wordmath_reasoning_chain2396, "how old").
 intent_cue(25_wordmath_reasoning_chain2472, "how many").
 intent_cue(25_wordmath_reasoning_chain2472, "how much").
-intent_cue(25_wordmath_reasoning_chain2472, "quant").
+intent_cue_stem(25_wordmath_reasoning_chain2472, "quant").
 intent_cue(25_wordmath_reasoning_chain2472, "number of").
 intent_cue(25_wordmath_reasoning_chain2472, "arrangement").
 intent_cue(25_wordmath_reasoning_chain2482, "maximum").
@@ -4638,6 +4638,16 @@ intent_cue(25_wordmath_reasoning_chain3039, "pieces").
 intent_cue(25_wordmath_reasoning_chain3094, "give half").
 intent_cue(25_wordmath_reasoning_chain3094, "gave half").
 intent_cue(25_wordmath_reasoning_chain3094, "gives half").
+% ── gen512 — LE CUE CHE SONO RADICI (glm-test §4.2, lato italiano) ──────────
+% `intent_cue/2` combacia per PAROLA INTERA. Le righe qui sotto erano scritte
+% come RADICI — «quant», «mangi», «divis» — e non potevano accendersi mai: nel
+% turno c'e' «quante», «mangio», «divisibile». Conoscenza dichiarata che non
+% funziona, e che non si lamenta: «Ho 12 mele e mangio 5 mele. Quante mele ho?»
+% andava a muro mentre l'inglese rispondeva 7. Ora stanno sotto il predicato che
+% dice che cosa sono, e il motore le confronta con l'inizio di una parola
+% (src/brain/00-lex.c, `kb_cue_stem_match`). Chi insegna sceglie la forma: una
+% parola intera sta in `intent_cue`, una radice qui.
+machinery(intent_cue_stem).
 intent_cue(25_wordmath_reasoning_chain3120, "shared").
 intent_cue(25_wordmath_reasoning_chain3120, "share").
 intent_cue(25_wordmath_reasoning_chain3120, "divided").
@@ -4645,9 +4655,9 @@ intent_cue(25_wordmath_reasoning_chain3120, "divide").
 intent_cue(25_wordmath_reasoning_chain3120, "split").
 intent_cue(25_wordmath_reasoning_chain3120, "among").
 intent_cue(25_wordmath_reasoning_chain3120, "equally").
-intent_cue(25_wordmath_reasoning_chain3120, "divis").
-intent_cue(25_wordmath_reasoning_chain3120, "condivi").
-intent_cue(25_wordmath_reasoning_chain3120, "ripartit").
+intent_cue_stem(25_wordmath_reasoning_chain3120, "divis").
+intent_cue_stem(25_wordmath_reasoning_chain3120, "condivi").
+intent_cue_stem(25_wordmath_reasoning_chain3120, "ripartit").
 intent_cue(25_wordmath_reasoning_chain3125, "how many more").
 intent_cue(25_wordmath_reasoning_chain3125, "how much more").
 intent_cue(25_wordmath_reasoning_chain3125, "how many fewer").
@@ -4674,19 +4684,19 @@ intent_cue(25_wordmath_reasoning_chain3125, "broke").
 intent_cue(25_wordmath_reasoning_chain3125, "removed").
 intent_cue(25_wordmath_reasoning_chain3125, "drops").
 intent_cue(25_wordmath_reasoning_chain3125, " away").
-intent_cue(25_wordmath_reasoning_chain3125, "mangi").
-intent_cue(25_wordmath_reasoning_chain3125, "pers").
-intent_cue(25_wordmath_reasoning_chain3125, "perde").
-intent_cue(25_wordmath_reasoning_chain3125, "regal").
-intent_cue(25_wordmath_reasoning_chain3125, "vend").
-intent_cue(25_wordmath_reasoning_chain3125, "riman").
+intent_cue_stem(25_wordmath_reasoning_chain3125, "mangi").
+intent_cue_stem(25_wordmath_reasoning_chain3125, "pers").
+intent_cue_stem(25_wordmath_reasoning_chain3125, "perde").
+intent_cue_stem(25_wordmath_reasoning_chain3125, "regal").
+intent_cue_stem(25_wordmath_reasoning_chain3125, "vend").
+intent_cue_stem(25_wordmath_reasoning_chain3125, "riman").
 intent_cue(25_wordmath_reasoning_chain3125, "spend").
 intent_cue(25_wordmath_reasoning_chain3139, "each").
 intent_cue(25_wordmath_reasoning_chain3139, "times").
 intent_cue(25_wordmath_reasoning_chain3139, "groups of").
 intent_cue(25_wordmath_reasoning_chain3139, "rows of").
 intent_cue(25_wordmath_reasoning_chain3139, "boxes of").
-intent_cue(25_wordmath_reasoning_chain3139, "ciascun").
+intent_cue_stem(25_wordmath_reasoning_chain3139, "ciascun").
 intent_cue(25_wordmath_reasoning_chain3139, "ognuno").
 intent_cue(25_wordmath_reasoning_chain3139, "ogni").
 intent_cue(25_wordmath_reasoning_chain3143, "more").

@@ -266,8 +266,51 @@ static int p0_turn_pattern_holds(Brain *b, const char *pat, const char *norm,
     return total > 0;
 }
 
+/* ── gen512 — LA CUE CHE E' UNA RADICE, NON UNA PAROLA ───────────────────────
+ *
+ * Trovato chiudendo glm-test §4.2 nell'altra lingua. «Ho 12 mele e mangio 5
+ * mele. Quante mele ho?» andava a muro mentre l'inglese rispondeva 7: la
+ * guardia del lettore chiede `intent_cue(…, "quant")`, e «quant» E' DICHIARATO
+ * — ma la cue si confronta per PAROLA INTERA, e nel turno c'e' «quante». La
+ * riga esisteva e non poteva accendersi: conoscenza dichiarata che non funziona
+ * e non si lamenta (la specie che il byte `used` dei fatti serve a scoprire).
+ *
+ * In italiano la flessione sta in coda — «quante», «mangio», «divisibile» — e
+ * la forma utile e' la RADICE. Ma una radice non e' una parola, e confrontarla
+ * per sottostringa su tutte le cue farebbe scattare «ogni» dentro «ognuno» e
+ * «pers» dentro «persona»: la differenza va DETTA, non indovinata. Percio' una
+ * predicato a se', `intent_cue_stem(Intento, Radice)`: combacia quando una
+ * parola del turno COMINCIA con la radice. Chi insegna sceglie quale delle due
+ * forme sta dando, e una lingua flessiva nuova non costa motore.
+ *
+ * Costo: una `kb_match` indicizzata per intento, che per quasi tutti torna zero
+ * righe, e solo quando la cue per parola intera ha gia' fallito. */
+static int kb_cue_stem_match(Brain *b, const char *intent, const char *norm) {
+    if (!b || !b->kb || !intent || !norm) return 0;
+    char stems[16][KB_TERM_LEN];
+    const char *q[2] = { intent, NULL };
+    size_t n = kb_match(b->kb, "intent_cue_stem", q, 2, stems, 16);
+    if (n == 0) return 0;
+    for (size_t i = 0; i < n; i++) {
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stems[i]);
+        const char *stem = kb_dequote(sb);
+        size_t sl = strlen(stem);
+        if (!sl) continue;
+        /* all'inizio di una parola, non ovunque: «pers» in «persona» si', in
+         * «supersonico» no — la radice apre la parola. */
+        for (const char *p = norm; *p; ) {
+            while (*p && !isalnum((unsigned char)*p)) p++;
+            if (!*p) break;
+            if (!strncmp(p, stem, sl)) return 1;
+            while (*p && isalnum((unsigned char)*p)) p++;
+        }
+    }
+    return 0;
+}
+
 static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
     if (kb_cue_match_plain(b, intent, norm)) return 1;
+    if (kb_cue_stem_match(b, intent, norm)) return 1;
     /* La forma DICHIARATA vale quanto la cue: se qualcuno ha insegnato una
      * congiunzione per questo intento, il turno la puo' soddisfare. */
     if (!b || !b->kb || !intent || !norm) return 0;

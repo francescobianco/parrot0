@@ -809,6 +809,13 @@ response_template(neutral_entailment, "Neutral.").
 response_template(contradicted_entailment, "Contradicted.").
 response_template(contradiction_entailment, "Contradiction.").
 response_template(entailed_explanation, "Entailed: {ex}.").
+% gen512 (glm-test §4.2, lato italiano) — LA PROVA PARLA LA LINGUA DEL TURNO.
+% «Ho 12 mele e mangio 5 mele…» → «7.», e poi «perché?» → *«Because I read it
+% as 12 - 5 = 7.»*: il contenuto arrivava, la lingua no. La riga era un
+% letterale nel C (mantra #16, l'output e' conoscenza).
+response_template(wordproblem_read_as, "I read it as {a} {op} {c} = {num}.").
+response_template(wordproblem_read_as, it, "l'ho letta come {a} {op} {c} = {num}.").
+
 response_template(learned_quantity, "Learned: {subject} has {amount} {unit}.").
 % gen512 (glm-test §4.2) — e le due persone dello scambio si confermano come si
 % raccontano: «I have 12 apples.» → «Learned: you have 12 apples.», non
@@ -826,6 +833,9 @@ response_template(learned_same_relation, "Learned: same({left}, {right}).").
 response_template(learned_requires, "Learned: requires({goal}, {step}).").
 response_template(because_proof, "Because {proof}.").
 response_template(because_proof_existing_period, "Because {proof}").
+% gen512: la gemella italiana mancava, e una prova che finiva col punto usciva
+% «Because L'ho letta come 12 - 5 = 7.» — meta' in una lingua e meta' nell'altra.
+response_template(because_proof_existing_period, it, "Perché {proof}").
 response_template(compile_success, "Yes, it compiles: {path} has no errors.").
 response_template(code_not_valid, "Not valid: {findings}.").
 response_template(self_identity, "Yes, I am {id}.").

@@ -1102,6 +1102,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                            char *out, size_t out_size) {
     (void)norm;
     char q[256]; normalize(raw, q, sizeof q);          /* intact, un-canonicalized */
+    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] ENTER «%s»\n", q);
 
     /* gen251: recipe scaling. The recipe facts are read from the turn as
      * quantity/unit/ingredient triples, then multiplied by the requested scale. */
@@ -2894,6 +2895,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
 
     /* question guard: only attempt on an explicit "how many / how much / quanti…"
      * or a count phrasing ("maximum number of", "number of", "arrangements"). */
+    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] guard reached, match=%d\n", kb_cue_match(b, "25_wordmath_reasoning_chain2472", q));
     if (!(kb_cue_match(b, "25_wordmath_reasoning_chain2472", q)))
         return 0;
 
@@ -3397,6 +3399,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     char *w[64]; size_t nw = split_words(buf, w, 64);
     double nums[16];
     size_t nn = collect_numbers(w, nw, nums, 16);
+    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] nums nn=%zu\n", nn);
 
     if (b && b->kb && kb_cue_match(b, "two_party_exchange", q)) {
         double user = -1, assistant = -1, ua = 0, au = 0;
@@ -3729,7 +3732,13 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     put(msg, out, out_size);
 
     char proof[128];
-    snprintf(proof, sizeof proof, "I read it as %g %c %g = %s.", a, op, c, num);
+    { char sa[48], sc[48], so[4];
+      format_num(a, sa, sizeof sa); format_num(c, sc, sizeof sc);
+      so[0] = op; so[1] = '\0';
+      const KbResponseSlot ps[] = { { "a", sa }, { "op", so }, { "c", sc },
+                                    { "num", num } };
+      if (!kb_response_slots(b, "wordproblem_read_as", ps, 4, proof, sizeof proof))
+          snprintf(proof, sizeof proof, "I read it as %g %c %g = %s.", a, op, c, num); }
     store_proof(b, proof);
     return 1;
 }
