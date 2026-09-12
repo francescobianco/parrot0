@@ -713,6 +713,15 @@ response_template(gap_report, it, "L'ultima cosa che non sono riuscito a raggiun
 response_template(gap_report_none, "I have not hit a gap yet in this conversation.").
 response_template(gap_report_none, it, "In questa conversazione non ho ancora incontrato una lacuna.").
 
+% gen512 (glm-test §4.2) — E LE DUE PERSONE DELLO SCAMBIO. Chi parla si conta
+% in seconda persona, chi ascolta in prima: «I have 12 apples.» → «How many
+% apples do I have?» → «You have 12 apples.», non «A i has 12 apples.». Le
+% classi sono `speaker_pronoun/1` e `addressee_pronoun/1` (lexicon.p0).
+response_template(quantity_you_frame, "You have {count} {unit}.").
+response_template(quantity_you_frame, it, "Hai {count} {unit}.").
+response_template(quantity_me_frame, "I have {count} {unit}.").
+response_template(quantity_me_frame, it, "Ho {count} {unit}.").
+
 response_template(quantity_has_frame_bare, "{entity} has {count} {unit}.").
 response_template(quantity_has_frame_bare, it, "{entity} ha {count} {unit}.").
 response_template(quantity_in_frame_bare, "There are {count} {unit} in {entity}.").

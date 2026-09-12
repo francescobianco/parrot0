@@ -810,6 +810,14 @@ response_template(contradicted_entailment, "Contradicted.").
 response_template(contradiction_entailment, "Contradiction.").
 response_template(entailed_explanation, "Entailed: {ex}.").
 response_template(learned_quantity, "Learned: {subject} has {amount} {unit}.").
+% gen512 (glm-test §4.2) — e le due persone dello scambio si confermano come si
+% raccontano: «I have 12 apples.» → «Learned: you have 12 apples.», non
+% «Learned: i has 12 apples.» (`speaker_pronoun/1`, `addressee_pronoun/1`).
+response_template(learned_quantity, it, "Imparato: {subject} ha {amount} {unit}.").
+response_template(learned_quantity_you, "Learned: you have {amount} {unit}.").
+response_template(learned_quantity_you, it, "Imparato: hai {amount} {unit}.").
+response_template(learned_quantity_me, "Learned: I have {amount} {unit}.").
+response_template(learned_quantity_me, it, "Imparato: ho {amount} {unit}.").
 response_template(learned_causal_relation, "Learned: causes({cause}, {effect}).").
 % E la risposta a «what causes X?», che prima non esisteva: la forma esisteva
 % solo come ASSERZIONE, quindi la domanda diventava un fatto falso.

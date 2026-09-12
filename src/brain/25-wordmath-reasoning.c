@@ -3665,6 +3665,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     }
 
     double a = nums[0], c = nums[1];
+    /* gen512: la sonda che ha trovato il §4.2 — «quali numeri ho letto, e quale
+     * operazione la KB mi fa scegliere». P0_WP_TRACE=1. */
+    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] q=«%s» nn=%zu a=%g c=%g", q, nn, a, c);
 
     /* choose the operation by cue, in a priority that resolves overlaps:
      * division, then comparison-difference / removal (both '-'), then
@@ -3678,6 +3681,36 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         op = '*';
     else if (kb_cue_match(b, "25_wordmath_reasoning_chain3143", q))
         op = '+';
+    /* gen512 (glm-test §4.2) — ⛔ LA LISTA DELLE CUE ERA UNA COPIA INCOMPLETA
+     * DI UNA CLASSE CHE ESISTE GIA'.
+     *
+     * «Tom has 12 apples and Tom eats 5 apples…» dava 7; «I have 12 apples and
+     * I eat 5 apples…» andava a muro. La differenza era una sola parola: fra le
+     * cue della sottrazione c'erano «eats», «ate», «loses», «lost», «sells»,
+     * «spends» — le TERZE PERSONE e i passati — e non «eat», «lose», «sell»,
+     * «spend». Il problema con «io» non falliva perche' il parlante sia un
+     * soggetto difficile: falliva perche' in prima persona il verbo non porta
+     * la «s».
+     *
+     * E le forme mancanti erano gia' in KB: `removal_verb/1` ha eat, eats E ate
+     * (lexicon.p0), e il ramo a piu' passi le usa da sempre (`wp_removal_word`).
+     * La lista di cue era un DOPPIONE che si e' disallineato — il caso peggiore
+     * del kb-first audit. Qui si chiede alla classe, che e' l'originale: un
+     * verbo di sottrazione insegnato domani vale in tutti e due i rami, senza
+     * ricompilare. Le cue restano dove sono: portano anche le forme di
+     * PARAGONE («how many more», «difference»), che non sono verbi. */
+    if (!op) {
+        char vb[256]; snprintf(vb, sizeof vb, "%s", q);
+        char *vw[64]; size_t vn = split_words(vb, vw, 64);
+        for (size_t i = 0; i < vn && !op; i++) {
+            char *t = strip_edge_punct(vw[i]);
+            if (!*t) continue;
+            if (wp_removal_word(b, t)) { op = '-'; break; }
+            const char *aq[1] = { t };
+            if (kb_query(b->kb, "acquisition_verb", aq, 1)) op = '+';
+        }
+    }
+    if (getenv("P0_WP_TRACE")) fprintf(stderr, " op=%c\n", op ? op : '-');
     if (!op) return 0;
 
     double r;
@@ -3884,12 +3917,29 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
             so += (size_t)snprintf(subj + so, sizeof subj - so, "%s%s",
                                    i > qs ? "_" : "", strip_edge_punct(w[i]));
         if (!subj[0]) return 0;
-        const char *args[] = {subj, w[hv + 2], w[hv + 1]};
+        /* gen512 (glm-test §4.2) — IL PUNTO CHE CHIUDE LA FRASE NON E' L'UNITA'.
+         * Il soggetto passava gia' da `strip_edge_punct`; il numero e l'unita'
+         * no. «Tom has 12 apples.» scriveva `quantity(tom, apples., 12)` e «How
+         * many apples does Tom have?» — che chiede `apples` — non lo trovava
+         * mai. La frase si impara e la domanda non la ritrova: la stessa specie
+         * del punto attaccato alla classe (D1/D4), in un secondo lettore. */
+        char nb[KB_TERM_LEN], ub[KB_TERM_LEN];
+        snprintf(nb, sizeof nb, "%s", w[hv + 1]);
+        snprintf(ub, sizeof ub, "%s", w[hv + 2]);
+        const char *amount = strip_edge_punct(nb), *unit = strip_edge_punct(ub);
+        if (!*amount || !*unit) return 0;
+        const char *args[] = {subj, unit, amount};
         char msg[160];
         if (domain_assert(b, "quantity", args, 3)) {
             const KbResponseSlot slots[] = {
-                { "subject", subj }, { "amount", w[hv + 1] }, { "unit", w[hv + 2] } };
-            kb_term_say(b, "learned_quantity", slots, 3, msg, sizeof msg);
+                { "subject", subj }, { "amount", amount }, { "unit", unit } };
+            /* gen512: chi parla e chi ascolta si confermano come si raccontano
+             * (vedi `quantity_you_frame` nella richiamata). */
+            const char *sq2[1] = { subj };
+            const char *key = "learned_quantity";
+            if (kb_query(b->kb, "speaker_pronoun", sq2, 1)) key = "learned_quantity_you";
+            else if (kb_query(b->kb, "addressee_pronoun", sq2, 1)) key = "learned_quantity_me";
+            kb_term_say(b, key, slots, 3, msg, sizeof msg);
         }
         else
             kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
@@ -3982,6 +4032,15 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
                 const char *key = kb_cue_match(b, "25_wordmath_reasoning_cue3362", buf)
                                     ? (bare ? "quantity_in_frame_bare" : "quantity_in_frame")
                                     : (bare ? "quantity_has_frame_bare" : "quantity_has_frame");
+                /* gen512 (glm-test §4.2) — LE DUE PERSONE DELLO SCAMBIO NON SI
+                 * RACCONTANO IN TERZA. «I have 12 apples.» entra in KB come
+                 * `quantity(i, apples, 12)` — la domanda lo ritrova, ma la
+                 * risposta diceva «A i has 12 apples.». Chi parla si conta in
+                 * seconda persona, chi ascolta in prima; le due classi sono in
+                 * KB (`speaker_pronoun/1`, `addressee_pronoun/1`), e una lingua
+                 * nuova non costa motore. */
+                if (kb_query(b->kb, "speaker_pronoun", afq, 1)) key = "quantity_you_frame";
+                else if (kb_query(b->kb, "addressee_pronoun", afq, 1)) key = "quantity_me_frame";
                 if (!kb_response_slots(b, key, s, 3, msg, sizeof msg)) {
                     if (kb_cue_match(b, "25_wordmath_reasoning_chain3408", buf))
                         { const KbResponseSlot _rs[] = { { "hits", hits[0] }, { "unit", unit }, { "ename", ename } };

@@ -2774,6 +2774,30 @@ italian_determiner(lo).
 italian_determiner(un).
 italian_determiner(una).
 italian_determiner(uno).
+% ── CHI PARLA E CHI ASCOLTA (gen512, glm-test §4.2) ─────────────────────────
+% `entity_pronoun/1` e' la classe dell'ANAFORA — «he», «it», «they»: parole che
+% riferiscono qualcosa di gia' detto, e che la coreferenza deve risolvere. «io»
+% e «tu» non riferiscono niente di detto: indicano le due persone dello scambio,
+% e si sanno senza guardare indietro. Tenerle fuori di li' e' giusto (la
+% coreferenza non deve provare a risolverle), ma finora non stavano da nessuna
+% parte, e si vedeva: «I have 12 apples.» → «How many apples do I have?» →
+% *«A i has 12 apples.»* — l'articolo davanti a un pronome, e la terza persona
+% per chi parla. L'output e' conoscenza (mantra #16).
+%
+% Due classi e non una, perche' il VERSO conta: cio' che l'utente dice di se'
+% si racconta in seconda persona («You have 12 apples»), cio' che dice di
+% parrot0 in prima («I have 12 apples»). Una lingua nuova sono due righe.
+machinery(speaker_pronoun).
+machinery(addressee_pronoun).
+speaker_pronoun(i).
+speaker_pronoun(io).
+addressee_pronoun(you).
+addressee_pronoun(tu).
+% Nessuno dei due prende l'articolo: «A i has…» era la stessa specie di «A
+% september has 30 days», gia' curata con `article_free/1`.
+article_free($W) :- speaker_pronoun($W).
+article_free($W) :- addressee_pronoun($W).
+
 entity_pronoun(he).
 entity_pronoun(she).
 entity_pronoun(it).
