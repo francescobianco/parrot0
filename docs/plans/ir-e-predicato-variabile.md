@@ -49,17 +49,37 @@ superi le parole del testo.
 | **parole delle domande risolte** | **52** |
 | **manca al cancello** | **248** |
 
-Con 50 domande da 310 parole il cancello chiede il **97% di successo**: non è
-raggiungibile e non sarebbe nemmeno significativo. Quindi servono **due cose
-insieme**, e nessuna delle due basta da sola:
+Con 50 domande da 310 parole il cancello chiede il **97% di successo**. E questo
+**non è un difetto della taratura: è la taratura**.
 
-1. **banchi molto più larghi** — per un testo di 300 parole servono ~120 domande
-   nel merito (≈800 parole) perché un tasso del 40% basti;
-2. **un tasso di successo da 10/50 a ~40/120**, cioè **quattro volte** quello di
-   oggi.
+> **F., correggendomi il 12 settembre:** «per me parrot0 deve sapere rispondere
+> a **ogni** domanda rispondibile sulla prosa, la percentuale di successo al
+> tendere deve essere **100%**. La stima non implica crescere il set di domande
+> ma **migliorare la comprensione** — per questo parliamo di comprensione
+> universale: fissato il banco e addestrato per le lacune, questo espande la
+> comprensione.»
 
-Sul piolo 500 il conto è peggiore: servono ~70 domande risolte, cioè un banco da
-~180 domande con lo stesso tasso.
+La prima stesura di questo documento diceva che servivano «banchi molto più
+larghi», ~120 domande, perché un tasso del 40% bastasse. **Era sbagliato, ed era
+sbagliato nel modo peggiore**: allargare il banco abbassa il tasso richiesto
+senza aggiungere un grammo di comprensione — è la stessa mossa che due paragrafi
+più in basso ho chiamato «barare», applicata senza accorgermene. Resta scritta
+qui perché è il riflesso da riconoscere.
+
+**Il banco è FISSO.** Le 50 domande coprono ciò che il testo dice; sono la
+domanda giusta. L'unica strada per il cancello è **10/50 → 50/50**:
+
+| | |
+|---|---|
+| oggi | 10 risolte su 50 · **52 parole** |
+| cancello | > 299 parole |
+| a tendere | 50 su 50 · 310 parole |
+
+Il cancello è tarato *apposta* perché lo si superi solo quando il tasso è quasi
+totale. Ed è la definizione operativa di **comprensione universale**: non «una
+buona percentuale», ma *ogni domanda a cui il testo risponde riceve la risposta
+del testo*. Le lacune che restano non sono rumore statistico da diluire — sono
+l'elenco di ciò che parrot0 non sa ancora leggere, e si chiudono una per una.
 
 > ⛔ **Il modo di barare, scritto qui perché resti riconoscibile.** Si passa il
 > cancello aggiungendo domande brevi e facili sulle due o tre frasi che già si
@@ -88,17 +108,37 @@ E il passo 1 del banco — ogni frase da sola, sessione pulita, «che cosa ne ha
 capito?» — dice esattamente quali e perché. **Delle 16 frasi, 8 lasciano almeno
 un fatto e 7 non lasciano niente. La sedicesima risponde «975.».**
 
-**Le sette che non lasciano niente:**
+**Le sette che non lasciano niente, nel passo 1:**
 
 | # | frase | che cosa la ferma |
 |---|---|---|
 | 3 | «**Most** coral reefs are built from stony corals, whose polyps…» | quantificatore non universale |
 | 6 | «**Most** reefs grow best in warm, shallow, clear… water» | quantificatore non universale |
-| 9 | «**They** occupy less than 0.1% of the world's ocean area…» | soggetto anaforico |
-| 12 | «**They** are most commonly found at shallow depths…» | soggetto anaforico |
-| 14 | «**They** are under threat from excess nutrients…» | soggetto anaforico |
+| 9 | «They occupy **less than 0.1% of** the world's ocean area…» | oggetto quantificato |
+| 12 | «They are most commonly found at shallow depths…» | verbo + avverbio interposto |
+| 14 | «They are under threat from **excess nutrients (nitrogen and…)**» | oggetto con parentetica |
 | 11 | «Coral reefs **flourish** in ocean waters that provide few nutrients» | verbo non in KB |
 | 16 | «**The annual global economic value of** coral reefs has been estimated at…» | soggetto con sintagma dentro |
+
+> ⚠ **Una diagnosi che mi ero sbagliato, e la correzione.** La prima stesura
+> attribuiva tre di queste al **soggetto anaforico** («*They* occupy…»). È
+> falso, e la prova è differenziale:
+>
+> ```
+> > Coral reefs are underwater ecosystems. They occupy the ocean area.
+>   Learned: coral reefs occupy ocean area.      ← il pronome ARRIVA
+> > Coral reefs occupy less than 0.1% of the ocean area.
+>   Learned: coral reefs occupy 0.               ← l'oggetto NO
+> ```
+>
+> La coreferenza fra frasi **funziona**. Quelle frasi falliscono nel passo 1
+> perché lì ogni frase è letta **da sola**, senza antecedente: è un artefatto
+> del passo, non un difetto del lettore. Il blocco vero è l'**oggetto
+> quantificato** — «less than 0.1% of X», «at least 25% of Y», «by 50% since
+> 1950» — che compare in **quattro** frasi ed è il singolo blocco più grosso
+> del piolo. Lascio scritto l'errore perché è la specie che il passo 1 induce:
+> misurare una frase fuori dal suo testo e attribuire al lettore ciò che manca
+> al contesto.
 
 **E la sedicesima è peggio di un muro:**
 
@@ -294,13 +334,13 @@ possa fare.
 
 Non per eleganza: per quante parole di domande sbloccano sul piolo 300.
 
-| # | lavoro | forma | resa attesa |
+| # | lavoro | forma | frasi del piolo 300 |
 |---|---|---|---|
-| **1** | **arco di coreferenza** — il soggetto pronominale prende l'antecedente dalla frase precedente, che nella IR **è già un nodo in ordine** | `input_edge(coref, …)` + I5 | ~25% del testo |
-| **2** | **livello clausola** — la frase si divide ai confini già dichiarati in KB (`clause_boundary_cue`), e il lettore legge le foglie | nodo `node(clause, …, <frase>)` | ~19% |
-| **3** | **relazione attenuata** — «*Most* reefs…» oggi è un rifiuto *voluto* (mantra #7: non è né universale né di un individuo). Serve saperla tenere **come attenuata**, non tenerla come universale | fatto + qualificatore | ~12% |
-| **4** | **participio in testa e con agente** — «Sometimes called X, …», «held together **by** Y» | `ir_reading` sul ruolo | ~6% |
-| **5** | **`ir_reading` + `apply`** — le quattro letture qui sopra smettono di essere quattro regole e diventano **quattro fatti** | la tabella di §3b | zero nuove, ma tutte le prossime |
+| **1** | **oggetto quantificato** — «less than 0.1% **of** X», «at least 25% **of** Y», «by 50% **since** 1950». Oggi lo slot si ferma al primo confine e lascia `occupy(reefs, "less than 0")` | un ruolo nella IR, non uno schema in più | **4** |
+| **2** | **livello clausola** — la frase si divide ai confini già dichiarati in KB, e il lettore legge le foglie: è ciò che restituisce la **seconda e terza relazione** delle otto frasi lette per un terzo | nodo `node(clause, …, <frase>)` | **8 (parziali)** |
+| **3** | **relazione attenuata** — «*Most* reefs…» oggi è un rifiuto *voluto* (mantra #7: né universale né di un individuo). Serve saperla tenere **come attenuata**, non tenerla come universale | fatto + qualificatore | **2** |
+| **4** | **participio in testa e con agente** — «Sometimes called X, …», «held together **by** Y» | `ir_reading` sul ruolo | **2** |
+| **5** | **`ir_reading` + `apply`** — le letture qui sopra smettono di essere quattro regole e diventano **quattro fatti** | la tabella di §3b | zero nuove, ma tutte le prossime |
 
 > Il #5 va **per ultimo e non per primo**, ed è una scelta, non una pigrizia: si
 > astrae su tre casi che funzionano, non su zero. Un `ir_reading` scritto prima
