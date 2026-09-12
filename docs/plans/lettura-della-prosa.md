@@ -318,6 +318,27 @@ diverso e si affronta dopo questo traguardo.
 > E il banco stesso e' stato corretto due volte: rifiutava i muri solo dopo
 > l'iterazione 5, e prima regalava un ✓ a una risposta che non c'era.
 
+> ### ⚠ E QUELLO CHE IL TRAGUARDO **NON** DICE
+>
+> Il 4/4 e' su QUEL testo. Misurato subito dopo, sugli altri pioli alti:
+> r080 2/4 · r090 2/4 · r110 0/4 · r120 1/3 · r130 0/3 · r140 0/3 · **r150 4/4**.
+>
+> E la differenza non e' la difficolta' delle frasi: e' il **paragrafo**.
+>
+> ```text
+> «A mangrove is a shrub or tree that grows mainly in coastal saline water.»
+>   letta DA SOLA          ->  Learned: mangrove is a shrub.   ✓
+>   dentro il paragrafo    ->  «I don't know much about mangrove yet»
+> ```
+>
+> La stessa frase si legge o si perde a seconda di quanto testo le sta intorno.
+> Il sospetto ha gia' un nome e un TODO scritto nel motore — `canon[256]` tronca
+> la prosa lunga prima del dispatch (99-registry.c, `prose_learn_lead`) — e ora
+> ha anche una misura: e' il **prossimo blocco**, e vale per ogni testo lungo.
+>
+> Detto in modo che non si possa fraintendere: parrot0 sa comprendere UNA prosa
+> di 153 parole, non ancora QUALUNQUE prosa di 150 parole.
+
 Stato misurato dopo otto iterazioni (12 settembre, PRIMA delle iterazioni 9-11):
 
 | piolo | testo | parole | esito |
