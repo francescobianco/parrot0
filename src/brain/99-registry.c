@@ -3838,6 +3838,53 @@ static void turn_publish_tokens(Brain *b, const char *surface,
     }
 }
 
+/* ── gen513 — UNA PAROLA NON E' UN TOKEN ────────────────────────────────────
+ *
+ * «how many words does the text have?» rispondeva 311 su un testo di 299
+ * parole. Non era un errore di conto: il flusso di token spezza dove la
+ * lingua non spezza — «0.1%» fa due token, «soil's» ne fa due — perche' quel
+ * flusso serve a leggere, e per leggere e' giusto cosi'. Ma chi chiede quante
+ * parole ci sono intende le parole, e una risposta precisa alla domanda
+ * sbagliata resta una risposta sbagliata.
+ *
+ * Qui si pubblica il flusso delle PAROLE: le corse separate da cio' che la KB
+ * dichiara separatore (`word_separator/1`, kb/core/grammar.p0). Il C non sa
+ * che cosa separi una parola — lo chiede — e una lingua che separa altrimenti
+ * si insegna senza ricompilare. Le posizioni sono consecutive da zero, cosi'
+ * il conto si fa in KB senza ricorsione (text-structure.p0). */
+static void turn_publish_words(Brain *b, const char *surface, const char *pred) {
+    if (!b || !b->kb || !surface || !pred) return;
+    char seps[32]; size_t nsep = 0;
+    {
+        char rows[16][KB_TERM_LEN];
+        const char *q[1] = { NULL };
+        size_t n = kb_match(b->kb, "word_separator", q, 1, rows, 16);
+        for (size_t i = 0; i < n && nsep + 1 < sizeof seps; i++) {
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", rows[i]);
+            const char *sc = kb_dequote(sb);
+            for (const char *c = sc; *c && nsep + 1 < sizeof seps; c++)
+                if (!memchr(seps, *c, nsep)) seps[nsep++] = *c;
+        }
+    }
+    /* Lo spazio in tutte le sue forme resta meccanica: che un a capo separi due
+     * parole non e' una tesi sulla lingua. Quali ALTRI caratteri separino si'. */
+#define P0_WORDSEP(c) (isspace((unsigned char)(c)) || memchr(seps, (c), nsep))
+    size_t k = 0;
+    for (const char *p = surface; *p; ) {
+        while (*p && P0_WORDSEP(*p)) p++;
+        if (!*p) break;
+        const char *t = p;
+        while (*p && !P0_WORDSEP(*p)) p++;
+        char tok[KB_TERM_LEN];
+        if (!turn_quote(surface, (size_t)(t - surface), (size_t)(p - t), tok, sizeof tok))
+            continue;
+        char pos[24]; snprintf(pos, sizeof pos, "%zu", k++);
+        const char *args[] = { "current_turn", "0", pos, tok };
+        kb_assert(b->kb, pred, args, 4);
+    }
+#undef P0_WORDSEP
+}
+
 /* gen396: the state a span ENDS IN, as facts.
  *
  * The evaluator is fixed mechanics and stays fixed: it is asked what the trace
@@ -5009,7 +5056,10 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
     return 1;
 }
 
-static int universal_turn_lead(Brain *b, const char *surface,
+/* `raw` e' il turno COME L'HA SCRITTO l'interlocutore: serve solo a contare le
+ * parole di un testo. La normalizzazione stacca «20%» in «20 %» — giusto per
+ * leggere, sbagliato per rispondere «quante parole ci sono». */
+static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !surface || !*surface) return 0;
     if (getenv("P0_READ_TRACE"))
@@ -5113,7 +5163,7 @@ static int universal_turn_lead(Brain *b, const char *surface,
             input_structure_clear(b->kb, "last_text");
             kb_retract_pred(b->kb, "text_surface_token");
             kb_set_origin(b->kb, KB_REFLECTIVE);
-            turn_publish_tokens(b, surface, &whole, "0", "text_surface_token", whole.len);
+            turn_publish_words(b, raw && *raw ? raw : surface, "text_surface_token");
             if (getenv("P0_READ_TRACE")) fprintf(stderr, "[text] trattenuto\n");
         }
     }
@@ -6240,7 +6290,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return strlen(out);   /* insegnare non e' rispondere: nessuna lacuna si chiude */
     }
 
-    if (b && universal_turn_lead(b, norm, out, out_size)) {
+    if (b && universal_turn_lead(b, norm, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "turn_plan");
         /* Qui `canon` non esiste ancora — la canonicalizzazione avviene piu' in

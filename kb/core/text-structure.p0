@@ -95,6 +95,13 @@ text_opening_np($Surface) :-
 text_opening_entity($Entity) :-
     text_first_clause($C), input_entity_node(last_text, $L, $Id, $Entity),
     input_node_parent(last_text, $Id, $C).
+% E se il testo apre con un nome che parrot0 non ha mai visto e senza
+% determinante — «Compost is a mixture…», «Erosion is the action of…» — non
+% c'e' ne' sintagma ne' entita': resta la parola con cui il testo comincia, che
+% in un lead d'enciclopedia e' il definiendum. Reperto del piolo 320: senza
+% questa riga «di cosa parla?» murava su meta' dei testi veri.
+text_opening_token($W) :-
+    input_node_atom(last_text, $Id, $W), input_node_range(last_text, $Id, 0, $L).
 
 % ── 3. LE COSE CHE SI POSSONO CHIEDERE DI UN TESTO ──────────────────────────
 % La cue e' una superficie: chi insegna ne aggiunge una e la domanda esiste.
@@ -154,6 +161,7 @@ text_value(first_sentence, $S) :- text_first_clause($Id), text_sentence($Id, $S)
 text_value(last_sentence, $S) :- text_last_clause($Id), text_sentence($Id, $S).
 text_value(topic, $S) :- text_opening_np($S).
 text_value(topic, $Shown) :- text_opening_entity($E), present_term($E, $Shown).
+text_value(topic, $W) :- text_opening_token($W).
 
 % ⚠ NIENTE `span_atom/2` per togliere le virgolette: e' `chars/2` andata e
 % ritorno, cioe' la stringa diventa una lista di caratteri dentro UN termine da

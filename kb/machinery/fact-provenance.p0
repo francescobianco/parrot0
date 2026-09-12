@@ -318,6 +318,45 @@ fact_source(relation_verb(result), result, "result is a relation verb").
 fact_source(relation_verb(derive), derive, "derive is a relation verb").
 fact_source(relation_verb(consist), consist, "consist is a relation verb").
 fact_source(relation_verb(belong), belong, "belong is a relation verb").
+fact_source(relation_verb(moult), moult, "moult is a relation verb").
+fact_source(relation_verb(shed), shed, "shed is a relation verb").
+fact_source(relation_verb(hatch), hatch, "hatch is a relation verb").
+fact_source(relation_verb(nest), nest, "nest is a relation verb").
+fact_source(relation_verb(burrow), burrow, "burrow is a relation verb").
+fact_source(relation_verb(graze), graze, "graze is a relation verb").
+fact_source(relation_verb(sprout), sprout, "sprout is a relation verb").
+fact_source(relation_verb(pollinate), pollinate, "pollinate is a relation verb").
+fact_source(relation_verb(germinate), germinate, "germinate is a relation verb").
+fact_source(relation_verb(ferment), ferment, "ferment is a relation verb").
+fact_source(relation_verb(distill), distill, "distill is a relation verb").
+fact_source(relation_verb(refine), refine, "refine is a relation verb").
+fact_source(relation_verb(smelt), smelt, "smelt is a relation verb").
+fact_source(relation_verb(tan), tan, "tan is a relation verb").
+fact_source(relation_verb(dye), dye, "dye is a relation verb").
+fact_source(relation_verb(spin), spin, "spin is a relation verb").
+fact_source(relation_verb(weave), weave, "weave is a relation verb").
+fact_source(relation_verb(mould), mould, "mould is a relation verb").
+fact_source(relation_verb(cast), cast, "cast is a relation verb").
+fact_source(relation_verb(forge), forge, "forge is a relation verb").
+fact_source(relation_verb(weld), weld, "weld is a relation verb").
+fact_source(relation_verb(polish), polish, "polish is a relation verb").
+fact_source(relation_verb(grind), grind, "grind is a relation verb").
+fact_source(relation_verb(lubricate), lubricate, "lubricate is a relation verb").
+fact_source(relation_verb(insulate), insulate, "insulate is a relation verb").
+fact_source(relation_verb(conduct), conduct, "conduct is a relation verb").
+fact_source(relation_verb(radiate), radiate, "radiate is a relation verb").
+fact_source(relation_verb(emit), emit, "emit is a relation verb").
+fact_source(relation_verb(withstand), withstand, "withstand is a relation verb").
+fact_source(relation_verb(resist), resist, "resist is a relation verb").
+fact_source(relation_verb(shred), shred, "shred is a relation verb").
+fact_source(relation_verb(aid), aid, "aid is a relation verb").
+fact_source(relation_verb(monitor), monitor, "monitor is a relation verb").
+fact_source(relation_verb(gather), gather, "gather is a relation verb").
+fact_source(relation_verb(convert), convert, "convert is a relation verb").
+fact_source(relation_verb(suppress), suppress, "suppress is a relation verb").
+fact_source(relation_verb(manage), manage, "manage is a relation verb").
+fact_source(relation_verb(offer), offer, "offer is a relation verb").
+fact_source(relation_verb(improve), improve, "improve is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -501,44 +540,83 @@ reading_fact(construction_frame("@S comprise @O", "@S made of @O", made_of), "x 
 reading_fact(relation_verb(affect), "affect is a relation verb").
 reading_fact(relation_verb(belongs), "belongs is a relation verb").
 reading_fact(relation_verb(determine), "determine is a relation verb").
+reading_fact(relation_verb(moult), "moult is a relation verb").
 reading_fact(relation_verb(tells), "tells is a relation verb").
+reading_fact(relation_verb(shed), "shed is a relation verb").
 reading_fact(relation_verb(record), "record is a relation verb").
+reading_fact(relation_verb(hatch), "hatch is a relation verb").
 reading_fact(relation_verb(secrete), "secrete is a relation verb").
+reading_fact(relation_verb(nest), "nest is a relation verb").
 reading_fact(relation_verb(measure), "measure is a relation verb").
+reading_fact(relation_verb(burrow), "burrow is a relation verb").
 reading_fact(relation_verb(uses), "uses is a relation verb").
+reading_fact(relation_verb(graze), "graze is a relation verb").
 reading_fact(relation_verb(replace), "replace is a relation verb").
+reading_fact(relation_verb(sprout), "sprout is a relation verb").
 reading_fact(construction_frame("@S are built from @O", "@S made of @O", made_of), "x are built from y means x made of y").
+reading_fact(relation_verb(pollinate), "pollinate is a relation verb").
 reading_fact(relation_verb(increase), "increase is a relation verb").
+reading_fact(relation_verb(germinate), "germinate is a relation verb").
 reading_fact(relation_verb(shows), "shows is a relation verb").
+reading_fact(relation_verb(ferment), "ferment is a relation verb").
 reading_fact(relation_verb(reduce), "reduce is a relation verb").
+reading_fact(relation_verb(distill), "distill is a relation verb").
 reading_fact(construction_frame("@S built from @O", "@S made of @O", made_of), "x built from y means x made of y").
+reading_fact(relation_verb(refine), "refine is a relation verb").
 reading_fact(relation_verb(enable), "enable is a relation verb").
+reading_fact(relation_verb(smelt), "smelt is a relation verb").
 reading_fact(construction_frame("@S consist of @O", "@S made of @O", made_of), "x consist of y means x made of y").
+reading_fact(relation_verb(tan), "tan is a relation verb").
 reading_fact(relation_verb(allow), "allow is a relation verb").
+reading_fact(relation_verb(dye), "dye is a relation verb").
 reading_fact(construction_frame("@S are formed of @O", "@S made of @O", made_of), "x are formed of y means x made of y").
+reading_fact(relation_verb(spin), "spin is a relation verb").
 reading_fact(relation_verb(evolve), "evolve is a relation verb").
+reading_fact(relation_verb(weave), "weave is a relation verb").
 reading_fact(relation_verb(require), "require is a relation verb").
+reading_fact(relation_verb(mould), "mould is a relation verb").
 reading_fact(relation_verb(react), "react is a relation verb").
+reading_fact(relation_verb(cast), "cast is a relation verb").
 reading_fact(relation_verb(casts), "casts is a relation verb").
+reading_fact(relation_verb(forge), "forge is a relation verb").
 reading_fact(relation_verb(depend), "depend is a relation verb").
+reading_fact(relation_verb(weld), "weld is a relation verb").
 reading_fact(relation_verb(supply), "supply is a relation verb").
+reading_fact(relation_verb(polish), "polish is a relation verb").
 reading_fact(relation_verb(appear), "appear is a relation verb").
+reading_fact(relation_verb(grind), "grind is a relation verb").
 reading_fact(construction_frame("@S placed in @O", "@S is located in @O", located_in), "x placed in y means x is located in y").
+reading_fact(relation_verb(lubricate), "lubricate is a relation verb").
 reading_fact(relation_verb(occur), "occur is a relation verb").
+reading_fact(relation_verb(insulate), "insulate is a relation verb").
 reading_fact(relation_verb(threaten), "threaten is a relation verb").
+reading_fact(relation_verb(conduct), "conduct is a relation verb").
 reading_fact(relation_verb(grow), "grow is a relation verb").
+reading_fact(relation_verb(radiate), "radiate is a relation verb").
 reading_fact(construction_frame("@S formed of @O", "@S made of @O", made_of), "x formed of y means x made of y").
+reading_fact(relation_verb(emit), "emit is a relation verb").
 reading_fact(relation_verb(relate), "relate is a relation verb").
+reading_fact(relation_verb(withstand), "withstand is a relation verb").
 reading_fact(relation_verb(provide), "provide is a relation verb").
+reading_fact(relation_verb(resist), "resist is a relation verb").
 reading_fact(relation_verb(refer), "refer is a relation verb").
+reading_fact(relation_verb(shred), "shred is a relation verb").
 reading_fact(construction_frame("@S placed into @O", "@S is located in @O", located_in), "x placed into y means x is located in y").
+reading_fact(relation_verb(aid), "aid is a relation verb").
 reading_fact(relation_verb(result), "result is a relation verb").
+reading_fact(relation_verb(monitor), "monitor is a relation verb").
 reading_fact(relation_verb(occupy), "occupy is a relation verb").
+reading_fact(relation_verb(gather), "gather is a relation verb").
 reading_fact(relation_verb(derive), "derive is a relation verb").
+reading_fact(relation_verb(convert), "convert is a relation verb").
 reading_fact(located_in(probe, orbit), "a probe placed into orbit").
+reading_fact(relation_verb(suppress), "suppress is a relation verb").
 reading_fact(relation_verb(consist), "consist is a relation verb").
+reading_fact(relation_verb(manage), "manage is a relation verb").
 reading_fact(relation_verb(deliver), "deliver is a relation verb").
+reading_fact(relation_verb(offer), "offer is a relation verb").
 reading_fact(relation_verb(belong), "belong is a relation verb").
+reading_fact(relation_verb(improve), "improve is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

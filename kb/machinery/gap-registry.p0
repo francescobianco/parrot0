@@ -97,6 +97,7 @@ machinery_gap("there are circa duemila specie of scorpioni in the world, caratte
 machinery_gap("how is quipu spelled?").
 machinery_gap("what is a hammer made of?").
 machinery_gap("who used quipu?").
+machinery_gap("migrate is a relation verb").
 machinery_gap("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
@@ -168,6 +169,7 @@ gap_opaque("how is quipu spelled?", quipu).
 gap_opaque("what is a hammer made of?", made).
 gap_opaque("who used quipu?", quipu).
 gap_opaque("who used quipu?", used).
+gap_opaque("migrate is a relation verb", migrate).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
@@ -188,10 +190,13 @@ gap_kind("because is a ground connector", reachability).
 gap_kind("saudade may never return", reachability).
 gap_source("the metaphor maps what?", "the metaphor maps what?").
 gap_anchor("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", pungiglione).
+gap_anchor("migrate is a relation verb", verb).
+gap_anchor("migrate is a relation verb", relation).
 gap_anchor("what is a hammer made of?", hammer).
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("how is quipu spelled?", reachability).
 gap_kind("what is a hammer made of?", reachability).
+gap_kind("migrate is a relation verb", reachability).
 gap_kind("who used quipu?", reachability).
 gap_kind("what is measured by the farad?", reachability).
 gap_kind("what does the heart pump?", reachability).
@@ -227,4 +232,5 @@ gap_source("a pungiglione is differenzia from altre strutture perforanti per the
 gap_source("how is quipu spelled?", "how is quipu spelled?").
 gap_source("what is a hammer made of?", "what is a hammer made of?").
 gap_source("who used quipu?", "who used quipu?").
+gap_source("migrate is a relation verb", "migrate is a relation verb").
 gap_source("which moon is the largest?", "which moon is the largest?").

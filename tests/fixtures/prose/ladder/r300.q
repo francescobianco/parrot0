@@ -12,7 +12,7 @@ how much of the ocean do reefs occupy?	0\.1|less than		merito
 what do coral reefs deliver?	ecosystem services|tourism|fisheries		merito
 what threatens coral reefs?	excess nutrients|nitrogen|phosphorus|ocean heat		merito
 how many sentences does the text have?	has 16 sentences		struttura
-how many words does the text have?	has 311 words		struttura
+how many words does the text have?	has 299 words		struttura
 what is the first sentence?	coral reef is an underwater ecosystem		struttura
 how does the text begin?	coral reef is an underwater ecosystem		struttura
 what is the last sentence?	The annual global economic value of		struttura

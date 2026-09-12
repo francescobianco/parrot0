@@ -267,6 +267,45 @@ relation_verb(result).
 relation_verb(derive).
 relation_verb(consist).
 relation_verb(belong).
+relation_verb(moult).
+relation_verb(shed).
+relation_verb(hatch).
+relation_verb(nest).
+relation_verb(burrow).
+relation_verb(graze).
+relation_verb(sprout).
+relation_verb(pollinate).
+relation_verb(germinate).
+relation_verb(ferment).
+relation_verb(distill).
+relation_verb(refine).
+relation_verb(smelt).
+relation_verb(tan).
+relation_verb(dye).
+relation_verb(spin).
+relation_verb(weave).
+relation_verb(mould).
+relation_verb(cast).
+relation_verb(forge).
+relation_verb(weld).
+relation_verb(polish).
+relation_verb(grind).
+relation_verb(lubricate).
+relation_verb(insulate).
+relation_verb(conduct).
+relation_verb(radiate).
+relation_verb(emit).
+relation_verb(withstand).
+relation_verb(resist).
+relation_verb(shred).
+relation_verb(aid).
+relation_verb(monitor).
+relation_verb(gather).
+relation_verb(convert).
+relation_verb(suppress).
+relation_verb(manage).
+relation_verb(offer).
+relation_verb(improve).
 
 % ── gen513 — LE PARTICELLE DEI VERBI DI RELAZIONE ───────────────────────────
 % Scoperte leggendo la scala della prosa: sono le forme con cui un lead di

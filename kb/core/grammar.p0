@@ -711,6 +711,14 @@ concept_atom_max_words(4).
 % quello che un turno puo' fisicamente contenere.
 machinery(turn_max_clauses).
 turn_max_clauses(64).
+
+% ── gen513 — CHE COSA SEPARA UNA PAROLA ─────────────────────────────────────
+% Serve a contare le parole di un testo letto (text-structure.p0), e non e' la
+% stessa cosa che separa un TOKEN: il flusso di token spezza «0.1%» e «soil's»
+% perche' per leggere e' giusto spezzarli, ma chi chiede quante parole ci sono
+% intende le parole. Una lingua che separa altrimenti si insegna qui.
+machinery(word_separator).
+word_separator(" ").
 % gen513 — e quanto puo' essere lungo un INCISO che apre la frase, prima che
 % smetta di essere una circostanza e diventi la frase stessa (`adjunct_peel`,
 % 99-registry.c): «In the narrowest sense of the word, it consists of…».
