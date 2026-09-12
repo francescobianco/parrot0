@@ -20715,9 +20715,35 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         else if (nw >= 4 && lex_class_member(b, "imperative_opener", w[0]) &&
                  lex_class_member(b, "10_memory_knowledge_lex12066", w[1]) && lex_class_member(b, "10_memory_knowledge_lex12066_2", w[2])) start = 3;
         /* "what is a/an X?" is the membership query (list the X's), handled
-         * downstream — not a description request. Leave it alone. */
-        if (start == 2 && (lex_class_member(b, "indefinite_article", w[2]) || lex_class_member(b, "indefinite_article", w[2])))
-            start = 0;
+         * downstream — not a description request. Leave it alone.
+         *
+         * ⚠ gen513 — MA SOLO SE QUELLA LETTURA HA DAVVERO QUALCOSA DA DIRE.
+         *
+         * Trovato con la scala della prosa (docs/plans/lettura-della-prosa.md):
+         * «An anvil is a metalworking tool.» si impara, e «what is an anvil?»
+         * andava a muro — mentre «what is anvil?» rispondeva. Lo stesso per
+         * «what is a dog?», su un soggetto che parrot0 conosce benissimo. La
+         * descrizione era spenta di proposito per lasciare il turno alla lettura
+         * di APPARTENENZA, che pero' non aveva nessun membro da elencare: il
+         * turno usciva di li' e finiva all'acquisizione, che diceva «non so
+         * molto di dog» — falso, e detto su una domanda a cui la KB sapeva
+         * rispondere.
+         *
+         * Ora la precedenza resta all'appartenenza SE la classe nominata ha
+         * almeno un membro; altrimenti «what is a X?» e' una domanda di
+         * definizione come «what is X?», ed e' la lingua a dirlo — un articolo
+         * non cambia che cosa si sta chiedendo quando non c'e' niente da
+         * elencare. Additivo: dove l'appartenenza rispondeva, risponde ancora. */
+        if (start == 2 && lex_class_member(b, "indefinite_article", w[2])) {
+            int listable = 0;
+            if (nw > 3 && b && b->kb) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", w[3]);
+                const char *cls = strip_edge_punct(cb);
+                char hit[1][KB_TERM_LEN]; const char *mq[1] = { NULL };
+                if (*cls && kb_match(b->kb, cls, mq, 1, hit, 1) >= 1) listable = 1;
+            }
+            if (listable) start = 0;
+        }
         /* "what is the <rel> of <obj>?" is a relational query, handled elsewhere;
          * an "of"/"di" marker means this is not a plain description request. */
         for (size_t i = start; start && i < nw; i++)
@@ -20790,16 +20816,23 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             for (size_t i = start; i < nw; i++) {
                 if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
                 char desc[1024];
+                /* gen513 — IL PUNTO INTERROGATIVO NON FA PARTE DEL NOME. L'ultima
+                 * parola di una domanda lo porta attaccato, e `kb_define_entity`
+                 * cercava «dog?». Stessa specie del punto attaccato alla classe
+                 * (D1/D4 del gen512), in un terzo lettore. */
+                char nb[KB_TERM_LEN]; snprintf(nb, sizeof nb, "%s", w[i]);
+                const char *name = strip_edge_punct(nb);
+                if (!*name) continue;
                 /* gen313: a DEFINITION must be speakable subject-first knowledge
                  * (kb_define_entity), never a raw clause that merely mentions the
                  * word as an object — is_a(skin, organ) is not what "the organ
                  * that pumps blood" means, and claiming here stole the turn from
                  * the idf recall below. */
-                if (kb_define_entity(b->kb, w[i], desc, sizeof desc) &&
-                    p0_answer_subject_in_focus(b, norm, w[i])) {
+                if (kb_define_entity(b->kb, name, desc, sizeof desc) &&
+                    p0_answer_subject_in_focus(b, norm, name)) {
                     put(desc, out, out_size);
                     store_proof(b, desc);
-                    remember_entity(b, w[i], w[i]);
+                    remember_entity(b, name, name);
                     return 1;
                 }
             }

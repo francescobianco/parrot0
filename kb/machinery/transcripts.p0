@@ -73,6 +73,7 @@ utterance(5, user, "'escreva' is another way to say 'write'").
 utterance(5, user, "cosa significa x means what does x mean").
 utterance(5, user, "qual è il significato di velenosi?").
 utterance(5, user, "quipu is also spelled khipu").
+utterance(5, user, "a lens is made of glass").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -125,6 +126,7 @@ utterance(6, self, "Got it - «escreva» asks for the same thing as «write».")
 utterance(6, self, "From now on I'll read «what significa x» as «what does x mean».").
 utterance(6, self, "«velenosi» vuol dire: ha a che fare con «veleno». Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
 utterance(6, self, "Learned: quipu also known as 'khipu'.").
+utterance(6, self, "Learned: lens is made of glass.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -590,6 +592,7 @@ utterance(7, user, "'écris' is another way to say 'write'").
 utterance(7, user, "che significa x means what does x mean").
 utterance(7, user, "what is the meaning of pungiglione").
 utterance(7, user, "quipu are made of knotted cords").
+utterance(7, user, "a lens is consisting of glass").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -892,7 +895,11 @@ utterance(8, self, "Learned: quipu is made of knotted cords.").
 utterance(9, user, "quipu are fashioned from knotted cords").
 utterance(10, self, "Learned: quipu is made of knotted cords.").
 utterance(11, user, "what is the meaning of pungiglione").
+utterance(8, self, "Learned: lens is made of glass.").
+utterance(9, user, "a hammer made of steel").
+utterance(10, self, "Iron.").
 utterance(11, user, "aluminium is also spelled aluminum").
+utterance(11, user, "a hammer consists of steel").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -974,6 +981,10 @@ utterance(27, user, "what is a violin made of?").
 utterance(28, self, "Spruce.").
 utterance(29, user, "how is quipu spelled?").
 utterance(30, self, "Hmm, I don't know about spelled yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a spelled»; if spelled is a word you want to talk ABOUT, say «the word spelled is a …».").
+utterance(12, self, "Iron.").
+utterance(13, user, "what is a lens made of?").
+utterance(14, self, "Glass.").
+utterance(15, user, "what is a hammer made of?").
 utterance(21, user, "how do you act when the recipe is missing?").
 utterance(22, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(23, user, "your plan when you have no steps").
@@ -1274,6 +1285,7 @@ utterance(2, self, "Got it - «escribe» asks for the same thing as «write».")
 utterance(2, self, "From now on I'll read «what vuol dire x» as «what does x mean».").
 utterance(2, self, "From now on I'll read «what is the significato of x» as «what is the meaning of x».").
 utterance(2, self, "I learned a candidate construction: @S is also spelled @O maps to @S is known as @O. Test me with new names before we call it understood.").
+utterance(2, self, "From now on I'll read «x consisting of y» as «x made of y».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1326,6 +1338,7 @@ utterance(1, user, "'escribe' is another way to say 'write'").
 utterance(1, user, "cosa vuol dire x means what does x mean").
 utterance(1, user, "qual è il significato di x means what is the meaning of x").
 utterance(1, user, "x is also spelled y means x is known as y").
+utterance(1, user, "x consisting of y means x made of y").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1372,6 +1385,7 @@ utterance(4, self, "Got it - «escriba» asks for the same thing as «write».")
 utterance(4, self, "From now on I'll read «what want dire x» as «what does x mean».").
 utterance(4, self, "«velenosi» vuol dire: ha a che fare con «veleno». Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
 utterance(4, self, "From now on I'll read «x fashioned from y» as «x made of y».").
+utterance(4, self, "From now on I'll read «x consists of y» as «x made of y».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1419,6 +1433,7 @@ utterance(3, user, "'escriba' is another way to say 'write'").
 utterance(3, user, "cosa vuole dire x means what does x mean").
 utterance(3, user, "what is the meaning of velenosi").
 utterance(3, user, "x fashioned from y means x made of y").
+utterance(3, user, "x consists of y means x made of y").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

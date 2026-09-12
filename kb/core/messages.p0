@@ -3247,7 +3247,17 @@ turn_form(taught_form_12, 3, span(y)).
 turn_form(taught_form_12, 2, text("fashioned from")).
 turn_form_act(taught_form_12, reread({x} made of {y})).
 turn_form(taught_form_12, 1, span(x)).
+turn_form(taught_form_14, 3, span(y)).
+turn_form(taught_form_14, 2, text("consists of")).
+turn_form(taught_form_14, 1, span(x)).
+turn_form_act(taught_form_14, reread({x} made of {y})).
+turn_form(taught_form_13, 3, span(y)).
+turn_form_priority(taught_form_14, early).
+turn_form(taught_form_13, 2, text("consisting of")).
+turn_form(taught_form_13, 1, span(x)).
+turn_form_act(taught_form_13, reread({x} made of {y})).
 turn_form_priority(taught_form_12, early).
+turn_form_priority(taught_form_13, early).
 turn_form_slot_class(teach_exists_restriction, relation, relation_verb).
 turn_form_act(teach_exists_restriction, "op(assert, exists_restriction, [state, relation, property])").
 turn_form_reply(teach_exists_restriction, exists_restriction_learned).

@@ -30,11 +30,43 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 
 NAME="${1:-tardigrade}"
+BUDGET="${2:-0}"          # 0 = tutto il testo; N = i primi N token (al confine di frase)
 TXT="$NAME"; [ -f "$TXT" ] || TXT="tests/fixtures/prose/$NAME.txt"
 [ -f "$TXT" ] || { echo "prose-probe: non trovo «$TXT»."; exit 1; }
 QF="${TXT%.txt}.q"
 
-run() {  # una sessione pulita, le righe passate come argomenti; una risposta per riga
+# ── IL PIOLO DELLA SCALA (gen513) ───────────────────────────────────────────
+# Con un budget si prende il PREFISSO del testo che non supera N parole,
+# tagliato a un confine di frase — mai a meta' di una proposizione, che sarebbe
+# misurare la comprensione di un frammento. Le domande hanno un terzo campo: il
+# numero di parole a cui la loro risposta compare. A un piolo si chiedono solo
+# quelle gia' rispondibili: chiedere il resto misurerebbe l'indovinare.
+CUT="$TXT"
+if [ "$BUDGET" -gt 0 ]; then
+  CUT=$(mktemp); trap 'rm -f "$CUT"' EXIT
+  python3 - "$TXT" "$BUDGET" > "$CUT" <<'PYCUT'
+import sys, re
+t = open(sys.argv[1]).read().strip(); n = int(sys.argv[2])
+out, cum = [], 0
+for s in re.split(r'(?<=[.;]) ', t):
+    w = len(s.split())
+    if cum + w > n and out: break
+    out.append(s); cum += w
+print(' '.join(out))
+PYCUT
+fi
+WORDS=$(wc -w < "$CUT")
+
+# ⛔ LA KB E' QUELLA VIVA, INTERA (F., 12 settembre 2026): «non accettiamo piu'
+# che si lavori con KB sintetica — la KB va usata per com'e'; l'abilita' di
+# lettura della prosa ha a che fare con lo STATO della KB, e senza una KB viva
+# non si puo' leggere e comprendere la prosa».
+# Qui si carica `kb/profiles/agi.p0` come `make chat`, senza nessuna amputazione
+# e senza nessun contesto ermetico. L'unica cosa azzerata fra una sonda e
+# l'altra e' la SESSIONE — cioe' quello che vede un interlocutore nuovo — mentre
+# tutto cio' che una lezione ha messo in KB con `/save` resta, ed e' proprio il
+# motivo per cui il banco migliora quando la KB cresce.
+run() {  # sessione nuova, KB viva; le righe come argomenti, una risposta per riga
   # ⚠ fuori da un terminale parrot0 stampa le risposte su stdout e il prompt
   # «>>> » su stderr: si uniscono, e il marcatore e' quello che separa un turno
   # dal successivo. (Una risposta su piu' righe — un blocco di codice — perde le
@@ -47,13 +79,13 @@ run() {  # una sessione pulita, le righe passate come argomenti; una risposta pe
 cut_to() { cut -c1-"${1:-104}"; }
 
 echo
-echo "═══ PROSA: $TXT ═══"
-sed 's/^/    /' "$TXT"
+echo "═══ PROSA: $TXT — $WORDS parole${BUDGET:+ (piolo $BUDGET)} ═══"
+fold -s -w 96 "$CUT" | sed 's/^/    /' 
 
 # ── PASSO 1 — che cosa capisce di ogni frase, presa da sola ─────────────────
 echo
 echo "─── PASSO 1 · una frase per volta, sessione pulita: CHE COSA NE CAPISCE ───"
-python3 - "$TXT" <<'PY' > /tmp/.pp_sents.$$
+python3 - "$CUT" <<'PY' > /tmp/.pp_sents.$$
 import sys, re
 t = open(sys.argv[1]).read().strip()
 for s in re.split(r'(?<=[.!?])\s+', t):
@@ -71,9 +103,11 @@ rm -f /tmp/.pp_sents.$$
 [ -f "$QF" ] || { echo; echo "(nessun file di domande «$QF»: mi fermo al passo 1)"; exit 0; }
 echo
 echo "─── PASSO 2 · legge tutta la prosa, poi risponde. La risposta E' nel testo ───"
-PROSE=$(cat "$TXT")
-mapfile -t QS < <(cut -f1 "$QF")
-mapfile -t AS < <(cut -f2 "$QF")
+PROSE=$(cat "$CUT")
+# solo le domande la cui risposta e' gia' dentro il prefisso
+mapfile -t QS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $1}' "$QF")
+mapfile -t AS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $2}' "$QF")
+[ "${#QS[@]}" -gt 0 ] || { echo; echo "(nessuna domanda rispondibile entro $WORDS parole)"; exit 0; }
 mapfile -t REPLIES < <(run "$PROSE" "${QS[@]}" | tail -n +2)
 
 ok=0; n=0
@@ -82,7 +116,10 @@ printf '  %s\n' "─────────────────────
 for idx in "${!QS[@]}"; do
   n=$((n+1))
   q="${QS[$idx]}"; want="${AS[$idx]}"; got="${REPLIES[$idx]:-}"
-  if printf '%s' "$got" | grep -qi -- "$want"; then verdict="✓"; ok=$((ok+1)); else verdict="·"; fi
+  # il campo atteso puo' portare piu' risposte VERE separate da «|»: «What is
+  # obsidian?» ha due risposte giuste nel testo, e accettarne una sola
+  # misurerebbe quale frase e' stata letta, non se la domanda ha avuto risposta.
+  if printf '%s' "$got" | grep -qiE -- "$want"; then verdict="✓"; ok=$((ok+1)); else verdict="·"; fi
   printf '  %-40s %-8s %s\n' "$(printf '%s' "$q" | cut -c1-38)" "$verdict" "$(printf '%s' "$got" | cut_to 72)"
 done
 printf '  %s\n' "────────────────────────────────────────────────────────────────────────────────"
