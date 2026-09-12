@@ -17,3 +17,8 @@
   r130.txt  128 parole  Basalt  https://en.wikipedia.org/wiki/Basalt
   r140.txt  139 parole  Mangrove  https://en.wikipedia.org/wiki/Mangrove
   r150.txt  153 parole  Sundial  https://en.wikipedia.org/wiki/Sundial
+
+  Pioli oltre 150 (scaricati il 2026-09-12, lead interi, mai troncati):
+  r200.txt  200 parole  Sextant     https://en.wikipedia.org/wiki/Sextant
+  r250.txt  263 parole  Honey bee   https://en.wikipedia.org/wiki/Honey_bee
+  r300.txt  299 parole  Coral reef  https://en.wikipedia.org/wiki/Coral_reef

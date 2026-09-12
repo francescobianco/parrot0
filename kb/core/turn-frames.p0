@@ -349,6 +349,13 @@ faculty_yield_force(gen, open, prose_carried).
 % parola. La lacuna resta registrata — quello e' un altro canale — ma il turno
 % appartiene a chi lo legge.
 faculty_yield_force(learn, open, prose_carried).
+% gen513 — e cede anche il PIANO DI TURNO, che risolve gli ordinali: in un
+% paragrafo di enciclopedia «first» compare dentro una frase («mangrove plant
+% families FIRST appeared during the late Cretaceous») e il chiarimento «I am
+% not sure what you mean by «first»» si prendeva il turno intero, prima ancora
+% che il testo venisse diviso in frasi. Un ordinale dentro la prosa non e' la
+% domanda del turno.
+faculty_yield_force(turn_plan, open, prose_carried).
 
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %

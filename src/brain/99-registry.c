@@ -501,11 +501,15 @@ size_t brain_canonical(Brain *b, const char *input, char *out, size_t out_size) 
  * la decomposizione e' una VISTA, e una vista non e' un'esenzione dalle regole
  * del turno che l'ha prodotta. La lettura globale la porta `active_turn_norm`
  * (vedi brain_respond); qui si rimette la condotta. */
+/* gen513 — la misura di un PARAGRAFO, non di una riga di chat: un lead di
+ * enciclopedia sta fra 600 e 2000 byte. I tre buffer del turno la seguono. */
+#define P0_TURN_MAX 2048
+
 static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size) {
     if (!b || !clause || !*clause || out_size == 0) return 0;
-    char norm[256];
+    char norm[P0_TURN_MAX];
     normalize(clause, norm, sizeof norm);
-    char canon[256];
+    char canon[P0_TURN_MAX];
     canonicalize_lang(b, norm, canon, sizeof canon);
     char (*demoted)[KB_TERM_LEN] = NULL;
     size_t ndemoted = 0;
@@ -5971,7 +5975,24 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * e' stata sbucciata. */
     turn_note_correction(b, input);
 
-    char norm[256];
+    /* ⛔ gen513 — IL TURNO NON E' PIU' LUNGO DI 255 BYTE, E LA PROSA SI'.
+     *
+     * Il TODO stava scritto qui accanto dal gen506 («canon[256] tronca la prosa
+     * lunga prima del dispatch») e la scala della prosa gli ha dato una misura:
+     * la stessa frase si legge DA SOLA e si perde DENTRO IL PARAGRAFO —
+     *
+     *     «A mangrove is a shrub or tree that grows mainly in coastal water.»
+     *       da sola          ->  Learned: mangrove is a shrub.
+     *       nel paragrafo    ->  «I don't know much about mangrove yet»
+     *
+     * perche' a 255 byte il paragrafo arrivava mozzato e nessuna facolta'
+     * riconosceva piu' niente. Un lead di enciclopedia sta fra 600 e 2000 byte:
+     * `P0_TURN_MAX` e' quella misura, e i buffer del turno la seguono tutti e
+     * tre (qui, la canonicalizzazione qui sotto, e `dispatch_one` per le
+     * clausole). Restano sulla pila e restano limitati — un turno illimitato
+     * non e' un obiettivo — ma il limite ora e' quello della PROSA, non quello
+     * di una riga di chat. */
+    char norm[P0_TURN_MAX];
     normalize(input, norm, sizeof norm);
 
     /* gen240 (universal-comprehension): record the CURRENT conversation language as
@@ -6091,7 +6112,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * before dispatch, so the reasoning core answers in any mapped language
      * without duplicating a module. `raw` (input) is left untouched, so the
      * reader still induces its generative model from the original prose. */
-    char canon[256];
+    char canon[P0_TURN_MAX];
     if (b->respond_depth > 1) canonicalize_fragment(b, norm, canon, sizeof canon);
     else {
         if (b->kb) {
