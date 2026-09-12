@@ -177,6 +177,7 @@ taught_form_source(taught_form_6, "what significa x").
 taught_form_source(taught_form_5, "what want dire x").
 taught_form_source(taught_form_4, "what vuol dire x").
 taught_form_source(taught_form_11, "what is the significato of x").
+taught_form_source(taught_form_12, "x fashioned from y").
 ordine(scorpioni).
 topic_read(scorpioni, wiki_address(it, "Scorpiones", 152103202, lead)).
 topic_read(pungiglione, wiki_address(it, "Pungiglione", 152143431, lead)).

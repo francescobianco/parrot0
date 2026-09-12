@@ -1853,6 +1853,8 @@ made_of(omelette, eggs).
 made_of(pasta, flour).
 has_part(pasta, water).
 made_of(pizza, dough).
+made_of(violin, spruce).
+made_of(quipu, knotted_cords).
 has_part(pizza, tomato).
 has_part(pizza, cheese).
 precedes(monday, tuesday).

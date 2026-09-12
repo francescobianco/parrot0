@@ -3243,6 +3243,11 @@ turn_form(teach_exists_restriction, 3, text("something")).
 turn_form(teach_exists_restriction, 4, slot(property)).
 turn_form(teach_exists_restriction, 5, text("then they are")).
 turn_form(teach_exists_restriction, 6, slot(state)).
+turn_form(taught_form_12, 3, span(y)).
+turn_form(taught_form_12, 2, text("fashioned from")).
+turn_form_act(taught_form_12, reread({x} made of {y})).
+turn_form(taught_form_12, 1, span(x)).
+turn_form_priority(taught_form_12, early).
 turn_form_slot_class(teach_exists_restriction, relation, relation_verb).
 turn_form_act(teach_exists_restriction, "op(assert, exists_restriction, [state, relation, property])").
 turn_form_reply(teach_exists_restriction, exists_restriction_learned).

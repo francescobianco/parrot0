@@ -72,6 +72,7 @@ utterance(5, user, "display the python code that computes the density law, witho
 utterance(5, user, "'escreva' is another way to say 'write'").
 utterance(5, user, "cosa significa x means what does x mean").
 utterance(5, user, "qual è il significato di velenosi?").
+utterance(5, user, "quipu is also spelled khipu").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -123,6 +124,7 @@ utterance(6, self, "Here is python code for density law, composed from what I kn
 utterance(6, self, "Got it - «escreva» asks for the same thing as «write».").
 utterance(6, self, "From now on I'll read «what significa x» as «what does x mean».").
 utterance(6, self, "«velenosi» vuol dire: ha a che fare con «veleno». Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
+utterance(6, self, "Learned: quipu also known as 'khipu'.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -587,6 +589,7 @@ utterance(7, user, "show me a python snippet that computes ohms law, without run
 utterance(7, user, "'écris' is another way to say 'write'").
 utterance(7, user, "che significa x means what does x mean").
 utterance(7, user, "what is the meaning of pungiglione").
+utterance(7, user, "quipu are made of knotted cords").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -885,7 +888,11 @@ utterance(8, self, "Non so ancora cosa vuol dire «pungiglione». Vuoi che cerch
 utterance(9, user, "qual è il significato di pungiglione?").
 utterance(10, self, "Non so ancora cosa vuol dire «pungiglione». Vuoi che cerchi?").
 utterance(11, user, "que signifie x means what does x mean").
+utterance(8, self, "Learned: quipu is made of knotted cords.").
+utterance(9, user, "quipu are fashioned from knotted cords").
+utterance(10, self, "Learned: quipu is made of knotted cords.").
 utterance(11, user, "what is the meaning of pungiglione").
+utterance(11, user, "aluminium is also spelled aluminum").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -948,6 +955,25 @@ utterance(30, self, "«velenosi» vuol dire: Un veleno è una sostanza che, assu
 utterance(12, self, "«pungiglione» vuol dire: Il pungiglione è un organo o una parte del corpo di alcuni animali che trasmette del veleno.").
 utterance(13, user, "si").
 utterance(14, self, "Vediamo cosa trovo su pungiglione... «pungiglione» vuol dire: Il pungiglione è un organo o una parte del corpo di alcuni animali che trasmette del veleno. Ho estratto 1 fatto.").
+utterance(12, self, "Learned: aluminium also known as 'aluminum'.").
+utterance(13, user, "doughnut is also spelled donut").
+utterance(14, self, "Learned: doughnut also known as 'donut'.").
+utterance(15, user, "a violin is made of spruce and maple").
+utterance(16, self, "Learned: violin is made of spruce.").
+utterance(17, user, "a violin is fashioned from spruce and maple").
+utterance(18, self, "Learned: violin is made of spruce.").
+utterance(19, user, "what is another name for quipu?").
+utterance(20, self, "khipu.").
+utterance(21, user, "what is another name for aluminium?").
+utterance(22, self, "aluminum.").
+utterance(23, user, "what is another name for doughnut?").
+utterance(24, self, "donut.").
+utterance(25, user, "what are quipu made of?").
+utterance(26, self, "Knotted cords.").
+utterance(27, user, "what is a violin made of?").
+utterance(28, self, "Spruce.").
+utterance(29, user, "how is quipu spelled?").
+utterance(30, self, "Hmm, I don't know about spelled yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a spelled»; if spelled is a word you want to talk ABOUT, say «the word spelled is a …».").
 utterance(21, user, "how do you act when the recipe is missing?").
 utterance(22, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(23, user, "your plan when you have no steps").
@@ -1247,6 +1273,7 @@ utterance(2, self, "Got it - «display» asks for the same thing as «show».").
 utterance(2, self, "Got it - «escribe» asks for the same thing as «write».").
 utterance(2, self, "From now on I'll read «what vuol dire x» as «what does x mean».").
 utterance(2, self, "From now on I'll read «what is the significato of x» as «what is the meaning of x».").
+utterance(2, self, "I learned a candidate construction: @S is also spelled @O maps to @S is known as @O. Test me with new names before we call it understood.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1298,6 +1325,7 @@ utterance(1, user, "'display' is another way to say 'show'").
 utterance(1, user, "'escribe' is another way to say 'write'").
 utterance(1, user, "cosa vuol dire x means what does x mean").
 utterance(1, user, "qual è il significato di x means what is the meaning of x").
+utterance(1, user, "x is also spelled y means x is known as y").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1343,6 +1371,7 @@ utterance(4, self, "Got it - «snippet» asks for the same thing as «code».").
 utterance(4, self, "Got it - «escriba» asks for the same thing as «write».").
 utterance(4, self, "From now on I'll read «what want dire x» as «what does x mean».").
 utterance(4, self, "«velenosi» vuol dire: ha a che fare con «veleno». Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
+utterance(4, self, "From now on I'll read «x fashioned from y» as «x made of y».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1389,6 +1418,7 @@ utterance(3, user, "'snippet' is another way to say 'code'").
 utterance(3, user, "'escriba' is another way to say 'write'").
 utterance(3, user, "cosa vuole dire x means what does x mean").
 utterance(3, user, "what is the meaning of velenosi").
+utterance(3, user, "x fashioned from y means x made of y").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
