@@ -5407,8 +5407,15 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     {
         const char *cq[2] = { "current_turn", "compound_inquiry" };
         const char *cs[2] = { "current_turn", "compound_statement" };
-        if (!kb_query(b->kb, "turn_illocution", cq, 2)) {
-            if (!kb_query(b->kb, "turn_illocution", cs, 2)) return 0;
+        int inq = kb_query(b->kb, "turn_illocution", cq, 2);
+        int stm = inq ? 0 : kb_query(b->kb, "turn_illocution", cs, 2);
+        /* gen513: la sonda che ha trovato perche' un PARAGRAFO non si divideva
+         * mentre la stessa prosa piu' corta si' (P0_READ_TRACE=1). */
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[compound?] len=%zu inquiry=%d statement=%d\n",
+                    strlen(input), inq, stm);
+        if (!inq) {
+            if (!stm) return 0;
             statement = 1;
         }
     }

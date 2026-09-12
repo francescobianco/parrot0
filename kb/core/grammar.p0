@@ -2215,19 +2215,33 @@ turn_gap_shape($T, binary_frame) :-
 machinery(turn_opens_question).
 machinery(input_node_precedes).
 input_node_precedes($T, $Id) :- input_node_before($T, $Other, $Id).
+% ⛔ gen513 — «NESSUNO LO PRECEDE» NON REGGE SU UN TESTO LUNGO.
+%
+% Le tre regole chiedevano il primo nodo per NEGAZIONE: «un nodo che nessun
+% altro precede». Su un turno di una riga e' esatto; su un paragrafo di 1500
+% byte l'IR ha centinaia di nodi, l'enumerazione dentro il `naf` non arriva in
+% fondo, e la negazione riesce su un nodo che invece era preceduto. Effetto: un
+% «is» a meta' paragrafo faceva credere che il turno APRISSE con una copula, e
+% `compound_statement` cadeva — cioe' il testo non veniva piu' diviso in frasi.
+%
+% Misurato con la scala della prosa: a 1049 byte il paragrafo si divide, a 1515
+% no, e la cue del confine di frase c'era in tutti e due i casi.
+%
+% Il primo nodo si CHIEDE, non si deduce per esclusione: comincia a byte zero.
+% E' esatto, costa una riga, e non peggiora con la lunghezza del testo — che e'
+% la proprieta' che serve a leggere la prosa (docs/plans/lettura-della-prosa.md).
+machinery(input_node_first).
+input_node_first($T, $Id) :- input_node_range($T, $Id, 0, $Len).
 turn_opens_question($T) :-
-    input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
-    question_word($W).
+    input_node_first($T, $Id), input_node_atom($T, $Id, $W), question_word($W).
 turn_opens_question($T) :-
-    input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
-    clause_copula($W).
+    input_node_first($T, $Id), input_node_atom($T, $Id, $W), clause_copula($W).
 % L'inversione dell'ausiliare e' la stessa evidenza strutturale anche quando la
 % domanda non ha una wh-word e non usa la copula: «did zorak shimmer?», «can a
 % tern fly?». Quali forme siano ausiliari resta una classe KB aperta; insegnarne
 % una nuova cambia questa lettura senza ricompilare.
 turn_opens_question($T) :-
-    input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
-    auxiliary($W).
+    input_node_first($T, $Id), input_node_atom($T, $Id, $W), auxiliary($W).
 
 % ── gen505y — LA DOMANDA NON DEVE APRIRE IL TURNO ──────────────────────────
 %
@@ -2295,7 +2309,22 @@ interrogative_clause_opener($T, $Id) :-
     input_node_atom($T, $Id, $W), question_word($W), naf(complementizer($W)),
     input_node_next($T, $Id, $Next),
     input_node_atom($T, $Next, $V), clause_inverter($V).
-turn_opens_question($T) :- interrogative_clause_opener($T, $Id).
+% ⛔ gen513 — «DOVUNQUE STIA» VALE PER UNA FRASE, NON PER UN PARAGRAFO.
+%
+% La regola qui sopra dice che un interrogativo seguito dalla copula apre una
+% domanda dovunque si trovi, e per un turno di UNA frase e' vero: non c'e'
+% affermazione in cui quella coppia contigua compaia. In un PARAGRAFO invece
+% compare di continuo, dentro una subordinata — «…explains how it works»,
+% «…shows where the field is» — e allora il turno intero veniva letto come
+% domanda: `compound_statement` cadeva e il testo non veniva piu' diviso in
+% frasi. Misurato sulla scala: a 1049 byte il paragrafo si divide, a 1515 no.
+%
+% Un turno che porta piu' frasi non e' una domanda perche' una delle sue
+% subordinate lo sembra. Il confine di frase e' gia' una cue dichiarata.
+machinery(turn_multi_sentence).
+turn_multi_sentence($T) :- turn_cue($T, sentence_boundary_cue, $B).
+turn_opens_question($T) :-
+    interrogative_clause_opener($T, $Id), naf(turn_multi_sentence($T)).
 
 % ── gen510 — LA PREPOSIZIONE DAVANTI ALL'INTERROGATIVO ──────────────────────
 % «di dove sei», «da dove vieni», «con chi parli», «from where …»: la
@@ -2309,8 +2338,11 @@ question_preposition($P) :- preposition($P).
 question_preposition(di).  question_preposition(da).  question_preposition(a).
 question_preposition(con). question_preposition(per). question_preposition(su).
 question_preposition(tra). question_preposition(fra).
+% gen513 — anche qui il primo nodo si CHIEDE («comincia a byte zero») invece di
+% dedurlo per esclusione: su un paragrafo l'enumerazione dentro il `naf` non
+% arriva in fondo e la negazione riesce su un nodo che era preceduto.
 turn_opens_question($T) :-
-    input_node_atom($T, $Id, $P), naf(input_node_precedes($T, $Id)),
+    input_node_first($T, $Id), input_node_atom($T, $Id, $P),
     question_preposition($P),
     input_node_next($T, $Id, $Next), input_node_atom($T, $Next, $W),
     question_word($W), naf(complementizer($W)).
