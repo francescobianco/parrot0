@@ -95,7 +95,7 @@ sembrava colpevole (`coref_resolve`, non `mod_knowledge`).
 > ripetibile ed e' descritto nel commit: **conviene rifarlo per `lex_class`**,
 > che potrebbe avere la stessa malattia.
 
-2. **§4.7 la facolta' di piano e' irraggiungibile da «how do I make X?»**.
+1. **§4.7 la facolta' di piano e' irraggiungibile da «how do I make X?»**.
    `intent_cue(process_request, "how do i make")` **c'e' gia'** (intents.p0:3732)
    ma il turno viene letto come `production_request` e i passi cedono
    (`faculty_yield_force(process_steps, open, production_request)`,
@@ -105,14 +105,18 @@ sembrava colpevole (`coref_resolve`, non `mod_knowledge`).
    fare, quindi o e' una cue, o e' il C. **E «What do I need to do first?» non
    e' una maniglia sul primo passo del piano in corso**: e' la famiglia delle
    RISPOSTE DI RIPRESA che il §C.5 del documento chiede come classe a se'.
-3. **§5.2 comparativi**: «Tom baked a cake and gave half to Anna. Who has less
+2. **§5.2 comparativi**: «Tom baked a cake and gave half to Anna. Who has less
    cake?» → muro.
-4. **§4.5 multi-obiettivo**: «What is your name and where do you live and what
+3. **§4.5 multi-obiettivo**: «What is your name and where do you live and what
    can you do?» → una risposta sola, non pertinente.
-5. **§3.5 + D2 (servono la rete)**: conoscenza fresca invisibile alla forma
+4. **§3.5 + D2 (servono la rete)**: conoscenza fresca invisibile alla forma
    nuova (Eiffel), e il menu di disambiguazione che non consuma la scelta. D2 e'
    la stessa famiglia di ripresa del punto 2.
-6. **§6.1 minuscole in output**, e la resa italiana delle chiavi inglesi.
+5. **§6.1 minuscole in output**, e la resa italiana delle chiavi inglesi.
+6. **Il censimento delle radici, ancora da fare sulle classi lessicali.** Le 23
+   righe di `intent_cue` morte sono state trovate e spostate in `intent_cue_stem`;
+   la stessa specie puo' vivere nelle `lex_class`, che si confrontano anch'esse
+   per parola intera. Il comando del censimento e' nel commit `35630b1b`.
 7. **Costo**: `taught_rules.p0t` riga 39 e' un timeout (1.05 s su 1.00 s), non un
    errore — 6-13 ricostruzioni dell'indice a turno, una per `kb_retract`.
 
