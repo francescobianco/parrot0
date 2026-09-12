@@ -1,0 +1,92 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: conversational (tools off, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> 
+  NOTA — a che cosa serve addestrare parrot0 parlandogli.
+  L'addestramento via prompt serve a STRUTTURARE le sue abilita' di
+  autoapprendimento e automiglioramento: dargli il modo di accorgersi di una
+  lacuna, di porsi la domanda giusta e di colmarla da solo la prossima volta.
+  NON serve a spingergli dentro fatti e regole secche.
+  Un fatto che nessuna forma sa raggiungere non risponde e non genera domande:
+  e' peso morto due volte, e non si lamenta. Prima di insegnare un valore,
+  chiediti se manca il valore o se manca la STRADA che ci arriva — e se
+  quello che stai per dire varra' anche per il caso che non hai davanti.
+  La domanda di controllo e' sempre la stessa: parrot0 potra' impararne un
+  membro nuovo domani, da solo, senza che nessuno riscriva questa riga?
+
+  (nessun turno da ispezionare: dimmi qualcosa e richiama /debug)
+  (profilo acceso: i turni successivi riportano anche tempi, passi e la strada per nome — /debug off per spegnerlo)
+
+>>> 
+[debug] 886.8 ms turno · 470.0 ms nel solver · 3142 query · 30824 passi
+[debug] 52243 fatti · 3400 regole · fuori dal solver: 416.9 ms · 8 ricostruzioni indice
+[debug] fatti visitati: 4047028 · scansioni senza indice: 0
+[debug] modulo: knowledge
+[debug]     245.3 ms        30 passi     30 call  extract_frame
+[debug]      72.5 ms       622 passi    622 call  intent_cue
+[debug]      56.6 ms      1188 passi    308 call  phrase_canon
+[debug]      21.3 ms     13545 passi     20 call  answer_frame
+[debug]      14.8 ms      5580 passi    749 call  segment_role
+[debug]       9.3 ms       760 passi     40 call  language_marker
+[debug]       8.9 ms      1320 passi    627 call  semantic_topic_cue
+[debug]       7.9 ms         4 passi      1 call  input_frame_observe
+calcium carbonate is CaCO3.
+>>> 
+[debug] 1345.1 ms turno · 524.8 ms nel solver · 3603 query · 39337 passi
+[debug] 52295 fatti · 3400 regole · fuori dal solver: 820.3 ms · 14 ricostruzioni indice
+[debug] fatti visitati: 5115850 · scansioni senza indice: 0
+[debug] modulo: fallback
+[debug]     243.7 ms        30 passi     30 call  extract_frame
+[debug]      80.2 ms       781 passi    779 call  intent_cue
+[debug]      73.0 ms      1647 passi    427 call  phrase_canon
+[debug]      32.5 ms     19107 passi     29 call  answer_frame
+[debug]      12.7 ms      5908 passi    793 call  segment_role
+[debug]      11.6 ms       950 passi     50 call  language_marker
+[debug]      11.2 ms      1320 passi    627 call  semantic_topic_cue
+[debug]      10.6 ms      2406 passi     28 call  humanities_summary
+Hmm, I don't know about carbonate yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a carbonate»; if carbonate is a word you want to talk ABOUT, say «the word carbonate is a …».
+>>> 
+[debug] 699.9 ms turno · 209.2 ms nel solver · 2741 query · 25643 passi
+[debug] 52330 fatti · 3400 regole · fuori dal solver: 490.6 ms · 11 ricostruzioni indice
+[debug] fatti visitati: 3710434 · scansioni senza indice: 0
+[debug] modulo: knowledge
+[debug]      51.7 ms      1134 passi    294 call  phrase_canon
+[debug]      48.2 ms       536 passi    536 call  intent_cue
+[debug]      35.4 ms         4 passi      1 call  input_frame_observe
+[debug]      16.0 ms      9417 passi     17 call  answer_frame
+[debug]       9.1 ms      4268 passi    573 call  segment_role
+[debug]       8.6 ms      1320 passi    627 call  semantic_topic_cue
+[debug]       8.4 ms       684 passi     36 call  language_marker
+[debug]       7.5 ms      2580 passi     30 call  humanities_summary
+"finding north without landmarks".
+>>> 
+[debug] 1065.6 ms turno · 360.4 ms nel solver · 3088 query · 29815 passi
+[debug] 52351 fatti · 3400 regole · fuori dal solver: 705.3 ms · 15 ricostruzioni indice
+[debug] fatti visitati: 4273220 · scansioni senza indice: 0
+[debug] modulo: learn
+[debug]     150.0 ms        20 passi     20 call  extract_frame
+[debug]      63.3 ms       716 passi    716 call  intent_cue
+[debug]      59.9 ms      1296 passi    336 call  phrase_canon
+[debug]      20.6 ms     12502 passi     19 call  answer_frame
+[debug]      12.8 ms      5908 passi    793 call  segment_role
+[debug]       9.3 ms       760 passi     40 call  language_marker
+[debug]       7.7 ms         4 passi      1 call  input_frame_observe
+[debug]       6.9 ms      2058 passi     24 call  humanities_summary
+I don't know much about dog yet, and the network is off, so I can't read about it now.
+>>> 
+[debug] 666.9 ms turno · 168.5 ms nel solver · 2175 query · 19902 passi
+[debug] 52383 fatti · 3400 regole · fuori dal solver: 498.4 ms · 13 ricostruzioni indice
+[debug] fatti visitati: 2869302 · scansioni senza indice: 0
+[debug] modulo: answerframe
+[debug]      50.5 ms      1134 passi    294 call  phrase_canon
+[debug]      48.4 ms       526 passi    526 call  intent_cue
+[debug]      14.1 ms      8033 passi     16 call  answer_frame
+[debug]      12.8 ms         4 passi      1 call  input_frame_observe
+[debug]       9.4 ms      4268 passi    573 call  segment_role
+[debug]       8.5 ms       684 passi     36 call  language_marker
+[debug]       4.7 ms       708 passi      1 call  turn_plan_candidate
+[debug]       4.2 ms       168 passi     42 call  tr
+Paris.
+>>> 
+parrot0: bye

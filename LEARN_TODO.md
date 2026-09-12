@@ -1,9 +1,72 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-12 (sessione 2, dopo gen513 giro 3) — PIOLO 300: 13 → 16/50
+## ⛔ HANDOFF 2026-09-13 — PIOLO 300: 16 → 17/50
 
-**Punto di ripresa autoritativo per la lettura della prosa.** Sostituisce come
-stato quello del giro 3 qui sotto, che resta valido come mappa delle cause.
+**Unico punto di ripresa attivo per la prosa.** Obiettivo ancora aperto: 80%
+sul banco fisso del piolo 300, poi tutte le domande rispondibili. Questo giro
+chiude un incremento, non il piano.
+
+- Baseline del precedente commit confermata: **16/50**, cancello **91/299**.
+- Dopo: **17/50 = 34%**, cancello **97/299**; meta **2/2**, struttura **5/5**.
+- Il diff dei referti cambia soltanto due risposte: `some.` diventa
+  `some of earth's most diverse ecosystems.`; alla domanda di scopo sul
+  carbonato non risponde piu' con la formula chimica, ma declina.
+- Nessuna risposta gia' corretta persa; **33 domande nel merito restano aperte**.
+- **31 proprieta' verdi** nella sonda `prose_relation_scope.p0t`, con crescita,
+  ablazione e reinsegnamento. KB viva completa, niente `/save` o fatti del
+  banco persistiti: checkpoint **meta-capability-only**, W=0, L=0.
+
+### Che cosa e' cambiato
+
+`partitive_link/2` e `partitive_head_class/1` in `grammar.p0` rendono comune la
+lettura di misure e quantificatori. Il confine dello slot e il tetto del valore
+usano la stessa regola: la congiunzione non e' piu' duplicata in C.
+
+`definition_answer_ok/1` legge la coda dai token gia' pubblicati nell'IR: una
+preposizione senza complemento chiede una relazione, e la sola definizione
+non la soddisfa. La verifica dei candidati definitori la consulta insieme al
+fuoco del soggetto. `aboard is a preposition` e la sua ritrattazione cambiano
+questa verifica parlando; il canale naturale `handful is a measure noun`,
+invece, resta non disponibile e non e' contato come apprendimento riuscito.
+
+### Verifiche e costo
+
+Build riuscito, nessun nuovo warning o parse error osservato. `make soft-test`
+si ferma sui timeout di `basics.p0t`: tigre 1,11 s, antonimo 1,20 s, limite 1 s.
+La baseline precedente aveva gia' timeout nello stesso file; non e' verde.
+Profilo A/B di cinque domande: **4,694 → 4,664 s** complessivi di turno, troppo
+poco per dichiarare un'accelerazione. `extract_frame` costa ancora 150–245 ms
+sui definitori: l'indice degli schemi resta aperto.
+
+Bilancio C **+33/-45** (molto del calo e' commento); KB **+26**;
+`split_words` **132/54/33 = 219**, invariato. Nessuna migrazione completa del
+lettore rivendicata.
+
+### Prossimo lavoro, con due reperti aggiuntivi
+
+1. **Il residuo `built from`**: «what are most coral reefs built from?» →
+   `Colonies.` era gia' nel referto precedente ma non nel conto delle due
+   risposte false. Resta una risposta insufficiente rispetto a `stony corals`.
+   Basta la frase sui reefs formati da colonies per riprodurla; risponde
+   `answerframe`, passando dalle costruzioni insegnate verso `made_of`.
+   Non mettere a mano la risposta: manca la relazione attenuata con **Most**.
+2. **Livello clausola**: relativa `that` senza virgola, predicati coordinati
+   `support and protect`, complemento `in the animal phylum Cnidaria`.
+3. **Forme di domanda** e poi light verbs, nella coda del giro precedente.
+4. **Riscrittura non idempotente**: la lezione scartata
+   `what is x for means what is x used for` si riapplica al proprio risultato
+   e produce `used used used`. Non e' stata persistita.
+
+[Report completo e referti](docs/labs/apprendimento-assistito/2026-09-13-prosa-partitivi.md).
+Il banco si ripete come prima in una copia dello scratchpad:
+`P0_PROBE_STEP2=1 ./scripts/prose-probe.sh tests/fixtures/prose/ladder/r300.txt`.
+
+---
+
+## Handoff archiviato — 2026-09-12 (sessione 2): 13 → 16/50
+
+**Superato dal checkpoint del 13 settembre in testa.** Conservato come mappa
+delle sei riparazioni del giro precedente.
 
 ### Stato misurato
 
@@ -105,7 +168,7 @@ costo non è ancora localizzato: la prima cosa da profilare alla ripresa.
 
 ## ⛔ HANDOFF 2026-09-12 (gen513, giro 3) — PIOLO 300 AL 26%, OBIETTIVO 80%
 
-**Punto di ripresa autoritativo per la lettura della prosa.** Piani vivi:
+**Handoff storico; stato superato dal checkpoint in testa.** Piani vivi:
 [`lettura-della-prosa.md`](docs/plans/lettura-della-prosa.md) (operativo),
 [`ir-e-predicato-variabile.md`](docs/plans/ir-e-predicato-variabile.md)
 (strutturale), [`the-magic-of-apply.md`](docs/plans/the-magic-of-apply.md).

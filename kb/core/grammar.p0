@@ -2965,6 +2965,18 @@ machinery(partitive_preposition).
 partitive_preposition(of).
 partitive_preposition(di).
 
+% Il partitivo lega anche un quantificatore al suo dominio: «some of the
+% ecosystems». La scelta delle teste e la congiunzione sono conoscenza; il
+% lettore degli slot e quello del loro limite chiedono la STESSA relazione.
+machinery(partitive_head_class).
+machinery(partitive_link).
+partitive_head_class(measure_noun).
+partitive_head_class(non_universal_quantifier).
+partitive_head_class(universal_quantifier).
+partitive_link($Head, $Prep) :-
+    partitive_preposition($Prep), partitive_head_class($Class),
+    apply($Class, cons($Head, nil)).
+
 % Un valore misurato e' piu' lungo di un concetto, e non perche' ha ingoiato
 % qualcosa: «0.1 percent of the world ocean area» sono sette parole e sono tutte
 % del valore. Vale solo per le forme che contengono un partitivo dopo una misura.
@@ -3002,6 +3014,20 @@ type_noun(type).
 type_noun(sort).
 auxiliary(did).
 turn_word($T, $I, $W) :- turn_surface_token($T, 0, $I, $Tok), span_atom($Tok, $W).
+
+% Una preposizione senza complemento in coda chiede una relazione, non una
+% definizione («what is calcium carbonate for?»). Si verifica la risposta
+% candidata sull'IR gia' pubblicata, senza rileggere o riscrivere la domanda.
+% La classe resta aperta: insegnare una preposizione cambia anche la verifica.
+machinery(definition_answer_ok).
+machinery(definition_unfilled_relation).
+turn_word_at($T, $I) :- turn_surface_token($T, 0, $I, $Tok).
+turn_last_word($T, $W) :-
+    turn_word($T, $I, $W), is($Next, add($I, 1)),
+    naf(turn_word_at($T, $Next)).
+definition_unfilled_relation($T) :-
+    turn_last_word($T, $W), question_preposition($W).
+definition_answer_ok($T) :- naf(definition_unfilled_relation($T)).
 turn_word_opens_clause($T, $I) :- turn_word($T, $I, $W), auxiliary($W).
 turn_word_opens_clause($T, $I) :- turn_word($T, $I, $W), clause_copula($W).
 asked_answer_type($T, $Type) :-

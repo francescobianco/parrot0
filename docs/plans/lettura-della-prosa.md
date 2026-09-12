@@ -264,6 +264,18 @@ esatto non si promette, si misura.
 
 ## 6. Registro dei giri
 
+### 13 settembre 2026 — partitivo e verifica delle definizioni: 17/50
+
+Baseline confermata 16/50, risultato **17/50**, cancello **97/299**, meta 2/2
+e struttura 5/5. `some of ... ecosystems` resta intero; una domanda con
+preposizione in coda non riceve piu' una semplice definizione. Il partitivo
+riusa i due consumatori esistenti; la verifica definitoria consuma i token IR.
+Sonda runtime: **31/31**. Soft-test ancora rosso per timeout di `basics.p0t`.
+C +33/-45 (in buona parte commenti), KB +26, `split_words` invariato a
+132/54/33 = **219**. Nessuna risposta del banco salvata nella KB.
+[Report, limiti e prossimo circuito](../labs/apprendimento-assistito/2026-09-13-prosa-partitivi.md).
+
+
 ### Giro 0 — 12 settembre 2026 (gen513): il banco e la diagnosi
 
 Creato `scripts/prose-probe.sh` + `make prose-probe`; due prose esterne con le

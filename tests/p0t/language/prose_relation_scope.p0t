@@ -1,0 +1,92 @@
+# 2026-09-13 — full live KB; development probes, never persisted training.
+# A definition is not evidence for a stranded relation. Partitive objects keep
+# their domain. The invented storage examples below test runtime mechanics,
+# not knowledge of the world or connecting dots.
+
+[test definition fits the requested relation]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+> what is calcium carbonate?
+<~ CaCO3
+> what is calcium carbonate for?
+<! CaCO3
+!query definition_unfilled_relation(current_turn)
+> what is calcium carbonate from?
+<! CaCO3
+> what is a compass used for?
+<~ finding north
+> what is calcium carbonate?
+<~ CaCO3
+
+[test a spoken preposition changes definition eligibility]
+!reset
+!timeout 30
+> what is calcium carbonate aboard?
+<~ CaCO3
+> aboard is a preposition
+<~ Learned
+> what is calcium carbonate aboard?
+<! CaCO3
+!query definition_unfilled_relation(current_turn)
+> forget that aboard is a preposition
+<~ Forgotten
+> what is calcium carbonate aboard?
+<~ CaCO3
+> aboard is a preposition
+<~ Learned
+> what is calcium carbonate aboard?
+<! CaCO3
+
+[test partitive transfer and complement boundary]
+!reset
+!timeout 30
+> Shallow coral reefs form some of Earth's most diverse ecosystems.
+<~ diverse ecosystems
+> what do shallow coral reefs form?
+<~ diverse ecosystems
+> Organisms occupy many of the coastal habitats.
+<~ many of the coastal habitats
+> what do organisms occupy?
+<~ Many of the coastal habitats
+> Forests occupy half of the global land area.
+<~ half of the global land area
+> what do forests occupy?
+<~ Half of the global land area
+> Workers occupy all of the sheltered spaces.
+<~ all of the sheltered spaces
+> what do workers occupy?
+<~ All of the sheltered spaces
+> Coral belongs to the class Anthozoa in the animal phylum Cnidaria.
+<~ class anthozoa
+> what does coral belong to?
+< Class anthozoa.
+
+[test new partitive head grows and retracts without rebuilding]
+!reset
+!timeout 30
+> Boxes occupy a handful of the storage spaces.
+<! handful of the storage spaces
+!assert measure_noun(handful)
+> Crates occupy a handful of the storage spaces.
+<~ handful of the storage spaces
+> what do crates occupy?
+<~ Handful of the storage spaces
+!forget measure_noun(handful)
+> Baskets occupy a handful of the storage spaces.
+<! handful of the storage spaces
+!assert measure_noun(handful)
+> Trunks occupy a handful of the storage spaces.
+<~ handful of the storage spaces
+
+[test removing the quantifier bridge removes the complete reading]
+!reset
+!timeout 30
+!forget partitive_head_class(non_universal_quantifier)
+> Collectors occupy several of the coastal habitats.
+<! several of the coastal habitats
+!assert partitive_head_class(non_universal_quantifier)
+> Visitors occupy several of the coastal habitats.
+<~ several of the coastal habitats

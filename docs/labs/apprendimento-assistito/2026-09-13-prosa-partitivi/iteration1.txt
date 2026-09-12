@@ -1,0 +1,96 @@
+
+═══ PROSA: tests/fixtures/prose/ladder/r300.txt — 299 parole (piolo 0) ═══
+    A coral reef is an underwater ecosystem characterized by reef-building corals. Reefs are formed 
+    of colonies of coral polyps held together by calcium carbonate. Most coral reefs are built from 
+    stony corals, whose polyps cluster in groups. Coral belongs to the class Anthozoa in the animal 
+    phylum Cnidaria, which includes sea anemones and jellyfish. Unlike sea anemones, corals secrete 
+    hard carbonate exoskeletons that support and protect the coral. Most reefs grow best in warm, 
+    shallow, clear, sunny, and agitated water. Coral reefs first appeared 485 million years ago, at 
+    the dawn of the Early Ordovician, displacing the microbial and sponge reefs of the Cambrian. 
+    Sometimes called rainforests of the sea, shallow coral reefs form some of Earth's most diverse 
+    ecosystems. They occupy less than 0.1% of the world's ocean area, about half the area of 
+    France. Yet, they provide a home for at least 25% of all marine species, including fish, 
+    mollusks, worms, crustaceans, echinoderms, sponges, tunicates and other cnidarians. Coral reefs 
+    flourish in ocean waters that provide few nutrients. They are most commonly found at shallow 
+    depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in 
+    other areas. Shallow tropical coral reefs have declined by 50% since 1950, partly because they 
+    are sensitive to water conditions. They are under threat from excess nutrients (nitrogen and 
+    phosphorus), rising ocean heat content and acidification, overfishing (e.g., from blast 
+    fishing, cyanide fishing, spearfishing on scuba), sunscreen use, and harmful land-use 
+    practices, including runoff and seeps (e.g., from injection wells and cesspools). Coral reefs 
+    deliver ecosystem services for tourism, fisheries, and shoreline protection. The annual global 
+    economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 
+    2003 estimates) to US$2.7 trillion (a 2020 estimate) to US$9.9 trillion (a 2014 estimate).
+
+(passo 1 saltato: P0_PROBE_STEP2=1)
+
+─── PASSO 2 · legge tutta la prosa, poi risponde. La risposta E' nel testo ───
+
+  DOMANDA                            SPECIE     ESITO  RISPOSTA
+  ────────────────────────────────────────────────────────────────────────────────
+  what is a coral reef?              merito     ✓    coral reef is an underwater ecosystem.
+  what is a reef?                    merito     ·     I don't know much about reef yet, and the network is off, so I
+  what kind of ecosystem is a cora   merito     ·     Hmm, I don't know about ecosystem yet. Want me to learn about 
+  what is a coral reef characteriz   merito     ✓    reef-building corals.
+  what are reefs formed of?          merito     ✓    Colonies.
+  what are reefs made of?            merito     ✓    Colonies.
+  what are colonies of coral polyp   merito     ✓    calcium carbonate.
+  what holds coral polyps together   merito     ·     Hmm, I don't know about polyps yet. Want me to learn about it?
+  what are most coral reefs built    merito     ·     Colonies.
+  what are stony corals?             merito     ·     I don't know much about stony corals yet, and the network is o
+  where do the polyps of stony cor   merito     ·     Hmm, I don't know about polyps yet.
+  what class does coral belong to?   merito     ✓    Class anthozoa.
+  what does coral belong to?         merito     ✓    Class anthozoa.
+  what phylum does coral belong to   merito     ·     Hmm, I don't know about phylum yet. Want me to learn about it?
+  what does the phylum cnidaria in   merito     ·     Hmm, I don't know about phylum yet.
+  what do corals secrete?            merito     ✓    Hard carbonate exoskeletons.
+  what do corals secrete that prot   merito     ✓    Hard carbonate exoskeletons.
+  what protects the corals?          merito     ·     Hmm, I don't know about protects yet. Want me to learn about i
+  what supports the corals?          merito     ·     I don't understand that yet.
+  where do most reefs grow best?     merito     ·     I'm not sure I followed. Can you say it another way?
+  in what kind of water do reefs g   merito     ·     I don't understand that yet.
+  when did coral reefs first appea   merito     ✓    485 million years ago.
+  how long ago did coral reefs fir   merito     ✓    485 million years ago.
+  what appeared 485 million years    merito     ✓    coral reefs first.
+  what are shallow coral reefs som   merito     ·     I don't know much about shallow coral reefs sometimes called y
+  what do shallow coral reefs form   merito     ✓    some of earth's most diverse ecosystems.
+  how much of the world ocean area   merito     ·     I don't understand that yet.
+  what do coral reefs occupy?        merito     ✓    less than 0.1 percent of the world's ocean area.
+  what do coral reefs provide a ho   merito     ·     I don't know: nothing I hold says coral reefs provide home for
+  how many marine species do reefs   merito     ·     Hmm, I don't know about marine yet. Want me to learn about it?
+  what lives in coral reefs?         merito     ·     I don't understand that yet.
+  where do coral reefs flourish?     merito     ✓    ocean waters.
+  what do those ocean waters provi   merito     ·     I don't actually see or experience things, but I can describe 
+  where are coral reefs most commo   merito     ·     Hmm, I don't know about commonly yet.
+  at what depths are reefs commonl   merito     ·     Hmm, I don't know about depths yet. Want me to learn about it?
+  what have shallow tropical coral   merito     ·     Hmm, I don't know about shallow yet.
+  since when have coral reefs decl   merito     ·     Hmm, I don't know about declined yet. Want me to learn about i
+  what are coral reefs sensitive t   merito     ·     Hmm, I don't know about sensitive yet. Want me to learn about 
+  what threatens coral reefs?        merito     ·     Hmm, I don't know about threatens yet. Want me to learn about 
+  what are coral reefs under threa   merito     ·     I don't know much about coral reefs yet, and the network is of
+  what do excess nutrients include   merito     ·     Hmm, I don't know about excess yet. Want me to learn about it?
+  what do coral reefs deliver?       merito     ✓    ecosystem services.
+  what do coral reefs deliver serv   merito     ·     I don't know: nothing I hold says coral reefs deliver services
+  what has been estimated at billi   merito     ·     Hmm, I don't know about estimated yet. Want me to learn about 
+  what is the annual global econom   merito     ·     Hmm, I don't know about annual yet. Want me to learn about it?
+  what is coral?                     merito     ✓    belong(coral, class_anthozoa).
+  what is calcium carbonate for?     merito     ·     Hmm, I don't know about carbonate yet. Want me to learn about 
+  what are coral polyps?             merito     ·     I don't know much about coral polyps yet, and the network is o
+  what do reef-building corals bui   merito     ·     Hmm, I don't know about reef-building yet. Want me to learn ab
+  what kind of corals are most ree   merito     ·     I don't understand that yet.
+  how many sentences does the text   struttura  ✓    The text has 16 sentences.
+  how many words does the text hav   struttura  ✓    The text has 299 words.
+  what is the first sentence?        struttura  ✓    It begins: A coral reef is an underwater ecosystem characteriz
+  how does the text begin?           struttura  ✓    It begins: A coral reef is an underwater ecosystem characteriz
+  what is the last sentence?         struttura  ✓    It ends: The annual global economic value of coral reefs has b
+  what is this text about?           meta       ✓    The text is about A coral reef.
+  what is the topic?                 meta       ✓    The text is about A coral reef.
+  ────────────────────────────────────────────────────────────────────────────────
+  merito     17/50
+  meta       2/2
+  struttura  5/5
+
+  24 domande su 57 hanno ricevuto quello che il testo dice.
+  ⛔ CANCELLO: 97 parole di domande nel merito risolte, ne servono piu' di 299 (mancano 203).
+  ⛔ 33 restano senza: la risposta E' nel testo, e il lettore non la porta.
+

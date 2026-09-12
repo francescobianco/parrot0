@@ -4864,30 +4864,16 @@ static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
  * la dimensione dell'appoggio con cui il C allinea gli slot di UN pattern. */
 #define P0_MAX_SLOTS 8
 
-/* ── gen513 — UN PARTITIVO DOPO UNA MISURA APPARTIENE AL VALORE ────────────
- *
- * «Coral reefs occupy 0.1 percent OF the world ocean area» lasciava
- * `occupy(coral_reefs, one_percent)`: lo slot si fermava a «of», che chiude un
- * sintagma, e la TESTA del valore — di che cosa è lo 0,1 percento — si
- * perdeva. Sul piolo 300 succede in quattro frasi, ed è il blocco più grosso.
- *
- * Ma «0.1 percent of X» è UN valore, non due: il partitivo lega la misura alla
- * cosa misurata. La condizione è stretta apposta — si estende SOLO se la
- * parola prima del partitivo è una misura — perché allargarla a ogni
- * preposizione farebbe ingoiare all'oggetto anche i complementi che non gli
- * appartengono («belongs to the class Anthozoa IN the animal phylum…»).
- *
- * Le due classi sono fatti: `measure_noun/1` e `partitive_preposition/1` in
- * kb/core/grammar.p0. Una misura nuova — «share», «fraction», «quota» — costa
- * una riga e vale dal turno dopo. */
+/* A partitive can continue a value instead of closing its slot. Which head
+ * and preposition license that attachment is the KB relation partitive_link/2.
+ * Measures and quantifiers share this binding; other complements still close
+ * the slot. The atom-length check below consumes the same decision. */
 static int p0_partitive_continues(Brain *b, char **w, size_t i, const char *t) {
     if (!b || i == 0) return 0;
-    const char *pq[1] = { t };
-    if (!kb_query(brain_kb(b), "partitive_preposition", pq, 1)) return 0;
     char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[i - 1]);
     const char *prev = strip_edge_punct(pb);
-    const char *mq[1] = { prev };
-    return kb_query(brain_kb(b), "measure_noun", mq, 1);
+    const char *q[2] = { prev, t };
+    return kb_query(brain_kb(b), "partitive_link", q, 2);
 }
 
 static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
@@ -6309,17 +6295,10 @@ static int p0_concept_cap(Brain *b) {
 }
 
 /* Solo il tetto di lunghezza: per i nomi SCELTI (relazioni dichiarate). */
-/* Un VALORE MISURATO è più lungo di un concetto, e non perché ha ingoiato
- * qualcosa: «0.1 percent of the world ocean area» sono sette parole, e sono
- * tutte del valore. Il tetto dei concetti (`concept_atom_max_words`) esiste per
- * respingere gli slot che hanno preso mezza proposizione, e su questa forma
- * respingeva una lettura giusta — sul piolo 300, quattro frasi.
- *
- * Il riconoscimento non è una deroga a occhio: è la STESSA condizione che ha
- * permesso allo slot di estendersi, cioè un partitivo dichiarato preceduto da
- * una misura dichiarata. Se quella condizione non vale, vale il tetto di
- * sempre. Il tetto largo è un fatto suo (`measured_value_max_words`). */
-static int p0_atom_is_measured_value(Brain *b, const char *atom) {
+/* A licensed partitive value may exceed the ordinary concept length cap.
+ * Use the same KB attachment decision as the slot binder, so a newly taught
+ * head can keep both its complement and the longer value it produces. */
+static int p0_atom_is_partitive_value(Brain *b, const char *atom) {
     if (!b || !brain_kb(b) || !atom) return 0;
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", atom);
@@ -6327,10 +6306,8 @@ static int p0_atom_is_measured_value(Brain *b, const char *atom) {
     for (char *tok = strtok(buf, "_"); tok && nt < 24; tok = strtok(NULL, "_"))
         toks[nt++] = tok;
     for (size_t k = 1; k + 1 < nt; k++) {
-        const char *pq[1] = { toks[k] };
-        if (!kb_query(brain_kb(b), "partitive_preposition", pq, 1)) continue;
-        const char *mq[1] = { toks[k - 1] };
-        if (kb_query(brain_kb(b), "measure_noun", mq, 1)) return 1;
+        const char *q[2] = { toks[k - 1], toks[k] };
+        if (kb_query(brain_kb(b), "partitive_link", q, 2)) return 1;
     }
     return 0;
 }
@@ -6338,7 +6315,7 @@ static int p0_atom_is_measured_value(Brain *b, const char *atom) {
 static int p0_atom_within_cap(Brain *b, const char *atom) {
     if (!b || !brain_kb(b) || !atom || !*atom) return 0;
     int maxw = p0_concept_cap(b);
-    if (p0_atom_is_measured_value(b, atom)) {
+    if (p0_atom_is_partitive_value(b, atom)) {
         char cap[1][KB_TERM_LEN]; const char *cq[1] = { NULL };
         if (kb_match(brain_kb(b), "measured_value_max_words", cq, 1, cap, 1) == 1) {
             long v = strtol(cap[0], NULL, 10);
@@ -8116,6 +8093,16 @@ static int p0_answer_subject_in_focus(Brain *b, const char *norm,
     }
     p0_record_focus_rejection(b, subject);
     return 0;
+}
+
+/* A definition must fit both the subject and the relation requested. The KB
+ * judges the latter on the shared turn IR; relational answers keep their own
+ * evidence and do not pass through this definition-only check. */
+static int p0_definition_subject_in_focus(Brain *b, const char *norm,
+                                         const char *subject) {
+    const char *q[] = { "current_turn" };
+    if (!kb_query(brain_kb(b), "definition_answer_ok", q, 1)) return 0;
+    return p0_answer_subject_in_focus(b, norm, subject);
 }
 
 /* ── gen505x — LA RISPOSTA A UNA DOMANDA POLARE ────────────────────────────
@@ -12131,6 +12118,7 @@ static int taxonomy_definition_reply(Brain *b, const char *norm,
         char kinds[2][KB_TERM_LEN];
         size_t nk = kb_match(b->kb, "definition_value", q, 2, kinds, 2);
         if (nk != 1) continue;              /* ambiguity is not a definition */
+        if (!p0_definition_subject_in_focus(b, norm, entity)) continue;
         char subject[KB_TERM_LEN], category[KB_TERM_LEN];
         present_atom(b, entity, subject, sizeof subject);
         present_atom(b, kb_dequote(kinds[0]), category, sizeof category);
@@ -21052,7 +21040,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!resolve_entity(b, wi_ent, &entity, out, out_size)) return 1;
         char desc[1024];
         if (kb_describe_entity(b->kb, entity, desc, sizeof desc) &&
-            p0_answer_subject_in_focus(b, norm, wi_ent)) {
+            p0_definition_subject_in_focus(b, norm, wi_ent)) {
             put(desc, out, out_size);
             store_proof(b, desc);
             remember_entity(b, wi_ent, entity);
@@ -21094,7 +21082,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 /* gen313: definition frames use the strict subject-only view,
                  * same reason as the "what is the X" path below. */
                 if (kb_define_entity(b->kb, cand, desc, sizeof desc) &&
-                    p0_answer_subject_in_focus(b, norm, cand)) {
+                    p0_definition_subject_in_focus(b, norm, cand)) {
                     put(desc, out, out_size);
                     store_proof(b, desc);
                     remember_entity(b, cand, cand);
@@ -21276,7 +21264,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (kb_match(b->kb, "topic_definition", dq, 2, d, 1) == 1) {
                     char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", d[0]);
                     const char *def = kb_dequote(db);
-                    if (def && *def) {
+                    if (def && *def && p0_definition_subject_in_focus(b, norm, w[i])) {
                         put(def, out, out_size);
                         store_proof(b, def);
                         remember_entity(b, w[i], w[i]);
@@ -21298,7 +21286,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     for (size_t i = start; i < nw; i++) {
                         if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
                         if (kb_concept_gloss(b->kb, w[i], lang, gl, sizeof gl) &&
-                            p0_answer_subject_in_focus(b, norm, w[i])) {
+                            p0_definition_subject_in_focus(b, norm, w[i])) {
                             put(gl, out, out_size);
                             store_proof(b, gl);
                             remember_entity(b, w[i], w[i]);
@@ -21313,7 +21301,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     }
                     if (go && strchr(gkey, '_') &&
                         kb_concept_gloss(b->kb, gkey, lang, gl, sizeof gl) &&
-                        p0_answer_subject_in_focus(b, norm, gkey)) {
+                        p0_definition_subject_in_focus(b, norm, gkey)) {
                         put(gl, out, out_size);
                         store_proof(b, gl);
                         return 1;
@@ -21338,7 +21326,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                  * that pumps blood" means, and claiming here stole the turn from
                  * the idf recall below. */
                 if (kb_define_entity(b->kb, name, desc, sizeof desc) &&
-                    p0_answer_subject_in_focus(b, norm, name)) {
+                    p0_definition_subject_in_focus(b, norm, name)) {
                     put(desc, out, out_size);
                     store_proof(b, desc);
                     remember_entity(b, name, name);
@@ -21379,7 +21367,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     char ddesc[1024];
                     if (jo && strchr(jkey, '_') &&
                         kb_define_entity(b->kb, jkey, ddesc, sizeof ddesc) &&
-                        p0_answer_subject_in_focus(b, norm, jkey)) {
+                        p0_definition_subject_in_focus(b, norm, jkey)) {
                         put(ddesc, out, out_size);
                         store_proof(b, ddesc);
                         remember_entity(b, jkey, jdisp);
@@ -21389,7 +21377,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char jdef[KB_TERM_LEN];
                 if (jo && strchr(jkey, '_') &&
                     kb_concept_def(b->kb, jkey, jdef, sizeof jdef) &&
-                    p0_answer_subject_in_focus(b, norm, jkey)) {
+                    p0_definition_subject_in_focus(b, norm, jkey)) {
                     char msg[1200];
                     snprintf(msg, sizeof msg, "%s is %s.", jdisp, jdef);
                     put(msg, out, out_size);
@@ -21420,7 +21408,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
              * lettura — non una guardia nuova. */
             if (nq >= 2 &&
                 kb_nearest_concept(b->kb, qw, nq, ckey, sizeof ckey, cdesc, sizeof cdesc) &&
-                p0_answer_subject_in_focus(b, norm, ckey)) {
+                p0_definition_subject_in_focus(b, norm, ckey)) {
                 char msg[1200];
                 { const KbResponseSlot _rs[] = { { "ckey", ckey }, { "cdesc", cdesc } };
       kb_term_say(b, "you_might_mean_x_x", _rs, 2, msg, sizeof msg);

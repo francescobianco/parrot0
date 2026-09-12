@@ -1,0 +1,9 @@
+ok    health.p0t — 2 passed
+test-engine: ready (health check passed)
+ok    health.p0t — 2 passed
+  FAIL  [taxonomy] line 18 — turn took 1.11s (timeout 1.00s)
+        > is a tiger a mammal
+  FAIL  [antonym] line 22 — turn took 1.20s (timeout 1.00s)
+        > what is the opposite of hot
+FAIL  basics.p0t — 3 passed, 2 failed
+make: *** [Makefile:512: soft-test] Error 1
