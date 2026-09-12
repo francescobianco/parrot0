@@ -32,6 +32,31 @@ scala avrebbero confuso la misura con la modifica. È il primo lavoro di motore
 dopo l'indicizzazione degli schemi.
 
 
+## 2026-09-13 — gen514: lo stack C era un tetto che uccideva il processo
+
+`solve_frame` (src/kb.c) pesa **~39 KB di stack per goal** — `sub $0x9708,%rsp`
+nel binario: i locali di tutti i rami dei builtin condividono un solo frame — e
+il solver a continuazioni tiene sullo stack ogni goal riuscito lungo la
+dimostrazione. Con gli 8 MB della shell il processo moriva di SIGSEGV a ~200
+goal di profondita'. Trovato con due righe di regola sui token del turno
+(`subject_question_form`, grammar.p0); gia' morso una volta al gen512 e allora
+aggirato riscrivendo la KB (LEARN_TODO, «renderer troppo profondo»).
+
+Chiuso in due parti, nessuna conoscenza nel C:
+- `main.c` alza il limite soft dello stack a 96 MB all'avvio (lo stack del
+  thread principale cresce su richiesta fino al limite in vigore al fault);
+- `solve()` misura la distanza dalla base dello stack e, oltre il limite meno
+  un quarto, taglia la ricerca con `budget_hit` — lo stesso esito INCOMPLETO del
+  tetto di profondita' e di lavoro, non un crash. Verificato con `ulimit -Hs 8192`.
+
+**Resta aperto**: il peso del frame. 39 KB per goal sono i locali dei builtin
+(`concat_atoms` da solo porta quattro buffer da 512 byte) sommati in una
+funzione sola; spostarli in helper `noinline` ridurrebbe lo stack di un ordine
+di grandezza e renderebbe il tetto di 96 MB largo quanto i limiti logici
+dichiarati (KB_MAX_DEPTH x KB_MAX_GOALS = 4096 goal). Non fatto: tocca tutti i
+rami del solver, e va misurato da solo.
+
+
 ## 2026-09-11 — gen512 (settimo giro): la conversazione degli scorpioni, finita
 
 - `kb_fill_slots` (00-lex.c): un valore che chiude gia' la frase non riceve il

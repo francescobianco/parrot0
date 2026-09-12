@@ -1,0 +1,78 @@
+# 2026-09-13 (gen514) — full live KB; development probes, never persisted training.
+# The finite verb of a wh-question says which argument is asked: «what supports
+# X?» asks the subject, «what does X support?» the object. The sentences below
+# test that mechanic on the words of the prose ladder (r300) and on a relation
+# verb taught by speaking; they do not claim world knowledge.
+
+[test the subject question reaches the root relation]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+> Hard carbonate exoskeletons support the coral.
+<~ Learned
+> what supports the corals?
+<~ exoskeletons
+> what do hard carbonate exoskeletons support?
+<~ coral
+> Excess nutrients threaten coral reefs.
+<~ Learned
+> what threatens coral reefs?
+<~ excess nutrients
+> what can excess nutrients threaten?
+<~ coral reefs
+
+[test the object question does not answer the other direction]
+!reset
+!timeout 30
+> Hard carbonate exoskeletons support the coral.
+<~ Learned
+# It used to answer «Hard carbonate exoskeletons.»: what supports the coral,
+# to a question about what the coral supports.
+> what does coral support?
+<! exoskeletons
+
+[test a declarative with a finite verb is still read, not asked]
+!reset
+!timeout 30
+> Coral belongs to the class Anthozoa.
+<~ Learned
+> Calcium carbonate holds colonies of coral polyps together.
+<~ Learned
+> what holds colonies together?
+<~ calcium carbonate
+# The participle after the copula is not an object question («what IS a
+# compass USED for?» must keep its purpose reading).
+> what is a compass used for?
+<~ finding north
+# With the direction declared the universal frame answers too, and it must
+# keep the asked type: «Class anthozoa.» is not a phylum.
+> what phylum does coral belong to?
+<! anthozoa
+> what class does coral belong to?
+<~ anthozoa
+
+[test a relation verb taught by speaking gets its direction]
+!reset
+!timeout 30
+> cement is a relation verb
+<~ Learned
+> Calcium carbonate cements coral polyps.
+<~ Learned
+> what cements coral polyps?
+<~ calcium carbonate
+# Before gen514 the frame tried both arguments and answered «calcium
+# carbonate.» here too.
+> what do coral polyps cement?
+<! calcium carbonate
+> what does calcium carbonate cement?
+<~ coral polyps
+> forget that cement is a relation verb
+<~ no longer
+> what does calcium carbonate cement?
+<! coral polyps
+> cement is a relation verb
+<~ Learned
+> what does calcium carbonate cement?
+<~ coral polyps

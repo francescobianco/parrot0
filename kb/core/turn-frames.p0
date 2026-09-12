@@ -49,7 +49,7 @@
 % aggiornare. E dichiarare un verso e' una PROMOZIONE teachable: asserire
 % `answer_frame_input_arg/3` fa entrare una relazione nel produttore universale a
 % runtime, ritrarlo la restituisce al percorso storico.
-answering_surface($Cue, $Relation) :- answer_frame($Cue, $Relation), answer_frame_input_arg($Cue, $Relation, $Arg), naf(machinery($Relation)).
+answering_surface($Cue, $Relation) :- answer_frame_input_arg($Cue, $Relation, $Arg), answer_frame($Cue, $Relation), naf(machinery($Relation)).
 answering_surface($Cue, $Relation) :-
     attribute_question_cue($Dimension, $Cue),
     domain_relation($Dimension, $Relation),
@@ -628,8 +628,13 @@ frame_source($Turn, entity, $Entity) :- turn_entity($Turn, $Relation, $Entity).
 % incrociarli fuori sarebbe un join perso: due slot compatibili non provano che
 % appartengano alla stessa lettura. La proof operativa porta la coppia una volta
 % sola, come il piano condizionale gia' faceva per soggetto e oggetto.
-turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 1), apply($Relation, cons($Entity, cons($Value, nil))).
-turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 2), apply($Relation, cons($Value, cons($Entity, nil))).
+% gen514 — una lettura e' del TIPO chiesto o non e' una lettura. «what phylum
+% does coral belong to?» arrivo' qui con la direzione dichiarata e rispose
+% «Class anthozoa.»: il filtro del tipo (`answer_type_ok/2`, grammar.p0) lo
+% applicava soltanto il percorso storico in C. Sta dove le letture nascono, cosi'
+% ogni consumatore del frame universale lo eredita.
+turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 1), apply($Relation, cons($Entity, cons($Value, nil))), answer_type_ok($Turn, $Value).
+turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 2), apply($Relation, cons($Value, cons($Entity, nil))), answer_type_ok($Turn, $Value).
 
 turn_reading_key($Turn, reading($Relation, $Entity, $Value)) :- turn_reading($Turn, $Relation, $Entity, $Value).
 turn_reading_set($Turn, $Readings) :- turn_has_relation($Turn), findall($R, turn_reading_key($Turn, $R), $Readings).

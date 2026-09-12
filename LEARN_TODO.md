@@ -1,5 +1,28 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+## ⛔ HANDOFF 2026-09-13 (gen514) — LA DIREZIONE DELLA DOMANDA, 17/50
+
+**Punto di ripresa attivo per la prosa** (supera il checkpoint sotto, che resta
+la mappa dei residui). Banco invariato a **17/50**, cancello 97/299, nessuna
+risposta corretta persa.
+
+- La forma finita dice chi viene chiesto: «what supports coral?» (soggetto) e
+  «what does coral support?» (oggetto) ora leggono la radice nel verso giusto.
+  Chiusa una bugia preesistente: la cornice provava i due versi e rispondeva il
+  soggetto alla domanda sull'oggetto, anche per verbi insegnati a voce.
+- Il frame universale applica il tipo chiesto (`answer_type_ok` in
+  `turn_reading/4`).
+- **Motore**: lo stack C (39 KB per goal) uccideva il processo a ~200 goal;
+  stack a 96 MB e taglio incompleto invece del crash (`C_TODO.md`).
+- Cricchetto `tests/p0t/language/question_direction.p0t`, 23 verdi, rosso in
+  ablazione. Costo: +130 ms sulle domande relazionali che rispondono.
+
+[Resoconto, trappole e coda](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda.md).
+Prossimo: relativa «that» + predicati coordinati, alternanza di voce, e la bugia
+«…declined by 50% since 1950» → «975.».
+
+---
+
 ## ⛔ HANDOFF 2026-09-13 — PIOLO 300: 16 → 17/50
 
 **Unico punto di ripresa attivo per la prosa.** Obiettivo ancora aperto: 80%

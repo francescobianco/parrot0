@@ -16,6 +16,7 @@
 
 #include <dirent.h>
 #include <signal.h>
+#include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include "brain.h"
@@ -1142,6 +1143,22 @@ static void think_step_print(void *ud, int index, const char *prompt,
 }
 
 int main(int argc, char **argv) {
+    /* gen514 — the solver's stack is sized by its logical ceilings, not by the
+     * shell's default. A proof path keeps every goal on the C stack (~39 KB
+     * each, kb.c `solve`), so 8 MB cut it at ~200 goals and killed the process.
+     * The main thread's stack grows on demand up to the limit in force at fault
+     * time, so raising the soft limit here is enough; kb.c still cuts a search
+     * that would exceed it, as an incomplete result instead of a crash. */
+    {
+        struct rlimit rl;
+        const rlim_t want = 96UL * 1024 * 1024;
+        if (getrlimit(RLIMIT_STACK, &rl) == 0 && rl.rlim_cur != RLIM_INFINITY &&
+            rl.rlim_cur < want) {
+            rl.rlim_cur = (rl.rlim_max == RLIM_INFINITY || rl.rlim_max >= want)
+                        ? want : rl.rlim_max;
+            setrlimit(RLIMIT_STACK, &rl);
+        }
+    }
     /* gen221: `parrot0 --daemon [--port N] [--host H]` serves the
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
     int daemon_mode = 0, mcp_mode = 0, test_mode = 0, port = 9902;

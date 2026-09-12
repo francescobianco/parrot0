@@ -34,6 +34,7 @@
 #include <string.h>
 #include <strings.h>
 #include <sys/stat.h>
+#include <sys/resource.h>
 
 /* KB_MAX_BODY is declared in kb.h (part of kb_assert_rule_n's contract). */
 #define KB_MAX_GOALS 64 /* resolvent size ceiling                      */
@@ -1722,6 +1723,24 @@ static SolveFrame *frame_take(void) {
     return malloc(sizeof(SolveFrame));
 }
 
+/* Where the outermost solve started, and how far below it the solver may go:
+ * the stack limit minus a quarter (at least 2 MB) for the callers above that
+ * base and the helpers below the last frame. Read once — the process sets its
+ * limit at start-up (main.c) before any query. */
+static uintptr_t solve_stack_base;
+static size_t solve_stack_room(void) {
+    static size_t room;
+    if (room) return room;
+    struct rlimit rl;
+    size_t lim = 8UL * 1024 * 1024;
+    if (getrlimit(RLIMIT_STACK, &rl) == 0)
+        lim = rl.rlim_cur == RLIM_INFINITY ? 128UL * 1024 * 1024
+                                           : (size_t)rl.rlim_cur;
+    size_t reserve = lim / 4 > 2UL * 1024 * 1024 ? lim / 4 : 2UL * 1024 * 1024;
+    room = lim > reserve * 2 ? lim - reserve : lim / 2;
+    return room;
+}
+
 static void frame_give(SolveFrame *scratch) {
     if (!scratch) return;
     frame_depth--;
@@ -1767,6 +1786,23 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     /* gen382: the work ceiling. Once hit, every pending branch unwinds without
      * doing more work, and the caller is told the search was cut short. */
     if (S->budget && S->steps >= S->budget) { S->budget_hit = 1; return 0; }
+    /* gen514: the C stack is a third ceiling, and it must cut like the other two.
+     *
+     * The solver is continuation-passing: every goal that succeeds on the current
+     * proof path stays on the C stack, and `solve_frame` weighs ~39 KB (every
+     * builtin's locals share its frame). With the default 8 MB a proof path of
+     * ~200 goals ended the PROCESS with SIGSEGV — reached by a two-line rule
+     * over the turn tokens, and once before by a renderer (LEARN_TODO gen512).
+     * A crash is the worst answer a growing KB can get; running out of room is
+     * a cut search, so it is marked exactly like the depth and work ceilings. */
+    {
+        uintptr_t here = (uintptr_t)__builtin_frame_address(0);
+        if (frame_depth == 0) solve_stack_base = here;
+        else if (solve_stack_base > here &&
+                 (size_t)(solve_stack_base - here) > solve_stack_room()) {
+            S->budget_hit = 1; return 0;
+        }
+    }
     S->steps++;
 
     SolveFrame *scratch = frame_take();

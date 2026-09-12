@@ -1121,6 +1121,77 @@ machinery(past).
 relation_verb($Past) :- past($Past, $Present), relation_verb($Present).
 answer_frame($Past, $Present) :- past($Past, $Present), relation_verb($Present).
 
+% ── gen514 — LA FORMA FINITA DICE CHI VIENE CHIESTO ─────────────────────────
+%
+% Piolo 300: «Hard carbonate exoskeletons support the coral» si legge, e
+% «what supports the coral?» andava a muro. Il lettore scrive la RADICE
+% (`support`), la domanda portava soltanto la cue flessa, e `supports` nomina
+% un predicato vuoto: la stessa relazione sotto due nomi che non si incontrano.
+%
+% E il ponte da solo non basta, perche' la forma porta anche la DIREZIONE. In
+% inglese la domanda sull'oggetto chiede l'ausiliare e lascia il verbo nudo
+% («what does coral secrete?»); quando l'interrogativo e' il SOGGETTO
+% l'ausiliare non c'e' e il verbo finito lo segue subito («what supports
+% coral?», «which animal eats fish?»). Quindi l'entita' nominata dopo e' il
+% secondo argomento, e la risposta e' il primo — un fatto della lingua, non una
+% scelta del motore. Un verbo di relazione insegnato domani ha la sua domanda
+% sul soggetto dal turno dopo, senza una riga in piu'.
+%
+% ⚠ La direzione si legge sulla STRUTTURA del turno, mai sulla sola superficie:
+% ogni superficie di `answer_frame_input_arg/3` e' anche un indizio di domanda
+% (`turn_declared_act`, turn-frames.p0), e dichiarare «belongs» senza
+% condizioni trasformava «Coral belongs to the class Anthozoa» in una domanda
+% che nessuno leggeva piu'. Senza interrogativo davanti, nessuna riga.
+machinery(subject_question_form).
+machinery(subject_question_verb).
+subject_question_verb($T, $Form) :-
+    turn_word($T, $W, $Wh), question_word($Wh),
+    is($V, add($W, 1)), turn_word($T, $V, $Form).
+subject_question_verb($T, $Form) :-
+    turn_word($T, $W, $Wh), question_word($Wh),
+    is($M, add($W, 1)), turn_word($T, $M, $Noun),
+    naf(stopword($Noun)), naf(auxiliary($Noun)),
+    is($V, add($W, 2)), turn_word($T, $V, $Form).
+subject_question_form($T, $Form, $Root) :-
+    subject_question_verb($T, $Form),
+    concat_atoms($Root, "s", $Form), relation_verb($Root).
+
+% E il verso opposto, che mentiva da prima: «what does coral support?» provava
+% la relazione nei due versi e rispondeva «Hard carbonate exoskeletons.» — cioe'
+% cio' che sostiene il corallo, alla domanda su che cosa il corallo sostenga.
+% Interrogativo, ausiliare, un sintagma, poi il verbo nudo: quel sintagma e' il
+% soggetto e la risposta e' il secondo argomento. Senza l'ausiliare
+% («which animals eat fish?») la forma nuda non decide, e la cornice resta
+% libera nei due versi come prima.
+%
+% ⚠ Non ogni ausiliare regge il verbo nudo. Con `auxiliary/1` intero «what IS a
+% compass USED for?» diventava una domanda sull'oggetto di `used`: copula e
+% «have» reggono il participio, cioe' il passivo e il perfetto, che hanno i
+% propri lettori. Il verbo nudo lo reggono il «do» di supporto e i modali, e i
+% modali la KB li conosce gia' (`modal_force/2`).
+machinery(bare_verb_auxiliary).
+bare_verb_auxiliary(do).
+bare_verb_auxiliary(does).
+bare_verb_auxiliary(did).
+bare_verb_auxiliary($M) :- modal_force($M, $Force), auxiliary($M).
+machinery(object_question_verb).
+object_question_verb($T, $Verb) :-
+    turn_word($T, $W, $Wh), question_word($Wh),
+    turn_word($T, $A, $Aux), bare_verb_auxiliary($Aux), lt($W, $A),
+    turn_word($T, $V, $Verb), is($N, add($A, 1)), lt($N, $V).
+
+% Il ponte e la direzione esistono solo per il turno che porta la forma in
+% quella posizione. E' il costo, misurato: ottocento superfici flesse sempre
+% presenti in `answer_frame/2` portavano una domanda qualunque da 650 a 770 ms,
+% e con i goal che partivano dai verbi invece che dai token il turno
+% raddoppiava.
+machinery(turn_question_verb).
+turn_question_verb($Form, $Root, 2) :- subject_question_form(current_turn, $Form, $Root).
+turn_question_verb($Root, $Root, 1) :-
+    object_question_verb(current_turn, $Root), relation_verb($Root).
+answer_frame($Form, $Root) :- turn_question_verb($Form, $Root, 2).
+answer_frame_input_arg($Form, $Root, $Arg) :- turn_question_verb($Form, $Root, $Arg).
+
 extract_frame($Pat, $Verb) :-
     verb_stem($Verb, $Stem),
     concat_atoms("@S ", $Stem, $A),
