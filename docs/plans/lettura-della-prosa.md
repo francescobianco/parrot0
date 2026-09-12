@@ -485,3 +485,130 @@ l'oggetto e' in testa (e' il pronome interrogativo) e la preposizione resta
 sospesa in coda, dove il lettore la prende per oggetto. Il fatto c'e' e un'altra
 superficie lo trova: e' un difetto di forma della DOMANDA, non della lettura.
 Da mettere in coda ai giri.
+
+### Giro 2 — 12 settembre 2026 (gen513): rispondere *sul* testo, non solo *dal* testo
+
+F. ha alzato il livello di verifica: «ogni iterazione deve rispondere a 20
+domande mixate tra nel merito del testo e meta domande tipo di cosa parla e
+anche domande di struttura come è composto il testo».
+
+Il banco ora conta **tre colonne**, perché sono tre strade diverse e un totale
+unico le mescolerebbe (13/20 non dice se il lettore ha capito il testo o se ha
+soltanto saputo contarne le frasi):
+
+| specie | che cosa chiede | da dove viene la risposta |
+|---|---|---|
+| **merito** | ciò che il testo dice | lettura + fatti in KB |
+| **meta** | di che cosa parla | il testo come oggetto |
+| **struttura** | quante frasi, come comincia | la IR del testo trattenuto |
+
+Le risposte attese di meta e struttura **non vengono da parrot0**: le calcola
+uno script indipendente dal testo. Se parrot0 dicesse un altro numero, il banco
+lo deve dire — ed è successo due volte, vedi sotto.
+
+#### La correzione di rotta: **usare la IR, non affiancarla**
+
+La prima stesura faceva asserire al lettore composto in C una *seconda*
+struttura del testo (`text_sentence/2`, `text_sentence_count/1`,
+`text_word_count/1`, `text_topic/1`). F.: **«non stai lavorando usando la IR
+universale»**. Era vero, ed era il difetto peggiore: conoscenza nuova nel
+motore, parallela a quella che l'IR già aveva. Quei fatti sono spariti.
+
+Per arrivarci l'IR andava riparata in tre punti, e sono **tre difetti veri**:
+
+1. **Gli id erano della chiamata, non dello scope.** Ogni
+   `input_structure_publish` ripartiva da `0`, e un turno di più frasi pubblica
+   una volta per frase nello stesso scope: `input_node(current_turn, 0, …)`
+   aveva una soluzione per frase, e **ogni join per id era un prodotto
+   cartesiano fra frasi diverse**. L'IR universale era illeggibile proprio
+   sulla prosa lunga.
+2. **Il testo non restava.** «Di che cosa parlava?» arriva *dopo* la prosa, e a
+   quel punto `current_turn` descrive la domanda: «il testo ha 1 frase e 7
+   parole» — la domanda stessa. Ora la IR di un testo letto resta in
+   `last_text`; che cosa *meriti* di restare lo dice la KB (`turn_is_text/1`).
+3. **Le frasi non finivano nella IR.** Il lettore composto aveva già in mano la
+   segmentazione vera e la teneva per sé; `turn_publish` pubblica gli *span*,
+   che non sono le frasi. «Da quante frasi è composto?» diceva **1**.
+
+#### I tre tetti muti che mangiavano la prosa vera
+
+- **`MAX_CLAUSES = 8`.** Al nono confine il ciclo usciva e **il resto del turno
+  non lo leggeva nessuno**: nessun muro, nessuna traccia. Su 500 parole (~25
+  frasi) due terzi del testo sparivano, e la scala misurava la comprensione di
+  un terzo di testo credendo di misurarla tutta. Ora è `turn_max_clauses/1`.
+- **`span_atom/2` è `chars/2` andata e ritorno**: la stringa passa per una
+  lista di caratteri dentro un termine da 512 byte, e oltre ~50 caratteri
+  fallisce **in silenzio**. Era il motivo per cui «come comincia?» rispondeva
+  sulla prosa corta e murava su quella vera.
+- **`list_len/2` è ricorsiva** e il motore si ferma a `KB_MAX_DEPTH` (64):
+  contare 300 parole non arrivava in fondo.
+
+#### Due difetti della capacità nuova, trovati dai pioli
+
+- **Il tema murava su metà dei testi veri** (piolo 320). Si leggeva dal
+  sintagma che apre il testo, e un sintagma lo delimita un determinante: «A
+  coral reef is…» sì, «Compost is a mixture…» no. Terzo strato: la parola con
+  cui il testo comincia, che in un lead è il definiendum.
+- **«Quante parole?» rispondeva 311 su 299** (piolo 320). Il flusso di token
+  spezza dove la lingua non spezza («0.1%», e la normalizzazione stacca «20%»
+  in «20 %») perché quel flusso serve a *leggere*. Chi chiede quante parole ci
+  sono intende le parole: ora si pubblica un flusso di **parole**, sul turno
+  come l'ha scritto l'interlocutore, e il separatore è un fatto
+  (`word_separator/1`).
+
+#### ✅ Il difetto che teneva ferma la scala da tre giri (piolo 340)
+
+> «Charcoal is a lightweight black residue made of carbon.» → **«Steel.»**
+> — e la definizione non entrava affatto.
+
+Non era un errore di lettura, era un errore di **turno**: lo schema
+«@O is made of @S» combacia, lo slot @O prende «charcoal is a lightweight black
+residue», la guardia lo rifiuta giustamente (verbo finito, mantra #7) — ma a
+quel punto il turno era già di chi **risponde alle domande**.
+`turn_declared_act(assertion)` non aiuta: nasce da `turn_reading`, e questa
+frase una lettura non ce l'ha. L'evidenza che non è una domanda è *precedente*
+a qualunque lettura:
+
+```prolog
+turn_declared_act($T, unasked) :- turn_prose_copula($T),
+    naf(turn_has_question_mark($T)), naf(turn_opens_question($T)),
+    naf(turn_opens_request($T)).
+faculty_yield_force(answer_frame, open, unasked).
+```
+
+Adesso la stessa frase lascia **due** fatti invece di zero: definizione *e*
+modificatore convivono. Era il conflitto che aveva fatto ritirare la lezione
+«characterized by» al giro scorso.
+
+#### La crescita laterale della KB (F.: «un obbiettivo che dobbiamo sempre avere»)
+
+**+138 verbi di relazione**, insegnati parlando e salvati con `/save`, e
+**15 particelle** (`relation_particle/2`) — appartiene *a*, consiste *di*,
+deriva *da*, cresce *in*: una delle forme più comuni della prosa
+d'enciclopedia, e non ne esisteva il lettore. Una riga per verbo, non il
+prodotto cartesiano con tutte le preposizioni: gli schemi si scorrono tutti a
+ogni turno (gen459).
+
+#### ⛔ I blocchi che restano, riordinati per quante domande sbloccano
+
+1. **La relazione dentro una subordinata.** «…because composting reduces
+   methane emissions due to…», «…called charcoal burning, often by forming a
+   charcoal kiln, the heat is supplied by…». È il caso dominante sui pioli
+   340 e oltre: dodici domande su tredici.
+2. **Il passivo.** «Most coral reefs **are built from** stony corals» →
+   risposta confidente e **sbagliata** («Colonies.», presa dalla frase prima).
+   Peggio di un muro.
+3. **Il qualificatore della domanda ignorato.** «what **phylum** does coral
+   belong to?» → «Class anthozoa.» Giusto il verbo, sbagliato il valore.
+4. **Il soggetto coordinato.** «Aerobic bacteria **and** fungi manage…» — lo
+   stesso difetto che tiene r508 a zero.
+5. **Il participio in testa** («Sometimes called rainforests of the sea, …»)
+   e **con agente** («held together **by** calcium carbonate»).
+6. **L'anafora fra frasi** («**They** occupy less than 0.1%…»).
+7. **Le forme di domanda non definitorie**: «where do X grow best?», «when
+   did X first appear?», «how much of Y…?».
+8. **La particella di due parole**: «break **down into**» —
+   `relation_particle/2` ne regge una sola.
+
+Le due **risposte confidenti e sbagliate** (2 e 3) vanno prima di tutto il
+resto: un muro si conta, una bugia no.

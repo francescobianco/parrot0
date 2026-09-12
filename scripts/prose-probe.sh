@@ -98,6 +98,14 @@ echo "═══ PROSA: $TXT — $WORDS parole${BUDGET:+ (piolo $BUDGET)} ══�
 fold -s -w 96 "$CUT" | sed 's/^/    /' 
 
 # ── PASSO 1 — che cosa capisce di ogni frase, presa da sola ─────────────────
+# ⚠ Il passo 1 apre UNA SESSIONE PER FRASE, e una sessione costa un boot intero
+# della KB viva: su una prosa di venti frasi sono venti boot, e il piolo supera
+# il quarto d'ora. E' la diagnosi piu' istruttiva che il banco abbia, e proprio
+# per questo non va spenta — ma quando si misura una SCALA interi pioli servono
+# solo i conti, e allora `P0_PROBE_STEP2=1` salta alla resa.
+if [ "${P0_PROBE_STEP2:-0}" = 1 ]; then
+  echo; echo "(passo 1 saltato: P0_PROBE_STEP2=1)"
+else
 echo
 echo "─── PASSO 1 · una frase per volta, sessione pulita: CHE COSA NE CAPISCE ───"
 python3 - "$CUT" <<'PY' > /tmp/.pp_sents.$$
@@ -113,6 +121,7 @@ while IFS= read -r s; do
   printf '   →  %s\n' "$(run "$s" | head -1 | cut_to 100)"
 done < /tmp/.pp_sents.$$
 rm -f /tmp/.pp_sents.$$
+fi
 
 # ── PASSO 2 — legge tutto, poi risponde ────────────────────────────────────
 [ -f "$QF" ] || { echo; echo "(nessun file di domande «$QF»: mi fermo al passo 1)"; exit 0; }

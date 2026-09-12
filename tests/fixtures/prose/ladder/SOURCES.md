@@ -45,3 +45,28 @@
   r497.txt  497 parole  Steel  https://en.wikipedia.org/wiki/Steel
   r508.txt  508 parole  Satellite  https://en.wikipedia.org/wiki/Satellite
   r621.txt  621 parole  Forest  https://en.wikipedia.org/wiki/Forest
+
+  ── LA SCALA 300 -> 500 A VENTI DOMANDE (12 settembre 2026, giro 2) ────────
+  I pioli salgono di venti parole per volta, ogni piolo ha la SUA prosa —
+  intera, mai troncata — e venti domande miste: tredici nel merito, due meta,
+  cinque di struttura. Le attese di meta e struttura le calcola
+  `scripts/prose-mkq.py` dal testo, non da parrot0.
+
+  piolo 300  r300.txt  299 parole  Coral reef    (gia' sopra)
+  piolo 320  r320.txt  319 parole  Compost       https://en.wikipedia.org/wiki/Compost
+  piolo 340  r340.txt  338 parole  Charcoal      https://en.wikipedia.org/wiki/Charcoal
+  piolo 360  r356.txt  356 parole  Magnet        (gia' sopra)
+  piolo 380  r374.txt  374 parole  Sugar         (gia' sopra)
+  piolo 400  r395.txt  395 parole  Concrete      (gia' sopra)
+  piolo 420  r420.txt  427 parole  Erosion       https://en.wikipedia.org/wiki/Erosion
+  piolo 440  r440.txt  440 parole  Violin        (gia' sopra)
+  piolo 460  r464.txt  464 parole  Clock         (gia' sopra)
+  piolo 480  r485.txt  485 parole  Thunderstorm  (gia' sopra)
+  piolo 500  r497.txt  497 parole  Steel         (gia' sopra)
+
+  I tre nuovi (Compost, Charcoal, Erosion) sono lead interi scaricati il
+  2026-09-12 dall'API `extracts&exintro` di Wikipedia — verbatim, senza
+  passare da nessun modello — e ripuliti solo della pronuncia fra parentesi.
+  Verificati IGNOTI a freddo prima di usarli: «what is compost?», «what is
+  charcoal?», «what is erosion?» ricevevano tutti «I don't know much about …
+  yet». Una risposta giusta, quindi, puo' venire soltanto dal testo.

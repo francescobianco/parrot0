@@ -1,5 +1,60 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+## ⛔ HANDOFF 2026-09-12 (gen513, giro 2) — LA SCALA DELLA PROSA A 20 DOMANDE
+
+**Punto di ripresa autoritativo per la lettura della prosa.** Il piano vivo è
+[`docs/plans/lettura-della-prosa.md`](docs/plans/lettura-della-prosa.md), §«Giro 2».
+
+**Che cosa chiede F.** «Fai un giro progressivo 300 to 500, sempre iterazioni di
+20 più, però ogni iterazione deve rispondere a 20 domande mixate tra nel merito
+del testo e meta domande tipo di cosa parla e anche domande di struttura come è
+composto il testo.» E, come obiettivo laterale permanente: *«se scopri domande
+che parrot0 non sa gestire per limiti di KB, colmiamoli con l'addestramento del
+LEARN_PROTOCOL; questi esperimenti devono lasciare un segno del loro passaggio
+con dati veri in KB»*.
+
+**Come si misura.** `P0_PROBE_STEP2=1 ./scripts/prose-probe.sh
+tests/fixtures/prose/ladder/rNNN.txt` (senza la variabile fa anche il passo 1,
+una sessione per frase: istruttivo ma un quarto d'ora a piolo). Il file `.q` ha
+quattro campi: domanda, attesa (ERE, alternative con `|`), parole minime,
+**specie** (`merito` / `meta` / `struttura`). Le attese di meta e struttura le
+genera `mkq.py` **dal testo**, non da parrot0.
+
+**Stato dei pioli** (KB viva intera, `kb/profiles/agi.p0`, argomenti verificati
+ignoti a freddo):
+
+| piolo | testo | parole | merito | meta | struttura | tot |
+|---|---|---|---|---|---|---|
+| 300 | Coral reef | 299 | 6/13 | 2/2 | 5/5 | **13/20** |
+| 320 | Compost | 319 | 3/13 | 2/2 | 5/5 | **10/20** |
+| 340 | Charcoal | 338 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 360 | Magnet | 356 | 2/13 | 2/2 | 5/5 | **9/20** |
+| 380 | Sugar | 374 | 3/13 | 2/2 | 5/5 | **10/20** |
+
+**Meta e struttura sono chiuse: 2/2 e 5/5 su ogni piolo.** Il merito no, e i
+blocchi sono elencati in ordine di resa in fondo al §«Giro 2» del piano.
+
+**⛔ Le due cose da fare per prime** — sono risposte *confidenti e sbagliate*,
+e una bugia è peggio di un muro (mantra #7):
+
+1. **Il passivo.** «Most coral reefs **are built from** stony corals» →
+   «Colonies.», cioè la relazione della frase precedente. Non si legge il
+   passivo e invece di murare si riusa l'ultima relazione.
+2. **Il qualificatore della domanda ignorato.** «what **phylum** does coral
+   belong to?» → «Class anthozoa.» Giusto il verbo, sbagliato il valore.
+
+**Poi**, per numero di domande sbloccate: la relazione dentro una subordinata;
+il soggetto coordinato; il participio in testa e con agente; l'anafora fra
+frasi; le domande non definitorie (dove/quando/quanto); la particella di due
+parole (`break down into` — `relation_particle/2` ne regge una sola).
+
+**Da insegnare parlando (LEARN_PROTOCOL), continua a rendere:** `relation_verb`
+(ne sono stati aggiunti 138 in questo giro, `kb/learning/taught-lexicon.p0`) e
+`relation_particle/2` (15). Una frase apre lettura **e** domanda.
+⚠ Manca ancora la superficie parlata per la particella: «belongs to is a
+relation verb» perde il «to». Finché non c'è, i `relation_particle/2` si
+scrivono a mano — ed è il primo debito KB-first di questa coda.
+
 # 🔴 TODO PRIORITARIO (F., 12 settembre 2026) — IL MODELLO SI ESTRAE DA UN PREDICATO QUALSIASI
 
 > F.: «la demo del codice della legge di Newton ci ha fatto capire che i ponti
