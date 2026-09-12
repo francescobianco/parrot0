@@ -1,5 +1,37 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+
+## 🔴 TODO PRIORITARIO (F., 12 settembre 2026) — `p0_join` NON PUO' CHIEDERE ALLA KB
+
+`p0_join(char **w, size_t a, size_t b, char *out, size_t sz)` è la funzione che
+fonde le parole di uno slot in un atomo. È il collo di bottiglia di **ogni**
+lettura: 44 chiamate in `src/brain/`. E **non ha il Brain**, quindi non può
+chiedere niente alla KB — tutto ciò che decide, lo decide da sola.
+
+Oggi decide due cose che sono conoscenza:
+
+1. **che cosa è un valore numerico.** Il gen429 accettava «tutte cifre»; il
+   gen513 ha allargato a «cifre, e ogni segno interno ha cifre da tutte e due le
+   parti» per leggere «0.1%», «1,000», «US$30-375», «14:30». La *forma* non ha
+   vocabolario — non c'è nessun membro nuovo da imparare — e per questo la
+   riga può stare nel C senza violare il mantra #2. **Ma quale segno separi i
+   decimali È conoscenza**, e in italiano è la virgola: `transcode_shape/3` lo
+   dichiara già per il tokenizzatore, e qui la stessa cosa è decisa un'altra
+   volta, per forma invece che per fatto. È un duplicato latente — la classe
+   peggiore dell'audit (`docs/plans/kb-first-audit.md`).
+2. **che un token debba cominciare per lettera o per cifra.** «abc123» passa
+   perché comincia per lettera; «12a» no. È una politica, non una legge.
+
+**Il lavoro**: dare il `Brain` a `p0_join` e ai suoi 44 chiamanti, e sostituire
+le due decisioni con due domande alla KB. Non è un refactoring cosmetico: finché
+`p0_join` è cieca, **ogni** forma di valore che parrot0 non legge va inseguita
+nel C invece che insegnata.
+
+⚠ Non l'ho fatto nel giro del gen513 perché 44 siti toccati mentre si misura una
+scala avrebbero confuso la misura con la modifica. È il primo lavoro di motore
+dopo l'indicizzazione degli schemi.
+
+
 ## 2026-09-11 — gen512 (settimo giro): la conversazione degli scorpioni, finita
 
 - `kb_fill_slots` (00-lex.c): un valore che chiude gia' la frase non riceve il

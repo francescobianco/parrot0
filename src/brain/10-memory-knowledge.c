@@ -4537,11 +4537,31 @@ static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
          * meta' dei valori che uno vorrebbe insegnare, e nessun test lo
          * chiedeva. Un token tutto cifre e' un valore quanto una parola; quello
          * che resta escluso e' il misto, che non e' ne' l'uno ne' l'altro. */
+        /* gen513 — E UN NUMERO PUO' AVERE UN SEPARATORE DENTRO.
+         *
+         * La guardia del gen429 accettava un token TUTTE CIFRE e rifiutava
+         * «0.5», «1,000», «30-375», «14:30» come «misti». Ma quelli non sono
+         * misti: sono numeri. Reperto della scala della prosa — «Coral reefs
+         * occupy 0.1% of the world ocean area» non si leggeva affatto, mentre
+         * la stessa frase con «12 percent» si legge; e un lead d'enciclopedia
+         * di numeri decimali ne ha in quasi ogni frase.
+         *
+         * ⚠ Qui NON si aggiunge nessun vocabolario, ed e' il motivo per cui la
+         * regola puo' stare nel C senza violare il mantra #2: non c'e' nessun
+         * «membro nuovo» da imparare domani. La forma e' «cifre, e ogni segno
+         * interno ha cifre da tutte e due le parti» — la stessa che il
+         * tokenizzatore usa dal gen399 per tenere insieme «3.14». Cio' che
+         * resta escluso e' il vero misto («abc123», «12a»), che non e' un
+         * numero in nessuna notazione. */
         if (!isalpha((unsigned char)t[0])) {
-            int all_digit = 1;
-            for (const char *d = t; *d && all_digit; d++)
-                if (!isdigit((unsigned char)*d)) all_digit = 0;
-            if (!all_digit) return 0;
+            int numeric = isdigit((unsigned char)t[0]);
+            for (size_t d = 0; t[d] && numeric; d++) {
+                if (isdigit((unsigned char)t[d])) continue;
+                if (d == 0 || !t[d + 1] ||
+                    !isdigit((unsigned char)t[d - 1]) ||
+                    !isdigit((unsigned char)t[d + 1])) numeric = 0;
+            }
+            if (!numeric) return 0;
         }
         int n = snprintf(out + o, sz - o, "%s%s", o ? "_" : "", t);
         if (n < 0 || (size_t)n >= sz - o) return 0;
