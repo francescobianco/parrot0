@@ -58,8 +58,19 @@ Comando: `P0_PROBE_STEP2=1 ./scripts/prose-probe.sh tests/fixtures/prose/ladder/
 
 **A. Risposte confidenti e SBAGLIATE — prima di tutto il resto (4).** Un muro si
 conta, una bugia no (mantra #7).
-- «what are reefs made of?» → *«Parent, redox, reaction rate, chemical…»* —
-  spazzatura da un'altra parte della KB.
+- «what are reefs made of?» → *«Parent, redox, reaction rate, chemical
+  equilibrium, utilitarianism, deontology, moral…»* — spazzatura da un'altra
+  parte della KB. **⚠ E NON DIPENDE DAL SOGGETTO**: verificato che «what are
+  **zorbs** made of?» — un soggetto inventato, di cui la KB non sa niente —
+  riceve la STESSA identica lista. Quindi non è una risposta sbagliata su un
+  soggetto: è una risposta che il soggetto non lo guarda affatto, e risponde
+  quella lista a chiunque chieda «X made of» senza che X sia noto. Risponde
+  `answerframe` (verificato con «who answered?»). Curioso e istruttivo: «what
+  is a **reef** made of?» (singolare) mura correttamente — quindi la strada
+  sbagliata si apre solo su una delle due forme. **È il primo reperto da
+  attaccare nel prossimo giro**: una risposta plausibile e senza fondamento è
+  la cosa peggiore che questo progetto possa produrre (mantra #7), e qui è
+  sistematica, non occasionale.
 - «what phylum does coral belong to?» → *«Class anthozoa.»* — il qualificatore
   della domanda («phylum», non «class») è ignorato.
 - «what do shallow coral reefs form?» → *«Colonies.»* — relazione della frase
