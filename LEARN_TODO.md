@@ -21,7 +21,9 @@ quattro campi: domanda, attesa (ERE, alternative con `|`), parole minime,
 genera `mkq.py` **dal testo**, non da parrot0.
 
 **Stato dei pioli** (KB viva intera, `kb/profiles/agi.p0`, argomenti verificati
-ignoti a freddo):
+ignoti a freddo, misurato il 2026-09-12 col passo di calibrazione attivo — e
+nessun piolo ha segnalato domande «già rispondibili a freddo», cioè nessuna
+contaminazione residua):
 
 | piolo | testo | parole | merito | meta | struttura | tot |
 |---|---|---|---|---|---|---|
@@ -30,6 +32,21 @@ ignoti a freddo):
 | 340 | Charcoal | 338 | 1/13 | 2/2 | 5/5 | **8/20** |
 | 360 | Magnet | 356 | 2/13 | 2/2 | 5/5 | **9/20** |
 | 380 | Sugar | 374 | 3/13 | 2/2 | 5/5 | **10/20** |
+| 400 | Concrete | 395 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 420 | Erosion | 427 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 440 | Violin | 440 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 460 | Clock | 464 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 480 | Thunderstorm | 485 | 2/13 | 2/2 | 5/5 | **9/20** |
+| 500 | Steel | 497 | (vedi nota) | 2/2 | 5/5 | |
+
+⚠ Il piolo 500 supera i 600 s del banco e va lanciato da solo: venti domande su
+una KB viva di 50 000 fatti costano, e il costo è il debito in cima a
+`C_TODO.md` (gli schemi di `extract_frame` si scorrono tutti).
+
+**Il merito NON scende con la lunghezza**: 300 fa 6/13 e 440 ne fa 1/13 non
+perché il testo sia più lungo ma perché è scritto peggio per un lettore —
+subordinate incassate, apposizioni, soggetti coordinati. La lunghezza è stata
+risolta (i tre tetti muti del giro 2); la **forma** no.
 
 **Meta e struttura sono chiuse: 2/2 e 5/5 su ogni piolo.** Il merito no, e i
 blocchi sono elencati in ordine di resa in fondo al §«Giro 2» del piano.

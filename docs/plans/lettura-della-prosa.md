@@ -612,3 +612,35 @@ ogni turno (gen459).
 
 Le due **risposte confidenti e sbagliate** (2 e 3) vanno prima di tutto il
 resto: un muro si conta, una bugia no.
+
+#### La scala 300 → 500, misurata per intero (12 settembre 2026)
+
+| piolo | testo | parole | merito | meta | struttura | tot |
+|---|---|---|---|---|---|---|
+| 300 | Coral reef | 299 | 6/13 | 2/2 | 5/5 | **13/20** |
+| 320 | Compost | 319 | 3/13 | 2/2 | 5/5 | **10/20** |
+| 340 | Charcoal | 338 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 360 | Magnet | 356 | 2/13 | 2/2 | 5/5 | **9/20** |
+| 380 | Sugar | 374 | 3/13 | 2/2 | 5/5 | **10/20** |
+| 400 | Concrete | 395 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 420 | Erosion | 427 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 440 | Violin | 440 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 460 | Clock | 464 | 1/13 | 2/2 | 5/5 | **8/20** |
+| 480 | Thunderstorm | 485 | 2/13 | 2/2 | 5/5 | **9/20** |
+
+**Le due colonne nuove sono chiuse su tutta la scala: meta 2/2 e struttura 5/5,
+da 300 a 500 parole.** parrot0 sa dire di che cosa parla un testo che non
+conosce, da quante frasi e quante parole è fatto, come comincia e come finisce
+— e lo sa leggendo la IR, non un riassunto che qualcuno gli ha messo accanto.
+
+**E la lunghezza non è più la variabile.** Il merito non scende salendo la
+scala: 300 fa 6/13 e 440 ne fa 1/13, ma non perché il testo sia più lungo —
+perché è scritto in un modo che il lettore non attraversa. I tre tetti muti del
+giro 2 (`MAX_CLAUSES`, `span_atom`, `list_len`) erano la lunghezza, e sono
+chiusi. Quello che resta è la **forma**: subordinate incassate, apposizioni,
+soggetti coordinati, participi. È una notizia buona travestita da numero basso:
+si sa che cosa misurare adesso.
+
+⚠ Nessun piolo ha segnalato domande «già rispondibili a freddo»: dopo la
+rimozione di `made_of(reefs, colonies)` non resta contaminazione, e il passo di
+calibrazione lo dirà da solo se ne rientrasse.

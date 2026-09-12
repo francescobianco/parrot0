@@ -153,7 +153,20 @@ mapfile -t KS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print ($4==""?"mer
 mapfile -t COLD < <(run "${QS[@]}")
 mapfile -t REPLIES < <(run "$PROSE" "${QS[@]}" | tail -n +2)
 
-ok=0; n=0; already=0
+# ── IL CANCELLO DI F. (12 settembre 2026, secondo giro della scala) ─────────
+#
+# «ogni iterazione dovra' rispondere con successo ad un numero di domande la cui
+#  il conteggio delle parole con il quale sono scritte le domande a cui ha
+#  successo deve essere piu' lungo del numero di parole del testo stesso, questo
+#  per le domande nel merito; man mano che cresce il testo crescono le domande a
+#  cui avendo successo parrot0 risponde».
+#
+# Cioe': si sommano le PAROLE DELLE DOMANDE NEL MERITO che hanno ricevuto quello
+# che il testo dice, e quella somma deve superare le parole del testo. E' una
+# misura dura e onesta: non premia un banco corto, non premia una domanda facile
+# ripetuta, e cresce per forza col testo — un testo di 500 parole esige piu'
+# comprensione di uno di 300, non la stessa percentuale.
+ok=0; n=0; already=0; gate_words=0
 declare -A KOK KN
 printf '\n  %-34s %-10s %-6s %s\n' "DOMANDA" "SPECIE" "ESITO" "RISPOSTA"
 printf '  %s\n' "────────────────────────────────────────────────────────────────────────────────"
@@ -184,6 +197,7 @@ for idx in "${!QS[@]}"; do
     verdict="·"
   elif printf '%s' "$got" | grep -qiE -- "$want"; then
     verdict="✓"; ok=$((ok+1)); KOK[$kind]=$(( ${KOK[$kind]:-0} + 1 ))
+    [ "$kind" = merito ] && gate_words=$(( gate_words + $(printf '%s' "$q" | wc -w) ))
   else verdict="·"; fi
   printf '  %-34s %-10s %-6s %s\n' "$(printf '%s' "$q" | cut -c1-32)" "$kind" "$verdict" "$(printf '%s' "$got" | cut_to 62)"
 done
@@ -194,4 +208,10 @@ for k in merito meta struttura; do
 done
 [ "$already" -gt 0 ] && printf '\n  ⚠ %d domande erano gia\x27 rispondibili A FREDDO, senza il testo: fuori dal conto.\n' "$already"
 printf '\n  %d domande su %d hanno ricevuto quello che il testo dice.\n' "$ok" "$n"
+if [ "$gate_words" -gt "$WORDS" ]; then
+  printf '  ✅ CANCELLO: %d parole di domande nel merito risolte > %d parole di testo.\n' "$gate_words" "$WORDS"
+else
+  printf '  ⛔ CANCELLO: %d parole di domande nel merito risolte, ne servono piu\x27 di %d (mancano %d).\n' \
+    "$gate_words" "$WORDS" "$((WORDS - gate_words + 1))"
+fi
 printf '  ⛔ %d restano senza: la risposta E'"'"' nel testo, e il lettore non la porta.\n\n' "$((n-ok))"
