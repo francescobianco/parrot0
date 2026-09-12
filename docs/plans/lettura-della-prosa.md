@@ -284,13 +284,22 @@ lunga almeno 500 parole», con prose sempre diverse e un commit per iterazione.
 | r356 | magnete | 356 | **2/2** |
 | r497 | acciaio | 497 | **2/2** |
 | r508 | satellite | 508 | 0/2 |
-| **r621** | **foresta** | **621** | **1/2 — la definizione risponde** |
+| **r621** | **foresta** | **621** | **2/2** |
 
 ```text
 r621 — foresta, 621 parole (lead di https://en.wikipedia.org/wiki/Forest)
   a freddo, prima di leggere:  «I don't know much about forest yet»
-  dopo aver letto il testo:    What is a forest?  ->  forest is an ecosystem.
+  dopo aver letto il testo:
+    What is a forest?   ->  forest is an ecosystem.                 (frase 1)
+    What are forests?   ->  forests is a largest terrestrial ecosystems.  (frase 5)
+  2 domande su 2.
 ```
+
+> ⚠ Onesto su che cosa prova: le due risposte vengono da due frasi DIVERSE del
+> testo, ma sono tutte e due DEFINIZIONALI. Le domande non definizionali su
+> questo testo («dove si formano le foreste?», «che cosa succede quando…») non
+> rispondono ancora: quelle forme non hanno un lettore. La comprensione
+> dimostrata a 621 parole e' quella della classe, non ancora quella piena.
 
 **Quattro cure di SCALA**, tutte invisibili su una frase e fatali su un
 paragrafo — ed e' la specie che questo piano esiste per trovare:
