@@ -6402,8 +6402,14 @@ static int p0_atom_within_cap(Brain *b, const char *atom);
 static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
                             size_t argc) {
     if (!p0_atom_within_cap(b, pred)) return 0;
-    for (size_t i = 0; i < argc; i++)
+    for (size_t i = 0; i < argc; i++) {
         if (!p0_atom_is_concept(b, args[i])) return 0;
+        /* gen514 — quali valori una relazione rifiuta e' conoscenza della
+         * relazione (`fact_argument_refused/2`, grammar.p0): «has_part» non
+         * possiede un participio. */
+        const char *rq[2] = { pred, args[i] };
+        if (kb_query(brain_kb(b), "fact_argument_refused", rq, 2)) return 0;
+    }
     return 1;
 }
 
@@ -9104,8 +9110,16 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                  * restringano, e proprio per questo deve arrivare al
                  * risolutore, che ha il compito di DICHIARARE l'ambiguita'
                  * invece di lasciar cadere il turno in un muro. */
+                /* gen514 — ...ma un NOME nudo si': «what do reefs occupy?» ha
+                 * un sintagma di un token, e la chiave esatta `reefs` non ha
+                 * fatti, mentre `shallow_coral_reefs` ha la stessa testa e
+                 * nessuna proprieta' che la domanda contraddica. Il passaggio
+                 * per token prova solo la chiave esatta, quindi senza questo la
+                 * descrizione (G2) non scattava mai su un plurale nudo. Le
+                 * parole vuote restano fuori: non descrivono niente. */
                 if ((size_t)end <= t + 1 &&
-                    !p0_is_demonstrative(b, strip_edge_punct(w[t]))) continue;
+                    !p0_is_demonstrative(b, strip_edge_punct(w[t])) &&
+                    is_stopword(b, strip_edge_punct(w[t]))) continue;
                 size_t ss = t;
                 if (p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
                 /* gen512 — un sintagma con un pronome senza antecedente non
@@ -9231,6 +9245,20 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 }
             }
         }
+        /* Quali token stanno in un sintagma di piu' parole piene: stessi confini
+         * del passaggio per sintagmi (`p0_slot_end`, cioe' `np_closer/1`). */
+        unsigned char in_multiword[40] = { 0 };
+        for (size_t s0 = 0; s0 < nw; ) {
+            if (is_stopword(b, strip_edge_punct(w[s0]))) { s0++; continue; }
+            int end = p0_slot_end(b, w, nw, s0, NULL);
+            if (end <= 0 || (size_t)end <= s0) { s0++; continue; }
+            size_t full = 0;
+            for (size_t k = s0; k < (size_t)end; k++)
+                if (!is_stopword(b, strip_edge_punct(w[k]))) full++;
+            if (full >= 2)
+                for (size_t k = s0; k < (size_t)end; k++) in_multiword[k] = 1;
+            s0 = (size_t)end;
+        }
         for (size_t t = 0; t < nw; t++) {
             char *v = strip_edge_punct(w[t]);
             /* gen311: allow SINGLE-letter tokens — chemical symbols are 1 char
@@ -9247,6 +9275,14 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
              * pronome non nomina niente. Quali parole chiedano un antecedente e'
              * conoscenza (`entity_pronoun/1`). */
             if (lex_class_member(b, "entity_pronoun", v)) continue;
+            /* gen514 — UN PEZZO DEL SINTAGMA NON E' LA COSA CHIESTA.
+             * «what do those ocean waters provide?» provava `ocean`, e poi la
+             * testa `waters` con il suo lemma, e rispondeva con
+             * `provides(ocean, water)` della KB del mondo. Il modificatore non e'
+             * il soggetto, e la testa da sola perde la proprieta' che la domanda
+             * dice: e' la descrizione (G2) del passaggio per sintagmi a doverla
+             * provare intera. Qui restano i token che stanno da soli. */
+            if (pass == 0 && in_multiword[t]) continue;
             char ans[16][KB_TERM_LEN]; size_t na;
             const char *ffw[2] = { v, NULL };
             na = allow_arg1 ? kb_match(b->kb, pred, ffw, 2, ans, 16) : 0;

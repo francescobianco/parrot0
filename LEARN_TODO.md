@@ -1,10 +1,12 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514) — LA DIREZIONE DELLA DOMANDA, 17/50
+## ⛔ HANDOFF 2026-09-13 (gen514) — LA DIREZIONE DELLA DOMANDA E IL TRIAGE: 19/50
 
 **Punto di ripresa attivo per la prosa** (supera il checkpoint sotto, che resta
-la mappa dei residui). Banco invariato a **17/50**, cancello 97/299, nessuna
-risposta corretta persa.
+la mappa dei residui). **19/50**, cancello 107/299, nessuna risposta corretta
+persa. Il triage delle 33 aperte (un tentativo ciascuna) e' in una tabella per
+causa nel resoconto: **la mappa da cui ripartire**. Due bugie restano aperte
+(«what are colonies made of?» → «Reefs.»; «sometimes» letto come nome).
 
 - La forma finita dice chi viene chiesto: «what supports coral?» (soggetto) e
   «what does coral support?» (oggetto) ora leggono la radice nel verso giusto.

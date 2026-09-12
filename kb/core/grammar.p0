@@ -687,6 +687,17 @@ np_closer($Form) :-
     verb_particle($Root, $Particle).
 np_closer($Form) :-
     verb_stem($Form, $Root), verb_particle($Root, $Particle).
+% gen514 — e la radice NUDA di un verbo curato flesso: nella domanda
+% sull'oggetto il verbo arriva nudo («what does the phylum cnidaria INCLUDE?»)
+% e la chiave del sintagma lo inglobava («phylum_cnidaria_include»). Stessa
+% `np_closer/1` si enumera intero una volta per revisione (`p0_np_closer`), quindi
+% si parte dai verbi e si toglie la desinenza.
+np_closer($Stem) :-
+    relation_verb($Form), concat_atoms($Stem, "s", $Form).
+% E una particella avverbiale chiude il sintagma quanto una preposizione:
+% «what holds colonies TOGETHER?» non nomina una cosa chiamata
+% «colonies together».
+np_closer($P) :- adverbial_particle($P).
 % gen512 (settimo giro): la definizione italiana di «veleno», letta attraverso
 % la canonicalizzazione, dava la classe «sostanza what assunta» e un luogo di
 % quindici parole («organismo vivente has effetti …»). Un «what» dopo un nome
@@ -1189,7 +1200,13 @@ machinery(turn_question_verb).
 turn_question_verb($Form, $Root, 2) :- subject_question_form(current_turn, $Form, $Root).
 turn_question_verb($Root, $Root, 1) :-
     object_question_verb(current_turn, $Root), relation_verb($Root).
-answer_frame($Form, $Root) :- turn_question_verb($Form, $Root, 2).
+% E il verso inverso del ponte: la domanda sull'oggetto porta il verbo NUDO
+% («what does cnidaria include?»), mentre molti verbi curati stanno in KB
+% gia' flessi (`includes`, `absorbs`), e i fatti letti con loro anche.
+% `verb_stem/2` sa gia' che «include» e' la radice di «includes».
+turn_question_verb($Stem, $Verb, 1) :-
+    object_question_verb(current_turn, $Stem), verb_stem($Verb, $Stem).
+answer_frame($Form, $Root) :- turn_question_verb($Form, $Root, $Arg).
 answer_frame_input_arg($Form, $Root, $Arg) :- turn_question_verb($Form, $Root, $Arg).
 
 extract_frame($Pat, $Verb) :-
@@ -2131,6 +2148,21 @@ extract_frame("@S has an @O", has_part).
 extract_frame("@S has @O", has_part).
 extract_frame("@S have a @O", has_part).
 extract_frame("@S have @O", has_part).
+% gen514 — ⚠ «Shallow tropical coral reefs have declined by 50%» combaciava con
+% «@S have @O» e diventava `has_part(shallow_tropical_coral_reefs, declined)`:
+% il perfetto letto come possesso, annunciato come appreso, e la domanda «what
+% have … declined by?» rispondeva il soggetto. Non si possiede un participio.
+% Quali valori una relazione rifiuta e' conoscenza della relazione, e il
+% cancello dei fatti la chiede (`fact_argument_refused/2`). Provato e ritirato:
+% fare del participio un confine di sintagma rompeva «all of the sheltered
+% spaces».
+machinery(fact_argument_refused).
+machinery(relation_participle).
+relation_participle($Form) :-
+    participle_suffix($Suffix), concat_atoms($Root, $Suffix, $Form),
+    relation_verb($Root).
+relation_participle($Form) :- irregular_participle($Form).
+fact_argument_refused(has_part, $Atom) :- relation_participle($Atom).
 extract_frame("@S ha un @O", has_part).
 extract_frame("@S ha una @O", has_part).
 % ── gen507/34 — DI CHE COSA E' FATTA UNA COSA ──────────────────────────────

@@ -115,3 +115,63 @@ lettura delle loro frasi (relativa con «that», light verbs).
 6. «Shallow tropical coral reefs have declined by 50% since 1950» → «975.»
    (laboratorio di esplorazione): l'aritmetica rivendica una frase
    dichiarativa. Bugia, da mettere in testa al prossimo giro.
+
+---
+
+## Triage delle 33 aperte (richiesto da F.: un tentativo per ciascuna, senza scavare)
+
+Esito: **17 → 19/50**, cancello **97 → 107** ([referto](2026-09-13-direzione-della-domanda/bench-triage.txt)).
+Nessuna risposta corretta persa. Il triage ha trovato **sei bugie**, tutte chiuse
+tranne due annotate sotto; tre sono nate dalle cure stesse e il banco le ha
+mostrate prima del commit.
+
+### I fortunati (chiusi, cricchetto `tests/p0t/language/prose_triage.p0t`, 14 verdi)
+
+| domanda | che cosa mancava | cura |
+|---|---|---|
+| what does the phylum cnidaria include? | la domanda porta «include», il verbo curato e i fatti sono `includes`; e «include» non chiudeva il sintagma | `turn_question_verb` usa anche `verb_stem/2`; `np_closer` sulla radice dei verbi curati flessi |
+| what threatens coral reefs? | «are under threat from» non aveva forma | lezione parlata «x are under threat from y means y threatens x», salvata in `constructions.p0` (grammatica generale); piu' il circuito della direzione |
+
+### Bugie trovate e chiuse
+
+| turno | risposta | causa | cura |
+|---|---|---|---|
+| Shallow tropical coral reefs have declined by 50% since 1950. | «975.» | `mod_arith` prendeva il primo numero dopo «%» senza il connettore | `20-math.c`: la base segue `fraction_connector/1`, come l'altro ramo |
+| what have shallow tropical coral reefs declined by? | «Shallow tropical coral reefs.» | il perfetto letto come possesso, `has_part(reefs, declined)` | `fact_argument_refused/2` (KB) consultato dal cancello dei fatti; un confine di sintagma sul participio era stato provato e ritirato (rompeva «all of the sheltered spaces») |
+| what do those ocean waters provide? | «Water and dissolved oxygen.» | il passaggio per token provava il modificatore `ocean`, poi la testa senza la sua proprieta' | un token dentro un sintagma di piu' parole piene lo prova solo il passaggio per sintagmi (G2) |
+| what does coral support? / what phylum does coral belong to? | (prima parte del giro) | direzione e tipo | vedi sopra |
+
+Collaterale: G2 ora vale anche per un nome nudo di un token («what do reefs
+occupy?» → `shallow_coral_reefs`); `adverbial_particle/1` chiude il sintagma.
+
+### Bugie trovate e NON chiuse
+
+- **«what are colonies made of?» → «Reefs.»**: la direzione nella forma copulare
+  con participio e particella (made of, formed of, built from). Stessa classe
+  del circuito di oggi; la condizione va letta sulla struttura, e la cue
+  multi-parola la rende costosa con `answer_frame` legato solo sulla cue.
+- **«Shallow coral reefs are sometimes called …» → `Learned: shallow coral reefs is
+  a sometime`**: «sometimes» lemmatizzato come nome.
+
+### Le altre, per causa (tentativo fatto, esito, prossimo passo)
+
+| gruppo | domande | tentativo e reperto |
+|---|---|---|
+| **Attenuazione** («Most …», «most commonly») | built from, stony corals, polyps cluster, grow best ×2, kind of corals, found ×2 (8) | fattorizzata senza quantificatore la frase vale **+1** soltanto: servono anche relativa *whose*, avverbio *best* (letto come oggetto → «Best.») e passivo *found at*. Rifiuto gen506c da trasformare in relazione attenuata, non da togliere |
+| **Relativa «that» + predicati coordinati** | protects, supports, those ocean waters provide (3) | `relative_opener` chiede la virgola; `relative_pronoun(that)` (gen458) attacca la relativa al soggetto della principale, qui parla dell'oggetto |
+| **Avverbi di frequenza** | sometimes called (1) + found ×2 | senza «sometimes» domanda e lettura rispondono; manca la trasparenza (che e' anche attenuazione) e il participio anteposto «Sometimes called X, S …» |
+| **Enumerazione che ruba la principale** | provide a home for, how many species, what lives in (3) | la lezione «x provide a home for y means y lives in x» **funziona** su frase pulita («what lives in coral reefs?» → «marine species.»); nel brano vince `extract_enumeration` («including …») con `specie(fish)`, lemma sbagliato, e la principale si perde |
+| **Definizione tenuta come testo** | what is a reef, what kind of ecosystem (2) | nemmeno «is a coral reef an underwater ecosystem?» risponde: manca l'appartenenza di classe dalla definizione |
+| **Alternanza di voce** | what holds coral polyps together, calcium carbonate for (2) | la domanda attiva arriva a `hold`, il fatto sta sotto la relazione passiva con particella |
+| **Complemento tassonomico** | what phylum does coral belong to (1) | «in the animal phylum Cnidaria» si stacca ad «in» |
+| **Perfetto con particella e tempo** | declined by, since when, sensitive to (3) | «partly because» non divide; «declined by» non ha forma perfetta; «sensitive to» si legge con una lezione (`affects`) ma nessuna domanda la raggiunge |
+| **Ternaria «deliver X for Y»** | deliver services for (1) | «deliver is a ternary relation verb» non si lascia insegnare a un verbo gia' noto |
+| **Parentetica** | excess nutrients include (1) | «(nitrogen and phosphorus)» si incolla al sintagma: `excess_nutrients_nitrogen` |
+| **Valore monetario** | estimated at billions, economic value (2) | `us$375_billion` non e' un atomo tenibile |
+| **Forma «how much of X do S V»** | how much of the ocean area (1) | «what do reefs occupy?» ora risponde; manca la forma di domanda |
+| **Composto «reef-building»** | what do reef-building corals build (1) | detto esplicitamente risponde; manca la lettura morfologica del composto |
+| **«tell me about X» nega i fatti di sessione** | what are coral polyps (1) | «I don't know much about reefs yet» con fatti presenti: misclaim sulla propria conoscenza (self-research loop) |
+
+**Ordine consigliato**: attenuazione (8, ma e' un circuito con una scelta di
+F. sulla rappresentazione), poi enumerazione che ruba la principale (3, la
+lezione e' gia' pronta), relativa «that» (3), e le due bugie aperte in testa.

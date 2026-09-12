@@ -45,6 +45,8 @@ construction_frame("@S are formed of @O", "@S made of @O", made_of).
 construction_frame("@S formed of @O", "@S made of @O", made_of).
 construction_frame("@S placed in @O", "@S is located in @O", located_in).
 construction_frame("@S placed into @O", "@S is located in @O", located_in).
+construction_frame("@O is under threat from @S", "@S threatens @O", threaten).
+construction_frame("@O are under threat from @S", "@S threatens @O", threaten).
 
 % E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
 construction_answer_cue("@S goes by the name of @O", "goes by the name of", also_known_as).

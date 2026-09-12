@@ -1627,7 +1627,17 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             for (size_t i = mark; !havep && i-- > 0; ) {
                 double v; if (parse_value(cw[i], &v)) { pct = v; havep = 1; break; }
             }
+            /* gen514 — la base e' il numero DOPO il connettore («of», «di»),
+             * come nel ramo di `arith_value` qui sopra: senza, «reefs have
+             * declined by 50% since 1950» rispondeva «975.» a una frase che non
+             * chiede niente. Quali parole connettano e' `fraction_connector/1`. */
+            int connected = 0;
             for (size_t i = mark + 1; i < cnw; i++) {
+                const char *fq[] = { cw[i] };
+                if (!connected) {
+                    if (kb_query(b->kb, "fraction_connector", fq, 1)) connected = 1;
+                    continue;
+                }
                 double v; if (parse_value(cw[i], &v)) { base = v; haveb = 1; break; }
             }
             if (havep && haveb) { arith_answer(base * pct / 100.0, out, out_size); return 1; }

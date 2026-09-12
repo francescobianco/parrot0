@@ -1,0 +1,62 @@
+# 2026-09-13 (gen514) — full live KB; development probes, never persisted training.
+# The pieces found by triaging the 33 open questions of the r300 prose ladder.
+# Sentences are from that ladder or describe mechanics; no world fact of the
+# ladder is stored in the KB.
+
+[test the bare verb of an object question reaches a curated inflected relation]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 60
+> A coral reef is an underwater ecosystem. Coral belongs to the class Anthozoa in the animal phylum Cnidaria, which includes sea anemones and jellyfish.
+<~ includes sea anemones
+# «include» is the stem of the curated `includes`, and it closes the phrase
+# («the phylum cnidaria», not «phylum_cnidaria_include»).
+> what does the phylum cnidaria include?
+<~ sea anemones
+
+[test a bare plural describes the specific entity]
+!reset
+!timeout 30
+> Shallow coral reefs occupy less than 0.1% of the world's ocean area.
+<~ Learned
+> what do reefs occupy?
+<~ ocean area
+
+[test a spoken construction can swap the roles]
+!reset
+!timeout 30
+> Coral reefs are under threat from excess nutrients.
+<~ Learned
+> what threatens coral reefs?
+<~ excess nutrients
+
+[test a percentage without its connector is not a computation]
+!reset
+!timeout 30
+> Reefs have declined by 50% since 1950.
+<! 975
+> what is 15% of 80?
+<~ 12
+
+[test the perfect is not possession]
+!reset
+!timeout 30
+> Reefs have declined.
+<! Learned
+> what have reefs declined by?
+<! Reefs
+> Zelnik has a handle.
+<~ Learned
+> does zelnik have a handle?
+<~ Yes
+
+[test a piece of a phrase is not the thing asked]
+!reset
+!timeout 30
+# The live KB holds provides(ocean, water): the question is about ocean waters.
+> what do those ocean waters provide?
+<! dissolved oxygen
+> what does the ocean provide?
+<~ water
