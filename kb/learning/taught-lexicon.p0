@@ -306,6 +306,42 @@ relation_verb(suppress).
 relation_verb(manage).
 relation_verb(offer).
 relation_verb(improve).
+relation_verb(line).
+relation_verb(enclose).
+relation_verb(fasten).
+relation_verb(anchor).
+relation_verb(support).
+relation_verb(balance).
+relation_verb(weaken).
+relation_verb(strengthen).
+relation_verb(stiffen).
+relation_verb(soften).
+relation_verb(harden).
+relation_verb(corrode).
+relation_verb(oxidize).
+relation_verb(crystallize).
+relation_verb(precipitate).
+relation_verb(suspend).
+relation_verb(propel).
+relation_verb(inject).
+relation_verb(extract).
+relation_verb(expel).
+relation_verb(release).
+relation_verb(retain).
+relation_verb(exhibit).
+relation_verb(denote).
+relation_verb(constitute).
+relation_verb(comprise).
+relation_verb(prevail).
+relation_verb(transition).
+relation_verb(yield).
+relation_verb(tend).
+relation_verb(ignite).
+relation_verb(stack).
+relation_verb(span).
+relation_verb(lead).
+relation_verb(contribute).
+relation_verb(involve).
 
 % ── gen513 — LE PARTICELLE DEI VERBI DI RELAZIONE ───────────────────────────
 % Scoperte leggendo la scala della prosa: sono le forme con cui un lead di

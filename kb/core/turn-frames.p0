@@ -362,6 +362,38 @@ faculty_yield_force(turn_plan, open, prose_carried).
 % alla volta, e questa riga e' l'ordine in cui le due letture si presentano.
 faculty_yield_force(turn_plan, open, compound_statement).
 
+% ── gen513 — UN'AFFERMAZIONE NON E' UNA DOMANDA, NEMMENO QUANDO NON SI LASCIA
+%             LEGGERE ────────────────────────────────────────────────────────
+%
+% Reperto della scala della prosa, piolo 340 (Charcoal). La frase
+%
+%     «Charcoal is a lightweight black residue made of carbon.»
+%
+% riceveva «Steel.» — e la definizione non entrava affatto. Non e' un errore di
+% lettura: e' un errore di TURNO. Lo schema «@O is made of @S» combacia, lo slot
+% @O prende «charcoal is a lightweight black residue» e la guardia lo rifiuta
+% giustamente (porta un verbo finito, mantra #7). Ma a quel punto il turno era
+% gia' di chi RISPONDE ALLE DOMANDE: `answer_frame` vedeva la cue «made of»,
+% cercava che cosa e' fatto di carbonio, e trovava l'acciaio.
+%
+% `turn_declared_act(assertion)` qui non aiuta: nasce da `turn_reading`, e
+% questa frase una lettura non ce l'ha — e' proprio il caso in cui serve.
+% L'evidenza che non e' una domanda e' precedente a qualunque lettura: non c'e'
+% punto interrogativo, non apre con un interrogativo, non e' una richiesta, e
+% una copula c'e'. Sono i segni di superficie, gli stessi che gia' distinguono
+% `prose_carried` — solo senza la soglia di lunghezza, che qui non c'entra:
+% nove parole o novanta, chi afferma non sta chiedendo.
+%
+% ⚠ Vale per `answer_frame` e non in generale: chi LEGGE un'affermazione la
+% deve vedere. Questa riga toglie il turno soltanto a chi risponde a domande.
+turn_declared_act($Turn, unasked) :-
+    turn_prose_copula($Turn),
+    naf(turn_has_question_mark($Turn)),
+    naf(turn_opens_question($Turn)),
+    naf(turn_opens_request($Turn)).
+faculty_yield_force(answer_frame, open, unasked).
+faculty_yield_force(answerframe, open, unasked).
+
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %
 % Sopra e' scritto — e resta vero — che l'asserzione non ha cue proprie: marcarla
