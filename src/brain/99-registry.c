@@ -5549,6 +5549,83 @@ static int reply_is_wall(Brain *b, const char *reply) {
     return 0;
 }
 
+/* ── gen513 — LA RELATIVA E' UNA PROPOSIZIONE, E HA UN SOGGETTO ────────────
+ *
+ * Reperto della scala della prosa: delle sedici frasi del piolo 300, otto ne
+ * lasciano UNA sola delle tre o quattro relazioni che enunciano. La seconda sta
+ * quasi sempre in una relativa:
+ *
+ *   «Coral belongs to the class Anthozoa in the animal phylum Cnidaria,
+ *    WHICH INCLUDES sea anemones and jellyfish.»
+ *
+ * `includes(cnidaria, sea_anemones)` e' scritto li' e non lo prende nessuno,
+ * perche' il lettore vede una frase sola e la frase sola ha gia' il suo verbo.
+ *
+ * Una relativa pero' e' una proposizione a cui manca il soggetto, e il soggetto
+ * e' scritto subito prima della virgola. Chi lo sa dire e' la IR: `input_structure`
+ * delimita i sintagmi nominali con la stessa conoscenza KB con cui li delimita
+ * ovunque (`np_opener`, `np_closer`, `pos(verb)`), e l'antecedente e' l'ULTIMO
+ * sintagma della parte sinistra. Qui non si indovina niente: si chiede.
+ *
+ * Quali parole aprano una relativa e' un fatto (`relative_opener/1`,
+ * kb/core/grammar.p0): una lingua nuova costa una riga e non una ricompilazione.
+ *
+ * ⚠ Se l'antecedente non si trova, NON si riscrive: meglio perdere la relativa
+ * che attaccarle un soggetto sbagliato (mantra #7). */
+static int relative_rewrite(Brain *b, const char *sentence,
+                            char *left, size_t left_size,
+                            char *right, size_t right_size) {
+    if (!b || !b->kb || !sentence) return 0;
+    char openers[16][KB_TERM_LEN];
+    const char *oq[1] = { NULL };
+    size_t no = kb_match(b->kb, "relative_opener", oq, 1, openers, 16);
+    if (!no) return 0;
+
+    const char *cut = NULL; size_t cutlen = 0;
+    for (size_t i = 0; i < no; i++) {
+        char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", openers[i]);
+        const char *w = kb_dequote(ob);
+        if (!*w) continue;
+        char needle[KB_TERM_LEN];
+        snprintf(needle, sizeof needle, ", %s ", w);
+        const char *h = strstr(sentence, needle);
+        if (h && (!cut || h < cut)) { cut = h; cutlen = strlen(needle); }
+    }
+    if (!cut || cut == sentence) return 0;
+
+    size_t llen = (size_t)(cut - sentence);
+    if (llen + 2 >= left_size) return 0;
+    memcpy(left, sentence, llen); left[llen] = '.'; left[llen + 1] = '\0';
+
+    /* L'antecedente: l'ultimo sintagma nominale della parte sinistra, chiesto
+     * alla IR e non ritagliato a mano. */
+    char antecedent[KB_TERM_LEN] = "";
+    {
+        InputNode nodes[128]; int amb = 0;
+        InputSpan sp; memset(&sp, 0, sizeof sp);
+        sp.len = llen;
+        size_t nn = input_structure(b->kb, left, &sp, nodes, 128, &amb);
+        size_t best_start = 0; int found = 0;
+        for (size_t i = 0; i < nn; i++) {
+            if (strcmp(nodes[i].level, "phrase")) continue;
+            if (!found || nodes[i].start >= best_start) {
+                best_start = nodes[i].start; found = 1;
+                snprintf(antecedent, sizeof antecedent, "%s", nodes[i].surface);
+            }
+        }
+        if (!found) return 0;
+    }
+    if (!*antecedent) return 0;
+
+    const char *rest = cut + cutlen;
+    if (!*rest) return 0;
+    if ((size_t)snprintf(right, right_size, "%s %s", antecedent, rest) >= right_size)
+        return 0;
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+    return 1;
+}
+
 static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb || !input || !*input || out_size == 0) return 0;
     if (b->compound_depth > 0) return 0;
@@ -5693,7 +5770,24 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
          * del genitore — altrimenti una cue del turno composto («can you»)
          * fa rivendicare a una facolta' una clausola che non la contiene. */
         char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
-        brain_respond(b, c, sub, sizeof sub);
+        /* gen513 — e se la frase porta una relativa, sono DUE proposizioni e si
+         * leggono tutte e due. La seconda riceve il suo soggetto dalla IR
+         * (`relative_rewrite`); se l'antecedente non si trova, non si riscrive
+         * niente e la frase resta intera. */
+        {
+            char lft[P0_TURN_MAX], rgt[P0_TURN_MAX];
+            if (relative_rewrite(b, c, lft, sizeof lft, rgt, sizeof rgt)) {
+                char subr[1024]; subr[0] = '\0';
+                brain_respond(b, lft, sub, sizeof sub);
+                brain_respond(b, rgt, subr, sizeof subr);
+                if (!reply_is_wall(b, subr) && strlen(sub) + strlen(subr) + 2 < sizeof sub) {
+                    size_t sl2 = strlen(sub);
+                    snprintf(sub + sl2, sizeof sub - sl2, " %s", subr);
+                }
+            } else {
+                brain_respond(b, c, sub, sizeof sub);
+            }
+        }
         b->active_turn_norm = outer_view;
         char piece[1200];
         if (reply_is_wall(b, sub)) {

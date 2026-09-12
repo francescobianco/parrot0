@@ -2787,3 +2787,15 @@ view_depends(extract_frame, verb_suffix).
 view_depends(extract_frame, verb_stem).
 view_depends(verb_stem, relation_verb).
 view_depends(verb_stem, verb_suffix).
+
+% ── gen513 — LE PAROLE CHE APRONO UNA RELATIVA ──────────────────────────────
+% Servono al lettore composto per riconoscere che dopo la virgola comincia una
+% PROPOSIZIONE e non un modificatore: «…phylum Cnidaria, WHICH INCLUDES sea
+% anemones». Il soggetto della relativa e' l'ultimo sintagma nominale prima
+% della virgola, e chi lo dice e' la IR. Una lingua nuova costa una riga.
+machinery(relative_opener).
+relative_opener(which).
+relative_opener(who).
+relative_opener(whose).
+relative_opener(che).
+relative_opener(cui).
