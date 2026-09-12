@@ -21057,10 +21057,35 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char jdisp[128]; size_t jd = 0;
                 for (size_t i = start; i < nw; i++) {
                     if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
+                    /* gen513 — il punto interrogativo non fa parte del nome. La
+                     * chiave unita finiva «coral_reef?» e non trovava niente:
+                     * stessa specie del punto attaccato alla classe (D1/D4 del
+                     * gen512), qui sul nome COMPOSTO. */
+                    char jb[KB_TERM_LEN]; snprintf(jb, sizeof jb, "%s", w[i]);
+                    const char *jw = strip_edge_punct(jb);
+                    if (!*jw) continue;
                     jo += (size_t)snprintf(jkey + jo, sizeof jkey - jo,
-                                           "%s%s", jo ? "_" : "", w[i]);
+                                           "%s%s", jo ? "_" : "", jw);
                     jd += (size_t)snprintf(jdisp + jd, sizeof jdisp - jd,
-                                           "%s%s", jd ? " " : "", w[i]);
+                                           "%s%s", jd ? " " : "", jw);
+                }
+                /* gen513 — e un nome COMPOSTO si definisce come uno semplice.
+                 * «A coral reef is an underwater ecosystem» si imparava e «what
+                 * is a coral reef?» murava: qui si provava solo
+                 * `kb_concept_def` (le glosse caricate), mai `kb_define_entity`
+                 * (cio' che si e' imparato leggendo) — che e' esattamente la
+                 * conoscenza che la prosa deposita. Il nome di due parole e' la
+                 * norma nella prosa d'enciclopedia. */
+                {
+                    char ddesc[1024];
+                    if (jo && strchr(jkey, '_') &&
+                        kb_define_entity(b->kb, jkey, ddesc, sizeof ddesc) &&
+                        p0_answer_subject_in_focus(b, norm, jkey)) {
+                        put(ddesc, out, out_size);
+                        store_proof(b, ddesc);
+                        remember_entity(b, jkey, jdisp);
+                        return 1;
+                    }
                 }
                 char jdef[KB_TERM_LEN];
                 if (jo && strchr(jkey, '_') &&

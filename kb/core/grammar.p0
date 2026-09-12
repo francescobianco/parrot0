@@ -669,6 +669,11 @@ np_closer(derived).
 np_closer(composed).
 np_closer(fashioned).
 np_closer(raised).
+np_closer(characterized).
+np_closer(characterised).
+np_closer(surrounded).
+np_closer(covered).
+np_closer(found).
 % gen512 (settimo giro): la definizione italiana di «veleno», letta attraverso
 % la canonicalizzazione, dava la classe «sostanza what assunta» e un luogo di
 % quindici parole («organismo vivente has effetti …»). Un «what» dopo un nome

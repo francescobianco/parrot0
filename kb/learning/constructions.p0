@@ -39,6 +39,10 @@ construction_frame("@S contain @O", "@S made of @O", made_of).
 construction_frame("@S comprises @O", "@S made of @O", made_of).
 construction_frame("@S comprise @O", "@S made of @O", made_of).
 construction_frame("@S consist of @O", "@S made of @O", made_of).
+construction_frame("@S are built from @O", "@S made of @O", made_of).
+construction_frame("@S built from @O", "@S made of @O", made_of).
+construction_frame("@S are formed of @O", "@S made of @O", made_of).
+construction_frame("@S formed of @O", "@S made of @O", made_of).
 
 % E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
 construction_answer_cue("@S goes by the name of @O", "goes by the name of", also_known_as).
@@ -50,7 +54,11 @@ construction_answer_cue("@S contain @O", contain, made_of).
 construction_answer_cue("@S forms part of @O", "forms part of", part_of).
 construction_answer_cue("@S comprises @O", comprises, made_of).
 construction_answer_cue("@S is also spelled @O", "is also spelled", also_known_as).
+construction_answer_cue("@S are built from @O", "are built from", made_of).
 construction_answer_cue("@S comprise @O", comprise, made_of).
+construction_answer_cue("@S built from @O", "built from", made_of).
 construction_answer_cue("@S made of @O", "made of", made_of).
+construction_answer_cue("@S are formed of @O", "are formed of", made_of).
 construction_answer_cue("@S consist of @O", "consist of", made_of).
+construction_answer_cue("@S formed of @O", "formed of", made_of).
 construction_answer_cue("@S revolves around @O", "revolves around", orbits).

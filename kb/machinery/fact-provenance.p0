@@ -236,6 +236,13 @@ fact_source(relation_verb(indicates), indicates, "indicates is a relation verb")
 fact_source(relation_verb(tells), tells, "tells is a relation verb").
 fact_source(relation_verb(shows), shows, "shows is a relation verb").
 fact_source(relation_verb(casts), casts, "casts is a relation verb").
+fact_source(made_of(reefs, colonies), reefs, "reefs are formed of colonies of coral polyps.").
+fact_source(relation_verb(belongs), belongs, "belongs is a relation verb").
+fact_source(relation_verb(secrete), secrete, "secrete is a relation verb").
+fact_source(construction_frame("@S are built from @O", "@S made of @O", made_of), "@S are built from @O", "x are built from y means x made of y").
+fact_source(construction_frame("@S built from @O", "@S made of @O", made_of), "@S built from @O", "x built from y means x made of y").
+fact_source(construction_frame("@S are formed of @O", "@S made of @O", made_of), "@S are formed of @O", "x are formed of y means x made of y").
+fact_source(construction_frame("@S formed of @O", "@S made of @O", made_of), "@S formed of @O", "x formed of y means x made of y").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -369,12 +376,19 @@ reading_fact(construction_frame("@S comprises @O", "@S made of @O", made_of), "x
 reading_fact(relation_verb(grows), "grows is a relation verb").
 reading_fact(construction_frame("@S made of @O", "@S is made of @O", made_of), "x made of y means x is made of y").
 reading_fact(relation_verb(indicates), "indicates is a relation verb").
+reading_fact(made_of(reefs, colonies), "reefs are formed of colonies of coral polyps.").
 reading_fact(construction_frame("@S comprise @O", "@S made of @O", made_of), "x comprise y means x made of y").
+reading_fact(relation_verb(belongs), "belongs is a relation verb").
 reading_fact(relation_verb(tells), "tells is a relation verb").
+reading_fact(relation_verb(secrete), "secrete is a relation verb").
 reading_fact(relation_verb(uses), "uses is a relation verb").
+reading_fact(construction_frame("@S are built from @O", "@S made of @O", made_of), "x are built from y means x made of y").
 reading_fact(relation_verb(shows), "shows is a relation verb").
+reading_fact(construction_frame("@S built from @O", "@S made of @O", made_of), "x built from y means x made of y").
 reading_fact(construction_frame("@S consist of @O", "@S made of @O", made_of), "x consist of y means x made of y").
+reading_fact(construction_frame("@S are formed of @O", "@S made of @O", made_of), "x are formed of y means x made of y").
 reading_fact(relation_verb(casts), "casts is a relation verb").
+reading_fact(construction_frame("@S formed of @O", "@S made of @O", made_of), "x formed of y means x made of y").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

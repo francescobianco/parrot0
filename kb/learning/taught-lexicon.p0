@@ -193,3 +193,5 @@ relation_verb(indicates).
 relation_verb(tells).
 relation_verb(shows).
 relation_verb(casts).
+relation_verb(belongs).
+relation_verb(secrete).

@@ -1859,6 +1859,7 @@ made_of(lens, glass).
 made_of(bell, bronze).
 made_of(bowl, clay).
 made_of(abacus, array).
+made_of(reefs, colonies).
 has_part(pizza, tomato).
 has_part(pizza, cheese).
 precedes(monday, tuesday).
