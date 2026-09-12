@@ -697,6 +697,11 @@ np_closer(o).
 % e il tetto serve ancora — a cinque entrerebbero mezze proposizioni.
 machinery(concept_atom_max_words).
 concept_atom_max_words(4).
+% gen513 — e quanto puo' essere lungo un INCISO che apre la frase, prima che
+% smetta di essere una circostanza e diventi la frase stessa (`adjunct_peel`,
+% 99-registry.c): «In the narrowest sense of the word, it consists of…».
+machinery(adjunct_max_words).
+adjunct_max_words(8).
 
 machinery(classifier_head).
 classifier_head(type).

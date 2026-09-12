@@ -686,6 +686,66 @@ static int pragma_peel(Brain *b, const char *canon, const char *raw,
     return 0;
 }
 
+/* ── gen513 — L'INCISO CHE APRE LA FRASE NON E' LA FRASE ────────────────────
+ *
+ * «In the narrowest sense of the word, it consists of a flat plate and a
+ * gnomon» (meridiana, piolo 150 della scala) riceveva *«I looked up
+ * «narrowest» but found nothing»*: l'acquisizione si prendeva il turno per una
+ * parola dell'INCISO, e la proposizione — che parrot0 sa leggere benissimo da
+ * sola — non arrivava a nessuno.
+ *
+ * E' la stessa mossa di `pragma_peel` qui sopra, un gradino piu' generale: li'
+ * si sbuccia un'apertura di discorso DICHIARATA, qui una circostanza che la
+ * punteggiatura delimita da se'. La prosa d'enciclopedia ne e' piena — «In the
+ * past, …», «Together with rapid cooling, …», «Despite its appearance, …» — e
+ * nessuna di quelle formule si puo' elencare: sono infinite.
+ *
+ * La disciplina e' quella di `pragma_peel`, e non si allarga: si prova solo se
+ * la virgola sta nelle prime parole (un inciso e' breve; una virgola a meta'
+ * frase separa altro), e si CLAIMA solo se un modulo rivendica davvero il
+ * residuo. Se nessuno lo vuole, il turno prosegue esattamente com'era.
+ *
+ * Quante parole possa essere lungo un inciso e' un fatto della KB
+ * (`adjunct_max_words/1`): il motore non decide una soglia di lingua. */
+static int adjunct_peel(Brain *b, const char *canon, const char *raw,
+                        char *out, size_t out_size) {
+    if (!b || !b->kb || !canon || !raw) return 0;
+    if (strchr(canon, '?')) return 0;          /* una domanda non si sbuccia qui */
+    const char *comma = strchr(raw, ',');
+    if (!comma || comma == raw) return 0;
+    int maxw = 8;
+    { char v[1][KB_TERM_LEN]; const char *q[1] = { NULL };
+      if (kb_match(b->kb, "adjunct_max_words", q, 1, v, 1) == 1) {
+          int n = atoi(kb_dequote(v[0])); if (n > 0) maxw = n; } }
+    int words = 0;
+    for (const char *p = raw; p < comma; p++)
+        if (isspace((unsigned char)*p) && p + 1 < comma &&
+            !isspace((unsigned char)p[1])) words++;
+    words++;                                   /* l'ultima parola prima della virgola */
+    if (words > maxw) return 0;
+    const char *rest = comma + 1;
+    while (*rest && isspace((unsigned char)*rest)) rest++;
+    if (!*rest) return 0;
+    /* Il residuo dev'essere una proposizione, non un secondo pezzo di elenco:
+     * almeno tre parole. */
+    { int rw = 1; for (const char *p = rest; *p; p++) if (isspace((unsigned char)*p)) rw++;
+      if (rw < 3) return 0; }
+    char resid[512]; snprintf(resid, sizeof resid, "%s", rest);
+    char cres[512]; cres[0] = '\0';
+    brain_canonical(b, resid, cres, sizeof cres);
+    const char *use = cres[0] ? cres : resid;
+    for (size_t i = 0; i < registry_len; i++) {
+        if (registry[i].handle(b, use, resid, out, out_size)) {
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[adjunct] «%s» -> %s\n", resid, registry[i].name);
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* gen506c — «CAN YOU SAY WHETHER P?» E' LA DOMANDA «P?».
  *
  * Nel banco di comprensione la clausola finale e' spesso avvolta in una
@@ -6275,6 +6335,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     }
 
     if (b && pragma_peel(b, canon, input, out, out_size))
+        { return turn_done(b, canon, input, out, out_size); }
+
+    /* gen513 — e l'inciso che apre la frase, che nessun elenco puo' coprire. */
+    if (b && adjunct_peel(b, canon, input, out, out_size))
         { return turn_done(b, canon, input, out, out_size); }
 
     /* gen218: an explicit correction ("no, X is not a Y") peels its marker and
