@@ -502,8 +502,9 @@ size_t brain_canonical(Brain *b, const char *input, char *out, size_t out_size) 
  * del turno che l'ha prodotta. La lettura globale la porta `active_turn_norm`
  * (vedi brain_respond); qui si rimette la condotta. */
 /* gen513 — la misura di un PARAGRAFO, non di una riga di chat: un lead di
- * enciclopedia sta fra 600 e 2000 byte. I tre buffer del turno la seguono. */
-#define P0_TURN_MAX 2048
+ * enciclopedia sta fra 600 e 3000 byte — un lead di 500 parole ne fa quasi
+ * tremila. I tre buffer del turno la seguono. */
+#define P0_TURN_MAX 4096
 
 static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size) {
     if (!b || !clause || !*clause || out_size == 0) return 0;
