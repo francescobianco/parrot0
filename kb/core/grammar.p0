@@ -657,6 +657,18 @@ np_closer(formed).
 np_closer(produced).
 np_closer(used).
 np_closer(having).
+% gen513 (piolo 50-70): i participi PASSATI della relativa ridotta. «A windmill
+% is a machine operated by the force of wind» dava la classe `machine_operated`.
+np_closer(operated).
+np_closer(driven).
+np_closer(powered).
+np_closer(designed).
+np_closer(built).
+np_closer(obtained).
+np_closer(derived).
+np_closer(composed).
+np_closer(fashioned).
+np_closer(raised).
 % gen512 (settimo giro): la definizione italiana di «veleno», letta attraverso
 % la canonicalizzazione, dava la classe «sostanza what assunta» e un luogo di
 % quindici parole («organismo vivente has effetti …»). Un «what» dopo un nome

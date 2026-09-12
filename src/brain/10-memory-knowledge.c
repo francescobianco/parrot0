@@ -4866,16 +4866,50 @@ typedef struct {
     char   role[P0_MAX_SLOTS];
 } P0FrameReading;
 
+/* ── gen513 — DOVE STANNO LE VIRGOLE, CHIESTO AL TURNO ──────────────────────
+ *
+ * La virgola e' l'unico segno che separa un'apposizione, una relativa ridotta e
+ * la proposizione principale — e va letta PRIMA che `strip_edge_punct` la tolga
+ * in place lungo la strada. La riga esisteva dal gen505y in due posti, e in
+ * tutti e due arrivava tardi: quando questi lettori ricevono i token, le virgole
+ * sono gia' sparite. Una guardia giusta e cieca.
+ *
+ * Il turno originale invece non e' stato toccato: `active_turn_norm` e' la sua
+ * forma normalizzata, e `normalize` le virgole le tiene. Si cammina sul turno
+ * IN ORDINE insieme ai token — non si cerca ogni parola dappertutto, che su una
+ * parola ripetuta darebbe una virgola che non c'e'.
+ *
+ * E' la regola del piano (docs/plans/lettura-della-prosa.md §2): quando un
+ * lettore sbaglia un confine, non si aggiusta il lettore — gli si fa chiedere il
+ * confine a chi lo conosce ancora. Qui sta in UN posto per tutti i suoi
+ * consumatori, che e' il primo passo verso il farlo chiedere all'IR. */
+static void p0_comma_map(Brain *b, char **w, size_t n, int *comma_at, size_t cap) {
+    for (size_t ci = 0; ci < n && ci < cap; ci++) {
+        size_t wl = strlen(w[ci]);
+        comma_at[ci] = (wl && w[ci][wl - 1] == ',') ? 1 : 0;
+    }
+    if (!b || !b->active_turn_norm) return;
+    const char *p = b->active_turn_norm;
+    for (size_t ci = 0; ci < n && ci < cap && p; ci++) {
+        size_t wl = strlen(w[ci]);
+        if (!wl) continue;
+        char bare[KB_TERM_LEN]; snprintf(bare, sizeof bare, "%s", w[ci]);
+        size_t bl = strlen(bare);
+        while (bl && !isalnum((unsigned char)bare[bl - 1])) bare[--bl] = '\0';
+        if (!bl) continue;
+        const char *q = strstr(p, bare);
+        if (!q) { p = NULL; break; }
+        if (q[bl] == ',') comma_at[ci] = 1;
+        p = q + bl;
+    }
+}
+
 /* Lega UNO schema dichiarato al flusso di token. Pura: legge la KB, non la
  * scrive. Ritorna 1 se ogni ruolo dello schema ha trovato un riempimento. */
 static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                          P0FrameReading *r) {
-    /* gen505y: le virgole prima che strip_edge_punct le tolga in place */
     int comma_at[64] = { 0 };
-    for (size_t ci = 0; ci < n && ci < 64; ci++) {
-        size_t wl = strlen(w[ci]);
-        comma_at[ci] = wl && w[ci][wl - 1] == ',';
-    }
+    p0_comma_map(b, w, n, comma_at, 64);
     /* ── gen513 (prose-probe, malattia M1) — LA VIRGOLA SI CHIEDE AL TURNO ───
      *
      * «Tardigrades, also known as water bears, are animals.» imparava
@@ -4893,17 +4927,6 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
      * E' la regola del piano (docs/plans/lettura-della-prosa.md §2): quando un
      * lettore sbaglia un confine, non si aggiusta il lettore — gli si fa
      * chiedere il confine a chi lo conosce ancora. */
-    if (b && b->active_turn_norm) {
-        const char *p = b->active_turn_norm;
-        for (size_t ci = 0; ci < n && ci < 64 && p; ci++) {
-            size_t wl = strlen(w[ci]);
-            if (!wl) continue;
-            const char *q = strstr(p, w[ci]);
-            if (!q) { p = NULL; break; }
-            if (q[wl] == ',') comma_at[ci] = 1;
-            p = q + wl;
-        }
-    }
 
     if (!b || !b->kb || !raw_pattern || !r) return 0;
     memset(r, 0, sizeof *r);
@@ -6591,12 +6614,10 @@ static int extract_class_statement(Brain *b, const char *norm,
     char *w[32]; size_t n = split_words(s, w, 32);
     if (n < 3) return 0;
     /* gen505y: le virgole vanno lette PRIMA che strip_edge_punct le tolga in
-     * place lungo la strada — sono la sola traccia dell'apposizione. */
+     * place lungo la strada — sono la sola traccia dell'apposizione.
+     * gen513: e si chiedono al turno, che non e' stato toccato (p0_comma_map). */
     int comma_at[32] = { 0 };
-    for (size_t i = 0; i < n; i++) {
-        size_t wl = strlen(w[i]);
-        comma_at[i] = wl && w[i][wl - 1] == ',';
-    }
+    p0_comma_map(b, w, n, comma_at, 32);
 
     /* ── gen384: UNA DOMANDA NON E' UN'ASSERZIONE ───────────────────────────
      *
@@ -6999,7 +7020,17 @@ static int extract_class_statement(Brain *b, const char *norm,
     /* gen505y: con un prefisso sbucciato il percorso rigido a quattro parole non
      * combacia piu' («sai, a wombat is a marsupial» ha sei parole): il caso
      * semplice si asserisce qui, con la provenienza, come in extract-only. */
-    if (!subj_multi && !cls_multi && !loc && !extract_only && !prefixed) return 0;
+    /* gen513 (scala della prosa) — MA SOLO SE LA FRASE FINISCE LI'.
+     *
+     * «A loom is a device.» si impara a valle; «A loom is a device used to weave
+     * cloth.» andava a MURO — e con lei ogni definizione d'enciclopedia, che la
+     * coda ce l'ha sempre. La delega a valle e' giusta per la frase nuda, ma il
+     * lettore di valle non sa dove finisce la classe: quando c'e' una coda,
+     * l'unico che lo sa e' questo, che l'ha appena calcolata (`p`). Quindi
+     * tiene il turno, asserisce la classe, e la coda la rilegge come seconda
+     * proposizione sullo stesso soggetto (in fondo a questa funzione). */
+    if (!subj_multi && !cls_multi && !loc && !extract_only && !prefixed && p >= n)
+        return 0;
 
     kb_set_origin(b->kb, KB_SESSION);
     if (!p0_atom_is_concept(b, subj)) {
@@ -7135,9 +7166,19 @@ static int extract_class_statement(Brain *b, const char *norm,
      * Il participio di LUOGO e' gia' consumato sopra (`location_participle`),
      * quindi qui non si ripete. */
     if (b && p < n && p > 0 && b->respond_depth < 3) {
+        /* gen513 — E UNA RELATIVA FINISCE ALLA VIRGOLA. «…consisting of a large
+         * block of metal, with a flattened top surface, upon which another
+         * object is struck» sono TRE clausole, e darle tutte insieme al lettore
+         * produce un muro invece di un fatto. La virgola e' l'unico segno che le
+         * separa, ed e' gia' stata letta in cima a questa funzione — prima che
+         * `strip_edge_punct` la togliesse in place. */
+        size_t tend = n;
+        for (size_t k = p; k < n && k < 32; k++)
+            if (comma_at[k]) { tend = k + 1; break; }
         char tail[512]; size_t to = 0; tail[0] = '\0';
-        for (size_t k = p; k < n && to + 1 < sizeof tail; k++)
+        for (size_t k = p; k < tend && to + 1 < sizeof tail; k++)
             to += (size_t)snprintf(tail + to, sizeof tail - to, "%s%s", to ? " " : "", w[k]);
+        while (to && (tail[to - 1] == ',' || tail[to - 1] == ' ')) tail[--to] = '\0';
         while (to && (tail[to - 1] == '.' || tail[to - 1] == ' ')) tail[--to] = '\0';
         if (to > 2) {
             char again[640];
