@@ -2647,6 +2647,31 @@ static int reqgen_in_class(Brain *b, const char *intent, const char *w) {
     return 0;
 }
 
+
+/* gen513 (T3) — rileggere una prosa gia' in memoria come se qualcuno l'avesse
+ * appena detta. E' un turno annidato come quello del lettore composto
+ * (99-registry.c: «OGNI clausola e' data al lettore di un turno intero»), e
+ * serve a una cosa sola: dare al contabile dei modelli la frase che la memoria
+ * profonda tiene in prosa. La copula sta in KB (`model_learned_mid/2`), quindi
+ * una lingua nuova non costa motore. */
+static void p0_model_from_prose(Brain *b, const char *ent) {
+    if (!b || !b->kb || !ent || !*ent) return;
+    char dq[1][KB_TERM_LEN];
+    const char *dsq[2] = { ent, NULL };
+    if (kb_match(b->kb, "artifact_description", dsq, 2, dq, 1) != 1) return;
+    char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", kb_dequote(dq[0]));
+    if (!db[0]) return;
+    char lg[8]; current_lang(b, lg, sizeof lg);
+    char cop[KB_TERM_LEN] = " is ";
+    { const char *cq[2] = { lg, NULL }; char cr[1][KB_TERM_LEN];
+      if (kb_match(b->kb, "model_learned_mid", cq, 2, cr, 1) == 1)
+          snprintf(cop, sizeof cop, "%s", kb_dequote(cr[0])); }
+    char sentence[KB_TERM_LEN * 2];
+    snprintf(sentence, sizeof sentence, "%s%s%s", ent, cop, db);
+    char tmp[2048];
+    brain_respond(b, sentence, tmp, sizeof tmp);
+}
+
 static int mod_reqgen(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     (void)norm;
@@ -3218,6 +3243,24 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
             const KbResponseSlot gs[] = { { "entity", ent_said }, { "lang", alang } };
             char shq[1][KB_TERM_LEN];
             const char *sq[2] = { ent, NULL };
+            /* gen513 (T3) — NON HO IL MODELLO, MA HO LA PROSA: LA RILEGGO.
+             *
+             * parrot0 tiene da sempre `mechanics_concept(momentum, "product of
+             * mass and velocity -- p = mv")`: il modello del momento, in un
+             * predicato che nessuno ha pensato per il codice e scritto in
+             * prosa. Sapeva DIRLO e non sapeva SCRIVERLO — ed e' esattamente il
+             * ponte mancante che F. ha nominato.
+             *
+             * La cura non e' un estrattore nuovo: e' ridare quella prosa al
+             * lettore dei turni, che un modello lo sa gia' leggere
+             * (kb/core/model-lesson.p0). Una pagina letta entra dallo stesso
+             * posto di una frase detta — qui la frase e' «<cosa> <copula>
+             * <prosa>», e la copula la dice la KB, non questa riga. Se ne esce
+             * un modello, da qui in poi la cosa e' codice in ogni linguaggio
+             * dichiarato; se non ne esce niente, non cambia nulla e l'arresto
+             * dice quel che diceva prima. */
+            if (kb_match(b->kb, "artifact_shape_for", sq, 2, shq, 1) != 1)
+                p0_model_from_prose(b, ent);
             if (kb_match(b->kb, "artifact_shape_for", sq, 2, shq, 1) != 1) {
                 /* gen512 — se la cosa si sa DIRE (la prima legge di Newton non ha
                  * una grandezza da calcolare), l'arresto dice che cosa afferma. */

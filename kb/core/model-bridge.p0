@@ -58,6 +58,13 @@ model_of($P, $Thing, $Out, $Expr) :-
 % quale fatto viene sarebbe plausibile e non verificabile — il confine del
 % mantra #7. `answer_frame/2` fa della relazione una domanda, e una superficie
 % nuova (o una lingua nuova) e' un fatto in piu'.
+% Prima la provenienza PIU' LONTANA: se di questa cosa esiste anche una prosa
+% in memoria, il modello viene da li' — dirlo «taught_formula» sarebbe vero e
+% inutile, perche' nasconderebbe che a insegnarglielo e' stata la sua stessa
+% memoria e non una persona.
+model_provenance($Thing, $P) :-
+    model_carrier($C), apply($C, cons($Thing, cons($Out, cons($E, nil)))),
+    model_prose_carrier($P), apply($P, cons($Thing, cons($Prose, nil))).
 model_provenance($Thing, $P) :- model_of($P, $Thing, $Out, $Expr).
 answer_frame("comes from", model_provenance).
 answer_frame("come from", model_provenance).
@@ -138,3 +145,28 @@ entity_alias($Surface, $Thing) :- model_surface($Thing, $Surface).
 % E una cosa senza formula si sa comunque DIRE: l'arresto del lettore lo usa per
 % dire che cosa afferma invece di tacere.
 artifact_description($Thing, $Prose) :- model_prose($Thing, $Prose).
+
+% ── 6. IL MODELLO CHE STA IN MEMORIA COME PROSA ─────────────────────────────
+%
+% Il caso di F., quello vero: «il modello deve essere preso dalla MEMORIA
+% PROFONDA e potra' essere incodato con un predicato di legge, di schema, di
+% regola — non lo sappiamo». parrot0 tiene da sempre
+%
+%     mechanics_concept(momentum, "product of mass and velocity -- p = mv")
+%
+% cioe' il modello del momento, in un predicato che nessuno ha pensato per il
+% codice, scritto in PROSA. Sapeva dirlo e non sapeva scriverlo.
+%
+% Stessa leva del portatore strutturato, un'arieta' piu' in giu': un predicato
+% binario Cosa/Prosa e' un portatore di prosa, e lo dichiara con un fatto.
+% `apply/2` fa il resto — questo file non conosce `mechanics_concept` piu' di
+% quanto conoscesse `law_formula`.
+machinery(model_prose_carrier).
+artifact_description($Thing, $Prose) :-
+    model_prose_carrier($P), apply($P, cons($Thing, cons($Prose, nil))).
+model_prose_carrier(mechanics_concept).
+model_prose_carrier(law_prose).
+% E una cosa di cui si tiene la prosa si sa NOMINARE: senza questo, chi chiede
+% «il codice del momento» non arriva nemmeno a chiedere che forma abbia.
+model_surface($Thing, $Thing) :-
+    model_prose_carrier($P), apply($P, cons($Thing, cons($Prose, nil))).

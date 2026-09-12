@@ -53,6 +53,8 @@ model_filler($W) :- np_opener($W).
 model_filler($W) :- article($D, $G, $V, $W).
 model_filler($W) :- model_is_op($W).
 model_filler(of).
+model_filler(and).
+model_filler(e).
 model_filler(di).
 model_filler(del).
 model_filler(della).
@@ -89,10 +91,36 @@ postfix_operator(quadrato, square).
 postfix_operator(cubed, cube).
 model_postfix_here($T, $K) :- mlex($T, $K, $P), postfix_operator($P, $Op).
 
+% Un operatore che sta PRIMA dei suoi due operandi. E' la forma con cui la
+% prosa dice un'operazione quando non la scrive: «product of mass and velocity»
+% — che e' esattamente come `mechanics_concept(momentum, …)` tiene il modello
+% del momento nella memoria di parrot0. Il separatore («and», «e») e' una parola
+% che non porta niente, quindi lo salta gia' `model_at`.
+prefix_operator(product, product).
+prefix_operator(prodotto, product).
+prefix_operator(sum, sum).
+prefix_operator(somma, sum).
+prefix_operator(difference, difference).
+prefix_operator(differenza, difference).
+prefix_operator(quotient, quotient).
+prefix_operator(ratio, quotient).
+prefix_operator(rapporto, quotient).
+model_is_prefix($W) :- prefix_operator($W, $C).
+
 % ── 4. UNA FOGLIA ───────────────────────────────────────────────────────────
+% La forma prefissa viene PRIMA, altrimenti «product» si leggerebbe come una
+% foglia qualunque e il resto della frase resterebbe fuori.
+model_leaf(at($T, $I), $L, $End) :-
+    model_at(at($T, $I), $J), mlex($T, $J, $W), prefix_operator($W, $C),
+    is($K, add($J, 1)), model_leaf(at($T, $K), $A, $M),
+    model_pair(at($T, $M), pre($C, $A), $L, $End).
+model_pair(at($T, $M), pre($C, $A), $L, $End) :-
+    model_at(at($T, $M), $N), model_leaf(at($T, $N), $B, $End),
+    model_join($C, $A, $B, $L).
+
 % La parola utile a partire da $I, con l'eventuale postfisso, e dove finisce.
 model_leaf(at($T, $I), $L, $End) :-
-    model_at(at($T, $I), $J), mlex($T, $J, $W),
+    model_at(at($T, $I), $J), mlex($T, $J, $W), naf(model_is_prefix($W)),
     is($K, add($J, 1)), model_tail(at($T, $K), $W, $L, $End).
 model_tail(at($T, $K), $W, square($W), $N) :-
     mlex($T, $K, $P), postfix_operator($P, square), is($N, add($K, 1)).
@@ -132,11 +160,22 @@ model_fold(at($T, $I), $Acc, $E) :-
 % ── 6. LA LEZIONE ───────────────────────────────────────────────────────────
 % «the momentum is mass times velocity»: la cosa e' la parola che precede la
 % copula, l'espressione e' quello che segue.
+% gen513 — e la prosa dice «equals» dove il parlato dice «is»: e' una copula, e
+% dirlo e' conoscenza di lingua, non una scorciatoia per questo lettore.
+clause_copula(equals).
+clause_copula(equal).
+clause_copula(uguale).
 model_copula(at($T, $C)) :- mlex($T, $C, $W), clause_copula($W).
 model_lesson($T, $Thing, $E) :-
     model_copula(at($T, $C)), is($P, sub($C, 1)), mlex($T, $P, $Thing),
     naf(model_filler($Thing)), is($R, add($C, 1)),
-    model_leaf(at($T, $R), $L, $N), model_step(at($T, $N), $L, $E).
+    model_leaf(at($T, $R), $L, $N), model_rest(at($T, $N), $L, $E).
+
+% La guardia non e' «c'e' un operatore infisso» ma «l'espressione e' COMPOSTA»:
+% «product of mass and velocity» e' gia' un modello e non ha nessun infisso,
+% mentre «the sky is blue» non lo e' e non deve diventarlo.
+model_rest(at($T, $N), $L, $E) :- model_step(at($T, $N), $L, $E).
+model_rest(at($T, $N), $L, $L) :- expr_compound($L).
 
 % ── 7. IL CONTABILE ─────────────────────────────────────────────────────────
 % Il turno lascia il suo modello, e da quel momento e' codice in ogni linguaggio
