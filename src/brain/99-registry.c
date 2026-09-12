@@ -5008,9 +5008,15 @@ static int universal_turn_lead(Brain *b, const char *surface,
     if (!b || !b->kb || !surface || !*surface) return 0;
     if (getenv("P0_READ_TRACE"))
         fprintf(stderr, "[turn] publish «%s»\n", surface);
-    InputSpan spans[64];
+    /* gen513 — SESSANTAQUATTRO SPAN BASTANO A UNA RIGA, NON A UN PARAGRAFO.
+     * Un lead di enciclopedia ne produce di piu', e oltre il tetto il turno
+     * restava senza token e senza forza: nessuna regola KB poteva leggerlo, e
+     * il testo non veniva nemmeno diviso in frasi. */
+    InputSpan spans[256];
     int ambiguous = 0;
-    size_t ns = input_segment(b->kb, surface, spans, 64, &ambiguous);
+    size_t ns = input_segment(b->kb, surface, spans, 256, &ambiguous);
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[turn] spans=%zu ambiguous=%d\n", ns, ambiguous);
     if (ambiguous || ns == 0) {
         /* gen512: senza segmentazione il turno resta senza token e senza
          * forza, e ogni regola KB sui token tace. Si dice perche'. */
@@ -5026,6 +5032,7 @@ static int universal_turn_lead(Brain *b, const char *surface,
     kb_retract_pred(b->kb, "turn_surface_token");
     kb_retract_pred(b->kb, "turn_span_binding");
     kb_retract_pred(b->kb, "turn_cue");
+    kb_retract_pred(b->kb, "turn_illocution");   /* gen513: la forza e' del turno */
     input_structure_clear(b->kb, "current_turn");
     kb_set_origin(b->kb, KB_REFLECTIVE);
     /* Keep the entire token stream beside segmented payloads. A cue belongs
@@ -5035,6 +5042,44 @@ static int universal_turn_lead(Brain *b, const char *surface,
     whole.len = strlen(surface);
     turn_publish_tokens(b, surface, &whole, "0", "turn_surface_token", whole.len);
     turn_publish_cues(b, surface);
+    /* ── gen513 — LA FORZA DEL TURNO SI CALCOLA UNA VOLTA, E SI PUBBLICA ──────
+     *
+     * `turn_illocution/2` e' gia' una RIPUBBLICAZIONE («il livello in piu' non
+     * e' cerimonia», turn-frames.p0): finora pero' era una REGOLA, quindi ogni
+     * consumatore la ri-derivava da capo. Su un turno di una riga e' gratis; su
+     * un paragrafo no — e non e' solo costo: la stessa domanda dava due
+     * risposte diverse a due momenti diversi dello stesso turno.
+     *
+     * Misurato con la scala della prosa, testo di 2267 byte: subito dopo la
+     * pubblicazione `compound_statement` VALE; trenta righe piu' in basso, al
+     * cancello che decide se dividere il paragrafo in frasi, NON vale piu' —
+     * perche' nel frattempo la KB e' cresciuta e la ri-derivazione non arriva
+     * in fondo. Effetto: i paragrafi lunghi non venivano piu' divisi.
+     *
+     * Qui la forza si materializza: si deriva una volta, sul turno appena
+     * pubblicato, e si lascia come FATTO. Tutti i consumatori successivi
+     * leggono la stessa cosa, e la leggono in O(1). La conoscenza resta dov'era
+     * — quali forze esistano e quando valgano e' sempre `turn_declared_act` in
+     * KB — cambia solo che non la si ricalcola addosso a un turno che cresce. */
+    {
+        char (*forces)[KB_TERM_LEN] = NULL; size_t nf = 0;
+        const char *fq[2] = { "current_turn", NULL };
+        if (kb_match_all(b->kb, "turn_declared_act", fq, 2, &forces, &nf)) {
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            for (size_t i = 0; i < nf; i++) {
+                char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forces[i]);
+                const char *f = kb_dequote(fb);
+                if (!*f) continue;
+                const char *fa[2] = { "current_turn", f };
+                kb_assert(b->kb, "turn_illocution", fa, 2);
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[turn] force %s\n", f);
+            }
+            kb_set_origin(b->kb, prev);
+        }
+        free(forces);
+    }
     turn_publish_transcodes(b, surface);
     for (size_t i = 0; i < ns; i++) {
         char index[24], type[KB_TERM_LEN];

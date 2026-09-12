@@ -356,6 +356,11 @@ faculty_yield_force(learn, open, prose_carried).
 % che il testo venisse diviso in frasi. Un ordinale dentro la prosa non e' la
 % domanda del turno.
 faculty_yield_force(turn_plan, open, prose_carried).
+% gen513 — e cede anche a un turno di PIU' FRASI. Il lead universale pubblica le
+% cue e poi risponde: su un paragrafo rispondeva lui, e il lettore composto — che
+% viene subito dopo — non vedeva mai il turno. Un paragrafo si legge una frase
+% alla volta, e questa riga e' l'ordine in cui le due letture si presentano.
+faculty_yield_force(turn_plan, open, compound_statement).
 
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %
