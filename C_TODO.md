@@ -1996,7 +1996,31 @@ non quella di tutta la KB. E il passo dopo è **indicizzare** gli schemi per la
 loro parola-ancora invece di scorrerli: uno schema che nomina una parola che il
 turno non contiene non può combaciare, e oggi lo si scopre confrontandolo.
 
-⚠ Finché non è fatto, **`make soft-test` è rosso**: `basics.p0t` dichiara 1,00 s
-e i turni costano 1,08 s. Non si alza il budget (CLAUDE.md) e non si tolgono i
-verbi (sono la crescita che F. chiede): si cura l'accesso. È il primo lavoro di
-motore in coda.
+### ✅ Metà cura fatta lo stesso giorno — la chiave della cache
+
+`p0_frame_signature` conta la **stazza delle famiglie che generano** gli schemi
+(`relation_verb/1`, `verb_particle/2`, `irregular_verb_form/2`, `past/2`) e
+chiave la cache su quella. Le derivazioni passano da **due per turno a una per
+sessione**, il turno da 1,08 s a 0,95 s e `make soft-test` torna **verde in
+11 s**, cioè il tempo di prima del giro.
+
+E la proprietà che questa cache deve rispettare regge: un verbo insegnato
+adesso è leggibile nel turno stesso — insegnare bumpa il conteggio, la firma
+cambia, la cache cade.
+
+> ⚠ Trappola trovata mentre la scrivevo, e vale la pena di lasciarla scritta:
+> la prima stesura chiedeva `relation_verb` con **arietà 2**. Non torna niente,
+> quindi la firma restava costante, quindi la cache non cadeva **mai** — e un
+> verbo insegnato non veniva più letto. Verde e sbagliata: la sonda che l'ha
+> presa è `> zorble is a relation verb` seguito dall'uso.
+
+**Resta da fare**: indicizzare gli schemi per la loro **parola-ancora** invece
+di scorrerli tutti. Uno schema che nomina una parola che il turno non contiene
+non può combaciare, e oggi lo si scopre confrontandolo. È il lavoro che rende
+indolore la prossima crescita della KB — questa cura toglie il costo *ripetuto*,
+non quello *unitario*.
+
+⚠ E l'assunzione dichiarata della firma: le REGOLE che generano schemi arrivano
+da `kb_load`, cioè prima di qualunque turno. Il giorno in cui si insegnerà una
+regola che genera schemi, il suo predicato va aggiunto alla firma — altrimenti
+la cache resterebbe ferma senza dirlo.

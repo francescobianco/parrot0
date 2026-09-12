@@ -5235,9 +5235,48 @@ static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
  * relazione insegnato — e ogni consumatore li ri-derivava da capo. La cache
  * scade sulla revisione della conoscenza, non su un tempo: una relazione
  * insegnata adesso e' visibile al turno stesso, e nessuno vede meno di prima. */
+/* ── gen513 — LA CACHE VA CHIAVATA SU CIO' CHE GENERA GLI SCHEMI ───────────
+ *
+ * La chiave era `kb_revision`, cioe' la revisione di TUTTA la KB — e un turno
+ * assicura decine di fatti (token, span, cue, forze): la cache si invalidava
+ * DENTRO il turno e gli schemi si ri-derivavano due volte per turno. Con 272
+ * verbi di relazione insegnati sono migliaia di schemi derivati dal solver, ed
+ * era la meta' del costo di un turno.
+ *
+ * Gli schemi pero' non dipendono da quei fatti: dipendono dalle poche famiglie
+ * che li generano. Qui se ne conta la STAZZA — quanti fatti hanno — e la cache
+ * cade solo quando quel numero cambia, cioe' quando qualcuno INSEGNA una
+ * relazione. Una relazione insegnata adesso resta visibile al turno stesso,
+ * che era il requisito del gen510.
+ *
+ * ⚠ L'assunzione, dichiarata: le REGOLE che generano schemi arrivano da
+ * `kb_load`, cioe' prima di qualunque turno. Se un giorno si insegnera' una
+ * regola che genera schemi, il suo predicato va aggiunto a questa firma —
+ * altrimenti la cache resterebbe ferma senza dirlo. */
+static size_t p0_frame_signature(Brain *b) {
+    /* ⚠ L'ARIETA' GIUSTA PER OGNI FAMIGLIA. `relation_verb/1` chiesto con
+     * arieta' 2 non torna niente: la firma restava costante, la cache non
+     * cadeva mai, e un verbo insegnato adesso non veniva letto nel turno
+     * stesso — esattamente il requisito che questa cache deve rispettare
+     * (gen510). Trovato dalla sonda «zorble is a relation verb». */
+    static const struct { const char *pred; size_t arity; } gen[] = {
+        { "relation_verb", 1 }, { "verb_particle", 2 },
+        { "irregular_verb_form", 2 }, { "past", 2 }, { NULL, 0 }
+    };
+    size_t sig = 0;
+    for (size_t i = 0; gen[i].pred; i++) {
+        char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
+        const char *q[4] = { NULL, NULL, NULL, NULL };
+        if (kb_match_all(b->kb, gen[i].pred, q, gen[i].arity, &rows, &n))
+            sig += n * (i + 1);
+        free(rows);
+    }
+    return sig;
+}
+
 static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]) {
     if (!b || !b->kb || !pats) return 0;
-    size_t rev = kb_revision(b->kb);
+    size_t rev = p0_frame_signature(b);
     if (b->frame_pats_live && b->frame_pats_rev == rev) {
         *pats = b->frame_pats;
         return b->n_frame_pats;
