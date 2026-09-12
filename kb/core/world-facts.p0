@@ -1862,6 +1862,7 @@ made_of(abacus, array).
 made_of(reefs, colonies).
 has_part(pizza, tomato).
 has_part(pizza, cheese).
+has_part(meadow, tall_grass).
 precedes(monday, tuesday).
 precedes(preprint, peer_review).
 precedes(sapling, tree).

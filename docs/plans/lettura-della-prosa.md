@@ -273,6 +273,54 @@ attribuite. Nessuna cura in questo giro: prima la misura.
 Debito di partenza: **`split_words` 130 / 54 / 33 = 217** nei tre lettori
 maggiori. Righe di C uscite: 0.
 
+### ✅ LA SCALA OLTRE LE 500 PAROLE (12 settembre, iterazioni 12-18)
+
+F.: «ti fermi quando dimostri che parrot0 e' in grado di comprendere una prosa
+lunga almeno 500 parole», con prose sempre diverse e un commit per iterazione.
+
+| piolo | testo | parole | esito |
+|---|---|---|---|
+| r300 | barriera corallina | 299 | 3/4 |
+| r356 | magnete | 356 | **2/2** |
+| r497 | acciaio | 497 | **2/2** |
+| r508 | satellite | 508 | 0/2 |
+| **r621** | **foresta** | **621** | **1/2 — la definizione risponde** |
+
+```text
+r621 — foresta, 621 parole (lead di https://en.wikipedia.org/wiki/Forest)
+  a freddo, prima di leggere:  «I don't know much about forest yet»
+  dopo aver letto il testo:    What is a forest?  ->  forest is an ecosystem.
+```
+
+**Quattro cure di SCALA**, tutte invisibili su una frase e fatali su un
+paragrafo — ed e' la specie che questo piano esiste per trovare:
+
+1. **Il turno era lungo 255 byte e la prosa no** (`P0_TURN_MAX`, 4096): a 255
+   byte il paragrafo arrivava mozzato e nessuna facolta' riconosceva piu' niente.
+2. **«Dovunque stia» vale per una frase, non per un paragrafo**: un interrogativo
+   seguito dalla copola dentro una subordinata («…explains how it works») faceva
+   leggere il TURNO INTERO come domanda, e il testo non veniva piu' diviso.
+3. **«Nessuno lo precede» non regge su un testo lungo**: il primo nodo si
+   chiedeva per negazione, e su centinaia di nodi l'enumerazione dentro il `naf`
+   non arriva in fondo. Ora si chiede direttamente (`input_node_first/2`).
+4. **La forza del turno si ri-derivava a ogni domanda**: la stessa domanda dava
+   due risposte diverse a due momenti dello stesso turno — `compound_statement`
+   valeva subito dopo la pubblicazione e non valeva piu' trenta righe dopo. Ora
+   si materializza una volta, sul turno appena pubblicato.
+
+**Il blocco che resta, diagnosticato con precisione.** Una superficie insegnata
+che legge un MODIFICATORE («@S characterized by @O») si prende la frase
+principale: «A forest is an ecosystem characterized by a dense community of
+trees» diventa `has(forest_is_an_ecosystem, …)`. La guardia del verbo finito la
+RIFIUTA — giustamente — ma dopo il rifiuto il turno viene perso invece di
+tornare al lettore di classe, e la definizione sparisce. Quindi oggi si puo'
+avere la definizione **o** la relazione del modificatore, non tutte e due.
+E' il primo lavoro del prossimo giro, e vale per ogni frase d'enciclopedia.
+
+Aperto anche: il **soggetto coordinato** («A satellite **or an artificial
+satellite** is an object») blocca la lettura di classe — r508 e' a 0/2 per
+questo.
+
 ### La SCALA (F., 12 settembre): 10 → 150 parole, una prosa per piolo
 
 `scripts/prose-ladder.sh` · `tests/fixtures/prose/ladder/` — quindici prose vere
