@@ -1000,6 +1000,13 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/model-bridge.p0");
 
+    /* gen513 (T3) — la PORTA D'INGRESSO di un modello: un contabile del turno
+     * (`bookkeeper/1`), quindi un fatto, quindi zero righe qui sotto. Legge
+     * «the momentum is mass times velocity» e lascia il modello in KB, da dove
+     * il ponte lo fa diventare codice in ogni linguaggio dichiarato. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/model-lesson.p0");
+
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/experts/physics/laws.p0");
 

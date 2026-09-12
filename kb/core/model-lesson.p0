@@ -1,0 +1,204 @@
+% model-lesson.p0 — UN MODELLO SI PUO' DIRE (gen513, passo T3 del TODO di F.).
+%
+% ── LA DOMANDA ──────────────────────────────────────────────────────────────
+%
+% Dopo T1 il ponte verso il codice non sa piu' dove sta il modello: chiede alla
+% KB quali predicati ne portano (`model_carrier/1`) e li chiama con `apply/2`.
+% Dopo T2 un secondo dominio e' diventato codice senza una riga di ponte.
+%
+% Restava la meta' che conta: **un modello che nessuno ha scritto a mano**. F.:
+% «il modello deve essere preso dalla memoria profonda e potra' essere incodato
+% con un predicato di legge, di schema, di regola — non lo sappiamo».
+%
+% Prima di poterlo prendere da una pagina bisogna saperlo RICEVERE: finche'
+% «the momentum is mass times velocity» riceveva «I don't understand that yet»,
+% nessuna lettura avrebbe potuto produrre niente, perche' il modello non aveva
+% una porta d'ingresso. Questo file e' quella porta, e non e' una porta per la
+% conversazione: e' la porta per QUALUNQUE lettura, perche' una pagina letta
+% entra dallo stesso posto di una frase detta.
+%
+% ── DOVE STA, E PERCHE' NON C'E' UNA RIGA DI C ──────────────────────────────
+%
+% `bookkeeper/1` + `turn_bookkeeping/2` (99-registry.c:5024) sono gia' «il posto
+% dove la KB registra cio' che vuole ricordare del turno», e il commento del C
+% lo dice: «il C non sa che cosa venga registrato, ne' se qualcosa lo sia». Un
+% contabile nuovo e' **un fatto**. Quindi qui dentro c'e' un lettore intero —
+% copula, foglie, operatori infissi, un postfisso, il fold da sinistra — e in
+% `src/brain/` non cambia niente.
+%
+% Il vocabolario non e' nuovo: `infix_operator/2` (procedures.p0) sa gia' che
+% «times», «per», «diviso», «multiplied» nominano un'operazione, in due lingue.
+% Qui si dice soltanto quale COSTRUTTORE di espressione corrisponde a quale
+% operazione — quattro fatti — e il resto e' percorso.
+%
+% ⚠ IL CONFINE. Un modello detto e' vero quanto chi lo dice. Non si verifica da
+% se' e il codice che ne esce non e' eseguito: la risposta lo dichiara gia'
+% («I have not run it»), e `model_provenance/2` dice da quale predicato viene —
+% `taught_formula`, cioe' «qualcuno me l'ha detto», che e' esattamente cio' che
+% chi legge deve sapere.
+
+:- file_attribute(machinery).
+
+% ── 1. I TOKEN DEL TURNO ────────────────────────────────────────────────────
+% Lo stesso flusso che legge `situation.p0`: il turno intero (span 0), senza il
+% limite di 24 token dei payload.
+mlex($T, $I, $W) :- turn_surface_token($T, 0, $I, $Tok), span_atom($Tok, $W).
+
+% ── 2. LE PAROLE CHE NON PORTANO NIENTE ─────────────────────────────────────
+% Dentro un'espressione, un determinante e una preposizione di legame sono
+% impalcatura: «half OF THE base» sono due parole e una foglia. E lo e' anche la
+% seconda meta' di un operatore composto: «multiplied BY» — «by» e' gia'
+% dichiarato operatore, quindi lo si salta quando si cerca un operando.
+model_filler($W) :- np_opener($W).
+model_filler($W) :- article($D, $G, $V, $W).
+model_filler($W) :- model_is_op($W).
+model_filler(of).
+model_filler(di).
+model_filler(del).
+model_filler(della).
+model_filler(dello).
+
+% La prossima posizione che porta qualcosa.
+model_at(at($T, $I), $I) :- mlex($T, $I, $W), naf(model_filler($W)).
+model_at(at($T, $I), $J) :-
+    mlex($T, $I, $W), model_filler($W), is($K, add($I, 1)), model_at(at($T, $K), $J).
+
+% ── 3. GLI OPERATORI ────────────────────────────────────────────────────────
+% Quale COSTRUTTORE di espressione corrisponde a un'operazione detta. Sono i
+% costruttori che il ponte sa gia' rendere in codice (model-bridge.p0), e sono
+% quattro fatti: un costruttore nuovo domani e' un fatto in piu' qui e una
+% clausola in piu' la'.
+model_expr_op(times, product).
+model_expr_op(plus, sum).
+model_expr_op(minus, difference).
+model_expr_op(divide, quotient).
+% ⚠ LA SUPERFICIE DI `infix_operator/2` STA FRA VIRGOLETTE, IL TOKEN DEL TURNO
+% E' UN ATOMO. `infix_operator($W, $A)` con $W preso da `mlex` non unifica MAI —
+% e non fallisce rumorosamente: dice soltanto «nessuna soluzione». E' costato un
+% giro di diagnosi, ed e' la stessa specie delle radici morte del gen512: una
+% riga giusta che non puo' accendersi. `span_atom/2` porta la superficie sul
+% piano dei token, e da qui in poi si chiede a `model_op/2`, mai a
+% `infix_operator/2` direttamente.
+model_op($W, $C) :- infix_operator($S, $A), span_atom($S, $W), model_expr_op($A, $C).
+model_is_op($W) :- model_op($W, $C).
+
+% Un operatore che sta DOPO il suo operando. «the radius squared» non e' una
+% moltiplicazione detta: e' una parola che trasforma la foglia che la precede.
+postfix_operator(squared, square).
+postfix_operator(quadrato, square).
+postfix_operator(cubed, cube).
+model_postfix_here($T, $K) :- mlex($T, $K, $P), postfix_operator($P, $Op).
+
+% ── 4. UNA FOGLIA ───────────────────────────────────────────────────────────
+% La parola utile a partire da $I, con l'eventuale postfisso, e dove finisce.
+model_leaf(at($T, $I), $L, $End) :-
+    model_at(at($T, $I), $J), mlex($T, $J, $W),
+    is($K, add($J, 1)), model_tail(at($T, $K), $W, $L, $End).
+model_tail(at($T, $K), $W, square($W), $N) :-
+    mlex($T, $K, $P), postfix_operator($P, square), is($N, add($K, 1)).
+model_tail(at($T, $K), $W, cube($W), $N) :-
+    mlex($T, $K, $P), postfix_operator($P, cube), is($N, add($K, 1)).
+model_tail(at($T, $K), $W, $W, $K) :- naf(model_postfix_here($T, $K)).
+
+% ── 5. IL FOLD DA SINISTRA ──────────────────────────────────────────────────
+% «a times b divided by c» si legge come lo si dice: da sinistra, un operatore
+% alla volta. Non c'e' precedenza, e la cosa va detta invece che nascosta: chi
+% vuole un ordine diverso lo dice con due frasi, come farebbe parlando.
+model_join(product, $A, $B, product($A, $B)).
+model_join(quotient, $A, $B, quotient($A, $B)).
+model_join(sum, $A, $B, sum($A, $B)).
+model_join(difference, $A, $B, difference($A, $B)).
+
+% Il PRIMO passo e' obbligatorio: senza un operatore non c'e' nessun modello,
+% e «the sky is blue» non deve diventarne uno.
+model_step(at($T, $I), $Acc, $E) :-
+    mlex($T, $I, $Op), model_op($Op, $C),
+    is($J, add($I, 1)), model_leaf(at($T, $J), $L, $N),
+    model_join($C, $Acc, $L, $New), model_fold(at($T, $N), $New, $E).
+
+% I passi successivi: zero o piu'.
+% ⚠ `naf` vuole un goal con gli argomenti LEGATI: `naf(mlex($T, $I, $Any))`
+% fallisce sempre, perche' $Any e' libero (la lezione del gen511, scritta in
+% turn-frames.p0). La fine del turno si chiede quindi a un predicato che porta
+% solo posizioni — la stessa forma di `turn_has_question_mark/1`.
+model_more($T, $I) :- mlex($T, $I, $W).
+model_fold(at($T, $I), $Acc, $Acc) :- naf(model_more($T, $I)).
+model_fold(at($T, $I), $Acc, $Acc) :- mlex($T, $I, $W), naf(model_is_op($W)).
+model_fold(at($T, $I), $Acc, $E) :-
+    mlex($T, $I, $Op), model_op($Op, $C),
+    is($J, add($I, 1)), model_leaf(at($T, $J), $L, $N),
+    model_join($C, $Acc, $L, $New), model_fold(at($T, $N), $New, $E).
+
+% ── 6. LA LEZIONE ───────────────────────────────────────────────────────────
+% «the momentum is mass times velocity»: la cosa e' la parola che precede la
+% copula, l'espressione e' quello che segue.
+model_copula(at($T, $C)) :- mlex($T, $C, $W), clause_copula($W).
+model_lesson($T, $Thing, $E) :-
+    model_copula(at($T, $C)), is($P, sub($C, 1)), mlex($T, $P, $Thing),
+    naf(model_filler($Thing)), is($R, add($C, 1)),
+    model_leaf(at($T, $R), $L, $N), model_step(at($T, $N), $L, $E).
+
+% ── 7. IL CONTABILE ─────────────────────────────────────────────────────────
+% Il turno lascia il suo modello, e da quel momento e' codice in ogni linguaggio
+% dichiarato. Una domanda non insegna niente (`turn_has_question_mark`), e non
+% si riscrive un modello che si tiene gia'.
+bookkeeper(model_lesson).
+turn_bookkeeping($Turn, model_lesson) :-
+    naf(turn_has_question_mark($Turn)),
+    model_lesson($Turn, $Thing, $E),
+    naf(taught_formula($Thing, $Thing, $E)),
+    assert(taught_formula, $Thing, $Thing, $E),
+    assert(model_surface, $Thing, $Thing).
+
+% ── 7-bis. E SI DICE CHE E' STATO IMPARATO ─────────────────────────────────
+% Un contabile REGISTRA e non risponde: il turno usciva con «I don't understand
+% that yet» dopo aver imparato il modello — cioe' con un muro su una lezione
+% riuscita, che e' peggio di un muro su una lezione fallita. Il canale di
+% risposta della KB e' `turn_response/2` (turn-frames.p0, letto in
+% 99-registry.c:4935): la frase la compone la KB, e la lingua e' un fatto.
+model_learned_open(en, "Learned: ").
+model_learned_open(it, "Imparato: ").
+model_learned_mid(en, " is ").
+model_learned_mid(it, " è ").
+model_lesson_tail($B, $R, $Text) :- concat_atoms($B, $R, $C), concat_atoms($C, ".", $Text).
+model_lesson_text($Thing, $E, $Text) :-
+    current_language($L), model_learned_open($L, $Open), model_learned_mid($L, $Mid),
+    code_expr($E, $R), present_term($Thing, $Shown),
+    concat_atoms($Open, $Shown, $A), concat_atoms($A, $Mid, $B),
+    model_lesson_tail($B, $R, $Text).
+% E il canale si apre solo per i turni che DICHIARANO di avere una risposta:
+% `turn_plan_candidate/1` e' la guardia che evita di attraversare tutte le
+% famiglie di `turn_response/2` per ogni turno (turn-frames.p0 lo spiega, e il
+% conto e' misurato). Un turno che porta un modello ce l'ha.
+turn_plan_candidate($T) :- model_lesson($T, $Thing, $E).
+turn_response($T, $Text) :-
+    model_lesson($T, $Thing, $E), model_lesson_text($Thing, $E, $Text).
+
+% ── 8. E DIVENTA CODICE, SENZA CHE IL PONTE SAPPIA NIENTE DI TUTTO QUESTO ───
+model_carrier(taught_formula).
+% Le foglie di un modello detto sono i suoi parametri, tranne quelle che sono
+% costanti dichiarate. Non serve asserire niente: si guarda l'albero.
+expr_compound(product($A, $B)).
+expr_compound(quotient($A, $B)).
+expr_compound(sum($A, $B)).
+expr_compound(difference($A, $B)).
+expr_compound(square($A)).
+expr_compound(cube($A)).
+expr_leaf(product($A, $B), $L) :- expr_leaf($A, $L).
+expr_leaf(product($A, $B), $L) :- expr_leaf($B, $L).
+expr_leaf(quotient($A, $B), $L) :- expr_leaf($A, $L).
+expr_leaf(quotient($A, $B), $L) :- expr_leaf($B, $L).
+expr_leaf(sum($A, $B), $L) :- expr_leaf($A, $L).
+expr_leaf(sum($A, $B), $L) :- expr_leaf($B, $L).
+expr_leaf(difference($A, $B), $L) :- expr_leaf($A, $L).
+expr_leaf(difference($A, $B), $L) :- expr_leaf($B, $L).
+expr_leaf(square($A), $L) :- expr_leaf($A, $L).
+expr_leaf(cube($A), $L) :- expr_leaf($A, $L).
+expr_leaf($L, $L) :- naf(expr_compound($L)).
+model_is_literal($V) :- code_literal($V, $Lit).
+model_variable($V) :-
+    taught_formula($Thing, $Out, $E), expr_leaf($E, $V), naf(model_is_literal($V)).
+% Il cubo e' il prodotto di una cosa per il proprio quadrato: come il quadrato,
+% non serve un operatore nuovo, serve dire che cos'e'.
+code_expr(cube($A), $T) :- code_binary(product, $A, square($A), $T).
+expr_uses(cube($A), $Q) :- expr_uses($A, $Q).
