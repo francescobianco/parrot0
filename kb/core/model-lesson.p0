@@ -52,6 +52,7 @@ mlex($T, $I, $W) :- turn_surface_token($T, 0, $I, $Tok), span_atom($Tok, $W).
 model_filler($W) :- np_opener($W).
 model_filler($W) :- article($D, $G, $V, $W).
 model_filler($W) :- model_is_op($W).
+model_filler($W) :- model_op_continuation($W).
 model_filler(of).
 model_filler(and).
 model_filler(e).
@@ -81,7 +82,17 @@ model_expr_op(divide, quotient).
 % riga giusta che non puo' accendersi. `span_atom/2` porta la superficie sul
 % piano dei token, e da qui in poi si chiede a `model_op/2`, mai a
 % `infix_operator/2` direttamente.
-model_op($W, $C) :- infix_operator($S, $A), span_atom($S, $W), model_expr_op($A, $C).
+% ⚠ gen513 — «BY» DA SOLO NON MOLTIPLICA. E' la seconda meta' di «multiplied
+% by», e `infix_operator("by", times)` lo dichiara operatore perche' li' lo e'.
+% Preso da solo faceva leggere ogni PASSIVO come una formula: «quipu is used by
+% the inca» → «Learned: quipu is (used * inca)», che e' un fatto falso entrato in
+% silenzio — il caso peggiore (mantra #7). Una superficie che vale solo come
+% CONTINUAZIONE non apre un'operazione; resta impalcatura da saltare.
+machinery(model_op_continuation).
+model_op_continuation(by).
+model_op($W, $C) :-
+    infix_operator($S, $A), span_atom($S, $W), model_expr_op($A, $C),
+    naf(model_op_continuation($W)).
 model_is_op($W) :- model_op($W, $C).
 
 % Un operatore che sta DOPO il suo operando. «the radius squared» non e' una
@@ -166,7 +177,18 @@ clause_copula(equals).
 clause_copula(equal).
 clause_copula(uguale).
 model_copula(at($T, $C)) :- mlex($T, $C, $W), clause_copula($W).
+% ⚠ gen513 — UN TURNO CHE INSEGNA UNA COSTRUZIONE NON E' UN MODELLO.
+% «x used by y means x is used by y» insegna che «used by» si legge come «is
+% used by»; questo lettore ci vedeva una formula — «by» e' un operatore
+% (`infix_operator("by", times)`) — e rispondeva «Learned: x is (used * y)»,
+% rubando la lezione. Il perno della lezione e' gia' una classe
+% (`intent_cue(teach_construction, …)`): dove c'e' lui, qui non si legge.
+% (E la superficie della cue sta fra virgolette mentre il token e' un atomo: la
+% stessa trappola di `infix_operator/2` documentata qui sopra. `span_atom/2`.)
+model_lesson_pivot($T) :-
+    mlex($T, $I, $W), intent_cue(teach_construction, $S), span_atom($S, $W).
 model_lesson($T, $Thing, $E) :-
+    naf(model_lesson_pivot($T)),
     model_copula(at($T, $C)), is($P, sub($C, 1)), mlex($T, $P, $Thing),
     naf(model_filler($Thing)), is($R, add($C, 1)),
     model_leaf(at($T, $R), $L, $N), model_rest(at($T, $N), $L, $E).

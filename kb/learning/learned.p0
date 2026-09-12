@@ -188,3 +188,5 @@ topic_definition(scorpioni, "Gli scorpioni sono un ordine di artropodi velenosi 
 topic_read(veleno, wiki_address(it, "Veleno", 152309605, lead)).
 topic_definition(veleno, "Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
 search_found_as(velenosi, veleno).
+uses(merchants, abacus).
+operates(printer, printing_press).

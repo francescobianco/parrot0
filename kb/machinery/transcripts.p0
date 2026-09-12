@@ -75,6 +75,7 @@ utterance(5, user, "qual è il significato di velenosi?").
 utterance(5, user, "quipu is also spelled khipu").
 utterance(5, user, "a lens is made of glass").
 utterance(5, user, "what is a bell made of?").
+utterance(5, user, "x used by y means y uses x").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -129,6 +130,7 @@ utterance(6, self, "«velenosi» vuol dire: ha a che fare con «veleno». Un vel
 utterance(6, self, "Learned: quipu also known as 'khipu'.").
 utterance(6, self, "Learned: lens is made of glass.").
 utterance(6, self, "Bronze.").
+utterance(6, self, "I learned a candidate construction: @O used by @S maps to @S uses @O. Test me with new names before we call it understood.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -595,6 +597,7 @@ utterance(7, user, "che significa x means what does x mean").
 utterance(7, user, "what is the meaning of pungiglione").
 utterance(7, user, "quipu are made of knotted cords").
 utterance(7, user, "a lens is consisting of glass").
+utterance(7, user, "x is used by y means y uses x").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -901,7 +904,11 @@ utterance(8, self, "Learned: lens is made of glass.").
 utterance(9, user, "a hammer made of steel").
 utterance(10, self, "Iron.").
 utterance(11, user, "aluminium is also spelled aluminum").
+utterance(8, self, "I learned a candidate construction: @O is used by @S maps to @S uses @O. Test me with new names before we call it understood.").
+utterance(9, user, "x operated by y means y operates x").
+utterance(10, self, "I learned a candidate construction: @O operated by @S maps to @S operates @O. Test me with new names before we call it understood.").
 utterance(11, user, "a hammer consists of steel").
+utterance(11, user, "x is operated by y means y operates x").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -987,6 +994,17 @@ utterance(12, self, "Iron.").
 utterance(13, user, "what is a lens made of?").
 utterance(14, self, "Glass.").
 utterance(15, user, "what is a hammer made of?").
+utterance(12, self, "I learned a candidate construction: @O is operated by @S maps to @S operates @O. Test me with new names before we call it understood.").
+utterance(13, user, "the abacus used by merchants").
+utterance(14, self, "Learned: merchants uses abacus.").
+utterance(15, user, "the printing press operated by a printer").
+utterance(16, self, "Learned: printer operates printing press.").
+utterance(17, user, "what does merchants use?").
+utterance(18, self, "abacus.").
+utterance(19, user, "what does a printer operate?").
+utterance(20, self, "printing press.").
+utterance(21, user, "who used quipu?").
+utterance(22, self, "I don't understand that yet.").
 utterance(21, user, "how do you act when the recipe is missing?").
 utterance(22, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(23, user, "your plan when you have no steps").
@@ -1289,6 +1307,7 @@ utterance(2, self, "From now on I'll read «what is the significato of x» as «
 utterance(2, self, "I learned a candidate construction: @S is also spelled @O maps to @S is known as @O. Test me with new names before we call it understood.").
 utterance(2, self, "From now on I'll read «x consisting of y» as «x made of y».").
 utterance(2, self, "I learned a candidate construction: @S made of @O maps to @S is made of @O. Test me with new names before we call it understood.").
+utterance(2, self, "Learned: uses is a relation verb.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1343,6 +1362,7 @@ utterance(1, user, "qual è il significato di x means what is the meaning of x")
 utterance(1, user, "x is also spelled y means x is known as y").
 utterance(1, user, "x consisting of y means x made of y").
 utterance(1, user, "x made of y means x is made of y").
+utterance(1, user, "uses is a relation verb").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1391,6 +1411,7 @@ utterance(4, self, "«velenosi» vuol dire: ha a che fare con «veleno». Un vel
 utterance(4, self, "From now on I'll read «x fashioned from y» as «x made of y».").
 utterance(4, self, "From now on I'll read «x consists of y» as «x made of y».").
 utterance(4, self, "Learned: bell made of bronze.").
+utterance(4, self, "Learned: operates is a relation verb.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1440,6 +1461,7 @@ utterance(3, user, "what is the meaning of velenosi").
 utterance(3, user, "x fashioned from y means x made of y").
 utterance(3, user, "x consists of y means x made of y").
 utterance(3, user, "a bell made of bronze").
+utterance(3, user, "operates is a relation verb").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

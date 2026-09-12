@@ -212,6 +212,14 @@ fact_source(taught_form_source(taught_form_14, "x consists of y"), taught_form_1
 fact_source(taught_form_source(taught_form_13, "x consisting of y"), taught_form_13, "x consisting of y means x made of y").
 fact_source(made_of(bell, bronze), bell, "a bell made of bronze").
 fact_source(construction_frame("@S made of @O", "@S is made of @O", made_of), "@S made of @O", "x made of y means x is made of y").
+fact_source(operates(printer, printing_press), printer, "the printing press operated by a printer").
+fact_source(uses(merchants, abacus), merchants, "the abacus used by merchants").
+fact_source(construction_frame("@O is operated by @S", "@S operates @O", operates), "@O is operated by @S", "x is operated by y means y operates x").
+fact_source(construction_frame("@O operated by @S", "@S operates @O", operates), "@O operated by @S", "x operated by y means y operates x").
+fact_source(construction_frame("@O is used by @S", "@S uses @O", uses), "@O is used by @S", "x is used by y means y uses x").
+fact_source(construction_frame("@O used by @S", "@S uses @O", uses), "@O used by @S", "x used by y means y uses x").
+fact_source(relation_verb(operates), operates, "operates is a relation verb").
+fact_source(relation_verb(uses), uses, "uses is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -320,13 +328,21 @@ reading_fact(taught_form_source(taught_form_3, "how do you act when x"), "how do
 reading_fact(also_known_as(quipu, "khipu"), "quipu is also spelled khipu").
 reading_fact(taught_form_source(taught_form_4, "what vuol dire x"), "cosa vuol dire x means what does x mean").
 reading_fact(taught_form_source(taught_form_12, "x fashioned from y"), "x fashioned from y means x made of y").
+reading_fact(operates(printer, printing_press), "the printing press operated by a printer").
 reading_fact(made_of(lens, glass), "a lens is made of glass").
+reading_fact(uses(merchants, abacus), "the abacus used by merchants").
 reading_fact(taught_form_source(taught_form_11, "what is the significato of x"), "qual è il significato di x means what is the meaning of x").
+reading_fact(construction_frame("@O is operated by @S", "@S operates @O", operates), "x is operated by y means y operates x").
 reading_fact(taught_form_source(taught_form_14, "x consists of y"), "x consists of y means x made of y").
+reading_fact(construction_frame("@O operated by @S", "@S operates @O", operates), "x operated by y means y operates x").
 reading_fact(construction_frame("@S is also spelled @O", "@S is known as @O", also_known_as), "x is also spelled y means x is known as y").
+reading_fact(construction_frame("@O is used by @S", "@S uses @O", uses), "x is used by y means y uses x").
 reading_fact(made_of(bell, bronze), "a bell made of bronze").
+reading_fact(construction_frame("@O used by @S", "@S uses @O", uses), "x used by y means y uses x").
 reading_fact(taught_form_source(taught_form_13, "x consisting of y"), "x consisting of y means x made of y").
+reading_fact(relation_verb(operates), "operates is a relation verb").
 reading_fact(construction_frame("@S made of @O", "@S is made of @O", made_of), "x made of y means x is made of y").
+reading_fact(relation_verb(uses), "uses is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
