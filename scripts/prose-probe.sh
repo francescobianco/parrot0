@@ -119,7 +119,16 @@ for idx in "${!QS[@]}"; do
   # il campo atteso puo' portare piu' risposte VERE separate da «|»: «What is
   # obsidian?» ha due risposte giuste nel testo, e accettarne una sola
   # misurerebbe quale frase e' stata letta, non se la domanda ha avuto risposta.
-  if printf '%s' "$got" | grep -qiE -- "$want"; then verdict="✓"; ok=$((ok+1)); else verdict="·"; fi
+  #
+  # ⛔ E UN MURO NON E' MAI UNA RISPOSTA, nemmeno quando contiene la parola
+  # attesa. «What is a windmill operated by?» riceveva «nothing I hold says
+  # windmill operated by…» e il banco ci leggeva «wind»: un ✓ regalato, cioe'
+  # la cosa peggiore che un banco possa fare. I marcatori di muro sono una
+  # euristica di shell — grossolana apposta: meglio scartare una risposta buona
+  # che contarne una falsa.
+  if printf '%s' "$got" | grep -qiE "I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read"; then
+    verdict="·"
+  elif printf '%s' "$got" | grep -qiE -- "$want"; then verdict="✓"; ok=$((ok+1)); else verdict="·"; fi
   printf '  %-40s %-8s %s\n' "$(printf '%s' "$q" | cut -c1-38)" "$verdict" "$(printf '%s' "$got" | cut_to 72)"
 done
 printf '  %s\n' "────────────────────────────────────────────────────────────────────────────────"

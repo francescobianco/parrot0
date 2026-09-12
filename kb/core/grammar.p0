@@ -1008,6 +1008,23 @@ verb_stem($Verb, $Stem) :-
 % sulla radice, «penguins eat fish» scriveva `eat(penguins, fish)` mentre i 28
 % fatti della KB stanno sotto `eats`: «what do penguins eat?» non li trovava
 % piu'. La radice e' morfologia della superficie, non un secondo predicato.
+% ── gen513 — IL PASSATO DI UN VERBO DI RELAZIONE CHIEDE LA STESSA COSA ──────
+%
+% Trovato con la scala della prosa: «who USES quipu?» rispondeva «Inca.», «who
+% USED quipu?» andava a muro. E la lezione per colmarla esisteva gia' — «used is
+% the past of uses» → `Learned: past(used, uses).` — ma quel fatto **non aveva
+% nessun consumatore**: entrava in KB e non poteva accendersi. E' la specie che
+% il gen512 ha imparato a cercare (le radici morte), qui trovata dall'altro lato:
+% non una riga che non combacia, ma una riga che combacia e non serve a niente.
+%
+% Tre righe le danno un consumatore. Un passato e' una superficie del verbo, e
+% quindi: interroga la stessa relazione (`answer_frame`), e' un verbo di
+% relazione come lui, e legge le stesse frasi (`extract_frame`). Insegnare il
+% passato di un verbo nuovo costa una frase, e vale in tutti e tre i posti.
+machinery(past).
+relation_verb($Past) :- past($Past, $Present), relation_verb($Present).
+answer_frame($Past, $Present) :- past($Past, $Present), relation_verb($Present).
+
 extract_frame($Pat, $Verb) :-
     verb_stem($Verb, $Stem),
     concat_atoms("@S ", $Stem, $A),

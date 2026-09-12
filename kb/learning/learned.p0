@@ -190,3 +190,11 @@ topic_definition(veleno, "Un veleno è una sostanza che, assunta da un organismo
 search_found_as(velenosi, veleno).
 uses(merchants, abacus).
 operates(printer, printing_press).
+past(used, uses).
+past(operated, operates).
+past(made, makes).
+past(held, holds).
+past(contained, contains).
+past(formed, forms).
+past(appeared, appears).
+past(consisted, consists).
