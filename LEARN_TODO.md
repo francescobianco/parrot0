@@ -20,6 +20,24 @@ causa nel resoconto: **la mappa da cui ripartire**. Due bugie restano aperte
   ablazione. Costo: +130 ms sulle domande relazionali che rispondono.
 
 [Resoconto, trappole e coda](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda.md).
+
+### Come ripartire domattina (in quest'ordine)
+
+1. **Le due bugie aperte**: «what are colonies made of?» → «Reefs.» (direzione
+   della forma copulare con participio, stessa classe di `turn_question_verb`
+   in grammar.p0) e «sometimes» letto come nome («is a sometime»).
+2. **Decisione di F.**: come tenere «Most X …» / «most commonly» — relazione
+   attenuata, non universale. Vale 8 domande ma da sola ne sblocca 1.
+3. **Enumerazione che ruba la principale** (S10, «including …»): la lezione
+   «x provide a home for y means y lives in x» e' gia' verificata su frase pulita.
+4. **Relativa «that» senza virgola** + predicati coordinati (S5, S11).
+
+Verifica rapida: `./bin/parrot0 --test tests/p0t/language/question_direction.p0t`
+(23) e `prose_triage.p0t` (14), a demone avviato (`make test-engine`).
+Banco: copiare `kb bin scripts tests/fixtures` nello scratchpad e
+`P0_PROBE_STEP2=1 ./scripts/prose-probe.sh tests/fixtures/prose/ladder/r300.txt`
+(~8 min). ⚠ Dopo una modifica al C: `make build` e riavviare il demone
+(`kill $(cat obj/test-engine.pid)`), che carica binario e KB all'avvio.
 Prossimo: relativa «that» + predicati coordinati, alternanza di voce, e la bugia
 «…declined by 50% since 1950» → «975.».
 
