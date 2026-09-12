@@ -1062,6 +1062,12 @@ Brain *brain_create(void) {
     /* gen513 — IL PONTE DAL MODELLO AL CODICE, che non sa dove sta il modello:
      * `model_carrier/1` + `apply/2`. Prima di laws.p0, che ora e' solo uno dei
      * suoi domini e lo dichiara con un fatto. Vedi kb/core/model-bridge.p0. */
+    /* gen513 — rispondere SUL testo, non solo dal testo: struttura e tema del
+     * testo appena letto. La traccia la lascia il lettore composto; qui ci sono
+     * le domande, e sono regole. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/text-structure.p0");
+
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/model-bridge.p0");
 
@@ -5081,6 +5087,37 @@ static int universal_turn_lead(Brain *b, const char *surface,
         free(forces);
     }
     turn_publish_transcodes(b, surface);
+    /* ── gen513 — IL TESTO RESTA, IL TURNO PASSA ─────────────────────────────
+     *
+     * «Di che cosa parlava?» arrivava DOPO la prosa, e a quel punto
+     * `current_turn` descriveva la domanda: la risposta era «il testo ha 1
+     * frase e 7 parole» — cioe' la domanda stessa, contata giustamente e
+     * inutilmente. Un testo letto deve restare interrogabile finche' non ne
+     * arriva un altro, e resta nella stessa forma con cui e' stato letto: la
+     * IR, in uno scope suo.
+     *
+     * Che cosa MERITI di essere trattenuto non lo decide il C: lo chiede alla
+     * KB con `turn_is_text/1` (kb/core/text-structure.p0), che oggi dice «un
+     * turno che porta prosa, o che ha piu' di una frase» e domani puo' dire
+     * altro senza ricompilare. Qui c'e' solo la porta. */
+    /* ⚠ Solo il turno PIU' ESTERNO. Un turno composto rilegge le proprie
+     * clausole con `brain_respond` annidati, e ognuna ripubblicava lo scope:
+     * il testo trattenuto finiva per essere l'ultima clausola letta — «il testo
+     * ha 4 parole», cioe' una frase sola di tre. Il testo e' quello che
+     * l'interlocutore ha scritto, non il frammento che il lettore si e' ritagliato. */
+    int retain_text = 0;
+    if (b->respond_depth <= 1) {
+        const char *tq[] = { "current_turn" };
+        retain_text = kb_query(b->kb, "turn_is_text", tq, 1);
+        if (retain_text) {
+            input_structure_clear(b->kb, "last_text");
+            kb_retract_pred(b->kb, "text_surface_token");
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            turn_publish_tokens(b, surface, &whole, "0", "text_surface_token", whole.len);
+            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[text] trattenuto\n");
+        }
+    }
+    size_t ir_base = 0, text_base = 0;   /* gen513: gli id dell'IR sono dello scope */
     for (size_t i = 0; i < ns; i++) {
         char index[24], type[KB_TERM_LEN];
         char text[KB_TERM_LEN], payload[KB_TERM_LEN];
@@ -5100,7 +5137,11 @@ static int universal_turn_lead(Brain *b, const char *surface,
         kb_assert(b->kb, "turn_span", span_args, 4);
         kb_assert(b->kb, "turn_span_surface", surface_args, 3);
         kb_assert(b->kb, "turn_span_cue", cue_args, 3);
-        input_structure_publish(b->kb, surface, &spans[i], "current_turn");
+        ir_base += input_structure_publish(b->kb, surface, &spans[i],
+                                          "current_turn", ir_base);
+        if (retain_text)
+            text_base += input_structure_publish(b->kb, surface, &spans[i],
+                                                 "last_text", text_base);
         turn_publish_tokens(b, surface, &spans[i], index, "turn_span_token", TURN_MAX_TOKENS);
         turn_publish_state(b, surface, &spans[i], index);
     }
@@ -5469,13 +5510,37 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     size_t nc = kb_match(b->kb, statement ? "sentence_boundary_cue" : "clause_boundary_cue", q, 1, cues, 32);
     if (nc == 0) return 0;
 
-    char buf[4096];
+    char buf[P0_TURN_MAX];
     snprintf(buf, sizeof buf, "%s", input);
-    enum { MAX_CLAUSES = 8 };
+    /* ── gen513 — QUANTE FRASI SI LEGGONO LO DICE LA KB ──────────────────────
+     *
+     * Il tetto era `MAX_CLAUSES = 8`, e non era una soglia prudente: era una
+     * PERDITA MUTA. Al nono confine il ciclo usciva e il resto del turno non
+     * veniva letto da nessuno — nessun muro, nessuna traccia, niente. Su una
+     * prosa da 500 parole (una venticinquina di frasi) due terzi del testo
+     * sparivano, e la scala della prosa misurava la comprensione di un terzo
+     * di testo credendo di misurarla tutta.
+     *
+     * Ora il limite e' un fatto (`turn_max_clauses/1`, kb/core/grammar.p0):
+     * si alza parlando. Il vettore in C resta dimensionato al massimo che il
+     * turno puo' contenere — e' meccanica, non conoscenza. */
+    enum { MAX_CLAUSES = 128 };
+    size_t clause_cap = MAX_CLAUSES;
+    {
+        char cap[1][KB_TERM_LEN]; const char *cq[1] = { NULL };
+        if (kb_match(b->kb, "turn_max_clauses", cq, 1, cap, 1) == 1) {
+            long v = strtol(cap[0], NULL, 10);
+            if (v > 0 && (size_t)v < clause_cap) clause_cap = (size_t)v;
+        }
+    }
     char *clauses[MAX_CLAUSES]; size_t ncl = 0;
     char *p = buf;
-    while (*p && ncl < MAX_CLAUSES) {
+    while (*p && ncl < clause_cap) {
         char *best = NULL; size_t bestlen = 0;
+        /* All'ultimo posto disponibile non si taglia piu': cio' che resta e'
+         * una frase sola. Meglio un periodo lungo letto male che mezzo testo
+         * mai visto — il taglio muto era la perdita peggiore. */
+        if (ncl + 1 == clause_cap) { clauses[ncl++] = p; break; }
         for (size_t i = 0; i < nc; i++) {
             char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
             const char *cue = kb_dequote(cb);
@@ -5490,7 +5555,48 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     }
     if (ncl < 2) return 0;
 
-    char composed[2048]; size_t off = 0; composed[0] = '\0';
+    /* ── gen513 — LE FRASI TROVATE VANNO NELLA IR, NON IN UN VETTORE PRIVATO ──
+     *
+     * Rilievo di F.: «non stai lavorando usando la IR universale». Qui il
+     * lettore aveva gia' in mano la segmentazione vera del testo — dov'e' che
+     * finisce una frase e ne comincia un'altra — e la teneva per se': la usava
+     * per leggere e poi la buttava. `turn_publish` pubblica gli SPAN del turno,
+     * che non sono le frasi (una prosa di tre frasi e' uno span solo), e
+     * infatti «da quante frasi e' composto?» rispondeva «1».
+     *
+     * Adesso la segmentazione si pubblica dove sta tutto il resto: la IR, nello
+     * scope `last_text`. Nessun predicato nuovo, nessuna seconda struttura —
+     * la stessa forma con cui parrot0 vede qualunque altro pezzo di lingua.
+     * Chi vuole sapere quante frasi ci sono le conta (kb/core/text-structure.p0). */
+    if (b->respond_depth <= 1) {
+        input_structure_clear(b->kb, "last_text");
+        size_t base = 0;
+        for (size_t i = 0; i < ncl; i++) {
+            const char *c = clauses[i];
+            while (*c == ' ' || *c == '\t' || *c == '\n') c++;
+            size_t len = strlen(c);
+            while (len && (c[len - 1] == ' ' || c[len - 1] == '\n')) len--;
+            if (!len) continue;
+            InputSpan cs; memset(&cs, 0, sizeof cs);
+            cs.start = (size_t)(c - buf);
+            cs.len = len;
+            snprintf(cs.role, sizeof cs.role, "clause");
+            /* ⚠ La sorgente e' `input`, non `buf`: lo splitter ha messo un NUL
+             * al posto del confine, quindi `strlen(buf)` finisce alla prima
+             * frase e ogni span successivo veniva rifiutato come fuori testo
+             * (pubblicava una frase sola, e tutte con lo stesso id). Gli offset
+             * sono gli stessi — si sovrascrive un byte, non si sposta niente. */
+            size_t got = input_structure_publish(b->kb, input, &cs, "last_text", base);
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[text] frase %zu: id %zu, range(%zu,%zu), %zu nodi «%.40s»\n",
+                        i, base, cs.start, cs.len, got, c);
+            base += got;
+        }
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[text] %zu frasi nella IR (last_text)\n", ncl);
+    }
+
+    char composed[P0_TURN_MAX]; size_t off = 0; composed[0] = '\0';
     size_t read = 0;
     /* Se alla fine nessuna clausola e' letta, la parola torna al turno intero:
      * ma le clausole hanno gia' murato, e il muro tiene i conti (pending_gap,

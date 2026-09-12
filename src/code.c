@@ -126,7 +126,7 @@ void input_structure_clear(KB *kb, const char *scope) {
 }
 
 size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
-                               const char *scope) {
+                               const char *scope, size_t id_base) {
     if (!kb || !raw || !span || !scope || !*scope) return 0;
     InputNode nodes[128];
     int ambiguous = 0;
@@ -136,9 +136,9 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
     for (size_t i = 0; i < nn; i++) {
         char id[24], parent[24], node[KB_TERM_LEN], range[KB_TERM_LEN];
         char qs[KB_TERM_LEN];
-        snprintf(id, sizeof id, "%zu", i);
+        snprintf(id, sizeof id, "%zu", id_base + i);
         if (nodes[i].parent < 0) snprintf(parent, sizeof parent, "root");
-        else snprintf(parent, sizeof parent, "%d", nodes[i].parent);
+        else snprintf(parent, sizeof parent, "%zu", id_base + (size_t)nodes[i].parent);
         snprintf(node, sizeof node, "node(%s, %s, %s)",
                  nodes[i].level, nodes[i].kind, parent);
         snprintf(range, sizeof range, "range(%zu, %zu)",
@@ -180,8 +180,8 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
         kb_set_origin(kb, KB_REFLECTIVE);
         for (size_t k = 1; k < nt; k++) {
             char a[24], bb[24];
-            snprintf(a, sizeof a, "%zu", order[k - 1]);
-            snprintf(bb, sizeof bb, "%zu", order[k]);
+            snprintf(a, sizeof a, "%zu", id_base + order[k - 1]);
+            snprintf(bb, sizeof bb, "%zu", id_base + order[k]);
             const char *nx[] = { scope, a, bb };
             kb_assert(kb, "input_node_next", nx, 3);
         }

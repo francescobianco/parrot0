@@ -368,8 +368,17 @@ size_t code_segment(KB *kb, const char *raw, CodeSeg *segs, size_t max,
 size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
                        InputNode *nodes, size_t max, int *ambiguous);
 void input_structure_clear(KB *kb, const char *scope);
+/* gen513 — GLI ID SONO DELLO SCOPE, NON DELLA CHIAMATA.
+ *
+ * Ogni pubblicazione ripartiva da `0`, e un turno di piu' frasi pubblica una
+ * volta per frase NELLO STESSO scope: `input_node(current_turn, 0, ...)` aveva
+ * una soluzione per ogni frase del paragrafo, e ogni join per id — la
+ * superficie, il ruolo, l'ordine — diventava un prodotto cartesiano fra frasi
+ * diverse. L'IR universale era quindi illeggibile proprio dove serve di piu',
+ * sulla prosa lunga. `id_base` e' il numero di nodi gia' nello scope: chi
+ * pubblica una frase per volta lo accumula, chi pubblica da solo passa 0. */
 size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
-                               const char *scope);
+                               const char *scope, size_t id_base);
 
 /* Just the source, please. Returns 1 (extracted), 0 (no code span found), or
  * -1 (ambiguous — say so, do not diagnose). */

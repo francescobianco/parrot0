@@ -1,0 +1,174 @@
+% text-structure.p0 — RISPONDERE *SUL* TESTO, NON SOLO *DAL* TESTO (gen513).
+%
+% F., 12 settembre 2026, alzando il livello di verifica della scala della prosa:
+% «ogni iterazione deve rispondere a 20 domande mixate tra nel merito del testo e
+% meta domande tipo di cosa parla e anche domande di struttura come e' composto
+% il testo».
+%
+% Erano domande a cui parrot0 non poteva nemmeno PROVARE a rispondere: la prosa
+% entrava, lasciava i suoi fatti, e di se' stessa non restava niente. «Di che
+% cosa parla?» riceveva «I don't have the text you mean»; «da quante frasi e'
+% composto?» riceveva un piano per fabbricare «write».
+%
+% ── DA DOVE VIENE LA RISPOSTA: DALLA IR UNIVERSALE ──────────────────────────
+%
+% Rilievo di F.: «non stai lavorando usando la IR universale». Era vero, ed era
+% il difetto piu' grave di questo file: la prima stesura si appoggiava a fatti
+% che il lettore composto in C asseriva apposta (`text_sentence/2`,
+% `text_sentence_count/1`, `text_word_count/1`) — una SECONDA struttura del
+% testo, parallela a quella che l'IR gia' pubblicava, e nuova conoscenza nel C.
+% Quei fatti sono stati tolti da `src/brain/99-registry.c`: qui non si asserisce
+% niente, si LEGGE l'unica struttura che il turno ha.
+%
+%   input_node(last_text, Id, node(clause, clause, root), range(S, L))
+%       un nodo per frase — e' la segmentazione del turno, gia' fatta
+%   input_node_surface(last_text, Id, "...")    la superficie di quel nodo
+%   input_node(last_text, Id, node(phrase, np_candidate, P), range(S, L))
+%       i sintagmi nominali, delimitati da `np_opener`/`np_closer`/`pos(verb)`
+%   text_surface_token(current_turn, 0, Pos, "parola")  il flusso intero
+%
+% ⚠ Perche' le parole si contano sui token del TURNO e non sui nodi token
+% dell'IR: `input_structure` (src/code.c) si ferma a 64 parole e 128 nodi PER
+% FRASE. Sui periodi lunghi della prosa vera quel livello e' troncato, e contare
+% li' darebbe un numero piu' piccolo del vero senza dirlo. Il flusso del turno
+% non ha quel tetto. E' un limite dell'IR, dichiarato qui perche' si veda.
+%
+% ⚠ `text_value(topic, ...)` e' il sintagma nominale che APRE il testo, non «il
+% tema» in senso forte. In una prosa d'enciclopedia le due cose coincidono
+% perche' il lead apre col definiendum; in un testo che comincia con una
+% circostanza non coincidono. E' un limite dichiarato: il giorno in cui serve
+% una lettura piu' fine si aggiunge una clausola qui, non un ramo nel motore.
+
+:- file_attribute(machinery).
+
+% ── 1. CHE COSA E' UN TESTO, E QUANDO SI TRATTIENE ──────────────────────────
+% Il motore chiede questo, e non sa altro: un turno che porta prosa, oppure che
+% ha piu' di una frase, e' un testo e la sua IR resta nello scope `last_text`
+% finche' non ne arriva un altro. Cambiare questa soglia non ricompila niente.
+turn_is_text($T) :- turn_illocution($T, prose_carried).
+turn_is_text($T) :- turn_multi_sentence($T).
+
+% ── 2. IL TESTO COME LO VEDE LA IR ──────────────────────────────────────────
+text_clause($Id, $Start, $Len) :-
+    input_node(last_text, $Id, node(clause, clause, root), range($Start, $Len)).
+text_clause_key($Id) :- text_clause($Id, $Start, $Len).
+
+% Quante frasi: quanti nodi di clausola ha lasciato la segmentazione.
+% ⚠ Qui la lista serve davvero (gli id delle clausole non sono consecutivi), e
+% porta con se' i due tetti: profondita' 64 e termine da 512 byte. Regge una
+% sessantina di frasi — oltre, il conto non arriva. Limite dichiarato.
+text_sentence_count($N) :-
+    findall($Id, text_clause_key($Id), $Ids), list_len($Ids, $N).
+
+% Quante parole: il flusso di token del turno intero (span 0), senza il tetto
+% per frase del livello token dell'IR.
+text_word_key($Pos) :- text_surface_token(current_turn, 0, $Pos, $Tok).
+% ⚠ NON con `findall` + `list_len`: `list_len/2` e' ricorsiva e il motore si
+% ferma a KB_MAX_DEPTH (64), e la lista stessa dovrebbe stare in un termine da
+% 512 byte. Su cento parole non arrivava in fondo e la domanda riceveva «non
+% capisco» — un muro che sembrava incomprensione e invece era un tetto del
+% motore. Le posizioni sono consecutive da zero: l'ultima e' quella che non ha
+% una successiva, e il conto e' quella piu' uno. Nessuna ricorsione, nessuna
+% lista. (`naf` e' sicuro: $Next arriva legato da `is/2`.)
+text_word_last($Pos) :-
+    text_word_key($Pos), is($Next, add($Pos, 1)), naf(text_word_key($Next)).
+text_word_count($N) :- text_word_last($Pos), is($N, add($Pos, 1)).
+
+% La prima frase e' quella che apre il turno: offset zero, non «indice zero».
+text_first_clause($Id) :- text_clause($Id, 0, $Len).
+% L'ultima e' quella dopo cui non ne comincia nessun'altra. `naf` qui e' sicuro:
+% $Start arriva legato (la trappola era `naf` su una variabile libera).
+text_clause_after($Start) :- text_clause($Other, $Later, $L), gt($Later, $Start).
+text_last_clause($Id) :- text_clause($Id, $Start, $Len), naf(text_clause_after($Start)).
+
+text_sentence($Id, $Surface) :-
+    text_clause_key($Id), input_node_surface(last_text, $Id, $Surface).
+
+% Il tema: il sintagma nominale che apre il testo. Lo delimita la KB
+% (`np_opener`, `np_closer`, `pos(verb)`), quindi funziona anche su parole che
+% parrot0 non ha mai visto — ed e' il motivo per cui vale su prosa esterna.
+text_opening_np($Surface) :-
+    input_node(last_text, $Id, node(phrase, np_candidate, $P), range(0, $Len)),
+    input_node_surface(last_text, $Id, $Surface).
+% Se il testo apre senza determinante («Coral reefs are...») non c'e' sintagma
+% da delimitare: allora si chiede all'IR l'entita' nominata dalla prima frase.
+text_opening_entity($Entity) :-
+    text_first_clause($C), input_entity_node(last_text, $L, $Id, $Entity),
+    input_node_parent(last_text, $Id, $C).
+
+% ── 3. LE COSE CHE SI POSSONO CHIEDERE DI UN TESTO ──────────────────────────
+% La cue e' una superficie: chi insegna ne aggiunge una e la domanda esiste.
+text_question_cue(count_sentences, "how many sentences").
+text_question_cue(count_sentences, "quante frasi").
+text_question_cue(count_words, "how many words").
+text_question_cue(count_words, "quante parole").
+text_question_cue(first_sentence, "first sentence").
+text_question_cue(first_sentence, "prima frase").
+text_question_cue(first_sentence, "how does the text begin").
+text_question_cue(first_sentence, "how does it begin").
+text_question_cue(first_sentence, "come comincia").
+text_question_cue(last_sentence, "last sentence").
+text_question_cue(last_sentence, "ultima frase").
+text_question_cue(last_sentence, "how does the text end").
+text_question_cue(topic, "what is the text about").
+text_question_cue(topic, "what is this text about").
+text_question_cue(topic, "what was the text about").
+text_question_cue(topic, "what is the passage about").
+text_question_cue(topic, "di che cosa parla").
+text_question_cue(topic, "di cosa parla").
+text_question_cue(topic, "what is the topic").
+text_question_cue(topic, "qual è il tema").
+
+turn_asks_text($T, $Kind) :-
+    text_question_cue($Kind, $Surface), turn_cue($T, text_question_cue, $Surface).
+turn_cue_registry(text_question_cue, 2).
+
+% ── 4. LE RISPOSTE ──────────────────────────────────────────────────────────
+% La frase la compone la KB, e la lingua e' un fatto: una lingua nuova sono due
+% righe, come per ogni altra risposta di parrot0.
+text_reply_open(count_sentences, en, "The text has ").
+text_reply_open(count_sentences, it, "Il testo ha ").
+text_reply_close(count_sentences, en, " sentences.").
+text_reply_close(count_sentences, it, " frasi.").
+text_reply_open(count_words, en, "The text has ").
+text_reply_open(count_words, it, "Il testo ha ").
+text_reply_close(count_words, en, " words.").
+text_reply_close(count_words, it, " parole.").
+text_reply_open(first_sentence, en, "It begins: ").
+text_reply_open(first_sentence, it, "Comincia: ").
+text_reply_open(last_sentence, en, "It ends: ").
+text_reply_open(last_sentence, it, "Finisce: ").
+text_reply_open(topic, en, "The text is about ").
+text_reply_open(topic, it, "Il testo parla di ").
+text_reply_close(first_sentence, en, "").
+text_reply_close(first_sentence, it, "").
+text_reply_close(last_sentence, en, "").
+text_reply_close(last_sentence, it, "").
+text_reply_close(topic, en, ".").
+text_reply_close(topic, it, ".").
+
+% Il VALORE che ogni domanda chiede.
+text_value(count_sentences, $N) :- text_sentence_count($N).
+text_value(count_words, $N) :- text_word_count($N).
+text_value(first_sentence, $S) :- text_first_clause($Id), text_sentence($Id, $S).
+text_value(last_sentence, $S) :- text_last_clause($Id), text_sentence($Id, $S).
+text_value(topic, $S) :- text_opening_np($S).
+text_value(topic, $Shown) :- text_opening_entity($E), present_term($E, $Shown).
+
+% ⚠ NIENTE `span_atom/2` per togliere le virgolette: e' `chars/2` andata e
+% ritorno, cioe' la stringa diventa una lista di caratteri dentro UN termine da
+% 512 byte — oltre una cinquantina di caratteri non ci sta piu' e fallisce in
+% silenzio. Era il motivo per cui «come comincia?» rispondeva sulla prosa corta
+% e murava su quella vera: la prima frase di un lead d'enciclopedia e' lunga.
+% `concat_atoms/3` le virgolette le toglie gia' da se', su entrambi gli operandi.
+text_answer($Kind, $Text) :-
+    current_language($L), text_reply_open($Kind, $L, $Open),
+    text_reply_close($Kind, $L, $Close), text_value($Kind, $V),
+    concat_atoms($Open, $V, $A), concat_atoms($A, $Close, $Text).
+
+% ── 5. IL CANALE ────────────────────────────────────────────────────────────
+% `turn_response/2` e' il canale di risposta della KB (turn-frames.p0), e
+% `turn_plan_candidate/1` la guardia che evita di attraversarne tutte le
+% famiglie per ogni turno.
+turn_plan_candidate($T) :- turn_asks_text($T, $Kind).
+turn_response($T, $Text) :- turn_asks_text($T, $Kind), text_answer($Kind, $Text).

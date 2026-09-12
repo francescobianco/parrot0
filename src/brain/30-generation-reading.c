@@ -3143,7 +3143,7 @@ static int extract_clause(Brain *b, char *clause, const char *source_base,
     prose_span.len = strlen(c);
     snprintf(prose_span.role, sizeof prose_span.role, "prose");
     size_t published = input_structure_publish(
-        b->kb, source_base ? source_base : c, &prose_span, "current_prose");
+        b->kb, source_base ? source_base : c, &prose_span, "current_prose", 0);
 
     /* SC1 — la gerarchia `current_prose` e' intenzionalmente transiente, ma il
      * documento non puo' perdere una clausola prima di osservare la successiva.
