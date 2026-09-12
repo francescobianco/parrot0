@@ -4985,6 +4985,39 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
             if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
             if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
                 return 0;
+            /* ⛔ gen513 — UN SINTAGMA NOMINALE NON CONTIENE UN VERBO FINITO.
+             *
+             * Trovato dalla scala della prosa, ed e' il caso peggiore: un FATTO
+             * FALSO entrato in silenzio. «They were historically used by various
+             * cultures in the central Andes» con la costruzione passiva
+             * `@O used by @S` legava @O = «they were historically», e ne usciva
+             *
+             *     Learned: various cultures uses they were historically
+             *
+             * Lo slot prende le parole fino alla prossima ancora dello schema, e
+             * su una frase vera quelle parole possono essere mezza proposizione.
+             * Qui non si prova a indovinare dove finisca davvero il sintagma: si
+             * RIFIUTA la lettura. Meglio un muro che un fatto falso (mantra #7),
+             * e il muro dice quale pezzo non si e' saputo leggere.
+             *
+             * L'ultimo slot di una relazione a VALORE TESTUALE e' escluso: li'
+             * una proposizione intera e' il valore legittimo («X means that Y
+             * is Z»). Quali parole siano copule o ausiliari lo dice la KB. */
+            if (!final_text_slot && strchr(dst, '_')) {
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", dst);
+                for (char *c = sb; *c; c++) if (*c == '_') *c = ' ';
+                char *sw[24]; size_t sn = split_words(sb, sw, 24);
+                for (size_t t = 0; t < sn; t++) {
+                    const char *tok = strip_edge_punct(sw[t]);
+                    if (!*tok) continue;
+                    if (lex_class_member(b, "clause_copula", tok) ||
+                        lex_class_member(b, "auxiliary", tok)) {
+                        if (getenv("P0_FRAME_TRACE"))
+                            fprintf(stderr, "[frame] rifiutato: lo slot «%s» porta un verbo finito\n", dst);
+                        return 0;
+                    }
+                }
+            }
             /* Un riferimento vale in QUALUNQUE ruolo, e un riferimento che non
              * si risolve NON e' un'entita': la lettura si ritira invece di
              * scrivere un pronome in KB. Vedi `p0_resolve_reference`. */
@@ -14634,6 +14667,40 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             char *rp = strrchr(tpl, ')'); if (rp) *rp = '\0';
             char vals[P0_FORM_SLOTS][KB_TERM_LEN];
             KbResponseSlot fill[P0_FORM_SLOTS];
+            /* ⛔ gen513 — UN SINTAGMA NOMINALE NON CONTIENE UN VERBO FINITO.
+             *
+             * Trovato dalla scala della prosa, ed e' il caso peggiore: un FATTO
+             * FALSO entrato in silenzio. «They were historically used by various
+             * cultures…» con la costruzione passiva `@O used by @S` legava
+             * @O = «they were historically», e la rilettura scriveva
+             *
+             *     Learned: various cultures uses they were historically
+             *
+             * Lo slot prende le parole fino alla prossima ancora della forma, e
+             * su una frase vera quelle parole possono essere mezza proposizione.
+             * Qui non si prova a indovinare dove finisca davvero il sintagma —
+             * si RIFIUTA la rilettura: meglio un muro che un fatto falso
+             * (mantra #7), e il muro dice quale pezzo non si e' saputo leggere.
+             * Quali parole siano copule o ausiliari lo dice la KB, quindi una
+             * lingua nuova non costa motore. */
+            int slot_has_verb = 0;
+            for (size_t k = 0; k < ns && k < P0_FORM_SLOTS && !slot_has_verb; k++) {
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", slots[k].value);
+                for (char *c = sb; *c; c++) if (*c == '_') *c = ' ';
+                char *sw[24]; size_t sn = split_words(sb, sw, 24);
+                if (sn < 2) continue;      /* una parola sola non e' una proposizione */
+                for (size_t t = 0; t < sn && !slot_has_verb; t++) {
+                    const char *tok = strip_edge_punct(sw[t]);
+                    if (!*tok) continue;
+                    if (lex_class_member(b, "clause_copula", tok) ||
+                        lex_class_member(b, "auxiliary", tok)) slot_has_verb = 1;
+                }
+            }
+            if (slot_has_verb) {
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[form] %s: rilettura rifiutata, uno slot porta un verbo finito\n", form);
+                continue;
+            }
             for (size_t k = 0; k < ns && k < P0_FORM_SLOTS; k++) {
                 snprintf(vals[k], KB_TERM_LEN, "%s", slots[k].value);
                 for (char *c = vals[k]; *c; c++) if (*c == '_') *c = ' ';
