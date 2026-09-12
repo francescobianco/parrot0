@@ -999,10 +999,26 @@ machinery(relation_verb).
 % qui sopra: un verbo di relazione apre per costruzione la sua porta, ma la
 % porta deve stare dove le persone bussano. «vale», «is worth», «is made of»
 % sono forme normali, non eccezioni.
+% gen513 — E LA COPULA NON E' SEMPRE «IS».
+%
+% Reperto della scala della prosa, pioli 300-500. Questa regola generava una
+% sola superficie, «@S is V @O», e in una prosa d'enciclopedia il soggetto e'
+% quasi sempre PLURALE: «Reefs are formed of colonies», «Most coral reefs are
+% built from stony corals», «Thunderstorms are accompanied by strong winds».
+% Nessuna di quelle frasi si leggeva — e «what are most coral reefs built
+% from?» rispondeva con la relazione della frase precedente, cioe' una bugia.
+%
+% Quali forme siano copule di frame e' un fatto, e sono poche apposta: ogni
+% forma in piu' moltiplica gli schemi, e gli schemi si scorrono TUTTI a ogni
+% turno (gen459). Chi ne vuole una nuova aggiunge una riga e la paga.
+machinery(frame_copula).
+frame_copula("is").
+frame_copula("are").
+
 extract_frame($Pat, $Pred) :-
-    relation_verb($Pred),
-    concat_atoms("@S is ", $Pred, $A),
-    concat_atoms($A, " @O", $Pat).
+    relation_verb($Pred), frame_copula($Cop),
+    concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
+    concat_atoms($B, $Pred, $A), concat_atoms($A, " @O", $Pat).
 
 extract_frame($Pat, $Pred) :-
     relation_verb($Pred),
@@ -1190,10 +1206,15 @@ extract_frame($Pat, $Root) :-
 % cartesiano con tutte le preposizioni — quello moltiplicherebbe gli schemi per
 % otto e li farebbe pagare a OGNI turno (gen459: gli schemi si scorrono tutti).
 %
+% ⚠ Si chiama `verb_particle/2` e non `relation_particle/2`: `relation_particle/1`
+% esiste gia' in questo stesso file per il legante del comparativo («than»,
+% «di»), e due predicati omonimi di arieta' diversa in una KB che cresce sono
+% una trappola per chi legge, anche quando il motore li distingue.
+%
 % ⚠ Il predicato che ne esce e' la RADICE: «Coral belongs to the class
 % Anthozoa» da' `belong(coral, class_anthozoa)`, e la stessa relazione risponde
 % alla domanda con o senza particella.
-machinery(relation_particle).
+machinery(verb_particle).
 machinery(verb_reading_form).
 
 % Le forme con cui un verbo di relazione si presenta in un testo: nuda,
@@ -1206,14 +1227,59 @@ verb_reading_form($Root, $Form) :-
 verb_reading_form($Root, $Form) :-
     relation_verb($Root), irregular_verb_form($Root, $Form).
 
+% ⚠ All'attivo una relazione con particella si presenta FINITA — «belong to»,
+% «belongs to» — non al participio: «belonged to» esiste ma in una prosa
+% d'enciclopedia non porta il peso, e ogni forma in piu' e' uno schema in piu'
+% da scorrere a OGNI turno. Misurato: con tutte e cinque le forme il turno di
+% `soft-test` passava da 1,0 s a 1,2 s. Il participio serve al passivo, e li'
+% lo genera `verb_particle_passive/2`.
+machinery(verb_finite_form).
+verb_finite_form($Root, $Root) :- relation_verb($Root).
+verb_finite_form($Root, $Form) :-
+    relation_verb($Root), concat_atoms($Root, "s", $Form).
+
 verb_particle_surface($Root, $Surface) :-
-    relation_particle($Root, $Particle), verb_reading_form($Root, $Form),
+    verb_particle($Root, $Particle), verb_finite_form($Root, $Form),
     concat_atoms($Form, " ", $A), concat_atoms($A, $Particle, $Surface).
 
 extract_frame($Pat, $Root) :-
     verb_particle_surface($Root, $Surface),
     concat_atoms("@S ", $Surface, $A),
     concat_atoms($A, " @O", $Pat).
+
+% E il PASSIVO di una relazione con particella: «Most coral reefs ARE BUILT
+% FROM stony corals». E' la forma con cui un lead d'enciclopedia dice quasi
+% tutto, e senza questa riga non si leggeva — con l'aggravante che la domanda
+% riceveva la relazione della frase precedente invece di un muro.
+% ⚠ Il passivo usa SOLO il participio: «are built from», mai «are build from»
+% ne' «are builds from». E' grammatica — e per questo non moltiplica gli schemi
+% per cinque forme di cui quattro sono impossibili. Gli schemi si scorrono tutti
+% a ogni turno, e il prezzo si vede subito: con tutte le forme il budget di un
+% turno di `soft-test` passava da 1,0 s a 1,5 s.
+machinery(verb_participle_form).
+verb_participle_form($Root, $Form) :-
+    verb_particle($Root, $P), participle_suffix($Suffix),
+    concat_atoms($Root, $Suffix, $Form).
+verb_participle_form($Root, $Form) :-
+    verb_particle($Root, $P), irregular_verb_form($Root, $Form).
+% Due suffissi bastano: «ed» e, per i verbi che finiscono in «e», «d». Un
+% terzo non esiste, e la forma irregolare e' un fatto (`irregular_verb_form`).
+machinery(participle_suffix).
+participle_suffix("ed").
+participle_suffix("d").
+% ⚠ E il participio si genera SOLO per i verbi che hanno una particella: il
+% passivo senza particella e' gia' coperto dalla famiglia della copula. Senza
+% questo vincolo il participio si generava per tutti i 272 verbi insegnati.
+
+verb_particle_passive($Root, $Surface) :-
+    verb_particle($Root, $Particle), verb_participle_form($Root, $Form),
+    concat_atoms($Form, " ", $A), concat_atoms($A, $Particle, $Surface).
+
+extract_frame($Pat, $Root) :-
+    frame_copula($Cop), verb_particle_passive($Root, $Surface),
+    concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
+    concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat).
+answer_frame($Surface, $Root) :- verb_particle_passive($Root, $Surface).
 
 % E la stessa superficie deve INTERROGARE la relazione, non solo leggerla:
 % «what does coral belong to?» e «Coral belongs to X» sono la stessa relazione

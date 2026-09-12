@@ -1962,3 +1962,41 @@ misurato). Un passo si può dire solo se qualcuno sa ascoltarlo.
    che non sia un sottoprocesso (scrivere, ingerire, ritrattare) non ha nessuna
    forma dichiarativa. Finché quel confine non è disegnato, il punto 2 sposta il
    problema invece di chiuderlo.
+
+## ⛔ gen513 — GLI SCHEMI DI `extract_frame` SI SCORRONO TUTTI, A OGNI TURNO
+
+**Misurato il 12 settembre 2026, non ipotizzato.**
+
+`extract_frame/2` non è un elenco: è una manciata di regole che derivano uno
+schema per ogni verbo di relazione insegnato, per ogni sua forma, per ogni
+copula, per ogni particella. Con **272 verbi di relazione** in KB (la crescita
+laterale chiesta da F.) e le famiglie nuove del giro 2 — la copula plurale e la
+particella — gli schemi derivati sono **migliaia**, e **ogni consumatore li
+enumera da capo**: il solver li ri-deriva tutti a ogni chiamata.
+
+Il prezzo, misurato sul turno `> what is the opposite of hot` di
+`tests/p0t/basics.p0t` (budget dichiarato 1,00 s):
+
+| stato | turno |
+|---|---|
+| prima del giro 2 | 0,95 s (verde, sul filo) |
+| + copula plurale + particella, tutte le forme | **1,50 s** |
+| + la cache già esistente usata anche nel percorso caldo | 1,14 s |
+| + solo le forme che esistono davvero (finita all'attivo, participio al passivo) | **1,08 s** |
+
+Le due cure hanno recuperato l'80% della regressione. Il resto **non è curabile
+togliendo righe di conoscenza**: è la forma dell'accesso.
+
+**La cura, e non è un dettaglio di prestazioni.** `p0_frame_patterns` (gen510)
+tiene già l'enumerazione in cache, ma la chiave è `kb_revision`, che avanza a
+ogni fatto asserito — e un turno ne assicura decine, quindi la cache si
+invalida *dentro* il turno. La chiave giusta è la revisione della conoscenza
+che *genera* gli schemi (`relation_verb`, `verb_particle`, `extract_frame`),
+non quella di tutta la KB. E il passo dopo è **indicizzare** gli schemi per la
+loro parola-ancora invece di scorrerli: uno schema che nomina una parola che il
+turno non contiene non può combaciare, e oggi lo si scopre confrontandolo.
+
+⚠ Finché non è fatto, **`make soft-test` è rosso**: `basics.p0t` dichiara 1,00 s
+e i turni costano 1,08 s. Non si alza il budget (CLAUDE.md) e non si tolgono i
+verbi (sono la crescita che F. chiede): si cura l'accesso. È il primo lavoro di
+motore in coda.

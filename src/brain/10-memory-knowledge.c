@@ -5367,11 +5367,18 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             free(taught); taught = NULL; ntaught = 0;
         }
     }
+    /* gen513 — GLI SCHEMI NON SI RI-DERIVANO A OGNI CHIAMATA.
+     *
+     * Questa funzione ri-enumerava `extract_frame/2` da capo — e non e' un
+     * elenco, sono regole: con 272 verbi di relazione insegnati fanno migliaia
+     * di schemi derivati dal solver, e il turno di `soft-test` era passato da
+     * 1,0 s a 1,5 s. `p0_frame_patterns` la stessa enumerazione la tiene gia'
+     * in cache sulla revisione della conoscenza (gen510): qui si usa quella.
+     * ⚠ Il vettore e' PRESTATO dal Brain — non si libera. */
     char (*pats)[KB_TERM_LEN] = NULL;
-    const char *anyq[] = { NULL, NULL };
-    size_t np = 0;
-    if (!kb_match_all(b->kb, "extract_frame", anyq, 2, &pats, &np)) {
-        free(pats); free(taught);
+    size_t np = p0_frame_patterns(b, &pats);
+    if (np == 0 || !pats) {
+        free(taught);
         return 0;
     }
 
@@ -5435,7 +5442,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
              * un altro posto — il segnale che la lettura va condivisa, non la
              * guardia ripetuta (§R2). Un valore non risponde a una domanda che
              * ne propone uno; se la proposta non regge, questa via tace. */
-            if (nh > 0 && p0_turn_is_polar(b, w, n)) { free(pats); free(taught); return 0; }
+            if (nh > 0 && p0_turn_is_polar(b, w, n)) { free(taught); return 0; }
             if (nh > 0) {
                 char hb[KB_TERM_LEN];
                 snprintf(hb, sizeof hb, "%s", hits[0]);
@@ -5444,7 +5451,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                 for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
                 kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                 { "value", pretty } }, 1, out, out_size);
-                free(pats); free(taught);
+                free(taught);
                 return 1;
             }
             continue;          /* e' una domanda: non diventa mai un fatto */
@@ -5498,7 +5505,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
                             { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                         3, out, out_size);
-            free(pats); free(taught);
+            free(taught);
             return 2;                       /* 2 = respinto, ma non silenzioso */
         }
         if (kb_assert(b->kb, pred, fa, fact_nslots)) {
@@ -5559,11 +5566,11 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                 3, msg, sizeof msg);
             }
             put(msg, out, out_size);
-            free(pats); free(taught);
+            free(taught);
             return 1;
         }
     }
-    free(pats); free(taught);
+    free(taught);
     return 0;
 }
 

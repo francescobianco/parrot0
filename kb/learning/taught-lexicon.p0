@@ -342,24 +342,81 @@ relation_verb(span).
 relation_verb(lead).
 relation_verb(contribute).
 relation_verb(involve).
+relation_verb(fill).
+relation_verb(surround).
+relation_verb(embed).
+relation_verb(coat).
+relation_verb(mix).
+relation_verb(break).
+relation_verb(transform).
+relation_verb(divide).
+relation_verb(hold).
+relation_verb(accompany).
+relation_verb(compose).
+relation_verb(form).
+relation_verb(build).
+relation_verb(base).
+relation_verb(cover).
+relation_verb(classify).
+relation_verb(subject).
+relation_verb(expose).
+relation_verb(obtain).
+relation_verb(descend).
+relation_verb(originate).
 
 % ── gen513 — LE PARTICELLE DEI VERBI DI RELAZIONE ───────────────────────────
 % Scoperte leggendo la scala della prosa: sono le forme con cui un lead di
 % enciclopedia lega un soggetto al suo oggetto. Una riga per verbo, e la
 % regola in kb/core/grammar.p0 ne genera le superfici (nuda, flessa,
 % irregolare). Sono fatti veri dell'inglese, non scorciatoie per un banco.
-relation_particle(belong, to).
-relation_particle(consist, of).
-relation_particle(derive, from).
-relation_particle(result, from).
-relation_particle(refer, to).
-relation_particle(relate, to).
-relation_particle(grow, in).
-relation_particle(live, in).
-relation_particle(occur, in).
-relation_particle(appear, in).
-relation_particle(depend, on).
-relation_particle(feed, on).
-relation_particle(react, with).
-relation_particle(combine, with).
-relation_particle(evolve, from).
+verb_particle(belong, to).
+verb_particle(consist, of).
+verb_particle(derive, from).
+verb_particle(result, from).
+verb_particle(refer, to).
+verb_particle(relate, to).
+verb_particle(grow, in).
+verb_particle(live, in).
+verb_particle(occur, in).
+verb_particle(appear, in).
+verb_particle(depend, on).
+verb_particle(feed, on).
+verb_particle(react, with).
+verb_particle(combine, with).
+verb_particle(evolve, from).
+% gen513 — le particelle delle relazioni che la prosa dice al passivo.
+verb_particle(build, from).
+verb_particle(make, of).
+verb_particle(form, of).
+verb_particle(compose, of).
+verb_particle(accompany, by).
+verb_particle(hold, together).
+verb_particle(divide, into).
+verb_particle(convert, into).
+verb_particle(break, into).
+verb_particle(transform, into).
+verb_particle(coat, in).
+verb_particle(cover, in).
+verb_particle(fill, with).
+verb_particle(mix, with).
+verb_particle(replace, by).
+verb_particle(surround, by).
+verb_particle(embed, in).
+verb_particle(base, on).
+verb_particle(depend, upon).
+verb_particle(consist, in).
+verb_particle(originate, from).
+verb_particle(descend, from).
+verb_particle(separate, from).
+verb_particle(extract, from).
+verb_particle(obtain, from).
+verb_particle(produce, from).
+verb_particle(release, into).
+verb_particle(absorb, into).
+verb_particle(attach, to).
+verb_particle(connect, to).
+verb_particle(bind, to).
+verb_particle(expose, to).
+verb_particle(subject, to).
+verb_particle(classify, as).
+verb_particle(know, as).
