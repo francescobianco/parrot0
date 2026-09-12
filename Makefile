@@ -130,6 +130,13 @@ bin obj:
 #   chat          conversational with tools + network (wikipedia fetch)
 #   chat-agent    the coding agent — local tools on, network on. Same
 #                 contracts as the API/piagent-bench.
+# prose-probe — LEGGO UNA PROSA CHE NON CONOSCO, POI RISPONDO SU QUELLA.
+# L'esperimento che mostra i limiti attuali del lettore di prosa: testi VERI ed
+# ESTERNI alla KB (lead di Wikipedia, tests/fixtures/prose/), domande la cui
+# risposta e' scritta nel testo. Un testo solo: ./scripts/prose-probe.sh quipu
+prose-probe: build
+	@for f in tests/fixtures/prose/*.txt; do ./scripts/prose-probe.sh "$$f"; done
+
 chat: build
 	@PARROT0_WIKI_FETCH=1 PARROT0_TOOLS=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
 

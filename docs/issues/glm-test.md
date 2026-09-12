@@ -91,6 +91,60 @@
 > `intent_cue_stem/2`; il censimento e' ripetibile e conviene rifarlo per le
 > classi lessicali.
 
+# ANALISI CRITICA — rivista del 12 settembre pomeriggio (albero `gen513` in corso), `make chat` soltanto
+
+> Autore: Buffy (GLM, agente Freebuff). Stesso metodo: sonde via pipe su stdin,
+> sessioni indipendenti, `make chat` soltanto (tools on, fetch on) — nessuna
+> suite, nessun `.p0t`. **~40 turni in 18 sessioni.** Il binario stampa
+> `[gen510-riparazioni@…]` con TRE hash nel corso della rivista
+> (`529d1d78` → `3356e9aa` → `70e5045e`): **albero caldo, F. compilava in
+> parallelo**, e il file untracked `kb/core/model-bridge.p0` (caricato da
+> `99-registry.c`) entra in ogni sessione. Per questo oggi **il differenziale
+> con `git stash` NON è stato eseguito** — avrebbe toccato il lavoro in corso —
+> e le sonde vanno considerate su albero caldo, non pulito. Tutte le sonde dei
+> difetti aperti hanno comunque riprodotto al primo colpo, come nelle passate.
+
+## V. Che cosa regge — confermato chiuso oggi
+
+| § | prova d'oggi |
+|---|---|
+| **3.2 + 3.3** | «No, penguins do not live in the Arctic. They live in Antarctica.» → *«Learned: penguins do not live in the Arctic. Learned: penguins live in antarctica.»*; polari «Yes.»/«No.»; «The sky is not green.» → «No.» e «Is the sky blue?» → «Yes.» — la vecchia verità muore |
+| **4.1 / 4.3 / 4.6** | «Is Rome the capital of Italy?» → «Yes.»; sillogismo col quantificatore → «Yes.»; relativa: due fatti, un ack, «Where does the wombat live?» → «australia.» |
+| **3.4 / 4.2** | nome e città entrambi; «12 apples…» → «7.» |
+| **3.6** | «yes, learn about it» e «yes» portano al fetch (quokka, capybara). **L'accettazione non è più il difetto — il difetto si è spostato DOPO il fetch** (v. D6) |
+| **6.3** | «no» nudo dopo l'offerta → «All right, I won't look it up.» |
+| **D1 / D3 / D4** | polare sull'insegnato → «Yes.»; «Imparato: libro rosso…» (niente chiave); «What is the wombat?» → un punto solo |
+| **5.1** | il controfattuale dà catena del mondo (sun causes plant_growth…), non ponte di metodo |
+| **5.4 (metà)** | «hi» → «Hi there!» in sessione inglese: il leak EN→IT **non si riproduce più** |
+
+## VI. Ancora aperti — riprodotti oggi, quasi sempre alla stessa forma
+
+| § | prova d'oggi |
+|---|---|
+| **3.5** | «What is the Eiffel Tower?» → «eiffel tower is about 330 meters.»; «Where is the Eiffel Tower?» → «paris.»; ma «How tall…?» → offerta di insegnare e il polare sull'entità fresca mura. La maniglia dipende dalla **forma della domanda**, non dall'entità |
+| **4.7** | «…What do I need to do first?» → «I am not sure what you mean by «first».» (invariato) — e v. D7: l'altro shape del piano è oggi **rubato** |
+| **4.5** | EN: risposta che non aggancia alcun subgoal (oggi con svista meteo: «I can't feel the weather»); IT: ledger completo, primi due subgoal ignorati. Deterministico in entrambe le lingue |
+| **5.2** | «Tom baked a cake and gave half to Anna…» → «I don't understand that yet.» |
+| **6.1** | «eiffel tower is about 330 meters.» — minuscole in output |
+| **6.7** | eiffel ok; quokka estrae 1 fatto ma illeggibile; capybara non estrae nulla (eco verbatim) |
+
+## VII. Nuovi finding di oggi
+
+- **D5 🔴 Il protocollo di ritrazione esiste, è insegnato dal sistema stesso — e vale SOLO sugli slot a valore unico.** Il sistema sa dire come si ritira: *«I already hold that sky is blue… Say «actually sky is green» and I will replace it»* — e sul colore il protocollo **funziona**: «Corrected: sky is green now, not blue.», poi «Is the sky blue?» → **«No.»** (la vecchia verità è morta). Sul nome pure («Nice to see you again, Luca!»). Ma sulle **relazioni** «actually» aggiunge e non toglie: «Penguins live in the Arctic.» → «No, penguins live in Antarctica, not the Arctic.» → *«Learned: penguins live in Antarctica, not the Arctic.»* → «Do penguins live in the Arctic?» → **«Yes.»** — la menzogna che l'utente ha appena smentito resta affermabile un turno dopo. E la correzione fallisce **due volte**: il nuovo ack contiene il polare dentro il valore («Antarctica, not the Arctic» come valore di habitat — la stessa specie di fatto mangled del §3.2 d'origine) e il vecchio fatto sopravvive. Diagnosi comportamentale: l'unicità è una **politica di slot** («a thing has one color»), non un canale di retrazione generale. La voce 1 del §9 non è più «costruire il canale»: è **generalizzare l'unicità dallo slot alla relazione**.
+- **D6 🔴 La conoscenza fetchata è invisibile alla STESSA forma che l'ha richiesta — e i due casi si tengono per mano.** (a) quokka: «What is a quokka?» → offerta; «yes, learn about it» → *«Looking up quokka... I extracted 1 fact.»*; la stessa domanda, identica, al turno dopo → **«I don't understand that yet.»** — un muro **senza porta**, più cieco della declinazione onesta. (b) capybara: il fetch **non estrae** (la risposta è l'eco verbatim della frase wiki) e lì la stessa domanda funziona — ma «Where does the capybara live?» mura anche se la risposta sta nella frase eco. Unico modello compatibile con entrambi: **il percorso di risposta legge un memo di sessione dell'ultima frase, non i fatti estratti** — dove il fetch produce fatti il memo non c'è (quokka), dove produce solo testo il memo c'è e i fatti no (capybara). §3.5, §6.7 e D2 sono lo stesso difetto visto da tre lati.
+- **D7 🟠 «How do I make X?» viene preso dalla facoltà di codegen.** «How do I make pasta carbonara?» → *«I understood the request — produce «make pasta carbonara» — but I don't know that yet as something I can compute or build, so I have no code to show for it.»* Il ledger **promette** «fare piani semplici e tracciare strutture di prerequisiti» — la facoltà dei piani non vede nemmeno il turno. Mantra #21 alla lettera: chi vince a torto si autodenomina per superficie («make X») e dichiara il fallimento in prima persona. §4.7 non è solo «irraggiungibile»: è **rubato**.
+- **D8 🟠 Il multi-hop non apre nemmeno più il menu (D2 in forma peggiore).** «What is the capital of the country where the Eiffel Tower is located?» → «I don't know about capital.» (il nome di relazione preso a entità); «Eiffel Tower» al turno dopo → nuova offerta di insegnamento. Oggi su questa superficie il ciclo si chiude prima ancora di aprirsi.
+- **D9 🟡 Un accento decide lingua E facoltà.** «Come si prepara un caffe?» (senza accento) → muro **in inglese**; «caffè» → piano italiano in 4 passi. Senza diacritico la maniglia lessicale non collima e la ripresa perde anche la lingua: la radice di 5.4 (la lingua decide per coincidenza) più la fragilità della forma.
+- **D10 ⚪ Possibile regressione su 5.3.** «Can birds fly?» oggi declina (plurale e singolare) — il probe del gen512 dava «Yes.». Da riverificare ad albero freddo prima di schedularla: l'albero caldo non distingue regressione da KB in transito.
+
+## VIII. Giudizio sul documento — che cosa resta valido
+
+1. La tesi («si impara, non si ritira») regge e si affina: il ritiro **esiste**, è insegnato dal sistema stesso, e regge solo dove una politica d'unicità lo sostiene (D5). La malattia 2 è mezzo chiusa e ora misurata: ingresso sì, ritiro slot sì, ritiro relazione no.
+2. La malattia 1 (facoltà-isole) ha la sua forma più netta in D6: chi estrae non è chi risponde, e il passaggio fra i due non c'è — **la quarta volta** che due percorsi che devono accordarsi non condividono l'oggetto (D33/D35/D37, poi §3.4, ora D6).
+3. La malattia 3 (rispondere vs rispondere bene) continua a regressare sul contenuto — zero confabulazioni in ~40 turni — e ad avanzare sulla forma: D9, 6.1, il muro senza porta di D6.
+4. Ordine d'attacco aggiornato: **1** generalizzare l'unicità alle relazioni (D5 → chiude §9.1); **2** ponte fetch→fatti→risposta (D6 → chiude §3.5+§6.7+D2 insieme); **3** titolo dei piani su «make/how» (D7 → chiude §4.7); poi 5.2, 4.5, 6.1, D9.
+5. Le sonde di questa rivista sono nel §D rivisto qui sotto: le vecchie sonde di difetti chiusi sono state tolte (non fanno emergere difetti, sono regressioni) e al loro posto c'è una riga unica di regressione minima.
+
 # ANALISI CRITICA — nuova intervista dell'11 settembre 2026 (`gen512`), `make chat` soltanto
 
 > Autore: Buffy (GLM, agente Freebuff). Stesso metodo del report: sonde via pipe
@@ -153,32 +207,48 @@
 4. **L'ordine d'attacco del §9, aggiornato al gen512:** fatte (da marcare) le voci **2** (guardia anti-confabulazione — «Ice.» non risponde piu'), **4** (famiglia di accettazione — salvo D2: ogni nuova superficie d'offerta riapre il ciclo), **5** (frattura dell'input composto), **6** (italiano conversazionale di base). Restano in testa, in quest'ordine: **1** (retrazione parlando — §3.2/3.3 di oggi), **3** (maniglia unica dell'entita' attraverso le forme — §3.5 + D1), **7** (numeri/comparativi con ruoli — §4.2/5.2). La voce 8 (pulizia superficie) ha oggi tre esempi in piu': D2, D3, D4.
 5. **Che cosa il report non aveva e oggi servirebbe:** una sezione sulle **risposte di ripresa** (menu, offerte, selezioni) come classe a sé — e' la famiglia che genera D2 e ha generato §3.6, e cresce piu' in fretta delle altre: ogni nuova superficie interattiva aggiunge un ramo di ripresa non condiviso. Il test comportamentale da cricchetare: *menu → scelta → la scelta deve portare al fatto, non a una nuova offerta.*
 
-## D. Riproduzioni rapide di oggi (da appendere a quelle del report)
+## D. Riproduzioni rapide — riviste il 12 settembre pomeriggio
+
+> criterio: restano le sonde che riproducono un difetto **aperto** (una per
+> finding); le sonde di difetti chiusi (vecchie A, B, C — §3.1, §3.2/3.3, D1)
+> sono state tolte e ridotte alla riga unica di regressione in fondo.
+> Tutte via `make -s chat`; per l'italiano aggiungere `PARROT0_LANG=it`.
 
 ```sh
-# A. §3.1 chiuso: declinazione onesta al posto di «Ice.»
-printf 'Do penguins live in the Arctic?\nIs Rome the capital of Italy?\n/quit\n' | \
-  make -s chat
+# 1. §3.5: conoscenza fresca invisibile alla forma nuova (aperto)
+printf 'What is the Eiffel Tower?\nHow tall is the Eiffel Tower?\n/quit\n' | make -s chat
 
-# B. §3.2/3.3 aperto: la negazione produce un fatto non usabile
-printf 'No, penguins do not live in the Arctic. They live in Antarctica.\nDo penguins live in Antarctica?\n/quit\n' | \
-  make -s chat
+# 2. D6: il fetch che estrae non alimenta nemmeno la forma che l'ha chiesto (muro senza porta)
+printf 'What is a quokka?\nyes, learn about it\nWhat is a quokka?\n/quit\n' | make -s chat
 
-# C. D1: polar su fatto appena insegnato con articolo indeterminativo
-printf 'A wombat is a marsupial.\nIs a wombat a marsupial?\n/quit\n' | \
-  make -s chat
+# 3. D6, rovescio: fetch senza estrazione = eco verbatim, e la wh sulla frase mura
+printf 'What is a capybara?\nyes\nWhere does the capybara live?\n/quit\n' | make -s chat
 
-# D. D2: la selezione del menu non viene consumata
-printf 'What is the capital of the country where the Eiffel Tower is located?\nEiffel Tower\n/quit\n' | \
-  make -s chat
+# 4. D5: il protocollo «actually» ritira gli slot, non le relazioni — la menzogna resta affermabile
+printf 'Penguins live in the Arctic.\nNo, penguins live in Antarctica, not the Arctic.\nDo penguins live in the Arctic?\nDo penguins live in Antarctica?\n/quit\n' | make -s chat
 
-# E. §3.5: conoscenza fresca invisibile alla forma nuova (invariato dal gen501)
-printf 'What is the Eiffel Tower?\nHow tall is the Eiffel Tower?\n/quit\n' | \
-  make -s chat
+# 5. D7 + §4.7: il piano rubato dal codegen, e «first» senza maniglia
+printf 'How do I make pasta carbonara?\nI want to make pasta carbonara. What do I need to do first?\n/quit\n' | make -s chat
 
-# F. 5.4 in entrambe le direzioni
-printf 'hi\n/quit\n' | make -s chat
+# 6. D8: il multi-hop non apre più menu; la risposta al turno dopo è una nuova offerta
+printf 'What is the capital of the country where the Eiffel Tower is located?\nEiffel Tower\n/quit\n' | make -s chat
+
+# 7. §4.5: multi-obiettivo, una sola risposta (provare in EN e IT)
+printf 'What is your name and where do you live and what can you do?\n/quit\n' | make -s chat
+printf 'Dimmi il tuo nome e dove vivi e che cosa sai fare\n/quit\n' | PARROT0_LANG=it make -s chat
+
+# 8. §5.2: comparativi
+printf 'Tom baked a cake and gave half to Anna. Who has less cake?\n/quit\n' | make -s chat
+
+# 9. D9: un accento cambia lingua e facoltà
+printf 'Come si prepara un caffe?\nCome si prepara un caffè?\n/quit\n' | PARROT0_LANG=it make -s chat
+
+# 10. 5.4: la direzione IT→EN resta (la EN→IT «hi»→«Ciao» NON si riproduce più)
 printf 'Ciao, mi chiamo Giulia\nCome mi chiamo?\n/quit\n' | PARROT0_LANG=it make -s chat
+
+# Regressione minima (difetti chiusi; se una risposta qui sotto torna, è regression):
+printf 'Do penguins live in the Arctic?\nIs Rome the capital of Italy?\nNo, penguins do not live in the Arctic. They live in Antarctica.\nDo penguins live in the Arctic?\nI have 12 apples and I eat 5 apples. How many apples do I have?\nEvery dog is a mammal. Rex is a dog. Is Rex a mammal?\nThe sky is not green.\nIs the sky green?\nA wombat is a marsupial.\nIs a wombat a marsupial?\n/quit\n' | make -s chat
+# atteso: declinazione onesta / Yes. / due Learned / No. / 7. / Yes. / Learned / No. / Learned / Yes.
 ```
 
 — fine analisi critica —
