@@ -2837,3 +2837,12 @@ partitive_preposition(di).
 % del valore. Vale solo per le forme che contengono un partitivo dopo una misura.
 machinery(measured_value_max_words).
 measured_value_max_words(9).
+
+% ── gen513 — UN VERBO DI RELAZIONE CHIUDE UN SINTAGMA NOMINALE ─────────────
+% «what do coral reefs occupy?»: il sintagma del soggetto finiva per inglobare
+% il verbo («coral_reefs_occupy»), quindi la chiave giusta non veniva mai
+% costruita e la risoluzione PER DESCRIZIONE — quella che sa che «coral reefs»
+% descrive «shallow coral reefs» — non poteva scattare. `pos/2` dichiara nove
+% verbi; i verbi di relazione insegnati sono centinaia, e sono verbi a tutti
+% gli effetti. Un confine dichiarato una volta vale per il lettore E per la IR.
+np_closer($V) :- relation_verb($V).
