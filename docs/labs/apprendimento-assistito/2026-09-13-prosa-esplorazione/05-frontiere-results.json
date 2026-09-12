@@ -1,0 +1,123 @@
+[
+  {
+    "id": "holds-with-context",
+    "kind": "original_two_sentences_then_question_lesson",
+    "elapsed": 14.011,
+    "turns": [
+      {
+        "prompt": "A coral reef is an underwater ecosystem characterized by reef-building corals. Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+        "reply": "Learned: coral reef is an underwater ecosystem. Learned: coral reef characterized by reef-building corals. Learned: reefs made of colonies. Learned: colonies of coral polyps held together by calcium carbonate."
+      },
+      {
+        "prompt": "what are coral polyps held together by?",
+        "reply": "calcium carbonate."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …»."
+      },
+      {
+        "prompt": "learn \"what holds\" as another way to ask \"what are coral polyps held together by\"",
+        "reply": "«what are coral polyps held together by» isn't a question I already know how to answer, so I have nothing to copy the new wording from."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet."
+      },
+      {
+        "prompt": "what holds colonies of coral polyps together?",
+        "reply": "Hmm, I don't know about colonies yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a colonies»; if colonies is a word you want to talk ABOUT, say «the word colonies is a …»."
+      },
+      {
+        "prompt": "what holds coral polyps?",
+        "reply": "Hmm, I don't know about polyps yet."
+      },
+      {
+        "prompt": "what holds a book together?",
+        "reply": "Hmm, I don't know about together yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a together»; if together is a word you want to talk ABOUT, say «the word together is a …»."
+      },
+      {
+        "prompt": "what are coral polyps?",
+        "reply": "I don't know much about coral polyps yet, and the network is off, so I can't read about it now."
+      }
+    ]
+  },
+  {
+    "id": "type-and-name",
+    "kind": "original_two_sentences_then_question_variants",
+    "elapsed": 16.288,
+    "turns": [
+      {
+        "prompt": "A coral reef is an underwater ecosystem characterized by reef-building corals. Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+        "reply": "Learned: coral reef is an underwater ecosystem. Learned: coral reef characterized by reef-building corals. Learned: reefs made of colonies. Learned: colonies of coral polyps held together by calcium carbonate."
+      },
+      {
+        "prompt": "what is a reef?",
+        "reply": "I don't know much about reef yet, and the network is off, so I can't read about it now."
+      },
+      {
+        "prompt": "what is a coral reef?",
+        "reply": "coral reef is an underwater ecosystem."
+      },
+      {
+        "prompt": "what kind of ecosystem is a coral reef?",
+        "reply": "Hmm, I don't know about ecosystem yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is an ecosystem»; if ecosystem is a word you want to talk ABOUT, say «the word ecosystem is a …»."
+      },
+      {
+        "prompt": "what ecosystem is a coral reef?",
+        "reply": "Hmm, I don't know about ecosystem yet."
+      },
+      {
+        "prompt": "what are coral polyps?",
+        "reply": "I don't know much about coral polyps yet, and the network is off, so I can't read about it now."
+      },
+      {
+        "prompt": "what do reef-building corals build?",
+        "reply": "Hmm, I don't know about reef-building yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a reef-building»; if reef-building is a word you want to talk ABOUT, say «the word reef-building is a …»."
+      },
+      {
+        "prompt": "what are reef-building corals?",
+        "reply": "I don't know much about reef-building corals yet, and the network is off, so I can't read about it now."
+      }
+    ]
+  },
+  {
+    "id": "threat-parenthesis",
+    "kind": "source_with_explicit_antecedent_then_parenthesis_ablation",
+    "elapsed": 20.386,
+    "turns": [
+      {
+        "prompt": "Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions. They are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification, overfishing (e.g., from blast fishing, cyanide fishing, spearfishing on scuba), sunscreen use, and harmful land-use practices, including runoff and seeps (e.g., from injection wells and cesspools).",
+        "reply": "Learned 1 facts: shallow tropical coral reefs has declined."
+      },
+      {
+        "prompt": "what threatens coral reefs?",
+        "reply": "Hmm, I don't know about threatens yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a threatens»; if threatens is a word you want to talk ABOUT, say «the word threatens is a …»."
+      },
+      {
+        "prompt": "what are coral reefs under threat from?",
+        "reply": "I don't know much about coral reefs yet, and the network is off, so I can't read about it now."
+      },
+      {
+        "prompt": "what do excess nutrients include?",
+        "reply": "Hmm, I don't know about excess yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is an excess»; if excess is a word you want to talk ABOUT, say «the word excess is a …»."
+      },
+      {
+        "prompt": "Coral reefs are under threat from excess nutrients, rising ocean heat content and acidification.",
+        "reply": "I looked up «excess» but found nothing. If you know it, teach me: «excess is defined as …»."
+      },
+      {
+        "prompt": "what are coral reefs under threat from?",
+        "reply": "I don't know much about coral reefs yet, and the network is off, so I can't read about it now."
+      },
+      {
+        "prompt": "Excess nutrients include nitrogen and phosphorus.",
+        "reply": "Learned: excess nutrients include nitrogen."
+      },
+      {
+        "prompt": "what do excess nutrients include?",
+        "reply": "Hmm, I don't know about excess yet."
+      }
+    ]
+  }
+]

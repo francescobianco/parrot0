@@ -1,0 +1,43 @@
+[
+  {
+    "id": "teach-holds",
+    "kind": "spoken_question_lesson",
+    "turns": [
+      "Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+      "what are coral polyps held together by?",
+      "what holds coral polyps together?",
+      "learn \"what holds\" as another way to ask \"what are coral polyps held together by\"",
+      "what holds coral polyps together?",
+      "what holds coral polyps?",
+      "what holds colonies of coral polyps together?",
+      "forget that what holds means what are coral polyps held together by",
+      "what holds coral polyps together?"
+    ]
+  },
+  {
+    "id": "quantity-reference",
+    "kind": "original_two_sentences_then_question_variants",
+    "turns": [
+      "Sometimes called rainforests of the sea, shallow coral reefs form some of Earth's most diverse ecosystems. They occupy less than 0.1% of the world's ocean area, about half the area of France.",
+      "what do coral reefs occupy?",
+      "what do reefs occupy?",
+      "how much do coral reefs occupy?",
+      "how much of the world ocean area do coral reefs occupy?",
+      "how much of the world ocean area do reefs occupy?",
+      "what do shallow coral reefs occupy?",
+      "what are shallow coral reefs sometimes called?"
+    ]
+  },
+  {
+    "id": "teach-cnidaria-question",
+    "kind": "original_two_sentences_then_question_lesson",
+    "turns": [
+      "Coral belongs to the class Anthozoa in the animal phylum Cnidaria, which includes sea anemones and jellyfish. Unlike sea anemones, corals secrete hard carbonate exoskeletons that support and protect the coral.",
+      "what does animal phylum cnidaria include?",
+      "what does the phylum cnidaria include?",
+      "learn \"what does the phylum\" as another way to ask \"what does animal phylum cnidaria include\"",
+      "what does the phylum cnidaria include?",
+      "what does cnidaria include?"
+    ]
+  }
+]

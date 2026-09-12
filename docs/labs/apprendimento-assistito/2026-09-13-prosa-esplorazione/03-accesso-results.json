@@ -1,0 +1,209 @@
+[
+  {
+    "id": "passive-active",
+    "kind": "original_then_faithful_paraphrase",
+    "elapsed": 8.513,
+    "turns": [
+      {
+        "prompt": "Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+        "reply": "Learned: reefs made of colonies."
+      },
+      {
+        "prompt": "what are coral polyps held together by?",
+        "reply": "I don't know: nothing I hold says coral polyps hold together by, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …»."
+      },
+      {
+        "prompt": "what does calcium carbonate hold together?",
+        "reply": "I don't know: nothing I hold says calcium carbonate hold together, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "Calcium carbonate holds colonies of coral polyps together.",
+        "reply": "Learned: calcium carbonate hold colonies."
+      },
+      {
+        "prompt": "what does calcium carbonate hold together?",
+        "reply": "colonies."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet."
+      },
+      {
+        "prompt": "what is calcium carbonate for?",
+        "reply": "Hmm, I don't know about carbonate yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a carbonate»; if carbonate is a word you want to talk ABOUT, say «the word carbonate is a …»."
+      }
+    ]
+  },
+  {
+    "id": "support-access",
+    "kind": "factorization_access_only",
+    "elapsed": 9.398,
+    "turns": [
+      {
+        "prompt": "Hard carbonate exoskeletons support the coral.",
+        "reply": "Learned: hard carbonate exoskeletons support coral."
+      },
+      {
+        "prompt": "Hard carbonate exoskeletons protect the coral.",
+        "reply": "Learned: hard carbonate exoskeletons protect coral."
+      },
+      {
+        "prompt": "what supports coral?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "what protects coral?",
+        "reply": "Hmm, I don't know about protects yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a protects»; if protects is a word you want to talk ABOUT, say «the word protects is a …»."
+      },
+      {
+        "prompt": "what supports the corals?",
+        "reply": "Hmm, I don't know about corals yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a corals»; if corals is a word you want to talk ABOUT, say «the word corals is a …»."
+      },
+      {
+        "prompt": "what protects the corals?",
+        "reply": "Hmm, I don't know about protects yet."
+      },
+      {
+        "prompt": "what do hard carbonate exoskeletons support?",
+        "reply": "coral."
+      },
+      {
+        "prompt": "what do hard carbonate exoskeletons protect?",
+        "reply": "coral."
+      },
+      {
+        "prompt": "who supports coral?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "who protects coral?",
+        "reply": "I looked up «corals» but found nothing. If you know it, teach me: «corals is defined as …»."
+      }
+    ]
+  },
+  {
+    "id": "found-adverbs",
+    "kind": "original_then_lossy_ablation_not_benchmark",
+    "elapsed": 23.707,
+    "turns": [
+      {
+        "prompt": "Coral reefs flourish in ocean waters that provide few nutrients. They are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas.",
+        "reply": "Learned: coral reefs flourish ocean waters. I couldn't read «They are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas.»."
+      },
+      {
+        "prompt": "where are coral reefs most commonly found?",
+        "reply": "Hmm, I don't know about commonly yet."
+      },
+      {
+        "prompt": "at what depths are reefs commonly found?",
+        "reply": "Hmm, I don't know about depths yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a depths»; if depths is a word you want to talk ABOUT, say «the word depths is a …»."
+      },
+      {
+        "prompt": "what are coral reefs found at?",
+        "reply": "I don't know: nothing I hold says coral reefs find at, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "Coral reefs are found at shallow depths in tropical waters.",
+        "reply": "I looked up «depths» but found nothing. If you know it, teach me: «depths is defined as …»."
+      },
+      {
+        "prompt": "where are coral reefs most commonly found?",
+        "reply": "Hmm, I don't know about commonly yet."
+      },
+      {
+        "prompt": "at what depths are reefs commonly found?",
+        "reply": "Hmm, I don't know about depths yet."
+      },
+      {
+        "prompt": "what are coral reefs found at?",
+        "reply": "I don't know: nothing I hold says coral reefs find at, and nothing says it isn't so. Tell me either way and I will hold it."
+      }
+    ]
+  },
+  {
+    "id": "decline-sensitive",
+    "kind": "original_then_factorization",
+    "elapsed": 10.624,
+    "turns": [
+      {
+        "prompt": "Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions.",
+        "reply": "975."
+      },
+      {
+        "prompt": "what have shallow tropical coral reefs declined by?",
+        "reply": "Hmm, I don't know about shallow yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a shallow»; if shallow is a word you want to talk ABOUT, say «the word shallow is a …»."
+      },
+      {
+        "prompt": "since when have coral reefs declined?",
+        "reply": "Hmm, I don't know about declined yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a declined»; if declined is a word you want to talk ABOUT, say «the word declined is a …»."
+      },
+      {
+        "prompt": "what are coral reefs sensitive to?",
+        "reply": "Hmm, I don't know about sensitive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a sensitive»; if sensitive is a word you want to talk ABOUT, say «the word sensitive is a …»."
+      },
+      {
+        "prompt": "Shallow tropical coral reefs are sensitive to water conditions.",
+        "reply": "I looked up «sensitive» but found nothing. If you know it, teach me: «sensitive is defined as …»."
+      },
+      {
+        "prompt": "what are coral reefs sensitive to?",
+        "reply": "Hmm, I don't know about sensitive yet."
+      },
+      {
+        "prompt": "Shallow tropical coral reefs have declined by 50% since 1950.",
+        "reply": "975."
+      },
+      {
+        "prompt": "what have shallow tropical coral reefs declined by?",
+        "reply": "Hmm, I don't know about shallow yet."
+      },
+      {
+        "prompt": "since when have coral reefs declined?",
+        "reply": "Hmm, I don't know about declined yet."
+      }
+    ]
+  },
+  {
+    "id": "services-purpose",
+    "kind": "original_sentence",
+    "elapsed": 9.483,
+    "turns": [
+      {
+        "prompt": "Coral reefs deliver ecosystem services for tourism, fisheries, and shoreline protection.",
+        "reply": "Learned: coral reefs deliver ecosystem services."
+      },
+      {
+        "prompt": "what do coral reefs deliver services for?",
+        "reply": "I don't know: nothing I hold says coral reefs deliver services for, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "what are ecosystem services for?",
+        "reply": "An ecosystem is a community of organisms interacting with one another and with their physical environment through food webs, nutrient cycles and flows of energy."
+      },
+      {
+        "prompt": "what do coral reefs deliver?",
+        "reply": "ecosystem services."
+      },
+      {
+        "prompt": "Coral reefs provide a home for at least 25% of all marine species, including fish, mollusks, worms, crustaceans, echinoderms, sponges, tunicates and other cnidarians.",
+        "reply": "Learned: specie(fish), specie(mollusks), specie(worms), specie(crustaceans), specie(echinoderms), specie(sponges), specie(tunicates), specie(cnidarians)."
+      },
+      {
+        "prompt": "what do coral reefs provide a home for?",
+        "reply": "I don't know: nothing I hold says coral reefs provide home for, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "how many marine species do reefs provide a home for?",
+        "reply": "Hmm, I don't know about marine yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a marine»; if marine is a word you want to talk ABOUT, say «the word marine is a …»."
+      },
+      {
+        "prompt": "what lives in coral reefs?",
+        "reply": "I don't understand that yet."
+      }
+    ]
+  }
+]

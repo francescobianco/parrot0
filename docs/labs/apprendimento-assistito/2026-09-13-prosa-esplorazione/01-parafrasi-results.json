@@ -1,0 +1,125 @@
+[
+  {
+    "id": "fulltext-alternatives",
+    "kind": "unchanged_prose",
+    "elapsed": 78.09,
+    "turns": [
+      {
+        "prompt": "A coral reef is an underwater ecosystem characterized by reef-building corals. Reefs are formed of colonies of coral polyps held together by calcium carbonate. Most coral reefs are built from stony corals, whose polyps cluster in groups. Coral belongs to the class Anthozoa in the animal phylum Cnidaria, which includes sea anemones and jellyfish. Unlike sea anemones, corals secrete hard carbonate exoskeletons that support and protect the coral. Most reefs grow best in warm, shallow, clear, sunny, and agitated water. Coral reefs first appeared 485 million years ago, at the dawn of the Early Ordovician, displacing the microbial and sponge reefs of the Cambrian. Sometimes called rainforests of the sea, shallow coral reefs form some of Earth's most diverse ecosystems. They occupy less than 0.1% of the world's ocean area, about half the area of France. Yet, they provide a home for at least 25% of all marine species, including fish, mollusks, worms, crustaceans, echinoderms, sponges, tunicates and other cnidarians. Coral reefs flourish in ocean waters that provide few nutrients. They are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas. Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions. They are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification, overfishing (e.g., from blast fishing, cyanide fishing, spearfishing on scuba), sunscreen use, and harmful land-use practices, including runoff and seeps (e.g., from injection wells and cesspools). Coral reefs deliver ecosystem services for tourism, fisheries, and shoreline protection. The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates) to US$2.7 trillion (a 2020 estimate) to US$9.9 trillion (a 2014 estimate).",
+        "reply": "Learned: coral reef is an underwater ecosystem. Learned: coral reef characterized by reef-building corals. Learned: reefs made of colonies. Learned: colonies of coral polyps held together by calcium carbonate. I can't hold «most coral reefs are built from stony corals, whose polyps cluster in groups» yet: I only keep what is true of every member of a kind, or of a named one. Learned: coral belong class anthozoa. Learned: animal phylum cnidaria includes sea anemones. Learned: corals secrete hard carbonate exoskeletons. I can't hold «most reefs grow best in warm, shallow, clear, sunny, and agitated water» yet: I only keep what is true of every member of a kind, or of a named one. Learned: coral reefs first appear 485 million years ago. Learned: shallow coral reefs form some of earth's most diverse ecosystems. Learned: shallow coral reefs occupy less than 0.1 percent of the world's ocean area. Learned: specie(fish), specie(mollusks), specie(worms), specie(crustaceans), specie(echinoderms), specie(sponges), specie(tunicates), specie(cnidarians). Learned: coral reefs flourish ocean waters. I couldn't read «They are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas». I couldn't read «Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions». I couldn't read «They are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification, overfishing (e.g., from blast fishing, cyanide fishing, spearfishing on scuba), sunscreen use, and harmful land-use practices, including runoff and seeps (e.g., from injection wells and cesspools)». Learned: coral reefs deliver ecosystem services. I didn't keep that: «annual_global_economic_value_of_coral_reefs» and «been» don't read as things I can hold a fact about. Learned: annual global economic value estimated at anywhere."
+      },
+      {
+        "prompt": "what does cnidaria include?",
+        "reply": "Hmm, I don't know about cnidaria yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a cnidaria»; if cnidaria is a word you want to talk ABOUT, say «the word cnidaria is a …»."
+      },
+      {
+        "prompt": "what does the phylum cnidaria include?",
+        "reply": "Hmm, I don't know about phylum yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a phylum»; if phylum is a word you want to talk ABOUT, say «the word phylum is a …»."
+      },
+      {
+        "prompt": "what does animal phylum cnidaria include?",
+        "reply": "sea anemones."
+      },
+      {
+        "prompt": "what are coral polyps held together by?",
+        "reply": "calcium carbonate."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …»."
+      },
+      {
+        "prompt": "what does calcium carbonate hold together?",
+        "reply": "I don't know: nothing I hold says calcium carbonate hold together, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "what do reefs occupy?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "how much do reefs occupy?",
+        "reply": "I'm not sure I followed. Can you say it another way?"
+      },
+      {
+        "prompt": "how much of the world ocean area do reefs occupy?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "what does coral reef mean?",
+        "reply": "I don't know yet what «coral_reef» means. Shall I look it up?"
+      },
+      {
+        "prompt": "what kind of ecosystem is a coral reef?",
+        "reply": "Hmm, I don't know about ecosystem yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is an ecosystem»; if ecosystem is a word you want to talk ABOUT, say «the word ecosystem is a …»."
+      },
+      {
+        "prompt": "what is reef?",
+        "reply": "I don't know much about reef yet, and the network is off, so I can't read about it now."
+      },
+      {
+        "prompt": "what do coral reefs provide?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "what do coral reefs provide a home for?",
+        "reply": "I don't know: nothing I hold says coral reefs provide home for, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "what does ocean waters provide?",
+        "reply": "I don't actually see or experience things, but I can describe it: a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves."
+      },
+      {
+        "prompt": "what do coral reefs deliver?",
+        "reply": "ecosystem services."
+      },
+      {
+        "prompt": "what do coral reefs deliver services for?",
+        "reply": "I don't know: nothing I hold says coral reefs deliver services for, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "what are ecosystem services for?",
+        "reply": "An ecosystem is a community of organisms interacting with one another and with their physical environment through food webs, nutrient cycles and flows of energy."
+      },
+      {
+        "prompt": "what are coral reefs found at?",
+        "reply": "I don't know: nothing I hold says coral reefs find at, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "where are coral reefs found?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "what are reefs sensitive to?",
+        "reply": "Hmm, I don't know about sensitive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a sensitive»; if sensitive is a word you want to talk ABOUT, say «the word sensitive is a …»."
+      },
+      {
+        "prompt": "what have coral reefs declined by?",
+        "reply": "Hmm, I don't know about declined yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a declined»; if declined is a word you want to talk ABOUT, say «the word declined is a …»."
+      },
+      {
+        "prompt": "when have coral reefs declined?",
+        "reply": "Hmm, I don't know about declined yet."
+      },
+      {
+        "prompt": "what is coral reefs economic value?",
+        "reply": "I don't know much about coral reefs economic value yet, and the network is off, so I can't read about it now."
+      },
+      {
+        "prompt": "what supports coral?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "what protects coral?",
+        "reply": "Hmm, I don't know about protects yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a protects»; if protects is a word you want to talk ABOUT, say «the word protects is a …»."
+      },
+      {
+        "prompt": "what are shallow coral reefs called?",
+        "reply": "I don't know much about shallow coral reefs called yet, and the network is off, so I can't read about it now."
+      },
+      {
+        "prompt": "what do reef-building corals build?",
+        "reply": "Hmm, I don't know about reef-building yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a reef-building»; if reef-building is a word you want to talk ABOUT, say «the word reef-building is a …»."
+      }
+    ]
+  }
+]

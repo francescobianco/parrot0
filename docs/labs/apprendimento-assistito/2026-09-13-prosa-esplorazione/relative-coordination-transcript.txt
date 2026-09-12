@@ -1,0 +1,13 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: corals secrete hard carbonate exoskeletons.
+>>> I don't understand that yet.
+>>> Hmm, I don't know about protects yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a protects»; if protects is a word you want to talk ABOUT, say «the word protects is a …».
+>>> Learned: hard carbonate exoskeletons support coral.
+>>> Learned: hard carbonate exoskeletons protect coral.
+>>> I don't understand that yet.
+>>> Hmm, I don't know about protects yet.
+>>> 
+parrot0: bye

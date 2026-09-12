@@ -1,0 +1,12 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: coral belong class anthozoa. Learned: animal phylum cnidaria includes sea anemones. Learned: corals secrete hard carbonate exoskeletons.
+>>> sea anemones.
+>>> Hmm, I don't know about phylum yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a phylum»; if phylum is a word you want to talk ABOUT, say «the word phylum is a …».
+>>> «what does animal phylum cnidaria include» isn't a question I already know how to answer, so I have nothing to copy the new wording from.
+>>> Hmm, I don't know about phylum yet.
+>>> Hmm, I don't know about cnidaria yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a cnidaria»; if cnidaria is a word you want to talk ABOUT, say «the word cnidaria is a …».
+>>> 
+parrot0: bye

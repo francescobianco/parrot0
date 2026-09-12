@@ -1,0 +1,14 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: coral reefs flourish ocean waters. I couldn't read «They are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas.».
+>>> Hmm, I don't know about commonly yet.
+>>> Hmm, I don't know about depths yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a depths»; if depths is a word you want to talk ABOUT, say «the word depths is a …».
+>>> I don't know: nothing I hold says coral reefs find at, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> I looked up «depths» but found nothing. If you know it, teach me: «depths is defined as …».
+>>> Hmm, I don't know about commonly yet.
+>>> Hmm, I don't know about depths yet.
+>>> I don't know: nothing I hold says coral reefs find at, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> 
+parrot0: bye

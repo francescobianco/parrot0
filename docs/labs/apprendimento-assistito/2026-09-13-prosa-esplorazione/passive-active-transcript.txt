@@ -1,0 +1,14 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: reefs made of colonies.
+>>> I don't know: nothing I hold says coral polyps hold together by, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …».
+>>> I don't know: nothing I hold says calcium carbonate hold together, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> Learned: calcium carbonate hold colonies.
+>>> colonies.
+>>> Hmm, I don't know about polyps yet.
+>>> Hmm, I don't know about carbonate yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a carbonate»; if carbonate is a word you want to talk ABOUT, say «the word carbonate is a …».
+>>> 
+parrot0: bye

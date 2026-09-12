@@ -1,0 +1,75 @@
+[
+  {
+    "id": "passive-active",
+    "kind": "original_then_faithful_paraphrase",
+    "turns": [
+      "Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+      "what are coral polyps held together by?",
+      "what holds coral polyps together?",
+      "what does calcium carbonate hold together?",
+      "Calcium carbonate holds colonies of coral polyps together.",
+      "what does calcium carbonate hold together?",
+      "what holds coral polyps together?",
+      "what is calcium carbonate for?"
+    ]
+  },
+  {
+    "id": "support-access",
+    "kind": "factorization_access_only",
+    "turns": [
+      "Hard carbonate exoskeletons support the coral.",
+      "Hard carbonate exoskeletons protect the coral.",
+      "what supports coral?",
+      "what protects coral?",
+      "what supports the corals?",
+      "what protects the corals?",
+      "what do hard carbonate exoskeletons support?",
+      "what do hard carbonate exoskeletons protect?",
+      "who supports coral?",
+      "who protects coral?"
+    ]
+  },
+  {
+    "id": "found-adverbs",
+    "kind": "original_then_lossy_ablation_not_benchmark",
+    "turns": [
+      "Coral reefs flourish in ocean waters that provide few nutrients. They are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas.",
+      "where are coral reefs most commonly found?",
+      "at what depths are reefs commonly found?",
+      "what are coral reefs found at?",
+      "Coral reefs are found at shallow depths in tropical waters.",
+      "where are coral reefs most commonly found?",
+      "at what depths are reefs commonly found?",
+      "what are coral reefs found at?"
+    ]
+  },
+  {
+    "id": "decline-sensitive",
+    "kind": "original_then_factorization",
+    "turns": [
+      "Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions.",
+      "what have shallow tropical coral reefs declined by?",
+      "since when have coral reefs declined?",
+      "what are coral reefs sensitive to?",
+      "Shallow tropical coral reefs are sensitive to water conditions.",
+      "what are coral reefs sensitive to?",
+      "Shallow tropical coral reefs have declined by 50% since 1950.",
+      "what have shallow tropical coral reefs declined by?",
+      "since when have coral reefs declined?"
+    ]
+  },
+  {
+    "id": "services-purpose",
+    "kind": "original_sentence",
+    "turns": [
+      "Coral reefs deliver ecosystem services for tourism, fisheries, and shoreline protection.",
+      "what do coral reefs deliver services for?",
+      "what are ecosystem services for?",
+      "what do coral reefs deliver?",
+      "Coral reefs provide a home for at least 25% of all marine species, including fish, mollusks, worms, crustaceans, echinoderms, sponges, tunicates and other cnidarians.",
+      "what do coral reefs provide a home for?",
+      "how many marine species do reefs provide a home for?",
+      "what lives in coral reefs?"
+    ]
+  }
+]

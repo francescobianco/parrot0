@@ -1,0 +1,115 @@
+[
+  {
+    "id": "teach-holds",
+    "kind": "spoken_question_lesson",
+    "elapsed": 8.482,
+    "turns": [
+      {
+        "prompt": "Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+        "reply": "Learned: reefs made of colonies."
+      },
+      {
+        "prompt": "what are coral polyps held together by?",
+        "reply": "I don't know: nothing I hold says coral polyps hold together by, and nothing says it isn't so. Tell me either way and I will hold it."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …»."
+      },
+      {
+        "prompt": "learn \"what holds\" as another way to ask \"what are coral polyps held together by\"",
+        "reply": "«what are coral polyps held together by» isn't a question I already know how to answer, so I have nothing to copy the new wording from."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet."
+      },
+      {
+        "prompt": "what holds coral polyps?",
+        "reply": "I'm not sure I followed. Can you say it another way?"
+      },
+      {
+        "prompt": "what holds colonies of coral polyps together?",
+        "reply": "Hmm, I don't know about colonies yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a colonies»; if colonies is a word you want to talk ABOUT, say «the word colonies is a …»."
+      },
+      {
+        "prompt": "forget that what holds means what are coral polyps held together by",
+        "reply": "I found the teaching pivot, but I cannot align the same variables exactly once on both sides to roles I know. I have not learned the construction."
+      },
+      {
+        "prompt": "what holds coral polyps together?",
+        "reply": "Hmm, I don't know about polyps yet."
+      }
+    ]
+  },
+  {
+    "id": "quantity-reference",
+    "kind": "original_two_sentences_then_question_variants",
+    "elapsed": 12.585,
+    "turns": [
+      {
+        "prompt": "Sometimes called rainforests of the sea, shallow coral reefs form some of Earth's most diverse ecosystems. They occupy less than 0.1% of the world's ocean area, about half the area of France.",
+        "reply": "Learned: shallow coral reefs form some of earth's most diverse ecosystems. Learned: shallow coral reefs occupy less than 0.1 percent of the world's ocean area."
+      },
+      {
+        "prompt": "what do coral reefs occupy?",
+        "reply": "less than 0.1 percent of the world's ocean area."
+      },
+      {
+        "prompt": "what do reefs occupy?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "how much do coral reefs occupy?",
+        "reply": "I'm not sure I followed. Can you say it another way?"
+      },
+      {
+        "prompt": "how much of the world ocean area do coral reefs occupy?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "how much of the world ocean area do reefs occupy?",
+        "reply": "I didn't quite catch that. What would you like to know?"
+      },
+      {
+        "prompt": "what do shallow coral reefs occupy?",
+        "reply": "less than 0.1 percent of the world's ocean area."
+      },
+      {
+        "prompt": "what are shallow coral reefs sometimes called?",
+        "reply": "I don't know much about shallow coral reefs sometimes called yet, and the network is off, so I can't read about it now."
+      }
+    ]
+  },
+  {
+    "id": "teach-cnidaria-question",
+    "kind": "original_two_sentences_then_question_lesson",
+    "elapsed": 10.008,
+    "turns": [
+      {
+        "prompt": "Coral belongs to the class Anthozoa in the animal phylum Cnidaria, which includes sea anemones and jellyfish. Unlike sea anemones, corals secrete hard carbonate exoskeletons that support and protect the coral.",
+        "reply": "Learned: coral belong class anthozoa. Learned: animal phylum cnidaria includes sea anemones. Learned: corals secrete hard carbonate exoskeletons."
+      },
+      {
+        "prompt": "what does animal phylum cnidaria include?",
+        "reply": "sea anemones."
+      },
+      {
+        "prompt": "what does the phylum cnidaria include?",
+        "reply": "Hmm, I don't know about phylum yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a phylum»; if phylum is a word you want to talk ABOUT, say «the word phylum is a …»."
+      },
+      {
+        "prompt": "learn \"what does the phylum\" as another way to ask \"what does animal phylum cnidaria include\"",
+        "reply": "«what does animal phylum cnidaria include» isn't a question I already know how to answer, so I have nothing to copy the new wording from."
+      },
+      {
+        "prompt": "what does the phylum cnidaria include?",
+        "reply": "Hmm, I don't know about phylum yet."
+      },
+      {
+        "prompt": "what does cnidaria include?",
+        "reply": "Hmm, I don't know about cnidaria yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a cnidaria»; if cnidaria is a word you want to talk ABOUT, say «the word cnidaria is a …»."
+      }
+    ]
+  }
+]

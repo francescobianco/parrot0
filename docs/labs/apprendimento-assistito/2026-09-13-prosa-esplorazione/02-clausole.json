@@ -1,0 +1,52 @@
+[
+  {
+    "id": "taxonomy",
+    "kind": "original_sentence_then_factorization",
+    "turns": [
+      "Coral belongs to the class Anthozoa in the animal phylum Cnidaria, which includes sea anemones and jellyfish.",
+      "what does cnidaria include?",
+      "what phylum does coral belong to?",
+      "Cnidaria includes sea anemones and jellyfish.",
+      "what does cnidaria include?",
+      "what does the phylum cnidaria include?",
+      "Coral belongs to the animal phylum Cnidaria.",
+      "what phylum does coral belong to?"
+    ]
+  },
+  {
+    "id": "relative-coordination",
+    "kind": "original_sentence_then_factorization",
+    "turns": [
+      "Unlike sea anemones, corals secrete hard carbonate exoskeletons that support and protect the coral.",
+      "what supports the corals?",
+      "what protects the corals?",
+      "Hard carbonate exoskeletons support the coral.",
+      "Hard carbonate exoskeletons protect the coral.",
+      "what supports the corals?",
+      "what protects the corals?"
+    ]
+  },
+  {
+    "id": "relative-water",
+    "kind": "original_sentence_then_factorization",
+    "turns": [
+      "Coral reefs flourish in ocean waters that provide few nutrients.",
+      "what do those ocean waters provide?",
+      "Ocean waters provide few nutrients.",
+      "what do ocean waters provide?",
+      "what do those ocean waters provide?"
+    ]
+  },
+  {
+    "id": "quantified-relative",
+    "kind": "original_sentence_then_factorization",
+    "turns": [
+      "Most coral reefs are built from stony corals, whose polyps cluster in groups.",
+      "what are most coral reefs built from?",
+      "where do the polyps of stony corals cluster?",
+      "The polyps of stony corals cluster in groups.",
+      "where do the polyps of stony corals cluster?",
+      "what are stony corals?"
+    ]
+  }
+]

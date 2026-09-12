@@ -1,0 +1,35 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: coral reef is an underwater ecosystem. Learned: coral reef characterized by reef-building corals. Learned: reefs made of colonies. Learned: colonies of coral polyps held together by calcium carbonate. I can't hold «most coral reefs are built from stony corals, whose polyps cluster in groups» yet: I only keep what is true of every member of a kind, or of a named one. Learned: coral belong class anthozoa. Learned: animal phylum cnidaria includes sea anemones. Learned: corals secrete hard carbonate exoskeletons. I can't hold «most reefs grow best in warm, shallow, clear, sunny, and agitated water» yet: I only keep what is true of every member of a kind, or of a named one. Learned: coral reefs first appear 485 million years ago. Learned: shallow coral reefs form some of earth's most diverse ecosystems. Learned: shallow coral reefs occupy less than 0.1 percent of the world's ocean area. Learned: specie(fish), specie(mollusks), specie(worms), specie(crustaceans), specie(echinoderms), specie(sponges), specie(tunicates), specie(cnidarians). Learned: coral reefs flourish ocean waters. I couldn't read «They are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas». I couldn't read «Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions». I couldn't read «They are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification, overfishing (e.g., from blast fishing, cyanide fishing, spearfishing on scuba), sunscreen use, and harmful land-use practices, including runoff and seeps (e.g., from injection wells and cesspools)». Learned: coral reefs deliver ecosystem services. I didn't keep that: «annual_global_economic_value_of_coral_reefs» and «been» don't read as things I can hold a fact about. Learned: annual global economic value estimated at anywhere.
+>>> Hmm, I don't know about cnidaria yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a cnidaria»; if cnidaria is a word you want to talk ABOUT, say «the word cnidaria is a …».
+>>> Hmm, I don't know about phylum yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a phylum»; if phylum is a word you want to talk ABOUT, say «the word phylum is a …».
+>>> sea anemones.
+>>> calcium carbonate.
+>>> Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …».
+>>> I don't know: nothing I hold says calcium carbonate hold together, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> I don't understand that yet.
+>>> I'm not sure I followed. Can you say it another way?
+>>> I don't understand that yet.
+>>> I don't know yet what «coral_reef» means. Shall I look it up?
+>>> Hmm, I don't know about ecosystem yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is an ecosystem»; if ecosystem is a word you want to talk ABOUT, say «the word ecosystem is a …».
+>>> I don't know much about reef yet, and the network is off, so I can't read about it now.
+>>> I don't understand that yet.
+>>> I don't know: nothing I hold says coral reefs provide home for, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> I don't actually see or experience things, but I can describe it: a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves.
+>>> ecosystem services.
+>>> I don't know: nothing I hold says coral reefs deliver services for, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> An ecosystem is a community of organisms interacting with one another and with their physical environment through food webs, nutrient cycles and flows of energy.
+>>> I don't know: nothing I hold says coral reefs find at, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> I don't understand that yet.
+>>> Hmm, I don't know about sensitive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a sensitive»; if sensitive is a word you want to talk ABOUT, say «the word sensitive is a …».
+>>> Hmm, I don't know about declined yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a declined»; if declined is a word you want to talk ABOUT, say «the word declined is a …».
+>>> Hmm, I don't know about declined yet.
+>>> I don't know much about coral reefs economic value yet, and the network is off, so I can't read about it now.
+>>> I don't understand that yet.
+>>> Hmm, I don't know about protects yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a protects»; if protects is a word you want to talk ABOUT, say «the word protects is a …».
+>>> I don't know much about shallow coral reefs called yet, and the network is off, so I can't read about it now.
+>>> Hmm, I don't know about reef-building yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a reef-building»; if reef-building is a word you want to talk ABOUT, say «the word reef-building is a …».
+>>> 
+parrot0: bye

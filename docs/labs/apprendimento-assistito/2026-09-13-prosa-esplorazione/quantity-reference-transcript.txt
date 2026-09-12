@@ -1,0 +1,14 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: shallow coral reefs form some of earth's most diverse ecosystems. Learned: shallow coral reefs occupy less than 0.1 percent of the world's ocean area.
+>>> less than 0.1 percent of the world's ocean area.
+>>> I don't understand that yet.
+>>> I'm not sure I followed. Can you say it another way?
+>>> I don't understand that yet.
+>>> I didn't quite catch that. What would you like to know?
+>>> less than 0.1 percent of the world's ocean area.
+>>> I don't know much about shallow coral reefs sometimes called yet, and the network is off, so I can't read about it now.
+>>> 
+parrot0: bye

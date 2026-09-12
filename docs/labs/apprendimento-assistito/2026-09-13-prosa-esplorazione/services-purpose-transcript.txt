@@ -1,0 +1,14 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: coral reefs deliver ecosystem services.
+>>> I don't know: nothing I hold says coral reefs deliver services for, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> An ecosystem is a community of organisms interacting with one another and with their physical environment through food webs, nutrient cycles and flows of energy.
+>>> ecosystem services.
+>>> Learned: specie(fish), specie(mollusks), specie(worms), specie(crustaceans), specie(echinoderms), specie(sponges), specie(tunicates), specie(cnidarians).
+>>> I don't know: nothing I hold says coral reefs provide home for, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> Hmm, I don't know about marine yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a marine»; if marine is a word you want to talk ABOUT, say «the word marine is a …».
+>>> I don't understand that yet.
+>>> 
+parrot0: bye

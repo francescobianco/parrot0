@@ -1,0 +1,11 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: coral reefs flourish ocean waters.
+>>> I don't actually see or experience things, but I can describe it: a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves.
+>>> Learned: ocean waters provide few nutrients.
+>>> few nutrients.
+>>> few nutrients.
+>>> 
+parrot0: bye

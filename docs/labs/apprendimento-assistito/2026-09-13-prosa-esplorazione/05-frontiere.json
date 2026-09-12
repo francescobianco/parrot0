@@ -1,0 +1,57 @@
+[
+  {
+    "id": "holds-with-context",
+    "kind": "original_two_sentences_then_question_lesson",
+    "turns": [
+      "A coral reef is an underwater ecosystem characterized by reef-building corals. Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+      "what are coral polyps held together by?",
+      "what holds coral polyps together?",
+      "learn \"what holds\" as another way to ask \"what are coral polyps held together by\"",
+      "what holds coral polyps together?",
+      "what holds colonies of coral polyps together?",
+      "what holds coral polyps?",
+      "what holds a book together?",
+      "what are coral polyps?"
+    ]
+  },
+  {
+    "id": "type-and-name",
+    "kind": "original_two_sentences_then_question_variants",
+    "turns": [
+      "A coral reef is an underwater ecosystem characterized by reef-building corals. Reefs are formed of colonies of coral polyps held together by calcium carbonate.",
+      "what is a reef?",
+      "what is a coral reef?",
+      "what kind of ecosystem is a coral reef?",
+      "what ecosystem is a coral reef?",
+      "what are coral polyps?",
+      "what do reef-building corals build?",
+      "what are reef-building corals?"
+    ]
+  },
+  {
+    "id": "threat-parenthesis",
+    "kind": "source_with_explicit_antecedent_then_parenthesis_ablation",
+    "turns": [
+      "Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions. They are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification, overfishing (e.g., from blast fishing, cyanide fishing, spearfishing on scuba), sunscreen use, and harmful land-use practices, including runoff and seeps (e.g., from injection wells and cesspools).",
+      "what threatens coral reefs?",
+      "what are coral reefs under threat from?",
+      "what do excess nutrients include?",
+      "Coral reefs are under threat from excess nutrients, rising ocean heat content and acidification.",
+      "what are coral reefs under threat from?",
+      "Excess nutrients include nitrogen and phosphorus.",
+      "what do excess nutrients include?"
+    ]
+  },
+  {
+    "id": "economic-subject",
+    "kind": "original_then_shorter_source_estimate",
+    "turns": [
+      "Coral reefs deliver ecosystem services for tourism, fisheries, and shoreline protection. The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates) to US$2.7 trillion (a 2020 estimate) to US$9.9 trillion (a 2014 estimate).",
+      "what has been estimated at billions?",
+      "what is the annual global economic value of coral reefs?",
+      "The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates).",
+      "what is the annual global economic value of coral reefs?",
+      "what has been estimated at billions?"
+    ]
+  }
+]

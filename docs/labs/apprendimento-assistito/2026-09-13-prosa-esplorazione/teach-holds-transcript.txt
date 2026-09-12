@@ -1,0 +1,15 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: reefs made of colonies.
+>>> I don't know: nothing I hold says coral polyps hold together by, and nothing says it isn't so. Tell me either way and I will hold it.
+>>> Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …».
+>>> «what are coral polyps held together by» isn't a question I already know how to answer, so I have nothing to copy the new wording from.
+>>> Hmm, I don't know about polyps yet.
+>>> I'm not sure I followed. Can you say it another way?
+>>> Hmm, I don't know about colonies yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a colonies»; if colonies is a word you want to talk ABOUT, say «the word colonies is a …».
+>>> I found the teaching pivot, but I cannot align the same variables exactly once on both sides to roles I know. I have not learned the construction.
+>>> Hmm, I don't know about polyps yet.
+>>> 
+parrot0: bye

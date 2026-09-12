@@ -1,0 +1,14 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned 1 facts: shallow tropical coral reefs has declined.
+>>> Hmm, I don't know about threatens yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a threatens»; if threatens is a word you want to talk ABOUT, say «the word threatens is a …».
+>>> I don't know much about coral reefs yet, and the network is off, so I can't read about it now.
+>>> Hmm, I don't know about excess yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is an excess»; if excess is a word you want to talk ABOUT, say «the word excess is a …».
+>>> I looked up «excess» but found nothing. If you know it, teach me: «excess is defined as …».
+>>> I don't know much about coral reefs yet, and the network is off, so I can't read about it now.
+>>> Learned: excess nutrients include nitrogen.
+>>> Hmm, I don't know about excess yet.
+>>> 
+parrot0: bye

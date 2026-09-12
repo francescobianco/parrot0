@@ -1,0 +1,15 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> 975.
+>>> Hmm, I don't know about shallow yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a shallow»; if shallow is a word you want to talk ABOUT, say «the word shallow is a …».
+>>> Hmm, I don't know about declined yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a declined»; if declined is a word you want to talk ABOUT, say «the word declined is a …».
+>>> Hmm, I don't know about sensitive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a sensitive»; if sensitive is a word you want to talk ABOUT, say «the word sensitive is a …».
+>>> I looked up «sensitive» but found nothing. If you know it, teach me: «sensitive is defined as …».
+>>> Hmm, I don't know about sensitive yet.
+>>> 975.
+>>> Hmm, I don't know about shallow yet.
+>>> Hmm, I don't know about declined yet.
+>>> 
+parrot0: bye

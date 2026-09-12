@@ -1,0 +1,15 @@
+parrot0 [gen510-riparazioni@140ec5d8]
+mode: agent (tools on, network off) - 51849 facts, 3400 rules (6.56%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> Learned: coral reef is an underwater ecosystem. Learned: coral reef characterized by reef-building corals. Learned: reefs made of colonies. Learned: colonies of coral polyps held together by calcium carbonate.
+>>> calcium carbonate.
+>>> Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …».
+>>> «what are coral polyps held together by» isn't a question I already know how to answer, so I have nothing to copy the new wording from.
+>>> Hmm, I don't know about polyps yet.
+>>> Hmm, I don't know about colonies yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a colonies»; if colonies is a word you want to talk ABOUT, say «the word colonies is a …».
+>>> Hmm, I don't know about polyps yet.
+>>> Hmm, I don't know about together yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a together»; if together is a word you want to talk ABOUT, say «the word together is a …».
+>>> I don't know much about coral polyps yet, and the network is off, so I can't read about it now.
+>>> 
+parrot0: bye

@@ -1,0 +1,134 @@
+[
+  {
+    "id": "taxonomy",
+    "kind": "original_sentence_then_factorization",
+    "elapsed": 9.256,
+    "turns": [
+      {
+        "prompt": "Coral belongs to the class Anthozoa in the animal phylum Cnidaria, which includes sea anemones and jellyfish.",
+        "reply": "Learned: coral belong class anthozoa."
+      },
+      {
+        "prompt": "what does cnidaria include?",
+        "reply": "Hmm, I don't know about cnidaria yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a cnidaria»; if cnidaria is a word you want to talk ABOUT, say «the word cnidaria is a …»."
+      },
+      {
+        "prompt": "what phylum does coral belong to?",
+        "reply": "Hmm, I don't know about phylum yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a phylum»; if phylum is a word you want to talk ABOUT, say «the word phylum is a …»."
+      },
+      {
+        "prompt": "Cnidaria includes sea anemones and jellyfish.",
+        "reply": "Learned: cnidaria includes sea anemones."
+      },
+      {
+        "prompt": "what does cnidaria include?",
+        "reply": "sea anemones."
+      },
+      {
+        "prompt": "what does the phylum cnidaria include?",
+        "reply": "Hmm, I don't know about phylum yet."
+      },
+      {
+        "prompt": "Coral belongs to the animal phylum Cnidaria.",
+        "reply": "Learned: coral belong animal phylum cnidaria."
+      },
+      {
+        "prompt": "what phylum does coral belong to?",
+        "reply": "Animal phylum cnidaria."
+      }
+    ]
+  },
+  {
+    "id": "relative-coordination",
+    "kind": "original_sentence_then_factorization",
+    "elapsed": 7.659,
+    "turns": [
+      {
+        "prompt": "Unlike sea anemones, corals secrete hard carbonate exoskeletons that support and protect the coral.",
+        "reply": "Learned: corals secrete hard carbonate exoskeletons."
+      },
+      {
+        "prompt": "what supports the corals?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "what protects the corals?",
+        "reply": "Hmm, I don't know about protects yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a protects»; if protects is a word you want to talk ABOUT, say «the word protects is a …»."
+      },
+      {
+        "prompt": "Hard carbonate exoskeletons support the coral.",
+        "reply": "Learned: hard carbonate exoskeletons support coral."
+      },
+      {
+        "prompt": "Hard carbonate exoskeletons protect the coral.",
+        "reply": "Learned: hard carbonate exoskeletons protect coral."
+      },
+      {
+        "prompt": "what supports the corals?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "what protects the corals?",
+        "reply": "Hmm, I don't know about protects yet."
+      }
+    ]
+  },
+  {
+    "id": "relative-water",
+    "kind": "original_sentence_then_factorization",
+    "elapsed": 5.661,
+    "turns": [
+      {
+        "prompt": "Coral reefs flourish in ocean waters that provide few nutrients.",
+        "reply": "Learned: coral reefs flourish ocean waters."
+      },
+      {
+        "prompt": "what do those ocean waters provide?",
+        "reply": "I don't actually see or experience things, but I can describe it: a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves."
+      },
+      {
+        "prompt": "Ocean waters provide few nutrients.",
+        "reply": "Learned: ocean waters provide few nutrients."
+      },
+      {
+        "prompt": "what do ocean waters provide?",
+        "reply": "few nutrients."
+      },
+      {
+        "prompt": "what do those ocean waters provide?",
+        "reply": "few nutrients."
+      }
+    ]
+  },
+  {
+    "id": "quantified-relative",
+    "kind": "original_sentence_then_factorization",
+    "elapsed": 7.844,
+    "turns": [
+      {
+        "prompt": "Most coral reefs are built from stony corals, whose polyps cluster in groups.",
+        "reply": "I can't hold «most coral reefs are built from stony corals, whose polyps cluster in groups.» yet: I only keep what is true of every member of a kind, or of a named one."
+      },
+      {
+        "prompt": "what are most coral reefs built from?",
+        "reply": "I don't understand that yet."
+      },
+      {
+        "prompt": "where do the polyps of stony corals cluster?",
+        "reply": "Hmm, I don't know about polyps yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a polyps»; if polyps is a word you want to talk ABOUT, say «the word polyps is a …»."
+      },
+      {
+        "prompt": "The polyps of stony corals cluster in groups.",
+        "reply": "Learned: polyps of stony corals cluster groups."
+      },
+      {
+        "prompt": "where do the polyps of stony corals cluster?",
+        "reply": "groups."
+      },
+      {
+        "prompt": "what are stony corals?",
+        "reply": "I don't know much about stony corals yet, and the network is off, so I can't read about it now."
+      }
+    ]
+  }
+]
