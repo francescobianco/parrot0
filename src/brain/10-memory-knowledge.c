@@ -4831,12 +4831,39 @@ static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
  * la dimensione dell'appoggio con cui il C allinea gli slot di UN pattern. */
 #define P0_MAX_SLOTS 8
 
+/* ── gen513 — UN PARTITIVO DOPO UNA MISURA APPARTIENE AL VALORE ────────────
+ *
+ * «Coral reefs occupy 0.1 percent OF the world ocean area» lasciava
+ * `occupy(coral_reefs, one_percent)`: lo slot si fermava a «of», che chiude un
+ * sintagma, e la TESTA del valore — di che cosa è lo 0,1 percento — si
+ * perdeva. Sul piolo 300 succede in quattro frasi, ed è il blocco più grosso.
+ *
+ * Ma «0.1 percent of X» è UN valore, non due: il partitivo lega la misura alla
+ * cosa misurata. La condizione è stretta apposta — si estende SOLO se la
+ * parola prima del partitivo è una misura — perché allargarla a ogni
+ * preposizione farebbe ingoiare all'oggetto anche i complementi che non gli
+ * appartengono («belongs to the class Anthozoa IN the animal phylum…»).
+ *
+ * Le due classi sono fatti: `measure_noun/1` e `partitive_preposition/1` in
+ * kb/core/grammar.p0. Una misura nuova — «share», «fraction», «quota» — costa
+ * una riga e vale dal turno dopo. */
+static int p0_partitive_continues(Brain *b, char **w, size_t i, const char *t) {
+    if (!b || i == 0) return 0;
+    const char *pq[1] = { t };
+    if (!kb_query(brain_kb(b), "partitive_preposition", pq, 1)) return 0;
+    char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[i - 1]);
+    const char *prev = strip_edge_punct(pb);
+    const char *mq[1] = { prev };
+    return kb_query(brain_kb(b), "measure_noun", mq, 1);
+}
+
 static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
                        const char *next_literal) {
     for (size_t i = from; i < n; i++) {
         char *t = strip_edge_punct(w[i]);
         if (next_literal && !strcmp(t, next_literal)) return (int)i;
-        if (!next_literal && p0_np_closer(b, t)) return (int)i;
+        if (!next_literal && p0_np_closer(b, t) &&
+            !p0_partitive_continues(b, w, i, t)) return (int)i;
     }
     return next_literal ? -1 : (int)n;
 }
@@ -6183,9 +6210,42 @@ static int p0_concept_cap(Brain *b) {
 }
 
 /* Solo il tetto di lunghezza: per i nomi SCELTI (relazioni dichiarate). */
+/* Un VALORE MISURATO è più lungo di un concetto, e non perché ha ingoiato
+ * qualcosa: «0.1 percent of the world ocean area» sono sette parole, e sono
+ * tutte del valore. Il tetto dei concetti (`concept_atom_max_words`) esiste per
+ * respingere gli slot che hanno preso mezza proposizione, e su questa forma
+ * respingeva una lettura giusta — sul piolo 300, quattro frasi.
+ *
+ * Il riconoscimento non è una deroga a occhio: è la STESSA condizione che ha
+ * permesso allo slot di estendersi, cioè un partitivo dichiarato preceduto da
+ * una misura dichiarata. Se quella condizione non vale, vale il tetto di
+ * sempre. Il tetto largo è un fatto suo (`measured_value_max_words`). */
+static int p0_atom_is_measured_value(Brain *b, const char *atom) {
+    if (!b || !brain_kb(b) || !atom) return 0;
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", atom);
+    char *toks[24]; size_t nt = 0;
+    for (char *tok = strtok(buf, "_"); tok && nt < 24; tok = strtok(NULL, "_"))
+        toks[nt++] = tok;
+    for (size_t k = 1; k + 1 < nt; k++) {
+        const char *pq[1] = { toks[k] };
+        if (!kb_query(brain_kb(b), "partitive_preposition", pq, 1)) continue;
+        const char *mq[1] = { toks[k - 1] };
+        if (kb_query(brain_kb(b), "measure_noun", mq, 1)) return 1;
+    }
+    return 0;
+}
+
 static int p0_atom_within_cap(Brain *b, const char *atom) {
     if (!b || !brain_kb(b) || !atom || !*atom) return 0;
     int maxw = p0_concept_cap(b);
+    if (p0_atom_is_measured_value(b, atom)) {
+        char cap[1][KB_TERM_LEN]; const char *cq[1] = { NULL };
+        if (kb_match(brain_kb(b), "measured_value_max_words", cq, 1, cap, 1) == 1) {
+            long v = strtol(cap[0], NULL, 10);
+            if (v > maxw) maxw = (int)v;
+        }
+    }
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", atom);
     int words = 0;

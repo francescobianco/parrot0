@@ -2808,3 +2808,32 @@ relative_opener(cui).
 % conoscenza scritta due volte, di cui una sbagliata.
 machinery(boundary_not_between_digits).
 boundary_not_between_digits(".").
+
+% ── gen513 — LE MISURE, E IL PARTITIVO CHE LE LEGA A CIO' CHE MISURANO ──────
+% «0.1 percent OF the world ocean area» e' UN valore, non due: senza queste
+% righe lo slot si fermava a «of» e la testa del valore si perdeva. Una misura
+% nuova costa una riga e vale dal turno dopo.
+machinery(measure_noun).
+measure_noun(percent).
+measure_noun(percentage).
+measure_noun(share).
+measure_noun(fraction).
+measure_noun(half).
+measure_noun(third).
+measure_noun(quarter).
+measure_noun(part).
+measure_noun(portion).
+measure_noun(proportion).
+measure_noun(percento).
+measure_noun(parte).
+measure_noun(meta).
+
+machinery(partitive_preposition).
+partitive_preposition(of).
+partitive_preposition(di).
+
+% Un valore misurato e' piu' lungo di un concetto, e non perche' ha ingoiato
+% qualcosa: «0.1 percent of the world ocean area» sono sette parole e sono tutte
+% del valore. Vale solo per le forme che contengono un partitivo dopo una misura.
+machinery(measured_value_max_words).
+measured_value_max_words(9).
