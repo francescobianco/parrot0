@@ -14863,6 +14863,20 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 }
                 free(sf);
             }
+            /* A bounded span can denote an entity rather than quoted prose.
+             * Its representation is part of the form's KB contract: preserve
+             * the reader's joined key when the slot declares atom form. */
+            {
+                char (*sf)[KB_TERM_LEN] = NULL; size_t nsf = 0;
+                const char *sfq[3] = { form, NULL, "atom" };
+                if (kb_match_all(b->kb, "turn_form_slot_form", sfq, 3, &sf, &nsf)) {
+                    for (size_t k = 0; k < nsf; k++)
+                        for (size_t q = 0; q < ns; q++)
+                            if (!strcmp(slots[q].name, kb_dequote(sf[k])))
+                                slots[q].is_text = 0;
+                }
+                free(sf);
+            }
             const char *scq[3] = { form, NULL, NULL };
             int typed_ok = 1;
             if (kb_match_all(b->kb, "turn_form_slot_class", scq, 3, &sc, &nsc)) {

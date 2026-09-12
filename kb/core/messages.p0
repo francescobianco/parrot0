@@ -2580,7 +2580,7 @@ response_template(between_list, "Between {subject} and {object} I hold {count}: 
 response_template(between_list, it, "Fra {subject} e {object} tengo {count}: {result}.").
 
 turn_form(ask_between, 1, text("what holds between")).
-turn_form(ask_between, 2, slot(subject)).
+turn_form(ask_between, 2, span(subject)).
 turn_form(ask_between, 3, text("and")).
 turn_form(ask_between, 4, rest(object)).
 turn_form_act(ask_between, "op(match, between_rel, [subject, object, free])").

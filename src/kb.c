@@ -3536,11 +3536,24 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         return 0;
     }
 
-    if (strcmp(g->pred, "call") == 0 && g->argc == 1) { /* call/1 proof */
+    /* Dynamic invocation must retain its proof, including bindings needed by
+     * the continuation. Both entry points use the same proof traversal. */
+    if ((strcmp(g->pred, "call") == 0 && g->argc == 1) ||
+        (strcmp(g->pred, "apply") == 0 && g->argc == 2)) {
         char resolved[KB_TERM_LEN];
         deep_resolve(s, g->args[0], resolved, sizeof resolved, 0);
         Term called;
-        if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
+        if (g->argc == 1) {
+            if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
+        } else {
+            char list[KB_TERM_LEN];
+            if (is_var(resolved) || !term_ok(resolved)) return 0;
+            memset(&called, 0, sizeof called);
+            snprintf(called.pred, sizeof called.pred, "%s", resolved);
+            deep_resolve(s, g->args[1], list, sizeof list, 0);
+            if (!list_to_args(list, called.args, &called.argc)) return 0;
+        }
+        if (n - idx > KB_PROOF_PG) return 0;
         Term *comb = scratch->goals;
         size_t m = 0;
         if (m < KB_PROOF_PG) comb[m++] = called;

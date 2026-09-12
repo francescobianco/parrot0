@@ -1,0 +1,75 @@
+% La porta del «chi» e' un contratto interrogabile, con origine e arita'.
+% Non usare provides/2: nella KB nomina gia' risorse offerte da luoghi.
+:- file_attribute(machinery).
+
+% Ogni sorgente e' un predicato unario che enumera portatori. Le registrazioni
+% locali restano vive; il catalogo le legge, non ne conserva una copia.
+capability_registry(binary_relation, relation_verb, 2).
+capability_registry(binary_relation, named_relation_carrier, 2).
+capability_registry(binary_relation, defined_relation_carrier, 2).
+capability_registry(binary_relation, relational_carrier, 2).
+capability_registry(model, model_carrier, 3).
+capability_registry(model_prose, model_prose_carrier, 2).
+
+named_relation_carrier($P) :- relation_noun($P, $Noun).
+defined_relation_carrier($P) :- relation_def($P, $Definition).
+
+capability_origin($Kind, $P, $Arity, $Registry) :-
+    capability_registry($Kind, $Registry, $Arity),
+    apply($Registry, cons($P, nil)).
+capability_provider($Kind, $P, $Arity) :-
+    capability_origin($Kind, $P, $Arity, $Registry).
+
+% Invocazione del predicato nudo: l'arita' fa parte del contratto. La ricerca
+% relazionale sotto usa invece holds/3, conservando definizioni e contesti.
+capability_call($Kind, $P, $Args) :-
+    capability_provider($Kind, $P, $Arity),
+    list_len($Args, $Arity),
+    apply($P, $Args).
+
+% Questa e' provenienza della SELEZIONE, non un albero di prova del risultato.
+% Richiede comunque la dimostrazione: essere nel catalogo non basta.
+relation_discovery_source($X, $Y, $P, $Registry) :-
+    capability_origin(binary_relation, $P, 2, $Registry),
+    holds($P, $X, $Y).
+
+% Il nome presentato all'interlocutore e' quello della lezione, se esiste.
+discovered_relation_name($P, $Name) :- relation_noun($P, $Name).
+has_relation_noun($P) :- relation_noun($P, $Name).
+discovered_relation_name($P, $P) :- naf(has_relation_noun($P)).
+between_relation_name($X, $Y, $Name) :-
+    between_rel($X, $Y, $P), discovered_relation_name($P, $Name).
+
+% Riusa il matcher di forme: span lega anche soggetti di piu' parole.
+% Le superfici e i connettivi si possono aggiungere/ritirare a runtime.
+turn_form(ask_relation_between, 1, text("what is the relation between")).
+turn_form(ask_relation_between, 2, span(subject)).
+turn_form(ask_relation_between, 3, text("and")).
+turn_form(ask_relation_between, 4, rest(object)).
+turn_form_act(ask_relation_between, "op(match, between_relation_name, [subject, object, free])").
+turn_form_reply(ask_relation_between, between_list).
+turn_form_empty_reply(ask_relation_between, between_unknown).
+
+turn_form(ask_relation_between_it, 1, text("che relazione c'è tra")).
+turn_form(ask_relation_between_it, 2, span(subject)).
+turn_form(ask_relation_between_it, 3, text("e")).
+turn_form(ask_relation_between_it, 4, rest(object)).
+turn_form_act(ask_relation_between_it, "op(match, between_relation_name, [subject, object, free])").
+turn_form_reply(ask_relation_between_it, between_list).
+turn_form_empty_reply(ask_relation_between_it, between_unknown).
+
+% Le domande complete hanno precedenza dichiarata sui frame di un solo slot.
+% Gli span qui nominano entita', non brani da conservare fra virgolette.
+relation_discovery_form(ask_between).
+relation_discovery_form(ask_relation_between).
+relation_discovery_form(ask_relation_between_it).
+turn_form_priority($Form, early) :- relation_discovery_form($Form).
+turn_form_slot_form($Form, subject, atom) :- relation_discovery_form($Form).
+turn_form_slot_form($Form, object, atom) :- relation_discovery_form($Form).
+turn_form_view(ask_relation_between_it, said).
+
+% Zero risultati puo' essere una ricerca incompleta; non significa «nessuna
+% relazione esiste». Il referto completo del solver non e' esposto a op(match).
+response_template(between_unknown, "I haven't established a relation from {subject} to {object} in the registered relations.").
+response_template(between_unknown, it, "Non ho stabilito una relazione da {subject} a {object} fra le relazioni registrate.").
+turn_form_empty_reply(ask_between, between_unknown).

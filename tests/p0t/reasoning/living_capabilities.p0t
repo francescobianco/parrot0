@@ -1,0 +1,107 @@
+# La KB completa e' il soggetto. I primi casi usano conoscenze preesistenti;
+# i nomi inventati successivi provano SOLO meccanica e crescita a runtime.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test ricerca su nomi relazionali della KB reale]
+!timeout 12
+> what is the relation between ghana and cedi?
+<~ currency
+> what is the relation between william shakespeare and hamlet?
+<~ author
+> what holds between calcium carbonate and oxygen?
+<~ contains
+!query relation_discovery_source(ghana, cedi, currency_of, named_relation_carrier)
+!query! between_rel(cedi, ghana, currency_of)
+
+[test una lezione nominale apre e chiude il catalogo]
+!timeout 6
+> weft is a relation
+!query capability_provider(binary_relation, weft_of, 2)
+!query extract_frame("the weft of @S is @O", weft_of)
+> forget that weft is a relation
+!query! capability_provider(binary_relation, weft_of, 2)
+
+[test una relazione verbale insegnata viene cercata e ritirata]
+!timeout 6
+> bindles is a relation verb
+> the casket bindles the bead
+!query bindles(casket, bead)
+> what is the relation between casket and bead?
+<~ bindles
+!query relation_discovery_source(casket, bead, bindles, relation_verb)
+> forget that bindles is a relation verb
+!query! capability_provider(binary_relation, bindles, 2)
+!query! between_rel(casket, bead, bindles)
+!query bindles(casket, bead)
+> what is the relation between casket and bead?
+<~ haven't established
+
+[test una sorgente nuova cambia il catalogo senza ricompilare]
+!timeout 6
+!assert runtime_carrier(currency_of)
+!assert capability_registry(runtime_check, runtime_carrier, 2)
+!query capability_call(runtime_check, currency_of, cons(ghana, cons(cedi, nil)))
+!query! capability_call(runtime_check, currency_of, cons(ghana, nil))
+!query! capability_call(runtime_check, currency_of, cons(cedi, cons(ghana, nil)))
+!forget runtime_carrier(currency_of)
+!query! capability_call(runtime_check, currency_of, cons(ghana, cons(cedi, nil)))
+!assert runtime_carrier(currency_of)
+!forget capability_registry(runtime_check, runtime_carrier, 2)
+!query! capability_provider(runtime_check, currency_of, 2)
+
+[test una superficie nuova e la sua ablazione]
+!timeout 6
+!assert turn_form(runtime_relation_question, 1, text("which link joins"))
+!assert turn_form(runtime_relation_question, 2, span(subject))
+!assert turn_form(runtime_relation_question, 3, text("and"))
+!assert turn_form(runtime_relation_question, 4, rest(object))
+!assert turn_form_act(runtime_relation_question, "op(match, between_relation_name, [subject, object, free])")
+!assert turn_form_reply(runtime_relation_question, between_list)
+!assert relation_discovery_form(runtime_relation_question)
+> which link joins ghana and cedi?
+<~ currency
+!forget turn_form(runtime_relation_question, 1, text("which link joins"))
+> which link joins ghana and cedi?
+<! Between ghana and cedi I hold
+
+[test apply conserva la prova e i legami fra goal]
+!timeout 6
+!assert dynamic_evidence(alpha, decoy)
+!assert dynamic_evidence(alpha, beta)
+!assert dynamic_name(dynamic_evidence)
+!assert dynamic_tail(beta, gamma)
+!clause dynamic_path($X, $Y) :- dynamic_name($P), apply($P, cons($X, cons($M, nil))), dynamic_tail($M, $Y)
+!mcp kb.explain {"pred":"dynamic_path","args":["alpha","gamma"]}
+!expect mcp dynamic_evidence
+!expect mcp dynamic_tail
+!forget dynamic_tail(beta, gamma)
+!mcp kb.explain {"pred":"dynamic_path","args":["alpha","gamma"]}
+!expect mcp "provable":false
+
+[test la stessa domanda in italiano]
+!timeout 6
+!set PARROT0_LANG=it
+> che relazione c'è tra ghana e cedi?
+<~ valuta
+!set PARROT0_LANG=en
+
+[test una definizione si scopre senza un predicato diretto]
+!timeout 6
+!assert relation_def(runtime_currency, currency_of)
+!query! runtime_currency(ghana, cedi)
+!query between_rel(ghana, cedi, runtime_currency)
+!query relation_discovery_source(ghana, cedi, runtime_currency, defined_relation_carrier)
+!forget relation_def(runtime_currency, currency_of)
+!query! between_rel(ghana, cedi, runtime_currency)
+
+[test la prova rifiuta chiamate dinamiche malformate]
+!timeout 6
+!mcp kb.explain {"pred":"apply","args":["$P","cons(alpha, cons(beta, nil))"]}
+!expect mcp "provable":false
+!mcp kb.explain {"pred":"apply","args":["dynamic_evidence","cons(alpha, broken)"]}
+!expect mcp "provable":false
+!mcp kb.explain {"pred":"apply","args":["dynamic_evidence","cons(alpha, cons(beta, cons(c, cons(d, cons(e, nil)))))"]}
+!expect mcp "provable":false

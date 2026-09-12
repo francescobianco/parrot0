@@ -1801,7 +1801,10 @@ about($X, $Role, $O) :- role_name($Role), role($O, $Role, $X).
 %     fra due cose date: il gemello a due argomenti di `about/3`. E' la domanda
 %     che si fa guardando due nomi e chiedendosi che rapporto ci sia.
 machinery(between_rel).
-between_rel($X, $Y, $V) :- relation_verb($V), holds($V, $X, $Y).
+% Il catalogo comprende anche nomi relazionali e definizioni insegnate:
+% saper leggere «the material of ...» deve rendere la relazione ricercabile.
+between_rel($X, $Y, $V) :- capability_provider(binary_relation, $V, 2), holds($V, $X, $Y).
+:- include(inference-capabilities.p0).
 
 % (p) LA FIRMA DI UNA RELAZIONE: da quale classe parte e a quale arriva.
 %     Dichiararla non serve solo a documentare — dice DOVE una relazione ha
