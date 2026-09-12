@@ -640,6 +640,23 @@ np_closer(located).
 np_closer(situated).
 np_closer(known).
 np_closer(called).
+% gen513 (scala della prosa, piolo 10) — I PARTICIPI DELLA PROSA DEFINITORIA.
+% «An anvil is a metalworking tool CONSISTING of a large block of metal» dava la
+% classe `metalworking_tool_consisting`: un concetto inventato dalla forma,
+% esattamente il difetto che il gen506 aveva chiuso per «located». Un participio
+% dopo un nome apre una relativa ridotta, e la relativa non sta dentro il nome.
+% Restano fatti, come dice il commento qui sopra: una lingua nuova o un
+% participio nuovo costa una riga. (La derivazione morfologica da «-ing» sarebbe
+% piu' generale ma `verb_suffix/1` ha un membro solo per una ragione misurata —
+% vedi §994 — e `np_closer` sta in un cammino caldo: si paga a ogni token.)
+np_closer(consisting).
+np_closer(containing).
+np_closer(comprising).
+np_closer(made).
+np_closer(formed).
+np_closer(produced).
+np_closer(used).
+np_closer(having).
 % gen512 (settimo giro): la definizione italiana di «veleno», letta attraverso
 % la canonicalizzazione, dava la classe «sostanza what assunta» e un luogo di
 % quindici parole («organismo vivente has effetti …»). Un «what» dopo un nome

@@ -28,6 +28,7 @@ construction_frame("@S goes by the name of @O", "@S is known as @O", also_known_
 construction_frame("@O is mostly made of @S", "@S is the main constituent of @O", constituent_of).
 construction_frame("@S forms part of @O", "@S is part of @O", part_of).
 construction_frame("@S is also spelled @O", "@S is known as @O", also_known_as).
+construction_frame("@S made of @O", "@S is made of @O", made_of).
 
 % E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
 construction_answer_cue("@S goes by the name of @O", "goes by the name of", also_known_as).
@@ -35,4 +36,5 @@ construction_answer_cue("@S goes by the name of @O", "goes by the name of", also
 % delle quattro imparate finora.
 construction_answer_cue("@S forms part of @O", "forms part of", part_of).
 construction_answer_cue("@S is also spelled @O", "is also spelled", also_known_as).
+construction_answer_cue("@S made of @O", "made of", made_of).
 construction_answer_cue("@S revolves around @O", "revolves around", orbits).

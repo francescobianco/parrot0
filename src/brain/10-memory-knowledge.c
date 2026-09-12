@@ -964,6 +964,8 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
 
 /* Split `s` (modified in place) into up to `max` whitespace-separated words,
  * storing pointers in `argv`. Returns the word count. */
+static int reply_is_wall(Brain *b, const char *reply);  /* gen513: definita piu' avanti */
+
 static size_t split_words(char *s, char **argv, size_t max) {
     size_t n = 0;
     char *p = s;
@@ -7109,6 +7111,47 @@ static int extract_class_statement(Brain *b, const char *norm,
     { const KbResponseSlot _rs[] = { { "facts", learned } };
       kb_term_say(b, "learned_facts", _rs, 1, msg, sizeof msg); }
     remember_entity(b, subj, subj);
+    /* ── gen513 — LA RELATIVA RIDOTTA E' UNA SECONDA PROPOSIZIONE ────────────
+     *
+     * Il debito che il gen505y aveva lasciato scritto accanto alla propria
+     * cura: «cio' che segue fino alla copula e' un'apposizione, che dice
+     * qualcos'altro dello STESSO soggetto — la sua lettura come seconda
+     * proposizione e' il passo dopo». Questo e' il passo dopo, e senza di lui
+     * la prosa vera non si legge: OGNI frase d'enciclopedia ne ha una.
+     *
+     *     An anvil is a metalworking tool consisting of a large block of metal.
+     *       prima:  anvil is a metalworking tool.        (il resto perduto)
+     *       ora:    + made_of(anvil, metal)
+     *
+     * Il participio che chiude il sintagma (`np_closer`, KB) apre una relativa
+     * ridotta il cui soggetto e' sottinteso ed e' lo stesso della principale.
+     * Qui il soggetto si RIMETTE e la coda si da' al lettore dei TURNI, che
+     * quelle forme le sa gia' leggere — la stessa mossa di
+     * `p0_model_from_prose`, e la stessa dottrina del lettore composto: «ogni
+     * clausola e' data al lettore di un turno intero». Il C non sa che cosa ci
+     * sia nella coda, e non deve saperlo: se non e' leggibile, non cambia
+     * niente e la principale resta quella che era.
+     *
+     * Il participio di LUOGO e' gia' consumato sopra (`location_participle`),
+     * quindi qui non si ripete. */
+    if (b && p < n && p > 0 && b->respond_depth < 3) {
+        char tail[512]; size_t to = 0; tail[0] = '\0';
+        for (size_t k = p; k < n && to + 1 < sizeof tail; k++)
+            to += (size_t)snprintf(tail + to, sizeof tail - to, "%s%s", to ? " " : "", w[k]);
+        while (to && (tail[to - 1] == '.' || tail[to - 1] == ' ')) tail[--to] = '\0';
+        if (to > 2) {
+            char again[640];
+            snprintf(again, sizeof again, "%s %s", subj, tail);
+            char more[1024]; more[0] = '\0';
+            brain_respond(b, again, more, sizeof more);
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[relative] «%s» -> «%s»\n", again, more);
+            if (more[0] && !reply_is_wall(b, more)) {
+                size_t ml = strlen(msg);
+                snprintf(msg + ml, sizeof msg - ml, " %s", more);
+            }
+        }
+    }
     put(msg, out, out_size);
     return 1;
 }

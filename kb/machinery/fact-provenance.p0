@@ -210,6 +210,8 @@ fact_source(construction_frame("@S is also spelled @O", "@S is known as @O", als
 fact_source(made_of(lens, glass), lens, "a lens is made of glass").
 fact_source(taught_form_source(taught_form_14, "x consists of y"), taught_form_14, "x consists of y means x made of y").
 fact_source(taught_form_source(taught_form_13, "x consisting of y"), taught_form_13, "x consisting of y means x made of y").
+fact_source(made_of(bell, bronze), bell, "a bell made of bronze").
+fact_source(construction_frame("@S made of @O", "@S is made of @O", made_of), "@S made of @O", "x made of y means x is made of y").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -322,7 +324,9 @@ reading_fact(made_of(lens, glass), "a lens is made of glass").
 reading_fact(taught_form_source(taught_form_11, "what is the significato of x"), "qual è il significato di x means what is the meaning of x").
 reading_fact(taught_form_source(taught_form_14, "x consists of y"), "x consists of y means x made of y").
 reading_fact(construction_frame("@S is also spelled @O", "@S is known as @O", also_known_as), "x is also spelled y means x is known as y").
+reading_fact(made_of(bell, bronze), "a bell made of bronze").
 reading_fact(taught_form_source(taught_form_13, "x consisting of y"), "x consisting of y means x made of y").
+reading_fact(construction_frame("@S made of @O", "@S is made of @O", made_of), "x made of y means x is made of y").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
