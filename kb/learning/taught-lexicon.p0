@@ -187,3 +187,9 @@ relation_verb(parent).
 relation_verb(defeated).
 relation_verb(operates).
 relation_verb(allows).
+relation_verb(removes).
+relation_verb(grows).
+relation_verb(indicates).
+relation_verb(tells).
+relation_verb(shows).
+relation_verb(casts).

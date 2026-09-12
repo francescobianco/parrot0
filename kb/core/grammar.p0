@@ -688,6 +688,16 @@ np_closer(o).
 % che risponde a «che cos'e'?» — va perduta. «Tipo», «specie», «forma» non
 % dicono a che cosa una cosa appartiene: annunciano la classe che segue.
 % Trovato con la scala della prosa, piolo 100 (anfora).
+% ── gen513 — QUANTO PUO' ESSERE LUNGO IL NOME DI UNA CLASSE ────────────────
+% Il tetto e' un fatto e vale 3 per difetto. La prosa d'enciclopedia pero' nomina
+% le classi con quattro parole — «a naturally occurring volcanic glass», «a
+% mixed woodland-grassland biome» — e a tre la lettura le RIFIUTAVA in blocco
+% («Scartato: 1 classe/i non fatte di concetti»), cioe' perdeva la definizione
+% proprio delle frasi che la portano. Quattro: misurato sulla scala della prosa,
+% e il tetto serve ancora — a cinque entrerebbero mezze proposizioni.
+machinery(concept_atom_max_words).
+concept_atom_max_words(4).
+
 machinery(classifier_head).
 classifier_head(type).
 classifier_head(kind).

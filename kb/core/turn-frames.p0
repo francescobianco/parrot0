@@ -325,6 +325,21 @@ turn_declared_act($Turn, prose_carried) :-
     turn_prose_copula($Turn),
     naf(turn_has_question_mark($Turn)),
     naf(turn_opens_request($Turn)).
+% gen513 — E UNA FRASE LUNGA SENZA COPULA E' PROSA LO STESSO. «Together with
+% rapid cooling, this results in a natural glass forming from the lava» riceveva
+% un racconto («Together was a mysterious Together…»): nessuna copula, quindi la
+% lettura qui sopra non scattava. La lunghezza e' il segno piu' rozzo che esista
+% e proprio per questo non sbaglia verso: nessuno CHIEDE una storia con dodici
+% parole senza verbo di richiesta e senza punto interrogativo. La soglia e' un
+% fatto, come il tetto delle classi.
+machinery(prose_min_words).
+prose_min_words(9).
+turn_prose_long($Turn) :-
+    prose_min_words($N), turn_surface_token($Turn, 0, $N, $Tok).
+turn_declared_act($Turn, prose_carried) :-
+    turn_prose_long($Turn),
+    naf(turn_has_question_mark($Turn)),
+    naf(turn_opens_request($Turn)).
 % E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
 % (mantra #17): la facolta' ha gia' un nome pubblico.
 faculty_yield_force(gen, open, prose_carried).
