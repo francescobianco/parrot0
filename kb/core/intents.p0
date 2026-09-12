@@ -1062,7 +1062,7 @@ intent_cue(code_noun, "fonction").
 intent_cue(lang_name, "js").
 intent_cue(code_noun, "programme").
 intent_cue(code_noun, "funktion").
-intent_cue(code_noun, "programm").
+intent_cue_stem(code_noun, "programm").
 intent_cue(code_noun, "função").
 intent_cue(code_noun, "funcao").
 intent_cue(lang_name, "c").
@@ -1264,7 +1264,7 @@ intent_cue(50_self_research_loop_chain448, "are you real").
 intent_cue(50_self_research_loop_chain448, "esisti").
 intent_cue(50_self_research_loop_chain450, "can you do").
 intent_cue(50_self_research_loop_chain450, "what do you do").
-intent_cue(50_self_research_loop_chain450, "capabilit").
+intent_cue_stem(50_self_research_loop_chain450, "capabilit").
 intent_cue(50_self_research_loop_chain450, "you able to").
 intent_cue(50_self_research_loop_chain450, "you help with").
 intent_cue(50_self_research_loop_chain450, "can you help").
@@ -3091,15 +3091,15 @@ intent_cue(60_agent_tools_chain1407, "raddoppia").
 intent_cue(60_agent_tools_chain1407, "raddoppiare").
 intent_cue(60_agent_tools_chain1407, "raddoppiando").
 intent_cue(60_agent_tools_chain1408, "triple").
-intent_cue(60_agent_tools_chain1408, "triplic").
+intent_cue_stem(60_agent_tools_chain1408, "triplic").
 intent_cue(60_agent_tools_chain1409, "halve").
-intent_cue(60_agent_tools_chain1409, "dimezz").
+intent_cue_stem(60_agent_tools_chain1409, "dimezz").
 intent_cue(60_agent_tools_chain1409, "dimezza").
 intent_cue(60_agent_tools_chain1409, "dimezzare").
 intent_cue(60_agent_tools_chain1409, "dimezzando").
 intent_cue(60_agent_tools_chain1412, "add").
 intent_cue(60_agent_tools_chain1412, "plus").
-intent_cue(60_agent_tools_chain1412, "aggiung").
+intent_cue_stem(60_agent_tools_chain1412, "aggiung").
 intent_cue(60_agent_tools_chain1412, "somma").
 intent_cue(60_agent_tools_chain1412, "più").
 intent_cue(60_agent_tools_chain1412, "aggiungi").
@@ -3111,7 +3111,7 @@ intent_cue(60_agent_tools_chain1414, "sottra").
 intent_cue(60_agent_tools_chain1414, "togli").
 intent_cue(60_agent_tools_chain1416, "multiply").
 intent_cue(60_agent_tools_chain1416, "times").
-intent_cue(60_agent_tools_chain1416, "moltiplic").
+intent_cue_stem(60_agent_tools_chain1416, "moltiplic").
 intent_cue(60_agent_tools_chain1418, "divide").
 intent_cue(60_agent_tools_chain1418, "dividi").
 intent_cue(60_agent_tools_chain1418, "diviso").
@@ -3130,7 +3130,7 @@ intent_cue(60_agent_tools_chain1427, "superato").
 intent_cue(60_agent_tools_chain1430, "reach").
 intent_cue(60_agent_tools_chain1430, "at least").
 intent_cue(60_agent_tools_chain1430, "almeno").
-intent_cue(60_agent_tools_chain1430, "raggiung").
+intent_cue_stem(60_agent_tools_chain1430, "raggiung").
 intent_cue(60_agent_tools_chain1430, "raggiungi").
 intent_cue(60_agent_tools_chain1430, "raggiunge").
 intent_cue(60_agent_tools_chain1430, "raggiungere").
@@ -4558,7 +4558,7 @@ intent_cue(25_wordmath_reasoning_chain2070, "perimeter").
 intent_cue(25_wordmath_reasoning_chain2268, "area").
 intent_cue(25_wordmath_reasoning_chain2268, "side").
 intent_cue(25_wordmath_reasoning_chain2328, "how many").
-intent_cue(25_wordmath_reasoning_chain2328, "quant").
+intent_cue_stem(25_wordmath_reasoning_chain2328, "quant").
 intent_cue(25_wordmath_reasoning_chain2395, "years").
 intent_cue(25_wordmath_reasoning_chain2395, "year").
 intent_cue(25_wordmath_reasoning_chain2396, "old are").
@@ -4714,12 +4714,12 @@ intent_cue(25_wordmath_reasoning_chain3143, "combined").
 intent_cue(25_wordmath_reasoning_chain3143, "receive").
 intent_cue(25_wordmath_reasoning_chain3143, "plus").
 intent_cue(25_wordmath_reasoning_chain3143, "adds").
-intent_cue(25_wordmath_reasoning_chain3143, "compr").
-intent_cue(25_wordmath_reasoning_chain3143, "trov").
+intent_cue_stem(25_wordmath_reasoning_chain3143, "compr").
+intent_cue_stem(25_wordmath_reasoning_chain3143, "trov").
 intent_cue(25_wordmath_reasoning_chain3143, "totale").
 intent_cue(25_wordmath_reasoning_chain3143, "insieme").
 intent_cue(25_wordmath_reasoning_chain3143, "ancora").
-intent_cue(25_wordmath_reasoning_chain3143, "aggiun").
+intent_cue_stem(25_wordmath_reasoning_chain3143, "aggiun").
 intent_cue(25_wordmath_reasoning_chain3408, " in ").
 intent_cue(30_generation_reading_chain454, "say hello").
 intent_cue(30_generation_reading_chain454, "say hi").
@@ -4812,7 +4812,7 @@ intent_cue(30_generation_reading_chain1162, "poem").
 intent_cue(30_generation_reading_chain1162, "rhyme").
 intent_cue(30_generation_reading_chain1163, "two line").
 intent_cue(30_generation_reading_chain1163, "two-line").
-intent_cue(30_generation_reading_chain1163, "rhym").
+intent_cue_stem(30_generation_reading_chain1163, "rhym").
 intent_cue(30_generation_reading_chain1194, "artificial intelligence").
 intent_cue(30_generation_reading_chain1194, " ai").
 intent_cue(30_generation_reading_chain1232, "rearrange").
