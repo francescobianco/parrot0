@@ -3838,7 +3838,7 @@ static void turn_publish_tokens(Brain *b, const char *surface,
     }
 }
 
-/* ── gen513 — UNA PAROLA NON E' UN TOKEN ────────────────────────────────────
+/* ── gen513 — UNA PAROLA NON E' UN TOKEN, ED E' UN NODO DELLA IR ───────────
  *
  * «how many words does the text have?» rispondeva 311 su un testo di 299
  * parole. Non era un errore di conto: il flusso di token spezza dove la
@@ -3851,9 +3851,17 @@ static void turn_publish_tokens(Brain *b, const char *surface,
  * dichiara separatore (`word_separator/1`, kb/core/grammar.p0). Il C non sa
  * che cosa separi una parola — lo chiede — e una lingua che separa altrimenti
  * si insegna senza ricompilare. Le posizioni sono consecutive da zero, cosi'
- * il conto si fa in KB senza ricorsione (text-structure.p0). */
-static void turn_publish_words(Brain *b, const char *surface, const char *pred) {
-    if (!b || !b->kb || !surface || !pred) return;
+ * il conto si fa in KB senza ricorsione (text-structure.p0).
+ *
+ * ⚠ E le parole sono NODI DELLA IR — `node(word, word, root)` — non un
+ * predicato tutto loro. La prima stesura pubblicava `text_surface_token/4`, e
+ * F. l'ha chiamata per nome: una seconda struttura accanto a quella che c'e'
+ * gia'. Un livello nuovo dell'IR e' un livello nuovo dell'IR: chi legge i nodi
+ * di clausola legge con le stesse regole anche questi, e chi domani vorra' il
+ * livello dei sintagmi non dovra' inventarsi un terzo posto dove metterlo. */
+static size_t turn_publish_words(Brain *b, const char *surface,
+                                 const char *scope, size_t id_base) {
+    if (!b || !b->kb || !surface || !scope) return 0;
     char seps[32]; size_t nsep = 0;
     {
         char rows[16][KB_TERM_LEN];
@@ -3878,11 +3886,18 @@ static void turn_publish_words(Brain *b, const char *surface, const char *pred) 
         char tok[KB_TERM_LEN];
         if (!turn_quote(surface, (size_t)(t - surface), (size_t)(p - t), tok, sizeof tok))
             continue;
-        char pos[24]; snprintf(pos, sizeof pos, "%zu", k++);
-        const char *args[] = { "current_turn", "0", pos, tok };
-        kb_assert(b->kb, pred, args, 4);
+        char id[24], node[KB_TERM_LEN], range[KB_TERM_LEN];
+        snprintf(id, sizeof id, "%zu", id_base + k++);
+        snprintf(node, sizeof node, "node(word, word, root)");
+        snprintf(range, sizeof range, "range(%zu, %zu)",
+                 (size_t)(t - surface), (size_t)(p - t));
+        const char *args[] = { scope, id, node, range };
+        kb_assert(b->kb, "input_node", args, 4);
+        const char *sf[] = { scope, id, tok };
+        kb_assert(b->kb, "input_node_surface", sf, 3);
     }
 #undef P0_WORDSEP
+    return k;
 }
 
 /* gen396: the state a span ENDS IN, as facts.
@@ -5161,9 +5176,6 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         retain_text = kb_query(b->kb, "turn_is_text", tq, 1);
         if (retain_text) {
             input_structure_clear(b->kb, "last_text");
-            kb_retract_pred(b->kb, "text_surface_token");
-            kb_set_origin(b->kb, KB_REFLECTIVE);
-            turn_publish_words(b, raw && *raw ? raw : surface, "text_surface_token");
             if (getenv("P0_READ_TRACE")) fprintf(stderr, "[text] trattenuto\n");
         }
     }
@@ -5192,6 +5204,11 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         if (retain_text)
             text_base += input_structure_publish(b->kb, surface, &spans[i],
                                                  "last_text", text_base);
+        if (retain_text && i + 1 == ns) {
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            turn_publish_words(b, raw && *raw ? raw : surface,
+                               "last_text", text_base);
+        }
         turn_publish_tokens(b, surface, &spans[i], index, "turn_span_token", TURN_MAX_TOKENS);
         turn_publish_state(b, surface, &spans[i], index);
     }
@@ -5642,8 +5659,12 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                         i, base, cs.start, cs.len, got, c);
             base += got;
         }
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        /* `input` qui e' gia' il turno come l'ha scritto l'interlocutore. */
+        size_t nwords = turn_publish_words(b, input, "last_text", base);
         if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[text] %zu frasi nella IR (last_text)\n", ncl);
+            fprintf(stderr, "[text] %zu frasi e %zu parole nella IR (last_text)\n",
+                    ncl, nwords);
     }
 
     char composed[P0_TURN_MAX]; size_t off = 0; composed[0] = '\0';

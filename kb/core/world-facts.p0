@@ -1854,12 +1854,20 @@ made_of(pasta, flour).
 has_part(pasta, water).
 made_of(pizza, dough).
 made_of(violin, spruce).
+% ⚠ gen513 — QUI NON ENTRANO I FATTI DI UN PIOLO DELLA SCALA. `made_of(reefs,
+% colonies)` era arrivato da un /save di una sessione di lettura, e rendeva
+% «what are reefs formed of?» rispondibile A FREDDO: il piolo 300 contava un ✓
+% che non dimostrava nessuna lettura. E' la seconda volta (la prima fu
+% `located_in(satellite, orbit)`), quindi adesso il banco si calibra da solo —
+% `scripts/prose-probe.sh` fa un passo a freddo e marca «gia'» cio' che la KB
+% sapeva prima di leggere. Cio' che una sessione di lettura DEVE lasciare e' la
+% conoscenza GENERALE che le e' servita (verbi di relazione, particelle,
+% grammatica), non le risposte del proprio banco.
 made_of(quipu, knotted_cords).
 made_of(lens, glass).
 made_of(bell, bronze).
 made_of(bowl, clay).
 made_of(abacus, array).
-made_of(reefs, colonies).
 has_part(pizza, tomato).
 has_part(pizza, cheese).
 has_part(meadow, tall_grass).

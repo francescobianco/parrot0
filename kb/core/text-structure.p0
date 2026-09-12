@@ -25,13 +25,15 @@
 %   input_node_surface(last_text, Id, "...")    la superficie di quel nodo
 %   input_node(last_text, Id, node(phrase, np_candidate, P), range(S, L))
 %       i sintagmi nominali, delimitati da `np_opener`/`np_closer`/`pos(verb)`
-%   text_surface_token(current_turn, 0, Pos, "parola")  il flusso intero
+%   input_node(last_text, Id, node(word, word, root), range(S, L))
+%       le PAROLE — un livello dell'IR, non un predicato a parte
 %
-% ⚠ Perche' le parole si contano sui token del TURNO e non sui nodi token
-% dell'IR: `input_structure` (src/code.c) si ferma a 64 parole e 128 nodi PER
-% FRASE. Sui periodi lunghi della prosa vera quel livello e' troncato, e contare
-% li' darebbe un numero piu' piccolo del vero senza dirlo. Il flusso del turno
-% non ha quel tetto. E' un limite dell'IR, dichiarato qui perche' si veda.
+% ⚠ Perche' le parole sono un livello A PARTE e non i nodi token dell'IR:
+% `input_structure` (src/code.c) si ferma a 64 parole e 128 nodi PER FRASE, e
+% sui periodi lunghi della prosa vera quel livello e' troncato senza dirlo —
+% contare li' darebbe un numero piu' piccolo del vero. E un token non e' una
+% parola: spezza «0.1%», perche' serve a leggere. E' un limite dell'IR,
+% dichiarato qui perche' si veda.
 %
 % ⚠ `text_value(topic, ...)` e' il sintagma nominale che APRE il testo, non «il
 % tema» in senso forte. In una prosa d'enciclopedia le due cose coincidono
@@ -60,9 +62,17 @@ text_clause_key($Id) :- text_clause($Id, $Start, $Len).
 text_sentence_count($N) :-
     findall($Id, text_clause_key($Id), $Ids), list_len($Ids, $N).
 
-% Quante parole: il flusso di token del turno intero (span 0), senza il tetto
-% per frase del livello token dell'IR.
-text_word_key($Pos) :- text_surface_token(current_turn, 0, $Pos, $Tok).
+% Quante parole: il livello PAROLA della IR del testo trattenuto. E' un livello
+% dell'IR come quello di clausola — `node(word, word, root)` — non un predicato
+% a parte: la prima stesura ne aveva fatto uno, e una seconda struttura accanto
+% a quella che c'e' gia' e' esattamente cio' che non si fa.
+%
+% ⚠ Non e' il livello TOKEN, e la differenza non e' un dettaglio: il token
+% spezza dove la lingua non spezza («0.1%»), perche' quel livello serve a
+% leggere. Chi chiede quante parole ci sono intende le parole, e cio' che le
+% separa e' un fatto (`word_separator/1`).
+text_word_key($Pos) :-
+    input_node(last_text, $Id, node(word, word, root), range($Pos, $Len)).
 % ⚠ NON con `findall` + `list_len`: `list_len/2` e' ricorsiva e il motore si
 % ferma a KB_MAX_DEPTH (64), e la lista stessa dovrebbe stare in un termine da
 % 512 byte. Su cento parole non arrivava in fondo e la domanda riceveva «non
@@ -70,9 +80,16 @@ text_word_key($Pos) :- text_surface_token(current_turn, 0, $Pos, $Tok).
 % motore. Le posizioni sono consecutive da zero: l'ultima e' quella che non ha
 % una successiva, e il conto e' quella piu' uno. Nessuna ricorsione, nessuna
 % lista. (`naf` e' sicuro: $Next arriva legato da `is/2`.)
-text_word_last($Pos) :-
-    text_word_key($Pos), is($Next, add($Pos, 1)), naf(text_word_key($Next)).
-text_word_count($N) :- text_word_last($Pos), is($N, add($Pos, 1)).
+% Le parole si contano per ID, non per offset: gli id sono consecutivi (li
+% assegna la pubblicazione), gli offset nel testo no.
+text_word_id($Id) :-
+    input_node(last_text, $Id, node(word, word, root), $Range).
+text_word_first($Id) :-
+    text_word_id($Id), is($Prev, sub($Id, 1)), naf(text_word_id($Prev)).
+text_word_last($Id) :-
+    text_word_id($Id), is($Next, add($Id, 1)), naf(text_word_id($Next)).
+text_word_count($N) :-
+    text_word_first($F), text_word_last($L), is($D, sub($L, $F)), is($N, add($D, 1)).
 
 % La prima frase e' quella che apre il turno: offset zero, non «indice zero».
 text_first_clause($Id) :- text_clause($Id, 0, $Len).
@@ -101,7 +118,8 @@ text_opening_entity($Entity) :-
 % in un lead d'enciclopedia e' il definiendum. Reperto del piolo 320: senza
 % questa riga «di cosa parla?» murava su meta' dei testi veri.
 text_opening_token($W) :-
-    input_node_atom(last_text, $Id, $W), input_node_range(last_text, $Id, 0, $L).
+    input_node(last_text, $Id, node(word, word, root), range(0, $L)),
+    input_node_surface(last_text, $Id, $W).
 
 % ── 3. LE COSE CHE SI POSSONO CHIEDERE DI UN TESTO ──────────────────────────
 % La cue e' una superficie: chi insegna ne aggiunge una e la domanda esiste.

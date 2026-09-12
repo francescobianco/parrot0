@@ -92,6 +92,9 @@ run() {  # sessione nuova, KB viva; le righe come argomenti, una risposta per ri
     grep '>>>' | sed 's/^.*>>> //'
 }
 cut_to() { cut -c1-"${1:-104}"; }
+# I marcatori di muro: una euristica di shell, grossolana apposta — meglio
+# scartare una risposta buona che contarne una falsa.
+WALL="I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read|I can.t hold|I can.t show|I looked up"
 
 echo
 echo "═══ PROSA: $TXT — $WORDS parole${BUDGET:+ (piolo $BUDGET)} ═══"
@@ -133,15 +136,39 @@ mapfile -t QS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $1}' "$QF")
 mapfile -t AS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $2}' "$QF")
 mapfile -t KS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print ($4==""?"merito":$4)}' "$QF")
 [ "${#QS[@]}" -gt 0 ] || { echo; echo "(nessuna domanda rispondibile entro $WORDS parole)"; exit 0; }
+# ── PASSO 0 — LA CALIBRAZIONE A FREDDO (gen513) ─────────────────────────────
+#
+# ⛔ La KB e' VIVA e cresce: prima o poi qualcosa che il piolo chiede ci finisce
+# dentro, e da quel momento il ✓ non dimostra piu' nessuna lettura. E' successo
+# davvero: un /save di una sessione di lettura aveva depositato
+# `made_of(reefs, colonies)` in world-facts.p0, e il piolo 300 contava un ✓ per
+# una domanda a cui parrot0 rispondeva A FREDDO — la seconda volta dopo
+# `located_in(satellite, orbit)`.
+#
+# Togliere il fatto cura quel caso e non la classe. La cura della classe e'
+# qui: le stesse domande, in una sessione pulita, SENZA la prosa. Cio' che
+# riceve risposta li' non e' lettura, ed esce dal conto — si dichiara a parte.
+# Costa una sessione per piolo, e rende il banco onesto per costruzione anche
+# quando la KB cresce di sotto.
+mapfile -t COLD < <(run "${QS[@]}")
 mapfile -t REPLIES < <(run "$PROSE" "${QS[@]}" | tail -n +2)
 
-ok=0; n=0
+ok=0; n=0; already=0
 declare -A KOK KN
 printf '\n  %-34s %-10s %-6s %s\n' "DOMANDA" "SPECIE" "ESITO" "RISPOSTA"
 printf '  %s\n' "────────────────────────────────────────────────────────────────────────────────"
 for idx in "${!QS[@]}"; do
   n=$((n+1))
   q="${QS[$idx]}"; want="${AS[$idx]}"; got="${REPLIES[$idx]:-}"; kind="${KS[$idx]:-merito}"
+  cold="${COLD[$idx]:-}"
+  # la stessa regola di giudizio del caldo: un muro non e' mai una risposta
+  if printf '%s' "$cold" | grep -qiE "$WALL"; then knew=0
+  elif printf '%s' "$cold" | grep -qiE -- "$want"; then knew=1; else knew=0; fi
+  if [ "$knew" = 1 ]; then
+    already=$((already+1))
+    printf '  %-34s %-10s %-6s %s\n' "$(printf '%s' "$q" | cut -c1-32)" "$kind" "già" "$(printf '%s' "$cold" | cut_to 62)"
+    continue
+  fi
   KN[$kind]=$(( ${KN[$kind]:-0} + 1 ))
   # il campo atteso puo' portare piu' risposte VERE separate da «|»: «What is
   # obsidian?» ha due risposte giuste nel testo, e accettarne una sola
@@ -153,7 +180,7 @@ for idx in "${!QS[@]}"; do
   # la cosa peggiore che un banco possa fare. I marcatori di muro sono una
   # euristica di shell — grossolana apposta: meglio scartare una risposta buona
   # che contarne una falsa.
-  if printf '%s' "$got" | grep -qiE "I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read"; then
+  if printf '%s' "$got" | grep -qiE "$WALL"; then
     verdict="·"
   elif printf '%s' "$got" | grep -qiE -- "$want"; then
     verdict="✓"; ok=$((ok+1)); KOK[$kind]=$(( ${KOK[$kind]:-0} + 1 ))
@@ -165,5 +192,6 @@ for k in merito meta struttura; do
   [ -n "${KN[$k]:-}" ] || continue
   printf '  %-10s %d/%d\n' "$k" "${KOK[$k]:-0}" "${KN[$k]}"
 done
+[ "$already" -gt 0 ] && printf '\n  ⚠ %d domande erano gia\x27 rispondibili A FREDDO, senza il testo: fuori dal conto.\n' "$already"
 printf '\n  %d domande su %d hanno ricevuto quello che il testo dice.\n' "$ok" "$n"
 printf '  ⛔ %d restano senza: la risposta E'"'"' nel testo, e il lettore non la porta.\n\n' "$((n-ok))"
