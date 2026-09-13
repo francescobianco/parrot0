@@ -250,3 +250,7 @@ sign_of(overwatering, "soggy soil").
 sign_of(underwatering, "dry soil").
 sign_of("low light", "leggy stems").
 sleep_need_hours(adults, 7, 9).
+cup_grams(flour, 120).
+cup_grams(sugar, 198).
+cup_grams(oats, 113).
+cup_grams(milk, 227).

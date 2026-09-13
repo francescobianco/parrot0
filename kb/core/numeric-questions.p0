@@ -318,3 +318,29 @@ deal_winner(pair($O1, $O2), $O2, $O1) :- offer_price_per($O1, $B, $P1), offer_pr
 
 turn_plan_candidate($Turn) :- deal_pair($Turn, $O1, $O2).
 turn_response($Turn, $Text) :- deal_answer($Turn, $Text).
+
+% ── 8. mix 13×08 — LE TAZZE IN GRAMMI, PER INGREDIENTE ──────────────────────
+% «how many grams are 2 cups of flour?» — una tazza di farina non pesa come una
+% di zucchero: il peso per tazza e' conoscenza insegnata parlando (King Arthur
+% Baking) e il conto e' una moltiplicazione. Le frazioni dette a parole («half a
+% cup») sono una riga.
+machinery(cup_word).
+cup_word(cup).
+cup_word(cups).
+machinery(cup_count).
+cup_count($Turn, $N) :- turn_word($Turn, $I, $W), span_number($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $C), cup_word($C).
+cup_count($Turn, $N) :- turn_word($Turn, $I, $W), number_word($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $C), cup_word($C).
+cup_count($Turn, 0.5) :- turn_word($Turn, $I, half), is($J, add($I, 1)), turn_word($Turn, $J, a), is($K, add($I, 2)), turn_word($Turn, $K, cup).
+machinery(grams_cue).
+grams_cue("how many grams").
+grams_cue("in grams").
+grams_cue("quanti grammi").
+turn_cue_registry(grams_cue, 1).
+machinery(cup_grams_answer).
+cup_grams_answer($Turn, $Text) :-
+    turn_cue_form($Turn, grams_cue, $Q), cup_count($Turn, $N), turn_word($Turn, $Ing), cup_grams($Ing, $G),
+    is($Total, mul($N, $G)), cents($Total, $T),
+    concat_atoms($T, " grams: a cup of ", $A), concat_atoms($A, $Ing, $B), concat_atoms($B, " weighs ", $C),
+    concat_atoms($C, $G, $D), concat_atoms($D, " grams.", $Text).
+turn_plan_candidate($Turn) :- cup_grams_answer($Turn, $Text).
+turn_response($Turn, $Text) :- cup_grams_answer($Turn, $Text).

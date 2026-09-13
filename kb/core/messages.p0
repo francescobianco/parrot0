@@ -3419,3 +3419,18 @@ turn_form_mood(teach_sleep_need, statement).
 turn_form_act(teach_sleep_need, "op(assert, sleep_need_hours, [subject, order, object])").
 turn_form_reply(teach_sleep_need, learned_sleep_need).
 turn_form_priority(teach_sleep_need, early).
+
+% ══ mix 13×08 — QUANTO PESA UNA TAZZA ════════════════════════════════════════
+% «a cup of flour weighs 120 grams» (King Arthur Baking, Ingredient Weight Chart):
+% la conversione dipende dall'ingrediente. La lettura sta in numeric-questions.p0 §8.
+response_template(learned_cup_weight, "Held: a cup of {subject} weighs {object} grams.").
+response_template(learned_cup_weight, it, "Tengo: una tazza di {subject} pesa {object} grammi.").
+turn_form(teach_cup_weight, 1, text("a cup of")).
+turn_form(teach_cup_weight, 2, span(subject)).
+turn_form(teach_cup_weight, 3, text("weighs")).
+turn_form(teach_cup_weight, 4, slot(object)).
+turn_form(teach_cup_weight, 5, text("grams")).
+turn_form_mood(teach_cup_weight, statement).
+turn_form_act(teach_cup_weight, "op(assert, cup_grams, [subject, object])").
+turn_form_reply(teach_cup_weight, learned_cup_weight).
+turn_form_priority(teach_cup_weight, early).

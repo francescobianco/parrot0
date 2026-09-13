@@ -58,3 +58,12 @@
 < Between 21:30 and 23:30: adults need 7 to 9 hours of sleep.
 > I wake up at 7:00 and want 8 hours of sleep, when should I go to bed?
 < 23:00
+
+[test mix 13x08 cups to grams depend on the ingredient]
+!timeout 30
+> how many grams are 2 cups of flour?
+< 240 grams: a cup of flour weighs 120 grams.
+> how many grams is half a cup of sugar?
+< 99 grams: a cup of sugar weighs 198 grams.
+> how many grams are 2 cups of sand?
+<! grams:

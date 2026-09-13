@@ -1490,3 +1490,17 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
 - **esito:** «Between 21:30 and 23:30: adults need 7 to 9 hours of sleep.»; «get up at
   5 am» → tra le 20:00 e le 22:00; con 8 ore dette → 23:00.
 - **test:** `rate_total.p0t` 14 → 16; `time_date_complex` verde.
+
+### mix-13-08-002 — le tazze della ricetta in grammi, per ingrediente
+
+- **fonte:** King Arthur Baking, *Ingredient Weight Chart* — 1 tazza: farina 00/all-purpose
+  120 g, zucchero semolato 198 g, fiocchi d'avena 113 g, latte 227 g.
+- **misura:** «how many grams are 2 cups of flour?» → «I don't understand that yet.».
+- **cure:** forma di lezione «a cup of X weighs N grams» e `numeric-questions.p0` §8:
+  tazze (cifre, parole, «half a cup»), ingrediente, peso per tazza, moltiplicazione e
+  il perché.
+- **lezioni parlate salvate:** i quattro pesi per tazza.
+- **esito:** «240 grams: a cup of flour weighs 120 grams.»; «half a cup of sugar» →
+  99 g; «the recipe says 3 cups of oats» → 339 g; «2 cups of sand» → nessun numero
+  inventato.
+- **test:** `rate_total.p0t` 16 → 19.
