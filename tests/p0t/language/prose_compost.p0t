@@ -32,3 +32,13 @@
 <~ part of waste management
 > what is composting an important part of?
 <~ waste management
+
+[test a prerequisite list is not prose, and two parentheticals]
+!reset
+!timeout 90
+> Compost improves soil fertility. At the most basic level, composting requires gathering a mix of green waste (nitrogen-rich materials such as leaves, grass, and food scraps) and brown waste (woody materials rich in carbon, such as stalks, paper, and wood chips).
+<! prerequisites
+> what does composting require?
+<~ gathering a mix
+> bread requires flour, water and yeast
+<~ prerequisites

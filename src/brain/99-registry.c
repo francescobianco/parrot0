@@ -5998,6 +5998,12 @@ static int relative_rewrite(Brain *b, const char *sentence,
             size_t lo = (size_t)(paren_open - sentence);
             if (lo + strlen(paren_close + 1) + 1 >= left_size) return 0;
             snprintf(left, left_size, "%.*s%s", (int)lo, sentence, paren_close + 1);
+            /* e le parentetiche successive non restano dentro la principale */
+            for (char *o = strstr(left, " ("); o; o = strstr(left, " (")) {
+                char *cl = strchr(o, ')');
+                if (!cl) break;
+                memmove(o, cl + 1, strlen(cl + 1) + 1);
+            }
             if (getenv("P0_READ_TRACE"))
                 fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
             return 1;
@@ -6432,6 +6438,31 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             char lft[P0_TURN_MAX], rgt[P0_TURN_MAX];
             if (relative_rewrite(b, c, lft, sizeof lft, rgt, sizeof rgt)) {
                 char subr[1024]; subr[0] = '\0';
+                /* gen514 — la principale puo' portare un'altra struttura (S14
+                 * del piolo 300: una parentetica e poi «, including runoff and
+                 * seeps»). Si riscrive di nuovo, fino a tre volte, e le seconde
+                 * proposizioni si leggono subito. */
+                char extra[1024] = "";
+                char top_start[KB_TERM_LEN] = "";
+                top_entity_name(b, top_start, sizeof top_start);
+                char last_start[sizeof b->last_entity];
+                snprintf(last_start, sizeof last_start, "%s", b->last_entity);
+                for (int depth = 0; depth < 3; depth++) {
+                    char l2[P0_TURN_MAX], r2[P0_TURN_MAX];
+                    if (!relative_rewrite(b, lft, l2, sizeof l2, r2, sizeof r2)) break;
+                    char sube[512] = "";
+                    brain_respond(b, r2, sube, sizeof sube);
+                    if (!reply_is_wall(b, sube) && strlen(extra) + strlen(sube) + 2 < sizeof extra) {
+                        size_t el = strlen(extra);
+                        snprintf(extra + el, sizeof extra - el, "%s%s", el ? " " : "", sube);
+                    }
+                    snprintf(lft, sizeof lft, "%s", l2);
+                }
+                /* i pronomi della principale si risolvono sul discorso di
+                 * prima, non sui referenti delle seconde proposizioni appena
+                 * lette («They are under threat…» non sono «practices») */
+                if (*top_start) note_entity_seq(b, top_start);
+                if (*last_start) snprintf(b->last_entity, sizeof b->last_entity, "%s", last_start);
                 /* gen514 — un referente introdotto in una relativa e' meno
                  * saliente di quello della principale: «Coral reefs flourish in
                  * ocean waters that provide few nutrients. THEY are found at
@@ -6478,6 +6509,10 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                 brain_respond(b, rgt, subr, sizeof subr);
                 if (*top_before) note_entity_seq(b, top_before);
                 if (*last_before) snprintf(b->last_entity, sizeof b->last_entity, "%s", last_before);
+                if (*extra && strlen(subr) + strlen(extra) + 2 < sizeof subr) {
+                    size_t sl5 = strlen(subr);
+                    snprintf(subr + sl5, sizeof subr - sl5, "%s%s", sl5 ? " " : "", extra);
+                }
                 if (!reply_is_wall(b, subr) && strlen(sub) + strlen(subr) + 2 < sizeof sub) {
                     size_t sl2 = strlen(sub);
                     snprintf(sub + sl2, sizeof sub - sl2, " %s", subr);

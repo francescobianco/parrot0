@@ -953,7 +953,22 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     if (nw >= 3 && !p0_turn_opens_as_question(b, w[0]) &&
         (lex_class_member(b, "requirement_verb", w[1]) || lex_class_member(b, "requirement_verb", w[1]) ||
                     lex_class_member(b, "requirement_verb", w[1]))) {
-        if (plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
+        /* gen514 — una LISTA di prerequisiti non ha la forma di un sintagma in
+         * prosa: «composting requires gathering A mix OF green waste…» diventava
+         * sette prerequisiti, uno per parola, tutti falsi. Un determinante con un
+         * partitivo nello stesso span (`np_opener/1`, `partitive_preposition/1`)
+         * e' prosa, e la legge il lettore delle frasi. */
+        int prose_shape = 0;
+        {
+            int det = 0, part = 0;
+            for (size_t i = 2; i < nw; i++) {
+                const char *tq[1] = { strip_edge_punct(w[i]) };
+                if (kb_query(b->kb, "np_opener", tq, 1)) det = 1;
+                if (kb_query(b->kb, "partitive_preposition", tq, 1)) part = 1;
+            }
+            prose_shape = det && part;
+        }
+        if (!prose_shape && plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
     }
     /* Italian intake: "per X serve/servono <list>" (to X you need ...). */
     if (nw >= 4 && lex_class_member(b, "25_wordmath_reasoning_lex929", w[0]) &&

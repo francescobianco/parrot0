@@ -4986,6 +4986,13 @@ static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
         }
         char *t = strip_edge_punct(w[i]);
         if (next_literal && !strcmp(t, next_literal)) return (int)i;
+        /* gen514 — subito dopo un articolo viene un NOME: «gathering a MIX of
+         * green waste» — «mix» e' anche un verbo di relazione, e chiudeva lo
+         * slot a «gathering a». */
+        if (!next_literal && i > from) {
+            char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[i - 1]);
+            if (p0_lead_det(b, strip_edge_punct(pb))) continue;
+        }
         if (!next_literal && p0_np_closer(b, t) &&
             !p0_partitive_continues(b, w, i, t)) return (int)i;
     }
@@ -6474,6 +6481,8 @@ static int p0_atom_is_concept(Brain *b, const char *atom) {
     size_t bound = nt ? p0_quantity_bound_len(b, toks, nt, 0) : 0;
     for (size_t k = bound; k < nt; k++) {
         if (!p0_np_closer(b, toks[k])) continue;
+        /* dopo un articolo viene un nome, anche se e' la forma di un verbo */
+        if (k > 0 && p0_lead_det(b, toks[k - 1])) continue;
         /* gen510 — una preposizione FRA due parole piene non e' un confine
          * attraversato: e' dentro il sintagma («fall_from_height»). Il confine
          * attraversato e' quello in testa o in coda («island_country_located»,

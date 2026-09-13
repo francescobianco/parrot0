@@ -1,6 +1,32 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514, notte) — ✅ 49/50 = 98%, ✅ CANCELLO 301 > 299
+## ⛔ HANDOFF 2026-09-13 (gen514, notte) — PIOLO 320 (Compost): 4 -> 12/13; r300 resta 49/50 con cancello
+
+**Piolo successivo, r320** ([referti](docs/labs/apprendimento-assistito/2026-09-13-piolo-320/)).
+Al primo passaggio, senza toccare niente, le classi del piolo 300 davano gia'
+4/13: il trasferimento c'e'. Poi 4 -> 7 -> 11 -> 12/13, ogni gradino verificato
+anche su r300 (sempre 49/50, cancello passato). Nessuna risposta falsa nella
+revisione a mano.
+- ⚠ **Due note sul banco, non toccate**: `SOURCES.md` dice r320 = Engine, il file
+  e' il lead di Compost; e il banco ha 13 domande di merito (~75 parole), quindi il
+  cancello delle 319 parole su questo piolo non e' raggiungibile. Decisione di F.
+- Cure (dimensioni descrittive): `includes` canonico; «such as» come esempi;
+  «because» anche senza virgola, «since» solo con; un turno inglese non traduce le
+  sue parole (`content_translation_source/1`: «due to» diventava «two to»);
+  soggetti coordinati distribuiti; `verb_particle(break, up)`, `(use, as)`,
+  `verb_adverb(further)`; la ridotta dopo un predicato nominale ha per antecedente
+  il soggetto; nomi relazionali con articolo e aggettivo valutativo («an important
+  part of»); un sintagma non comincia a meta'; `np_opener(those/these)`; dopo un
+  articolo viene un nome anche se la parola e' un verbo («a mix»); la lista dei
+  prerequisiti legacy non si prende la prosa; riscrittura ripetuta della
+  principale con la salienza fotografata prima.
+- **Aperta**: «what can compost be used for?» — `verb_particle(use, for)` + modale
+  con «be» facevano rispondere «Navigating.» a «what is a compass used for?» (vero
+  nella KB del mondo, ma i cricchetti attendono la prosa) e il lettore delle
+  capacità («Held: compost can …») si prende comunque la frase: ritirati.
+- Il «0.4.» spurio visto una volta su S11 non si e' riprodotto isolato.
+
+## HANDOFF 2026-09-13 (gen514, notte) — ✅ 49/50 = 98%, ✅ CANCELLO 301 > 299
 
 **Il cancello del piolo 300 e' passato** ([referto](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda/bench-49-cancello.txt)):
 merito 49/50, meta 2/2, struttura 5/5, 301 parole di domande risolte contro 299
