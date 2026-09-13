@@ -395,6 +395,8 @@ verb_particle(combine, with).
 verb_particle(evolve, from).
 % gen513 — le particelle delle relazioni che la prosa dice al passivo.
 verb_particle(build, from).
+% gen514 — «Coral reefs deliver ecosystem services FOR tourism»: il beneficiario.
+verb_particle(deliver, for).
 verb_particle(make, of).
 verb_particle(form, of).
 verb_particle(compose, of).

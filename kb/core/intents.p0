@@ -1698,13 +1698,30 @@ machinery(words_join).
 words_join(cons($W, nil), $W).
 words_join(cons($W, $Rest), $Out) :-
     words_join($Rest, $R), concat_atoms($W, " ", $A), concat_atoms($A, $R, $Out).
+% Anche la classe si dice solo se la domanda nomina l'entita' (piu' le parole
+% della classe e i nomi di tipo): «what is the annual global economic value of
+% coral reefs?» riceveva la classe delle barriere.
+machinery(turn_word_outside_class_reading).
+turn_word_outside_class_reading($Entity, $Surface) :-
+    turn_word(current_turn, $Pos, $Word), content_word($Word),
+    naf(question_word($Word)), naf(type_noun($Word)),
+    atom_words($Entity, $Names), naf(member($Word, $Names)),
+    naf(lemma_in_names($Word, $Names)),
+    atom_words($Surface, $ClassWords), naf(member($Word, $ClassWords)).
 class_reading($Entity, $Text) :-
     class_surface($Class, $Surface), naf(machinery($Class)),
     apply($Class, cons($Entity, nil)),
+    naf(turn_word_outside_class_reading($Entity, $Surface)),
     atom_words($Entity, $Ws), words_join($Ws, $Name),
     response_template(class_reading_reply, $Sep),
     concat_atoms($Name, $Sep, $A), concat_atoms($A, $Surface, $Text).
 response_template(class_reading_reply, " is classed as ").
+% gen514 — una relazione che porta il VALORE di un attributo risponde a «what is
+% <attributo di X>?»: «the annual global economic value of coral reefs has been
+% estimated at …» e «what is the annual global economic value of coral reefs?».
+machinery(value_relation).
+value_relation(estimated_at).
+answer_frame("what is", $Pred) :- value_relation($Pred).
 answer_frame("what is", class_reading).
 answer_frame("kind of", class_reading).
 answer_frame("what is", read_about).
@@ -1713,6 +1730,9 @@ machinery(entity_has_named_class).
 entity_has_named_class($Entity) :-
     class_surface($Class, $Surface), naf(machinery($Class)),
     apply($Class, cons($Entity, nil)).
+% La stessa appartenenza nella forma binaria della KB del mondo
+% (`category_member(molecule, calcium_carbonate)`, vedi `knowledge_arc`).
+entity_has_named_class($Entity) :- category_member($Class, $Entity).
 % E solo se la domanda nomina SOLTANTO quella cosa: «what is the annual global
 % economic value of coral reefs?» citava una frase sulle barriere, cioe' una
 % non-risposta. Ogni parola piena del turno deve stare nel nome dell'entita'.
@@ -1723,9 +1743,16 @@ turn_word_outside_entity($Entity) :-
     naf(member($Word, $Names)), naf(lemma_in_names($Word, $Names)).
 machinery(lemma_in_names).
 lemma_in_names($Word, $Names) :- lemma_candidate($Word, $L), member($L, $Names).
+machinery(entity_has_value).
+entity_has_value($Entity) :-
+    value_relation($Pred), apply($Pred, cons($Entity, cons($Value, nil))).
+% ⚠ Prima si lega l'entita' (`fact_mention`), poi le negazioni: chi descrive
+% enumera `read_about(E, T)` con E libero, e una `naf` su un goal non ground
+% fallisce sempre.
 read_about($Entity, $Text) :-
     naf(definition_unfilled_relation(current_turn)),
     fact_mention($Entity, $Raw),
+    naf(entity_has_value($Entity)),
     naf(turn_word_outside_entity($Entity)),
     naf(entity_has_named_class($Entity)),
     response_template(read_about_reply, $Template),

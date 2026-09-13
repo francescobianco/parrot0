@@ -199,3 +199,51 @@
 <~ nitrogen
 > what threatens coral reefs?
 <~ excess nutrients
+
+[test the type decides between two descriptions]
+!reset
+!timeout 90
+> Reefs are formed of colonies of coral polyps held together by calcium carbonate. Most coral reefs are built from stony corals, whose polyps cluster in groups.
+<~ Learned
+> what kind of corals are most reefs built from?
+<~ stony corals
+> what holds coral polyps together?
+<~ calcium carbonate
+> what is calcium carbonate for?
+<~ holding colonies of coral polyps together
+
+[test the value of an attribute, and what was estimated]
+!reset
+!timeout 90
+> Coral reefs deliver ecosystem services for tourism, fisheries, and shoreline protection. The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates) to US$2.7 trillion (a 2020 estimate).
+<~ estimated at
+> what is the annual global economic value of coral reefs?
+<~ billion
+> what has been estimated at billions?
+<~ economic value
+> what do coral reefs deliver services for?
+<~ tourism
+
+[test a rank inside a rank, and an agentive compound]
+!reset
+!timeout 90
+> A coral reef is an underwater ecosystem characterized by reef-building corals. Coral belongs to the class Anthozoa in the animal phylum Cnidaria, which includes sea anemones and jellyfish.
+<~ class anthozoa belong
+> what phylum does coral belong to?
+<~ cnidaria
+> what class does coral belong to?
+<~ anthozoa
+> what do reef-building corals build?
+<~ reefs
+
+[test a partitive of is not a particle, and the chain needs an asked type]
+!reset
+!timeout 90
+> Reefs are formed of colonies of coral polyps. Sometimes called rainforests of the sea, shallow coral reefs form some of Earth's most diverse ecosystems. Coral belongs to the class Anthozoa in the animal phylum Cnidaria.
+<~ Learned
+> what are reefs formed of?
+<! ecosystems
+> what do shallow coral reefs form?
+<~ diverse ecosystems
+> what does coral belong to?
+<~ anthozoa

@@ -1,6 +1,36 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514, notte) — ✅ 41/50 = 82%, CANCELLO 248/299
+## ⛔ HANDOFF 2026-09-13 (gen514, notte) — ✅ 49/50 = 98%, ✅ CANCELLO 301 > 299
+
+**Il cancello del piolo 300 e' passato** ([referto](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda/bench-49-cancello.txt)):
+merito 49/50, meta 2/2, struttura 5/5, 301 parole di domande risolte contro 299
+del testo. Revisione a mano delle 49: nessuna risposta falsa; deboli «Warm.»
+(elenco di aggettivi troncato), «coral reefs first.» (resa), e le letture citate
+(«I have no definition of it, but I read: …») per stony corals, coral, coral
+polyps. L'unica aperta: «in what kind of water do reefs grow best?» — manca un
+lessico degli aggettivi per tenere «warm, shallow, clear, sunny, and agitated
+water» come un solo valore.
+
+Ultimi gradini (41 -> 49), tutti dimensioni descrittive in KB:
+- il tipo chiesto decide fra due descrizioni, anche quando svuota la chiave esatta;
+- alternanza di voce (`active_agent_surface/2`: «what holds X together?») e scopo
+  dell'agente (`purpose_by_agency/2`: «what is calcium carbonate for?»);
+- parentetiche di annotazione (con cifre) tolte; nomi d'attributo come teste
+  partitive (`attribute_noun/1`); valori con prefisso di valuta; `value_relation/1`;
+- complemento con particella dopo l'oggetto («deliver services FOR tourism»,
+  `particle_surface_for/3`) e la sua domanda con la particella in coda (cue dal
+  verbo alla particella; la relazione nuda cede con argomento 0);
+- ranghi tassonomici (`rank_noun/1`) e catena d'appartenenza transitiva, solo con
+  un tipo chiesto (`membership_chain/2`);
+- composti agentivi («reef-building corals» -> `build(…, reefs)`).
+Trappole pagate: `naf` su goal non ground (due volte), `snprintf` su se stesso,
+un «of» partitivo preso per particella (bugia chiusa prima del commit).
+
+**Prossimo passo proposto**: un piolo nuovo della scala (il banco resta fisso
+per ogni piolo), per verificare che queste classi valgano su un testo che non le
+ha fatte nascere.
+
+## HANDOFF 2026-09-13 (gen514, notte) — 41/50 = 82%, CANCELLO 248/299
 
 **Obiettivo dell'80% raggiunto sul banco fisso del piolo 300** ([referto](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda/bench-40.txt)).
 Ultimi gradini, tutti come dimensioni descrittive in KB (mantra #23):

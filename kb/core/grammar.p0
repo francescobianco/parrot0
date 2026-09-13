@@ -1620,6 +1620,50 @@ machinery(verb_form_particle).
 verb_form_particle($Form, $Particle) :-
     particle_passive_relation($Root, $Particle, $Pred, $Surface),
     verb_participle_form($Root, $Form).
+verb_form_particle($Form, $Particle) :-
+    verb_reading_form($Root, $Form), verb_particle($Root, $Particle).
+% La superficie con particella della relazione, per chi rilegge un complemento
+% staccato dall'oggetto («deliver ecosystem services FOR tourism» -> «have
+% delivered for tourism», cioe' `delivered_for`).
+machinery(particle_surface_for).
+particle_surface_for($Form, $Particle, $Surface) :-
+    verb_reading_form($Root, $Form),
+    particle_passive_relation($Root, $Particle, $Pred, $Surface).
+% E la domanda con la particella in CODA («what do coral reefs deliver services
+% FOR?»): interroga la relazione con particella, e la relazione nuda dello stesso
+% verbo cede per quella cue (argomento 0: nessun verso ammesso).
+machinery(particle_finite_surface).
+particle_finite_surface($Form, $Pred) :-
+    verb_particle($Root, $Particle), verb_finite_form($Root, $Form),
+    particle_passive_relation($Root, $Particle, $Pred, $Surface).
+answer_frame($Form, $Pred) :- particle_finite_surface($Form, $Pred).
+answer_frame_turn_arg($Form, $Pred, 1) :-
+    turn_last_word(current_turn, $Particle), verb_finite_form($Root, $Form),
+    particle_passive_relation($Root, $Particle, $Pred, $Surface),
+    object_question_verb(current_turn, $Form).
+answer_frame_turn_arg($Form, $Root, 0) :-
+    turn_last_word(current_turn, $Particle), verb_particle($Root, $Particle),
+    verb_finite_form($Root, $Form), object_question_verb(current_turn, $Form).
+% E la cue e' il TRATTO dal verbo alla particella in coda («deliver services
+% for»): l'oggetto nominato in mezzo appartiene alla forma della domanda, non al
+% suo fuoco — altrimenti «services» diventa la cosa chiesta e le barriere,
+% soggetto vero, vengono respinte.
+machinery(turn_span_text).
+machinery(particle_final_cue).
+turn_span_text($Tc, $From, $From, $Word) :- turn_word($Tc, $From, $Word).
+turn_span_text($Tc, $From, $To, $Text) :-
+    lt($From, $To), turn_word($Tc, $From, $Word), is($Next, add($From, 1)),
+    turn_span_text($Tc, $Next, $To, $Rest),
+    concat_atoms($Word, " ", $A), concat_atoms($A, $Rest, $Text).
+particle_final_cue($Cue, $Pred) :-
+    turn_last_word(current_turn, $Particle), verb_particle($Root, $Particle),
+    turn_word(current_turn, $Last, $Particle), is($After, add($Last, 1)),
+    naf(turn_word_at(current_turn, $After)),
+    verb_finite_form($Root, $Form), turn_word(current_turn, $V, $Form),
+    particle_passive_relation($Root, $Particle, $Pred, $Surface),
+    turn_span_text(current_turn, $V, $Last, $Cue).
+answer_frame($Cue, $Pred) :- particle_final_cue($Cue, $Pred).
+answer_frame_turn_arg($Cue, $Pred, 1) :- particle_final_cue($Cue, $Pred).
 
 % ── gen514 — I PREDICATI AGGETTIVALI ────────────────────────────────────────
 % «they are sensitive to water conditions»: un aggettivo con la sua preposizione
@@ -1678,6 +1722,46 @@ extract_frame($Pat, $Pred) :-
     verb_particle_agent_relation($Pred, $Surface),
     concat_atoms("@S ", $Surface, $A), concat_atoms($A, " @O", $Pat).
 answer_frame($Surface, $Pred) :- verb_particle_agent_relation($Pred, $Surface).
+
+% gen514 — L'ALTERNANZA DI VOCE. «colonies of coral polyps HELD TOGETHER BY
+% calcium carbonate» scrive `held_together_by(colonies…, calcium_carbonate)`, e
+% «what HOLDS coral polyps TOGETHER?» e' la stessa relazione detta all'attivo: la
+% forma finita del verbo interroga la relazione d'agente, e l'entita' nominata
+% fra il verbo e la particella e' la cosa tenuta insieme, cioe' il primo
+% argomento. Le forme vengono da `verb_finite_form/2`, le particelle da
+% `adverbial_particle/1`: un verbo nuovo non costa una riga.
+machinery(active_agent_surface).
+active_agent_surface($Form, $Pred) :-
+    adverbial_particle($Particle), verb_particle($Root, $Particle),
+    particle_passive_relation($Root, $Particle, $Bare, $BareSurface),
+    passive_agent_marker($By),
+    concat_atoms($Bare, "_", $B), concat_atoms($B, $By, $Pred),
+    verb_finite_form($Root, $Form), dif($Root, $Form).
+answer_frame($Form, $Pred) :- active_agent_surface($Form, $Pred).
+% E lo SCOPO dell'agente: «what is calcium carbonate FOR?» — se le colonie sono
+% tenute insieme dal carbonato, il carbonato serve a tenerle insieme. Vale per
+% ogni relazione d'agente con particella avverbiale, e solo quando la domanda
+% chiude con la preposizione dello scopo (`purpose_preposition/1`).
+machinery(purpose_by_agency).
+machinery(purpose_preposition).
+purpose_preposition(for).
+purpose_by_agency($Agent, $Text) :-
+    turn_last_word(current_turn, $Last), purpose_preposition($Last),
+    adverbial_particle($Particle), verb_particle($Root, $Particle),
+    particle_passive_relation($Root, $Particle, $Bare, $BareSurface),
+    passive_agent_marker($By), concat_atoms($Bare, "_", $B), concat_atoms($B, $By, $Pred),
+    apply($Pred, cons($Held, cons($Agent, nil))),
+    purpose_phrase($Root, $Held, $Particle, $Text).
+purpose_phrase($Root, $Held, $Particle, $Text) :-
+    concat_atoms($Root, "ing", $Gerund), atom_words($Held, $Ws), words_join($Ws, $Name),
+    concat_atoms($Gerund, " ", $A), concat_atoms($A, $Name, $C),
+    concat_atoms($C, " ", $D), concat_atoms($D, $Particle, $Text).
+answer_frame("what is", purpose_by_agency).
+answer_frame("what are", purpose_by_agency).
+answer_frame_turn_arg($Form, $Pred, 1) :-
+    active_agent_surface($Form, $Pred),
+    turn_surface_at(current_turn, $Form, $At),
+    turn_word(current_turn, $P, $Particle), adverbial_particle($Particle), lt($At, $P).
 
 % ── gen513 — LA RELATIVA RIDOTTA: IL PARTICIPIO SENZA COPULA ───────────────
 %
@@ -3241,6 +3325,8 @@ materialized_view(extract_frame, 2).
 materialized_view(verb_stem, 2).
 materialized_view(swapped_construction_cue, 2).
 materialized_view(construction_target_cue, 2).
+materialized_view(active_agent_surface, 2).
+materialized_view(particle_finite_surface, 2).
 % Le superfici che una lezione di costruzione rivendica (vedi `construction_claims/1`):
 % la guardia del passivo generico le chiede una per schema, quindi si congelano.
 materialized_view(construction_claims, 1).
@@ -3299,6 +3385,36 @@ fronted_participle(found).
 knowledge_alias(include, includes).
 machinery(parenthetical_relation).
 parenthetical_relation(includes).
+% gen514 — i RANGHI di una classificazione, e la preposizione che mette un rango
+% dentro un altro: «the class Anthozoa IN the animal phylum Cnidaria».
+% gen514 — il composto agentivo «reef-building corals»: il secondo pezzo e' il
+% gerundio di un verbo di relazione, il primo il suo oggetto (al plurale se
+% numerabile). Irregolari e non numerabili si aggiungono come fatti.
+machinery(agentive_compound_root).
+machinery(count_plural).
+agentive_compound_root($Gerund, $Root) :-
+    concat_atoms($Root, "ing", $Gerund), relation_verb($Root).
+count_plural($Singular, $Plural) :- concat_atoms($Singular, "s", $Plural).
+machinery(rank_noun).
+machinery(rank_container_preposition).
+rank_noun(kingdom). rank_noun(phylum). rank_noun(class). rank_noun(order).
+rank_noun(family). rank_noun(genus). rank_noun(species).
+rank_container_preposition(in).
+% E l'appartenenza e' transitiva: chi sta in una classe sta anche nel phylum
+% che la contiene. `membership_chain/2` risale di un livello per ogni relazione
+% che la KB dichiara transitiva e di appartenenza; il tipo chiesto («what
+% PHYLUM…») sceglie il livello.
+machinery(membership_relation).
+machinery(membership_chain).
+membership_relation(belong).
+relation_type(belong, transitive).
+% Solo quando la domanda chiede un TIPO: senza, la risposta diretta («what does
+% coral belong to?» -> class anthozoa) e' quella giusta, e la catena la scavalcava.
+membership_chain($A, $C) :-
+    has_asked_answer_type(current_turn),
+    membership_relation($R), relation_type($R, transitive),
+    apply($R, cons($A, cons($B, nil))), apply($R, cons($B, cons($C, nil))).
+answer_frame("belong to", membership_chain).
 machinery(participial_opener).
 participial_opener(including, includes).
 participial_opener(incluso, includes).
@@ -3355,6 +3471,15 @@ machinery(partitive_link).
 partitive_head_class(measure_noun).
 partitive_head_class(non_universal_quantifier).
 partitive_head_class(universal_quantifier).
+% gen514 — e un NOME D'ATTRIBUTO lega il suo portatore: «the annual global
+% economic value OF coral reefs» e' un soggetto solo, non «value» piu' un
+% complemento perso. Un attributo nuovo e' una riga.
+partitive_head_class(attribute_noun).
+machinery(attribute_noun).
+attribute_noun(value).
+attribute_noun(price).
+attribute_noun(cost).
+attribute_noun(population).
 partitive_link($Head, $Prep) :-
     partitive_preposition($Prep), partitive_head_class($Class),
     apply($Class, cons($Head, nil)).
@@ -3365,6 +3490,7 @@ partitive_link($Head, $Prep) :-
 % gen514 — i limiti di una quantita' («at least 25%», «about half») fanno
 % parte del valore quando precedono un numero.
 machinery(quantity_bound).
+quantity_bound("anywhere from").
 quantity_bound("at least").
 quantity_bound("at most").
 quantity_bound("about").

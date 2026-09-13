@@ -4777,8 +4777,39 @@ static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
      * built from stony corals», non aveva appiglio e «what are stony corals?»
      * rispondeva di non saperne niente. Ogni argomento-concetto del fatto
      * ricorda la frase letta; che cosa farne lo dice la KB (`read_about/2`). */
+    /* Una lezione di classe sulla lingua («aboard is a preposition») e' un
+     * fatto UNARIO di macchineria e non parla del mondo; una relazione binaria
+     * si ricorda sempre, anche se il predicato e' marcato macchineria per
+     * altre ragioni (`made_of`). */
+    /* gen514 — IL COMPOSTO AGENTIVO. «reef-building corals» dice un fatto che
+     * la frase non scrive: i coralli costruiscono barriere. Il C trova soltanto
+     * la parola con il trattino e la spezza; che il secondo pezzo sia un
+     * gerundio di un verbo di relazione (`agentive_compound_root/2`) e quale
+     * sia il plurale dell'oggetto (`count_plural/2`) lo dice la KB. */
+    for (size_t i = 0; i < argc; i++) {
+        if (!args[i] || args[i][0] == '"' || !strchr(args[i], '-')) continue;
+        char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", args[i]);
+        for (char *tok = strtok(ab, "_"); tok; tok = strtok(NULL, "_")) {
+            char *dash = strrchr(tok, '-');
+            if (!dash || dash == tok || !dash[1]) continue;
+            char pre[KB_TERM_LEN]; snprintf(pre, sizeof pre, "%.*s", (int)(dash - tok), tok);
+            char root[1][KB_TERM_LEN], plur[1][KB_TERM_LEN];
+            const char *rq[2] = { dash + 1, NULL };
+            if (kb_match(b->kb, "agentive_compound_root", rq, 2, root, 1) != 1) continue;
+            const char *pq[2] = { pre, NULL };
+            const char *obj = pre;
+            if (kb_match(b->kb, "count_plural", pq, 2, plur, 1) == 1) obj = kb_dequote(plur[0]);
+            char rootb[KB_TERM_LEN]; snprintf(rootb, sizeof rootb, "%s", kb_dequote(root[0]));
+            const char *fa2[2] = { args[i], obj };
+            int prev_o = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            if (!kb_query(b->kb, rootb, fa2, 2)) kb_assert(b->kb, rootb, fa2, 2);
+            kb_set_origin(b->kb, prev_o);
+            break;
+        }
+    }
     const char *mq[1] = { pred };
-    int is_machinery = kb_query(b->kb, "machinery", mq, 1);
+    int is_machinery = argc == 1 && kb_query(b->kb, "machinery", mq, 1);
     for (size_t i = 0; i < argc && !is_machinery; i++) {
         if (!args[i] || !*args[i] || args[i][0] == '"') continue;
         const char *ma[] = { args[i], rq };
@@ -4918,7 +4949,8 @@ static size_t p0_quantity_bound_len(Brain *b, char **w, size_t n, size_t i) {
         }
         if (k < nb) continue;
         char nb2[KB_TERM_LEN]; snprintf(nb2, sizeof nb2, "%s", w[i + nb]);
-        if (!isdigit((unsigned char)strip_edge_punct(nb2)[0])) continue;
+        /* un numero, anche con il prefisso di una valuta («US$30–375») */
+        if (!strpbrk(strip_edge_punct(nb2), "0123456789")) continue;
         best = nb;
     }
     free(rows);
@@ -8120,6 +8152,12 @@ static int p0_current_question_focus(Brain *b, const char *norm,
 }
 
 static void p0_record_focus_rejection(Brain *b, const char *subject) {
+    if (getenv("P0_READ_TRACE")) {
+        char fz[512] = "";
+        const char *fq[] = { "current_turn", NULL }; char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "turn_focus", fq, 2, hit, 1) == 1) snprintf(fz, sizeof fz, "%s", hit[0]);
+        fprintf(stderr, "[aframe] focus %s rejects «%s»\n", fz, subject);
+    }
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
     const char *a[] = { "current_turn", subject };
@@ -8870,7 +8908,15 @@ static size_t p0_answer_by_description(Brain *b, const char *pred,
             const char *rq[1] = { keys[i] };
             if (!kb_query(b->kb, "referent_known", rq, 1)) continue;
         } else if (strcmp(kp[p0_head_index(b, nkp)], pp[phead]) != 0) {
-            continue;
+            /* gen514 — la stessa testa al plurale: «billions» descrive una
+             * chiave che finisce in «billion» (`lemma_candidate/2`). */
+            char lem[4][KB_TERM_LEN];
+            const char *lq[2] = { pp[phead], NULL };
+            size_t nl = kb_match(b->kb, "lemma_candidate", lq, 2, lem, 4);
+            int same = 0;
+            for (size_t li = 0; li < nl && !same; li++)
+                if (!strcmp(kb_dequote(lem[li]), kp[p0_head_index(b, nkp)])) same = 1;
+            if (!same) continue;
         }
         int lacks = 0;
         for (size_t a = 0; a < np && !lacks; a++) {
@@ -9097,13 +9143,8 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             const char *dq[1] = { pred };
             if (kb_query(b->kb, "answer_frame_defers", dq, 1)) continue;
         }
-        /* gen505x: prima di QUALUNQUE emissione di valore, la forma della
-         * domanda. Una polare non chiede il valore: propone il proprio. */
-        {
-            int pol = p0_polar_reply(b, norm, w, nw, pred, out, out_size);
-            if (pol == 1) { free(preds); free(cues); return 1; }
-            if (pol < 0) { free(preds); free(cues); return 0; }
-        }
+        /* (la forma polare si guarda dopo la direzione: una relazione a cui la
+         * KB non ammette nessun verso per questa cue non propone niente) */
         /* A binary relation is not automatically reversible.  The surface-to-
          * relation frame may declare which argument the entity in the question
          * binds.  This is fixed slot mechanics: cue, predicate and direction
@@ -9136,6 +9177,22 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     if (strcmp(arg, "2") == 0) allow_arg2 = 1;
                 }
             }
+        }
+        /* gen514 — argomento 0: la KB dice che per questa cue la relazione non
+         * si interroga («what do coral reefs deliver services FOR?» chiede
+         * `delivered_for`, non `deliver`). */
+        {
+            char zb[4][KB_TERM_LEN];
+            const char *zq[] = { cues[i], preds[p], "0" };
+            if (*cues[i] && kb_query(b->kb, "answer_frame_turn_arg", zq, 3)) continue;
+            (void)zb;
+        }
+        /* gen505x: prima di QUALUNQUE emissione di valore, la forma della
+         * domanda. Una polare non chiede il valore: propone il proprio. */
+        {
+            int pol = p0_polar_reply(b, norm, w, nw, pred, out, out_size);
+            if (pol == 1) { free(preds); free(cues); return 1; }
+            if (pol < 0) { free(preds); free(cues); return 0; }
         }
         int projected = answer_projection_resolve(b, pred, norm,
                                                   out, out_size);
@@ -9289,6 +9346,13 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     const char *pb[2] = { NULL, key };
                     na = kb_match(b->kb, pred, pb, 2, ans, 16);
                 }
+                /* gen514 — la chiave esatta puo' rispondere con valori del tipo
+                 * sbagliato: «what kind of CORALS are most reefs built from?»
+                 * trovava `made_of(reefs, colonies)`, il filtro lo scartava e la
+                 * descrizione (`coral_reefs` -> stony corals) non si provava piu'.
+                 * Se il tipo chiesto svuota la chiave esatta, la chiave e' come
+                 * assente. */
+                if (na > 0 && p0_answer_type_filter(b, ans, na) == 0) na = 0;
                 if (na == 0) {
                     /* ── G2: LA FRASE COME DESCRIZIONE, NON COME CHIAVE ──────
                      *
@@ -9331,6 +9395,33 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                        : p0_answer_by_description(b, pred, key, allow_arg1,
                                                   allow_arg2, ans, 16,
                                                   amb, &namb);
+                    /* gen514 — un candidato che non ha risposte del tipo chiesto
+                     * non e' un'alternativa: «reefs: colonies» non risponde a
+                     * «what kind of CORALS…». Se ne resta uno, risponde lui. */
+                    if (na == 0 && namb >= 2) {
+                        size_t keep = 0;
+                        for (size_t z = 0; z < namb; z++) {
+                            char va[8][KB_TERM_LEN]; size_t nv = 0;
+                            const char *vf[2] = { amb[z], NULL };
+                            if (allow_arg1) nv = kb_match(b->kb, pred, vf, 2, va, 8);
+                            if (nv == 0 && allow_arg2) {
+                                const char *vb[2] = { NULL, amb[z] };
+                                nv = kb_match(b->kb, pred, vb, 2, va, 8);
+                            }
+                            if (p0_answer_type_filter(b, va, nv) == 0) continue;
+                            if (keep != z) memcpy(amb[keep], amb[z], KB_TERM_LEN);
+                            keep++;
+                        }
+                        if (keep == 1) {
+                            const char *vf[2] = { amb[0], NULL };
+                            na = allow_arg1 ? kb_match(b->kb, pred, vf, 2, ans, 16) : 0;
+                            if (na == 0 && allow_arg2) {
+                                const char *vb[2] = { NULL, amb[0] };
+                                na = kb_match(b->kb, pred, vb, 2, ans, 16);
+                            }
+                            namb = 0;
+                        } else namb = keep;   /* 0: nessun candidato del tipo */
+                    }
                     if (na == 0 && namb >= 2) {
                         /* L'ambiguita' si DICE. Un muro qui butterebbe via il
                          * fatto che abbiamo capito la descrizione e trovato piu'

@@ -5803,7 +5803,10 @@ static int relative_rewrite(Brain *b, const char *sentence,
                     char prev[KB_TERM_LEN];
                     word_before(sentence, h, prev, sizeof prev);
                     const char *pq[1] = { prev };
-                    if (!*prev || kb_query(b->kb, "clause_copula", pq, 1)) continue;
+                    /* gen514 — neanche dopo un ausiliare: «has BEEN estimated
+                     * at» e' il verbo della principale, come «are formed of». */
+                    if (!*prev || kb_query(b->kb, "clause_copula", pq, 1) ||
+                        kb_query(b->kb, "auxiliary", pq, 1)) continue;
                     if (!cut || h < cut) { cut = h; cutlen = 1; }
                     break;
                 }
@@ -6037,6 +6040,43 @@ static int particle_adjunct_split(Brain *b, const char *s,
     if (!b || !b->kb || !s) return 0;
     char buf[P0_TURN_MAX]; snprintf(buf, sizeof buf, "%s", s);
     char *w[64]; size_t n = split_words(buf, w, 64);
+    /* Caso B: «S V O P Y» — l'oggetto, poi un complemento con una particella
+     * del verbo. La seconda lettura usa la superficie con particella
+     * (`particle_surface_for/3`), cosi' la relazione e' distinta dall'oggetto. */
+    for (size_t i = 1; i + 3 < n; i++) {
+        char vf[KB_TERM_LEN];
+        snprintf(vf, sizeof vf, "%s", w[i]);
+        for (char *q = vf; *q; q++) *q = (char)tolower((unsigned char)*q);
+        const char *rq[1] = { vf };
+        if (!kb_query(b->kb, "relation_verb", rq, 1)) continue;
+        for (size_t j = i + 2; j + 1 < n; j++) {
+            char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[j]);
+            for (char *q = pb; *q; q++) *q = (char)tolower((unsigned char)*q);
+            char surf[1][KB_TERM_LEN];
+            /* l'«of» di «some OF Earth's ecosystems» e' il partitivo del valore
+             * (`partitive_link/2`), non la particella di «form of» */
+            {
+                char prevb[KB_TERM_LEN]; snprintf(prevb, sizeof prevb, "%s", w[j - 1]);
+                for (char *q = prevb; *q; q++) *q = (char)tolower((unsigned char)*q);
+                const char *plq[2] = { strip_edge_punct(prevb), strip_edge_punct(pb) };
+                if (kb_query(b->kb, "partitive_link", plq, 2)) continue;
+            }
+            const char *sq[3] = { vf, strip_edge_punct(pb), NULL };
+            if (kb_match(b->kb, "particle_surface_for", sq, 3, surf, 1) != 1) continue;
+            size_t ao = 0, co = 0;
+            for (size_t k = 0; k < j && ao < asz; k++)
+                ao += (size_t)snprintf(a + ao, asz - ao, "%s%s", k ? " " : "", w[k]);
+            for (size_t k = 0; k < i && co < csz; k++)
+                co += (size_t)snprintf(c + co, csz - co, "%s%s", k ? " " : "", w[k]);
+            co += (size_t)snprintf(c + co, csz > co ? csz - co : 0, " have %s", kb_dequote(surf[0]));
+            for (size_t k = j + 1; k < n && co < csz; k++)
+                co += (size_t)snprintf(c + co, csz - co, " %s", w[k]);
+            if (ao >= asz || co >= csz) return 0;
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[complementi] «%s» + «%s»\n", a, c);
+            return 1;
+        }
+    }
     for (size_t i = 1; i + 3 < n; i++) {
         char vf[KB_TERM_LEN], p1[KB_TERM_LEN];
         snprintf(vf, sizeof vf, "%s", w[i]); snprintf(p1, sizeof p1, "%s", w[i + 1]);
@@ -6062,6 +6102,89 @@ static int particle_adjunct_split(Brain *b, const char *s,
                 fprintf(stderr, "[complementi] «%s» + «%s»\n", a, c);
             return 1;
         }
+    }
+    return 0;
+}
+
+/* gen514 — LA PARENTETICA DI ANNOTAZIONE. «US$30–375 billion (1997 and 2003
+ * estimates)», «(a 2020 estimate)»: una parentetica con cifre annota una
+ * quantita' (anni, fonti) e non da' esempi del sintagma. Si toglie dalla
+ * clausola prima di leggerla; e' forma, non vocabolario (come il numero di
+ * `p0_join`). Restituisce 1 se ha tolto qualcosa. */
+static int strip_annotation_parentheticals(char *s) {
+    int changed = 0;
+    for (char *o = strstr(s, " ("); o; o = strstr(o, " (")) {
+        char *c = strchr(o, ')');
+        if (!c) break;
+        int digit = 0;
+        for (char *q = o + 2; q < c; q++) if (isdigit((unsigned char)*q)) { digit = 1; break; }
+        if (!digit) { o = c; continue; }
+        memmove(o, c + 1, strlen(c + 1) + 1);
+        changed = 1;
+    }
+    return changed;
+}
+
+/* gen514 — IL RANGO DENTRO IL RANGO. «Coral belongs to the class Anthozoa IN
+ * the animal phylum Cnidaria»: la classe sta nel phylum, cioe' una seconda
+ * appartenenza con lo stesso verbo. Quali nomi siano ranghi e quale
+ * preposizione li contenga e' KB (`rank_noun/1`, `rank_container_preposition/1`);
+ * il C trova il sintagma col rango prima della preposizione e quello dopo, e
+ * rilegge «<rango prima> <verbo> <rango dopo>». */
+static int nested_rank_split(Brain *b, const char *s,
+                             char *a, size_t asz, char *c, size_t csz) {
+    if (!b || !b->kb || !s) return 0;
+    char buf[P0_TURN_MAX]; snprintf(buf, sizeof buf, "%s", s);
+    char *w[64]; size_t n = split_words(buf, w, 64);
+    char low[64][KB_TERM_LEN];
+    for (size_t k = 0; k < n; k++) {
+        char tmp[KB_TERM_LEN];
+        snprintf(tmp, sizeof tmp, "%s", w[k]);
+        for (char *q = tmp; *q; q++) *q = (char)tolower((unsigned char)*q);
+        snprintf(low[k], KB_TERM_LEN, "%s", strip_edge_punct(tmp));
+    }
+    size_t v = n;
+    for (size_t k = 1; k < n && v == n; k++) {
+        const char *vq[1] = { low[k] };
+        if (kb_query(b->kb, "relative_clause_verb", vq, 1)) v = k;
+    }
+    if (v == n) return 0;
+    for (size_t j = v + 2; j + 2 < n; j++) {
+        const char *pq[1] = { low[j] };
+        if (!kb_query(b->kb, "rank_container_preposition", pq, 1)) continue;
+        /* il sintagma prima: dal rango all'indietro fino al determinante */
+        size_t r1 = j;
+        for (size_t k = j; k-- > v + 1; ) {
+            const char *rq[1] = { low[k] };
+            if (kb_query(b->kb, "rank_noun", rq, 1)) { r1 = k; break; }
+        }
+        if (r1 == j) continue;
+        size_t np1 = r1;
+        if (np1 > v + 1) {
+            const char *dq[1] = { low[np1 - 1] };
+            if (kb_query(b->kb, "np_opener", dq, 1)) np1--;
+        }
+        int rank2 = 0;
+        size_t end2 = j + 1;
+        for (; end2 < n; end2++) {
+            const char *rq[1] = { low[end2] };
+            if (kb_query(b->kb, "rank_noun", rq, 1)) rank2 = 1;
+            if (strchr(w[end2], ',')) { end2++; break; }
+        }
+        if (!rank2) continue;
+        size_t ao = 0, co = 0;
+        for (size_t k = 0; k < j && ao < asz; k++)
+            ao += (size_t)snprintf(a + ao, asz - ao, "%s%s", k ? " " : "", w[k]);
+        for (size_t k = np1; k < j && co < csz; k++)
+            co += (size_t)snprintf(c + co, csz - co, "%s%s", co ? " " : "", w[k]);
+        for (size_t k = v; k < np1 && co < csz; k++)
+            co += (size_t)snprintf(c + co, csz - co, " %s", w[k]);
+        for (size_t k = j + 1; k < end2 && co < csz; k++)
+            co += (size_t)snprintf(c + co, csz - co, " %s", w[k]);
+        if (ao >= asz || co >= csz) return 0;
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[ranghi] «%s» + «%s»\n", a, c);
+        return 1;
     }
     return 0;
 }
@@ -6205,6 +6328,8 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     for (size_t i = 0; i < ncl; i++) {
         char *c = trim_mut(clauses[i]);
         if (!*c) continue;
+        if (strip_annotation_parentheticals(c) && getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[annotazione] «%s»\n", c);
         char sub[1024]; sub[0] = '\0';
         /* La clausola e' un turno intero: ha la SUA vista globale, non quella
          * del genitore — altrimenti una cue del turno composto («can you»)
@@ -6230,7 +6355,8 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                 char p1[P0_TURN_MAX], p2[P0_TURN_MAX];
                 {
                     char a1[P0_TURN_MAX], a2[P0_TURN_MAX];
-                    if (particle_adjunct_split(b, lft, a1, sizeof a1, a2, sizeof a2)) {
+                    if (particle_adjunct_split(b, lft, a1, sizeof a1, a2, sizeof a2) ||
+                        nested_rank_split(b, lft, a1, sizeof a1, a2, sizeof a2)) {
                         char suba[512] = "";
                         brain_respond(b, a1, sub, sizeof sub);
                         brain_respond(b, a2, suba, sizeof suba);
@@ -6271,7 +6397,8 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                 }
             } else {
                 char a1[P0_TURN_MAX], a2[P0_TURN_MAX];
-                if (particle_adjunct_split(b, c, a1, sizeof a1, a2, sizeof a2)) {
+                if (particle_adjunct_split(b, c, a1, sizeof a1, a2, sizeof a2) ||
+                    nested_rank_split(b, c, a1, sizeof a1, a2, sizeof a2)) {
                     char suba[512] = "";
                     brain_respond(b, a1, sub, sizeof sub);
                     brain_respond(b, a2, suba, sizeof suba);
