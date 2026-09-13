@@ -191,6 +191,23 @@ writing_help_cue("mi aiuti a scrivere").
 turn_cue_registry(writing_help_cue, 1).
 user_situation($Turn, user_writing) :- turn_cue_form($Turn, writing_help_cue, $Cue).
 
+% assistente utile U13 — COMINCIARE QUALCOSA DI NUOVO. «I want to start running.
+% Where do I begin?» riceveva un muro su «running», «I want to learn to cook.
+% Where should I start?» «I don't understand that yet.». Chi chiede da dove
+% cominciare non chiede un'enciclopedia della cosa: chiede il primo passo e di
+% misurarlo sul proprio tempo.
+machinery(getting_started_cue).
+getting_started_cue("where do i begin").
+getting_started_cue("where do i start").
+getting_started_cue("where should i start").
+getting_started_cue("where should i begin").
+getting_started_cue("how do i get started").
+getting_started_cue("da dove comincio").
+getting_started_cue("da dove inizio").
+getting_started_cue("da dove parto").
+turn_cue_registry(getting_started_cue, 1).
+user_situation($Turn, user_getting_started) :- turn_cue_form($Turn, getting_started_cue, $Cue).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -220,6 +237,10 @@ situation_cue("someone wants help writing a message", user_writing).
 situation_cue("qualcuno vuole aiuto a scrivere un messaggio", user_writing).
 situation_label(user_writing, en, "someone wants help writing a message").
 situation_label(user_writing, it, "qualcuno vuole aiuto a scrivere un messaggio").
+situation_cue("someone wants to start something new", user_getting_started).
+situation_cue("qualcuno vuole cominciare qualcosa di nuovo", user_getting_started).
+situation_label(user_getting_started, en, "someone wants to start something new").
+situation_label(user_getting_started, it, "qualcuno vuole cominciare qualcosa di nuovo").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -307,6 +328,16 @@ plan_step_text_lang(message_shape, en, "A clear message puts the main point in t
 plan_step_text_lang(message_shape, it, "Un messaggio chiaro mette il punto principale nell'oggetto e nella prima frase, poi dà solo i dettagli che servono, e chiude dicendo esattamente che cosa ti serve dal destinatario e per quando.").
 plan_step_text_lang(ask_recipient_goal, en, "Who is it for, and what do you want it to get done?").
 plan_step_text_lang(ask_recipient_goal, it, "A chi è rivolto, e che cosa vuoi ottenere?").
+% - start_small: NHS, «Couch to 5K» — «It's all about starting small and building
+%   up gradually», tre volte a settimana con giorni di riposo in mezzo.
+move_cue("say to start small and regular", start_small).
+move_cue("di' di cominciare in piccolo e con regolarita'", start_small).
+move_cue("ask how much time they have each week", ask_weekly_time).
+move_cue("chiedi quanto tempo ha a settimana", ask_weekly_time).
+plan_step_text_lang(start_small, en, "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan.").
+plan_step_text_lang(start_small, it, "Comincia in piccolo e con regolarità: una sessione breve tre volte a settimana, aumentando un poco ogni settimana, si mantiene meglio di un grande piano.").
+plan_step_text_lang(ask_weekly_time, en, "How much time can you give it each week?").
+plan_step_text_lang(ask_weekly_time, it, "Quanto tempo puoi dedicarci ogni settimana?").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

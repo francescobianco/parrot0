@@ -108,6 +108,8 @@ machinery_gap("the problem with this theory is its size").
 machinery_gap("i have risolto the problema meccanico").
 machinery_gap("the song is sad").
 machinery_gap("should i go?").
+machinery_gap("where does the river begin?").
+machinery_gap("where do i begin?").
 machinery_gap("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
@@ -189,7 +191,9 @@ gap_opaque("inhabit is a relation verb", inhabit).
 gap_opaque("i have risolto the problema meccanico", meccanico).
 gap_opaque("i have risolto the problema meccanico", risolto).
 gap_opaque("the song is sad", sad).
+gap_opaque("where does the river begin?", begin).
 gap_opaque("the song is sad", song).
+gap_opaque("where do i begin?", begin).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
@@ -230,6 +234,7 @@ gap_anchor("the problem with this theory is its size", theory).
 gap_kind("comprise is a relation verb", reachability).
 gap_anchor("inhabit is a relation verb", verb).
 gap_anchor("inhabit is a relation verb", relation).
+gap_anchor("where does the river begin?", river).
 gap_anchor("i have risolto the problema meccanico", problema).
 gap_anchor("what is a hammer made of?", hammer).
 gap_anchor("what is measured by the farad?", farad).
@@ -245,11 +250,15 @@ gap_kind("who used quipu?", reachability).
 gap_kind("what is measured by the farad?", reachability).
 gap_kind("the song is sad", reachability).
 gap_kind("what does the heart pump?", reachability).
+gap_kind("where does the river begin?", reachability).
 gap_kind("which moon is the largest?", reachability).
 gap_kind("i have a problem meccanico", reachability).
 gap_kind("should i go?", reachability).
+gap_kind("i want to start running. where do i begin?", reachability).
+gap_kind("where do i begin?", reachability).
 gap_kind("am sad today", reachability).
 gap_kind("should i buy a laptop or a tablet for university?", reachability).
+gap_kind("i want to start running", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
@@ -290,9 +299,13 @@ gap_source("migrate is a relation verb", "migrate is a relation verb").
 gap_source("show is a relation verb", "display is a relation verb").
 gap_source("i have risolto the problema meccanico", "ho risolto il problema meccanico").
 gap_source("inhabit is a relation verb", "inhabit is a relation verb").
+gap_source("where does the river begin?", "where does the river begin?").
 gap_source("the song is sad", "the song is sad").
 gap_source("which moon is the largest?", "which moon is the largest?").
+gap_source("i want to start running. where do i begin?", "I want to start running. Where do I begin?").
 gap_source("should i go?", "should i go?").
 gap_source("i have a problem meccanico", "ho un problema meccanico").
+gap_source("where do i begin?", "Where do I begin?").
 gap_source("am sad today", "sono triste oggi").
 gap_source("should i buy a laptop or a tablet for university?", "Should I buy a laptop or a tablet for university?").
+gap_source("i want to start running", "I want to start running").

@@ -67,6 +67,14 @@
 > write a python function that sorts a list
 <! A clear message
 
+[test starting something new gets the first step and the time question]
+!timeout 30
+> I want to learn to cook. Where should I start?
+<~ Start small and regular
+<~ How much time can you give it each week?
+> where does the river begin?
+<! Start small
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem

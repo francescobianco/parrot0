@@ -94,6 +94,7 @@ utterance(5, user, "when someone is sad then say you are sorry to hear it").
 utterance(5, user, "when someone has to choose then say it depends on what they need").
 utterance(5, user, "when someone asks what you can help with then ask what they need").
 utterance(5, user, "when someone wants help writing a message then give the shape of a clear message").
+utterance(5, user, "I want to start running. Where do I begin?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -167,6 +168,7 @@ utterance(6, self, "Held: in that situation, move 1 is «I'm sorry you're feelin
 utterance(6, self, "Held: in that situation, move 1 is «Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know.».").
 utterance(6, self, "Held: in that situation, move 2 is «What do you need right now?».").
 utterance(6, self, "Held: in that situation, move 1 is «A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when.».").
+utterance(6, self, "Hmm, I don't know about running yet. Want me to learn about it?").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -652,6 +654,7 @@ utterance(7, user, "when someone is sad then suggest talking to someone they tru
 utterance(7, user, "when someone has to choose then ask what they will use it for").
 utterance(7, user, "What can you help me with?").
 utterance(7, user, "when someone wants help writing a message then ask who it is for and what it should achieve").
+utterance(7, user, "when someone wants to start something new then say to start small and regular").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1028,7 +1031,11 @@ utterance(8, self, "Held: in that situation, move 2 is «Who is it for, and what
 utterance(9, user, "your plan when someone wants help writing a message").
 utterance(10, self, "When that happens I: 1) A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when.  2) Who is it for, and what do you want it to get done?").
 utterance(11, user, "what can you do for me?").
+utterance(8, self, "Held: in that situation, move 1 is «Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan.».").
+utterance(9, user, "when someone wants to start something new then ask how much time they have each week").
+utterance(10, self, "Held: in that situation, move 2 is «How much time can you give it each week?».").
 utterance(11, user, "Help me write an email.").
+utterance(11, user, "your plan when someone wants to start something new").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1597,11 +1604,44 @@ utterance(37, user, "how many legs does a spider have?").
 utterance(38, self, "A spider has 8 legs.").
 utterance(39, user, "what is 23 times 7?").
 utterance(40, self, "161.").
+utterance(12, self, "When that happens I: 1) Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan.  2) How much time can you give it each week?").
+utterance(13, user, "I want to start running. Where do I begin?").
+utterance(14, self, "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?").
+utterance(15, user, "I want to learn to cook. Where should I start?").
+utterance(16, self, "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?").
+utterance(17, user, "I'd like to learn the guitar, where do I start?").
+utterance(18, self, "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?").
+utterance(19, user, "voglio imparare lo spagnolo, da dove comincio?").
+utterance(20, self, "Comincia in piccolo e con regolarità: una sessione breve tre volte a settimana, aumentando un poco ogni settimana, si mantiene meglio di un grande piano. Quanto tempo puoi dedicarci ogni settimana?").
+utterance(21, user, "where does the river begin?").
 utterance(41, user, "Help me write an email.").
+utterance(23, user, "unlearn what you do when someone wants to start something new").
+utterance(24, self, "Forgotten: the plan for user getting started.").
+utterance(25, user, "I want to start running").
+utterance(26, self, "I looked up «running» but found nothing. If you know it, teach me: «running is defined as …».").
+utterance(27, user, "I want to start running").
+utterance(28, self, "I looked up «running» but found nothing. If you know it, teach me: «running is defined as …».").
+utterance(29, user, "Where do I begin?").
 utterance(42, self, "A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when. Who is it for, and what do you want it to get done?").
+utterance(31, user, "I want to start running. Where do I begin?").
+utterance(32, self, "I looked up «running» but found nothing. If you know it, teach me: «running is defined as …». I couldn't read «Where do I begin?».").
+utterance(33, user, "when someone wants to start something new then say to start small and regular").
+utterance(34, self, "Held: in that situation, move 1 is «Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan.».").
+utterance(35, user, "when someone wants to start something new then ask how much time they have each week").
+utterance(36, self, "Held: in that situation, move 2 is «How much time can you give it each week?».").
+utterance(37, user, "hello").
+utterance(38, self, "Hi there!").
 utterance(23, user, "your plan when you have no steps").
 utterance(24, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
+utterance(41, user, "thanks").
+utterance(42, self, "You're welcome!").
+utterance(43, user, "what is the capital of spain?").
 utterance(25, user, "what is your plan when you have no steps?").
+utterance(44, self, "Madrid.").
+utterance(45, user, "how many legs does a spider have?").
+utterance(46, self, "A spider has 8 legs.").
+utterance(47, user, "I want to learn to cook. Where should I start?").
+utterance(48, self, "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(12, self, "Learned: is_unit(ohm).").
 utterance(13, user, "what is the SI unit of electrical resistance?").
@@ -1972,6 +2012,7 @@ utterance(2, self, "That sounds nice -- tell me more about it.").
 utterance(2, self, "I am not sure what you mean by «first». Could you give me more context?").
 utterance(2, self, "From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning").
 utterance(2, self, "I understood the request — produce «email» — but I don't know that yet as something I can compute or build, so I have no code to show for it.").
+utterance(2, self, "Hmm, I don't know about running yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2046,6 +2087,7 @@ utterance(1, user, "I feel sad today").
 utterance(1, user, "Should I learn Python or JavaScript first?").
 utterance(1, user, "What can you help me with?").
 utterance(1, user, "Help me write an email.").
+utterance(1, user, "I want to start running").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2117,6 +2159,7 @@ utterance(4, self, "Non capisco ancora.").
 utterance(4, self, "Hmm, I don't know about laptop yet. Want me to learn about it?").
 utterance(4, self, "Held: in that situation, move 1 is «I can help you think through a problem with something that isn't working, weigh a choice between two options, talk through a worry, give you the steps for procedures I know (like changing a flat tire or making tea), work out sums and small word problems, and rea").
 utterance(4, self, "I don't know whether you can help me with a letter: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
+utterance(4, self, "I don't understand that yet.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -2186,6 +2229,7 @@ utterance(3, user, "sono triste oggi").
 utterance(3, user, "Should I buy a laptop or a tablet for university?").
 utterance(3, user, "when someone asks what you can help with then list what you can help with").
 utterance(3, user, "Can you help me with a letter?").
+utterance(3, user, "Where do I begin?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

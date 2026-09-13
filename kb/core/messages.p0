@@ -3146,6 +3146,8 @@ plan_move(user_help_scope, 2, ask_need).
 plan_move(user_help_scope, 1, list_help).
 plan_move(user_writing, 2, ask_recipient_goal).
 plan_move(user_writing, 1, message_shape).
+plan_move(user_getting_started, 2, ask_weekly_time).
+plan_move(user_getting_started, 1, start_small).
 % ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
 % arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
 % piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo
