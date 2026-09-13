@@ -234,6 +234,8 @@ fact_mention(yellow_leaves, "underwatering causes yellow leaves").
 fact_mention(underwatering, "underwatering causes yellow leaves").
 fact_mention(yellow_leaves, "overwatering causes yellow leaves").
 fact_mention(overwatering, "overwatering causes yellow leaves").
+fact_mention(mold, "high humidity causes mold").
+fact_mention(high_humidity, "high humidity causes mold").
 mixture_releases(bleach, ammonia, "chloramine gas").
 mixture_releases(bleach, acid, "chlorine gas").
 mixture_releases(bleach, alcohol, chloroform).

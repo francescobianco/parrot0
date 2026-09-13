@@ -378,7 +378,7 @@ machinery(range_answer).
 range_answer(above(range($S, $Lo, $Hi), $N), $Text) :-
     words_of($S, $ST), concat_atoms("That is high: ", $ST, $A), concat_atoms($A, " should stay between ", $B), concat_atoms($B, $Lo, $C),
     concat_atoms($C, " and ", $D), concat_atoms($D, $Hi, $E), concat_atoms($E, " percent, and ", $F), concat_atoms($F, $N, $G),
-    concat_atoms($G, " is above that.", $Text).
+    concat_atoms($G, " is above that.", $H), range_consequence($S, above, $Tail), concat_atoms($H, $Tail, $Text).
 range_answer(below(range($S, $Lo, $Hi), $N), $Text) :-
     words_of($S, $ST), concat_atoms("That is low: ", $ST, $A), concat_atoms($A, " should stay between ", $B), concat_atoms($B, $Lo, $C),
     concat_atoms($C, " and ", $D), concat_atoms($D, $Hi, $E), concat_atoms($E, " percent, and ", $F), concat_atoms($F, $N, $G),
@@ -387,10 +387,14 @@ range_answer(inside(range($S, $Lo, $Hi), $N), $Text) :-
     words_of($S, $ST), concat_atoms("That is fine: ", $N, $A), concat_atoms($A, " percent is inside the recommended ", $B),
     concat_atoms($B, $Lo, $C), concat_atoms($C, " to ", $D), concat_atoms($D, $Hi, $E), concat_atoms($E, " percent for ", $F),
     concat_atoms($F, $ST, $G), concat_atoms($G, ".", $Text).
-% (La conseguenza di stare sopra, la muffa, non e' ancora detta: «high humidity
-% causes mould» non entra come lezione causale.)
-range_consequence($S, above, "").
+% La conseguenza nota di stare sopra: cio' che l'umidita' alta causa, insegnato
+% parlando («high humidity causes mold»; ⚠ non «mould»: e' anche il nome del verbo
+% «to mould» e la lezione cade nel lettore sbagliato).
 machinery(range_consequence).
+range_consequence($S, above, $T) :- atom_words($S, $Ws), member(humidity, $Ws), causes(high_humidity, $E), words_of($E, $ET), concat_atoms(" High humidity causes ", $ET, $A), concat_atoms($A, ".", $T).
+range_consequence($S, above, "") :- naf(humidity_consequence_known($S)).
+machinery(humidity_consequence_known).
+humidity_consequence_known($S) :- atom_words($S, $Ws), member(humidity, $Ws), causes(high_humidity, $E).
 
 turn_plan_candidate($Turn) :- range_verdict($Turn, $V).
 turn_response($Turn, $Text) :- range_verdict($Turn, $V), range_answer($V, $Text).

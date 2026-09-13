@@ -1578,6 +1578,7 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   humidity is 45 percent» → «That is fine…»; 25 → «That is low…».
 - **quarantena:** `quantity(my_hygrometer_says_the_humidity, percent, 45)` (il lettore
   delle grandezze prendeva la frase), `pending_gap_failed(humidity)`.
-- **resta:** la conseguenza (la muffa): «high humidity causes mould» non entra come
-  lezione causale.
+- **seguito:** la conseguenza entra con «high humidity causes mold» (salvata); «mould»,
+  grafia britannica, collide con il verbo «to mould» e la lezione cadeva nel lettore
+  sbagliato. Ora: «… and 70 is above that. High humidity causes mold.».
 - **test:** `rate_total.p0t` 19 → 21.

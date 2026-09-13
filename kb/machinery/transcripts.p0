@@ -2405,6 +2405,7 @@ utterance(2, self, "Held: «cloro_gassoso» is how chlorine_gas is said in that 
 utterance(2, self, "Held: «clorammine» is how chloramine_gas is said in that language.").
 utterance(2, self, "Got it: your nose is bleeding.").
 utterance(2, self, "Let's look at it together. What is it, and what exactly happens?").
+utterance(2, self, "Imparato: causes(high_humidity, mold).").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2504,6 +2505,7 @@ utterance(1, user, "the italian for chlorine gas is cloro gassoso").
 utterance(1, user, "the italian for chloramine gas is clorammine").
 utterance(1, user, "my nose is bleeding").
 utterance(1, user, "the humidity in my bedroom is 70 percent, is that a problem?").
+utterance(1, user, "high humidity causes mold").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

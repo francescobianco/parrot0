@@ -457,6 +457,7 @@ fact_source(perishable(chicken), chicken, "chicken is a perishable").
 fact_source(causes(low_light, yellow_leaves), low_light, "low light causes yellow leaves").
 fact_source(causes(underwatering, yellow_leaves), underwatering, "underwatering causes yellow leaves").
 fact_source(causes(overwatering, yellow_leaves), overwatering, "overwatering causes yellow leaves").
+fact_source(causes(high_humidity, mold), high_humidity, "high humidity causes mold").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -798,6 +799,7 @@ reading_fact(causes(chlorine_gas, breathing_problems), "chlorine gas causes brea
 reading_fact(causes(underwatering, yellow_leaves), "underwatering causes yellow leaves").
 reading_fact(perishable(chicken), "chicken is a perishable").
 reading_fact(causes(overwatering, yellow_leaves), "overwatering causes yellow leaves").
+reading_fact(causes(high_humidity, mold), "high humidity causes mold").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
