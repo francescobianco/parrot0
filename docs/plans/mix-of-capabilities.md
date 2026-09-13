@@ -1314,4 +1314,7 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
 4. 19×21 sintesi che non trasforma un'ipotesi in certezza;
 5. i residui annotati: la lingua di un paese ignoto («c, python»), «what is the
    language of ghana?», i nomi di più parole nel contenimento, il seguito
-   dell'ellissi per luoghi e cause («and madrid?»).
+   dell'ellissi per le cause. **Fatto alle 22:31 (mix-02-08-09-14-001):** il
+   seguito ellittico per i luoghi, con la stessa colla — «is tokyo in asia?» → «and
+   madrid?» → «Not as far as I know: Madrid is in Spain, and Spain is in Europe.»,
+   «what about beijing?» → «Yes: Beijing is in China, and China is in Asia.».

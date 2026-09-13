@@ -20,3 +20,12 @@
 < Not as far as I know: Madrid is in Spain, and Spain is in Europe.
 > is paris in spain?
 < Not as far as I know: Paris is in France.
+
+[test an elliptic follow-up inherits the place just asked]
+!timeout 30
+> is tokyo in asia?
+<~ Yes: Tokyo is in Japan
+> and madrid?
+< Not as far as I know: Madrid is in Spain, and Spain is in Europe.
+> what about beijing?
+< Yes: Beijing is in China, and China is in Asia.

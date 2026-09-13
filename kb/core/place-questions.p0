@@ -39,6 +39,31 @@ place_verdict($Turn, elsewhere($X, $Z), $Route) :-
 place_verdict($Turn, elsewhere($X, $Z), direct) :-
     turn_place_pair($Turn, $X, $Y), naf(place_reached($X, $Y)),
     continent_of($Y, $K), within_step($X, $Z), continent_of($Z, $K2), dif($Z, $Y).
+% ── IL SEGUITO ELLITTICO («is tokyo in asia?» → «and madrid?») ────────────
+% La stessa colla della proprieta' (property-questions.p0): la domanda piena
+% registra il luogo contenitore chiesto, e un turno con apertura ellittica che
+% nomina un luogo noto lo eredita. Regole separate da quelle della domanda piena.
+machinery(place_asked).
+turn_scratch(place_asked).
+bookkeeper(place_question).
+turn_bookkeeping($Turn, place_question) :- turn_place_pair($Turn, $X, $Y), turn_counter($N), assert(place_asked, $N, $Y).
+machinery(last_place_asked).
+last_place_asked($Y) :- place_asked($N, $Y), naf(later_place_asked($N)).
+machinery(later_place_asked).
+later_place_asked($N) :- place_asked($M, $Z), gt($M, $N).
+machinery(turn_elliptic_place).
+turn_elliptic_place($Turn, $X, $Y) :-
+    turn_cue_form($Turn, elliptic_opener_cue, $Open), naf(turn_has_place_pair($Turn)),
+    elliptical_reference_policy(inherit_previous), last_place_asked($Y),
+    turn_word($Turn, $X), within_step($X, $Any).
+machinery(turn_has_place_pair).
+turn_has_place_pair($Turn) :- turn_place_pair($Turn, $A, $B).
+place_verdict($Turn, yes($X, $Y), $Route) :- turn_elliptic_place($Turn, $X, $Y), within_route($X, $Y, $Route).
+place_verdict($Turn, elsewhere($X, $Z), $Route) :-
+    turn_elliptic_place($Turn, $X, $Y), naf(place_reached($X, $Y)),
+    continent_of($Any, $Y), within_route($X, $Z, $Route), continent_of($Other, $Z), dif($Z, $Y).
+turn_plan_candidate($Turn) :- turn_elliptic_place($Turn, $X, $Y).
+
 machinery(place_reached).
 place_reached($X, $Y) :- within_route($X, $Y, $Route).
 
