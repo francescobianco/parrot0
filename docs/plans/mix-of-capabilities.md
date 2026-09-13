@@ -1260,3 +1260,24 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
 - **test:** `tests/p0t/crossing/mix_causal_chain.p0t` (3); `cause.p0t` verde,
   `cause.it.p0t` rosso identico su HEAD.
 - **stato:** verificata sulla KB viva.
+
+### mix-02-08-09-001 — la domanda ellittica eredita la proprietà appena chiesta
+
+- **catalogo:** mix-v1, 02 × 08 × 09 (tripla: discorso, accesso, deduzione)
+- **misura:** «is a whale warm-blooded?» → sì; «and a snake?» → «I don't understand
+  that yet.».
+- **cura:** nella colla di `discourse.p0`, che dichiara già
+  `elliptical_reference_policy(inherit_previous)`: la domanda piena registra quale
+  proprietà è stata chiesta (`property_asked/2`, di sessione, non salvato); un turno
+  con apertura ellittica («and», «what about», «e invece») e senza proprietà
+  propria la eredita. «and a snake?» → «No: a snake is a reptile, and every reptile
+  is cold-blooded.»; «what about an eagle?» → sì.
+- **diagnosi del percorso:** registrarla come `exchange/3` nella contabilità
+  (prima della risposta) invalidava le viste che lo leggono; e mettere le due
+  letture dietro un predicato comune faceva finire il budget alla domanda piena
+  («is a toad cold-blooded?» → muro). Regole separate, costo invariato (0,2 s).
+- **terzo contributo necessario (§10.1):** senza il discorso la seconda domanda non
+  ha proprietà; senza la tassonomia non ha classe; senza la proprietà di classe non
+  ha verità.
+- **test:** `mix_property_inheritance.p0t` 7 → 10; `ellipsis_reference` verde,
+  `continuation` rosso identico su HEAD.

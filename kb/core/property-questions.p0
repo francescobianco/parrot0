@@ -117,6 +117,52 @@ class_has_property($C, $P) :- has_prop($C, $Surface), property_surface_atom($Sur
 % un atomo: si confrontano sulla stessa forma.
 machinery(property_surface_atom).
 property_surface_atom($Atom, $P) :- property_cue($Cue, $P), span_atom($Cue, $Atom).
+% ── LA DOMANDA ELLITTICA (la colla, discourse.p0) ─────────────────────────
+% «is a whale warm-blooded?» → «and a snake?»: il secondo turno non nomina la
+% proprieta', la eredita (`elliptical_reference_policy(inherit_previous)`). La
+% domanda sulla proprieta' lascia uno SCAMBIO come ogni risposta
+% (`exchange/3`, `exchange_turn/2`), e il turno ellittico prende la proprieta'
+% dell'ultima domanda di questo genere. Le regole del turno ellittico sono
+% separate da quelle della domanda piena: messe dietro un predicato comune, il
+% turno pieno «is a toad cold-blooded?» finiva il budget e murava (misurato).
+machinery(turn_has_property_cue).
+turn_has_property_cue($Turn) :- turn_cue_form($Turn, property_cue, $Cue).
+machinery(elliptic_opener_cue).
+elliptic_opener_cue("and").
+elliptic_opener_cue("what about").
+elliptic_opener_cue("how about").
+elliptic_opener_cue("e invece").
+turn_cue_registry(elliptic_opener_cue, 1).
+% QUALE proprieta' e in quale turno lo dice `property_asked/2`. Non `exchange/3`:
+% asserirlo nella contabilita', prima della risposta, invalida le viste che lo
+% leggono e il turno stesso non arrivava piu' a rispondere (misurato: «is a toad
+% cold-blooded?» → muro). `exchange_turn/2` porta poi solo l'entita', e lo stesso
+% soggetto puo' essere stato chiesto per due proprieta'.
+machinery(property_asked).
+turn_scratch(property_asked).
+machinery(last_property_exchange).
+last_property_exchange($P) :- property_asked($N, $P), naf(later_property_asked($N)).
+machinery(later_property_asked).
+later_property_asked($N) :- property_asked($M, $Q), gt($M, $N).
+bookkeeper(property_exchange).
+turn_bookkeeping($Turn, property_exchange) :-
+    turn_cue_form($Turn, property_cue, $Cue), property_cue($Cue, $P),
+    turn_property_subject($Turn, $X), turn_counter($N),
+    assert(property_asked, $N, $P).
+
+% Il turno ellittico: la stessa verita', con la proprieta' ereditata.
+property_verdict($Turn, yes(pair($X, $C)), $P) :-
+    turn_elliptic_property($Turn, $P),
+    turn_property_subject($Turn, $X), is_a_t($X, $C), class_has_property($C, $P).
+property_verdict($Turn, no(pair($X, $C)), $P) :-
+    turn_elliptic_property($Turn, $P),
+    turn_property_subject($Turn, $X), naf(inherits_any($X, $P)),
+    opposite_property($P, $Q), is_a_t($X, $C), class_has_property($C, $Q).
+machinery(turn_elliptic_property).
+turn_elliptic_property($Turn, $P) :-
+    turn_cue_form($Turn, elliptic_opener_cue, $Open), naf(turn_has_property_cue($Turn)),
+    elliptical_reference_policy(inherit_previous), last_property_exchange($P).
+
 machinery(inherits_any).
 inherits_any($X, $P) :- is_a_t($X, $C), class_has_property($C, $P).
 

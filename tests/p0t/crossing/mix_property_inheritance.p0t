@@ -29,3 +29,12 @@
 > do whales lay eggs?
 <! No:
 <! Yes:
+
+[test mix 02x08x09 an elliptic follow-up inherits the property just asked]
+!timeout 30
+> is a whale warm-blooded?
+<~ Yes: a whale is a mammal
+> and a snake?
+< No: a snake is a reptile, and every reptile is cold-blooded.
+> what about an eagle?
+< Yes: an eagle is a bird, and every bird is warm-blooded.
