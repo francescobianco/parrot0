@@ -109,6 +109,7 @@ utterance(5, user, "chicken is a perishable").
 utterance(5, user, "when someone has a burn then say to take off rings near it").
 utterance(5, user, "do not put ice on a burn").
 utterance(5, user, "never put ice on a burn").
+utterance(5, user, "underwatering causes yellow leaves").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -197,6 +198,7 @@ utterance(6, self, "Learned: chicken is a perishable.").
 utterance(6, self, "Held: in that situation, move 2 is «Take off rings, watches or clothing near it, but not anything stuck to the skin.».").
 utterance(6, self, "I don't understand that yet.").
 utterance(6, self, "Held: never put ice on a burn.").
+utterance(6, self, "Learned: underwatering causes yellow leaves.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -695,6 +697,7 @@ utterance(7, user, "mixing bleach and an acid releases chlorine gas").
 utterance(7, user, "rice is a perishable").
 utterance(7, user, "when someone has a burn then say to cover it with cling film").
 utterance(7, user, "should I put butter on a burn?").
+utterance(7, user, "low light causes yellow leaves").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1124,7 +1127,11 @@ utterance(10, self, "I don't know whether put can ice on a burn: nothing I hold 
 utterance(11, user, "I burned my hand on the stove").
 utterance(11, user, "should I put butter on toast?").
 utterance(8, self, "No: do not put butter on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
+utterance(8, self, "Learned: low light causes yellow leaves.").
+utterance(9, user, "a sign of overwatering is soggy soil").
+utterance(10, self, "Held: a sign of overwatering is soggy soil.").
 utterance(30, self, "Yes.").
+utterance(11, user, "a sign of underwatering is dry soil").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1927,6 +1934,15 @@ utterance(17, user, "the toast burned").
 utterance(18, self, "I looked up «burned» but found nothing. If you know it, teach me: «burned is defined as …».").
 utterance(12, self, "Hmm, I don't know about butter yet.").
 utterance(72, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Siete tutti al sicuro adesso?").
+utterance(12, self, "Held: a sign of underwatering is dry soil.").
+utterance(13, user, "why are my plant's leaves turning yellow?").
+utterance(14, self, "Several things cause yellow leaves: overwatering, underwatering or low light. To tell them apart: is it soggy soil, or dry soil?").
+utterance(15, user, "the soil is soggy").
+utterance(16, self, "That points to overwatering: soggy soil is a sign of overwatering, which causes yellow leaves.").
+utterance(17, user, "why are the leaves of my basil turning yellow?").
+utterance(18, self, "Several things cause yellow leaves: overwatering, underwatering or low light. To tell them apart: is it soggy soil, or dry soil?").
+utterance(19, user, "the soil feels very dry").
+utterance(20, self, "That points to underwatering: dry soil is a sign of underwatering, which causes yellow leaves.").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2317,6 +2333,7 @@ utterance(2, self, "Hmm, I don't know about cooked yet. Want me to learn about i
 utterance(2, self, "Held: above 32 degrees, perishables should not stay out of the fridge for more than 1 hours.").
 utterance(2, self, "Hmm, I don't know about burned yet. Want me to learn about it?").
 utterance(2, self, "Hmm, I don't know about butter yet. Want me to learn about it?").
+utterance(2, self, "Hmm, I don't know about plant's yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2406,6 +2423,7 @@ utterance(1, user, "I left cooked chicken out for 3 hours, is it safe?").
 utterance(1, user, "above 32 degrees perishables should not be left out for more than 1 hour").
 utterance(1, user, "I burned my hand on the stove").
 utterance(1, user, "should I put butter on a burn?").
+utterance(1, user, "why are my plant's leaves turning yellow?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2491,6 +2509,7 @@ utterance(4, self, "Held: perishables should not stay out of the fridge for more
 utterance(4, self, "Held: in that situation, move 1 is «Hold the burn under cool running water for 20 minutes, as soon as you can.».").
 utterance(4, self, "Hmm, I don't know about butter yet.").
 utterance(4, self, "Current.").
+utterance(4, self, "Learned: overwatering causes yellow leaves.").
 utterance(4, self, "Who or what does «it» refer to?").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2575,6 +2594,7 @@ utterance(3, user, "perishables should not be left out for more than 2 hours").
 utterance(3, user, "when someone has a burn then say to cool it under running water").
 utterance(3, user, "do not put butter on a burn").
 utterance(3, user, "the ampere measures what?").
+utterance(3, user, "overwatering causes yellow leaves").
 utterance(3, user, "is it safe to mix bleach and vinegar?").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

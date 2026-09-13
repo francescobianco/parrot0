@@ -1,0 +1,93 @@
+% diagnosis.p0 — «WHY ARE MY PLANT'S LEAVES TURNING YELLOW?»
+%
+% docs/plans/mix-of-capabilities.md §8.1 P2, 10×23 (abduzione × domanda
+% discriminante), su un caso pratico. Conoscenza insegnata parlando, con fonte
+% (University of Maryland Extension, «Overwatered indoor plants»; guide di cura):
+%
+%     overwatering causes yellow leaves        underwatering causes yellow leaves
+%     low light causes yellow leaves
+%     a sign of overwatering is soggy soil     a sign of underwatering is dry soil
+%
+% Un effetto con piu' cause non si «risolve» scegliendone una: si dicono le
+% candidate e si fa la domanda sull'osservabile che le separa. La risposta
+% dell'utente («the soil is soggy») restringe a quella causa. Nessuna causa si
+% afferma senza il suo segno.
+
+:- file_attribute(machinery).
+
+machinery(diagnosis_cue).
+diagnosis_cue("why are").
+diagnosis_cue("why is").
+diagnosis_cue("why do").
+diagnosis_cue("why does").
+diagnosis_cue("what is wrong").
+diagnosis_cue("what's wrong").
+diagnosis_cue("turning").
+diagnosis_cue("perche'").
+turn_cue_registry(diagnosis_cue, 1).
+
+% L'effetto nominato: un nodo causale con piu' di una causa, le cui parole stanno
+% nel turno (anche in ordine diverso: «leaves turning yellow»).
+machinery(turn_effect).
+turn_effect($Turn, $E) :- causes($C1, $E), causes($C2, $E), dif($C1, $C2), atom_words($E, $Ws), words_in_turn($Turn, $Ws).
+
+machinery(effect_causes).
+effect_causes($E, $List) :- findall($C, causes($C, $E), $List).
+
+machinery(words_list_text).
+words_list_text(cons($A, nil), $T) :- node_text($A, $T).
+words_list_text(cons($A, cons($B, nil)), $T) :- node_text($A, $TA), node_text($B, $TB), concat_atoms($TA, " or ", $X), concat_atoms($X, $TB, $T).
+words_list_text(cons($A, cons($B, cons($C, $R))), $T) :- node_text($A, $TA), words_list_text(cons($B, cons($C, $R)), $Rest), concat_atoms($TA, ", ", $X), concat_atoms($X, $Rest, $T).
+
+% La domanda che distingue: due cause candidate con un segno ciascuna.
+machinery(discriminating_signs).
+discriminating_signs($E, $S1, $S2) :- causes($C1, $E), sign_of($C1, $S1), causes($C2, $E), sign_of($C2, $S2), dif($C1, $C2), dif($S1, $S2).
+
+machinery(diagnosis_asked).
+turn_scratch(diagnosis_asked).
+bookkeeper(diagnosis).
+turn_bookkeeping($Turn, diagnosis) :- turn_cue_form($Turn, diagnosis_cue, $Q), turn_effect($Turn, $E), turn_counter($N), assert(diagnosis_asked, $N, $E).
+
+machinery(diagnosis_question_answer).
+diagnosis_question_answer($Turn, $Text) :-
+    turn_cue_form($Turn, diagnosis_cue, $Q), turn_effect($Turn, $E), effect_causes($E, $List),
+    words_list_text($List, $Causes), node_text($E, $ET),
+    discriminating_signs($E, $S1, $S2), sign_text($S1, $T1), sign_text($S2, $T2),
+    concat_atoms("Several things cause ", $ET, $A), concat_atoms($A, ": ", $B), concat_atoms($B, $Causes, $C),
+    concat_atoms($C, ". To tell them apart: is it ", $D), concat_atoms($D, $T1, $F), concat_atoms($F, ", or ", $G),
+    concat_atoms($G, $T2, $H), concat_atoms($H, "?", $Text).
+machinery(sign_text).
+sign_text($S, $T) :- atom_words($S, $Ws), words_joined($Ws, $T).
+
+% La risposta dell'utente: un segno nel turno, e l'effetto chiesto prima.
+machinery(last_diagnosis).
+last_diagnosis($E) :- diagnosis_asked($N, $E), naf(later_diagnosis($N)).
+machinery(later_diagnosis).
+later_diagnosis($N) :- diagnosis_asked($M, $F), gt($M, $N).
+machinery(turn_sign_answer).
+turn_sign_answer($Turn, pair($C, $E), $S) :-
+    naf(turn_cue_form_diag($Turn)), last_diagnosis($E), causes($C, $E), sign_of($C, $S),
+    atom_words($S, $Ws), words_in_turn($Turn, $Ws).
+machinery(turn_cue_form_diag).
+turn_cue_form_diag($Turn) :- turn_cue_form($Turn, diagnosis_cue, $Q).
+% «the soil is soggy» ha la copula e nessun «?»: senza questa vista cederebbe come
+% prosa portata (turn-frames.p0), mentre risponde alla domanda appena fatta.
+% ⚠ Letta quando si materializza la forza del turno, cioe' prima che le parole
+% del turno siano pubblicate come `turn_span_token`: si guardano i token di
+% superficie (`turn_word/3`), che ci sono gia'.
+machinery(turn_has_sign_answer).
+turn_has_sign_answer($Turn) :- last_diagnosis($E), causes($C, $E), sign_of($C, $S), atom_words($S, $Ws), surface_words_in_turn($Turn, $Ws).
+machinery(surface_words_in_turn).
+surface_words_in_turn($Turn, nil).
+surface_words_in_turn($Turn, cons($W, $Rest)) :- turn_word($Turn, $I, $W), surface_words_in_turn($Turn, $Rest).
+machinery(sign_answer_text).
+sign_answer_text(pair($C, $E), $S, $Text) :-
+    node_text($C, $CT), node_text($E, $ET), sign_text($S, $ST),
+    concat_atoms("That points to ", $CT, $A), concat_atoms($A, ": ", $B), concat_atoms($B, $ST, $D),
+    concat_atoms($D, " is a sign of ", $F), concat_atoms($F, $CT, $G), concat_atoms($G, ", which causes ", $H),
+    concat_atoms($H, $ET, $I), concat_atoms($I, ".", $Text).
+
+turn_plan_candidate($Turn) :- diagnosis_question_answer($Turn, $Text).
+turn_response($Turn, $Text) :- diagnosis_question_answer($Turn, $Text).
+turn_plan_candidate($Turn) :- turn_sign_answer($Turn, $P, $S).
+turn_response($Turn, $Text) :- turn_sign_answer($Turn, $P, $S), sign_answer_text($P, $S, $Text).

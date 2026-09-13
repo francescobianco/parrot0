@@ -1271,6 +1271,7 @@ machinery(sides).
 :- include(mixture-safety.p0).
 :- include(food-time.p0).
 :- include(remedy-questions.p0).
+:- include(diagnosis.p0).
 :- include(denotation.p0).
 :- include(epistemic-status.p0).
 

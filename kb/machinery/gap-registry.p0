@@ -332,6 +332,7 @@ gap_kind("is an eagle warm-blooded?", reachability).
 gap_kind("is it safe to mix bleach and vinegar?", reachability).
 gap_kind("i left cooked chicken out for 3 hours, is it safe?", reachability).
 gap_kind("i burned my hand on the stove", reachability).
+gap_kind("why are my plant's leaves turning yellow?", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
@@ -403,3 +404,4 @@ gap_source("is it safe to mix bleach and vinegar?", "chlorine gas causes breathi
 gap_source("i left cooked chicken out for 3 hours, is it safe?", "I left cooked chicken out for 3 hours, is it safe?").
 gap_source("should i put butter on a burn?", "should I put butter on a burn?").
 gap_source("i burned my hand on the stove", "I burned my hand on the stove").
+gap_source("why are my plant's leaves turning yellow?", "why are my plant's leaves turning yellow?").

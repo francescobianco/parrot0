@@ -50,6 +50,7 @@ bridged("is it safe to mix bleach and vinegar?", dialogue).
 bridged("i left cooked chicken out for 3 hours, is it safe?", dialogue).
 bridged("i burned my hand on the stove", dialogue).
 bridged("should i put butter on a burn?", dialogue).
+bridged("why are my plant's leaves turning yellow?", dialogue).
 fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
 reading_fact(measures(farad, capacitance), "the farad measures capacitance").
 fact_source(measures(henry, inductance), henry, "the henry measures inductance").
@@ -451,6 +452,9 @@ fact_source(perishable(fish), fish, "fish is a perishable").
 fact_source(perishable(milk), milk, "milk is a perishable").
 fact_source(perishable(rice), rice, "rice is a perishable").
 fact_source(perishable(chicken), chicken, "chicken is a perishable").
+fact_source(causes(low_light, yellow_leaves), low_light, "low light causes yellow leaves").
+fact_source(causes(underwatering, yellow_leaves), underwatering, "underwatering causes yellow leaves").
+fact_source(causes(overwatering, yellow_leaves), overwatering, "overwatering causes yellow leaves").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -787,8 +791,11 @@ reading_fact(taught_form_source(taught_form_15, "x has written y"), "x has writt
 reading_fact(perishable(milk), "milk is a perishable").
 reading_fact(causes(burning_fossil_fuels, pollution), "burning fossil fuels causes pollution").
 reading_fact(perishable(rice), "rice is a perishable").
+reading_fact(causes(low_light, yellow_leaves), "low light causes yellow leaves").
 reading_fact(causes(chlorine_gas, breathing_problems), "chlorine gas causes breathing problems").
+reading_fact(causes(underwatering, yellow_leaves), "underwatering causes yellow leaves").
 reading_fact(perishable(chicken), "chicken is a perishable").
+reading_fact(causes(overwatering, yellow_leaves), "overwatering causes yellow leaves").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

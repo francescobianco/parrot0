@@ -1236,6 +1236,9 @@ causes(burning_fossil_fuels, pollution).
 causes(chloramine_gas, breathing_problems).
 causes(chlorine_gas, breathing_problems).
 causes(chloroform, dizziness).
+causes(low_light, yellow_leaves).
+causes(underwatering, yellow_leaves).
+causes(overwatering, yellow_leaves).
 chemical_symbol(actinium, Ac).
 chemical_symbol(ag, silver).
 chemical_symbol(al, aluminium).

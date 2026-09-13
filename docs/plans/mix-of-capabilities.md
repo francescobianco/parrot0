@@ -1433,3 +1433,26 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
 - **esito:** 18:30; 07:40; il treno delle 7:45 con 25 minuti a piedi → 07:20;
   «2 hours 45 minutes after 14:30» → 17:15 invariato.
 - **test:** `rate_total.p0t` 9 → 12; `time_date_complex` verde (28).
+
+### mix-10-23-001 — le foglie gialle: le cause, la domanda che le separa, la risposta
+
+- **catalogo:** P2 di §8.1, 10 × 23 (con 12 e 02), su un caso pratico.
+- **fonti:** University of Maryland Extension, *Overwatered indoor plants*; guide di
+  cura (troppa acqua: foglie gialle e terreno fradicio; poca acqua: foglie gialle e
+  terreno secco; poca luce).
+- **misura:** «why are my plant's leaves turning yellow?» → «Hmm, I don't know about
+  plant's yet.».
+- **cure:** una forma di lezione «a sign of X is Y» (`sign_of/2`) e
+  `kb/core/diagnosis.p0`: l'effetto nominato con più cause, le candidate, e la
+  domanda sui segni che le distinguono (`findall` e i segni di due cause diverse);
+  la domanda fatta registra l'effetto (di sessione) e la risposta con un segno
+  («the soil is soggy», «the soil feels very dry») restringe a quella causa, con il
+  perché. Nessuna causa si afferma senza il suo segno.
+- **diagnosi del percorso:** «the soil is soggy» (copula, niente «?») cedeva come
+  prosa portata: la forza del turno si materializza prima dei `turn_span_token`,
+  quindi l'eccezione legge i token di superficie.
+- **lezioni parlate salvate:** tre cause delle foglie gialle, due segni.
+- **resta:** la domanda è resa «is it soggy soil, or dry soil?» (la forma naturale
+  sarebbe «is the soil soggy or dry?»); la terza causa (poca luce) non ha ancora un
+  segno, quindi non viene mai indicata.
+- **test:** `tests/p0t/crossing/mix_diagnosis_question.p0t` (4).

@@ -1,0 +1,29 @@
+# mix-of-capabilities §8.1 P2 — 10×23 su un caso pratico: un effetto con piu'
+# cause (foglie gialle) riceve le cause candidate e la domanda sull'osservabile
+# che le separa; la risposta dell'utente restringe a una causa. Fatti insegnati
+# parlando e salvati (University of Maryland Extension; guide di cura).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the candidates and the discriminating question, then the narrowing answer]
+!timeout 30
+> why are my plant's leaves turning yellow?
+<~ Several things cause yellow leaves
+<~ overwatering
+<~ underwatering
+<~ low light
+<~ To tell them apart
+<~ soggy soil
+<~ dry soil
+> the soil is soggy
+< That points to overwatering: soggy soil is a sign of overwatering, which causes yellow leaves.
+
+[test the other sign, said differently, points to the other cause]
+!timeout 30
+> why are the leaves of my basil turning yellow?
+<~ To tell them apart
+> the soil feels very dry
+< That points to underwatering: dry soil is a sign of underwatering, which causes yellow leaves.

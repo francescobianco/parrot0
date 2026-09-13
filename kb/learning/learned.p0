@@ -228,6 +228,12 @@ fact_mention(milk, "milk is a perishable").
 fact_mention(rice, "rice is a perishable").
 fact_mention(chicken, "chicken is a perishable").
 fact_mention(chlorine_gas, "chlorine gas causes breathing problems").
+fact_mention(yellow_leaves, "low light causes yellow leaves").
+fact_mention(low_light, "low light causes yellow leaves").
+fact_mention(yellow_leaves, "underwatering causes yellow leaves").
+fact_mention(underwatering, "underwatering causes yellow leaves").
+fact_mention(yellow_leaves, "overwatering causes yellow leaves").
+fact_mention(overwatering, "overwatering causes yellow leaves").
 mixture_releases(bleach, ammonia, "chloramine gas").
 mixture_releases(bleach, acid, "chlorine gas").
 mixture_releases(bleach, alcohol, chloroform).
@@ -240,3 +246,5 @@ perishable(fish).
 max_hours_out_above(perishables, 32, 1).
 avoid_on(butter, burn).
 avoid_on(ice, burn).
+sign_of(overwatering, "soggy soil").
+sign_of(underwatering, "dry soil").

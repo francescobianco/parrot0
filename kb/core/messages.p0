@@ -3389,3 +3389,17 @@ turn_form_mood(teach_avoid_on, statement).
 turn_form_act(teach_avoid_on, "op(assert, avoid_on, [subject, object])").
 turn_form_reply(teach_avoid_on, learned_avoid_on).
 turn_form_priority(teach_avoid_on, early).
+
+% ══ mix 10×23 — IL SEGNO CHE DISTINGUE UNA CAUSA ════════════════════════════
+% «a sign of overwatering is soggy soil»: l'osservabile che separa una causa dalle
+% altre che producono lo stesso effetto. La lettura sta in kb/core/diagnosis.p0.
+response_template(learned_sign, "Held: a sign of {subject} is {object}.").
+response_template(learned_sign, it, "Tengo: un segno di {subject} è {object}.").
+turn_form(teach_sign, 1, text("a sign of")).
+turn_form(teach_sign, 2, slot(subject)).
+turn_form(teach_sign, 3, text("is")).
+turn_form(teach_sign, 4, rest(object)).
+turn_form_mood(teach_sign, statement).
+turn_form_act(teach_sign, "op(assert, sign_of, [subject, object])").
+turn_form_reply(teach_sign, learned_sign).
+turn_form_priority(teach_sign, early).
