@@ -18,3 +18,12 @@
 < 1200 euros.
 > I spend 3 euros a day on coffee. How much do I spend in 2 weeks?
 < 42 euros.
+
+[test mix 13x08 a quantity per thing, times the number of things asked]
+!timeout 30
+> how many legs do three spiders have?
+< 24 legs: 3 spiders with 8 legs each.
+> how many days are in two weeks?
+< 14 days: 2 weeks with 7 days each.
+> how many legs does a spider have?
+<~ 8 legs

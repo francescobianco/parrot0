@@ -182,3 +182,35 @@ rate_total_text(it, $Total, $Currency, $Text) :- concat_atoms($Total, " ", $A), 
 
 turn_plan_candidate($Turn) :- rate_total($Turn, $Total, $Currency).
 turn_response($Turn, $Text) :- rate_total($Turn, $Total, $Currency), current_language($Language), rate_total_text($Language, $Total, $Currency, $Text).
+
+% ── 5. mix 13×08 — QUANTE COSE HANNO N ESEMPLARI ────────────────────────────
+%
+% «how many legs do three spiders have?» riceveva «A spider has 8 legs.»: il
+% numero chiesto spariva, e la risposta sembrava giusta. La quantita' per
+% esemplare e' un fatto vero (`quantity(spider, legs, 8)`), il conto e' una
+% moltiplicazione: servono il numero del turno, la cosa che lo segue (anche al
+% plurale) e l'unita' nominata. «how many days are in two weeks?» e' la stessa
+% forma letta dall'altro lato: «in N <cosa>».
+machinery(counted_thing).
+counted_thing($Word, $Thing) :- quantity($Word, $Unit, $K).
+counted_thing($Word, $Thing) :- lemma_candidate($Word, $Thing), quantity($Thing, $Unit, $K).
+
+count_total($Turn, $Total, counted($N, $Word, $Unit, $K)) :-
+    turn_cue_form($Turn, total_amount_cue, $Q),
+    turn_span_token($Turn, $S, $P, $TN), duration_count($TN, $N), gt($N, 1),
+    is($P1, add($P, 1)), turn_span_token($Turn, $S, $P1, $TW), span_atom($TW, $Word),
+    counted_thing($Word, $Thing), quantity($Thing, $Unit, $K),
+    turn_span_token($Turn, $S2, $PU, $TU), span_atom($TU, $Unit),
+    is($Total, mul($N, $K)).
+
+machinery(count_total_text).
+count_total_text(en, $Total, counted($N, $Word, $Unit, $K), $Text) :-
+    concat_atoms($Total, " ", $A), concat_atoms($A, $Unit, $B), concat_atoms($B, ": ", $C),
+    concat_atoms($C, $N, $D), concat_atoms($D, " ", $E), concat_atoms($E, $Word, $F),
+    concat_atoms($F, " with ", $G), concat_atoms($G, $K, $H), concat_atoms($H, " ", $I),
+    concat_atoms($I, $Unit, $J), concat_atoms($J, " each.", $Text).
+count_total_text(it, $Total, counted($N, $Word, $Unit, $K), $Text) :-
+    concat_atoms($Total, ".", $Text).
+
+turn_plan_candidate($Turn) :- count_total($Turn, $Total, $How).
+turn_response($Turn, $Text) :- count_total($Turn, $Total, $How), current_language($Language), count_total_text($Language, $Total, $How, $Text).

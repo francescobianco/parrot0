@@ -1224,3 +1224,18 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
 - **resta:** i nomi di più parole («is new york in the united states?»), e la
   frase non geografica («is the cat in the box?») resta ai lettori di prima.
 - **stato:** verificata sulla KB viva.
+
+### mix-13-08-001 — una quantità per esemplare, per il numero di esemplari chiesto
+
+- **catalogo:** mix-v1, 13 × 08
+- **misura:** «how many legs do three spiders have?» → «A spider has 8 legs.»
+  (risposta che sembra giusta e ignora il numero chiesto); «how many days are in
+  two weeks?» → «A week has 7 days.».
+- **cura:** `numeric-questions.p0` §5, zero C: il numero del turno (cifre o parola),
+  la cosa che lo segue anche al plurale, l'unità nominata, `quantity/3` e una
+  moltiplicazione, con la resa del conto («24 legs: 3 spiders with 8 legs each.»).
+- **transfer:** «how many hours are in three days?» → 72; «how many legs do 5 cats
+  have?» → 20. La domanda singolare resta al lettore di prima.
+- **test:** `tests/p0t/math/rate_total.p0t` 3 → 6; rossi di `quantity` e
+  `wordproblem` identici a HEAD.
+- **stato:** verificata sulla KB viva.
