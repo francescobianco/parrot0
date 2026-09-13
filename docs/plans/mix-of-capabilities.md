@@ -1583,6 +1583,24 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   sbagliato. Ora: «… and 70 is above that. High humidity causes mold.».
 - **test:** `rate_total.p0t` 19 → 21.
 
+### mix-16-12-21-001 — si possono buttare le batterie al litio nel bidone?
+
+**Caso:** «can I throw lithium batteries in the bin?». **Fonte:** US EPA, *Used
+Lithium-Ion Batteries* (non vanno nei rifiuti domestici né nel riciclo: causano incendi
+nel trasporto, in discarica e negli impianti; si portano ai punti di raccolta).
+**Prima:** «I don't know whether throw can lithium batteries in the bin…» (e la
+domanda polare ha l'ordine delle parole rotto: resta un reperto).
+**Cura:** forma di lezione «never put X in the Y» (`teach_avoid_in`, soggetto a `span`)
+→ `avoid_in("lithium batteries", bin)`; lettore in `remedy-questions.p0` che trova la
+cosa di più parole e il posto nel turno e aggiunge il perché se la KB tiene un effetto.
+**Insegnato parlando e salvato:** `avoid_in("lithium batteries", bin)`,
+`cause(lithium_batteries, fires)`. **Dopo, processo fresco:** «No: never put lithium
+batteries in the bin: they cause fires.»; «can I throw paper in the bin?» non prende il
+verdetto. **Reperto:** «lithium batteries cause fires» (verbo al plurale) si salva come
+`cause/2`, non `causes/2`: la variante di numero è dichiarata
+(`relation_number_variant(cause, causes)`), la riconduzione nel salvataggio resta da fare.
+Cricchetto `tests/p0t/crossing/mix_disposal_battery.p0t` (4).
+
 ### Stato della seconda campagna (22:36–23:36) e da dove riprendere
 
 **Schede su casi pratici, tutte sulla KB viva e con fonte:** miscele di prodotti per
@@ -1591,7 +1609,7 @@ interna di cottura (USDA FSIS); ustioni e burro/ghiaccio (NHS, Croce Rossa); san
 naso (NHS); costo energetico di un apparecchio; confezione più conveniente; a che ora
 partire o cominciare; a che ora andare a letto (NHS); tazze in grammi (King Arthur
 Baking); foglie gialle e domanda discriminante (University of Maryland Extension);
-umidità di casa e muffa (US EPA). Più gli stessi casi in italiano.
+umidità di casa e muffa (US EPA); batterie al litio nel bidone (US EPA). Più gli stessi casi in italiano.
 
 **Crescita della KB:** ogni fatto è entrato da una lezione parlata e salvata (miscele,
 effetti, classi, limiti di tempo e temperatura, piani di primo soccorso, rimedi da

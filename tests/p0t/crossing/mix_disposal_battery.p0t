@@ -1,0 +1,21 @@
+# mix-of-capabilities §13 iterazione 19 — dove non si butta una cosa, e perche'.
+# Fatti veri insegnati parlando (US EPA, «Used Lithium-Ion Batteries»: non nei
+# rifiuti domestici ne' nel riciclo, causano incendi nel trasporto e in discarica).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the taught place to avoid answers the question with the reason]
+!timeout 30
+> can I throw lithium batteries in the bin?
+<~ No: never put lithium batteries in the bin
+<~ they cause fires
+> can I put lithium batteries in the bin?
+<~ No: never put lithium batteries in the bin
+
+[test a thing with no taught rule does not get the verdict]
+!timeout 30
+> can I throw paper in the bin?
+<! never put

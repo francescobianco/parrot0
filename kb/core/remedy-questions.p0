@@ -36,3 +36,31 @@ injury_has_plan($I) :- injury_situation($I, $S), plan_move($S, 1, $M).
 
 turn_plan_candidate($Turn) :- remedy_verdict($Turn, $V).
 turn_response($Turn, $Text) :- remedy_verdict($Turn, $V), remedy_answer($V, en, $Text).
+
+% ── DOVE NON SI METTE UNA COSA («can I throw lithium batteries in the bin?») ──
+% La cosa (anche di piu' parole) e il posto nominati nel turno; il perche' e' la
+% causa che la KB tiene per quella cosa, se c'e' («lithium batteries cause fires»).
+remedy_question_cue("can i throw").
+remedy_question_cue("can i put").
+remedy_question_cue("posso buttare").
+machinery(avoid_in_verdict).
+avoid_in_verdict($Turn, pair($Said, $Place)) :-
+    turn_cue_form($Turn, remedy_question_cue, $Cue), avoid_in($Said, $Place), turn_word($Turn, $Place),
+    atom_words($Said, $Ws), words_in_turn($Turn, $Ws).
+machinery(avoid_in_answer).
+avoid_in_answer(pair($Said, $Place), $Text) :-
+    words_of($Said, $ST), concat_atoms("No: never put ", $ST, $A), concat_atoms($A, " in the ", $B), concat_atoms($B, $Place, $C),
+    avoid_reason($Said, $Reason), concat_atoms($C, $Reason, $Text).
+machinery(avoid_reason).
+avoid_reason($Said, $R) :- atom_words($Said, $Ws), words_underscored($Ws, $Atom), avoid_effect($Atom, $E), words_of($E, $ET), concat_atoms(": they cause ", $ET, $A), concat_atoms($A, ".", $R).
+avoid_reason($Said, ".") :- naf(avoid_has_reason($Said)).
+machinery(avoid_has_reason).
+avoid_has_reason($Said) :- atom_words($Said, $Ws), words_underscored($Ws, $Atom), avoid_effect($Atom, $E).
+% «lithium batteries cause fires» si salva come `cause/2` (il verbo al plurale non
+% e' ricondotto a `causes`): la variante di numero e' dichiarata, non cablata.
+relation_number_variant(cause, causes).
+machinery(avoid_effect).
+avoid_effect($Atom, $E) :- causes($Atom, $E).
+avoid_effect($Atom, $E) :- relation_number_variant($R, causes), apply($R, cons($Atom, cons($E, nil))).
+turn_plan_candidate($Turn) :- avoid_in_verdict($Turn, $P).
+turn_response($Turn, $Text) :- avoid_in_verdict($Turn, $P), avoid_in_answer($P, $Text).

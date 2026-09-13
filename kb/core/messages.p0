@@ -3485,3 +3485,18 @@ turn_form_mood(teach_range, statement).
 turn_form_act(teach_range, "op(assert, recommended_percent_range, [subject, order, object])").
 turn_form_reply(teach_range, learned_range).
 turn_form_priority(teach_range, early).
+
+% ══ mix §13 — DOVE NON METTERE UNA COSA ══════════════════════════════════════
+% «never put lithium batteries in the bin» (US EPA, Used lithium-ion batteries: non
+% nei rifiuti domestici ne' nel riciclo, causano incendi; portarle a un punto di
+% raccolta). La lettura sta in kb/core/remedy-questions.p0.
+response_template(learned_avoid_in, "Held: never put {subject} in the {object}.").
+response_template(learned_avoid_in, it, "Tengo: non mettere mai {subject} nel {object}.").
+turn_form(teach_avoid_in, 1, text("never put")).
+turn_form(teach_avoid_in, 2, span(subject)).
+turn_form(teach_avoid_in, 3, text("in the")).
+turn_form(teach_avoid_in, 4, slot(object)).
+turn_form_mood(teach_avoid_in, statement).
+turn_form_act(teach_avoid_in, "op(assert, avoid_in, [subject, object])").
+turn_form_reply(teach_avoid_in, learned_avoid_in).
+turn_form_priority(teach_avoid_in, early).
