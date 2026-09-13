@@ -26,6 +26,9 @@ mix_question_cue("ok to mix").
 mix_question_cue("if i mix").
 mix_question_cue("if you mix").
 mix_question_cue("mescolare").
+mix_question_cue("posso mescolare").
+mix_question_cue("sicuro mescolare").
+mix_question_cue("si possono mescolare").
 turn_cue_registry(mix_question_cue, 1).
 
 % Cio' che e' un danno: un effetto nominato qui come esito per la salute. Una
@@ -86,9 +89,14 @@ mix_polar_cue("can i mix").
 mix_polar_cue("should i mix").
 mix_polar_cue("okay to mix").
 mix_polar_cue("ok to mix").
+mix_polar_cue("posso mescolare").
+mix_polar_cue("sicuro mescolare").
+mix_polar_cue("si possono mescolare").
 machinery(mixture_opener).
 mixture_opener(en, "No: ") :- turn_cue_form(current_turn, mix_question_cue, $C), mix_polar_cue($C).
 mixture_opener(en, "Careful: ") :- naf(turn_is_polar_mix_question).
+mixture_opener(it, "No: ") :- turn_cue_form(current_turn, mix_question_cue, $C), mix_polar_cue($C).
+mixture_opener(it, "Attenzione: ") :- naf(turn_is_polar_mix_question).
 machinery(turn_is_polar_mix_question).
 turn_is_polar_mix_question :- turn_cue_form(current_turn, mix_question_cue, $C), mix_polar_cue($C).
 mixture_answer(en, unsafe($How, $P, $H), $Text) :-
@@ -100,5 +108,23 @@ mixture_answer(en, releases($How, $P), $Text) :-
     mixture_how_text(en, $How, $HowText), words_of($P, $PT), upcase_first($HowText, $Up),
     concat_atoms($Up, " releases ", $A), concat_atoms($A, $PT, $B), concat_atoms($B, ".", $Text).
 
+% In italiano: i nomi nella lingua se la KB li sa (`value_in_language/3`), altrimenti
+% come sono.
+machinery(it_name).
+it_name($Atom, $Name) :- value_in_language(it, $Atom, $Local), words_of($Local, $Name).
+mixture_how_text(it, direct($A, $B), $Text) :- it_name($A, $NA), it_name($B, $NB), concat_atoms("mescolare ", $NA, $X), concat_atoms($X, " e ", $Y), concat_atoms($Y, $NB, $Text).
+mixture_how_text(it, by_class($A, $B, $C), $Text) :-
+    it_name($A, $NA), it_name($B, $NB), it_name($C, $NC),
+    concat_atoms($NB, " è un ", $X1), concat_atoms($X1, $NC, $X2), concat_atoms($X2, ", e mescolare ", $X3),
+    concat_atoms($X3, $NA, $X4), concat_atoms($X4, " e un ", $X5), concat_atoms($X5, $NC, $Text).
+mixture_answer(it, unsafe($How, $P, $H), $Text) :-
+    mixture_how_text(it, $How, $HowText), it_name($P, $PT), it_name($H, $HT), mixture_opener(it, $Open),
+    concat_atoms($Open, $HowText, $A), concat_atoms($A, " libera ", $B), concat_atoms($B, $PT, $C),
+    concat_atoms($C, ", e ", $D), concat_atoms($D, $PT, $E), concat_atoms($E, " causa ", $F),
+    concat_atoms($F, $HT, $G), concat_atoms($G, ".", $Text).
+mixture_answer(it, releases($How, $P), $Text) :-
+    mixture_how_text(it, $How, $HowText), it_name($P, $PT), upcase_first($HowText, $Up),
+    concat_atoms($Up, " libera ", $A), concat_atoms($A, $PT, $B), concat_atoms($B, ".", $Text).
+
 turn_plan_candidate($Turn) :- mixture_verdict($Turn, $V).
-turn_response($Turn, $Text) :- mixture_verdict($Turn, $V), mixture_answer(en, $V, $Text).
+turn_response($Turn, $Text) :- mixture_verdict($Turn, $V), current_language($L), mixture_answer($L, $V, $Text).

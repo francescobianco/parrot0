@@ -19,6 +19,9 @@ food_time_cue("out for").
 food_time_cue("on the counter").
 food_time_cue("room temperature").
 food_time_cue("fuori dal frigo").
+food_time_cue("lasciato").
+food_time_cue("lasciata").
+food_time_cue("fuori per").
 turn_cue_registry(food_time_cue, 1).
 
 machinery(hours_word).
@@ -80,8 +83,26 @@ food_time_answer(hot_over(pair($F, $C), $N, $L, $T), $Text) :-
     concat_atoms($H, $L, $I), concat_atoms($I, " hour; ", $J), concat_atoms($J, $N, $K),
     concat_atoms($K, " hours is past that, so it is safer to throw it away.", $Text).
 
+% In italiano, con i nomi nella lingua quando la KB li sa.
+machinery(food_time_answer_it).
+food_time_answer_it(over($F, $C, $N, $L), $Text) :-
+    value_in_language(it, $F, $FI),
+    concat_atoms("No: ", $FI, $A), concat_atoms($A, " è deperibile, e un alimento deperibile non deve stare fuori dal frigorifero più di ", $B),
+    concat_atoms($B, $L, $D), concat_atoms($D, " ore; ", $E), concat_atoms($E, $N, $G),
+    concat_atoms($G, " ore sono oltre, quindi è più sicuro buttarlo.", $Text).
+food_time_answer_it(within($F, $C, $N, $L), $Text) :-
+    value_in_language(it, $F, $FI),
+    concat_atoms("È entro il limite: ", $FI, $A), concat_atoms($A, " è deperibile, e un alimento deperibile non deve stare fuori dal frigorifero più di ", $B),
+    concat_atoms($B, $L, $D), concat_atoms($D, " ore. Mettilo in frigorifero adesso.", $Text).
+machinery(food_time_text).
+food_time_text(it, $V, $Text) :- food_time_answer_it($V, $Text).
+food_time_text(en, $V, $Text) :- food_time_answer($V, $Text).
+food_time_text(it, $V, $Text) :- naf(food_time_it_available($V)), food_time_answer($V, $Text).
+machinery(food_time_it_available).
+food_time_it_available($V) :- food_time_answer_it($V, $T).
+
 turn_plan_candidate($Turn) :- food_time_verdict($Turn, $V).
-turn_response($Turn, $Text) :- food_time_verdict($Turn, $V), food_time_answer($V, $Text).
+turn_response($Turn, $Text) :- food_time_verdict($Turn, $V), current_language($L), food_time_text($L, $V, $Text).
 
 % ── LA TEMPERATURA INTERNA (mix 08×13×15) ──────────────────────────────────
 % «I cooked the chicken to 68 degrees, is it safe?»: il numero detto con «degrees»

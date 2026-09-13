@@ -1520,3 +1520,21 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
 - **composizione:** nello stesso file, «I left the chicken out for 3 hours» continua a
   rispondere con la regola del tempo: le due regole leggono lo stesso alimento.
 - **test:** `mix_food_time.p0t` 7 → 9.
+
+### mix-01-12-15-001 e mix-01-13-14-15-001 — gli stessi casi pratici in italiano
+
+- **misura:** «posso mescolare candeggina e aceto?», «ho lasciato il pollo fuori per 3
+  ore, è sicuro?» → «Non capisco ancora.».
+- **cure:** lessico insegnato parlando e salvato («the italian for bleach is
+  candeggina», vinegar/aceto, ammonia/ammoniaca, alcohol/alcol, acid/acido); cue
+  italiane nei due lettori (anche le domande sì/no «posso mescolare», «è sicuro
+  mescolare»); resa italiana delle due risposte con i nomi nella lingua quando la KB
+  li sa.
+- **esito:** «No: aceto è un acido, e mescolare candeggina e un acido libera chlorine
+  gas, e chlorine gas causa breathing problems.»; «No: pollo è deperibile, e un
+  alimento deperibile non deve stare fuori dal frigorifero più di 2 ore; 3 ore sono
+  oltre, quindi è più sicuro buttarlo.».
+- **resta:** i nomi di più parole non si traducono con la lezione («the italian for
+  chlorine gas is cloro gassoso» → muro): la risposta italiana sulla candeggina resta
+  mista.
+- **test:** `mix_household_safety.p0t` +1 blocco, `mix_food_time.p0t` +1 blocco.

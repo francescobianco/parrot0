@@ -29,3 +29,11 @@
 > is it safe to mix flour and water?
 <! safe
 <! No:
+
+[test the same safety question asked in italian]
+!timeout 30
+!set PARROT0_LANG=it
+> posso mescolare candeggina e aceto?
+<~ No: aceto è un acido
+<~ candeggina
+!set PARROT0_LANG=en

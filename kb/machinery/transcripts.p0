@@ -112,6 +112,7 @@ utterance(5, user, "never put ice on a burn").
 utterance(5, user, "underwatering causes yellow leaves").
 utterance(5, user, "a cup of sugar weighs 198 grams").
 utterance(5, user, "the safe internal temperature of ground beef is 71 degrees").
+utterance(5, user, "the italian for ammonia is ammoniaca").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -203,6 +204,7 @@ utterance(6, self, "Held: never put ice on a burn.").
 utterance(6, self, "Learned: underwatering causes yellow leaves.").
 utterance(6, self, "Held: a cup of sugar weighs 198 grams.").
 utterance(6, self, "Held: the safe internal temperature of ground beef is 71 degrees.").
+utterance(6, self, "Held: «ammoniaca» is how ammonia is said in that language.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -704,6 +706,7 @@ utterance(7, user, "should I put butter on a burn?").
 utterance(7, user, "low light causes yellow leaves").
 utterance(7, user, "a cup of oats weighs 113 grams").
 utterance(7, user, "the safe internal temperature of pork chops is 63 degrees").
+utterance(7, user, "the italian for alcohol is alcol").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1145,7 +1148,11 @@ utterance(8, self, "Held: the safe internal temperature of pork chops is 63 degr
 utterance(9, user, "I cooked the chicken to 68 degrees, is it safe?").
 utterance(10, self, "Not yet: the safe internal temperature of chicken is 74 degrees, and 68 is 6 degrees short. Keep cooking and measure again in the thickest part.").
 utterance(11, user, "how many grams are 2 cups of flour?").
+utterance(8, self, "Held: «alcol» is how alcohol is said in that language.").
+utterance(9, user, "the italian for acid is acido").
+utterance(10, self, "Held: «acido» is how acid is said in that language.").
 utterance(11, user, "the thermometer reads 72 degrees in the ground beef, is it done?").
+utterance(11, user, "the italian for chicken is pollo").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1969,6 +1976,7 @@ utterance(13, user, "I cooked the pork chops to 65 degrees").
 utterance(14, self, "It has reached the safe internal temperature of pork chops: 63 degrees, measured in the thickest part.").
 utterance(15, user, "I left the chicken out for 3 hours").
 utterance(16, self, "No: chicken is a perishable, and a perishable should not be left out for more than 2 hours; 3 hours is past that, so it is safer to throw it away.").
+utterance(12, self, "Held: «pollo» is how chicken is said in that language.").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2362,6 +2370,7 @@ utterance(2, self, "Hmm, I don't know about butter yet. Want me to learn about i
 utterance(2, self, "Hmm, I don't know about plant's yet. Want me to learn about it?").
 utterance(2, self, "Held: a sign of low light is leggy stems.").
 utterance(2, self, "Held: adults need 7 to 9 hours of sleep.").
+utterance(2, self, "Held: «candeggina» is how bleach is said in that language.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2456,6 +2465,7 @@ utterance(1, user, "a sign of low light is leggy stems").
 utterance(1, user, "adults need 7 to 9 hours of sleep").
 utterance(1, user, "how many grams are 2 cups of flour?").
 utterance(1, user, "I cooked the chicken to 68 degrees, is it safe?").
+utterance(1, user, "the italian for bleach is candeggina").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2544,6 +2554,7 @@ utterance(4, self, "Current.").
 utterance(4, self, "Learned: overwatering causes yellow leaves.").
 utterance(4, self, "Who or what does «it» refer to?").
 utterance(4, self, "Held: a cup of flour weighs 120 grams.").
+utterance(4, self, "Held: «aceto» is how vinegar is said in that language.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2631,6 +2642,7 @@ utterance(3, user, "the ampere measures what?").
 utterance(3, user, "overwatering causes yellow leaves").
 utterance(3, user, "is it safe to mix bleach and vinegar?").
 utterance(3, user, "a cup of flour weighs 120 grams").
+utterance(3, user, "the italian for vinegar is aceto").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").
