@@ -1,0 +1,31 @@
+# mix-of-capabilities §8.1 P1 — 08×09 accesso relazionale × deduzione (e 06 per le
+# proprieta' insegnate parlando). La domanda chiede una proprieta' che nessun
+# fatto dice del soggetto: la risposta viene dalla sua classe (is_a, has_prop) e
+# ne dice il perche'. Il «No» solo con la proprieta' opposta tenuta dalla classe.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a curated class property reaches the member, with the reason]
+!timeout 30
+> is a whale warm-blooded?
+< Yes: a whale is a mammal, and every mammal is warm-blooded.
+> does copper conduct electricity?
+< Yes: copper is a metal, and every metal conducts electricity.
+
+[test a property taught by speaking reaches a member no lesson named]
+!timeout 30
+> is an eagle warm-blooded?
+< Yes: an eagle is a bird, and every bird is warm-blooded.
+> is a toad cold-blooded?
+< Yes: a toad is an amphibian, and every amphibian is cold-blooded.
+
+[test no is said only with the opposite property, never from absence]
+!timeout 30
+> is a whale cold-blooded?
+< No: a whale is a mammal, and every mammal is warm-blooded.
+> do whales lay eggs?
+<! No:
+<! Yes:

@@ -284,6 +284,8 @@ gap_kind("one of them is vegetarian.", reachability).
 gap_kind("i need to cook dinner for four people tonight.", reachability).
 gap_kind("there are scintille", reachability).
 gap_kind("who has written hamlet?", reachability).
+gap_kind("is a shark warm-blooded?", reachability).
+gap_kind("is an eagle warm-blooded?", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
@@ -341,4 +343,6 @@ gap_source("when someone sees sparks then say to get out and call 112 on smoke o
 gap_source("give me some ideas for a birthday present for my dad.", "Give me some ideas for a birthday present for my dad.").
 gap_source("i need to cook dinner for four people tonight.", "I need to cook dinner for four people tonight.").
 gap_source("there are scintille", "ci sono scintille").
+gap_source("is a shark warm-blooded?", "is a shark warm-blooded?").
 gap_source("who has written hamlet?", "who has written hamlet?").
+gap_source("is an eagle warm-blooded?", "is an eagle warm-blooded?").

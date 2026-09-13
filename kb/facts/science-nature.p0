@@ -100,6 +100,7 @@ has_prop(bird, has_feathers).
 has_prop(bird, lays_eggs).
 has_prop(fish, breathes_underwater).
 has_prop(fish, has_scales).
+has_prop(fish, cold-blooded).
 has_prop(mammal, has_hair).
 has_prop(mammal, feeds_milk).
 has_prop(reptile, cold_blooded).
@@ -117,6 +118,8 @@ has_prop(gas, has_no_fixed_shape).
 has_prop(deciduous, "leafless in winter").
 has_prop(falcon, predatory).
 has_prop(falcon, fast).
+has_prop(amphibians, cold-blooded).
+has_prop(birds, warm-blooded).
 
 % ============================================================
 % CROSS-DOMAIN REQUIREMENTS (L15) — requires/lacks for "why can't X live in Y".

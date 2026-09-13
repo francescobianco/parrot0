@@ -101,6 +101,7 @@ utterance(5, user, "when someone cooks for guests then suggest a simple menu pla
 utterance(5, user, "when someone sees sparks then say not to touch it").
 utterance(5, user, "your plan when someone sees sparks").
 utterance(5, user, "colour and color name the same thing").
+utterance(5, user, "birds are typically warm-blooded").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -181,6 +182,7 @@ utterance(6, self, "Held: in that situation, move 1 is «Keep it simple: one mai
 utterance(6, self, "Held: in that situation, move 1 is «Don't touch the socket, the switch or the appliance.».").
 utterance(6, self, "When that happens I: 1) Don't touch the socket, the switch or the appliance.  2) If you can do it without going near the sparks, switch the power off at the main switch or fuse box.  3) Don't use it again until an electrician has checked it.  4) If there is smoke or flames, get out and call 112.  5) Is everyone safe right now?").
 utterance(6, self, "Held: «colour» and «color» name the same thing.").
+utterance(6, self, "Held: every birds is warm-blooded -- and so is each one I meet.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -673,6 +675,7 @@ utterance(7, user, "when someone cooks for guests then ask about diets and time"
 utterance(7, user, "when someone sees sparks then say to switch off the power at the main switch").
 utterance(7, user, "ho un problema elettrico").
 utterance(7, user, "what colour is grass?").
+utterance(7, user, "amphibians are typically cold-blooded").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1076,7 +1079,11 @@ utterance(8, self, "Green.").
 utterance(9, user, "what colour is the sky?").
 utterance(10, self, "Blue.").
 utterance(11, user, "when someone sees sparks then say to get out and call 112 on smoke or flames").
+utterance(8, self, "Held: every amphibians is cold-blooded -- and so is each one I meet.").
+utterance(9, user, "fish are typically cold-blooded").
+utterance(10, self, "Held: every fish is cold-blooded -- and so is each one I meet.").
 utterance(11, user, "who has written hamlet?").
+utterance(11, user, "is an eagle warm-blooded?").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1828,6 +1835,19 @@ utterance(31, user, "who wrote hamlet").
 utterance(32, self, "William shakespeare.").
 utterance(33, user, "chi ha scritto hamlet?").
 utterance(34, self, "William shakespeare.").
+utterance(12, self, "Yes: an eagle is a bird, and every bird is warm-blooded.").
+utterance(13, user, "is a penguin cold-blooded?").
+utterance(14, self, "No: a penguin is a bird, and every bird is warm-blooded.").
+utterance(15, user, "is a frog cold-blooded?").
+utterance(16, self, "Yes: a frog is an amphibian, and every amphibian is cold-blooded.").
+utterance(17, user, "is a shark warm-blooded?").
+utterance(18, self, "No: a shark is a fish, and every fish is cold-blooded.").
+utterance(19, user, "is a whale warm-blooded?").
+utterance(20, self, "Yes: a whale is a mammal, and every mammal is warm-blooded.").
+utterance(21, user, "does a whale have hair?").
+utterance(22, self, "Yes: a whale is a mammal, and every mammal has hair.").
+utterance(23, user, "does copper conduct electricity?").
+utterance(24, self, "Yes: copper is a metal, and every metal conducts electricity.").
 utterance(72, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Siete tutti al sicuro adesso?").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
@@ -2210,6 +2230,7 @@ utterance(2, self, "Hmm, I don't know about dinner yet. Want me to learn about i
 utterance(2, self, "Vediamolo insieme. Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto. Di che cosa si tratta, e che cosa succede esattamente?").
 utterance(2, self, "Held: move 4 for user sparks is now «fire emergency».").
 utterance(2, self, "Understood: when I don't know something, I'll tell you the sentence that teaches it to me.").
+utterance(2, self, "Hmm, I don't know about warm-blooded yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2291,6 +2312,7 @@ utterance(1, user, "I need to cook dinner for four people tonight.").
 utterance(1, user, "ho un problema elettrico").
 utterance(1, user, "move 4 for someone sees sparks is now say to leave and call 112 on fire").
 utterance(1, user, "I want to teach you").
+utterance(1, user, "is an eagle warm-blooded?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2368,6 +2390,7 @@ utterance(4, self, "Held: in that situation, move 1 is «A few directions that o
 utterance(4, self, "Hmm, I don't know about vegetarian yet. Want me to learn about it?").
 utterance(4, self, "Held: in that situation, move 5 is «Is everyone safe right now?».").
 utterance(4, self, "I don't know: I understood «what colour», but I am missing the value for grass. Do you know it?").
+utterance(4, self, "Hmm, I don't know about warm-blooded yet.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -2444,6 +2467,7 @@ utterance(3, user, "One of them is vegetarian.").
 utterance(3, user, "ci sono scintille").
 utterance(3, user, "when someone sees sparks then ask if everyone is safe").
 utterance(3, user, "what colour is grass?").
+utterance(3, user, "is a shark warm-blooded?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

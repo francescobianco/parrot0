@@ -1,0 +1,163 @@
+% property-questions.p0 — «IS A WHALE WARM-BLOODED?» SI RISPONDE CON L'EREDITA'.
+%
+% docs/plans/mix-of-capabilities.md §8.1, P1 08×09 (accesso relazionale ×
+% deduzione). La KB sa `is_a(whale, mammal)` e `has_prop(mammal, warm_blooded)`,
+% e `inherits/2` (procedures.p0) ne deriva che la balena e' a sangue caldo. Ma
+% nessuna domanda ci arrivava: «is a whale warm-blooded?» → «I don't understand
+% that yet.», «does a whale have hair?» → muro. La deduzione c'era e l'accesso no.
+%
+% Qui c'e' solo la LETTURA: quale superficie nomina quale proprieta' (una riga per
+% superficie, EN/IT), e la resa della prova — la classe da cui la proprieta' viene
+% ereditata, perche' un «Yes» senza il suo perche' non si puo' controllare. Il
+% «No» si dice solo dove la KB tiene la proprieta' OPPOSTA per una classe del
+% soggetto (sangue freddo / sangue caldo): non provato non e' falso.
+
+:- file_attribute(machinery).
+
+machinery(property_cue).
+property_cue("warm-blooded", warm_blooded).
+property_cue("warm blooded", warm_blooded).
+property_cue("a sangue caldo", warm_blooded).
+property_cue("cold-blooded", cold_blooded).
+property_cue("cold blooded", cold_blooded).
+property_cue("a sangue freddo", cold_blooded).
+property_cue("have hair", has_hair).
+property_cue("has hair", has_hair).
+property_cue("ha il pelo", has_hair).
+property_cue("have fur", has_hair).
+property_cue("have feathers", has_feathers).
+property_cue("has feathers", has_feathers).
+property_cue("ha le piume", has_feathers).
+property_cue("lay eggs", lays_eggs).
+property_cue("lays eggs", lays_eggs).
+property_cue("depone le uova", lays_eggs).
+property_cue("feed their young milk", feeds_milk).
+property_cue("produce milk", feeds_milk).
+property_cue("have a backbone", has_backbone).
+property_cue("has a backbone", has_backbone).
+property_cue("ha la colonna vertebrale", has_backbone).
+property_cue("have scales", has_scales).
+property_cue("has scales", has_scales).
+property_cue("breathe underwater", breathes_underwater).
+property_cue("breathes underwater", breathes_underwater).
+property_cue("respira sott'acqua", breathes_underwater).
+property_cue("have roots", has_roots).
+property_cue("has roots", has_roots).
+property_cue("photosynthesise", does_photosynthesis).
+property_cue("photosynthesize", does_photosynthesis).
+property_cue("conduct electricity", conducts_electricity).
+property_cue("conducts electricity", conducts_electricity).
+property_cue("conduce l'elettricita'", conducts_electricity).
+property_cue("need food", needs_food).
+property_cue("needs food", needs_food).
+turn_cue_registry(property_cue, 1).
+
+machinery(opposite_property).
+opposite_property(warm_blooded, cold_blooded).
+opposite_property(cold_blooded, warm_blooded).
+
+% Come si dice la proprieta' di una classe, al singolare («every mammal …»).
+machinery(property_phrase).
+property_phrase(warm_blooded, en, "is warm-blooded").
+property_phrase(warm_blooded, it, "è a sangue caldo").
+property_phrase(cold_blooded, en, "is cold-blooded").
+property_phrase(cold_blooded, it, "è a sangue freddo").
+property_phrase(has_hair, en, "has hair").
+property_phrase(has_hair, it, "ha il pelo").
+property_phrase(has_feathers, en, "has feathers").
+property_phrase(has_feathers, it, "ha le piume").
+property_phrase(lays_eggs, en, "lays eggs").
+property_phrase(lays_eggs, it, "depone le uova").
+property_phrase(feeds_milk, en, "feeds its young with milk").
+property_phrase(feeds_milk, it, "nutre i piccoli con il latte").
+property_phrase(has_backbone, en, "has a backbone").
+property_phrase(has_backbone, it, "ha la colonna vertebrale").
+property_phrase(has_scales, en, "has scales").
+property_phrase(has_scales, it, "ha le squame").
+property_phrase(breathes_underwater, en, "breathes underwater").
+property_phrase(breathes_underwater, it, "respira sott'acqua").
+property_phrase(has_roots, en, "has roots").
+property_phrase(has_roots, it, "ha le radici").
+property_phrase(does_photosynthesis, en, "carries out photosynthesis").
+property_phrase(does_photosynthesis, it, "fa la fotosintesi").
+property_phrase(conducts_electricity, en, "conducts electricity").
+property_phrase(conducts_electricity, it, "conduce l'elettricità").
+property_phrase(needs_food, en, "needs food").
+property_phrase(needs_food, it, "ha bisogno di cibo").
+
+% L'articolo di un nome: «an» davanti a vocale, «a» altrimenti (la vocale e' un
+% fatto, `vowel_letter/1`).
+machinery(class_article).
+class_article($C, en, "an") :- chars($C, cons($F, $Rest)), vowel_letter($F).
+class_article($C, en, "a") :- chars($C, cons($F, $Rest)), naf(vowel_letter($F)).
+class_article($C, it, "").
+
+% Il soggetto: una parola del turno che la tassonomia conosce, anche al plurale.
+machinery(turn_property_subject).
+turn_property_subject($Turn, $X) :- turn_word($Turn, $X), naf(auxiliary($X)), is_a($X, $C).
+turn_property_subject($Turn, $X) :- turn_word($Turn, $W), lemma_candidate($W, $X), naf(auxiliary($X)), is_a($X, $C).
+
+machinery(property_verdict).
+property_verdict($Turn, yes(pair($X, $C)), $P) :-
+    turn_cue_form($Turn, property_cue, $Cue), property_cue($Cue, $P),
+    turn_property_subject($Turn, $X), is_a_t($X, $C), class_has_property($C, $P).
+property_verdict($Turn, no(pair($X, $C)), $P) :-
+    turn_cue_form($Turn, property_cue, $Cue), property_cue($Cue, $P),
+    turn_property_subject($Turn, $X), naf(inherits_any($X, $P)),
+    opposite_property($P, $Q), is_a_t($X, $C), class_has_property($C, $Q).
+% La proprieta' di una classe come la dice un fatto curato, o come la salva una
+% lezione parlata («birds are typically warm-blooded» → `has_prop(birds,
+% "warm-blooded")`): plurale e superficie si riconducono al nome e alla
+% proprieta' che il lettore usa, leggendo lo stesso fatto e non una sua copia.
+machinery(class_has_property).
+class_has_property($C, $P) :- has_prop($C, $P).
+class_has_property($C, $P) :- has_prop($Said, $Surface), property_surface_atom($Surface, $P), lemma_candidate($Said, $C).
+class_has_property($C, $P) :- has_prop($C, $Surface), property_surface_atom($Surface, $P).
+% La superficie di una cue e' un testo citato; il valore salvato dalla lezione e'
+% un atomo: si confrontano sulla stessa forma.
+machinery(property_surface_atom).
+property_surface_atom($Atom, $P) :- property_cue($Cue, $P), span_atom($Cue, $Atom).
+machinery(inherits_any).
+inherits_any($X, $P) :- is_a_t($X, $C), class_has_property($C, $P).
+
+machinery(property_opener).
+property_opener(yes, en, "Yes: ").
+property_opener(yes, it, "Sì: ").
+property_opener(no, en, "No: ").
+property_opener(no, it, "No: ").
+machinery(verdict_class).
+verdict_class(yes(pair($X, $C)), yes, $X, $C).
+verdict_class(no(pair($X, $C)), no, $X, $C).
+machinery(verdict_property).
+verdict_property(yes(pair($X, $C)), $P, $P).
+verdict_property(no(pair($X, $C)), $P, $Q) :- opposite_property($P, $Q).
+
+answer_content(property_answer($V, $P, $L), 0, opener, $Piece) :- verdict_class($V, $K, $X, $C), property_opener($K, $L, $Piece).
+% Il soggetto porta l'articolo solo in inglese e solo se e' un nome numerabile
+% detto con l'articolo: «does copper conduct electricity?» resta «copper».
+answer_content(property_answer($V, $P, $L), 1, subject, $Piece) :- verdict_class($V, $K, $X, $C), subject_piece($L, $X, $Piece).
+machinery(subject_piece).
+subject_piece(en, $X, $Piece) :- turn_word(current_turn, $I, $A), article_word($A), is($J, add($I, 1)), turn_word(current_turn, $J, $X), class_article($X, en, $Art), concat_atoms($Art, " ", $A1), concat_atoms($A1, $X, $A2), concat_atoms($A2, " ", $Piece).
+subject_piece($L, $X, $Piece) :- naf(subject_said_with_article($X)), concat_atoms($X, " ", $Piece).
+subject_piece(it, $X, $Piece) :- subject_said_with_article($X), concat_atoms($X, " ", $Piece).
+machinery(subject_said_with_article).
+subject_said_with_article($X) :- turn_word(current_turn, $I, $A), article_word($A), is($J, add($I, 1)), turn_word(current_turn, $J, $X).
+machinery(article_word).
+article_word(a).
+article_word(an).
+answer_content(property_answer($V, $P, $L), 2, copula, $Piece) :- property_is_a_word($L, $Piece).
+answer_content(property_answer($V, $P, $L), 3, class, $Piece) :- verdict_class($V, $K, $X, $C), class_article($C, $L, $A), concat_atoms($A, " ", $A1), concat_atoms($A1, $C, $Piece).
+answer_content(property_answer($V, $P, $L), 4, link, $Piece) :- property_every_word($L, $Piece).
+answer_content(property_answer($V, $P, $L), 5, class2, $Piece) :- verdict_class($V, $K, $X, $C), concat_atoms($C, " ", $Piece).
+answer_content(property_answer($V, $P, $L), 6, property, $Piece) :- verdict_property($V, $P, $Q), property_phrase($Q, $L, $Text), concat_atoms($Text, ".", $Piece).
+machinery(property_is_a_word).
+property_is_a_word(en, "is ").
+property_is_a_word(it, "è ").
+machinery(property_every_word).
+property_every_word(en, ", and every ").
+property_every_word(it, ", e ogni ").
+
+machinery(turn_property_answer).
+turn_property_answer($Turn, $Text) :- property_verdict($Turn, $V, $P), current_language($L), answer_text(property_answer($V, $P, $L), $Text).
+turn_plan_candidate($Turn) :- property_verdict($Turn, $V, $P).
+turn_response($Turn, $Text) :- turn_property_answer($Turn, $Text).

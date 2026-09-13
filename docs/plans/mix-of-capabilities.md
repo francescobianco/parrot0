@@ -1183,3 +1183,27 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
 - **test:** `tests/p0t/crossing/mix_language_access.p0t` (7);
   `question_direction` e `prose_triage` verdi.
 - **stato:** verificata sulla KB viva.
+
+### mix-08-09-001 — la proprietà di una classe arriva al membro, con il suo perché
+
+- **catalogo:** mix-v1, famiglie 08 × 09 (e 06 per le proprietà insegnate)
+- **compito:** «is a whale warm-blooded?», «does copper conduct electricity?»:
+  nessun fatto lo dice del soggetto; lo dicono la sua classe (`is_a`, `is_a_t`) e
+  una proprietà di classe (`has_prop`). La KB aveva già entrambe le metà e
+  `inherits/2`: **la deduzione c'era, l'accesso no** («I don't understand that
+  yet.»).
+- **cura:** `kb/core/property-questions.p0`, sola lettura — superficie →
+  proprietà (EN/IT), soggetto dalla tassonomia anche al plurale, resa della prova
+  («Yes: a whale is a mammal, and every mammal is warm-blooded.»). Il **No** solo
+  con la proprietà opposta tenuta da una classe del soggetto («is a whale
+  cold-blooded?» → No, perché ogni mammifero è a sangue caldo); «do whales lay
+  eggs?» non riceve né sì né no (nessuna classe lo dice, e i monotremi rendono
+  falso «nessun mammifero depone uova»).
+- **crescita con fatti veri, parlando:** «birds are typically warm-blooded»,
+  «amphibians are typically cold-blooded», «fish are typically cold-blooded». La
+  lezione salva plurale e superficie (`has_prop(birds, warm-blooded)`): il lettore
+  li riconduce leggendo lo stesso fatto (`class_has_property/2`), senza copie.
+- **transfer:** «is a toad cold-blooded?», «is a penguin cold-blooded?» → No,
+  «is a salmon warm-blooded?» → No, su membri che nessuna lezione nominava.
+- **test:** `tests/p0t/crossing/mix_property_inheritance.p0t` (7).
+- **stato:** verificata sulla KB viva.
