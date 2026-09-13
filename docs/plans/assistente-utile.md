@@ -356,3 +356,74 @@ con più `F`, poi quella con più archi `R`/`M` che una stessa porta chiuderebbe
   già dichiarati, da riusare prima di aggiungerne.
 - [`autoaddestramento-dalla-prosa.md`](autoaddestramento-dalla-prosa.md): lo
   stesso principio (misurare prima, classi non righe), su un'altra facoltà.
+
+## 9. Handoff (2026-09-13, fine della sessione di giri U1–U17)
+
+### I numeri
+
+| | inizio (`ccad5f12`) | fine (`79f636ce`) |
+|---|---:|---:|
+| `U` sui `base` | 1/21 | **14/21** |
+| `U` sugli `held` (mai detti nelle lezioni) | 0/10 | **9/10** |
+| `F` (falso o finto) | 5 | **0** |
+| `R` (letto come un altro atto) | 6 + 4 | 2 + 0 |
+
+Referto finale: [`docs/labs/assistente-utile/2026-09-13-u17.json`](../labs/assistente-utile/2026-09-13-u17.json).
+
+### Che cosa c'è adesso, e come si aggiunge una classe
+
+Il meccanismo è uno solo, in [`kb/core/user-situations.p0`](../../kb/core/user-situations.p0),
+e non contiene nessun piano:
+
+1. **una situazione** si riconosce da cue del turno (`turn_cue_registry`), di norma
+   con due indizi (il bisogno E che sia di chi parla, o il vincolo E il gruppo);
+2. **si nomina** con `situation_cue/2` e `situation_label/3`, perché la si possa
+   insegnare parlando;
+3. **le mosse possibili** sono `move_cue/2` + `plan_step_text_lang/3` (EN/IT), con
+   la fonte scritta accanto se danno un consiglio; una mossa può avere una
+   condizione (`move_condition/2`);
+4. **il piano si insegna in `make chat`** («when someone … then …»), si verifica
+   (replay, held, contrasto, «unlearn what you do when …» e ripristino, processo
+   nuovo) e si salva con `/save` (`plan_move/3` in `kb/core/messages.p0`);
+5. il ratchet è `tests/p0t/conversation/user_situations.p0t` (47).
+
+Le altre cure del giro sono letture interrotte, non situazioni: «how do I …?» come
+procedimento (U4), «can you explain X?» come richiesta (U6b), il presupposto
+sbagliato su una relazione (U8), il confronto dalle due definizioni (U6a), il
+conto per periodo (U12a), il registro del maestro solo con chi insegna (U3).
+
+### Trappole misurate (prima di scegliere le parole di una lezione)
+
+- una mossa con «first» la prende il chiarimento dell'ordinale;
+- «suggest …» apre il registro delle raccomandazioni; «… step» quello dei
+  procedimenti; «what matters most» è la cue di `own_method(salience)`;
+- un pezzo `named` non accumula oltre otto parole;
+- una lezione di piano che nomina la situazione non deve viverla
+  (`turn_is_plan_lesson`);
+- una regola oltre 16 goal o un predicato oltre 4 argomenti vengono scartati al
+  caricamento (`kb_load: PARSE ERROR` su stderr: la sonda ora lo controlla);
+- `naf` con una variabile libera fallisce sempre: si nega un predicato ground;
+- `/save` porta con sé stati di prova e artefatti delle ricerche senza rete
+  (`holds_in(described_situation, …)`, `pending_gap_failed(…)`, letture
+  sbagliate come `not(ate(vegetarians, meat))`): ogni diff va classificato e
+  messo in quarantena.
+
+### Da dove riprendere
+
+1. **`howto`/`steps` (M):** la chiave di un procedimento è solo l'oggetto («egg»),
+   quindi «fry an egg» e «boil an egg» sono la stessa procedura. Serve la chiave
+   verbo+oggetto prima di insegnare procedimenti con fonte (la bollitura
+   dell'uovo, American Egg Board, è pronta nel lab U4).
+2. **`false-premise` (M):** «the sun goes around the earth» — manca la lettura di
+   «goes around» come `orbits` e la disgiunzione stella/pianeta.
+3. **`summarize`, `rewrite` (R):** i compiti sul testo arrivano ancora al
+   sintetizzatore o al lettore delle frasi.
+4. **`followup-offer` (P):** la risposta secca senza passo successivo (T6).
+5. **Continuità vera (U9):** il vincolo del turno dopo è riconosciuto per indizi,
+   non per memoria della situazione aperta; e un turno non rivendicato accetta
+   l'offerta aperta del turno prima («I looked up «around» but found nothing…»).
+6. **La lingua della sessione:** dopo lezioni in inglese un turno italiano riceve
+   le mosse inglesi (lingua appiccicosa).
+
+Rossi preesistenti verificati identici su HEAD durante i giri: `TEST_TODO.md`, in
+testa.
