@@ -100,6 +100,7 @@ utterance(5, user, "when someone needs gift ideas then ask what the person enjoy
 utterance(5, user, "when someone cooks for guests then suggest a simple menu plan").
 utterance(5, user, "when someone sees sparks then say not to touch it").
 utterance(5, user, "your plan when someone sees sparks").
+utterance(5, user, "colour and color name the same thing").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -179,6 +180,7 @@ utterance(6, self, "Held: in that situation, move 2 is «What does the person en
 utterance(6, self, "Held: in that situation, move 1 is «Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready.».").
 utterance(6, self, "Held: in that situation, move 1 is «Don't touch the socket, the switch or the appliance.».").
 utterance(6, self, "When that happens I: 1) Don't touch the socket, the switch or the appliance.  2) If you can do it without going near the sparks, switch the power off at the main switch or fuse box.  3) Don't use it again until an electrician has checked it.  4) If there is smoke or flames, get out and call 112.  5) Is everyone safe right now?").
+utterance(6, self, "Held: «colour» and «color» name the same thing.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -670,6 +672,7 @@ utterance(7, user, "your plan when someone needs gift ideas").
 utterance(7, user, "when someone cooks for guests then ask about diets and time").
 utterance(7, user, "when someone sees sparks then say to switch off the power at the main switch").
 utterance(7, user, "ho un problema elettrico").
+utterance(7, user, "what colour is grass?").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1069,7 +1072,11 @@ utterance(11, user, "I need to cook dinner for four people tonight.").
 utterance(8, self, "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?").
 utterance(9, user, "ci sono scintille").
 utterance(10, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Se c'è fumo o ci sono fiamme, esci e chiama il 112. Siete tutti al sicuro adesso?").
+utterance(8, self, "Green.").
+utterance(9, user, "what colour is the sky?").
+utterance(10, self, "Blue.").
 utterance(11, user, "when someone sees sparks then say to get out and call 112 on smoke or flames").
+utterance(11, user, "who has written hamlet?").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1798,6 +1805,29 @@ utterance(68, self, "You're welcome!").
 utterance(69, user, "ho un problema elettrico").
 utterance(70, self, "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?").
 utterance(71, user, "ci sono scintille").
+utterance(12, self, "Hmm, I don't know about written yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a written»; if written is a word you want to talk ABOUT, say «the word written is a …».").
+utterance(13, user, "x has written y means x wrote y").
+utterance(14, self, "From now on I'll read «x has written y» as «x wrote y».").
+utterance(15, user, "who wrote hamlet").
+utterance(16, self, "William shakespeare.").
+utterance(17, user, "who has written hamlet?").
+utterance(18, self, "William shakespeare.").
+utterance(19, user, "who wrote the odyssey").
+utterance(20, self, "Homer.").
+utterance(21, user, "who has written the odyssey?").
+utterance(22, self, "Homer.").
+utterance(23, user, "the italian for written is scritto").
+utterance(24, self, "Held: «scritto» is how written is said in that language.").
+utterance(25, user, "the italian for hamlet is amleto").
+utterance(26, self, "Held: «amleto» is how hamlet is said in that language.").
+utterance(27, user, "who wrote hamlet").
+utterance(28, self, "William shakespeare.").
+utterance(29, user, "chi ha scritto amleto?").
+utterance(30, self, "William shakespeare.").
+utterance(31, user, "who wrote hamlet").
+utterance(32, self, "William shakespeare.").
+utterance(33, user, "chi ha scritto hamlet?").
+utterance(34, self, "William shakespeare.").
 utterance(72, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Siete tutti al sicuro adesso?").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
@@ -2179,6 +2209,7 @@ utterance(2, self, "Hmm, I don't know about birthday yet. Want me to learn about
 utterance(2, self, "Hmm, I don't know about dinner yet. Want me to learn about it?").
 utterance(2, self, "Vediamolo insieme. Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto. Di che cosa si tratta, e che cosa succede esattamente?").
 utterance(2, self, "Held: move 4 for user sparks is now «fire emergency».").
+utterance(2, self, "Understood: when I don't know something, I'll tell you the sentence that teaches it to me.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2259,6 +2290,7 @@ utterance(1, user, "Give me some ideas for a birthday present for my dad.").
 utterance(1, user, "I need to cook dinner for four people tonight.").
 utterance(1, user, "ho un problema elettrico").
 utterance(1, user, "move 4 for someone sees sparks is now say to leave and call 112 on fire").
+utterance(1, user, "I want to teach you").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2335,6 +2367,7 @@ utterance(4, self, "Held: in that situation, move 1 is «Write down what you hav
 utterance(4, self, "Held: in that situation, move 1 is «A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter.».").
 utterance(4, self, "Hmm, I don't know about vegetarian yet. Want me to learn about it?").
 utterance(4, self, "Held: in that situation, move 5 is «Is everyone safe right now?».").
+utterance(4, self, "I don't know: I understood «what colour», but I am missing the value for grass. Do you know it?").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -2410,6 +2443,7 @@ utterance(3, user, "when someone needs gift ideas then give kinds of gifts").
 utterance(3, user, "One of them is vegetarian.").
 utterance(3, user, "ci sono scintille").
 utterance(3, user, "when someone sees sparks then ask if everyone is safe").
+utterance(3, user, "what colour is grass?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

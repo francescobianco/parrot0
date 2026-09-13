@@ -3308,5 +3308,6 @@ turn_form_slot_class(teach_exists_restriction, relation, relation_verb).
 turn_form_act(teach_exists_restriction, "op(assert, exists_restriction, [state, relation, property])").
 turn_form_reply(teach_exists_restriction, exists_restriction_learned).
 turn_form_priority(teach_exists_restriction, early).
+turn_form_priority(taught_form_15, early).
 response_template(exists_restriction_learned, "Learned: whoever is {relation} something {property} is {state}.").
 response_template(exists_restriction_learned, it, "Imparato: chi è {relation} qualcosa di {property} è {state}.").

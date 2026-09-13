@@ -3659,6 +3659,15 @@ answer_fits_type($Ans, $Type) :- lemma_candidate($Type, $L), atom_words($Ans, $W
 answer_fits_type($Ans, $Type) :- atom_words($Ans, $Ws), member($W, $Ws), lemma_candidate($W, $Type).
 answer_fits_type($Ans, $Type) :- apply($Type, cons($Ans, nil)).
 answer_fits_type($Ans, $Type) :- lemma_candidate($Type, $L), apply($L, cons($Ans, nil)).
+% mix 01×08 — e se la KB la tiene come membro della CATEGORIA: «what color is
+% blood?» chiede un colore, e `red` lo e' come `category_member(color, red)`, non
+% come `color(red)`. Senza questa riga la risposta vera veniva scartata e il turno
+% dichiarava che mancava il valore.
+answer_fits_type($Ans, $Type) :- category_member($Type, $Ans).
+answer_fits_type($Ans, $Type) :- lemma_candidate($Type, $L), category_member($L, $Ans).
+% E un nome della categoria che si e' insegnato come alias («colour and color name
+% the same thing»): la stessa categoria sotto un'altra grafia.
+answer_fits_type($Ans, $Type) :- entity_alias($Type, $Other), category_member($Other, $Ans).
 has_asked_answer_type($T) :- asked_answer_type($T, $Type).
 answer_type_ok($T, $Ans) :- naf(has_asked_answer_type($T)).
 answer_type_ok($T, $Ans) :- asked_answer_type($T, $Type), answer_fits_type($Ans, $Type).

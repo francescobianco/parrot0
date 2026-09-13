@@ -54,6 +54,10 @@ turn_form(ask_relation_between_it, 1, text("che relazione c'è tra")).
 turn_form(ask_relation_between_it, 2, span(subject)).
 turn_form(ask_relation_between_it, 3, text("e")).
 turn_form(ask_relation_between_it, 4, rest(object)).
+turn_form(taught_form_15, 3, span(y)).
+turn_form_act(taught_form_15, reread({x} wrote {y})).
+turn_form(taught_form_15, 2, text("has written")).
+turn_form(taught_form_15, 1, span(x)).
 turn_form_act(ask_relation_between_it, "op(match, between_relation_name, [subject, object, free])").
 turn_form_reply(ask_relation_between_it, between_list).
 turn_form_empty_reply(ask_relation_between_it, between_unknown).

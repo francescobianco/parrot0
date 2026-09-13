@@ -43,6 +43,7 @@ bridged("give me some ideas for a birthday present for my dad.", dialogue).
 bridged("one of them is vegetarian.", dialogue).
 bridged("i need to cook dinner for four people tonight.", dialogue).
 bridged("there are scintille", dialogue).
+bridged("who has written hamlet?", dialogue).
 fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
 reading_fact(measures(farad, capacitance), "the farad measures capacitance").
 fact_source(measures(henry, inductance), henry, "the henry measures inductance").
@@ -434,6 +435,7 @@ fact_source(relation_verb(characterize), characterize, "characterize is a relati
 fact_source(construction_frame("@O is under threat from @S", "@S threatens @O", threaten), "@O is under threat from @S", "x is under threat from y means y threatens x").
 fact_source(part_of(spark_plug, engine), spark_plug, "a spark plug is part of an engine").
 fact_source(construction_frame("@O are under threat from @S", "@S threatens @O", threaten), "@O are under threat from @S", "x are under threat from y means y threatens x").
+fact_source(taught_form_source(taught_form_15, "x has written y"), taught_form_15, "x has written y means x wrote y").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -762,6 +764,7 @@ reading_fact(construction_frame("@O is under threat from @S", "@S threatens @O",
 reading_fact(relation_verb(characterize), "characterize is a relation verb").
 reading_fact(part_of(spark_plug, engine), "a spark plug is part of an engine").
 reading_fact(construction_frame("@O are under threat from @S", "@S threatens @O", threaten), "x are under threat from y means y threatens x").
+reading_fact(taught_form_source(taught_form_15, "x has written y"), "x has written y means x wrote y").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

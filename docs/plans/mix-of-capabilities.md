@@ -1136,3 +1136,33 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
   `forget_move`, `deep_memory`, `memory_recall.it` identici su HEAD.
 - **stato:** verificata (meccanica), trasferimento a un altro attributo con chiave
   di più parole osservato («lucky number»).
+
+### mix-01-08-001 — lingua × accesso sui fatti veri
+
+- **catalogo:** mix-v1, famiglie 01 × 08 (e 06 per le lezioni lessicali)
+- **compito:** la stessa entità e la stessa faccetta in inglese, grafia britannica,
+  passato prossimo e italiano: `color_of(blood, red)`, `color_of(grass, green)`,
+  l'autore di *Hamlet* e dell'*Odissea*.
+- **misura iniziale:** «di che colore è il sangue?» → «Rosso.»; «what color is
+  blood?» → «I am missing the value for blood» (**falso**: il valore c'era);
+  «what colour is grass?» idem; «chi ha scritto amleto?» → «Non so ancora
+  tradurre «scritto»».
+- **diagnosi:** (1) **regressione di questa giornata** (gen514): il controllo del
+  tipo di risposta («what *color* …» chiede un colore) accettava solo `color(red)`,
+  non `category_member(color, red)`; la lettura vera veniva scartata. (2) La
+  risposta prioritaria sulla lacuna parlava anche su un turno che una lettura
+  l'aveva. (3) Mancavano due distinzioni linguistiche, non fatti del mondo.
+- **cure:** `answer_fits_type/2` legge la categoria e gli alias (grammar.p0); la
+  lacuna non si dichiara su un turno con lettura (turn-frames.p0); **lezioni
+  parlate salvate**: «colour and color name the same thing», «x has written y means
+  x wrote y», «the italian for written is scritto», «the italian for hamlet is
+  amleto».
+- **transfer:** «who has written the odyssey?» → «Homer.» senza lezione
+  sull'Odissea; «what colour is the sky?» → «Blue.».
+- **negativo:** «what color is zorblat?» non riceve un colore.
+- **resta:** «what currency does ghana use?» dice che manca il valore del Ghana
+  (la valuta c'è: `currency` risponde a «what is the currency of ghana?»); «what
+  color is a zebra?» → «I can't show that.».
+- **test:** `tests/p0t/crossing/mix_language_access.p0t` (7);
+  `question_direction` e `prose_triage` verdi.
+- **stato:** verificata sulla KB viva.

@@ -1,0 +1,35 @@
+# mix-of-capabilities §8.1 P0 — 01×08 lingua × accesso: la stessa entita' e la
+# stessa faccetta, chieste in lingue, grafie e tempi diversi, sui fatti veri
+# della KB viva (color_of, author) e sulle lezioni lessicali salvate.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the same color fact in english and italian]
+!timeout 30
+> what color is blood?
+< Red.
+> what colour is grass?
+< Green.
+!set PARROT0_LANG=it
+> di che colore è il sangue?
+<~ Rosso
+!set PARROT0_LANG=en
+
+[test the same authorship fact in the past, the perfect and in italian]
+!timeout 30
+> who wrote hamlet?
+<~ William shakespeare
+> who has written the odyssey?
+<~ Homer
+!set PARROT0_LANG=it
+> chi ha scritto amleto?
+<~ William shakespeare
+!set PARROT0_LANG=en
+
+[test a thing with no color fact is still not given one]
+!timeout 30
+> what color is zorblat?
+<! Red

@@ -689,10 +689,17 @@ dialogue_state($Turn, missing_fact) :- frame_complete($Turn), turn_has_relation(
 dialogue_state($Turn, unresolved_reference) :-
     turn_reference_missing($Turn, $Surface, $Order).
 
+% mix 01×08 — «what color is blood?» riceveva «I am missing the value for blood»
+% mentre «di che colore è il sangue?» rispondeva «Rosso.»: la KB ha
+% `color_of(blood, red)` e il turno inglese ne aveva la lettura, ma teneva anche
+% uno stato `missing_fact`, e la risposta prioritaria sulla lacuna parlava prima.
+% Una lacuna non si dichiara su un turno che ha gia' una lettura provata: sarebbe
+% dire che manca cio' che si sta per rispondere.
 turn_missing_value($Turn, $Cue, $Relation, $Entity) :-
     dialogue_state($Turn, missing_fact),
     turn_relation($Turn, $Relation, $Cue),
-    turn_entity_unique($Turn, $Relation, $Entity).
+    turn_entity_unique($Turn, $Relation, $Entity),
+    naf(turn_has_reading($Turn)).
 
 missing_value_text($Turn, $Text) :-
     turn_missing_value($Turn, $Cue, $Relation, $Entity),

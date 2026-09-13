@@ -180,6 +180,7 @@ taught_form_source(taught_form_11, "what is the significato of x").
 taught_form_source(taught_form_12, "x fashioned from y").
 taught_form_source(taught_form_14, "x consists of y").
 taught_form_source(taught_form_13, "x consisting of y").
+taught_form_source(taught_form_15, "x has written y").
 ordine(scorpioni).
 topic_read(scorpioni, wiki_address(it, "Scorpiones", 152103202, lead)).
 topic_read(pungiglione, wiki_address(it, "Pungiglione", 152143431, lead)).
@@ -210,4 +211,5 @@ whole_part_relation("made of").
 whole_part_relation("built from").
 whole_part_relation("formed of").
 fact_mention(spark_plug, "a spark plug is part of an engine").
+fact_mention(taught_form_15, "x has written y means x wrote y").
 fact_mention(engine, "a spark plug is part of an engine").
