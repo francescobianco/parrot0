@@ -351,7 +351,8 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_has_question_mark($Turn)),
     naf(turn_opens_request($Turn)),
     naf(turn_has_situation_plan($Turn)),
-    naf(turn_has_sign_answer($Turn)).
+    naf(turn_has_sign_answer($Turn)),
+    naf(turn_has_range_surface($Turn)).
 % gen513 — E UNA FRASE LUNGA SENZA COPULA E' PROSA LO STESSO. «Together with
 % rapid cooling, this results in a natural glass forming from the lava» riceveva
 % un racconto («Together was a mysterious Together…»): nessuna copula, quindi la

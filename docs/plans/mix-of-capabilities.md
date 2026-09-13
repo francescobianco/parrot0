@@ -1560,3 +1560,24 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   passi in italiano.
 - **quarantena:** `called(nose, bleeding)`.
 - **test:** `tests/p0t/crossing/mix_first_aid_nosebleed.p0t` (4).
+
+### mix-13-15-12-001 — l'umidità di casa contro l'intervallo raccomandato
+
+- **fonte:** US EPA, *A Brief Guide to Mold, Moisture and Your Home* — tenere l'umidità
+  relativa interna sotto il 60%, idealmente fra il 30% e il 50%.
+- **misura:** «the humidity in my bedroom is 70 percent, is that a problem?» → la
+  situazione «guasto» («Let's look at it together…»), e la lezione successiva veniva
+  letta come dettaglio di quel guasto e non entrava.
+- **cure:** forma di lezione «X should stay between N and M percent» e
+  `numeric-questions.p0` §9 (sopra/sotto/dentro, con i numeri); la situazione
+  «guasto» cede a una misura contro un intervallo noto; **una lezione non è la
+  risposta alla domanda aperta** (`lesson_surface_cue` in user-situations.p0); la
+  frase senza «?» non cede come prosa.
+- **lezione parlata salvata:** «indoor humidity should stay between 30 and 50 percent».
+- **esito:** 70 → «That is high: … and 70 is above that.»; «my hygrometer says the
+  humidity is 45 percent» → «That is fine…»; 25 → «That is low…».
+- **quarantena:** `quantity(my_hygrometer_says_the_humidity, percent, 45)` (il lettore
+  delle grandezze prendeva la frase), `pending_gap_failed(humidity)`.
+- **resta:** la conseguenza (la muffa): «high humidity causes mould» non entra come
+  lezione causale.
+- **test:** `rate_total.p0t` 19 → 21.

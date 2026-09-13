@@ -67,3 +67,10 @@
 < 99 grams: a cup of sugar weighs 198 grams.
 > how many grams are 2 cups of sand?
 <! grams:
+
+[test mix 13x15x12 a measurement against the taught recommended range]
+!timeout 30
+> the humidity in my bedroom is 70 percent, is that a problem?
+< That is high: indoor humidity should stay between 30 and 50 percent, and 70 is above that.
+> my hygrometer says the humidity is 45 percent
+< That is fine: 45 percent is inside the recommended 30 to 50 percent for indoor humidity.

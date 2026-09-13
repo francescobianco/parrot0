@@ -3469,3 +3469,19 @@ turn_form_mood(teach_safe_temp, statement).
 turn_form_act(teach_safe_temp, "op(assert, safe_internal_temp, [subject, object])").
 turn_form_reply(teach_safe_temp, learned_safe_temp).
 turn_form_priority(teach_safe_temp, early).
+
+% ══ mix 13×15×12 — UN INTERVALLO RACCOMANDATO ════════════════════════════════
+% «indoor humidity should stay between 30 and 50 percent» (US EPA, A Brief Guide to
+% Mold, Moisture and Your Home). La lettura sta in numeric-questions.p0 §9.
+response_template(learned_range, "Held: {subject} should stay between {order} and {object} percent.").
+response_template(learned_range, it, "Tengo: {subject} dovrebbe restare fra {order} e {object} per cento.").
+turn_form(teach_range, 1, span(subject)).
+turn_form(teach_range, 2, text("should stay between")).
+turn_form(teach_range, 3, slot(order)).
+turn_form(teach_range, 4, text("and")).
+turn_form(teach_range, 5, slot(object)).
+turn_form(teach_range, 6, text("percent")).
+turn_form_mood(teach_range, statement).
+turn_form_act(teach_range, "op(assert, recommended_percent_range, [subject, order, object])").
+turn_form_reply(teach_range, learned_range).
+turn_form_priority(teach_range, early).

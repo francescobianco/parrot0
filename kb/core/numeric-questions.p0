@@ -344,3 +344,53 @@ cup_grams_answer($Turn, $Text) :-
     concat_atoms($C, $G, $D), concat_atoms($D, " grams.", $Text).
 turn_plan_candidate($Turn) :- cup_grams_answer($Turn, $Text).
 turn_response($Turn, $Text) :- cup_grams_answer($Turn, $Text).
+
+% ── 9. mix 13×15×12 — UNA MISURA CONTRO L'INTERVALLO RACCOMANDATO ───────────
+% «the humidity in my bedroom is 70 percent, is that a problem?» — la grandezza
+% nominata nel turno (una parola della chiave insegnata, «humidity»), il numero con
+% «percent» o «%», e l'intervallo insegnato. Sopra o sotto: si dice di quanto e con
+% che conseguenza nota; dentro: si dice che e' nell'intervallo.
+machinery(percent_word).
+percent_word(percent).
+percent_word("%").
+percent_word(per).
+machinery(turn_percent).
+turn_percent($Turn, $N) :- turn_word($Turn, $I, $W), span_number($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $P), percent_word($P).
+machinery(turn_range).
+turn_range($Turn, range($Said, $Lo, $Hi)) :- recommended_percent_range($Said, $Lo, $Hi), atom_words($Said, $Ws), member($W, $Ws), turn_word($Turn, $I, $W), dif($W, indoor).
+% «my hygrometer says the humidity is 45 percent» ha la copula e nessun «?»: senza
+% questa vista cedeva come prosa e il lettore delle grandezze salvava
+% `has(my_hygrometer_says_the_humidity, 45 percent)`. Letta sui token di superficie,
+% disponibili quando la forza del turno si materializza.
+machinery(turn_has_range_surface).
+turn_has_range_surface($Turn) :-
+    recommended_percent_range($Said, $Lo, $Hi), atom_words($Said, $Ws), member($W, $Ws), dif($W, indoor),
+    turn_word($Turn, $I, $W), turn_word($Turn, $J, $N), span_number($N, $V), is($K, add($J, 1)), turn_word($Turn, $K, $P), percent_word($P).
+machinery(range_verdict).
+range_verdict($Turn, above($R, $N)) :- turn_range($Turn, $R), turn_percent($Turn, $N), range_high($R, $Hi), gt($N, $Hi).
+range_verdict($Turn, below($R, $N)) :- turn_range($Turn, $R), turn_percent($Turn, $N), range_low($R, $Lo), lt($N, $Lo).
+range_verdict($Turn, inside($R, $N)) :- turn_range($Turn, $R), turn_percent($Turn, $N), range_low($R, $Lo), range_high($R, $Hi), ge($N, $Lo), le($N, $Hi).
+machinery(range_low).
+range_low(range($S, $Lo, $Hi), $Lo).
+machinery(range_high).
+range_high(range($S, $Lo, $Hi), $Hi).
+machinery(range_answer).
+range_answer(above(range($S, $Lo, $Hi), $N), $Text) :-
+    words_of($S, $ST), concat_atoms("That is high: ", $ST, $A), concat_atoms($A, " should stay between ", $B), concat_atoms($B, $Lo, $C),
+    concat_atoms($C, " and ", $D), concat_atoms($D, $Hi, $E), concat_atoms($E, " percent, and ", $F), concat_atoms($F, $N, $G),
+    concat_atoms($G, " is above that.", $Text).
+range_answer(below(range($S, $Lo, $Hi), $N), $Text) :-
+    words_of($S, $ST), concat_atoms("That is low: ", $ST, $A), concat_atoms($A, " should stay between ", $B), concat_atoms($B, $Lo, $C),
+    concat_atoms($C, " and ", $D), concat_atoms($D, $Hi, $E), concat_atoms($E, " percent, and ", $F), concat_atoms($F, $N, $G),
+    concat_atoms($G, " is below that.", $Text).
+range_answer(inside(range($S, $Lo, $Hi), $N), $Text) :-
+    words_of($S, $ST), concat_atoms("That is fine: ", $N, $A), concat_atoms($A, " percent is inside the recommended ", $B),
+    concat_atoms($B, $Lo, $C), concat_atoms($C, " to ", $D), concat_atoms($D, $Hi, $E), concat_atoms($E, " percent for ", $F),
+    concat_atoms($F, $ST, $G), concat_atoms($G, ".", $Text).
+% (La conseguenza di stare sopra, la muffa, non e' ancora detta: «high humidity
+% causes mould» non entra come lezione causale.)
+range_consequence($S, above, "").
+machinery(range_consequence).
+
+turn_plan_candidate($Turn) :- range_verdict($Turn, $V).
+turn_response($Turn, $Text) :- range_verdict($Turn, $V), range_answer($V, $Text).

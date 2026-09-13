@@ -112,7 +112,12 @@ direct_situation($Turn, $Situation) :-
     turn_cue_form($Turn, trouble_cue, $Cue),
     trouble_cue($Cue, $Situation),
     turn_speaker_involved($Turn),
-    naf(turn_situation_settled($Turn)).
+    naf(turn_situation_settled($Turn)),
+    naf(turn_has_range_reading($Turn)).
+% «the humidity in my bedroom is 70 percent, is that a problem?» chiede di una misura
+% contro un intervallo noto (numeric-questions.p0 §9), non riferisce un guasto.
+machinery(turn_has_range_reading).
+turn_has_range_reading($Turn) :- range_verdict($Turn, $V).
 % Un guasto detto con il suo verbo («la lavatrice non funziona più», «the
 % heating is broken») non ha bisogno del possessivo: chi riferisce che una cosa
 % non funziona sta chiedendo aiuto per quella cosa, anche in italiano, dove il
@@ -323,9 +328,27 @@ machinery(turn_has_direct_situation).
 turn_has_direct_situation($Turn) :- direct_situation($Turn, $Situation).
 machinery(turn_answers_inquiry).
 machinery(turn_answers_inquiry_issue).
+% Una lezione non e' la risposta alla domanda appena fatta: «indoor humidity should
+% stay between 30 and 50 percent» dopo «what exactly happens?» veniva letta come
+% dettaglio del guasto e la lezione non entrava (misurato). Quali aperture siano di
+% una lezione e' una lista di cue: una forma di lezione nuova e' una riga.
+machinery(lesson_surface_cue).
+lesson_surface_cue(" causes ").
+lesson_surface_cue("should stay between").
+lesson_surface_cue("should not be left out").
+lesson_surface_cue("the italian for").
+lesson_surface_cue("a sign of").
+lesson_surface_cue("never put").
+lesson_surface_cue("a cup of").
+lesson_surface_cue("the safe internal temperature of").
+lesson_surface_cue("is defined as").
+lesson_surface_cue("releases").
+turn_cue_registry(lesson_surface_cue, 1).
+machinery(turn_is_lesson_surface).
+turn_is_lesson_surface($Turn) :- turn_cue_form($Turn, lesson_surface_cue, $C).
 turn_answers_inquiry_issue($Turn, $Issue) :-
     open_issue($Issue, inquiry), naf(inquiry_closed($Issue)), max_qud($Issue),
-    naf(turn_has_question_mark($Turn)), naf(turn_is_plan_lesson($Turn)),
+    naf(turn_has_question_mark($Turn)), naf(turn_is_plan_lesson($Turn)), naf(turn_is_lesson_surface($Turn)),
     naf(turn_has_direct_situation($Turn)).
 turn_answers_inquiry($Turn, $Situation) :-
     turn_answers_inquiry_issue($Turn, $Issue), issue_topic($Issue, $Situation).
