@@ -2275,11 +2275,19 @@ relation_noun(price_of, price).
 % (71 righe), e un altro lettore riempiva il vuoto con le lingue di programmazione.
 % Le lingue di un paese SONO la sua `language_of`: il ponte e' conoscenza vera,
 % una riga per cassetto.
-% (Un ponte a regola non basta: chi riconosce l'entita' del turno guarda le
-% MENZIONI delle relazioni, che sono una vista sui fatti. Il nome della relazione
-% si da' quindi anche al cassetto che i fatti li ha.)
-relation_noun(language_of_country, language).
-relation_noun(currency_of_country, currency).
+% ⚠ Non `relation_noun(language_of_country, language)`: dare il nome della
+% relazione al cassetto dei fatti fa rispondere giusto, ma porta il turno da 0,3
+% a 37 secondi (misurato: la vista delle menzioni si ricostruisce su tutto il
+% cassetto). La strada e' la superficie della domanda, con il suo argomento
+% d'ingresso: la forma «what language does X speak» il lettore la induceva gia'
+% (`[qshape] induced answer_frame("what language does", language_of_country)`),
+% mancava solo quale posto e' la domanda.
+answer_frame("what language does", language_of_country).
+answer_frame_input_arg("what language does", language_of_country, 1).
+answer_frame("language is spoken in", language_of_country).
+answer_frame_input_arg("language is spoken in", language_of_country, 1).
+answer_frame("languages are spoken in", language_of_country).
+answer_frame_input_arg("languages are spoken in", language_of_country, 1).
 % E la relazione che rende insegnabile la FORMA STESSA (gen428): con questa riga
 % «the notation of percent is perc» diventa un turno che parrot0 capisce, e da
 % quel momento «50perc» e' una percentuale. La notazione e' una relazione come

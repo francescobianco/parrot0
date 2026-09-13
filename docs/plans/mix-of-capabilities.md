@@ -1170,9 +1170,12 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
   preesistente, verificato su HEAD). Il nome «language» portava a `language_of`,
   che non ha fatti, e il turno cadeva nel lettore che enumera la classe unaria
   `language/1` degli esperti di programmazione. Chi riconosce l'entità guarda le
-  menzioni, che sono una vista sui fatti: il nome della relazione si dà anche al
-  cassetto che i fatti li ha (`relation_noun(language_of_country, language)`,
-  idem per la valuta). «Portuguese.», «Japanese.».
+  menzioni, che sono una vista sui fatti. La prima cura (dare il nome della
+  relazione al cassetto dei fatti) rispondeva giusto ma portava il turno da 0,3 a
+  **37 secondi**, e l'ho committata con il test rosso per timeout: corretta nel
+  commit seguente con la superficie della domanda e il suo argomento d'ingresso
+  (`answer_frame_input_arg("what language does", language_of_country, 1)`), che
+  il lettore induceva già. «Portuguese.» 1,1 s, «Japanese.» 1,3 s.
 - **resta:** per un paese che la KB non conosce («what language does zorbia
   speak?») l'enumerazione della classe risponde ancora «c, python.» — arbitraggio
   del lettore delle classi, da curare a parte; «what is the language of ghana?» →
