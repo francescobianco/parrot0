@@ -753,6 +753,13 @@ response_template(existential_claim_unheld, it, "Non so ancora tenere «{clause}
 % assistente utile U3 — il muro per chi non sta insegnando: l'offerta di
 % informarsi (onorata dal turno dopo, sito #3 di initiative.md), senza le frasi
 % da maestro.
+% assistente utile U8 — la polare con un presupposto che la KB non regge: si dice
+% cio' che si sa, senza negare cio' che non si puo' negare.
+response_template(polar_known_otherwise, "Not as far as I know: I know {value} as the {relation} {topic}.").
+% I valori di una relazione geografica sono nomi propri, e si scrivono come tali.
+machinery(relation_values_are_names).
+relation_values_are_names($Pred) :- relation_domain($Pred, geography).
+response_template(polar_known_otherwise, it, "Non che io sappia: so che {value} è {relation} {topic}.").
 response_template(fallback_gap_offer_plain, "Hmm, I don't know about {topic} yet. Want me to learn about it?").
 response_template(fallback_gap_offer_plain, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni?").
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").

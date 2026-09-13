@@ -3038,6 +3038,17 @@ question_wrapper("is it the case that").
 question_wrapper("does it follow that").
 question_wrapper("e' vero che").
 question_wrapper("è vero che").
+% assistente utile U8 — le CODE che fanno di un'affermazione una domanda:
+% «paris is the capital of spain, right?» chiede la polare, e il presupposto
+% sbagliato riceve cio' che si sa invece di un «France.» secco.
+machinery(question_tag).
+question_tag(", right").
+question_tag(", isn't it").
+question_tag(", correct").
+question_tag(", true").
+question_tag(", vero").
+question_tag(", giusto").
+question_tag(", no").
 machinery(input_token_between).
 machinery(input_node_next).
 input_token_between($T, $A, $B) :-

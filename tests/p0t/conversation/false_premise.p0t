@@ -1,0 +1,22 @@
+# assistente utile U8 (docs/plans/assistente-utile.md) — un presupposto che la KB
+# non regge si corregge con cio' che si sa, senza negare cio' che non si puo'
+# negare; e la coda «…, right?» fa di un'affermazione la domanda polare.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a wrong capital receives what is known]
+!timeout 30
+> is rome the capital of france?
+<~ Not as far as I know: I know Paris as the capital of France.
+> is paris the capital of france?
+< Yes.
+
+[test a tag question is the polar question]
+!timeout 30
+> paris is the capital of spain, right?
+<~ I know Madrid as the capital of Spain
+> paris is the capital of france, right?
+< Yes.

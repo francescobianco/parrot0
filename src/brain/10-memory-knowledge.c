@@ -8353,6 +8353,69 @@ static int p0_polar_reply(Brain *b, const char *norm, char **w, size_t nw,
             return 1;
         }
     }
+    /* assistente utile U8 — IL PRESUPPOSTO SBAGLIATO SI CORREGGE CON CIO' CHE SI SA.
+     * «Is Rome the capital of France?» / «Paris is the capital of Spain, right?»:
+     * un «No.» non e' autorizzato (una relazione puo' avere piu' valori — il
+     * Sudafrica ha tre capitali, la KB ne tiene una), ma il turno non deve
+     * scendere a un muro ne' a un «Madrid.» secco. Si dice il valore che la KB
+     * tiene per l'altro argomento, come conoscenza propria e non come smentita:
+     * «Not as far as I know: I know Paris as the capital of France.» Vale solo se
+     * la parola proposta e' essa stessa un valore di quella relazione (Rome e'
+     * una capitale), cosi' «is paris the capital of france and europe?» non
+     * inventa correzioni su parole qualunque. La frase e' un template KB. */
+    for (size_t i = 0; i < nw; i++) {
+        char t[KB_TERM_LEN];
+        snprintf(t, sizeof t, "%s", strip_edge_punct(w[i]));
+        if (strlen(t) < 2) continue;
+        char vals[1][KB_TERM_LEN];
+        const char *vq[2] = { t, NULL };
+        if (kb_match(b->kb, pred, vq, 2, vals, 1) != 1) continue;
+        char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", kb_dequote(vals[0]));
+        int in_turn = 0, rival = 0;
+        for (size_t j = 0; j < nw; j++) {
+            char u[KB_TERM_LEN];
+            snprintf(u, sizeof u, "%s", strip_edge_punct(w[j]));
+            if (!strcmp(u, vb)) in_turn = 1;
+            if (j == i || strlen(u) < 2 || !strcmp(u, vb)) continue;
+            char other[1][KB_TERM_LEN];
+            const char *oq[2] = { NULL, u };
+            if (kb_match(b->kb, pred, oq, 2, other, 1) == 1) rival = 1;
+        }
+        if (in_turn || !rival) continue;
+        /* L'argomento di cui si dice il valore e' quello che la domanda NOMINA
+         * dopo la propria cue («the capital OF FRANCE»): una relazione letta nei
+         * due versi darebbe altrimenti «I know italy as the capital rome». */
+        char cue_rows[16][KB_TERM_LEN];
+        const char *cq[2] = { NULL, pred };
+        size_t ncue = kb_match(b->kb, "answer_frame", cq, 2, cue_rows, 16);
+        char cueb[KB_TERM_LEN] = "";
+        for (size_t k = 0; k < ncue && !cueb[0]; k++) {
+            char cb2[KB_TERM_LEN]; snprintf(cb2, sizeof cb2, "%s", kb_dequote(cue_rows[k]));
+            char seek[2 * KB_TERM_LEN];
+            snprintf(seek, sizeof seek, "%s %s", cb2, t);
+            if (*cb2 && strstr(norm, seek)) snprintf(cueb, sizeof cueb, "%s", cb2);
+        }
+        if (!cueb[0]) continue;
+        char value[KB_TERM_LEN], topic[KB_TERM_LEN];
+        present_atom(b, vb, value, sizeof value);
+        present_atom(b, t, topic, sizeof topic);
+        if (!value[0] || !topic[0]) continue;
+        /* I valori di alcune relazioni sono NOMI («Paris», «France»): quali lo
+         * dice la KB (`relation_values_are_names/1`). */
+        {
+            const char *nq[1] = { pred };
+            if (kb_query(b->kb, "relation_values_are_names", nq, 1)) {
+                for (char *z = value; *z; z++)
+                    if (z == value || z[-1] == ' ') *z = (char)toupper((unsigned char)*z);
+                for (char *z = topic; *z; z++)
+                    if (z == topic || z[-1] == ' ') *z = (char)toupper((unsigned char)*z);
+            }
+        }
+        const KbResponseSlot sl[] = { { "value", value }, { "relation", cueb },
+                                      { "topic", topic } };
+        if (kb_response_slots(b, "polar_known_otherwise", sl, 3, out, out_size))
+            return 1;
+    }
     return -1;                 /* polare, ma non autorizzata a negare */
 }
 

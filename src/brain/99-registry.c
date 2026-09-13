@@ -781,6 +781,28 @@ static int wrapper_peel(Brain *b, const char *canon, const char *raw,
         if (!strncmp(canon, wr, wl) && canon[wl] == ' ') residue = canon + wl + 1;
         else if (!strncmp(low, wr, wl) && low[wl] == ' ') residue = low + wl + 1;
     }
+    /* assistente utile U8 — anche la CODA di una domanda e' un involucro:
+     * «paris is the capital of spain, right?» chiede «is paris the capital of
+     * spain?». Quali code lo siano e' KB (`question_tag/1`). */
+    char tagged[512] = "";
+    if (!residue) {
+        char tags[32][KB_TERM_LEN];
+        const char *tq[1] = { NULL };
+        size_t nt = kb_match(b->kb, "question_tag", tq, 1, tags, 32);
+        char body[512]; snprintf(body, sizeof body, "%s", low);
+        size_t bl0 = strlen(body);
+        while (bl0 && (body[bl0 - 1] == '?' || body[bl0 - 1] == ' ' || body[bl0 - 1] == '.')) body[--bl0] = '\0';
+        for (size_t i = 0; i < nt && !residue; i++) {
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tags[i]);
+            const char *tg = kb_dequote(tb);
+            size_t tl = strlen(tg);
+            if (!tl || bl0 <= tl || strcmp(body + bl0 - tl, tg)) continue;
+            snprintf(tagged, sizeof tagged, "%.*s", (int)(bl0 - tl), body);
+            size_t gl = strlen(tagged);
+            while (gl && (tagged[gl - 1] == ',' || tagged[gl - 1] == ' ')) tagged[--gl] = '\0';
+            if (gl) residue = tagged;
+        }
+    }
     if (!residue || !*residue) return 0;
 
     char buf[512]; snprintf(buf, sizeof buf, "%s", residue);
