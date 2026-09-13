@@ -20,7 +20,6 @@
 # della diagnosi mancante (H.3.2).
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=kb/profiles/agi.p0
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !reset
 !mcp kb.assert {"pred":"won_by","args":["m1","spain"]}

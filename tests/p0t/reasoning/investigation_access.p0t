@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # INVESTIGATION II — il grafo relazionale, percorso nei due versi.
 #
 # Secondo test della famiglia investigativa (il primo e' investigation.p0t, che
@@ -32,8 +34,7 @@
 [mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=kb/core/session.p0
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # gen489 — LA FORMA CON CUI SI CHIEDE UNA TRADUZIONE E' CONOSCENZA.
 #
 # Origine: la sessione italiana del 2026-09-03, voce IT-1 di LEARN_TODO §0-ter.
@@ -14,10 +16,9 @@
 #   il TESTO da tradurre        translate_payload_span/2   (gia' esistente)
 # piu' la CONDOTTA che impedisce il furto: faculty_yield(chitchat, open, …).
 
-[mock hermetic]
-!set PARROT0_BASE=
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 

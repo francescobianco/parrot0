@@ -1,5 +1,11 @@
 # Current task
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > One goal at a time. When it is done, replace this with the next one.
 
 ## Active — PARROT0 FORGE (docs/plans/parrot0-forge-master-plan.md), F. 2026-07-12

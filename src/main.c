@@ -459,8 +459,8 @@ static int read_turn_tty(char *buf, size_t cap) {
 }
 
 /* Create the brain and load its knowledge layers. `*out_sess` receives the
- * session file path (for /save). Paths come from the environment (empty disables
- * loading — used by the hermetic test harness and the daemon). gen150:
+ * session file path (for /save). The selected profile extends the shared KB;
+ * empty configuration values never disable that knowledge. gen150:
  * PARROT0_PROFILE loads a knowledge profile (e.g. profiles/agi.p0) that chains
  * experts and skills via :- include directives. Returns NULL on OOM. */
 static Brain *setup_brain(const char **out_sess) {
@@ -1315,8 +1315,8 @@ int main(int argc, char **argv) {
     if (daemon_mode) {
         /* Match the pi-agent defaults the Python wrapper used to inject: tools on,
          * the agi profile by default, no session persistence. setenv(...,0) never
-         * overwrites an explicit value, so a harness can still drop the profile
-         * (PARROT0_PROFILE="") or turn tools off (PARROT0_TOOLS=0). */
+         * overwrites an explicit profile selection or tool policy. Empty
+         * profile values select the default; they never remove the KB. */
         setenv("PARROT0_TOOLS", "1", 0);
         setenv("PARROT0_PROFILE", "kb/profiles/agi.p0", 0);
         setenv("PARROT0_SESSION", "", 0);
@@ -1336,8 +1336,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    /* gen382: il sogno gira sul cervello COMPLETO (e' esplorazione, non un test
-     * ermetico), stampa il suo trace su stdout ed esce. */
+    /* Il sogno esplora con la KB completa del profilo, stampa il trace ed esce. */
     if (footprint_mode) { brain_destroy(brain); return footprint_run(); }
     if (n_audit) {
         return coverage_run(audit_paths, n_audit);

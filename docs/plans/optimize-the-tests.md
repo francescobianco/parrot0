@@ -1,5 +1,11 @@
 # Making the test suite fast
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Status 2026-07-12:** historical analysis, superseded operationally by
 > **Fast Forge** in `parrot0-forge-master-plan.md` §§0.1, 10.6 and 10.12-10.18.
 > The gen277/gen278 parallelism remains useful, but it no longer solves the

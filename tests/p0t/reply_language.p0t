@@ -23,7 +23,7 @@
 # preferisce gia' response_template/3 per la lingua del turno — a mancare era
 # la riga italiana. Questo ratchet fissa il caso e, con esso, la forma della
 # correzione: si aggiunge KB, non un ramo `it ? ... : ...` nel C.
-[mock hermetic]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_TOOLS=1
@@ -61,10 +61,9 @@
 # 881 non avevano una resa italiana. Il motore era di nuovo a posto; mancavano
 # di nuovo le righe.
 
-[mock hermetic]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=it
 !reset
@@ -134,10 +133,9 @@
 # rivendicazione sbagliata. Quali parole aprano un luogo e' gia' conoscenza, e il
 # ramo del possesso si limita a non prendere il turno.
 
-[mock hermetic]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=it
 !reset

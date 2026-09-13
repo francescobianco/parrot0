@@ -87,7 +87,7 @@ int learn_topic(KB *kb, const char *key, const char *title,
     kb_set_origin(kb, KB_SESSION);
 
     /* Persist for commit when a learned-KB path is configured (unset in tests,
-     * so the hermetic suite writes nothing). */
+     * so tests with persistence disabled write nothing). */
     const char *kbpath = p0env("PARROT0_LEARN_KB");
     if (kbpath && *kbpath) {
         FILE *o = fopen(kbpath, "a");

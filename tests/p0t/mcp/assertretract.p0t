@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # assertretract.p0t — convertito da tests/assertretract.sh (gen444).
 #
 # gen335+ — assert and retract from rule bodies.
@@ -6,8 +8,7 @@
 
 [test assertretract_0]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert has_hair(dog)
 !clause derive_warm_blooded($X) :- has_hair($X), assert(warm_blooded, $X)
@@ -23,8 +24,7 @@
 
 [test assertretract_1]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert is_active(alice)
 !clause cleanup($X) :- is_active($X), retract(is_active, $X)
@@ -40,8 +40,7 @@
 
 [test assertretract_2]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert edge(a, b)
 !clause materialize($X, $Y) :- edge($X, $Y), assert(reaches, $X, $Y)
@@ -57,8 +56,7 @@
 
 [test assertretract_3]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert color(sky, blue)
 

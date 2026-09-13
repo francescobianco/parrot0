@@ -13,7 +13,7 @@
 # «primo consumer per gen442: OGGI NON ESEGUE UNA COMPENSAZIONE». Nessuno
 # eseguiva il piano — ed e' per questo che ogni riparazione nasceva come ramo
 # speciale nel motore invece che come passo di un piano.
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !set PARROT0_LANG=it
 !reset

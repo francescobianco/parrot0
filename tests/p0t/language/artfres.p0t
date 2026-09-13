@@ -1,13 +1,14 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # migrated from tests/artfres.sh
 #
 # gen288 (U5 rule 3): French and Spanish definite articles are KB data queried
 # by the translator and by MCP, rather than a C ternary.
 
 [mock fr-translation]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 
@@ -16,10 +17,9 @@
 < Le chat dort sur le tapis chaud.
 
 [mock es-translation]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 
@@ -29,11 +29,10 @@
 > translate to spanish: the house
 < La casa.
 
-[mock hermetic]
-!set PARROT0_BASE=
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 [test artfres_mcp]

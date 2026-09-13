@@ -26,7 +26,7 @@ scenario() {
     total=$((total+1))
     local tmp; tmp="$(mktemp)"
     printf '%s\n%s\n%s\n/quit\n' "$role" "$q1" "$q2" \
-        | PARROT0_BASE= PARROT0_SESSION= "$BIN" 2>/dev/null > "$tmp"
+        | PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= "$BIN" 2>/dev/null > "$tmp"
     local r1 r2 r3
     r1="$(sed -n '1p' "$tmp")"; r2="$(sed -n '2p' "$tmp")"; r3="$(sed -n '3p' "$tmp")"
     [ -n "$w1" ] && check "$name" "$q1" "$r2" "$w1"

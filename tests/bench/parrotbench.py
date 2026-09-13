@@ -109,7 +109,7 @@ def run_slot(path):
         text=True,
         capture_output=True,
         env={
-            "PARROT0_BASE": "",
+            "PARROT0_BASE": "kb/core/base.p0",
             "PARROT0_SESSION": "",
             "PARROT0_LANG": "en",
         },

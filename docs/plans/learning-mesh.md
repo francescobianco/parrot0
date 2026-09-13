@@ -1,5 +1,11 @@
 # Learning Mesh — catene di addestramento su una KB condivisa
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Stato:** primo esperimento eseguito dal vivo a **gen335 (2026-07-16)**.
 > Teacher LLM (Claude) → parrot0 A → parrot0 B, con **una sola KB montata** via
 > `PARROT0_SESSION=kb/core/mesh-session.p0`, giudice LLM sullo stesso canale.
@@ -942,9 +948,9 @@ routing), [docs/use-mcp-engine.md](../use-mcp-engine.md) (il canale MCP),
    Il workaround pragmatico: omettere il check di diseguaglianza e accettare falsi
    positivi (`sibling(X,X)`).
 
-3. **`PARROT0_WORLD_FACTS=0` salta `world-facts.p0` (gen335).** La variabile
-   d'ambiente è usata per "learning from empty world". Nei test senza questo flag,
-   la conoscenza scatterata nei file curati viene caricata normalmente (5188 fatti).
+3. **La KB del profilo si carica integralmente.** I vecchi esperimenti di
+   apprendimento senza conoscenza preesistente sono obsoleti. La crescita si
+   dimostra insegnando e ritirando lezioni sulla KB viva.
 
 4. **`answer_frame` matching è lessicale, non semantico (gen335).** Il cue deve essere
    un token esatto nella frase canonicalizzata. "how tall" non matcha "height"; "longest

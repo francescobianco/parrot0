@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # PROCEDURE SU ORARI, DATE E NUMERI COMPLESSI (gen419).
 #
 # Tirate da un fallimento reale: «A train leaves at 14:30 and travels for 2 hours
@@ -11,8 +13,7 @@
 [mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 # La divisione INTERA non e' una primitiva del motore (`div` e' reale:

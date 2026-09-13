@@ -1,11 +1,12 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # Structural syllogism ratchet, migrated from tests/syllogism.sh.
 # The class names are fresh on every run: the engine cannot pass by lexical
 # lookup. `${A}`, `${B}`, `${C}` and `${D}` are test-engine variables.
 
 [test universal_syllogism]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 !random A 5

@@ -100,6 +100,16 @@ Design consequences:
 The honest line: pruning is irreversible information loss, and we are early. We do
 not yet know which parts the critical mass will recruit — so we keep them.
 
+## The living KB is the subject
+
+parrot0 is its engine together with the complete knowledge base selected by
+its profile. Growing parrot0 means growing that living KB. There is no
+supported hermetic mode or switch for turning world facts off. A test with
+knowledge removed does not measure parrot0; previous results from such setups
+are obsolete, including mechanical tests. Conversation resets preserve the
+profile KB. Targeted teaching and retraction can test runtime growth within
+that complete subject; they must not replace it with a fabricated empty world.
+
 ## Cardinal corollary: knowledge lives in the KB, not in C
 
 A hardcoded list of surface forms in `brain.c` is a **phrasebook** — fixed at compile

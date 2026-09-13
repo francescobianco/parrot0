@@ -1,5 +1,11 @@
 # Deep reasoning — un piano parallelo (upfront design)
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 ## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen304 — M4 fatto, il loop si AUTO-CORREGGE)
 
 **M4 — AUTO-CORREZIONE FATTA (gen304). Studio 4 red→green.** Il pilastro di

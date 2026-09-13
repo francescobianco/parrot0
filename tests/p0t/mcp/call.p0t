@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # call.p0t — convertito da tests/call.sh (gen444).
 #
 # gen335+ — call/1 meta-call primitive.
@@ -7,8 +9,7 @@
 
 [test call_0]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert is_a(dog, mammal)
 !assert is_a(cat, mammal)
@@ -30,8 +31,7 @@
 
 [test call_1]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert can_fly(sparrow)
 !assert can_fly(eagle)
@@ -47,8 +47,7 @@
 
 [test call_2]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert has_feature(dog, fur)
 !assert has_feature(snake, scales)
@@ -62,8 +61,7 @@
 
 [test call_3]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert has_feature(dog, fur)
 !assert has_feature(snake, scales)
@@ -77,8 +75,7 @@
 
 [test call_4]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert has_feature(dog, fur)
 !assert has_feature(snake, scales)

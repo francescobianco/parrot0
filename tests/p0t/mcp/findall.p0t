@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # findall.p0t — convertito da tests/findall.sh (gen444).
 #
 # gen335+ — findall/3 solution collection.
@@ -6,8 +8,7 @@
 
 [test findall_0]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert is_a(dog, mammal)
 !assert is_a(cat, mammal)
@@ -21,8 +22,7 @@
 
 [test findall_1]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert is_a(dog, mammal)
 !clause no_birds($L) :- findall($X, is_a($X, bird), $L)
@@ -32,8 +32,7 @@
 
 [test findall_2]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert parent(ann, bob)
 !assert parent(bob, carl)
@@ -47,8 +46,7 @@
 
 [test findall_3]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert color(apple, red)
 !assert color(banana, yellow)

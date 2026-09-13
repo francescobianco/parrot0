@@ -1,5 +1,11 @@
 # Verso una KB da interlocutore naturale
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Armonizzazione (2026-09-07):** questo piano, `universal-comprehension.md` e `the-linguistic-glue.md` sono tre lenti sullo stesso oggetto; le divergenze misurate e l'ordine per convergere stanno in [`armonizzazione-piani.md`](armonizzazione-piani.md).
 
 

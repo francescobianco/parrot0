@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # CRESCITA A RUNTIME del pianificatore analitico (gen360).
 #
 # Migrato da tests/analysis_planner_growth.sh (gen377), l'ultimo test del
@@ -19,8 +21,7 @@
 [mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 

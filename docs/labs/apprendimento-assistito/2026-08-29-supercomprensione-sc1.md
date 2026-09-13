@@ -1,5 +1,11 @@
 # SC1 — unita' documentali e retorica insegnabile
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 Data: 2026-08-29
 
 Protocollo: [`LEARN_PROTOCOL.md`](../../../LEARN_PROTOCOL.md)

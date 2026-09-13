@@ -104,7 +104,7 @@ run_chat_case() {
     done
 
     start="$(now_ns)"
-    mapfile -t actual < <(printf '%s' "$in_lines" | PARROT0_BASE= PARROT0_SESSION= "$BIN" 2>/dev/null)
+    mapfile -t actual < <(printf '%s' "$in_lines" | PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= "$BIN" 2>/dev/null)
     end="$(now_ns)"
     elapsed="$(ms_between "$start" "$end")"
 

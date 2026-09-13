@@ -36,7 +36,7 @@ tenuta aperta, risposte su un file che il server appende) e permette chiamate
 singole:
 
 ```bash
-scripts/mcp-live.sh start PARROT0_WORLD_FACTS=0     # accende il motore
+scripts/mcp-live.sh start PARROT0_PROFILE=kb/profiles/agi.p0     # accende il motore
 scripts/mcp-live.sh call kb.query   '{"pred":"philosopher","args":["diogenes"]}'   # {"provable":false}
 scripts/mcp-live.sh call kb.assert  '{"pred":"man","args":["diogenes"]}'           # {"ok":true,"stored":true}
 scripts/mcp-live.sh call kb.assert_rule '{"head":"philosopher","body":["man"]}'    # {"ok":true}
@@ -151,7 +151,7 @@ lettura da estendere.
 
 | Variabile | Effetto |
 |-----------|---------|
-| `PARROT0_WORLD_FACTS=0` | **Salta il caricamento di `kb/core/world-facts.p0`.** Usato per esperimenti "learning from empty world" e per la mesh di addestramento. Senza questo flag, `world-facts.p0` è caricato come `KB_BASE` a ogni boot. |
+| `PARROT0_PROFILE=<file>` | Seleziona il profilo; default `agi`. La KB condivisa resta sempre caricata. |
 | `PARROT0_SESSION=<file>` | **Obsoleta da gen382g**: la sessione non è più un input e il boot non la carica. Vedi `docs/session-and-provenance.md`. |
 | `PARROT0_SESSION_DUMP=<file>` | Dove leggere lo stato di runtime (dump Prolog, riscritto a ogni turno, mai riletto). Default: `<runtime-dir>/parrot0-session-<pid>.p0`. |
 | `PARROT0_KB_ROOT=<dir>` | Radice dell'albero curato in cui `kb.save` instrada i fatti nuovi. Default `kb`. |

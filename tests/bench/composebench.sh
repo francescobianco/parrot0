@@ -38,7 +38,7 @@ DLG_DIR="$ROOT/tests/compose"
 
 # Hermetic, like the case harness: no kb/ files, so composition is proven by the
 # brain alone, not by pre-loaded knowledge.
-export PARROT0_BASE= PARROT0_SESSION= PARROT0_LANG=en
+export PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= PARROT0_LANG=en
 
 if [ ! -x "$BIN" ]; then
     echo "composebench: binary not built ($BIN)" >&2

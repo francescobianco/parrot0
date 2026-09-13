@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # naf.p0t — la NEGAZIONE PER FALLIMENTO e la sua eccezione.
 # Convertito da tests/naf.sh (gen444).
 #
@@ -11,8 +13,7 @@
 
 [test naf_from_p0_syntax]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert bird(eagle)
 !assert bird(penguin)
@@ -26,8 +27,7 @@
 
 [test naf_over_mcp]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.assert {"pred":"bird","args":["eagle"]}
 !mcp kb.assert {"pred":"bird","args":["penguin"]}

@@ -3,10 +3,9 @@
 # Il bersaglio del giro e' la sezione 7.2 di C_TODO.md: le frasi del muro erano
 # due array C, uno per lingua — cio' che parrot0 dice piu' spesso, e l'unica
 # cosa che non si poteva insegnare.
-[mock hermetic]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=it
 !set PARROT0_TOOLS=1
 !reset

@@ -8,7 +8,7 @@
 # capacita' non esiste senza la sua conoscenza. Le entita' sono nuove, che e' il
 # modo giusto di isolare — vedi la versione precedente di questo file, che
 # falliva per amputazione mentre la capacita' funzionava.
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !reset
 

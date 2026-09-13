@@ -1,12 +1,13 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # agentrepair.p0t — runtime repair rules, min-blast replanning, budget,
 # retraction and typed gaps in one persistent Brain/MCP process.
 # Converted faithfully from tests/agentrepair.sh.
 
 [test agentrepair]
 !set PARROT0_SESSION=
-!set PARROT0_BASE=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 # Teach both live repair rules, then diagnose the bound defect.

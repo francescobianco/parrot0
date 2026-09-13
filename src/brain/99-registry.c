@@ -968,13 +968,12 @@ Brain *brain_create(void) {
     b->start_time = 0; /* gen251: conversation time starts on first user turn. */
     b->active_world = -1; /* gen142 (E7): no local world is open at birth */
 
-    /* Curated lexical knowledge used by the kernel itself. It lives in the
-     * knowledge layer, not as C word arrays; loading it as base keeps it out of
-     * session saves while tests stay independent of world knowledge files. */
+    /* The shared KB is constitutive. An optional lexical supplement adds to
+     * it; an empty setting never removes the language parrot0 uses. */
     const char *lexicon = p0env("PARROT0_LEXICON");
-    if (!lexicon) lexicon = "kb/core/lexicon.p0";
-    if (*lexicon) {
-        kb_set_origin(b->kb, KB_BASE);
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/lexicon.p0");
+    if (lexicon && *lexicon && strcmp(lexicon, "kb/core/lexicon.p0") != 0) {
         kb_load(b->kb, lexicon);
     }
 
@@ -1030,8 +1029,7 @@ Brain *brain_create(void) {
 
     /* UC1: source observations are emitted by fixed syntax frontends, while
      * their semantic views, compatibility projections and teachable question
-     * surfaces live in the KB.  Load this even in a hermetic world: it is
-     * machinery, like input.p0, not domain knowledge. */
+     * surfaces live in the shared KB, alongside language and domain knowledge. */
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/code-ir.p0");
     /* UC2: i criteri di qualita' sono conoscenza allo stesso titolo delle viste
@@ -1059,10 +1057,8 @@ Brain *brain_create(void) {
      *
      * Tagged KB_REFLECTIVE, like module(…) and i_am(…): this is the agent's model
      * OF ITSELF, not knowledge about the world. It is regenerated every boot and
-     * never persisted (DESIGN.md D3). Loading it as KB_BASE made a hermetic brain
-     * report "I know 24 fact(s)" when it should know none — the self-model would
-     * have masqueraded as world knowledge, which is exactly the pollution gen275
-     * fixed for dispatch vocabulary. */
+     * never persisted (DESIGN.md D3). Its reflective origin distinguishes the
+     * self-model from domain facts when reporting knowledge. */
     kb_set_origin(b->kb, KB_REFLECTIVE);
     kb_load(b->kb, "kb/core/capabilities.p0");
 
@@ -1163,13 +1159,10 @@ Brain *brain_create(void) {
      * can bring up to lead a stalled/looping exchange (mod_initiative). */
     kb_load(b->kb, "kb/core/initiative.p0");
 
-    /* gen230/gen235: curated world commons. Tests that must prove dynamic
-     * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and
-     * ordinary chat keep the layer loaded. */
-    if (!p0env("PARROT0_WORLD_FACTS") || strcmp(p0env("PARROT0_WORLD_FACTS"), "0") != 0) {
-        kb_set_origin(b->kb, KB_BASE);
-        kb_load(b->kb, "kb/core/world-facts.p0");
-    }
+    /* Shared knowledge is part of parrot0, in tests as in conversation.
+     * Profiles select its additional knowledge; there is no world switch. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/world-facts.p0");
 
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
@@ -1833,8 +1826,12 @@ void brain_boot(Brain *b) {
     double bt0 = btrace ? boot_ms() : 0.0;
     const char *base = p0env("PARROT0_BASE");
     const char *profile = p0env("PARROT0_PROFILE");
-    if (!base) base = "kb/core/base.p0";
-    brain_load(b, base, 1);
+    /* A base supplement must not replace the shared knowledge. Profiles are
+     * the supported selection of the subject; empty means the default. */
+    brain_load(b, "kb/core/base.p0", 1);
+    if (base && *base && strcmp(base, "kb/core/base.p0") != 0)
+        brain_load(b, base, 1);
+    if (!profile || !*profile) profile = "kb/profiles/agi.p0";
     BOOT_MARK("base");
     /* gen382g — la SESSIONE NON E' UN INPUT.
      *
@@ -1852,8 +1849,7 @@ void brain_boot(Brain *b) {
      * scrive e non si rilegge mai. */
     brain_load(b, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain */
     BOOT_MARK("coding");
-    if (profile && *profile)
-        brain_load(b, profile, 1);                        /* gen150: expert/skill profile */
+    brain_load(b, profile, 1);                            /* selected expert/skill profile */
     BOOT_MARK("profile");
     brain_policy(b);                                      /* gen331: the effective policy */
     BOOT_MARK("policy");

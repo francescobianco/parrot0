@@ -47,7 +47,7 @@ out="$( {
 
   # Q4 collision control: restoring "letters of" must preserve implicit anagrams.
   call '{"jsonrpc":"2.0","id":22,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What word can you form from the letters of listen?"}}}'
-} | PARROT0_BASE= PARROT0_SESSION= PARROT0_PROFILE= PARROT0_WORLD_FACTS=1 \
+} | PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 \
     "$BIN" --mcp-engine 2>/dev/null)"
 
 line() { printf '%s\n' "$out" | grep -F "\"id\":$1,"; }

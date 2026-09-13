@@ -23,7 +23,7 @@ def chat(turns: list[str], lang: str) -> list[str]:
     env = os.environ.copy()
     env.update({
         "PARROT0_PROFILE": "kb/profiles/agi.p0", "PARROT0_SESSION": "",
-        "PARROT0_WORLD_FACTS": "1", "PARROT0_TOOLS": "0",
+        "PARROT0_TOOLS": "0",
         "PARROT0_WIKI_FETCH": "0", "PARROT0_LANG": lang,
         "PARROT0_EOT": "<<EOT>>",
     })

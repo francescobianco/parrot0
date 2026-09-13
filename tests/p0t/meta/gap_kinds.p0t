@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # LA SPECIE DELLA LACUNA SI DERIVA (gen434) — prima generazione di
 # docs/plans/autocrescita.md.
 #
@@ -13,8 +15,7 @@
 [mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=it
 !reset
 

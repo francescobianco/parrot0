@@ -1,13 +1,14 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # GEN439 — LE LOCUZIONI SONO SPAN KB, NON TOKEN SPECIALI.
 # Esperimento costruttivo: una forma multiword insegnata a runtime entra nella
 # stessa IR di una singola entita', alimenta prosa e domanda, e la retract la
 # rende nuovamente irraggiungibile senza rebuild.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen438-frames.p0
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 

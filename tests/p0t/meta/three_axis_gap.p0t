@@ -1,14 +1,15 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # FRAME, LETTURE E RESIDUO STRUTTURALE — gen393, primo taglio KB-only.
 #
 # Il produttore NL->frame non e' ancora rivendicato: il test materializza uno
 # stesso frame con fatti runtime e verifica che tutte le viste cambino senza
 # rebuild. La risposta del frame passa dal normale solver tramite apply/2.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 

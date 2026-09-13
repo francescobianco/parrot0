@@ -1,5 +1,11 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 ## ⛔ HANDOFF 2026-09-13 (gen514, notte) — PIOLO 320 (Compost): 4 -> 12/13; r300 resta 49/50 con cancello
 
 **Piolo successivo, r320** ([referti](docs/labs/apprendimento-assistito/2026-09-13-piolo-320/)).
@@ -2815,7 +2821,7 @@ invented the phone` (-> `created_by(zzz_who_has, phone, invented)`).
    residuo il turno risultava `expressive`. Il consumatore non aveva niente da
    consultare.
 2. *«`!query!` non vede i predicati `machinery`»* — **non si riproduce** su un
-   demone fresco, in nessuna configurazione (`WORLD_FACTS=0`, senza profilo,
+   demone fresco, in nessuna configurazione (la vecchia modalità di KB ridotta (rimossa), senza profilo,
    `LANG=it`, `BASE=`). `question_word(what)` e `faculty_force(...)` sono
    dimostrabili. La spiegazione piu' probabile e' la stessa che mi ha fatto
    perdere due cicli oggi: **il demone di test era del 4 settembre**, cioe'
@@ -7438,7 +7444,7 @@ Non dichiarare chiuso F03 con il solo `He reviewed it`. Servono:
 - **Non assumere che una risposta non-vuota sia comprensione.** Il probe
   `move_match` e' euristico; leggere semanticamente i transcript.
 - **Non montare una KB amputata per “isolare”.** Usare nomi held-out, non
-  `PARROT0_WORLD_FACTS=0`, quando la capacita' dipende dalla KB reale.
+  la vecchia modalità di KB ridotta (rimossa), quando la capacita' dipende dalla KB reale.
 - **Non dequotare due volte lo stesso buffer.** `kb_dequote` modifica in place;
   il difetto e' gia' costato un ciclo (§1(a)).
 - **Non salvare le fixture del gate.** Questo checkpoint e'
@@ -7484,7 +7490,7 @@ fallivano per una ragione che vale la pena non perdere:
 ### ⚠ Il gate locativo amputava la KB, e la capacità funzionava già
 
 `locative_transfer_frame.p0t` apriva con `!set PARROT0_BASE=` e
-`PARROT0_WORLD_FACTS=0`, cioè **staccava la conoscenza che la capacità usa**, e
+la vecchia modalità di KB ridotta (rimossa), cioè **staccava la conoscenza che la capacità usa**, e
 poi asseriva la capacità. Con la KB attaccata, «mary put the book on the desk»
 funzionava dal primo minuto.
 

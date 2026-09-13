@@ -1,4 +1,11 @@
 # parrot0 evolution journal
+
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 ## 2026-07-18 - gen337: parrot0 migrates its OWN agent vocabulary, as a taught subagent (T16)
 
 **The round is the product.** An LLM supervisor drove parrot0 through a full
@@ -1935,7 +1942,7 @@ Ratchets: `tests/cases/contractions.chat` for apostrophe contraction, and
 All new ground predicates registered as substrate in `is_internal_pred` (fact count)
 and `is_struct_pred` (entity-describe). **Ratchet:** 19 new checks in
 `tests/bench/llmscore_world.sh` (world-facts-enabled harness; the hermetic `.chat` runner
-sets `PARROT0_WORLD_FACTS=0`, so world-knowledge cases belong here). `make test` green
+sets la vecchia modalità di KB ridotta (rimossa), so world-knowledge cases belong here). `make test` green
 (209). IT mirrors deferred: the bench is English-only and these handlers are EN-cued.
 
 ## 2026-06-27 - gen234: fix the LLMSCORE near-miss cluster

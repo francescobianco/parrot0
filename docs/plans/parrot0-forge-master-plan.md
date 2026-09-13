@@ -1,5 +1,11 @@
 # PARROT0 FORGE - piano maestro verso un coding agent verificabile
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Stato:** piano canonico, revisione **Fast Forge** 2026-07-12. La fotografia
 > iniziale era HEAD `93511ba`; W0 truth e poi avanzata fino a gen317. Questa
 > revisione corregge il difetto emerso durante l'esecuzione: il vecchio piano

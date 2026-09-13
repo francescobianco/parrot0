@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # ESPERIMENTO COSTRUTTIVO GEN437 — ARRESTI MULTILINGUI COME OGGETTI DI PROVA.
 #
 # Non appartiene ai bench storici e non misura stringhe di risposta. Dimostra:
@@ -15,7 +17,6 @@
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=kb/profiles/agi.p0
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !reset
 
@@ -37,7 +38,6 @@
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=kb/profiles/agi.p0
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=it
 !reset
 
@@ -53,7 +53,6 @@
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=kb/profiles/agi.p0
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=it
 !reset
 
@@ -70,11 +69,10 @@
 # I sensori del turno sono materializzati come fatti per isolare H437. Le coppie
 # EN/IT condividono concetto, relazione e struttura; cambiano solo forma e lingua.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 

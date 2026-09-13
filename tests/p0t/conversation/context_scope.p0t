@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # CONTESTI E SCOPE — avvio gen395.
 #
 # Mondo, premessa, citazione e credenza riportata devono restare oggetti
@@ -5,11 +7,10 @@
 # il ratchet prova il kernel della KB, non rivendica ancora che ogni superficie
 # NL produca da sola questi record.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 

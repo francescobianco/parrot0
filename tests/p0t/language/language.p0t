@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # language.p0t — LANGUAGE-BEHAVIOUR MATRIX (gen346).
 #
 # Verifies reply language across (environment language) x (prompt language). The
@@ -17,9 +19,8 @@
 
 # ============================ ENVIRONMENT = ENGLISH ============================
 [mock env-english]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 
@@ -37,9 +38,8 @@
 
 # ============================ ENVIRONMENT = ITALIAN ============================
 [mock env-italian]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=it
 !reset
 

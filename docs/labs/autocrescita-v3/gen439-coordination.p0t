@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # GEN439 — COORDINAZIONE COME COMPOSIZIONE DI RUOLI.
 #
 # Un solo operatore dichiarativo deve leggere piu' filler dello stesso ruolo,
@@ -5,11 +7,10 @@
 # la costruzione fra mondo naturale, artefatti e istituzioni. Infine insegna una
 # congiunzione parlando, la usa su membri nuovi e la ritrae senza rebuild.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen439-coordination.p0
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 

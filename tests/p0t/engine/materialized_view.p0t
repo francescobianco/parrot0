@@ -20,7 +20,7 @@
 # la vista dipende (`view_depends/2`). Insegnare un verbo la invalida nello
 # stesso turno; il traffico ordinario del dialogo no.
 
-[mock hermetic]
+[mock live]
 !set PARROT0_LANG=en
 !reset
 

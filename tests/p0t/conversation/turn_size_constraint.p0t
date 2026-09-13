@@ -14,7 +14,7 @@
 # Il controllo e' POST-DISPATCH e non dentro ciascuna facolta': una guardia per
 # facolta' sarebbe l'elenco degli incidenti, e andrebbe riscritta a ogni facolta'
 # nuova. Qui vale per tutte insieme, comprese quelle che nessuno ha ancora scritto.
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !set PARROT0_LANG=en
 !reset

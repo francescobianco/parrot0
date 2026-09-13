@@ -153,7 +153,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
  *     literal cannot fake. A text grep is the FALLBACK, only for free-text patterns.
  * So the anti-impostor rule (PRINCIPLES.md) holds at the structural level: parrot0
  * reports a definition/caller only when the parser actually found it. Gated by
- * PARROT0_TOOLS=1 so the hermetic test harness never shells out; the pi wrapper sets
+ * PARROT0_TOOLS=1 so tests with tools disabled never shell out; the pi wrapper sets
  * it. This is KB-first agency: the same KB and code engine the loop already grew,
  * reached from the agent's read-only verbs. */
 

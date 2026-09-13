@@ -60,16 +60,16 @@ CASE
 cat > "$WORK/catalog.json" <<JSON
 {
   "boot_profiles": {
-    "hermetic-en": {"env": {"PARROT0_BASE": "", "PARROT0_SESSION": "",
-                            "PARROT0_WORLD_FACTS": "0", "PARROT0_LANG": "en"}}
+    "live-en": {"env": {"PARROT0_BASE": "kb/core/base.p0", "PARROT0_SESSION": "",
+                            "PARROT0_LANG": "en"}}
   },
   "contracts": [
     {"id": "fixture.red", "capability": "fixture", "owner": ["mod_math"],
-     "depends_on": [], "boot_profile": "hermetic-en", "tier": "focal",
+     "depends_on": [], "boot_profile": "live-en", "tier": "focal",
      "isolation": "process", "oracle": "$WORK/red.chat",
      "oracle_kind": "golden-turn-text", "timeout_ms": 4000, "mutators": []},
     {"id": "fixture.sentinel", "capability": "fixture", "owner": ["mod_math"],
-     "depends_on": [], "boot_profile": "hermetic-en", "tier": "focal",
+     "depends_on": [], "boot_profile": "live-en", "tier": "focal",
      "isolation": "process", "oracle": "$WORK/sentinel.chat",
      "oracle_kind": "golden-turn-text", "timeout_ms": 5000, "mutators": []}
   ]
@@ -109,11 +109,11 @@ fi
 cat > "$WORK/broken.json" <<JSON
 {
   "boot_profiles": {
-    "hermetic-en": {"env": {"PARROT0_BASE": "", "PARROT0_SESSION": ""}}
+    "live-en": {"env": {"PARROT0_BASE": "kb/core/base.p0", "PARROT0_SESSION": ""}}
   },
   "contracts": [
     {"id": "fixture.missing-oracle", "capability": "fixture", "owner": ["none"],
-     "depends_on": [], "boot_profile": "hermetic-en", "tier": "focal",
+     "depends_on": [], "boot_profile": "live-en", "tier": "focal",
      "isolation": "process", "oracle": "$WORK/does-not-exist.chat",
      "oracle_kind": "golden-turn-text", "timeout_ms": 4000, "mutators": []}
   ]

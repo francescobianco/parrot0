@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # creative_composer.p0t — contratti di crescita del vocabolario creativo:
 # la RICHIESTA, il marcatore di TOPIC, la classe di ARTEFATTO e i loro cancelli.
 # Convertito da tests/creative_composer_growth.sh (gen444).
@@ -14,9 +16,8 @@
 
 [test creative_request_cue_growth]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
-!set PARROT0_WORLD_FACTS=1
 !reset
 
 !mcp gen.respond {"input":"Dialog-alpha about orbital gardens."}

@@ -13,6 +13,14 @@
 Read `PRINCIPLES.md` before changing parrot0. The KB-first rule is a release
 constraint, not a preference.
 
+## The profile KB is constitutive
+
+parrot0 is the engine with the complete KB selected by its profile. There is
+no supported hermetic KB or world-facts switch. Every reduced-KB measurement
+is obsolete, including mechanical tests. Empty configuration never disables
+the shared KB; the default profile is `agi`. Test growth by teaching and
+retracting precise lessons on the living KB, not by erasing its base.
+
 ## KB-first preflight (mandatory)
 
 - Natural-language vocabulary belongs in the KB. This includes words that can

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # adjagree.p0t — l'accordo dell'aggettivo e' una REGOLA, non un elenco.
 # Convertito da tests/adjagree.sh (gen444).
 #
@@ -14,8 +16,7 @@
 
 [test adjagree_is_a_rule]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.match {"pred":"agree_f","args":["piccolo",null]}
 !expect mcp piccola

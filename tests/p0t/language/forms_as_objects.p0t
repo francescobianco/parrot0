@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # FORME LINGUISTICHE COME OGGETTI DELLA KB — gen391.
 #
 # concept_label/4 resta la sorgente unica. Le viste in language-forms.p0 la
@@ -6,11 +8,10 @@
 # risposta golden: membri, status e superficie vengono aggiunti e tolti a
 # runtime, senza ricostruire il binario.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=kb/core/session.p0
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 
@@ -64,7 +65,6 @@
 [mock agi]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=kb/core/session.p0
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset

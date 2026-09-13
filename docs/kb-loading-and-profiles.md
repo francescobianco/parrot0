@@ -46,7 +46,7 @@ C:
 1. `brain_create()` carica nominalmente `lexicon`, `social`, `roles`, `gloss`,
    `grammar`, `messages`, `intents`, `input`, `responses`, `capabilities`,
    `glue`, `morphology`, `presentation`, `procedures`, `personal`, `initiative`
-   e, salvo `PARROT0_WORLD_FACTS=0`, `world-facts`;
+   e `world-facts`, sempre caricati;
 2. `brain_boot()` aggiunge `PARROT0_BASE`, il dominio coding fisso e infine
    `PARROT0_PROFILE`;
 3. alcuni moduli eseguono poi caricamenti parziali al primo uso: il motore
@@ -57,8 +57,10 @@ C:
 
 Quindi il profilo corrente e' additivo: caratterizza soltanto l'ultima parte
 della KB. L'identita' di base resta scelta da una sequenza di `kb_load()` nel C.
-`PARROT0_LEXICON`, `PARROT0_BASE` e `PARROT0_WORLD_FACTS` possono inoltre
-produrre combinazioni parziali che non corrispondono a nessun soggetto curato.
+`PARROT0_LEXICON` e `PARROT0_BASE` possono aggiungere file, senza sostituire
+lessico e base condivisi. Il profilo assente o vuoto sceglie `agi`. La
+conoscenza comune non è disattivabile; resta da portare il manifesto del core
+nel grafo dei profili descritto dal piano.
 
 Questa struttura ha quattro costi:
 
@@ -187,7 +189,7 @@ riprodurne la semantica. L'ordine fisico corrente e' questo:
 | 2-9 | `social`, `roles`, `gloss`, `grammar`, `messages`, `intents`, `input`, `responses` | base | sempre |
 | 10 | `capabilities.p0` | reflective | sempre; generato dal capability ledger |
 | 11-16 | `glue`, `morphology`, `presentation`, `procedures`, `personal`, `initiative` | base | sempre |
-| 17 | `world-facts.p0` | base | salvo `PARROT0_WORLD_FACTS=0` |
+| 17 | `world-facts.p0` | base | sempre caricato |
 | 18 | fatti `i_am`, `module`, lingua e PID | reflective/session | proiezione dello stato vivo, non file curati |
 | 19 | `base.p0`, `coding.p0`, profilo additivo | base | caricati da `brain_boot()` |
 | 20 | `policy/2` | session | proiezione delle authority effettive |
@@ -312,8 +314,8 @@ il difetto di inferenza emerso sulla KB eager.
    un dominio tramite una sola chiamata, confrontato col boot storico su layer,
    fatti, regole, proof e ordine.
 5. **gen395 — profili completi.** Conversational e AGI diventano radici complete;
-   `PARROT0_BASE`, `PARROT0_LEXICON` e `PARROT0_WORLD_FACTS` entrano in
-   deprecazione.
+   `PARROT0_BASE` e `PARROT0_LEXICON`, ora solo supplementi additivi,
+   confluiscono nel manifesto del profilo. L’interruttore del mondo è già rimosso.
 6. **gen396 — lazy e introspezione.** Il profilo distingue residenti e provider
    catalogati; `lexeme`, `actions`, `compose` e `algo_steps` passano dai flag C
    ai trigger logici; cold e warm vengono misurati separatamente.

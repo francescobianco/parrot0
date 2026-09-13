@@ -1,5 +1,11 @@
 # TODO — 30 attività per rendere parrot0 un coding agent competitivo
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 Questa è la coda **attiva**, ordinata per rischio e leva. Deriva dal piano canonico
 `docs/plans/parrot0-forge-master-plan.md`, dall'ispezione del codice a gen328 e da
 sessioni reali eseguite il 2026-07-12 con `make chat` e

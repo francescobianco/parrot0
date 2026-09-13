@@ -1,5 +1,11 @@
 # parrot0 coding agent — il piano organico di evoluzione
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Revisione gen335 (2026-07-17) — seconda fondazione.** Fino all'handoff gen312
 > questo file era l'inventario storico dei track e della baseline gen256, con
 > [`parrot0-forge-master-plan.md`](parrot0-forge-master-plan.md) come piano operativo

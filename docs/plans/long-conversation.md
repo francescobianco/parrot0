@@ -9,7 +9,7 @@
 
 ## L'esperimento
 
-17 turni in inglese con PARROT0_WORLD_FACTS=1. Risultato:
+17 turni in inglese con PARROT0_PROFILE=kb/profiles/agi.p0. Risultato:
 
 ```
 ✓ ✓ ✓   greeting → nome → recall              (3 coerenti)

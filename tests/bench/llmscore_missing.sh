@@ -226,7 +226,7 @@ out="$( {
   call '{"jsonrpc":"2.0","id":212,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"borders","args":["geo-alpha","brazil"]}}}'
   call '{"jsonrpc":"2.0","id":213,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"category_member","args":["country","geo-alpha"]}}}'
   call '{"jsonrpc":"2.0","id":214,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Name one country that shares a border with geo-alpha."}}}'
-} | PARROT0_SESSION= PARROT0_PROFILE= PARROT0_WORLD_FACTS=1 "$BIN" --mcp-engine 2>/dev/null)"
+} | PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 "$BIN" --mcp-engine 2>/dev/null)"
 
 line() { printf '%s\n' "$out" | grep -F "\"id\":$1,"; }
 has() {

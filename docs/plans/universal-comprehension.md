@@ -1,5 +1,11 @@
 # Comprensione universale
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Armonizzazione (2026-09-07):** vedi [`armonizzazione-piani.md`](armonizzazione-piani.md) — in particolare §2.4: il ciclo di acquisizione del §7 qui sotto è descritto sul fetch che scriveva `pages/<key>.md` (gen240), abolito dal gen436; dal 2026-09-07 la prosa scaricata passa dal lettore di `read: …`.
 
 

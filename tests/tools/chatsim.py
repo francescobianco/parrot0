@@ -104,7 +104,7 @@ def run_conversation(key, model, turns, log) -> list:
     log(f"# persona (temp={temp}): {sysmsg}")
     proc = subprocess.Popen(["./bin/parrot0"], stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1,
-        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": "",
+        env={**os.environ, "PARROT0_BASE": "kb/core/base.p0", "PARROT0_SESSION": "",
              "PARROT0_EOT": P0_EOT})
     history, rows = [], []
     try:

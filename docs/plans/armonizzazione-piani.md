@@ -1,5 +1,11 @@
 # Armonizzare i piani — frontier, comprensione universale, colla linguistica
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Seguito operativo (ricognizione su `e66792b3`, gen506h):**
 > [parrot0 organico — integrazione e addestramento](integrazione-cognitiva-operativa.md)
 > traduce questa armonizzazione in contratti della IR condivisa, inventario

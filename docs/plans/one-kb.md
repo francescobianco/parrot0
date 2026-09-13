@@ -1,5 +1,11 @@
 # Una sola KB
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 *Non deve esistere, per definizione, una distinzione fra «KB nuda» e «KB
 caricata». La KB è parte di parrot0: un parrot0 costruito senza la conoscenza di
 parrot0 non è lo stesso soggetto con meno dati, è un altro soggetto. Questo piano
@@ -101,9 +107,11 @@ interroga con `KB_HYPOTHETICAL | machinery`, ritratta lo strato. Stessa semantic
 closed-world di oggi, **una sola KB**, nessun secondo `Brain`, nessun substrato da
 collegare — e `brain_scratch_init` sparisce invece di essere mantenuto.
 
-Ne discende anche il resto: `!forget` del test-engine e l'amputazione via
-`PARROT0_WORLD_FACTS=0` sono due modi diversi di dire «restringi la vista», e con
-gli strati interrogabili diventano la stessa cosa detta bene.
+La precedente equivalenza fra restrizione della vista e cancellazione della
+base è ritirata. `!forget @base` non è supportato: amputare la KB dal test
+non cambia il problema. Le viste contestuali distinguono validità e sostegni;
+la conoscenza del profilo resta presente. Le ritrattazioni mirate di lezioni
+verificano la crescita, senza cancellare il soggetto.
 
 ## 4b. Uno strato `KB_MACHINERY`: provato e SCARTATO (gen374)
 

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
 #
 # Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
@@ -17,10 +19,9 @@
 #     > whale is a mammal        →  Learned: whale is a mammal.
 #
 # migrated from tests/cases/factsource.chat (gen346, hermetic + isolated)
-[mock hermetic]
-!set PARROT0_BASE=
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 

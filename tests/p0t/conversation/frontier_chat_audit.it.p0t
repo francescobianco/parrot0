@@ -11,7 +11,6 @@
 # Vedi docs/session-and-provenance.md §3: la KB e' parte di parrot0.
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=kb/profiles/agi.p0
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=it
 !reset
 

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # semantic_summary.p0t — contratto di crescita degli alias insegnabili di un
 # topic semantico, e del suo CANCELLO. Convertito da
 # tests/semantic_summary_growth.sh (gen444).
@@ -10,9 +12,8 @@
 
 [test semantic_summary_alias_growth]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
-!set PARROT0_WORLD_FACTS=1
 !reset
 
 # l'alias non esiste ancora
@@ -31,9 +32,8 @@
 
 [test semantic_summary_gate_growth]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
-!set PARROT0_WORLD_FACTS=1
 !reset
 # un secondo alias, per provare il cancello su una superficie pulita
 !mcp kb.assert {"pred":"semantic_topic_cue","args":["gravity","keyword(gateprobe-alpha)"]}

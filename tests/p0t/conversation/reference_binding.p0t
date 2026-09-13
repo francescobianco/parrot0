@@ -11,7 +11,7 @@
 #
 # Entita' nuove, KB intera (niente amputazione): la capacita' dipende dalla
 # conoscenza reale, e staccarla proverebbe solo che senza conoscenza non c'e'.
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !reset
 

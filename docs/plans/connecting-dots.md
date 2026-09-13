@@ -1,5 +1,11 @@
 # Connecting the dots — *split and cross*, o come si moltiplicano gli archi
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **gen502, su indicazione di F.** Un metodo per costruire la conoscenza che
 > risponde alla **connessione fra le isole**, invece di aggiungere isole. Non una
 > matrice forgiata a monte: un procedimento **progressivo**, che a ogni
@@ -43,7 +49,7 @@
 > 3. **La KB ermetica non esiste.** La KB è parte costitutiva di parrot0 e nei
 >    test non può essere spenta, amputata, sostituita o caricata a sezioni.
 >    Sono vietati nei casi nuovi `[mock hermetic]`, `PARROT0_BASE=` vuota,
->    `PARROT0_WORLD_FACTS=0` e profili svuotati. Si esercita il profilo reale al
+>    la vecchia modalità di KB ridotta (rimossa) e profili svuotati. Si esercita il profilo reale al
 >    massimo; `!reset` pulisce la conversazione, non l'essere del soggetto.
 > 4. **La KB non è un mock.** Entità, termini, fatti e regole inventati dentro
 >    il test dimostrano al più una meccanica del resolver; non dimostrano che la

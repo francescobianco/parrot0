@@ -1,5 +1,11 @@
 # Apprendimento assistito — esperimento di profondità 01
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 **Data:** 2026-08-27  
 **Teacher:** Codex, attraverso soli turni di chat  
 **Binario:** `parrot0 [gen396-universal-answer-plan@4596837]`  
@@ -16,12 +22,12 @@ Sono stati avviati due processi puliti:
 ```text
 PARROT0_SESSION=/tmp/parrot0-assisted-depth-01.p0
 PARROT0_PROFILE=
-PARROT0_WORLD_FACTS=1
+PARROT0_PROFILE=kb/profiles/agi.p0
 PARROT0_LANG=en
 
 PARROT0_SESSION=/tmp/parrot0-assisted-depth-agi-01.p0
 PARROT0_PROFILE=kb/profiles/agi.p0
-PARROT0_WORLD_FACTS=1
+PARROT0_PROFILE=kb/profiles/agi.p0
 PARROT0_LANG=en
 ```
 

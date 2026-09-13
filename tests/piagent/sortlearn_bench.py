@@ -69,7 +69,7 @@ def _start_server(learn_kb: Path, with_wiki: bool):
     env = {
         **os.environ,
         "PARROT0_BASE": str(ROOT / "kb" / "core" / "base.p0"),
-        "PARROT0_PROFILE": "",           # drop agi.p0 → no curated algo.p0 sort knowledge
+        "PARROT0_PROFILE": "kb/profiles/agi.p0",           # drop agi.p0 → no curated algo.p0 sort knowledge
         "PARROT0_SESSION": "",
         "PARROT0_LEARN_KB": str(learn_kb),
         "PARROT0_TOOLS": "1",

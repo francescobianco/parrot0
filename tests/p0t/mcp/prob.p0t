@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # prob.p0t — convertito da tests/prob.sh (gen444).
 #
 # gen335+ — prob/2 KB-backed confidence.
@@ -7,8 +9,7 @@
 
 [test prob_0]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert capital_of_country(france, paris)
 !assert capital_of_country(brazil, brasilia)
@@ -27,8 +28,7 @@
 
 [test prob_1]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert fact_confidence(has_fur(dog), 0.9)
 !assert fact_confidence(has_fur(cat), 0.9)
@@ -44,8 +44,7 @@
 
 [test prob_2]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert color(sky, blue)
 !clause get_prob($X, $Y, $P) :- prob(color($X, $Y), $P)
@@ -55,8 +54,7 @@
 
 [test prob_3]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert color(sky, blue)
 !clause get_prob($X, $Y, $P) :- prob(color($X, $Y), $P)

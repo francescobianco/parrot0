@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # teach.p0t - convertito da tests/mcp-teach.sh (gen279, U1).
 #
 # FIDELITY test: a literal asserted through the MCP surface must round-trip
@@ -6,8 +8,7 @@
 
 [test mcp_teach]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 # lowercase literal round-trips (regression control)

@@ -11,7 +11,7 @@
 # parola in una lista di ventidue riempitivi cablata nel C, in due lingue.
 #
 # Una capacita' che c'e' e non si raggiunge, per chi parla non esiste.
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !reset
 

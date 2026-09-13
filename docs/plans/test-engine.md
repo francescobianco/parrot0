@@ -1,5 +1,11 @@
 # The test-engine — one live instance validates `.p0t` suites
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > ## ⛔ PRIMA DI SCRIVERE UN `.p0t`: LE DUE REGOLE DI F. (2026-09-03)
 >
 > Il testo completo, con la misura del debito e gli esempi, sta in
@@ -7,7 +13,7 @@
 > che si viene a cercare la sintassi:
 >
 > **R1 — il contesto ermetico non esiste più.** `[mock hermetic]` con
-> `PARROT0_BASE=` vuota e `PARROT0_WORLD_FACTS=0` è **vietato**: la KB non è un
+> `PARROT0_BASE=` vuota e la vecchia modalità di KB ridotta (rimossa) è **vietato**: la KB non è un
 > volume montato sotto parrot0, *è* parrot0, e spegnerla non misura parrot0 con
 > meno rumore — misura un altro sistema, che non esiste. Si testa **sempre con
 > la KB al massimo**; per forzare una non-conoscenza si spegne *quella cosa lì*
@@ -144,7 +150,7 @@ sessione.
 < testo                     asserisce che la risposta è `testo`
 
 !set NAME=VALUE             pilota una variabile di runtime (env.h): PARROT0_BASE,
-                            PARROT0_WORLD_FACTS, PARROT0_LANG, PARROT0_ORACLE,
+                            PARROT0_LANG, PARROT0_ORACLE,
                             HOME, PARROT0_PID, …
 !reload                     applica ora un cambio di config (no-op se non è cambiato)
 !reset                      brain vergine con la config corrente (isolamento, opt-in)
@@ -353,51 +359,26 @@ repository resta com'era). L'entità di prova è inventata apposta.
 **Ancora da progettare (F.):** mock, stub, flag e altre forme di controllo dello
 stato della KB. Per ora l'engine fa solo l'assert atteso + il pilotaggio env.
 
-### 2b. Il contesto ermetico è un limite, non un obiettivo (F., 2026-08-11)
+### 2b. Il soggetto dei test è parrot0 con la KB del profilo
 
-Posizione architetturale, presa dopo che la migrazione gen346 ha reso l'ermetismo
-il default di fatto: **251 dei 257 `.p0t` girano con `PARROT0_WORLD_FACTS=0` e
-base/sessione svuotate.**
+La KB non è una dipendenza esterna: costituisce parrot0. Non supportiamo un
+mondo acceso/spento, né una KB ermetica, neppure per test di meccanica.
+Ogni misura precedente ottenuta con conoscenza disattivata è obsoleta.
 
-> *La KB non è qualcosa di separato da parrot0, è una sua parte. parrot0 è
-> software dinamico: la KB evolve evolvendo sé stesso, non è memoria "di volume"
-> come se fosse un volume Docker.* — F.
+Il profilo si sceglie con `PARROT0_PROFILE` o `--profile`; il default è `agi`.
+Base e lessico condivisi si caricano sempre; i loro percorsi aggiuntivi sono
+supplementi. Un valore vuoto non disattiva nessuno di questi ingressi.
 
-La conseguenza per i test è netta: **un parrot0 con la conoscenza staccata non è
-lo stesso soggetto con meno dati, è un altro soggetto.** Testarlo amputato e poi
-spedirlo intero misura una creatura che non spediamo. F. segnala che questa
-impostazione ha già prodotto forzature, **sdoppiamenti di accesso alla KB** e il
-problema del **mount differenziale**; l'ermetismo come prodotto — un parrot0
-distribuibile senza la sua conoscenza — non è, almeno per ora, un obiettivo.
+`!reset` ripulisce lo stato del dialogo ricaricando la stessa KB completa.
+Le ritrattazioni mirate di lezioni servono a provare crescita e revisione;
+`!forget @base` non è supportato, perché cancellare la base dall'interno
+amputa lo stesso soggetto che prima si amputava dall'ambiente.
 
-**La distinzione operativa da tenere:**
-
-| Leva | Cosa tocca | Verdetto |
-|---|---|---|
-| `PARROT0_PROFILE`, `PARROT0_LANG` | il **comportamento** | legittime — i profili esistono per configurabilità |
-| `!reset` | la **sessione** (non far colare stato fra test) | legittimo — è igiene dell'harness |
-| `PARROT0_WORLD_FACTS=0`, `BASE=`, `SESSION=` | l'**essere** (la conoscenza) | da evitare — amputa il soggetto |
-
-**Cosa mettere al posto dell'amputazione.** L'ermetismo serviva a garantire che
-un `Yes` fosse inferenza e non richiamo dal corpus. Lo stesso risultato si ottiene
-con una garanzia più forte: la **novità delle entità**. Se i soggetti e i legami
-sono introdotti nel test stesso e non compaiono in alcun fatto della KB, nessun
-corpus può fornire la risposta — e la garanzia regge **anche** con tutta la
-conoscenza montata, che è la condizione reale.
-
-**Precedente misurato:** `tests/p0t/reasoning/investigation.p0t` è il primo test
-scritto su questa linea (`[mock live]`, mondo pieno, entità nuove). L'intero arco
-produce output **identico byte per byte** con mondo pieno e con mondo vuoto: per
-quel test l'ermetismo non comprava nulla. Verificata anche la sequenza reale in
-`make test` (file ermetico → file vivo → file ermetico): passa in entrambe le
-direzioni, purché il file vivo **ripristini esplicitamente** le variabili ai
-valori reali (`kb/core/base.p0`, `kb/core/session.p0`, `WORLD_FACTS=1`), perché la
-config è un override globale persistente che i file precedenti lasciano a 0.
-
-**Non è un mandato di migrazione di massa.** I 251 file esistenti restano
-(`keep-secondary-structures`): il punto è la direzione per i test NUOVI, e il
-sospetto motivato che parte delle forzature note vada riletta come conseguenza di
-questa impostazione, non come complessità intrinseca.
+Un test su conoscenze reali domanda in lingua naturale e verifica un contenuto
+utile. Nuove entità e forme possono provare apprendimento o meccanica sulla KB
+completa, ma non dimostrano connessioni già presenti nel mondo conosciuto.
+La normalizzazione dei vecchi setup non convalida le loro attese: i risultati
+vanno rimisurati e i rossi classificati senza ripristinare la KB ridotta.
 
 ## 3. `!set` e il modello di reload/reset (env layer)
 
@@ -410,7 +391,7 @@ rifare, e nulla di ridondante):
 
 | asse | cos'è | chi lo consuma |
 |---|---|---|
-| **firma di config** (`p0env_mem_signature`) | il *footprint di caricamento*: valori effettivi di `MEMORY_VARS` (BASE/SESSION/PROFILE/LEXICON/WORLD_FACTS/KB_ROOT, LANG/LC_*, TOOLS, WIKI_FETCH, PID) | un cambio → serve `brain_reload` da disco |
+| **firma di config** (`p0env_mem_signature`) | il *footprint di caricamento*: valori effettivi di `MEMORY_VARS` (BASE/SESSION/PROFILE/LEXICON/KB_ROOT, LANG/LC_*, TOOLS, WIKI_FETCH, PID) | un cambio → serve `brain_reload` da disco |
 | **delta appreso** (`kb_size` vs baseline) | la KB è cresciuta da un turno che ha *imparato* | un reset deve azzerarlo |
 
 - `!reload` (e l'auto prima di ogni turno): ricarica **solo** se la firma di config
@@ -476,7 +457,7 @@ uccide il demone rimasto e rilancia pulito.
 
 ### 9b. Il fatto chiave che sblocca la migrazione di massa
 **Tutti i `.chat` di `run.sh` sono validati ERMETICI** — `run.sh` esporta
-`PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_LANG=en`, tools OFF,
+`PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 PARROT0_LANG=en`, tools OFF,
 network OFF. Quindi la migrazione uniforme e affidabile è: **preambolo ermetico +
 `!reset` + il corpo del `.chat` verbatim**. I casi che dipendono dalla lingua/mondo
 funzionano perché i loro turni italiani ribaltano la lingua per-turno.
@@ -486,7 +467,7 @@ funzionano perché i loro turni italiani ribaltano la lingua per-turno.
 gen_p0t() {  # crea tests/p0t/NAME.p0t da tests/cases/NAME.chat
   local f="$1"
   { printf '# migrated from tests/cases/%s.chat (hermetic + isolated)\n' "$f"
-    printf '[mock hermetic]\n!set PARROT0_BASE=\n!set PARROT0_SESSION=\n!set PARROT0_WORLD_FACTS=0\n!set PARROT0_LANG=en\n!reset\n\n'
+    printf '[mock live]\n!set PARROT0_PROFILE=kb/profiles/agi.p0\n!set PARROT0_LANG=en\n!reset\n\n'
     printf '[test %s]\n' "$f"; cat "tests/cases/$f.chat"; printf '\n'
   } > "tests/p0t/$f.p0t"
 }
@@ -561,7 +542,7 @@ make legacy-test                   # vecchio harness (contiene i rossi noti)
 PARROT0_TEST_JOBS=1 ./tests/tools/run.sh # solo i .chat, in serie, con PASS/FAIL per caso
 PARROT0_TE_DEBUG=1 ./bin/parrot0 --test-engine   # demone con log reload/reset
 # caso legacy alla maniera vecchia (processo fresco, ermetico):
-printf 'PROMPT\n' | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_LANG=en ./bin/parrot0
+printf 'PROMPT\n' | PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 PARROT0_LANG=en ./bin/parrot0
 ```
 
 ## 10. Rotta

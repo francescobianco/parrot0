@@ -24,7 +24,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 DLG_DIR="$ROOT/tests/chat"
 
-export PARROT0_BASE= PARROT0_SESSION= PARROT0_LANG=en
+export PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= PARROT0_LANG=en
 
 if [ ! -x "$BIN" ]; then
     echo "chatbench: binary not built ($BIN)" >&2

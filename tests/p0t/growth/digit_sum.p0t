@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # digit_sum.p0t — il contratto di CRESCITA del vocabolario delle richieste su
 # sequenze di cifre. Convertito da tests/digit_sum_growth.sh (gen444).
 #
@@ -11,8 +13,7 @@
 
 [test digit_sum_growth]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 # prima: la cue non e' dichiarata, la domanda non trova la classe

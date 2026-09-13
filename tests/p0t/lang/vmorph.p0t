@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # vmorph.p0t — il progressivo si riconosce per MORFOLOGIA, non per elenco.
 # Convertito da tests/vmorph.sh (gen444).
 #
@@ -15,8 +17,7 @@
 
 [test vmorph_is_a_morphology_rule]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.query {"pred":"progressive","args":["sleeping"]}
 !expect mcp true

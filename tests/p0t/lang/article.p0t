@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # article.p0t — l'articolo italiano e' una TABELLA, non un ramo del C.
 # Convertito da tests/article.sh (gen444).
 #
@@ -21,8 +23,7 @@
 
 [test article_is_queryable_knowledge]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.match {"pred":"article","args":["def","m","no",null]}
 !expect mcp "il"

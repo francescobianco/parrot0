@@ -1,5 +1,11 @@
 # parrot0 come motore di inferenza MCP — piano operativo
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Stato:** scritto a gen275; **gen277 (2026-07-06) ha spedito il motore
 > funzionante** — trasporto JSON-RPC-su-stdio + 16 tool (§5) + il driver live
 > `scripts/mcp-live.sh`. Gli esperimenti di addestramento dal vivo sono provati
@@ -110,7 +116,7 @@ possibile avviare un motore "spoglio" con variabili d'ambiente. Verificando
 `brain_create()` (`src/brain/99-registry.c:391`), oggi:
 
 - **Già gate-abile:** il lessico (`PARROT0_LEXICON`, path override, vuoto =
-  skip) e i world-facts (`PARROT0_WORLD_FACTS=0` li salta).
+  valori vuoti usano i default); core e fatti condivisi si caricano sempre.
 - **NON gate-abile oggi (hardcoded, nessun env var):** `kb/core/social.p0`,
   `kb/core/roles.p0`, `kb/core/gloss.p0`, `kb/core/intents.p0`,
   `kb/core/responses.p0`, `kb/core/glue.p0` — sei `kb_load` fissi. Il self-model
@@ -137,7 +143,7 @@ const char *gloss    = is_bare ? "" : (getenv("PARROT0_GLOSS")    ?: "kb/core/gl
 const char *intents  = is_bare ? "" : (getenv("PARROT0_INTENTS")  ?: "kb/core/intents.p0");
 const char *responses= is_bare ? "" : (getenv("PARROT0_RESPONSES")?: "kb/core/responses.p0");
 const char *glue     = is_bare ? "" : (getenv("PARROT0_GLUE")     ?: "kb/core/glue.p0");
-/* is_bare inoltre implica PARROT0_WORLD_FACTS=0 e disabilita i_am/module? */
+/* Proposta is_bare obsoleta: nessun ingresso deve amputare la KB. */
 ```
 
 Il self-model riflessivo (`i_am`/`module`) è più delicato: SONO fatti che

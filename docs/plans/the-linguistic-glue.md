@@ -1,5 +1,11 @@
 
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Armonizzazione (2026-09-07):** i cinque meccanismi di questo piano sono condotta nel C che frontier K3 vuole come mosse KB, e non leggono il frame universale del turno; «11/11 HELD» è del gen386 e al gen505y `glue.p0t` è 25/7. Divergenze e ordine in [`armonizzazione-piani.md`](armonizzazione-piani.md).
 
 **Colla linguistica** è il nome che diamo a quell'insieme di meccanismi che non costituiscono direttamente il ragionamento, la memoria o l'inferenza, ma che permettono a tutte queste componenti di apparire come un tutto coerente.

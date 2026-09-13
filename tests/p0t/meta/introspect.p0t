@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # INTROSPEZIONE — cosa parrot0 dice di sapere.
 #
 # La proprieta' sotto test e' il FILTRO: "quante cose sai?" deve riportare la
@@ -31,10 +33,9 @@
 # affermare nulla sul conteggio, cosi' da non trasformare una regressione in
 # comportamento atteso. Va indagata a parte.
 
-[mock hermetic]
-!set PARROT0_BASE=
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 

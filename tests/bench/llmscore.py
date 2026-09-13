@@ -115,7 +115,7 @@ def call_model(key, model, messages, temperature, max_tokens=400,
 def ask_parrot0(question, timeout):
     proc = subprocess.Popen(["./bin/parrot0"], stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
-        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": "",
+        env={**os.environ, "PARROT0_BASE": "kb/core/base.p0", "PARROT0_SESSION": "",
              "PARROT0_EOT": P0_EOT})
     started = time.monotonic()
     try:

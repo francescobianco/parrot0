@@ -1,9 +1,8 @@
 # Focused KB-first round thirteen: a contingent guard is a KB relation, not a
 # C-level OR chain. Role openings and locative prepositions are live classes.
-[mock hermetic]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !set PARROT0_TOOLS=1
 !reset

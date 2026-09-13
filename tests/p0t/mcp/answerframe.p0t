@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # answerframe.p0t — converted from tests/answerframe.sh (gen306).
 #
 # The test keeps the MCP batches separate where the shell test used separate
@@ -5,7 +7,7 @@
 
 [test answerframe_red]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.assert {"pred":"alloy_of","args":["bronze","copper"]}
 !expect mcp "ok":true
@@ -14,7 +16,7 @@
 
 [test answerframe_green]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.assert {"pred":"alloy_of","args":["bronze","copper"]}
 !expect mcp "ok":true
@@ -27,8 +29,7 @@
 
 [test answerframe_multi]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.assert {"pred":"relation_type","args":["mirror_link","involutive"]}
 !expect mcp "ok":true
@@ -60,8 +61,7 @@
 
 [test answerframe_weight_growth]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp gen.respond {"input":"what is the bulk of african_elephant?"}
 !expect! mcp 6000

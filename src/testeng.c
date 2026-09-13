@@ -28,7 +28,7 @@
  * be brittle and would miss the point.
  *
  *   !set NAME=VALUE           pilot a runtime config global (env.h): PARROT0_BASE,
- *                             PARROT0_WORLD_FACTS, PARROT0_LANG, PARROT0_ORACLE,
+ *                             PARROT0_LANG, PARROT0_ORACLE,
  *                             HOME, PARROT0_PID, … The brain reloads only when the
  *                             effective memory-config actually MOVES (a no-op set —
  *                             a repeat, or a value equal to the real current one —
@@ -96,7 +96,7 @@
  *                               !mcp kb.query  {"pred":"dog","args":["rex"]}
  *                               <~ true
  *   !forget PRED(a, b)        drop one specific ground fact
- *   !forget @LAYER            drop a whole provenance layer: @base, @session,
+ *   !forget @LAYER            clear runtime provenance: @session,
  *                             @induced, @reflective, @hypothetical
  *   !assert PRED(a, b, …)     add a ground fact from inside the test
  *   !query  PRED(a, $X)       assert that a FACT is provable ($X = free slot)
@@ -105,9 +105,8 @@
  * On `!forget` (F.): what a test needs ABSENT is the test's job, not the load's.
  * The KB is part of parrot0, not a mounted volume, so knowledge is subtracted
  * from INSIDE the dialogue — a test can teach something, use it, forget it, and
- * assert that the answer changed. Prefer this over amputating the KB at load time
- * with `!set PARROT0_WORLD_FACTS=0` / empty BASE: profiles and env stay for
- * high-level BEHAVIOUR, never for making a fact disappear.
+ * assert that the answer changed. The complete profile KB remains loaded;
+ * removing the shared base is not a supported test operation.
  *
  * A section is MULTI-TURN: list several `> / <` pairs and they run in order
  * against the same live brain. A reply is MULTI-LINE: write one `<` per output
@@ -760,11 +759,11 @@ static int te_process_stream(TeState *t, FILE *in) {
          * `!forget <pred>(a, b)` — drop one specific ground fact.
          *
          * F.'s rule: what a test needs absent must be handled BY THE TEST, not by
-         * piloting the KB's load from outside (`!set PARROT0_WORLD_FACTS=0` and
-         * friends). The KB is part of parrot0, not a mounted volume: subtracting
-         * knowledge is a move inside the dialogue, so the same test can teach
+         * changing the subject's KB at load time. The KB is part of parrot0:
+         * a targeted retraction of taught knowledge is a move in the dialogue;
+         * the same test can teach
          * something, use it, then make parrot0 forget it and prove the answer
-         * changes. Profiles stay for high-level BEHAVIOUR, never for this. */
+         * changes. The complete selected profile remains the test subject. */
         /* `!assert PRED(a, b, …)` — the WRITE twin of !forget. A test could already
          * subtract knowledge from inside the dialogue but not add an arbitrary n-ary
          * fact, so growth contracts (teach a cue, probe, retract, probe) had to live
@@ -1224,14 +1223,12 @@ static int te_process_stream(TeState *t, FILE *in) {
             te_flush(t);
             char *q = p + 7;
             while (*q == ' ' || *q == '\t') q++;
-            /* `!forget @LAYER` drops a whole provenance layer from the ONE KB —
-             * the in-test way to narrow the view, instead of amputating the load
-             * from outside with PARROT0_WORLD_FACTS=0 / an empty BASE. */
+            /* Only runtime layers can be cleared. The shared base is part of
+             * the subject under test, never a fixture to switch off. */
             if (*q == '@') {
                 q++;
                 int mask = 0;
-                if      (!strncmp(q, "base", 4))         mask = KB_BASE;
-                else if (!strncmp(q, "session", 7))      mask = KB_SESSION;
+                if      (!strncmp(q, "session", 7))      mask = KB_SESSION;
                 else if (!strncmp(q, "induced", 7))      mask = KB_INDUCED;
                 else if (!strncmp(q, "reflective", 10))  mask = KB_REFLECTIVE;
                 else if (!strncmp(q, "hypothetical", 12)) mask = KB_HYPOTHETICAL;
@@ -1357,7 +1354,7 @@ int test_engine_serve(Brain *b, const char *sockpath) {
         int cfd = accept(lfd, NULL, NULL);
         if (cfd < 0) { if (errno == EINTR) continue; break; }
         te_hang_fd = cfd;             /* the watchdog reports to THIS client */
-        /* each file starts from the default environment: a hermetic file's
+        /* each file starts from the default environment: a previous file's
          * overrides never bleed into the next. te_apply_config still reloads only
          * if the resulting signature actually differs from what's loaded, so two
          * files that need the SAME context in a row cost a single reload. */

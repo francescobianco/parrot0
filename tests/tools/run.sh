@@ -14,7 +14,7 @@
 # framing use the PARROT0_EOT end-of-turn marker instead (see tests/*.py).
 #
 # gen278 (docs/plans/optimize-the-tests.md): the cases are INDEPENDENT and each
-# still runs in its OWN parrot0 process (full hermetic isolation preserved), so
+# still runs in its OWN parrot0 process (conversation state isolated; complete profile KB), so
 # they are run in PARALLEL — this was 67% of `make test`, almost all of it
 # repeated process startup / KB loading, not inference. Degree of parallelism is
 # $PARROT0_TEST_JOBS (default: nproc). Set it to 1 for the old serial behaviour.
@@ -26,11 +26,11 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 CASES_DIR="$ROOT/tests/cases"
 
-# Hermetic: disable knowledge-file loading so cases don't depend on kb/.
+# Every case uses the complete profile KB. Reduced-KB results are obsolete.
 # gen240: pin the language to English so cases are deterministic regardless of the
 # developer's OS locale (current_language is seeded from the launching ENV). Cases
 # that exercise Italian replies switch via clear in-turn Italian markers.
-export PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_LANG=en
+export PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= PARROT0_LANG=en
 
 if [ ! -x "$BIN" ]; then
     echo "test: binary not built ($BIN)" >&2

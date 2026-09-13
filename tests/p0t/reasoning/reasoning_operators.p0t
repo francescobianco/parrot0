@@ -1,12 +1,13 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # reasoning_operators.p0t — converted faithfully from tests/reasoning_operators.sh.
 # Focused ratchet for gen366 Task IR + proof-carrying reasoning operators.
 # Known negative assertions are intentional and use !expect!.
 
 [test reasoning_operators]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 # The direct conversational probes are MCP assertions in the standalone runner.
@@ -207,9 +208,8 @@
 
 !reset
 [test boundary_cue_growth]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !reset
 !mcp gen.respond {"input":"Compare a zorbium cup and a flaxen flask for thermal endurance."}
 !mcp kb.query {"pred":"task_ir","args":["argument_1","zorbium_cup"]}
@@ -224,9 +224,8 @@
 !expect mcp "provable":false
 
 [test goal_cue_growth]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !reset
 !mcp gen.respond {"input":"Compare a bicycle and a car for clean-city-use. Which should I choose and why?"}
 !expect! mcp a bicycle is the better fit
@@ -238,9 +237,8 @@
 !expect! mcp a bicycle is the better fit
 
 [test entity_cue_growth]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !reset
 !mcp gen.respond {"input":"Compare cycle-alpha and auto-beta for a low-emission urban trip. Which should I choose and why?"}
 !expect! mcp "a bicycle is the better fit"
@@ -254,9 +252,8 @@
 !expect! mcp "a bicycle is the better fit"
 
 [test focus_cue_growth]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !reset
 !mcp gen.respond {"input":"Describe the process of brewing beer at home, emphasizing taste-impact-alpha."}
 !expect! mcp strongly affects
@@ -268,9 +265,8 @@
 !expect! mcp strongly affects
 
 [test deadline_cue_growth]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !reset
 !mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal within cap-alpha using only a microwave and a toaster."}
 !expect! mcp about 50 minutes
@@ -282,9 +278,8 @@
 !expect! mcp about 50 minutes
 
 [test resource_cue_growth]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !reset
 !mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal under an hour using wave-box and bread-slot."}
 !expect! mcp three finished courses
@@ -298,9 +293,8 @@
 !expect! mcp three finished courses
 
 [test constraint_cue_growth]
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !reset
 !mcp gen.respond {"input":"Write an instruction manual for assembling flat-pack furniture, constraint-alpha."}
 !mcp kb.query {"pred":"task_ir","args":["constraint","no_diagrams"]}

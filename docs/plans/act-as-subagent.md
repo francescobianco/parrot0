@@ -1,5 +1,11 @@
 # parrot0 come subagent — il protocollo del round guidato
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > **Stato:** primo round completo eseguito a **gen337 (2026-07-18)** — T16 di
 > [[coding-agent-todo]] chiuso (parte catene `cue(`) **da parrot0 stesso**,
 > guidato a prompt da un LLM supervisore (Claude).

@@ -16,7 +16,7 @@
 # appartenenza alla classe «part» ingoiando «of x»; e la regola risultante aveva
 # una variabile di testa che il corpo non nomina — non poteva concludere niente,
 # e veniva comunque ANNUNCIATA come appresa (mantra #7).
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !reset
 

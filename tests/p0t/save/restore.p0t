@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # Migrated from tests/restore.sh.
 # /restore must discard unsaved session state and reload facts and rules written
 # to disk while keeping the same parrot0 process alive.
@@ -8,8 +10,7 @@
 !exec mkdir -p p0tmp_restore
 !set PARROT0_BASE=p0tmp_restore/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 # A. An unsaved session fact is dropped by /restore.

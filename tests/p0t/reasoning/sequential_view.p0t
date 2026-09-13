@@ -1,11 +1,12 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # SEQUENTIAL DERIVED VIEWS — finishing one conjunct closes its inference scope.
 # Reusing the same ground view in the next conjunct is sequencing, not recursion.
 
-[mock hermetic]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 

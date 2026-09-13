@@ -22,7 +22,7 @@
 # Non era un motore da scrivere: era un motore da COLLEGARE, e per derivazione,
 # non per elenco (kb/core/grammar.p0, blocco gen490).
 
-[mock hermetic]
+[mock live]
 !set PARROT0_LANG=en
 !reset
 

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # dif.p0t — il vincolo di DISUGUAGLIANZA, ground e differito.
 # Convertito da tests/dif.sh (gen444).
 #
@@ -8,8 +10,7 @@
 
 [test dif_ground]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !clause distinct($X, $Y) :- dif($X, $Y)
 !query distinct(a, b)
@@ -18,8 +19,7 @@
 
 [test dif_deferred_inside_a_rule]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert color(apple, red)
 !assert color(banana, yellow)

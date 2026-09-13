@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # assertclause.p0t — `kb.assert_clause`: una clausola definita INTERA da MCP.
 # Convertito da tests/assertclause.sh (gen444).
 #
@@ -7,8 +9,7 @@
 
 [test assertclause]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !mcp kb.assert {"pred":"parent","args":["tom","bob"]}
 !mcp kb.assert {"pred":"parent","args":["bob","ann"]}

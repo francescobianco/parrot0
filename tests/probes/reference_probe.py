@@ -132,7 +132,7 @@ def call_oracle(key: str, model: str, turns: list[str], budget: int) -> list[str
 def ask_parrot0(turns: list[str]) -> list[str]:
     env = dict(os.environ)
     env.update({"PARROT0_PROFILE": "kb/profiles/agi.p0", "PARROT0_SESSION": "",
-                "PARROT0_WORLD_FACTS": "1", "PARROT0_TOOLS": "0",
+                "PARROT0_TOOLS": "0",
                 "PARROT0_LANG": "it", "PARROT0_EOT": "<<EOT>>"})
     p = subprocess.run([os.path.join(ROOT, "bin/parrot0")],
                        input="\n".join(turns) + "\n/quit\n", text=True,

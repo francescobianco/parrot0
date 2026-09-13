@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # strknow.p0t — convertito da tests/strknow.sh (gen444).
 #
 # gen285 (U4, NEXT.md / teach-comprehension-via-mcp.md §5.3/§6.1) — a string
@@ -16,8 +18,7 @@
 
 [test strknow_0]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert upper(m, M)
 !assert upper(a, A)
@@ -32,8 +33,7 @@
 
 [test strknow_1]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 !mcp kb.assert {"pred":"upper","args":["h","H"]}

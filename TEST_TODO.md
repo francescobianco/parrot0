@@ -1,5 +1,21 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+**2026-09-13 — rimozione del caricamento ridotto.** Interruttore del mondo
+eliminato dal motore e dai setup; base/lessico condivisi sempre caricati,
+profile vuoto o assente → `agi`, supplementi additivi. Il test engine non
+supporta più `!forget @base`. I setup legacy sono normalizzati, ma le loro
+attese non sono state convalidate. **Nessun test eseguito dopo questa modifica,
+su richiesta di F.; la rivalutazione della suite resta a F.** Le misure
+storiche con KB ridotta sono obsolete e non devono essere ripristinate come
+baseline. Piano aggiornato: `docs/plans/mix-of-capabilities.md`.
+
+
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 **assistente utile U14 (2026-09-13)**: `make soft-test` lanciato nello stesso comando subito dopo un commit (il binario si ricompila per `version.o`) e' uscito rosso due volte e verde al secondo lancio, senza modifiche in mezzo: da capire se il demone parte prima che la build finisca. `user_situations.p0t` 36.
 
 **assistente utile U1+U2 (2026-09-13)**: nuovo `conversation/user_situations.p0t`
@@ -783,7 +799,7 @@ i miei `timeout 90` lo troncavano facendolo *sembrare* un blocco, con 281
 **2. I tre rossi rimasti fra quelli noti**, in ordine di chiarezza:
    - **`mcp/aggregate.p0t`** (4/0 → 2/2, **regressione mia, non diagnosticata**):
      «chi ha vinto di più» risponde `M1.` invece di `spain`. Il file usa
-     `PARROT0_PROFILE=` vuota e `WORLD_FACTS=0`: **va prima convertito (R1)**,
+     `PARROT0_PROFILE=` vuota e la vecchia modalità di KB ridotta (rimossa): **va prima convertito (R1)**,
      perché metà della diagnosi potrebbe essere il contesto amputato.
    - **`conversation/forget_move.p0t`** (3/3, preesistente): il messaggio di
      `forget` è *formattato e mai emesso* — `answerframe` ruba il turno. È
@@ -829,8 +845,8 @@ Sono vietati, in ogni file nuovo e in ogni file che si tocca:
 
 ```
 [mock hermetic]
-!set PARROT0_BASE=          ← una KB di sole regole, senza conoscenza
-!set PARROT0_WORLD_FACTS=0  ← il mondo spento
+!set PARROT0_BASE=kb/core/base.p0          ← una KB di sole regole, senza conoscenza
+# Configurazione storica con conoscenza rimossa: non supportata.
 ```
 
 **Il perché, e non è una preferenza di stile.** La KB non è un volume montato
@@ -847,7 +863,7 @@ conoscere (`zorbles`, `puppo`, `nivora`). Mai spegnere il mondo per far tacere
 una frase.
 
 **Debito misurato al 2026-09-03: 288 file su 441 usano `[mock hermetic]`** (268
-con `PARROT0_BASE=` vuota, 291 con `WORLD_FACTS=0`), cioè il 65% della suite. È
+con `PARROT0_BASE=` vuota, 291 con la vecchia modalità di KB ridotta (rimossa)), cioè il 65% della suite. È
 troppo per una sessione: la regola è **si converte ogni file che si tocca**, e
 nessun file nuovo lo usa. Chi finisce la coda cancella questo paragrafo.
 
@@ -988,7 +1004,7 @@ le variabili che la ri-basano per farla apparire vuota perdono di significato.
 Nei test nuovi si usano **entità inventate** sulla KB reale, non l'amputazione.
 
 Le conversioni fatte prima di questa regola ricopiano l'amputazione dagli script
-(`!set PARROT0_BASE=`, `PARROT0_PROFILE=`, `PARROT0_WORLD_FACTS=0`) e **vanno
+(`!set PARROT0_BASE=`, `PARROT0_PROFILE=`, la vecchia modalità di KB ridotta (rimossa)) e **vanno
 ripassate**. `p0t/oracle/posix.p0t` è il primo fatto con il criterio giusto — e
 convertendolo è saltato fuori che `kb/experts/programming/bash.p0` è un
 **duplicato orfano** di `shell.p0`, incluso da nessuno: il test passava solo

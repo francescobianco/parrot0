@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # GEN438 — PROSA E DOMANDA CONSUMANO LA STESSA IR.
 #
 # Esperimento costruttivo, non bench. Dimostra:
@@ -8,11 +10,10 @@
 #   quella proposizione e puo' rispondere nella lingua del nuovo turno;
 # - forma, cue e lettura ambigua sono ablabili senza rebuild.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen438-frames.p0
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 
@@ -54,7 +55,7 @@
 !query proposition_source(proposition(binary(produce_relation), roles(subject(million), object(flourion))), source(inline, "mill produces flour"), language(en), range(0, 19))
 !query proposition_source(proposition(measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram)))), source(inline, "lumion weighs 7 grams"), language(en), range(21, 21))
 
-[mock core]
+[mock live]
 !set PARROT0_LANG=it
 !reset
 
@@ -72,7 +73,7 @@
 !query input_scope_language(current_turn, en)
 !query input_scope_language(current_prose, it)
 
-[mock core]
+[mock live]
 !set PARROT0_LANG=en
 !reset
 

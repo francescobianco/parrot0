@@ -11,8 +11,8 @@ pass=0 fail=0
 probe() { # id, exact prompt, discriminating answer fragment
     local id="$1" prompt="$2" want="$3" got rc
     got="$(printf '%s\n/quit\n' "$prompt" |
-        timeout 1 env PARROT0_BASE= PARROT0_SESSION= \
-            PARROT0_WORLD_FACTS=1 "$BIN" 2>/dev/null)"
+        timeout 1 env PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= \
+            "$BIN" 2>/dev/null)"
     rc=$?
     got="${got%%$'\n'*}"
     if [ "$rc" -eq 0 ] && [[ "$got" == *"$want"* ]]; then
@@ -92,7 +92,7 @@ cleanup() {
     rmdir "$MCP_DIR" 2>/dev/null || true
 }
 trap cleanup EXIT
-"$ROOT/scripts/mcp-live.sh" start PARROT0_BASE= PARROT0_WORLD_FACTS=1 >/dev/null
+"$ROOT/scripts/mcp-live.sh" start PARROT0_BASE=kb/core/base.p0 >/dev/null
 call() { "$ROOT/scripts/mcp-live.sh" call "$1" "$2"; }
 
 act_prompt="Please beta-frame a library with one copy for mass access."

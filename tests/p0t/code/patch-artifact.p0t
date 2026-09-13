@@ -1,12 +1,13 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # PatchArtifact is durable data plus a recoverable multi-file transaction.
 # The driver contains only direct patch.h mechanics; this file owns the fixture,
 # process-boundary orchestration, and the behavioral assertions.
 
 [test patch_artifact]
 !set PARROT0_SESSION=
-!set PARROT0_BASE=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 !exec sh -c 'printf "%s\n" /tmp/parrot0-patch-artifact-driver-* | grep -vF "*" | xargs -r rm -f'

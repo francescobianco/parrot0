@@ -20,7 +20,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 DLG_DIR="$ROOT/tests/longchat"
 
-export PARROT0_BASE= PARROT0_SESSION=
+export PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION=
 
 if [ ! -x "$BIN" ]; then
     echo "longchatbench: binary not built ($BIN)" >&2

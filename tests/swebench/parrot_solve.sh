@@ -29,7 +29,7 @@ EXCREL="${EXC#"$ROOT"/}"                     # tests/swebench/lite/<inst>/repo_e
 
 echo "== parrot0 sweeps $EXCREL (self-localization) =="
 find "$EXC" -name '*.p0fix' -delete
-reply="$(printf 'fix the bug in %s\n' "$EXCREL" | (cd "$ROOT" && PARROT0_BASE= PARROT0_SESSION= "$BIN" 2>/dev/null))"
+reply="$(printf 'fix the bug in %s\n' "$EXCREL" | (cd "$ROOT" && PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION= "$BIN" 2>/dev/null))"
 echo "parrot0: $reply"
 
 FIX="$(find "$EXC" -name '*.p0fix' | head -1)"

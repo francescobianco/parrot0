@@ -29,7 +29,7 @@ BIN="$ROOT/bin/parrot0"
 CODE_DIR="$ROOT/tests/code"
 
 # Hermetic: no kb/ files, so code understanding is proven by the brain alone.
-export PARROT0_BASE= PARROT0_SESSION=
+export PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION=
 
 if [ ! -x "$BIN" ]; then
     echo "codebench: binary not built ($BIN)" >&2

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # anon.p0t — le VARIABILI ANONIME sono indipendenti fra loro.
 # Convertito da tests/anon.sh (gen444).
 #
@@ -18,8 +20,7 @@
 
 [test anon_vars_are_independent]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 !assert edge(a, b)

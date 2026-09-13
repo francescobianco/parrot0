@@ -1,13 +1,14 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # GEN438 — STESSA IR PER ASSERZIONE E DOMANDA.
 #
 # Matrice costruttiva: 3 operatori x 2 modi x 2 lingue curate, poi la stessa
 # famiglia in una terza lingua aggiunta interamente a runtime.
 
-[mock core]
+[mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen438-frames.p0
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 
@@ -30,7 +31,7 @@
 !query input_semantic_frame(current_turn, question, membership(isa), roles(subject(lumion), class(missing)))
 !query input_frame_gap(current_turn, membership(isa), class)
 
-[mock core]
+[mock live]
 !set PARROT0_LANG=it
 !reset
 
@@ -53,7 +54,7 @@
 !query input_semantic_frame(current_turn, question, membership(isa), roles(subject(lumion), class(missing)))
 !query input_frame_gap(current_turn, membership(isa), class)
 
-[mock core]
+[mock live]
 !set PARROT0_LANG=en
 !reset
 

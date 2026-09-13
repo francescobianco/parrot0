@@ -1,5 +1,11 @@
 # Usare parrot0 come modello nel pi agent
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 parrot0 non è un LLM: è un coding agent conversazionale in puro C. Da **gen221**
 espone **direttamente** un endpoint OpenAI-compatible — `parrot0 --daemon` — in
 modo che il comando `pi` (`@earendil-works/pi-coding-agent`), o qualunque client

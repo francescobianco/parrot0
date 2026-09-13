@@ -1,5 +1,11 @@
 # NEXT — punto di ripartenza + piano upfront del lavoro in corso
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 > Aggiornato a gen281 (2026-07-07). Questo file è il **piano upfront**: se stacco a
 > metà, ogni modifica non committata deve essere riconducibile a quanto scritto
 > qui. Contesto: `docs/plans/teach-comprehension-via-mcp.md` §5.5 (sequenza

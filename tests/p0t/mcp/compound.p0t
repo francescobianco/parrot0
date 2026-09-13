@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # compound.p0t — convertito da tests/compound.sh (gen444).
 #
 # gen283 (U3, NEXT.md / teach-comprehension-via-mcp.md §6.1) — STRUCTURAL
@@ -12,8 +14,7 @@
 
 [test compound_0]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 !assert nat(z)
 !clause nat(s($N)) :- nat($N)
@@ -33,8 +34,7 @@
 
 [test compound_1]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 !mcp kb.assert_clause {"head":{"pred":"add","args":["s($X)","$Y","s($Z)"]},"body":[{"pred":"add","args":["$X","$Y","$Z"]}]}

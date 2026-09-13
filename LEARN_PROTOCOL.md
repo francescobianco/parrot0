@@ -1,5 +1,11 @@
 # Protocollo operativo di addestramento di parrot0
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 Questo file è un comando operativo per un coding agent. L'invocazione prevista è:
 
 > Leggi `LEARN_PROTOCOL.md` ed esegui il protocollo per addestrare parrot0 sul

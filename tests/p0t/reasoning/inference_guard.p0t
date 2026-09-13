@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # La guardia anti-ISTERESI del risolutore (gen382).
 #
 # Il punto non e' che una KB scritta male sia lenta: e' che parrot0 IMPARA
@@ -18,7 +20,7 @@
 # Il budget di default di 1s per turno E' l'asserzione di terminazione: se la
 # guardia regredisce, questo file non diventa rosso "per poco", va a muro.
 
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !reset
 

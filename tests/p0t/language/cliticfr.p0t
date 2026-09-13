@@ -1,12 +1,13 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # gen307 (U5 rule 5, docs/plans/teach-comprehension-via-mcp.md) -- FRENCH
 # Object-clitic placement and elision. The grammar is knowledge:
 # clitic_obj_fr/1, elide_fr/2, and clitic_join/3 are queried by the fixed
 # translator and composition engine.
 
-[mock hermetic]
-!set PARROT0_BASE=
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 

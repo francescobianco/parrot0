@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # Migrated from tests/persist.sh.
 # Persistence uses a private repository-local fixture tree because the MCP path
 # contract deliberately rejects paths outside the workspace.
@@ -6,9 +8,8 @@
 !timeout 30
 !exec rm -rf p0tmp_persist
 !exec mkdir -p p0tmp_persist
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
-!set PARROT0_BASE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !set PARROT0_KB_ROOT=p0tmp_persist
 !reset
@@ -44,7 +45,7 @@
 !filelacks p0tmp_persist/session.p0 man(plato).
 
 # 6. Explicit negative knowledge is readable and survives reload.
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
 !reset
 > zara is not a quoll

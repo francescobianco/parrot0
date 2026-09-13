@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # arith_guard.p0t — contratto di crescita dell'instradamento aritmetico
 # "plan-first". Convertito da tests/arith_guard_growth.sh (gen444).
 #
@@ -8,8 +10,7 @@
 
 [test arith_guard_growth]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 # prima: nessuno schema dichiarato, l'aritmetica scalare risponde

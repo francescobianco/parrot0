@@ -1,12 +1,13 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # agentcommit.p0t — repository-bound repair bridge, converted from
 # tests/agentcommit.sh.  The three phases share one workspace fixture but reset
 # the Brain between live MCP sessions, matching the shell test's isolation.
 
 [test agentcommit]
 !set PARROT0_SESSION=
-!set PARROT0_BASE=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 !exec test -x bin/parrot0

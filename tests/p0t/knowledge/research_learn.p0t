@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # Migrated from tests/research_learn.sh.
 # The fixture is local and disposable; the expected responses intentionally keep
 # the known historical assertions from the shell regression.
@@ -5,10 +7,9 @@
 [test research_learn]
 !exec rm -f kb/learning/pages/foo.md learned.p0
 !exec sh -c 'printf "%s\n" "# Foo" "" "- Domain: \`testing\`" "" "## Learned Concept" "" "small deterministic test concept" "" "## Extract" "" "Foo is a fixture used by the parrot0 research learner test." > kb/learning/pages/foo.md'
-!set PARROT0_BASE=
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !set PARROT0_WIKI_DIR=
 !set PARROT0_LEARN_KB=learned.p0

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # model_graph.p0t — converted from tests/model_graph.sh (gen365).
 #
 # Living-model queries, proof-carrying joins, and runtime comprehension-frame
@@ -5,7 +7,7 @@
 
 [test model_graph]
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 !mcp kb.query {"pred":"happened_in","args":["first_moon_landing","1969"]}

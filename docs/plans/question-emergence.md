@@ -1125,7 +1125,7 @@ faccia sforare il budget in modo deterministico.
 motore appena avviato e cade sul PRIMO blocco quando nella stessa esecuzione lo
 precede un altro file — mentre i sette blocchi successivi, identici per forma,
 passano. Qualcosa sopravvive al `!reset` fra un file e il successivo e nessuna
-combinazione di `!set` (BASE, PROFILE, WORLD_FACTS, LANG) lo ha rimesso a posto;
+combinazione di `!set` (BASE, PROFILE, LANG; vecchi interruttori oggi rimossi) lo ha rimesso a posto;
 un secondo `!reset` consecutivo viene saltato dalla logica «reset intelligente».
 Per questo la riga nel `Makefile` e' commentata: mettercela significherebbe
 scegliere fra una suite rossa e un'aspettativa indebolita fino a passare per il

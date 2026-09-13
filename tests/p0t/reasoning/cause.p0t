@@ -3,7 +3,6 @@
 # gen505y — R1 (TEST_TODO §0.0): la KB intera, non un contesto amputato.
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset

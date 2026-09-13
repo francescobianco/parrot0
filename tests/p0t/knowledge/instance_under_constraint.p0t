@@ -14,7 +14,7 @@
 # La lettura giusta e' strutturale: se dopo la categoria resta del turno, quel
 # residuo E' un vincolo. `member_satisfies/2` lo verifica via `kb_fact/2`, quindi
 # senza nominare nessuna relazione nel C.
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !reset
 

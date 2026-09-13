@@ -74,10 +74,9 @@ def main() -> int:
     base = f"http://127.0.0.1:{port}"
     env = {
         **os.environ,
-        "PARROT0_BASE": "",
+        "PARROT0_BASE": "kb/core/base.p0",
         "PARROT0_SESSION": "",
-        "PARROT0_PROFILE": "",
-        "PARROT0_WORLD_FACTS": "0",
+        "PARROT0_PROFILE": "kb/profiles/agi.p0",
         "PARROT0_LANG": "en",
         "PARROT0_TOOLS": "0",
     }

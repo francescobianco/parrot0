@@ -26,7 +26,7 @@ set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 LITE="$ROOT/tests/swebench/lite"
-export PARROT0_BASE= PARROT0_SESSION=
+export PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION=
 
 [ -x "$BIN" ] || { echo "swebench: binary not built ($BIN)" >&2; exit 1; }
 command -v jq >/dev/null || { echo "swebench: jq required to read instance.json" >&2; exit 1; }

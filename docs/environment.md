@@ -1,12 +1,17 @@
 # Le variabili d'ambiente di parrot0
 
+> **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
+> la KB completa del profilo scelto; la sua crescita è crescita della KB.
+> Non esistono modalità ermetiche o interruttori dei fatti del mondo.
+> Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
+> è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
+
 Censimento completo, al `gen449`. Ricavato leggendo il sorgente, non la
 memoria: ogni voce cita il file e la riga che la consuma, cosi' che quando una
 riga si sposta si veda subito che questa pagina e' invecchiata.
 
-**Totale: 32 nomi letti dal binario**, piu' 5 usati dagli strumenti di test e
-di build, piu' 1 che parrot0 *scrive* (non legge) nell'ambiente dei processi
-figli.
+Il censimento numerico originario è storico; per le variabili attuali fa fede
+il codice e, per il caricamento, la sezione 1 aggiornata qui sotto.
 
 ---
 
@@ -52,34 +57,25 @@ L'elenco autorevole delle variabili «boot» e' `MEMORY_VARS` in
 
 ## 1. Quale conoscenza si carica
 
-Sono le variabili che decidono **che cosa parrot0 sa** all'avvio. Tutte
-`p0env`, tutte boot: sono la definizione stessa dell'istanza.
+Il profilo seleziona la conoscenza di parrot0. Il core condiviso è sempre
+caricato: non esiste un interruttore dei fatti del mondo. Una configurazione
+vuota usa il default e non produce un soggetto privo della propria KB.
 
 | variabile | default | letta via | boot | a che serve |
 |---|---|---|:--:|---|
-| `PARROT0_BASE` | `kb/core/base.p0` | `p0env` | si' | Il file d'ingresso della conoscenza. `99-registry.c:1109` |
-| `PARROT0_PROFILE` | *(nessuno; `--daemon` mette `kb/profiles/agi.p0`)* | `p0env` | si' | Profilo caricato sopra la base. `99-registry.c:1110`, `main.c:939` |
-| `PARROT0_LEXICON` | `kb/core/lexicon.p0` | `p0env` | si' | Il lessico curato del kernel. **Stringa vuota = non caricarlo.** `99-registry.c:670` |
-| `PARROT0_WORLD_FACTS` | *caricato* | `p0env` | si' | `=0` non carica `kb/core/world-facts.p0`. `99-registry.c:779` |
-| `PARROT0_KB_ROOT` | `kb` | `p0env` | si' | Radice dell'albero in cui `/save` instrada cio' che si e' imparato. `99-registry.c:910` |
-
-Esempi:
+| `PARROT0_PROFILE` | `kb/profiles/agi.p0` | `p0env` | sì | Profilo scelto; `--profile` prevale sull'ambiente. Vuoto significa default. |
+| `PARROT0_BASE` | base condivisa | `p0env` | sì | Eventuale file aggiuntivo; non sostituisce `kb/core/base.p0`, sempre caricato. |
+| `PARROT0_LEXICON` | lessico condiviso | `p0env` | sì | Eventuale supplemento; non sostituisce `kb/core/lexicon.p0`, sempre caricato. |
+| `PARROT0_KB_ROOT` | `kb` | `p0env` | sì | Radice di instradamento della conoscenza salvata. |
 
 ```bash
-# il caso normale: chat con il profilo completo
-PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
-
-# un cervello NUDO, per dimostrare che una cosa si impara e non e' precaricata
-PARROT0_WORLD_FACTS=0 PARROT0_LEXICON= ./bin/parrot0
-
-# dentro un .p0t, senza rilanciare il processo
-!set PARROT0_WORLD_FACTS=0
-!reset
+./bin/parrot0 --profile kb/profiles/agi.p0
 ```
 
-> La riga `PARROT0_WORLD_FACTS=0` e' quella che rende onesta una prova di
-> apprendimento: senza, non si distingue cio' che parrot0 ha imparato da cio'
-> che gli era stato messo in tasca.
+La stessa KB vale per conversazione, MCP e test. Per dimostrare crescita si
+insegna una forma nuova, si verifica l'effetto e si ritira precisamente la
+lezione; non si spegne la conoscenza preesistente. Le misure ottenute con KB
+ridotta sono obsolete anche come prove di meccanica.
 
 ---
 

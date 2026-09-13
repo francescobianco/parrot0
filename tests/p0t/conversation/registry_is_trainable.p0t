@@ -12,7 +12,7 @@
 #
 # Ora la lettura e' del REGISTRO: il nome con cui un modulo e' registrato E' il
 # suo nome pubblico. Un modulo NUOVO nasce governabile senza scrivere niente.
-[mock hermetic]
+[mock live]
 !set PARROT0_SESSION=
 !set PARROT0_LANG=en
 !reset

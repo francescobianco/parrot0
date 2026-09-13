@@ -16,7 +16,7 @@ names `astropy/modeling/separable.py::_cstack`). gen196 added Python "by delta"
 (one front-end emitting the same abstract facts the C engine reasons over).
 
 Repro: `make swe-bench`; the snippets below are real parrot0 output (gen196,
-`PARROT0_BASE= PARROT0_SESSION=`).
+`PARROT0_BASE=kb/core/base.p0 PARROT0_SESSION=`).
 
 ---
 

@@ -1,3 +1,5 @@
+# KB viva del profilo: caricamento completo. Le precedenti misure con KB
+# ridotta sono obsolete; le attese legacy richiedono rivalidazione semantica.
 # LESSICO INSEGNATO A RUNTIME — la prova forte del KB-first.
 #
 # Ogni volta che una CLASSE LESSICALE CHIUSA viene tolta dal C e portata in KB,
@@ -26,8 +28,7 @@
 [mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=kb/core/session.p0
-!set PARROT0_WORLD_FACTS=1
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 
