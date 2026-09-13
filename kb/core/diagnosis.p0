@@ -40,22 +40,34 @@ words_list_text(cons($A, cons($B, nil)), $T) :- node_text($A, $TA), node_text($B
 words_list_text(cons($A, cons($B, cons($C, $R))), $T) :- node_text($A, $TA), words_list_text(cons($B, cons($C, $R)), $Rest), concat_atoms($TA, ", ", $X), concat_atoms($X, $Rest, $T).
 
 % La domanda che distingue: due cause candidate con un segno ciascuna.
+% La causa detta nella lezione puo' essere di piu' parole («low light» → testo),
+% mentre nei fatti causali e' l'atomo `low_light`: si confrontano sulla stessa forma.
+machinery(sign_of_cause).
+sign_of_cause($C, $S) :- sign_of($C, $S).
+sign_of_cause($C, $S) :- sign_of($Said, $S), atom_words($Said, cons($W1, cons($W2, $R))), words_underscored(cons($W1, cons($W2, $R)), $C).
 machinery(discriminating_signs).
-discriminating_signs($E, $S1, $S2) :- causes($C1, $E), sign_of($C1, $S1), causes($C2, $E), sign_of($C2, $S2), dif($C1, $C2), dif($S1, $S2).
+discriminating_signs($E, $S1, $S2) :- causes($C1, $E), sign_of_cause($C1, $S1), causes($C2, $E), sign_of_cause($C2, $S2), dif($C1, $C2), dif($S1, $S2).
 
 machinery(diagnosis_asked).
 turn_scratch(diagnosis_asked).
 bookkeeper(diagnosis).
 turn_bookkeeping($Turn, diagnosis) :- turn_cue_form($Turn, diagnosis_cue, $Q), turn_effect($Turn, $E), turn_counter($N), assert(diagnosis_asked, $N, $E).
 
+% La domanda nomina TUTTI i segni noti delle cause candidate («do you see soggy
+% soil, dry soil or leggy stems?»): una causa senza segno resta fra le candidate
+% ma non si puo' indicare.
+machinery(effect_signs).
+effect_signs($E, $Signs) :- findall($S, effect_sign($E, $S), $Signs).
+machinery(effect_sign).
+effect_sign($E, $Atom) :- causes($C, $E), sign_of_cause($C, $Said), atom_words($Said, $Ws), words_underscored($Ws, $Atom).
+
 machinery(diagnosis_question_answer).
 diagnosis_question_answer($Turn, $Text) :-
     turn_cue_form($Turn, diagnosis_cue, $Q), turn_effect($Turn, $E), effect_causes($E, $List),
     words_list_text($List, $Causes), node_text($E, $ET),
-    discriminating_signs($E, $S1, $S2), sign_text($S1, $T1), sign_text($S2, $T2),
+    discriminating_signs($E, $S1, $S2), effect_signs($E, $Signs), words_list_text($Signs, $SignText),
     concat_atoms("Several things cause ", $ET, $A), concat_atoms($A, ": ", $B), concat_atoms($B, $Causes, $C),
-    concat_atoms($C, ". To tell them apart: is it ", $D), concat_atoms($D, $T1, $F), concat_atoms($F, ", or ", $G),
-    concat_atoms($G, $T2, $H), concat_atoms($H, "?", $Text).
+    concat_atoms($C, ". To tell them apart, do you see ", $D), concat_atoms($D, $SignText, $F), concat_atoms($F, "?", $Text).
 machinery(sign_text).
 sign_text($S, $T) :- atom_words($S, $Ws), words_joined($Ws, $T).
 
@@ -66,7 +78,7 @@ machinery(later_diagnosis).
 later_diagnosis($N) :- diagnosis_asked($M, $F), gt($M, $N).
 machinery(turn_sign_answer).
 turn_sign_answer($Turn, pair($C, $E), $S) :-
-    naf(turn_cue_form_diag($Turn)), last_diagnosis($E), causes($C, $E), sign_of($C, $S),
+    naf(turn_cue_form_diag($Turn)), last_diagnosis($E), causes($C, $E), sign_of_cause($C, $S),
     atom_words($S, $Ws), words_in_turn($Turn, $Ws).
 machinery(turn_cue_form_diag).
 turn_cue_form_diag($Turn) :- turn_cue_form($Turn, diagnosis_cue, $Q).
@@ -76,7 +88,7 @@ turn_cue_form_diag($Turn) :- turn_cue_form($Turn, diagnosis_cue, $Q).
 % del turno siano pubblicate come `turn_span_token`: si guardano i token di
 % superficie (`turn_word/3`), che ci sono gia'.
 machinery(turn_has_sign_answer).
-turn_has_sign_answer($Turn) :- last_diagnosis($E), causes($C, $E), sign_of($C, $S), atom_words($S, $Ws), surface_words_in_turn($Turn, $Ws).
+turn_has_sign_answer($Turn) :- last_diagnosis($E), causes($C, $E), sign_of_cause($C, $S), atom_words($S, $Ws), surface_words_in_turn($Turn, $Ws).
 machinery(surface_words_in_turn).
 surface_words_in_turn($Turn, nil).
 surface_words_in_turn($Turn, cons($W, $Rest)) :- turn_word($Turn, $I, $W), surface_words_in_turn($Turn, $Rest).

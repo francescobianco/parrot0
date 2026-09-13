@@ -248,3 +248,4 @@ avoid_on(butter, burn).
 avoid_on(ice, burn).
 sign_of(overwatering, "soggy soil").
 sign_of(underwatering, "dry soil").
+sign_of("low light", "leggy stems").

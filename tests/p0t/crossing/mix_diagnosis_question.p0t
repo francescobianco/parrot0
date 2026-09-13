@@ -15,7 +15,7 @@
 <~ overwatering
 <~ underwatering
 <~ low light
-<~ To tell them apart
+<~ To tell them apart, do you see
 <~ soggy soil
 <~ dry soil
 > the soil is soggy
@@ -27,3 +27,10 @@
 <~ To tell them apart
 > the soil feels very dry
 < That points to underwatering: dry soil is a sign of underwatering, which causes yellow leaves.
+
+[test a third cause with a sign of several words can be pointed to]
+!timeout 30
+> why are my plant leaves turning yellow?
+<~ leggy stems
+> the stems look leggy
+< That points to low light: leggy stems is a sign of low light, which causes yellow leaves.

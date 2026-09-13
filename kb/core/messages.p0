@@ -3396,7 +3396,7 @@ turn_form_priority(teach_avoid_on, early).
 response_template(learned_sign, "Held: a sign of {subject} is {object}.").
 response_template(learned_sign, it, "Tengo: un segno di {subject} è {object}.").
 turn_form(teach_sign, 1, text("a sign of")).
-turn_form(teach_sign, 2, slot(subject)).
+turn_form(teach_sign, 2, span(subject)).
 turn_form(teach_sign, 3, text("is")).
 turn_form(teach_sign, 4, rest(object)).
 turn_form_mood(teach_sign, statement).

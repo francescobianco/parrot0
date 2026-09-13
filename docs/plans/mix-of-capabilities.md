@@ -1452,9 +1452,15 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   prosa portata: la forza del turno si materializza prima dei `turn_span_token`,
   quindi l'eccezione legge i token di superficie.
 - **lezioni parlate salvate:** tre cause delle foglie gialle, due segni.
-- **resta:** la domanda è resa «is it soggy soil, or dry soil?» (la forma naturale
-  sarebbe «is the soil soggy or dry?»); la terza causa (poca luce) non ha ancora un
-  segno, quindi non viene mai indicata.
+- **seguito:** la domanda nomina tutti i segni noti («do you see leggy stems, dry soil
+  or soggy soil?»); lezione salvata «a sign of low light is leggy stems» (guide sulle
+  piante con poca luce: steli lunghi e sottili, foglie pallide) con la causa di più
+  parole ricondotta all'atomo; «the stems look leggy» → «That points to low light».
+  **Quarantena:** «the stems are long and leggy» era stato letto come enumerazione
+  chiusa (`condition_closed_world(stem)`, `stem(long)`, `stem(leggy)`) e salvato:
+  tolto; il lettore delle enumerazioni prende una descrizione per un elenco.
+- **resta:** «leggy stems is a sign» (accordo), e la frase descrittiva che il lettore
+  delle enumerazioni cattura.
 - **test:** `tests/p0t/crossing/mix_diagnosis_question.p0t` (4).
 
 ### mix-15-13-001 — quale confezione conviene
