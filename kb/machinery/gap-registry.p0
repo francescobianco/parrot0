@@ -112,6 +112,7 @@ machinery_gap("where does the river begin?").
 machinery_gap("where do i begin?").
 machinery_gap("how posso organizzare meglio the my giornata?").
 machinery_gap("the present for the class is a test").
+machinery_gap("when someone sees sparks then say to get out and call 112 on smoke or flames").
 machinery_gap("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
@@ -203,6 +204,12 @@ gap_opaque("how posso organizzare meglio the my giornata?", posso).
 gap_opaque("the present for the class is a test", test).
 gap_opaque("the present for the class is a test", class).
 gap_opaque("the present for the class is a test", present).
+gap_opaque("when someone sees sparks then say to get out and call 112 on smoke or flames", flames).
+gap_opaque("when someone sees sparks then say to get out and call 112 on smoke or flames", call).
+gap_opaque("when someone sees sparks then say to get out and call 112 on smoke or flames", get).
+gap_opaque("when someone sees sparks then say to get out and call 112 on smoke or flames", say).
+gap_opaque("when someone sees sparks then say to get out and call 112 on smoke or flames", sparks).
+gap_opaque("when someone sees sparks then say to get out and call 112 on smoke or flames", sees).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
@@ -241,6 +248,7 @@ gap_anchor("show is a relation verb", relation).
 gap_anchor("the problem with this theory is its size", size).
 gap_anchor("the problem with this theory is its size", theory).
 gap_kind("comprise is a relation verb", reachability).
+gap_anchor("when someone sees sparks then say to get out and call 112 on smoke or flames", smoke).
 gap_anchor("inhabit is a relation verb", verb).
 gap_anchor("inhabit is a relation verb", relation).
 gap_anchor("where does the river begin?", river).
@@ -265,6 +273,7 @@ gap_kind("i have a problem meccanico", reachability).
 gap_kind("should i go?", reachability).
 gap_kind("how posso organizzare meglio the my giornata?", reachability).
 gap_kind("i want to start running. where do i begin?", reachability).
+gap_kind("when someone sees sparks then say to get out and call 112 on smoke or flames", reachability).
 gap_kind("the present for the class is a test", reachability).
 gap_kind("where do i begin?", reachability).
 gap_kind("am sad today", reachability).
@@ -273,6 +282,7 @@ gap_kind("i want to start running", reachability).
 gap_kind("give me some ideas for a birthday present for my dad.", reachability).
 gap_kind("one of them is vegetarian.", reachability).
 gap_kind("i need to cook dinner for four people tonight.", reachability).
+gap_kind("there are scintille", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
@@ -326,5 +336,7 @@ gap_source("the present for the class is a test", "the present for the class is 
 gap_source("how posso organizzare meglio the my giornata?", "Come posso organizzare meglio la mia giornata?").
 gap_source("i want to start running", "I want to start running").
 gap_source("one of them is vegetarian.", "One of them is vegetarian.").
+gap_source("when someone sees sparks then say to get out and call 112 on smoke or flames", "when someone sees sparks then say to get out and call 112 on smoke or flames").
 gap_source("give me some ideas for a birthday present for my dad.", "Give me some ideas for a birthday present for my dad.").
 gap_source("i need to cook dinner for four people tonight.", "I need to cook dinner for four people tonight.").
+gap_source("there are scintille", "ci sono scintille").

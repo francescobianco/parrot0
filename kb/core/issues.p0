@@ -92,6 +92,55 @@ turn_bookkeeping($Turn, issue) :-
     assert(open_issue, $Issue, question), assert(issue_topic, $Issue, $Word),
     assert(issue_relation, $Issue, $Relation), assert(issue_turn, $Issue, $N).
 
+% ── 1bis. QUANDO NASCE UNA QUESTIONE DI GENERE `inquiry` (assistente utile) ─
+%
+% Un piano di situazione che fa una domanda all'utente («che cosa succede
+% esattamente?») apre una questione: parrot0 ha chiesto, l'utente deve. A
+% differenza di gap_offer e choice non nasce da un'azione del C ma da una mossa
+% del piano, quindi la apre la contabilita' del turno, come `question`. Il tema
+% e' la situazione; la legge del turno dopo sta in user-situations.p0 §1ter.
+% ⚠ Solo una situazione DIRETTA apre la questione. La contabilita' gira prima
+% della risposta: se anche il seguito («Da quando succede?») aprisse la sua, nel
+% turno stesso diventerebbe la massima e nasconderebbe la questione a cui il
+% turno sta rispondendo. Il seguito di un seguito resta per ora non tracciato.
+% La stessa situazione riaperta piu' tardi («ho un problema con la caldaia» dopo la
+% lavatrice) e' la stessa questione per identita' (Kind_Topic): la risposta di
+% prima non deve tenerla chiusa, e l'origine vecchia non deve farla sembrare
+% superata da questioni nate nel frattempo. I contabili si provano nell'ordine
+% in cui sono dichiarati e ciascuno fino alla prima soluzione: il reset viene
+% prima dell'apertura, e ne toglie una riga per turno — ce n'e' al piu' una.
+bookkeeper(inquiry_reset_answer).
+bookkeeper(inquiry_reset_turn).
+turn_bookkeeping($Turn, inquiry_reset_answer) :-
+    inquiry_answered($Issue, $K), issue_topic($Issue, $Situation),
+    direct_situation($Turn, $Situation), naf(turn_is_plan_lesson($Turn)),
+    retract(inquiry_answered, $Issue, $K).
+turn_bookkeeping($Turn, inquiry_reset_turn) :-
+    open_issue($Issue, inquiry), issue_topic($Issue, $Situation),
+    issue_turn($Issue, $K), turn_counter($N), dif($K, $N),
+    direct_situation($Turn, $Situation), naf(turn_is_plan_lesson($Turn)),
+    retract(issue_turn, $Issue, $K).
+
+bookkeeper(inquiry).
+turn_bookkeeping($Turn, inquiry) :-
+    move_asks($Move), plan_move($Situation, $Order, $Move),
+    direct_situation($Turn, $Situation), naf(turn_is_plan_lesson($Turn)),
+    issue_id(inquiry, $Situation, $Issue), turn_counter($N),
+    assert(open_issue, $Issue, inquiry), assert(issue_topic, $Issue, $Situation), assert(issue_turn, $Issue, $N).
+% E la RISPOSTA la chiude (dialogica L2: una mossa che risolve la questione). Si
+% segna nel turno in cui arriva, e vale dal turno dopo: nel turno stesso la
+% questione deve restare leggibile, perche' la risposta viene servita dopo la
+% contabilita'. Senza, «it started yesterday» riceveva di nuovo la domanda
+% appena risolta.
+machinery(inquiry_answered).
+turn_scratch(inquiry_answered).
+bookkeeper(inquiry_answer).
+turn_bookkeeping($Turn, inquiry_answer) :-
+    turn_answers_inquiry_issue($Turn, $Issue), turn_counter($N),
+    assert(inquiry_answered, $Issue, $N).
+machinery(inquiry_closed).
+inquiry_closed($Issue) :- inquiry_answered($Issue, $K), turn_counter($N), dif($K, $N).
+
 % Le questioni di parrot0 (gap_offer, choice) le apre il C quando le pone —
 % l'offerta di leggere (network.p0 §4) e il bivio di una pagina che disambigua
 % (§9) — perche' nascono da un'azione, non da una lettura del turno.
@@ -112,6 +161,8 @@ issue_state($Issue, open) :- open_issue($Issue, question), naf(issue_answered($I
 % dovra' scadere, sara' una regola qui (dialogica L4, `issue_expiry`).
 issue_state($Issue, open) :- open_issue($Issue, gap_offer).
 issue_state($Issue, open) :- open_issue($Issue, choice).
+issue_state($Issue, open) :- open_issue($Issue, inquiry), naf(inquiry_closed($Issue)).
+issue_state($Issue, resolved) :- open_issue($Issue, inquiry), inquiry_closed($Issue).
 issue_open($Issue, $Kind) :- open_issue($Issue, $Kind), issue_state($Issue, open).
 
 % Chi deve la prossima mossa: parrot0 su una domanda dell'utente, l'utente su
@@ -120,6 +171,7 @@ issue_open($Issue, $Kind) :- open_issue($Issue, $Kind), issue_state($Issue, open
 issue_owed_by($Issue, parrot0) :- open_issue($Issue, question), issue_state($Issue, open).
 issue_owed_by($Issue, user) :- open_issue($Issue, gap_offer).
 issue_owed_by($Issue, user) :- open_issue($Issue, choice).
+issue_owed_by($Issue, user) :- open_issue($Issue, inquiry), naf(inquiry_closed($Issue)).
 
 % ── 3. LA QUESTIONE MASSIMA ─────────────────────────────────────────────────
 %

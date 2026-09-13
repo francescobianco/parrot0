@@ -43,6 +43,7 @@ part_of(femur, skeletal).
 part_of(nucleus, cell).
 part_of(atrium, heart).
 part_of(ventricle, heart).
+part_of(spark_plug, engine).
 
 % --- major organs ---
 organ(heart, "muscular pump circulating blood through the body").

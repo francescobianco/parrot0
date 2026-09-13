@@ -108,7 +108,7 @@ turn_cue_registry(situation_settled_cue, 1).
 turn_speaker_involved($Turn) :- turn_cue_form($Turn, speaker_cue, $Cue).
 turn_situation_settled($Turn) :- turn_cue_form($Turn, situation_settled_cue, $Cue).
 
-user_situation($Turn, $Situation) :-
+direct_situation($Turn, $Situation) :-
     turn_cue_form($Turn, trouble_cue, $Cue),
     trouble_cue($Cue, $Situation),
     turn_speaker_involved($Turn),
@@ -130,7 +130,7 @@ malfunction_cue("won't start").
 malfunction_cue("non funziona").
 malfunction_cue("non parte").
 malfunction_cue("keeps disconnecting").
-user_situation($Turn, user_problem) :-
+direct_situation($Turn, user_problem) :-
     turn_cue_form($Turn, trouble_cue, $Cue),
     malfunction_cue($Cue),
     naf(turn_speaker_involved($Turn)),
@@ -154,7 +154,7 @@ turn_cue_registry(choice_cue, 1).
 alternative_cue(" or ").
 alternative_cue(" o ").
 turn_cue_registry(alternative_cue, 1).
-user_situation($Turn, user_choice) :-
+direct_situation($Turn, user_choice) :-
     turn_cue_form($Turn, choice_cue, $Cue),
     turn_cue_form($Turn, alternative_cue, $Or).
 
@@ -174,7 +174,7 @@ help_scope_cue("in cosa puoi aiutarmi").
 help_scope_cue("come puoi aiutarmi").
 help_scope_cue("cosa puoi fare per me").
 turn_cue_registry(help_scope_cue, 1).
-user_situation($Turn, user_help_scope) :- turn_cue_form($Turn, help_scope_cue, $Cue).
+direct_situation($Turn, user_help_scope) :- turn_cue_form($Turn, help_scope_cue, $Cue).
 
 % assistente utile U12b — SCRIVERE UN MESSAGGIO. «Help me write an email.»
 % riceveva «I understood the request — produce «email» — … no code to show for
@@ -189,7 +189,7 @@ writing_help_cue("help me with a message").
 writing_help_cue("aiutami a scrivere").
 writing_help_cue("mi aiuti a scrivere").
 turn_cue_registry(writing_help_cue, 1).
-user_situation($Turn, user_writing) :- turn_cue_form($Turn, writing_help_cue, $Cue).
+direct_situation($Turn, user_writing) :- turn_cue_form($Turn, writing_help_cue, $Cue).
 
 % assistente utile U13 — COMINCIARE QUALCOSA DI NUOVO. «I want to start running.
 % Where do I begin?» riceveva un muro su «running», «I want to learn to cook.
@@ -206,7 +206,7 @@ getting_started_cue("da dove comincio").
 getting_started_cue("da dove inizio").
 getting_started_cue("da dove parto").
 turn_cue_registry(getting_started_cue, 1).
-user_situation($Turn, user_getting_started) :- turn_cue_form($Turn, getting_started_cue, $Cue).
+direct_situation($Turn, user_getting_started) :- turn_cue_form($Turn, getting_started_cue, $Cue).
 
 % assistente utile U14 — ORGANIZZARE IL PROPRIO TEMPO. «Come posso organizzare
 % meglio la mia giornata?» (il prompt `italian` del banco) riceveva «Non capisco
@@ -221,7 +221,7 @@ time_organizing_cue("organise my day").
 time_organizing_cue("manage my time").
 time_organizing_cue("plan my day").
 turn_cue_registry(time_organizing_cue, 1).
-user_situation($Turn, user_organizing_time) :- turn_cue_form($Turn, time_organizing_cue, $Cue).
+direct_situation($Turn, user_organizing_time) :- turn_cue_form($Turn, time_organizing_cue, $Cue).
 
 % assistente utile U15 — IDEE PER UN REGALO. «Give me some ideas for a birthday
 % present for my dad» riceveva prima «Thanks for telling me about your family»
@@ -235,7 +235,7 @@ gift_idea_cue("gift ideas").
 gift_idea_cue("regalo per").
 gift_idea_cue("idee regalo").
 turn_cue_registry(gift_idea_cue, 1).
-user_situation($Turn, user_gift_ideas) :- turn_cue_form($Turn, gift_idea_cue, $Cue), turn_speaker_involved($Turn).
+direct_situation($Turn, user_gift_ideas) :- turn_cue_form($Turn, gift_idea_cue, $Cue), turn_speaker_involved($Turn).
 
 % assistente utile U17 — CUCINARE PER ALTRI, E IL VINCOLO CHE ARRIVA DOPO.
 % «I need to cook dinner for four people tonight.» / «One of them is
@@ -251,7 +251,7 @@ hosting_meal_cue("cooking for").
 hosting_meal_cue("cucinare per").
 hosting_meal_cue("cena per").
 turn_cue_registry(hosting_meal_cue, 1).
-user_situation($Turn, user_hosting_meal) :- turn_cue_form($Turn, hosting_meal_cue, $Cue), turn_speaker_involved($Turn).
+direct_situation($Turn, user_hosting_meal) :- turn_cue_form($Turn, hosting_meal_cue, $Cue), turn_speaker_involved($Turn).
 machinery(dietary_cue).
 dietary_cue("vegetarian").  dietary_cue("vegan").  dietary_cue("gluten").  dietary_cue("allergic").
 dietary_cue("vegetariano").  dietary_cue("vegetariana").  dietary_cue("vegano").  dietary_cue("allergico").
@@ -260,7 +260,79 @@ machinery(group_member_cue).
 group_member_cue("one of them").  group_member_cue("one of the guests").  group_member_cue("a guest").
 group_member_cue("uno di loro").  group_member_cue("una di loro").  group_member_cue("un ospite").
 turn_cue_registry(group_member_cue, 1).
-user_situation($Turn, user_guest_diet) :- turn_cue_form($Turn, dietary_cue, $D), turn_cue_form($Turn, group_member_cue, $G).
+direct_situation($Turn, user_guest_diet) :- turn_cue_form($Turn, dietary_cue, $D), turn_cue_form($Turn, group_member_cue, $G).
+
+% ── 1bis. I SEGNI DI PERICOLO (frontier-kb-natural-dialogue.md K11) ─────────
+%
+% F., 2026-09-13, in make chat:
+%
+%     >>> ho un problema elettrico
+%     Vediamolo insieme. Se qualcosa fuma, … Di che cosa si tratta, e che cosa
+%     succede esattamente?
+%     >>> ci sono scintille
+%     Non capisco ancora.
+%
+% Due difetti diversi, e vanno tenuti distinti. Il primo e' di CONOSCENZA della
+% situazione: le scintille sono un segno di pericolo, e lo sono con o senza una
+% conversazione alle spalle — «ci sono scintille» detto a freddo chiede la
+% stessa prima mossa. Il secondo e' di DIALOGO: parrot0 aveva fatto una domanda,
+% e la risposta non e' stata letta come risposta (sotto, §3bis, e issues.p0).
+% Qui il primo: `hazard_sign/2` e' conoscenza K11 (`hazard(Situation, Hazard,
+% Severity)` nel lessico di progetto), e un segno nuovo e' una riga.
+machinery(hazard_sign_cue).
+machinery(hazard_sign).
+% (non «spark» al singolare: «a spark plug is part of an engine» non e' un pericolo)
+hazard_sign_cue("sparks", sparks).  hazard_sign_cue("sparking", sparks).
+hazard_sign_cue("scintille", sparks).  hazard_sign_cue("scintilla", sparks).  hazard_sign_cue("fa scintille", sparks).
+hazard_sign_cue("smell gas", gas_smell).  hazard_sign_cue("smells of gas", gas_smell).  hazard_sign_cue("gas smell", gas_smell).
+hazard_sign_cue("odore di gas", gas_smell).  hazard_sign_cue("puzza di gas", gas_smell).  hazard_sign_cue("sento gas", gas_smell).
+turn_cue_registry(hazard_sign_cue, 1).
+hazard_sign(sparks, danger).
+hazard_sign(gas_smell, danger).
+machinery(hazard_situation).
+hazard_situation(sparks, user_sparks).
+hazard_situation(gas_smell, user_gas_smell).
+direct_situation($Turn, $Situation) :-
+    turn_cue_form($Turn, hazard_sign_cue, $Cue), hazard_sign_cue($Cue, $Sign),
+    hazard_sign($Sign, danger), hazard_situation($Sign, $Situation).
+
+% ── 1ter. LA RISPOSTA ALLA DOMANDA APPENA FATTA (dialogica L2) ─────────────
+%
+% Quando un piano di situazione CHIEDE qualcosa («che cosa succede
+% esattamente?»), parrot0 ha aperto una questione e l'utente deve la prossima
+% mossa: e' il genere `inquiry` del tabellone (issues.p0), e lo apre la
+% contabilita' del turno, non il C. Il turno dopo si legge prima come mossa su
+% quella questione: un'affermazione che non apre una situazione sua e' la
+% RISPOSTA, e la situazione e' la stessa di prima vista un passo avanti
+% (`situation_followup/2`). Un segno di pericolo nella risposta vince comunque,
+% perche' e' una situazione diretta.
+machinery(move_asks).
+move_asks(ask_what_happens).
+move_asks(ask_main_worry).
+move_asks(ask_to_talk).
+move_asks(ask_use).
+move_asks(ask_need).
+move_asks(ask_recipient_goal).
+move_asks(ask_weekly_time).
+move_asks(ask_hardest_part).
+move_asks(ask_person_interests).
+move_asks(ask_diet_time).
+machinery(situation_followup).
+situation_followup(user_problem, user_problem_detail).
+machinery(turn_has_direct_situation).
+turn_has_direct_situation($Turn) :- direct_situation($Turn, $Situation).
+machinery(turn_answers_inquiry).
+machinery(turn_answers_inquiry_issue).
+turn_answers_inquiry_issue($Turn, $Issue) :-
+    open_issue($Issue, inquiry), naf(inquiry_closed($Issue)), max_qud($Issue),
+    naf(turn_has_question_mark($Turn)), naf(turn_is_plan_lesson($Turn)),
+    naf(turn_has_direct_situation($Turn)).
+turn_answers_inquiry($Turn, $Situation) :-
+    turn_answers_inquiry_issue($Turn, $Issue), issue_topic($Issue, $Situation).
+user_situation($Turn, $Situation) :- direct_situation($Turn, $Situation).
+user_situation($Turn, $Next) :-
+    situation_followup($Situation, $Next), turn_answers_inquiry($Turn, $Situation),
+    naf(turn_has_direct_situation($Turn)).
 
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
@@ -311,6 +383,19 @@ situation_cue("a guest has a diet", user_guest_diet).
 situation_cue("un ospite ha una dieta", user_guest_diet).
 situation_label(user_guest_diet, en, "a guest has a diet").
 situation_label(user_guest_diet, it, "un ospite ha una dieta").
+situation_cue("someone sees sparks", user_sparks).
+situation_cue("there are sparks", user_sparks).
+situation_cue("qualcuno vede scintille", user_sparks).
+situation_label(user_sparks, en, "someone sees sparks").
+situation_label(user_sparks, it, "qualcuno vede scintille").
+situation_cue("someone smells gas", user_gas_smell).
+situation_cue("qualcuno sente odore di gas", user_gas_smell).
+situation_label(user_gas_smell, en, "someone smells gas").
+situation_label(user_gas_smell, it, "qualcuno sente odore di gas").
+situation_cue("someone describes the problem", user_problem_detail).
+situation_cue("qualcuno descrive il problema", user_problem_detail).
+situation_label(user_problem_detail, en, "someone describes the problem").
+situation_label(user_problem_detail, it, "qualcuno descrive il problema").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -444,6 +529,57 @@ plan_step_text_lang(ask_diet_time, en, "Does anyone have dietary needs, and how 
 plan_step_text_lang(ask_diet_time, it, "Qualcuno ha esigenze alimentari, e quanto tempo hai?").
 plan_step_text_lang(shared_dish, en, "Then choose a main dish everyone can eat, so nobody gets a separate plate: a vegetable lasagne, a mushroom risotto or a chickpea curry works for everyone.").
 plan_step_text_lang(shared_dish, it, "Allora scegli un piatto principale che possano mangiare tutti, così nessuno ha un piatto a parte: una lasagna di verdure, un risotto ai funghi o un curry di ceci vanno bene per tutti.").
+% - scintille: una presa o un apparecchio che fa scintille non si tocca e non si
+%   riusa; si stacca il circuito dal quadro se lo si puo' fare in sicurezza e si
+%   chiama un elettricista (Stevenage Borough Council, «electrical faults»;
+%   Elec-Mate, «socket sparking»); con fumo o fiamme si esce e si chiama il
+%   numero di emergenza (112 in Europa).
+% - gas: non accendere ne' spegnere luci o apparecchi, niente fiamme, porte e
+%   finestre aperte, uscire e chiamare da fuori (Mass.gov, «What to do if you
+%   smell gas»; NH Department of Energy; National Grid).
+move_cue("say not to touch it", hands_off).
+move_cue("di' di non toccarla", hands_off).
+move_cue("say to switch off the power at the main switch", switch_off_main).
+move_cue("di' di staccare la corrente dal quadro", switch_off_main).
+move_cue("say to call an electrician", call_electrician).
+move_cue("di' di chiamare un elettricista", call_electrician).
+% ⚠ Non «… if there is fire»: «if» apre il lettore dei problemi di logica.
+move_cue("say to leave and call 112 on fire", fire_emergency).
+move_cue("di' di uscire e chiamare il 112 con fumo o fiamme", fire_emergency).
+move_cue("ask if everyone is safe", ask_safe_now).
+move_cue("chiedi se sono tutti al sicuro", ask_safe_now).
+move_cue("say not to use switches or flames", gas_no_sparks).
+move_cue("di' di non usare interruttori ne' fiamme", gas_no_sparks).
+move_cue("say to open the windows and go out", gas_ventilate_leave).
+move_cue("di' di aprire le finestre e uscire", gas_ventilate_leave).
+move_cue("say to call for help from outside", gas_call_outside).
+move_cue("di' di chiamare aiuto da fuori", gas_call_outside).
+move_cue("thank them for the detail", thank_detail).
+move_cue("ringrazia per il dettaglio", thank_detail).
+move_cue("ask since when it happens", ask_since_when).
+move_cue("chiedi da quando succede", ask_since_when).
+move_asks(ask_safe_now).
+move_asks(ask_since_when).
+plan_step_text_lang(hands_off, en, "Don't touch the socket, the switch or the appliance.").
+plan_step_text_lang(hands_off, it, "Non toccare la presa, l'interruttore o l'apparecchio.").
+plan_step_text_lang(switch_off_main, en, "If you can do it without going near the sparks, switch the power off at the main switch or fuse box.").
+plan_step_text_lang(switch_off_main, it, "Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale.").
+plan_step_text_lang(call_electrician, en, "Don't use it again until an electrician has checked it.").
+plan_step_text_lang(call_electrician, it, "Non usarlo di nuovo finché non l'ha controllato un elettricista.").
+plan_step_text_lang(fire_emergency, en, "If there is smoke or flames, get out and call 112.").
+plan_step_text_lang(fire_emergency, it, "Se c'è fumo o ci sono fiamme, esci e chiama il 112.").
+plan_step_text_lang(ask_safe_now, en, "Is everyone safe right now?").
+plan_step_text_lang(ask_safe_now, it, "Siete tutti al sicuro adesso?").
+plan_step_text_lang(gas_no_sparks, en, "Don't switch lights or appliances on or off, and don't use flames or lighters.").
+plan_step_text_lang(gas_no_sparks, it, "Non accendere né spegnere luci o apparecchi, e non usare fiamme o accendini.").
+plan_step_text_lang(gas_ventilate_leave, en, "Open doors and windows if you can on the way, and get out.").
+plan_step_text_lang(gas_ventilate_leave, it, "Apri porte e finestre se puoi mentre esci, ed esci.").
+plan_step_text_lang(gas_call_outside, en, "Call the gas emergency service or 112 once you are outside.").
+plan_step_text_lang(gas_call_outside, it, "Chiama il pronto intervento gas o il 112 quando sei fuori.").
+plan_step_text_lang(thank_detail, en, "Thanks, that helps.").
+plan_step_text_lang(thank_detail, it, "Grazie, questo aiuta.").
+plan_step_text_lang(ask_since_when, en, "Since when has it been happening, and did anything change just before?").
+plan_step_text_lang(ask_since_when, it, "Da quando succede, ed è cambiato qualcosa appena prima?").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

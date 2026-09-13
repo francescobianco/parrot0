@@ -98,6 +98,8 @@ utterance(5, user, "I want to start running. Where do I begin?").
 utterance(5, user, "when someone wants to organize their day then ask which part of the day is hardest").
 utterance(5, user, "when someone needs gift ideas then ask what the person enjoys").
 utterance(5, user, "when someone cooks for guests then suggest a simple menu plan").
+utterance(5, user, "when someone sees sparks then say not to touch it").
+utterance(5, user, "your plan when someone sees sparks").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -175,6 +177,8 @@ utterance(6, self, "Hmm, I don't know about running yet. Want me to learn about 
 utterance(6, self, "Held: in that situation, move 2 is «Which part of your day is hardest to manage right now?».").
 utterance(6, self, "Held: in that situation, move 2 is «What does the person enjoy doing in their free time?».").
 utterance(6, self, "Held: in that situation, move 1 is «Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready.».").
+utterance(6, self, "Held: in that situation, move 1 is «Don't touch the socket, the switch or the appliance.».").
+utterance(6, self, "When that happens I: 1) Don't touch the socket, the switch or the appliance.  2) If you can do it without going near the sparks, switch the power off at the main switch or fuse box.  3) Don't use it again until an electrician has checked it.  4) If there is smoke or flames, get out and call 112.  5) Is everyone safe right now?").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -664,6 +668,8 @@ utterance(7, user, "when someone wants to start something new then say to start 
 utterance(7, user, "your plan when someone wants to organize their day").
 utterance(7, user, "your plan when someone needs gift ideas").
 utterance(7, user, "when someone cooks for guests then ask about diets and time").
+utterance(7, user, "when someone sees sparks then say to switch off the power at the main switch").
+utterance(7, user, "ho un problema elettrico").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1056,7 +1062,14 @@ utterance(8, self, "Held: in that situation, move 2 is «Does anyone have dietar
 utterance(9, user, "when a guest has a diet then say to pick a dish everyone can eat").
 utterance(10, self, "Held: in that situation, move 1 is «Then choose a main dish everyone can eat, so nobody gets a separate plate: a vegetable lasagne, a mushroom risotto or a chickpea curry works for everyone.».").
 utterance(11, user, "I need a gift for my sister's wedding").
+utterance(8, self, "Held: in that situation, move 2 is «If you can do it without going near the sparks, switch the power off at the main switch or fuse box.».").
+utterance(9, user, "when someone sees sparks then say to call an electrician").
+utterance(10, self, "Held: in that situation, move 3 is «Don't use it again until an electrician has checked it.».").
 utterance(11, user, "I need to cook dinner for four people tonight.").
+utterance(8, self, "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?").
+utterance(9, user, "ci sono scintille").
+utterance(10, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Se c'è fumo o ci sono fiamme, esci e chiama il 112. Siete tutti al sicuro adesso?").
+utterance(11, user, "when someone sees sparks then say to get out and call 112 on smoke or flames").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1724,7 +1737,68 @@ utterance(37, user, "Give me some ideas for a birthday present for my dad.").
 utterance(38, self, "A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter. What does the person enjoy doing in their free time?").
 utterance(46, self, "A spider has 8 legs.").
 utterance(47, user, "I want to learn to cook. Where should I start?").
+utterance(12, self, "Hmm, I don't know about sparks yet. Want me to learn about it?").
+utterance(13, user, "when someone sees sparks then ask if everyone is safe").
+utterance(14, self, "Held: in that situation, move 4 is «Is everyone safe right now?».").
+utterance(15, user, "when someone smells gas then say not to use switches or flames").
+utterance(16, self, "Held: in that situation, move 1 is «Don't switch lights or appliances on or off, and don't use flames or lighters.».").
+utterance(17, user, "when someone smells gas then say to open the windows and go out").
+utterance(18, self, "Held: in that situation, move 2 is «Open doors and windows if you can on the way, and get out.».").
+utterance(19, user, "when someone smells gas then say to call for help from outside").
+utterance(20, self, "Held: in that situation, move 3 is «Call the gas emergency service or 112 once you are outside.».").
+utterance(21, user, "when someone describes the problem then thank them for the detail").
+utterance(22, self, "Held: in that situation, move 1 is «Thanks, that helps.».").
+utterance(23, user, "when someone describes the problem then ask since when it happens").
+utterance(24, self, "Held: in that situation, move 2 is «Since when has it been happening, and did anything change just before?».").
+utterance(25, user, "your plan when someone sees sparks").
+utterance(26, self, "When that happens I: 1) Don't touch the socket, the switch or the appliance.  2) If you can do it without going near the sparks, switch the power off at the main switch or fuse box.  3) Don't use it again until an electrician has checked it.  4) Is everyone safe right now?").
+utterance(27, user, "ho un problema elettrico").
+utterance(28, self, "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?").
+utterance(29, user, "ci sono scintille").
+utterance(30, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Siete tutti al sicuro adesso?").
+utterance(31, user, "I have a problem with my washing machine").
+utterance(32, self, "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?").
+utterance(33, user, "it doesn't spin anymore").
+utterance(34, self, "Thanks, that helps. Since when has it been happening, and did anything change just before?").
+utterance(35, user, "the socket in the kitchen is sparking").
+utterance(36, self, "Don't touch the socket, the switch or the appliance. If you can do it without going near the sparks, switch the power off at the main switch or fuse box. Don't use it again until an electrician has checked it. Is everyone safe right now?").
+utterance(37, user, "I smell gas in the kitchen").
+utterance(38, self, "Don't switch lights or appliances on or off, and don't use flames or lighters. Open doors and windows if you can on the way, and get out. Call the gas emergency service or 112 once you are outside.").
+utterance(39, user, "ho un problema con la caldaia").
+utterance(40, self, "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?").
+utterance(41, user, "fa un rumore strano quando parte").
+utterance(42, self, "Grazie, questo aiuta. Da quando succede, ed è cambiato qualcosa appena prima?").
+utterance(43, user, "a spark plug is part of an engine").
 utterance(48, self, "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?").
+utterance(44, self, "Learned: spark plug is part of engine.").
+utterance(45, user, "what is the capital of spain?").
+utterance(46, self, "Madrid.").
+utterance(47, user, "unlearn what you do when someone sees sparks").
+utterance(48, self, "Forgotten: the plan for user sparks.").
+utterance(49, user, "ci sono scintille").
+utterance(50, self, "Ho cercato «sparks» ma non ho trovato niente. Se lo sai, insegnamelo: «sparks is defined as …».").
+utterance(51, user, "ci sono scintille").
+utterance(52, self, "Ho cercato «sparks» ma non ho trovato niente. Se lo sai, insegnamelo: «sparks is defined as …».").
+utterance(53, user, "when someone sees sparks then say not to touch it").
+utterance(54, self, "Held: in that situation, move 1 is «Don't touch the socket, the switch or the appliance.».").
+utterance(55, user, "when someone sees sparks then say to switch off the power at the main switch").
+utterance(56, self, "Held: in that situation, move 2 is «If you can do it without going near the sparks, switch the power off at the main switch or fuse box.».").
+utterance(57, user, "when someone sees sparks then say to call an electrician").
+utterance(58, self, "Held: in that situation, move 3 is «Don't use it again until an electrician has checked it.».").
+utterance(59, user, "when someone sees sparks then say to get out and call 112 on smoke or flames").
+utterance(60, self, "Hmm, I don't know about sparks yet.").
+utterance(61, user, "when someone sees sparks then ask if everyone is safe").
+utterance(62, self, "Held: in that situation, move 4 is «Is everyone safe right now?».").
+utterance(63, user, "hello").
+utterance(64, self, "Hi there!").
+utterance(65, user, "what is 23 times 7?").
+utterance(66, self, "161.").
+utterance(67, user, "thanks").
+utterance(68, self, "You're welcome!").
+utterance(69, user, "ho un problema elettrico").
+utterance(70, self, "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?").
+utterance(71, user, "ci sono scintille").
+utterance(72, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Siete tutti al sicuro adesso?").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(34, self, "Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready. Does anyone have dietary needs, and how much time do you have?").
@@ -2103,6 +2177,8 @@ utterance(2, self, "Hmm, I don't know about running yet. Want me to learn about 
 utterance(2, self, "Non capisco ancora.").
 utterance(2, self, "Hmm, I don't know about birthday yet. Want me to learn about it?").
 utterance(2, self, "Hmm, I don't know about dinner yet. Want me to learn about it?").
+utterance(2, self, "Vediamolo insieme. Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto. Di che cosa si tratta, e che cosa succede esattamente?").
+utterance(2, self, "Held: move 4 for user sparks is now «fire emergency».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2181,6 +2257,8 @@ utterance(1, user, "I want to start running").
 utterance(1, user, "Come posso organizzare meglio la mia giornata?").
 utterance(1, user, "Give me some ideas for a birthday present for my dad.").
 utterance(1, user, "I need to cook dinner for four people tonight.").
+utterance(1, user, "ho un problema elettrico").
+utterance(1, user, "move 4 for someone sees sparks is now say to leave and call 112 on fire").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2256,6 +2334,7 @@ utterance(4, self, "I don't understand that yet.").
 utterance(4, self, "Held: in that situation, move 1 is «Write down what you have to do, pick the two or three things that make a real difference, and do those first.».").
 utterance(4, self, "Held: in that situation, move 1 is «A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter.».").
 utterance(4, self, "Hmm, I don't know about vegetarian yet. Want me to learn about it?").
+utterance(4, self, "Held: in that situation, move 5 is «Is everyone safe right now?».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -2329,6 +2408,8 @@ utterance(3, user, "Where do I begin?").
 utterance(3, user, "when someone wants to organize their day then say to begin with the important tasks").
 utterance(3, user, "when someone needs gift ideas then give kinds of gifts").
 utterance(3, user, "One of them is vegetarian.").
+utterance(3, user, "ci sono scintille").
+utterance(3, user, "when someone sees sparks then ask if everyone is safe").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

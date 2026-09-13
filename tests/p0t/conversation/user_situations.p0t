@@ -113,6 +113,33 @@
 > One of them is vegetarian.
 <~ choose a main dish everyone can eat
 
+[test sparks are a danger sign, with or without a conversation before]
+!timeout 30
+> the socket in the kitchen is sparking
+<~ Don't touch the socket
+<~ Is everyone safe right now?
+> a spark plug is part of an engine
+<! Don't touch
+
+[test the answer to parrot0's question is read as the answer, once]
+!timeout 30
+> I have a problem with my washing machine
+<~ What is it, and what exactly happens?
+> it doesn't spin anymore
+<~ Thanks, that helps. Since when has it been happening
+!query open_issue(inquiry_user_problem, inquiry)
+> it started yesterday after the storm
+<! Thanks, that helps
+
+[test the italian arc of the report: an electrical problem, then sparks]
+!timeout 30
+!set PARROT0_LANG=it
+> ho un problema elettrico
+<~ Vediamolo insieme
+> ci sono scintille
+<~ Non toccare la presa
+!set PARROT0_LANG=en
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem

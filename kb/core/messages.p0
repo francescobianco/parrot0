@@ -3160,6 +3160,16 @@ plan_move(user_gift_ideas, 1, gift_kinds).
 plan_move(user_guest_diet, 1, shared_dish).
 plan_move(user_hosting_meal, 2, ask_diet_time).
 plan_move(user_hosting_meal, 1, simple_menu).
+plan_move(user_sparks, 3, call_electrician).
+plan_move(user_sparks, 2, switch_off_main).
+plan_move(user_sparks, 1, hands_off).
+plan_move(user_sparks, 5, ask_safe_now).
+plan_move(user_sparks, 4, fire_emergency).
+plan_move(user_problem_detail, 2, ask_since_when).
+plan_move(user_problem_detail, 1, thank_detail).
+plan_move(user_gas_smell, 3, gas_call_outside).
+plan_move(user_gas_smell, 2, gas_ventilate_leave).
+plan_move(user_gas_smell, 1, gas_no_sparks).
 % ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
 % arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
 % piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo
