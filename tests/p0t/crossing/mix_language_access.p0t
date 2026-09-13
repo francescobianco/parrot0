@@ -40,3 +40,11 @@
 <~ Cedi
 > what currency is used in japan?
 <~ Yen
+
+[test the language of a country is the country's language, not a programming language]
+!timeout 30
+> what language does brazil speak?
+<~ Portuguese
+<! python
+> what language is spoken in japan?
+<~ Japanese

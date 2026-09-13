@@ -2269,6 +2269,17 @@ relation_noun(language_of, language).
 relation_noun(author_of, author).
 relation_noun(colour_of, colour).
 relation_noun(price_of, price).
+% mix 01×08 — IL NOME DELLA RELAZIONE E IL SUO CASSETTO. «what language does brazil
+% speak?» rispondeva «c, python.»: il nome «language» porta a `language_of`, che non
+% ha nessun fatto, mentre le lingue dei paesi stanno in `language_of_country`
+% (71 righe), e un altro lettore riempiva il vuoto con le lingue di programmazione.
+% Le lingue di un paese SONO la sua `language_of`: il ponte e' conoscenza vera,
+% una riga per cassetto.
+% (Un ponte a regola non basta: chi riconosce l'entita' del turno guarda le
+% MENZIONI delle relazioni, che sono una vista sui fatti. Il nome della relazione
+% si da' quindi anche al cassetto che i fatti li ha.)
+relation_noun(language_of_country, language).
+relation_noun(currency_of_country, currency).
 % E la relazione che rende insegnabile la FORMA STESSA (gen428): con questa riga
 % «the notation of percent is perc» diventa un turno che parrot0 capisce, e da
 % quel momento «50perc» e' una percentuale. La notazione e' una relazione come

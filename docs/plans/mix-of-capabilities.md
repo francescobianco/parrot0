@@ -1166,9 +1166,17 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
   (valuta, città capitale, lingua) letto da `answer_fits_type`. «what currency is
   used in japan?» → «Yen.», «which currency does brazil use?» → «Real and brazilian
   real.».
-- **resta:** «what color is a zebra?» → «I can't show that.»; **misclaim
-  preesistente** (verificato su HEAD): «what language does brazil speak?» → «c,
-  python.» — la parola «language» prende le lingue di programmazione.
+- **mix-01-08-003:** «what language does brazil speak?» → «c, python.» (misclaim
+  preesistente, verificato su HEAD). Il nome «language» portava a `language_of`,
+  che non ha fatti, e il turno cadeva nel lettore che enumera la classe unaria
+  `language/1` degli esperti di programmazione. Chi riconosce l'entità guarda le
+  menzioni, che sono una vista sui fatti: il nome della relazione si dà anche al
+  cassetto che i fatti li ha (`relation_noun(language_of_country, language)`,
+  idem per la valuta). «Portuguese.», «Japanese.».
+- **resta:** per un paese che la KB non conosce («what language does zorbia
+  speak?») l'enumerazione della classe risponde ancora «c, python.» — arbitraggio
+  del lettore delle classi, da curare a parte; «what is the language of ghana?» →
+  «Nobody that I know of.»; «what color is a zebra?» → «I can't show that.».
 - **test:** `tests/p0t/crossing/mix_language_access.p0t` (7);
   `question_direction` e `prose_triage` verdi.
 - **stato:** verificata sulla KB viva.
