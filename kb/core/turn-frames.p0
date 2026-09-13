@@ -211,7 +211,27 @@ turn_declared_act($Turn, compound_inquiry) :-
 % («"show" is another way to say "write"») entra qui da solo.
 turn_declared_act($Turn, production_request) :-
     turn_span_token($Turn, 0, 0, $First),
-    intent_cue(make_verb, $First).
+    intent_cue(make_verb, $First),
+    naf(turn_asks_own_procedure($Turn)).
+% assistente utile U4 — «How can I make tea?»: il segmentatore stacca «how can i»
+% come involucro e lo span 0 si apre con «make», quindi la regola sopra ne faceva
+% un ordine di produrre (e il sintetizzatore rispondeva «no code to show for it»,
+% con la procedura del te' in KB). Chi chiede come fare LUI qualcosa chiede i
+% passi. Con una lingua di programmazione nel turno le regole sotto restano vere.
+turn_cue_registry(self_procedure_cue, 1).
+machinery(self_procedure_cue).
+self_procedure_cue("how do i").
+self_procedure_cue("how can i").
+self_procedure_cue("how should i").
+machinery(turn_asks_own_procedure).
+turn_asks_own_procedure($Turn) :- turn_cue($Turn, self_procedure_cue, $Cue).
+% E il saggio di metodo non la prende: «How do I make my laptop battery last
+% longer?» riceveva «On I make my laptop battery last longer, a causal account
+% turns on…» — un paragrafo valido per qualsiasi domanda, cioe' aiuto finto (T10).
+% Senza passi in KB il muro onesto del procedimento e' meglio.
+turn_declared_act($Turn, own_procedure_request) :- turn_asks_own_procedure($Turn).
+faculty_yield_force(analysis_family, open, own_procedure_request).
+faculty_yield_force(analysis_last_resort, open, own_procedure_request).
 % E MOSTRARE del codice e' chiedere di produrlo: il verbo di mostrare in
 % apertura, e un nome di codice nel turno. Senza il secondo congiunto «show me
 % the capital of France» diventerebbe un ordine di produzione.

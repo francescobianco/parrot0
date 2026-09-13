@@ -1,0 +1,31 @@
+# assistente utile U4 (docs/plans/assistente-utile.md) — chi chiede come fare
+# LUI qualcosa chiede i passi: la procedura in KB si raggiunge anche con «how do
+# i» / «how can i», e senza passi il muro e' quello del procedimento, non un
+# programma mancante ne' un saggio di metodo.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test how do i reaches a procedure without a making verb]
+!timeout 30
+> How do I change a flat tire?
+<~ 1. Park safely on level ground
+
+[test how can i make is a procedure, not a program]
+!timeout 30
+> How can I make tea?
+<~ 1. Fill a kettle
+<! no code to show
+
+[test with a programming language it is still code]
+!timeout 30
+> How do I reverse a list in Python?
+<~ in python
+
+[test without steps the honest procedure wall, not a method essay]
+!timeout 30
+> How do I make my laptop battery last longer?
+<~ I don't have the steps for it yet
+<! turns on

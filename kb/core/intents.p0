@@ -3847,6 +3847,19 @@ intent_cue(process_request, "come fare").
 turn_pattern(process_form, word, manner_question).
 turn_pattern(process_form, word, making_verb).
 turn_pattern_intent(process_form, process_request).
+% assistente utile U4 — «HOW DO I …?» CHIEDE UN PROCEDIMENTO ANCHE SENZA UN
+% VERBO DI FABBRICAZIONE. «how do i change a flat tire?» murava mentre «how to
+% change a flat tire» elencava i quattro passi che la KB ha: la forma sopra
+% vuole un `making_verb`, e cambiare una gomma non e' fabbricare. Chi chiede
+% come FARE lui qualcosa chiede i passi, qualunque sia il verbo; la lettura
+% resta del renderer di `process_step/3`, che cede con il suo muro se i passi
+% non ci sono («I understood you're asking how to …»).
+turn_pattern(self_procedure_form, text, "how do i").
+turn_pattern_intent(self_procedure_form, process_request).
+turn_pattern(self_procedure_can_form, text, "how can i").
+turn_pattern_intent(self_procedure_can_form, process_request).
+turn_pattern(self_procedure_should_form, text, "how should i").
+turn_pattern_intent(self_procedure_should_form, process_request).
 
 % E l'abduttore cede: «how can i build a raft?» non e' la domanda «che cosa
 % renderebbe qualcosa una zattera?», ed e' esattamente cosi' che rispondeva —

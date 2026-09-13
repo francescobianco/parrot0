@@ -12031,6 +12031,12 @@ static int structured_analysis_lead(Brain *b, const char *norm, const char *raw,
      * protect and yielding again would only produce a wall. */
     if (broad_families < 2 &&
         answer_consumer_guarded(b, "analysis_plan", norm)) return 0;
+    /* assistente utile U4 — anche l'ULTIMA ISTANZA dichiara la propria condotta
+     * (`faculty_yield_force(analysis_last_resort, …)`): un saggio di metodo al
+     * posto del muro e' la mossa giusta per chi chiede un'analisi, e aiuto finto
+     * per chi chiede come fare una cosa sua. Senza righe in KB, come prima. */
+    if (broad_families == 2 &&
+        p0_faculty_yields(b, "analysis_last_resort", "open", norm, raw)) return 0;
 
     char act[KB_TERM_LEN], domain[KB_TERM_LEN];
     char proof[KB_EVIDENCE_PROOF_LEN];
