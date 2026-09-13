@@ -1,6 +1,6 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514, notte) — ✅ 40/50 = 80%, CANCELLO 243/299
+## ⛔ HANDOFF 2026-09-13 (gen514, notte) — ✅ 41/50 = 82%, CANCELLO 248/299
 
 **Obiettivo dell'80% raggiunto sul banco fisso del piolo 300** ([referto](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda/bench-40.txt)).
 Ultimi gradini, tutti come dimensioni descrittive in KB (mantra #23):
@@ -14,8 +14,10 @@ Ultimi gradini, tutti come dimensioni descrittive in KB (mantra #23):
 - costruzione con copula chiesta senza copula; participio anteposto
   (`fronted_participle/1`); parentetica come esempi (`parenthetical_relation/1`),
   con la forma canonica `includes`.
-Il cancello (Σ parole delle domande risolte > 299) resta aperto: mancano 57
-parole. Le 10 aperte: «what phylum does coral belong to?», «what holds coral
+Misura finale [41/50](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda/bench-41.txt):
+la parentetica chiude «what do excess nutrients include?». Il cancello (Σ parole
+delle domande risolte > 299) resta aperto: mancano 52 parole. Le 9 aperte (la
+decima, «excess nutrients include», e' chiusa): «what phylum does coral belong to?», «what holds coral
 polyps together?», «in what kind of water do reefs grow best?», «what do coral
 reefs deliver services for?», «what has been estimated at billions?», «what is
 the annual global economic value of coral reefs?», «what is calcium carbonate
