@@ -238,3 +238,5 @@ perishable(rice).
 perishable(milk).
 perishable(fish).
 max_hours_out_above(perishables, 32, 1).
+avoid_on(butter, burn).
+avoid_on(ice, burn).

@@ -1381,3 +1381,24 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
 - **resta:** una frase senza domanda («the milk was
   left on the counter for one hour») cade nel lettore delle affermazioni.
 - **test:** `tests/p0t/crossing/mix_food_time.p0t` (4).
+
+### mix-20-16-21-001 — un'ustione, e il rimedio sbagliato
+
+- **fonti:** NHS, *Burns and scalds* (acqua fresca corrente 20 minuti, togliere
+  gioielli non attaccati, pellicola appoggiata, niente creme/oli/burro, pronto
+  soccorso se grande, profonda, sul viso, chimica o elettrica); NHS, *Burns and
+  scalds – treatment* e Croce Rossa (niente ghiaccio né acqua ghiacciata).
+- **misura:** «I burned my hand on the stove» → «Hmm, I don't know about burned
+  yet.»; «should I put butter on a burn?» → «Hmm, I don't know about butter yet.».
+- **cure:** la situazione `user_burn` con le sue mosse (user-situations.p0) e il
+  piano insegnato parlando; una forma «never put X on a Y» (⚠ non «do not put…»:
+  l'ausiliare in testa fa leggere una domanda) e `kb/core/remedy-questions.p0`, che
+  dice il no e **la prima mossa dello stesso piano** al posto.
+- **lezioni parlate salvate:** le quattro mosse del piano; «never put butter on a
+  burn», «never put ice on a burn».
+- **esito:** «I scalded myself with boiling water» e «mi sono bruciato un dito col
+  ferro da stiro» ricevono il piano (in italiano); «can I put ice on a burn?» → «No:
+  do not put ice on a burn. Instead: Hold the burn under cool running water for 20
+  minutes, as soon as you can.».
+- **quarantena:** `pending_gap_failed(burned)`.
+- **test:** `tests/p0t/crossing/mix_first_aid_burn.p0t` (4).

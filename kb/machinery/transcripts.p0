@@ -106,6 +106,9 @@ utterance(5, user, "deforestation causes soil erosion").
 utterance(5, user, "what language does ghana speak?").
 utterance(5, user, "mixing bleach and ammonia releases chloramine gas").
 utterance(5, user, "chicken is a perishable").
+utterance(5, user, "when someone has a burn then say to take off rings near it").
+utterance(5, user, "do not put ice on a burn").
+utterance(5, user, "never put ice on a burn").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -191,6 +194,9 @@ utterance(6, self, "Learned: deforestation causes soil erosion.").
 utterance(6, self, "c, python.").
 utterance(6, self, "Held: mixing bleach and ammonia releases chloramine gas.").
 utterance(6, self, "Learned: chicken is a perishable.").
+utterance(6, self, "Held: in that situation, move 2 is «Take off rings, watches or clothing near it, but not anything stuck to the skin.».").
+utterance(6, self, "I don't understand that yet.").
+utterance(6, self, "Held: never put ice on a burn.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -687,6 +693,8 @@ utterance(7, user, "amphibians are typically cold-blooded").
 utterance(7, user, "does burning fossil fuels cause rising seas?").
 utterance(7, user, "mixing bleach and an acid releases chlorine gas").
 utterance(7, user, "rice is a perishable").
+utterance(7, user, "when someone has a burn then say to cover it with cling film").
+utterance(7, user, "should I put butter on a burn?").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1106,8 +1114,18 @@ utterance(8, self, "Learned: rice is a perishable.").
 utterance(9, user, "milk is a perishable").
 utterance(10, self, "Learned: milk is a perishable.").
 utterance(11, user, "chlorine gas causes breathing problems").
+utterance(8, self, "Held: in that situation, move 3 is «When it has cooled, lay cling film over it without wrapping it, and don't put butter, oils or creams on it.».").
+utterance(9, user, "when someone has a burn then say when to go to the emergency room").
+utterance(10, self, "Held: in that situation, move 4 is «Go to the emergency room if it is large or deep, on the face, or caused by chemicals or electricity.».").
 utterance(11, user, "fish is a perishable").
+utterance(8, self, "Hmm, I don't know about butter yet.").
+utterance(9, user, "can I put ice on a burn?").
+utterance(10, self, "I don't know whether put can ice on a burn: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
+utterance(11, user, "I burned my hand on the stove").
+utterance(11, user, "should I put butter on toast?").
+utterance(8, self, "No: do not put butter on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(30, self, "Yes.").
+utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
 utterance(10, self, "Hmm, I don't know about passive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a passive»; if passive is a word you want to talk ABOUT, say «the word passive is a …».").
@@ -1900,9 +1918,18 @@ utterance(16, self, "Hmm, I don't know about counter yet. Want me to learn about
 utterance(17, user, "I left the fish out for four hours, can I still cook it?").
 utterance(18, self, "No: fish is a perishable, and a perishable should not be left out for more than 2 hours; 4 hours is past that, so it is safer to throw it away.").
 utterance(19, user, "I left my keys out for 3 hours").
+utterance(12, self, "Hold the burn under cool running water for 20 minutes, as soon as you can. Take off rings, watches or clothing near it, but not anything stuck to the skin. When it has cooled, lay cling film over it without wrapping it, and don't put butter, oils or creams on it. Go to the emergency room if it is large or deep, on the face, or caused by chemicals or electricity.").
+utterance(13, user, "I scalded myself with boiling water").
+utterance(14, self, "Hold the burn under cool running water for 20 minutes, as soon as you can. Take off rings, watches or clothing near it, but not anything stuck to the skin. When it has cooled, lay cling film over it without wrapping it, and don't put butter, oils or creams on it. Go to the emergency room if it is large or deep, on the face, or caused by chemicals or electricity.").
+utterance(15, user, "mi sono bruciato un dito col ferro da stiro").
+utterance(16, self, "Tieni l'ustione sotto l'acqua fresca corrente per 20 minuti, appena puoi. Togli anelli, orologi o vestiti vicini, ma non ciò che è attaccato alla pelle. Quando si è raffreddata, appoggiaci sopra la pellicola senza avvolgerla, e non metterci burro, oli o creme. Vai al pronto soccorso se è grande o profonda, sul viso, o causata da sostanze chimiche o elettricità.").
+utterance(17, user, "the toast burned").
+utterance(18, self, "I looked up «burned» but found nothing. If you know it, teach me: «burned is defined as …».").
+utterance(12, self, "Hmm, I don't know about butter yet.").
 utterance(72, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Siete tutti al sicuro adesso?").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
+utterance(12, self, "I don't understand that yet.").
 utterance(34, self, "Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready. Does anyone have dietary needs, and how much time do you have?").
 utterance(35, user, "One of them is vegan.").
 utterance(36, self, "Then choose a main dish everyone can eat, so nobody gets a separate plate: a vegetable lasagne, a mushroom risotto or a chickpea curry works for everyone.").
@@ -2288,6 +2315,8 @@ utterance(2, self, "I don't understand that yet.").
 utterance(2, self, "Imparato: chloroform causa dizziness.").
 utterance(2, self, "Hmm, I don't know about cooked yet. Want me to learn about it?").
 utterance(2, self, "Held: above 32 degrees, perishables should not stay out of the fridge for more than 1 hours.").
+utterance(2, self, "Hmm, I don't know about burned yet. Want me to learn about it?").
+utterance(2, self, "Hmm, I don't know about butter yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2375,6 +2404,8 @@ utterance(1, user, "the language of ghana is english").
 utterance(1, user, "chloroform causes dizziness").
 utterance(1, user, "I left cooked chicken out for 3 hours, is it safe?").
 utterance(1, user, "above 32 degrees perishables should not be left out for more than 1 hour").
+utterance(1, user, "I burned my hand on the stove").
+utterance(1, user, "should I put butter on a burn?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2457,8 +2488,11 @@ utterance(4, self, "Learned: burning fossil fuels causes pollution.").
 utterance(4, self, "Nobody that I know of.").
 utterance(4, self, "Power.").
 utterance(4, self, "Held: perishables should not stay out of the fridge for more than 2 hours.").
+utterance(4, self, "Held: in that situation, move 1 is «Hold the burn under cool running water for 20 minutes, as soon as you can.».").
+utterance(4, self, "Hmm, I don't know about butter yet.").
 utterance(4, self, "Current.").
 utterance(4, self, "Who or what does «it» refer to?").
+utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
 utterance(3, user, "gradient descent minimizes a loss function").
 utterance(3, user, "transformer applies what?").
@@ -2538,7 +2572,10 @@ utterance(3, user, "burning fossil fuels causes pollution").
 utterance(3, user, "what is the language of ghana?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "perishables should not be left out for more than 2 hours").
+utterance(3, user, "when someone has a burn then say to cool it under running water").
+utterance(3, user, "do not put butter on a burn").
 utterance(3, user, "the ampere measures what?").
 utterance(3, user, "is it safe to mix bleach and vinegar?").
+utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").
 utterance(84, self, "Electrical resistance.").

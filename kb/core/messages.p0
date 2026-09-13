@@ -3170,6 +3170,10 @@ plan_move(user_problem_detail, 1, thank_detail).
 plan_move(user_gas_smell, 3, gas_call_outside).
 plan_move(user_gas_smell, 2, gas_ventilate_leave).
 plan_move(user_gas_smell, 1, gas_no_sparks).
+plan_move(user_burn, 4, burn_emergency).
+plan_move(user_burn, 3, cover_burn).
+plan_move(user_burn, 2, remove_jewellery).
+plan_move(user_burn, 1, cool_burn).
 % ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
 % arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
 % piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo
@@ -3369,3 +3373,19 @@ turn_form_mood(teach_time_out_hot, statement).
 turn_form_act(teach_time_out_hot, "op(assert, max_hours_out_above, [subject, order, object])").
 turn_form_reply(teach_time_out_hot, learned_time_out_hot).
 turn_form_priority(teach_time_out_hot, early).
+
+% ══ mix §13 — CHE COSA NON SI METTE SU UNA FERITA ═══════════════════════════
+% «should I put butter on a burn?» e' un rimedio casalingo sbagliato (NHS, «Burns
+% and scalds»: niente creme, oli, burro). La lettura sta in kb/core/remedy-questions.p0.
+response_template(learned_avoid_on, "Held: never put {subject} on a {object}.").
+response_template(learned_avoid_on, it, "Tengo: non si mette {subject} su {object}.").
+% ⚠ Non «do not put …»: un turno che apre con «do» si legge come domanda
+% (ausiliare in testa) e la forma dichiarata per le affermazioni viene scartata.
+turn_form(teach_avoid_on, 1, text("never put")).
+turn_form(teach_avoid_on, 2, slot(subject)).
+turn_form(teach_avoid_on, 3, text("on a")).
+turn_form(teach_avoid_on, 4, slot(object)).
+turn_form_mood(teach_avoid_on, statement).
+turn_form_act(teach_avoid_on, "op(assert, avoid_on, [subject, object])").
+turn_form_reply(teach_avoid_on, learned_avoid_on).
+turn_form_priority(teach_avoid_on, early).

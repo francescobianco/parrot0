@@ -1,0 +1,38 @@
+% remedy-questions.p0 — «SHOULD I PUT BUTTER ON A BURN?»
+%
+% docs/plans/mix-of-capabilities.md §13: 21 (presupposto sbagliato) × 16 (piano
+% insegnato) × 20 (chi chiede). Un rimedio da evitare si insegna parlando («never put
+% butter on a burn», fonte NHS) e la risposta non si ferma al no: dice che
+% cosa fare invece, prendendo la prima mossa del piano insegnato per quella
+% ferita — lo stesso piano che risponde a «I burned my hand», non una copia.
+
+:- file_attribute(machinery).
+
+machinery(remedy_question_cue).
+remedy_question_cue("should i put").
+remedy_question_cue("can i put").
+remedy_question_cue("is it good to put").
+remedy_question_cue("devo mettere").
+turn_cue_registry(remedy_question_cue, 1).
+
+machinery(injury_situation).
+injury_situation(burn, user_burn).
+
+machinery(remedy_verdict).
+remedy_verdict($Turn, avoid($X, $I)) :-
+    turn_cue_form($Turn, remedy_question_cue, $Cue),
+    turn_word($Turn, $X), avoid_on($X, $I), turn_word($Turn, $I).
+
+machinery(remedy_answer).
+remedy_answer(avoid($X, $I), $L, $Text) :-
+    injury_situation($I, $S), plan_move($S, 1, $M), situation_move_text($M, $L, $Instead),
+    concat_atoms("No: do not put ", $X, $A), concat_atoms($A, " on a ", $B), concat_atoms($B, $I, $C),
+    concat_atoms($C, ". Instead: ", $D), concat_atoms($D, $Instead, $Text).
+remedy_answer(avoid($X, $I), $L, $Text) :-
+    naf(injury_has_plan($I)),
+    concat_atoms("No: do not put ", $X, $A), concat_atoms($A, " on a ", $B), concat_atoms($B, $I, $C), concat_atoms($C, ".", $Text).
+machinery(injury_has_plan).
+injury_has_plan($I) :- injury_situation($I, $S), plan_move($S, 1, $M).
+
+turn_plan_candidate($Turn) :- remedy_verdict($Turn, $V).
+turn_response($Turn, $Text) :- remedy_verdict($Turn, $V), remedy_answer($V, en, $Text).

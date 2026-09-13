@@ -334,6 +334,14 @@ user_situation($Turn, $Next) :-
     situation_followup($Situation, $Next), turn_answers_inquiry($Turn, $Situation),
     naf(turn_has_direct_situation($Turn)).
 
+% mix §13 — UN'USTIONE. «I burned my hand on the stove» e' una situazione di chi
+% parla con una prima mossa vera e urgente (NHS, «Burns and scalds»).
+machinery(burn_cue).
+burn_cue("burned my").  burn_cue("burnt my").  burn_cue("burned myself").  burn_cue("burnt myself").
+burn_cue("scalded my").  burn_cue("scalded myself").  burn_cue("mi sono bruciato").  burn_cue("mi sono bruciata").
+turn_cue_registry(burn_cue, 1).
+direct_situation($Turn, user_burn) :- turn_cue_form($Turn, burn_cue, $Cue).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -396,6 +404,10 @@ situation_cue("someone describes the problem", user_problem_detail).
 situation_cue("qualcuno descrive il problema", user_problem_detail).
 situation_label(user_problem_detail, en, "someone describes the problem").
 situation_label(user_problem_detail, it, "qualcuno descrive il problema").
+situation_cue("someone has a burn", user_burn).
+situation_cue("qualcuno si e' bruciato", user_burn).
+situation_label(user_burn, en, "someone has a burn").
+situation_label(user_burn, it, "qualcuno si è bruciato").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -580,6 +592,26 @@ plan_step_text_lang(thank_detail, en, "Thanks, that helps.").
 plan_step_text_lang(thank_detail, it, "Grazie, questo aiuta.").
 plan_step_text_lang(ask_since_when, en, "Since when has it been happening, and did anything change just before?").
 plan_step_text_lang(ask_since_when, it, "Da quando succede, ed è cambiato qualcosa appena prima?").
+% - ustioni: NHS, «Burns and scalds» — acqua fresca corrente per 20 minuti entro 3
+%   ore; togliere indumenti e gioielli vicini ma non cio' che e' attaccato; niente
+%   creme, oli, burro o cerotti; pellicola appoggiata, non avvolta; pronto soccorso
+%   se grande, profonda, sul viso o causata da sostanze chimiche o elettricita'.
+move_cue("say to cool it under running water", cool_burn).
+move_cue("di' di raffreddarla sotto l'acqua", cool_burn).
+move_cue("say to take off rings near it", remove_jewellery).
+move_cue("di' di togliere gli anelli", remove_jewellery).
+move_cue("say to cover it with cling film", cover_burn).
+move_cue("di' di coprirla con la pellicola", cover_burn).
+move_cue("say when to go to the emergency room", burn_emergency).
+move_cue("di' quando andare al pronto soccorso", burn_emergency).
+plan_step_text_lang(cool_burn, en, "Hold the burn under cool running water for 20 minutes, as soon as you can.").
+plan_step_text_lang(cool_burn, it, "Tieni l'ustione sotto l'acqua fresca corrente per 20 minuti, appena puoi.").
+plan_step_text_lang(remove_jewellery, en, "Take off rings, watches or clothing near it, but not anything stuck to the skin.").
+plan_step_text_lang(remove_jewellery, it, "Togli anelli, orologi o vestiti vicini, ma non ciò che è attaccato alla pelle.").
+plan_step_text_lang(cover_burn, en, "When it has cooled, lay cling film over it without wrapping it, and don't put butter, oils or creams on it.").
+plan_step_text_lang(cover_burn, it, "Quando si è raffreddata, appoggiaci sopra la pellicola senza avvolgerla, e non metterci burro, oli o creme.").
+plan_step_text_lang(burn_emergency, en, "Go to the emergency room if it is large or deep, on the face, or caused by chemicals or electricity.").
+plan_step_text_lang(burn_emergency, it, "Vai al pronto soccorso se è grande o profonda, sul viso, o causata da sostanze chimiche o elettricità.").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

@@ -1,0 +1,22 @@
+# mix-of-capabilities §13 — 20×16×21: un'ustione. Il piano insegnato parlando
+# (NHS, «Burns and scalds»; NHS, trattamento; Croce Rossa) risponde a chi si e'
+# bruciato, e il rimedio sbagliato riceve il no con la prima mossa dello stesso
+# piano al posto.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the burn plan answers the person who got burned]
+!timeout 30
+> I scalded myself with boiling water
+<~ Hold the burn under cool running water for 20 minutes
+<~ emergency room
+
+[test a wrong home remedy gets no, and what to do instead from the same plan]
+!timeout 30
+> should I put butter on a burn?
+< No: do not put butter on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.
+> can I put ice on a burn?
+<~ No: do not put ice on a burn
