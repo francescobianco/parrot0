@@ -35,3 +35,12 @@
 > how many kwh does a 2000 watt heater use in 3 hours?
 < 6 kWh: 2000 watts for 3 hours.
 <! 1997
+
+[test mix 16x14x13 backward planning from a time, with durations read by position]
+!timeout 30
+> if the roast needs 90 minutes and dinner is at 8 pm, when should I start cooking?
+< 18:30
+> the meeting is at 9 am and the drive takes 1 hour 20 minutes, when should I leave?
+< 07:40
+> my train leaves at 7:45 and it takes 25 minutes to walk to the station, when should I leave?
+< 07:20

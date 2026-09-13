@@ -1418,3 +1418,18 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   hours at 0.30 euros a kwh» → 0,9 euro.
 - **test:** `tests/p0t/math/rate_total.p0t` 6 → 8; `arith` e `wordproblem` rossi
   identici a prima.
+
+### mix-16-14-13-001 — quando partire, quando cominciare
+
+- **misura:** «if the roast needs 90 minutes and dinner is at 8 pm, when should I
+  start cooking?» → «Hmm, I don't know about minutes yet.»; «the meeting is at 9 am
+  and the drive takes 1 hour 20 minutes, when should I leave?» → **«23:59»** (la
+  durata prendeva anche il 9 dell'orario: 9 ore e 1 minuto).
+- **cure (time-questions.p0, zero C):** l'orario con am/pm (mezzogiorno e
+  mezzanotte come eccezioni); le domande di pianificazione a ritroso («when should I
+  leave/start») come operatore «prima»; la durata letta **per posizione** — il
+  numero seguito dalla sua unità — che il file stesso annunciava come «la forma che
+  verrà», con la lettura per unità presenti come ripiego.
+- **esito:** 18:30; 07:40; il treno delle 7:45 con 25 minuti a piedi → 07:20;
+  «2 hours 45 minutes after 14:30» → 17:15 invariato.
+- **test:** `rate_total.p0t` 9 → 12; `time_date_complex` verde (28).

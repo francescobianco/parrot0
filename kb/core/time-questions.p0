@@ -22,6 +22,19 @@
 % cui i separatori dichiarati devono tenere insieme il token (gen419b): se «14:30»
 % si spezza in «14» e «30», qui non arriva niente.
 turn_time($Turn, $Time) :- turn_span_token($Turn, $Index, $Position, $Token), transcoded($Token, $Time).
+% mix 16×14×13 — «dinner is at 8 pm»: l'orario detto con am/pm. Mezzogiorno e
+% mezzanotte sono le due eccezioni della regola del dodici.
+machinery(meridiem).
+meridiem(am).
+meridiem(pm).
+turn_time($Turn, time($H24, 0)) :-
+    turn_word($Turn, $I, $W), span_number($W, $H), is($J, add($I, 1)), turn_word($Turn, $J, $Mer), meridiem($Mer),
+    le($H, 12), hour_24($H, $Mer, $H24).
+machinery(hour_24).
+hour_24(12, am, 0).
+hour_24($H, am, $H) :- lt($H, 12).
+hour_24(12, pm, 12).
+hour_24($H, pm, $H24) :- lt($H, 12), is($H24, add($H, 12)).
 
 % LA DURATA VUOLE L'UNITA', e la prima stesura di questo file l'aveva sbagliata:
 % prendeva i numeri nudi nell'ordine in cui comparivano, quindi «30 minutes before
@@ -54,13 +67,35 @@ turn_unit_present($Turn, $Unit) :- turn_cue_form($Turn, time_unit_cue, $Cue), ti
 %   due numeri  -> ore e minuti, nell'ordine in cui sono stati detti
 %   un numero   -> l'unita' che il turno nomina, e i minuti hanno la precedenza
 %                  perche' «30 minutes» e' la forma piu' comune di durata corta
+% mix 16×14×13 — «the meeting is at 9 am and the drive takes 1 hour 20 minutes»:
+% la lista dei numeri conteneva anche il 9 dell'orario e la durata diventava 9 ore
+% e 1 minuto (risposta: 23:59). Ecco «la forma che verra'» detta qui sopra: il
+% numero e' una durata quando la parola che lo segue e' la sua unita'.
+machinery(unit_word).
+unit_word(hours, hours).  unit_word(hour, hours).  unit_word(ore, hours).  unit_word(ora, hours).
+unit_word(minutes, minutes).  unit_word(minute, minutes).  unit_word(minuti, minutes).  unit_word(minuto, minutes).
+machinery(turn_unit_number).
+turn_unit_number($Turn, $Unit, $N) :- turn_word($Turn, $I, $W), span_number($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $U), unit_word($U, $Unit).
+machinery(turn_has_unit_number).
+turn_has_unit_number($Turn) :- turn_unit_number($Turn, $Unit, $N).
+turn_duration($Turn, dur($H, $M)) :- turn_unit_number($Turn, hours, $H), turn_unit_number($Turn, minutes, $M).
+turn_duration($Turn, dur(0, $M)) :- turn_unit_number($Turn, minutes, $M), naf(turn_has_hours_number($Turn)).
+turn_duration($Turn, dur($H, 0)) :- turn_unit_number($Turn, hours, $H), naf(turn_has_minutes_number($Turn)).
+machinery(turn_has_hours_number).
+turn_has_hours_number($Turn) :- turn_unit_number($Turn, hours, $N).
+machinery(turn_has_minutes_number).
+turn_has_minutes_number($Turn) :- turn_unit_number($Turn, minutes, $N).
+% La lettura per unita' presenti, quando le parole non sono contigue ai numeri.
 turn_duration($Turn, dur($H, $M)) :-
+    naf(turn_has_unit_number($Turn)),
     turn_unit_present($Turn, hours), turn_unit_present($Turn, minutes),
     turn_number_list($Turn, cons($H, cons($M, $Rest))).
 turn_duration($Turn, dur(0, $M)) :-
+    naf(turn_has_unit_number($Turn)),
     turn_unit_present($Turn, minutes),
     turn_number_list($Turn, cons($M, nil)).
 turn_duration($Turn, dur($H, 0)) :-
+    naf(turn_has_unit_number($Turn)),
     turn_unit_present($Turn, hours),
     turn_number_list($Turn, cons($H, nil)).
 
@@ -87,6 +122,15 @@ time_cue("lasts", time_after).
 time_cue("viaggia per", time_after).
 time_cue("dopo", time_after).
 time_cue("before", time_before_op).
+% Pianificare a ritroso: chi chiede quando partire o cominciare per arrivare a
+% un'ora chiede l'ora MENO la durata («my train leaves at 7:45 and it takes 25
+% minutes to walk…, when should I leave?»).
+time_cue("when should i leave", time_before_op).
+time_cue("when should i start", time_before_op).
+time_cue("what time should i leave", time_before_op).
+time_cue("what time should i start", time_before_op).
+time_cue("when do i need to leave", time_before_op).
+time_cue("when do i have to start", time_before_op).
 time_cue("prima di", time_before_op).
 turn_cue_registry(time_cue, 1).
 
