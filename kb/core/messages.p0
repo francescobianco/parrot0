@@ -1178,6 +1178,11 @@ turn_form(purpose_asked, 3, text("used for")).
 turn_form(purpose_asked, 4, bind(relation, purpose_of)).
 turn_form_mood(purpose_asked, question).
 turn_form_act(purpose_asked, answer_relation).
+% assistente utile U18 — la risposta intera invece del frammento tra virgolette.
+turn_form_reply(purpose_asked, purpose_answered).
+turn_form_reply(purpose_asked2, purpose_answered).
+response_template(purpose_answered, "{article} {subject} is used for {object}.").
+response_template(purpose_answered, it, "{subject} serve a {object}.").
 
 turn_form(purpose_asked2, 1, text("what is the purpose of")).
 turn_form(purpose_asked2, 2, slot(subject)).

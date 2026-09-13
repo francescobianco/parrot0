@@ -33,3 +33,10 @@
 > Can you explain what inflation is?
 <~ A general rise in prices
 <! I don't know whether you can
+
+[test a purpose answer is a sentence, not a quoted fragment]
+!timeout 30
+> What is a compass used for?
+< A compass is used for finding north without landmarks.
+> what is soap used for?
+< Soap is used for lifting grease off skin and cloth.

@@ -16023,11 +16023,50 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             char list[400]; size_t off = 0;
             for (size_t k = 0; k < nh && off + 1 < sizeof list; k++) {
                 char shown[KB_TERM_LEN];
-                present_atom(b, hits[k], shown, sizeof shown);
+                /* assistente utile U18 — un valore TESTO («"finding north
+                 * without landmarks"») si dice senza le sue virgolette. */
+                char hb2[KB_TERM_LEN]; snprintf(hb2, sizeof hb2, "%s", hits[k]);
+                present_atom(b, kb_dequote(hb2), shown, sizeof shown);
+                size_t sl3 = strlen(shown);
+                if (sl3 >= 2 && (shown[0] == '"' || shown[0] == '\'') &&
+                    shown[sl3 - 1] == shown[0]) {
+                    memmove(shown, shown + 1, sl3 - 2); shown[sl3 - 2] = '\0';
+                }
                 off += (size_t)snprintf(list + off, sizeof list - off,
                                         "%s%s", k ? ", " : "", shown);
             }
             char msg2[460]; snprintf(msg2, sizeof msg2, "%s.", list);
+            /* e se la forma dichiara come si dice la risposta
+             * (`turn_form_reply`), la frase intera: «A compass is used for
+             * finding north without landmarks.» invece del frammento. */
+            {
+                char tpl2[1][KB_TERM_LEN];
+                const char *tq2[2] = { forms[f], NULL };
+                if (kb_match(b->kb, "turn_form_reply", tq2, 2, tpl2, 1) == 1) {
+                    char tb2[KB_TERM_LEN]; snprintf(tb2, sizeof tb2, "%s", tpl2[0]);
+                    /* l'articolo solo se chi chiede l'ha usato: «what is soap
+                     * used for?» non diventa «A soap is used for…». */
+                    char art[16] = "";
+                    {
+                        char seek_a[KB_TERM_LEN + 8], seek_an[KB_TERM_LEN + 8];
+                        snprintf(seek_a, sizeof seek_a, " a %s", sub);
+                        snprintf(seek_an, sizeof seek_an, " an %s", sub);
+                        if (strstr(norm, seek_a) || strstr(norm, seek_an))
+                            p0_indef_article(b, sub, art, sizeof art);
+                    }
+                    char subj[KB_TERM_LEN]; present_atom(b, sub, subj, sizeof subj);
+                    const KbResponseSlot rs2[] = { { "article", art },
+                                                   { "subject", subj },
+                                                   { "object", list } };
+                    char msg3[460];
+                    if (kb_response_slots(b, kb_dequote(tb2), rs2, 3, msg3, sizeof msg3)) {
+                        char *m3 = msg3; while (*m3 == ' ') m3++;
+                        memmove(msg3, m3, strlen(m3) + 1);
+                        msg3[0] = (char)toupper((unsigned char)msg3[0]);
+                        snprintf(msg2, sizeof msg2, "%s", msg3);
+                    }
+                }
+            }
             put(msg2, out, out_size);
             free(forms);
             return 1;
