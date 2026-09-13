@@ -113,6 +113,7 @@ utterance(5, user, "underwatering causes yellow leaves").
 utterance(5, user, "a cup of sugar weighs 198 grams").
 utterance(5, user, "the safe internal temperature of ground beef is 71 degrees").
 utterance(5, user, "the italian for ammonia is ammoniaca").
+utterance(5, user, "the italian for breathing problems is problemi respiratori").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -205,6 +206,7 @@ utterance(6, self, "Learned: underwatering causes yellow leaves.").
 utterance(6, self, "Held: a cup of sugar weighs 198 grams.").
 utterance(6, self, "Held: the safe internal temperature of ground beef is 71 degrees.").
 utterance(6, self, "Held: «ammoniaca» is how ammonia is said in that language.").
+utterance(6, self, "Held: «problemi_respiratori» is how breathing_problems is said in that language.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -2371,6 +2373,8 @@ utterance(2, self, "Hmm, I don't know about plant's yet. Want me to learn about 
 utterance(2, self, "Held: a sign of low light is leggy stems.").
 utterance(2, self, "Held: adults need 7 to 9 hours of sleep.").
 utterance(2, self, "Held: «candeggina» is how bleach is said in that language.").
+utterance(2, self, "Held: «cloro_gassoso» is how chlorine_gas is said in that language.").
+utterance(2, self, "Held: «clorammine» is how chloramine_gas is said in that language.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2466,6 +2470,8 @@ utterance(1, user, "adults need 7 to 9 hours of sleep").
 utterance(1, user, "how many grams are 2 cups of flour?").
 utterance(1, user, "I cooked the chicken to 68 degrees, is it safe?").
 utterance(1, user, "the italian for bleach is candeggina").
+utterance(1, user, "the italian for chlorine gas is cloro gassoso").
+utterance(1, user, "the italian for chloramine gas is clorammine").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2555,6 +2561,7 @@ utterance(4, self, "Learned: overwatering causes yellow leaves.").
 utterance(4, self, "Who or what does «it» refer to?").
 utterance(4, self, "Held: a cup of flour weighs 120 grams.").
 utterance(4, self, "Held: «aceto» is how vinegar is said in that language.").
+utterance(4, self, "Held: «gas_of_clorammina» is how chloramine_gas is said in that language.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2643,6 +2650,7 @@ utterance(3, user, "overwatering causes yellow leaves").
 utterance(3, user, "is it safe to mix bleach and vinegar?").
 utterance(3, user, "a cup of flour weighs 120 grams").
 utterance(3, user, "the italian for vinegar is aceto").
+utterance(3, user, "the italian for chloramine gas is gas di clorammina").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

@@ -111,7 +111,10 @@ mixture_answer(en, releases($How, $P), $Text) :-
 % In italiano: i nomi nella lingua se la KB li sa (`value_in_language/3`), altrimenti
 % come sono.
 machinery(it_name).
-it_name($Atom, $Name) :- value_in_language(it, $Atom, $Local), words_of($Local, $Name).
+it_name($Atom, $Name) :- words_of($Atom, $Spaced), tr($Spaced, $Local), words_of($Local, $Name).
+it_name($Atom, $Name) :- naf(spaced_translation($Atom)), value_in_language(it, $Atom, $Local), words_of($Local, $Name).
+machinery(spaced_translation).
+spaced_translation($Atom) :- words_of($Atom, $Spaced), tr($Spaced, $Local).
 mixture_how_text(it, direct($A, $B), $Text) :- it_name($A, $NA), it_name($B, $NB), concat_atoms("mescolare ", $NA, $X), concat_atoms($X, " e ", $Y), concat_atoms($Y, $NB, $Text).
 mixture_how_text(it, by_class($A, $B, $C), $Text) :-
     it_name($A, $NA), it_name($B, $NB), it_name($C, $NC),

@@ -1534,7 +1534,12 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   gas, e chlorine gas causa breathing problems.»; «No: pollo è deperibile, e un
   alimento deperibile non deve stare fuori dal frigorifero più di 2 ore; 3 ore sono
   oltre, quindi è più sicuro buttarlo.».
-- **resta:** i nomi di più parole non si traducono con la lezione («the italian for
-  chlorine gas is cloro gassoso» → muro): la risposta italiana sulla candeggina resta
-  mista.
+- **seguito:** una forma sorella con lo span (`teach_tr_phrase`) insegna i nomi di più
+  parole: «the italian for chlorine gas is cloro gassoso», «… breathing problems is
+  problemi respiratori», «… chloramine gas is clorammine». Ora «No: aceto è un acido,
+  e mescolare candeggina e un acido libera cloro gassoso, e cloro gassoso causa
+  problemi respiratori.». **Quarantena:** «gas di clorammina» era diventato
+  `gas_of_clorammina` (il «di» canonicalizzato dentro l'oggetto della lezione): tolto;
+  la canonicalizzazione tocca anche il testo italiano che si sta insegnando.
+  `translate.p0t` rosso identico su HEAD.
 - **test:** `mix_household_safety.p0t` +1 blocco, `mix_food_time.p0t` +1 blocco.

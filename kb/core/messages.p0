@@ -1430,6 +1430,19 @@ turn_form_mood(teach_tr, statement).
 turn_form_act(teach_tr, assert_relation).
 turn_form_reply(teach_tr, learned_translation).
 
+% mix §13 — e il NOME DI PIU' PAROLE («the italian for chlorine gas is cloro
+% gassoso»): la forma sopra prende una parola sola e la lezione cadeva nel muro.
+% La forma resta (strutture secondarie); questa ne e' la sorella con lo span.
+turn_form(teach_tr_phrase, 1, text("the italian for")).
+turn_form(teach_tr_phrase, 2, span(subject)).
+turn_form(teach_tr_phrase, 3, text("is")).
+turn_form(teach_tr_phrase, 4, rest(object)).
+turn_form(teach_tr_phrase, 5, bind(relation, tr)).
+turn_form_mood(teach_tr_phrase, statement).
+turn_form_act(teach_tr_phrase, assert_relation).
+turn_form_reply(teach_tr_phrase, learned_translation).
+turn_form_priority(teach_tr_phrase, early).
+
 turn_form(teach_tr_it, 1, text("in italiano")).
 turn_form(teach_tr_it, 2, slot(subject)).
 turn_form(teach_tr_it, 3, text("is")).

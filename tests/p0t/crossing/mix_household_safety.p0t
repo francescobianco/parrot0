@@ -34,6 +34,5 @@
 !timeout 30
 !set PARROT0_LANG=it
 > posso mescolare candeggina e aceto?
-<~ No: aceto è un acido
-<~ candeggina
+< No: aceto è un acido, e mescolare candeggina e un acido libera cloro gassoso, e cloro gassoso causa problemi respiratori.
 !set PARROT0_LANG=en
