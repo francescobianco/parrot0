@@ -208,6 +208,21 @@ getting_started_cue("da dove parto").
 turn_cue_registry(getting_started_cue, 1).
 user_situation($Turn, user_getting_started) :- turn_cue_form($Turn, getting_started_cue, $Cue).
 
+% assistente utile U14 — ORGANIZZARE IL PROPRIO TEMPO. «Come posso organizzare
+% meglio la mia giornata?» (il prompt `italian` del banco) riceveva «Non capisco
+% ancora.». Chi lo chiede vuole un metodo che stia in una frase e la domanda su
+% dove la giornata gli sfugge.
+machinery(time_organizing_cue).
+time_organizing_cue("organizzare meglio la mia giornata").
+time_organizing_cue("organizzare la mia giornata").
+time_organizing_cue("gestire meglio il mio tempo").
+time_organizing_cue("organize my day").
+time_organizing_cue("organise my day").
+time_organizing_cue("manage my time").
+time_organizing_cue("plan my day").
+turn_cue_registry(time_organizing_cue, 1).
+user_situation($Turn, user_organizing_time) :- turn_cue_form($Turn, time_organizing_cue, $Cue).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -241,6 +256,10 @@ situation_cue("someone wants to start something new", user_getting_started).
 situation_cue("qualcuno vuole cominciare qualcosa di nuovo", user_getting_started).
 situation_label(user_getting_started, en, "someone wants to start something new").
 situation_label(user_getting_started, it, "qualcuno vuole cominciare qualcosa di nuovo").
+situation_cue("someone wants to organize their day", user_organizing_time).
+situation_cue("qualcuno vuole organizzare la giornata", user_organizing_time).
+situation_label(user_organizing_time, en, "someone wants to organize their day").
+situation_label(user_organizing_time, it, "qualcuno vuole organizzare la giornata").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -338,6 +357,22 @@ plan_step_text_lang(start_small, en, "Start small and regular: a short session t
 plan_step_text_lang(start_small, it, "Comincia in piccolo e con regolarità: una sessione breve tre volte a settimana, aumentando un poco ogni settimana, si mantiene meglio di un grande piano.").
 plan_step_text_lang(ask_weekly_time, en, "How much time can you give it each week?").
 plan_step_text_lang(ask_weekly_time, it, "Quanto tempo puoi dedicarci ogni settimana?").
+% - prioritise_first: NHS, «10 stress busters» — «work smarter, not harder…
+%   prioritising your work, concentrating on the tasks that'll make a real
+%   difference».
+% ⚠ Non «… do the important ones first»: «first» lo prende il chiarimento
+% dell'ordinale (misurato nella sessione U14).
+% ⚠ e non oltre otto parole: il pezzo `named` non accumula oltre, e la lezione
+% con una mossa lunga non combacia.
+% ⚠ e non «what matters most»: e' la cue di `own_method(salience)`.
+move_cue("say to begin with the important tasks", prioritise_first).
+move_cue("di' di cominciare da cio' che conta", prioritise_first).
+move_cue("ask which part of the day is hardest", ask_hardest_part).
+move_cue("chiedi quale parte della giornata e' piu' difficile", ask_hardest_part).
+plan_step_text_lang(prioritise_first, en, "Write down what you have to do, pick the two or three things that make a real difference, and do those first.").
+plan_step_text_lang(prioritise_first, it, "Scrivi che cosa devi fare, scegli le due o tre cose che fanno davvero la differenza, e falle per prime.").
+plan_step_text_lang(ask_hardest_part, en, "Which part of your day is hardest to manage right now?").
+plan_step_text_lang(ask_hardest_part, it, "Quale parte della giornata ti è più difficile da gestire adesso?").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

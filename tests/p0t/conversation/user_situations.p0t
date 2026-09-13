@@ -75,6 +75,14 @@
 > where does the river begin?
 <! Start small
 
+[test organizing the day gets the method and the question, in italian too]
+!timeout 30
+> Come posso organizzare meglio la mia giornata?
+<~ Scrivi che cosa devi fare
+!set PARROT0_LANG=en
+> How can I organize my day better?
+<~ Write down what you have to do
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem

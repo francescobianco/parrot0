@@ -95,6 +95,7 @@ utterance(5, user, "when someone has to choose then say it depends on what they 
 utterance(5, user, "when someone asks what you can help with then ask what they need").
 utterance(5, user, "when someone wants help writing a message then give the shape of a clear message").
 utterance(5, user, "I want to start running. Where do I begin?").
+utterance(5, user, "when someone wants to organize their day then ask which part of the day is hardest").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -169,6 +170,7 @@ utterance(6, self, "Held: in that situation, move 1 is «Both can be the right c
 utterance(6, self, "Held: in that situation, move 2 is «What do you need right now?».").
 utterance(6, self, "Held: in that situation, move 1 is «A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when.».").
 utterance(6, self, "Hmm, I don't know about running yet. Want me to learn about it?").
+utterance(6, self, "Held: in that situation, move 2 is «Which part of your day is hardest to manage right now?».").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -655,6 +657,7 @@ utterance(7, user, "when someone has to choose then ask what they will use it fo
 utterance(7, user, "What can you help me with?").
 utterance(7, user, "when someone wants help writing a message then ask who it is for and what it should achieve").
 utterance(7, user, "when someone wants to start something new then say to start small and regular").
+utterance(7, user, "your plan when someone wants to organize their day").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1035,7 +1038,11 @@ utterance(8, self, "Held: in that situation, move 1 is «Start small and regular
 utterance(9, user, "when someone wants to start something new then ask how much time they have each week").
 utterance(10, self, "Held: in that situation, move 2 is «How much time can you give it each week?».").
 utterance(11, user, "Help me write an email.").
+utterance(8, self, "When that happens I: 1) Write down what you have to do, pick the two or three things that make a real difference, and do those first.  2) Which part of your day is hardest to manage right now?").
+utterance(9, user, "Come posso organizzare meglio la mia giornata?").
+utterance(10, self, "Scrivi che cosa devi fare, scegli le due o tre cose che fanno davvero la differenza, e falle per prime. Quale parte della giornata ti è più difficile da gestire adesso?").
 utterance(11, user, "your plan when someone wants to start something new").
+utterance(11, user, "How can I organize my day better?").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1637,7 +1644,29 @@ utterance(41, user, "thanks").
 utterance(42, self, "You're welcome!").
 utterance(43, user, "what is the capital of spain?").
 utterance(25, user, "what is your plan when you have no steps?").
+utterance(12, self, "Write down what you have to do, pick the two or three things that make a real difference, and do those first. Which part of your day is hardest to manage right now?").
+utterance(13, user, "I need help to manage my time").
+utterance(14, self, "Write down what you have to do, pick the two or three things that make a real difference, and do those first. Which part of your day is hardest to manage right now?").
+utterance(15, user, "the company wants to organize my day").
+utterance(16, self, "Write down what you have to do, pick the two or three things that make a real difference, and do those first. Which part of your day is hardest to manage right now?").
+utterance(17, user, "unlearn what you do when someone wants to organize their day").
+utterance(18, self, "Forgotten: the plan for user organizing time.").
+utterance(19, user, "Come posso organizzare meglio la mia giornata?").
+utterance(20, self, "Non capisco ancora.").
+utterance(21, user, "when someone wants to organize their day then say to begin with the important tasks").
+utterance(22, self, "Held: in that situation, move 1 is «Write down what you have to do, pick the two or three things that make a real difference, and do those first.».").
+utterance(23, user, "when someone wants to organize their day then ask which part of the day is hardest").
+utterance(24, self, "Held: in that situation, move 2 is «Which part of your day is hardest to manage right now?».").
+utterance(25, user, "ciao").
+utterance(26, self, "Goodbye!").
+utterance(27, user, "quanto fa 23 per 7?").
 utterance(44, self, "Madrid.").
+utterance(29, user, "grazie").
+utterance(30, self, "Prego!").
+utterance(31, user, "qual è la capitale della spagna?").
+utterance(32, self, "Madrid.").
+utterance(33, user, "Come posso organizzare meglio la mia giornata?").
+utterance(34, self, "Scrivi che cosa devi fare, scegli le due o tre cose che fanno davvero la differenza, e falle per prime. Quale parte della giornata ti è più difficile da gestire adesso?").
 utterance(45, user, "how many legs does a spider have?").
 utterance(46, self, "A spider has 8 legs.").
 utterance(47, user, "I want to learn to cook. Where should I start?").
@@ -2013,6 +2042,7 @@ utterance(2, self, "I am not sure what you mean by «first». Could you give me 
 utterance(2, self, "From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning").
 utterance(2, self, "I understood the request — produce «email» — but I don't know that yet as something I can compute or build, so I have no code to show for it.").
 utterance(2, self, "Hmm, I don't know about running yet. Want me to learn about it?").
+utterance(2, self, "Non capisco ancora.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2088,6 +2118,7 @@ utterance(1, user, "Should I learn Python or JavaScript first?").
 utterance(1, user, "What can you help me with?").
 utterance(1, user, "Help me write an email.").
 utterance(1, user, "I want to start running").
+utterance(1, user, "Come posso organizzare meglio la mia giornata?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2160,6 +2191,7 @@ utterance(4, self, "Hmm, I don't know about laptop yet. Want me to learn about i
 utterance(4, self, "Held: in that situation, move 1 is «I can help you think through a problem with something that isn't working, weigh a choice between two options, talk through a worry, give you the steps for procedures I know (like changing a flat tire or making tea), work out sums and small word problems, and rea").
 utterance(4, self, "I don't know whether you can help me with a letter: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
 utterance(4, self, "I don't understand that yet.").
+utterance(4, self, "Held: in that situation, move 1 is «Write down what you have to do, pick the two or three things that make a real difference, and do those first.».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -2230,6 +2262,7 @@ utterance(3, user, "Should I buy a laptop or a tablet for university?").
 utterance(3, user, "when someone asks what you can help with then list what you can help with").
 utterance(3, user, "Can you help me with a letter?").
 utterance(3, user, "Where do I begin?").
+utterance(3, user, "when someone wants to organize their day then say to begin with the important tasks").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

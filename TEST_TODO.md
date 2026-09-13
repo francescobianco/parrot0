@@ -1,5 +1,7 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+**assistente utile U14 (2026-09-13)**: `make soft-test` lanciato nello stesso comando subito dopo un commit (il binario si ricompila per `version.o`) e' uscito rosso due volte e verde al secondo lancio, senza modifiche in mezzo: da capire se il demone parte prima che la build finisca. `user_situations.p0t` 36.
+
 **assistente utile U1+U2 (2026-09-13)**: nuovo `conversation/user_situations.p0t`
 (17). `behavior_gen512.p0t` torna **verde 22/22** (era rosso 20/22: la lezione
 «when … then …» letta come domanda, e `forget_plan` mai raggiunta). `make

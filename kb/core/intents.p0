@@ -3869,6 +3869,17 @@ turn_pattern_intent(self_procedure_should_form, process_request).
 % forma: e' l'intento che il matcher universale sa riconoscere, per cue come per
 % forma dichiarata.
 faculty_yield(abduce, open, process_request).
+% assistente utile U14 — anche la lezione che RITIRA un piano di condotta
+% («unlearn what you do when someone wants to organize their day») e' una
+% lezione: l'analisi di progetto la prendeva prima che il lettore delle forme la
+% vedesse («On unlearn what you do when someone wants to, a workable design
+% turns on…»).
+intent_cue(plan_lesson, "unlearn what you do when").
+intent_cue(plan_lesson, "your plan when").
+intent_cue(plan_lesson, "when someone").
+intent_cue(plan_lesson, "quando qualcuno").
+faculty_yield(analysis_family, open, plan_lesson).
+faculty_yield(analysis_last_resort, open, plan_lesson).
 
 intent_cue(activity_request, "best way to").
 intent_cue(activity_request, "good way to").

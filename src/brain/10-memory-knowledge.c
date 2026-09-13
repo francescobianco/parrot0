@@ -14591,6 +14591,13 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             if (!best || !bestname[0]) return 0;
             snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", nm);
             snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", bestname);
+            /* assistente utile U14 — il valore di un pezzo `named` e' un ATOMO
+             * della KB (la situazione, la mossa), non un testo. Il campo non era
+             * inizializzato e restava quello della forma provata prima: sulla
+             * vista detta «user_organizing_time» diventava «"user organizing
+             * time"», il retract non trovava niente e la lezione «unlearn what
+             * you do when …» cadeva nell'analisi di ultima istanza. */
+            slots[*nslot].is_text = 0;
             (*nslot)++;
             i += best;
         } else if (!strcmp(kind, "bind")) {
@@ -15070,6 +15077,9 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                 for (size_t y = 0; y < argc2; y++) if (!argv2[y]) frees++;
                 if (frees > 1) {
                     size_t gone = kb_retract_match(b->kb, pred, argv2, argc2);
+                    if (getenv("P0_FORM_TRACE"))
+                        fprintf(stderr, "[form] retract_all %s(%s, …) removed %zu\n", pred,
+                                argv2[0] ? argv2[0] : "_", gone);
                     done2 = gone > 0; nres = gone;
                 }
                 char rows[64][KB_TERM_LEN];

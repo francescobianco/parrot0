@@ -7341,7 +7341,12 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return turn_done(b, canon, input, out, out_size);
     }
 
+    /* assistente utile U14: anche il primo passaggio dell'analisi legge la
+     * condotta dichiarata (il secondo e l'ultima istanza lo facevano gia'):
+     * «unlearn what you do when someone wants to organize their day» e le
+     * lezioni di piano con «organize» li prendeva il progetto di sistemi. */
     if (b && !teaching_prose(input) &&
+        !p0_faculty_yields(b, "analysis_family", "open", canon, input) &&
         structured_analysis_lead(b, canon, input, 0, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_plan");

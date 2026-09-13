@@ -1,0 +1,370 @@
+[
+ {
+  "class": "problem-report",
+  "use": "base",
+  "turns": [
+   {
+    "input": "ho un problema meccanico",
+    "output": "Vediamolo insieme. Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto. Di che cosa si tratta, e che cosa succede esattamente?",
+    "seconds": 0.1
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "held",
+  "turns": [
+   {
+    "input": "I have a problem with my bike.",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "held",
+  "turns": [
+   {
+    "input": "la lavatrice non funziona piu'",
+    "output": "Vediamolo insieme. Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto. Di che cosa si tratta, e che cosa succede esattamente?",
+    "seconds": 0.1
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "held",
+  "turns": [
+   {
+    "input": "My phone screen is broken.",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "contrast",
+  "turns": [
+   {
+    "input": "ho risolto il problema meccanico",
+    "output": "Non capisco ancora.",
+    "seconds": 1.1
+   }
+  ]
+ },
+ {
+  "class": "howto",
+  "use": "base",
+  "turns": [
+   {
+    "input": "How do I make my laptop battery last longer?",
+    "output": "I understood you're asking how to make longer, but I don't have the steps for it yet.",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "howto",
+  "use": "held",
+  "turns": [
+   {
+    "input": "How can I keep my plants alive while I'm on holiday?",
+    "output": "I understood you're asking how to make holiday, but I don't have the steps for it yet.",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "ambiguous-task",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Help me write an email.",
+    "output": "A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when. Who is it for, and what do you want it to get done?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "ambiguous-task",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Can you help me with a letter?",
+    "output": "A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when. Who is it for, and what do you want it to get done?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "plan",
+  "use": "base",
+  "turns": [
+   {
+    "input": "I want to start running. Where do I begin?",
+    "output": "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "plan",
+  "use": "held",
+  "turns": [
+   {
+    "input": "I want to learn to cook. Where should I start?",
+    "output": "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "explain",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Can you explain what inflation is?",
+    "output": "A general rise in prices over time that reduces the purchasing power of money.",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "explain",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Can you explain what a vaccine does?",
+    "output": "A vaccine trains immune memory using a harmless form or component of a pathogen, so later exposure can trigger a faster protective response and reduce severe disease and transmission.",
+    "seconds": 0.7
+   }
+  ]
+ },
+ {
+  "class": "decide",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Should I learn Python or JavaScript first?",
+    "output": "Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know. What do you want to do with it first?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "decide",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Should I buy a laptop or a tablet for university?",
+    "output": "Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know. What do you want to do with it first?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "summarize",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Summarize this: The meeting was moved from Monday to Wednesday because the client could not attend. Anna will send the new agenda by Tuesday noon.",
+    "output": "We haven't talked about much yet. I couldn't read «Anna will send the new agenda by Tuesday noon.».",
+    "seconds": 3.9
+   }
+  ]
+ },
+ {
+  "class": "compare",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What is the difference between a virus and a bacterium?",
+    "output": "Here is what I know of each. A virus is a package of genetic material in a protein coat that cannot reproduce on its own and must enter a living cell and use its machinery to make copies. A bacterium is a single-celled organism without a nucleus; most are harmless or useful, and only some cause disease.",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "troubleshoot",
+  "use": "base",
+  "turns": [
+   {
+    "input": "My wifi keeps disconnecting. What should I do?",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "troubleshoot",
+  "use": "held",
+  "turns": [
+   {
+    "input": "My car makes a strange noise when I brake.",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "brainstorm",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Give me some ideas for a birthday present for my dad.",
+    "output": "Hmm, I don't know about birthday yet. Want me to learn about it?",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "emotion",
+  "use": "base",
+  "turns": [
+   {
+    "input": "I'm really stressed about my exam tomorrow.",
+    "output": "That sounds hard, and it makes sense to feel that way. It often helps to pick one small thing you can do about it today. What worries you most about it?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "emotion",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Sono preoccupato per il colloquio di lavoro di domani.",
+    "output": "Sembra pesante, ed è comprensibile sentirsi così. Spesso aiuta scegliere una cosa piccola da fare oggi. Che cosa ti preoccupa di più?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "emotion",
+  "use": "contrast",
+  "turns": [
+   {
+    "input": "I'm really happy about my exam result.",
+    "output": "That sounds nice -- tell me more about it.",
+    "seconds": 0.7
+   }
+  ]
+ },
+ {
+  "class": "live-data",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What's the weather in Rome today?",
+    "output": "I have no live source for current weather: it changes while we speak, so anything I held would be stale. A weather service will have it.",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "false-premise",
+  "use": "base",
+  "turns": [
+   {
+    "input": "The sun goes around the earth, right?",
+    "output": "Hmm, I don't know about around yet. Want me to learn about it?",
+    "seconds": 1.0
+   }
+  ]
+ },
+ {
+  "class": "steps",
+  "use": "base",
+  "turns": [
+   {
+    "input": "How do I boil an egg?",
+    "output": "I understood you're asking how to make egg, but I don't have the steps for it yet.",
+    "seconds": 1.0
+   }
+  ]
+ },
+ {
+  "class": "rewrite",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Make this more formal: hey can u send me the file",
+    "output": "I understood the request — produce «formal hey can u send me the file» — but I don't know that yet as something I can compute or build, so I have no code to show for it.",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "math",
+  "use": "base",
+  "turns": [
+   {
+    "input": "If I save 50 euros a month, how much will I have in two years?",
+    "output": "1200 euros.",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "followup-offer",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What is a compass used for?",
+    "output": "\"finding north without landmarks\".",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "italian",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Come posso organizzare meglio la mia giornata?",
+    "output": "Non capisco ancora.",
+    "seconds": 1.0
+   }
+  ]
+ },
+ {
+  "class": "multi-turn",
+  "use": "base",
+  "turns": [
+   {
+    "input": "I need to cook dinner for four people tonight.",
+    "output": "Hmm, I don't know about dinner yet. Want me to learn about it?",
+    "seconds": 0.9
+   },
+   {
+    "input": "One of them is vegetarian.",
+    "output": "Hmm, I don't know about vegetarian yet. Want me to learn about it?",
+    "seconds": 1.2
+   }
+  ]
+ },
+ {
+  "class": "code",
+  "use": "base",
+  "turns": [
+   {
+    "input": "How do I reverse a list in Python?",
+    "output": "I understood the request — produce «reverse a list» in python — but I don't know that yet as something I can compute or build, so I have no code to show for it.",
+    "seconds": 1.0
+   }
+  ]
+ },
+ {
+  "class": "capability",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What can you help me with?",
+    "output": "I can help you think through a problem with something that isn't working, weigh a choice between two options, talk through a worry, give you the steps for procedures I know (like changing a flat tire or making tea), work out sums and small word problems, and read a short text you give me and answer questions about it. What do you need right now?",
+    "seconds": 0.2
+   }
+  ]
+ }
+]
