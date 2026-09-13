@@ -184,17 +184,22 @@ answer_content(property_answer($V, $P, $L), 0, opener, $Piece) :- verdict_class(
 answer_content(property_answer($V, $P, $L), 1, subject, $Piece) :- verdict_class($V, $K, $X, $C), subject_piece($L, $X, $Piece).
 machinery(subject_piece).
 subject_piece(en, $X, $Piece) :- turn_word(current_turn, $I, $A), article_word($A), is($J, add($I, 1)), turn_word(current_turn, $J, $X), class_article($X, en, $Art), concat_atoms($Art, " ", $A1), concat_atoms($A1, $X, $A2), concat_atoms($A2, " ", $Piece).
-subject_piece($L, $X, $Piece) :- naf(subject_said_with_article($X)), concat_atoms($X, " ", $Piece).
-subject_piece(it, $X, $Piece) :- subject_said_with_article($X), concat_atoms($X, " ", $Piece).
+subject_piece(en, $X, $Piece) :- naf(subject_said_with_article($X)), concat_atoms($X, " ", $Piece).
+subject_piece(it, $X, $Piece) :- naf(subject_said_with_article($X)), value_in_language(it, $X, $Local), concat_atoms($Local, " ", $Piece).
+subject_piece(it, $X, $Piece) :- subject_said_with_article($X), value_in_language(it, $X, $Local), concat_atoms($Local, " ", $Piece).
 machinery(subject_said_with_article).
 subject_said_with_article($X) :- turn_word(current_turn, $I, $A), article_word($A), is($J, add($I, 1)), turn_word(current_turn, $J, $X).
 machinery(article_word).
 article_word(a).
 article_word(an).
 answer_content(property_answer($V, $P, $L), 2, copula, $Piece) :- property_is_a_word($L, $Piece).
-answer_content(property_answer($V, $P, $L), 3, class, $Piece) :- verdict_class($V, $K, $X, $C), class_article($C, $L, $A), concat_atoms($A, " ", $A1), concat_atoms($A1, $C, $Piece).
+answer_content(property_answer($V, $P, $L), 3, class, $Piece) :- dif($L, it), verdict_class($V, $K, $X, $C), class_article($C, $L, $A), concat_atoms($A, " ", $A1), concat_atoms($A1, $C, $Piece).
+% In italiano la classe si dice nella lingua (`value_in_language/3`) e senza
+% articolo: «è un mammifero» chiederebbe il genere, che qui non si sa.
+answer_content(property_answer($V, $P, it), 3, class, $Piece) :- verdict_class($V, $K, $X, $C), value_in_language(it, $C, $Piece).
 answer_content(property_answer($V, $P, $L), 4, link, $Piece) :- property_every_word($L, $Piece).
-answer_content(property_answer($V, $P, $L), 5, class2, $Piece) :- verdict_class($V, $K, $X, $C), concat_atoms($C, " ", $Piece).
+answer_content(property_answer($V, $P, $L), 5, class2, $Piece) :- dif($L, it), verdict_class($V, $K, $X, $C), concat_atoms($C, " ", $Piece).
+answer_content(property_answer($V, $P, it), 5, class2, $Piece) :- verdict_class($V, $K, $X, $C), value_in_language(it, $C, $Local), concat_atoms($Local, " ", $Piece).
 answer_content(property_answer($V, $P, $L), 6, property, $Piece) :- verdict_property($V, $P, $Q), property_phrase($Q, $L, $Text), concat_atoms($Text, ".", $Piece).
 machinery(property_is_a_word).
 property_is_a_word(en, "is ").

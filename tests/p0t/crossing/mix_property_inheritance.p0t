@@ -38,3 +38,10 @@
 < No: a snake is a reptile, and every reptile is cold-blooded.
 > what about an eagle?
 < Yes: an eagle is a bird, and every bird is warm-blooded.
+
+[test the same inherited property asked and answered in italian]
+!timeout 30
+!set PARROT0_LANG=it
+> la balena è a sangue caldo?
+< Sì: balena è mammifero, e ogni mammifero è a sangue caldo.
+!set PARROT0_LANG=en
