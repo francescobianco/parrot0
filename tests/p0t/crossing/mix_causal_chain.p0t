@@ -1,0 +1,24 @@
+# mix-of-capabilities 12×09 — la catena delle cause, percorsa nel verso detto e
+# resa per passi, sui fatti causali della KB viva (e sulle cause insegnate
+# parlando: burning fossil fuels causes pollution). Mai un «No» per una catena
+# non trovata.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a two-step chain is followed and said]
+!timeout 30
+> does rain make surfaces slippery?
+< Yes: rain causes wet ground, and wet ground causes slippery surfaces.
+
+[test a three-step chain through a taught cause]
+!timeout 30
+> does burning fossil fuels cause rising seas?
+< Yes: burning fossil fuels causes pollution, and pollution causes climate change, and climate change causes rising seas.
+
+[test the chain is not walked backwards]
+!timeout 30
+> do slippery surfaces cause rain?
+<! Yes:

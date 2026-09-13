@@ -1239,3 +1239,24 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
 - **test:** `tests/p0t/math/rate_total.p0t` 3 → 6; rossi di `quantity` e
   `wordproblem` identici a HEAD.
 - **stato:** verificata sulla KB viva.
+
+### mix-12-09-001 — la catena delle cause, nel verso detto
+
+- **catalogo:** mix-v1, 12 × 09 (e 06 per le cause insegnate)
+- **misura:** «what does rain cause?» → «Wet ground.» e «what causes slippery
+  surfaces?» → «wet ground.», ma «does rain make surfaces slippery?» → «I don't know:
+  nothing I hold says rain made surfaces slippery», con la catena in KB.
+- **cura:** `kb/core/causal-questions.p0`, zero C: gli estremi nominati nel turno
+  (atomi di più parole letti con `atom_words`, anche al plurale), la catena fino a
+  tre passi **nel verso della frase**, resa per passi. Nessun No.
+- **crescita con fatti veri, parlando:** «burning fossil fuels causes pollution»,
+  «deforestation causes soil erosion». Transfer: «does burning fossil fuels cause
+  rising seas?» → tre passi (combustibili → inquinamento → cambiamento climatico →
+  innalzamento dei mari) su una catena che nessuna lezione nominava intera.
+- **costo e diagnosi:** la prima stesura enumerava tutte le coppie di nodi prima
+  della catena e finiva il budget sulla catena a tre passi; riordinata (causa →
+  effetti raggiungibili → effetto nel turno), 2,2 s. Una seconda stesura aveva un
+  predicato a 5 argomenti: il caricatore lo segnala, la sonda ora lo vede.
+- **test:** `tests/p0t/crossing/mix_causal_chain.p0t` (3); `cause.p0t` verde,
+  `cause.it.p0t` rosso identico su HEAD.
+- **stato:** verificata sulla KB viva.

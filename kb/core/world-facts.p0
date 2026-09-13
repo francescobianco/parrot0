@@ -1231,6 +1231,8 @@ causes("vitamin d deficiency", rickets).
 causes("vitamin c deficiency", scurvy).
 causes(violent_impact, serious_injury).
 causes(fall_from_height, violent_impact).
+causes(deforestation, soil_erosion).
+causes(burning_fossil_fuels, pollution).
 chemical_symbol(actinium, Ac).
 chemical_symbol(ag, silver).
 chemical_symbol(al, aluminium).

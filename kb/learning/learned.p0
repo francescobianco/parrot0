@@ -213,3 +213,7 @@ whole_part_relation("formed of").
 fact_mention(spark_plug, "a spark plug is part of an engine").
 fact_mention(taught_form_15, "x has written y means x wrote y").
 fact_mention(engine, "a spark plug is part of an engine").
+fact_mention(soil_erosion, "deforestation causes soil erosion").
+fact_mention(deforestation, "deforestation causes soil erosion").
+fact_mention(pollution, "burning fossil fuels causes pollution").
+fact_mention(burning_fossil_fuels, "burning fossil fuels causes pollution").

@@ -438,6 +438,8 @@ fact_source(construction_frame("@O is under threat from @S", "@S threatens @O", 
 fact_source(part_of(spark_plug, engine), spark_plug, "a spark plug is part of an engine").
 fact_source(construction_frame("@O are under threat from @S", "@S threatens @O", threaten), "@O are under threat from @S", "x are under threat from y means y threatens x").
 fact_source(taught_form_source(taught_form_15, "x has written y"), taught_form_15, "x has written y means x wrote y").
+fact_source(causes(deforestation, soil_erosion), deforestation, "deforestation causes soil erosion").
+fact_source(causes(burning_fossil_fuels, pollution), burning_fossil_fuels, "burning fossil fuels causes pollution").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -766,7 +768,9 @@ reading_fact(construction_frame("@O is under threat from @S", "@S threatens @O",
 reading_fact(relation_verb(characterize), "characterize is a relation verb").
 reading_fact(part_of(spark_plug, engine), "a spark plug is part of an engine").
 reading_fact(construction_frame("@O are under threat from @S", "@S threatens @O", threaten), "x are under threat from y means y threatens x").
+reading_fact(causes(deforestation, soil_erosion), "deforestation causes soil erosion").
 reading_fact(taught_form_source(taught_form_15, "x has written y"), "x has written y means x wrote y").
+reading_fact(causes(burning_fossil_fuels, pollution), "burning fossil fuels causes pollution").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

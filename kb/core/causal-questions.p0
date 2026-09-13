@@ -1,0 +1,85 @@
+% causal-questions.p0 — «DOES RAIN MAKE SURFACES SLIPPERY?» PER LA CATENA DELLE CAUSE.
+%
+% docs/plans/mix-of-capabilities.md, 12×09 (causalita' × deduzione). «what does
+% rain cause?» → «Wet ground.» e «what causes slippery surfaces?» → «wet ground.»
+% rispondevano; ma la domanda che chiede se la prima causa porta all'ultima
+% effetto riceveva «I don't know: nothing I hold says rain made surfaces
+% slippery». La catena `causes(rain, wet_ground)`, `causes(wet_ground,
+% slippery_surfaces)` c'era: mancava la lettura che la percorre e la dice.
+%
+% L'ordine conta: la causa e' nominata PRIMA dell'effetto («does slippery surfaces
+% cause rain?» non percorre la catena all'indietro). Nessun «No»: una catena non
+% trovata non e' una causa esclusa.
+
+:- file_attribute(machinery).
+
+machinery(causal_opener).
+causal_opener(does).
+causal_opener(do).
+causal_opener(can).
+causal_opener(could).
+causal_opener(will).
+
+machinery(causal_node).
+causal_node($A) :- causes($A, $B).
+causal_node($B) :- causes($A, $B).
+
+machinery(words_in_turn).
+words_in_turn($Turn, nil).
+words_in_turn($Turn, cons($W, $Rest)) :- turn_word($Turn, $W), words_in_turn($Turn, $Rest).
+words_in_turn($Turn, cons($W, $Rest)) :- turn_word($Turn, $Said), lemma_candidate($Said, $W), words_in_turn($Turn, $Rest).
+
+machinery(turn_causal_node).
+turn_causal_node($Turn, $A, $I) :-
+    causal_node($A), atom_words($A, cons($First, $More)),
+    words_in_turn($Turn, cons($First, $More)), turn_word($Turn, $I, $First).
+turn_causal_node($Turn, $A, $I) :-
+    causal_node($A), atom_words($A, cons($First, $More)),
+    words_in_turn($Turn, cons($First, $More)), turn_word($Turn, $I, $Said), lemma_candidate($Said, $First).
+
+machinery(causal_route).
+causal_route($X, $Z, direct) :- causes($X, $Z).
+causal_route($X, $Z, via($M)) :- causes($X, $M), causes($M, $Z).
+causal_route($X, $Z, via2($M, $N)) :- causes($X, $M), causes($M, $N), causes($N, $Z).
+
+machinery(turn_causal_chain).
+turn_causal_chain($Turn, pair($X, $Z), $Route) :-
+    turn_word($Turn, 0, $Op), causal_opener($Op),
+    turn_causal_node($Turn, $X, $I), causal_route($X, $Z, $Route),
+    turn_causal_node($Turn, $Z, $J), lt($I, $J).
+
+machinery(node_text).
+node_text($A, $Text) :- atom_words($A, $Ws), words_joined($Ws, $Text).
+machinery(words_joined).
+words_joined(cons($W, nil), $W).
+words_joined(cons($W, cons($V, $R)), $Text) :- words_joined(cons($V, $R), $Rest), concat_atoms($W, " ", $A), concat_atoms($A, $Rest, $Text).
+
+machinery(causes_word).
+causes_word(en, " causes ").
+causes_word(it, " causa ").
+machinery(causal_yes).
+causal_yes(en, "Yes: ").
+causal_yes(it, "Sì: ").
+machinery(causal_and).
+causal_and(en, ", and ").
+causal_and(it, ", e ").
+
+machinery(causal_link_text).
+causal_link_text($L, $A, $B, $Text) :- node_text($A, $TA), node_text($B, $TB), causes_word($L, $C), concat_atoms($TA, $C, $X), concat_atoms($X, $TB, $Text).
+
+machinery(causal_route_text).
+causal_route_text($L, pair($X, $Z), direct, $Text) :- causal_link_text($L, $X, $Z, $Text).
+causal_route_text($L, pair($X, $Z), via($M), $Text) :- causal_link_text($L, $X, $M, $T1), causal_link_text($L, $M, $Z, $T2), causal_and($L, $And), concat_atoms($T1, $And, $A), concat_atoms($A, $T2, $Text).
+
+machinery(turn_causal_answer).
+turn_causal_answer($Turn, $Text) :-
+    turn_causal_chain($Turn, pair($X, $Z), $Route), dif($Route, via2($P, $Q)), current_language($L),
+    causal_route_text($L, pair($X, $Z), $Route, $Body), causal_yes($L, $Y), concat_atoms($Y, $Body, $A), concat_atoms($A, ".", $Text).
+turn_causal_answer($Turn, $Text) :-
+    turn_causal_chain($Turn, pair($X, $Z), via2($M, $N)), current_language($L),
+    causal_route_text($L, pair($X, $N), via($M), $Body), causal_link_text($L, $N, $Z, $Last),
+    causal_and($L, $And), causal_yes($L, $Y), concat_atoms($Y, $Body, $A), concat_atoms($A, $And, $B),
+    concat_atoms($B, $Last, $C), concat_atoms($C, ".", $Text).
+
+turn_plan_candidate($Turn) :- turn_causal_chain($Turn, $Pair, $Route).
+turn_response($Turn, $Text) :- turn_causal_answer($Turn, $Text).
