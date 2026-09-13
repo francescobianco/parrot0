@@ -5645,6 +5645,10 @@ static int relative_rewrite(Brain *b, const char *sentence,
                 char needle[KB_TERM_LEN * 2 + 8];
                 int comma = m <= nmod;
                 size_t mi = comma ? m : m - nmod - 1;
+                if (!comma) {
+                    const char *ncq[1] = { sw };
+                    if (kb_query(b->kb, "subordinator_needs_comma", ncq, 1)) continue;
+                }
                 if (mi < nmod) {
                     char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mods[mi]);
                     snprintf(needle, sizeof needle, "%s %s %s ", comma ? "," : "", kb_dequote(mb), sw);
@@ -5899,7 +5903,31 @@ static int relative_rewrite(Brain *b, const char *sentence,
                 word_before(left, pw, prev, sizeof prev);
             }
             const char *cq[1] = { prev };
-            if (*prev && kb_query(b->kb, "clause_copula", cq, 1)) return 0;
+            if (*prev && kb_query(b->kb, "clause_copula", cq, 1)) {
+                /* gen514 — e quindi l'antecedente E' il soggetto: «Compost is a
+                 * mixture of ingredients USED AS plant fertilizer» -> «Compost
+                 * used as plant fertilizer». Lasciarla alla definizione dava
+                 * «compost of ingredients used as…». Il soggetto sono le
+                 * parole prima della copula, senza il determinante. */
+                char lb[P0_TURN_MAX]; snprintf(lb, sizeof lb, "%s", left);
+                char *lw[64]; size_t nl = split_words(lb, lw, 64);
+                size_t cop = nl;
+                for (size_t k = 0; k < nl && cop == nl; k++) {
+                    char tw[KB_TERM_LEN]; snprintf(tw, sizeof tw, "%s", lw[k]);
+                    for (char *q = tw; *q; q++) *q = (char)tolower((unsigned char)*q);
+                    const char *tq[1] = { strip_edge_punct(tw) };
+                    if (kb_query(b->kb, "clause_copula", tq, 1)) cop = k;
+                }
+                if (cop == 0 || cop == nl) return 0;
+                size_t from = 0;
+                { char tw[KB_TERM_LEN]; snprintf(tw, sizeof tw, "%s", lw[0]);
+                  for (char *q = tw; *q; q++) *q = (char)tolower((unsigned char)*q);
+                  if (p0_lead_det(b, strip_edge_punct(tw)) && cop > 1) from = 1; }
+                size_t ao = 0; antecedent[0] = '\0';
+                for (size_t k = from; k < cop && ao < sizeof antecedent; k++)
+                    ao += (size_t)snprintf(antecedent + ao, sizeof antecedent - ao,
+                                           "%s%s", ao ? " " : "", lw[k]);
+            }
         }
     }
     if (!*antecedent) return 0;
@@ -6193,6 +6221,63 @@ static int nested_rank_split(Brain *b, const char *s,
     return 0;
 }
 
+/* gen514 — IL SOGGETTO COORDINATO DI UN VERBO DI RELAZIONE. «Fungi,
+ * earthworms, and other detritivores further break up the organic material»,
+ * «Aerobic bacteria and fungi manage the chemical process»: il predicato vale
+ * per ogni membro. Il C taglia il PRIMO membro e lascia il resto, che il
+ * chiamante ritaglia di nuovo; che cosa coordini (`conjunction/1`) e dove
+ * cominci il verbo (`relative_clause_verb/1`, `verb_adverb/1`) e' KB. */
+static int subject_coordination_split(Brain *b, const char *s,
+                                      char *a, size_t asz, char *c, size_t csz) {
+    if (!b || !b->kb || !s) return 0;
+    char buf[P0_TURN_MAX]; snprintf(buf, sizeof buf, "%s", s);
+    char *w[64]; size_t n = split_words(buf, w, 64);
+    if (n < 4) return 0;
+    char low[64][KB_TERM_LEN];
+    for (size_t k = 0; k < n; k++) {
+        char tmp[KB_TERM_LEN]; snprintf(tmp, sizeof tmp, "%s", w[k]);
+        for (char *q = tmp; *q; q++) *q = (char)tolower((unsigned char)*q);
+        snprintf(low[k], KB_TERM_LEN, "%s", strip_edge_punct(tmp));
+    }
+    size_t v = n;
+    for (size_t k = 1; k < n && v == n; k++) {
+        const char *vq[1] = { low[k] };
+        if (kb_query(b->kb, "relative_clause_verb", vq, 1)) v = k;
+    }
+    if (v == n || v < 3) return 0;
+    size_t pred = v;
+    while (pred > 1) {
+        const char *aq[1] = { low[pred - 1] };
+        if (!kb_query(b->kb, "verb_adverb", aq, 1)) break;
+        pred--;
+    }
+    /* il primo confine fra membri: una virgola o una congiunzione */
+    size_t cut = 0, skip = 0;
+    for (size_t k = 0; k + 1 < pred; k++) {
+        const char *cq[1] = { low[k + 1] };
+        if (strchr(w[k], ',')) { cut = k + 1; skip = cut; 
+            if (cut < pred) { const char *cq2[1] = { low[cut] };
+                              if (kb_query(b->kb, "conjunction", cq2, 1)) skip = cut + 1; }
+            break; }
+        if (kb_query(b->kb, "conjunction", cq, 1)) { cut = k + 1; skip = k + 2; break; }
+    }
+    if (cut == 0 || skip >= pred) return 0;
+    size_t ao = 0, co = 0;
+    for (size_t k = 0; k < cut && ao < asz; k++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+        size_t tl = strlen(t); if (tl && t[tl - 1] == ',') t[tl - 1] = '\0';
+        ao += (size_t)snprintf(a + ao, asz - ao, "%s%s", k ? " " : "", t);
+    }
+    for (size_t k = pred; k < n && ao < asz; k++)
+        ao += (size_t)snprintf(a + ao, asz - ao, " %s", w[k]);
+    for (size_t k = skip; k < n && co < csz; k++)
+        co += (size_t)snprintf(c + co, csz - co, "%s%s", co ? " " : "", w[k]);
+    if (ao >= asz || co >= csz) return 0;
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[soggetti] «%s» + «%s»\n", a, c);
+    return 1;
+}
+
 static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb || !input || !*input || out_size == 0) return 0;
     if (b->compound_depth > 0) return 0;
@@ -6401,6 +6486,34 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                 }
             } else {
                 char a1[P0_TURN_MAX], a2[P0_TURN_MAX];
+                /* un membro alla volta del soggetto coordinato */
+                {
+                    char cur[P0_TURN_MAX]; snprintf(cur, sizeof cur, "%s", c);
+                    int members = 0;
+                    char acc[1024] = "";
+                    while (members < 6 &&
+                           subject_coordination_split(b, cur, a1, sizeof a1, a2, sizeof a2)) {
+                        char subm[512] = "";
+                        brain_respond(b, a1, subm, sizeof subm);
+                        if (!reply_is_wall(b, subm) && strlen(acc) + strlen(subm) + 2 < sizeof acc) {
+                            size_t al = strlen(acc);
+                            snprintf(acc + al, sizeof acc - al, "%s%s", al ? " " : "", subm);
+                        }
+                        snprintf(cur, sizeof cur, "%s", a2);
+                        members++;
+                    }
+                    if (members > 0) {
+                        char subl[512] = "";
+                        brain_respond(b, cur, subl, sizeof subl);
+                        if (!reply_is_wall(b, subl) && strlen(acc) + strlen(subl) + 2 < sizeof acc) {
+                            size_t al = strlen(acc);
+                            snprintf(acc + al, sizeof acc - al, "%s%s", al ? " " : "", subl);
+                        }
+                        if (*acc) { snprintf(sub, sizeof sub, "%s", acc); snprintf(b->last_module, sizeof b->last_module, "knowledge"); }
+                        else brain_respond(b, c, sub, sizeof sub);
+                        goto clause_done;
+                    }
+                }
                 if (particle_adjunct_split(b, c, a1, sizeof a1, a2, sizeof a2) ||
                     nested_rank_split(b, c, a1, sizeof a1, a2, sizeof a2)) {
                     char suba[512] = "";
@@ -6414,6 +6527,7 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                     brain_respond(b, c, sub, sizeof sub);
             }
         }
+    clause_done:
         b->active_turn_norm = outer_view;
         char piece[1200];
         if (reply_is_wall(b, sub)) {

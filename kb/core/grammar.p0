@@ -507,6 +507,9 @@ np_opener(her).
 np_opener(its).
 np_opener(their).
 np_opener(our).
+% gen514 — i dimostrativi plurali davanti a un nome aprono il sintagma come un
+% articolo: «those ocean waters» nomina «ocean waters».
+np_opener(those). np_opener(these).
 % gen382: gli articoli italiani. Erano una catena di strcmp in p0_lead_det e
 % nella macro P0_LEAD_DET (10-memory-knowledge.c) — un SECONDO elenco di parole
 % che diceva la stessa cosa che np_opener/1 dice qui: "questa parola apre un
@@ -569,6 +572,7 @@ verb_adverb(sometimes).
 verb_adverb(generally).
 verb_adverb(typically).
 verb_adverb(mostly).
+verb_adverb(further).
 machinery(adverb_degree).
 adverb_degree(most).
 adverb_degree(very).
@@ -1012,6 +1016,28 @@ extract_frame("@S acts as @O", acts_as).
 
 extract_frame("@S is located in @O", located_in).
 extract_frame("@S is part of @O", part_of).
+% gen514 — «Composting is AN IMPORTANT part of waste management»: un nome
+% relazionale con articolo e aggettivo valutativo dice la stessa relazione, e
+% «is a part» letto come classe era falso. Le forme nascono da tre classi —
+% copule, articoli, aggettivi che valutano senza restringere — e dal nome.
+machinery(relational_noun).
+machinery(evaluative_adjective).
+machinery(relational_article).
+relational_noun(part, part_of).
+relational_article("a"). relational_article("an"). relational_article("the").
+evaluative_adjective(important). evaluative_adjective(essential).
+evaluative_adjective(key). evaluative_adjective(major). evaluative_adjective(integral).
+evaluative_adjective(vital). evaluative_adjective(significant). evaluative_adjective(crucial).
+extract_frame($Pat, $Pred) :-
+    relational_noun($Noun, $Pred), frame_copula($Cop), relational_article($Art),
+    concat_atoms("@S ", $Cop, $A), concat_atoms($A, " ", $B), concat_atoms($B, $Art, $C),
+    concat_atoms($C, " ", $D), concat_atoms($D, $Noun, $E), concat_atoms($E, " of @O", $Pat).
+extract_frame($Pat, $Pred) :-
+    relational_noun($Noun, $Pred), frame_copula($Cop), relational_article($Art),
+    evaluative_adjective($Adj),
+    concat_atoms("@S ", $Cop, $A), concat_atoms($A, " ", $B), concat_atoms($B, $Art, $C),
+    concat_atoms($C, " ", $D), concat_atoms($D, $Adj, $E), concat_atoms($E, " ", $F),
+    concat_atoms($F, $Noun, $G), concat_atoms($G, " of @O", $Pat).
 extract_frame("@S is a member of @O", member_of).
 extract_frame("@S borders @O", borders).
 extract_frame(@S borders @O, borders).
@@ -1695,6 +1721,11 @@ answer_frame_turn_arg($Surface, $Pred, $Arg) :-
 machinery(trailing_subordinator).
 machinery(subordinator_modifier).
 trailing_subordinator(because).
+% «since» e' anche la preposizione di «declined by 50% SINCE 1950»: come
+% subordinatore in coda vale solo dopo la virgola.
+trailing_subordinator(since).
+subordinator_needs_comma(since).
+machinery(subordinator_needs_comma).
 subordinator_modifier(partly).
 subordinator_modifier(mainly).
 subordinator_modifier(largely).

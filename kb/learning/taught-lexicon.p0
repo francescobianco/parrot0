@@ -397,6 +397,10 @@ verb_particle(evolve, from).
 verb_particle(build, from).
 % gen514 — «Coral reefs deliver ecosystem services FOR tourism»: il beneficiario.
 verb_particle(deliver, for).
+% «Fungi … further break UP the organic material».
+verb_particle(break, up).
+% «a mixture of ingredients used AS plant fertilizer».
+verb_particle(use, as).
 verb_particle(make, of).
 verb_particle(form, of).
 verb_particle(compose, of).

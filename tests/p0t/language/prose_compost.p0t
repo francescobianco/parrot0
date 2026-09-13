@@ -1,0 +1,34 @@
+# 2026-09-13 (gen514) — full live KB; development probes, never persisted training.
+# Rung r320 of the prose ladder (Compost): the classes found on r300 transfer,
+# plus the ones this text needed. Sentences are from the rung.
+
+[test examples, a trailing because, and an English turn keeps its words]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 90
+> Compost is a mixture of ingredients used as plant fertilizer and to improve soil physical properties. The resulting mixture is rich in plant nutrients and beneficial organisms, such as bacteria, protozoa, nematodes, and fungi.
+<~ used as plant fertilizer
+> what is compost used as?
+<~ plant fertilizer
+> what is the resulting mixture rich in?
+<~ plant nutrients
+> Compost improves soil fertility. Composting offers an environmentally superior alternative to using organic material for landfill because composting reduces methane emissions due to anaerobic conditions.
+<! two
+> what does composting reduce?
+<~ methane emissions
+
+[test coordinated subjects, a verb adverb, and an important part of]
+!reset
+!timeout 90
+> Compost improves soil fertility. Fungi, earthworms, and other detritivores further break up the organic material. Aerobic bacteria and fungi manage the chemical process by converting the inputs into heat.
+<~ break organic material
+> what do fungi break up?
+<~ organic material
+> what do aerobic bacteria manage?
+<~ chemical process
+> Composting is an important part of waste management, since food makes up about 20% of waste in landfills.
+<~ part of waste management
+> what is composting an important part of?
+<~ waste management

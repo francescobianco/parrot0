@@ -9313,6 +9313,25 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
          * niente: piu' specifico non vuol dire piu' urgente. */
         if (pass == 1) {
             for (size_t t = 0; t < nw; t++) {
+                /* gen514 — un sintagma non comincia a META': «those ocean
+                 * WATERS» non nomina «waters», e la descrizione con il lemma ne
+                 * faceva `water` della KB del mondo. Se la parola prima e'
+                 * piena e non chiude un sintagma, siamo dentro un gruppo piu'
+                 * lungo, che si prova dal suo inizio. */
+                if (t > 0) {
+                    char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[t - 1]);
+                    const char *pt = strip_edge_punct(pb);
+                    const char *qq[1] = { pt };
+                    if (*pt && !is_stopword(b, pt) && !p0_np_closer(b, pt) &&
+                        !p0_lead_det(b, pt) && !kb_query(b->kb, "question_word", qq, 1) &&
+                        !kb_query(b->kb, "auxiliary", qq, 1) &&
+                        !kb_query(b->kb, "evaluative_adjective", qq, 1) &&
+                        /* un verbo o un dimostrativo non stanno dentro il
+                         * sintagma: «what HOLDS coral polyps», «THOSE ocean» */
+                        !kb_query(b->kb, "relative_clause_verb", qq, 1) &&
+                        !p0_is_demonstrative(b, pt))
+                        continue;
+                }
                 int end = p0_slot_end(b, w, nw, t, NULL);
                 if (end < 0) continue;
                 /* Un sintagma di un token solo di norma non aggiunge nulla —
@@ -9506,8 +9525,18 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             int end = p0_slot_end(b, w, nw, s0, NULL);
             if (end <= 0 || (size_t)end <= s0) { s0++; continue; }
             size_t full = 0;
-            for (size_t k = s0; k < (size_t)end; k++)
-                if (!is_stopword(b, strip_edge_punct(w[k]))) full++;
+            for (size_t k = s0; k < (size_t)end; k++) {
+                const char *tk = strip_edge_punct(w[k]);
+                if (is_stopword(b, tk)) continue;
+                /* le parole della cue e gli aggettivi valutativi non fanno di
+                 * un nome un sintagma lungo: «what is composting an IMPORTANT
+                 * PART of?» nomina «composting». */
+                char cb2[KB_TERM_LEN]; snprintf(cb2, sizeof cb2, "%s", cues[i]);
+                if (*cues[i] && kb_text_has_surface(kb_dequote(cb2), tk)) continue;
+                const char *eq[1] = { tk };
+                if (kb_query(b->kb, "evaluative_adjective", eq, 1)) continue;
+                full++;
+            }
             if (full >= 2)
                 for (size_t k = s0; k < (size_t)end; k++) in_multiword[k] = 1;
             s0 = (size_t)end;
