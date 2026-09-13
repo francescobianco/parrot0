@@ -2335,6 +2335,7 @@ utterance(2, self, "Hmm, I don't know about burned yet. Want me to learn about i
 utterance(2, self, "Hmm, I don't know about butter yet. Want me to learn about it?").
 utterance(2, self, "Hmm, I don't know about plant's yet. Want me to learn about it?").
 utterance(2, self, "Held: a sign of low light is leggy stems.").
+utterance(2, self, "Held: adults need 7 to 9 hours of sleep.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2426,6 +2427,7 @@ utterance(1, user, "I burned my hand on the stove").
 utterance(1, user, "should I put butter on a burn?").
 utterance(1, user, "why are my plant's leaves turning yellow?").
 utterance(1, user, "a sign of low light is leggy stems").
+utterance(1, user, "adults need 7 to 9 hours of sleep").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

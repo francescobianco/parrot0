@@ -3403,3 +3403,19 @@ turn_form_mood(teach_sign, statement).
 turn_form_act(teach_sign, "op(assert, sign_of, [subject, object])").
 turn_form_reply(teach_sign, learned_sign).
 turn_form_priority(teach_sign, early).
+
+% ══ mix 08×16×14 — QUANTO SONNO SERVE ════════════════════════════════════════
+% «adults need 7 to 9 hours of sleep» (NHS). La lettura, a ritroso dall'ora della
+% sveglia, sta in kb/core/time-questions.p0.
+response_template(learned_sleep_need, "Held: {subject} need {order} to {object} hours of sleep.").
+response_template(learned_sleep_need, it, "Tengo: {subject} hanno bisogno di {order}-{object} ore di sonno.").
+turn_form(teach_sleep_need, 1, slot(subject)).
+turn_form(teach_sleep_need, 2, text("need")).
+turn_form(teach_sleep_need, 3, slot(order)).
+turn_form(teach_sleep_need, 4, text("to")).
+turn_form(teach_sleep_need, 5, slot(object)).
+turn_form(teach_sleep_need, 6, text("hours of sleep")).
+turn_form_mood(teach_sleep_need, statement).
+turn_form_act(teach_sleep_need, "op(assert, sleep_need_hours, [subject, order, object])").
+turn_form_reply(teach_sleep_need, learned_sleep_need).
+turn_form_priority(teach_sleep_need, early).

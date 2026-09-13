@@ -249,3 +249,4 @@ avoid_on(ice, burn).
 sign_of(overwatering, "soggy soil").
 sign_of(underwatering, "dry soil").
 sign_of("low light", "leggy stems").
+sleep_need_hours(adults, 7, 9).

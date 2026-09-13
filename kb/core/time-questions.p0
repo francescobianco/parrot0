@@ -163,3 +163,31 @@ time_identity_text($HM, $Text) :- current_language(it), concat_atoms($HM, " e' u
 
 turn_plan_candidate($Turn) :- time_answer($Turn, $Text).
 turn_response($Turn, $Text) :- time_answer($Turn, $Text).
+
+% ── mix 08×16×14 — A CHE ORA ANDARE A LETTO ─────────────────────────────────
+% «I wake up at 6:30, when should I go to bed?»: la durata non e' nel turno, e'
+% nella conoscenza insegnata («adults need 7 to 9 hours of sleep», NHS). La
+% risposta e' una finestra, non un'ora sola, perche' la raccomandazione e' un
+% intervallo. Se la durata e' detta nel turno («to get 8 hours»), vale quella.
+time_cue("when should i go to bed", time_before_op).
+time_cue("what time should i go to bed", time_before_op).
+time_cue("when should i go to sleep", time_before_op).
+machinery(bedtime_cue).
+bedtime_cue("when should i go to bed").
+bedtime_cue("what time should i go to bed").
+bedtime_cue("when should i go to sleep").
+turn_cue_registry(bedtime_cue, 1).
+machinery(turn_has_duration).
+turn_has_duration($Turn) :- turn_duration($Turn, $D).
+machinery(bedtime_window).
+bedtime_window($Turn, window($Early, $Late), need($Min, $Max)) :-
+    turn_cue_form($Turn, bedtime_cue, $Cue), naf(turn_has_duration($Turn)), turn_time($Turn, $Wake),
+    sleep_need_hours($Who, $Min, $Max), time_minus($Wake, dur($Max, 0), $Early), time_minus($Wake, dur($Min, 0), $Late).
+machinery(bedtime_text).
+bedtime_text(window($E, $L), need($Min, $Max), $Text) :-
+    time_text($E, $ET), time_text($L, $LT),
+    concat_atoms("Between ", $ET, $A), concat_atoms($A, " and ", $B), concat_atoms($B, $LT, $C),
+    concat_atoms($C, ": adults need ", $D), concat_atoms($D, $Min, $F), concat_atoms($F, " to ", $G),
+    concat_atoms($G, $Max, $H), concat_atoms($H, " hours of sleep.", $Text).
+turn_plan_candidate($Turn) :- bedtime_window($Turn, $W, $N).
+turn_response($Turn, $Text) :- bedtime_window($Turn, $W, $N), bedtime_text($W, $N, $Text).

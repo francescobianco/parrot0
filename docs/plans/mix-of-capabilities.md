@@ -1475,3 +1475,18 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   liters for 5 is cheaper: 3.33 per liter against 4 per liter.»; «2 kg for 5 euros or
   500 g for 1.20» → la confezione piccola.
 - **test:** `rate_total.p0t` 12 → 14.
+
+### mix-08-16-14-001 — a che ora andare a letto
+
+- **fonte:** NHS — la maggior parte degli adulti sani ha bisogno di circa 7-9 ore di
+  sonno a notte.
+- **misura:** «I wake up at 6:30, when should I go to bed?» → «I don't understand that
+  yet.».
+- **cure:** forma di lezione «X need N to M hours of sleep» e, in
+  `time-questions.p0`, la finestra a ritroso dall'ora della sveglia con la durata
+  presa dalla conoscenza: una **finestra**, perché la raccomandazione è un
+  intervallo; se l'utente dice la durata («want 8 hours of sleep») vale la sua.
+- **lezione parlata salvata:** «adults need 7 to 9 hours of sleep».
+- **esito:** «Between 21:30 and 23:30: adults need 7 to 9 hours of sleep.»; «get up at
+  5 am» → tra le 20:00 e le 22:00; con 8 ore dette → 23:00.
+- **test:** `rate_total.p0t` 14 → 16; `time_date_complex` verde.

@@ -51,3 +51,10 @@
 < 1 kg for 3.80 is cheaper: 3.8 per kilo against 4 per kilo.
 > which is the better deal, 500 ml for 2 euros or 1.5 liters for 5 euros?
 < 1.5 liters for 5 is cheaper: 3.33 per liter against 4 per liter.
+
+[test mix 08x16x14 a bedtime window from the wake time and the taught sleep need]
+!timeout 30
+> I wake up at 6:30, when should I go to bed?
+< Between 21:30 and 23:30: adults need 7 to 9 hours of sleep.
+> I wake up at 7:00 and want 8 hours of sleep, when should I go to bed?
+< 23:00
