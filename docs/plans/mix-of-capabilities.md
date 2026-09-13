@@ -1719,3 +1719,24 @@ verdi; deep_memory e disambiguation con i soli rossi di tempo di HEAD.
 definizione; «what is a dog?» dice «non so molto di dog» anche a HEAD. Ho anche
 rinominato l'aiutante della scheda 04-23-001 in `compound_word/1`: `content_word/1`
 esisteva già e due definizioni con lo stesso nome si sommano.
+
+### mix-04-21-001 — «where did you read that?» cita l'indirizzo letto
+
+**Caso:** «what is a fire blanket?» → definizione dalla memoria profonda → «where did
+you read that?». **Prima:** «I don't have any of my own -- I'm parrot0, an AI -- but
+I'd love to hear about yours.»; «what is your source?» → «source is the origin or
+starting point -- came from Rome.»; «how do you know that?» → «That sounds nice».
+L'indirizzo con la revisione c'era (`topic_read/2`): mancava la strada.
+**Cura:** `kb/core/source-questions.p0` — cue di provenienza (en/it), un contabile che
+annota il topic letto nominato dal turno (`read_topic_asked`, di sessione; fra due dello
+stesso turno vince quello che copre l'altro), e la risposta prioritaria che rende
+l'indirizzo e dice che è testo letto, non conclusione propria. **Difetto trovato per
+strada:** `turn_plan_answer` leggeva al massimo **16** contabili e i `bookkeeper/1` sono
+19: gli ultimi caricati non lavoravano mai, in silenzio. Il tetto è ora 64.
+**Dopo:** «I read it on Wikipedia: the article «Fire blanket» (en edition, revision
+1374618230, lead section). It is the text I read, not a conclusion of mine.»; lo stesso
+per «what is your source?» dopo «what is thermal runaway?». Cricchetto in
+`mix_deep_memory_recall.p0t` (10). Tutti i `crossing/mix_*` verdi e user_situations 56;
+areas_homonym e facts_split_three hanno solo rossi di tempo (1 s).
+**Reperti:** la risposta a una domanda **derivata** (non letta) dovrebbe dire la catena e
+le fonti delle premesse (04×09×21): resta da fare.

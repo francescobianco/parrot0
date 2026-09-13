@@ -1269,6 +1269,7 @@ machinery(sides).
 :- include(place-questions.p0).
 :- include(causal-questions.p0).
 :- include(mixture-safety.p0).
+:- include(source-questions.p0).
 :- include(food-time.p0).
 :- include(remedy-questions.p0).
 :- include(diagnosis.p0).

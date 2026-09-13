@@ -19,3 +19,14 @@
 > what is thermal runaway?
 <~ accelerated by increased temperature
 <! I have no definition of it
+
+[test asked for the source, the answer cites the read address and says it is read text]
+!timeout 30
+> what is a fire blanket?
+> where did you read that?
+<~ I read it on Wikipedia: the article «Fire blanket» (en edition, revision
+<~ not a conclusion of mine
+> what is thermal runaway?
+> what is your source?
+<~ the article «Thermal runaway»
+<! came from Rome

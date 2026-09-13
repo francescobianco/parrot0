@@ -1,0 +1,62 @@
+% source-questions.p0 — «WHERE DID YOU READ THAT?»
+%
+% docs/plans/mix-of-capabilities.md 04×21: una risposta presa dalla memoria profonda
+% cita indirizzo e revisione, e distingue il testo letto dalla conclusione propria.
+% Prima: dopo «what is a fire blanket?» (definizione letta da Wikipedia) la domanda
+% «where did you read that?» riceveva la chiacchiera «I don't have any of my own»,
+% «what is your source?» la definizione della parola «source», «how do you know
+% that?» «That sounds nice». L'indirizzo c'era gia' (`topic_read/2`): mancava la
+% strada. Ricordare di quale topic si e' appena parlato e' della sessione.
+
+:- file_attribute(machinery).
+
+machinery(source_question_cue).
+source_question_cue("where did you read").
+source_question_cue("where did you find").
+source_question_cue("what is your source").
+source_question_cue("what's your source").
+source_question_cue("how do you know that").
+source_question_cue("where does that come from").
+source_question_cue("dove l'hai letto").
+source_question_cue("dove lo hai letto").
+source_question_cue("qual e' la fonte").
+source_question_cue("come lo sai").
+turn_cue_registry(source_question_cue, 1).
+
+% Il topic letto che il turno nomina (con tutte le sue parole) si annota col numero
+% del turno; il piu' recente, e fra due dello stesso turno quello che copre l'altro.
+machinery(read_topic_asked).
+turn_scratch(read_topic_asked).
+bookkeeper(read_topic_named).
+turn_bookkeeping($Turn, read_topic_named) :-
+    naf(turn_has_source_cue($Turn)), topic_read($T, $Address), atom_words($T, $Ws), words_in_turn($Turn, $Ws),
+    turn_counter($N), assert(read_topic_asked, $N, $T).
+machinery(turn_has_source_cue).
+turn_has_source_cue($Turn) :- turn_cue_form($Turn, source_question_cue, $Cue).
+machinery(last_read_topic).
+last_read_topic($T) :- read_topic_asked($N, $T), naf(later_read_topic($N)), naf(covering_read_topic($N, $T)).
+machinery(later_read_topic).
+later_read_topic($N) :- read_topic_asked($M, $X), gt($M, $N).
+machinery(covering_read_topic).
+covering_read_topic($N, $T) :- read_topic_asked($N, $U), dif($U, $T), atom_words($T, $Ws), atom_words($U, $Us), words_all_in($Ws, $Us).
+machinery(words_all_in).
+words_all_in(nil, $Us).
+words_all_in(cons($W, $R), $Us) :- member($W, $Us), words_all_in($R, $Us).
+
+machinery(source_answer).
+source_answer(en, wiki_address($Ed, $Title, $Rev, $Sec), $Text) :-
+    concat_atoms("I read it on Wikipedia: the article «", $Title, $A), concat_atoms($A, "» (", $B), concat_atoms($B, $Ed, $C),
+    concat_atoms($C, " edition, revision ", $D), concat_atoms($D, $Rev, $E), concat_atoms($E, ", ", $F), concat_atoms($F, $Sec, $G),
+    concat_atoms($G, " section). It is the text I read, not a conclusion of mine.", $Text).
+source_answer(it, wiki_address($Ed, $Title, $Rev, $Sec), $Text) :-
+    concat_atoms("L'ho letto su Wikipedia: la voce «", $Title, $A), concat_atoms($A, "» (edizione ", $B), concat_atoms($B, $Ed, $C),
+    concat_atoms($C, ", revisione ", $D), concat_atoms($D, $Rev, $E), concat_atoms($E, ", sezione ", $F), concat_atoms($F, $Sec, $G),
+    concat_atoms($G, "). E' il testo letto, non una mia conclusione.", $Text).
+machinery(source_language).
+source_language(it) :- current_language(it).
+source_language(en) :- naf(current_language(it)).
+
+turn_plan_candidate($Turn) :- turn_has_source_cue($Turn), last_read_topic($T).
+turn_priority_response($Turn, $Text) :-
+    turn_has_source_cue($Turn), last_read_topic($T), topic_read($T, $Address),
+    source_language($L), source_answer($L, $Address, $Text).

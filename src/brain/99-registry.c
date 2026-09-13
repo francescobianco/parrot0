@@ -5307,9 +5307,11 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
      * quindi il secondo non lavorerebbe mai. Registrare un'issue aperta e
      * registrare uno stato descritto sono compiti indipendenti dello stesso
      * turno, e nessuno dei due e' il seguito dell'altro. */
-    char keepers[16][KB_TERM_LEN];
+    /* 14 settembre 2026 — il tetto era 16 e i contabili sono 19: gli ultimi
+     * caricati (source-questions.p0) non lavoravano, in silenzio. */
+    char keepers[64][KB_TERM_LEN];
     const char *any[1] = { NULL };
-    size_t nk = kb_match(b->kb, "bookkeeper", any, 1, keepers, 16);
+    size_t nk = kb_match(b->kb, "bookkeeper", any, 1, keepers, 64);
     for (size_t i = 0; i < nk; i++) {
         const char *one[] = { "current_turn", keepers[i] };
         kb_query(b->kb, "turn_bookkeeping", one, 2);
