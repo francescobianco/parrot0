@@ -33,6 +33,39 @@ può descrivere senza parlare di intelligenza (§1).
 - **conoscenza scritta a mano.** Vale `LEARN_PROTOCOL.md`: la condotta e i fatti
   del mondo si insegnano parlando, con fonti vere; il C apre solo porte generali.
 
+### 0.1 Lo slancio (F., 13 settembre 2026)
+
+> «Anche se misclaim e limiti reali sono fatti imprescindibili, non dobbiamo
+> correre il rischio di non far progredire parrot0 per via di limiti noti o di
+> abilità ancora non perfezionate. Dobbiamo fare uno slancio cercando l'utilità,
+> non a discapito della precisione, della coerenza e della verità dello
+> strumento, ma in questa fase di pre-confezionamento lasciare lo spazio a cose
+> che arriveranno piano piano.»
+
+Questa fase si governa così, e la regola prevale sull'ordine prudente di §2.2 e
+§5 dove i due confliggono:
+
+1. **La verità resta un vincolo, non diventa un cancello.** Una risposta falsa non
+   si committa mai (`F` non sale). Ma un `F` già esistente in una classe non blocca
+   il lavoro sulle altre: U1 non è una precondizione di U2, e i due giri si
+   possono fare insieme o nell'ordine che dà più utilità.
+2. **Il parziale onesto è progresso.** Passare da `M` o `R` a `P` — la mossa
+   giusta con poco contenuto, la domanda giusta senza ancora la prima mossa
+   sicura, la procedura con due passi su cinque — si committa. Non si aspetta
+   che una classe sia chiusa per portarla avanti; «chiuso quando» in §5 è il
+   traguardo, non la soglia del commit.
+3. **Il posto prima del contenuto.** Si possono preparare la situazione, il piano
+   e la forma del turno utile anche quando le mosse e i fatti che li
+   riempiranno arrivano dopo, giro per giro, parlando. Uno scaffale vuoto e
+   dichiarato è ammesso; uno scaffale riempito con frasi inventate no.
+4. **Un limite noto non ferma un giro.** Se un'abilità collegata non è ancora
+   matura (la lettura multiturno, l'italiano, un dominio senza fonti), il giro
+   annota il limite nel registro (§6) e prosegue con ciò che si può già fare
+   bene. Il limite resta scritto, non diventa la ragione per non fare.
+5. **Il giudizio tiene due colonne.** A ogni giro si guarda il guadagno di utilità
+   (`U` e `P` in su) e la pulizia (`F` non sale). Un giro è buono se il primo
+   cresce e il secondo non peggiora, anche con molte classi ancora aperte.
+
 ## 1. Le fonti: che cosa dicono gli assistenti commerciali di se stessi
 
 Lette il 13 settembre 2026. Si cita solo documentazione pubblicata dai produttori,
@@ -110,6 +143,8 @@ cosa e come*); 4 il passo è implicito nella domanda. Nessuna diagnosi inventata
 T9, T8 (i misclaim) vengono prima di tutto — una risposta falsa o finta è peggio di
 un muro. Poi T2 (senza l'atto giusto nessuna condotta scatta), poi T1–T5 (il
 turno utile), poi T6 e il resto.
+Priorità di peso, non di sequenza: con lo slancio di §0.1 un misclaim già presente
+non blocca il lavoro sugli altri tratti, ne impedisce solo di nuovi.
 
 ### 2.3 Dove la scheda diventa conoscenza
 
@@ -155,7 +190,9 @@ parlate.
 
 **Il numero da far salire** è `U` sui `base` e sugli `held`; **il numero che non
 deve mai salire** è `F`. Una classe è **chiusa** quando il `base` e tutti i suoi
-`held` sono `U` e i `contrast` restano fuori.
+`held` sono `U` e i `contrast` restano fuori. Una classe **avanza** quando un suo
+arco sale di un gradino (`M`/`R` → `P` → `U`) senza nuovi `F`: è l'avanzamento, non
+la chiusura, che si committa (§0.1).
 
 ### 3.1 Baseline a `ccad5f12` (13 settembre 2026)
 
@@ -227,7 +264,9 @@ lancia F.
 ## 5. La sequenza dei giri
 
 Ordinata per la priorità di §2.2: prima togliere il falso, poi aprire il turno
-utile sulla classe di F., poi allargare.
+utile sulla classe di F., poi allargare. **L'ordine è una guida, non una catena**
+(§0.1): U1 e U2 possono andare insieme, e ogni giro si committa appena porta un
+arco da `M`/`R` a `P` o `U` senza nuovi `F`.
 
 | giro | classe | tratti | che cosa si fa | chiuso quando |
 |---|---|---|---|---|
