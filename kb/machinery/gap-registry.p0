@@ -271,6 +271,8 @@ gap_kind("am sad today", reachability).
 gap_kind("should i buy a laptop or a tablet for university?", reachability).
 gap_kind("i want to start running", reachability).
 gap_kind("give me some ideas for a birthday present for my dad.", reachability).
+gap_kind("one of them is vegetarian.", reachability).
+gap_kind("i need to cook dinner for four people tonight.", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
@@ -323,4 +325,6 @@ gap_source("should i buy a laptop or a tablet for university?", "Should I buy a 
 gap_source("the present for the class is a test", "the present for the class is a test").
 gap_source("how posso organizzare meglio the my giornata?", "Come posso organizzare meglio la mia giornata?").
 gap_source("i want to start running", "I want to start running").
+gap_source("one of them is vegetarian.", "One of them is vegetarian.").
 gap_source("give me some ideas for a birthday present for my dad.", "Give me some ideas for a birthday present for my dad.").
+gap_source("i need to cook dinner for four people tonight.", "I need to cook dinner for four people tonight.").

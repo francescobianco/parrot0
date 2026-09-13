@@ -237,6 +237,31 @@ gift_idea_cue("idee regalo").
 turn_cue_registry(gift_idea_cue, 1).
 user_situation($Turn, user_gift_ideas) :- turn_cue_form($Turn, gift_idea_cue, $Cue), turn_speaker_involved($Turn).
 
+% assistente utile U17 — CUCINARE PER ALTRI, E IL VINCOLO CHE ARRIVA DOPO.
+% «I need to cook dinner for four people tonight.» / «One of them is
+% vegetarian.» murava due volte. Il primo turno chiede un piano che stia nel
+% tempo; il secondo aggiunge un vincolo su uno degli ospiti, e si riconosce per
+% il vincolo E per il riferimento al gruppo («one of them», «uno di loro») —
+% senza il secondo indizio «vegetarians don't eat meat» diventerebbe un invito a
+% cena.
+machinery(hosting_meal_cue).
+hosting_meal_cue("cook dinner for").
+hosting_meal_cue("cook lunch for").
+hosting_meal_cue("cooking for").
+hosting_meal_cue("cucinare per").
+hosting_meal_cue("cena per").
+turn_cue_registry(hosting_meal_cue, 1).
+user_situation($Turn, user_hosting_meal) :- turn_cue_form($Turn, hosting_meal_cue, $Cue), turn_speaker_involved($Turn).
+machinery(dietary_cue).
+dietary_cue("vegetarian").  dietary_cue("vegan").  dietary_cue("gluten").  dietary_cue("allergic").
+dietary_cue("vegetariano").  dietary_cue("vegetariana").  dietary_cue("vegano").  dietary_cue("allergico").
+turn_cue_registry(dietary_cue, 1).
+machinery(group_member_cue).
+group_member_cue("one of them").  group_member_cue("one of the guests").  group_member_cue("a guest").
+group_member_cue("uno di loro").  group_member_cue("una di loro").  group_member_cue("un ospite").
+turn_cue_registry(group_member_cue, 1).
+user_situation($Turn, user_guest_diet) :- turn_cue_form($Turn, dietary_cue, $D), turn_cue_form($Turn, group_member_cue, $G).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -278,6 +303,14 @@ situation_cue("someone needs gift ideas", user_gift_ideas).
 situation_cue("qualcuno cerca idee regalo", user_gift_ideas).
 situation_label(user_gift_ideas, en, "someone needs gift ideas").
 situation_label(user_gift_ideas, it, "qualcuno cerca idee regalo").
+situation_cue("someone cooks for guests", user_hosting_meal).
+situation_cue("qualcuno cucina per ospiti", user_hosting_meal).
+situation_label(user_hosting_meal, en, "someone cooks for guests").
+situation_label(user_hosting_meal, it, "qualcuno cucina per ospiti").
+situation_cue("a guest has a diet", user_guest_diet).
+situation_cue("un ospite ha una dieta", user_guest_diet).
+situation_label(user_guest_diet, en, "a guest has a diet").
+situation_label(user_guest_diet, it, "un ospite ha una dieta").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -399,6 +432,18 @@ plan_step_text_lang(gift_kinds, en, "A few directions that often work: something
 plan_step_text_lang(gift_kinds, it, "Qualche strada che spesso funziona: qualcosa per un hobby che ha già, un'esperienza da fare insieme (una cena fuori, una partita, un concerto), o qualcosa di personale come un album di foto o una lettera scritta a mano.").
 plan_step_text_lang(ask_person_interests, en, "What does the person enjoy doing in their free time?").
 plan_step_text_lang(ask_person_interests, it, "Che cosa ama fare questa persona nel tempo libero?").
+move_cue("suggest a simple menu plan", simple_menu).
+move_cue("proponi un menu semplice", simple_menu).
+move_cue("ask about diets and time", ask_diet_time).
+move_cue("chiedi di diete e tempo", ask_diet_time).
+move_cue("say to pick a dish everyone can eat", shared_dish).
+move_cue("di' di scegliere un piatto per tutti", shared_dish).
+plan_step_text_lang(simple_menu, en, "Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready.").
+plan_step_text_lang(simple_menu, it, "Tienilo semplice: un piatto principale che sai già fare bene, un contorno da preparare prima e un dolce che puoi comprare pronto.").
+plan_step_text_lang(ask_diet_time, en, "Does anyone have dietary needs, and how much time do you have?").
+plan_step_text_lang(ask_diet_time, it, "Qualcuno ha esigenze alimentari, e quanto tempo hai?").
+plan_step_text_lang(shared_dish, en, "Then choose a main dish everyone can eat, so nobody gets a separate plate: a vegetable lasagne, a mushroom risotto or a chickpea curry works for everyone.").
+plan_step_text_lang(shared_dish, it, "Allora scegli un piatto principale che possano mangiare tutti, così nessuno ha un piatto a parte: una lasagna di verdure, un risotto ai funghi o un curry di ceci vanno bene per tutti.").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

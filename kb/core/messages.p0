@@ -3152,6 +3152,9 @@ plan_move(user_organizing_time, 2, ask_hardest_part).
 plan_move(user_organizing_time, 1, prioritise_first).
 plan_move(user_gift_ideas, 2, ask_person_interests).
 plan_move(user_gift_ideas, 1, gift_kinds).
+plan_move(user_guest_diet, 1, shared_dish).
+plan_move(user_hosting_meal, 2, ask_diet_time).
+plan_move(user_hosting_meal, 1, simple_menu).
 % ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
 % arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
 % piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo

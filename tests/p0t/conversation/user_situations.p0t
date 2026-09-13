@@ -105,6 +105,14 @@
 <~ Already in the plan
 <! A few directions
 
+[test cooking for guests, and a constraint on one of them in the next turn]
+!timeout 30
+> I need to cook dinner for four people tonight.
+<~ Keep it simple
+<~ Does anyone have dietary needs
+> One of them is vegetarian.
+<~ choose a main dish everyone can eat
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem
