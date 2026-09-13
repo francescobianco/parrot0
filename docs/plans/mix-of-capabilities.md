@@ -1207,3 +1207,20 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
   «is a salmon warm-blooded?» → No, su membri che nessuna lezione nominava.
 - **test:** `tests/p0t/crossing/mix_property_inheritance.p0t` (7).
 - **stato:** verificata sulla KB viva.
+
+### mix-08-09-14-001 — il contenimento geografico per la strada che la KB conosce
+
+- **catalogo:** mix-v1, 08 × 09 con la famiglia 14 (spazio)
+- **misura:** «where is tokyo?» → «Japan.» ma «is tokyo in asia?», «is paris in
+  europe?», «is paris in spain?» → «I don't understand that yet.»; i passi c'erano
+  in tre cassetti (`located_in`, `capital_of_country`, `continent_of`).
+- **cura:** `kb/core/place-questions.p0` — la catena a uno o due passi e la sua
+  resa («Yes: Tokyo is in Japan, and Japan is in Asia.»). **Nessun No**: una città o
+  un paese possono stare su due continenti e la KB non li tiene tutti; se la strada
+  porta altrove si dice dove («Not as far as I know: Madrid is in Spain, and Spain
+  is in Europe.», «Not as far as I know: Paris is in France.»).
+- **test:** `tests/p0t/crossing/mix_place_containment.p0t` (4); rossi di
+  `geographic_location.p0t` (4, tempi e un caso) identici su HEAD.
+- **resta:** i nomi di più parole («is new york in the united states?»), e la
+  frase non geografica («is the cat in the box?») resta ai lettori di prima.
+- **stato:** verificata sulla KB viva.

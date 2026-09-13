@@ -1,0 +1,81 @@
+% place-questions.p0 — «IS TOKYO IN ASIA?» PER LA STRADA CHE LA KB CONOSCE.
+%
+% docs/plans/mix-of-capabilities.md, 08×09 su tempo e spazio (famiglia 14). «where
+% is tokyo?» rispondeva «Japan.», e la KB sa `continent_of(japan, asia)`; ma «is
+% tokyo in asia?» riceveva «I don't understand that yet.». Il contenimento e'
+% una catena di passi che la KB tiene in cassetti diversi — un luogo in un altro
+% (`located_in`), una capitale nel suo paese (`capital_of_country`), un paese nel
+% suo continente (`continent_of`) — e la risposta dice la strada.
+%
+% Il «No» non si dice: una citta' puo' stare su due continenti (Istanbul), un
+% paese anche (Russia), e la KB non li tiene tutti. Se la strada porta altrove si
+% dice dove porta, come cio' che si sa.
+
+:- file_attribute(machinery).
+
+machinery(within_step).
+within_step($X, $Y) :- located_in($X, $Y).
+within_step($X, $Y) :- capital_of_country($Y, $X).
+within_step($X, $Y) :- continent_of($X, $Y).
+
+machinery(within_route).
+within_route($X, $Y, direct) :- within_step($X, $Y).
+within_route($X, $Z, via($Y)) :- within_step($X, $Y), within_step($Y, $Z), dif($Y, $Z).
+
+% La domanda: «is X in Y» con X e Y parole contigue a «in».
+machinery(turn_place_pair).
+turn_place_pair($Turn, $X, $Y) :-
+    turn_word($Turn, 0, is), turn_word($Turn, $I, in), gt($I, 1),
+    is($Before, sub($I, 1)), turn_word($Turn, $Before, $X),
+    is($After, add($I, 1)), turn_word($Turn, $After, $Y).
+
+machinery(place_verdict).
+place_verdict($Turn, yes($X, $Y), $Route) :- turn_place_pair($Turn, $X, $Y), within_route($X, $Y, $Route).
+place_verdict($Turn, elsewhere($X, $Z), $Route) :-
+    turn_place_pair($Turn, $X, $Y), naf(place_reached($X, $Y)),
+    continent_of($Any, $Y), within_route($X, $Z, $Route), continent_of($Other, $Z), dif($Z, $Y).
+% E se la domanda nomina un PAESE e la strada porta a un altro paese: «is paris in
+% spain?» → «Paris is in France.»
+place_verdict($Turn, elsewhere($X, $Z), direct) :-
+    turn_place_pair($Turn, $X, $Y), naf(place_reached($X, $Y)),
+    continent_of($Y, $K), within_step($X, $Z), continent_of($Z, $K2), dif($Z, $Y).
+machinery(place_reached).
+place_reached($X, $Y) :- within_route($X, $Y, $Route).
+
+machinery(place_name).
+place_name($Atom, $Name) :- upcase_first($Atom, $Name).
+
+machinery(place_opener).
+place_opener(yes, en, "Yes: ").
+place_opener(yes, it, "Sì: ").
+place_opener(elsewhere, en, "Not as far as I know: ").
+place_opener(elsewhere, it, "Non che io sappia: ").
+machinery(place_in_word).
+place_in_word(en, " is in ").
+place_in_word(it, " è in ").
+machinery(place_and_word).
+place_and_word(en, ", and ").
+place_and_word(it, ", e ").
+
+machinery(verdict_places).
+verdict_places(yes($X, $Y), yes, $X, $Y).
+verdict_places(elsewhere($X, $Z), elsewhere, $X, $Z).
+
+answer_content(place_answer($V, direct, $L), 0, opener, $P) :- verdict_places($V, $K, $X, $Y), place_opener($K, $L, $P).
+answer_content(place_answer($V, direct, $L), 1, from, $P) :- verdict_places($V, $K, $X, $Y), place_name($X, $P).
+answer_content(place_answer($V, direct, $L), 2, in, $P) :- place_in_word($L, $P).
+answer_content(place_answer($V, direct, $L), 3, to, $P) :- verdict_places($V, $K, $X, $Y), place_name($Y, $N), concat_atoms($N, ".", $P).
+
+answer_content(place_answer($V, via($M), $L), 0, opener, $P) :- verdict_places($V, $K, $X, $Y), place_opener($K, $L, $P).
+answer_content(place_answer($V, via($M), $L), 1, from, $P) :- verdict_places($V, $K, $X, $Y), place_name($X, $P).
+answer_content(place_answer($V, via($M), $L), 2, in, $P) :- place_in_word($L, $P).
+answer_content(place_answer($V, via($M), $L), 3, middle, $P) :- place_name($M, $P).
+answer_content(place_answer($V, via($M), $L), 4, and, $P) :- place_and_word($L, $P).
+answer_content(place_answer($V, via($M), $L), 5, middle2, $P) :- place_name($M, $P).
+answer_content(place_answer($V, via($M), $L), 6, in2, $P) :- place_in_word($L, $P).
+answer_content(place_answer($V, via($M), $L), 7, to, $P) :- verdict_places($V, $K, $X, $Y), place_name($Y, $N), concat_atoms($N, ".", $P).
+
+machinery(turn_place_answer).
+turn_place_answer($Turn, $Text) :- place_verdict($Turn, $V, $Route), current_language($L), answer_text(place_answer($V, $Route, $L), $Text).
+turn_plan_candidate($Turn) :- turn_place_pair($Turn, $X, $Y).
+turn_response($Turn, $Text) :- turn_place_answer($Turn, $Text).

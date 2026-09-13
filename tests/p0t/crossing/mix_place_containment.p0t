@@ -1,0 +1,22 @@
+# mix-of-capabilities 08×09 × 14 — il contenimento geografico per la strada che la
+# KB conosce (located_in, capital_of_country, continent_of), detta; mai un «No»
+# che la KB non puo' reggere: si dice dove la strada porta.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a capital reaches its continent through its country]
+!timeout 30
+> is tokyo in asia?
+< Yes: Tokyo is in Japan, and Japan is in Asia.
+> is paris in europe?
+< Yes: Paris is in France, and France is in Europe.
+
+[test a wrong place receives where the route leads, not a bare no]
+!timeout 30
+> is madrid in asia?
+< Not as far as I know: Madrid is in Spain, and Spain is in Europe.
+> is paris in spain?
+< Not as far as I know: Paris is in France.
