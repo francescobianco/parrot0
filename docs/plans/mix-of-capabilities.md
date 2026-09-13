@@ -1543,3 +1543,20 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   la canonicalizzazione tocca anche il testo italiano che si sta insegnando.
   `translate.p0t` rosso identico su HEAD.
 - **test:** `mix_household_safety.p0t` +1 blocco, `mix_food_time.p0t` +1 blocco.
+
+### mix-20-16-21-002 — il sangue dal naso, e la testa all'indietro
+
+- **fonte:** NHS, *Nosebleed* — seduti, piegati in avanti con la bocca aperta; stringere
+  il naso sopra le narici 10-15 minuti respirando con la bocca; non piegare la testa
+  indietro; aiuto urgente se dura più di 10-15 minuti, molto sangue, colpo alla testa,
+  debolezza o capogiri.
+- **misura:** «my nose is bleeding» → **«Got it: your nose is bleeding.»** (e salvava
+  `called(nose, bleeding)`: il nome di una cosa).
+- **cure:** due situazioni in `user-situations.p0` — il sangue dal naso, e la domanda con
+  la testa all'indietro (distinta per una cue sua) — e i due piani insegnati parlando.
+- **esito:** «my son has a nosebleed, what do I do?» → i passi; «should I tilt my head
+  back for a nosebleed?» → «No: don't tilt your head back, the blood runs down your
+  throat. Sit down and lean forward…»; «mi sanguina il naso» in un processo nuovo → i
+  passi in italiano.
+- **quarantena:** `called(nose, bleeding)`.
+- **test:** `tests/p0t/crossing/mix_first_aid_nosebleed.p0t` (4).

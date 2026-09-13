@@ -114,6 +114,7 @@ utterance(5, user, "a cup of sugar weighs 198 grams").
 utterance(5, user, "the safe internal temperature of ground beef is 71 degrees").
 utterance(5, user, "the italian for ammonia is ammoniaca").
 utterance(5, user, "the italian for breathing problems is problemi respiratori").
+utterance(5, user, "when someone has a nosebleed then say to pinch the nose").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -207,6 +208,7 @@ utterance(6, self, "Held: a cup of sugar weighs 198 grams.").
 utterance(6, self, "Held: the safe internal temperature of ground beef is 71 degrees.").
 utterance(6, self, "Held: «ammoniaca» is how ammonia is said in that language.").
 utterance(6, self, "Held: «problemi_respiratori» is how breathing_problems is said in that language.").
+utterance(6, self, "Held: in that situation, move 2 is «Pinch the soft part of your nose, just above the nostrils, for 10 to 15 minutes, breathing through your mouth.».").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -709,6 +711,7 @@ utterance(7, user, "low light causes yellow leaves").
 utterance(7, user, "a cup of oats weighs 113 grams").
 utterance(7, user, "the safe internal temperature of pork chops is 63 degrees").
 utterance(7, user, "the italian for alcohol is alcol").
+utterance(7, user, "when someone has a nosebleed then say when to get help").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1154,7 +1157,11 @@ utterance(8, self, "Held: «alcol» is how alcohol is said in that language.").
 utterance(9, user, "the italian for acid is acido").
 utterance(10, self, "Held: «acido» is how acid is said in that language.").
 utterance(11, user, "the thermometer reads 72 degrees in the ground beef, is it done?").
+utterance(8, self, "Held: in that situation, move 3 is «Get urgent help if it lasts longer than 15 minutes, if you lose a lot of blood, after a blow to the head, or if you feel weak or dizzy.».").
+utterance(9, user, "when someone asks to tilt the head back then say not to tilt the head back").
+utterance(10, self, "Held: in that situation, move 1 is «No: don't tilt your head back, the blood runs down your throat.».").
 utterance(11, user, "the italian for chicken is pollo").
+utterance(11, user, "when someone asks to tilt the head back then say to lean forward").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1979,6 +1986,17 @@ utterance(14, self, "It has reached the safe internal temperature of pork chops:
 utterance(15, user, "I left the chicken out for 3 hours").
 utterance(16, self, "No: chicken is a perishable, and a perishable should not be left out for more than 2 hours; 3 hours is past that, so it is safer to throw it away.").
 utterance(12, self, "Held: «pollo» is how chicken is said in that language.").
+utterance(12, self, "Held: in that situation, move 2 is «Sit down and lean forward with your mouth open.».").
+utterance(13, user, "when someone asks to tilt the head back then say to pinch the nose").
+utterance(14, self, "Held: in that situation, move 3 is «Pinch the soft part of your nose, just above the nostrils, for 10 to 15 minutes, breathing through your mouth.».").
+utterance(15, user, "my nose is bleeding").
+utterance(16, self, "Sit down and lean forward with your mouth open. Pinch the soft part of your nose, just above the nostrils, for 10 to 15 minutes, breathing through your mouth. Get urgent help if it lasts longer than 15 minutes, if you lose a lot of blood, after a blow to the head, or if you feel weak or dizzy.").
+utterance(17, user, "should I tilt my head back for a nosebleed?").
+utterance(18, self, "No: don't tilt your head back, the blood runs down your throat. Sit down and lean forward with your mouth open. Pinch the soft part of your nose, just above the nostrils, for 10 to 15 minutes, breathing through your mouth.").
+utterance(19, user, "my son has a nosebleed, what do I do?").
+utterance(20, self, "Sit down and lean forward with your mouth open. Pinch the soft part of your nose, just above the nostrils, for 10 to 15 minutes, breathing through your mouth. Get urgent help if it lasts longer than 15 minutes, if you lose a lot of blood, after a blow to the head, or if you feel weak or dizzy.").
+utterance(21, user, "mi sanguina il naso").
+utterance(22, self, "Sit down and lean forward with your mouth open. Pinch the soft part of your nose, just above the nostrils, for 10 to 15 minutes, breathing through your mouth. Get urgent help if it lasts longer than 15 minutes, if you lose a lot of blood, after a blow to the head, or if you feel weak or dizzy.").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2375,6 +2393,7 @@ utterance(2, self, "Held: adults need 7 to 9 hours of sleep.").
 utterance(2, self, "Held: «candeggina» is how bleach is said in that language.").
 utterance(2, self, "Held: «cloro_gassoso» is how chlorine_gas is said in that language.").
 utterance(2, self, "Held: «clorammine» is how chloramine_gas is said in that language.").
+utterance(2, self, "Got it: your nose is bleeding.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2472,6 +2491,7 @@ utterance(1, user, "I cooked the chicken to 68 degrees, is it safe?").
 utterance(1, user, "the italian for bleach is candeggina").
 utterance(1, user, "the italian for chlorine gas is cloro gassoso").
 utterance(1, user, "the italian for chloramine gas is clorammine").
+utterance(1, user, "my nose is bleeding").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2562,6 +2582,7 @@ utterance(4, self, "Who or what does «it» refer to?").
 utterance(4, self, "Held: a cup of flour weighs 120 grams.").
 utterance(4, self, "Held: «aceto» is how vinegar is said in that language.").
 utterance(4, self, "Held: «gas_of_clorammina» is how chloramine_gas is said in that language.").
+utterance(4, self, "Held: in that situation, move 1 is «Sit down and lean forward with your mouth open.».").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2651,6 +2672,7 @@ utterance(3, user, "is it safe to mix bleach and vinegar?").
 utterance(3, user, "a cup of flour weighs 120 grams").
 utterance(3, user, "the italian for vinegar is aceto").
 utterance(3, user, "the italian for chloramine gas is gas di clorammina").
+utterance(3, user, "when someone has a nosebleed then say to lean forward").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

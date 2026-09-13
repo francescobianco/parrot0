@@ -342,6 +342,21 @@ burn_cue("scalded my").  burn_cue("scalded myself").  burn_cue("mi sono bruciato
 turn_cue_registry(burn_cue, 1).
 direct_situation($Turn, user_burn) :- turn_cue_form($Turn, burn_cue, $Cue).
 
+% mix §13 — IL SANGUE DAL NASO (NHS, «Nosebleed»).
+machinery(nosebleed_cue).
+nosebleed_cue("nosebleed").  nosebleed_cue("nose is bleeding").  nosebleed_cue("nose bleeding").
+nosebleed_cue("perdo sangue dal naso").  nosebleed_cue("sangue dal naso").  nosebleed_cue("mi sanguina il naso").
+turn_cue_registry(nosebleed_cue, 1).
+direct_situation($Turn, user_nosebleed) :- turn_cue_form($Turn, nosebleed_cue, $Cue), naf(turn_asks_head_back($Turn)).
+machinery(turn_asks_head_back).
+turn_asks_head_back($Turn) :- turn_cue_form($Turn, head_back_cue, $C).
+machinery(head_back_cue).
+head_back_cue("head back").  head_back_cue("testa indietro").
+turn_cue_registry(head_back_cue, 1).
+% «should I tilt my head back for a nosebleed?» e' il rimedio sbagliato piu' comune:
+% la risposta e' no, con la prima mossa dello stesso piano.
+direct_situation($Turn, user_nosebleed_myth) :- turn_cue_form($Turn, nosebleed_cue, $Cue), turn_asks_head_back($Turn).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -408,6 +423,13 @@ situation_cue("someone has a burn", user_burn).
 situation_cue("qualcuno si e' bruciato", user_burn).
 situation_label(user_burn, en, "someone has a burn").
 situation_label(user_burn, it, "qualcuno si è bruciato").
+situation_cue("someone has a nosebleed", user_nosebleed).
+situation_cue("qualcuno perde sangue dal naso", user_nosebleed).
+situation_label(user_nosebleed, en, "someone has a nosebleed").
+situation_label(user_nosebleed, it, "qualcuno perde sangue dal naso").
+situation_cue("someone asks to tilt the head back", user_nosebleed_myth).
+situation_label(user_nosebleed_myth, en, "someone asks to tilt the head back").
+situation_label(user_nosebleed_myth, it, "qualcuno chiede se piegare la testa indietro").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -612,6 +634,26 @@ plan_step_text_lang(cover_burn, en, "When it has cooled, lay cling film over it 
 plan_step_text_lang(cover_burn, it, "Quando si è raffreddata, appoggiaci sopra la pellicola senza avvolgerla, e non metterci burro, oli o creme.").
 plan_step_text_lang(burn_emergency, en, "Go to the emergency room if it is large or deep, on the face, or caused by chemicals or electricity.").
 plan_step_text_lang(burn_emergency, it, "Vai al pronto soccorso se è grande o profonda, sul viso, o causata da sostanze chimiche o elettricità.").
+% - naso: NHS, «Nosebleed» — seduti, piegati in avanti con la bocca aperta, stringere il
+%   naso sopra le narici per 10-15 minuti respirando con la bocca; NON piegare la testa
+%   indietro; pronto soccorso se dura piu' di 10-15 minuti, se e' molto, dopo un colpo
+%   alla testa o con debolezza, capogiri o difficolta' a respirare.
+move_cue("say to lean forward", lean_forward).
+move_cue("di' di piegarsi in avanti", lean_forward).
+move_cue("say to pinch the nose", pinch_nose).
+move_cue("di' di stringere il naso", pinch_nose).
+move_cue("say when to get help", nosebleed_emergency).
+move_cue("di' quando chiedere aiuto", nosebleed_emergency).
+move_cue("say not to tilt the head back", no_head_back).
+move_cue("di' di non piegare la testa indietro", no_head_back).
+plan_step_text_lang(lean_forward, en, "Sit down and lean forward with your mouth open.").
+plan_step_text_lang(lean_forward, it, "Siediti e piegati in avanti con la bocca aperta.").
+plan_step_text_lang(pinch_nose, en, "Pinch the soft part of your nose, just above the nostrils, for 10 to 15 minutes, breathing through your mouth.").
+plan_step_text_lang(pinch_nose, it, "Stringi la parte morbida del naso, appena sopra le narici, per 10-15 minuti, respirando con la bocca.").
+plan_step_text_lang(nosebleed_emergency, en, "Get urgent help if it lasts longer than 15 minutes, if you lose a lot of blood, after a blow to the head, or if you feel weak or dizzy.").
+plan_step_text_lang(nosebleed_emergency, it, "Chiedi aiuto urgente se dura più di 15 minuti, se perdi molto sangue, dopo un colpo alla testa, o se ti senti debole o hai capogiri.").
+plan_step_text_lang(no_head_back, en, "No: don't tilt your head back, the blood runs down your throat.").
+plan_step_text_lang(no_head_back, it, "No: non piegare la testa indietro, il sangue scende in gola.").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

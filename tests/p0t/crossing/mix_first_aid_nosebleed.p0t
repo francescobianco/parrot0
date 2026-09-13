@@ -1,0 +1,20 @@
+# mix-of-capabilities §13 — 20×16×21: il sangue dal naso (NHS, «Nosebleed»). Il
+# piano insegnato parlando, e il rimedio sbagliato piu' comune («tilt my head
+# back») riceve il no e la stessa procedura.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the nosebleed plan answers the person]
+!timeout 30
+> my son has a nosebleed, what do I do?
+<~ Sit down and lean forward with your mouth open.
+<~ for 10 to 15 minutes
+
+[test tilting the head back is refused, with what to do instead]
+!timeout 30
+> should I tilt my head back for a nosebleed?
+<~ No: don't tilt your head back
+<~ lean forward

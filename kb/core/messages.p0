@@ -3187,6 +3187,12 @@ plan_move(user_burn, 4, burn_emergency).
 plan_move(user_burn, 3, cover_burn).
 plan_move(user_burn, 2, remove_jewellery).
 plan_move(user_burn, 1, cool_burn).
+plan_move(user_nosebleed_myth, 3, pinch_nose).
+plan_move(user_nosebleed_myth, 2, lean_forward).
+plan_move(user_nosebleed_myth, 1, no_head_back).
+plan_move(user_nosebleed, 3, nosebleed_emergency).
+plan_move(user_nosebleed, 2, pinch_nose).
+plan_move(user_nosebleed, 1, lean_forward).
 % ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
 % arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
 % piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo
