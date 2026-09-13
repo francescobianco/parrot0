@@ -1,5 +1,15 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+**Costo del turno, misurato (2026-09-13, 23:07)**: «what is the opposite of hot»
+in un motore nuovo via MCP: **1.1–1.2 s con la KB di `2a5eabc5`** (prima delle
+campagne mix di oggi), **1.2–1.3 s a HEAD**. Spegnendo uno alla volta i lettori
+nuovi (property, place, causal, mixture, food-time, remedy, diagnosis,
+user-situations) e poi tutti insieme, e i candidati delle sezioni 4–8 di
+`numeric-questions.p0`, il tempo non scende sotto 1.2 s: il costo aggiunto
+(~0.1 s) e' distribuito sulla KB cresciuta, non in un candidato. La soft-test
+`basics.p0t` misura 1.30/1.47 s dal demone (limite 1.0 s, gia' superato prima
+delle campagne). Non si alza il limite: il turno base va profilato con `/debug`.
+
 **mix-of-capabilities, prima ora di campagna (2026-09-13, 21:34–22:34)**: nuovi
 `crossing/mix_language_access` (13), `crossing/mix_property_inheritance` (10),
 `crossing/mix_place_containment` (7), `crossing/mix_causal_chain` (3),
