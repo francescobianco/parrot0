@@ -18,6 +18,14 @@
 > the heating is broken
 <~ Let's look at it together.
 
+[test the safety move only where something can smoke or hurt]
+!timeout 30
+> My wifi keeps disconnecting. What should I do?
+<~ Let's look at it together. What is it, and what exactly happens?
+<! smokes
+> My car makes a strange noise when I brake.
+<~ If something smokes
+
 [test a settled problem and a topic named problem do not run it]
 !timeout 30
 > I solved the problem with my bike.

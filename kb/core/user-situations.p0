@@ -416,14 +416,42 @@ plan_step_text_lang(one_small_step, it, "Spesso aiuta scegliere una cosa piccola
 %
 % Le mosse si dicono nell'ordine in cui sono state insegnate. La prima parte
 % dalla posizione 0 di `answer_text`; le altre portano lo spazio davanti.
-situation_move_text($Move, $Language, $Text) :- plan_step_text_lang($Move, $Language, $Text).
-situation_move_text($Move, $Language, $Text) :- naf(plan_step_text_lang($Move, $Language, $Any)), plan_step_text_lang($Move, en, $Text).
+% assistente utile U16 — UNA MOSSA PUO' VALERE SOLO IN CERTE CONDIZIONI. La
+% sicurezza («If something smokes…») usciva anche per il wifi che si disconnette
+% e per lo schermo del telefono rotto, dove non c'entra: aiuto fuori luogo. Una
+% mossa che dichiara una condizione (`move_condition(Mossa, Registro)`) si dice
+% solo se il turno porta una cue di quel registro; altrimenti tace, e il piano
+% resta lo stesso per tutti gli altri guasti.
+machinery(move_condition).
+move_condition(safety_first, hazard_cue).
+machinery(hazard_cue).
+hazard_cue("car").  hazard_cue("engine").  hazard_cue("brake").  hazard_cue("brakes").
+hazard_cue("motorbike").  hazard_cue("motorcycle").  hazard_cue("bike").
+hazard_cue("mechanical").  hazard_cue("meccanico").  hazard_cue("auto").  hazard_cue("macchina").
+hazard_cue("moto").  hazard_cue("freni").  hazard_cue("motore").
+hazard_cue("heating").  hazard_cue("heater").  hazard_cue("boiler").  hazard_cue("caldaia").
+hazard_cue("gas").  hazard_cue("oven").  hazard_cue("forno").  hazard_cue("stove").
+hazard_cue("washing machine").  hazard_cue("lavatrice").  hazard_cue("electric").  hazard_cue("elettrico").
+hazard_cue("smoke").  hazard_cue("smoking").  hazard_cue("fumo").  hazard_cue("burning").  hazard_cue("bruciato").
+hazard_cue("socket").  hazard_cue("presa").  hazard_cue("plug").  hazard_cue("spina").
+turn_cue_registry(hazard_cue, 1).
+machinery(move_silent).
+move_silent($Move) :- move_condition($Move, $Registry), naf(turn_has_cue_of(current_turn, $Registry)).
+machinery(turn_has_cue_of).
+turn_has_cue_of($Turn, $Registry) :- turn_cue_form($Turn, $Registry, $Cue).
+
+situation_move_text($Move, $Language, "") :- move_silent($Move).
+situation_move_text($Move, $Language, $Text) :- naf(move_silent($Move)), plan_step_text_lang($Move, $Language, $Text).
+situation_move_text($Move, $Language, $Text) :- naf(move_silent($Move)), naf(plan_step_text_lang($Move, $Language, $Any)), plan_step_text_lang($Move, en, $Text).
 
 answer_content(situation_plan($Situation, $Language), 0, move, $Piece) :-
     plan_move($Situation, 1, $Move), situation_move_text($Move, $Language, $Piece).
 answer_content(situation_plan($Situation, $Language), $Position, move, $Piece) :-
     plan_move($Situation, $Order, $Move), gt($Order, 1), is($Position, sub($Order, 1)),
-    situation_move_text($Move, $Language, $Text), concat_atoms(" ", $Text, $Piece).
+    situation_move_text($Move, $Language, $Text), dif($Text, ""), concat_atoms(" ", $Text, $Piece).
+answer_content(situation_plan($Situation, $Language), $Position, move, "") :-
+    plan_move($Situation, $Order, $Move), gt($Order, 1), is($Position, sub($Order, 1)),
+    situation_move_text($Move, $Language, "").
 
 % Una lezione di condotta NOMINA la situazione («when someone needs gift ideas
 % then …») e non la vive: se la situazione ha gia' un piano, senza questa riga il
