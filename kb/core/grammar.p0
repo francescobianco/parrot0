@@ -345,14 +345,33 @@ asked_head_misses($Input, $Topic) :-
     compound_content_phrase($Ws), asked_compound_head($Ws, $H),
     naf(topic_names_word($Topic, $H)),
     member($M, $Ws), dif($M, $H), topic_names_word($Topic, $M).
+% 14 settembre 2026 — e il verso opposto: «what is a sump pump?» riceveva la
+% definizione della pompa. Il topic nomina la testa ma non il modificatore: parla
+% della classe generale, non della cosa chiesta, e si ritira allo stesso modo.
+asked_head_misses($Input, $Topic) :-
+    turn_asked_phrase($Input, $P), atom_words($P, $Ws0), phrase_without_determiner($Ws0, $Ws),
+    compound_content_phrase($Ws), asked_compound_head($Ws, $H),
+    topic_names_word($Topic, $H),
+    member($M, $Ws), dif($M, $H), naf(topic_names_word($Topic, $M)).
 machinery(phrase_without_determiner).
 phrase_without_determiner(cons($D, $R), $R) :- english_determiner($D).
 phrase_without_determiner(cons($D, $R), $R) :- italian_determiner($D).
 phrase_without_determiner(cons($W, $R), cons($W, $R)) :- naf(english_determiner($W)), naf(italian_determiner($W)).
 % due o tre parole, tutte piene: una parola vuota vuol dire che non e' un nome composto
 machinery(compound_content_phrase).
+% Solo DUE parole: con tre, una parola in coda ignota («what is calcium carbonate
+% aboard?», prose_relation_scope.p0t) non e' la testa di un composto, e la regola
+% la trattava come tale. Per tre parole vale `asked_mostly_unnamed/2` qui sotto.
 compound_content_phrase(cons($A, cons($B, nil))) :- compound_word($A), compound_word($B).
-compound_content_phrase(cons($A, cons($B, cons($C, nil)))) :- compound_word($A), compound_word($B), compound_word($C).
+machinery(three_word_content_phrase).
+three_word_content_phrase(cons($A, cons($B, cons($C, nil)))) :- compound_word($A), compound_word($B), compound_word($C).
+% tre parole piene di cui il topic ne nomina una sola: «what is carbon monoxide
+% poisoning?» non e' il ciclo del carbonio
+asked_head_misses($Input, $Topic) :-
+    turn_asked_phrase($Input, $P), atom_words($P, $Ws0), phrase_without_determiner($Ws0, $Ws),
+    three_word_content_phrase($Ws), member($M1, $Ws), naf(topic_names_word($Topic, $M1)),
+    member($M2, $Ws), dif($M1, $M2), naf(topic_names_word($Topic, $M2)),
+    member($K, $Ws), topic_names_word($Topic, $K).
 % ⚠ non `content_word/1`: esiste gia' (piu' sotto) e due definizioni si sommano
 machinery(compound_word).
 compound_word($W) :- content_word($W), naf(preposition($W)), naf(english_determiner($W)), naf(italian_determiner($W)).

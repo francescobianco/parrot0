@@ -1740,3 +1740,45 @@ per «what is your source?» dopo «what is thermal runaway?». Cricchetto in
 areas_homonym e facts_split_three hanno solo rossi di tempo (1 s).
 **Reperti:** la risposta a una domanda **derivata** (non letta) dovrebbe dire la catena e
 le fonti delle premesse (04×09×21): resta da fare.
+
+### mix-04-23-003 — il verso opposto («sump pump» → pompa) e la regressione curata
+
+**Caso:** «what is a sump pump?» riceveva la definizione della pompa (il topic nomina la
+testa, non il modificatore). **Cura:** seconda regola di `asked_head_misses/2`
+(grammar.p0). **Regressione trovata e curata nello stesso giro:** la regola della scheda
+04-23-001 trattava anche tre parole come composto, e «what is calcium carbonate
+aboard?» (prose_relation_scope.p0t, parola ignota in coda) perdeva «CaCO3». Ora il
+composto è di due parole; per tre parole si ritira solo il topic che ne nomina una sola
+(«carbon monoxide poisoning» non è il ciclo del carbonio). **Dopo:** prose_relation_scope
+31/31, prose_triage 75, `mix_compound_head_gap.p0t` 10, `mix_deep_memory_recall.p0t` 10.
+«what is carbon monoxide poisoning?» → «You might mean carbon_monoxide: CO.» (onesto ma
+con l'atomo grezzo). inflected_lookup, compose_coref, expert/knowledge, unify hanno gli
+stessi rossi di contenuto con e senza la regola: non sono di questa campagna.
+
+### Handoff della terza campagna (14 settembre, 00:25)
+
+**Fatto (7 commit):** la lacuna del nome composto apre la memoria profonda invece di
+rispondere col modificatore o con la classe generale; mentre si legge non si legge il
+participio; sei letture vere salvate con indirizzo e revisione; «what is X?» risponde
+con la definizione letta anche per i nomi composti; «where did you read that?» cita
+articolo, edizione, revisione e dice che è testo letto; tetto dei contabili da 16 a 64.
+
+**Da dove riprendere, in ordine:**
+1. **04×12 — il nesso causale letto.** «most outbreaks result from poorly maintained
+   cooling towers» (Legionella) si legge `result(outbreaks, …)`: serve che «X result(s)
+   from Y» diventi `causes(Y, X)` con il contesto del topic (legionella_outbreaks) e con
+   «most» come attenuazione, poi «what causes legionella outbreaks?». Esiste
+   `inverse_relation/2` insegnabile, ma lo usa solo la via polare in C.
+2. **04×05 — una proposizione oltre la definizione.** «what does a smoke detector
+   sense?», «what is a carbon monoxide detector used to prevent?» (oggi: ciclo del
+   carbonio con un modello di progetto — misclaim) dalla definizione letta.
+3. **La lacuna costruita sulla parola sbagliata:** «what does a carbon monoxide detector
+   detect?» cerca «monoxide» e legge «Oxide».
+4. **04×09×21:** la risposta derivata dice catena e fonti delle premesse.
+5. **Il `/save` con `acquisition_policy(act)`** la scrive in network.p0: riportare la
+   politica a «ask» prima di salvare (o farne una scratch di sessione).
+6. **Resa:** «Legionella is a genus …; legionella is a genus.» (coda ridondante),
+   «You might mean carbon_monoxide» (atomo grezzo), il resoconto della lettura che
+   aggiunge la definizione di «fire».
+7. Dalle campagne precedenti: 19×21 sintesi con status, 05×07 reinterpretazione, il
+   costo del turno base (TEST_TODO: i rossi di tempo a 1 s sono gli stessi a HEAD).

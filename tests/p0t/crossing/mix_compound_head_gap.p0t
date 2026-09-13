@@ -31,3 +31,11 @@
 > what is a fire blanket?
 <~ hot, visible reaction zone
 !assert compound_head_side(en, last)
+
+[test the general class does not answer for the specific compound]
+!timeout 30
+> what is a sump pump?
+<~ sump pump
+<! moves a fluid by adding energy
+> what is quantum mechanics?
+<~ atomic scales
