@@ -20,3 +20,10 @@
 <~ I know Madrid as the capital of Spain
 > paris is the capital of france, right?
 < Yes.
+
+[test a comparison of two known things is made with what is known of each]
+!timeout 30
+> What is the difference between a virus and a bacterium?
+<~ A virus is a package of genetic material
+<~ A bacterium is a single-celled organism
+<! useful comparison turns on

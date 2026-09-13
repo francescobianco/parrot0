@@ -131,6 +131,34 @@ explain_with_example($Turn, $Text) :-
     concat_atoms($Sentence, $Tail, $Text).
 
 turn_plan_candidate($Turn) :- explain_with_example($Turn, $Text).
+
+% ── assistente utile U6 — IL CONFRONTO FATTO CON CIO' CHE SI SA DEI DUE ──────
+% «What is the difference between a virus and a bacterium?» riceveva «On a virus
+% and a bacterium, a useful comparison turns on the baseline both share, the
+% dimensions worth holding fixed…»: un metodo valido per qualunque coppia, cioe'
+% aiuto finto (T10), mentre la KB tiene una definizione di entrambi. Qui si
+% mettono le due definizioni una accanto all'altra: e' la differenza detta con
+% i fatti, e non promette un'analisi che non c'e'. Senza le due definizioni la
+% regola tace e il turno scende come prima.
+machinery(comparison_cue).
+comparison_cue("difference between").
+comparison_cue("differences between").
+comparison_cue("differenza tra").
+comparison_cue("differenza fra").
+turn_cue_registry(comparison_cue, 1).
+machinery(comparison_opener).
+comparison_opener(en, "Here is what I know of each. ").
+comparison_opener(it, "Ecco che cosa so di ciascuno. ").
+turn_compared_concepts($Turn, $A, $B) :-
+    turn_cue_form($Turn, comparison_cue, $Cue),
+    turn_span_token($Turn, $S, $I, $TA), span_atom($TA, $A), wiki_concept($A, $DA, $GA),
+    turn_span_token($Turn, $S, $J, $TB), span_atom($TB, $B), wiki_concept($B, $DB, $GB),
+    lt($I, $J).
+answer_content(compared_concepts($A, $B, $Language), 0, opener, $Piece) :- comparison_opener($Language, $Piece).
+answer_content(compared_concepts($A, $B, $Language), 1, first, $Piece) :- wiki_concept($A, $D, $G), concat_atoms($G, ". ", $Piece).
+answer_content(compared_concepts($A, $B, $Language), 2, second, $Piece) :- wiki_concept($B, $D, $G), concat_atoms($G, ".", $Piece).
+turn_plan_candidate($Turn) :- turn_compared_concepts($Turn, $A, $B).
+turn_response($Turn, $Text) :- turn_compared_concepts($Turn, $A, $B), current_language($Language), answer_text(compared_concepts($A, $B, $Language), $Text).
 turn_response($Turn, $Text) :- explain_with_example($Turn, $Text).
 
 % ── 5. DOMANDE SU COSE CHE PARROT0 SA DAVVERO ──────────────────────────────
