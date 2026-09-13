@@ -1671,3 +1671,25 @@ stessi rossi a HEAD, tempi). Cricchetto `tests/p0t/crossing/mix_compound_head_ga
 «fires» compare nel passo; «tell me about carbon monoxide» risponde col fatto già
 tenuto («carbon monoxide is CO.») e non propone la lettura.
 
+### mix-04-23-002 — mentre si legge un passo non si va a leggere il participio
+
+**Caso:** con «look things up yourself», «what is a fire blanket?» e «what is water
+hammer?». **Prima (dal vivo):** oltre alle due pagine giuste, parrot0 leggeva «Design»
+sotto la chiave `designed` e «Causality» sotto `caused`; il `/save` portava
+`topic_definition(designed, …)`, `refer(design, something)`, `option_word(…)` di una
+disambiguazione e 60 righe di lacune di quelle pagine. Il resto di una frase del passo
+arrivava al muro come un turno, e il muro con la politica «agisci» leggeva la parola
+nominata. **Cura:** leggere è un fatto (`reading_in_progress/1`, asserito dal motore
+attorno a `network_acquire`); `acquisition_move(acquire|propose)` richiede
+`naf(reading_now)` in network.p0. I termini ignoti del passo restano lacune nominate.
+**Dopo:** la stessa sessione legge solo fire_blanket, water_hammer, legionella.
+Cricchetto `tests/p0t/crossing/mix_reading_no_nested_lookup.p0t` (4) su due lead veri
+di Wikipedia in edizione locale; togliendo `naf(reading_now)` il cricchetto diventa rosso.
+**Reperti per la prossima scheda:** la frase «most outbreaks result from poorly
+maintained cooling towers» (Legionella) si legge `result(outbreaks,
+poorly_maintained_cooling_towers)`: il nesso causale c'è ma al contrario del verbo e
+senza il contesto «Legionella»; «what does a carbon monoxide detector detect?» costruisce
+la lacuna su «monoxide»; «what is a carbon monoxide detector used to prevent?» riceve il
+ciclo del carbonio con un modello di progetto. E il `/save` scrive
+`acquisition_policy(act)` in network.p0: la politica di sessione va riportata a «ask»
+prima di salvare.

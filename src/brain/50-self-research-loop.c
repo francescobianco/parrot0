@@ -735,8 +735,36 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
  * scrive nella memoria profonda DOVE ha letto (`topic_read/2`, con edizione,
  * titolo risolto e revisione) e la definizione (`topic_definition/2`).
  * Niente testo archiviato: e' la regola del gen436. */
+static int network_acquire_passage(Brain *b, const char *topic, char *def,
+                                   size_t def_sz, int *nfacts);
+
+/* ── 13 settembre 2026 — MENTRE SI LEGGE, NON SI VA A LEGGERE ALTRO ─────────
+ *
+ * Con `acquisition_policy(act)`, «what is a fire blanket?» leggeva la pagina e
+ * poi anche «Design» sotto la chiave `designed`, e «water hammer» leggeva
+ * «Causality» sotto `caused`: il resto di una frase del passo arrivava al muro
+ * come un turno, e il muro, trovando la politica «agisci», andava a leggere il
+ * participio. Chiavi sbagliate e pagine non pertinenti (mix 04×23: una lacuna non
+ * pertinente non genera una ricerca). Che si stia leggendo e' un fatto
+ * (`reading_in_progress/1`), e la mossa lo legge in network.p0; i termini ancora
+ * ignoti del passo restano lacune nominate per il sogno (`topic_open_term`). */
 static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz,
                            int *nfacts) {
+    if (!b || !b->kb || !topic || !*topic) return 0;
+    char quoted[KB_TERM_LEN];
+    snprintf(quoted, sizeof quoted, "\"%.*s\"", KB_TERM_LEN - 3, topic);
+    const char *ra[] = { quoted };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "reading_in_progress", ra, 1);
+    kb_set_origin(b->kb, prev);
+    int r = network_acquire_passage(b, topic, def, def_sz, nfacts);
+    kb_retract(b->kb, "reading_in_progress", ra, 1);
+    return r;
+}
+
+static int network_acquire_passage(Brain *b, const char *topic, char *def,
+                                   size_t def_sz, int *nfacts) {
     if (!b || !b->kb || !topic || !*topic) return 0;
     if (nfacts) *nfacts = 0;
     if (def && def_sz) def[0] = '\0';

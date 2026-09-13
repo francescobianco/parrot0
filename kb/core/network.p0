@@ -46,10 +46,18 @@ action_effect(read_topic, topic_read).
 % Il C non conosce nessuna delle quattro risposte: le legge.
 acquisition_move(acquire) :-
     gap_remedy_action(knowledge, read_topic), reading_available,
-    acquisition_policy(act).
+    acquisition_policy(act), naf(reading_now).
 acquisition_move(propose) :-
     gap_remedy_action(knowledge, read_topic), reading_available,
-    acquisition_policy(ask).
+    acquisition_policy(ask), naf(reading_now).
+% 13 settembre 2026 — mentre si legge un passo non si parte a leggerne un altro:
+% il resto di una frase del passo che arriva al muro nominerebbe un participio
+% («designed», «caused») e aprirebbe una pagina non pertinente sotto quella chiave.
+% `reading_in_progress/1` lo asserisce il motore attorno alla lettura.
+machinery(reading_in_progress).
+machinery(reading_now).
+turn_scratch(reading_in_progress).
+reading_now :- reading_in_progress($Topic).
 acquisition_move(decline_named) :-
     gap_remedy_action(knowledge, read_topic), naf(reading_available),
     naf(acquisition_policy(never)).

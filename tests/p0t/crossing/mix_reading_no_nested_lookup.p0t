@@ -1,0 +1,22 @@
+# mix-of-capabilities 04×23 (2) — una lacuna non pertinente non genera una ricerca.
+# Con la politica «agisci», leggere «fire blanket» faceva leggere anche «Design»
+# sotto la chiave `designed`: il resto di una frase del passo arrivava al muro, che
+# andava a leggere il participio. Mentre si legge e' un fatto (reading_in_progress,
+# network.p0), e la mossa non parte. Le due pagine locali sono i lead veri di
+# Wikipedia («Fire blanket», «Design»), in edizione locale per il determinismo.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the page is read and the participle in it is not looked up]
+!timeout 30
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+<~ read things up myself
+> what is a fire blanket?
+<~ A fire blanket is a safety device
+!query topic_read(fire_blanket, $A)
+!query! topic_read(designed, $A)
+> ask me before looking things up
