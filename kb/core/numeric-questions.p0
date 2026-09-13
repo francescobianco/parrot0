@@ -214,3 +214,48 @@ count_total_text(it, $Total, counted($N, $Word, $Unit, $K), $Text) :-
 
 turn_plan_candidate($Turn) :- count_total($Turn, $Total, $How).
 turn_response($Turn, $Text) :- count_total($Turn, $Total, $How), current_language($Language), count_total_text($Language, $Total, $How, $Text).
+
+% ── 6. mix 13×15 — QUANTO CONSUMA E QUANTO COSTA UN APPARECCHIO ─────────────
+%
+% «how much does it cost to run a 2000 watt heater for 3 hours at 0.25 euros per
+% kwh?» rispondeva «1996.75.», e «how many kwh does a 2000 watt heater use in 3
+% hours?» «1997.»: un'aritmetica sui numeri del turno presi alla rinfusa, cioe' un
+% numero falso detto con sicurezza. Ogni numero ha un RUOLO che la parola dopo
+% dichiara: la potenza (watt), la durata (ore), il prezzo (valuta … per kWh). La
+% conoscenza e' una riga vera: un kilowattora sono mille watt per un'ora.
+machinery(power_word).
+power_word(watt).
+power_word(watts).
+power_word(w).
+machinery(energy_unit_word).
+energy_unit_word(kwh).
+machinery(watts_per_kwh_hour).
+watts_per_kwh_hour(1000).
+
+machinery(turn_role_number).
+turn_role_number($Turn, power, $N) :- turn_word($Turn, $I, $W), span_number($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $U), power_word($U).
+turn_role_number($Turn, hours, $N) :- turn_word($Turn, $I, $W), duration_count_word($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $U), hours_word($U).
+turn_role_number($Turn, price, $N) :- turn_word($Turn, $I, $W), span_number($W, $N), is($J, add($I, 2)), turn_word($Turn, $J, $Per), per_word($Per), is($K, add($I, 3)), turn_word($Turn, $K, $E), energy_unit_word($E).
+machinery(per_word).
+per_word(per).
+per_word(a).
+machinery(turn_currency).
+turn_currency($Turn, $C) :- turn_word($Turn, $I, $W), span_number($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $C), is($K, add($I, 2)), turn_word($Turn, $K, $Per), per_word($Per).
+
+machinery(energy_kwh).
+energy_kwh($Turn, $KWh) :- turn_role_number($Turn, power, $W), turn_role_number($Turn, hours, $H), watts_per_kwh_hour($K), is($KWh, div(mul($W, $H), $K)).
+
+machinery(energy_answer).
+energy_answer($Turn, $Text) :-
+    turn_role_number($Turn, price, $P), energy_kwh($Turn, $KWh), turn_currency($Turn, $C), is($Cost, mul($KWh, $P)),
+    concat_atoms($Cost, " ", $A), concat_atoms($A, $C, $B), concat_atoms($B, ": ", $D), concat_atoms($D, $KWh, $E),
+    concat_atoms($E, " kWh at ", $F), concat_atoms($F, $P, $G), concat_atoms($G, " per kWh.", $Text).
+energy_answer($Turn, $Text) :-
+    naf(turn_has_price($Turn)), energy_kwh($Turn, $KWh), turn_role_number($Turn, power, $W), turn_role_number($Turn, hours, $H),
+    concat_atoms($KWh, " kWh: ", $A), concat_atoms($A, $W, $B), concat_atoms($B, " watts for ", $D), concat_atoms($D, $H, $E),
+    concat_atoms($E, " hours.", $Text).
+machinery(turn_has_price).
+turn_has_price($Turn) :- turn_role_number($Turn, price, $P).
+
+turn_plan_candidate($Turn) :- energy_kwh($Turn, $KWh).
+turn_response($Turn, $Text) :- energy_answer($Turn, $Text).

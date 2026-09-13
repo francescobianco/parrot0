@@ -27,3 +27,11 @@
 < 14 days: 2 weeks with 7 days each.
 > how many legs does a spider have?
 <~ 8 legs
+
+[test mix 13x15 power, hours and price have roles, not a bag of numbers]
+!timeout 30
+> how much does it cost to run a 2000 watt heater for 3 hours at 0.25 euros per kwh?
+< 1.5 euros: 6 kWh at 0.25 per kWh.
+> how many kwh does a 2000 watt heater use in 3 hours?
+< 6 kWh: 2000 watts for 3 hours.
+<! 1997

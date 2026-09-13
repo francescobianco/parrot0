@@ -1402,3 +1402,19 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   minutes, as soon as you can.».
 - **quarantena:** `pending_gap_failed(burned)`.
 - **test:** `tests/p0t/crossing/mix_first_aid_burn.p0t` (4).
+
+### mix-13-15-001 — quanto consuma e quanto costa un apparecchio
+
+- **misura:** «how much does it cost to run a 2000 watt heater for 3 hours at 0.25
+  euros per kwh?» → **«1996.75.»**; «how many kwh does a 2000 watt heater use in 3
+  hours?» → **«1997.»**: aritmetica sui numeri del turno presi alla rinfusa, un
+  numero falso detto con sicurezza.
+- **cura:** `numeric-questions.p0` §6, zero C: ogni numero ha il ruolo che la parola
+  dopo dichiara (potenza in watt, durata in ore, prezzo in valuta per kWh) e un fatto
+  vero regge la conversione (un kilowattora = 1000 watt per un'ora). La resa dice il
+  conto intermedio.
+- **esito:** «1.5 euros: 6 kWh at 0.25 per kWh.»; «6 kWh: 2000 watts for 3 hours.»;
+  transfer «a 60 watt bulb left on for 10 hours» → 0,6 kWh; «a 1500 watt kettle for 2
+  hours at 0.30 euros a kwh» → 0,9 euro.
+- **test:** `tests/p0t/math/rate_total.p0t` 6 → 8; `arith` e `wordproblem` rossi
+  identici a prima.
