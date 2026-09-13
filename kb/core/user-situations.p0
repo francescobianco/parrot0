@@ -136,6 +136,28 @@ user_situation($Turn, user_problem) :-
     naf(turn_speaker_involved($Turn)),
     naf(turn_situation_settled($Turn)).
 
+% assistente utile U7 — LA SCELTA FRA DUE COSE. «Should I learn Python or
+% JavaScript first?» riceveva «I am not sure what you mean by «first»», «Should I
+% buy a laptop or a tablet for university?» un muro. Chi chiede di scegliere
+% chiede i criteri e la domanda che decide, non un verdetto (T17 della scheda).
+% Due indizi: la forma della richiesta di consiglio E l'alternativa.
+machinery(choice_cue).
+machinery(alternative_cue).
+choice_cue("should i").
+choice_cue("which should i").
+choice_cue("is it better to").
+choice_cue("dovrei").
+choice_cue("mi conviene").
+choice_cue("e' meglio").
+choice_cue("è meglio").
+turn_cue_registry(choice_cue, 1).
+alternative_cue(" or ").
+alternative_cue(" o ").
+turn_cue_registry(alternative_cue, 1).
+user_situation($Turn, user_choice) :-
+    turn_cue_form($Turn, choice_cue, $Cue),
+    turn_cue_form($Turn, alternative_cue, $Or).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -152,6 +174,11 @@ situation_cue("qualcuno e' triste", user_low_mood).
 situation_cue("qualcuno è triste", user_low_mood).
 situation_label(user_low_mood, en, "someone is sad").
 situation_label(user_low_mood, it, "qualcuno è triste").
+situation_cue("someone has to choose", user_choice).
+situation_cue("someone asks which to choose", user_choice).
+situation_cue("qualcuno deve scegliere", user_choice).
+situation_label(user_choice, en, "someone has to choose").
+situation_label(user_choice, it, "qualcuno deve scegliere").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -209,6 +236,17 @@ plan_step_text_lang(suggest_talking, en, "Talking about it with a friend or some
 plan_step_text_lang(suggest_talking, it, "Parlarne con un amico o con qualcuno di cui ti fidi spesso aiuta.").
 plan_step_text_lang(see_a_doctor_if_lasting, en, "If the low mood lasts more than two weeks, it is worth talking to a doctor.").
 plan_step_text_lang(see_a_doctor_if_lasting, it, "Se l'umore basso dura più di due settimane, vale la pena parlarne con un medico.").
+% - choice: la scelta resta di chi chiede (costituzione di Claude, «autonomy»;
+%   system prompt, «the factual information the person needs to make their own
+%   informed decision»).
+move_cue("say it depends on what they need", depends_on_need).
+move_cue("di' che dipende da che cosa gli serve", depends_on_need).
+move_cue("ask what they will use it for", ask_use).
+move_cue("chiedi a che cosa gli serve", ask_use).
+plan_step_text_lang(depends_on_need, en, "Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know.").
+plan_step_text_lang(depends_on_need, it, "Possono essere entrambe la scelta giusta: dipende da che cosa ti serve, da quanto tempo o denaro vuoi metterci e da che cosa sai già.").
+plan_step_text_lang(ask_use, en, "What do you want to do with it first?").
+plan_step_text_lang(ask_use, it, "Che cosa vuoi farci per prima cosa?").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

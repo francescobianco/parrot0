@@ -3140,6 +3140,8 @@ plan_move(user_problem, 1, look_together).
 plan_move(user_low_mood, 3, ask_to_talk).
 plan_move(user_low_mood, 2, see_a_doctor_if_lasting).
 plan_move(user_low_mood, 1, sorry_to_hear).
+plan_move(user_choice, 2, ask_use).
+plan_move(user_choice, 1, depends_on_need).
 % ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
 % arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
 % piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo

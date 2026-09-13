@@ -43,6 +43,14 @@
 > Sono preoccupato per il colloquio di lavoro di domani.
 <! being worried is a reason
 
+[test a choice between two things gets criteria and the deciding question]
+!timeout 30
+> Should I learn Python or JavaScript first?
+<~ it depends on what you need it for
+<! what you mean by
+> should i go?
+<! it depends on what you need
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem

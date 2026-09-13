@@ -746,8 +746,12 @@ turn_priority_response($Turn, $Text) :-
     value_in_language($Language, $Entity, $Local),
     answer_text(missing_value($Cue, $Local, $Language), $Text).
 
+% assistente utile U7 — un ordinale dentro una scelta («Python or JavaScript
+% first») non e' un riferimento da chiarire quando la situazione di chi parla ha
+% un piano insegnato.
 turn_priority_response($Turn, $Text) :-
     turn_reference_missing($Turn, $Surface, $Order),
+    naf(turn_has_situation_plan($Turn)),
     turn_move($Turn, clarify),
     reference_gap_dialogue_strategy(name_and_ask),
     current_language($Language),
