@@ -44,3 +44,10 @@
 < 07:40
 > my train leaves at 7:45 and it takes 25 minutes to walk to the station, when should I leave?
 < 07:20
+
+[test mix 15x13 the cheaper pack is decided per kilo or per liter]
+!timeout 30
+> which is cheaper: 750 g for 3 euros or 1 kg for 3.80 euros?
+< 1 kg for 3.80 is cheaper: 3.8 per kilo against 4 per kilo.
+> which is the better deal, 500 ml for 2 euros or 1.5 liters for 5 euros?
+< 1.5 liters for 5 is cheaper: 3.33 per liter against 4 per liter.

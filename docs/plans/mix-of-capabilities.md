@@ -1456,3 +1456,16 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   sarebbe «is the soil soggy or dry?»); la terza causa (poca luce) non ha ancora un
   segno, quindi non viene mai indicata.
 - **test:** `tests/p0t/crossing/mix_diagnosis_question.p0t` (4).
+
+### mix-15-13-001 — quale confezione conviene
+
+- **misura:** «which is cheaper: 750 g for 3 euros or 1 kg for 3.80 euros?» → «Hmm, I
+  don't know about cheaper yet.».
+- **cura:** `numeric-questions.p0` §7, zero C: le offerte «N <unità> for P» nel turno,
+  le conversioni vere all'unità di base (1 kg = 1000 g, 1 l = 1000 ml), il prezzo
+  per unità, il confronto; resa al chilo o al litro, al centesimo (l'aritmetica non
+  arrotonda: la parte intera si ottiene con `mod`, che lavora sugli interi).
+- **esito:** «1 kg for 3.80 is cheaper: 3.8 per kilo against 4 per kilo.»; «1.5
+  liters for 5 is cheaper: 3.33 per liter against 4 per liter.»; «2 kg for 5 euros or
+  500 g for 1.20» → la confezione piccola.
+- **test:** `rate_total.p0t` 12 → 14.

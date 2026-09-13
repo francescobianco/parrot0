@@ -259,3 +259,62 @@ turn_has_price($Turn) :- turn_role_number($Turn, price, $P).
 
 turn_plan_candidate($Turn) :- energy_kwh($Turn, $KWh).
 turn_response($Turn, $Text) :- energy_answer($Turn, $Text).
+
+% ── 7. mix 15×13 — QUALE CONFEZIONE CONVIENE ────────────────────────────────
+%
+% «which is cheaper: 750 g for 3 euros or 1 kg for 3.80 euros?» murava su
+% «cheaper». Il confronto giusto non e' fra i prezzi ma fra i prezzi per la stessa
+% quantita': si porta ogni offerta all'unita' di base (grammi, millilitri) con un
+% fatto vero di conversione, e si confronta il prezzo per unita'. Le due offerte
+% sono due gruppi «N <unita'> for P <valuta>» nel turno, in ordine.
+machinery(base_unit).
+base_unit(g, g, 1).  base_unit(grams, g, 1).  base_unit(gram, g, 1).
+base_unit(kg, g, 1000).  base_unit(kilo, g, 1000).  base_unit(kilos, g, 1000).  base_unit(kilograms, g, 1000).
+base_unit(ml, ml, 1).  base_unit(milliliters, ml, 1).
+base_unit(l, ml, 1000).  base_unit(liter, ml, 1000).  base_unit(liters, ml, 1000).  base_unit(litre, ml, 1000).  base_unit(litres, ml, 1000).
+
+machinery(deal_cue).
+deal_cue("which is cheaper").
+deal_cue("better deal").
+deal_cue("better value").
+deal_cue("conviene di piu'").
+turn_cue_registry(deal_cue, 1).
+
+machinery(turn_offer).
+turn_offer($Turn, offer($I, $Q, $U, $P)) :-
+    turn_word($Turn, $I, $W), span_number($W, $Q), is($J, add($I, 1)), turn_word($Turn, $J, $U), base_unit($U, $B, $F),
+    is($K, add($I, 2)), turn_word($Turn, $K, for), is($L, add($I, 3)), turn_word($Turn, $L, $PW), span_number($PW, $P).
+
+machinery(offer_price_per).
+offer_price_per(offer($I, $Q, $U, $P), $Base, $PerUnit) :- base_unit($U, $Base, $F), is($PerUnit, div($P, mul($Q, $F))).
+
+machinery(deal_pair).
+deal_pair($Turn, $O1, $O2) :-
+    turn_cue_form($Turn, deal_cue, $Cue), turn_offer($Turn, $O1), turn_offer($Turn, $O2),
+    offer_index($O1, $I1), offer_index($O2, $I2), lt($I1, $I2),
+    offer_price_per($O1, $B, $P1), offer_price_per($O2, $B, $P2).
+machinery(offer_index).
+offer_index(offer($I, $Q, $U, $P), $I).
+
+machinery(offer_text).
+offer_text(offer($I, $Q, $U, $P), $T) :- concat_atoms($Q, " ", $A), concat_atoms($A, $U, $B), concat_atoms($B, " for ", $C), concat_atoms($C, $P, $T).
+% Un prezzo si dice al centesimo. Non c'e' un arrotondamento nell'aritmetica: `mod`
+% lavora sugli interi, quindi la parte intera di N e' mod(N, 10^9) per i prezzi.
+machinery(cents).
+cents($X, $R) :- is($R, div(mod(add(mul($X, 100), 0.5), 1000000000), 100)).
+machinery(per_kilo_text).
+per_kilo_text($O, $T) :- offer_price_per($O, g, $PG), is($PK, mul($PG, 1000)), cents($PK, $C), concat_atoms($C, " per kilo", $T).
+per_kilo_text($O, $T) :- offer_price_per($O, ml, $PM), is($PL, mul($PM, 1000)), cents($PL, $C), concat_atoms($C, " per liter", $T).
+
+machinery(deal_answer).
+deal_answer($Turn, $Text) :- deal_pair($Turn, $O1, $O2), deal_winner(pair($O1, $O2), $Win, $Lose), deal_text($Win, $Lose, $Text).
+machinery(deal_text).
+deal_text($Win, $Lose, $Text) :-
+    offer_text($Win, $WT), per_kilo_text($Win, $WK), per_kilo_text($Lose, $LK),
+    concat_atoms($WT, " is cheaper: ", $A), concat_atoms($A, $WK, $B2), concat_atoms($B2, " against ", $C), concat_atoms($C, $LK, $D), concat_atoms($D, ".", $Text).
+machinery(deal_winner).
+deal_winner(pair($O1, $O2), $O1, $O2) :- offer_price_per($O1, $B, $P1), offer_price_per($O2, $B, $P2), lt($P1, $P2).
+deal_winner(pair($O1, $O2), $O2, $O1) :- offer_price_per($O1, $B, $P1), offer_price_per($O2, $B, $P2), lt($P2, $P1).
+
+turn_plan_candidate($Turn) :- deal_pair($Turn, $O1, $O2).
+turn_response($Turn, $Text) :- deal_answer($Turn, $Text).
