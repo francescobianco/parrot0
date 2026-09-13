@@ -721,6 +721,13 @@ np_closer(found).
 np_closer($Form) :-
     participle_suffix($Suffix), concat_atoms($Root, $Suffix, $Form),
     verb_particle($Root, $Particle).
+% gen514 — la stessa conoscenza nel verso che l'ENUMERAZIONE puo' percorrere:
+% `p0_np_closer` enumera la classe intera, e `concat_atoms` con radice e forma
+% entrambe incognite non produce niente — «shallow tropical coral reefs
+% DECLINED by» restava un sintagma solo.
+np_closer($Form) :-
+    verb_particle($Root, $Particle), participle_suffix($Suffix),
+    concat_atoms($Root, $Suffix, $Form).
 np_closer($Form) :-
     verb_stem($Form, $Root), verb_particle($Root, $Particle).
 % gen514 — e la radice NUDA di un verbo curato flesso: nella domanda
@@ -805,6 +812,7 @@ np_closer(by).   np_closer(from). np_closer(near).  np_closer(on).
 np_closer(at).   np_closer(for).  np_closer(into).  np_closer(over).
 np_closer(under). np_closer(between). np_closer(through). np_closer(during).
 np_closer(against). np_closer(within). np_closer(across). np_closer(about).
+np_closer(since).
 
 % Congiunzioni: inizia un altro membro, non continua questo.
 np_closer(and).  np_closer(or).   np_closer(but).   np_closer(e).
@@ -1311,6 +1319,13 @@ machinery(turn_swapped_cue).
 swapped_construction_cue($Cue, $Pred) :-
     construction_frame($Src, $Tgt, $Pred),
     concat_atoms("@O ", $Rest, $Src), concat_atoms($Cue, " @S", $Rest).
+% E nella domanda la copula va davanti al soggetto («what ARE coral reefs under
+% threat from?»): la superficie interrogativa e' quella senza copula.
+swapped_construction_cue($Cue, $Pred) :-
+    construction_frame($Src, $Tgt, $Pred),
+    concat_atoms("@O ", $Rest, $Src), concat_atoms($Full, " @S", $Rest),
+    frame_copula($Cop), concat_atoms($Cop, " ", $CopSp),
+    concat_atoms($CopSp, $Cue, $Full).
 turn_swapped_cue($Cue, $Pred, 2) :-
     swapped_construction_cue($Cue, $Pred),
     turn_surface_at(current_turn, $Cue, $At),
@@ -1575,6 +1590,71 @@ extract_frame($Pat, $Pred) :-
     concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat),
     naf(construction_claims($Pat)).
 answer_frame($Surface, $Pred) :- verb_particle_passive_relation($Pred, $Surface).
+
+% ── gen514 — IL PERFETTO ATTIVO CON PARTICELLA ─────────────────────────────
+% «Shallow tropical coral reefs HAVE DECLINED BY 50%»: la relazione e' quella
+% della superficie con particella (`declined_by`), come nel passivo, perche' la
+% particella dice il RUOLO: «by» la misura, «since» l'inizio. Due particelle
+% dello stesso verbo sono due relazioni, e la domanda le distingue.
+machinery(perfect_auxiliary).
+perfect_auxiliary(have).
+perfect_auxiliary(has).
+perfect_auxiliary(had).
+extract_frame($Pat, $Pred) :-
+    perfect_auxiliary($Aux), verb_particle_passive_relation($Pred, $Surface),
+    concat_atoms("@S ", $Aux, $C), concat_atoms($C, " ", $B),
+    concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat).
+% E la domanda «since when have coral reefs declined?»: l'interrogativo porta la
+% particella davanti, e il verbo resta nudo alla fine.
+machinery(particle_question_word).
+particle_question_word(since, "since when").
+answer_frame($Cue, $Pred) :-
+    particle_question_word($Particle, $Cue),
+    particle_passive_relation($Root, $Particle, $Pred, $Surface).
+answer_frame_turn_arg($Cue, $Pred, 1) :-
+    particle_question_word($Particle, $Cue), turn_surface_at(current_turn, $Cue, $At).
+answer_frame_turn_arg($Surface, $Pred, $Arg) :-
+    verb_particle_passive_relation($Pred, $Surface), turn_surface_side_arg($Surface, $Arg).
+% Quale particella segua la forma di un verbo, per chi distribuisce i complementi.
+machinery(verb_form_particle).
+verb_form_particle($Form, $Particle) :-
+    particle_passive_relation($Root, $Particle, $Pred, $Surface),
+    verb_participle_form($Root, $Form).
+
+% ── gen514 — I PREDICATI AGGETTIVALI ────────────────────────────────────────
+% «they are sensitive to water conditions»: un aggettivo con la sua preposizione
+% e' una relazione come un verbo con particella. Si insegna con la superficie
+% («"sensitive to" is an adjective relation»); il nome della relazione nasce
+% dalla superficie.
+machinery(adjective_relation).
+machinery(adjective_relation_pred).
+adjective_relation("sensitive to").
+adjective_relation("rich in").
+adjective_relation("dependent on").
+adjective_relation("native to").
+adjective_relation_pred($Surface, $Pred) :-
+    adjective_relation($Surface), atom_words($Surface, cons($Adj, cons($Prep, nil))),
+    concat_atoms($Adj, "_", $A), concat_atoms($A, $Prep, $Pred).
+extract_frame($Pat, $Pred) :-
+    adjective_relation_pred($Surface, $Pred), frame_copula($Cop),
+    concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
+    concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat).
+answer_frame($Surface, $Pred) :- adjective_relation_pred($Surface, $Pred).
+np_closer($Adj) :- adjective_relation($Surface), atom_words($Surface, cons($Adj, $More)).
+answer_frame_turn_arg($Surface, $Pred, $Arg) :-
+    adjective_relation_pred($Surface, $Pred), turn_surface_side_arg($Surface, $Arg).
+
+% ── gen514 — IL SUBORDINATORE IN CODA ───────────────────────────────────────
+% «…have declined by 50% since 1950, PARTLY BECAUSE they are sensitive to water
+% conditions»: entrambe le proposizioni sono affermate (come la concessiva in
+% testa, `subordinator_stance/2`), e il modificatore resta con il subordinatore.
+machinery(trailing_subordinator).
+machinery(subordinator_modifier).
+trailing_subordinator(because).
+subordinator_modifier(partly).
+subordinator_modifier(mainly).
+subordinator_modifier(largely).
+subordinator_modifier(mostly).
 
 % E una particella AVVERBIALE non regge un oggetto: in «colonies HELD TOGETHER
 % BY calcium carbonate» il complemento arriva dopo il marcatore d'agente, e lo
@@ -3204,6 +3284,14 @@ relative_opener(whose).
 % gen514 — il participio che apre gli ESEMPI del sintagma precedente, con il
 % verbo della relazione che dichiara: «marine species, including fish» ->
 % «marine species include fish».
+% gen514 — i participi che, davanti alla virgola, aprono una frase sul soggetto
+% della principale: «Sometimes called rainforests of the sea, shallow coral reefs…».
+machinery(fronted_participle).
+fronted_participle(called).
+fronted_participle(known).
+fronted_participle(named).
+fronted_participle(located).
+fronted_participle(found).
 machinery(participial_opener).
 participial_opener(including, include).
 participial_opener(incluso, include).

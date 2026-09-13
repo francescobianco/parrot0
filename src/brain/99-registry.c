@@ -5627,6 +5627,94 @@ static int relative_rewrite(Brain *b, const char *sentence,
      * ESEMPI del sintagma che lo precede. La seconda proposizione e'
      * «<antecedente> <verbo> fish, mollusks, …», con il verbo che la KB
      * dichiara (`participial_opener/2`); la principale resta alla sua lettura. */
+    /* gen514 — IL SUBORDINATORE IN CODA. «…since 1950, PARTLY BECAUSE they are
+     * sensitive to water conditions»: due proposizioni affermate, la seconda
+     * con il suo soggetto. Quale parola subordini e quali la modifichino e' KB
+     * (`trailing_subordinator/1`, `subordinator_modifier/1`). */
+    {
+        char subs[8][KB_TERM_LEN], mods[8][KB_TERM_LEN];
+        const char *nq[1] = { NULL };
+        size_t ns = kb_match(b->kb, "trailing_subordinator", nq, 1, subs, 8);
+        size_t nmod = kb_match(b->kb, "subordinator_modifier", nq, 1, mods, 8);
+        for (size_t i = 0; i < ns; i++) {
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", subs[i]);
+            const char *sw = kb_dequote(sb);
+            for (size_t m = 0; m <= nmod; m++) {
+                char needle[KB_TERM_LEN * 2 + 8];
+                if (m < nmod) {
+                    char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mods[m]);
+                    snprintf(needle, sizeof needle, ", %s %s ", kb_dequote(mb), sw);
+                } else snprintf(needle, sizeof needle, ", %s ", sw);
+                const char *h = strstr(sentence, needle);
+                if (!h || h == sentence) continue;
+                size_t hl = (size_t)(h - sentence);
+                const char *rest = h + strlen(needle);
+                if (!*rest || hl + 2 >= left_size) continue;
+                memcpy(left, sentence, hl); left[hl] = '.'; left[hl + 1] = '\0';
+                if ((size_t)snprintf(right, right_size, "%s", rest) >= right_size) continue;
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+                return 1;
+            }
+        }
+    }
+    /* gen514 — IL PARTICIPIO ANTEPOSTO. «Sometimes called rainforests of the
+     * sea, shallow coral reefs form some of Earth's most diverse ecosystems»:
+     * la frase davanti alla virgola parla del SOGGETTO della principale. La
+     * seconda proposizione e' «<soggetto> sometimes called rainforests of the
+     * sea». Quali participi aprano cosi' una frase e' `fronted_participle/1`;
+     * gli avverbi davanti (`verb_adverb/1`) restano con il participio, e il
+     * soggetto finisce dove la KB chiude il sintagma (`np_closer/1`). */
+    {
+        const char *comma = strchr(sentence, ',');
+        if (comma && comma > sentence) {
+            char head[P0_TURN_MAX]; size_t hl = (size_t)(comma - sentence);
+            if (hl < sizeof head) {
+                memcpy(head, sentence, hl); head[hl] = '\0';
+                char hb[P0_TURN_MAX]; snprintf(hb, sizeof hb, "%s", head);
+                char *hw[32]; size_t nh = split_words(hb, hw, 32);
+                size_t k = 0;
+                while (k < nh) {
+                    char lw[KB_TERM_LEN]; snprintf(lw, sizeof lw, "%s", hw[k]);
+                    for (char *q = lw; *q; q++) *q = (char)tolower((unsigned char)*q);
+                    const char *aq[1] = { lw };
+                    if (!kb_query(b->kb, "verb_adverb", aq, 1)) break;
+                    k++;
+                }
+                char pw[KB_TERM_LEN] = "";
+                if (k < nh) {
+                    snprintf(pw, sizeof pw, "%s", hw[k]);
+                    for (char *q = pw; *q; q++) *q = (char)tolower((unsigned char)*q);
+                }
+                const char *fq[1] = { pw };
+                if (*pw && k + 1 < nh && kb_query(b->kb, "fronted_participle", fq, 1)) {
+                    const char *main = comma + 1;
+                    while (*main == ' ') main++;
+                    char mb[P0_TURN_MAX]; snprintf(mb, sizeof mb, "%s", main);
+                    char *mw[64]; size_t nm = split_words(mb, mw, 64);
+                    size_t e = 0;
+                    while (e < nm) {
+                        char tw[KB_TERM_LEN]; snprintf(tw, sizeof tw, "%s", mw[e]);
+                        for (char *q = tw; *q; q++) *q = (char)tolower((unsigned char)*q);
+                        const char *cq[1] = { strip_edge_punct(tw) };
+                        if (e > 0 && kb_query(b->kb, "np_closer", cq, 1)) break;
+                        e++;
+                    }
+                    if (e > 0 && e < nm) {
+                        char subj[KB_TERM_LEN] = ""; size_t so = 0;
+                        for (size_t j = 0; j < e && so < sizeof subj; j++)
+                            so += (size_t)snprintf(subj + so, sizeof subj - so, "%s%s", j ? " " : "", mw[j]);
+                        if ((size_t)snprintf(left, left_size, "%s", main) < left_size &&
+                            (size_t)snprintf(right, right_size, "%s %s.", subj, head) < right_size) {
+                            if (getenv("P0_READ_TRACE"))
+                                fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+                            return 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     char opener_verb[KB_TERM_LEN] = "";
     {
         char (*po)[KB_TERM_LEN] = NULL; size_t npo = 0;
@@ -5907,6 +5995,47 @@ static int predicate_coordination_split(Brain *b, const char *s,
     return 0;
 }
 
+/* gen514 — DUE COMPLEMENTI, DUE PARTICELLE, DUE RELAZIONI.
+ * «Shallow tropical coral reefs have declined BY 50% SINCE 1950»: «by» dice la
+ * misura e «since» l'inizio, e lo schema legava soltanto il primo. Se dopo la
+ * forma del verbo e la sua particella compare un'altra particella dello stesso
+ * verbo (`verb_form_particle/2`), la clausola si legge due volte, ciascuna con
+ * un solo complemento. Il C taglia; quali particelle appartengano a quale verbo
+ * lo dice la KB. */
+static int particle_adjunct_split(Brain *b, const char *s,
+                                  char *a, size_t asz, char *c, size_t csz) {
+    if (!b || !b->kb || !s) return 0;
+    char buf[P0_TURN_MAX]; snprintf(buf, sizeof buf, "%s", s);
+    char *w[64]; size_t n = split_words(buf, w, 64);
+    for (size_t i = 1; i + 3 < n; i++) {
+        char vf[KB_TERM_LEN], p1[KB_TERM_LEN];
+        snprintf(vf, sizeof vf, "%s", w[i]); snprintf(p1, sizeof p1, "%s", w[i + 1]);
+        for (char *q = vf; *q; q++) *q = (char)tolower((unsigned char)*q);
+        for (char *q = p1; *q; q++) *q = (char)tolower((unsigned char)*q);
+        const char *q1[2] = { vf, strip_edge_punct(p1) };
+        if (!kb_query(b->kb, "verb_form_particle", q1, 2)) continue;
+        for (size_t j = i + 3; j + 1 < n; j++) {
+            char p2[KB_TERM_LEN]; snprintf(p2, sizeof p2, "%s", w[j]);
+            for (char *q = p2; *q; q++) *q = (char)tolower((unsigned char)*q);
+            const char *q2[2] = { vf, strip_edge_punct(p2) };
+            if (!strcmp(strip_edge_punct(p2), strip_edge_punct(p1)) ||
+                !kb_query(b->kb, "verb_form_particle", q2, 2)) continue;
+            size_t ao = 0, co = 0;
+            for (size_t k = 0; k < j && ao < asz; k++)
+                ao += (size_t)snprintf(a + ao, asz - ao, "%s%s", k ? " " : "", w[k]);
+            for (size_t k = 0; k <= i && co < csz; k++)
+                co += (size_t)snprintf(c + co, csz - co, "%s%s", k ? " " : "", w[k]);
+            for (size_t k = j; k < n && co < csz; k++)
+                co += (size_t)snprintf(c + co, csz - co, " %s", w[k]);
+            if (ao >= asz || co >= csz) return 0;
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[complementi] «%s» + «%s»\n", a, c);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb || !input || !*input || out_size == 0) return 0;
     if (b->compound_depth > 0) return 0;
@@ -6069,7 +6198,19 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                  * (Leggere la relativa per prima, provato, rompeva il pronome
                  * DENTRO la principale: «Yet, THEY provide a home for…».) */
                 char p1[P0_TURN_MAX], p2[P0_TURN_MAX];
-                brain_respond(b, lft, sub, sizeof sub);
+                {
+                    char a1[P0_TURN_MAX], a2[P0_TURN_MAX];
+                    if (particle_adjunct_split(b, lft, a1, sizeof a1, a2, sizeof a2)) {
+                        char suba[512] = "";
+                        brain_respond(b, a1, sub, sizeof sub);
+                        brain_respond(b, a2, suba, sizeof suba);
+                        if (!reply_is_wall(b, suba) && strlen(sub) + strlen(suba) + 2 < sizeof sub) {
+                            size_t sl4 = strlen(sub);
+                            snprintf(sub + sl4, sizeof sub - sl4, " %s", suba);
+                        }
+                    } else
+                        brain_respond(b, lft, sub, sizeof sub);
+                }
                 /* il verdetto sulla principale si prende ORA: `reply_is_wall`
                  * guarda anche il modulo dell'ultimo turno, e dopo una relativa
                  * murata una principale letta risultava «non letta». */
@@ -6099,7 +6240,17 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                     snprintf(b->last_module, sizeof b->last_module, "%s", left_module);
                 }
             } else {
-                brain_respond(b, c, sub, sizeof sub);
+                char a1[P0_TURN_MAX], a2[P0_TURN_MAX];
+                if (particle_adjunct_split(b, c, a1, sizeof a1, a2, sizeof a2)) {
+                    char suba[512] = "";
+                    brain_respond(b, a1, sub, sizeof sub);
+                    brain_respond(b, a2, suba, sizeof suba);
+                    if (!reply_is_wall(b, suba) && strlen(sub) + strlen(suba) + 2 < sizeof sub) {
+                        size_t sl4 = strlen(sub);
+                        snprintf(sub + sl4, sizeof sub - sl4, " %s", suba);
+                    }
+                } else
+                    brain_respond(b, c, sub, sizeof sub);
             }
         }
         b->active_turn_norm = outer_view;

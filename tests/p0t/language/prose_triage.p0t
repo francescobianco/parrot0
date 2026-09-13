@@ -161,3 +161,31 @@
 <! I read
 > what is a compass used for?
 <~ finding north
+
+[test a copula-led construction is asked without its copula]
+!reset
+!timeout 30
+> Coral reefs are under threat from excess nutrients.
+<~ Learned
+> what are coral reefs under threat from?
+<~ excess nutrients
+
+[test a fronted participle speaks of the main subject]
+!reset
+!timeout 60
+> A coral reef is an underwater ecosystem. Sometimes called rainforests of the sea, shallow coral reefs form some of Earth's most diverse ecosystems.
+<~ rainforests of the sea
+> what are shallow coral reefs sometimes called?
+<~ rainforests of the sea
+
+[test a trailing because, two particles, and an adjective relation]
+!reset
+!timeout 60
+> Coral reefs flourish in ocean waters. Shallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions.
+<~ declined since 1950
+> what have shallow tropical coral reefs declined by?
+<~ 50 percent
+> since when have coral reefs declined?
+<~ 1950
+> what are coral reefs sensitive to?
+<~ water conditions
