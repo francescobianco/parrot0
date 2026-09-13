@@ -223,6 +223,20 @@ time_organizing_cue("plan my day").
 turn_cue_registry(time_organizing_cue, 1).
 user_situation($Turn, user_organizing_time) :- turn_cue_form($Turn, time_organizing_cue, $Cue).
 
+% assistente utile U15 — IDEE PER UN REGALO. «Give me some ideas for a birthday
+% present for my dad» riceveva prima «Thanks for telling me about your family»
+% (U1b), poi un muro. Chi chiede idee per un regalo ha bisogno di qualche strada
+% concreta e della domanda che le restringe; senza sapere niente della persona,
+% le strade sono generi di regalo, non un oggetto inventato.
+machinery(gift_idea_cue).
+gift_idea_cue("present for").
+gift_idea_cue("gift for").
+gift_idea_cue("gift ideas").
+gift_idea_cue("regalo per").
+gift_idea_cue("idee regalo").
+turn_cue_registry(gift_idea_cue, 1).
+user_situation($Turn, user_gift_ideas) :- turn_cue_form($Turn, gift_idea_cue, $Cue), turn_speaker_involved($Turn).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -260,6 +274,10 @@ situation_cue("someone wants to organize their day", user_organizing_time).
 situation_cue("qualcuno vuole organizzare la giornata", user_organizing_time).
 situation_label(user_organizing_time, en, "someone wants to organize their day").
 situation_label(user_organizing_time, it, "qualcuno vuole organizzare la giornata").
+situation_cue("someone needs gift ideas", user_gift_ideas).
+situation_cue("qualcuno cerca idee regalo", user_gift_ideas).
+situation_label(user_gift_ideas, en, "someone needs gift ideas").
+situation_label(user_gift_ideas, it, "qualcuno cerca idee regalo").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -373,6 +391,14 @@ plan_step_text_lang(prioritise_first, en, "Write down what you have to do, pick 
 plan_step_text_lang(prioritise_first, it, "Scrivi che cosa devi fare, scegli le due o tre cose che fanno davvero la differenza, e falle per prime.").
 plan_step_text_lang(ask_hardest_part, en, "Which part of your day is hardest to manage right now?").
 plan_step_text_lang(ask_hardest_part, it, "Quale parte della giornata ti è più difficile da gestire adesso?").
+move_cue("give kinds of gifts", gift_kinds).
+move_cue("dai dei generi di regalo", gift_kinds).
+move_cue("ask what the person enjoys", ask_person_interests).
+move_cue("chiedi che cosa piace alla persona", ask_person_interests).
+plan_step_text_lang(gift_kinds, en, "A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter.").
+plan_step_text_lang(gift_kinds, it, "Qualche strada che spesso funziona: qualcosa per un hobby che ha già, un'esperienza da fare insieme (una cena fuori, una partita, un concerto), o qualcosa di personale come un album di foto o una lettera scritta a mano.").
+plan_step_text_lang(ask_person_interests, en, "What does the person enjoy doing in their free time?").
+plan_step_text_lang(ask_person_interests, it, "Che cosa ama fare questa persona nel tempo libero?").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").
@@ -399,7 +425,18 @@ answer_content(situation_plan($Situation, $Language), $Position, move, $Piece) :
     plan_move($Situation, $Order, $Move), gt($Order, 1), is($Position, sub($Order, 1)),
     situation_move_text($Move, $Language, $Text), concat_atoms(" ", $Text, $Piece).
 
-turn_situation_plan($Turn, $Situation) :- user_situation($Turn, $Situation), plan_move($Situation, 1, $Move).
+% Una lezione di condotta NOMINA la situazione («when someone needs gift ideas
+% then …») e non la vive: se la situazione ha gia' un piano, senza questa riga il
+% piano risponde alla lezione che vuole aggiungergli una mossa (misurato in U15).
+machinery(plan_lesson_cue).
+plan_lesson_cue("when someone").
+plan_lesson_cue("your plan when").
+plan_lesson_cue("unlearn what you do when").
+plan_lesson_cue("quando qualcuno").
+turn_cue_registry(plan_lesson_cue, 1).
+machinery(turn_is_plan_lesson).
+turn_is_plan_lesson($Turn) :- turn_cue_form($Turn, plan_lesson_cue, $Cue).
+turn_situation_plan($Turn, $Situation) :- user_situation($Turn, $Situation), plan_move($Situation, 1, $Move), naf(turn_is_plan_lesson($Turn)).
 machinery(turn_has_situation_plan).
 turn_has_situation_plan($Turn) :- turn_situation_plan($Turn, $Situation).
 

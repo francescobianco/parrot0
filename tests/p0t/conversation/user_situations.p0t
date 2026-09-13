@@ -83,6 +83,20 @@
 > How can I organize my day better?
 <~ Write down what you have to do
 
+[test gift ideas get directions and the narrowing question, a class present does not]
+!timeout 30
+> Give me some ideas for a birthday present for my dad.
+<~ A few directions that often work
+<~ What does the person enjoy
+> the present for the class is a test
+<! A few directions
+
+[test a plan lesson that names the situation is a lesson, not the situation]
+!timeout 30
+> when someone needs gift ideas then ask what the person enjoys
+<~ Already in the plan
+<! A few directions
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem

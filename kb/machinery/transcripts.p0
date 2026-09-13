@@ -96,6 +96,7 @@ utterance(5, user, "when someone asks what you can help with then ask what they 
 utterance(5, user, "when someone wants help writing a message then give the shape of a clear message").
 utterance(5, user, "I want to start running. Where do I begin?").
 utterance(5, user, "when someone wants to organize their day then ask which part of the day is hardest").
+utterance(5, user, "when someone needs gift ideas then ask what the person enjoys").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -171,6 +172,7 @@ utterance(6, self, "Held: in that situation, move 2 is «What do you need right 
 utterance(6, self, "Held: in that situation, move 1 is «A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when.».").
 utterance(6, self, "Hmm, I don't know about running yet. Want me to learn about it?").
 utterance(6, self, "Held: in that situation, move 2 is «Which part of your day is hardest to manage right now?».").
+utterance(6, self, "Held: in that situation, move 2 is «What does the person enjoy doing in their free time?».").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -658,6 +660,7 @@ utterance(7, user, "What can you help me with?").
 utterance(7, user, "when someone wants help writing a message then ask who it is for and what it should achieve").
 utterance(7, user, "when someone wants to start something new then say to start small and regular").
 utterance(7, user, "your plan when someone wants to organize their day").
+utterance(7, user, "your plan when someone needs gift ideas").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1042,7 +1045,11 @@ utterance(8, self, "When that happens I: 1) Write down what you have to do, pick
 utterance(9, user, "Come posso organizzare meglio la mia giornata?").
 utterance(10, self, "Scrivi che cosa devi fare, scegli le due o tre cose che fanno davvero la differenza, e falle per prime. Quale parte della giornata ti è più difficile da gestire adesso?").
 utterance(11, user, "your plan when someone wants to start something new").
+utterance(8, self, "When that happens I: 1) A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter.  2) What does the person enjoy doing in their free time?").
+utterance(9, user, "Give me some ideas for a birthday present for my dad.").
+utterance(10, self, "A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter. What does the person enjoy doing in their free time?").
 utterance(11, user, "How can I organize my day better?").
+utterance(11, user, "I need a gift for my sister's wedding").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1666,8 +1673,33 @@ utterance(30, self, "Prego!").
 utterance(31, user, "qual è la capitale della spagna?").
 utterance(32, self, "Madrid.").
 utterance(33, user, "Come posso organizzare meglio la mia giornata?").
+utterance(12, self, "A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter. What does the person enjoy doing in their free time?").
+utterance(13, user, "cerco un regalo per mia madre").
+utterance(14, self, "Qualche strada che spesso funziona: qualcosa per un hobby che ha già, un'esperienza da fare insieme (una cena fuori, una partita, un concerto), o qualcosa di personale come un album di foto o una lettera scritta a mano. Che cosa ama fare questa persona nel tempo libero?").
+utterance(15, user, "the present for the class is a test").
+utterance(16, self, "Hmm, I don't know about present yet. Want me to learn about it?").
+utterance(17, user, "unlearn what you do when someone needs gift ideas").
+utterance(18, self, "Forgotten: the plan for user gift ideas.").
+utterance(19, user, "Give me some ideas for a birthday present for my dad.").
+utterance(20, self, "I looked up «present» but found nothing. If you know it, teach me: «present is defined as …».").
+utterance(21, user, "Give me some ideas for a birthday present for my dad.").
+utterance(22, self, "I looked up «present» but found nothing. If you know it, teach me: «present is defined as …».").
+utterance(23, user, "when someone needs gift ideas then give kinds of gifts").
+utterance(24, self, "Held: in that situation, move 1 is «A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter.».").
+utterance(25, user, "when someone needs gift ideas then ask what the person enjoys").
+utterance(26, self, "Held: in that situation, move 2 is «What does the person enjoy doing in their free time?».").
+utterance(27, user, "hello").
+utterance(28, self, "Hi there!").
+utterance(29, user, "what is 23 times 7?").
+utterance(30, self, "161.").
+utterance(31, user, "thanks").
+utterance(32, self, "You're welcome!").
 utterance(34, self, "Scrivi che cosa devi fare, scegli le due o tre cose che fanno davvero la differenza, e falle per prime. Quale parte della giornata ti è più difficile da gestire adesso?").
 utterance(45, user, "how many legs does a spider have?").
+utterance(35, user, "my father works in a bank").
+utterance(36, self, "Thanks for telling me about your family -- I'll keep that in mind.").
+utterance(37, user, "Give me some ideas for a birthday present for my dad.").
+utterance(38, self, "A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter. What does the person enjoy doing in their free time?").
 utterance(46, self, "A spider has 8 legs.").
 utterance(47, user, "I want to learn to cook. Where should I start?").
 utterance(48, self, "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?").
@@ -2043,6 +2075,7 @@ utterance(2, self, "From my capability ledger, I can currently: answer from KB f
 utterance(2, self, "I understood the request — produce «email» — but I don't know that yet as something I can compute or build, so I have no code to show for it.").
 utterance(2, self, "Hmm, I don't know about running yet. Want me to learn about it?").
 utterance(2, self, "Non capisco ancora.").
+utterance(2, self, "Hmm, I don't know about birthday yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2119,6 +2152,7 @@ utterance(1, user, "What can you help me with?").
 utterance(1, user, "Help me write an email.").
 utterance(1, user, "I want to start running").
 utterance(1, user, "Come posso organizzare meglio la mia giornata?").
+utterance(1, user, "Give me some ideas for a birthday present for my dad.").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2192,6 +2226,7 @@ utterance(4, self, "Held: in that situation, move 1 is «I can help you think th
 utterance(4, self, "I don't know whether you can help me with a letter: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
 utterance(4, self, "I don't understand that yet.").
 utterance(4, self, "Held: in that situation, move 1 is «Write down what you have to do, pick the two or three things that make a real difference, and do those first.».").
+utterance(4, self, "Held: in that situation, move 1 is «A few directions that often work: something for a hobby they already have, an experience you can share (a meal out, a match, a concert), or something personal like a photo book or a handwritten letter.».").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -2263,6 +2298,7 @@ utterance(3, user, "when someone asks what you can help with then list what you 
 utterance(3, user, "Can you help me with a letter?").
 utterance(3, user, "Where do I begin?").
 utterance(3, user, "when someone wants to organize their day then say to begin with the important tasks").
+utterance(3, user, "when someone needs gift ideas then give kinds of gifts").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
