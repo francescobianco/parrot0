@@ -33,3 +33,10 @@
 !timeout 30
 > what color is zorblat?
 <! Red
+
+[test a value of a relation with a declared value class fits the asked type]
+!timeout 30
+> what currency does ghana use?
+<~ Cedi
+> what currency is used in japan?
+<~ Yen

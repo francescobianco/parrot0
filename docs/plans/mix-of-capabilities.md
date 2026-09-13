@@ -1160,9 +1160,15 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
 - **transfer:** «who has written the odyssey?» → «Homer.» senza lezione
   sull'Odissea; «what colour is the sky?» → «Blue.».
 - **negativo:** «what color is zorblat?» non riceve un colore.
-- **resta:** «what currency does ghana use?» dice che manca il valore del Ghana
-  (la valuta c'è: `currency` risponde a «what is the currency of ghana?»); «what
-  color is a zebra?» → «I can't show that.».
+- **seguito (mix-01-08-002):** «what currency does ghana use?» scartava «cedi»
+  perché nessun fatto dice che il cedi è una valuta. Conoscenza generale e vera: i
+  valori di una relazione di valuta sono valute — `value_class(Rel, Classe)`
+  (valuta, città capitale, lingua) letto da `answer_fits_type`. «what currency is
+  used in japan?» → «Yen.», «which currency does brazil use?» → «Real and brazilian
+  real.».
+- **resta:** «what color is a zebra?» → «I can't show that.»; **misclaim
+  preesistente** (verificato su HEAD): «what language does brazil speak?» → «c,
+  python.» — la parola «language» prende le lingue di programmazione.
 - **test:** `tests/p0t/crossing/mix_language_access.p0t` (7);
   `question_direction` e `prose_triage` verdi.
 - **stato:** verificata sulla KB viva.

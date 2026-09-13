@@ -3668,6 +3668,16 @@ answer_fits_type($Ans, $Type) :- lemma_candidate($Type, $L), category_member($L,
 % E un nome della categoria che si e' insegnato come alias («colour and color name
 % the same thing»): la stessa categoria sotto un'altra grafia.
 answer_fits_type($Ans, $Type) :- entity_alias($Type, $Other), category_member($Other, $Ans).
+% E ogni valore di una relazione di cui si sa la CLASSE DEI VALORI: una valuta di
+% un paese e' una valuta anche se nessun fatto dice «cedi is a currency». «what
+% currency does ghana use?» scartava «cedi» e dichiarava che mancava il valore.
+% Una relazione nuova con la sua classe e' una riga.
+machinery(value_class).
+value_class(currency_of_country, currency).
+value_class(currency_of, currency).
+value_class(capital_of_country, city).
+value_class(language_of_country, language).
+answer_fits_type($Ans, $Type) :- value_class($Rel, $Type), apply($Rel, cons($Any, cons($Ans, nil))).
 has_asked_answer_type($T) :- asked_answer_type($T, $Type).
 answer_type_ok($T, $Ans) :- naf(has_asked_answer_type($T)).
 answer_type_ok($T, $Ans) :- asked_answer_type($T, $Type), answer_fits_type($Ans, $Type).
