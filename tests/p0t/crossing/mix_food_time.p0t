@@ -1,0 +1,26 @@
+# mix-of-capabilities §13 — 13×14×08×15: le ore fuori dal frigorifero contro il
+# limite della classe dell'alimento (USDA FSIS, «Danger Zone»: mai piu' di 2 ore).
+# Fatti insegnati parlando e salvati: il limite dei deperibili, e quali alimenti lo
+# sono. Entro il limite non si dice «sicuro».
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test past the limit of the food's class]
+!timeout 30
+> I left cooked chicken out for 3 hours, is it safe?
+< No: chicken is a perishable, and a perishable should not be left out for more than 2 hours; 3 hours is past that, so it is safer to throw it away.
+
+[test within the limit is not called safe]
+!timeout 30
+> the rice was left on the counter for one hour, can I still eat it?
+<~ It is within the limit
+<~ Put it in the fridge now
+<! safe
+
+[test a thing that is not food gets no verdict]
+!timeout 30
+> I left my keys out for 3 hours
+<! No:

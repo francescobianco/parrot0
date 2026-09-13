@@ -105,6 +105,7 @@ utterance(5, user, "birds are typically warm-blooded").
 utterance(5, user, "deforestation causes soil erosion").
 utterance(5, user, "what language does ghana speak?").
 utterance(5, user, "mixing bleach and ammonia releases chloramine gas").
+utterance(5, user, "chicken is a perishable").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -189,6 +190,7 @@ utterance(6, self, "Held: every birds is warm-blooded -- and so is each one I me
 utterance(6, self, "Learned: deforestation causes soil erosion.").
 utterance(6, self, "c, python.").
 utterance(6, self, "Held: mixing bleach and ammonia releases chloramine gas.").
+utterance(6, self, "Learned: chicken is a perishable.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -684,6 +686,7 @@ utterance(7, user, "what colour is grass?").
 utterance(7, user, "amphibians are typically cold-blooded").
 utterance(7, user, "does burning fossil fuels cause rising seas?").
 utterance(7, user, "mixing bleach and an acid releases chlorine gas").
+utterance(7, user, "rice is a perishable").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1099,7 +1102,11 @@ utterance(8, self, "Held: mixing bleach and acid releases chlorine gas.").
 utterance(9, user, "mixing bleach and alcohol releases chloroform").
 utterance(10, self, "Held: mixing bleach and alcohol releases chloroform.").
 utterance(11, user, "what causes soil erosion?").
+utterance(8, self, "Learned: rice is a perishable.").
+utterance(9, user, "milk is a perishable").
+utterance(10, self, "Learned: milk is a perishable.").
 utterance(11, user, "chlorine gas causes breathing problems").
+utterance(11, user, "fish is a perishable").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1885,6 +1892,14 @@ utterance(24, self, "I don't know yet what happens in that case. If you tell me 
 utterance(25, user, "is it ok to mix bleach and vinegar?").
 utterance(26, self, "No: vinegar is an acid, and mixing bleach and an acid releases chlorine gas, and chlorine gas causes breathing problems.").
 utterance(27, user, "is it safe to mix flour and water?").
+utterance(12, self, "Learned: fish is a perishable.").
+utterance(13, user, "I left cooked chicken out for 3 hours, is it safe?").
+utterance(14, self, "No: chicken is a perishable, and a perishable should not be left out for more than 2 hours; 3 hours is past that, so it is safer to throw it away.").
+utterance(15, user, "the milk was left on the counter for one hour").
+utterance(16, self, "Hmm, I don't know about counter yet. Want me to learn about it?").
+utterance(17, user, "I left the fish out for four hours, can I still cook it?").
+utterance(18, self, "No: fish is a perishable, and a perishable should not be left out for more than 2 hours; 4 hours is past that, so it is safer to throw it away.").
+utterance(19, user, "I left my keys out for 3 hours").
 utterance(72, self, "Non toccare la presa, l'interruttore o l'apparecchio. Se puoi farlo senza avvicinarti alle scintille, stacca la corrente dal quadro generale. Non usarlo di nuovo finché non l'ha controllato un elettricista. Siete tutti al sicuro adesso?").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
@@ -2271,6 +2286,7 @@ utterance(2, self, "Hmm, I don't know about warm-blooded yet. Want me to learn a
 utterance(2, self, "I don't know: nothing I hold says burning fossil fuels causes rising seas, and nothing says it isn't so. Tell me either way and I will hold it.").
 utterance(2, self, "I don't understand that yet.").
 utterance(2, self, "Imparato: chloroform causa dizziness.").
+utterance(2, self, "Hmm, I don't know about cooked yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2356,6 +2372,7 @@ utterance(1, user, "is an eagle warm-blooded?").
 utterance(1, user, "does burning fossil fuels cause rising seas?").
 utterance(1, user, "the language of ghana is english").
 utterance(1, user, "chloroform causes dizziness").
+utterance(1, user, "I left cooked chicken out for 3 hours, is it safe?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2437,6 +2454,7 @@ utterance(4, self, "Hmm, I don't know about warm-blooded yet.").
 utterance(4, self, "Learned: burning fossil fuels causes pollution.").
 utterance(4, self, "Nobody that I know of.").
 utterance(4, self, "Power.").
+utterance(4, self, "Held: perishables should not stay out of the fridge for more than 2 hours.").
 utterance(4, self, "Current.").
 utterance(4, self, "Who or what does «it» refer to?").
 utterance(3, user, "what is IMRAD?").
@@ -2517,6 +2535,7 @@ utterance(3, user, "is a shark warm-blooded?").
 utterance(3, user, "burning fossil fuels causes pollution").
 utterance(3, user, "what is the language of ghana?").
 utterance(3, user, "the watt measures what?").
+utterance(3, user, "perishables should not be left out for more than 2 hours").
 utterance(3, user, "the ampere measures what?").
 utterance(3, user, "is it safe to mix bleach and vinegar?").
 utterance(83, user, "the ohm measures what?").

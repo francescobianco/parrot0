@@ -1,0 +1,62 @@
+% food-time.p0 — «I LEFT COOKED CHICKEN OUT FOR 3 HOURS, IS IT SAFE?»
+%
+% docs/plans/mix-of-capabilities.md §13: 13 (quantita') × 14 (tempo) × 08 (classe)
+% × 15 (giudizio). Conoscenza insegnata parlando con la fonte (USDA FSIS, «Danger
+% Zone (40°F-140°F)»: mai piu' di 2 ore fuori dal frigorifero):
+%
+%     perishables should not be left out for more than 2 hours   (max_hours_out/2)
+%     chicken is a perishable                                   (perishable/1)
+%
+% e la domanda porta le ore e l'alimento. Oltre il limite: «No», con il limite e la
+% classe. Entro il limite non si dice «e' sicuro» (il limite e' una soglia, non una
+% garanzia): si dice che e' entro il limite e che va messo in frigorifero.
+
+:- file_attribute(machinery).
+
+machinery(food_time_cue).
+food_time_cue("left").
+food_time_cue("out for").
+food_time_cue("on the counter").
+food_time_cue("room temperature").
+food_time_cue("fuori dal frigo").
+turn_cue_registry(food_time_cue, 1).
+
+machinery(hours_word).
+hours_word(hours).
+hours_word(hour).
+hours_word(ore).
+hours_word(ora).
+
+% Il limite dell'alimento: il suo, o quello della sua classe (anche detta al plurale).
+machinery(food_limit).
+food_limit($F, $F, $L) :- max_hours_out($F, $L).
+food_limit($F, $C, $L) :- max_hours_out($Said, $L), lemma_candidate($Said, $C), apply($C, cons($F, nil)).
+food_limit($F, $C, $L) :- max_hours_out($C, $L), apply($C, cons($F, nil)).
+
+machinery(turn_hours).
+turn_hours($Turn, $N) :- turn_word($Turn, $I, $W), duration_count_word($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $H), hours_word($H).
+machinery(duration_count_word).
+duration_count_word($W, $N) :- span_number($W, $N).
+duration_count_word($W, $N) :- number_word($W, $N).
+
+machinery(food_time_verdict).
+food_time_verdict($Turn, over($F, $C, $N, $L)) :-
+    turn_cue_form($Turn, food_time_cue, $Cue), turn_hours($Turn, $N),
+    turn_word($Turn, $F), food_limit($F, $C, $L), gt($N, $L).
+food_time_verdict($Turn, within($F, $C, $N, $L)) :-
+    turn_cue_form($Turn, food_time_cue, $Cue), turn_hours($Turn, $N),
+    turn_word($Turn, $F), food_limit($F, $C, $L), le($N, $L).
+
+machinery(food_time_answer).
+food_time_answer(over($F, $C, $N, $L), $Text) :-
+    concat_atoms("No: ", $F, $A), concat_atoms($A, " is a ", $B), concat_atoms($B, $C, $D),
+    concat_atoms($D, ", and a ", $E), concat_atoms($E, $C, $G), concat_atoms($G, " should not be left out for more than ", $H),
+    concat_atoms($H, $L, $I), concat_atoms($I, " hours; ", $J), concat_atoms($J, $N, $K),
+    concat_atoms($K, " hours is past that, so it is safer to throw it away.", $Text).
+food_time_answer(within($F, $C, $N, $L), $Text) :-
+    concat_atoms("It is within the limit: ", $F, $A), concat_atoms($A, " is a ", $B), concat_atoms($B, $C, $D),
+    concat_atoms($D, ", and a ", $E), concat_atoms($E, $C, $G), concat_atoms($G, " should not be left out for more than ", $H),
+    concat_atoms($H, $L, $I), concat_atoms($I, " hours. Put it in the fridge now.", $Text).
+
+turn_plan_candidate($Turn) :- food_time_verdict($Turn, $V).
+turn_response($Turn, $Text) :- food_time_verdict($Turn, $V), food_time_answer($V, $Text).

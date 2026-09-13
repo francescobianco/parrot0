@@ -47,6 +47,7 @@ bridged("who has written hamlet?", dialogue).
 bridged("is a shark warm-blooded?", dialogue).
 bridged("is an eagle warm-blooded?", dialogue).
 bridged("is it safe to mix bleach and vinegar?", dialogue).
+bridged("i left cooked chicken out for 3 hours, is it safe?", dialogue).
 fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
 reading_fact(measures(farad, capacitance), "the farad measures capacitance").
 fact_source(measures(henry, inductance), henry, "the henry measures inductance").
@@ -444,6 +445,10 @@ fact_source(acid(vinegar), vinegar, "vinegar is an acid").
 fact_source(causes(chloramine_gas, breathing_problems), chloramine_gas, "chloramine gas causes breathing problems").
 fact_source(causes(burning_fossil_fuels, pollution), burning_fossil_fuels, "burning fossil fuels causes pollution").
 fact_source(causes(chlorine_gas, breathing_problems), chlorine_gas, "chlorine gas causes breathing problems").
+fact_source(perishable(fish), fish, "fish is a perishable").
+fact_source(perishable(milk), milk, "milk is a perishable").
+fact_source(perishable(rice), rice, "rice is a perishable").
+fact_source(perishable(chicken), chicken, "chicken is a perishable").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -775,9 +780,13 @@ reading_fact(acid(vinegar), "vinegar is an acid").
 reading_fact(construction_frame("@O are under threat from @S", "@S threatens @O", threaten), "x are under threat from y means y threatens x").
 reading_fact(causes(deforestation, soil_erosion), "deforestation causes soil erosion").
 reading_fact(causes(chloramine_gas, breathing_problems), "chloramine gas causes breathing problems").
+reading_fact(perishable(fish), "fish is a perishable").
 reading_fact(taught_form_source(taught_form_15, "x has written y"), "x has written y means x wrote y").
+reading_fact(perishable(milk), "milk is a perishable").
 reading_fact(causes(burning_fossil_fuels, pollution), "burning fossil fuels causes pollution").
+reading_fact(perishable(rice), "rice is a perishable").
 reading_fact(causes(chlorine_gas, breathing_problems), "chlorine gas causes breathing problems").
+reading_fact(perishable(chicken), "chicken is a perishable").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

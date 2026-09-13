@@ -3341,3 +3341,17 @@ turn_form_mood(teach_mixture_class, statement).
 turn_form_act(teach_mixture_class, "op(assert, mixture_releases, [subject, order, object])").
 turn_form_reply(teach_mixture_class, learned_mixture).
 turn_form_priority(teach_mixture_class, early).
+
+% ══ mix 13×14×15 — QUANTO PUO' STARE FUORI DAL FRIGORIFERO ══════════════════
+% La regola del tempo per gli alimenti deperibili (USDA FSIS, «Danger Zone»): una
+% classe e un numero di ore. La lettura della domanda sta in kb/core/food-time.p0.
+response_template(learned_time_out, "Held: {subject} should not stay out of the fridge for more than {object} hours.").
+response_template(learned_time_out, it, "Tengo: {subject} non deve stare fuori dal frigorifero più di {object} ore.").
+turn_form(teach_time_out, 1, slot(subject)).
+turn_form(teach_time_out, 2, text("should not be left out for more than")).
+turn_form(teach_time_out, 3, slot(object)).
+turn_form(teach_time_out, 4, text("hours")).
+turn_form_mood(teach_time_out, statement).
+turn_form_act(teach_time_out, "op(assert, max_hours_out, [subject, object])").
+turn_form_reply(teach_time_out, learned_time_out).
+turn_form_priority(teach_time_out, early).

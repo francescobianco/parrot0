@@ -1358,3 +1358,21 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   to?» (la riparazione del pronome, non una risposta); prodotti di più parole
   («hydrogen peroxide») e le miscele non insegnate.
 - **test:** `tests/p0t/crossing/mix_household_safety.p0t` (5).
+
+### mix-13-14-08-15-001 — quante ore fuori dal frigorifero
+
+- **fonte:** USDA FSIS, *«Danger Zone» (40°F–140°F)*: mai più di 2 ore fuori dal
+  frigorifero (1 ora sopra i 32 °C).
+- **misura:** «I left cooked chicken out for 3 hours, is it safe?» → «Hmm, I don't
+  know about cooked yet.».
+- **cure:** una forma di lezione («X should not be left out for more than N hours»)
+  e il lettore `kb/core/food-time.p0`: ore dette nel turno (cifre o parole), alimento
+  e sua classe (anche detta al plurale nella lezione), confronto con il limite. Oltre:
+  «No: …, so it is safer to throw it away.»; entro: «It is within the limit: … Put it
+  in the fridge now.» — mai «è sicuro».
+- **lezioni parlate salvate:** «perishables should not be left out for more than 2
+  hours», «chicken / rice / milk / fish is a perishable».
+- **transfer:** il pesce per quattro ore, che nessun esempio usava.
+- **resta:** la regola dell'ora sopra i 32 °C; una frase senza domanda («the milk was
+  left on the counter for one hour») cade nel lettore delle affermazioni.
+- **test:** `tests/p0t/crossing/mix_food_time.p0t` (4).

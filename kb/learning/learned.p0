@@ -208,6 +208,7 @@ past(cast, casts).
 % `directed_surface/1`.
 class_surface(whole_part_relation, whole part relation).
 class_surface(acid, acid).
+class_surface(perishable, perishable).
 whole_part_relation("made of").
 whole_part_relation("built from").
 whole_part_relation("formed of").
@@ -222,8 +223,17 @@ fact_mention(burning_fossil_fuels, "burning fossil fuels causes pollution").
 fact_mention(breathing_problems, "chloramine gas causes breathing problems").
 fact_mention(chloramine_gas, "chloramine gas causes breathing problems").
 fact_mention(breathing_problems, "chlorine gas causes breathing problems").
+fact_mention(fish, "fish is a perishable").
+fact_mention(milk, "milk is a perishable").
+fact_mention(rice, "rice is a perishable").
+fact_mention(chicken, "chicken is a perishable").
 fact_mention(chlorine_gas, "chlorine gas causes breathing problems").
 mixture_releases(bleach, ammonia, "chloramine gas").
 mixture_releases(bleach, acid, "chlorine gas").
 mixture_releases(bleach, alcohol, chloroform).
 acid(vinegar).
+max_hours_out(perishables, 2).
+perishable(chicken).
+perishable(rice).
+perishable(milk).
+perishable(fish).
