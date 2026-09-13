@@ -82,3 +82,32 @@ food_time_answer(hot_over(pair($F, $C), $N, $L, $T), $Text) :-
 
 turn_plan_candidate($Turn) :- food_time_verdict($Turn, $V).
 turn_response($Turn, $Text) :- food_time_verdict($Turn, $V), food_time_answer($V, $Text).
+
+% ── LA TEMPERATURA INTERNA (mix 08×13×15) ──────────────────────────────────
+% «I cooked the chicken to 68 degrees, is it safe?»: il numero detto con «degrees»
+% contro la soglia insegnata per quell'alimento (nome anche di piu' parole). Sotto
+% la soglia: no, e quanto manca; alla soglia o sopra: raggiunta — non «sicuro» in
+% assoluto, perche' il termometro va messo nel punto piu' spesso.
+machinery(cook_temp_cue).
+cook_temp_cue("cooked").
+cook_temp_cue("is it done").
+cook_temp_cue("safe to eat").
+cook_temp_cue("thermometer").
+cook_temp_cue("reads").
+turn_cue_registry(cook_temp_cue, 1).
+machinery(turn_food_threshold).
+turn_food_threshold($Turn, food($Said), $Th) :- safe_internal_temp($Said, $Th), atom_words($Said, $Ws), words_in_turn($Turn, $Ws).
+machinery(cook_temp_verdict).
+cook_temp_verdict($Turn, below($F, $T, $Th)) :- turn_cue_form($Turn, cook_temp_cue, $C), turn_degrees($Turn, $T), turn_food_threshold($Turn, $F, $Th), lt($T, $Th).
+cook_temp_verdict($Turn, reached($F, $T, $Th)) :- turn_cue_form($Turn, cook_temp_cue, $C), turn_degrees($Turn, $T), turn_food_threshold($Turn, $F, $Th), ge($T, $Th).
+machinery(cook_temp_answer).
+cook_temp_answer(below(food($F), $T, $Th), $Text) :-
+    is($Gap, sub($Th, $T)),
+    concat_atoms("Not yet: the safe internal temperature of ", $F, $A), concat_atoms($A, " is ", $B), concat_atoms($B, $Th, $C),
+    concat_atoms($C, " degrees, and ", $D), concat_atoms($D, $T, $E), concat_atoms($E, " is ", $G), concat_atoms($G, $Gap, $H),
+    concat_atoms($H, " degrees short. Keep cooking and measure again in the thickest part.", $Text).
+cook_temp_answer(reached(food($F), $T, $Th), $Text) :-
+    concat_atoms("It has reached the safe internal temperature of ", $F, $A), concat_atoms($A, ": ", $B), concat_atoms($B, $Th, $C),
+    concat_atoms($C, " degrees, as long as you measured it in the thickest part.", $Text).
+turn_plan_candidate($Turn) :- cook_temp_verdict($Turn, $V).
+turn_response($Turn, $Text) :- cook_temp_verdict($Turn, $V), cook_temp_answer($V, $Text).

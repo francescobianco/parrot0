@@ -340,6 +340,7 @@ gap_kind("i left cooked chicken out for 3 hours, is it safe?", reachability).
 gap_kind("i burned my hand on the stove", reachability).
 gap_kind("why are my plant's leaves turning yellow?", reachability).
 gap_kind("how many grams are 2 cups of flour?", reachability).
+gap_kind("i cooked the chicken to 68 degrees, is it safe?", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
@@ -414,3 +415,4 @@ gap_source("how many grams are 2 cups of sand?", "how many grams are 2 cups of s
 gap_source("i burned my hand on the stove", "I burned my hand on the stove").
 gap_source("why are my plant's leaves turning yellow?", "why are my plant's leaves turning yellow?").
 gap_source("how many grams are 2 cups of flour?", "how many grams are 2 cups of flour?").
+gap_source("i cooked the chicken to 68 degrees, is it safe?", "I cooked the chicken to 68 degrees, is it safe?").

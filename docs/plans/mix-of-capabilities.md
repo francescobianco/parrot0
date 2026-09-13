@@ -1504,3 +1504,19 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   99 g; «the recipe says 3 cups of oats» → 339 g; «2 cups of sand» → nessun numero
   inventato.
 - **test:** `rate_total.p0t` 16 → 19.
+
+### mix-08-13-15-001 — la carne ha raggiunto la temperatura sicura?
+
+- **fonte:** USDA FSIS, *Safe Minimum Internal Temperature Chart* — pollame 165 °F
+  (74 °C), carne macinata 160 °F (71 °C), tagli interi di manzo e maiale 145 °F (63 °C).
+- **misura:** «I cooked the chicken to 68 degrees, is it safe?» → «Hmm, I don't know
+  about cooked yet.».
+- **cure:** forma di lezione «the safe internal temperature of X is N degrees» (nome
+  anche di più parole) e, in `food-time.p0`, il confronto dei gradi del turno con la
+  soglia dell'alimento: sotto → «Not yet…, 6 degrees short. Keep cooking and measure
+  again in the thickest part.»; sopra → raggiunta, «as long as you measured it in the
+  thickest part» (non «sicuro» in assoluto).
+- **lezioni parlate salvate:** pollo 74, carne macinata 71, braciole di maiale 63.
+- **composizione:** nello stesso file, «I left the chicken out for 3 hours» continua a
+  rispondere con la regola del tempo: le due regole leggono lo stesso alimento.
+- **test:** `mix_food_time.p0t` 7 → 9.

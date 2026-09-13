@@ -31,3 +31,10 @@
 <~ It is within the limit
 > I left the chicken out for 2 hours at 35 degrees, is it safe?
 < No: at 35 degrees a perishable like chicken should not be left out for more than 1 hour; 2 hours is past that, so it is safer to throw it away.
+
+[test mix 08x13x15 the internal temperature against the food's safe threshold]
+!timeout 30
+> I cooked the chicken to 68 degrees, is it safe?
+< Not yet: the safe internal temperature of chicken is 74 degrees, and 68 is 6 degrees short. Keep cooking and measure again in the thickest part.
+> the thermometer reads 72 degrees in the ground beef, is it done?
+< It has reached the safe internal temperature of ground beef: 71 degrees, as long as you measured it in the thickest part.

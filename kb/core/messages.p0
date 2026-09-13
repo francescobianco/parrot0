@@ -3434,3 +3434,19 @@ turn_form_mood(teach_cup_weight, statement).
 turn_form_act(teach_cup_weight, "op(assert, cup_grams, [subject, object])").
 turn_form_reply(teach_cup_weight, learned_cup_weight).
 turn_form_priority(teach_cup_weight, early).
+
+% ══ mix 08×13×15 — LA TEMPERATURA INTERNA SICURA ═════════════════════════════
+% USDA FSIS, Safe Minimum Internal Temperature Chart: pollame 165°F (74°C), carne
+% macinata 160°F (71°C), tagli interi di manzo e maiale 145°F (63°C, con 3 minuti di
+% riposo). La lettura sta in kb/core/food-time.p0.
+response_template(learned_safe_temp, "Held: the safe internal temperature of {subject} is {object} degrees.").
+response_template(learned_safe_temp, it, "Tengo: la temperatura interna sicura di {subject} è {object} gradi.").
+turn_form(teach_safe_temp, 1, text("the safe internal temperature of")).
+turn_form(teach_safe_temp, 2, span(subject)).
+turn_form(teach_safe_temp, 3, text("is")).
+turn_form(teach_safe_temp, 4, slot(object)).
+turn_form(teach_safe_temp, 5, text("degrees")).
+turn_form_mood(teach_safe_temp, statement).
+turn_form_act(teach_safe_temp, "op(assert, safe_internal_temp, [subject, object])").
+turn_form_reply(teach_safe_temp, learned_safe_temp).
+turn_form_priority(teach_safe_temp, early).

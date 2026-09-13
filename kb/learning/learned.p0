@@ -254,3 +254,6 @@ cup_grams(flour, 120).
 cup_grams(sugar, 198).
 cup_grams(oats, 113).
 cup_grams(milk, 227).
+safe_internal_temp(chicken, 74).
+safe_internal_temp("ground beef", 71).
+safe_internal_temp("pork chops", 63).
