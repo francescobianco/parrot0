@@ -69,6 +69,21 @@ trouble_cue("preoccupata", user_worry).
 trouble_cue("in ansia", user_worry).
 trouble_cue("agitato", user_worry).
 trouble_cue("agitata", user_worry).
+% assistente utile U5 — la tristezza non e' la preoccupazione: «I feel sad today»
+% riceveva «That sounds nice -- tell me more about it.», e le mosse della
+% preoccupazione («What worries you most?») non le si addicono.
+trouble_cue("sad", user_low_mood).
+trouble_cue("down today", user_low_mood).
+trouble_cue("feeling down", user_low_mood).
+trouble_cue("feel down", user_low_mood).
+trouble_cue("unhappy", user_low_mood).
+trouble_cue("lonely", user_low_mood).
+trouble_cue("triste", user_low_mood).
+trouble_cue("giu' di morale", user_low_mood).
+trouble_cue("giù di morale", user_low_mood).
+trouble_cue("mi sento giu", user_low_mood).
+trouble_cue("mi sento giù", user_low_mood).
+trouble_cue("solo e triste", user_low_mood).
 turn_cue_registry(trouble_cue, 1).
 
 speaker_cue("i").
@@ -131,6 +146,12 @@ situation_cue("someone is stressed", user_worry).
 situation_cue("qualcuno e' preoccupato", user_worry).
 situation_cue("qualcuno è preoccupato", user_worry).
 
+situation_cue("someone is sad", user_low_mood).
+situation_cue("someone feels down", user_low_mood).
+situation_cue("qualcuno e' triste", user_low_mood).
+situation_cue("qualcuno è triste", user_low_mood).
+situation_label(user_low_mood, en, "someone is sad").
+situation_label(user_low_mood, it, "qualcuno è triste").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -165,6 +186,29 @@ move_cue("propose one small thing to do today", one_small_step).
 move_cue("offer one small thing to do", one_small_step).
 move_cue("proponi una piccola cosa da fare oggi", one_small_step).
 
+% - suggest_talking, see_a_doctor_if_lasting: NHS, «Low mood, sadness and
+%   depression» — «try talking about your feelings to a friend, family member,
+%   healthcare professional or counsellor»; vedere un medico «if you've had a
+%   low mood for more than 2 weeks».
+move_cue("say you are sorry to hear it", sorry_to_hear).
+move_cue("di' che ti dispiace", sorry_to_hear).
+move_cue("ask if they want to talk about it", ask_to_talk).
+move_cue("chiedi se vuole parlarne", ask_to_talk).
+% ⚠ Non «suggest talking…»: «suggest» apre il registro delle raccomandazioni
+% (misurato nella sessione U5: la lezione riceveva il saggio «a defensible
+% recommendation turns on…»).
+move_cue("say that talking to someone they trust helps", suggest_talking).
+move_cue("suggerisci di parlarne con qualcuno di fiducia", suggest_talking).
+move_cue("mention a doctor if it lasts", see_a_doctor_if_lasting).
+move_cue("nomina il medico se dura", see_a_doctor_if_lasting).
+plan_step_text_lang(sorry_to_hear, en, "I'm sorry you're feeling this way.").
+plan_step_text_lang(sorry_to_hear, it, "Mi dispiace che ti senta così.").
+plan_step_text_lang(ask_to_talk, en, "Do you want to tell me what happened?").
+plan_step_text_lang(ask_to_talk, it, "Vuoi raccontarmi che cosa è successo?").
+plan_step_text_lang(suggest_talking, en, "Talking about it with a friend or someone you trust often helps.").
+plan_step_text_lang(suggest_talking, it, "Parlarne con un amico o con qualcuno di cui ti fidi spesso aiuta.").
+plan_step_text_lang(see_a_doctor_if_lasting, en, "If the low mood lasts more than two weeks, it is worth talking to a doctor.").
+plan_step_text_lang(see_a_doctor_if_lasting, it, "Se l'umore basso dura più di due settimane, vale la pena parlarne con un medico.").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

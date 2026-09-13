@@ -35,6 +35,7 @@ bridged("a leap year has 366 days", dialogue).
 bridged("what does the heart pump?", dialogue).
 bridged("which moon is the largest?", dialogue).
 bridged("i have a problem meccanico", dialogue).
+bridged("am sad today", dialogue).
 fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
 reading_fact(measures(farad, capacitance), "the farad measures capacitance").
 fact_source(measures(henry, inductance), henry, "the henry measures inductance").

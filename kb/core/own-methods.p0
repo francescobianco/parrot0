@@ -72,7 +72,12 @@ own_method(ablation, "The cue stops firing, and what was answered through it eit
 % ── 3. IL PONTE, che e' l'unica meccanica ──────────────────────────────────
 turn_method_topic($Turn, $Topic) :- turn_cue_form($Turn, own_method_cue, $Cue), own_method_cue($Cue, $Topic).
 turn_plan_candidate($Turn) :- turn_method_topic($Turn, $Topic), own_method($Topic, $Text).
-turn_response($Turn, $Text) :- turn_method_topic($Turn, $Topic), own_method($Topic, $Text).
+% assistente utile U5 — un piano di condotta INSEGNATO per la situazione di chi
+% parla viene prima della frase scritta qui a mano: «sono preoccupato per il
+% colloquio di domani» riceveva `own_method(worry)` («I would say that being
+% worried is a reason to say what is worrying you…»), in inglese e in astratto,
+% mentre il piano `user_worry` riconosce, propone un passo e chiede.
+turn_response($Turn, $Text) :- turn_method_topic($Turn, $Topic), own_method($Topic, $Text), naf(turn_has_situation_plan($Turn)).
 
 % ── 4. «SPIEGAMELO CON UN ESEMPIO» — la definizione piu' cio' che manca ─────
 %

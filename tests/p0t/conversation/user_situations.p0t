@@ -33,6 +33,16 @@
 > I'm really happy about my exam result.
 <! That sounds hard
 
+[test sadness has its own plan, and an italian worry gets the taught plan]
+!timeout 30
+> I feel sad today
+<~ I'm sorry you're feeling this way.
+<! sounds nice
+> the song is sad
+<! I'm sorry
+> Sono preoccupato per il colloquio di lavoro di domani.
+<! being worried is a reason
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem
