@@ -275,9 +275,10 @@ static const McpTool TOOLS[] = {
  "{\"type\":\"object\",\"properties\":{\"pred\":{\"type\":\"string\"},"
  "\"args\":{\"type\":\"array\"}},\"required\":[\"pred\",\"args\"]}"},
 {"kb.match", "Match pred(args...) with null slots as variables; returns the "
- "bindings of the first variable slot.",
+ "bindings of the first variable slot (optional offset/limit, and the total).",
  "{\"type\":\"object\",\"properties\":{\"pred\":{\"type\":\"string\"},"
- "\"args\":{\"type\":\"array\"}},\"required\":[\"pred\",\"args\"]}"},
+ "\"args\":{\"type\":\"array\"},\"offset\":{\"type\":\"number\"},"
+ "\"limit\":{\"type\":\"number\"}},\"required\":[\"pred\",\"args\"]}"},
 {"kb.explain", "Prove pred(args...) and return a one-line proof explanation.",
  "{\"type\":\"object\",\"properties\":{\"pred\":{\"type\":\"string\"},"
  "\"args\":{\"type\":\"array\"}},\"required\":[\"pred\",\"args\"]}"},
@@ -555,16 +556,27 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
         if (!need_pred_args(a, &pred, &args, out, outsz)) return 0;
         int hv = 0;
         size_t argc = build_args(args, slots, KB_MAX_ARGS, &hv);
-        char binds[64][KB_TERM_LEN];
-        size_t nb = kb_match(kb, pred, slots, argc, binds, 64);
+        /* gen514 — `offset`/`limit` opzionali e il totale: con il tetto fisso
+         * di 64 i fatti di sessione (in coda) non si vedevano mai, e lo
+         * strumento di ispezione non poteva leggere cio' che parrot0 aveva
+         * appena imparato (scripts/self-questions.py). Senza i due parametri
+         * il comportamento resta quello di prima: i primi 64. */
+        long offset = 0, limit = 64;
+        { JVal *jo = jobj_get(a, "offset"), *jl = jobj_get(a, "limit");
+          if (jo && jo->type == J_NUM && jo->num >= 0) offset = (long)jo->num;
+          if (jl && jl->type == J_NUM && jl->num > 0 && jl->num <= 400) limit = (long)jl->num; }
+        char (*binds)[KB_TERM_LEN] = NULL; size_t nb = 0;
+        if (!kb_match_all(kb, pred, slots, argc, &binds, &nb)) nb = 0;
         SB s; sb_init(&s);
         sb_puts(&s, "{\"bindings\":[");
-        for (size_t i = 0; i < nb; i++) {
-            if (i) sb_putc(&s, ',');
+        size_t shown = 0;
+        for (size_t i = (size_t)offset; i < nb && (long)shown < limit; i++, shown++) {
+            if (shown) sb_putc(&s, ',');
             char dbuf[KB_TERM_LEN];
             sb_jstr(&s, lit_decode(binds[i], dbuf, sizeof dbuf));   /* U1: strip .p0 quotes on the way out */
         }
-        sb_puts(&s, "]}");
+        { char tot[48]; snprintf(tot, sizeof tot, "],\"total\":%zu}", nb); sb_puts(&s, tot); }
+        free(binds);
         snprintf(out, outsz, "%s", s.oom ? "{\"error\":\"oom\"}" : s.buf);
         sb_free(&s);
         return 1;

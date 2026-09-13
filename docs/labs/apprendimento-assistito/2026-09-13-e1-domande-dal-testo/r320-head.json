@@ -1,0 +1,436 @@
+{
+ "summary": {
+  "text": "tests/fixtures/prose/ladder/r320.txt",
+  "repo": ".",
+  "facts": 18,
+  "T1_ok": 18,
+  "T1_muro": 0,
+  "T1_altro": 0,
+  "T1_bugia": 0,
+  "T2_ok": 18,
+  "T2_muro": 0,
+  "T2_altro": 0,
+  "T2_bugia": 0,
+  "R1_bugia": 2,
+  "R1_altro": 1,
+  "R1_muro": 15,
+  "seconds": 113.0
+ },
+ "reading": "Learned: compost is a mixture. Learned: compost used as plant fertilizer. I couldn't read \u00abIt is commonly prepared by decomposing plant and food waste, recycling organic materials, and manure\u00bb. Learned: resulting mixture is rich in plant nutrients. Learned: beneficial organisms includes bacteria. Learned: compost improve soil fertility. Learned: benefits of compost includes providing nutrients. Learned: increasing the humus suppress pathogens. Learned: humic acid contents of the soil suppress pathogens. Learned: composting require gathering a mix. Grass is green because it is full of chlorophyll, a pigment that absorbs red and blue light for photosynthesis and reflects green light back to our eyes. Learned: materials break down. Learned: materials breaked into humus. Held: composting can be_a_multistep_monitored_process_with_measured_inputs_of_water_air_and_carbon_and_nitrogen-rich_materials. Learned: closely monitor process. I couldn't read \u00abThe decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows\u00bb. Learned: fungi break organic material. Learned: earthworms break organic material. Learned: aerobic bacteria manage chemical process. Learned: fungi manage chemical process. Learned: composting is part of waste management. 0.4. Learned: composting offer environmentally superior alternative. Learned: composting reduces methane emissions. Held: compost can also_be_used_for_land_and_stream_reclamation_wetland_construction_and_landfill_cover.",
+ "results": [
+  {
+   "fact": "used_as(compost, plant_fertilizer)",
+   "pred": "used_as",
+   "a": "compost",
+   "b": "plant_fertilizer",
+   "source": "compost used as plant fertilizer and to improve soil's physical, chemical, and biological properties",
+   "surface": null,
+   "T1": {
+    "q": "what is compost used as?",
+    "reply": "Plant fertilizer.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is used as plant fertilizer?",
+    "reply": "compost.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is plant fertilizer used as?",
+    "reply": "I don't know: nothing I hold says plant fertilizer used as, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "rich_in(resulting_mixture, plant_nutrients)",
+   "pred": "rich_in",
+   "a": "resulting_mixture",
+   "b": "plant_nutrients",
+   "source": "the resulting mixture is rich in plant nutrients and beneficial organisms.",
+   "surface": null,
+   "T1": {
+    "q": "what is resulting mixture rich in?",
+    "reply": "plant nutrients.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are rich in plant nutrients?",
+    "reply": "resulting mixture.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what are plant nutrients rich in?",
+    "reply": "I don't know much about plant nutrients rich yet, and the network is off, so I can't read about it now.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "includes(beneficial_organisms, bacteria)",
+   "pred": "includes",
+   "a": "beneficial_organisms",
+   "b": "bacteria",
+   "source": "beneficial organisms includes bacteria, protozoa, nematodes, and fungi",
+   "surface": null,
+   "T1": {
+    "q": "what do beneficial organisms include?",
+    "reply": "bacteria.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what includes bacteria?",
+    "reply": "Beneficial organisms.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does bacteria include?",
+    "reply": "Hmm, I don't know about include yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an include\u00bb; if include is a word you want to talk ABOUT, say \u00abthe word include is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "improve(compost, soil_fertility)",
+   "pred": "improve",
+   "a": "compost",
+   "b": "soil_fertility",
+   "source": "compost improves soil fertility in gardens, landscaping, horticulture, urban agriculture, and organic farming, reducing dependency on commercial chemical fertilizers",
+   "surface": null,
+   "T1": {
+    "q": "what does compost improve?",
+    "reply": "Soil fertility.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what improves soil fertility?",
+    "reply": "compost.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does soil fertility improve?",
+    "reply": "Hmm, I don't know about fertility yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a fertility\u00bb; if fertility is a word you want to talk ABOUT, say \u00abthe word fertility is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "includes(benefits_of_compost, providing_nutrients)",
+   "pred": "includes",
+   "a": "benefits_of_compost",
+   "b": "providing_nutrients",
+   "source": "the benefits of compost include providing nutrients to crops as fertilizer suppress pathogens in the soil and reduce soil-borne diseases",
+   "surface": null,
+   "T1": {
+    "q": "what does benefits of compost include?",
+    "reply": "providing nutrients.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what includes providing nutrients?",
+    "reply": "benefits of compost.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do providing nutrients include?",
+    "reply": "Hmm, I don't know about providing yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a providing\u00bb; if providing is a word you want to talk ABOUT, say \u00abthe word providing is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "suppress(increasing_the_humus, pathogens)",
+   "pred": "suppress",
+   "a": "increasing_the_humus",
+   "b": "pathogens",
+   "source": "increasing the humus suppress pathogens in the soil and reduce soil-borne diseases",
+   "surface": null,
+   "T1": {
+    "q": "what do increasing the humus suppress?",
+    "reply": "pathogens.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what suppresses pathogens?",
+    "reply": "increasing the humus.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do pathogens suppress?",
+    "reply": "I don't understand that yet.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "suppress(humic_acid_contents_of_the_soil, pathogens)",
+   "pred": "suppress",
+   "a": "humic_acid_contents_of_the_soil",
+   "b": "pathogens",
+   "source": "humic acid contents of the soil suppress pathogens in the soil and reduce soil-borne diseases",
+   "surface": null,
+   "T1": {
+    "q": "what does humic acid contents of the soil suppress?",
+    "reply": "pathogens.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what suppresses pathogens?",
+    "reply": "increasing the humus.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do pathogens suppress?",
+    "reply": "I don't understand that yet.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "require(composting, gathering_a_mix)",
+   "pred": "require",
+   "a": "composting",
+   "b": "gathering_a_mix",
+   "source": "composting requires gathering a mix of green waste and brown waste",
+   "surface": null,
+   "T1": {
+    "q": "what does composting require?",
+    "reply": "Gathering a mix.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what requires gathering a mix?",
+    "reply": "composting.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does gathering a mix require?",
+    "reply": "Hmm, I don't know about gathering yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a gathering\u00bb; if gathering is a word you want to talk ABOUT, say \u00abthe word gathering is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "break(materials, down)",
+   "pred": "break",
+   "a": "materials",
+   "b": "down",
+   "source": "the materials break down",
+   "surface": "breaks up",
+   "T1": {
+    "q": "what do materials break up?",
+    "reply": "Down.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what breaks up down?",
+    "reply": "Materials.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does down break up?",
+    "reply": "Materials.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "breaked_into(materials, humus)",
+   "pred": "breaked_into",
+   "a": "materials",
+   "b": "humus",
+   "source": "the materials have breaked into humus in a process taking months",
+   "surface": null,
+   "T1": {
+    "q": "what are materials breaked into?",
+    "reply": "Humus.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are breaked into humus?",
+    "reply": "Materials.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what are humus breaked into?",
+    "reply": "I don't know: nothing I hold says humus break into, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "monitor(closely, process)",
+   "pred": "monitor",
+   "a": "closely",
+   "b": "process",
+   "source": "closely monitored process with measured inputs of water, air, and carbon- and nitrogen-rich materials",
+   "surface": null,
+   "T1": {
+    "q": "what does closely monitor?",
+    "reply": "Process.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what monitors process?",
+    "reply": "Closely.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does process monitor?",
+    "reply": "I don't understand that yet.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "break(fungi, organic_material)",
+   "pred": "break",
+   "a": "fungi",
+   "b": "organic_material",
+   "source": "fungi further break up the organic material",
+   "surface": "breaks up",
+   "T1": {
+    "q": "what does fungi break up?",
+    "reply": "Organic material.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what breaks up organic material?",
+    "reply": "fungi.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does organic material break up?",
+    "reply": "fungi.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "break(earthworms, organic_material)",
+   "pred": "break",
+   "a": "earthworms",
+   "b": "organic_material",
+   "source": "earthworms further break up the organic material",
+   "surface": "breaks up",
+   "T1": {
+    "q": "what do earthworms break up?",
+    "reply": "Organic material.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what breaks up organic material?",
+    "reply": "fungi.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does organic material break up?",
+    "reply": "fungi.",
+    "esito": "altro"
+   }
+  },
+  {
+   "fact": "manage(aerobic_bacteria, chemical_process)",
+   "pred": "manage",
+   "a": "aerobic_bacteria",
+   "b": "chemical_process",
+   "source": "aerobic bacteria manage the chemical process by converting the inputs into heat, carbon dioxide, and ammonium ions",
+   "surface": null,
+   "T1": {
+    "q": "what does aerobic bacteria manage?",
+    "reply": "chemical process.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what manages chemical process?",
+    "reply": "aerobic bacteria.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does chemical process manage?",
+    "reply": "Hmm, I don't know about chemical yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a chemical\u00bb; if chemical is a word you want to talk ABOUT, say \u00abthe word chemical is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "manage(fungi, chemical_process)",
+   "pred": "manage",
+   "a": "fungi",
+   "b": "chemical_process",
+   "source": "fungi manage the chemical process by converting the inputs into heat, carbon dioxide, and ammonium ions",
+   "surface": null,
+   "T1": {
+    "q": "what does fungi manage?",
+    "reply": "Chemical process.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what manages chemical process?",
+    "reply": "aerobic bacteria.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does chemical process manage?",
+    "reply": "Hmm, I don't know about chemical yet.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "part_of(composting, waste_management)",
+   "pred": "part_of",
+   "a": "composting",
+   "b": "waste_management",
+   "source": "composting is an important part of waste management.",
+   "surface": null,
+   "T1": {
+    "q": "what is composting part of?",
+    "reply": "Waste management.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is part of waste management?",
+    "reply": "composting.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is waste management part of?",
+    "reply": "Hmm, I don't know about management yet. Want me to learn about it? Or teach me: if \u00abx management y\u00bb says what you already say another way, say \u00abx management y means x <known verb> y\u00bb; if management is something one thing does to another, say \u00abmanagement is a relation verb\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "offer(composting, environmentally_superior_alternative)",
+   "pred": "offer",
+   "a": "composting",
+   "b": "environmentally_superior_alternative",
+   "source": "composting offers an environmentally superior alternative to using organic material for landfill.",
+   "surface": null,
+   "T1": {
+    "q": "what does composting offer?",
+    "reply": "Environmentally superior alternative.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what offers environmentally superior alternative?",
+    "reply": "composting.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does environmentally superior alternative offer?",
+    "reply": "Hmm, I don't know about environmentally yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an environmentally\u00bb; if environmentally is a word you want to talk ABOUT, say \u00abthe word environmentally is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "reduces(composting, methane_emissions)",
+   "pred": "reduces",
+   "a": "composting",
+   "b": "methane_emissions",
+   "source": "composting reduces methane emissions due to anaerobic conditions, and provides economic and environmental co-benefits",
+   "surface": null,
+   "T1": {
+    "q": "what does composting reduce?",
+    "reply": "Methane emissions.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what reduces methane emissions?",
+    "reply": "composting.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do methane emissions reduce?",
+    "reply": "Hmm, I don't know about reduce yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a reduce\u00bb; if reduce is a word you want to talk ABOUT, say \u00abthe word reduce is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  }
+ ]
+}

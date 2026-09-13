@@ -1,0 +1,298 @@
+{
+ "summary": {
+  "text": "tests/fixtures/prose/ladder/r300.txt",
+  "repo": "/tmp/claude-1000/-home-francesco-Develop---parrot0/e287cdff-cc3b-463e-a9fd-3b66e4c83757/scratchpad/wt-start",
+  "facts": 12,
+  "T1_ok": 11,
+  "T1_muro": 1,
+  "T1_altro": 0,
+  "T1_bugia": 0,
+  "T2_ok": 9,
+  "T2_muro": 3,
+  "T2_altro": 0,
+  "T2_bugia": 0,
+  "R1_bugia": 11,
+  "R1_altro": 0,
+  "R1_muro": 1,
+  "seconds": 78.7
+ },
+ "reading": "Learned: coral reef is an underwater ecosystem. Learned: coral reef characterized by reef-building corals. Learned: reefs made of colonies. Learned: colonies of coral polyps held together by calcium carbonate. I can't hold \u00abmost coral reefs are built from stony corals, whose polyps cluster in groups\u00bb yet: I only keep what is true of every member of a kind, or of a named one. Learned: coral belong class anthozoa. Learned: animal phylum cnidaria includes sea anemones. Learned: corals secrete hard carbonate exoskeletons. I can't hold \u00abmost reefs grow best in warm, shallow, clear, sunny, and agitated water\u00bb yet: I only keep what is true of every member of a kind, or of a named one. Learned: coral reefs first appear 485 million years ago. Learned: shallow coral reefs form some of earth's most diverse ecosystems. Learned: shallow coral reefs occupy less than 0.1 percent of the world's ocean area. Learned: specie(fish), specie(mollusks), specie(worms), specie(crustaceans), specie(echinoderms), specie(sponges), specie(tunicates), specie(cnidarians). Learned: coral reefs flourish ocean waters. I couldn't read \u00abThey are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas\u00bb. I couldn't read \u00abShallow tropical coral reefs have declined by 50% since 1950, partly because they are sensitive to water conditions\u00bb. I couldn't read \u00abThey are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification, overfishing (e.g., from blast fishing, cyanide fishing, spearfishing on scuba), sunscreen use, and harmful land-use practices, including runoff and seeps (e.g., from injection wells and cesspools)\u00bb. Learned: coral reefs deliver ecosystem services. I didn't keep that: \u00abannual_global_economic_value_of_coral_reefs\u00bb and \u00abbeen\u00bb don't read as things I can hold a fact about. Learned: annual global economic value estimated at anywhere.",
+ "results": [
+  {
+   "fact": "characterized_by(coral_reef, reef-building_corals)",
+   "pred": "characterized_by",
+   "a": "coral_reef",
+   "b": "reef-building_corals",
+   "source": "coral_reef characterized by reef-building corals",
+   "surface": null,
+   "T1": {
+    "q": "what is coral reef characterized by?",
+    "reply": "reef-building corals.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are characterized by reef-building corals?",
+    "reply": "coral reef.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what are reef-building corals characterized by?",
+    "reply": "coral reef.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "made_of(reefs, colonies)",
+   "pred": "made_of",
+   "a": "reefs",
+   "b": "colonies",
+   "source": "reefs are formed of colonies of coral polyps.",
+   "surface": null,
+   "T1": {
+    "q": "what are reefs made of?",
+    "reply": "Colonies.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are made of colonies?",
+    "reply": "Reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what are colonies made of?",
+    "reply": "Reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "held_together_by(colonies_of_coral_polyps, calcium_carbonate)",
+   "pred": "held_together_by",
+   "a": "colonies_of_coral_polyps",
+   "b": "calcium_carbonate",
+   "source": "colonies of coral polyps held together by calcium carbonate",
+   "surface": null,
+   "T1": {
+    "q": "what are colonies of coral polyps held together by?",
+    "reply": "calcium carbonate.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is held together by calcium carbonate?",
+    "reply": "colonies of coral polyps.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is calcium carbonate held together by?",
+    "reply": "colonies of coral polyps.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "belong(coral, class_anthozoa)",
+   "pred": "belong",
+   "a": "coral",
+   "b": "class_anthozoa",
+   "source": "coral belongs to the class anthozoa in the animal phylum cnidaria.",
+   "surface": "belongs to",
+   "T1": {
+    "q": "what does coral belong to?",
+    "reply": "Class anthozoa.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what belongs to class anthozoa?",
+    "reply": "coral.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does class anthozoa belong to?",
+    "reply": "coral.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "includes(animal_phylum_cnidaria, sea_anemones)",
+   "pred": "includes",
+   "a": "animal_phylum_cnidaria",
+   "b": "sea_anemones",
+   "source": "the animal phylum cnidaria includes sea anemones and jellyfish",
+   "surface": null,
+   "T1": {
+    "q": "what does animal phylum cnidaria include?",
+    "reply": "sea anemones.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what includes sea anemones?",
+    "reply": "animal phylum cnidaria.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do sea anemones include?",
+    "reply": "Hmm, I don't know about anemones yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an anemones\u00bb; if anemones is a word you want to talk ABOUT, say \u00abthe word anemones is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "secrete(corals, hard_carbonate_exoskeletons)",
+   "pred": "secrete",
+   "a": "corals",
+   "b": "hard_carbonate_exoskeletons",
+   "source": "corals secrete hard carbonate exoskeletons that support and protect the coral",
+   "surface": null,
+   "T1": {
+    "q": "what do corals secrete?",
+    "reply": "Hard carbonate exoskeletons.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what secretes hard carbonate exoskeletons?",
+    "reply": "Hmm, I don't know about carbonate yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a carbonate\u00bb; if carbonate is a word you want to talk ABOUT, say \u00abthe word carbonate is a \u2026\u00bb.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what do hard carbonate exoskeletons secrete?",
+    "reply": "corals.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "appear(coral_reefs_first, 485_million_years_ago)",
+   "pred": "appear",
+   "a": "coral_reefs_first",
+   "b": "485_million_years_ago",
+   "source": "coral reefs first appeared 485 million years ago, at the dawn of the early ordovician, displacing the microbial and sponge reefs of the cambrian",
+   "surface": "appears in",
+   "T1": {
+    "q": "what does coral reefs first appear in?",
+    "reply": "485 million years ago.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what appears in 485 million years ago?",
+    "reply": "coral reefs first.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does 485 million years ago appear in?",
+    "reply": "coral reefs first.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "form(shallow_coral_reefs, some_of_earth's_most_diverse_ecosystems)",
+   "pred": "form",
+   "a": "shallow_coral_reefs",
+   "b": "some_of_earth's_most_diverse_ecosystems",
+   "source": "shallow coral reefs form some of earth's most diverse ecosystems",
+   "surface": "forms of",
+   "T1": {
+    "q": "what do shallow coral reefs form of?",
+    "reply": "some of earth's most diverse ecosystems.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what forms of some of earth's most diverse ecosystems?",
+    "reply": "shallow coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do some of earth's most diverse ecosystems form of?",
+    "reply": "shallow coral reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "occupy(shallow_coral_reefs, less_than_0.1_percent_of_the_world's_ocean_area)",
+   "pred": "occupy",
+   "a": "shallow_coral_reefs",
+   "b": "less_than_0.1_percent_of_the_world's_ocean_area",
+   "source": "they occupy less than 0.1 percent of the world's ocean area, about half the area of france",
+   "surface": null,
+   "T1": {
+    "q": "what do shallow coral reefs occupy?",
+    "reply": "less than 0.1 percent of the world's ocean area.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what occupies less than 0.1 percent of the world's ocean area?",
+    "reply": "Hmm, I don't know about occupies yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an occupies\u00bb; if occupies is a word you want to talk ABOUT, say \u00abthe word occupies is a \u2026\u00bb.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what does less than 0.1 percent of the world's ocean area occupy?",
+    "reply": "shallow coral reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "flourish(coral_reefs, ocean_waters)",
+   "pred": "flourish",
+   "a": "coral_reefs",
+   "b": "ocean_waters",
+   "source": "coral reefs flourish in ocean waters that provide few nutrients",
+   "surface": "flourishs in",
+   "T1": {
+    "q": "what do coral reefs flourish in?",
+    "reply": "ocean waters.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what flourishes in ocean waters?",
+    "reply": "Hmm, I don't know about flourishes yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a flourishes\u00bb; if flourishes is a word you want to talk ABOUT, say \u00abthe word flourishes is a \u2026\u00bb.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what do ocean waters flourish in?",
+    "reply": "coral reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "deliver(coral_reefs, ecosystem_services)",
+   "pred": "deliver",
+   "a": "coral_reefs",
+   "b": "ecosystem_services",
+   "source": "coral reefs deliver ecosystem services for tourism, fisheries, and shoreline protection",
+   "surface": null,
+   "T1": {
+    "q": "what do coral reefs deliver?",
+    "reply": "ecosystem services.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what delivers ecosystem services?",
+    "reply": "coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do ecosystem services deliver?",
+    "reply": "coral reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "estimated_at(annual_global_economic_value, anywhere)",
+   "pred": "estimated_at",
+   "a": "annual_global_economic_value",
+   "b": "anywhere",
+   "source": "the annual global economic value estimated at anywhere from us$30\u2013375 billion (1997 and 2003 estimates) to us$2.7 trillion (a 2020 estimate) to us$9.9 trillion (a 2014 estimate).",
+   "surface": null,
+   "T1": {
+    "q": "what is annual global economic value estimated at?",
+    "reply": "I don't know: nothing I hold says annual global economic value estimate at, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   },
+   "T2": {
+    "q": "what is estimated at anywhere?",
+    "reply": "Annual global economic value.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is anywhere estimated at?",
+    "reply": "Annual global economic value.",
+    "esito": "bugia"
+   }
+  }
+ ]
+}

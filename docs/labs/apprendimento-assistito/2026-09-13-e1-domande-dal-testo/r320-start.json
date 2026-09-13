@@ -1,0 +1,160 @@
+{
+ "summary": {
+  "text": "tests/fixtures/prose/ladder/r320.txt",
+  "repo": "/tmp/claude-1000/-home-francesco-Develop---parrot0/e287cdff-cc3b-463e-a9fd-3b66e4c83757/scratchpad/wt-start",
+  "facts": 6,
+  "T1_ok": 5,
+  "T1_muro": 1,
+  "T1_altro": 0,
+  "T1_bugia": 0,
+  "T2_ok": 5,
+  "T2_muro": 1,
+  "T2_altro": 0,
+  "T2_bugia": 0,
+  "R1_bugia": 5,
+  "R1_altro": 0,
+  "R1_muro": 1,
+  "seconds": 46.2
+ },
+ "reading": "Learned: compost is a mixture. Learned: compost of ingredients used as plant fertilizer. I couldn't read \u00abIt is commonly prepared by decomposing plant and food waste, recycling organic materials, and manure\u00bb. Learned: organism(bacteria), organism(protozoa), organism(nematodes), organism(fungi). Learned: compost improve soil fertility. Learned: benefits of compost include providing nutrients. Learned 26 prerequisites for composting. Learned: materials break down. Learned: closely monitor process. I couldn't read \u00abThe decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows\u00bb. I couldn't read \u00abFungi, earthworms, and other detritivores further break up the organic material\u00bb. I couldn't read \u00abAerobic bacteria and fungi manage the chemical process by converting the inputs into heat, carbon dioxide, and ammonium ions\u00bb. 0.4. Learned: composting offer environmentally superior alternative. Held: compost can also_be_used_for_land_and_stream_reclamation_wetland_construction_and_landfill_cover.",
+ "results": [
+  {
+   "fact": "used(compost_of_ingredients, as_plant_fertilizer)",
+   "pred": "used",
+   "a": "compost_of_ingredients",
+   "b": "as_plant_fertilizer",
+   "source": "compost of ingredients used as plant fertilizer and to improve soil's physical",
+   "surface": null,
+   "T1": {
+    "q": "what do compost of ingredients used?",
+    "reply": "as plant fertilizer.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what useds as plant fertilizer?",
+    "reply": "compost of ingredients.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does as plant fertilizer used?",
+    "reply": "compost of ingredients.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "improve(compost, soil_fertility)",
+   "pred": "improve",
+   "a": "compost",
+   "b": "soil_fertility",
+   "source": "compost improves soil fertility in gardens, landscaping, horticulture, urban agriculture, and organic farming, reducing dependency on commercial chemical fertilizers",
+   "surface": null,
+   "T1": {
+    "q": "what does compost improve?",
+    "reply": "Soil fertility.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what improves soil fertility?",
+    "reply": "compost.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does soil fertility improve?",
+    "reply": "compost.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "include(benefits_of_compost, providing_nutrients)",
+   "pred": "include",
+   "a": "benefits_of_compost",
+   "b": "providing_nutrients",
+   "source": "the benefits of compost include providing nutrients to crops as fertilizer, acting as a soil conditioner, increasing the humus or humic acid contents of the soil, and introducing beneficial microbes that help to suppress pathogens in the soil and reduce soil-borne diseases",
+   "surface": null,
+   "T1": {
+    "q": "what does benefits of compost include?",
+    "reply": "Hmm, I don't know about benefits yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a benefits\u00bb; if benefits is a word you want to talk ABOUT, say \u00abthe word benefits is a \u2026\u00bb.",
+    "esito": "muro"
+   },
+   "T2": {
+    "q": "what includes providing nutrients?",
+    "reply": "Hmm, I don't know about includes yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an includes\u00bb; if includes is a word you want to talk ABOUT, say \u00abthe word includes is a \u2026\u00bb.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what do providing nutrients include?",
+    "reply": "Hmm, I don't know about providing yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a providing\u00bb; if providing is a word you want to talk ABOUT, say \u00abthe word providing is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "break(materials, down)",
+   "pred": "break",
+   "a": "materials",
+   "b": "down",
+   "source": "the materials break down into humus in a process taking months",
+   "surface": "breaks into",
+   "T1": {
+    "q": "what do materials break into?",
+    "reply": "Down.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what breaks into down?",
+    "reply": "Materials.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does down break into?",
+    "reply": "Materials.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "monitor(closely, process)",
+   "pred": "monitor",
+   "a": "closely",
+   "b": "process",
+   "source": "closely monitored process with measured inputs of water, air, and carbon- and nitrogen-rich materials",
+   "surface": null,
+   "T1": {
+    "q": "what does closely monitor?",
+    "reply": "Process.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what monitors process?",
+    "reply": "closely.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does process monitor?",
+    "reply": "Closely.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "offer(composting, environmentally_superior_alternative)",
+   "pred": "offer",
+   "a": "composting",
+   "b": "environmentally_superior_alternative",
+   "source": "composting offers an environmentally superior alternative to using organic material for landfill because composting reduces methane emissions two to anaerobic conditions, and provides economic and environmental co-benefits",
+   "surface": null,
+   "T1": {
+    "q": "what does composting offer?",
+    "reply": "Environmentally superior alternative.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what offers environmentally superior alternative?",
+    "reply": "composting.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does environmentally superior alternative offer?",
+    "reply": "composting.",
+    "esito": "bugia"
+   }
+  }
+ ]
+}

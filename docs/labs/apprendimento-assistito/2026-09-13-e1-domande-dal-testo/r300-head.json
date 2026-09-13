@@ -1,0 +1,689 @@
+{
+ "summary": {
+  "text": "tests/fixtures/prose/ladder/r300.txt",
+  "repo": ".",
+  "facts": 29,
+  "T1_ok": 25,
+  "T1_muro": 3,
+  "T1_altro": 1,
+  "T1_bugia": 0,
+  "T2_ok": 23,
+  "T2_muro": 4,
+  "T2_altro": 2,
+  "T2_bugia": 0,
+  "R1_bugia": 8,
+  "R1_altro": 2,
+  "R1_muro": 19,
+  "seconds": 136.9
+ },
+ "reading": "Learned: coral reef is an underwater ecosystem. Learned: coral reef characterized by reef-building corals. Learned: reefs made of colonies. Learned: colonies of coral polyps held together by calcium carbonate. Learned: coral reefs made of stony corals. Learned: polyps of stony corals cluster groups. Learned: coral belong class anthozoa. Learned: class anthozoa belong animal phylum cnidaria. Learned: animal phylum cnidaria includes sea anemones. Learned: corals secrete hard carbonate exoskeletons. Learned: hard carbonate exoskeletons support coral. Learned: hard carbonate exoskeletons protect coral. I couldn't read \u00abMost reefs grow best in warm, shallow, clear, sunny, and agitated water\u00bb. Learned: coral reefs first appear 485 million years ago. Learned: shallow coral reefs form some of earth's most diverse ecosystems. Learned: shallow coral reefs also known as \"rainforests of the sea\". Learned: shallow coral reefs occupy less than 0.1 percent of the world's ocean area. Learned: at least 25 percent of all marine species live in shallow coral reefs. other is part of newtons_law_of_universal_gravitation: the law that two masses attract each other with a force equal to G times the product of the masses divided by the square of their distance. Learned: coral reefs flourish ocean waters. Learned: ocean waters provide few nutrients. Learned: coral reefs is located in shallow depths. Learned: shallow tropical coral reefs declined by 50 percent. Learned: shallow tropical coral reefs declined since 1950. Learned: shallow tropical coral reefs is sensitive to water conditions. Learned: excess nutrients threaten shallow tropical coral reefs. Learned: excess nutrients includes nitrogen. Learned: practices includes runoff. Learned: coral reefs deliver ecosystem services. Learned: coral reefs delivered for tourism. Learned: annual global economic value of coral reefs estimated at anywhere from us$30\u2013375 billion.",
+ "results": [
+  {
+   "fact": "characterized_by(coral_reef, reef-building_corals)",
+   "pred": "characterized_by",
+   "a": "coral_reef",
+   "b": "reef-building_corals",
+   "source": "coral reef characterized by reef-building corals",
+   "surface": null,
+   "T1": {
+    "q": "what is coral reef characterized by?",
+    "reply": "reef-building corals.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are characterized by reef-building corals?",
+    "reply": "coral reef.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what are reef-building corals characterized by?",
+    "reply": "I don't know: nothing I hold says reef-building corals characterize by, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "made_of(reefs, colonies)",
+   "pred": "made_of",
+   "a": "reefs",
+   "b": "colonies",
+   "source": "reefs are formed of colonies",
+   "surface": null,
+   "T1": {
+    "q": "what are reefs made of?",
+    "reply": "Colonies.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are made of colonies?",
+    "reply": "Reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what are colonies made of?",
+    "reply": "I don't know: nothing I hold says colonies made of of, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "held_together_by(colonies_of_coral_polyps, calcium_carbonate)",
+   "pred": "held_together_by",
+   "a": "colonies_of_coral_polyps",
+   "b": "calcium_carbonate",
+   "source": "colonies of coral polyps held together by calcium carbonate",
+   "surface": null,
+   "T1": {
+    "q": "what are colonies of coral polyps held together by?",
+    "reply": "calcium carbonate.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is held together by calcium carbonate?",
+    "reply": "colonies of coral polyps.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is calcium carbonate held together by?",
+    "reply": "colonies of coral polyps.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "made_of(coral_reefs, stony_corals)",
+   "pred": "made_of",
+   "a": "coral_reefs",
+   "b": "stony_corals",
+   "source": "most coral reefs are built from stony corals.",
+   "surface": null,
+   "T1": {
+    "q": "what are coral reefs made of?",
+    "reply": "stony corals.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are made of stony corals?",
+    "reply": "coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what are stony corals made of?",
+    "reply": "I don't know: nothing I hold says stony corals made of of, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "cluster(polyps_of_stony_corals, groups)",
+   "pred": "cluster",
+   "a": "polyps_of_stony_corals",
+   "b": "groups",
+   "source": "polyps of stony corals cluster in groups",
+   "surface": "clusters in",
+   "T1": {
+    "q": "what do polyps of stony corals cluster in?",
+    "reply": "groups.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what clusters in groups?",
+    "reply": "Polyps of stony corals.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do groups cluster in?",
+    "reply": "Polyps of stony corals.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "belong(coral, class_anthozoa)",
+   "pred": "belong",
+   "a": "coral",
+   "b": "class_anthozoa",
+   "source": "coral belongs to the class anthozoa",
+   "surface": "belongs to",
+   "T1": {
+    "q": "what does coral belong to?",
+    "reply": "Class anthozoa.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what belongs to class anthozoa?",
+    "reply": "animal phylum cnidaria.",
+    "esito": "altro"
+   },
+   "R1": {
+    "q": "what does class anthozoa belong to?",
+    "reply": "animal phylum cnidaria.",
+    "esito": "altro"
+   }
+  },
+  {
+   "fact": "belong(class_anthozoa, animal_phylum_cnidaria)",
+   "pred": "belong",
+   "a": "class_anthozoa",
+   "b": "animal_phylum_cnidaria",
+   "source": "the class anthozoa belongs to the animal phylum cnidaria.",
+   "surface": "belongs to",
+   "T1": {
+    "q": "what does class anthozoa belong to?",
+    "reply": "animal phylum cnidaria.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what belongs to animal phylum cnidaria?",
+    "reply": "class anthozoa.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does animal phylum cnidaria belong to?",
+    "reply": "class anthozoa.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "includes(animal_phylum_cnidaria, sea_anemones)",
+   "pred": "includes",
+   "a": "animal_phylum_cnidaria",
+   "b": "sea_anemones",
+   "source": "the animal phylum cnidaria includes sea anemones and jellyfish",
+   "surface": null,
+   "T1": {
+    "q": "what does animal phylum cnidaria include?",
+    "reply": "sea anemones.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what includes sea anemones?",
+    "reply": "animal phylum cnidaria.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do sea anemones include?",
+    "reply": "Hmm, I don't know about anemones yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an anemones\u00bb; if anemones is a word you want to talk ABOUT, say \u00abthe word anemones is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "secrete(corals, hard_carbonate_exoskeletons)",
+   "pred": "secrete",
+   "a": "corals",
+   "b": "hard_carbonate_exoskeletons",
+   "source": "corals secrete hard carbonate exoskeletons.",
+   "surface": null,
+   "T1": {
+    "q": "what do corals secrete?",
+    "reply": "Hard carbonate exoskeletons.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what secretes hard carbonate exoskeletons?",
+    "reply": "corals.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do hard carbonate exoskeletons secrete?",
+    "reply": "Hmm, I don't know about carbonate yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a carbonate\u00bb; if carbonate is a word you want to talk ABOUT, say \u00abthe word carbonate is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "support(hard_carbonate_exoskeletons, coral)",
+   "pred": "support",
+   "a": "hard_carbonate_exoskeletons",
+   "b": "coral",
+   "source": "hard carbonate exoskeletons support the coral",
+   "surface": null,
+   "T1": {
+    "q": "what do hard carbonate exoskeletons support?",
+    "reply": "coral.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what supports coral?",
+    "reply": "Hard carbonate exoskeletons.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does coral support?",
+    "reply": "I don't understand that yet.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "protect(hard_carbonate_exoskeletons, coral)",
+   "pred": "protect",
+   "a": "hard_carbonate_exoskeletons",
+   "b": "coral",
+   "source": "hard carbonate exoskeletons protect the coral",
+   "surface": null,
+   "T1": {
+    "q": "what do hard carbonate exoskeletons protect?",
+    "reply": "coral.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what protects coral?",
+    "reply": "Hard carbonate exoskeletons.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does coral protect?",
+    "reply": "I don't understand that yet.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "growed_in(reefs, warm)",
+   "pred": "growed_in",
+   "a": "reefs",
+   "b": "warm",
+   "source": "most reefs have growed in warm, shallow, clear, sunny, and agitated water",
+   "surface": null,
+   "T1": {
+    "q": "what are reefs growed in?",
+    "reply": "Warm.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is growed in warm?",
+    "reply": "Reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is warm growed in?",
+    "reply": "I don't know: nothing I hold says warm grow in, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "appear(coral_reefs_first, 485_million_years_ago)",
+   "pred": "appear",
+   "a": "coral_reefs_first",
+   "b": "485_million_years_ago",
+   "source": "coral reefs first appeared 485 million years ago, at the dawn of the early ordovician, displacing the microbial and sponge reefs of the cambrian",
+   "surface": "appears in",
+   "T1": {
+    "q": "what does coral reefs first appear in?",
+    "reply": "485 million years ago.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what appears in 485 million years ago?",
+    "reply": "coral reefs first.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does 485 million years ago appear in?",
+    "reply": "coral reefs first.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "form(shallow_coral_reefs, some_of_earth's_most_diverse_ecosystems)",
+   "pred": "form",
+   "a": "shallow_coral_reefs",
+   "b": "some_of_earth's_most_diverse_ecosystems",
+   "source": "shallow coral reefs form some of earth's most diverse ecosystems",
+   "surface": "forms of",
+   "T1": {
+    "q": "what do shallow coral reefs form of?",
+    "reply": "some of earth's most diverse ecosystems.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what forms of some of earth's most diverse ecosystems?",
+    "reply": "shallow coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do some of earth's most diverse ecosystems form of?",
+    "reply": "shallow coral reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "also_known_as(shallow_coral_reefs, \"rainforests of the sea\")",
+   "pred": "also_known_as",
+   "a": "shallow_coral_reefs",
+   "b": "\"rainforests of the sea\"",
+   "source": "shallow coral reefs sometimes called rainforests of the sea.",
+   "surface": null,
+   "T1": {
+    "q": "what do shallow coral reefs also known as?",
+    "reply": "I don't know: nothing I hold says shallow coral reefs also known as as, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   },
+   "T2": {
+    "q": "what alsos known as rainforests of the sea?",
+    "reply": "I don't understand that yet.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what does rainforests of the sea also known as?",
+    "reply": "I don't know: nothing I hold says shallow coral reefs also known as as, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "occupy(shallow_coral_reefs, less_than_0.1_percent_of_the_world's_ocean_area)",
+   "pred": "occupy",
+   "a": "shallow_coral_reefs",
+   "b": "less_than_0.1_percent_of_the_world's_ocean_area",
+   "source": "they occupy less than 0.1 percent of the world's ocean area, about half the area of france",
+   "surface": null,
+   "T1": {
+    "q": "what do shallow coral reefs occupy?",
+    "reply": "less than 0.1 percent of the world's ocean area.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what occupies less than 0.1 percent of the world's ocean area?",
+    "reply": "Hmm, I don't know about occupies yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an occupies\u00bb; if occupies is a word you want to talk ABOUT, say \u00abthe word occupies is a \u2026\u00bb.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what does less than 0.1 percent of the world's ocean area occupy?",
+    "reply": "I don't actually see or experience things, but I can describe it: a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "habitat(at_least_25_percent_of_all_marine_species, shallow_coral_reefs)",
+   "pred": "habitat",
+   "a": "at_least_25_percent_of_all_marine_species",
+   "b": "shallow_coral_reefs",
+   "source": "they provide a home for at least 25 percent of all marine species.",
+   "surface": "lives in",
+   "T1": {
+    "q": "what do at least 25 percent of all marine species live in?",
+    "reply": "shallow coral reefs.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what lives in shallow coral reefs?",
+    "reply": "at least 25 percent of all marine species.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do shallow coral reefs live in?",
+    "reply": "I don't know: nothing I hold says shallow coral reefs habitat in, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "flourish(coral_reefs, ocean_waters)",
+   "pred": "flourish",
+   "a": "coral_reefs",
+   "b": "ocean_waters",
+   "source": "coral reefs flourish in ocean waters.",
+   "surface": "flourishs in",
+   "T1": {
+    "q": "what do coral reefs flourish in?",
+    "reply": "ocean waters.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what flourishes in ocean waters?",
+    "reply": "Hmm, I don't know about flourishes yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a flourishes\u00bb; if flourishes is a word you want to talk ABOUT, say \u00abthe word flourishes is a \u2026\u00bb.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what do ocean waters flourish in?",
+    "reply": "coral reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "provide(ocean_waters, few_nutrients)",
+   "pred": "provide",
+   "a": "ocean_waters",
+   "b": "few_nutrients",
+   "source": "ocean waters provide few nutrients",
+   "surface": null,
+   "T1": {
+    "q": "what do ocean waters provide?",
+    "reply": "few nutrients.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what provides few nutrients?",
+    "reply": "ocean waters.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do few nutrients provide?",
+    "reply": "Hmm, I don't know about nutrients yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is a nutrients\u00bb; if nutrients is a word you want to talk ABOUT, say \u00abthe word nutrients is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "located_in(coral_reefs, shallow_depths)",
+   "pred": "located_in",
+   "a": "coral_reefs",
+   "b": "shallow_depths",
+   "source": "they are most commonly found at shallow depths in tropical waters, but deep water and cold water coral reefs exist on smaller scales in other areas",
+   "surface": null,
+   "T1": {
+    "q": "what are coral reefs located in?",
+    "reply": "I don't know much about coral reefs located yet, and the network is off, so I can't read about it now.",
+    "esito": "muro"
+   },
+   "T2": {
+    "q": "what are located in shallow depths?",
+    "reply": "I don't know much about located yet, and the network is off, so I can't read about it now.",
+    "esito": "muro"
+   },
+   "R1": {
+    "q": "what are shallow depths located in?",
+    "reply": "I don't know much about shallow depths located yet, and the network is off, so I can't read about it now.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "declined_by(shallow_tropical_coral_reefs, 50_percent)",
+   "pred": "declined_by",
+   "a": "shallow_tropical_coral_reefs",
+   "b": "50_percent",
+   "source": "shallow tropical coral reefs have declined by 50 percent",
+   "surface": null,
+   "T1": {
+    "q": "what are shallow tropical coral reefs declined by?",
+    "reply": "50 percent.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is declined by 50 percent?",
+    "reply": "shallow tropical coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is 50 percent declined by?",
+    "reply": "I don't know: nothing I hold says 50 percent decline by, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "declined_since(shallow_tropical_coral_reefs, 1950)",
+   "pred": "declined_since",
+   "a": "shallow_tropical_coral_reefs",
+   "b": "1950",
+   "source": "shallow tropical coral reefs have declined since 1950.",
+   "surface": null,
+   "T1": {
+    "q": "what are shallow tropical coral reefs declined since?",
+    "reply": "1950.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is declined since 1950?",
+    "reply": "Shallow tropical coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is 1950 declined since?",
+    "reply": "I don't know: nothing I hold says 1950 decline since, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "sensitive_to(shallow_tropical_coral_reefs, water_conditions)",
+   "pred": "sensitive_to",
+   "a": "shallow_tropical_coral_reefs",
+   "b": "water_conditions",
+   "source": "they are sensitive to water conditions",
+   "surface": null,
+   "T1": {
+    "q": "what are shallow tropical coral reefs sensitive to?",
+    "reply": "water conditions.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what are sensitive to water conditions?",
+    "reply": "A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.",
+    "esito": "altro"
+   },
+   "R1": {
+    "q": "what are water conditions sensitive to?",
+    "reply": "A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.",
+    "esito": "altro"
+   }
+  },
+  {
+   "fact": "includes(practices, runoff)",
+   "pred": "includes",
+   "a": "practices",
+   "b": "runoff",
+   "source": "practices includes runoff and seeps",
+   "surface": null,
+   "T1": {
+    "q": "what do practices include?",
+    "reply": "Runoff.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what includes runoff?",
+    "reply": "Practices.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does runoff include?",
+    "reply": "Hmm, I don't know about include yet. Want me to learn about it? Or teach me: if it is a kind of thing, say \u00absomething is an include\u00bb; if include is a word you want to talk ABOUT, say \u00abthe word include is a \u2026\u00bb.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "threaten(excess_nutrients, shallow_tropical_coral_reefs)",
+   "pred": "threaten",
+   "a": "excess_nutrients",
+   "b": "shallow_tropical_coral_reefs",
+   "source": "they are under threat from excess nutrients, rising ocean heat content and acidification, overfishing, sunscreen use, and harmful land-use practices.",
+   "surface": "is under threat from",
+   "T1": {
+    "q": "what do excess nutrients is under threat from?",
+    "reply": "I don't know: nothing I hold says excess nutrients vital for under threat from, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   },
+   "T2": {
+    "q": "what ises under threat from shallow tropical coral reefs?",
+    "reply": "excess nutrients.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do shallow tropical coral reefs is under threat from?",
+    "reply": "I don't know: nothing I hold says shallow tropical coral reefs vital for under threat from, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "includes(excess_nutrients, nitrogen)",
+   "pred": "includes",
+   "a": "excess_nutrients",
+   "b": "nitrogen",
+   "source": "excess nutrients includes nitrogen and phosphorus.",
+   "surface": null,
+   "T1": {
+    "q": "what do excess nutrients include?",
+    "reply": "nitrogen.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what includes nitrogen?",
+    "reply": "Excess nutrients.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what does nitrogen include?",
+    "reply": "Hmm, I don't know about include yet.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "deliver(coral_reefs, ecosystem_services)",
+   "pred": "deliver",
+   "a": "coral_reefs",
+   "b": "ecosystem_services",
+   "source": "coral reefs deliver ecosystem services",
+   "surface": "delivers for",
+   "T1": {
+    "q": "what do coral reefs deliver for?",
+    "reply": "tourism.",
+    "esito": "altro"
+   },
+   "T2": {
+    "q": "what delivers for ecosystem services?",
+    "reply": "coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what do ecosystem services deliver for?",
+    "reply": "coral reefs.",
+    "esito": "bugia"
+   }
+  },
+  {
+   "fact": "delivered_for(coral_reefs, tourism)",
+   "pred": "delivered_for",
+   "a": "coral_reefs",
+   "b": "tourism",
+   "source": "coral reefs have delivered for tourism, fisheries, and shoreline protection",
+   "surface": null,
+   "T1": {
+    "q": "what are coral reefs delivered for?",
+    "reply": "tourism.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is delivered for tourism?",
+    "reply": "Coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is tourism delivered for?",
+    "reply": "I don't know: nothing I hold says tourism deliver for, and nothing says it isn't so. Tell me either way and I will hold it.",
+    "esito": "muro"
+   }
+  },
+  {
+   "fact": "estimated_at(annual_global_economic_value_of_coral_reefs, anywhere_from_us$30\u2013375_billion)",
+   "pred": "estimated_at",
+   "a": "annual_global_economic_value_of_coral_reefs",
+   "b": "anywhere_from_us$30\u2013375_billion",
+   "source": "the annual global economic value of coral reefs has been estimated at anywhere from us$30\u2013375 billion to us$2.7 trillion to us$9.9 trillion.",
+   "surface": null,
+   "T1": {
+    "q": "what are annual global economic value of coral reefs estimated at?",
+    "reply": "anywhere from us$30\u2013375 billion.",
+    "esito": "ok"
+   },
+   "T2": {
+    "q": "what is estimated at anywhere from us$30\u2013375 billion?",
+    "reply": "annual global economic value of coral reefs.",
+    "esito": "ok"
+   },
+   "R1": {
+    "q": "what is anywhere from us$30\u2013375 billion estimated at?",
+    "reply": "annual global economic value of coral reefs.",
+    "esito": "bugia"
+   }
+  }
+ ]
+}
