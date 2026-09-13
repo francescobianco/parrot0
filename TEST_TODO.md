@@ -1,5 +1,16 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+**mix-of-capabilities, prima ora di campagna (2026-09-13, 21:34–22:34)**: nuovi
+`crossing/mix_language_access` (13), `crossing/mix_property_inheritance` (10),
+`crossing/mix_place_containment` (7), `crossing/mix_causal_chain` (3),
+`conversation/mix_memory_revision` (9), `math/rate_total` (6): verdi.
+`make soft-test` rossa su `basics.p0t` [taxonomy] **1.20 s** e [antonym] **1.33 s**
+(limite 1.0 s); prima della campagna 1.13 s e 1.24 s (gia' rossa). I lettori nuovi
+della campagna (proprieta', luoghi, cause, quantita', ellissi) sono famiglie di
+`turn_plan_candidate` provate a ogni turno: ~0.08 s in piu' per turno. Da profilare
+prima di aggiungerne altre: il candidato di ciascuna famiglia deve fallire con una
+cue del turno prima di qualsiasi enumerazione.
+
 **2026-09-13 — rimozione del caricamento ridotto.** Interruttore del mondo
 eliminato dal motore e dai setup; base/lessico condivisi sempre caricati,
 profile vuoto o assente → `agi`, supplementi additivi. Il test engine non

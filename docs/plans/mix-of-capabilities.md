@@ -1307,6 +1307,8 @@ funzionano, ma il dato non passa» di §8.4, e la cura è stata sempre una lettu
 comportamento ha rotto il **costo** (37 s per un `relation_noun`, budget esaurito per
 un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
 
+**Costo (misurato alla fine):** `basics.p0t` [taxonomy] 1.13 → 1.20 s, [antonym] 1.24 → 1.33 s: i nuovi lettori sono famiglie di candidati provate a ogni turno. Prima della prossima scheda, profilare e far fallire ogni candidato su una cue del turno prima di enumerare (TEST_TODO).
+
 **Da riprendere (P1/P2 di §8.1, senza coding):**
 1. 05×07 reinterpretazione di un passo già letto dopo una lezione;
 2. 04×09 acquisizione e deduzione (una premessa reale mancante, una fonte);
