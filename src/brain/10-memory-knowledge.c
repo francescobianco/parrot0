@@ -8837,7 +8837,14 @@ static size_t p0_answer_by_description(Brain *b, const char *pred,
 
     char (*keys)[KB_TERM_LEN] = NULL; size_t nk = 0;
     const char *anyq[2] = { NULL, NULL };
-    if (!kb_match_all(b->kb, pred, anyq, 2, &keys, &nk) || nk == 0) {
+    /* gen514 — se la domanda nomina il SECONDO argomento («what lives in coral
+     * reefs?»), le chiavi da descrivere sono quelle della seconda colonna:
+     * `kb_match` lega sempre la prima variabile, quindi la colonna la chiede
+     * alla KB (`relation_second_arg/2`, un `apply`). */
+    int second = allow_arg2 && !allow_arg1;
+    const char *sq2[2] = { pred, NULL };
+    if (!(second ? kb_match_all(b->kb, "relation_second_arg", sq2, 2, &keys, &nk)
+                 : kb_match_all(b->kb, pred, anyq, 2, &keys, &nk)) || nk == 0) {
         free(keys); return 0;
     }
     char winner[KB_TERM_LEN] = ""; size_t nwin = 0;

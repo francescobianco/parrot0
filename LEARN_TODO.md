@@ -1,6 +1,18 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514, notte) — 27/50, CANCELLO 156
+## ⛔ HANDOFF 2026-09-13 (gen514, notte) — 30/50, CANCELLO 184
+
+**30/50 (60%)**: S10 si legge nel brano. «including» apre gli esempi del
+DOMINIO (`participial_opener/2`), l'antecedente e' il sintagma adiacente alla
+virgola, la relativa si legge dopo la principale e restituisce la salienza al
+suo referente; costruzioni a ruoli invertiti e superfici di arrivo interrogabili
+(viste `swapped_construction_cue/2`, `construction_target_cue/2`: senza vista
+`answer_frame` passava da 9 400 a 151 000 passi per turno); G2 anche sulla
+seconda colonna (`relation_second_arg/2`). Prossimo: S13 (subordinatore in coda
+«partly because», perfetto con particella «have declined by … since», predicati
+aggettivali «sensitive to»), S4, definizioni, S16.
+
+## HANDOFF 2026-09-13 (gen514, notte) — 27/50, CANCELLO 156
 
 **Ultimo gradino, sopra il resto di questo handoff.** 19 → 24 → 27/50 applicando
 il mantra #23 (cercare la dimensione descrittiva che manca):

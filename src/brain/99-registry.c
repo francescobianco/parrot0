@@ -3004,6 +3004,17 @@ static long next_entity_seq(Brain *b) {
     const char *na[1] = { nb }; kb_assert(b->kb, "entity_seq_max", na, 1);
     return nx;
 }
+/* gen514 — il nome del referente piu' recente (quello con `entity_seq_max`). */
+static void top_entity_name(Brain *b, char *out, size_t out_size) {
+    if (!out || out_size == 0) return;
+    out[0] = '\0';
+    if (!b || !b->kb) return;
+    const char *sq[1] = { NULL }; char sv[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "entity_seq_max", sq, 1, sv, 1) != 1) return;
+    const char *nq[2] = { NULL, sv[0] }; char nv[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "entity_mentioned", nq, 2, nv, 1) == 1)
+        snprintf(out, out_size, "%s", kb_dequote(nv[0]));
+}
 /* Record a mentioned entity into the ordered KB history (lowercased). Skips a dup of
  * the current most-recent so a repeated mention does not spam the sequence. */
 static void note_entity_seq(Brain *b, const char *raw_name) {
@@ -5611,6 +5622,33 @@ static int relative_rewrite(Brain *b, const char *sentence,
      * la condizione e' strutturale e sta in KB: il pronome e' in
      * `bare_relative_opener/1` e la parola dopo deve essere la forma di un verbo
      * di relazione (`relative_clause_verb/1`). */
+    /* gen514 — «…all marine species, INCLUDING fish, mollusks, …»: il
+     * participio non apre un secondo lettore che si prende la frase, apre gli
+     * ESEMPI del sintagma che lo precede. La seconda proposizione e'
+     * «<antecedente> <verbo> fish, mollusks, …», con il verbo che la KB
+     * dichiara (`participial_opener/2`); la principale resta alla sua lettura. */
+    char opener_verb[KB_TERM_LEN] = "";
+    {
+        char (*po)[KB_TERM_LEN] = NULL; size_t npo = 0;
+        const char *pq[2] = { NULL, NULL };
+        if (kb_match_all(b->kb, "participial_opener", pq, 2, &po, &npo)) {
+            for (size_t i = 0; i < npo; i++) {
+                char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", po[i]);
+                const char *pw = kb_dequote(pb);
+                if (!*pw) continue;
+                char needle[KB_TERM_LEN];
+                snprintf(needle, sizeof needle, ", %s ", pw);
+                const char *h = strstr(sentence, needle);
+                if (!h || (cut && h >= cut)) continue;
+                char vrow[1][KB_TERM_LEN];
+                const char *vq[2] = { po[i], NULL };
+                if (kb_match(b->kb, "participial_opener", vq, 2, vrow, 1) != 1) continue;
+                cut = h; cutlen = strlen(needle);
+                snprintf(opener_verb, sizeof opener_verb, "%s", kb_dequote(vrow[0]));
+            }
+        }
+        free(po);
+    }
     int bare_opener = 0;
     if (!cut) {
         char bares[8][KB_TERM_LEN];
@@ -5681,13 +5719,22 @@ static int relative_rewrite(Brain *b, const char *sentence,
         InputSpan sp; memset(&sp, 0, sizeof sp);
         sp.len = llen;
         size_t nn = input_structure(b->kb, left, &sp, nodes, 128, &amb);
-        size_t best_start = 0; int found = 0;
+        size_t best_start = 0, best_end = 0; int found = 0;
         for (size_t i = 0; i < nn; i++) {
             if (strcmp(nodes[i].level, "phrase")) continue;
             if (!found || nodes[i].start >= best_start) {
-                best_start = nodes[i].start; found = 1;
+                best_start = nodes[i].start; best_end = nodes[i].start + nodes[i].len;
+                found = 1;
                 snprintf(antecedent, sizeof antecedent, "%s", nodes[i].surface);
             }
+        }
+        /* gen514 — l'antecedente e' il sintagma ADIACENTE alla virgola: se
+         * l'ultimo sintagma con determinante finisce prima («a home for at least
+         * 25% of all marine species» → «a home»), vale la risalita per token. */
+        if (found) {
+            size_t tail = llen;
+            while (tail > best_end && strchr(" ,.;:", left[tail - 1])) tail--;
+            if (best_end < tail) { found = 0; antecedent[0] = '\0'; }
         }
         /* Un plurale nudo («colonies of coral polyps») non apre un sintagma
          * nella IR, che lo apre solo su un determinante. Per la ridotta si
@@ -5754,7 +5801,7 @@ static int relative_rewrite(Brain *b, const char *sentence,
      * (`possessive_link/2`). */
     {
         char opener[KB_TERM_LEN] = "";
-        if (!keep_opener && !bare_opener && cutlen > 3) {
+        if (!keep_opener && !bare_opener && !*opener_verb && cutlen > 3) {
             size_t ol = cutlen - 3;              /* ", " + parola + " " */
             if (ol < sizeof opener) { memcpy(opener, cut + 2, ol); opener[ol] = '\0'; }
         }
@@ -5774,6 +5821,39 @@ static int relative_rewrite(Brain *b, const char *sentence,
                 fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
             return 1;
         }
+    }
+    if (*opener_verb) {
+        /* Gli esempi sono esempi del DOMINIO, non della quantita': in «at
+         * least 25% of all marine species, including fish» il sintagma che
+         * include i pesci e' «marine species». Dopo l'ultimo partitivo
+         * (`partitive_preposition/1`) e il quantificatore che lo apre. */
+        {
+            char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", antecedent);
+            char *aw[32]; size_t na = split_words(ab, aw, 32);
+            size_t from = 0;
+            for (size_t k = 0; k + 1 < na; k++) {
+                const char *pq2[1] = { aw[k] };
+                if (kb_query(b->kb, "partitive_preposition", pq2, 1)) from = k + 1;
+            }
+            while (from + 1 < na) {
+                const char *qq[1] = { aw[from] };
+                if (!kb_query(b->kb, "universal_quantifier", qq, 1) &&
+                    !kb_query(b->kb, "non_universal_quantifier", qq, 1) &&
+                    !kb_query(b->kb, "np_opener", qq, 1)) break;
+                from++;
+            }
+            if (from > 0 && from < na) {
+                char dom[KB_TERM_LEN] = ""; size_t o = 0;
+                for (size_t k = from; k < na && o < sizeof dom; k++)
+                    o += (size_t)snprintf(dom + o, sizeof dom - o, "%s%s", o ? " " : "", aw[k]);
+                snprintf(antecedent, sizeof antecedent, "%s", dom);
+            }
+        }
+        if ((size_t)snprintf(right, right_size, "%s %s %s", antecedent, opener_verb, rest) >= right_size)
+            return 0;
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+        return 1;
     }
     if ((size_t)snprintf(right, right_size, "%s %s", antecedent, rest) >= right_size)
         return 0;
@@ -5979,14 +6059,27 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             char lft[P0_TURN_MAX], rgt[P0_TURN_MAX];
             if (relative_rewrite(b, c, lft, sizeof lft, rgt, sizeof rgt)) {
                 char subr[1024]; subr[0] = '\0';
-                /* gen514 — la relativa si legge PRIMA della principale. Un
-                 * referente introdotto in una relativa e' meno saliente di
-                 * quello della principale: «Coral reefs flourish in ocean
-                 * waters that provide few nutrients. THEY are found at shallow
-                 * depths» — «they» sono le barriere, non le acque. Letta per
-                 * ultima, la principale lascia i suoi referenti come i piu'
-                 * recenti; il messaggio conserva l'ordine della frase. */
+                /* gen514 — un referente introdotto in una relativa e' meno
+                 * saliente di quello della principale: «Coral reefs flourish in
+                 * ocean waters that provide few nutrients. THEY are found at
+                 * shallow depths» — «they» sono le barriere, non le acque. Si
+                 * legge nell'ordine della frase (i pronomi della principale si
+                 * risolvono sul discorso di prima), e dopo la relativa il
+                 * referente piu' recente della principale torna in cima.
+                 * (Leggere la relativa per prima, provato, rompeva il pronome
+                 * DENTRO la principale: «Yet, THEY provide a home for…».) */
                 char p1[P0_TURN_MAX], p2[P0_TURN_MAX];
+                brain_respond(b, lft, sub, sizeof sub);
+                /* il verdetto sulla principale si prende ORA: `reply_is_wall`
+                 * guarda anche il modulo dell'ultimo turno, e dopo una relativa
+                 * murata una principale letta risultava «non letta». */
+                int left_read = !reply_is_wall(b, sub);
+                char left_module[sizeof b->last_module];
+                snprintf(left_module, sizeof left_module, "%s", b->last_module);
+                char top_before[KB_TERM_LEN] = "";
+                top_entity_name(b, top_before, sizeof top_before);
+                char last_before[sizeof b->last_entity];
+                snprintf(last_before, sizeof last_before, "%s", b->last_entity);
                 if (predicate_coordination_split(b, rgt, p1, sizeof p1, p2, sizeof p2)) {
                     char subq[512] = "";
                     brain_respond(b, p1, subr, sizeof subr);
@@ -5997,10 +6090,13 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
                     }
                 } else
                 brain_respond(b, rgt, subr, sizeof subr);
-                brain_respond(b, lft, sub, sizeof sub);
+                if (*top_before) note_entity_seq(b, top_before);
+                if (*last_before) snprintf(b->last_entity, sizeof b->last_entity, "%s", last_before);
                 if (!reply_is_wall(b, subr) && strlen(sub) + strlen(subr) + 2 < sizeof sub) {
                     size_t sl2 = strlen(sub);
                     snprintf(sub + sl2, sizeof sub - sl2, " %s", subr);
+                } else if (left_read) {
+                    snprintf(b->last_module, sizeof b->last_module, "%s", left_module);
                 }
             } else {
                 brain_respond(b, c, sub, sizeof sub);

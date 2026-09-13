@@ -1291,9 +1291,8 @@ answer_frame_turn_arg($S, $Pred, $Arg) :-
 % la sua cue interrogativa, perche' la cue da sola non dice quale ruolo e' dato.
 % Lo dice la struttura, come per le relazioni tutto-parte: l'entita' prima della
 % superficie occupa lo slot `@O` della forma sorgente, cioe' il secondo
-% argomento della relazione. Si parte dalle parole del turno
-% (`swapped_construction_head/3`, indicizzata sulla prima parola) e mai dalle
-% costruzioni, e senza un interrogativo davanti non c'e' nessuna riga.
+% argomento della relazione. Senza un interrogativo davanti non c'e' nessuna
+% direzione.
 % ⚠ gen514 — le direzioni lette sulla STRUTTURA del turno stanno in
 % `answer_frame_turn_arg/3`, non in `answer_frame_input_arg/3`: ogni superficie di
 % quest'ultimo e' anche una cue del turno e porta la domanda nel produttore
@@ -1302,21 +1301,43 @@ answer_frame_turn_arg($S, $Pred, $Arg) :-
 % su «how many marine species do reefs provide a home for?». Debito aperto: il
 % produttore universale non vede queste direzioni finche' non costa poco anche
 % senza fatti (LEARN_TODO, handoff gen514).
+% La seconda colonna di una relazione binaria, per chi deve descrivere la chiave
+% che la domanda nomina come secondo argomento.
+machinery(relation_second_arg).
+relation_second_arg($Pred, $Value) :- apply($Pred, cons($Key, cons($Value, nil))).
 machinery(answer_frame_turn_arg).
 machinery(swapped_construction_cue).
-machinery(swapped_construction_head).
 machinery(turn_swapped_cue).
 swapped_construction_cue($Cue, $Pred) :-
     construction_frame($Src, $Tgt, $Pred),
     concat_atoms("@O ", $Rest, $Src), concat_atoms($Cue, " @S", $Rest).
-swapped_construction_head($First, $Cue, $Pred) :-
-    swapped_construction_cue($Cue, $Pred), atom_words($Cue, cons($First, $More)).
 turn_swapped_cue($Cue, $Pred, 2) :-
-    turn_word(current_turn, $At, $First),
-    swapped_construction_head($First, $Cue, $Pred),
+    swapped_construction_cue($Cue, $Pred),
     turn_surface_at(current_turn, $Cue, $At),
     turn_content_before(current_turn, $At).
-answer_frame($Cue, $Pred) :- turn_swapped_cue($Cue, $Pred, $Arg).
+% E la superficie di ARRIVO di una costruzione e' anche la sua domanda: «x
+% provide a home for y means y lives in x» scrive `habitat`, e «what lives in
+% coral reefs?» deve trovarlo. Il verso e' quello della forma diritta: entita'
+% prima della superficie = primo argomento, dopo = secondo.
+machinery(construction_target_cue).
+machinery(turn_surface_side_arg).
+construction_target_cue($Cue, $Pred) :-
+    construction_frame($Src, $Tgt, $Pred),
+    concat_atoms("@S ", $Rest, $Tgt), concat_atoms($Cue, " @O", $Rest).
+turn_surface_side_arg($S, 1) :-
+    turn_surface_at(current_turn, $S, $At), turn_content_before(current_turn, $At).
+turn_surface_side_arg($S, 2) :-
+    turn_surface_at(current_turn, $S, $At),
+    turn_word(current_turn, $WhPos, $Wh), question_word($Wh), lt($WhPos, $At),
+    naf(turn_content_before(current_turn, $At)).
+answer_frame($Cue, $Pred) :- construction_target_cue($Cue, $Pred).
+answer_frame_turn_arg($Cue, $Pred, $Arg) :-
+    construction_target_cue($Cue, $Pred), turn_surface_side_arg($Cue, $Arg).
+% La SUPERFICIE e' un fatto della costruzione; la DIREZIONE dipende dal turno e
+% si chiede solo a cue gia' legata (`answer_frame_turn_arg/3`). Misurato: con la
+% superficie derivata dal turno, `answer_frame/2` passava da 9 400 a 151 000
+% passi per turno, perche' si enumera una ventina di volte.
+answer_frame($Cue, $Pred) :- swapped_construction_cue($Cue, $Pred).
 answer_frame_turn_arg($Cue, $Pred, $Arg) :- turn_swapped_cue($Cue, $Pred, $Arg).
 
 machinery(bare_verb_auxiliary).
@@ -3138,7 +3159,8 @@ linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
 machinery(materialized_view).
 materialized_view(extract_frame, 2).
 materialized_view(verb_stem, 2).
-materialized_view(swapped_construction_head, 3).
+materialized_view(swapped_construction_cue, 2).
+materialized_view(construction_target_cue, 2).
 % Le superfici che una lezione di costruzione rivendica (vedi `construction_claims/1`):
 % la guardia del passivo generico le chiede una per schema, quindi si congelano.
 materialized_view(construction_claims, 1).
@@ -3179,6 +3201,12 @@ relative_opener(whose).
 % gen514 — «that» apre una relativa anche senza virgola, ma solo se la parola
 % dopo e' la forma di un verbo di relazione: altrimenti e' complementatore
 % («indicate that DART slowed») o dimostrativo.
+% gen514 — il participio che apre gli ESEMPI del sintagma precedente, con il
+% verbo della relazione che dichiara: «marine species, including fish» ->
+% «marine species include fish».
+machinery(participial_opener).
+participial_opener(including, include).
+participial_opener(incluso, include).
 machinery(bare_relative_opener).
 machinery(relative_clause_verb).
 bare_relative_opener(that).
