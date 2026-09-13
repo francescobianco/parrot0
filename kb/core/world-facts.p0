@@ -1233,6 +1233,9 @@ causes(violent_impact, serious_injury).
 causes(fall_from_height, violent_impact).
 causes(deforestation, soil_erosion).
 causes(burning_fossil_fuels, pollution).
+causes(chloramine_gas, breathing_problems).
+causes(chlorine_gas, breathing_problems).
+causes(chloroform, dizziness).
 chemical_symbol(actinium, Ac).
 chemical_symbol(ag, silver).
 chemical_symbol(al, aluminium).

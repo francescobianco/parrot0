@@ -1320,3 +1320,41 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
    seguito ellittico per i luoghi, con la stessa colla — «is tokyo in asia?» → «and
    madrid?» → «Not as far as I know: Madrid is in Spain, and Spain is in Europe.»,
    «what about beijing?» → «Yes: Beijing is in China, and China is in Asia.».
+
+## 13. Seconda campagna — casi pratici, non fatti da manuale (F., 13 settembre 2026, 22:34)
+
+> F.: «per le prove non usare fatti stereotipati come capitali, regioni, geografia
+> spicciola o fatti spiccioli delle materie di riferimento: usiamo contenuti più
+> originali e utili per casi pratici».
+
+### mix-12-09-08-15-001 — si possono mescolare questi due prodotti?
+
+- **catalogo:** 12 (causalità) × 09 (deduzione) × 08 (accesso per classe) × 15
+  (giudizio di sicurezza), con 06 per le lezioni.
+- **fonte:** Washington State Department of Health, *Dangers of mixing bleach with
+  cleaners* — candeggina + ammoniaca → cloramine; candeggina + un acido (aceto) →
+  cloro gassoso; candeggina + alcol → cloroformio; effetti respiratori.
+- **misura:** «is it safe to mix bleach and vinegar?» → «Who or what does «it» refer
+  to?»; «mixing bleach and vinegar releases chlorine gas» non entrava (nessuna
+  relazione a tre posti si poteva insegnare).
+- **cure:** una forma di lezione a tre posti («mixing A and B releases C», anche «and
+  an <classe>») in `messages.p0`; il lettore `kb/core/mixture-safety.p0`: miscela
+  nota anche per la classe di un prodotto, prodotto ricondotto all'atomo dei fatti
+  causali, danno noto → «No: …» con la strada; domanda aperta («what happens if I
+  mix…») → «Careful: …»; senza danno noto si dice solo che cosa si libera; senza
+  miscela nota la regola tace (mai «è sicuro»). Il lettore delle conseguenze
+  sconosciute non dice più «non so che cosa succede» su una miscela nota.
+- **lezioni parlate salvate:** le tre miscele, «chlorine gas causes breathing
+  problems», «chloramine gas causes breathing problems», «chloroform causes
+  dizziness», «vinegar is an acid».
+- **quarantena:** «chloroform causes organ damage» letto come
+  `causes(chloroform, organ)` — tolto; il danno detto con un sostantivo composto
+  finale si perde (lettore da guardare).
+- **esito:** «can i mix ammonia and bleach?» → «No: mixing bleach and ammonia
+  releases chloramine gas, and chloramine gas causes breathing problems.»; «is it
+  safe to mix bleach and vinegar?» → passa per «vinegar is an acid»; «what happens if
+  i mix bleach and alcohol?» → «Careful: … chloroform causes dizziness.».
+- **resta:** «is it safe to mix flour and water?» → «Who or what does «it» refer
+  to?» (la riparazione del pronome, non una risposta); prodotti di più parole
+  («hydrogen peroxide») e le miscele non insegnate.
+- **test:** `tests/p0t/crossing/mix_household_safety.p0t` (5).

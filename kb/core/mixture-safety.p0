@@ -1,0 +1,104 @@
+% mixture-safety.p0 — «IS IT SAFE TO MIX BLEACH AND VINEGAR?»
+%
+% docs/plans/mix-of-capabilities.md, un incrocio pratico: 12 (causalita') × 09
+% (deduzione) × 08 (accesso per classe) × 15 (giudizio di sicurezza). Due fatti
+% insegnati parlando con la loro fonte (Washington State Department of Health,
+% «Dangers of mixing bleach with cleaners»):
+%
+%     mixing bleach and an acid releases chlorine gas      (mixture_releases/3)
+%     chlorine gas causes breathing problems               (causes/2)
+%     vinegar is an acid                                   (is_a/2)
+%
+% e la domanda «is it safe to mix bleach and vinegar?» chiede di comporli: la
+% miscela, la classe dell'aceto, il prodotto, il danno. La risposta dice la
+% strada. Il «No» si dice solo se il prodotto CAUSA qualcosa che la KB tiene per
+% dannoso; senza danno noto si dice soltanto che cosa si libera; senza miscela
+% nota la regola tace — mai un «si', e' sicuro» per assenza.
+
+:- file_attribute(machinery).
+
+machinery(mix_question_cue).
+mix_question_cue("safe to mix").
+mix_question_cue("can i mix").
+mix_question_cue("should i mix").
+mix_question_cue("okay to mix").
+mix_question_cue("ok to mix").
+mix_question_cue("if i mix").
+mix_question_cue("if you mix").
+mix_question_cue("mescolare").
+turn_cue_registry(mix_question_cue, 1).
+
+% Cio' che e' un danno: un effetto nominato qui come esito per la salute. Una
+% riga per effetto (o una lezione che lo dica).
+machinery(harmful_effect).
+harmful_effect(breathing_problems).
+harmful_effect(lung_damage).
+harmful_effect(eye_irritation).
+harmful_effect(poisoning).
+harmful_effect(burns).
+harmful_effect(organ_damage).
+harmful_effect(dizziness).
+
+% I due prodotti del turno, e la loro miscela nota, anche per la classe di uno dei due.
+% Il prodotto detto nella lezione e' un testo («chlorine gas»); nei fatti causali
+% lo stesso nome e' l'atomo `chlorine_gas`. Si riconduce unendo le parole.
+machinery(product_atom).
+product_atom($Said, $Atom) :- atom_words($Said, $Ws), words_underscored($Ws, $Atom).
+machinery(words_underscored).
+words_underscored(cons($W, nil), $W).
+words_underscored(cons($W, cons($V, $R)), $Atom) :- words_underscored(cons($V, $R), $Rest), concat_atoms($W, "_", $A), concat_atoms($A, $Rest, $Atom).
+
+% La classe di un prodotto: una tassonomia curata (`is_a`) o una lezione
+% («vinegar is an acid» → `acid(vinegar)`).
+machinery(member_of_class).
+member_of_class($B, $C) :- is_a($B, $C).
+member_of_class($B, $C) :- apply($C, cons($B, nil)).
+
+machinery(turn_mixture).
+turn_mixture($Turn, direct($A, $B), $P) :- turn_word($Turn, $A), mixture_releases($A, $B, $Said), turn_word($Turn, $B), product_atom($Said, $P).
+turn_mixture($Turn, direct($B, $A), $P) :- turn_word($Turn, $A), mixture_releases($B, $A, $Said), turn_word($Turn, $B), product_atom($Said, $P).
+turn_mixture($Turn, by_class($A, $B, $C), $P) :- turn_word($Turn, $A), mixture_releases($A, $C, $Said), turn_word($Turn, $B), dif($A, $B), member_of_class($B, $C), product_atom($Said, $P).
+
+machinery(mixture_verdict).
+mixture_verdict($Turn, unsafe($How, $P, $H)) :- turn_cue_form($Turn, mix_question_cue, $Cue), turn_mixture($Turn, $How, $P), causes($P, $H), harmful_effect($H).
+mixture_verdict($Turn, releases($How, $P)) :- turn_cue_form($Turn, mix_question_cue, $Cue), turn_mixture($Turn, $How, $P), naf(product_harmful($P)).
+machinery(turn_has_known_mixture).
+turn_has_known_mixture($T) :- mixture_verdict($T, $V).
+machinery(product_harmful).
+product_harmful($P) :- causes($P, $H), harmful_effect($H).
+
+machinery(words_of).
+words_of($Atom, $Text) :- atom_words($Atom, $Ws), words_joined($Ws, $Text).
+
+machinery(mixture_how_text).
+mixture_how_text(en, direct($A, $B), $Text) :- concat_atoms("mixing ", $A, $X), concat_atoms($X, " and ", $Y), concat_atoms($Y, $B, $Text).
+mixture_how_text(en, by_class($A, $B, $C), $Text) :-
+    concat_atoms($B, " is ", $X1), class_article($C, en, $Art), concat_atoms($X1, $Art, $X2), concat_atoms($X2, " ", $X3), concat_atoms($X3, $C, $X4),
+    concat_atoms($X4, ", and mixing ", $X5), concat_atoms($X5, $A, $X6), concat_atoms($X6, " and ", $X7), concat_atoms($X7, $Art, $X8),
+    concat_atoms($X8, " ", $X9), concat_atoms($X9, $C, $Text).
+
+machinery(mixture_answer).
+% «is it safe to mix …?» chiede si' o no; «what happens if i mix …?» chiede che
+% cosa succede: la stessa prova, un'apertura diversa.
+machinery(mix_polar_cue).
+mix_polar_cue("safe to mix").
+mix_polar_cue("can i mix").
+mix_polar_cue("should i mix").
+mix_polar_cue("okay to mix").
+mix_polar_cue("ok to mix").
+machinery(mixture_opener).
+mixture_opener(en, "No: ") :- turn_cue_form(current_turn, mix_question_cue, $C), mix_polar_cue($C).
+mixture_opener(en, "Careful: ") :- naf(turn_is_polar_mix_question).
+machinery(turn_is_polar_mix_question).
+turn_is_polar_mix_question :- turn_cue_form(current_turn, mix_question_cue, $C), mix_polar_cue($C).
+mixture_answer(en, unsafe($How, $P, $H), $Text) :-
+    mixture_how_text(en, $How, $HowText), words_of($P, $PT), words_of($H, $HT),
+    mixture_opener(en, $Open), concat_atoms($Open, $HowText, $A), concat_atoms($A, " releases ", $B), concat_atoms($B, $PT, $C),
+    concat_atoms($C, ", and ", $D), concat_atoms($D, $PT, $E), concat_atoms($E, " causes ", $F),
+    concat_atoms($F, $HT, $G), concat_atoms($G, ".", $Text).
+mixture_answer(en, releases($How, $P), $Text) :-
+    mixture_how_text(en, $How, $HowText), words_of($P, $PT), upcase_first($HowText, $Up),
+    concat_atoms($Up, " releases ", $A), concat_atoms($A, $PT, $B), concat_atoms($B, ".", $Text).
+
+turn_plan_candidate($Turn) :- mixture_verdict($Turn, $V).
+turn_response($Turn, $Text) :- mixture_verdict($Turn, $V), mixture_answer(en, $V, $Text).

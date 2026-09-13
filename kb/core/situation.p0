@@ -498,7 +498,9 @@ turn_plan_candidate($T) :- consequence_event($T, $E).
 % una porta di insegnamento. Prima il turno cadeva nella chiacchiera («I don't
 % have any of my own»).
 has_consequence_event($T) :- consequence_event($T, $E).
-consequence_unknown($T) :- turn_asks_consequence($T), naf(has_consequence_event($T)).
+% mix 12×09×15 — «what happens if i mix bleach and alcohol?»: «non so che cosa
+% succede» e' falso quando la miscela e' conosciuta (mixture-safety.p0).
+consequence_unknown($T) :- turn_asks_consequence($T), naf(has_consequence_event($T)), naf(turn_has_known_mixture($T)).
 consequence_unknown_text(en, "I don't know yet what happens in that case. If you tell me what it causes -- «X causes Y» -- I'll hold it and use it next time.").
 consequence_unknown_text(it, "Non so ancora che cosa succede in quel caso. Se mi dici che cosa causa -- «X causes Y» -- lo terrò e lo userò la prossima volta.").
 turn_plan_candidate($T) :- consequence_unknown($T).

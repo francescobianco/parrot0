@@ -1268,6 +1268,7 @@ machinery(sides).
 :- include(property-questions.p0).
 :- include(place-questions.p0).
 :- include(causal-questions.p0).
+:- include(mixture-safety.p0).
 :- include(denotation.p0).
 :- include(epistemic-status.p0).
 

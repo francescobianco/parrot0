@@ -1,0 +1,31 @@
+# mix-of-capabilities 12×09×08×15 — un caso pratico: mescolare prodotti per la
+# pulizia. Fatti veri insegnati parlando e salvati (Washington State Department of
+# Health, «Dangers of mixing bleach with cleaners»): la miscela, il prodotto, il
+# suo effetto, la classe dell'aceto. Il «No» solo con un danno noto; mai «e'
+# sicuro» per assenza.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a known mixture with a known harm is unsafe, with the route]
+!timeout 30
+> can i mix ammonia and bleach?
+< No: mixing bleach and ammonia releases chloramine gas, and chloramine gas causes breathing problems.
+
+[test the class of a product carries the rule to it]
+!timeout 30
+> is it safe to mix bleach and vinegar?
+< No: vinegar is an acid, and mixing bleach and an acid releases chlorine gas, and chlorine gas causes breathing problems.
+
+[test an open question gets the consequence, not a no]
+!timeout 30
+> what happens if i mix bleach and alcohol?
+< Careful: mixing bleach and alcohol releases chloroform, and chloroform causes dizziness.
+
+[test an unknown mixture is never declared safe]
+!timeout 30
+> is it safe to mix flour and water?
+<! safe
+<! No:

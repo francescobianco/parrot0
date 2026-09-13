@@ -207,6 +207,7 @@ past(cast, casts).
 % viene prima, e il verso della domanda non si inverte). Vedi grammar.p0,
 % `directed_surface/1`.
 class_surface(whole_part_relation, whole part relation).
+class_surface(acid, acid).
 whole_part_relation("made of").
 whole_part_relation("built from").
 whole_part_relation("formed of").
@@ -216,4 +217,13 @@ fact_mention(engine, "a spark plug is part of an engine").
 fact_mention(soil_erosion, "deforestation causes soil erosion").
 fact_mention(deforestation, "deforestation causes soil erosion").
 fact_mention(pollution, "burning fossil fuels causes pollution").
+fact_mention(vinegar, "vinegar is an acid").
 fact_mention(burning_fossil_fuels, "burning fossil fuels causes pollution").
+fact_mention(breathing_problems, "chloramine gas causes breathing problems").
+fact_mention(chloramine_gas, "chloramine gas causes breathing problems").
+fact_mention(breathing_problems, "chlorine gas causes breathing problems").
+fact_mention(chlorine_gas, "chlorine gas causes breathing problems").
+mixture_releases(bleach, ammonia, "chloramine gas").
+mixture_releases(bleach, acid, "chlorine gas").
+mixture_releases(bleach, alcohol, chloroform).
+acid(vinegar).

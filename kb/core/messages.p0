@@ -3311,3 +3311,33 @@ turn_form_priority(teach_exists_restriction, early).
 turn_form_priority(taught_form_15, early).
 response_template(exists_restriction_learned, "Learned: whoever is {relation} something {property} is {state}.").
 response_template(exists_restriction_learned, it, "Imparato: chi è {relation} qualcosa di {property} è {state}.").
+
+% ══ mix 12×09×15 — CIO' CHE SI LIBERA MESCOLANDO DUE COSE ═══════════════════
+% docs/plans/mix-of-capabilities.md: «is it safe to mix bleach and vinegar?» e'
+% una domanda pratica, e la risposta vera sta in una relazione a TRE posti — due
+% prodotti e cio' che la loro miscela libera — che nessuna forma a due argomenti
+% sa ricevere. Qui la forma per insegnarla parlando; la lettura della domanda
+% sta in kb/core/mixture-safety.p0.
+response_template(learned_mixture, "Held: mixing {subject} and {order} releases {object}.").
+response_template(learned_mixture, it, "Tengo: mescolando {subject} e {order} si libera {object}.").
+turn_form(teach_mixture, 1, text("mixing")).
+turn_form(teach_mixture, 2, slot(subject)).
+turn_form(teach_mixture, 3, text("and")).
+turn_form(teach_mixture, 4, slot(order)).
+turn_form(teach_mixture, 5, text("releases")).
+turn_form(teach_mixture, 6, rest(object)).
+turn_form_mood(teach_mixture, statement).
+turn_form_act(teach_mixture, "op(assert, mixture_releases, [subject, order, object])").
+turn_form_reply(teach_mixture, learned_mixture).
+turn_form_priority(teach_mixture, early).
+% «mixing bleach and an acid releases chlorine gas»: la classe, con l'articolo.
+turn_form(teach_mixture_class, 1, text("mixing")).
+turn_form(teach_mixture_class, 2, slot(subject)).
+turn_form(teach_mixture_class, 3, text("and an")).
+turn_form(teach_mixture_class, 4, slot(order)).
+turn_form(teach_mixture_class, 5, text("releases")).
+turn_form(teach_mixture_class, 6, rest(object)).
+turn_form_mood(teach_mixture_class, statement).
+turn_form_act(teach_mixture_class, "op(assert, mixture_releases, [subject, order, object])").
+turn_form_reply(teach_mixture_class, learned_mixture).
+turn_form_priority(teach_mixture_class, early).
