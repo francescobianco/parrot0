@@ -281,6 +281,11 @@ che rende necessario un altro caso per attribuire causalmente il guadagno.
 
 ### Step 6.2 — Lezione in lingua naturale
 
+> **assistente utile U3 (2026-09-13).** Chi insegna lo dichiara all'inizio della
+> sessione con «I want to teach you» (o «voglio insegnarti»): da lì il muro porta
+> le frasi pronte con cui si insegna. Senza, parrot0 parla a un utente e il muro
+> offre solo di informarsi. Il registro vale per la sessione e non si salva.
+
 Spiegare il fatto come lo spiegherebbe un docente umano. Se manca una forma,
 spiegare forma e ruoli con parole normali ed esempi veri, per esempio:
 

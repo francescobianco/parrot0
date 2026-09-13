@@ -87,6 +87,22 @@ conduct_lesson2("puoi usare la rete", policy, network, on).
 conduct_lesson2("usa la rete", policy, network, on).
 
 % Le conferme, per lezione: parole, non nomi di predicati.
+% assistente utile U3 — chi parla dichiara se sta insegnando (grammar.p0,
+% `teaching_offer_max`). Vale per la sessione.
+conduct_lesson1("i want to teach you", session_register, teacher).
+conduct_lesson1("i am going to teach you", session_register, teacher).
+conduct_lesson1("i'm going to teach you", session_register, teacher).
+conduct_lesson1("let me teach you", session_register, teacher).
+conduct_lesson1("tell me how to teach you", session_register, teacher).
+conduct_lesson1("voglio insegnarti", session_register, teacher).
+conduct_lesson1("ti insegno io", session_register, teacher).
+conduct_lesson1("dimmi come insegnarti", session_register, teacher).
+conduct_lesson1("i'm not teaching you", session_register, user).
+conduct_lesson1("i am not teaching you", session_register, user).
+conduct_lesson1("stop telling me how to teach you", session_register, user).
+conduct_lesson1("non ti sto insegnando", session_register, user).
+conduct_lesson_reply(session_register, teacher, "Understood: when I don't know something, I'll tell you the sentence that teaches it to me.").
+conduct_lesson_reply(session_register, user, "Understood: I won't ask you to teach me; I'll just say what I'm missing.").
 conduct_lesson_reply(acquisition_policy, act, "Understood: from now on I'll read things up myself when I don't know them.").
 conduct_lesson_reply(acquisition_policy, ask, "Understood: I'll ask you before reading anything up.").
 conduct_lesson_reply(acquisition_policy, never, "Understood: I won't read things up; I'll just say what I'm missing.").

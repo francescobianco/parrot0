@@ -1,0 +1,370 @@
+[
+ {
+  "class": "problem-report",
+  "use": "base",
+  "turns": [
+   {
+    "input": "ho un problema meccanico",
+    "output": "Vediamolo insieme. Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto. Di che cosa si tratta, e che cosa succede esattamente?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "held",
+  "turns": [
+   {
+    "input": "I have a problem with my bike.",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "held",
+  "turns": [
+   {
+    "input": "la lavatrice non funziona piu'",
+    "output": "Vediamolo insieme. Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto. Di che cosa si tratta, e che cosa succede esattamente?",
+    "seconds": 0.1
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "held",
+  "turns": [
+   {
+    "input": "My phone screen is broken.",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "problem-report",
+  "use": "contrast",
+  "turns": [
+   {
+    "input": "ho risolto il problema meccanico",
+    "output": "Non capisco ancora.",
+    "seconds": 1.2
+   }
+  ]
+ },
+ {
+  "class": "howto",
+  "use": "base",
+  "turns": [
+   {
+    "input": "How do I make my laptop battery last longer?",
+    "output": "I understood the request — produce «make my laptop battery last longer» — but I don't know that yet as something I can compute or build, so I have no code to show for it.",
+    "seconds": 0.6
+   }
+  ]
+ },
+ {
+  "class": "howto",
+  "use": "held",
+  "turns": [
+   {
+    "input": "How can I keep my plants alive while I'm on holiday?",
+    "output": "I have no rule that would make anything a holiday, so I can't say what would.",
+    "seconds": 0.5
+   }
+  ]
+ },
+ {
+  "class": "ambiguous-task",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Help me write an email.",
+    "output": "I understood the request — produce «email» — but I don't know that yet as something I can compute or build, so I have no code to show for it.",
+    "seconds": 0.7
+   }
+  ]
+ },
+ {
+  "class": "ambiguous-task",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Can you help me with a letter?",
+    "output": "I don't know whether you can help me with a letter: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.",
+    "seconds": 0.3
+   }
+  ]
+ },
+ {
+  "class": "plan",
+  "use": "base",
+  "turns": [
+   {
+    "input": "I want to start running. Where do I begin?",
+    "output": "Hmm, I don't know about running yet. Want me to learn about it?",
+    "seconds": 2.5
+   }
+  ]
+ },
+ {
+  "class": "plan",
+  "use": "held",
+  "turns": [
+   {
+    "input": "I want to learn to cook. Where should I start?",
+    "output": "I don't understand that yet.",
+    "seconds": 2.4
+   }
+  ]
+ },
+ {
+  "class": "explain",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Can you explain what inflation is?",
+    "output": "I don't know whether you can explain what inflation is: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.",
+    "seconds": 0.3
+   }
+  ]
+ },
+ {
+  "class": "explain",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Can you explain what a vaccine does?",
+    "output": "I don't know whether you can explain what a vaccine does: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.",
+    "seconds": 0.3
+   }
+  ]
+ },
+ {
+  "class": "decide",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Should I learn Python or JavaScript first?",
+    "output": "I am not sure what you mean by «first». Could you give me more context?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "decide",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Should I buy a laptop or a tablet for university?",
+    "output": "Hmm, I don't know about laptop yet. Want me to learn about it?",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "summarize",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Summarize this: The meeting was moved from Monday to Wednesday because the client could not attend. Anna will send the new agenda by Tuesday noon.",
+    "output": "We haven't talked about much yet. I couldn't read «Anna will send the new agenda by Tuesday noon.».",
+    "seconds": 3.7
+   }
+  ]
+ },
+ {
+  "class": "compare",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What is the difference between a virus and a bacterium?",
+    "output": "On a virus and a bacterium, a useful comparison turns on the baseline both share, the dimensions worth holding fixed and the difference scale alone would explain. Compare the alternatives against one shared baseline and the same dimensions so differences in mechanism are not confused with differences in scale. Compare the cases on the same dimensions and baseline, distinguishing a difference in mechanism from a difference only in degree or context. That mechanism predicts both a primary effect and secondary responses, which may amplify, compensate for, or redistribute the original change. The conclusion depends on scale, boundary conditions, time horizon, and behavior, so those assumptions should be stated instead of presenting one scenario as inevitable.",
+    "seconds": 0.3
+   }
+  ]
+ },
+ {
+  "class": "troubleshoot",
+  "use": "base",
+  "turns": [
+   {
+    "input": "My wifi keeps disconnecting. What should I do?",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "troubleshoot",
+  "use": "held",
+  "turns": [
+   {
+    "input": "My car makes a strange noise when I brake.",
+    "output": "Let's look at it together. If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else. What is it, and what exactly happens?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "brainstorm",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Give me some ideas for a birthday present for my dad.",
+    "output": "Hmm, I don't know about birthday yet. Want me to learn about it?",
+    "seconds": 0.9
+   }
+  ]
+ },
+ {
+  "class": "emotion",
+  "use": "base",
+  "turns": [
+   {
+    "input": "I'm really stressed about my exam tomorrow.",
+    "output": "That sounds hard, and it makes sense to feel that way. It often helps to pick one small thing you can do about it today. What worries you most about it?",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "emotion",
+  "use": "held",
+  "turns": [
+   {
+    "input": "Sono preoccupato per il colloquio di lavoro di domani.",
+    "output": "I would say that being worried is a reason to say what is worrying you, not to keep it: name the thing, and I can tell you which part of it I can actually help with and which part I cannot.",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "emotion",
+  "use": "contrast",
+  "turns": [
+   {
+    "input": "I'm really happy about my exam result.",
+    "output": "That sounds nice -- tell me more about it.",
+    "seconds": 0.8
+   }
+  ]
+ },
+ {
+  "class": "live-data",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What's the weather in Rome today?",
+    "output": "I have no live source for current weather: it changes while we speak, so anything I held would be stale. A weather service will have it.",
+    "seconds": 0.2
+   }
+  ]
+ },
+ {
+  "class": "false-premise",
+  "use": "base",
+  "turns": [
+   {
+    "input": "The sun goes around the earth, right?",
+    "output": "Hmm, I don't know about around yet. Want me to learn about it?",
+    "seconds": 0.9
+   }
+  ]
+ },
+ {
+  "class": "steps",
+  "use": "base",
+  "turns": [
+   {
+    "input": "How do I boil an egg?",
+    "output": "I don't understand that yet.",
+    "seconds": 1.0
+   }
+  ]
+ },
+ {
+  "class": "rewrite",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Make this more formal: hey can u send me the file",
+    "output": "I understood the request — produce «formal hey can u send me the file» — but I don't know that yet as something I can compute or build, so I have no code to show for it.",
+    "seconds": 0.9
+   }
+  ]
+ },
+ {
+  "class": "math",
+  "use": "base",
+  "turns": [
+   {
+    "input": "If I save 50 euros a month, how much will I have in two years?",
+    "output": "I don't understand that yet.",
+    "seconds": 1.6
+   }
+  ]
+ },
+ {
+  "class": "followup-offer",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What is a compass used for?",
+    "output": "\"finding north without landmarks\".",
+    "seconds": 0.9
+   }
+  ]
+ },
+ {
+  "class": "italian",
+  "use": "base",
+  "turns": [
+   {
+    "input": "Come posso organizzare meglio la mia giornata?",
+    "output": "Non capisco ancora.",
+    "seconds": 1.2
+   }
+  ]
+ },
+ {
+  "class": "multi-turn",
+  "use": "base",
+  "turns": [
+   {
+    "input": "I need to cook dinner for four people tonight.",
+    "output": "Hmm, I don't know about dinner yet. Want me to learn about it?",
+    "seconds": 1.0
+   },
+   {
+    "input": "One of them is vegetarian.",
+    "output": "Hmm, I don't know about vegetarian yet. Want me to learn about it?",
+    "seconds": 1.3
+   }
+  ]
+ },
+ {
+  "class": "code",
+  "use": "base",
+  "turns": [
+   {
+    "input": "How do I reverse a list in Python?",
+    "output": "I understood the request — produce «reverse a list» in python — but I don't know that yet as something I can compute or build, so I have no code to show for it.",
+    "seconds": 1.3
+   }
+  ]
+ },
+ {
+  "class": "capability",
+  "use": "base",
+  "turns": [
+   {
+    "input": "What can you help me with?",
+    "output": "From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.",
+    "seconds": 0.5
+   }
+  ]
+ }
+]

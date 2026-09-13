@@ -750,6 +750,11 @@ response_template(compound_clause_unread, it, "Non ho saputo leggere «{clause}�
 % sa ancora tenere; lo dice, e dice le due forme che invece sa tenere.
 response_template(existential_claim_unheld, "I can't hold «{clause}» yet: I only keep what is true of every member of a kind, or of a named one.").
 response_template(existential_claim_unheld, it, "Non so ancora tenere «{clause}»: tengo solo cio' che vale per ogni membro di una specie, o per uno nominato.").
+% assistente utile U3 — il muro per chi non sta insegnando: l'offerta di
+% informarsi (onorata dal turno dopo, sito #3 di initiative.md), senza le frasi
+% da maestro.
+response_template(fallback_gap_offer_plain, "Hmm, I don't know about {topic} yet. Want me to learn about it?").
+response_template(fallback_gap_offer_plain, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni?").
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").
 response_template(fallback_still_gap, it, "Mmh, non conosco ancora {topic}.").
 

@@ -309,6 +309,7 @@ con più `F`, poi quella con più archi `R`/`M` che una stessa porta chiuderebbe
 | U0 | 2026-09-13 | (questo) | 1/21 | 0/10 | 5 | baseline |
 | U1+U2 | 2026-09-13 | (vedi git log) | 3/21 | 3/10 | 2 | piani `user_problem` e `user_worry` insegnati parlando; tre strade interrotte curate (when-then letto come domanda, `forget_plan` irraggiungibile, guaio breve ceduto alla prosa/allo stato); [lab](../labs/assistente-utile/2026-09-13-u1-u2.md) |
 | U1b | 2026-09-13 | (vedi git log) | 3/21 | 3/10 | 1 | una richiesta che nomina un parente non è una confidenza: `faculty_yield_force(family/personal, open, directive)`; «Give me some ideas for a present for my dad» da F («Thanks for telling me about your family») a M; «my father works in a bank» resta riconosciuta. Rossi `family` 7/9, `teach_any_family` 9/10, `thinking_graph` 31/36 identici su HEAD. Resta F: `compare` (il metodo generico senza fatti) → U6 |
+| U3 | 2026-09-13 | (vedi git log) | 3/21 | 3/10 | 1 | il registro del maestro solo con chi insegna: `session_register(teacher)` detto parlando («I want to teach you» / «I'm not teaching you», `turn_scratch`, non si salva) decide `teaching_offer_max`; il muro per un utente è «Hmm, I don't know about X yet. Want me to learn about it?». Code da maestro nel banco 8 → 0. Limite annotato: un turno non rivendicato accetta l'offerta aperta del turno prima («I looked up «around» but found nothing…» a un'altra frase) — politica `offer_unclaimed_turn`, da rivedere in U9 |
 
 ## 7. Rischi
 

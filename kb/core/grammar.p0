@@ -2885,7 +2885,18 @@ word_teaching_offer(mention, "if {topic} is a word you want to talk ABOUT, say �
 
 % Quante offrirne. Due bastano a insegnare senza trasformare il muro in un
 % modulo d'iscrizione — ed e' un fatto, non una scelta del C.
-teaching_offer_max(2).
+% assistente utile U3 — IL REGISTRO DEL MAESTRO SOLO CON CHI INSEGNA.
+% «Hmm, I don't know about dinner yet. Want me to learn about it? Or teach me: if
+% «x cook y» says what you already say another way, say «x cook y means x <known
+% verb> y»» e' la frase giusta per chi addestra e incomprensibile per chi chiede
+% aiuto (banco dell'utilita', 8 archi su 33). Chi insegna lo dice («I want to
+% teach you», conduct_lesson1 in network.p0) e da li' il muro porta le frasi
+% pronte; senza, porta solo l'offerta di informarsi. Il registro vale per la
+% sessione e non si salva (`turn_scratch`): la prossima persona e' un'altra.
+machinery(session_register).
+turn_scratch(session_register).
+teaching_offer_max(2) :- session_register(teacher).
+teaching_offer_max(0) :- naf(session_register(teacher)).
 
 % ── QUALE OFFERTA, DATA LA FORMA DEL TURNO (M13) ───────────────────────────
 %

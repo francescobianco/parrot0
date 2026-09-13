@@ -2561,7 +2561,9 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                     if (kb_match(b->kb, "teaching_offer_max", cq2, 1, cv, 1) > 0) {
                         char cb2[KB_TERM_LEN]; snprintf(cb2, sizeof cb2, "%s", cv[0]);
                         long v = strtol(kb_dequote(cb2), NULL, 10);
-                        if (v > 0) cap = v;
+                        /* U3: zero e' una risposta, non un'assenza — il
+                         * registro di chi parla dice di non offrire frasi. */
+                        if (v >= 0) cap = v;
                     }
                 }
                 /* M13: QUALI forme offrire lo decide la KB guardando la forma
@@ -2615,7 +2617,9 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                         to += (size_t)snprintf(teach + to, sizeof teach - to, "; ");
                 }
                 const KbResponseSlot slots[] = { {"topic", sw}, {"teach", teach} };
-                kb_response_slots(b, "fallback_gap_offer", slots, 2, cand, sizeof cand);
+                kb_response_slots(b, teach[0] ? "fallback_gap_offer"
+                                              : "fallback_gap_offer_plain",
+                                  slots, 2, cand, sizeof cand);
             }
         } else {
             {

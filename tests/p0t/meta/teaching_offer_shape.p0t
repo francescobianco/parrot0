@@ -17,6 +17,9 @@
 !reset
 
 [test la forma binaria chiede la costruzione e nomina la parola in mezzo]
+# assistente utile U3: le frasi da maestro solo con chi dichiara di insegnare.
+> I want to teach you
+<~ Understood
 > zilvan brinks torvo
 <~ x brinks y means x <known verb> y
 # La seconda offerta parla della stessa parola, non del soggetto.
@@ -47,3 +50,10 @@
 # invece di sparire.
 > kessil
 <~ Or teach me
+
+[test chi non insegna riceve il muro senza le frasi da maestro]
+> I'm not teaching you
+<~ Understood
+> brolmic flurbs
+<~ Want me to learn about it?
+<! Or teach me

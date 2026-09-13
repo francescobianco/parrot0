@@ -236,6 +236,8 @@
 # La KB resta al massimo: non si spegne niente per far tacere una frase.
 [test il muro chiede di essere insegnato, e la risposta lo chiude]
 !reset
+> I want to teach you
+<~ Understood
 > zorak vurbles nivora
 <~ say «vurbles is a relation verb»
 > vurbles is a relation verb
