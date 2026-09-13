@@ -6774,6 +6774,13 @@ static int p0_parse_mention_membership(Brain *b, const char *norm,
      * ritrovava e la resa diceva «marsupial..». */
     { size_t cl = strlen(cls); while (cl && strchr(".!,;:", cls[cl - 1])) cls[--cl] = '\0';
       if (!cl) return 0; }
+    /* gen514 — «a whole-part relation» e «a whole part relation» sono la stessa
+     * classe detta con due grafie: il nome di una classe e' una chiave, e la
+     * chiave unisce le parole con `_` (p0_join). Il trattino dentro il nome
+     * della CLASSE si unisce allo stesso modo, invece di dare
+     * `whole-part_relation` accanto a `whole_part_relation`. I nomi delle cose
+     * («reef-building corals») non passano di qui. */
+    for (char *q = cls; *q; q++) if (*q == '-') *q = '_';
     if (!p0_atom_within_cap(b, cls)) return 0;
 
     if (label && !p0_words_label(w, class_begin, n, label, label_size)) return 0;
@@ -8994,6 +9001,8 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
              * comportamento storico (entrambe le direzioni). */
             size_t ni = *cues[i] ? kb_match(b->kb, "answer_frame_input_arg", iq, 3,
                                             input_args, 4) : 0;
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[aframe] input_arg cue=%s pred=%s -> %zu (%s)\n", cues[i], preds[p], ni, ni ? input_args[0] : "-");
             if (ni > 0) {
                 allow_arg1 = allow_arg2 = 0;
                 for (size_t ai = 0; ai < ni; ai++) {

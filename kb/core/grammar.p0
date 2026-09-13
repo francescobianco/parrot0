@@ -1180,6 +1180,73 @@ subject_question_form($T, $Form, $Root) :-
 % «have» reggono il participio, cioe' il passivo e il perfetto, che hanno i
 % propri lettori. Il verbo nudo lo reggono il «do» di supporto e i modali, e i
 % modali la KB li conosce gia' (`modal_force/2`).
+% ── gen514 — LE RELAZIONI TUTTO-PARTE HANNO UN VERSO CHE NON SI DISCUTE ────
+%
+% «Reefs are formed of colonies» e' letto bene (`made_of(reefs, colonies)`), e
+% «what are colonies made of?» rispondeva «Reefs.»: la cornice provava i due
+% versi, e le colonie stavano sul lato del materiale. «Le colonie sono fatte di
+% barriere» e' il contrario del vero. Invertire e' lecito solo per una relazione
+% simmetrica (`relation_type(borders, symmetric)`); una relazione fra un tutto e
+% le sue parti ha un verso che fa parte del significato.
+%
+% Quali superfici siano di questa specie si INSEGNA, con i nomi che usa chi
+% insegna e senza conoscere nessun predicato interno:
+%
+%     > "made of" is a whole-part relation          (il tutto viene prima)
+%     > "breaks down into" is a whole-part relation
+%     > "part of" is a part-whole relation          (la parte viene prima)
+%
+% La lezione generica scrive la classe (`whole_part_relation`, il trattino detto
+% diventa `_` come lo spazio) con la SUPERFICIE come membro; la relazione la
+% dice `answer_frame/2`.
+%
+% Il verso viene dalla domanda: se l'entita' sta PRIMA della superficie («what
+% are colonies made of?») e' il primo argomento; se sta DOPO («what is made of
+% colonies?») e' il secondo. Una superficie senza lezione resta com'era.
+machinery(whole_part_relation).
+machinery(part_whole_relation).
+machinery(directed_surface).
+machinery(turn_words_from).
+machinery(turn_surface_at).
+machinery(turn_content_before).
+machinery(directed_question_arg).
+directed_surface($S) :- whole_part_relation($S).
+directed_surface($S) :- part_whole_relation($S).
+% La lezione e' salvata fra virgolette, le cornici costruite no, e
+% l'unificazione distingue `"made of"` da `made of`: si confrontano le parole.
+directed_surface($S) :-
+    atom_words($S, $Words), whole_part_relation($Taught), atom_words($Taught, $Words).
+directed_surface($S) :-
+    atom_words($S, $Words), part_whole_relation($Taught), atom_words($Taught, $Words).
+turn_words_from($Tc, $Pos, nil).
+turn_words_from($Tc, $Pos, cons($Word, $Rest)) :-
+    turn_word($Tc, $Pos, $Word), is($Next, add($Pos, 1)),
+    turn_words_from($Tc, $Next, $Rest).
+turn_surface_at($Tc, $S, $At) :-
+    atom_words($S, cons($First, $Rest)), turn_word($Tc, $At, $First),
+    is($Next, add($At, 1)), turn_words_from($Tc, $Next, $Rest).
+% ⚠ Il caricatore teneva al massimo OTTO goal per clausola e scartava in
+% silenzio la clausola: la prima versione ne aveva nove, ogni pezzo era
+% dimostrabile e la congiunzione no. Il tetto ora e' 16 (KB_MAX_BODY, gen514,
+% +68 MB e +4% di tempo misurati); l'aiutante `content_word/1` resta perche'
+% nomina una classe.
+machinery(content_word).
+content_word($Word) :-
+    naf(stopword($Word)), naf(auxiliary($Word)), naf(clause_copula($Word)).
+turn_content_before($Tc, $At) :-
+    turn_word($Tc, $WhPos, $Wh), question_word($Wh), lt($WhPos, $At),
+    turn_word($Tc, $Mid, $Word), lt($WhPos, $Mid), lt($Mid, $At),
+    content_word($Word).
+directed_question_arg($S, 1) :-
+    directed_surface($S), turn_surface_at(current_turn, $S, $At),
+    turn_content_before(current_turn, $At).
+directed_question_arg($S, 2) :-
+    directed_surface($S), turn_surface_at(current_turn, $S, $At),
+    turn_word(current_turn, $WhPos, $Wh), question_word($Wh), lt($WhPos, $At),
+    naf(turn_content_before(current_turn, $At)).
+answer_frame_input_arg($S, $Pred, $Arg) :-
+    directed_question_arg($S, $Arg), answer_frame($S, $Pred).
+
 machinery(bare_verb_auxiliary).
 bare_verb_auxiliary(do).
 bare_verb_auxiliary(does).
@@ -1550,7 +1617,7 @@ past_participle($V) :-
 past_participle($V) :-
     irregular_participle($V), naf(specific_participle($V)).
 
-% Il tetto di otto goal per clausola e' una meccanica del caricatore, non un
+% Il tetto di goal per clausola (16 dal gen514, era otto) e' una meccanica del caricatore, non un
 % limite di conoscenza: le parti invarianti dello schema si compongono una volta.
 machinery(passive_prefix).
 machinery(passive_suffix).

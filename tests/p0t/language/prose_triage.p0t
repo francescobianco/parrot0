@@ -60,3 +60,25 @@
 <! dissolved oxygen
 > what does the ocean provide?
 <~ water
+
+[test a whole-part relation keeps its direction]
+!reset
+!timeout 30
+> Reefs are formed of colonies of coral polyps held together by calcium carbonate.
+<~ Learned
+> what are reefs made of?
+<~ colonies
+# It answered «Reefs.»: colonies made of reefs is the opposite of the text.
+> what are colonies made of?
+<! Reefs
+> what is made of colonies?
+<~ Reefs
+# The direction is taught knowledge: retract it and the old guess comes back.
+> forget that "made of" is a whole-part relation
+<~ no longer
+> what are colonies made of?
+<~ Reefs
+> "made of" is a whole-part relation
+<~ Learned
+> what are colonies made of?
+<! Reefs

@@ -5,8 +5,11 @@
 **Punto di ripresa attivo per la prosa** (supera il checkpoint sotto, che resta
 la mappa dei residui). **19/50**, cancello 107/299, nessuna risposta corretta
 persa. Il triage delle 33 aperte (un tentativo ciascuna) e' in una tabella per
-causa nel resoconto: **la mappa da cui ripartire**. Due bugie restano aperte
-(«what are colonies made of?» → «Reefs.»; «sometimes» letto come nome).
+causa nel resoconto: **la mappa da cui ripartire**. Una bugia resta aperta
+(«sometimes» letto come nome); «what are colonies made of?» → «Reefs.» e' chiusa
+da una caratterizzazione insegnata («"made of" is a whole-part relation») —
+**mantra #23** e **Parte VII** di `docs/plans/the-magic-of-apply.md` (la natura
+delle relazioni: P1–P6 sono il lavoro strutturale che ne segue).
 
 - La forma finita dice chi viene chiesto: «what supports coral?» (soggetto) e
   «what does coral support?» (oggetto) ora leggono la radice nel verso giusto.
@@ -23,9 +26,9 @@ causa nel resoconto: **la mappa da cui ripartire**. Due bugie restano aperte
 
 ### Come ripartire domattina (in quest'ordine)
 
-1. **Le due bugie aperte**: «what are colonies made of?» → «Reefs.» (direzione
-   della forma copulare con participio, stessa classe di `turn_question_verb`
-   in grammar.p0) e «sometimes» letto come nome («is a sometime»).
+1. **La bugia aperta**: «sometimes» letto come nome («is a sometime»). Poi la
+   Parte VII di `the-magic-of-apply.md`, passo **P2**: la cornice inverte solo
+   se la specie della relazione lo autorizza.
 2. **Decisione di F.**: come tenere «Most X …» / «most commonly» — relazione
    attenuata, non universale. Vale 8 domande ma da sola ne sblocca 1.
 3. **Enumerazione che ruba la principale** (S10, «including …»): la lezione

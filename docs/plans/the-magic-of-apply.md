@@ -787,3 +787,173 @@ schema scorso a ogni lettura (+1459 varianti comparative = +10% di turno,
 misurato). Un catalogo dei lettori indicizzato per ancora (`C_TODO.md`, «l'indice
 vero degli schemi») è la condizione perché 6.2.1 non paghi in latenza ciò che
 guadagna in precisione.
+
+
+## Parte VII — La natura delle relazioni: caratterizzarle, e lasciarle cambiare
+
+> **F., 13 settembre 2026, notte:** «dobbiamo dare spazio per la
+> caratterizzazione delle relazioni: un interlocutore ignorante, scoperta una
+> nuova relazione, sa usarla per il senso basico di ciò che vuol dire relazione;
+> se poi gli spiegano che questa è una relazione che agisce su un contesto, e di
+> tipo tutto-parte o di tipo affettivo o di tipo spaziale, eccetera…».
+> E: approfondire la natura delle relazioni, la loro dinamicità, la
+> relativizzazione.
+
+### 7.1 Il caso da cui nasce
+
+Frase letta: «Reefs are formed of colonies of coral polyps». Fatto scritto,
+corretto: `made_of(reefs, colonies)`. Domanda: «what are colonies made of?».
+Risposta: **«Reefs.»** — le colonie fatte di barriere, il contrario del testo.
+
+La diagnosi è passata per due ipotesi, entrambe ragionevoli e entrambe non la
+leva giusta:
+
+| ipotesi | che cosa diceva | perché non bastava |
+|---|---|---|
+| la IR è povera | il fatto non porta metadati sui ruoli | il fatto era giusto e aveva un verso; la lettura non aveva perso niente |
+| la domanda non discrimina | chi risponde non legge il verso | vero, ma curarlo forma per forma produce una regola per ogni superficie, e ogni forma dimenticata torna bugia |
+
+La leva è stata una **terza** cosa: la KB non sapeva **di che specie fosse la
+relazione**. La cornice delle risposte prova i due versi per *qualunque*
+relazione senza metadati (`mod_answer_frame`, «historical either-argument
+behaviour»), perché nessuna relazione le diceva «io ho un verso che non si
+discute». Una riga insegnata a voce l'ha detto:
+
+    > "made of" is a whole-part relation
+
+e da quel turno la domanda al contrario è diventata un muro onesto, la domanda
+diritta ha continuato a rispondere, e ritrattando la lezione la bugia torna
+(`tests/p0t/language/prose_triage.p0t`). Nessuna riga di C sulla relazione:
+la regola generica (`directed_surface/1`, `directed_question_arg/2` in
+grammar.p0) vale per ogni superficie che qualcuno dichiari della stessa specie.
+
+### 7.2 Due livelli di conoscenza di una relazione
+
+**Il senso basico.** Chi scopre una relazione nuova — «X frobs Y» — sa già
+molto: che lega due cose, che si può chiedere l'una data l'altra, che vale o
+non vale. È ciò che parrot0 ottiene da `relation_verb/1`: lettura, fatto,
+domanda. Ma il senso basico **non autorizza inferenze sulla forma della
+relazione**: non dice se `frobs(a,b)` implichi `frobs(b,a)`, se si propaghi
+lungo una catena, se valga fuori dal contesto in cui è stata detta. L'onestà
+del livello basico è quindi *prudente*: si risponde nel verso che la domanda
+indica, e quando il verso non si sa si dice di non saperlo. Oggi il motore fa il
+contrario — tira a indovinare — ed è un difetto di condotta (mantra #7), non di
+conoscenza.
+
+**La caratterizzazione.** Poi qualcuno spiega: «è una relazione tutto-parte»,
+«è spaziale», «è affettiva», «è simmetrica», «vale solo in quel contesto». Ogni
+caratterizzazione **porta con sé comportamenti**, ed è questo che la rende
+conoscenza e non etichetta:
+
+| specie | che cosa porta con sé (esempi) |
+|---|---|
+| tutto-parte | verso fisso; transitività della parte (la parte della parte è parte); le proprietà materiali del tutto dipendono dalle parti; domanda «di che cosa è fatto» vs «di che cosa fa parte» |
+| spaziale | inverso di superficie («X contains Y» / «Y is in X»); transitività del contenimento; domanda «where»; dipendenza dalla scala |
+| simmetrica | i due versi sono la stessa affermazione (`borders`, `sibling_of`) |
+| affettiva | non simmetrica per definizione (amare non è essere amati); graduata; soggettiva — chi lo dice conta |
+| causale | verso fisso; tempo (la causa precede); catena con attenuazione |
+| temporale | ordine; transitività; intervalli; domanda «when / since when» |
+| appartenenza / classe | eredità delle proprietà lungo la classe; domanda «what kind of» |
+| nominazione | «X is called Y»: nessuna eredità, due superfici della stessa cosa |
+
+La KB ha già i primi mattoni, sparsi: `relation_type(R, transitive|symmetric|asymmetric)`
+in `meta.p0` con i consumatori `transitive/1` e `symmetric/1` in `procedures.p0`;
+`relation_noun/2`; `excludes_relation/2`; `frame_projection/4`; il nuovo
+`whole_part_relation/1`. E un pezzo nel posto sbagliato: `kb_derive_part_of`
+(`src/kb.c`) *indovina* nel C quali predicati siano contenitori, e il gen513 ha
+dovuto insegnargli a non prendere «are» come parte di `redox`. È una
+caratterizzazione compilata: dovrebbe essere la conseguenza di una specie
+dichiarata.
+
+### 7.3 Il principio: la specie come dato, le conseguenze come regole su `apply`
+
+Con `apply/2` una conseguenza di specie si scrive **una volta per specie**, non
+una volta per relazione:
+
+```prolog
+% forma di arrivo — i nomi sono una proposta
+relation_kind($R, whole_part).               % insegnata: "made of" is a whole-part relation
+kind_property(whole_part, fixed_direction).
+kind_property(symmetric, both_directions).
+kind_property(part_whole_chain, transitive).
+
+holds_by_kind($R, $A, $B) :-                  % una regola per tutte le simmetriche
+    relation_kind($R, $K), kind_property($K, both_directions),
+    apply($R, cons($B, cons($A, nil))).
+```
+
+Tre discipline, pagate stanotte o nei giri precedenti:
+
+1. **Il membro è ciò che dice chi insegna.** La lezione memorizza la
+   *superficie* («made of»), non il predicato interno; il ponte superficie →
+   relazione è `answer_frame/2`. È l'anti-barare del MANTRA: chi insegna non
+   deve conoscere `made_of`.
+2. **Una sola classe per una parola.** «whole-part» e «whole part» producevano
+   due classi (`whole-part_relation`, `whole_part_relation`); il nome di classe
+   ora si normalizza nella lezione. E una superficie citata e una costruita
+   (`"made of"` / `made of`) non unificano: il confronto va fatto sulle parole.
+3. **La specie non si deduce dal nome del predicato.** `relation_type` oggi è
+   indicizzato sul predicato, la nuova classe sulla superficie. Vanno unificati
+   (7.6, P1): due indici della stessa conoscenza sono il duplicato che diverge.
+
+### 7.4 Dinamicità: una relazione può cambiare specie
+
+La specie non è una proprietà eterna della parola:
+
+- **«contains»** è tutto-parte in «water contains hydrogen» e spaziale in «the
+  box contains a key». La specie dipende dagli **argomenti**: sostanza e
+  componente, contenitore e oggetto. Quindi `relation_kind` deve poter avere una
+  condizione — una regola, non solo un fatto — e più specie possono valere
+  insieme, con la più specifica che vince (la stessa politica degli schemi,
+  Parte VI).
+- **Si impara per revisione.** Una relazione usata con il senso basico riceve
+  dopo una caratterizzazione: le risposte già date nel verso sbagliato vanno
+  *rilette* alla luce della specie nuova (il limite delle letture congelate,
+  `LEARN_TODO.md` SC40). Una lezione di specie è una revisione, non
+  un'aggiunta.
+- **La specie si ritratta.** «forget that "made of" is a whole-part relation»
+  deve restituire il senso basico, ed è la prova di ablazione che la specie è
+  conoscenza e non codice (verificato stanotte).
+
+### 7.5 Relativizzazione: rispetto a che cosa vale
+
+Una relazione vale **rispetto a** qualcosa, e dichiararlo è un'altra
+caratterizzazione:
+
+| relativa a | esempio | che cosa cambia |
+|---|---|---|
+| un contesto | «in the story, Mira loves Luca» | vale nel contesto, non nel mondo (Parte V §5.8) |
+| una quantità | «**Most** coral reefs are built from stony corals» | relazione attenuata: vera in generale, non per ogni membro — il serbatoio più grande del piolo 300 (8 domande) |
+| un tempo | «have declined **since 1950**» | intervallo, non fatto senza tempo |
+| un osservatore | «X is sensitive to Y», relazioni affettive | chi lo afferma fa parte del fatto |
+| una scala | «near», «large» | la verità dipende dall'unità di misura del discorso |
+| una prospettiva | «X is home to Y» / «Y lives in X» | stessa relazione, superficie inversa: la specie dice che l'inversione è lecita |
+
+Il punto comune: oggi parrot0 ha una sola forma di fatto — vero, senza
+condizioni — e quindi davanti a «Most…» **rifiuta** (onesto) e davanti a «in the
+story» mescola. La relativizzazione chiede che il fatto possa portare **a che
+cosa è relativo**, e che le specie dicano quali relativizzazioni hanno senso
+(una relazione simmetrica relativa a un osservatore smette di esserlo).
+
+### 7.6 L'incremento eseguibile, con le prove
+
+| passo | che cosa | prova di chiusura |
+|---|---|---|
+| **P1** | un solo indice: `relation_kind(Surface_o_Predicato, Specie)`, con `relation_type/2` e `whole_part_relation/1` come viste | le lezioni di stanotte e i `relation_type` di `meta.p0` rispondono alla stessa domanda «di che specie è R?» |
+| **P2** | il default della cornice rovesciato: si inverte **solo** se la specie lo autorizza (simmetrica, o con inversa di superficie dichiarata) | «what are colonies made of?» mura anche senza la lezione tutto-parte; «who borders France?» continua a rispondere nei due versi. Misurare sul banco quante risposte oggi giuste per fortuna diventano muri |
+| **P3** | le conseguenze di specie come regole su `apply` (transitività, inverso, eredità) | insegnare «"lies in" is a spatial relation» abilita il «where» e la catena del contenimento senza una riga nuova |
+| **P4** | specie condizionata agli argomenti («contains») | le due frasi di 7.4 danno due letture diverse dalla stessa superficie |
+| **P5** | la relativizzazione minima: l'attenuazione («Most») | «what are most coral reefs built from?» risponde «stony corals» e «what are all coral reefs built from?» no |
+| **P6** | `kb_derive_part_of` esce dal C: la parte derivata è la conseguenza di una specie dichiarata | il reperto «are come parte di redox» è impossibile per costruzione |
+
+### 7.7 Che cosa è stato verificato stanotte, e che cosa no
+
+- ✅ Una caratterizzazione insegnata a voce cambia il comportamento dal turno
+  dopo, e la ritrattazione lo restituisce (22 verdi in `prose_triage.p0t`).
+- ✅ Il nome di classe con trattino e senza è una classe sola.
+- ✅ Due trappole di motore trovate strada facendo: il tetto di **otto goal per
+  clausola** scartava in silenzio una regola di nove (portato a 16, +68 MB, +4%
+  di tempo), e la cattura di variabili fra regola e sottoregola con gli stessi
+  nomi è stata sospettata e poi esclusa dalla bisezione.
+- ⛔ Non verificato: P1–P6. La specie oggi ha **una** conseguenza (il verso
+  della domanda). Tutto il resto della tabella 7.2 è ipotesi di lavoro.

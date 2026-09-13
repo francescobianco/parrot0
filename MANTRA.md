@@ -573,6 +573,54 @@ prompt senza chiudere la sua classe non conta come progresso.
 
     Il metodo completo, con le misure: `docs/plans/procedura-crescita-kb.md`.
 
+23. **⛔ FATTO GIUSTO, DOMANDA GIUSTA, RISPOSTA SBAGLIATA: PRIMA DI INCOLPARE IL
+    LETTORE O LA DOMANDA, CERCA LA DIMENSIONE CHE ALLA KB MANCA PER DESCRIVERE
+    SE STESSA.**
+
+    F., 2026-09-13, notte, dopo il caso: *«il problema sembrava la IR o la
+    domanda, e invece aumentare la granularità descrittiva della KB ha dato una
+    leva risolutiva»*.
+
+    **Il caso.** «Reefs are formed of colonies» → `made_of(reefs, colonies)`,
+    corretto. «what are colonies made of?» → **«Reefs.»**. Le due diagnosi
+    ovvie erano entrambe plausibili: la IR non porta metadati sui ruoli; la
+    domanda non discrimina il verso. La prima era falsa (il fatto aveva un verso
+    e non aveva perso niente). La seconda era vera ma portava a una regola per
+    ogni forma di domanda, e ogni forma dimenticata sarebbe tornata bugia. La
+    leva è stata una terza cosa: la KB **non sapeva di che specie fosse la
+    relazione**. Una riga detta in chat — `"made of" is a whole-part relation`
+    — ha chiuso la bugia per ogni domanda su quella superficie, e ritrattandola
+    torna (`tests/p0t/language/prose_triage.p0t`).
+
+    **La regola.** Quando due pezzi che fanno bene il proprio lavoro producono
+    insieme un errore, il difetto non è quasi mai in uno dei due: è
+    **l'oggetto su cui dovrebbero accordarsi, e che nessuno dei due può
+    consultare perché non esiste**. È la forma ricorrente di D33/D35/D37
+    (`LEARN_TODO.md`, «due percorsi che devono accordarsi e non condividono
+    l'oggetto su cui accordarsi»), e questo mantra ne dice dove cercarlo:
+    spesso è **conoscenza sulla conoscenza** — la specie di una relazione, il
+    suo verso, la sua simmetria, il contesto o la quantità rispetto a cui vale.
+
+    **Il test, prima di scrivere codice:** *«esiste una proprietà della
+    relazione (o del fatto) che, se fosse dichiarata, renderebbe ovvia la
+    risposta giusta a entrambi i pezzi?»* Se sì, quella proprietà va in KB come
+    classe **insegnabile con le parole di chi insegna**, e i due pezzi la
+    consultano. Una cura in uno dei due pezzi, al posto suo, è il whack-a-mole:
+    si ripresenta alla forma successiva.
+
+    **Perché è un mantra e non una lezione.** Si applica prima di ogni modifica,
+    nomina un errore di *diagnosi* (non di codice) che i ventidue precedenti
+    lasciano passare — il #2 guarda le parole d'ingresso, il #16 quelle
+    d'uscita, il #17 la condotta, il #19 le congiunzioni, ma nessuno chiede
+    *che cosa la KB sa di sé* — e aumenta ciò che parrot0 vede invece di
+    ridurre ciò che un pezzo vede (il criterio di evoluzione in testa a questo
+    file). ⚠ **Stato: nato da un esperimento solo.** Va confermato al prossimo
+    caso della stessa forma; se il prossimo si cura meglio nel lettore o nella
+    domanda, questo testo va corretto, non difeso.
+
+    Il seguito (specie delle relazioni, dinamicità, relativizzazione) sta in
+    `docs/plans/the-magic-of-apply.md`, Parte VII.
+
 ## Dove sta il resto
 
 - `PRINCIPLES.md` — il *perché* dell'esperimento (la regola anti-inganno).

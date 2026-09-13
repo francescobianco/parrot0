@@ -146,10 +146,15 @@ occupy?» → `shallow_coral_reefs`); `adverbial_particle/1` chiude il sintagma.
 
 ### Bugie trovate e NON chiuse
 
-- **«what are colonies made of?» → «Reefs.»**: la direzione nella forma copulare
-  con participio e particella (made of, formed of, built from). Stessa classe
-  del circuito di oggi; la condizione va letta sulla struttura, e la cue
-  multi-parola la rende costosa con `answer_frame` legato solo sulla cue.
+- ~~**«what are colonies made of?» → «Reefs.»**~~ — **chiusa** nella notte, e
+  non nel lettore né nella domanda: con una caratterizzazione insegnata a voce,
+  `"made of" is a whole-part relation` (grammar.p0, `directed_surface/1`;
+  `learned.p0`). La ritrattazione riporta la bugia: e' conoscenza, non codice.
+  Da qui il mantra #23 e la Parte VII di `docs/plans/the-magic-of-apply.md`.
+  Trovati per strada: il tetto di **8 goal per clausola** (portato a 16, +68 MB,
+  +4% di tempo) e il nome di classe con trattino che faceva due classi (ora
+  normalizzato nella lezione). Resta un difetto di resa del muro: «colonies made
+  of of».
 - **«Shallow coral reefs are sometimes called …» → `Learned: shallow coral reefs is
   a sometime`**: «sometimes» lemmatizzato come nome.
 

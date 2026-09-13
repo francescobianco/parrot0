@@ -23,7 +23,7 @@
                          * value (335 bytes including quotes); unlike the former
                          * 128-byte ceiling it leaves useful runtime-growth room
                          * without treating response templates specially. */
-#define KB_MAX_BODY 8   /* goals per rule body (conjunctive rules) */
+#define KB_MAX_BODY 16  /* goals per rule body (conjunctive rules) — gen514: 8 -> 16 (F.) */
 
 /* Provenance of a clause (bit flags, so save can select layers). See DESIGN.md
  * D3: knowledge is composed from layers, and only some are persisted. */
