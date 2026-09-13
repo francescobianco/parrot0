@@ -237,3 +237,4 @@ perishable(chicken).
 perishable(rice).
 perishable(milk).
 perishable(fish).
+max_hours_out_above(perishables, 32, 1).

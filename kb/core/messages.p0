@@ -3355,3 +3355,17 @@ turn_form_mood(teach_time_out, statement).
 turn_form_act(teach_time_out, "op(assert, max_hours_out, [subject, object])").
 turn_form_reply(teach_time_out, learned_time_out).
 turn_form_priority(teach_time_out, early).
+% E la stessa regola quando fa caldo (USDA FSIS: 1 ora sopra i 90°F / 32°C).
+response_template(learned_time_out_hot, "Held: above {order} degrees, {subject} should not stay out of the fridge for more than {object} hours.").
+response_template(learned_time_out_hot, it, "Tengo: sopra {order} gradi, {subject} non deve stare fuori dal frigorifero più di {object} ore.").
+turn_form(teach_time_out_hot, 1, text("above")).
+turn_form(teach_time_out_hot, 2, slot(order)).
+turn_form(teach_time_out_hot, 3, text("degrees")).
+turn_form(teach_time_out_hot, 4, slot(subject)).
+turn_form(teach_time_out_hot, 5, text("should not be left out for more than")).
+turn_form(teach_time_out_hot, 6, slot(object)).
+turn_form(teach_time_out_hot, 7, text("hour")).
+turn_form_mood(teach_time_out_hot, statement).
+turn_form_act(teach_time_out_hot, "op(assert, max_hours_out_above, [subject, order, object])").
+turn_form_reply(teach_time_out_hot, learned_time_out_hot).
+turn_form_priority(teach_time_out_hot, early).

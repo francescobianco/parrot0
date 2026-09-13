@@ -33,6 +33,19 @@ food_limit($F, $F, $L) :- max_hours_out($F, $L).
 food_limit($F, $C, $L) :- max_hours_out($Said, $L), lemma_candidate($Said, $C), apply($C, cons($F, nil)).
 food_limit($F, $C, $L) :- max_hours_out($C, $L), apply($C, cons($F, nil)).
 
+% Il limite quando fa caldo: se il turno dice una temperatura sopra la soglia
+% insegnata («it was 35 degrees»), vale il limite caldo; se no, quello normale.
+machinery(turn_degrees).
+turn_degrees($Turn, $T) :- turn_word($Turn, $I, $W), duration_count_word($W, $T), is($J, add($I, 1)), turn_word($Turn, $J, $D), degrees_word($D).
+machinery(degrees_word).
+degrees_word(degrees).
+degrees_word(gradi).
+machinery(hot_limit).
+hot_limit($Turn, pair($F, $C), $L, $T) :- turn_degrees($Turn, $T), max_hours_out_above($Said, $Th, $L), gt($T, $Th), lemma_candidate($Said, $C), apply($C, cons($F, nil)).
+hot_limit($Turn, pair($F, $C), $L, $T) :- turn_degrees($Turn, $T), max_hours_out_above($C, $Th, $L), gt($T, $Th), apply($C, cons($F, nil)).
+machinery(turn_is_hot).
+turn_is_hot($Turn, $F) :- hot_limit($Turn, pair($F, $C), $L, $T).
+
 machinery(turn_hours).
 turn_hours($Turn, $N) :- turn_word($Turn, $I, $W), duration_count_word($W, $N), is($J, add($I, 1)), turn_word($Turn, $J, $H), hours_word($H).
 machinery(duration_count_word).
@@ -42,10 +55,13 @@ duration_count_word($W, $N) :- number_word($W, $N).
 machinery(food_time_verdict).
 food_time_verdict($Turn, over($F, $C, $N, $L)) :-
     turn_cue_form($Turn, food_time_cue, $Cue), turn_hours($Turn, $N),
-    turn_word($Turn, $F), food_limit($F, $C, $L), gt($N, $L).
+    turn_word($Turn, $F), food_limit($F, $C, $L), naf(turn_is_hot($Turn, $F)), gt($N, $L).
 food_time_verdict($Turn, within($F, $C, $N, $L)) :-
     turn_cue_form($Turn, food_time_cue, $Cue), turn_hours($Turn, $N),
-    turn_word($Turn, $F), food_limit($F, $C, $L), le($N, $L).
+    turn_word($Turn, $F), food_limit($F, $C, $L), naf(turn_is_hot($Turn, $F)), le($N, $L).
+food_time_verdict($Turn, hot_over(pair($F, $C), $N, $L, $T)) :-
+    turn_cue_form($Turn, food_time_cue, $Cue), turn_hours($Turn, $N),
+    turn_word($Turn, $F), hot_limit($Turn, pair($F, $C), $L, $T), gt($N, $L).
 
 machinery(food_time_answer).
 food_time_answer(over($F, $C, $N, $L), $Text) :-
@@ -57,6 +73,12 @@ food_time_answer(within($F, $C, $N, $L), $Text) :-
     concat_atoms("It is within the limit: ", $F, $A), concat_atoms($A, " is a ", $B), concat_atoms($B, $C, $D),
     concat_atoms($D, ", and a ", $E), concat_atoms($E, $C, $G), concat_atoms($G, " should not be left out for more than ", $H),
     concat_atoms($H, $L, $I), concat_atoms($I, " hours. Put it in the fridge now.", $Text).
+
+food_time_answer(hot_over(pair($F, $C), $N, $L, $T), $Text) :-
+    concat_atoms("No: at ", $T, $A), concat_atoms($A, " degrees a ", $B), concat_atoms($B, $C, $D),
+    concat_atoms($D, " like ", $E), concat_atoms($E, $F, $G), concat_atoms($G, " should not be left out for more than ", $H),
+    concat_atoms($H, $L, $I), concat_atoms($I, " hour; ", $J), concat_atoms($J, $N, $K),
+    concat_atoms($K, " hours is past that, so it is safer to throw it away.", $Text).
 
 turn_plan_candidate($Turn) :- food_time_verdict($Turn, $V).
 turn_response($Turn, $Text) :- food_time_verdict($Turn, $V), food_time_answer($V, $Text).

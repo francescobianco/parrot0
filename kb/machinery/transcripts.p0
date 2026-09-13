@@ -2287,6 +2287,7 @@ utterance(2, self, "I don't know: nothing I hold says burning fossil fuels cause
 utterance(2, self, "I don't understand that yet.").
 utterance(2, self, "Imparato: chloroform causa dizziness.").
 utterance(2, self, "Hmm, I don't know about cooked yet. Want me to learn about it?").
+utterance(2, self, "Held: above 32 degrees, perishables should not stay out of the fridge for more than 1 hours.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2373,6 +2374,7 @@ utterance(1, user, "does burning fossil fuels cause rising seas?").
 utterance(1, user, "the language of ghana is english").
 utterance(1, user, "chloroform causes dizziness").
 utterance(1, user, "I left cooked chicken out for 3 hours, is it safe?").
+utterance(1, user, "above 32 degrees perishables should not be left out for more than 1 hour").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

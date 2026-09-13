@@ -1373,6 +1373,11 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
 - **lezioni parlate salvate:** «perishables should not be left out for more than 2
   hours», «chicken / rice / milk / fish is a perishable».
 - **transfer:** il pesce per quattro ore, che nessun esempio usava.
-- **resta:** la regola dell'ora sopra i 32 °C; una frase senza domanda («the milk was
+- **integrazione adattiva (mix-13-14-08-12-15-001):** la temperatura detta nel turno
+  cambia la regola e il verdetto. Lezione parlata salvata: «above 32 degrees
+  perishables should not be left out for more than 1 hour». «I left the chicken out
+  for 2 hours» → entro il limite; «… for 2 hours at 35 degrees» → «No: at 35 degrees a
+  perishable like chicken should not be left out for more than 1 hour; …».
+- **resta:** una frase senza domanda («the milk was
   left on the counter for one hour») cade nel lettore delle affermazioni.
 - **test:** `tests/p0t/crossing/mix_food_time.p0t` (4).

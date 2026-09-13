@@ -24,3 +24,10 @@
 !timeout 30
 > I left my keys out for 3 hours
 <! No:
+
+[test the temperature said in the turn changes the limit and the verdict]
+!timeout 30
+> I left the chicken out for 2 hours, is it safe?
+<~ It is within the limit
+> I left the chicken out for 2 hours at 35 degrees, is it safe?
+< No: at 35 degrees a perishable like chicken should not be left out for more than 1 hour; 2 hours is past that, so it is safer to throw it away.
