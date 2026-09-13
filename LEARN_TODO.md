@@ -1,6 +1,29 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514, notte) — 35/50 (70%), CANCELLO 209
+## ⛔ HANDOFF 2026-09-13 (gen514, notte) — ✅ 40/50 = 80%, CANCELLO 243/299
+
+**Obiettivo dell'80% raggiunto sul banco fisso del piolo 300** ([referto](docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda/bench-40.txt)).
+Ultimi gradini, tutti come dimensioni descrittive in KB (mantra #23):
+- S13: perfetto attivo con particella (`perfect_auxiliary/1`, relazione con la
+  particella nel nome: `declined_by`, `declined_since`), complementi con
+  particelle diverse dello stesso verbo letti due volte
+  (`particle_adjunct_split`, `verb_form_particle/2`), subordinatore in coda
+  (`trailing_subordinator/1`, `subordinator_modifier/1`), predicati aggettivali
+  (`adjective_relation/1`), la domanda «since when» (`particle_question_word/2`),
+  `np_closer` sui participi nel verso che l'enumerazione percorre;
+- costruzione con copula chiesta senza copula; participio anteposto
+  (`fronted_participle/1`); parentetica come esempi (`parenthetical_relation/1`),
+  con la forma canonica `includes`.
+Il cancello (Σ parole delle domande risolte > 299) resta aperto: mancano 57
+parole. Le 10 aperte: «what phylum does coral belong to?», «what holds coral
+polyps together?», «in what kind of water do reefs grow best?», «what do coral
+reefs deliver services for?», «what has been estimated at billions?», «what is
+the annual global economic value of coral reefs?», «what is calcium carbonate
+for?», «what do reef-building corals build?», «what kind of corals are most
+reefs built from?», «what do excess nutrients include?» (chiusa nell'albero,
+da misurare).
+
+## HANDOFF 2026-09-13 (gen514, notte) — 35/50 (70%), CANCELLO 209
 
 **35/50**: «what is/are X?» dice la classe se c'e' (`class_reading/2`, anche per
 descrizione: «what is a reef?» -> coral reef; e «what kind of ecosystem…») e

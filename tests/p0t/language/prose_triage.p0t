@@ -189,3 +189,13 @@
 <~ 1950
 > what are coral reefs sensitive to?
 <~ water conditions
+
+[test a parenthetical gives the examples of the phrase before it]
+!reset
+!timeout 60
+> Coral reefs flourish in ocean waters. They are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification.
+<~ includes nitrogen
+> what do excess nutrients include?
+<~ nitrogen
+> what threatens coral reefs?
+<~ excess nutrients

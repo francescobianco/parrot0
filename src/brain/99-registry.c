@@ -5737,6 +5737,25 @@ static int relative_rewrite(Brain *b, const char *sentence,
         }
         free(po);
     }
+    /* gen514 — LA PARENTETICA. «excess nutrients (nitrogen and phosphorus)»
+     * dice di che cosa sono fatti gli eccessi di nutrienti, come «including»;
+     * la principale e' la frase senza la parentetica. Il verbo e' KB
+     * (`parenthetical_relation/1`). */
+    const char *paren_open = NULL, *paren_close = NULL;
+    {
+        const char *po2 = strstr(sentence, " (");
+        const char *pc2 = po2 ? strchr(po2, ')') : NULL;
+        char prel[1][KB_TERM_LEN];
+        const char *prq[1] = { NULL };
+        /* vince la struttura piu' a sinistra: in S14 la parentetica viene
+         * prima di «, including …». */
+        if (po2 && pc2 && pc2 > po2 + 2 && po2 > sentence && (!cut || po2 < cut) &&
+            kb_match(b->kb, "parenthetical_relation", prq, 1, prel, 1) == 1) {
+            paren_open = po2; paren_close = pc2;
+            cut = po2; cutlen = 2;
+            snprintf(opener_verb, sizeof opener_verb, "%s", kb_dequote(prel[0]));
+        }
+    }
     int bare_opener = 0;
     if (!cut) {
         char bares[8][KB_TERM_LEN];
@@ -5936,6 +5955,17 @@ static int relative_rewrite(Brain *b, const char *sentence,
                     o += (size_t)snprintf(dom + o, sizeof dom - o, "%s%s", o ? " " : "", aw[k]);
                 snprintf(antecedent, sizeof antecedent, "%s", dom);
             }
+        }
+        if (paren_open) {
+            if ((size_t)snprintf(right, right_size, "%s %s %.*s.", antecedent, opener_verb,
+                                 (int)(paren_close - paren_open - 2), paren_open + 2) >= right_size)
+                return 0;
+            size_t lo = (size_t)(paren_open - sentence);
+            if (lo + strlen(paren_close + 1) + 1 >= left_size) return 0;
+            snprintf(left, left_size, "%.*s%s", (int)lo, sentence, paren_close + 1);
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+            return 1;
         }
         if ((size_t)snprintf(right, right_size, "%s %s %s", antecedent, opener_verb, rest) >= right_size)
             return 0;

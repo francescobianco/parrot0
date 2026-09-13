@@ -3292,9 +3292,16 @@ fronted_participle(known).
 fronted_participle(named).
 fronted_participle(located).
 fronted_participle(found).
+% gen514 — una parentetica dopo un sintagma ne da' gli esempi. Il verbo e' la
+% forma canonica della relazione (`includes`, a cui porta anche la domanda con il
+% verbo nudo): «@S include @O» curato scrive `include`, e due nomi per la stessa
+% pretesa non si incontrano.
+knowledge_alias(include, includes).
+machinery(parenthetical_relation).
+parenthetical_relation(includes).
 machinery(participial_opener).
-participial_opener(including, include).
-participial_opener(incluso, include).
+participial_opener(including, includes).
+participial_opener(incluso, includes).
 machinery(bare_relative_opener).
 machinery(relative_clause_verb).
 bare_relative_opener(that).
