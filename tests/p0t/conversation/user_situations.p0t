@@ -51,6 +51,13 @@
 > should i go?
 <! it depends on what you need
 
+[test asking what help is available is answered for the user, not from the ledger]
+!timeout 30
+> What can you help me with?
+<~ I can help you think through a problem
+<~ What do you need right now?
+<! capability ledger
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem

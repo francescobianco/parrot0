@@ -158,6 +158,24 @@ user_situation($Turn, user_choice) :-
     turn_cue_form($Turn, choice_cue, $Cue),
     turn_cue_form($Turn, alternative_cue, $Or).
 
+% assistente utile U11 — «WHAT CAN YOU HELP ME WITH?» CHIEDE DI CHI ASCOLTA.
+% Riceveva il registro delle capacita' («From my capability ledger, I can
+% currently: answer from KB facts and rules, with limited inference; …»): vero,
+% ma detto dal punto di vista del motore. Chi chiede in che cosa puo' essere
+% aiutato vuole sapere che cosa portare. Le cose elencate nella mossa sono
+% verificate il 2026-09-13 sul banco dell'utilita' e nei cricchetti
+% (user_situations, own_procedure, arith): nessuna promessa oltre.
+machinery(help_scope_cue).
+help_scope_cue("what can you help me with").
+help_scope_cue("what can you help with").
+help_scope_cue("how can you help me").
+help_scope_cue("what can you do for me").
+help_scope_cue("in cosa puoi aiutarmi").
+help_scope_cue("come puoi aiutarmi").
+help_scope_cue("cosa puoi fare per me").
+turn_cue_registry(help_scope_cue, 1).
+user_situation($Turn, user_help_scope) :- turn_cue_form($Turn, help_scope_cue, $Cue).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -179,6 +197,10 @@ situation_cue("someone asks which to choose", user_choice).
 situation_cue("qualcuno deve scegliere", user_choice).
 situation_label(user_choice, en, "someone has to choose").
 situation_label(user_choice, it, "qualcuno deve scegliere").
+situation_cue("someone asks what you can help with", user_help_scope).
+situation_cue("qualcuno chiede in cosa puoi aiutarlo", user_help_scope).
+situation_label(user_help_scope, en, "someone asks what you can help with").
+situation_label(user_help_scope, it, "qualcuno chiede in cosa puoi aiutarlo").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -247,6 +269,14 @@ plan_step_text_lang(depends_on_need, en, "Both can be the right choice: it depen
 plan_step_text_lang(depends_on_need, it, "Possono essere entrambe la scelta giusta: dipende da che cosa ti serve, da quanto tempo o denaro vuoi metterci e da che cosa sai già.").
 plan_step_text_lang(ask_use, en, "What do you want to do with it first?").
 plan_step_text_lang(ask_use, it, "Che cosa vuoi farci per prima cosa?").
+move_cue("list what you can help with", list_help).
+move_cue("elenca in cosa puoi aiutare", list_help).
+move_cue("ask what they need", ask_need).
+move_cue("chiedi di che cosa ha bisogno", ask_need).
+plan_step_text_lang(list_help, en, "I can help you think through a problem with something that isn't working, weigh a choice between two options, talk through a worry, give you the steps for procedures I know (like changing a flat tire or making tea), work out sums and small word problems, and read a short text you give me and answer questions about it.").
+plan_step_text_lang(list_help, it, "Posso aiutarti a ragionare su qualcosa che non funziona, a pesare una scelta fra due opzioni, a parlare di una preoccupazione, darti i passi dei procedimenti che conosco (come cambiare una gomma o fare il tè), fare conti e piccoli problemi, e leggere un breve testo che mi dai e rispondere a domande su quello.").
+plan_step_text_lang(ask_need, en, "What do you need right now?").
+plan_step_text_lang(ask_need, it, "Di che cosa hai bisogno adesso?").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").
