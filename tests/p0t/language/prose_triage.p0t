@@ -82,3 +82,54 @@
 <~ Learned
 > what are colonies made of?
 <! Reefs
+
+[test most attenuates a generalization, several stays refused]
+!reset
+!timeout 30
+> Most coral reefs are built from stony corals.
+<~ Learned
+> what are most coral reefs built from?
+<~ stony corals
+!query attenuated_reading(most, $S)
+> Several pilots are sailors.
+<~ can't hold
+
+[test a possessive relative speaks of the possessed noun]
+!reset
+!timeout 60
+> A coral reef is an underwater ecosystem. Coral reefs are built from stony corals, whose polyps cluster in groups.
+<~ polyps of stony corals
+> where do the polyps of stony corals cluster?
+<~ groups
+
+[test a verb adverb is not an object]
+!reset
+!timeout 30
+> Most reefs grow best in warm water.
+<! grow best
+> where do most reefs grow best?
+<~ warm
+
+[test where are and at what ask the place, with the type checked]
+!reset
+!timeout 60
+> Coral reefs flourish in ocean waters. They are most commonly found at shallow depths in tropical waters, but deep water coral reefs exist in other areas.
+<~ located in shallow depths
+> where are coral reefs most commonly found?
+<~ shallow depths
+> at what depths are reefs commonly found?
+<~ shallow depths
+> at what time are reefs found?
+<! shallow depths
+
+[test a relative with bare that and coordinated predicates]
+!reset
+!timeout 60
+> A coral reef is an underwater ecosystem. Unlike sea anemones, corals secrete hard carbonate exoskeletons that support and protect the coral.
+<~ protect coral
+> what supports the corals?
+<~ exoskeletons
+> what protects the corals?
+<~ exoskeletons
+> what do corals secrete?
+<~ exoskeletons

@@ -47,6 +47,10 @@ construction_frame("@S placed in @O", "@S is located in @O", located_in).
 construction_frame("@S placed into @O", "@S is located in @O", located_in).
 construction_frame("@O is under threat from @S", "@S threatens @O", threaten).
 construction_frame("@O are under threat from @S", "@S threatens @O", threaten).
+construction_frame("@S is found at @O", "@S is located in @O", located_in).
+construction_frame("@S are found at @O", "@S is located in @O", located_in).
+construction_frame("@O provides a home for @S", "@S lives in @O", habitat).
+construction_frame("@O provide a home for @S", "@S lives in @O", habitat).
 
 % E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
 construction_answer_cue("@S goes by the name of @O", "goes by the name of", also_known_as).
@@ -66,5 +70,7 @@ construction_answer_cue("@S are formed of @O", "are formed of", made_of).
 construction_answer_cue("@S consist of @O", "consist of", made_of).
 construction_answer_cue("@S placed in @O", "placed in", located_in).
 construction_answer_cue("@S formed of @O", "formed of", made_of).
+construction_answer_cue("@S is found at @O", "is found at", located_in).
 construction_answer_cue("@S placed into @O", "placed into", located_in).
+construction_answer_cue("@S are found at @O", "are found at", located_in).
 construction_answer_cue("@S revolves around @O", "revolves around", orbits).

@@ -548,6 +548,42 @@ non_universal_quantifier(some).
 non_universal_quantifier(several).
 non_universal_quantifier(many).
 non_universal_quantifier(most).
+% gen514 — fra i non universali, quelli che ATTENUANO una generalizzazione
+% invece di restringerla a qualche individuo: «most reefs grow best in warm
+% water» dice come vanno le barriere, «several pilots are sailors» dice di
+% alcuni piloti. I primi si leggono, con la lettura annotata come attenuata
+% (`attenuated_reading/2`); i secondi restano rifiutati. Mantra #23 e
+% `docs/plans/the-magic-of-apply.md` §7.5: la relativizzazione alla quantita'.
+machinery(attenuating_quantifier).
+machinery(attenuated_reading).
+attenuating_quantifier(most).
+attenuating_quantifier(la_maggior_parte).
+% Gli avverbi che modificano il verbo e non sono un ruolo della relazione. Quelli
+% di frequenza attenuano anche la generalizzazione, come «most».
+machinery(verb_adverb).
+verb_adverb(best).
+verb_adverb(commonly).
+verb_adverb(usually).
+verb_adverb(often).
+verb_adverb(sometimes).
+verb_adverb(generally).
+verb_adverb(typically).
+verb_adverb(mostly).
+machinery(adverb_degree).
+adverb_degree(most).
+adverb_degree(very).
+adverb_degree(more).
+% E nelle domande chiudono il sintagma: «are coral reefs most COMMONLY found»
+% non nomina una cosa chiamata «coral reefs commonly». Solo quelli di
+% frequenza: «best» sta anche dentro un sintagma («the best reef»).
+np_closer($A) :- verb_adverb($A), attenuating_quantifier($A).
+attenuating_quantifier(commonly).
+attenuating_quantifier(usually).
+attenuating_quantifier(often).
+attenuating_quantifier(sometimes).
+attenuating_quantifier(generally).
+attenuating_quantifier(typically).
+attenuating_quantifier(mostly).
 non_universal_quantifier(few).
 non_universal_quantifier(alcuni).
 non_universal_quantifier(alcune).
@@ -1244,8 +1280,44 @@ directed_question_arg($S, 2) :-
     directed_surface($S), turn_surface_at(current_turn, $S, $At),
     turn_word(current_turn, $WhPos, $Wh), question_word($Wh), lt($WhPos, $At),
     naf(turn_content_before(current_turn, $At)).
-answer_frame_input_arg($S, $Pred, $Arg) :-
+answer_frame_turn_arg($S, $Pred, $Arg) :-
     directed_question_arg($S, $Arg), answer_frame($S, $Pred).
+
+% ── gen514 — LA PORTA INTERROGATIVA DI UNA COSTRUZIONE CHE INVERTE I RUOLI ─
+%
+% «x provide a home for y means y lives in x» si legge («at least 25% of all
+% marine species live in coral reefs»), ma «what do coral reefs provide a home
+% for?» non trovava niente: una costruzione che rovescia i ruoli non registra
+% la sua cue interrogativa, perche' la cue da sola non dice quale ruolo e' dato.
+% Lo dice la struttura, come per le relazioni tutto-parte: l'entita' prima della
+% superficie occupa lo slot `@O` della forma sorgente, cioe' il secondo
+% argomento della relazione. Si parte dalle parole del turno
+% (`swapped_construction_head/3`, indicizzata sulla prima parola) e mai dalle
+% costruzioni, e senza un interrogativo davanti non c'e' nessuna riga.
+% ⚠ gen514 — le direzioni lette sulla STRUTTURA del turno stanno in
+% `answer_frame_turn_arg/3`, non in `answer_frame_input_arg/3`: ogni superficie di
+% quest'ultimo e' anche una cue del turno e porta la domanda nel produttore
+% universale (`turn_relation`, turn-frames.p0), che quando i fatti mancano
+% esplora ogni parola con `apply` — 636 -> 1494 ms su un muro, 21 s e un blocco
+% su «how many marine species do reefs provide a home for?». Debito aperto: il
+% produttore universale non vede queste direzioni finche' non costa poco anche
+% senza fatti (LEARN_TODO, handoff gen514).
+machinery(answer_frame_turn_arg).
+machinery(swapped_construction_cue).
+machinery(swapped_construction_head).
+machinery(turn_swapped_cue).
+swapped_construction_cue($Cue, $Pred) :-
+    construction_frame($Src, $Tgt, $Pred),
+    concat_atoms("@O ", $Rest, $Src), concat_atoms($Cue, " @S", $Rest).
+swapped_construction_head($First, $Cue, $Pred) :-
+    swapped_construction_cue($Cue, $Pred), atom_words($Cue, cons($First, $More)).
+turn_swapped_cue($Cue, $Pred, 2) :-
+    turn_word(current_turn, $At, $First),
+    swapped_construction_head($First, $Cue, $Pred),
+    turn_surface_at(current_turn, $Cue, $At),
+    turn_content_before(current_turn, $At).
+answer_frame($Cue, $Pred) :- turn_swapped_cue($Cue, $Pred, $Arg).
+answer_frame_turn_arg($Cue, $Pred, $Arg) :- turn_swapped_cue($Cue, $Pred, $Arg).
 
 machinery(bare_verb_auxiliary).
 bare_verb_auxiliary(do).
@@ -1274,7 +1346,7 @@ turn_question_verb($Root, $Root, 1) :-
 turn_question_verb($Stem, $Verb, 1) :-
     object_question_verb(current_turn, $Stem), verb_stem($Verb, $Stem).
 answer_frame($Form, $Root) :- turn_question_verb($Form, $Root, $Arg).
-answer_frame_input_arg($Form, $Root, $Arg) :- turn_question_verb($Form, $Root, $Arg).
+answer_frame_turn_arg($Form, $Root, $Arg) :- turn_question_verb($Form, $Root, $Arg).
 
 extract_frame($Pat, $Verb) :-
     verb_stem($Verb, $Stem),
@@ -3066,6 +3138,7 @@ linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
 machinery(materialized_view).
 materialized_view(extract_frame, 2).
 materialized_view(verb_stem, 2).
+materialized_view(swapped_construction_head, 3).
 % Le superfici che una lezione di costruzione rivendica (vedi `construction_claims/1`):
 % la guardia del passivo generico le chiede una per schema, quindi si congelano.
 materialized_view(construction_claims, 1).
@@ -3100,6 +3173,22 @@ machinery(relative_opener).
 relative_opener(which).
 relative_opener(who).
 relative_opener(whose).
+% gen514 — il relativo possessivo: la seconda proposizione parla del nome
+% POSSEDUTO, legato all'antecedente. «stony corals, whose polyps cluster in
+% groups» -> «polyps of stony corals cluster in groups».
+% gen514 — «that» apre una relativa anche senza virgola, ma solo se la parola
+% dopo e' la forma di un verbo di relazione: altrimenti e' complementatore
+% («indicate that DART slowed») o dimostrativo.
+machinery(bare_relative_opener).
+machinery(relative_clause_verb).
+bare_relative_opener(that).
+relative_clause_verb($W) :- verb_reading_form($Root, $W).
+machinery(possessive_relative_opener).
+machinery(possessive_link).
+possessive_relative_opener(whose).
+possessive_link(whose, of).
+possessive_relative_opener(cui).
+possessive_link(cui, di).
 relative_opener(che).
 relative_opener(cui).
 
@@ -3150,6 +3239,19 @@ partitive_link($Head, $Prep) :-
 % Un valore misurato e' piu' lungo di un concetto, e non perche' ha ingoiato
 % qualcosa: «0.1 percent of the world ocean area» sono sette parole e sono tutte
 % del valore. Vale solo per le forme che contengono un partitivo dopo una misura.
+% gen514 — i limiti di una quantita' («at least 25%», «about half») fanno
+% parte del valore quando precedono un numero.
+machinery(quantity_bound).
+quantity_bound("at least").
+quantity_bound("at most").
+quantity_bound("about").
+quantity_bound("around").
+quantity_bound("up to").
+quantity_bound("more than").
+quantity_bound("less than").
+quantity_bound("nearly").
+quantity_bound("almost").
+quantity_bound("over").
 machinery(measured_value_max_words).
 measured_value_max_words(9).
 

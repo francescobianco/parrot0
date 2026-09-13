@@ -1,6 +1,34 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514) — LA DIREZIONE DELLA DOMANDA E IL TRIAGE: 19/50
+## ⛔ HANDOFF 2026-09-13 (gen514, notte) — 27/50, CANCELLO 156
+
+**Ultimo gradino, sopra il resto di questo handoff.** 19 → 24 → 27/50 applicando
+il mantra #23 (cercare la dimensione descrittiva che manca):
+- **attenuazione** (`attenuating_quantifier/1`, `attenuated_reading/2`): «Most X…»
+  si legge annotato, «several X…» resta rifiutato;
+- **avverbi del verbo** (`verb_adverb/1`, `adverb_degree/1`): «grow best in», «most
+  commonly found at»;
+- **relativa possessiva** (`possessive_relative_opener/1`) e antecedente plurale nudo;
+- **«where are / at what»** come domande locative (`intents.p0`), costruzione
+  «x are found at y»;
+- **relativa con «that» senza virgola** + **predicati coordinati**
+  (`bare_relative_opener/1`, `predicate_coordination_split` in 99-registry.c);
+  la relativa si legge prima della principale (salienza del «they» dopo);
+- **limiti di quantita'** (`quantity_bound/1`) e costruzioni a ruoli invertiti
+  con porta interrogativa (`turn_swapped_cue/3`), «x provide a home for y».
+- ⚠ Le direzioni lette sulla struttura del turno stanno in
+  `answer_frame_turn_arg/3`, NON nel registro delle cue: nel produttore
+  universale, senza fatti, costavano 21 s e un turno bloccato. **Debito aperto.**
+- ⚠ `naf` con una variabile libera ha spento per un giro la forza *assertion*
+  di ogni dichiarativa: preso da `prose_relation_scope.p0t`.
+
+Prossimo, in ordine: S10 nel brano («Yet, they provide a home for …, including
+fish, …»: l'enumerazione ruba la principale); «how many marine species do reefs
+provide a home for?» (G2 enumera solo le chiavi del primo argomento); S13
+(«declined by», «since», «partly because», «sensitive to»); S4 («in the animal
+phylum Cnidaria»); definizioni («what is a reef?», «what kind of ecosystem»).
+
+## HANDOFF 2026-09-13 (gen514) — LA DIREZIONE DELLA DOMANDA E IL TRIAGE: 19/50
 
 **Punto di ripresa attivo per la prosa** (supera il checkpoint sotto, che resta
 la mappa dei residui). **19/50**, cancello 107/299, nessuna risposta corretta

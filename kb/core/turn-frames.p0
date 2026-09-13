@@ -405,8 +405,17 @@ faculty_yield_force(answerframe, open, unasked).
 % Serve perche' una facolta' che risponde alle domande possa CEDERE un turno che
 % non e' una domanda. Misurato sulla matrice F03: «He reviewed the draft»
 % riceveva «Luca.» — una risposta a una domanda che nessuno aveva fatto.
+% gen514 — ma non se il turno chiude con il punto interrogativo: «how many
+% marine species do reefs provide a home for?» legava uno schema dichiarativo
+% sulle sue parole, diventava anche un'asserzione, e la cornice delle risposte
+% cedeva il turno (`faculty_yield_force(answer_frame, open, assertion)`). Chi
+% scrive «?» sta chiedendo (`question_mark_cue`, sopra).
 turn_declared_act($Turn, assertion) :-
-    turn_reading($Turn, declarative, $Pred).
+    turn_reading($Turn, declarative, $Pred),
+    naf(turn_has_question_mark($Turn)).
+% ⚠ Mai una variabile libera dentro `naf`: la prima versione negava
+% `turn_cue($Turn, question_mark_cue, $Mark)` e la forza assertion spariva per
+% OGNI dichiarativa (la cornice rispondeva alle frasi insegnate).
 % gen512 — PROVATO E RITIRATO: dichiarare affermazione ogni turno che si apre
 % con un pronome personale. Curava «they eat fish» -> «A bear.», ma quel difetto
 % era del ramo della dieta (rispondeva a chi non chiedeva) e li' e' stato curato.

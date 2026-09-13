@@ -4477,6 +4477,7 @@ static int p0_lead_det(Brain *b, const char *t) {
  * copulas/determiners, and common conversational openers. Keeps the broad extractor
  * from mistaking a question ("what is your sister's name") or a greeting ("how is
  * your day going") or a predicate-adjective clause for a membership statement. */
+static size_t p0_quantity_bound_len(Brain *b, char **w, size_t n, size_t i); /* gen514 fwd */
 static int p0_bad_subject(Brain *b, const char *t) {
     if (!b || !b->kb || !t) return 0;
     const char *q[] = { t };
@@ -4507,6 +4508,14 @@ static int p0_bad_subject(Brain *b, const char *t) {
         char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", t);
         char *ptoks[16]; size_t pn = 0;
         for (char *tok = strtok(pb, "_ "); tok && pn < 16; tok = strtok(NULL, "_ ")) ptoks[pn++] = tok;
+        /* gen514 — una QUANTITA' MISURATA come soggetto («at least 25 percent
+         * of all marine species live in coral reefs», dopo una costruzione che
+         * inverte i ruoli): limite eventuale, poi un numero. Le sue parole
+         * vuote e il quantificatore del dominio non sono un taglio sbagliato. */
+        {
+            size_t bl = pn ? p0_quantity_bound_len(b, ptoks, pn, 0) : 0;
+            if (bl < pn && pn >= 3 && isdigit((unsigned char)ptoks[bl][0])) return 0;
+        }
         if (pn >= 3) {
             int bad = 0;
             for (size_t k = 0; k < pn && !bad; k++) {
@@ -4876,9 +4885,41 @@ static int p0_partitive_continues(Brain *b, char **w, size_t i, const char *t) {
     return kb_query(brain_kb(b), "partitive_link", q, 2);
 }
 
+/* gen514 — «provide a home for AT LEAST 25% of all marine species»: il limite
+ * di una quantita' fa parte del valore, ma comincia con una preposizione, che
+ * chiude il sintagma, e lo slot restava vuoto. Quali parole siano un limite e'
+ * KB (`quantity_bound/1`, anche di piu' parole); vale solo davanti a un numero.
+ * Restituisce quante parole copre il limite che comincia in `i`, o 0. */
+static size_t p0_quantity_bound_len(Brain *b, char **w, size_t n, size_t i) {
+    char (*rows)[KB_TERM_LEN] = NULL; size_t nr = 0;
+    const char *q[1] = { NULL };
+    if (!kb_match_all(b->kb, "quantity_bound", q, 1, &rows, &nr)) { free(rows); return 0; }
+    size_t best = 0;
+    for (size_t r = 0; r < nr; r++) {
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", rows[r]);
+        char *bw[8]; size_t nb = split_words((char *)kb_dequote(sb), bw, 8);
+        if (nb == 0 || i + nb >= n || nb <= best) continue;
+        size_t k = 0;
+        for (; k < nb; k++) {
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", w[i + k]);
+            if (strcmp(strip_edge_punct(tb), bw[k])) break;
+        }
+        if (k < nb) continue;
+        char nb2[KB_TERM_LEN]; snprintf(nb2, sizeof nb2, "%s", w[i + nb]);
+        if (!isdigit((unsigned char)strip_edge_punct(nb2)[0])) continue;
+        best = nb;
+    }
+    free(rows);
+    return best;
+}
+
 static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
                        const char *next_literal) {
     for (size_t i = from; i < n; i++) {
+        if (!next_literal && i == from) {
+            size_t bl = p0_quantity_bound_len(b, w, n, i);
+            if (bl) { i += bl - 1; continue; }
+        }
         char *t = strip_edge_punct(w[i]);
         if (next_literal && !strcmp(t, next_literal)) return (int)i;
         if (!next_literal && p0_np_closer(b, t) &&
@@ -6364,7 +6405,10 @@ static int p0_atom_is_concept(Brain *b, const char *atom) {
     snprintf(buf, sizeof buf, "%s", atom);
     char *toks[16]; size_t nt = 0;
     for (char *tok = strtok(buf, "_"); tok && nt < 16; tok = strtok(NULL, "_")) toks[nt++] = tok;
-    for (size_t k = 0; k < nt; k++) {
+    /* gen514 — il limite di una quantita' in testa («about_0.1_percent…») fa
+     * parte del valore: stessa conoscenza del lettore degli slot. */
+    size_t bound = nt ? p0_quantity_bound_len(b, toks, nt, 0) : 0;
+    for (size_t k = bound; k < nt; k++) {
         if (!p0_np_closer(b, toks[k])) continue;
         /* gen510 — una preposizione FRA due parole piene non e' un confine
          * attraversato: e' dentro il sintagma («fall_from_height»). Il confine
@@ -6988,6 +7032,54 @@ static int extract_class_statement(Brain *b, const char *norm,
         char head[KB_TERM_LEN];
         snprintf(head, sizeof head, "%s", w[0]);
         const char *hw = strip_edge_punct(head);
+        /* gen514 — MA «MOST» NON E' «SEVERAL». «Most coral reefs are built from
+         * stony corals» e' una generalizzazione vera DEL GENERE, con eccezioni:
+         * la stessa forma con cui un'enciclopedia dice quasi tutto cio' che
+         * sa. Quali quantificatori attenuano una regola generale invece di
+         * restringerla a qualche individuo e' conoscenza
+         * (`attenuating_quantifier/1`): la frase si legge senza il
+         * quantificatore, e la lettura resta annotata come attenuata
+         * (`attenuated_reading/2`), cosi' chi risponde sa che non e' un «tutti». */
+        /* gen514 — e l'AVVERBIO che modifica il verbo non occupa un ruolo della
+         * relazione: «Most reefs grow BEST in warm water» scriveva
+         * `grow(reefs, best)` e «where do most reefs grow best?» rispondeva
+         * «Best.». Quali parole siano trasparenti e' `verb_adverb/1`; quelle
+         * che attenuano anche (commonly, sometimes) lasciano la stessa traccia
+         * del quantificatore. Mai la prima parola: li' l'avverbio apre la frase
+         * e non sta fra verbo e oggetto. */
+        for (size_t k = n; k-- > 1; ) {
+            char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", w[k]);
+            const char *aw = strip_edge_punct(ab);
+            if (!lex_class_member(b, "verb_adverb", aw) || n <= 3) continue;
+            if (lex_class_member(b, "attenuating_quantifier", aw)) {
+                const char *aq[2] = { aw, norm };
+                int prev_origin = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_SESSION);
+                kb_assert(b->kb, "attenuated_reading", aq, 2);
+                kb_set_origin(b->kb, prev_origin);
+            }
+            memmove(w + k, w + k + 1, (n - k - 1) * sizeof w[0]);
+            n--;
+            /* «most commonly», «very often»: il grado dell'avverbio se ne va
+             * con lui (`adverb_degree/1`), ma solo li' — «earth's most diverse
+             * ecosystems» lo tiene. */
+            if (k > 1) {
+                char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", w[k - 1]);
+                if (lex_class_member(b, "adverb_degree", strip_edge_punct(db))) {
+                    memmove(w + k - 1, w + k, (n - k) * sizeof w[0]);
+                    n--; k--;
+                }
+            }
+        }
+        if (lex_class_member(b, "attenuating_quantifier", hw) && n > 2) {
+            const char *aq[2] = { hw, norm };
+            int prev_origin = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, "attenuated_reading", aq, 2);
+            kb_set_origin(b->kb, prev_origin);
+            memmove(w, w + 1, (n - 1) * sizeof w[0]);
+            n--;
+        } else
         if (lex_class_member(b, "non_universal_quantifier", hw)) {
             if (extract_only) return 0;
             const KbResponseSlot sl[] = { { "clause", norm } };
@@ -8890,13 +8982,20 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
-    if (p0_faculty_yields(b, "answer_frame", "open", norm, NULL)) return 0;
+    if (p0_faculty_yields(b, "answer_frame", "open", norm, NULL)) {
+        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[aframe] yields\n");
+        return 0;
+    }
     {
         char guards[32][KB_TERM_LEN];
         const char *gq[] = { "answerframe", NULL };
         size_t ng = kb_match(b->kb, "compound_guard", gq, 2, guards, 32);
         for (size_t gi = 0; gi < ng; gi++) {
-            if (kb_cue_match(b, kb_dequote(guards[gi]), norm)) return 0;
+            if (kb_cue_match(b, kb_dequote(guards[gi]), norm)) {
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[aframe] guarded by %s\n", guards[gi]);
+                return 0;
+            }
         }
     }
     /* gen457: una FORMA di domanda puo' produrre il frame concreto che manca,
@@ -9001,6 +9100,13 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
              * comportamento storico (entrambe le direzioni). */
             size_t ni = *cues[i] ? kb_match(b->kb, "answer_frame_input_arg", iq, 3,
                                             input_args, 4) : 0;
+            /* gen514 — la direzione che dipende dalla STRUTTURA del turno
+             * (`answer_frame_turn_arg/3`, grammar.p0) non passa dal registro
+             * delle cue: li' ogni superficie entra nel produttore universale,
+             * che senza fatti esplora ogni parola del turno (21 s misurati, e
+             * un turno bloccato). Il consumatore storico la legge da qui. */
+            if (ni == 0 && *cues[i])
+                ni = kb_match(b->kb, "answer_frame_turn_arg", iq, 3, input_args, 4);
             if (getenv("P0_READ_TRACE"))
                 fprintf(stderr, "[aframe] input_arg cue=%s pred=%s -> %zu (%s)\n", cues[i], preds[p], ni, ni ? input_args[0] : "-");
             if (ni > 0) {
@@ -9131,6 +9237,14 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     is_stopword(b, strip_edge_punct(w[t]))) continue;
                 size_t ss = t;
                 if (p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
+                /* gen514 — «coral reefs MOST commonly found»: il grado di un
+                 * avverbio chiude il sintagma solo in coda (`adverb_degree/1`);
+                 * dentro («earth's most diverse») resta. */
+                while ((size_t)end > ss + 1) {
+                    char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", w[end - 1]);
+                    if (!lex_class_member(b, "adverb_degree", strip_edge_punct(tb))) break;
+                    end--;
+                }
                 /* gen512 — un sintagma con un pronome senza antecedente non
                  * DESCRIVE un'entita': «tell me what it is made of» leggeva
                  * «what it» come descrizione con testa «it» e rispondeva

@@ -5604,6 +5604,38 @@ static int relative_rewrite(Brain *b, const char *sentence,
         const char *h = strstr(sentence, needle);
         if (h && (!cut || h < cut)) { cut = h; cutlen = strlen(needle); }
     }
+    /* ── gen514 — LA RELATIVA CON «THAT» NON HA VIRGOLA ──────────────────────
+     * «corals secrete hard carbonate exoskeletons THAT support and protect the
+     * coral», «ocean waters THAT provide few nutrients». «that» e' anche il
+     * complementatore («indicate that DART slowed…») e il dimostrativo, quindi
+     * la condizione e' strutturale e sta in KB: il pronome e' in
+     * `bare_relative_opener/1` e la parola dopo deve essere la forma di un verbo
+     * di relazione (`relative_clause_verb/1`). */
+    int bare_opener = 0;
+    if (!cut) {
+        char bares[8][KB_TERM_LEN];
+        const char *bq[1] = { NULL };
+        size_t nb = kb_match(b->kb, "bare_relative_opener", bq, 1, bares, 8);
+        for (size_t i = 0; i < nb && !cut; i++) {
+            char bb[KB_TERM_LEN]; snprintf(bb, sizeof bb, "%s", bares[i]);
+            const char *bw = kb_dequote(bb);
+            if (!*bw) continue;
+            char needle[KB_TERM_LEN];
+            snprintf(needle, sizeof needle, " %s ", bw);
+            for (const char *h = strstr(sentence, needle); h; h = strstr(h + 1, needle)) {
+                const char *nx = h + strlen(needle);
+                char next[KB_TERM_LEN]; size_t k = 0;
+                while (nx[k] && nx[k] != ' ' && nx[k] != ',' && k + 1 < sizeof next) {
+                    next[k] = (char)tolower((unsigned char)nx[k]); k++;
+                }
+                next[k] = '\0';
+                const char *vq[1] = { next };
+                if (!*next || !kb_query(b->kb, "relative_clause_verb", vq, 1)) continue;
+                cut = h; cutlen = strlen(needle); bare_opener = 1;
+                break;
+            }
+        }
+    }
     /* ── 12 settembre 2026 — LA RELATIVA RIDOTTA NON HA VIRGOLA ──────────────
      * «Reefs are formed of colonies of coral polyps HELD TOGETHER BY calcium
      * carbonate»: la seconda proposizione comincia con un participio e nessun
@@ -5662,7 +5694,9 @@ static int relative_rewrite(Brain *b, const char *sentence,
          * risalgono i token della IR finche' la KB dice che una parola ferma
          * l'antecedente (`antecedent_stop/1`): la forma del sintagma resta
          * conoscenza, qui c'e' solo il cammino all'indietro. */
-        if (!found && keep_opener) {
+        /* gen514 — anche per una relativa con pronome: «stony corals, whose
+         * polyps cluster in groups» ha un plurale nudo come antecedente. */
+        if (!found) {
             size_t first = 0, last = 0; int have = 0;
             for (size_t i = nn; i-- > 0; ) {
                 if (strcmp(nodes[i].level, "token")) continue;
@@ -5711,11 +5745,86 @@ static int relative_rewrite(Brain *b, const char *sentence,
 
     const char *rest = cut + cutlen;
     if (!*rest) return 0;
+    /* gen514 — IL PRONOME POSSESSIVO. «stony corals, whose polyps cluster in
+     * groups» non dice che i coralli si raggruppano: dice che si raggruppano i
+     * LORO polipi. La seconda proposizione e' «polyps of stony corals cluster
+     * in groups». Quale pronome sia possessivo e' KB
+     * (`possessive_relative_opener/1`); qui si sposta il nome posseduto
+     * davanti all'antecedente, con il legante che la KB dichiara
+     * (`possessive_link/2`). */
+    {
+        char opener[KB_TERM_LEN] = "";
+        if (!keep_opener && !bare_opener && cutlen > 3) {
+            size_t ol = cutlen - 3;              /* ", " + parola + " " */
+            if (ol < sizeof opener) { memcpy(opener, cut + 2, ol); opener[ol] = '\0'; }
+        }
+        const char *pq[1] = { opener };
+        char link[1][KB_TERM_LEN];
+        const char *lq[2] = { opener, NULL };
+        if (*opener && kb_query(b->kb, "possessive_relative_opener", pq, 1) &&
+            kb_match(b->kb, "possessive_link", lq, 2, link, 1) == 1) {
+            const char *sp = strchr(rest, ' ');
+            if (!sp) return 0;
+            char lk[KB_TERM_LEN]; snprintf(lk, sizeof lk, "%s", link[0]);
+            if ((size_t)snprintf(right, right_size, "%.*s %s %s%s",
+                                 (int)(sp - rest), rest, kb_dequote(lk),
+                                 antecedent, sp) >= right_size)
+                return 0;
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+            return 1;
+        }
+    }
     if ((size_t)snprintf(right, right_size, "%s %s", antecedent, rest) >= right_size)
         return 0;
     if (getenv("P0_READ_TRACE"))
         fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
     return 1;
+}
+
+/* gen514 — I PREDICATI COORDINATI DISTRIBUISCONO SUL SOGGETTO E SULL'OGGETTO.
+ *
+ * «hard carbonate exoskeletons support and protect the coral» dice due fatti,
+ * e il lettore ne vedeva nessuno (lo schema «@S support @O» trovava «and
+ * protect» dentro l'oggetto). Il C taglia soltanto: che la parola sia una
+ * congiunzione (`conjunction/1`) e che le due parole ai lati siano forme di un
+ * verbo di relazione (`relative_clause_verb/1`) lo dice la KB. Senza oggetto
+ * dopo il secondo verbo, niente. */
+static int predicate_coordination_split(Brain *b, const char *s,
+                                        char *a, size_t asz,
+                                        char *c, size_t csz) {
+    if (!b || !b->kb || !s) return 0;
+    char buf[P0_TURN_MAX]; snprintf(buf, sizeof buf, "%s", s);
+    char *w[64]; size_t n = split_words(buf, w, 64);
+    for (size_t i = 1; i + 2 < n; i++) {
+        char cw[KB_TERM_LEN]; snprintf(cw, sizeof cw, "%s", w[i]);
+        for (char *q = cw; *q; q++) *q = (char)tolower((unsigned char)*q);
+        const char *cq[1] = { cw };
+        if (!kb_query(b->kb, "conjunction", cq, 1)) continue;
+        char v1[KB_TERM_LEN], v2[KB_TERM_LEN];
+        snprintf(v1, sizeof v1, "%s", w[i - 1]);
+        snprintf(v2, sizeof v2, "%s", w[i + 1]);
+        for (char *q = v1; *q; q++) *q = (char)tolower((unsigned char)*q);
+        for (char *q = v2; *q; q++) *q = (char)tolower((unsigned char)*q);
+        const char *q1[1] = { v1 }, *q2[1] = { v2 };
+        if (i < 2 || !kb_query(b->kb, "relative_clause_verb", q1, 1) ||
+            !kb_query(b->kb, "relative_clause_verb", q2, 1)) continue;
+        size_t ao = 0, co = 0;
+        for (size_t k = 0; k + 1 < i && ao < asz; k++)
+            ao += (size_t)snprintf(a + ao, asz - ao, "%s%s", ao ? " " : "", w[k]);
+        co = (size_t)snprintf(c, csz, "%s", a);
+        ao += (size_t)snprintf(a + ao, asz > ao ? asz - ao : 0, " %s", w[i - 1]);
+        co += (size_t)snprintf(c + co, csz > co ? csz - co : 0, " %s", w[i + 1]);
+        for (size_t k = i + 2; k < n; k++) {
+            ao += (size_t)snprintf(a + ao, asz > ao ? asz - ao : 0, " %s", w[k]);
+            co += (size_t)snprintf(c + co, csz > co ? csz - co : 0, " %s", w[k]);
+        }
+        if (ao >= asz || co >= csz) return 0;
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[coordinati] «%s» + «%s»\n", a, c);
+        return 1;
+    }
+    return 0;
 }
 
 static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
@@ -5870,8 +5979,25 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             char lft[P0_TURN_MAX], rgt[P0_TURN_MAX];
             if (relative_rewrite(b, c, lft, sizeof lft, rgt, sizeof rgt)) {
                 char subr[1024]; subr[0] = '\0';
-                brain_respond(b, lft, sub, sizeof sub);
+                /* gen514 — la relativa si legge PRIMA della principale. Un
+                 * referente introdotto in una relativa e' meno saliente di
+                 * quello della principale: «Coral reefs flourish in ocean
+                 * waters that provide few nutrients. THEY are found at shallow
+                 * depths» — «they» sono le barriere, non le acque. Letta per
+                 * ultima, la principale lascia i suoi referenti come i piu'
+                 * recenti; il messaggio conserva l'ordine della frase. */
+                char p1[P0_TURN_MAX], p2[P0_TURN_MAX];
+                if (predicate_coordination_split(b, rgt, p1, sizeof p1, p2, sizeof p2)) {
+                    char subq[512] = "";
+                    brain_respond(b, p1, subr, sizeof subr);
+                    brain_respond(b, p2, subq, sizeof subq);
+                    if (!reply_is_wall(b, subq) && strlen(subr) + strlen(subq) + 2 < sizeof subr) {
+                        size_t sl3 = strlen(subr);
+                        snprintf(subr + sl3, sizeof subr - sl3, " %s", subq);
+                    }
+                } else
                 brain_respond(b, rgt, subr, sizeof subr);
+                brain_respond(b, lft, sub, sizeof sub);
                 if (!reply_is_wall(b, subr) && strlen(sub) + strlen(subr) + 2 < sizeof sub) {
                     size_t sl2 = strlen(sub);
                     snprintf(sub + sl2, sizeof sub - sl2, " %s", subr);

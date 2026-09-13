@@ -1488,6 +1488,18 @@ answer_frame(language, language_of_country).
 % landmark entrano dalla stessa porta attraverso i loro fatti o regole; il
 % consumer non conosce nessuna classe geografica e la superficie resta KB.
 answer_frame("where is", located_in).
+% gen514 — e il plurale e il passato: «where ARE coral reefs found?» non aveva
+% porta. Le forme sono quelle delle copule che la KB conosce gia'
+% (`frame_copula/1`, grammar.p0): una copula nuova apre anche la sua domanda.
+answer_frame($Surface, located_in) :-
+    frame_copula($Cop), concat_atoms("where ", $Cop, $Surface).
+% «AT what depths are reefs found?»: una preposizione di luogo davanti
+% all'interrogativo chiede il luogo con un tipo («depths»), e il tipo lo
+% controlla gia' `answer_type_ok/2` — «at what time» non accetta un luogo.
+machinery(locative_question_preposition).
+locative_question_preposition(at).
+answer_frame($Surface, located_in) :-
+    locative_question_preposition($P), concat_atoms($P, " what", $Surface).
 % gen395: la superficie italiana e' conoscenza quanto quella inglese, e serve
 % due lettori diversi. Il consumer storico vede il turno gia' canonicalizzato,
 % quindi «dove si trova» gli arrivava tradotto; il produttore universale del
