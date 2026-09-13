@@ -98,3 +98,87 @@ numeric_answer($Turn, $Text) :- turn_numeric_op($Turn, $Op), dif($Op, ascending)
 
 turn_plan_candidate($Turn) :- numeric_answer($Turn, $Text).
 turn_response($Turn, $Text) :- numeric_answer($Turn, $Text).
+
+% ── 4. assistente utile U12 — UNA QUANTITA' PER PERIODO, PER QUANTI PERIODI ──
+%
+% «If I save 50 euros a month, how much will I have in two years?» murava, e con
+% lui «I save 50 euros every month. How much do I save in 24 months?», mentre
+% «what is 50 times 24?» rispondeva 1200 e la KB sa che un anno ha 12 mesi. Il
+% conto quotidiano non chiedeva un calcolo nuovo: chiedeva di leggere tre pezzi
+% gia' pubblicati — la quantita' con la sua unita', il periodo, la durata — e di
+% convertire la durata nel periodo con `quantity/3`. Una cadenza nuova («a
+% fortnight») e' una riga.
+machinery(rate_cue).
+rate_cue("a month", month).
+rate_cue("every month", month).
+rate_cue("per month", month).
+rate_cue("each month", month).
+rate_cue("a week", week).
+rate_cue("every week", week).
+rate_cue("per week", week).
+rate_cue("a day", day).
+rate_cue("every day", day).
+rate_cue("per day", day).
+rate_cue("a year", year).
+rate_cue("every year", year).
+rate_cue("al mese", month).
+rate_cue("ogni mese", month).
+rate_cue("a settimana", week).
+rate_cue("al giorno", day).
+turn_cue_registry(rate_cue, 1).
+machinery(total_amount_cue).
+total_amount_cue("how much").
+total_amount_cue("how many").
+total_amount_cue("quanto").
+turn_cue_registry(total_amount_cue, 1).
+
+machinery(duration_unit).
+duration_unit(month, month).  duration_unit(months, month).
+duration_unit(week, week).    duration_unit(weeks, week).
+duration_unit(day, day).      duration_unit(days, day).
+duration_unit(year, year).    duration_unit(years, year).
+duration_unit(mese, month).   duration_unit(mesi, month).
+duration_unit(anno, year).    duration_unit(anni, year).
+duration_unit(settimana, week). duration_unit(settimane, week).
+duration_unit(giorno, day).   duration_unit(giorni, day).
+
+machinery(duration_word).
+duration_word($W) :- duration_unit($W, $Unit).
+machinery(period_factor).
+period_factor($U, $U, 1).
+period_factor($Big, $Small, $F) :- quantity($Big, $SmallSurface, $F), duration_unit($SmallSurface, $Small).
+
+machinery(duration_count).
+duration_count($Token, $N) :- span_number($Token, $N).
+duration_count($Token, $N) :- span_atom($Token, $W), number_word($W, $N).
+
+machinery(token_later).
+token_later(pos($S, $P1), pos($S2, $P2)) :- gt($S2, $S).
+token_later(pos($S, $P1), pos($S, $P2)) :- gt($P2, $P1).
+
+% (Tre regole e argomenti raggruppati: una regola oltre KB_MAX_BODY goal, o un
+% predicato oltre KB_MAX_ARGS argomenti, viene scartato senza errore — ed e' cosi'
+% che la prima stesura di questa taceva.)
+rate_amount($Turn, $RateUnit, pos($SA, $PA), amount($Amount, $Currency)) :-
+    turn_cue_form($Turn, rate_cue, $RC), rate_cue($RC, $RateUnit),
+    turn_cue_form($Turn, total_amount_cue, $Q),
+    turn_span_token($Turn, $SA, $PA, $TA), span_number($TA, $Amount),
+    is($PC, add($PA, 1)), turn_span_token($Turn, $SA, $PC, $TC), span_atom($TC, $Currency),
+    naf(duration_word($Currency)).
+rate_duration($Turn, pos($SD, $PD), duration($Count, $DurUnit)) :-
+    turn_span_token($Turn, $SD, $PD, $TD), duration_count($TD, $Count),
+    is($PU, add($PD, 1)), turn_span_token($Turn, $SD, $PU, $TU), span_atom($TU, $DurSurface),
+    duration_unit($DurSurface, $DurUnit).
+rate_total($Turn, $Total, $Currency) :-
+    rate_amount($Turn, $RateUnit, $APos, amount($Amount, $Currency)),
+    rate_duration($Turn, $DPos, duration($Count, $DurUnit)),
+    token_later($APos, $DPos),
+    period_factor($DurUnit, $RateUnit, $F),
+    is($Total, mul(mul($Amount, $Count), $F)).
+
+machinery(rate_total_text).
+rate_total_text(en, $Total, $Currency, $Text) :- concat_atoms($Total, " ", $A), concat_atoms($A, $Currency, $B), concat_atoms($B, ".", $Text).
+rate_total_text(it, $Total, $Currency, $Text) :- concat_atoms($Total, " ", $A), concat_atoms($A, $Currency, $B), concat_atoms($B, ".", $Text).
+
+turn_plan_candidate($Turn) :- rate_total($Turn, $Total, $Currency).
+turn_response($Turn, $Text) :- rate_total($Turn, $Total, $Currency), current_language($Language), rate_total_text($Language, $Total, $Currency, $Text).
