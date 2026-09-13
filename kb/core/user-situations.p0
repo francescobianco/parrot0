@@ -176,6 +176,21 @@ help_scope_cue("cosa puoi fare per me").
 turn_cue_registry(help_scope_cue, 1).
 user_situation($Turn, user_help_scope) :- turn_cue_form($Turn, help_scope_cue, $Cue).
 
+% assistente utile U12b — SCRIVERE UN MESSAGGIO. «Help me write an email.»
+% riceveva «I understood the request — produce «email» — … no code to show for
+% it», «Can you help me with a letter?» una domanda sulla capacita' dell'utente.
+% Chi chiede aiuto per scrivere a qualcuno ha bisogno della forma e di dire a chi
+% e perche'.
+machinery(writing_help_cue).
+writing_help_cue("help me write").
+writing_help_cue("help me with an email").
+writing_help_cue("help me with a letter").
+writing_help_cue("help me with a message").
+writing_help_cue("aiutami a scrivere").
+writing_help_cue("mi aiuti a scrivere").
+turn_cue_registry(writing_help_cue, 1).
+user_situation($Turn, user_writing) :- turn_cue_form($Turn, writing_help_cue, $Cue).
+
 % ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
 situation_cue("someone has a problem", user_problem).
 situation_cue("someone tells you about a problem", user_problem).
@@ -201,6 +216,10 @@ situation_cue("someone asks what you can help with", user_help_scope).
 situation_cue("qualcuno chiede in cosa puoi aiutarlo", user_help_scope).
 situation_label(user_help_scope, en, "someone asks what you can help with").
 situation_label(user_help_scope, it, "qualcuno chiede in cosa puoi aiutarlo").
+situation_cue("someone wants help writing a message", user_writing).
+situation_cue("qualcuno vuole aiuto a scrivere un messaggio", user_writing).
+situation_label(user_writing, en, "someone wants help writing a message").
+situation_label(user_writing, it, "qualcuno vuole aiuto a scrivere un messaggio").
 situation_label(user_problem, en, "someone has a problem").
 situation_label(user_problem, it, "qualcuno ha un problema").
 situation_label(user_worry, en, "someone is worried").
@@ -277,6 +296,17 @@ plan_step_text_lang(list_help, en, "I can help you think through a problem with 
 plan_step_text_lang(list_help, it, "Posso aiutarti a ragionare su qualcosa che non funziona, a pesare una scelta fra due opzioni, a parlare di una preoccupazione, darti i passi dei procedimenti che conosco (come cambiare una gomma o fare il tè), fare conti e piccoli problemi, e leggere un breve testo che mi dai e rispondere a domande su quello.").
 plan_step_text_lang(ask_need, en, "What do you need right now?").
 plan_step_text_lang(ask_need, it, "Di che cosa hai bisogno adesso?").
+% - message_shape: National Archives, «Top 10 Principles for Plain Language»
+%   (state the major point first); Australian Government Style Manual, «Emails
+%   and letters» (the subject line as a heading with the main idea first).
+move_cue("give the shape of a clear message", message_shape).
+move_cue("dai la forma di un messaggio chiaro", message_shape).
+move_cue("ask who it is for and what it should achieve", ask_recipient_goal).
+move_cue("chiedi a chi e' e che cosa deve ottenere", ask_recipient_goal).
+plan_step_text_lang(message_shape, en, "A clear message puts the main point in the subject and in the first sentence, then gives only the details needed, and ends by saying exactly what you need from the reader and by when.").
+plan_step_text_lang(message_shape, it, "Un messaggio chiaro mette il punto principale nell'oggetto e nella prima frase, poi dà solo i dettagli che servono, e chiude dicendo esattamente che cosa ti serve dal destinatario e per quando.").
+plan_step_text_lang(ask_recipient_goal, en, "Who is it for, and what do you want it to get done?").
+plan_step_text_lang(ask_recipient_goal, it, "A chi è rivolto, e che cosa vuoi ottenere?").
 plan_step_text_lang(look_together, en, "Let's look at it together.").
 plan_step_text_lang(look_together, it, "Vediamolo insieme.").
 plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").

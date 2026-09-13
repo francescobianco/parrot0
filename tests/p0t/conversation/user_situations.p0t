@@ -58,6 +58,15 @@
 <~ What do you need right now?
 <! capability ledger
 
+[test help writing a message gets the shape and the question, code stays code]
+!timeout 30
+> Help me write an email.
+<~ A clear message puts the main point
+<~ Who is it for
+<! no code to show
+> write a python function that sorts a list
+<! A clear message
+
 [test the plan is taught knowledge: unlearn it and the situation says nothing]
 !timeout 30
 > unlearn what you do when someone has a problem
