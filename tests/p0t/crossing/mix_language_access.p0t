@@ -48,3 +48,8 @@
 <! python
 > what language is spoken in japan?
 <~ Japanese
+
+[test the language of a country asked with the relation noun]
+!timeout 30
+> what is the language of japan?
+<~ Japanese

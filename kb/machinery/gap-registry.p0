@@ -113,6 +113,7 @@ machinery_gap("where do i begin?").
 machinery_gap("how posso organizzare meglio the my giornata?").
 machinery_gap("the present for the class is a test").
 machinery_gap("when someone sees sparks then say to get out and call 112 on smoke or flames").
+machinery_gap("the language of ghana is english").
 machinery_gap("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
@@ -254,6 +255,9 @@ gap_anchor("inhabit is a relation verb", relation).
 gap_anchor("where does the river begin?", river).
 gap_anchor("i have risolto the problema meccanico", problema).
 gap_anchor("what is a hammer made of?", hammer).
+gap_anchor("the language of ghana is english", english).
+gap_anchor("the language of ghana is english", ghana).
+gap_anchor("the language of ghana is english", language).
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("occur is a relation verb", reachability).
 gap_kind("how is quipu spelled?", reachability).
@@ -282,6 +286,7 @@ gap_kind("i want to start running", reachability).
 gap_kind("give me some ideas for a birthday present for my dad.", reachability).
 gap_kind("one of them is vegetarian.", reachability).
 gap_kind("i need to cook dinner for four people tonight.", reachability).
+gap_kind("the language of ghana is english", reachability).
 gap_kind("there are scintille", reachability).
 gap_kind("who has written hamlet?", reachability).
 gap_kind("is a shark warm-blooded?", reachability).
@@ -345,4 +350,5 @@ gap_source("i need to cook dinner for four people tonight.", "I need to cook din
 gap_source("there are scintille", "ci sono scintille").
 gap_source("is a shark warm-blooded?", "is a shark warm-blooded?").
 gap_source("who has written hamlet?", "who has written hamlet?").
+gap_source("the language of ghana is english", "the language of ghana is english").
 gap_source("is an eagle warm-blooded?", "is an eagle warm-blooded?").
