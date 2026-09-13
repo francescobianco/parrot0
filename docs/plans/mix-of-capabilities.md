@@ -1618,5 +1618,7 @@ dei lettori generici: ogni diff si legge prima di committare.
 - **Il costo:** ~0.1 s in più per turno rispetto a prima delle campagne, distribuito
   (TEST_TODO).
 
-**Da riprendere:** l'ellissi sui casi pratici («and vinegar?» dopo la candeggina);
+**Fatto alle 23:22:** l'ellissi sui casi pratici — «is it safe to mix bleach and ammonia?» → «and vinegar?» → «No: vinegar is an acid, …»; «what about alcohol?» → cloroformio (stessa colla, prodotto di base di sessione; `mix_household_safety.p0t` 9).
+
+**Da riprendere:**
 19×21 sintesi con status; 05×07 reinterpretazione di un testo; profilare il turno base.

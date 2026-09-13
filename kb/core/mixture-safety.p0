@@ -62,9 +62,36 @@ turn_mixture($Turn, direct($A, $B), $P) :- turn_word($Turn, $A), mixture_release
 turn_mixture($Turn, direct($B, $A), $P) :- turn_word($Turn, $A), mixture_releases($B, $A, $Said), turn_word($Turn, $B), product_atom($Said, $P).
 turn_mixture($Turn, by_class($A, $B, $C), $P) :- turn_word($Turn, $A), mixture_releases($A, $C, $Said), turn_word($Turn, $B), dif($A, $B), member_of_class($B, $C), product_atom($Said, $P).
 
+% ── IL SEGUITO ELLITTICO («and ammonia?») ──────────────────────────────────
+% Stessa colla dei luoghi e delle proprieta': la domanda piena registra il prodotto
+% di base della miscela (di sessione), e un turno con apertura ellittica che nomina
+% un solo prodotto lo combina con quello. Regole separate dalla domanda piena.
+machinery(mixture_base_asked).
+turn_scratch(mixture_base_asked).
+bookkeeper(mixture_question).
+turn_bookkeeping($Turn, mixture_question) :-
+    turn_cue_form($Turn, mix_question_cue, $Cue), turn_word($Turn, $A), mixture_releases($A, $B, $P),
+    turn_counter($N), assert(mixture_base_asked, $N, $A).
+machinery(last_mixture_base).
+last_mixture_base($A) :- mixture_base_asked($N, $A), naf(later_mixture_base($N)).
+machinery(later_mixture_base).
+later_mixture_base($N) :- mixture_base_asked($M, $X), gt($M, $N).
+machinery(turn_has_mix_cue).
+turn_has_mix_cue($Turn) :- turn_cue_form($Turn, mix_question_cue, $C).
+machinery(turn_elliptic_mixture).
+turn_elliptic_mixture($Turn, direct($A, $B), $P) :-
+    turn_cue_form($Turn, elliptic_opener_cue, $O), naf(turn_has_mix_cue($Turn)),
+    elliptical_reference_policy(inherit_previous), last_mixture_base($A),
+    turn_word($Turn, $B), dif($A, $B), mixture_releases($A, $B, $Said), product_atom($Said, $P).
+turn_elliptic_mixture($Turn, by_class($A, $B, $C), $P) :-
+    turn_cue_form($Turn, elliptic_opener_cue, $O), naf(turn_has_mix_cue($Turn)),
+    elliptical_reference_policy(inherit_previous), last_mixture_base($A),
+    mixture_releases($A, $C, $Said), turn_word($Turn, $B), dif($A, $B), member_of_class($B, $C), product_atom($Said, $P).
+
 machinery(mixture_verdict).
 mixture_verdict($Turn, unsafe($How, $P, $H)) :- turn_cue_form($Turn, mix_question_cue, $Cue), turn_mixture($Turn, $How, $P), causes($P, $H), harmful_effect($H).
 mixture_verdict($Turn, releases($How, $P)) :- turn_cue_form($Turn, mix_question_cue, $Cue), turn_mixture($Turn, $How, $P), naf(product_harmful($P)).
+mixture_verdict($Turn, unsafe($How, $P, $H)) :- turn_elliptic_mixture($Turn, $How, $P), causes($P, $H), harmful_effect($H).
 machinery(turn_has_known_mixture).
 turn_has_known_mixture($T) :- mixture_verdict($T, $V).
 machinery(product_harmful).
@@ -94,7 +121,10 @@ mix_polar_cue("sicuro mescolare").
 mix_polar_cue("si possono mescolare").
 machinery(mixture_opener).
 mixture_opener(en, "No: ") :- turn_cue_form(current_turn, mix_question_cue, $C), mix_polar_cue($C).
-mixture_opener(en, "Careful: ") :- naf(turn_is_polar_mix_question).
+mixture_opener(en, "No: ") :- turn_cue_form(current_turn, elliptic_opener_cue, $O), naf(turn_has_mix_cue(current_turn)).
+mixture_opener(en, "Careful: ") :- naf(turn_is_polar_mix_question), naf(turn_is_elliptic_mix(current_turn)).
+machinery(turn_is_elliptic_mix).
+turn_is_elliptic_mix($T) :- turn_cue_form($T, elliptic_opener_cue, $O), naf(turn_has_mix_cue($T)).
 mixture_opener(it, "No: ") :- turn_cue_form(current_turn, mix_question_cue, $C), mix_polar_cue($C).
 mixture_opener(it, "Attenzione: ") :- naf(turn_is_polar_mix_question).
 machinery(turn_is_polar_mix_question).

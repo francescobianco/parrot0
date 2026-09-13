@@ -36,3 +36,12 @@
 > posso mescolare candeggina e aceto?
 < No: aceto è un acido, e mescolare candeggina e un acido libera cloro gassoso, e cloro gassoso causa problemi respiratori.
 !set PARROT0_LANG=en
+
+[test an elliptic follow-up keeps the first product and changes the second]
+!timeout 30
+> is it safe to mix bleach and ammonia?
+<~ No: mixing bleach and ammonia
+> and vinegar?
+< No: vinegar is an acid, and mixing bleach and an acid releases chlorine gas, and chlorine gas causes breathing problems.
+> what about alcohol?
+< No: mixing bleach and alcohol releases chloroform, and chloroform causes dizziness.
