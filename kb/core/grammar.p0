@@ -2950,7 +2950,8 @@ input_node_precedes($T, $Id) :- input_node_before($T, $Other, $Id).
 machinery(input_node_first).
 input_node_first($T, $Id) :- input_node_range($T, $Id, 0, $Len).
 turn_opens_question($T) :-
-    input_node_first($T, $Id), input_node_atom($T, $Id, $W), question_word($W).
+    input_node_first($T, $Id), input_node_atom($T, $Id, $W), question_word($W),
+    naf(turn_opens_conditional($T)).
 turn_opens_question($T) :-
     input_node_first($T, $Id), input_node_atom($T, $Id, $W), clause_copula($W).
 % L'inversione dell'ausiliare e' la stessa evidenza strutturale anche quando la
@@ -2959,6 +2960,25 @@ turn_opens_question($T) :-
 % una nuova cambia questa lettura senza ricompilare.
 turn_opens_question($T) :-
     input_node_first($T, $Id), input_node_atom($T, $Id, $W), auxiliary($W).
+
+% ── assistente utile U2 — «WHEN … THEN …» APRE UNA CONDIZIONE, NON UNA DOMANDA ─
+%
+% «when someone has a problem then say we will look at it together» e' una
+% lezione di condotta (forma E di LEARN_PROTOCOL.md). «when» e' anche un
+% interrogativo, e la regola sopra la leggeva come domanda: la forma `teach_plan`,
+% dichiarata per le affermazioni, veniva scartata e il turno cadeva nella
+% riparazione («Who or what does «it» refer to?») — rosso di behavior_gen512.p0t.
+% Un interrogativo che fa anche da congiunzione, seguito dal connettore del
+% conseguente (lo span `consequence` che il segmentatore pubblica da
+% `logic_connector/2`) e senza «?», regge una condizione. Quali parole lo siano
+% e' una classe: una lingua nuova e' una riga.
+machinery(conditional_question_word).
+conditional_question_word(when).
+conditional_question_word(quando).
+turn_opens_conditional($T) :-
+    input_node_first($T, $Id), input_node_atom($T, $Id, $W), conditional_question_word($W),
+    turn_span($T, $Index, consequence, $Then),
+    naf(turn_has_question_mark($T)).
 
 % ── gen505y — LA DOMANDA NON DEVE APRIRE IL TURNO ──────────────────────────
 %

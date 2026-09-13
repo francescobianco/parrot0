@@ -1,5 +1,16 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+**assistente utile U1+U2 (2026-09-13)**: nuovo `conversation/user_situations.p0t`
+(17). `behavior_gen512.p0t` torna **verde 22/22** (era rosso 20/22: la lezione
+«when … then …» letta come domanda, e `forget_plan` mai raggiunta). `make
+soft-test` verde in 9 s. **Rossi preesistenti, verificati identici su
+`cece9ed1` (git stash, stesso demone):** `code/code_state` 0/9 (turni da 1.67 s
+su 1.0 s), `conversation/chitchat` 20/24, `knowledge/prose_forms` 3/10 (tempi),
+`language/taught_lesson_form` 40/42 (righe 115 e 131, gia' note),
+`reasoning/described_situation` 19/28 (20/28 dopo il giro), `plan_assumption`
+9/12, `plan_reason` 7/12 («Noted: I am holding that as the current state.»
+atteso, «I don't understand that yet.» ottenuto, gia' rosso prima).
+
 **the-magic-of-apply, ripresa (2026-09-12)**: `living_capabilities.p0t` 33 →
 **55** (ciclo nominale completo, conferma nel verso del fatto, ablazione
 isolata del modo `atom`, portatori reali di `model`/`model_prose`); i blocchi

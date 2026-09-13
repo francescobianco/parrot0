@@ -321,10 +321,16 @@ turn_opens_request($Turn) :-
     turn_surface_token($Turn, 0, 0, $Tok), span_atom($Tok, $W), question_word($W).
 turn_opens_request($Turn) :-
     turn_surface_token($Turn, 0, 0, $Tok), span_atom($Tok, $W), request_auxiliary($W).
+% assistente utile U2 — «My phone screen is broken.» ha la copula e nessun «?»,
+% ma chi lo dice non porta prosa: racconta un guaio suo. Se la situazione di chi
+% parla ha un piano insegnato (`user-situations.p0`), la frase breve non e'
+% prosa da leggere e il piano di turno non cede. Solo qui, non nella regola
+% della lunghezza: un paragrafo che nomina un problema resta un paragrafo.
 turn_declared_act($Turn, prose_carried) :-
     turn_prose_copula($Turn),
     naf(turn_has_question_mark($Turn)),
-    naf(turn_opens_request($Turn)).
+    naf(turn_opens_request($Turn)),
+    naf(turn_has_situation_plan($Turn)).
 % gen513 — E UNA FRASE LUNGA SENZA COPULA E' PROSA LO STESSO. «Together with
 % rapid cooling, this results in a natural glass forming from the lava» riceveva
 % un racconto («Together was a mysterious Together…»): nessuna copula, quindi la

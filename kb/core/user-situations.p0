@@ -1,0 +1,199 @@
+% user-situations.p0 — LA SITUAZIONE DI CHI PARLA ESEGUE IL PIANO INSEGNATO (assistente utile U1+U2).
+%
+% docs/plans/assistente-utile.md, il caso di F.:
+%
+%     >>> ho un problema meccanico
+%     Non capisco ancora.
+%
+% e, dal banco dell'utilita', «I'm really stressed about my exam tomorrow» →
+% «That sounds nice -- tell me more about it.»: un misclaim, perche' la coda
+% sociale non distingue chi si rallegra da chi e' in ansia.
+%
+% Un piano di condotta si insegnava gia' parlando («when you don't have the
+% steps then say the purpose», gen507/36) e si raccontava («your plan when …?»),
+% ma nessun piano scattava davanti alla situazione di CHI PARLA: il solo piano
+% eseguito era `steps_missing`, riconosciuto dal motore. Qui manca soltanto il
+% riconoscimento. La porta e' quella che serve gia' il meteo (`honest-limits.p0`):
+% `turn_plan_candidate/1` + `turn_response/2`. Zero righe di C.
+%
+% Che cosa sta qui e che cosa no:
+% - QUI: le situazioni (come si riconoscono in un turno, come si nominano per
+%   insegnarle), le mosse possibili (come si nominano e come si dicono).
+%   E' vocabolario del meccanismo, come `situation_cue`/`move_cue` in messages.p0.
+% - NON QUI: il piano. Quali mosse, in che ordine, per quale situazione si
+%   insegna a voce con «when someone has a problem then …» e si salva con /save
+%   (LEARN_PROTOCOL.md). Senza piano insegnato questa porta non si apre: la
+%   situazione riconosciuta da sola non produce nessuna frase.
+
+:- file_attribute(machinery).
+
+% ── 1. RICONOSCERE LA SITUAZIONE ─────────────────────────────────────────────
+%
+% Due indizi DISTINTI, come `register_hint_min`: la situazione (un guasto, un
+% sentimento) E che sia di chi parla. «the problem with this theory» nomina un
+% problema e non e' di nessuno; «I'm really happy» e' di chi parla e non e' un
+% guaio. Un indizio nuovo e' una riga.
+machinery(trouble_cue).
+machinery(speaker_cue).
+machinery(situation_settled_cue).
+machinery(user_situation).
+
+trouble_cue("problem", user_problem).
+trouble_cue("problems", user_problem).
+trouble_cue("problema", user_problem).
+trouble_cue("problemi", user_problem).
+trouble_cue("broken", user_problem).
+trouble_cue("rotto", user_problem).
+trouble_cue("rotta", user_problem).
+trouble_cue("not working", user_problem).
+trouble_cue("doesn't work", user_problem).
+trouble_cue("does not work", user_problem).
+trouble_cue("stopped working", user_problem).
+trouble_cue("won't start", user_problem).
+trouble_cue("non funziona", user_problem).
+trouble_cue("non parte", user_problem).
+trouble_cue("guasto", user_problem).
+trouble_cue("keeps disconnecting", user_problem).
+trouble_cue("strange noise", user_problem).
+trouble_cue("rumore strano", user_problem).
+
+trouble_cue("stressed", user_worry).
+trouble_cue("worried", user_worry).
+trouble_cue("anxious", user_worry).
+trouble_cue("nervous", user_worry).
+trouble_cue("scared", user_worry).
+trouble_cue("stressato", user_worry).
+trouble_cue("stressata", user_worry).
+trouble_cue("preoccupato", user_worry).
+trouble_cue("preoccupata", user_worry).
+trouble_cue("in ansia", user_worry).
+trouble_cue("agitato", user_worry).
+trouble_cue("agitata", user_worry).
+turn_cue_registry(trouble_cue, 1).
+
+speaker_cue("i").
+speaker_cue("i'm").
+speaker_cue("my").
+speaker_cue("me").
+speaker_cue("ho").
+speaker_cue("mi").
+speaker_cue("mio").
+speaker_cue("mia").
+speaker_cue("sono").
+turn_cue_registry(speaker_cue, 1).
+
+% Un guaio gia' risolto non chiede aiuto: «ho risolto il problema meccanico».
+situation_settled_cue("solved").
+situation_settled_cue("fixed").
+situation_settled_cue("risolto").
+situation_settled_cue("sistemato").
+situation_settled_cue("riparato").
+turn_cue_registry(situation_settled_cue, 1).
+
+turn_speaker_involved($Turn) :- turn_cue_form($Turn, speaker_cue, $Cue).
+turn_situation_settled($Turn) :- turn_cue_form($Turn, situation_settled_cue, $Cue).
+
+user_situation($Turn, $Situation) :-
+    turn_cue_form($Turn, trouble_cue, $Cue),
+    trouble_cue($Cue, $Situation),
+    turn_speaker_involved($Turn),
+    naf(turn_situation_settled($Turn)).
+% Un guasto detto con il suo verbo («la lavatrice non funziona più», «the
+% heating is broken») non ha bisogno del possessivo: chi riferisce che una cosa
+% non funziona sta chiedendo aiuto per quella cosa, anche in italiano, dove il
+% possessivo si omette. «problem» invece da solo nomina un argomento («the
+% problem with this theory») e resta con i due indizi.
+machinery(malfunction_cue).
+malfunction_cue("broken").
+malfunction_cue("rotto").
+malfunction_cue("rotta").
+malfunction_cue("not working").
+malfunction_cue("doesn't work").
+malfunction_cue("does not work").
+malfunction_cue("stopped working").
+malfunction_cue("won't start").
+malfunction_cue("non funziona").
+malfunction_cue("non parte").
+malfunction_cue("keeps disconnecting").
+user_situation($Turn, user_problem) :-
+    turn_cue_form($Turn, trouble_cue, $Cue),
+    malfunction_cue($Cue),
+    naf(turn_speaker_involved($Turn)),
+    naf(turn_situation_settled($Turn)).
+
+% ── 2. NOMINARE LE SITUAZIONI E LE MOSSE PER INSEGNARLE ──────────────────────
+situation_cue("someone has a problem", user_problem).
+situation_cue("someone tells you about a problem", user_problem).
+situation_cue("something is broken", user_problem).
+situation_cue("qualcuno ha un problema", user_problem).
+situation_cue("someone is worried", user_worry).
+situation_cue("someone is stressed", user_worry).
+situation_cue("qualcuno e' preoccupato", user_worry).
+situation_cue("qualcuno è preoccupato", user_worry).
+
+situation_label(user_problem, en, "someone has a problem").
+situation_label(user_problem, it, "qualcuno ha un problema").
+situation_label(user_worry, en, "someone is worried").
+situation_label(user_worry, it, "qualcuno è preoccupato").
+
+% Le mosse. Il testo e' generale: non nomina nessun dominio, perche' la mossa
+% deve valere per la bici, la lavatrice e il telefono (i prompt `held` del banco).
+% I due consigli hanno una fonte, registrata nel lab del giro:
+% - safety_first: Shropshire Fire and Rescue Service, «electric fire safety
+%   tips» (spegnere e staccare cio' che fuma o sa di bruciato); Highway Code
+%   UK, regola 274 (un veicolo in panne si ferma fuori dalla carreggiata).
+% - one_small_step: NHS, «10 stress busters» — «take control», «work smarter:
+%   prioritising … the tasks that'll make a real difference».
+move_cue("say we will look at it together", look_together).
+move_cue("offer to look at it together", look_together).
+move_cue("di' che lo guardiamo insieme", look_together).
+move_cue("ask what it is and what happens", ask_what_happens).
+move_cue("ask what happens", ask_what_happens).
+move_cue("chiedi che cosa succede", ask_what_happens).
+% ⚠ Non «put safety first»: «first» lo prende il chiarimento dell'ordinale
+% («I am not sure what you mean by «first»») prima che la lezione arrivi.
+move_cue("remind them about safety", safety_first).
+move_cue("give the safety advice", safety_first).
+move_cue("ricorda la sicurezza", safety_first).
+move_cue("acknowledge the feeling", acknowledge_feeling).
+move_cue("riconosci come si sente", acknowledge_feeling).
+move_cue("ask what worries them most", ask_main_worry).
+move_cue("chiedi che cosa lo preoccupa di piu'", ask_main_worry).
+% ⚠ Non «suggest one small step»: «suggest» apre il registro delle
+% raccomandazioni e «step» quello dei procedimenti, e la lezione non arriva.
+move_cue("propose one small thing to do today", one_small_step).
+move_cue("offer one small thing to do", one_small_step).
+move_cue("proponi una piccola cosa da fare oggi", one_small_step).
+
+plan_step_text_lang(look_together, en, "Let's look at it together.").
+plan_step_text_lang(look_together, it, "Vediamolo insieme.").
+plan_step_text_lang(ask_what_happens, en, "What is it, and what exactly happens?").
+plan_step_text_lang(ask_what_happens, it, "Di che cosa si tratta, e che cosa succede esattamente?").
+plan_step_text_lang(safety_first, en, "If something smokes, smells of burning or could hurt someone, switch it off or stop somewhere safe before anything else.").
+plan_step_text_lang(safety_first, it, "Se qualcosa fuma, sa di bruciato o può far male a qualcuno, spegnilo o fermati in un posto sicuro prima di tutto.").
+plan_step_text_lang(acknowledge_feeling, en, "That sounds hard, and it makes sense to feel that way.").
+plan_step_text_lang(acknowledge_feeling, it, "Sembra pesante, ed è comprensibile sentirsi così.").
+plan_step_text_lang(ask_main_worry, en, "What worries you most about it?").
+plan_step_text_lang(ask_main_worry, it, "Che cosa ti preoccupa di più?").
+plan_step_text_lang(one_small_step, en, "It often helps to pick one small thing you can do about it today.").
+plan_step_text_lang(one_small_step, it, "Spesso aiuta scegliere una cosa piccola da fare oggi.").
+
+% ── 3. ESEGUIRE IL PIANO INSEGNATO ───────────────────────────────────────────
+%
+% Le mosse si dicono nell'ordine in cui sono state insegnate. La prima parte
+% dalla posizione 0 di `answer_text`; le altre portano lo spazio davanti.
+situation_move_text($Move, $Language, $Text) :- plan_step_text_lang($Move, $Language, $Text).
+situation_move_text($Move, $Language, $Text) :- naf(plan_step_text_lang($Move, $Language, $Any)), plan_step_text_lang($Move, en, $Text).
+
+answer_content(situation_plan($Situation, $Language), 0, move, $Piece) :-
+    plan_move($Situation, 1, $Move), situation_move_text($Move, $Language, $Piece).
+answer_content(situation_plan($Situation, $Language), $Position, move, $Piece) :-
+    plan_move($Situation, $Order, $Move), gt($Order, 1), is($Position, sub($Order, 1)),
+    situation_move_text($Move, $Language, $Text), concat_atoms(" ", $Text, $Piece).
+
+turn_situation_plan($Turn, $Situation) :- user_situation($Turn, $Situation), plan_move($Situation, 1, $Move).
+machinery(turn_has_situation_plan).
+turn_has_situation_plan($Turn) :- turn_situation_plan($Turn, $Situation).
+
+turn_plan_candidate($Turn) :- turn_situation_plan($Turn, $Situation).
+turn_response($Turn, $Text) :- turn_situation_plan($Turn, $Situation), current_language($Language), answer_text(situation_plan($Situation, $Language), $Text).

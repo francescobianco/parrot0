@@ -2109,6 +2109,13 @@ turn_form(forget_plan, 2, named(situation_cue, situation)).
 turn_form_mood(forget_plan, statement).
 turn_form_act(forget_plan, "op(retract_all, plan_move, [situation, free, free])").
 turn_form_reply(forget_plan, plan_forgotten).
+% assistente utile U2 — ora la raggiunge. Dal gen510 esiste il passaggio
+% anticipato (`turn_form_priority(Forma, early)`), che e' fatto esattamente per
+% una forma come questa: apre con un'ancora letterale ed esige una situazione
+% nota, quindi non puo' togliere il turno a nessun altro. Senza, l'ablation del
+% protocollo (§6.6) su un piano di condotta non si poteva fare.
+turn_form_priority(forget_plan, early).
+turn_form_priority(fix_move, early).
 
 % gen507/73 (forma #78) — una proprieta' della SPECIE, che i membri ereditano.
 % `has_prop/2` alimenta `inherits/2` (procedures.p0), che risale anche le
@@ -3124,6 +3131,12 @@ plan_move(steps_missing, 1, list_composition).
 % e portata qui: cio' che parrot0 impara parlando diventa conoscenza curata, non
 % resta in una sessione ([[autolearn-knowledge-is-official]]).
 plan_move(steps_missing, 2, say_purpose).
+plan_move(user_worry, 3, ask_main_worry).
+plan_move(user_worry, 2, one_small_step).
+plan_move(user_worry, 1, acknowledge_feeling).
+plan_move(user_problem, 3, ask_what_happens).
+plan_move(user_problem, 2, safety_first).
+plan_move(user_problem, 1, look_together).
 % ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
 % arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
 % piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo

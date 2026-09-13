@@ -14992,8 +14992,19 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
             else if (!strcmp(opname, "assert_neg")) done2 = kb_assert_neg(b->kb, pred, argv2, argc2);
             else if (!strcmp(opname, "retract"))    done2 = kb_retract(b->kb, pred, argv2, argc2);
             else if (!strcmp(opname, "retract_all")) {
+                /* assistente utile U2 — con PIU' posti liberi («dimentica il
+                 * piano per la situazione»: [situation, free, free]) la riga
+                 * sotto sostituiva solo il primo, e kb_retract riceveva ancora
+                 * un NULL: la forma `forget_plan` falliva sempre. Un pattern
+                 * con piu' liberi si ritira per pattern. */
+                int frees = 0;
+                for (size_t y = 0; y < argc2; y++) if (!argv2[y]) frees++;
+                if (frees > 1) {
+                    size_t gone = kb_retract_match(b->kb, pred, argv2, argc2);
+                    done2 = gone > 0; nres = gone;
+                }
                 char rows[64][KB_TERM_LEN];
-                size_t nr = kb_match(b->kb, pred, argv2, argc2, rows, 64);
+                size_t nr = frees > 1 ? 0 : kb_match(b->kb, pred, argv2, argc2, rows, 64);
                 for (size_t k = 0; k < nr; k++) {
                     const char *ra[KB_MAX_ARGS];
                     for (size_t y = 0; y < argc2; y++) ra[y] = argv2[y];
@@ -15186,13 +15197,49 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                  * lettore delle regole universali (gen506c). */
                 int isq = norm[L - 1] == '?' || p0_turn_is(b, "question", norm);
                 if (!strcmp(want, "question") && !isq) continue;
-                if (!strcmp(want, "statement") && isq) continue;
+                if (!strcmp(want, "statement") && isq) {
+                    if (getenv("P0_FORM_TRACE"))
+                    {
+                        /* which published reading makes it a question */
+                        static const char *const qsrc[][2] = {
+                            { "turn_cue", "answer_frame_input_arg" },
+                            { "turn_cue", "attribute_question_cue" },
+                            { "turn_cue", "question_mark_cue" },
+                            { "turn_cue", "taught_question_cue" } };
+                        char seen[512] = ""; size_t so = 0;
+                        for (size_t k = 0; k < sizeof qsrc / sizeof qsrc[0]; k++) {
+                            char row[1][KB_TERM_LEN];
+                            const char *rq[3] = { "current_turn", qsrc[k][1], NULL };
+                            if (kb_match(b->kb, qsrc[k][0], rq, 3, row, 1) == 1)
+                                so += (size_t)snprintf(seen + so, sizeof seen - so, " %s=%s", qsrc[k][1], row[0]);
+                        }
+                        const char *oq[1] = { "current_turn" };
+                        if (kb_query(b->kb, "turn_opens_question", oq, 1))
+                            so += (size_t)snprintf(seen + so, sizeof seen - so, " turn_opens_question");
+                        if (kb_query(b->kb, "turn_opens_conditional", oq, 1))
+                            so += (size_t)snprintf(seen + so, sizeof seen - so, " turn_opens_conditional");
+                        {
+                            char row[1][KB_TERM_LEN];
+                            const char *iq[2] = { "current_turn", NULL };
+                            if (kb_match(b->kb, "interrogative_clause_opener", iq, 2, row, 1) == 1)
+                                so += (size_t)snprintf(seen + so, sizeof seen - so, " interrogative_clause_opener@%s", row[0]);
+                            if (kb_match(b->kb, "input_node_first", iq, 2, row, 1) == 1)
+                                so += (size_t)snprintf(seen + so, sizeof seen - so, " first=%s", row[0]);
+                        }
+                        fprintf(stderr, "[form] %s skipped: mood statement, turn read as question:%s\n", form, seen);
+                    }
+                    continue;
+                }
             }
         }
         P0FormSlot slots[P0_FORM_SLOTS]; size_t ns = 0;
         char work[300]; memcpy(work, norm, L + 1);
         char *ww[48]; size_t nww = split_words(work, ww, 48);
-        if (!p0_form_match(b, form, ww, nww, slots, &ns)) continue;
+        if (!p0_form_match(b, form, ww, nww, slots, &ns)) {
+            if (getenv("P0_FORM_TRACE"))
+                fprintf(stderr, "[form] %s does not match «%s»\n", form, norm);
+            continue;
+        }
         /* gen512 — UNO SLOT PUO' DICHIARARE LA CLASSE DI CIO' CHE LEGGE.
          * `turn_form_slot_class(Forma, Slot, Classe)`: il valore dello slot
          * deve soddisfare `Classe(Valore)` — un fatto o una regola. Senza,

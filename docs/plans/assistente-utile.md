@@ -307,6 +307,7 @@ con più `F`, poi quella con più archi `R`/`M` che una stessa porta chiuderebbe
 | giro | data | commit della consegna | U base | U held | F | note |
 |---|---|---|---:|---:|---:|---|
 | U0 | 2026-09-13 | (questo) | 1/21 | 0/10 | 5 | baseline |
+| U1+U2 | 2026-09-13 | (vedi git log) | 3/21 | 3/10 | 2 | piani `user_problem` e `user_worry` insegnati parlando; tre strade interrotte curate (when-then letto come domanda, `forget_plan` irraggiungibile, guaio breve ceduto alla prosa/allo stato); [lab](../labs/assistente-utile/2026-09-13-u1-u2.md) |
 
 ## 7. Rischi
 

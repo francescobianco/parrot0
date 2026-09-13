@@ -1264,6 +1264,7 @@ machinery(sides).
 :- include(arrests.p0).
 :- include(debug.p0).
 :- include(honest-limits.p0).
+:- include(user-situations.p0).
 :- include(denotation.p0).
 :- include(epistemic-status.p0).
 

@@ -1,0 +1,55 @@
+# assistente utile U1+U2 (docs/plans/assistente-utile.md) — la situazione di chi
+# parla esegue il piano di condotta insegnato parlando. I piani veri sono quelli
+# salvati dalla sessione di addestramento (kb/core/messages.p0); qui si provano
+# la meccanica, l'ablation e il ripristino, e il file lascia il piano com'era.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the speaker's problem runs the taught plan]
+!timeout 30
+> I have a problem with my bike.
+<~ Let's look at it together.
+<~ What is it, and what exactly happens?
+> My phone screen is broken.
+<~ Let's look at it together.
+> the heating is broken
+<~ Let's look at it together.
+
+[test a settled problem and a topic named problem do not run it]
+!timeout 30
+> I solved the problem with my bike.
+<! Let's look at it together
+> the problem with this theory is its size
+<! Let's look at it together
+
+[test a worry is not answered as good news]
+!timeout 30
+> I'm really stressed about my exam tomorrow.
+<~ That sounds hard
+<! sounds nice
+> I'm really happy about my exam result.
+<! That sounds hard
+
+[test the plan is taught knowledge: unlearn it and the situation says nothing]
+!timeout 30
+> unlearn what you do when someone has a problem
+<~ Forgotten
+> I have a problem with my bike.
+<! Let's look at it together
+
+[test a when-then lesson is a statement, a when-question is still a question]
+!timeout 30
+> when someone has a problem then say we will look at it together
+<~ Held: in that situation, move 1
+> when did someone have a problem?
+<! Held
+> when someone has a problem then remind them about safety
+<~ move 2
+> when someone has a problem then ask what it is and what happens
+<~ move 3
+<! refer to
+> I have a problem with my bike.
+<~ Let's look at it together. If something smokes
