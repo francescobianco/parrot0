@@ -2375,7 +2375,9 @@ extract_frame(@S create @O, create).
 extract_frame(@S form @O, form).
 extract_frame(@S use @O, use).
 extract_frame(@S cause @O, cause).
-extract_frame(@S include @O, include).
+% gen514 — la forma canonica e' `includes` (a cui porta anche la domanda con il
+% verbo nudo): due nomi per la stessa relazione non si incontravano.
+extract_frame(@S include @O, includes).
 extract_frame(@S contain @O, contain).
 extract_frame(@S release @O, release).
 extract_frame(@S modulate @O, modulate).
@@ -3395,6 +3397,14 @@ machinery(count_plural).
 agentive_compound_root($Gerund, $Root) :-
     concat_atoms($Root, "ing", $Gerund), relation_verb($Root).
 count_plural($Singular, $Plural) :- concat_atoms($Singular, "s", $Plural).
+% gen514 — un turno inglese non traduce le proprie parole: «due to» non e' «two
+% to». Si traducono le parole piene solo dalle lingue che la KB dichiara sorgenti
+% della traduzione verso la forma canonica (`content_translation_source/1`).
+% (`lexeme/1` si carica solo su richiesta, quindi non puo' decidere qui.)
+machinery(keeps_own_word).
+machinery(content_translation_source).
+content_translation_source(it).
+keeps_own_word($Lang, $W) :- naf(content_translation_source($Lang)).
 machinery(rank_noun).
 machinery(rank_container_preposition).
 rank_noun(kingdom). rank_noun(phylum). rank_noun(class). rank_noun(order).
@@ -3417,6 +3427,7 @@ membership_chain($A, $C) :-
 answer_frame("belong to", membership_chain).
 machinery(participial_opener).
 participial_opener(including, includes).
+participial_opener("such as", includes).
 participial_opener(incluso, includes).
 machinery(bare_relative_opener).
 machinery(relative_clause_verb).

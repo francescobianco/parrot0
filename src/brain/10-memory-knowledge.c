@@ -1713,6 +1713,13 @@ static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
             snprintf(buf, bufsz, "%s", kb_dequote(hit[0]));
             return buf;
         }
+        /* gen514 — e la tabella di ripiego non traduce una parola della lingua
+         * del turno (`keeps_own_word/2`): «due to» in un turno inglese. */
+        {
+            char lang[8]; current_lang(b, lang, sizeof lang);
+            const char *kq[2] = { lang, w };
+            if (kb_query(b->kb, "keeps_own_word", kq, 2)) return NULL;
+        }
     }
     return canonical_token(w);
 }
@@ -2120,7 +2127,20 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
              * Try Italian→English mapping from the knowledge base, falling back
              * to the original token if no translation is known. */
             char en[KB_TERM_LEN];
-            if (kb_tr_it_en(b, tok, en, sizeof en))
+            /* gen514 — una parola della lingua del turno resta sua: «methane
+             * emissions DUE to anaerobic conditions» diventava «two to», perche'
+             * «due» e' anche italiano. Quali parole una lingua tenga e' KB
+             * (`keeps_own_word/2`). */
+            int own = 0;
+            {
+                char lang[8]; current_lang(b, lang, sizeof lang);
+                const char *kq[2] = { lang, tok };
+                own = kb_query(b->kb, "keeps_own_word", kq, 2);
+            }
+            if (own)
+                off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                        lead, tok, tail);
+            else if (kb_tr_it_en(b, tok, en, sizeof en))
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                         lead, en, tail);
             else if (kb_translation_guess(b, tok, en, sizeof en)) {

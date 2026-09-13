@@ -1,0 +1,62 @@
+
+═══ PROSA: tests/fixtures/prose/ladder/r320.txt — 319 parole (piolo 0) ═══
+    Compost is a mixture of ingredients used as plant fertilizer and to improve soil's physical, 
+    chemical, and biological properties. It is commonly prepared by decomposing plant and food 
+    waste, recycling organic materials, and manure. The resulting mixture is rich in plant 
+    nutrients and beneficial organisms, such as bacteria, protozoa, nematodes, and fungi. Compost 
+    improves soil fertility in gardens, landscaping, horticulture, urban agriculture, and organic 
+    farming, reducing dependency on commercial chemical fertilizers. The benefits of compost 
+    include providing nutrients to crops as fertilizer, acting as a soil conditioner, increasing 
+    the humus or humic acid contents of the soil, and introducing beneficial microbes that help to 
+    suppress pathogens in the soil and reduce soil-borne diseases. At the most basic level, 
+    composting requires gathering a mix of green waste (nitrogen-rich materials such as leaves, 
+    grass, and food scraps) and brown waste (woody materials rich in carbon, such as stalks, paper, 
+    and wood chips). The materials break down into humus in a process taking months. Composting can 
+    be a multistep, closely monitored process with measured inputs of water, air, and carbon- and 
+    nitrogen-rich materials. The decomposition process is aided by shredding the plant matter, 
+    adding water, and ensuring proper aeration by regularly turning the mixture in a process using 
+    open piles or windrows. Fungi, earthworms, and other detritivores further break up the organic 
+    material. Aerobic bacteria and fungi manage the chemical process by converting the inputs into 
+    heat, carbon dioxide, and ammonium ions. Composting is an important part of waste management, 
+    since food and other compostable materials make up about 20% of waste in landfills, and due to 
+    anaerobic conditions, these materials take longer to biodegrade in the landfill. Composting 
+    offers an environmentally superior alternative to using organic material for landfill because 
+    composting reduces methane emissions due to anaerobic conditions, and provides economic and 
+    environmental co-benefits. For example, compost can also be used for land and stream 
+    reclamation, wetland construction, and landfill cover.
+
+(passo 1 saltato: P0_PROBE_STEP2=1)
+
+─── PASSO 2 · legge tutta la prosa, poi risponde. La risposta E' nel testo ───
+
+  DOMANDA                            SPECIE     ESITO  RISPOSTA
+  ────────────────────────────────────────────────────────────────────────────────
+  what is compost?                   merito     ✓    Compost is classed as mixture.
+  what does compost improve?         merito     ✓    Soil fertility.
+  what does composting require?      merito     ·     I don't understand that yet.
+  what do the materials break down   merito     ✓    Humus.
+  what do fungi break up?            merito     ·     I don't know: nothing I hold says fungi break up, and nothing 
+  what is the resulting mixture ri   merito     ✓    plant nutrients.
+  what do aerobic bacteria manage?   merito     ·     Hmm, I don't know about aerobic yet.
+  what does composting offer?        merito     ✓    Environmentally superior alternative.
+  what does composting reduce?       merito     ✓    Methane emissions.
+  what is composting an important    merito     ·     I can't show that.
+  what do the benefits of compost    merito     ✓    providing nutrients.
+  what can compost be used for?      merito     ·     I don't understand that yet.
+  what is compost used as?           merito     ·     I don't know: nothing I hold says compost used as, and nothing
+  how many sentences does the text   struttura  ✓    The text has 14 sentences.
+  how many words does the text hav   struttura  ✓    The text has 319 words.
+  what is the first sentence?        struttura  ✓    It begins: Compost is a mixture of ingredients used as plant f
+  how does the text begin?           struttura  ✓    It begins: Compost is a mixture of ingredients used as plant f
+  what is the last sentence?         struttura  ✓    It ends: For example, compost can also be used for land and st
+  what is this text about?           meta       ✓    The text is about Compost.
+  what is the topic?                 meta       ✓    The text is about Compost.
+  ────────────────────────────────────────────────────────────────────────────────
+  merito     7/13
+  meta       2/2
+  struttura  5/5
+
+  14 domande su 20 hanno ricevuto quello che il testo dice.
+  ⛔ CANCELLO: 36 parole di domande nel merito risolte, ne servono piu' di 319 (mancano 284).
+  ⛔ 6 restano senza: la risposta E' nel testo, e il lettore non la porta.
+

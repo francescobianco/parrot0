@@ -5639,12 +5639,16 @@ static int relative_rewrite(Brain *b, const char *sentence,
         for (size_t i = 0; i < ns; i++) {
             char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", subs[i]);
             const char *sw = kb_dequote(sb);
-            for (size_t m = 0; m <= nmod; m++) {
+            /* con e senza virgola: «…methane emissions BECAUSE composting
+             * reduces…» e' la stessa subordinata (mai in testa alla frase). */
+            for (size_t m = 0; m <= 2 * nmod + 1; m++) {
                 char needle[KB_TERM_LEN * 2 + 8];
-                if (m < nmod) {
-                    char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mods[m]);
-                    snprintf(needle, sizeof needle, ", %s %s ", kb_dequote(mb), sw);
-                } else snprintf(needle, sizeof needle, ", %s ", sw);
+                int comma = m <= nmod;
+                size_t mi = comma ? m : m - nmod - 1;
+                if (mi < nmod) {
+                    char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mods[mi]);
+                    snprintf(needle, sizeof needle, "%s %s %s ", comma ? "," : "", kb_dequote(mb), sw);
+                } else snprintf(needle, sizeof needle, "%s %s ", comma ? "," : "", sw);
                 const char *h = strstr(sentence, needle);
                 if (!h || h == sentence) continue;
                 size_t hl = (size_t)(h - sentence);
