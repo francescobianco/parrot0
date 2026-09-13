@@ -781,6 +781,38 @@ static int wrapper_peel(Brain *b, const char *canon, const char *raw,
         if (!strncmp(canon, wr, wl) && canon[wl] == ' ') residue = canon + wl + 1;
         else if (!strncmp(low, wr, wl) && low[wl] == ' ') residue = low + wl + 1;
     }
+    /* assistente utile U6b — la cortesia davanti a una RICHIESTA: «can you
+     * explain what inflation is?» chiede «explain what inflation is», non se
+     * l'utente sia capace di spiegare. `request_wrapper(Involucro, Richiesta)`:
+     * il turno si ridice con la richiesta al posto dell'involucro, senza farne
+     * una polare. */
+    if (!residue) {
+        char rows[32][KB_TERM_LEN];
+        const char *rq[2] = { NULL, NULL };
+        size_t nrw = kb_match(b->kb, "request_wrapper", rq, 2, rows, 32);
+        for (size_t i = 0; i < nrw; i++) {
+            char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+            const char *wr = kb_dequote(rb);
+            size_t wl = strlen(wr);
+            if (!wl || strncmp(low, wr, wl) || low[wl] != ' ') continue;
+            char rep[1][KB_TERM_LEN];
+            const char *pq[2] = { rows[i], NULL };
+            if (kb_match(b->kb, "request_wrapper", pq, 2, rep, 1) != 1) continue;
+            char repb[KB_TERM_LEN]; snprintf(repb, sizeof repb, "%s", kb_dequote(rep[0]));
+            char said[600];
+            snprintf(said, sizeof said, "%s %s", repb, low + wl + 1);
+            size_t sl2 = strlen(said);
+            while (sl2 && (said[sl2 - 1] == '?' || said[sl2 - 1] == ' ')) said[--sl2] = '\0';
+            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[wrapper] request «%s»\n", said);
+            char sub[1024]; sub[0] = '\0';
+            char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
+            brain_respond(b, said, sub, sizeof sub);
+            b->active_turn_norm = outer_view;
+            if (!sub[0]) return 0;
+            put(sub, out, out_size);
+            return 1;
+        }
+    }
     /* assistente utile U8 — anche la CODA di una domanda e' un involucro:
      * «paris is the capital of spain, right?» chiede «is paris the capital of
      * spain?». Quali code lo siano e' KB (`question_tag/1`). */

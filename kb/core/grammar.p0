@@ -3041,6 +3041,14 @@ question_wrapper("è vero che").
 % assistente utile U8 — le CODE che fanno di un'affermazione una domanda:
 % «paris is the capital of spain, right?» chiede la polare, e il presupposto
 % sbagliato riceve cio' che si sa invece di un «France.» secco.
+% assistente utile U6b — la cortesia davanti a una richiesta: «can you explain
+% X?» chiede «explain X».
+machinery(request_wrapper).
+request_wrapper("can you explain", "explain").
+request_wrapper("could you explain", "explain").
+request_wrapper("can you tell me", "tell me").
+request_wrapper("could you tell me", "tell me").
+request_wrapper("please explain", "explain").
 machinery(question_tag).
 question_tag(", right").
 question_tag(", isn't it").

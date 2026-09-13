@@ -27,3 +27,9 @@
 <~ A virus is a package of genetic material
 <~ A bacterium is a single-celled organism
 <! useful comparison turns on
+
+[test a courteous request to explain is the request, not a question about ability]
+!timeout 30
+> Can you explain what inflation is?
+<~ A general rise in prices
+<! I don't know whether you can
