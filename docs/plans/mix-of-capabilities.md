@@ -1582,3 +1582,41 @@ un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
   grafia britannica, collide con il verbo «to mould» e la lezione cadeva nel lettore
   sbagliato. Ora: «… and 70 is above that. High humidity causes mold.».
 - **test:** `rate_total.p0t` 19 → 21.
+
+### Stato della seconda campagna (22:36–23:36) e da dove riprendere
+
+**Schede su casi pratici, tutte sulla KB viva e con fonte:** miscele di prodotti per
+la pulizia (WA DOH); tempo fuori dal frigorifero e caldo (USDA FSIS); temperatura
+interna di cottura (USDA FSIS); ustioni e burro/ghiaccio (NHS, Croce Rossa); sangue dal
+naso (NHS); costo energetico di un apparecchio; confezione più conveniente; a che ora
+partire o cominciare; a che ora andare a letto (NHS); tazze in grammi (King Arthur
+Baking); foglie gialle e domanda discriminante (University of Maryland Extension);
+umidità di casa e muffa (US EPA). Più gli stessi casi in italiano.
+
+**Crescita della KB:** ogni fatto è entrato da una lezione parlata e salvata (miscele,
+effetti, classi, limiti di tempo e temperatura, piani di primo soccorso, rimedi da
+evitare, pesi per tazza, sonno, segni diagnostici, intervallo di umidità, lessico
+italiano anche di più parole). Nuove forme di lezione in `messages.p0`: miscela a tre
+posti, limite di tempo (anche col caldo), temperatura sicura, «never put X on a Y»,
+«a sign of X is Y», «a cup of X weighs N grams», sonno, intervallo percentuale,
+traduzione di un nome di più parole.
+
+**Quarantene, tutte annotate:** `causes(chloroform, organ)`, `pending_gap_failed(…)`
+tre volte, `condition_closed_world(stem)` e `stem(long|leggy)`,
+`called(nose, bleeding)`, `quantity(my_hygrometer_says_the_humidity, …)`,
+`tr(chloramine_gas, gas_of_clorammina)`. Il `/save` porta con sé le letture sbagliate
+dei lettori generici: ogni diff si legge prima di committare.
+
+**Reperti trasversali:**
+- **Tre forme di lezione ricorrenti da proteggere:** le lezioni che iniziano con «do»
+  sono lette come domande; una parola della lezione può essere già il nome di un
+  predicato («mould»); gli slot a parola sola non prendono i nomi composti (usare
+  `span`).
+- **La colla fra lettori:** una risposta a una domanda aperta non deve prendere una
+  lezione; una misura contro un intervallo noto non è un guasto; le frasi senza «?»
+  cedono come prosa se nessuno le rivendica prima della materializzazione della forza.
+- **Il costo:** ~0.1 s in più per turno rispetto a prima delle campagne, distribuito
+  (TEST_TODO).
+
+**Da riprendere:** l'ellissi sui casi pratici («and vinegar?» dopo la candeggina);
+19×21 sintesi con status; 05×07 reinterpretazione di un testo; profilare il turno base.
