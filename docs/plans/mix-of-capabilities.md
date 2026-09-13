@@ -1640,3 +1640,34 @@ dei lettori generici: ogni diff si legge prima di committare.
 
 **Da riprendere:**
 19×21 sintesi con status; 05×07 reinterpretazione di un testo; profilare il turno base.
+
+## 14. Terza campagna — la memoria profonda sui casi pratici (13 settembre, 23:41–)
+
+F.: «vorrei che lavori con priorità sulla memoria profonda». La capacità è la 04
+(accorgersi, indirizzare, decidere, leggere, ricordare, riprendere:
+[la-rete-come-memoria-profonda](la-rete-come-memoria-profonda.md)); le schede la
+incrociano con casi pratici e fatti veri, letti dalla rete in `make chat`.
+
+### mix-04-23-001 — il nome composto genera la lacuna vera, non la definizione del modificatore
+
+**Caso:** «what is a fire blanket?», «what is carbon monoxide?», «what is an electron
+microscope?», «what is water hammer?». **Prima (sonda dal vivo, rete accesa):** la
+definizione del fuoco, il ciclo del carbonio, l'elettrone, l'acqua — `semantic_lead` e
+`answerframe` sceglievano l'unico topic presente, il modificatore. Peggio di un muro:
+la lacuna non nasceva e **la memoria profonda non veniva mai consultata**.
+**Cura:** il motore pubblica soltanto la frase chiesta (`turn_asked_phrase/2`, dopo la
+superficie interrogativa; lo stesso inizio del fuoco, ora in `p0_question_start`); la
+KB decide (`asked_head_misses/2`, grammar.p0): un nome di due o tre parole piene nomina
+la sua testa, il lato della testa è un fatto per lingua (`compound_head_side(en,
+last)`, `(it, first)`), e il topic che nomina il modificatore ma non la testa si ritira
+in entrambe le verifiche già esistenti. **Dopo:** «I don't know much about fire blanket
+yet. Want me to look it up?» → «yes» → «A fire blanket is a safety device designed to
+extinguish incipient (starting) fires.» (Wikipedia, letto nel turno); «what is the
+carbon cycle?» e «what is water?» rispondono come prima. Ablazione: senza
+`compound_head_side(en, last)` torna la definizione del fuoco. Nessuna regressione
+sui file vicini (deep_memory, disambiguation, context_scope, sequential_view hanno gli
+stessi rossi a HEAD, tempi). Cricchetto `tests/p0t/crossing/mix_compound_head_gap.p0t` (7).
+**Reperti:** il resoconto della lettura aggiunge la definizione del fuoco perché
+«fires» compare nel passo; «tell me about carbon monoxide» risponde col fatto già
+tenuto («carbon monoxide is CO.») e non propone la lettura.
+

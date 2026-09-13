@@ -8052,9 +8052,10 @@ static void present_atom(Brain *b, const char *in, char *out, size_t n) {
  * la risolve `answer_frame_surfaces` (motore condiviso dal gen490), l'ambito lo
  * dichiara `domain_preposition/1`. Se non si restringe niente, il fuoco e' il
  * turno intero e tutto si comporta come prima. */
-static int p0_question_focus(Brain *b, const char *norm,
-                             char *out, size_t out_size) {
-    if (!b || !norm || !out || out_size == 0) return 0;
+/* Dove comincia cio' che la domanda chiede: dopo la superficie interrogativa
+ * piu' a sinistra. Condiviso dal fuoco (che poi restringe all'ambito) e dalla
+ * frase chiesta intera (`turn_asked_phrase`, 13 settembre 2026). */
+static const char *p0_question_start(Brain *b, const char *norm) {
     const char *start = norm;
     char (*hits)[KB_TERM_LEN] = NULL;
     size_t nh = answer_frame_surfaces(b, norm, &hits);
@@ -8089,6 +8090,14 @@ static int p0_question_focus(Brain *b, const char *norm,
     }
     free(hits);
     while (*start && isspace((unsigned char)*start)) start++;
+    return start;
+}
+
+static int p0_question_focus(Brain *b, const char *norm,
+                             char *out, size_t out_size) {
+    if (!b || !norm || !out || out_size == 0) return 0;
+    const char *start = norm;
+    start = p0_question_start(b, norm);
     if (!*start) return 0;
 
     /* fino alla prima preposizione d'ambito, confine di parola incluso */
@@ -8152,8 +8161,53 @@ static int p0_question_focus(Brain *b, const char *norm,
 /* One reading per dispatch, shared by every answer producer. The input key
  * prevents a helper evaluating a different question from borrowing this turn's
  * focus. These are observations, never persistent world knowledge. */
+/* ── 13 settembre 2026 — LA FRASE CHIESTA INTERA, PER LA TESTA DEL COMPOSTO ──
+ *
+ * «what is carbon monoxide?» riceveva il ciclo del carbonio, «what is a fire
+ * blanket?» la definizione del fuoco, «what is an electron microscope?» quella
+ * dell'elettrone: il modificatore e' un topic noto, la testa no, e vinceva
+ * l'unico candidato presente. Peggio di un muro: la lacuna vera non nasceva, e
+ * la memoria profonda non veniva mai consultata.
+ *
+ * Il fuoco non la vede perche' non c'e' niente da restringere. Qui si pubblica
+ * soltanto la frase dopo la superficie interrogativa; se il topic ne nomini la
+ * testa lo decide la KB (`asked_head_misses/2`, grammar.p0), con il lato della
+ * testa per lingua come fatto. Nessuna parola in questo C. */
+static void p0_publish_asked_phrase(Brain *b, const char *norm) {
+    if (!b || !b->kb || !norm) return;
+    const char *start = p0_question_start(b, norm);
+    char phrase[256];
+    size_t n = 0;
+    for (const char *c = start; *c && n + 1 < sizeof phrase; c++)
+        if (*c != '"' && *c != '\\') phrase[n++] = *c;
+    while (n && (ispunct((unsigned char)phrase[n - 1]) ||
+                 isspace((unsigned char)phrase[n - 1]))) n--;
+    phrase[n] = '\0';
+    if (!n || start == norm) return;
+    char quoted_input[KB_TERM_LEN], quoted_phrase[300];
+    if (strlen(norm) + 3 > sizeof quoted_input) return;
+    snprintf(quoted_input, sizeof quoted_input, "\"%s\"", norm);
+    snprintf(quoted_phrase, sizeof quoted_phrase, "\"%s\"", phrase);
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *a[] = { quoted_input, quoted_phrase };
+    kb_assert(b->kb, "turn_asked_phrase", a, 2);
+    kb_set_origin(b->kb, prev);
+}
+
+/* Il topic scelto nomina il modificatore della frase chiesta ma non la testa? */
+static int p0_asked_head_missed(Brain *b, const char *norm, const char *topic) {
+    if (!b || !b->kb || !norm || !topic) return 0;
+    char quoted_input[KB_TERM_LEN];
+    if (strlen(norm) + 3 > sizeof quoted_input) return 0;
+    snprintf(quoted_input, sizeof quoted_input, "\"%s\"", norm);
+    const char *q[] = { quoted_input, topic };
+    return kb_query(b->kb, "asked_head_misses", q, 2);
+}
+
 static void p0_publish_question_focus(Brain *b, const char *norm) {
     char focus[512];
+    if (b && b->kb && norm) p0_publish_asked_phrase(b, norm);
     if (!b || !b->kb || !p0_question_focus(b, norm, focus, sizeof focus)) return;
     char quoted_input[KB_TERM_LEN], quoted_focus[KB_TERM_LEN];
     if (strlen(norm) + 3 > sizeof quoted_input ||
@@ -8221,6 +8275,10 @@ static size_t p0_answer_type_filter(Brain *b, char ans[][KB_TERM_LEN], size_t na
 static int p0_answer_subject_in_focus(Brain *b, const char *norm,
                                        const char *subject) {
     char focus[512];
+    if (p0_asked_head_missed(b, norm, subject)) {
+        p0_record_focus_rejection(b, subject);
+        return 0;
+    }
     if (!p0_current_question_focus(b, norm, focus, sizeof focus)) return 1;
     if (kb_text_has_surface(focus, subject)) return 1;
     char spaced[KB_TERM_LEN];
@@ -8515,6 +8573,10 @@ static int answer_projection_resolve(Brain *b, const char *relation,
             topic[0] = '\0';
     }
     if (!topic[0]) return -1;
+    if (p0_asked_head_missed(b, norm, topic)) {
+        p0_record_focus_rejection(b, topic);
+        return -1;
+    }
 
     /* ── gen505t — IL TOPIC DEV'ESSERE QUELLO DI CUI SI STA CHIEDENDO ───────
      *

@@ -1,0 +1,33 @@
+# mix-of-capabilities 04×23 — una lacuna reale genera la ricerca mirata.
+# «what is a fire blanket?» riceveva la definizione del fuoco: il modificatore e'
+# un topic noto e la testa no. Il topic che non nomina la testa del composto si
+# ritira (asked_head_misses/2, grammar.p0) e la lacuna nomina il nome intero, cosi'
+# la memoria profonda puo' essere consultata su quello. Rete spenta: deterministico.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the known modifier does not answer for the compound]
+!timeout 30
+> what is a fire blanket?
+<~ fire blanket
+<! hot, visible reaction zone
+> what is an electron microscope?
+<~ electron microscope
+<! negatively charged particle
+
+[test the whole known topic and the bare word still answer]
+!timeout 30
+> what is the carbon cycle?
+<~ exchanges carbon
+> what is water?
+<~ hydrogen and oxygen
+
+[test the head side is knowledge: without it the modifier answers again]
+!timeout 30
+!forget compound_head_side(en, last)
+> what is a fire blanket?
+<~ hot, visible reaction zone
+!assert compound_head_side(en, last)

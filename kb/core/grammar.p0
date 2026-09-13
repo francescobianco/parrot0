@@ -327,6 +327,47 @@ machinery(turn_focus).
 machinery(turn_focus_input).
 machinery(turn_focus_rejected).
 %
+% ── 13 settembre 2026 — LA TESTA DEL COMPOSTO (mix-of-capabilities 04×23) ──
+%
+% «what is a fire blanket?» riceveva la definizione del fuoco, «what is carbon
+% monoxide?» il ciclo del carbonio: il modificatore e' un topic noto e la testa
+% no. Un nome composto di sole parole piene nomina la sua TESTA; il topic che
+% nomina soltanto il modificatore parla d'altro, e si ritira: la lacuna vera
+% resta, e la memoria profonda puo' essere consultata sul nome intero.
+% `turn_asked_phrase(Input, Frase)` lo pubblica il motore (la frase dopo la
+% superficie interrogativa); il lato della testa e' un fatto per lingua.
+machinery(turn_asked_phrase).
+machinery(asked_head_misses).
+compound_head_side(en, last).
+compound_head_side(it, first).
+asked_head_misses($Input, $Topic) :-
+    turn_asked_phrase($Input, $P), atom_words($P, $Ws0), phrase_without_determiner($Ws0, $Ws),
+    compound_content_phrase($Ws), asked_compound_head($Ws, $H),
+    naf(topic_names_word($Topic, $H)),
+    member($M, $Ws), dif($M, $H), topic_names_word($Topic, $M).
+machinery(phrase_without_determiner).
+phrase_without_determiner(cons($D, $R), $R) :- english_determiner($D).
+phrase_without_determiner(cons($D, $R), $R) :- italian_determiner($D).
+phrase_without_determiner(cons($W, $R), cons($W, $R)) :- naf(english_determiner($W)), naf(italian_determiner($W)).
+% due o tre parole, tutte piene: una parola vuota vuol dire che non e' un nome composto
+machinery(compound_content_phrase).
+compound_content_phrase(cons($A, cons($B, nil))) :- content_word($A), content_word($B).
+compound_content_phrase(cons($A, cons($B, cons($C, nil)))) :- content_word($A), content_word($B), content_word($C).
+machinery(content_word).
+content_word($W) :- naf(stopword($W)), naf(auxiliary($W)), naf(preposition($W)), naf(english_determiner($W)), naf(italian_determiner($W)).
+machinery(asked_compound_head).
+asked_compound_head($Ws, $H) :- naf(current_language(it)), compound_head_side(en, last), list_last_word($Ws, $H).
+asked_compound_head(cons($H, $R), $H) :- current_language(it), compound_head_side(it, first).
+machinery(list_last_word).
+list_last_word(cons($H, nil), $H).
+list_last_word(cons($H, $T), $L) :- dif($T, nil), list_last_word($T, $L).
+% il topic nomina una parola: nel suo nome, o con una sua superficie di evidenza
+machinery(topic_names_word).
+topic_names_word($Topic, $W) :- atom_words($Topic, $Ws), member($W, $Ws).
+topic_names_word($Topic, $W) :- semantic_topic_cue($Topic, keyword($W)).
+topic_names_word($Topic, $W) :- semantic_topic_cue($Topic, $S), atom_words($S, $Ws), member($W, $Ws).
+topic_names_word($Topic, $W) :- lemma_candidate($W, $L), dif($L, $W), atom_words($Topic, $Ws), member($L, $Ws).
+%
 % ── gen505v — MASSIMIZZAZIONE DELLA CLASSE (mantra #22) ────────────────────
 %
 % Il criterio, e si applica a ogni membro nuovo prima di aggiungerlo:
