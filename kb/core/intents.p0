@@ -6145,6 +6145,14 @@ faculty_yield_force(chitchat, open, compound_inquiry).
 faculty_yield_force(pragma, open, compound_inquiry).
 faculty_yield_force(answerframe, open, compound_inquiry).
 faculty_yield_force(answer_frame, open, compound_inquiry).
+% assistente utile U1 — UNA RICHIESTA CHE NOMINA UN PARENTE NON E' UNA CONFIDENZA.
+% «Give me some ideas for a birthday present for my dad» riceveva «Thanks for
+% telling me about your family -- I'll keep that in mind.»: il lettore della
+% famiglia rivendica ogni turno con «my <parente>», e la richiesta finiva
+% ringraziata invece che servita (banco dell'utilita', classe `brainstorm`, F).
+% Chi chiede di fare qualcosa non sta raccontando la sua famiglia.
+faculty_yield_force(family, open, directive).
+faculty_yield_force(personal, open, directive).
 
 % Le superfici con cui chiamarle parlando: senza queste la condotta si potrebbe
 % leggere ma non correggere, e sarebbe meta' mantra #17.

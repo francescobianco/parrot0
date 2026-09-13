@@ -308,6 +308,7 @@ con più `F`, poi quella con più archi `R`/`M` che una stessa porta chiuderebbe
 |---|---|---|---:|---:|---:|---|
 | U0 | 2026-09-13 | (questo) | 1/21 | 0/10 | 5 | baseline |
 | U1+U2 | 2026-09-13 | (vedi git log) | 3/21 | 3/10 | 2 | piani `user_problem` e `user_worry` insegnati parlando; tre strade interrotte curate (when-then letto come domanda, `forget_plan` irraggiungibile, guaio breve ceduto alla prosa/allo stato); [lab](../labs/assistente-utile/2026-09-13-u1-u2.md) |
+| U1b | 2026-09-13 | (vedi git log) | 3/21 | 3/10 | 1 | una richiesta che nomina un parente non è una confidenza: `faculty_yield_force(family/personal, open, directive)`; «Give me some ideas for a present for my dad» da F («Thanks for telling me about your family») a M; «my father works in a bank» resta riconosciuta. Rossi `family` 7/9, `teach_any_family` 9/10, `thinking_graph` 31/36 identici su HEAD. Resta F: `compare` (il metodo generico senza fatti) → U6 |
 
 ## 7. Rischi
 
