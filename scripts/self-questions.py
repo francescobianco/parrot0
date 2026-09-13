@@ -41,10 +41,13 @@ STOP = {"the", "a", "an", "of", "and", "or", "to", "in", "on", "for", "by",
 
 
 class Engine:
-    def __init__(self, repo):
+    def __init__(self, repo, lang="en"):
         env = dict(os.environ, PARROT0_SESSION="", PARROT0_WIKI_FETCH="0",
-                   PARROT0_TOOLS="1", PARROT0_LANG="en",
-                   PARROT0_PROFILE="kb/profiles/agi.p0")
+                   PARROT0_TOOLS="1", PARROT0_PROFILE="kb/profiles/agi.p0")
+        if lang:
+            env["PARROT0_LANG"] = lang
+        else:
+            env.pop("PARROT0_LANG", None)
         self.p = subprocess.Popen([os.path.join(repo, "bin/parrot0"), "--mcp-engine"],
                                   cwd=repo, env=env, stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,

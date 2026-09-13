@@ -1,0 +1,37 @@
+# Banco dell'utilita' (docs/plans/assistente-utile.md). Una riga = un arco.
+# classe <TAB> uso <TAB> turni separati da " || "
+# uso: base = si mostra nel referto e guida il giro; held = transfer, MAI detto
+# durante una lezione (LEARN_PROTOCOL.md §4.3); contrast = non deve essere assorbito.
+problem-report	base	ho un problema meccanico
+problem-report	held	I have a problem with my bike.
+problem-report	held	la lavatrice non funziona piu'
+problem-report	held	My phone screen is broken.
+problem-report	contrast	ho risolto il problema meccanico
+howto	base	How do I make my laptop battery last longer?
+howto	held	How can I keep my plants alive while I'm on holiday?
+ambiguous-task	base	Help me write an email.
+ambiguous-task	held	Can you help me with a letter?
+plan	base	I want to start running. Where do I begin?
+plan	held	I want to learn to cook. Where should I start?
+explain	base	Can you explain what inflation is?
+explain	held	Can you explain what a vaccine does?
+decide	base	Should I learn Python or JavaScript first?
+decide	held	Should I buy a laptop or a tablet for university?
+summarize	base	Summarize this: The meeting was moved from Monday to Wednesday because the client could not attend. Anna will send the new agenda by Tuesday noon.
+compare	base	What is the difference between a virus and a bacterium?
+troubleshoot	base	My wifi keeps disconnecting. What should I do?
+troubleshoot	held	My car makes a strange noise when I brake.
+brainstorm	base	Give me some ideas for a birthday present for my dad.
+emotion	base	I'm really stressed about my exam tomorrow.
+emotion	held	Sono preoccupato per il colloquio di lavoro di domani.
+emotion	contrast	I'm really happy about my exam result.
+live-data	base	What's the weather in Rome today?
+false-premise	base	The sun goes around the earth, right?
+steps	base	How do I boil an egg?
+rewrite	base	Make this more formal: hey can u send me the file
+math	base	If I save 50 euros a month, how much will I have in two years?
+followup-offer	base	What is a compass used for?
+italian	base	Come posso organizzare meglio la mia giornata?
+multi-turn	base	I need to cook dinner for four people tonight. || One of them is vegetarian.
+code	base	How do I reverse a list in Python?
+capability	base	What can you help me with?
