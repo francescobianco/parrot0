@@ -21828,6 +21828,39 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * definizione come «what is X?», ed e' la lingua a dirlo — un articolo
          * non cambia che cosa si sta chiedendo quando non c'e' niente da
          * elencare. Additivo: dove l'appartenenza rispondeva, risponde ancora. */
+        /* 14 settembre 2026 — LA MEMORIA PROFONDA HA ANCHE I NOMI COMPOSTI.
+         * «what is a fire blanket?» dopo la lettura: la chiave letta e'
+         * `fire_blanket`, ma qui sotto la precedenza passava all'appartenenza
+         * perche' `fire` ha membri, e il ciclo della definizione letta provava
+         * una parola alla volta. Si prova prima il nome intero dopo l'articolo;
+         * se la pagina di QUEL nome e' stata letta, la sua definizione risponde. */
+        if (start && b && b->kb && nw > start) {
+            size_t from = start;
+            if (is_article(b, w[from])) from++;
+            char key[KB_TERM_LEN] = "";
+            size_t kl = 0, parts = 0;
+            for (size_t i = from; i < nw && kl + 2 < sizeof key; i++) {
+                char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", w[i]);
+                const char *t = strip_edge_punct(tb);
+                if (!*t) continue;
+                kl += (size_t)snprintf(key + kl, sizeof key - kl, "%s%s", parts ? "_" : "", t);
+                parts++;
+            }
+            if (parts >= 2 && kl < sizeof key) {
+                char d[1][KB_TERM_LEN];
+                const char *dq[2] = { key, NULL };
+                if (kb_match(b->kb, "topic_definition", dq, 2, d, 1) == 1) {
+                    char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", d[0]);
+                    const char *def = kb_dequote(db);
+                    if (def && *def) {
+                        put(def, out, out_size);
+                        store_proof(b, def);
+                        remember_entity(b, key, key);
+                        return 1;
+                    }
+                }
+            }
+        }
         if (start == 2 && lex_class_member(b, "indefinite_article", w[2])) {
             int listable = 0;
             if (nw > 3 && b && b->kb) {

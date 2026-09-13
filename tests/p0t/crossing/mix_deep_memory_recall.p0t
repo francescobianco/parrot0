@@ -1,0 +1,21 @@
+# mix-of-capabilities 04 (ricordare) — dopo la lettura, «what is X?» risponde con la
+# definizione letta (topic_definition, con l'indirizzo in topic_read), non con la
+# classe estratta ne' con «I have no definition of it, but I read». Le letture sono
+# vere e salvate (Wikipedia: Fire blanket, Smoke detector, Thermal runaway).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the read definition answers, also for a compound name after an article]
+!timeout 30
+!query topic_read(fire_blanket, wiki_address(en, "Fire blanket", $R, lead))
+> what is a fire blanket?
+<~ A fire blanket is a safety device designed to extinguish incipient (starting) fires.
+<! classed as
+> what is a smoke detector?
+<~ senses smoke, typically as an indicator of fire
+> what is thermal runaway?
+<~ accelerated by increased temperature
+<! I have no definition of it

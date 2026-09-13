@@ -351,10 +351,11 @@ phrase_without_determiner(cons($D, $R), $R) :- italian_determiner($D).
 phrase_without_determiner(cons($W, $R), cons($W, $R)) :- naf(english_determiner($W)), naf(italian_determiner($W)).
 % due o tre parole, tutte piene: una parola vuota vuol dire che non e' un nome composto
 machinery(compound_content_phrase).
-compound_content_phrase(cons($A, cons($B, nil))) :- content_word($A), content_word($B).
-compound_content_phrase(cons($A, cons($B, cons($C, nil)))) :- content_word($A), content_word($B), content_word($C).
-machinery(content_word).
-content_word($W) :- naf(stopword($W)), naf(auxiliary($W)), naf(preposition($W)), naf(english_determiner($W)), naf(italian_determiner($W)).
+compound_content_phrase(cons($A, cons($B, nil))) :- compound_word($A), compound_word($B).
+compound_content_phrase(cons($A, cons($B, cons($C, nil)))) :- compound_word($A), compound_word($B), compound_word($C).
+% ⚠ non `content_word/1`: esiste gia' (piu' sotto) e due definizioni si sommano
+machinery(compound_word).
+compound_word($W) :- content_word($W), naf(preposition($W)), naf(english_determiner($W)), naf(italian_determiner($W)).
 machinery(asked_compound_head).
 asked_compound_head($Ws, $H) :- naf(current_language(it)), compound_head_side(en, last), list_last_word($Ws, $H).
 asked_compound_head(cons($H, $R), $H) :- current_language(it), compound_head_side(it, first).

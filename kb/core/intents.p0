@@ -1711,6 +1711,7 @@ turn_word_outside_class_reading($Entity, $Surface) :-
 class_reading($Entity, $Text) :-
     class_surface($Class, $Surface), naf(machinery($Class)),
     apply($Class, cons($Entity, nil)),
+    naf(entity_has_topic_definition($Entity)),
     naf(turn_word_outside_class_reading($Entity, $Surface)),
     atom_words($Entity, $Ws), words_join($Ws, $Name),
     response_template(class_reading_reply, $Sep),
@@ -1752,12 +1753,20 @@ entity_has_value($Entity) :-
 read_about($Entity, $Text) :-
     naf(definition_unfilled_relation(current_turn)),
     fact_mention($Entity, $Raw),
+    naf(entity_has_topic_definition($Entity)),
     naf(entity_has_value($Entity)),
     naf(turn_word_outside_entity($Entity)),
     naf(entity_has_named_class($Entity)),
     response_template(read_about_reply, $Template),
     concat_atoms($Template, $Raw, $Text).
 response_template(read_about_reply, "I have no definition of it, but I read: ").
+% 14 settembre 2026 — LA MEMORIA PROFONDA HA LA DEFINIZIONE: la classe letta e la
+% frase citata sono risposte piu' povere. «what is a fire blanket?» dopo la lettura
+% diceva «fire blanket is classed as safety device.», e «what is thermal runaway?»
+% «I have no definition of it, but I read: …» con `topic_definition` in memoria:
+% cedono, e risponde la definizione con il suo indirizzo (la-rete-come-memoria-profonda §2.1).
+machinery(entity_has_topic_definition).
+entity_has_topic_definition($Entity) :- topic_definition($Entity, $Definition).
 answer_frame("explain", semantic_summary).
 answer_frame("describe", semantic_summary).
 answer_frame("tell me about", semantic_summary).

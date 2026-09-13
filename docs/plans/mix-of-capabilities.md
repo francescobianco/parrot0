@@ -1693,3 +1693,29 @@ la lacuna su «monoxide»; «what is a carbon monoxide detector used to prevent?
 ciclo del carbonio con un modello di progetto. E il `/save` scrive
 `acquisition_policy(act)` in network.p0: la politica di sessione va riportata a «ask»
 prima di salvare.
+
+### mix-04-003 — ricordare: dopo la lettura risponde la definizione letta
+
+**KB cresciuta (commit 39552114):** sei letture vere dalla rete su casi pratici, con
+indirizzo e revisione — Fire blanket, Hydraulic shock (water hammer), Legionella, Carbon
+monoxide detector, Thermal runaway, Smoke detector — e le classi lette
+(`safety_device(fire_blanket)`, `pressure_surge(hydraulic_shock)`, `genus(legionella)`,
+`device(…)`). Quarantena: `result(outbreaks, …)`, `describes/occur(thermal_runaway, …)`,
+`uncontrolled_positive_feedback(thermal)` e la sua menzione.
+**Caso:** in un processo fresco, a rete spenta, «what is a fire blanket?», «what is
+thermal runaway?». **Prima:** «fire blanket is classed as safety device.», «I have no
+definition of it, but I read: thermal runaway occurs in situations …», «Legionella is
+classed as genus.» — la memoria profonda c'era e rispondevano le letture povere.
+**Cura:** `class_reading` e `read_about` (intents.p0) cedono se l'entità ha
+`topic_definition`; in `mod_knowledge` la definizione letta si prova anche sul nome
+composto intero dopo l'articolo (`fire_blanket`), prima che la precedenza passi
+all'appartenenza di `fire`. **Dopo:** «A fire blanket is a safety device designed to
+extinguish incipient (starting) fires.», «A smoke detector is a device that senses
+smoke, typically as an indicator of fire.», «Thermal runaway describes a process that
+is accelerated by increased temperature, …». Cricchetto
+`tests/p0t/crossing/mix_deep_memory_recall.p0t` (6); prose_triage 75 e prose_compost 13
+verdi; deep_memory e disambiguation con i soli rossi di tempo di HEAD.
+**Reperti:** «what is legionella?» aggiunge «; legionella is a genus.» dopo la
+definizione; «what is a dog?» dice «non so molto di dog» anche a HEAD. Ho anche
+rinominato l'aiutante della scheda 04-23-001 in `compound_word/1`: `content_word/1`
+esisteva già e due definizioni con lo stesso nome si sommano.
