@@ -1,6 +1,20 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-## ⛔ HANDOFF 2026-09-13 (gen514, notte) — 30/50, CANCELLO 184
+## ⛔ HANDOFF 2026-09-13 (gen514, notte) — 35/50 (70%), CANCELLO 209
+
+**35/50**: «what is/are X?» dice la classe se c'e' (`class_reading/2`, anche per
+descrizione: «what is a reef?» -> coral reef; e «what kind of ecosystem…») e
+altrimenti CIO' CHE HA LETTO su X (`fact_mention/2` registrato per ogni
+argomento, `read_about/2`: «I have no definition of it, but I read: …»), solo
+se la domanda nomina soltanto X e mai per la macchineria. «what lives in coral
+reefs?» dalla superficie di arrivo delle costruzioni. Mancano 5 domande all'80%.
+Restano: S13 (3: «declined by», «since when», «sensitive to»), S14 «under threat
+from» (quale forma di domanda), S4 «phylum», «holds … together» (voce), «calcium
+carbonate for» (scopo), «sometimes called» (participio anteposto), «excess
+nutrients include» (parentetica), «deliver services for» (ternaria), S16 ×2,
+«kind of corals», «reef-building corals build».
+
+## HANDOFF 2026-09-13 (gen514, notte) — 30/50, CANCELLO 184
 
 **30/50 (60%)**: S10 si legge nel brano. «including» apre gli esempi del
 DOMINIO (`participial_opener/2`), l'antecedente e' il sintagma adiacente alla

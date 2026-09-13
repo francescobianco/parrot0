@@ -145,3 +145,19 @@
 <~ 25
 > what lives in coral reefs?
 <~ marine species
+
+[test what is X says what was read, and only about X]
+!reset
+!timeout 90
+> A coral reef is an underwater ecosystem characterized by reef-building corals. Most coral reefs are built from stony corals, whose polyps cluster in groups.
+<~ Learned
+> what are stony corals?
+<~ I read
+> what is a reef?
+<~ underwater ecosystem
+> what kind of ecosystem is a coral reef?
+<~ underwater
+> what is the annual global economic value of coral reefs?
+<! I read
+> what is a compass used for?
+<~ finding north

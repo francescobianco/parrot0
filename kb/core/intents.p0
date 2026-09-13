@@ -1682,6 +1682,55 @@ answer_frame("what flavor", invented_object_taste).
 % while mod_answer_frame remains the unchanged universal binary-relation motor.
 answer_frame("what is", semantic_summary).
 answer_frame("what are", semantic_summary).
+% gen514 — l'ULTIMA risorsa di «what is/are X?»: se nessuna definizione c'e',
+% cio' che parrot0 ha letto su X, detto come lettura e non come definizione.
+% «what are stony corals?» rispondeva «I don't know anything about stony
+% corals» con un fatto letto su di loro. Non per le domande con una
+% preposizione lasciata aperta («what is X for?»): chiedono una relazione.
+% La frase di resa sta in `response_template(read_about_reply, …)`.
+machinery(read_about).
+machinery(fact_mention).
+% Prima della lettura, la CLASSE: «what is a reef?» arriva per descrizione a
+% `coral_reef`, che una definizione ce l'ha. E «what kind of ecosystem is a coral
+% reef?» chiede la stessa classe con un tipo, che `answer_type_ok/2` controlla.
+machinery(class_reading).
+machinery(words_join).
+words_join(cons($W, nil), $W).
+words_join(cons($W, $Rest), $Out) :-
+    words_join($Rest, $R), concat_atoms($W, " ", $A), concat_atoms($A, $R, $Out).
+class_reading($Entity, $Text) :-
+    class_surface($Class, $Surface), naf(machinery($Class)),
+    apply($Class, cons($Entity, nil)),
+    atom_words($Entity, $Ws), words_join($Ws, $Name),
+    response_template(class_reading_reply, $Sep),
+    concat_atoms($Name, $Sep, $A), concat_atoms($A, $Surface, $Text).
+response_template(class_reading_reply, " is classed as ").
+answer_frame("what is", class_reading).
+answer_frame("kind of", class_reading).
+answer_frame("what is", read_about).
+answer_frame("what are", read_about).
+machinery(entity_has_named_class).
+entity_has_named_class($Entity) :-
+    class_surface($Class, $Surface), naf(machinery($Class)),
+    apply($Class, cons($Entity, nil)).
+% E solo se la domanda nomina SOLTANTO quella cosa: «what is the annual global
+% economic value of coral reefs?» citava una frase sulle barriere, cioe' una
+% non-risposta. Ogni parola piena del turno deve stare nel nome dell'entita'.
+machinery(turn_word_outside_entity).
+turn_word_outside_entity($Entity) :-
+    turn_word(current_turn, $Pos, $Word), content_word($Word),
+    naf(question_word($Word)), atom_words($Entity, $Names),
+    naf(member($Word, $Names)), naf(lemma_in_names($Word, $Names)).
+machinery(lemma_in_names).
+lemma_in_names($Word, $Names) :- lemma_candidate($Word, $L), member($L, $Names).
+read_about($Entity, $Text) :-
+    naf(definition_unfilled_relation(current_turn)),
+    fact_mention($Entity, $Raw),
+    naf(turn_word_outside_entity($Entity)),
+    naf(entity_has_named_class($Entity)),
+    response_template(read_about_reply, $Template),
+    concat_atoms($Template, $Raw, $Text).
+response_template(read_about_reply, "I have no definition of it, but I read: ").
 answer_frame("explain", semantic_summary).
 answer_frame("describe", semantic_summary).
 answer_frame("tell me about", semantic_summary).

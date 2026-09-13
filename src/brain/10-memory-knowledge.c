@@ -4772,6 +4772,18 @@ static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
      * so callers can show what this reading produced even when the fact existed. */
     const char *rf[] = { fr, rq };
     kb_assert(b->kb, "reading_fact", rf, 2);
+    /* gen514 — DOVE E' STATA NOMINATA UNA COSA. `fact_source` e' indicizzato
+     * sul soggetto, quindi «stony corals», oggetto di «Most coral reefs are
+     * built from stony corals», non aveva appiglio e «what are stony corals?»
+     * rispondeva di non saperne niente. Ogni argomento-concetto del fatto
+     * ricorda la frase letta; che cosa farne lo dice la KB (`read_about/2`). */
+    const char *mq[1] = { pred };
+    int is_machinery = kb_query(b->kb, "machinery", mq, 1);
+    for (size_t i = 0; i < argc && !is_machinery; i++) {
+        if (!args[i] || !*args[i] || args[i][0] == '"') continue;
+        const char *ma[] = { args[i], rq };
+        if (!kb_query(b->kb, "fact_mention", ma, 2)) kb_assert(b->kb, "fact_mention", ma, 2);
+    }
 }
 
 /* Il GENERICO PLURALE: "whales are mammals" (gen382).
