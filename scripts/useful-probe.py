@@ -41,6 +41,18 @@ def run(arc):
     return {"class": c, "use": u, "turns": out}
 
 
+def boot_errors():
+    """La sonda parla col motore via MCP e scarta stderr: un PARSE ERROR del
+    caricamento (una regola oltre i goal ammessi, un predicato oltre gli
+    argomenti) resterebbe invisibile. Si guarda il boot una volta, prima."""
+    import subprocess
+    env = dict(os.environ, PARROT0_SESSION="", PARROT0_WIKI_FETCH="0",
+               PARROT0_PROFILE="kb/profiles/agi.p0")
+    p = subprocess.run([os.path.join(REPO, "bin/parrot0")], input="/quit\n", cwd=REPO,
+                       env=env, capture_output=True, text=True, timeout=120)
+    return [l for l in (p.stdout + p.stderr).splitlines() if "PARSE ERROR" in l]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prompts", default=os.path.join(REPO, "tests/fixtures/usefulness/prompts.tsv"))
@@ -49,6 +61,11 @@ def main():
     ap.add_argument("--json")
     ap.add_argument("-j", type=int, default=4)
     a = ap.parse_args()
+    errs = boot_errors()
+    for e in errs:
+        print("BOOT", e)
+    if errs:
+        raise SystemExit("the KB does not load cleanly: fix the PARSE ERRORs first")
     with cf.ThreadPoolExecutor(a.j) as ex:
         res = list(ex.map(run, list(arcs(a.prompts, a.use, a.klass))))
     for r in res:
