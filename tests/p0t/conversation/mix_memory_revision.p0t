@@ -1,0 +1,32 @@
+# mix-of-capabilities §4.2 / §8.1 P0 — 03×07 aggiornamento del ricordo e
+# 03×07×13 il ricordo corretto come operando. Meccanica sulla KB viva: il valore
+# e' dell'utente, non un fatto del mondo.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test 03x07 a corrected personal value is recalled as corrected]
+!timeout 30
+> remember my favorite number is 7
+<~ your favorite number is 7
+> my favorite number is 11
+<~ your favorite number is 11
+> what is my favorite number
+<~ 11
+<! 7
+
+[test 03x07x13 the corrected value is the operand]
+!timeout 30
+> what is my favorite number plus 3
+<~ 14
+<! 10
+
+[test forgetting a spoken value removes it from recall and from the calculation]
+!timeout 30
+> forget that my favorite number is 11
+<~ let go of your favorite number
+<! Got it
+> what is my favorite number plus 3
+<! 14

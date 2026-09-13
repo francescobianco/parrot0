@@ -567,8 +567,12 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         for (size_t k = mi + 1; k < isx && off + 1 < sizeof key; k++)
                             off += (size_t)snprintf(key + off, sizeof key - off,
                                                     "%s%s", k > mi + 1 ? "_" : "", w[k]);
-                        const char *uv[] = { key, val };
-                        kb_assert(b->kb, "user_value", uv, 2);
+                        /* mix 03×07 (docs/plans/mix-of-capabilities.md §4.2): il
+                         * valore si SCRIVE con lo scrittore unico dello slot, che
+                         * ritira quello vecchio. Qui c'era un kb_assert diretto:
+                         * «my favorite number is 11» dopo 7 confermava 11 e il
+                         * richiamo, e il calcolo che lo usava, restavano su 7. */
+                        user_value_write(b, key, val);
                         char disp[128]; snprintf(disp, sizeof disp, "%s", key);
                         for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
                         char msg[200];
@@ -12762,6 +12766,45 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                       kb_term_say(b, "done_i_ve_let_go_of_your_x", _rs, 1, msg, sizeof msg);
                       put(msg, out, out_size); }
                 return 1;
+            }
+            /* mix 03×07 — OGNI VALORE PERSONALE DETTO SI PUO' DIMENTICARE.
+             * `user_slot_cue/2` nomina gli slot con una storia propria (il nome,
+             * che si supera in un contesto). Un valore detto con «my <chiave> is
+             * N» ha la sua superficie gia' nella KB: la chiave di `user_value`.
+             * «forget that my favorite number is 11» riceveva «Got it: your
+             * favorite number is 11.» — la ritrattazione ri-insegnava il valore.
+             * Qui la chiave detta nel turno si ritira: e' memoria di sessione, e
+             * dimenticarla vuol dire non usarla piu' (nel calcolo compreso). */
+            {
+                char (*keys)[KB_TERM_LEN] = NULL; size_t nk = 0;
+                const char *kq[2] = { NULL, NULL };
+                if (kb_match_all(b->kb, "user_value", kq, 2, &keys, &nk)) {
+                    for (size_t i = 0; i < nk; i++) {
+                        char kbuf[KB_TERM_LEN]; snprintf(kbuf, sizeof kbuf, "%s", kb_dequote(keys[i]));
+                        if (!strchr(kbuf, '_')) continue;   /* gli slot a parola sola hanno i loro lettori */
+                        char said[KB_TERM_LEN + 4];
+                        snprintf(said, sizeof said, "my %s", kbuf);
+                        for (char *c = said; *c; c++) if (*c == '_') *c = ' ';
+                        if (!p0_bounded_phrase(norm, said)) continue;
+                        const char *rq[2] = { kbuf, NULL };
+                        size_t gone = kb_retract_match(b->kb, "user_value", rq, 2);
+                        if (!gone) continue;
+                        char disp[KB_TERM_LEN]; snprintf(disp, sizeof disp, "%s", kbuf);
+                        for (char *c = disp; *c; c++) if (*c == '_') *c = ' ';
+                        const KbResponseSlot rs[] = { { "slot", disp } };
+                        char msg[256];
+                        if (kb_response_slots(b, "forgotten_ack", rs, 1, msg, sizeof msg))
+                            put(msg, out, out_size);
+                        else {
+                            const KbResponseSlot _rs[] = { { "slotname", disp } };
+                            kb_term_say(b, "done_i_ve_let_go_of_your_x", _rs, 1, msg, sizeof msg);
+                            put(msg, out, out_size);
+                        }
+                        free(keys);
+                        return 1;
+                    }
+                }
+                free(keys);
             }
         }
     return 0;

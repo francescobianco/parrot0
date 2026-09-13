@@ -1105,3 +1105,34 @@ aggiornamento/richiamo personale annotato; nessuna delle 276 coppie certificata
 dal solo elenco; nessuna nuova facoltà implementata. I setup della suite sono ora normalizzati
 alla KB viva, senza esecuzione dei test su richiesta di F. Il prossimo
 esperimento concreto è il confine 03×07, seguito da 03×07×13.
+
+## 12. Registro delle schede eseguite (campagna P0/P1, dal 13 settembre 2026 sera)
+
+Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
+
+### mix-03-07-001 — aggiornamento del ricordo; mix-03-07-13-001 — il ricordo corretto come operando
+
+- **catalogo:** mix-v1, famiglie 03 × 07 (e 13 per la tripla)
+- **sottoabilità:** scrittura di un valore personale con chiave di più parole →
+  richiamo → operando; ritiro del valore
+- **classe:** meccanica su KB completa (il valore è dell'utente, non un fatto del mondo)
+- **diagnosi (§8.4, prima riga):** A dava già il dato sbagliato nel richiamo
+  semplice. Causa di **componente**, non di ponte: il lettore di «my <chiave di
+  più parole> is N» faceva `kb_assert` diretto invece di passare dallo scrittore
+  unico dello slot (`user_value_write`), quindi 11 si aggiungeva a 7 e il
+  richiamo trovava il primo. «Due consumatori leggono la stessa cosa» (§9 domanda
+  2) era vero; **due scrittori** no.
+- **seconda diagnosi:** «forget that my favorite number is 11» ri-insegnava il
+  valore: `mod_forget` ritirava solo gli slot dichiarati in `user_slot_cue`
+  (il nome). Ora ritira ogni valore personale detto, leggendo la chiave dai fatti
+  `user_value`.
+- **esito:** 7 → 11 → «Your favorite number is 11» → «14» → «Done — I've let go of
+  your favorite number» → il calcolo non lo usa più. Controllo distrattore: un
+  secondo valore («my lucky number is 4») resta.
+- **resta:** dopo la dimenticanza la resa è «I don't know what your favorite is
+  called» (il lettore dei possessi con nome prende la domanda): limite di resa,
+  non di stato.
+- **test:** `tests/p0t/conversation/mix_memory_revision.p0t` (9); rossi di
+  `forget_move`, `deep_memory`, `memory_recall.it` identici su HEAD.
+- **stato:** verificata (meccanica), trasferimento a un altro attributo con chiave
+  di più parole osservato («lucky number»).
