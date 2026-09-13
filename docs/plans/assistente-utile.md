@@ -42,18 +42,29 @@ può descrivere senza parlare di intelligenza (§1).
 > strumento, ma in questa fase di pre-confezionamento lasciare lo spazio a cose
 > che arriveranno piano piano.»
 
+**Due parole diverse, da non confondere** (F., 13 settembre 2026):
+
+- **commit** (git) — il modo ordinario di salvare il lavoro *in senso storico*.
+  È **sempre consentito**: avanzamenti parziali, esperimenti, stati intermedi con
+  difetti noti, handoff a fine giornata. Un commit non dichiara niente sulla
+  missione; il suo messaggio dice onestamente com'è lo stato.
+- **consegna** — il riconoscimento *in senso della missione* che una unità di
+  lavoro è completata: un giro (o un suo gradino) che entra nel registro di §6
+  come guadagno di utilità. È la consegna, non il commit, che sottostà ai
+  criteri qui sotto.
+
 Questa fase si governa così, e la regola prevale sull'ordine prudente di §2.2 e
 §5 dove i due confliggono:
 
 1. **La verità resta un vincolo, non diventa un cancello.** Una risposta falsa non
-   si committa mai (`F` non sale). Ma un `F` già esistente in una classe non blocca
+   si consegna mai (`F` non sale in una consegna). Ma un `F` già esistente in una classe non blocca
    il lavoro sulle altre: U1 non è una precondizione di U2, e i due giri si
    possono fare insieme o nell'ordine che dà più utilità.
 2. **Il parziale onesto è progresso.** Passare da `M` o `R` a `P` — la mossa
    giusta con poco contenuto, la domanda giusta senza ancora la prima mossa
-   sicura, la procedura con due passi su cinque — si committa. Non si aspetta
+   sicura, la procedura con due passi su cinque — si consegna. Non si aspetta
    che una classe sia chiusa per portarla avanti; «chiuso quando» in §5 è il
-   traguardo, non la soglia del commit.
+   traguardo, non la soglia della consegna.
 3. **Il posto prima del contenuto.** Si possono preparare la situazione, il piano
    e la forma del turno utile anche quando le mosse e i fatti che li
    riempiranno arrivano dopo, giro per giro, parlando. Uno scaffale vuoto e
@@ -192,7 +203,7 @@ parlate.
 deve mai salire** è `F`. Una classe è **chiusa** quando il `base` e tutti i suoi
 `held` sono `U` e i `contrast` restano fuori. Una classe **avanza** quando un suo
 arco sale di un gradino (`M`/`R` → `P` → `U`) senza nuovi `F`: è l'avanzamento, non
-la chiusura, che si committa (§0.1).
+la chiusura, che si consegna (§0.1).
 
 ### 3.1 Baseline a `ccad5f12` (13 settembre 2026)
 
@@ -254,9 +265,13 @@ Ogni giro è una **classe** del banco, non un prompt. Segue
    **composizione** con una capacità esistente; **ablation** con «forget …» se la
    forma la supporta.
 6. **Nessun `F` nuovo** su tutto il banco `base` (≈ 1 minuto): un giro che chiude
-   una classe e ne sporca un'altra non si committa.
-7. **`/save`, diff classificato, rilettura in un processo nuovo** (§8–§10 del
-   protocollo), aggiornamento del registro dei giri (§6), **commit e push**.
+   una classe e ne sporca un'altra non si consegna (si può committare come stato
+   di lavoro, dicendolo nel messaggio).
+7. **Consegna:** `/save`, diff classificato, rilettura in un processo nuovo
+   (§8–§10 del protocollo), riga nel registro dei giri (§6), commit e push.
+
+Durante il giro si committa e si pusha liberamente per salvare il lavoro e per gli
+handoff; solo il passo 7 è la consegna.
 
 Verifica software: solo `make soft-test` e i `.p0t` toccati. La suite intera la
 lancia F.
@@ -265,7 +280,7 @@ lancia F.
 
 Ordinata per la priorità di §2.2: prima togliere il falso, poi aprire il turno
 utile sulla classe di F., poi allargare. **L'ordine è una guida, non una catena**
-(§0.1): U1 e U2 possono andare insieme, e ogni giro si committa appena porta un
+(§0.1): U1 e U2 possono andare insieme, e ogni giro si consegna appena porta un
 arco da `M`/`R` a `P` o `U` senza nuovi `F`.
 
 | giro | classe | tratti | che cosa si fa | chiuso quando |
@@ -289,7 +304,7 @@ con più `F`, poi quella con più archi `R`/`M` che una stessa porta chiuderebbe
 
 ## 6. Registro dei giri
 
-| giro | data | commit | U base | U held | F | note |
+| giro | data | commit della consegna | U base | U held | F | note |
 |---|---|---|---:|---:|---:|---|
 | U0 | 2026-09-13 | (questo) | 1/21 | 0/10 | 5 | baseline |
 
