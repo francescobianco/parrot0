@@ -1281,3 +1281,37 @@ Formato di §8.3, ridotto. Ogni scheda ha un `.p0t` sulla KB viva e un commit.
   ha verità.
 - **test:** `mix_property_inheritance.p0t` 7 → 10; `ellipsis_reference` verde,
   `continuation` rosso identico su HEAD.
+
+### Stato della campagna (13 settembre 2026, 21:34–22:34) e da dove riprendere
+
+**Schede verificate sulla KB viva:** 03×07 e 03×07×13 (memoria personale, revisione,
+calcolo); 01×08 in tre gradini (lingua, grafia, tempo verbale; valuta; lingua di un
+paese); 08×09 (proprietà di classe ereditate); 08×09×14 (contenimento geografico);
+13×08 (quantità per esemplare × numero); 12×09 (catene causali); 02×08×09 (la prima
+tripla: ellissi sulla proprietà). Otto file `.p0t` sulla KB viva, nessun esperimento
+di coding (indicazione di F.: il coding si incrocia in sessioni future).
+
+**Crescita della KB con fatti veri, detti parlando e salvati:** «colour and color name
+the same thing», «x has written y means x wrote y», «the italian for written is
+scritto», «the italian for hamlet is amleto», «birds are typically warm-blooded»,
+«amphibians are typically cold-blooded», «fish are typically cold-blooded», «burning
+fossil fuels causes pollution», «deforestation causes soil erosion». Più la
+conoscenza generale scritta come lettura: `value_class/2`, `hazard`-like
+`opposite_property/2`, i passi di contenimento.
+
+**Il reperto trasversale.** Quasi ogni cella rossa **non era una capacità assente**:
+la conoscenza e la regola c'erano (`inherits/2`, `causes/2` a catena, `continent_of`,
+`quantity/3`), e mancava la **lettura che le porta alla domanda**. È la riga «A e B
+funzionano, ma il dato non passa» di §8.4, e la cura è stata sempre una lettura in KB
+(zero C, salvo lo scrittore unico di 03×07). Due volte la cura corretta nel
+comportamento ha rotto il **costo** (37 s per un `relation_noun`, budget esaurito per
+un predicato comune): il costo è parte del criterio d'uscita di ogni scheda.
+
+**Da riprendere (P1/P2 di §8.1, senza coding):**
+1. 05×07 reinterpretazione di un passo già letto dopo una lezione;
+2. 04×09 acquisizione e deduzione (una premessa reale mancante, una fonte);
+3. 10×23 domanda discriminante su una situazione reale con due spiegazioni;
+4. 19×21 sintesi che non trasforma un'ipotesi in certezza;
+5. i residui annotati: la lingua di un paese ignoto («c, python»), «what is the
+   language of ghana?», i nomi di più parole nel contenimento, il seguito
+   dell'ellissi per luoghi e cause («and madrid?»).
