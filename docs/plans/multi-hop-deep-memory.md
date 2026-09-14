@@ -488,6 +488,49 @@ rupia_indiana)`.
 ma un **terzo banco** scritto senza guardare il codice — e la prova dal vivo con la rete,
 dove le pagine candidate sono molte di più di quelle locali.
 
+**Prova dal vivo con la rete** (`make chat`, «look things up yourself», notte del 14
+settembre): stesse domande, pagine vere di Wikipedia, redirect, disambiguazioni e tutti i
+nomi che le pagine linkano — molti più distrattori che nelle pagine locali.
+
+| # | Dal vivo, prima delle cure | Dal vivo, dopo |
+|---|---|---|
+| B1 Zarathustra | giusta per scorciatoia (ricerca, anelli saltati) | ✓ TSZ → Zoroaster (redirect di Zarathustra) → Zoroastrianism → Ahura Mazda, biforcazione detta |
+| B2 Danubio | ✓ | ✓ |
+| B3 MoMA | ✗ non parte / vaga verso *Europe* | ✓ Starry Night → MoMA → New York City → United States |
+| B4 Mendeleev | ✗ ponte su «Md» | ✓ Russian; periodic law |
+| B5 Kilimanjaro | ✗ vaga (Africa → «Based» → Lil B → Berkeley) | ✓ ricerca della descrizione → Kilimanjaro → Tanzania → Dodoma |
+| B6 italiano | ✗ | ✗ **onesta**: il lead italiano di *Budapest* non nomina il fiume e la ricerca italiana non propone un fiume; *prima* della verifica di tipo era un misclaim («Mare Adriatico» da *Fiume (Croazia)*) |
+| B7 a passi | ✗ parte da «Start» | ✓ |
+| C1 controllo | «Partial answer: Prophet» (misclaim) | ✓ onesto |
+| H1 Taj Mahal | ✗ ponte su *Yamuna* | ✓ India → rupee |
+| H2 Carmen | ✗ ponte su «French» | ✓ Georges Bizet → French |
+| H4 Elbrus | ✗ «Ural Mountains» | ✓ ricerca → Mount Elbrus → Caucasus Mountains |
+| H5 italiano | ✗ | ✓ «Rupia» |
+| C2 controllo | — | con la ricerca trova il Nilo e risponde «Mediterranean Sea», dichiarando il passo come ricerca: giusto, e il controllo resta tale solo sulle pagine locali |
+
+**Dal vivo: 11 su 12 problemi, e nessun misclaim.** Le cure, tutte generali: il titolo si
+apre con le sue maiuscole (la chiave in minuscolo non è un titolo); la pagina già aperta
+di un ponte si tiene invece di riaprirla per chiave; una maiuscola seguita da un nome
+comune («French composer») è un modificatore; una parola comune a inizio frase («Based»,
+«Start») non è un nome, e una pagina di partenza di una parola sola deve nominare un
+indizio; le descrizioni introdotte da una relativa («the country **where**») sono
+sotto-domande come quelle con la preposizione, e si risolvono dalla più interna; i
+modificatori della descrizione («**highest**») devono stare nella frase del candidato, e se
+la pagina d'appoggio non la risolve si cerca invece di vagare; due ponti di fila senza
+indizi fermano il cammino; il ponte guarda **un passo avanti** (la pagina del candidato
+nomina già qualcosa del tipo cercato?); un risultato di ricerca deve essere del tipo della
+descrizione («il fiume che…» non è la città di Fiume); il tipo si verifica anche nella sua
+forma inglese; la testa di un nome dipende dalla lingua della *pagina*; la ricerca segue
+l'edizione della lingua; una descrizione anaforica («that philosopher's work») non si cerca
+alla lettera; la risposta elenca i tipi chiesti, gli intermedi restano nella catena.
+
+**Reperti della prova dal vivo.** (6) Un mio errore, curato: avevo dichiarato «fiume» come
+classe davanti a un nome, ed è il nome di una città. (7) Dal vivo ogni verifica di tipo può
+aprire una pagina: il turno costa decine di letture (10–60 s per problema); la verifica per
+testa e per KB va provata prima, e un budget di letture per turno è da mettere in KB. (8)
+«which city is the capital of Hungary?» con la politica «leggi da solo» passa dalla lettura
+guidata e risponde «Answer: Budapest.» con la catena: giusto, ma più lento della KB.
+
 **Criteri di generalità** (valgono per ogni mossa della missione):
 
 1. **Nessuna cura si misura su un problema**: si misura sul banco intero, e si riporta il
@@ -704,3 +747,8 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   Banco della classe **8/8**, banco di controllo **7/7**; E1, memoria profonda,
   `prose_triage`, `order_determinacy_problem` verdi. Prossimo: terzo banco non visto e prova
   dal vivo con la rete.
+- **14 settembre 2026, notte (6)** — prova dal vivo con la rete su 12 problemi dei due banchi:
+  prima delle cure 3 giusti (uno per scorciatoia) e 3 misclaim; dopo **11/12 e nessun
+  misclaim** (B6 italiano onesto ma non risolto). Banchi locali 8/8 e 7/7, E1 23/23,
+  regressioni verdi. Prossimo: terzo banco non visto; budget di letture per turno in KB;
+  ripiego sull'edizione inglese quando l'italiana non porta l'anello; migrazione IR (§4.3).

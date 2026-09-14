@@ -114,17 +114,53 @@ turn_guided_bridge($T) :- guided_asked_type($T, $I, $A), guided_asked_type($T, $
 % capital of France?» non lo e': la testa della descrizione e' il tipo stesso.
 machinery(guided_description_at).
 machinery(description_head_after).
-guided_description_at($T, $J, $Head) :-
+machinery(guided_head_is_asked).
+guided_head_is_asked($T, $Head) :- guided_asked_type($T, $I, $A), same_word_lemma($Head, $A).
+guided_description_at($T, $J, $Head) :- guided_description_span($T, $J, pair($Head, $P)).
+% la descrizione finisce alla testa, seguita da una preposizione («the composer OF») o da
+% una relativa («the country WHERE», «the museum THAT», «il fiume CHE»)
+machinery(guided_description_span).
+guided_description_span($T, $J, pair($Head, $P)) :-
     turn_word($T, $J, $D), description_determiner($D), is($K, add($J, 1)),
-    description_head_after($T, $K, pair($Head, $P)), turn_word($T, $P, $Prep), preposition($Prep).
+    description_head_after($T, $K, pair($Head, $P)), turn_word($T, $P, $F), description_follow($F).
+machinery(description_follow).
+description_follow($W) :- preposition($W).
+description_follow($W) :- articulated_preposition($W).
+description_follow(di). description_follow(in).
+description_follow($W) :- bridge_word($W).
+description_follow(which). description_follow(who).
+% i modificatori della descrizione dicono QUALE entita': «the HIGHEST mountain in Europe».
+% Un candidato del tipo della testa li deve avere nella sua frase.
+machinery(guided_description_modifier).
+guided_description_modifier($T, $J, $W) :-
+    guided_description_span($T, $J, pair($Head, $P)), is($H, sub($P, 1)),
+    turn_word($T, $K, $W), gt($K, $J), lt($K, $H), naf(type_skip_word($W)).
+machinery(guided_description_head_at).
+guided_description_head_at($T, $J, $Head) :-
+    guided_asked_type($T, $I, $Type), guided_description_at($T, $J, $Head), gt($J, $I), naf(same_word_lemma($Head, $Type)),
+    naf(guided_head_is_asked($T, $Head)).
 description_head_after($T, $K, pair($W, $P)) :-
     turn_word($T, $K, $W), type_candidate_word($W), naf(type_skip_word($W)), naf(type_modifier_at($T, $K)), is($P, add($K, 1)).
+% un modificatore puo' essere una parola che il lessico segna come funzione («highest»)
 description_head_after($T, $K, $R) :-
-    turn_word($T, $K, $M), type_candidate_word($M), type_modifier_at($T, $K), is($L, add($K, 1)), lt($L, 64),
-    description_head_after($T, $L, $R).
+    turn_word($T, $K, $M), naf(type_skip_word($M)), naf(bridge_word($M)), description_modifier_at($T, $K),
+    is($L, add($K, 1)), lt($L, 64), description_head_after($T, $L, $R).
+machinery(description_modifier_at).
+description_modifier_at($T, $J) :-
+    guided_head_last, is($K, add($J, 1)), turn_word($T, $K, $N), type_candidate_word($N), naf(type_skip_word($N)),
+    naf(bridge_word($N)), naf(relative_clause_verb($N)), naf(type_stop_word($N)).
 machinery(description_determiner).
 description_determiner(the). description_determiner(a). description_determiner(an).
 description_determiner(il). description_determiner(la). description_determiner(lo). description_determiner(l).
+description_determiner($D) :- articulated_preposition($D).
+% le preposizioni articolate dell'italiano: sono determinante e preposizione insieme
+% («NEL paese dove», «la capitale DELL'Ungheria»)
+machinery(articulated_preposition).
+articulated_preposition(del). articulated_preposition(della). articulated_preposition(dello).
+articulated_preposition(dei). articulated_preposition(degli). articulated_preposition(delle). articulated_preposition(dell).
+articulated_preposition(nel). articulated_preposition(nella). articulated_preposition(nello).
+articulated_preposition(nei). articulated_preposition(negli). articulated_preposition(nelle). articulated_preposition(nell).
+articulated_preposition(al). articulated_preposition(alla). articulated_preposition(sul). articulated_preposition(sulla).
 turn_guided_bridge($T) :-
     guided_asked_type($T, $I, $Type), guided_description_at($T, $J, $Head), gt($J, $I), naf(same_word_lemma($Head, $Type)).
 machinery(turn_guided_inquiry).
@@ -249,13 +285,13 @@ guided_address_text(wiki_address($Ed, $Title, $Rev, $Sec), $Text) :-
 % ordini: 1 risposta, 2 intestazione, 10+10P pagina P, 11+10P risposte e ponte, 900 mancanze
 machinery(guided_part).
 guided_part(1, $Text) :-
-    guided_now, guided_found(1, $Ty, $V, $P), naf(guided_missing_any), guided_language($L),
+    guided_now, guided_any_asked_found, naf(guided_missing_any), guided_language($L),
     guided_line($L, answer_head, $H), guided_values_from(0, $Vs), concat_atoms($H, $Vs, $A), concat_atoms($A, ".", $Text).
 guided_part(1, $Text) :-
-    guided_now, guided_found(1, $Ty, $V, $P), guided_missing_any, guided_language($L),
+    guided_now, guided_any_asked_found, guided_missing_any, guided_language($L),
     guided_line($L, partial_head, $H), guided_values_from(0, $Vs), concat_atoms($H, $Vs, $A), concat_atoms($A, ".", $Text).
 guided_part(1, $Text) :-
-    guided_now, naf(guided_found_any), guided_read(1, $To, $Ad), guided_language($L), guided_line($L, nothing_found, $Text).
+    guided_now, naf(guided_any_asked_found), guided_read(1, $To, $Ad), guided_language($L), guided_line($L, nothing_found, $Text).
 guided_part(2, $Text) :- guided_now, guided_read(1, $Topic, $Addr), guided_language($L), guided_line($L, steps_head, $Text).
 guided_part($O, $Line) :-
     guided_now, guided_read($P, $Topic, $Addr), guided_language($L), guided_line($L, read_word, $R),
@@ -285,9 +321,16 @@ machinery(guided_has_found_after).
 guided_values_from($N, $Text) :- guided_next_found($N, $M, $V0), guided_value_said($M, $V0, $V), guided_values_after($M, $Rest), concat_atoms($V, $Rest, $Text).
 guided_values_after($N, $Text) :- guided_next_found($N, $M, $V0), guided_value_said($M, $V0, $V), guided_values_after($M, $Rest), concat_atoms("; ", $V, $A), concat_atoms($A, $Rest, $Text).
 guided_values_after($N, "") :- naf(guided_has_found_after($N)).
-guided_next_found($N, $M, $V) :- guided_found($M, $Ty, $V, $P), gt($M, $N), naf(guided_found_between($N, $M)).
-guided_found_between($N, $M) :- guided_found($K, $Ty, $V, $P), gt($K, $N), lt($K, $M).
-guided_has_found_after($N) :- guided_found($M, $Ty, $V, $P), gt($M, $N).
+guided_next_found($N, $M, $V) :- guided_answer_found($M, $V), gt($M, $N), naf(guided_found_between($N, $M)).
+% la risposta elenca i tipi chiesti; i tipi delle descrizioni sono passi della catena
+machinery(guided_intermediate_type).
+turn_scratch(guided_intermediate_type).
+machinery(guided_answer_found).
+guided_answer_found($M, $V) :- guided_found($M, $Ty, $V, $P), naf(guided_intermediate_type($Ty)).
+machinery(guided_any_asked_found).
+guided_any_asked_found :- guided_found($M, $Ty, $V, $P), naf(guided_intermediate_type($Ty)).
+guided_found_between($N, $M) :- guided_answer_found($K, $V), gt($K, $N), lt($K, $M).
+guided_has_found_after($N) :- guided_answer_found($M, $V), gt($M, $N).
 
 % I connettori dentro un nome proprio: «Museum OF Modern Art», «Leonardo DA Vinci».
 machinery(name_connector).
@@ -316,6 +359,7 @@ name_class_prefix(river).
 name_class_prefix(lake).
 name_class_prefix(mount).
 name_class_prefix(saint).
+name_class_prefix(mar). name_class_prefix(monte). name_class_prefix(lago).
 
 % Il punto di partenza puo' essere un fatto che la KB sa gia': «the CAPITAL of Hungary»
 % → la superficie «capital» interroga `capital_of_country` (answer_frame/2), e il valore
@@ -418,6 +462,12 @@ guided_anaphor_noun($T, $W) :- turn_word($T, $I, $D), anaphor_determiner($D), is
 % lingua di chi chiede se la KB ne sa il nome («Black Sea» → «Mar Nero»). Una lingua o un
 % nome nuovo e' una lezione di lessico, detta a voce.
 same_word_lemma($W, $T) :- tr($W, $T).
+same_word_lemma($W, $T) :- word_variant($W, $T).
+same_word_lemma($W, $T) :- word_variant($W, $V), tr($T, $V).
+% forme tronche dei nomi di classe nei nomi propri: «MAR Nero», «SAN Marco», «MONTE Bianco»
+machinery(word_variant).
+word_variant(mar, mare). word_variant(san, santo). word_variant(sant, santo).
+word_variant(mount, mountain). word_variant(mt, mountain).
 machinery(guided_english_key).
 guided_english_key($K, $K).
 guided_english_key($K, $E) :- tr($E, $K).
@@ -433,3 +483,34 @@ machinery(capitalized_words_text).
 capitalized_words_text(cons($W, nil), $U) :- upcase_first($W, $U).
 capitalized_words_text(cons($W, cons($V, $R)), $T) :-
     upcase_first($W, $U), capitalized_words_text(cons($V, $R), $Rest), concat_atoms($U, " ", $A), concat_atoms($A, $Rest, $T).
+
+% Una parola a inizio frase e' maiuscola per posizione, non per nome: «Based on 2024
+% projections…». Se il lessico la conosce come parola comune (o ne conosce la radice),
+% non e' una menzione.
+machinery(common_lexical_word).
+common_lexical_word($W) :- lexeme($W).
+common_lexical_word($W) :- lemma_candidate($W, $L), lexeme($L).
+common_lexical_word($W) :- same_word_lemma($W, $L), lexeme($L).
+
+% La testa della descrizione di un'entita' intermedia e' il primo tipo da trovare: «the
+% nationality of the COMPOSER of the opera Carmen» si risolve cercando prima un compositore
+% a partire da Carmen, poi la sua nazionalita'. E' una sotto-domanda, con la stessa
+% risoluzione di ogni tipo: la KB, la pagina del nome d'appoggio, la ricerca.
+machinery(guided_description_head).
+guided_description_head($T, $Head) :-
+    guided_asked_type($T, $I, $Type), guided_description_at($T, $J, $Head), gt($J, $I), naf(same_word_lemma($Head, $Type)).
+
+% la frase di una descrizione, per cercarla: dal suo determinante alla fine del turno
+machinery(guided_description_phrase).
+guided_description_phrase($T, $Phrase) :-
+    guided_description_head_at($T, $J, $Head), findall($W, guided_word_after($T, $J, $W), $Ws), words_space_text($Ws, $Phrase).
+machinery(guided_description_phrase_at).
+guided_description_phrase_at($T, $J, $Phrase) :-
+    guided_description_head_at($T, $J, $Head), findall($W, guided_word_after($T, $J, $W), $Ws), words_space_text($Ws, $Phrase).
+% la frase dalla posizione di una descrizione alla fine, senza ricontrollare la descrizione
+% una descrizione che contiene un dimostrativo («the prophet of THAT philosopher's work»)
+% parla di un referente non ancora trovato: la sua frase non si cerca alla lettera
+machinery(guided_description_anaphoric).
+guided_description_anaphoric($T, $J) :- turn_word($T, $K, $D), gt($K, $J), anaphor_determiner($D).
+machinery(guided_description_words_at).
+guided_description_words_at($T, $J, $Phrase) :- findall($W, guided_word_after($T, $J, $W), $Ws), words_space_text($Ws, $Phrase).

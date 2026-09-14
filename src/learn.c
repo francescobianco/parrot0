@@ -292,21 +292,37 @@ int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
      * e' una primitiva passiva: apre un indirizzo e restituisce la prosa. */
     if (!key || !*key || !lang || !*lang) return 0;
 
-    /* sanitize the key to [a-z0-9_] */
-    char k[96]; size_t kn = 0;
-    for (const char *p = key; *p && kn + 1 < sizeof k; p++) {
-        char c = *p;
-        if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') k[kn++] = c;
-        else if (c >= 'A' && c <= 'Z') k[kn++] = (char)(c - 'A' + 'a');
+    /* Un titolo scritto con le sue maiuscole («Thus_Spoke_Zarathustra», «Dmitri_Mendeleev»)
+     * si apre cosi' com'e': ridotto a minuscole diventa un altro titolo, che non esiste. Una
+     * chiave tutta minuscola si sanifica come prima. I byte non ASCII e la punteggiatura
+     * dei titoli si codificano nell'indirizzo. */
+    int has_upper = 0;
+    for (const char *p = key; *p; p++) if (*p >= 'A' && *p <= 'Z') { has_upper = 1; break; }
+    char title[256]; size_t tn = 0;
+    if (has_upper) {
+        for (const char *p = key; *p && tn + 4 < sizeof title; p++) {
+            unsigned char c = (unsigned char)*p;
+            if (isalnum(c) || c == '_' || c == '-' || c == '.') title[tn++] = (char)c;
+            else if (c == ' ') title[tn++] = '_';
+            else tn += (size_t)snprintf(title + tn, sizeof title - tn, "%%%02X", c);
+        }
+        title[tn] = '\0';
+        if (tn < 2) return 0;
+    } else {
+        /* sanitize the key to [a-z0-9_] */
+        char k[96]; size_t kn = 0;
+        for (const char *p = key; *p && kn + 1 < sizeof k; p++) {
+            char c = *p;
+            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') k[kn++] = c;
+        }
+        k[kn] = '\0';
+        if (kn < 2) return 0;
+        /* Wikipedia capitalizes the leading letter; FOLLOWLOCATION resolves redirects. */
+        snprintf(title, sizeof title, "%s", k);
+        if (title[0]) title[0] = (char)toupper((unsigned char)title[0]);
     }
-    k[kn] = '\0';
-    if (kn < 2) return 0;
 
-    /* Wikipedia capitalizes the leading letter; FOLLOWLOCATION resolves redirects. */
-    char title[96]; snprintf(title, sizeof title, "%s", k);
-    if (title[0]) title[0] = (char)toupper((unsigned char)title[0]);
-
-    char url[256];
+    char url[400];
     /* gen335i: language-specific Wikipedia URL */
     snprintf(url, sizeof url,
              "https://%s.wikipedia.org/api/rest_v1/page/summary/%s", lang, title);
