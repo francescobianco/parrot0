@@ -6277,6 +6277,14 @@ static void render_fact_direct_kb(const KB *kb, const Fact *f, const char *entit
     render_fact_direct_impl(kb, f, entity, neg, buf, sz);
 }
 
+static const char *strcasestr_local(const char *hay, const char *needle) {
+    size_t nl = strlen(needle);
+    if (!nl) return hay;
+    for (const char *h = hay; *h; h++)
+        if (strncasecmp(h, needle, nl) == 0) return h;
+    return NULL;
+}
+
 int kb_describe_entity(const KB *kb, const char *entity,
                        char *out, size_t out_size) {
     if (!kb || !term_ok(entity) || !out || out_size == 0) return 0;
@@ -6284,6 +6292,7 @@ int kb_describe_entity(const KB *kb, const char *entity,
 
     size_t off = 0;
     int count = 0;
+    int had_definition = 0;
     /* gen505y — LA MEMORIA PROFONDA PARLA PER PRIMA (kb/core/network.p0 §6):
      * se di questa entita' e' stata letta la pagina, la definizione letta
      * (topic_definition/2) apre la descrizione; i fatti la seguono. E' l'unico
@@ -6301,6 +6310,7 @@ int kb_describe_entity(const KB *kb, const char *entity,
                 if (off && out[off - 1] == '.') out[--off] = '\0';
                 out[off] = '\0';
                 count++;
+                had_definition = 1;
             }
         }
     }
@@ -6311,6 +6321,10 @@ int kb_describe_entity(const KB *kb, const char *entity,
         char piece[220];
         if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
         else render_fact_direct_kb(kb, f, entity, 0, piece, sizeof piece);
+        /* mix-04-006 — un fatto che la definizione letta dice gia' non si
+         * ripete in coda: «Legionella is a genus of …; legionella is a genus.»
+         * Il pezzo estratto dalla stessa frase ne e' un prefisso. */
+        if (had_definition && piece[0] && strcasestr_local(out, piece)) continue;
         if (!append_piece(out, out_size, &off, piece)) break;
         count++;
     }

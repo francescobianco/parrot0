@@ -1853,3 +1853,17 @@ definizione letta.
 in discourse.p0 — il salvataggio chiede alla KB che cosa è effimero (`sm_is_turn_scratch`).
 **Dopo:** la stessa sessione salvata non scrive né la politica né il frame del turno;
 la risposta di condotta resta («Understood: from now on I'll read things up myself»).
+
+### mix-04-006 — resa: la definizione letta non si ripete, il suggerimento dice il nome
+
+**Caso:** «what is legionella?», «what is carbon monoxide poisoning?». **Prima:**
+«Legionella is a genus of …, an amino acid; legionella is a genus.» e «You might mean
+carbon_monoxide: CO.». **Cura:** in `kb_describe_entity` (kb.c), quando la
+definizione letta apre la descrizione, un fatto il cui testo è già contenuto nella
+definizione non si accoda (è il fatto estratto dalla stessa frase); il suggerimento
+del concetto vicino passa per `present_atom`. **Dopo:** la sola definizione;
+«You might mean carbon monoxide: CO.». Cricchetto
+`tests/p0t/crossing/mix_read_definition_render.p0t` (3). **Reperti:** il suggerimento
+per tre parole resta, perché `prose_relation_scope` vuole «calcium carbonate aboard»
+→ CaCO3 finché «aboard» non è insegnata come preposizione: separare «poisoning» da
+«aboard» chiede una classe di nomi che oggi la KB non ha.

@@ -1,0 +1,20 @@
+# mix-of-capabilities 04 (resa) — la definizione letta non si ripete in coda, e il
+# suggerimento dice il nome, non l'atomo. «what is legionella?» rispondeva «Legionella
+# is a genus of …; legionella is a genus.»: il descrittore aggiungeva il fatto estratto
+# dalla stessa frase. «You might mean carbon_monoxide» portava l'atomo grezzo.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the read definition is not followed by the fact it already says]
+!timeout 30
+> what is legionella?
+<~ Legionella is a genus of Gram-negative bacteria
+<! ; legionella is a genus
+
+[test the nearest concept is said with its name]
+!timeout 30
+> what is carbon monoxide poisoning?
+<! carbon_monoxide

@@ -22040,7 +22040,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 kb_nearest_concept(b->kb, qw, nq, ckey, sizeof ckey, cdesc, sizeof cdesc) &&
                 p0_definition_subject_in_focus(b, norm, ckey)) {
                 char msg[1200];
-                { const KbResponseSlot _rs[] = { { "ckey", ckey }, { "cdesc", cdesc } };
+                char ckey_said[128];
+                present_atom(b, ckey, ckey_said, sizeof ckey_said);
+                if (!ckey_said[0]) snprintf(ckey_said, sizeof ckey_said, "%s", ckey);
+                { const KbResponseSlot _rs[] = { { "ckey", ckey_said }, { "cdesc", cdesc } };
       kb_term_say(b, "you_might_mean_x_x", _rs, 2, msg, sizeof msg);
                   put(msg, out, out_size); }
                 store_proof(b, msg);
