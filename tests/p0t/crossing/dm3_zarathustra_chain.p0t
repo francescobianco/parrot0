@@ -1,0 +1,67 @@
+# Missione multi-hop deep memory — E1, DM-3 (docs/plans/multi-hop-deep-memory.md §6.1).
+#
+# La risposta non sta nel prompt ne' in una pagina sola: Thus Spoke Zarathustra ->
+# Zoroaster (named after) -> Zoroastrianism (founder of, fra cinque religioni nominate)
+# -> Ahura Mazda (supreme being). Nessun anello e' nella KB (verificato: nessuna riga
+# con ahura, zoroast, zarathustra in kb/). Le pagine sono i LEAD VERI di Wikipedia, in
+# edizione locale per il determinismo, revisioni del 14 settembre 2026:
+#   Thus Spoke Zarathustra 1373299517 · Zoroaster 1374717299 · Zoroastrianism 1371266599
+#   The Brothers Karamazov 1374307763 · Fyodor Dostoevsky 1374449644
+#
+# ⚠ OGGI E' ROSSO, e deve esserlo (MANTRA: un test non inventa la conoscenza che
+# dichiara di scoprire). Ogni blocco nomina la capacita' mancante del piano (§4.2).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test anti-cheat: no link of the chain is known before reading]
+!timeout 30
+!query! topic_read(zoroaster, $A)
+!query! topic_read(zoroastrianism, $A)
+!query! topic_read(thus_spoke_zarathustra, $A)
+> what is ahura mazda?
+<! supreme being
+
+[test M1: the chain task is not a story, a close reading or a lesson]
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> The protagonist of Thus Spoke Zarathustra is named after a historical religious figure. Which religion is traditionally associated with that figure, and which deity do its followers exalt as the supreme being? Reconstruct every step.
+<! mysterious
+<! a close reading
+<! Learned
+<! Imparato
+
+[test E1: the answer, reached through three readings]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> The protagonist of Thus Spoke Zarathustra is named after a historical religious figure. Which religion is traditionally associated with that figure, and which deity do its followers exalt as the supreme being? Reconstruct every step.
+<~ Zoroastrianism
+<~ Ahura Mazda
+!query topic_read(thus_spoke_zarathustra, $A)
+!query topic_read(zoroaster, $A)
+!query topic_read(zoroastrianism, $A)
+
+[test M7: every step is reconstructed with its evidence and status]
+!timeout 60
+<~ Zoroaster
+<~ «Thus Spoke Zarathustra»
+<~ «Zoroaster»
+<~ «Zoroastrianism»
+<~ nominally the historical Zarathustra, more commonly called Zoroaster
+<~ spiritual founder of Zoroastrianism
+<~ deity known as Ahura Mazda
+
+[test M6: the branch is resolved with evidence, not by guessing]
+!timeout 60
+<~ Christianity
+<~ Ancient Iranian religion
+
+[test the source of the last link is the read article]
+!timeout 30
+> where did you read that?
+<~ the article «Zoroastrianism»
