@@ -2382,7 +2382,18 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
     char *w[64];
     size_t nw = split_words(buf, w, 64);
     const char *sw = NULL;
-    for (size_t i = 0; i < nw; i++) {
+    /* mix-04-23-004 — il sintagma che il turno nomina, se la KB lo deriva
+     * (`turn_gap_phrase/2`, grammar.p0), prima della prima parola ignota. */
+    char gap_phrase[KB_TERM_LEN] = "";
+    if (b && b->kb) {
+        const char *gpq[2] = { "current_turn", NULL };
+        char gpr[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "turn_gap_phrase", gpq, 2, gpr, 1) == 1) {
+            snprintf(gap_phrase, sizeof gap_phrase, "%s", kb_dequote(gpr[0]));
+            if (gap_phrase[0]) sw = gap_phrase;
+        }
+    }
+    for (size_t i = 0; i < nw && !sw; i++) {
         char *t = strip_edge_punct(w[i]);
         char desc[256];
         /* CHE COSA si nomina. Il criterio resta quello storico — «non ho fatti su
@@ -2666,7 +2677,10 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                     if (oi + 1 < no && (long)(oi + 1) < cap)
                         to += (size_t)snprintf(teach + to, sizeof teach - to, "; ");
                 }
-                const KbResponseSlot slots[] = { {"topic", sw}, {"teach", teach} };
+                char sw_said[KB_TERM_LEN];
+                snprintf(sw_said, sizeof sw_said, "%s", sw);
+                for (char *z = sw_said; *z; z++) if (*z == '_') *z = ' ';
+                const KbResponseSlot slots[] = { {"topic", sw_said}, {"teach", teach} };
                 kb_response_slots(b, teach[0] ? "fallback_gap_offer"
                                               : "fallback_gap_offer_plain",
                                   slots, 2, cand, sizeof cand);

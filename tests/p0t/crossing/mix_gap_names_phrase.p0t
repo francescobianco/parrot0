@@ -1,0 +1,32 @@
+# mix-of-capabilities 04×23 (4) — la lacuna nomina il sintagma, non la prima parola
+# ignota. «what does a carbon monoxide detector detect?» costruiva la lacuna su
+# «monoxide» e la rete leggeva «Oxide». `turn_gap_phrase/2` (grammar.p0) deriva il
+# nome dopo il determinante, fino al verbo; col «do» ausiliare il verbo nudo in coda
+# si toglie. La pagina locale e' il testo di tests/fixtures/wiki.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the gap names the compound noun of the turn]
+!timeout 30
+> what does a radon detector detect?
+<~ radon detector
+<! about detector
+> what does a carbon monoxide alarm detect?
+<~ carbon monoxide alarm
+<! about monoxide
+
+[test the bare verb at the end of a do-question is not part of the name]
+!timeout 30
+> what does a glimpwort need?
+<! glimpwort need
+
+[test yes reads the page of the whole name]
+!timeout 30
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> what does a programmable logic controller control?
+<~ programmable logic controller
+> yes
+<~ Looking up programmable logic controller

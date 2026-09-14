@@ -1823,3 +1823,22 @@ di progetto. Lezioni vere salvate in `make chat` (`sense(smoke_detector, smoke)`
 uno scratch del turno (tolto a mano): la politica di scratch non copre quel predicato.
 Lo scopo resta senza risposta (ciclo del carbonio: il modificatore vince ancora nella
 domanda lunga) e «is used to prevent Y» non ha uno schema.
+
+### mix-04-23-004 — la lacuna nomina il sintagma, non la prima parola ignota
+
+**Caso:** «what does a carbon monoxide detector detect?», «what does a fire blanket
+do?», «what does a residual current device do?». **Prima:** il muro nominava la prima
+parola lunga senza fatti — «monoxide» (la rete leggeva «Oxide»), «blanket»,
+«residual». **Cura:** `turn_gap_phrase/2` (grammar.p0) deriva dal grafo del turno il
+nome dopo il determinante: parole piene fino a un verbo di relazione; con il «do»
+ausiliare davanti al soggetto, un sintagma che arriva a fine turno perde il verbo nudo
+(«what does a glimpwort need?» → glimpwort). Il motore chiede la frase prima di
+scorrere le parole (99-registry.c, stesso precedente di `turn_gap_middle`) e la dice
+con gli spazi. **Dopo:** «Hmm, I don't know about residual current device yet» →
+«yes» → la lettura vera di «Residual-current device» (Wikipedia, rev. 1373727844),
+salvata. Cricchetto `tests/p0t/crossing/mix_gap_names_phrase.p0t` (7); i tre mix della
+memoria profonda verdi; soft-test con i soli rossi di tempo di HEAD.
+**Trappola trovata:** `KB_MAX_ARGS` è 4 — una regola a cinque argomenti non fallisce
+a caricamento, semplicemente non si dimostra mai. **Reperti:** «what does a fire
+blanket do?» (definizione nota) resta su «blanket»: la domanda col verbo non usa la
+definizione letta.

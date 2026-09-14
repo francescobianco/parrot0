@@ -3229,6 +3229,57 @@ turn_gap_middle($T, $W) :-
     naf(clause_copula($W)),
     naf(stopword($W)).
 
+% ── mix-04-23-004 — LA LACUNA NOMINA IL SINTAGMA, NON LA PRIMA PAROLA IGNOTA ──
+% «what does a carbon monoxide detector detect?» costruiva la lacuna su
+% «monoxide» (e la rete leggeva «Oxide»), «what does a fire blanket do?» su
+% «blanket»: il muro nominava la prima parola lunga senza fatti. Quello che il
+% turno nomina e' il nome dopo il determinante — due o tre parole piene, fino al
+% verbo. Il motore chiede questa frase prima di scorrere le parole; se non c'e',
+% resta la scelta di sempre.
+machinery(turn_gap_phrase).
+machinery(gap_np_words).
+machinery(gap_np_word).
+machinery(gap_np_goes_on).
+machinery(known_topic_atom).
+turn_gap_phrase($T, $Atom) :-
+    input_node_atom($T, $D, $Det), english_determiner($Det),
+    input_node_next($T, $D, $First), gap_np_words($T, $First, $Run, $Last),
+    gap_np_verb_trim($T, at($D, $Last), $Run, $Ws),
+    gap_phrase_size($Ws), words_underscored($Ws, $Atom), naf(known_topic_atom($Atom)).
+gap_np_words($T, $Id, cons($W, $R), $Last) :-
+    input_node_atom($T, $Id, $W), gap_np_word($W),
+    input_node_next($T, $Id, $N), gap_np_words($T, $N, $R, $Last).
+gap_np_words($T, $Id, cons($W, nil), $Id) :-
+    input_node_atom($T, $Id, $W), gap_np_word($W), naf(gap_np_goes_on($T, $Id)).
+% «what does a glimpwort NEED?»: con il «do» ausiliare davanti al soggetto, un
+% sintagma che arriva a fine turno finisce col verbo nudo, che nessun elenco
+% conosce. Si toglie l'ultima parola; altrove il sintagma resta intero.
+machinery(gap_np_verb_trim).
+machinery(do_support_before).
+machinery(turn_node_last).
+gap_np_verb_trim($T, at($D, $Last), $Run, $Ws) :-
+    do_support_before($T, $D), turn_node_last($T, $Last), list_without_last($Run, $Ws).
+gap_np_verb_trim($T, at($D, $Last), $Run, $Run) :- naf(do_support_before($T, $D)).
+gap_np_verb_trim($T, at($D, $Last), $Run, $Run) :- turn_node_has_next($T, $Last).
+do_support_before($T, $D) :- input_node_next($T, $A, $D), input_node_atom($T, $A, $Aux), do_support_verb($Aux).
+turn_node_last($T, $Id) :- naf(turn_node_has_next($T, $Id)).
+machinery(turn_node_has_next).
+turn_node_has_next($T, $Id) :- input_node_next($T, $Id, $N).
+machinery(do_support_verb).
+do_support_verb(does).
+do_support_verb(do).
+do_support_verb(did).
+machinery(list_without_last).
+list_without_last(cons($W, nil), nil).
+list_without_last(cons($W, cons($V, $R)), cons($W, $Rest)) :- list_without_last(cons($V, $R), $Rest).
+gap_np_goes_on($T, $Id) :- input_node_next($T, $Id, $N), input_node_atom($T, $N, $W), gap_np_word($W).
+gap_np_word($W) :- compound_word($W), naf(relative_clause_verb($W)), naf(question_word($W)).
+machinery(gap_phrase_size).
+gap_phrase_size(cons($A, cons($B, nil))).
+gap_phrase_size(cons($A, cons($B, cons($C, nil)))).
+known_topic_atom($A) :- topic_definition($A, $D).
+known_topic_atom($A) :- topic_read($A, $R).
+
 turn_teaching_offer($T, construction) :- turn_gap_shape($T, binary_frame).
 turn_teaching_offer($T, relation_verb) :- turn_gap_shape($T, binary_frame).
 turn_teaching_offer($T, class) :- naf(turn_gap_shape($T, binary_frame)).
