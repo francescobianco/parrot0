@@ -1,0 +1,130 @@
+% Superficie del circuito di scelta. Forme condivise, nessun parser privato.
+% Tutte le lezioni possono ricevere parafrasi con «x ... means ...».
+:- file_attribute(machinery).
+
+% Il valore numerico e' una descrizione di stato: stessa IR contestuale,
+% stessa revisione di «la valvola e' chiusa». I nomi dei ruoli sono aperti.
+turn_form(decision_value_lesson, 1, text("the")).
+turn_form(decision_value_lesson, 2, slot(role)).
+turn_form(decision_value_lesson, 3, text("of")).
+turn_form(decision_value_lesson, 4, span(subject)).
+turn_form(decision_value_lesson, 5, text("is")).
+turn_form(decision_value_lesson, 6, slot(value)).
+turn_form_slot_form(decision_value_lesson, subject, atom).
+turn_form_slot_class(decision_value_lesson, value, decision_numeric).
+turn_form_act(decision_value_lesson, "op(match, decision_store, [subject, role, value, free])").
+turn_form_priority(decision_value_lesson, early).
+turn_form_reply(decision_value_lesson, decision_value_learned).
+response_template(decision_value_learned, "Noted: the {role} of {subject} is {value}.").
+response_template(decision_value_learned, it, "Annotato: {role} di {subject} vale {value}.").
+
+% Il lettore polare generico non deve inglobare la richiesta di verifica.
+% La cessione consulta le ancore della forma, quindi segue la loro crescita.
+decision_question_surface($Cue, decision_question_en) :- turn_form(decision_question_en, 1, text($Cue)).
+turn_form_yield(ability_polar, decision_question_surface, 1, subject).
+
+turn_form(decision_formula_lesson, 1, text("calculate")).
+turn_form(decision_formula_lesson, 2, slot(role)).
+turn_form(decision_formula_lesson, 3, text("by adding")).
+turn_form(decision_formula_lesson, 4, slot(left)).
+turn_form(decision_formula_lesson, 5, text("and")).
+turn_form(decision_formula_lesson, 6, slot(right)).
+turn_form_act(decision_formula_lesson, "op(assert, decision_formula, [role, left, right])").
+turn_form_priority(decision_formula_lesson, early).
+turn_form_view(decision_formula_lesson, said).
+turn_form_reply(decision_formula_lesson, decision_formula_learned).
+
+turn_form(decision_minimum_lesson, 1, slot(role)).
+turn_form(decision_minimum_lesson, 2, text("is never below")).
+turn_form(decision_minimum_lesson, 3, slot(value)).
+turn_form_act(decision_minimum_lesson, "op(assert, decision_minimum, [role, value])").
+turn_form_priority(decision_minimum_lesson, early).
+turn_form_view(decision_minimum_lesson, said).
+turn_form_reply(decision_minimum_lesson, decision_minimum_learned).
+
+turn_form(decision_requirement_lesson, 1, text("for")).
+turn_form(decision_requirement_lesson, 2, span(subject)).
+turn_form(decision_requirement_lesson, 3, text("the")).
+turn_form(decision_requirement_lesson, 4, slot(role)).
+turn_form(decision_requirement_lesson, 5, text("must be")).
+turn_form(decision_requirement_lesson, 6, named(decision_comparison, comparison)).
+turn_form(decision_requirement_lesson, 7, slot(value)).
+turn_form_act(decision_requirement_lesson, "op(assert, decision_requirement, [subject, role, comparison, value])").
+turn_form_priority(decision_requirement_lesson, early).
+turn_form_view(decision_requirement_lesson, said).
+turn_form_reply(decision_requirement_lesson, decision_requirement_learned).
+turn_form_slot_form(decision_requirement_lesson, subject, atom).
+
+turn_form(decision_requirement_forget, 1, text("forget the requirement for")).
+turn_form(decision_requirement_forget, 2, span(subject)).
+turn_form(decision_requirement_forget, 3, text("on")).
+turn_form(decision_requirement_forget, 4, slot(role)).
+turn_form_act(decision_requirement_forget, "op(retract_all, decision_requirement, [subject, role, free, free])").
+turn_form_priority(decision_requirement_forget, early).
+turn_form_view(decision_requirement_forget, said).
+turn_form_reply(decision_requirement_forget, decision_requirement_forgotten).
+turn_form_slot_form(decision_requirement_forget, subject, atom).
+
+turn_form(decision_preference_lesson, 1, text("prefer")).
+turn_form(decision_preference_lesson, 2, named(decision_move_name, better)).
+turn_form(decision_preference_lesson, 3, text("to")).
+turn_form(decision_preference_lesson, 4, named(decision_move_name, worse)).
+turn_form(decision_preference_lesson, 5, text("when")).
+turn_form(decision_preference_lesson, 6, named(decision_condition_name, condition)).
+turn_form_act(decision_preference_lesson, "op(assert, decision_preference, [better, worse, condition])").
+turn_form_priority(decision_preference_lesson, early).
+turn_form_view(decision_preference_lesson, said).
+turn_form_reply(decision_preference_lesson, decision_preference_learned).
+
+turn_form(decision_preference_forget, 1, text("forget that preference for")).
+turn_form(decision_preference_forget, 2, named(decision_move_name, better)).
+turn_form(decision_preference_forget, 3, text("over")).
+turn_form(decision_preference_forget, 4, named(decision_move_name, worse)).
+turn_form(decision_preference_forget, 5, text("when")).
+turn_form(decision_preference_forget, 6, named(decision_condition_name, condition)).
+turn_form_act(decision_preference_forget, "op(retract, decision_preference, [better, worse, condition])").
+turn_form_priority(decision_preference_forget, early).
+turn_form_view(decision_preference_forget, said).
+turn_form_reply(decision_preference_forget, decision_preference_forgotten).
+
+turn_form(decision_question_en, 1, text("can i complete")).
+turn_form(decision_question_en, 2, span(subject)).
+turn_form_act(decision_question_en, "op(match, decision_reply, [subject, free])").
+turn_form_priority(decision_question_en, early).
+turn_form_view(decision_question_en, said).
+turn_form_reply(decision_question_en, decision_answer).
+turn_form_slot_form(decision_question_en, subject, atom).
+
+turn_form(decision_question_it, 1, text("posso completare")).
+turn_form(decision_question_it, 2, span(subject)).
+turn_form_act(decision_question_it, "op(match, decision_reply, [subject, free])").
+turn_form_priority(decision_question_it, early).
+turn_form_view(decision_question_it, said).
+turn_form_reply(decision_question_it, decision_answer).
+turn_form_slot_form(decision_question_it, subject, atom).
+
+turn_form(decision_preference_it, 1, text("preferisci")).
+turn_form(decision_preference_it, 2, named(decision_move_name, better)).
+turn_form(decision_preference_it, 3, text("a")).
+turn_form(decision_preference_it, 4, named(decision_move_name, worse)).
+turn_form(decision_preference_it, 5, text("quando")).
+turn_form(decision_preference_it, 6, named(decision_condition_name, condition)).
+turn_form_act(decision_preference_it, "op(assert, decision_preference, [better, worse, condition])").
+turn_form_priority(decision_preference_it, early).
+turn_form_view(decision_preference_it, said).
+turn_form_reply(decision_preference_it, decision_preference_learned).
+
+response_template(decision_answer, "For {subject}: {result}").
+response_template(decision_answer, it, "Per {subject}: {result}").
+response_template(decision_formula_learned, "Held: calculate {role} from {left} plus {right}.").
+response_template(decision_formula_learned, it, "Tengo: calcola {role} sommando {left} e {right}.").
+response_template(decision_minimum_learned, "Held: {role} is never below {value}.").
+response_template(decision_minimum_learned, it, "Tengo: {role} non scende sotto {value}.").
+response_template(decision_requirement_learned, "Held: the requirement concerns {role} of {subject}.").
+response_template(decision_requirement_learned, it, "Tengo: il requisito riguarda {role} di {subject}.").
+response_template(decision_requirement_forgotten, "Forgotten: the requirement on {role} of {subject}.").
+response_template(decision_requirement_forgotten, it, "Dimenticato: il requisito su {role} di {subject}.").
+response_template(decision_preference_learned, "I have learned that conditional preference.").
+response_template(decision_preference_learned, it, "Ho imparato questa preferenza condizionata.").
+response_template(decision_preference_forgotten, "I have withdrawn that conditional preference.").
+response_template(decision_preference_forgotten, it, "Ho ritirato questa preferenza condizionata.").

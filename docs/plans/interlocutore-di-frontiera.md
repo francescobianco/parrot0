@@ -5,10 +5,12 @@
 > dello scherzo o della fantascienza ma nel senso cognitivo esteso: cosa gli manca
 > per essere classificato un'AI di frontiera».
 
-Questo documento è una **diagnosi**, non un piano d'esecuzione: elenca le
+Questo documento nasce come **diagnosi**: elenca le
 capacità mancanti, ognuna con la prova verbatim presa da una conversazione reale
 e con il piano esistente che dovrebbe possederla. Le cure restano soggette ai
 MANTRA: ogni voce va chiusa **KB-first**, insegnabile parlando, sulla KB viva.
+Il §7 aggiunge un'ipotesi di lavoro e un esperimento discriminante; non dichiara
+risolti i limiti del §6.
 
 ## 0. Come è stato misurato
 
@@ -167,9 +169,11 @@ la sera), la diffusione di Rayleigh in due frasi, una lista di bagagli. Manca:
   (la rete è accesa) invece di produrre la forma vuota di una spiegazione causale;
 - **opinione in prima persona** con posizione e riserve, non un dialogo fra
   personaggi inventati;
-- una **regola di guardia**: una risposta che non contiene nessuna entità della
-  domanda è un turno rubato e va trattenuta (è il 27% misurato in
-  `quanto-manca.md`; qui compare in 4 turni su 47).
+- una **verifica di pertinenza semantica**: la risposta deve soddisfare la
+  richiesta sul suo oggetto. La mancanza delle entità della domanda è un indizio,
+  non il criterio: «391» risponde alla moltiplicazione senza ripeterne i numeri,
+  mentre il repertorio sopra ripete il tema senza rispondere. Il riferimento
+  quantitativo sui turni rubati resta `quanto-manca.md`.
 
 Piani: `generation-kb-first.md`, `generative.md`, `turn-arbitration.md`,
 `quanto-manca.md`.
@@ -370,10 +374,12 @@ senza stato della situazione, senza aggancio alla mossa aperta e senza verifica
 della propria risposta ogni altra capacità produce turni rubati. Proposta
 d'ordine, coerente con `armonizzazione-piani.md`:
 
-1. **Guardia di pertinenza** (M6/M4): una risposta che non contiene nulla della
-   domanda non esce; al suo posto una domanda di chiarimento o un «non lo so»
-   onesto. Regola nella KB, misurata sul banco di `quanto-manca.md`. È la mossa
-   che più alza la percezione di intelligenza a parità di competenza.
+1. **Contratto di risposta** (M6/M4): rendere interrogabili l'oggetto, le
+   richieste e i vincoli del turno; verificare quali obblighi una risposta
+   soddisfa e quali lascia aperti. La verifica è semantica, non una conta di
+   parole condivise. Un residuo deve poter orientare una domanda o una ricerca,
+   oltre al rifiuto onesto. Regole nella KB, misurate sul banco di
+   `quanto-manca.md`; il §7 propone come farne anche un segnale d'apprendimento.
 2. **Le frasi dell'utente diventano fatti sull'utente** (M1): la conversazione
    di questo documento (riunione, ora, cliente, città) come primo banco, con
    varianti riformulate e in italiano per non costruire un frasario.
@@ -522,7 +528,11 @@ dagli errori) richiede un controllo esecutivo che i piani descrivono ma che non
                     R7 degradazione con garbo  (comprensione parziale dichiarata)
 ```
 
-Gli ultimi cinque hanno la stessa radice: **servono giudizi continui e
+Questa mappa esprime ipotesi di difficoltà, non risultati d'impossibilità:
+«serve un principio nuovo» significa che i meccanismi descritti finora non
+hanno dimostrato di bastare. Il §7 propone un principio da mettere alla prova.
+
+Gli ultimi cinque hanno la stessa radice: **servono giudizi graduati e
 appresi su spazi troppo grandi per essere enumerati** (quanto è plausibile,
 quanto conta, quale ramo tentare, quale frase suona meglio, quanto ho capito).
 È esattamente ciò che la computazione distribuita degli LLM fa *senza* regole
@@ -539,18 +549,415 @@ e un interlocutore rigido sul resto.
 
 ### 6.4 Che cosa parrot0 avrebbe e la frontiera no
 
-Per onestà simmetrica: chiuse M1–M12, parrot0 avrebbe proprietà che gli LLM di
-frontiera non hanno nativamente. Non vanno sacrificate per inseguire i residui:
+Per onestà simmetrica: il progetto persegue anche proprietà che renderebbero
+parrot0 interessante nel confronto con la frontiera. Vanno preservate e
+verificate mentre si affrontano i residui:
 
-- **nessuna allucinazione per costruzione** su ciò che deriva: ogni risposta ha
-  la sua provenienza (`who answered?`, `why?`);
-- **apprendimento immediato e permanente** da una frase, senza riaddestramento;
-- **correzione chirurgica**: si ritratta una lezione e cambia solo ciò che ne
-  dipendeva;
-- **sapere di non sapere** come stato esplicito, non come stile;
-- **costo e latenza** di un processo C su una KB, non di un cluster.
+- **derivazioni ispezionabili**: la provenienza permette di contestare premesse
+  e passaggi. Non garantisce la verità delle fonti, la correttezza della lettura
+  o la pertinenza della risposta;
+- **apprendimento senza riaddestramento** per le forme supportate, con
+  persistenza quando la lezione viene salvata;
+- **correzione localizzabile** attraverso le dipendenze: la propagazione
+  completa resta un obbligo di R8, non una proprietà già garantita;
+- **ignoranza e ricerca incompleta rappresentabili esplicitamente**, da
+  mantenere distinte;
+- **esecuzione locale**: costo e latenza sulla KB crescente restano da misurare,
+  soprattutto per R4.
 
 Il criterio di `CLAUDE.md` vale anche per i residui: qualunque via verso R2–R7
 è nella direzione giusta solo se **aumenta ciò che parrot0 vede e la sua capacità
 di decidere**, e sbagliata se introduce un componente opaco che decide al suo
 posto.
+
+## 7. Ipotesi: imparare le distinzioni che cambiano una decisione
+
+> **F., 14 settembre 2026:** questo piano è molto critico; trovare
+> un'intuizione che metta ordine e permetta di traguardare l'obiettivo generale.
+>
+> **Stato:** proposta architetturale, non capacità implementata o misurata.
+
+### 7.1 L'oggetto che manca fra conoscere e scegliere
+
+**La KB deve poter imparare perché, in una situazione, una possibilità è
+preferibile a un'altra.** L'unità di crescita proposta è una *distinzione*:
+una condizione che cambia la scelta, insieme ai casi che la sostengono e a
+quelli che la smentiscono. Una parola, un fatto e una regola restano conoscenza;
+lo diventa anche l'esperienza del loro impiego.
+
+Esempio di lezione, in lingua naturale:
+
+> «Quando ti chiedo se riesco a fare qualcosa, controlla prima ciò che potrebbe
+> impedirlo. Se manca un dato che cambia la risposta, chiedimi quello.»
+
+Il contenuto insegnato è il rapporto fra **scopo, impedimento e informazione
+mancante**. Deve valere per una coincidenza, una consegna e un appuntamento,
+quando la KB sa rappresentarne i vincoli. Non è una priorità assegnata alla
+parola «treno» o alla facoltà che la riconosce.
+
+Il punto del mantra #23 si ripresenta: lettura, memoria, ragionamento e
+generazione devono consultare lo stesso oggetto. Qui è la **scelta situata**:
+
+| parte interrogabile | che cosa contiene |
+|---|---|
+| situazione e scopo | frame, mossa aperta, versione delle credenze, obblighi da soddisfare |
+| possibilità | una lettura, un passo, una domanda o una formulazione candidata |
+| ragioni | supporti, obiezioni, condizioni d'applicazione, fonte e dipendenze |
+| aspettativa | quale obbligo dovrebbe chiudersi, quale informazione dovrebbe arrivare |
+| esito | che cosa è accaduto o è stato verificato, costo e residui |
+
+È una descrizione del contratto, non un nuovo schema `.p0` da copiare. Le
+identità devono riusare IR, contesti e piani esistenti. Non basta registrare il
+vincitore: senza alternative e aspettativa non si può capire che cosa imparare.
+
+### 7.2 Un ciclo comune, con giudizi di specie diversa
+
+```text
+turno + situazione + mossa aperta
+                 ↓
+possibilità parziali nella IR comune
+                 ↓
+ragioni a favore/contro + obblighi ancora aperti
+                 ↓
+scelta del prossimo passo → esito osservato
+                 ↑                 ↓
+           criterio KB ← distinzione candidata e verifica su altri casi
+```
+
+Il ciclo può servire i cinque residui senza fingere che siano la stessa misura:
+
+| residuo | confronto da imparare |
+|---|---|
+| R2 plausibilità | quale ipotesi regge meglio alle prove e alle eccezioni disponibili |
+| R3 salienza | quale informazione può cambiare una decisione relativa allo scopo |
+| R4 ricerca | quale passo ha chiuso obblighi simili, con quale costo e quali fallimenti |
+| R5 espressione | quale formulazione conserva il contenuto e soddisfa meglio destinatario, tono e intento |
+| R7 lettura parziale | quali parti sono sostenute e quale domanda distingue le alternative residue |
+
+**Non serve decretare un punteggio universale.** Verità, utilità, stile e costo
+restano dimensioni distinte. Un testo elegante non compensa un fatto inventato;
+una derivazione costosa non diventa falsa. I vincoli obbligatori vengono
+verificati prima delle preferenze; incertezza, conflitto e incomparabilità sono
+esiti leciti. Anche quali criteri applicare e come risolverne i conflitti devono
+essere conoscenza correggibile.
+
+R2 richiede un esperimento proprio sulla combinazione delle prove: provenienze
+comuni non contano come conferme indipendenti, le eccezioni devono poter
+sconfiggere una regola tipica, e un punteggio di ordinamento non è una
+probabilità calibrata. Il contratto comune rende questi problemi esprimibili;
+non ne fornisce per decreto la semantica.
+
+### 7.3 Come una scelta diventa apprendimento, senza il maestro nascosto
+
+Due ingressi allo stesso processo: una correzione parlata può proporre una
+distinzione; un esito osservato può far cercare la condizione che mancava.
+In entrambi i casi il criterio ha contesto, sostegno e possibilità di revisione.
+
+1. Conservare il contesto della scelta e l'aspettativa prima dell'esito.
+2. Confrontare aspettativa ed esito. «L'utente non protesta» non prova che la
+   risposta fosse corretta; una preferenza di tono non certifica un fatto.
+3. Proporre una condizione strutturale che distingua successi e fallimenti,
+   usando relazioni e operatori insegnabili. Sostituire i nomi propri con ruoli
+   non basta: occorrono casi in cui la condizione manca o si inverte.
+4. Provare la distinzione su casi tenuti fuori dalla sua costruzione, contro
+   il comportamento precedente. Conservare controesempi e ambito di validità.
+5. Promuoverla come criterio rivedibile solo per ciò che il confronto sostiene;
+   una correlazione osservata non diventa una legge universale del mondo.
+
+La fonte del riscontro deve essere esplicita: verifica meccanica su premesse
+date, esito di uno strumento, fatto successivo, confronto fra formulazioni
+valutato dall'utente. Il testo successivo può smentire un'interpretazione, ma il
+solo fatto che una frase generata si rilegga bene non la convalida. È il limite
+già misurato in `autoaddestramento-dalla-prosa.md` §4.3.
+
+Il ciclo deve imparare anche **a proporre** possibilità, altrimenti ordina un
+repertorio chiuso. Costruzioni linguistiche, trasformazioni e operatori
+candidati restano estensibili nella KB. Prima si misura il selettore su
+possibilità disponibili; poi si verifica separatamente se l'apprendimento
+amplia ciò che riesce a proporre. Questa seconda prova non può essere
+sostituita dal miglioramento della prima.
+
+### 7.4 Perché potrebbe ridurre il costo, e dove può fallire
+
+La leva cercata è **riusare il risultato di una ricerca come conoscenza per
+orientare ricerche successive**. Se ogni turno ricomincia da tutte le
+possibilità, il ciclo aggiunge costo. Se un'esperienza produce un criterio
+strutturale trasferibile, il turno seguente può trovare prima il passo utile.
+
+Il criterio ordina l'esplorazione; non cancella dalla KB le alternative e non
+le dichiara false. Una ricerca interrotta conserva una frontiera riprendibile
+e dichiara il budget esaurito. Occorre misurare anche i rami utili ritardati dal
+criterio, altrimenti una ricerca più veloce può nascondere una perdita di
+capacità. Il costo del criterio stesso fa parte della misura.
+
+Questo non elimina l'esplosione combinatoria nel caso generale. L'ipotesi
+utile è più precisa: **sulla distribuzione di conversazioni affrontata, le
+distinzioni apprese fanno trovare più spesso una buona mossa a parità di
+budget**. Se non succede, R4 resta esattamente dov'era.
+
+### 7.5 Gli appigli esistono, il collegamento va costruito
+
+Ispezione del repository in questa revisione, senza nuova prova di esecuzione:
+
+| appiglio | riuso possibile | ciò che non dimostra ancora |
+|---|---|---|
+| `kb/core/dialogue-frames.p0`: letture, evidenze, residui | identità delle alternative parziali | che tutta la conversazione le produca e le usi |
+| `kb/core/situation.p0`, `context-scope.p0` | stato contestuale, precondizioni, revisione locale | propagazione completa delle revisioni |
+| `kb/core/thinking.p0`: `step(Operatore, Pre, Effetto, meta(Costo, Supporto))` | aspettativa ed esecuzione del prossimo passo | apprendimento del criterio che sceglie il passo |
+| `src/kb.c`: `kb_hypothesis_best`; `kb/core/input.p0`: pesi delle evidenze | confronto ispezionabile, pareggio esplicito | plausibilità graduata o pesi appresi dagli esiti |
+| `autoaddestramento-dalla-prosa.md` | lacune, rimedi candidati, verifica e regressioni | correttezza indipendente del contenuto letto |
+
+Il lavoro iniziale è chiudere una di queste connessioni in verticale. Non
+riscrivere le facoltà, né introdurre un secondo lettore per far riuscire la
+dimostrazione. Se la IR perde una premessa, quel gap va misurato e riparato lì.
+
+### 7.6 Primo esperimento: imparare quale domanda serve davvero
+
+**E1 — A parità di conoscenze del dominio e possibilità, una lezione su ciò che conta
+migliora la prossima mossa anche in una situazione diversa?** Questo misura
+insieme un primo pezzo di M1/M3/M6 e la connessione R3/R7. Non chiude R2, R4 o R5.
+
+Il caso guida resta il viaggio della diagnosi. Con partenza alle 7, durata
+tre ore e appuntamento alle 9 nella città di arrivo, parrot0 ha già un
+impedimento sufficiente: l'arrivo alle 10. Chiedere il tragitto dalla stazione
+non serve a risolvere quel confronto. Se l'appuntamento è alle 11 e quel
+tragitto non è noto, invece, il dato può cambiare la risposta. «Il cliente è
+di Milano» da solo non stabilisce che la riunione si tenga a Milano: anche
+questo deve restare distinguibile.
+
+**Banco fissato prima della cura:** conversazioni italiane e inglesi, con
+orari diversi, due impegni concorrenti, distrattori, un dato già comunicato,
+un dato mancante decisivo, un dato mancante irrilevante, correzioni e il caso
+semplice già risolvibile. Trasferimento su consegne e coincidenze; almeno una
+famiglia resta esclusa dalla costruzione del criterio. Le premesse arrivano
+parlando nella KB completa del profilo `agi`.
+
+Tre condizioni sullo stesso eseguibile e sulla stessa base completa:
+
+- **prima** della lezione: registrare risposta, possibilità prodotte e costo;
+- **dopo** la lezione di §7.1, senza predicati o API nel prompt: ripetere e
+  affrontare i casi esclusi;
+- **dopo ritrattazione mirata** della lezione e delle sue conseguenze apprese:
+  verificare che il cambiamento dipendente da essa scompaia.
+
+Fra le condizioni si azzera lo stato conversazionale necessario a ripetere il
+banco, conservando la base. Le preferenze apprese non devono trapelare nella
+condizione «prima». I casi con premesse fornite dimostrano crescita e
+trasferimento della condotta; la capacità di collegare conoscenza del mondo
+preesistente richiede inoltre un banco distinto che non ne inietti gli archi.
+
+Misure: risposte utili corrette, domande che discriminano le alternative,
+domande superflue, affermazioni senza sostegno, passi del solver e latenza.
+Contare soltanto i rifiuti corretti premierebbe un sistema che non fa nulla.
+L'esperimento passa se il vantaggio raggiunge la famiglia esclusa, scompare
+con l'ablazione e non aumenta gli errori sul banco di regressione. Pubblicare
+i conteggi e il costo, anche quando il campione è piccolo.
+
+**Falsificazione:** cambia solo il viaggio insegnato; bisogna scrivere regole
+separate per i nomi dei domini; la domanda utile non viene neppure proposta;
+la spiegazione cita un criterio che l'ablazione lascia ininfluente; oppure la
+selezione costa quanto la ricerca risparmiata. Sono fallimenti diversi: il
+referto deve dire quale collegamento non ha retto.
+
+Se E1 regge, il circuito si massimizza prima di aprirne un altro (mantra #22).
+Il seguito discriminante è apprendere una distinzione dagli esiti senza la
+lezione esplicita; poi riusarla per ordinare passi di ricerca e confrontare
+formulazioni. Ogni estensione richiede il suo riscontro indipendente.
+
+### 7.7 Che cosa mette in ordine, senza promettere la frontiera
+
+M1/M3 costruiscono l'oggetto condiviso; M6 espone obblighi ed errori; il ciclo
+proposto trasforma quell'esperienza in condotta appresa. R3/R7 offrono il primo
+esperimento; R4 ne verifica il rendimento; R2 e R5 richiedono prove specifiche
+sulla plausibilità e sulla qualità. R1 può proporre astrazioni che distinguono
+casi prima indistinguibili, ma l'induzione di nuovi schemi resta da costruire.
+R6 dipende dalla disponibilità di riscontri informativi; R8 deve mantenere
+valide le dipendenze; R9 deve fornire osservazioni e azioni reali.
+
+La scommessa diventa così verificabile: **ogni esperienza utile lascia una
+distinzione ispezionabile che migliora una scelta futura, anche fuori dal caso
+che l'ha prodotta**. Se questo trasferimento cresce e il suo costo resta
+sostenibile sulla KB viva, abbiamo una via verso l'obiettivo generale. Se
+produce soltanto criteri locali da insegnare uno per uno, abbiamo rinominato
+il collo di bottiglia del maestro e l'ipotesi va respinta.
+
+## 8. Handoff operativo — E1 avviato, da completare (14 settembre 2026)
+
+**F. ha autorizzato l'implementazione («mettilo in pratica»), poi ha chiesto
+questo handoff per fine contesto. Ci si ferma qui su sua richiesta.** Il
+circuito ha dato un primo risultato comportamentale; **E1 non è chiuso**, il
+banco completo non è stato certificato e non è stato fatto alcun commit.
+
+### 8.1 Stato del workspace
+
+| file | modifica |
+|---|---|
+| questo documento | §7 della sessione precedente, correzioni alla diagnosi e questo handoff |
+| `kb/core/decisions.p0` (nuovo) | formule additive, quantità e limiti inferiori, requisiti, candidati motivati, preferenze condizionali, selezione e resa |
+| `kb/core/decision-language.p0` (nuovo) | insegnamento e ritrattazione con il `turn_form` comune; domanda di fattibilità e descrizioni numeriche |
+| `kb/core/procedures.p0` | include di `decisions.p0` dopo `situation.p0` |
+| `src/brain/10-memory-knowledge.c` | due punti del matcher comune: togliere il punto interrogativo/finale solo in coda, conservando il punto interno di un decimale |
+| `tests/p0t/reasoning/taught_decision.p0t` (nuovo) | banco scritto prima dell'implementazione, con premesse e preferenza insegnate in lingua naturale |
+
+**Nessun motore C di dominio aggiunto.** Il piccolo intervento C corregge la
+meccanica dei due slot (`span` e `slot`/`rest`) che trasformava `2.5` in `2`.
+Va ancora verificato con casi decimali e con i consumatori preesistenti.
+
+### 8.2 L'esperimento che ha effettivamente funzionato
+
+Processo indipendente `bin/parrot0 --mcp-engine`, profilo completo `agi`,
+`PARROT0_SESSION=`; chiamate `gen.respond` tramite la classe `Engine` di
+`scripts/self-questions.py`. Niente fatti inseriti via `kb.assert`.
+
+```text
+calculate arrival by adding departure and duration
+calculate ready by adding arrival and transfer
+transfer is never below 0
+the departure of train is 7
+the duration of train is 3
+for train the ready must be at most 9
+
+can I complete train?
+→ For train: I need to choose between explaining an obstacle and asking for missing information.
+
+prefer explaining obstacles to asking questions when a requirement fails
+→ I have learned that conditional preference.
+
+can I complete train?
+→ For train: No: ready reaches 10; the requirement is at most 9.
+
+forget the requirement for train on ready
+for train the ready must be at most 11
+can I complete train?
+→ For train: What is the transfer of train?
+
+the transfer of train is 0
+can I complete train?
+→ For train: The stated requirements are satisfied.
+```
+
+Stesso processo e stessa preferenza: `load = cargo + packaging`, minimo di
+`packaging` insegnato pari a zero, `cargo` del pacco pari a 12, requisito sul
+carico massimo 10 → ostacolo spiegato. Ritrattando **parlando** la preferenza:
+
+```text
+forget that preference for explaining obstacles over asking questions when a requirement fails
+can I complete parcel?
+→ For parcel: I need to choose between explaining an obstacle and asking for missing information.
+```
+
+Reinsegnandola, torna la spiegazione `12` contro `10`. Osservati anche un
+requisito `at least` (carica 3 contro minimo 5) e un caso già completo che
+conferma i requisiti senza chiedere un dato irrilevante. I turni di verifica
+di questa corsa costavano circa **1,6–2,1 s**, non meno di un secondo; nessuna
+conclusione sulla scalabilità.
+
+Questi sono **riscontri manuali sulle risposte**, non il risultato del runner
+`.p0t`. Il driver temporaneo leggeva le righe `>` del banco e stampava risposta
+e tempo; non controllava le aspettative `<`. Il banco non va dichiarato verde.
+
+### 8.3 Architettura presente e due difetti già diagnosticati
+
+- I dati numerici entrano con `state_commit`, quindi in
+  `holds_in(described_situation, st(...))`; `role/3` li vede attraverso
+  `situation_state/4`. Non c'è una seconda tabella di valori.
+- `decision_formula/3`, `decision_requirement/4`, `decision_minimum/2` e
+  `decision_preference/3` vengono insegnati dalle forme comuni. La scelta è
+  una vista: `decision_candidate/3`, `decision_dominated/2`,
+  `decision_selected/2`. I candidati scartati restano interrogabili.
+- Il minimo di una quantità sconosciuta **non è implicitamente zero**: lo
+  deve dichiarare una lezione. Le somme propagano quel limite e il residuo
+  segue le dipendenze fino al dato mancante.
+- `ability_polar` prendeva prima ogni «can I complete …?» e rispondeva
+  «I don't know whether complete can train». La cessione usa l'esistente
+  `turn_form_yield` con le ancore di `decision_question_en`.
+  **Trappola:** quel consumer consulta una relazione di arità **2**; la prima
+  prova con `decision_question_surface/1` non poteva funzionare. Ora è `/2`.
+- `op(match, …)` necessita di un posto libero per produrre una risposta.
+  La prima `decision_store/3` eseguiva gli effetti ma non rendeva nulla e
+  lasciava continuare il vecchio lettore. Ora `decision_store/4` restituisce
+  il valore nel quarto argomento; il turno risponde «Noted: …».
+
+**Ultima modifica prima dell'handoff:** rimossa la regola
+`role_name($R) :- situation_state(described_situation, $O, $R, $V).`
+La corsa completa si fermava per timeout di 30 s alla lezione
+`is x feasible means can I complete x`. Dopo questa rimozione, su un caso
+ridotto con una formula e un valore, la stessa lezione è riuscita in **1,482 s**
+e `is train feasible?` è stata riletta correttamente in **2,089 s**. Questo
+localizza un sospetto forte, **non prova ancora** che il timeout sulla storia
+completa sia risolto. Non ripristinare la regola senza profilare: enumerare i
+ruoli dalla situazione viva rischia di far rileggere lo stato al lessico.
+
+### 8.4 Il lavoro ancora necessario, nell'ordine
+
+1. **Ripetere il banco completo sullo stato attuale**, prima di estendere.
+   Verificare la lezione di parafrasi dopo tutta la storia, poi la ritrattazione.
+   Il file `.p0t` e le sonde devono usare sempre la KB completa. Aggiungere
+   italiano e parafrasi dei dati/requisiti; non basta la domanda italiana
+   `posso completare …?` già dichiarata.
+2. **Correggere la resa del limite inferiore.** Oggi `ready reaches 10` viene
+   detto anche quando 10 è soltanto il minimo e il trasferimento è ignoto.
+   La ragione deve distinguere valore esatto e limite inferiore, e dire
+   esplicitamente «almeno 10». La conclusione negativa è sostenuta; quella
+   formulazione della premessa è troppo ambigua.
+3. **Verificare la custodia dei valori.** La forma numerica è generale e
+   anticipata: controllare che una domanda non insegni uno stato, che
+   decimali e correzioni funzionino, e che domande ordinarie sui valori
+   continuino a raggiungerli. I valori sono nel contesto mentre alcuni
+   consumer chiedono ancora `Ruolo_of/2`: possibile cassetto senza maniglia.
+   Verificare anche contraddizioni, due formule dello stesso ruolo e cicli.
+4. **Distinguere pareggio e ricerca non conclusa.** Ora il ramo senza scelta
+   usa sempre una frase che nomina spiegazione e domanda: con nessun
+   candidato, o con ricerca incompleta, potrebbe raccontare alternative
+   che non sono state prodotte. Correggere la distinzione nella KB.
+5. **Chiudere il collegamento alla conversazione e alla traccia.** Le
+   alternative sono viste interrogabili, ma non esistono ancora episodi
+   persistenti con contesto, aspettativa, criterio usato ed esito. La domanda
+   sul trasferimento non apre ancora una questione sul tabellone comune:
+   `it is 0` non è stato implementato; il caso osservato ripeteva l'entità e
+   il ruolo e poi la domanda. Riusare `open_issue`, `issue_topic`,
+   `issue_relation`, `issue_turn` e `max_qud`, senza inventare un `pending_*`
+   separato. Riusare anche le identità `frame_*`/`reading_*` per il tracciato.
+6. **Massimizzare la stessa distinzione**: dato già noto, dato irrilevante,
+   più impegni, distrattori, preferenze confliggenti, ablazione del minimo
+   e della formula oltre che della preferenza, famiglia esclusa dalla cura.
+   Un apprendimento automatico dagli esiti non è stato implementato.
+7. Registrare conteggi semantici e latenza; eseguire controlli puntuali sul
+   matcher modificato e il controllo rapido appropriato. Non lanciare la
+   suite completa lunga senza seguire la politica del repository.
+
+### 8.5 Artefatti diagnostici e ripartenza
+
+Al momento dell'handoff esistono in `/tmp` (temporanei, non versionati):
+
+- `p0-decision-probe.py`: driver MCP, importa `Engine` da `self-questions.py`,
+  avvia un processo fresco e legge le righe `>` del file passato come argomento;
+- `p0-decision-results2.txt`: corsa con i risultati riportati in §8.2,
+  interrotta prima della parafrasi;
+- `p0-decision-trace.log`: **sovrascritto dall'ultima sonda ridotta**, non è più
+  il log della corsa completa;
+- `p0-decision-small.p0t`: i quattro turni della sonda ridotta riuscita.
+
+Se sono ancora disponibili, la prima ripetizione è:
+
+```sh
+python3 /tmp/p0-decision-probe.py tests/p0t/reasoning/taught_decision.p0t
+```
+
+Quel driver ha timeout di 30 s e non è un benchmark definitivo: va dotato di
+chiusura del processo in `finally`, conservazione dei log per corsa e verifica
+delle aspettative prima di usarlo per certificare E1. Se `/tmp` è perso, la
+classe `Engine` in `scripts/self-questions.py` e il banco versionabile
+contengono quanto serve per ricostruire la sonda.
+
+Verifiche già eseguite: **`make build` riuscito** con il piccolo cambiamento C;
+un controllo di boot senza `PARSE ERROR` in una revisione intermedia;
+**`git diff --check` pulito** allo stato dell'handoff. Nessuna suite completa,
+nessun risultato del runner `.p0t`, nessuna promessa di E1 concluso.
+
+**Confine dell'avanzamento:** il prompt originale «domani ho una riunione…
+parto da Roma… arrivo in tempo?» e la lunga lezione iniziale del §7.1 hanno
+murato nella baseline. Non sono stati chiusi. La prova attuale dimostra la
+prima scelta insegnabile su formule, valori e requisiti detti attraverso le
+forme indicate sopra; non certifica ancora comprensione libera della
+conversazione originale, conoscenza del mondo o autonomia d'apprendimento.

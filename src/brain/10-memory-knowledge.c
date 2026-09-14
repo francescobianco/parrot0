@@ -14762,7 +14762,10 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             size_t upto = p0_expr_span_end(b, form, ord, w, nw, i);
             char v[KB_TERM_LEN];
             if (i >= upto || !p0_join(w, i, upto, v, sizeof v)) return 0;
-            for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
+            /* Sentence punctuation is a suffix, not the first decimal point
+             * inside a value or a name. Preserve 2.5 as the same bound slot. */
+            { size_t vl = strlen(v);
+              while (vl && (v[vl - 1] == '.' || v[vl - 1] == '?')) v[--vl] = '\0'; }
             if (!*v) return 0;
             /* La frase insegnata si conserva come il lettore la VEDRA': canonica.
              * Fra virgolette la menzione la protegge dalla canonicalizzazione del
@@ -14822,7 +14825,8 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             size_t upto = !strcmp(kind, "rest") ? nw : i + 1;
             char v[KB_TERM_LEN];
             if (i >= upto || !p0_join(w, i, upto, v, sizeof v)) return 0;
-            for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
+            { size_t vl = strlen(v);
+              while (vl && (v[vl - 1] == '.' || v[vl - 1] == '?')) v[--vl] = '\0'; }
             if (!*v) return 0;
             snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg);
             lowercase_copy(slots[*nslot].value, KB_TERM_LEN, v);

@@ -1,0 +1,86 @@
+# E1 del piano interlocutore-di-frontiera, banco fissato prima della cura.
+# Premesse e condotta entrano PARLANDO nella KB viva. Questi casi misurano
+# crescita della condotta su premesse date, non conoscenza del mondo acquisita.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!timeout 12
+!reset
+
+[test formule e vincoli sono lezioni, non codice di dominio]
+> calculate arrival by adding departure and duration
+<~ arrival
+> calculate ready by adding arrival and transfer
+<~ ready
+> transfer is never below 0
+> the departure of train is 7
+> the duration of train is 3
+> for train the ready must be at most 9
+> can I complete train?
+<~ choose
+
+[test una lezione di condotta cambia la scelta sullo stesso problema]
+> prefer explaining obstacles to asking questions when a requirement fails
+<~ preference
+> can I complete train?
+<~ 10
+<~ 9
+<! What is
+
+[test il dato ignoto torna decisivo quando il vincolo cambia]
+> forget the requirement for train on ready
+> for train the ready must be at most 11
+> can I complete train?
+<~ transfer
+<~ ?
+> the transfer of train is 0
+> can I complete train?
+<~ satisfied
+
+[test dominio escluso dalla lezione: capacita e peso, stesse relazioni]
+> calculate load by adding cargo and packaging
+> packaging is never below 0
+> the cargo of parcel is 12
+> for parcel the load must be at most 10
+> can I complete parcel?
+<~ 12
+<~ 10
+<! What is
+
+[test un limite inferiore usa il verso opposto]
+> the charge of battery is 3
+> for battery the charge must be at least 5
+> can I complete battery?
+<~ 3
+<~ 5
+
+[test il dato irrilevante non apre una domanda]
+> the departure of ferry is 6
+> the duration of ferry is 2
+> for ferry the arrival must be at most 9
+> can I complete ferry?
+<~ satisfied
+
+[test ablazione parlata della condotta senza cancellare formule o fatti]
+> forget that preference for explaining obstacles over asking questions when a requirement fails
+<~ preference
+> can I complete parcel?
+<~ choose
+> prefer explaining obstacles to asking questions when a requirement fails
+> can I complete parcel?
+<~ 12
+
+[test la superficie stessa puo essere insegnata]
+> is x feasible means can I complete x
+> is parcel feasible?
+<~ 12
+> forget that is x feasible means can I complete x
+
+[test rifiuto dell'assenza di requisiti come successo]
+> can I complete holiday?
+<! satisfied
+
+[test non prende le normali domande]
+> what is the capital of France?
+< Paris.

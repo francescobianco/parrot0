@@ -1,0 +1,104 @@
+% Scelte motivate su requisiti: E1, interlocutore-di-frontiera §7.
+% Il C non cambia. Dati = role/3 (IR a ruoli aperti); formule, requisiti,
+% limiti e preferenze vengono insegnati tramite turn_form, il lettore comune.
+% Nessun viaggio/costo/peso e nessuna preferenza vincente vive in questo file.
+% decision_* sono viste: ritrarre la lezione cambia subito candidati e scelta.
+:- file_attribute(machinery).
+
+role_name($R) :- decision_requirement($O, $R, $Op, $B).
+role_name($R) :- decision_formula($R, $A, $B).
+role_name($A) :- decision_formula($R, $A, $B).
+role_name($B) :- decision_formula($R, $A, $B).
+role_name($R) :- decision_minimum($R, $N).
+role($O, $R, $V) :- situation_state(described_situation, $O, $R, $V).
+decision_numeric($V) :- is($N, $V).
+decision_store($O, $R, $V, $V) :- decision_numeric($V), state_commit($O, $R, $V).
+
+% La somma e' una procedura sulla KB, non un calcolo di dominio compilato.
+decision_value($O, $R, $V) :- role($O, $R, $Raw), is($V, $Raw).
+decision_value($O, $R, $V) :- decision_formula($R, $A, $B), decision_number($O, $A, $X), decision_number($O, $B, $Y), is($V, add($X, $Y)).
+decision_values($O, $R, $Vs) :- findall($V, decision_value($O, $R, $V), $Vs).
+decision_number($O, $R, $V) :- decision_values($O, $R, cons($V, nil)).
+decision_known($O, $R) :- decision_number($O, $R, $V).
+decision_computed($R) :- decision_formula($R, $A, $B).
+decision_conflict($O, $R) :- decision_values($O, $R, cons($A, cons($B, $Rest))).
+
+% Un minimo deve essere insegnato: il dato assente NON vale zero.
+decision_floor($O, $R, $V) :- decision_number($O, $R, $V).
+decision_floor($O, $R, $V) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_minimum($R, $V).
+decision_floor($O, $R, $V) :- naf(decision_known($O, $R)), decision_formula($R, $A, $B), decision_floor($O, $A, $X), decision_floor($O, $B, $Y), is($V, add($X, $Y)).
+
+% Il residuo segue le dipendenze: si chiede la foglia ignota, non il risultato
+% della formula che parrot0 puo' calcolare da se'.
+decision_missing($O, $R, $R) :- naf(decision_known($O, $R)), naf(decision_computed($R)).
+decision_missing($O, $R, $M) :- naf(decision_known($O, $R)), decision_formula($R, $A, $B), decision_missing($O, $A, $M).
+decision_missing($O, $R, $M) :- naf(decision_known($O, $R)), decision_formula($R, $A, $B), decision_missing($O, $B, $M).
+
+decision_comparison("at most", le).
+decision_comparison("at least", ge).
+decision_comparison("exactly", eq).
+decision_comparison("al massimo", le).
+decision_comparison("almeno", ge).
+decision_comparison("esattamente", eq).
+decision_opposite(le, gt). decision_opposite(ge, lt). decision_opposite(eq, dif).
+decision_floor_refutes(le, gt). decision_floor_refutes(eq, gt).
+
+decision_obstacle($O, $R, bound($Op, $B), $V) :- decision_requirement($O, $R, $Op, $B), decision_number($O, $R, $V), decision_opposite($Op, $No), apply($No, cons($V, cons($B, nil))).
+decision_obstacle($O, $R, bound($Op, $B), $V) :- decision_requirement($O, $R, $Op, $B), naf(decision_known($O, $R)), decision_floor_refutes($Op, $No), decision_floor($O, $R, $V), apply($No, cons($V, cons($B, nil))).
+decision_met($O, $R, $Op, $B) :- decision_number($O, $R, $V), apply($Op, cons($V, cons($B, nil))).
+decision_unmet($O) :- decision_requirement($O, $R, $Op, $B), naf(decision_met($O, $R, $Op, $B)).
+decision_has_requirements($O) :- decision_requirement($O, $R, $Op, $B).
+
+% Le due famiglie restano visibili PRIMA e DOPO una preferenza.
+decision_candidate($O, explain, obstacle($R, $Bound, $V)) :- decision_obstacle($O, $R, $Bound, $V).
+decision_candidate($O, ask, missing($M)) :- decision_requirement($O, $R, $Op, $B), decision_missing($O, $R, $M).
+decision_candidate($O, confirm, complete) :- decision_has_requirements($O), naf(decision_unmet($O)).
+decision_feature($O, blocked) :- decision_obstacle($O, $R, $B, $V).
+decision_feature($O, incomplete) :- decision_candidate($O, ask, $Reason).
+
+% Una preferenza e' una relazione condizionale, non un ordine di moduli.
+decision_dominated($O, $Worse) :- decision_preference($Better, $Worse, $Condition), decision_feature($O, $Condition), decision_candidate($O, $Better, $Reason), dif($Better, $Worse).
+decision_available($O, $Move) :- decision_candidate($O, $Move, $Reason), naf(decision_dominated($O, $Move)).
+decision_other($O, $Move) :- decision_available($O, $Other), dif($Move, $Other).
+decision_selected($O, $Move) :- decision_available($O, $Move), naf(decision_other($O, $Move)).
+decision_has_selection($O) :- decision_selected($O, $Move).
+
+decision_move_name("explaining obstacles", explain).
+decision_move_name("asking questions", ask).
+decision_move_name("spiegare gli impedimenti", explain).
+decision_move_name("fare domande", ask).
+decision_condition_name("a requirement fails", blocked).
+decision_condition_name("information is missing", incomplete).
+decision_condition_name("un requisito non vale", blocked).
+decision_condition_name("mancano informazioni", incomplete).
+
+% Resa della ragione scelta: parole in KB, valori derivati dalla stessa prova.
+decision_bound_words(en, le, "at most ").
+decision_bound_words(en, ge, "at least ").
+decision_bound_words(en, eq, "exactly ").
+decision_bound_words(it, le, "al massimo ").
+decision_bound_words(it, ge, "almeno ").
+decision_bound_words(it, eq, "esattamente ").
+decision_obstacle_start(en, "No: "). decision_obstacle_start(it, "No: ").
+decision_value_link(en, " reaches "). decision_value_link(it, " raggiunge ").
+decision_bound_link(en, "; the requirement is "). decision_bound_link(it, "; il requisito è ").
+decision_ask_start(en, "What is the "). decision_ask_start(it, "Qual è il valore di ").
+decision_ask_link(en, " of "). decision_ask_link(it, " per ").
+decision_complete(en, "The stated requirements are satisfied.").
+decision_complete(it, "I requisiti dichiarati sono soddisfatti.").
+decision_tie(en, "I need to choose between explaining an obstacle and asking for missing information.").
+decision_tie(it, "Devo scegliere tra spiegare un impedimento e chiedere le informazioni mancanti.").
+decision_no_requirements(en, "I do not know the requirements to check yet.").
+decision_no_requirements(it, "Non conosco ancora i requisiti da verificare.").
+
+decision_obstacle_prefix($L, $R, $V, $Text) :- decision_obstacle_start($L, $A), words_of($R, $Name), concat_atoms($A, $Name, $B), decision_value_link($L, $Link), concat_atoms($B, $Link, $C), concat_atoms($C, $V, $Text).
+decision_obstacle_suffix($L, $Op, $Bound, $Text) :- decision_bound_link($L, $Link), decision_bound_words($L, $Op, $Words), concat_atoms($Link, $Words, $A), concat_atoms($A, $Bound, $B), concat_atoms($B, ".", $Text).
+decision_render($L, obstacle($R, bound($Op, $B), $V), $Text) :- decision_obstacle_prefix($L, $R, $V, $A), decision_obstacle_suffix($L, $Op, $B, $C), concat_atoms($A, $C, $Text).
+decision_question($L, $O, $M, $Text) :- decision_ask_start($L, $Start), words_of($M, $Role), concat_atoms($Start, $Role, $A), decision_ask_link($L, $Link), concat_atoms($A, $Link, $B), words_of($O, $Name), concat_atoms($B, $Name, $C), concat_atoms($C, "?", $Text).
+decision_reply($O, $Text) :- decision_selected($O, explain), decision_candidate($O, explain, $Reason), current_language($L), decision_render($L, $Reason, $Text).
+decision_reply($O, $Text) :- decision_selected($O, ask), decision_candidate($O, ask, missing($M)), current_language($L), decision_question($L, $O, $M, $Text).
+decision_reply($O, $Text) :- decision_selected($O, confirm), current_language($L), decision_complete($L, $Text).
+decision_reply($O, $Text) :- decision_has_requirements($O), naf(decision_has_selection($O)), current_language($L), decision_tie($L, $Text).
+decision_reply($O, $Text) :- naf(decision_has_requirements($O)), current_language($L), decision_no_requirements($L, $Text).
+
+:- include(decision-language.p0).
