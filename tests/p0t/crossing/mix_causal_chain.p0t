@@ -22,3 +22,14 @@
 !timeout 30
 > do slippery surfaces cause rain?
 <! Yes:
+
+[test the polar causal form walks a mediated chain instead of stopping at the missing direct cause]
+!reset
+!timeout 30
+> does pollution cause rising seas?
+<~ Yes: pollution causes climate change, and climate change causes rising seas.
+<! nothing I hold says
+> does rain cause wet ground?
+<~ Yes
+> does rising seas cause pollution?
+<! Yes

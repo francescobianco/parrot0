@@ -150,3 +150,13 @@ turn_plan_candidate($Turn) :- turn_has_source_cue($Turn), last_derived_chain($N,
 turn_priority_response($Turn, $Text) :-
     turn_has_source_cue($Turn), last_derived_chain($N, $C), naf(read_newer_than_derived($N)),
     chain_premises($C, $Ps), source_language($L), premises_text($L, $Ps, $Body), derivation_answer($L, $Body, $Text).
+
+% 14 settembre 2026 — «does rain CAUSE falls?» nomina la relazione che la via
+% polare sa leggere: la lettura cercava `causes(rain, falls)`, non lo trovava e
+% diceva «nothing I hold says rain causes falls» con la catena a portata di mano.
+% Una catena con almeno un anello intermedio e' una prova che la via polare non
+% vede: risponde per prima. La causa diretta resta alla via polare.
+machinery(turn_causal_mediated).
+turn_causal_mediated($Turn) :- turn_causal_chain($Turn, $Pair, via($M)).
+turn_causal_mediated($Turn) :- turn_causal_chain($Turn, $Pair, via2($M, $N)).
+turn_priority_response($Turn, $Text) :- turn_causal_mediated($Turn), turn_causal_answer($Turn, $Text).

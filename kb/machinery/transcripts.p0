@@ -224,6 +224,7 @@ utterance(6, self, "A residual-current device (RCD), residual-current circuit br
 utterance(6, self, "From what I read: A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — rain causes wet ground (part of my curated base); wet ground causes slippery surfaces (part of my curated base); slippery surfaces causes falls (from the sentence «slippery surfaces cause falls»). The conclusion is mine.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
+utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
 utterance(11, user, "what does a metaphor do?").
@@ -2465,6 +2466,7 @@ utterance(2, self, "Learned: sense is a relation verb.").
 utterance(2, self, "Hmm, I don't know about residual current device yet. Want me to learn about it?").
 utterance(2, self, "Hmm, I don't know about fire extinguisher yet. Want me to learn about it?").
 utterance(2, self, "Learned: slippery surfaces cause falls.").
+utterance(2, self, "Learned: legionella outbreaks cause legionnaires disease.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2572,6 +2574,7 @@ utterance(1, user, "sense is a relation verb").
 utterance(1, user, "what does a residual current device do?").
 utterance(1, user, "what does a fire extinguisher do?").
 utterance(1, user, "slippery surfaces cause falls").
+utterance(1, user, "legionella outbreaks cause legionnaires disease").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2671,6 +2674,7 @@ utterance(4, self, "Learned: smoke detector is a device.").
 utterance(4, self, "Looking up residual current device... A residual-current device (RCD), residual-current circuit breaker (RCCB) or ground fault circuit interrupter (GFCI) is an electrical safety device, more specifically a form of earth-leakage circuit breaker, that interrupts an electrical circuit when the current passing through line and neutral conductors of a circuit is not equal, therefore indicating current leaking to ground, or to an unintended path that bypasses the protective device.").
 utterance(4, self, "Looking up fire extinguisher... A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc. I extracted 9 facts.").
 utterance(4, self, "Yes: rain causes wet ground, and wet ground causes slippery surfaces, and slippery surfaces causes falls.").
+utterance(4, self, "Yes: poorly maintained cooling towers causes legionella outbreaks, and legionella outbreaks causes legionnaires disease.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2768,6 +2772,7 @@ utterance(3, user, "what causes legionella outbreaks?").
 utterance(3, user, "a smoke detector is a device").
 utterance(3, user, "yes").
 utterance(3, user, "does rain lead to falls?").
+utterance(3, user, "do poorly maintained cooling towers cause legionnaires disease?").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

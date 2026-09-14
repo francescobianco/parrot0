@@ -1907,3 +1907,20 @@ Lezione vera salvata. Cricchetto `tests/p0t/crossing/mix_derived_answer_sources.
 causes falls») e non percorre la catena; `premise_sentence/2` nomina `cause/2` a mano
 perché la KB non costruisce termini (niente univ); la base curata non ha fonti in KB
 (solo nei commenti: US EPA, Washington State DoH).
+
+### mix-12-09-04-001 — «does X cause Y?» percorre la catena, anche attraverso una lettura
+
+**Caso:** «does pollution cause rising seas?», «does rain cause falls?». **Prima:** la
+via polare legge `causes(X, Y)`, non lo trova e dice «nothing I hold says …» con la
+catena a portata di mano (la forma «does rain make …» funzionava solo perché la via
+polare non la legge). **Cura (solo KB):** una catena con almeno un anello intermedio
+(`turn_causal_mediated/1`) risponde come `turn_priority_response`; la causa diretta
+resta alla via polare. **Dopo:** «Yes: pollution causes climate change, and climate
+change causes rising seas.» In `make chat`, con la lezione vera «legionella outbreaks
+cause legionnaires disease» (salvata): «do poorly maintained cooling towers cause
+legionnaires disease?» → «Yes: poorly maintained cooling towers causes legionella
+outbreaks, and legionella outbreaks causes legionnaires disease.» → «how do you know
+that?» → le due frasi, la prima quella della scheda 04-12-001. Cricchetto in
+`mix_causal_chain.p0t` (7). **Reperti:** «most» (`attenuated_reading`) non attenua
+l'anello nella risposta; l'accordo «towers causes» (il connettivo è un solo fatto per
+lingua, senza numero).

@@ -281,10 +281,12 @@ fact_mention(fires, "lithium batteries cause fires").
 fact_mention(fire_blanket, "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
 fact_mention(smoke, "a smoke detector senses smoke").
 fact_mention(legionella_outbreaks, "most legionella outbreaks result from poorly maintained cooling towers").
+fact_mention(legionella_outbreaks, "legionella outbreaks cause legionnaires disease").
 fact_mention(lithium_batteries, "lithium batteries cause fires").
 fact_mention(hand-held_cylindrical_pressure_vessel, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 fact_mention(fire_extinguisher, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 fact_mention(falls, "slippery surfaces cause falls").
+fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 mixture_releases(bleach, ammonia, "chloramine gas").
 mixture_releases(bleach, acid, "chlorine gas").
@@ -313,6 +315,7 @@ recommended_percent_range("indoor humidity", 30, 50).
 avoid_in("lithium batteries", bin).
 cause(lithium_batteries, fires).
 cause(slippery_surfaces, falls).
+cause(legionella_outbreaks, legionnaires_disease).
 safety_device(fire_blanket).
 pressure_surge(hydraulic_shock).
 attenuated_reading(usually, hydraulic is usually observed in a liquid but gases can also be affected).
