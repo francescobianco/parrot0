@@ -623,6 +623,59 @@ prompt senza chiudere la sua classe non conta come progresso.
     Il seguito (specie delle relazioni, dinamicità, relativizzazione) sta in
     `docs/plans/the-magic-of-apply.md`, Parte VII.
 
+24. **⛔ UN LETTORE FUORI DALLA IR È UN'ESPLORAZIONE CON SCADENZA, NON CRESCITA
+    — e la crescita si misura sulle varianti, mai sul caso.**
+
+    F., 2026-09-14, dopo l'esperimento età e incontri e il piano multi-hop:
+    *«cosa perdiamo se facciamo cose non fatte con la IR? è davvero un vantaggio
+    o è solo una mia fissazione architetturale?»*
+
+    **Il caso.** Un problema di logica (Anna, Bruno, Carlo, confronti d'età su
+    gruppi descritti da incontri) risolto in un'ora con un lettore per posizioni
+    di token: 0 predicati strutturali della IR, 38 letture dei token, una IR
+    privata (pezzi, descrizioni, frame, scope numerati) accanto a quella
+    universale. Il prompt: verde. Tre varianti minime — un altro verbo
+    («conobbe»), un'altra dimensione («più alta»), il caso più semplice con tre
+    nomi — tutte rosse, e con un fatto falso imparato al posto della risposta.
+    `docs/sessions/2026-09-14-esperimento-ordine-eta.md` §8–9.
+
+    **Che cosa si perde fuori dalla IR** (misurato, non teorico):
+    *la generalizzazione* — un lettore privato riconosce le forme che conosce,
+    un consumatore riceve «una relazione», «un ordine», «un'entità»;
+    *l'insegnamento a voce* — una forma nuova diventa una regola nel file, non
+    una lezione;
+    *la crescita composta* — due missioni che hanno bisogno degli stessi pezzi li
+    costruiscono due volte, e i progressi dell'una sono invisibili all'altra;
+    *la coerenza* — lettori diversi leggono lo stesso turno in modi diversi e
+    vince chi afferra per primo («Thus was a mysterious Thus»);
+    *la traccia* — con la IR la ricostruzione è una vista, senza è un registro che
+    può divergere dal ragionamento;
+    *la possibilità di mescolare* premesse, fatti del mondo e letture.
+
+    **Che cosa costa la IR** (va detto, o la regola diventa dogma): tempo subito,
+    peso sul turno, il rischio di un minimo comune denominatore se la si progetta
+    prima di sapere che cosa serve, un punto unico di rottura. Per questo la
+    regola non vieta il lettore privato: lo **nomina**.
+
+    **La regola.**
+    1. Un lettore o una struttura fuori dalla IR è ammesso **solo come
+       esplorazione dichiarata**: nel commento del file e nel resoconto si scrive
+       che è debito, e perché si è scelto di aggirare invece di far crescere la IR.
+    2. L'esplorazione **scade** con due consegne: la tabella dei gemelli (ogni
+       pezzo privato → il suo posto nella IR) e la migrazione, nella stessa
+       missione o nella successiva. Finché non è migrata, non conta come capacità
+       di parrot0 in nessun resoconto e in nessuna demo.
+    3. **Una capacità esiste quando passa un banco di varianti della sua classe**,
+       scritto *prima* della cura: un altro verbo, un'altra dimensione, un'altra
+       lingua, la forma più semplice, un caso con i distrattori. Il caso da cui si
+       è partiti non è una prova: è il primo membro del banco.
+    4. In una demo si può mostrare un'esplorazione solo dicendolo.
+
+    **Il test, prima di scrivere il lettore:** *«la struttura che sto per
+    costruire ha già un nome nella IR, o dovrebbe averlo?»* Se sì, si fa crescere
+    la IR e si scrive un consumatore. Se si sceglie di aggirare, si scrivono
+    subito la riga di debito e la sua scadenza.
+
 ## Dove sta il resto
 
 - `PRINCIPLES.md` — il *perché* dell'esperimento (la regola anti-inganno).
