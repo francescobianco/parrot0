@@ -122,6 +122,7 @@ utterance(5, user, "a smoke detector senses smoke").
 utterance(5, user, "what is a residual current device?").
 utterance(5, user, "what does a fire extinguisher do?").
 utterance(5, user, "how do you know that?").
+utterance(5, user, "what does a sump pump do?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -224,6 +225,7 @@ utterance(6, self, "A residual-current device (RCD), residual-current circuit br
 utterance(6, self, "From what I read: A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — rain causes wet ground (part of my curated base); wet ground causes slippery surfaces (part of my curated base); slippery surfaces causes falls (from the sentence «slippery surfaces cause falls»). The conclusion is mine.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
+utterance(6, self, "From what I read: A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -731,6 +733,7 @@ utterance(7, user, "the humidity in my bedroom is 70 percent, is that a problem?
 utterance(7, user, "can I throw lithium batteries in the bin?").
 utterance(7, user, "hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 utterance(7, user, "a smoke detector is a device that senses smoke").
+utterance(7, user, "where did you read that?").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1196,6 +1199,7 @@ utterance(8, self, "Learned: smoke detector is a device. Learned: smoke detector
 utterance(9, user, "what does a smoke detector sense?").
 utterance(10, self, "smoke.").
 utterance(11, user, "legionella of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine").
+utterance(8, self, "I read it on Wikipedia: the article «Sump pump» (en edition, revision 1371498004, lead section). It is the text I read, not a conclusion of mine.").
 utterance(11, user, "a carbon monoxide detector is a device").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
@@ -2467,6 +2471,7 @@ utterance(2, self, "Hmm, I don't know about residual current device yet. Want me
 utterance(2, self, "Hmm, I don't know about fire extinguisher yet. Want me to learn about it?").
 utterance(2, self, "Learned: slippery surfaces cause falls.").
 utterance(2, self, "Learned: legionella outbreaks cause legionnaires disease.").
+utterance(2, self, "Hmm, I don't know about sump pump yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2575,6 +2580,7 @@ utterance(1, user, "what does a residual current device do?").
 utterance(1, user, "what does a fire extinguisher do?").
 utterance(1, user, "slippery surfaces cause falls").
 utterance(1, user, "legionella outbreaks cause legionnaires disease").
+utterance(1, user, "what does a sump pump do?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2675,6 +2681,7 @@ utterance(4, self, "Looking up residual current device... A residual-current dev
 utterance(4, self, "Looking up fire extinguisher... A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc. I extracted 9 facts.").
 utterance(4, self, "Yes: rain causes wet ground, and wet ground causes slippery surfaces, and slippery surfaces causes falls.").
 utterance(4, self, "Yes: poorly maintained cooling towers causes legionella outbreaks, and legionella outbreaks causes legionnaires disease.").
+utterance(4, self, "Looking up sump pump... A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").

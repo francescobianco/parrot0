@@ -200,9 +200,11 @@ topic_definition(water_hammer, "Hydraulic shock is a pressure surge or wave caus
 topic_read(fire_blanket, wiki_address(en, "Fire blanket", 1374618230, lead)).
 topic_read(residual_current_device, wiki_address(en, "Residual-current device", 1373727844, lead)).
 topic_read(fire_extinguisher, wiki_address(en, "Fire extinguisher", 1368707733, lead)).
+topic_read(sump_pump, wiki_address(en, "Sump pump", 1371498004, lead)).
 topic_definition(fire_blanket, "A fire blanket is a safety device designed to extinguish incipient (starting) fires.").
 topic_definition(residual_current_device, "A residual-current device (RCD), residual-current circuit breaker (RCCB) or ground fault circuit interrupter (GFCI) is an electrical safety device, more specifically a form of earth-leakage circuit breaker, that interrupts an electrical circuit when the current passing through line and neutral conductors of a circuit is not equal, therefore indicating current leaking to ground, or to an unintended path that bypasses the protective device.").
 topic_definition(fire_extinguisher, "A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc.").
+topic_definition(sump_pump, "A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
 topic_definition(veleno, "Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
 search_found_as(velenosi, veleno).
 uses(merchants, abacus).
@@ -320,6 +322,7 @@ safety_device(fire_blanket).
 pressure_surge(hydraulic_shock).
 attenuated_reading(usually, hydraulic is usually observed in a liquid but gases can also be affected).
 attenuated_reading(commonly, this phenomenon commonly occurs when a valve closes suddenly at an end of a pipeline system and a pressure wave propagates in the pipe).
+attenuated_reading(commonly, a sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites).
 genus(legionella).
 attenuated_reading(most, most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans).
 intracellular_pathogen(legionella_species).

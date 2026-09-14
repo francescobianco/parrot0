@@ -21,3 +21,11 @@
 > what does a smoke detector do?
 <~ senses smoke
 <! don't know about detector
+
+[test the generic verb at the end is not the object of a relation verb]
+!timeout 30
+> what does a heat pump do?
+<! nothing I hold says
+<~ heat pump
+> what does a sump pump do?
+<~ From what I read: A sump pump is a pump used to remove water

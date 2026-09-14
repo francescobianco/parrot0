@@ -1941,3 +1941,19 @@ frase con «(in most cases)». Cricchetto in `mix_derived_answer_sources.p0t` (1
 `fact_source/3` non unifica con la stessa frase senza virgolette di
 `attenuated_reading/2` (asserita in sessione, la stessa regola unifica):
 `concat_atoms($S, "", $K)` normalizza. Da curare nel motore, poi togliere il giro.
+
+### mix-04-05-003 — «what does a sump pump do?»: il «do» finale non è l'oggetto di «pump»
+
+**Caso:** «what does a sump pump do?», «what does a heat pump do?». **Prima:** «I don't
+know: nothing I hold says sump pumps do» — il lettore polare prendeva «pump» per verbo
+di relazione e «do» per oggetto; la lacuna non nasceva e la memoria profonda restava
+chiusa. **Cura:** in `p0_polar_relation` il lettore chiede alla KB se l'ultima parola,
+subito dopo il verbo, è il verbo della domanda di funzione (`function_question_verb/1`,
+function-questions.p0) e si ritira. **Dopo:** «Hmm, I don't know about sump pump yet» →
+«yes» → lettura vera di «Sump pump» (Wikipedia, rev. 1371498004) → «From what I read: A
+sump pump is a pump used to remove water …» → «where did you read that?» → l'articolo;
+salvato. Cricchetto in `mix_function_from_reading.p0t` (7); question_direction 23.
+**Costo misurato e curato:** le regole prioritarie della catena (mix-12-09-04-001) e il
+contabile della derivazione cercavano la catena a ogni turno: +0,3–0,4 s sul turno base
+di soft-test. Una guardia economica — il turno apre con l'ausiliare causale e nomina un
+verbo causale (`causal_polar_verb/1`) — riporta i tempi a quelli di HEAD.

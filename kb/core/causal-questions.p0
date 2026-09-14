@@ -132,7 +132,7 @@ machinery(derived_chain_asked).
 turn_scratch(derived_chain_asked).
 bookkeeper(derived_chain_named).
 turn_bookkeeping($Turn, derived_chain_named) :-
-    naf(turn_has_source_cue($Turn)), turn_causal_chain($Turn, $Pair, $Route),
+    turn_word($Turn, 0, $Op), causal_opener($Op), naf(turn_has_source_cue($Turn)), turn_causal_chain($Turn, $Pair, $Route),
     turn_counter($N), assert(derived_chain_asked, $N, chain($Pair, $Route)).
 machinery(last_derived_chain).
 % Solo la catena del turno APPENA passato: una domanda diversa in mezzo (una
@@ -188,6 +188,18 @@ turn_priority_response($Turn, $Text) :-
 % Una catena con almeno un anello intermedio e' una prova che la via polare non
 % vede: risponde per prima. La causa diretta resta alla via polare.
 machinery(turn_causal_mediated).
-turn_causal_mediated($Turn) :- turn_causal_chain($Turn, $Pair, via($M)).
-turn_causal_mediated($Turn) :- turn_causal_chain($Turn, $Pair, via2($M, $N)).
+% ⚠ La catena si cerca solo se il turno apre con l'ausiliare e nomina un verbo
+% causale: senza questa guardia la regola, valutata a ogni turno, costava 0,3 s
+% al turno base di soft-test (misurato). I verbi sono fatti per lingua.
+machinery(causal_polar_verb).
+causal_polar_verb(cause).
+causal_polar_verb(causes).
+causal_polar_verb(lead).
+causal_polar_verb(leads).
+causal_polar_verb(causa).
+causal_polar_verb(causano).
+machinery(turn_causal_polar_shape).
+turn_causal_polar_shape($Turn) :- turn_word($Turn, 0, $Op), causal_opener($Op), turn_word($Turn, $I, $V), causal_polar_verb($V).
+turn_causal_mediated($Turn) :- turn_causal_polar_shape($Turn), turn_causal_chain($Turn, $Pair, via($M)).
+turn_causal_mediated($Turn) :- turn_causal_polar_shape($Turn), turn_causal_chain($Turn, $Pair, via2($M, $N)).
 turn_priority_response($Turn, $Text) :- turn_causal_mediated($Turn), turn_causal_answer($Turn, $Text).

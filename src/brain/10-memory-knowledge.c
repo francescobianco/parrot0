@@ -14087,6 +14087,16 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
         }
     }
     if (!vi) return 0;
+    /* mix-04-05-003 — «what does a sump pump DO?»: il verbo generico in coda e'
+     * il verbo della domanda, non l'oggetto di «pump». Quale verbo chieda la
+     * funzione e' conoscenza (`function_question_verb/1`, function-questions.p0);
+     * la lettura polare si ritira invece di dire «nothing I hold says sump pumps
+     * do». */
+    if (vi + 2 == nw) {
+        char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", w[nw - 1]);
+        const char *lq[1] = { strip_edge_punct(lb) };
+        if (kb_query(b->kb, "function_question_verb", lq, 1)) return 0;
+    }
 
     size_t sbeg = p0_lead_det(b, w[base + 1]) ? base + 2 : base + 1;
     char subj[KB_TERM_LEN], obj[KB_TERM_LEN];
