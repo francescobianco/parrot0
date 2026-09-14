@@ -24,6 +24,11 @@ static void board_issue_id(const char *kind, const char *topic, char *out, size_
 }
 static void board_open(Brain *b, const char *kind, const char *topic, const char *question_quoted) {
     if (!b || !b->kb || !kind || !topic || !*topic) return;
+    /* 14 settembre 2026 — una questione del tabellone e' fra parrot0 e un
+     * interlocutore: un turno che parrot0 rivolge a se stesso (la clausola che
+     * il lettore della prosa si rilegge) non ne apre. Quando un turno sia
+     * interno lo dice la KB (`inner_turn`, discourse.p0). */
+    if (kb_query(b->kb, "inner_turn", NULL, 0)) return;
     char id[KB_TERM_LEN]; board_issue_id(kind, topic, id, sizeof id);
     char turn[24]; snprintf(turn, sizeof turn, "%lu", b->turns);
     int prev = kb_origin(b->kb);
@@ -554,6 +559,21 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
      * capital of X is Y» da un turno normale: non un secondo estrattore. */
     char focus[KB_TERM_LEN] = "";
 
+    /* 14 settembre 2026 — MENTRE SI RILEGGONO LE FRASI, PARROT0 PARLA A SE
+     * STESSO. Le frasi del passo (e le relative che `extract_class_statement`
+     * da' al lettore dei turni) non sono dette da nessuno: il fatto lo dice
+     * per la durata del ciclo, e che cosa ne segua — niente registro, niente
+     * questioni sul tabellone — lo decide `inner_turn` in discourse.p0. Non
+     * copre la pagina intera: il bivio «quale intendi?» nasce fuori da qui ed
+     * e' una domanda vera all'utente. */
+    const char *rp_a[1] = { "1" };
+    {
+        int prev_o = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_assert(b->kb, "reading_prose", rp_a, 1);
+        kb_set_origin(b->kb, prev_o);
+    }
+
     char *p = extract;
     while (*p) {
         char *q = p;
@@ -709,6 +729,7 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
         if (!*q) break;
         p = q + 1;
     }
+    kb_retract(b->kb, "reading_prose", rp_a, 1);
     /* Il chiamante riceve il TOTALE di cio' che e' entrato in KB — fatti piu'
      * regole — perche' e' quello il conto della crescita. L'elenco distingue le
      * due forme perche' le regole si leggono come clausole. */

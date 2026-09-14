@@ -3559,11 +3559,11 @@ static void conv_log_one(Brain *b, const char *speaker, const char *text) {
     /* gen417b: un turno RIPOSTO per verificare una riparazione non e'
      * conversazione. Senza questa riga, la verifica di non-regressione
      * inquinerebbe il log con i propri tentativi — e siccome legge il log per
-     * decidere, si guarderebbe le mani mentre le muove. */
-    {
-        const char *rq[1] = { "1" };
-        if (kb_query(b->kb, "repairing", rq, 1)) return;
-    }
+     * decidere, si guarderebbe le mani mentre le muove.
+     * 14 settembre 2026: la riparazione e' una delle ragioni per cui un turno
+     * e' INTERNO; quali siano (anche la lettura della prosa) lo dice la KB,
+     * `inner_turn` in discourse.p0. */
+    if (kb_query(b->kb, "inner_turn", NULL, 0)) return;
     char t[KB_TERM_LEN]; size_t o = 0;
     for (const char *c = text; *c && o + 4 < sizeof t; c++) {  /* leave room for quotes */
         char ch = *c;

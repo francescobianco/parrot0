@@ -456,6 +456,9 @@ turn_names_relation($T) :- input_node_atom($T, $Id, $W), family_relation($W).
 machinery(turn_addresses_pending).
 turn_addresses_pending($T) :- pending_gap($Topic), input_node_atom($T, $Id, $Topic).
 turn_addresses_pending($T) :- turn_short_reply($T).
+% 14 settembre 2026 — ...e solo un turno che l'interlocutore ha DETTO: una
+% clausola che il lettore della prosa si rilegge non risponde a un'offerta
+% fatta all'utente (`inner_turn`, discourse.p0).
 unclaimed_turn_captured($Kind) :- naf(turn_illocution(current_turn, question)),
-    turn_addresses_pending(current_turn).
+    turn_addresses_pending(current_turn), naf(inner_turn).
 

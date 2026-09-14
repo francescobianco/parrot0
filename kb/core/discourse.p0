@@ -83,6 +83,41 @@ answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sente
 % il testo del turno; cio' che se ne fa (ordine, ripresa, questione massima)
 % resta conoscenza.
 
+% ── IL TURNO INTERNO: QUANDO PARROT0 PARLA A SE STESSO ─────────────────────
+%
+% 14 settembre 2026 (docs/plans/da-parola-a-stato.md §2, mossa 1). Il lettore
+% della prosa da' una relativa ridotta al lettore dei turni («ogni clausola e'
+% data al lettore di un turno intero»), e quel turno lasciava gli effetti di un
+% turno di DIALOGO. Misurato leggendo it.wiki «Fatica»:
+%
+%     utterance(1, user, "fatica of stanchezza a insorgenza graduale")
+%     utterance(2, self, "Mmh, non conosco ancora insorgenza graduale. Vuoi che cerchi?")
+%
+% e al turno dopo «mi sento stanco» accettava quell'offerta come un «si'» e
+% andava a cercare «insorgenza graduale». La lettura parlava al posto
+% dell'utente.
+%
+% Un turno e' interno quando nessun interlocutore l'ha detto: non entra nel
+% registro della conversazione (`utterance/3`), non apre questioni sul
+% tabellone (issues.p0) e non risponde a quelle aperte. Il C chiede
+% `inner_turn` a quelle porte e basta; PERCHE' un turno sia interno lo dicono
+% le righe qui sotto. Una ragione nuova domani — il sogno, una verifica — e'
+% una riga.
+machinery(inner_turn).
+machinery(inner_turn_reason).
+% Il lettore della prosa asserisce `reading_prose(1)` solo attorno al ciclo
+% sulle frasi (50-self-research-loop.c). NON `reading_now`, che copre tutta
+% l'acquisizione: il bivio «quale intendi?» nasce li' dentro ed e' una domanda
+% vera all'utente — legarlo a `reading_now` lo chiudeva (offer_context.p0t,
+% misurato contro HEAD).
+machinery(reading_prose).
+turn_scratch(reading_prose).
+inner_turn_reason(reading) :- reading_prose(1).
+% gen417b: il turno riposto per verificare una riparazione (99-registry.c
+% asserisce `repairing(1)` attorno alla verifica).
+inner_turn_reason(repair) :- repairing(1).
+inner_turn :- inner_turn_reason($Why).
+
 % ── CHE COSA NON SOPRAVVIVE AL TURNO ─────────────────────────────────────────
 %
 % `/save` instrada tutto cio' che ha origine di sessione, e finiva per portarsi
