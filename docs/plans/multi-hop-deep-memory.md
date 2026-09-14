@@ -465,6 +465,29 @@ chiede un tipo diverso da quello che nomina («which range contains the highest 
 **due** banchi insieme, e il banco di controllo resta tale solo finché non si guarda:
 quando sarà verde, se ne scrive un altro.
 
+**Cura, misurata sui due banchi insieme** (notte): banco della classe **8/8**, banco di
+controllo **4/7 → 7/7**. Quattro mosse generali, nessuna scritta per un problema:
+- **il ponte come descrizione**: dopo il tipo chiesto, un sintagma col determinante la cui
+  testa non è il tipo, seguito da una preposizione («the **composer** of», «the highest
+  **mountain** in»), descrive un'entità intermedia (`guided_description_at/3`); «what is the
+  capital of France?» resta diretta;
+- **la ricerca parte dalla descrizione** quando non c'è parola ponte;
+- **l'entità di partenza può essere già del tipo chiesto** («the capital of Hungary» è una
+  città);
+- **il tipo tradotto** arriva alla risposta nota attraverso la sua forma inglese
+  («moneta» → currency → `currency_of_country`).
+
+E due correzioni del riconoscimento: un verbo di relazione noto chiude il sintagma del
+tipo («which mountain range **contains**»); «trova» non è un verbo di compito («si trova» è
+«è situato»). Trappola ritrovata: la congiunzione «politica ∧ tipo ∧ ponte» in una regola
+sola esauriva i 384 legami — il motore chiede i tre fatti separatamente. Lessico insegnato
+parlando e salvato: `tr(currency, moneta)`, `tr(rupee, rupia)`, `tr(indian_rupee,
+rupia_indiana)`.
+
+⚠ **Il banco di controllo ora è visto.** Per il criterio 3 il prossimo passo non è una cura
+ma un **terzo banco** scritto senza guardare il codice — e la prova dal vivo con la rete,
+dove le pagine candidate sono molte di più di quelle locali.
+
 **Criteri di generalità** (valgono per ogni mossa della missione):
 
 1. **Nessuna cura si misura su un problema**: si misura sul banco intero, e si riporta il
@@ -676,3 +699,8 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   ciclo: **4/7**. Falliscono la catena di complementi senza parola ponte (H2), la
   descrizione che chiede un altro tipo (H4, con misclaim) e il tipo tradotto verso una
   risposta nota (H5). Registrato prima di curare.
+- **14 settembre 2026, notte (5)** — cura sui due banchi: descrizione come ponte, ricerca
+  dalla descrizione, entità di partenza già del tipo, tipo tradotto verso la risposta nota.
+  Banco della classe **8/8**, banco di controllo **7/7**; E1, memoria profonda,
+  `prose_triage`, `order_determinacy_problem` verdi. Prossimo: terzo banco non visto e prova
+  dal vivo con la rete.

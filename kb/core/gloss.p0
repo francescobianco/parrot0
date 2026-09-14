@@ -1136,6 +1136,7 @@ tr(located, situato).
 tr(located, situata).
 tr(official, ufficiale).
 tr(currency, valuta).
+tr(currency, moneta).
 tr(member, membro).
 tr(league, lega).
 tr(islands, isole).
@@ -1162,6 +1163,8 @@ tr(smoke, fumo).
 tr(detector, rilevatore).
 tr(danube, danubio).
 tr(black_sea, mar_nero).
+tr(indian_rupee, rupia_indiana).
+tr(rupee, rupia).
 tr(hungary, ungheria).
 
 

@@ -2695,7 +2695,15 @@ static void gr_assert(Brain *b, const char *pred, const char **args, size_t n) {
 static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char *out, size_t out_size) {
     if (!b || !b->kb || !raw || !*raw) return 0;
     const char *tq[1] = { "current_turn" };
-    if (!kb_query(b->kb, "turn_guided_inquiry", tq, 1)) return 0;
+    /* ⚠ tre domande separate e non una congiunzione: il riconoscimento del tipo e quello
+     * della descrizione sono ricorsivi, e in un solo ramo di risoluzione esaurivano i 384
+     * legami (la regola intera falliva con ogni pezzo vero). Le decisioni restano in
+     * guided-reading.p0 (turn_guided_inquiry/1 ne e' la forma dichiarativa). */
+    { const char *aq[1] = { "acquire" };
+      const char *gq[3] = { "current_turn", NULL, NULL }; char r1[1][KB_TERM_LEN];
+      if (!kb_query(b->kb, "acquisition_move", aq, 1)) return 0;
+      if (kb_match(b->kb, "guided_asked_type", gq, 3, r1, 1) < 1) return 0;
+      if (!kb_query(b->kb, "turn_guided_bridge", tq, 1)) return 0; }
     if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] inquiry recognized\n");
     (void)norm;
 
@@ -2869,9 +2877,17 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
             /* la KB sa gia' il tipo chiesto del nodo corrente? (answer_frame: la
              * superficie del tipo interroga una relazione) */
             {
-                const char *fq[2] = { type, NULL };
                 char preds[8][KB_TERM_LEN];
-                size_t npr = kb_match(b->kb, "answer_frame", fq, 2, preds, 8);
+                size_t npr = 0;
+                {
+                    char etypes[4][KB_TERM_LEN];
+                    const char *eq[2] = { type, NULL };
+                    size_t net = kb_match(b->kb, "guided_english_key", eq, 2, etypes, 4);
+                    for (size_t e = 0; e < net && npr == 0; e++) {
+                        const char *fq[2] = { kb_dequote(etypes[e]), NULL };
+                        npr = kb_match(b->kb, "answer_frame", fq, 2, preds, 8);
+                    }
+                }
                 int known = 0;
                 for (size_t x = 0; x < npr && !known; x++) {
                     char pr[KB_TERM_LEN]; snprintf(pr, sizeof pr, "%s", kb_dequote(preds[x]));
@@ -2889,6 +2905,26 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
                     known = 1;
                 }
                 if (known) { t++; progressed = 1; continue; }
+            }
+            /* il nodo raggiunto e' gia' del tipo chiesto? («the capital of Hungary»
+             * e' una citta') — vale per la pagina di partenza, dove non c'e' un ponte
+             * che l'abbia scelto per un altro ruolo */
+            if (pages == 1 && !found) {
+                GrMention self; memset(&self, 0, sizeof self);
+                snprintf(self.key, sizeof self.key, "%s", page.topic);
+                const char *hs = strrchr(page.topic, '_');
+                snprintf(self.head, sizeof self.head, "%s", hs ? hs + 1 : page.topic);
+                if (gr_kb2(b, "known_entity_type", self.key, type) ||
+                    (page.nsent && gr_type_ok(b, &self, type, &cand))) {
+                    char fn[16]; snprintf(fn, sizeof fn, "%zu", ++found);
+                    char qv[KB_TERM_LEN], qs[700];
+                    gr_quote(page.title, qv, sizeof qv);
+                    gr_excerpt(&page.sent[0], 0, 0, qs + 1, sizeof qs - 2);
+                    { char ex[600]; gr_excerpt(&page.sent[0], 0, 0, ex, sizeof ex); gr_quote(ex, qs, sizeof qs); }
+                    { const char *fa[4] = { fn, type, qv, pn }; gr_assert(b, "guided_found", fa, 4); }
+                    { const char *sa[2] = { fn, qs }; gr_assert(b, "guided_sentence", sa, 2); }
+                    t++; progressed = 1; continue;
+                }
             }
             int generic = gr_kb1(b, "generic_type", type);
             int best = -1000; char best_val[KB_TERM_LEN] = "", best_key[KB_TERM_LEN] = "", best_ex[600] = "";

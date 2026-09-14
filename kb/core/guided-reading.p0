@@ -66,6 +66,7 @@ first_type_word_after($T, $J, $W) :-
 machinery(type_modifier_at).
 type_modifier_at($T, $J) :-
     guided_head_last, is($K, add($J, 1)), turn_word($T, $K, $N), type_candidate_word($N), naf(type_skip_word($N)), naf(bridge_word($N)),
+    naf(relative_clause_verb($N)),
     naf(open_question_word($N)), naf(type_stop_word($N)).
 % una parola che puo' essere un tipo: piena, oppure un tipo generico dichiarato («figure»
 % e' anche una parola funzione in «figure out», e il lessico la segna come tale)
@@ -84,7 +85,7 @@ type_stop_word(of). type_stop_word(in). type_stop_word(that).
 % figure …», «determine the religion …», «name the supreme deity …».
 machinery(task_verb).
 task_verb(identify). task_verb(determine). task_verb(name). task_verb(find).
-task_verb(identifica). task_verb(determina). task_verb(trova).
+task_verb(identifica). task_verb(determina).
 guided_asked_type($T, $I, $Type) :-
     turn_word($T, $I, $V), task_verb($V), is($J, add($I, 1)), first_type_word_after($T, $J, $Type).
 % Un tipo generico lo soddisfa l'entita' che la frase pertinente nomina come ponte.
@@ -106,6 +107,26 @@ bridge_word(cui). bridge_word(dove). bridge_word(che).
 machinery(turn_guided_bridge).
 turn_guided_bridge($T) :- turn_word($T, $I, $W), bridge_word($W), gt($I, 0).
 turn_guided_bridge($T) :- guided_asked_type($T, $I, $A), guided_asked_type($T, $J, $B), lt($I, $J).
+% ...o una DESCRIZIONE di un'altra entita' dopo il tipo chiesto: «the nationality of THE
+% COMPOSER of the opera Carmen», «which range contains THE HIGHEST MOUNTAIN in Europe». Un
+% sintagma col determinante, la cui testa non e' il tipo chiesto, seguito da una
+% preposizione: per arrivare al tipo bisogna prima trovare quell'entita'. «what is the
+% capital of France?» non lo e': la testa della descrizione e' il tipo stesso.
+machinery(guided_description_at).
+machinery(description_head_after).
+guided_description_at($T, $J, $Head) :-
+    turn_word($T, $J, $D), description_determiner($D), is($K, add($J, 1)),
+    description_head_after($T, $K, pair($Head, $P)), turn_word($T, $P, $Prep), preposition($Prep).
+description_head_after($T, $K, pair($W, $P)) :-
+    turn_word($T, $K, $W), type_candidate_word($W), naf(type_skip_word($W)), naf(type_modifier_at($T, $K)), is($P, add($K, 1)).
+description_head_after($T, $K, $R) :-
+    turn_word($T, $K, $M), type_candidate_word($M), type_modifier_at($T, $K), is($L, add($K, 1)), lt($L, 64),
+    description_head_after($T, $L, $R).
+machinery(description_determiner).
+description_determiner(the). description_determiner(a). description_determiner(an).
+description_determiner(il). description_determiner(la). description_determiner(lo). description_determiner(l).
+turn_guided_bridge($T) :-
+    guided_asked_type($T, $I, $Type), guided_description_at($T, $J, $Head), gt($J, $I), naf(same_word_lemma($Head, $Type)).
 machinery(turn_guided_inquiry).
 turn_guided_inquiry($T) :- acquisition_move(acquire), guided_asked_type($T, $I, $Type), turn_guided_bridge($T).
 % un compito a passi e' gia' un ponte: ogni passo parte dal risultato del precedente
@@ -347,6 +368,13 @@ machinery(turn_words_from_to).
 guided_search_phrase($T, $Phrase) :-
     turn_word($T, $I, $B), bridge_word($B), gt($I, 0), is($J, add($I, 1)),
     findall($W, guided_word_after($T, $J, $W), $Ws), words_space_text($Ws, $Phrase).
+% e, senza parola ponte, la descrizione stessa: dal suo determinante alla fine
+guided_search_phrase($T, $Phrase) :-
+    naf(turn_has_bridge_word($T)), guided_asked_type($T, $I, $Type), guided_description_at($T, $J, $Head), gt($J, $I),
+    naf(same_word_lemma($Head, $Type)),
+    findall($W, guided_word_after($T, $J, $W), $Ws), words_space_text($Ws, $Phrase).
+machinery(turn_has_bridge_word).
+turn_has_bridge_word($T) :- turn_word($T, $I, $B), bridge_word($B), gt($I, 0).
 machinery(guided_word_after).
 guided_word_after($T, $J, $W) :- turn_word($T, $K, $W), ge($K, $J).
 machinery(words_space_text).
