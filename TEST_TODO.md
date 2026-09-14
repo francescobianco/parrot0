@@ -10,6 +10,13 @@ user-situations) e poi tutti insieme, e i candidati delle sezioni 4–8 di
 `basics.p0t` misura 1.30/1.47 s dal demone (limite 1.0 s, gia' superato prima
 delle campagne). Non si alza il limite: il turno base va profilato con `/debug`.
 
+**decisioni insegnabili E1 (2026-09-14, 23:40)**: `reasoning/taught_decision.p0t`
+verde (39, 78 s, `!timeout 5` per sezione — il `!timeout` si azzera a ogni
+`[test]`, quello in testa al file non conta). `make soft-test` rossa a HEAD e
+con la KB nuova nello stesso modo: basics [antonym] **1,37 s / 1,44 s**,
+`taught_lexicon.p0t` tutti timeout a 1 s in entrambi gli stati (demone fresco
+ciascuno). Non è regressione di E1: è il turno base, vedi sopra.
+
 **mix-of-capabilities, prima ora di campagna (2026-09-13, 21:34–22:34)**: nuovi
 `crossing/mix_language_access` (13), `crossing/mix_property_inheritance` (10),
 `crossing/mix_place_containment` (7), `crossing/mix_causal_chain` (3),

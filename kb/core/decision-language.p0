@@ -89,7 +89,7 @@ turn_form_reply(decision_preference_forget, decision_preference_forgotten).
 
 turn_form(decision_question_en, 1, text("can i complete")).
 turn_form(decision_question_en, 2, span(subject)).
-turn_form_act(decision_question_en, "op(match, decision_reply, [subject, free])").
+turn_form_act(decision_question_en, "op(match, decision_answer, [subject, free])").
 turn_form_priority(decision_question_en, early).
 turn_form_view(decision_question_en, said).
 turn_form_reply(decision_question_en, decision_answer).
@@ -97,7 +97,7 @@ turn_form_slot_form(decision_question_en, subject, atom).
 
 turn_form(decision_question_it, 1, text("posso completare")).
 turn_form(decision_question_it, 2, span(subject)).
-turn_form_act(decision_question_it, "op(match, decision_reply, [subject, free])").
+turn_form_act(decision_question_it, "op(match, decision_answer, [subject, free])").
 turn_form_priority(decision_question_it, early).
 turn_form_view(decision_question_it, said).
 turn_form_reply(decision_question_it, decision_answer).
@@ -128,3 +128,36 @@ response_template(decision_preference_learned, "I have learned that conditional 
 response_template(decision_preference_learned, it, "Ho imparato questa preferenza condizionata.").
 response_template(decision_preference_forgotten, "I have withdrawn that conditional preference.").
 response_template(decision_preference_forgotten, it, "Ho ritirato questa preferenza condizionata.").
+
+% ── la maniglia del cassetto: la domanda sul valore (decisions.p0 §7) ──────
+% Sopra un ruolo che non e' in gioco la corrispondenza fallisce e il turno passa
+% ai lettori di sempre («what is the capital of France?» resta Paris).
+turn_form(decision_value_question, 1, text("what is the")).
+turn_form(decision_value_question, 2, slot(role)).
+turn_form(decision_value_question, 3, text("of")).
+turn_form(decision_value_question, 4, span(subject)).
+turn_form_slot_form(decision_value_question, subject, atom).
+turn_form_act(decision_value_question, "op(match, decision_value_answer, [subject, role, free])").
+turn_form_priority(decision_value_question, early).
+turn_form_view(decision_value_question, said).
+turn_form_reply(decision_value_question, decision_answer).
+
+% ── il dato dovuto arriva ellittico: «it is 0» sotto la questione massima ──
+% La forma vale solo se sul tabellone c'e' una questione `datum` massima:
+% altrimenti fallisce e «it is …» resta di chi lo leggeva prima.
+turn_form(decision_datum_answer_en, 1, text("it is")).
+turn_form(decision_datum_answer_en, 2, slot(value)).
+turn_form_slot_class(decision_datum_answer_en, value, decision_numeric).
+turn_form_act(decision_datum_answer_en, "op(match, decision_datum_store, [value, free])").
+turn_form_priority(decision_datum_answer_en, early).
+turn_form_view(decision_datum_answer_en, said).
+turn_form_reply(decision_datum_answer_en, decision_datum_noted).
+turn_form(decision_datum_answer_it, 1, text("vale")).
+turn_form(decision_datum_answer_it, 2, slot(value)).
+turn_form_slot_class(decision_datum_answer_it, value, decision_numeric).
+turn_form_act(decision_datum_answer_it, "op(match, decision_datum_store, [value, free])").
+turn_form_priority(decision_datum_answer_it, early).
+turn_form_view(decision_datum_answer_it, said).
+turn_form_reply(decision_datum_answer_it, decision_datum_noted).
+response_template(decision_datum_noted, "Noted: {result}").
+response_template(decision_datum_noted, it, "Annotato: {result}").

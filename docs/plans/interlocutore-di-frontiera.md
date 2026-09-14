@@ -781,183 +781,112 @@ sostenibile sulla KB viva, abbiamo una via verso l'obiettivo generale. Se
 produce soltanto criteri locali da insegnare uno per uno, abbiamo rinominato
 il collo di bottiglia del maestro e l'ipotesi va respinta.
 
-## 8. Handoff operativo — E1 avviato, da completare (14 settembre 2026)
+## 8. E1 — stato al 14 settembre 2026, sera: banco certificato dal runner, circuito completato in KB
 
-**F. ha autorizzato l'implementazione («mettilo in pratica»), poi ha chiesto
-questo handoff per fine contesto. Ci si ferma qui su sua richiesta.** Il
-circuito ha dato un primo risultato comportamentale; **E1 non è chiuso**, il
-banco completo non è stato certificato e non è stato fatto alcun commit.
+**Il commit `80511ee0` ha fissato lo stato dell'handoff precedente; questa
+sezione lo sostituisce.** Il banco `tests/p0t/reasoning/taught_decision.p0t`
+gira nel runner vero (`parrot0 --test`, KB completa `agi`): **39 assert verdi
+in 78 s**, turni fra 0,7 e 2,3 s. Le sonde con risposte verbatim si fanno con
+`scripts/p0t-echo.py` (nuovo, versionato: righe `>` = turni, righe `? pred a _`
+= interrogazioni dirette). E1 resta una prova della **scelta insegnabile sulle
+forme dette**: non certifica comprensione libera del prompt originale.
 
-### 8.1 Stato del workspace
+### 8.1 Che cosa è entrato, tutto in KB (`decisions.p0`, `decision-language.p0`)
 
-| file | modifica |
+1. **Limite inferiore detto come tale.** L'ostacolo porta il genere della
+   premessa nel termine (`exact(V)` / `floor(V)`): «No: ready is at least 10;
+   the requirement is at most 9» quando il trasferimento è ignoto e 10 è solo
+   il minimo; «reaches 12» quando il valore è esatto (§8.4.2 di prima).
+2. **Cicli.** Le discese di valore, limite e residuo portano la lista dei ruoli
+   attraversati (`member/2`); «calculate loop by adding twist and loop» non è
+   più una ricerca di 30 s: è un candidato `explain` con ragione
+   `circular(R)`, detto «loop is defined through itself, so I cannot compute
+   it». La condotta su di esso si insegna: «prefer explaining obstacles to
+   asking questions when a definition is circular».
+3. **Contraddizioni.** Due strade con valori diversi (due formule, o un valore
+   detto e una formula) sono `conflict(R, Vs)`: «arrival comes out as 5 and 3
+   from different rules, so I cannot check it». Un ruolo discorde non ha limite
+   inferiore. Condizione insegnabile: «the data disagree».
+4. **Pareggio e ricerca non conclusa distinti.** La frase del pareggio elenca
+   le mosse REALMENTE disponibili (`decision_move_words`); con requisiti ma
+   senza candidati si dice che la verifica non si è conclusa (§8.4.4 di prima).
+5. **La maniglia del cassetto.** `what is the R of S?` raggiunge lo stato
+   descritto («the departure is 7»), il valore derivato con la sua traccia
+   («the ready is 10 (arrival 10 plus transfer 0)»), la contraddizione, o il
+   dato mancante («I do not have the arrival yet: the departure is missing»).
+   Su un ruolo che non è in gioco la corrispondenza fallisce e il turno passa
+   oltre: «what is the capital of France?» resta Paris.
+6. **Il dato chiesto è una questione sul tabellone.** Genere `datum` di
+   issues.p0: `open_issue(datum_train_transfer, datum)`, `issue_topic`,
+   `issue_relation` (il ruolo), `issue_turn`; lo stato è una vista, risolta
+   quando il valore diventa derivabile. «it is 0» / «vale 0» si legge sotto la
+   massima e risponde «Noted: the transfer is 0. For train: The stated
+   requirements are satisfied.» Senza questione aperta la forma fallisce e
+   «it is 5» resta di chi lo leggeva prima. Nessun `pending_*` nuovo.
+7. **Una ragione e un dato per turno** (i primi nell'ordine dei candidati); gli
+   altri restano viste interrogabili (`decision_candidate/3`,
+   `decision_available/2`, `decision_dominated/2`).
+8. **Italiano per parafrasi, non per promozione.** «per x il y deve essere al
+   massimo z means for x the y must be at most z», «il y di x vale z means the
+   y of x is z», «x is at least z for y means for y the x must be at least z»
+   si insegnano parlando e valgono subito, anche con tre slot e attraverso la
+   lingua. Nessuna forma italiana di lezione è stata scritta a mano.
+
+### 8.2 Tre fatti del motore che costano ore se non li si sa
+
+- **`KB_MAX_ARGS` = 4.** Una regola con cinque argomenti è scartata al boot
+  con `PARSE ERROR` nel log del demone (`obj/test-engine.log`, o lo stderr del
+  processo MCP) e da fuori sembra «nessuna soluzione». Il quinto argomento va
+  in un termine.
+- **`findall/3` raccoglie solo una VARIABILE.** Un template composto
+  (`cand($M, $R)`) diventa `$Q` e la lista è vuota, in silenzio. Il termine si
+  costruisce nella testa di un predicato ausiliario (`decision_cand/2`).
+  `kb/core/arrests.p0` §compensation_plan usa un template composto: da
+  verificare, probabilmente morto.
+- **`naf/1` declina se dentro la sua prova scatta una guardia qualsiasi**
+  (profondità 64, passi, resolvent 64, stack) o se il goal non è ground
+  (floundering). Con viste ricorsive ogni `naf` rifaceva l'intera selezione e
+  sul caso con il limite inferiore una guardia scattava: il turno cadeva al
+  muro generico «I don't know about complete», che apriva un'offerta di
+  ricerca. Cura: la lista dei candidati si calcola UNA volta
+  (`decision_verdict/3`) e dominanza e resa lavorano sulla lista. Effetto
+  collaterale: la barca con due formule e quattro dati ignoti da 22 s a 1,7 s.
+- **`op(match, …)` concatena tutte le righe con «, » e rifiuta i duplicati**:
+  una vista di risposta deve produrre esattamente una riga.
+
+### 8.3 Misure (14 settembre 2026, 23:00–23:50, demone e MCP su questa macchina)
+
+| turno | tempo |
 |---|---|
-| questo documento | §7 della sessione precedente, correzioni alla diagnosi e questo handoff |
-| `kb/core/decisions.p0` (nuovo) | formule additive, quantità e limiti inferiori, requisiti, candidati motivati, preferenze condizionali, selezione e resa |
-| `kb/core/decision-language.p0` (nuovo) | insegnamento e ritrattazione con il `turn_form` comune; domanda di fattibilità e descrizioni numeriche |
-| `kb/core/procedures.p0` | include di `decisions.p0` dopo `situation.p0` |
-| `src/brain/10-memory-knowledge.c` | due punti del matcher comune: togliere il punto interrogativo/finale solo in coda, conservando il punto interno di un decimale |
-| `tests/p0t/reasoning/taught_decision.p0t` (nuovo) | banco scritto prima dell'implementazione, con premesse e preferenza insegnate in lingua naturale |
+| lezione di formula / valore / requisito | 0,7–1,2 s |
+| «X is never below 0» | 2,2–2,5 s |
+| «can I complete X?» (scelta) | 1,4–2,3 s |
+| «what is the R of S?» | 0,8 s |
+| «it is 0» (tabellone + nuova verifica) | 0,8–1,0 s |
+| banco intero, 39 assert | 78 s |
 
-**Nessun motore C di dominio aggiunto.** Il piccolo intervento C corregge la
-meccanica dei due slot (`span` e `slot`/`rest`) che trasformava `2.5` in `2`.
-Va ancora verificato con casi decimali e con i consumatori preesistenti.
+`make soft-test` è rosso **anche a HEAD** (basics.p0t [antonym] 1,37 s a HEAD,
+1,44 s con la KB nuova; `taught_lexicon.p0t` tutti timeout a 1 s in entrambi gli
+stati): non è di questo lavoro, è il costo del turno base già registrato in
+`TEST_TODO.md`. Nessuna suite completa lanciata.
 
-### 8.2 L'esperimento che ha effettivamente funzionato
+### 8.4 Residui, in ordine
 
-Processo indipendente `bin/parrot0 --mcp-engine`, profilo completo `agi`,
-`PARROT0_SESSION=`; chiamate `gen.respond` tramite la classe `Engine` di
-`scripts/self-questions.py`. Niente fatti inseriti via `kb.assert`.
-
-```text
-calculate arrival by adding departure and duration
-calculate ready by adding arrival and transfer
-transfer is never below 0
-the departure of train is 7
-the duration of train is 3
-for train the ready must be at most 9
-
-can I complete train?
-→ For train: I need to choose between explaining an obstacle and asking for missing information.
-
-prefer explaining obstacles to asking questions when a requirement fails
-→ I have learned that conditional preference.
-
-can I complete train?
-→ For train: No: ready reaches 10; the requirement is at most 9.
-
-forget the requirement for train on ready
-for train the ready must be at most 11
-can I complete train?
-→ For train: What is the transfer of train?
-
-the transfer of train is 0
-can I complete train?
-→ For train: The stated requirements are satisfied.
-```
-
-Stesso processo e stessa preferenza: `load = cargo + packaging`, minimo di
-`packaging` insegnato pari a zero, `cargo` del pacco pari a 12, requisito sul
-carico massimo 10 → ostacolo spiegato. Ritrattando **parlando** la preferenza:
-
-```text
-forget that preference for explaining obstacles over asking questions when a requirement fails
-can I complete parcel?
-→ For parcel: I need to choose between explaining an obstacle and asking for missing information.
-```
-
-Reinsegnandola, torna la spiegazione `12` contro `10`. Osservati anche un
-requisito `at least` (carica 3 contro minimo 5) e un caso già completo che
-conferma i requisiti senza chiedere un dato irrilevante. I turni di verifica
-di questa corsa costavano circa **1,6–2,1 s**, non meno di un secondo; nessuna
-conclusione sulla scalabilità.
-
-Questi sono **riscontri manuali sulle risposte**, non il risultato del runner
-`.p0t`. Il driver temporaneo leggeva le righe `>` del banco e stampava risposta
-e tempo; non controllava le aspettative `<`. Il banco non va dichiarato verde.
-
-### 8.3 Architettura presente e due difetti già diagnosticati
-
-- I dati numerici entrano con `state_commit`, quindi in
-  `holds_in(described_situation, st(...))`; `role/3` li vede attraverso
-  `situation_state/4`. Non c'è una seconda tabella di valori.
-- `decision_formula/3`, `decision_requirement/4`, `decision_minimum/2` e
-  `decision_preference/3` vengono insegnati dalle forme comuni. La scelta è
-  una vista: `decision_candidate/3`, `decision_dominated/2`,
-  `decision_selected/2`. I candidati scartati restano interrogabili.
-- Il minimo di una quantità sconosciuta **non è implicitamente zero**: lo
-  deve dichiarare una lezione. Le somme propagano quel limite e il residuo
-  segue le dipendenze fino al dato mancante.
-- `ability_polar` prendeva prima ogni «can I complete …?» e rispondeva
-  «I don't know whether complete can train». La cessione usa l'esistente
-  `turn_form_yield` con le ancore di `decision_question_en`.
-  **Trappola:** quel consumer consulta una relazione di arità **2**; la prima
-  prova con `decision_question_surface/1` non poteva funzionare. Ora è `/2`.
-- `op(match, …)` necessita di un posto libero per produrre una risposta.
-  La prima `decision_store/3` eseguiva gli effetti ma non rendeva nulla e
-  lasciava continuare il vecchio lettore. Ora `decision_store/4` restituisce
-  il valore nel quarto argomento; il turno risponde «Noted: …».
-
-**Ultima modifica prima dell'handoff:** rimossa la regola
-`role_name($R) :- situation_state(described_situation, $O, $R, $V).`
-La corsa completa si fermava per timeout di 30 s alla lezione
-`is x feasible means can I complete x`. Dopo questa rimozione, su un caso
-ridotto con una formula e un valore, la stessa lezione è riuscita in **1,482 s**
-e `is train feasible?` è stata riletta correttamente in **2,089 s**. Questo
-localizza un sospetto forte, **non prova ancora** che il timeout sulla storia
-completa sia risolto. Non ripristinare la regola senza profilare: enumerare i
-ruoli dalla situazione viva rischia di far rileggere lo stato al lessico.
-
-### 8.4 Il lavoro ancora necessario, nell'ordine
-
-1. **Ripetere il banco completo sullo stato attuale**, prima di estendere.
-   Verificare la lezione di parafrasi dopo tutta la storia, poi la ritrattazione.
-   Il file `.p0t` e le sonde devono usare sempre la KB completa. Aggiungere
-   italiano e parafrasi dei dati/requisiti; non basta la domanda italiana
-   `posso completare …?` già dichiarata.
-2. **Correggere la resa del limite inferiore.** Oggi `ready reaches 10` viene
-   detto anche quando 10 è soltanto il minimo e il trasferimento è ignoto.
-   La ragione deve distinguere valore esatto e limite inferiore, e dire
-   esplicitamente «almeno 10». La conclusione negativa è sostenuta; quella
-   formulazione della premessa è troppo ambigua.
-3. **Verificare la custodia dei valori.** La forma numerica è generale e
-   anticipata: controllare che una domanda non insegni uno stato, che
-   decimali e correzioni funzionino, e che domande ordinarie sui valori
-   continuino a raggiungerli. I valori sono nel contesto mentre alcuni
-   consumer chiedono ancora `Ruolo_of/2`: possibile cassetto senza maniglia.
-   Verificare anche contraddizioni, due formule dello stesso ruolo e cicli.
-4. **Distinguere pareggio e ricerca non conclusa.** Ora il ramo senza scelta
-   usa sempre una frase che nomina spiegazione e domanda: con nessun
-   candidato, o con ricerca incompleta, potrebbe raccontare alternative
-   che non sono state prodotte. Correggere la distinzione nella KB.
-5. **Chiudere il collegamento alla conversazione e alla traccia.** Le
-   alternative sono viste interrogabili, ma non esistono ancora episodi
-   persistenti con contesto, aspettativa, criterio usato ed esito. La domanda
-   sul trasferimento non apre ancora una questione sul tabellone comune:
-   `it is 0` non è stato implementato; il caso osservato ripeteva l'entità e
-   il ruolo e poi la domanda. Riusare `open_issue`, `issue_topic`,
-   `issue_relation`, `issue_turn` e `max_qud`, senza inventare un `pending_*`
-   separato. Riusare anche le identità `frame_*`/`reading_*` per il tracciato.
-6. **Massimizzare la stessa distinzione**: dato già noto, dato irrilevante,
-   più impegni, distrattori, preferenze confliggenti, ablazione del minimo
-   e della formula oltre che della preferenza, famiglia esclusa dalla cura.
-   Un apprendimento automatico dagli esiti non è stato implementato.
-7. Registrare conteggi semantici e latenza; eseguire controlli puntuali sul
-   matcher modificato e il controllo rapido appropriato. Non lanciare la
-   suite completa lunga senza seguire la politica del repository.
-
-### 8.5 Artefatti diagnostici e ripartenza
-
-Al momento dell'handoff esistono in `/tmp` (temporanei, non versionati):
-
-- `p0-decision-probe.py`: driver MCP, importa `Engine` da `self-questions.py`,
-  avvia un processo fresco e legge le righe `>` del file passato come argomento;
-- `p0-decision-results2.txt`: corsa con i risultati riportati in §8.2,
-  interrotta prima della parafrasi;
-- `p0-decision-trace.log`: **sovrascritto dall'ultima sonda ridotta**, non è più
-  il log della corsa completa;
-- `p0-decision-small.p0t`: i quattro turni della sonda ridotta riuscita.
-
-Se sono ancora disponibili, la prima ripetizione è:
-
-```sh
-python3 /tmp/p0-decision-probe.py tests/p0t/reasoning/taught_decision.p0t
-```
-
-Quel driver ha timeout di 30 s e non è un benchmark definitivo: va dotato di
-chiusura del processo in `finally`, conservazione dei log per corsa e verifica
-delle aspettative prima di usarlo per certificare E1. Se `/tmp` è perso, la
-classe `Engine` in `scripts/self-questions.py` e il banco versionabile
-contengono quanto serve per ricostruire la sonda.
-
-Verifiche già eseguite: **`make build` riuscito** con il piccolo cambiamento C;
-un controllo di boot senza `PARSE ERROR` in una revisione intermedia;
-**`git diff --check` pulito** allo stato dell'handoff. Nessuna suite completa,
-nessun risultato del runner `.p0t`, nessuna promessa di E1 concluso.
-
-**Confine dell'avanzamento:** il prompt originale «domani ho una riunione…
-parto da Roma… arrivo in tempo?» e la lunga lezione iniziale del §7.1 hanno
-murato nella baseline. Non sono stati chiusi. La prova attuale dimostra la
-prima scelta insegnabile su formule, valori e requisiti detti attraverso le
-forme indicate sopra; non certifica ancora comprensione libera della
-conversazione originale, conoscenza del mondo o autonomia d'apprendimento.
+1. **Più ostacoli o più dati mancanti**: si dice il primo; manca l'aggregazione
+   («ready e charge falliscono entrambi») e la lista dei dati da chiedere.
+2. **Le formule sono globali per ruolo**, come leggi: due lezioni diverse su
+   `arrival` rendono discorde ogni soggetto che ha entrambi i dati. Va deciso se
+   una formula possa essere di dominio («for trains, calculate…»).
+3. **La preferenza italiana** «preferisci … a … quando …» è letta prima da un
+   altro lettore che risponde «Imparato: <turno>»; la preferenza entra (il
+   comportamento lo prova). Da tracciare con `P0_FORM_TRACE=1`.
+4. **«posso completare train?» risponde in inglese** quando il turno non è
+   riconosciuto italiano da `current_language`; non è del circuito.
+5. **Forma polare sul valore**: «is the departure of train 8?» → «I don't
+   understand that yet» (non insegna, ma non risponde).
+6. **Episodi persistenti** (contesto, aspettativa, criterio usato, esito) e
+   apprendimento automatico dagli esiti: non fatti.
+7. **Il prompt originale** «domani ho una riunione… parto da Roma… arrivo in
+   tempo?» resta murato: E1 prova la scelta insegnabile, non la lettura libera.
+8. Custodia verificata: decimali e correzioni (7.5 → 8 sostituisce, una sola
+   riga in `situation_state`); una domanda non insegna uno stato.
