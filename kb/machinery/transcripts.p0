@@ -120,6 +120,7 @@ utterance(5, user, "lithium batteries cause fires").
 utterance(5, user, "what is a fire blanket?").
 utterance(5, user, "a smoke detector senses smoke").
 utterance(5, user, "what is a residual current device?").
+utterance(5, user, "what does a fire extinguisher do?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -219,6 +220,7 @@ utterance(6, self, "Learned: lithium batteries cause fires.").
 utterance(6, self, "I read about fire blanket: A fire blanket is a safety device designed to extinguish incipient (starting) fires. I extracted 1 fact.").
 utterance(6, self, "Learned: smoke detector sense smoke.").
 utterance(6, self, "A residual-current device (RCD), residual-current circuit breaker (RCCB) or ground fault circuit interrupter (GFCI) is an electrical safety device, more specifically a form of earth-leakage circuit breaker, that interrupts an electrical circuit when the current passing through line and neutral conductors of a circuit is not equal, therefore indicating current leaking to ground, or to an unintended path that bypasses the protective device.").
+utterance(6, self, "From what I read: A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -2459,6 +2461,7 @@ utterance(2, self, "Understood: from now on I'll read things up myself when I do
 utterance(2, self, "Learned: poorly maintained cooling towers causes legionella outbreaks.").
 utterance(2, self, "Learned: sense is a relation verb.").
 utterance(2, self, "Hmm, I don't know about residual current device yet. Want me to learn about it?").
+utterance(2, self, "Hmm, I don't know about fire extinguisher yet. Want me to learn about it?").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2564,6 +2567,7 @@ utterance(1, user, "look things up yourself").
 utterance(1, user, "most legionella outbreaks result from poorly maintained cooling towers").
 utterance(1, user, "sense is a relation verb").
 utterance(1, user, "what does a residual current device do?").
+utterance(1, user, "what does a fire extinguisher do?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2661,6 +2665,7 @@ utterance(4, self, "Hmm, I don't know about designed yet. Want me to learn about
 utterance(4, self, "poorly maintained cooling towers.").
 utterance(4, self, "Learned: smoke detector is a device.").
 utterance(4, self, "Looking up residual current device... A residual-current device (RCD), residual-current circuit breaker (RCCB) or ground fault circuit interrupter (GFCI) is an electrical safety device, more specifically a form of earth-leakage circuit breaker, that interrupts an electrical circuit when the current passing through line and neutral conductors of a circuit is not equal, therefore indicating current leaking to ground, or to an unintended path that bypasses the protective device.").
+utterance(4, self, "Looking up fire extinguisher... A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc. I extracted 9 facts.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").

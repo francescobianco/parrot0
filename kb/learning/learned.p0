@@ -199,8 +199,10 @@ topic_read(water_hammer, wiki_address(en, "Hydraulic shock", 1370701071, lead)).
 topic_definition(water_hammer, "Hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change.").
 topic_read(fire_blanket, wiki_address(en, "Fire blanket", 1374618230, lead)).
 topic_read(residual_current_device, wiki_address(en, "Residual-current device", 1373727844, lead)).
+topic_read(fire_extinguisher, wiki_address(en, "Fire extinguisher", 1368707733, lead)).
 topic_definition(fire_blanket, "A fire blanket is a safety device designed to extinguish incipient (starting) fires.").
 topic_definition(residual_current_device, "A residual-current device (RCD), residual-current circuit breaker (RCCB) or ground fault circuit interrupter (GFCI) is an electrical safety device, more specifically a form of earth-leakage circuit breaker, that interrupts an electrical circuit when the current passing through line and neutral conductors of a circuit is not equal, therefore indicating current leaking to ground, or to an unintended path that bypasses the protective device.").
+topic_definition(fire_extinguisher, "A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc.").
 topic_definition(veleno, "Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
 search_found_as(velenosi, veleno).
 uses(merchants, abacus).
@@ -280,6 +282,8 @@ fact_mention(fire_blanket, "a fire blanket is a safety device designed to exting
 fact_mention(smoke, "a smoke detector senses smoke").
 fact_mention(legionella_outbreaks, "most legionella outbreaks result from poorly maintained cooling towers").
 fact_mention(lithium_batteries, "lithium batteries cause fires").
+fact_mention(hand-held_cylindrical_pressure_vessel, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+fact_mention(fire_extinguisher, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 mixture_releases(bleach, ammonia, "chloramine gas").
 mixture_releases(bleach, acid, "chlorine gas").
 mixture_releases(bleach, alcohol, chloroform).
@@ -320,8 +324,11 @@ attenuated_reading(most, most co detectors use a sensor with a defined, limited 
 attenuated_reading(most, most legionella outbreaks result from poorly maintained cooling towers).
 use(co_detectors, sensor).
 attenuated_reading(often, thermal runaway occurs in situations where an increase in temperature changes the conditions in a way that causes a further increase in temperature, often leading to a destructive result).
+attenuated_reading(often, used to extinguish or control small fires, often in emergencies).
+attenuated_reading(typically, typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire).
 attenuated_reading(typically, a smoke detector is a device that senses smoke, typically as an indicator of fire).
 device(smoke_detector).
 attenuated_reading(usually, smoke detectors in large commercial and industrial buildings are usually connected to a central fire alarm system).
 sense(smoke_detector, smoke).
 detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas).
+consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel).

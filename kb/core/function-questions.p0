@@ -1,0 +1,51 @@
+% function-questions.p0 — «WHAT DOES A FIRE BLANKET DO?» DALLA DEFINIZIONE LETTA.
+%
+% docs/plans/mix-of-capabilities.md, 04×05 (ricordare × una proposizione). La
+% memoria profonda teneva «A fire blanket is a safety device designed to
+% extinguish incipient (starting) fires.» (Wikipedia), e «what is a fire
+% blanket?» la diceva; ma «what does a fire blanket do?» costruiva la lacuna su
+% «blanket». Chi chiede che cosa FA un oggetto chiede la sua funzione, e la
+% definizione di un'enciclopedia la dice nella stessa frase: la risposta e' il
+% testo letto, dichiarato come tale — non una funzione estratta.
+%
+% La forma della domanda e' conoscenza: l'interrogativo, l'ausiliare e il verbo
+% generico in coda. Un membro nuovo («what is X for?», «a cosa serve») e' una riga.
+
+:- file_attribute(machinery).
+
+machinery(function_question_open).
+function_question_open(what, does).
+function_question_open(what, do).
+machinery(function_question_verb).
+function_question_verb(do).
+
+machinery(turn_word_after).
+turn_word_after($Turn, $I) :- turn_word($Turn, $J, $W), gt($J, $I).
+
+machinery(turn_function_question).
+turn_function_question($Turn) :-
+    turn_word($Turn, 0, $Wh), turn_word($Turn, 1, $Aux), function_question_open($Wh, $Aux),
+    turn_word($Turn, $I, $V), gt($I, 1), function_question_verb($V), naf(turn_word_after($Turn, $I)).
+
+% Il topic letto nominato per intero dal turno; fra due, quello che copre l'altro
+% («carbon monoxide detector» e non «carbon monoxide»).
+machinery(function_topic).
+function_topic($Turn, $T) :-
+    topic_definition($T, $Def), atom_words($T, cons($A, cons($B, $R))), words_in_turn($Turn, cons($A, cons($B, $R))),
+    naf(function_topic_covered($Turn, $T)).
+function_topic($Turn, $T) :-
+    topic_definition($T, $Def), atom_words($T, cons($A, nil)), words_in_turn($Turn, cons($A, nil)),
+    naf(function_topic_covered($Turn, $T)).
+machinery(function_topic_covered).
+function_topic_covered($Turn, $T) :-
+    topic_definition($U, $D), dif($U, $T), atom_words($U, $Us), words_in_turn($Turn, $Us),
+    atom_words($T, $Ws), words_all_in($Ws, $Us).
+
+machinery(function_answer).
+function_answer(en, $Def, $Text) :- concat_atoms("From what I read: ", $Def, $Text).
+function_answer(it, $Def, $Text) :- concat_atoms("Da quello che ho letto: ", $Def, $Text).
+
+turn_plan_candidate($Turn) :- turn_function_question($Turn), function_topic($Turn, $T).
+turn_priority_response($Turn, $Text) :-
+    turn_function_question($Turn), function_topic($Turn, $T), topic_definition($T, $Def),
+    source_language($L), function_answer($L, $Def, $Text).

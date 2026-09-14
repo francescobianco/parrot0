@@ -1,0 +1,23 @@
+# mix-of-capabilities 04×05 (2) — «what does X do?» dalla definizione letta.
+# La memoria profonda teneva la definizione di «Fire blanket» (Wikipedia) e la
+# domanda sulla funzione costruiva la lacuna su «blanket». La risposta e' il testo
+# letto, dichiarato come tale (kb/core/function-questions.p0), e la provenienza
+# segue.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a function question answers with the read definition and its source]
+!timeout 30
+> what does a fire blanket do?
+<~ From what I read: A fire blanket is a safety device designed to extinguish
+> where did you read that?
+<~ the article «Fire blanket»
+
+[test the covering topic wins over the one it contains]
+!timeout 30
+> what does a smoke detector do?
+<~ senses smoke
+<! don't know about detector

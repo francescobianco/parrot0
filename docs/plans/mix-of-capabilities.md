@@ -1867,3 +1867,22 @@ del concetto vicino passa per `present_atom`. **Dopo:** la sola definizione;
 per tre parole resta, perché `prose_relation_scope` vuole «calcium carbonate aboard»
 → CaCO3 finché «aboard» non è insegnata come preposizione: separare «poisoning» da
 «aboard» chiede una classe di nomi che oggi la KB non ha.
+
+### mix-04-05-002 — «what does X do?» risponde col testo letto
+
+**Caso:** «what does a fire blanket do?» con la definizione in memoria profonda.
+**Prima:** «Hmm, I don't know about blanket yet.» **Cura (solo KB):**
+`kb/core/function-questions.p0` — la forma della domanda di funzione
+(`function_question_open/2`, `function_question_verb/1`: interrogativo, ausiliare, verbo
+generico in coda), il topic letto nominato per intero (fra due vince quello che copre
+l'altro), e la risposta prioritaria «From what I read: <definizione>», dichiarata come
+testo letto; la provenienza segue col contabile di source-questions. **Dopo:** «From
+what I read: A fire blanket is a safety device designed to extinguish incipient
+(starting) fires.» → «where did you read that?» → l'articolo con la revisione. Giro
+completo in `make chat` con la rete: «what does a fire extinguisher do?» → lacuna sul
+sintagma (04-23-004) → «yes» → lettura vera di «Fire extinguisher» (rev. 1368707733)
+→ la stessa domanda risponde dalla lettura; salvato. Cricchetto
+`tests/p0t/crossing/mix_function_from_reading.p0t` (4).
+**Reperti:** «what does a sump pump do?» non arriva alla lacuna: `pump` è noto e la via
+polare risponde «nothing I hold says sump pumps do» — il verbo generico «do» letto come
+relazione. Il resoconto della lettura dice «I extracted 9 facts» e ne salva uno.
