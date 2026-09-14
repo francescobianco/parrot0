@@ -890,3 +890,52 @@ stati): non è di questo lavoro, è il costo del turno base già registrato in
    tempo?» resta murato: E1 prova la scelta insegnabile, non la lettura libera.
 8. Custodia verificata: decimali e correzioni (7.5 → 8 sostituisce, una sola
    riga in `situation_state`); una domanda non insegna uno stato.
+
+### 8.5 Handoff operativo — da dove si riparte (14 settembre 2026, 23:55)
+
+**Stato del repository:** tutto committato e pushato (`e0f79048` e questo
+commit); workspace pulito. Nessun artefatto in `/tmp` serve più: la sonda è
+`scripts/p0t-echo.py`, il banco è `tests/p0t/reasoning/taught_decision.p0t`.
+
+**Prima mossa, sempre:**
+
+```sh
+make test-engine
+./bin/parrot0 --test tests/p0t/reasoning/taught_decision.p0t   # atteso: 39 verdi, ~80 s
+python3 scripts/p0t-echo.py tests/p0t/reasoning/taught_decision.p0t | grep -v '^  \['
+```
+
+La seconda riga certifica, la terza fa LEGGERE le risposte (mantra #9: il
+runner non vede una risposta sbagliata che contiene la parola attesa).
+
+**Ordine di lavoro proposto (residui di §8.4, dal più fertile):**
+
+1. **§8.4.1 — più ostacoli e più dati per turno.** Oggi `decision_first_reason`
+   e `decision_first_ask` dicono il primo; il candidato è già una lista
+   (`decision_verdict/3`), quindi l'aggregazione è resa in KB su quella lista
+   (`decision_list/3` con «and» esiste). Aggiungere al banco un soggetto con
+   due requisiti falliti e uno con due dati ignoti. Nessun C.
+2. **§8.4.5 — la forma polare sul valore** «is the departure of train 8?»:
+   una `turn_form` sopra `decision_value_answer`, con cessione da
+   `ability_polar` come per «can i complete» (`turn_form_yield`, arità 2 nella
+   relazione delle superfici — trappola già pagata in §8.3 di prima).
+3. **§8.4.3 — la preferenza italiana** letta da un altro lettore: tracciare con
+   `P0_FORM_TRACE=1 python3 scripts/p0t-echo.py FILE` e vedere chi risponde
+   «Imparato: …»; la cura è un `turn_form_yield` o una priorità KB, non C.
+4. **§8.4.2 — formule di dominio.** Decidere con F. se «for trains, calculate
+   arrival by adding…» debba esistere: oggi una formula è una legge sul ruolo.
+5. **§8.4.6 — episodi persistenti** dell'esito (contesto, aspettativa,
+   criterio usato, esito): riusare `frame_*`/`reading_*` e il tabellone, mai
+   un `pending_*`. Poi l'apprendimento dagli esiti.
+6. **Il prompt originale** (Roma, riunione) solo dopo: la lettura libera passa
+   per la prosa (LEARN_PROTOCOL), non per nuove forme.
+
+**Regole che questa sessione ha pagato (piano §8.2, memoria
+`kb-engine-constraints`):** massimo 4 argomenti per predicato; `findall` solo
+con variabile come template; `naf` declina sotto qualunque guardia, quindi le
+selezioni si calcolano una volta in lista; `op(match, …)` vuole una riga sola.
+Se una vista «non dà niente», prima `grep "PARSE ERROR"` nel log del demone.
+
+**Test:** `make soft-test` è rosso a HEAD per il costo del turno base
+(`TEST_TODO.md`, 2026-09-14): non è di E1 e non va «curato» alzando il budget.
+Nessuna suite completa senza approvazione di F.
