@@ -3903,6 +3903,16 @@ intent_cue(purpose_of, "usato per").
 intent_cue(purpose_of, "serve per").
 faculty_yield(analysis_family, open, purpose_of).
 faculty_yield(analysis_last_resort, open, purpose_of).
+% 14 settembre 2026 — e in italiano la domanda sulla funzione («cosa fa una
+% coperta antincendio?») arrivava all'abduttore, che leggeva «fa» come «rende» e
+% rispondeva in inglese «I have no rule that would make anything a antincendio».
+intent_cue(purpose_of, "cosa fa un").
+intent_cue(purpose_of, "cosa fa una").
+intent_cue(purpose_of, "cosa fa il").
+intent_cue(purpose_of, "cosa fa la").
+intent_cue(purpose_of, "a cosa serve").
+intent_cue(purpose_of, "what does it do").
+faculty_yield(abduce, open, purpose_of).
 
 intent_cue(activity_request, "best way to").
 intent_cue(activity_request, "good way to").

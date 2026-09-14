@@ -1957,3 +1957,45 @@ salvato. Cricchetto in `mix_function_from_reading.p0t` (7); question_direction 2
 contabile della derivazione cercavano la catena a ogni turno: +0,3–0,4 s sul turno base
 di soft-test. Una guardia economica — il turno apre con l'ausiliare causale e nomina un
 verbo causale (`causal_polar_verb/1`) — riporta i tempi a quelli di HEAD.
+
+### mix-04-01-001 — «cosa fa una coperta antincendio?» non è un'abduzione
+
+**Caso:** «cosa fa una coperta antincendio?», «cosa fa un rilevatore di fumo?».
+**Prima:** «I have no rule that would make anything a antincendio, so I can't say what
+would.» — l'abduttore leggeva «fa» come «rende», e rispondeva in inglese. **Cura (solo
+KB):** le cue italiane dello scopo («cosa fa un/una/il/la», «a cosa serve») entrano in
+`intent_cue(purpose_of, …)` e l'abduttore cede (`faculty_yield(abduce, open,
+purpose_of)`). **Dopo:** «Non so ancora tradurre «coperta». Se mi dici «the italian for
+… is coperta», la prossima volta capisco.» — onesto, in italiano, con la lezione
+pronta. Lezioni vere di lessico salvate: `tr(detector, rilevatore)`, `tr(smoke, fumo)`.
+Cricchetto `tests/p0t/crossing/mix_purpose_question_it.p0t` (2). **Reperti:** con le
+due parole tradotte «cos'è un rilevatore di fumo?» diventa «I do not know the relation
+rilevatore» — il composto italiano testa-prima con «di» non si ricompone in
+`smoke_detector`; «a cosa serve un rilevatore di fumo?» chiede il referente di «it».
+
+### Handoff della quarta campagna (14 settembre, 10:16)
+
+**Fatto (11 commit):** «X result from Y» si legge `causes(Y, X)`; la relativa della
+definizione letta risponde e «the presence of X» lega il complemento; lo scopo non apre
+l'analisi di progetto (en/it); la lacuna nomina il sintagma del turno; `/save` non
+porta via la politica di lettura né il frame del turno; la definizione letta non si
+ripete in coda; «what does X do?» risponde col testo letto, anche per «sump pump»;
+«how do you know that?» dopo una catena dice premesse e provenienza; «does X cause Y?»
+percorre la catena; l'anello letto da «most …» resta attenuato. Letture vere salvate:
+Residual-current device, Fire extinguisher, Sump pump; lezioni vere: la legionella
+dalle torri, la legionellosi, le superfici scivolose, due parole italiane.
+
+**Da dove riprendere, in ordine:**
+1. **Il composto italiano testa-prima** («rilevatore di fumo» → `smoke_detector`, via
+   `tr/2` e `compound_head_side(it, first)`), poi «cosa fa un rilevatore di fumo?».
+2. **La domanda nel verso del verbo conversa:** «what do legionella outbreaks result
+   from?» passa per `answer_frame(result, result)` e non scambia.
+3. **Il contesto del topic nel passo:** «most outbreaks …» nel lead di Legionella deve
+   diventare `legionella_outbreaks` senza che l'utente lo ridica.
+4. **Accordo nel connettivo causale:** «towers causes» (numero del soggetto).
+5. **Le stringhe tra virgolette nelle regole da file** non unificano con la stessa
+   frase senza virgolette (giro `concat_atoms($S, "", $K)` in causal-questions.p0):
+   curarlo nel motore.
+6. **«what causes legionella outbreaks?»** (via slot_answer in C) non dice «in most
+   cases»; la base curata non ha fonti in KB (solo commenti).
+7. Dalle campagne precedenti: 19×21 sintesi con status, 05×07 reinterpretazione.
