@@ -164,3 +164,24 @@ happened_in_year(the_signing_of_the_magna_carta, 1215).
 happened_in_year(the_american_declaration_of_independence, 1776).
 happened_in_year(the_russian_revolution, 1917).
 happened_in_year(the_invention_of_the_internet, 1983).
+
+% ── dalla ricaduta di learned.p0 (14 settembre 2026) ─────────────────────────
+battle(waterloo).
+winner_of(waterloo, arthur_wellesley).
+winner_of(waterloo, gebhard_von_blucher).
+loser_of(waterloo, napoleon).
+year_of(waterloo, 1815).
+battle(austerlitz).
+winner_of(austerlitz, napoleon).
+loser_of(austerlitz, mikhail_kutuzov).
+year_of(austerlitz, 1805).
+battle(trafalgar).
+winner_of(trafalgar, horatio_nelson).
+loser_of(trafalgar, pierre-charles_villeneuve).
+year_of(trafalgar, 1805).
+battle(hastings).
+winner_of(hastings, william_the_conqueror).
+loser_of(hastings, harold_godwinson).
+year_of(hastings, 1066).
+uses(merchants, abacus).
+operates(printer, printing_press).

@@ -1061,3 +1061,9 @@ president_of(italy, sergio_mattarella).
 president_of(france, emmanuel_macron).
 president_of(usa, joe_biden).
 heritage_built_by(machu_picchu, inca).
+
+% ── dalla ricaduta di learned.p0 (14 settembre 2026) ─────────────────────────
+currency_of(ghana, cedi).
+currency_of(vietnam, dong).
+currency_of(poland, zloty).
+currency_of(peru, sol).

@@ -1,0 +1,35 @@
+% deep-memory.p0 — CIO' CHE PARROT0 HA LETTO DALLA RETE, PER TOPIC
+%
+% La memoria profonda (kb/core/network.p0, docs/plans/la-rete-come-memoria-profonda.md):
+% per ogni topic letto, l'indirizzo con edizione e revisione (`topic_read/2`), la
+% definizione letta (`topic_definition/2`) e la chiave con cui la ricerca l'ha
+% trovata (`search_found_as/2`). E' testo letto, non conclusione propria: la
+% risposta a «where did you read that?» viene da qui (source-questions.p0).
+% Accanto a kb/wiki/<dominio>.p0, che tiene le sintesi di scripts/learn.py: stessa
+% sorgente, un'altra strada per arrivarci — la lettura nel turno.
+
+topic_read(scorpioni, wiki_address(it, "Scorpiones", 152103202, lead)).
+topic_read(pungiglione, wiki_address(it, "Pungiglione", 152143431, lead)).
+topic_definition(pungiglione, "Il pungiglione è un organo o una parte del corpo di alcuni animali che trasmette del veleno.").
+topic_definition(scorpioni, "Gli scorpioni sono un ordine di artropodi velenosi della classe degli aracnidi.").
+topic_read(veleno, wiki_address(it, "Veleno", 152309605, lead)).
+topic_read(smoke_detector, wiki_address(en, "Smoke detector", 1367374859, lead)).
+topic_definition(smoke_detector, "A smoke detector is a device that senses smoke, typically as an indicator of fire.").
+topic_read(thermal_runaway, wiki_address(en, "Thermal runaway", 1371865633, lead)).
+topic_definition(thermal_runaway, "Thermal runaway describes a process that is accelerated by increased temperature, in turn releasing energy that further increases temperature.").
+topic_read(carbon_monoxide_detector, wiki_address(en, "Carbon monoxide detector", 1359593781, lead)).
+topic_definition(carbon_monoxide_detector, "A carbon monoxide detector or CO detector is a device which detects the presence of carbon monoxide (CO) gas, and is used to prevent carbon monoxide poisoning.").
+topic_read(legionella, wiki_address(en, "Legionella", 1368883062, lead)).
+topic_definition(legionella, "Legionella is a genus of Gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine, an amino acid.").
+topic_read(water_hammer, wiki_address(en, "Hydraulic shock", 1370701071, lead)).
+topic_definition(water_hammer, "Hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change.").
+topic_read(fire_blanket, wiki_address(en, "Fire blanket", 1374618230, lead)).
+topic_read(residual_current_device, wiki_address(en, "Residual-current device", 1373727844, lead)).
+topic_read(fire_extinguisher, wiki_address(en, "Fire extinguisher", 1368707733, lead)).
+topic_read(sump_pump, wiki_address(en, "Sump pump", 1371498004, lead)).
+topic_definition(fire_blanket, "A fire blanket is a safety device designed to extinguish incipient (starting) fires.").
+topic_definition(residual_current_device, "A residual-current device (RCD), residual-current circuit breaker (RCCB) or ground fault circuit interrupter (GFCI) is an electrical safety device, more specifically a form of earth-leakage circuit breaker, that interrupts an electrical circuit when the current passing through line and neutral conductors of a circuit is not equal, therefore indicating current leaking to ground, or to an unintended path that bypasses the protective device.").
+topic_definition(fire_extinguisher, "A fire extinguisher is a handheld active fire protection device filled with extinguishing agents such as dry chemical powder, CO2, water, etc.").
+topic_definition(sump_pump, "A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
+topic_definition(veleno, "Un veleno è una sostanza che, assunta da un organismo vivente, ha effetti dannosi temporanei o permanenti, fino a essere letali, attraverso un meccanismo chimico.").
+search_found_as(velenosi, veleno).

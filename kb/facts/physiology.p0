@@ -28,3 +28,6 @@ pumps(heart, blood).
 carries(hemoglobin, oxygen).
 digests(stomach, protein).
 produces(thyroid, thyroxine).
+
+% ── dalla ricaduta di learned.p0 (14 settembre 2026) ─────────────────────────
+sleep_need_hours(adults, 7, 9).

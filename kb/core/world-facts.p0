@@ -2371,6 +2371,9 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 :- include(../wiki/psychology.p0).
 :- include(../wiki/art.p0).
 :- include(../wiki/food.p0).
+% E le letture della memoria profonda fatte nel turno (topic, indirizzo,
+% definizione): la stessa sorgente, un'altra strada.
+:- include(../wiki/deep-memory.p0).
 % E il registro di COME sono stati letti — quando, quale revisione, quale
 % istantanea — che e' macchineria e non conoscenza sul mondo: sta in una cartella
 % dedicata alle meccaniche e si dichiara tale in testa.
@@ -2398,6 +2401,11 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 :- include(../facts/history-people.p0).
 :- include(../facts/contrasts.p0).
 :- include(../facts/vocabulary-extra.p0).
+% 14 settembre 2026 — tre case per materia per cio' che era nella ricaduta di
+% learned.p0: i minerali, i casi pratici di casa, la cucina.
+:- include(../facts/minerals.p0).
+:- include(../facts/practical-cases.p0).
+:- include(../facts/food-kitchen.p0).
 
 % gen347 — ONE generic curated-answer motor (mod_qa) reads these: a request whose
 % answer is fixed KNOWLEDGE is a pair of facts, NOT a C module. qa_cue(Id, "word")

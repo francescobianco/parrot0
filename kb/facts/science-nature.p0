@@ -277,3 +277,14 @@ shared_sound($A1, $A2, $Sound) :-
     sound_of($A1, $Sound), sound_of($A2, $Sound).
 shared_color($E1, $E2, $Color) :-
     color_of($E1, $Color), color_of($E2, $Color).
+
+% ── dalla ricaduta di learned.p0 (14 settembre 2026) ─────────────────────────
+falcon(kestrel).
+falcon(merlin).
+falcon(peregrine).
+deciduous(oak).
+deciduous(beech).
+deciduous(maple).
+ordine(scorpioni).
+genus(legionella).
+intracellular_pathogen(legionella_species).

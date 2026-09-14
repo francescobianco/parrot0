@@ -1,0 +1,29 @@
+% taught-relations.p0 — LE RELAZIONI DEFINITE PARLANDO
+%
+% Il quarto fratello di constructions.p0, taught-rules.p0 e taught-lexicon.p0.
+% Qui non sta un fatto del mondo ne' una parola: sta che cosa VUOL DIRE una
+% relazione — i suoi ruoli («a battle has a winner»), la sua inversa
+% («precedes» e «follows»), come si compone («grandparent» e' parent due volte),
+% se e' transitiva, se una superficie e' una relazione tutto-parte. Erano nella
+% ricaduta di learned.p0 (14 settembre 2026) perche' nessun predicato di questa
+% specie aveva una casa.
+
+transitive_relation(precedes).
+inverse_relation(precedes, follows).
+relation_role(battle, winner).
+relation_role(battle, loser).
+relation_role(battle, year).
+required_role(battle, winner).
+relation_projection(defeated, battle, winner, loser).
+relation_or(parent, mother).
+relation_or(parent, father).
+relation_twice(grandparent, parent).
+relation_reverse(child, parent).
+relation_reverse(grandchild, grandparent).
+relation_chain(great-grandparent, grandparent, parent).
+% gen514 — insegnate parlando: «"made of" is a whole-part relation» (il tutto
+% viene prima, e il verso della domanda non si inverte). Vedi grammar.p0,
+% `directed_surface/1`.
+whole_part_relation("made of").
+whole_part_relation("built from").
+whole_part_relation("formed of").

@@ -1,0 +1,31 @@
+% practical-cases.p0 — I CASI PRATICI DI CASA: SICUREZZA, PIANTE, AMBIENTE
+%
+% Le lezioni vere e le letture delle campagne «mix of capabilities»
+% (docs/plans/mix-of-capabilities.md §13–15): che cosa rileva un rilevatore, che
+% cosa libera una miscela, che cosa non mettere su un'ustione o nel bidone, i segni
+% di una pianta sofferente, l'umidita' raccomandata, le cause che portano a un
+% danno. Erano nella ricaduta di learned.p0 (14 settembre 2026); l'asse e' la
+% materia — la vita di tutti i giorni — non il predicato.
+
+mixture_releases(bleach, ammonia, "chloramine gas").
+mixture_releases(bleach, acid, "chlorine gas").
+mixture_releases(bleach, alcohol, chloroform).
+acid(vinegar).
+avoid_on(butter, burn).
+avoid_on(ice, burn).
+sign_of(overwatering, "soggy soil").
+sign_of(underwatering, "dry soil").
+sign_of("low light", "leggy stems").
+recommended_percent_range("indoor humidity", 30, 50).
+avoid_in("lithium batteries", bin).
+cause(lithium_batteries, fires).
+cause(slippery_surfaces, falls).
+cause(legionella_outbreaks, legionnaires_disease).
+safety_device(fire_blanket).
+pressure_surge(hydraulic_shock).
+device(carbon_monoxide_detector).
+use(co_detectors, sensor).
+device(smoke_detector).
+sense(smoke_detector, smoke).
+detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas).
+consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel).

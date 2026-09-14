@@ -1,0 +1,22 @@
+% minerals.p0 — I MINERALI E LE LORO CLASSI
+%
+% Casa aperta il 14 settembre 2026 per le classi di minerale insegnate parlando
+% (ossidi e carbonati di ferro, solfuri e carbonati di rame), finite nella ricaduta
+% di learned.p0 per mancanza di parenti. L'asse e' la materia.
+
+iron_oxide_mineral(hematite).
+iron_oxide_mineral(magnetite).
+iron_ore_mineral(hematite).
+iron_ore_mineral(magnetite).
+iron_ore_mineral(siderite).
+carbonate_mineral(siderite).
+carbonate_mineral(calcite).
+exclusive_classes(carbonate_mineral, iron_oxide_mineral).
+copper_mineral(chalcopyrite).
+copper_sulfide_mineral(chalcocite).
+copper_sulfide_mineral(covellite).
+copper_sulfide_mineral(bornite).
+copper_carbonate_mineral(azurite).
+copper_carbonate_mineral(malachite).
+copper_mineral($X) :- copper_sulfide_mineral($X).
+copper_mineral($X) :- copper_carbonate_mineral($X).

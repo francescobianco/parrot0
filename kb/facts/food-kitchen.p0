@@ -1,0 +1,20 @@
+% food-kitchen.p0 — LA CUCINA: CONSERVARE, CUOCERE, PESARE
+%
+% Quanto un alimento deperibile resta fuori dal frigo, a quale temperatura interna
+% una carne e' sicura, quanti grammi pesa una tazza per ingrediente. Lezioni vere
+% delle campagne «mix of capabilities» (mix-13-14-08-15, mix-13-08-002,
+% mix-08-13-15), finite nella ricaduta di learned.p0 fino al 14 settembre 2026.
+
+max_hours_out(perishables, 2).
+perishable(chicken).
+perishable(rice).
+perishable(milk).
+perishable(fish).
+max_hours_out_above(perishables, 32, 1).
+cup_grams(flour, 120).
+cup_grams(sugar, 198).
+cup_grams(oats, 113).
+cup_grams(milk, 227).
+safe_internal_temp(chicken, 74).
+safe_internal_temp("ground beef", 71).
+safe_internal_temp("pork chops", 63).
