@@ -21,8 +21,14 @@ causal_opener(could).
 causal_opener(will).
 
 machinery(causal_node).
-causal_node($A) :- causes($A, $B).
-causal_node($B) :- causes($A, $B).
+causal_node($A) :- causal_link($A, $B).
+causal_node($B) :- causal_link($A, $B).
+% 14 settembre 2026 — «slippery surfaces cause falls» si salva `cause/2` (il
+% plurale): la variante di numero e' dichiarata (`relation_number_variant/2`,
+% remedy-questions.p0) e la catena la percorre come `causes/2`.
+machinery(causal_link).
+causal_link($X, $Y) :- causes($X, $Y).
+causal_link($X, $Y) :- relation_number_variant($R, causes), apply($R, cons($X, cons($Y, nil))).
 
 machinery(words_in_turn).
 words_in_turn($Turn, nil).
@@ -38,9 +44,9 @@ turn_causal_node($Turn, $A, $I) :-
     words_in_turn($Turn, cons($First, $More)), turn_word($Turn, $I, $Said), lemma_candidate($Said, $First).
 
 machinery(causal_route).
-causal_route($X, $Z, direct) :- causes($X, $Z).
-causal_route($X, $Z, via($M)) :- causes($X, $M), causes($M, $Z).
-causal_route($X, $Z, via2($M, $N)) :- causes($X, $M), causes($M, $N), causes($N, $Z).
+causal_route($X, $Z, direct) :- causal_link($X, $Z).
+causal_route($X, $Z, via($M)) :- causal_link($X, $M), causal_link($M, $Z).
+causal_route($X, $Z, via2($M, $N)) :- causal_link($X, $M), causal_link($M, $N), causal_link($N, $Z).
 
 machinery(turn_causal_chain).
 turn_causal_chain($Turn, pair($X, $Z), $Route) :-
@@ -83,3 +89,64 @@ turn_causal_answer($Turn, $Text) :-
 
 turn_plan_candidate($Turn) :- turn_causal_chain($Turn, $Pair, $Route).
 turn_response($Turn, $Text) :- turn_causal_answer($Turn, $Text).
+
+% ── 04×09×21 — «HOW DO YOU KNOW THAT?» DOPO UNA CATENA: LE PREMESSE E DA DOVE ──
+% La risposta derivata non e' testo letto: e' una conclusione propria sopra
+% premesse che hanno ciascuna la sua provenienza. «does rain make surfaces
+% slippery?» → «Yes: …» → «how do you know that?» riceveva «That sounds nice».
+% Il contabile annota la catena del turno; la risposta di provenienza (in
+% source-questions.p0 per le letture) qui dice la derivazione, premessa per
+% premessa: una frase data o letta si cita, la base curata si nomina come tale.
+machinery(derived_chain_asked).
+turn_scratch(derived_chain_asked).
+bookkeeper(derived_chain_named).
+turn_bookkeeping($Turn, derived_chain_named) :-
+    naf(turn_has_source_cue($Turn)), turn_causal_chain($Turn, $Pair, $Route),
+    turn_counter($N), assert(derived_chain_asked, $N, chain($Pair, $Route)).
+machinery(last_derived_chain).
+% Solo la catena del turno APPENA passato: una domanda diversa in mezzo (una
+% miscela, un saluto) ritira la derivazione, invece di lasciarla rispondere per lei.
+last_derived_chain($N, $C) :-
+    turn_counter($Now), is($N, sub($Now, 1)), derived_chain_asked($N, $C), naf(later_derived_chain($N)).
+machinery(later_derived_chain).
+later_derived_chain($N) :- derived_chain_asked($M, $X), gt($M, $N).
+machinery(derived_newer_than_topic).
+derived_newer_than_topic($T) :- read_topic_asked($N, $T), derived_chain_asked($M, $C), gt($M, $N).
+machinery(read_newer_than_derived).
+read_newer_than_derived($N) :- read_topic_asked($M, $T), gt($M, $N).
+
+machinery(chain_premises).
+chain_premises(chain(pair($X, $Z), direct), cons(causes($X, $Z), nil)).
+chain_premises(chain(pair($X, $Z), via($M)), cons(causes($X, $M), cons(causes($M, $Z), nil))).
+chain_premises(chain(pair($X, $Z), via2($M, $P)), cons(causes($X, $M), cons(causes($M, $P), cons(causes($P, $Z), nil)))).
+
+machinery(premise_origin).
+machinery(premise_has_sentence).
+premise_has_sentence($F) :- premise_sentence($F, $S).
+machinery(premise_sentence).
+premise_sentence(causes($A, $B), $S) :- fact_source(causes($A, $B), $E, $S).
+premise_sentence(causes($A, $B), $S) :- fact_source(cause($A, $B), $E, $S).
+premise_origin(en, $F, $Text) :- premise_sentence($F, $S), concat_atoms(" (from the sentence «", $S, $A), concat_atoms($A, "»)", $Text).
+premise_origin(it, $F, $Text) :- premise_sentence($F, $S), concat_atoms(" (dalla frase «", $S, $A), concat_atoms($A, "»)", $Text).
+premise_origin(en, $F, " (part of my curated base)") :- naf(premise_has_sentence($F)).
+premise_origin(it, $F, " (dalla mia base curata)") :- naf(premise_has_sentence($F)).
+
+machinery(premises_text).
+premises_text($L, cons(causes($A, $B), nil), $Text) :-
+    causal_link_text($L, $A, $B, $T), premise_origin($L, causes($A, $B), $O), concat_atoms($T, $O, $Text).
+premises_text($L, cons(causes($A, $B), cons($G, $R)), $Text) :-
+    causal_link_text($L, $A, $B, $T), premise_origin($L, causes($A, $B), $O), concat_atoms($T, $O, $H),
+    premises_text($L, cons($G, $R), $Rest), concat_atoms($H, "; ", $I), concat_atoms($I, $Rest, $Text).
+
+machinery(derivation_answer).
+derivation_answer(en, $Premises, $Text) :-
+    concat_atoms("I did not read that as one sentence: I derived it from what I hold — ", $Premises, $A),
+    concat_atoms($A, ". The conclusion is mine.", $Text).
+derivation_answer(it, $Premises, $Text) :-
+    concat_atoms("Non l'ho letto in una frase: l'ho dedotto da cio' che so — ", $Premises, $A),
+    concat_atoms($A, ". La conclusione e' mia.", $Text).
+
+turn_plan_candidate($Turn) :- turn_has_source_cue($Turn), last_derived_chain($N, $C), naf(read_newer_than_derived($N)).
+turn_priority_response($Turn, $Text) :-
+    turn_has_source_cue($Turn), last_derived_chain($N, $C), naf(read_newer_than_derived($N)),
+    chain_premises($C, $Ps), source_language($L), premises_text($L, $Ps, $Body), derivation_answer($L, $Body, $Text).

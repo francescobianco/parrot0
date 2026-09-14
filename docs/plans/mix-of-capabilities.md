@@ -1886,3 +1886,24 @@ sintagma (04-23-004) → «yes» → lettura vera di «Fire extinguisher» (rev.
 **Reperti:** «what does a sump pump do?» non arriva alla lacuna: `pump` è noto e la via
 polare risponde «nothing I hold says sump pumps do» — il verbo generico «do» letto come
 relazione. Il resoconto della lettura dice «I extracted 9 facts» e ne salva uno.
+
+### mix-04-09-21-001 — la risposta derivata dice la catena e da dove vengono le premesse
+
+**Caso:** «does rain make surfaces slippery?» → «Yes: rain causes wet ground, and wet
+ground causes slippery surfaces.» → «how do you know that?». **Prima:** «That sounds
+nice -- tell me more about it.» **Cura (solo KB, causal-questions.p0):** un contabile
+annota la catena del turno (`derived_chain_asked`, di sessione); la risposta di
+provenienza, se la catena è del turno appena passato, dice che la conclusione è
+propria e per ogni premessa la frase data (`fact_source`) o «part of my curated base»;
+la risposta sulla lettura (source-questions.p0) cede se la derivazione è più recente.
+**Difetto trovato:** «slippery surfaces cause falls» si salva `cause/2` (il plurale) e
+la catena non lo vedeva: `causal_link/2` percorre anche `relation_number_variant/2`,
+già dichiarata per le batterie. **Dopo:** «does rain lead to falls?» → tre anelli →
+«… slippery surfaces causes falls (from the sentence «slippery surfaces cause
+falls»). The conclusion is mine.»; una domanda diversa in mezzo ritira la derivazione.
+Lezione vera salvata. Cricchetto `tests/p0t/crossing/mix_derived_answer_sources.p0t`
+(8); mix_causal_chain, deep_memory_recall, diagnosis, disposal, household verdi.
+**Reperti:** «does rain cause falls?» va alla via polare («nothing I hold says rain
+causes falls») e non percorre la catena; `premise_sentence/2` nomina `cause/2` a mano
+perché la KB non costruisce termini (niente univ); la base curata non ha fonti in KB
+(solo nei commenti: US EPA, Washington State DoH).

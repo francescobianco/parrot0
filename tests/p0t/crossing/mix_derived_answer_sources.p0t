@@ -1,0 +1,35 @@
+# mix-of-capabilities 04×09×21 — la risposta derivata dice la catena e le fonti delle
+# premesse. «does rain make surfaces slippery?» → «Yes: …» → «how do you know that?»
+# riceveva «That sounds nice». Ora dice che la conclusione e' propria e cita, premessa
+# per premessa, la frase data (fact_source) o la base curata
+# (kb/core/causal-questions.p0).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a derived chain names its premises from the curated base]
+!timeout 30
+> does rain make surfaces slippery?
+<~ Yes: rain causes wet ground
+> how do you know that?
+<~ I derived it from what I hold
+<~ wet ground causes slippery surfaces (part of my curated base)
+
+[test a premise given as a sentence is quoted]
+!timeout 30
+> slippery surfaces cause falls
+<~ Learned
+> does rain lead to falls?
+<~ Yes: rain causes wet ground
+> where does that come from?
+<~ wet ground causes slippery surfaces (part of my curated base)
+<~ slippery surfaces causes falls (from the sentence «slippery surfaces cause falls»)
+
+[test a different question in between retires the derivation]
+!timeout 30
+> does rain make surfaces slippery?
+> can I mix bleach and ammonia?
+> how do you know that?
+<! I derived it

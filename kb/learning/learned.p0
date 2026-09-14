@@ -284,6 +284,8 @@ fact_mention(legionella_outbreaks, "most legionella outbreaks result from poorly
 fact_mention(lithium_batteries, "lithium batteries cause fires").
 fact_mention(hand-held_cylindrical_pressure_vessel, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 fact_mention(fire_extinguisher, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+fact_mention(falls, "slippery surfaces cause falls").
+fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 mixture_releases(bleach, ammonia, "chloramine gas").
 mixture_releases(bleach, acid, "chlorine gas").
 mixture_releases(bleach, alcohol, chloroform).
@@ -310,6 +312,7 @@ safe_internal_temp("pork chops", 63).
 recommended_percent_range("indoor humidity", 30, 50).
 avoid_in("lithium batteries", bin).
 cause(lithium_batteries, fires).
+cause(slippery_surfaces, falls).
 safety_device(fire_blanket).
 pressure_surge(hydraulic_shock).
 attenuated_reading(usually, hydraulic is usually observed in a liquid but gases can also be affected).

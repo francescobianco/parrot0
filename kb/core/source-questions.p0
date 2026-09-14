@@ -56,7 +56,7 @@ machinery(source_language).
 source_language(it) :- current_language(it).
 source_language(en) :- naf(current_language(it)).
 
-turn_plan_candidate($Turn) :- turn_has_source_cue($Turn), last_read_topic($T).
+turn_plan_candidate($Turn) :- turn_has_source_cue($Turn), last_read_topic($T), naf(derived_newer_than_topic($T)).
 turn_priority_response($Turn, $Text) :-
-    turn_has_source_cue($Turn), last_read_topic($T), topic_read($T, $Address),
+    turn_has_source_cue($Turn), last_read_topic($T), naf(derived_newer_than_topic($T)), topic_read($T, $Address),
     source_language($L), source_answer($L, $Address, $Text).
