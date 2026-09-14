@@ -118,6 +118,7 @@ utterance(5, user, "when someone has a nosebleed then say to pinch the nose").
 utterance(5, user, "high humidity causes mould").
 utterance(5, user, "lithium batteries cause fires").
 utterance(5, user, "what is a fire blanket?").
+utterance(5, user, "a smoke detector senses smoke").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -215,6 +216,7 @@ utterance(6, self, "Held: in that situation, move 2 is «Pinch the soft part of 
 utterance(6, self, "Hmm, I don't know about humidity yet. Want me to learn about it?").
 utterance(6, self, "Learned: lithium batteries cause fires.").
 utterance(6, self, "I read about fire blanket: A fire blanket is a safety device designed to extinguish incipient (starting) fires. I extracted 1 fact.").
+utterance(6, self, "Learned: smoke detector sense smoke.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -721,6 +723,7 @@ utterance(7, user, "when someone has a nosebleed then say when to get help").
 utterance(7, user, "the humidity in my bedroom is 70 percent, is that a problem?").
 utterance(7, user, "can I throw lithium batteries in the bin?").
 utterance(7, user, "hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
+utterance(7, user, "a smoke detector is a device that senses smoke").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1182,7 +1185,11 @@ utterance(8, self, "Hmm, I don't know about caused yet. Want me to learn about i
 utterance(9, user, "what is water hammer?").
 utterance(10, self, "I read about water hammer: Hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change. I extracted 1 fact.").
 utterance(11, user, "can I throw paper in the bin?").
+utterance(8, self, "Learned: smoke detector is a device. Learned: smoke detector sense smoke.").
+utterance(9, user, "what does a smoke detector sense?").
+utterance(10, self, "smoke.").
 utterance(11, user, "legionella of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine").
+utterance(11, user, "a carbon monoxide detector is a device").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2039,6 +2046,13 @@ utterance(25, user, "what is a smoke detector?").
 utterance(26, self, "I read about smoke detector: A smoke detector is a device that senses smoke, typically as an indicator of fire. I extracted 5 facts.").
 utterance(27, user, "ask me before looking things up").
 utterance(28, self, "Understood: I'll ask you before reading anything up.").
+utterance(12, self, "Learned: carbon monoxide detector is a device.").
+utterance(13, user, "a carbon monoxide detector detects the presence of carbon monoxide gas").
+utterance(14, self, "Learned: carbon monoxide detector detect presence of carbon monoxide gas.").
+utterance(15, user, "a carbon monoxide detector is a device which detects the presence of carbon monoxide gas").
+utterance(16, self, "Learned: carbon monoxide detector is a device. Learned: carbon monoxide detector detect presence of carbon monoxide gas.").
+utterance(17, user, "what does a carbon monoxide detector detect?").
+utterance(18, self, "presence of carbon monoxide gas.").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2441,6 +2455,7 @@ utterance(2, self, "Imparato: causes(high_humidity, mold).").
 utterance(2, self, "I don't know whether throw can lithium batteries in the bin: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
 utterance(2, self, "Understood: from now on I'll read things up myself when I don't know them.").
 utterance(2, self, "Learned: poorly maintained cooling towers causes legionella outbreaks.").
+utterance(2, self, "Learned: sense is a relation verb.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2544,6 +2559,7 @@ utterance(1, user, "high humidity causes mold").
 utterance(1, user, "can I throw lithium batteries in the bin?").
 utterance(1, user, "look things up yourself").
 utterance(1, user, "most legionella outbreaks result from poorly maintained cooling towers").
+utterance(1, user, "sense is a relation verb").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2639,6 +2655,7 @@ utterance(4, self, "Held: indoor humidity should stay between 30 and 50 percent.
 utterance(4, self, "Held: never put lithium batteries in the bin.").
 utterance(4, self, "Hmm, I don't know about designed yet. Want me to learn about it?").
 utterance(4, self, "poorly maintained cooling towers.").
+utterance(4, self, "Learned: smoke detector is a device.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2733,6 +2750,7 @@ utterance(3, user, "indoor humidity should stay between 30 and 50 percent").
 utterance(3, user, "never put lithium batteries in the bin").
 utterance(3, user, "fire_blanket designed to extinguish incipient (starting fires").
 utterance(3, user, "what causes legionella outbreaks?").
+utterance(3, user, "a smoke detector is a device").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

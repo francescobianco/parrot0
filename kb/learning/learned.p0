@@ -241,6 +241,8 @@ fact_mention(burning_fossil_fuels, "burning fossil fuels causes pollution").
 fact_mention(breathing_problems, "chloramine gas causes breathing problems").
 fact_mention(chloramine_gas, "chloramine gas causes breathing problems").
 fact_mention(smoke_detector, "a smoke detector is a device that senses smoke, typically as an indicator of fire").
+fact_mention(smoke_detector, "a smoke detector senses smoke").
+fact_mention(smoke_detector, "a smoke detector is a device").
 fact_mention(breathing_problems, "chlorine gas causes breathing problems").
 fact_mention(fish, "fish is a perishable").
 fact_mention(milk, "milk is a perishable").
@@ -251,6 +253,8 @@ fact_mention(thermal_runaway, "thermal runaway describes a process that is accel
 fact_mention(rice, "rice is a perishable").
 fact_mention(chicken, "chicken is a perishable").
 fact_mention(sensor, "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
+fact_mention(carbon_monoxide_detector, "a carbon monoxide detector detects the presence of carbon monoxide gas").
+fact_mention(carbon_monoxide_detector, "a carbon monoxide detector is a device").
 fact_mention(co_detectors, "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
 fact_mention(carbon_monoxide_detector, "a carbon monoxide detector or co detector is a device which detects the presence of carbon monoxide (co) gas, and is used to prevent carbon monoxide poisoning").
 fact_mention(chlorine_gas, "chlorine gas causes breathing problems").
@@ -268,8 +272,10 @@ fact_mention(overwatering, "overwatering causes yellow leaves").
 fact_mention(hydraulic_shock, "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 fact_mention(mold, "high humidity causes mold").
 fact_mention(high_humidity, "high humidity causes mold").
+fact_mention(presence_of_carbon_monoxide_gas, "a carbon monoxide detector detects the presence of carbon monoxide gas").
 fact_mention(fires, "lithium batteries cause fires").
 fact_mention(fire_blanket, "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+fact_mention(smoke, "a smoke detector senses smoke").
 fact_mention(legionella_outbreaks, "most legionella outbreaks result from poorly maintained cooling towers").
 fact_mention(lithium_batteries, "lithium batteries cause fires").
 mixture_releases(bleach, ammonia, "chloramine gas").
@@ -315,3 +321,5 @@ attenuated_reading(often, thermal runaway occurs in situations where an increase
 attenuated_reading(typically, a smoke detector is a device that senses smoke, typically as an indicator of fire).
 device(smoke_detector).
 attenuated_reading(usually, smoke detectors in large commercial and industrial buildings are usually connected to a central fire alarm system).
+sense(smoke_detector, smoke).
+detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas).

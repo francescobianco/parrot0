@@ -3889,6 +3889,20 @@ intent_cue(plan_lesson, "when someone").
 intent_cue(plan_lesson, "quando qualcuno").
 faculty_yield(analysis_family, open, plan_lesson).
 faculty_yield(analysis_last_resort, open, plan_lesson).
+% mix-04-05-001 — lo SCOPO DI UNA COSA non e' una richiesta di progetto. «what is
+% a carbon monoxide detector used to prevent?» e la frase letta «… and is used to
+% prevent carbon monoxide poisoning» (Wikipedia) ricevevano «On a carbon monoxide
+% detector used to, a workable design turns on…» per la sola parola «prevent»:
+% una risposta sicura a una domanda diversa. «used to», «used for», «designed
+% to» nominano la funzione di un oggetto; le analisi cedono il turno.
+intent_cue(purpose_of, "used to").
+intent_cue(purpose_of, "used for").
+intent_cue(purpose_of, "designed to").
+intent_cue(purpose_of, "serve a").
+intent_cue(purpose_of, "usato per").
+intent_cue(purpose_of, "serve per").
+faculty_yield(analysis_family, open, purpose_of).
+faculty_yield(analysis_last_resort, open, purpose_of).
 
 intent_cue(activity_request, "best way to").
 intent_cue(activity_request, "good way to").

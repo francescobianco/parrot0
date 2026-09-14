@@ -3675,6 +3675,18 @@ attribute_noun(value).
 attribute_noun(price).
 attribute_noun(cost).
 attribute_noun(population).
+% mix-04-05-001 — e un NOME DI STATO lega cio' di cui e' lo stato: «a device
+% which detects THE PRESENCE OF carbon monoxide gas» (Carbon monoxide detector,
+% Wikipedia) si leggeva `detect(…, presence)`, e «what does a carbon monoxide
+% detector detect?» rispondeva «presence.». Uno stato nuovo e' una riga.
+partitive_head_class(state_noun).
+machinery(state_noun).
+state_noun(presence).
+state_noun(absence).
+state_noun(level).
+state_noun(levels).
+state_noun(concentration).
+state_noun(buildup).
 partitive_link($Head, $Prep) :-
     partitive_preposition($Prep), partitive_head_class($Class),
     apply($Class, cons($Head, nil)).

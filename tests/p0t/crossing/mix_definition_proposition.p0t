@@ -1,0 +1,28 @@
+# mix-of-capabilities 04×05 — una proposizione oltre la definizione letta.
+# «A smoke detector is a device that senses smoke» e «a carbon monoxide detector is
+# a device which detects the presence of carbon monoxide gas» (Wikipedia) sono
+# fatti salvati da lezioni vere (sense/2, detect/2). «the presence of X» lega il
+# complemento (`state_noun/1`, grammar.p0). Lo scopo («used to prevent») non apre
+# piu' l'analisi di progetto (`intent_cue(purpose_of, …)`, intents.p0).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the relative clause of a read definition answers its own question]
+!timeout 30
+> what does a smoke detector sense?
+<~ smoke
+> what does a carbon monoxide detector detect?
+<~ presence of carbon monoxide gas
+
+[test a state noun keeps what it is the state of]
+!timeout 30
+> a radon detector is a device which detects the presence of radon gas
+<~ presence of radon gas
+
+[test a purpose question does not open a design analysis]
+!timeout 30
+> what is a carbon monoxide detector used to prevent?
+<! a workable design

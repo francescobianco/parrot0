@@ -372,6 +372,7 @@ relation_verb(flourish).
 relation_verb(cluster).
 relation_verb(protect).
 relation_verb(characterize).
+relation_verb(sense).
 
 % ── gen513 — LE PARTICELLE DEI VERBI DI RELAZIONE ───────────────────────────
 % Scoperte leggendo la scala della prosa: sono le forme con cui un lead di

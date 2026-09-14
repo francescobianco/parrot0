@@ -1801,3 +1801,25 @@ Cricchetto `tests/p0t/crossing/mix_read_converse_cause.p0t` (5). soft-test: gli 
 due rossi di tempo di HEAD. **Reperti:** «what do legionella outbreaks result from?»
 passa per `answer_frame(result, result)` e non scambia; «Learned: towers causes»
 (accordo); il contesto del topic («outbreaks» nel passo di Legionella) resta da fare.
+
+### mix-04-05-001 — una proposizione oltre la definizione, e lo scopo non è un progetto
+
+**Caso:** «what does a smoke detector sense?», «what does a carbon monoxide detector
+detect?», «what is a carbon monoxide detector used to prevent?». **Prima:** «I don't
+know about detector», «I don't know about monoxide», e per lo scopo il ciclo del
+carbonio seguito da «On a carbon monoxide detector used to, a workable design turns
+on…» — l'analisi di progetto prendeva il turno per la sola parola «prevent» (misclaim).
+**Cura (solo KB):** il lettore della relativa («X is a N that V O», gen458) c'era già;
+mancava il verbo, insegnato parlando («sense is a relation verb»). «the presence of X»
+si leggeva `detect(…, presence)`: `state_noun/1` (presence, absence, level,
+concentration, buildup) entra fra le `partitive_head_class` di grammar.p0. Lo scopo
+(«used to», «used for», «designed to», «serve per») è `intent_cue(purpose_of, …)` e le
+due famiglie d'analisi cedono con `faculty_yield` (intents.p0). **Dopo:** «smoke.»,
+«presence of carbon monoxide gas.»; la domanda sullo scopo non riceve più il modello
+di progetto. Lezioni vere salvate in `make chat` (`sense(smoke_detector, smoke)`,
+`detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas)`). Cricchetto
+`tests/p0t/crossing/mix_definition_proposition.p0t` (4).
+**Reperti:** il `/save` ha scritto in learned.p0 `input_frame_record(current_turn, …)`,
+uno scratch del turno (tolto a mano): la politica di scratch non copre quel predicato.
+Lo scopo resta senza risposta (ciclo del carbonio: il modificatore vince ancora nella
+domanda lunga) e «is used to prevent Y» non ha uno schema.

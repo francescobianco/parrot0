@@ -460,13 +460,18 @@ fact_source(causes(overwatering, yellow_leaves), overwatering, "overwatering cau
 fact_source(causes(high_humidity, mold), high_humidity, "high humidity causes mold").
 fact_source(cause(lithium_batteries, fires), lithium_batteries, "lithium batteries cause fires").
 fact_source(device(smoke_detector), smoke_detector, "a smoke detector is a device that senses smoke, typically as an indicator of fire").
+fact_source(device(smoke_detector), smoke_detector, "a smoke detector is a device").
 fact_source(use(co_detectors, sensor), co_detectors, "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
+fact_source(device(carbon_monoxide_detector), carbon_monoxide_detector, "a carbon monoxide detector is a device").
 fact_source(device(carbon_monoxide_detector), carbon_monoxide_detector, "a carbon monoxide detector or co detector is a device which detects the presence of carbon monoxide (co) gas, and is used to prevent carbon monoxide poisoning").
 fact_source(intracellular_pathogen(legionella_species), legionella_species, "most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans").
 fact_source(genus(legionella), legionella, "legionella is a genus of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine, an amino acid").
 fact_source(pressure_surge(hydraulic_shock), hydraulic_shock, "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
+fact_source(detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas), carbon_monoxide_detector, "a carbon monoxide detector detects the presence of carbon monoxide gas").
 fact_source(safety_device(fire_blanket), fire_blanket, "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+fact_source(sense(smoke_detector, smoke), smoke_detector, "a smoke detector senses smoke").
 fact_source(causes(poorly_maintained_cooling_towers, legionella_outbreaks), poorly_maintained_cooling_towers, "most legionella outbreaks result from poorly maintained cooling towers").
+fact_source(relation_verb(sense), sense, "sense is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -799,10 +804,12 @@ reading_fact(construction_frame("@O are under threat from @S", "@S threatens @O"
 reading_fact(causes(deforestation, soil_erosion), "deforestation causes soil erosion").
 reading_fact(causes(chloramine_gas, breathing_problems), "chloramine gas causes breathing problems").
 reading_fact(perishable(fish), "fish is a perishable").
+reading_fact(device(smoke_detector), "a smoke detector is a device").
 reading_fact(taught_form_source(taught_form_15, "x has written y"), "x has written y means x wrote y").
 reading_fact(device(smoke_detector), "a smoke detector is a device that senses smoke, typically as an indicator of fire").
 reading_fact(perishable(milk), "milk is a perishable").
 reading_fact(causes(burning_fossil_fuels, pollution), "burning fossil fuels causes pollution").
+reading_fact(device(carbon_monoxide_detector), "a carbon monoxide detector is a device").
 reading_fact(perishable(rice), "rice is a perishable").
 reading_fact(causes(low_light, yellow_leaves), "low light causes yellow leaves").
 reading_fact(use(co_detectors, sensor), "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
@@ -812,12 +819,15 @@ reading_fact(causes(underwatering, yellow_leaves), "underwatering causes yellow 
 reading_fact(perishable(chicken), "chicken is a perishable").
 reading_fact(intracellular_pathogen(legionella_species), "most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans").
 reading_fact(causes(overwatering, yellow_leaves), "overwatering causes yellow leaves").
+reading_fact(detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas), "a carbon monoxide detector detects the presence of carbon monoxide gas").
 reading_fact(genus(legionella), "legionella is a genus of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine, an amino acid").
 reading_fact(causes(high_humidity, mold), "high humidity causes mold").
 reading_fact(pressure_surge(hydraulic_shock), "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
+reading_fact(sense(smoke_detector, smoke), "a smoke detector senses smoke").
 reading_fact(cause(lithium_batteries, fires), "lithium batteries cause fires").
 reading_fact(safety_device(fire_blanket), "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
 reading_fact(causes(poorly_maintained_cooling_towers, legionella_outbreaks), "most legionella outbreaks result from poorly maintained cooling towers").
+reading_fact(relation_verb(sense), "sense is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
