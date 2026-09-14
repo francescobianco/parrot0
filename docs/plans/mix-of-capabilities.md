@@ -1924,3 +1924,20 @@ that?» → le due frasi, la prima quella della scheda 04-12-001. Cricchetto in
 `mix_causal_chain.p0t` (7). **Reperti:** «most» (`attenuated_reading`) non attenua
 l'anello nella risposta; l'accordo «towers causes» (il connettivo è un solo fatto per
 lingua, senza numero).
+
+### mix-12-04-001 — l'anello letto da una frase attenuata resta attenuato nella catena
+
+**Caso:** «do poorly maintained cooling towers cause legionnaires disease?» dopo le due
+lezioni salvate. **Prima:** «Yes: poorly maintained cooling towers causes legionella
+outbreaks, and …» — la frase letta diceva «MOST outbreaks», e la catena ne faceva una
+legge. **Cura (solo KB, causal-questions.p0):** `link_attenuated/3` riconduce l'anello
+alla frase di `fact_source` e al suo `attenuated_reading`; `attenuation_phrase/3` rende
+il quantificatore per lingua (most, many, often, typically, commonly, usually); il
+testo dell'anello lo porta, sia nella risposta sia nelle premesse. **Dopo:** «…
+poorly maintained cooling towers causes legionella outbreaks (in most cases), and
+legionella outbreaks causes legionnaires disease.»; «how do you know that?» cita la
+frase con «(in most cases)». Cricchetto in `mix_derived_answer_sources.p0t` (10).
+**Trappola trovata:** in una regola caricata da file la stringa tra virgolette di
+`fact_source/3` non unifica con la stessa frase senza virgolette di
+`attenuated_reading/2` (asserita in sessione, la stessa regola unifica):
+`concat_atoms($S, "", $K)` normalizza. Da curare nel motore, poi togliere il giro.

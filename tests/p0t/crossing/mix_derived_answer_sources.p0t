@@ -33,3 +33,11 @@
 > can I mix bleach and ammonia?
 > how do you know that?
 <! I derived it
+
+[test a link read from an attenuated sentence is attenuated in the chain]
+!reset
+!timeout 30
+> do poorly maintained cooling towers cause legionnaires disease?
+<~ poorly maintained cooling towers causes legionella outbreaks (in most cases), and legionella outbreaks causes legionnaires disease.
+> how do you know that?
+<~ (in most cases) (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»)

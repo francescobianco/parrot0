@@ -71,7 +71,38 @@ causal_and(en, ", and ").
 causal_and(it, ", e ").
 
 machinery(causal_link_text).
-causal_link_text($L, $A, $B, $Text) :- node_text($A, $TA), node_text($B, $TB), causes_word($L, $C), concat_atoms($TA, $C, $X), concat_atoms($X, $TB, $Text).
+causal_link_text($L, $A, $B, $Text) :-
+    node_text($A, $TA), node_text($B, $TB), causes_word($L, $C), concat_atoms($TA, $C, $X), concat_atoms($X, $TB, $Plain),
+    link_attenuation_text($L, $A, $B, $Att), concat_atoms($Plain, $Att, $Text).
+% 14 settembre 2026 — un anello letto da una frase attenuata («MOST outbreaks
+% result from …», `attenuated_reading/2`) non e' una legge: la risposta lo dice
+% sull'anello, con il quantificatore che la frase aveva. Il quantificatore e la
+% sua resa per lingua sono fatti; un anello senza attenuazione non aggiunge nulla.
+machinery(link_attenuation_text).
+machinery(link_attenuated).
+machinery(attenuation_phrase).
+% ⚠ in una regola caricata da file la frase tra virgolette di `fact_source/3` non
+% unifica con la stessa frase tenuta senza virgolette in `attenuated_reading/2`
+% (asserita a mano, la stessa regola unifica): `concat_atoms($S, "", $K)` la
+% normalizza prima del confronto.
+link_attenuated($A, $B, $Q) :- fact_source(causes($A, $B), $E, $S), concat_atoms($S, "", $K), attenuated_reading($Q, $K).
+link_attenuated($A, $B, $Q) :- fact_source(cause($A, $B), $E, $S), concat_atoms($S, "", $K), attenuated_reading($Q, $K).
+link_has_attenuation($A, $B) :- link_attenuated($A, $B, $Q).
+machinery(link_has_attenuation).
+link_attenuation_text($L, $A, $B, $T) :- link_attenuated($A, $B, $Q), attenuation_phrase($L, $Q, $T).
+link_attenuation_text($L, $A, $B, "") :- naf(link_has_attenuation($A, $B)).
+attenuation_phrase(en, most, " (in most cases)").
+attenuation_phrase(it, most, " (nella maggior parte dei casi)").
+attenuation_phrase(en, many, " (in many cases)").
+attenuation_phrase(it, many, " (in molti casi)").
+attenuation_phrase(en, often, " (often)").
+attenuation_phrase(it, often, " (spesso)").
+attenuation_phrase(en, typically, " (typically)").
+attenuation_phrase(it, typically, " (di solito)").
+attenuation_phrase(en, commonly, " (commonly)").
+attenuation_phrase(it, commonly, " (comunemente)").
+attenuation_phrase(en, usually, " (usually)").
+attenuation_phrase(it, usually, " (di solito)").
 
 machinery(causal_route_text).
 causal_route_text($L, pair($X, $Z), direct, $Text) :- causal_link_text($L, $X, $Z, $Text).
