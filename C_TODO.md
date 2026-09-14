@@ -2091,3 +2091,19 @@ non quello *unitario*.
 da `kb_load`, cioè prima di qualunque turno. Il giorno in cui si insegnerà una
 regola che genera schemi, il suo predicato va aggiunto alla firma — altrimenti
 la cache resterebbe ferma senza dirlo.
+
+## Limiti silenziosi del risolutore (esperimento 14 settembre 2026)
+
+Trovati in `docs/sessions/2026-09-14-esperimento-ordine-eta.md` §6. Ognuno ha fatto
+fallire **in silenzio** una regola corretta; la KB li aggira (letture a stadi, problemi
+numerati, aiutanti), ma il motore dovrebbe dirli:
+
+- `KB_MAX_BIND` (384): l'esaurimento dei legami su un ramo va riportato come ricerca
+  incompleta, non come fallimento del goal.
+- `retract/N` dentro una derivazione compatta l'array dei fatti che un goal antenato sta
+  scorrendo: core dump. Va differito alla fine della risoluzione o fatto su indici stabili.
+- `findall/3` con un modello composto (`findall(e($S,$X), G, L)`) raccoglie niente: o si
+  supporta il modello o si rifiuta a caricamento.
+- Una lista legata oltre 512 byte fa fallire `findall/3` senza segnale.
+- `assert/N` con più di 4 argomenti del fatto: la clausola è scartata al boot (PARSE ERROR
+  visibile solo lì).

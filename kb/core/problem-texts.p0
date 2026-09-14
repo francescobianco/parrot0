@@ -1,0 +1,556 @@
+% problem-texts.p0 — UN TESTO CON UN COMPITO NON E' UNA SERIE DI AFFERMAZIONI.
+%
+% docs/sessions/2026-09-14-esperimento-ordine-eta.md. «Anna è più giovane di …
+% Carlo incontrò … Nessuno incontrato da Bruno … Senza assumere informazioni …,
+% stabilisci chi è necessariamente più giovane di chi.» Lo spezzatore leggeva una
+% frase alla volta: la prima diventava «Imparato: anna is more giovane than
+% chiunque …» — un fatto falso — e l'istruzione un muro. Le premesse di un
+% problema non sono conoscenza del mondo: valgono dentro il problema, e il
+% compito dice che cosa farne. Il turno che porta un'istruzione di compito si
+% legge intero (`turn_declared_act(_, problem_task)`), e nulla si impara.
+%
+% L'istruzione e' riconosciuta da cue per lingua; un compito nuovo e' una riga.
+
+:- file_attribute(machinery).
+
+machinery(problem_task_cue).
+problem_task_cue("stabilisci chi").
+problem_task_cue("determina chi").
+problem_task_cue("chi è necessariamente").
+problem_task_cue("restano indeterminati").
+problem_task_cue("senza assumere informazioni").
+problem_task_cue("determine who").
+problem_task_cue("establish who").
+problem_task_cue("who is necessarily").
+problem_task_cue("remain undetermined").
+problem_task_cue("without assuming").
+turn_cue_registry(problem_task_cue, 1).
+
+machinery(turn_is_problem_task).
+turn_is_problem_task($Turn) :- turn_cue($Turn, problem_task_cue, $Cue).
+turn_declared_act($Turn, problem_task) :- turn_is_problem_task($Turn).
+% Le PREMESSE possono arrivare da sole, e il compito al turno dopo: il prompt
+% scritto con un a capo in `make chat` e' due turni. Un testo che confronta
+% qualcuno con gruppi quantificati («chiunque», «nessuno» e un comparativo) e'
+% riconosciuto come premesse, letto come problema e non imparato.
+machinery(turn_has_problem_premises).
+machinery(person_quantifier_word).
+person_quantifier_word($Q) :- generic_person_quantifier($Q).
+person_quantifier_word($Q) :- negative_person_quantifier($Q).
+% ⚠ Si decide sulle cue che il motore pubblica una volta per turno, non
+% scorrendo i token: la regola corre a ogni turno (misurato: +0,2 s al turno base).
+machinery(problem_quantifier_cue).
+problem_quantifier_cue($Q) :- person_quantifier_word($Q).
+turn_cue_registry(problem_quantifier_cue, 1).
+machinery(problem_comparative_cue).
+problem_comparative_cue($A) :- comparative_word($A, $D, $S).
+turn_cue_registry(problem_comparative_cue, 1).
+turn_has_problem_premises($Turn) :-
+    turn_cue($Turn, problem_quantifier_cue, $Q), turn_cue($Turn, problem_comparative_cue, $A).
+machinery(turn_is_problem_text).
+turn_is_problem_text($Turn) :- turn_is_problem_task($Turn).
+turn_is_problem_text($Turn) :- turn_has_problem_premises($Turn).
+turn_declared_act($Turn, problem_premises) :- turn_has_problem_premises($Turn), naf(turn_is_problem_task($Turn)).
+
+% ── IL LESSICO DEL PROBLEMA (per lingua; un membro nuovo e' una riga) ────────
+% L'ordine della settimana e' conoscenza del mondo; nel problema i giorni sono
+% letti nella stessa settimana (lo si dice nella risposta).
+machinery(weekday_rank).
+weekday_rank(lunedì, 1). weekday_rank(martedì, 2). weekday_rank(mercoledì, 3).
+weekday_rank(giovedì, 4). weekday_rank(venerdì, 5). weekday_rank(sabato, 6).
+weekday_rank(domenica, 7).
+weekday_rank(monday, 1). weekday_rank(tuesday, 2). weekday_rank(wednesday, 3).
+weekday_rank(thursday, 4). weekday_rank(friday, 5). weekday_rank(saturday, 6).
+weekday_rank(sunday, 7).
+machinery(problem_weekday).
+problem_weekday($D) :- weekday_rank($D, $R).
+
+% un comparativo: la parola, e il verso sulla scala (lt: il soggetto sta sotto)
+machinery(comparative_word).
+comparative_word(giovane, age, lt).
+comparative_word(giovani, age, lt).
+comparative_word(anziano, age, gt).
+comparative_word(anziana, age, gt).
+comparative_word(vecchio, age, gt).
+comparative_word(vecchia, age, gt).
+comparative_word(younger, age, lt).
+comparative_word(older, age, gt).
+machinery(comparative_opener).
+comparative_opener(più).
+machinery(comparative_link).
+comparative_link(di).
+comparative_link(than).
+machinery(problem_copula).
+problem_copula(è).
+problem_copula(is).
+
+% incontrare: le forme che portano un incontro, e se l'agente e' il soggetto
+machinery(meeting_finite).
+meeting_finite(incontrò).
+meeting_finite(met).
+machinery(meeting_participle).
+meeting_participle(incontrato).
+meeting_participle(incontrata).
+meeting_participle(met).
+machinery(meeting_aux).
+meeting_aux(abbia).
+meeting_aux(ha).
+meeting_aux(has).
+meeting_aux(had).
+machinery(agent_marker).
+agent_marker(da).
+agent_marker(by).
+machinery(generic_person_quantifier).
+generic_person_quantifier(chiunque).
+generic_person_quantifier(anyone).
+machinery(negative_person_quantifier).
+negative_person_quantifier(nessuno).
+negative_person_quantifier(nobody).
+machinery(free_relative_who).
+free_relative_who(chi).
+free_relative_who(whoever).
+machinery(time_before).
+time_before(prima, di).
+machinery(time_before_single).
+time_before_single(before).
+machinery(time_on_marker).
+time_on_marker(on).
+machinery(problem_relative_pronoun).
+problem_relative_pronoun(who).
+problem_relative_pronoun(che).
+machinery(time_after).
+time_after(dopo).
+time_after(after).
+machinery(problem_negation).
+problem_negation(non).
+problem_negation(not).
+machinery(contrast_word).
+contrast_word(ma).
+contrast_word(but).
+machinery(coordination_word).
+coordination_word(e).
+coordination_word(and).
+
+% ── I NOMI DEL PROBLEMA ──────────────────────────────────────────────────────
+% Un nome e' una parola piena che non e' parte del lessico del problema: la
+% lettura non indovina chi sia una persona, lo ricava dalle posizioni.
+machinery(problem_function_word).
+problem_function_word($W) :- problem_weekday($W).
+problem_function_word($W) :- comparative_word($W, $D, $S).
+problem_function_word($W) :- comparative_opener($W).
+problem_function_word($W) :- comparative_link($W).
+problem_function_word($W) :- problem_copula($W).
+problem_function_word($W) :- meeting_finite($W).
+problem_function_word($W) :- meeting_participle($W).
+problem_function_word($W) :- meeting_aux($W).
+problem_function_word($W) :- agent_marker($W).
+problem_function_word($W) :- generic_person_quantifier($W).
+problem_function_word($W) :- negative_person_quantifier($W).
+problem_function_word($W) :- free_relative_who($W).
+problem_function_word($W) :- time_before($W, $X).
+problem_function_word($W) :- time_before_single($W).
+problem_function_word($W) :- time_on_marker($W).
+problem_function_word($W) :- problem_relative_pronoun($W).
+problem_function_word($W) :- time_after($W).
+problem_function_word($W) :- problem_negation($W).
+problem_function_word($W) :- contrast_word($W).
+problem_function_word($W) :- coordination_word($W).
+machinery(problem_name_at).
+problem_name_at($T, $I, $W) :- turn_word($T, $I, $W), naf(problem_function_word($W)), naf(stopword($W)), chars($W, cons($C, $R)), naf(problem_punct($W)).
+machinery(problem_punct).
+problem_punct(","). problem_punct("."). problem_punct(";"). problem_punct(":").
+
+machinery(next_index).
+next_index($I, $J) :- is($J, add($I, 1)).
+
+% ── IL TEMPO DI UN INCONTRO: «prima di martedì», «martedì», «dopo Carlo» ─────
+% time_at(T, I, Time, Next): la descrizione del tempo comincia in I e finisce
+% prima di Next.
+machinery(time_at).
+time_at($T, $I, before($D), $N) :-
+    turn_word($T, $I, $P), time_before($P, $L), next_index($I, $J), turn_word($T, $J, $L),
+    next_index($J, $K), turn_word($T, $K, $D), problem_weekday($D), next_index($K, $N).
+time_at($T, $I, on($D), $N) :- turn_word($T, $I, $D), problem_weekday($D), next_index($I, $N).
+time_at($T, $I, before($D), $N) :-
+    turn_word($T, $I, $P), time_before_single($P), next_index($I, $J), turn_word($T, $J, $D), problem_weekday($D), next_index($J, $N).
+time_at($T, $I, on($D), $N) :-
+    turn_word($T, $I, $P), time_on_marker($P), next_index($I, $J), turn_word($T, $J, $D), problem_weekday($D), next_index($J, $N).
+time_at($T, $I, after($X), $N) :-
+    turn_word($T, $I, $P), time_after($P), next_index($I, $J), problem_name_at($T, $J, $X), next_index($J, $N).
+
+% ── UN GRUPPO DESCRITTO: chi un tale ha incontrato, quando ──────────────────
+% group_at(T, I, grp(met(B), Time), Next)
+machinery(group_at).
+% «chiunque abbia incontrato Bruno prima di martedì»
+group_at($T, $I, grp(met($B), $Time), $N) :-
+    turn_word($T, $I, $Q), generic_person_quantifier($Q),
+    next_index($I, $J), turn_word($T, $J, $A), meeting_aux($A),
+    next_index($J, $K), turn_word($T, $K, $V), meeting_participle($V),
+    next_index($K, $L), problem_name_at($T, $L, $B),
+    next_index($L, $M), time_at($T, $M, $Time, $N).
+% «anyone who met Bruno before Tuesday»
+group_at($T, $I, grp(met($B), $Time), $N) :-
+    turn_word($T, $I, $Q), generic_person_quantifier($Q),
+    next_index($I, $J), turn_word($T, $J, $R), problem_relative_pronoun($R),
+    next_index($J, $K), turn_word($T, $K, $V), meeting_finite($V),
+    next_index($K, $L), problem_name_at($T, $L, $B),
+    next_index($L, $M), time_at($T, $M, $Time, $N).
+% «chi Bruno incontrò martedì»
+group_at($T, $I, grp(met($B), $Time), $N) :-
+    turn_word($T, $I, $Q), free_relative_who($Q),
+    next_index($I, $J), problem_name_at($T, $J, $B),
+    next_index($J, $K), turn_word($T, $K, $V), meeting_finite($V),
+    next_index($K, $M), time_at($T, $M, $Time, $N).
+% «(nessuno/chiunque) incontrato da Bruno dopo Carlo» — dal participio
+group_at($T, $I, grp(met($B), $Time), $N) :-
+    turn_word($T, $I, $V), meeting_participle($V),
+    next_index($I, $J), turn_word($T, $J, $Da), agent_marker($Da),
+    next_index($J, $K), problem_name_at($T, $K, $B),
+    next_index($K, $M), time_at($T, $M, $Time, $N).
+
+% ── I VINCOLI LETTI ──────────────────────────────────────────────────────────
+% «X è più giovane di G» → lt(X, G); «più anziano» → lt(G, X).
+machinery(problem_edge).
+machinery(comparison_at).
+comparison_at($T, $I, cmp($Dim, $Dir), $N) :-
+    turn_word($T, $I, $P), comparative_opener($P), next_index($I, $J), turn_word($T, $J, $A),
+    comparative_word($A, $Dim, $Dir), next_index($J, $K), turn_word($T, $K, $L), comparative_link($L),
+    next_index($K, $N).
+% «younger than»: il comparativo sintetico, senza «più»
+comparison_at($T, $I, cmp($Dim, $Dir), $N) :-
+    turn_word($T, $I, $A), comparative_word($A, $Dim, $Dir), next_index($I, $K), turn_word($T, $K, $L), comparative_link($L),
+    next_index($K, $N), naf(comparative_after_opener($T, $I)).
+machinery(comparative_after_opener).
+comparative_after_opener($T, $I) :- prev_index($I, $H), turn_word($T, $H, $P), comparative_opener($P).
+machinery(directed_edge).
+directed_edge(lt, pair($X, $Y), lt, pair($X, $Y)).
+directed_edge(gt, pair($X, $Y), lt, pair($Y, $X)).
+% la negazione di un confronto stretto su una scala totale: «non piu' giovane»
+% e' «non sotto», cioe' l'altro non sta sopra
+machinery(negated_edge).
+negated_edge(lt, pair($X, $Y), le, pair($Y, $X)).
+negated_edge(gt, pair($X, $Y), le, pair($X, $Y)).
+
+% ⚠ La punteggiatura non e' un token del turno; un corpo ha al piu' 16 goal
+% (KB_MAX_BODY), un predicato al piu' 4 argomenti (KB_MAX_ARGS), e un ramo di
+% risoluzione al piu' 384 legami (KB_MAX_BIND): ogni `turn_word` e' una regola,
+% e una lettura composta di cinque pezzi esauriva i legami prima dell'ultimo
+% goal — il ramo falliva in silenzio. Si legge quindi A STADI: i pezzi diventano
+% fatti del problema (`problem_piece/3`), i vincoli si compongono sui fatti.
+machinery(prev_index).
+prev_index($J, $I) :- is($I, sub($J, 1)).
+machinery(contrast_negated_link_at).
+contrast_negated_link_at($T, $E, $N) :-
+    turn_word($T, $E, $Ma), contrast_word($Ma), next_index($E, $E1), turn_word($T, $E1, $Non), problem_negation($Non),
+    next_index($E1, $E2), turn_word($T, $E2, $Di), comparative_link($Di), next_index($E2, $N).
+
+% i pezzi: piece(Kind, Start, Value) con Value che porta la fine dove serve
+machinery(problem_piece).
+machinery(cur_piece).
+cur_piece($K, $I, $V) :- problem_current($N), problem_piece($N, $K, pv($I, $V)).
+turn_scratch(problem_piece).
+% ⚠ Nessuna regola ritira fatti a meta' risoluzione: un `retract` dentro una
+% derivazione compatta i fatti che un goal antenato sta ancora scorrendo, e il
+% processo cadeva (misurato: core dump al secondo problema). Anche i pezzi portano
+% il numero del problema, e si legge solo quello corrente.
+machinery(piece_term).
+piece_term($T, p(group, $I, g($G, $N))) :- group_at($T, $I, $G, $N).
+piece_term($T, p(cmp, $K, c($Dir, $M))) :- comparison_at($T, $K, cmp($Dim, $Dir), $M).
+piece_term($T, p(copula, $J, yes)) :- turn_word($T, $J, $C), problem_copula($C).
+piece_term($T, p(contrast, $E, $N)) :- contrast_negated_link_at($T, $E, $N).
+piece_term($T, p(none, $I, yes)) :- turn_word($T, $I, $No), negative_person_quantifier($No).
+piece_term($T, p(name, $I, $W)) :- problem_name_at($T, $I, $W).
+% ⚠ Un legame tiene al piu' 512 byte: la lista di tutti i pezzi di un testo non
+% ci sta, e il `findall` falliva. Si raccolgono a finestre di 15 token (fino a 90).
+machinery(piece_between).
+machinery(problem_text_window).
+problem_text_window(15).
+piece_between($T, r($Lo, $Hi), p($K, $I, $V)) :- piece_term($T, p($K, $I, $V)), ge($I, $Lo), lt($I, $Hi).
+machinery(assert_pieces).
+assert_pieces(nil, $N).
+assert_pieces(cons(p($K, $I, $V), $R), $N) :- assert(problem_piece, $N, $K, pv($I, $V)), assert_pieces($R, $N).
+
+machinery(edge_affirmed).
+machinery(edge_contrasted).
+machinery(edge_none_above).
+problem_edge($T, $S, $X, $Y) :- edge_affirmed($T, $S, $X, $Y).
+problem_edge($T, $S, $X, $Y) :- edge_contrasted($T, $S, $X, $Y).
+problem_edge($T, $S, $X, $Y) :- edge_none_above($T, $S, $X, $Y).
+% «Anna è più giovane di …»: nome, copula, comparativo — sui pezzi
+machinery(piece_subject_comparison).
+piece_subject_comparison(sc($X, $Dir), $M) :-
+    cur_piece(copula, $J, yes), prev_index($J, $I), cur_piece(name, $I, $X),
+    next_index($J, $K), cur_piece(cmp, $K, c($Dir, $M)).
+% «Anna è più giovane di chiunque …»
+edge_affirmed($T, $S, $X, $G) :-
+    piece_subject_comparison(sc($X0, $Dir), $M), cur_piece(group, $M, g($G0, $E)),
+    directed_edge($Dir, pair($X0, $G0), $S, pair($X, $G)).
+% «… ma non di chi …» — lo stesso soggetto e lo stesso comparativo, negati
+edge_contrasted($T, $S, $X, $G) :-
+    piece_subject_comparison(sc($X0, $Dir), $M), cur_piece(group, $M, g($G1, $E)),
+    cur_piece(contrast, $E, $N), cur_piece(group, $N, g($G0, $E2)),
+    negated_edge($Dir, pair($X0, $G0), $S, pair($X, $G)).
+% «Nessuno incontrato da Bruno dopo Carlo è più anziano di Anna»
+edge_none_above($T, $S, $X, $Y) :-
+    cur_piece(none, $I, yes), next_index($I, $J), cur_piece(group, $J, g($G0, $E)),
+    cur_piece(copula, $E, yes), next_index($E, $K), cur_piece(cmp, $K, c($Dir, $M)),
+    cur_piece(name, $M, $Y0),
+    negated_edge($Dir, pair($G0, $Y0), $S, pair($X, $Y)).
+
+% ── GLI INCONTRI NOMINATI: «Carlo incontrò Anna mercoledì e Bruno giovedì» ───
+machinery(problem_meeting).
+piece_term($T, p(meet_verb, $J, yes)) :- turn_word($T, $J, $V), meeting_finite($V).
+piece_term($T, p(weekday, $I, d($D, $N))) :- turn_word($T, $I, $D), problem_weekday($D), next_index($I, $N).
+piece_term($T, p(weekday, $I, d($D, $N))) :-
+    turn_word($T, $I, $On), time_on_marker($On), next_index($I, $J), turn_word($T, $J, $D), problem_weekday($D), next_index($J, $N).
+piece_term($T, p(coord, $I, yes)) :- turn_word($T, $I, $E), coordination_word($E).
+machinery(meeting_clause_at).
+meeting_clause_at($T, $I, meet($X, $Y, $D), $N) :-
+    cur_piece(meet_verb, $J, yes), prev_index($J, $I), cur_piece(name, $I, $X),
+    next_index($J, $K), cur_piece(name, $K, $Y), next_index($K, $L), cur_piece(weekday, $L, d($D, $N)).
+problem_meeting($T, $X, $Y, $D) :- meeting_clause_at($T, $I, meet($X, $Y, $D), $N).
+% «… e Bruno giovedì»: lo stesso soggetto e lo stesso verbo
+problem_meeting($T, $X, $Z, $D2) :-
+    meeting_clause_at($T, $I, meet($X, $Y, $D), $M), cur_piece(coord, $M, yes),
+    next_index($M, $O), cur_piece(name, $O, $Z), next_index($O, $P), cur_piece(weekday, $P, d($D2, $Q)).
+
+% ── IL PROBLEMA LETTO DIVENTA UN ORDINE (order-determinacy.p0) ───────────────
+% ⚠ Si legge UNA volta. Le regole di lettura scorrono i token del turno; il
+% ragionatore compone catene e negazioni, e se ogni suo passo rileggesse il testo
+% il budget del risolutore finirebbe prima della risposta (misurato: le parti
+% della risposta non uscivano, e `naf` sulle catene diventava «incompleto»). Un
+% contabile raccoglie le letture e le tiene come fatti del turno.
+machinery(problem_order_fact).
+machinery(problem_meeting_fact).
+turn_scratch(problem_order_fact).
+turn_scratch(problem_meeting_fact).
+% ⚠ Un contabile per stadio, e una finestra di pezzi per contabile: ogni
+% `turn_bookkeeping` e' una risoluzione con la sua sostituzione (384 legami), e
+% un corpo solo che leggeva pezzi, vincoli, incontri e ranghi esauriva i legami a
+% meta' — nel turno con premesse e compito insieme uscivano solo i primi vincoli.
+% I contabili corrono nell'ordine in cui sono dichiarati.
+machinery(problem_opened_now).
+problem_opened_now :- turn_counter($N), problem_opened($N).
+bookkeeper(problem_open).
+turn_bookkeeping($T, problem_open) :- turn_has_problem_premises($T), turn_counter($N), assert(problem_opened, $N).
+machinery(problem_window_keeper).
+problem_window_keeper(problem_pieces_0, 0).
+problem_window_keeper(problem_pieces_15, 15).
+problem_window_keeper(problem_pieces_30, 30).
+problem_window_keeper(problem_pieces_45, 45).
+problem_window_keeper(problem_pieces_60, 60).
+problem_window_keeper(problem_pieces_75, 75).
+bookkeeper(problem_pieces_0).
+bookkeeper(problem_pieces_15).
+bookkeeper(problem_pieces_30).
+bookkeeper(problem_pieces_45).
+bookkeeper(problem_pieces_60).
+bookkeeper(problem_pieces_75).
+turn_bookkeeping($T, $K) :-
+    problem_window_keeper($K, $Lo), problem_opened_now, problem_text_window($W), is($Hi, add($Lo, $W)),
+    findall($P, piece_between($T, r($Lo, $Hi), $P), $Ps), problem_current($N), assert_pieces($Ps, $N).
+bookkeeper(problem_edges_affirmed).
+turn_bookkeeping($T, problem_edges_affirmed) :-
+    problem_opened_now, problem_current($N), findall($E, edge_term(affirmed, $T, $E), $Es), assert_problem_edges($Es, $N).
+bookkeeper(problem_edges_contrasted).
+turn_bookkeeping($T, problem_edges_contrasted) :-
+    problem_opened_now, problem_current($N), findall($E, edge_term(contrasted, $T, $E), $Es), assert_problem_edges($Es, $N).
+bookkeeper(problem_edges_none_above).
+turn_bookkeeping($T, problem_edges_none_above) :-
+    problem_opened_now, problem_current($N), findall($E, edge_term(none_above, $T, $E), $Es), assert_problem_edges($Es, $N).
+bookkeeper(problem_meetings).
+turn_bookkeeping($T, problem_meetings) :-
+    problem_opened_now, problem_current($N), findall($M, problem_meeting_term($T, $M), $Ms), assert_problem_meetings($Ms, $N).
+bookkeeper(problem_ranks).
+turn_bookkeeping($T, problem_ranks) :-
+    problem_opened_now, problem_current($N), findall($W, problem_person_token($T, $W), $Ws), assert_person_ranks($Ws, $N, 1).
+% Ogni problema letto ha il suo numero (il turno che lo porta); vale il piu'
+% recente. I vecchi restano nella sessione come scratch e non entrano nel /save.
+machinery(problem_opened).
+turn_scratch(problem_opened).
+machinery(problem_current).
+machinery(problem_newer).
+problem_current($N) :- problem_opened($N), naf(problem_newer($N)).
+problem_newer($N) :- problem_opened($M), gt($M, $N).
+machinery(cur_order_fact).
+cur_order_fact($S, $X, $Y) :- problem_current($N), problem_order_fact($N, $S, pair($X, $Y)).
+machinery(cur_meeting_fact).
+cur_meeting_fact($X, $Y, $D) :- problem_current($N), problem_meeting_fact($N, $X, meet($Y, $D)).
+machinery(cur_person_rank).
+cur_person_rank($W, $R) :- problem_current($N), problem_person_rank($N, $W, $R).
+% ⚠ `findall/3` raccoglie una VARIABILE, non un modello composto: il termine si
+% costruisce in un aiutante.
+machinery(edge_term).
+edge_term(affirmed, $T, e($S, $X, $Y)) :- edge_affirmed($T, $S, $X, $Y).
+edge_term(contrasted, $T, e($S, $X, $Y)) :- edge_contrasted($T, $S, $X, $Y).
+edge_term(none_above, $T, e($S, $X, $Y)) :- edge_none_above($T, $S, $X, $Y).
+machinery(problem_meeting_term).
+problem_meeting_term($T, m($X, $Y, $D)) :- problem_meeting($T, $X, $Y, $D).
+machinery(assert_problem_edges).
+assert_problem_edges(nil, $N).
+assert_problem_edges(cons(e($S, $X, $Y), $R), $N) :- assert(problem_order_fact, $N, $S, pair($X, $Y)), assert_problem_edges($R, $N).
+machinery(assert_problem_meetings).
+assert_problem_meetings(nil, $N).
+assert_problem_meetings(cons(m($X, $Y, $D), $R), $N) :- assert(problem_meeting_fact, $N, $X, meet($Y, $D)), assert_problem_meetings($R, $N).
+
+order_edge($T, $S, $X, $Y) :- cur_order_fact($S, $X, $Y).
+machinery(problem_group_term).
+problem_group_term(grp($Who, $When)).
+order_group($T, $G) :- order_edge($T, $S, $G, $Y), problem_group_term($G).
+order_group($T, $G) :- order_edge($T, $S, $X, $G), problem_group_term($G).
+machinery(problem_person).
+problem_person($T, $X) :- cur_meeting_fact($X, $Y, $D).
+problem_person($T, $Y) :- cur_meeting_fact($X, $Y, $D).
+problem_person($T, $X) :- cur_order_fact($S, $X, $Y), naf(problem_group_term($X)).
+problem_person($T, $Y) :- cur_order_fact($S, $X, $Y), naf(problem_group_term($Y)).
+problem_person($T, $B) :- cur_order_fact($S, grp(met($B), $When), $Y).
+problem_person($T, $B) :- cur_order_fact($S, $X, grp(met($B), $When)).
+order_individual($T, $X) :- cur_person_rank($X, $R).
+
+% ── LA RISPOSTA ─────────────────────────────────────────────────────────────
+% Parti ordinate (`turn_response_part/3`): premessa sulle letture, confronti
+% necessari, confronti larghi, esclusioni, indeterminati. Ogni frase su un gruppo
+% vale per i suoi membri, SE ne ha: il testo non dice che esistano, e la risposta
+% lo dichiara invece di assumerlo.
+machinery(problem_name_text).
+problem_name_text($X, $T) :- upcase_first($X, $T).
+machinery(problem_time_text).
+problem_time_text(it, before($D), $T) :- concat_atoms("prima di ", $D, $T).
+problem_time_text(it, on($D), $T) :- concat_atoms($D, "", $T).
+problem_time_text(it, after($X), $T) :- problem_name_text($X, $N), concat_atoms("dopo ", $N, $T).
+problem_time_text(en, before($D), $T) :- upcase_first($D, $U), concat_atoms("before ", $U, $T).
+problem_time_text(en, on($D), $T) :- upcase_first($D, $U), concat_atoms("on ", $U, $T).
+problem_time_text(en, after($X), $T) :- problem_name_text($X, $N), concat_atoms("after ", $N, $T).
+machinery(problem_term_text).
+problem_term_text($L, $X, $T) :- naf(problem_group_term($X)), problem_name_text($X, $T).
+problem_term_text(it, grp(met($B), $W), $T) :-
+    problem_name_text($B, $BN), problem_time_text(it, $W, $WT),
+    concat_atoms("chiunque ", $BN, $A), concat_atoms($A, " abbia incontrato ", $C), concat_atoms($C, $WT, $T).
+problem_term_text(en, grp(met($B), $W), $T) :-
+    problem_name_text($B, $BN), problem_time_text(en, $W, $WT),
+    concat_atoms("anyone ", $BN, $A), concat_atoms($A, " met ", $C), concat_atoms($C, $WT, $T).
+machinery(problem_sentence_start).
+problem_sentence_start($T, $S) :- upcase_first($T, $S).
+
+machinery(problem_language).
+problem_language(it) :- current_language(it).
+problem_language(en) :- naf(current_language(it)).
+
+machinery(problem_answer_line).
+problem_answer_line(it, head, "Dal testo segue necessariamente (una frase su un gruppo vale per i suoi membri, se ne ha: il testo non dice che esistano):").
+problem_answer_line(en, head, "The text necessarily implies (a sentence about a group holds for its members, if any: the text does not say they exist):").
+problem_answer_line(it, undetermined_head, "Restano indeterminati:").
+problem_answer_line(en, undetermined_head, "Left undetermined:").
+problem_answer_line(it, reading_note, "Letture: i giorni sono della stessa settimana; incontrarsi è reciproco (chi ha incontrato qualcuno è stato incontrato da lui); negare un confronto stretto lascia possibile la stessa età.").
+problem_answer_line(en, reading_note, "Readings: the days are in the same week; meeting is mutual (whoever met someone was met by them); denying a strict comparison leaves the same age possible.").
+machinery(problem_word).
+problem_word(it, younger, " è più giovane di ").
+problem_word(en, younger, " is younger than ").
+problem_word(it, not_older, " non supera in età ").
+problem_word(en, not_older, " is not older than ").
+problem_word(it, same_age_possible, " (l'età può coincidere)").
+problem_word(en, same_age_possible, " (they may be the same age)").
+problem_word(it, cannot_be_among, " non può essere fra ").
+problem_word(en, cannot_be_among, " cannot be among ").
+problem_word(it, nobody_both, "Nessuno è insieme fra ").
+problem_word(en, nobody_both, "Nobody is both among ").
+problem_word(it, and_among, " e fra ").
+problem_word(en, and_among, " and among ").
+problem_word(it, pair_and, " e ").
+problem_word(en, pair_and, " and ").
+problem_word(it, bullet, "- ").
+problem_word(en, bullet, "- ").
+
+machinery(problem_line).
+problem_line($L, $Body, $Line) :- problem_word($L, bullet, $B), concat_atoms($B, $Body, $A), concat_atoms($A, ".", $Line).
+
+turn_plan_candidate($T) :- turn_is_problem_text($T).
+% solo le premesse: lette, non imparate, e si chiede il compito
+turn_response_part($T, 1, $Text) :-
+    turn_has_problem_premises($T), naf(turn_is_problem_task($T)), cur_order_fact($S, $X, $Y),
+    problem_language($L), problem_answer_line($L, premises_only, $Text).
+problem_answer_line(it, premises_only, "Ho letto il testo come premesse di un problema, non come fatti da imparare. Che cosa devo stabilire? Per esempio chi è necessariamente più giovane di chi, e quali confronti restano indeterminati.").
+problem_answer_line(en, premises_only, "I read the text as the premises of a problem, not as facts to learn. What should I determine? For example who is necessarily younger than whom, and which comparisons remain undetermined.").
+turn_response_part($T, 1, $Text) :-
+    turn_is_problem_task($T), cur_order_fact($S, $X, $Y), problem_language($L), problem_answer_line($L, head, $Text).
+turn_response_part($T, 2, $Line) :-
+    turn_is_problem_task($T), problem_language($L), necessarily_below($T, $X, $Y),
+    problem_term_text($L, $X, $XT), problem_term_text($L, $Y, $YT), problem_sentence_start($XT, $XS),
+    problem_word($L, younger, $W), concat_atoms($XS, $W, $A), concat_atoms($A, $YT, $Body), problem_line($L, $Body, $Line).
+turn_response_part($T, 3, $Line) :-
+    turn_is_problem_task($T), problem_language($L), necessarily_not_above($T, $X, $Y),
+    problem_term_text($L, $X, $XT), problem_term_text($L, $Y, $YT), problem_sentence_start($XT, $XS),
+    problem_word($L, not_older, $W), problem_word($L, same_age_possible, $P),
+    concat_atoms($XS, $W, $A), concat_atoms($A, $YT, $B), concat_atoms($B, $P, $Body), problem_line($L, $Body, $Line).
+turn_response_part($T, 4, $Line) :-
+    turn_is_problem_task($T), problem_language($L), order_excluded_member($T, $X, $G),
+    problem_term_text($L, $X, $XT), problem_term_text($L, $G, $GT),
+    problem_word($L, cannot_be_among, $W), concat_atoms($XT, $W, $A), concat_atoms($A, $GT, $Body), problem_line($L, $Body, $Line).
+turn_response_part($T, 5, $Line) :-
+    turn_is_problem_task($T), problem_language($L), order_disjoint_groups($T, $G, $H),
+    problem_term_text($L, $G, $GT), problem_term_text($L, $H, $HT),
+    problem_word($L, nobody_both, $W), problem_word($L, and_among, $M),
+    concat_atoms($W, $GT, $A), concat_atoms($A, $M, $B), concat_atoms($B, $HT, $Body), problem_line($L, $Body, $Line).
+turn_response_part($T, 6, $Text) :-
+    turn_is_problem_task($T), cur_order_fact($S, $X, $Y), problem_language($L), problem_answer_line($L, undetermined_head, $Text).
+turn_response_part($T, 7, $Line) :-
+    turn_is_problem_task($T), problem_language($L), order_undetermined_pair($T, $X, $Y),
+    problem_term_text($L, $X, $XT), problem_term_text($L, $Y, $YT), problem_sentence_start($XT, $XS),
+    problem_word($L, pair_and, $W), concat_atoms($XS, $W, $A), concat_atoms($A, $YT, $Body), problem_line($L, $Body, $Line).
+turn_response_part($T, 8, $Text) :-
+    turn_is_problem_task($T), cur_order_fact($S, $X, $Y), problem_language($L), problem_answer_line($L, reading_note, $Text).
+% «dopo Carlo» si legge dopo l'incontro nominato, e se il testo lo data si dice quando
+turn_response_part($T, 9, $Text) :-
+    turn_is_problem_task($T), problem_language($L), order_group($T, grp(met($B), after($X))),
+    after_reading_text($L, $B, $X, $Text).
+machinery(after_reading_text).
+machinery(problem_meeting_day).
+problem_meeting_day($B, $X, $D) :- cur_meeting_fact($X, $B, $D).
+problem_meeting_day($B, $X, $D) :- cur_meeting_fact($B, $X, $D).
+after_reading_text(it, $B, $X, $Text) :-
+    problem_name_text($B, $BN), problem_name_text($X, $XN), problem_meeting_day($B, $X, $D),
+    concat_atoms("«Dopo ", $XN, $A), concat_atoms($A, "» è dopo l'incontro di ", $C), concat_atoms($C, $BN, $E),
+    concat_atoms($E, " con ", $F), concat_atoms($F, $XN, $G), concat_atoms($G, " (", $H), concat_atoms($H, $D, $I),
+    concat_atoms($I, ").", $Text).
+after_reading_text(en, $B, $X, $Text) :-
+    problem_name_text($B, $BN), problem_name_text($X, $XN), problem_meeting_day($B, $X, $D),
+    concat_atoms("«After ", $XN, $A), concat_atoms($A, "» is after ", $C), concat_atoms($C, $BN, $E),
+    concat_atoms($E, " met ", $F), concat_atoms($F, $XN, $G), concat_atoms($G, " (", $H), concat_atoms($H, $D, $I),
+    concat_atoms($I, ").", $Text).
+
+% le coppie indeterminate si dicono una volta (X prima di Y nell'ordine dei nomi)
+% e fra ogni coppia di termini, individui e gruppi, che nessun verso lega
+machinery(order_undetermined_pair).
+machinery(order_term_known).
+order_term_known($T, $X) :- order_individual($T, $X).
+order_term_known($T, $G) :- order_group($T, $G).
+order_undetermined_pair($T, $X, $Y) :-
+    order_term_known($T, $X), order_term_known($T, $Y), dif($X, $Y), term_before($T, $X, $Y),
+    naf(order_related($T, $X, $Y)).
+machinery(term_before).
+machinery(term_rank).
+machinery(time_kind_rank).
+% l'ordine dei nomi e' quello del testo; i gruppi vengono dopo i nomi
+term_rank($T, $X, $I) :- cur_person_rank($X, $I).
+term_rank($T, grp($W, $When), $R) :- time_kind_rank($When, $K), is($R, add(1000, $K)).
+time_kind_rank(before($D), 1).
+time_kind_rank(on($D), 2).
+time_kind_rank(after($X), 3).
+term_before($T, $X, $Y) :- term_rank($T, $X, $I), term_rank($T, $Y, $J), lt($I, $J).
+
+% l'ordine dei nomi e' quello in cui il testo li nomina, fissato una volta
+machinery(problem_person_token).
+problem_person_token($T, $W) :- turn_word($T, $I, $W), problem_fact_person($W).
+machinery(problem_fact_person).
+problem_fact_person($X) :- cur_meeting_fact($X, $Y, $D).
+problem_fact_person($Y) :- cur_meeting_fact($X, $Y, $D).
+problem_fact_person($X) :- cur_order_fact($S, $X, $Y), naf(problem_group_term($X)).
+problem_fact_person($Y) :- cur_order_fact($S, $X, $Y), naf(problem_group_term($Y)).
+machinery(problem_person_rank).
+turn_scratch(problem_person_rank).
+machinery(has_person_rank).
+has_person_rank($P, $W) :- problem_person_rank($P, $W, $R).
+machinery(assert_person_ranks).
+assert_person_ranks(nil, $P, $N).
+assert_person_ranks(cons($W, $R), $P, $N) :- has_person_rank($P, $W), assert_person_ranks($R, $P, $N).
+assert_person_ranks(cons($W, $R), $P, $N) :- naf(has_person_rank($P, $W)), assert(problem_person_rank, $P, $W, $N), is($M, add($N, 1)), assert_person_ranks($R, $P, $M).

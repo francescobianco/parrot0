@@ -5140,6 +5140,48 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
      * relation-shaped missing-value turn must traverse every ordinary
      * turn_response/2 family and can spend the bounded solver budget before
      * reaching the rule that honestly names what is missing. */
+    /* 14 settembre 2026 — UNA RISPOSTA PIU' LUNGA DI UN ATOMO.
+     * `turn_priority_response/2` restituisce un termine (512 byte), e la
+     * risposta a un problema — che cosa e' necessario, che cosa e' escluso,
+     * che cosa resta indeterminato — non ci sta. La KB puo' darla in PARTI
+     * ordinate, `turn_response_part(Turn, Ordine, Testo)`: il motore le mette
+     * in fila e non sa che cosa dicano. Testi uguali nello stesso ordine si
+     * dicono una volta (kb_match deduplica). */
+    {
+        char (*orders)[KB_TERM_LEN] = NULL; size_t no = 0;
+        const char *pq[3] = { "current_turn", NULL, NULL };
+        if (kb_match_all(b->kb, "turn_response_part", pq, 3, &orders, &no) && no > 0) {
+            long *ov = calloc(no, sizeof *ov);
+            size_t nov = 0;
+            for (size_t i = 0; ov && i < no; i++) {
+                long v = strtol(kb_dequote(orders[i]), NULL, 10);
+                int seen = 0;
+                for (size_t k = 0; k < nov && !seen; k++) if (ov[k] == v) seen = 1;
+                if (!seen) ov[nov++] = v;
+            }
+            for (size_t i = 1; i < nov; i++) {
+                long v = ov[i]; size_t k = i;
+                while (k > 0 && ov[k - 1] > v) { ov[k] = ov[k - 1]; k--; }
+                ov[k] = v;
+            }
+            size_t off = 0; out[0] = '\0';
+            for (size_t i = 0; ov && i < nov && off + 1 < out_size; i++) {
+                char num[32]; snprintf(num, sizeof num, "%ld", ov[i]);
+                const char *tq[3] = { "current_turn", num, NULL };
+                char (*texts)[KB_TERM_LEN] = NULL; size_t nt = 0;
+                if (!kb_match_all(b->kb, "turn_response_part", tq, 3, &texts, &nt)) nt = 0;
+                for (size_t t = 0; t < nt && off + 1 < out_size; t++) {
+                    const char *txt = kb_dequote(texts[t]);
+                    if (!*txt) continue;
+                    off += (size_t)snprintf(out + off, out_size - off, "%s%s", off ? "\n" : "", txt);
+                }
+                free(texts);
+            }
+            free(ov);
+            free(orders);
+            if (out[0]) return 1;
+        } else free(orders);
+    }
     size_t nr = kb_match(b->kb, "turn_priority_response", q, 2, replies, 1);
     if (nr == 1) {
         put(kb_dequote(replies[0]), out, out_size);

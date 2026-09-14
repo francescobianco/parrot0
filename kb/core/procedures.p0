@@ -1271,6 +1271,8 @@ machinery(sides).
 :- include(mixture-safety.p0).
 :- include(source-questions.p0).
 :- include(function-questions.p0).
+:- include(order-determinacy.p0).
+:- include(problem-texts.p0).
 :- include(food-time.p0).
 :- include(remedy-questions.p0).
 :- include(diagnosis.p0).

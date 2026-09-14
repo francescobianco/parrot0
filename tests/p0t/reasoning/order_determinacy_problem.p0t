@@ -1,0 +1,68 @@
+# Esperimento 14 settembre 2026 (docs/sessions/2026-09-14-esperimento-ordine-eta.md):
+# un testo con un compito — confronti d'eta' su gruppi descritti da incontri — si
+# legge intero, non si impara, e si risponde con cio' che e' NECESSARIO, cio' che e'
+# ESCLUSO e cio' che resta INDETERMINATO (kb/core/problem-texts.p0,
+# kb/core/order-determinacy.p0). Il prompt e' quello dato da F.; le varianti con
+# altri nomi, altri giorni e il verso opposto del comparativo, e lo specchio
+# inglese, sono la prova che non e' un frasario. Nessuna conoscenza del mondo e'
+# inventata: le premesse sono del problema e non entrano in KB.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!reset
+
+[test the prompt: necessary, excluded, undetermined]
+!timeout 30
+> Anna è più giovane di chiunque abbia incontrato Bruno prima di martedì, ma non di chi Bruno incontrò martedì. Carlo incontrò Anna mercoledì e Bruno giovedì. Nessuno incontrato da Bruno dopo Carlo è più anziano di Anna. Senza assumere informazioni non esplicitamente implicate dal testo, stabilisci chi è necessariamente più giovane di chi e indica anche quali confronti di età restano indeterminati.
+<~ - Anna è più giovane di chiunque Bruno abbia incontrato prima di martedì.
+<~ - Chiunque Bruno abbia incontrato martedì è più giovane di chiunque Bruno abbia incontrato prima di martedì.
+<~ - Chiunque Bruno abbia incontrato dopo Carlo è più giovane di chiunque Bruno abbia incontrato prima di martedì.
+<~ - Chiunque Bruno abbia incontrato martedì non supera in età Anna (l'età può coincidere).
+<~ - Anna non può essere fra chiunque Bruno abbia incontrato prima di martedì.
+<~ Restano indeterminati:
+<~ - Anna e Bruno.
+<~ - Anna e Carlo.
+<~ - Bruno e Carlo.
+<~ - Chiunque Bruno abbia incontrato martedì e chiunque Bruno abbia incontrato dopo Carlo.
+<~ «Dopo Carlo» è dopo l'incontro di Bruno con Carlo (giovedì).
+<! Imparato
+<! Anna è più giovane di Carlo
+!query! more(anna, giovane)
+
+[test other names, other days, the opposite comparative]
+!reset
+!timeout 30
+> Marta è più anziana di chiunque abbia incontrato Luca prima di venerdì, ma non di chi Luca incontrò venerdì. Sara incontrò Marta sabato e Luca domenica. Nessuno incontrato da Luca dopo Sara è più giovane di Marta. Senza assumere informazioni non esplicitamente implicate dal testo, stabilisci chi è necessariamente più giovane di chi e indica anche quali confronti di età restano indeterminati.
+<~ - Chiunque Luca abbia incontrato prima di venerdì è più giovane di Marta.
+<~ - Marta non supera in età chiunque Luca abbia incontrato venerdì (l'età può coincidere).
+<~ - Marta non può essere fra chiunque Luca abbia incontrato prima di venerdì.
+<~ - Marta e Sara.
+
+[test the English mirror]
+!reset
+!set PARROT0_LANG=en
+!timeout 30
+> Anna is younger than anyone who met Bruno before Tuesday, but not than whoever Bruno met on Tuesday. Carlo met Anna on Wednesday and Bruno on Thursday. Nobody met by Bruno after Carlo is older than Anna. Without assuming information not explicitly implied by the text, determine who is necessarily younger than whom and which age comparisons remain undetermined.
+<~ - Anyone Bruno met on Tuesday is younger than anyone Bruno met before Tuesday.
+<~ - Anna cannot be among anyone Bruno met before Tuesday.
+<~ - Anna and Carlo.
+
+[test premises and task in two turns, as the prompt is typed with a line break]
+!reset
+!set PARROT0_LANG=it
+!timeout 30
+> Anna è più giovane di chiunque abbia incontrato Bruno prima di martedì, ma non di chi Bruno incontrò martedì. Carlo incontrò Anna mercoledì e Bruno giovedì. Nessuno incontrato da Bruno dopo Carlo è più anziano di Anna.
+<~ premesse di un problema, non come fatti da imparare
+<! Imparato
+> Senza assumere informazioni non esplicitamente implicate dal testo, stabilisci chi è necessariamente più giovane di chi e indica anche quali confronti di età restano indeterminati.
+<~ - Anna non può essere fra chiunque Bruno abbia incontrato prima di martedì.
+<~ - Anna e Carlo.
+
+[test a second problem in the same session replaces the first]
+!timeout 30
+> Marta è più anziana di chiunque abbia incontrato Luca prima di venerdì, ma non di chi Luca incontrò venerdì. Sara incontrò Marta sabato e Luca domenica. Nessuno incontrato da Luca dopo Sara è più giovane di Marta.
+<~ premesse di un problema
+> stabilisci chi è necessariamente più giovane di chi
+<~ - Marta e Sara.
+<! Anna

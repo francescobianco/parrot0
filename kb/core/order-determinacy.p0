@@ -1,0 +1,71 @@
+% order-determinacy.p0 — CHE COSA UN INSIEME DI CONFRONTI RENDE NECESSARIO.
+%
+% docs/sessions/2026-09-14-esperimento-ordine-eta.md. «Anna è più giovane di
+% chiunque abbia incontrato Bruno prima di martedì, ma non di chi Bruno incontrò
+% martedì …: stabilisci chi è necessariamente più giovane di chi e quali
+% confronti restano indeterminati.» La domanda non chiede un fatto: chiede che
+% cosa i vincoli IMPONGONO e che cosa lasciano aperto. E' una facolta' generale,
+% che non sa di eta' ne' di incontri:
+%
+%   order_edge(Problem, lt, X, Y)   X sta strettamente sotto Y (per un gruppo:
+%                                   ogni suo membro)
+%   order_edge(Problem, le, X, Y)   X non sta sopra Y (su una dimensione totale,
+%                                   «non piu' giovane» e' «coetaneo o piu' anziano»)
+%
+% Un termine e' un individuo o un gruppo descritto; le catene sono corte (fino a
+% tre archi) perche' i problemi letti in un turno lo sono, e una ricorsione senza
+% tetto su un grafo con cicli non termina.
+
+:- file_attribute(machinery).
+
+machinery(order_edge).
+machinery(order_term).
+order_term($P, $X) :- order_edge($P, $R, $X, $Y).
+order_term($P, $Y) :- order_edge($P, $R, $X, $Y).
+
+% ── necessariamente sotto (stretto) e necessariamente non sopra (largo) ──────
+machinery(order_step).
+order_step($P, lt, $X, $Y) :- order_edge($P, lt, $X, $Y).
+order_step($P, le, $X, $Y) :- order_edge($P, le, $X, $Y).
+order_step($P, le, $X, $Y) :- order_edge($P, lt, $X, $Y).
+
+machinery(order_strictness).
+% la composizione di due passi e' stretta se almeno uno lo e'
+order_strictness(lt, lt, lt).
+order_strictness(lt, le, lt).
+order_strictness(le, lt, lt).
+order_strictness(le, le, le).
+
+machinery(order_path).
+order_path($P, $S, $X, $Y) :- order_edge($P, $S, $X, $Y).
+order_path($P, $S, $X, $Z) :-
+    order_edge($P, $S1, $X, $Y), order_edge($P, $S2, $Y, $Z), dif($X, $Z), order_strictness($S1, $S2, $S).
+order_path($P, $S, $X, $W) :-
+    order_edge($P, $S1, $X, $Y), order_edge($P, $S2, $Y, $Z), order_edge($P, $S3, $Z, $W), dif($X, $W),
+    order_strictness($S1, $S2, $S12), order_strictness($S12, $S3, $S).
+
+machinery(necessarily_below).
+necessarily_below($P, $X, $Y) :- order_path($P, lt, $X, $Y).
+machinery(necessarily_not_above).
+necessarily_not_above($P, $X, $Y) :- order_path($P, le, $X, $Y), naf(necessarily_below($P, $X, $Y)).
+
+% ── indeterminato: nessun verso e' imposto ──────────────────────────────────
+machinery(order_related).
+order_related($P, $X, $Y) :- order_path($P, $S, $X, $Y).
+order_related($P, $X, $Y) :- order_path($P, $S, $Y, $X).
+machinery(order_undetermined).
+order_undetermined($P, $X, $Y) :-
+    order_individual($P, $X), order_individual($P, $Y), dif($X, $Y),
+    naf(order_related($P, $X, $Y)).
+
+% ── un individuo che non puo' appartenere a un gruppo ────────────────────────
+% Se X sta strettamente sotto (o sopra) ogni membro di G, X non e' in G: sarebbe
+% sotto se stesso. E' una conclusione imposta, non un'assunzione.
+machinery(order_group).
+machinery(order_individual).
+machinery(order_excluded_member).
+order_excluded_member($P, $X, $G) :- order_individual($P, $X), order_group($P, $G), order_path($P, lt, $X, $G).
+order_excluded_member($P, $X, $G) :- order_individual($P, $X), order_group($P, $G), order_path($P, lt, $G, $X).
+% e due gruppi uno strettamente sotto l'altro non hanno membri comuni
+machinery(order_disjoint_groups).
+order_disjoint_groups($P, $G, $H) :- order_group($P, $G), order_group($P, $H), dif($G, $H), order_path($P, lt, $G, $H).
