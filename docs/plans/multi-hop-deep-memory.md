@@ -531,6 +531,58 @@ testa e per KB va provata prima, e un budget di letture per turno è da mettere 
 «which city is the capital of Hungary?» con la politica «leggi da solo» passa dalla lettura
 guidata e risponde «Answer: Budapest.» con la catena: giusto, ma più lento della KB.
 
+**Terzo banco non visto** — `tests/p0t/crossing/dm_class_heldout3.p0t`, scritto il 15 settembre
+dopo l'11/12 dal vivo, senza guardare né toccare il ciclo; anelli verificati nei lead veri,
+risultati veri della ricerca registrati. Varia domini (architettura, tecnologia, musica,
+isole), chiede due tipi su una pagina, un tipo che richiede di tornare a una pagina già
+letta, una risposta che non è un nome, e contiene distrattori reali (la pagina «Apple» è il
+frutto, «Guernica» è anche la città, «The Four Seasons» è ambiguo).
+
+| # | Problema | Pagine locali | Dal vivo |
+|---|---|---|---|
+| T1 | Eiffel Tower → Paris → Seine | ✗ tipo chiesto letto come «through» | ✗ stesso tipo; ponte su «Located» |
+| T2 | Lisbon (whose) → Portugal → Atlantic | ✗ risposta giusta, **passo sbagliato** («country: Lisbon») | stesso |
+| T3 | The Four Seasons → Vivaldi → violin | ✗ muro («four seasons play») | ✗ onesto: apre la pagina ambigua *Four Seasons* |
+| T4 | iPhone → Apple Inc. → Cupertino | ✗ muro | ✗ **misclaim**: «San Francisco», da una ricerca che propone *Airtable* |
+| T5 | Crete: mare e paese | ✗ muro («belong») | ✗ «I read about belong: .» |
+| T6 | Guernica: nazionalità del pittore (noto in KB) e città dove è esposto | ✗ muro | ✗ **misclaim**: «Spanish; France», con «city: France» |
+| T7 | Sagrada Família → Gaudí → Catalan, a passi | ✓ | ✗ ponte su «Designed» |
+| T8 | la chiesa più alta del mondo → Spain | ✗ muro | ✗ legge la lista *List of tallest church buildings*, non risponde |
+| C3 | controllo: il lead della Stele di Rosetta non nomina il museo | ✓ onesto | ✓ onesto |
+| T9 | T4 in italiano | ✗ **misclaim** «Subject.» | ✗ **misclaim** «Subject.» |
+
+**Pagine locali: 1/9 e 1 misclaim. Dal vivo: 0/9 e 3 misclaim** (più T2, giusto per la strada
+sbagliata). È la misura più importante della missione finora: l'11/12 dal vivo era
+generalità sui problemi dei primi due banchi, non sulla classe. Le cause, raggruppate —
+nessuna è specifica di un problema:
+
+1. **Il tipo chiesto** si legge ancora male con un verbo che la KB non conosce come verbo di
+   relazione («which river **flows** through» → «through»).
+2. **Una parola a inizio frase** che è un participio o un verbo («Located», «Designed»)
+   passa per un nome quando Wikipedia ha una pagina con quel titolo: il filtro del lessico
+   non riconosce la forma flessa.
+3. **La ricerca accetta risultati non legati al problema**: *Airtable* è una società con sede
+   a San Francisco, ma non nomina l'iPhone. Un risultato di ricerca deve nominare il nome
+   proprio del prompt, non solo il tipo e le parole generiche.
+4. **La verifica di tipo sbaglia su un paese** («city: France»): da capire, è un misclaim.
+5. **Due tipi chiesti senza ponte** (T5) e **il ritorno a una pagina già letta** (T6) non
+   sono coperti: il ciclo va sempre avanti.
+6. **Le risposte che non sono nomi** («virtuoso violinist» → violin) non esistono come forma.
+7. **Titoli ambigui** (*The Four Seasons*, *Guernica*): la pagina di disambiguazione non è
+   usata per scegliere il significato che il prompt richiede.
+8. **In italiano un altro modulo prende il turno** e risponde «Subject.» prima della lettura
+   guidata.
+9. **Due trappole del banco stesso**, ripetute e corrette prima di contare: attese
+   «contiene» sulla catena (T1 risultava verde per una pagina letta), e un'attesa sbagliata
+   su T7 (il prompt chiede anche l'architetto).
+
+**Conseguenza per la demo.** Oggi parrot0 risolve dal vivo i problemi dei banchi su cui è
+stato curato; su problemi nuovi della stessa classe no, e in tre casi su dieci sbaglia con
+sicurezza. Prima di una demo servono, nell'ordine: zero misclaim su questo banco (cause 3,
+4, 8: una risposta sbagliata è peggio di un «non ho trovato»), poi le cause 1 e 2 (lettura
+del prompt e dei nomi), poi 5–7. Il banco resta rosso finché le cure non passano su
+**tutti e tre** i banchi insieme, e dopo si scrive il quarto.
+
 **Criteri di generalità** (valgono per ogni mossa della missione):
 
 1. **Nessuna cura si misura su un problema**: si misura sul banco intero, e si riporta il
@@ -752,3 +804,6 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   misclaim** (B6 italiano onesto ma non risolto). Banchi locali 8/8 e 7/7, E1 23/23,
   regressioni verdi. Prossimo: terzo banco non visto; budget di letture per turno in KB;
   ripiego sull'edizione inglese quando l'italiana non porta l'anello; migrazione IR (§4.3).
+- **15 settembre 2026** — terzo banco non visto, misurato senza cure: **pagine locali 1/9 con
+  1 misclaim; dal vivo 0/9 con 3 misclaim**. L'11/12 era generalità sui primi due banchi, non
+  sulla classe. Nove cause elencate in §7.0; prima mossa per la demo: zero misclaim.

@@ -1,0 +1,109 @@
+# Missione multi-hop — TERZO BANCO NON VISTO (docs/plans/multi-hop-deep-memory.md §7.0, criterio 3).
+# Scritto dopo il 7/7 del banco di controllo e SENZA guardare ne' toccare il ciclo della lettura
+# guidata: per ogni problema si e' verificato soltanto dove sono scritti gli anelli nei lead veri
+# (tests/fixtures/wiki/SOURCES.tsv; search.tsv: risultati veri della ricerca, 15 settembre 2026).
+# Varia rispetto ai banchi precedenti: domini (architettura, tecnologia, musica, isole), due tipi
+# sulla stessa pagina, un tipo che richiede di tornare a una pagina gia' letta, una risposta che
+# non e' un nome («virtuoso violinist» → violin), un'azienda che condivide il nome con un frutto.
+# Le attese guardano la riga «Answer:», non la catena: «contiene» sulla catena passava su una
+# pagina letta anche quando la risposta mancava (trappola gia' annotata, ripetuta e corretta).
+# Anelli gia' nella KB, dichiarati: artist_of(pablo_picasso, guernica), artwork_place(guernica, spain).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+# T1 — monumento → citta' (letta) → fiume (letto, «the river Seine»)
+[test T1 a monument, its city, the river of that city]
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Which river flows through the city where the Eiffel Tower stands?
+<~ Answer: Seine
+<! mysterious
+
+# T2 — capitale (whose) → paese → oceano (distrattore: il lead di Lisbona nomina gia' l'oceano)
+[test T2 whose capital, then the ocean of that country]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Which ocean borders the country whose capital is Lisbon?
+<~ Answer: Atlantic Ocean
+<! country: Lisbon
+
+# T3 — opera → compositore → strumento: la risposta non e' un nome («virtuoso violinist»)
+[test T3 the instrument is said as a profession, not a name]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Which instrument did the composer of The Four Seasons play?
+<~ Answer: violin
+<! Mantua
+
+# T4 — prodotto → azienda («Apple», che dal vivo e' anche il frutto) → citta' della sede
+[test T4 a product, its company, the city of its headquarters]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> In which city is the company that makes the iPhone headquartered?
+<~ Answer: Cupertino
+
+# T5 — due tipi sulla stessa pagina, senza parola ponte
+[test T5 two asked types answered by one page]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> In which sea is Crete, and which country does it belong to?
+<~ Answer: Mediterranean Sea; Greece
+
+# T6 — pittore noto in KB → nazionalita' (letta) → citta' dove l'opera e' esposta: si torna alla pagina del quadro
+[test T6 back to an earlier page for the second type]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> What was the nationality of the painter of Guernica, and in which city is the painting exhibited?
+<~ Answer: Spanish; Madrid
+
+# T7 — edificio → architetto → nazionalita', a passi imperativi
+[test T7 building, architect, nationality given as steps]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Start from the Sagrada Família. Identify its architect. Then determine his nationality.
+<~ Answer: Antoni Gaudí; Catalan
+
+# T8 — descrizione senza nome proprio → ricerca → paese
+[test T8 a superlative description resolved by search]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Which country is home to the tallest church in the world?
+<~ Answer: Spain
+
+# C3 — CONTROLLO: il lead della Stele di Rosetta non nomina il museo. Non si inventa.
+[test C3 the museum of the Rosetta Stone is not in its lead]
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> In which city is the museum that holds the Rosetta Stone?
+<! London
+<! mysterious
+
+# T9 — T4 in italiano (in fondo: la lingua resta appiccicosa, reperto del piano)
+[test T9 the same as T4 in Italian]
+!set PARROT0_LANG=it
+!reset
+!timeout 90
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> cerca da solo
+> In quale città ha sede l'azienda che produce l'iPhone?
+<~ Risposta: Cupertino
