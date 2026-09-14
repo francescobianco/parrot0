@@ -15455,6 +15455,66 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 fprintf(stderr, "[form] %s does not match «%s»\n", form, norm);
             continue;
         }
+        /* 14 settembre 2026 — UNA FORMA PUO' CEDERE A CIO' CHE LA KB RICONOSCE
+         * GIA' (docs/plans/da-parola-a-stato.md, mossa 2).
+         * `turn_form_yield(Forma, Relazione, Posizione, Slot)`: la forma non legge
+         * un turno che contiene una superficie di `Relazione` (l'argomento in
+         * `Posizione`) che copre anche il valore di `Slot`. La copertura conta:
+         * senza, «I feel exhausted» cedeva a `intent_cue(smalltalk_continue,
+         * "i feel")` — l'apertura, non lo stato — e riceveva «That sounds nice». «mi sento X» non deve rubare «mi sento svuotato» al
+         * frasario (`intent_cue/2`) ne' «I feel sad» alla situazione
+         * (`trouble_cue/2`). Quali relazioni facciano cedere, e quali forme
+         * cedano, e' KB; qui c'e' soltanto il confronto delle superfici, e si
+         * paga solo quando la forma ha gia' combaciato. */
+        {
+            char (*yr)[KB_TERM_LEN] = NULL; size_t nyr = 0;
+            const char *yq[4] = { form, NULL, NULL, NULL };
+            int yield = 0;
+            if (kb_match_all(b->kb, "turn_form_yield", yq, 4, &yr, &nyr)) {
+                for (size_t y = 0; y < nyr && !yield; y++) {
+                    char pos[1][KB_TERM_LEN], ysl[1][KB_TERM_LEN];
+                    const char *pq2[4] = { form, yr[y], NULL, NULL };
+                    if (kb_match(b->kb, "turn_form_yield", pq2, 4, pos, 1) != 1) continue;
+                    const char *pq3[4] = { form, yr[y], pos[0], NULL };
+                    if (kb_match(b->kb, "turn_form_yield", pq3, 4, ysl, 1) != 1) continue;
+                    const char *cover = p0_form_slot(slots, ns, kb_dequote(ysl[0]));
+                    char cov[KB_TERM_LEN]; snprintf(cov, sizeof cov, "%s", cover ? cover : "");
+                    for (char *c = cov; *c; c++) if (*c == '_') *c = ' ';
+                    if (!cov[0]) continue;
+                    char rel[KB_TERM_LEN]; snprintf(rel, sizeof rel, "%s", kb_dequote(yr[y]));
+                    char (*keys)[KB_TERM_LEN] = NULL; size_t nk = 0;
+                    const char *kq[2] = { NULL, NULL };
+                    if (!kb_match_all(b->kb, rel, kq, 2, &keys, &nk)) { free(keys); continue; }
+                    qsort(keys, nk, KB_TERM_LEN, (int (*)(const void *, const void *))strcmp);
+                    int by_key = !strcmp(kb_dequote(pos[0]), "1");
+                    for (size_t k = 0; k < nk && !yield; k++) {
+                        if (k && !strcmp(keys[k], keys[k - 1])) continue;
+                        if (by_key) {
+                            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", keys[k]);
+                            const char *sv = kb_dequote(sb);
+                            if (kb_text_has_surface(norm, sv) && kb_text_has_surface(sv, cov)) yield = 1;
+                            continue;
+                        }
+                        char (*sf)[KB_TERM_LEN] = NULL; size_t nsf = 0;
+                        const char *sq[2] = { keys[k], NULL };
+                        if (kb_match_all(b->kb, rel, sq, 2, &sf, &nsf))
+                            for (size_t q = 0; q < nsf && !yield; q++) {
+                                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", sf[q]);
+                                const char *sv = kb_dequote(sb);
+                                if (kb_text_has_surface(norm, sv) && kb_text_has_surface(sv, cov)) yield = 1;
+                            }
+                        free(sf);
+                    }
+                    free(keys);
+                }
+            }
+            free(yr);
+            if (yield) {
+                if (getenv("P0_READ_TRACE"))
+                    fprintf(stderr, "[form] %s yields: the turn is already recognized\n", form);
+                continue;
+            }
+        }
         /* gen512 — UNO SLOT PUO' DICHIARARE LA CLASSE DI CIO' CHE LEGGE.
          * `turn_form_slot_class(Forma, Slot, Classe)`: il valore dello slot
          * deve soddisfare `Classe(Valore)` — un fatto o una regola. Senza,

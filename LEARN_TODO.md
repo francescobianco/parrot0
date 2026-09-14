@@ -6,6 +6,68 @@
 > Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
 > è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
 
+## ⛔ HANDOFF 2026-09-14 (sera) — DA PAROLA A STATO: mossa 1 chiusa, mossa 2 a metà con un misclaim aperto
+
+Piano: [docs/plans/da-parola-a-stato.md](docs/plans/da-parola-a-stato.md), primo caso
+guida di M1 di `interlocutore-di-frontiera.md`. **Rileggere il suo «Rinforzo KB-first»
+prima di toccare qualunque cosa.** Vincoli di F.:
+- solo Wikipedia ufficiale;
+- niente MCP per crescere o misurare la KB;
+- solo test puntuali, confrontati con HEAD, niente suite né file interi;
+- procedura `LEARN_PROTOCOL.md` + `procedura-crescita-kb.md`.
+
+**Mossa 1 — ✅ commit `3e8c6938`.** La lettura della prosa non parla più per l'utente:
+- in KB, `inner_turn` (`discourse.p0`), con le ragioni come righe `reading_prose(1)` e
+  `repairing(1)`;
+- tre porte C: il registro della conversazione, `board_open`, e il marcatore attorno al
+  ciclo sulle frasi.
+
+Dettagli e verifica nel piano, §6.
+
+**Mossa 2 — ⚠ a metà, committata così com'è (questo commit):**
+- `kb/core/user-state.p0` (incluso da `procedures.p0`), forma `state_self_report`:
+  - «mi sento X» / «I feel X», con `turn_form_view(said)`;
+  - asserisce `reported_state(user, X, now)` (`turn_scratch`);
+  - chiede `word_meaning/2`, riusando il circuito gen512 della domanda di significato;
+  - se non sa, lo dice nominando la parola e apre l'offerta di ricerca
+    (`turn_form_empty_opens`), così il «sì» fa partire la lettura.
+- Nuova porta C nel lettore delle forme (`10-memory-knowledge.c`, dopo `p0_form_match`):
+  `turn_form_yield(Forma, Relazione, Posizione)`. La forma cede se il turno contiene una
+  superficie di quella relazione della KB. In KB: `intent_cue` posizione 2, `trouble_cue`
+  posizione 1.
+- **Misurato dal vivo (`make chat`, rete accesa):**
+  - «mi sento spossato» → «Mi dici che ti senti «spossato», ma non so ancora che cosa voglia
+    dire. Vuoi che cerchi?» (a HEAD: «Non capisco ancora.»);
+  - «mi sento stanco» → idem;
+  - «mi sento svuotato» → frasario `mood_tired`, come a HEAD;
+  - «mi sento giù» e «I feel sad» → situazione `user_low_mood`, come a HEAD;
+  - «sì» dopo l'offerta → «Vediamo cosa trovo su spossato…», ma it.wikipedia non ha
+    «Spossato»: il turno dopo dice «Ho cercato «spossato» ma non ho trovato niente».
+    È il lavoro della mossa 4 (aggettivo → nome di stato).
+- **❌ MISCLAIM APERTO, da chiudere per primo:**
+  - «I feel exhausted» → «That sounds nice -- tell me more about it.»;
+  - la forma cede a `intent_cue(smalltalk_continue, "i feel")`, cioè all'apertura e non
+    allo stato;
+  - **cura progettata, non ancora applicata:** `turn_form_yield/4` con lo slot da coprire
+    (`turn_form_yield(state_self_report, intent_cue, 2, state_value)`). Si cede solo se la
+    superficie contiene anche il valore dello slot (`kb_text_has_surface(superficie,
+    valore)`). Da ricompilare e riverificare sui cinque casi sopra.
+- **MISURATO E SCARTATO:** la cessione come classe dello slot (`turn_form_slot_class` +
+  `concat_atoms` fra superficie-stringa e slot-atomo). Tre formulazioni, zero `!query`
+  verdi. `concat_atoms` con tutti gli argomenti legati confronta il risultato con le
+  virgolette; nel verso inverso le toglie. Annotato in `user-state.p0`.
+- **Non verificato:** nessun caso `.p0t` dopo la porta `turn_form_yield`. Da confrontare con
+  HEAD, un blocco alla volta: `user_situations.p0t` riga 46, `user_model.it.p0t` riga 20,
+  `offer_context.p0t` riga 76.
+
+**Poi, in ordine (piano §6):**
+1. Mossa 2 completa: grado, tempo e terza persona (§2.2-2.4), senza forme per parola.
+2. Mossa 3: `holds/3` dal `reported_state` quando la parola ha un concetto.
+3. Mossa 4: spossato → spossatezza dentro Wikipedia (ricerca dell'edizione + derivazione
+   appresa).
+4. Mossa 5: la pagina *Fatica* capita in italiano.
+5. Mosse 6-7: rilettura, condotta, banco §5, persistenza.
+
 ## ⛔ HANDOFF 2026-09-14 — PROFONDITÀ DEL RAGIONAMENTO SIMBOLICO: il solver regge, parrot0 no
 
 Piano: [docs/plans/long-symbolic-reasoning.md](docs/plans/long-symbolic-reasoning.md)

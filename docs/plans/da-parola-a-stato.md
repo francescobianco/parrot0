@@ -415,6 +415,10 @@ scritti dal turno interno. Si registrano, non si curano qui.
 
 ### Mossa 2 — la forma dell'autodescrizione, con lo slot del valore
 
+> **Stato al 14 settembre 2026 (sera): a metà.** Forma `state_self_report` in
+> `kb/core/user-state.p0` e porta `turn_form_yield/3`. Misclaim aperto su «I feel
+> exhausted». Handoff completo in `LEARN_TODO.md`.
+
 - **Che cosa:** l'IR del §2.1-2.3 e 2.6 per costruzioni copulari e percettive,
   italiano e inglese; lo slot sconosciuto diventa lacuna `knowledge` locale.
 - **Dove:** classi dei verbi di stato e delle costruzioni in KB; forma di turno

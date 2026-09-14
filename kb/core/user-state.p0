@@ -1,0 +1,68 @@
+% user-state.p0 — LO STATO DI CHI PARLA (docs/plans/da-parola-a-stato.md).
+%
+% ⛔ KB-FIRST, prima di aggiungere qui (piano §«Rinforzo»): nessuna cue per una
+% parola di stato, nessun elenco di stati, nessun ramo C. Qui stanno soltanto le
+% FORME con cui qualcuno riferisce uno stato e il fatto che ne resta; che cosa
+% una parola di stato voglia dire lo si apprende (lettura di Wikipedia, lezione
+% parlata), non lo si scrive.
+%
+% ── MOSSA 2 (14 settembre 2026) — L'AUTODESCRIZIONE CON LO SLOT DEL VALORE ──
+%
+% E0 (piano §4.2):  «mi sento spossato» -> «Non capisco ancora.», specie della
+% lacuna `blind`, nessuna parola opaca. Il turno falliva TUTTO quando mancava
+% soltanto il valore.
+%
+% Ora la forma legge la struttura — chi riferisce, con che costruzione, quale
+% valore — e il fallimento resta LOCALE al valore. Non serve nessun C: e' il
+% circuito della domanda di significato (messages.p0, gen512, `word_meaning/2`)
+% raggiunto da una forma nuova. Se il significato non c'e', la forma lo DICE
+% nominando la parola e apre l'offerta di ricerca (`turn_form_empty_opens`),
+% cosi' il «si'» successivo va a leggere; se c'e', lo usa.
+%
+% Il fatto che resta e' un fatto dell'IR, lessicale: `reported_state(Soggetto,
+% Parola, Tempo)`. Diventa uno STATO (`holds/3`, piano §3) solo quando la parola
+% ha un concetto: e' la mossa 3.
+
+:- file_attribute(machinery).
+
+% Le aperture che introducono uno stato di CHI PARLA, con la costruzione
+% percettiva (piano §2.3). Una costruzione nuova domani — «ho» + nome di stato,
+% «sto» + locuzione — e' una forma accanto a questa, non un ramo.
+machinery(self_state_opener).
+self_state_opener("mi sento").
+self_state_opener("i feel").
+
+% Stato del dialogo, non conoscenza del mondo: non si salva (piano §3.4).
+machinery(reported_state).
+turn_scratch(reported_state).
+
+turn_form(state_self_report, 1, class(self_state_opener)).
+turn_form(state_self_report, 2, slot(state_value)).
+turn_form_mood(state_self_report, statement).
+turn_form_view(state_self_report, said).
+turn_form_act(state_self_report, "op(assert, reported_state, [user, state_value, now])").
+turn_form_act(state_self_report, "op(match, word_meaning, [state_value, free])").
+turn_form_reply(state_self_report, state_report_meaning).
+turn_form_empty_reply(state_self_report, state_report_unknown).
+turn_form_empty_opens(state_self_report, gap_offer, state_value).
+
+% La forma CEDE a cio' che la KB riconosce gia'. Misurato: catturava «mi sento
+% svuotato» (frasario `mood_tired`, reactions.p0 §5: a HEAD rispondeva «Sembra
+% un momento un po' fiacco…»), anche togliendo la priorita' anticipata — il
+% lettore delle forme viene prima della chiacchiera. Le strutture secondarie non
+% si potano e non si scavalcano: `turn_form_yield/4` dichiara a quali superfici
+% la forma cede (una porta generica del lettore delle forme).
+% MISURATO E SCARTATO: una classe dello slot che cercasse la parola nelle
+% superfici (`turn_form_slot_class` + `concat_atoms`). Le superfici sono
+% stringhe e il valore uno slot-atomo; tre formulazioni (diretta, superficie
+% prima, verso inverso + `eq`) non hanno dato un solo `!query` verde.
+machinery(turn_form_yield).
+% Cede solo a una superficie che copre anche il VALORE: «i feel» da solo
+% (`smalltalk_continue`) e' l'apertura, non lo stato.
+turn_form_yield(state_self_report, intent_cue, 2, state_value).
+turn_form_yield(state_self_report, trouble_cue, 1, state_value).
+
+response_template(state_report_unknown, "You tell me you feel «{state_value}», but I don't know yet what that means. Shall I look it up?").
+response_template(state_report_unknown, it, "Mi dici che ti senti «{state_value}», ma non so ancora che cosa voglia dire. Vuoi che cerchi?").
+response_template(state_report_meaning, "You tell me you feel «{state_value}»: {result}").
+response_template(state_report_meaning, it, "Mi dici che ti senti «{state_value}»: {result}").
