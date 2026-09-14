@@ -1240,6 +1240,7 @@ causes(low_light, yellow_leaves).
 causes(underwatering, yellow_leaves).
 causes(overwatering, yellow_leaves).
 causes(high_humidity, mold).
+causes(poorly_maintained_cooling_towers, legionella_outbreaks).
 chemical_symbol(actinium, Ac).
 chemical_symbol(ag, silver).
 chemical_symbol(al, aluminium).

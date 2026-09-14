@@ -1782,3 +1782,22 @@ articolo, edizione, revisione e dice che è testo letto; tetto dei contabili da 
    aggiunge la definizione di «fire».
 7. Dalle campagne precedenti: 19×21 sintesi con status, 05×07 reinterpretazione, il
    costo del turno base (TEST_TODO: i rossi di tempo a 1 s sono gli stessi a HEAD).
+
+## 15. Quarta campagna — memoria profonda × prosa letta × piani (14 settembre, 09:20–)
+
+### mix-04-12-001 — «X result from Y» è «Y causes X»
+
+**Caso:** «Most outbreaks result from poorly maintained cooling towers» (lead vero di
+Legionella). **Prima:** `result(outbreaks, poorly_maintained_cooling_towers)`, cassetto
+che nessuna domanda causale apre. **Cura (solo KB):** `converse_particle_reading(result,
+from, causes)` in grammar.p0 genera lo schema «@O result(s) from @S» → `causes`; il
+legatore ordina già i ruoli per lettera (`frame_role_order/2`), quindi il motore scambia
+senza sapere il verbo; lo schema diritto «@S result from @O» si ritira con
+`naf(converse_particle_pair/2)` (unario ground, niente floundering). **Dopo:** «most
+legionella outbreaks result from poorly maintained cooling towers» → `causes(…,
+legionella_outbreaks)` + `attenuated_reading(most, …)`; «what causes legionella
+outbreaks?» → «poorly maintained cooling towers.». Lezione vera salvata in `make chat`.
+Cricchetto `tests/p0t/crossing/mix_read_converse_cause.p0t` (5). soft-test: gli stessi
+due rossi di tempo di HEAD. **Reperti:** «what do legionella outbreaks result from?»
+passa per `answer_frame(result, result)` e non scambia; «Learned: towers causes»
+(accordo); il contesto del topic («outbreaks» nel passo di Legionella) resta da fare.

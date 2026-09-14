@@ -1619,8 +1619,27 @@ verb_particle_surface($Root, $Surface) :-
 
 extract_frame($Pat, $Root) :-
     verb_particle_surface($Root, $Surface),
+    verb_particle($Root, $Particle), naf(converse_particle_pair($Root, $Particle)),
     concat_atoms("@S ", $Surface, $A),
     concat_atoms($A, " @O", $Pat).
+
+% ── mix-04-12-001 — «X RESULTS FROM Y» E' «Y CAUSES X» ─────────────────────
+% «Most outbreaks result from poorly maintained cooling towers» (Legionella,
+% Wikipedia) si leggeva `result(outbreaks, towers)`: il nesso causale c'era, ma
+% in un cassetto che nessuna domanda causale apre, e al contrario del verbo.
+% Alcune relazioni con particella sono la CONVERSA di una relazione che parrot0
+% gia' sa usare: il soggetto della frase e' il secondo ruolo. Lo schema nomina i
+% ruoli nell'ordine della frase (`@O … @S`, `frame_role_order/2`), cosi' il
+% motore scambia i ruoli senza sapere quale verbo sia. Un nuovo membro («stems
+% from», «is caused by») e' una riga.
+machinery(converse_particle_reading).
+machinery(converse_particle_pair).
+converse_particle_reading(result, from, causes).
+converse_particle_pair($Root, $Particle) :- converse_particle_reading($Root, $Particle, $Pred).
+extract_frame($Pat, $Pred) :-
+    converse_particle_reading($Root, $Particle, $Pred), verb_finite_form($Root, $Form),
+    concat_atoms("@O ", $Form, $A), concat_atoms($A, " ", $B),
+    concat_atoms($B, $Particle, $C), concat_atoms($C, " @S", $Pat).
 
 % E il PASSIVO di una relazione con particella: «Most coral reefs ARE BUILT
 % FROM stony corals». E' la forma con cui un lead d'enciclopedia dice quasi

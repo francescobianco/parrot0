@@ -257,6 +257,7 @@ fact_mention(chlorine_gas, "chlorine gas causes breathing problems").
 fact_mention(yellow_leaves, "low light causes yellow leaves").
 fact_mention(low_light, "low light causes yellow leaves").
 fact_mention(poorly_maintained_cooling_towers, "most outbreaks result from poorly maintained cooling towers").
+fact_mention(poorly_maintained_cooling_towers, "most legionella outbreaks result from poorly maintained cooling towers").
 fact_mention(outbreaks, "most outbreaks result from poorly maintained cooling towers").
 fact_mention(legionella_species, "most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans").
 fact_mention(yellow_leaves, "underwatering causes yellow leaves").
@@ -269,6 +270,7 @@ fact_mention(mold, "high humidity causes mold").
 fact_mention(high_humidity, "high humidity causes mold").
 fact_mention(fires, "lithium batteries cause fires").
 fact_mention(fire_blanket, "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+fact_mention(legionella_outbreaks, "most legionella outbreaks result from poorly maintained cooling towers").
 fact_mention(lithium_batteries, "lithium batteries cause fires").
 mixture_releases(bleach, ammonia, "chloramine gas").
 mixture_releases(bleach, acid, "chlorine gas").
@@ -307,6 +309,7 @@ attenuated_reading(most, most individuals who are exposed to the bacteria do not
 attenuated_reading(most, most outbreaks result from poorly maintained cooling towers).
 device(carbon_monoxide_detector).
 attenuated_reading(most, most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely).
+attenuated_reading(most, most legionella outbreaks result from poorly maintained cooling towers).
 use(co_detectors, sensor).
 attenuated_reading(often, thermal runaway occurs in situations where an increase in temperature changes the conditions in a way that causes a further increase in temperature, often leading to a destructive result).
 attenuated_reading(typically, a smoke detector is a device that senses smoke, typically as an indicator of fire).

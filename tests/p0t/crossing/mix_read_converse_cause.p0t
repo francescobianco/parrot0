@@ -1,0 +1,20 @@
+# mix-of-capabilities 04×12 — il nesso causale letto nel verso della conversa.
+# «Most outbreaks result from poorly maintained cooling towers» (Legionella,
+# Wikipedia) si leggeva `result(outbreaks, towers)`: la causa c'era, in un cassetto
+# che nessuna domanda causale apre. `converse_particle_reading(result, from,
+# causes)` (grammar.p0) fa leggere lo schema «@O result from @S» come `causes/2`.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test the read converse becomes a cause and answers the causal question]
+!timeout 30
+> most legionella outbreaks result from poorly maintained cooling towers
+<~ poorly maintained cooling towers
+!query causes(poorly_maintained_cooling_towers, legionella_outbreaks)
+!query! result(legionella_outbreaks, $Y)
+!query attenuated_reading(most, $S)
+> what causes legionella outbreaks?
+<~ poorly maintained cooling towers

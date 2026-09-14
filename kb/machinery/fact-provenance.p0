@@ -466,6 +466,7 @@ fact_source(intracellular_pathogen(legionella_species), legionella_species, "mos
 fact_source(genus(legionella), legionella, "legionella is a genus of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine, an amino acid").
 fact_source(pressure_surge(hydraulic_shock), hydraulic_shock, "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 fact_source(safety_device(fire_blanket), fire_blanket, "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+fact_source(causes(poorly_maintained_cooling_towers, legionella_outbreaks), poorly_maintained_cooling_towers, "most legionella outbreaks result from poorly maintained cooling towers").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -816,6 +817,7 @@ reading_fact(causes(high_humidity, mold), "high humidity causes mold").
 reading_fact(pressure_surge(hydraulic_shock), "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 reading_fact(cause(lithium_batteries, fires), "lithium batteries cause fires").
 reading_fact(safety_device(fire_blanket), "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+reading_fact(causes(poorly_maintained_cooling_towers, legionella_outbreaks), "most legionella outbreaks result from poorly maintained cooling towers").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
