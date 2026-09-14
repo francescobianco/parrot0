@@ -101,6 +101,42 @@
 <~ 12
 > forget that is x feasible means can I complete x
 
+[test due requisiti falliti si dicono entrambi nello stesso turno]
+!timeout 5
+> for train the duration must be at most 2
+> for train the departure must be at most 5
+> can I complete train?
+<~ duration reaches 3
+<~ departure reaches 7
+> forget the requirement for train on duration
+> forget the requirement for train on departure
+
+[test la domanda polare sul valore: si, no con il valore vero, dato mancante]
+!timeout 5
+> is the departure of train 7?
+<~ Yes
+> is the departure of train 8?
+<~ No
+<~ 7
+> is the transfer of train 4?
+<~ No
+<~ 0
+
+[test piu dati mancanti: una domanda sola, l ellissi resta ambigua, poi si chiude]
+!timeout 5
+> for boat the arrival must be at most 10
+> can I complete boat?
+<~ departure and duration
+> it is 3
+<! Noted
+> the departure of boat is 2
+> can I complete boat?
+<~ duration
+<! departure
+> it is 3
+<~ duration is 3
+<~ satisfied
+
 [test due regole discordi sono una contraddizione detta, non un valore scelto in silenzio]
 !timeout 5
 > calculate arrival by adding start and wait

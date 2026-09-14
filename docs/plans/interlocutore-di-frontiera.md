@@ -823,9 +823,17 @@ forme dette**: non certifica comprensione libera del prompt originale.
    massima e risponde «Noted: the transfer is 0. For train: The stated
    requirements are satisfied.» Senza questione aperta la forma fallisce e
    «it is 5» resta di chi lo leggeva prima. Nessun `pending_*` nuovo.
-7. **Una ragione e un dato per turno** (i primi nell'ordine dei candidati); gli
-   altri restano viste interrogabili (`decision_candidate/3`,
-   `decision_available/2`, `decision_dominated/2`).
+7. **Tutte le ragioni e tutti i dati in un turno** (aggiornato 15 settembre,
+   00:40). Due requisiti falliti si dicono entrambi («No: duration reaches 3;
+   the requirement is at most 2. No: departure reaches 7; …»); più dati ignoti
+   sono una domanda sola («What are the departure and duration of boat?») e
+   aprono una questione `datum` ciascuno. L'ellissi «it is 3» vale solo quando
+   il dato dovuto è UNO: con due aperte resta a chi la leggeva prima; dato il
+   primo a parole, la domanda residua è sul secondo e «it is 3» lo chiude e
+   riverifica. I candidati restano viste interrogabili
+   (`decision_candidate/3`, `decision_available/2`, `decision_dominated/2`).
+7b. **La domanda polare sul valore** «is the departure of train 8?» → «No: the
+   departure is 7.», «Yes: …», o il dato che manca. Soggetto a una parola.
 8. **Italiano per parafrasi, non per promozione.** «per x il y deve essere al
    massimo z means for x the y must be at most z», «il y di x vale z means the
    y of x is z», «x is at least z for y means for y the x must be at least z»
@@ -853,6 +861,12 @@ forme dette**: non certifica comprensione libera del prompt originale.
   collaterale: la barca con due formule e quattro dati ignoti da 22 s a 1,7 s.
 - **`op(match, …)` concatena tutte le righe con «, » e rifiuta i duplicati**:
   una vista di risposta deve produrre esattamente una riga.
+- **Mai `retract` dentro una prova che sta rispondendo.** Una clausola che
+  rinfrescava `issue_turn` (retract + assert) mentre `op(match)` enumerava la
+  risposta ha fatto MORIRE il processo MCP senza una riga di stderr — lo stesso
+  pericolo che state-description.p0 §5 documenta per `state_commit/3`. Gli
+  `assert` di una questione nuova sono tollerati (idempotenti alla rilettura);
+  una questione già aperta resta com'è.
 
 ### 8.3 Misure (14 settembre 2026, 23:00–23:50, demone e MCP su questa macchina)
 
@@ -863,7 +877,7 @@ forme dette**: non certifica comprensione libera del prompt originale.
 | «can I complete X?» (scelta) | 1,4–2,3 s |
 | «what is the R of S?» | 0,8 s |
 | «it is 0» (tabellone + nuova verifica) | 0,8–1,0 s |
-| banco intero, 39 assert | 78 s |
+| banco intero, 52 assert (15 settembre) | ~105 s |
 
 `make soft-test` è rosso **anche a HEAD** (basics.p0t [antonym] 1,37 s a HEAD,
 1,44 s con la KB nuova; `taught_lexicon.p0t` tutti timeout a 1 s in entrambi gli
@@ -872,8 +886,11 @@ stati): non è di questo lavoro, è il costo del turno base già registrato in
 
 ### 8.4 Residui, in ordine
 
-1. **Più ostacoli o più dati mancanti**: si dice il primo; manca l'aggregazione
-   («ready e charge falliscono entrambi») e la lista dei dati da chiedere.
+1. ~~Più ostacoli o più dati mancanti~~ — chiuso il 15 settembre (§8.1.7).
+   Resta: l'origine di una questione `datum` non si rinfresca se la si richiede
+   (vedi §8.2, ultimo punto), quindi una questione più recente di altro genere
+   la supera e l'ellissi «it is 0» smette di valere finché non la si richiede
+   a parole.
 2. **Le formule sono globali per ruolo**, come leggi: due lezioni diverse su
    `arrival` rendono discorde ogni soggetto che ha entrambi i dati. Va deciso se
    una formula possa essere di dominio («for trains, calculate…»).
@@ -882,8 +899,8 @@ stati): non è di questo lavoro, è il costo del turno base già registrato in
    comportamento lo prova). Da tracciare con `P0_FORM_TRACE=1`.
 4. **«posso completare train?» risponde in inglese** quando il turno non è
    riconosciuto italiano da `current_language`; non è del circuito.
-5. **Forma polare sul valore**: «is the departure of train 8?» → «I don't
-   understand that yet» (non insegna, ma non risponde).
+5. ~~Forma polare sul valore~~ — chiusa il 15 settembre (§8.1.7b); il soggetto
+   è a una parola (`slot`, non `span`, perché dopo viene il valore).
 6. **Episodi persistenti** (contesto, aspettativa, criterio usato, esito) e
    apprendimento automatico dagli esiti: non fatti.
 7. **Il prompt originale** «domani ho una riunione… parto da Roma… arrivo in
@@ -893,8 +910,8 @@ stati): non è di questo lavoro, è il costo del turno base già registrato in
 
 ### 8.5 Handoff operativo — da dove si riparte (14 settembre 2026, 23:55)
 
-**Stato del repository:** tutto committato e pushato (`e0f79048` e questo
-commit); workspace pulito. Nessun artefatto in `/tmp` serve più: la sonda è
+**Stato del repository:** tutto committato e pushato (ultimo: aggregazione +
+polare + refusi, 15 settembre); workspace pulito. Nessun artefatto in `/tmp` serve più: la sonda è
 `scripts/p0t-echo.py`, il banco è `tests/p0t/reasoning/taught_decision.p0t`.
 
 **Prima mossa, sempre:**
@@ -910,15 +927,10 @@ runner non vede una risposta sbagliata che contiene la parola attesa).
 
 **Ordine di lavoro proposto (residui di §8.4, dal più fertile):**
 
-1. **§8.4.1 — più ostacoli e più dati per turno.** Oggi `decision_first_reason`
-   e `decision_first_ask` dicono il primo; il candidato è già una lista
-   (`decision_verdict/3`), quindi l'aggregazione è resa in KB su quella lista
-   (`decision_list/3` con «and» esiste). Aggiungere al banco un soggetto con
-   due requisiti falliti e uno con due dati ignoti. Nessun C.
-2. **§8.4.5 — la forma polare sul valore** «is the departure of train 8?»:
-   una `turn_form` sopra `decision_value_answer`, con cessione da
-   `ability_polar` come per «can i complete» (`turn_form_yield`, arità 2 nella
-   relazione delle superfici — trappola già pagata in §8.3 di prima).
+1. ~~§8.4.1~~ e ~~§8.4.5~~ fatti (15 settembre, 00:40; banco a 52 assert).
+   Nel frattempo, da `make chat` di F.: i refusi sono conoscenza —
+   `kb/core/spelling.p0`, porta unica in `canonicalize_lang`,
+   `tests/p0t/language/taught_spelling.p0t` (13).
 3. **§8.4.3 — la preferenza italiana** letta da un altro lettore: tracciare con
    `P0_FORM_TRACE=1 python3 scripts/p0t-echo.py FILE` e vedere chi risponde
    «Imparato: …»; la cura è un `turn_form_yield` o una priorità KB, non C.

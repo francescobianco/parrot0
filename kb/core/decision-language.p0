@@ -142,6 +142,17 @@ turn_form_priority(decision_value_question, early).
 turn_form_view(decision_value_question, said).
 turn_form_reply(decision_value_question, decision_answer).
 
+turn_form(decision_value_polar, 1, text("is the")).
+turn_form(decision_value_polar, 2, slot(role)).
+turn_form(decision_value_polar, 3, text("of")).
+turn_form(decision_value_polar, 4, slot(subject)).
+turn_form(decision_value_polar, 5, slot(value)).
+turn_form_slot_class(decision_value_polar, value, decision_numeric).
+turn_form_act(decision_value_polar, "op(match, decision_polar_answer, [subject, role, value, free])").
+turn_form_priority(decision_value_polar, early).
+turn_form_view(decision_value_polar, said).
+turn_form_reply(decision_value_polar, decision_answer).
+
 % ── il dato dovuto arriva ellittico: «it is 0» sotto la questione massima ──
 % La forma vale solo se sul tabellone c'e' una questione `datum` massima:
 % altrimenti fallisce e «it is …» resta di chi lo leggeva prima.

@@ -106,11 +106,14 @@ decision_feature($O, $F) :- decision_candidates($O, $Cs), decision_feature_in($C
 decision_dominated($O, $Move) :- decision_candidates($O, $Cs), decision_dominated_in($Cs, $Move).
 decision_available($O, $Move) :- decision_verdict($O, $Cs, $Moves), member($Move, $Moves).
 decision_selected($O, $Move) :- decision_verdict($O, $Cs, cons($Move, nil)).
-% Si dice UNA ragione per turno e si chiede UN dato: i primi nell'ordine dei
-% candidati. Gli altri restano candidati interrogabili e tornano al turno dopo.
-decision_first_reason($Cs, $Move, $Reason) :- findall($X, member(cand($Move, $X), $Cs), cons($Reason, $Rest)).
-decision_first_ask($Cs, $M) :- findall($X, member(cand(ask, missing($X)), $Cs), cons($M, $Rest)).
-decision_first_missing_of($O, $R, $M) :- findall($X, decision_missing($O, $R, $X), cons($M, $Rest)).
+% Le ragioni e i dati da chiedere sono LISTE: si dicono tutti gli ostacoli e si
+% chiedono tutti i dati mancanti in un turno (residuo §8.4.1, 14 settembre).
+decision_cand_reason($Cs, $Move, $X) :- member(cand($Move, $X), $Cs).
+decision_reasons($Cs, $Move, $Rs) :- findall($X, decision_cand_reason($Cs, $Move, $X), $Rs).
+decision_cand_missing($Cs, $X) :- member(cand(ask, missing($X)), $Cs).
+decision_asks_list($Cs, $Ms) :- findall($X, decision_cand_missing($Cs, $X), $Ms).
+decision_first_ask($Cs, $M) :- decision_asks_list($Cs, cons($M, $Rest)).
+decision_missing_list($O, $R, $Ms) :- findall($X, decision_missing($O, $R, $X), $Ms).
 decision_stated($O, $R) :- role($O, $R, $Raw).
 
 decision_move_name("explaining obstacles", explain).
@@ -134,16 +137,24 @@ issue_state($I, resolved) :- open_issue($I, datum), issue_topic($I, $O), issue_r
 issue_state($I, open) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)).
 issue_owed_by($I, user) :- open_issue($I, datum).
 decision_datum_id($O, $R, $I) :- concat_atoms("datum_", $O, $A), concat_atoms($A, "_", $B), concat_atoms($B, $R, $I).
-decision_note($O, verdict($Cs, cons(ask, nil))) :- decision_first_ask($Cs, $R), decision_datum_id($O, $R, $I), decision_note_datum($O, $R, $I).
+decision_note($O, verdict($Cs, cons(ask, nil))) :- decision_asks_list($Cs, $Ms), decision_note_data($O, $Ms).
+decision_note_data($O, nil).
+decision_note_data($O, cons($R, $Rest)) :- decision_datum_id($O, $R, $I), decision_note_datum($O, $R, $I), decision_note_data($O, $Rest).
 decision_note_datum($O, $R, $I) :- naf(open_issue($I, datum)), turn_counter($N), assert(open_issue, $I, datum), assert(issue_topic, $I, $O), assert(issue_relation, $I, $R), assert(issue_turn, $I, $N).
-decision_note_datum($O, $R, $I) :- open_issue($I, datum), issue_turn($I, $K), turn_counter($N), dif($K, $N), retract(issue_turn, $I, $K), assert(issue_turn, $I, $N).
-decision_note_datum($O, $R, $I) :- open_issue($I, datum), issue_turn($I, $N), turn_counter($N).
+% Una questione gia' aperta resta com'e': ritrarre `issue_turn` dentro la prova
+% (per rinfrescarne l'origine) faceva morire il processo — lo stato cambiava
+% mentre il solver lo enumerava (state-description.p0 §5). L'origine e' il
+% primo turno che ha chiesto.
+decision_note_datum($O, $R, $I) :- open_issue($I, datum).
 decision_note($O, verdict($Cs, nil)).
 decision_note($O, verdict($Cs, cons(explain, nil))).
 decision_note($O, verdict($Cs, cons(confirm, nil))).
 decision_note($O, verdict($Cs, cons($A, cons($B, $Rest)))).
 decision_answer($O, $Text) :- decision_verdict($O, $Cs, $Ms), current_language($L), decision_say($L, $O, verdict($Cs, $Ms), $Text), decision_note($O, verdict($Cs, $Ms)).
-decision_datum_store($V, $Text) :- decision_numeric($V), max_qud($I), open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), state_commit($O, $R, $V), decision_datum_text($O, $R, $V, $Text).
+% «it is 0» vale solo se il dato dovuto e' UNO: con due questioni aperte
+% l'ellissi e' ambigua e resta a chi la leggeva prima.
+decision_other_datum($I) :- open_issue($J, datum), dif($I, $J), issue_state($J, open).
+decision_datum_store($V, $Text) :- decision_numeric($V), max_qud($I), open_issue($I, datum), naf(decision_other_datum($I)), issue_topic($I, $O), issue_relation($I, $R), state_commit($O, $R, $V), decision_datum_text($O, $R, $V, $Text).
 decision_datum_text($O, $R, $V, $Text) :- current_language($L), decision_value_text($L, $R, $V, $A), decision_for_words($L, $For), concat_atoms($A, $For, $B), words_of($O, $Name), concat_atoms($B, $Name, $C), concat_atoms($C, ": ", $D), decision_answer($O, $Reply), concat_atoms($D, $Reply, $Text).
 
 % ── 6. LA RESA: parole in KB, valori derivati dalla stessa prova ───────────
@@ -158,6 +169,7 @@ decision_value_link(en, exact, " reaches "). decision_value_link(it, exact, " ra
 decision_value_link(en, floor, " is at least "). decision_value_link(it, floor, " è almeno ").
 decision_bound_link(en, "; the requirement is "). decision_bound_link(it, "; il requisito è ").
 decision_ask_start(en, "What is the "). decision_ask_start(it, "Qual è il valore di ").
+decision_ask_start_many(en, "What are the "). decision_ask_start_many(it, "Quali sono i valori di ").
 decision_ask_link(en, " of "). decision_ask_link(it, " per ").
 decision_is_words(en, " is "). decision_is_words(it, " vale ").
 decision_for_words(en, ". For "). decision_for_words(it, ". Per ").
@@ -169,6 +181,8 @@ decision_conflict_link(en, " comes out as "). decision_conflict_link(it, " risul
 decision_conflict_words(en, " from different rules, so I cannot check it.").
 decision_conflict_words(it, " da regole diverse, quindi non posso verificarlo.").
 decision_missing_words(en, " is missing."). decision_missing_words(it, " manca.").
+decision_missing_words_many(en, " are missing."). decision_missing_words_many(it, " mancano.").
+decision_reason_gap(en, " "). decision_reason_gap(it, " ").
 decision_unknown_start(en, "I do not have the "). decision_unknown_start(it, "Non ho ancora ").
 decision_unknown_link(en, " yet: the "). decision_unknown_link(it, ": ").
 decision_complete(en, "The stated requirements are satisfied.").
@@ -195,9 +209,17 @@ decision_obstacle_suffix($L, $Op, $Bound, $Text) :- decision_bound_link($L, $Lin
 decision_render($L, obstacle($R, bound($Op, $B), $Value), $Text) :- decision_value_shown($L, $Value, $Shown), decision_obstacle_prefix($L, $R, $Shown, $A), decision_obstacle_suffix($L, $Op, $B, $C), concat_atoms($A, $C, $Text).
 decision_render($L, circular($R), $Text) :- decision_obstacle_start($L, $A), words_of($R, $Name), concat_atoms($A, $Name, $B), decision_circular_words($L, $W), concat_atoms($B, $W, $Text).
 decision_render($L, conflict($R, $Vs), $Text) :- decision_obstacle_start($L, $A), words_of($R, $Name), concat_atoms($A, $Name, $B), decision_conflict_link($L, $Link), concat_atoms($B, $Link, $C), decision_list($L, $Vs, $List), concat_atoms($C, $List, $D), decision_conflict_words($L, $W), concat_atoms($D, $W, $Text).
-decision_question($L, $O, $M, $Text) :- decision_ask_start($L, $Start), words_of($M, $Role), concat_atoms($Start, $Role, $A), decision_ask_link($L, $Link), concat_atoms($A, $Link, $B), words_of($O, $Name), concat_atoms($B, $Name, $C), concat_atoms($C, "?", $Text).
-decision_say($L, $O, verdict($Cs, cons(explain, nil)), $Text) :- decision_first_reason($Cs, explain, $Reason), decision_render($L, $Reason, $Text).
-decision_say($L, $O, verdict($Cs, cons(ask, nil)), $Text) :- decision_first_ask($Cs, $M), decision_question($L, $O, $M, $Text).
+decision_role_words($L, cons($R, nil), $Text) :- words_of($R, $Text).
+decision_role_words($L, cons($R, $Rest), $Text) :- decision_role_words($L, $Rest, $B), words_of($R, $A), decision_and($L, $And), concat_atoms($A, $And, $C), concat_atoms($C, $B, $Text).
+decision_ask_opening($L, cons($R, nil), $Start) :- decision_ask_start($L, $Start).
+decision_ask_opening($L, cons($R, cons($S, $Rest)), $Start) :- decision_ask_start_many($L, $Start).
+decision_question($L, $O, $Ms, $Text) :- decision_ask_opening($L, $Ms, $Start), decision_role_words($L, $Ms, $Roles), concat_atoms($Start, $Roles, $A), decision_ask_link($L, $Link), concat_atoms($A, $Link, $B), words_of($O, $Name), concat_atoms($B, $Name, $C), concat_atoms($C, "?", $Text).
+decision_render_all($L, cons($R, nil), $Text) :- decision_render($L, $R, $Text).
+decision_render_all($L, cons($R, $Rest), $Text) :- decision_render_all($L, $Rest, $B), decision_render($L, $R, $A), decision_reason_gap($L, $Gap), concat_atoms($A, $Gap, $C), concat_atoms($C, $B, $Text).
+decision_missing_ending($L, cons($R, nil), $W) :- decision_missing_words($L, $W).
+decision_missing_ending($L, cons($R, cons($S, $Rest)), $W) :- decision_missing_words_many($L, $W).
+decision_say($L, $O, verdict($Cs, cons(explain, nil)), $Text) :- decision_reasons($Cs, explain, $Rs), decision_render_all($L, $Rs, $Text).
+decision_say($L, $O, verdict($Cs, cons(ask, nil)), $Text) :- decision_asks_list($Cs, $Ms), decision_question($L, $O, $Ms, $Text).
 decision_say($L, $O, verdict($Cs, cons(confirm, nil)), $Text) :- decision_complete($L, $Text).
 decision_say($L, $O, verdict($Cs, cons($A, cons($B, $Rest))), $Text) :- decision_tie_start($L, $Start), decision_move_list($L, cons($A, cons($B, $Rest)), $List), concat_atoms($Start, $List, $T), concat_atoms($T, ".", $Text).
 decision_say($L, $O, verdict($Cs, nil), $Text) :- decision_has_requirements($O), decision_unresolved($L, $Text).
@@ -213,7 +235,15 @@ decision_trace_text($L, $O, $R, $Text) :- decision_formula($R, $A, $B), decision
 decision_value_answer($O, $R, $Text) :- role($O, $R, $Raw), decision_number($O, $R, $V), current_language($L), decision_value_text($L, $R, $V, $A), concat_atoms($A, ".", $Text).
 decision_value_answer($O, $R, $Text) :- naf(decision_stated($O, $R)), decision_number($O, $R, $V), current_language($L), decision_value_text($L, $R, $V, $A), concat_atoms($A, " (", $B), decision_trace_text($L, $O, $R, $Trace), concat_atoms($B, $Trace, $C), concat_atoms($C, ").", $Text).
 decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), decision_conflict($O, $R), decision_values($O, $R, $Vs), current_language($L), decision_render($L, conflict($R, $Vs), $Text).
-decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_first_missing_of($O, $R, $M), current_language($L), decision_unknown_start($L, $Start), words_of($R, $Name), concat_atoms($Start, $Name, $A), decision_unknown_link($L, $Link), concat_atoms($A, $Link, $B), words_of($M, $Mn), concat_atoms($B, $Mn, $C), decision_missing_words($L, $W), concat_atoms($C, $W, $Text).
+decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_missing_list($O, $R, cons($M, $Ms)), current_language($L), decision_unknown_start($L, $Start), words_of($R, $Name), concat_atoms($Start, $Name, $A), decision_unknown_link($L, $Link), concat_atoms($A, $Link, $B), decision_role_words($L, cons($M, $Ms), $Mn), concat_atoms($B, $Mn, $C), decision_missing_ending($L, cons($M, $Ms), $W), concat_atoms($C, $W, $Text).
 decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_circular($R), current_language($L), decision_render($L, circular($R), $Text).
 
+% La domanda polare sul valore: «is the departure of train 8?» — si', no con il
+% valore vero, o il dato che manca. Sopra un ruolo non in gioco fallisce.
+decision_yes(en, "Yes: "). decision_yes(it, "Sì: ").
+decision_polar_answer($O, $R, $V, $Text) :- decision_number($O, $R, $V), current_language($L), decision_yes($L, $Yes), decision_value_text($L, $R, $V, $A), concat_atoms($Yes, $A, $B), concat_atoms($B, ".", $Text).
+decision_polar_answer($O, $R, $V, $Text) :- decision_number($O, $R, $W), dif($W, $V), current_language($L), decision_obstacle_start($L, $No), decision_value_text($L, $R, $W, $A), concat_atoms($No, $A, $B), concat_atoms($B, ".", $Text).
+decision_polar_answer($O, $R, $V, $Text) :- naf(decision_known($O, $R)), decision_value_answer($O, $R, $Text).
+
 :- include(decision-language.p0).
+
