@@ -33,7 +33,6 @@ open_question_word(which).
 open_question_word(what).
 open_question_word(quale).
 open_question_word(quali).
-open_question_word(che).
 machinery(type_skip_word).
 type_skip_word($W) :- clause_copula($W).
 type_skip_word($W) :- auxiliary($W).
@@ -42,6 +41,11 @@ type_skip_word($W) :- italian_determiner($W).
 type_skip_word($W) :- possessive_word($W).
 type_skip_word(do). type_skip_word(does). type_skip_word(did).
 type_skip_word(was). type_skip_word(were).
+type_skip_word($W) :- elided_article($W).
+% gli articoli elisi dell'italiano, staccati dal nome («dell'Ungheria»)
+machinery(elided_article).
+elided_article(dell). elided_article(nell). elided_article(sull). elided_article(dall).
+elided_article(all). elided_article(l). elided_article(d). elided_article(un).
 machinery(possessive_word).
 possessive_word(his). possessive_word(her). possessive_word(its). possessive_word(their).
 possessive_word(suo). possessive_word(sua).
@@ -61,13 +65,18 @@ first_type_word_after($T, $J, $W) :-
     is($K, add($J, 1)), lt($K, 64), first_type_word_after($T, $K, $W).
 machinery(type_modifier_at).
 type_modifier_at($T, $J) :-
-    is($K, add($J, 1)), turn_word($T, $K, $N), type_candidate_word($N), naf(type_skip_word($N)), naf(bridge_word($N)),
+    guided_head_last, is($K, add($J, 1)), turn_word($T, $K, $N), type_candidate_word($N), naf(type_skip_word($N)), naf(bridge_word($N)),
     naf(open_question_word($N)), naf(type_stop_word($N)).
 % una parola che puo' essere un tipo: piena, oppure un tipo generico dichiarato («figure»
 % e' anche una parola funzione in «figure out», e il lessico la segna come tale)
 machinery(type_candidate_word).
 type_candidate_word($W) :- content_word($W).
 type_candidate_word($W) :- generic_type($W).
+% dove sta la testa lo dice la lingua (`compound_head_side/2`, grammar.p0): in inglese il
+% modificatore precede («supreme deity»), in italiano la testa viene prima («mare»)
+machinery(guided_head_last).
+guided_head_last :- naf(current_language(it)), compound_head_side(en, last).
+guided_head_last :- current_language(it), compound_head_side(it, last).
 machinery(type_stop_word).
 type_stop_word(he). type_stop_word(she). type_stop_word(it). type_stop_word(they).
 type_stop_word(of). type_stop_word(in). type_stop_word(that).
@@ -93,7 +102,7 @@ first_type_word_after($T, $J, $W) :-
 machinery(bridge_word).
 bridge_word(that). bridge_word(where). bridge_word(whose).
 bridge_word(its). bridge_word(his). bridge_word(her). bridge_word(their).
-bridge_word(cui). bridge_word(dove).
+bridge_word(cui). bridge_word(dove). bridge_word(che).
 machinery(turn_guided_bridge).
 turn_guided_bridge($T) :- turn_word($T, $I, $W), bridge_word($W), gt($I, 0).
 turn_guided_bridge($T) :- guided_asked_type($T, $I, $A), guided_asked_type($T, $J, $B), lt($I, $J).
@@ -252,8 +261,8 @@ machinery(guided_values_after).
 machinery(guided_next_found).
 machinery(guided_found_between).
 machinery(guided_has_found_after).
-guided_values_from($N, $Text) :- guided_next_found($N, $M, $V), guided_values_after($M, $Rest), concat_atoms($V, $Rest, $Text).
-guided_values_after($N, $Text) :- guided_next_found($N, $M, $V), guided_values_after($M, $Rest), concat_atoms("; ", $V, $A), concat_atoms($A, $Rest, $Text).
+guided_values_from($N, $Text) :- guided_next_found($N, $M, $V0), guided_value_said($M, $V0, $V), guided_values_after($M, $Rest), concat_atoms($V, $Rest, $Text).
+guided_values_after($N, $Text) :- guided_next_found($N, $M, $V0), guided_value_said($M, $V0, $V), guided_values_after($M, $Rest), concat_atoms("; ", $V, $A), concat_atoms($A, $Rest, $Text).
 guided_values_after($N, "") :- naf(guided_has_found_after($N)).
 guided_next_found($N, $M, $V) :- guided_found($M, $Ty, $V, $P), gt($M, $N), naf(guided_found_between($N, $M)).
 guided_found_between($N, $M) :- guided_found($K, $Ty, $V, $P), gt($K, $N), lt($K, $M).
@@ -294,9 +303,11 @@ machinery(guided_known).
 turn_scratch(guided_known).
 guided_part(5, $Line) :-
     guided_now, guided_known($Rel, $From, $To), guided_language($L), guided_line($L, known_word, $K),
-    concat_atoms($K, $Rel, $A), concat_atoms($A, " of ", $B), concat_atoms($B, $From, $C),
+    guided_line($L, of_word, $Of), concat_atoms($K, $Rel, $A), concat_atoms($A, $Of, $B), concat_atoms($B, $From, $C),
     concat_atoms($C, " = ", $D), concat_atoms($D, $To, $Line).
 guided_line(en, known_word, "0. Known before reading: ").
+guided_line(en, of_word, " of ").
+guided_line(it, of_word, " di ").
 guided_line(it, known_word, "0. Gia' noto prima di leggere: ").
 
 % Gli indizi che nessuna pagina letta contiene: dicono dove la catena si e' rotta.
@@ -357,7 +368,7 @@ turn_scratch(guided_found_known).
 guided_part($O, $Line) :-
     guided_now, guided_found_known($F, $Rel, $From), guided_found($F, $Type, $V, $P), guided_language($L),
     guided_line($L, known_found, $K), is($O, add(11, mul(10, $P))),
-    concat_atoms($K, $Type, $A), concat_atoms($A, " of ", $B), concat_atoms($B, $From, $C),
+    guided_line($L, of_word, $Of), concat_atoms($K, $Type, $A), concat_atoms($A, $Of, $B), concat_atoms($B, $From, $C),
     concat_atoms($C, " = ", $D), concat_atoms($D, $V, $Line).
 guided_line(en, known_found, "   known before reading: ").
 guided_line(it, known_found, "   gia' noto prima di leggere: ").
@@ -371,3 +382,26 @@ anaphor_determiner(this). anaphor_determiner(that). anaphor_determiner(these). a
 anaphor_determiner(questo). anaphor_determiner(quella). anaphor_determiner(quel).
 machinery(guided_anaphor_noun).
 guided_anaphor_noun($T, $W) :- turn_word($T, $I, $D), anaphor_determiner($D), is($J, add($I, 1)), turn_word($T, $J, $W), content_word($W).
+
+% ── LA STESSA CLASSE IN UN'ALTRA LINGUA ─────────────────────────────────────
+% La domanda in italiano, le pagine in inglese: un tipo o un indizio si ritrova nella
+% pagina attraverso la traduzione che la KB conosce («mare» ↔ «sea»), un nome del prompt
+% si cerca nella sua forma inglese («Ungheria» → hungary), e la risposta si dice nella
+% lingua di chi chiede se la KB ne sa il nome («Black Sea» → «Mar Nero»). Una lingua o un
+% nome nuovo e' una lezione di lessico, detta a voce.
+same_word_lemma($W, $T) :- tr($W, $T).
+machinery(guided_english_key).
+guided_english_key($K, $K).
+guided_english_key($K, $E) :- tr($E, $K).
+machinery(guided_found_key).
+turn_scratch(guided_found_key).
+machinery(guided_value_said).
+guided_value_said($F, $V, $Said) :-
+    current_language(it), guided_found_key($F, $K), tr($K, $It), atom_words($It, $Ws), capitalized_words_text($Ws, $Said).
+guided_value_said($F, $V, $V) :- naf(guided_value_translated($F)).
+machinery(guided_value_translated).
+guided_value_translated($F) :- current_language(it), guided_found_key($F, $K), tr($K, $It).
+machinery(capitalized_words_text).
+capitalized_words_text(cons($W, nil), $U) :- upcase_first($W, $U).
+capitalized_words_text(cons($W, cons($V, $R)), $T) :-
+    upcase_first($W, $U), capitalized_words_text(cons($V, $R), $Rest), concat_atoms($U, " ", $A), concat_atoms($A, $Rest, $T).

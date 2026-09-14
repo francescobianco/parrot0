@@ -2518,7 +2518,9 @@ static int gr_kb2(Brain *b, const char *pred, const char *a, const char *c) {
 static int gr_same(Brain *b, const char *w, const char *t) {
     if (!*w || !*t) return 0;
     if (!strcmp(w, t)) return 1;
-    if (strncmp(w, t, 3)) return 0;          /* meccanica: si chiede alla KB solo se puo' essere */
+    /* la stessa parola in un'altra lingua: un fatto, costa una ricerca */
+    if (gr_kb2(b, "tr", w, t) || gr_kb2(b, "tr", t, w)) return 1;
+    if (strncmp(w, t, 3)) return 0;          /* meccanica: la morfologia si chiede solo se puo' essere */
     return gr_kb2(b, "same_word_lemma", w, t);
 }
 
@@ -2547,6 +2549,15 @@ static void gr_split_sentences(Brain *b, GrPage *pg) {
                 while (tl && strchr(",;:()\"«»", t[tl - 1])) { t[--tl] = '\0'; closed = 1; }
                 if (tl > 2 && t[tl - 2] == '\'' && t[tl - 1] == 's') { t[tl - 2] = '\0'; tl -= 2; }
                 char *st = t; while (*st && strchr("(\"«", *st)) st++;
+                /* l'articolo eliso non fa parte del nome: «dell'Ungheria», «l'Italia» */
+                {
+                    char *ap = strchr(st, '\'');
+                    if (!ap) ap = strstr(st, "\xE2\x80\x99");
+                    if (ap && ap > st && ap - st <= 4 && islower((unsigned char)st[0])) {
+                        char *after = ap + (*ap == '\'' ? 1 : 3);
+                        if (isalpha((unsigned char)*after)) st = after;
+                    }
+                }
                 if (!*st) continue;
                 s->stop[s->ntok] = closed;
                 snprintf(s->orig[s->ntok], KB_TERM_LEN, "%s", orig_tok);
@@ -2685,6 +2696,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
     if (!b || !b->kb || !raw || !*raw) return 0;
     const char *tq[1] = { "current_turn" };
     if (!kb_query(b->kb, "turn_guided_inquiry", tq, 1)) return 0;
+    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] inquiry recognized\n");
     (void)norm;
 
     /* i tipi chiesti, nell'ordine del turno */
@@ -2696,6 +2708,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
         if (kb_match(b->kb, "guided_asked_type", aq, 3, row, 1) == 1)
             snprintf(types[ntypes++], KB_TERM_LEN, "%s", kb_dequote(row[0]));
     }
+    if (getenv("P0_READ_TRACE")) for (size_t i = 0; i < ntypes; i++) fprintf(stderr, "[guided] asked type %s\n", types[i]);
     if (!ntypes) return 0;
     char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
     { const char *cq[2] = { "current_turn", NULL };
@@ -2718,13 +2731,22 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
           /* nessun nome ha una pagina: la KB sa gia' un fatto che parte da uno di loro
            * e che il turno interroga («the capital of Hungary») */
           for (size_t k = 0; k < np && !started; k++) {
+              /* il nome e l'indizio anche nella loro forma inglese (tr/2) */
+              char ekeys[4][KB_TERM_LEN]; size_t nek = 0;
+              { const char *eq[2] = { pm[k].key, NULL };
+                nek = kb_match(b->kb, "guided_english_key", eq, 2, ekeys, 4); }
               for (size_t c = 0; c < ncue && !started; c++) {
-                  const char *fq[2] = { kb_dequote(cues[c]), NULL };
+                char ecues[4][KB_TERM_LEN]; size_t nec = 0;
+                { const char *cq2[2] = { kb_dequote(cues[c]), NULL };
+                  nec = kb_match(b->kb, "guided_english_key", cq2, 2, ecues, 4); }
+                for (size_t ec = 0; ec < nec && !started; ec++)
+                for (size_t ek = 0; ek < nek && !started; ek++) {
+                  const char *fq[2] = { kb_dequote(ecues[ec]), NULL };
                   char preds[8][KB_TERM_LEN];
                   size_t npr = kb_match(b->kb, "answer_frame", fq, 2, preds, 8);
                   for (size_t x = 0; x < npr && !started; x++) {
                       char pr[KB_TERM_LEN]; snprintf(pr, sizeof pr, "%s", kb_dequote(preds[x]));
-                      const char *vq[2] = { pm[k].key, NULL };
+                      const char *vq[2] = { kb_dequote(ekeys[ek]), NULL };
                       char vals[1][KB_TERM_LEN];
                       if (kb_match(b->kb, pr, vq, 2, vals, 1) != 1) continue;
                       GrMention vm; memset(&vm, 0, sizeof vm);
@@ -2733,8 +2755,9 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
                       started = 1;
                       snprintf(known_rel, sizeof known_rel, "%s", kb_dequote(cues[c]));
                       snprintf(known_from, sizeof known_from, "%s", pm[k].surface);
-                      snprintf(known_to, sizeof known_to, "%s", page.topic);
+                      snprintf(known_to, sizeof known_to, "%s", page.title);
                   }
+                }
               }
           }
       }
@@ -2781,6 +2804,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
               }
           }
       }
+      if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] start %s\n", started ? page.topic : "(none)");
       if (!started) { free(cues); free(ev); return 0; }
       /* le parole del nome da cui si parte non sono indizi: ogni frase della sua pagina
        * le contiene */
@@ -2804,6 +2828,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
     kb_retract_pred(b->kb, "guided_known"); kb_retract_pred(b->kb, "guided_unmatched");
     kb_retract_pred(b->kb, "guided_rejected");
     kb_retract_pred(b->kb, "guided_searched"); kb_retract_pred(b->kb, "guided_found_known");
+    kb_retract_pred(b->kb, "guided_found_key");
     if (searched_q[0]) {
         char qq[KB_TERM_LEN], qt3[KB_TERM_LEN];
         gr_quote(searched_q, qq, sizeof qq); gr_quote(page.title, qt3, sizeof qt3);
@@ -2948,6 +2973,8 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
                 gr_quote(best_val, qv, sizeof qv); gr_quote(best_ex, qs, sizeof qs);
                 { const char *fa[4] = { fn, type, qv, pn }; gr_assert(b, "guided_found", fa, 4); }
                 { const char *sa[2] = { fn, qs }; gr_assert(b, "guided_sentence", sa, 2); }
+                { char vk[KB_TERM_LEN]; gr_key_of(best_val, vk, sizeof vk);
+                  const char *ka2[2] = { fn, vk }; gr_assert(b, "guided_found_key", ka2, 2); }
                 /* gli altri candidati dello stesso tipo, con la frase che li nomina: la
                  * biforcazione si dice, non si nasconde */
                 for (size_t r = 0; r < nrej; r++) {

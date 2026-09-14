@@ -111,8 +111,10 @@
 # turno successivo esce corrotto dalla canonicalizzazione (reperto nel piano, §4.5).
 # B6 — la stessa classe in italiano: B2 detto in un'altra lingua, pagine inglesi.
 [test B6 the same class in Italian]
-!reset
+# ⚠ la lingua si cambia PRIMA del reset: cambiata dopo, il motore ricarica il cervello al
+# turno successivo e cancella il provider locale appena asserito.
 !set PARROT0_LANG=it
+!reset
 !timeout 60
 !assert topic_provider(fixture, "tests/fixtures/wiki")
 > cerca da solo

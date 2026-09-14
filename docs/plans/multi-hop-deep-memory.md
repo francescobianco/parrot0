@@ -298,6 +298,22 @@ anche così. (3) La guardia della lettura guidata dentro le regole della prosa p
 chiedere prima la politica (economica): un `naf` incompleto su un paragrafo lungo
 spegneva la lettura della prosa (`prose_triage` 74/75, curato).
 
+**Terza tappa — 7/8 → 8/8, l'italiano.** Tutto generale e insegnabile: il confronto di
+tipi e indizi passa anche per la traduzione della KB (`tr/2`: «mare» ↔ «sea», «fiume» ↔
+«river»); un nome del prompt si cerca nella sua forma inglese («Ungheria» → hungary); la
+testa del sintagma dipende dalla lingua (`compound_head_side/2`); gli articoli elisi si
+staccano dal nome («dell'Ungheria») e non sono indizi; «che» dopo l'inizio è una relativa;
+la risposta si dice nella lingua di chi chiede se la KB conosce il nome («Black Sea» →
+«Mar Nero»). Tre nomi insegnati parlando e salvati: `tr(hungary, ungheria)`,
+`tr(black_sea, mar_nero)`, `tr(danube, danubio)`. In `make chat` con la rete la stessa
+domanda legge l'**edizione italiana** («Ungheria», it edition): l'edizione segue la lingua.
+
+**Reperti della terza tappa.** (4) Un filtro meccanico del motore chiedeva la morfologia
+solo a parole con le stesse prime tre lettere, e la traduzione non passava mai: i fatti di
+traduzione si controllano sempre. (5) Artefatto del file di prova: `!set PARROT0_LANG`
+dopo `!reset` fa ricaricare il cervello al turno dopo e cancella il provider locale
+asserito — il blocco B6 cambia lingua prima del reset.
+
 **Che cosa ha insegnato il banco nella stessa sera** (ognuno è una correzione generale, non
 una patch per un problema): una verifica «contiene» nel test passava su una frase citata e
 non sulla risposta (le attese ora sono «tipo: valore»); una menzione scavalcava la virgola
@@ -422,7 +438,9 @@ e biforcazione detta.
 
 **Dopo la seconda tappa** (notte): **7 su 8** — anche B5 (ricerca della descrizione →
 Kilimanjaro → Tanzania → capitale nota) e B7 (lo stesso problema di B1 a passi imperativi).
-Resta B6 (italiano). Il primo
+
+**Dopo la terza tappa** (notte): **8 su 8** — anche B6, la stessa classe in italiano su
+pagine inglesi: «Risposta: Mar Nero.», con la catena detta in italiano. Il primo
 guadagno misurabile, prima ancora di una risposta giusta, è **zero misclaim**: un problema
 della classe non va mai a storie, parole, letture ravvicinate o al passo intermedio.
 
@@ -627,3 +645,9 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   referenti anaforici. Banco **7/8** (manca B6, italiano), E1 23/23, `prose_triage` 75,
   `order_determinacy_problem` 28, memoria profonda verde. Reperto: lingua appiccicosa che
   corrompe il turno inglese dopo uno italiano.
+- **14 settembre 2026, notte (3)** — terza tappa: la stessa classe in italiano (traduzioni
+  della KB nel confronto, forma inglese dei nomi, testa per lingua, articoli elisi,
+  risposta nella lingua di chi chiede). Banco **8/8**. Prossima mossa, per il criterio 3 di
+  §7.0: **allargare il banco** con problemi nuovi (altri domini, DM-4, due biforcazioni,
+  un'altra lingua) *prima* di toccare il ciclo, e guardarli fallire; poi la prova dal vivo
+  con la rete.

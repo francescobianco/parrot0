@@ -1160,6 +1160,9 @@ tr(chlorine_gas, cloro_gassoso).
 tr(chloramine_gas, clorammine).
 tr(smoke, fumo).
 tr(detector, rilevatore).
+tr(danube, danubio).
+tr(black_sea, mar_nero).
+tr(hungary, ungheria).
 
 
 % ══ gen510 — IL PIANO DI TRADUZIONE: UN TURNO IN UN'ALTRA LINGUA ════════════
