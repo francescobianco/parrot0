@@ -273,3 +273,103 @@ Le mosse, in ordine di guadagno:
 4. **Un banco di varianti**, non un caso: le tre righe della tabella sopra, più l'inglese
    e un problema con conoscenza vera. È questo, non il prompt originale, che misura se
    l'esperimento ha fatto crescere parrot0.
+
+## 9. Abbiamo perso il treno della IR? (analisi a posteriori, stessa sera)
+
+La domanda di F., dopo la revisione del piano multi-hop: se lì la IR era sottovalutata,
+qui è andata allo stesso modo? **Sì, e in modo più netto.** Ma la misura dice anche perché
+era facile sbagliare, e quale pezzo dell'esperimento resta buono.
+
+### 9.1 Misurato
+
+**Quanto `problem-texts.p0` usa la IR** (conteggio delle chiamate nel file):
+
+| Strato | Chiamate |
+|---|---|
+| token del turno (`turn_word/3`) | 38 |
+| cue del turno (`turn_cue/3`) | 6 |
+| strato strutturale della IR (`input_node`, `input_entity_node`, `input_semantic_frame`, `input_binary_assertion`, `input_coordination_node`, …) | **0** |
+| lettore di prosa (`extract_frame/2`), spazio del discorso (`discourse_referent/2`) | **0** |
+
+**Che cosa la IR pubblicava per le tre premesse**, dentro il turno (sonda con contabili in
+un file KB, poi tolta):
+
+| Strato della IR | Pubblicato |
+|---|---|
+| token, nodi (`input_node/4`), lingua dello scope, coordinazioni | sì |
+| entità nominate («Anna», «Bruno») | **no** |
+| frame semantici, asserzioni binarie | **no** |
+| classi, lacune | **no** |
+
+### 9.2 Che cosa vuol dire
+
+Due fatti insieme, e servono tutti e due:
+
+1. **Il lettore ha scavalcato la IR.** Ha preso i token, lo strato più basso, e sopra ha
+   costruito una **IR sua**: `problem_piece/3` sono nodi (nome, copula, comparativo, gruppo,
+   contrasto), `group_at/4` sono descrizioni, `problem_edge/4` sono frame, i problemi numerati
+   sono uno scope persistente. Ogni pezzo ha un gemello nella IR universale o nel piano della
+   IR:
+
+   | Costruito in `problem-texts.p0` | Il suo posto nella IR |
+   |---|---|
+   | `problem_name_at/3` («una parola che non è del lessico del problema») | `input_entity_node/4` |
+   | `problem_piece(N, K, pv(I, V))` | `input_node/4` con ruolo |
+   | `group_at/4` («chiunque abbia incontrato B prima di D») | una **descrizione come nodo** (IR3 del piano multi-hop) |
+   | `problem_edge/4`, `meeting_clause_at/4` | `input_semantic_frame(Scope, assertion, order(lt), roles(…))`, `…binary(met)…` (IR5) |
+   | `contrast_negated_link_at/3` («ma non di») | coordinazione con negazione e ellissi sul frame precedente (le coordinazioni la IR le pubblica già) |
+   | `problem_opened/1` e i fatti numerati | uno scope che dura quanto il problema (IR4) |
+   | l'ordine dei nomi per prima comparsa | `input_node_before/…`, l'ordine dei nodi |
+
+   Questa è la definizione esatta del difetto che `lettura-della-prosa.md` misura: un
+   secondo lettore della stringa, con la sua idea di dove finiscono le cose. **Ed è la
+   causa delle tre varianti fallite di §8**: «conobbe» non è un `meeting_finite`, «più alta»
+   non è un `comparative_word`, «Anna è più giovane di Bruno» non ha un gruppo. Un
+   consumatore della IR avrebbe ricevuto un frame di relazione qualunque, una relazione
+   d'ordine qualunque, un'entità qualunque.
+
+2. **Ma la IR non offriva quello strato.** Per queste frasi italiane la IR non vede le
+   entità e non costruisce frame: un consumatore onesto, il 14 settembre, avrebbe trovato
+   nodi e coordinazioni e nient'altro. Quindi la scelta non era fra «usare la IR» e «un
+   lettore privato»: era fra **far crescere la IR** (entità, descrizioni, frame d'ordine e
+   di relazione) e **aggirarla**. Abbiamo aggirato, perché era più veloce e il test diventava
+   verde — esattamente la mossa che il MANTRA chiama regressione anche quando funziona.
+
+### 9.3 Che cosa resta buono
+
+Non tutto l'esperimento è dalla parte sbagliata della IR:
+
+- **`order-determinacy.p0` è già un consumatore corretto.** Lavora su `order_edge/4`, non
+  sa da dove vengono gli archi: se domani gli archi arrivano da frame della IR, non cambia
+  una riga. È la parte da tenere così com'è.
+- **La risposta in parti (`turn_response_part/3`)** è neutra rispetto alla IR.
+- **Le premesse come ambito non imparato** (`problem_task`, `problem_premises`) sono una
+  forza del turno: il loro posto naturale è la IR (`turn_illocution`), e lì stanno già.
+- **La mappa dei limiti del risolutore** vale per chiunque costruirà la IR in KB.
+- **La lettura a stadi** (pezzi → fatti → composizione) è la forma giusta: sbagliata è la
+  sua sede. Gli stadi dovrebbero essere gli strati della IR, non una struttura parallela.
+
+### 9.4 Il saldo, rivisto
+
+§8.3 diceva che «la generalità sta dietro il lettore, non davanti». Ora si può dirlo con
+più precisione: **la generalità sta dietro una IR privata.** Il costo nascosto non sono le
+556 righe: è che ogni capacità costruita sopra `problem_piece` è invisibile al lettore di
+prosa, alla memoria profonda e al piano multi-hop, e ogni loro progresso è invisibile a lei.
+
+E il collegamento con la missione multi-hop è diretto: le mancanze della IR che servono lì
+(IR3 descrizioni come nodi, IR4 scope di problema, IR5 frame dalla prosa) sono **le stesse**
+che questo esperimento ha ricostruito fuori. Ci sono quindi due lavori separati da non
+fare, e uno comune da fare una volta:
+
+1. **Far crescere la IR** con: entità nominate in italiano e in inglese; descrizioni come
+   nodi («chiunque abbia R X T», «the protagonist of X», «a historical religious figure»);
+   frame d'ordine dai comparativi (`order(lt|le)`, con il verso e la negazione) e frame di
+   relazione dai verbi insegnati (riusando `extract_frame/2`, non duplicandolo); uno scope
+   di problema che dura più turni.
+2. **Riscrivere `problem-texts.p0` come consumatore**: gli archi di `order-determinacy.p0`
+   dai frame d'ordine della IR, i gruppi dalle descrizioni, gli incontri dai frame di
+   relazione. Il criterio di riuscita è §8: le tre varianti fallite diventano verdi **senza
+   una riga di lessico nuova nel file**, e il file si riduce a regole di consumo.
+3. **Il banco**: le tre varianti, il prompt originale in uno e due turni, l'inglese, e un
+   caso con tre soli nomi — lo stesso banco resta valido prima e dopo, ed è la misura del
+   passaggio.
