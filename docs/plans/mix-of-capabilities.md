@@ -1973,7 +1973,7 @@ due parole tradotte «cos'è un rilevatore di fumo?» diventa «I do not know th
 rilevatore» — il composto italiano testa-prima con «di» non si ricompone in
 `smoke_detector`; «a cosa serve un rilevatore di fumo?» chiede il referente di «it».
 
-### Handoff della quarta campagna (14 settembre, 10:16)
+### Handoff della quarta campagna (14 settembre, 10:13)
 
 **Fatto (11 commit):** «X result from Y» si legge `causes(Y, X)`; la relativa della
 definizione letta risponde e «the presence of X» lega il complemento; lo scopo non apre
