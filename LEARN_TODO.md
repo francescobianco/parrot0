@@ -6,6 +6,68 @@
 > Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
 > è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
 
+## ⛔ HANDOFF 2026-09-14 — PROFONDITÀ DEL RAGIONAMENTO SIMBOLICO: il solver regge, parrot0 no
+
+Piano: [docs/plans/long-symbolic-reasoning.md](docs/plans/long-symbolic-reasoning.md)
+(§0 stato, §7 misure, §8 mosse). Banco: `tests/symbolic-depth/gen.py` (oracolo per
+concatenazione in avanti, semi fissi) e `run.py` (demone `.p0t`, esiti READ / SOLVED /
+UNSOLVED / MISCLAIM / PARTIAL). Risultati: `tests/symbolic-depth/results-2026-09-14.jsonl`,
+passi di `/debug`: `steps-2026-09-14.txt`. Commit `dc905df4`.
+
+**Vincolo di F. (vale per ogni mossa sotto):** i problemi simbolici passano dalla
+comprensione universale e dalla IR generale; logica simbolica, testo e codice sono superfici
+dello stesso ingresso. **Non si apre un ramo di ragionamento nuovo**: si estende l'esistente
+e lo si verifica con questa classe di problemi. Debito dichiarato: il lettore delle lezioni
+«if… then…» (`mod_teach_rule`) taglia parole e non passa per la IR (MANTRA #24).
+
+**Misurato (47 problemi, uno per cella, KB intera, superficie «if x is the R of y…»):**
+- **Il ragionamento regge più del previsto:**
+  - catene lineari risolte fino a **D62**; a D63 regge solo la domanda aperta, da D64
+    niente. Il limite è la profondità massima del solver (`KB_MAX_DEPTH` = 64);
+  - **D10-W10** risolto, e tutti i join fino a D10-W3;
+  - nessun «Yes» falso.
+- **Spazio esponenziale (`dag`):** risolto fino a D16-W3, circa 14 milioni di cammini. Però
+  da D14-W3 la ricerca esaurisce il budget di 500.000 passi e parrot0 **non lo dice**:
+  risponde «nothing I hold says…», come dopo una ricerca completa.
+- **Il problema vero:** con tre risposte giuste, a D14-W3 parrot0 ne dà una sola
+  («viklogon.») e la presenta come completa. È un **misclaim di completezza**.
+- **Superfici: 1 su 12 arriva al ragionamento.** Si legge solo la frase inglese
+  «if x is the R of y…». Non si leggono:
+  - la notazione del piano: `p(a,b)`, `->`;
+  - le clausole P0, cioè la lingua della KB di parrot0;
+  - regola, fatti e domanda in un unico messaggio: legge la prima frase e tace sul resto;
+  - «whenever…» e la condizione messa dopo («x is the fep of z if…»);
+  - la domanda sì/no in italiano.
+- **Stati intermedi:** dopo un «Yes» ottenuto per deduzione, «why?» risponde «I don't have
+  a proof to share». Il solver ha i passaggi intermedi, parrot0 non li può dire.
+- **RE non si può ancora misurare:** la dimostrazione costa pochi passi e sparisce nel
+  rumore del turno, circa 75.000 passi a ogni D.
+
+**TODO — prossime mosse (§8 del piano), in ordine:**
+- [ ] **1. Dire quando la ricerca è stata tagliata**, anche nelle risposte su relazioni
+  (aperta e polare): la domanda sì/no su una classe lo fa già (`polar_class_answer` legge
+  `kb_inference_report` → `undetermined_cycle`). Un elenco tagliato non si presenta come
+  intero. Prova: `lin` D64–D100 e `dag` D14-W3 a tre radici (seme 8) passano da
+  UNSOLVED/PARTIAL a un muro dicibile; nessuna cella oggi ✔ cambia.
+- [ ] **2. Rendere la dimostrazione un oggetto nella IR**, così «perché?» ha una risposta
+  (`derivation_answer/3`, `turn_response_part/3`) e RE diventa misurabile.
+- [ ] **3. Far entrare tutte le superfici nella stessa IR**, con le varianti del banco
+  scritte **prima** della cura (un asse `--surface` in `gen.py`): `logic_connector` per
+  «whenever» e la condizione posposta; il lettore del turno composto per il testo unico;
+  la sintassi P0 già parsata dalla KB come enunciato della IR; implicazioni fra proposizioni.
+- [ ] **4. Controllo della ricerca**: memorizzare i sotto-goal già risolti (tabling) invece
+  di alzare i limiti; una catena lunga non deve consumare un livello di ricorsione del C per
+  inferenza. Prova: `dag` D16-W3 a tre radici completo sotto il budget attuale.
+- [ ] **5. Più problemi per cella**, così SR e MSD@90 hanno senso, e le famiglie ancora
+  mancanti (albero con potatura, join multipli, cicli), anche in italiano.
+
+**Trappole pagate in questo giro:**
+- le attese vanno calcolate dall'oracolo, non dalla costruzione: un distrattore in
+  posizione 0 era una seconda soluzione vera e il banco la chiamava misclaim;
+- `pkill -f` con un pattern che compare nel proprio comando uccide la shell stessa; il
+  demone `.p0t` è morto a metà griglia e `run.py` ora si ferma se non risponde;
+- mai due `run.py` sul demone insieme: accodare aspettando il file d'uscita dell'altro.
+
 ## ⛔ HANDOFF 2026-09-13 (gen514, notte) — PIOLO 320 (Compost): 4 -> 12/13; r300 resta 49/50 con cancello
 
 **Piolo successivo, r320** ([referti](docs/labs/apprendimento-assistito/2026-09-13-piolo-320/)).

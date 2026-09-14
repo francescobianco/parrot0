@@ -1,5 +1,12 @@
 # L'assistente utile — addestramento supervisionato verso i comportamenti che rendono utile un LLM
 
+TODO: eleborare questo prompt come un caso (ed estendorlo a varianti differenziate e alternative) di assistente utile
+>>> sai giocare a scacchi
+Non capisco ancora.
+>>> /quit
+(sistemare questo todo e fixarlo fare un handoff con diverese altre possibili aperture che riguardano l'eessere un assisnte utile, musica, gioco, hobby e molto altro ancora)
+
+
 > **F., 13 settembre 2026:** «i modelli LLM hanno dei system prompt che li rendono
 > utili e pensati per essere, in linea di massima, degli assistenti. [...] Imitarli
 > non è una questione di imitare l'intelligenza, ma di replicare i comportamenti
