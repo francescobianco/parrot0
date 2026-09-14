@@ -1,0 +1,77 @@
+# Missione multi-hop — BANCO DI CONTROLLO (held-out), scritto DOPO l'8/8 del banco della classe
+# e SENZA toccare il ciclo (docs/plans/multi-hop-deep-memory.md §7.0, criterio 3 e 4).
+# Problemi nuovi della stessa classe; per ognuno si e' verificato soltanto dove sono scritti
+# gli anelli nei lead veri (tests/fixtures/wiki/SOURCES.tsv, search.tsv: risultati veri della
+# ricerca di Wikipedia, 14 settembre 2026). Serve a misurare se l'8/8 e' generalita' o
+# adattamento al banco.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+# H1 — monumento → paese (letto) → valuta (nota in KB: currency_of_country)
+[test H1 a monument, the country read from its page, the currency known]
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> What currency is used in the country where the Taj Mahal stands?
+<~ rupee
+<! mysterious
+
+# H2 — opera → compositore (letto) → nazionalita' (letta, modificatore della classe)
+[test H2 an opera, its composer, his nationality]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> What was the nationality of the composer of the opera Carmen?
+<~ French
+<! Spanish
+
+# H3 — capitale → paese (whose) → lingua (nota in KB)
+[test H3 whose capital, then a known language]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Which language is spoken in the country whose capital is Lima?
+<~ Spanish
+
+# H4 — descrizione → montagna (ricerca) → catena (letta), SENZA parola ponte nel prompt
+[test H4 a description without a bridge word]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Which mountain range contains the highest mountain in Europe?
+<~ Caucasus
+
+# H6 — H2 a passi imperativi
+[test H6 the chain of H2 given as steps]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Start from the opera Carmen. Identify its composer. Then determine his nationality.
+<~ French
+
+# C2 — CONTROLLO: il lead del Cairo non nomina il Nilo (sta nel corpo). Non si inventa.
+[test C2 the river of Cairo is not in its lead, and is not invented]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Into which sea does the river that flows through the capital of Egypt empty?
+<! Mediterranean
+<! mysterious
+
+# H5 — H1 in italiano (in fondo: la lingua resta appiccicosa, reperto del piano)
+[test H5 the same as H1 in Italian]
+!set PARROT0_LANG=it
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> cerca da solo
+> Quale moneta si usa nel paese dove si trova il Taj Mahal?
+<~ rupia

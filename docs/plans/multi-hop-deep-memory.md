@@ -444,6 +444,27 @@ pagine inglesi: «Risposta: Mar Nero.», con la catena detta in italiano. Il pri
 guadagno misurabile, prima ancora di una risposta giusta, è **zero misclaim**: un problema
 della classe non va mai a storie, parole, letture ravvicinate o al passo intermedio.
 
+**Banco di controllo (held-out)** — `tests/p0t/crossing/dm_class_heldout.p0t`, scritto *dopo*
+l'8/8 e senza toccare il ciclo, verificando solo dove sono scritti gli anelli:
+
+| # | Problema | Esito, prima di qualunque cura |
+|---|---|---|
+| H1 | valuta del paese dove sta il Taj Mahal | ✓ «rupee» (Taj Mahal → India letto → valuta nota) |
+| H2 | nazionalità del compositore della *Carmen* | ✗ «I don't know about nationality» — la catena sta in «the X of the Y of Z», senza parola ponte: la lettura non si attiva |
+| H3 | lingua del paese la cui capitale è Lima | ✓ «Spanish» |
+| H4 | catena montuosa della montagna più alta d'Europa | ✗ «Mount Everest is the highest mountain in the world.» — di nuovo niente ponte, e torna il misclaim |
+| H5 | H1 in italiano («quale moneta») | ✗ legge le pagine ma il tipo tradotto non incontra la valuta nota |
+| H6 | H2 a passi imperativi | ✓ «French» |
+| C2 | controllo: il lead del *Cairo* non nomina il Nilo | ✓ non lo inventa |
+
+**4 su 7.** L'8/8 del banco della classe era in parte adattamento: la regola del ponte (una
+parola: relativa, anafora, possessivo) copre le forme del banco ma non la catena di
+complementi («the nationality of the composer of the opera Carmen») né una descrizione che
+chiede un tipo diverso da quello che nomina («which range contains the highest mountain»).
+È esattamente ciò che il criterio 3 serviva a far vedere. La prossima cura si misura sui
+**due** banchi insieme, e il banco di controllo resta tale solo finché non si guarda:
+quando sarà verde, se ne scrive un altro.
+
 **Criteri di generalità** (valgono per ogni mossa della missione):
 
 1. **Nessuna cura si misura su un problema**: si misura sul banco intero, e si riporta il
@@ -651,3 +672,7 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   §7.0: **allargare il banco** con problemi nuovi (altri domini, DM-4, due biforcazioni,
   un'altra lingua) *prima* di toccare il ciclo, e guardarli fallire; poi la prova dal vivo
   con la rete.
+- **14 settembre 2026, notte (4)** — banco di controllo scritto dopo l'8/8, senza toccare il
+  ciclo: **4/7**. Falliscono la catena di complementi senza parola ponte (H2), la
+  descrizione che chiede un altro tipo (H4, con misclaim) e il tipo tradotto verso una
+  risposta nota (H5). Registrato prima di curare.
