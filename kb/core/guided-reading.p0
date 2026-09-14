@@ -1,0 +1,295 @@
+% guided-reading.p0 — LEGGERE PER RISPONDERE: LA LETTURA GUIDATA DAL FRAME APERTO.
+%
+% docs/plans/multi-hop-deep-memory.md §4.4 (strada 2) e §7.0 (il banco della classe).
+% Una domanda come «in which country is the museum that holds The Starry Night?» non
+% si risponde leggendo tutto e poi cercando: si parte da ciò che si nomina, si legge la
+% sua pagina CERCANDO ciò che manca — un museo, poi un paese — e ogni scoperta decide la
+% pagina successiva. Come fa una persona.
+%
+% Il motore fa la meccanica: scarica la pagina con lo stesso provider della memoria
+% profonda, la divide in frasi, trova nelle frasi i nomi propri (dall'ortografia) e i
+% sintagmi comuni, e fa girare il ciclo. Qui sta tutto ciò che DECIDE:
+%   - quando una domanda apre una lettura guidata (tipo chiesto + ponte);
+%   - quale tipo si chiede, e in che ordine;
+%   - quali parole del prompt sono indizi;
+%   - quando un candidato e' del tipo giusto, e con quale forma si presenta la risposta;
+%   - quali parole sono prova a favore o contro un legame;
+%   - come si dice la catena.
+%
+% ⚠ Debito dichiarato (MANTRA #24). Le frasi e i candidati della pagina sono pubblicati
+% come fatti di scratch del turno (`guided_*`), non ancora come scope della Document IR
+% con nodi e range: e' la stessa informazione (frase, menzione, posizione), e la
+% migrazione e' IR1 + IR2 del piano. Gemelli: guided_page_sentence → document_unit;
+% guided_mention → input_entity_node nello scope pagina; guided_found → legame fra scope.
+
+:- file_attribute(machinery).
+
+% ── 1. QUALE TIPO SI CHIEDE ─────────────────────────────────────────────────
+% «which religion», «into which sea», «what was his nationality», «what is the capital
+% of»: il tipo e' la prima parola piena dopo l'interrogativo, saltando copule,
+% ausiliari, articoli e possessivi. Un interrogativo nuovo e' una riga.
+machinery(open_question_word).
+open_question_word(which).
+open_question_word(what).
+open_question_word(quale).
+open_question_word(quali).
+open_question_word(che).
+machinery(type_skip_word).
+type_skip_word($W) :- clause_copula($W).
+type_skip_word($W) :- auxiliary($W).
+type_skip_word($W) :- english_determiner($W).
+type_skip_word($W) :- italian_determiner($W).
+type_skip_word($W) :- possessive_word($W).
+type_skip_word(do). type_skip_word(does). type_skip_word(did).
+type_skip_word(was). type_skip_word(were).
+machinery(possessive_word).
+possessive_word(his). possessive_word(her). possessive_word(its). possessive_word(their).
+possessive_word(suo). possessive_word(sua).
+
+machinery(guided_asked_type).
+machinery(first_type_word_after).
+guided_asked_type($T, $I, $Type) :-
+    turn_word($T, $I, $Q), open_question_word($Q), is($J, add($I, 1)), first_type_word_after($T, $J, $Type).
+first_type_word_after($T, $J, $W) :- turn_word($T, $J, $W), naf(type_skip_word($W)), naf(open_question_word($W)), content_word($W).
+first_type_word_after($T, $J, $W) :-
+    turn_word($T, $J, $S), type_skip_word($S), is($K, add($J, 1)), lt($K, 64), first_type_word_after($T, $K, $W).
+
+% ── 2. IL PONTE: LA DOMANDA NON SI RISPONDE CON UN SOLO FATTO ─────────────────
+% Una relativa dopo un nome («the museum THAT holds», «the country WHERE»), un'anafora
+% («that figure», «its followers», «his nationality»), «named after», o piu' tipi
+% chiesti. Senza ponte la domanda resta alle facolta' di sempre: «what is the capital
+% of France?» risponde la KB.
+machinery(bridge_word).
+bridge_word(that). bridge_word(where). bridge_word(whose).
+bridge_word(its). bridge_word(his). bridge_word(her). bridge_word(their).
+bridge_word(cui). bridge_word(dove).
+machinery(turn_guided_bridge).
+turn_guided_bridge($T) :- turn_word($T, $I, $W), bridge_word($W), gt($I, 0).
+turn_guided_bridge($T) :- guided_asked_type($T, $I, $A), guided_asked_type($T, $J, $B), lt($I, $J).
+machinery(turn_guided_inquiry).
+turn_guided_inquiry($T) :- guided_asked_type($T, $I, $Type), turn_guided_bridge($T), acquisition_move(acquire).
+
+% ── 3. GLI INDIZI ────────────────────────────────────────────────────────────
+% Le parole piene del prompt che non sono ne' interrogativi ne' tipi chiesti: dicono
+% che cosa cercare nella frase («holds», «named», «formulate», «flow»).
+machinery(guided_cue).
+guided_cue($T, $W) :-
+    turn_word($T, $I, $W), content_word($W), naf(open_question_word($W)), naf(type_skip_word($W)),
+    naf(bridge_word($W)), naf(guided_asked_word($T, $W)).
+machinery(guided_asked_word).
+guided_asked_word($T, $W) :- guided_asked_type($T, $I, $W).
+
+% La stessa parola sotto un'altra forma: flessione, plurale, radice nota.
+machinery(same_word_lemma).
+same_word_lemma($W, $W).
+same_word_lemma($W, $T) :- plural_of($W, $T).
+same_word_lemma($W, $T) :- lemma_candidate($W, $T).
+same_word_lemma($W, $T) :- lemma_candidate($T, $W).
+
+% ── 4. PROVE A FAVORE E CONTRO UN LEGAME ─────────────────────────────────────
+% Un indizio del prompt si ritrova nella pagina anche con altre parole: «associated
+% with that figure» e' provato da «the founder of X». Insegnabile: «a founder of
+% something is associated with it». La prova contraria abbassa un candidato che la
+% frase nomina per opporlo («challenged the tenets of …»).
+machinery(cue_evidence).
+cue_evidence(associated, founder).
+cue_evidence(associated, founded).
+cue_evidence(associated, founding).
+cue_evidence(holds, collection).
+cue_evidence(holds, housed).
+cue_evidence(runs, stands).
+cue_evidence(runs, flows).
+cue_evidence(flow, into).
+cue_evidence(named, named).
+cue_evidence(named, nominally).
+cue_evidence(named, called).
+machinery(opposition_evidence).
+opposition_evidence(challenged).
+opposition_evidence(opposed).
+opposition_evidence(rejected).
+opposition_evidence(controversy).
+machinery(guided_evidence_word).
+guided_evidence_word($T, $E) :- guided_cue($T, $C), cue_evidence($C, $E).
+
+% ── 5. IL TIPO DI UN CANDIDATO ───────────────────────────────────────────────
+% Tre prove, dalla piu' economica: la testa del nome («Black Sea»), un tipo che la KB
+% conosce gia', la prima frase della pagina del candidato (la prova la cerca il motore
+% e la chiede qui). Un tipo nuovo che la KB sa riconoscere e' una riga.
+machinery(known_entity_type).
+known_entity_type($K, country) :- capital_of_country($K, $C).
+known_entity_type($K, city) :- capital_of_country($C, $K).
+known_entity_type($K, $T) :- apply($T, cons($K, nil)).
+
+% La forma della risposta, per tipo: un nome proprio (sempre), un sintagma comune con
+% la testa del tipo («the periodic law»), il modificatore della classe nella frase che
+% definisce («a Russian chemist» → Russian).
+machinery(answer_shape).
+answer_shape(nationality, class_modifier).
+answer_shape(law, headed_phrase).
+answer_shape(theory, headed_phrase).
+answer_shape(principle, headed_phrase).
+machinery(naming_link).
+naming_link(known).
+naming_link(called).
+naming_link(named).
+machinery(definition_copula).
+definition_copula(is). definition_copula(was). definition_copula(are). definition_copula(were).
+
+% ── 6. LA RISPOSTA E LA CATENA ───────────────────────────────────────────────
+% I fatti del turno li scrive il motore mentre legge (tutti col numero del turno in
+% `guided_turn/1`, cosi' nessuna risposta sopravvive al turno che l'ha prodotta):
+%   guided_read(P, Topic, Address)          la P-esima pagina letta
+%   guided_found(F, Type, "Risposta", P)     l'F-esima risposta, trovata nella pagina P
+%   guided_sentence(F, "Frase")              la frase che la prova
+%   guided_bridge(P, "Prossima", "Frase")    la pagina successiva, scelta da questa frase
+%   guided_missing(Type)                    un tipo chiesto non trovato
+machinery(guided_turn).
+machinery(guided_read).
+machinery(guided_found).
+machinery(guided_sentence).
+machinery(guided_bridge).
+machinery(guided_missing).
+turn_scratch(guided_turn).
+turn_scratch(guided_read).
+turn_scratch(guided_found).
+turn_scratch(guided_sentence).
+turn_scratch(guided_bridge).
+turn_scratch(guided_missing).
+machinery(guided_now).
+guided_now :- turn_counter($N), guided_turn($N).
+
+machinery(guided_language).
+guided_language(it) :- current_language(it).
+guided_language(en) :- naf(current_language(it)).
+
+machinery(guided_line).
+guided_line(en, answer_head, "Answer: ").
+guided_line(it, answer_head, "Risposta: ").
+guided_line(en, partial_head, "Partial answer: ").
+guided_line(it, partial_head, "Risposta parziale: ").
+guided_line(en, steps_head, "How I got there (every link read from Wikipedia; the choices between candidates are mine):").
+guided_line(it, steps_head, "Come ci sono arrivato (ogni anello letto su Wikipedia; le scelte fra i candidati sono mie):").
+guided_line(en, missing_head, "What I could not find: ").
+guided_line(it, missing_head, "Che cosa non ho trovato: ").
+guided_line(en, read_word, "I read «").
+guided_line(it, read_word, "Ho letto «").
+guided_line(en, bridge_word, "   next page: ").
+guided_line(it, bridge_word, "   pagina successiva: ").
+guided_line(en, nothing_found, "I could not find any of what the question asks in the pages I could read.").
+guided_line(it, nothing_found, "Nelle pagine che ho potuto leggere non ho trovato nulla di cio' che la domanda chiede.").
+
+machinery(guided_address_text).
+guided_address_text(wiki_address($Ed, $Title, $Rev, $Sec), $Text) :-
+    concat_atoms($Title, "» (", $A), concat_atoms($A, $Ed, $B), concat_atoms($B, " edition, revision ", $C),
+    concat_atoms($C, $Rev, $D), concat_atoms($D, ")", $Text).
+
+% ordini: 1 risposta, 2 intestazione, 10+10P pagina P, 11+10P risposte e ponte, 900 mancanze
+machinery(guided_part).
+guided_part(1, $Text) :-
+    guided_now, guided_found(1, $Ty, $V, $P), naf(guided_missing_any), guided_language($L),
+    guided_line($L, answer_head, $H), guided_values_from(0, $Vs), concat_atoms($H, $Vs, $A), concat_atoms($A, ".", $Text).
+guided_part(1, $Text) :-
+    guided_now, guided_found(1, $Ty, $V, $P), guided_missing_any, guided_language($L),
+    guided_line($L, partial_head, $H), guided_values_from(0, $Vs), concat_atoms($H, $Vs, $A), concat_atoms($A, ".", $Text).
+guided_part(1, $Text) :-
+    guided_now, naf(guided_found_any), guided_read(1, $To, $Ad), guided_language($L), guided_line($L, nothing_found, $Text).
+guided_part(2, $Text) :- guided_now, guided_read(1, $Topic, $Addr), guided_language($L), guided_line($L, steps_head, $Text).
+guided_part($O, $Line) :-
+    guided_now, guided_read($P, $Topic, $Addr), guided_language($L), guided_line($L, read_word, $R),
+    guided_address_text($Addr, $AT), is($O, add(10, mul(10, $P))),
+    concat_atoms($P, ". ", $A), concat_atoms($A, $R, $B), concat_atoms($B, $AT, $Line).
+guided_part($O, $Line) :-
+    guided_now, guided_found($F, $Type, $V, $P), guided_sentence($F, $S), is($O, add(11, mul(10, $P))),
+    concat_atoms("   «", $S, $A), concat_atoms($A, "» → ", $B), concat_atoms($B, $Type, $C),
+    concat_atoms($C, ": ", $D), concat_atoms($D, $V, $Line).
+guided_part($O, $Line) :-
+    guided_now, guided_bridge($P, $Next, $S), guided_language($L), guided_line($L, bridge_word, $W),
+    is($O, add(12, mul(10, $P))),
+    concat_atoms($W, $Next, $A), concat_atoms($A, " («", $B), concat_atoms($B, $S, $C), concat_atoms($C, "»)", $Line).
+guided_part(900, $Text) :-
+    guided_now, guided_missing($Type), guided_language($L), guided_line($L, missing_head, $H),
+    concat_atoms($H, $Type, $A), concat_atoms($A, ".", $Text).
+
+machinery(guided_missing_any).
+guided_missing_any :- guided_missing($T).
+machinery(guided_found_any).
+guided_found_any :- guided_found($F, $T, $V, $P).
+machinery(guided_values_from).
+machinery(guided_values_after).
+machinery(guided_next_found).
+machinery(guided_found_between).
+machinery(guided_has_found_after).
+guided_values_from($N, $Text) :- guided_next_found($N, $M, $V), guided_values_after($M, $Rest), concat_atoms($V, $Rest, $Text).
+guided_values_after($N, $Text) :- guided_next_found($N, $M, $V), guided_values_after($M, $Rest), concat_atoms("; ", $V, $A), concat_atoms($A, $Rest, $Text).
+guided_values_after($N, "") :- naf(guided_has_found_after($N)).
+guided_next_found($N, $M, $V) :- guided_found($M, $Ty, $V, $P), gt($M, $N), naf(guided_found_between($N, $M)).
+guided_found_between($N, $M) :- guided_found($K, $Ty, $V, $P), gt($K, $N), lt($K, $M).
+guided_has_found_after($N) :- guided_found($M, $Ty, $V, $P), gt($M, $N).
+
+% I connettori dentro un nome proprio: «Museum OF Modern Art», «Leonardo DA Vinci».
+machinery(name_connector).
+name_connector(of).
+name_connector(da).
+name_connector(de).
+name_connector(di).
+name_connector(von).
+name_connector(van).
+
+% Le flessioni regolari che un indizio del prompt incontra nella pagina: «formulate» /
+% «formulating», «flow» / «flows», «hold» / «held» resta a `lemma_candidate`.
+same_word_lemma($W, $T) :- inflection_suffix_guided($Suf), concat_atoms($T, $Suf, $W).
+same_word_lemma($W, $T) :- concat_atoms($S, "e", $T), inflection_suffix_guided($Suf), concat_atoms($S, $Suf, $W).
+same_word_lemma($W, $T) :- inflection_suffix_guided($Suf), concat_atoms($W, $Suf, $T).
+machinery(inflection_suffix_guided).
+inflection_suffix_guided("s").
+inflection_suffix_guided("es").
+inflection_suffix_guided("ed").
+inflection_suffix_guided("ing").
+
+% Un nome che porta davanti la sua classe: «River Danube», «Mount Etna», «Lake Como».
+% Se la pagina col nome intero non c'e', si prova senza la classe.
+machinery(name_class_prefix).
+name_class_prefix(river).
+name_class_prefix(lake).
+name_class_prefix(mount).
+name_class_prefix(saint).
+
+% Il punto di partenza puo' essere un fatto che la KB sa gia': «the CAPITAL of Hungary»
+% → la superficie «capital» interroga `capital_of_country` (answer_frame/2), e il valore
+% e' la prima pagina da leggere. Il passo si dice come conoscenza, non come lettura.
+machinery(guided_known).
+turn_scratch(guided_known).
+guided_part(5, $Line) :-
+    guided_now, guided_known($Rel, $From, $To), guided_language($L), guided_line($L, known_word, $K),
+    concat_atoms($K, $Rel, $A), concat_atoms($A, " of ", $B), concat_atoms($B, $From, $C),
+    concat_atoms($C, " = ", $D), concat_atoms($D, $To, $Line).
+guided_line(en, known_word, "0. Known before reading: ").
+guided_line(it, known_word, "0. Gia' noto prima di leggere: ").
+
+% Gli indizi che nessuna pagina letta contiene: dicono dove la catena si e' rotta.
+machinery(guided_unmatched).
+turn_scratch(guided_unmatched).
+guided_part(901, $Line) :-
+    guided_now, guided_missing_any, guided_unmatched_list($List), guided_language($L), guided_line($L, unmatched_head, $H),
+    concat_atoms($H, $List, $A), concat_atoms($A, ".", $Line).
+guided_line(en, unmatched_head, "No page I read mentions: ").
+guided_line(it, unmatched_head, "Nessuna pagina letta nomina: ").
+machinery(guided_unmatched_list).
+guided_unmatched_list($Text) :- findall($W, guided_unmatched($W), $Ws), words_comma_text($Ws, $Text).
+machinery(words_comma_text).
+words_comma_text(cons($W, nil), $W).
+words_comma_text(cons($W, cons($V, $R)), $T) :- words_comma_text(cons($V, $R), $Rest), concat_atoms($W, ", ", $A), concat_atoms($A, $Rest, $T).
+
+% La biforcazione, detta: gli altri candidati dello stesso tipo nella pagina, uno per
+% riga (una lista con le frasi supererebbe la lunghezza di un atomo), con la frase che
+% li nomina — dove si vede che non porta la prova del legame chiesto, o ne porta una
+% contraria («challenged the tenets of the Ancient Iranian religion»).
+machinery(guided_rejected).
+turn_scratch(guided_rejected).
+guided_part($O, $Line) :-
+    guided_now, guided_rejected($F, $S, $E, $D), guided_found($F, $Type, $V, $P), guided_language($L),
+    guided_line($L, rejected_head, $H), is($O, add(11, mul(10, $P))),
+    concat_atoms($H, $Type, $A), concat_atoms($A, ": ", $B), concat_atoms($B, $S, $C),
+    concat_atoms($C, " («", $G), concat_atoms($G, $E, $I), concat_atoms($I, "»)", $Line).
+guided_line(en, rejected_head, "   not chosen, also of type ").
+guided_line(it, rejected_head, "   non scelto, anch'esso di tipo ").

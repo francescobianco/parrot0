@@ -7293,6 +7293,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return strlen(out);   /* insegnare non e' rispondere: nessuna lacuna si chiude */
     }
 
+    /* La lettura guidata dal frame aperto (kb/core/guided-reading.p0): una domanda
+     * che chiede un tipo attraverso un ponte si risponde leggendo, prima che le
+     * facolta' di una frase sola la prendano per quello che non e'. La forza del
+     * turno la pubblica il lead universale, quindi si chiede dopo di lui. */
     if (b && universal_turn_lead(b, norm, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "turn_plan");
@@ -7302,6 +7306,11 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * aperta anche dopo essere stata colmata. E' un limite reale e va
          * chiuso spostando la canonicalizzazione prima del contratto di turno,
          * non nascosto qui. */
+        return turn_done(b, norm, input, out, out_size);
+    }
+    if (b && guided_reading_lead(b, norm, input, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "guided_reading");
         return turn_done(b, norm, input, out, out_size);
     }
 

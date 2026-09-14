@@ -234,6 +234,47 @@ La strada 2 è quella che serve alla classe del banco, ed è generale se le supe
 relazione e i tipi sono conoscenza insegnabile e non una tabella per il banco. La strada
 1 resta la destinazione, e ogni frase che la strada 2 legge bene è un caso per essa.
 
+### 4.5 La lettura guidata dal frame aperto — prima tappa (14 settembre, sera)
+
+`kb/core/guided-reading.p0` (decisioni) e `guided_reading_lead` in
+`src/brain/50-self-research-loop.c` (meccanica). Il ciclo:
+
+1. **Quando**: la domanda chiede un tipo («which religion», «what nationality», «into which
+   sea») **e** ha un ponte (relativa, anafora, più tipi, «named after»), con la politica
+   «leggi da solo». «what is the capital of France?» resta alla KB.
+2. **Da dove**: il primo nome del prompt che ha una pagina; oppure un fatto della KB che il
+   prompt interroga con la sua superficie (`answer_frame/2`: «the capital of Hungary» →
+   Budapest, detto come *known*).
+3. **Che cosa cercare**: il tipo chiesto, nell'ordine; gli indizi sono le altre parole piene
+   del prompt, meno quelle del nome di partenza.
+4. **Un candidato è del tipo** se: la testa del nome è il tipo («Black **Sea**»,
+   «Ancient Iranian **religion**»); la KB lo sa (`known_entity_type/2`); la prima frase
+   della sua pagina lo dice («is an Abrahamic **religion**»); la frase lo nomina («deity
+   **known as** Ahura Mazda»); o una forma di risposta dichiarata per il tipo
+   (`answer_shape/2`: il modificatore della classe per la nazionalità, il sintagma con la
+   testa per «law»).
+5. **Fra candidati**: indizi nella frase, prove a favore vicine (`cue_evidence/2`:
+   «associated» ← «founder»), prove contrarie (`opposition_evidence/1`: «challenged»). Gli
+   sconfitti si dicono, con la loro frase.
+6. **Se il tipo non c'è**: la frase più pertinente sceglie la pagina ponte, e si continua.
+7. **La risposta** è composta in KB (`guided_part/2`): risposta, pagine lette con titolo e
+   revisione, frase di ogni anello, candidati scartati, e — se manca qualcosa — il tipo non
+   trovato e gli indizi che nessuna pagina letta nomina.
+
+**Misura sul banco: 0/8 → 5/8**, E1 23/23, nessun furto di turno sulle domande normali,
+test della memoria profonda e `prose_triage` verdi.
+
+⚠ **Debito dichiarato (MANTRA #24).** Frasi, menzioni e legami sono strutture locali del
+ciclo e fatti di scratch, non ancora scope e nodi della Document IR. I gemelli sono scritti
+in testa a `guided-reading.p0`; la migrazione è IR1+IR2+IR6. E il riconoscimento dei nomi
+propri per maiuscole è una produzione ortografica che vale per le lingue che le usano.
+
+**Che cosa ha insegnato il banco nella stessa sera** (ognuno è una correzione generale, non
+una patch per un problema): una verifica «contiene» nel test passava su una frase citata e
+non sulla risposta (le attese ora sono «tipo: valore»); una menzione scavalcava la virgola
+(«Midtown Manhattan, New York City»); le parole del nome di partenza sembravano indizi; un
+nome seguito dal suo tipo è un nome solo; una riga oltre 512 byte cadeva in silenzio.
+
 Il test di generalità di questa sezione è quello di `lettura-della-prosa.md`: **una forma
 nuova di hop deve costare un consumatore della IR, mai uno scanner nuovo.**
 
@@ -331,7 +372,7 @@ variare, perché nessuno di questi assi sia imparato come caso:
 | controllo | un anello che nessun lead contiene | l'invenzione |
 
 **Il banco** — `tests/p0t/crossing/dm_class_bench.p0t`, pagine vere in edizione locale,
-revisioni in `tests/fixtures/wiki/SOURCES-dm.tsv`:
+revisioni in `tests/fixtures/wiki/SOURCES.tsv`:
 
 | # | Problema | Catena (K = known nella KB, R = da leggere) | Distrattori | Oggi |
 |---|---|---|---|---|
@@ -344,7 +385,12 @@ revisioni in `tests/fixtures/wiki/SOURCES-dm.tsv`:
 | B7 | B1 a passi imperativi | come B1 | — | «I couldn't read…» a ogni passo |
 | C1 | controllo: Karamazov → «un filosofo che lo considerò precursore» | l'anello Dostoevsky → Nietzsche non è in nessun lead | la religione di E1 | «A word that starts with "t": tab.» (**misclaim**) |
 
-Base: **0 problemi su 8**, e 4 risposte su 8 sono sbagliate con sicurezza. Il primo
+Base: **0 problemi su 8**, e 4 risposte su 8 sono sbagliate con sicurezza.
+
+**Dopo la prima tappa della lettura guidata** (14 settembre, sera; §4.5): **5 su 8** —
+B1, B2, B3, B4 e il controllo C1 — con catena, letture con revisione, passo noto dichiarato
+e biforcazione detta. Restano B5 (partenza da una descrizione), B6 (italiano), B7 (passi
+imperativi). Il primo
 guadagno misurabile, prima ancora di una risposta giusta, è **zero misclaim**: un problema
 della classe non va mai a storie, parole, letture ravvicinate o al passo intermedio.
 
@@ -539,3 +585,8 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   **lettura guidata dal frame aperto** (§4.4, strada 2), costruita nella IR e misurata sul
   banco; in parallelo, unificare l'ingresso (un lettore solo) quando la strada 2 lo
   richiede.
+- **14 settembre 2026, notte** — prima tappa della lettura guidata dal frame aperto (§4.5):
+  banco 0/8 → **5/8** (B1 Zarathustra, B2 Danubio con passo noto, B3 MoMA → New York → Stati
+  Uniti, B4 Mendeleev, C1 controllo onesto), E1 23/23. Prossime: B5 (descrizione come
+  partenza), B6 (italiano), B7 (passi imperativi), poi allargare il banco prima della mossa
+  successiva (§7.0, criterio 3).

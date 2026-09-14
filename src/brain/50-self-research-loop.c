@@ -763,13 +763,15 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
     return r;
 }
 
-static int network_acquire_passage(Brain *b, const char *topic, char *def,
-                                   size_t def_sz, int *nfacts) {
-    if (!b || !b->kb || !topic || !*topic) return 0;
-    if (nfacts) *nfacts = 0;
-    if (def && def_sz) def[0] = '\0';
-    char prose[4096] = "";
-    char edition[32] = "", title[160] = "", revision[64] = "", fixdir[KB_TERM_LEN] = "";
+/* La pagina di un topic, dal primo provider che la ha (network.p0 §7): il testo del
+ * lead, l'edizione, il titolo risolto, la revisione e, per l'edizione locale, la
+ * cartella. Estratta dal lettore della memoria profonda perche' la usano due lettori:
+ * quello che impara la pagina e quello che la legge per rispondere (guided-reading.p0).
+ * `edition` 32, `title` 160, `revision` 64, `fixdir` KB_TERM_LEN byte. */
+static int network_fetch_page(Brain *b, const char *topic, char *prose, size_t prose_sz,
+                              char *edition, char *title, char *revision, char *fixdir) {
+    if (!b || !b->kb || !topic || !*topic || !prose || prose_sz < 16) return 0;
+    prose[0] = '\0'; edition[0] = title[0] = revision[0] = fixdir[0] = '\0';
     int got = 0;
     for (int rank = 1; rank <= 8 && !got; rank++) {
         char rs[8]; snprintf(rs, sizeof rs, "%d", rank);
@@ -783,19 +785,41 @@ static int network_acquire_passage(Brain *b, const char *topic, char *def,
             const char *fq[2] = { "fixture", NULL };
             if (kb_match(b->kb, "topic_provider", fq, 2, dirs, 1) != 1) continue;
             char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", dirs[0]);
-            snprintf(fixdir, sizeof fixdir, "%s", kb_dequote(db));
+            snprintf(fixdir, KB_TERM_LEN, "%s", kb_dequote(db));
             char path[512];
             snprintf(path, sizeof path, "%s/%s.txt", fixdir, topic);
             FILE *f = fopen(path, "r");
             if (!f) continue;
-            size_t n = fread(prose, 1, sizeof prose - 1, f);
+            size_t n = fread(prose, 1, prose_sz - 1, f);
             fclose(f);
             prose[n] = '\0';
             while (n && (prose[n - 1] == '\n' || prose[n - 1] == ' ')) prose[--n] = '\0';
             if (n < 10) continue;
-            snprintf(edition, sizeof edition, "fixture");
-            snprintf(title, sizeof title, "%s", topic);
-            snprintf(revision, sizeof revision, "local");
+            snprintf(edition, 32, "fixture");
+            snprintf(title, 160, "%s", topic);
+            snprintf(revision, 64, "local");
+            /* l'edizione locale e' una copia di pagine vere: se la cartella dice da
+             * quale titolo e revisione viene (`SOURCES.tsv`: chiave, titolo,
+             * revisione), la lettura lo riporta come la rete */
+            {
+                char spath[600]; snprintf(spath, sizeof spath, "%s/SOURCES.tsv", fixdir);
+                FILE *sf = fopen(spath, "r");
+                if (sf) {
+                    char line[512];
+                    while (fgets(line, sizeof line, sf)) {
+                        char *t1 = strchr(line, '\t'); if (!t1) continue;
+                        *t1 = '\0';
+                        if (strcmp(line, topic)) continue;
+                        char *t2 = strchr(t1 + 1, '\t'); if (!t2) break;
+                        *t2 = '\0';
+                        char *nl = strchr(t2 + 1, '\n'); if (nl) *nl = '\0';
+                        snprintf(title, 160, "%s", t1 + 1);
+                        snprintf(revision, 64, "%s", t2 + 1);
+                        break;
+                    }
+                    fclose(sf);
+                }
+            }
             got = 1;
         } else if (strcmp(prov, "wikipedia") == 0) {
             if (!kb_query(b->kb, "network_available", NULL, 0)) continue;
@@ -823,19 +847,30 @@ static int network_acquire_passage(Brain *b, const char *topic, char *def,
                     snprintf(native, sizeof native, "%s", kb_dequote(nv[0]));
             }
             if (getenv("P0_READ_TRACE")) fprintf(stderr, "[acquire] topic=«%s» edition=%s native=«%s»\n", topic, lang, native);
-            int fetched = (native[0] && wiki_fetch_topic_lang_prose(native, lang, prose, sizeof prose)) ||
-                          wiki_fetch_topic_lang_prose(topic, lang, prose, sizeof prose);
+            int fetched = (native[0] && wiki_fetch_topic_lang_prose(native, lang, prose, prose_sz)) ||
+                          wiki_fetch_topic_lang_prose(topic, lang, prose, prose_sz);
             if (!fetched) {
-                if (!strcmp(lang, "en") || !wiki_fetch_topic_lang_prose(topic, "en", prose, sizeof prose)) continue;
+                if (!strcmp(lang, "en") || !wiki_fetch_topic_lang_prose(topic, "en", prose, prose_sz)) continue;
                 snprintf(lang, sizeof lang, "en");
             }
-            snprintf(edition, sizeof edition, "%s", lang);
-            snprintf(title, sizeof title, "%s", wiki_last_title());
-            snprintf(revision, sizeof revision, "%s",
+            snprintf(edition, 32, "%s", lang);
+            snprintf(title, 160, "%s", wiki_last_title());
+            snprintf(revision, 64, "%s",
                      wiki_last_revision()[0] ? wiki_last_revision() : "unknown");
             got = 1;
         }
     }
+    return got;
+}
+
+static int network_acquire_passage(Brain *b, const char *topic, char *def,
+                                   size_t def_sz, int *nfacts) {
+    if (!b || !b->kb || !topic || !*topic) return 0;
+    if (nfacts) *nfacts = 0;
+    if (def && def_sz) def[0] = '\0';
+    char prose[4096] = "";
+    char edition[32] = "", title[160] = "", revision[64] = "", fixdir[KB_TERM_LEN] = "";
+    int got = network_fetch_page(b, topic, prose, sizeof prose, edition, title, revision, fixdir);
     if (!got) return 0;
 
     /* ── gen506d — LA PAGINA CHE DISAMBIGUA NON SI LEGGE: SI CHIEDE ──────────
@@ -2413,4 +2448,516 @@ static int simulate_pipeline(const char *pipeline,
     }
     snprintf(out, out_size, "%s", buf);
     return 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * LETTURA GUIDATA DAL FRAME APERTO — kb/core/guided-reading.p0
+ * docs/plans/multi-hop-deep-memory.md §4.4 (strada 2), banco §7.0
+ *
+ * «In which country is the museum that holds The Starry Night?» Si parte da cio'
+ * che la domanda nomina e che ha una pagina; nella pagina si cerca il tipo chiesto
+ * (un museo); se c'e', la risposta diventa la pagina successiva e si cerca il tipo
+ * dopo (un paese); se non c'e', la frase piu' pertinente sceglie la pagina ponte.
+ *
+ * Qui c'e' soltanto la meccanica: scaricare, dividere in frasi, trovare i nomi
+ * propri dall'ortografia e i sintagmi con una testa data, contare, girare. Ogni
+ * decisione — che cosa si chiede, quali parole sono indizi o prove, quando un
+ * candidato e' del tipo giusto, come si dice la catena — e' una domanda alla KB.
+ *
+ * ⚠ Debito (MANTRA #24): frasi e menzioni sono strutture locali di questa funzione,
+ * non ancora nodi della Document IR. Gemelli e migrazione: guided-reading.p0 in
+ * testa, e il piano §4.3 (IR1, IR2, IR6).
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+enum { GR_MAX_SENT = 16, GR_MAX_TOK = 96, GR_MAX_MENT = 24, GR_MAX_PAGES = 6, GR_MAX_TYPES = 4 };
+
+typedef struct {
+    char text[600];                          /* la frase, con le maiuscole */
+    char tok[GR_MAX_TOK][KB_TERM_LEN];       /* token originali, senza punteggiatura ai bordi */
+    char low[GR_MAX_TOK][KB_TERM_LEN];       /* gli stessi, in minuscolo */
+    unsigned char stop[GR_MAX_TOK];          /* il token chiudeva con una punteggiatura */
+    char orig[GR_MAX_TOK][KB_TERM_LEN];      /* il token com'era scritto, per citare */
+    size_t ntok;
+} GrSentence;
+
+typedef struct {
+    char topic[KB_TERM_LEN];
+    char prose[4096];
+    char edition[32], title[160], revision[64], fixdir[KB_TERM_LEN];
+    GrSentence sent[GR_MAX_SENT];
+    size_t nsent;
+} GrPage;
+
+typedef struct {
+    char surface[KB_TERM_LEN];   /* «Museum of Modern Art» */
+    char key[KB_TERM_LEN];       /* museum_of_modern_art */
+    char head[KB_TERM_LEN];      /* museum: la parola prima di un connettore, o l'ultima */
+    size_t start, end;           /* token [start, end) */
+} GrMention;
+
+static void gr_key_of(const char *surface, char *key, size_t ksz) {
+    size_t o = 0;
+    for (const char *c = surface; *c && o + 1 < ksz; c++) {
+        unsigned char ch = (unsigned char)*c;
+        if (ch == ' ' || ch == '-') { if (o && key[o - 1] != '_') key[o++] = '_'; }
+        else if (ch == '\'' || ch == '.' || ch == ',') continue;
+        else key[o++] = (char)tolower(ch);
+    }
+    while (o && key[o - 1] == '_') o--;
+    key[o] = '\0';
+}
+
+static int gr_kb1(Brain *b, const char *pred, const char *a) {
+    const char *q[1] = { a };
+    return kb_query(b->kb, pred, q, 1);
+}
+static int gr_kb2(Brain *b, const char *pred, const char *a, const char *c) {
+    const char *q[2] = { a, c };
+    return kb_query(b->kb, pred, q, 2);
+}
+static int gr_same(Brain *b, const char *w, const char *t) {
+    if (!*w || !*t) return 0;
+    if (!strcmp(w, t)) return 1;
+    if (strncmp(w, t, 3)) return 0;          /* meccanica: si chiede alla KB solo se puo' essere */
+    return gr_kb2(b, "same_word_lemma", w, t);
+}
+
+static void gr_split_sentences(Brain *b, GrPage *pg) {
+    pg->nsent = 0;
+    const char *p = pg->prose;
+    while (*p && pg->nsent < GR_MAX_SENT) {
+        while (*p == ' ' || *p == '\n') p++;
+        const char *q = p;
+        while (*q && !(((*q == '.' || *q == '!' || *q == '?') &&
+                        (!q[1] || q[1] == ' ' || q[1] == '\n') &&
+                        !p0_boundary_inside_number(b, pg->prose, (char *)q)))) q++;
+        size_t len = (size_t)(q - p);
+        if (len > 3) {
+            GrSentence *s = &pg->sent[pg->nsent++];
+            snprintf(s->text, sizeof s->text, "%.*s", (int)(len < sizeof s->text ? len : sizeof s->text - 1), p);
+            char buf[600]; snprintf(buf, sizeof buf, "%s", s->text);
+            char *w[GR_MAX_TOK]; size_t n = split_words(buf, w, GR_MAX_TOK);
+            s->ntok = 0;
+            for (size_t i = 0; i < n && s->ntok < GR_MAX_TOK; i++) {
+                char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[i]);
+                char orig_tok[KB_TERM_LEN]; snprintf(orig_tok, sizeof orig_tok, "%s", w[i]);
+                /* il possessivo «'s» e la punteggiatura non sono parte della parola */
+                size_t tl = strlen(t);
+                unsigned char closed = 0;
+                while (tl && strchr(",;:()\"«»", t[tl - 1])) { t[--tl] = '\0'; closed = 1; }
+                if (tl > 2 && t[tl - 2] == '\'' && t[tl - 1] == 's') { t[tl - 2] = '\0'; tl -= 2; }
+                char *st = t; while (*st && strchr("(\"«", *st)) st++;
+                if (!*st) continue;
+                s->stop[s->ntok] = closed;
+                snprintf(s->orig[s->ntok], KB_TERM_LEN, "%s", orig_tok);
+                snprintf(s->tok[s->ntok], KB_TERM_LEN, "%s", st);
+                for (size_t k = 0; ; k++) { s->low[s->ntok][k] = (char)tolower((unsigned char)st[k]); if (!st[k]) break; }
+                s->ntok++;
+            }
+        }
+        if (!*q) break;
+        p = q + 1;
+    }
+}
+
+/* Le menzioni: corse di parole con l'iniziale maiuscola, con dentro i connettori che
+ * la KB dichiara (`name_connector/1`: «of», «da», «von»). La prima parola di una
+ * frase conta solo se non e' una parola funzione. */
+static size_t gr_mentions(Brain *b, const GrSentence *s, GrMention *m, size_t max) {
+    size_t n = 0;
+    for (size_t i = 0; i < s->ntok && n < max; ) {
+        int cap = isupper((unsigned char)s->tok[i][0]);
+        if (cap && i == 0 && (is_stopword(b, (char *)s->low[i]) || gr_kb1(b, "english_determiner", s->low[i]))) cap = 0;
+        if (!cap) { i++; continue; }
+        size_t j = i + 1, last = i;
+        while (j < s->ntok && !s->stop[j - 1]) {
+            if (isupper((unsigned char)s->tok[j][0])) { last = j; j++; continue; }
+            if (gr_kb1(b, "name_connector", s->low[j]) && j + 1 < s->ntok &&
+                isupper((unsigned char)s->tok[j + 1][0])) { j++; continue; }
+            break;
+        }
+        GrMention *g = &m[n++];
+        size_t o = 0; g->surface[0] = '\0'; g->head[0] = '\0';
+        int seen_connector = 0;
+        for (size_t k = i; k <= last; k++) {
+            o += (size_t)snprintf(g->surface + o, sizeof g->surface - o, "%s%s", k > i ? " " : "", s->tok[k]);
+            if (!seen_connector && gr_kb1(b, "name_connector", s->low[k])) {
+                seen_connector = 1;
+                snprintf(g->head, sizeof g->head, "%s", s->low[k - 1]);
+            }
+        }
+        if (!g->head[0]) snprintf(g->head, sizeof g->head, "%s", s->low[last]);
+        gr_key_of(g->surface, g->key, sizeof g->key);
+        g->start = i; g->end = last + 1;
+        i = last + 1;
+    }
+    return n;
+}
+
+static int gr_fetch(Brain *b, const char *topic, GrPage *pg) {
+    memset(pg, 0, sizeof *pg);
+    snprintf(pg->topic, sizeof pg->topic, "%s", topic);
+    if (!network_fetch_page(b, topic, pg->prose, sizeof pg->prose, pg->edition, pg->title,
+                            pg->revision, pg->fixdir)) return 0;
+    gr_split_sentences(b, pg);
+    return pg->nsent > 0;
+}
+
+/* Il pezzo di frase attorno a un candidato: dieci parole prima, quattro dopo. La
+ * citazione intera di una frase d'enciclopedia supera la lunghezza di un atomo. */
+static void gr_excerpt(const GrSentence *s, size_t start, size_t end, char *out, size_t osz) {
+    size_t from = start > 10 ? start - 10 : 0, to = end + 4 < s->ntok ? end + 4 : s->ntok;
+    size_t o = 0; out[0] = '\0';
+    if (from > 0) o += (size_t)snprintf(out + o, osz - o, "… ");
+    for (size_t i = from; i < to && o + 1 < osz; i++)
+        o += (size_t)snprintf(out + o, osz - o, "%s%s", i > from ? " " : "", s->orig[i]);
+    if (to < s->ntok && o + 4 < osz) snprintf(out + o, osz - o, " …");
+}
+
+/* La pagina di una menzione: il nome intero, oppure senza la classe davanti
+ * («River Danube» → Danube) quando la KB la dichiara (`name_class_prefix/1`). */
+static int gr_fetch_mention(Brain *b, const GrMention *m, GrPage *pg) {
+    if (gr_fetch(b, m->key, pg)) return 1;
+    const char *us = strchr(m->key, '_');
+    if (!us) return 0;
+    char first[KB_TERM_LEN]; snprintf(first, sizeof first, "%.*s", (int)(us - m->key), m->key);
+    if (!gr_kb1(b, "name_class_prefix", first)) return 0;
+    return gr_fetch(b, us + 1, pg);
+}
+
+/* Il tipo di un candidato: testa del nome, tipo noto in KB, o la prima frase della
+ * sua pagina («X is an Iranian religion»). */
+static int gr_type_ok(Brain *b, const GrMention *m, const char *type, GrPage *scratch) {
+    if (gr_same(b, m->head, type)) return 1;
+    if (gr_kb2(b, "known_entity_type", m->key, type)) return 1;
+    if (!gr_fetch(b, m->key, scratch)) return 0;
+    const GrSentence *s0 = &scratch->sent[0];
+    size_t cop = s0->ntok;
+    for (size_t i = 0; i < s0->ntok; i++)
+        if (gr_kb1(b, "definition_copula", s0->low[i])) { cop = i; break; }
+    for (size_t i = cop + 1; i < s0->ntok && i <= cop + 8; i++)
+        if (gr_same(b, s0->low[i], type)) return 1;
+    return 0;
+}
+
+static int gr_cue_hits(Brain *b, const GrSentence *s, char (*cues)[KB_TERM_LEN], size_t ncue) {
+    int hits = 0;
+    for (size_t c = 0; c < ncue; c++) {
+        const char *cue = kb_dequote(cues[c]);
+        for (size_t i = 0; i < s->ntok; i++)
+            if (gr_same(b, s->low[i], cue)) { hits++; break; }
+    }
+    return hits;
+}
+
+/* Le prove prima del candidato, entro sei parole: a favore (+2) o contro (-3). */
+static int gr_local_evidence(Brain *b, const GrSentence *s, const GrMention *m,
+                             char (*ev)[KB_TERM_LEN], size_t nev) {
+    int score = 0;
+    size_t from = m->start > 6 ? m->start - 6 : 0;
+    for (size_t i = from; i < m->start; i++) {
+        for (size_t e = 0; e < nev; e++)
+            if (!strcmp(s->low[i], kb_dequote(ev[e]))) score += 2;
+        if (gr_kb1(b, "opposition_evidence", s->low[i])) score -= 3;
+    }
+    return score;
+}
+
+static void gr_quote(const char *text, char *out, size_t osz) {
+    size_t o = 0;
+    if (osz < 3) return;
+    out[o++] = '"';
+    for (const char *c = text; *c && o + 3 < osz; c++) {
+        if (*c == '"' || *c == '\\') out[o++] = '\\';
+        out[o++] = *c;
+    }
+    out[o++] = '"'; out[o] = '\0';
+}
+
+static void gr_assert(Brain *b, const char *pred, const char **args, size_t n) {
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, pred, args, n);
+    kb_set_origin(b->kb, prev);
+}
+
+static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char *out, size_t out_size) {
+    if (!b || !b->kb || !raw || !*raw) return 0;
+    const char *tq[1] = { "current_turn" };
+    if (!kb_query(b->kb, "turn_guided_inquiry", tq, 1)) return 0;
+    (void)norm;
+
+    /* i tipi chiesti, nell'ordine del turno */
+    char types[GR_MAX_TYPES][KB_TERM_LEN]; size_t ntypes = 0;
+    for (long idx = 0; idx < 64 && ntypes < GR_MAX_TYPES; idx++) {
+        char is[16]; snprintf(is, sizeof is, "%ld", idx);
+        const char *aq[3] = { "current_turn", is, NULL };
+        char row[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "guided_asked_type", aq, 3, row, 1) == 1)
+            snprintf(types[ntypes++], KB_TERM_LEN, "%s", kb_dequote(row[0]));
+    }
+    if (!ntypes) return 0;
+    char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
+    { const char *cq[2] = { "current_turn", NULL };
+      if (!kb_match_all(b->kb, "guided_cue", cq, 2, &cues, &ncue)) ncue = 0; }
+    char (*ev)[KB_TERM_LEN] = NULL; size_t nev = 0;
+    { const char *eq[2] = { "current_turn", NULL };
+      if (!kb_match_all(b->kb, "guided_evidence_word", eq, 2, &ev, &nev)) nev = 0; }
+
+    static GrPage page, cand;
+    char known_rel[KB_TERM_LEN] = "", known_from[KB_TERM_LEN] = "", known_to[KB_TERM_LEN] = "";
+    /* il punto di partenza: il primo nome del turno che ha una pagina */
+    GrSentence ps; memset(&ps, 0, sizeof ps);
+    { static GrPage tmp; memset(&tmp, 0, sizeof tmp); snprintf(tmp.prose, sizeof tmp.prose, "%s", raw);
+      gr_split_sentences(b, &tmp);
+      int started = 0;
+      for (size_t si = 0; si < tmp.nsent && !started; si++) {
+          GrMention pm[GR_MAX_MENT]; size_t np = gr_mentions(b, &tmp.sent[si], pm, GR_MAX_MENT);
+          for (size_t k = 0; k < np && !started; k++)
+              if (gr_fetch_mention(b, &pm[k], &page)) started = 1;
+          /* nessun nome ha una pagina: la KB sa gia' un fatto che parte da uno di loro
+           * e che il turno interroga («the capital of Hungary») */
+          for (size_t k = 0; k < np && !started; k++) {
+              for (size_t c = 0; c < ncue && !started; c++) {
+                  const char *fq[2] = { kb_dequote(cues[c]), NULL };
+                  char preds[8][KB_TERM_LEN];
+                  size_t npr = kb_match(b->kb, "answer_frame", fq, 2, preds, 8);
+                  for (size_t x = 0; x < npr && !started; x++) {
+                      char pr[KB_TERM_LEN]; snprintf(pr, sizeof pr, "%s", kb_dequote(preds[x]));
+                      const char *vq[2] = { pm[k].key, NULL };
+                      char vals[1][KB_TERM_LEN];
+                      if (kb_match(b->kb, pr, vq, 2, vals, 1) != 1) continue;
+                      GrMention vm; memset(&vm, 0, sizeof vm);
+                      snprintf(vm.key, sizeof vm.key, "%s", kb_dequote(vals[0]));
+                      if (!gr_fetch_mention(b, &vm, &page)) continue;
+                      started = 1;
+                      snprintf(known_rel, sizeof known_rel, "%s", kb_dequote(cues[c]));
+                      snprintf(known_from, sizeof known_from, "%s", pm[k].surface);
+                      snprintf(known_to, sizeof known_to, "%s", page.topic);
+                  }
+              }
+          }
+      }
+      if (!started) { free(cues); free(ev); return 0; }
+      /* le parole del nome da cui si parte non sono indizi: ogni frase della sua pagina
+       * le contiene */
+      for (size_t c = 0; c < ncue; ) {
+          const char *cw = kb_dequote(cues[c]);
+          int drop = 0;
+          char tk[KB_TERM_LEN]; snprintf(tk, sizeof tk, "%s", page.topic);
+          for (char *tok = strtok(tk, "_"); tok && !drop; tok = strtok(NULL, "_"))
+              if (!strcmp(tok, cw)) drop = 1;
+          if (drop) { memmove(cues + c, cues + c + 1, (ncue - c - 1) * sizeof *cues); ncue--; }
+          else c++;
+      }
+    }
+
+    kb_retract_pred(b->kb, "guided_turn"); kb_retract_pred(b->kb, "guided_read");
+    kb_retract_pred(b->kb, "guided_found"); kb_retract_pred(b->kb, "guided_sentence");
+    kb_retract_pred(b->kb, "guided_bridge"); kb_retract_pred(b->kb, "guided_missing");
+    { char tc[1][KB_TERM_LEN]; const char *cq[1] = { NULL };
+      if (kb_match(b->kb, "turn_counter", cq, 1, tc, 1) == 1) { const char *ga[1] = { tc[0] }; gr_assert(b, "guided_turn", ga, 1); } }
+
+    kb_retract_pred(b->kb, "guided_known"); kb_retract_pred(b->kb, "guided_unmatched");
+    kb_retract_pred(b->kb, "guided_rejected");
+    if (known_rel[0]) {
+        char qf[KB_TERM_LEN], qt2[KB_TERM_LEN];
+        gr_quote(known_from, qf, sizeof qf); gr_quote(known_to, qt2, sizeof qt2);
+        const char *ka[3] = { known_rel, qf, qt2 }; gr_assert(b, "guided_known", ka, 3);
+    }
+    int cue_seen[64] = {0};
+    char visited[GR_MAX_PAGES + 2][KB_TERM_LEN]; size_t nvis = 0;
+    size_t t = 0, pages = 0, found = 0;
+    while (t < ntypes && pages < GR_MAX_PAGES) {
+        pages++;
+        snprintf(visited[nvis++], KB_TERM_LEN, "%s", page.topic);
+        /* la pagina letta: indirizzo e revisione, come ogni lettura della memoria profonda */
+        char pn[16]; snprintf(pn, sizeof pn, "%zu", pages);
+        char addr[KB_TERM_LEN], qt[200];
+        gr_quote(page.title, qt, sizeof qt);
+        snprintf(addr, sizeof addr, "wiki_address(%s, %s, %s, lead)", page.edition, qt,
+                 page.revision[0] ? page.revision : "unknown");
+        { const char *ra[3] = { pn, page.topic, addr }; gr_assert(b, "guided_read", ra, 3); }
+        { const char *ta[2] = { page.topic, addr };
+          int prev = kb_origin(b->kb); kb_set_origin(b->kb, KB_SESSION);
+          if (!kb_query(b->kb, "topic_read", ta, 2)) kb_assert(b->kb, "topic_read", ta, 2);
+          kb_set_origin(b->kb, prev); }
+
+        for (size_t si = 0; si < page.nsent; si++)
+            for (size_t c = 0; c < ncue && c < 64; c++)
+                for (size_t i = 0; i < page.sent[si].ntok && !cue_seen[c]; i++)
+                    if (gr_same(b, page.sent[si].low[i], kb_dequote(cues[c]))) cue_seen[c] = 1;
+        /* il tipo chiesto, in questa pagina: la miglior candidatura su tutte le frasi */
+        int progressed = 1;
+        while (progressed && t < ntypes) {
+            progressed = 0;
+            const char *type = types[t];
+            int best = -1000; char best_val[KB_TERM_LEN] = "", best_key[KB_TERM_LEN] = "", best_ex[600] = "";
+            GrMention rej[8]; char rej_ex[8][300]; int rej_sc[8]; size_t nrej = 0;
+            const GrSentence *best_s = NULL;
+            char shape[1][KB_TERM_LEN]; shape[0][0] = '\0';
+            { const char *sq[2] = { type, NULL }; kb_match(b->kb, "answer_shape", sq, 2, shape, 1); }
+            const char *sh = shape[0][0] ? kb_dequote(shape[0]) : "";
+            for (size_t si = 0; si < page.nsent; si++) {
+                const GrSentence *s = &page.sent[si];
+                int cue = gr_cue_hits(b, s, cues, ncue);
+                GrMention mm[GR_MAX_MENT]; size_t nm = gr_mentions(b, s, mm, GR_MAX_MENT);
+                /* le forme della risposta dichiarate per il tipo */
+                if (!strcmp(sh, "class_modifier") && si == 0) {
+                    for (size_t i = 0; i + 1 < s->ntok; i++)
+                        if (gr_kb1(b, "definition_copula", s->low[i]) && i + 2 < s->ntok &&
+                            gr_kb1(b, "english_determiner", s->low[i + 1]) && isupper((unsigned char)s->tok[i + 2][0])) {
+                            int sc = 5 + cue;
+                            if (sc > best) { best = sc; snprintf(best_val, sizeof best_val, "%s", s->tok[i + 2]); best_key[0] = '\0'; best_s = s; gr_excerpt(s, i + 2, i + 3, best_ex, sizeof best_ex); }
+                            break;
+                        }
+                }
+                if (!strcmp(sh, "headed_phrase")) {
+                    for (size_t i = 1; i < s->ntok; i++) {
+                        if (!gr_same(b, s->low[i], type) || !cue) continue;
+                        size_t k = i;
+                        while (k > 0 && i - k < 2 && !is_stopword(b, (char *)s->low[k - 1]) &&
+                               !isupper((unsigned char)s->tok[k - 1][0])) k--;
+                        char val[KB_TERM_LEN]; size_t o = 0; val[0] = '\0';
+                        for (size_t x = k; x <= i; x++) o += (size_t)snprintf(val + o, sizeof val - o, "%s%s", x > k ? " " : "", s->low[x]);
+                        int sc = 4 + cue;
+                        if (sc > best) { best = sc; snprintf(best_val, sizeof best_val, "%s", val); best_key[0] = '\0'; best_s = s; gr_excerpt(s, k, i + 1, best_ex, sizeof best_ex); }
+                    }
+                }
+                for (size_t k = 0; k < nm; k++) {
+                    GrMention *g = &mm[k];
+                    /* «the Ancient Iranian religion»: il nome proprio seguito dal tipo
+                     * chiesto e' un nome solo, con il tipo per testa */
+                    if (g->end < s->ntok && !s->stop[g->end - 1] && !isupper((unsigned char)s->tok[g->end][0]) &&
+                        gr_same(b, s->low[g->end], type)) {
+                        size_t o2 = strlen(g->surface);
+                        snprintf(g->surface + o2, sizeof g->surface - o2, " %s", s->tok[g->end]);
+                        snprintf(g->head, sizeof g->head, "%s", s->low[g->end]);
+                        gr_key_of(g->surface, g->key, sizeof g->key);
+                        g->end++;
+                    }
+                    int skip = 0;
+                    for (size_t v = 0; v < nvis; v++) if (!strcmp(visited[v], g->key)) skip = 1;
+                    if (!strcmp(g->key, page.topic)) skip = 1;
+                    if (skip) continue;
+                    /* «a deity known as Ahura Mazda»: la frase nomina il tipo */
+                    int named = 0;
+                    for (size_t i = g->start >= 3 ? g->start - 3 : 0; i < g->start; i++)
+                        if (gr_same(b, s->low[i], type)) {
+                            for (size_t j = i + 1; j < g->start; j++)
+                                if (gr_kb1(b, "naming_link", s->low[j])) named = 1;
+                        }
+                    int ok = named || gr_type_ok(b, g, type, &cand);
+                    if (!ok) continue;
+                    int sc = 3 + cue + gr_local_evidence(b, s, g, ev, nev) + (named ? 2 : 0);
+                    if (nrej < 8) {
+                        snprintf(rej[nrej].surface, KB_TERM_LEN, "%s", g->surface);
+                        gr_excerpt(s, g->start, g->end, rej_ex[nrej], sizeof rej_ex[nrej]);
+                        rej_sc[nrej++] = sc;
+                    }
+                    if (sc > best) { best = sc; snprintf(best_val, sizeof best_val, "%s", g->surface); snprintf(best_key, sizeof best_key, "%s", g->key); best_s = s; gr_excerpt(s, g->start, g->end, best_ex, sizeof best_ex); }
+                }
+            }
+            if (best_s) {
+                char fn[16]; snprintf(fn, sizeof fn, "%zu", ++found);
+                char qv[KB_TERM_LEN], qs[700];
+                gr_quote(best_val, qv, sizeof qv); gr_quote(best_ex, qs, sizeof qs);
+                { const char *fa[4] = { fn, type, qv, pn }; gr_assert(b, "guided_found", fa, 4); }
+                { const char *sa[2] = { fn, qs }; gr_assert(b, "guided_sentence", sa, 2); }
+                /* gli altri candidati dello stesso tipo, con la frase che li nomina: la
+                 * biforcazione si dice, non si nasconde */
+                for (size_t r = 0; r < nrej; r++) {
+                    if (!strcmp(rej[r].surface, best_val)) continue;
+                    int dup = 0;
+                    for (size_t r2 = 0; r2 < r; r2++) if (!strcmp(rej[r2].surface, rej[r].surface)) dup = 1;
+                    if (dup) continue;
+                    char qr[KB_TERM_LEN], qe[400], diff[16];
+                    gr_quote(rej[r].surface, qr, sizeof qr); gr_quote(rej_ex[r], qe, sizeof qe);
+                    snprintf(diff, sizeof diff, "%d", best - rej_sc[r]);
+                    const char *ra2[4] = { fn, qr, qe, diff }; gr_assert(b, "guided_rejected", ra2, 4);
+                }
+                t++;
+                if (best_key[0] && t < ntypes) {
+                    /* la risposta e' il nodo da cui riparte il frame successivo */
+                    GrMention bm; memset(&bm, 0, sizeof bm); snprintf(bm.key, sizeof bm.key, "%s", best_key);
+                    if (gr_fetch_mention(b, &bm, &cand)) { page = cand; progressed = 0; goto next_page; }
+                }
+                progressed = 1;
+            }
+        }
+        if (t >= ntypes) break;
+        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] page %s: %zu sentences, type %s not found\n", page.topic, page.nsent, types[t]);
+        /* nessun candidato del tipo: la frase piu' pertinente sceglie il ponte */
+        {
+            int bestc = 0, have = 0; char nextk[KB_TERM_LEN] = "", nexts[KB_TERM_LEN] = "", bs[600] = "";
+            for (size_t si = 0; si < page.nsent; si++) {
+                const GrSentence *s = &page.sent[si];
+                int cue = gr_cue_hits(b, s, cues, ncue);
+                GrMention mm[GR_MAX_MENT]; size_t nm = gr_mentions(b, s, mm, GR_MAX_MENT);
+                for (size_t k = 0; k < nm; k++) {
+                    int skip = !strcmp(mm[k].key, page.topic);
+                    for (size_t v = 0; v < nvis; v++) if (!strcmp(visited[v], mm[k].key)) skip = 1;
+                    /* gli alias della pagina stanno prima della copula della prima frase */
+                    if (si == 0) {
+                        size_t cop = s->ntok;
+                        for (size_t i = 0; i < s->ntok; i++) if (gr_kb1(b, "definition_copula", s->low[i])) { cop = i; break; }
+                        if (mm[k].start < cop) skip = 1;
+                    }
+                    if (skip) continue;
+                    int sc = cue * 10 + gr_local_evidence(b, s, &mm[k], ev, nev) - (int)k;
+                    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] bridge candidate «%s» key=%s sc=%d\n", mm[k].surface, mm[k].key, sc);
+                    if (have && sc <= bestc) continue;
+                    if (!gr_fetch_mention(b, &mm[k], &cand)) continue;
+                    have = 1; bestc = sc; snprintf(nextk, sizeof nextk, "%s", cand.topic);
+                    snprintf(nexts, sizeof nexts, "%s", mm[k].surface);
+                    gr_excerpt(s, mm[k].start, mm[k].end, bs, sizeof bs);
+                }
+            }
+            if (!nextk[0]) break;
+            char qn[KB_TERM_LEN], qs[700];
+            gr_quote(nexts, qn, sizeof qn); gr_quote(bs, qs, sizeof qs);
+            { const char *ba[3] = { pn, qn, qs }; gr_assert(b, "guided_bridge", ba, 3); }
+            if (!gr_fetch(b, nextk, &page)) break;
+        }
+        continue;
+    next_page:;
+    }
+    for (size_t k = t; k < ntypes; k++) { const char *ma[1] = { types[k] }; gr_assert(b, "guided_missing", ma, 1); }
+    if (t < ntypes)
+        for (size_t c = 0; c < ncue && c < 64; c++)
+            if (!cue_seen[c]) { const char *ua[1] = { kb_dequote(cues[c]) }; gr_assert(b, "guided_unmatched", ua, 1); }
+    free(cues); free(ev);
+
+    /* la lettura dice da dove viene l'ultimo anello, per «where did you read that?» */
+    { char tc[1][KB_TERM_LEN]; const char *cq[1] = { NULL };
+      if (kb_match(b->kb, "turn_counter", cq, 1, tc, 1) == 1) {
+          const char *ra[2] = { tc[0], page.topic };
+          int prev = kb_origin(b->kb); kb_set_origin(b->kb, KB_SESSION);
+          kb_assert(b->kb, "read_topic_asked", ra, 2);
+          kb_set_origin(b->kb, prev);
+      } }
+
+    /* la risposta: le parti che la KB compone (guided_part/2), in ordine */
+    char (*orders)[KB_TERM_LEN] = NULL; size_t no = 0;
+    const char *oq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "guided_part", oq, 2, &orders, &no) || !no) { free(orders); return 0; }
+    long ov[64]; size_t nov = 0;
+    for (size_t i = 0; i < no && nov < 64; i++) {
+        long v = strtol(kb_dequote(orders[i]), NULL, 10); int seen = 0;
+        for (size_t k = 0; k < nov; k++) if (ov[k] == v) seen = 1;
+        if (!seen) ov[nov++] = v;
+    }
+    free(orders);
+    for (size_t i = 1; i < nov; i++) { long v = ov[i]; size_t k = i; while (k && ov[k - 1] > v) { ov[k] = ov[k - 1]; k--; } ov[k] = v; }
+    size_t off = 0; out[0] = '\0';
+    for (size_t i = 0; i < nov && off + 1 < out_size; i++) {
+        char num[32]; snprintf(num, sizeof num, "%ld", ov[i]);
+        const char *pq[2] = { num, NULL };
+        char (*texts)[KB_TERM_LEN] = NULL; size_t nt = 0;
+        if (!kb_match_all(b->kb, "guided_part", pq, 2, &texts, &nt)) nt = 0;
+        for (size_t x = 0; x < nt && off + 1 < out_size; x++)
+            off += (size_t)snprintf(out + off, out_size - off, "%s%s", off ? "\n" : "", kb_dequote(texts[x]));
+        free(texts);
+    }
+    return out[0] != '\0';
 }

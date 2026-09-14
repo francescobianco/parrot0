@@ -7,7 +7,7 @@
 # del banco, non la prova.
 #
 # Pagine: LEAD VERI di Wikipedia in edizione locale (revisioni in
-# tests/fixtures/wiki/SOURCES-dm.tsv, 14 settembre 2026). Per ogni problema e' dichiarato
+# tests/fixtures/wiki/SOURCES.tsv, 14 settembre 2026). Per ogni problema e' dichiarato
 # quale anello e' gia' nella KB (known) e quale va letto (recalled): nessun anello da
 # leggere e' nella KB (verificato con grep su kb/).
 #
@@ -25,8 +25,8 @@
 !assert topic_provider(fixture, "tests/fixtures/wiki")
 > look things up yourself
 > The protagonist of Thus Spoke Zarathustra is named after a historical religious figure. Which religion is traditionally associated with that figure, and which deity do its followers exalt as the supreme being?
-<~ Zoroastrianism
-<~ Ahura Mazda
+<~ religion: Zoroastrianism
+<~ deity: Ahura Mazda
 <! mysterious
 !query topic_read(zoroaster, $A)
 !query topic_read(zoroastrianism, $A)
@@ -40,7 +40,7 @@
 !assert topic_provider(fixture, "tests/fixtures/wiki")
 > look things up yourself
 > Into which sea does the river that runs through the capital of Hungary flow?
-<~ Black Sea
+<~ sea: Black Sea
 <! Black Forest
 !query topic_read(danube, $A)
 
@@ -53,7 +53,7 @@
 !assert topic_provider(fixture, "tests/fixtures/wiki")
 > look things up yourself
 > In which country is the museum that holds The Starry Night?
-<~ United States
+<~ country: United States
 <! Saint-Rémy
 <! France
 !query topic_read(the_starry_night, $A)
@@ -66,8 +66,8 @@
 !assert topic_provider(fixture, "tests/fixtures/wiki")
 > look things up yourself
 > Mendelevium is named after a scientist. What was his nationality, and which law did he formulate?
-<~ Russian
-<~ periodic law
+<~ nationality: Russian
+<~ law: periodic law
 !query topic_read(mendelevium, $A)
 !query topic_read(dmitri_mendeleev, $A)
 
@@ -79,7 +79,7 @@
 !assert topic_provider(fixture, "tests/fixtures/wiki")
 > look things up yourself
 > What is the capital of the country where the highest mountain in Africa stands?
-<~ Dodoma
+<~ capital: Dodoma
 <! Nairobi
 !query topic_read(mount_kilimanjaro, $A)
 
@@ -102,7 +102,7 @@
 !assert topic_provider(fixture, "tests/fixtures/wiki")
 > look things up yourself
 > Start from the protagonist of Thus Spoke Zarathustra. Identify the historical figure he is named after. Then determine the religion that figure founded. Finally, name the supreme deity of that religion.
-<~ Ahura Mazda
+<~ deity: Ahura Mazda
 <! a close reading
 
 # C1 — CONTROLLO ONESTO: un anello che non e' in nessun lead (Dostoevsky → Nietzsche sta nel
