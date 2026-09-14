@@ -1,0 +1,119 @@
+# Missione multi-hop deep memory — IL BANCO DELLA CLASSE (docs/plans/multi-hop-deep-memory.md §7.0).
+#
+# MANTRA #24: una capacita' esiste quando passa un banco di varianti della sua classe,
+# scritto PRIMA della cura. La classe e' «ragiono, cerco, risolvo, in modo continuo e
+# guidato»: la risposta non sta nel prompt ne' in una pagina, e ogni lettura e' scelta
+# da cio' che la precedente ha detto. Il caso della demo (E1, Zarathustra) e' un membro
+# del banco, non la prova.
+#
+# Pagine: LEAD VERI di Wikipedia in edizione locale (revisioni in
+# tests/fixtures/wiki/SOURCES-dm.tsv, 14 settembre 2026). Per ogni problema e' dichiarato
+# quale anello e' gia' nella KB (known) e quale va letto (recalled): nessun anello da
+# leggere e' nella KB (verificato con grep su kb/).
+#
+# ⚠ OGGI E' TUTTO ROSSO, e deve esserlo. Si diventa verdi per classe, non per caso.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+# B1 — letteratura → religione, 3 letture, biforcazione su 5 religioni.
+#   Thus Spoke Zarathustra —named after→ Zoroaster —founder of→ Zoroastrianism —supreme being→ Ahura Mazda
+[test B1 literature to religion, three readings and a branch]
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> The protagonist of Thus Spoke Zarathustra is named after a historical religious figure. Which religion is traditionally associated with that figure, and which deity do its followers exalt as the supreme being?
+<~ Zoroastrianism
+<~ Ahura Mazda
+<! mysterious
+!query topic_read(zoroaster, $A)
+!query topic_read(zoroastrianism, $A)
+
+# B2 — geografia, known + recalled, distrattore omonimo.
+#   Hungary —capital→ Budapest (known) —stands on→ Danube (known: capital_on_river) —flows into→ Black Sea (recalled)
+#   distrattori nel lead del Danubio: Black Forest, Danube Delta, Volga
+[test B2 geography, a known link then a reading, and a namesake distractor]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Into which sea does the river that runs through the capital of Hungary flow?
+<~ Black Sea
+<! Black Forest
+!query topic_read(danube, $A)
+
+# B3 — arte → geografia, 2 letture, il ruolo giusto nella frase giusta.
+#   The Starry Night —held in→ Museum of Modern Art (recalled; NON Saint-Rémy, dove fu dipinto: artwork_place e' known)
+#   —located in→ New York City —country→ United States (recalled)
+[test B3 art to geography, the museum and not the place where it was painted]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> In which country is the museum that holds The Starry Night?
+<~ United States
+<! Saint-Rémy
+<! France
+!query topic_read(the_starry_night, $A)
+
+# B4 — chimica → biografia, un nome proprio come ponte.
+#   Mendelevium —named after→ Dmitri Mendeleev (recalled) —nationality, formulated→ Russian, periodic law (recalled)
+[test B4 chemistry to biography, a namesake as the bridge]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Mendelevium is named after a scientist. What was his nationality, and which law did he formulate?
+<~ Russian
+<~ periodic law
+!query topic_read(mendelevium, $A)
+!query topic_read(dmitri_mendeleev, $A)
+
+# B5 — descrizione → entità → paese → capitale, known e recalled alternati.
+#   the highest mountain in Africa → Mount Kilimanjaro (known: height_of) —in→ Tanzania (recalled) —capital→ Dodoma (known)
+[test B5 a description resolved to an entity, then a reading, then the KB]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> What is the capital of the country where the highest mountain in Africa stands?
+<~ Dodoma
+<! Nairobi
+!query topic_read(mount_kilimanjaro, $A)
+
+# B6 — la stessa classe in italiano: B2 detto in un'altra lingua, pagine inglesi.
+[test B6 the same class in Italian]
+!reset
+!set PARROT0_LANG=it
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> cerca da solo
+> In quale mare sfocia il fiume che attraversa la capitale dell'Ungheria?
+<~ Mar Nero
+<! Foresta Nera
+
+# B7 — la stessa catena di B1 detta a passi imperativi.
+[test B7 the chain of B1 given as imperative steps]
+!reset
+!set PARROT0_LANG=en
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Start from the protagonist of Thus Spoke Zarathustra. Identify the historical figure he is named after. Then determine the religion that figure founded. Finally, name the supreme deity of that religion.
+<~ Ahura Mazda
+<! a close reading
+
+# C1 — CONTROLLO ONESTO: un anello che non e' in nessun lead (Dostoevsky → Nietzsche sta nel
+# corpo della voce di Nietzsche). parrot0 deve dire quale anello non ha trovato, non inventarlo.
+[test C1 a link that no lead contains is named as missing, not invented]
+!reset
+!timeout 60
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+> Begin with the author of The Brothers Karamazov. Identify a philosopher who treated this author as an important precursor to his own thought. Which religion is associated with the prophet of that philosopher's major work?
+<! Zoroastrianism
+<! mysterious
+<! A word that starts
+<~ precursor

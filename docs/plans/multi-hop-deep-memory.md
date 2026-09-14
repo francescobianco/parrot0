@@ -262,6 +262,64 @@ dottrina → testo → concetto.
 
 ## 7. Esperimenti
 
+### 7.0 Il banco della classe — prima della cura (MANTRA #24)
+
+F., 14 settembre: *«non vorrei fare la demo e sentirmi dire funziona solo se il caso è
+questo: dobbiamo guadagnare la generalità, cioè che altri problemi simili siano risolti —
+e per simili intendo della classe "ragiono, cerco, risolvo, tutto in maniera continua e
+guidata dalla mia intelligenza"».*
+
+Quindi la missione non ha un caso: ha un **banco**, scritto prima di qualunque cura, e
+una capacità conta solo quando passa il banco. E1 (la demo) è uno dei suoi membri.
+
+**Che cosa rende due problemi «della stessa classe»** — e dunque che cosa il banco deve
+variare, perché nessuno di questi assi sia imparato come caso:
+
+| Asse | Varia fra | Che cosa smaschera |
+|---|---|---|
+| dominio | letteratura, religione, geografia, arte, chimica, biografia | un lettore di dominio |
+| relazioni degli hop | named after, founder of, supreme being, stands on, flows into, held in, located in, nationality, formulated | una tabella di relazioni per il problema |
+| statuto degli anelli | tutti letti; known e recalled alternati | una catena che ignora la KB, o una KB che ignora la lettura |
+| partenza | un titolo; una descrizione («the highest mountain in Africa»); una relazione della KB («the capital of Hungary») | un solo modo di trovare il primo nodo |
+| forma del prompt | una domanda; due domande coordinate; passi imperativi | cue sulla forma del prompt |
+| lingua | inglese; italiano su pagine inglesi | frasari per lingua |
+| distrattori | religioni nello stesso lead; omonimi (Black Forest / Black Sea); luogo sbagliato con la stessa entità (Saint-Rémy / MoMA); la risposta intermedia (Budapest) | l'estrazione del primo nome che combacia |
+| controllo | un anello che nessun lead contiene | l'invenzione |
+
+**Il banco** — `tests/p0t/crossing/dm_class_bench.p0t`, pagine vere in edizione locale,
+revisioni in `tests/fixtures/wiki/SOURCES-dm.tsv`:
+
+| # | Problema | Catena (K = known nella KB, R = da leggere) | Distrattori | Oggi |
+|---|---|---|---|---|
+| B1 | protagonista di *Thus Spoke Zarathustra* → religione → divinità | TSZ —R→ Zoroaster —R→ Zoroastrianism —R→ Ahura Mazda | 4 religioni nello stesso lead | «Thus was a mysterious Thus…» (**misclaim**) |
+| B2 | in quale mare sfocia il fiume della capitale d'Ungheria | Hungary —K→ Budapest —K→ Danube —R→ Black Sea | Black Forest, Danube Delta, Volga | «Budapest.» (**misclaim**: la risposta intermedia) |
+| B3 | in quale paese è il museo che conserva *The Starry Night* | Starry Night —R→ MoMA —R→ New York City —R→ United States | Saint-Rémy (dove fu dipinto, K) | lacuna su «starry night» |
+| B4 | nazionalità e legge dello scienziato del mendelevio | Mendelevium —R→ Dmitri Mendeleev —R→ Russian, periodic law | — | «I couldn't read…» |
+| B5 | capitale del paese della montagna più alta d'Africa | descrizione —K→ Kilimanjaro —R→ Tanzania —K→ Dodoma | Everest (la più alta del mondo) | «Mount Everest is the highest mountain in the world.» (**misclaim**) |
+| B6 | B2 in italiano | come B2, pagine inglesi | Foresta Nera | «Non so ancora tradurre «sfocia»» |
+| B7 | B1 a passi imperativi | come B1 | — | «I couldn't read…» a ogni passo |
+| C1 | controllo: Karamazov → «un filosofo che lo considerò precursore» | l'anello Dostoevsky → Nietzsche non è in nessun lead | la religione di E1 | «A word that starts with "t": tab.» (**misclaim**) |
+
+Base: **0 problemi su 8**, e 4 risposte su 8 sono sbagliate con sicurezza. Il primo
+guadagno misurabile, prima ancora di una risposta giusta, è **zero misclaim**: un problema
+della classe non va mai a storie, parole, letture ravvicinate o al passo intermedio.
+
+**Criteri di generalità** (valgono per ogni mossa della missione):
+
+1. **Nessuna cura si misura su un problema**: si misura sul banco intero, e si riporta il
+   numero (problemi risolti, hop giusti, misclaim) prima e dopo.
+2. **Nessuna parola del banco entra nella KB come regola per il banco.** Le relazioni
+   degli hop («stands on», «flows into», «named after») entrano come superfici di
+   relazione generali, insegnate parlando o lette, e valgono per ogni pagina.
+3. **Il banco cresce prima della cura, non dopo.** Quando una mossa diventa verde su tutto,
+   si aggiungono problemi nuovi (altri domini, DM-4, due biforcazioni) *prima* della mossa
+   successiva, e li si guarda fallire.
+4. **Una variante nuova si scrive senza guardare il codice**: verificando solo dove sono
+   scritti gli anelli nelle pagine vere.
+5. **La demo usa un problema scelto dal pubblico fra quelli del banco**, e uno nuovo
+   costruito sul momento con lo stesso metodo: così il «funziona solo su questo» non si
+   può dire.
+
 ### 7.1 E1 — DM-3, la demo: il nome del profeta di Nietzsche  *(primo test, in corso)*
 
 **Prompt** (unico, niente istruzioni sul come):
@@ -425,3 +483,8 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   mossa cambia**: prima IR1 (la pagina letta pubblicata come scope) e IR5 (i frame
   assertivi della prosa dentro la IR), perché senza di esse M1–M7 si costruirebbero di
   nuovo fuori dalla IR.
+- **14 settembre 2026, sera** — F.: la generalità prima della demo. MANTRA #24 (un lettore
+  fuori dalla IR è un'esplorazione con scadenza; la crescita si misura sulle varianti).
+  Scritto il **banco della classe** (§7.0): 7 problemi e un controllo, domini, relazioni,
+  lingue, forme e distrattori diversi, pagine vere con revisione. Base: 0/8 e 4 misclaim.
+  Prossima mossa: IR1 (la pagina letta come scope della IR), misurata sul banco intero.
