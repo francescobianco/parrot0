@@ -1,0 +1,43 @@
+% spelling.p0 — I REFUSI SONO CONOSCENZA (gen515, 14 settembre 2026).
+%
+% «siamp è un errore di battitura di siamo» veniva imparato come «siamp è un
+% errore», e «come siamp» restava al muro della traduzione. Quale grafia stia
+% per quale e' un fatto — `spelling_of(Errata, Giusta)` — insegnato parlando e
+% ritrattabile. Il motore ha UNA porta (canonicalize_lang, 10-memory-knowledge.c):
+% un token che e' una grafia errata nota viene sostituito prima di ogni
+% traduzione, quindi ogni lettore a valle vede la parola giusta. Nessuna lingua
+% e nessuna parola vive nel C.
+:- file_attribute(machinery).
+
+% La grafia giusta e' una MENZIONE: le parole dopo l'apertura restano come sono
+% (input.p0, canonicalization_exempt), altrimenti «siamo» arrivava alla forma
+% gia' tradotto in «are» e la lezione conservava una parola sbagliata.
+segment_role(mention, "a typo for").
+segment_role(mention, "battitura di").
+% L'italiano raggiunge la stessa forma per locuzione (lexicon.p0, phrase_canon).
+phrase_canon("è un errore di battitura di", "is a typo for").
+phrase_canon("e un errore di battitura di", "is a typo for").
+
+turn_form(teach_spelling, 1, slot(wrong)).
+turn_form(teach_spelling, 2, text("is a typo for")).
+turn_form(teach_spelling, 3, slot(right)).
+turn_form_act(teach_spelling, "op(assert, spelling_of, [wrong, right])").
+turn_form_priority(teach_spelling, early).
+turn_form_view(teach_spelling, said).
+turn_form_reply(teach_spelling, learned_spelling).
+response_template(learned_spelling, "Got it: «{wrong}» stands for «{right}».").
+response_template(learned_spelling, it, "Capito: «{wrong}» sta per «{right}».").
+
+% Ritrattazione. Il turno che ritratta passa per la stessa correzione, quindi
+% la grafia errata arriva gia' corretta: si ritira per la grafia GIUSTA, ogni
+% refuso che vi porta.
+turn_form(forget_spelling, 1, text("forget that")).
+turn_form(forget_spelling, 2, slot(wrong)).
+turn_form(forget_spelling, 3, text("is a typo for")).
+turn_form(forget_spelling, 4, slot(right)).
+turn_form_act(forget_spelling, "op(retract_all, spelling_of, [free, right])").
+turn_form_priority(forget_spelling, early).
+turn_form_view(forget_spelling, said).
+turn_form_reply(forget_spelling, forgotten_spelling).
+response_template(forgotten_spelling, "Forgotten: I no longer read anything as «{right}».").
+response_template(forgotten_spelling, it, "Dimenticato: non leggo più nulla come «{right}».").

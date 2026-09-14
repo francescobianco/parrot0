@@ -1819,6 +1819,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
 
     char *w[64];
     size_t nw = split_words(buf, w, 64);
+    char fixed[64][64];          /* gen515: a token corrected by spelling_of/2 */
     size_t off = 0;
     out[0] = '\0';
     for (size_t i = 0; i < nw && off + 1 < out_size; i++) {
@@ -1839,6 +1840,28 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                     i ? " " : "", tok, tail);
             continue;
+        }
+        /* ── gen515: UN REFUSO E' CONOSCENZA — `spelling_of(Errata, Giusta)` ─────
+         *
+         * «siamp è un errore di battitura di siamo» (F., 14 settembre 2026)
+         * veniva imparato come «siamp è un errore» e «come siamp» restava al
+         * muro della traduzione. Quale grafia stia per quale e' un fatto,
+         * insegnato parlando (kb/core/spelling.p0) e ritrattabile; il motore fa
+         * una cosa sola e cieca alla lingua: se il token e' una grafia errata
+         * nota, lo sostituisce PRIMA di tradurlo, cosi' ogni lettore a valle
+         * vede la parola giusta. Una menzione (`canonicalization_exempt`) resta
+         * com'e': si e' gia' usciti sopra. Una sola riga di lookup per token. */
+        if (b && b->kb && *tok && tl < sizeof fixed[0]) {
+            const char *sq[2] = { tok, NULL };
+            char sr[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "spelling_of", sq, 2, sr, 1) == 1) {
+                const char *right = kb_dequote(sr[0]);
+                if (*right && strlen(right) < sizeof fixed[0]) {
+                    snprintf(fixed[i], sizeof fixed[i], "%s", right);
+                    tok = w[i] = fixed[i];
+                    tl = strlen(tok);
+                }
+            }
         }
         /* ── gen382s: LE LOCUZIONI SONO CONOSCENZA, NON CASI SPECIALI IN C ──────
          *
