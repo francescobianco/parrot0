@@ -320,23 +320,23 @@ cause(slippery_surfaces, falls).
 cause(legionella_outbreaks, legionnaires_disease).
 safety_device(fire_blanket).
 pressure_surge(hydraulic_shock).
-attenuated_reading(usually, hydraulic is usually observed in a liquid but gases can also be affected).
-attenuated_reading(commonly, this phenomenon commonly occurs when a valve closes suddenly at an end of a pipeline system and a pressure wave propagates in the pipe).
+attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").
+attenuated_reading(commonly, "this phenomenon commonly occurs when a valve closes suddenly at an end of a pipeline system and a pressure wave propagates in the pipe").
 genus(legionella).
-attenuated_reading(most, most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans).
+attenuated_reading(most, "most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans").
 intracellular_pathogen(legionella_species).
-attenuated_reading(most, most individuals who are exposed to the bacteria do not get sick).
-attenuated_reading(most, most outbreaks result from poorly maintained cooling towers).
+attenuated_reading(most, "most individuals who are exposed to the bacteria do not get sick").
+attenuated_reading(most, "most outbreaks result from poorly maintained cooling towers").
 device(carbon_monoxide_detector).
-attenuated_reading(most, most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely).
-attenuated_reading(most, most legionella outbreaks result from poorly maintained cooling towers).
+attenuated_reading(most, "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
+attenuated_reading(most, "most legionella outbreaks result from poorly maintained cooling towers").
 use(co_detectors, sensor).
-attenuated_reading(often, thermal runaway occurs in situations where an increase in temperature changes the conditions in a way that causes a further increase in temperature, often leading to a destructive result).
-attenuated_reading(often, used to extinguish or control small fires, often in emergencies).
-attenuated_reading(typically, typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire).
-attenuated_reading(typically, a smoke detector is a device that senses smoke, typically as an indicator of fire).
+attenuated_reading(often, "thermal runaway occurs in situations where an increase in temperature changes the conditions in a way that causes a further increase in temperature, often leading to a destructive result").
+attenuated_reading(often, "used to extinguish or control small fires, often in emergencies").
+attenuated_reading(typically, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+attenuated_reading(typically, "a smoke detector is a device that senses smoke, typically as an indicator of fire").
 device(smoke_detector).
-attenuated_reading(usually, smoke detectors in large commercial and industrial buildings are usually connected to a central fire alarm system).
+attenuated_reading(usually, "smoke detectors in large commercial and industrial buildings are usually connected to a central fire alarm system").
 sense(smoke_detector, smoke).
 detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas).
 consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel).

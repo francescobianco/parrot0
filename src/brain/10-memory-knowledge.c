@@ -5609,6 +5609,20 @@ static int p0_rule_clause_frame(Brain *b, P0RuleVars *v, char **w, size_t n,
  * emettono un valore. Definita piu' sotto, accanto al suo primo consumatore. */
 static int p0_turn_is_polar(Brain *b, char **w, size_t nw);
 
+/* Una frase come argomento di un fatto: tra virgolette, con le virgolette e
+ * le barre interne sfuggite, cosi' una virgola non la spezza al /save. */
+static void p0_quote_text(const char *text, char *out, size_t out_size) {
+    size_t o = 0;
+    if (out_size < 3) { if (out_size) out[0] = '\0'; return; }
+    out[o++] = '"';
+    for (const char *c = text ? text : ""; *c && o + 3 < out_size; c++) {
+        if (*c == '"' || *c == '\\') out[o++] = '\\';
+        out[o++] = *c;
+    }
+    out[o++] = '"';
+    out[o] = '\0';
+}
+
 static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                       const char *norm, char *out,
                                       size_t out_size, int taught_only,
@@ -7129,7 +7143,12 @@ static int extract_class_statement(Brain *b, const char *norm,
             const char *aw = strip_edge_punct(ab);
             if (!lex_class_member(b, "verb_adverb", aw) || n <= 3) continue;
             if (lex_class_member(b, "attenuating_quantifier", aw)) {
-                const char *aq[2] = { aw, norm };
+                /* 14 settembre 2026 — la frase si tiene TRA VIRGOLETTE: nuda,
+                 * una virgola dentro («amoebae, however many …») la spezzava
+                 * in piu' argomenti al `/save` e al boot seguente. */
+                char quoted_norm[KB_TERM_LEN];
+                p0_quote_text(norm, quoted_norm, sizeof quoted_norm);
+                const char *aq[2] = { aw, quoted_norm };
                 int prev_origin = kb_origin(b->kb);
                 kb_set_origin(b->kb, KB_SESSION);
                 kb_assert(b->kb, "attenuated_reading", aq, 2);
@@ -7149,7 +7168,9 @@ static int extract_class_statement(Brain *b, const char *norm,
             }
         }
         if (lex_class_member(b, "attenuating_quantifier", hw) && n > 2) {
-            const char *aq[2] = { hw, norm };
+            char quoted_norm[KB_TERM_LEN];
+            p0_quote_text(norm, quoted_norm, sizeof quoted_norm);
+            const char *aq[2] = { hw, quoted_norm };
             int prev_origin = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_SESSION);
             kb_assert(b->kb, "attenuated_reading", aq, 2);

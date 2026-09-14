@@ -81,12 +81,11 @@ causal_link_text($L, $A, $B, $Text) :-
 machinery(link_attenuation_text).
 machinery(link_attenuated).
 machinery(attenuation_phrase).
-% ⚠ in una regola caricata da file la frase tra virgolette di `fact_source/3` non
-% unifica con la stessa frase tenuta senza virgolette in `attenuated_reading/2`
-% (asserita a mano, la stessa regola unifica): `concat_atoms($S, "", $K)` la
-% normalizza prima del confronto.
-link_attenuated($A, $B, $Q) :- fact_source(causes($A, $B), $E, $S), concat_atoms($S, "", $K), attenuated_reading($Q, $K).
-link_attenuated($A, $B, $Q) :- fact_source(cause($A, $B), $E, $S), concat_atoms($S, "", $K), attenuated_reading($Q, $K).
+% La frase di `fact_source/3` e quella di `attenuated_reading/2` sono entrambe
+% tra virgolette (dal 14 settembre: prima la seconda era nuda, e una virgola la
+% spezzava al /save), quindi unificano direttamente.
+link_attenuated($A, $B, $Q) :- fact_source(causes($A, $B), $E, $S), attenuated_reading($Q, $S).
+link_attenuated($A, $B, $Q) :- fact_source(cause($A, $B), $E, $S), attenuated_reading($Q, $S).
 link_has_attenuation($A, $B) :- link_attenuated($A, $B, $Q).
 machinery(link_has_attenuation).
 link_attenuation_text($L, $A, $B, $T) :- link_attenuated($A, $B, $Q), attenuation_phrase($L, $Q, $T).
