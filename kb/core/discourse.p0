@@ -100,6 +100,10 @@ machinery(turn_scratch).
 % conoscenza; il /save della conversazione degli scorpioni lo salvava.
 turn_scratch(last_acquisition).
 turn_scratch(turn_counter).
+% 14 settembre 2026 — la lettura strutturale del turno (`turn_scoped/2` qui
+% sotto) si ritira al turno dopo, ma quella dell'ultimo turno prima del `/save`
+% entrava in learned.p0: `input_frame_record(current_turn, …)`.
+turn_scratch(input_frame_record).
 turn_scratch(turn_span_token).
 % gen512 — anche gli span del turno sono del turno. Un `/save` dopo «show me the
 % python code …, without running it» salvava nella KB permanente

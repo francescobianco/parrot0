@@ -1842,3 +1842,14 @@ memoria profonda verdi; soft-test con i soli rossi di tempo di HEAD.
 a caricamento, semplicemente non si dimostra mai. **Reperti:** «what does a fire
 blanket do?» (definizione nota) resta su «blanket»: la domanda col verbo non usa la
 definizione letta.
+
+### mix-04-19-001 — il `/save` non porta via la condotta della sessione
+
+**Caso:** «look things up yourself» → una domanda → `/save`. **Prima:**
+`acquisition_policy(act)` finiva in network.p0 accanto a `acquisition_policy(ask)`
+(due righe vive al boot seguente); e l'ultima lettura strutturale del turno
+(`input_frame_record(current_turn, …)`) entrava in learned.p0. **Cura (solo KB):**
+`turn_scratch(acquisition_policy)` in network.p0 e `turn_scratch(input_frame_record)`
+in discourse.p0 — il salvataggio chiede alla KB che cosa è effimero (`sm_is_turn_scratch`).
+**Dopo:** la stessa sessione salvata non scrive né la politica né il frame del turno;
+la risposta di condotta resta («Understood: from now on I'll read things up myself»).

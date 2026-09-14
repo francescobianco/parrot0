@@ -30,6 +30,11 @@ reading_available :- topic_provider(fixture, $Dir).
 %   act    leggi, e dillo
 %   never  dichiara la lacuna e fermati
 acquisition_policy(ask).
+% 14 settembre 2026 — la politica cambiata parlando vale per la sessione: il
+% `/save` dopo «look things up yourself» scriveva `acquisition_policy(act)` in
+% questo file, e al boot seguente due righe vive (ask e act) insieme. Chi vuole
+% che parrot0 legga da solo lo dice nella sessione; la base riparte da «ask».
+turn_scratch(acquisition_policy).
 
 % ── 3. IL RIMEDIO E L'AZIONE ────────────────────────────────────────────────
 % La lacuna di specie `knowledge` (gap-kinds.p0: manca il VALORE) ha fra i
