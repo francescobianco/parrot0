@@ -1764,6 +1764,8 @@ language_marker(it, soprattutto).
 language_marker(it, cioè).
 language_marker(it, anzi).
 language_marker(it, infatti).
+% 14 settembre 2026 — gli imperativi delle richieste di lettura (network.p0).
+language_marker(it, definisci).
 % English-only markers (do not occur as Italian words).
 language_marker(en, the).
 language_marker(en, is).

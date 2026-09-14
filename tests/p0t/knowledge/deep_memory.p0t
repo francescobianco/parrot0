@@ -39,6 +39,22 @@
 <~ Zorbium, officially the Free Republic of Zorbium
 <! Want me to look it up
 
+[test una richiesta di lettura e' gia' il permesso: legge senza chiedere]
+# 14 settembre 2026 — «search wikipedia for "X"», «definisci "X"»: chi lo dice
+# ha gia' chiesto di leggere (`read_request_head/1`, network.p0). La politica
+# resta «ask» per chi chiede soltanto «tell me about X».
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> search wikipedia for "Danube"
+<! Want me to look it up
+<~ The Danube is a river in Europe
+!query topic_read(danube, $A)
+!query acquisition_policy(ask)
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> tell me about glimpwort
+<~ Want me to look it up?
+
 [test «piu' precisamente» legge dalla memoria profonda]
 !reset
 !assert topic_provider(fixture, "tests/fixtures/wiki")

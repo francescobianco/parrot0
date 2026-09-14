@@ -1235,8 +1235,26 @@ static void research_lemma_key(Brain *b, char *key, size_t sz) {
     }
 }
 
+static int mod_learn_turn(Brain *b, const char *norm, const char *raw,
+                          char *out, size_t out_size);
+
+/* 14 settembre 2026 — LA TESTA DEL TURNO E' UN FATTO.
+ *
+ * «definisci "X"» e «tell me about X» aprono la stessa facolta', ma non
+ * chiedono la stessa cosa: la prima e' gia' il permesso di leggere, la seconda
+ * no. Quale testa porti il permesso e' conoscenza (`read_request_head/1`,
+ * network.p0), e la mossa la decide `acquisition_move/1`. Il C pubblica
+ * soltanto quale testa ha riconosciuto — `turn_knowledge_head/1` — per la
+ * durata del turno, e la ritira qualunque cosa la facolta' risponda. */
 static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
+    int r = mod_learn_turn(b, norm, raw, out, out_size);
+    if (b && b->kb) kb_retract_pred(b->kb, "turn_knowledge_head");
+    return r;
+}
+
+static int mod_learn_turn(Brain *b, const char *norm, const char *raw,
+                          char *out, size_t out_size) {
     if (!b) return 0;
 
     /* gen408: LO SCOPO SI STACCA PRIMA DI TUTTO IL RESTO.
@@ -1373,6 +1391,15 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         if (strncmp(work, heads[hi], hl) == 0) { x = work + hl; weak = 1; matched = heads[hi]; break; }
     }
     if (!x || !*x) return 0;
+    if (matched && b->kb) {
+        char hq2[KB_TERM_LEN];
+        snprintf(hq2, sizeof hq2, "\"%s\"", matched);
+        const char *ha[1] = { hq2 };
+        int po = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_assert(b->kb, "turn_knowledge_head", ha, 1);
+        kb_set_origin(b->kb, po);
+    }
     int it = matched && (kb_cue_match(b, "50_self_research_loop_lex943", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_3", matched) ||kb_cue_match(b, "50_self_research_loop_lex944", matched) ||kb_cue_match(b, "50_self_research_loop_lex944_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex945", matched) ||kb_cue_match(b, "50_self_research_loop_lex945_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex946", matched) ||kb_cue_match(b, "50_self_research_loop_lex946_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex947", matched));
 
     /* ── gen505v — IL DECIMO CONSUMATORE, E QUELLO A CUI SERVE DI PIU' ────────

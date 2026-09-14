@@ -63,6 +63,32 @@ machinery(reading_in_progress).
 machinery(reading_now).
 turn_scratch(reading_in_progress).
 reading_now :- reading_in_progress($Topic).
+% 14 settembre 2026 — UNA RICHIESTA DI LETTURA E' GIA' IL PERMESSO.
+% «definisci "X"» non si risponde con «vuoi che cerchi?»: chi lo dice ha gia'
+% chiesto di leggere. Il motore pubblica la testa riconosciuta nel turno
+% (`turn_knowledge_head/1`); quali teste portino il permesso lo dicono le righe
+% `read_request_head/1` qui sotto. Una testa nuova, in qualunque lingua, e' una
+% riga `knowledge_head/2` piu' una `read_request_head/1`.
+machinery(turn_knowledge_head).
+machinery(read_request_head).
+turn_scratch(turn_knowledge_head).
+turn_read_request :- turn_knowledge_head($Head), read_request_head($Head).
+acquisition_move(acquire) :-
+    gap_remedy_action(knowledge, read_topic), reading_available,
+    naf(acquisition_policy(act)), naf(acquisition_policy(never)),
+    turn_read_request, naf(reading_now).
+knowledge_head("definisci ", strong).
+knowledge_head("search wikipedia for ", strong).
+knowledge_head("look up on wikipedia ", strong).
+read_request_head("definisci ").
+read_request_head("search wikipedia for ").
+read_request_head("look up on wikipedia ").
+read_request_head("look up ").
+read_request_head("read up on ").
+read_request_head("research ").
+read_request_head("find out about ").
+read_request_head("go learn about ").
+
 acquisition_move(decline_named) :-
     gap_remedy_action(knowledge, read_topic), naf(reading_available),
     naf(acquisition_policy(never)).
