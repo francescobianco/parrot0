@@ -183,3 +183,93 @@ Ognuno ha fatto fallire **in silenzio** una regola corretta:
 
 Stima per una versione «al meglio» della stessa famiglia di problemi: altre 1,5–2 ore di
 lavoro KB, più il lavoro sul motore.
+
+## 8. Va bene che funzioni: che cosa ci ha fatto guadagnare davvero
+
+La domanda giusta non è «il prompt ha la risposta giusta?», ma quella del MANTRA:
+*parrot0 può impararne un nuovo membro domani, senza ricompilare?* Messa alla prova
+subito dopo l'esperimento (14 settembre, 11:30), con tre varianti minime, tutte fallite:
+
+| Variante | Che cosa cambia | Risposta |
+|---|---|---|
+| «chiunque abbia **conosciuto** Bruno prima di martedì …» | il verbo del gruppo | «Imparato: chi è (necessariamente + giovane).» |
+| «Anna è più **alta** di chiunque …; chi è più **basso** di chi» | la dimensione | «Imparato: chi è (necessariamente + basso).» |
+| «Anna è più giovane di Bruno e Bruno è più giovane di Carlo. Stabilisci …» | niente gruppi, tre nomi | «Imparato: chi è (necessariamente + giovane).» |
+
+La terza è la più istruttiva: il caso **più semplice** della famiglia non è letto,
+perché il lettore conosce solo i vincoli verso i gruppi. E in tutte e tre, quando la
+lettura non trova vincoli, il turno con il compito ricade sul lettore di prima e
+**scrive un fatto falso**. La protezione vale solo quando la lettura riesce: è il
+difetto da curare per primo.
+
+Il guadagno quindi va separato in due parti.
+
+### 8.1 Guadagno generale — resta anche se il prompt cambia
+
+1. **Una facoltà nuova: necessario / indeterminato.** Finora parrot0 rispondeva sì, no
+   o «non so». `order-determinacy.p0` distingue ciò che i vincoli *impongono*, ciò che
+   *lasciano possibile* (la stessa età) e ciò che *non decidono*, e ricava esclusioni
+   per assurdo («Anna non può essere fra …: sarebbe più giovane di sé»). Non sa niente di
+   età né di incontri: vale per altezze, prezzi, orari di arrivo, classifiche, versioni
+   di un pacchetto. È la forma operativa del principio già scritto nei test di
+   transitività: *non dimostrato non è falso*. Prima esisteva come onestà nel dire «non
+   so»; ora è una risposta costruita.
+2. **Una modalità epistemica: le premesse non sono conoscenza.** Ogni dichiarativa
+   veniva imparata, e un problema diventava fatti falsi nella KB. Adesso esiste un ambito
+   (`problem_task`, `problem_premises`) in cui le frasi valgono *dentro il problema*, si
+   numerano e non entrano nel `/save`. È lo stesso ambito che serve ai problemi di
+   matematica a parole, agli indovinelli, a «supponi che …», ai controfattuali. Il pezzo
+   c'è; oggi lo apre soltanto il riconoscimento di questa famiglia (vedi 8.2).
+3. **Un protocollo di risposta: `turn_response_part/3`.** Una risposta composta da
+   molte frasi, ordinata e scritta in KB, per qualunque facoltà. Il tetto dei 512 byte
+   di `turn_priority_response` spingeva ogni facoltà a risposte da una riga.
+4. **Un metodo per i lettori in KB, e la mappa dei loro limiti.** La lettura a stadi
+   (pezzi → fatti numerati → composizione, un contabile per stadio) e i cinque limiti
+   silenziosi del risolutore (§6, ora in `C_TODO.md`). Probabilmente spiegano altri
+   fallimenti muti già visti: una regola corretta che «non combacia» senza motivo può
+   aver esaurito i legami.
+5. **Un bug di persistenza curato** (`attenuated_reading` senza virgolette): vale per
+   ogni lettura salvata, non per questo problema.
+6. **Una descrizione come termine.** «Chiunque Bruno abbia incontrato prima di martedì»
+   è un referente di prima classe, senza individui inventati: è la risposta concreta al
+   difetto del gen506c (`several_pilots` trattato come un nome).
+
+### 8.2 Guadagno locale — è debito, anche se oggi è verde
+
+1. **Un secondo lettore.** `problem-texts.p0` (556 righe) è una grammatica per posizioni
+   di token parallela al lettore di prosa (`extract_frame`, la IR universale). Il
+   progetto la chiama per nome: *due letture della stessa cosa* (D33/D35). Per questo
+   «conobbe» non funziona anche se `conoscere` potrebbe essere un verbo di relazione
+   insegnato: il gruppo nasce da `meeting_finite/1`, non da una relazione qualunque.
+2. **Lessico duplicato.** I comparativi stanno in `comparative_word/3` e non nella
+   conoscenza con cui la transitività inglese già lavora; l'ordine dei giorni è stato
+   aggiunto qui invece che nel lessico del tempo. «più alto» manca per questo motivo.
+3. **Il riconoscimento è per cue.** «stabilisci chi», «restano indeterminati»: sono un
+   frasario del compito, non una lettura dell'atto richiesto.
+4. **Non si insegna parlando.** Una forma nuova di gruppo è una regola `group_at/4`
+   scritta nel file: un esperto del dominio non potrebbe dirla a voce. Per il MANTRA vale
+   zero come apprendimento, anche se è KB e non C.
+5. **Non incontra la KB viva.** Le premesse restano isolate: un problema che richiede
+   anche conoscenza vera («chi è nato prima di Garibaldi …») non può unire le due cose.
+
+### 8.3 Il saldo, e la prossima mossa che lo rende positivo
+
+L'esperimento ha prodotto tre capacità generali — facoltà di determinatezza, ambito
+delle premesse, risposte in parti — e un metodo. Ma le ha agganciate a un lettore
+stretto: **oggi la generalità sta dietro il lettore, non davanti.** Il costo misurato
+(59′) è per un terzo motore, per un terzo lettore e per un terzo le cose che restano.
+
+Le mosse, in ordine di guadagno:
+
+1. **Chiudere il misclaim**: un turno con un compito non impara mai, anche quando la
+   lettura non trova vincoli. Deve dire che cosa non ha saputo leggere. Solo KB.
+2. **Portare i vincoli dal lettore universale**: «X è più ADJ di Y» come `extract_frame`
+   con il comparativo come relazione ordinata (la transitività inglese esiste già), e i
+   gruppi come slot di un frame di relazione qualunque («chiunque abbia R Bruno T»). Così
+   ogni verbo e ogni comparativo insegnato a voce entra da solo, e il caso con tre nomi
+   funziona gratis. Le 556 righe dovrebbero scendere a una frazione.
+3. **Aprire l'ambito delle premesse ad altri atti** («supponi che», problemi a parole) e
+   dare alla facoltà di determinatezza altri consumatori (classifiche, orari).
+4. **Un banco di varianti**, non un caso: le tre righe della tabella sopra, più l'inglese
+   e un problema con conoscenza vera. È questo, non il prompt originale, che misura se
+   l'esperimento ha fatto crescere parrot0.
