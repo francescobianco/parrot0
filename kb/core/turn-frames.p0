@@ -183,6 +183,7 @@ turn_declared_act($Turn, compound_statement) :-
     turn_cue($Turn, sentence_boundary_cue, $Boundary),
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),
+    naf(turn_guided_inquiry($Turn)),
     naf(turn_opens_question($Turn)).
 clause_boundary_cue(", and ").
 clause_boundary_cue(", but ").
@@ -199,6 +200,7 @@ clause_boundary_cue(", mentre ").
 turn_declared_act($Turn, compound_inquiry) :-
     turn_cue($Turn, clause_boundary_cue, $Boundary),
     naf(turn_is_problem_text($Turn)),
+    naf(turn_guided_inquiry($Turn)),
     turn_cue($Turn, question_mark_cue, $Mark).
 
 % ── LA RICHIESTA DI PRODURRE UN ARTEFATTO (gen512) ─────────────────────────
@@ -352,6 +354,7 @@ turn_declared_act($Turn, prose_carried) :-
     turn_prose_copula($Turn),
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),
+    naf(turn_guided_inquiry($Turn)),
     naf(turn_opens_request($Turn)),
     naf(turn_has_situation_plan($Turn)),
     naf(turn_has_sign_answer($Turn)),
@@ -371,6 +374,7 @@ turn_declared_act($Turn, prose_carried) :-
     turn_prose_long($Turn),
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),
+    naf(turn_guided_inquiry($Turn)),
     naf(turn_opens_request($Turn)).
 % E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
 % (mantra #17): la facolta' ha gia' un nome pubblico.

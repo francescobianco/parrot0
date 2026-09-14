@@ -2705,7 +2705,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
       if (!kb_match_all(b->kb, "guided_evidence_word", eq, 2, &ev, &nev)) nev = 0; }
 
     static GrPage page, cand;
-    char known_rel[KB_TERM_LEN] = "", known_from[KB_TERM_LEN] = "", known_to[KB_TERM_LEN] = "";
+    char known_rel[KB_TERM_LEN] = "", known_from[KB_TERM_LEN] = "", known_to[KB_TERM_LEN] = "", searched_q[KB_TERM_LEN] = "";
     /* il punto di partenza: il primo nome del turno che ha una pagina */
     GrSentence ps; memset(&ps, 0, sizeof ps);
     { static GrPage tmp; memset(&tmp, 0, sizeof tmp); snprintf(tmp.prose, sizeof tmp.prose, "%s", raw);
@@ -2738,6 +2738,49 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
               }
           }
       }
+      /* ancora niente: si cerca la frase che segue il ponte */
+      if (!started) {
+          const char *sq[2] = { "current_turn", NULL };
+          char ph[1][KB_TERM_LEN];
+          if (kb_match(b->kb, "guided_search_phrase", sq, 2, ph, 1) == 1) {
+              char phrase[KB_TERM_LEN]; snprintf(phrase, sizeof phrase, "%s", kb_dequote(ph[0]));
+              size_t pl = strlen(phrase);
+              while (pl && strchr("?.!", phrase[pl - 1])) phrase[--pl] = '\0';
+              char titles[2048] = "";
+              char fixd[1][KB_TERM_LEN]; const char *fq[2] = { "fixture", NULL };
+              if (kb_match(b->kb, "topic_provider", fq, 2, fixd, 1) == 1) {
+                  char spath[600]; snprintf(spath, sizeof spath, "%s/search.tsv", kb_dequote(fixd[0]));
+                  FILE *sf = fopen(spath, "r");
+                  if (sf) {
+                      char line[1024];
+                      while (fgets(line, sizeof line, sf)) {
+                          char *tab = strchr(line, '\t'); if (!tab) continue;
+                          *tab = '\0';
+                          if (strcasecmp(line, phrase)) continue;
+                          char *nl = strchr(tab + 1, '\n'); if (nl) *nl = '\0';
+                          snprintf(titles, sizeof titles, "%s", tab + 1);
+                          for (char *c = titles; *c; c++) if (*c == '|') *c = '\n';
+                          break;
+                      }
+                      fclose(sf);
+                  }
+              }
+              if (!titles[0] && kb_query(b->kb, "network_available", NULL, 0))
+                  wiki_search_titles(phrase, "en", titles, sizeof titles);
+              char *save = NULL;
+              for (char *ln = strtok_r(titles, "\n", &save); ln && !started; ln = strtok_r(NULL, "\n", &save)) {
+                  GrMention sm; memset(&sm, 0, sizeof sm);
+                  snprintf(sm.surface, sizeof sm.surface, "%s", ln);
+                  gr_key_of(ln, sm.key, sizeof sm.key);
+                  if (!gr_fetch_mention(b, &sm, &page)) continue;
+                  int hits = 0;
+                  for (size_t si = 0; si < page.nsent; si++) hits += gr_cue_hits(b, &page.sent[si], cues, ncue);
+                  if (hits < 2) continue;
+                  started = 1;
+                  snprintf(searched_q, sizeof searched_q, "%s", phrase);
+              }
+          }
+      }
       if (!started) { free(cues); free(ev); return 0; }
       /* le parole del nome da cui si parte non sono indizi: ogni frase della sua pagina
        * le contiene */
@@ -2760,6 +2803,12 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
 
     kb_retract_pred(b->kb, "guided_known"); kb_retract_pred(b->kb, "guided_unmatched");
     kb_retract_pred(b->kb, "guided_rejected");
+    kb_retract_pred(b->kb, "guided_searched"); kb_retract_pred(b->kb, "guided_found_known");
+    if (searched_q[0]) {
+        char qq[KB_TERM_LEN], qt3[KB_TERM_LEN];
+        gr_quote(searched_q, qq, sizeof qq); gr_quote(page.title, qt3, sizeof qt3);
+        const char *sa[2] = { qq, qt3 }; gr_assert(b, "guided_searched", sa, 2);
+    }
     if (known_rel[0]) {
         char qf[KB_TERM_LEN], qt2[KB_TERM_LEN];
         gr_quote(known_from, qf, sizeof qf); gr_quote(known_to, qt2, sizeof qt2);
@@ -2792,13 +2841,38 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
         while (progressed && t < ntypes) {
             progressed = 0;
             const char *type = types[t];
+            /* la KB sa gia' il tipo chiesto del nodo corrente? (answer_frame: la
+             * superficie del tipo interroga una relazione) */
+            {
+                const char *fq[2] = { type, NULL };
+                char preds[8][KB_TERM_LEN];
+                size_t npr = kb_match(b->kb, "answer_frame", fq, 2, preds, 8);
+                int known = 0;
+                for (size_t x = 0; x < npr && !known; x++) {
+                    char pr[KB_TERM_LEN]; snprintf(pr, sizeof pr, "%s", kb_dequote(preds[x]));
+                    const char *vq[2] = { page.topic, NULL };
+                    char vals[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, pr, vq, 2, vals, 1) != 1) continue;
+                    char fn[16]; snprintf(fn, sizeof fn, "%zu", ++found);
+                    char val[KB_TERM_LEN], qv[KB_TERM_LEN], qfrom[KB_TERM_LEN];
+                    present_atom(b, kb_dequote(vals[0]), val, sizeof val);
+                    if (val[0]) val[0] = (char)toupper((unsigned char)val[0]);
+                    gr_quote(val[0] ? val : kb_dequote(vals[0]), qv, sizeof qv);
+                    gr_quote(page.title, qfrom, sizeof qfrom);
+                    { const char *fa[4] = { fn, type, qv, pn }; gr_assert(b, "guided_found", fa, 4); }
+                    { const char *ka[3] = { fn, pr, qfrom }; gr_assert(b, "guided_found_known", ka, 3); }
+                    known = 1;
+                }
+                if (known) { t++; progressed = 1; continue; }
+            }
+            int generic = gr_kb1(b, "generic_type", type);
             int best = -1000; char best_val[KB_TERM_LEN] = "", best_key[KB_TERM_LEN] = "", best_ex[600] = "";
             GrMention rej[8]; char rej_ex[8][300]; int rej_sc[8]; size_t nrej = 0;
             const GrSentence *best_s = NULL;
             char shape[1][KB_TERM_LEN]; shape[0][0] = '\0';
             { const char *sq[2] = { type, NULL }; kb_match(b->kb, "answer_shape", sq, 2, shape, 1); }
             const char *sh = shape[0][0] ? kb_dequote(shape[0]) : "";
-            for (size_t si = 0; si < page.nsent; si++) {
+            for (size_t si = 0; si < page.nsent && !generic; si++) {
                 const GrSentence *s = &page.sent[si];
                 int cue = gr_cue_hits(b, s, cues, ncue);
                 GrMention mm[GR_MAX_MENT]; size_t nm = gr_mentions(b, s, mm, GR_MAX_MENT);
@@ -2830,15 +2904,25 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
                      * chiesto e' un nome solo, con il tipo per testa */
                     if (g->end < s->ntok && !s->stop[g->end - 1] && !isupper((unsigned char)s->tok[g->end][0]) &&
                         gr_same(b, s->low[g->end], type)) {
-                        size_t o2 = strlen(g->surface);
-                        snprintf(g->surface + o2, sizeof g->surface - o2, " %s", s->tok[g->end]);
-                        snprintf(g->head, sizeof g->head, "%s", s->low[g->end]);
-                        gr_key_of(g->surface, g->key, sizeof g->key);
-                        g->end++;
+                        GrMention ext = *g;
+                        size_t o2 = strlen(ext.surface);
+                        snprintf(ext.surface + o2, sizeof ext.surface - o2, " %s", s->tok[g->end]);
+                        snprintf(ext.head, sizeof ext.head, "%s", s->low[g->end]);
+                        gr_key_of(ext.surface, ext.key, sizeof ext.key);
+                        ext.end++;
+                        /* e' un nome solo se e' il nome di qualcosa: «Ancient Iranian religion»
+                         * ha una pagina, «Russian philosopher» e' una classe */
+                        if (gr_fetch_mention(b, &ext, &cand)) *g = ext;
                     }
                     int skip = 0;
                     for (size_t v = 0; v < nvis; v++) if (!strcmp(visited[v], g->key)) skip = 1;
                     if (!strcmp(g->key, page.topic)) skip = 1;
+                    /* il candidato presentato con un nome di ruolo che il prompt usa per un
+                     * referente gia' dato («this author») e' quel referente */
+                    if (!skip && g->start > 0) {
+                        const char *aq[2] = { "current_turn", s->low[g->start - 1] };
+                        if (kb_query(b->kb, "guided_anaphor_noun", aq, 2)) skip = 1;
+                    }
                     if (skip) continue;
                     /* «a deity known as Ahura Mazda»: la frase nomina il tipo */
                     int named = 0;
@@ -2916,7 +3000,16 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
             if (!nextk[0]) break;
             char qn[KB_TERM_LEN], qs[700];
             gr_quote(nexts, qn, sizeof qn); gr_quote(bs, qs, sizeof qs);
-            { const char *ba[3] = { pn, qn, qs }; gr_assert(b, "guided_bridge", ba, 3); }
+            if (t < ntypes && gr_kb1(b, "generic_type", types[t])) {
+                /* «the historical figure he is named after»: il tipo generico lo
+                 * soddisfa l'entita' che la frase pertinente nomina */
+                char fn[16]; snprintf(fn, sizeof fn, "%zu", ++found);
+                { const char *fa[4] = { fn, types[t], qn, pn }; gr_assert(b, "guided_found", fa, 4); }
+                { const char *sa[2] = { fn, qs }; gr_assert(b, "guided_sentence", sa, 2); }
+                t++;
+            } else {
+                const char *ba[3] = { pn, qn, qs }; gr_assert(b, "guided_bridge", ba, 3);
+            }
             if (!gr_fetch(b, nextk, &page)) break;
         }
         continue;

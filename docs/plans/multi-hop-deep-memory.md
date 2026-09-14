@@ -269,6 +269,35 @@ ciclo e fatti di scratch, non ancora scope e nodi della Document IR. I gemelli s
 in testa a `guided-reading.p0`; la migrazione è IR1+IR2+IR6. E il riconoscimento dei nomi
 propri per maiuscole è una produzione ortografica che vale per le lingue che le usano.
 
+**Seconda tappa, stessa notte — 5/8 → 7/8.** Quattro mosse generali:
+- **i compiti all'imperativo** («identify / determine / name / find») aprono un tipo come
+  un interrogativo, e un compito a passi è già un ponte; il tipo è la **testa** del
+  sintagma («the supreme **deity**»), non la prima parola piena;
+- **i tipi generici** («figure», «person», «one») li soddisfa l'entità che la frase
+  pertinente nomina come ponte;
+- **ciò che la KB sa del nodo raggiunto**: se il tipo chiesto ha una superficie di domanda
+  (`answer_frame`: «capital»), la KB risponde prima della pagina, e il passo si dice *known*
+  («known before reading: capital of Tanzania = Dodoma»);
+- **partenza per ricerca**: se nessun nome ha una pagina e la KB non dà un fatto, si cerca
+  la frase introdotta dal ponte («where the highest mountain in Africa stands» → *Mount
+  Kilimanjaro*), con la ricerca di Wikipedia o, in edizione locale, risultati veri
+  registrati (`tests/fixtures/wiki/search.tsv`).
+
+E due correzioni nate da un errore vero del banco: C1 rispondeva «Fyodor Dostoevsky» come
+filosofo (il suo lead lo chiama davvero *philosopher*) — ma nel prompt «**this** author» è
+lui: un candidato presentato con un nome di ruolo che il prompt usa per un referente già
+dato non può rispondere a un altro ruolo (`guided_anaphor_noun/2`); e «Russian philosopher»
+non è un nome — un nome esteso col tipo è candidato solo se ha una pagina.
+
+**Reperti.** (1) Dopo un turno italiano la lingua resta appiccicosa e il testo inglese del
+turno successivo esce **corrotto** dalla canonicalizzazione, prima della pubblicazione
+(«identify the historical figure he **figure founded**»): non è della lettura guidata, ma
+tocca ogni lettore; nel banco B6 sta in fondo finché non è curato. (2) «figure» è
+`stopword/1` nel lessico (per «figure out»): i tipi generici valgono come candidati di tipo
+anche così. (3) La guardia della lettura guidata dentro le regole della prosa portata deve
+chiedere prima la politica (economica): un `naf` incompleto su un paragrafo lungo
+spegneva la lettura della prosa (`prose_triage` 74/75, curato).
+
 **Che cosa ha insegnato il banco nella stessa sera** (ognuno è una correzione generale, non
 una patch per un problema): una verifica «contiene» nel test passava su una frase citata e
 non sulla risposta (le attese ora sono «tipo: valore»); una menzione scavalcava la virgola
@@ -389,8 +418,11 @@ Base: **0 problemi su 8**, e 4 risposte su 8 sono sbagliate con sicurezza.
 
 **Dopo la prima tappa della lettura guidata** (14 settembre, sera; §4.5): **5 su 8** —
 B1, B2, B3, B4 e il controllo C1 — con catena, letture con revisione, passo noto dichiarato
-e biforcazione detta. Restano B5 (partenza da una descrizione), B6 (italiano), B7 (passi
-imperativi). Il primo
+e biforcazione detta.
+
+**Dopo la seconda tappa** (notte): **7 su 8** — anche B5 (ricerca della descrizione →
+Kilimanjaro → Tanzania → capitale nota) e B7 (lo stesso problema di B1 a passi imperativi).
+Resta B6 (italiano). Il primo
 guadagno misurabile, prima ancora di una risposta giusta, è **zero misclaim**: un problema
 della classe non va mai a storie, parole, letture ravvicinate o al passo intermedio.
 
@@ -590,3 +622,8 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   Uniti, B4 Mendeleev, C1 controllo onesto), E1 23/23. Prossime: B5 (descrizione come
   partenza), B6 (italiano), B7 (passi imperativi), poi allargare il banco prima della mossa
   successiva (§7.0, criterio 3).
+- **14 settembre 2026, notte (2)** — seconda tappa (§4.5): imperativi e teste di sintagma,
+  tipi generici, risposte note dal nodo raggiunto, partenza per ricerca; esclusione dei
+  referenti anaforici. Banco **7/8** (manca B6, italiano), E1 23/23, `prose_triage` 75,
+  `order_determinacy_problem` 28, memoria profonda verde. Reperto: lingua appiccicosa che
+  corrompe il turno inglese dopo uno italiano.

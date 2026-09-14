@@ -50,7 +50,38 @@ machinery(guided_asked_type).
 machinery(first_type_word_after).
 guided_asked_type($T, $I, $Type) :-
     turn_word($T, $I, $Q), open_question_word($Q), is($J, add($I, 1)), first_type_word_after($T, $J, $Type).
-first_type_word_after($T, $J, $W) :- turn_word($T, $J, $W), naf(type_skip_word($W)), naf(open_question_word($W)), content_word($W).
+% Il tipo e' la TESTA del sintagma: «the supreme deity» → deity, «the historical figure he
+% is named after» → figure. Una parola piena seguita da un'altra parola piena ne e' il
+% modificatore.
+first_type_word_after($T, $J, $W) :-
+    turn_word($T, $J, $W), naf(type_skip_word($W)), naf(open_question_word($W)), type_candidate_word($W),
+    naf(type_modifier_at($T, $J)).
+first_type_word_after($T, $J, $W) :-
+    turn_word($T, $J, $M), naf(type_skip_word($M)), type_candidate_word($M), type_modifier_at($T, $J),
+    is($K, add($J, 1)), lt($K, 64), first_type_word_after($T, $K, $W).
+machinery(type_modifier_at).
+type_modifier_at($T, $J) :-
+    is($K, add($J, 1)), turn_word($T, $K, $N), type_candidate_word($N), naf(type_skip_word($N)), naf(bridge_word($N)),
+    naf(open_question_word($N)), naf(type_stop_word($N)).
+% una parola che puo' essere un tipo: piena, oppure un tipo generico dichiarato («figure»
+% e' anche una parola funzione in «figure out», e il lessico la segna come tale)
+machinery(type_candidate_word).
+type_candidate_word($W) :- content_word($W).
+type_candidate_word($W) :- generic_type($W).
+machinery(type_stop_word).
+type_stop_word(he). type_stop_word(she). type_stop_word(it). type_stop_word(they).
+type_stop_word(of). type_stop_word(in). type_stop_word(that).
+% E un compito all'imperativo apre un tipo come un interrogativo: «Identify the historical
+% figure …», «determine the religion …», «name the supreme deity …».
+machinery(task_verb).
+task_verb(identify). task_verb(determine). task_verb(name). task_verb(find).
+task_verb(identifica). task_verb(determina). task_verb(trova).
+guided_asked_type($T, $I, $Type) :-
+    turn_word($T, $I, $V), task_verb($V), is($J, add($I, 1)), first_type_word_after($T, $J, $Type).
+% Un tipo generico lo soddisfa l'entita' che la frase pertinente nomina come ponte.
+machinery(generic_type).
+generic_type(figure). generic_type(person). generic_type(one). generic_type(thing).
+generic_type(entity). generic_type(someone). generic_type(figura). generic_type(persona).
 first_type_word_after($T, $J, $W) :-
     turn_word($T, $J, $S), type_skip_word($S), is($K, add($J, 1)), lt($K, 64), first_type_word_after($T, $K, $W).
 
@@ -67,7 +98,9 @@ machinery(turn_guided_bridge).
 turn_guided_bridge($T) :- turn_word($T, $I, $W), bridge_word($W), gt($I, 0).
 turn_guided_bridge($T) :- guided_asked_type($T, $I, $A), guided_asked_type($T, $J, $B), lt($I, $J).
 machinery(turn_guided_inquiry).
-turn_guided_inquiry($T) :- guided_asked_type($T, $I, $Type), turn_guided_bridge($T), acquisition_move(acquire).
+turn_guided_inquiry($T) :- acquisition_move(acquire), guided_asked_type($T, $I, $Type), turn_guided_bridge($T).
+% un compito a passi e' gia' un ponte: ogni passo parte dal risultato del precedente
+turn_guided_bridge($T) :- turn_word($T, $I, $V), task_verb($V), turn_word($T, $J, $W), task_verb($W), lt($I, $J).
 
 % ── 3. GLI INDIZI ────────────────────────────────────────────────────────────
 % Le parole piene del prompt che non sono ne' interrogativi ne' tipi chiesti: dicono
@@ -75,7 +108,7 @@ turn_guided_inquiry($T) :- guided_asked_type($T, $I, $Type), turn_guided_bridge(
 machinery(guided_cue).
 guided_cue($T, $W) :-
     turn_word($T, $I, $W), content_word($W), naf(open_question_word($W)), naf(type_skip_word($W)),
-    naf(bridge_word($W)), naf(guided_asked_word($T, $W)).
+    naf(bridge_word($W)), naf(guided_asked_word($T, $W)), naf(task_verb($W)).
 machinery(guided_asked_word).
 guided_asked_word($T, $W) :- guided_asked_type($T, $I, $W).
 
@@ -293,3 +326,48 @@ guided_part($O, $Line) :-
     concat_atoms($C, " («", $G), concat_atoms($G, $E, $I), concat_atoms($I, "»)", $Line).
 guided_line(en, rejected_head, "   not chosen, also of type ").
 guided_line(it, rejected_head, "   non scelto, anch'esso di tipo ").
+
+% La frase da cercare quando nessun nome del prompt ha una pagina e la KB non da' un
+% fatto da cui partire: cio' che segue il ponte («… the country WHERE the highest mountain
+% in Africa stands»). La ricerca e' quella dell'edizione (Wikipedia; in edizione locale,
+% risultati veri registrati in `search.tsv`).
+machinery(guided_search_phrase).
+machinery(turn_words_from_to).
+guided_search_phrase($T, $Phrase) :-
+    turn_word($T, $I, $B), bridge_word($B), gt($I, 0), is($J, add($I, 1)),
+    findall($W, guided_word_after($T, $J, $W), $Ws), words_space_text($Ws, $Phrase).
+machinery(guided_word_after).
+guided_word_after($T, $J, $W) :- turn_word($T, $K, $W), ge($K, $J).
+machinery(words_space_text).
+words_space_text(cons($W, nil), $W).
+words_space_text(cons($W, cons($V, $R)), $T) :- words_space_text(cons($V, $R), $Rest), concat_atoms($W, " ", $A), concat_atoms($A, $Rest, $T).
+
+machinery(guided_searched).
+turn_scratch(guided_searched).
+guided_part(4, $Line) :-
+    guided_now, guided_searched($Q, $Title), guided_language($L), guided_line($L, searched_word, $W),
+    concat_atoms($W, $Q, $A), concat_atoms($A, "» → «", $B), concat_atoms($B, $Title, $C), concat_atoms($C, "»", $Line).
+guided_line(en, searched_word, "0. I searched Wikipedia for «").
+guided_line(it, searched_word, "0. Ho cercato su Wikipedia «").
+
+% Una risposta che la KB sa gia' del nodo raggiunto: «the capital of Tanzania» dopo aver
+% letto che il Kilimanjaro sta in Tanzania. Si dice come conoscenza, non come lettura.
+machinery(guided_found_known).
+turn_scratch(guided_found_known).
+guided_part($O, $Line) :-
+    guided_now, guided_found_known($F, $Rel, $From), guided_found($F, $Type, $V, $P), guided_language($L),
+    guided_line($L, known_found, $K), is($O, add(11, mul(10, $P))),
+    concat_atoms($K, $Type, $A), concat_atoms($A, " of ", $B), concat_atoms($B, $From, $C),
+    concat_atoms($C, " = ", $D), concat_atoms($D, $V, $Line).
+guided_line(en, known_found, "   known before reading: ").
+guided_line(it, known_found, "   gia' noto prima di leggere: ").
+
+% Un nome del prompt preceduto da un dimostrativo («THIS author», «THAT figure», «THAT
+% philosopher's work») si riferisce a un risultato gia' nominato, non a quello chiesto: un
+% candidato che la frase presenta con quel nome di ruolo («… by Russian AUTHOR Fyodor
+% Dostoevsky») e' quel referente, e non puo' essere la risposta a un altro tipo.
+machinery(anaphor_determiner).
+anaphor_determiner(this). anaphor_determiner(that). anaphor_determiner(these). anaphor_determiner(those).
+anaphor_determiner(questo). anaphor_determiner(quella). anaphor_determiner(quel).
+machinery(guided_anaphor_noun).
+guided_anaphor_noun($T, $W) :- turn_word($T, $I, $D), anaphor_determiner($D), is($J, add($I, 1)), turn_word($T, $J, $W), content_word($W).
