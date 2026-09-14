@@ -190,6 +190,50 @@ traccia si interroga; se bisogna scriverla a mano, il ragionamento è avvenuto a
 | IR5 | **Frame assertivi dalla prosa vera**: le relazioni del lettore (`extract_frame/2`) non tornano come frame della IR con i nodi | «spiritual founder of Zoroastrianism» diventa (quando diventa) un fatto, non un frame con range | unificare `P0FrameReading` e `input_semantic_frame`: una lettura, due usi (commit in KB, o frame nello scope) |
 | IR6 | **Alternative**: più legami candidati per un ruolo, con evidenza per ciascuno | il branching senza promuovere un candidato a fatto | `input_frame_set` esteso ai legami; esclusione per evidenza (come `order-determinacy.p0`, ma sui legami) |
 
+### 4.4 Prima misura su IR1 (14 settembre, sera): l'ingresso non è il collo di bottiglia
+
+**Che cosa c'è già.** La lettura dalla rete (`network_acquire_passage` →
+`learn_from_prose`) è un **secondo lettore di prosa**: conosce due forme (enumerazione e
+appartenenza a una classe), mentre la conversazione ne legge 136, e non entra nella
+Document IR. Il codice lo dice da solo (nota gen505z, «il lettore non usa i frame della
+conversazione», verdetto non chiuso). Il lettore di «read:» (`read_passage`) invece
+incamera il testo nella **Document IR** (SC1: `document_unit/3`, `document_unit_token/3`,
+fonte e impronta) e prova ogni frase col protocollo della IR (`input_assertion_bundle`,
+`input_frame_commit`) e poi con i moduli della conversazione. Esiste anche
+`reading_intent(bridge, …)`: **leggere per rispondere a una domanda**, con le frasi
+pertinenti per prime.
+
+**Prototipo misurato** (tolto dopo la misura): la pagina letta dalla rete passata anche
+per `read_passage`, con la fonte Wikipedia come documento.
+
+| Pagina (lead vero) | Frasi lette nella IR | Esito |
+|---|---|---|
+| Zoroaster | 0 su 3 | «…becoming the spiritual founder of Zoroastrianism» non produce nessun frame |
+| Danube | 1 su 7 | l'unico frame è **sbagliato**: «it was once a frontier of the Roman Empire» → `membership(was), roles(subject(river), class(empire))`; «…into the Black Sea» non produce nulla; un modulo risponde a una frase con i confini della Germania |
+
+**Conclusione.** Unificare l'ingresso nella IR è necessario (un lettore solo, MANTRA #24)
+ma **non fa guadagnare nessun hop**: la IR non sa ancora comprendere la frase
+enciclopedica — apposizioni, participiali («becoming the founder of»), relative,
+coordinazioni lunghe, preposizioni di direzione («into the Black Sea»). È lo stesso
+risultato di `lettura-della-prosa.md` §1.3 (tardigrado 0/7, quipu 0/5). Il collo di
+bottiglia della missione è **IR5**.
+
+**Conseguenza per la strategia.** Due strade, non esclusive:
+
+1. **Comprensione completa** di ogni frase del lead nella IR (IR5 pieno): è il lavoro di
+   `lettura-della-prosa.md`, lungo, e utile a tutto parrot0.
+2. **Lettura guidata dal frame aperto** — la mossa che fa una persona che cerca: il frame
+   lacuna del problema (relazione cercata, tipo del ruolo mancante) sceglie nello scope
+   della pagina le frasi pertinenti (`reading_intent`) e dentro quelle i **nodi candidati**
+   del tipo giusto; la relazione si verifica sulla frase (superficie di relazione
+   insegnabile) e il tipo leggendo il candidato (M5). Non richiede di capire tutta la
+   frase, solo il pezzo che risponde alla domanda aperta. È interamente nella IR:
+   consumatore dello scope pagina, produttore di legami (IR2) e di alternative (IR6).
+
+La strada 2 è quella che serve alla classe del banco, ed è generale se le superfici di
+relazione e i tipi sono conoscenza insegnabile e non una tabella per il banco. La strada
+1 resta la destinazione, e ogni frase che la strada 2 legge bene è un caso per essa.
+
 Il test di generalità di questa sezione è quello di `lettura-della-prosa.md`: **una forma
 nuova di hop deve costare un consumatore della IR, mai uno scanner nuovo.**
 
@@ -488,3 +532,10 @@ scoprire che cosa gli manca mentre ragiona, recuperarlo e continuare.**
   Scritto il **banco della classe** (§7.0): 7 problemi e un controllo, domini, relazioni,
   lingue, forme e distrattori diversi, pagine vere con revisione. Base: 0/8 e 4 misclaim.
   Prossima mossa: IR1 (la pagina letta come scope della IR), misurata sul banco intero.
+- **14 settembre 2026, sera (2)** — IR1 misurato con un prototipo (§4.4): il lettore della
+  rete è un secondo lettore di prosa fuori dalla Document IR; farlo passare per
+  `read_passage` legge 0/3 frasi di *Zoroaster* e 1/7 del *Danube* (e quella sbagliata).
+  Il collo di bottiglia è IR5, la comprensione della frase enciclopedica. Prossima mossa:
+  **lettura guidata dal frame aperto** (§4.4, strada 2), costruita nella IR e misurata sul
+  banco; in parallelo, unificare l'ingresso (un lettore solo) quando la strada 2 lo
+  richiede.
