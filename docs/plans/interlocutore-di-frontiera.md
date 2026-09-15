@@ -10,7 +10,11 @@ capacità mancanti, ognuna con la prova verbatim presa da una conversazione real
 e con il piano esistente che dovrebbe possederla. Le cure restano soggette ai
 MANTRA: ogni voce va chiusa **KB-first**, insegnabile parlando, sulla KB viva.
 Il §7 aggiunge un'ipotesi di lavoro e un esperimento discriminante; non dichiara
-risolti i limiti del §6.
+risolti i limiti del §6. Il §8 registra il primo circuito E1. **La direzione
+operativa aggiornata è il §9**: sviluppa quell'intuizione in condizioni di
+sufficienza, residui interrogabili e apprendimento dalle prove. Distingue ciò
+che è stato osservato da ciò che gli agenti devono ancora costruire; il suo
+ordine sostituisce l'handoff storico di §8.5.
 
 ## 0. Come è stato misurato
 
@@ -449,19 +453,22 @@ in un giudizio, che è la cosa che un LLM fa implicitamente in ogni frase.
 Serve una semantica della plausibilità nella KB, non un campo `confidence`.
 
 **R3 — Salienza orientata al goal** (§10). Fra tutto ciò che si sa
-dell'utente e del mondo, *che cosa è pertinente adesso?* Jarvis cita la
-riunione delle 9 quando l'utente dice «parto alle 7» perché ne vede la
-rilevanza, non perché una regola lo collega. Con una KB viva di milioni di
-fatti la pertinenza non si può scrivere a mano, e l'arbitraggio via IR sceglie
-fra le facoltà, non fra i ricordi.
+dell'utente e del mondo, *che cosa è pertinente adesso?* Collegare la
+riunione delle 9 a «parto alle 7» richiede di riconoscere una dipendenza fra
+arrivo e impegno. Una regola sui ruoli e sui vincoli può esprimerla; scrivere
+una regola per ogni coppia di argomenti non scala. L'arbitraggio via IR sceglie
+fra le facoltà; resta da dimostrare la selezione dei ricordi rispetto allo
+scopo, su una KB crescente. Il §9 propone come ricavarne un criterio.
 
 **R4 — Controllo combinatorio** (§11, «probabilmente fondamentale»). Già
 misurato: budget esaurito sui DAG da D14-W3 senza dirlo, muro `KB_MAX_DEPTH` a
-D63. Un interlocutore di frontiera interpreta, ricorda, pianifica e verifica
-**nello stesso turno, in meno di un secondo**: le interpretazioni possibili di
+D63. L'obiettivo è interpretare, ricordare, pianificare e verificare
+**nello stesso turno, con latenza utile**: le interpretazioni possibili di
 una frase moltiplicate per i ricordi candidati e per i piani fanno esplodere lo
-spazio. Serve un'euristica che poti in modo **appreso**, cioè che migliori con
-l'esperienza. Nessun piano attuale lo prevede.
+spazio. Serve un controllo della ricerca che migliori con l'esperienza e
+renda esplicito il lavoro non concluso. Il §7 lo propone; E1 non lo misura
+ancora. Un limite di un secondo su qualsiasi compito non è una proprietà
+dimostrata della frontiera né un criterio sufficiente per questo progetto.
 
 **R5 — Generazione aperta** (§12). Scrivere una mail delicata, una storia,
 un brindisi, adattarsi al registro di chi parla, fare una battuta pertinente.
@@ -474,18 +481,21 @@ anche in quelli fattuali: è la differenza fra *informare* e *parlare*.
 maestro).** Residuo non trattato in `breakthrough-limits.md`, che esternalizza
 l'enciclopedia su Wikipedia. Il senso comune (la gente è in ansia prima di un
 colloquio, a Milano a settembre può piovere, «book it» presuppone un fornitore,
-«SO helpful» detto dopo una serie di errori è ironico) **non sta scritto da
-nessuna parte in forma dichiarativa**. Questo vale per i fatti, e vale ancora
+«SO helpful» detto dopo una serie di errori può essere ironico) **non arriva
+come un inventario completo di regole dichiarative**. Parte è espressa nei
+testi, parte richiede contesto e riscontri. Questo vale per i fatti, e ancora
 di più per le **costruzioni linguistiche**: ogni forma che la IR deve
 riconoscere va insegnata o indotta. È il problema storico di Cyc: il meccanismo
 può essere perfetto e la copertura restare irraggiungibile al ritmo di un
-maestro umano, o di un LLM che fa da maestro. Oggi l'unica risposta
-seria è `autoaddestramento-dalla-prosa.md`: il testo come supervisore. Se non
-scala, R6 da solo basta a separare parrot0 dalla frontiera.
+maestro umano, o di un LLM che fa da maestro. L'appiglio operativo è
+`autoaddestramento-dalla-prosa.md`: il testo come supervisore. Il §9 aggiunge
+il riuso delle prove e il riscontro degli esiti. Se questi canali non riducono
+il carico del maestro, R6 da solo basta a mantenere la distanza dalla frontiera.
 
-**R7 — Degradare con garbo al confine della IR.** Nuovo. Un sistema
-simbolico ha un bordo netto: una frase fuori copertura non produce una
-risposta *peggiore*, **non produce niente** (o, oggi, un turno rubato). Un
+**R7 — Degradare con garbo al confine della IR.** Nuovo. Nel comportamento
+misurato una frase fuori copertura spesso non produce una risposta parziale:
+produce un muro o un turno rubato. È un limite dei percorsi attuali, non una
+necessità del processo simbolico. Un
 interlocutore di frontiera, davanti a refusi, frasi spezzate, lingue mescolate,
 dettatura vocale, sottintesi, capisce *parzialmente* e risponde a quella parte.
 Serve una comprensione **approssimata e dichiarata tale**, cioè una IR che
@@ -918,7 +928,7 @@ polare + refusi, 15 settembre); workspace pulito. Nessun artefatto in `/tmp` ser
 
 ```sh
 make test-engine
-./bin/parrot0 --test tests/p0t/reasoning/taught_decision.p0t   # atteso: 39 verdi, ~80 s
+./bin/parrot0 --test tests/p0t/reasoning/taught_decision.p0t   # 52 assert nel file aggiornato
 python3 scripts/p0t-echo.py tests/p0t/reasoning/taught_decision.p0t | grep -v '^  \['
 ```
 
@@ -951,3 +961,449 @@ Se una vista «non dà niente», prima `grep "PARSE ERROR"` nel log del demone.
 **Test:** `make soft-test` è rosso a HEAD per il costo del turno base
 (`TEST_TODO.md`, 2026-09-14): non è di E1 e non va «curato» alzando il budget.
 Nessuna suite completa senza approvazione di F.
+
+## 9. Direzione di sviluppo: la sufficienza come oggetto insegnabile
+
+> **Revisione del 15 settembre 2026.** Ipotesi da implementare e falsificare,
+> fondata sull'ispezione del codice e su
+> [due nuove sonde](../reports/2026-09-15-frontiera-sufficienza.md).
+> Nessuna capacità generale dichiarata acquisita da questa revisione.
+
+**La leva è imparare che cosa basta per rispondere, quali condizioni possono
+ancora cambiare la risposta e come verificarle.** La distinzione di §7
+acquista così un oggetto concreto: una conclusione con il suo ambito, le
+premesse che la sostengono e il lavoro ancora necessario. Una prova riuscita
+può lasciare una procedura riusabile; una prova interrotta può lasciare una
+domanda precisa; un controesempio può indicare quale distinzione mancava.
+
+Questo offre una via simbolica per coordinare comprensione, ricerca,
+apprendimento e risposta. Il suo rendimento va misurato: spostare il costo
+dalla ricerca alla costruzione del residuo sarebbe solo spostarlo.
+
+```mermaid
+flowchart LR
+    I["Lettura e scopo nella IR"] --> P["Prova e condizioni residue"]
+    P --> S["Risposta, domanda o azione"]
+    S --> E["Esito verificato"]
+    E --> D["Distinzione candidata"]
+    D --> V["Verifica e controesempi"]
+    V --> K["Conoscenza riusabile in KB"]
+    K --> P
+    K --> I
+```
+
+### 9.1 Il gradino effettivo di E1
+
+Nel checkout esaminato:
+
+| oggetto esistente | capacità osservabile nel codice | limite da superare |
+|---|---|---|
+| `decision_formula/3`, `decision_minimum/2` | ruoli aperti; somme e limiti insegnati | formule e minimi globali per ruolo; un solo operatore di formula |
+| `decision_obstacle/4` | confuta usando valore esatto o limite inferiore | `decision_met/4` conferma solo con valore esatto |
+| `decision_missing_in/4` | risale alle foglie ignote delle somme | non calcola quanto occorre sapere delle foglie per decidere |
+| `decision_feature_in/2`, `decision_preference/3` | preferenza condizionale insegnabile | condizioni strutturali e famiglie di mossa qui ancora enumerate |
+| `decision_asks_list/2`, questioni `datum` | domanda composta e risposta ellittica | domanda tutti i dati raccolti; l'identità del dato non porta ancora uno specifico obbligo e contesto |
+| `decision_candidates/2` | lista riusata nella selezione | non è una frontiera di ricerca persistente né una prova generale di completezza |
+
+**La sonda nuova trova un gradino fertile, non un nuovo dominio.** Si insegna
+`ready = arrival + transfer`, `transfer ≥ 0`, `arrival = 10`:
+
+| requisito | ciò che basta sapere | risposta osservata |
+|---|---|---|
+| `ready ≥ 9` | già dimostrato dal limite | chiede `transfer`, superfluo |
+| `ready ≤ 11` | sapere se `transfer ≤ 1` | chiede `transfer`, pertinente |
+| `ready ≤ 9` | già confutato dal limite | spiega l'impedimento, dopo la lezione di preferenza |
+
+La seconda sonda ripete i tre turni inglesi su riunione e viaggio del §2:
+restano murati. **L'E1 attuale prova crescita della condotta nelle forme
+supportate.** Il banco contiene 52 assert; non è stato rieseguito in questa
+revisione. La generalizzazione numerica non prova il collegamento con una
+conversazione libera: quel collegamento deve diventare un gate esplicito.
+
+### 9.2 Il residuo deve dire quale condizione manca
+
+Oggi «manca transfer» nomina una casella. L'oggetto utile è invece:
+
+> «Per stabilire se riesci a rispettare questo impegno, resta da verificare
+> che il trasferimento richieda al massimo un'ora.»
+
+Quel residuo conserva **l'impegno, il vincolo, il referente, la soglia, le
+unità, le assunzioni e le dipendenze**. Può essere soddisfatto da un valore
+esatto, da un intervallo, da una risposta polare o da un'altra prova. Se il
+trasferimento è sconosciuto ma qualcuno sa che dura meno di mezz'ora, il
+valore esatto non serve.
+
+Il contratto riusa gli oggetti esistenti; questa tabella non introduce un
+quarto dialetto di piano:
+
+| informazione necessaria | proprietario da riusare |
+|---|---|
+| testo, referenti, letture alternative, parti non lette | IR condivisa, `frame_*`, `reading_*` |
+| scopo e richieste coordinate | obblighi e piano di risposta |
+| premesse, ambito, tempo, fonte | proposizioni, `holds_in`, contesti e situazione |
+| passi completati, sostegno, condizioni residue | prove e arresti; `step(Operatore, Pre, Effetto, meta(Costo, Supporto))` |
+| domanda aperta e sua risposta | tabellone `issues`, collegato all'obbligo originario |
+| scelta, aspettativa, esito osservato | episodio riferito a queste identità, senza copiarle in uno stato parallelo |
+
+**I residui hanno struttura logica.** Due dati entrambi necessari formano una
+congiunzione; due modi alternativi di dimostrare la stessa cosa formano una
+disgiunzione. Per `x + y ≤ 1`, sapere soltanto `x ≤ 1` e `y ≤ 1` non basta.
+Appiattire tutto in una lista di slot perderebbe proprio ciò che occorre
+imparare. Anche «dato ignoto», «lettura ambigua», «premesse incompatibili» e
+«ricerca interrotta» richiedono rimedi diversi.
+
+Un residuo deve dichiarare anche la propria forza: condizione sufficiente
+per **una** via di prova, oppure condizione necessaria e sufficiente per
+l'obbligo nell'ambito considerato. Il fallimento di una via non confuta
+quelle alternative. Nell'esempio della somma la soglia è equivalente al
+requisito sotto le premesse date; questa equivalenza non si estende per
+decreto a qualunque residuo estratto da una regola.
+
+Per E2 si parte dal grafo di formule che E1 possiede già. Per estendere il
+residuo a regole arbitrarie occorre conservare identità della clausola,
+argomenti, variabili condivise e polarità. `kb_rule_body/2` espone soltanto
+nomi di predicati e non basta: il contratto proposto è già in
+[`the-magic-of-apply.md`, Parte IV §4.3](the-magic-of-apply.md#43-dalle-dipendenze-ai-residui-di-una-dimostrazione).
+Non costruire una seconda introspezione delle regole.
+
+### 9.3 La salienza si può cercare nella stabilità della conclusione
+
+Fissati uno scopo, le premesse accettate e il loro ambito, consideriamo i
+completamenti compatibili dei dati ancora ignoti. **Una risposta è sufficiente
+quando una prova mostra che quei completamenti non ne cambiano la parte
+affermata.** Non occorre sempre risolvere tutte le ambiguità per rispondere.
+
+Esempio, con stessa giornata, unità coerenti e trasferimento non negativo:
+
+```text
+partenza = 7; durata = 3; trasferimento = t, con t ≥ 0
+presenza alla riunione = 10 + t
+
+riunione alle 9   → 10 + t > 9 per ogni t ammesso: impedimento sufficiente
+riunione alle 11  → condizione residua t ≤ 1
+```
+
+Non si enumerano tutti i valori di `t`: si usa una proprietà dimostrata
+dell'operazione, qui la monotonia della somma. Tipi di quantità, verso del
+confronto e proprietà degli operatori sono conoscenza interrogabile e
+insegnabile. La monotonia in un argomento non si può presumere per ogni
+operatore: moltiplicare per un numero negativo, per esempio, inverte il verso.
+
+Tre obblighi impediscono che questa leva diventi una scorciatoia scorretta:
+
+1. **L'insieme dei completamenti deve essere coerente e non vuoto.** Con
+   premesse incompatibili non si certifica ogni risposta per vacuità. Si
+   espone il conflitto pertinente, conservando le prove indipendenti valide.
+2. **Le letture campionate non sono tutte le letture possibili.** Due
+   candidati che concordano sono un indizio; per affermare la stabilità serve
+   un vincolo che copra le alternative dell'ambito dichiarato. Un produttore
+   interrotto o una clausola non letta lascia un residuo di copertura.
+3. **La sufficienza riguarda l'obbligo corrente.** Un impedimento basta a
+   rispondere «no» a una congiunzione di requisiti; non basta a rispondere
+   «elenca tutti gli impedimenti» o «trova un'alternativa». Una conferma vale
+   per i requisiti verificati, senza trasformarsi in una garanzia sul mondo.
+
+Letture diverse che autorizzano la stessa risposta possono condividere il
+lavoro successivo, conservando le proprie identità. Se due riunioni sono
+entrambe alle 9, si può dire quell'orario comune senza decidere a quale delle
+due si riferisse l'utente. «Spostala alle 10» richiede invece di distinguerle:
+l'equivalenza vale rispetto alla domanda, non fonde le riunioni nella memoria.
+
+Da qui una nozione operativa di domanda utile: una domanda può separare
+completamenti che portano a conclusioni diverse. Nel caso delle 11, la soglia
+separa `t ≤ 1` da `t > 1`. Un altro dato può essere facile da ottenere ma
+irrilevante. Se due incognite agiscono insieme, serve il loro residuo congiunto;
+non si scartano perché nessuna, presa isolatamente, risolve il problema.
+
+**Utilità logica e convenienza conversazionale restano diverse.** Chiedere la
+soglia può essere più facile che chiedere un numero; talvolta l'utente conosce
+solo il numero. Si ordinano domande e verifiche con criteri insegnabili su
+costo, risposta ottenibile e obblighi chiusi. Senza distribuzioni affidabili
+non si inventa un «guadagno informativo atteso» numerico. Si può iniziare con
+dominanza e pareggi espliciti.
+
+### 9.4 Un solo lavoro di prova, più usi
+
+Il guadagno cercato viene dalla **composizione dei consumatori sullo stesso
+residuo**, senza ripetere la lettura o ricostruire il ragionamento dal testo
+finale:
+
+| uso | vista sullo stesso lavoro |
+|---|---|
+| rispondere e spiegare | conclusione sostenuta, premesse e ambito effettivamente usati |
+| chiedere o cercare | condizione ancora aperta e fonte capace di verificarla |
+| correggere | dipendenze da rivedere dopo la nuova premessa |
+| ripianificare | quale requisito fallisce e quali passi possono modificarlo |
+| ricordare ciò che conta | dipendenze degli obblighi ancora vivi |
+| imparare | parte della prova riusabile e condizione che distingue un controesempio |
+
+La parte condivisa è il contratto, non l'identità dei giudizi. Una prova
+aritmetica, una preferenza di stile e un'osservazione di uno strumento
+conservano autorità diverse (§7.2).
+
+**Il confine fra assumere e agire deve restare visibile.** Una risposta alla
+domanda aggiorna una credenza; un piano propone effetti; solo l'esito reale
+verificato dimostra che l'azione li ha prodotti. `apply` non autorizza da sé
+un'azione esterna. Le stesse dipendenze servono a riaprire l'obbligo se uno
+strumento fallisce, senza dichiarare realizzato ciò che era solo previsto.
+
+### 9.5 Come ottenere distinzioni nuove da prove ed esiti
+
+La prima forma di apprendimento può essere più precisa di «osserva molti
+successi e inventa una regola». **Una prova contiene già le condizioni sotto
+le quali il risultato segue.** Si può provare a riusarne lo scheletro,
+sostituendo i valori particolari con parametri e mantenendo le condizioni
+necessarie. È una procedura candidata da verificare, non una conclusione
+universale ricavata dalla somiglianza di due esempi.
+
+Nel caso guida lo scheletro è: un risultato è una somma; una parte è nota;
+l'altra ha un limite inferiore; il requisito ha un limite superiore; il
+limite risultante lo supera. Soggetti e nomi dei ruoli possono cambiare. Il
+verso delle disuguaglianze, il legame fra i ruoli, le unità e l'ambito non
+possono sparire dalla generalizzazione.
+
+Il processo da rendere insegnabile e verificabile è:
+
+1. Registrare prima dell'esito lo scopo, i candidati disponibili, la scelta,
+   le condizioni assunte e l'aspettativa. Collegare una versione delle
+   premesse: una correzione successiva non deve riscrivere il passato.
+2. Estrarre dalla prova un procedimento candidato con le sue precondizioni.
+   La generalizzazione confronta strutture e legami fra variabili; cambiare
+   soltanto `train` in `parcel` non basta.
+3. Verificare il procedimento simbolico sulle sue precondizioni. Dove manca
+   una prova, conservare la proposta come ipotesi empirica, con episodi,
+   controesempi e ambito; non promuoverla a legge.
+4. Cercare un caso che separi la proposta dalla condotta precedente: soglia
+   attraversata, verso invertito, costo negativo ammesso, due scopi diversi.
+   Una simulazione può verificare conseguenze delle premesse; non può
+   certificare che una premessa inventata sia vera nel mondo.
+5. Provare su famiglie escluse dalla costruzione; promuovere solo il livello
+   sostenuto dal riscontro; ritirare e riattivare la lezione senza rebuild.
+
+Per rendere il passo 2 implementabile, partire da un percorso di prova
+effettivo: mantenere le regole invocate e i legami fra le loro variabili;
+trasformare i dati dell'episodio in ingressi del procedimento; lasciare come
+precondizioni i test che ne autorizzano i passaggi. Si esegue poi lo stesso
+percorso su ingressi nuovi e se ne ricontrollano le precondizioni. Questa
+specializzazione della prova non aggiunge un fatto sul mondo. Quando due
+percorsi suggeriscono una struttura comune, si può proporre una
+generalizzazione conservando variabili condivise, polarità e ambiti; la
+somiglianza strutturale genera il candidato, non ne prova la validità.
+
+La ricerca di una distinzione empirica comincia dalle differenze pertinenti
+fra episodi, proiettate sui ruoli e sulle relazioni disponibili. Provare prima
+una condizione, poi combinazioni entro budget dichiarato; conservare ciò che
+separa casi anche fuori dal campione di costruzione. Quali trasformazioni
+proporre e come ordinarle devono essere conoscenza insegnabile. Se nessuna
+condizione esprimibile separa i casi, registrare un limite di rappresentazione
+e passare alla diagnosi di §9.6: aggiungere nomi propri al criterio non lo cura.
+
+**Ci sono due apprendimenti distinti.** Riutilizzare una derivazione corretta
+può accelerare la ricerca preservandone il significato. Imparare che conviene
+tentare quella derivazione prima di un'altra è una politica empirica sul
+costo e sugli esiti. Una politica sfavorevole non rende falsa una derivazione.
+Tenere separati i due oggetti permette di correggere l'euristica senza
+perdere la capacità.
+
+L'episodio deve poter insegnare anche una nuova *proposta*: un procedimento
+composto prima inesistente o una nuova condizione di confronto. Aggiungere
+sinonimi ai quattro valori di `decision_feature_in/2` non supera quel limite.
+La prova discriminante è insegnare una condizione strutturale nuova, farla
+usare a più consumatori, ritrarla. La successiva è farla proporre dagli esiti,
+senza che il coding agent scriva il risultato nella KB.
+
+### 9.6 Una via concreta verso rappresentazioni nuove
+
+E1 contiene già il sintomo utile a R1: **due formule globali sullo stesso
+ruolo producono conflitto per ogni soggetto su cui danno valori diversi**.
+Prima di scegliere quale abbia ragione,
+occorre poter rappresentare rispetto a che cosa ciascuna vale.
+
+La sequenza di diagnosi è vincolata:
+
+1. Verificare testo e legami: è stato perso un referente o un qualificatore?
+2. Verificare la natura del ruolo: è davvero a valore unico? Due risultati
+   possono essere due eventi, intervalli o alternative lecite.
+3. Cercare una coordinata già espressa che distingua le affermazioni:
+   situazione, tipo di oggetto, tempo, fonte, ipotesi o scopo.
+4. Se la coordinata esiste nella IR, conservarla fino al consumatore. Se
+   manca, proporre un ruolo o una relazione definita mediante strutture già
+   note, con esempi positivi e negativi; mantenere il nuovo schema rivedibile.
+
+Per esempio, una formula può valere per un tragitto e un'altra per una fase
+diversa dello stesso viaggio. «Per i treni» è solo un possibile ambito: non
+giustifica un campo privato `train_formula`. La scelta deve essere una
+relazione di applicabilità interrogabile. Se due formule restano applicabili
+e incompatibili, il conflitto rimane; la più recente o la più specifica non
+vince automaticamente senza una politica che lo autorizzi.
+
+**Inventare uno schema significa rendere esprimibile una distinzione prima
+perduta.** Assegnare un nome a ogni episodio separerebbe tutti gli errori senza
+spiegare nulla. Una nuova coordinata vale come progresso se distingue anche
+casi esclusi e riduce errori o lavoro a costo sostenibile. Questa via copre
+un primo pezzo di R1: non garantisce l'invenzione di qualunque ontologia.
+
+### 9.7 Controllare la ricerca e mantenere valida la conoscenza
+
+La ricerca può partire dagli obblighi e attraversare le loro dipendenze nella
+KB completa. Ciò organizza l'accesso alla conoscenza; non introduce profili
+ridotti. Un limite dimostrato permette di arrestare un ramo irrilevante per
+quell'obbligo. Un criterio appreso permette solo di posticiparlo, conservando
+il modo di riprenderlo e rendendo visibile il budget esaurito.
+
+Il riuso deve conservare una spiegazione delle proprie dipendenze:
+
+- una prova sostenuta da due percorsi resta valida quando se ne ritira uno,
+  se l'altro basta ancora; congiunzioni e alternative non si appiattiscono;
+- anche l'assenza di una smentita e la completezza di una ricerca sono
+  dipendenze: un nuovo fatto, una nuova regola o una nuova lettura pertinente
+  può invalidarle pur non comparendo nella vecchia prova positiva;
+- cambiare scopo o ambito può rendere insufficiente una risposta prima
+  sufficiente; una cache deve includere queste coordinate;
+- una lezione di lingua deve far rivedere la fonte già letta, poi le sue
+  conseguenze: memorizzare soltanto la conclusione perderebbe questa leva.
+
+Riusare `materialized_view`/`view_depends` dove il contratto basta; misurare
+ciò che manca prima di costruire nuove cache. Non promettere un costo
+proporzionale ai soli fatti modificati: una revisione può coinvolgere gran
+parte del grafo. Misurare insieme costo di aggiornamento, memoria, ripresa e
+risposte divenute obsolete.
+
+### 9.8 Plausibilità ed espressione: estensioni con prove proprie
+
+**R2.** Una conclusione può avere sostegni e obiezioni, entrambi oppure
+nessuno. Una regola tipica deve dichiarare le condizioni in cui è sconfitta;
+assenza di prova non equivale a falsità nel mondo aperto. Prima misura:
+duplicare la stessa fonte non rafforza una conclusione; un'eccezione
+pertinente cambia lo stato; ritirarla permette la rivalutazione. Una regola
+stretta non viene sconfitta da una semplice preferenza di ordinamento.
+
+Questo è un primo contratto per argomentare in modo rivedibile. Non risolve
+la combinazione di molte prove deboli: per quella occorrono una semantica
+dichiarata, trattamento delle fonti dipendenti e verifica della calibrazione
+su esiti esclusi. I punteggi del matcher non diventano probabilità per nome.
+
+**R5.** Il testo può essere costruito come trasformazione di un piano
+comunicativo: che cosa dire, che effetto cercare sul destinatario, quali
+vincoli rispettare. Ogni passo può proporre alternative attraverso
+costruzioni insegnabili. Una correzione come «spiega prima la conseguenza per
+me, poi il motivo» può insegnare un ordine fra funzioni del discorso e
+trasferirsi da un viaggio a una consegna.
+
+Si verificano separatamente fedeltà del contenuto, copertura degli obblighi
+e preferenza del destinatario. La rilettura da parte dello stesso motore
+controlla coerenza interna, non qualità indipendente. Una prova su spiegazioni
+non certifica narrativa, umorismo o gusto; questi richiedono candidati nuovi,
+contesti nuovi e giudizi esterni pertinenti. La finzione conserva il proprio
+ambito e non diventa una credenza sul mondo.
+
+### 9.9 Sequenza per i coding agent
+
+**Una missione costruisce un circuito, poi ne massimizza la classe (mantra
+#22).** Le righe seguenti sono dipendenze tra missioni, non attività da aprire
+tutte insieme. Il primo difetto osservato stabilisce dove intervenire.
+
+| passo | consegna concreta | gate per procedere |
+|---|---|---|
+| **D0 — fissare il banco** | conservare E1, aggiungere i casi discriminanti di §9.10 e il transcript naturale; leggere le risposte | distinguere perdita in lettura, condizione mancante e scelta errata; nessun fix prima del banco |
+| **E2a — sufficienza** | estendere il circuito esistente dal valore esatto alla verifica per limiti, con sostegni e residuo tipato | i tre casi di §9.1 si separano; insegnamento e ablazione modificano il comportamento pertinente |
+| **E2b — residuo interrogabile** | collegare il vincolo residuo alla stessa questione sulla board; accettare una risposta che lo soddisfi senza imporre il valore esatto | una domanda sulla soglia chiude l'obbligo; correzione della premessa lo riapre; due scopi non si mescolano |
+| **E3 — collegamento alla conversazione** | far arrivare le frasi naturali di viaggio e impegno agli stessi oggetti E2, conservando fonte e ambito | il prompt originale e le varianti funzionano senza che il teacher li riscriva nel linguaggio delle formule; riunione e città del cliente restano distinte |
+| **E4 — prova riusabile** | registrare un episodio e ricavarne un procedimento condizionale verificabile; applicarlo fuori dalla famiglia di costruzione | il riuso risparmia lavoro contando anche apprendimento e invalidazione; un controesempio ne restringe l'ambito |
+| **E5 — scelta appresa dagli esiti** | proporre e confrontare criteri su quale procedimento o domanda tentare | il criterio emerge dal riscontro, raggiunge casi esclusi, è correggibile parlando e il suo effetto scompare con l'ablazione |
+
+Il transcript naturale si sonda **da D0 e dopo ogni missione**. E3 precede
+l'autonomia di E4/E5: continuare a migliorare una lingua di lezioni senza
+raggiungere la conversazione rinvierebbe l'obiettivo generale. Se già E2
+richiede un ambito che la IR perde, quella riparazione diventa la missione
+preliminare; non si aggira con un parser privato o con dati iniettati.
+
+Per il primo agente la consegna è **D0 → E2a**, non «costruisci un agente
+simbolico universale». Punti d'ingresso: `decisions.p0` per valutazione e
+candidati; `decision-language.p0` solo per la superficie condivisa;
+`context-scope.p0`/`state-description.p0` per l'ambito; `issues.p0` per il
+seguito. Consultare `procedures.p0` prima di inventare operatori. Il C è
+ammesso per una primitiva generale mancante, accompagnata da un consumatore
+KB e da una prova di crescita a runtime.
+
+Per E2a tenere separati **lo stato del requisito** e **la scelta della mossa**:
+la prova può mostrare che il requisito è soddisfatto mentre manca ancora
+una preferenza fra confermare e chiedere. La lezione di sufficienza deve
+cambiare quella condotta, con effetto osservabile e reversibile. Conservare
+l'accesso ai dati e ai candidati permette di riusarli quando cambia lo scopo.
+Conservare E1 significa preservarne capacità e insegnabilità; eventuali
+attese superate da una comprensione migliore vanno rivalidate semanticamente
+e motivate nel referto, non modificate solo per ottenere il verde.
+
+**Prima di consegnare:** mostrare fonte → lettura → obbligo → prova/residuo
+→ risposta, il nuovo membro insegnato e la sua ablazione, il controesempio,
+le regressioni pertinenti e i costi. Le tracce aiutano la diagnosi; la prova
+di capacità resta il comportamento utile sul prompt naturale. Se una lezione
+viene capita solo attraverso tuple o nomi di predicati, il gate è fallito.
+
+Nota meccanica: in questo checkout `src/kb.h` dichiara arità massima **4** e
+corpo massimo **16**, diversamente dalle note storiche che dicono 8. L'header
+effettivo è la fonte per il limite. Restano i vincoli di §8.2 su `findall`,
+`naf` e mutazioni durante la risoluzione. Le prove devono essere prive di
+effetti; gli aggiornamenti vanno applicati a un confine sicuro del turno.
+
+### 9.10 Il banco che può smentire la leva
+
+Fissare i casi prima della cura, con la KB completa `agi`. Questi sono
+**requisiti del banco futuro**, non test già passati:
+
+| contrasto | comportamento richiesto |
+|---|---|
+| limite sufficiente per confermare / confutare / ancora indeciso | tre esiti distinti; nessun valore esatto inventato |
+| `t = 1`, appena sotto e appena sopra; confronto stretto e non stretto | la frontiera della risposta segue il vincolo, senza errori di uguaglianza |
+| stesso problema, nuovo minimo insegnato e poi ritirato | la conclusione che dipende dal minimo compare e scompare |
+| due dati ignoti con residuo congiunto | non certificare la somma dai limiti insufficienti dei singoli addendi |
+| un impedimento noto e un dato ignoto su altro requisito | basta per il sì/no; il residuo resta dovuto se l'utente chiede tutti gli impedimenti |
+| alternativa di piano che evita l'impedimento | «questo piano fallisce» non diventa «nessun piano è possibile» |
+| unità diverse, altra giornata, operatore senza proprietà insegnata | normalizzazione sostenuta oppure residuo esplicito; nessuna algebra implicita sbagliata |
+| due letture con stessa conclusione / con conclusioni diverse | risposta comune solo con prova di copertura; nel secondo caso domanda discriminante |
+| cambio di premessa o ambito dopo una risposta | invalidare le conseguenze coinvolte, conservare il percorso indipendente ancora valido |
+| nuova regola pertinente dopo una prova memorizzata | rivalutare completezza e conflitto anche senza cancellare vecchi fatti |
+| budget esaurito, formula ciclica, premesse discordi | non trasformarli in un «no» fattuale o in un generico dato mancante |
+
+Il treno e il pacco possono mostrare la stessa struttura su nomi diversi.
+Occorrono anche cambiamenti della **struttura**: più vincoli, dipendenze
+condivise, una via alternativa e un residuo congiunto. Almeno una famiglia e
+le sue parafrasi restano escluse dalla costruzione. Il confronto è prima,
+dopo la lezione e dopo la sua ritrattazione mirata; gli apprendimenti derivati
+devono seguire le dipendenze, senza contaminare la condizione iniziale.
+
+I casi con premesse insegnate misurano meccanica e crescita. Un banco
+aggiuntivo deve porre domande naturali che richiedano archi **già presenti**
+nella KB viva, senza iniettare la risposta o i collegamenti nel test. Se quei
+collegamenti mancano, la prova di conoscenza resta rossa (MANTRA).
+
+### 9.11 La misura dell'avvicinamento alla frontiera
+
+Il risultato da cercare è **una riduzione del lavoro necessario per una nuova
+famiglia**, mantenendo o aumentando le risposte utili corrette. Pubblicare:
+
+- obblighi soddisfatti correttamente, affermazioni false o senza sostegno,
+  domande utili e superflue, parti del testo perse;
+- lezioni e interventi manuali necessari per la famiglia esclusa; crescita
+  ottenuta da ciascuna lezione in più consumatori;
+- passi, latenza e memoria con KB crescente, a pari budget, includendo il
+  costo di proporre, verificare, conservare e invalidare ciò che si impara;
+- prestazioni con e senza il criterio appreso, tramite ablazione mirata;
+  rami utili ritardati o mai raggiunti;
+- esiti su conversazioni tenute fuori dal ciclo di cura, senza aggiustarne
+  le attese dopo aver visto la risposta.
+
+La saturazione di un singolo banco (mantra #22) autorizza a cercare una
+declinazione, non a dichiarare saturata la competenza. R6 richiede che scenda
+il carico del maestro per famiglia nuova; R4 richiede vantaggio netto di
+ricerca; R1 richiede distinzioni rappresentabili prima assenti; R2 e R5
+mantengono i loro riscontri indipendenti; R8/R9 verificano che revisione e
+azione non spezzino il circuito.
+
+**La scommessa ordinata è questa:** far crescere la KB di procedure,
+distinzioni e condizioni di sufficienza che si compongono. Ogni giro deve
+rendere più economico e più affidabile il successivo, anche su un caso che
+non abbiamo scritto noi. Se crescono solo le forme riconosciute o le regole
+da impartire una per una, il moltiplicatore non è comparso: il piano deve
+registrare quel fallimento, senza chiamarlo frontiera simbolica.
