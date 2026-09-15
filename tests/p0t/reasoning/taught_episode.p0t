@@ -1,0 +1,66 @@
+# E4 del piano interlocutore-di-frontiera (§9.5, §9.9): la prova riusabile.
+# Un verdetto lascia un episodio (prova copiata, aspettativa, forma senza
+# ruoli); l'esito si dice parlando; un precedente verificato della stessa forma
+# e' citato anche su un'altra famiglia; uno contraddetto cambia la condotta; la
+# ritrattazione dell'esito lo spegne. Nessuna riga di C.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test un esito che contraddice l'aspettativa viene detto con la prova di allora]
+!timeout 6
+> calculate ready by adding arrival and transfer
+> transfer is never below 0
+> prefer explaining obstacles to asking questions when a requirement fails
+> prefer confirming the check to asking questions when a bound settles it
+> the arrival of train is 10
+> for train the ready must be at most 9
+> can I complete train?
+<~ No: ready is at least 10
+<! as with
+> I made it
+<~ contradicts my check on train
+<~ ready is at least 10
+<~ Which datum
+
+[test la stessa forma su un'altra famiglia porta la cautela del precedente contraddetto]
+!timeout 6
+> calculate load by adding cargo and packaging
+> packaging is never below 0
+> the cargo of parcel is 12
+> for parcel the load must be at most 10
+> can I complete parcel?
+<~ No: load is at least 12
+<~ contradicted in practice (train)
+<~ any datum could differ
+
+[test la ritrattazione dell'esito spegne la cautela]
+!timeout 6
+> forget the outcome of train
+<~ Forgotten
+> can I complete parcel?
+<~ No: load is at least 12
+<! contradicted
+
+[test un esito che conferma rende il precedente citabile su una terza famiglia]
+!timeout 6
+> I was late
+<~ matches my check on parcel
+> calculate weight by adding base and extra
+> extra is never below 0
+> the base of crate is 20
+> for crate the weight must be at most 15
+> can I complete crate?
+<~ No: weight is at least 20
+<~ as with parcel
+
+[test un esito senza verdetto deciso non e' ne' conferma ne' smentita]
+!timeout 6
+> the arrival of bus is 10
+> for bus the ready must be at most 11
+> can I complete bus?
+<~ What is the transfer of bus?
+> I made it
+<~ not settled the check on bus

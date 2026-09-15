@@ -364,7 +364,11 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_has_situation_plan($Turn)),
     naf(turn_has_sign_answer($Turn)),
     naf(turn_has_range_surface($Turn)),
-    naf(event_described($Turn)).
+    naf(event_described($Turn)),
+    naf(turn_describes_setting($Turn)).
+% «we are in Rome» ha la copula, ma e' un'ambientazione (state-description.p0):
+% il piano di turno la riconosce, non la cede alla prosa.
+turn_describes_setting($Turn) :- setting_unique($Turn, $Place).
 % gen513 — E UNA FRASE LUNGA SENZA COPULA E' PROSA LO STESSO. «Together with
 % rapid cooling, this results in a natural glass forming from the lava» riceveva
 % un racconto («Together was a mysterious Together…»): nessuna copula, quindi la
@@ -386,6 +390,14 @@ turn_declared_act($Turn, prose_carried) :-
 % E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
 % (mantra #17): la facolta' ha gia' un nome pubblico.
 faculty_yield_force(gen, open, prose_carried).
+% E3 — una situazione descritta (event-time.p0) non e' prosa da leggere, ma
+% nemmeno un pretesto per un racconto: chi genera cede anche a lei.
+turn_declared_act($Turn, situation_described) :- event_described($Turn).
+faculty_yield_force(gen, open, situation_described).
+faculty_yield_force(learn, open, situation_described).
+% E chi legge relazioni («X at 9» come luogo): la situazione descritta appartiene
+% al piano di turno.
+faculty_yield_force(statement_extract, open, situation_described).
 % gen513 — E CEDE ANCHE L'ACQUISIZIONE. «In the narrowest sense of the word, it
 % consists of a flat plate and a gnomon» riceveva «I looked up «narrowest» but
 % found nothing»: una frase che PORTA prosa non sta chiedendo di cercare una
@@ -488,7 +500,16 @@ machinery(turn_pattern_match).
 turn_scratch(turn_pattern_match).
 machinery(turn_pattern_force).
 turn_declared_act($Turn, $Force) :- turn_pattern_force($Form, $Force), turn_pattern_match($Turn, $Form).
-turn_illocution($Turn, $Force) :- turn_declared_act($Turn, $Force).
+% E si puo' dire che una forma NON e' una forza («a turn that contains "right"
+% is not a question»): la forza netta e' l'atto dichiarato meno i blocchi
+% insegnati; e' `turn_force/2` che il C congela in `turn_illocution/2`.
+machinery(turn_pattern_unforce).
+machinery(turn_force).
+turn_force_blocked($Turn, $Force) :- turn_pattern_unforce($Form, $Force), turn_pattern_match($Turn, $Form).
+turn_force($Turn, $Force) :- turn_declared_act($Turn, $Force), naf(turn_force_blocked($Turn, $Force)).
+% La forza e' il FATTO che il C congela a inizio turno da `turn_force/2`:
+% niente regola qui, altrimenti ogni consumatore riderivava gli atti (e dentro
+% un `naf` la guardia scattava: l'ack di E3 cadeva al muro, 15 settembre).
 turn_illocution($Turn, expressive) :-
     naf(turn_declared_act($Turn, assertion)),
     naf(turn_declared_act($Turn, question)),

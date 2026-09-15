@@ -1,0 +1,16 @@
+> tomorrow I have a meeting at 9
+  = Hmm, I don't know about tomorrow yet. Want me to learn about it?   [1.29s]
+> if I leave at 7 and the trip takes 3 hours will I be on time?
+  = No: arrival reaches 10; the requirement is at most 9.   [0.77s]
+> a turn that contains "will i be on time" is not a question
+  = From now on a turn that contains «will i be on time» does not count as a question.   [0.99s]
+> if I leave at 7 and the trip takes 3 hours will I be on time?
+  = I don't understand that yet.   [1.61s]
+> forget that a turn that contains "will i be on time" is not a question
+  = I no longer read a turn that contains «will i be on time» as a question.   [1.05s]
+> if I leave at 7 and the trip takes 3 hours will I be on time?
+  = No: arrival reaches 10; the requirement is at most 9.   [0.8s]
+> a turn that contains a number and "on time" is a question
+  = From now on a turn that contains «on time» counts as a question.   [0.92s]
+> the trip takes 2 hours so am I on time
+  = The stated requirements are satisfied.   [0.7s]

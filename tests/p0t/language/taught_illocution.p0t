@@ -44,6 +44,25 @@
 <~ No: arrival reaches 10
 > forget that a turn that contains "will i be on time" is a question
 
+[test la forza negativa: «… is not a question» blocca anche il punto interrogativo]
+!timeout 8
+> a turn that contains "will i be on time" is not a question
+<~ does not count
+> if I leave at 7 and the trip takes 3 hours will I be on time?
+<! No: arrival
+> forget that a turn that contains "will i be on time" is not a question
+<~ no longer
+> if I leave at 7 and the trip takes 3 hours will I be on time?
+<~ No: arrival reaches 10
+
+[test la condizione «contains a number» detta a parole]
+!timeout 8
+> a turn that contains a number and "on time" is a question
+<~ question
+<! a number and on time
+> the trip takes 2 hours so am I on time
+<~ satisfied
+
 [test in italiano]
 !timeout 8
 > un turno che contiene "arrivo in tempo" è una domanda

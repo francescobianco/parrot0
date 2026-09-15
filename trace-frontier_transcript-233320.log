@@ -1,0 +1,4 @@
+kb_load: PARSE ERROR in kb/core/event-time.p0: bad rule, dropped: 'ev_parts_text($Lang, $O, $Ps, $B, $C) :- journey_subject($O), ev_concat_journey($Lang, $Ps, $B, $C).'
+kb_load: PARSE ERROR in kb/core/event-time.p0: bad rule, dropped: 'ev_parts_text($Lang, $O, $Ps, $B, $C) :- naf(journey_subject($O)), ev_concat($Ps, $B, $C).'
+kb_load: PARSE ERROR in kb/core/event-time.p0: bad rule, dropped: 'ev_subject_sentence($Lang, $L, $O, $Sent) :- ev_subject_items($O, $L, $Items), ev_phrase_parts($Lang, $Items, $Ps), event_the_words($Lang, $The), words_of($O, $On), concat_atoms($The, $On, $A), ev_sentence_copula($Lang, $O, $Cop), concat_atoms($A, $Cop, $B), ev_parts_text($Lang, $O, $Ps, $B, $C), concat_atoms($C, ".", $D), upcase_first($D, $Sent).'
+parrot0 [gen510-riparazioni@5f3e4144] mcp-engine: JSON-RPC on stdio, 22 tools

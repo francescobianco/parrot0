@@ -193,8 +193,10 @@ vista è un acceleratore, mai parte del significato.
 |---|---|
 | `machinery(P).` / `:- file_attribute(machinery).` | `P` non è conoscenza del mondo: non si mostra, non conta nei muri, non si impara come lemma |
 | `turn_scratch(P).` | i fatti di `P` sono stato del dialogo: **non sopravvivono a `/save`** |
+| ⚠ fatti pubblicati dal C a ogni turno (`turn_*`, `clock_time`, `calendar_day`, `turn_pattern_match`) | vanno dichiarati **sia** `machinery` **sia** `turn_scratch`: altrimenti entrano nel giornale dei fatti recenti e un turno con «never» (modulo `negation`) li nega uno per uno e ruba la lezione (misurato: «transfer is never below 0» → «Learned: …» invece di «Held: …») |
 | `provenance_predicate(P).` | `P` porta provenienza |
 | strati `KB_BASE / SESSION / INDUCED / REFLECTIVE / HYPOTHETICAL / DERIVED` | origine di ogni clausola; `!forget @session` nei test butta uno strato |
+| `clock_time(H, M)`, `calendar_day(Offset, "YYYY-MM-DD", weekday)` | l'orologio pubblicato dal C a ogni turno (offset −1…+7); `origo.p0` ne fa oggi/domani/ora |
 | `turn_counter($N)`, `current_turn`, `turn_reply/2`, `turn_input/2`, `turn_entity/2`, `turn_topic/2` | il turno corrente e i precedenti nella finestra: la conversazione **è** fatti KB (`discourse.p0`) |
 | `situation_state(Sit, Ent, Prop, Val)` con `state_commit/3` | lo stato descritto; un valore nuovo **supersede** il vecchio senza distruggerlo (`supersedes_in`) — anche un termine come `bound(le, 1)` è un valore |
 
@@ -475,6 +477,7 @@ max_qud(I) :- issue_open(I, K), naf(issue_superseded_by_later(I)).
 | il nome dell'utente è tutta la frase | `slot_value_stop` e lettore che dequota |
 | una sonda `? pred a b` con tutti gli argomenti legati dà `total: 0` | conta i BINDING, non le prove: con zero variabili libere è sempre 0; lascia un `_` |
 | una lettura vede i token nel contabile ma non nella forza del turno | usa `turn_surface_token` (esiste a inizio turno), non `turn_span_token` |
+| una lezione che prima diceva «Held: …» ora dice «Learned: …» e `who answered?` dice `negation` | fatti nuovi non dichiarati `machinery`/`turn_scratch` nel giornale recente |
 | un turno resta appeso oltre il budget dopo l'aggiunta di FATTI di base | un predicato omonimo di un altro file (`role_name`, `role/3`) ora enumerabile: rinomina con prefisso di famiglia; bisezione a varianti del file |
 | un test rosso solo per `turn took 1.2s (timeout 1.00s)` | costo del turno base (`TEST_TODO.md`), non del cambiamento; non si alza il budget |
 

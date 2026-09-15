@@ -1,0 +1,58 @@
+# L'ORIGO (kb/core/origo.p0, 15 settembre 2026): il punto zero del parlante.
+# io = l'utente (personal.p0), tu = parrot0, qui = l'ambientazione descritta,
+# ora/oggi = l'orologio che il motore pubblica a ogni turno (clock_time/2,
+# calendar_day/3). «domani» e' un offset e si risolve in data quando lo si chiede.
+# Le date vere non si asseriscono: si assert la forma della risposta.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test oggi e adesso vengono dall'orologio]
+!timeout 4
+> what day is it today?
+<~ Today is
+<~ 20
+> what time is it?
+<~ It is
+<~ :
+
+[test chi sono io e chi sei tu]
+!timeout 4
+> who am I?
+<~ not told me your name
+> my name is Francesco
+> who am I?
+<~ You are Francesco
+> who are you?
+<~ parrot0
+
+[test dove sono: l'ambientazione descritta]
+!timeout 4
+> where am I?
+<~ not told me where
+> we are in Rome
+> where am I?
+<~ Rome
+
+[test «domani» si risolve in una data, l'orario in 24 ore, il luogo si chiede e si chiude]
+!timeout 6
+> tomorrow I have an important meeting at 9 am with a client from Milan
+<~ meeting is at 09:00 tomorrow
+> when is my meeting?
+<~ 20
+<~ at 09:00
+<! tomorrow
+> where is the meeting?
+<~ where is it?
+<! milan
+> it is in Milan
+<~ place of meeting is milan
+> where is the meeting?
+<~ milan
+> I leave at 7 pm by train and the trip takes 30 minutes
+<~ leaves at 19:00
+<~ 0.5 hours
+> what is the arrival of trip?
+<~ 19.5

@@ -1,0 +1,32 @@
+> what day is it today?
+  = Today is Tuesday 2026-09-15.   [0.56s]
+> what time is it?
+  = It is 23:34.   [0.72s]
+> where am I?
+  = You have not told me where you are.   [0.74s]
+> we are in Rome
+  = I don't understand that yet.   [1.3s]
+> where am I?
+  = You are in Rome.   [0.68s]
+> who am I?
+  = You have not told me your name yet.   [0.66s]
+> my name is Francesco
+  = Nice to meet you, Francesco!   [0.86s]
+> who am I?
+  = You are Francesco.   [0.85s]
+> who are you?
+  = I am parrot0, the one you are talking to.   [0.8s]
+> tomorrow I have an important meeting at 9 am with a client from Milan
+  = Hmm, I don't know about important meeting yet. Want me to learn about it?   [1.92s]
+> when is my meeting?
+  = The meeting is Wednesday 2026-09-16 at 09:00.   [0.82s]
+> where is the meeting?
+  = I do not have the place of meeting yet: where is it?   [0.85s]
+> it is in Milan
+  = Noted: The place of meeting is milan.   [0.95s]
+> where is the meeting?
+  = The place of meeting is milan.   [0.79s]
+> I leave at 7 pm by train and the trip takes 30 minutes
+  = Hmm, I don't know about minutes yet. Want me to learn about it?   [1.79s]
+> what is the arrival of trip?
+  = For trip: the arrival is 19.5 (departure 19 plus duration 0.5).   [0.89s]

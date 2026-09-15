@@ -1,0 +1,97 @@
+% episodes.p0 — LA PROVA RIUSABILE (E4, interlocutore-di-frontiera.md §9.5, §9.9).
+% Ogni verdetto lascia un EPISODIO: soggetto, turno, candidati (la prova cosi'
+% com'era), mosse, aspettativa e la FORMA del caso senza nomi di ruolo
+% (sh(Verso, Stato, GenereDiPremessa)). L'esito si dice parlando («I made it»,
+% «I was late») e si confronta con l'aspettativa. Un precedente VERIFICATO
+% della stessa forma viene citato nel verdetto di un altro soggetto, anche di
+% un'altra famiglia (treno -> pacco); un precedente CONTRADDETTO cambia la
+% condotta (invito a controllare i dati) finche' lo si ritratta.
+% Gli episodi sono fatti di sessione, non scratch: una correzione successiva
+% non riscrive il passato, perche' i candidati sono stati copiati allora.
+:- file_attribute(machinery).
+machinery(episode). machinery(episode_candidates). machinery(episode_moves).
+machinery(episode_shape). machinery(episode_expectation). machinery(episode_outcome).
+
+% ── 1. LA REGISTRAZIONE, al momento del verdetto ───────────────────────────
+episode_id($O, $N, $Id) :- concat_atoms("episode_", $O, $A), concat_atoms($A, "_", $B), concat_atoms($B, $N, $Id).
+episode_exists($Id) :- episode($Id, $O, $N).
+episode_note($O, $Cs, $Ms) :- turn_counter($N), episode_id($O, $N, $Id), naf(episode_exists($Id)), decision_shape($O, $Sh), episode_expect($Ms, $E), assert(episode, $Id, $O, $N), assert(episode_candidates, $Id, $Cs), assert(episode_moves, $Id, $Ms), assert(episode_shape, $Id, $Sh), assert(episode_expectation, $Id, $E).
+episode_note($O, $Cs, $Ms) :- turn_counter($N), episode_id($O, $N, $Id), episode_exists($Id).
+episode_decided(cons(confirm, nil)). episode_decided(cons(explain, nil)).
+episode_expect(cons(confirm, nil), success).
+episode_expect(cons(explain, nil), failure).
+episode_expect($Ms, open) :- naf(episode_decided($Ms)).
+
+% La FORMA: il verso del requisito, lo stato, il genere della premessa che
+% l'ha deciso. Niente ruoli, niente valori: e' cio' che due famiglie condividono.
+status_shape(met(limit($K, $V)), met, $K).
+status_shape(unmet(limit($K, $V)), unmet, $K).
+status_shape(open($Res), open, residual).
+status_shape(broken($W), broken, none).
+status_shape(stuck, stuck, none).
+shape_item($Ss, sh($Op, $Kind, $K)) :- member(status($R, bound($Op, $B), $S), $Ss), status_shape($S, $Kind, $K).
+decision_shape($O, $Sh) :- decision_statuses($O, $Ss), findall($X, shape_item($Ss, $X), $Sh).
+
+% ── 2. L'ESITO, detto parlando ────────────────────────────────────────────
+outcome_name("i made it", met).        outcome_name("it worked", met).
+outcome_name("i was on time", met).    outcome_name("ce l'ho fatta", met).
+outcome_name("sono arrivato in tempo", met).
+outcome_name("i was late", failed).    outcome_name("it did not work", failed).
+outcome_name("it failed", failed).     outcome_name("non ce l'ho fatta", failed).
+outcome_name("sono arrivato in ritardo", failed).
+turn_form(episode_outcome, 1, named(outcome_name, outcome)).
+turn_form_act(episode_outcome, "op(match, episode_outcome_store, [outcome, free])").
+turn_form_priority(episode_outcome, early).
+turn_form_view(episode_outcome, said).
+turn_form_reply(episode_outcome, episode_answer).
+turn_form(episode_outcome_forget, 1, text("forget the outcome of")).
+turn_form(episode_outcome_forget, 2, span(subject)).
+turn_form_slot_form(episode_outcome_forget, subject, atom).
+turn_form_act(episode_outcome_forget, "op(match, episode_outcome_forget, [subject, free])").
+turn_form_priority(episode_outcome_forget, early).
+turn_form_view(episode_outcome_forget, said).
+turn_form_reply(episode_outcome_forget, episode_answer).
+response_template(episode_answer, "{result}").
+
+later_episode($N) :- episode($J, $P, $M), gt($M, $N).
+latest_episode($Id) :- episode($Id, $O, $N), naf(later_episode($N)).
+episode_any :- episode($Id, $O, $N).
+outcome_matches(success, met). outcome_matches(failure, failed).
+episode_verified($Id) :- episode_expectation($Id, $E), episode_outcome($Id, $Out), outcome_matches($E, $Out).
+episode_contradicted($Id) :- episode_expectation($Id, $E), episode_outcome($Id, $Out), decided_expectation($E), naf(outcome_matches($E, $Out)).
+decided_expectation(success). decided_expectation(failure).
+episode_outcome_store($Out, $Text) :- latest_episode($Id), assert(episode_outcome, $Id, $Out), current_language($L), episode_outcome_text($L, $Id, $Text).
+episode_outcome_store($Out, $Text) :- naf(episode_any), current_language($L), episode_none_words($L, $Text).
+episode_of_subject($O, $Id) :- episode($Id, $O, $N).
+episode_outcome_forget($O, $Text) :- episode_of_subject($O, $Id), episode_outcome($Id, $Out), retract(episode_outcome, $Id, $Out), current_language($L), outcome_forgotten_words($L, $W), words_of($O, $On), concat_atoms($W, $On, $A), concat_atoms($A, ".", $Text).
+
+% Che cosa avevo detto: la prova copiata allora, resa con le stesse parole.
+episode_said($L, $Id, $Said) :- episode_moves($Id, cons(explain, nil)), episode_candidates($Id, $Cs), decision_reasons($Cs, explain, $Rs), decision_render_all($L, $Rs, $Said).
+episode_said($L, $Id, $Said) :- episode_moves($Id, cons(confirm, nil)), decision_complete($L, $Said).
+episode_outcome_text($L, $Id, $Text) :- episode_verified($Id), episode($Id, $O, $N), words_of($O, $On), outcome_match_words($L, $W), concat_atoms($W, $On, $A), episode_said($L, $Id, $Said), outcome_said_words($L, $S), concat_atoms($A, $S, $B), concat_atoms($B, $Said, $Text).
+episode_outcome_text($L, $Id, $Text) :- episode_contradicted($Id), episode($Id, $O, $N), words_of($O, $On), outcome_clash_words($L, $W), concat_atoms($W, $On, $A), episode_said($L, $Id, $Said), outcome_said_words($L, $S), concat_atoms($A, $S, $B), concat_atoms($B, $Said, $C), outcome_ask_words($L, $Q), concat_atoms($C, $Q, $Text).
+episode_outcome_text($L, $Id, $Text) :- episode_expectation($Id, open), episode($Id, $O, $N), words_of($O, $On), outcome_open_words($L, $W), concat_atoms($W, $On, $A), concat_atoms($A, ".", $Text).
+outcome_match_words(en, "That matches my check on "). outcome_match_words(it, "Coincide con la mia verifica su ").
+outcome_clash_words(en, "That contradicts my check on "). outcome_clash_words(it, "Contraddice la mia verifica su ").
+outcome_said_words(en, ": I had said: "). outcome_said_words(it, ": avevo detto: ").
+outcome_ask_words(en, " Which datum was different?"). outcome_ask_words(it, " Quale dato era diverso?").
+outcome_open_words(en, "I had not settled the check on "). outcome_open_words(it, "Non avevo concluso la verifica su ").
+outcome_forgotten_words(en, "Forgotten: the outcome of "). outcome_forgotten_words(it, "Dimenticato: l'esito di ").
+episode_none_words(en, "I have no check to compare that with."). episode_none_words(it, "Non ho una verifica con cui confrontarlo.").
+
+% ── 3. IL PRECEDENTE: citato se verificato, cautela se contraddetto ────────
+precedent_verified($O, $Sh, $P) :- episode_shape($Id, $Sh), episode($Id, $P, $N), dif($P, $O), episode_verified($Id).
+precedent_contradicted($O, $Sh, $P) :- episode_shape($Id, $Sh), episode($Id, $P, $N), dif($P, $O), episode_contradicted($Id).
+precedents_verified($O, $Sh, $Ps) :- findall($P, precedent_verified($O, $Sh, $P), $Ps).
+precedents_contradicted($O, $Sh, $Ps) :- findall($P, precedent_contradicted($O, $Sh, $P), $Ps).
+precedent_words(en, " (as with "). precedent_words(it, " (come con ").
+caution_words(en, " Last time this same check was contradicted in practice ("). caution_words(it, " L'ultima volta questa stessa verifica è stata smentita dai fatti (").
+caution_tail(en, "): tell me if any datum could differ."). caution_tail(it, "): dimmi se qualche dato può essere diverso.").
+% Arita' 4: il suffisso torna da solo (nil se non c'e') e il chiamante lo appende.
+episode_suffix($L, $O, $Ms, nil) :- naf(episode_decided($Ms)).
+episode_suffix($L, $O, $Ms, $S) :- episode_decided($Ms), decision_shape($O, $Sh), precedents_verified($O, $Sh, $Vs), precedents_contradicted($O, $Sh, $Cs), episode_suffix_lists($L, $Vs, $Cs, $S).
+episode_suffix_lists($L, nil, nil, nil).
+episode_suffix_lists($L, cons($P, $Ps), $Cs, $S) :- decision_role_words($L, cons($P, $Ps), $Names), precedent_words($L, $W), concat_atoms($W, $Names, $A), concat_atoms($A, ")", $S).
+episode_suffix_lists($L, nil, cons($P, $Ps), $S) :- decision_role_words($L, cons($P, $Ps), $Names), caution_words($L, $W), concat_atoms($W, $Names, $A), caution_tail($L, $Tail), concat_atoms($A, $Tail, $S).
+episode_append($T0, nil, $T0).
+episode_append($T0, $S, $T) :- dif($S, nil), concat_atoms($T0, $S, $T).

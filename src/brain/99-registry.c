@@ -5227,6 +5227,31 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     kb_retract_pred(b->kb, "turn_cue");
     kb_retract_pred(b->kb, "turn_illocution");   /* gen513: la forza e' del turno */
     kb_retract_pred(b->kb, "turn_pattern_match"); /* 15 settembre 2026: le forme insegnate */
+    /* 15 settembre 2026 — L'ORIGO (origo.p0): il motore pubblica l'orologio e
+     * una finestra di calendario come FATTI, a ogni turno. Che cosa siano
+     * «domani» o «oggi» e' conoscenza (day_word_offset/2); qui solo il tempo
+     * di sistema, che nessuna KB puo' sapere da sola. */
+    kb_retract_pred(b->kb, "clock_time");
+    kb_retract_pred(b->kb, "calendar_day");
+    {
+        time_t now = time(NULL);
+        struct tm lt; localtime_r(&now, &lt);
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        char hh[8], mm[8]; snprintf(hh, sizeof hh, "%d", lt.tm_hour); snprintf(mm, sizeof mm, "%d", lt.tm_min);
+        const char *ct[2] = { hh, mm };
+        kb_assert(b->kb, "clock_time", ct, 2);
+        static const char *const wd[] = { "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday" };
+        for (int off = -1; off <= 7; off++) {
+            time_t t = now + (time_t)off * 86400;
+            struct tm d; localtime_r(&t, &d);
+            char offs[8], date[16]; snprintf(offs, sizeof offs, "%d", off);
+            strftime(date, sizeof date, "%Y-%m-%d", &d);
+            const char *cd[3] = { offs, date, wd[d.tm_wday] };
+            kb_assert(b->kb, "calendar_day", cd, 3);
+        }
+        kb_set_origin(b->kb, prev);
+    }
     input_structure_clear(b->kb, "current_turn");
     kb_set_origin(b->kb, KB_REFLECTIVE);
     /* Keep the entire token stream beside segmented payloads. A cue belongs
@@ -5265,6 +5290,24 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     {
         char (*pats)[KB_TERM_LEN] = NULL; size_t np = 0;
         const char *pq[2] = { NULL, NULL };
+        char (*unp)[KB_TERM_LEN] = NULL; size_t nun = 0;
+        if (kb_match_all(b->kb, "turn_pattern_unforce", pq, 2, &unp, &nun)) {
+            /* le forme che TOLGONO una forza si valutano come le altre */
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            for (size_t i = 0; i < nun; i++) {
+                if (i && !strcmp(unp[i], unp[i - 1])) continue;
+                char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", unp[i]);
+                const char *pat = kb_dequote(pb);
+                size_t seen = 0;
+                if (*pat && p0_turn_pattern_holds(b, pat, surface, &seen) && seen) {
+                    const char *ma[2] = { "current_turn", pat };
+                    kb_assert(b->kb, "turn_pattern_match", ma, 2);
+                }
+            }
+            kb_set_origin(b->kb, prev);
+        }
+        free(unp);
         if (kb_match_all(b->kb, "turn_pattern_force", pq, 2, &pats, &np)) {
             int prev = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_REFLECTIVE);
@@ -5293,7 +5336,9 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     {
         char (*forces)[KB_TERM_LEN] = NULL; size_t nf = 0;
         const char *fq[2] = { "current_turn", NULL };
-        if (kb_match_all(b->kb, "turn_declared_act", fq, 2, &forces, &nf)) {
+        /* 15 settembre 2026: la forza NETTA (atti dichiarati meno i blocchi
+         * insegnati, `turn_force/2` in turn-frames.p0). */
+        if (kb_match_all(b->kb, "turn_force", fq, 2, &forces, &nf)) {
             int prev = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_REFLECTIVE);
             for (size_t i = 0; i < nf; i++) {

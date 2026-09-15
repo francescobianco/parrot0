@@ -84,6 +84,7 @@ response_template(force_forgotten, "{result}").
 force_phrase_plain($P) :- atom_words($P, $Ws), naf(force_words_have_not($Ws)).
 force_words_have_not(cons(but, cons(not, $R))).
 force_words_have_not(cons(ma, cons(non, $R))).
+force_words_have_not(cons(a, cons(number, cons(and, $R)))).
 force_words_have_not(cons($H, $T)) :- force_words_have_not($T).
 % Il nome della forma nasce dalla frase (parole unite da «_»); la frase citata
 % si confronta con il turno canonico, quindi in minuscolo.
@@ -100,3 +101,55 @@ force_forgotten_words(en, "I no longer read a turn that contains «"). force_for
 force_as_words(en, "» as "). force_as_words(it, "» come ").
 force_taught_text($L, $Phrase, $Force, $Text) :- force_taught_words($L, $A), concat_atoms($A, $Phrase, $B), force_counts_words($L, $C), concat_atoms($B, $C, $D), force_said($L, $Force, $Name), concat_atoms($D, $Name, $E), concat_atoms($E, ".", $Text).
 force_forgotten_text($L, $Phrase, $Force, $Text) :- force_forgotten_words($L, $A), concat_atoms($A, $Phrase, $B), force_as_words($L, $C), concat_atoms($B, $C, $D), force_said($L, $Force, $Name), concat_atoms($D, $Name, $E), concat_atoms($E, ".", $Text).
+
+% ── Le forze NEGATIVE e la condizione «contains a number» ──────────────────
+% «a turn that contains "right" is not a question»: la forma blocca la forza.
+turn_form(unteach_force_en, 1, text("a turn that contains")).
+turn_form(unteach_force_en, 2, span(phrase)).
+turn_form(unteach_force_en, 3, text("is not")).
+turn_form(unteach_force_en, 4, named(force_name, force)).
+turn_form_slot_form(unteach_force_en, phrase, mention).
+turn_form_slot_class(unteach_force_en, phrase, force_phrase_plain).
+turn_form_act(unteach_force_en, "op(match, unteach_force_text, [phrase, force, free])").
+turn_form_priority(unteach_force_en, early).
+turn_form_view(unteach_force_en, said).
+turn_form_reply(unteach_force_en, force_taught).
+turn_form(unteach_force_it, 1, text("un turno che contiene")).
+turn_form(unteach_force_it, 2, span(phrase)).
+turn_form(unteach_force_it, 3, text("non è")).
+turn_form(unteach_force_it, 4, named(force_name, force)).
+turn_form_slot_form(unteach_force_it, phrase, mention).
+turn_form_slot_class(unteach_force_it, phrase, force_phrase_plain).
+turn_form_act(unteach_force_it, "op(match, unteach_force_text, [phrase, force, free])").
+turn_form_priority(unteach_force_it, early).
+turn_form_view(unteach_force_it, said).
+turn_form_reply(unteach_force_it, force_taught).
+unteach_force_text($Phrase, $Force, $Text) :- force_form_name($Phrase, $F0), concat_atoms($F0, "_not", $F), assert(turn_pattern, $F, text, $Phrase), assert(turn_pattern_unforce, $F, $Force), current_language($L), force_untaught_text($L, $Phrase, $Force, $Text).
+force_untaught_words(en, "From now on a turn that contains «"). force_untaught_words(it, "D'ora in poi un turno che contiene «").
+force_not_words(en, "» does not count as "). force_not_words(it, "» non vale come ").
+force_untaught_text($L, $Phrase, $Force, $Text) :- force_untaught_words($L, $A), concat_atoms($A, $Phrase, $B), force_not_words($L, $C), concat_atoms($B, $C, $D), force_said($L, $Force, $Name), concat_atoms($D, $Name, $E), concat_atoms($E, ".", $Text).
+% «forget that a turn that contains "X" is not a question»
+turn_form(forget_unforce_en, 1, text("forget that a turn that contains")).
+turn_form(forget_unforce_en, 2, span(phrase)).
+turn_form(forget_unforce_en, 3, text("is not")).
+turn_form(forget_unforce_en, 4, named(force_name, force)).
+turn_form_slot_form(forget_unforce_en, phrase, mention).
+turn_form_act(forget_unforce_en, "op(match, forget_unforce_text, [phrase, force, free])").
+turn_form_priority(forget_unforce_en, early).
+turn_form_view(forget_unforce_en, said).
+turn_form_reply(forget_unforce_en, force_forgotten).
+forget_unforce_text($Phrase, $Force, $Text) :- force_form_name($Phrase, $F0), concat_atoms($F0, "_not", $F), retract(turn_pattern_unforce, $F, $Force), retract(turn_pattern, $F, text, $Phrase), current_language($L), force_forgotten_text($L, $Phrase, $Force, $Text).
+% «a turn that contains a number and "X" is a question»: la condizione numerica
+% del mantra #12 detta a parole (genere `number` dell'evaluatore).
+turn_form(teach_force_number_en, 1, text("a turn that contains a number and")).
+turn_form(teach_force_number_en, 2, span(phrase)).
+turn_form(teach_force_number_en, 3, text("is")).
+turn_form(teach_force_number_en, 4, named(force_name, force)).
+turn_form_slot_form(teach_force_number_en, phrase, mention).
+turn_form_slot_class(teach_force_number_en, phrase, force_phrase_plain).
+turn_form_act(teach_force_number_en, "op(match, teach_force_number, [phrase, force, free])").
+turn_form_priority(teach_force_number_en, early).
+turn_form_view(teach_force_number_en, said).
+turn_form_reply(teach_force_number_en, force_taught).
+segment_role(mention, "a turn that contains a number and").
+teach_force_number($Phrase, $Force, $Text) :- force_form_name($Phrase, $F), assert(turn_pattern, $F, text, $Phrase), assert(turn_pattern, $F, number, any), assert(turn_pattern_force, $F, $Force), current_language($L), force_taught_text($L, $Phrase, $Force, $Text).

@@ -1,0 +1,88 @@
+% origo.p0 — L'ORIGO: il punto zero del parlante (15 settembre 2026, F.).
+% Buehler: ogni turno si orienta su IO, QUI, ORA. In parrot0 il centro deittico
+% e' conoscenza: chi parla e' l'utente (la sua memoria, personal.p0), chi
+% ascolta e' parrot0, «qui» e' l'ambientazione descritta (state-description.p0),
+% «ora/oggi» e' l'orologio che il motore pubblica a ogni turno come fatti
+% (`clock_time/2`, `calendar_day/3`: offset in giorni, data, giorno della
+% settimana). Le parole del tempo relativo («domani») sono OFFSET dall'origo
+% (day_word_offset/2) e si risolvono in date quando qualcuno le chiede.
+:- file_attribute(machinery).
+% I fatti dell'orologio sono del turno (non del mondo, non della sessione): senza
+% queste righe finivano nel giornale dei fatti recenti e «transfer is never
+% below 0» li NEGAVA uno per uno (modulo negation), rubando la lezione.
+machinery(clock_time). machinery(calendar_day).
+turn_scratch(clock_time). turn_scratch(calendar_day).
+
+% ── 1. IL CENTRO ───────────────────────────────────────────────────────────
+origo_role(speaker, user).
+origo_role(addressee, parrot0).
+origo_here($Place) :- situation_state(described_situation, here, place, $Place).
+origo_speaker_name($N) :- user_value(name, $N).
+% Il tempo relativo e' un offset dall'oggi.
+day_word_offset(today, 0).      day_word_offset(oggi, 0).
+day_word_offset(tomorrow, 1).   day_word_offset(domani, 1).
+day_word_offset(yesterday, -1). day_word_offset(ieri, -1).
+day_word_offset(tonight, 0).    day_word_offset(stasera, 0).
+deictic_date($W, $Date, $Wd) :- day_word_offset($W, $Off), calendar_day($Off, $Date, $Wd).
+weekday_words(en, $W, $W).
+weekday_words(it, monday, "lunedì"). weekday_words(it, tuesday, "martedì"). weekday_words(it, wednesday, "mercoledì").
+weekday_words(it, thursday, "giovedì"). weekday_words(it, friday, "venerdì"). weekday_words(it, saturday, "sabato"). weekday_words(it, sunday, "domenica").
+date_words($L, $Date, $Wd, $Text) :- weekday_words($L, $Wd, $Ww), upcase_first($Ww, $W1), concat_atoms($W1, " ", $A), concat_atoms($A, $Date, $Text).
+
+% ── 2. LE DOMANDE SULL'ORIGO ───────────────────────────────────────────────
+origo_today_words(en, "Today is "). origo_today_words(it, "Oggi è ").
+origo_time_words(en, "It is "). origo_time_words(it, "Sono le ").
+origo_here_words(en, "You are in "). origo_here_words(it, "Sei a ").
+origo_here_unknown(en, "You have not told me where you are."). origo_here_unknown(it, "Non mi hai detto dove sei.").
+origo_who_words(en, "You are "). origo_who_words(it, "Tu sei ").
+origo_who_unknown(en, "You have not told me your name yet."). origo_who_unknown(it, "Non mi hai ancora detto il tuo nome.").
+origo_me_words(en, "I am parrot0, the one you are talking to."). origo_me_words(it, "Sono parrot0, quello con cui stai parlando.").
+origo_no_clock(en, "I have no clock right now."). origo_no_clock(it, "Adesso non ho un orologio.").
+origo_answer(today, $Text) :- current_language($L), calendar_day(0, $D, $Wd), date_words($L, $D, $Wd, $W), origo_today_words($L, $S), concat_atoms($S, $W, $A), concat_atoms($A, ".", $Text).
+origo_answer(today, $Text) :- naf(origo_has_clock), current_language($L), origo_no_clock($L, $Text).
+origo_answer(now, $Text) :- current_language($L), clock_time($H, $M), time_text(time($H, $M), $Hm), origo_time_words($L, $S), concat_atoms($S, $Hm, $A), concat_atoms($A, ".", $Text).
+origo_answer(now, $Text) :- naf(origo_has_clock), current_language($L), origo_no_clock($L, $Text).
+origo_answer(here, $Text) :- origo_here($P), current_language($L), origo_here_words($L, $S), words_of($P, $Pn), upcase_first($Pn, $Pc), concat_atoms($S, $Pc, $A), concat_atoms($A, ".", $Text).
+origo_answer(here, $Text) :- naf(origo_here_any), current_language($L), origo_here_unknown($L, $Text).
+origo_answer(who, $Text) :- origo_speaker_name($N), current_language($L), origo_who_words($L, $S), concat_atoms($S, $N, $A), concat_atoms($A, ".", $Text).
+origo_answer(who, $Text) :- naf(origo_speaker_known), current_language($L), origo_who_unknown($L, $Text).
+origo_answer(me, $Text) :- current_language($L), origo_me_words($L, $Text).
+origo_has_clock :- calendar_day(0, $D, $Wd).
+origo_here_any :- origo_here($P).
+origo_speaker_known :- origo_speaker_name($N).
+% Le superfici: quali domande puntano a quale coordinata dell'origo.
+origo_cue("what day is it", today).     origo_cue("che giorno è oggi", today).
+origo_cue("what day is it today", today). origo_cue("what is today s date", today).
+origo_cue("what is the date", today).   origo_cue("che giorno è", today).
+origo_cue("what time is it", now).      origo_cue("che ore sono", now).
+origo_cue("where am i", here).          origo_cue("dove sono", here).
+origo_cue("who am i", who).             origo_cue("chi sono io", who).
+origo_cue("who are you", me).           origo_cue("chi sei", me).
+turn_form(origo_question, 1, named(origo_cue, coordinate)).
+turn_form_act(origo_question, "op(match, origo_answer, [coordinate, free])").
+turn_form_priority(origo_question, early).
+turn_form_view(origo_question, said).
+turn_form_reply(origo_question, origo_reply).
+response_template(origo_reply, "{result}").
+
+% ── 3. «WHEN IS MY MEETING?»: il giorno detto come offset si risolve in data ─
+turn_form(event_when_question_en, 1, text("when is my")).
+turn_form(event_when_question_en, 2, slot(event)).
+turn_form_slot_class(event_when_question_en, event, described_entity).
+turn_form_act(event_when_question_en, "op(match, event_when_answer, [event, free])").
+turn_form_priority(event_when_question_en, early).
+turn_form_view(event_when_question_en, said).
+turn_form_reply(event_when_question_en, origo_reply).
+turn_form(event_when_question_it, 1, text("quando è la mia")).
+turn_form(event_when_question_it, 2, slot(event)).
+turn_form_slot_class(event_when_question_it, event, described_entity).
+turn_form_act(event_when_question_it, "op(match, event_when_answer, [event, free])").
+turn_form_priority(event_when_question_it, early).
+turn_form_view(event_when_question_it, said).
+turn_form_reply(event_when_question_it, origo_reply).
+event_when_answer($O, $Text) :- role($O, day, $W), deictic_date($W, $D, $Wd), current_language($L), date_words($L, $D, $Wd, $Dw), event_the_words($L, $The), words_of($O, $On), concat_atoms($The, $On, $A), decision_is_words($L, $Is), ev_trim_copula($Is, $Cop), concat_atoms($A, $Cop, $B), concat_atoms($B, " ", $C), concat_atoms($C, $Dw, $D2), event_when_time($L, $O, $D2, $Text).
+event_when_answer($O, $Text) :- role($O, day, $W), naf(deictic_known($W)), current_language($L), event_item_text($L, ev($O, day, $W), $Text).
+event_when_answer($O, $Text) :- naf(decision_stated($O, day)), event_value_answer($O, day, $Text).
+deictic_known($W) :- deictic_date($W, $D, $Wd).
+event_when_time($L, $O, $Head, $Text) :- role($O, time, $V), value_words($L, time, $V, $Vw), role_phrase($L, time, $At), concat_atoms($Head, $At, $A), concat_atoms($A, $Vw, $B), concat_atoms($B, ".", $C), upcase_first($C, $Text).
+event_when_time($L, $O, $Head, $Text) :- naf(decision_stated($O, time)), concat_atoms($Head, ".", $C), upcase_first($C, $Text).

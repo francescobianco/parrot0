@@ -238,8 +238,9 @@ decision_condition_name("un limite basta", bounded).
 % collegato all'obbligo, non alla casella. Il controllo costoso (gli stati)
 % gira solo se una soglia e' stata detta; le negazioni lavorano su una lista.
 issue_state($I, resolved) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), decision_known($O, $R).
+issue_state($I, resolved) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), decision_stated($O, $R), naf(decision_known($O, $R)), naf(decision_has_stated_bound($O, $R)).
 issue_state($I, resolved) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)), decision_stated_bound($O, $R, $Op, $V), decision_owed_roles($O, $Rs), naf(member($R, $Rs)).
-issue_state($I, open) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)), naf(decision_has_stated_bound($O, $R)).
+issue_state($I, open) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)), naf(decision_has_stated_bound($O, $R)), naf(decision_stated($O, $R)).
 issue_state($I, open) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)), decision_stated_bound($O, $R, $Op, $V), decision_owed_roles($O, $Rs), member($R, $Rs).
 decision_has_stated_bound($O, $R) :- decision_stated_bound($O, $R, $Op, $V).
 decision_residual_role(need($R, $Op, $B), $R).
@@ -273,7 +274,8 @@ decision_note($O, verdict($Cs, nil)).
 decision_note($O, verdict($Cs, cons(explain, nil))).
 decision_note($O, verdict($Cs, cons(confirm, nil))).
 decision_note($O, verdict($Cs, cons($A, cons($B, $Rest)))).
-decision_answer($O, $Text) :- decision_verdict($O, $Cs, $Ms), current_language($L), decision_say($L, $O, verdict($Cs, $Ms), $Text), decision_note($O, verdict($Cs, $Ms)).
+% Il verdetto cita il precedente (episodes.p0, E4) e lascia un episodio.
+decision_answer($O, $Text) :- decision_verdict($O, $Cs, $Ms), current_language($L), decision_say($L, $O, verdict($Cs, $Ms), $T0), episode_suffix($L, $O, $Ms, $Sfx), episode_append($T0, $Sfx, $Text), decision_note($O, verdict($Cs, $Ms)), episode_note($O, $Cs, $Ms).
 % «it is 0» vale solo se il dato dovuto e' UNO: con due questioni aperte
 % NELLO STESSO TURNO («What are the departure and duration of boat?»)
 % l'ellissi e' ambigua e resta a chi la leggeva prima. Una domanda su un altro

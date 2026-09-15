@@ -1,0 +1,22 @@
+> tomorrow I have an important meeting at 9 am with a client from Milan
+  = Hmm, I don't know about important meeting yet. Want me to learn about it?   [1.74s]
+> what time is my meeting?
+  = The time of meeting is 09:00.   [0.88s]
+> where is the meeting?
+  = I do not have the place of meeting yet: where is it?   [0.76s]
+> where is the client from?
+  = The origin of client is milan.   [0.82s]
+> I leave Rome at 7 by train and the trip takes 3 hours. Will I be on time?
+  = No: arrival reaches 10; the requirement is at most 9.   [0.73s]
+> what is the arrival of trip?
+  = For trip: the arrival is 10 (departure 7 plus duration 3).   [0.81s]
+> the trip takes 2 hours
+  = I don't understand that yet.   [1.44s]
+> will I be on time?
+  = The stated requirements are satisfied.   [0.79s]
+> domani ho una riunione importante alle 9 con un cliente di Milano
+  = Hmm, I don't know about domani yet. Want me to learn about it?   [2.34s]
+> a che ora è la mia riunione?
+  = L'orario di riunione vale 09:00.   [0.99s]
+> se parto da Roma alle 7 in treno e ci vogliono 3 ore, arrivo in tempo a Milano per la riunione?
+  = No: arrival raggiunge 10; il requisito è al massimo 9.   [1.07s]

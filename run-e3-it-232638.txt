@@ -1,0 +1,12 @@
+> mi chiamo Francesco e domani ho una riunione importante alle 9 con un cliente di Milano
+  = Francesco was a mysterious Francesco. Then one day, francesco discovered what it meant to be seen. Francesco had never felt this way before — as if the whole world had shifted. At last, francesco was seen — not as a thing, but as a presence.   [1.29s]
+> a che ora è la mia riunione?
+  = L'orario di riunione vale 09:00.   [1.1s]
+> se parto da Roma alle 7 in treno e ci vogliono 3 ore, arrivo in tempo a Milano per la riunione?
+  = No: arrival raggiunge 10; il requisito è al massimo 9.   [0.77s]
+> parto da Roma alle 7 in treno
+  = Annotato: Il trip parte alle 7 da roma in treno.   [0.39s]
+> ci vogliono 3 ore
+  = Annotato: Il trip dura 3 ore.   [0.36s]
+> arrivo in tempo?
+  = No: arrival raggiunge 10; il requisito è al massimo 9.   [0.52s]

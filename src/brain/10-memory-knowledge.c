@@ -7079,6 +7079,9 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;
+    /* 15 settembre 2026: la cessione e' KB (`faculty_yield(statement_extract, …)`):
+     * «tomorrow I have a meeting at 9» veniva imparato come «located in 9». */
+    if (p0_faculty_yields(b, "statement_extract", "open", norm, norm)) return 0;
     size_t L = strlen(norm);
     if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
 

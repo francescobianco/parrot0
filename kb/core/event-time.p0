@@ -59,16 +59,30 @@ ev_after($T, $S, $I, $W) :- ev_next($T, $S, $I, $X), ev_skip($X), is($J, add($I,
 ev_after($T, $S, $I, $W) :- ev_next($T, $S, $I, $X), ev_skip($X), is($J, add($I, 1)), ev_next($T, $S, $J, $Y), ev_skip($Y), is($K, add($J, 1)), ev_next($T, $S, $K, $W), naf(ev_skip($W)).
 % «at N» dopo l'evento: l'orario. «tomorrow»: il giorno. «with X»: la
 % controparte. «X from Y»: l'origine di X (del cliente, non della riunione).
-event_reading($T, ev($E, time, $V)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_next($T, $S, $J, $V), decision_numeric($V).
+% L'orario e' in 24 ore: «9 am» -> 9, «7 pm» -> 19 (hour_24/3 di
+% time-questions.p0); senza meridiano il numero vale com'e'.
+ev_time_value($T, $S, $J, $V) :- ev_next($T, $S, $J, $H), decision_numeric($H), is($K, add($J, 1)), ev_next($T, $S, $K, $Mer), meridiem($Mer), hour_24($H, $Mer, $V).
+ev_time_value($T, $S, $J, $V) :- ev_next($T, $S, $J, $V), decision_numeric($V), is($K, add($J, 1)), naf(ev_meridiem_at($T, $S, $K)).
+ev_time_value($T, $S, $J, $V) :- ev_next($T, $S, $J, $V), decision_numeric($V), is($K, add($J, 1)), naf(ev_has_next($T, $S, $K)).
+ev_has_next($T, $S, $K) :- ev_next($T, $S, $K, $W).
+ev_meridiem_at($T, $S, $K) :- ev_next($T, $S, $K, $Mer), meridiem($Mer).
+event_reading($T, ev($E, time, $V)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_time_value($T, $S, $J, $V).
 event_reading($T, ev($E, day, $D)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S2, $K, $D), day_word($D).
 event_reading($T, ev($E, counterpart, $C)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S, $J, $P), with_preposition($P), gt($J, $I), ev_after($T, $S, $J, $C), naf(decision_numeric($C)).
 event_reading($T, ev($X, origin, $P)) :- ev_tok($T, $S, $J, $F), origin_preposition($F), is($I, sub($J, 1)), ev_tok($T, $S, $I, $X), naf(ev_skip($X)), naf(departure_verb($X)), ev_next($T, $S, $J, $P), naf(ev_skip($P)).
 % «I leave Rome at 7 by train», «parto da Roma alle 7 in treno», «the trip
 % takes 3 hours», «ci vogliono 3 ore»: partenza, origine, mezzo, durata del viaggio.
-event_reading($T, ev($Trip, departure, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_next($T, $S, $J, $V), decision_numeric($V).
+event_reading($T, ev($Trip, departure, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_time_value($T, $S, $J, $V).
 event_reading($T, ev($Trip, origin, $Pl)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_after($T, $S, $I, $Pl), naf(decision_numeric($Pl)), naf(means_noun($Pl)).
 event_reading($T, ev($Trip, means, $M)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_tok($T, $S, $J, $P), means_preposition($P), gt($J, $I), ev_next($T, $S, $J, $M), means_noun($M).
-event_reading($T, ev($Trip, duration, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), duration_verb($Vb), ev_next($T, $S, $I, $V), decision_numeric($V).
+% La durata e' in ore: «3 hours» -> 3, «30 minutes» -> 0.5 (unita' di
+% time_unit_cue/2). Senza unita' detta il numero vale ore.
+ev_duration_value($T, $S, $I, $V) :- ev_next($T, $S, $I, $N), decision_numeric($N), is($K, add($I, 1)), ev_next($T, $S, $K, $U), time_unit_cue($Uw, $Unit), atom_words($Uw, cons($U, nil)), ev_hours($Unit, $N, $V).
+ev_duration_value($T, $S, $I, $V) :- ev_next($T, $S, $I, $V), decision_numeric($V), is($K, add($I, 1)), naf(ev_unit_at($T, $S, $K)).
+ev_unit_at($T, $S, $K) :- ev_next($T, $S, $K, $U), time_unit_cue($Uw, $Unit), atom_words($Uw, cons($U, nil)).
+ev_hours(hours, $N, $N).
+ev_hours(minutes, $N, $V) :- is($V, div($N, 60)).
+event_reading($T, ev($Trip, duration, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), duration_verb($Vb), ev_duration_value($T, $S, $I, $V).
 % Un turno che SI APRE come domanda o ordine non descrive («is the meeting at
 % 9?» non fissa l'orario); uno che si apre con una condizione e chiede alla
 % fine («se parto alle 7 e ci vogliono 3 ore, arrivo in tempo?») descrive E chiede.
@@ -95,10 +109,74 @@ turn_response($T, $Text) :- event_described($T), naf(turn_goal_span($T)), naf(on
 event_ack_start(en, "Noted: "). event_ack_start(it, "Annotato: ").
 event_the_words(en, "the "). event_the_words(it, "il ").
 event_of_words(en, " of "). event_of_words(it, " di ").
-event_item_text($Lang, ev($O, $R, $V), $T) :- event_the_words($Lang, $The), words_of($R, $Rn), concat_atoms($The, $Rn, $A), event_of_words($Lang, $Of), concat_atoms($A, $Of, $B), words_of($O, $On), concat_atoms($B, $On, $C), decision_is_words($Lang, $Is), concat_atoms($C, $Is, $D), concat_atoms($D, $V, $E), concat_atoms($E, ".", $F), upcase_first($F, $T).
-event_texts($Lang, nil, nil).
-event_texts($Lang, cons($X, $Rest), cons($T, $Ts)) :- event_item_text($Lang, $X, $T), event_texts($Lang, $Rest, $Ts).
-event_ack_text($Lang, $L, $Text) :- event_texts($Lang, $L, $Ts), decision_join($Lang, $Ts, $Body), event_ack_start($Lang, $S), concat_atoms($S, $Body, $Text).
+% I nomi dei ruoli nella lingua del turno (conoscenza: un ruolo nuovo e' una riga).
+role_words(en, $R, $W) :- words_of($R, $W).
+role_words(it, time, "l'orario").      role_words(it, day, "il giorno").
+role_words(it, place, "il luogo").     role_words(it, counterpart, "la controparte").
+role_words(it, origin, "l'origine").   role_words(it, means, "il mezzo").
+role_words(it, departure, "la partenza"). role_words(it, duration, "la durata").
+role_words(it, arrival, "l'arrivo").
+role_words(it, $R, $W) :- naf(role_words_it_known($R)), words_of($R, $W).
+role_words_it_known($R) :- role_words_it($R).
+role_words_it(time). role_words_it(day). role_words_it(place). role_words_it(counterpart).
+role_words_it(origin). role_words_it(means). role_words_it(departure). role_words_it(duration). role_words_it(arrival).
+value_words($L, time, $V, $W) :- time_text(time($V, 0), $W), decision_numeric($V).
+value_words($L, departure, $V, $W) :- time_text(time($V, 0), $W), decision_numeric($V).
+value_words($L, $R, $V, $V) :- dif($R, time), dif($R, departure).
+event_item_text($Lang, ev($O, $R, $V), $T) :- role_words($Lang, $R, $Rn), event_item_head($Lang, $Rn, $A), event_of_words($Lang, $Of), concat_atoms($A, $Of, $B), words_of($O, $On), concat_atoms($B, $On, $C), decision_is_words($Lang, $Is), concat_atoms($C, $Is, $D), value_words($Lang, $R, $V, $Vw), concat_atoms($D, $Vw, $E), concat_atoms($E, ".", $F), upcase_first($F, $T).
+event_item_head(en, $Rn, $A) :- event_the_words(en, $The), concat_atoms($The, $Rn, $A).
+event_item_head(it, $Rn, $Rn).
+% L'ack e' UNA frase per soggetto: «Noted: the meeting is tomorrow at 09:00
+% with client.» — ogni ruolo ha la sua preposizione (conoscenza), l'ordine e'
+% quello delle letture.
+role_phrase(en, time, " at ").      role_phrase(it, time, " alle ").
+role_phrase(en, day, " ").          role_phrase(it, day, " ").
+role_phrase(en, counterpart, " with "). role_phrase(it, counterpart, " con ").
+role_phrase(en, origin, " from ").  role_phrase(it, origin, " da ").
+role_phrase(en, departure, " leaves at "). role_phrase(it, departure, " parte alle ").
+role_phrase(en, duration, " takes ").  role_phrase(it, duration, " dura ").
+role_phrase(en, means, " by ").     role_phrase(it, means, " in ").
+role_phrase(en, place, " in ").     role_phrase(it, place, " a ").
+duration_unit_words(en, " hours"). duration_unit_words(it, " ore").
+value_phrase($L, duration, $V, $W) :- duration_unit_words($L, $U), concat_atoms($V, $U, $W).
+value_phrase($L, $R, $V, $W) :- dif($R, duration), value_words($L, $R, $V, $W).
+ev_subject_items($O, $L, $Items) :- findall($X, ev_item_of($O, $L, $X), $Items).
+ev_item_of($O, $L, $X) :- member(ev($O, $R, $V), $L), ev_pair($R, $V, $X).
+ev_pair($R, $V, rv($R, $V)).
+ev_subjects($L, $Os) :- findall($O, ev_subject_of($L, $O), $Os).
+ev_subject_of($L, $O) :- member(ev($O, $R, $V), $L).
+ev_phrase_parts($Lang, nil, nil).
+ev_phrase_parts($Lang, cons(rv($R, $V), $Rest), cons($P, $Ps)) :- role_phrase($Lang, $R, $Pre), value_phrase($Lang, $R, $V, $Vw), concat_atoms($Pre, $Vw, $P), ev_phrase_parts($Lang, $Rest, $Ps).
+ev_concat(nil, $Acc, $Acc).
+ev_concat(cons($P, nil), $Acc, $Out) :- concat_atoms($Acc, $P, $Out).
+ev_concat(cons($P, cons($Q, $Qs)), $Acc, $Out) :- concat_atoms($Acc, $P, $A), ev_concat(cons($Q, $Qs), $A, $Out).
+% «leaves at 19:00 by train AND takes 0.5 hours»: la congiunzione prima
+% dell'ultima parte, quando le parti sono piu' di una e il soggetto e' il viaggio.
+ev_and_words(en, " and"). ev_and_words(it, " e").
+ev_concat_journey($L, cons($P, nil), $Acc, $Out) :- concat_atoms($Acc, $P, $Out).
+ev_concat_journey($L, cons($P, cons($Q, nil)), $Acc, $Out) :- concat_atoms($Acc, $P, $A), ev_and_words($L, $And), concat_atoms($A, $And, $B), concat_atoms($B, $Q, $Out).
+ev_concat_journey($L, cons($P, cons($Q, cons($R, $Rs))), $Acc, $Out) :- concat_atoms($Acc, $P, $A), ev_concat_journey($L, cons($Q, cons($R, $Rs)), $A, $Out).
+% Il verbo della frase: «is» per un evento; per il viaggio i ruoli portano gia'
+% il verbo («leaves at», «takes»), quindi nessuna copula.
+ev_sentence_copula($Lang, $O, $Cop) :- journey_subject($O), ev_no_copula($Lang, $Cop).
+ev_sentence_copula($Lang, $O, $Cop) :- naf(journey_subject($O)), decision_is_words($Lang, $Cop0), ev_trim_copula($Cop0, $Cop).
+ev_no_copula(en, ""). ev_no_copula(it, "").
+ev_trim_copula(" is ", " is"). ev_trim_copula(" vale ", " è").
+% Arita' 4: le parti e l'accumulatore viaggiano in un termine.
+% La congiunzione precede solo la DURATA («leaves at 19:00 by train and takes
+% 0.5 hours»; «parte alle 07:00 da roma in treno» resta senza «e»).
+ev_last_part(cons($P, nil), $P).
+ev_last_part(cons($X, cons($Y, $Ys)), $P) :- ev_last_part(cons($Y, $Ys), $P).
+ev_ends_with_duration($Lang, $Ps) :- ev_last_part($Ps, $P), role_phrase($Lang, duration, $D), atom_words($D, $Dw), atom_words($P, $Pw), ev_prefix($Dw, $Pw).
+ev_prefix(nil, $L).
+ev_prefix(cons($W, $Ws), cons($W, $Rest)) :- ev_prefix($Ws, $Rest).
+ev_parts_text($Lang, $O, parts($Ps, $B), $C) :- journey_subject($O), ev_ends_with_duration($Lang, $Ps), ev_concat_journey($Lang, $Ps, $B, $C).
+ev_parts_text($Lang, $O, parts($Ps, $B), $C) :- journey_subject($O), naf(ev_ends_with_duration($Lang, $Ps)), ev_concat($Ps, $B, $C).
+ev_parts_text($Lang, $O, parts($Ps, $B), $C) :- naf(journey_subject($O)), ev_concat($Ps, $B, $C).
+ev_subject_sentence($Lang, $L, $O, $Sent) :- ev_subject_items($O, $L, $Items), ev_phrase_parts($Lang, $Items, $Ps), event_the_words($Lang, $The), words_of($O, $On), concat_atoms($The, $On, $A), ev_sentence_copula($Lang, $O, $Cop), concat_atoms($A, $Cop, $B), ev_parts_text($Lang, $O, parts($Ps, $B), $C), concat_atoms($C, ".", $D), upcase_first($D, $Sent).
+ev_sentences($Lang, $L, nil, nil).
+ev_sentences($Lang, $L, cons($O, $Os), cons($S, $Ss)) :- ev_subject_sentence($Lang, $L, $O, $S), ev_sentences($Lang, $L, $Os, $Ss).
+event_ack_text($Lang, $L, $Text) :- ev_subjects($L, $Os), ev_sentences($Lang, $L, $Os, $Ss), decision_join($Lang, $Ss, $Body), event_ack_start($Lang, $S), concat_atoms($S, $Body, $Text).
 
 % ── 5. LE DOMANDE: orario, luogo, e «arrivo in tempo?» ─────────────────────
 % Il soggetto deve essere un'entita' descritta: «where is Paris?» non e' di qui.
@@ -142,7 +220,22 @@ response_template(event_answer, "{result}").
 % La risposta sul valore nomina il soggetto («The time of meeting is 9.»);
 % quando manca, la spiegazione e' quella di E2 (limiti, dato mancante).
 event_value_answer($O, $R, $Text) :- role($O, $R, $V), current_language($L), event_item_text($L, ev($O, $R, $V), $Text).
-event_value_answer($O, $R, $Text) :- naf(decision_stated($O, $R)), decision_value_answer($O, $R, $Text).
+% Un dato mai detto si CHIEDE («where is the meeting?» -> «I do not have the
+% place of the meeting yet: where is it?»), e la domanda apre una questione
+% datum (issues.p0): «it is in Milan» / «vale …» la chiudono.
+event_value_answer($O, $R, $Text) :- naf(decision_stated($O, $R)), askable_role($R), naf(decision_computed($R)), current_language($L), event_ask_text($L, $O, $R, $Text), decision_datum_id($O, $R, $I), decision_note_datum($O, $R, $I).
+event_value_answer($O, $R, $Text) :- naf(decision_stated($O, $R)), decision_computed($R), decision_value_answer($O, $R, $Text).
+event_ask_words(en, "I do not have "). event_ask_words(it, "Non ho ancora ").
+event_ask_link(en, " yet: "). event_ask_link(it, ": ").
+role_question(en, place, "where is it?").  role_question(it, place, "dov'è?").
+role_question(en, time, "what time is it?"). role_question(it, time, "a che ora?").
+role_question(en, day, "what day is it?"). role_question(it, day, "che giorno?").
+role_question(en, $R, "what is it?") :- naf(role_question_known(en, $R)).
+role_question(it, $R, "qual è?") :- naf(role_question_known(it, $R)).
+role_question_known($L, $R) :- role_question_listed($L, $R).
+role_question_listed(en, place). role_question_listed(en, time). role_question_listed(en, day).
+role_question_listed(it, place). role_question_listed(it, time). role_question_listed(it, day).
+event_ask_text($L, $O, $R, $Text) :- event_ask_words($L, $A), role_words($L, $R, $Rn), event_item_head($L, $Rn, $Rh), concat_atoms($A, $Rh, $B), event_of_words($L, $Of), concat_atoms($B, $Of, $C), words_of($O, $On), concat_atoms($C, $On, $D), event_ask_link($L, $Link), concat_atoms($D, $Link, $E), role_question($L, $R, $Q), concat_atoms($E, $Q, $Text).
 % «Will I be on time?» / «… arrivo in tempo a Milano per la riunione?»: la
 % domanda si riconosce sul frame, ovunque stia nel turno (in italiano chiude
 % un periodo che si apre con la condizione). L'arrivo del viaggio non deve
@@ -162,3 +255,19 @@ on_time_answer($Text) :- naf(on_time_link_any), current_language($L), on_time_mi
 on_time_link_any :- on_time_link($Trip, $E).
 turn_plan_candidate($T) :- on_time_asked($T).
 turn_response($T, $Text) :- on_time_asked($T), on_time_answer($Text).
+
+% Il dato dovuto puo' essere un LUOGO o una parola, non solo un numero: «it is
+% in Milan» sotto la questione datum sul luogo. Stessa regola di «it is 0».
+turn_form(event_datum_place_en, 1, text("it is in")).
+turn_form(event_datum_place_en, 2, slot(value)).
+turn_form_act(event_datum_place_en, "op(match, event_datum_word_store, [value, free])").
+turn_form_priority(event_datum_place_en, early).
+turn_form_view(event_datum_place_en, said).
+turn_form_reply(event_datum_place_en, decision_datum_noted).
+turn_form(event_datum_place_it, 1, text("è a")).
+turn_form(event_datum_place_it, 2, slot(value)).
+turn_form_act(event_datum_place_it, "op(match, event_datum_word_store, [value, free])").
+turn_form_priority(event_datum_place_it, early).
+turn_form_view(event_datum_place_it, said).
+turn_form_reply(event_datum_place_it, decision_datum_noted).
+event_datum_word_store($V, $Text) :- max_qud($I), open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), askable_role($R), state_commit($O, $R, $V), current_language($L), event_item_text($L, ev($O, $R, $V), $Text).

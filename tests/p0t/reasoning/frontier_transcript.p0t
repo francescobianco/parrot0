@@ -16,10 +16,10 @@
 > tomorrow I have an important meeting at 9 am with a client from Milan
 <! don't know
 <~ Noted
-<~ time of meeting is 9
-<~ origin of client is milan
+<~ meeting is at 09:00 tomorrow
+<~ client is from milan
 > what time is my meeting?
-<~ 9
+<~ 09:00
 <! don't know
 
 [test la citta' del cliente non diventa la citta' della riunione]

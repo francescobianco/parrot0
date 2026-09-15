@@ -1309,7 +1309,7 @@ tutte insieme. Il primo difetto osservato stabilisce dove intervenire.
 | ~~**E2a — sufficienza**~~ (15 settembre, §9.12) | estendere il circuito esistente dal valore esatto alla verifica per limiti, con sostegni e residuo tipato | i tre casi di §9.1 si separano; insegnamento e ablazione modificano il comportamento pertinente |
 | ~~**E2b — residuo interrogabile**~~ (15 settembre, §9.13) | collegare il vincolo residuo alla stessa questione sulla board; accettare una risposta che lo soddisfi senza imporre il valore esatto | una domanda sulla soglia chiude l'obbligo; correzione della premessa lo riapre; due scopi non si mescolano |
 | ~~**E3 — collegamento alla conversazione**~~ (15 settembre, §9.14) | far arrivare le frasi naturali di viaggio e impegno agli stessi oggetti E2, conservando fonte e ambito | il prompt originale e le varianti funzionano senza che il teacher li riscriva nel linguaggio delle formule; riunione e città del cliente restano distinte |
-| **E4 — prova riusabile** | registrare un episodio e ricavarne un procedimento condizionale verificabile; applicarlo fuori dalla famiglia di costruzione | il riuso risparmia lavoro contando anche apprendimento e invalidazione; un controesempio ne restringe l'ambito |
+| ~~**E4 — prova riusabile**~~ (15 settembre, §9.16, parziale: precedente e condotta, non cache di derivazione) | registrare un episodio e ricavarne un procedimento condizionale verificabile; applicarlo fuori dalla famiglia di costruzione | il riuso risparmia lavoro contando anche apprendimento e invalidazione; un controesempio ne restringe l'ambito |
 | **E5 — scelta appresa dagli esiti** | proporre e confrontare criteri su quale procedimento o domanda tentare | il criterio emerge dal riscontro, raggiunge casi esclusi, è correggibile parlando e il suo effetto scompare con l'ablazione |
 
 Il transcript naturale si sonda **da D0 e dopo ogni missione**. E3 precede
@@ -1724,3 +1724,102 @@ event-time.p0), 1,26 s. Prima di dare un nome a un predicato si fa `grep`:
 restano insegnabili solo via `!assert` (una forma parlata per «contains a
 number» è una riga in più); le forze **negative** («… is not a question»)
 non hanno ancora una forma; la forza espressiva resta residuale.
+
+### 9.16 E4 — stato al 15 settembre 2026, notte: l'episodio, l'esito, il precedente
+
+`kb/core/episodes.p0` (nuovo), un aggancio in `decision_answer`, zero C.
+Banco `tests/p0t/reasoning/taught_episode.p0t`.
+
+1. **Ogni verdetto lascia un episodio** *prima* dell'esito (§9.5 passo 1):
+   soggetto, turno, i candidati **copiati allora** (una correzione dopo non
+   riscrive il passato), le mosse, l'**aspettativa** (`success` per confirm,
+   `failure` per explain, `open` per ask) e la **forma** del caso senza nomi di
+   ruolo né valori: `sh(Verso, Stato, GenereDiPremessa)`, cioè ciò che due
+   famiglie condividono (`sh(le, unmet, floor)` vale per il treno, il pacco e
+   la cassa).
+2. **L'esito si dice parlando** («I made it», «I was late», «ce l'ho fatta»,
+   «sono arrivato in ritardo»; `outcome_name/2` è insegnabile) e si confronta
+   con l'aspettativa dell'ultimo episodio: «That matches my check on parcel: I
+   had said: No: load is at least 12; …» oppure «That contradicts my check on
+   train: I had said: No: ready is at least 10; the requirement is at most 9.
+   Which datum was different?». Un episodio aperto (aveva chiesto un dato) non
+   è né conferma né smentita: «I had not settled the check on bus.»
+3. **Il precedente cambia la risposta successiva della stessa forma, anche su
+   un'altra famiglia.** Verificato: «No: weight is at least 20; … (as with
+   parcel)». Contraddetto: «… Last time this same check was contradicted in
+   practice (train): tell me if any datum could differ.» — la condotta passa
+   dal confermare al chiedere di verificare i dati, che è la restrizione
+   d'ambito di §9.5 passo 4. «forget the outcome of train» la spegne.
+
+**Che cosa NON è.** Non è la cache di una derivazione né una politica che
+accelera la ricerca (§9.5, «due apprendimenti distinti»): la prova si rifà
+per intero, e il precedente è un'**etichetta di affidabilità** sulla forma,
+detta e ritrattabile. Il guadagno di lavoro del gate E4 **non è misurato**:
+qui si è costruito l'oggetto che lo rende misurabile (episodi con forma,
+esito e prova), non il risparmio. L'estrazione di un procedimento
+condizionale dallo scheletro della prova (§9.5 passo 2, EBG) richiede
+l'introspezione della prova con i legami fra variabili — il contratto di
+`the-magic-of-apply.md` IV §4.3 — e resta da fare; senza quella, un
+«procedimento» sarebbe una regola scritta a mano travestita.
+
+**Residui.** La forma non distingue *quale* premessa era un limite (solo il
+genere); la domanda «Which datum was different?» non apre ancora una questione
+sul tabellone (la risposta arriva come lezione di valore e riverifica al
+turno dopo); il nome della famiglia nel precedente è il soggetto, non la
+struttura («as with parcel», non «as with a sum with a floor»).
+
+### 9.17 I residui di §9.14/§9.15, il modello dell'utente e l'origo (15 settembre 2026, notte)
+
+**§9.14 chiusi** (`event-time.p0`): gli orari sono in 24 ore riusando
+`hour_24/3` e `meridiem/1` di time-questions.p0 («9 am» → 09:00, «7 pm» →
+19:00), le durate in ore con `time_unit_cue/2` («30 minutes» → 0.5); l'ack è
+**una frase per soggetto** con le preposizioni dei ruoli come conoscenza
+(`role_phrase/3`: «Noted: The meeting is at 09:00 tomorrow with client. The
+client is from milan.», «The trip leaves at 19:00 by train and takes 0.5
+hours.», «Il trip parte alle 07:00 da roma in treno.»); i ruoli hanno il nome
+italiano (`role_words/3`: «L'orario di riunione vale 09:00»); un dato mai detto
+si **chiede** e apre una questione `datum` («I do not have the place of meeting
+yet: where is it?» → «it is in Milan» la chiude). Aperto: «tomorrow» resta un
+valore nella situazione (l'ambito «stessa giornata» di §9.3 non è imposto).
+
+**§9.15 chiusi** (`illocution.p0`): le forze **negative** («a turn that
+contains "will i be on time" is not a question» blocca anche il punto
+interrogativo; `turn_pattern_unforce/2`, e il C congela la forza **netta**
+`turn_force/2`), la condizione «contains a number» detta a parole (genere
+`number`). Pagato: una regola KB `turn_illocution :- turn_force` rideriva gli
+atti dentro i `naf` dei consumatori e faceva cadere l'ack: la forza è **solo**
+il fatto congelato dal C.
+
+**Il modello dell'utente e l'origo** (`origo.p0`, F.: *«concepire un origo, il
+punto zero del parlante»*). Bühler: ogni turno si orienta su io, qui, ora. In
+KB: `origo_role(speaker, user)` (la memoria personale, `user_value`),
+`origo_role(addressee, parrot0)`, `origo_here` = l'ambientazione descritta
+(`situation_state(here, place)`), oggi/ora = l'orologio che il motore
+pubblica **a ogni turno come fatti** (`clock_time/2`, `calendar_day(Offset,
+Data, Giorno)` per −1…+7: una porta in C, perché il tempo di sistema nessuna
+KB lo sa da sola). Le parole del tempo relativo sono **offset dall'origo**
+(`day_word_offset(tomorrow, 1)`) e si risolvono in date quando qualcuno le
+chiede: «when is my meeting?» → «The meeting is Wednesday 2026-09-16 at
+09:00.»; «what day is it today?» → «Today is Tuesday 2026-09-15.»; «what time
+is it?» → «It is 23:34.»; «where am I?» → «You are in Rome.»; «who am I?» →
+«You are Francesco.»; «who are you?» → «I am parrot0, the one you are talking
+to.» Banco `tests/p0t/reasoning/origo.p0t`.
+
+**Due precedenze scoperte, e la tesi di F.** «tomorrow I have a meeting at 9»
+(senza «am») era imparato come «meeting is located in 9» e «we are in Rome»
+cadeva al muro **già a `9f588eb1`**: in entrambi decide il C *chi parla prima*
+(la lettura delle affermazioni prima del piano di turno; la prosa che fa cedere
+il piano di turno). F.: *«questi siti C si possono collimare con una KB che
+disciplina le scelte e le rende addestrabili»* — sì: `faculty_yield*` già
+governa il *se*, manca il *prima di chi*. Primo passo fatto: una porta in
+`extract_class_statement` (`statement_extract`) e l'atto `situation_described`
+con le cessioni di `gen`, `learn`, `statement_extract`; «we are in Rome» ha
+l'eccezione `turn_describes_setting` in `prose_carried`, ma il turno cade
+ancora (da bisecare: pre-esistente). Il passo vero è un ordine di precedenza
+in KB letto dal registro, ed è la prossima missione.
+
+**Pagato con l'orologio:** i fatti che il C pubblica a ogni turno devono essere
+`machinery` e `turn_scratch`; senza, `clock_time`/`calendar_day` entravano nel
+giornale dei fatti recenti e «transfer is never below 0» li negava uno per uno
+(modulo `negation`) rubando la lezione del minimo — E1, E2a ed E4 rossi per
+un'ora. Ora in `docs/parrot-p0-syntax.md` §8.
