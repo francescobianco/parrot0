@@ -214,3 +214,26 @@ turn_form_act(decision_status_question, "op(match, decision_status_answer, [subj
 turn_form_priority(decision_status_question, early).
 turn_form_view(decision_status_question, said).
 turn_form_reply(decision_status_question, decision_answer).
+
+% ── E2b: la soglia detta, per esteso o ellittica sotto la questione massima ─
+% «the transfer of train is at most 1»: la lezione di valore fallisce (il
+% valore non e' un numero) e questa legge la soglia come parole di confronto.
+turn_form(decision_bound_lesson, 1, text("the")).
+turn_form(decision_bound_lesson, 2, slot(role)).
+turn_form(decision_bound_lesson, 3, text("of")).
+turn_form(decision_bound_lesson, 4, span(subject)).
+turn_form(decision_bound_lesson, 5, text("is")).
+turn_form(decision_bound_lesson, 6, span(bound)).
+turn_form_slot_form(decision_bound_lesson, subject, atom).
+turn_form_act(decision_bound_lesson, "op(match, decision_bound_store, [subject, role, bound, free])").
+turn_form_priority(decision_bound_lesson, early).
+turn_form_view(decision_bound_lesson, said).
+turn_form_reply(decision_bound_lesson, decision_datum_noted).
+turn_form(decision_datum_bound_en, 1, text("it is")).
+turn_form(decision_datum_bound_en, 2, span(bound)).
+turn_form_act(decision_datum_bound_en, "op(match, decision_datum_bound_store, [bound, free])").
+turn_form_priority(decision_datum_bound_en, early).
+turn_form_view(decision_datum_bound_en, said).
+turn_form_reply(decision_datum_bound_en, decision_datum_noted).
+% L'italiano entra per parafrasi insegnata («vale al massimo z means it is at
+% most z»): «al» arriva gia' canonicalizzato e una forma diretta non combacia.

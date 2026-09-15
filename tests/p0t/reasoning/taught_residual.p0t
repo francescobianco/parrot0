@@ -1,0 +1,97 @@
+# E2b del piano interlocutore-di-frontiera (§9.9): il residuo sul tabellone.
+# La questione `datum` che parrot0 apre chiedendo un dato porta la condizione
+# residua; una risposta con una SOGLIA («it is at most 1») la chiude se basta,
+# senza imporre il valore esatto; una premessa corretta la riapre; due scopi
+# non si mescolano. Banco scritto prima della cura, KB viva `agi`.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test la soglia detta chiude l'obbligo senza il valore esatto]
+!timeout 6
+> calculate ready by adding arrival and transfer
+> transfer is never below 0
+> prefer confirming the check to asking questions when a bound settles it
+> prefer explaining obstacles to asking questions when a requirement fails
+> the arrival of train is 10
+> for train the ready must be at most 11
+> can I complete train?
+<~ transfer must be at most 1
+> it is at most 3
+<~ at most 3
+<~ transfer must be at most 1
+> it is at most 1
+<~ transfer is at most 1
+<~ satisfied
+<~ ready is at most 11
+> what is the transfer of train?
+<~ at most 1
+<! missing
+> what is the ready of train?
+<~ at least 10
+<~ at most 11
+
+[test la premessa corretta riapre l'obbligo, e la stessa questione risponde all'ellissi]
+!timeout 6
+> for train the ready must be at most 10
+> can I complete train?
+<~ transfer must be at most 0
+> it is 0
+<~ transfer is 0
+<~ satisfied
+> what is the transfer of train?
+<~ 0
+<! at most
+
+[test due scopi non si mescolano: la soglia risponde all'ultima domanda]
+!timeout 6
+> the arrival of bus is 10
+> for bus the ready must be at most 12
+> the arrival of cab is 10
+> for cab the ready must be at most 13
+> can I complete bus?
+<~ transfer must be at most 2
+> can I complete cab?
+<~ transfer must be at most 3
+> it is at most 3
+<~ For cab
+<~ satisfied
+> can I complete bus?
+<~ What is the transfer of bus?
+> what remains for cab?
+<~ Settled
+
+[test la soglia detta per esteso, e il valore esatto detto dopo la sostituisce]
+!timeout 6
+> the arrival of tram is 10
+> for tram the ready must be at least 12
+> the transfer of tram is at least 2
+<~ at least 2
+> can I complete tram?
+<~ satisfied
+<~ ready is at least 12
+> the transfer of tram is 1
+> can I complete tram?
+<~ No: ready reaches 11
+> what is the transfer of tram?
+<~ 1
+<! at least
+
+[test la soglia in italiano, ellittica]
+!timeout 10
+> per x il y deve essere al massimo z means for x the y must be at most z
+> il y di x vale z means the y of x is z
+> vale al massimo z means it is at most z
+> il arrival di van vale 10
+> per van il ready deve essere al massimo 11
+> posso completare van?
+<~ transfer
+> vale al massimo 1
+<~ at most 1
+<~ van
+<~ satisfied
+> forget that vale al massimo z means it is at most z
+> forget that per x il y deve essere al massimo z means for x the y must be at most z
+> forget that il y di x vale z means the y of x is z

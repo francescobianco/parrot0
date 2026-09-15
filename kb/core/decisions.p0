@@ -43,10 +43,12 @@ decision_operator_monotone(add).
 decision_floor($O, $R, $V) :- decision_floor_in($O, $R, $V, nil).
 decision_floor_in($O, $R, $V, $Seen) :- decision_number($O, $R, $V).
 decision_floor_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_minimum($R, $V).
+decision_floor_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_stated_bound($O, $R, $Op, $V), decision_bound_kind($Op, floor).
 decision_floor_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_operator_monotone(add), decision_floor_in($O, $A, $X, cons($R, $Seen)), decision_floor_in($O, $B, $Y, cons($R, $Seen)), is($V, add($X, $Y)).
 decision_ceiling($O, $R, $V) :- decision_ceiling_in($O, $R, $V, nil).
 decision_ceiling_in($O, $R, $V, $Seen) :- decision_number($O, $R, $V).
 decision_ceiling_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_maximum($R, $V).
+decision_ceiling_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_stated_bound($O, $R, $Op, $V), decision_bound_kind($Op, ceiling).
 decision_ceiling_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_operator_monotone(add), decision_ceiling_in($O, $A, $X, cons($R, $Seen)), decision_ceiling_in($O, $B, $Y, cons($R, $Seen)), is($V, add($X, $Y)).
 
 % Il residuo segue le dipendenze: si chiede la foglia ignota, non il risultato
@@ -128,6 +130,26 @@ decision_residual_in($O, $R, goal($Op, $B, $Seen), need($R, $Op, $B)) :- naf(dec
 decision_residual_in($O, $R, goal($Op, $B, $Seen), $Res) :- naf(decision_known($O, $R)), decision_formula($R, $A, $C), naf(member($R, $Seen)), decision_operator_monotone(add), decision_number($O, $A, $X), naf(decision_known($O, $C)), is($B2, sub($B, $X)), decision_residual_in($O, $C, goal($Op, $B2, cons($R, $Seen)), $Res).
 decision_residual_in($O, $R, goal($Op, $B, $Seen), $Res) :- naf(decision_known($O, $R)), decision_formula($R, $A, $C), naf(member($R, $Seen)), decision_operator_monotone(add), decision_number($O, $C, $Y), naf(decision_known($O, $A)), is($B2, sub($B, $Y)), decision_residual_in($O, $A, goal($Op, $B2, cons($R, $Seen)), $Res).
 decision_residual_in($O, $R, goal($Op, $B, $Seen), need_sum($R, $Op, $B)) :- naf(decision_known($O, $R)), decision_formula($R, $A, $C), naf(decision_known($O, $A)), naf(decision_known($O, $C)).
+
+% ── 2c. LA SOGLIA DETTA: un limite sul dato di UN soggetto (E2b, §9.2) ─────
+% «the transfer of train is at most 1» / «it is at most 1» custodisce
+% bound(Op, V) nello STESSO stato descritto del valore (state_commit): un
+% valore esatto detto dopo lo sostituisce, e viceversa; nessun pending_*.
+% Entra nei limiti del ruolo come minimo/tetto del solo soggetto. Il verso
+% stretto («more than 1») si compone come non stretto: piu' debole, mai falso.
+decision_bound_kind(ge, floor). decision_bound_kind(gt, floor).
+decision_bound_kind(le, ceiling). decision_bound_kind(lt, ceiling).
+decision_stated_bound($O, $R, $Op, $V) :- role($O, $R, bound($Op, $V)).
+% La soglia arriva come parole: le parole di un confronto (decision_comparison,
+% quindi insegnabili) seguite dal numero. Nessun parser nel C.
+decision_words_then(nil, cons($V, nil), $V).
+decision_words_then(cons($W, $Ws), cons($W, $Rest), $V) :- decision_words_then($Ws, $Rest, $V).
+decision_parse_bound($Span, $Op, $V) :- atom_words($Span, $Ws), decision_comparison($Name, $Op), atom_words($Name, $Cw), decision_words_then($Cw, $Ws, $V), decision_numeric($V).
+decision_bound_text($L, $R, bound($Op, $V), $Text) :- words_of($R, $Name), concat_atoms("the ", $Name, $A), decision_is_words($L, $Is), concat_atoms($A, $Is, $B), decision_bound_words($L, $Op, $W), concat_atoms($B, $W, $C), concat_atoms($C, $V, $Text).
+decision_bound_of_text($L, $O, $R, $Text) :- words_of($R, $Rn), concat_atoms("the ", $Rn, $A), decision_ask_link($L, $Of), concat_atoms($A, $Of, $B), words_of($O, $On), concat_atoms($B, $On, $C), decision_is_words($L, $Is), concat_atoms($C, $Is, $Text).
+decision_bound_store($O, $R, $Span, $Text) :- decision_parse_bound($Span, $Op, $V), state_commit($O, $R, bound($Op, $V)), current_language($L), decision_bound_of_text($L, $O, $R, $A), decision_bound_words($L, $Op, $W), concat_atoms($A, $W, $B), concat_atoms($B, $V, $C), concat_atoms($C, ".", $Text).
+% L'ellissi con la soglia, sotto la questione massima: stessa regola di «it is 0».
+decision_datum_bound_store($Span, $Text) :- decision_parse_bound($Span, $Op, $V), max_qud($I), open_issue($I, datum), naf(decision_other_datum($I)), issue_topic($I, $O), issue_relation($I, $R), state_commit($O, $R, bound($Op, $V)), current_language($L), decision_bound_text($L, $R, bound($Op, $V), $A), decision_datum_reply($O, $A, $Text).
 
 % ── 3. LE DEFINIZIONI ROTTE: circolari o discordi ──────────────────────────
 decision_part($R, $A) :- decision_formula($R, $A, $B).
@@ -211,8 +233,19 @@ decision_condition_name("un limite basta", bounded).
 % Genere `datum`: parrot0 ha chiesto un valore, l'utente lo deve. Identita'
 % datum_<soggetto>_<ruolo>; lo stato e' una vista: si risolve quando il valore
 % diventa derivabile. Il turno dopo («it is 0») si legge sotto la massima.
+% La questione e' chiusa quando il dato e' noto, OPPURE quando una soglia
+% detta lascia l'obbligo senza residuo su quel dato (E2b): il tabellone e'
+% collegato all'obbligo, non alla casella. Il controllo costoso (gli stati)
+% gira solo se una soglia e' stata detta; le negazioni lavorano su una lista.
 issue_state($I, resolved) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), decision_known($O, $R).
-issue_state($I, open) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)).
+issue_state($I, resolved) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)), decision_stated_bound($O, $R, $Op, $V), decision_owed_roles($O, $Rs), naf(member($R, $Rs)).
+issue_state($I, open) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)), naf(decision_has_stated_bound($O, $R)).
+issue_state($I, open) :- open_issue($I, datum), issue_topic($I, $O), issue_relation($I, $R), naf(decision_known($O, $R)), decision_stated_bound($O, $R, $Op, $V), decision_owed_roles($O, $Rs), member($R, $Rs).
+decision_has_stated_bound($O, $R) :- decision_stated_bound($O, $R, $Op, $V).
+decision_residual_role(need($R, $Op, $B), $R).
+decision_residual_role(need_sum($S, $Op, $B), $R) :- decision_reaches($S, $R, cons($S, nil)).
+decision_owed_role($O, $R) :- decision_statuses($O, $Ss), member(status($Q, $Bd, open($Res)), $Ss), decision_residual_role($Res, $R).
+decision_owed_roles($O, $Rs) :- findall($R, decision_owed_role($O, $R), $Rs).
 issue_owed_by($I, user) :- open_issue($I, datum).
 decision_datum_id($O, $R, $I) :- concat_atoms("datum_", $O, $A), concat_atoms($A, "_", $B), concat_atoms($B, $R, $I).
 decision_note($O, verdict($Cs, cons(ask, nil))) :- decision_asks_list($Cs, $Ms), decision_note_data($O, $Ms).
@@ -223,7 +256,19 @@ decision_note_datum($O, $R, $I) :- naf(open_issue($I, datum)), turn_counter($N),
 % (per rinfrescarne l'origine) faceva morire il processo — lo stato cambiava
 % mentre il solver lo enumerava (state-description.p0 §5). L'origine e' il
 % primo turno che ha chiesto.
-decision_note_datum($O, $R, $I) :- open_issue($I, datum).
+% Richiedere un dato deve rendere la questione di nuovo MASSIMA (residuo
+% §8.4.1): la prova lascia un fatto scratch, e un contabile sposta l'origine al
+% confine sicuro del turno dopo — mai un retract dentro la prova.
+decision_note_datum($O, $R, $I) :- open_issue($I, datum), turn_counter($N), assert(datum_reasked, $I, $N).
+machinery(datum_reasked).
+turn_scratch(datum_reasked).
+bookkeeper(datum_reasked).
+datum_reasked_pair(re($I, $N)) :- datum_reasked($I, $N).
+turn_bookkeeping($Turn, datum_reasked) :- findall($X, datum_reasked_pair($X), $Xs), decision_refresh_all($Xs).
+decision_refresh_all(nil).
+decision_refresh_all(cons(re($I, $N), $Rest)) :- decision_refresh($I, $N), decision_refresh_all($Rest).
+decision_refresh($I, $N) :- issue_turn($I, $K), dif($K, $N), retract(issue_turn, $I, $K), assert(issue_turn, $I, $N), retract(datum_reasked, $I, $N).
+decision_refresh($I, $N) :- issue_turn($I, $N), retract(datum_reasked, $I, $N).
 decision_note($O, verdict($Cs, nil)).
 decision_note($O, verdict($Cs, cons(explain, nil))).
 decision_note($O, verdict($Cs, cons(confirm, nil))).
@@ -236,7 +281,8 @@ decision_answer($O, $Text) :- decision_verdict($O, $Cs, $Ms), current_language($
 % referente dell'ellissi e' la questione massima, non ogni questione aperta.
 decision_other_datum($I) :- issue_turn($I, $N), open_issue($J, datum), dif($I, $J), issue_turn($J, $N), issue_state($J, open).
 decision_datum_store($V, $Text) :- decision_numeric($V), max_qud($I), open_issue($I, datum), naf(decision_other_datum($I)), issue_topic($I, $O), issue_relation($I, $R), state_commit($O, $R, $V), decision_datum_text($O, $R, $V, $Text).
-decision_datum_text($O, $R, $V, $Text) :- current_language($L), decision_value_text($L, $R, $V, $A), decision_for_words($L, $For), concat_atoms($A, $For, $B), words_of($O, $Name), concat_atoms($B, $Name, $C), concat_atoms($C, ": ", $D), decision_answer($O, $Reply), concat_atoms($D, $Reply, $Text).
+decision_datum_text($O, $R, $V, $Text) :- current_language($L), decision_value_text($L, $R, $V, $A), decision_datum_reply($O, $A, $Text).
+decision_datum_reply($O, $A, $Text) :- current_language($L), decision_for_words($L, $For), concat_atoms($A, $For, $B), words_of($O, $Name), concat_atoms($B, $Name, $C), concat_atoms($C, ": ", $D), decision_answer($O, $Reply), concat_atoms($D, $Reply, $Text).
 
 % ── 6. LA RESA: parole in KB, valori derivati dalla stessa prova ───────────
 decision_bound_words(en, le, "at most ").
@@ -370,7 +416,15 @@ decision_trace_text($L, $O, $R, $Text) :- decision_formula($R, $A, $B), decision
 decision_value_answer($O, $R, $Text) :- role($O, $R, $Raw), decision_number($O, $R, $V), current_language($L), decision_value_text($L, $R, $V, $A), concat_atoms($A, ".", $Text).
 decision_value_answer($O, $R, $Text) :- naf(decision_stated($O, $R)), decision_number($O, $R, $V), current_language($L), decision_value_text($L, $R, $V, $A), concat_atoms($A, " (", $B), decision_trace_text($L, $O, $R, $Trace), concat_atoms($B, $Trace, $C), concat_atoms($C, ").", $Text).
 decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), decision_conflict($O, $R), decision_values($O, $R, $Vs), current_language($L), decision_render($L, conflict($R, $Vs), $Text).
-decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_missing_list($O, $R, cons($M, $Ms)), current_language($L), decision_unknown_start($L, $Start), words_of($R, $Name), concat_atoms($Start, $Name, $A), decision_unknown_link($L, $Link), concat_atoms($A, $Link, $B), decision_role_words($L, cons($M, $Ms), $Mn), concat_atoms($B, $Mn, $C), decision_missing_ending($L, cons($M, $Ms), $W), concat_atoms($C, $W, $Text).
+% Con un limite noto (detto o derivato) la risposta e' il limite: «the ready
+% is at least 10 and at most 11.» — UNA riga (op(match)); «manca» solo senza.
+decision_limit_op(floor, ge). decision_limit_op(ceiling, le). decision_limit_op(exact, eq).
+decision_limit_words($L, limit($K, $V), $T) :- decision_limit_op($K, $Op), decision_bound_words($L, $Op, $W), concat_atoms($W, $V, $T).
+decision_limit_text_of($L, $Bs, $X) :- member($B, $Bs), decision_limit_words($L, $B, $X).
+decision_limits_text($L, $Bs, $T) :- findall($X, decision_limit_text_of($L, $Bs, $X), $Xs), decision_list($L, $Xs, $T).
+decision_empty(nil).
+decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_bounds($O, $R, $Bs), naf(decision_empty($Bs)), current_language($L), words_of($R, $Name), concat_atoms("the ", $Name, $A), decision_is_words($L, $Is), concat_atoms($A, $Is, $B), decision_limits_text($L, $Bs, $List), concat_atoms($B, $List, $C), concat_atoms($C, ".", $Text).
+decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_bounds($O, $R, $Bs), decision_empty($Bs), decision_missing_list($O, $R, cons($M, $Ms)), current_language($L), decision_unknown_start($L, $Start), words_of($R, $Name), concat_atoms($Start, $Name, $A), decision_unknown_link($L, $Link), concat_atoms($A, $Link, $B), decision_role_words($L, cons($M, $Ms), $Mn), concat_atoms($B, $Mn, $C), decision_missing_ending($L, cons($M, $Ms), $W), concat_atoms($C, $W, $Text).
 decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_circular($R), current_language($L), decision_render($L, circular($R), $Text).
 
 % La domanda polare sul valore: «is the departure of train 8?» — si', no con il

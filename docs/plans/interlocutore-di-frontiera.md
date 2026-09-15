@@ -1307,7 +1307,7 @@ tutte insieme. Il primo difetto osservato stabilisce dove intervenire.
 |---|---|---|
 | ~~**D0 — fissare il banco**~~ (15 settembre, §9.12) | conservare E1, aggiungere i casi discriminanti di §9.10 e il transcript naturale; leggere le risposte | distinguere perdita in lettura, condizione mancante e scelta errata; nessun fix prima del banco |
 | ~~**E2a — sufficienza**~~ (15 settembre, §9.12) | estendere il circuito esistente dal valore esatto alla verifica per limiti, con sostegni e residuo tipato | i tre casi di §9.1 si separano; insegnamento e ablazione modificano il comportamento pertinente |
-| **E2b — residuo interrogabile** | collegare il vincolo residuo alla stessa questione sulla board; accettare una risposta che lo soddisfi senza imporre il valore esatto | una domanda sulla soglia chiude l'obbligo; correzione della premessa lo riapre; due scopi non si mescolano |
+| ~~**E2b — residuo interrogabile**~~ (15 settembre, §9.13) | collegare il vincolo residuo alla stessa questione sulla board; accettare una risposta che lo soddisfi senza imporre il valore esatto | una domanda sulla soglia chiude l'obbligo; correzione della premessa lo riapre; due scopi non si mescolano |
 | **E3 — collegamento alla conversazione** | far arrivare le frasi naturali di viaggio e impegno agli stessi oggetti E2, conservando fonte e ambito | il prompt originale e le varianti funzionano senza che il teacher li riscriva nel linguaggio delle formule; riunione e città del cliente restano distinte |
 | **E4 — prova riusabile** | registrare un episodio e ricavarne un procedimento condizionale verificabile; applicarlo fuori dalla famiglia di costruzione | il riuso risparmia lavoro contando anche apprendimento e invalidazione; un controesempio ne restringe l'ambito |
 | **E5 — scelta appresa dagli esiti** | proporre e confrontare criteri su quale procedimento o domanda tentare | il criterio emerge dal riscontro, raggiunge casi esclusi, è correggibile parlando e il suo effetto scompare con l'ablazione |
@@ -1501,14 +1501,9 @@ lanciato (politica dei test di F.); i due banchi non sono nel Makefile.
 
 **Residui, in ordine:**
 
-1. **E2b — il residuo sul tabellone.** La questione `datum` chiede ancora il
-   valore esatto; una risposta polare o un intervallo («it is at most 1», «no
-   more than an hour») deve chiudere l'obbligo se soddisfa `need(...)`, senza
-   imporre il valore. Il residuo esiste già come vista; manca la forma di
-   risposta e la sua riverifica.
-2. **La domanda sul valore** «what is the ready of train?» con limite noto dice
-   ancora «I do not have the ready yet»: dovrebbe dire «the ready is at least
-   10 (the transfer is missing)». Un solo rigo (`op(match)` vuole UNA riga).
+1. ~~E2b — il residuo sul tabellone~~ — chiuso il 15 settembre (§9.13).
+2. ~~La domanda sul valore con limite noto~~ — chiuso in §9.13: «the ready is
+   at least 10 and at most 11.»
 3. **Un solo operatore di formula** e la proprietà dichiarata solo per `add`:
    una formula per prodotto o differenza richiede le sue proprietà (verso,
    segno) prima di comporre limiti o trasportare residui. Non farlo per
@@ -1517,3 +1512,60 @@ lanciato (politica dei test di F.); i due banchi non sono nel Makefile.
 5. **E3 — il transcript naturale resta murato** (report §C): «tomorrow I have
    an important meeting at 9 am …» non arriva a `situation_state`; è la
    missione successiva e passa per la lettura, non per nuove forme di lezione.
+
+### 9.13 E2b — stato al 15 settembre 2026, notte: il residuo vive sul tabellone
+
+Banco `tests/p0t/reasoning/taught_residual.p0t`, scritto prima della cura e
+letto con l'eco. Tutto in KB (`decisions.p0` §2c, §5, §7; tre forme in
+`decision-language.p0`), nessuna riga di C. I tre gate di §9.9 tengono:
+
+1. **Una risposta con la soglia chiude l'obbligo senza il valore esatto.**
+   «it is at most 1» sotto la questione `datum` massima custodisce
+   `bound(le, 1)` nello **stesso stato descritto del valore** (`state_commit`,
+   quindi `situation_state`): nessun `pending_*`, nessuna casella parallela.
+   La soglia entra nei limiti del ruolo come tetto/minimo del solo soggetto
+   (`decision_stated_bound/4`, letta da `decision_floor_in`/`decision_ceiling_in`)
+   e la verifica per limiti di E2a fa il resto: «Noted: the transfer is at
+   most 1. For train: The stated requirements are satisfied. ready is at most
+   11; the requirement is at most 11.» Una soglia che non basta («it is at
+   most 3») lascia la domanda con il residuo. La stessa soglia si dice per
+   esteso («the transfer of tram is at least 2»): la lezione di valore fallisce
+   perché il valore non è un numero, e la forma della soglia legge le parole di
+   `decision_comparison` più il numero (`decision_parse_bound/3`, `atom_words`).
+   Il verso stretto si compone come non stretto: più debole, mai falso.
+2. **La questione `datum` è collegata all'obbligo, non alla casella.** È
+   risolta quando il dato è noto OPPURE quando una soglia detta lascia
+   l'obbligo senza residuo su quel dato (`decision_owed_roles/2` su
+   `decision_residual_role/2`, need e need_sum attraverso `decision_reaches`).
+   Il controllo costoso gira solo se una soglia è stata detta; le negazioni
+   lavorano su liste.
+3. **La premessa corretta riapre la stessa questione.** Un nuovo requisito
+   «ready ≤ 10» rende insufficiente il tetto 1: il residuo torna («The transfer
+   must be at most 0 …»), e «it is 0» lo chiude. Perché l'ellissi trovi la
+   questione richiesta, **richiedere un dato la rende di nuovo massima**
+   (residuo E1 §8.4.1 chiuso): la prova lascia `datum_reasked(I, N)` e il
+   contabile `turn_bookkeeping(_, datum_reasked)` sposta `issue_turn` al
+   confine sicuro del turno dopo — la via che `issues.p0` usa già per
+   `inquiry_reset_turn`; mai un `retract` dentro la prova.
+4. **Due scopi non si mescolano.** Con bus e cab entrambi in attesa del
+   trasferimento, «it is at most 3» va alla domanda più recente (cab) e bus
+   resta aperto con la sua soglia.
+5. **La domanda sul valore dice i limiti**: «what is the ready of train?» →
+   «the ready is at least 10 and at most 11.»; «the transfer is at least 0 and
+   at most 1.» Il «manca» resta solo senza alcun limite (residuo §9.12.2
+   chiuso).
+6. **Italiano per parafrasi**: «vale al massimo z means it is at most z» vale
+   subito e si ritratta. Una forma italiana diretta non può combaciare, perché
+   «al» arriva già canonicalizzato («to the massimo»): stessa lezione di §8.1.8.
+
+**Misure** (MCP fresco): soglia ellittica 1,2–2,2 s; riverifica 1,3–1,9 s;
+domanda sul valore 0,8–1,0 s. **Certificazione col runner** (KB completa
+`agi`): `taught_residual.p0t` **31 verdi in 56 s**; E2a 49/49 (109 s) ed E1
+52/52 (97 s) invariati. Nessun altro file lanciato.
+
+**Residui, in ordine:** (a) una risposta **polare** alla soglia («yes» dopo
+«The transfer must be at most 1 …») non è ancora letta come conferma della
+condizione: la questione porta il residuo, manca la forma che lo accetti; (b)
+il verso stretto perso nella composizione (`limit(above, V)`/`limit(below, V)`
+sarebbero due righe nella tabella dei generi, più la somma); (c) un solo
+operatore (§9.12.3); (d) E3, il transcript naturale, immutato.
