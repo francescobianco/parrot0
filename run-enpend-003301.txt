@@ -1,0 +1,6 @@
+> what is a zorbian?
+  = I don't know much about zorbian yet, and the network is off, so I can't read about it now.   [1.63s]
+> from now on say the word CAVALLO instead of the word NO
+  = From now on I say «CAVALLO» instead of «NO».   [2.14s]
+> is the sky green?
+  = CAVALLO.   [1.04s]

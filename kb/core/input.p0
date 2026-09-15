@@ -288,6 +288,11 @@ mention_delimiter("\"", "\"").
 mention_delimiter("'", "'").
 cue_scope(intent_cue, outside_role(mention)).
 cue_scope(intent_phrase, outside_role(mention)).
+% 16 settembre 2026: «da ora in poi al posto della parola NO dì …» veniva letto
+% come RIFIUTO di un'offerta pendente («Va bene, non cerco»): un «no» citato non
+% e' un no detto. Le parole di assenso e dissenso non contano in una menzione.
+cue_scope(dissent_word, outside_role(mention)).
+cue_scope(assent_word, outside_role(mention)).
 
 % Uso e menzione non possono attraversare la stessa canonicalizzazione. Le
 % parole introdotte da queste cue sono oggetti del discorso: vanno conservate,

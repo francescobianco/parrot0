@@ -386,7 +386,14 @@ turn_cue_registry(assent_word, 1).
 turn_cue_registry(dissent_word, 1).
 machinery(offer_resolution).
 machinery(offer_unclaimed_turn).
-offer_resolution($T, refuse) :- turn_cue($T, dissent_word, $W).
+% 16 settembre 2026 — DOVE STA IL «NO» CONTA, come per il si' (gen510): «da ora
+% in poi al posto della parola NO dì la parola CAVALLO» sotto un'offerta pendente
+% veniva letto come rifiuto («Va bene, non cerco»). Un rifiuto e' la risposta
+% intera (poche parole) o apre il turno; un «no» citato in mezzo non rifiuta.
+offer_resolution($T, refuse) :- turn_cue($T, dissent_word, $W), turn_dissent_placed($T, $W).
+machinery(turn_dissent_placed).
+turn_dissent_placed($T, $W) :- turn_short_reply($T).
+turn_dissent_placed($T, $W) :- turn_span_token($T, $I, 0, $Tok), span_atom($Tok, $W).
 offer_resolution($T, accept) :- turn_cue($T, assent_word, $W), turn_assent_placed($T, $W),
     naf(offer_resolution($T, refuse)).
 % gen510 — DOVE STA IL «SI'» CONTA. «che lingua si parla in brasile?» sotto

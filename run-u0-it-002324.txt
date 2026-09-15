@@ -1,0 +1,14 @@
+> Parigi è la capitale dell'Italia?
+  = Francia.   [0.87s]
+> i pesci volano?
+  = Hmm, I don't know about volano yet. Want me to learn about it?   [1.14s]
+> da ora in poi al posto della parola NO dì la parola CAVALLO
+  = Imparato: da ora in poi al posto della parola NO dì la parola CAVALLO.   [1.25s]
+> Parigi è la capitale dell'Italia?
+  = Francia.   [1.08s]
+> i pesci volano?
+  = I looked up «volano» but found nothing. If you know it, teach me: «volano is defined as …».   [1.24s]
+> dimentica la regola su NO e CAVALLO
+  = Hmm, I don't know about forget yet. Want me to learn about it?   [2.34s]
+> Parigi è la capitale dell'Italia?
+  = Hmm, I don't know about parigi yet. Want me to learn about it?   [1.69s]

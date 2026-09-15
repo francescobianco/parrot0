@@ -3717,6 +3717,30 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
     }
     if (b && b->kb && strcmp(b->last_module, "fallback") != 0)
         machinery_gap_close(b, canon);
+    /* 16 settembre 2026 — LA CONDOTTA SULL'ESPRESSIONE (insegnamento
+     * super-umano, U1). Prima che la risposta lasci il motore — UNA volta, al
+     * livello esterno, cosi' i turni annidati non la trasformano due volte —
+     * la KB e' consultata: `reply_conduct(Testo, Uscita)` (reply-conduct.p0).
+     * Che cosa trasformare, in che cosa e quando e' conoscenza insegnata
+     * parlando («from now on say the word CAVALLO instead of the word NO»);
+     * qui c'e' solo la domanda. */
+    if (b && b->kb && out && *out && b->respond_depth == 1) {
+        char quoted[P0_TURN_MAX + 4];
+        size_t qi = 0; quoted[qi++] = '"';
+        for (const char *c = out; *c && qi + 2 < sizeof quoted; c++)
+            quoted[qi++] = (*c == '"') ? '\'' : *c;
+        quoted[qi++] = '"'; quoted[qi] = '\0';
+        char shaped[1][KB_TERM_LEN];
+        const char *cq[2] = { quoted, NULL };
+        if (kb_match(b->kb, "reply_conduct", cq, 2, shaped, 1) == 1) {
+            char *v = shaped[0]; size_t vl = strlen(v);
+            if (vl >= 2 && v[0] == '"' && v[vl - 1] == '"') { v[vl - 1] = '\0'; v++; }
+            if (*v && strcmp(v, out) != 0) {
+                put(v, out, out_size);
+                snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            }
+        }
+    }
     conv_log(b, input, out);
     return strlen(out);
 }
@@ -5572,8 +5596,11 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     char *outer_view = b ? b->active_turn_norm : NULL;
     if (b && turn_view) b->active_turn_norm = turn_view;
     if (b) b->respond_depth++;
+    const char *outer_raw = b ? b->active_turn_raw : NULL;
+    if (b && b->respond_depth == 1) b->active_turn_raw = input;
     size_t n = brain_respond_dispatch(b, input, out, out_size);
     if (b) b->respond_depth--;
+    if (b) b->active_turn_raw = outer_raw;
     /* gen512 (glm-test §3.2) — E ORA I NOMI CHE STAVANO DOPO IL PRONOME.
      *
      * La meta' differita della raccolta dei nomi propri (vedi il commento in

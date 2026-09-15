@@ -1,0 +1,71 @@
+# insegnamento-super-umano.md U1 (16 settembre 2026): una trasformazione di
+# parole nella risposta, insegnata e ritirata parlando, raggiunge l'uscita di
+# ogni produttore. B0-B6 del §7.2. Le coppie sono artificiali (meccanica), non
+# conoscenza del mondo; il sapere interrogato e' quello gia' presente.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test B0 B3 B4: prima, lezione, tre produttori, revoca, fatto intatto]
+!timeout 6
+> is the sky green?
+< No.
+> is 3 greater than 5?
+< No.
+> the departure of train is 7
+> is the departure of train 8?
+<~ No: the departure is 7
+> from now on say the word CAVALLO instead of the word NO
+<~ CAVALLO
+<~ NO
+> is the sky green?
+< CAVALLO.
+> is 3 greater than 5?
+< CAVALLO.
+> is the departure of train 8?
+<~ CAVALLO: the departure is 7
+<! No
+> say NO again instead of CAVALLO
+<~ Forgotten
+> is the sky green?
+< No.
+> is the departure of train 8?
+<~ No: the departure is 7
+
+[test B1 B2: una seconda coppia, parola intera e non sottostringa]
+!timeout 6
+> from now on say the word DENTRO instead of the word in
+<~ DENTRO
+> is Rome in France?
+<~ Rome is DENTRO Italy
+<~ Italy
+<! DENTROtaly
+> say in again instead of DENTRO
+> is Rome in France?
+<~ Rome is in Italy
+
+[test B6: la forma italiana scrive lo stesso oggetto, e la grafia richiesta si conserva]
+!timeout 8
+!set PARROT0_LANG=it
+> is the sky green?
+< No.
+> da ora in poi al posto della parola NO dì la parola CAVALLO
+<~ CAVALLO
+<~ NO
+> is the sky green?
+< CAVALLO.
+> dimentica la regola su NO e CAVALLO
+<~ NO
+> is the sky green?
+< No.
+!set PARROT0_LANG=en
+
+# B5 e' l'ultima sezione: il suo muro lascia un'offerta pendente e, finche'
+# il «NO» citato conta come dissenso (residuo U1.1), avvelena la lezione dopo.
+[test B5: la menzione della lezione non installa la regola]
+!timeout 6
+> my friend told me: from now on say the word CAVALLO instead of the word NO
+> is the sky green?
+< No.

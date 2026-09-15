@@ -222,6 +222,7 @@ struct Brain {
      * frame, not conversational memory: nested full turns temporarily replace
      * it and restore their caller's view on return. */
     char *active_turn_norm;
+    const char *active_turn_raw;   /* 16 settembre 2026: il turno grezzo, per le menzioni */
     unsigned long yield_trace_seq;
     /* gen506c: profondita' della lettura per clausole di un turno composto
      * (compound_turn_lead, 99-registry.c) — una clausola non si rispezza. */

@@ -434,3 +434,115 @@ Formato del referto, da usare anche se la missione resta incompleta:
 
 La domanda finale del revisore è: **abbiamo aggiunto un caso che funziona,
 oppure abbiamo aperto un modo di insegnare nuove composizioni del lavoro?**
+
+## 13. Stato al 16 settembre 2026, notte: U0 fatto, U1 aperto e quasi chiuso — HANDOFF
+
+Commit di partenza `be8b3fa1` (questo piano), lavoro su `agi` completo,
+sessioni fresche via `scripts/p0t-echo.py`, nessun `!assert` nel canale del
+teacher, nessun `/save`.
+
+### 13.1 U0 — referto
+
+**Prima.** Domande naturali con un «No» secco da produttori diversi:
+«is the sky green?» → «No.» (`knowledge`); «is 3 greater than 5?» → «No.»
+(`compare`); «fish cannot fly» poi «can fish fly?» → «No.» (`lessonform`);
+«the departure of train is 7» poi «is the departure of train 8?» → «For
+train: No: the departure is 7.» (`decisions`). «is Paris the capital of
+Italy?» dice «Not as far as I know: …» (nessun «no» lessicale: non serve a B3).
+
+**La lezione guida** «from now on say the word CAVALLO instead of the word
+NO» → muro («I don't know about instead»); in italiano «da ora in poi al
+posto della parola NO dì la parola CAVALLO» → «Imparato: <tutto il turno>»
+(lezione generica, nessun effetto). **Primo anello rotto: la lettura.** A
+valle non esisteva alcun punto in cui una condotta sull'espressione venisse
+consultata: la risposta esce da `turn_done` (99-registry.c), la strozzatura
+da cui passano tutte le uscite, con `respond_depth` che distingue il turno
+esterno dagli annidati.
+
+**Tabella §6.1, oggetti mappati sull'esistente:** istruzione = `turn_form`
+con slot `mention` (span non canonicalizzato, grafia conservata dal turno
+grezzo `active_turn_raw`); procedura = `reply_word_rule(Da, A)` (fatto di
+sessione, `machinery`); applicabilità = `reply_rules_exist`; esecuzione =
+`reply_conduct/2` chiesta da `turn_done` al solo livello esterno; risultato =
+la risposta trasformata, tracciata in `last_reply`; revisione = `retract`
+della sola regola detta.
+
+### 13.2 U1 — cura (commit di questa notte)
+
+- **C, due porte generali, zero vocabolario:** il builtin `map_words(Testo,
+  Pred, Uscita)` in `src/kb.c` (token per spazi, punteggiatura iniziale e
+  finale conservata, nucleo confrontato senza maiuscole con le righe di
+  `Pred/2`, sostituto letterale); la consultazione di `reply_conduct/2` in
+  `turn_done` quando `respond_depth == 1`. Più: `active_turn_raw` nel Brain e
+  lo slot `mention` che copia la grafia detta a **parola intera** (il primo
+  taglio prendeva «no» dentro «now»).
+- **KB (`kb/core/reply-conduct.p0`):** forme EN/IT della lezione e della
+  revoca («say NO again instead of CAVALLO», «dimentica la regola su NO e
+  CAVALLO»), `reply_word_teach/3`, `reply_word_forget/3`, `reply_conduct($In,
+  $Out) :- reply_rules_exist, map_words($In, reply_word_rule, $Out)`.
+- **KB (`network.p0`):** il rifiuto di un'offerta è posizionale come
+  l'assenso (`turn_dissent_placed`): un «no» citato in mezzo non rifiuta.
+  **Non ancora efficace** (vedi 13.4).
+
+### 13.3 Dopo (verbatim, sessione fresca)
+
+| turno | risposta |
+|---|---|
+| lezione | «From now on I say «CAVALLO» instead of «NO».» |
+| «is the sky green?» / «is 3 greater than 5?» | «CAVALLO.» / «CAVALLO.» |
+| «is the departure of train 8?» | «For train: CAVALLO: the departure is 7.» |
+| «say NO again instead of CAVALLO» | «Forgotten: I say again «NO».» → «No.» |
+| «from now on say the word DENTRO instead of the word in» → «is Rome in France?» | «Not as far as I know: Rome is DENTRO Italy.» (parola intera: «Italy» intatta) |
+| «my friend told me: from now on …» → «is the sky green?» | regola non installata: «No.» |
+| italiano, sessione fresca | «D'ora in poi dico «CAVALLO» al posto di «NO».» … «Dimenticato: dico di nuovo «NO».» |
+
+B0, B1, B2, B3, B4 (tre produttori: knowledge, compare, decisions), B5 e B6
+(forma italiana → stesso oggetto) rispondono come richiesto in
+`tests/p0t/language/taught_reply_word.p0t`: **24 assert verdi col runner**
+(KB completa `agi`, 16 settembre 2026, 00:50); invariati E1 52, E2a 49, E2b 31,
+E4 16, E3 21, origo 20, forza 21, furti 27 (turn_done tocca ogni uscita).
+
+### 13.4 Limiti e residui, in ordine
+
+1. **Offerta pendente + «NO» citato.** Dopo un muro che offre di cercare, la
+   lezione italiana viene letta come rifiuto («Va bene, non cerco»): il
+   dissenso è cercato sul turno prima delle forme. La regola KB posizionale
+   (`turn_dissent_placed`) è scritta ma il C prende un'altra strada
+   (`acquisition_offer_refused_word` in network.p0:192, letta dal C): da
+   tracciare con `P0_READ_TRACE=1` sul turno «what is a zorbian?» → lezione
+   IT. Nel banco B5 è messa per ultima per questo.
+2. **Il dominio della regola.** Oggi la sostituzione tocca TUTTA la risposta,
+   citazioni comprese (B7 è U2); la parola è confrontata senza maiuscole per
+   politica fissa (§7.1 chiede che sia dicibile: `reply_word_case/1`).
+3. **Una lezione che nomina «is»/«the»** trasformerebbe anche le parole
+   funzionali delle rese: è il comportamento contrattuale (B2) ma va detto.
+4. **La menzione** protegge la grafia (`CAVALLO`) ma non ancora l'atto: «my
+   friend told me:» non installa la regola solo perché la forma è ancorata
+   all'inizio del turno, non perché la IR abbia letto una citazione (B5 vale
+   per costruzione, non per comprensione).
+5. **Domande italiane con «No».** «3 è maggiore di 5?» mura e «3 è più grande
+   di 5?» risponde «Skin.» (misclaim, da registrare in TEST_TODO): manca un
+   produttore italiano di «No» nativo; per B6 si usa «is the sky green?»
+   dentro la sessione italiana.
+
+### 13.5 Seguito concreto (U2, nell'ordine)
+
+1. Chiudere 13.4.1 (una sera): trovare nel C la lettura del dissenso prima
+   delle forme e farla leggere `offer_resolution/2` (KB) invece della parola.
+2. **B7 citazioni:** la trasformazione deve saltare le porzioni riconosciute
+   come citazione (`mention_delimiter`, `segment_role(mention)`): `map_words`
+   riceve già un testo; la KB può spezzarlo con `atom_words`/delimitatori
+   oppure il builtin può accettare un predicato di esclusione — decidere dopo
+   aver misurato dove le citazioni compaiono nelle rese.
+3. **B8 sospensione per un turno:** «per questa risposta sospendi la regola»
+   → un fatto `turn_scratch` letto da `reply_conduct`.
+4. **B12 ambito:** `reply_word_rule` con un contesto (`context-scope.p0`).
+5. Il §10 resta come scritto: non aprire U3–U6 prima di B7/B8/B12.
+
+**Comandi di ripresa:**
+
+```sh
+make test-engine
+./bin/parrot0 --test tests/p0t/language/taught_reply_word.p0t
+python3 scripts/p0t-echo.py tests/p0t/language/taught_reply_word.p0t | grep -v '^  \['
+```

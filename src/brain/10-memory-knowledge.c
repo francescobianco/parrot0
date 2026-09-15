@@ -14871,7 +14871,26 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
                 }
             }
             snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg);
-            lowercase_copy(slots[*nslot].value, KB_TERM_LEN, v);
+            /* Una menzione conserva la GRAFIA detta («CAVALLO»): si cerca la
+             * frase nel turno grezzo senza distinguere maiuscole e si copia
+             * com'era; altrimenti in minuscolo, come ogni slot. */
+            int kept = 0;
+            if (mention_slot && b->active_turn_raw) {
+                char spaced[KB_TERM_LEN]; snprintf(spaced, sizeof spaced, "%s", v);
+                for (char *c = spaced; *c; c++) if (*c == '_') *c = ' ';
+                size_t sl = strlen(spaced);
+                for (const char *r = b->active_turn_raw; *r && sl; r++) {
+                    /* parola intera: «NO» non e' il «no» dentro «now» */
+                    int at_start = (r == b->active_turn_raw) || !isalnum((unsigned char)r[-1]);
+                    if (at_start && strncasecmp(r, spaced, sl) == 0 &&
+                        !isalnum((unsigned char)r[sl])) {
+                        snprintf(slots[*nslot].value, KB_TERM_LEN, "%.*s", (int)sl, r);
+                        for (char *c = slots[*nslot].value; *c; c++) if (*c == ' ') *c = '_';
+                        kept = 1; break;
+                    }
+                }
+            }
+            if (!kept) lowercase_copy(slots[*nslot].value, KB_TERM_LEN, v);
             slots[*nslot].is_text = 1;
             (*nslot)++;
             i = upto;

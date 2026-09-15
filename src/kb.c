@@ -2094,6 +2094,67 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * `is/2`. Il fold del §K6 resta interamente in KB — questo primitivo non
      * decide nulla su COSA dire, e la clausola in `procedures.p0` resta come
      * struttura secondaria e come documentazione della semantica. */
+    /* 16 settembre 2026 — `map_words(Testo, Pred, Uscita)`: una PRIMITIVA di
+     * parole, come atom_words/2. Ogni token separato da spazi si spezza in
+     * punteggiatura iniziale, nucleo e punteggiatura finale; se `Pred(Da, A)`
+     * ha una riga il cui `Da` e' il nucleo (senza distinguere maiuscole), il
+     * nucleo diventa `A` cosi' com'e' scritto; la punteggiatura resta. Quale
+     * predicato, quali parole e quando applicarlo e' conoscenza
+     * (kb/core/reply-conduct.p0, insegnamento super-umano U1): qui solo byte. */
+    if (strcmp(g->pred, "map_words") == 0 && g->argc == 3) {
+        char a0[KB_TERM_LEN], a1[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], a0, sizeof a0, 0);
+        deep_resolve(s, g->args[1], a1, sizeof a1, 0);
+        if (is_var(a0) || is_var(a1)) return 0;
+        char *text = a0; size_t tl = strlen(text);
+        if (tl >= 2 && text[0] == '"' && text[tl - 1] == '"') { text[tl - 1] = '\0'; text++; }
+        char *pred = a1; size_t pl = strlen(pred);
+        if (pl >= 2 && pred[0] == '"' && pred[pl - 1] == '"') { pred[pl - 1] = '\0'; pred++; }
+        char keys[64][KB_TERM_LEN];
+        const char *kq[2] = { NULL, NULL };
+        size_t nk = kb_match(S->kb, pred, kq, 2, keys, 64);
+        if (nk == 0) return 0;
+        char outb[KB_TERM_LEN]; size_t o = 0; outb[0] = '\0';
+        const char *p = text;
+        while (*p) {
+            if (*p == ' ') { if (o + 1 < sizeof outb) outb[o++] = *p; p++; continue; }
+            const char *st = p;
+            while (*p && *p != ' ') p++;
+            size_t n = (size_t)(p - st);
+            size_t lead = 0, trail = 0;
+            while (lead < n && !isalnum((unsigned char)st[lead]) && (unsigned char)st[lead] < 0x80) lead++;
+            while (trail < n - lead && !isalnum((unsigned char)st[n - 1 - trail]) && (unsigned char)st[n - 1 - trail] < 0x80) trail++;
+            char core[KB_TERM_LEN];
+            size_t cl = n - lead - trail;
+            if (cl >= sizeof core) cl = sizeof core - 1;
+            memcpy(core, st + lead, cl); core[cl] = '\0';
+            const char *repl = NULL; char rb[KB_TERM_LEN];
+            for (size_t i = 0; i < nk && !repl && cl; i++) {
+                char kb0[KB_TERM_LEN]; snprintf(kb0, sizeof kb0, "%s", keys[i]);
+                char *k = kb0; size_t kl = strlen(k);
+                if (kl >= 2 && k[0] == '"' && k[kl - 1] == '"') { k[kl - 1] = '\0'; k++; }
+                if (strcasecmp(k, core) != 0) continue;
+                char vals[1][KB_TERM_LEN];
+                const char *vq[2] = { keys[i], NULL };
+                if (kb_match(S->kb, pred, vq, 2, vals, 1) != 1) continue;
+                snprintf(rb, sizeof rb, "%s", vals[0]);
+                char *v = rb; size_t vl = strlen(v);
+                if (vl >= 2 && v[0] == '"' && v[vl - 1] == '"') { v[vl - 1] = '\0'; v++; }
+                repl = v;
+            }
+            int m = snprintf(outb + o, sizeof outb - o, "%.*s%s%.*s", (int)lead, st,
+                             repl ? repl : core, (int)trail, st + n - trail);
+            if (m < 0 || (size_t)m >= sizeof outb - o) return 0;
+            o += (size_t)m;
+        }
+        char quoted[KB_TERM_LEN];
+        if ((int)snprintf(quoted, sizeof quoted, "\"%s\"", outb) >= (int)sizeof quoted) return 0;
+        Subst *s2 = &scratch->subst;
+        subst_copy(s2, s);
+        if (unify(s2, g->args[2], quoted))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
+        return 0;
+    }
     if (strcmp(g->pred, "concat_atoms") == 0 && g->argc == 3) {
         char a0[KB_TERM_LEN], a1[KB_TERM_LEN];
         deep_resolve(s, g->args[0], a0, sizeof a0, 0);
@@ -3254,6 +3315,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
                                   strcmp(pred, "atom_words") == 0 ||
         strcmp(pred,"upcase_first")==0 || strcmp(pred,"concat_atoms")==0 ||
+        strcmp(pred,"map_words")==0 ||
         strcmp(pred,"kb_fact")==0 || strcmp(pred,"kb_rule")==0 ||
         strcmp(pred,"kb_rule_body")==0 ||
         strcmp(pred,"apply")==0 ||
@@ -6801,7 +6863,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
         "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body",
-        "apply", "atom_words", NULL };
+        "apply", "atom_words", "map_words", NULL };
     for (size_t i = 0; builtins[i]; i++)
         if (strcmp(pred, builtins[i]) == 0) return 1;
     /* L'indice per predicato esiste dal gen401 e va usato: una scansione

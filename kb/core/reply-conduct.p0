@@ -1,0 +1,75 @@
+% reply-conduct.p0 — LA CONDOTTA SULL'ESPRESSIONE (insegnamento super-umano, U1).
+% docs/plans/insegnamento-super-umano.md §7-9. «Da ora in poi al posto della
+% parola NO dì la parola CAVALLO»: una regola sulla RISPOSTA, che resta attiva
+% nei turni successivi fino a revoca. Il motore consulta `reply_conduct/2`
+% una volta, al livello esterno di ogni turno (turn_done); la trasformazione
+% e' la primitiva generale `map_words/3` (parola intera, punteggiatura
+% conservata, maiuscole ignorate nel confronto, testo sostitutivo letterale).
+% Quale parola, in che cosa, e se la regola e' attiva: tutto qui, tutto detto.
+:- file_attribute(machinery).
+machinery(reply_word_rule).
+
+% ── 1. LE LEZIONI ───────────────────────────────────────────────────────────
+% Le parole citate sono MENZIONI: restano come dette (grafia compresa).
+segment_role(mention, "from now on say the word").
+segment_role(mention, "instead of the word").
+segment_role(mention, "da ora in poi al posto della parola").
+segment_role(mention, "dì la parola").
+segment_role(mention, "again instead of").
+segment_role(mention, "dimentica la regola su").
+turn_form(reply_word_lesson_en, 1, text("from now on say the word")).
+turn_form(reply_word_lesson_en, 2, span(to)).
+turn_form(reply_word_lesson_en, 3, text("instead of the word")).
+turn_form(reply_word_lesson_en, 4, span(from)).
+turn_form_slot_form(reply_word_lesson_en, to, mention).
+turn_form_slot_form(reply_word_lesson_en, from, mention).
+turn_form_act(reply_word_lesson_en, "op(match, reply_word_teach, [from, to, free])").
+turn_form_priority(reply_word_lesson_en, early).
+turn_form_view(reply_word_lesson_en, said).
+turn_form_reply(reply_word_lesson_en, reply_conduct_answer).
+turn_form(reply_word_lesson_it, 1, text("da ora in poi al posto della parola")).
+turn_form(reply_word_lesson_it, 2, span(from)).
+turn_form(reply_word_lesson_it, 3, text("dì la parola")).
+turn_form(reply_word_lesson_it, 4, span(to)).
+turn_form_slot_form(reply_word_lesson_it, to, mention).
+turn_form_slot_form(reply_word_lesson_it, from, mention).
+turn_form_act(reply_word_lesson_it, "op(match, reply_word_teach, [from, to, free])").
+turn_form_priority(reply_word_lesson_it, early).
+turn_form_view(reply_word_lesson_it, said).
+turn_form_reply(reply_word_lesson_it, reply_conduct_answer).
+% La revoca: «say NO again instead of CAVALLO» / «dimentica la regola su NO e CAVALLO».
+turn_form(reply_word_forget_en, 1, text("say")).
+turn_form(reply_word_forget_en, 2, span(from)).
+turn_form(reply_word_forget_en, 3, text("again instead of")).
+turn_form(reply_word_forget_en, 4, span(to)).
+turn_form_slot_form(reply_word_forget_en, to, mention).
+turn_form_slot_form(reply_word_forget_en, from, mention).
+turn_form_act(reply_word_forget_en, "op(match, reply_word_forget, [from, to, free])").
+turn_form_priority(reply_word_forget_en, early).
+turn_form_view(reply_word_forget_en, said).
+turn_form_reply(reply_word_forget_en, reply_conduct_answer).
+turn_form(reply_word_forget_it, 1, text("dimentica la regola su")).
+turn_form(reply_word_forget_it, 2, span(from)).
+turn_form(reply_word_forget_it, 3, text("e")).
+turn_form(reply_word_forget_it, 4, span(to)).
+turn_form_slot_form(reply_word_forget_it, to, mention).
+turn_form_slot_form(reply_word_forget_it, from, mention).
+turn_form_act(reply_word_forget_it, "op(match, reply_word_forget, [from, to, free])").
+turn_form_priority(reply_word_forget_it, early).
+turn_form_view(reply_word_forget_it, said).
+turn_form_reply(reply_word_forget_it, reply_conduct_answer).
+response_template(reply_conduct_answer, "{result}").
+
+reply_word_teach($From, $To, $Text) :- assert(reply_word_rule, $From, $To), current_language($L), reply_taught_words($L, $A), concat_atoms($A, $To, $B), reply_instead_words($L, $C), concat_atoms($B, $C, $D), concat_atoms($D, $From, $E), concat_atoms($E, "».", $Text).
+reply_word_forget($From, $To, $Text) :- reply_word_rule_ci($From, $To, $F, $T), retract(reply_word_rule, $F, $T), current_language($L), reply_forgotten_words($L, $A), concat_atoms($A, $F, $B), concat_atoms($B, "».", $Text).
+% La revoca trova la regola anche se le maiuscole differiscono: si confronta
+% per parole lette senza maiuscole (upcase e' l'unico caso del motore: si
+% confrontano le forme cosi' come sono, e la regola e' scritta come detta).
+reply_word_rule_ci($From, $To, $From, $To) :- reply_word_rule($From, $To).
+reply_taught_words(en, "From now on I say «"). reply_taught_words(it, "D'ora in poi dico «").
+reply_instead_words(en, "» instead of «"). reply_instead_words(it, "» al posto di «").
+reply_forgotten_words(en, "Forgotten: I say again «"). reply_forgotten_words(it, "Dimenticato: dico di nuovo «").
+
+% ── 2. LA CONDOTTA, consultata dal motore prima che la risposta esca ────────
+reply_rules_exist :- reply_word_rule($F, $T).
+reply_conduct($In, $Out) :- reply_rules_exist, map_words($In, reply_word_rule, $Out).

@@ -112,6 +112,7 @@ quel nome, quindi non si ridefiniscono.
 | `member($X, $L)`, `list_len($L, $N)` | **non** builtin: regole in `kb/core/procedures.p0` | `naf(member($R, $Seen))` è il modo standard di tagliare i cicli |
 | `concat_atoms($A, $B, $C)` | concatena testi | il pezzo di resa più usato; 16 goal per corpo si esauriscono presto |
 | `atom_words($A, $Ws)` | atomo ↔ lista di parole, spezza su `_` **e spazi**, bidirezionale | serve a leggere «at most 1» come parole |
+| `map_words($Testo, $Pred, $Uscita)` | riscrive ogni parola intera del testo secondo le righe di `$Pred/2` (nucleo confrontato senza maiuscole, punteggiatura conservata, sostituto letterale) | la condotta sull'espressione (`reply-conduct.p0`): `reply_conduct($In, $Out)` è chiesta da `turn_done` al livello esterno di ogni turno |
 | `words_of($A, $T)` | presentazione di un atomo composto come parole | |
 | `upcase_first($A, $B)` | iniziale maiuscola | |
 | `chars($A, $L)` | atomo ↔ lista di caratteri | |
@@ -228,7 +229,7 @@ turn_form_slot_form(decision_requirement_lesson, subject, atom).
 |---|---|---|
 | `text("…")` | un'ancora letterale, anche di più parole | in minuscolo, canonica |
 | `slot(Nome)` | **un** token | `turn_form_slot_class(F, Nome, Pred)`: il valore deve soddisfare `Pred/1` (es. `decision_numeric`) |
-| `span(Nome)` | le parole fino alla prossima ancora `text` (o fino alla fine) | conservate come testo, **canonicalizzate**; `turn_form_slot_form(F, Nome, atom)` le unisce con `_` (`singular` singolarizza) |
+| `span(Nome)` | le parole fino alla prossima ancora `text` (o fino alla fine) | conservate come testo, **canonicalizzate**; `turn_form_slot_form(F, Nome, atom)` le unisce con `_` (`singular` singolarizza); `turn_form_slot_form(F, Nome, mention)` le tiene **come dette**, grafia compresa (copiate a parola intera dal turno grezzo) |
 | `rest(Nome)` | tutto il resto del turno | |
 | `named(Pred, Nome)` | le **parole con cui si chiama** qualcosa: cerca una superficie fra i primi argomenti di `Pred/2` e mette nello slot il **nome interno** (secondo argomento) | è il pezzo che rende insegnabile un nome tecnico: un sinonimo è una riga (`decision_move_name("confirming the check", confirm)`) |
 | `class(Pred)` | un token membro di una classe `Pred/1` | |
