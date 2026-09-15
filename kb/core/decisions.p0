@@ -10,6 +10,7 @@ role_name($R) :- decision_formula($R, $A, $B).
 role_name($A) :- decision_formula($R, $A, $B).
 role_name($B) :- decision_formula($R, $A, $B).
 role_name($R) :- decision_minimum($R, $N).
+role_name($R) :- decision_maximum($R, $N).
 role($O, $R, $V) :- situation_state(described_situation, $O, $R, $V).
 decision_numeric($V) :- is($N, $V).
 decision_store($O, $R, $V, $V) :- decision_numeric($V), state_commit($O, $R, $V).
@@ -33,11 +34,20 @@ decision_computed($R) :- decision_formula($R, $A, $B).
 decision_conflict($O, $R) :- decision_values($O, $R, cons($A, cons($B, $Rest))).
 
 % Un minimo deve essere insegnato: il dato assente NON vale zero. Un ruolo in
-% contraddizione non ha un limite inferiore: non ha un valore.
+% contraddizione non ha un limite inferiore: non ha un valore. Il massimo e'
+% la lezione speculare («X is never above N»). Sommare i limiti degli addendi
+% vale perche' l'addizione e' monotona in ogni argomento: la proprieta' e' un
+% fatto interrogabile (§9.3), non una premessa muta — un operatore senza
+% proprieta' insegnata non compone limiti.
+decision_operator_monotone(add).
 decision_floor($O, $R, $V) :- decision_floor_in($O, $R, $V, nil).
 decision_floor_in($O, $R, $V, $Seen) :- decision_number($O, $R, $V).
 decision_floor_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_minimum($R, $V).
-decision_floor_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_floor_in($O, $A, $X, cons($R, $Seen)), decision_floor_in($O, $B, $Y, cons($R, $Seen)), is($V, add($X, $Y)).
+decision_floor_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_operator_monotone(add), decision_floor_in($O, $A, $X, cons($R, $Seen)), decision_floor_in($O, $B, $Y, cons($R, $Seen)), is($V, add($X, $Y)).
+decision_ceiling($O, $R, $V) :- decision_ceiling_in($O, $R, $V, nil).
+decision_ceiling_in($O, $R, $V, $Seen) :- decision_number($O, $R, $V).
+decision_ceiling_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_maximum($R, $V).
+decision_ceiling_in($O, $R, $V, $Seen) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_operator_monotone(add), decision_ceiling_in($O, $A, $X, cons($R, $Seen)), decision_ceiling_in($O, $B, $Y, cons($R, $Seen)), is($V, add($X, $Y)).
 
 % Il residuo segue le dipendenze: si chiede la foglia ignota, non il risultato
 % della formula che parrot0 puo' calcolare da se'.
@@ -46,25 +56,78 @@ decision_missing_in($O, $R, $R, $Seen) :- naf(decision_known($O, $R)), naf(decis
 decision_missing_in($O, $R, $M, $Seen) :- naf(decision_known($O, $R)), decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_missing_in($O, $A, $M, cons($R, $Seen)).
 decision_missing_in($O, $R, $M, $Seen) :- naf(decision_known($O, $R)), decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_missing_in($O, $B, $M, cons($R, $Seen)).
 
-% ── 2. I REQUISITI ─────────────────────────────────────────────────────────
+% ── 2. I REQUISITI: lo stato e' deciso da ciò che basta, non dal valore esatto ─
 decision_comparison("at most", le).
 decision_comparison("at least", ge).
 decision_comparison("exactly", eq).
+decision_comparison("less than", lt).
+decision_comparison("more than", gt).
 decision_comparison("al massimo", le).
 decision_comparison("almeno", ge).
 decision_comparison("esattamente", eq).
+decision_comparison("meno di", lt).
+decision_comparison("più di", gt).
 decision_opposite(le, gt). decision_opposite(ge, lt). decision_opposite(eq, dif).
-decision_floor_refutes(le, gt). decision_floor_refutes(eq, gt).
+decision_opposite(lt, ge). decision_opposite(gt, le).
 
-% L'ostacolo porta con se' il GENERE della premessa: un valore esatto o un
-% limite inferiore. «ready raggiunge 10» quando 10 e' solo il minimo e il
-% trasferimento e' ignoto era una premessa ambigua (§8.4.2): ora si dice
-% «ready e' almeno 10».
-decision_obstacle($O, $R, bound($Op, $B), exact($V)) :- decision_requirement($O, $R, $Op, $B), decision_number($O, $R, $V), decision_opposite($Op, $No), apply($No, cons($V, cons($B, nil))).
-decision_obstacle($O, $R, bound($Op, $B), floor($V)) :- decision_requirement($O, $R, $Op, $B), naf(decision_known($O, $R)), decision_floor_refutes($Op, $No), decision_floor($O, $R, $V), apply($No, cons($V, cons($B, nil))).
-decision_met($O, $R, $Op, $B) :- decision_number($O, $R, $V), apply($Op, cons($V, cons($B, nil))).
-decision_unmet($O) :- decision_requirement($O, $R, $Op, $B), naf(decision_met($O, $R, $Op, $B)).
+% Quale GENERE di premessa decide un requisito (E2a, §9.1-9.3): il valore
+% esatto lo decide sempre; un limite inferiore conferma «almeno» e confuta
+% «al massimo»; un limite superiore fa l'opposto. La tabella e' conoscenza:
+% un genere nuovo di premessa (un intervallo, una stima) e' una riga, non un
+% ramo. Il test da applicare al limite viaggia nella terza colonna.
+decision_bound_confirms(exact, $Op, $Op) :- decision_opposite($Op, $No).
+decision_bound_confirms(floor, ge, ge). decision_bound_confirms(floor, gt, gt).
+decision_bound_confirms(ceiling, le, le). decision_bound_confirms(ceiling, lt, lt).
+decision_bound_refutes(exact, $Op, $No) :- decision_opposite($Op, $No).
+decision_bound_refutes(floor, le, gt). decision_bound_refutes(floor, lt, ge). decision_bound_refutes(floor, eq, gt).
+decision_bound_refutes(ceiling, ge, lt). decision_bound_refutes(ceiling, gt, le). decision_bound_refutes(ceiling, eq, lt).
+
+% Le premesse disponibili su un ruolo, in UNA lista (lezione di §8.2: le
+% negazioni lavorano poi su `member`, mai su una vista ricorsiva).
+decision_bound_term($O, $R, limit(exact, $V)) :- decision_number($O, $R, $V).
+decision_bound_term($O, $R, limit(floor, $V)) :- naf(decision_known($O, $R)), decision_floor($O, $R, $V).
+decision_bound_term($O, $R, limit(ceiling, $V)) :- naf(decision_known($O, $R)), decision_ceiling($O, $R, $V).
+decision_bounds($O, $R, $Bs) :- findall($X, decision_bound_term($O, $R, $X), $Bs).
+
+% Lo STATO di un requisito porta il suo sostegno: met(limit(K,V)) dice quale
+% premessa ha bastato; unmet(limit(K,V)) quale lo confuta; open(Residuo) quale
+% condizione manca ancora; broken(Perche') una definizione rotta. Un solo
+% stato per requisito, scelto per gravita' su una lista di reperti.
+decision_finding($O, $R, $Bd, broken($W)) :- decision_broken($O, $R, $W).
+decision_finding($O, $R, $Bd, $F) :- decision_bounds($O, $R, $Bs), decision_bounded_finding($Bs, $Bd, $F).
+decision_finding($O, $R, $Bd, open($Res)) :- naf(decision_known($O, $R)), decision_residual($O, $R, $Bd, $Res).
+decision_bounded_finding($Bs, bound($Op, $B), met(limit($K, $V))) :- member(limit($K, $V), $Bs), decision_bound_confirms($K, $Op, $T), apply($T, cons($V, cons($B, nil))).
+decision_bounded_finding($Bs, bound($Op, $B), unmet(limit($K, $V))) :- member(limit($K, $V), $Bs), decision_bound_refutes($K, $Op, $T), apply($T, cons($V, cons($B, nil))).
+decision_findings($O, $R, $Bd, $Fs) :- findall($F, decision_finding($O, $R, $Bd, $F), $Fs).
+decision_finding_kind(broken($W), broken). decision_finding_kind(unmet($S), unmet).
+decision_finding_kind(met($S), met). decision_finding_kind(open($S), open).
+decision_has_kind($Fs, $K) :- member($F, $Fs), decision_finding_kind($F, $K).
+decision_pick($Fs, broken($W)) :- member(broken($W), $Fs).
+decision_pick($Fs, unmet($S)) :- naf(decision_has_kind($Fs, broken)), member(unmet($S), $Fs).
+decision_pick($Fs, met($S)) :- naf(decision_has_kind($Fs, broken)), naf(decision_has_kind($Fs, unmet)), member(met($S), $Fs).
+decision_pick($Fs, open($R)) :- naf(decision_has_kind($Fs, broken)), naf(decision_has_kind($Fs, unmet)), naf(decision_has_kind($Fs, met)), member(open($R), $Fs).
+decision_pick($Fs, stuck) :- naf(decision_has_kind($Fs, broken)), naf(decision_has_kind($Fs, unmet)), naf(decision_has_kind($Fs, met)), naf(decision_has_kind($Fs, open)).
+decision_status($O, $R, $Bd, $S) :- decision_findings($O, $R, $Bd, $Fs), decision_pick($Fs, $S).
+decision_req_status($O, status($R, bound($Op, $B), $S)) :- decision_requirement($O, $R, $Op, $B), decision_status($O, $R, bound($Op, $B), $S).
+decision_statuses($O, $Ss) :- findall($S, decision_req_status($O, $S), $Ss).
+decision_status_kind(status($R, $Bd, stuck), stuck).
+decision_status_kind(status($R, $Bd, $S), $K) :- decision_finding_kind($S, $K).
+% Viste di compatibilita' (E1): l'ostacolo e' lo stato «confutato».
+decision_obstacle($O, $R, $Bd, $Sup) :- decision_requirement($O, $R, $Op, $B), decision_status($O, $R, bound($Op, $B), unmet($Sup)).
+decision_met($O, $R, $Op, $B) :- decision_status($O, $R, bound($Op, $B), met($Sup)).
 decision_has_requirements($O) :- decision_requirement($O, $R, $Op, $B).
+
+% ── 2b. IL RESIDUO: quale CONDIZIONE manca, non quale casella (§9.2) ────────
+% Per una somma con un addendo noto il vincolo si trasporta sull'altro
+% (monotonia dichiarata sopra): «ready ≤ 11» con arrival 10 e' «transfer ≤ 1».
+% Con due addendi ignoti il residuo e' CONGIUNTO (need_sum): i limiti dei
+% singoli non certificano la somma (§9.10). Arita' 4: verso, soglia e ruoli
+% attraversati viaggiano nel termine goal/3.
+decision_residual($O, $R, bound($Op, $B), $Res) :- decision_residual_in($O, $R, goal($Op, $B, nil), $Res).
+decision_residual_in($O, $R, goal($Op, $B, $Seen), need($R, $Op, $B)) :- naf(decision_known($O, $R)), naf(decision_computed($R)).
+decision_residual_in($O, $R, goal($Op, $B, $Seen), $Res) :- naf(decision_known($O, $R)), decision_formula($R, $A, $C), naf(member($R, $Seen)), decision_operator_monotone(add), decision_number($O, $A, $X), naf(decision_known($O, $C)), is($B2, sub($B, $X)), decision_residual_in($O, $C, goal($Op, $B2, cons($R, $Seen)), $Res).
+decision_residual_in($O, $R, goal($Op, $B, $Seen), $Res) :- naf(decision_known($O, $R)), decision_formula($R, $A, $C), naf(member($R, $Seen)), decision_operator_monotone(add), decision_number($O, $C, $Y), naf(decision_known($O, $A)), is($B2, sub($B, $Y)), decision_residual_in($O, $A, goal($Op, $B2, cons($R, $Seen)), $Res).
+decision_residual_in($O, $R, goal($Op, $B, $Seen), need_sum($R, $Op, $B)) :- naf(decision_known($O, $R)), decision_formula($R, $A, $C), naf(decision_known($O, $A)), naf(decision_known($O, $C)).
 
 % ── 3. LE DEFINIZIONI ROTTE: circolari o discordi ──────────────────────────
 decision_part($R, $A) :- decision_formula($R, $A, $B).
@@ -80,10 +143,20 @@ decision_broken($O, $R, conflict($R, $Vs)) :- decision_requirement($O, $R, $Op, 
 decision_broken($O, $R, conflict($D, $Vs)) :- decision_requirement($O, $R, $Op, $B), decision_reaches($R, $D, cons($R, nil)), decision_conflict($O, $D), decision_values($O, $D, $Vs).
 
 % ── 4. I CANDIDATI: le famiglie restano visibili PRIMA e DOPO una preferenza ─
-decision_candidate($O, explain, obstacle($R, $Bound, $V)) :- decision_obstacle($O, $R, $Bound, $V).
-decision_candidate($O, explain, $Broken) :- decision_broken($O, $R, $Broken).
-decision_candidate($O, ask, missing($M)) :- decision_requirement($O, $R, $Op, $B), decision_missing($O, $R, $M).
-decision_candidate($O, confirm, complete) :- decision_has_requirements($O), naf(decision_unmet($O)).
+% Gli stati si calcolano una volta per soggetto e i candidati ne discendono.
+% `confirm` porta CHE COSA ha bastato: settled(exact) o settled(bound). Il dato
+% mancante resta un candidato `ask` anche quando un limite ha gia' deciso:
+% confermare o chiedere e' una CONDOTTA, e si insegna («prefer confirming the
+% check to asking questions when a bound settles it»), non si cabla (§9.9).
+decision_candidate($O, $M, $Reason) :- decision_statuses($O, $Ss), decision_cand_in($O, $Ss, cand($M, $Reason)).
+decision_cand_in($O, $Ss, cand(explain, obstacle($R, $Bd, $Sup))) :- member(status($R, $Bd, unmet($Sup)), $Ss).
+decision_cand_in($O, $Ss, cand(explain, $Broken)) :- member(status($R, $Bd, broken($Broken)), $Ss).
+decision_cand_in($O, $Ss, cand(ask, missing($M))) :- decision_requirement($O, $R, $Op, $B), decision_missing($O, $R, $M).
+decision_cand_in($O, $Ss, cand(confirm, settled($How))) :- decision_has_requirements($O), naf(decision_not_met_in($Ss)), decision_settled_how($Ss, $How).
+decision_not_met_in($Ss) :- member($S, $Ss), decision_status_kind($S, $K), dif($K, met).
+decision_bound_support_in($Ss) :- member(status($R, $Bd, met(limit($K, $V))), $Ss), dif($K, exact).
+decision_settled_how($Ss, bound) :- decision_bound_support_in($Ss).
+decision_settled_how($Ss, exact) :- naf(decision_bound_support_in($Ss)).
 
 % La scelta lavora su UNA lista di candidati, calcolata una volta. Misurato
 % (14 settembre 2026): con le viste ricorsive ogni `naf` rifaceva l'intera
@@ -91,12 +164,13 @@ decision_candidate($O, confirm, complete) :- decision_has_requirements($O), naf(
 % dentro la negazione — che allora declina — e il turno cadeva al muro
 % generico. Le viste pubbliche sotto restano interrogabili sulla stessa lista.
 % `findall/3` raccoglie solo una variabile: il termine cand(...) nasce nella testa.
-decision_cand($O, cand($M, $Reason)) :- decision_candidate($O, $M, $Reason).
+decision_cand($O, $C) :- decision_statuses($O, $Ss), decision_cand_in($O, $Ss, $C).
 decision_candidates($O, $Cs) :- findall($C, decision_cand($O, $C), $Cs).
 decision_feature_in($Cs, blocked) :- member(cand(explain, obstacle($R, $B, $V)), $Cs).
 decision_feature_in($Cs, incomplete) :- member(cand(ask, $Reason), $Cs).
 decision_feature_in($Cs, circular) :- member(cand(explain, circular($D)), $Cs).
 decision_feature_in($Cs, inconsistent) :- member(cand(explain, conflict($D, $Vs)), $Cs).
+decision_feature_in($Cs, bounded) :- member(cand(confirm, settled(bound)), $Cs).
 % Una preferenza e' una relazione condizionale, non un ordine di moduli.
 decision_dominated_in($Cs, $Worse) :- decision_preference($Better, $Worse, $Condition), decision_feature_in($Cs, $Condition), member(cand($Better, $Reason), $Cs), dif($Better, $Worse).
 decision_available_in($Cs, $Move) :- member(cand($Move, $Reason), $Cs), naf(decision_dominated_in($Cs, $Move)).
@@ -118,16 +192,20 @@ decision_stated($O, $R) :- role($O, $R, $Raw).
 
 decision_move_name("explaining obstacles", explain).
 decision_move_name("asking questions", ask).
+decision_move_name("confirming the check", confirm).
 decision_move_name("spiegare gli impedimenti", explain).
 decision_move_name("fare domande", ask).
+decision_move_name("confermare la verifica", confirm).
 decision_condition_name("a requirement fails", blocked).
 decision_condition_name("information is missing", incomplete).
 decision_condition_name("a definition is circular", circular).
 decision_condition_name("the data disagree", inconsistent).
+decision_condition_name("a bound settles it", bounded).
 decision_condition_name("un requisito non vale", blocked).
 decision_condition_name("mancano informazioni", incomplete).
 decision_condition_name("una definizione è circolare", circular).
 decision_condition_name("i dati sono discordi", inconsistent).
+decision_condition_name("un limite basta", bounded).
 
 % ── 5. IL DATO CHIESTO E' UNA QUESTIONE SUL TABELLONE (issues.p0) ──────────
 % Genere `datum`: parrot0 ha chiesto un valore, l'utente lo deve. Identita'
@@ -152,8 +230,11 @@ decision_note($O, verdict($Cs, cons(confirm, nil))).
 decision_note($O, verdict($Cs, cons($A, cons($B, $Rest)))).
 decision_answer($O, $Text) :- decision_verdict($O, $Cs, $Ms), current_language($L), decision_say($L, $O, verdict($Cs, $Ms), $Text), decision_note($O, verdict($Cs, $Ms)).
 % «it is 0» vale solo se il dato dovuto e' UNO: con due questioni aperte
-% l'ellissi e' ambigua e resta a chi la leggeva prima.
-decision_other_datum($I) :- open_issue($J, datum), dif($I, $J), issue_state($J, open).
+% NELLO STESSO TURNO («What are the departure and duration of boat?»)
+% l'ellissi e' ambigua e resta a chi la leggeva prima. Una domanda su un altro
+% soggetto, fatta turni prima e mai chiusa, non contende l'antecedente: il
+% referente dell'ellissi e' la questione massima, non ogni questione aperta.
+decision_other_datum($I) :- issue_turn($I, $N), open_issue($J, datum), dif($I, $J), issue_turn($J, $N), issue_state($J, open).
 decision_datum_store($V, $Text) :- decision_numeric($V), max_qud($I), open_issue($I, datum), naf(decision_other_datum($I)), issue_topic($I, $O), issue_relation($I, $R), state_commit($O, $R, $V), decision_datum_text($O, $R, $V, $Text).
 decision_datum_text($O, $R, $V, $Text) :- current_language($L), decision_value_text($L, $R, $V, $A), decision_for_words($L, $For), concat_atoms($A, $For, $B), words_of($O, $Name), concat_atoms($B, $Name, $C), concat_atoms($C, ": ", $D), decision_answer($O, $Reply), concat_atoms($D, $Reply, $Text).
 
@@ -161,12 +242,23 @@ decision_datum_text($O, $R, $V, $Text) :- current_language($L), decision_value_t
 decision_bound_words(en, le, "at most ").
 decision_bound_words(en, ge, "at least ").
 decision_bound_words(en, eq, "exactly ").
+decision_bound_words(en, lt, "less than ").
+decision_bound_words(en, gt, "more than ").
 decision_bound_words(it, le, "al massimo ").
 decision_bound_words(it, ge, "almeno ").
 decision_bound_words(it, eq, "esattamente ").
+decision_bound_words(it, lt, "meno di ").
+decision_bound_words(it, gt, "più di ").
 decision_obstacle_start(en, "No: "). decision_obstacle_start(it, "No: ").
 decision_value_link(en, exact, " reaches "). decision_value_link(it, exact, " raggiunge ").
 decision_value_link(en, floor, " is at least "). decision_value_link(it, floor, " è almeno ").
+decision_value_link(en, ceiling, " is at most "). decision_value_link(it, ceiling, " è al massimo ").
+decision_settled_start(en, "Settled: "). decision_settled_start(it, "Verificato: ").
+decision_need_start(en, "the "). decision_need_start(it, "il ").
+decision_keep_link(en, " to keep "). decision_keep_link(it, " perché ").
+decision_keep_mid(en, " "). decision_keep_mid(it, " sia ").
+decision_must_words(en, " must be "). decision_must_words(it, " deve essere ").
+decision_still_unknown(en, "; it is still unknown."). decision_still_unknown(it, "; è ancora ignoto.").
 decision_bound_link(en, "; the requirement is "). decision_bound_link(it, "; il requisito è ").
 decision_ask_start(en, "What is the "). decision_ask_start(it, "Qual è il valore di ").
 decision_ask_start_many(en, "What are the "). decision_ask_start_many(it, "Quali sono i valori di ").
@@ -202,8 +294,7 @@ decision_move_list($L, cons($M, nil), $Text) :- decision_move_words($L, $M, $Tex
 decision_move_list($L, cons($M, $Rest), $Text) :- decision_move_list($L, $Rest, $B), decision_move_words($L, $M, $W), decision_and($L, $And), concat_atoms($W, $And, $A), concat_atoms($A, $B, $Text).
 
 % Arita' massima 4 (KB_MAX_ARGS): il genere del valore viaggia nel termine.
-decision_value_shown($L, exact($V), $Shown) :- decision_value_link($L, exact, $Link), concat_atoms($Link, $V, $Shown).
-decision_value_shown($L, floor($V), $Shown) :- decision_value_link($L, floor, $Link), concat_atoms($Link, $V, $Shown).
+decision_value_shown($L, limit($K, $V), $Shown) :- decision_value_link($L, $K, $Link), concat_atoms($Link, $V, $Shown).
 decision_obstacle_prefix($L, $R, $Shown, $Text) :- decision_obstacle_start($L, $A), words_of($R, $Name), concat_atoms($A, $Name, $B), concat_atoms($B, $Shown, $Text).
 decision_obstacle_suffix($L, $Op, $Bound, $Text) :- decision_bound_link($L, $Link), decision_bound_words($L, $Op, $Words), concat_atoms($Link, $Words, $A), concat_atoms($A, $Bound, $B), concat_atoms($B, ".", $Text).
 decision_render($L, obstacle($R, bound($Op, $B), $Value), $Text) :- decision_value_shown($L, $Value, $Shown), decision_obstacle_prefix($L, $R, $Shown, $A), decision_obstacle_suffix($L, $Op, $B, $C), concat_atoms($A, $C, $Text).
@@ -219,12 +310,56 @@ decision_render_all($L, cons($R, $Rest), $Text) :- decision_render_all($L, $Rest
 decision_missing_ending($L, cons($R, nil), $W) :- decision_missing_words($L, $W).
 decision_missing_ending($L, cons($R, cons($S, $Rest)), $W) :- decision_missing_words_many($L, $W).
 decision_say($L, $O, verdict($Cs, cons(explain, nil)), $Text) :- decision_reasons($Cs, explain, $Rs), decision_render_all($L, $Rs, $Text).
-decision_say($L, $O, verdict($Cs, cons(ask, nil)), $Text) :- decision_asks_list($Cs, $Ms), decision_question($L, $O, $Ms, $Text).
-decision_say($L, $O, verdict($Cs, cons(confirm, nil)), $Text) :- decision_complete($L, $Text).
+% La domanda porta la SOGLIA residua, non solo la casella (§9.2): «What is the
+% transfer of train? To keep ready at most 11, the transfer must be at most 1.»
+decision_say($L, $O, verdict($Cs, cons(ask, nil)), $Text) :- decision_asks_list($Cs, $Ms), decision_question($L, $O, $Ms, $Q), decision_statuses($O, $Ss), decision_open_texts($L, $Ss, $Ts), decision_join($L, cons($Q, $Ts), $Text).
+% La conferma dice il sostegno quando un limite ha bastato (§9.4: rispondere
+% E spiegare dalla stessa prova).
+decision_say($L, $O, verdict($Cs, cons(confirm, nil)), $Text) :- member(cand(confirm, settled(exact)), $Cs), decision_complete($L, $Text).
+decision_say($L, $O, verdict($Cs, cons(confirm, nil)), $Text) :- member(cand(confirm, settled(bound)), $Cs), decision_complete($L, $A), decision_statuses($O, $Ss), decision_support_texts($L, $Ss, $Ts), decision_join($L, cons($A, $Ts), $Text).
 decision_say($L, $O, verdict($Cs, cons($A, cons($B, $Rest))), $Text) :- decision_tie_start($L, $Start), decision_move_list($L, cons($A, cons($B, $Rest)), $List), concat_atoms($Start, $List, $T), concat_atoms($T, ".", $Text).
 decision_say($L, $O, verdict($Cs, nil), $Text) :- decision_has_requirements($O), decision_unresolved($L, $Text).
 decision_say($L, $O, verdict($Cs, nil), $Text) :- naf(decision_has_requirements($O)), decision_no_requirements($L, $Text).
 decision_reply($O, $Text) :- decision_verdict($O, $Cs, $Ms), current_language($L), decision_say($L, $O, verdict($Cs, $Ms), $Text).
+
+% Sostegno di un requisito confermato: «ready is at least 10; the requirement
+% is at least 9.» — stesse parole dell'ostacolo, senza il «No: ».
+decision_support_render($L, status($R, bound($Op, $B), met($Value)), $Text) :- decision_value_shown($L, $Value, $Shown), words_of($R, $Name), concat_atoms($Name, $Shown, $A), decision_obstacle_suffix($L, $Op, $B, $C), concat_atoms($A, $C, $Text).
+decision_support_text($L, $Ss, $T) :- member(status($R, $Bd, met(limit($K, $V))), $Ss), dif($K, exact), decision_support_render($L, status($R, $Bd, met(limit($K, $V))), $T).
+decision_support_texts($L, $Ss, $Ts) :- findall($T, decision_support_text($L, $Ss, $T), $Ts).
+% Il residuo detto: «The transfer must be at most 1 to keep ready at most 11.»
+% e, congiunto, «The departure plus duration must be at most 10 to keep …».
+decision_need_words($L, need($Leaf, $Op, $B), $Text) :- words_of($Leaf, $Text).
+decision_need_words($L, need_sum($R, $Op, $B), $Text) :- decision_formula($R, $A, $C), words_of($A, $An), words_of($C, $Cn), decision_plus_words($L, $Plus), concat_atoms($An, $Plus, $P), concat_atoms($P, $Cn, $Text).
+decision_need_bound($L, need($Leaf, $Op, $B), $Text) :- decision_bound_words($L, $Op, $W), concat_atoms($W, $B, $Text).
+decision_need_bound($L, need_sum($R, $Op, $B), $Text) :- decision_bound_words($L, $Op, $W), concat_atoms($W, $B, $Text).
+% Corpo massimo 16 goal (KB_MAX_BODY): la frase si compone in due meta'. E
+% senza virgole: `findall` ristampa e rilegge le soluzioni, quindi una virgola
+% dentro un testo spezza il termine della lista (15 settembre 2026).
+decision_residual_head($L, $Res, $Text) :- decision_need_start($L, $S), decision_need_words($L, $Res, $Need), concat_atoms($S, $Need, $A), upcase_first($A, $A2), decision_must_words($L, $Must), concat_atoms($A2, $Must, $A3), decision_need_bound($L, $Res, $Nb), concat_atoms($A3, $Nb, $Text).
+decision_residual_tail($L, req($R, $Op, $B), $Text) :- decision_keep_link($L, $Link), words_of($R, $Rn), concat_atoms($Link, $Rn, $A), decision_keep_mid($L, $Mid), concat_atoms($A, $Mid, $A2), decision_bound_words($L, $Op, $Bw), concat_atoms($A2, $Bw, $A3), concat_atoms($A3, $B, $A4), concat_atoms($A4, ".", $Text).
+% Se il dato ignoto e' il ruolo stesso del requisito la coda «to keep fuel at
+% least 5» sarebbe una tautologia: si dice che il dato manca ancora.
+decision_residual_render($L, req($R, $Op, $B), need($R, $Op, $B), $Text) :- decision_residual_head($L, need($R, $Op, $B), $A), decision_still_unknown($L, $W), concat_atoms($A, $W, $Text).
+decision_residual_render($L, req($R, $Op, $B), need($Leaf, $Op2, $B2), $Text) :- dif($Leaf, $R), decision_residual_head($L, need($Leaf, $Op2, $B2), $A), decision_residual_tail($L, req($R, $Op, $B), $C), concat_atoms($A, $C, $Text).
+decision_residual_render($L, $Req, need_sum($R2, $Op2, $B2), $Text) :- decision_residual_head($L, need_sum($R2, $Op2, $B2), $A), decision_residual_tail($L, $Req, $C), concat_atoms($A, $C, $Text).
+decision_open_text($L, $Ss, $T) :- member(status($R, bound($Op, $B), open($Res)), $Ss), decision_residual_render($L, req($R, $Op, $B), $Res, $T).
+decision_open_texts($L, $Ss, $Ts) :- findall($T, decision_open_text($L, $Ss, $T), $Ts).
+decision_join($L, cons($X, nil), $X).
+decision_join($L, cons($X, $Rest), $Text) :- decision_join($L, $Rest, $B), decision_reason_gap($L, $Gap), concat_atoms($X, $Gap, $A), concat_atoms($A, $B, $Text).
+
+% ── 6b. «what remains for X?»: lo stato di OGNI requisito, dalla stessa prova ─
+% Un impedimento basta per il no; chi chiede tutto riceve anche i residui
+% (§9.3, obbligo 3). Senza requisiti non e' un successo.
+decision_status_render($L, status($R, $Bd, unmet($Sup)), $Text) :- decision_render($L, obstacle($R, $Bd, $Sup), $Text).
+decision_status_render($L, status($R, $Bd, broken($W)), $Text) :- decision_render($L, $W, $Text).
+decision_status_render($L, status($R, $Bd, met($Sup)), $Text) :- decision_settled_start($L, $S), decision_support_render($L, status($R, $Bd, met($Sup)), $A), concat_atoms($S, $A, $Text).
+decision_status_render($L, status($R, bound($Op, $B), open($Res)), $Text) :- decision_residual_render($L, req($R, $Op, $B), $Res, $Text).
+decision_status_render($L, status($R, $Bd, stuck), $Text) :- decision_unresolved($L, $Text).
+decision_status_text($L, $Ss, $T) :- member($S, $Ss), decision_status_render($L, $S, $T).
+decision_status_texts($L, $Ss, $Ts) :- findall($T, decision_status_text($L, $Ss, $T), $Ts).
+decision_status_answer($O, $Text) :- decision_has_requirements($O), current_language($L), decision_statuses($O, $Ss), decision_status_texts($L, $Ss, $Ts), decision_join($L, $Ts, $Text).
+decision_status_answer($O, $Text) :- naf(decision_has_requirements($O)), current_language($L), decision_no_requirements($L, $Text).
 
 % ── 7. LA DOMANDA SUL VALORE: la maniglia del cassetto (§8.4.3) ────────────
 % «what is the departure of train?» raggiunge lo stato descritto, o il valore
@@ -246,4 +381,5 @@ decision_polar_answer($O, $R, $V, $Text) :- decision_number($O, $R, $W), dif($W,
 decision_polar_answer($O, $R, $V, $Text) :- naf(decision_known($O, $R)), decision_value_answer($O, $R, $Text).
 
 :- include(decision-language.p0).
+
 

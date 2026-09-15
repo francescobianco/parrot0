@@ -1305,8 +1305,8 @@ tutte insieme. Il primo difetto osservato stabilisce dove intervenire.
 
 | passo | consegna concreta | gate per procedere |
 |---|---|---|
-| **D0 — fissare il banco** | conservare E1, aggiungere i casi discriminanti di §9.10 e il transcript naturale; leggere le risposte | distinguere perdita in lettura, condizione mancante e scelta errata; nessun fix prima del banco |
-| **E2a — sufficienza** | estendere il circuito esistente dal valore esatto alla verifica per limiti, con sostegni e residuo tipato | i tre casi di §9.1 si separano; insegnamento e ablazione modificano il comportamento pertinente |
+| ~~**D0 — fissare il banco**~~ (15 settembre, §9.12) | conservare E1, aggiungere i casi discriminanti di §9.10 e il transcript naturale; leggere le risposte | distinguere perdita in lettura, condizione mancante e scelta errata; nessun fix prima del banco |
+| ~~**E2a — sufficienza**~~ (15 settembre, §9.12) | estendere il circuito esistente dal valore esatto alla verifica per limiti, con sostegni e residuo tipato | i tre casi di §9.1 si separano; insegnamento e ablazione modificano il comportamento pertinente |
 | **E2b — residuo interrogabile** | collegare il vincolo residuo alla stessa questione sulla board; accettare una risposta che lo soddisfi senza imporre il valore esatto | una domanda sulla soglia chiude l'obbligo; correzione della premessa lo riapre; due scopi non si mescolano |
 | **E3 — collegamento alla conversazione** | far arrivare le frasi naturali di viaggio e impegno agli stessi oggetti E2, conservando fonte e ambito | il prompt originale e le varianti funzionano senza che il teacher li riscriva nel linguaggio delle formule; riunione e città del cliente restano distinte |
 | **E4 — prova riusabile** | registrare un episodio e ricavarne un procedimento condizionale verificabile; applicarlo fuori dalla famiglia di costruzione | il riuso risparmia lavoro contando anche apprendimento e invalidazione; un controesempio ne restringe l'ambito |
@@ -1407,3 +1407,113 @@ rendere più economico e più affidabile il successivo, anche su un caso che
 non abbiamo scritto noi. Se crescono solo le forme riconosciute o le regole
 da impartire una per una, il moltiplicatore non è comparso: il piano deve
 registrare quel fallimento, senza chiamarlo frontiera simbolica.
+
+### 9.12 D0 ed E2a — stato al 15 settembre 2026, sera: il limite decide, il residuo dice la condizione
+
+**Ordine seguito: banco prima della cura.** `tests/p0t/reasoning/taught_sufficiency.p0t`
+è stato scritto dai contrasti di §9.10 e LETTO a HEAD con `scripts/p0t-echo.py`
+prima di toccare la KB (gate D0). La lettura ha classificato i rossi: **una sola
+condizione mancante** (con `ready ≥ 9` e limite 10 parrot0 chiedeva il
+trasferimento, superfluo: la conferma esisteva solo per valore esatto) e **sette
+perdite di lettura** (forme assenti: «is never above», «less than» / «more
+than», «forget that … is never below», «what remains for», i nomi «confirming
+the check» e «a bound settles it»). Nessuna scelta errata. Il transcript
+naturale è `tests/p0t/reasoning/frontier_transcript.p0t`: **rosso per
+costruzione, non nel Makefile**, con le attese di un interlocutore utile; si
+sonda con lo stesso driver da ogni missione (verbatim nel report del 15
+settembre, §C).
+
+**Che cosa è entrato, tutto in KB** (`decisions.p0` §2, §2b, §4, §6, §6b;
+`decision-language.p0`), nessuna riga di C:
+
+1. **Lo stato di un requisito porta il suo sostegno.** `status(R, bound(Op,B), S)`
+   con `S` ∈ `met(limit(K,V))`, `unmet(limit(K,V))`, `open(Residuo)`,
+   `broken(Perché)`, `stuck`; `K` ∈ `exact | floor | ceiling`. Quale genere di
+   premessa decide quale verso è una **tabella** (`decision_bound_confirms/3`,
+   `decision_bound_refutes/3`): un limite inferiore conferma «almeno» e confuta
+   «al massimo», il superiore fa l'opposto, il valore esatto decide sempre. Un
+   genere nuovo di premessa (intervallo, stima) è una riga. I tre casi di §9.1
+   si separano: «ready ≥ 9» → confermato dal limite, «ready ≤ 9» → confutato,
+   «ready ≤ 11» → aperto.
+2. **Il tetto è la lezione speculare del minimo** («transfer is never above 1»,
+   `decision_maximum/2`, `decision_ceiling/3`) e **entrambi si ritrattano
+   parlando** («forget that transfer is never below 0»): la conclusione che ne
+   dipende compare e scompare (riga 3 di §9.10). La somma dei limiti degli
+   addendi è autorizzata da `decision_operator_monotone(add)`: la proprietà
+   dell'operatore è un fatto (§9.3), non una premessa muta.
+3. **Il residuo è tipato e dice la condizione, non la casella** (§9.2):
+   `need(Leaf, Op, Soglia)` trasporta il vincolo sull'addendo ignoto per
+   monotonia («The transfer must be at most 1 to keep ready at most 11.»);
+   `need_sum(R, Op, B)` è il residuo **congiunto** con due addendi ignoti («The
+   departure plus duration must be at most 10 …»), e i tetti dei singoli
+   (6 + 6) NON certificano la somma finché la loro somma non basta (6 + 4).
+   La domanda porta la soglia: «What is the transfer of train? The transfer
+   must be at most 1 to keep ready at most 11.» L'ellissi «it is 1» resta
+   valida.
+4. **Confermare o chiedere è una condotta insegnata, non cablata** (§9.9).
+   Il dato mancante resta un candidato `ask` anche quando il limite ha deciso;
+   `confirm` porta `settled(exact | bound)` e la condizione `bounded` è
+   nominabile: «prefer confirming the check to asking questions when a bound
+   settles it» sceglie la conferma **con il sostegno detto** («The stated
+   requirements are satisfied. ready is at least 10; the requirement is at
+   least 9.»); prima della lezione, e dopo la sua ritrattazione, parrot0 dice
+   il pareggio reale fra le due mosse.
+5. **Confronti stretti** («less than», «more than», «meno di», «più di») e la
+   frontiera segue il vincolo: transfer 1 soddisfa `ready ≤ 11` e viola
+   `ready < 11` («No: ready reaches 11; the requirement is less than 11»);
+   0.5 soddisfa.
+6. **«what remains for X?»** dice lo stato di OGNI requisito dalla stessa prova:
+   ostacolo, residuo aperto («The fuel must be at least 5; it is still
+   unknown.»), verificato («Settled: …»), rotto. Un impedimento basta per il no
+   e chi chiede tutto riceve i residui (§9.3, obbligo 3); senza requisiti non è
+   un successo.
+7. **Le premesse cambiate invalidano** (viste, nessuna cache): «the cargo of van
+   is 10» dopo la conferma → «No: load reaches 11»; una seconda formula su
+   `fuel` insegnata dopo la prova → conflitto detto, non valore scelto.
+8. **L'ambiguità dell'ellissi conta solo i dati chiesti nello stesso turno**:
+   una questione `datum` su un altro soggetto, aperta turni prima e mai chiusa,
+   non contende più l'antecedente di «it is 1» (`decision_other_datum/1` su
+   `issue_turn`). Prima, ogni domanda mai chiusa bloccava per sempre l'ellissi.
+
+**Fatti del motore pagati oggi** (si aggiungono ai tre di §8.2):
+
+- **`KB_MAX_BODY` = 16 goal** per corpo: la resa del residuo ne aveva 17 ed è
+  stata scartata con `PARSE ERROR`; da fuori «what remains» cadeva al muro.
+  Le frasi lunghe si compongono in due predicati.
+- **`findall/3` rifiuta un terzo argomento parzialmente legato**:
+  `decision_status_texts($L, $Ss, cons($T, $Ts))` non dà mai soluzioni. Si
+  raccoglie in una variabile e si destruttura dopo.
+- **`findall/3` ristampa e rilegge le soluzioni: una VIRGOLA dentro un testo
+  spezza il termine della lista** (`cons(To keep ready at most 11, the transfer
+  …, nil)` diventa un cons a tre argomenti) e la giunzione fallisce in silenzio.
+  I testi raccolti in lista non contengono virgole: il residuo è stato riscritto
+  «… must be at most 1 to keep ready at most 11.» Questo è il difetto che si
+  mascherava da «nessuna soluzione» in `decision_say`, isolato con sonde
+  intermedie (`decision_say_probe1..6`, poi tolte).
+
+**Misure** (15 settembre 2026, sera, MCP fresco su questa macchina): scelta
+0,8–1,9 s; «what remains» 0,8–1,0 s; lezione di limite 2,1–2,7 s; parafrasi
+«x means y» 7,4–7,7 s (costo del lettore `means`, non del circuito: la
+sezione ha `!timeout 10`). **Certificazione col runner** (`parrot0 --test`, KB
+completa `agi`): `taught_sufficiency.p0t` **49 assert verdi in 112 s**;
+`taught_decision.p0t` (E1) **52 verdi in 96 s**, invariato. Nessun altro file
+lanciato (politica dei test di F.); i due banchi non sono nel Makefile.
+
+**Residui, in ordine:**
+
+1. **E2b — il residuo sul tabellone.** La questione `datum` chiede ancora il
+   valore esatto; una risposta polare o un intervallo («it is at most 1», «no
+   more than an hour») deve chiudere l'obbligo se soddisfa `need(...)`, senza
+   imporre il valore. Il residuo esiste già come vista; manca la forma di
+   risposta e la sua riverifica.
+2. **La domanda sul valore** «what is the ready of train?» con limite noto dice
+   ancora «I do not have the ready yet»: dovrebbe dire «the ready is at least
+   10 (the transfer is missing)». Un solo rigo (`op(match)` vuole UNA riga).
+3. **Un solo operatore di formula** e la proprietà dichiarata solo per `add`:
+   una formula per prodotto o differenza richiede le sue proprietà (verso,
+   segno) prima di comporre limiti o trasportare residui. Non farlo per
+   analogia: derivare dalla tabella.
+4. **Formule globali per ruolo** (§8.4.2, §9.6) invariato.
+5. **E3 — il transcript naturale resta murato** (report §C): «tomorrow I have
+   an important meeting at 9 am …» non arriva a `situation_state`; è la
+   missione successiva e passa per la lettura, non per nuove forme di lezione.

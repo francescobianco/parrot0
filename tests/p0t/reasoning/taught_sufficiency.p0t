@@ -1,0 +1,170 @@
+# E2a del piano interlocutore-di-frontiera (§9.9-9.10): la sufficienza.
+# Banco scritto PRIMA della cura, su KB viva `agi`. Misura tre cose distinte:
+# lo STATO di un requisito (confermato / confutato / ancora aperto) deciso da
+# un limite quando il valore esatto manca; il RESIDUO tipato che dice quale
+# condizione manca; la CONDOTTA (confermare o chiedere) insegnata parlando e
+# ritrattabile. Le premesse sono lezioni: non provano conoscenza del mondo.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test un limite conferma: senza preferenza lo stato e' deciso ma la mossa no]
+!timeout 6
+> calculate ready by adding arrival and transfer
+<~ ready
+> transfer is never below 0
+> the arrival of train is 10
+> for train the ready must be at least 9
+> can I complete train?
+<~ choose
+<~ confirming
+<~ asking
+<! What is
+
+[test la lezione di sufficienza sceglie la conferma, con il sostegno detto]
+!timeout 6
+> prefer confirming the check to asking questions when a bound settles it
+<~ preference
+> can I complete train?
+<~ satisfied
+<~ at least 10
+<! What is
+
+[test lo stesso limite confuta un requisito opposto]
+!timeout 6
+> forget the requirement for train on ready
+> for train the ready must be at most 9
+> prefer explaining obstacles to asking questions when a requirement fails
+> can I complete train?
+<~ No: ready is at least 10
+<~ at most 9
+<! What is
+
+[test ancora indeciso: la domanda porta la soglia, non solo la casella]
+!timeout 6
+> forget the requirement for train on ready
+> for train the ready must be at most 11
+> can I complete train?
+<~ What is the transfer of train?
+<~ transfer must be at most 1
+> what remains for train?
+<~ transfer must be at most 1
+
+[test la frontiera segue il confronto: non stretto passa a 1, stretto no]
+!timeout 6
+> it is 1
+<~ transfer is 1
+<~ satisfied
+> forget the requirement for train on ready
+> for train the ready must be less than 11
+> can I complete train?
+<~ No: ready reaches 11
+<~ less than 11
+> the transfer of train is 0.5
+> can I complete train?
+<~ satisfied
+
+[test il minimo insegnato e poi ritirato: la conclusione compare e scompare]
+!timeout 6
+> the arrival of bus is 10
+> for bus the ready must be at least 9
+> can I complete bus?
+<~ satisfied
+<~ at least 10
+> forget that transfer is never below 0
+> can I complete bus?
+<~ What is the transfer of bus?
+<! satisfied
+> transfer is never below 0
+> can I complete bus?
+<~ satisfied
+
+[test due dati ignoti: residuo congiunto, i limiti dei singoli non certificano la somma]
+!timeout 6
+> calculate arrival by adding departure and duration
+> for boat the arrival must be at most 10
+> can I complete boat?
+<~ departure and duration
+<~ departure plus duration must be at most 10
+> departure is never above 6
+> duration is never above 6
+> can I complete boat?
+<! satisfied
+<~ ?
+> forget that duration is never above 6
+> duration is never above 4
+> can I complete boat?
+<~ satisfied
+<~ at most 10
+
+[test un impedimento basta per il no; il residuo resta dovuto a chi chiede tutto]
+!timeout 6
+> calculate load by adding cargo and packaging
+> packaging is never below 0
+> the cargo of van is 12
+> for van the load must be at most 10
+> for van the fuel must be at least 5
+> can I complete van?
+<~ No: load is at least 12
+<! What is
+> what remains for van?
+<~ load is at least 12
+<~ fuel must be at least 5
+
+[test cambiare una premessa dopo la risposta invalida la conclusione]
+!timeout 6
+> the fuel of van is 6
+> the cargo of van is 9
+> can I complete van?
+<~ What is the packaging of van?
+<~ packaging must be at most 1
+> it is 1
+<~ satisfied
+> the cargo of van is 10
+> can I complete van?
+<~ No: load reaches 11
+
+[test una regola nuova dopo una prova riapre completezza e conflitto]
+!timeout 6
+> calculate fuel by adding tank and reserve
+> the tank of van is 2
+> the reserve of van is 2
+> prefer explaining obstacles to asking questions when the data disagree
+> can I complete van?
+<~ fuel comes out as
+<~ different rules
+
+[test ablazione parlata della condotta di sufficienza]
+!timeout 6
+> the arrival of tram is 10
+> for tram the ready must be at least 9
+> forget that preference for confirming the check over asking questions when a bound settles it
+> can I complete tram?
+<~ choose
+<! satisfied
+> prefer confirming the check to asking questions when a bound settles it
+> can I complete tram?
+<~ satisfied
+
+[test il tetto si insegna anche per parafrasi, e il verso stretto viaggia nel residuo]
+# il lettore «x means y» costa 7-8 s da solo (non di questo circuito)
+!timeout 10
+> x never exceeds y means x is never above y
+> the arrival of cab is 10
+> for cab the ready must be more than 12
+> can I complete cab?
+<~ What is the transfer of cab?
+<~ transfer must be more than 2
+> transfer is never above 1
+> can I complete cab?
+<~ No: ready is at most 11
+<~ more than 12
+> forget that transfer is never above 1
+> forget that x never exceeds y means x is never above y
+
+[test un ruolo senza requisiti non e' un successo]
+!timeout 6
+> what remains for holiday?
+<! satisfied

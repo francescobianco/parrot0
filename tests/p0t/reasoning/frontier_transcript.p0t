@@ -1,0 +1,32 @@
+# Il transcript naturale del piano interlocutore-di-frontiera (§2, §9.9, report
+# 2026-09-15-frontiera-sufficienza §B). NON e' nel Makefile: e' ROSSO per
+# costruzione e deve restarlo finche' E3 non collega le frasi naturali agli
+# oggetti di E2 (MANTRA: un gap si rende visibile, non si chiude con un mock).
+# Si sonda da D0 e dopo ogni missione:
+#     python3 scripts/p0t-echo.py tests/p0t/reasoning/frontier_transcript.p0t
+# Le attese sono quelle di un interlocutore utile: la riunione e la citta' del
+# cliente restano distinte; il residuo e' il tempo del trasferimento.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test la situazione detta si conserva e si interroga]
+!timeout 6
+> tomorrow I have an important meeting at 9 am with a client from Milan
+<! don't know
+> what time is my meeting?
+<~ 9
+
+[test il viaggio detto in prosa raggiunge la verifica per limiti]
+!timeout 6
+> I leave Rome at 7 by train and the trip takes 3 hours. Will I be on time?
+<! don't understand
+<~ 10
+<~ 9
+
+[test la citta' del cliente non diventa la citta' della riunione]
+!timeout 6
+> where is the meeting?
+<! Milan

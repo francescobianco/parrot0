@@ -73,6 +73,29 @@ piano. Non autorizza a inferire che la riunione sia a Milano: il testo
 attribuisce Milano al cliente. Una futura risposta deve conservare questa
 distinzione.
 
+## C. Dopo E2a (15 settembre, sera): il transcript naturale è ancora murato
+
+Stesso driver, KB con `decisions.p0` §2-§6b nuovi, file
+`tests/p0t/reasoning/frontier_transcript.p0t` (rosso per costruzione, non nel
+Makefile). E2a non lo tocca per disegno: le sue lezioni sono forme dette, la
+lettura libera è E3.
+
+```text
+> tomorrow I have an important meeting at 9 am with a client from Milan
+  = Hmm, I don't know about important meeting yet. Want me to learn about it?   [1.53s]
+> what time is my meeting?
+  = Hmm, I don't know about meeting yet. Want me to learn about it?   [1.21s]
+> I leave Rome at 7 by train and the trip takes 3 hours. Will I be on time?
+  = I don't understand that yet.   [4.93s]
+> where is the meeting?
+  = Hmm, I don't know about meeting yet.   [1.75s]
+```
+
+Per contrasto, la stessa struttura DETTA nelle forme di lezione risponde ora
+con stato, sostegno e residuo (piano §9.12): «What is the transfer of train?
+The transfer must be at most 1 to keep ready at most 11.» La distanza fra i
+due blocchi è esattamente E3.
+
 ## Limiti della verifica
 
 - 15 turni diagnostici complessivi; nessuna nuova esecuzione del banco E1 o

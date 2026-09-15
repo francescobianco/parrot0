@@ -42,6 +42,35 @@ turn_form_priority(decision_minimum_lesson, early).
 turn_form_view(decision_minimum_lesson, said).
 turn_form_reply(decision_minimum_lesson, decision_minimum_learned).
 
+% Il tetto e' la lezione speculare del minimo; entrambi si ritrattano parlando
+% («forget that transfer is never below 0»): la conclusione che ne dipende
+% compare e scompare (§9.10).
+turn_form(decision_maximum_lesson, 1, slot(role)).
+turn_form(decision_maximum_lesson, 2, text("is never above")).
+turn_form(decision_maximum_lesson, 3, slot(value)).
+turn_form_act(decision_maximum_lesson, "op(assert, decision_maximum, [role, value])").
+turn_form_priority(decision_maximum_lesson, early).
+turn_form_view(decision_maximum_lesson, said).
+turn_form_reply(decision_maximum_lesson, decision_maximum_learned).
+
+turn_form(decision_minimum_forget, 1, text("forget that")).
+turn_form(decision_minimum_forget, 2, slot(role)).
+turn_form(decision_minimum_forget, 3, text("is never below")).
+turn_form(decision_minimum_forget, 4, slot(value)).
+turn_form_act(decision_minimum_forget, "op(retract, decision_minimum, [role, value])").
+turn_form_priority(decision_minimum_forget, early).
+turn_form_view(decision_minimum_forget, said).
+turn_form_reply(decision_minimum_forget, decision_limit_forgotten).
+
+turn_form(decision_maximum_forget, 1, text("forget that")).
+turn_form(decision_maximum_forget, 2, slot(role)).
+turn_form(decision_maximum_forget, 3, text("is never above")).
+turn_form(decision_maximum_forget, 4, slot(value)).
+turn_form_act(decision_maximum_forget, "op(retract, decision_maximum, [role, value])").
+turn_form_priority(decision_maximum_forget, early).
+turn_form_view(decision_maximum_forget, said).
+turn_form_reply(decision_maximum_forget, decision_limit_forgotten).
+
 turn_form(decision_requirement_lesson, 1, text("for")).
 turn_form(decision_requirement_lesson, 2, span(subject)).
 turn_form(decision_requirement_lesson, 3, text("the")).
@@ -120,6 +149,10 @@ response_template(decision_formula_learned, "Held: calculate {role} from {left} 
 response_template(decision_formula_learned, it, "Tengo: calcola {role} sommando {left} e {right}.").
 response_template(decision_minimum_learned, "Held: {role} is never below {value}.").
 response_template(decision_minimum_learned, it, "Tengo: {role} non scende sotto {value}.").
+response_template(decision_maximum_learned, "Held: {role} is never above {value}.").
+response_template(decision_maximum_learned, it, "Tengo: {role} non supera {value}.").
+response_template(decision_limit_forgotten, "Forgotten: I no longer hold that limit on {role}.").
+response_template(decision_limit_forgotten, it, "Dimenticato: non tengo più quel limite su {role}.").
 response_template(decision_requirement_learned, "Held: the requirement concerns {role} of {subject}.").
 response_template(decision_requirement_learned, it, "Tengo: il requisito riguarda {role} di {subject}.").
 response_template(decision_requirement_forgotten, "Forgotten: the requirement on {role} of {subject}.").
@@ -172,3 +205,12 @@ turn_form_view(decision_datum_answer_it, said).
 turn_form_reply(decision_datum_answer_it, decision_datum_noted).
 response_template(decision_datum_noted, "Noted: {result}").
 response_template(decision_datum_noted, it, "Annotato: {result}").
+
+% ── «what remains for X?»: lo stato di ogni requisito (decisions.p0 §6b) ────
+turn_form(decision_status_question, 1, text("what remains for")).
+turn_form(decision_status_question, 2, span(subject)).
+turn_form_slot_form(decision_status_question, subject, atom).
+turn_form_act(decision_status_question, "op(match, decision_status_answer, [subject, free])").
+turn_form_priority(decision_status_question, early).
+turn_form_view(decision_status_question, said).
+turn_form_reply(decision_status_question, decision_answer).
