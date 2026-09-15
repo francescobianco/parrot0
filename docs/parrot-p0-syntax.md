@@ -17,7 +17,7 @@
 **Indice.** 1 Clausole · 2 Direttive · 3 Termini, liste, numeri, stringhe ·
 4 Builtin del solver · 5 Guardie del solver · 6 Virgolette e corrispondenza ·
 7 Viste materializzate · 8 Provenienza e stato · 9 Lo strato di superficie
-(`turn_form`) · 10 Le risposte (`response_template`) · 11 Cue, classi e condotta
+(`turn_form`) · 10 Le risposte: template, `answer_content`, stadi · 11 Cue, classi e condotta
 · 12 Il tabellone e i contabili · 13 Pratiche di buona scrittura · 14 Diagnosi
 rapida · 15 Come si verifica.
 
@@ -158,6 +158,12 @@ profila, non si indovina (MANTRA #20).
   generi, chiavi di template) **nudi**. Un file che mescola le due forme per
   lo stesso predicato (com'era `social_pattern`) va armonizzato **insieme al
   suo lettore**, altrimenti metà delle righe smette di combaciare.
+- **Dentro le regole una stringa quotata unifica solo con una stringa quotata
+  identica o con una variabile: NON con l'atomo nudo.** `time_preposition("at")`
+  non combacia con il token `at` del frame (`span_atom` dà atomi nudi), mentre
+  `day_word(tomorrow)` sì (misurato in E3). Le parole che si confrontano con i
+  token del turno si scrivono nude; le stringhe quotate servono alle superfici
+  lette dal C (`kb_cue_match`, `named(...)`, `atom_words`).
 - Nel turno canonicalizzato gli apostrofi diventano spazi: la cue si scrive
   `"you re wrong"`, `"what s wrong"`.
 - Gli `span` delle forme (§9) arrivano **canonicalizzati**: in italiano «al
@@ -251,7 +257,14 @@ at least z» e «forget that … means …» sono forme generiche: una lezione i
 un'altra lingua o in un'altra superficie non si promuove in `.p0`, si insegna
 (MANTRA, gerarchia di crescita). Nei banchi si insegna e si ritratta.
 
-## 10. Le risposte: `response_template`
+## 10. Le risposte: tre livelli, dal segnaposto allo stadio
+
+Ciò che parrot0 DICE è conoscenza quanto ciò che legge (MANTRA #16): nessuna
+frase vive nel C. Esistono **tre livelli** di resa, e la scelta fra loro è
+parte del disegno (`docs/plans/inferenza-compositiva.md`,
+`docs/plans/messages-are-knowledge.md`).
+
+### 10.1 Il template a segnaposto: `response_template`
 
 ```prolog
 response_template(decision_answer, "For {subject}: {result}").
@@ -260,16 +273,100 @@ response_template(decision_datum_noted, "Noted: {result}").
 ```
 
 - `/2` è la forma di default, `/3` con la lingua (`it`, `en`, …) è scelta da
-  `current_language/1`; il C chiama `kb_term_say(b, chiave, slots…)` e non
-  contiene la frase (MANTRA #16).
+  `current_language/1`; il C chiama `kb_term_say(b, chiave, slots…)` /
+  `kb_response_slots` e non contiene la frase.
 - Gli slot `{nome}` prendono i valori degli slot della forma o del sito C;
-  `{result}` è l'argomento `free` dell'atto.
+  `{result}` è l'argomento `free` dell'atto di una `turn_form`.
 - **Un template `"{text}"` vuoto di lingua non è una resa** (MANTRA #18 b): la
   frase deve vivere nel template o in fatti di parole (`decision_bound_words(en,
   le, "at most ")`) composti con `concat_atoms`.
-- Un template più lungo di `KB_TERM_LEN` non carica.
-- Le frasi composte in KB e raccolte in liste **non contengono virgole** (§4,
-  `findall`): «The transfer must be at most 1 to keep ready at most 11.»
+- Un template più lungo di `KB_TERM_LEN` (512) **non carica**, in silenzio a
+  meno del `PARSE ERROR`.
+- **Il limite del segnaposto:** la forma esiste prima del contenuto. Se un
+  pezzo manca resta un buco (o una bugia: `undetermined_cycle` diceva «le
+  regole si rimandano» anche quando a fermarsi era il budget), e due template
+  monolitici per due stati sono la stessa risposta scritta due volte. Un buco
+  è lecito solo se nomina un argomento della tesi che quella frase dimostra.
+
+### 10.2 La risposta a pezzi: `answer_content/4` → `answer_text/2`
+
+```prolog
+answer_content(setting_ack($Place, $Language), 0, opener, $Piece) :- setting_opener($Language, $Piece).
+answer_content(setting_ack($Place, $Language), 1, place,  $Piece) :- value_in_language($Language, $Place, $Piece).
+answer_content(setting_ack($Place, $Language), 2, closer, $Piece) :- setting_closer($Language, $Piece).
+turn_response($T, $Text) :- setting_unique($T, $Place), current_language($L), answer_text(setting_ack($Place, $L), $Text).
+```
+
+Il fold è in `procedures.p0` (`answer_tail/3` concatena i pezzi `0, 1, 2, …`
+finché esistono); `list_text/3` (`discourse.p0`) rende un elenco con il
+separatore della lingua; `state_copula/2`, `list_separator/2`,
+`sentence_terminator/2`, `linguistic_form/4` sono le convenzioni vive. Ventitré
+famiglie lo usano (`situation.p0`, `place-questions.p0`, `honest-limits.p0`,
+`code-plans.p0`, `state-description.p0`, …). **I suoi quattro limiti**, che
+sono l'intera delta verso il livello successivo: l'ordine è un intero scritto
+a mano; l'**arietà** del termine (`explain($Action, $Effect, $Change, $Lang)`)
+decide *prima della prova* quanti pezzi ci saranno — un template scritto in
+Prolog; se **un** pezzo non si prova, `answer_text` fallisce e il turno cade in
+silenzio al percorso storico; un pezzo è una stringa, non può essere un'altra
+risposta condizionale.
+
+### 10.3 Lo stadio: la risposta come albero di inferenza (`composition.p0`)
+
+> *Un segnaposto è un buco che aspetta un valore; uno stadio è un'inferenza
+> che, se riesce, avvolge dentro di sé ciò che ha trovato — e se non riesce,
+> non esiste.* I connettivi («: », «, and», «, so») sono le **cicatrici** delle
+> relazioni retoriche che l'appiattimento in template ha cancellato.
+
+Il motore è in KB, sei clausole senza una parola di lingua:
+
+```prolog
+stage_holds($S) :- stage_claim($S, $C), call($C).          % la tesi dello stadio, dimostrata
+stage_holds($S) :- naf(stage_has_claim($S)).               % senza tesi: incondizionato (il nucleo)
+composed($S, $L, $T) :- naf(stage_is_wrapper($S)), stage_holds($S), stage_text($S, $L, $T).            % (1) il nucleo
+composed($S, $L, $T) :- stage_wraps($S, $In), composed($In, $L, $X), stage_holds($S), stage_around($S, $L, $X, $T). % (2) lo strato che regge
+composed($S, $L, $T) :- stage_wraps($S, $In), naf(stage_holds($S)), composed($In, $L, $T).                          % (3) quello che non regge SPARISCE
+```
+
+Il vocabolario di uno stadio, tutto fatti — e quindi insegnabile uno strato
+alla volta:
+
+| fatto | ruolo |
+|---|---|
+| `stage_wraps(S, Interno)` | quale composizione avvolge; il nucleo non avvolge nessuno |
+| `stage_claim(S, Goal)` | la **tesi** che deve reggere (una vista: `turn_goal_unanchored(current_turn)`), mai un fatto messo lì per far comparire la frase |
+| `stage_relation(S, frames\|elaborates\|concludes\|qualifies\|offers\|embeds)` | la relazione retorica con l'interno; il connettivo è la sua resa per lingua (`relation_connective/3`), non punteggiatura nello strato |
+| `stage_side(S, before\|after)` | avvolge prima (cornice) o dopo (elaborazione, conseguenza) |
+| `stage_text(S, L, Testo)` | le parole dello strato, per lingua; possono essere a loro volta composte (`class_phrase/3`, `list_text/3`) |
+
+Ogni stadio riceve **una sola cosa** dall'interno, il testo già composto, e si
+dimostra il resto da sé: ogni strato è indipendentemente vero o falso e
+interrogabile («perché hai detto quella frase?» ha una prova per strato). Un
+buco (`{klass}`) è lecito solo se nomina un argomento della tesi provata da
+quello stadio. Stato del primo taglio (gen505): il motore e il caso di studio
+`undetermined_cycle` (sei stadi) esistono e si interrogano con `composed/3`;
+**non prendono ancora la parola** (nessun `turn_response` lì), perché i
+sensori riflessivi che le tesi consultano (`turn_goal/3`, `inference_cycle/2`,
+`inference_incomplete/2`) non sono ancora depositati dal C: è il gate C1 del
+piano. Per esercitarla in un `.p0t` si mettono quei fatti a mano.
+
+**Vincoli misurati che valgono per tutti e tre i livelli:** `concat_atoms`
+in overflow (512) **fallisce**, non tronca — una risposta troppo lunga sparisce
+intera e il turno cade al percorso storico (il piano chiede di farne un fatto,
+`composition_truncated/2`); `naf` con una variabile libera nel goal negato non
+lega mai (`naf(stage_wraps($S, $Any))` è sempre falso: si nomina un ausiliario
+`stage_is_wrapper/1`); una cipolla ciclica finisce nella guardia di profondità.
+`turn_response/2` è chiesto **a ogni turno** con un solo `kb_match`: ogni
+famiglia in più costa budget, e si misura (`PARROT0_TE_SLOW`), non si stima.
+
+**Quale livello scegliere.** Una frase fissa con un valore: template. Una
+frase i cui pezzi esistono tutti sempre nello stesso ordine: `answer_content`.
+Una risposta il cui **numero di parti dipende da ciò che si è dimostrato**
+(un ostacolo c'è o non c'è, il ciclo ha membri o no, un'offerta è possibile o
+no): stadi. La direzione del progetto è la terza: un template lungo con due
+o più tesi dentro va letto come un albero appiattito e sfogliato.
+
+Le frasi composte in KB e raccolte in liste **non contengono virgole** (§4,
+`findall`): «The transfer must be at most 1 to keep ready at most 11.»
 
 ## 11. Cue, classi e condotta
 
@@ -280,9 +377,10 @@ response_template(decision_datum_noted, "Noted: {result}").
 | `phrase_canon("mi chiamo", "my name is")` | locuzione canonicalizzata prima della lettura (`lexicon.p0`) |
 | `spelling_of(Errata, Giusta)` | refusi insegnati parlando (`spelling.p0`) |
 | classi `*_lex*`, `*_cue*`, `*_chain*` con nome seriale | **debito**: sono `strcmp` con un altro indirizzo; una classe prende il nome del suo **ruolo** (MANTRA #19 a) |
-| `turn_pattern(Forma, cue\|not_cue\|word\|text, Arg)` + `turn_pattern_intent(Forma, Intento)` | la **congiunzione** come regola KB (MANTRA #19 b) |
+| `turn_pattern(Forma, cue\|not_cue\|word\|text\|not_text\|number, Arg)` + `turn_pattern_intent(Forma, Intento)` | la **congiunzione** come regola KB (MANTRA #19 b); valutata dentro `kb_cue_match` |
+| `turn_pattern_force(Forma, Forza)` + `turn_pattern_match(Turno, Forma)` | la **forza** insegnata parlando (`illocution.p0`): il C valuta le forme con una forza a inizio turno sul turno canonicalizzato e pubblica il match; `turn_declared_act` lo legge. Lezioni: «a turn that contains "X" [but not "Y"] is a question», «forget that …», «un turno che contiene "X" è una domanda» |
 | `turn_declared_act(Turn, Atto)` | atto dichiarato del turno dalla IR (`turn-frames.p0`): `production_request`, `own_procedure_request`, `lesson_turn`, `prose_carried`, … |
-| `turn_illocution(Turn, question\|expressive\|…)` | forza del turno; `naf(turn_illocution($T, question))` è la guardia standard per «non è una domanda» |
+| `turn_illocution(Turn, question\|expressive\|prose_carried\|…)` | forza del turno; **asserita dal C a inizio turno** enumerando `turn_declared_act`, quindi congelata: una regola che vuole cambiarla (es. escludere `prose_carried`) deve leggere `turn_surface_token`, che esiste allora, non `turn_span_token`, che arriva con la segmentazione; `naf(turn_illocution($T, question))` è la guardia standard per «non è una domanda» |
 | `faculty_yield(Facoltà, open\|late, Classe)` | la facoltà tace davanti a una classe di cue; `open` prima della gara, `late` dopo |
 | `faculty_yield_force(Facoltà, open, Atto)` | idem, su un `turn_declared_act` |
 | `faculty_yield_both(Facoltà, open, C1, C2)` | tace solo se entrambe le classi sono presenti |
@@ -349,11 +447,18 @@ max_qud(I) :- issue_open(I, K), naf(issue_superseded_by_later(I)).
     (ablazione nel banco).
 14. **Ogni numero ha un ruolo** prima di fare aritmetica (#12); il muro onesto
     batte la risposta sbagliata (#7) e batte il repertorio di genere.
-15. **Nomi:** `decision_*` per il circuito, `_in` per la variante con
+15. **Un nome nuovo si cerca prima con `grep`** (MANTRA #5): `role_name/1` e
+    `role/3` sono la macchina delle relazioni (`procedures.p0`), `tok`,
+    `relation`, `about` idem; un predicato omonimo esteso da un altro file non
+    dà errore, dà un comportamento nuovo a chi lo enumerava (misurato: una
+    lezione di parafrasi appesa oltre 60 s per `decision_formula` di base
+    letta come ruolo di relazione). Prefisso di famiglia sempre
+    (`decision_role_name`, `ev_tok`).
+16. **Nomi:** `decision_*` per il circuito, `_in` per la variante con
     accumulatore/lista, `_words`/`_text`/`_render` per la resa,
     `_lesson`/`_forget`/`_question` per le forme.
-16. **Misure con la data.** «L'abbiamo misurato» vale solo con quando e dove.
-17. **Il commit dice il bilancio**: quante righe C, quante KB (#18 a).
+17. **Misure con la data.** «L'abbiamo misurato» vale solo con quando e dove.
+18. **Il commit dice il bilancio**: quante righe C, quante KB (#18 a).
 
 ## 14. Diagnosi rapida
 
@@ -368,6 +473,9 @@ max_qud(I) :- issue_open(I, K), naf(issue_superseded_by_later(I)).
 | «Because because …» / simboli interni nella risposta | la prova esposta cruda: presentazione, non ramo |
 | un modulo risponde a sproposito | «who answered?» dice quale; la cura è `faculty_yield`/`turn_declared_act`, o il gancio se manca |
 | il nome dell'utente è tutta la frase | `slot_value_stop` e lettore che dequota |
+| una sonda `? pred a b` con tutti gli argomenti legati dà `total: 0` | conta i BINDING, non le prove: con zero variabili libere è sempre 0; lascia un `_` |
+| una lettura vede i token nel contabile ma non nella forza del turno | usa `turn_surface_token` (esiste a inizio turno), non `turn_span_token` |
+| un turno resta appeso oltre il budget dopo l'aggiunta di FATTI di base | un predicato omonimo di un altro file (`role_name`, `role/3`) ora enumerabile: rinomina con prefisso di famiglia; bisezione a varianti del file |
 | un test rosso solo per `turn took 1.2s (timeout 1.00s)` | costo del turno base (`TEST_TODO.md`), non del cambiamento; non si alza il budget |
 
 ## 15. Come si verifica

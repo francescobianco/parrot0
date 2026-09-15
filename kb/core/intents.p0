@@ -6327,6 +6327,9 @@ faculty_yield(role, open, correction_claim).
 faculty_yield(gen, open, opinion_request).
 % «remind me to call my mother at 6 pm» e' una richiesta di promemoria, non una
 % notizia sulla famiglia (M7): senza orologio ne' agenda lo si dice.
+% «remind me …» si APRE come un ordine: il turno non descrive un evento (E3).
+imperative_opener(remind).
+imperative_opener(ricordami).
 intent_cue(reminder_request, "remind me").
 intent_cue(reminder_request, "set a reminder").
 intent_cue(reminder_request, "ricordami").

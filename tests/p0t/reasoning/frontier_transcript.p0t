@@ -1,11 +1,10 @@
-# Il transcript naturale del piano interlocutore-di-frontiera (§2, §9.9, report
-# 2026-09-15-frontiera-sufficienza §B). NON e' nel Makefile: e' ROSSO per
-# costruzione e deve restarlo finche' E3 non collega le frasi naturali agli
-# oggetti di E2 (MANTRA: un gap si rende visibile, non si chiude con un mock).
-# Si sonda da D0 e dopo ogni missione:
+# E3 del piano interlocutore-di-frontiera (§9.9): il transcript naturale.
+# Le frasi dell'utente arrivano agli stessi oggetti di E1/E2 (situation_state,
+# decision_requirement, decision_formula) senza il linguaggio delle formule:
+# letture KB sul frame del turno (kb/core/event-time.p0). Le attese sono quelle
+# di un interlocutore utile: la riunione e la citta' del cliente restano
+# distinte; il residuo e' il tempo del viaggio. Sonda verbatim:
 #     python3 scripts/p0t-echo.py tests/p0t/reasoning/frontier_transcript.p0t
-# Le attese sono quelle di un interlocutore utile: la riunione e la citta' del
-# cliente restano distinte; il residuo e' il tempo del trasferimento.
 [mock live]
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=kb/profiles/agi.p0
@@ -16,17 +15,47 @@
 !timeout 6
 > tomorrow I have an important meeting at 9 am with a client from Milan
 <! don't know
+<~ Noted
+<~ time of meeting is 9
+<~ origin of client is milan
 > what time is my meeting?
 <~ 9
-
-[test il viaggio detto in prosa raggiunge la verifica per limiti]
-!timeout 6
-> I leave Rome at 7 by train and the trip takes 3 hours. Will I be on time?
-<! don't understand
-<~ 10
-<~ 9
+<! don't know
 
 [test la citta' del cliente non diventa la citta' della riunione]
 !timeout 6
 > where is the meeting?
 <! Milan
+<! milan
+> where is the client from?
+<~ milan
+
+[test il viaggio detto in prosa raggiunge la verifica per limiti]
+!timeout 8
+> I leave Rome at 7 by train and the trip takes 3 hours. Will I be on time?
+<! don't understand
+<! couldn't read
+<~ No: arrival reaches 10
+<~ at most 9
+> what is the arrival of trip?
+<~ 10
+<~ plus
+
+[test la premessa cambiata cambia il verdetto, dalla prosa]
+!timeout 8
+> the trip takes 2 hours
+> will I be on time?
+<~ satisfied
+
+[test lo stesso giro in italiano, in un turno solo: condizione e domanda insieme]
+!timeout 8
+!set PARROT0_LANG=it
+> domani ho una riunione importante alle 9 con un cliente di Milano
+<~ 9
+> a che ora è la mia riunione?
+<~ 9
+> se parto da Roma alle 7 in treno e ci vogliono 3 ore, arrivo in tempo a Milano per la riunione?
+<! Non capisco
+<~ 10
+<~ 9
+!set PARROT0_LANG=en

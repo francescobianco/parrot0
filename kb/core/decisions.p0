@@ -5,12 +5,12 @@
 % decision_* sono viste: ritrarre la lezione cambia subito candidati e scelta.
 :- file_attribute(machinery).
 
-role_name($R) :- decision_requirement($O, $R, $Op, $B).
-role_name($R) :- decision_formula($R, $A, $B).
-role_name($A) :- decision_formula($R, $A, $B).
-role_name($B) :- decision_formula($R, $A, $B).
-role_name($R) :- decision_minimum($R, $N).
-role_name($R) :- decision_maximum($R, $N).
+decision_role_name($R) :- decision_requirement($O, $R, $Op, $B).
+decision_role_name($R) :- decision_formula($R, $A, $B).
+decision_role_name($A) :- decision_formula($R, $A, $B).
+decision_role_name($B) :- decision_formula($R, $A, $B).
+decision_role_name($R) :- decision_minimum($R, $N).
+decision_role_name($R) :- decision_maximum($R, $N).
 role($O, $R, $V) :- situation_state(described_situation, $O, $R, $V).
 decision_numeric($V) :- is($N, $V).
 decision_store($O, $R, $V, $V) :- decision_numeric($V), state_commit($O, $R, $V).
@@ -423,9 +423,9 @@ decision_limit_words($L, limit($K, $V), $T) :- decision_limit_op($K, $Op), decis
 decision_limit_text_of($L, $Bs, $X) :- member($B, $Bs), decision_limit_words($L, $B, $X).
 decision_limits_text($L, $Bs, $T) :- findall($X, decision_limit_text_of($L, $Bs, $X), $Xs), decision_list($L, $Xs, $T).
 decision_empty(nil).
-decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_bounds($O, $R, $Bs), naf(decision_empty($Bs)), current_language($L), words_of($R, $Name), concat_atoms("the ", $Name, $A), decision_is_words($L, $Is), concat_atoms($A, $Is, $B), decision_limits_text($L, $Bs, $List), concat_atoms($B, $List, $C), concat_atoms($C, ".", $Text).
-decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_bounds($O, $R, $Bs), decision_empty($Bs), decision_missing_list($O, $R, cons($M, $Ms)), current_language($L), decision_unknown_start($L, $Start), words_of($R, $Name), concat_atoms($Start, $Name, $A), decision_unknown_link($L, $Link), concat_atoms($A, $Link, $B), decision_role_words($L, cons($M, $Ms), $Mn), concat_atoms($B, $Mn, $C), decision_missing_ending($L, cons($M, $Ms), $W), concat_atoms($C, $W, $Text).
-decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), role_name($R), decision_circular($R), current_language($L), decision_render($L, circular($R), $Text).
+decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_role_name($R), decision_bounds($O, $R, $Bs), naf(decision_empty($Bs)), current_language($L), words_of($R, $Name), concat_atoms("the ", $Name, $A), decision_is_words($L, $Is), concat_atoms($A, $Is, $B), decision_limits_text($L, $Bs, $List), concat_atoms($B, $List, $C), concat_atoms($C, ".", $Text).
+decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_role_name($R), decision_bounds($O, $R, $Bs), decision_empty($Bs), decision_missing_list($O, $R, cons($M, $Ms)), current_language($L), decision_unknown_start($L, $Start), words_of($R, $Name), concat_atoms($Start, $Name, $A), decision_unknown_link($L, $Link), concat_atoms($A, $Link, $B), decision_role_words($L, cons($M, $Ms), $Mn), concat_atoms($B, $Mn, $C), decision_missing_ending($L, cons($M, $Ms), $W), concat_atoms($C, $W, $Text).
+decision_value_answer($O, $R, $Text) :- naf(decision_known($O, $R)), naf(decision_conflict($O, $R)), decision_role_name($R), decision_circular($R), current_language($L), decision_render($L, circular($R), $Text).
 
 % La domanda polare sul valore: «is the departure of train 8?» — si', no con il
 % valore vero, o il dato che manca. Sopra un ruolo non in gioco fallisce.

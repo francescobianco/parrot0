@@ -5226,6 +5226,7 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     kb_retract_pred(b->kb, "turn_span_binding");
     kb_retract_pred(b->kb, "turn_cue");
     kb_retract_pred(b->kb, "turn_illocution");   /* gen513: la forza e' del turno */
+    kb_retract_pred(b->kb, "turn_pattern_match"); /* 15 settembre 2026: le forme insegnate */
     input_structure_clear(b->kb, "current_turn");
     kb_set_origin(b->kb, KB_REFLECTIVE);
     /* Keep the entire token stream beside segmented payloads. A cue belongs
@@ -5254,6 +5255,41 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
      * leggono la stessa cosa, e la leggono in O(1). La conoscenza resta dov'era
      * — quali forze esistano e quando valgano e' sempre `turn_declared_act` in
      * KB — cambia solo che non la si ricalcola addosso a un turno che cresce. */
+    /* 15 settembre 2026 (F.: «spostare la forza interlocutiva dentro la KB e
+     * renderla addestrabile via prompt verbali») — le FORME insegnate parlando
+     * (`turn_pattern/3`, evaluatore p0_turn_pattern_holds) si pubblicano come
+     * fatti del frame, `turn_pattern_match(current_turn, Forma)`, PRIMA che la
+     * forza si congeli: cosi' `turn_declared_act($T, $F) :- turn_pattern_force
+     * ($Forma, $F), turn_pattern_match($T, $Forma)` (turn-frames.p0) vede la
+     * lezione dal turno dopo. Il C non sa quali forme esistano: le chiede. */
+    {
+        char (*pats)[KB_TERM_LEN] = NULL; size_t np = 0;
+        const char *pq[2] = { NULL, NULL };
+        if (kb_match_all(b->kb, "turn_pattern_force", pq, 2, &pats, &np)) {
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            /* Si giudica la superficie pubblicata, cosi' com'e': chiamare qui
+             * brain_canonical rientrava nella lettura del turno durante la
+             * riproduzione di una parafrasi («x means y») e il turno restava
+             * appeso (misurato, 15 settembre 2026). La frase insegnata resta
+             * grezza dalla parte della lezione (slot di forma `mention`). */
+            const char *judged = surface;
+            for (size_t i = 0; i < np; i++) {
+                if (i && !strcmp(pats[i], pats[i - 1])) continue;
+                char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pats[i]);
+                const char *pat = kb_dequote(pb);
+                size_t seen = 0;
+                if (*pat && p0_turn_pattern_holds(b, pat, judged, &seen) && seen) {
+                    const char *ma[2] = { "current_turn", pat };
+                    kb_assert(b->kb, "turn_pattern_match", ma, 2);
+                    if (getenv("P0_READ_TRACE"))
+                        fprintf(stderr, "[turn] taught form %s holds\n", pat);
+                }
+            }
+            kb_set_origin(b->kb, prev);
+        }
+        free(pats);
+    }
     {
         char (*forces)[KB_TERM_LEN] = NULL; size_t nf = 0;
         const char *fq[2] = { "current_turn", NULL };

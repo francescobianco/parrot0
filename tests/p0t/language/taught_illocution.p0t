@@ -1,0 +1,53 @@
+# 15 settembre 2026 — LA FORZA DEL TURNO SI INSEGNA PARLANDO (F.: «spostare la
+# forza interlocutiva dentro la KB e renderla addestrabile via prompt verbali»).
+# La forma insegnata (turn_pattern + turn_pattern_force, kb/core/illocution.p0)
+# e' valutata a inizio turno e pubblicata come fatto del frame; da li' e' un
+# atto dichiarato. La prova usa E3: «… will I be on time» SENZA punto
+# interrogativo e' una descrizione finche' qualcuno non dice che e' una domanda.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test prima: senza punto interrogativo il turno descrive e basta]
+!timeout 8
+> tomorrow I have a meeting at 9
+<~ 9
+> if I leave at 7 and the trip takes 3 hours will I be on time
+<~ Noted
+<! No: arrival
+
+[test la lezione: la forza detta vale dal turno dopo]
+!timeout 8
+> a turn that contains "will i be on time" is a question
+<~ question
+> if I leave at 7 and the trip takes 3 hours will I be on time
+<~ No: arrival reaches 10
+<~ at most 9
+
+[test la ritrattazione parlata riporta la descrizione]
+!timeout 8
+> forget that a turn that contains "will i be on time" is a question
+<~ no longer
+> if I leave at 7 and the trip takes 3 hours will I be on time
+<~ Noted
+<! No: arrival
+
+[test la forma con esclusione: «ma non»]
+!timeout 8
+> a turn that contains "will i be on time" but not "if" is a question
+<~ question
+> if I leave at 7 and the trip takes 3 hours will I be on time
+<! No: arrival
+> the trip takes 3 hours and I leave at 7 so will I be on time
+<~ No: arrival reaches 10
+> forget that a turn that contains "will i be on time" is a question
+
+[test in italiano]
+!timeout 8
+> un turno che contiene "arrivo in tempo" è una domanda
+<~ domanda
+> parto alle 7 e ci vogliono 3 ore quindi arrivo in tempo
+<~ No: arrival
+> dimentica che un turno che contiene "arrivo in tempo" è una domanda

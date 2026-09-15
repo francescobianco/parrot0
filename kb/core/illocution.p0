@@ -1,0 +1,102 @@
+% illocution.p0 — LA FORZA DEL TURNO SI INSEGNA PARLANDO (15 settembre 2026).
+% F.: «dobbiamo spostare la forza interlocutiva dentro la KB e renderla
+% addestrabile via prompt verbali». Le forze (question, assertion, directive)
+% sono atti dichiarati del turno (turn-frames.p0); qui una LEZIONE in lingua
+% naturale scrive una forma (`turn_pattern/3`, mantra #19b) e la forza che
+% vale se la forma tiene (`turn_pattern_force/2`). Il motore la pubblica a
+% inizio turno come `turn_pattern_match/2`; niente nomi interni nella lezione:
+% chi insegna dice «is a question», non `question`.
+:- file_attribute(machinery).
+
+% Come si chiamano le forze, per chi insegna.
+force_name("a question", question).      force_name("una domanda", question).
+force_name("a statement", assertion).    force_name("un'affermazione", assertion).
+force_name("an order", directive).       force_name("un ordine", directive).
+force_name("a request", directive).      force_name("una richiesta", directive).
+
+% La frase citata e' una MENZIONE: resta com'e' (niente canonicalizzazione).
+segment_role(mention, "a turn that contains").
+segment_role(mention, "un turno che contiene").
+segment_role(mention, "but not").
+segment_role(mention, "ma non").
+
+% «a turn that contains "X" is a question»
+turn_form(teach_force_en, 1, text("a turn that contains")).
+turn_form(teach_force_en, 2, span(phrase)).
+turn_form(teach_force_en, 3, text("is")).
+turn_form(teach_force_en, 4, named(force_name, force)).
+% La frase citata e' una menzione anche per lo span della forma: resta grezza.
+turn_form_slot_form(teach_force_en, phrase, mention).
+turn_form_slot_form(teach_force_it, phrase, mention).
+turn_form_slot_form(teach_force_not_en, phrase, mention).
+turn_form_slot_form(teach_force_not_en, excluded, mention).
+turn_form_slot_form(forget_force_en, phrase, mention).
+turn_form_slot_form(forget_force_it, phrase, mention).
+% La forma semplice non legge una frase che porta «but not»: quella e' la forma
+% con esclusione, e uno span si ferma solo all'ancora della propria forma.
+turn_form_slot_class(teach_force_en, phrase, force_phrase_plain).
+turn_form_act(teach_force_en, "op(match, teach_force_text, [phrase, force, free])").
+turn_form_priority(teach_force_en, early).
+turn_form_view(teach_force_en, said).
+turn_form_reply(teach_force_en, force_taught).
+turn_form(teach_force_it, 1, text("un turno che contiene")).
+turn_form(teach_force_it, 2, span(phrase)).
+turn_form(teach_force_it, 3, text("è")).
+turn_form(teach_force_it, 4, named(force_name, force)).
+turn_form_slot_class(teach_force_it, phrase, force_phrase_plain).
+turn_form_act(teach_force_it, "op(match, teach_force_text, [phrase, force, free])").
+turn_form_priority(teach_force_it, early).
+turn_form_view(teach_force_it, said).
+turn_form_reply(teach_force_it, force_taught).
+% «a turn that contains "X" but not "Y" is a question»
+turn_form(teach_force_not_en, 1, text("a turn that contains")).
+turn_form(teach_force_not_en, 2, span(phrase)).
+turn_form(teach_force_not_en, 3, text("but not")).
+turn_form(teach_force_not_en, 4, span(excluded)).
+turn_form(teach_force_not_en, 5, text("is")).
+turn_form(teach_force_not_en, 6, named(force_name, force)).
+turn_form_act(teach_force_not_en, "op(match, teach_force_text_not, [phrase, excluded, force, free])").
+turn_form_priority(teach_force_not_en, early).
+turn_form_view(teach_force_not_en, said).
+turn_form_reply(teach_force_not_en, force_taught).
+% «forget that a turn that contains "X" is a question»
+turn_form(forget_force_en, 1, text("forget that a turn that contains")).
+turn_form(forget_force_en, 2, span(phrase)).
+turn_form(forget_force_en, 3, text("is")).
+turn_form(forget_force_en, 4, named(force_name, force)).
+turn_form_act(forget_force_en, "op(match, forget_force_text, [phrase, force, free])").
+turn_form_priority(forget_force_en, early).
+turn_form_view(forget_force_en, said).
+turn_form_reply(forget_force_en, force_forgotten).
+turn_form(forget_force_it, 1, text("dimentica che un turno che contiene")).
+turn_form(forget_force_it, 2, span(phrase)).
+turn_form(forget_force_it, 3, text("è")).
+turn_form(forget_force_it, 4, named(force_name, force)).
+turn_form_act(forget_force_it, "op(match, forget_force_text, [phrase, force, free])").
+turn_form_priority(forget_force_it, early).
+turn_form_view(forget_force_it, said).
+turn_form_reply(forget_force_it, force_forgotten).
+segment_role(mention, "forget that a turn that contains").
+segment_role(mention, "dimentica che un turno che contiene").
+response_template(force_taught, "{result}").
+response_template(force_forgotten, "{result}").
+
+force_phrase_plain($P) :- atom_words($P, $Ws), naf(force_words_have_not($Ws)).
+force_words_have_not(cons(but, cons(not, $R))).
+force_words_have_not(cons(ma, cons(non, $R))).
+force_words_have_not(cons($H, $T)) :- force_words_have_not($T).
+% Il nome della forma nasce dalla frase (parole unite da «_»); la frase citata
+% si confronta con il turno canonico, quindi in minuscolo.
+force_form_name($Phrase, $F) :- atom_words($Phrase, $Ws), atom_words($F0, $Ws), concat_atoms("taught_force_", $F0, $F).
+teach_force_text($Phrase, $Force, $Text) :- force_form_name($Phrase, $F), assert(turn_pattern, $F, text, $Phrase), assert(turn_pattern_force, $F, $Force), current_language($L), force_taught_text($L, $Phrase, $Force, $Text).
+teach_force_text_not($Phrase, $Excluded, $Force, $Text) :- force_form_name($Phrase, $F), assert(turn_pattern, $F, text, $Phrase), assert(turn_pattern, $F, not_text, $Excluded), assert(turn_pattern_force, $F, $Force), current_language($L), force_taught_text($L, $Phrase, $Force, $Text).
+forget_force_text($Phrase, $Force, $Text) :- force_form_name($Phrase, $F), retract(turn_pattern_force, $F, $Force), retract(turn_pattern, $F, text, $Phrase), current_language($L), force_forgotten_text($L, $Phrase, $Force, $Text).
+force_said($L, $Force, $Name) :- force_name($Name, $Force), force_name_language($L, $Name).
+force_name_language(en, "a question"). force_name_language(en, "a statement"). force_name_language(en, "an order").
+force_name_language(it, "una domanda"). force_name_language(it, "un'affermazione"). force_name_language(it, "un ordine").
+force_taught_words(en, "From now on a turn that contains «"). force_taught_words(it, "D'ora in poi un turno che contiene «").
+force_counts_words(en, "» counts as "). force_counts_words(it, "» vale come ").
+force_forgotten_words(en, "I no longer read a turn that contains «"). force_forgotten_words(it, "Non leggo più un turno che contiene «").
+force_as_words(en, "» as "). force_as_words(it, "» come ").
+force_taught_text($L, $Phrase, $Force, $Text) :- force_taught_words($L, $A), concat_atoms($A, $Phrase, $B), force_counts_words($L, $C), concat_atoms($B, $C, $D), force_said($L, $Force, $Name), concat_atoms($D, $Name, $E), concat_atoms($E, ".", $Text).
+force_forgotten_text($L, $Phrase, $Force, $Text) :- force_forgotten_words($L, $A), concat_atoms($A, $Phrase, $B), force_as_words($L, $C), concat_atoms($B, $C, $D), force_said($L, $Force, $Name), concat_atoms($D, $Name, $E), concat_atoms($E, ".", $Text).

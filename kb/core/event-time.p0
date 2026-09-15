@@ -1,0 +1,164 @@
+% event-time.p0 — GLI EVENTI CON UN ORARIO, DALLA PROSA ALLO STATO (E3).
+% interlocutore-di-frontiera.md §9.9: «tomorrow I have an important meeting at
+% 9 am with a client from Milan» e «I leave Rome at 7 by train and the trip
+% takes 3 hours. Will I be on time?» devono arrivare agli STESSI oggetti di
+% E1/E2 (role/3 = situation_state, decision_requirement, decision_formula)
+% senza che l'utente li riscriva nel linguaggio delle formule.
+%
+% Stessa meccanica di state-description.p0 («la valvola e' chiusa»): letture
+% come regole sul frame del turno (turn_span_token), un contabile che custodisce
+% con state_commit, il piano di turno che riconosce. Nessun parser nel C: le
+% parole sono fatti, una lingua nuova e' una riga.
+:- file_attribute(machinery).
+
+% ── 1. LE PAROLE ───────────────────────────────────────────────────────────
+% NUDE, non tra virgolette: un token del frame (span_atom) e' un atomo, e un
+% atomo non unifica con una stringa quotata (misurato: time_preposition("at")
+% non combaciava con «at», day_word(tomorrow) si'). docs/parrot-p0-syntax.md §6.
+timed_event_noun(meeting).      timed_event_noun(appointment).
+timed_event_noun(call).         timed_event_noun(flight).
+timed_event_noun(riunione).     timed_event_noun(appuntamento).
+time_preposition(at).         time_preposition(alle).
+departure_verb(leave).        departure_verb(depart).
+departure_verb(parto).        departure_verb(partiamo).
+duration_verb(takes).         duration_verb(lasts).
+duration_verb(vogliono).      duration_verb(dura).
+origin_preposition(from).     origin_preposition(da).
+means_preposition(by).        means_preposition(in).
+means_noun(train).  means_noun(car).  means_noun(bus).  means_noun(plane).
+means_noun(treno).  means_noun(auto). means_noun(aereo).
+with_preposition(with).       with_preposition(con).
+day_word(tomorrow). day_word(today). day_word(tonight).
+day_word(domani).   day_word(oggi).  day_word(stasera).
+% Il viaggio di cui l'utente parla in prima persona («I leave …») e' UN
+% soggetto della situazione descritta; il suo nome e' conoscenza.
+journey_subject(trip).
+% Legge del viaggio: si arriva quando si e' partiti piu' il tempo che ci vuole.
+% E' la stessa formula che E1 insegna parlando; qui e' conoscenza del mondo.
+decision_formula(arrival, departure, duration).
+% Ruoli che si possono chiedere anche prima che qualcuno li abbia detti.
+askable_role(time). askable_role(place). askable_role(day).
+askable_role(origin). askable_role(counterpart). askable_role(means).
+decision_role_name($R) :- askable_role($R).
+decision_role_name($R) :- situation_state(described_situation, $O, $R, $V).
+described_entity($O) :- situation_state(described_situation, $O, $R, $V).
+
+% ── 2. LE LETTURE, sul frame del turno ──────────────────────────────────────
+% ev_tok(Turno, Span, Posizione, Parola); la parola dopo, e la prima parola piena
+% dopo una posizione (salta articoli, preposizioni, «a», «an», «the»).
+% Sui token di SUPERFICIE, non sugli span: la forza del turno (turn_illocution)
+% viene asserita dal C prima della segmentazione, e «non e' prosa da leggere»
+% deve valere gia' li'. Lo stesso frame che legge prose_carried.
+ev_tok($T, $S, $I, $W) :- turn_surface_token($T, $S, $I, $Tok), span_atom($Tok, $W).
+ev_next($T, $S, $I, $W) :- is($J, add($I, 1)), ev_tok($T, $S, $J, $W).
+ev_skip($W) :- stopword($W).
+ev_skip($W) :- origin_preposition($W).
+ev_skip($W) :- time_preposition($W).
+ev_after($T, $S, $I, $W) :- ev_next($T, $S, $I, $W), naf(ev_skip($W)).
+ev_after($T, $S, $I, $W) :- ev_next($T, $S, $I, $X), ev_skip($X), is($J, add($I, 1)), ev_next($T, $S, $J, $W), naf(ev_skip($W)).
+ev_after($T, $S, $I, $W) :- ev_next($T, $S, $I, $X), ev_skip($X), is($J, add($I, 1)), ev_next($T, $S, $J, $Y), ev_skip($Y), is($K, add($J, 1)), ev_next($T, $S, $K, $W), naf(ev_skip($W)).
+% «at N» dopo l'evento: l'orario. «tomorrow»: il giorno. «with X»: la
+% controparte. «X from Y»: l'origine di X (del cliente, non della riunione).
+event_reading($T, ev($E, time, $V)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_next($T, $S, $J, $V), decision_numeric($V).
+event_reading($T, ev($E, day, $D)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S2, $K, $D), day_word($D).
+event_reading($T, ev($E, counterpart, $C)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S, $J, $P), with_preposition($P), gt($J, $I), ev_after($T, $S, $J, $C), naf(decision_numeric($C)).
+event_reading($T, ev($X, origin, $P)) :- ev_tok($T, $S, $J, $F), origin_preposition($F), is($I, sub($J, 1)), ev_tok($T, $S, $I, $X), naf(ev_skip($X)), naf(departure_verb($X)), ev_next($T, $S, $J, $P), naf(ev_skip($P)).
+% «I leave Rome at 7 by train», «parto da Roma alle 7 in treno», «the trip
+% takes 3 hours», «ci vogliono 3 ore»: partenza, origine, mezzo, durata del viaggio.
+event_reading($T, ev($Trip, departure, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_next($T, $S, $J, $V), decision_numeric($V).
+event_reading($T, ev($Trip, origin, $Pl)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_after($T, $S, $I, $Pl), naf(decision_numeric($Pl)), naf(means_noun($Pl)).
+event_reading($T, ev($Trip, means, $M)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_tok($T, $S, $J, $P), means_preposition($P), gt($J, $I), ev_next($T, $S, $J, $M), means_noun($M).
+event_reading($T, ev($Trip, duration, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), duration_verb($Vb), ev_next($T, $S, $I, $V), decision_numeric($V).
+% Un turno che SI APRE come domanda o ordine non descrive («is the meeting at
+% 9?» non fissa l'orario); uno che si apre con una condizione e chiede alla
+% fine («se parto alle 7 e ci vogliono 3 ore, arrivo in tempo?») descrive E chiede.
+event_readings($T, $L) :- naf(turn_opens_request($T)), findall($X, event_reading($T, $X), $L).
+event_described($T) :- event_readings($T, $L), dif($L, nil).
+
+% ── 3. IL CONTABILE: custodire TUTTE le letture, a confine di turno ────────
+% La lista si materializza prima di ogni commit (state-description.p0 §5: il
+% solver non deve ribacktrackare dentro state_commit).
+bookkeeper(event_time).
+turn_bookkeeping($T, event_time) :- event_readings($T, $L), event_commit_all($L).
+event_commit_all(nil).
+event_commit_all(cons(ev($O, $R, $V), $Rest)) :- state_commit($O, $R, $V), event_commit_all($Rest).
+
+% ── 4. LA MOSSA: riconoscere cio' che si e' tenuto ─────────────────────────
+% Un turno che si presenta («my name is Francesco and tomorrow I have a
+% meeting at 9») appartiene alla memoria della persona: lo stato dell'evento
+% si custodisce lo stesso (contabile), ma la parola resta a chi saluta.
+ev_words_at($T, $S, $I, nil).
+ev_words_at($T, $S, $I, cons($W, $Ws)) :- ev_tok($T, $S, $I, $W), is($J, add($I, 1)), ev_words_at($T, $S, $J, $Ws).
+turn_declares_personal($T) :- slot_eager($Slot), slot_evidence($Slot, $Cue), atom_words($Cue, $Ws), ev_tok($T, $S, $I, $First), ev_words_at($T, $S, $I, $Ws).
+turn_plan_candidate($T) :- event_described($T), naf(turn_goal_span($T)), naf(turn_declares_personal($T)).
+turn_response($T, $Text) :- event_described($T), naf(turn_goal_span($T)), naf(on_time_asked($T)), naf(turn_declares_personal($T)), event_readings($T, $L), current_language($Lang), event_ack_text($Lang, $L, $Text).
+event_ack_start(en, "Noted: "). event_ack_start(it, "Annotato: ").
+event_the_words(en, "the "). event_the_words(it, "il ").
+event_of_words(en, " of "). event_of_words(it, " di ").
+event_item_text($Lang, ev($O, $R, $V), $T) :- event_the_words($Lang, $The), words_of($R, $Rn), concat_atoms($The, $Rn, $A), event_of_words($Lang, $Of), concat_atoms($A, $Of, $B), words_of($O, $On), concat_atoms($B, $On, $C), decision_is_words($Lang, $Is), concat_atoms($C, $Is, $D), concat_atoms($D, $V, $E), concat_atoms($E, ".", $F), upcase_first($F, $T).
+event_texts($Lang, nil, nil).
+event_texts($Lang, cons($X, $Rest), cons($T, $Ts)) :- event_item_text($Lang, $X, $T), event_texts($Lang, $Rest, $Ts).
+event_ack_text($Lang, $L, $Text) :- event_texts($Lang, $L, $Ts), decision_join($Lang, $Ts, $Body), event_ack_start($Lang, $S), concat_atoms($S, $Body, $Text).
+
+% ── 5. LE DOMANDE: orario, luogo, e «arrivo in tempo?» ─────────────────────
+% Il soggetto deve essere un'entita' descritta: «where is Paris?» non e' di qui.
+turn_form(event_time_question_en, 1, text("what time is my")).
+turn_form(event_time_question_en, 2, slot(event)).
+turn_form_slot_class(event_time_question_en, event, described_entity).
+turn_form_act(event_time_question_en, "op(match, event_value_answer, [event, time, free])").
+turn_form_priority(event_time_question_en, early).
+turn_form_view(event_time_question_en, said).
+turn_form_reply(event_time_question_en, event_answer).
+turn_form(event_time_question_it, 1, text("a che ora è la mia")).
+turn_form(event_time_question_it, 2, slot(event)).
+turn_form_slot_class(event_time_question_it, event, described_entity).
+turn_form_act(event_time_question_it, "op(match, event_value_answer, [event, time, free])").
+turn_form_priority(event_time_question_it, early).
+turn_form_view(event_time_question_it, said).
+turn_form_reply(event_time_question_it, event_answer).
+turn_form(event_place_question_en, 1, text("where is the")).
+turn_form(event_place_question_en, 2, slot(event)).
+turn_form_slot_class(event_place_question_en, event, described_entity).
+turn_form_act(event_place_question_en, "op(match, event_value_answer, [event, place, free])").
+turn_form_priority(event_place_question_en, early).
+turn_form_view(event_place_question_en, said).
+turn_form_reply(event_place_question_en, event_answer).
+turn_form(event_place_question_my, 1, text("where is my")).
+turn_form(event_place_question_my, 2, slot(event)).
+turn_form_slot_class(event_place_question_my, event, described_entity).
+turn_form_act(event_place_question_my, "op(match, event_value_answer, [event, place, free])").
+turn_form_priority(event_place_question_my, early).
+turn_form_view(event_place_question_my, said).
+turn_form_reply(event_place_question_my, event_answer).
+turn_form(event_origin_question_en, 1, text("where is the")).
+turn_form(event_origin_question_en, 2, slot(event)).
+turn_form(event_origin_question_en, 3, text("from")).
+turn_form_slot_class(event_origin_question_en, event, described_entity).
+turn_form_act(event_origin_question_en, "op(match, event_value_answer, [event, origin, free])").
+turn_form_priority(event_origin_question_en, early).
+turn_form_view(event_origin_question_en, said).
+turn_form_reply(event_origin_question_en, event_answer).
+response_template(event_answer, "{result}").
+% La risposta sul valore nomina il soggetto («The time of meeting is 9.»);
+% quando manca, la spiegazione e' quella di E2 (limiti, dato mancante).
+event_value_answer($O, $R, $Text) :- role($O, $R, $V), current_language($L), event_item_text($L, ev($O, $R, $V), $Text).
+event_value_answer($O, $R, $Text) :- naf(decision_stated($O, $R)), decision_value_answer($O, $R, $Text).
+% «Will I be on time?» / «… arrivo in tempo a Milano per la riunione?»: la
+% domanda si riconosce sul frame, ovunque stia nel turno (in italiano chiude
+% un periodo che si apre con la condizione). L'arrivo del viaggio non deve
+% superare l'ora dell'impegno: il requisito e' una VISTA sui due stati
+% descritti, e la verifica e' quella di E2 (limiti, residuo, condotta).
+on_time_words(on, time).       on_time_words(arrivo, in).
+% La domanda si riconosce dalla FORZA del turno, non dal punto interrogativo:
+% cosi' «se parto alle 7 e ci vogliono 3 ore arrivo in tempo» senza «?» diventa
+% una domanda quando lo si insegna (illocution.p0).
+on_time_asked($T) :- turn_illocution($T, question), ev_tok($T, $S, $I, $A), on_time_words($A, $B), ev_next($T, $S, $I, $B).
+on_time_link($Trip, $E) :- journey_subject($Trip), role($Trip, departure, $D), timed_event_noun($E), role($E, time, $T).
+decision_requirement($Trip, arrival, le, $T) :- on_time_link($Trip, $E), role($E, time, $T).
+on_time_answer($Text) :- on_time_link($Trip, $E), decision_answer($Trip, $Text).
+on_time_missing_words(en, "I do not know when you leave or when the meeting is yet.").
+on_time_missing_words(it, "Non so ancora quando parti o a che ora è l'impegno.").
+on_time_answer($Text) :- naf(on_time_link_any), current_language($L), on_time_missing_words($L, $Text).
+on_time_link_any :- on_time_link($Trip, $E).
+turn_plan_candidate($T) :- on_time_asked($T).
+turn_response($T, $Text) :- on_time_asked($T), on_time_answer($Text).

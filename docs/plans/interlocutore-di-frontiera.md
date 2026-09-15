@@ -1308,7 +1308,7 @@ tutte insieme. Il primo difetto osservato stabilisce dove intervenire.
 | ~~**D0 — fissare il banco**~~ (15 settembre, §9.12) | conservare E1, aggiungere i casi discriminanti di §9.10 e il transcript naturale; leggere le risposte | distinguere perdita in lettura, condizione mancante e scelta errata; nessun fix prima del banco |
 | ~~**E2a — sufficienza**~~ (15 settembre, §9.12) | estendere il circuito esistente dal valore esatto alla verifica per limiti, con sostegni e residuo tipato | i tre casi di §9.1 si separano; insegnamento e ablazione modificano il comportamento pertinente |
 | ~~**E2b — residuo interrogabile**~~ (15 settembre, §9.13) | collegare il vincolo residuo alla stessa questione sulla board; accettare una risposta che lo soddisfi senza imporre il valore esatto | una domanda sulla soglia chiude l'obbligo; correzione della premessa lo riapre; due scopi non si mescolano |
-| **E3 — collegamento alla conversazione** | far arrivare le frasi naturali di viaggio e impegno agli stessi oggetti E2, conservando fonte e ambito | il prompt originale e le varianti funzionano senza che il teacher li riscriva nel linguaggio delle formule; riunione e città del cliente restano distinte |
+| ~~**E3 — collegamento alla conversazione**~~ (15 settembre, §9.14) | far arrivare le frasi naturali di viaggio e impegno agli stessi oggetti E2, conservando fonte e ambito | il prompt originale e le varianti funzionano senza che il teacher li riscriva nel linguaggio delle formule; riunione e città del cliente restano distinte |
 | **E4 — prova riusabile** | registrare un episodio e ricavarne un procedimento condizionale verificabile; applicarlo fuori dalla famiglia di costruzione | il riuso risparmia lavoro contando anche apprendimento e invalidazione; un controesempio ne restringe l'ambito |
 | **E5 — scelta appresa dagli esiti** | proporre e confrontare criteri su quale procedimento o domanda tentare | il criterio emerge dal riscontro, raggiunge casi esclusi, è correggibile parlando e il suo effetto scompare con l'ablazione |
 
@@ -1617,3 +1617,110 @@ in `compose_social`, `smalltalk`, `social.it`, `discourse.it` sono il costo del
 turno base (TEST_TODO); `smalltalk.p0t` riga 39 («is the sky blue?» → «Yes.»)
 è rosso di contenuto **già a HEAD** (le cue causali sul cielo esistono da
 prima): da bisecare, non di questo giro.
+
+### 9.14 E3 — stato al 15 settembre 2026, notte: il transcript naturale arriva agli oggetti di E2
+
+`kb/core/event-time.p0` (nuovo, incluso da `procedures.p0`), zero righe di C.
+La via è quella di `state-description.p0` («la valvola è chiusa»): **letture
+come regole sul frame del turno** (`turn_surface_token`), un **contabile** che
+custodisce con `state_commit` (lista materializzata prima di ogni commit), il
+**piano di turno** che riconosce (`turn_plan_candidate`/`turn_response`), e le
+domande come forme early o come regole sul frame.
+
+| turno | risposta (verbatim, MCP fresco) |
+|---|---|
+| `tomorrow I have an important meeting at 9 am with a client from Milan` | «Noted: The time of meeting is 9. The day of meeting is tomorrow. The counterpart of meeting is client. The origin of client is milan.» (0,5 s) |
+| `what time is my meeting?` | «The time of meeting is 9.» |
+| `where is the meeting?` | «I do not have the place yet: the place is missing.» — **non Milano** |
+| `where is the client from?` | «The origin of client is milan.» |
+| `I leave Rome at 7 by train and the trip takes 3 hours. Will I be on time?` | «Noted: The departure of trip is 7. … No: arrival reaches 10; the requirement is at most 9.» |
+| `what is the arrival of trip?` | «the arrival is 10 (departure 7 plus duration 3).» |
+| `the trip takes 2 hours` → `will I be on time?` | «The stated requirements are satisfied.» |
+| `se parto da Roma alle 7 in treno e ci vogliono 3 ore, arrivo in tempo a Milano per la riunione?` | «No: arrival raggiunge 10; il requisito è al massimo 9.» — condizione e domanda nello stesso turno |
+
+**Che cosa è conoscenza, e dove.** Le parole (`timed_event_noun`,
+`departure_verb`, `duration_verb`, `time_preposition`, `day_word`,
+`means_noun`, in due lingue) sono fatti **nudi**; la legge del viaggio
+`decision_formula(arrival, departure, duration)` è conoscenza del mondo (la
+stessa che E1 insegna parlando); il requisito «in tempo» è una **vista**
+`decision_requirement(Trip, arrival, le, T) :- on_time_link(Trip, E),
+role(E, time, T)`; l'entità del viaggio detto in prima persona è
+`journey_subject(trip)`. Il residuo, il limite e la condotta sono quelli di
+E2 senza una riga in più: «the trip takes 2 hours» cambia il verdetto.
+
+**Tre fatti del motore pagati** (in `docs/parrot-p0-syntax.md`): (1) un atomo
+del frame **non unifica** con una stringa quotata — le parole confrontate con i
+token si scrivono nude; (2) la **forza del turno** (`turn_illocution`) è
+asserita dal C a inizio turno enumerando `turn_declared_act`: una lettura che
+deve escludere `prose_carried` lavora sui token di **superficie**
+(`turn_surface_token`), non sugli span, che allora non esistono; (3) una sonda
+`?` con tutti gli argomenti legati conta i binding, non le prove: «0» non è
+«falso».
+
+**Residui:** «9 am» legge solo il numero (unità e meridiano ignorati:
+`ready < 11` con «7 pm» sarebbe sbagliato — §9.10 unità); «tomorrow» è un
+valore, non un ambito (§9.3, stessa giornata); la resa è un elenco di stati,
+non una frase («Noted: the meeting is at 9 tomorrow with a client»); il nome
+italiano dei ruoli resta inglese («Il time di riunione vale 9»); «where is the
+meeting?» potrebbe chiedere invece di dire «manca». Il banco:
+`tests/p0t/reasoning/frontier_transcript.p0t`, ora nel giro dei tre banchi
+decisionali.
+
+### 9.15 La forza illocutiva si insegna parlando (15 settembre 2026, notte)
+
+F.: *«dobbiamo spostare la forza interlocutiva dentro la KB e renderla
+addestrabile via prompt verbali»*. Lo stato di partenza: le forze
+(`question`, `assertion`, `directive`, `prose_carried`, …) erano già atti
+dichiarati da regole KB (`turn_declared_act`, turn-frames.p0) e il C le
+**congela** a inizio turno in `turn_illocution/2`; le forme congiuntive
+insegnabili (`turn_pattern/3`, mantra #19b) esistevano ma (a) si valutavano
+solo dentro `kb_cue_match`, (b) si insegnavano con `!assert`, cioè non
+parlando (MANTRA, anti-barare).
+
+**Che cosa è entrato.** `kb/core/illocution.p0` (nuovo) + una porta in C
+(`universal_turn_lead`, 99-registry.c): a inizio turno il motore valuta ogni
+forma che ha una `turn_pattern_force/2` sul turno canonicalizzato e pubblica
+`turn_pattern_match(current_turn, Forma)` **prima** del congelamento; in KB
+`turn_declared_act($T, $F) :- turn_pattern_force($Forma, $F),
+turn_pattern_match($T, $Forma)`. Le lezioni sono lingua naturale, con la frase
+citata come menzione e la forza detta con il suo nome (`force_name("a
+question", question)` — chi insegna non conosce `question`):
+
+| lezione | effetto |
+|---|---|
+| `a turn that contains "will i be on time" is a question` | «if I leave at 7 and the trip takes 3 hours will I be on time» (senza «?») passa da «Noted: the departure of trip is 7 …» a «No: arrival reaches 10; the requirement is at most 9.» |
+| `forget that a turn that contains "will i be on time" is a question` | torna la descrizione |
+| `a turn that contains "will i be on time" but not "if" is a question` | genere `not_text` (nuovo nell'evaluatore): il turno con «if» descrive, quello senza chiede |
+| `un turno che contiene "arrivo in tempo" è una domanda` / `dimentica che …` | «parto alle 7 e ci vogliono 3 ore quindi arrivo in tempo» → «No: arrival raggiunge 10; …» e ritorno |
+
+`on_time_asked` (event-time.p0) legge ora la **forza** del turno, non il punto
+interrogativo: è il consumatore che rende la lezione osservabile. Banco:
+`tests/p0t/language/taught_illocution.p0t`.
+
+**Fatti pagati.** (1) Lo `span` di una forma è canonicalizzato con
+`brain_canonical` («arrivo in tempo» → «arrivo in time»), mentre la superficie
+del turno in sessione italiana no: l'evaluatore delle forme insegnate giudica
+la superficie passata per la **stessa** funzione, altrimenti la lezione
+italiana non combacia mai. (2) Uno `span` si ferma solo alle ancore della
+**propria** forma: la forma semplice ingoiava «but not "if"»; la classe di slot
+`force_phrase_plain` la fa declinare. (3) La conferma echeggia la frase
+canonica («arrivo in time»): residuo di presentazione.
+
+**Una regressione pagata, e la sua lezione (mantra #5).** Con `event-time.p0`
+la lezione di parafrasi «is x feasible means can I complete x» restava
+**appesa oltre 60 s** (E1 rosso). Bisezione a varianti: non le letture, non
+le forme, non il contabile — la sola presenza di **ruoli decisionali di base**
+(`decision_formula(arrival, …)`, la regola `decision_requirement`). La causa:
+E1 aveva esteso `role_name/1`, che in `procedures.p0` è già il ruolo di
+**relazione** (`relation($Role) :- role_name($Role)`, con una regola che
+costruisce predicati `Role_of`); finché i ruoli erano fatti di sessione nessuno
+li enumerava al boot, con i ruoli di base il lettore del bersaglio della
+parafrasi (`p0_rewrite_target_read` → forme → relazioni) li attraversava e non
+finiva. Cura: `decision_role_name/1` (rinominato in decisions.p0 ed
+event-time.p0), 1,26 s. Prima di dare un nome a un predicato si fa `grep`:
+`role_name`, `role/3`, `tok`, `relation` sono già macchina di qualcun altro.
+
+**Residui.** Le lezioni coprono `text`/`not_text`; `cue`, `word` e `number`
+restano insegnabili solo via `!assert` (una forma parlata per «contains a
+number» è una riga in più); le forze **negative** («… is not a question»)
+non hanno ancora una forma; la forza espressiva resta residuale.

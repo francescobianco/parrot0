@@ -222,7 +222,7 @@ static int p0_turn_pattern_holds(Brain *b, const char *pat, const char *norm,
      * a square?». Un KIND nuovo e' un posto nuovo dove guardare, non un ordine
      * nuovo: e' l'unica specie di aggiunta che giustifica una riga di C
      * (docs/plans/kb-first.md §4-bis). */
-    static const char *KIND[] = { "cue", "not_cue", "word", "text", "number" };
+    static const char *KIND[] = { "cue", "not_cue", "word", "text", "number", "not_text" };
     size_t total = 0;
     for (size_t k = 0; k < sizeof KIND / sizeof KIND[0]; k++) {
         char args[16][KB_TERM_LEN];
@@ -238,6 +238,10 @@ static int p0_turn_pattern_holds(Brain *b, const char *pat, const char *norm,
                 case 1: ok = !kb_cue_match_plain(b, a, norm); break;
                 case 2: ok =  p0_turn_has_word(b, norm, a);   break;
                 case 3: ok = (*a && strstr(norm, a) != NULL); break;
+                /* 15 settembre 2026 — `not_text`: «contiene X ma non Y», il verso
+                 * negativo di una superficie detta (le forze insegnate parlando,
+                 * illocution.p0). */
+                case 5: ok = !(*a && strstr(norm, a) != NULL); break;
                 default: {
                     /* `turn_pattern(F, number, any)`: un token del turno si
                      * legge come numero. Il motore non sa quali numeri esistano

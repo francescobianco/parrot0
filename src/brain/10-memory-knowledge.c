@@ -14845,7 +14845,15 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
              * domanda arrivera' canonica («not hai the passi»). Stessa regola
              * della lezione di parafrasi (00-lex.c): l'ancora si canonicalizza con
              * la funzione che il replay usera' sul turno. */
-            {
+            /* 15 settembre 2026 — uno slot dichiarato MENZIONE
+             * (`turn_form_slot_form(F, Slot, mention)`) resta com'e' stato detto:
+             * una frase citata per insegnare una forma («un turno che contiene
+             * "arrivo in tempo"») si confronta poi con la superficie del turno,
+             * che in italiano non traduce «tempo» in «time». */
+            int mention_slot;
+            {   const char *mq[3] = { form, arg, "mention" };
+                mention_slot = kb_query(b->kb, "turn_form_slot_form", mq, 3); }
+            if (!mention_slot) {
                 char spaced[KB_TERM_LEN], canon_v[KB_TERM_LEN];
                 snprintf(spaced, sizeof spaced, "%s", v);
                 for (char *c = spaced; *c; c++) if (*c == '_') *c = ' ';

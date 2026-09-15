@@ -350,6 +350,11 @@ turn_opens_request($Turn) :-
 % parla ha un piano insegnato (`user-situations.p0`), la frase breve non e'
 % prosa da leggere e il piano di turno non cede. Solo qui, non nella regola
 % della lunghezza: un paragrafo che nomina un problema resta un paragrafo.
+% E3 (15 settembre 2026) — «tomorrow I have an important meeting at 9 am with
+% a client from Milan» ha la copula e dodici parole, ma chi lo dice descrive la
+% PROPRIA situazione, e la lettura degli eventi con un orario (event-time.p0)
+% l'ha gia' trasformata in stato: non e' prosa da leggere, e il piano di turno
+% deve poterla riconoscere. Stessa eccezione del guaio raccontato (U2).
 turn_declared_act($Turn, prose_carried) :-
     turn_prose_copula($Turn),
     naf(turn_has_question_mark($Turn)),
@@ -358,7 +363,8 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_opens_request($Turn)),
     naf(turn_has_situation_plan($Turn)),
     naf(turn_has_sign_answer($Turn)),
-    naf(turn_has_range_surface($Turn)).
+    naf(turn_has_range_surface($Turn)),
+    naf(event_described($Turn)).
 % gen513 — E UNA FRASE LUNGA SENZA COPULA E' PROSA LO STESSO. «Together with
 % rapid cooling, this results in a natural glass forming from the lava» riceveva
 % un racconto («Together was a mysterious Together…»): nessuna copula, quindi la
@@ -375,7 +381,8 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),
     naf(turn_guided_inquiry($Turn)),
-    naf(turn_opens_request($Turn)).
+    naf(turn_opens_request($Turn)),
+    naf(event_described($Turn)).
 % E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
 % (mantra #17): la facolta' ha gia' un nome pubblico.
 faculty_yield_force(gen, open, prose_carried).
@@ -472,6 +479,15 @@ turn_declared_act($Turn, assertion) :-
 % forme espressive di una lingua e' infinito, mentre le tre forze dichiarate
 % sono finite. Chi migliora la lettura di una delle tre restringe questa senza
 % toccarla.
+% 15 settembre 2026 — LA FORZA SI INSEGNA PARLANDO. Una forma detta
+% («a turn that contains "will i be on time" is a question», illocution.p0) e'
+% `turn_pattern/3` + `turn_pattern_force/2`; il motore la valuta a inizio turno
+% e pubblica `turn_pattern_match(Turno, Forma)`; da qui e' un atto dichiarato
+% come gli altri, e vale dal turno dopo, senza ricompilare.
+machinery(turn_pattern_match).
+turn_scratch(turn_pattern_match).
+machinery(turn_pattern_force).
+turn_declared_act($Turn, $Force) :- turn_pattern_force($Form, $Force), turn_pattern_match($Turn, $Form).
 turn_illocution($Turn, $Force) :- turn_declared_act($Turn, $Force).
 turn_illocution($Turn, expressive) :-
     naf(turn_declared_act($Turn, assertion)),
