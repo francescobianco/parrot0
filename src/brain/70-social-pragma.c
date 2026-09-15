@@ -646,8 +646,10 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
 
 static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
-    (void)raw;
     if (!b) return 0;
+    /* 15 settembre 2026: la cessione e' KB (`faculty_yield(smalltalk, …)`):
+     * «can you play chess?» riceveva «I don't have any of my own». */
+    if (p0_faculty_yields(b, "smalltalk", "open", norm, raw)) return 0;
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
     char *w[64]; size_t nw = split_words(tmp, w, 64);
     if (nw < 3) return 0;                       /* a fragment is not a conversation */

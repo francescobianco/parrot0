@@ -5,6 +5,12 @@
 >
 > Read this before working the loop. It is the *why* of the whole experiment;
 > `LOOP.md` is only the *how*.
+>
+> **La sintassi.** Come si scrive la conoscenza — clausole, direttive, builtin,
+> forme di turno, template, cessioni — e le trappole del motore che si
+> mascherano da «nessuna soluzione» stanno in
+> [`docs/parrot-p0-syntax.md`](docs/parrot-p0-syntax.md), il riferimento
+> esaustivo della sintassi `.p0`. Questo file dice il perché; quello il come.
 
 ## The thesis
 

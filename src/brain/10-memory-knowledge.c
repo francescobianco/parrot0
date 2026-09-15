@@ -4337,8 +4337,9 @@ static int kin_canon(Brain *b, const char *tok, char *out, size_t sz) {
 
 static int mod_family(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
-    (void)raw;
     if (!b || !b->kb) return 0;
+    /* 15 settembre 2026: la cessione e' KB (`faculty_yield(family, …)`). */
+    if (p0_faculty_yields(b, "family", "open", norm, raw)) return 0;
     char tmp[256];
     if (strlen(norm) >= sizeof tmp) return 0;
     snprintf(tmp, sizeof tmp, "%s", norm);
@@ -12287,6 +12288,41 @@ static int structured_analysis_lead(Brain *b, const char *norm, const char *raw,
  * vs question, self-reference) is recognised generically in C; only the winning slot's own
  * cues are re-scanned to locate the value. Adding "i was born in X" (origin) or an Italian
  * marker is ONE fact, ZERO C. */
+/* 15 settembre 2026 — un fatto scritto tra virgolette («and») non combacia con
+ * un argomento legato di kb_match/kb_query: si enumera e si dequota, come
+ * `personal_selfref_word`. Due lettori generici, zero parole qui. */
+static int p0_listed_word(Brain *b, const char *pred, const char *word) {
+    if (!b || !b->kb || !word || !*word) return 0;
+    char rows[64][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, pred, q, 1, rows, 64);
+    for (size_t i = 0; i < n; i++)
+        if (!strcmp(kb_dequote(rows[i]), word)) return 1;
+    return 0;
+}
+/* Il vuoto di un'enumerazione si dice nella lingua dell'interrogativo
+ * (`idk_empty_template(Interrogativo, Chiave)`, messages.p0): «who» -> nessuno,
+ * altrimenti «I don't know any X yet». */
+static void p0_say_empty(Brain *b, const char *qword, const char *cls,
+                         char *out, size_t out_size) {
+    const char *q[2] = { NULL, NULL };
+    char rows[16][KB_TERM_LEN];
+    size_t nk = kb_match(b->kb, "idk_empty_template", q, 2, rows, 16);
+    for (size_t i = 0; i < nk; i++) {
+        if (qword && !strcmp(kb_dequote(rows[i]), qword)) {
+            const char *kq[2] = { rows[i], NULL };
+            char tk[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "idk_empty_template", kq, 2, tk, 1) == 1) {
+                kb_term_say(b, kb_dequote(tk[0]), NULL, 0, out, out_size);
+                return;
+            }
+        }
+    }
+    char shown[KB_TERM_LEN]; present_atom(b, cls ? cls : "", shown, sizeof shown);
+    const KbResponseSlot _rs[] = { { "cls", shown } };
+    kb_term_say(b, "nothing_i_know_of", _rs, 1, out, out_size);
+}
+
 static int is_personal_stop(Brain *b, const char *w) {
     const char *q[] = { w };
     return b && b->kb && w && kb_query(b->kb, "personal_stop", q, 1);
@@ -12449,15 +12485,28 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
     char tbuf[256]; snprintf(tbuf, sizeof tbuf, "%s", bestpos + bestlen);
     char *tw[40]; size_t tn = split_words(tbuf, tw, 40);
     char value[128]; size_t off = 0; size_t nval = 0; value[0] = '\0';
+    int stopped = 0;
     for (size_t k = 0; k < tn && off + 1 < sizeof value; k++) {
         char *t = strip_edge_punct(tw[k]);
         if (!*t) continue;
         if (off == 0 && is_personal_stop(b, t)) continue;   /* skip leading prep/article */
+        /* 15 settembre 2026: il valore si ferma a una congiunzione dichiarata in
+         * KB (`slot_value_stop/1`, personal.p0): «my name is X and tomorrow …». */
+        if (nval > 0 && p0_listed_word(b, "slot_value_stop", t)) { stopped = 1; break; }
         off += (size_t)snprintf(value + off, sizeof value - off, "%s%s",
                                 off ? " " : "", t);
         nval++;
     }
-    if (nval) personal_raw_tail(raw, nval, value, sizeof value);
+    /* La grafia originale sta nella coda del turno grezzo solo se il valore E'
+     * la coda; se ci si e' fermati a una congiunzione, si capitalizza il nome. */
+    if (nval && !stopped) personal_raw_tail(raw, nval, value, sizeof value);
+    else if (stopped) {
+        int at_start = 1;
+        for (char *c = value; *c; c++) {
+            if (at_start && *c >= 'a' && *c <= 'z') *c = (char)(*c - 'a' + 'A');
+            at_start = (*c == ' ');
+        }
+    }
     if (!value[0]) {
         /* La cue c'era e il valore no: «my name is» e basta. Dirlo e' meglio che
          * tacere, perche' l'utente ha appena provato a insegnare qualcosa. */
@@ -22348,7 +22397,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char hits[64][KB_TERM_LEN];
             size_t k = kb_match(b->kb, entity, pat, 1, hits, 64);
             if (k == 0) {
-                kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size);
+                p0_say_empty(b, w[0], entity, out, out_size);
             } else {
                 char list[900]; size_t off = 0;
                 for (size_t i = 0; i < k && off + 1 < sizeof list; i++) {
@@ -22787,7 +22836,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     return 1;
                 }
                 if (!rknown) { idk(b, rel, out, out_size); return 1; }
-                kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size); return 1;
+                p0_say_empty(b, w[0], rnoun, out, out_size); return 1;
             }
             char list[512];
             size_t off = 0;
@@ -23344,7 +23393,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char hits[96][KB_TERM_LEN];
         size_t k = kb_match(b->kb, cls, pat, 1, hits, 96);
          if (k == 0) {
-             kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size);
+             /* 15 settembre 2026: il vuoto si dice nella lingua dell'interrogativo
+              * (`idk_empty_template/2`, messages.p0): «Nobody» solo per «who». */
+             p0_say_empty(b, w[0], cls, out, out_size);
              return 1;
          }
         /* buffers sized for the longest such list — the module roster ("who is a

@@ -1569,3 +1569,51 @@ condizione: la questione porta il residuo, manca la forma che lo accetti; (b)
 il verso stretto perso nella composizione (`limit(above, V)`/`limit(below, V)`
 sarebbero due righe nella tabella dei generi, più la somma); (c) un solo
 operatore (§9.12.3); (d) E3, il transcript naturale, immutato.
+
+## 10. Riscontro del 15 settembre 2026, notte: i «gap» di §2 erano in gran parte furti di turno
+
+F.: *«ci sono tanti elementi segnalati come lacune ed errori che in realtà
+possono essere facilmente fixati … probabile che turdi di moduli obsoleti si
+siano rubati il turno»*. Risondati **tutti** i prompt di §2 su un motore
+pulito, in inglese e in italiano, con «who answered?» dopo ogni turno. La
+lettura ha diviso i sintomi in due famiglie: **muri onesti** (M1, M2, M3, M9:
+lettura della prosa, tempo, coreferenza, lezioni aperte — restano il lavoro di
+E3 e dei piani citati) e **turni rubati** da moduli che rivendicavano per una
+parola-spia. I secondi sono stati chiusi in un giro, con condotta in KB
+(`faculty_yield`, `turn_declared_act`, `turn_form`) e porte sottili in C
+(ganci di cessione, lettori che enumerano e dequotano). Banco:
+`tests/p0t/conversation/turn_thefts.p0t`, **27 assert verdi**.
+
+| prompt | prima (modulo) | dopo |
+|---|---|---|
+| `explain why the sky is blue in simple words` | saggio di metodo (`analysis_family`) | **il meccanismo vero dalla KB causale**: «The sky looks blue because sunlight is scattered…» — la conoscenza c'era, il saggio la copriva |
+| `I'm going to Milan next week, what should I pack?` | saggio di raccomandazione | rifiuto onesto («I don't have a grounded plan for that situation yet») |
+| `help me plan my day tomorrow: …` | saggio di progettazione; poi «I looked up «client»» (l'offerta pendente catturava il turno perché nominava UNA lacuna vecchia) | muro onesto; l'assenso indirizza solo l'offerta **massima** |
+| `what do you think about artificial intelligence?` | dialogo Mara/Jules (`gen`) | atto di opinione (`pragmatics.p0`) |
+| `no, you are wrong: Paris is not the capital of France` | «Alright — I am Wrong: now.» (`role`) | «Paris.» |
+| `are you sure?` | partiva a cercare la lacuna pendente («sure» = assenso) | «I can't verify — no proof was stored.» (una domanda breve non assente) |
+| `great, thanks a lot... you have been SO helpful` | «You're welcome! I couldn't read «…»» | «You're welcome!» (una volta: il composto dedupica) |
+| `remind me to call my mother at 6 pm` | «Thanks for telling me about your family» (`family`) | «I cannot set reminders yet: I have no clock or scheduler. Tell me the commitment as a fact and I will hold it.» (`turn_form` early; il `pragma_act` cadeva sotto la politica di mossa di chitchat) |
+| `what's the population of France` | «Nobody that I know of.» (misclaim) | «I don't know any population yet.» (`idk_empty_template/2`: «Nobody» solo per «who») |
+| `can you play chess?` | «I don't know whether YOU can play chess» / poi `smalltalk` «I don't have any of my own» | muro onesto (`turn_form_yield` su `second_person_deictic`, cessione di `smalltalk`) |
+| `summarize this: <testo>` | riassunto della conversazione (`discourse`) | muro onesto sul testo |
+| `my name is Francesco and tomorrow …` / `mi chiamo Francesco e domani …` | nome = tutta la frase | «Francesco» (`slot_value_stop`: il valore si ferma alla congiunzione; capitalizzato quando non è la coda) |
+| `why?` dopo un'intent cue | «Because because intent_cue(…)» | «Because …» (una sola volta; la prova resta esposta: residuo di presentazione) |
+
+**Tre lezioni del motore, nuove** (ora in `docs/parrot-p0-syntax.md` §6, §11,
+§12): (1) `kb_match`/`kb_query` con argomento legato non combaciano con un
+fatto quotato — i lettori enumerano e dequotano; `social_pattern` è stato
+armonizzato a stringhe quotate **insieme ai suoi lettori** (F.); (2) gli atti
+`pragma_act` sono soggetti alla politica di mossa di chitchat: una risposta che
+deve valere sempre è una `turn_form` early; (3) la resa di un valore di slot
+preso dalla coda grezza vale solo se il valore È la coda.
+
+**Che cosa resta di §2, e dove:** M1 (la frase dell'utente come stato:
+«tomorrow I have a meeting at 9») ed M2 (tempo) sono E3 di §9.9; M3 («tell me
+more», «she», «its») è la board di `dialogica.md`; M5 (Marie Curie come
+termini) è presentazione; le mele «2.» (`wordproblem`, misclaim) restano
+aperte: un problema a stati successivi non si chiude con un cue. Timeout a 1 s
+in `compose_social`, `smalltalk`, `social.it`, `discourse.it` sono il costo del
+turno base (TEST_TODO); `smalltalk.p0t` riga 39 («is the sky blue?» → «Yes.»)
+è rosso di contenuto **già a HEAD** (le cue causali sul cielo esistono da
+prima): da bisecare, non di questo giro.

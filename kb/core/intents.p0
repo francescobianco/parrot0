@@ -5532,7 +5532,8 @@ intent_cue(40_meta_reflection_cue457_2, "wrong").
 intent_cue(40_meta_reflection_cue459, "wrong").
 intent_cue(40_meta_reflection_cue483, "explain more").
 intent_cue(40_meta_reflection_cue484, "in more detail").
-intent_cue(40_meta_reflection_cue485, "tell me more").
+% 15 settembre 2026: «tell me more» non e' una richiesta di rispiegare la prova
+% (scaricava «This is a direct fact: born_in(…»); tolto dalla classe di meta.
 intent_cue(40_meta_reflection_cue486, "spiega meglio").
 intent_cue(40_meta_reflection_cue487, "più nel dettaglio").
 intent_cue(40_meta_reflection_cue518, "how do you know").
@@ -6280,3 +6281,86 @@ intent_cue(world_inspect_request, "what holds in this").
 intent_cue(world_inspect_request, "cosa e assunto").
 intent_cue(world_inspect_request, "cosa e vero in questo").
 intent_cue(world_inspect_request, "che cosa vale in questo").
+
+% ── 15 settembre 2026 — I FURTI DI TURNO DELL'INTERLOCUTORE ────────────────
+% (docs/plans/interlocutore-di-frontiera.md §2, risondato con «who answered?»).
+% Ogni riga qui e' una CONDOTTA detta (mantra #17): quale facolta' tace davanti
+% a quale classe di turno. Il muro onesto e' meglio del repertorio (mantra #7).
+% Un turno sulla PROPRIA situazione («help me plan my day», «what should I
+% pack») non chiede un saggio di metodo (M4).
+intent_cue(own_situation_request, "help me").
+intent_cue(own_situation_request, "what should i").
+intent_cue(own_situation_request, "should i ").
+intent_cue(own_situation_request, "what do i").
+intent_cue(own_situation_request, "what can i").
+intent_cue(own_situation_request, "aiutami").
+intent_cue(own_situation_request, "cosa dovrei").
+intent_cue(own_situation_request, "cosa devo").
+intent_cue(own_situation_request, "cosa mi consigli").
+faculty_yield(analysis_family, open, own_situation_request).
+faculty_yield(analysis_last_resort, open, own_situation_request).
+% «explain why the sky is blue» chiede un MECCANISMO: senza la causa in KB, il
+% muro onesto e non la forma vuota di una spiegazione causale (M4).
+intent_cue(why_question, "explain why").
+intent_cue(why_question, "why is ").
+intent_cue(why_question, "why does").
+intent_cue(why_question, "why do ").
+intent_cue(why_question, "why are").
+intent_cue(why_question, "spiega perché").
+intent_cue(why_question, "perché il").
+intent_cue(why_question, "perché la").
+faculty_yield(analysis_family, open, why_question).
+faculty_yield(analysis_last_resort, open, why_question).
+% «no, you are wrong: Paris is not the capital of France» non e' l'ordine di
+% impersonare qualcuno di nome Wrong (M6).
+intent_cue(correction_claim, "you are wrong").
+intent_cue(correction_claim, "you re wrong").
+intent_cue(correction_claim, "that s wrong").
+intent_cue(correction_claim, "that is wrong").
+intent_cue(correction_claim, "you are mistaken").
+intent_cue(correction_claim, "ti sbagli").
+intent_cue(correction_claim, "hai sbagliato").
+intent_cue(correction_claim, "è sbagliato").
+faculty_yield(role, open, correction_claim).
+% «what do you think about AI?» chiede un'opinione (pragmatics.p0): il dialogo
+% generato fra personaggi inventati la cede (M4).
+faculty_yield(gen, open, opinion_request).
+% «remind me to call my mother at 6 pm» e' una richiesta di promemoria, non una
+% notizia sulla famiglia (M7): senza orologio ne' agenda lo si dice.
+intent_cue(reminder_request, "remind me").
+intent_cue(reminder_request, "set a reminder").
+intent_cue(reminder_request, "ricordami").
+faculty_yield(family, open, reminder_request).
+% La risposta onesta e' una forma della IR (turn_form, priorita' early), non un
+% atto di chitchat: quello e' soggetto alla politica di mossa e lasciava il
+% turno al muro. Il contenuto della richiesta resta nel turno per chi lo leggera'.
+turn_form(reminder_request_en, 1, text("remind me")).
+turn_form(reminder_request_en, 2, rest(what)).
+turn_form_act(reminder_request_en, "op(match, reminder_decline, [what, free])").
+turn_form_priority(reminder_request_en, early).
+turn_form_view(reminder_request_en, said).
+turn_form_reply(reminder_request_en, reminder_declined).
+turn_form(reminder_request_it, 1, text("ricordami")).
+turn_form(reminder_request_it, 2, rest(what)).
+turn_form_act(reminder_request_it, "op(match, reminder_decline, [what, free])").
+turn_form_priority(reminder_request_it, early).
+turn_form_view(reminder_request_it, said).
+turn_form_reply(reminder_request_it, reminder_declined).
+reminder_decline($What, $Text) :- current_language($L), reminder_decline_words($L, $Text).
+reminder_decline_words(en, "I cannot set reminders yet: I have no clock or scheduler. Tell me the commitment as a fact and I will hold it.").
+reminder_decline_words(it, "Non posso ancora impostare promemoria: non ho orologio né agenda. Dimmi l'impegno come un fatto e lo terrò.").
+response_template(reminder_declined, "{result}").
+% «can you play chess?» chiede un'ABILITA' DI PARROT0: il chiacchiericcio la cede
+% alle facolta' di se' (M7, prospettiva dei pronomi).
+intent_cue(self_ability_question, "can you ").
+intent_cue(self_ability_question, "sai giocare").
+intent_cue(self_ability_question, "puoi ").
+faculty_yield(smalltalk, open, self_ability_question).
+% «summarize this: <testo>» chiede il riassunto del TESTO dato, non della
+% conversazione (M11).
+intent_cue(text_summary_request, "summarize this").
+intent_cue(text_summary_request, "summarize the following").
+intent_cue(text_summary_request, "summarise this").
+intent_cue(text_summary_request, "riassumi questo").
+intent_cue(text_summary_request, "riassumi il seguente").
+faculty_yield(discourse, open, text_summary_request).

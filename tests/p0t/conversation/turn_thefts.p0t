@@ -1,0 +1,85 @@
+# 15 settembre 2026 — i furti di turno dell'interlocutore di frontiera (piano
+# interlocutore-di-frontiera.md §2, risondato con «who answered?»). Ogni caso
+# e' un turno che un modulo prendeva per una parola-spia; la cura e' KB
+# (faculty_yield, turn_form, classi) piu' porte sottili in C. Un muro onesto
+# vale; una risposta di repertorio o un misclaim no (mantra #7).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test il nome si ferma alla congiunzione, in due lingue]
+!timeout 4
+> my name is Francesco and tomorrow I have a meeting at 9
+<~ Francesco
+<! tomorrow
+> what is my name?
+< Your name is Francesco.
+> mi chiamo Luca e domani parto
+<~ Luca
+<! domani
+> what is my name?
+< Your name is Luca.
+
+[test il saggio di metodo cede i turni sulla propria situazione e i perche']
+!timeout 6
+> explain why the sky is blue in simple words
+<~ scatter
+<! causal account
+> I'm going to Milan next week, what should I pack?
+<! defensible recommendation
+> help me plan my day tomorrow: meeting at 9, gym, and buy groceries
+<! workable design
+
+[test un'opinione e' un atto, non un dialogo fra personaggi inventati]
+!timeout 4
+> what do you think about artificial intelligence?
+<! Mara
+<~ opinions
+
+[test una correzione falsa non e' un ordine di ruolo]
+!timeout 6
+> what is the capital of France?
+< Paris.
+> no, you are wrong: Paris is not the capital of France
+<! I am Wrong
+> what is the capital of France?
+< Paris.
+
+[test «are you sure?» non accetta un'offerta pendente]
+!timeout 6
+> what did she discover?
+<~ ?
+> are you sure?
+<! looked up
+
+[test il ringraziamento composto si dice una volta]
+!timeout 6
+> great, thanks a lot... you have been SO helpful
+<~ welcome
+<! couldn't read
+<! welcome! You're welcome
+
+[test il promemoria non e' una notizia di famiglia]
+!timeout 4
+> remind me to call my mother at 6 pm
+<! family
+<~ reminder
+
+[test il vuoto si dice nella lingua dell'interrogativo]
+!timeout 4
+> what is the population of France?
+<! Nobody
+<~ population
+
+[test «can you X?» non e' una domanda sulle abilita' dell'utente]
+!timeout 4
+> can you play chess?
+<! whether you can
+<! of my own
+
+[test «summarize this: testo» non riassume la conversazione]
+!timeout 4
+> summarize this: the cat sat on the mat and looked at the bird in the garden
+<! We talked about

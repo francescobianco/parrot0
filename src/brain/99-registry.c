@@ -6688,6 +6688,9 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
         if (getenv("P0_READ_TRACE"))
             fprintf(stderr, "[compound] clause=«%s» module=%s resp=«%s»\n", c, b->last_module, sub);
         if (off + strlen(piece) + 2 >= sizeof composed) break;
+        /* 15 settembre 2026: «thanks a lot... you have been so helpful» dava
+         * «You're welcome! You're welcome!»: la stessa risposta si dice una volta. */
+        if (off && strstr(composed, piece)) continue;
         off += (size_t)snprintf(composed + off, sizeof composed - off, "%s%s", off ? " " : "", piece);
     }
     b->compound_depth--;

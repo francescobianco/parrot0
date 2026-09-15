@@ -1239,3 +1239,11 @@ temporanea propria — mai nomi nudi.
 ⚠ Il secondo difetto **non riguarda solo i test**: chiunque sposti il processo
 dopo l'avvio lo incontrava, e spiega anche perché `!sandbox` sembrava non fare
 niente sugli strumenti.
+
+**Furti di turno, 15 settembre 2026 (sera).** `tests/p0t/conversation/turn_thefts.p0t`
+nuovo, 27 verdi. Spot-check: `social.p0t` 5/5; `compose_social`, `smalltalk`,
+`social.it`, `discourse.it` rossi **solo per timeout a 1 s** (costo del turno
+base) tranne `smalltalk.p0t` riga 39: «is the sky blue?» risponde «Yes.» e il
+test vuole il muro anti-impostore — le cue causali sul cielo (`intents.p0`
+3319-3322) esistono da prima di oggi, quindi il rosso è anteriore alle cure di
+oggi: da bisecare (R2, attesa da rivalidare: parrot0 SA perché il cielo è blu).

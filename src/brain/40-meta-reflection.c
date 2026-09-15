@@ -617,11 +617,15 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         if (howknow) {
             if (b->has_last_proof) {
                 char msg[640];
-                size_t plen = strlen(b->last_proof);
-                const char *key = plen > 0 && b->last_proof[plen - 1] == '.'
+                /* 15 settembre 2026: una prova che comincia gia' con «because»
+                 * («because intent_cue(…)») dava «Because because …». */
+                const char *pf = b->last_proof;
+                if (!strncasecmp(pf, "because ", 8)) pf += 8;
+                size_t plen = strlen(pf);
+                const char *key = plen > 0 && pf[plen - 1] == '.'
                                 ? "because_proof_existing_period"
                                 : "because_proof";
-                const KbResponseSlot slots[] = { { "proof", b->last_proof } };
+                const KbResponseSlot slots[] = { { "proof", pf } };
                 kb_term_say(b, key, slots, 1, msg, sizeof msg);
                 put(msg, out, out_size);
                 b->has_last_proof = 0;

@@ -378,6 +378,18 @@ La KB di parrot0 deve passare da "grande dizionario di fatti interrogabili" a
 
 ---
 
+## La sintassi `.p0`, esaustiva
+
+[`docs/parrot-p0-syntax.md`](docs/parrot-p0-syntax.md) documenta **tutta** la
+sintassi che questi mantra presuppongono: clausole e direttive, i builtin con
+le loro trappole (`findall` è un insieme, vuole un template variabile e un
+risultato libero, e una virgola in un testo raccolto spezza la lista; `naf`
+declina sotto guardia; arità 4, corpo 16), le virgolette e la corrispondenza
+nel C, le `turn_form` con i loro pezzi e atti, i `response_template`, le
+cessioni (`faculty_yield`, `turn_declared_act`), il tabellone e i contabili, e
+le pratiche di buona scrittura. Prima di scrivere una riga di KB si legge quello;
+prima di scrivere una riga di C si passano i mantra qui sopra.
+
 ## Come verificare in fretta
 
 `make soft-test` è la verifica di **avanzamento** — non la suite. Poche decine di

@@ -1244,6 +1244,21 @@ turn_form_mood(ability_polar, question).
 turn_form_act(ability_polar, answer_polar).
 turn_form_empty_reply(ability_polar, ability_unknown).
 turn_form_priority(ability_polar, early).
+% 15 settembre 2026: «can you play chess?» rispondeva «I don't know whether YOU
+% can play chess»: il deittico di seconda persona e' parrot0, non un'entita' su
+% cui si tengono abilita'; la forma cede e il turno va alle facolta' di se'.
+machinery(second_person_deictic).
+second_person_deictic("you", parrot0).
+second_person_deictic("tu", parrot0).
+turn_form_yield(ability_polar, second_person_deictic, 1, subject).
+% Il vuoto di un'enumerazione si dice nella lingua dell'interrogativo: «who»
+% -> nessuno, altrimenti «I don't know any X yet» (M10: «what's the population
+% of France» -> «Nobody that I know of.»).
+response_template(nothing_i_know_of, "I don't know any {cls} yet.").
+response_template(nothing_i_know_of, it, "Non conosco ancora nessun {cls}.").
+machinery(idk_empty_template).
+idk_empty_template("who", nobody_that_i_know_of).
+idk_empty_template("chi", nobody_that_i_know_of).
 response_template(ability_unknown, "I don't know whether {subject} can {object}: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
 response_template(ability_unknown, it, "Non so se {subject} può {object}: niente di ciò che tengo lo dice, e niente dice il contrario. Dimmelo e lo terrò.").
 

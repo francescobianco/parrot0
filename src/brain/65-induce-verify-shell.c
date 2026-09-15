@@ -712,8 +712,10 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
 
 static int mod_discourse(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
-    (void)raw;
     if (!b) return 0;
+    /* 15 settembre 2026: «summarize this: <testo>» non e' il riassunto della
+     * conversazione; la cessione e' KB (`faculty_yield(discourse, …)`). */
+    if (p0_faculty_yields(b, "discourse", "open", norm, raw)) return 0;
     int summary = kb_cue_match(b, "65_induce_verify_shell_chain628", norm);
     if (!summary) return 0;
     if (b->topic_count == 0) {
@@ -773,7 +775,7 @@ static int has_social_pattern(Brain *b, const char *type, const char *text) {
     char patterns[64][KB_TERM_LEN];
     size_t n = kb_match(b->kb, "social_pattern", pat, 2, patterns, 64);
     for (size_t i = 0; i < n; i++)
-        if (strstr(text, patterns[i]) != NULL) return 1;
+        if (strstr(text, kb_dequote(patterns[i])) != NULL) return 1;
     return 0;
 }
 
@@ -792,7 +794,7 @@ static int is_exact_social_pattern(Brain *b, const char *buf) {
         char pp[64][KB_TERM_LEN];
         size_t n = kb_match(b->kb, "social_pattern", pat, 2, pp, 64);
         for (size_t i = 0; i < n; i++)
-            if (strcmp(buf, pp[i]) == 0) return 1;
+            if (strcmp(buf, kb_dequote(pp[i])) == 0) return 1;
     }
     return 0;
 }

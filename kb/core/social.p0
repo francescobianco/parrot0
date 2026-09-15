@@ -78,11 +78,11 @@ social_marker(apology, scusate).
 social_marker(apology, scusi).
 social_marker(apology, dispiace).
 social_marker(ambiguous, ciao).
-social_pattern(opening, good morning).
-social_pattern(opening, good evening).
-social_pattern(opening, good afternoon).
-social_pattern(closing, see you).
-social_pattern(closing, a presto).
+social_pattern(opening, "good morning").
+social_pattern(opening, "good evening").
+social_pattern(opening, "good afternoon").
+social_pattern(closing, "see you").
+social_pattern(closing, "a presto").
 % ── gen505w — IL CONGEDO ITALIANO, DA UN REPERTO DI F. ─────────────────────
 %
 % Quattro turni veri di `make chat`, tre dei quali erano lo stesso atto e tutti
@@ -96,42 +96,45 @@ social_pattern(closing, a presto).
 % Non sono locuzioni idiomatiche come quelle del benessere — sono il modo
 % ordinario di accomiatarsi, cioe' proprio le forme che una conversazione vera
 % produce. Il criterio della classe: la frase ANNUNCIA CHE CHI PARLA SE NE VA.
-social_pattern(closing, devo andare).
-social_pattern(closing, devo andare via).
-social_pattern(closing, dobbiamo andare).
-social_pattern(closing, ti lascio).
-social_pattern(closing, vi lascio).
-social_pattern(closing, ci sentiamo).
-social_pattern(closing, ci vediamo).
-social_pattern(closing, stiamo andando via).
-social_pattern(closing, me ne vado).
-social_pattern(closing, i have to go).
-social_pattern(closing, i must go).
-social_pattern(closing, i am leaving).
-social_pattern(closing, we are leaving).
-social_pattern(closing, talk soon).
-social_pattern(closing, catch you later).
-social_pattern(thanks, thank you).
-social_pattern(thanks, thank u).
-social_pattern(apology, mi dispiace).
-social_pattern(wellbeing, how are you).
-social_pattern(wellbeing, how r u).
-social_pattern(wellbeing, how do you do).
-social_pattern(wellbeing, how is it going).
-social_pattern(wellbeing, come stai).
-social_pattern(wellbeing, come va).
-social_pattern(wellbeing, how is your day).
-social_pattern(wellbeing, hows your day).
-social_pattern(wellbeing, hows it going).
-social_pattern(wellbeing, how are things).
-social_pattern(wellbeing, hows things).
-social_pattern(wellbeing, what is up).
-social_pattern(wellbeing, what's up).
-social_pattern(wellbeing, wassup).
-social_pattern(wellbeing, you good).
-social_pattern(wellbeing, u good).
-social_pattern(wellbeing, you doing ok).
-social_pattern(opening, you there).
+social_pattern(closing, "devo andare").
+social_pattern(closing, "devo andare via").
+social_pattern(closing, "dobbiamo andare").
+social_pattern(closing, "ti lascio").
+social_pattern(closing, "vi lascio").
+social_pattern(closing, "ci sentiamo").
+social_pattern(closing, "ci vediamo").
+social_pattern(closing, "stiamo andando via").
+social_pattern(closing, "me ne vado").
+social_pattern(closing, "i have to go").
+social_pattern(closing, "i must go").
+social_pattern(closing, "i am leaving").
+social_pattern(closing, "we are leaving").
+social_pattern(closing, "talk soon").
+social_pattern(closing, "catch you later").
+social_pattern(thanks, "thank you").
+social_pattern(thanks, "so helpful").
+social_pattern(thanks, "very helpful").
+social_pattern(thanks, "been helpful").
+social_pattern(thanks, "thank u").
+social_pattern(apology, "mi dispiace").
+social_pattern(wellbeing, "how are you").
+social_pattern(wellbeing, "how r u").
+social_pattern(wellbeing, "how do you do").
+social_pattern(wellbeing, "how is it going").
+social_pattern(wellbeing, "come stai").
+social_pattern(wellbeing, "come va").
+social_pattern(wellbeing, "how is your day").
+social_pattern(wellbeing, "hows your day").
+social_pattern(wellbeing, "hows it going").
+social_pattern(wellbeing, "how are things").
+social_pattern(wellbeing, "hows things").
+social_pattern(wellbeing, "what is up").
+social_pattern(wellbeing, "what's up").
+social_pattern(wellbeing, "wassup").
+social_pattern(wellbeing, "you good").
+social_pattern(wellbeing, "u good").
+social_pattern(wellbeing, "you doing ok").
+social_pattern(opening, "you there").
 question_word(who).
 question_word(what).
 question_word(where).
@@ -162,54 +165,54 @@ reaction_word(lmao).
 reaction_word(lolol).
 reaction_word(hehehe).
 reaction_word(hahaha).
-social_pattern(goodnight, good night).
-social_pattern(goodnight, goodnight).
-social_pattern(goodnight, nighty night).
-social_pattern(goodnight, buonanotte).
-social_pattern(goodnight, buona notte).
-social_pattern(felicitation, congratulations).
-social_pattern(felicitation, congrats).
-social_pattern(felicitation, well done).
-social_pattern(felicitation, happy birthday).
-social_pattern(felicitation, merry christmas).
-social_pattern(felicitation, happy new year).
-social_pattern(felicitation, happy holidays).
-social_pattern(felicitation, happy easter).
-social_pattern(felicitation, congratulazioni).
-social_pattern(felicitation, complimenti).
-social_pattern(felicitation, buon compleanno).
-social_pattern(felicitation, buon natale).
-social_pattern(felicitation, buon anno).
-social_pattern(felicitation, auguri).
-social_pattern(felicitation, tanti auguri).
-social_pattern(wellwish, good luck).
-social_pattern(wellwish, best of luck).
-social_pattern(wellwish, get well soon).
-social_pattern(wellwish, take care).
-social_pattern(wellwish, all the best).
-social_pattern(wellwish, in bocca al lupo).
-social_pattern(wellwish, buona fortuna).
-social_pattern(wellwish, guarisci presto).
-social_pattern(wellwish, rimettiti presto).
-social_pattern(wellwish, stammi bene).
-social_pattern(condolence, rest in peace).
-social_pattern(condolence, my condolences).
-social_pattern(condolence, riposa in pace).
-social_pattern(condolence, condoglianze).
-social_pattern(blessing, bless you).
-social_pattern(blessing, god bless).
-social_pattern(blessing, gesundheit).
-social_pattern(politeness, my pleasure).
-social_pattern(politeness, dont mention it).
-social_pattern(politeness, do not mention it).
-social_pattern(politeness, don't mention it).
-social_pattern(politeness, much obliged).
-social_pattern(politeness, very kind of you).
-social_pattern(politeness, that's very kind).
-social_pattern(politeness, thats very kind).
-social_pattern(politeness, too kind).
-social_pattern(politeness, troppo gentile).
-social_pattern(politeness, molto gentile).
+social_pattern(goodnight, "good night").
+social_pattern(goodnight, "goodnight").
+social_pattern(goodnight, "nighty night").
+social_pattern(goodnight, "buonanotte").
+social_pattern(goodnight, "buona notte").
+social_pattern(felicitation, "congratulations").
+social_pattern(felicitation, "congrats").
+social_pattern(felicitation, "well done").
+social_pattern(felicitation, "happy birthday").
+social_pattern(felicitation, "merry christmas").
+social_pattern(felicitation, "happy new year").
+social_pattern(felicitation, "happy holidays").
+social_pattern(felicitation, "happy easter").
+social_pattern(felicitation, "congratulazioni").
+social_pattern(felicitation, "complimenti").
+social_pattern(felicitation, "buon compleanno").
+social_pattern(felicitation, "buon natale").
+social_pattern(felicitation, "buon anno").
+social_pattern(felicitation, "auguri").
+social_pattern(felicitation, "tanti auguri").
+social_pattern(wellwish, "good luck").
+social_pattern(wellwish, "best of luck").
+social_pattern(wellwish, "get well soon").
+social_pattern(wellwish, "take care").
+social_pattern(wellwish, "all the best").
+social_pattern(wellwish, "in bocca al lupo").
+social_pattern(wellwish, "buona fortuna").
+social_pattern(wellwish, "guarisci presto").
+social_pattern(wellwish, "rimettiti presto").
+social_pattern(wellwish, "stammi bene").
+social_pattern(condolence, "rest in peace").
+social_pattern(condolence, "my condolences").
+social_pattern(condolence, "riposa in pace").
+social_pattern(condolence, "condoglianze").
+social_pattern(blessing, "bless you").
+social_pattern(blessing, "god bless").
+social_pattern(blessing, "gesundheit").
+social_pattern(politeness, "my pleasure").
+social_pattern(politeness, "dont mention it").
+social_pattern(politeness, "do not mention it").
+social_pattern(politeness, "don't mention it").
+social_pattern(politeness, "much obliged").
+social_pattern(politeness, "very kind of you").
+social_pattern(politeness, "that's very kind").
+social_pattern(politeness, "thats very kind").
+social_pattern(politeness, "too kind").
+social_pattern(politeness, "troppo gentile").
+social_pattern(politeness, "molto gentile").
 family_relation(brother).
 family_relation(sister).
 family_relation(father).

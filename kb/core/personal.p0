@@ -43,6 +43,17 @@ slot_evidence(name, "il mio nome è").
 % Francesco» non ha una seconda lettura; «my father works in a bank» ne ha due,
 % e infatti `occupation` non e' eager e cede a mod_family.
 slot_eager(name).
+% 15 settembre 2026: «mi chiamo Francesco e domani ho una riunione…» faceva del
+% nome l'intera frase. Il valore di uno slot si ferma a una congiunzione di
+% coordinazione: quali parole lo fermino e' conoscenza, una lingua e' una riga.
+machinery(slot_value_stop).
+slot_value_stop("and").
+slot_value_stop("e").
+slot_value_stop("ed").
+slot_value_stop("but").
+slot_value_stop("ma").
+slot_value_stop("because").
+slot_value_stop("perché").
 
 % L'accoglienza di un nome non e' l'accoglienza di un indirizzo: si saluta la
 % persona. Il template resta quello del gen212, ora raggiunto per slot invece

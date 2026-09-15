@@ -38,6 +38,7 @@ l'apprendimento — soprattutto verso una KB viva — i test non si fanno.
 | File | Cosa |
 |---|---|
 | `MANTRA.md` | le 15 regole operative — **il punto di partenza** |
+| `docs/parrot-p0-syntax.md` | **la sintassi `.p0` esaustiva** e le trappole del motore — da leggere prima di scrivere KB |
 | `PRINCIPLES.md` | il *perché* dell'esperimento, e la regola anti-inganno |
 | `AGENTS.md` | regole operative per chi modifica il codice |
 | `C_TODO.md` | che cosa deve ancora uscire dal C — i residui del motore |

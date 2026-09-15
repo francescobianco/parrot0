@@ -397,7 +397,9 @@ offer_resolution($T, accept) :- turn_cue($T, assent_word, $W), turn_assent_place
 machinery(turn_assent_placed).
 % HANDOFF gen510: verificato in chat, non in suite. Da controllare con
 % taught_lexicon.p0t (offerte accettate con «si», «certo», «si grazie»).
-turn_assent_placed($T, $W) :- turn_short_reply($T).
+% 15 settembre 2026: «are you sure?» (tre parole, contiene «sure») partiva a
+% cercare la lacuna pendente. Un turno breve che e' una DOMANDA non assente.
+turn_assent_placed($T, $W) :- turn_short_reply($T), naf(turn_illocution($T, question)).
 turn_assent_placed($T, $W) :- naf(turn_illocution($T, question)),
     turn_span_token($T, $I, 0, $Tok), span_atom($Tok, $W).
 % (`pending_gap` e' dal gen506i una vista del tabellone: l'offerta aperta e'
@@ -454,7 +456,11 @@ turn_names_relation($T) :- input_node_atom($T, $Id, $W), family_relation($W).
 % «trigger» faceva partire la ricerca e imparare `trigger(leak, outage)`
 % (taught_lexicon.p0t). E' la mossa che non indirizza la QUD massima (L2).
 machinery(turn_addresses_pending).
-turn_addresses_pending($T) :- pending_gap($Topic), input_node_atom($T, $Id, $Topic).
+% 15 settembre 2026: «help me plan my day tomorrow: meeting at 9…» partiva a
+% cercare «client»: nominava UNA lacuna pendente («meeting», di turni prima)
+% mentre il C riprende l'offerta MASSIMA. Un turno risponde all'offerta
+% massima se ne nomina il tema; le altre non contendono (dialogica, QUD).
+turn_addresses_pending($T) :- max_qud_topic(gap_offer, $Topic), input_node_atom($T, $Id, $Topic).
 turn_addresses_pending($T) :- turn_short_reply($T).
 % 14 settembre 2026 — ...e solo un turno che l'interlocutore ha DETTO: una
 % clausola che il lettore della prosa si rilegge non risponde a un'offerta
