@@ -515,7 +515,28 @@ misurati; `coref` (zero letture dalla KB) e `robust` (il ladro di «depend on»)
 retrocesse a `fallback`. Dettaglio e specie in `turn-arbitration.md`
 §1-bis.1-ter. I ladri pre-registro (`semantic_lead`, `analysis_family`) restano:
 non sono facoltà del registro e una review non li tocca — prossimo lavoro di
-motore. Misure dopo le retrocessioni: *(sotto, appena i banchi finiscono)*.
+motore. **Misure dopo le retrocessioni, con la colonna dei moduli** (`P0_PROBE_WHO=1`,
+referti `r300-dopo-review-50-di-62.txt`, `r340-dopo-newton.txt`,
+`r340-dopo-review.txt`):
+
+| piolo | merito | meta | struttura | cancello | chi risponde (✓) | furti per modulo |
+|---|---|---|---|---|---|---|
+| r300 | **50/62** (invariato) | 2/2 | 5/5 | ✅ 312 > 299 | `answerframe` 48, `knowledge` 1, `turn_plan` 7 (canale KB) | `answerframe`×3 (qualificatore ignorato: «in 2020», «in 2014», «about half of») |
+| r340 dopo Newton | 5/65 | 2/2 | 4/5 → 5/5 con l'attesa corretta | ⛔ 25/338 | `answerframe` 4, `knowledge` 1 | `knowledge`×4, `semantic_lead`×2, `analysis_family`×2 |
+| r340 dopo le review | **5/65** (invariato) | 2/2 | 5/5 (attesa corretta) | ⛔ 25/338 | `answerframe` 4, `knowledge` 1 | `knowledge`×4 (lettura), `semantic_lead`×2, `analysis_family`×2 (pre-registro); `robust` non ruba più |
+
+Retrocedere `coref` e `robust` non ha tolto niente alla scala: **il titolo si
+può togliere senza perdere risposte**, che è la prova del rimedio giusto per la
+specie C (mantra #21: un modulo immaturo si retrocede, non si governa). E la
+colonna dei moduli dice una cosa che il numero nascondeva: sul piolo 300
+**tutte le risposte nel merito vengono da una facoltà sola**, `answerframe`,
+di specie B — relazioni e forme in KB, pretesa su cue, zero usi del frame. È
+la facoltà da portare per prima sulla lettura (`turn_declared_act(question)` +
+la relazione letta): finché non lo è, il 50/62 è un frasario ben fornito, non
+una condotta di cui la KB è pregna. Sul 340 i ladri restano `semantic_lead` e
+`analysis_family`, che nessuna review tocca perché stanno nel dispatcher prima
+delle due passate: **è la prossima porta sottile nel motore** — far rispettare
+`module_claim_right` anche agli stadi pre-registro.
 
 ### 18 settembre 2026 — la regressione di tre giorni, il banco che può passare il cancello
 
