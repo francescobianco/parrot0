@@ -94,7 +94,12 @@ run() {  # sessione nuova, KB viva; le righe come argomenti, una risposta per ri
 cut_to() { cut -c1-"${1:-104}"; }
 # I marcatori di muro: una euristica di shell, grossolana apposta — meglio
 # scartare una risposta buona che contarne una falsa.
-WALL="I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read|I can.t hold|I can.t show|I looked up"
+# 18 settembre 2026 — i muri detti in ITALIANO (la scala ha un piolo italiano,
+# tests/fixtures/prose/ladder-it/): senza questi un muro che contiene la parola
+# attesa verrebbe contato come risposta, cioe' la cosa peggiore che un banco
+# possa fare. Stessa grossolanita' voluta: meglio scartare una buona che
+# contarne una falsa. Un marcatore nuovo si aggiunge qui, non nel giudizio.
+WALL="I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read|I can.t hold|I can.t show|I looked up|beyond me|Ask me whether|non so|non capisco|non ho capito|non sono sicur|non conosco|vuoi che (lo )?cerchi|non ho trovato|non ho letto|non riesco a|puoi dirlo in un altro modo|non ho una definizione"
 
 echo
 echo "═══ PROSA: $TXT — $WORDS parole${BUDGET:+ (piolo $BUDGET)} ═══"
@@ -136,6 +141,33 @@ mapfile -t QS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $1}' "$QF")
 mapfile -t AS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print $2}' "$QF")
 mapfile -t KS < <(awk -F'\t' -v w="$WORDS" '($3==""||$3+0<=w){print ($4==""?"merito":$4)}' "$QF")
 [ "${#QS[@]}" -gt 0 ] || { echo; echo "(nessuna domanda rispondibile entro $WORDS parole)"; exit 0; }
+# ── IL BANCO DEVE POTER PASSARE IL CANCELLO (F., 18 settembre 2026) ─────────
+#
+# Il cancello (piu' sotto) chiede che le PAROLE delle domande nel merito risolte
+# superino le parole del testo. Un banco le cui domande nel merito, TUTTE
+# risolte, non arrivano a quel numero non puo' passarlo per costruzione: non
+# misura la comprensione, misura la propria taglia. Percio' e' un vincolo del
+# banco, non del lettore, e si dichiara qui prima di ogni conto: la somma delle
+# parole delle domande nel merito deve superare le parole del testo, con un
+# margine — altrimenti il cancello esige il 100% e coincide con l'obiettivo
+# invece di essere un gradino verso di esso. Il margine e' una soglia scritta,
+# non un giudizio: P0_BENCH_MARGIN (default 1.25, cioe' un quarto in piu').
+MARGIN="${P0_BENCH_MARGIN:-1.25}"
+bench_words=0; bench_merito=0
+for idx in "${!QS[@]}"; do
+  [ "${KS[$idx]:-merito}" = merito ] || continue
+  bench_merito=$((bench_merito+1))
+  bench_words=$(( bench_words + $(printf '%s' "${QS[$idx]}" | wc -w) ))
+done
+need=$(python3 -c "import math;print(int(math.ceil($WORDS*$MARGIN)))")
+if [ "$bench_words" -le "$WORDS" ]; then
+  printf '\n  ⛔ BANCO INSUFFICIENTE: %d domande nel merito per %d parole; il testo ne ha %d.\n' "$bench_merito" "$bench_words" "$WORDS"
+  printf '     Il cancello non e\x27 raggiungibile nemmeno con tutte le risposte giuste: il banco va esteso (servono almeno %d parole, margine %s).\n' "$need" "$MARGIN"
+elif [ "$bench_words" -lt "$need" ]; then
+  printf '\n  ⚠ BANCO STRETTO: %d domande nel merito per %d parole su %d di testo (sotto il margine %s: servono %d).\n' "$bench_merito" "$bench_words" "$WORDS" "$MARGIN" "$need"
+else
+  printf '\n  banco: %d domande nel merito, %d parole per %d di testo (margine %s: ok).\n' "$bench_merito" "$bench_words" "$WORDS" "$MARGIN"
+fi
 # ── PASSO 0 — LA CALIBRAZIONE A FREDDO (gen513) ─────────────────────────────
 #
 # ⛔ La KB e' VIVA e cresce: prima o poi qualcosa che il piolo chiede ci finisce

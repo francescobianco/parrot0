@@ -48,6 +48,18 @@ what is calcium carbonate for?	holding|together		merito
 what are coral polyps?	polyps|colonies		merito
 what do reef-building corals build?	reefs|coral reefs		merito
 what kind of corals are most reefs built from?	stony		merito
+what do coral polyps form colonies of?	coral polyps|polyps		merito
+in what water do coral reefs grow best?	warm|shallow|clear|sunny|agitated		merito
+what did coral reefs displace when they appeared?	microbial|sponge reefs		merito
+at the dawn of which period did coral reefs appear?	early ordovician|ordovician		merito
+what area do coral reefs occupy about half of?	france|area of france		merito
+what percentage of marine species do reefs provide a home for?	25		merito
+what other cnidarians live in coral reefs?	tunicates|sponges|echinoderms|other cnidarians		merito
+where do deep water and cold water coral reefs exist?	smaller scales|other areas		merito
+what kind of fishing threatens coral reefs?	blast fishing|cyanide fishing|spearfishing|overfishing		merito
+what land-use practices threaten coral reefs?	runoff|seeps|harmful		merito
+what was the economic value of coral reefs estimated at in 2020?	2.7 trillion|2\.7		merito
+what was the economic value of coral reefs estimated at in 2014?	9.9 trillion|9\.9		merito
 how many sentences does the text have?	has 16 sentences		struttura
 how many words does the text have?	has 299 words		struttura
 what is the first sentence?	coral reef is an underwater ecosystem		struttura

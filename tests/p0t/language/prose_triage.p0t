@@ -28,9 +28,24 @@
 !reset
 !timeout 30
 > Coral reefs are under threat from excess nutrients.
+# 2026-09-18: «threat from excess» was read by the event reader (E3) as an
+# event with an origin — «Noted: The threat is from excess.» — and the prose
+# fact was lost. A bare «from» is not an event.
+<! Noted
 <~ Learned
 > what threatens coral reefs?
 <~ excess nutrients
+
+[test a participle before «from» is not an event with an origin]
+!reset
+!timeout 60
+> Most coral reefs are built from stony corals, whose polyps cluster in groups.
+<! Noted
+<! is from
+> what are most coral reefs built from?
+<~ stony corals
+> what kind of corals are most reefs built from?
+<~ stony
 
 [test a percentage without its connector is not a computation]
 !reset

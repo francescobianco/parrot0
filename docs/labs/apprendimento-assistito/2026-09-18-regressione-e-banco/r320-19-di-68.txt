@@ -1,0 +1,119 @@
+
+═══ PROSA: tests/fixtures/prose/ladder/r320.txt — 319 parole (piolo 0) ═══
+    Compost is a mixture of ingredients used as plant fertilizer and to improve soil's physical, 
+    chemical, and biological properties. It is commonly prepared by decomposing plant and food 
+    waste, recycling organic materials, and manure. The resulting mixture is rich in plant 
+    nutrients and beneficial organisms, such as bacteria, protozoa, nematodes, and fungi. Compost 
+    improves soil fertility in gardens, landscaping, horticulture, urban agriculture, and organic 
+    farming, reducing dependency on commercial chemical fertilizers. The benefits of compost 
+    include providing nutrients to crops as fertilizer, acting as a soil conditioner, increasing 
+    the humus or humic acid contents of the soil, and introducing beneficial microbes that help to 
+    suppress pathogens in the soil and reduce soil-borne diseases. At the most basic level, 
+    composting requires gathering a mix of green waste (nitrogen-rich materials such as leaves, 
+    grass, and food scraps) and brown waste (woody materials rich in carbon, such as stalks, paper, 
+    and wood chips). The materials break down into humus in a process taking months. Composting can 
+    be a multistep, closely monitored process with measured inputs of water, air, and carbon- and 
+    nitrogen-rich materials. The decomposition process is aided by shredding the plant matter, 
+    adding water, and ensuring proper aeration by regularly turning the mixture in a process using 
+    open piles or windrows. Fungi, earthworms, and other detritivores further break up the organic 
+    material. Aerobic bacteria and fungi manage the chemical process by converting the inputs into 
+    heat, carbon dioxide, and ammonium ions. Composting is an important part of waste management, 
+    since food and other compostable materials make up about 20% of waste in landfills, and due to 
+    anaerobic conditions, these materials take longer to biodegrade in the landfill. Composting 
+    offers an environmentally superior alternative to using organic material for landfill because 
+    composting reduces methane emissions due to anaerobic conditions, and provides economic and 
+    environmental co-benefits. For example, compost can also be used for land and stream 
+    reclamation, wetland construction, and landfill cover.
+
+(passo 1 saltato: P0_PROBE_STEP2=1)
+
+─── PASSO 2 · legge tutta la prosa, poi risponde. La risposta E' nel testo ───
+
+  banco: 68 domande nel merito, 435 parole per 319 di testo (margine 1.25: ok).
+
+  DOMANDA                            SPECIE     ESITO  RISPOSTA
+  ────────────────────────────────────────────────────────────────────────────────
+  what is compost?                   merito     ✓    Compost is classed as mixture.
+  what does compost improve?         merito     ✓    Soil fertility.
+  what does composting require?      merito     ✓    Gathering a mix.
+  what do the materials break down   merito     ✓    Humus.
+  what do fungi break up?            merito     ✓    Organic material.
+  what is the resulting mixture ri   merito     ✓    plant nutrients.
+  what do aerobic bacteria manage?   merito     ✓    chemical process.
+  what does composting offer?        merito     ✓    Environmentally superior alternative.
+  what does composting reduce?       merito     ✓    Methane emissions.
+  what is composting an important    merito     ✓    Waste management.
+  what do the benefits of compost    merito     ✓    providing nutrients.
+  what can compost be used for?      merito     ·     I don't understand that yet.
+  what is compost used as?           merito     ✓    Plant fertilizer.
+  what is compost a mixture of?      merito     ·     I can't show that.
+  what properties of soil does com   merito     ·     On soil does compost improve, a causal account turns on the co
+  what is compost used to improve?   merito     ✓    Soil fertility.
+  how is compost commonly prepared   merito     ·     Hmm, I don't know about commonly yet.
+  what is compost prepared by deco   merito     ·     compost is a mixture.
+  what else is compost prepared fr   merito     ·     Hmm, I don't know about prepared yet. Want me to learn about i
+  what is the resulting mixture ri   merito     ·     plant nutrients.
+  what beneficial organisms does c   merito     ·     Hmm, I don't know about beneficial yet. Want me to learn about
+  which organisms are beneficial i   merito     ·     Hmm, I don't know about organisms yet. Want me to learn about 
+  where does compost improve soil    merito     ·     Soil fertility.
+  what does compost reduce depende   merito     ·     I don't know: nothing I hold says compost reduce dependency on
+  what does compost act as?          merito     ·     I don't understand that yet.
+  what does compost increase in th   merito     ·     I don't know: nothing I hold says compost increase in the soil
+  what does compost introduce into   merito     ·     Hmm, I don't know about introduce yet. Want me to learn about 
+  what do beneficial microbes help   merito     ·     Hmm, I don't know about beneficial yet.
+  what do beneficial microbes redu   merito     ·     I'm not sure I followed. Can you say it another way?
+  what does composting require at    merito     ✓    Gathering a mix.
+  what is green waste?               merito     ·     I don't know much about green waste yet, and the network is of
+  what are examples of green waste   merito     ·     I don't understand that yet.
+  what is brown waste?               merito     ·     I don't know much about brown waste yet, and the network is of
+  what are brown materials rich in   merito     ·     I don't know much about brown materials rich yet, and the netw
+  what are examples of brown waste   merito     ·     I don't understand that yet.
+  how long does the process of bre   merito     ·     Hmm, I don't know about breaking yet. Want me to learn about i
+  what breaks down into humus?       merito     ✓    Materials.
+  what kind of process can compost   merito     ·     I don't understand that yet.
+  what are the measured inputs of    merito     ·     Hmm, I don't know about measured yet. Want me to learn about i
+  what is the decomposition proces   merito     ·     I don't know: nothing I hold says decomposition process aid by
+  what aids the decomposition proc   merito     ·     Hmm, I don't know about decomposition_process yet.
+  how is proper aeration ensured?    merito     ·     Hmm, I don't know about proper yet. Want me to learn about it?
+  what is turned regularly?          merito     ·     I don't know much about turned regularly yet, and the network 
+  what does the turning process us   merito     ·     Hmm, I don't know about turning process yet. Want me to learn 
+  what do earthworms break up?       merito     ✓    Organic material.
+  what further breaks up the organ   merito     ✓    fungi.
+  what manages the chemical proces   merito     ✓    aerobic bacteria.
+  what do aerobic bacteria convert   merito     ·     I don't know: nothing I hold says aerobic bacteria convert inp
+  what are the inputs converted in   merito     ·     I don't know: nothing I hold says inputs convert into, and not
+  how much of the waste in landfil   merito     ·     1. Salvage insulated copper wire, strong permanent magnets, a 
+  what makes up about 20% of waste   merito     ·     I have no rule that would make anything a landfills, so I can'
+  why do compostable materials tak   merito     ·     I don't know: nothing I hold says compostable materials took l
+  where do compostable materials t   merito     ·     I don't know: nothing I hold says compostable materials took l
+  what is composting an alternativ   merito     ·     I can't show that.
+  why does composting offer a supe   merito     ·     Environmentally superior alternative.
+  what does composting provide?      merito     ·     I don't understand that yet.
+  what kind of co-benefits does co   merito     ·     Hmm, I don't know about co-benefits yet. Want me to learn abou
+  what can compost be used for bes   merito     ·     Hmm, I don't know about besides yet. Want me to learn about it
+  what kind of reclamation can com   merito     ·     Hmm, I don't know about reclamation yet. Want me to learn abou
+  what kind of construction can co   merito     ·     I don't understand that yet.
+  what is compost rich in?           merito     ·     I don't know much about compost rich yet, and the network is o
+  what does composting reduce emis   merito     ✓    Methane emissions.
+  what are the methane emissions d   merito     ·     Hmm, I don't know about methane emissions due yet. Want me to 
+  what does compost provide to cro   merito     ·     I don't know: nothing I hold says compost provide to crops, an
+  in what kind of farming does com   merito     ·     Hmm, I don't know about fertility yet. Want me to learn about 
+  in what kind of agriculture does   merito     ·     Hmm, I don't know about agriculture yet. Want me to learn abou
+  what do detritivores break up?     merito     ·     I don't know: nothing I hold says detritivores break up, and n
+  what is added to the plant matte   merito     ·     Matter is physical substance made of particles, with mass and 
+  how many sentences does the text   struttura  ✓    The text has 14 sentences.
+  how many words does the text hav   struttura  ✓    The text has 319 words.
+  what is the first sentence?        struttura  ✓    It begins: Compost is a mixture of ingredients used as plant f
+  how does the text begin?           struttura  ✓    It begins: Compost is a mixture of ingredients used as plant f
+  what is the last sentence?         struttura  ✓    It ends: For example, compost can also be used for land and st
+  what is this text about?           meta       ✓    The text is about Compost.
+  what is the topic?                 meta       ✓    The text is about Compost.
+  ────────────────────────────────────────────────────────────────────────────────
+  merito     19/68
+  meta       2/2
+  struttura  5/5
+
+  26 domande su 75 hanno ricevuto quello che il testo dice.
+  ⛔ CANCELLO: 105 parole di domande nel merito risolte, ne servono piu' di 319 (mancano 215).
+  ⛔ 49 restano senza: la risposta E' nel testo, e il lettore non la porta.
+

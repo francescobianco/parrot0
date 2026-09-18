@@ -1,0 +1,205 @@
+parrot0 [gen510-riparazioni@702ffd71]
+mode: agent (tools on, network off) - 57918 facts, 4525 rules (7.81%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> [lang] «most coral reefs are built from stony corals, whose polyps cluster in groups.» sticky=en selected=en
+[frame] pat=«"@S are built from @O"» toks=most|coral|reefs|are|built|from|stony|corals<,whose|polyps|cluster|in|groups| slots=[most_coral_reefs][stony_corals]
+[turn] publish «most coral reefs are built from stony corals, whose polyps cluster in groups.»
+[turn] spans=1 ambiguous=0
+[turn] force situation_described
+[turn] force unasked
+[turn] force assertion
+[lang] «most coral reefs are built from stony corals, whose polyps cluster in groups.» sticky=en selected=en
+Noted: The built is from stony.
+>>> [lang] «what are most coral reefs built from?» sticky=en selected=en
+[frame] rifiutato: lo slot «what_are_most_coral_reefs» porta un verbo finito
+[frame] rifiutato: lo slot «what_are_most_coral_reefs» porta un verbo finito
+[frame] rifiutato: lo slot «what_are_most_coral_reefs» porta un verbo finito
+[turn] publish «what are most coral reefs built from?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «what are most coral reefs built from?» -> «what are most coral reefs built from?»
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what are» -
+[named] outcome_name acc=«what are most» -
+[named] outcome_name acc=«what are most coral» -
+[named] outcome_name acc=«what are most coral reefs» -
+[named] outcome_name acc=«what are most coral reefs built» -
+[named] outcome_name acc=«what are most coral reefs built from» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what are» -
+[named] origo_cue acc=«what are most» -
+[named] origo_cue acc=«what are most coral» -
+[named] origo_cue acc=«what are most coral reefs» -
+[named] origo_cue acc=«what are most coral reefs built» -
+[named] origo_cue acc=«what are most coral reefs built from» -
+[aframe] cue="built from" pred=made_of
+[aframe] input_arg cue="built from" pred=made_of -> 1 (1)
+[aframe] cue="built from" pred=made_of
+[aframe] input_arg cue="built from" pred=made_of -> 1 (1)
+[aframe] cue=built from pred=built_from
+[aframe] input_arg cue=built from pred=built_from -> 1 (1)
+[aframe] cue=built from pred=built_from
+[aframe] input_arg cue=built from pred=built_from -> 1 (1)
+[aframe] cue="what are" pred=purpose_by_agency
+[aframe] input_arg cue="what are" pred=purpose_by_agency -> 0 (-)
+[aframe] cue="what are" pred=semantic_summary
+[aframe] input_arg cue="what are" pred=semantic_summary -> 0 (-)
+[aframe] cue="what are" pred=read_about
+[aframe] input_arg cue="what are" pred=read_about -> 0 (-)
+[aframe] cue="what are" pred=purpose_by_agency
+[aframe] input_arg cue="what are" pred=purpose_by_agency -> 0 (-)
+[aframe] cue="what are" pred=semantic_summary
+[aframe] input_arg cue="what are" pred=semantic_summary -> 0 (-)
+[aframe] cue="what are" pred=read_about
+[aframe] input_arg cue="what are" pred=read_about -> 0 (-)
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what are» -
+[named] outcome_name acc=«what are most» -
+[named] outcome_name acc=«what are most coral» -
+[named] outcome_name acc=«what are most coral reefs» -
+[named] outcome_name acc=«what are most coral reefs built» -
+[named] outcome_name acc=«what are most coral reefs built from» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what are» -
+[named] origo_cue acc=«what are most» -
+[named] origo_cue acc=«what are most coral» -
+[named] origo_cue acc=«what are most coral reefs» -
+[named] origo_cue acc=«what are most coral reefs built» -
+[named] origo_cue acc=«what are most coral reefs built from» -
+[frame] rifiutato: lo slot «what_are_most_coral_reefs» porta un verbo finito
+[frame] rifiutato: lo slot «what_are_most_coral_reefs» porta un verbo finito
+[frame] rifiutato: lo slot «what_are_most_coral_reefs» porta un verbo finito
+[compound?] len=37 inquiry=0 statement=0
+[wall] enter canon=«what are most coral reefs built from?» out=«Noted: The built is from stony.» last=«Noted: The built is from stony.»
+[lang] «what are most coral reefs built from?» sticky=en selected=en
+I don't understand that yet.
+>>> [lang] «who answered?» sticky=en selected=en
+[turn] publish «who answered?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «who answered?» -> «who answered?»
+[named] outcome_name acc=«who» -
+[named] outcome_name acc=«who answered» -
+[named] origo_cue acc=«who» -
+[named] origo_cue acc=«who answered» -
+[lang] «who answered?» sticky=en selected=en
+No module could handle that — it fell through to the not-understood fallback.
+>>> [lang] «coral reefs are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification.» sticky=en selected=en
+[frame] pat=«"@O are under threat from @S"» toks=coral|reefs|are|under|threat|from|excess|nutrients|(nitrogen|and|phosphorus),<,rising|ocean|heat|content|and|acidification| slots=[coral_reefs][excess_nutrients_nitrogen]
+[turn] publish «coral reefs are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification.»
+[turn] spans=1 ambiguous=0
+[turn] force situation_described
+[turn] force unasked
+[turn] force assertion
+[lang] «coral reefs are under threat from excess nutrients (nitrogen and phosphorus), rising ocean heat content and acidification.» sticky=en selected=en
+Noted: The threat is from excess.
+>>> [lang] «what threatens coral reefs?» sticky=en selected=en
+[frame] pat=«@S threatens @O» toks=what|threatens|coral|reefs| slots=[what][coral_reefs]
+[turn] publish «what threatens coral reefs?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «what threatens coral reefs?» -> «what threatens coral reefs?»
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what threatens» -
+[named] outcome_name acc=«what threatens coral» -
+[named] outcome_name acc=«what threatens coral reefs» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what threatens» -
+[named] origo_cue acc=«what threatens coral» -
+[named] origo_cue acc=«what threatens coral reefs» -
+[aframe] cue=threatens pred=threaten
+[aframe] input_arg cue=threatens pred=threaten -> 1 (2)
+[aframe] cue=threatens pred=threaten
+[aframe] input_arg cue=threatens pred=threaten -> 1 (2)
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what threatens» -
+[named] outcome_name acc=«what threatens coral» -
+[named] outcome_name acc=«what threatens coral reefs» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what threatens» -
+[named] origo_cue acc=«what threatens coral» -
+[named] origo_cue acc=«what threatens coral reefs» -
+[frame] pat=«@S threatens @O» toks=what|threatens|coral|reefs| slots=[what][coral_reefs]
+[compound?] len=27 inquiry=0 statement=0
+[wall] enter canon=«what threatens coral reefs?» out=«Noted: The threat is from excess.» last=«Noted: The threat is from excess.»
+[lang] «what threatens coral reefs?» sticky=en selected=en
+Hmm, I don't know about threatens yet. Want me to learn about it?
+>>> [lang] «who answered?» sticky=en selected=en
+[turn] publish «who answered?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «who answered?» -> «who answered?»
+[offer] open topic=«threatens» confirm=0 refused=0 raw=«who answered?» canon=«who answered?»
+[named] outcome_name acc=«who» -
+[named] outcome_name acc=«who answered» -
+[named] origo_cue acc=«who» -
+[named] origo_cue acc=«who answered» -
+[lang] «who answered?» sticky=en selected=en
+No module could handle that — it fell through to the not-understood fallback.
+>>> [lang] «what are coral reefs under threat from?» sticky=en selected=en
+[turn] publish «what are coral reefs under threat from?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «what are coral reefs under threat from?» -> «what are coral reefs under threat from?»
+[offer] open topic=«threatens» confirm=0 refused=0 raw=«what are coral reefs under threat from?» canon=«what are coral reefs under threat from?»
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what are» -
+[named] outcome_name acc=«what are coral» -
+[named] outcome_name acc=«what are coral reefs» -
+[named] outcome_name acc=«what are coral reefs under» -
+[named] outcome_name acc=«what are coral reefs under threat» -
+[named] outcome_name acc=«what are coral reefs under threat from» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what are» -
+[named] origo_cue acc=«what are coral» -
+[named] origo_cue acc=«what are coral reefs» -
+[named] origo_cue acc=«what are coral reefs under» -
+[named] origo_cue acc=«what are coral reefs under threat» -
+[named] origo_cue acc=«what are coral reefs under threat from» -
+[aframe] cue=under threat from pred=threaten
+[aframe] input_arg cue=under threat from pred=threaten -> 1 (2)
+[aframe] cue=under threat from pred=threaten
+[aframe] input_arg cue=under threat from pred=threaten -> 1 (2)
+[aframe] cue="what are" pred=purpose_by_agency
+[aframe] input_arg cue="what are" pred=purpose_by_agency -> 0 (-)
+[aframe] cue="what are" pred=semantic_summary
+[aframe] input_arg cue="what are" pred=semantic_summary -> 0 (-)
+[aframe] cue="what are" pred=read_about
+[aframe] input_arg cue="what are" pred=read_about -> 0 (-)
+[aframe] cue="what are" pred=purpose_by_agency
+[aframe] input_arg cue="what are" pred=purpose_by_agency -> 0 (-)
+[aframe] cue="what are" pred=semantic_summary
+[aframe] input_arg cue="what are" pred=semantic_summary -> 0 (-)
+[aframe] cue="what are" pred=read_about
+[aframe] input_arg cue="what are" pred=read_about -> 0 (-)
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what are» -
+[named] outcome_name acc=«what are coral» -
+[named] outcome_name acc=«what are coral reefs» -
+[named] outcome_name acc=«what are coral reefs under» -
+[named] outcome_name acc=«what are coral reefs under threat» -
+[named] outcome_name acc=«what are coral reefs under threat from» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what are» -
+[named] origo_cue acc=«what are coral» -
+[named] origo_cue acc=«what are coral reefs» -
+[named] origo_cue acc=«what are coral reefs under» -
+[named] origo_cue acc=«what are coral reefs under threat» -
+[named] origo_cue acc=«what are coral reefs under threat from» -
+[lang] «what are coral reefs under threat from?» sticky=en selected=en
+I don't know much about coral reefs yet, and the network is off, so I can't read about it now.
+>>> [lang] «who answered?» sticky=en selected=en
+[turn] publish «who answered?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «who answered?» -> «who answered?»
+[offer] open topic=«threatens» confirm=0 refused=0 raw=«who answered?» canon=«who answered?»
+[named] outcome_name acc=«who» -
+[named] outcome_name acc=«who answered» -
+[named] origo_cue acc=«who» -
+[named] origo_cue acc=«who answered» -
+[lang] «who answered?» sticky=en selected=en
+The 'learn' module answered your last question.
+>>> 
+parrot0: bye

@@ -6,6 +6,30 @@
 > Qualunque istruzione o misura storica qui sotto ottenuta amputando la KB
 > è obsoleta e non costituisce evidenza. I test mantengono la KB del profilo.
 
+## ⛔ HANDOFF 2026-09-18 — LETTURA DELLA PROSA: regressione 49→45 chiusa in KB, banco esteso perché possa passare il cancello
+
+**Lo stato sta nel piano, da oggi:** [docs/plans/lettura-della-prosa.md](docs/plans/lettura-della-prosa.md)
+§4-ter (i vincoli di validazione di F.) e §6 (registro, voce del 18 settembre). Il
+registro era fermo a 17/50 mentre gli handoff qui sotto dicevano 49/50: chi riprende
+legge il piano, e ogni giro aggiorna il piano, non solo questo file.
+
+- **Misurato prima di toccare:** r300 **45/50** (era 49/50 il 13): «Most coral reefs
+  are built from stony corals» → «Noted: The built is from stony.» — la lettura E3
+  dell'origine (`event-time.p0`, «X from Y») scattava su ogni «from». Cura KB pura
+  (`ev_origin_bearer/2`), r300 di nuovo **49/50 storiche, cancello 312 > 299**; E3
+  intatto (`frontier_transcript.p0t` 21/21, `origo.p0t` 20/20, `prose_triage.p0t` 80/80
+  con il contrasto nuovo).
+- **Il banco (F.: «aggiorna e spandi»):** regola nuova — Σ parole di TUTTE le domande
+  nel merito > parole del testo × 1,25 (`P0_BENCH_MARGIN`, stampata dal banco); pioli
+  r300…r497 estesi, +697 domande con la risposta nel testo, le storiche identiche in
+  testa ai file. r300 50/62, r320 19/68 (storiche 12/13 come il 13), r340 prima misura
+  nel piano.
+- **Da dove riprendere (piano §6, 18 settembre, elenco 1–6):** prima i due misclaim
+  (qualificatore ignorato: l'anno della stima, «about half of»; turno rubato: la
+  procedura del rame, la definizione di *matter*), poi «what kind of» sull'aggettivo,
+  il composto della domanda senza chiave, la parentetica come definizione.
+- Referti grezzi: `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
+
 ## ⛔ HANDOFF 2026-09-14 (sera) — DA PAROLA A STATO: mossa 1 chiusa, mossa 2 a metà con un misclaim aperto
 
 Piano: [docs/plans/da-parola-a-stato.md](docs/plans/da-parola-a-stato.md), primo caso

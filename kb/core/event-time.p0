@@ -69,7 +69,20 @@ ev_meridiem_at($T, $S, $K) :- ev_next($T, $S, $K, $Mer), meridiem($Mer).
 event_reading($T, ev($E, time, $V)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_time_value($T, $S, $J, $V).
 event_reading($T, ev($E, day, $D)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S2, $K, $D), day_word($D).
 event_reading($T, ev($E, counterpart, $C)) :- ev_tok($T, $S, $I, $E), timed_event_noun($E), ev_tok($T, $S, $J, $P), with_preposition($P), gt($J, $I), ev_after($T, $S, $J, $C), naf(decision_numeric($C)).
-event_reading($T, ev($X, origin, $P)) :- ev_tok($T, $S, $J, $F), origin_preposition($F), is($I, sub($J, 1)), ev_tok($T, $S, $I, $X), naf(ev_skip($X)), naf(departure_verb($X)), ev_next($T, $S, $J, $P), naf(ev_skip($P)).
+% ⚠ «X from Y» vale solo se X e' un SOGGETTO della situazione descritta in
+% questo turno: un evento con orario, il viaggio, o la controparte letta nello
+% stesso turno («a client from Milan»). Senza questa dimensione qualunque «from»
+% di qualunque frase faceva un evento: «Most coral reefs are BUILT FROM stony
+% corals» diceva «Noted: The built is from stony.» e «under THREAT FROM excess
+% nutrients» «Noted: The threat is from excess.» — un fatto storto detto con
+% sicurezza al posto della lettura della prosa (misurato il 18 settembre 2026
+% sul piolo 300: 49/50 -> 45/50, quattro domande perse a questo solo «from»).
+% La classe di cio' che puo' avere un'origine e' conoscenza (mantra #23): un
+% portatore nuovo e' una riga, non una guardia nel C.
+event_reading($T, ev($X, origin, $P)) :- ev_tok($T, $S, $J, $F), origin_preposition($F), is($I, sub($J, 1)), ev_tok($T, $S, $I, $X), naf(ev_skip($X)), naf(departure_verb($X)), ev_origin_bearer($T, $X), ev_next($T, $S, $J, $P), naf(ev_skip($P)).
+ev_origin_bearer($T, $X) :- timed_event_noun($X).
+ev_origin_bearer($T, $X) :- journey_subject($X).
+ev_origin_bearer($T, $X) :- event_reading($T, ev($E, counterpart, $X)).
 % «I leave Rome at 7 by train», «parto da Roma alle 7 in treno», «the trip
 % takes 3 hours», «ci vogliono 3 ore»: partenza, origine, mezzo, durata del viaggio.
 event_reading($T, ev($Trip, departure, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), departure_verb($Vb), ev_tok($T, $S, $J, $P), time_preposition($P), gt($J, $I), ev_time_value($T, $S, $J, $V).

@@ -243,16 +243,95 @@ modello di misura:
 
 ---
 
+## 4-ter. I VINCOLI DI VALIDAZIONE DEL BANCO (F., 12–18 settembre 2026)
+
+Sono le regole con cui un piolo della scala si dice **compreso**. Stavano
+sparse fra gli handoff di `LEARN_TODO.md` e la testa di `scripts/prose-probe.sh`;
+qui sono il contratto, e il banco le stampa tutte.
+
+1. **Tre colonne, mai un totale unico.** *Merito* (ciò che il testo dice),
+   *meta* (di che cosa parla), *struttura* (quante frasi, come comincia e come
+   finisce). Un 14/20 non dice se il lettore ha capito il testo o se ha solo
+   saputo contarne le frasi; le attese di meta e struttura le calcola uno script
+   indipendente, non parrot0.
+
+2. **⛔ Il cancello (F., 12 settembre).** *«Ogni iterazione dovrà rispondere con
+   successo a un numero di domande tale che il conteggio delle parole con cui
+   sono scritte le domande a cui ha successo sia più lungo del numero di parole
+   del testo stesso; man mano che cresce il testo crescono le domande a cui,
+   avendo successo, parrot0 risponde.»* Cioè: **Σ parole delle domande nel
+   merito risolte > parole del testo.** È dura e onesta per costruzione: non
+   premia un banco corto, non premia una domanda facile ripetuta, e cresce per
+   forza col testo — un testo di 500 parole esige più comprensione di uno di
+   300, non la stessa percentuale.
+
+3. **⛔ Il banco deve POTER passare il cancello (F., 18 settembre).** Un banco
+   le cui domande nel merito, *tutte* risolte, non arrivano alle parole del
+   testo non misura la comprensione: misura la propria taglia. Quindi **Σ
+   parole di TUTTE le domande nel merito > parole del testo, con margine**: la
+   soglia è `P0_BENCH_MARGIN` (default **1,25**), il banco la stampa prima dei
+   conti e dichiara `BANCO INSUFFICIENTE` o `BANCO STRETTO` quando non regge.
+   Senza margine il cancello coincide con l'obiettivo del 100% (il piolo 300 a
+   50 domande, 310 parole, passava solo a 49/50) invece di essere un gradino
+   verso di esso.
+
+   | piolo | testo | domande merito | Σ parole | margine 1,25 |
+   |---|---|---|---|---|
+   | r300 | 299 | 50 → **62** | 310 → **417** | 374 ✓ |
+   | r320 | 319 | 13 → **68** | 68 → **435** | 399 ✓ |
+   | r340 | 338 | 13 → **65** | 72 → **450** | 423 ✓ |
+   | r356 | 356 | 13 → **68** | 74 → **510** | 445 ✓ |
+   | r374 | 374 | 13 → **72** | 63 → **488** | 468 ✓ |
+   | r395 | 395 | 13 → **72** | 67 → **517** | 494 ✓ |
+   | r420 | 427 | 13 → **80** | 69 → **571** | 534 ✓ |
+   | r440 | 440 | 13 → **80** | 84 → **584** | 550 ✓ |
+   | r464 | 464 | 13 → **85** | 71 → **601** | 580 ✓ |
+   | r485 | 485 | 13 → **95** | 71 → **666** | 607 ✓ |
+   | r497 | 497 | 13 → **87** | 72 → **651** | 622 ✓ |
+   | r010 … r250, r362, r508, r621 | 21–621 | 1–4 | 4–23 | ⛔ banchi diagnostici, senza cancello |
+
+   (Stato al 18 settembre 2026. I pioli sotto le 300 parole sono nati come
+   scala «una prosa per piolo, tre domande» prima del cancello: restano
+   diagnostici finché non vengono estesi.)
+
+4. **Il banco è FISSO, e il successo tende al 100%.** *«parrot0 deve saper
+   rispondere a ogni domanda rispondibile sulla prosa; la stima non implica
+   crescere il set di domande ma migliorare la comprensione»* (F., 12
+   settembre). **Allargare il banco per abbassare il tasso richiesto è barare;
+   allargare un banco che non poteva passare il cancello non lo è**: il tasso
+   si calcola su tutte le domande, e le nuove sono altrettante da rispondere.
+   Le domande vecchie restano identiche e in testa al file, così i referti
+   restano confrontabili sul sottoinsieme storico.
+
+5. **La calibrazione a freddo.** Le stesse domande, in una sessione pulita,
+   *senza* la prosa: ciò che riceve risposta lì non è lettura ed esce dal conto
+   (`già`). Il banco resta onesto per costruzione anche quando la KB cresce di
+   sotto — è successo due volte (`made_of(reefs, colonies)`,
+   `located_in(satellite, orbit)` depositati da un `/save`).
+
+6. **Un muro non è mai una risposta**, nemmeno quando contiene la parola
+   attesa; e **una risposta falsa conta più di un muro** e si dichiara a parte
+   (regola 5 del §4). La revisione a mano delle ✓ è parte della misura
+   (mantra #9): il runner non vede una risposta sbagliata che contiene la
+   parola attesa.
+
+7. **Prosa vera, esterna alla KB, con la fonte** (`ladder/SOURCES.md`), intera e
+   coerente, mai troncata. Nessun fatto del brano si persiste con `/save`
+   durante un giro: W=0, L=0.
+
+---
+
 ## 5. I giri, in ordine, con la prova di chiusura
 
 | giro | malattia | cura prevista | prova |
 |---|---|---|---|
 | ~~G1~~ ✅ | **M4** cessione | condotta KB: una facoltà che PRODUCE prosa cede un turno che PORTA prosa (`faculty_yield_force`) | «Quipu, also spelled khipu, …» non riceve più un racconto |
 | ~~G2~~ ✅ | **M1** apposizione | il valore chiede all'IR dove finisce il suo nodo (`np_closer`, le virgole come confine) | la frase 1 lascia in KB i fatti giusti, non uno storto |
-| **G3** | **M2** ordinale | «first» dentro un avverbiale non è la domanda del turno | la frase 2 si legge; «who described tardigrades?» risponde |
-| **G4** | **M3** relativa | «which/who» aprono una relativa sul nodo precedente, non una lezione | la frase 3 lascia `means(tardigrada, "slow walkers")` |
+| ~~G3~~ ✅ | **M2** ordinale | «first» dentro un avverbiale non è la domanda del turno | «when did coral reefs first appear?» → «485 million years ago» (piolo 300, 13 settembre) |
+| ~~G4~~ ✅ | **M3** relativa | «which/who» aprono una relativa sul nodo precedente, non una lezione (`relative_opener/1`, antecedente dall'IR) | «what does the phylum cnidaria include?» → «sea anemones» (piolo 300) |
 | **G5** | consumo | portare UN lettore grosso a consumare l'IR invece di `split_words` | il conteggio 217 scende, e il banco non peggiora |
-| **G6** | **M5** preposizione orfana | «What are X also known **as**?» — l'oggetto e' in testa, la preposizione resta in coda e viene presa per oggetto | la domanda trova il fatto che «What is another name for X?» trova gia' |
+| ~~G6~~ ✅ | **M5** preposizione orfana | «What are X also known **as**?» — l'oggetto e' in testa, la preposizione resta in coda | «what are shallow coral reefs sometimes called?» → «rainforests of the sea» (piolo 300) |
+| **G7** | furto di turno | un lettore nuovo di un'altra missione si prende una frase di prosa e dice un fatto storto (18 settembre: E3 e «from») | ogni piolo certificato si rimisura dopo ogni missione che tocca la lettura; il `.p0t` del piolo porta il contrasto |
 
 **Ogni riga porta anche il suo conto KB-first**: quale porta KB è stata usata (o
 aperta), quanti `split_words` restano, quante righe di C sono uscite.
@@ -263,6 +342,146 @@ esatto non si promette, si misura.
 ---
 
 ## 6. Registro dei giri
+
+### 18 settembre 2026 — la regressione di tre giorni, il banco che può passare il cancello
+
+**Misurato prima di toccare qualcosa.** Il piolo 300, certificato **49/50 con
+cancello passato** la notte del 13 (vedi sotto), ritorna oggi a **45/50**,
+cancello riaperto (274 < 299), sulla stessa KB viva più tre giorni di altre
+missioni (mix di capacità, interlocutore di frontiera E1–E4, insegnamento
+super-umano: +833 righe in `grammar.p0`, +978 in `10-memory-knowledge.c`,
++1005 in `99-registry.c`). Le quattro domande perse:
+
+```text
+Most coral reefs are built from stony corals, whose polyps cluster in groups.
+  → «Noted: The built is from stony.»           (13 settembre: Learned … stony corals)
+Coral reefs are under threat from excess nutrients (nitrogen and phosphorus), …
+  → «Noted: The threat is from excess.»         (13 settembre: Learned … threaten)
+```
+
+Non un muro: **un fatto storto detto con sicurezza** — la specie peggiore
+(§4, regola 5). Il ladro è la lettura E3 dell'interlocutore di frontiera
+(`kb/core/event-time.p0`): «X from Y = l'origine di X» scattava su qualunque
+«from» di qualunque turno, e il turno di prosa diventava un evento descritto
+con il suo `turn_response`. È la forma del mantra #21: un modulo **maturo**
+(tutto in KB, addestrabile) che ruba per una lettura troppo larga — quindi
+**si insegna**, non si retrocede.
+
+**La cura, KB pura (0 righe di C).** Alla lettura mancava la dimensione *che
+cosa può avere un'origine* (mantra #23): un evento con orario, il viaggio, o
+la controparte letta nello stesso turno («a client from Milan»).
+`ev_origin_bearer/2`, tre righe; un portatore nuovo è una riga. Contrasto nel
+banco `tests/p0t/language/prose_triage.p0t` (le due frasi: mai «Noted», e le
+quattro domande rispondono); E3 intatto (`frontier_transcript.p0t` 21/21,
+`origo.p0t` 20/20; `prose_triage.p0t` 80/80).
+
+**Il banco, esteso perché possa passare il cancello** (§4-ter, regola 3):
+r300 50→62 domande nel merito (310→417 parole), r320 13→68 (68→435), r340
+13→65 (72→450), r356 13→68 (74→510), r374 13→72 (63→488), r395 13→72
+(67→517), r420 13→80 (69→571), r440 13→80 (84→584), r464 13→85 (71→601),
+r485 13→95 (71→666), r497 13→87 (72→651): **+697 domande nel merito**, tutte
+con la risposta scritta nel testo. Le domande storiche restano identiche in
+testa ai file. Il banco
+stampa da oggi la propria raggiungibilità (`P0_BENCH_MARGIN`, 1,25).
+
+**Misure dopo la cura** (referti in
+`docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`):
+
+| piolo | storiche | nuove | merito | meta | struttura | cancello |
+|---|---|---|---|---|---|---|
+| r300 | **49/50** (come il 13) | 1/12 | **50/62** | 2/2 | 5/5 | ✅ **312 > 299** |
+| r320 | **12/13** (come il 13) | 7/55 | **19/68** | 2/2 | 5/5 | ⛔ 105/319 |
+| r340 | 3/13 (era 1/13 il 12) | 1/52 | **4/65** | 2/2 | 5/5 | ⛔ 19/338 |
+
+Le domande storiche tornano dove erano: **la regressione è chiusa** e il
+cancello di r300 è di nuovo passato. Le domande nuove dicono il resto, ed è
+la ragione per cui il banco andava esteso: sul piolo 300 ne passa una su
+dodici, sul 320 sette su cinquantacinque. Le forme che le tengono aperte, in
+ordine di frequenza sui due pioli:
+
+1. **Il qualificatore ignorato** — due risposte confidenti e sbagliate, quindi
+   prima di tutto: «what was the economic value of coral reefs estimated at
+   **in 2020**?» → «anywhere from US$30–375 billion» (la cifra del 1997);
+   «what area do coral reefs occupy **about half of**?» → «less than 0.1 percent
+   of the world's ocean area». La relazione è giusta, il vincolo della domanda
+   non viene provato.
+2. **Il turno rubato da un'altra facoltà**, due misclaim: «how much of the
+   waste in landfills…?» → un elenco di salvataggio di rame e magneti (una
+   procedura); «what is added to the plant matter…?» → la definizione di
+   *matter* dal mondo. Mantra #21: prima classificare se il ladro è maturo.
+3. **La domanda «what kind of / in what kind of»** sull'aggettivo o sul
+   modificatore («in what kind of water», «what kind of process», «what kind
+   of reclamation», «in what kind of farming»): manca il lessico degli
+   aggettivi come valore, già l'unica aperta del 13.
+4. **Il sostantivo composto della domanda che non trova la chiave** («brown
+   waste», «brown materials», «compost rich», «turned regularly»): la domanda
+   costruisce un nome di più parole che la lettura non ha lasciato.
+5. **La parentetica come definizione** («green waste (nitrogen-rich
+   materials such as …)», «brown waste (woody materials …)»): la parentesi
+   dopo un nome dice che cos'è, e oggi si legge solo come esempi.
+6. **«What did X displace / lead to / aim to maintain»**, «at the dawn of
+   which period», «where do … exist on smaller scales»: verbi letti ma non
+   interrogati da quella forma, e avverbiali di tempo dentro un inciso.
+
+**Il piolo 340 (Charcoal), prima misura con queste classi: 4/65.** Il
+trasferimento che r320 aveva mostrato (4/13 a freddo) qui quasi non c'è: le
+frasi del carbone sono relative ridotte lunghe («a lightweight black residue
+made of carbon that is produced by strongly heating wood (or other …) in
+minimal oxygen to remove …»), participi con agente, «involves + gerundio»,
+«led to», «aimed to maintain», e **sei risposte confidenti e sbagliate** su
+52 domande nuove, tutte furti di turno di facoltà che non leggono la prosa:
+il generatore di saggi causali («On charcoal used as in chemical, a causal
+account turns on…»), la definizione del mondo di *temperature* e del *carbon
+cycle*, «Ask me whether something holds first», e «in which regions did
+charcoal production contribute to deforestation?» → «america, africa» (la
+frase sbagliata: quella è la produzione illegale; il testo dice Central
+Europe). È la classe 2 dell'elenco, e sul piolo nuovo è la più numerosa:
+**prima di ogni cura di lettura, i furti** (mantra #21) — un muro onesto vale,
+una bugia no. Referto: `r340-prima-misura.txt`.
+
+
+Conto KB-first: C **0 righe**; KB +14 (event-time.p0), banco +1 caso.
+`split_words` invariato: 132/54/33 = **219**.
+
+### 13 settembre 2026, notte — piolo 300 da 17/50 a **49/50 = 98%, cancello 301 > 299**; piolo 320 da 4 a 12/13
+
+> ⚠ Questo registro era rimasto fermo a 17/50: i gradini della notte del 13
+> stanno negli handoff di `LEARN_TODO.md` («HANDOFF 2026-09-13 (gen514,
+> notte)», cinque voci) e nei referti di
+> `docs/labs/apprendimento-assistito/2026-09-13-direzione-della-domanda/`
+> (`bench-27 … bench-49-cancello.txt`) e `…/2026-09-13-piolo-320/`. Qui il
+> riassunto, perché il piano vivo deve dire dove si è.
+
+| gradino | merito | cancello | che cosa ha aperto la strada |
+|---|---|---|---|
+| triage delle 33 aperte | 17 → 19 | 107 | due fortunate e quattro bugie chiuse |
+| attenuazione, avverbi del verbo, relative possessive e con `that`, coordinati, domande locative | 19 → 27 | 156 | `attenuating_quantifier`, `verb_adverb`, `bare_relative_opener`, `relative_clause_verb` |
+| gli esempi di «including», costruzioni a ruoli invertiti interrogabili | 27 → 30 | 184 | `participial_opener/2`, `frame_role_order/2` |
+| «what is X?» dice la classe o ciò che ha letto, e solo su X | 30 → 35 | 209 | la lettura citata («I have no definition of it, but I read: …») |
+| costruzione con copula chiesta senza copula; participio anteposto | 35 → 37 | — | `fronted_participle/1` |
+| perfetto con particella, subordinatore in coda, predicati aggettivali | 37 → 40 | — | `perfect_auxiliary`, `trailing_subordinator`, `subordinator_modifier`, `adjective_relation` |
+| la parentetica misurata; «since when» | 40 → 41 | 248 | `parenthetical_relation/1`, `particle_question_word/2` |
+| il tipo chiesto decide fra due descrizioni; alternanza di voce; scopo dell'agente; parentetiche di annotazione; nomi d'attributo partitivi; valuta; complemento con particella dopo l'oggetto; ranghi tassonomici e catena; composti agentivi | 41 → **49** | **301 ✅** | `active_agent_surface`, `purpose_by_agency`, `attribute_noun`, `value_relation`, `particle_surface_for`, `rank_noun`, `membership_chain` |
+
+Revisione a mano delle 49: nessuna risposta falsa; deboli «Warm.» (elenco di
+aggettivi troncato) e «coral reefs first.» (resa). **L'unica aperta:** «in what
+kind of water do reefs grow best?» — manca un lessico degli aggettivi per
+tenere «warm, shallow, clear, sunny, and agitated water» come un solo valore.
+
+**Piolo 320 (Compost), subito dopo:** al primo passaggio, senza toccare niente,
+4/13 — il trasferimento c'è. Poi 4 → 7 → 11 → **12/13**, ogni gradino
+riverificato su r300 (sempre 49/50). Cure: `includes` canonico, «such as» come
+esempi, «because» anche senza virgola e «since» solo con, un turno inglese non
+traduce le sue parole (`content_translation_source/1`), soggetti coordinati
+distribuiti, `verb_particle(break, up)` e `(use, as)`, la ridotta dopo un
+predicato nominale, nomi relazionali con articolo, `np_opener(those/these)`.
+Aperta: «what can compost be used for?» (il modale con «be» e `use for`).
+Il banco a 13 domande (68 parole) non poteva passare il cancello delle 319:
+è il reperto da cui nasce la regola 3 del §4-ter.
+
+Trappole pagate (valgono per il prossimo): `naf` su goal non ground (due
+volte), `snprintf` su se stesso, un «of» partitivo preso per particella
+(bugia chiusa prima del commit).
 
 ### 13 settembre 2026 — partitivo e verifica delle definizioni: 17/50
 
