@@ -815,16 +815,12 @@ static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
 /* gen515 — il qualificatore della domanda (10-memory-knowledge.c) */
-static int p0_question_qualifier(Brain *b, char **w, size_t nw, const char *cue,
-                                 char ans[][KB_TERM_LEN], size_t na,
-                                 size_t *pick, char *qual, size_t qsz);
 static void p0_say_unqualified(Brain *b, const char *qual, const char *subject,
                                const char *pred, const char *value,
                                char *out, size_t out_size);
-static int p0_qualifier_gate(Brain *b, char **w, size_t nw, const char *cue,
-                             const char *subject, const char *pred,
-                             char ans[][KB_TERM_LEN], size_t na, size_t *pick,
-                             char *out, size_t out_size);
+static int p0_qualifier_gate(Brain *b, const char *cue, const char *subject,
+                             const char *pred, char ans[][KB_TERM_LEN], size_t na,
+                             size_t *pick, char *out, size_t out_size);
 static int is_internal_pred(const KB *kb, const char *pred);
 static int domain_query(Brain *b, const char *role, const char *const *args, size_t argc);
 int brain_policy_on(Brain *b, const char *key);       /* gen331: the effective policy */

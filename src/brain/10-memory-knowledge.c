@@ -5771,7 +5771,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             if (nh > 0) {
                 size_t pick = 0;
                 /* gen515 — il resto della domanda restringe il valore */
-                if (p0_qualifier_gate(b, w, n, NULL, NULL, pred, hits, nh,
+                if (p0_qualifier_gate(b, NULL, NULL, pred, hits, nh,
                                       &pick, out, out_size)) {
                     free(taught);
                     return 1;
@@ -9260,93 +9260,12 @@ static int p0_inherit_relation(Brain *b, const char *norm,
  *
  * «what was the economic value of coral reefs estimated at IN 2020?» riceveva
  * la cifra del 1997: la cornice rivendicava sulla cue e non leggeva il resto
- * della domanda (specie B). Qui la cornice legge il RESTO: quali superfici
- * restringono il valore chiesto e' conoscenza (`question_qualifier/2`,
- * `qualifier_shape/2`, grammar.p0); questa funzione le cerca nel turno fuori
- * dalla cue, prende il contenuto che la forma dichiara (il numero che segue,
- * la parola dell'apertura, niente) e lo prova sui valori letti.
- *   1  un valore lo porta: `*pick` e' quello
- *   0  la domanda non porta nessun qualificatore
- *  -1  nessun valore lo porta: `qual` e' il qualificatore detto, e chi chiama
- *      non risponde come se non ci fosse (mantra #7: il muro onesto batte la
- *      risposta sbagliata). Nessuna parola nel C. */
-static int p0_atom_has_word(const char *atom, const char *word) {
-    size_t wl = strlen(word);
-    if (!wl) return 0;
-    for (const char *h = strstr(atom, word); h; h = strstr(h + 1, word)) {
-        int left = h == atom || h[-1] == '_' || h[-1] == ' ';
-        int right = h[wl] == '\0' || h[wl] == '_' || h[wl] == ' ';
-        if (left && right) return 1;
-    }
-    return 0;
-}
-static int p0_question_qualifier(Brain *b, char **w, size_t nw, const char *cue,
-                                 char ans[][KB_TERM_LEN], size_t na,
-                                 size_t *pick, char *qual, size_t qsz) {
-    if (!b || !b->kb || !w || nw == 0) return 0;
-    char classes[8][KB_TERM_LEN];
-    const char *cq[2] = { NULL, NULL };
-    size_t nc = kb_match(b->kb, "question_qualifier", cq, 2, classes, 8);
-    if (nc == 0) return 0;
-    char low[40][KB_TERM_LEN]; size_t n = nw < 40 ? nw : 40;
-    for (size_t k = 0; k < n; k++) {
-        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
-        snprintf(low[k], KB_TERM_LEN, "%s", strip_edge_punct(t));
-    }
-    /* la cue della relazione, come parole: un'apertura che ne fa parte non e'
-     * un qualificatore («what is the capital OF france»: «of» sta nella cue) */
-    char cuewords[KB_TERM_LEN] = " ";
-    if (cue && *cue) snprintf(cuewords, sizeof cuewords, " %s ", cue);
-    for (size_t ci = 0; ci < nc; ci++) {
-        char cls[KB_TERM_LEN]; snprintf(cls, sizeof cls, "%s", classes[ci]);
-        const char *cl = kb_dequote(cls);
-        char shape[1][KB_TERM_LEN];
-        const char *sq[2] = { cl, NULL };
-        if (kb_match(b->kb, "qualifier_shape", sq, 2, shape, 1) != 1) continue;
-        const char *sh = kb_dequote(shape[0]);
-        char openers[16][KB_TERM_LEN];
-        const char *oq[2] = { cl, NULL };
-        size_t no = kb_match(b->kb, "question_qualifier", oq, 2, openers, 16);
-        for (size_t oi = 0; oi < no; oi++) {
-            char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", openers[oi]);
-            const char *op = kb_dequote(ob);
-            if (!*op) continue;
-            char padded[KB_TERM_LEN]; snprintf(padded, sizeof padded, " %s ", op);
-            if (strstr(cuewords, padded)) continue;
-            char ow[KB_TERM_LEN]; snprintf(ow, sizeof ow, "%s", op);
-            char *opw[8]; size_t nop = split_words(ow, opw, 8);
-            if (nop == 0) continue;
-            for (size_t k = 0; k + nop <= n; k++) {
-                size_t m = 0;
-                while (m < nop && strcmp(low[k + m], opw[m]) == 0) m++;
-                if (m < nop) continue;
-                const char *content = "";
-                if (strcmp(sh, "number") == 0) {
-                    if (k + nop >= n) continue;
-                    const char *nx = low[k + nop];
-                    int digit = 0;
-                    for (const char *q = nx; *q; q++) if (isdigit((unsigned char)*q)) { digit = 1; break; }
-                    if (!digit) continue;
-                    content = nx;
-                } else if (strcmp(sh, "word") == 0) {
-                    content = opw[0];
-                }
-                for (size_t a = 0; a < na && *content; a++) {
-                    char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", ans[a]);
-                    if (p0_atom_has_word(kb_dequote(vb), content)) { *pick = a; return 1; }
-                }
-                /* il qualificatore detto: l'apertura, piu' il numero se la
-                 * forma lo prende dal turno */
-                if (strcmp(sh, "number") == 0) snprintf(qual, qsz, "%s %s", op, content);
-                else snprintf(qual, qsz, "%s", op);
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[aframe] qualifier «%s» unmet by %zu value(s)\n", qual, na);
-                return -1;
-            }
-        }
-    }
-    return 0;
-}
+ * della domanda (specie B). Il resto della domanda lo legge la KB
+ * (`turn_qualifier/3`, `qualifier_verdict/4`, grammar.p0: regole sulle viste
+ * del turno, sopra `question_qualifier/2` e `qualifier_shape/2`); il C chiede
+ * solo il verdetto per ogni valore letto. La prima versione era una funzione
+ * di novanta righe che rifaceva quelle regole in C (F.: «siamo sicuri che non
+ * poteva essere la KB stessa?»): poteva. */
 /* La cornice dice che cosa ha letto e che cosa le manca. */
 static void p0_say_unqualified(Brain *b, const char *qual, const char *subject,
                                const char *pred, const char *value,
@@ -9365,16 +9284,25 @@ static void p0_say_unqualified(Brain *b, const char *qual, const char *subject,
 /* La porta, una sola per i quattro punti in cui la cornice emette un valore:
  * sposta `*pick` sul valore che porta il qualificatore, oppure dice il muro
  * onesto e torna 1 (chi chiama libera e ha risposto). */
-static int p0_qualifier_gate(Brain *b, char **w, size_t nw, const char *cue,
-                             const char *subject, const char *pred,
-                             char ans[][KB_TERM_LEN], size_t na, size_t *pick,
-                             char *out, size_t out_size) {
-    size_t qp = 0; char qual[KB_TERM_LEN];
-    int qr = p0_question_qualifier(b, w, nw, cue, ans, na, &qp, qual, sizeof qual);
-    if (qr > 0) { *pick = qp; return 0; }
-    if (qr == 0) return 0;
+static int p0_qualifier_gate(Brain *b, const char *cue, const char *subject,
+                             const char *pred, char ans[][KB_TERM_LEN], size_t na,
+                             size_t *pick, char *out, size_t out_size) {
+    if (!b || !b->kb || na == 0) return 0;
+    char cueq[KB_TERM_LEN]; snprintf(cueq, sizeof cueq, "\"%s\"", cue ? cue : "");
+    char said[1][KB_TERM_LEN];
+    for (size_t a = 0; a < na; a++) {
+        char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", ans[a]);
+        char vq[KB_TERM_LEN]; snprintf(vq, sizeof vq, "\"%s\"", kb_dequote(vb));
+        const char *q[4] = { cueq, vq, "carries", NULL };
+        if (kb_match(b->kb, "qualifier_verdict", q, 4, said, 1) > 0) { *pick = a; return 0; }
+    }
     char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", ans[*pick]);
-    p0_say_unqualified(b, qual, subject, pred, kb_dequote(vb), out, out_size);
+    char vq[KB_TERM_LEN]; snprintf(vq, sizeof vq, "\"%s\"", kb_dequote(vb));
+    const char *q[4] = { cueq, vq, "lacks", NULL };
+    if (kb_match(b->kb, "qualifier_verdict", q, 4, said, 1) != 1) return 0;
+    if (getenv("P0_READ_TRACE"))
+        fprintf(stderr, "[aframe] qualifier «%s» unmet by %zu value(s)\n", kb_dequote(said[0]), na);
+    p0_say_unqualified(b, kb_dequote(said[0]), subject, pred, kb_dequote(vb), out, out_size);
     return 1;
 }
 
@@ -9619,7 +9547,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                         size_t pick = p0_pick_in_force(b, pred, keyrow[0],
                                                        ofwd, ans, na);
                         /* gen515 — il resto della domanda restringe il valore */
-                        if (p0_qualifier_gate(b, w, nw, cues[i], keyrow[0], pred, ans, na,
+                        if (p0_qualifier_gate(b, cues[i], keyrow[0], pred, ans, na,
                                               &pick, out, out_size)) {
                             free(ords); free(langs); free(preds); free(cues);
                             return 1;
@@ -9840,7 +9768,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                         fprintf(stderr, "[aframe] phrase «%s» %s -> %s\n", key, pred, ans[0]);
                     size_t pick = p0_pick_in_force(b, pred, key, pfwd, ans, na);
                     /* gen515 — il resto della domanda restringe il valore */
-                    if (p0_qualifier_gate(b, w, nw, cues[i], key, pred, ans, na,
+                    if (p0_qualifier_gate(b, cues[i], key, pred, ans, na,
                                           &pick, out, out_size)) {
                         free(preds); free(cues);
                         return 1;
@@ -9941,7 +9869,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 fprintf(stderr, "[aframe] token «%s» %s -> %s\n", v, pred, ans[0]);
             {   /* gen515 — il resto della domanda restringe il valore */
                 size_t qp = 0;
-                if (p0_qualifier_gate(b, w, nw, cues[i], v, pred, ans, na,
+                if (p0_qualifier_gate(b, cues[i], v, pred, ans, na,
                                       &qp, out, out_size)) {
                     free(preds); free(cues);
                     return 1;

@@ -3946,3 +3946,35 @@ turn_form_act(forget_qualifier_en, "op(retract, question_qualifier, [class, open
 turn_form_priority(forget_qualifier_en, early).
 turn_form_view(forget_qualifier_en, said).
 turn_form_reply(forget_qualifier_en, qualifier_forgotten).
+% ⛔ Il consumatore era nato come funzione C di novanta righe (notte del 18);
+% F.: «siamo sicuri che non poteva essere la KB stessa?». Poteva: e' una
+% regola sulle viste del turno che esistono gia' (`turn_word/3`,
+% `turn_surface_at/3`, `atom_words`, `member`). Il C chiede solo il verdetto.
+%   turn_qualifier(Cue, Apertura, q(Contenuto, Detto)): il qualificatore che il
+%     turno porta fuori dalla cue della relazione, con cio' che il valore deve
+%     portare e come lo si dice nel muro («in 2020», «half of», «why»).
+%   qualifier_verdict(Cue, Valore, carries|lacks, Detto): il valore letto lo
+%     porta, oppure no.
+machinery(surface_has_word).
+machinery(turn_qualifier).
+machinery(qualifier_content).
+machinery(value_carries).
+machinery(qualifier_verdict).
+surface_has_word($S, $W) :- atom_words($S, $Ws), member($W, $Ws).
+turn_qualifier($Cue, $Opener, $Q) :-
+    question_qualifier($Class, $Opener), naf(surface_has_word($Cue, $Opener)),
+    turn_surface_at(current_turn, $Opener, $At),
+    qualifier_content($Class, $Opener, $At, $Q).
+qualifier_content($Class, $Opener, $At, q($C, $Said)) :-
+    qualifier_shape($Class, number), atom_words($Opener, $Ws), list_len($Ws, $N),
+    is($Next, add($At, $N)), turn_word(current_turn, $Next, $C), ge($C, 0),
+    concat_atoms($Opener, " ", $T), concat_atoms($T, $C, $Said).
+qualifier_content($Class, $Opener, $At, q($C, $Opener)) :-
+    qualifier_shape($Class, word), atom_words($Opener, cons($C, $Rest)).
+qualifier_content($Class, $Opener, $At, q(none, $Opener)) :-
+    qualifier_shape($Class, none).
+value_carries($Value, $C) :- atom_words($Value, $Ws), member($C, $Ws).
+qualifier_verdict($Cue, $Value, carries, $Said) :-
+    turn_qualifier($Cue, $Opener, q($C, $Said)), value_carries($Value, $C).
+qualifier_verdict($Cue, $Value, lacks, $Said) :-
+    turn_qualifier($Cue, $Opener, q($C, $Said)), naf(value_carries($Value, $C)).
