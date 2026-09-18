@@ -17,7 +17,37 @@
 
 ---
 
-## ⛔ HANDOFF — 18 settembre 2026, notte (chi riprende legge questo e basta)
+## Ripresa operativa — comprensione generale (18 settembre 2026)
+
+**La richiesta corrente è comprendere la prosa in generale.** Chiudere altri
+schemi del piolo 300 non basta a dimostrarlo. Il lavoro supera una singola
+iterazione: il [percorso esecutivo](lettura-della-prosa-esecuzione.md) divide
+l'obiettivo in consegne con dipendenze, file da consultare, prove positive e
+negative, condizioni di arresto e un modello di passaggio al prossimo agente.
+Si legge prima dell'handoff storico qui sotto; le sue istruzioni operative
+risolvono i conflitti fra i diversi aggiornamenti di questo piano.
+
+**Verificato in questa ripresa:** build riuscita; profilo `agi` completo,
+58.401 fatti e 4.552 regole al boot. La frase del compost «The decomposition
+process is aided by shredding…» e la domanda «What aids the decomposition
+process?» producono due muri. Senza profiler: **3.181,8 ms** e **1.622,6 ms**,
+una misura per turno, non un benchmark. Nel profilo separato `phrase_canon`
+è chiamato **3.052 volte**. [Sonda, log e limiti della diagnosi](../labs/prose-ladder/2026-09-18-ripresa-generale/README.md).
+Non sono stati cambiati motore o KB e non è stato rimisurato il piolo intero:
+nessun nuovo punteggio di comprensione è certificato.
+
+**Prima consegna: E0, costo del turno**, poi **E1, accordo fra i percorsi di
+lettura**. La prosa incollata passa anche da `compound_turn_lead`; `read:`
+passa da `extract_clause`. Esistono già `document_unit`, claim attribuite e
+revisioni delle letture: prima di crearne copie, verificare quali viste i due
+ingressi condividono davvero. I nomi e i limiti sono nell'inventario di E1.
+
+**Correzioni operative:** niente banco lungo all'apertura, niente bisezione
+con stash/checkout, niente test concorrenti alla misura di latenza. Un timeout
+è un difetto da localizzare, non automaticamente un costo preesistente. Le
+vecchie mosse M1, M7, M8 e M13 vanno lette con le rettifiche sotto.
+
+## ⛔ HANDOFF storico — 18 settembre 2026, notte
 
 ### ⛔ DIAGNOSI DELL'OPERATO — 18 settembre 2026, notte (F.: «non siamo stati efficienti»). OBBLIGATORIA, si legge prima di tutto
 
@@ -103,7 +133,8 @@ verbi da riscrivere.
 | i100 italiano (108) | **0/23** | 2/2 | 5/5 | ⛔ 0/108 | | lessico insegnato (37 `tr/2`); blocco: nome canonico lettura↔domanda |
 
 Referti: `docs/labs/prose-ladder/referti/r300-2026-09-18-2300.txt` e
-`r320-…-2320` (fine del secondo turno), `r3*-2026-09-18-2102.txt` (con la porta
+`r320-2026-09-18-2318.txt` (misura prima del ritiro; `session-2026-09-18-2320.log`
+è il log di sessione, non un nuovo referto), `r3*-2026-09-18-2102.txt` (con la porta
 del qualificatore), `…-2044.txt` (la baseline della stessa notte); i furti in
 `docs/labs/prose-ladder/furti.tsv` (quattro righe nuove dal secondo turno). I referti storici della giornata stanno in
 `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
@@ -115,9 +146,11 @@ prossima sessione: il canale #1 che non passa per metà dei verbi~~ ✅ fatto
 del verbo nel ponte della domanda~~ ✅ giro 2 (§6). Prossimo: i muri del
 referto r320/r340 in ordine (handoff, residui 2 e 5).
 
-**Ripresa in un comando: `make prose-session`** (o `scripts/prose-session.sh
+**Strumento storico, non avvio automatico: `make prose-session`** (o `scripts/prose-session.sh
 r300 r320`): stampa questa tabella, l'ultimo giro del §6, gli ultimi referti e
-furti, ricompila, riavvia il demone e rimisura i pioli in background.
+furti, ricompila, riavvia il demone e rimisura i pioli in background. Questo
+comportamento confligge con i limiti di durata fissati nell'ultima diagnosi:
+per la ripresa corrente usare E0 del percorso esecutivo, senza avviare i pioli.
 
 ### Il giudizio, non il numero
 
@@ -132,6 +165,11 @@ piano dei furti (`turn-arbitration.md` §1-bis.1-ter) ha reso i muri più onesti
 non la lettura più profonda.
 
 ### Comandi di ripresa (5 minuti, non 40)
+
+Comandi storici; **non eseguire questo blocco come sequenza di apertura**.
+La sonda breve e il profilo di E0 sostituiscono il rilancio dei pioli. La
+verifica finale completa si fa solo quando rientra nei limiti di durata;
+un'esecuzione interrotta non certifica il piolo.
 
 ```sh
 make build && make test-engine
@@ -469,7 +507,10 @@ Tre proprietà che la rendono *generale* invece che *ampia*:
 
 ## 4. Il metodo: come si cricchetta
 
-1. **Il banco prima della cura.** Ogni giro comincia da `make prose-probe`, e
+1. **Il banco prima della cura.** Si fissano attese e contrasti prima della
+   modifica; nella ripresa si usa l'ultimo referto e una sonda breve, non si
+   rilancia automaticamente `make prose-probe` (rettifica della diagnosi del
+   18 settembre). Il banco completo conferma a fine giro se il costo lo permette, e
    il testo su cui si lavora va aggiunto a `tests/fixtures/prose/` **con la
    fonte**. Prosa vera ed esterna alla KB: una risposta giusta su prosa che
    parrot0 già conteneva non prova niente.
@@ -747,19 +788,19 @@ un'opinione e non sta qui.
 
 | # | quando | la mossa | evidenza (18 settembre) |
 |---|---|---|---|
-| M1 | riprendo dopo giorni | **misuro prima di toccare**: rilancio l'ultimo piolo certificato e faccio il diff col referto salvato | 49→45 trovato in 10 min; senza, avrei curato il piolo nuovo sopra una regressione |
+| M1 | riprendo dopo giorni | **misuro prima di toccare**: referto salvato + sonda breve corrente; piolo completo alla conferma, entro i limiti di durata | il 49→45 storico prova il bisogno di misurare, non autorizza 10 minuti di banco all'apertura |
 | M2 | una risposta è sbagliata ma non è un muro | **chiedo «who answered?» prima di leggere codice** | il ladro (`event-time.p0`, `semantic_lead`, `analysis_family`) nominato in un turno; la specie decide la cura senza aprire il C |
 | M3 | il difetto è di lettura | **sonda della frase sola + `P0_READ_TRACE=1` + `P0_FRAME_TRACE=1`**, poi la domanda | «Noted: The built is from stony» visto in 2 min contro 10 di banco intero |
 | M4 | la frase sola non riproduce | **traccia sul testo intero**: il difetto è del paragrafo (splitter, coreferenza, offerte pendenti) | Newton: la frase sola era pulita, lo split su «e.g.» compariva solo nel paragrafo |
 | M5 | il turno viene deciso senza lettura | **classifico la specie (A/B/C) prima di scegliere il rimedio**: A una riga di conoscenza, B la pretesa sulla lettura, C nessun titolo | `ev_origin_bearer/2` (A) contro retrocessione di `robust` (C); mai una `faculty_yield` per C |
 | M6 | due pezzi giusti danno insieme un errore | **cerco la dimensione che alla KB manca per descrivere se stessa** (mantra #23), non il pezzo colpevole | «che cosa può avere un'origine»; «un punto d'abbreviazione non chiude la frase»; «un ramo di domanda chiede se il turno è una domanda» |
-| M7 | un `.p0t` va rosso dopo una modifica | **bisezione con la KB di HEAD** (`git stash push kb/…` → test → pop) prima di attribuire il rosso a me | 4 rossi su 5 erano pre-esistenti; 0,1 s di costo del lessico attribuito con precisione |
-| M8 | un rosso è «turn took 1,0x s (timeout 1,00 s)» | **non è del cambiamento**: costo base del turno (`TEST_TODO`); non alzo il budget, lo scrivo | `name_is_knowledge` 1,05 s a HEAD, 1,04 s con la modifica |
+| M7 | un `.p0t` va rosso dopo una modifica | **registro prompt, risposta e stato corrente**; niente stash, checkout o bisezione con HEAD, come impone l'ultima diagnosi | la vecchia mossa è ritirata; non attribuisco la causa senza una misura |
+| M8 | un rosso è «turn took 1,0x s (timeout 1,00 s)» | **profilo il turno**, tengo il budget e distinguo osservazione da ipotesi sulla causa | il caso storico `name_is_knowledge` non prova che ogni nuovo timeout sia preesistente |
 | M9 | devo scegliere il piolo/il testo | **prosa cieca e verbatim, domande scritte prima delle risposte, copertura di tutte le frasi** | 697 domande scritte senza guardare il referto: anti-malizia misurabile (`prose-bench-coverage.py`) |
 | M10 | il banco premia qualcosa che sembra giusto | **controllo il contatore del banco contro la conoscenza del lettore** | il banco spezzava su «e.g.» come il lettore: avrebbe premiato il taglio |
 | M11 | cambio una condotta (titolo, cessione) | **misuro i turni che il vecchio commento diceva «protetti»** e i pioli che non ho toccato | Aurakai (gen) previsto e trovato; r300/r340 invariati con 8 retrocessi |
 | M12 | un'ora è passata su un caso | **scrivo il caso nel registro e cambio circuito**: un circuito per sessione (mantra #22) | il canonicalizzatore italiano scritto come prossimo circuito, non inseguito |
-| M13 | ho più misure da fare | **le lancio in parallelo, in background, e nel frattempo scrivo** | 3 banchi insieme senza rallentare; il tempo di parete della sessione è dimezzato |
+| M13 | ho più misure da fare | **una misura di prestazione alla volta**, senza crescita della KB durante il referto; interrompo oltre i limiti | rettifica dopo la contaminazione dei tempi riportata nell'handoff; il parallelismo storico non certifica la latenza |
 | M14 | chiudo un giro | **committo e spingo con il bilancio (C, KB, banco) nel messaggio** | 9 commit in una sessione: ogni ripresa ha un punto certo |
 | M15 | apro una porta in una facoltà | **conto prima i suoi punti di emissione** (`grep` della resa: `slot_answer`) e metto la porta in UNA funzione che tutti attraversano | notte del 18: quattro emissioni in `answerframe`, il primo tentativo ne copriva tre e il «why» usciva dal quarto |
 | M17 | un muro divide le parole in «passa / non passa» | **partiziono per una proprietà della KB** (`grep` dei fatti: già noto? in quale classe?) prima di leggere il C | canale #1: i 9 che non passavano erano i 9 già `relation_verb` |
@@ -771,14 +812,14 @@ un'opinione e non sta qui.
 ### 4-quater.5 La scala di diagnosi (l'ordine delle mosse, dal più economico)
 
 ```text
-referto del piolo (colonna modulo)                 10–20 min, in background
+referto già salvato + sonda breve corrente         nessun banco in background
   └─ «non muro, non giusta» → M2 «who answered?»    1 turno
        ├─ specie C  → titolo (review)               M5, nessuna lettura di codice
        ├─ specie B  → la pretesa sulla lettura      M5, un file KB
        └─ specie A / lettura → M3 sonda + traccia   2 min
              └─ non riproduce → M4 testo intero     3 min
                   └─ la dimensione mancante         M6, una riga KB
-                       └─ contrasto nel .p0t, poi la cura, poi M7 se rosso
+                       └─ contrasto fissato prima; .p0t a fine giro; M7 se rosso
 ```
 
 Il codice C si apre **solo** all'ultimo gradino, e solo per una porta sottile

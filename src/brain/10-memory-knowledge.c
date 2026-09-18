@@ -1820,6 +1820,14 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
     char *w[64];
     size_t nw = split_words(buf, w, 64);
     char fixed[64][64];          /* gen515: a token corrected by spelling_of/2 */
+    /* One lexical snapshot for this input transformation, including derived
+     * phrases. Never retain it across calls: a lesson/retraction changes the
+     * very next canonicalization without an extra cache invalidation scheme. */
+    char (*ph)[KB_TERM_LEN] = NULL;
+    size_t np = 0;
+    const char *pq[2] = { NULL, NULL };
+    if (b && b->kb)
+        kb_match_all(b->kb, "phrase_canon", pq, 2, &ph, &np);
     size_t off = 0;
     out[0] = '\0';
     for (size_t i = 0; i < nw && off + 1 < out_size; i++) {
@@ -1890,10 +1898,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
          * La cascata sotto resta (keep-secondary-structures): i fatti la
          * precedono, e cio' che i fatti coprono non la raggiunge piu'. */
         if (b && b->kb) {
-            char (*ph)[KB_TERM_LEN] = NULL;
-            const char *pq[2] = { NULL, NULL };
-            size_t np = 0;
-            if (kb_match_all(b->kb, "phrase_canon", pq, 2, &ph, &np) && np) {
+            if (np) {
                 size_t best_words = 0;
                 char best_canon[KB_TERM_LEN] = "";
                 for (size_t k = 0; k < np; k++) {
@@ -1921,7 +1926,6 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
                     snprintf(best_canon, sizeof best_canon, "%s", kb_dequote(cv[0]));
                     best_words = npw;
                 }
-                free(ph);
                 if (best_words && *best_canon) {
                     /* A phrase consumes its final token too. Preserve THAT
                      * token's sentence mark, not just the first token's mark:
@@ -1937,8 +1941,6 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
                     i += best_words - 1;   /* the loop's ++ consumes the last token */
                     continue;
                 }
-            } else {
-                free(ph);
             }
         }
         /* gen344 (KB-first): a leading interrogative FILLER ("che cos'è ..." =
@@ -2181,6 +2183,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             }
         }
     }
+    free(ph);
 }
 
 /* gen438: default and current language are both KB facts.  C owns neither an

@@ -1,0 +1,105 @@
+parrot0 [gen510-riparazioni@636ce2a2]
+mode: agent (tools on, network off) - 58401 facts, 4552 rules (7.79%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> [lang] «the decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows.» sticky=en selected=en
+[turn] publish «the decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows.»
+[turn] spans=1 ambiguous=0
+[turn] force prose_carried
+[turn] force unasked
+[text] trattenuto
+[canon] «the decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows.» -> «the decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows.»
+[named] outcome_name acc=«the» -
+[named] outcome_name acc=«the decomposition» -
+[named] outcome_name acc=«the decomposition process» -
+[named] outcome_name acc=«the decomposition process is» -
+[named] outcome_name acc=«the decomposition process is aided» -
+[named] outcome_name acc=«the decomposition process is aided by» -
+[named] outcome_name acc=«the decomposition process is aided by shredding» -
+[named] outcome_name acc=«the decomposition process is aided by shredding the» -
+[named] outcome_name acc=«the decomposition process is aided by shredding the plant» -
+[named] outcome_name acc=«the decomposition process is aided by shredding the plant matter» -
+[named] origo_cue acc=«the» -
+[named] origo_cue acc=«the decomposition» -
+[named] origo_cue acc=«the decomposition process» -
+[named] origo_cue acc=«the decomposition process is» -
+[named] origo_cue acc=«the decomposition process is aided» -
+[named] origo_cue acc=«the decomposition process is aided by» -
+[named] origo_cue acc=«the decomposition process is aided by shredding» -
+[named] origo_cue acc=«the decomposition process is aided by shredding the» -
+[named] origo_cue acc=«the decomposition process is aided by shredding the plant» -
+[named] origo_cue acc=«the decomposition process is aided by shredding the plant matter» -
+[form] teach_superlative: a typed slot does not hold
+[named] outcome_name acc=«the» -
+[named] outcome_name acc=«the decomposition» -
+[named] outcome_name acc=«the decomposition process» -
+[named] outcome_name acc=«the decomposition process is» -
+[named] outcome_name acc=«the decomposition process is aided» -
+[named] outcome_name acc=«the decomposition process is aided by» -
+[named] outcome_name acc=«the decomposition process is aided by shredding» -
+[named] outcome_name acc=«the decomposition process is aided by shredding the» -
+[named] outcome_name acc=«the decomposition process is aided by shredding the plant» -
+[named] outcome_name acc=«the decomposition process is aided by shredding the plant matter» -
+[named] origo_cue acc=«the» -
+[named] origo_cue acc=«the decomposition» -
+[named] origo_cue acc=«the decomposition process» -
+[named] origo_cue acc=«the decomposition process is» -
+[named] origo_cue acc=«the decomposition process is aided» -
+[named] origo_cue acc=«the decomposition process is aided by» -
+[named] origo_cue acc=«the decomposition process is aided by shredding» -
+[named] origo_cue acc=«the decomposition process is aided by shredding the» -
+[named] origo_cue acc=«the decomposition process is aided by shredding the plant» -
+[named] origo_cue acc=«the decomposition process is aided by shredding the plant matter» -
+[reqgen] verb=- force=-
+[compound?] len=184 inquiry=0 statement=0
+[wall] enter canon=«the decomposition process is aided by shredding th» out=«» last=«»
+[lang] «the decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows.» sticky=en selected=en
+Hmm, I don't know about decomposition process yet. Want me to learn about it?
+>>> [lang] «what aids the decomposition process?» sticky=en selected=en
+[turn] publish «what aids the decomposition process?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «what aids the decomposition process?» -> «what aids the decomposition process?»
+[offer] open topic=«decomposition_process» confirm=0 refused=0 raw=«what aids the decomposition process?» canon=«what aids the decomposition process?»
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what aids» -
+[named] outcome_name acc=«what aids the» -
+[named] outcome_name acc=«what aids the decomposition» -
+[named] outcome_name acc=«what aids the decomposition process» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what aids» -
+[named] origo_cue acc=«what aids the» -
+[named] origo_cue acc=«what aids the decomposition» -
+[named] origo_cue acc=«what aids the decomposition process» -
+[aframe] cue=aids pred=aid
+[aframe] input_arg cue=aids pred=aid -> 1 (2)
+[aframe] cue=aids pred=aid
+[aframe] input_arg cue=aids pred=aid -> 1 (2)
+[named] outcome_name acc=«what» -
+[named] outcome_name acc=«what aids» -
+[named] outcome_name acc=«what aids the» -
+[named] outcome_name acc=«what aids the decomposition» -
+[named] outcome_name acc=«what aids the decomposition process» -
+[named] origo_cue acc=«what» -
+[named] origo_cue acc=«what aids» -
+[named] origo_cue acc=«what aids the» -
+[named] origo_cue acc=«what aids the decomposition» -
+[named] origo_cue acc=«what aids the decomposition process» -
+[compound?] len=36 inquiry=0 statement=0
+[wall] enter canon=«what aids the decomposition process?» out=«Hmm, I don't know about decomposition process yet. Want me t» last=«Hmm, I don't know about decomposition pr»
+[lang] «what aids the decomposition process?» sticky=en selected=en
+Hmm, I don't know about decomposition_process yet.
+>>> [lang] «who answered?» sticky=en selected=en
+[turn] publish «who answered?»
+[turn] spans=1 ambiguous=0
+[turn] force question
+[canon] «who answered?» -> «who answered?»
+[offer] open topic=«decomposition_process» confirm=0 refused=0 raw=«who answered?» canon=«who answered?»
+[named] outcome_name acc=«who» -
+[named] outcome_name acc=«who answered» -
+[named] origo_cue acc=«who» -
+[named] origo_cue acc=«who answered» -
+[lang] «who answered?» sticky=en selected=en
+No module could handle that — it fell through to the not-understood fallback.
+>>> 
+parrot0: bye

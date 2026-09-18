@@ -1,0 +1,20 @@
+{
+  "boot": "parrot0 [gen510-riparazioni@636ce2a2]\nmode: agent (tools on, network off) - 58401 facts, 4552 rules (7.79%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)\n\n>>> ",
+  "turns": [
+    {
+      "turn": "The decomposition process is aided by shredding the plant matter, adding water, and ensuring proper aeration by regularly turning the mixture in a process using open piles or windrows.",
+      "elapsed_ms": 3181.8,
+      "output": "Hmm, I don't know about decomposition process yet. Want me to learn about it?\n>>> "
+    },
+    {
+      "turn": "What aids the decomposition process?",
+      "elapsed_ms": 1622.6,
+      "output": "Hmm, I don't know about decomposition_process yet.\n>>> "
+    },
+    {
+      "turn": "who answered?",
+      "elapsed_ms": 739.7,
+      "output": "No module could handle that \u2014 it fell through to the not-understood fallback.\n>>> "
+    }
+  ]
+}

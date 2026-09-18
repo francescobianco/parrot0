@@ -1,0 +1,36 @@
+parrot0 [gen510-riparazioni@636ce2a2]
+mode: agent (tools on, network off) - 58401 facts, 4552 rules (7.79%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+>>> 
+  NOTA — a che cosa serve addestrare parrot0 parlandogli.
+  L'addestramento via prompt serve a STRUTTURARE le sue abilita' di
+  autoapprendimento e automiglioramento: dargli il modo di accorgersi di una
+  lacuna, di porsi la domanda giusta e di colmarla da solo la prossima volta.
+  NON serve a spingergli dentro fatti e regole secche.
+  Un fatto che nessuna forma sa raggiungere non risponde e non genera domande:
+  e' peso morto due volte, e non si lamenta. Prima di insegnare un valore,
+  chiediti se manca il valore o se manca la STRADA che ci arriva — e se
+  quello che stai per dire varra' anche per il caso che non hai davanti.
+  La domanda di controllo e' sempre la stessa: parrot0 potra' impararne un
+  membro nuovo domani, da solo, senza che nessuno riscriva questa riga?
+
+  (nessun turno da ispezionare: dimmi qualcosa e richiama /debug)
+  (profilo acceso: i turni successivi riportano anche tempi, passi e la strada per nome — /debug off per spegnerlo)
+
+>>> 
+[debug] 3176.4 ms turno · 2271.5 ms nel solver · 9122 query · 223429 passi
+[debug] 59146 fatti · 4552 regole · fuori dal solver: 904.9 ms · 12 ricostruzioni indice
+[debug] fatti visitati: 12349460 · scansioni senza indice: 0
+[debug] modulo: fallback
+[debug]     524.8 ms     75359 passi      1 call  turn_teaching_offer
+[debug]     501.1 ms     11772 passi   3052 call  phrase_canon
+[debug]     452.0 ms     57841 passi     34 call  turn_bookkeeping
+[debug]     209.7 ms      2481 passi      7 call  np_closer
+[debug]     153.2 ms         4 passi      1 call  input_frame_observe
+[debug]     107.2 ms        12 passi     12 call  extract_frame
+[debug]      90.0 ms      7714 passi    406 call  language_marker
+[debug]      85.0 ms       815 passi    813 call  intent_cue
+Hmm, I don't know about decomposition process yet. Want me to learn about it?
+>>> 
+parrot0: bye

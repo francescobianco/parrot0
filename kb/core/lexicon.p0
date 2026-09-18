@@ -633,6 +633,13 @@ phrase_canon("fammi un esempio di", "an example of").
 % parole. Gli alias si insegnano con i normali frame «X is also called Y»;
 % non sono risposte preconfezionate e non richiedono un dizionario nel C.
 phrase_canon($Surface, $Concept) :- entity_alias($Surface, $Concept).
+% A taught compound translation is one surface, not unrelated token glosses.
+% Use the existing word-list projection so underscores in tr/2 are storage,
+% not a spelling the interlocutor must know. Single-word translation keeps
+% its existing language/context selection downstream.
+phrase_canon($Surface, $Concept) :-
+    tr($Concept, $Local), atom_words($Local, cons($A, cons($B, $Rest))),
+    words_joined(cons($A, cons($B, $Rest)), $Surface).
 phrase_canon("dove si trovano", "where are").
 phrase_canon("si trova in", "is in").
 phrase_canon("si trovano in", "are in").
