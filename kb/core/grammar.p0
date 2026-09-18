@@ -2045,6 +2045,46 @@ passive_frame_coordinate($Pat, $Pred, $Aux, $By) :-
 
 extract_frame($Pat, $Pred) :-
     passive_frame_coordinate($Pat, $Pred, $Aux, $By).
+% 18 settembre 2026, notte — IL PARTICIPIO DI UNA RADICE E' UNA FORMA, come -ies.
+% Il passivo sopra si legge solo se il participio STESSO e' dichiarato verbo di
+% relazione («used»): «Compost is prepared by farmers» murava con
+% `relation_verb(prepare)` in KB, e con lei la seconda frase del piolo 320 («It
+% is commonly prepared by decomposing …»). La morfologia regolare del
+% participio e' conoscenza: -e → -d (prepare/prepared), consonante+y → -ied
+% (supply/supplied), altrimenti -ed (form/formed); gli irregolari sono membri
+% (`irregular_verb_form`). Lo schema passivo della radice scrive il fatto
+% SOTTO LA RADICE (prepare(farmers, compost)), cosi' «who prepares compost?»
+% lo trova per `verb_stem`. Un participio gia' verbo di relazione a se'
+% («used») tiene la sua lettura; uno di creazione resta a `created_by`.
+machinery(ends_with_e).
+ends_with_e($R) :- concat_atoms($S, "e", $R).
+machinery(ends_with_consonant_y).
+ends_with_consonant_y($R) :- concat_atoms($S, "y", $R), naf(ends_with_vowel($S)).
+machinery(participle_of).
+participle_of($Root, $Form) :-
+    relation_verb($Root), ends_with_e($Root), concat_atoms($Root, "d", $Form).
+participle_of($Root, $Form) :-
+    relation_verb($Root), concat_atoms($S, "y", $Root), naf(ends_with_vowel($S)),
+    concat_atoms($S, "ied", $Form).
+participle_of($Root, $Form) :-
+    relation_verb($Root), naf(ends_with_e($Root)), naf(ends_with_consonant_y($Root)),
+    concat_atoms($Root, "ed", $Form).
+participle_of($Root, $Form) :-
+    relation_verb($Root), irregular_verb_form($Root, $Form).
+% Misurato la stessa notte (A/B a macchina scarica, frase di 30 parole dopo un
+% saluto): 3,54 s con la regola, 3,51 s senza — gli schemi in piu' non si
+% pagano. Il prezzo era un altro: «It is commonly prepared BY DECOMPOSING plant
+% and food waste …» scriveva prepare(decomposing_plant, compost): «by +
+% gerundio» e' un MEZZO, non un agente. La guardia e' conoscenza, sotto:
+% il gerundio di un verbo di relazione e' un confine di sintagma
+% (`np_closer`), quindi un agente che comincia con un gerundio non e' un
+% concetto e il fatto non si scrive. Il verbo va insegnato («decompose is a
+% relation verb»), e la lezione vale per ogni frase.
+passive_frame_coordinate($Pat, $Root, $Aux, $By) :-
+    relation_verb($Root), participle_of($Root, $Form),
+    naf(relation_verb($Form)), naf(specific_participle($Form)),
+    passive_prefix_coordinate($Prefix, $Aux), passive_suffix_coordinate($Suffix, $By),
+    concat_atoms($Prefix, $Form, $Mid), concat_atoms($Mid, $Suffix, $Pat).
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 % gen510 — una relazione DEFINITA per lezione («grandparent is parent twice») si
@@ -3717,6 +3757,11 @@ gerund_of($Root, $G) :- relation_verb($Root), concat_atoms($Stem, "e", $Root), c
 % (la seconda clausola vale anche per i verbi in -e: «displaceing» non compare
 % in nessun testo, e un `naf` su uno stelo libero non decide)
 gerund_of($Root, $G) :- relation_verb($Root), concat_atoms($Root, "ing", $G).
+% 18 settembre 2026, notte — e il gerundio CHIUDE il sintagma, come la forma
+% finita (gen513, `np_closer ← relation_verb`): «prepared by decomposing plant
+% and food waste» non nomina una cosa chiamata «decomposing plant». E' la
+% guardia del passivo dalla radice (sopra) e di ogni slot che un gerundio apre.
+np_closer($G) :- gerund_of($Root, $G).
 % ⚠ NON ancora un'apertura participiale: il lettore delle aperture (99-registry.c,
 % relative_rewrite) lega la frase aperta al sintagma PRIMA della virgola («marine
 % species, including fish» → «marine species include fish»), mentre il gerundio

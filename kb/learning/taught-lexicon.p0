@@ -572,3 +572,8 @@ relation_verb(manage).
 relation_verb(threaten).
 relation_verb(endanger).
 relation_verb(ignite).
+% 18 settembre 2026, notte (secondo turno): i verbi della seconda frase del piolo
+% 320 («prepared by decomposing plant and food waste, recycling organic
+% materials»), insegnati parlando e verificati; il loro gerundio e' un confine.
+relation_verb(decompose).
+relation_verb(recycle).

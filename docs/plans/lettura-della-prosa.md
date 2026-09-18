@@ -864,6 +864,7 @@ C −107). Da qui in avanti la domanda si fa da soli, prima che la faccia F.
 | 1 | r300: «what did coral reefs displace…» → «don't know about displace» | `displace is a relation verb` | Learned; ma «…, displacing the …» non si legge: il lettore delle aperture lega al sintagma prima della virgola, un gerundio d'azione parla del soggetto della principale → `gerund_of/2` scritto come forma, il ponte al lettore è un circuito | +3 |
 | 2 | r300/r320/r340: 34 parole nominate dai muri | 12 verbi insegnati parlando in un turno ciascuno | **6 su 12 la lezione non passa** («threaten», «endanger», «supply», «remove», «contain», «manage» → fallback o «non ho capito»; «maintain»/«measure» già noti danno un muro invece di «lo so già»); i 13 verbi promossi in `taught-lexicon.p0` con la nota | +13 |
 | 2 | «Compost supplies nutrients.» letto, «what does compost supply?» → muro | — | la lettura deposita `supplies`, la domanda chiede `supply`: la flessione vale in un verso solo (`inflection_suffix/1` nella lettura, non nel ponte della domanda) | circuito |
+| 5 (secondo turno) | r320 frase 2: «It is commonly prepared by …» / «Compost is prepared by farmers» non si legge | `participle_of/2` + schema passivo della RADICE; guardia: il gerundio è `np_closer` (via `gerund_of`); `decompose`, `recycle` insegnati | il passivo legge per ogni radice; il fatto falso dal gerundio non si scrive; frase 2 resta muro onesto | +22 |
 | 4 (secondo turno) | «Compost supplies nutrients.» letto, «what does compost supply?» → muro | y dopo consonante → ies come regola di forma nei due versi (`y_to_ies/2`, `verb_stem`, `extract_frame`); 4 stemmi falsi tolti | «Nutrients.»; un verbo insegnato si legge flesso e si chiede nudo | +13 −4 |
 | 3 (secondo turno) | «threaten is a relation verb» → muro per le parole GIÀ verbo (9/13) | la regola gen513 `np_closer ← relation_verb` con la condizione «salvo che il turno parli di una parola» (`turn_mentions_word/1`, 14 teste metalinguistiche); `known_facts` per la lezione ripetuta | 6/6 passano, il verbo insegnato legge; due tentativi in C respinti da F. (vedi §6) | +36 |
 
@@ -947,6 +948,52 @@ esatto non si promette, si misura.
 ---
 
 ## 6. Registro dei giri
+
+### 18 settembre 2026, notte (secondo turno, giro 3) — il passivo dalla radice, la guardia del gerundio, e la misura che corregge la diagnosi
+
+**Il muro** (r320, riga 2: «It is commonly prepared by decomposing plant and
+food waste…», domande 52–54): isolato in chat fino alla forma minima —
+«Compost is prepared by farmers.» **non si legge**, mentre «Farmers commonly
+prepare compost.» sì. Causa (KB, `passive_frame_coordinate`): il passivo si
+genera solo se il **participio stesso** è un `relation_verb` («used»), non
+dalla radice («prepare» → «prepared»).
+
+**La cura è morfologia, come -ies** (`grammar.p0`, zero C): `participle_of/2`
+(-e → -d, consonante+y → -ied, altrimenti -ed, più `irregular_verb_form`) e lo
+schema passivo della radice, che scrive il fatto **sotto la radice**:
+«Compost is prepared by farmers» → `prepare(farmers, compost)` → «who
+prepares compost?» → «Farmers.»; vale per un verbo insegnato parlando («mice
+are zorblied by cats» → «what do cats zorbly?» → «Mice.»).
+
+**Il prezzo, misurato due volte, e la prima volta male**: il primo A/B era
+**contaminato** dal banco r320 che girava in background (avviato come
+conferma, poi ucciso e il referto cancellato perché la KB cambiava sotto di
+lui) e dal profilo `/debug`, che triplica il turno; letto così, +1,2 s e ho
+ritirato la regola. Rifatto a macchina scarica, stesso turno («hello» + frase
+di 30 parole): **3,54 s con la regola, 3,51 s senza, 3,51 s con la KB di
+inizio sessione** (`75da5e50`). Quindi: gli schemi in più non costano, e **il
+turno di lettura di 30 parole costa ~3 s da prima di stanotte**, con
+`input_frame_observe` a 1,3–1,6 s e `phrase_canon` 2499 chiamate — non i
+1398 ms della diagnosi in testa (misurati su un'altra frase, la prima di una
+sessione, che parte in lingua `it`). Boot 0,62 → 0,70 s per `participle_of`.
+
+**Il prezzo vero era un fatto falso**: sulla frase del piolo la regola
+scriveva `prepare(decomposing_plant, compost_of_ingredients)` — «by +
+gerundio» è un mezzo, non un agente (mantra #7). La guardia è conoscenza: il
+gerundio di un verbo di relazione è un confine di sintagma (`np_closer($G) :-
+gerund_of($Root, $G)`, il ponte che il giro 1 aveva lasciato senza
+consumatore), quindi un agente che comincia con un gerundio non è un
+concetto e il fatto non si scrive; i verbi della frase («decompose»,
+«recycle») insegnati in `taught-lexicon.p0`. Contrasto: `!query!
+prepare(decomposing_plant, compost)` in `morphology_ies.p0t` (26 casi: 18
+verdi, 8 rossi **solo** per costo > 1 s).
+
+**Non chiuso**: la frase 2 del piolo resta un muro onesto («commonly» nel
+passivo: la lettura dell'avverbio vale per l'attivo); «how is compost
+prepared?» / «what is compost prepared by?» chiedono il passivo e la cornice
+non ha il ponte participio → radice sul lato della domanda. **Bilancio**: KB
++22 regole/fatti, C 0. **Ago**: una classe di lettura in più (passivo per
+ogni radice, anche insegnata) e un fatto falso evitato per specie: ↑ piccolo.
 
 ### 18 settembre 2026, notte (secondo turno, giro 2) — la morfologia -y/-ies come regola di forma: «what does compost supply?» risponde
 
