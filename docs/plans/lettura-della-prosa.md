@@ -19,6 +19,80 @@
 
 ## ⛔ HANDOFF — 18 settembre 2026, notte (chi riprende legge questo e basta)
 
+### ⛔ DIAGNOSI DELL'OPERATO — 18 settembre 2026, notte (F.: «non siamo stati efficienti»). OBBLIGATORIA, si legge prima di tutto
+
+F.: *«se una cosa è lenta non la paghiamo: ci fermiamo. Le cose lunghe sono
+bug. Se avessi studiato il progetto avresti scoperto che `!reset` ha uno stato
+di misurazione dei cambiamenti … ho criticato più volte l'uso dei timeout come
+cerotto e ora vedo test con timeout da 60 secondi … invece di vederti mandare
+la prosa e capire come addestrare, vedo che esegui script di test».*
+
+**Verificato sui fatti del progetto, non a memoria:**
+
+| tesi | verifica | esito |
+|---|---|---|
+| `!reset` è smart | `src/testeng.c` §115–206, `docs/plans/test-engine.md` §3: salta se config invariata **e** nulla è stato imparato | vero. Ma ogni caso di lettura della prosa *impara*, quindi ogni reset ricarica: **28 reset in `prose_triage.p0t`** |
+| il reset è il costo | misurato: un boot intero della KB viva costa **0,40 s** (`printf /quit \| parrot0`) → 28 reset ≈ 11 s su ~150 s del file | **falso**: il costo sono i TURNI, non i reset |
+| dove va il turno | `/debug` sulla frase delle stime: **1398 ms** (754 nel solver, 644 fuori, 17 ricostruzioni d'indice); `phrase_canon` **295 ms per 2499 chiamate** su una frase di 30 parole, `input_frame_observe` 155 ms in 1 chiamata, `turn_bookkeeping` 113 ms; la domanda **813 ms** (527 **fuori** dal solver) | il turno costa 1,4 s perché una tabella di locuzioni viene riletta ~2500 volte per frase (mantra #20a: *che cosa rilegge la classe e quante volte*) e perché il C fuori dal solver pesa più del solver stesso: **è un bug, non un costo base** |
+| F. ha criticato i timeout come cerotto | `da-parola-a-stato.md` §tabella («alzare i !timeout o togliere casi per far passare un gate: i timeout misurano il motore, non il test»), `frontier-kb-natural-dialogue.md` §CEROTTO (2341) e 1282/1462, `TEST_TODO.md` 93/302/457, `insegnamento-super-umano.md` 355, `universal-code-comprehension.md` 1165, `MANTRA.md` 396, `CLAUDE.md` 21 | vero, **nove volte scritto**. E `prose_triage.p0t` porta 12 `!timeout 60`, 7 `!timeout 90`, 9 `!timeout 30`: sei dal 13 settembre, **quattro aggiunti stanotte da me** copiando il pattern del file invece di chiedermi perché un turno di lettura dovesse poter durare un minuto |
+
+**Il conto del tempo di stanotte (≈ 3 h di parete):** 3 rilanci del banco (r300 ×3,
+r340 ×2, r320 ×1: ~40 min di macchina, in background ma con il soft-test che vi
+girava sopra e segnava 1,75 s), `prose_triage.p0t` **sette volte** (~2,5 min
+l'una ≈ 18 min), `taught_question_qualifier` ×4, `basics` ×3, soft-test ×2, una
+bisezione con checkout di `kb/` e `src/` (6 min), venti minuti a inseguire un
+rosso apparso aggiungendo tredici verbi (la stessa frase sondata da sola
+rispondeva bene), e uno `stash` sbagliato che ha perso i tredici verbi dal
+working tree. **Tempo passato con la prosa davanti, a insegnare: meno di
+venti minuti.** KB vera lasciata: 82 + 32 + 4 righe, più 3 di forma; tredici
+verbi da riscrivere.
+
+**Le regole che ne escono, obbligatorie da qui in avanti:**
+
+1. **Lento = bug = ci si ferma.** Un turno sopra 1 s, un file di test sopra il
+   minuto, un banco sopra i 10 minuti non si *pagano* e non si *aspettano*: si
+   apre `/debug`, si scrive nel registro la riga dominante (predicato, ms,
+   chiamate) e si decide se curarlo adesso o scriverlo come circuito. Il
+   profilo di stanotte è il primo: `phrase_canon` 2499 chiamate per frase.
+2. **Nessun `!timeout` sopra 1 s in un test nuovo.** Se un caso ne ha bisogno,
+   il commit porta la riga di `/debug` che dice perché, e il caso va nel
+   registro dei turni lenti, non nel banco. I 28 budget lunghi di
+   `prose_triage.p0t` sono debito da smontare, non pattern da copiare.
+3. **Prima di usare uno strumento del progetto, leggerne il contratto**
+   (`test-engine.md` §3 per `!reset`, `Makefile` per `soft-test`, `debug.p0`
+   per `/debug`): un'ora di questa notte è stata pagata per non averlo fatto.
+4. **La prosa si lavora in chat, non con i `.p0t`.** Il ciclo è: una sessione
+   aperta, la prosa dentro, la domanda, la lezione parlando, la domanda di
+   nuovo; il `.p0` e il commit. Il `.p0t` si scrive **una volta** a fine giro
+   come contrasto e si lancia **una volta**; il banco del piolo si lancia una
+   volta a fine sessione. `make soft-test` è la sola verifica dentro il ciclo.
+5. **Niente stash, niente cambio di branch, niente bisezione con HEAD** (F.,
+   stessa notte: *«switchare branch, fare stash non si fa: è un costo che non
+   possiamo pagare; tu non devi verificare regressioni con HEAD, non ti serve;
+   devi procedere facendo crescere la KB; ci sarà una fase post-training,
+   stabilita da me, di fix delle regressioni»*). Un rosso che compare mentre
+   la KB cresce si **scrive** in `TEST_TODO.md` con la frase che lo mostra e si
+   va avanti: non è la sessione di crescita a doverlo chiudere.
+6. **La suite non si lancia mai.** Al massimo **qualche test puntuale** per
+   capire un effetto, e uno solo per volta. `make soft-test` compreso solo
+   quando serve una risposta in 15 s. Il banco del piolo: una volta a fine
+   sessione, in background, come conferma.
+7. **Ogni cosa che dura più di 2 minuti è un problema** (F.): sta
+   rallentando la crescita. Il lavoro dell'agente è **inferenza** — leggere
+   il muro, capire la lezione, modificare il file, committare, pushare — non
+   attesa. Se un comando supera i 2 minuti, si interrompe e si scrive perché
+   (`/debug`, una riga) invece di aspettarlo. L'unità di misura della sessione
+   è: righe di KB vera per ora, e commit utili per ora.
+8. **Per rendere il giro fluido (indicazioni mie, da contraddire se non
+   fanno risparmiare):** una sola sessione di chat aperta per tutta la
+   sessione, con la prosa dentro, così la lezione si verifica sul testo vero
+   senza reboot; il `.p0` ufficiale si scrive **subito** dopo il «Learned/Held»
+   (la sessione di chat non persiste: `PARROT0_SESSION=`); il messaggio di
+   commit nomina il muro, la lezione e la riga; si tengono a portata i tre
+   comandi che costano meno di un secondo — la sonda per frase, `who
+   answered?`, `/debug` — e nessun altro; il referto del piolo si legge una
+   volta all'inizio (i muri sono la coda di lavoro) e una volta alla fine.
+
 ### Dove siamo, in una tabella (KB viva, banco esteso, colonna dei moduli)
 
 | piolo | merito | meta | struttura | cancello | chi risponde | furti residui |
@@ -32,6 +106,10 @@ Referti: `docs/labs/prose-ladder/referti/r3*-2026-09-18-2102.txt` (con la porta
 del qualificatore), `…-2044.txt` (la baseline della stessa notte); i furti in
 `docs/labs/prose-ladder/furti.tsv`. I referti storici della giornata stanno in
 `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
+
+**Come si cresce, da qui in avanti: §4-sexies** (giri di cinque minuti,
+muro → lezione parlando → `.p0` → commit; la regola sul C). Primo giro della
+prossima sessione: il canale #1 che non passa per metà dei verbi (§4-sexies.3).
 
 **Ripresa in un comando: `make prose-session`** (o `scripts/prose-session.sh
 r300 r320`): stampa questa tabella, l'ultimo giro del §6, gli ultimi referti e
@@ -701,6 +779,97 @@ riga è un'evidenza che oggi ricavo a mano e che parrot0 potrebbe **dire**.
 | provare la frase sola e fermarsi | Newton non si riproduceva | M4 |
 | modificare uno script mentre un banco lo esegue | un banco vuoto e 20 min persi (permessi) | sostituzione atomica, e il banco non si tocca in corsa |
 | intendere «processo» come scripting | mezza sessione sugli strumenti invece che sulle mosse | questa sezione |
+
+---
+
+## 4-sexies. IL CICLO VIRTUOSO A GIRI DI CINQUE MINUTI, E LA REGOLA SUL C (F., 18 settembre 2026, notte)
+
+> F.: *«la crescita della KB in questa ora di lavoro è stata pochissima … fare
+> test con lo spauracchio delle regressioni non è servito a nulla, c'è una certa
+> resilienza della KB … la KB deve crescere come effetto dei test e delle prove
+> con cose reali»*; e poi: *«quello che mi aspetto da questo processo ripetuto
+> più e più volte è che sia un meccanismo di crescita virtuosa: la prosa che
+> non viene compresa diventa crescita e la prosa che viene compresa diventa
+> conferma … al tendere la crescita della KB dovrebbe essere di un commit e push
+> utile ogni 5 minuti: in un round di 5 minuti si capitalizza una nuova
+> estrazione ed espansione di abilità linguistiche, invece 40 minuti per
+> scoprire che non sapeva leggere le espressioni temporali»*; e sul C: *«ho
+> visto la nascita di nuove funzioni C grandi, siamo sicuri che non potevano
+> essere sostituite dalla KB stessa? teniamo i mantra e il kb-first»*.
+
+**Questo paragrafo è il punto di partenza di ogni sessione da qui in avanti.**
+Le sezioni sopra dicono *come si misura*; questa dice *come si cresce*, ed è
+la parte che si ripete.
+
+### 4-sexies.1 Il ciclo, in un giro di cinque minuti
+
+```text
+muro o bugia di un piolo  (referto: «Hmm, I don't know about X yet», «·» non muro non giusta)
+  └─ 1. la lezione che il muro stesso propone, PARLANDO           1 turno   (canale #1)
+       ├─ «Learned/Held» → 2. verifica sulla frase vera della prosa   1 sonda
+       │      └─ 3. la riga in `.p0` ufficiale (con data e provenienza), commit, push
+       └─ non passa → 3'. la riga in `.p0` LO STESSO, con la nota «la lezione non passa»
+              e la parola nel banco del canale (§4-sexies.3): il canale si ripara dopo,
+              la conoscenza entra adesso
+prosa compresa → conferma: si rilancia il piolo in background, una volta, e si legge il diff
+```
+
+Regole del giro:
+- **una lezione per giro, vera**: una classe lessicale (`relation_verb`,
+  `tr/2`, `rank_noun`, `adverbial_particle`…), una regola di forma
+  (`gerund_of/2`), una relazione del mondo con la fonte — mai un fatto del
+  brano (§4-quater.1, regola 4);
+- **il commit è il giro**: ogni commit porta una riga di KB in più e dice
+  quale muro l'ha prodotta; il messaggio è il registro, il §6 riassume;
+- **una misura di baseline per sessione basta**; il banco non si rilancia per
+  paura di regressioni (misurato la notte del 18: tre rilanci, zero
+  regressioni, un'ora di parete): si rilancia come *conferma* dopo una serie
+  di giri, in background, mentre si fa il giro successivo;
+- **il tempo di scoperta si conta**: se un difetto costa più di un giro a
+  capirlo, si scrive nel registro con la sonda che lo mostra e si passa al
+  muro successivo (mantra #22: il difetto successivo è sempre più attraente).
+
+### 4-sexies.2 La regola sul C, prima di scrivere una funzione
+
+Una funzione C nuova sopra le venti righe si scrive **prima come regola KB**
+sulle viste del turno che già esistono (`turn_word/3`, `turn_surface_at/3`,
+`turn_surface_token`, `atom_words`, `member`, `apply/2`, `concat_atoms`), e
+solo se la regola non può reggere (misurato: budget, guardia, primitiva
+mancante) si apre una porta sottile che *chiede il verdetto* alla KB. Il caso
+lavorato della notte del 18: il lettore del qualificatore era nato come
+funzione di novanta righe (`p0_question_qualifier`), F. ha chiesto se non
+potesse essere la KB stessa, e lo era: `turn_qualifier/3` +
+`qualifier_verdict/4` in `grammar.p0`, e il C è sceso a venti righe che
+chiedono `qualifier_verdict(Cue, Valore, carries|lacks, Detto)`. Bilancio
+del porting: C −107/+31, KB +32. **La domanda da farsi, prima di ogni
+`static int`:** *le viste del turno bastano a scrivere questa decisione come
+regola?* Se sì, la funzione C è un debito dal primo minuto.
+
+**E dopo ogni commit e push (F., stessa notte):** si rilegge il C appena
+committato (`git show --stat HEAD -- src/` e il diff) e ci si chiede, funzione
+per funzione, se può essere rifattorizzato KB-first. **Se sì, si fa subito**:
+il refactoring è il commit successivo, non una voce di TODO. La sequenza
+misurata della notte del 18 è la forma del rito: commit `f6284d47` (porta +
+lettore in C, 162 righe) → domanda di F. → commit `a1de019e` (lettore in KB,
+C −107). Da qui in avanti la domanda si fa da soli, prima che la faccia F.
+
+### 4-sexies.3 Il registro dei giri della notte del 18 (il primo uso)
+
+| giro | muro | lezione | esito | KB |
+|---|---|---|---|---|
+| 1 | i100: «Non so ancora tradurre «controllava»» (+3) | `the italian for controlled is controllava` … | 4/4 «Held», promosse in `gloss.p0` | +4 |
+| 1 | r300: «what did coral reefs displace…» → «don't know about displace» | `displace is a relation verb` | Learned; ma «…, displacing the …» non si legge: il lettore delle aperture lega al sintagma prima della virgola, un gerundio d'azione parla del soggetto della principale → `gerund_of/2` scritto come forma, il ponte al lettore è un circuito | +3 |
+| 2 | r300/r320/r340: 34 parole nominate dai muri | 12 verbi insegnati parlando in un turno ciascuno | **6 su 12 la lezione non passa** («threaten», «endanger», «supply», «remove», «contain», «manage» → fallback o «non ho capito»; «maintain»/«measure» già noti danno un muro invece di «lo so già»); i 13 verbi promossi in `taught-lexicon.p0` con la nota | +13 |
+| 2 | «Compost supplies nutrients.» letto, «what does compost supply?» → muro | — | la lettura deposita `supplies`, la domanda chiede `supply`: la flessione vale in un verso solo (`inflection_suffix/1` nella lettura, non nel ponte della domanda) | circuito |
+
+**Il difetto più fertile emerso**: il muro propone una lezione («say «X is a
+relation verb»») che per metà delle parole **non passa** — il canale #1, su
+cui poggia tutta la gerarchia di crescita, ha un tasso di successo da
+misurare, non da presumere. Il banco per ripararlo sono le sette parole
+sopra; l'ipotesi (mantra #8) è una cue substring che ruba il turno («eat» in
+threat-eat-en, «anger» in end-anger) e un ramo che tratta la parola già nota
+come sconosciuta. È il primo giro della prossima sessione: si ripara una
+volta e la crescita per lezione raddoppia.
 
 ---
 

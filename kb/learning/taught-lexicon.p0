@@ -555,3 +555,24 @@ class_surface(pressure_surge, pressure surge).
 class_surface(acid, acid).
 class_surface(perishable, perishable).
 class_surface(safety_device, safety device).
+% ── 18 settembre 2026, notte — i verbi che i muri dei pioli 300/320/340 hanno
+% nominato («Hmm, I don't know about displace yet»). Insegnati parlando e
+% verificati «Learned»: displace, introduce, heat, prepare, reclaim, utilize.
+% Promossi qui direttamente perche' la lezione proposta dal muro stesso NON
+% passa per queste parole (cadono nel fallback: «threaten», «endanger»,
+% «supply», «remove», «contain», «manage», «ignite» — piano
+% lettura-della-prosa.md §4-sexies, il difetto del canale #1): sono il banco
+% su cui il canale si ripara. Verbi veri della prosa, non fatti del brano.
+relation_verb(displace).
+relation_verb(introduce).
+relation_verb(heat).
+relation_verb(prepare).
+relation_verb(reclaim).
+relation_verb(utilize).
+relation_verb(supply).
+relation_verb(remove).
+relation_verb(contain).
+relation_verb(manage).
+relation_verb(threaten).
+relation_verb(endanger).
+relation_verb(ignite).
