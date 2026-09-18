@@ -1,0 +1,42 @@
+# KB viva del profilo: caricamento completo.
+# 18 settembre 2026, notte — LA MORFOLOGIA -Y/-IES E' UNA REGOLA DI FORMA
+# (lettura-della-prosa.md §6, secondo turno della notte, giro 2).
+# «Compost supplies nutrients.» si leggeva (relation_verb(supplies)) ma «what
+# does compost supply?» murava: verb_stem toglieva la «s» e dava «supplie», e
+# il ponte della domanda non trovava la radice. Ora y dopo consonante -> ies
+# nei due versi (y_to_ies/2, verb_stem/2) e lo schema di lettura per la forma
+# flessa di un verbo insegnato parlando (extract_frame). Le !query provano la
+# regola; i turni provano la lettura e la domanda sul testo.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test morphology_ies_rules]
+!query y_to_ies(supply, supplies)
+!query verb_stem(supplies, supply)
+!query verb_stem(occupies, occupy)
+!query verb_reading_form(amplify, amplifies)
+!query extract_frame("@S amplifies @O", amplify)
+# y dopo vocale resta y: destroy/destroys, coperto dalla «s».
+!query! y_to_ies(destroy, destroies)
+!query! ends_with_vowel(suppl)
+
+[test morphology_ies_read_and_ask]
+# La lettura deposita la forma della KB (supplies) e la domanda porta la radice.
+> Compost supplies nutrients.
+< Learned: compost supplies nutrients.
+> what does compost supply?
+< Nutrients.
+# Un verbo insegnato PARLANDO si legge flesso e si chiede nudo: la crescita
+# per lezione vale per la morfologia intera, non per la forma detta.
+> zorbly is a relation verb
+< Learned: zorbly is a relation verb.
+> cats zorblies mice
+< Learned: cats zorbly mice.
+> what do cats zorbly?
+< Mice.
+!forget relation_verb(zorbly)

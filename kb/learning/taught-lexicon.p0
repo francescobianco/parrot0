@@ -457,7 +457,6 @@ verb_stem(surveys, survey).
 verb_stem(weakens, weaken).
 verb_stem(refutes, refute).
 verb_stem(encodes, encode).
-verb_stem(applies, applie).
 verb_stem(discovers, discover).
 verb_stem(represents, represent).
 verb_stem(penalizes, penalize).
@@ -468,7 +467,6 @@ verb_stem(computes, compute).
 verb_stem(minimizes, minimize).
 verb_stem(prevents, prevent).
 verb_stem(digests, digest).
-verb_stem(carries, carrie).
 verb_stem(pumps, pump).
 verb_stem(secretes, secrete).
 verb_stem(produces, produce).
@@ -504,7 +502,6 @@ verb_stem(reduces, reduce).
 verb_stem(increases, increase).
 verb_stem(generates, generate).
 verb_stem(provides, provide).
-verb_stem(supplies, supplie).
 verb_stem(consumes, consume).
 verb_stem(transmits, transmit).
 verb_stem(reflects, reflect).
@@ -516,7 +513,6 @@ verb_stem(combines, combine).
 verb_stem(divides, divide).
 verb_stem(governs, govern).
 verb_stem(serves, serve).
-verb_stem(occupies, occupie).
 verb_stem(borders, border).
 verb_stem(crosses, crosse).
 verb_stem(joins, join).

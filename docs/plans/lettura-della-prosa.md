@@ -110,8 +110,9 @@ del qualificatore), `…-2044.txt` (la baseline della stessa notte); i furti in
 **Come si cresce, da qui in avanti: §4-sexies** (giri di cinque minuti,
 muro → lezione parlando → `.p0` → commit; la regola sul C). ~~Primo giro della
 prossima sessione: il canale #1 che non passa per metà dei verbi~~ ✅ fatto
-(notte, secondo turno, §6). Primo giro della prossima sessione: la flessione
-del verbo nel ponte della domanda («supplies» letto, «supply» chiesto).
+(notte, secondo turno, §6). ~~Primo giro della prossima sessione: la flessione
+del verbo nel ponte della domanda~~ ✅ giro 2 (§6). Prossimo: i muri del
+referto r320/r340 in ordine (handoff, residui 2 e 5).
 
 **Ripresa in un comando: `make prose-session`** (o `scripts/prose-session.sh
 r300 r320`): stampa questa tabella, l'ultimo giro del §6, gli ultimi referti e
@@ -863,6 +864,7 @@ C −107). Da qui in avanti la domanda si fa da soli, prima che la faccia F.
 | 1 | r300: «what did coral reefs displace…» → «don't know about displace» | `displace is a relation verb` | Learned; ma «…, displacing the …» non si legge: il lettore delle aperture lega al sintagma prima della virgola, un gerundio d'azione parla del soggetto della principale → `gerund_of/2` scritto come forma, il ponte al lettore è un circuito | +3 |
 | 2 | r300/r320/r340: 34 parole nominate dai muri | 12 verbi insegnati parlando in un turno ciascuno | **6 su 12 la lezione non passa** («threaten», «endanger», «supply», «remove», «contain», «manage» → fallback o «non ho capito»; «maintain»/«measure» già noti danno un muro invece di «lo so già»); i 13 verbi promossi in `taught-lexicon.p0` con la nota | +13 |
 | 2 | «Compost supplies nutrients.» letto, «what does compost supply?» → muro | — | la lettura deposita `supplies`, la domanda chiede `supply`: la flessione vale in un verso solo (`inflection_suffix/1` nella lettura, non nel ponte della domanda) | circuito |
+| 4 (secondo turno) | «Compost supplies nutrients.» letto, «what does compost supply?» → muro | y dopo consonante → ies come regola di forma nei due versi (`y_to_ies/2`, `verb_stem`, `extract_frame`); 4 stemmi falsi tolti | «Nutrients.»; un verbo insegnato si legge flesso e si chiede nudo | +13 −4 |
 | 3 (secondo turno) | «threaten is a relation verb» → muro per le parole GIÀ verbo (9/13) | la regola gen513 `np_closer ← relation_verb` con la condizione «salvo che il turno parli di una parola» (`turn_mentions_word/1`, 14 teste metalinguistiche); `known_facts` per la lezione ripetuta | 6/6 passano, il verbo insegnato legge; due tentativi in C respinti da F. (vedi §6) | +36 |
 
 ~~**Il difetto più fertile emerso**~~ ✅ riparato nel secondo turno della
@@ -945,6 +947,39 @@ esatto non si promette, si misura.
 ---
 
 ## 6. Registro dei giri
+
+### 18 settembre 2026, notte (secondo turno, giro 2) — la morfologia -y/-ies come regola di forma: «what does compost supply?» risponde
+
+**Il muro** (§4-sexies.3, giro 2 riga 4): «Compost supplies nutrients.» letto,
+«what does compost supply?» → muro. **Diagnosi in una sonda** (`P0_READ_TRACE`:
+`[aframe] cue=supply pred=supply`, mai `supplies`; `/debug supplies` → il fatto
+sta lì): il ponte della domanda (`turn_question_verb` ← `verb_stem/2`) toglie
+la «s» e da «supplies» ottiene «supplie». E in `taught-lexicon.p0` stavano
+**quattro stemmi falsi salvati** da una vista materializzata
+(`verb_stem(supplies, supplie)`, applies, carries, occupies): tolti.
+
+**La cura è conoscenza della lingua, non C** (regole in `grammar.p0`, zero
+righe di C): una «y» dopo consonante diventa «ies» — `y_to_ies/2` con
+`ends_with_vowel/1` sopra `vowel_letter/1` che già c'era — nei due versi:
+`verb_reading_form` (radice → forma), `verb_stem` (forma → radice), e lo
+schema `extract_frame` per la forma flessa, così un verbo **insegnato
+parlando** si legge flesso e si chiede nudo («zorbly is a relation verb» →
+«cats zorblies mice» → `zorbly(cats, mice)` → «what do cats zorbly?» →
+«Mice.»). Tutto `concat_atoms`, mai `chars`; **boot invariato** (0,61 s con e
+senza le regole; lo 0,39 s della diagnosi era stato misurato a macchina
+diversa). Trovato per strada: la vista `extract_frame` legge
+`inflection_suffix` direttamente, non `verb_reading_form` — una forma nuova
+va detta due volte (un debito di duplicazione, annotato qui, non curato).
+
+**Osservato e non curato**: la prima frase di una sessione in inglese
+(«Compost supplies nutrients.») viene letta con lingua `it` (sticky iniziale)
+e risponde «Imparato: supplies(compost, nutrients).»; dal secondo turno no.
+
+**Misure**: `morphology_ies.p0t` 2 blocchi (regole 7/7; lettura+domanda
+verde nel contenuto, rossa per costo sui turni > 1 s come tutto il resto).
+**Bilancio**: KB +13 righe di regola, −4 fatti falsi; C 0. **Ago**: una
+risposta in più **da lettura** sul piolo 320 («what does compost supply?»
+era un muro del referto) e la morfologia intera per ogni verbo insegnato: ↑.
 
 ### 18 settembre 2026, notte (secondo turno) — il canale #1 riparato: la lezione ripetuta, la regola che vede il turno, e due errori miei
 

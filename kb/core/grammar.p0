@@ -1601,6 +1601,31 @@ verb_reading_form($Root, $Form) :-
     concat_atoms($Root, $Suffix, $Form).
 verb_reading_form($Root, $Form) :-
     relation_verb($Root), irregular_verb_form($Root, $Form).
+% 18 settembre 2026, notte — -Y → -IES E' UNA REGOLA DI FORMA. «Compost supplies
+% nutrients.» si legge con `relation_verb(supplies)`; «what does compost
+% supply?» porta il verbo nudo, e `verb_stem` toglieva la «s» dando «supplie»:
+% il ponte della domanda (`turn_question_verb`) non trovava la radice e il
+% turno murava (lettura-della-prosa.md §4-sexies.3, giro 2 riga 4). La
+% morfologia della lingua e' conoscenza: una «y» dopo consonante diventa
+% «ies» (supply/supplies, occupy/occupies, carry/carries, apply/applies);
+% dopo vocale resta (destroy/destroys), e quella la copre gia' la «s».
+% Quali lettere siano vocali lo sa gia' `vowel_letter/1` (lexicon.p0).
+% Entrambi i versi, entrambi a buon mercato (`concat_atoms`, mai `chars`).
+machinery(ends_with_vowel).
+ends_with_vowel($S) :- vowel_letter($V), concat_atoms($P, $V, $S).
+machinery(y_to_ies).
+y_to_ies($Root, $Form) :-
+    concat_atoms($S, "y", $Root), naf(ends_with_vowel($S)),
+    concat_atoms($S, "ies", $Form).
+verb_reading_form($Root, $Form) :- relation_verb($Root), y_to_ies($Root, $Form).
+% E lo schema di lettura per quella forma: «cats zorblies mice» dopo «zorbly is
+% a relation verb» scrive zorbly(cats, mice), sotto la RADICE, come le altre
+% flessioni (gli schemi di extract_frame leggono inflection_suffix direttamente).
+extract_frame($Pat, $Root) :-
+    relation_verb($Root), y_to_ies($Root, $Form),
+    concat_atoms("@S ", $Form, $A), concat_atoms($A, " @O", $Pat).
+verb_stem($Form, $Root) :-
+    relation_verb($Form), concat_atoms($S, "ies", $Form), concat_atoms($S, "y", $Root).
 
 % ⚠ All'attivo una relazione con particella si presenta FINITA — «belong to»,
 % «belongs to» — non al participio: «belonged to» esiste ma in una prosa
