@@ -3662,6 +3662,26 @@ membership_chain($A, $C) :-
     apply($R, cons($A, cons($B, nil))), apply($R, cons($B, cons($C, nil))).
 answer_frame("belong to", membership_chain).
 machinery(participial_opener).
+% 18 settembre 2026, notte — il GERUNDIO di ogni verbo di relazione apre la
+% stessa frase sul soggetto della principale: «Coral reefs first appeared …,
+% displacing the microbial and sponge reefs» -> «coral reefs displace the
+% microbial and sponge reefs». Tre aperture scritte a mano (including, such
+% as, incluso) diventano una classe: un verbo insegnato parlando («displace is
+% a relation verb») porta con se' il proprio gerundio, con la -e finale che
+% cade (displace -> displacing) e senza (form -> forming).
+machinery(gerund_of).
+gerund_of($Root, $G) :- relation_verb($Root), concat_atoms($Stem, "e", $Root), concat_atoms($Stem, "ing", $G).
+% (la seconda clausola vale anche per i verbi in -e: «displaceing» non compare
+% in nessun testo, e un `naf` su uno stelo libero non decide)
+gerund_of($Root, $G) :- relation_verb($Root), concat_atoms($Root, "ing", $G).
+% ⚠ NON ancora un'apertura participiale: il lettore delle aperture (99-registry.c,
+% relative_rewrite) lega la frase aperta al sintagma PRIMA della virgola («marine
+% species, including fish» → «marine species include fish»), mentre il gerundio
+% di un'azione parla del SOGGETTO della principale («Reefs form ecosystems,
+% displacing the sponge reefs» → «reefs displace …», non «ecosystems displace»).
+% Con il ponte `participial_opener($G, $Root) :- gerund_of($Root, $G)` si
+% scriverebbe un fatto falso. Il consumatore giusto e' il circuito successivo;
+% `gerund_of/2` resta come conoscenza della forma, interrogabile.
 participial_opener(including, includes).
 participial_opener("such as", includes).
 participial_opener(incluso, includes).

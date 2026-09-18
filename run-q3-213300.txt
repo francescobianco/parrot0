@@ -1,0 +1,16 @@
+> displace is a relation verb
+  = Learned: displace is a relation verb.   [0.81s]
+? relation_verb ['displace']
+  = {'bindings': [], 'total': 0}
+? gerund_of ['displace', None]
+  = {'bindings': ['displacing'], 'total': 1}
+? gerund_of ['form', None]
+  = {'bindings': [], 'total': 0}
+? participial_opener ['displacing', None]
+  = {'bindings': ['displace'], 'total': 1}
+? participial_opener ['forming', None]
+  = {'bindings': [], 'total': 0}
+? concat_atoms [None, '"e"', 'displace']
+  = {'bindings': ['displac'], 'total': 1}
+? concat_atoms ['displac', '"ing"', None]
+  = {'bindings': ['displacing'], 'total': 1}
