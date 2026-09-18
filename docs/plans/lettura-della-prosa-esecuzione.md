@@ -305,8 +305,50 @@ Stato: chiuso / parziale / bloccato, con evidenza:
 Prossima azione concreta; file/simbolo; risultato discriminante atteso:
 ```
 
-**Prossima azione già determinata:** E0, localizzare perché la sonda conservata
-produce 3.052 interrogazioni di `phrase_canon`; formulare e provare una sola
-riduzione del lavoro ripetuto, mantenendo invalidazione a runtime. Se il
+### Stato di E0 — 19 settembre 2026 (parziale, non chiuso)
+
+Stessa frase del compost, macchina scarica, profiler spento, misure singole
+(la variabilità fra esecuzioni è di circa 200 ms):
+
+| Passo | Turno di lettura | Domanda | Che cosa è cambiato |
+|---|---:|---:|---|
+| sonda iniziale (`636ce2a2`) | 3.181,8 ms | 1.622,6 ms | — |
+| `phrase_canon` una volta per canonicalizzazione (`d7dd25c0`) | 2.650,6 ms | 1.542,5 ms | 3.052 chiamate → fuori dalla testa del profilo |
+| `turn_teaching_offer` come domanda di esistenza | 2.075–2.265 ms | 1.530,1 ms | 540 ms in una chiamata → fuori dal profilo |
+
+Esiti invariati: la frase e la domanda danno ancora i due muri (E2 non è
+cominciata). Le offerte di forma sono intatte: il primo muro di «zilvan brinks
+torvo» porta ancora costruzione e relation verb, nell'ordine giusto. Il rosso
+di contenuto in `teaching_offer_shape.p0t` è registrato in `TEST_TODO.md`.
+
+**Il costo seguente, misurato contabile per contabile** con una misura temporanea
+nel ciclo di `turn_bookkeeping` (tolta dopo l'uso): due soli contabili pesano,
+`diagnosis` ~193 ms e `read_topic_named` ~179 ms; gli altri 32 insieme stanno
+sotto i 10 ms. Entrambi fanno generate-and-test su tutta la KB contro il turno
+tramite `words_in_turn/2`, la cui seconda clausola prova `lemma_candidate/2`
+(scomposizione in caratteri con `append_list`) su ogni token del turno, e
+questo **per ogni candidato**. `diagnosis` si attiva perché «turning» è una
+`diagnosis_cue`.
+
+- **Tentativo scartato:** riordinare `turn_effect/2` (parole dell'effetto prima
+  della seconda causa) porta `diagnosis` da 193 a 700 ms; è stato annullato.
+- **Ipotesi successiva, falsificabile:** calcolare le forme del turno (parola e
+  lemmi) **una volta per turno**. Il meccanismo c'è già: `materialized_view`
+  con `view_depends` su `turn_span_token`, come `scenario_claim`. Però una vista
+  interrogata dentro una prova (`frame_depth > 0`) non si materializza: viene
+  ri-derivata dalle regole. Serve quindi un punto meccanico nel C, dopo la
+  pubblicazione dei token e prima dei contabili, che scaldi le viste marcate
+  come sporche. Quali viste scaldare resta deciso dalla KB. Da misurare: quanto
+  costa ricostruire per turno le viste già dipendenti dal turno.
+  Il risultato discriminante atteso: `diagnosis` + `read_topic_named` sotto
+  50 ms, senza cambiare le risposte.
+
+Restano sopra la soglia, in ordine: `np_closer` 210 ms in 7 chiamate e
+`input_frame_observe` 150 ms in una chiamata. Fuori dal solver restano ~860 ms,
+con 12 ricostruzioni d'indice.
+
+**Prossima azione già determinata:** E0, le forme del turno in una vista
+calcolata una volta per turno (vedi «Stato di E0» qui sopra), misurata sui due
+contabili e sul turno intero. Se il
 profilo della revisione nuova cambia, aggiornare la priorità con quella
 misura invece di difendere questa diagnosi.

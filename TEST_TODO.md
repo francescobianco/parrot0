@@ -1274,3 +1274,18 @@ oggi: da bisecare (R2, attesa da rivalidare: parrot0 SA perché il cielo è blu)
   `threaten(excess_nutrients_nitrogen, coral_reef)`): il difetto sta nella
   lettura della prosa INTERA con `threaten` in classe (coref di «They» o un'altra
   frase che scrive sopra). Da bisecare per frase in una sessione di fix.
+
+- **18 settembre 2026, ripresa E0** — `tests/p0t/meta/teaching_offer_shape.p0t`:
+  5 verdi, 8 rossi. **Sette sono timeout** (1,1–1,8 s su budget 1 s, contenuto
+  giusto). **Uno di contenuto**, riga 28: la *seconda* ripetizione di «zilvan
+  brinks torvo» risponde col muro della ricerca («I looked up «zilvan» but found
+  nothing…»), non con l'offerta «brinks is a relation verb». Le offerte non
+  sono consultate in quel turno: il primo turno le porta intere e nell'ordine
+  giusto («x brinks y means x <known verb> y»; «brinks is a relation verb»),
+  misurato in chat dopo che `turn_teaching_offer/2` è diventata una domanda di
+  esistenza (`turn_gap_shape_absent/1`). Non confrontato con HEAD (niente
+  bisezione): l'attesa della riga 28 presuppone che una lacuna ripetuta rifaccia
+  l'offerta, mentre il percorso della lacuna già registrata risponde altrimenti —
+  lo stesso fenomeno che il blocco [una parola sola] del file aggira con parole
+  nuove. Da decidere: il test ripete con parole nuove, oppure il muro della
+  ricerca porta anche le offerte di forma.

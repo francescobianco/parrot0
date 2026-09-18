@@ -3366,10 +3366,20 @@ gap_phrase_size(cons($A, cons($B, cons($C, nil)))).
 known_topic_atom($A) :- topic_definition($A, $D).
 known_topic_atom($A) :- topic_read($A, $R).
 
-turn_teaching_offer($T, construction) :- turn_gap_shape($T, binary_frame).
-turn_teaching_offer($T, relation_verb) :- turn_gap_shape($T, binary_frame).
-turn_teaching_offer($T, class) :- naf(turn_gap_shape($T, binary_frame)).
-turn_teaching_offer($T, mention) :- naf(turn_gap_shape($T, binary_frame)).
+% La forma e' una DOMANDA DI ESISTENZA, non un elenco di testimoni. Chiesta in
+% positivo, `turn_gap_shape/2` da' una soluzione per ogni terna (nodo, parola
+% piena prima, parola piena dopo): su una frase di prosa di 34 nodi sono
+% migliaia, e il motore che raccoglie le offerte le enumerava tutte per
+% ricavarne due (E0, 18 settembre: 540 ms in una sola chiamata, meta' del costo
+% del turno di lettura). La negazione si ferma alla prima prova; la forma
+% presente e' la negazione della forma assente. Nessun contenuto cambia: le
+% stesse quattro offerte, sulla stessa evidenza.
+machinery(turn_gap_shape_absent).
+turn_gap_shape_absent($T) :- naf(turn_gap_shape($T, binary_frame)).
+turn_teaching_offer($T, construction) :- naf(turn_gap_shape_absent($T)).
+turn_teaching_offer($T, relation_verb) :- naf(turn_gap_shape_absent($T)).
+turn_teaching_offer($T, class) :- turn_gap_shape_absent($T).
+turn_teaching_offer($T, mention) :- turn_gap_shape_absent($T).
 
 % ── «QUESTO» CHE COSA? IL REFERENTE NON ALLEGATO (gen431) ───────────────────
 %
