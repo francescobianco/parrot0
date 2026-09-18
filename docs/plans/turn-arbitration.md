@@ -169,7 +169,7 @@ che hanno rubato sulla scala (colonna «modulo» del banco).
 |---|---|---|---|---|---|
 | 18 set | r300 «Most coral reefs are built from stony corals» | E3 `event-time.p0` (A) | «Noted: The built is from stony.» | A, lettura troppo larga | ✅ `ev_origin_bearer/2` |
 | 18 set | r340 «what is charcoal used as in chemical processes?» | **`analysis_family`** | «On charcoal used as in chemical, a causal account turns on…» (un saggio) | **C** | ✅ retrocesso (porta sottile, 18 set sera): *(misura sotto)* |
-| 18 set | r340 «where is wood carbonized in modern methods?» | **`analysis_family`** | «On wood carbonized in modern, a sound investigation turns on…» | **C** | ✅ retrocesso (porta sottile) |
+| 18 set | r340 «where is wood carbonized in modern methods?» | **`analysis_family`** | «On wood carbonized in modern, a sound investigation turns on…» | **C** | retrocesso (porta sottile), ma **parla ancora in seconda passata** quando nessuno con titolo risponde: il diritto `fallback` lascia alla specie C l'ultima parola invece del muro. Per chiuderlo davvero: migrare o togliere, non governare |
 | 18 set | r340 «what factors do the properties of charcoal depend on?» | **`robust`** | «Ask me whether something holds first — then I can tell you…» | **C** | aperto |
 | 18 set | r340 «what is the temperature of carbonization a factor for?» | **`semantic_lead`** | la definizione del mondo di *temperature* | **C** (lead per parola nota) | ✅ retrocesso (porta sottile) |
 | 18 set | r340 «what is charcoal made of carbon by?» | **`semantic_lead`** | il ciclo del carbonio | **C** | ✅ retrocesso (porta sottile) |
@@ -226,7 +226,7 @@ titolo, non la posizione. **Misurato subito dopo, sugli stessi turni:**
 (79 facoltà che declinano) prima che lo stadio retrocesso parli — come ogni
 altro turno che non viene preso da una facoltà con titolo. Il `.p0t` del
 pianificatore (`analysis_planner_growth.p0t`) ha budget 1 s per turno e va
-rosso di timeout; il budget non si alza (politica dei test): la cura è il costo
+rosso: **23 rossi su 23, tutti timeout** (1,5–1,9 s), nessuna risposta cambiata; il budget non si alza (politica dei test): la cura è il costo
 della prima passata, che si profila (mantra #20), o una facoltà d'analisi
 **con titolo** che pretenda sulla lettura. `turn_thefts.p0t` 27/27.
 

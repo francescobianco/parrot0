@@ -542,8 +542,15 @@ mostrato subito il passo successivo: i furti degli stadi non spariscono, **si
 spostano** a chi ha titolo (`answerframe` dà la definizione di *temperature*
 dove prima la dava `semantic_lead`; `gen` prendeva la domanda di progettazione
 e gli è stato insegnato a cedere, `design_request`), e ogni prompt d'analisi
-paga ora la prima passata intera. Misura del 340 con la porta in vigore:
-*(sotto, appena il banco finisce)*.
+paga ora la prima passata intera. Misura del 340 con la porta in vigore
+(`r340-dopo-porta.txt`): **5/65, meta 2/2, struttura 5/5** — nessuna risposta
+persa; furti per modulo `knowledge`×4 (lettura), `answerframe`×2 (le
+definizioni di *temperature* e del ciclo del carbonio, ereditate da
+`semantic_lead`), `analysis_family`×1 («where is wood carbonized in modern
+methods?»: parla in seconda passata perché nessuna facoltà con titolo ha
+detto niente — è il limite del diritto `fallback`: la specie C dice l'ultima
+parola invece di un muro, finché non viene migrata o tolta). `semantic_lead`:
+zero. Sul piolo 300 tutto invariato.
 
 ### 18 settembre 2026 — la regressione di tre giorni, il banco che può passare il cancello
 
