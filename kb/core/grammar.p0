@@ -3867,3 +3867,77 @@ antecedent_stop($W) :- np_closer($W), naf(partitive_preposition($W)).
 antecedent_stop($W) :- phrase_boundary(np, breaker, $W).
 antecedent_stop($W) :- clause_copula($W).
 antecedent_stop($W) :- np_opener($W).
+
+% ── gen515 (18 settembre 2026, notte) — IL QUALIFICATORE DELLA DOMANDA ──────
+%
+% Piolo 300: «what was the economic value of coral reefs estimated at IN 2020?»
+% riceveva la cifra del 1997; «what area do coral reefs occupy ABOUT HALF OF?»
+% la percentuale; piolo 320: «WHY does composting offer a superior
+% alternative?» l'oggetto del verbo. La cornice delle risposte rivendicava
+% sulla cue («estimated at», «occupy», «offer») e non leggeva il resto della
+% domanda (specie B, `turn-arbitration.md` §1-bis.1-ter). Mantra #23: alla KB
+% mancava la dimensione «una domanda puo' RESTRINGERE il valore che chiede» —
+% a un tempo, a una porzione, a una causa. Qui e' conoscenza: la classe del
+% qualificatore, le parole che lo aprono, e la forma di cio' che segue.
+%
+% `question_qualifier(Classe, Apertura)`: una superficie che, nella domanda,
+%   fuori dalla cue della relazione, restringe il valore chiesto.
+% `qualifier_shape(Classe, number|word|none)`: che cosa porta il qualificatore —
+%   `number` il numero che segue («in 2020», «since 1950»); `word` la prima
+%   parola dell'apertura stessa («half of» → half); `none` niente che un valore
+%   possa portare («why»: si chiede la causa, non il valore).
+% Il consumatore (`p0_question_qualifier`, 10-memory-knowledge.c) prova il
+% qualificatore sui valori letti: chi lo porta risponde; se nessuno lo porta
+% la cornice non risponde come se il qualificatore non ci fosse — dice che
+% cosa ha letto e che cosa le manca (`answer_frame_unqualified`, messages.p0).
+% Un'apertura nuova e' una riga; una classe nuova e' una riga piu' la forma.
+machinery(question_qualifier).
+machinery(qualifier_shape).
+qualifier_shape(time, number).
+question_qualifier(time, in).
+question_qualifier(time, since).
+question_qualifier(time, during).
+question_qualifier(time, before).
+question_qualifier(time, after).
+question_qualifier(time, nel).
+question_qualifier(time, dal).
+qualifier_shape(portion, word).
+question_qualifier(portion, "half of").
+question_qualifier(portion, "a third of").
+question_qualifier(portion, "a quarter of").
+question_qualifier(portion, "twice").
+qualifier_shape(cause, none).
+question_qualifier(cause, why).
+question_qualifier(cause, perche).
+% E la lezione, parlando (gerarchia di crescita, canale #1): chi insegna non
+% conosce nessun predicato, dice la parola e di che cosa parla.
+%     > a question that says "during" asks about a time
+%     > forget that a question that says "during" asks about a time
+% La classe si nomina con le parole di chi insegna (`qualifier_class_name/2`);
+% la parola citata e' una menzione e resta com'e'.
+machinery(qualifier_class_name).
+qualifier_class_name("a time", time).       qualifier_class_name("a period", time).
+qualifier_class_name("a year", time).       qualifier_class_name("a date", time).
+qualifier_class_name("a portion", portion). qualifier_class_name("a fraction", portion).
+qualifier_class_name("a share", portion).
+qualifier_class_name("a cause", cause).     qualifier_class_name("a reason", cause).
+segment_role(mention, "a question that says").
+segment_role(mention, "forget that a question that says").
+turn_form(teach_qualifier_en, 1, text("a question that says")).
+turn_form(teach_qualifier_en, 2, span(opener)).
+turn_form(teach_qualifier_en, 3, text("asks about")).
+turn_form(teach_qualifier_en, 4, named(qualifier_class_name, class)).
+turn_form_slot_form(teach_qualifier_en, opener, mention).
+turn_form_act(teach_qualifier_en, "op(assert, question_qualifier, [class, opener])").
+turn_form_priority(teach_qualifier_en, early).
+turn_form_view(teach_qualifier_en, said).
+turn_form_reply(teach_qualifier_en, qualifier_taught).
+turn_form(forget_qualifier_en, 1, text("forget that a question that says")).
+turn_form(forget_qualifier_en, 2, span(opener)).
+turn_form(forget_qualifier_en, 3, text("asks about")).
+turn_form(forget_qualifier_en, 4, named(qualifier_class_name, class)).
+turn_form_slot_form(forget_qualifier_en, opener, mention).
+turn_form_act(forget_qualifier_en, "op(retract, question_qualifier, [class, opener])").
+turn_form_priority(forget_qualifier_en, early).
+turn_form_view(forget_qualifier_en, said).
+turn_form_reply(forget_qualifier_en, qualifier_forgotten).

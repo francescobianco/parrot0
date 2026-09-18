@@ -55,7 +55,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: cefr-bench cefr-fetch-score mantra all build chat chat-agent pi test soft-test test-engine crossing-test legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh parrotbench impersonate simclean loop clean
+.PHONY: prose-session cefr-bench cefr-fetch-score mantra all build chat chat-agent pi test soft-test test-engine crossing-test legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh parrotbench impersonate simclean loop clean
 
 # gen505q — cefr-bench: che cosa parrot0 sa fare, per livello CEFR.
 # Dati: CEFR-SP (Arase, Uchida, Kajiwara, EMNLP 2022). Attribuzione, licenze e
@@ -134,6 +134,10 @@ bin obj:
 # L'esperimento che mostra i limiti attuali del lettore di prosa: testi VERI ed
 # ESTERNI alla KB (lead di Wikipedia, tests/fixtures/prose/), domande la cui
 # risposta e' scritta nel testo. Un testo solo: ./scripts/prose-probe.sh quipu
+# prose-session — la ripresa di una sessione di lettura in un comando: stato,
+# binario fresco, demone, rimisura dell'ultimo piolo in background (§4-quater).
+prose-session:
+	@./scripts/prose-session.sh $(RUNGS)
 prose-probe: build
 	@for f in tests/fixtures/prose/*.txt; do ./scripts/prose-probe.sh "$$f"; done
 

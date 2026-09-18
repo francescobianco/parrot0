@@ -873,6 +873,14 @@ response_template(learned_ternary_fact, "Learned: {pred}({arg1}, {arg2}, {arg3})
 % meta' che di solito manca: un fatto imparato e non interrogabile e' un fatto
 % morto, e a tre ruoli il buco si riapriva identico.
 response_template(slot_answer, "{value}.").
+% gen515 — la cornice ha letto un valore ma la domanda lo restringe con un
+% qualificatore che nessun valore letto porta (`question_qualifier/2`): non si
+% risponde come se il qualificatore non ci fosse. «I don't know» e' il
+% marcatore di muro del banco; il resto dice che cosa e' stato letto.
+response_template(answer_frame_unqualified, "I don't know about «{qualifier}» here: what I read is that {subject} {relation} {value}.").
+response_template(qualifier_taught, "From now on «{opener}» in a question asks about {class}: a value that does not carry it is not an answer.").
+response_template(qualifier_forgotten, "I no longer read «{opener}» in a question as asking about {class}.").
+response_template(answer_frame_unqualified, it, "Non so ancora nulla su «{qualifier}» qui: quello che ho letto e' che {subject} {relation} {value}.").
 % G2 — la descrizione combacia con piu' di un'entita'. Sceglierne una sarebbe
 % inventare che cosa intendesse chi parla; tacere butterebbe via il fatto che la
 % descrizione l'abbiamo capita. Chiedere quale e' la risposta giusta.

@@ -280,3 +280,52 @@
 > what is other part of?
 <! newton
 
+
+[test a question's qualifier that the read value does not carry is not answered as if absent]
+!reset
+!timeout 90
+# 2026-09-18, piolo 300: «what was the economic value of coral reefs estimated
+# at IN 2020?» received the 1997 figure, and «what area do coral reefs occupy
+# ABOUT HALF OF?» received the percentage: answerframe claimed on the cue and
+# never read the rest of the question (specie B). The qualifier is knowledge
+# (question_qualifier/2 + qualifier_shape/2, grammar.p0): a value that does not
+# carry it is not an answer — an honest wall that names what it read.
+> The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates) to US$2.7 trillion (a 2020 estimate) to US$9.9 trillion (a 2014 estimate).
+> what was the economic value of coral reefs estimated at in 2020?
+<~ I don't know about «in 2020»
+> what was the economic value of coral reefs estimated at?
+<! I don't know
+<~ 375 billion
+> who answered?
+<~ answerframe
+
+[test a partitive qualifier the value does not carry is declined]
+!reset
+!timeout 60
+> Coral reefs occupy less than 0.1% of the world's ocean area, about half the area of France.
+> what area do coral reefs occupy about half of?
+<~ I don't know about «half of»
+> what do coral reefs occupy?
+<~ ocean area
+
+[test a why question is not answered with the object of the verb]
+!reset
+!timeout 60
+# piolo 320: «why does composting offer a superior alternative?» → «Environmentally superior alternative.»
+> Composting offers an environmentally superior alternative because it reduces methane.
+> why does composting offer a superior alternative?
+<~ I don't know about «why»
+> what does composting offer?
+<~ superior alternative
+
+[test the qualifier is knowledge: retracting the opener restores the old claim]
+!reset
+!timeout 60
+> The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates) to US$2.7 trillion (a 2020 estimate).
+!forget question_qualifier(time, in)
+> what was the economic value of coral reefs estimated at in 2020?
+<! I don't know
+<~ 375 billion
+!assert question_qualifier(time, in)
+> what was the economic value of coral reefs estimated at in 2020?
+<~ I don't know about «in 2020»

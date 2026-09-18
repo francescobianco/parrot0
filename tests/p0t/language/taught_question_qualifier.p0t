@@ -1,0 +1,29 @@
+# taught_question_qualifier.p0t — IL QUALIFICATORE DELLA DOMANDA SI INSEGNA
+# PARLANDO (gen515, 18 settembre 2026; piano lettura-della-prosa.md).
+#
+# La cornice delle risposte rispondeva sulla cue e ignorava il resto della
+# domanda («estimated at IN 2020» → la cifra del 1997). Quali parole restringono
+# il valore chiesto e' conoscenza (question_qualifier/2, grammar.p0), e quindi
+# una parola nuova e' una lezione: nessun predicato, nessuna arita'. Le entita'
+# qui sono inventate: il test prova la MECCANICA (una lezione vale dal turno
+# dopo e si ritratta), non una conoscenza del mondo.
+
+[test a qualifier opener taught by talking restricts the value from the next turn]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 60
+> The value of the fleet was estimated at 30 billion (a 1997 estimate) to 2.7 trillion (a 2020 estimate).
+> what was the value of the fleet estimated at towards 2020?
+<! I don't know
+<~ 30 billion
+> a question that says "towards" asks about a time
+<~ From now on «towards»
+> what was the value of the fleet estimated at towards 2020?
+<~ I don't know about «towards 2020»
+> forget that a question that says "towards" asks about a time
+<~ I no longer read «towards»
+> what was the value of the fleet estimated at towards 2020?
+<! I don't know
+<~ 30 billion

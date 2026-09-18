@@ -1,0 +1,12 @@
+> The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates) to US$2.7 trillion (a 2020 estimate) to US$9.9 trillion (a 2014 estimate).
+  = Learned: annual global economic value of coral reefs estimated at anywhere from us$30–375 billion 1997.   [2.17s]
+> what was the economic value of coral reefs estimated at in 2020?
+  = anywhere from us$30–375 billion 1997.   [1.05s]
+> who answered?
+  = The 'answerframe' module answered your last question.   [0.68s]
+> Coral reefs occupy less than 0.1% of the world's ocean area, about half the area of France.
+  = Learned: coral reefs occupy less than 0.1 percent of the world's ocean area.   [1.71s]
+> what area do coral reefs occupy about half of?
+  = less than 0.1 percent of the world's ocean area.   [0.92s]
+> who answered?
+  = The 'answerframe' module answered your last question.   [0.65s]
