@@ -7337,6 +7337,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "turn_focus");
             kb_retract_pred(b->kb, "turn_focus_input");
             kb_retract_pred(b->kb, "turn_focus_rejected");
+            kb_retract_pred(b->kb, "turn_class_read");
             kb_retract_pred(b->kb, "turn_asked_phrase");
             kb_retract_pred(b->kb, "saturated_read");
         }

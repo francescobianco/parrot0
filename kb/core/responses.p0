@@ -1166,6 +1166,7 @@ response_template(learned_unary_fact, it, "Imparato: {pred}({arg}).").
 response_template(learned_class_fact_negative, it, "Imparato: {arg} non è {art} {cls}.").
 response_template(learned_negative_fact, it, "Imparato: non {pred}({arg}).").
 response_template(learned_facts, it, "Imparato: {facts}.").
+response_template(known_facts, it, "So già che {facts}.").
 response_template(learned_properties, it, "Imparato: {facts}.").
 response_template(learned_located_in_x_x, it, "Imparato: {subj} si trova in {obj}.").
 response_template(learned_part_of_x_x, it, "Imparato: {subj} fa parte di {obj}.").

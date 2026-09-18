@@ -4494,7 +4494,9 @@ static int p0_np_closer(Brain *b, const char *t) {
      * che doveva curare. Con la revisione si enumera una volta per turno —
      * dieci volte meno di una volta per token, ed e' quello che serviva. */
     size_t rev = kb_revision(b->kb);
-    if (!b->np_closers_live || b->np_closers_rev != rev) {
+    /* 18 set 2026: la regola `np_closer($V) :- relation_verb($V), naf(turn_mentions_word(…))`
+     * dipende dal turno, quindi la vista si rifa' anche a ogni turno nuovo. */
+    if (!b->np_closers_live || b->np_closers_rev != rev || b->np_closers_turn != b->turns) {
         char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
         const char *q[1] = { NULL };
         if (!kb_match_all(b->kb, "np_closer", q, 1, &rows, &n)) { free(rows); return 0; }
@@ -4502,6 +4504,7 @@ static int p0_np_closer(Brain *b, const char *t) {
         b->np_closers = rows;
         b->n_np_closers = n;
         b->np_closers_rev = rev;
+        b->np_closers_turn = b->turns;
         b->np_closers_live = 1;
     }
     for (size_t i = 0; i < b->n_np_closers; i++) {
@@ -7083,6 +7086,38 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* 18 settembre 2026 — il lettore delle classi si lascia guardare da /debug
+ * (`debug_probe(15, turn_class_read, …)`): posa sotto `current_turn` che cosa ha
+ * letto o a quale cancello si e' fermato. Sostituisce una traccia temporanea
+ * su stderr (F.: «valuta sempre se le tracce temporanee possono diventare
+ * parte della funzione /debug»). Il registro lo ritira a fine turno. */
+static void p0_class_read_note(Brain *b, const char *text) {
+    if (!b || !b->kb || !text || !*text) return;
+    char q[KB_TERM_LEN]; snprintf(q, sizeof q, "\"%s\"", text);
+    const char *a[2] = { "current_turn", q };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "turn_class_read", a, 2);
+    kb_set_origin(b->kb, prev);
+}
+
+/* «{arg} is {art} {cls}» dalla KB (`class_fact_phrase`), con gli underscore
+ * resi spazi; 0 se la KB non ha articolo o resa. Usata dal ramo «Learned» e dal
+ * ramo «I already know» dello stesso lettore. */
+static int p0_class_phrase(Brain *b, const char *subj, const char *cls,
+                           char *one, size_t onesz) {
+    char art[16], hs[KB_TERM_LEN], hc[KB_TERM_LEN];
+    p0_indef_article(b, cls, art, sizeof art);
+    snprintf(hs, sizeof hs, "%s", subj);
+    snprintf(hc, sizeof hc, "%s", cls);
+    for (char *c = hs; *c; c++) if (*c == '_') *c = ' ';
+    for (char *c = hc; *c; c++) if (*c == '_') *c = ' ';
+    return *art && kb_response_slots(b, "class_fact_phrase",
+                                     (const KbResponseSlot[]){
+                                         { "arg", hs }, { "art", art }, { "cls", hc } }, 3,
+                                     one, onesz) && *one;
+}
+
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;
@@ -7339,7 +7374,11 @@ static int extract_class_statement(Brain *b, const char *norm,
 
     size_t send = sstart;
     while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
-    if (send == sstart) return 0;                        /* comincia con un confine */
+    if (send == sstart) {                                /* comincia con un confine */
+        char note[160]; snprintf(note, sizeof note, "gate: subject starts at a boundary (%s)", strip_edge_punct(w[sstart]));
+        p0_class_read_note(b, note);
+        return 0;
+    }
     /* gen505y — L'APPOSIZIONE NON E' IL SOGGETTO. «Malta, officially the Republic
      * of Malta, is an island country …» produceva located_in(republic, …): il
      * tratto fra le virgole entrava nel soggetto e il determinante interno lo
@@ -7599,6 +7638,13 @@ static int extract_class_statement(Brain *b, const char *norm,
         return 0;
 
     kb_set_origin(b->kb, KB_SESSION);
+    {
+        char note[200]; size_t no = 0;
+        no += (size_t)snprintf(note, sizeof note, "subject %s, class", subj);
+        for (size_t i = 0; i < ncls && no + 2 < sizeof note; i++)
+            no += (size_t)snprintf(note + no, sizeof note - no, "%s %s", i ? "," : "", classes[i]);
+        p0_class_read_note(b, note);
+    }
     if (!p0_atom_is_concept(b, subj)) {
         snprintf(out, out_size, "Scartato: \"%s\" non e' un concetto.", subj);
         return 2;
@@ -7607,6 +7653,10 @@ static int extract_class_statement(Brain *b, const char *norm,
     char msg[256];
     char learned[224]; size_t lo = 0; learned[0] = '\0';
     int any = 0, rejected = 0;
+    /* 18 settembre 2026 (canale #1): una classe GIA' tenuta non e' un declino.
+     * Si raccoglie con la stessa frase e si conferma («I already know that …»);
+     * prima il modulo restituiva 0 e il turno cadeva nel muro. */
+    char held[224]; size_t ho = 0; held[0] = '\0'; int held_any = 0;
     size_t arity_ar = 0; char arity_cls[KB_TERM_LEN] = "";
     for (size_t i = 0; i < ncls; i++) {
         /* Il cancello, sulla forma piu' comune di tutte: la dichiarazione di
@@ -7640,7 +7690,14 @@ static int extract_class_statement(Brain *b, const char *norm,
             }
         }
         p0_note_class_surface(b, classes[i]);   /* gen505 */
-        if (kb_assert(b->kb, classes[i], ca, 1)) {
+        if (kb_query(b->kb, classes[i], ca, 1)) {   /* kb_assert e' idempotente: si chiede prima */
+            char one[192];
+            if (p0_class_phrase(b, subj, classes[i], one, sizeof one)) {
+                ho += (size_t)snprintf(held + ho, sizeof held - ho, "%s%s",
+                                       held_any ? ", " : "", one);
+                held_any = 1;
+            }
+        } else if (kb_assert(b->kb, classes[i], ca, 1)) {
             p0_learn_source(b, classes[i], ca, 1, norm);
             /* gen491 — LA CONFERMA E' UNA FRASE, NON UN TERMINE.
              *
@@ -7650,19 +7707,8 @@ static int extract_class_statement(Brain *b, const char *norm,
              * come propria. Qui il predicato unario E' una classe — arriva dalla
              * scansione delle classi — quindi dirlo in lingua non e' un'ipotesi
              * sul significato. Quale articolo lo dice la KB. */
-            char art[16];
-            p0_indef_article(b, classes[i], art, sizeof art);
-            char pretty_s[KB_TERM_LEN], pretty_c[KB_TERM_LEN];
-            snprintf(pretty_s, sizeof pretty_s, "%s", subj);
-            snprintf(pretty_c, sizeof pretty_c, "%s", classes[i]);
-            for (char *c = pretty_s; *c; c++) if (*c == '_') *c = ' ';
-            for (char *c = pretty_c; *c; c++) if (*c == '_') *c = ' ';
             char one[192];
-            if (*art && kb_response_slots(b, "class_fact_phrase",
-                                          (const KbResponseSlot[]){
-                                              { "arg", pretty_s }, { "art", art },
-                                              { "cls", pretty_c } }, 3,
-                                          one, sizeof one) && *one)
+            if (p0_class_phrase(b, subj, classes[i], one, sizeof one))
                 lo += (size_t)snprintf(learned + lo, sizeof learned - lo, "%s%s",
                                        any ? ", " : "", one);
             else
@@ -7695,6 +7741,11 @@ static int extract_class_statement(Brain *b, const char *norm,
             kb_term_say(b, "class_arity_conflict", sl, 2, amsg, sizeof amsg);
             put(amsg, out, out_size);
             return 2;
+        }
+        if (held_any) {           /* gia' tenuta: confermarla, non tacere */
+            const KbResponseSlot _rs[] = { { "facts", held } };
+            kb_term_say(b, "known_facts", _rs, 1, out, out_size);
+            return 1;
         }
         if (rejected) {           /* letta e respinta: dirlo, non tacerlo */
             { 

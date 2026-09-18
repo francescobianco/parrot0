@@ -2315,6 +2315,24 @@ metalinguistic_head(name).     metalinguistic_head(names).
 metalinguistic_head(surname).  metalinguistic_head(nickname).
 metalinguistic_head(word).     metalinguistic_head(term).
 metalinguistic_head(spelling). metalinguistic_head(abbreviation).
+% 18 settembre 2026, notte (lettura-della-prosa.md §4-sexies.3, il difetto del
+% canale #1): «threaten is a relation verb» non passava quando `threaten` era
+% GIA' un verbo di relazione, perche' `np_closer($V) :- relation_verb($V)`
+% (gen513) lo faceva confine di sintagma e il soggetto restava vuoto. Ma una
+% classe che nomina una PAROLA — verbo, nome, particella, marcatore — parla
+% della lingua: il suo soggetto e' una parola menzionata, e su una parola
+% menzionata i confini di sintagma non valgono. Le teste delle classi lessicali
+% insegnabili («relation verb», «condition marker», «adverbial particle», «rank
+% noun») sono metalinguistiche quanto «name» e «word». Nove verbi su tredici
+% dei muri dei pioli erano gia' noti: senza questa riga il canale #1 perdeva
+% ogni lezione ripetuta e ogni seconda classe di una parola gia' nota.
+metalinguistic_head(verb).     metalinguistic_head(noun).
+metalinguistic_head(adjective). metalinguistic_head(adverb).
+metalinguistic_head(marker).   metalinguistic_head(particle).
+metalinguistic_head(preposition). metalinguistic_head(pronoun).
+metalinguistic_head(quantifier). metalinguistic_head(conjunction).
+metalinguistic_head(article).  metalinguistic_head(opener).
+metalinguistic_head(closer).   metalinguistic_head(greeting).
 
 % ── gen505e — UNA RELAZIONE NUOVA SI PUO' DIRE, NON SOLO SCRIVERE ───────────
 %
@@ -3790,7 +3808,19 @@ measured_value_max_words(9).
 % descrive «shallow coral reefs» — non poteva scattare. `pos/2` dichiara nove
 % verbi; i verbi di relazione insegnati sono centinaia, e sono verbi a tutti
 % gli effetti. Un confine dichiarato una volta vale per il lettore E per la IR.
-np_closer($V) :- relation_verb($V).
+% 18 settembre 2026, notte — SALVO CHE IL TURNO PARLI DI UNA PAROLA. «threaten
+% is a relation verb» con `threaten` gia' verbo: il verbo chiudeva il sintagma,
+% il soggetto restava vuoto e la lezione ripetuta cadeva nel muro (il difetto
+% del canale #1, §4-sexies.3). Un turno che dopo la copula nomina una testa
+% metalinguistica (`metalinguistic_head/1`: verb, noun, marker, word, name…)
+% ha per soggetto una parola menzionata, e una parola menzionata non e' chiusa
+% da nessun verbo. E' la stessa regola con una condizione in piu', non un
+% predicato parallelo; `p0_np_closer` la enumera una volta per turno.
+np_closer($V) :- relation_verb($V), naf(turn_mentions_word(current_turn)).
+machinery(turn_mentions_word).
+turn_mentions_word($T) :-
+    turn_word($T, $I, $C), clause_copula($C),
+    turn_word($T, $J, $H), gt($J, $I), metalinguistic_head($H).
 
 % ── 12 settembre 2026 — LA DOMANDA DICHIARA IL TIPO DELLA RISPOSTA ─────────
 % «what PHYLUM does coral belong to?» riceveva «Class anthozoa.», e «what KIND

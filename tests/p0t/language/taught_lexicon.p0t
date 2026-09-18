@@ -282,3 +282,38 @@
 !forget np_opener(zib)
 > zib luna is a cat
 < Learned: zib luna is a cat.
+
+# ── 18 settembre 2026, notte — LA LEZIONE RIPETUTA (il canale #1) ────────────
+# «threaten is a relation verb» quando `threaten` era GIA' un verbo di relazione
+# cadeva nel muro «I don't know about relation verb»: `np_closer($V) :-
+# relation_verb($V)` (gen513) faceva del verbo un confine e il soggetto restava
+# vuoto. Nove verbi su tredici nominati dai muri dei pioli erano gia' noti.
+# Ora la regola stessa sa che un turno che nomina una testa metalinguistica
+# («… verb», «… marker») parla di una PAROLA (`turn_mentions_word/1`,
+# grammar.p0), e una lezione gia' tenuta si conferma invece di murare.
+
+[test taught_repeat_lesson]
+# 1. PRIMA — una parola nuova entra come sempre.
+> zorblax is a relation verb
+< Learned: zorblax is a relation verb.
+
+# 2. RIPETUTA — ora `zorblax` e' un verbo, quindi un confine di sintagma: senza
+#    la regola il soggetto sarebbe vuoto e il turno un muro. Si conferma.
+> zorblax is a relation verb
+< I already know that zorblax is a relation verb.
+
+# 3. E un verbo della KB viva, non inventato: la lezione che i muri propongono.
+> threaten is a relation verb
+< I already know that threaten is a relation verb.
+
+# 4. E il verbo resta un confine fuori dal turno che lo menziona: la frase con
+#    il verbo si legge come relazione, non come nome «reefs zorblax».
+> coral reefs zorblax nothing
+< Learned: coral reefs zorblax nothing.
+
+# 5. Una SECONDA classe per una parola gia' verbo passa per la stessa regola.
+> zorblax is a condition marker
+< Learned: zorblax is a condition marker.
+
+!forget relation_verb(zorblax)
+!forget condition_marker(zorblax)

@@ -108,8 +108,10 @@ del qualificatore), `…-2044.txt` (la baseline della stessa notte); i furti in
 `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
 
 **Come si cresce, da qui in avanti: §4-sexies** (giri di cinque minuti,
-muro → lezione parlando → `.p0` → commit; la regola sul C). Primo giro della
-prossima sessione: il canale #1 che non passa per metà dei verbi (§4-sexies.3).
+muro → lezione parlando → `.p0` → commit; la regola sul C). ~~Primo giro della
+prossima sessione: il canale #1 che non passa per metà dei verbi~~ ✅ fatto
+(notte, secondo turno, §6). Primo giro della prossima sessione: la flessione
+del verbo nel ponte della domanda («supplies» letto, «supply» chiesto).
 
 **Ripresa in un comando: `make prose-session`** (o `scripts/prose-session.sh
 r300 r320`): stampa questa tabella, l'ultimo giro del §6, gli ultimi referti e
@@ -861,8 +863,13 @@ C −107). Da qui in avanti la domanda si fa da soli, prima che la faccia F.
 | 1 | r300: «what did coral reefs displace…» → «don't know about displace» | `displace is a relation verb` | Learned; ma «…, displacing the …» non si legge: il lettore delle aperture lega al sintagma prima della virgola, un gerundio d'azione parla del soggetto della principale → `gerund_of/2` scritto come forma, il ponte al lettore è un circuito | +3 |
 | 2 | r300/r320/r340: 34 parole nominate dai muri | 12 verbi insegnati parlando in un turno ciascuno | **6 su 12 la lezione non passa** («threaten», «endanger», «supply», «remove», «contain», «manage» → fallback o «non ho capito»; «maintain»/«measure» già noti danno un muro invece di «lo so già»); i 13 verbi promossi in `taught-lexicon.p0` con la nota | +13 |
 | 2 | «Compost supplies nutrients.» letto, «what does compost supply?» → muro | — | la lettura deposita `supplies`, la domanda chiede `supply`: la flessione vale in un verso solo (`inflection_suffix/1` nella lettura, non nel ponte della domanda) | circuito |
+| 3 (secondo turno) | «threaten is a relation verb» → muro per le parole GIÀ verbo (9/13) | la regola gen513 `np_closer ← relation_verb` con la condizione «salvo che il turno parli di una parola» (`turn_mentions_word/1`, 14 teste metalinguistiche); `known_facts` per la lezione ripetuta | 6/6 passano, il verbo insegnato legge; due tentativi in C respinti da F. (vedi §6) | +36 |
 
-**Il difetto più fertile emerso**: il muro propone una lezione («say «X is a
+~~**Il difetto più fertile emerso**~~ ✅ riparato nel secondo turno della
+notte (§6): non era una cue substring, era `np_closer` che vedeva il verbo
+noto come confine. **Il prossimo**: la flessione nel ponte della domanda
+(giro 2, riga 4: «supplies» letto, «supply» chiesto → muro).
+Il testo originale: il muro propone una lezione («say «X is a
 relation verb»») che per metà delle parole **non passa** — il canale #1, su
 cui poggia tutta la gerarchia di crescita, ha un tasso di successo da
 misurare, non da presumere. Il banco per ripararlo sono le sette parole
@@ -938,6 +945,86 @@ esatto non si promette, si misura.
 ---
 
 ## 6. Registro dei giri
+
+### 18 settembre 2026, notte (secondo turno) — il canale #1 riparato: la lezione ripetuta, la regola che vede il turno, e due errori miei
+
+**Il muro** (§4-sexies.3, giro 2): «threaten is a relation verb», «endanger …»,
+«supply …», «nourish …», «maintain …» cadevano nel muro «I don't know about
+relation verb» mentre «jeopardize …», «imperil …» passavano. **Diagnosi in
+tre sonde** (M2, M3, poi il C solo all'ultimo gradino): le parole che non
+passano sono esattamente quelle **già** `relation_verb` in KB (nove su
+tredici dei verbi nominati dai muri dei pioli). Causa: la regola gen513
+`np_closer($V) :- relation_verb($V)` fa del verbo noto un confine di
+sintagma, il soggetto di «threaten is …» resta vuoto, il lettore «X is a Y»
+declina e il turno cade nel muro. Il canale su cui poggia la crescita
+parlando perdeva **ogni lezione ripetuta e ogni seconda classe di una parola
+già nota**.
+
+**La cura, e la strada per arrivarci (da leggere: è il registro di F.)**.
+Tre tentativi in un giro, i primi due sbagliati:
+
+1. un ramo C (`meta_tail`) che salta i confini quando la classe è
+   metalinguistica — F.: *«gestire nel C il caso in cui il soggetto sia una
+   parola menzionata mi fa incazzare molto»*;
+2. un predicato parallelo `subject_boundary/1` con una **seconda cache C
+   fotocopiata** da `p0_np_closer` — F.: *«stiamo scherzando???»*, e poi: *«è
+   di fatto pragmatica, conoscenza della meccanica della lingua: se la fai
+   diventare C stai rompendo il paradigma KB-first, sei troppo poco sensibile,
+   sto valutando di interrompere la sessione»*;
+3. **la forma giusta: la stessa regola con una condizione in più**, e niente
+   di nuovo nel C:
+
+   ```prolog
+   np_closer($V) :- relation_verb($V), naf(turn_mentions_word(current_turn)).
+   turn_mentions_word($T) :- turn_word($T, $I, $C), clause_copula($C),
+                             turn_word($T, $J, $H), gt($J, $I), metalinguistic_head($H).
+   ```
+   con quattordici teste metalinguistiche in più (`verb`, `noun`, `marker`,
+   `particle`, `preposition`… accanto a `name`, `word`). Nel C solo la chiave
+   della cache di `p0_np_closer`, che ora si rifà anche a turno nuovo (una
+   riga). Il C non sa perché un verbo smetta di essere confine.
+
+**La lezione ripetuta si conferma** invece di murare: `known_facts` («I
+already know that threaten is a relation verb.», `So già che …`), un ramo
+di otto righe nello stesso lettore. **Il lettore si lascia guardare**:
+`turn_class_read` + `debug_probe(23, …)` — la traccia temporanea `[ecs]`
+su stderr è diventata una sonda di `/debug` (F.: *«valuta sempre se le
+tracce temporanee possono diventare parte della funzione /debug»*).
+Trovato per strada: `debug_probe(15)` e `(16)` sono già di `network.p0`
+(un ordine doppio fa sparire la sonda in silenzio: `kb_match(…, 1) != 1`).
+
+**Il secondo errore mio, e come l'ha trovato gdb**: rifattorizzando il ramo
+«Learned» ho perso la chiamata a `kb_assert`: «zorblax is a relation verb»
+diceva *Learned* e non teneva nulla — «is zorblax a relation verb?» → «nothing
+I hold says…». Un successo apparente, il caso che il mantra #7 teme più di
+tutti; nessuna traccia lo mostrava, l'ha mostrato un breakpoint su
+`kb_assert` con arg «zorblax» (binario `-g -O0` a parte, nello scratch, senza
+toccare `bin/`). Ripristinato; il contrasto sta in `taught_lexicon.p0t`
+`[taught_repeat_lesson]`.
+
+**Misure**: le sei lezioni dei muri passano (threaten, nourish, endanger,
+supply, maintain → «I already know»; jeopardize → «Learned») e il verbo
+insegnato **legge** («coral reefs zorblax fish» → Learned, «what do coral
+reefs zorblax?» → «fish»). Il turno di prosa (30 parole) resta a 1,5 s
+parete con il boot: la rienumerazione di `np_closer` per turno non compare
+fra i primi otto predicati del profilo (< 10 ms). **Lento = bug, misurato**:
+`/debug` su «is a tiger a mammal» → 1168 ms turno, 385 nel solver, **783
+fuori**, 19 ricostruzioni d'indice, 3,2 M fatti visitati; è il profilo della
+diagnosi in testa (pre-esistente), e rende rosso per costo ogni caso a
+budget 1 s (`taught_lexicon.p0t`: 38 rossi, **tutti** timeout 1,0–1,2 s;
+il blocco nuovo passa nel contenuto). Non si alza il budget: la riga è in
+`TEST_TODO.md`. **Furto nuovo**: la frase 8 del piolo 300 (AFFERMAZIONE,
+«…less than 0.1 percent… at least 25 percent…») riceve «0.025.» da
+`arith` — specie C, in `furti.tsv`.
+
+**Bilancio dichiarato**: KB +36 (14 teste, 2 regole, 2 template, sonda +
+machinery), C: `p0_np_closer` +3, nota di lettura +12, ramo «già noto» +8,
+un helper che toglie una duplicazione −10. Test +30 (un blocco, budget 1 s).
+
+**Che cosa muove l'ago (§0-bis)**: nessuna risposta in più da lettura (=);
+ma il canale #1 — la crescita parlando — passava per metà delle parole e ora
+passa, e dice il vero quando sa già: è «una bugia in meno per specie» sul
+lato dell'insegnamento, non del piolo. Piccolo ↑ nel report finale.
 
 ### 18 settembre 2026, notte — il qualificatore della domanda: tre bugie del piolo 300 chiuse per classe, e la ripresa in un comando
 

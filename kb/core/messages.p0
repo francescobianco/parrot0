@@ -865,6 +865,13 @@ response_template(learned_class_fact, "Learned: {arg} is {art} {cls}.").
 response_template(learned_class_fact_negative, "Learned: {arg} is not {art} {cls}.").
 response_template(learned_binary_fact, "Learned: {pred}({arg1}, {arg2}).").
 response_template(learned_facts, "Learned: {facts}.").
+% 18 settembre 2026, notte (lettura-della-prosa.md §4-sexies.3, il difetto del
+% canale #1): «threaten is a relation verb» quando `relation_verb(threaten)` e'
+% GIA' in KB non aggiungeva nulla, il modulo declinava in silenzio e il turno
+% cadeva nel muro «I don't know about relation verb». Una lezione ripetuta si
+% CONFERMA: e' la meta' del canale su cui poggia la crescita parlando (nove
+% verbi su tredici dei muri dei pioli erano gia' noti). La frase e' KB.
+response_template(known_facts, "I already know that {facts}.").
 % E quando i ruoli sono tre. Senza questa riga il motore annunciava due
 % argomenti su tre: il fatto ternario entrava corretto e la frase ne mostrava
 % una versione mutila — un misclaim su cio' che aveva appena imparato.

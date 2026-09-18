@@ -1255,3 +1255,10 @@ oggi: da bisecare (R2, attesa da rivalidare: parrot0 SA perché il cielo è blu)
   («Held») prende una domanda di antonimo. Da diagnosticare con `who answered?`
   in una sessione dedicata; [taxonomy] resta il costo base (1,13 s a macchina
   scarica).
+
+- **18 settembre 2026, notte (secondo turno)** — `tests/p0t/language/taught_lexicon.p0t`:
+  38 rossi, **tutti timeout** (turni 1,0–1,2 s su budget 1 s, contenuto giusto),
+  compreso il blocco nuovo `[taught_repeat_lesson]`. È il costo base del turno
+  misurato con `/debug` («is a tiger a mammal»: 1168 ms, 783 fuori dal solver,
+  19 ricostruzioni d'indice) — lo stesso di `basics.p0t [taxonomy]`. Non si
+  alza il budget (lettura-della-prosa.md, regola 2): si cura il turno.

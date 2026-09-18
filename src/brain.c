@@ -357,6 +357,7 @@ struct Brain {
     char   (*np_closers)[KB_TERM_LEN];
     size_t   n_np_closers;
     size_t   np_closers_rev;
+    unsigned long np_closers_turn;   /* 18 set 2026: la classe vede il turno (turn_mentions_word) */
     int      np_closers_live;
 
     /* gen212 (KB-first responses): rotation cursor over response_template/2 phrasings,
