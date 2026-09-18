@@ -78,10 +78,19 @@ P0_READ_TRACE=1 <sonda per frase> + «who answered?»   # la diagnosi, prima di 
 5. **Le forme nuove del 340**: relative ridotte lunghe, «involves + gerundio»,
    «led to», «aimed to maintain», participi con agente.
 
-### ⛔ LA MISSIONE SECONDARIA: efficientare il processo — stato onesto
+### ⛔ LA MISSIONE SECONDARIA: efficientare il processo DELL'AGENTE — stato onesto
 
-F. (18 settembre, notte): «non ho visto maturare nulla in questo senso». È vero
-per metà, e va detto con precisione.
+F. (18 settembre, notte): «non ho visto maturare nulla in questo senso», e poi:
+«non lo scripting: i processi logici che tu come coding agent metti in campo;
+come scopri le cose, come parrot0 potrebbe riorganizzarsi o darti evidenze, le
+mosse standard che hanno dato evidenza». **Il soggetto è l'agente.** Quello che
+è maturato in quel senso sta in §4-quater.4–7: quattordici mosse con l'evidenza
+che le ha promosse, la scala di diagnosi che le ordina (il C si apre solo
+all'ultimo gradino), sei cose che parrot0 deve arrivare a dirmi da solo, e gli
+anti-pattern con il loro costo. La prossima sessione le usa e le contraddice:
+una mossa che non fa risparmiare esce. Quanto segue sugli strumenti è un
+sottoprodotto, e resta scritto perché costa poco tenerlo.
+
 
 **Che cosa esiste** (§4-quater): la tabella delle evidenze di processo (11 righe
 misurate), le regole anti-malizia, `prose-diff.py` (che cosa cambia fra due
@@ -123,6 +132,39 @@ per piolo con la colonna dei moduli, ~8 min per certificare una riga di KB.
 Il criterio per dire che la missione secondaria è matura resta quello del
 §4-quater: **le sessioni successive costano meno di questa a parità di lavoro
 cognitivo**, e lo dice la tabella delle evidenze, non un giudizio.
+
+---
+
+## 0-bis. LA MISURA E LA MISSIONE: da 12–15 verso 100 (F., 18 settembre 2026, notte)
+
+**La scala di F.** 0 = *legge ma non capisce: le risposte non si possono
+considerare un atto cognitivo*. 100 = *sarebbe in grado di rispondere a
+qualsiasi domanda, cognitivamente*. Non misura quante domande passano: misura
+**da che cosa** vengono le risposte.
+
+**Dove sta parrot0 il 18 settembre 2026: 12–15.** Le ragioni, perché la
+prossima sessione possa contraddirle con una misura:
+
+- *non meno*, perché esiste un circuito che è un atto cognitivo pieno: la IR
+  del testo letta da regole KB che compongono la risposta — meta e struttura
+  (100% su ogni piolo, anche in italiano), `event-time.p0`, `decisions.p0`.
+  Piccolo, ma è la forma che scala;
+- *non più*, perché il 49/50 del piolo 300 viene tutto da `answerframe` sopra
+  fatti estratti da schemi (`extract_frame/2`) e ritrovati per cue: un frasario
+  ben fornito, non una lettura. La prova è il trasferimento — 5/65 sul piolo
+  nuovo, 1/12 sulle domande nuove del 300, 0/23 in italiano anche col lessico —
+  e le risposte confidenti e sbagliate (qualificatore ignorato, parola nota
+  che vince sulla domanda), che un sistema a 30 non darebbe.
+
+**La missione primaria è massimizzare questa misura.** Ogni sessione dichiara
+nel §6 dove ha mosso l'ago e con quale evidenza; la regola di lettura è:
+
+| muove l'ago | non lo muove (anche se il numero sale) |
+|---|---|
+| una risposta in più che viene da una **lettura** (IR, frame, forza del turno) e vale sul piolo **non** toccato | una risposta in più da uno schema o da una cue, misurata solo sul testo che l'ha fatta nascere |
+| una bugia in meno per **specie** (registro dei furti) | una cessione in più per un modulo senza titolo |
+| una facoltà passata da B ad A (pretende sulla lettura) | un modulo in più che «copre» un turno |
+| un piolo nuovo che parte più alto senza cure | un piolo vecchio che sale con cure locali |
 
 ---
 
@@ -438,10 +480,21 @@ qui sono il contratto, e il banco le stampa tutte.
 > l'efficientamento. Attenzione: l'efficientamento non deve essere malizioso,
 > cioè viziando la prosa di elementi facili da gestire.»
 
-Questa sezione è il **registro delle evidenze di processo** (non di lettura:
-quelle stanno nel §6) e delle strategie che ne discendono. Ogni sessione vi
-aggiunge una riga alla tabella §4-quater.2 e, se ha imparato qualcosa sul
-*come*, una regola al §4-quater.3. Le strategie senza evidenza non entrano.
+> ⛔ **Che cosa vuol dire «processo», detto da F. la notte del 18 settembre
+> dopo che questa sezione era stata scritta nel senso sbagliato:** *«non lo
+> scripting: i processi logici che tu come coding agent metti in campo per
+> traguardare. Ottimizzare come scopri le cose, come parrot0 potrebbe
+> riorganizzarsi o darti evidenze che ti permettono di arrivare prima a un
+> risultato, e avere delle mosse standard che hanno dato evidenza.»* Il
+> soggetto della missione secondaria è **l'agente**, non il banco: i comandi
+> (`prose-rung.sh`, `prose-diff.py`) sono sottoprodotti utili, non la missione.
+
+Questa sezione è quindi il **registro delle mosse dell'agente** con la loro
+evidenza (§4-quater.4), la scala di diagnosi che le ordina (§4-quater.5), ciò che
+parrot0 deve arrivare a darmi da solo perché io muova meno (§4-quater.6), e gli
+anti-pattern pagati (§4-quater.7). La tabella delle evidenze (§4-quater.2) resta
+la sorgente: una mossa entra fra le standard solo con una riga lì. Le strategie
+senza evidenza non entrano.
 
 ### 4-quater.1 Le regole anti-malizia (valgono prima di ogni efficientamento)
 
@@ -529,6 +582,81 @@ Un processo più veloce che misura meno è una regressione travestita. Quindi:
 7. **Lo stato vive qui.** Il §6 è il registro, il §4-quater le evidenze di
    processo; `LEARN_TODO.md` porta solo un rimando. Chi riprende legge questo
    file e l'ultimo referto: 5 minuti, non 40.
+
+### 4-quater.4 Le mosse standard dell'agente, con l'evidenza che le ha promosse
+
+Ogni mossa ha la forma: *quando* → *che cosa faccio* → *che cosa ho risparmiato
+o evitato, misurato in questa sessione*. Una mossa senza la terza colonna è
+un'opinione e non sta qui.
+
+| # | quando | la mossa | evidenza (18 settembre) |
+|---|---|---|---|
+| M1 | riprendo dopo giorni | **misuro prima di toccare**: rilancio l'ultimo piolo certificato e faccio il diff col referto salvato | 49→45 trovato in 10 min; senza, avrei curato il piolo nuovo sopra una regressione |
+| M2 | una risposta è sbagliata ma non è un muro | **chiedo «who answered?» prima di leggere codice** | il ladro (`event-time.p0`, `semantic_lead`, `analysis_family`) nominato in un turno; la specie decide la cura senza aprire il C |
+| M3 | il difetto è di lettura | **sonda della frase sola + `P0_READ_TRACE=1` + `P0_FRAME_TRACE=1`**, poi la domanda | «Noted: The built is from stony» visto in 2 min contro 10 di banco intero |
+| M4 | la frase sola non riproduce | **traccia sul testo intero**: il difetto è del paragrafo (splitter, coreferenza, offerte pendenti) | Newton: la frase sola era pulita, lo split su «e.g.» compariva solo nel paragrafo |
+| M5 | il turno viene deciso senza lettura | **classifico la specie (A/B/C) prima di scegliere il rimedio**: A una riga di conoscenza, B la pretesa sulla lettura, C nessun titolo | `ev_origin_bearer/2` (A) contro retrocessione di `robust` (C); mai una `faculty_yield` per C |
+| M6 | due pezzi giusti danno insieme un errore | **cerco la dimensione che alla KB manca per descrivere se stessa** (mantra #23), non il pezzo colpevole | «che cosa può avere un'origine»; «un punto d'abbreviazione non chiude la frase»; «un ramo di domanda chiede se il turno è una domanda» |
+| M7 | un `.p0t` va rosso dopo una modifica | **bisezione con la KB di HEAD** (`git stash push kb/…` → test → pop) prima di attribuire il rosso a me | 4 rossi su 5 erano pre-esistenti; 0,1 s di costo del lessico attribuito con precisione |
+| M8 | un rosso è «turn took 1,0x s (timeout 1,00 s)» | **non è del cambiamento**: costo base del turno (`TEST_TODO`); non alzo il budget, lo scrivo | `name_is_knowledge` 1,05 s a HEAD, 1,04 s con la modifica |
+| M9 | devo scegliere il piolo/il testo | **prosa cieca e verbatim, domande scritte prima delle risposte, copertura di tutte le frasi** | 697 domande scritte senza guardare il referto: anti-malizia misurabile (`prose-bench-coverage.py`) |
+| M10 | il banco premia qualcosa che sembra giusto | **controllo il contatore del banco contro la conoscenza del lettore** | il banco spezzava su «e.g.» come il lettore: avrebbe premiato il taglio |
+| M11 | cambio una condotta (titolo, cessione) | **misuro i turni che il vecchio commento diceva «protetti»** e i pioli che non ho toccato | Aurakai (gen) previsto e trovato; r300/r340 invariati con 8 retrocessi |
+| M12 | un'ora è passata su un caso | **scrivo il caso nel registro e cambio circuito**: un circuito per sessione (mantra #22) | il canonicalizzatore italiano scritto come prossimo circuito, non inseguito |
+| M13 | ho più misure da fare | **le lancio in parallelo, in background, e nel frattempo scrivo** | 3 banchi insieme senza rallentare; il tempo di parete della sessione è dimezzato |
+| M14 | chiudo un giro | **committo e spingo con il bilancio (C, KB, banco) nel messaggio** | 9 commit in una sessione: ogni ripresa ha un punto certo |
+
+### 4-quater.5 La scala di diagnosi (l'ordine delle mosse, dal più economico)
+
+```text
+referto del piolo (colonna modulo)                 10–20 min, in background
+  └─ «non muro, non giusta» → M2 «who answered?»    1 turno
+       ├─ specie C  → titolo (review)               M5, nessuna lettura di codice
+       ├─ specie B  → la pretesa sulla lettura      M5, un file KB
+       └─ specie A / lettura → M3 sonda + traccia   2 min
+             └─ non riproduce → M4 testo intero     3 min
+                  └─ la dimensione mancante         M6, una riga KB
+                       └─ contrasto nel .p0t, poi la cura, poi M7 se rosso
+```
+
+Il codice C si apre **solo** all'ultimo gradino, e solo per una porta sottile
+(come `p0_stage_demoted`, `compound_boundary_is_abbreviation`): tutte le mosse
+sopra si fanno parlando con parrot0 e leggendo la KB.
+
+### 4-quater.6 Che cosa parrot0 deve arrivare a darmi da solo (così muovo meno)
+
+Sono crescite di parrot0, KB-first, che accorciano *il mio* processo: ogni
+riga è un'evidenza che oggi ricavo a mano e che parrot0 potrebbe **dire**.
+
+1. **La ricevuta di lettura per clausola**: dopo un testo, «da questa frase ho
+   tenuto X, da quella niente». Oggi la ricavo da `P0_READ_TRACE` (M3/M4); come
+   fatto KB (`clause_reading(Clause, Fact)`) sarebbe interrogabile e mi
+   direbbe subito la frase persa e il fatto storto.
+2. **«Perché non hai risposto tu?»** per ogni facoltà, con il titolo: «non ho
+   titolo: sono fallback», «la mia pretesa era sulla parola, non sulla
+   lettura». Il tabellone delle review lo permette già in parte (mantra #21).
+3. **I furti come fatti**: quando una risposta arriva in seconda passata, o da
+   un modulo senza review, parrot0 lo dichiara nel turno (oggi lo vedo solo con
+   la colonna del banco). Il registro `furti.tsv` diventerebbe una vista KB.
+4. **Il residuo della lettura**: «di questo turno ho reso conto di questi span,
+   non di questi» (D14, copertura): è la misura che separa una risposta da
+   lettura da una risposta da cue, cioè la scala del §0-bis fatta fatto.
+5. **La calibrazione a freddo detta**: «a questa domanda avrei risposto anche
+   senza il testo»; oggi costa una sessione per piolo.
+6. **L'auto-riorganizzazione per titolo**: una facoltà che ha risposto in
+   seconda passata per tre pioli di fila si propone da sola per la review, o
+   per la migrazione a A. È il passo che rende il piano dei furti autonomo.
+
+### 4-quater.7 Anti-pattern pagati (con il costo)
+
+| anti-pattern | costo pagato | la mossa che lo evita |
+|---|---|---|
+| fidarsi del registro del piano invece dell'ultimo handoff/referto | 40 min a ricostruire lo stato (17/50 vs 49/50) | M1, e il §6 aggiornato a ogni giro |
+| curare un furto come incidente (una cessione) | il turno dopo ruba altrove (whack-a-mole misurato tre volte in `turn-arbitration.md`) | M5 |
+| leggere il C prima di chiedere «who answered?» | ore; il nome del ladro costa un turno | M2 |
+| provare la frase sola e fermarsi | Newton non si riproduceva | M4 |
+| modificare uno script mentre un banco lo esegue | un banco vuoto e 20 min persi (permessi) | sostituzione atomica, e il banco non si tocca in corsa |
+| intendere «processo» come scripting | mezza sessione sugli strumenti invece che sulle mosse | questa sezione |
 
 ---
 
