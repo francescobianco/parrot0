@@ -98,7 +98,7 @@ verbi da riscrivere.
 | piolo | merito | meta | struttura | cancello | chi risponde | furti residui |
 |---|---|---|---|---|---|---|
 | r300 (299 parole) | **48/62** (referto `-2300`; era 50/62) | 2/2 | 5/5 | ✅ 301 > 299 | `answerframe` 48 | **0** furti; **−2** («what threatens coral reefs?», «…under threat from?») **pre-esistenti** al secondo turno: bisezione per file → compaiono con i 13 verbi ripristinati in `75da5e50` (`relation_verb(threaten)`), non con le regole della notte; in `TEST_TODO.md` |
-| r320 (319) | **19/68** — storiche 12/13 | 2/2 | 5/5 | ⛔ 105/319 | | `answerframe`×4 («soil fertility», «plant nutrients», definizione di *matter*), `knowledge`×2 (procedura del rame, «compost is a mixture»); il «why» è ora un muro onesto |
+| r320 (319) | **19/68** atteso dopo il ritiro (referto `-2318` con la guardia: 16/68, +1 «what aids the decomposition process?» −3 gerundi; da rimisurare) | 2/2 | 5/5 | ⛔ 105/319 | | `answerframe`×4 («soil fertility», «plant nutrients», definizione di *matter*), `knowledge`×2 (procedura del rame, «compost is a mixture»); il «why» è ora un muro onesto |
 | r340 (338) | **5/65** | 2/2 | 5/5 | ⛔ 25/338 | `answerframe` 4, `knowledge` 1 | `knowledge`×4 (lettura), `answerframe`×2 (definizioni), `analysis_family`×1 (seconda passata) |
 | i100 italiano (108) | **0/23** | 2/2 | 5/5 | ⛔ 0/108 | | lessico insegnato (37 `tr/2`); blocco: nome canonico lettura↔domanda |
 
@@ -276,7 +276,7 @@ qualificatore del **fatto letto** (allora «in 2020» risponde «US$2.7
 trillion» da lettura, e la stessa porta lo prova sul fatto, non sulla
 superficie), e la pretesa di `answerframe` su `turn_declared_act(question)`.
 
-**Report della notte del 18 settembre, secondo turno (22:11–00:11): 13–16 → 14–17.**
+**Report della notte del 18 settembre, secondo turno (22:11–23:40): 13–16 → 14–16** (il passivo dalla radice è stato ritirato a fine sessione: la riga della morfologia vale per -ies e per la domanda, non per la lettura del passivo).
 Quattro giri, quattro commit (`2fa93830`, `65d2f593`, `363fc74a`, `79eb1927`),
 **zero righe di C di lingua** (il C committato: la chiave di una cache che vede
 il turno, una nota di turno per `/debug`, un ramo «lo so già» che rende un
@@ -1027,6 +1027,20 @@ concetto e il fatto non si scrive; i verbi della frase («decompose»,
 «recycle») insegnati in `taught-lexicon.p0`. Contrasto: `!query!
 prepare(decomposing_plant, compost)` in `morphology_ies.p0t` (26 casi: 18
 verdi, 8 rossi **solo** per costo > 1 s).
+
+**⛔ RITIRATO a fine sessione, misurato sul referto r320 `-2318` (16/68, +1 −3)**:
+la guardia «gerundio = confine» faceva perdere tre risposte vere («Gathering a
+mix», «providing nutrients», «the resulting mixture…») perché il lettore al
+confine **scarta** l'intero riempitivo invece di tagliare; bisezione per file
+in chat: KB di inizio sessione le dava, KB della notte no. Ritirati la guardia
+e lo schema passivo dalla radice (le righe restano commentate in `grammar.p0`
+con la misura); restano `participle_of/2` e il ponte della domanda al passivo.
+Sonda dopo il ritiro: «what does composting require?» → «Gathering a mix.»,
+«what do the benefits of compost include?» → «providing nutrients.». Il rimedio
+vero è un circuito del lettore: **al confine si taglia, non si scarta**. E la
+lezione delle attese (F.): il muro «I don't know about threatens» mentre tiene
+`threaten(...)` deve dire i fatti tenuti sotto la relazione chiesta — primo giro
+della prossima ripresa, condotta KB.
 
 **Non chiuso**: la frase 2 del piolo resta un muro onesto («commonly» nel
 passivo: la lettura dell'avverbio vale per l'attivo); «how is compost

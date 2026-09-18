@@ -41,43 +41,21 @@
 < Mice.
 !forget relation_verb(zorbly)
 
-# ── 18 settembre 2026, notte (giro 3) — IL PASSIVO DALLA RADICE, E LA GUARDIA ─
-# «Compost is prepared by farmers» murava con relation_verb(prepare) in KB: il
-# passivo si leggeva solo se il participio stesso era un verbo di relazione
-# («used»). Ora participle_of/2 (-e → -d, consonante+y → -ied, altrimenti -ed,
-# piu' gli irregolari) genera lo schema passivo della RADICE, e il fatto sta
-# sotto la radice. La guardia: «by + gerundio» e' un mezzo, non un agente — il
-# gerundio di un verbo di relazione e' un confine (np_closer), quindi il fatto
-# falso prepare(decomposing_plant, compost) non si scrive.
+# ── 18 settembre 2026, notte (giro 3) — IL PARTICIPIO COME FORMA; il passivo ─
+# dalla radice e la guardia del gerundio sono stati provati e RITIRATI la stessa
+# notte (grammar.p0, i due blocchi ⛔): il gerundio come confine faceva perdere
+# tre risposte vere al piolo 320. Restano la morfologia del participio e il
+# ponte della domanda al passivo, che non costano nulla.
 
-[test passive_from_root]
+[test participle_forms]
 !query participle_of(prepare, prepared)
 !query participle_of(supply, supplied)
 !query participle_of(form, formed)
 !query! participle_of(prepare, prepareed)
-!query np_closer(decomposing)
-> Compost is prepared by farmers.
-< Learned: farmers prepare compost.
-> who prepares compost?
-< Farmers.
-> zorbly is a relation verb
-< Learned: zorbly is a relation verb.
-> mice are zorblied by cats
-< Learned: cats zorbly mice.
-> what do cats zorbly?
-< Mice.
-# E la domanda AL PASSIVO porta il participio: la cue e' la forma, la
-# relazione la radice (answer_frame via participle_of), nei due versi.
-> what are mice zorblied by?
-< Cats.
-> what is compost prepared by?
-< Farmers.
-> what is prepared by farmers?
-< Compost.
-# La frase vera del piolo 320: nessun fatto falso dal gerundio dopo «by».
-> Compost is a mixture of ingredients.
-< Learned: compost is a mixture of ingredients.
-> It is commonly prepared by decomposing plant and food waste, recycling organic materials, and manure.
-!query! prepare(decomposing_plant, compost)
-!query! prepare(decomposing_plant, compost_of_ingredients)
-!forget relation_verb(zorbly)
+!query answer_frame(prepared, prepare)
+# Il gerundio NON e' un confine: «gathering a mix» resta un oggetto leggibile.
+!query! np_closer(gathering)
+> Composting requires gathering a mix of green waste.
+< Learned: composting require gathering a mix.
+> what does composting require?
+< Gathering a mix.

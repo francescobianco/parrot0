@@ -1,0 +1,27 @@
+═══ r320 → docs/labs/prose-ladder/referti/r320-2026-09-18-2318.txt
+  furti (non muro, non giusta) per modulo:  answerframe×3  knowledge×1
+  merito     16/68
+  meta       2/2
+  struttura  5/5
+  ⛔ CANCELLO: 83 parole di domande nel merito risolte, ne servono piu' di 319 (mancano 237).
+--- diff con r320-2026-09-18-2102.txt
+✅ GUADAGNATE (1)
+  what aids the decomposition proc merito    · «fallback     Hmm, I don't know about decomposition_process y»  →  ✓ «answerframe  shredding the plant matter.»
+
+⛔ PERSE (4)
+  what does composting require?    merito    ✓ «answerframe  Gathering a mix.»  →  · «fallback     I don't understand that yet.»
+  what is the resulting mixture ri merito    ✓ «answerframe  plant nutrients.»  →  · «learn        I don't know much about resulting mixture rich »
+  what do the benefits of compost  merito    ✓ «answerframe  providing nutrients.»  →  · «fallback     Hmm, I don't know about benefits yet.»
+  what does composting require at  merito    ✓ «answerframe  Gathering a mix.»  →  · «knowledge    I don't know: nothing I hold says composting re»
+
+~ stesso esito, altra risposta (3)
+  what is compost prepared by deco merito    · «knowledge    compost is a mixture.»  →  · «knowledge    I don't know: nothing I hold says compost prepa»
+  what is the resulting mixture ri#2 merito    · «answerframe  plant nutrients.»  →  · «learn        I don't know much about resulting mixture rich »
+  what does compost introduce into merito    · «fallback     Hmm, I don't know about introduce yet. Want me »  →  · «knowledge    I don't know: nothing I hold says compost intro»
+
+⚠ nel secondo referto: NON muri e NON giuste (da rivedere a mano: possibili bugie) (4)
+  what properties of soil does com merito    · «answerframe  soil fertility.»
+  where does compost improve soil  merito    · «answerframe  Soil fertility.»
+  how much of the waste in landfil merito    · «knowledge    1. Salvage insulated copper wire, strong permanent»
+  what is added to the plant matte merito    · «answerframe  Matter is physical substance made of particles, wi»
+--- registro furti: docs/labs/prose-ladder/furti.tsv (37 righe)

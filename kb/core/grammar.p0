@@ -2071,20 +2071,18 @@ participle_of($Root, $Form) :-
     concat_atoms($Root, "ed", $Form).
 participle_of($Root, $Form) :-
     relation_verb($Root), irregular_verb_form($Root, $Form).
-% Misurato la stessa notte (A/B a macchina scarica, frase di 30 parole dopo un
-% saluto): 3,54 s con la regola, 3,51 s senza — gli schemi in piu' non si
-% pagano. Il prezzo era un altro: «It is commonly prepared BY DECOMPOSING plant
-% and food waste …» scriveva prepare(decomposing_plant, compost): «by +
-% gerundio» e' un MEZZO, non un agente. La guardia e' conoscenza, sotto:
-% il gerundio di un verbo di relazione e' un confine di sintagma
-% (`np_closer`), quindi un agente che comincia con un gerundio non e' un
-% concetto e il fatto non si scrive. Il verbo va insegnato («decompose is a
-% relation verb»), e la lezione vale per ogni frase.
-passive_frame_coordinate($Pat, $Root, $Aux, $By) :-
-    relation_verb($Root), participle_of($Root, $Form),
-    naf(relation_verb($Form)), naf(specific_participle($Form)),
-    passive_prefix_coordinate($Prefix, $Aux), passive_suffix_coordinate($Suffix, $By),
-    concat_atoms($Prefix, $Form, $Mid), concat_atoms($Mid, $Suffix, $Pat).
+% ⛔ LO SCHEMA PASSIVO DALLA RADICE E' RITIRATO con la sua guardia (sopra, gerund_of):
+% leggeva («Compost is prepared by farmers» → prepare(farmers, compost), anche
+% per un verbo insegnato parlando; A/B a macchina scarica: 3,54 s con, 3,51 s
+% senza — non costava) ma sulla frase vera del piolo scriveva
+% prepare(decomposing_plant, compost): «by + gerundio» e' un mezzo, non un
+% agente. Senza una guardia che non scarti i gerundi veri, resta fuori. Torna
+% con il lettore che taglia al confine. La riga:
+%   passive_frame_coordinate($Pat, $Root, $Aux, $By) :-
+%       relation_verb($Root), participle_of($Root, $Form),
+%       naf(relation_verb($Form)), naf(specific_participle($Form)),
+%       passive_prefix_coordinate($Prefix, $Aux), passive_suffix_coordinate($Suffix, $By),
+%       concat_atoms($Prefix, $Form, $Mid), concat_atoms($Mid, $Suffix, $Pat).
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 % 18 settembre 2026, notte — e la domanda al passivo porta il PARTICIPIO («what
@@ -3765,7 +3763,14 @@ gerund_of($Root, $G) :- relation_verb($Root), concat_atoms($Root, "ing", $G).
 % finita (gen513, `np_closer ← relation_verb`): «prepared by decomposing plant
 % and food waste» non nomina una cosa chiamata «decomposing plant». E' la
 % guardia del passivo dalla radice (sopra) e di ogni slot che un gerundio apre.
-np_closer($G) :- gerund_of($Root, $G).
+% ⛔ PROVATO E RITIRATO la stessa notte, misurato sul piolo 320 (referto -2318):
+% con il gerundio confine, «what does composting require?» perdeva «Gathering a
+% mix», «what do the benefits of compost include?» perdeva «providing
+% nutrients», «the resulting mixture» non era piu' un soggetto: il lettore al
+% confine SCARTA l'intero riempitivo invece di tagliare. Tre risposte vere per
+% un fatto falso evitato: il rimedio giusto e' nel lettore (tagliare al
+% confine), un circuito, non questa riga. Per riprovarla quando il lettore taglia:
+%   np_closer($G) :- gerund_of($Root, $G).
 % ⚠ NON ancora un'apertura participiale: il lettore delle aperture (99-registry.c,
 % relative_rewrite) lega la frase aperta al sintagma PRIMA della virgola («marine
 % species, including fish» → «marine species include fish»), mentre il gerundio
