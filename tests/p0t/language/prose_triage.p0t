@@ -262,3 +262,21 @@
 <~ diverse ecosystems
 > what does coral belong to?
 <~ anthozoa
+
+[test an abbreviation's dot does not end the sentence, and a statement gets no question answer]
+!reset
+!timeout 60
+# 2026-09-18, piolo 340: «…additives, e.g. coal.» was split after «e.g.», and
+# the stump «…many other additives, e.g» reached the container-question branch
+# of knowledge, which answered «other is part of newtons_law_of_universal_
+# gravitation» (the law's description says «attract each other»). Two
+# defects, both knowledge: the abbreviation (sentence_boundary_exception/1)
+# and a question branch that never asked the turn's force.
+> Charcoal has diverse applications. Modern charcoal briquettes used for outdoor cooking may contain many other additives, e.g. coal.
+<! newton
+<! part of
+> how many sentences does the text have?
+<~ 2 sentences
+> what is other part of?
+<! newton
+

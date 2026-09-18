@@ -175,6 +175,34 @@ turn_cue_registry(sentence_boundary_cue, 1).
 sentence_boundary_cue(". ").
 sentence_boundary_cue("! ").
 sentence_boundary_cue("; ").
+% 18 settembre 2026 — IL PUNTO DI UN'ABBREVIAZIONE NON CHIUDE LA FRASE. Nel
+% piolo 340 «…may contain many other additives, e.g. coal.» veniva spezzato
+% dopo «e.g.»: la clausola monca «…many other additives, e.g» finiva a un
+% lettore di domande, che rispondeva «other is part of newtons_law…» (la
+% descrizione della legge dice «attract each other»), e «coal» restava un turno
+% a se'. Quali abbreviazioni portino un punto interno e' conoscenza della
+% lingua, e vale per ogni testo: lo splitter (compound_turn_lead) chiede qui
+% prima di tagliare. Una lingua nuova, o un'abbreviazione nuova, e' una riga.
+% ⚠ Promossa in .p0 perche' la porta nel motore e' nuova (gerarchia di
+% crescita, punto 4); la lezione parlata («"vs." is an abbreviation») e' il
+% passo dopo, e va aggiunta senza toccare il C.
+machinery(sentence_boundary_exception).
+sentence_boundary_exception("e.g.").
+sentence_boundary_exception("i.e.").
+sentence_boundary_exception("etc.").
+sentence_boundary_exception("vs.").
+sentence_boundary_exception("cf.").
+sentence_boundary_exception("dr.").
+sentence_boundary_exception("mr.").
+sentence_boundary_exception("mrs.").
+sentence_boundary_exception("st.").
+sentence_boundary_exception("no.").
+sentence_boundary_exception("ecc.").
+sentence_boundary_exception("es.").
+sentence_boundary_exception("p.es.").
+sentence_boundary_exception("sig.").
+sentence_boundary_exception("dott.").
+sentence_boundary_exception("n.").
 % (La negazione e' su un predicato ground: `naf` con una variabile libera
 % fallisce sempre — la lezione del gen511.)
 machinery(turn_has_question_mark).

@@ -488,6 +488,34 @@ esatto non si promette, si misura.
 
 ## 6. Registro dei giri
 
+### 18 settembre 2026, sera — il fatto falso di Newton e le review delle facoltà della scala
+
+**Newton, diagnosticato con la traccia sul testo intero, non sulla frase.** La
+frase sola non lo produceva; il paragrafo sì: lo splitter del turno composto
+tagliava «…may contain many other additives, e.g. coal.» al punto di «e.g.»
+(`sentence_boundary_cue(". ")`), la clausola monca senza copula finiva nel
+ramo mereologico di domanda di `knowledge` (cue di contenimento «contain»),
+che risolveva «other» per descrizione — la legge di Newton «attract each other»
+— e rispondeva «other is part of newtons_law…» a una frase che non chiedeva
+niente. Non un fatto in KB: una risposta falsa a una clausola dichiarativa,
+composta nel «Learned:» del turno. Due cure, entrambe generali: le
+abbreviazioni con il punto interno sono conoscenza
+(`sentence_boundary_exception/1`, en e it) e lo splitter la consulta prima di
+tagliare; il ramo di domanda chiede alla lettura se il turno **è** una domanda
+(`p0_turn_is(question)`) — il gesto di specie B → A che il piano dei furti
+prescrive. Ora la frase resta intera («2 sentences»), la clausola dà un muro
+onesto, «what is the heart part of?» risponde ancora. Contrasto in
+`prose_triage.p0t` (84/84). C: +25 righe (una funzione di confine e una
+guardia), KB +17 abbreviazioni vere.
+
+**Le review (mantra #21, cricchetto verde: 14 su 79).** Le otto facoltà della
+scala recensite in testa al modulo e in `module-review.p0` con i numeri
+misurati; `coref` (zero letture dalla KB) e `robust` (il ladro di «depend on»)
+retrocesse a `fallback`. Dettaglio e specie in `turn-arbitration.md`
+§1-bis.1-ter. I ladri pre-registro (`semantic_lead`, `analysis_family`) restano:
+non sono facoltà del registro e una review non li tocca — prossimo lavoro di
+motore. Misure dopo le retrocessioni: *(sotto, appena i banchi finiscono)*.
+
 ### 18 settembre 2026 — la regressione di tre giorni, il banco che può passare il cancello
 
 **Misurato prima di toccare qualcosa.** Il piolo 300, certificato **49/50 con

@@ -2108,6 +2108,10 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* ── MODULE REVIEW — symbolic ─────────────────── rivista: 2026-09-18 (review in KB dal 2026-09-14)
+ *   maturita'   legacy                diritto   FALLBACK (retrocesso)
+ *   rivendica sul charset e non puo' agire: constata soltanto (kb/core/module-review.p0).
+ *   L2 kb_first  1 lettura dalla KB su 40 righe; L3 universale  0 usi del frame. */
 static int mod_symbolic(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)norm;

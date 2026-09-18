@@ -3578,6 +3578,11 @@ size_t brain_read_prose(Brain *b, const char *prose, char *out, size_t out_size)
     return learned;
 }
 
+/* ── MODULE REVIEW — reader ───────────────────── rivista: 2026-09-18
+ *   maturita'   kb_first              diritto   PRIMARY (ammesso)
+ *   L1 addestrabile   si' (passage_boundary_mark, forme in KB)
+ *   L2 kb_first       si': 43 righe, 0 parole compilate
+ *   L3 universale     si': 2 usi del frame — l'adattatore del lettore di passi. */
 static int mod_reader(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     (void)norm;
@@ -3941,6 +3946,14 @@ static int mod_bench(Brain *b, const char *norm, const char *raw,
  * entity; a pronoun with no antecedent is admitted, not guessed. Full WSC-style
  * syntactic binding (which mention a pronoun is bound to by grammar) is out of
  * scope — we judge against the last-entity model already in place. */
+/* ── MODULE REVIEW — coref ────────────────────── rivista: 2026-09-18
+ *   maturita'   legacy                diritto   FALLBACK (retrocesso)
+ *   L1 addestrabile   no: 0 letture dalla KB — niente da ritirare parlando
+ *   L2 kb_first       no: risolve nel C
+ *   L3 universale     no: 0 usi del frame — specie C. La coreferenza vera
+ *                     della prosa («They occupy…») passa dallo spazio del
+ *                     discorso in KB (discourse.p0), non da qui. Retrocesso:
+ *                     risponde solo se nessuna lettura ha detto niente. */
 static int mod_coref(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw;

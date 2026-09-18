@@ -2209,6 +2209,11 @@ static int word_to_int(Brain *b, const char *s, long *out) {
     return 0;
 }
 
+/* ── MODULE REVIEW — count ────────────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   PRIMARY (ammesso)
+ *   L1 addestrabile   si'   L2 kb_first  si': 27 letture, 0 parole compilate
+ *   L3 universale     no: 0 usi del frame — specie B; conta su cue, non sulla
+ *                     lettura della quantita' chiesta. */
 static int mod_count(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw; (void)b;
@@ -2792,6 +2797,10 @@ static int wq_same_letters(const char *a, const char *b) {
 }
 
 #define WQ_MAX 40000
+/* ── MODULE REVIEW — wordquery ────────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   PRIMARY (ammesso)
+ *   L1 addestrabile   si' (forme in KB)   L2 kb_first  si': 12 letture, 0 parole
+ *   L3 universale     no: 0 usi del frame — specie B. */
 static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;

@@ -9249,6 +9249,18 @@ static int p0_inherit_relation(Brain *b, const char *norm,
     return *out != 0;
 }
 
+/* ── MODULE REVIEW — answerframe ──────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   PRIMARY (ammesso)
+ *
+ *   Risponde alle domande sulle relazioni lette: answer_frame/2 e le forme
+ *   di domanda sono KB (grammar.p0), la pretesa e' una cue sul turno.
+ *   L1 addestrabile   si': ritirare un answer_frame toglie la domanda
+ *   L2 kb_first       si': 37 letture dalla KB, 0 parole compilate
+ *   L3 universale     no: 0 usi del frame — specie B (frasario in KB, pretesa
+ *                     nel C). Il 18 settembre ha risposto «Environmentally
+ *                     superior alternative» a un «why»: il qualificatore
+ *                     della domanda non e' nella pretesa. La strada: pretendere
+ *                     su turn_declared_act(question) + la relazione letta. */
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
@@ -16941,6 +16953,21 @@ static int mod_lesson_form(Brain *b, const char *norm, const char *raw,
     return r;
 }
 
+/* ── MODULE REVIEW — knowledge ────────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   PRIMARY (ammesso, con debito)
+ *
+ *   E' il lettore che porta la scala della prosa: extract_frame/2, le
+ *   costruzioni, i frame sono in KB e un verbo nuovo si insegna parlando.
+ *   L1 addestrabile   si' nella lettura (ritirare un extract_frame toglie la
+ *                     lettura); NO nei rami di domanda (cue seriali *_cue11973…)
+ *   L2 kb_first       parziale: 369 letture dalla KB, 10 parole compilate
+ *   L3 universale     parziale: 6 usi del frame su 6611 righe. Il 18 settembre
+ *                     un ramo di domanda ha risposto a una clausola dichiarativa
+ *                     («other is part of newtons_law…»): non guardava la forza
+ *                     del turno. Chiuso con p0_turn_is; gli altri rami vanno
+ *                     portati sulla lettura uno per uno (specie B → A).
+ *   PERCHE' PRIMARY   senza di lui nessuna frase di prosa lascia un fatto;
+ *                     e' maturo nella lettura, immaturo nella pretesa. */
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -21900,6 +21927,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             kb_cue_match(b, "10_memory_knowledge_cue11974", norm) || kb_cue_match(b, "10_memory_knowledge_cue11974_2", norm) ||
             kb_cue_match(b, "10_memory_knowledge_cue11975", norm) || kb_cue_match(b, "10_memory_knowledge_cue11975_2", norm) ||
             kb_cue_match(b, "10_memory_knowledge_cue11976", low) || kb_cue_match(b, "10_memory_knowledge_cue11976_2", low) || kb_cue_match(b, "10_memory_knowledge_cue11976_3", low);
+        /* 18 settembre 2026 — I RAMI DI DOMANDA RISPONDONO SOLO A UNA DOMANDA.
+         * La clausola dichiarativa «Modern charcoal briquettes … may contain
+         * many other additives, e.g» (piolo 340, spezzata dopo «e.g.»)
+         * entrava qui per la cue di contenimento e usciva con «other is part
+         * of newtons_law…»: una risposta a una domanda mai posta, costruita
+         * risolvendo «other» per descrizione. La forza del turno e' UNA lettura
+         * condivisa (turn_illocution, illocution.p0): un ramo che non la guarda
+         * e' il furto cognitivo del mantra #21. Nessuna parola qui: si chiede
+         * alla lettura se questo turno e' una domanda. */
+        if (want_container && !p0_turn_is(b, "question", norm)) want_container = 0;
         if (want_container) {
             /* concept keys in the turn, and the index of the containment cue.
              * A trailing category noun ("the nervous SYSTEM") is the frame, not

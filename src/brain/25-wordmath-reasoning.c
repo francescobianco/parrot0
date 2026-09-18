@@ -3896,6 +3896,10 @@ static int count_readings_answer(Brain *b, const char *canon,
     return 0;
 }
 
+/* ── MODULE REVIEW — quantity ─────────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   PRIMARY (ammesso)
+ *   L1 addestrabile   si'   L2 kb_first  si': 7 letture, 0 parole compilate
+ *   L3 universale     parziale: 1 uso del frame. */
 static int mod_quantity(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     if (count_readings_answer(b, norm, out, out_size)) return 1;

@@ -89,16 +89,27 @@ def parse_reviews() -> tuple[dict[str, str], dict[str, str], dict[str, dict[str,
 
 
 def registry_names() -> set[str]:
+    return set(registry_functions())
+
+
+def registry_functions() -> dict[str, str]:
+    """nome nel registro -> suffisso della funzione mod_* che lo serve.
+    18 settembre 2026: `{"answerframe", mod_answer_frame}` — il nome che il
+    dispatcher confronta con module_claim_right/2 e' quello del registro, la
+    misura si fa sul corpo della funzione: la review porta il primo, il
+    cricchetto risolve il secondo da qui."""
     src = (BRAIN / "99-registry.c").read_text(errors="replace")
     block = src[src.index("static const Module registry[]"):]
     block = block[:block.index("};")]
-    return set(re.findall(r'\{\s*"([a-z_0-9]+)"\s*,', block))
+    return {name: fn[len("mod_"):] for name, fn in
+            re.findall(r'\{\s*"([a-z_0-9]+)"\s*,\s*(mod_[a-z_0-9]+)', block)}
 
 
 def main() -> int:
     rows, headed = measure()
     maturity, right, evidence = parse_reviews()
-    known = registry_names()
+    functions = registry_functions()
+    known = set(functions)
     problems: list[str] = []
 
     for fac in sorted(set(maturity) | set(right) | set(evidence)):
@@ -108,9 +119,9 @@ def main() -> int:
         if fac not in headed:
             problems.append(f"{fac}: review in KB senza la testata nel C "
                             f"(mantra #21: la review sta IN TESTA al modulo)")
-        measured = rows.get(fac)
+        measured = rows.get(functions.get(fac, fac))
         if measured is None:
-            problems.append(f"{fac}: nessun mod_{fac} misurabile")
+            problems.append(f"{fac}: nessun mod_{functions.get(fac, fac)} misurabile")
             continue
         if maturity.get(fac) == "kb_first":
             if measured["compiled_words"]:
@@ -123,7 +134,10 @@ def main() -> int:
                     f"TODO(kb-first) aperti")
         for field, declared in evidence.get(fac, {}).items():
             if field not in measured:
-                problems.append(f"{fac}: evidenza sconosciuta {field!r}")
+                # Un'evidenza che il cricchetto non sa misurare (es. il tetto
+                # dei byte letti) e' documentazione della review: non puo'
+                # mentire su cio' che qui si misura, e non si boccia.
+                print(f"nota module-review: {fac}: evidenza {field!r} non misurabile qui")
             elif measured[field] != declared:
                 problems.append(
                     f"{fac}: {field} dichiarato {declared}, misurato {measured[field]} "

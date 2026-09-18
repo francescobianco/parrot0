@@ -178,8 +178,28 @@ che hanno rubato sulla scala (colonna «modulo» del banco).
 | 18 set | r340 «what is often formed in charcoal burning?» | `knowledge` | «charcoal is a lightweight black residue.» (la definizione al posto della relazione) | A/B, lettura | aperto |
 | 18 set | r320 «how much of the waste in landfills do compostable materials make up?» | `knowledge` | una procedura di recupero del rame («1. Salvage insulated copper wire…») | A/B, recupero sbagliato | aperto |
 | 18 set | r320 «why does composting offer a superior alternative?» | `answerframe` | «Environmentally superior alternative.» (l'oggetto al posto del perché) | B, il «why» ignorato | aperto |
-| 18 set | r340, **la lettura stessa** «…heating wood (or other animal and plant materials)…» | `knowledge` | **`Learned: other is part of newtons_law_of_universal_gravitation`** — un fatto FALSO entrato in KB da una parentetica, per collisione con una lezione del mondo | **A/B, lettura: la specie peggiore** (mantra #7) | aperto, **prima di tutti**: una bugia in KB da una prosa vera |
+| 18 set | r340, **la lettura stessa** «…may contain many other additives, e.g. coal.» | `knowledge` | «other is part of newtons_law_of_universal_gravitation» — NON un fatto in KB: una *risposta* a una clausola dichiarativa monca | **A/B, due cause**: lo splitter tagliava al punto di «e.g.» (`sentence_boundary_cue`) e il ramo mereologico di domanda non guardava la forza del turno | ✅ **chiuso**: `sentence_boundary_exception/1` (turn-frames.p0, abbreviazioni vere en/it) consultata dallo splitter; il ramo di domanda chiede `p0_turn_is(question)` prima di rispondere. Ora: 2 frasi, muro onesto; «what is the heart part of?» risponde ancora. `prose_triage.p0t` 84/84 |
+| 18 set | r340 «Charcoal has diverse applications.» | `knowledge` | «Held: charcoal scores applications on diverse.» — uno schema di punteggio preso da una frase con «has» | A/B, lettura (una costruzione troppo larga) | aperto |
 | 18 set | r300 «what was the economic value … in 2020?» | risposta giusta al fatto sbagliato | «anywhere from US$30–375 billion» | qualificatore ignorato (non un furto: una lettura incompleta) | aperto |
+
+#### Le review scritte il 18 settembre (14 facoltà su 79, cricchetto verde)
+
+Le otto facoltà che portano la scala della prosa hanno ora la testata in testa
+al modulo e la proiezione in `module-review.p0`, con i numeri del cricchetto:
+`knowledge` transitional/**primary** con il debito scritto (10 parole compilate,
+6 usi del frame su 6611 righe, i rami di domanda ciechi alla forza),
+`answerframe` transitional/primary (specie B: relazioni in KB, pretesa su cue,
+qualificatore ignorato), `wordquery` e `count` transitional/primary (B),
+`quantity` transitional/primary (un uso del frame), `discourse` e `reader`
+kb_first/primary (adattatori della IR), **`coref` legacy/fallback** (zero letture
+dalla KB: specie C) e **`robust` transitional/fallback** (il ladro di «depend
+on»). `symbolic` (review del 14) ha ricevuto la testata che mancava e le misure
+di oggi. Il cricchetto risolve ora il nome del registro nella funzione che lo
+serve (`answerframe` → `mod_answer_frame`) e tratta le evidenze che non sa
+misurare come note, non come bocciature. I due ladri pre-registro
+(`semantic_lead`, `analysis_family`) **non sono retrocedibili con una review**:
+stanno nel dispatcher prima delle due passate, ed è il prossimo lavoro di
+motore — una porta sottile che li faccia rispettare `module_claim_right`.
 
 **Il gate, falsificabile:** un piolo della scala è **pulito** quando la colonna
 «modulo» del referto (`P0_PROBE_WHO=1`) non contiene nessuna risposta «non

@@ -132,10 +132,83 @@ module_review_note(codeast, "nomina cio' che riconosce e il proprio buco invece 
 % ha risposto.
 module_maturity(symbolic, legacy).
 module_claim_right(symbolic, fallback).
-module_evidence(symbolic, lines, 41).
+module_evidence(symbolic, lines, 40).
 module_evidence(symbolic, detector_lines, 117).
-module_evidence(symbolic, kb_lookups, 4).
+module_evidence(symbolic, kb_lookups, 1).
 module_evidence(symbolic, frame_uses, 0).
 module_evidence(symbolic, input_byte_cap, 256).
 module_evidence(symbolic, actions_available, 0).
 module_review_note(symbolic, "rivendica sul charset e non puo' agire: constata soltanto").
+
+% ── 18 settembre 2026 — LE FACOLTA' DELLA SCALA DELLA PROSA, E DUE LADRI ──────
+% F.: «il furto è il segnale di un modulo che non sta usando la comprensione
+% universale … un problema cognitivo, non un incidente». Le review qui sotto
+% stanno in testa ai moduli (MODULE REVIEW — <nome>) e sono giudizi datati; i
+% numeri li verifica tests/tools/module_review.py. Specie (turn-arbitration.md
+% §1-bis.1-ter): A consumatore KB della IR, B frasario in KB con la pretesa nel
+% C, C lettore privato. Chi porta la scala resta PRIMARY con il debito scritto;
+% chi non legge niente dalla KB (coref) o ha rubato pretendendo su una cue
+% (robust) scende a FALLBACK: parla solo se nessuna lettura ha detto niente.
+module_maturity(knowledge, transitional).
+module_claim_right(knowledge, primary).
+module_evidence(knowledge, lines, 6611).
+module_evidence(knowledge, kb_lookups, 369).
+module_evidence(knowledge, frame_uses, 6).
+module_evidence(knowledge, compiled_words, 10).
+module_review_note(knowledge, "maturo nella lettura (extract_frame in KB), immaturo nella pretesa: i rami di domanda non guardavano la forza del turno (Newton, 18 settembre)").
+module_maturity(answerframe, transitional).
+module_claim_right(answerframe, primary).
+module_evidence(answerframe, lines, 635).
+module_evidence(answerframe, kb_lookups, 37).
+module_evidence(answerframe, frame_uses, 0).
+module_evidence(answerframe, compiled_words, 0).
+module_review_note(answerframe, "specie B: relazioni e forme in KB, pretesa su cue; ignora il qualificatore della domanda (why, in 2020)").
+module_maturity(wordquery, transitional).
+module_claim_right(wordquery, primary).
+module_evidence(wordquery, lines, 285).
+module_evidence(wordquery, kb_lookups, 12).
+module_evidence(wordquery, frame_uses, 0).
+module_evidence(wordquery, compiled_words, 0).
+module_review_note(wordquery, "specie B: forme in KB, nessun uso del frame").
+module_maturity(count, transitional).
+module_claim_right(count, primary).
+module_evidence(count, lines, 192).
+module_evidence(count, kb_lookups, 27).
+module_evidence(count, frame_uses, 0).
+module_evidence(count, compiled_words, 0).
+module_review_note(count, "specie B: conta su cue, non sulla quantita' letta").
+module_maturity(quantity, transitional).
+module_claim_right(quantity, primary).
+module_evidence(quantity, lines, 220).
+module_evidence(quantity, kb_lookups, 7).
+module_evidence(quantity, frame_uses, 1).
+module_evidence(quantity, compiled_words, 0).
+module_review_note(quantity, "un uso del frame: sulla strada da B ad A").
+module_maturity(coref, legacy).
+module_claim_right(coref, fallback).
+module_evidence(coref, lines, 45).
+module_evidence(coref, kb_lookups, 0).
+module_evidence(coref, frame_uses, 0).
+module_evidence(coref, compiled_words, 0).
+module_review_note(coref, "specie C: zero letture dalla KB; la coreferenza della prosa vive nello spazio del discorso in KB").
+module_maturity(discourse, kb_first).
+module_claim_right(discourse, primary).
+module_evidence(discourse, lines, 27).
+module_evidence(discourse, kb_lookups, 2).
+module_evidence(discourse, frame_uses, 0).
+module_evidence(discourse, compiled_words, 0).
+module_review_note(discourse, "adattatore dello spazio del discorso in KB").
+module_maturity(reader, kb_first).
+module_claim_right(reader, primary).
+module_evidence(reader, lines, 43).
+module_evidence(reader, kb_lookups, 1).
+module_evidence(reader, frame_uses, 2).
+module_evidence(reader, compiled_words, 0).
+module_review_note(reader, "adattatore del lettore di passi: confini e forme in KB").
+module_maturity(robust, transitional).
+module_claim_right(robust, fallback).
+module_evidence(robust, lines, 121).
+module_evidence(robust, kb_lookups, 12).
+module_evidence(robust, frame_uses, 0).
+module_evidence(robust, compiled_words, 0).
+module_review_note(robust, "specie C: ha preso una domanda di prosa su una cue (depend on) senza leggere se il turno parla di una prova").

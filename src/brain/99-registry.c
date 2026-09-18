@@ -6504,6 +6504,29 @@ static int subject_coordination_split(Brain *b, const char *s,
     return 1;
 }
 
+/* La parola che finisce sul segno di confine in `h` (compreso il primo
+ * carattere del segno, cioe' il punto) e' un'abbreviazione dichiarata in KB?
+ * Confronto senza maiuscole; nessuna parola qui, solo il meccanismo. */
+static int compound_boundary_is_abbreviation(Brain *b, const char *text, const char *h,
+                                             const char *cue) {
+    if (!b || !b->kb || !text || !h || !cue || !*cue) return 0;
+    const char *st = h;
+    while (st > text && st[-1] != ' ' && st[-1] != '\n' && st[-1] != '(') st--;
+    char word[64]; size_t n = 0;
+    for (const char *q = st; q <= h && n + 1 < sizeof word; q++)
+        word[n++] = (char)tolower((unsigned char)*q);   /* fino al punto incluso */
+    word[n] = '\0';
+    if (!n) return 0;
+    char abbr[32][KB_TERM_LEN]; const char *aq[1] = { NULL };
+    size_t na = kb_match(b->kb, "sentence_boundary_exception", aq, 1, abbr, 32);
+    for (size_t i = 0; i < na; i++) {
+        char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", abbr[i]);
+        const char *a = kb_dequote(ab);
+        if (*a && strcmp(a, word) == 0) return 1;
+    }
+    return 0;
+}
+
 static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb || !input || !*input || out_size == 0) return 0;
     if (b->compound_depth > 0) return 0;
@@ -6568,6 +6591,13 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             const char *cue = kb_dequote(cb);
             if (!*cue) continue;
             char *h = strstr(p, cue);
+            /* 18 settembre 2026 — il punto di un'abbreviazione («e.g.», «etc.»,
+             * «ecc.») non e' un confine: quali lo siano e' conoscenza
+             * (`sentence_boundary_exception/1`, kb/core/turn-frames.p0). Qui
+             * si chiede soltanto se la parola che finisce sul segno e' una di
+             * quelle, e in tal caso si cerca il confine successivo. */
+            while (h && compound_boundary_is_abbreviation(b, p, h, cue))
+                h = strstr(h + 1, cue);
             if (h && (!best || h < best)) { best = h; bestlen = strlen(cue); }
         }
         if (!best) { clauses[ncl++] = p; break; }

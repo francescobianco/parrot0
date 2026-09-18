@@ -710,6 +710,12 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* ── MODULE REVIEW — discourse ────────────────── rivista: 2026-09-18
+ *   maturita'   kb_first              diritto   PRIMARY (ammesso)
+ *   L1 addestrabile   si': e' un adattatore dello spazio del discorso in KB
+ *   L2 kb_first       si': 27 righe, 2 letture, 0 parole compilate
+ *   L3 universale     parziale: consuma la IR del discorso via KB, non il
+ *                     frame del turno direttamente. */
 static int mod_discourse(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b) return 0;

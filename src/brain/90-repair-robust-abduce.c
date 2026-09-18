@@ -426,6 +426,14 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
  * is knowledge gen76's proof trace cannot give — a proof shows one derivation;
  * ablation reveals whether OTHER derivations exist (redundancy = robustness).
  */
+/* ── MODULE REVIEW — robust ───────────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   FALLBACK (retrocesso)
+ *   L1 addestrabile   parziale (12 letture)   L2 kb_first  0 parole compilate
+ *   L3 universale     no: 0 usi del frame — specie C. Il 18 settembre ha preso
+ *                     «what factors do the properties of charcoal depend on?»
+ *                     con «Ask me whether something holds first…»: pretende su
+ *                     una cue («depend on») senza leggere se il turno parla di
+ *                     una prova. Retrocesso: parla solo dopo le letture. */
 static int mod_robust(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     (void)norm;
