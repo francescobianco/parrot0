@@ -63,7 +63,7 @@ what is the temperature of carbonization a factor for?	properties		merito
 what did the scarcity of wood resources eventually lead to?	transition|fossil fuel		merito
 what kind of wood resources became scarce?	easily accessible|accessible		merito
 what is charcoal made of carbon by?	heating		merito
-how many sentences does the text have?	has 17 sentences		struttura
+how many sentences does the text have?	has 16 sentences		struttura
 how many words does the text have?	has 338 words		struttura
 what is the first sentence?	is a lightweight black residue made		struttura
 how does the text begin?	is a lightweight black residue made		struttura

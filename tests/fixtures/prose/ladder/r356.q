@@ -66,7 +66,7 @@ what is the property of a magnet that pulls on iron?	force		merito
 which types of magnetism do other substances respond by?	several other types|other types		merito
 what are ferromagnetic materials also called?	ferrimagnetic		merito
 what is a refrigerator magnet an example of?	permanent magnet|everyday example		merito
-how many sentences does the text have?	has 16 sentences		struttura
+how many sentences does the text have?	has 15 sentences		struttura
 how many words does the text have?	has 356 words		struttura
 what is the first sentence?	magnet is a material or object		struttura
 how does the text begin?	magnet is a material or object		struttura

@@ -23,8 +23,18 @@ import math, os, re, sys
 
 MARGIN = float(os.environ.get('P0_BENCH_MARGIN', '1.25'))
 
+ABBR = ('e.g.', 'i.e.', 'etc.', 'vs.', 'cf.', 'dr.', 'mr.', 'mrs.', 'st.', 'no.',
+        'ecc.', 'es.', 'p.es.', 'sig.', 'dott.', 'n.')   # = sentence_boundary_exception/1
+
 def sentences(text):
-    return [s.strip() for s in re.split(r'(?<=[.!?])\s+', text.strip()) if s.strip()]
+    """Le frasi del testo: il punto di un'abbreviazione non ne chiude una."""
+    out, cur = [], ''
+    for piece in re.split(r'(?<=[.!?])\s+', text.strip()):
+        cur = (cur + ' ' + piece).strip() if cur else piece
+        if cur.split()[-1].lower().lstrip('(') in ABBR: continue   # l'ULTIMA PAROLA, non il suffisso
+        out.append(cur); cur = ''
+    if cur: out.append(cur)
+    return [s.strip() for s in out if s.strip()]
 
 def main(paths):
     bad = 0

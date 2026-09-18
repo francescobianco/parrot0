@@ -99,7 +99,7 @@ cut_to() { cut -c1-"${1:-104}"; }
 # attesa verrebbe contato come risposta, cioe' la cosa peggiore che un banco
 # possa fare. Stessa grossolanita' voluta: meglio scartare una buona che
 # contarne una falsa. Un marcatore nuovo si aggiunge qui, non nel giudizio.
-WALL="I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read|I can.t hold|I can.t show|I looked up|beyond me|Ask me whether|non so|non capisco|non ho capito|non sono sicur|non conosco|vuoi che (lo )?cerchi|non ho trovato|non ho letto|non riesco a|puoi dirlo in un altro modo|non ho una definizione"
+WALL="I don.t know|I don.t understand|not sure|didn.t quite catch|didn.t keep that|Want me to learn|say it another way|could you give me more context|cannot anchor|I could not read|couldn.t read|I can.t hold|I can.t show|I looked up|beyond me|Ask me whether|I have no rule|I understood «|non so|non capisco|non ho capito|non sono sicur|non conosco|vuoi che (lo )?cerchi|non ho trovato|non ho letto|non riesco a|puoi dirlo in un altro modo|non ho una definizione"
 
 echo
 echo "═══ PROSA: $TXT — $WORDS parole${BUDGET:+ (piolo $BUDGET)} ═══"
@@ -119,7 +119,16 @@ echo "─── PASSO 1 · una frase per volta, sessione pulita: CHE COSA NE CAP
 python3 - "$CUT" <<'PY' > /tmp/.pp_sents.$$
 import sys, re
 t = open(sys.argv[1]).read().strip()
-for s in re.split(r'(?<=[.!?])\s+', t):
+# 18 settembre 2026 — il punto di un'abbreviazione («e.g.», «etc.», «ecc.») non
+# chiude la frase: lo stesso sapere di sentence_boundary_exception/1 in KB.
+ABBR = ('e.g.', 'i.e.', 'etc.', 'vs.', 'cf.', 'dr.', 'mr.', 'mrs.', 'st.', 'no.', 'ecc.', 'es.', 'p.es.', 'sig.', 'dott.', 'n.')
+out, cur = [], ''
+for piece in re.split(r'(?<=[.!?])\s+', t):
+    cur = (cur + ' ' + piece).strip() if cur else piece
+    if cur.split()[-1].lower().lstrip('(') in ABBR: continue   # l'ULTIMA PAROLA, non il suffisso
+    out.append(cur); cur = ''
+if cur: out.append(cur)
+for s in out:
     if s.strip(): print(s.strip())
 PY
 i=0
