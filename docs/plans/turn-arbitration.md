@@ -168,17 +168,19 @@ che hanno rubato sulla scala (colonna «modulo» del banco).
 | data | piolo / turno | modulo | che cosa ha detto | specie | stato |
 |---|---|---|---|---|---|
 | 18 set | r300 «Most coral reefs are built from stony corals» | E3 `event-time.p0` (A) | «Noted: The built is from stony.» | A, lettura troppo larga | ✅ `ev_origin_bearer/2` |
-| 18 set | r340 «what is charcoal used as in chemical processes?» | **`analysis_family`** | «On charcoal used as in chemical, a causal account turns on…» (un saggio) | **C** | aperto: nessun titolo su un turno che la lettura ha letto |
-| 18 set | r340 «where is wood carbonized in modern methods?» | **`analysis_family`** | «On wood carbonized in modern, a sound investigation turns on…» | **C** | aperto |
+| 18 set | r340 «what is charcoal used as in chemical processes?» | **`analysis_family`** | «On charcoal used as in chemical, a causal account turns on…» (un saggio) | **C** | ✅ retrocesso (porta sottile, 18 set sera): *(misura sotto)* |
+| 18 set | r340 «where is wood carbonized in modern methods?» | **`analysis_family`** | «On wood carbonized in modern, a sound investigation turns on…» | **C** | ✅ retrocesso (porta sottile) |
 | 18 set | r340 «what factors do the properties of charcoal depend on?» | **`robust`** | «Ask me whether something holds first — then I can tell you…» | **C** | aperto |
-| 18 set | r340 «what is the temperature of carbonization a factor for?» | **`semantic_lead`** | la definizione del mondo di *temperature* | **C** (lead per parola nota) | aperto |
-| 18 set | r340 «what is charcoal made of carbon by?» | **`semantic_lead`** | il ciclo del carbonio | **C** | aperto |
-| 18 set | r320 «what is added to the plant matter to aid decomposition?» | **`semantic_lead`** | «Matter is physical substance made of particles…» | **C** | aperto |
+| 18 set | r340 «what is the temperature of carbonization a factor for?» | **`semantic_lead`** | la definizione del mondo di *temperature* | **C** (lead per parola nota) | ✅ retrocesso (porta sottile) |
+| 18 set | r340 «what is charcoal made of carbon by?» | **`semantic_lead`** | il ciclo del carbonio | **C** | ✅ retrocesso (porta sottile) |
+| 18 set | r320 «what is added to the plant matter to aid decomposition?» | **`semantic_lead`** | «Matter is physical substance made of particles…» | **C** | ✅ retrocesso (porta sottile) |
 | 18 set | r340 «in which regions did charcoal production contribute to deforestation?» | `knowledge` | «america, africa.» — la frase della produzione illegale, non quella della deforestazione (Central Europe) | **A/B, lettura**: due fatti con la stessa costruzione «in regions like», soggetto sbagliato | aperto: si insegna (mantra #23: che cosa manca alla KB per distinguerli) |
 | 18 set | r340 «what is often formed in charcoal burning?» | `knowledge` | «charcoal is a lightweight black residue.» (la definizione al posto della relazione) | A/B, lettura | aperto |
 | 18 set | r320 «how much of the waste in landfills do compostable materials make up?» | `knowledge` | una procedura di recupero del rame («1. Salvage insulated copper wire…») | A/B, recupero sbagliato | aperto |
 | 18 set | r320 «why does composting offer a superior alternative?» | `answerframe` | «Environmentally superior alternative.» (l'oggetto al posto del perché) | B, il «why» ignorato | aperto |
 | 18 set | r340, **la lettura stessa** «…may contain many other additives, e.g. coal.» | `knowledge` | «other is part of newtons_law_of_universal_gravitation» — NON un fatto in KB: una *risposta* a una clausola dichiarativa monca | **A/B, due cause**: lo splitter tagliava al punto di «e.g.» (`sentence_boundary_cue`) e il ramo mereologico di domanda non guardava la forza del turno | ✅ **chiuso**: `sentence_boundary_exception/1` (turn-frames.p0, abbreviazioni vere en/it) consultata dallo splitter; il ramo di domanda chiede `p0_turn_is(question)` prima di rispondere. Ora: 2 frasi, muro onesto; «what is the heart part of?» risponde ancora. `prose_triage.p0t` 84/84 |
+| 18 set sera | «what is the temperature of carbonization a factor for?», «what is charcoal made of carbon by?» (r340, dopo la porta) | `answerframe` | la definizione del mondo di *temperature* / il ciclo del carbonio | **B**: la parola nota dentro una domanda più lunga vince sul resto della domanda (stessa classe del qualificatore ignorato) | aperto: si insegna (`answerframe` pretende sulla domanda letta intera, non sulla parola) |
+| 18 set sera | «Explain what you are without pretending to be human» | `analysis_last_resort` | un saggio causale su «without pretending to be human» | **C**, stadio di ultima istanza fuori dalla porta | aperto: prossimo stadio da far passare dalla porta |
 | 18 set | r340 «Charcoal has diverse applications.» | `knowledge` | «Held: charcoal scores applications on diverse.» — uno schema di punteggio preso da una frase con «has» | A/B, lettura (una costruzione troppo larga) | aperto |
 | 18 set | r300 «what was the economic value … in 2020?» | risposta giusta al fatto sbagliato | «anywhere from US$30–375 billion» | qualificatore ignorato (non un furto: una lettura incompleta) | aperto |
 
@@ -197,9 +199,36 @@ on»). `symbolic` (review del 14) ha ricevuto la testata che mancava e le misure
 di oggi. Il cricchetto risolve ora il nome del registro nella funzione che lo
 serve (`answerframe` → `mod_answer_frame`) e tratta le evidenze che non sa
 misurare come note, non come bocciature. I due ladri pre-registro
-(`semantic_lead`, `analysis_family`) **non sono retrocedibili con una review**:
-stanno nel dispatcher prima delle due passate, ed è il prossimo lavoro di
-motore — una porta sottile che li faccia rispettare `module_claim_right`.
+(`semantic_lead`, `analysis_family`) non erano retrocedibili con una review:
+stavano nel dispatcher prima delle due passate. **La porta sottile è aperta
+(18 settembre, sera):** `p0_stage_demoted(b, "<stadio>")` legge
+`module_claim_right/2` come per ogni facoltà; uno stadio retrocesso non
+rivendica prima del registro e riprova soltanto **nella seconda passata**, prima
+delle facoltà retrocesse, nello stesso ordine di prima. Il C non porta nessuna
+parola: il titolo è un fatto della review e si toglie o si rende scrivendola. Il
+cricchetto misura ora anche gli stadi (`STAGES` in `module_review.py`, sulla
+funzione che li serve): **17 recensiti su 82, 8 retrocessi, 0 problemi**.
+`semantic_lead`, `analysis_plan` e `analysis_family` hanno la testata e la
+proiezione, tutti `fallback`. Il commento del dispatcher diceva che la famiglia
+«proteggeva» due turni da rivendicazioni peggiori: ora la protezione la dà il
+titolo, non la posizione. **Misurato subito dopo, sugli stessi turni:**
+
+| turno | prima della porta | dopo la porta |
+|---|---|---|
+| «what is charcoal used as in chemical processes?» (r340) | `analysis_family`: un saggio causale | `knowledge`: **muro onesto** («nothing I hold says…») |
+| «what is the temperature of carbonization a factor for?» (r340) | `semantic_lead`: la definizione di *temperature* | `answerframe`: **la stessa definizione** — il furto è passato a una facoltà con titolo (specie B, «la parola nota dentro una domanda più lunga»): si insegna, riga del registro sotto |
+| «How would quorvex change under constraints…» (test del pianificatore) | `analysis_family` prima del registro | `analysis_family` **in seconda passata**: stessa risposta, **+0,5–0,6 s** (1,53–1,65 s contro il budget di 1 s del `.p0t`) |
+| «How would you design a timekeeping system for a colony…» | `analysis_family` | `gen`: **il racconto degli Aurakai** — il furto previsto dal commento; `gen` è maturo, quindi si **insegna**: `intent_cue(design_request, …)` + `faculty_yield(gen, open, design_request)` → ora `analysis_last_resort` col progetto |
+| «Explain what you are without pretending to be human» | `analysis_last_resort` (saggio) | invariato: è un **altro stadio** di ultima istanza, fuori dalla porta — prossimo |
+| «write a short story about a dragon who learns to read» | `gen` | `gen` (la cessione non tocca le storie) |
+
+**Il prezzo, detto:** un prompt d'analisi paga ora l'intera prima passata
+(79 facoltà che declinano) prima che lo stadio retrocesso parli — come ogni
+altro turno che non viene preso da una facoltà con titolo. Il `.p0t` del
+pianificatore (`analysis_planner_growth.p0t`) ha budget 1 s per turno e va
+rosso di timeout; il budget non si alza (politica dei test): la cura è il costo
+della prima passata, che si profila (mantra #20), o una facoltà d'analisi
+**con titolo** che pretenda sulla lettura. `turn_thefts.p0t` 27/27.
 
 **Il gate, falsificabile:** un piolo della scala è **pulito** quando la colonna
 «modulo» del referto (`P0_PROBE_WHO=1`) non contiene nessuna risposta «non

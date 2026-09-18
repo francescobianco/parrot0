@@ -212,3 +212,32 @@ module_evidence(robust, kb_lookups, 12).
 module_evidence(robust, frame_uses, 0).
 module_evidence(robust, compiled_words, 0).
 module_review_note(robust, "specie C: ha preso una domanda di prosa su una cue (depend on) senza leggere se il turno parla di una prova").
+
+% ── 18 settembre 2026 — GLI STADI PRE-REGISTRO (la porta sottile) ───────────
+% `semantic_lead`, `analysis_plan` e `analysis_family` rivendicano nel
+% dispatcher prima del registro (99-registry.c) e leggono ora il proprio titolo
+% con p0_stage_demoted: retrocessi, riprovano solo nella seconda passata. Sono
+% specie C (turn-arbitration.md §1-bis.1-ter): 4 dei 6 furti misurati sul
+% piolo 340 della scala della prosa. Le misure sono della funzione che li serve
+% (semantic_lead, structured_analysis_lead), come dice tests/tools/module_review.py.
+module_maturity(semantic_lead, transitional).
+module_claim_right(semantic_lead, fallback).
+module_evidence(semantic_lead, lines, 32).
+module_evidence(semantic_lead, kb_lookups, 1).
+module_evidence(semantic_lead, frame_uses, 0).
+module_evidence(semantic_lead, compiled_words, 0).
+module_review_note(semantic_lead, "specie C: pretende su una parola nota, non sulla lettura del turno (temperature, carbon cycle, matter sul piolo 340)").
+module_maturity(analysis_plan, transitional).
+module_claim_right(analysis_plan, fallback).
+module_evidence(analysis_plan, lines, 88).
+module_evidence(analysis_plan, kb_lookups, 3).
+module_evidence(analysis_plan, frame_uses, 0).
+module_evidence(analysis_plan, compiled_words, 0).
+module_review_note(analysis_plan, "specie C: stessa funzione della famiglia, retrocesso con lei").
+module_maturity(analysis_family, transitional).
+module_claim_right(analysis_family, fallback).
+module_evidence(analysis_family, lines, 88).
+module_evidence(analysis_family, kb_lookups, 3).
+module_evidence(analysis_family, frame_uses, 0).
+module_evidence(analysis_family, compiled_words, 0).
+module_review_note(analysis_family, "specie C: un soggetto estratto da una domanda sul testo non e' un soggetto d'analisi (saggi causali sul piolo 340)").

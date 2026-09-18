@@ -533,10 +533,17 @@ colonna dei moduli dice una cosa che il numero nascondeva: sul piolo 300
 di specie B — relazioni e forme in KB, pretesa su cue, zero usi del frame. È
 la facoltà da portare per prima sulla lettura (`turn_declared_act(question)` +
 la relazione letta): finché non lo è, il 50/62 è un frasario ben fornito, non
-una condotta di cui la KB è pregna. Sul 340 i ladri restano `semantic_lead` e
-`analysis_family`, che nessuna review tocca perché stanno nel dispatcher prima
-delle due passate: **è la prossima porta sottile nel motore** — far rispettare
-`module_claim_right` anche agli stadi pre-registro.
+una condotta di cui la KB è pregna. Sul 340 i ladri restavano `semantic_lead` e
+`analysis_family`, che nessuna review toccava perché stanno nel dispatcher
+prima delle due passate. **La porta sottile è aperta** (stessa sera):
+`p0_stage_demoted` legge il titolo dello stadio, e uno stadio retrocesso riprova
+solo nella seconda passata (`turn-arbitration.md` §1-bis.1-ter). La porta ha
+mostrato subito il passo successivo: i furti degli stadi non spariscono, **si
+spostano** a chi ha titolo (`answerframe` dà la definizione di *temperature*
+dove prima la dava `semantic_lead`; `gen` prendeva la domanda di progettazione
+e gli è stato insegnato a cedere, `design_request`), e ogni prompt d'analisi
+paga ora la prima passata intera. Misura del 340 con la porta in vigore:
+*(sotto, appena il banco finisce)*.
 
 ### 18 settembre 2026 — la regressione di tre giorni, il banco che può passare il cancello
 

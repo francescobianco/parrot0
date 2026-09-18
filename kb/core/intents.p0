@@ -6325,6 +6325,24 @@ faculty_yield(role, open, correction_claim).
 % «what do you think about AI?» chiede un'opinione (pragmatics.p0): il dialogo
 % generato fra personaggi inventati la cede (M4).
 faculty_yield(gen, open, opinion_request).
+% 18 settembre 2026 — LA PORTA SOTTILE PER GLI STADI PRE-REGISTRO ha tolto la
+% posizione alla famiglia d'analisi, e «How would you design a timekeeping
+% system for a colony on a planet with two suns?» e' andato a gen: il racconto
+% degli Aurakai al posto di un progetto — esattamente il furto che il commento
+% del dispatcher usava per giustificare la posizione. gen e' maturo (review
+% kb_first/primary): a chi ha titolo si INSEGNA (mantra #21), e la lezione e'
+% una classe di richieste di progettazione con la cessione. Una superficie
+% nuova e' una riga; «a turn that contains "…" is a design request» la insegna
+% parlando (turn_pattern).
+intent_cue(design_request, "how would you design").
+intent_cue(design_request, "how would you build").
+intent_cue(design_request, "how would you structure").
+intent_cue(design_request, "how would you organize").
+intent_cue(design_request, "design a system").
+intent_cue(design_request, "design an architecture").
+intent_cue(design_request, "come progetteresti").
+intent_cue(design_request, "come costruiresti").
+faculty_yield(gen, open, design_request).
 % «remind me to call my mother at 6 pm» e' una richiesta di promemoria, non una
 % notizia sulla famiglia (M7): senza orologio ne' agenda lo si dice.
 % «remind me …» si APRE come un ordine: il turno non descrive un evento (E3).

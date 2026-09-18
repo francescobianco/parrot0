@@ -51,14 +51,24 @@ def body(src: str, start: int) -> str:
     return src[i:]
 
 
+# 18 settembre 2026 — GLI STADI PRE-REGISTRO. Rivendicano nel dispatcher prima
+# delle due passate e leggono il proprio titolo con p0_stage_demoted(b, "<nome>")
+# (99-registry.c): sono recensibili come le facolta', e si misurano sulla
+# funzione che li serve.
+STAGES = {"semantic_lead": "semantic_lead",
+          "analysis_plan": "structured_analysis_lead",
+          "analysis_family": "structured_analysis_lead"}
+
+
 def measure() -> tuple[dict[str, dict[str, int]], set[str]]:
-    """Per ogni mod_X: i numeri di oggi, e chi porta una testata di review."""
+    """Per ogni mod_X (e per ogni stadio): i numeri di oggi, e chi porta una testata."""
     rows: dict[str, dict[str, int]] = {}
     headed: set[str] = set()
+    stage_fns = "|".join(sorted(set(STAGES.values())))
     for path in sorted(BRAIN.glob("*.c")):
         src = path.read_text(errors="replace")
         headed.update(HEADER.findall(src))
-        for m in re.finditer(r'^(?:static\s+)?int\s+(mod_[a-z_0-9]+)\s*\(', src, re.M):
+        for m in re.finditer(r'^(?:static\s+)?int\s+(mod_[a-z_0-9]+|' + stage_fns + r')\s*\(', src, re.M):
             b = body(src, m.start())
             # ⚠ Un confronto contro un campo di PROVENIENZA non e' vocabolario:
             # `strcmp(b->last_module, "gen")` e' una facolta' che riconosce se
@@ -67,7 +77,8 @@ def measure() -> tuple[dict[str, dict[str, int]], set[str]]:
             # e una misura che accusa il codice giusto e' peggio di nessuna.
             words = [x for x in LITERAL.finditer(b)
                      if "last_module" not in x.group(0) and "->name" not in x.group(0)]
-            rows[m.group(1)[len("mod_"):]] = {
+            name = m.group(1)
+            rows[name[len("mod_"):] if name.startswith("mod_") else name] = {
                 "lines": b.count("\n") + 1,
                 "kb_lookups": len(KB_CALL.findall(b)),
                 "frame_uses": len(FRAME.findall(b)),
@@ -101,8 +112,10 @@ def registry_functions() -> dict[str, str]:
     src = (BRAIN / "99-registry.c").read_text(errors="replace")
     block = src[src.index("static const Module registry[]"):]
     block = block[:block.index("};")]
-    return {name: fn[len("mod_"):] for name, fn in
-            re.findall(r'\{\s*"([a-z_0-9]+)"\s*,\s*(mod_[a-z_0-9]+)', block)}
+    names = {name: fn[len("mod_"):] for name, fn in
+             re.findall(r'\{\s*"([a-z_0-9]+)"\s*,\s*(mod_[a-z_0-9]+)', block)}
+    names.update(STAGES)
+    return names
 
 
 def main() -> int:

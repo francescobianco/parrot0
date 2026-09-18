@@ -7092,6 +7092,24 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
  * domanda. Se nessuna facolta' l'ha servita e la KB non vi legge un dissenso,
  * e la politica (`offer_unclaimed_turn(accept)`, insegnabile) lo consente,
  * l'offerta si accetta: la stessa acquisizione del «si'» esplicito. */
+/* ── 18 settembre 2026 — LA PORTA SOTTILE PER GLI STADI PRE-REGISTRO ─────────
+ *
+ * F.: «il furto e' il segnale di un modulo che non sta usando la comprensione
+ * universale … un problema cognitivo, non un incidente». Le due passate del
+ * dispatch (module_claim_right/2, kb/core/module-review.p0) valevano solo per
+ * le facolta' del registro; `semantic_lead`, `analysis_plan` e `analysis_family`
+ * rivendicano QUI, prima del registro, e nessuna review li toccava — sul piolo
+ * 340 della scala della prosa erano 4 dei 6 furti misurati. Ora uno stadio
+ * legge il proprio titolo come chiunque altro: se e' `fallback` non rivendica
+ * qui e riprova soltanto nella seconda passata, dopo che tutte le facolta' con
+ * titolo hanno rinunciato. Nessuna parola nel C: il titolo e' un fatto della
+ * review, e si toglie o si rende scrivendola. */
+static int p0_stage_demoted(Brain *b, const char *stage) {
+    if (!b || !b->kb || !stage) return 0;
+    const char *q[2] = { stage, "fallback" };
+    return kb_query(b->kb, "module_claim_right", q, 2);
+}
+
 static int pending_offer_fallthrough(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     /* gen506h (dialogica L4): una domanda nuova non e' catturata da una
@@ -7550,7 +7568,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * condotta dichiarata (il secondo e l'ultima istanza lo facevano gia'):
      * «unlearn what you do when someone wants to organize their day» e le
      * lezioni di piano con «organize» li prendeva il progetto di sistemi. */
-    if (b && !teaching_prose(input) &&
+    if (b && !teaching_prose(input) && !p0_stage_demoted(b, "analysis_plan") &&
         !p0_faculty_yields(b, "analysis_family", "open", canon, input) &&
         structured_analysis_lead(b, canon, input, 0, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -7561,7 +7579,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     /* gen359 (LLMSCORE-max, motorize-the-class): a well-formed definitional or
      * analytical question about a specific concept parrot0 knows is answered from
      * the KB semantic projection before the ordinary first-match registry. */
-    if (b && semantic_lead(b, canon, input, out, out_size)) {
+    if (b && !p0_stage_demoted(b, "semantic_lead") &&
+        semantic_lead(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "semantic_lead");
         return turn_done(b, canon, input, out, out_size);
@@ -7587,6 +7606,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         /* Anche gli stadi che rivendicano PRIMA del registro leggono la condotta
          * dichiarata: uno stadio che non la legge e' uno stadio inaddestrabile,
          * e la lista dei ladri di turno nasceva proprio da li'. */
+        !p0_stage_demoted(b, "analysis_family") &&
         !p0_faculty_yields(b, "analysis_family", "open", canon, input) &&
         structured_analysis_lead(b, canon, input, 1, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -8218,7 +8238,30 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             ndemoted = 0;
     }
 
-    for (int pass = 0; !handled && pass < 2; pass++)
+    for (int pass = 0; !handled && pass < 2; pass++) {
+    /* Seconda passata: gli stadi pre-registro RETROCESSI riprovano qui, prima
+     * delle facolta' retrocesse — nello stesso ordine in cui rivendicavano
+     * prima del registro. Uno stadio con titolo ha gia' parlato sopra. */
+    if (pass == 1 && !handled && b) {
+        const char *stage = NULL;
+        if (!teaching_prose(input) && p0_stage_demoted(b, "analysis_plan") &&
+            !p0_faculty_yields(b, "analysis_family", "open", canon, input) &&
+            structured_analysis_lead(b, canon, input, 0, out, out_size)) stage = "analysis_plan";
+        else if (p0_stage_demoted(b, "semantic_lead") &&
+                 semantic_lead(b, canon, input, out, out_size)) stage = "semantic_lead";
+        else if (!teaching_prose(input) && p0_stage_demoted(b, "analysis_family") &&
+                 !p0_faculty_yields(b, "analysis_family", "open", canon, input) &&
+                 structured_analysis_lead(b, canon, input, 1, out, out_size)) stage = "analysis_family";
+        if (stage) {
+            handled = 1;
+            winner = stage;
+            if (ndecl < BRAIN_TRACE_MAX)
+                snprintf(declined[ndecl++], sizeof declined[0], "%s?fallback", stage);
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", stage);
+            break;
+        }
+    }
     for (size_t i = 0; !handled && i < registry_len; i++) {
         if (i == eager_idx) continue;       /* already offered exactly once */
         int is_demoted = 0;
@@ -8288,6 +8331,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         }
         if (ndecl < BRAIN_TRACE_MAX) snprintf(declined[ndecl++], sizeof declined[0], "%s",
                                  registry[i].name);
+    }
     }
     free(governed);
     free(governed_both);

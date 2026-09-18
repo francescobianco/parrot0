@@ -9928,6 +9928,18 @@ static int answer_consumer_guarded(Brain *b, const char *consumer,
 static int analysis_richer_claim_available(Brain *b, const char *norm,
                                            const char *raw);
 
+/* ── MODULE REVIEW — semantic_lead ────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   FALLBACK (retrocesso)
+ *   Stadio PRE-REGISTRO (99-registry.c): rispondeva a una domanda su un
+ *   concetto NOTO con la proiezione semantica della KB prima di ogni facolta'.
+ *   L1 addestrabile   parziale (1 lettura dalla KB su 32 righe)
+ *   L2 kb_first       0 parole compilate
+ *   L3 universale     no: 0 usi del frame — specie C. Il 18 settembre sulla
+ *                     scala della prosa ha risposto con la definizione del
+ *                     mondo di «temperature», del «carbon cycle» e di «matter»
+ *                     a domande sul TESTO letto: pretende su una parola nota,
+ *                     non sulla lettura del turno. Retrocesso: parla solo dopo
+ *                     che ogni facolta' con titolo ha rinunciato. */
 static int semantic_lead(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
@@ -12200,6 +12212,20 @@ static int analysis_reply_ignores_subject(Brain *b, const char *norm,
     return 1;
 }
 
+/* ── MODULE REVIEW — analysis_family ──────────── rivista: 2026-09-18
+ * ── MODULE REVIEW — analysis_plan ────────────── rivista: 2026-09-18
+ *   maturita'   transitional          diritto   FALLBACK (retrocessi entrambi)
+ *   Due stadi PRE-REGISTRO serviti da questa funzione (il piano, poi la
+ *   famiglia larga). Il commento in 99-registry.c spiega perche' rivendicavano
+ *   prima del registro: proteggevano turni da rivendicazioni peggiori. Ora la
+ *   protezione la da' il titolo (module_claim_right), non la posizione.
+ *   L1 addestrabile   parziale (3 letture dalla KB su 88 righe)
+ *   L2 kb_first       0 parole compilate
+ *   L3 universale     no: 0 usi del frame — specie C. Il 18 settembre ha preso
+ *                     «what is charcoal used as in chemical processes?» e
+ *                     «where is wood carbonized in modern methods?» con un
+ *                     saggio causale/investigativo: un soggetto estratto da
+ *                     una domanda sul testo non e' un soggetto d'analisi. */
 static int structured_analysis_lead(Brain *b, const char *norm, const char *raw,
                                     int broad_families,
                                     char *out, size_t out_size) {
