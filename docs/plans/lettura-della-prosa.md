@@ -23,15 +23,19 @@
 
 | piolo | merito | meta | struttura | cancello | chi risponde | furti residui |
 |---|---|---|---|---|---|---|
-| r300 (299 parole) | **50/62** — storiche 49/50 | 2/2 | 5/5 | ✅ 312 > 299 | `answerframe` 48, `knowledge` 1 | `answerframe`×3: qualificatore ignorato («in 2020», «about half of») |
-| r320 (319) | **19/68** — storiche 12/13 | 2/2 | 5/5 | ⛔ 105/319 | | «why» ignorato, procedura del rame, definizione di *matter* (ora `fallback`) |
+| r300 (299 parole) | **50/62** — storiche 49/50 | 2/2 | 5/5 | ✅ 312 > 299 | `answerframe` 48, `knowledge` 1 | **0** (notte del 18: i tre qualificatori ignorati sono muri onesti che nominano ciò che manca) |
+| r320 (319) | **19/68** — storiche 12/13 | 2/2 | 5/5 | ⛔ 105/319 | | `answerframe`×4 («soil fertility», «plant nutrients», definizione di *matter*), `knowledge`×2 (procedura del rame, «compost is a mixture»); il «why» è ora un muro onesto |
 | r340 (338) | **5/65** | 2/2 | 5/5 | ⛔ 25/338 | `answerframe` 4, `knowledge` 1 | `knowledge`×4 (lettura), `answerframe`×2 (definizioni), `analysis_family`×1 (seconda passata) |
 | i100 italiano (108) | **0/23** | 2/2 | 5/5 | ⛔ 0/108 | | lessico insegnato (37 `tr/2`); blocco: nome canonico lettura↔domanda |
 
-Referti: `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`
-(`r300-dopo-review-50-di-62.txt`, `r340-dopo-porta.txt`, `i100-dopo-lessico.txt`).
-Da stanotte i referti nuovi vanno da soli in `docs/labs/prose-ladder/referti/`
-e i furti in `docs/labs/prose-ladder/furti.tsv` (vedi «la missione secondaria»).
+Referti: `docs/labs/prose-ladder/referti/r3*-2026-09-18-2102.txt` (con la porta
+del qualificatore), `…-2044.txt` (la baseline della stessa notte); i furti in
+`docs/labs/prose-ladder/furti.tsv`. I referti storici della giornata stanno in
+`docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
+
+**Ripresa in un comando: `make prose-session`** (o `scripts/prose-session.sh
+r300 r320`): stampa questa tabella, l'ultimo giro del §6, gli ultimi referti e
+furti, ricompila, riavvia il demone e rimisura i pioli in background.
 
 ### Il giudizio, non il numero
 
@@ -57,12 +61,22 @@ P0_READ_TRACE=1 <sonda per frase> + «who answered?»   # la diagnosi, prima di 
 
 ### I residui, dal più fertile (uno per sessione, banco prima della cura)
 
-1. **`answerframe` sulla domanda letta intera** (specie B → A): ignora il
-   qualificatore («in 2020», «why», «about half of») e risponde con la
-   definizione della parola nota dentro una domanda più lunga («temperature»,
-   «carbon»). Sono le uniche risposte confidenti e sbagliate rimaste sul 300;
-   chiuderle vale per tutte le facoltà di specie B insieme (`turn_declared_act(question)`
-   + la relazione letta come pretesa).
+1. ~~**`answerframe` sulla domanda letta intera**: il qualificatore~~ ✅ chiuso
+   la notte del 18 (`question_qualifier/2`, vedi §6). **Resta la seconda metà
+   della stessa voce**: la definizione della parola nota dentro una domanda più
+   lunga («what is the temperature OF CARBONIZATION?» → la definizione di
+   *temperature*; «what is charcoal made of carbon…» → il ciclo del carbonio).
+   È lo stesso gesto — il resto della domanda («of carbonization») non è
+   coperto dal valore — ma con «of» il qualificatore sta spesso *dentro* la cue
+   («the capital OF france»): serve la testa del sintagma, non un'apertura.
+   **E il prezzo della porta, da pagare per primo**: la lettura scarta
+   l'avverbiale di tempo («estimated at 5 million IN 2010» → `estimated_at(…,
+   5_million)`, niente tempo), quindi «…estimated at in 2010?» che prima
+   rispondeva per fortuna ora mura. Il circuito: l'avverbiale di tempo e la
+   parentetica con cifre («(a 2020 estimate)», oggi tolta da
+   `strip_annotation_parentheticals`) diventano un qualificatore del FATTO
+   letto, e la porta lo prova su quello invece che sulla superficie del valore.
+   Con quello, «in 2020» sul piolo 300 risponde «US$2.7 trillion».
 2. **I quattro difetti di lettura di `knowledge`** (registro dei furti): la
    frase sbagliata a parità di costruzione («in regions like»: Central Europe vs
    South America), la definizione al posto della relazione, «scores applications
@@ -116,10 +130,14 @@ per piolo con la colonna dei moduli, ~8 min per certificare una riga di KB.
 
 **I prossimi tre gradini, misurabili** (uno per sessione, come i circuiti):
 
-1. **`scripts/prose-session.sh`**: la ripresa in un comando — `make build`,
-   `make test-engine`, la rimisura dell'ultimo piolo certificato in background,
-   la stampa dell'ultima voce del §6 e delle ultime 10 righe di `furti.tsv`.
-   Gate: *una sessione nuova arriva alla prima misura in 5 minuti di parete.*
+1. ~~**`scripts/prose-session.sh`**~~ ✅ **fatto la notte del 18**
+   (`make prose-session`, `RUNGS="r300 r320"`): stato dal piano (tabella
+   dell'handoff, ultimo giro del §6, ultimi referti e furti), `make build`,
+   `make test-engine`, rimisura dei pioli in background con il log in
+   `docs/labs/prose-ladder/referti/session-<data>.log`. Misurato a secco
+   (`P0_SESSION_NOBENCH=1`): ~40 s; la prima misura arriva quando finisce il
+   piolo, ~10 min dopo, e intanto si sonda. Gate raggiunto: 5 min di parete
+   per essere in condizione di lavorare, contro i 40 del 18 mattina.
 2. **La calibrazione a freddo con memoria**: le risposte a freddo di un piolo
    si conservano con la firma della KB (hash di `kb/` + del binario); si
    rifanno solo se la firma cambia. Gate: *un piolo con KB invariata costa una
@@ -155,6 +173,26 @@ prossima sessione possa contraddirle con una misura:
   nuovo, 1/12 sulle domande nuove del 300, 0/23 in italiano anche col lessico —
   e le risposte confidenti e sbagliate (qualificatore ignorato, parola nota
   che vince sulla domanda), che un sistema a 30 non darebbe.
+
+**Report della notte del 18 settembre (sessione di due ore): 12–15 → 13–16.**
+Che cosa è cambiato, sulla scala di F. (*da che cosa vengono le risposte*):
+
+| evidenza | verso | peso |
+|---|---|---|
+| tre risposte confidenti e sbagliate del piolo 300 (+ il «why» del 320) sono muri onesti **che nominano ciò che manca** («I don't know about «in 2020» here: what I read is that …»), chiusi per **tre classi** (tempo, porzione, causa) e non per superficie | ↑ | è la voce «una bugia in meno per specie» della tabella sotto; un sistema che risponde a un «why» con l'oggetto del verbo sta più in basso di uno che dice di non sapere il perché |
+| la classe si insegna parlando e si ritratta (`taught_question_qualifier.p0t`) | ↑ | conoscenza, non codice: cresce senza ricompilare |
+| `answerframe` legge il **resto della domanda** (specie B → un passo verso A): quattro punti di emissione, una pretesa | ↑, piccolo | la pretesa resta sulla cue e la prova è sulla superficie del valore, non sul frame della IR |
+| nessuna risposta in più viene da una lettura; il 50/62, 19/68, 5/65 sono identici | = | il numero non sale, ed è giusto così: la cura era sulla bugia, non sulla lettura |
+| la lettura scarta l'avverbiale di tempo, e la porta lo rende visibile (una variante che rispondeva per fortuna ora mura) | = (onesto) | non è una perdita di comprensione: è una fortuna in meno; ma dice dove sta il prossimo circuito |
+
+**Perché +1 e non di più**: il criterio della scala è «da che cosa viene la
+risposta», e stanotte nessuna risposta nuova viene dalla IR. **Perché +1 e non
+zero**: la scala punisce le risposte confidenti e sbagliate («che un sistema a
+30 non darebbe»), e la classe più numerosa di quelle sul piolo 300 è chiusa
+per specie e insegnabile. Che cosa lo porterebbe a 18–20: il tempo come
+qualificatore del **fatto letto** (allora «in 2020» risponde «US$2.7
+trillion» da lettura, e la stessa porta lo prova sul fatto, non sulla
+superficie), e la pretesa di `answerframe` su `turn_declared_act(question)`.
 
 **La missione primaria è massimizzare questa misura.** Ogni sessione dichiara
 nel §6 dove ha mosso l'ago e con quale evidenza; la regola di lettura è:
@@ -546,6 +584,10 @@ Un processo più veloce che misura meno è una regressione travestita. Quindi:
 | 18 set | certificare una riga di KB (`phrase_boundary` sulla copula) | i `.p0t` di guardia (5 file) costano ~8 min **e un turno appeso a HEAD** (`bridge_gap.p0t`, «knowledge gap zorb», 60 s) uccide il demone e lascia i file dopo senza esito; `name_is_knowledge` rosso per 0,02 s sopra il budget di 1 s (costo base del turno, `TEST_TODO`) | prima di attribuire un rosso alla modifica si rilancia con la KB di HEAD (`git stash push kb/…` → test → `stash pop`): 3 min, e distingue il pre-esistente dal proprio; un file appeso va **per ultimo** nella catena, o da solo |
 | 18 set | il costo della crescita, misurato | 37 fatti `tr/2` + il transcript salvato: `prosepage.it.p0t` «leggi la pagina su Xyzzy» passa da ~1,0 s a **1,09 s** (budget 1 s) — +0,1 s su un turno italiano al limite; `register_realization` (24/29) e il timeout da 2 s di `prosepage.it` sono **identici a HEAD** (bisezione: KB di HEAD, poi solo `input.p0`) | la crescita del lessico ha un prezzo per turno (mantra #20): si misura, non si nega; i rossi al confine del budget si classificano con la bisezione, mai «a occhio» |
 | 18 set | Newton chiuso: «quante frasi?» sul 340 | parrot0 dice **16**, il banco attendeva 17: il contatore del banco spezzava dopo «e.g.» come faceva parrot0 prima della cura. **Il banco aveva lo stesso difetto del lettore**, e lo avrebbe premiato | i contatori del banco (`prose-probe.sh` passo 1, `prose-bench-coverage.py`) condividono ora la stessa conoscenza della KB (`sentence_boundary_exception/1`), sull'ultima PAROLA e non sul suffisso (il primo tentativo fondeva «carbonization.» per via di «n.»); attese di r340 (16) e r356 (15) corrette. Due muri onesti in più riconosciuti («I have no rule», «I understood «…»») |
+| 18 set, notte | ripresa con `prose-rung.sh` e la sonda | dalla ripresa alla diagnosi nominata (`who answered?` + `P0_READ_TRACE`) **25 min**, contro i 40 del mattino solo per lo stato; il banco di baseline è girato in background mentre si sondava | M1 + M2 + M13 insieme; e da stanotte `make prose-session` fa i primi due passi da solo |
+| 18 set, notte | la porta del qualificatore | `answerframe` emette un valore da **quattro** punti (forma, ordinale, sintagma, token): il primo tentativo ne copriva tre e il «why» passava dal quarto; una funzione sola (`p0_qualifier_gate`) e −6 righe di C | prima di aprire una porta in una facoltà, **contare i suoi punti di emissione** (`grep slot_answer`): la porta va nella strozzatura, non nel primo sito trovato |
+| 18 set, notte | banchi in parallelo mentre si scrive | i banchi caricano la KB dal disco **all'inizio di ogni sessione** (calibrazione a freddo, poi lettura): una modifica di `kb/` durante il giro entra a metà referto; il soft-test con tre banchi in corso segna 1,75 s dove a macchina scarica segna 1,13 s | si scrive C mentre il banco gira (non entra finché non si ricompila); la KB si tocca fra un giro e l'altro; i `.p0t` si lanciano a macchina scarica (M8) |
+| 18 set, notte | un rosso di soft-test dopo il commit | `[antonym]` «Held: the opposite of what is hot»: bisezione con KB e binario di `HEAD~1` (checkout dei soli `kb/` e `src/`, 3 min) → pre-esistente | M7 vale anche dopo il commit: `git checkout HEAD~1 -- kb/` è la stessa mossa dello stash |
 | 18 set | i100 dopo il lessico | ancora **0/23**, ma i muri cambiano specie: da «non so tradurre» a «non capisco»; la sonda per frase mostra la lettura (`coal vegetale …`, `located_in(coal_vegetale, …)`): **il blocco è l'accordo sul nome canonico fra lettura e domanda** (locuzione vs parola singola in `tr/2`), non la lingua | il lessico si insegna in minuti e non basta: il prossimo circuito italiano è nel canonicalizzatore (locuzione più lunga prima); la copula come confine di sintagma vale in inglese (misurato) e non ancora in italiano («è» non arriva alla KB) |
 
 ### 4-quater.3 Le strategie in campo, con l'evidenza che le regge
@@ -605,6 +647,8 @@ un'opinione e non sta qui.
 | M12 | un'ora è passata su un caso | **scrivo il caso nel registro e cambio circuito**: un circuito per sessione (mantra #22) | il canonicalizzatore italiano scritto come prossimo circuito, non inseguito |
 | M13 | ho più misure da fare | **le lancio in parallelo, in background, e nel frattempo scrivo** | 3 banchi insieme senza rallentare; il tempo di parete della sessione è dimezzato |
 | M14 | chiudo un giro | **committo e spingo con il bilancio (C, KB, banco) nel messaggio** | 9 commit in una sessione: ogni ripresa ha un punto certo |
+| M15 | apro una porta in una facoltà | **conto prima i suoi punti di emissione** (`grep` della resa: `slot_answer`) e metto la porta in UNA funzione che tutti attraversano | notte del 18: quattro emissioni in `answerframe`, il primo tentativo ne copriva tre e il «why» usciva dal quarto |
+| M16 | ho chiuso una bugia con un muro | **provo le varianti che prima rispondevano giuste per fortuna** (stessa forma, valore che porta / non porta il qualificatore) e dichiaro il prezzo | «in 2010» sulla popolazione dell'isola: giusta per fortuna prima, muro ora; il verso previsto da P2, misurato invece che temuto |
 
 ### 4-quater.5 La scala di diagnosi (l'ordine delle mosse, dal più economico)
 
@@ -725,6 +769,76 @@ esatto non si promette, si misura.
 ---
 
 ## 6. Registro dei giri
+
+### 18 settembre 2026, notte — il qualificatore della domanda: tre bugie del piolo 300 chiuse per classe, e la ripresa in un comando
+
+**Misurato prima di toccare** (M1, `prose-rung.sh r300 r340`, referti `-2044`):
+r300 50/62 con `answerframe`×3, r340 5/65 — la KB della sera, nessuna
+regressione. **La diagnosi in tre sonde** (M2, M3): «what was the economic
+value of coral reefs estimated at in 2020?» → `[aframe] cue=estimated at` →
+«anywhere from us$30–375 billion 1997», `who answered?` → `answerframe`; la
+lettura lascia `estimated_at(annual_global_economic_value_of_coral_reefs,
+anywhere_from_us$30–375_billion_1997)` — **un valore solo**, con il 1997 della
+parentetica incollato e le altre due stime perdute; «about half of» idem
+(`occupy` → la percentuale); «why does composting offer…» → l'oggetto di
+`offer` dal passaggio per token. Tre superfici, una malattia: la cornice
+rivendica sulla cue e non legge **il resto della domanda**.
+
+**La dimensione che mancava alla KB (mantra #23)**: *una domanda può
+restringere il valore che chiede* — a un tempo, a una porzione, a una causa.
+Ora è conoscenza: `question_qualifier(Classe, Apertura)` (time: in, since,
+during, before, after, nel, dal; portion: half of, a third of, a quarter of,
+twice; cause: why, perche) e `qualifier_shape(Classe, number|word|none)`
+(che cosa il qualificatore porta: il numero che segue, la parola
+dell'apertura, niente). Il consumatore è **una** porta in C
+(`p0_question_qualifier` + `p0_qualifier_gate`, 10-memory-knowledge.c): cerca
+le aperture nel turno *fuori dalla cue*, prende il contenuto che la forma
+dichiara, lo prova sui valori letti; chi lo porta risponde, se nessuno lo
+porta la cornice dice che cosa ha letto e che cosa le manca
+(`answer_frame_unqualified`: «I don't know about «in 2020» here: what I read
+is that economic value of coral reefs estimated at anywhere from us$30–375
+billion 1997.»). Nessuna parola nel C. **Si insegna parlando e si ritratta**
+(`taught_question_qualifier.p0t` 7/7): «a question that says "towards" asks
+about a time» vale dal turno dopo, «forget that …» lo toglie; la classe si
+nomina con le parole di chi insegna (`qualifier_class_name/2`).
+
+**Misure con la porta** (referti `-2102`, tre pioli in parallelo):
+
+| piolo | merito | furti prima → dopo | perse |
+|---|---|---|---|
+| r300 | 50/62 (=) | `answerframe`×3 → **0** | 0 |
+| r320 | 19/68 (=) | «why» → muro onesto; restano `answerframe`×4, `knowledge`×2 (ora nominati) | 0 |
+| r340 | 5/65 (=) | invariati (`knowledge`×4, `answerframe`×2, `analysis_family`×1) | 0 |
+
+`prose_triage.p0t` 95/95 (+4 contrasti, con l'ablazione `!forget
+question_qualifier(time, in)` che fa tornare la bugia). Soft-test:
+`basics.p0t` [taxonomy] è il costo base (1,13 s a macchina scarica, 1,75 s con
+tre banchi in corso); [antonym] «Held: the opposite of what is hot» è
+**pre-esistente** (bisezione: stesso esito con KB e binario di `3faf9140`),
+annotato in `TEST_TODO.md`.
+
+**Bilancio, dichiarato**: C +162/−1, KB +82, test +56. Non è una migrazione
+(mantra #18a): è una porta nuova. Il C è un consumatore di due classi KB e
+una funzione di resa; i quattro punti in cui `answerframe` emette un valore
+(forma, ordinale, sintagma, token) passano da una sola funzione — ed è la
+prima misura utile per la migrazione B → A della cornice: **quattro
+emissioni, una pretesa**.
+
+**Il prezzo, misurato con le varianti (mantra #24)**: «The population of the
+island was estimated at 5 million in 2010.» → `estimated_at(island,
+5_million)`, **la lettura scarta l'avverbiale di tempo**; quindi «…estimated
+at in 2010?» che prima rispondeva «5 million» *per fortuna* (avrebbe risposto
+uguale «in 1990») ora mura per entrambe. È il verso previsto da
+`the-magic-of-apply.md` §7.6 P2 («quante risposte giuste per fortuna
+diventano muri: misurare»): sui tre pioli **zero** perse, sulla variante una.
+Il rimedio è il circuito successivo, sul lato della lettura: il tempo (e la
+parentetica con cifre, oggi tolta da `strip_annotation_parentheticals`) come
+qualificatore del fatto letto.
+
+**Che cosa muove l'ago (§0-bis)**: una bugia in meno **per specie** (tre
+superfici, tre classi, insegnabili); `answerframe` un passo da B verso A (legge
+il resto della domanda, non ancora il frame). Non muove: nessuna risposta in
+più da lettura. Il conto sta nel report di §0-bis.
 
 ### 18 settembre 2026, sera — il fatto falso di Newton e le review delle facoltà della scala
 

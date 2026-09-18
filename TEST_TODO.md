@@ -1247,3 +1247,11 @@ base) tranne `smalltalk.p0t` riga 39: «is the sky blue?» risponde «Yes.» e i
 test vuole il muro anti-impostore — le cue causali sul cielo (`intents.p0`
 3319-3322) esistono da prima di oggi, quindi il rosso è anteriore alle cure di
 oggi: da bisecare (R2, attesa da rivalidare: parrot0 SA perché il cielo è blu).
+
+- **2026-09-18, notte** — `make soft-test`: `basics.p0t` [antonym] «what is the
+  opposite of hot» → «Held: the opposite of what is hot.» (attesa «Cold.»).
+  **Pre-esistente**: stesso esito con KB e binario di `3faf9140` (bisezione per
+  checkout di `kb/` e `src/`). Non è un timeout: una lezione di vincolo
+  («Held») prende una domanda di antonimo. Da diagnosticare con `who answered?`
+  in una sessione dedicata; [taxonomy] resta il costo base (1,13 s a macchina
+  scarica).
