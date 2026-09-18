@@ -17,6 +17,115 @@
 
 ---
 
+## ⛔ HANDOFF — 18 settembre 2026, notte (chi riprende legge questo e basta)
+
+### Dove siamo, in una tabella (KB viva, banco esteso, colonna dei moduli)
+
+| piolo | merito | meta | struttura | cancello | chi risponde | furti residui |
+|---|---|---|---|---|---|---|
+| r300 (299 parole) | **50/62** — storiche 49/50 | 2/2 | 5/5 | ✅ 312 > 299 | `answerframe` 48, `knowledge` 1 | `answerframe`×3: qualificatore ignorato («in 2020», «about half of») |
+| r320 (319) | **19/68** — storiche 12/13 | 2/2 | 5/5 | ⛔ 105/319 | | «why» ignorato, procedura del rame, definizione di *matter* (ora `fallback`) |
+| r340 (338) | **5/65** | 2/2 | 5/5 | ⛔ 25/338 | `answerframe` 4, `knowledge` 1 | `knowledge`×4 (lettura), `answerframe`×2 (definizioni), `analysis_family`×1 (seconda passata) |
+| i100 italiano (108) | **0/23** | 2/2 | 5/5 | ⛔ 0/108 | | lessico insegnato (37 `tr/2`); blocco: nome canonico lettura↔domanda |
+
+Referti: `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`
+(`r300-dopo-review-50-di-62.txt`, `r340-dopo-porta.txt`, `i100-dopo-lessico.txt`).
+Da stanotte i referti nuovi vanno da soli in `docs/labs/prose-ladder/referti/`
+e i furti in `docs/labs/prose-ladder/furti.tsv` (vedi «la missione secondaria»).
+
+### Il giudizio, non il numero
+
+Il 50/62 del piolo 300 è quasi tutto **una facoltà sola** (`answerframe`, specie
+B: relazioni e forme in KB, pretesa su cue, zero usi del frame) che risponde su
+fatti estratti da **schemi** (`extract_frame/2`), non da una lettura della IR.
+Sul piolo nuovo lo stesso apparato fa 5/65 e in italiano 0/23. Le uniche
+risposte che sono un atto cognitivo nel senso pieno — leggono la IR e compongono
+— sono meta e struttura (`text-structure.p0`, 100% su ogni piolo) e i
+consumatori KB come `event-time.p0`: piccoli, ma sono la forma che scala. Il
+piano dei furti (`turn-arbitration.md` §1-bis.1-ter) ha reso i muri più onesti,
+non la lettura più profonda.
+
+### Comandi di ripresa (5 minuti, non 40)
+
+```sh
+make build && make test-engine
+scripts/prose-rung.sh r300 r340 it:i100        # in parallelo: referto datato, diff col precedente, furti nel registro
+scripts/prose-bench-coverage.py tests/fixtures/prose/ladder/r3*.txt   # il banco copre tutte le frasi?
+python3 tests/tools/module_review.py           # il cricchetto delle review (17/82, 8 retrocessi)
+P0_READ_TRACE=1 <sonda per frase> + «who answered?»   # la diagnosi, prima di ogni cura
+```
+
+### I residui, dal più fertile (uno per sessione, banco prima della cura)
+
+1. **`answerframe` sulla domanda letta intera** (specie B → A): ignora il
+   qualificatore («in 2020», «why», «about half of») e risponde con la
+   definizione della parola nota dentro una domanda più lunga («temperature»,
+   «carbon»). Sono le uniche risposte confidenti e sbagliate rimaste sul 300;
+   chiuderle vale per tutte le facoltà di specie B insieme (`turn_declared_act(question)`
+   + la relazione letta come pretesa).
+2. **I quattro difetti di lettura di `knowledge`** (registro dei furti): la
+   frase sbagliata a parità di costruzione («in regions like»: Central Europe vs
+   South America), la definizione al posto della relazione, «scores applications
+   on diverse», la procedura del rame. Mantra #23: che cosa manca alla KB per
+   distinguerli.
+3. **Il canonicalizzatore italiano**: la locuzione più lunga vince sulla parola
+   (`carbone_vegetale` vs `coal_vegetale`), «dal» non è un luogo, «è» come
+   confine di sintagma nella IR. Poi si rimisura i100 (le 37 traduzioni sono
+   già in `gloss.p0`).
+4. **`analysis_last_resort` attraverso la porta sottile**, e il costo della prima
+   passata (+0,5 s sui prompt d'analisi: `analysis_planner_growth.p0t` 23 timeout
+   su budget 1 s, non alzato): si profila, non si indovina.
+5. **Le forme nuove del 340**: relative ridotte lunghe, «involves + gerundio»,
+   «led to», «aimed to maintain», participi con agente.
+
+### ⛔ LA MISSIONE SECONDARIA: efficientare il processo — stato onesto
+
+F. (18 settembre, notte): «non ho visto maturare nulla in questo senso». È vero
+per metà, e va detto con precisione.
+
+**Che cosa esiste** (§4-quater): la tabella delle evidenze di processo (11 righe
+misurate), le regole anti-malizia, `prose-diff.py` (che cosa cambia fra due
+referti), `prose-bench-coverage.py` (ogni frase ha una domanda), la colonna dei
+moduli e i furti per modulo nel banco (`P0_PROBE_WHO=1`), la raggiungibilità del
+cancello stampata dal banco, i pioli in parallelo, i contatori del banco che non
+ripetono il difetto del lettore, e da stanotte **`scripts/prose-rung.sh`**: un
+piolo, un comando — banco con i moduli, referto datato in
+`docs/labs/prose-ladder/referti/`, diff col referto precedente dello stesso
+piolo, furti accodati a `docs/labs/prose-ladder/furti.tsv`, più pioli in
+parallelo.
+
+**Che cosa NON è maturato, e perché si vede**: il ciclo della sessione (§4-quater.3,
+punto 1) è ancora una **lista scritta**, non un comando; i referti di oggi sono
+stati copiati a mano in `docs/labs/…/2026-09-18-…/`; il registro dei furti in
+`turn-arbitration.md` è una tabella scritta a mano, mentre `furti.tsv` è appena
+nato e vuoto; la calibrazione a freddo si ripaga a ogni piolo (una sessione
+intera) anche se la KB non è cambiata; le domande in italiano e le review le
+scrive una persona (per scelta, anti-malizia 2 — ma il tempo va misurato); e
+nessuna evidenza di processo si aggiunge da sola alla tabella. Il tempo
+misurato di questa sessione: ~40 min per arrivare alla prima misura, ~10–20 min
+per piolo con la colonna dei moduli, ~8 min per certificare una riga di KB.
+
+**I prossimi tre gradini, misurabili** (uno per sessione, come i circuiti):
+
+1. **`scripts/prose-session.sh`**: la ripresa in un comando — `make build`,
+   `make test-engine`, la rimisura dell'ultimo piolo certificato in background,
+   la stampa dell'ultima voce del §6 e delle ultime 10 righe di `furti.tsv`.
+   Gate: *una sessione nuova arriva alla prima misura in 5 minuti di parete.*
+2. **La calibrazione a freddo con memoria**: le risposte a freddo di un piolo
+   si conservano con la firma della KB (hash di `kb/` + del binario); si
+   rifanno solo se la firma cambia. Gate: *un piolo con KB invariata costa una
+   sessione, non due.*
+3. **Il registro dei furti come sorgente unica**: la tabella di
+   `turn-arbitration.md` si genera da `furti.tsv` + `module-review.p0` (modulo →
+   specie → stato), invece di scriverla a mano. Gate: *ogni furto misurato ha
+   una riga senza che nessuno la scriva.*
+
+Il criterio per dire che la missione secondaria è matura resta quello del
+§4-quater: **le sessioni successive costano meno di questa a parità di lavoro
+cognitivo**, e lo dice la tabella delle evidenze, non un giudizio.
+
+---
+
 ## 0. La tesi (F., 12 settembre 2026)
 
 > «Il concetto generale è che dovrebbe essere usata la **comprensione universale**
