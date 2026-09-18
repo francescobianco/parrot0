@@ -1262,3 +1262,15 @@ oggi: da bisecare (R2, attesa da rivalidare: parrot0 SA perché il cielo è blu)
   misurato con `/debug` («is a tiger a mammal»: 1168 ms, 783 fuori dal solver,
   19 ricostruzioni d'indice) — lo stesso di `basics.p0t [taxonomy]`. Non si
   alza il budget (lettura-della-prosa.md, regola 2): si cura il turno.
+
+- **18 settembre 2026, notte (secondo turno)** — piolo r300, referto `-2300`: **50/62 → 48/62**,
+  perse «what threatens coral reefs?» e «what are coral reefs under threat from?»
+  («excess nutrients.» → muro «I don't know about threatens»). **Pre-esistente
+  rispetto alla sessione**: riprodotto in chat con la prosa intera in un turno;
+  bisezione per file (senza stash): KB di `75da5e50` (inizio sessione) → perse;
+  KB di `f0620c4d` (prima che i 13 verbi di relazione fossero ripristinati in
+  `taught-lexicon.p0`, fra cui `relation_verb(threaten)`) → «excess nutrients.».
+  Con la frase da sola, o con due frasi, risponde («excess nutrients nitrogen»,
+  `threaten(excess_nutrients_nitrogen, coral_reef)`): il difetto sta nella
+  lettura della prosa INTERA con `threaten` in classe (coref di «They» o un'altra
+  frase che scrive sopra). Da bisecare per frase in una sessione di fix.

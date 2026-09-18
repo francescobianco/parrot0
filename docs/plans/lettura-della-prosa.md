@@ -97,14 +97,15 @@ verbi da riscrivere.
 
 | piolo | merito | meta | struttura | cancello | chi risponde | furti residui |
 |---|---|---|---|---|---|---|
-| r300 (299 parole) | **50/62** — storiche 49/50 | 2/2 | 5/5 | ✅ 312 > 299 | `answerframe` 48, `knowledge` 1 | **0** (notte del 18: i tre qualificatori ignorati sono muri onesti che nominano ciò che manca) |
+| r300 (299 parole) | **48/62** (referto `-2300`; era 50/62) | 2/2 | 5/5 | ✅ 301 > 299 | `answerframe` 48 | **0** furti; **−2** («what threatens coral reefs?», «…under threat from?») **pre-esistenti** al secondo turno: bisezione per file → compaiono con i 13 verbi ripristinati in `75da5e50` (`relation_verb(threaten)`), non con le regole della notte; in `TEST_TODO.md` |
 | r320 (319) | **19/68** — storiche 12/13 | 2/2 | 5/5 | ⛔ 105/319 | | `answerframe`×4 («soil fertility», «plant nutrients», definizione di *matter*), `knowledge`×2 (procedura del rame, «compost is a mixture»); il «why» è ora un muro onesto |
 | r340 (338) | **5/65** | 2/2 | 5/5 | ⛔ 25/338 | `answerframe` 4, `knowledge` 1 | `knowledge`×4 (lettura), `answerframe`×2 (definizioni), `analysis_family`×1 (seconda passata) |
 | i100 italiano (108) | **0/23** | 2/2 | 5/5 | ⛔ 0/108 | | lessico insegnato (37 `tr/2`); blocco: nome canonico lettura↔domanda |
 
-Referti: `docs/labs/prose-ladder/referti/r3*-2026-09-18-2102.txt` (con la porta
+Referti: `docs/labs/prose-ladder/referti/r300-2026-09-18-2300.txt` e
+`r320-…-2320` (fine del secondo turno), `r3*-2026-09-18-2102.txt` (con la porta
 del qualificatore), `…-2044.txt` (la baseline della stessa notte); i furti in
-`docs/labs/prose-ladder/furti.tsv`. I referti storici della giornata stanno in
+`docs/labs/prose-ladder/furti.tsv` (quattro righe nuove dal secondo turno). I referti storici della giornata stanno in
 `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
 
 **Come si cresce, da qui in avanti: §4-sexies** (giri di cinque minuti,
@@ -274,6 +275,32 @@ per specie e insegnabile. Che cosa lo porterebbe a 18–20: il tempo come
 qualificatore del **fatto letto** (allora «in 2020» risponde «US$2.7
 trillion» da lettura, e la stessa porta lo prova sul fatto, non sulla
 superficie), e la pretesa di `answerframe` su `turn_declared_act(question)`.
+
+**Report della notte del 18 settembre, secondo turno (22:11–00:11): 13–16 → 14–17.**
+Quattro giri, quattro commit (`2fa93830`, `65d2f593`, `363fc74a`, `79eb1927`),
+**zero righe di C di lingua** (il C committato: la chiave di una cache che vede
+il turno, una nota di turno per `/debug`, un ramo «lo so già» che rende un
+template KB). Sulla scala di F. (*da che cosa vengono le risposte*):
+
+| evidenza | verso | peso |
+|---|---|---|
+| **il canale della crescita parlando dice il vero**: «X is a relation verb» per una parola già in classe murava (9/13 dei verbi dei muri) e ora conferma («I already know that…»); una lezione ripetuta o una seconda classe passano; la decisione è una condizione in più su una regola gen513, non un ramo C | ↑ | non è una risposta in più: è il canale su cui ogni risposta futura arriva per lezione, che prima perdeva metà delle lezioni in silenzio |
+| **la morfologia come conoscenza**: -y/-ies e il participio regolare nei due versi (lettura, domanda, passivo dalla radice), validi per ogni verbo **insegnato parlando** («cats zorblies mice» → «what do cats zorbly?»; «mice are zorblied by cats» → «what are mice zorblied by?») | ↑ | risposte che vengono dalla **forma** letta e dalla relazione, non da una cue: «what does compost supply?» era un muro del referto 320 |
+| **un fatto falso evitato per specie**: «by + gerundio» è un mezzo, non un agente; il gerundio di un verbo di relazione è un confine (`gerund_of` trova il consumatore che il giro 1 aveva lasciato aperto) | ↑ | mantra #7: il fatto falso da un testo vero è il furto più grave, e questo lo chiude per classe |
+| **quattro stemmi falsi tolti** dalla KB (`supplie`, `applie`, `carrie`, `occupie`), residui di una vista salvata | ↑ piccolo | meno conoscenza sbagliata a riposo |
+| le risposte in più sui pioli: vedi la tabella dell'handoff (referto `-2300`) | = / ↑ piccolo | i muri restanti del 320 (parentetica-definizione, avverbio nel passivo) non sono di morfologia |
+| **tre furti nuovi registrati** (`furti.tsv`): `knowledge` risponde a un'AFFERMAZIONE con «Grass is green…», `semantic_lead` su «green waste», la parentetica letta come «10 prerequisiti»; e `arith` risponde «0.025.» alla frase 8 del 300 | = (onesto) | nominati, non curati: il registro cresce, la bugia no |
+| **il turno di lettura costa ~3 s da prima** (30 parole dopo un saluto; `input_frame_observe` 1,3–1,6 s), e ogni turno base 1,0–1,2 s: tutti i `.p0t` a budget 1 s sono rossi per costo | = | non muove l'ago ma fissa il prossimo circuito del motore; la diagnosi in testa (1398 ms) era su un'altra frase |
+
+**Perché +1 e non di più**: nessuna facoltà è passata da B ad A, e le risposte
+in più vengono da forme (morfologia) sopra la stessa cornice. **Perché +1 e
+non zero**: la scala punisce la bugia, e stanotte ne sono chiuse due per specie
+(la lezione che «passa» senza passare; l'agente-gerundio), entrambe insegnabili
+e ritrattabili; e la crescita per lezione ora vale per la morfologia intera di
+ogni verbo, non per la forma detta. Che cosa lo porterebbe a 18–20 resta
+quello scritto sopra (il tempo come qualificatore del fatto letto; la pretesa
+di `answerframe` sul turno) più il circuito del motore: l'osservatore dei
+frame che indicizza gli schemi per parola d'ancora invece di provarli tutti.
 
 **La missione primaria è massimizzare questa misura.** Ogni sessione dichiara
 nel §6 dove ha mosso l'ago e con quale evidenza; la regola di lettura è:
@@ -671,6 +698,12 @@ Un processo più veloce che misura meno è una regressione travestita. Quindi:
 | 18 set, notte | un rosso di soft-test dopo il commit | `[antonym]` «Held: the opposite of what is hot»: bisezione con KB e binario di `HEAD~1` (checkout dei soli `kb/` e `src/`, 3 min) → pre-esistente | M7 vale anche dopo il commit: `git checkout HEAD~1 -- kb/` è la stessa mossa dello stash |
 | 18 set | i100 dopo il lessico | ancora **0/23**, ma i muri cambiano specie: da «non so tradurre» a «non capisco»; la sonda per frase mostra la lettura (`coal vegetale …`, `located_in(coal_vegetale, …)`): **il blocco è l'accordo sul nome canonico fra lettura e domanda** (locuzione vs parola singola in `tr/2`), non la lingua | il lessico si insegna in minuti e non basta: il prossimo circuito italiano è nel canonicalizzatore (locuzione più lunga prima); la copula come confine di sintagma vale in inglese (misurato) e non ancora in italiano («è» non arriva alla KB) |
 
+| 18 set, notte, 2° turno | il canale #1 «non passa per metà dei verbi» | non era una cue substring (ipotesi del turno prima): le parole che non passano sono **esattamente** quelle già in classe — tre sonde, poi il C solo all'ultimo gradino (`np_closer ← relation_verb`, gen513) | prima di ipotizzare, **partizionare i casi per una proprietà della KB** («è già noto?»): una `grep` sui fatti spiega più di una lettura del C |
+| 18 set, notte, 2° turno | «Learned: zorblax is a relation verb» senza tenere nulla | un mio refactoring aveva perso `kb_assert`: successo apparente, nessuna traccia lo mostrava; trovato con **gdb** su un binario `-g -O0` compilato nello scratch (`gcc src/*.c`, 6 s), breakpoint su `kb_assert` con arg «zorblax» → **zero assert** | dopo un «Learned» sospetto: `is X a Y?` subito; se dice no, gdb sul punto di scrittura, non il codice a occhio |
+| 18 set, notte, 2° turno | il prezzo di una regola misurato con un banco in background | +1,2 s attribuiti alla regola; A/B a macchina scarica: **3,54 / 3,51 / 3,51 s** (con, senza, KB di inizio sessione) — il prezzo era zero e il turno costa 3 s da prima; il referto del banco intanto contaminato (la KB cambia sotto) e cancellato | una misura di costo vale solo **stesso turno, stessa macchina scarica, stesso strumento** (`/debug` triplica); il banco si lancia **dopo** il commit, mai durante un giro |
+| 18 set, notte, 2° turno | tracce temporanee su stderr | F.: «valuta sempre se le tracce temporanee possono diventare parte di /debug»: la traccia `[ecs]` è diventata `turn_class_read` + `debug_probe(23)`; un ordine doppio (15 era di `network.p0`) fa sparire la sonda **in silenzio** | ogni traccia che serve due volte è una sonda: un fatto di turno + una riga in `debug.p0`; `grep -rho '^debug_probe([0-9]*' kb/ \| sort \| uniq -d` prima di scegliere il numero |
+| 18 set, notte, 2° turno | `pkill -f <pattern>` per fermare un banco | ha ucciso **la mia shell** due volte (il pattern era nella riga di comando che conteneva anche il rilancio) | fermare per PID (`pgrep -f 'pat[t]ern'`), e mai nello stesso comando che rilancia |
+
 ### 4-quater.3 Le strategie in campo, con l'evidenza che le regge
 
 1. **Il ciclo minimo di una sessione, in ordine e con i tempi** (tutte le
@@ -729,6 +762,10 @@ un'opinione e non sta qui.
 | M13 | ho più misure da fare | **le lancio in parallelo, in background, e nel frattempo scrivo** | 3 banchi insieme senza rallentare; il tempo di parete della sessione è dimezzato |
 | M14 | chiudo un giro | **committo e spingo con il bilancio (C, KB, banco) nel messaggio** | 9 commit in una sessione: ogni ripresa ha un punto certo |
 | M15 | apro una porta in una facoltà | **conto prima i suoi punti di emissione** (`grep` della resa: `slot_answer`) e metto la porta in UNA funzione che tutti attraversano | notte del 18: quattro emissioni in `answerframe`, il primo tentativo ne copriva tre e il «why» usciva dal quarto |
+| M17 | un muro divide le parole in «passa / non passa» | **partiziono per una proprietà della KB** (`grep` dei fatti: già noto? in quale classe?) prima di leggere il C | canale #1: i 9 che non passavano erano i 9 già `relation_verb` |
+| M18 | un «Learned» che poi non si ritrova | **gdb sul punto di scrittura** (binario `-g` nello scratch, breakpoint condizionale su `kb_assert`) invece di rileggere il codice | l'assert perso dal refactoring, trovato in un giro |
+| M19 | misuro il prezzo di una regola | **A/B stesso turno, macchina scarica, stesso strumento, e la KB di inizio sessione come terzo punto** | 3,54 / 3,51 / 3,51 s: la regola non costava, il turno costava già |
+| M20 | sto per scrivere un `if` sulla lingua nel C | **cerco la regola KB esistente da condizionare** (`np_closer`, `subject_guard`, `turn_declared_act`) prima di crearne una nuova o una funzione | F. ha respinto due tentativi (ramo, predicato parallelo); la forma giusta era una condizione in più su una regola gen513 |
 | M16 | ho chiuso una bugia con un muro | **provo le varianti che prima rispondevano giuste per fortuna** (stessa forma, valore che porta / non porta il qualificatore) e dichiaro il prezzo | «in 2010» sulla popolazione dell'isola: giusta per fortuna prima, muro ora; il verso previsto da P2, misurato invece che temuto |
 
 ### 4-quater.5 La scala di diagnosi (l'ordine delle mosse, dal più economico)
@@ -782,6 +819,9 @@ riga è un'evidenza che oggi ricavo a mano e che parrot0 potrebbe **dire**.
 | provare la frase sola e fermarsi | Newton non si riproduceva | M4 |
 | modificare uno script mentre un banco lo esegue | un banco vuoto e 20 min persi (permessi) | sostituzione atomica, e il banco non si tocca in corsa |
 | intendere «processo» come scripting | mezza sessione sugli strumenti invece che sulle mosse | questa sezione |
+| mettere in C la meccanica della lingua (menzione vs uso, confini) | due tentativi respinti da F., «sto valutando di interrompere la sessione» | M20, §4-sexies.2 |
+| misurare con un banco in background, o con `/debug` contro un tempo nudo | una regola giusta ritirata per un prezzo inesistente; un referto buttato | M19 |
+| un refactoring del proprio C senza una sonda che lo veda | «Learned» senza fatto: il caso peggiore del mantra #7, creato da me | M18; `is X a Y?` dopo ogni «Learned» |
 
 ---
 
