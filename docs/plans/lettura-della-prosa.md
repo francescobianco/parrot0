@@ -321,6 +321,107 @@ qui sono il contratto, e il banco le stampa tutte.
 
 ---
 
+## 4-quater. IL PROCESSO SI RIPETE: LE EVIDENZE DELLE SESSIONI E L'EFFICIENTAMENTO (F., 18 settembre 2026)
+
+> F.: «efficientare questo processo perché lo ripeteremo molte volte con prose
+> sempre differenti e anche in italiano; annotare in una sezione dedicata le
+> evidenze derivate dalle varie sessioni e grazie alle evidenze gestire
+> l'efficientamento. Attenzione: l'efficientamento non deve essere malizioso,
+> cioè viziando la prosa di elementi facili da gestire.»
+
+Questa sezione è il **registro delle evidenze di processo** (non di lettura:
+quelle stanno nel §6) e delle strategie che ne discendono. Ogni sessione vi
+aggiunge una riga alla tabella §4-quater.2 e, se ha imparato qualcosa sul
+*come*, una regola al §4-quater.3. Le strategie senza evidenza non entrano.
+
+### 4-quater.1 Le regole anti-malizia (valgono prima di ogni efficientamento)
+
+Un processo più veloce che misura meno è una regressione travestita. Quindi:
+
+1. **La prosa è cieca.** Si prende il lead di Wikipedia **com'è**, verbatim
+   (l'API `rest_v1/page/summary` per l'italiano, la pagina per l'inglese, fonte
+   in `SOURCES.md`), su un argomento **scelto prima** di sapere che cosa parrot0
+   legge di quel testo. Non si ritocca una frase, non si scarta un testo perché
+   «troppo difficile», non si sceglie il piolo successivo fra quelli che
+   sembrano andare bene. Se un testo viene scartato, si scrive perché
+   (`SOURCES.md`) e vale solo la ragione «non è un lead intero e coerente».
+2. **Le domande si scrivono prima delle risposte.** Il `.q` di un piolo nuovo
+   si compila dal testo, mai dal referto: chi scrive le domande non ha ancora
+   visto che cosa parrot0 risponde. Le domande coprono **tutte le frasi**
+   (`scripts/prose-bench-coverage.py`: nessuna frase a zero domande, nessuna
+   risposta attesa assente dal testo) e mescolano le forme — definizione,
+   relazione, qualificatore, causa, quantità, elenco, coreferenza — senza
+   guardare quali forme parrot0 sa già.
+3. **Il banco è fisso, tende al 100%, e si estende solo per poter passare il
+   cancello** (§4-ter). Mai si toglie una domanda perché non passa.
+4. **Nessun fatto della prosa entra in KB durante un giro** (W=0): la
+   calibrazione a freddo lo scoprirebbe e lo toglierebbe dal conto, ma il
+   punto è non doverlo fare. **La crescita della KB che una sessione lascia è
+   conoscenza vera del mondo e della lingua** — classi lessicali reali
+   (`adverbial_particle(together)`, `rank_noun(phylum)`), regole sulle forme
+   (`ev_origin_bearer/2`), relazioni del mondo con la fonte — mai un fatto
+   inventato per un test, mai un fatto del brano per far passare il piolo
+   (mantra: «un test non può inventare la conoscenza che dichiara di scoprire»).
+5. **Le risposte ✓ si rivedono a mano** (mantra #9) e le «non muro, non
+   giuste» del referto sono le prime da leggere: `prose-diff.py` le elenca.
+6. **Ogni misura è confrontata con la precedente sullo stesso banco**
+   (`prose-diff.py PRIMA DOPO`): guadagnate, perse, cambiate. Un numero senza
+   il diff non è una misura.
+
+### 4-quater.2 Le evidenze di processo, per sessione
+
+| data | sessione | evidenza sul processo (misurata) | costo / effetto |
+|---|---|---|---|
+| 12–13 set | scala 300→500, piolo 300 17→49 | un piolo intero (57 domande, 2 sessioni) costa **~10 min** in `P0_PROBE_STEP2=1`; il passo 1 (una sessione per frase) costa un boot per frase, oltre il quarto d'ora | il passo 2 è la misura di routine; il passo 1 solo per diagnosticare UNA frase |
+| 13 set | piolo 320 | il banco a 13 domande (68 parole) non poteva passare il cancello delle 319 | nasce la regola 3 del §4-ter |
+| 18 set | ripresa dopo 3 giorni | **il registro del piano era fermo a 17/50 mentre lo stato era 49/50**: 40 minuti persi a ricostruire lo stato da `LEARN_TODO.md`, i referti e `git log -S` | regola: ogni giro chiude aggiornando il §6 del piano; gli handoff altrove rimandano qui |
+| 18 set | ripresa dopo 3 giorni | **un piolo certificato regredisce in silenzio** quando altre missioni aggiungono lettori (E3: 49→45, quattro domande, un `from`) | regola: **prima misura, poi cura**; il `.p0t` del piolo (`prose_triage.p0t`) porta il contrasto di ogni furto chiuso, così il cricchetto lo vede prima del banco |
+| 18 set | diagnosi della regressione | la sonda **frase sola + domanda + «who answered?» + `P0_READ_TRACE=1`** ha trovato il ladro in una sessione (2 min); il banco intero ne avrebbe impiegate 10 senza dirlo | la sonda per frase è il primo passo di ogni diagnosi; il banco intero è la verifica |
+| 18 set | banco esteso | scrivere 60 domande con la risposta nel testo costa **~5 min per piolo** a mano; 11 pioli in un'ora; il controllo di copertura è automatico | le domande le scrive chi legge il testo, non un generatore: un generatore sceglierebbe le forme facili (anti-malizia 2) |
+| 18 set | r340 prima misura | **il trasferimento delle classi a un testo nuovo è debole** (4/65) e 6 risposte su 52 sono **furti di turno** di facoltà che non leggono la prosa (saggio causale, definizioni del mondo, «Ask me whether…») | sui pioli nuovi la prima cura è sempre la condotta (mantra #21), non la lettura; il banco stampa le «non muro, non giuste» a parte |
+| 18 set | r300, r320, r340 in parallelo | tre banchi insieme su 12 core non si rallentano (nessun timeout: il banco è chat, non `.p0t`) | i pioli si misurano **in parallelo**, uno per processo; i `.p0t` no (budget per turno) |
+| 18 set | primo piolo italiano (i100, Carbone vegetale, 108 parole) | **merito 0/23, meta 2/2, struttura 5/5**: 15 muri su 23 sono «Non so ancora tradurre «X»» — la prosa italiana passa per l'interlingua (`tr/2`) e il lessico del testo mancava (carbone, legna, combustibile, carbonaia, mummia, ricoperte, …); il muro stesso dice la forma della lezione | il canale #1 funziona: **37 traduzioni vere insegnate parlando** («the italian for coal is carbone»), 37/37 «Held», `/save` le instrada da solo in `kb/core/gloss.p0`; costo 3 min |
+| 18 set | certificare una riga di KB (`phrase_boundary` sulla copula) | i `.p0t` di guardia (5 file) costano ~8 min **e un turno appeso a HEAD** (`bridge_gap.p0t`, «knowledge gap zorb», 60 s) uccide il demone e lascia i file dopo senza esito; `name_is_knowledge` rosso per 0,02 s sopra il budget di 1 s (costo base del turno, `TEST_TODO`) | prima di attribuire un rosso alla modifica si rilancia con la KB di HEAD (`git stash push kb/…` → test → `stash pop`): 3 min, e distingue il pre-esistente dal proprio; un file appeso va **per ultimo** nella catena, o da solo |
+| 18 set | il costo della crescita, misurato | 37 fatti `tr/2` + il transcript salvato: `prosepage.it.p0t` «leggi la pagina su Xyzzy» passa da ~1,0 s a **1,09 s** (budget 1 s) — +0,1 s su un turno italiano al limite; `register_realization` (24/29) e il timeout da 2 s di `prosepage.it` sono **identici a HEAD** (bisezione: KB di HEAD, poi solo `input.p0`) | la crescita del lessico ha un prezzo per turno (mantra #20): si misura, non si nega; i rossi al confine del budget si classificano con la bisezione, mai «a occhio» |
+| 18 set | i100 dopo il lessico | ancora **0/23**, ma i muri cambiano specie: da «non so tradurre» a «non capisco»; la sonda per frase mostra la lettura (`coal vegetale …`, `located_in(coal_vegetale, …)`): **il blocco è l'accordo sul nome canonico fra lettura e domanda** (locuzione vs parola singola in `tr/2`), non la lingua | il lessico si insegna in minuti e non basta: il prossimo circuito italiano è nel canonicalizzatore (locuzione più lunga prima); la copula come confine di sintagma vale in inglese (misurato) e non ancora in italiano («è» non arriva alla KB) |
+
+### 4-quater.3 Le strategie in campo, con l'evidenza che le regge
+
+1. **Il ciclo minimo di una sessione, in ordine e con i tempi** (tutte le
+   evidenze sopra): (a) `git log -3`, il §6 di questo piano, l'ultimo referto in
+   `docs/labs/…` → 5 min; (b) `make build && make test-engine` (binario fresco:
+   `parrot0-stale-binary-trap`) → 1 min; (c) **rimisura** dell'ultimo piolo
+   certificato in background (`P0_PROBE_STEP2=1`) → 10 min in parallelo con
+   (d); (d) il piolo nuovo: prosa cieca, `.q` prima delle risposte, copertura
+   verde, banco in background → 15 min; (e) `prose-diff.py` sui due referti;
+   le «non muro, non giuste» a mano → 5 min; (f) UNA malattia per giro, sonda
+   per frase con `who answered?`, contrasto nel `.p0t` prima della cura, cura
+   KB-first, `.p0t` puntuali → il tempo vero della sessione; (g) rimisura, diff,
+   §6 + §4-quater, commit e push. **Totale fisso: ~40 min; il resto è cura.**
+2. **In parallelo, mai in serie.** I banchi dei pioli sono processi
+   indipendenti: tre o quattro insieme costano quanto uno. Il tempo di parete
+   di una rimisura completa (300→497, 11 pioli) scende da ~2 h a ~30 min.
+3. **La sonda per frase prima del banco.** Ogni frase sospetta si prova da sola
+   con la sua domanda e «who answered?» — 2 minuti, e dice CHI ha risposto.
+   Il banco intero verifica; non diagnostica.
+4. **Il cricchetto della prosa è il `.p0t`, non il banco.** Ogni furto chiuso
+   e ogni forma guadagnata lascia un contrasto in `tests/p0t/language/prose_triage.p0t`
+   (o nel `.p0t` del piolo): 80 assert in 3 minuti contro 10 minuti di banco, e
+   `make test` lo vede quando un'altra missione lo rompe.
+5. **Le domande a mano, la copertura a macchina.** Non si genera il banco:
+   si controlla (`prose-bench-coverage.py`). È l'unico modo di estendere il
+   banco senza scegliere le forme facili.
+6. **L'italiano è un piolo, non un ramo**: stessa scala (`ladder-it/`), stesso
+   banco (`P0LANG=it`), stessi vincoli; i muri italiani sono marcatori nel banco,
+   le cue di meta/struttura sono già in KB (`text_question_cue`, «quante
+   frasi», «di che cosa parla»). Un difetto italiano è una riga di KB (una
+   parafrasi insegnata, una cue), come per ogni altra lingua (mantra #2).
+7. **Lo stato vive qui.** Il §6 è il registro, il §4-quater le evidenze di
+   processo; `LEARN_TODO.md` porta solo un rimando. Chi riprende legge questo
+   file e l'ultimo referto: 5 minuti, non 40.
+
+---
+
 ## 5. I giri, in ordine, con la prova di chiusura
 
 | giro | malattia | cura prevista | prova |
@@ -422,6 +523,50 @@ ordine di frequenza sui due pioli:
 6. **«What did X displace / lead to / aim to maintain»**, «at the dawn of
    which period», «where do … exist on smaller scales»: verbi letti ma non
    interrogati da quella forma, e avverbiali di tempo dentro un inciso.
+
+**Il primo piolo italiano — i100, «Carbone vegetale» (lead di it.wikipedia,
+verbatim dall'API, 108 parole, 4 frasi; `tests/fixtures/prose/ladder-it/`).**
+Prima misura: **merito 0/23, meta 2/2, struttura 5/5** — la struttura e il tema
+valgono già in italiano (le cue di `text-structure.p0` c'erano), il merito no.
+Non per la lettura: per il **lessico**. Quindici muri su ventitré dicono «Non
+so ancora tradurre «carbone»», «…«ricoperte»», «…«mummia»»: la prosa italiana
+entra per l'interlingua (`tr/2`, gen506e) e le parole del carbone non c'erano.
+Il muro stesso nomina la lezione («the italian for … is carbone»), che è la
+prova che il canale #1 della gerarchia di crescita è aperto: **37 traduzioni
+vere** insegnate parlando in tre minuti, tutte «Held», `/save` le ha
+instradate da solo in `kb/core/gloss.p0` — conoscenza vera della lingua, non
+un fatto del brano (regola 4 del §4-quater.1). Due debolezze da tenere:
+«di che cosa parla?» risponde con la prima frase intera (il sintagma italiano
+non si chiude sulla copula «è»); «da che cosa è prodotto?» → «carbone vegetale
+is classed as combustibile prodotto» (definizione al posto della relazione, e
+la resa in inglese dentro un turno italiano).
+
+**Rimisura dopo il lessico (`i100-dopo-lessico.txt`): ancora 0/23 — ma i muri
+sono cambiati di specie, e questo è il dato.** «Non so ancora tradurre» resta
+su quattro parole (controllava, otteneva, aveva, Similaun); tutte le altre
+domande ora si traducono e cadono su «Non capisco ancora» o «Su carbone
+vegetale non so ancora molto». La prosa viene letta — la sonda dice
+`Imparato: coal vegetale è un fuel product, located_in(coal_vegetale,
+process_of_carbonization_of_the_firewood)` — e il difetto è a monte di ogni
+domanda: **la lettura e la domanda non si accordano sul nome canonico**
+(mantra #23, la forma di D33/D35/D37). «carbone vegetale» nel testo diventa
+`coal_vegetale` (la traduzione a parola singola `tr(coal, carbone)` vince
+sulla locuzione `tr(charcoal, carbone_vegetale)`), mentre la domanda «che
+cos'è il carbone vegetale?» arriva come «what is charcoal?»; e «prodotto dal
+processo» lascia un `located_in` — una bugia in KB, la specie peggiore. **È il
+circuito della prossima sessione italiana**: la locuzione più lunga vince sulla
+parola nel canonicalizzatore (una regola generale, non un vocabolario), e «dal»
+non è un luogo. Non si cura qui: un circuito per sessione (mantra #22).
+
+Un difetto laterale con la sua misura: «di che cosa parla il testo?» rispondeva
+la prima frase intera perché il sintagma non si chiudeva sulla copula «è». Una
+copula finita non sta mai dentro un sintagma nominale: `phrase_boundary(np,
+breaker, $W) :- clause_copula($W)` (`input.p0`, una riga sulla classe che
+c'era). **Misurato:** in inglese chiude («The reefs are red. They are old.» →
+«The text is about The reefs.»), in italiano no («La torba è scura.» → la frase
+intera): la parola «è» non arriva alla KB come `è` dal costruttore della IR
+(accento perso o riscritto prima del confronto). Anche questo va alla sessione
+italiana, con `P0_READ_TRACE` sulla IR.
 
 **Il piolo 340 (Charcoal), prima misura con queste classi: 4/65.** Il
 trasferimento che r320 aveva mostrato (4/13 a freddo) qui quasi non c'è: le

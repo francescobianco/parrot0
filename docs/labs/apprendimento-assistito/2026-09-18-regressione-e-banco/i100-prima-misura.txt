@@ -1,0 +1,59 @@
+
+═══ PROSA: tests/fixtures/prose/ladder-it/i100.txt — 108 parole (piolo 0) ═══
+    Il carbone vegetale è un combustibile prodotto dal processo di carbonizzazione della legna, 
+    che consiste nella trasformazione di un composto organico in carbone. È un processo che 
+    avviene durante il riscaldamento ad alta temperatura della legna (combustibile) in presenza di 
+    poco ossigeno (comburente), attraverso la cosiddetta carbonaia sotto il controllo di una figura 
+    altamente specializzata che era il carbonaio. Il carbone di legna è stato utilizzato dall'uomo 
+    da tempo immemorabile, probabilmente da quando esiste il fuoco: ad esempio i tatuaggi della 
+    Mummia del Similaun erano praticati con delle piccole incisioni della pelle, poi ricoperte con 
+    carbone vegetale per ottenere l'immagine. Il prodotto rientra all'interno della cosiddetta 
+    economia forestale.
+
+(passo 1 saltato: P0_PROBE_STEP2=1)
+
+─── PASSO 2 · legge tutta la prosa, poi risponde. La risposta E' nel testo ───
+
+  banco: 23 domande nel merito, 157 parole per 108 di testo (margine 1.25: ok).
+
+  DOMANDA                            SPECIE     ESITO  RISPOSTA
+  ────────────────────────────────────────────────────────────────────────────────
+  che cos'è il carbone vegetale?    merito     ·     Non so ancora tradurre «carbone». Se mi dici «the italian f
+  da che cosa è prodotto il carbo   merito     ·     carbone vegetale is classed as combustibile prodotto.
+  in che cosa consiste la carboniz   merito     ·     Non capisco ancora.
+  in che cosa viene trasformato un   merito     ·     Non ho afferrato bene. Cosa vorresti sapere?
+  quando avviene il processo di ca   merito     ·     Non so ancora tradurre «avviene». Se mi dici «the italian f
+  in presenza di che cosa avviene    merito     ·     Non capisco ancora.
+  attraverso che cosa avviene la c   merito     ·     Mmh, questo per ora va un po' oltre le mie capacita'.
+  chi controllava la carbonaia?      merito     ·     Non so ancora tradurre «controllava». Se mi dici «the itali
+  chi era il carbonaio?              merito     ·     Su carbonaio non so ancora molto, e la rete è spenta: adesso 
+  da quando è utilizzato il carbo   merito     ·     Non so ancora tradurre «utilizzato». Se mi dici «the italia
+  come erano praticati i tatuaggi    merito     ·     Non so ancora tradurre «praticati». Se mi dici «the italian
+  con che cosa erano ricoperte le    merito     ·     Non so ancora tradurre «ricoperte». Se mi dici «the italian
+  perché le incisioni erano ricop   merito     ·     Non capisco ancora.
+  in che cosa rientra il prodotto?   merito     ·     Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+  che cos'è la legna nel processo   merito     ·     Leggo «legna» come «legno». Su legno non so ancora molto, 
+  che cos'è l'ossigeno nel proces   merito     ·     Su l'ossigeno non so ancora molto, e la rete è spenta: adesso
+  che cos'è il carbone di legna?    merito     ·     Leggo «legna» come «legno». Su carbone di legna non so anc
+  a che temperatura avviene il ris   merito     ·     Non capisco ancora.
+  che cosa si otteneva ricoprendo    merito     ·     Non so ancora tradurre «otteneva». Se mi dici «the italian 
+  quale mummia aveva tatuaggi prat   merito     ·     Non so ancora tradurre «mummia». Se mi dici «the italian fo
+  che cos'è la carbonizzazione de   merito     ·     Leggo «legna» come «legno». Su carbonizzazione della legna
+  che cosa produce la carbonizzazi   merito     ·     Non so ancora tradurre «produce». Se mi dici «the italian f
+  di che cosa sono ricoperte le in   merito     ·     Non so ancora tradurre «ricoperte». Se mi dici «the italian
+  quante frasi ha il testo?          struttura  ✓    Il testo ha 4 frasi.
+  quante parole ha il testo?         struttura  ✓    Il testo ha 108 parole.
+  qual è la prima frase?            struttura  ✓    Comincia: Il carbone vegetale è un combustibile prodotto dal 
+  come comincia il testo?            struttura  ✓    Comincia: Il carbone vegetale è un combustibile prodotto dal 
+  qual è l'ultima frase?            struttura  ✓    Finisce: Il prodotto rientra all'interno della cosiddetta econ
+  di che cosa parla il testo?        meta       ✓    Il testo parla di Il carbone vegetale è un combustibile prodo
+  qual è il tema?                   meta       ✓    Il testo parla di Il carbone vegetale è un combustibile prodo
+  ────────────────────────────────────────────────────────────────────────────────
+  merito     0/23
+  meta       2/2
+  struttura  5/5
+
+  7 domande su 30 hanno ricevuto quello che il testo dice.
+  ⛔ CANCELLO: 0 parole di domande nel merito risolte, ne servono piu' di 108 (mancano 109).
+  ⛔ 23 restano senza: la risposta E' nel testo, e il lettore non la porta.
+

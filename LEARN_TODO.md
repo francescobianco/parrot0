@@ -28,6 +28,17 @@ legge il piano, e ogni giro aggiorna il piano, non solo questo file.
   (qualificatore ignorato: l'anno della stima, «about half of»; turno rubato: la
   procedura del rame, la definizione di *matter*), poi «what kind of» sull'aggettivo,
   il composto della domanda senza chiave, la parentetica come definizione.
+- **Il processo si ripete (F.):** piano §4-quater — regole anti-malizia, evidenze di
+  processo per sessione, strategie con l'evidenza; `scripts/prose-diff.py` (che cosa
+  cambia fra due referti) e `scripts/prose-bench-coverage.py` (ogni frase ha una
+  domanda; nessuna risposta assente dal testo). I pioli si misurano in parallelo.
+- **Primo piolo italiano** `tests/fixtures/prose/ladder-it/i100` (Carbone vegetale,
+  verbatim): 0/23 merito, meta 2/2, struttura 5/5. 37 traduzioni vere insegnate
+  parlando e salvate (`kb/core/gloss.p0`) tolgono i muri di lessico ma il merito resta
+  0: **lettura e domanda non si accordano sul nome canonico** (`coal_vegetale` da
+  `tr(coal, carbone)` contro «charcoal» dalla locuzione) e «prodotto dal processo» lascia
+  un `located_in` falso. Prossimo circuito italiano: locuzione più lunga prima nel
+  canonicalizzatore; e «è» che non arriva alla KB come confine di sintagma.
 - Referti grezzi: `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
 
 ## ⛔ HANDOFF 2026-09-14 (sera) — DA PAROLA A STATO: mossa 1 chiusa, mossa 2 a metà con un misclaim aperto

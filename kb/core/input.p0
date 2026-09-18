@@ -147,6 +147,13 @@ pos(orbits, verb).
 phrase_boundary(np, opener, $Word) :- np_opener($Word).
 phrase_boundary(np, closer, $Word) :- np_closer($Word).
 phrase_boundary(np, breaker, $Word) :- pos($Word, verb).
+% 18 settembre 2026 — primo piolo italiano della scala della prosa: «Il carbone
+% vegetale è un combustibile…» non chiudeva il sintagma sulla copula «è», e
+% «di che cosa parla il testo?» rispondeva con la frase intera. Una copula
+% finita non sta mai dentro un sintagma nominale, in nessuna lingua: la classe
+% e' `clause_copula/1` (grammar.p0: is, are, was, were, è, sono, era, …), e una
+% lingua nuova e' una riga li', non qui.
+phrase_boundary(np, breaker, $Word) :- clause_copula($Word).
 
 register_label(c, "C").
 register_label(python, "Python").

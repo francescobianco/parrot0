@@ -96,6 +96,7 @@ tr(module, modulo).
 tr(modules, moduli).
 tr(invented, inventato).
 tr(high, alto).
+tr(high, alta).
 tr(tall, alto).
 
 % gen388 — i sistemi del corpo, perche' una risposta italiana non resti un atomo
@@ -597,6 +598,7 @@ tr(finishes, finisce).
 % COMMON ADJECTIVES (masculine singular base)
 % ============================================================
 tr(big, grande).
+tr(small, piccole).
 tr(small, piccolo).
 tr(large, grande).
 tr(long, lungo).
@@ -1166,6 +1168,41 @@ tr(black_sea, mar_nero).
 tr(indian_rupee, rupia_indiana).
 tr(rupee, rupia).
 tr(hungary, ungheria).
+tr(falls_within, rientra).
+tr(practised, praticati).
+tr(exists, esiste).
+tr(produces, produce).
+tr(obtain, ottenere).
+tr(covered, ricoperte).
+tr(used, utilizzato).
+tr(happens, avviene).
+tr(consists, consiste).
+tr(so-called, cosiddetta).
+tr(control, controllo).
+tr(presence, presenza).
+tr(forest_economy, economia_forestale).
+tr(product, prodotto).
+tr(image, immagine).
+tr(incisions, incisioni).
+tr(tattoos, tatuaggi).
+tr(mummy, mummia).
+tr(time_immemorial, tempo_immemorabile).
+tr(highly, altamente).
+tr(specialized, specializzata).
+tr(figure, figura).
+tr(charcoal_burner, carbonaio).
+tr(charcoal_kiln, carbonaia).
+tr(oxidizer, comburente).
+tr(heating, riscaldamento).
+tr(process, processo).
+tr(organic, organico).
+tr(compound, composto).
+tr(transformation, trasformazione).
+tr(carbonization, carbonizzazione).
+tr(fuel, combustibile).
+tr(firewood, legna).
+tr(charcoal, carbone_vegetale).
+tr(coal, carbone).
 
 
 % ══ gen510 — IL PIANO DI TRADUZIONE: UN TURNO IN UN'ALTRA LINGUA ════════════

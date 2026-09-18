@@ -123,6 +123,7 @@ utterance(5, user, "what is a residual current device?").
 utterance(5, user, "what does a fire extinguisher do?").
 utterance(5, user, "how do you know that?").
 utterance(5, user, "what does a sump pump do?").
+utterance(5, user, "the italian for firewood is legna").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -226,6 +227,7 @@ utterance(6, self, "From what I read: A fire extinguisher is a handheld active f
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — rain causes wet ground (part of my curated base); wet ground causes slippery surfaces (part of my curated base); slippery surfaces causes falls (from the sentence «slippery surfaces cause falls»). The conclusion is mine.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(6, self, "From what I read: A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
+utterance(6, self, "Held: «legna» is how firewood is said in that language.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -734,6 +736,7 @@ utterance(7, user, "can I throw lithium batteries in the bin?").
 utterance(7, user, "hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 utterance(7, user, "a smoke detector is a device that senses smoke").
 utterance(7, user, "where did you read that?").
+utterance(7, user, "the italian for fuel is combustibile").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1200,7 +1203,11 @@ utterance(9, user, "what does a smoke detector sense?").
 utterance(10, self, "smoke.").
 utterance(11, user, "legionella of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine").
 utterance(8, self, "I read it on Wikipedia: the article «Sump pump» (en edition, revision 1371498004, lead section). It is the text I read, not a conclusion of mine.").
+utterance(8, self, "Held: «combustibile» is how fuel is said in that language.").
+utterance(9, user, "the italian for carbonization is carbonizzazione").
+utterance(10, self, "Held: «carbonizzazione» is how carbonization is said in that language.").
 utterance(11, user, "a carbon monoxide detector is a device").
+utterance(11, user, "the italian for transformation is trasformazione").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2064,7 +2071,70 @@ utterance(15, user, "a carbon monoxide detector is a device which detects the pr
 utterance(16, self, "Learned: carbon monoxide detector is a device. Learned: carbon monoxide detector detect presence of carbon monoxide gas.").
 utterance(17, user, "what does a carbon monoxide detector detect?").
 utterance(18, self, "presence of carbon monoxide gas.").
+utterance(12, self, "Held: «trasformazione» is how transformation is said in that language.").
+utterance(13, user, "the italian for compound is composto").
+utterance(14, self, "Held: «composto» is how compound is said in that language.").
+utterance(15, user, "the italian for organic is organico").
+utterance(16, self, "Held: «organico» is how organic is said in that language.").
+utterance(17, user, "the italian for process is processo").
+utterance(18, self, "Held: «processo» is how process is said in that language.").
+utterance(19, user, "the italian for heating is riscaldamento").
+utterance(20, self, "Held: «riscaldamento» is how heating is said in that language.").
+utterance(21, user, "the italian for oxidizer is comburente").
+utterance(22, self, "Held: «comburente» is how oxidizer is said in that language.").
+utterance(23, user, "the italian for charcoal kiln is carbonaia").
+utterance(24, self, "Held: «carbonaia» is how charcoal_kiln is said in that language.").
+utterance(25, user, "the italian for charcoal burner is carbonaio").
+utterance(26, self, "Held: «carbonaio» is how charcoal_burner is said in that language.").
+utterance(27, user, "the italian for figure is figura").
+utterance(28, self, "Held: «figura» is how figure is said in that language.").
+utterance(29, user, "the italian for specialized is specializzata").
+utterance(30, self, "Held: «specializzata» is how specialized is said in that language.").
+utterance(31, user, "the italian for highly is altamente").
+utterance(32, self, "Held: «altamente» is how highly is said in that language.").
+utterance(33, user, "the italian for time immemorial is tempo immemorabile").
+utterance(34, self, "Held: «tempo_immemorabile» is how time_immemorial is said in that language.").
+utterance(35, user, "the italian for mummy is mummia").
+utterance(36, self, "Held: «mummia» is how mummy is said in that language.").
+utterance(37, user, "the italian for tattoos is tatuaggi").
+utterance(38, self, "Held: «tatuaggi» is how tattoos is said in that language.").
+utterance(39, user, "the italian for incisions is incisioni").
+utterance(40, self, "Held: «incisioni» is how incisions is said in that language.").
+utterance(41, user, "the italian for image is immagine").
+utterance(42, self, "Held: «immagine» is how image is said in that language.").
+utterance(43, user, "the italian for product is prodotto").
 utterance(26, self, "When that happens I: 1) I look at what it is made of  2) I say what it is for.").
+utterance(44, self, "Held: «prodotto» is how product is said in that language.").
+utterance(45, user, "the italian for forest economy is economia forestale").
+utterance(46, self, "Held: «economia_forestale» is how forest_economy is said in that language.").
+utterance(47, user, "the italian for presence is presenza").
+utterance(48, self, "Held: «presenza» is how presence is said in that language.").
+utterance(49, user, "the italian for control is controllo").
+utterance(50, self, "Held: «controllo» is how control is said in that language.").
+utterance(51, user, "the italian for so-called is cosiddetta").
+utterance(52, self, "Held: «cosiddetta» is how so-called is said in that language.").
+utterance(53, user, "the italian for consists is consiste").
+utterance(54, self, "Held: «consiste» is how consists is said in that language.").
+utterance(55, user, "the italian for happens is avviene").
+utterance(56, self, "Held: «avviene» is how happens is said in that language.").
+utterance(57, user, "the italian for used is utilizzato").
+utterance(58, self, "Held: «utilizzato» is how used is said in that language.").
+utterance(59, user, "the italian for covered is ricoperte").
+utterance(60, self, "Held: «ricoperte» is how covered is said in that language.").
+utterance(61, user, "the italian for obtain is ottenere").
+utterance(62, self, "Held: «ottenere» is how obtain is said in that language.").
+utterance(63, user, "the italian for produces is produce").
+utterance(64, self, "Held: «produce» is how produces is said in that language.").
+utterance(65, user, "the italian for exists is esiste").
+utterance(66, self, "Held: «esiste» is how exists is said in that language.").
+utterance(67, user, "the italian for practised is praticati").
+utterance(68, self, "Held: «praticati» is how practised is said in that language.").
+utterance(69, user, "the italian for falls within is rientra").
+utterance(70, self, "Held: «rientra» is how falls_within is said in that language.").
+utterance(71, user, "the italian for high is alta").
+utterance(72, self, "Held: «alta» is how high is said in that language.").
+utterance(73, user, "the italian for small is piccole").
+utterance(74, self, "Held: «piccole» is how small is said in that language.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
 utterance(34, self, "Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready. Does anyone have dietary needs, and how much time do you have?").
@@ -2472,6 +2542,7 @@ utterance(2, self, "Hmm, I don't know about fire extinguisher yet. Want me to le
 utterance(2, self, "Learned: slippery surfaces cause falls.").
 utterance(2, self, "Learned: legionella outbreaks cause legionnaires disease.").
 utterance(2, self, "Hmm, I don't know about sump pump yet. Want me to learn about it?").
+utterance(2, self, "Held: «carbone» is how coal is said in that language.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2581,6 +2652,7 @@ utterance(1, user, "what does a fire extinguisher do?").
 utterance(1, user, "slippery surfaces cause falls").
 utterance(1, user, "legionella outbreaks cause legionnaires disease").
 utterance(1, user, "what does a sump pump do?").
+utterance(1, user, "the italian for coal is carbone").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2682,6 +2754,7 @@ utterance(4, self, "Looking up fire extinguisher... A fire extinguisher is a han
 utterance(4, self, "Yes: rain causes wet ground, and wet ground causes slippery surfaces, and slippery surfaces causes falls.").
 utterance(4, self, "Yes: poorly maintained cooling towers causes legionella outbreaks, and legionella outbreaks causes legionnaires disease.").
 utterance(4, self, "Looking up sump pump... A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
+utterance(4, self, "Held: «carbone_vegetale» is how charcoal is said in that language.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2780,6 +2853,7 @@ utterance(3, user, "a smoke detector is a device").
 utterance(3, user, "yes").
 utterance(3, user, "does rain lead to falls?").
 utterance(3, user, "do poorly maintained cooling towers cause legionnaires disease?").
+utterance(3, user, "the italian for charcoal is carbone vegetale").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").
