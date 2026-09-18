@@ -3899,8 +3899,13 @@ question_qualifier(time, since).
 question_qualifier(time, during).
 question_qualifier(time, before).
 question_qualifier(time, after).
+% L'italiano arriva canonicalizzato: «nel 2020» e' «in the 2020», «dal 1950»
+% «from the 1950» (misurato con P0_READ_TRACE, notte del 18): l'apertura e' la
+% forma canonica, e «nel»/«dal» restano per un turno non canonicalizzato.
 question_qualifier(time, nel).
 question_qualifier(time, dal).
+question_qualifier(time, "in the").
+question_qualifier(time, "from the").
 qualifier_shape(portion, word).
 question_qualifier(portion, "half of").
 question_qualifier(portion, "a third of").
