@@ -95,6 +95,99 @@ sintomo curato al posto della causa.**
 furto.** Se il modulo è immaturo, la cessione è la risposta sbagliata anche
 quando funziona.
 
+### ⛔ 1-bis.1-ter IL FURTO È UN DIFETTO COGNITIVO, NON UN INCIDENTE (F., 18 settembre 2026)
+
+> F.: *«per me il furto è il segnale di un modulo che non sta usando la
+> comprensione universale: i moduli che non possono essere addestrati perché
+> rigidi, obsoleti, non pura KB, o che non usano la comprensione universale
+> sono un problema. Quando un modulo ruba un turno è un problema cognitivo.
+> Diverse volte ho visto il turno rubato trattato come una specie di incidente
+> locale da sistemare per andare avanti; io voglio che questi incidenti siano
+> gestiti con un piano che li risolva una volta per tutte, con l'idea di
+> portare tutto in KB. Il modulo chitchat è un frasario in KB, non è un
+> comportamento cognitivo di cui la KB è pregna.»*
+
+**Detto come tesi, perché sia falsificabile.** Un turno rubato è un turno a cui
+parrot0 ha risposto **senza averlo letto**: la facoltà che ha parlato ha
+riconosciuto una sottostringa, una cue, una forma propria — non la lettura che
+la comprensione universale (la IR: `input_node`, `turn_declared_act`,
+`turn_illocution`, i frame) aveva o avrebbe potuto dare di quel turno. Il
+difetto non è nella risposta, è **nel modo in cui è stata decisa**: parrot0 ha
+parlato senza capire. Per questo non è un incidente locale: è la stessa
+malattia ogni volta, e ogni cessione scritta per il caso (S1) la nasconde
+finché non ricompare altrove — il whack-a-mole del §1, misurato tre volte.
+
+**E la distinzione che chiude un equivoco.** «Il chitchat è un frasario in KB,
+non un comportamento cognitivo di cui la KB è pregna.» Le cue e i template di
+`chitchat`, `smalltalk`, `pragma`, `social` **stanno** in KB (`pragma_act`,
+`intent_cue`, `response_template`): il mantra #2 e il #16 sono soddisfatti.
+Ma la **decisione di parlare** è un confronto di sottostringhe sul turno grezzo
+(`kb_cue_match`), non una lettura: la KB ospita il *vocabolario* del modulo,
+non la sua *cognizione*. È la differenza fra «le parole sono in KB» e «la KB
+ha capito il turno e poi ha scelto le parole». Un frasario si insegna (una cue
+in più); una condotta cognitiva si insegna **dopo** una lettura: prima la IR
+dice «questo turno è un saluto», poi il frasario lo dice. Finché il secondo
+passo manca, il modulo è KB-first nel lessico e S0 nella condotta.
+
+#### La misura, oggi (18 settembre 2026, `tests/tools/module_review.py` in modo censimento)
+
+| | |
+|---|---|
+| facoltà nel registro | **80** |
+| con almeno una lettura del frame (`frame_uses > 0`) | **6** — `knowledge` 5, `reqgen` 4, `gen` 2, `reader` 2, `code` 1, `quantity` 1 |
+| **senza nessuna lettura del frame** | **74** (`answer_frame`, `wordproblem`, `arith`, `memory`, `chitchat`, `smalltalk`, `pragma`, `role`, `meta`, `piact`, …) |
+| recensite con titolo dichiarato (§1-bis) | **5** (`compose`, `role`, `gen`, `codeast`, `symbolic`) — le altre 75 competono senza titolo, permissive per default |
+| furti misurati sulla scala della prosa, stesso giorno | r340: 6 risposte confidenti e sbagliate su 52 domande nuove; r320: 2; r300: 2 «qualificatore ignorato» (`lettura-della-prosa.md` §6) |
+
+La misura è un *proxy* (conta le chiamate C alle viste del frame; i consumatori
+**puri KB** della IR — `text-structure.p0`, `decisions.p0`, `event-time.p0`,
+`model-lesson.p0`, via `turn_response`/`bookkeeper` — non sono facoltà del
+registro e non compaiono: sono la forma di arrivo). Ma il verso è netto: **la
+facoltà che decide senza leggere è la regola, non l'eccezione.**
+
+#### Le tre specie, e il rimedio di ciascuna (il piano «una volta per tutte»)
+
+| specie | come decide | esempio | rimedio |
+|---|---|---|---|
+| **A · consumatore KB della IR** | una regola KB sulla lettura (`turn_declared_act`, `input_node`, frame) | `text-structure.p0` («quante frasi?»), `event-time.p0`, `decisions.p0` | è la forma di arrivo: un furto qui è una **lettura troppo larga** e si cura con una riga di conoscenza (`ev_origin_bearer/2`, 18 settembre) |
+| **B · frasario in KB, condotta nel C** | cue/`pragma_act` in KB, ma la pretesa è `kb_cue_match` sul grezzo | `chitchat`, `smalltalk`, `pragma`, `social`, `answer_frame` | **spostare la pretesa sulla lettura**: la facoltà parla solo se `turn_declared_act(T, Atto)` lo dice (il saluto letto, la domanda letta); il frasario resta come *presentazione* (`present/2`), la decisione diventa KB. Finché non è fatto: titolo `fallback` |
+| **C · lettore privato nel C** | scansione propria del grezzo, vocabolario o condizioni compilate | `piact`, `meta`, `role`, `wordproblem`, `arith`, i saggi causali | **nessun titolo** (`claim_right none/fallback`): rispondono solo se nessuna lettura ha detto niente del turno; si migrano a A o B quando danno fastidio, mai si governano con cessioni (mantra #21) |
+
+E la regola che sostituisce l'incidente: **il default cambia verso.** Oggi una
+facoltà non recensita compete come `primary`; da questo piano una facoltà
+**senza lettura del frame e senza review è `fallback`**, e passa in prima
+fascia solo con una review scritta che dichiari **su quale lettura** pretende.
+Non si fa in un giorno: si fa **per evidenza**, a partire dalle facoltà che
+portano il banco della prosa (`answer_frame`, `knowledge`, `wordquery`,
+`count`, `quantity`, `coref`, `discourse`, `reader`) — recensite per prime,
+con la lettura su cui pretendono nominata nella testata — e dalle prime dieci
+che hanno rubato sulla scala (colonna «modulo» del banco).
+
+#### Il registro dei furti (una riga per furto, mai una cessione)
+
+| data | piolo / turno | modulo | che cosa ha detto | specie | stato |
+|---|---|---|---|---|---|
+| 18 set | r300 «Most coral reefs are built from stony corals» | E3 `event-time.p0` (A) | «Noted: The built is from stony.» | A, lettura troppo larga | ✅ `ev_origin_bearer/2` |
+| 18 set | r340 «what is charcoal used as in chemical processes?» | **`analysis_family`** | «On charcoal used as in chemical, a causal account turns on…» (un saggio) | **C** | aperto: nessun titolo su un turno che la lettura ha letto |
+| 18 set | r340 «where is wood carbonized in modern methods?» | **`analysis_family`** | «On wood carbonized in modern, a sound investigation turns on…» | **C** | aperto |
+| 18 set | r340 «what factors do the properties of charcoal depend on?» | **`robust`** | «Ask me whether something holds first — then I can tell you…» | **C** | aperto |
+| 18 set | r340 «what is the temperature of carbonization a factor for?» | **`semantic_lead`** | la definizione del mondo di *temperature* | **C** (lead per parola nota) | aperto |
+| 18 set | r340 «what is charcoal made of carbon by?» | **`semantic_lead`** | il ciclo del carbonio | **C** | aperto |
+| 18 set | r320 «what is added to the plant matter to aid decomposition?» | **`semantic_lead`** | «Matter is physical substance made of particles…» | **C** | aperto |
+| 18 set | r340 «in which regions did charcoal production contribute to deforestation?» | `knowledge` | «america, africa.» — la frase della produzione illegale, non quella della deforestazione (Central Europe) | **A/B, lettura**: due fatti con la stessa costruzione «in regions like», soggetto sbagliato | aperto: si insegna (mantra #23: che cosa manca alla KB per distinguerli) |
+| 18 set | r340 «what is often formed in charcoal burning?» | `knowledge` | «charcoal is a lightweight black residue.» (la definizione al posto della relazione) | A/B, lettura | aperto |
+| 18 set | r320 «how much of the waste in landfills do compostable materials make up?» | `knowledge` | una procedura di recupero del rame («1. Salvage insulated copper wire…») | A/B, recupero sbagliato | aperto |
+| 18 set | r320 «why does composting offer a superior alternative?» | `answerframe` | «Environmentally superior alternative.» (l'oggetto al posto del perché) | B, il «why» ignorato | aperto |
+| 18 set | r340, **la lettura stessa** «…heating wood (or other animal and plant materials)…» | `knowledge` | **`Learned: other is part of newtons_law_of_universal_gravitation`** — un fatto FALSO entrato in KB da una parentetica, per collisione con una lezione del mondo | **A/B, lettura: la specie peggiore** (mantra #7) | aperto, **prima di tutti**: una bugia in KB da una prosa vera |
+| 18 set | r300 «what was the economic value … in 2020?» | risposta giusta al fatto sbagliato | «anywhere from US$30–375 billion» | qualificatore ignorato (non un furto: una lettura incompleta) | aperto |
+
+**Il gate, falsificabile:** un piolo della scala è **pulito** quando la colonna
+«modulo» del referto (`P0_PROBE_WHO=1`) non contiene nessuna risposta «non
+muro, non giusta» data da una facoltà di specie C, e ogni risposta ✓ viene da
+A o B con la lettura nominata. Il conto dei furti per modulo lo stampa il
+banco; il registro qui sopra li tiene finché la specie è chiusa, non finché il
+caso è chiuso.
+
 ### 1-bis.2 Il criterio: una REVIEW dichiarata in testa al modulo
 
 Non una metrica dedotta di nascosto: **una review scritta, in un commento in

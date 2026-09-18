@@ -183,7 +183,29 @@ fi
 # Costa una sessione per piolo, e rende il banco onesto per costruzione anche
 # quando la KB cresce di sotto.
 mapfile -t COLD < <(run "${QS[@]}")
-mapfile -t REPLIES < <(run "$PROSE" "${QS[@]}" | tail -n +2)
+# ── CHI HA RISPOSTO (F., 18 settembre 2026) ─────────────────────────────────
+#
+# «Il furto di turno è il segnale di un modulo che non sta usando la
+# comprensione universale: un problema cognitivo, non un incidente locale.»
+# Con P0_PROBE_WHO=1 ogni domanda e' seguita da «who answered?», e il referto
+# porta la colonna del MODULO: una risposta sbagliata senza il nome di chi
+# l'ha data e' un incidente; con il nome e' una riga del registro dei furti
+# (docs/plans/turn-arbitration.md §1-ter) e si cura per classe. Costa il doppio
+# dei turni: si accende quando si legge il referto a mano, non nella scala.
+declare -a WHO
+if [ "${P0_PROBE_WHO:-0}" = 1 ]; then
+  ASKS=(); for q in "${QS[@]}"; do ASKS+=("$q" "who answered?"); done
+  mapfile -t BOTH < <(run "$PROSE" "${ASKS[@]}" | tail -n +2)
+  REPLIES=(); WHO=()
+  for ((i=0; i<${#BOTH[@]}; i+=2)); do
+    REPLIES+=("${BOTH[$i]:-}")
+    w=$(printf '%s' "${BOTH[$((i+1))]:-}" | grep -oE "The '[a-z_0-9]+' module" | sed "s/The '//;s/' module//")
+    [ -n "$w" ] || w=$(printf '%s' "${BOTH[$((i+1))]:-}" | grep -qi "fell through\|fallback" && echo "fallback" || echo "?")
+    WHO+=("$w")
+  done
+else
+  mapfile -t REPLIES < <(run "$PROSE" "${QS[@]}" | tail -n +2)
+fi
 
 # ── IL CANCELLO DI F. (12 settembre 2026, secondo giro della scala) ─────────
 #
@@ -231,8 +253,24 @@ for idx in "${!QS[@]}"; do
     verdict="✓"; ok=$((ok+1)); KOK[$kind]=$(( ${KOK[$kind]:-0} + 1 ))
     [ "$kind" = merito ] && gate_words=$(( gate_words + $(printf '%s' "$q" | wc -w) ))
   else verdict="·"; fi
-  printf '  %-34s %-10s %-6s %s\n' "$(printf '%s' "$q" | cut -c1-32)" "$kind" "$verdict" "$(printf '%s' "$got" | cut_to 62)"
+  if [ "${P0_PROBE_WHO:-0}" = 1 ]; then
+    printf '  %-34s %-10s %-6s %-12s %s\n' "$(printf '%s' "$q" | cut -c1-32)" "$kind" "$verdict" "${WHO[$idx]:-?}" "$(printf '%s' "$got" | cut_to 50)"
+  else
+    printf '  %-34s %-10s %-6s %s\n' "$(printf '%s' "$q" | cut -c1-32)" "$kind" "$verdict" "$(printf '%s' "$got" | cut_to 62)"
+  fi
 done
+if [ "${P0_PROBE_WHO:-0}" = 1 ]; then
+  # I FURTI: risposte che non sono muri e non sono giuste, con il modulo che le
+  # ha date — la specie peggiore, contata a parte e per modulo.
+  printf '\n  furti (non muro, non giusta) per modulo:'
+  for idx in "${!QS[@]}"; do
+    got="${REPLIES[$idx]:-}"; want="${AS[$idx]}"
+    printf '%s' "$got" | grep -qiE "$WALL" && continue
+    printf '%s' "$got" | grep -qiE -- "$want" && continue
+    printf '%s\n' "${WHO[$idx]:-?}"
+  done | sort | uniq -c | sort -rn | awk '{printf "  %s×%s", $2, $1}'
+  printf '\n'
+fi
 printf '  %s\n' "────────────────────────────────────────────────────────────────────────────────"
 for k in merito meta struttura; do
   [ -n "${KN[$k]:-}" ] || continue

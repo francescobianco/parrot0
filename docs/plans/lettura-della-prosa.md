@@ -422,6 +422,50 @@ Un processo più veloce che misura meno è una regressione travestita. Quindi:
 
 ---
 
+## 4-quinquies. LO SVINCOLO: UN FURTO DI TURNO NON SI SISTEMA, SI REGISTRA E SI CHIUDE PER SPECIE (F., 18 settembre 2026)
+
+> F.: *«il furto è il segnale di un modulo che non sta usando la comprensione
+> universale … quando un modulo ruba un turno è un problema cognitivo … voglio
+> che questi incidenti siano gestiti con un piano che li risolva una volta per
+> tutte, con l'idea di portare tutto in KB … il chitchat è un frasario in KB,
+> non un comportamento cognitivo di cui la KB è pregna.»*
+
+Il piano intero sta in [`turn-arbitration.md` §1-bis.1-ter](turn-arbitration.md):
+la tesi (un turno rubato è un turno a cui parrot0 ha risposto **senza averlo
+letto**), la misura (**74 facoltà su 80 non toccano mai il frame**; 5 recensite
+su 80), le tre specie — **A** consumatore KB della IR, **B** frasario in KB con
+la pretesa nel C, **C** lettore privato — con il rimedio di ciascuna, e il
+registro dei furti. Qui sta ciò che **cambia in ogni giro di questa scala**:
+
+1. **Il banco nomina il ladro.** Con `P0_PROBE_WHO=1` ogni domanda è seguita da
+   «who answered?»; il referto porta la colonna **modulo** e il conto dei furti
+   per modulo («non muro, non giusta»). Una risposta sbagliata senza il nome di
+   chi l'ha data è un incidente; con il nome è una riga del registro.
+2. **Ogni furto va nel registro di `turn-arbitration.md`, con la specie.** Mai
+   una `faculty_yield` per una facoltà di specie C (mantra #21: insegnare a chi
+   non ha titolo lascia il ladro libero altrove). Per la specie B la cura è
+   spostare la pretesa sulla lettura (`turn_declared_act`), per la A è una riga
+   di conoscenza (come `ev_origin_bearer/2`).
+3. **Un piolo è pulito** quando la colonna modulo non contiene nessuna risposta
+   «non muro, non giusta» di specie C. Il numero ✓ viene dopo: un 49/50 con
+   una bugia dentro vale meno di un 40/50 pulito.
+4. **La lettura stessa è nel registro.** Il 18 settembre la prosa del carbone ha
+   lasciato in KB `part_of(other, newtons_law_of_universal_gravitation)` da una
+   parentetica: un fatto falso da un testo vero è il furto più grave di tutti,
+   perché nessuna domanda lo rivela. Prima di ogni cura di lettura, il passo 1
+   del banco (una frase per volta) si rilegge cercando i «Learned» che non
+   stanno nel testo.
+
+Misurato il 18 settembre sui pioli 320 e 340: i ladri di specie C sono
+`analysis_family` (saggi causali), `semantic_lead` (definizioni del mondo per
+parola nota), `robust`; i difetti di specie A/B sono di `knowledge` e
+`answerframe` (la frase sbagliata a parità di costruzione, il «why» ignorato).
+La prima sessione di questo svincolo recensisce le facoltà che portano la scala
+(`answerframe`, `knowledge`, `wordquery`, `count`, `quantity`, `coref`,
+`discourse`, `reader`) e retrocede a `fallback` le tre ladre di specie C.
+
+---
+
 ## 5. I giri, in ordine, con la prova di chiusura
 
 | giro | malattia | cura prevista | prova |

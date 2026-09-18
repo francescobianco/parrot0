@@ -507,6 +507,23 @@ prompt senza chiudere la sua classe non conta come progresso.
     ladro. **Il modulo con meno vocabolario compilato è quello che ha risposto
     bene.** Quattro casi non sono una legge, ma sono il verso previsto.
 
+    ⛔ **F., 2026-09-18 — il furto è un difetto COGNITIVO, non un incidente.**
+    *«Il furto è il segnale di un modulo che non sta usando la comprensione
+    universale … quando un modulo ruba un turno è un problema cognitivo …
+    voglio che questi incidenti siano gestiti con un piano che li risolva una
+    volta per tutte, con l'idea di portare tutto in KB. Il chitchat è un
+    frasario in KB, non un comportamento cognitivo di cui la KB è pregna.»*
+    Un turno rubato è un turno a cui parrot0 ha risposto **senza averlo
+    letto**; le parole in KB (#2, #16) non bastano se la **decisione** di
+    parlare è un confronto di sottostringhe e non una lettura della IR.
+    Misurato quel giorno: **74 facoltà su 80 non toccano mai il frame**, 5
+    recensite su 80. Un furto non si sistema per andare avanti: si registra
+    con il nome del modulo (`P0_PROBE_WHO=1` nel banco della prosa) e si
+    chiude per **specie** — A consumatore KB della IR, B frasario in KB con
+    la pretesa nel C, C lettore privato — con il rimedio di ciascuna in
+    `turn-arbitration.md` §1-bis.1-ter. Il default cambia verso: senza
+    lettura del frame e senza review, una facoltà è `fallback`.
+
     Ordine delle discipline e piano: `docs/plans/turn-arbitration.md`.
 
 22. **⛔ MASSIMIZZARE E DECLINARE — un circuito che funziona non si lascia a un

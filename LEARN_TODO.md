@@ -39,6 +39,13 @@ legge il piano, e ogni giro aggiorna il piano, non solo questo file.
   `tr(coal, carbone)` contro «charcoal» dalla locuzione) e «prodotto dal processo» lascia
   un `located_in` falso. Prossimo circuito italiano: locuzione più lunga prima nel
   canonicalizzatore; e «è» che non arriva alla KB come confine di sintagma.
+- **Lo svincolo dei furti (F.):** un turno rubato è un difetto cognitivo (risposto senza
+  lettura), non un incidente: censimento **74/80 facoltà senza lettura del frame**, tre
+  specie A/B/C con il rimedio di ciascuna, registro dei furti e default che cambia verso
+  in `turn-arbitration.md` §1-bis.1-ter; `P0_PROBE_WHO=1` nel banco stampa il modulo e i
+  furti per modulo. Ladri misurati: `analysis_family`, `semantic_lead`, `robust` (C);
+  `knowledge`/`answerframe` (A/B). **Prima di tutto**: `part_of(other, newtons_law…)`,
+  fatto falso lasciato in KB dalla parentetica del carbone.
 - Referti grezzi: `docs/labs/apprendimento-assistito/2026-09-18-regressione-e-banco/`.
 
 ## ⛔ HANDOFF 2026-09-14 (sera) — DA PAROLA A STATO: mossa 1 chiusa, mossa 2 a metà con un misclaim aperto
