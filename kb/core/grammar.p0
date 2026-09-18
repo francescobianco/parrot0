@@ -2087,6 +2087,10 @@ passive_frame_coordinate($Pat, $Root, $Aux, $By) :-
     concat_atoms($Prefix, $Form, $Mid), concat_atoms($Mid, $Suffix, $Pat).
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
+% 18 settembre 2026, notte — e la domanda al passivo porta il PARTICIPIO («what
+% is compost prepared by?»): la cue e' la forma, la relazione la radice, come
+% per la forma flessa nel ponte della domanda (`turn_question_verb`).
+answer_frame($Form, $Root) :- participle_of($Root, $Form), naf(relation_verb($Form)).
 % gen510 — una relazione DEFINITA per lezione («grandparent is parent twice») si
 % interroga con il lettore «R of» (holds/3 e la scala del verdetto), non con la
 % cornice generica, che provava l'entita' nei due versi e rispondeva «Kim»
