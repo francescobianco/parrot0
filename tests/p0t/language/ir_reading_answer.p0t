@@ -1,0 +1,30 @@
+# Specie A — LA IR LEGGE, LA KB RISPONDE (19 settembre 2026).
+#
+# Una frase nuova data da leggere si impegna dalla IR (sintagma candidato e nome
+# nudo come ruoli, forma flessa come operatore: input-structure.p0, grammar.p0),
+# e la domanda risponde da `input_frame_reading_unique/4` attraverso la porta KB
+# `turn_response/2` — non dal frasario (`answerframe`, specie B).
+# Le entita' sono inventate: provano la MECCANICA, non la lettura di un testo
+# vero (lettura-della-prosa-esecuzione.md §1). Nessun /save.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test un nome nudo e un sintagma diventano ruoli, e la domanda risponde dalla lettura]
+> read: Beetles threaten forests.
+<~ Learned 1 fact
+!query semantic_binding(binary(threaten), beetles, object(forests))
+> what do beetles threaten?
+< forests.
+> who answered?
+<! answerframe
+> read: The zorvan beetle threatens the kelda forest.
+!query semantic_binding(binary(threaten), zorvan_beetle, object(kelda_forest))
+> what does the zorvan beetle threaten?
+< kelda forest.
+
+[test senza un legame letto la strada A tace]
+> what do wolves threaten?
+<! forests

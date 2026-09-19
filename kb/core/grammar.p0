@@ -3660,6 +3660,10 @@ semantic_class($C)  :- wiki_concept($C, $Domain, $Gloss).
 % La superficie di un concetto e' il concetto stesso quando nessun gloss dice
 % altrimenti: `concept_label/4` resta la via per i casi in cui differiscono.
 linguistic_form($W, $W, en, common) :- relation_verb($W).
+% E2a, 19 settembre 2026 — e le sue forme flesse: la IR riconosceva come
+% operatore solo la forma nuda («threatens» non era un operatore). Le forme di
+% lettura sono gia' conoscenza (`verb_reading_form/2`, una vista).
+linguistic_form($Form, $Root, en, common) :- verb_reading_form($Root, $Form), dif($Root, $Form).
 linguistic_form($W, $W, en, common) :- clause_copula($W).
 linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
 
@@ -3938,6 +3942,14 @@ measured_value_max_words(9).
 % 210 ms su 7 enumerazioni nella frase del compost, cioe' tutto il costo di
 % `np_closer`. Il significato non cambia.
 np_closer($V) :- naf(turn_mentions_word(current_turn)), relation_verb($V).
+% E2a, 19 settembre 2026 — e la sua forma finita al presente (-s, -es, -ies):
+% «The zorvan beetle threatens …» correva fino a fine clausola. Participi e
+% gerundi restano fuori: dentro un sintagma sono modificatori legittimi.
+machinery(finite_present_of).
+np_closer($Form) :- verb_reading_form($Root, $Form), finite_present_of($Root, $Form).
+finite_present_of($Root, $Form) :- concat_atoms($Root, "s", $Form).
+finite_present_of($Root, $Form) :- concat_atoms($Root, "es", $Form).
+finite_present_of($Root, $Form) :- y_to_ies($Root, $Form).
 machinery(turn_mentions_word).
 turn_mentions_word($T) :-
     turn_word($T, $I, $C), clause_copula($C),

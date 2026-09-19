@@ -111,7 +111,16 @@ text_opening_np($Surface) :-
 % da delimitare: allora si chiede all'IR l'entita' nominata dalla prima frase.
 text_opening_entity($Entity) :-
     text_first_clause($C), input_entity_node(last_text, $L, $Id, $Entity),
-    input_node_parent(last_text, $Id, $C).
+    input_node_parent(last_text, $Id, $C),
+    input_node_range(last_text, $Id, $Start, $Len),
+    naf(text_entity_before($C, $Start)).
+% E2a, 19 settembre 2026: da quando la IR riconosce anche sintagmi e nomi nuovi,
+% l'entita' che apre il testo e' quella che nessun'altra della stessa frase
+% precede, non la prima soluzione trovata.
+machinery(text_entity_before).
+text_entity_before($C, $Start) :-
+    input_entity_node(last_text, $L, $Id, $E), input_node_parent(last_text, $Id, $C),
+    input_node_range(last_text, $Id, $S, $Len), lt($S, $Start).
 % E se il testo apre con un nome che parrot0 non ha mai visto e senza
 % determinante — «Compost is a mixture…», «Erosion is the action of…» — non
 % c'e' ne' sintagma ne' entita': resta la parola con cui il testo comincia, che

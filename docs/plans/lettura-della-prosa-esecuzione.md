@@ -445,6 +445,19 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- ✅ **Specie A, la catena ENTRATA (19 settembre, 11:20).** Dopo la lingua
+  memorizzata per lo scope (`f4706f2a`) la catena v2 di `docs/labs/specie-a/`
+  costa **2,1 s** di `input_frame_observe` sul paragrafo di r320 (erano 34,6 s
+  nella prima versione), con il turno a 11,9 s. Pioli invariati e sotto i
+  2 minuti: r300 48/62 (72 s), r320 20/68 (88 s), r340 5/65 (98 s). 14 turni
+  identici. `read:` di una frase nuova si impegna dalla IR, e la domanda risponde
+  da `turn_plan` (porta `turn_response`), non da `answerframe`: test
+  `tests/p0t/language/ir_reading_answer.p0t`, 7 verdi. **Limiti:** vale per
+  `read:`, perché la prosa incollata nel turno non si impegna ancora dalla IR;
+  e solo per le domande binarie sull'oggetto (`qsr`). Il banco non cambia,
+  perché le sue risposte vengono ancora dal frasario, che legge prima. Il
+  prossimo passo di specie A è impegnare dalla IR anche la prosa del turno, e
+  misurare quante risposte del banco passano da `answerframe` a `turn_plan`.
 - **Specie A, la catena misurata (19 settembre, 10:45–10:57).** Su una frase nuova
   («The zorvan beetle threatens the kelda forest.») la strada A si fermava in tre punti:
   1. **ruoli**: i frame legavano solo entità note. Aggiunto: un `np_candidate`
