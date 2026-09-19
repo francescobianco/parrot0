@@ -1,5 +1,13 @@
 # Lettura della prosa — il miglioramento continuo della comprensione
 
+> **19 settembre 2026 — prima fogliata massiva richiesta da F.** Integrato
+> [`english-prose.p0`](../../kb/core/english-prose.p0): 10.222 fatti e 67 regole
+> di lessico, morfologia, grammatica e pragmatica inglese, zero modifiche C.
+> [Inventario, consumatori e limiti](../english-prose-first-sheet.md).
+> Verificati sintassi e caricamento della KB completa. **Esperimenti rinviati
+> su richiesta di F.; nessun nuovo punteggio di comprensione.** I cicli
+> sperimentali descritti sotto non sono stati avviati in questa consegna.
+
 > **Piano vivo.** Non si chiude: si cricchetta. La misura è
 > [`scripts/prose-probe.sh`](../../scripts/prose-probe.sh) (`make prose-probe`),
 > e ogni giro deve farne scendere l'ultimo numero.

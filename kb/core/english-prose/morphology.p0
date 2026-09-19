@@ -1,0 +1,1918 @@
+% morphology.p0 — flessioni tipate; passato, participio e gerundio restano distinti
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+prose_verb_paradigm(arise, arose, arisen, arising).
+irregular_verb_form(arise, arose).
+irregular_verb_form(arise, arisen).
+irregular_participle(arisen).
+prose_verb_paradigm(awake, awoke, awoken, awaking).
+irregular_verb_form(awake, awoke).
+irregular_verb_form(awake, awoken).
+irregular_participle(awoken).
+prose_verb_paradigm(be, was, been, being).
+irregular_verb_form(be, was).
+irregular_verb_form(be, been).
+irregular_participle(been).
+prose_verb_paradigm(be, were, been, being).
+irregular_verb_form(be, were).
+prose_verb_paradigm(bear, bore, borne, bearing).
+irregular_verb_form(bear, bore).
+irregular_verb_form(bear, borne).
+irregular_participle(borne).
+prose_verb_paradigm(beat, beat, beaten, beating).
+irregular_verb_form(beat, beat).
+irregular_verb_form(beat, beaten).
+irregular_participle(beaten).
+prose_verb_paradigm(become, became, become, becoming).
+irregular_verb_form(become, became).
+irregular_verb_form(become, become).
+irregular_participle(become).
+prose_verb_paradigm(begin, began, begun, beginning).
+irregular_participle(begun).
+prose_verb_paradigm(bend, bent, bent, bending).
+irregular_verb_form(bend, bent).
+irregular_participle(bent).
+prose_verb_paradigm(bet, bet, bet, betting).
+irregular_verb_form(bet, bet).
+irregular_participle(bet).
+prose_verb_paradigm(bid, bid, bid, bidding).
+irregular_verb_form(bid, bid).
+irregular_participle(bid).
+prose_verb_paradigm(bind, bound, bound, binding).
+irregular_verb_form(bind, bound).
+irregular_participle(bound).
+prose_verb_paradigm(bite, bit, bitten, biting).
+irregular_verb_form(bite, bit).
+irregular_verb_form(bite, bitten).
+irregular_participle(bitten).
+prose_verb_paradigm(bleed, bled, bled, bleeding).
+irregular_verb_form(bleed, bled).
+irregular_participle(bled).
+prose_verb_paradigm(blow, blew, blown, blowing).
+irregular_verb_form(blow, blew).
+irregular_verb_form(blow, blown).
+irregular_participle(blown).
+prose_verb_paradigm(break, broke, broken, breaking).
+irregular_participle(broken).
+prose_verb_paradigm(breed, bred, bred, breeding).
+irregular_verb_form(breed, bred).
+irregular_participle(bred).
+prose_verb_paradigm(bring, brought, brought, bringing).
+irregular_participle(brought).
+prose_verb_paradigm(broadcast, broadcast, broadcast, broadcasting).
+irregular_verb_form(broadcast, broadcast).
+irregular_participle(broadcast).
+prose_verb_paradigm(build, built, built, building).
+irregular_participle(built).
+prose_verb_paradigm(burn, burnt, burnt, burning).
+irregular_verb_form(burn, burnt).
+irregular_participle(burnt).
+prose_verb_paradigm(burn, burned, burned, burning).
+irregular_verb_form(burn, burned).
+irregular_participle(burned).
+prose_verb_paradigm(burst, burst, burst, bursting).
+irregular_verb_form(burst, burst).
+irregular_participle(burst).
+prose_verb_paradigm(buy, bought, bought, buying).
+irregular_participle(bought).
+prose_verb_paradigm(cast, cast, cast, casting).
+irregular_verb_form(cast, cast).
+irregular_participle(cast).
+prose_verb_paradigm(catch, caught, caught, catching).
+irregular_participle(caught).
+prose_verb_paradigm(choose, chose, chosen, choosing).
+irregular_participle(chosen).
+prose_verb_paradigm(cling, clung, clung, clinging).
+irregular_verb_form(cling, clung).
+irregular_participle(clung).
+prose_verb_paradigm(come, came, come, coming).
+irregular_verb_form(come, come).
+irregular_participle(come).
+prose_verb_paradigm(cost, cost, cost, costing).
+irregular_verb_form(cost, cost).
+irregular_participle(cost).
+prose_verb_paradigm(creep, crept, crept, creeping).
+irregular_verb_form(creep, crept).
+irregular_participle(crept).
+prose_verb_paradigm(cut, cut, cut, cutting).
+irregular_verb_form(cut, cut).
+irregular_participle(cut).
+prose_verb_paradigm(deal, dealt, dealt, dealing).
+irregular_verb_form(deal, dealt).
+irregular_participle(dealt).
+prose_verb_paradigm(dig, dug, dug, digging).
+irregular_verb_form(dig, dug).
+irregular_participle(dug).
+prose_verb_paradigm(do, did, done, doing).
+irregular_participle(done).
+prose_verb_paradigm(draw, drew, drawn, drawing).
+irregular_verb_form(draw, drew).
+irregular_verb_form(draw, drawn).
+irregular_participle(drawn).
+prose_verb_paradigm(dream, dreamt, dreamt, dreaming).
+irregular_verb_form(dream, dreamt).
+irregular_participle(dreamt).
+prose_verb_paradigm(dream, dreamed, dreamed, dreaming).
+irregular_verb_form(dream, dreamed).
+irregular_participle(dreamed).
+prose_verb_paradigm(drink, drank, drunk, drinking).
+irregular_participle(drunk).
+prose_verb_paradigm(drive, drove, driven, driving).
+irregular_participle(driven).
+prose_verb_paradigm(dwell, dwelt, dwelt, dwelling).
+irregular_verb_form(dwell, dwelt).
+irregular_participle(dwelt).
+prose_verb_paradigm(eat, ate, eaten, eating).
+irregular_participle(eaten).
+prose_verb_paradigm(fall, fell, fallen, falling).
+irregular_participle(fallen).
+prose_verb_paradigm(feed, fed, fed, feeding).
+irregular_verb_form(feed, fed).
+irregular_participle(fed).
+prose_verb_paradigm(feel, felt, felt, feeling).
+irregular_participle(felt).
+prose_verb_paradigm(fight, fought, fought, fighting).
+irregular_participle(fought).
+prose_verb_paradigm(find, found, found, finding).
+prose_verb_paradigm(flee, fled, fled, fleeing).
+irregular_verb_form(flee, fled).
+irregular_participle(fled).
+prose_verb_paradigm(fling, flung, flung, flinging).
+irregular_verb_form(fling, flung).
+irregular_participle(flung).
+prose_verb_paradigm(fly, flew, flown, flying).
+irregular_verb_form(fly, flew).
+irregular_verb_form(fly, flown).
+irregular_participle(flown).
+prose_verb_paradigm(forbid, forbade, forbidden, forbidding).
+irregular_verb_form(forbid, forbade).
+irregular_verb_form(forbid, forbidden).
+irregular_participle(forbidden).
+prose_verb_paradigm(forecast, forecast, forecast, forecasting).
+irregular_verb_form(forecast, forecast).
+irregular_participle(forecast).
+prose_verb_paradigm(foresee, foresaw, foreseen, foreseeing).
+irregular_verb_form(foresee, foresaw).
+irregular_verb_form(foresee, foreseen).
+irregular_participle(foreseen).
+prose_verb_paradigm(forget, forgot, forgotten, forgetting).
+irregular_participle(forgotten).
+prose_verb_paradigm(forgive, forgave, forgiven, forgiving).
+irregular_verb_form(forgive, forgave).
+irregular_verb_form(forgive, forgiven).
+irregular_participle(forgiven).
+prose_verb_paradigm(forsake, forsook, forsaken, forsaking).
+irregular_verb_form(forsake, forsook).
+irregular_verb_form(forsake, forsaken).
+irregular_participle(forsaken).
+prose_verb_paradigm(freeze, froze, frozen, freezing).
+irregular_verb_form(freeze, froze).
+irregular_verb_form(freeze, frozen).
+irregular_participle(frozen).
+prose_verb_paradigm(get, got, got, getting).
+irregular_participle(got).
+prose_verb_paradigm(get, got, gotten, getting).
+irregular_verb_form(get, gotten).
+irregular_participle(gotten).
+prose_verb_paradigm(give, gave, given, giving).
+prose_verb_paradigm(go, went, gone, going).
+irregular_participle(gone).
+prose_verb_paradigm(grind, ground, ground, grinding).
+irregular_verb_form(grind, ground).
+irregular_participle(ground).
+prose_verb_paradigm(grow, grew, grown, growing).
+irregular_participle(grown).
+prose_verb_paradigm(hang, hung, hung, hanging).
+irregular_verb_form(hang, hung).
+irregular_participle(hung).
+prose_verb_paradigm(have, had, had, having).
+irregular_participle(had).
+prose_verb_paradigm(hear, heard, heard, hearing).
+irregular_participle(heard).
+prose_verb_paradigm(hide, hid, hidden, hiding).
+irregular_participle(hidden).
+prose_verb_paradigm(hit, hit, hit, hitting).
+irregular_verb_form(hit, hit).
+irregular_participle(hit).
+prose_verb_paradigm(hold, held, held, holding).
+irregular_participle(held).
+prose_verb_paradigm(hurt, hurt, hurt, hurting).
+irregular_verb_form(hurt, hurt).
+irregular_participle(hurt).
+prose_verb_paradigm(keep, kept, kept, keeping).
+irregular_participle(kept).
+prose_verb_paradigm(kneel, knelt, knelt, kneeling).
+irregular_verb_form(kneel, knelt).
+irregular_participle(knelt).
+prose_verb_paradigm(know, knew, known, knowing).
+prose_verb_paradigm(lay, laid, laid, laying).
+irregular_verb_form(lay, laid).
+irregular_participle(laid).
+prose_verb_paradigm(lead, led, led, leading).
+irregular_participle(led).
+prose_verb_paradigm(lean, leant, leant, leaning).
+irregular_verb_form(lean, leant).
+irregular_participle(leant).
+prose_verb_paradigm(lean, leaned, leaned, leaning).
+irregular_verb_form(lean, leaned).
+irregular_participle(leaned).
+prose_verb_paradigm(leap, leapt, leapt, leaping).
+irregular_verb_form(leap, leapt).
+irregular_participle(leapt).
+prose_verb_paradigm(leap, leaped, leaped, leaping).
+irregular_verb_form(leap, leaped).
+irregular_participle(leaped).
+prose_verb_paradigm(learn, learnt, learnt, learning).
+irregular_verb_form(learn, learnt).
+irregular_participle(learnt).
+prose_verb_paradigm(learn, learned, learned, learning).
+irregular_verb_form(learn, learned).
+irregular_participle(learned).
+prose_verb_paradigm(leave, left, left, leaving).
+irregular_participle(left).
+prose_verb_paradigm(lend, lent, lent, lending).
+irregular_participle(lent).
+prose_verb_paradigm(let, let, let, letting).
+irregular_verb_form(let, let).
+irregular_participle(let).
+prose_verb_paradigm(lie, lay, lain, lying).
+irregular_verb_form(lie, lay).
+irregular_verb_form(lie, lain).
+irregular_participle(lain).
+prose_verb_paradigm(light, lit, lit, lighting).
+irregular_verb_form(light, lit).
+irregular_participle(lit).
+prose_verb_paradigm(lose, lost, lost, losing).
+irregular_participle(lost).
+prose_verb_paradigm(make, made, made, making).
+irregular_participle(made).
+prose_verb_paradigm(mean, meant, meant, meaning).
+irregular_participle(meant).
+prose_verb_paradigm(meet, met, met, meeting).
+irregular_participle(met).
+prose_verb_paradigm(mislead, misled, misled, misleading).
+irregular_verb_form(mislead, misled).
+irregular_participle(misled).
+prose_verb_paradigm(mistake, mistook, mistaken, mistaking).
+irregular_verb_form(mistake, mistook).
+irregular_verb_form(mistake, mistaken).
+irregular_participle(mistaken).
+prose_verb_paradigm(overcome, overcame, overcome, overcoming).
+irregular_verb_form(overcome, overcame).
+irregular_verb_form(overcome, overcome).
+irregular_participle(overcome).
+prose_verb_paradigm(oversee, oversaw, overseen, overseeing).
+irregular_verb_form(oversee, oversaw).
+irregular_verb_form(oversee, overseen).
+irregular_participle(overseen).
+prose_verb_paradigm(overtake, overtook, overtaken, overtaking).
+irregular_verb_form(overtake, overtook).
+irregular_verb_form(overtake, overtaken).
+irregular_participle(overtaken).
+prose_verb_paradigm(overthrow, overthrew, overthrown, overthrowing).
+irregular_verb_form(overthrow, overthrew).
+irregular_verb_form(overthrow, overthrown).
+irregular_participle(overthrown).
+prose_verb_paradigm(pay, paid, paid, paying).
+irregular_participle(paid).
+prose_verb_paradigm(prove, proved, proven, proving).
+irregular_verb_form(prove, proved).
+irregular_verb_form(prove, proven).
+irregular_participle(proven).
+prose_verb_paradigm(prove, proved, proved, proving).
+irregular_participle(proved).
+prose_verb_paradigm(put, put, put, putting).
+irregular_verb_form(put, put).
+irregular_participle(put).
+prose_verb_paradigm(quit, quit, quit, quitting).
+irregular_verb_form(quit, quit).
+irregular_participle(quit).
+prose_verb_paradigm(read, read, read, reading).
+irregular_verb_form(read, read).
+irregular_participle(read).
+prose_verb_paradigm(rebuild, rebuilt, rebuilt, rebuilding).
+irregular_verb_form(rebuild, rebuilt).
+irregular_participle(rebuilt).
+prose_verb_paradigm(redo, redid, redone, redoing).
+irregular_verb_form(redo, redid).
+irregular_verb_form(redo, redone).
+irregular_participle(redone).
+prose_verb_paradigm(repay, repaid, repaid, repaying).
+irregular_verb_form(repay, repaid).
+irregular_participle(repaid).
+prose_verb_paradigm(rerun, reran, rerun, rerunning).
+irregular_verb_form(rerun, reran).
+irregular_verb_form(rerun, rerun).
+irregular_participle(rerun).
+prose_verb_paradigm(rewrite, rewrote, rewritten, rewriting).
+irregular_verb_form(rewrite, rewrote).
+irregular_verb_form(rewrite, rewritten).
+irregular_participle(rewritten).
+prose_verb_paradigm(rid, rid, rid, ridding).
+irregular_verb_form(rid, rid).
+irregular_participle(rid).
+prose_verb_paradigm(ride, rode, ridden, riding).
+irregular_verb_form(ride, rode).
+irregular_verb_form(ride, ridden).
+irregular_participle(ridden).
+prose_verb_paradigm(ring, rang, rung, ringing).
+irregular_verb_form(ring, rang).
+irregular_verb_form(ring, rung).
+irregular_participle(rung).
+prose_verb_paradigm(rise, rose, risen, rising).
+irregular_participle(risen).
+prose_verb_paradigm(run, ran, run, running).
+irregular_verb_form(run, run).
+irregular_participle(run).
+prose_verb_paradigm(saw, sawed, sawn, sawing).
+irregular_verb_form(saw, sawed).
+irregular_verb_form(saw, sawn).
+irregular_participle(sawn).
+prose_verb_paradigm(say, said, said, saying).
+irregular_participle(said).
+prose_verb_paradigm(see, saw, seen, seeing).
+prose_verb_paradigm(seek, sought, sought, seeking).
+irregular_participle(sought).
+prose_verb_paradigm(sell, sold, sold, selling).
+irregular_participle(sold).
+prose_verb_paradigm(send, sent, sent, sending).
+irregular_participle(sent).
+prose_verb_paradigm(set, set, set, setting).
+irregular_verb_form(set, set).
+irregular_participle(set).
+prose_verb_paradigm(sew, sewed, sewn, sewing).
+irregular_verb_form(sew, sewed).
+irregular_verb_form(sew, sewn).
+irregular_participle(sewn).
+prose_verb_paradigm(shake, shook, shaken, shaking).
+irregular_verb_form(shake, shook).
+irregular_verb_form(shake, shaken).
+irregular_participle(shaken).
+prose_verb_paradigm(shed, shed, shed, shedding).
+irregular_verb_form(shed, shed).
+irregular_participle(shed).
+prose_verb_paradigm(shine, shone, shone, shining).
+irregular_verb_form(shine, shone).
+irregular_participle(shone).
+prose_verb_paradigm(shoot, shot, shot, shooting).
+irregular_verb_form(shoot, shot).
+irregular_participle(shot).
+prose_verb_paradigm(show, showed, shown, showing).
+irregular_verb_form(show, showed).
+irregular_verb_form(show, shown).
+prose_verb_paradigm(shrink, shrank, shrunk, shrinking).
+irregular_verb_form(shrink, shrank).
+irregular_verb_form(shrink, shrunk).
+irregular_participle(shrunk).
+prose_verb_paradigm(shut, shut, shut, shutting).
+irregular_verb_form(shut, shut).
+irregular_participle(shut).
+prose_verb_paradigm(sing, sang, sung, singing).
+irregular_participle(sung).
+prose_verb_paradigm(sink, sank, sunk, sinking).
+irregular_verb_form(sink, sank).
+irregular_verb_form(sink, sunk).
+irregular_participle(sunk).
+prose_verb_paradigm(sit, sat, sat, sitting).
+irregular_participle(sat).
+prose_verb_paradigm(sleep, slept, slept, sleeping).
+irregular_participle(slept).
+prose_verb_paradigm(slide, slid, slid, sliding).
+irregular_verb_form(slide, slid).
+irregular_participle(slid).
+prose_verb_paradigm(sling, slung, slung, slinging).
+irregular_verb_form(sling, slung).
+irregular_participle(slung).
+prose_verb_paradigm(smell, smelt, smelt, smelling).
+irregular_verb_form(smell, smelt).
+irregular_participle(smelt).
+prose_verb_paradigm(smell, smelled, smelled, smelling).
+irregular_verb_form(smell, smelled).
+irregular_participle(smelled).
+prose_verb_paradigm(sow, sowed, sown, sowing).
+irregular_verb_form(sow, sowed).
+irregular_verb_form(sow, sown).
+irregular_participle(sown).
+prose_verb_paradigm(speak, spoke, spoken, speaking).
+irregular_participle(spoken).
+prose_verb_paradigm(speed, sped, sped, speeding).
+irregular_verb_form(speed, sped).
+irregular_participle(sped).
+prose_verb_paradigm(spell, spelt, spelt, spelling).
+irregular_verb_form(spell, spelt).
+irregular_participle(spelt).
+prose_verb_paradigm(spell, spelled, spelled, spelling).
+irregular_verb_form(spell, spelled).
+irregular_participle(spelled).
+prose_verb_paradigm(spend, spent, spent, spending).
+irregular_participle(spent).
+prose_verb_paradigm(spill, spilt, spilt, spilling).
+irregular_verb_form(spill, spilt).
+irregular_participle(spilt).
+prose_verb_paradigm(spill, spilled, spilled, spilling).
+irregular_verb_form(spill, spilled).
+irregular_participle(spilled).
+prose_verb_paradigm(spin, spun, spun, spinning).
+irregular_verb_form(spin, spun).
+irregular_participle(spun).
+prose_verb_paradigm(spit, spat, spat, spitting).
+irregular_verb_form(spit, spat).
+irregular_participle(spat).
+prose_verb_paradigm(split, split, split, splitting).
+irregular_verb_form(split, split).
+irregular_participle(split).
+prose_verb_paradigm(spoil, spoilt, spoilt, spoiling).
+irregular_verb_form(spoil, spoilt).
+irregular_participle(spoilt).
+prose_verb_paradigm(spoil, spoiled, spoiled, spoiling).
+irregular_verb_form(spoil, spoiled).
+irregular_participle(spoiled).
+prose_verb_paradigm(spread, spread, spread, spreading).
+irregular_verb_form(spread, spread).
+irregular_participle(spread).
+prose_verb_paradigm(spring, sprang, sprung, springing).
+irregular_verb_form(spring, sprang).
+irregular_verb_form(spring, sprung).
+irregular_participle(sprung).
+prose_verb_paradigm(stand, stood, stood, standing).
+irregular_participle(stood).
+prose_verb_paradigm(steal, stole, stolen, stealing).
+irregular_verb_form(steal, stole).
+irregular_verb_form(steal, stolen).
+irregular_participle(stolen).
+prose_verb_paradigm(stick, stuck, stuck, sticking).
+irregular_verb_form(stick, stuck).
+irregular_participle(stuck).
+prose_verb_paradigm(sting, stung, stung, stinging).
+irregular_verb_form(sting, stung).
+irregular_participle(stung).
+prose_verb_paradigm(stink, stank, stunk, stinking).
+irregular_verb_form(stink, stank).
+irregular_verb_form(stink, stunk).
+irregular_participle(stunk).
+prose_verb_paradigm(stride, strode, stridden, striding).
+irregular_verb_form(stride, strode).
+irregular_verb_form(stride, stridden).
+irregular_participle(stridden).
+prose_verb_paradigm(strike, struck, struck, striking).
+irregular_verb_form(strike, struck).
+irregular_participle(struck).
+prose_verb_paradigm(strike, struck, stricken, striking).
+irregular_verb_form(strike, stricken).
+irregular_participle(stricken).
+prose_verb_paradigm(string, strung, strung, stringing).
+irregular_verb_form(string, strung).
+irregular_participle(strung).
+prose_verb_paradigm(strive, strove, striven, striving).
+irregular_verb_form(strive, strove).
+irregular_verb_form(strive, striven).
+irregular_participle(striven).
+prose_verb_paradigm(swear, swore, sworn, swearing).
+irregular_verb_form(swear, swore).
+irregular_verb_form(swear, sworn).
+irregular_participle(sworn).
+prose_verb_paradigm(sweep, swept, swept, sweeping).
+irregular_participle(swept).
+prose_verb_paradigm(swell, swelled, swollen, swelling).
+irregular_verb_form(swell, swelled).
+irregular_verb_form(swell, swollen).
+irregular_participle(swollen).
+prose_verb_paradigm(swim, swam, swum, swimming).
+irregular_participle(swum).
+prose_verb_paradigm(swing, swung, swung, swinging).
+irregular_verb_form(swing, swung).
+irregular_participle(swung).
+prose_verb_paradigm(take, took, taken, taking).
+irregular_participle(taken).
+prose_verb_paradigm(teach, taught, taught, teaching).
+irregular_participle(taught).
+prose_verb_paradigm(tear, tore, torn, tearing).
+irregular_verb_form(tear, tore).
+irregular_verb_form(tear, torn).
+irregular_participle(torn).
+prose_verb_paradigm(tell, told, told, telling).
+irregular_participle(told).
+prose_verb_paradigm(think, thought, thought, thinking).
+irregular_participle(thought).
+prose_verb_paradigm(throw, threw, thrown, throwing).
+irregular_participle(thrown).
+prose_verb_paradigm(tread, trod, trodden, treading).
+irregular_verb_form(tread, trod).
+irregular_verb_form(tread, trodden).
+irregular_participle(trodden).
+prose_verb_paradigm(undergo, underwent, undergone, undergoing).
+irregular_verb_form(undergo, underwent).
+irregular_verb_form(undergo, undergone).
+irregular_participle(undergone).
+prose_verb_paradigm(underlie, underlay, underlain, underlying).
+irregular_verb_form(underlie, underlay).
+irregular_verb_form(underlie, underlain).
+irregular_participle(underlain).
+prose_verb_paradigm(understand, understood, understood, understanding).
+irregular_participle(understood).
+prose_verb_paradigm(undertake, undertook, undertaken, undertaking).
+irregular_verb_form(undertake, undertook).
+irregular_verb_form(undertake, undertaken).
+irregular_participle(undertaken).
+prose_verb_paradigm(undo, undid, undone, undoing).
+irregular_verb_form(undo, undid).
+irregular_verb_form(undo, undone).
+irregular_participle(undone).
+prose_verb_paradigm(uphold, upheld, upheld, upholding).
+irregular_verb_form(uphold, upheld).
+irregular_participle(upheld).
+prose_verb_paradigm(upset, upset, upset, upsetting).
+irregular_verb_form(upset, upset).
+irregular_participle(upset).
+prose_verb_paradigm(wake, woke, woken, waking).
+irregular_verb_form(wake, woke).
+irregular_verb_form(wake, woken).
+irregular_participle(woken).
+prose_verb_paradigm(wear, wore, worn, wearing).
+irregular_verb_form(wear, wore).
+irregular_verb_form(wear, worn).
+irregular_participle(worn).
+prose_verb_paradigm(weave, wove, woven, weaving).
+irregular_verb_form(weave, wove).
+irregular_verb_form(weave, woven).
+irregular_participle(woven).
+prose_verb_paradigm(weep, wept, wept, weeping).
+irregular_verb_form(weep, wept).
+irregular_participle(wept).
+prose_verb_paradigm(win, won, won, winning).
+irregular_participle(won).
+prose_verb_paradigm(wind, wound, wound, winding).
+irregular_verb_form(wind, wound).
+irregular_participle(wound).
+prose_verb_paradigm(withdraw, withdrew, withdrawn, withdrawing).
+irregular_verb_form(withdraw, withdrew).
+irregular_verb_form(withdraw, withdrawn).
+irregular_participle(withdrawn).
+prose_verb_paradigm(withhold, withheld, withheld, withholding).
+irregular_verb_form(withhold, withheld).
+irregular_participle(withheld).
+prose_verb_paradigm(withstand, withstood, withstood, withstanding).
+irregular_verb_form(withstand, withstood).
+irregular_participle(withstood).
+prose_verb_paradigm(wring, wrung, wrung, wringing).
+irregular_verb_form(wring, wrung).
+irregular_participle(wrung).
+prose_verb_paradigm(write, wrote, written, writing).
+prose_doubled_stem(admit, admitt).
+prose_doubled_stem(allot, allott).
+prose_doubled_stem(ban, bann).
+prose_doubled_stem(bar, barr).
+prose_doubled_stem(beg, begg).
+prose_doubled_stem(blur, blurr).
+prose_doubled_stem(chat, chatt).
+prose_doubled_stem(clap, clapp).
+prose_doubled_stem(clip, clipp).
+prose_doubled_stem(commit, committ).
+prose_doubled_stem(compel, compell).
+prose_doubled_stem(confer, conferr).
+prose_doubled_stem(control, controll).
+prose_doubled_stem(crop, cropp).
+prose_doubled_stem(defer, deferr).
+prose_doubled_stem(deter, deterr).
+prose_doubled_stem(drag, dragg).
+prose_doubled_stem(drop, dropp).
+prose_doubled_stem(embed, embedd).
+prose_doubled_stem(emit, emitt).
+prose_doubled_stem(equip, equipp).
+prose_doubled_stem(fit, fitt).
+prose_doubled_stem(grab, grabb).
+prose_doubled_stem(grip, gripp).
+prose_doubled_stem(hop, hopp).
+prose_doubled_stem(hug, hugg).
+prose_doubled_stem(incur, incurr).
+prose_doubled_stem(infer, inferr).
+prose_doubled_stem(knit, knitt).
+prose_doubled_stem(label, labell).
+prose_doubled_stem(lag, lagg).
+prose_doubled_stem(log, logg).
+prose_doubled_stem(map, mapp).
+prose_doubled_stem(nod, nodd).
+prose_doubled_stem(occur, occurr).
+prose_doubled_stem(omit, omitt).
+prose_doubled_stem(patrol, patroll).
+prose_doubled_stem(permit, permitt).
+prose_doubled_stem(plan, plann).
+prose_doubled_stem(plot, plott).
+prose_doubled_stem(plug, plugg).
+prose_doubled_stem(prefer, preferr).
+prose_doubled_stem(propel, propell).
+prose_doubled_stem(refer, referr).
+prose_doubled_stem(regret, regrett).
+prose_doubled_stem(repel, repell).
+prose_doubled_stem(rob, robb).
+prose_doubled_stem(scan, scann).
+prose_doubled_stem(ship, shipp).
+prose_doubled_stem(shop, shopp).
+prose_doubled_stem(shrug, shrugg).
+prose_doubled_stem(signal, signall).
+prose_doubled_stem(sin, sinn).
+prose_doubled_stem(slip, slipp).
+prose_doubled_stem(spot, spott).
+prose_doubled_stem(star, starr).
+prose_doubled_stem(step, stepp).
+prose_doubled_stem(stir, stirr).
+prose_doubled_stem(stop, stopp).
+prose_doubled_stem(submit, submitt).
+prose_doubled_stem(tap, tapp).
+prose_doubled_stem(transfer, transferr).
+prose_doubled_stem(trap, trapp).
+prose_doubled_stem(trim, trimm).
+prose_doubled_stem(trip, tripp).
+prose_doubled_stem(wet, wett).
+prose_doubled_stem(wrap, wrapp).
+prose_doubled_stem(panic, panick).
+prose_doubled_stem(picnic, picnick).
+prose_doubled_stem(mimic, mimick).
+prose_ing_exception(die, dying).
+prose_ing_exception(tie, tying).
+prose_ing_exception(lie, lying).
+prose_ing_exception(dye, dyeing).
+prose_ing_exception(singe, singeing).
+prose_ing_exception(age, ageing).
+prose_ing_exception(age, aging).
+prose_ing_exception(hoe, hoeing).
+prose_present_exception(be, is).
+prose_present_exception(have, has).
+prose_present_exception(do, does).
+prose_present_exception(go, goes).
+prose_verb_lemma(abandon).
+prose_verb_lemma(abolish).
+prose_verb_lemma(abound).
+prose_verb_lemma(absorb).
+prose_verb_lemma(abstract).
+prose_verb_lemma(accelerate).
+prose_verb_lemma(accept).
+prose_verb_lemma(access).
+prose_verb_lemma(accommodate).
+prose_verb_lemma(account).
+prose_verb_lemma(accumulate).
+prose_verb_lemma(acknowledge).
+prose_verb_lemma(acquire).
+prose_verb_lemma(acquit).
+prose_verb_lemma(act).
+prose_verb_lemma(activate).
+prose_verb_lemma(adapt).
+prose_verb_lemma(add).
+prose_verb_lemma(adjust).
+prose_verb_lemma(administer).
+prose_verb_lemma(admire).
+prose_verb_lemma(admit).
+prose_verb_lemma(adopt).
+prose_verb_lemma(adsorb).
+prose_verb_lemma(advance).
+prose_verb_lemma(advise).
+prose_verb_lemma(affect).
+prose_verb_lemma(affirm).
+prose_verb_lemma(age).
+prose_verb_lemma(aggravate).
+prose_verb_lemma(aggregate).
+prose_verb_lemma(agitate).
+prose_verb_lemma(agree).
+prose_verb_lemma(aid).
+prose_verb_lemma(aim).
+prose_verb_lemma(align).
+prose_verb_lemma(allege).
+prose_verb_lemma(alleviate).
+prose_verb_lemma(allocate).
+prose_verb_lemma(allot).
+prose_verb_lemma(allow).
+prose_verb_lemma(alloy).
+prose_verb_lemma(alter).
+prose_verb_lemma(alternate).
+prose_verb_lemma(amend).
+prose_verb_lemma(amplify).
+prose_verb_lemma(analyse).
+prose_verb_lemma(analyze).
+prose_verb_lemma(anchor).
+prose_verb_lemma(anneal).
+prose_verb_lemma(annex).
+prose_verb_lemma(announce).
+prose_verb_lemma(anticipate).
+prose_verb_lemma(appear).
+prose_verb_lemma(append).
+prose_verb_lemma(apply).
+prose_verb_lemma(appoint).
+prose_verb_lemma(appreciate).
+prose_verb_lemma(approach).
+prose_verb_lemma(approve).
+prose_verb_lemma(approximate).
+prose_verb_lemma(arbitrate).
+prose_verb_lemma(argue).
+prose_verb_lemma(arise).
+prose_verb_lemma(arrange).
+prose_verb_lemma(arrive).
+prose_verb_lemma(ascend).
+prose_verb_lemma(ask).
+prose_verb_lemma(assemble).
+prose_verb_lemma(assert).
+prose_verb_lemma(assess).
+prose_verb_lemma(assign).
+prose_verb_lemma(assimilate).
+prose_verb_lemma(associate).
+prose_verb_lemma(assume).
+prose_verb_lemma(assure).
+prose_verb_lemma(attach).
+prose_verb_lemma(attempt).
+prose_verb_lemma(attract).
+prose_verb_lemma(authenticate).
+prose_verb_lemma(authorise).
+prose_verb_lemma(authorize).
+prose_verb_lemma(automate).
+prose_verb_lemma(avert).
+prose_verb_lemma(avoid).
+prose_verb_lemma(awake).
+prose_verb_lemma(award).
+prose_verb_lemma(balance).
+prose_verb_lemma(ban).
+prose_verb_lemma(bar).
+prose_verb_lemma(be).
+prose_verb_lemma(bear).
+prose_verb_lemma(beat).
+prose_verb_lemma(become).
+prose_verb_lemma(beg).
+prose_verb_lemma(begin).
+prose_verb_lemma(behave).
+prose_verb_lemma(behold).
+prose_verb_lemma(believe).
+prose_verb_lemma(belong).
+prose_verb_lemma(benchmark).
+prose_verb_lemma(bend).
+prose_verb_lemma(besiege).
+prose_verb_lemma(bet).
+prose_verb_lemma(bid).
+prose_verb_lemma(bind).
+prose_verb_lemma(bisect).
+prose_verb_lemma(bite).
+prose_verb_lemma(bleed).
+prose_verb_lemma(blend).
+prose_verb_lemma(block).
+prose_verb_lemma(bloom).
+prose_verb_lemma(blow).
+prose_verb_lemma(blur).
+prose_verb_lemma(border).
+prose_verb_lemma(borrow).
+prose_verb_lemma(bound).
+prose_verb_lemma(breach).
+prose_verb_lemma(break).
+prose_verb_lemma(breathe).
+prose_verb_lemma(breed).
+prose_verb_lemma(bridge).
+prose_verb_lemma(bring).
+prose_verb_lemma(broadcast).
+prose_verb_lemma(broaden).
+prose_verb_lemma(build).
+prose_verb_lemma(burn).
+prose_verb_lemma(burst).
+prose_verb_lemma(bury).
+prose_verb_lemma(buy).
+prose_verb_lemma(cache).
+prose_verb_lemma(calculate).
+prose_verb_lemma(calibrate).
+prose_verb_lemma(call).
+prose_verb_lemma(camouflage).
+prose_verb_lemma(canonicalise).
+prose_verb_lemma(canonicalize).
+prose_verb_lemma(capture).
+prose_verb_lemma(carry).
+prose_verb_lemma(carve).
+prose_verb_lemma(cast).
+prose_verb_lemma(catalyse).
+prose_verb_lemma(catalyze).
+prose_verb_lemma(catch).
+prose_verb_lemma(categorise).
+prose_verb_lemma(categorize).
+prose_verb_lemma(cause).
+prose_verb_lemma(caution).
+prose_verb_lemma(cede).
+prose_verb_lemma(celebrate).
+prose_verb_lemma(challenge).
+prose_verb_lemma(change).
+prose_verb_lemma(characterise).
+prose_verb_lemma(characterize).
+prose_verb_lemma(charge).
+prose_verb_lemma(chart).
+prose_verb_lemma(chat).
+prose_verb_lemma(choose).
+prose_verb_lemma(chronicle).
+prose_verb_lemma(circulate).
+prose_verb_lemma(cite).
+prose_verb_lemma(claim).
+prose_verb_lemma(clap).
+prose_verb_lemma(classify).
+prose_verb_lemma(climb).
+prose_verb_lemma(cling).
+prose_verb_lemma(clip).
+prose_verb_lemma(cluster).
+prose_verb_lemma(coat).
+prose_verb_lemma(code).
+prose_verb_lemma(coexist).
+prose_verb_lemma(coincide).
+prose_verb_lemma(collaborate).
+prose_verb_lemma(collapse).
+prose_verb_lemma(collect).
+prose_verb_lemma(collide).
+prose_verb_lemma(colonise).
+prose_verb_lemma(colonize).
+prose_verb_lemma(combine).
+prose_verb_lemma(combust).
+prose_verb_lemma(come).
+prose_verb_lemma(command).
+prose_verb_lemma(commemorate).
+prose_verb_lemma(comment).
+prose_verb_lemma(commit).
+prose_verb_lemma(communicate).
+prose_verb_lemma(compare).
+prose_verb_lemma(compel).
+prose_verb_lemma(compensate).
+prose_verb_lemma(compete).
+prose_verb_lemma(compile).
+prose_verb_lemma(complement).
+prose_verb_lemma(comply).
+prose_verb_lemma(compose).
+prose_verb_lemma(comprehend).
+prose_verb_lemma(compress).
+prose_verb_lemma(comprise).
+prose_verb_lemma(compute).
+prose_verb_lemma(conceal).
+prose_verb_lemma(concede).
+prose_verb_lemma(conceive).
+prose_verb_lemma(concentrate).
+prose_verb_lemma(conclude).
+prose_verb_lemma(concur).
+prose_verb_lemma(condense).
+prose_verb_lemma(condition).
+prose_verb_lemma(conduct).
+prose_verb_lemma(confer).
+prose_verb_lemma(confirm).
+prose_verb_lemma(confiscate).
+prose_verb_lemma(conform).
+prose_verb_lemma(conjecture).
+prose_verb_lemma(connect).
+prose_verb_lemma(conquer).
+prose_verb_lemma(consider).
+prose_verb_lemma(consist).
+prose_verb_lemma(constitute).
+prose_verb_lemma(constrain).
+prose_verb_lemma(construct).
+prose_verb_lemma(consume).
+prose_verb_lemma(contact).
+prose_verb_lemma(contain).
+prose_verb_lemma(contemplate).
+prose_verb_lemma(contend).
+prose_verb_lemma(continue).
+prose_verb_lemma(contract).
+prose_verb_lemma(contradict).
+prose_verb_lemma(contrast).
+prose_verb_lemma(contribute).
+prose_verb_lemma(control).
+prose_verb_lemma(converge).
+prose_verb_lemma(convert).
+prose_verb_lemma(convey).
+prose_verb_lemma(convict).
+prose_verb_lemma(convince).
+prose_verb_lemma(cool).
+prose_verb_lemma(cooperate).
+prose_verb_lemma(coordinate).
+prose_verb_lemma(copy).
+prose_verb_lemma(correlate).
+prose_verb_lemma(correspond).
+prose_verb_lemma(corroborate).
+prose_verb_lemma(corrode).
+prose_verb_lemma(cost).
+prose_verb_lemma(cough).
+prose_verb_lemma(counsel).
+prose_verb_lemma(count).
+prose_verb_lemma(counteract).
+prose_verb_lemma(counterbalance).
+prose_verb_lemma(couple).
+prose_verb_lemma(cover).
+prose_verb_lemma(crawl).
+prose_verb_lemma(create).
+prose_verb_lemma(creep).
+prose_verb_lemma(criticise).
+prose_verb_lemma(criticize).
+prose_verb_lemma(crop).
+prose_verb_lemma(cross).
+prose_verb_lemma(crown).
+prose_verb_lemma(crumble).
+prose_verb_lemma(cry).
+prose_verb_lemma(crystallise).
+prose_verb_lemma(crystallize).
+prose_verb_lemma(culminate).
+prose_verb_lemma(cultivate).
+prose_verb_lemma(cut).
+prose_verb_lemma(damage).
+prose_verb_lemma(date).
+prose_verb_lemma(deal).
+prose_verb_lemma(debate).
+prose_verb_lemma(decay).
+prose_verb_lemma(decelerate).
+prose_verb_lemma(decide).
+prose_verb_lemma(declare).
+prose_verb_lemma(decline).
+prose_verb_lemma(decode).
+prose_verb_lemma(decompose).
+prose_verb_lemma(decompress).
+prose_verb_lemma(decorate).
+prose_verb_lemma(decrease).
+prose_verb_lemma(decrypt).
+prose_verb_lemma(deduce).
+prose_verb_lemma(deem).
+prose_verb_lemma(deepen).
+prose_verb_lemma(defeat).
+prose_verb_lemma(defend).
+prose_verb_lemma(defer).
+prose_verb_lemma(define).
+prose_verb_lemma(deflect).
+prose_verb_lemma(degrade).
+prose_verb_lemma(dehydrate).
+prose_verb_lemma(delegate).
+prose_verb_lemma(delete).
+prose_verb_lemma(deliver).
+prose_verb_lemma(demand).
+prose_verb_lemma(demonstrate).
+prose_verb_lemma(denote).
+prose_verb_lemma(deny).
+prose_verb_lemma(depart).
+prose_verb_lemma(depend).
+prose_verb_lemma(depict).
+prose_verb_lemma(depolymerize).
+prose_verb_lemma(deposit).
+prose_verb_lemma(deprive).
+prose_verb_lemma(derive).
+prose_verb_lemma(descend).
+prose_verb_lemma(describe).
+prose_verb_lemma(deserve).
+prose_verb_lemma(design).
+prose_verb_lemma(designate).
+prose_verb_lemma(desire).
+prose_verb_lemma(desorb).
+prose_verb_lemma(destabilize).
+prose_verb_lemma(destroy).
+prose_verb_lemma(detach).
+prose_verb_lemma(detect).
+prose_verb_lemma(deter).
+prose_verb_lemma(deteriorate).
+prose_verb_lemma(determine).
+prose_verb_lemma(develop).
+prose_verb_lemma(devise).
+prose_verb_lemma(die).
+prose_verb_lemma(differ).
+prose_verb_lemma(differentiate).
+prose_verb_lemma(diffuse).
+prose_verb_lemma(dig).
+prose_verb_lemma(digest).
+prose_verb_lemma(dilute).
+prose_verb_lemma(diminish).
+prose_verb_lemma(direct).
+prose_verb_lemma(disagree).
+prose_verb_lemma(disappear).
+prose_verb_lemma(discern).
+prose_verb_lemma(disclose).
+prose_verb_lemma(disconnect).
+prose_verb_lemma(discourage).
+prose_verb_lemma(discover).
+prose_verb_lemma(discriminate).
+prose_verb_lemma(discuss).
+prose_verb_lemma(disintegrate).
+prose_verb_lemma(dislike).
+prose_verb_lemma(dispatch).
+prose_verb_lemma(disperse).
+prose_verb_lemma(displace).
+prose_verb_lemma(display).
+prose_verb_lemma(disprove).
+prose_verb_lemma(dispute).
+prose_verb_lemma(disrupt).
+prose_verb_lemma(disseminate).
+prose_verb_lemma(dissociate).
+prose_verb_lemma(dissolve).
+prose_verb_lemma(distil).
+prose_verb_lemma(distill).
+prose_verb_lemma(distinguish).
+prose_verb_lemma(distribute).
+prose_verb_lemma(distrust).
+prose_verb_lemma(disturb).
+prose_verb_lemma(diverge).
+prose_verb_lemma(diversify).
+prose_verb_lemma(divert).
+prose_verb_lemma(divide).
+prose_verb_lemma(do).
+prose_verb_lemma(document).
+prose_verb_lemma(dominate).
+prose_verb_lemma(donate).
+prose_verb_lemma(doubt).
+prose_verb_lemma(drag).
+prose_verb_lemma(drain).
+prose_verb_lemma(draw).
+prose_verb_lemma(dream).
+prose_verb_lemma(drift).
+prose_verb_lemma(drink).
+prose_verb_lemma(drive).
+prose_verb_lemma(drop).
+prose_verb_lemma(dry).
+prose_verb_lemma(dub).
+prose_verb_lemma(duplicate).
+prose_verb_lemma(dwell).
+prose_verb_lemma(dye).
+prose_verb_lemma(earn).
+prose_verb_lemma(eat).
+prose_verb_lemma(edit).
+prose_verb_lemma(educate).
+prose_verb_lemma(elapse).
+prose_verb_lemma(elect).
+prose_verb_lemma(elevate).
+prose_verb_lemma(eliminate).
+prose_verb_lemma(embed).
+prose_verb_lemma(embellish).
+prose_verb_lemma(embody).
+prose_verb_lemma(embroider).
+prose_verb_lemma(emerge).
+prose_verb_lemma(emit).
+prose_verb_lemma(employ).
+prose_verb_lemma(empower).
+prose_verb_lemma(enable).
+prose_verb_lemma(enact).
+prose_verb_lemma(encircle).
+prose_verb_lemma(enclose).
+prose_verb_lemma(encode).
+prose_verb_lemma(encompass).
+prose_verb_lemma(encourage).
+prose_verb_lemma(encrypt).
+prose_verb_lemma(endanger).
+prose_verb_lemma(endeavor).
+prose_verb_lemma(endeavour).
+prose_verb_lemma(endorse).
+prose_verb_lemma(endow).
+prose_verb_lemma(endure).
+prose_verb_lemma(enforce).
+prose_verb_lemma(engineer).
+prose_verb_lemma(engrave).
+prose_verb_lemma(enhance).
+prose_verb_lemma(enjoy).
+prose_verb_lemma(enlarge).
+prose_verb_lemma(enquire).
+prose_verb_lemma(ensue).
+prose_verb_lemma(entail).
+prose_verb_lemma(enter).
+prose_verb_lemma(entitle).
+prose_verb_lemma(entrust).
+prose_verb_lemma(enumerate).
+prose_verb_lemma(equal).
+prose_verb_lemma(equip).
+prose_verb_lemma(erect).
+prose_verb_lemma(erode).
+prose_verb_lemma(erupt).
+prose_verb_lemma(escape).
+prose_verb_lemma(establish).
+prose_verb_lemma(estimate).
+prose_verb_lemma(etch).
+prose_verb_lemma(evacuate).
+prose_verb_lemma(evaluate).
+prose_verb_lemma(evaporate).
+prose_verb_lemma(evolve).
+prose_verb_lemma(exacerbate).
+prose_verb_lemma(examine).
+prose_verb_lemma(excavate).
+prose_verb_lemma(exceed).
+prose_verb_lemma(excel).
+prose_verb_lemma(exchange).
+prose_verb_lemma(exclude).
+prose_verb_lemma(excrete).
+prose_verb_lemma(execute).
+prose_verb_lemma(exemplify).
+prose_verb_lemma(exert).
+prose_verb_lemma(exhale).
+prose_verb_lemma(exist).
+prose_verb_lemma(exit).
+prose_verb_lemma(expand).
+prose_verb_lemma(expect).
+prose_verb_lemma(experience).
+prose_verb_lemma(explain).
+prose_verb_lemma(explode).
+prose_verb_lemma(explore).
+prose_verb_lemma(express).
+prose_verb_lemma(extend).
+prose_verb_lemma(extract).
+prose_verb_lemma(extrapolate).
+prose_verb_lemma(fabricate).
+prose_verb_lemma(face).
+prose_verb_lemma(facilitate).
+prose_verb_lemma(factor).
+prose_verb_lemma(factorise).
+prose_verb_lemma(factorize).
+prose_verb_lemma(fade).
+prose_verb_lemma(fail).
+prose_verb_lemma(fall).
+prose_verb_lemma(falsify).
+prose_verb_lemma(farm).
+prose_verb_lemma(fasten).
+prose_verb_lemma(fear).
+prose_verb_lemma(feed).
+prose_verb_lemma(feel).
+prose_verb_lemma(fertilise).
+prose_verb_lemma(fertilize).
+prose_verb_lemma(fight).
+prose_verb_lemma(fill).
+prose_verb_lemma(film).
+prose_verb_lemma(filter).
+prose_verb_lemma(finance).
+prose_verb_lemma(find).
+prose_verb_lemma(finish).
+prose_verb_lemma(fit).
+prose_verb_lemma(fix).
+prose_verb_lemma(flee).
+prose_verb_lemma(fling).
+prose_verb_lemma(float).
+prose_verb_lemma(flood).
+prose_verb_lemma(flourish).
+prose_verb_lemma(flow).
+prose_verb_lemma(flower).
+prose_verb_lemma(fluctuate).
+prose_verb_lemma(fly).
+prose_verb_lemma(focus).
+prose_verb_lemma(fold).
+prose_verb_lemma(follow).
+prose_verb_lemma(forbid).
+prose_verb_lemma(force).
+prose_verb_lemma(forecast).
+prose_verb_lemma(foresee).
+prose_verb_lemma(forge).
+prose_verb_lemma(forget).
+prose_verb_lemma(forgive).
+prose_verb_lemma(form).
+prose_verb_lemma(formalise).
+prose_verb_lemma(formalize).
+prose_verb_lemma(formulate).
+prose_verb_lemma(forsake).
+prose_verb_lemma(forward).
+prose_verb_lemma(found).
+prose_verb_lemma(fracture).
+prose_verb_lemma(fragment).
+prose_verb_lemma(frame).
+prose_verb_lemma(free).
+prose_verb_lemma(freeze).
+prose_verb_lemma(fulfil).
+prose_verb_lemma(fulfill).
+prose_verb_lemma(function).
+prose_verb_lemma(fund).
+prose_verb_lemma(furnish).
+prose_verb_lemma(gain).
+prose_verb_lemma(gather).
+prose_verb_lemma(gauge).
+prose_verb_lemma(generalise).
+prose_verb_lemma(generalize).
+prose_verb_lemma(generate).
+prose_verb_lemma(germinate).
+prose_verb_lemma(get).
+prose_verb_lemma(give).
+prose_verb_lemma(glide).
+prose_verb_lemma(glue).
+prose_verb_lemma(go).
+prose_verb_lemma(govern).
+prose_verb_lemma(grab).
+prose_verb_lemma(grant).
+prose_verb_lemma(grind).
+prose_verb_lemma(grip).
+prose_verb_lemma(ground).
+prose_verb_lemma(group).
+prose_verb_lemma(grow).
+prose_verb_lemma(guarantee).
+prose_verb_lemma(guide).
+prose_verb_lemma(halt).
+prose_verb_lemma(hand).
+prose_verb_lemma(hang).
+prose_verb_lemma(happen).
+prose_verb_lemma(harden).
+prose_verb_lemma(harvest).
+prose_verb_lemma(hash).
+prose_verb_lemma(hatch).
+prose_verb_lemma(hate).
+prose_verb_lemma(have).
+prose_verb_lemma(heal).
+prose_verb_lemma(hear).
+prose_verb_lemma(heat).
+prose_verb_lemma(help).
+prose_verb_lemma(hesitate).
+prose_verb_lemma(hibernate).
+prose_verb_lemma(hide).
+prose_verb_lemma(hinder).
+prose_verb_lemma(hire).
+prose_verb_lemma(hit).
+prose_verb_lemma(hoe).
+prose_verb_lemma(hold).
+prose_verb_lemma(honor).
+prose_verb_lemma(honour).
+prose_verb_lemma(hop).
+prose_verb_lemma(hope).
+prose_verb_lemma(host).
+prose_verb_lemma(house).
+prose_verb_lemma(hover).
+prose_verb_lemma(hug).
+prose_verb_lemma(hunt).
+prose_verb_lemma(hurt).
+prose_verb_lemma(hydrate).
+prose_verb_lemma(hydrogenate).
+prose_verb_lemma(hydrolyse).
+prose_verb_lemma(hydrolyze).
+prose_verb_lemma(hypothesise).
+prose_verb_lemma(hypothesize).
+prose_verb_lemma(identify).
+prose_verb_lemma(ignite).
+prose_verb_lemma(illustrate).
+prose_verb_lemma(imagine).
+prose_verb_lemma(immerse).
+prose_verb_lemma(impact).
+prose_verb_lemma(impede).
+prose_verb_lemma(implement).
+prose_verb_lemma(implode).
+prose_verb_lemma(imply).
+prose_verb_lemma(improve).
+prose_verb_lemma(include).
+prose_verb_lemma(incorporate).
+prose_verb_lemma(increase).
+prose_verb_lemma(incubate).
+prose_verb_lemma(incur).
+prose_verb_lemma(index).
+prose_verb_lemma(indicate).
+prose_verb_lemma(induce).
+prose_verb_lemma(infect).
+prose_verb_lemma(infer).
+prose_verb_lemma(influence).
+prose_verb_lemma(inform).
+prose_verb_lemma(ingest).
+prose_verb_lemma(inhabit).
+prose_verb_lemma(inhale).
+prose_verb_lemma(inherit).
+prose_verb_lemma(inhibit).
+prose_verb_lemma(initialise).
+prose_verb_lemma(initialize).
+prose_verb_lemma(initiate).
+prose_verb_lemma(inquire).
+prose_verb_lemma(insert).
+prose_verb_lemma(insist).
+prose_verb_lemma(inspect).
+prose_verb_lemma(install).
+prose_verb_lemma(instantiate).
+prose_verb_lemma(institute).
+prose_verb_lemma(instruct).
+prose_verb_lemma(insulate).
+prose_verb_lemma(integrate).
+prose_verb_lemma(intend).
+prose_verb_lemma(intensify).
+prose_verb_lemma(interact).
+prose_verb_lemma(interfere).
+prose_verb_lemma(interpolate).
+prose_verb_lemma(interpret).
+prose_verb_lemma(interrupt).
+prose_verb_lemma(intersect).
+prose_verb_lemma(introduce).
+prose_verb_lemma(inundate).
+prose_verb_lemma(invade).
+prose_verb_lemma(invalidate).
+prose_verb_lemma(invent).
+prose_verb_lemma(invert).
+prose_verb_lemma(invest).
+prose_verb_lemma(investigate).
+prose_verb_lemma(invite).
+prose_verb_lemma(involve).
+prose_verb_lemma(ionise).
+prose_verb_lemma(ionize).
+prose_verb_lemma(irrigate).
+prose_verb_lemma(isolate).
+prose_verb_lemma(join).
+prose_verb_lemma(journey).
+prose_verb_lemma(judge).
+prose_verb_lemma(jump).
+prose_verb_lemma(justify).
+prose_verb_lemma(keep).
+prose_verb_lemma(kill).
+prose_verb_lemma(kneel).
+prose_verb_lemma(knit).
+prose_verb_lemma(know).
+prose_verb_lemma(label).
+prose_verb_lemma(lack).
+prose_verb_lemma(lag).
+prose_verb_lemma(last).
+prose_verb_lemma(laugh).
+prose_verb_lemma(launch).
+prose_verb_lemma(lay).
+prose_verb_lemma(lead).
+prose_verb_lemma(lean).
+prose_verb_lemma(leap).
+prose_verb_lemma(learn).
+prose_verb_lemma(lease).
+prose_verb_lemma(leave).
+prose_verb_lemma(legislate).
+prose_verb_lemma(lend).
+prose_verb_lemma(lengthen).
+prose_verb_lemma(let).
+prose_verb_lemma(liberate).
+prose_verb_lemma(license).
+prose_verb_lemma(lie).
+prose_verb_lemma(lift).
+prose_verb_lemma(light).
+prose_verb_lemma(like).
+prose_verb_lemma(limit).
+prose_verb_lemma(line).
+prose_verb_lemma(link).
+prose_verb_lemma(liquefy).
+prose_verb_lemma(list).
+prose_verb_lemma(listen).
+prose_verb_lemma(live).
+prose_verb_lemma(load).
+prose_verb_lemma(locate).
+prose_verb_lemma(log).
+prose_verb_lemma(look).
+prose_verb_lemma(lose).
+prose_verb_lemma(love).
+prose_verb_lemma(lower).
+prose_verb_lemma(maintain).
+prose_verb_lemma(make).
+prose_verb_lemma(manage).
+prose_verb_lemma(manufacture).
+prose_verb_lemma(map).
+prose_verb_lemma(mark).
+prose_verb_lemma(match).
+prose_verb_lemma(mature).
+prose_verb_lemma(maximise).
+prose_verb_lemma(maximize).
+prose_verb_lemma(mean).
+prose_verb_lemma(measure).
+prose_verb_lemma(mediate).
+prose_verb_lemma(meet).
+prose_verb_lemma(melt).
+prose_verb_lemma(mention).
+prose_verb_lemma(mentor).
+prose_verb_lemma(merge).
+prose_verb_lemma(merit).
+prose_verb_lemma(metabolise).
+prose_verb_lemma(metabolize).
+prose_verb_lemma(migrate).
+prose_verb_lemma(mimic).
+prose_verb_lemma(mind).
+prose_verb_lemma(mine).
+prose_verb_lemma(minimise).
+prose_verb_lemma(minimize).
+prose_verb_lemma(mislead).
+prose_verb_lemma(miss).
+prose_verb_lemma(mistake).
+prose_verb_lemma(mitigate).
+prose_verb_lemma(mix).
+prose_verb_lemma(model).
+prose_verb_lemma(modify).
+prose_verb_lemma(modulate).
+prose_verb_lemma(molt).
+prose_verb_lemma(monitor).
+prose_verb_lemma(motivate).
+prose_verb_lemma(moult).
+prose_verb_lemma(mount).
+prose_verb_lemma(move).
+prose_verb_lemma(multiply).
+prose_verb_lemma(mutate).
+prose_verb_lemma(nail).
+prose_verb_lemma(name).
+prose_verb_lemma(narrate).
+prose_verb_lemma(narrow).
+prose_verb_lemma(navigate).
+prose_verb_lemma(necessitate).
+prose_verb_lemma(need).
+prose_verb_lemma(negotiate).
+prose_verb_lemma(neutralise).
+prose_verb_lemma(neutralize).
+prose_verb_lemma(nod).
+prose_verb_lemma(nominate).
+prose_verb_lemma(normalise).
+prose_verb_lemma(normalize).
+prose_verb_lemma(note).
+prose_verb_lemma(notice).
+prose_verb_lemma(notify).
+prose_verb_lemma(nourish).
+prose_verb_lemma(number).
+prose_verb_lemma(nurse).
+prose_verb_lemma(obey).
+prose_verb_lemma(observe).
+prose_verb_lemma(obstruct).
+prose_verb_lemma(obtain).
+prose_verb_lemma(occupy).
+prose_verb_lemma(occur).
+prose_verb_lemma(offer).
+prose_verb_lemma(offset).
+prose_verb_lemma(omit).
+prose_verb_lemma(operate).
+prose_verb_lemma(oppose).
+prose_verb_lemma(optimise).
+prose_verb_lemma(optimize).
+prose_verb_lemma(order).
+prose_verb_lemma(organise).
+prose_verb_lemma(organize).
+prose_verb_lemma(orient).
+prose_verb_lemma(originate).
+prose_verb_lemma(oscillate).
+prose_verb_lemma(outline).
+prose_verb_lemma(outnumber).
+prose_verb_lemma(outpace).
+prose_verb_lemma(outweigh).
+prose_verb_lemma(overcome).
+prose_verb_lemma(overlap).
+prose_verb_lemma(overlook).
+prose_verb_lemma(oversee).
+prose_verb_lemma(overtake).
+prose_verb_lemma(overthrow).
+prose_verb_lemma(owe).
+prose_verb_lemma(own).
+prose_verb_lemma(oxidise).
+prose_verb_lemma(oxidize).
+prose_verb_lemma(oxygenate).
+prose_verb_lemma(pack).
+prose_verb_lemma(paint).
+prose_verb_lemma(panic).
+prose_verb_lemma(paraphrase).
+prose_verb_lemma(parasitise).
+prose_verb_lemma(parasitize).
+prose_verb_lemma(parse).
+prose_verb_lemma(participate).
+prose_verb_lemma(partition).
+prose_verb_lemma(pass).
+prose_verb_lemma(patrol).
+prose_verb_lemma(pause).
+prose_verb_lemma(pay).
+prose_verb_lemma(penetrate).
+prose_verb_lemma(perceive).
+prose_verb_lemma(perform).
+prose_verb_lemma(perish).
+prose_verb_lemma(permeate).
+prose_verb_lemma(permit).
+prose_verb_lemma(persist).
+prose_verb_lemma(persuade).
+prose_verb_lemma(perturb).
+prose_verb_lemma(photograph).
+prose_verb_lemma(photosynthesize).
+prose_verb_lemma(picnic).
+prose_verb_lemma(pinpoint).
+prose_verb_lemma(place).
+prose_verb_lemma(plan).
+prose_verb_lemma(plate).
+prose_verb_lemma(play).
+prose_verb_lemma(pledge).
+prose_verb_lemma(plot).
+prose_verb_lemma(plug).
+prose_verb_lemma(plunge).
+prose_verb_lemma(point).
+prose_verb_lemma(pollinate).
+prose_verb_lemma(polymerise).
+prose_verb_lemma(polymerize).
+prose_verb_lemma(populate).
+prose_verb_lemma(portray).
+prose_verb_lemma(posit).
+prose_verb_lemma(position).
+prose_verb_lemma(possess).
+prose_verb_lemma(postpone).
+prose_verb_lemma(postulate).
+prose_verb_lemma(potentiate).
+prose_verb_lemma(practice).
+prose_verb_lemma(practise).
+prose_verb_lemma(praise).
+prose_verb_lemma(precede).
+prose_verb_lemma(precipitate).
+prose_verb_lemma(preclude).
+prose_verb_lemma(predict).
+prose_verb_lemma(prefer).
+prose_verb_lemma(prepare).
+prose_verb_lemma(prepend).
+prose_verb_lemma(preserve).
+prose_verb_lemma(press).
+prose_verb_lemma(presume).
+prose_verb_lemma(presuppose).
+prose_verb_lemma(pretend).
+prose_verb_lemma(prevail).
+prose_verb_lemma(prevent).
+prose_verb_lemma(prey).
+prose_verb_lemma(print).
+prose_verb_lemma(proceed).
+prose_verb_lemma(proclaim).
+prose_verb_lemma(produce).
+prose_verb_lemma(program).
+prose_verb_lemma(prohibit).
+prose_verb_lemma(project).
+prose_verb_lemma(promise).
+prose_verb_lemma(prompt).
+prose_verb_lemma(promulgate).
+prose_verb_lemma(pronounce).
+prose_verb_lemma(propagate).
+prose_verb_lemma(propel).
+prose_verb_lemma(propose).
+prose_verb_lemma(prosecute).
+prose_verb_lemma(protect).
+prose_verb_lemma(prove).
+prose_verb_lemma(provide).
+prose_verb_lemma(provoke).
+prose_verb_lemma(publish).
+prose_verb_lemma(pull).
+prose_verb_lemma(pump).
+prose_verb_lemma(punish).
+prose_verb_lemma(purchase).
+prose_verb_lemma(purify).
+prose_verb_lemma(push).
+prose_verb_lemma(put).
+prose_verb_lemma(quantify).
+prose_verb_lemma(quarry).
+prose_verb_lemma(quench).
+prose_verb_lemma(query).
+prose_verb_lemma(question).
+prose_verb_lemma(quit).
+prose_verb_lemma(quote).
+prose_verb_lemma(radiate).
+prose_verb_lemma(raise).
+prose_verb_lemma(rank).
+prose_verb_lemma(rate).
+prose_verb_lemma(ratify).
+prose_verb_lemma(reach).
+prose_verb_lemma(react).
+prose_verb_lemma(read).
+prose_verb_lemma(realise).
+prose_verb_lemma(realize).
+prose_verb_lemma(rear).
+prose_verb_lemma(reason).
+prose_verb_lemma(rebuild).
+prose_verb_lemma(recall).
+prose_verb_lemma(receive).
+prose_verb_lemma(reclaim).
+prose_verb_lemma(recognise).
+prose_verb_lemma(recognize).
+prose_verb_lemma(recommend).
+prose_verb_lemma(reconcile).
+prose_verb_lemma(reconstruct).
+prose_verb_lemma(record).
+prose_verb_lemma(recount).
+prose_verb_lemma(recover).
+prose_verb_lemma(recruit).
+prose_verb_lemma(recur).
+prose_verb_lemma(recycle).
+prose_verb_lemma(redact).
+prose_verb_lemma(redirect).
+prose_verb_lemma(redo).
+prose_verb_lemma(reduce).
+prose_verb_lemma(refer).
+prose_verb_lemma(reference).
+prose_verb_lemma(refine).
+prose_verb_lemma(reflect).
+prose_verb_lemma(reform).
+prose_verb_lemma(refract).
+prose_verb_lemma(refuse).
+prose_verb_lemma(refute).
+prose_verb_lemma(regard).
+prose_verb_lemma(regenerate).
+prose_verb_lemma(register).
+prose_verb_lemma(regress).
+prose_verb_lemma(regret).
+prose_verb_lemma(regulate).
+prose_verb_lemma(reinforce).
+prose_verb_lemma(reject).
+prose_verb_lemma(rejoice).
+prose_verb_lemma(relate).
+prose_verb_lemma(release).
+prose_verb_lemma(relieve).
+prose_verb_lemma(rely).
+prose_verb_lemma(remain).
+prose_verb_lemma(remark).
+prose_verb_lemma(remember).
+prose_verb_lemma(remind).
+prose_verb_lemma(remove).
+prose_verb_lemma(remunerate).
+prose_verb_lemma(rename).
+prose_verb_lemma(render).
+prose_verb_lemma(renew).
+prose_verb_lemma(renovate).
+prose_verb_lemma(rent).
+prose_verb_lemma(reorganise).
+prose_verb_lemma(reorganize).
+prose_verb_lemma(repair).
+prose_verb_lemma(repay).
+prose_verb_lemma(repeal).
+prose_verb_lemma(repel).
+prose_verb_lemma(rephrase).
+prose_verb_lemma(replace).
+prose_verb_lemma(replicate).
+prose_verb_lemma(report).
+prose_verb_lemma(represent).
+prose_verb_lemma(reproduce).
+prose_verb_lemma(request).
+prose_verb_lemma(require).
+prose_verb_lemma(rerun).
+prose_verb_lemma(research).
+prose_verb_lemma(resemble).
+prose_verb_lemma(reshape).
+prose_verb_lemma(reside).
+prose_verb_lemma(resist).
+prose_verb_lemma(resolve).
+prose_verb_lemma(respect).
+prose_verb_lemma(respire).
+prose_verb_lemma(rest).
+prose_verb_lemma(restore).
+prose_verb_lemma(restrict).
+prose_verb_lemma(restructure).
+prose_verb_lemma(result).
+prose_verb_lemma(resume).
+prose_verb_lemma(retain).
+prose_verb_lemma(retreat).
+prose_verb_lemma(retrieve).
+prose_verb_lemma(return).
+prose_verb_lemma(reveal).
+prose_verb_lemma(reverse).
+prose_verb_lemma(revert).
+prose_verb_lemma(review).
+prose_verb_lemma(revise).
+prose_verb_lemma(revolve).
+prose_verb_lemma(reward).
+prose_verb_lemma(rewrite).
+prose_verb_lemma(rid).
+prose_verb_lemma(ride).
+prose_verb_lemma(ring).
+prose_verb_lemma(rise).
+prose_verb_lemma(risk).
+prose_verb_lemma(roam).
+prose_verb_lemma(rob).
+prose_verb_lemma(roll).
+prose_verb_lemma(rotate).
+prose_verb_lemma(route).
+prose_verb_lemma(rule).
+prose_verb_lemma(run).
+prose_verb_lemma(rupture).
+prose_verb_lemma(rust).
+prose_verb_lemma(sail).
+prose_verb_lemma(sample).
+prose_verb_lemma(satisfy).
+prose_verb_lemma(save).
+prose_verb_lemma(saw).
+prose_verb_lemma(say).
+prose_verb_lemma(scale).
+prose_verb_lemma(scan).
+prose_verb_lemma(scatter).
+prose_verb_lemma(schedule).
+prose_verb_lemma(score).
+prose_verb_lemma(screw).
+prose_verb_lemma(sculpt).
+prose_verb_lemma(search).
+prose_verb_lemma(secrete).
+prose_verb_lemma(secure).
+prose_verb_lemma(see).
+prose_verb_lemma(seek).
+prose_verb_lemma(seem).
+prose_verb_lemma(seize).
+prose_verb_lemma(select).
+prose_verb_lemma(sell).
+prose_verb_lemma(send).
+prose_verb_lemma(sense).
+prose_verb_lemma(sentence).
+prose_verb_lemma(separate).
+prose_verb_lemma(serialise).
+prose_verb_lemma(serialize).
+prose_verb_lemma(serve).
+prose_verb_lemma(set).
+prose_verb_lemma(settle).
+prose_verb_lemma(sew).
+prose_verb_lemma(shake).
+prose_verb_lemma(shape).
+prose_verb_lemma(share).
+prose_verb_lemma(shed).
+prose_verb_lemma(shelter).
+prose_verb_lemma(shield).
+prose_verb_lemma(shift).
+prose_verb_lemma(shine).
+prose_verb_lemma(ship).
+prose_verb_lemma(shoot).
+prose_verb_lemma(shop).
+prose_verb_lemma(shorten).
+prose_verb_lemma(show).
+prose_verb_lemma(shrink).
+prose_verb_lemma(shrug).
+prose_verb_lemma(shut).
+prose_verb_lemma(sign).
+prose_verb_lemma(signal).
+prose_verb_lemma(signify).
+prose_verb_lemma(simplify).
+prose_verb_lemma(simulate).
+prose_verb_lemma(sin).
+prose_verb_lemma(sing).
+prose_verb_lemma(singe).
+prose_verb_lemma(sink).
+prose_verb_lemma(sit).
+prose_verb_lemma(situate).
+prose_verb_lemma(sketch).
+prose_verb_lemma(sleep).
+prose_verb_lemma(slide).
+prose_verb_lemma(sling).
+prose_verb_lemma(slip).
+prose_verb_lemma(slow).
+prose_verb_lemma(smell).
+prose_verb_lemma(smile).
+prose_verb_lemma(sneeze).
+prose_verb_lemma(sniff).
+prose_verb_lemma(soar).
+prose_verb_lemma(soften).
+prose_verb_lemma(solidify).
+prose_verb_lemma(solve).
+prose_verb_lemma(sort).
+prose_verb_lemma(sound).
+prose_verb_lemma(sow).
+prose_verb_lemma(span).
+prose_verb_lemma(speak).
+prose_verb_lemma(specialise).
+prose_verb_lemma(specialize).
+prose_verb_lemma(specify).
+prose_verb_lemma(speculate).
+prose_verb_lemma(speed).
+prose_verb_lemma(spell).
+prose_verb_lemma(spend).
+prose_verb_lemma(spill).
+prose_verb_lemma(spin).
+prose_verb_lemma(spit).
+prose_verb_lemma(split).
+prose_verb_lemma(spoil).
+prose_verb_lemma(spot).
+prose_verb_lemma(spread).
+prose_verb_lemma(spring).
+prose_verb_lemma(squeeze).
+prose_verb_lemma(stabilise).
+prose_verb_lemma(stabilize).
+prose_verb_lemma(stage).
+prose_verb_lemma(stand).
+prose_verb_lemma(star).
+prose_verb_lemma(start).
+prose_verb_lemma(state).
+prose_verb_lemma(stay).
+prose_verb_lemma(steal).
+prose_verb_lemma(stem).
+prose_verb_lemma(step).
+prose_verb_lemma(stick).
+prose_verb_lemma(stimulate).
+prose_verb_lemma(sting).
+prose_verb_lemma(stink).
+prose_verb_lemma(stir).
+prose_verb_lemma(stitch).
+prose_verb_lemma(stop).
+prose_verb_lemma(store).
+prose_verb_lemma(strengthen).
+prose_verb_lemma(stretch).
+prose_verb_lemma(stride).
+prose_verb_lemma(strike).
+prose_verb_lemma(string).
+prose_verb_lemma(strive).
+prose_verb_lemma(structure).
+prose_verb_lemma(study).
+prose_verb_lemma(submerge).
+prose_verb_lemma(submit).
+prose_verb_lemma(subsist).
+prose_verb_lemma(substantiate).
+prose_verb_lemma(substitute).
+prose_verb_lemma(subsume).
+prose_verb_lemma(subtract).
+prose_verb_lemma(succeed).
+prose_verb_lemma(suggest).
+prose_verb_lemma(sum).
+prose_verb_lemma(summarise).
+prose_verb_lemma(summarize).
+prose_verb_lemma(supersede).
+prose_verb_lemma(supervise).
+prose_verb_lemma(supplement).
+prose_verb_lemma(supply).
+prose_verb_lemma(support).
+prose_verb_lemma(suppose).
+prose_verb_lemma(suppress).
+prose_verb_lemma(surpass).
+prose_verb_lemma(surrender).
+prose_verb_lemma(surround).
+prose_verb_lemma(survey).
+prose_verb_lemma(survive).
+prose_verb_lemma(suspect).
+prose_verb_lemma(suspend).
+prose_verb_lemma(sustain).
+prose_verb_lemma(swear).
+prose_verb_lemma(sweep).
+prose_verb_lemma(swell).
+prose_verb_lemma(swim).
+prose_verb_lemma(swing).
+prose_verb_lemma(symbolise).
+prose_verb_lemma(symbolize).
+prose_verb_lemma(synchronise).
+prose_verb_lemma(synchronize).
+prose_verb_lemma(synthesise).
+prose_verb_lemma(synthesize).
+prose_verb_lemma(take).
+prose_verb_lemma(tap).
+prose_verb_lemma(taste).
+prose_verb_lemma(tax).
+prose_verb_lemma(teach).
+prose_verb_lemma(tear).
+prose_verb_lemma(tell).
+prose_verb_lemma(temper).
+prose_verb_lemma(tend).
+prose_verb_lemma(term).
+prose_verb_lemma(terminate).
+prose_verb_lemma(test).
+prose_verb_lemma(think).
+prose_verb_lemma(threaten).
+prose_verb_lemma(thrive).
+prose_verb_lemma(throw).
+prose_verb_lemma(tie).
+prose_verb_lemma(title).
+prose_verb_lemma(titrate).
+prose_verb_lemma(tokenise).
+prose_verb_lemma(tokenize).
+prose_verb_lemma(tolerate).
+prose_verb_lemma(touch).
+prose_verb_lemma(trace).
+prose_verb_lemma(track).
+prose_verb_lemma(trade).
+prose_verb_lemma(train).
+prose_verb_lemma(transcribe).
+prose_verb_lemma(transfer).
+prose_verb_lemma(transform).
+prose_verb_lemma(translate).
+prose_verb_lemma(transmit).
+prose_verb_lemma(transport).
+prose_verb_lemma(trap).
+prose_verb_lemma(travel).
+prose_verb_lemma(traverse).
+prose_verb_lemma(tread).
+prose_verb_lemma(trigger).
+prose_verb_lemma(trim).
+prose_verb_lemma(trip).
+prose_verb_lemma(trust).
+prose_verb_lemma(try).
+prose_verb_lemma(turn).
+prose_verb_lemma(twist).
+prose_verb_lemma(uncover).
+prose_verb_lemma(undergo).
+prose_verb_lemma(underlie).
+prose_verb_lemma(undermine).
+prose_verb_lemma(understand).
+prose_verb_lemma(undertake).
+prose_verb_lemma(undo).
+prose_verb_lemma(unify).
+prose_verb_lemma(unite).
+prose_verb_lemma(update).
+prose_verb_lemma(uphold).
+prose_verb_lemma(uplift).
+prose_verb_lemma(upset).
+prose_verb_lemma(urge).
+prose_verb_lemma(utter).
+prose_verb_lemma(validate).
+prose_verb_lemma(vanish).
+prose_verb_lemma(vaporize).
+prose_verb_lemma(vary).
+prose_verb_lemma(verify).
+prose_verb_lemma(vibrate).
+prose_verb_lemma(view).
+prose_verb_lemma(violate).
+prose_verb_lemma(visit).
+prose_verb_lemma(visualise).
+prose_verb_lemma(visualize).
+prose_verb_lemma(volunteer).
+prose_verb_lemma(vow).
+prose_verb_lemma(wait).
+prose_verb_lemma(wake).
+prose_verb_lemma(walk).
+prose_verb_lemma(wander).
+prose_verb_lemma(want).
+prose_verb_lemma(warm).
+prose_verb_lemma(warn).
+prose_verb_lemma(warrant).
+prose_verb_lemma(watch).
+prose_verb_lemma(weaken).
+prose_verb_lemma(wear).
+prose_verb_lemma(weather).
+prose_verb_lemma(weave).
+prose_verb_lemma(weep).
+prose_verb_lemma(weigh).
+prose_verb_lemma(weld).
+prose_verb_lemma(wet).
+prose_verb_lemma(widen).
+prose_verb_lemma(win).
+prose_verb_lemma(wind).
+prose_verb_lemma(wish).
+prose_verb_lemma(withdraw).
+prose_verb_lemma(withhold).
+prose_verb_lemma(withstand).
+prose_verb_lemma(witness).
+prose_verb_lemma(wonder).
+prose_verb_lemma(work).
+prose_verb_lemma(wrap).
+prose_verb_lemma(wring).
+prose_verb_lemma(write).
+prose_verb_lemma(yield).
+prose_es_ending("s").
+prose_es_ending("sh").
+prose_es_ending("ch").
+prose_es_ending("x").
+prose_es_ending("z").
+prose_es_ending("o").
+prose_keep_e_ending("ee").
+prose_keep_e_ending("oe").
+prose_keep_e_ending("ye").

@@ -1,0 +1,3879 @@
+% verbs.p0 — radici, valenze e famiglie di predicati della prosa generale
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+
+% constitution
+prose_verb_class(comprise, constitution).
+prose_valency(comprise, transitive).
+prose_verb_class(contain, constitution).
+prose_valency(contain, transitive).
+prose_verb_class(include, constitution).
+prose_valency(include, transitive).
+prose_verb_class(constitute, constitution).
+prose_valency(constitute, transitive).
+prose_verb_class(compose, constitution).
+prose_valency(compose, transitive).
+prose_verb_class(form, constitution).
+prose_valency(form, transitive).
+relation_verb(embody).
+prose_verb_class(embody, constitution).
+prose_valency(embody, transitive).
+relation_verb(incorporate).
+prose_verb_class(incorporate, constitution).
+prose_valency(incorporate, transitive).
+relation_verb(encompass).
+prose_verb_class(encompass, constitution).
+prose_valency(encompass, transitive).
+relation_verb(integrate).
+prose_verb_class(integrate, constitution).
+prose_valency(integrate, transitive).
+prose_verb_class(combine, constitution).
+prose_valency(combine, transitive).
+relation_verb(unite).
+prose_verb_class(unite, constitution).
+prose_valency(unite, transitive).
+relation_verb(merge).
+prose_verb_class(merge, constitution).
+prose_valency(merge, transitive).
+relation_verb(join).
+prose_verb_class(join, constitution).
+prose_valency(join, transitive).
+relation_verb(link).
+prose_verb_class(link, constitution).
+prose_valency(link, transitive).
+relation_verb(connect).
+prose_verb_class(connect, constitution).
+prose_valency(connect, transitive).
+prose_verb_class(attach, constitution).
+prose_valency(attach, transitive).
+prose_verb_class(bind, constitution).
+prose_valency(bind, transitive).
+relation_verb(couple).
+prose_verb_class(couple, constitution).
+prose_valency(couple, transitive).
+relation_verb(associate).
+prose_verb_class(associate, constitution).
+prose_valency(associate, transitive).
+relation_verb(assemble).
+prose_verb_class(assemble, constitution).
+prose_valency(assemble, transitive).
+relation_verb(collect).
+prose_verb_class(collect, constitution).
+prose_valency(collect, transitive).
+prose_verb_class(gather, constitution).
+prose_valency(gather, transitive).
+relation_verb(accumulate).
+prose_verb_class(accumulate, constitution).
+prose_valency(accumulate, transitive).
+relation_verb(aggregate).
+prose_verb_class(aggregate, constitution).
+prose_valency(aggregate, transitive).
+relation_verb(group).
+prose_verb_class(group, constitution).
+prose_valency(group, transitive).
+prose_verb_class(classify, constitution).
+prose_valency(classify, transitive).
+relation_verb(categorize).
+prose_verb_class(categorize, constitution).
+prose_valency(categorize, transitive).
+relation_verb(organise).
+prose_verb_class(organise, constitution).
+prose_valency(organise, transitive).
+relation_verb(organize).
+prose_verb_class(organize, constitution).
+prose_valency(organize, transitive).
+relation_verb(arrange).
+prose_verb_class(arrange, constitution).
+prose_valency(arrange, transitive).
+relation_verb(structure).
+prose_verb_class(structure, constitution).
+prose_valency(structure, transitive).
+prose_verb_class(build, constitution).
+prose_valency(build, transitive).
+relation_verb(construct).
+prose_verb_class(construct, constitution).
+prose_valency(construct, transitive).
+relation_verb(create).
+prose_verb_class(create, constitution).
+prose_valency(create, transitive).
+relation_verb(generate).
+prose_verb_class(generate, constitution).
+prose_valency(generate, transitive).
+relation_verb(produce).
+prose_verb_class(produce, constitution).
+prose_valency(produce, transitive).
+relation_verb(make).
+prose_verb_class(make, constitution).
+prose_valency(make, transitive).
+relation_verb(establish).
+prose_verb_class(establish, constitution).
+prose_valency(establish, transitive).
+relation_verb(found).
+prose_verb_class(found, constitution).
+prose_valency(found, transitive).
+relation_verb(institute).
+prose_verb_class(institute, constitution).
+prose_valency(institute, transitive).
+
+% causation
+relation_verb(cause).
+prose_verb_class(cause, causation).
+prose_valency(cause, transitive).
+relation_verb(induce).
+prose_verb_class(induce, causation).
+prose_valency(induce, transitive).
+prose_verb_class(trigger, causation).
+prose_valency(trigger, transitive).
+relation_verb(provoke).
+prose_verb_class(provoke, causation).
+prose_valency(provoke, transitive).
+prose_verb_class(produce, causation).
+prose_verb_class(generate, causation).
+prose_verb_class(yield, causation).
+prose_valency(yield, transitive).
+relation_verb(bring).
+prose_verb_class(bring, causation).
+prose_valency(bring, transitive).
+prose_verb_class(drive, causation).
+prose_valency(drive, transitive).
+relation_verb(motivate).
+prose_verb_class(motivate, causation).
+prose_valency(motivate, transitive).
+relation_verb(prompt).
+prose_verb_class(prompt, causation).
+prose_valency(prompt, transitive).
+relation_verb(stimulate).
+prose_verb_class(stimulate, causation).
+prose_valency(stimulate, transitive).
+relation_verb(activate).
+prose_verb_class(activate, causation).
+prose_valency(activate, transitive).
+relation_verb(initiate).
+prose_verb_class(initiate, causation).
+prose_valency(initiate, transitive).
+relation_verb(start).
+prose_verb_class(start, causation).
+prose_valency(start, transitive).
+relation_verb(launch).
+prose_verb_class(launch, causation).
+prose_valency(launch, transitive).
+prose_verb_class(enable, causation).
+prose_valency(enable, transitive).
+prose_verb_class(allow, causation).
+prose_valency(allow, transitive).
+relation_verb(permit).
+prose_verb_class(permit, causation).
+prose_valency(permit, transitive).
+relation_verb(facilitate).
+prose_verb_class(facilitate, causation).
+prose_valency(facilitate, transitive).
+relation_verb(help).
+prose_verb_class(help, causation).
+prose_valency(help, transitive).
+prose_verb_class(aid, causation).
+prose_valency(aid, transitive).
+prose_verb_class(support, causation).
+prose_valency(support, transitive).
+prose_verb_class(sustain, causation).
+prose_valency(sustain, transitive).
+prose_verb_class(maintain, causation).
+prose_valency(maintain, transitive).
+relation_verb(preserve).
+prose_verb_class(preserve, causation).
+prose_valency(preserve, transitive).
+relation_verb(prevent).
+prose_verb_class(prevent, causation).
+prose_valency(prevent, transitive).
+relation_verb(inhibit).
+prose_verb_class(inhibit, causation).
+prose_valency(inhibit, transitive).
+prose_verb_class(suppress, causation).
+prose_valency(suppress, transitive).
+relation_verb(hinder).
+prose_verb_class(hinder, causation).
+prose_valency(hinder, transitive).
+relation_verb(impede).
+prose_verb_class(impede, causation).
+prose_valency(impede, transitive).
+relation_verb(obstruct).
+prose_verb_class(obstruct, causation).
+prose_valency(obstruct, transitive).
+relation_verb(block).
+prose_verb_class(block, causation).
+prose_valency(block, transitive).
+relation_verb(stop).
+prose_verb_class(stop, causation).
+prose_valency(stop, transitive).
+relation_verb(halt).
+prose_verb_class(halt, causation).
+prose_valency(halt, transitive).
+relation_verb(interrupt).
+prose_verb_class(interrupt, causation).
+prose_valency(interrupt, transitive).
+relation_verb(terminate).
+prose_verb_class(terminate, causation).
+prose_valency(terminate, transitive).
+relation_verb(eliminate).
+prose_verb_class(eliminate, causation).
+prose_valency(eliminate, transitive).
+prose_verb_class(remove, causation).
+prose_valency(remove, transitive).
+relation_verb(avert).
+prose_verb_class(avert, causation).
+prose_valency(avert, transitive).
+relation_verb(avoid).
+prose_verb_class(avoid, causation).
+prose_valency(avoid, transitive).
+relation_verb(preclude).
+prose_verb_class(preclude, causation).
+prose_valency(preclude, transitive).
+relation_verb(counteract).
+prose_verb_class(counteract, causation).
+prose_valency(counteract, transitive).
+relation_verb(offset).
+prose_verb_class(offset, causation).
+prose_valency(offset, transitive).
+prose_verb_class(mitigate, causation).
+prose_valency(mitigate, transitive).
+relation_verb(alleviate).
+prose_verb_class(alleviate, causation).
+prose_valency(alleviate, transitive).
+relation_verb(relieve).
+prose_verb_class(relieve, causation).
+prose_valency(relieve, transitive).
+relation_verb(exacerbate).
+prose_verb_class(exacerbate, causation).
+prose_valency(exacerbate, transitive).
+relation_verb(aggravate).
+prose_verb_class(aggravate, causation).
+prose_valency(aggravate, transitive).
+relation_verb(intensify).
+prose_verb_class(intensify, causation).
+prose_valency(intensify, transitive).
+prose_verb_class(amplify, causation).
+prose_valency(amplify, transitive).
+relation_verb(potentiate).
+prose_verb_class(potentiate, causation).
+prose_valency(potentiate, transitive).
+relation_verb(modulate).
+prose_verb_class(modulate, causation).
+prose_valency(modulate, transitive).
+relation_verb(regulate).
+prose_verb_class(regulate, causation).
+prose_valency(regulate, transitive).
+relation_verb(control).
+prose_verb_class(control, causation).
+prose_valency(control, transitive).
+prose_verb_class(determine, causation).
+prose_valency(determine, transitive).
+relation_verb(govern).
+prose_verb_class(govern, causation).
+prose_valency(govern, transitive).
+prose_verb_class(influence, causation).
+prose_valency(influence, transitive).
+prose_verb_class(affect, causation).
+prose_valency(affect, transitive).
+prose_verb_class(shape, causation).
+prose_valency(shape, transitive).
+relation_verb(condition).
+prose_verb_class(condition, causation).
+prose_valency(condition, transitive).
+relation_verb(constrain).
+prose_verb_class(constrain, causation).
+prose_valency(constrain, transitive).
+relation_verb(limit).
+prose_verb_class(limit, causation).
+prose_valency(limit, transitive).
+relation_verb(restrict).
+prose_verb_class(restrict, causation).
+prose_valency(restrict, transitive).
+
+% change
+relation_verb(change).
+prose_verb_class(change, change).
+prose_valency(change, transitive).
+relation_verb(alter).
+prose_verb_class(alter, change).
+prose_valency(alter, transitive).
+relation_verb(modify).
+prose_verb_class(modify, change).
+prose_valency(modify, transitive).
+prose_verb_class(transform, change).
+prose_valency(transform, transitive).
+prose_verb_class(convert, change).
+prose_valency(convert, transitive).
+relation_verb(turn).
+prose_verb_class(turn, change).
+prose_valency(turn, transitive).
+relation_verb(develop).
+prose_verb_class(develop, change).
+prose_valency(develop, transitive).
+prose_verb_class(evolve, change).
+prose_valency(evolve, transitive).
+relation_verb(adapt).
+prose_verb_class(adapt, change).
+prose_valency(adapt, transitive).
+relation_verb(adjust).
+prose_verb_class(adjust, change).
+prose_valency(adjust, transitive).
+relation_verb(revise).
+prose_verb_class(revise, change).
+prose_valency(revise, transitive).
+relation_verb(amend).
+prose_verb_class(amend, change).
+prose_valency(amend, transitive).
+relation_verb(reform).
+prose_verb_class(reform, change).
+prose_valency(reform, transitive).
+relation_verb(reshape).
+prose_verb_class(reshape, change).
+prose_valency(reshape, transitive).
+relation_verb(restructure).
+prose_verb_class(restructure, change).
+prose_valency(restructure, transitive).
+relation_verb(reorganize).
+prose_verb_class(reorganize, change).
+prose_valency(reorganize, transitive).
+relation_verb(reorganise).
+prose_verb_class(reorganise, change).
+prose_valency(reorganise, transitive).
+relation_verb(reconstruct).
+prose_verb_class(reconstruct, change).
+prose_valency(reconstruct, transitive).
+relation_verb(rebuild).
+prose_verb_class(rebuild, change).
+prose_valency(rebuild, transitive).
+prose_verb_class(restore, change).
+prose_valency(restore, transitive).
+relation_verb(recover).
+prose_verb_class(recover, change).
+prose_valency(recover, transitive).
+relation_verb(renew).
+prose_verb_class(renew, change).
+prose_valency(renew, transitive).
+relation_verb(regenerate).
+prose_verb_class(regenerate, change).
+prose_valency(regenerate, transitive).
+prose_verb_class(replace, change).
+prose_valency(replace, transitive).
+relation_verb(substitute).
+prose_verb_class(substitute, change).
+prose_valency(substitute, transitive).
+prose_verb_class(displace, change).
+prose_valency(displace, transitive).
+relation_verb(supersede).
+prose_verb_class(supersede, change).
+prose_valency(supersede, transitive).
+relation_verb(succeed).
+prose_verb_class(succeed, change).
+prose_valency(succeed, transitive).
+relation_verb(precede).
+prose_verb_class(precede, change).
+prose_valency(precede, transitive).
+prose_verb_class(improve, change).
+prose_valency(improve, transitive).
+relation_verb(enhance).
+prose_verb_class(enhance, change).
+prose_valency(enhance, transitive).
+prose_verb_class(strengthen, change).
+prose_valency(strengthen, transitive).
+relation_verb(reinforce).
+prose_verb_class(reinforce, change).
+prose_valency(reinforce, transitive).
+prose_verb_class(weaken, change).
+prose_valency(weaken, transitive).
+relation_verb(diminish).
+prose_verb_class(diminish, change).
+prose_valency(diminish, transitive).
+prose_verb_class(reduce, change).
+prose_valency(reduce, transitive).
+relation_verb(decrease).
+prose_verb_class(decrease, change).
+prose_valency(decrease, transitive).
+prose_verb_class(increase, change).
+prose_valency(increase, transitive).
+relation_verb(raise).
+prose_verb_class(raise, change).
+prose_valency(raise, transitive).
+relation_verb(lower).
+prose_verb_class(lower, change).
+prose_valency(lower, transitive).
+relation_verb(elevate).
+prose_verb_class(elevate, change).
+prose_valency(elevate, transitive).
+relation_verb(expand).
+prose_verb_class(expand, change).
+prose_valency(expand, transitive).
+relation_verb(extend).
+prose_verb_class(extend, change).
+prose_valency(extend, transitive).
+relation_verb(enlarge).
+prose_verb_class(enlarge, change).
+prose_valency(enlarge, transitive).
+relation_verb(shrink).
+prose_verb_class(shrink, change).
+prose_valency(shrink, transitive).
+relation_verb(contract).
+prose_verb_class(contract, change).
+prose_valency(contract, transitive).
+prose_verb_class(compress, change).
+prose_valency(compress, transitive).
+prose_verb_class(stretch, change).
+prose_valency(stretch, transitive).
+relation_verb(lengthen).
+prose_verb_class(lengthen, change).
+prose_valency(lengthen, transitive).
+relation_verb(shorten).
+prose_verb_class(shorten, change).
+prose_valency(shorten, transitive).
+relation_verb(widen).
+prose_verb_class(widen, change).
+prose_valency(widen, transitive).
+relation_verb(narrow).
+prose_verb_class(narrow, change).
+prose_valency(narrow, transitive).
+relation_verb(deepen).
+prose_verb_class(deepen, change).
+prose_valency(deepen, transitive).
+relation_verb(broaden).
+prose_verb_class(broaden, change).
+prose_valency(broaden, transitive).
+relation_verb(accelerate).
+prose_verb_class(accelerate, change).
+prose_valency(accelerate, transitive).
+relation_verb(decelerate).
+prose_verb_class(decelerate, change).
+prose_valency(decelerate, transitive).
+relation_verb(slow).
+prose_verb_class(slow, change).
+prose_valency(slow, transitive).
+relation_verb(stabilize).
+prose_verb_class(stabilize, change).
+prose_valency(stabilize, transitive).
+relation_verb(stabilise).
+prose_verb_class(stabilise, change).
+prose_valency(stabilise, transitive).
+relation_verb(destabilize).
+prose_verb_class(destabilize, change).
+prose_valency(destabilize, transitive).
+relation_verb(deteriorate).
+prose_verb_class(deteriorate, change).
+prose_valency(deteriorate, transitive).
+relation_verb(degrade).
+prose_verb_class(degrade, change).
+prose_valency(degrade, transitive).
+prose_verb_class(damage, change).
+prose_valency(damage, transitive).
+prose_verb_class(destroy, change).
+prose_valency(destroy, transitive).
+relation_verb(disrupt).
+prose_verb_class(disrupt, change).
+prose_valency(disrupt, transitive).
+relation_verb(perturb).
+prose_verb_class(perturb, change).
+prose_valency(perturb, transitive).
+relation_verb(disturb).
+prose_verb_class(disturb, change).
+prose_valency(disturb, transitive).
+relation_verb(reverse).
+prose_verb_class(reverse, change).
+prose_valency(reverse, transitive).
+relation_verb(invert).
+prose_verb_class(invert, change).
+prose_valency(invert, transitive).
+relation_verb(revert).
+prose_verb_class(revert, change).
+prose_valency(revert, transitive).
+relation_verb(vary).
+prose_verb_class(vary, change).
+prose_valency(vary, transitive).
+relation_verb(diversify).
+prose_verb_class(diversify, change).
+prose_valency(diversify, transitive).
+relation_verb(differentiate).
+prose_verb_class(differentiate, change).
+prose_valency(differentiate, transitive).
+relation_verb(distinguish).
+prose_verb_class(distinguish, change).
+prose_valency(distinguish, transitive).
+prose_verb_class(separate, change).
+prose_valency(separate, transitive).
+prose_verb_class(divide, change).
+prose_valency(divide, transitive).
+relation_verb(split).
+prose_verb_class(split, change).
+prose_valency(split, transitive).
+relation_verb(fragment).
+prose_verb_class(fragment, change).
+prose_valency(fragment, transitive).
+prose_verb_class(break, change).
+prose_valency(break, transitive).
+relation_verb(rupture).
+prose_verb_class(rupture, change).
+prose_valency(rupture, transitive).
+relation_verb(fracture).
+prose_verb_class(fracture, change).
+prose_valency(fracture, transitive).
+prose_verb_class(dissolve, change).
+prose_valency(dissolve, transitive).
+relation_verb(melt).
+prose_verb_class(melt, change).
+prose_valency(melt, transitive).
+relation_verb(freeze).
+prose_verb_class(freeze, change).
+prose_valency(freeze, transitive).
+relation_verb(solidify).
+prose_verb_class(solidify, change).
+prose_valency(solidify, transitive).
+prose_verb_class(crystallize, change).
+prose_valency(crystallize, transitive).
+relation_verb(crystallise).
+prose_verb_class(crystallise, change).
+prose_valency(crystallise, transitive).
+relation_verb(evaporate).
+prose_verb_class(evaporate, change).
+prose_valency(evaporate, transitive).
+relation_verb(vaporize).
+prose_verb_class(vaporize, change).
+prose_valency(vaporize, transitive).
+relation_verb(condense).
+prose_verb_class(condense, change).
+prose_valency(condense, transitive).
+prose_verb_class(precipitate, change).
+prose_valency(precipitate, transitive).
+relation_verb(liquefy).
+prose_verb_class(liquefy, change).
+prose_valency(liquefy, transitive).
+prose_verb_class(oxidize, change).
+prose_valency(oxidize, transitive).
+relation_verb(oxidise).
+prose_verb_class(oxidise, change).
+prose_valency(oxidise, transitive).
+prose_verb_class(decompose, change).
+prose_valency(decompose, transitive).
+relation_verb(decay).
+prose_verb_class(decay, change).
+prose_valency(decay, transitive).
+prose_verb_class(recycle, change).
+prose_valency(recycle, transitive).
+
+% physical
+prose_verb_class(absorb, physical).
+prose_valency(absorb, transitive).
+relation_verb(adsorb).
+prose_verb_class(adsorb, physical).
+prose_valency(adsorb, transitive).
+prose_verb_class(emit, physical).
+prose_valency(emit, transitive).
+prose_verb_class(release, physical).
+prose_valency(release, transitive).
+prose_verb_class(radiate, physical).
+prose_valency(radiate, transitive).
+prose_verb_class(reflect, physical).
+prose_valency(reflect, transitive).
+prose_verb_class(refract, physical).
+prose_valency(refract, transitive).
+prose_verb_class(scatter, physical).
+prose_valency(scatter, transitive).
+prose_verb_class(transmit, physical).
+prose_valency(transmit, transitive).
+relation_verb(transfer).
+prose_verb_class(transfer, physical).
+prose_valency(transfer, transitive).
+relation_verb(transport).
+prose_verb_class(transport, physical).
+prose_valency(transport, transitive).
+relation_verb(carry).
+prose_verb_class(carry, physical).
+prose_valency(carry, transitive).
+relation_verb(convey).
+prose_verb_class(convey, physical).
+prose_valency(convey, transitive).
+prose_verb_class(deliver, physical).
+prose_valency(deliver, transitive).
+relation_verb(distribute).
+prose_verb_class(distribute, physical).
+prose_valency(distribute, transitive).
+relation_verb(diffuse).
+prose_verb_class(diffuse, physical).
+prose_valency(diffuse, transitive).
+relation_verb(disperse).
+prose_verb_class(disperse, physical).
+prose_valency(disperse, transitive).
+prose_verb_class(spread, physical).
+prose_valency(spread, transitive).
+relation_verb(propagate).
+prose_verb_class(propagate, physical).
+prose_valency(propagate, transitive).
+prose_verb_class(conduct, physical).
+prose_valency(conduct, transitive).
+prose_verb_class(insulate, physical).
+prose_valency(insulate, transitive).
+prose_verb_class(resist, physical).
+prose_valency(resist, transitive).
+prose_verb_class(attract, physical).
+prose_valency(attract, transitive).
+prose_verb_class(repel, physical).
+prose_valency(repel, transitive).
+relation_verb(deflect).
+prose_verb_class(deflect, physical).
+prose_valency(deflect, transitive).
+relation_verb(divert).
+prose_verb_class(divert, physical).
+prose_valency(divert, transitive).
+relation_verb(redirect).
+prose_verb_class(redirect, physical).
+prose_valency(redirect, transitive).
+relation_verb(focus).
+prose_verb_class(focus, physical).
+prose_valency(focus, transitive).
+relation_verb(concentrate).
+prose_verb_class(concentrate, physical).
+prose_valency(concentrate, transitive).
+relation_verb(exert).
+prose_verb_class(exert, physical).
+prose_valency(exert, transitive).
+relation_verb(apply).
+prose_verb_class(apply, physical).
+prose_valency(apply, transitive).
+relation_verb(experience).
+prose_verb_class(experience, physical).
+prose_valency(experience, transitive).
+prose_verb_class(withstand, physical).
+prose_valency(withstand, transitive).
+prose_verb_class(support, physical).
+prose_verb_class(balance, physical).
+prose_valency(balance, transitive).
+relation_verb(counterbalance).
+prose_verb_class(counterbalance, physical).
+prose_valency(counterbalance, transitive).
+prose_verb_class(offset, physical).
+prose_verb_class(rotate, physical).
+prose_valency(rotate, transitive).
+prose_verb_class(spin, physical).
+prose_valency(spin, transitive).
+relation_verb(revolve).
+prose_verb_class(revolve, physical).
+prose_valency(revolve, transitive).
+relation_verb(oscillate).
+prose_verb_class(oscillate, physical).
+prose_valency(oscillate, transitive).
+relation_verb(vibrate).
+prose_verb_class(vibrate, physical).
+prose_valency(vibrate, transitive).
+prose_verb_class(displace, physical).
+relation_verb(move).
+prose_verb_class(move, physical).
+prose_valency(move, transitive).
+relation_verb(shift).
+prose_verb_class(shift, physical).
+prose_valency(shift, transitive).
+relation_verb(push).
+prose_verb_class(push, physical).
+prose_valency(push, transitive).
+relation_verb(pull).
+prose_verb_class(pull, physical).
+prose_valency(pull, transitive).
+relation_verb(lift).
+prose_verb_class(lift, physical).
+prose_valency(lift, transitive).
+relation_verb(drag).
+prose_verb_class(drag, physical).
+prose_valency(drag, transitive).
+relation_verb(draw).
+prose_verb_class(draw, physical).
+prose_valency(draw, transitive).
+relation_verb(press).
+prose_verb_class(press, physical).
+prose_valency(press, transitive).
+relation_verb(squeeze).
+prose_verb_class(squeeze, physical).
+prose_valency(squeeze, transitive).
+relation_verb(bend).
+prose_verb_class(bend, physical).
+prose_valency(bend, transitive).
+relation_verb(twist).
+prose_verb_class(twist, physical).
+prose_valency(twist, transitive).
+relation_verb(fold).
+prose_verb_class(fold, physical).
+prose_valency(fold, transitive).
+relation_verb(roll).
+prose_verb_class(roll, physical).
+prose_valency(roll, transitive).
+relation_verb(slide).
+prose_verb_class(slide, physical).
+prose_valency(slide, transitive).
+relation_verb(strike).
+prose_verb_class(strike, physical).
+prose_valency(strike, transitive).
+relation_verb(hit).
+prose_verb_class(hit, physical).
+prose_valency(hit, transitive).
+relation_verb(impact).
+prose_verb_class(impact, physical).
+prose_valency(impact, transitive).
+relation_verb(collide).
+prose_verb_class(collide, physical).
+prose_valency(collide, transitive).
+relation_verb(penetrate).
+prose_verb_class(penetrate, physical).
+prose_valency(penetrate, transitive).
+relation_verb(permeate).
+prose_verb_class(permeate, physical).
+prose_valency(permeate, transitive).
+prose_verb_class(filter, physical).
+prose_valency(filter, transitive).
+prose_verb_class(block, physical).
+relation_verb(shield).
+prose_verb_class(shield, physical).
+prose_valency(shield, transitive).
+prose_verb_class(protect, physical).
+prose_valency(protect, transitive).
+prose_verb_class(surround, physical).
+prose_valency(surround, transitive).
+prose_verb_class(enclose, physical).
+prose_valency(enclose, transitive).
+prose_verb_class(cover, physical).
+prose_valency(cover, transitive).
+prose_verb_class(coat, physical).
+prose_valency(coat, transitive).
+prose_verb_class(line, physical).
+prose_valency(line, transitive).
+prose_verb_class(fill, physical).
+prose_valency(fill, transitive).
+prose_verb_class(occupy, physical).
+prose_valency(occupy, transitive).
+prose_verb_class(span, physical).
+prose_valency(span, transitive).
+relation_verb(cross).
+prose_verb_class(cross, physical).
+prose_valency(cross, transitive).
+relation_verb(traverse).
+prose_verb_class(traverse, physical).
+prose_valency(traverse, transitive).
+relation_verb(reach).
+prose_verb_class(reach, physical).
+prose_valency(reach, transitive).
+relation_verb(bridge).
+prose_verb_class(bridge, physical).
+prose_valency(bridge, transitive).
+relation_verb(overlap).
+prose_verb_class(overlap, physical).
+prose_valency(overlap, transitive).
+relation_verb(intersect).
+prose_verb_class(intersect, physical).
+prose_valency(intersect, transitive).
+relation_verb(touch).
+prose_verb_class(touch, physical).
+prose_valency(touch, transitive).
+relation_verb(contact).
+prose_verb_class(contact, physical).
+prose_valency(contact, transitive).
+
+% measurement
+prose_verb_class(measure, measurement).
+prose_valency(measure, transitive).
+relation_verb(quantify).
+prose_verb_class(quantify, measurement).
+prose_valency(quantify, transitive).
+relation_verb(count).
+prose_verb_class(count, measurement).
+prose_valency(count, transitive).
+relation_verb(enumerate).
+prose_verb_class(enumerate, measurement).
+prose_valency(enumerate, transitive).
+prose_verb_class(estimate, measurement).
+prose_valency(estimate, transitive).
+relation_verb(approximate).
+prose_verb_class(approximate, measurement).
+prose_valency(approximate, transitive).
+relation_verb(calculate).
+prose_verb_class(calculate, measurement).
+prose_valency(calculate, transitive).
+relation_verb(compute).
+prose_verb_class(compute, measurement).
+prose_valency(compute, transitive).
+relation_verb(evaluate).
+prose_verb_class(evaluate, measurement).
+prose_valency(evaluate, transitive).
+relation_verb(assess).
+prose_verb_class(assess, measurement).
+prose_valency(assess, transitive).
+relation_verb(rate).
+prose_verb_class(rate, measurement).
+prose_valency(rate, transitive).
+relation_verb(rank).
+prose_verb_class(rank, measurement).
+prose_valency(rank, transitive).
+relation_verb(score).
+prose_verb_class(score, measurement).
+prose_valency(score, transitive).
+relation_verb(weigh).
+prose_verb_class(weigh, measurement).
+prose_valency(weigh, transitive).
+relation_verb(gauge).
+prose_verb_class(gauge, measurement).
+prose_valency(gauge, transitive).
+relation_verb(calibrate).
+prose_verb_class(calibrate, measurement).
+prose_valency(calibrate, transitive).
+relation_verb(compare).
+prose_verb_class(compare, measurement).
+prose_valency(compare, transitive).
+relation_verb(contrast).
+prose_verb_class(contrast, measurement).
+prose_valency(contrast, transitive).
+relation_verb(match).
+prose_verb_class(match, measurement).
+prose_valency(match, transitive).
+relation_verb(equal).
+prose_verb_class(equal, measurement).
+prose_valency(equal, transitive).
+prose_verb_class(exceed, measurement).
+prose_valency(exceed, transitive).
+relation_verb(surpass).
+prose_verb_class(surpass, measurement).
+prose_valency(surpass, transitive).
+relation_verb(outnumber).
+prose_verb_class(outnumber, measurement).
+prose_valency(outnumber, transitive).
+relation_verb(outweigh).
+prose_verb_class(outweigh, measurement).
+prose_valency(outweigh, transitive).
+relation_verb(outpace).
+prose_verb_class(outpace, measurement).
+prose_valency(outpace, transitive).
+relation_verb(underlie).
+prose_verb_class(underlie, measurement).
+prose_valency(underlie, transitive).
+relation_verb(represent).
+prose_verb_class(represent, measurement).
+prose_valency(represent, transitive).
+relation_verb(correspond).
+prose_verb_class(correspond, measurement).
+prose_valency(correspond, transitive).
+prose_verb_class(denote, measurement).
+prose_valency(denote, transitive).
+relation_verb(indicate).
+prose_verb_class(indicate, measurement).
+prose_valency(indicate, transitive).
+relation_verb(express).
+prose_verb_class(express, measurement).
+prose_valency(express, transitive).
+relation_verb(specify).
+prose_verb_class(specify, measurement).
+prose_valency(specify, transitive).
+prose_verb_class(characterize, measurement).
+prose_valency(characterize, transitive).
+relation_verb(characterise).
+prose_verb_class(characterise, measurement).
+prose_valency(characterise, transitive).
+relation_verb(describe).
+prose_verb_class(describe, measurement).
+prose_valency(describe, transitive).
+relation_verb(define).
+prose_verb_class(define, measurement).
+prose_valency(define, transitive).
+relation_verb(identify).
+prose_verb_class(identify, measurement).
+prose_valency(identify, transitive).
+prose_verb_class(distinguish, measurement).
+relation_verb(discriminate).
+prose_verb_class(discriminate, measurement).
+prose_valency(discriminate, transitive).
+relation_verb(mark).
+prose_verb_class(mark, measurement).
+prose_valency(mark, transitive).
+relation_verb(label).
+prose_verb_class(label, measurement).
+prose_valency(label, transitive).
+relation_verb(name).
+prose_verb_class(name, measurement).
+prose_valency(name, transitive).
+relation_verb(designate).
+prose_verb_class(designate, measurement).
+prose_valency(designate, transitive).
+prose_verb_class(classify, measurement).
+prose_verb_class(categorize, measurement).
+relation_verb(categorise).
+prose_verb_class(categorise, measurement).
+prose_valency(categorise, transitive).
+relation_verb(index).
+prose_verb_class(index, measurement).
+prose_valency(index, transitive).
+relation_verb(number).
+prose_verb_class(number, measurement).
+prose_valency(number, transitive).
+relation_verb(order).
+prose_verb_class(order, measurement).
+prose_valency(order, transitive).
+relation_verb(sort).
+prose_verb_class(sort, measurement).
+prose_valency(sort, transitive).
+relation_verb(sample).
+prose_verb_class(sample, measurement).
+prose_valency(sample, transitive).
+relation_verb(test).
+prose_verb_class(test, measurement).
+prose_valency(test, transitive).
+prose_verb_class(detect, measurement).
+prose_valency(detect, transitive).
+relation_verb(observe).
+prose_verb_class(observe, measurement).
+prose_valency(observe, transitive).
+prose_verb_class(monitor, measurement).
+prose_valency(monitor, transitive).
+relation_verb(track).
+prose_verb_class(track, measurement).
+prose_valency(track, transitive).
+prose_verb_class(record, measurement).
+prose_valency(record, transitive).
+relation_verb(register).
+prose_verb_class(register, measurement).
+prose_valency(register, transitive).
+prose_verb_class(capture, measurement).
+prose_valency(capture, transitive).
+relation_verb(map).
+prose_verb_class(map, measurement).
+prose_valency(map, transitive).
+relation_verb(survey).
+prose_verb_class(survey, measurement).
+prose_valency(survey, transitive).
+relation_verb(chart).
+prose_verb_class(chart, measurement).
+prose_valency(chart, transitive).
+relation_verb(plot).
+prose_verb_class(plot, measurement).
+prose_valency(plot, transitive).
+relation_verb(trace).
+prose_verb_class(trace, measurement).
+prose_valency(trace, transitive).
+relation_verb(locate).
+prose_verb_class(locate, measurement).
+prose_valency(locate, transitive).
+relation_verb(pinpoint).
+prose_verb_class(pinpoint, measurement).
+prose_valency(pinpoint, transitive).
+
+% information
+relation_verb(encode).
+prose_verb_class(encode, information).
+prose_valency(encode, transitive).
+relation_verb(decode).
+prose_verb_class(decode, information).
+prose_valency(decode, transitive).
+relation_verb(store).
+prose_verb_class(store, information).
+prose_valency(store, transitive).
+prose_verb_class(retain, information).
+prose_valency(retain, transitive).
+relation_verb(remember).
+prose_verb_class(remember, information).
+prose_valency(remember, transitive).
+relation_verb(retrieve).
+prose_verb_class(retrieve, information).
+prose_valency(retrieve, transitive).
+relation_verb(access).
+prose_verb_class(access, information).
+prose_valency(access, transitive).
+relation_verb(read).
+prose_verb_class(read, information).
+prose_valency(read, transitive).
+relation_verb(write).
+prose_verb_class(write, information).
+prose_valency(write, transitive).
+relation_verb(print).
+prose_verb_class(print, information).
+prose_valency(print, transitive).
+relation_verb(copy).
+prose_verb_class(copy, information).
+prose_valency(copy, transitive).
+relation_verb(duplicate).
+prose_verb_class(duplicate, information).
+prose_valency(duplicate, transitive).
+relation_verb(reproduce).
+prose_verb_class(reproduce, information).
+prose_valency(reproduce, transitive).
+relation_verb(replicate).
+prose_verb_class(replicate, information).
+prose_valency(replicate, transitive).
+prose_verb_class(transmit, information).
+relation_verb(communicate).
+prose_verb_class(communicate, information).
+prose_valency(communicate, transitive).
+prose_verb_class(convey, information).
+relation_verb(send).
+prose_verb_class(send, information).
+prose_valency(send, transitive).
+prose_verb_class(receive, information).
+prose_valency(receive, transitive).
+relation_verb(broadcast).
+prose_verb_class(broadcast, information).
+prose_valency(broadcast, transitive).
+relation_verb(publish).
+prose_verb_class(publish, information).
+prose_valency(publish, transitive).
+prose_verb_class(distribute, information).
+relation_verb(disseminate).
+prose_verb_class(disseminate, information).
+prose_valency(disseminate, transitive).
+relation_verb(display).
+prose_verb_class(display, information).
+prose_valency(display, transitive).
+relation_verb(show).
+prose_verb_class(show, information).
+prose_valency(show, transitive).
+relation_verb(illustrate).
+prose_verb_class(illustrate, information).
+prose_valency(illustrate, transitive).
+relation_verb(depict).
+prose_verb_class(depict, information).
+prose_valency(depict, transitive).
+relation_verb(portray).
+prose_verb_class(portray, information).
+prose_valency(portray, transitive).
+prose_verb_class(represent, information).
+relation_verb(symbolize).
+prose_verb_class(symbolize, information).
+prose_valency(symbolize, transitive).
+relation_verb(symbolise).
+prose_verb_class(symbolise, information).
+prose_valency(symbolise, transitive).
+relation_verb(signify).
+prose_verb_class(signify, information).
+prose_valency(signify, transitive).
+relation_verb(mean).
+prose_verb_class(mean, information).
+prose_valency(mean, transitive).
+prose_verb_class(denote, information).
+relation_verb(imply).
+prose_verb_class(imply, information).
+prose_valency(imply, transitive).
+relation_verb(entail).
+prose_verb_class(entail, information).
+prose_valency(entail, transitive).
+relation_verb(suggest).
+prose_verb_class(suggest, information).
+prose_valency(suggest, transitive).
+relation_verb(reveal).
+prose_verb_class(reveal, information).
+prose_valency(reveal, transitive).
+relation_verb(demonstrate).
+prose_verb_class(demonstrate, information).
+prose_valency(demonstrate, transitive).
+relation_verb(prove).
+prose_verb_class(prove, information).
+prose_valency(prove, transitive).
+prose_verb_class(establish, information).
+relation_verb(confirm).
+prose_verb_class(confirm, information).
+prose_valency(confirm, transitive).
+relation_verb(verify).
+prose_verb_class(verify, information).
+prose_valency(verify, transitive).
+relation_verb(validate).
+prose_verb_class(validate, information).
+prose_valency(validate, transitive).
+relation_verb(substantiate).
+prose_verb_class(substantiate, information).
+prose_valency(substantiate, transitive).
+relation_verb(corroborate).
+prose_verb_class(corroborate, information).
+prose_valency(corroborate, transitive).
+prose_verb_class(support, information).
+relation_verb(refute).
+prose_verb_class(refute, information).
+prose_valency(refute, transitive).
+relation_verb(disprove).
+prose_verb_class(disprove, information).
+prose_valency(disprove, transitive).
+relation_verb(contradict).
+prose_verb_class(contradict, information).
+prose_valency(contradict, transitive).
+relation_verb(challenge).
+prose_verb_class(challenge, information).
+prose_valency(challenge, transitive).
+relation_verb(question).
+prose_verb_class(question, information).
+prose_valency(question, transitive).
+relation_verb(dispute).
+prose_verb_class(dispute, information).
+prose_valency(dispute, transitive).
+relation_verb(falsify).
+prose_verb_class(falsify, information).
+prose_valency(falsify, transitive).
+relation_verb(invalidate).
+prose_verb_class(invalidate, information).
+prose_valency(invalidate, transitive).
+relation_verb(explain).
+prose_verb_class(explain, information).
+prose_valency(explain, transitive).
+relation_verb(account).
+prose_verb_class(account, information).
+prose_valency(account, transitive).
+relation_verb(interpret).
+prose_verb_class(interpret, information).
+prose_valency(interpret, transitive).
+relation_verb(analyse).
+prose_verb_class(analyse, information).
+prose_valency(analyse, transitive).
+relation_verb(analyze).
+prose_verb_class(analyze, information).
+prose_valency(analyze, transitive).
+relation_verb(examine).
+prose_verb_class(examine, information).
+prose_valency(examine, transitive).
+relation_verb(investigate).
+prose_verb_class(investigate, information).
+prose_valency(investigate, transitive).
+relation_verb(explore).
+prose_verb_class(explore, information).
+prose_valency(explore, transitive).
+relation_verb(study).
+prose_verb_class(study, information).
+prose_valency(study, transitive).
+relation_verb(research).
+prose_verb_class(research, information).
+prose_valency(research, transitive).
+relation_verb(discover).
+prose_verb_class(discover, information).
+prose_valency(discover, transitive).
+prose_verb_class(find, information).
+prose_valency(find, transitive).
+relation_verb(uncover).
+prose_verb_class(uncover, information).
+prose_valency(uncover, transitive).
+prose_verb_class(identify, information).
+relation_verb(recognize).
+prose_verb_class(recognize, information).
+prose_valency(recognize, transitive).
+relation_verb(recognise).
+prose_verb_class(recognise, information).
+prose_valency(recognise, transitive).
+relation_verb(understand).
+prose_verb_class(understand, information).
+prose_valency(understand, transitive).
+relation_verb(comprehend).
+prose_verb_class(comprehend, information).
+prose_valency(comprehend, transitive).
+relation_verb(infer).
+prose_verb_class(infer, information).
+prose_valency(infer, transitive).
+relation_verb(deduce).
+prose_verb_class(deduce, information).
+prose_valency(deduce, transitive).
+prose_verb_class(derive, information).
+prose_valency(derive, transitive).
+relation_verb(conclude).
+prose_verb_class(conclude, information).
+prose_valency(conclude, transitive).
+relation_verb(predict).
+prose_verb_class(predict, information).
+prose_valency(predict, transitive).
+relation_verb(forecast).
+prose_verb_class(forecast, information).
+prose_valency(forecast, transitive).
+relation_verb(anticipate).
+prose_verb_class(anticipate, information).
+prose_valency(anticipate, transitive).
+relation_verb(expect).
+prose_verb_class(expect, information).
+prose_valency(expect, transitive).
+relation_verb(simulate).
+prose_verb_class(simulate, information).
+prose_valency(simulate, transitive).
+relation_verb(model).
+prose_verb_class(model, information).
+prose_valency(model, transitive).
+prose_verb_class(approximate, information).
+relation_verb(abstract).
+prose_verb_class(abstract, information).
+prose_valency(abstract, transitive).
+relation_verb(generalize).
+prose_verb_class(generalize, information).
+prose_valency(generalize, transitive).
+relation_verb(generalise).
+prose_verb_class(generalise, information).
+prose_valency(generalise, transitive).
+relation_verb(formalize).
+prose_verb_class(formalize, information).
+prose_valency(formalize, transitive).
+relation_verb(formalise).
+prose_verb_class(formalise, information).
+prose_valency(formalise, transitive).
+
+% biological
+relation_verb(eat).
+prose_verb_class(eat, biological).
+prose_valency(eat, transitive).
+prose_verb_class(consume, biological).
+prose_valency(consume, transitive).
+relation_verb(ingest).
+prose_verb_class(ingest, biological).
+prose_valency(ingest, transitive).
+relation_verb(digest).
+prose_verb_class(digest, biological).
+prose_valency(digest, transitive).
+relation_verb(metabolize).
+prose_verb_class(metabolize, biological).
+prose_valency(metabolize, transitive).
+relation_verb(metabolise).
+prose_verb_class(metabolise, biological).
+prose_valency(metabolise, transitive).
+relation_verb(assimilate).
+prose_verb_class(assimilate, biological).
+prose_valency(assimilate, transitive).
+relation_verb(excrete).
+prose_verb_class(excrete, biological).
+prose_valency(excrete, transitive).
+prose_verb_class(secrete, biological).
+prose_valency(secrete, transitive).
+relation_verb(synthesize).
+prose_verb_class(synthesize, biological).
+prose_valency(synthesize, transitive).
+relation_verb(synthesise).
+prose_verb_class(synthesise, biological).
+prose_valency(synthesise, transitive).
+relation_verb(photosynthesize).
+prose_verb_class(photosynthesize, biological).
+prose_valency(photosynthesize, transitive).
+relation_verb(respire).
+prose_verb_class(respire, biological).
+prose_valency(respire, transitive).
+relation_verb(breathe).
+prose_verb_class(breathe, biological).
+prose_valency(breathe, transitive).
+relation_verb(inhale).
+prose_verb_class(inhale, biological).
+prose_valency(inhale, transitive).
+relation_verb(exhale).
+prose_verb_class(exhale, biological).
+prose_valency(exhale, transitive).
+relation_verb(circulate).
+prose_verb_class(circulate, biological).
+prose_valency(circulate, transitive).
+relation_verb(pump).
+prose_verb_class(pump, biological).
+prose_valency(pump, transitive).
+relation_verb(oxygenate).
+prose_verb_class(oxygenate, biological).
+prose_valency(oxygenate, transitive).
+prose_verb_class(nourish, biological).
+prose_valency(nourish, transitive).
+prose_verb_class(feed, biological).
+prose_valency(feed, transitive).
+relation_verb(fertilize).
+prose_verb_class(fertilize, biological).
+prose_valency(fertilize, transitive).
+relation_verb(fertilise).
+prose_verb_class(fertilise, biological).
+prose_valency(fertilise, transitive).
+prose_verb_class(pollinate, biological).
+prose_valency(pollinate, transitive).
+prose_verb_class(germinate, biological).
+prose_valency(germinate, transitive).
+relation_verb(cultivate).
+prose_verb_class(cultivate, biological).
+prose_valency(cultivate, transitive).
+prose_verb_class(grow, biological).
+prose_valency(grow, transitive).
+relation_verb(harvest).
+prose_verb_class(harvest, biological).
+prose_valency(harvest, transitive).
+relation_verb(breed).
+prose_verb_class(breed, biological).
+prose_valency(breed, transitive).
+prose_verb_class(reproduce, biological).
+prose_verb_class(propagate, biological).
+relation_verb(inherit).
+prose_verb_class(inherit, biological).
+prose_valency(inherit, transitive).
+prose_verb_class(transmit, biological).
+prose_verb_class(express, biological).
+prose_verb_class(regulate, biological).
+relation_verb(transcribe).
+prose_verb_class(transcribe, biological).
+prose_valency(transcribe, transitive).
+relation_verb(translate).
+prose_verb_class(translate, biological).
+prose_valency(translate, transitive).
+prose_verb_class(replicate, biological).
+prose_verb_class(encode, biological).
+relation_verb(mutate).
+prose_verb_class(mutate, biological).
+prose_valency(mutate, transitive).
+relation_verb(infect).
+prose_verb_class(infect, biological).
+prose_valency(infect, transitive).
+relation_verb(colonize).
+prose_verb_class(colonize, biological).
+prose_valency(colonize, transitive).
+relation_verb(colonise).
+prose_verb_class(colonise, biological).
+prose_valency(colonise, transitive).
+relation_verb(invade).
+prose_verb_class(invade, biological).
+prose_valency(invade, transitive).
+relation_verb(parasitize).
+prose_verb_class(parasitize, biological).
+prose_valency(parasitize, transitive).
+relation_verb(parasitise).
+prose_verb_class(parasitise, biological).
+prose_valency(parasitise, transitive).
+relation_verb(prey).
+prose_verb_class(prey, biological).
+prose_valency(prey, transitive).
+relation_verb(hunt).
+prose_verb_class(hunt, biological).
+prose_valency(hunt, transitive).
+prose_verb_class(capture, biological).
+relation_verb(kill).
+prose_verb_class(kill, biological).
+prose_valency(kill, transitive).
+relation_verb(defend).
+prose_verb_class(defend, biological).
+prose_valency(defend, transitive).
+prose_verb_class(protect, biological).
+relation_verb(camouflage).
+prose_verb_class(camouflage, biological).
+prose_valency(camouflage, transitive).
+relation_verb(mimic).
+prose_verb_class(mimic, biological).
+prose_valency(mimic, transitive).
+prose_verb_class(attract, biological).
+prose_verb_class(repel, biological).
+relation_verb(tolerate).
+prose_verb_class(tolerate, biological).
+prose_valency(tolerate, transitive).
+prose_verb_class(withstand, biological).
+prose_verb_class(adapt, biological).
+relation_verb(accommodate).
+prose_verb_class(accommodate, biological).
+prose_valency(accommodate, transitive).
+prose_verb_class(inhabit, biological).
+prose_valency(inhabit, transitive).
+relation_verb(populate).
+prose_verb_class(populate, biological).
+prose_valency(populate, transitive).
+prose_verb_class(occupy, biological).
+relation_verb(migrate).
+prose_verb_class(migrate, biological).
+prose_valency(migrate, transitive).
+prose_verb_class(disperse, biological).
+prose_verb_class(shed, biological).
+prose_valency(shed, transitive).
+relation_verb(molt).
+prose_verb_class(molt, biological).
+prose_valency(molt, transitive).
+prose_verb_class(moult, biological).
+prose_valency(moult, transitive).
+relation_verb(hibernate).
+prose_verb_class(hibernate, biological).
+prose_valency(hibernate, transitive).
+relation_verb(incubate).
+prose_verb_class(incubate, biological).
+prose_valency(incubate, transitive).
+prose_verb_class(hatch, biological).
+prose_valency(hatch, transitive).
+prose_verb_class(raise, biological).
+relation_verb(rear).
+prose_verb_class(rear, biological).
+prose_valency(rear, transitive).
+relation_verb(nurse).
+prose_verb_class(nurse, biological).
+prose_valency(nurse, transitive).
+relation_verb(heal).
+prose_verb_class(heal, biological).
+prose_valency(heal, transitive).
+relation_verb(repair).
+prose_verb_class(repair, biological).
+prose_valency(repair, transitive).
+prose_verb_class(regenerate, biological).
+
+% chemical
+prose_verb_class(react, chemical).
+prose_valency(react, transitive).
+relation_verb(catalyze).
+prose_verb_class(catalyze, chemical).
+prose_valency(catalyze, transitive).
+relation_verb(catalyse).
+prose_verb_class(catalyse, chemical).
+prose_valency(catalyse, transitive).
+prose_verb_class(synthesize, chemical).
+prose_verb_class(synthesise, chemical).
+prose_verb_class(dissolve, chemical).
+relation_verb(dilute).
+prose_verb_class(dilute, chemical).
+prose_valency(dilute, transitive).
+prose_verb_class(concentrate, chemical).
+prose_verb_class(extract, chemical).
+prose_valency(extract, transitive).
+relation_verb(purify).
+prose_verb_class(purify, chemical).
+prose_valency(purify, transitive).
+prose_verb_class(refine, chemical).
+prose_valency(refine, transitive).
+prose_verb_class(distill, chemical).
+prose_valency(distill, transitive).
+relation_verb(distil).
+prose_verb_class(distil, chemical).
+prose_valency(distil, transitive).
+prose_verb_class(filter, chemical).
+prose_verb_class(separate, chemical).
+relation_verb(isolate).
+prose_verb_class(isolate, chemical).
+prose_valency(isolate, transitive).
+prose_verb_class(mix, chemical).
+prose_valency(mix, transitive).
+relation_verb(blend).
+prose_verb_class(blend, chemical).
+prose_valency(blend, transitive).
+relation_verb(stir).
+prose_verb_class(stir, chemical).
+prose_valency(stir, transitive).
+relation_verb(agitate).
+prose_verb_class(agitate, chemical).
+prose_valency(agitate, transitive).
+prose_verb_class(heat, chemical).
+prose_valency(heat, transitive).
+relation_verb(cool).
+prose_verb_class(cool, chemical).
+prose_valency(cool, transitive).
+relation_verb(warm).
+prose_verb_class(warm, chemical).
+prose_valency(warm, transitive).
+relation_verb(burn).
+prose_verb_class(burn, chemical).
+prose_valency(burn, transitive).
+prose_verb_class(ignite, chemical).
+prose_valency(ignite, transitive).
+relation_verb(combust).
+prose_verb_class(combust, chemical).
+prose_valency(combust, transitive).
+prose_verb_class(oxidize, chemical).
+prose_verb_class(oxidise, chemical).
+relation_verb(hydrogenate).
+prose_verb_class(hydrogenate, chemical).
+prose_valency(hydrogenate, transitive).
+relation_verb(dehydrate).
+prose_verb_class(dehydrate, chemical).
+prose_valency(dehydrate, transitive).
+relation_verb(hydrate).
+prose_verb_class(hydrate, chemical).
+prose_valency(hydrate, transitive).
+relation_verb(hydrolyze).
+prose_verb_class(hydrolyze, chemical).
+prose_valency(hydrolyze, transitive).
+relation_verb(hydrolyse).
+prose_verb_class(hydrolyse, chemical).
+prose_valency(hydrolyse, transitive).
+relation_verb(polymerize).
+prose_verb_class(polymerize, chemical).
+prose_valency(polymerize, transitive).
+relation_verb(polymerise).
+prose_verb_class(polymerise, chemical).
+prose_valency(polymerise, transitive).
+relation_verb(depolymerize).
+prose_verb_class(depolymerize, chemical).
+prose_valency(depolymerize, transitive).
+relation_verb(neutralize).
+prose_verb_class(neutralize, chemical).
+prose_valency(neutralize, transitive).
+relation_verb(neutralise).
+prose_verb_class(neutralise, chemical).
+prose_valency(neutralise, transitive).
+relation_verb(titrate).
+prose_verb_class(titrate, chemical).
+prose_valency(titrate, transitive).
+prose_verb_class(precipitate, chemical).
+prose_verb_class(crystallize, chemical).
+prose_verb_class(crystallise, chemical).
+prose_verb_class(evaporate, chemical).
+prose_verb_class(vaporize, chemical).
+relation_verb(ionize).
+prose_verb_class(ionize, chemical).
+prose_valency(ionize, transitive).
+relation_verb(ionise).
+prose_verb_class(ionise, chemical).
+prose_valency(ionise, transitive).
+relation_verb(dissociate).
+prose_verb_class(dissociate, chemical).
+prose_valency(dissociate, transitive).
+prose_verb_class(associate, chemical).
+prose_verb_class(bind, chemical).
+prose_verb_class(adsorb, chemical).
+prose_verb_class(absorb, chemical).
+relation_verb(desorb).
+prose_verb_class(desorb, chemical).
+prose_valency(desorb, transitive).
+prose_verb_class(reduce, chemical).
+prose_verb_class(corrode, chemical).
+prose_valency(corrode, transitive).
+prose_verb_class(erode, chemical).
+prose_valency(erode, transitive).
+relation_verb(etch).
+prose_verb_class(etch, chemical).
+prose_valency(etch, transitive).
+prose_verb_class(coat, chemical).
+relation_verb(plate).
+prose_verb_class(plate, chemical).
+prose_valency(plate, transitive).
+prose_verb_class(deposit, chemical).
+prose_valency(deposit, transitive).
+relation_verb(alloy).
+prose_verb_class(alloy, chemical).
+prose_valency(alloy, transitive).
+prose_verb_class(harden, chemical).
+prose_valency(harden, transitive).
+prose_verb_class(soften, chemical).
+prose_valency(soften, transitive).
+relation_verb(anneal).
+prose_verb_class(anneal, chemical).
+prose_valency(anneal, transitive).
+relation_verb(quench).
+prose_verb_class(quench, chemical).
+prose_valency(quench, transitive).
+relation_verb(temper).
+prose_verb_class(temper, chemical).
+prose_valency(temper, transitive).
+
+% geographical
+relation_verb(border).
+prose_verb_class(border, geographical).
+prose_valency(border, transitive).
+relation_verb(bound).
+prose_verb_class(bound, geographical).
+prose_valency(bound, transitive).
+prose_verb_class(surround, geographical).
+relation_verb(encircle).
+prose_verb_class(encircle, geographical).
+prose_valency(encircle, transitive).
+relation_verb(bisect).
+prose_verb_class(bisect, geographical).
+prose_valency(bisect, transitive).
+prose_verb_class(cross, geographical).
+prose_verb_class(traverse, geographical).
+prose_verb_class(cover, geographical).
+prose_verb_class(occupy, geographical).
+prose_verb_class(span, geographical).
+prose_verb_class(extend, geographical).
+prose_verb_class(connect, geographical).
+prose_verb_class(link, geographical).
+prose_verb_class(separate, geographical).
+prose_verb_class(divide, geographical).
+prose_verb_class(dominate, geographical).
+prose_valency(dominate, transitive).
+relation_verb(overlook).
+prose_verb_class(overlook, geographical).
+prose_valency(overlook, transitive).
+relation_verb(drain).
+prose_verb_class(drain, geographical).
+prose_valency(drain, transitive).
+relation_verb(irrigate).
+prose_verb_class(irrigate, geographical).
+prose_valency(irrigate, transitive).
+relation_verb(flood).
+prose_verb_class(flood, geographical).
+prose_valency(flood, transitive).
+relation_verb(inundate).
+prose_verb_class(inundate, geographical).
+prose_valency(inundate, transitive).
+prose_verb_class(erode, geographical).
+relation_verb(weather).
+prose_verb_class(weather, geographical).
+prose_valency(weather, transitive).
+prose_verb_class(deposit, geographical).
+prose_verb_class(shape, geographical).
+prose_verb_class(form, geographical).
+relation_verb(uplift).
+prose_verb_class(uplift, geographical).
+prose_valency(uplift, transitive).
+relation_verb(submerge).
+prose_verb_class(submerge, geographical).
+prose_valency(submerge, transitive).
+prose_verb_class(displace, geographical).
+prose_verb_class(transport, geographical).
+prose_verb_class(supply, geographical).
+prose_valency(supply, transitive).
+prose_verb_class(support, geographical).
+prose_verb_class(sustain, geographical).
+prose_verb_class(host, geographical).
+prose_valency(host, transitive).
+relation_verb(house).
+prose_verb_class(house, geographical).
+prose_valency(house, transitive).
+prose_verb_class(shelter, geographical).
+prose_valency(shelter, transitive).
+prose_verb_class(inhabit, geographical).
+prose_verb_class(populate, geographical).
+relation_verb(settle).
+prose_verb_class(settle, geographical).
+prose_valency(settle, transitive).
+prose_verb_class(colonize, geographical).
+prose_verb_class(colonise, geographical).
+prose_verb_class(cultivate, geographical).
+relation_verb(farm).
+prose_verb_class(farm, geographical).
+prose_valency(farm, transitive).
+relation_verb(mine).
+prose_verb_class(mine, geographical).
+prose_valency(mine, transitive).
+relation_verb(quarry).
+prose_verb_class(quarry, geographical).
+prose_valency(quarry, transitive).
+relation_verb(excavate).
+prose_verb_class(excavate, geographical).
+prose_valency(excavate, transitive).
+prose_verb_class(extract, geographical).
+
+% historical
+prose_verb_class(found, historical).
+prose_verb_class(establish, historical).
+prose_verb_class(build, historical).
+prose_verb_class(create, historical).
+prose_verb_class(develop, historical).
+relation_verb(invent).
+prose_verb_class(invent, historical).
+prose_valency(invent, transitive).
+prose_verb_class(discover, historical).
+prose_verb_class(introduce, historical).
+prose_valency(introduce, transitive).
+relation_verb(adopt).
+prose_verb_class(adopt, historical).
+prose_valency(adopt, transitive).
+relation_verb(implement).
+prose_verb_class(implement, historical).
+prose_valency(implement, transitive).
+prose_verb_class(institute, historical).
+relation_verb(enact).
+prose_verb_class(enact, historical).
+prose_valency(enact, transitive).
+relation_verb(promulgate).
+prose_verb_class(promulgate, historical).
+prose_valency(promulgate, transitive).
+relation_verb(abolish).
+prose_verb_class(abolish, historical).
+prose_valency(abolish, transitive).
+relation_verb(repeal).
+prose_verb_class(repeal, historical).
+prose_valency(repeal, transitive).
+prose_verb_class(reform, historical).
+prose_verb_class(replace, historical).
+relation_verb(overthrow).
+prose_verb_class(overthrow, historical).
+prose_valency(overthrow, transitive).
+relation_verb(defeat).
+prose_verb_class(defeat, historical).
+prose_valency(defeat, transitive).
+relation_verb(conquer).
+prose_verb_class(conquer, historical).
+prose_valency(conquer, transitive).
+prose_verb_class(invade, historical).
+prose_verb_class(occupy, historical).
+relation_verb(annex).
+prose_verb_class(annex, historical).
+prose_valency(annex, transitive).
+prose_verb_class(capture, historical).
+relation_verb(besiege).
+prose_verb_class(besiege, historical).
+prose_valency(besiege, transitive).
+prose_verb_class(defend, historical).
+relation_verb(liberate).
+prose_verb_class(liberate, historical).
+prose_valency(liberate, transitive).
+relation_verb(unify).
+prose_verb_class(unify, historical).
+prose_valency(unify, transitive).
+prose_verb_class(unite, historical).
+prose_verb_class(divide, historical).
+relation_verb(partition).
+prose_verb_class(partition, historical).
+prose_valency(partition, transitive).
+prose_verb_class(govern, historical).
+relation_verb(rule).
+prose_verb_class(rule, historical).
+prose_valency(rule, transitive).
+relation_verb(administer).
+prose_verb_class(administer, historical).
+prose_valency(administer, transitive).
+prose_verb_class(manage, historical).
+prose_valency(manage, transitive).
+prose_verb_class(lead, historical).
+prose_valency(lead, transitive).
+relation_verb(command).
+prose_verb_class(command, historical).
+prose_valency(command, transitive).
+relation_verb(direct).
+prose_verb_class(direct, historical).
+prose_valency(direct, transitive).
+prose_verb_class(control, historical).
+prose_verb_class(dominate, historical).
+prose_verb_class(influence, historical).
+prose_verb_class(represent, historical).
+relation_verb(appoint).
+prose_verb_class(appoint, historical).
+prose_valency(appoint, transitive).
+relation_verb(elect).
+prose_verb_class(elect, historical).
+prose_valency(elect, transitive).
+relation_verb(nominate).
+prose_verb_class(nominate, historical).
+prose_valency(nominate, transitive).
+relation_verb(crown).
+prose_verb_class(crown, historical).
+prose_valency(crown, transitive).
+prose_verb_class(succeed, historical).
+prose_verb_class(precede, historical).
+prose_verb_class(inherit, historical).
+relation_verb(acquire).
+prose_verb_class(acquire, historical).
+prose_valency(acquire, transitive).
+prose_verb_class(obtain, historical).
+prose_valency(obtain, transitive).
+relation_verb(gain).
+prose_verb_class(gain, historical).
+prose_valency(gain, transitive).
+relation_verb(lose).
+prose_verb_class(lose, historical).
+prose_valency(lose, transitive).
+prose_verb_class(retain, historical).
+relation_verb(cede).
+prose_verb_class(cede, historical).
+prose_valency(cede, transitive).
+relation_verb(surrender).
+prose_verb_class(surrender, historical).
+prose_valency(surrender, transitive).
+relation_verb(abandon).
+prose_verb_class(abandon, historical).
+prose_valency(abandon, transitive).
+relation_verb(evacuate).
+prose_verb_class(evacuate, historical).
+prose_valency(evacuate, transitive).
+prose_verb_class(migrate, historical).
+prose_verb_class(settle, historical).
+prose_verb_class(populate, historical).
+prose_verb_class(colonize, historical).
+prose_verb_class(colonise, historical).
+prose_verb_class(explore, historical).
+prose_verb_class(chart, historical).
+relation_verb(navigate).
+prose_verb_class(navigate, historical).
+prose_valency(navigate, transitive).
+relation_verb(visit).
+prose_verb_class(visit, historical).
+prose_valency(visit, transitive).
+prose_verb_class(reach, historical).
+prose_verb_class(cross, historical).
+relation_verb(commemorate).
+prose_verb_class(commemorate, historical).
+prose_valency(commemorate, transitive).
+relation_verb(celebrate).
+prose_verb_class(celebrate, historical).
+prose_valency(celebrate, transitive).
+relation_verb(honour).
+prose_verb_class(honour, historical).
+prose_valency(honour, transitive).
+relation_verb(honor).
+prose_verb_class(honor, historical).
+prose_valency(honor, transitive).
+prose_verb_class(name, historical).
+relation_verb(rename).
+prose_verb_class(rename, historical).
+prose_valency(rename, transitive).
+relation_verb(date).
+prose_verb_class(date, historical).
+prose_valency(date, transitive).
+prose_verb_class(record, historical).
+relation_verb(document).
+prose_verb_class(document, historical).
+prose_valency(document, transitive).
+relation_verb(chronicle).
+prose_verb_class(chronicle, historical).
+prose_valency(chronicle, transitive).
+prose_verb_class(preserve, historical).
+prose_verb_class(restore, historical).
+
+% social
+prose_verb_class(organize, social).
+prose_verb_class(organise, social).
+relation_verb(coordinate).
+prose_verb_class(coordinate, social).
+prose_valency(coordinate, transitive).
+relation_verb(cooperate).
+prose_verb_class(cooperate, social).
+prose_valency(cooperate, transitive).
+relation_verb(collaborate).
+prose_verb_class(collaborate, social).
+prose_valency(collaborate, transitive).
+relation_verb(negotiate).
+prose_verb_class(negotiate, social).
+prose_valency(negotiate, transitive).
+relation_verb(mediate).
+prose_verb_class(mediate, social).
+prose_valency(mediate, transitive).
+relation_verb(reconcile).
+prose_verb_class(reconcile, social).
+prose_valency(reconcile, transitive).
+relation_verb(resolve).
+prose_verb_class(resolve, social).
+prose_valency(resolve, transitive).
+relation_verb(arbitrate).
+prose_verb_class(arbitrate, social).
+prose_valency(arbitrate, transitive).
+relation_verb(decide).
+prose_verb_class(decide, social).
+prose_valency(decide, transitive).
+relation_verb(choose).
+prose_verb_class(choose, social).
+prose_valency(choose, transitive).
+relation_verb(select).
+prose_verb_class(select, social).
+prose_valency(select, transitive).
+prose_verb_class(elect, social).
+prose_verb_class(appoint, social).
+prose_verb_class(nominate, social).
+relation_verb(authorize).
+prose_verb_class(authorize, social).
+prose_valency(authorize, transitive).
+relation_verb(authorise).
+prose_verb_class(authorise, social).
+prose_valency(authorise, transitive).
+relation_verb(delegate).
+prose_verb_class(delegate, social).
+prose_valency(delegate, transitive).
+relation_verb(empower).
+prose_verb_class(empower, social).
+prose_valency(empower, transitive).
+prose_verb_class(represent, social).
+relation_verb(serve).
+prose_verb_class(serve, social).
+prose_valency(serve, transitive).
+relation_verb(employ).
+prose_verb_class(employ, social).
+prose_valency(employ, transitive).
+relation_verb(hire).
+prose_verb_class(hire, social).
+prose_valency(hire, transitive).
+relation_verb(recruit).
+prose_verb_class(recruit, social).
+prose_valency(recruit, transitive).
+relation_verb(train).
+prose_verb_class(train, social).
+prose_valency(train, transitive).
+relation_verb(teach).
+prose_verb_class(teach, social).
+prose_valency(teach, transitive).
+relation_verb(educate).
+prose_verb_class(educate, social).
+prose_valency(educate, transitive).
+relation_verb(instruct).
+prose_verb_class(instruct, social).
+prose_valency(instruct, transitive).
+relation_verb(guide).
+prose_verb_class(guide, social).
+prose_valency(guide, transitive).
+relation_verb(advise).
+prose_verb_class(advise, social).
+prose_valency(advise, transitive).
+relation_verb(counsel).
+prose_verb_class(counsel, social).
+prose_valency(counsel, transitive).
+relation_verb(mentor).
+prose_verb_class(mentor, social).
+prose_valency(mentor, transitive).
+relation_verb(supervise).
+prose_verb_class(supervise, social).
+prose_valency(supervise, transitive).
+prose_verb_class(manage, social).
+prose_verb_class(administer, social).
+prose_verb_class(govern, social).
+prose_verb_class(regulate, social).
+relation_verb(legislate).
+prose_verb_class(legislate, social).
+prose_valency(legislate, transitive).
+relation_verb(enforce).
+prose_verb_class(enforce, social).
+prose_valency(enforce, transitive).
+relation_verb(prosecute).
+prose_verb_class(prosecute, social).
+prose_valency(prosecute, transitive).
+relation_verb(judge).
+prose_verb_class(judge, social).
+prose_valency(judge, transitive).
+relation_verb(convict).
+prose_verb_class(convict, social).
+prose_valency(convict, transitive).
+relation_verb(acquit).
+prose_verb_class(acquit, social).
+prose_valency(acquit, transitive).
+relation_verb(sentence).
+prose_verb_class(sentence, social).
+prose_valency(sentence, transitive).
+relation_verb(punish).
+prose_verb_class(punish, social).
+prose_valency(punish, transitive).
+relation_verb(reward).
+prose_verb_class(reward, social).
+prose_valency(reward, transitive).
+relation_verb(compensate).
+prose_verb_class(compensate, social).
+prose_valency(compensate, transitive).
+relation_verb(remunerate).
+prose_verb_class(remunerate, social).
+prose_valency(remunerate, transitive).
+relation_verb(pay).
+prose_verb_class(pay, social).
+prose_valency(pay, transitive).
+relation_verb(charge).
+prose_verb_class(charge, social).
+prose_valency(charge, transitive).
+relation_verb(tax).
+prose_verb_class(tax, social).
+prose_valency(tax, transitive).
+relation_verb(fund).
+prose_verb_class(fund, social).
+prose_valency(fund, transitive).
+relation_verb(finance).
+prose_verb_class(finance, social).
+prose_valency(finance, transitive).
+relation_verb(invest).
+prose_verb_class(invest, social).
+prose_valency(invest, transitive).
+relation_verb(lend).
+prose_verb_class(lend, social).
+prose_valency(lend, transitive).
+relation_verb(borrow).
+prose_verb_class(borrow, social).
+prose_valency(borrow, transitive).
+relation_verb(buy).
+prose_verb_class(buy, social).
+prose_valency(buy, transitive).
+relation_verb(sell).
+prose_verb_class(sell, social).
+prose_valency(sell, transitive).
+relation_verb(trade).
+prose_verb_class(trade, social).
+prose_valency(trade, transitive).
+relation_verb(exchange).
+prose_verb_class(exchange, social).
+prose_valency(exchange, transitive).
+prose_verb_class(transfer, social).
+relation_verb(donate).
+prose_verb_class(donate, social).
+prose_valency(donate, transitive).
+prose_verb_class(contribute, social).
+prose_valency(contribute, transitive).
+relation_verb(allocate).
+prose_verb_class(allocate, social).
+prose_valency(allocate, transitive).
+relation_verb(assign).
+prose_verb_class(assign, social).
+prose_valency(assign, transitive).
+prose_verb_class(distribute, social).
+prose_verb_class(provide, social).
+prose_valency(provide, transitive).
+prose_verb_class(supply, social).
+relation_verb(demand).
+prose_verb_class(demand, social).
+prose_valency(demand, transitive).
+relation_verb(request).
+prose_verb_class(request, social).
+prose_valency(request, transitive).
+prose_verb_class(require, social).
+prose_valency(require, transitive).
+prose_verb_class(offer, social).
+prose_valency(offer, transitive).
+relation_verb(accept).
+prose_verb_class(accept, social).
+prose_valency(accept, transitive).
+relation_verb(reject).
+prose_verb_class(reject, social).
+prose_valency(reject, transitive).
+relation_verb(refuse).
+prose_verb_class(refuse, social).
+prose_valency(refuse, transitive).
+relation_verb(oppose).
+prose_verb_class(oppose, social).
+prose_valency(oppose, transitive).
+relation_verb(endorse).
+prose_verb_class(endorse, social).
+prose_valency(endorse, transitive).
+relation_verb(approve).
+prose_verb_class(approve, social).
+prose_valency(approve, transitive).
+relation_verb(ratify).
+prose_verb_class(ratify, social).
+prose_valency(ratify, transitive).
+relation_verb(sign).
+prose_verb_class(sign, social).
+prose_valency(sign, transitive).
+prose_verb_class(conclude, social).
+relation_verb(fulfil).
+prose_verb_class(fulfil, social).
+prose_valency(fulfil, transitive).
+relation_verb(fulfill).
+prose_verb_class(fulfill, social).
+prose_valency(fulfill, transitive).
+relation_verb(violate).
+prose_verb_class(violate, social).
+prose_valency(violate, transitive).
+relation_verb(breach).
+prose_verb_class(breach, social).
+prose_valency(breach, transitive).
+prose_verb_class(honour, social).
+prose_verb_class(honor, social).
+relation_verb(obey).
+prose_verb_class(obey, social).
+prose_valency(obey, transitive).
+relation_verb(follow).
+prose_verb_class(follow, social).
+prose_valency(follow, transitive).
+prose_verb_class(observe, social).
+relation_verb(respect).
+prose_verb_class(respect, social).
+prose_valency(respect, transitive).
+prose_verb_class(protect, social).
+relation_verb(guarantee).
+prose_verb_class(guarantee, social).
+prose_valency(guarantee, transitive).
+relation_verb(secure).
+prose_verb_class(secure, social).
+prose_valency(secure, transitive).
+prose_verb_class(threaten, social).
+prose_valency(threaten, transitive).
+prose_verb_class(endanger, social).
+prose_valency(endanger, transitive).
+relation_verb(undermine).
+prose_verb_class(undermine, social).
+prose_valency(undermine, transitive).
+
+% cognition
+relation_verb(know).
+prose_verb_class(know, cognition).
+prose_valency(know, transitive).
+relation_verb(believe).
+prose_verb_class(believe, cognition).
+prose_valency(believe, transitive).
+relation_verb(think).
+prose_verb_class(think, cognition).
+prose_valency(think, transitive).
+relation_verb(suppose).
+prose_verb_class(suppose, cognition).
+prose_valency(suppose, transitive).
+relation_verb(assume).
+prose_verb_class(assume, cognition).
+prose_valency(assume, transitive).
+relation_verb(presume).
+prose_verb_class(presume, cognition).
+prose_valency(presume, transitive).
+relation_verb(imagine).
+prose_verb_class(imagine, cognition).
+prose_valency(imagine, transitive).
+relation_verb(conceive).
+prose_verb_class(conceive, cognition).
+prose_valency(conceive, transitive).
+relation_verb(consider).
+prose_verb_class(consider, cognition).
+prose_valency(consider, transitive).
+relation_verb(regard).
+prose_verb_class(regard, cognition).
+prose_valency(regard, transitive).
+relation_verb(view).
+prose_verb_class(view, cognition).
+prose_valency(view, transitive).
+relation_verb(perceive).
+prose_verb_class(perceive, cognition).
+prose_valency(perceive, transitive).
+relation_verb(see).
+prose_verb_class(see, cognition).
+prose_valency(see, transitive).
+relation_verb(hear).
+prose_verb_class(hear, cognition).
+prose_valency(hear, transitive).
+relation_verb(smell).
+prose_verb_class(smell, cognition).
+prose_valency(smell, transitive).
+relation_verb(taste).
+prose_verb_class(taste, cognition).
+prose_valency(taste, transitive).
+relation_verb(feel).
+prose_verb_class(feel, cognition).
+prose_valency(feel, transitive).
+prose_verb_class(sense, cognition).
+prose_valency(sense, transitive).
+relation_verb(notice).
+prose_verb_class(notice, cognition).
+prose_valency(notice, transitive).
+prose_verb_class(observe, cognition).
+prose_verb_class(recognize, cognition).
+prose_verb_class(recognise, cognition).
+relation_verb(recall).
+prose_verb_class(recall, cognition).
+prose_valency(recall, transitive).
+prose_verb_class(remember, cognition).
+relation_verb(forget).
+prose_verb_class(forget, cognition).
+prose_valency(forget, transitive).
+relation_verb(learn).
+prose_verb_class(learn, cognition).
+prose_valency(learn, transitive).
+prose_verb_class(understand, cognition).
+prose_verb_class(comprehend, cognition).
+relation_verb(realize).
+prose_verb_class(realize, cognition).
+prose_valency(realize, transitive).
+relation_verb(realise).
+prose_verb_class(realise, cognition).
+prose_valency(realise, transitive).
+relation_verb(appreciate).
+prose_verb_class(appreciate, cognition).
+prose_valency(appreciate, transitive).
+prose_verb_class(infer, cognition).
+prose_verb_class(deduce, cognition).
+prose_verb_class(conclude, cognition).
+relation_verb(reason).
+prose_verb_class(reason, cognition).
+prose_valency(reason, transitive).
+prose_verb_class(judge, cognition).
+prose_verb_class(assess, cognition).
+prose_verb_class(evaluate, cognition).
+prose_verb_class(compare, cognition).
+prose_verb_class(distinguish, cognition).
+prose_verb_class(expect, cognition).
+prose_verb_class(anticipate, cognition).
+prose_verb_class(predict, cognition).
+relation_verb(doubt).
+prose_verb_class(doubt, cognition).
+prose_valency(doubt, transitive).
+relation_verb(suspect).
+prose_verb_class(suspect, cognition).
+prose_valency(suspect, transitive).
+prose_verb_class(question, cognition).
+relation_verb(wonder).
+prose_verb_class(wonder, cognition).
+prose_valency(wonder, transitive).
+prose_verb_class(investigate, cognition).
+prose_verb_class(explore, cognition).
+prose_verb_class(examine, cognition).
+prose_verb_class(study, cognition).
+prose_verb_class(analyse, cognition).
+prose_verb_class(analyze, cognition).
+prose_verb_class(interpret, cognition).
+prose_verb_class(explain, cognition).
+relation_verb(intend).
+prose_verb_class(intend, cognition).
+prose_valency(intend, transitive).
+relation_verb(plan).
+prose_verb_class(plan, cognition).
+prose_valency(plan, transitive).
+relation_verb(propose).
+prose_verb_class(propose, cognition).
+prose_valency(propose, transitive).
+prose_verb_class(decide, cognition).
+prose_verb_class(choose, cognition).
+relation_verb(prefer).
+prose_verb_class(prefer, cognition).
+prose_valency(prefer, transitive).
+relation_verb(want).
+prose_verb_class(want, cognition).
+prose_valency(want, transitive).
+relation_verb(need).
+prose_verb_class(need, cognition).
+prose_valency(need, transitive).
+relation_verb(desire).
+prose_verb_class(desire, cognition).
+prose_valency(desire, transitive).
+relation_verb(hope).
+prose_verb_class(hope, cognition).
+prose_valency(hope, transitive).
+relation_verb(wish).
+prose_verb_class(wish, cognition).
+prose_valency(wish, transitive).
+relation_verb(fear).
+prose_verb_class(fear, cognition).
+prose_valency(fear, transitive).
+relation_verb(regret).
+prose_verb_class(regret, cognition).
+prose_valency(regret, transitive).
+relation_verb(admire).
+prose_verb_class(admire, cognition).
+prose_valency(admire, transitive).
+relation_verb(like).
+prose_verb_class(like, cognition).
+prose_valency(like, transitive).
+relation_verb(love).
+prose_verb_class(love, cognition).
+prose_valency(love, transitive).
+relation_verb(hate).
+prose_verb_class(hate, cognition).
+prose_valency(hate, transitive).
+relation_verb(dislike).
+prose_verb_class(dislike, cognition).
+prose_valency(dislike, transitive).
+relation_verb(trust).
+prose_verb_class(trust, cognition).
+prose_valency(trust, transitive).
+relation_verb(distrust).
+prose_verb_class(distrust, cognition).
+prose_valency(distrust, transitive).
+
+% communication
+relation_verb(say).
+prose_verb_class(say, communication).
+prose_valency(say, transitive).
+relation_verb(state).
+prose_verb_class(state, communication).
+prose_valency(state, transitive).
+relation_verb(assert).
+prose_verb_class(assert, communication).
+prose_valency(assert, transitive).
+relation_verb(claim).
+prose_verb_class(claim, communication).
+prose_valency(claim, transitive).
+relation_verb(allege).
+prose_verb_class(allege, communication).
+prose_valency(allege, transitive).
+relation_verb(report).
+prose_verb_class(report, communication).
+prose_valency(report, transitive).
+relation_verb(announce).
+prose_verb_class(announce, communication).
+prose_valency(announce, transitive).
+relation_verb(declare).
+prose_verb_class(declare, communication).
+prose_valency(declare, transitive).
+relation_verb(proclaim).
+prose_verb_class(proclaim, communication).
+prose_valency(proclaim, transitive).
+relation_verb(affirm).
+prose_verb_class(affirm, communication).
+prose_valency(affirm, transitive).
+relation_verb(deny).
+prose_verb_class(deny, communication).
+prose_valency(deny, transitive).
+relation_verb(acknowledge).
+prose_verb_class(acknowledge, communication).
+prose_valency(acknowledge, transitive).
+relation_verb(admit).
+prose_verb_class(admit, communication).
+prose_valency(admit, transitive).
+relation_verb(concede).
+prose_verb_class(concede, communication).
+prose_valency(concede, transitive).
+prose_verb_class(maintain, communication).
+relation_verb(argue).
+prose_verb_class(argue, communication).
+prose_valency(argue, transitive).
+relation_verb(contend).
+prose_verb_class(contend, communication).
+prose_valency(contend, transitive).
+prose_verb_class(suggest, communication).
+prose_verb_class(propose, communication).
+relation_verb(hypothesize).
+prose_verb_class(hypothesize, communication).
+prose_valency(hypothesize, transitive).
+relation_verb(hypothesise).
+prose_verb_class(hypothesise, communication).
+prose_valency(hypothesise, transitive).
+relation_verb(speculate).
+prose_verb_class(speculate, communication).
+prose_valency(speculate, transitive).
+relation_verb(conjecture).
+prose_verb_class(conjecture, communication).
+prose_valency(conjecture, transitive).
+prose_verb_class(assume, communication).
+relation_verb(posit).
+prose_verb_class(posit, communication).
+prose_valency(posit, transitive).
+relation_verb(postulate).
+prose_verb_class(postulate, communication).
+prose_valency(postulate, transitive).
+prose_verb_class(predict, communication).
+prose_verb_class(forecast, communication).
+prose_verb_class(estimate, communication).
+prose_verb_class(explain, communication).
+prose_verb_class(describe, communication).
+prose_verb_class(define, communication).
+prose_verb_class(depict, communication).
+prose_verb_class(portray, communication).
+relation_verb(recount).
+prose_verb_class(recount, communication).
+prose_valency(recount, transitive).
+relation_verb(narrate).
+prose_verb_class(narrate, communication).
+prose_valency(narrate, transitive).
+relation_verb(tell).
+prose_verb_class(tell, communication).
+prose_valency(tell, transitive).
+relation_verb(inform).
+prose_verb_class(inform, communication).
+prose_valency(inform, transitive).
+relation_verb(notify).
+prose_verb_class(notify, communication).
+prose_valency(notify, transitive).
+prose_verb_class(advise, communication).
+relation_verb(warn).
+prose_verb_class(warn, communication).
+prose_valency(warn, transitive).
+relation_verb(caution).
+prose_verb_class(caution, communication).
+prose_valency(caution, transitive).
+relation_verb(remind).
+prose_verb_class(remind, communication).
+prose_valency(remind, transitive).
+relation_verb(persuade).
+prose_verb_class(persuade, communication).
+prose_valency(persuade, transitive).
+relation_verb(convince).
+prose_verb_class(convince, communication).
+prose_valency(convince, transitive).
+relation_verb(urge).
+prose_verb_class(urge, communication).
+prose_valency(urge, transitive).
+relation_verb(encourage).
+prose_verb_class(encourage, communication).
+prose_valency(encourage, transitive).
+relation_verb(discourage).
+prose_verb_class(discourage, communication).
+prose_valency(discourage, transitive).
+relation_verb(recommend).
+prose_verb_class(recommend, communication).
+prose_valency(recommend, transitive).
+prose_verb_class(request, communication).
+relation_verb(ask).
+prose_verb_class(ask, communication).
+prose_valency(ask, transitive).
+prose_verb_class(demand, communication).
+prose_verb_class(order, communication).
+prose_verb_class(command, communication).
+prose_verb_class(instruct, communication).
+relation_verb(invite).
+prose_verb_class(invite, communication).
+prose_valency(invite, transitive).
+relation_verb(promise).
+prose_verb_class(promise, communication).
+prose_valency(promise, transitive).
+relation_verb(vow).
+prose_verb_class(vow, communication).
+prose_valency(vow, transitive).
+relation_verb(pledge).
+prose_verb_class(pledge, communication).
+prose_valency(pledge, transitive).
+relation_verb(undertake).
+prose_verb_class(undertake, communication).
+prose_valency(undertake, transitive).
+prose_verb_class(guarantee, communication).
+relation_verb(assure).
+prose_verb_class(assure, communication).
+prose_valency(assure, transitive).
+prose_verb_class(confirm, communication).
+prose_verb_class(verify, communication).
+relation_verb(quote).
+prose_verb_class(quote, communication).
+prose_valency(quote, transitive).
+relation_verb(cite).
+prose_verb_class(cite, communication).
+prose_valency(cite, transitive).
+relation_verb(reference).
+prose_verb_class(reference, communication).
+prose_valency(reference, transitive).
+relation_verb(mention).
+prose_verb_class(mention, communication).
+prose_valency(mention, transitive).
+relation_verb(note).
+prose_verb_class(note, communication).
+prose_valency(note, transitive).
+relation_verb(remark).
+prose_verb_class(remark, communication).
+prose_valency(remark, transitive).
+relation_verb(comment).
+prose_verb_class(comment, communication).
+prose_valency(comment, transitive).
+relation_verb(discuss).
+prose_verb_class(discuss, communication).
+prose_valency(discuss, transitive).
+relation_verb(debate).
+prose_verb_class(debate, communication).
+prose_valency(debate, transitive).
+prose_verb_class(dispute, communication).
+relation_verb(criticize).
+prose_verb_class(criticize, communication).
+prose_valency(criticize, transitive).
+relation_verb(criticise).
+prose_verb_class(criticise, communication).
+prose_valency(criticise, transitive).
+relation_verb(praise).
+prose_verb_class(praise, communication).
+prose_valency(praise, transitive).
+prose_verb_class(evaluate, communication).
+relation_verb(review).
+prose_verb_class(review, communication).
+prose_valency(review, transitive).
+relation_verb(summarize).
+prose_verb_class(summarize, communication).
+prose_valency(summarize, transitive).
+relation_verb(summarise).
+prose_verb_class(summarise, communication).
+prose_valency(summarise, transitive).
+relation_verb(outline).
+prose_verb_class(outline, communication).
+prose_valency(outline, transitive).
+relation_verb(list).
+prose_verb_class(list, communication).
+prose_valency(list, transitive).
+prose_verb_class(enumerate, communication).
+relation_verb(exemplify).
+prose_verb_class(exemplify, communication).
+prose_valency(exemplify, transitive).
+prose_verb_class(illustrate, communication).
+prose_verb_class(demonstrate, communication).
+prose_verb_class(express, communication).
+prose_verb_class(convey, communication).
+prose_verb_class(communicate, communication).
+relation_verb(signal).
+prose_verb_class(signal, communication).
+prose_valency(signal, transitive).
+prose_verb_class(indicate, communication).
+prose_verb_class(reveal, communication).
+relation_verb(disclose).
+prose_verb_class(disclose, communication).
+prose_valency(disclose, transitive).
+relation_verb(conceal).
+prose_verb_class(conceal, communication).
+prose_valency(conceal, transitive).
+relation_verb(omit).
+prose_verb_class(omit, communication).
+prose_valency(omit, transitive).
+relation_verb(redact).
+prose_verb_class(redact, communication).
+prose_valency(redact, transitive).
+prose_verb_class(suppress, communication).
+prose_verb_class(publish, communication).
+prose_verb_class(broadcast, communication).
+prose_verb_class(write, communication).
+prose_verb_class(compose, communication).
+prose_verb_class(translate, communication).
+prose_verb_class(interpret, communication).
+relation_verb(paraphrase).
+prose_verb_class(paraphrase, communication).
+prose_valency(paraphrase, transitive).
+relation_verb(rephrase).
+prose_verb_class(rephrase, communication).
+prose_valency(rephrase, transitive).
+relation_verb(spell).
+prose_verb_class(spell, communication).
+prose_valency(spell, transitive).
+relation_verb(pronounce).
+prose_verb_class(pronounce, communication).
+prose_valency(pronounce, transitive).
+relation_verb(utter).
+prose_verb_class(utter, communication).
+prose_valency(utter, transitive).
+prose_verb_class(name, communication).
+relation_verb(call).
+prose_verb_class(call, communication).
+prose_valency(call, transitive).
+prose_verb_class(designate, communication).
+relation_verb(term).
+prose_verb_class(term, communication).
+prose_valency(term, transitive).
+relation_verb(dub).
+prose_verb_class(dub, communication).
+prose_valency(dub, transitive).
+prose_verb_class(label, communication).
+relation_verb(entitle).
+prose_verb_class(entitle, communication).
+prose_valency(entitle, transitive).
+relation_verb(title).
+prose_verb_class(title, communication).
+prose_valency(title, transitive).
+
+% creation
+relation_verb(design).
+prose_verb_class(design, creation).
+prose_valency(design, transitive).
+relation_verb(devise).
+prose_verb_class(devise, creation).
+prose_valency(devise, transitive).
+prose_verb_class(invent, creation).
+relation_verb(formulate).
+prose_verb_class(formulate, creation).
+prose_valency(formulate, transitive).
+prose_verb_class(originate, creation).
+prose_valency(originate, transitive).
+prose_verb_class(develop, creation).
+prose_verb_class(create, creation).
+prose_verb_class(compose, creation).
+prose_verb_class(write, creation).
+prose_verb_class(draw, creation).
+relation_verb(paint).
+prose_verb_class(paint, creation).
+prose_valency(paint, transitive).
+relation_verb(sketch).
+prose_verb_class(sketch, creation).
+prose_valency(sketch, transitive).
+relation_verb(sculpt).
+prose_verb_class(sculpt, creation).
+prose_valency(sculpt, transitive).
+relation_verb(carve).
+prose_verb_class(carve, creation).
+prose_valency(carve, transitive).
+relation_verb(engrave).
+prose_verb_class(engrave, creation).
+prose_valency(engrave, transitive).
+prose_verb_class(etch, creation).
+prose_verb_class(weave, creation).
+prose_valency(weave, transitive).
+relation_verb(knit).
+prose_verb_class(knit, creation).
+prose_valency(knit, transitive).
+relation_verb(sew).
+prose_verb_class(sew, creation).
+prose_valency(sew, transitive).
+relation_verb(stitch).
+prose_verb_class(stitch, creation).
+prose_valency(stitch, transitive).
+relation_verb(embroider).
+prose_verb_class(embroider, creation).
+prose_valency(embroider, transitive).
+prose_verb_class(cast, creation).
+prose_valency(cast, transitive).
+prose_verb_class(forge, creation).
+prose_valency(forge, transitive).
+relation_verb(manufacture).
+prose_verb_class(manufacture, creation).
+prose_valency(manufacture, transitive).
+relation_verb(fabricate).
+prose_verb_class(fabricate, creation).
+prose_valency(fabricate, transitive).
+prose_verb_class(produce, creation).
+prose_verb_class(construct, creation).
+prose_verb_class(build, creation).
+relation_verb(erect).
+prose_verb_class(erect, creation).
+prose_valency(erect, transitive).
+prose_verb_class(assemble, creation).
+relation_verb(install).
+prose_verb_class(install, creation).
+prose_valency(install, transitive).
+prose_verb_class(establish, creation).
+prose_verb_class(found, creation).
+prose_verb_class(institute, creation).
+prose_verb_class(organize, creation).
+prose_verb_class(organise, creation).
+prose_verb_class(arrange, creation).
+relation_verb(perform).
+prose_verb_class(perform, creation).
+prose_valency(perform, transitive).
+relation_verb(play).
+prose_verb_class(play, creation).
+prose_valency(play, transitive).
+relation_verb(sing).
+prose_verb_class(sing, creation).
+prose_valency(sing, transitive).
+prose_verb_class(conduct, creation).
+relation_verb(stage).
+prose_verb_class(stage, creation).
+prose_valency(stage, transitive).
+prose_verb_class(direct, creation).
+relation_verb(film).
+prose_verb_class(film, creation).
+prose_valency(film, transitive).
+relation_verb(photograph).
+prose_verb_class(photograph, creation).
+prose_valency(photograph, transitive).
+prose_verb_class(record, creation).
+prose_verb_class(capture, creation).
+prose_verb_class(reproduce, creation).
+prose_verb_class(print, creation).
+prose_verb_class(publish, creation).
+relation_verb(edit).
+prose_verb_class(edit, creation).
+prose_valency(edit, transitive).
+prose_verb_class(revise, creation).
+prose_verb_class(adapt, creation).
+prose_verb_class(translate, creation).
+prose_verb_class(illustrate, creation).
+relation_verb(decorate).
+prose_verb_class(decorate, creation).
+prose_valency(decorate, transitive).
+relation_verb(embellish).
+prose_verb_class(embellish, creation).
+prose_valency(embellish, transitive).
+prose_verb_class(restore, creation).
+relation_verb(renovate).
+prose_verb_class(renovate, creation).
+prose_valency(renovate, transitive).
+prose_verb_class(reconstruct, creation).
+prose_verb_class(model, creation).
+prose_verb_class(simulate, creation).
+relation_verb(program).
+prose_verb_class(program, creation).
+prose_valency(program, transitive).
+relation_verb(code).
+prose_verb_class(code, creation).
+prose_valency(code, transitive).
+prose_verb_class(implement, creation).
+relation_verb(compile).
+prose_verb_class(compile, creation).
+prose_valency(compile, transitive).
+relation_verb(execute).
+prose_verb_class(execute, creation).
+prose_valency(execute, transitive).
+relation_verb(automate).
+prose_verb_class(automate, creation).
+prose_valency(automate, transitive).
+relation_verb(engineer).
+prose_verb_class(engineer, creation).
+prose_valency(engineer, transitive).
+
+% computation
+prose_verb_class(compute, computation).
+prose_verb_class(calculate, computation).
+prose_verb_class(evaluate, computation).
+relation_verb(solve).
+prose_verb_class(solve, computation).
+prose_valency(solve, transitive).
+prose_verb_class(derive, computation).
+prose_verb_class(prove, computation).
+prose_verb_class(establish, computation).
+prose_verb_class(infer, computation).
+prose_verb_class(deduce, computation).
+prose_verb_class(imply, computation).
+prose_verb_class(entail, computation).
+relation_verb(satisfy).
+prose_verb_class(satisfy, computation).
+prose_valency(satisfy, transitive).
+prose_verb_class(violate, computation).
+prose_verb_class(constrain, computation).
+relation_verb(optimize).
+prose_verb_class(optimize, computation).
+prose_valency(optimize, transitive).
+relation_verb(optimise).
+prose_verb_class(optimise, computation).
+prose_valency(optimise, transitive).
+relation_verb(maximize).
+prose_verb_class(maximize, computation).
+prose_valency(maximize, transitive).
+relation_verb(maximise).
+prose_verb_class(maximise, computation).
+prose_valency(maximise, transitive).
+relation_verb(minimize).
+prose_verb_class(minimize, computation).
+prose_valency(minimize, transitive).
+relation_verb(minimise).
+prose_verb_class(minimise, computation).
+prose_valency(minimise, transitive).
+prose_verb_class(approximate, computation).
+prose_verb_class(estimate, computation).
+relation_verb(interpolate).
+prose_verb_class(interpolate, computation).
+prose_valency(interpolate, transitive).
+relation_verb(extrapolate).
+prose_verb_class(extrapolate, computation).
+prose_valency(extrapolate, transitive).
+prose_verb_class(integrate, computation).
+prose_verb_class(differentiate, computation).
+relation_verb(sum).
+prose_verb_class(sum, computation).
+prose_valency(sum, transitive).
+relation_verb(multiply).
+prose_verb_class(multiply, computation).
+prose_valency(multiply, transitive).
+prose_verb_class(divide, computation).
+relation_verb(subtract).
+prose_verb_class(subtract, computation).
+prose_valency(subtract, transitive).
+relation_verb(add).
+prose_verb_class(add, computation).
+prose_valency(add, transitive).
+relation_verb(factor).
+prose_verb_class(factor, computation).
+prose_valency(factor, transitive).
+relation_verb(factorize).
+prose_verb_class(factorize, computation).
+prose_valency(factorize, transitive).
+relation_verb(factorise).
+prose_verb_class(factorise, computation).
+prose_valency(factorise, transitive).
+prose_verb_class(expand, computation).
+relation_verb(simplify).
+prose_verb_class(simplify, computation).
+prose_valency(simplify, transitive).
+prose_verb_class(reduce, computation).
+prose_verb_class(substitute, computation).
+prose_verb_class(eliminate, computation).
+prose_verb_class(transform, computation).
+prose_verb_class(rotate, computation).
+prose_verb_class(translate, computation).
+prose_verb_class(reflect, computation).
+relation_verb(project).
+prose_verb_class(project, computation).
+prose_valency(project, transitive).
+prose_verb_class(map, computation).
+prose_verb_class(encode, computation).
+prose_verb_class(decode, computation).
+relation_verb(encrypt).
+prose_verb_class(encrypt, computation).
+prose_valency(encrypt, transitive).
+relation_verb(decrypt).
+prose_verb_class(decrypt, computation).
+prose_valency(decrypt, transitive).
+prose_verb_class(compress, computation).
+relation_verb(decompress).
+prose_verb_class(decompress, computation).
+prose_valency(decompress, transitive).
+relation_verb(hash).
+prose_verb_class(hash, computation).
+prose_valency(hash, transitive).
+prose_verb_class(sort, computation).
+relation_verb(search).
+prose_verb_class(search, computation).
+prose_valency(search, transitive).
+prose_verb_class(find, computation).
+prose_verb_class(retrieve, computation).
+prose_verb_class(store, computation).
+relation_verb(cache).
+prose_verb_class(cache, computation).
+prose_valency(cache, transitive).
+relation_verb(load).
+prose_verb_class(load, computation).
+prose_valency(load, transitive).
+relation_verb(save).
+prose_verb_class(save, computation).
+prose_valency(save, transitive).
+prose_verb_class(write, computation).
+prose_verb_class(read, computation).
+relation_verb(parse).
+prose_verb_class(parse, computation).
+prose_valency(parse, transitive).
+relation_verb(tokenize).
+prose_verb_class(tokenize, computation).
+prose_valency(tokenize, transitive).
+relation_verb(tokenise).
+prose_verb_class(tokenise, computation).
+prose_valency(tokenise, transitive).
+relation_verb(normalize).
+prose_verb_class(normalize, computation).
+prose_valency(normalize, transitive).
+relation_verb(normalise).
+prose_verb_class(normalise, computation).
+prose_valency(normalise, transitive).
+relation_verb(canonicalize).
+prose_verb_class(canonicalize, computation).
+prose_valency(canonicalize, transitive).
+relation_verb(canonicalise).
+prose_verb_class(canonicalise, computation).
+prose_valency(canonicalise, transitive).
+prose_verb_class(compile, computation).
+prose_verb_class(interpret, computation).
+prose_verb_class(execute, computation).
+relation_verb(run).
+prose_verb_class(run, computation).
+prose_valency(run, transitive).
+relation_verb(schedule).
+prose_verb_class(schedule, computation).
+prose_valency(schedule, transitive).
+relation_verb(dispatch).
+prose_verb_class(dispatch, computation).
+prose_valency(dispatch, transitive).
+prose_verb_class(allocate, computation).
+prose_verb_class(release, computation).
+relation_verb(free).
+prose_verb_class(free, computation).
+prose_valency(free, transitive).
+prose_verb_class(validate, computation).
+prose_verb_class(verify, computation).
+relation_verb(authenticate).
+prose_verb_class(authenticate, computation).
+prose_valency(authenticate, transitive).
+prose_verb_class(authorize, computation).
+prose_verb_class(authorise, computation).
+relation_verb(synchronize).
+prose_verb_class(synchronize, computation).
+prose_valency(synchronize, transitive).
+relation_verb(synchronise).
+prose_verb_class(synchronise, computation).
+prose_valency(synchronise, transitive).
+relation_verb(serialize).
+prose_verb_class(serialize, computation).
+prose_valency(serialize, transitive).
+relation_verb(serialise).
+prose_verb_class(serialise, computation).
+prose_valency(serialise, transitive).
+prose_verb_class(transmit, computation).
+prose_verb_class(receive, computation).
+relation_verb(route).
+prose_verb_class(route, computation).
+prose_valency(route, transitive).
+relation_verb(forward).
+prose_verb_class(forward, computation).
+prose_valency(forward, transitive).
+prose_verb_class(connect, computation).
+relation_verb(disconnect).
+prose_verb_class(disconnect, computation).
+prose_valency(disconnect, transitive).
+prose_verb_class(bind, computation).
+prose_verb_class(resolve, computation).
+prose_verb_class(register, computation).
+prose_verb_class(implement, computation).
+relation_verb(instantiate).
+prose_verb_class(instantiate, computation).
+prose_valency(instantiate, transitive).
+relation_verb(initialize).
+prose_verb_class(initialize, computation).
+prose_valency(initialize, transitive).
+relation_verb(initialise).
+prose_verb_class(initialise, computation).
+prose_valency(initialise, transitive).
+relation_verb(update).
+prose_verb_class(update, computation).
+prose_valency(update, transitive).
+prose_verb_class(modify, computation).
+relation_verb(delete).
+prose_verb_class(delete, computation).
+prose_valency(delete, transitive).
+prose_verb_class(remove, computation).
+relation_verb(insert).
+prose_verb_class(insert, computation).
+prose_valency(insert, transitive).
+relation_verb(append).
+prose_verb_class(append, computation).
+prose_valency(append, transitive).
+relation_verb(prepend).
+prose_verb_class(prepend, computation).
+prose_valency(prepend, transitive).
+prose_verb_class(merge, computation).
+prose_verb_class(split, computation).
+prose_verb_class(join, computation).
+prose_verb_class(filter, computation).
+prose_verb_class(select, computation).
+relation_verb(query).
+prose_verb_class(query, computation).
+prose_valency(query, transitive).
+prose_verb_class(index, computation).
+relation_verb(scan).
+prose_verb_class(scan, computation).
+prose_valency(scan, transitive).
+prose_verb_class(traverse, computation).
+prose_verb_class(visit, computation).
+prose_verb_class(enumerate, computation).
+prose_verb_class(count, computation).
+prose_verb_class(match, computation).
+prose_verb_class(compare, computation).
+prose_verb_class(test, computation).
+prose_verb_class(measure, computation).
+relation_verb(benchmark).
+prose_verb_class(benchmark, computation).
+prose_valency(benchmark, transitive).
+prose_verb_class(train, computation).
+prose_verb_class(learn, computation).
+prose_verb_class(classify, computation).
+prose_verb_class(predict, computation).
+prose_verb_class(cluster, computation).
+prose_valency(cluster, transitive).
+prose_verb_class(sample, computation).
+relation_verb(fit).
+prose_verb_class(fit, computation).
+prose_valency(fit, transitive).
+relation_verb(regress).
+prose_verb_class(regress, computation).
+prose_valency(regress, transitive).
+
+% perception
+prose_verb_class(see, perception).
+relation_verb(watch).
+prose_verb_class(watch, perception).
+prose_valency(watch, transitive).
+prose_verb_class(observe, perception).
+prose_verb_class(view, perception).
+relation_verb(witness).
+prose_verb_class(witness, perception).
+prose_valency(witness, transitive).
+relation_verb(behold).
+prose_verb_class(behold, perception).
+prose_valency(behold, transitive).
+prose_verb_class(notice, perception).
+relation_verb(spot).
+prose_verb_class(spot, perception).
+prose_valency(spot, transitive).
+prose_verb_class(detect, perception).
+relation_verb(discern).
+prose_verb_class(discern, perception).
+prose_valency(discern, transitive).
+prose_verb_class(perceive, perception).
+prose_verb_class(recognize, perception).
+prose_verb_class(recognise, perception).
+prose_verb_class(hear, perception).
+relation_verb(listen).
+prose_verb_class(listen, perception).
+prose_valency(listen, transitive).
+prose_verb_class(smell, perception).
+relation_verb(sniff).
+prose_verb_class(sniff, perception).
+prose_valency(sniff, transitive).
+prose_verb_class(taste, perception).
+prose_verb_class(sample, perception).
+prose_verb_class(feel, perception).
+prose_verb_class(touch, perception).
+prose_verb_class(sense, perception).
+prose_verb_class(scan, perception).
+relation_verb(inspect).
+prose_verb_class(inspect, perception).
+prose_valency(inspect, transitive).
+prose_verb_class(examine, perception).
+prose_verb_class(survey, perception).
+relation_verb(visualize).
+prose_verb_class(visualize, perception).
+prose_valency(visualize, transitive).
+relation_verb(visualise).
+prose_verb_class(visualise, perception).
+prose_valency(visualise, transitive).
+
+% possession
+relation_verb(have).
+prose_verb_class(have, possession).
+prose_valency(have, transitive).
+relation_verb(own).
+prose_verb_class(own, possession).
+prose_valency(own, transitive).
+relation_verb(possess).
+prose_verb_class(possess, possession).
+prose_valency(possess, transitive).
+prose_verb_class(hold, possession).
+prose_valency(hold, transitive).
+prose_verb_class(contain, possession).
+prose_verb_class(retain, possession).
+relation_verb(keep).
+prose_verb_class(keep, possession).
+prose_valency(keep, transitive).
+prose_verb_class(maintain, possession).
+prose_verb_class(acquire, possession).
+prose_verb_class(obtain, possession).
+prose_verb_class(gain, possession).
+relation_verb(get).
+prose_verb_class(get, possession).
+prose_valency(get, transitive).
+prose_verb_class(receive, possession).
+prose_verb_class(inherit, possession).
+prose_verb_class(buy, possession).
+relation_verb(purchase).
+prose_verb_class(purchase, possession).
+prose_valency(purchase, transitive).
+prose_verb_class(borrow, possession).
+relation_verb(rent).
+prose_verb_class(rent, possession).
+prose_valency(rent, transitive).
+relation_verb(lease).
+prose_verb_class(lease, possession).
+prose_valency(lease, transitive).
+relation_verb(earn).
+prose_verb_class(earn, possession).
+prose_valency(earn, transitive).
+relation_verb(win).
+prose_verb_class(win, possession).
+prose_valency(win, transitive).
+prose_verb_class(lose, possession).
+relation_verb(lack).
+prose_verb_class(lack, possession).
+prose_valency(lack, transitive).
+prose_verb_class(need, possession).
+prose_verb_class(require, possession).
+relation_verb(deserve).
+prose_verb_class(deserve, possession).
+prose_valency(deserve, transitive).
+relation_verb(merit).
+prose_verb_class(merit, possession).
+prose_valency(merit, transitive).
+prose_verb_class(include, possession).
+relation_verb(exclude).
+prose_verb_class(exclude, possession).
+prose_valency(exclude, transitive).
+relation_verb(share).
+prose_verb_class(share, possession).
+prose_valency(share, transitive).
+prose_verb_class(divide, possession).
+prose_verb_class(allocate, possession).
+prose_verb_class(assign, possession).
+relation_verb(give).
+prose_verb_class(give, possession).
+prose_valency(give, transitive).
+relation_verb(grant).
+prose_verb_class(grant, possession).
+prose_valency(grant, transitive).
+relation_verb(award).
+prose_verb_class(award, possession).
+prose_valency(award, transitive).
+prose_verb_class(offer, possession).
+prose_verb_class(supply, possession).
+prose_verb_class(provide, possession).
+relation_verb(furnish).
+prose_verb_class(furnish, possession).
+prose_valency(furnish, transitive).
+relation_verb(equip).
+prose_verb_class(equip, possession).
+prose_valency(equip, transitive).
+relation_verb(endow).
+prose_verb_class(endow, possession).
+prose_valency(endow, transitive).
+relation_verb(entrust).
+prose_verb_class(entrust, possession).
+prose_valency(entrust, transitive).
+prose_verb_class(lend, possession).
+prose_verb_class(donate, possession).
+prose_verb_class(transfer, possession).
+prose_verb_class(convey, possession).
+prose_verb_class(sell, possession).
+prose_verb_class(deliver, possession).
+relation_verb(return).
+prose_verb_class(return, possession).
+prose_valency(return, transitive).
+relation_verb(repay).
+prose_verb_class(repay, possession).
+prose_valency(repay, transitive).
+prose_verb_class(recover, possession).
+prose_verb_class(reclaim, possession).
+prose_valency(reclaim, transitive).
+relation_verb(seize).
+prose_verb_class(seize, possession).
+prose_valency(seize, transitive).
+relation_verb(confiscate).
+prose_verb_class(confiscate, possession).
+prose_valency(confiscate, transitive).
+relation_verb(take).
+prose_verb_class(take, possession).
+prose_valency(take, transitive).
+relation_verb(steal).
+prose_verb_class(steal, possession).
+prose_valency(steal, transitive).
+relation_verb(rob).
+prose_verb_class(rob, possession).
+prose_valency(rob, transitive).
+relation_verb(deprive).
+prose_verb_class(deprive, possession).
+prose_valency(deprive, transitive).
+
+% spatial_action
+relation_verb(put).
+prose_verb_class(put, spatial_action).
+prose_valency(put, transitive).
+relation_verb(place).
+prose_verb_class(place, spatial_action).
+prose_valency(place, transitive).
+relation_verb(position).
+prose_verb_class(position, spatial_action).
+prose_valency(position, transitive).
+prose_verb_class(locate, spatial_action).
+relation_verb(situate).
+prose_verb_class(situate, spatial_action).
+prose_valency(situate, transitive).
+relation_verb(set).
+prose_verb_class(set, spatial_action).
+prose_valency(set, transitive).
+relation_verb(lay).
+prose_verb_class(lay, spatial_action).
+prose_valency(lay, transitive).
+prose_verb_class(arrange, spatial_action).
+relation_verb(align).
+prose_verb_class(align, spatial_action).
+prose_valency(align, transitive).
+relation_verb(orient).
+prose_verb_class(orient, spatial_action).
+prose_valency(orient, transitive).
+relation_verb(face).
+prose_verb_class(face, spatial_action).
+prose_valency(face, transitive).
+relation_verb(point).
+prose_verb_class(point, spatial_action).
+prose_valency(point, transitive).
+prose_verb_class(direct, spatial_action).
+relation_verb(aim).
+prose_verb_class(aim, spatial_action).
+prose_valency(aim, transitive).
+prose_verb_class(project, spatial_action).
+relation_verb(mount).
+prose_verb_class(mount, spatial_action).
+prose_valency(mount, transitive).
+prose_verb_class(install, spatial_action).
+prose_verb_class(insert, spatial_action).
+prose_verb_class(embed, spatial_action).
+prose_valency(embed, transitive).
+relation_verb(immerse).
+prose_verb_class(immerse, spatial_action).
+prose_valency(immerse, transitive).
+prose_verb_class(submerge, spatial_action).
+prose_verb_class(suspend, spatial_action).
+prose_valency(suspend, transitive).
+relation_verb(hang).
+prose_verb_class(hang, spatial_action).
+prose_valency(hang, transitive).
+prose_verb_class(attach, spatial_action).
+relation_verb(detach).
+prose_verb_class(detach, spatial_action).
+prose_valency(detach, transitive).
+prose_verb_class(fasten, spatial_action).
+prose_valency(fasten, transitive).
+relation_verb(fix).
+prose_verb_class(fix, spatial_action).
+prose_valency(fix, transitive).
+prose_verb_class(secure, spatial_action).
+relation_verb(tie).
+prose_verb_class(tie, spatial_action).
+prose_valency(tie, transitive).
+prose_verb_class(bind, spatial_action).
+prose_verb_class(anchor, spatial_action).
+prose_valency(anchor, transitive).
+relation_verb(nail).
+prose_verb_class(nail, spatial_action).
+prose_valency(nail, transitive).
+relation_verb(screw).
+prose_verb_class(screw, spatial_action).
+prose_valency(screw, transitive).
+prose_verb_class(weld, spatial_action).
+prose_valency(weld, transitive).
+relation_verb(glue).
+prose_verb_class(glue, spatial_action).
+prose_valency(glue, transitive).
+relation_verb(stick).
+prose_verb_class(stick, spatial_action).
+prose_valency(stick, transitive).
+prose_verb_class(fold, spatial_action).
+relation_verb(wrap).
+prose_verb_class(wrap, spatial_action).
+prose_valency(wrap, transitive).
+relation_verb(pack).
+prose_verb_class(pack, spatial_action).
+prose_valency(pack, transitive).
+prose_verb_class(enclose, spatial_action).
+prose_verb_class(surround, spatial_action).
+prose_verb_class(encircle, spatial_action).
+relation_verb(frame).
+prose_verb_class(frame, spatial_action).
+prose_valency(frame, transitive).
+prose_verb_class(border, spatial_action).
+prose_verb_class(line, spatial_action).
+prose_verb_class(cover, spatial_action).
+prose_verb_class(uncover, spatial_action).
+prose_verb_class(reveal, spatial_action).
+relation_verb(hide).
+prose_verb_class(hide, spatial_action).
+prose_valency(hide, transitive).
+prose_verb_class(conceal, spatial_action).
+relation_verb(bury).
+prose_verb_class(bury, spatial_action).
+prose_valency(bury, transitive).
+prose_verb_class(excavate, spatial_action).
+prose_verb_class(raise, spatial_action).
+prose_verb_class(lift, spatial_action).
+prose_verb_class(lower, spatial_action).
+relation_verb(drop).
+prose_verb_class(drop, spatial_action).
+prose_valency(drop, transitive).
+prose_verb_class(drag, spatial_action).
+prose_verb_class(pull, spatial_action).
+prose_verb_class(push, spatial_action).
+prose_verb_class(move, spatial_action).
+prose_verb_class(transport, spatial_action).
+prose_verb_class(carry, spatial_action).
+prose_verb_class(bring, spatial_action).
+prose_verb_class(take, spatial_action).
+prose_verb_class(send, spatial_action).
+prose_verb_class(lead, spatial_action).
+prose_verb_class(guide, spatial_action).
+prose_verb_class(follow, spatial_action).
+relation_verb(approach).
+prose_verb_class(approach, spatial_action).
+prose_valency(approach, transitive).
+relation_verb(enter).
+prose_verb_class(enter, spatial_action).
+prose_valency(enter, transitive).
+relation_verb(leave).
+prose_verb_class(leave, spatial_action).
+prose_valency(leave, transitive).
+relation_verb(exit).
+prose_verb_class(exit, spatial_action).
+prose_valency(exit, transitive).
+prose_verb_class(reach, spatial_action).
+prose_verb_class(cross, spatial_action).
+relation_verb(pass).
+prose_verb_class(pass, spatial_action).
+prose_valency(pass, transitive).
+prose_verb_class(traverse, spatial_action).
+relation_verb(ascend).
+prose_verb_class(ascend, spatial_action).
+prose_valency(ascend, transitive).
+prose_verb_class(descend, spatial_action).
+prose_valency(descend, transitive).
+relation_verb(climb).
+prose_verb_class(climb, spatial_action).
+prose_valency(climb, transitive).
+relation_verb(scale).
+prose_verb_class(scale, spatial_action).
+prose_valency(scale, transitive).
+prose_verb_class(bridge, spatial_action).
+prose_verb_class(span, spatial_action).
+
+% relation_logic
+prose_verb_class(include, relation_logic).
+prose_verb_class(exclude, relation_logic).
+prose_verb_class(comprise, relation_logic).
+prose_verb_class(contain, relation_logic).
+prose_verb_class(encompass, relation_logic).
+prose_verb_class(represent, relation_logic).
+prose_verb_class(instantiate, relation_logic).
+prose_verb_class(exemplify, relation_logic).
+prose_verb_class(satisfy, relation_logic).
+prose_verb_class(violate, relation_logic).
+prose_verb_class(entail, relation_logic).
+prose_verb_class(imply, relation_logic).
+relation_verb(presuppose).
+prose_verb_class(presuppose, relation_logic).
+prose_valency(presuppose, transitive).
+prose_verb_class(contradict, relation_logic).
+prose_verb_class(oppose, relation_logic).
+relation_verb(complement).
+prose_verb_class(complement, relation_logic).
+prose_valency(complement, transitive).
+relation_verb(supplement).
+prose_verb_class(supplement, relation_logic).
+prose_valency(supplement, transitive).
+prose_verb_class(corroborate, relation_logic).
+prose_verb_class(refute, relation_logic).
+prose_verb_class(equal, relation_logic).
+prose_verb_class(exceed, relation_logic).
+prose_verb_class(approximate, relation_logic).
+prose_verb_class(resemble, relation_logic).
+prose_valency(resemble, transitive).
+prose_verb_class(match, relation_logic).
+relation_verb(differ).
+prose_verb_class(differ, relation_logic).
+prose_valency(differ, transitive).
+prose_verb_class(distinguish, relation_logic).
+prose_verb_class(separate, relation_logic).
+prose_verb_class(connect, relation_logic).
+prose_verb_class(relate, relation_logic).
+prose_valency(relate, transitive).
+prose_verb_class(associate, relation_logic).
+relation_verb(correlate).
+prose_verb_class(correlate, relation_logic).
+prose_valency(correlate, transitive).
+prose_verb_class(determine, relation_logic).
+prose_verb_class(constrain, relation_logic).
+prose_verb_class(depend, relation_logic).
+prose_valency(depend, transitive).
+prose_verb_class(require, relation_logic).
+relation_verb(necessitate).
+prose_verb_class(necessitate, relation_logic).
+prose_valency(necessitate, transitive).
+prose_verb_class(permit, relation_logic).
+prose_verb_class(allow, relation_logic).
+prose_verb_class(enable, relation_logic).
+relation_verb(prohibit).
+prose_verb_class(prohibit, relation_logic).
+prose_valency(prohibit, transitive).
+prose_verb_class(prevent, relation_logic).
+prose_verb_class(preclude, relation_logic).
+relation_verb(license).
+prose_verb_class(license, relation_logic).
+prose_valency(license, transitive).
+relation_verb(warrant).
+prose_verb_class(warrant, relation_logic).
+prose_valency(warrant, transitive).
+relation_verb(justify).
+prose_verb_class(justify, relation_logic).
+prose_valency(justify, transitive).
+prose_verb_class(explain, relation_logic).
+prose_verb_class(support, relation_logic).
+relation_verb(ground).
+prose_verb_class(ground, relation_logic).
+prose_valency(ground, transitive).
+prose_verb_class(follow, relation_logic).
+prose_verb_class(precede, relation_logic).
+prose_verb_class(succeed, relation_logic).
+prose_verb_class(overlap, relation_logic).
+prose_verb_class(intersect, relation_logic).
+relation_verb(subsume).
+prose_verb_class(subsume, relation_logic).
+prose_valency(subsume, transitive).
+prose_verb_class(generalize, relation_logic).
+prose_verb_class(generalise, relation_logic).
+relation_verb(specialize).
+prose_verb_class(specialize, relation_logic).
+prose_valency(specialize, transitive).
+relation_verb(specialise).
+prose_verb_class(specialise, relation_logic).
+prose_valency(specialise, transitive).
+prose_verb_class(classify, relation_logic).
+prose_verb_class(define, relation_logic).
+prose_verb_class(characterize, relation_logic).
+prose_verb_class(characterise, relation_logic).
+prose_verb_class(identify, relation_logic).
+prose_verb_class(denote, relation_logic).
+prose_verb_class(name, relation_logic).
+prose_verb_class(refer, relation_logic).
+prose_valency(refer, transitive).
+prose_verb_class(exist, existence).
+prose_valency(exist, intransitive).
+prose_verb_class(occur, existence).
+prose_valency(occur, intransitive).
+prose_verb_class(happen, existence).
+prose_valency(happen, intransitive).
+prose_verb_class(arise, existence).
+prose_valency(arise, intransitive).
+prose_verb_class(emerge, existence).
+prose_valency(emerge, intransitive).
+prose_verb_class(appear, existence).
+prose_valency(appear, intransitive).
+prose_verb_class(disappear, existence).
+prose_valency(disappear, intransitive).
+prose_verb_class(vanish, existence).
+prose_valency(vanish, intransitive).
+prose_verb_class(remain, existence).
+prose_valency(remain, intransitive).
+prose_verb_class(persist, existence).
+prose_valency(persist, intransitive).
+prose_verb_class(endure, existence).
+prose_valency(endure, intransitive).
+prose_verb_class(survive, existence).
+prose_valency(survive, intransitive).
+prose_verb_class(last, existence).
+prose_valency(last, intransitive).
+prose_verb_class(prevail, existence).
+prose_valency(prevail, intransitive).
+prose_verb_class(subsist, existence).
+prose_valency(subsist, intransitive).
+prose_verb_class(coexist, existence).
+prose_valency(coexist, intransitive).
+prose_verb_class(abound, existence).
+prose_valency(abound, intransitive).
+prose_verb_class(elapse, existence).
+prose_valency(elapse, intransitive).
+prose_verb_class(ensue, existence).
+prose_valency(ensue, intransitive).
+prose_verb_class(recur, existence).
+prose_valency(recur, intransitive).
+prose_verb_class(go, motion).
+prose_valency(go, intransitive).
+prose_verb_class(come, motion).
+prose_valency(come, intransitive).
+prose_verb_class(arrive, motion).
+prose_valency(arrive, intransitive).
+prose_verb_class(depart, motion).
+prose_valency(depart, intransitive).
+prose_verb_class(travel, motion).
+prose_valency(travel, intransitive).
+prose_verb_class(journey, motion).
+prose_valency(journey, intransitive).
+prose_verb_class(walk, motion).
+prose_valency(walk, intransitive).
+prose_verb_class(run, motion).
+prose_valency(run, intransitive).
+prose_verb_class(swim, motion).
+prose_valency(swim, intransitive).
+prose_verb_class(fly, motion).
+prose_valency(fly, intransitive).
+prose_verb_class(flow, motion).
+prose_valency(flow, intransitive).
+prose_verb_class(drift, motion).
+prose_valency(drift, intransitive).
+prose_verb_class(fall, motion).
+prose_valency(fall, intransitive).
+prose_verb_class(rise, motion).
+prose_valency(rise, intransitive).
+prose_verb_class(ascend, motion).
+prose_valency(ascend, intransitive).
+prose_verb_class(descend, motion).
+prose_valency(descend, intransitive).
+prose_verb_class(migrate, motion).
+prose_valency(migrate, intransitive).
+prose_verb_class(circulate, motion).
+prose_valency(circulate, intransitive).
+prose_verb_class(revolve, motion).
+prose_valency(revolve, intransitive).
+prose_verb_class(rotate, motion).
+prose_valency(rotate, intransitive).
+prose_verb_class(oscillate, motion).
+prose_valency(oscillate, intransitive).
+prose_verb_class(vibrate, motion).
+prose_valency(vibrate, intransitive).
+prose_verb_class(spread, motion).
+prose_valency(spread, intransitive).
+prose_verb_class(disperse, motion).
+prose_valency(disperse, intransitive).
+prose_verb_class(move, motion).
+prose_valency(move, intransitive).
+prose_verb_class(proceed, motion).
+prose_valency(proceed, intransitive).
+prose_verb_class(advance, motion).
+prose_valency(advance, intransitive).
+prose_verb_class(retreat, motion).
+prose_valency(retreat, intransitive).
+prose_verb_class(return, motion).
+prose_valency(return, intransitive).
+prose_verb_class(escape, motion).
+prose_valency(escape, intransitive).
+prose_verb_class(flee, motion).
+prose_valency(flee, intransitive).
+prose_verb_class(wander, motion).
+prose_valency(wander, intransitive).
+prose_verb_class(roam, motion).
+prose_valency(roam, intransitive).
+prose_verb_class(pass, motion).
+prose_valency(pass, intransitive).
+prose_verb_class(leap, motion).
+prose_valency(leap, intransitive).
+prose_verb_class(jump, motion).
+prose_valency(jump, intransitive).
+prose_verb_class(crawl, motion).
+prose_valency(crawl, intransitive).
+prose_verb_class(creep, motion).
+prose_valency(creep, intransitive).
+prose_verb_class(roll, motion).
+prose_valency(roll, intransitive).
+prose_verb_class(slide, motion).
+prose_valency(slide, intransitive).
+prose_verb_class(glide, motion).
+prose_valency(glide, intransitive).
+prose_verb_class(sail, motion).
+prose_valency(sail, intransitive).
+prose_verb_class(float, motion).
+prose_valency(float, intransitive).
+prose_verb_class(sink, motion).
+prose_valency(sink, intransitive).
+prose_verb_class(plunge, motion).
+prose_valency(plunge, intransitive).
+prose_verb_class(soar, motion).
+prose_valency(soar, intransitive).
+prose_verb_class(hover, motion).
+prose_valency(hover, intransitive).
+prose_verb_class(become, change_of_state).
+prose_valency(become, intransitive).
+prose_verb_class(grow, change_of_state).
+prose_valency(grow, intransitive).
+prose_verb_class(develop, change_of_state).
+prose_valency(develop, intransitive).
+prose_verb_class(evolve, change_of_state).
+prose_valency(evolve, intransitive).
+prose_verb_class(decay, change_of_state).
+prose_valency(decay, intransitive).
+prose_verb_class(decompose, change_of_state).
+prose_valency(decompose, intransitive).
+prose_verb_class(deteriorate, change_of_state).
+prose_valency(deteriorate, intransitive).
+prose_verb_class(collapse, change_of_state).
+prose_valency(collapse, intransitive).
+prose_verb_class(crumble, change_of_state).
+prose_valency(crumble, intransitive).
+prose_verb_class(disintegrate, change_of_state).
+prose_valency(disintegrate, intransitive).
+prose_verb_class(perish, change_of_state).
+prose_valency(perish, intransitive).
+prose_verb_class(die, change_of_state).
+prose_valency(die, intransitive).
+prose_verb_class(live, change_of_state).
+prose_valency(live, intransitive).
+prose_verb_class(thrive, change_of_state).
+prose_valency(thrive, intransitive).
+prose_verb_class(flourish, change_of_state).
+prose_valency(flourish, intransitive).
+prose_verb_class(mature, change_of_state).
+prose_valency(mature, intransitive).
+prose_verb_class(age, change_of_state).
+prose_valency(age, intransitive).
+prose_verb_class(bloom, change_of_state).
+prose_valency(bloom, intransitive).
+prose_verb_class(flower, change_of_state).
+prose_valency(flower, intransitive).
+prose_verb_class(germinate, change_of_state).
+prose_valency(germinate, intransitive).
+prose_verb_class(erupt, change_of_state).
+prose_valency(erupt, intransitive).
+prose_verb_class(explode, change_of_state).
+prose_valency(explode, intransitive).
+prose_verb_class(implode, change_of_state).
+prose_valency(implode, intransitive).
+prose_verb_class(burst, change_of_state).
+prose_valency(burst, intransitive).
+prose_verb_class(freeze, change_of_state).
+prose_valency(freeze, intransitive).
+prose_verb_class(melt, change_of_state).
+prose_valency(melt, intransitive).
+prose_verb_class(evaporate, change_of_state).
+prose_valency(evaporate, intransitive).
+prose_verb_class(condense, change_of_state).
+prose_valency(condense, intransitive).
+prose_verb_class(crystallize, change_of_state).
+prose_valency(crystallize, intransitive).
+prose_verb_class(crystallise, change_of_state).
+prose_valency(crystallise, intransitive).
+prose_verb_class(solidify, change_of_state).
+prose_valency(solidify, intransitive).
+prose_verb_class(dry, change_of_state).
+prose_valency(dry, intransitive).
+prose_verb_class(rust, change_of_state).
+prose_valency(rust, intransitive).
+prose_verb_class(corrode, change_of_state).
+prose_valency(corrode, intransitive).
+prose_verb_class(erode, change_of_state).
+prose_valency(erode, intransitive).
+prose_verb_class(fade, change_of_state).
+prose_valency(fade, intransitive).
+prose_verb_class(weaken, change_of_state).
+prose_valency(weaken, intransitive).
+prose_verb_class(strengthen, change_of_state).
+prose_valency(strengthen, intransitive).
+prose_verb_class(increase, change_of_state).
+prose_valency(increase, intransitive).
+prose_verb_class(decrease, change_of_state).
+prose_valency(decrease, intransitive).
+prose_verb_class(fluctuate, change_of_state).
+prose_valency(fluctuate, intransitive).
+prose_verb_class(vary, change_of_state).
+prose_valency(vary, intransitive).
+prose_verb_class(expand, change_of_state).
+prose_valency(expand, intransitive).
+prose_verb_class(contract, change_of_state).
+prose_valency(contract, intransitive).
+prose_verb_class(shrink, change_of_state).
+prose_valency(shrink, intransitive).
+prose_verb_class(participate, participation).
+prose_valency(participate, intransitive).
+prose_verb_class(cooperate, participation).
+prose_valency(cooperate, intransitive).
+prose_verb_class(collaborate, participation).
+prose_valency(collaborate, intransitive).
+prose_verb_class(compete, participation).
+prose_valency(compete, intransitive).
+prose_verb_class(interact, participation).
+prose_valency(interact, intransitive).
+prose_verb_class(communicate, participation).
+prose_valency(communicate, intransitive).
+prose_verb_class(negotiate, participation).
+prose_valency(negotiate, intransitive).
+prose_verb_class(correspond, participation).
+prose_valency(correspond, intransitive).
+prose_verb_class(coexist, participation).
+prose_verb_class(converge, participation).
+prose_valency(converge, intransitive).
+prose_verb_class(diverge, participation).
+prose_valency(diverge, intransitive).
+prose_verb_class(overlap, participation).
+prose_valency(overlap, intransitive).
+prose_verb_class(intersect, participation).
+prose_valency(intersect, intransitive).
+prose_verb_class(interfere, participation).
+prose_valency(interfere, intransitive).
+prose_verb_class(coincide, participation).
+prose_valency(coincide, intransitive).
+prose_verb_class(alternate, participation).
+prose_valency(alternate, intransitive).
+prose_verb_class(agree, participation).
+prose_valency(agree, intransitive).
+prose_verb_class(disagree, participation).
+prose_valency(disagree, intransitive).
+prose_verb_class(concur, participation).
+prose_valency(concur, intransitive).
+prose_verb_class(differ, participation).
+prose_valency(differ, intransitive).
+prose_verb_class(comply, participation).
+prose_valency(comply, intransitive).
+prose_verb_class(conform, participation).
+prose_valency(conform, intransitive).
+prose_verb_class(belong, participation).
+prose_valency(belong, intransitive).
+prose_verb_class(consist, participation).
+prose_valency(consist, intransitive).
+prose_verb_class(depend, participation).
+prose_valency(depend, intransitive).
+prose_verb_class(rely, participation).
+prose_valency(rely, intransitive).
+prose_verb_class(rest, participation).
+prose_valency(rest, intransitive).
+prose_verb_class(reside, participation).
+prose_valency(reside, intransitive).
+prose_verb_class(originate, participation).
+prose_valency(originate, intransitive).
+prose_verb_class(stem, participation).
+prose_valency(stem, intransitive).
+prose_verb_class(result, participation).
+prose_valency(result, intransitive).
+prose_verb_class(culminate, participation).
+prose_valency(culminate, intransitive).
+prose_verb_class(specialize, participation).
+prose_valency(specialize, intransitive).
+prose_verb_class(specialise, participation).
+prose_valency(specialise, intransitive).
+prose_verb_class(excel, participation).
+prose_valency(excel, intransitive).
+prose_verb_class(succeed, participation).
+prose_valency(succeed, intransitive).
+prose_verb_class(fail, participation).
+prose_valency(fail, intransitive).
+prose_verb_class(work, participation).
+prose_valency(work, intransitive).
+prose_verb_class(function, participation).
+prose_valency(function, intransitive).
+prose_verb_class(operate, participation).
+prose_valency(operate, intransitive).
+prose_verb_class(act, participation).
+prose_valency(act, intransitive).
+prose_verb_class(behave, participation).
+prose_valency(behave, intransitive).
+prose_verb_class(sleep, participation).
+prose_valency(sleep, intransitive).
+prose_verb_class(wake, participation).
+prose_valency(wake, intransitive).
+prose_verb_class(breathe, participation).
+prose_valency(breathe, intransitive).
+prose_verb_class(sneeze, participation).
+prose_valency(sneeze, intransitive).
+prose_verb_class(cough, participation).
+prose_valency(cough, intransitive).
+prose_verb_class(laugh, participation).
+prose_valency(laugh, intransitive).
+prose_verb_class(smile, participation).
+prose_valency(smile, intransitive).
+prose_verb_class(cry, participation).
+prose_valency(cry, intransitive).
+prose_verb_class(weep, participation).
+prose_valency(weep, intransitive).
+prose_verb_class(rejoice, participation).
+prose_valency(rejoice, intransitive).
+prose_verb_class(hesitate, participation).
+prose_valency(hesitate, intransitive).
+prose_verb_class(wait, participation).
+prose_valency(wait, intransitive).
+prose_verb_class(pause, participation).
+prose_valency(pause, intransitive).
+prose_verb_class(stop, participation).
+prose_valency(stop, intransitive).
+prose_verb_class(continue, participation).
+prose_valency(continue, intransitive).
+prose_verb_class(begin, participation).
+prose_valency(begin, intransitive).
+prose_valency(give, ditransitive).
+prose_valency(send, ditransitive).
+prose_valency(offer, ditransitive).
+prose_valency(show, ditransitive).
+prose_valency(tell, ditransitive).
+prose_valency(teach, ditransitive).
+prose_valency(lend, ditransitive).
+prose_valency(pay, ditransitive).
+prose_valency(award, ditransitive).
+prose_valency(grant, ditransitive).
+prose_valency(promise, ditransitive).
+prose_valency(hand, ditransitive).
+prose_valency(pass, ditransitive).
+prose_valency(bring, ditransitive).
+prose_valency(buy, ditransitive).
+prose_valency(sell, ditransitive).
+prose_valency(write, ditransitive).
+prose_valency(read, ditransitive).
+prose_valency(feed, ditransitive).
+prose_valency(serve, ditransitive).
+prose_valency(owe, ditransitive).
+prose_valency(allocate, ditransitive).
+prose_valency(assign, ditransitive).
+prose_valency(entrust, ditransitive).
+prose_valency(call, object_predicative).
+prose_valency(name, object_predicative).
+prose_valency(elect, object_predicative).
+prose_valency(appoint, object_predicative).
+prose_valency(consider, object_predicative).
+prose_valency(regard, object_predicative).
+prose_valency(deem, object_predicative).
+prose_valency(find, object_predicative).
+prose_valency(make, object_predicative).
+prose_valency(render, object_predicative).
+prose_valency(keep, object_predicative).
+prose_valency(leave, object_predicative).
+prose_valency(paint, object_predicative).
+prose_valency(declare, object_predicative).
+prose_valency(pronounce, object_predicative).
+prose_valency(label, object_predicative).
+prose_valency(term, object_predicative).
+prose_valency(designate, object_predicative).
+prose_valency(judge, object_predicative).
+prose_valency(prove, object_predicative).
+prose_valency(agree, subject_control).
+prose_valency(aim, subject_control).
+prose_valency(arrange, subject_control).
+prose_valency(attempt, subject_control).
+prose_valency(choose, subject_control).
+prose_valency(decide, subject_control).
+prose_valency(decline, subject_control).
+prose_valency(endeavour, subject_control).
+prose_valency(endeavor, subject_control).
+prose_valency(fail, subject_control).
+prose_valency(hope, subject_control).
+prose_valency(intend, subject_control).
+prose_valency(learn, subject_control).
+prose_valency(manage, subject_control).
+prose_valency(offer, subject_control).
+prose_valency(plan, subject_control).
+prose_valency(prepare, subject_control).
+prose_valency(pretend, subject_control).
+prose_valency(promise, subject_control).
+prose_valency(refuse, subject_control).
+prose_valency(seek, subject_control).
+prose_valency(strive, subject_control).
+prose_valency(threaten, subject_control).
+prose_valency(try, subject_control).
+prose_valency(undertake, subject_control).
+prose_valency(volunteer, subject_control).
+prose_valency(want, subject_control).
+prose_valency(wish, subject_control).
+prose_valency(advise, object_control).
+prose_valency(allow, object_control).
+prose_valency(ask, object_control).
+prose_valency(authorize, object_control).
+prose_valency(authorise, object_control).
+prose_valency(command, object_control).
+prose_valency(compel, object_control).
+prose_valency(convince, object_control).
+prose_valency(enable, object_control).
+prose_valency(encourage, object_control).
+prose_valency(expect, object_control).
+prose_valency(forbid, object_control).
+prose_valency(force, object_control).
+prose_valency(instruct, object_control).
+prose_valency(invite, object_control).
+prose_valency(order, object_control).
+prose_valency(permit, object_control).
+prose_valency(persuade, object_control).
+prose_valency(remind, object_control).
+prose_valency(require, object_control).
+prose_valency(teach, object_control).
+prose_valency(tell, object_control).
+prose_valency(urge, object_control).
+prose_valency(warn, object_control).
+prose_valency(appear, subject_raising).
+prose_valency(seem, subject_raising).
+prose_valency(tend, subject_raising).
+prose_valency(happen, subject_raising).
+prose_valency(prove, subject_raising).
+prose_valency(turn, subject_raising).
+prose_valency(believe, object_raising).
+prose_valency(consider, object_raising).
+prose_valency(expect, object_raising).
+prose_valency(suppose, object_raising).
+prose_valency(understand, object_raising).
+prose_valency(know, object_raising).
+prose_valency(judge, object_raising).
+prose_valency(presume, object_raising).
+prose_valency(let, bare_infinitive).
+prose_valency(make, bare_infinitive).
+prose_valency(help, bare_infinitive).
+prose_valency(see, bare_infinitive).
+prose_valency(hear, bare_infinitive).
+prose_valency(feel, bare_infinitive).
+prose_valency(watch, bare_infinitive).
+prose_valency(notice, bare_infinitive).
+prose_valency(observe, bare_infinitive).
+prose_valency(admit, gerund_complement).
+prose_valency(avoid, gerund_complement).
+prose_valency(consider, gerund_complement).
+prose_valency(contemplate, gerund_complement).
+prose_valency(deny, gerund_complement).
+prose_valency(dislike, gerund_complement).
+prose_valency(enjoy, gerund_complement).
+prose_valency(finish, gerund_complement).
+prose_valency(imagine, gerund_complement).
+prose_valency(involve, gerund_complement).
+prose_valency(keep, gerund_complement).
+prose_valency(mention, gerund_complement).
+prose_valency(mind, gerund_complement).
+prose_valency(miss, gerund_complement).
+prose_valency(postpone, gerund_complement).
+prose_valency(practise, gerund_complement).
+prose_valency(practice, gerund_complement).
+prose_valency(prevent, gerund_complement).
+prose_valency(recommend, gerund_complement).
+prose_valency(recall, gerund_complement).
+prose_valency(resist, gerund_complement).
+prose_valency(resume, gerund_complement).
+prose_valency(risk, gerund_complement).
+prose_valency(suggest, gerund_complement).
+prose_valency(tolerate, gerund_complement).
+prose_valency(quit, gerund_complement).
+prose_valency(stop, gerund_complement).
+prose_valency(continue, gerund_complement).
+prose_valency(begin, gerund_complement).
+prose_valency(start, gerund_complement).
+prose_valency(say, finite_complement).
+prose_valency(state, finite_complement).
+prose_valency(claim, finite_complement).
+prose_valency(report, finite_complement).
+prose_valency(believe, finite_complement).
+prose_valency(think, finite_complement).
+prose_valency(know, finite_complement).
+prose_valency(suppose, finite_complement).
+prose_valency(assume, finite_complement).
+prose_valency(imagine, finite_complement).
+prose_valency(consider, finite_complement).
+prose_valency(expect, finite_complement).
+prose_valency(hope, finite_complement).
+prose_valency(wish, finite_complement).
+prose_valency(fear, finite_complement).
+prose_valency(doubt, finite_complement).
+prose_valency(suggest, finite_complement).
+prose_valency(propose, finite_complement).
+prose_valency(insist, finite_complement).
+prose_valency(recommend, finite_complement).
+prose_valency(demand, finite_complement).
+prose_valency(require, finite_complement).
+prose_valency(recognize, finite_complement).
+prose_valency(recognise, finite_complement).
+prose_valency(realize, finite_complement).
+prose_valency(realise, finite_complement).
+prose_valency(discover, finite_complement).
+prose_valency(find, finite_complement).
+prose_valency(prove, finite_complement).
+prose_valency(demonstrate, finite_complement).
+prose_valency(show, finite_complement).
+prose_valency(reveal, finite_complement).
+prose_valency(confirm, finite_complement).
+prose_valency(deny, finite_complement).
+prose_valency(admit, finite_complement).
+prose_valency(acknowledge, finite_complement).
+prose_valency(explain, finite_complement).
+prose_valency(predict, finite_complement).
+prose_valency(estimate, finite_complement).
+prose_valency(ask, interrogative_complement).
+prose_valency(wonder, interrogative_complement).
+prose_valency(inquire, interrogative_complement).
+prose_valency(enquire, interrogative_complement).
+prose_valency(investigate, interrogative_complement).
+prose_valency(determine, interrogative_complement).
+prose_valency(discover, interrogative_complement).
+prose_valency(establish, interrogative_complement).
+prose_valency(know, interrogative_complement).
+prose_valency(learn, interrogative_complement).
+prose_valency(remember, interrogative_complement).
+prose_valency(forget, interrogative_complement).
+prose_valency(explain, interrogative_complement).
+prose_valency(show, interrogative_complement).
+prose_valency(tell, interrogative_complement).
+prose_valency(decide, interrogative_complement).
+prose_valency(consider, interrogative_complement).
+prose_valency(debate, interrogative_complement).
+prose_valency(discuss, interrogative_complement).
+prose_valency(understand, interrogative_complement).
+prose_valency(see, interrogative_complement).
+prose_valency(be, copular).
+prose_valency(become, copular).
+prose_valency(seem, copular).
+prose_valency(appear, copular).
+prose_valency(remain, copular).
+prose_valency(stay, copular).
+prose_valency(look, copular).
+prose_valency(sound, copular).
+prose_valency(smell, copular).
+prose_valency(taste, copular).
+prose_valency(feel, copular).
+prose_valency(prove, copular).
+prose_valency(turn, copular).
+prose_valency(grow, copular).
+prose_valency(get, copular).

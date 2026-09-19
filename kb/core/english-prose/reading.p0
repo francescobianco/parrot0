@@ -1,0 +1,274 @@
+% reading.p0 — consumatori della IR e ponti della prima fogliata.
+% Non tokenizza testo e non crea una IR privata. Ogni evidenza conserva gli
+% id dei nodi input_node o document_unit_token che la giustificano.
+% Le letture sono POSSIBILITA': scope, attacco e coreferenza non si inventano.
+% Non promuovere prose_evidence a semantic_binding senza provare quei ruoli.
+:- file_attribute(machinery).
+
+% MORFOLOGIA. Paradigma irregolare prima delle trasformazioni produttive.
+% La classe del raddoppio dipende anche dall'accento: resta lessico insegnabile.
+prose_has_paradigm($R) :- prose_verb_paradigm($R, $P, $PP, $G).
+prose_has_doubled_stem($R) :- prose_doubled_stem($R, $S).
+prose_has_ing_exception($R) :- prose_ing_exception($R, $G).
+prose_has_present_exception($R) :- prose_present_exception($R, $F).
+prose_takes_es($R) :- prose_es_ending($E), concat_atoms($S, $E, $R).
+prose_keeps_e($R) :- prose_keep_e_ending($E), concat_atoms($S, $E, $R).
+prose_regular_lemma($R) :- prose_verb_lemma($R), naf(prose_has_paradigm($R)).
+
+prose_inflected_form($R, $R, base) :- prose_verb_lemma($R).
+prose_inflected_form($R, $F, past) :- prose_verb_paradigm($R, $F, $PP, $G).
+prose_inflected_form($R, $F, past_participle) :- prose_verb_paradigm($R, $P, $F, $G).
+prose_inflected_form($R, $F, present_participle) :- prose_verb_paradigm($R, $P, $PP, $F).
+prose_inflected_form($R, $F, present_third) :- prose_present_exception($R, $F).
+prose_inflected_form($R, $F, present_third) :-
+    prose_verb_lemma($R), naf(prose_has_present_exception($R)),
+    ends_with_consonant_y($R), y_to_ies($R, $F).
+prose_inflected_form($R, $F, present_third) :-
+    prose_verb_lemma($R), naf(prose_has_present_exception($R)),
+    naf(ends_with_consonant_y($R)), prose_takes_es($R), concat_atoms($R, "es", $F).
+prose_inflected_form($R, $F, present_third) :-
+    prose_verb_lemma($R), naf(prose_has_present_exception($R)),
+    naf(ends_with_consonant_y($R)), naf(prose_takes_es($R)), concat_atoms($R, "s", $F).
+
+prose_regular_past($R, $F) :-
+    prose_regular_lemma($R), prose_doubled_stem($R, $S), concat_atoms($S, "ed", $F).
+prose_regular_past($R, $F) :-
+    prose_regular_lemma($R), naf(prose_has_doubled_stem($R)),
+    ends_with_e($R), concat_atoms($R, "d", $F).
+prose_regular_past($R, $F) :-
+    prose_regular_lemma($R), naf(prose_has_doubled_stem($R)),
+    ends_with_consonant_y($R), concat_atoms($S, "y", $R), concat_atoms($S, "ied", $F).
+prose_regular_past($R, $F) :-
+    prose_regular_lemma($R), naf(prose_has_doubled_stem($R)),
+    naf(ends_with_e($R)), naf(ends_with_consonant_y($R)), concat_atoms($R, "ed", $F).
+prose_inflected_form($R, $F, past) :- prose_regular_past($R, $F).
+prose_inflected_form($R, $F, past_participle) :- prose_regular_past($R, $F).
+
+prose_inflected_form($R, $F, present_participle) :- prose_ing_exception($R, $F).
+prose_regular_ing_root($R) :-
+    prose_regular_lemma($R), naf(prose_has_ing_exception($R)).
+prose_inflected_form($R, $F, present_participle) :-
+    prose_regular_ing_root($R), prose_doubled_stem($R, $S), concat_atoms($S, "ing", $F).
+prose_inflected_form($R, $F, present_participle) :-
+    prose_regular_ing_root($R), naf(prose_has_doubled_stem($R)),
+    concat_atoms($S, "e", $R), naf(prose_keeps_e($R)), concat_atoms($S, "ing", $F).
+prose_inflected_form($R, $F, present_participle) :-
+    prose_regular_ing_root($R), naf(prose_has_doubled_stem($R)),
+    prose_keeps_e($R), concat_atoms($R, "ing", $F).
+prose_inflected_form($R, $F, present_participle) :-
+    prose_regular_ing_root($R), naf(prose_has_doubled_stem($R)),
+    naf(ends_with_e($R)), concat_atoms($R, "ing", $F).
+
+% Il motore materializza viste unarie/binarie: l'analisi tipata viaggia in
+% un termine, e il primo argomento resta la superficie per l'indice esatto.
+prose_verb_analysis($F, form($R, $K)) :- prose_inflected_form($R, $F, $K).
+prose_verb_form($R, $F, $K) :- prose_verb_analysis($F, form($R, $K)).
+
+% Il ponte include finite e participio passato; il gerundio ha gia' il proprio
+% consumatore participiale. Non trasformarlo in un attivo sro concorrente.
+prose_finite_reading(present_third).
+prose_finite_reading(past).
+prose_finite_reading(past_participle).
+prose_active_tense(present_third).
+prose_active_tense(past).
+verb_reading_form($R, $F) :-
+    prose_verb_form($R, $F, $K), prose_finite_reading($K), relation_verb($R).
+verb_finite_form($R, $F) :-
+    prose_verb_form($R, $F, $K), prose_active_tense($K), relation_verb($R).
+extract_frame($Pattern, $R) :-
+    prose_verb_form($R, $F, $K), prose_active_tense($K), relation_verb($R),
+    concat_atoms("@S ", $F, $Prefix), concat_atoms($Prefix, " @O", $Pattern).
+verb_stem($F, $R) :- prose_verb_form($R, $F, $K), prose_finite_reading($K).
+participle_of($R, $F) :- prose_verb_form($R, $F, past_participle), relation_verb($R).
+gerund_root($F, $R) :- prose_verb_form($R, $F, present_participle), relation_verb($R).
+gerund_of($R, $F) :- prose_verb_form($R, $F, present_participle), relation_verb($R).
+finite_present_of($R, $F) :- prose_verb_form($R, $F, present_third).
+materialized_view(prose_verb_analysis, 2).
+view_depends(prose_verb_analysis, prose_verb_lemma).
+view_depends(prose_verb_analysis, prose_verb_paradigm).
+view_depends(prose_verb_analysis, prose_doubled_stem).
+view_depends(prose_verb_analysis, prose_ing_exception).
+view_depends(prose_verb_analysis, prose_present_exception).
+view_depends(verb_reading_form, prose_verb_analysis).
+view_depends(verb_stem, prose_verb_analysis).
+view_depends(extract_frame, prose_verb_analysis).
+
+% EVIDENZA LESSICALE. Indice per prima parola; mai confronto substring.
+% Il resto e' una lista di token da allineare ai successori della IR.
+prose_expression_index($First, tail($Rest, $Meaning)) :-
+    prose_expression($Surface, $Meaning), atom_words($Surface, cons($First, $Rest)).
+prose_expression_start($First, $Rest, $Meaning) :-
+    prose_expression_index($First, tail($Rest, $Meaning)).
+materialized_view(prose_expression_index, 2).
+view_depends(prose_expression_index, prose_expression).
+
+% Adattatori alle due rappresentazioni GIA' esistenti, non nuovi record.
+prose_ir_token(input($Scope), $Id, $W, range($S, $L)) :-
+    input_node_atom($Scope, $Id, $W), input_node_range($Scope, $Id, $S, $L).
+prose_ir_token(document($Unit), $Id, $W, range($S, $L)) :-
+    document_unit_token_surface($Unit, $Id, $W), document_unit_token_range($Unit, $Id, $S, $L).
+prose_ir_next(input($Scope), $A, $B) :-
+    input_node_next($Scope, $A, $B), tokens_contiguous($Scope, $A, $B).
+prose_ir_next(document($Unit), $A, $B) :-
+    document_unit_token_range($Unit, $A, $S, $L), is($N, add($S, add($L, 1))),
+    document_unit_token_range($Unit, $B, $N, $BL).
+prose_expression_tail($Scope, $Last, nil, $Last).
+prose_expression_tail($Scope, $Prev, cons($W, $Rest), $Last) :-
+    prose_ir_next($Scope, $Prev, $Next), prose_ir_token($Scope, $Next, $W, $Range),
+    prose_expression_tail($Scope, $Next, $Rest, $Last).
+prose_expression_match($Scope, span($First, $Last), $Meaning) :-
+    prose_ir_token($Scope, $First, $W, $Range),
+    prose_expression_start($W, $Rest, $Meaning),
+    prose_expression_tail($Scope, $First, $Rest, $Last).
+prose_evidence($Scope, $Span, $Kind, $Value) :-
+    prose_expression_match($Scope, $Span, $Meaning), prose_feature_meaning($Meaning, $Kind, $Value).
+
+% Le forme verbali e nominali conservano lemma e ruolo morfologico, anche
+% quando la stessa superficie ha letture concorrenti (saw, lay, read, means).
+prose_morphology($Scope, $Id, $Root, $Form) :-
+    prose_ir_token($Scope, $Id, $W, $Range), prose_verb_form($Root, $W, $Form).
+prose_morphology($Scope, $Id, $Root, plural) :-
+    prose_ir_token($Scope, $Id, $W, $Range), prose_noun_number($W, $Root, plural).
+prose_nominal_evidence($Scope, $Id, $Kind, $Value) :-
+    prose_ir_token($Scope, $Id, $W, $Range), prose_noun_feature($W, $Kind, $Value).
+prose_reference_evidence($Scope, $Id, $Person, reference($Number, $Case)) :-
+    prose_ir_token($Scope, $Id, $W, $Range), prose_pronoun($W, $Person, $Number, $Case).
+prose_predicate_family($Scope, $Id, $Root, $Family) :-
+    prose_morphology($Scope, $Id, $Root, $Form), prose_verb_class($Root, $Family).
+prose_predicate_valency($Scope, $Id, $Root, $Valency) :-
+    prose_morphology($Scope, $Id, $Root, $Form), prose_valency($Root, $Valency).
+
+% Costruzioni LOCALI dimostrate da due nodi contigui, non soltanto da una cue.
+% Una catena lunga puo' avere piu' strati: "has been" perfect + "been built"
+% passive. La composizione non perde le coordinate dei due strati.
+prose_auxiliary_kind($W, $Kind) :-
+    prose_expression_start($W, nil, $Meaning), prose_feature_meaning($Meaning, verb_chain, $Kind).
+prose_chain_shape(perfect, past_participle, perfect).
+prose_chain_shape(progressive, present_participle, progressive).
+prose_chain_shape(passive, past_participle, passive).
+prose_chain_shape(do_support, base, do_support).
+prose_local_chain($Scope, span($Aux, $V), $Kind, $Root) :-
+    prose_ir_token($Scope, $Aux, $W, $Range), prose_auxiliary_kind($W, $AuxKind),
+    prose_ir_next($Scope, $Aux, $V), prose_morphology($Scope, $V, $Root, $Form),
+    prose_chain_shape($AuxKind, $Form, $Kind).
+
+% Coesione retorica multi-parola sulla Document IR. L'arco si aggiunge solo
+% per un'espressione INIZIALE; una cue interna non lega due frasi a caso.
+% Le relazioni sono le stesse dei consumatori document-argument/document-method.
+prose_rhetorical_relation(addition, addition).
+prose_rhetorical_relation(contrast, contrast).
+prose_rhetorical_relation(consequence, consequence).
+prose_rhetorical_relation(ground, ground).
+prose_rhetorical_relation(elaboration, elaboration).
+prose_rhetorical_relation(exemplification, example).
+prose_rhetorical_relation(reformulation, reformulation).
+prose_rhetorical_relation(concession, concession).
+prose_rhetorical_relation(sequence, sequence).
+prose_rhetorical_relation(summary, summary).
+prose_rhetorical_relation(background, background).
+prose_rhetorical_relation(topic_shift, topic_shift).
+prose_rhetorical_relation(analogy, analogy).
+prose_rhetorical_relation(qualification, qualification).
+prose_rhetorical_relation(correction, correction).
+prose_rhetorical_relation(exception, exception).
+prose_rhetorical_relation(evidence, evidence).
+prose_rhetorical_relation(restatement, restatement).
+prose_document_link($Document, $Left, $Right, link($Relation, $Span)) :-
+    document_unit_follows($Document, $Left, $Right),
+    document_unit_initial_token($Right, $First),
+    prose_evidence(document($Right), span($First, $Last), discourse, $Kind),
+    prose_rhetorical_relation($Kind, $Relation),
+    prose_span_pair($First, $Last, $Span).
+prose_span_pair($First, $Last, span($First, $Last)).
+% Ambiguita' ("since", "while", "so") resta nella vista di evidenza: la
+% composizione argomentativa non riceve automaticamente un arco causale.
+
+% Richieste di scope e di attacco, ispezionabili prima del commit semantico.
+% Sono residui di lettura, NON un interruttore globale che riduce la KB.
+prose_scope_kind(modality).
+prose_scope_kind(polarity).
+prose_scope_kind(quantity).
+prose_scope_kind(evidential).
+prose_scope_kind(presupposition_trigger).
+prose_scope_requirement($Scope, $Span, $Kind, $Value) :-
+    prose_evidence($Scope, $Span, $Kind, $Value), prose_scope_kind($Kind).
+prose_local_policy($Scope, $Span, $Value, $Policy) :-
+    prose_evidence($Scope, $Span, $Kind, $Value), prose_commitment_policy($Value, $Policy).
+% Le implicature hanno una conclusione e una condizione d'uso: non diventano
+% fatti del mondo soltanto perche' compare la loro superficie.
+prose_pragmatic_start($First, tail($Rest, $Inference, $Condition)) :-
+    prose_pragmatic_inference($Trigger, $Inference, $Condition),
+    atom_words($Trigger, cons($First, $Rest)).
+materialized_view(prose_pragmatic_start, 2).
+view_depends(prose_pragmatic_start, prose_pragmatic_inference).
+prose_pragmatic_candidate($Scope, span($First, $Last), $Inference, $Condition) :-
+    prose_ir_token($Scope, $First, $W, $Range),
+    prose_pragmatic_start($W, tail($Rest, $Inference, $Condition)),
+    prose_expression_tail($Scope, $First, $Rest, $Last).
+prose_construction_cue_kind(clause).
+prose_construction_cue_kind(construction).
+prose_construction_cue_kind(verb_chain).
+prose_construction_cue($Scope, $Span, $Construction) :-
+    prose_evidence($Scope, $Span, $Kind, $Construction),
+    prose_construction_cue_kind($Kind), prose_construction_family($Construction).
+prose_required_role($Scope, $Span, $Construction, $Role) :-
+    prose_construction_cue($Scope, $Span, $Construction),
+    prose_construction_requirement($Construction, $Position, $Role).
+
+% Ispettore esistente: le viste consumano la IR osservabile.
+prose_debug_evidence($T, evidence($Span, $Kind, $Value)) :-
+    prose_evidence(input($T), $Span, $Kind, $Value).
+prose_debug_morphology($T, morphology($Id, $Root, $Form)) :-
+    prose_morphology(input($T), $Id, $Root, $Form).
+prose_debug_chain($T, chain($Span, $Kind, $Root)) :-
+    prose_local_chain(input($T), $Span, $Kind, $Root).
+prose_debug_scope($T, scope($Span, $Kind, $Value)) :-
+    prose_scope_requirement(input($T), $Span, $Kind, $Value).
+prose_debug_pragmatics($T, candidate($Span, $Inference, $Condition)) :-
+    prose_pragmatic_candidate(input($T), $Span, $Inference, $Condition).
+debug_probe(30, prose_debug_evidence, now, "gli indizi grammaticali e pragmatici con gli span della IR").
+debug_probe(31, prose_debug_morphology, now, "lemma e forma: passato, participio, gerundio, plurale").
+debug_probe(32, prose_debug_chain, now, "le catene ausiliare-verbo provate sui nodi contigui").
+debug_probe(33, prose_debug_scope, now, "gli operatori che richiedono un ambito prima di asserire").
+debug_probe(34, prose_debug_pragmatics, now, "le inferenze pragmatiche candidate con le condizioni ancora da provare").
+
+% CRESCITA PARLANDO: un'espressione nuova usa il medesimo matcher di span.
+% Esempio: "the expression perchance marks epistemic possibility".
+% La ritrattazione elimina la lettura anche dai nodi gia' trattenuti.
+turn_form(prose_expression_lesson, 1, text("the expression")).
+turn_form(prose_expression_lesson, 2, span(surface)).
+turn_form(prose_expression_lesson, 3, text("marks")).
+turn_form(prose_expression_lesson, 4, named(prose_reading_name, meaning)).
+turn_form_act(prose_expression_lesson, "op(assert, prose_expression, [surface, meaning])").
+turn_form_priority(prose_expression_lesson, early).
+turn_form_view(prose_expression_lesson, said).
+turn_form_reply(prose_expression_lesson, prose_expression_learned).
+response_template(prose_expression_learned, "Learned the grammatical reading of «{surface}».").
+turn_form(prose_expression_forget, 1, text("forget that the expression")).
+turn_form(prose_expression_forget, 2, span(surface)).
+turn_form(prose_expression_forget, 3, text("marks")).
+turn_form(prose_expression_forget, 4, named(prose_reading_name, meaning)).
+turn_form_act(prose_expression_forget, "op(retract, prose_expression, [surface, meaning])").
+turn_form_priority(prose_expression_forget, early).
+turn_form_view(prose_expression_forget, said).
+turn_form_reply(prose_expression_forget, prose_expression_forgotten).
+response_template(prose_expression_forgotten, "Forgotten that grammatical reading of «{surface}».").
+
+% Le radici ulteriori si insegnano con il canale gia' esistente "X is a
+% relation verb"; per attivare anche la morfologia tipata, la forma dice
+% precisamente che si tratta di un lemma, non di un verbo flesso.
+turn_form(prose_lemma_lesson, 1, slot(lemma)).
+turn_form(prose_lemma_lesson, 2, text("is an english verb lemma")).
+turn_form_act(prose_lemma_lesson, "op(assert, prose_verb_lemma, [lemma])").
+turn_form_priority(prose_lemma_lesson, early).
+turn_form_view(prose_lemma_lesson, said).
+turn_form_reply(prose_lemma_lesson, prose_lemma_learned).
+response_template(prose_lemma_learned, "Learned «{lemma}» as an English verb lemma.").
+turn_form(prose_lemma_forget, 1, text("forget that")).
+turn_form(prose_lemma_forget, 2, slot(lemma)).
+turn_form(prose_lemma_forget, 3, text("is an english verb lemma")).
+turn_form_act(prose_lemma_forget, "op(retract, prose_verb_lemma, [lemma])").
+turn_form_priority(prose_lemma_forget, early).
+turn_form_view(prose_lemma_forget, said).
+turn_form_reply(prose_lemma_forget, prose_lemma_forgotten).
+response_template(prose_lemma_forgotten, "Forgotten «{lemma}» as an English verb lemma.").

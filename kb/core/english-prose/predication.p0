@@ -1,0 +1,1322 @@
+% predication.p0 — reggenze e predicati aggettivali
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+prose_valency_particle(belong, to, prepositional_complement).
+prose_valency_particle(refer, to, prepositional_complement).
+prose_valency_particle(relate, to, prepositional_complement).
+verb_particle(correspond, to).
+prose_valency_particle(correspond, to, prepositional_complement).
+verb_particle(contribute, to).
+prose_valency_particle(contribute, to, prepositional_complement).
+verb_particle(lead, to).
+prose_valency_particle(lead, to, prepositional_complement).
+verb_particle(amount, to).
+prose_valency_particle(amount, to, prepositional_complement).
+verb_particle(pertain, to).
+prose_valency_particle(pertain, to, prepositional_complement).
+verb_particle(allude, to).
+prose_valency_particle(allude, to, prepositional_complement).
+verb_particle(adhere, to).
+prose_valency_particle(adhere, to, prepositional_complement).
+verb_particle(conform, to).
+prose_valency_particle(conform, to, prepositional_complement).
+verb_particle(consent, to).
+prose_valency_particle(consent, to, prepositional_complement).
+verb_particle(object, to).
+prose_valency_particle(object, to, prepositional_complement).
+verb_particle(react, to).
+prose_valency_particle(react, to, prepositional_complement).
+verb_particle(respond, to).
+prose_valency_particle(respond, to, prepositional_complement).
+verb_particle(resort, to).
+prose_valency_particle(resort, to, prepositional_complement).
+verb_particle(succumb, to).
+prose_valency_particle(succumb, to, prepositional_complement).
+verb_particle(appeal, to).
+prose_valency_particle(appeal, to, prepositional_complement).
+verb_particle(apply, to).
+prose_valency_particle(apply, to, prepositional_complement).
+verb_particle(adapt, to).
+prose_valency_particle(adapt, to, prepositional_complement).
+verb_particle(adjust, to).
+prose_valency_particle(adjust, to, prepositional_complement).
+prose_valency_particle(attach, to, prepositional_complement).
+verb_particle(attribute, to).
+prose_valency_particle(attribute, to, prepositional_complement).
+verb_particle(ascribe, to).
+prose_valency_particle(ascribe, to, prepositional_complement).
+verb_particle(assign, to).
+prose_valency_particle(assign, to, prepositional_complement).
+verb_particle(allocate, to).
+prose_valency_particle(allocate, to, prepositional_complement).
+verb_particle(dedicate, to).
+prose_valency_particle(dedicate, to, prepositional_complement).
+verb_particle(devote, to).
+prose_valency_particle(devote, to, prepositional_complement).
+verb_particle(owe, to).
+prose_valency_particle(owe, to, prepositional_complement).
+prose_valency_particle(consist, of, prepositional_complement).
+verb_particle(approve, of).
+prose_valency_particle(approve, of, prepositional_complement).
+verb_particle(dispose, of).
+prose_valency_particle(dispose, of, prepositional_complement).
+verb_particle(conceive, of).
+prose_valency_particle(conceive, of, prepositional_complement).
+verb_particle(dream, of).
+prose_valency_particle(dream, of, prepositional_complement).
+verb_particle(think, of).
+prose_valency_particle(think, of, prepositional_complement).
+verb_particle(remind, of).
+prose_valency_particle(remind, of, prepositional_complement).
+verb_particle(inform, of).
+prose_valency_particle(inform, of, prepositional_complement).
+verb_particle(accuse, of).
+prose_valency_particle(accuse, of, prepositional_complement).
+verb_particle(deprive, of).
+prose_valency_particle(deprive, of, prepositional_complement).
+verb_particle(rid, of).
+prose_valency_particle(rid, of, prepositional_complement).
+verb_particle(smell, of).
+prose_valency_particle(smell, of, prepositional_complement).
+verb_particle(taste, of).
+prose_valency_particle(taste, of, prepositional_complement).
+prose_valency_particle(depend, on, prepositional_complement).
+verb_particle(rely, on).
+prose_valency_particle(rely, on, prepositional_complement).
+verb_particle(rest, on).
+prose_valency_particle(rest, on, prepositional_complement).
+verb_particle(hinge, on).
+prose_valency_particle(hinge, on, prepositional_complement).
+verb_particle(focus, on).
+prose_valency_particle(focus, on, prepositional_complement).
+verb_particle(concentrate, on).
+prose_valency_particle(concentrate, on, prepositional_complement).
+verb_particle(elaborate, on).
+prose_valency_particle(elaborate, on, prepositional_complement).
+verb_particle(insist, on).
+prose_valency_particle(insist, on, prepositional_complement).
+verb_particle(act, on).
+prose_valency_particle(act, on, prepositional_complement).
+verb_particle(operate, on).
+prose_valency_particle(operate, on, prepositional_complement).
+verb_particle(work, on).
+prose_valency_particle(work, on, prepositional_complement).
+prose_valency_particle(feed, on, prepositional_complement).
+verb_particle(prey, on).
+prose_valency_particle(prey, on, prepositional_complement).
+verb_particle(draw, on).
+prose_valency_particle(draw, on, prepositional_complement).
+prose_valency_particle(base, on, prepositional_complement).
+verb_particle(impose, on).
+prose_valency_particle(impose, on, prepositional_complement).
+verb_particle(confer, on).
+prose_valency_particle(confer, on, prepositional_complement).
+prose_valency_particle(depend, upon, prepositional_complement).
+verb_particle(rely, upon).
+prose_valency_particle(rely, upon, prepositional_complement).
+verb_particle(rest, upon).
+prose_valency_particle(rest, upon, prepositional_complement).
+verb_particle(hinge, upon).
+prose_valency_particle(hinge, upon, prepositional_complement).
+verb_particle(act, upon).
+prose_valency_particle(act, upon, prepositional_complement).
+verb_particle(draw, upon).
+prose_valency_particle(draw, upon, prepositional_complement).
+verb_particle(confer, upon).
+prose_valency_particle(confer, upon, prepositional_complement).
+verb_particle(result, in).
+prose_valency_particle(result, in, prepositional_complement).
+verb_particle(culminate, in).
+prose_valency_particle(culminate, in, prepositional_complement).
+verb_particle(participate, in).
+prose_valency_particle(participate, in, prepositional_complement).
+verb_particle(specialize, in).
+prose_valency_particle(specialize, in, prepositional_complement).
+verb_particle(specialise, in).
+prose_valency_particle(specialise, in, prepositional_complement).
+verb_particle(excel, in).
+prose_valency_particle(excel, in, prepositional_complement).
+verb_particle(succeed, in).
+prose_valency_particle(succeed, in, prepositional_complement).
+verb_particle(engage, in).
+prose_valency_particle(engage, in, prepositional_complement).
+verb_particle(involve, in).
+prose_valency_particle(involve, in, prepositional_complement).
+verb_particle(invest, in).
+prose_valency_particle(invest, in, prepositional_complement).
+verb_particle(reside, in).
+prose_valency_particle(reside, in, prepositional_complement).
+verb_particle(originate, in).
+prose_valency_particle(originate, in, prepositional_complement).
+verb_particle(abound, in).
+prose_valency_particle(abound, in, prepositional_complement).
+verb_particle(differ, in).
+prose_valency_particle(differ, in, prepositional_complement).
+verb_particle(persist, in).
+prose_valency_particle(persist, in, prepositional_complement).
+verb_particle(believe, in).
+prose_valency_particle(believe, in, prepositional_complement).
+verb_particle(intervene, in).
+prose_valency_particle(intervene, in, prepositional_complement).
+prose_valency_particle(derive, from, prepositional_complement).
+prose_valency_particle(originate, from, prepositional_complement).
+verb_particle(stem, from).
+prose_valency_particle(stem, from, prepositional_complement).
+prose_valency_particle(result, from, prepositional_complement).
+verb_particle(arise, from).
+prose_valency_particle(arise, from, prepositional_complement).
+verb_particle(emerge, from).
+prose_valency_particle(emerge, from, prepositional_complement).
+verb_particle(differ, from).
+prose_valency_particle(differ, from, prepositional_complement).
+verb_particle(depart, from).
+prose_valency_particle(depart, from, prepositional_complement).
+verb_particle(recover, from).
+prose_valency_particle(recover, from, prepositional_complement).
+verb_particle(suffer, from).
+prose_valency_particle(suffer, from, prepositional_complement).
+verb_particle(benefit, from).
+prose_valency_particle(benefit, from, prepositional_complement).
+verb_particle(escape, from).
+prose_valency_particle(escape, from, prepositional_complement).
+verb_particle(refrain, from).
+prose_valency_particle(refrain, from, prepositional_complement).
+verb_particle(abstain, from).
+prose_valency_particle(abstain, from, prepositional_complement).
+verb_particle(withdraw, from).
+prose_valency_particle(withdraw, from, prepositional_complement).
+verb_particle(distinguish, from).
+prose_valency_particle(distinguish, from, prepositional_complement).
+prose_valency_particle(separate, from, prepositional_complement).
+prose_valency_particle(protect, from, prepositional_complement).
+verb_particle(prevent, from).
+prose_valency_particle(prevent, from, prepositional_complement).
+verb_particle(exclude, from).
+prose_valency_particle(exclude, from, prepositional_complement).
+prose_valency_particle(extract, from, prepositional_complement).
+verb_particle(remove, from).
+prose_valency_particle(remove, from, prepositional_complement).
+verb_particle(interact, with).
+prose_valency_particle(interact, with, prepositional_complement).
+verb_particle(cooperate, with).
+prose_valency_particle(cooperate, with, prepositional_complement).
+verb_particle(collaborate, with).
+prose_valency_particle(collaborate, with, prepositional_complement).
+verb_particle(coincide, with).
+prose_valency_particle(coincide, with, prepositional_complement).
+verb_particle(comply, with).
+prose_valency_particle(comply, with, prepositional_complement).
+verb_particle(agree, with).
+prose_valency_particle(agree, with, prepositional_complement).
+verb_particle(disagree, with).
+prose_valency_particle(disagree, with, prepositional_complement).
+verb_particle(compete, with).
+prose_valency_particle(compete, with, prepositional_complement).
+verb_particle(correspond, with).
+prose_valency_particle(correspond, with, prepositional_complement).
+verb_particle(correlate, with).
+prose_valency_particle(correlate, with, prepositional_complement).
+verb_particle(interfere, with).
+prose_valency_particle(interfere, with, prepositional_complement).
+verb_particle(associate, with).
+prose_valency_particle(associate, with, prepositional_complement).
+prose_valency_particle(combine, with, prepositional_complement).
+verb_particle(merge, with).
+prose_valency_particle(merge, with, prepositional_complement).
+verb_particle(align, with).
+prose_valency_particle(align, with, prepositional_complement).
+verb_particle(contrast, with).
+prose_valency_particle(contrast, with, prepositional_complement).
+verb_particle(compare, with).
+prose_valency_particle(compare, with, prepositional_complement).
+verb_particle(deal, with).
+prose_valency_particle(deal, with, prepositional_complement).
+verb_particle(cope, with).
+prose_valency_particle(cope, with, prepositional_complement).
+verb_particle(begin, with).
+prose_valency_particle(begin, with, prepositional_complement).
+verb_particle(end, with).
+prose_valency_particle(end, with, prepositional_complement).
+verb_particle(equip, with).
+prose_valency_particle(equip, with, prepositional_complement).
+verb_particle(supply, with).
+prose_valency_particle(supply, with, prepositional_complement).
+verb_particle(replace, with).
+prose_valency_particle(replace, with, prepositional_complement).
+verb_particle(provide, with).
+prose_valency_particle(provide, with, prepositional_complement).
+verb_particle(charge, with).
+prose_valency_particle(charge, with, prepositional_complement).
+verb_particle(account, for).
+prose_valency_particle(account, for, prepositional_complement).
+verb_particle(allow, for).
+prose_valency_particle(allow, for, prepositional_complement).
+verb_particle(provide, for).
+prose_valency_particle(provide, for, prepositional_complement).
+verb_particle(stand, for).
+prose_valency_particle(stand, for, prepositional_complement).
+verb_particle(call, for).
+prose_valency_particle(call, for, prepositional_complement).
+verb_particle(look, for).
+prose_valency_particle(look, for, prepositional_complement).
+verb_particle(search, for).
+prose_valency_particle(search, for, prepositional_complement).
+verb_particle(wait, for).
+prose_valency_particle(wait, for, prepositional_complement).
+verb_particle(care, for).
+prose_valency_particle(care, for, prepositional_complement).
+verb_particle(compensate, for).
+prose_valency_particle(compensate, for, prepositional_complement).
+verb_particle(substitute, for).
+prose_valency_particle(substitute, for, prepositional_complement).
+verb_particle(qualify, for).
+prose_valency_particle(qualify, for, prepositional_complement).
+verb_particle(prepare, for).
+prose_valency_particle(prepare, for, prepositional_complement).
+verb_particle(compete, for).
+prose_valency_particle(compete, for, prepositional_complement).
+verb_particle(apply, for).
+prose_valency_particle(apply, for, prepositional_complement).
+verb_particle(vote, for).
+prose_valency_particle(vote, for, prepositional_complement).
+verb_particle(argue, for).
+prose_valency_particle(argue, for, prepositional_complement).
+verb_particle(advocate, for).
+prose_valency_particle(advocate, for, prepositional_complement).
+verb_particle(opt, for).
+prose_valency_particle(opt, for, prepositional_complement).
+verb_particle(aim, for).
+prose_valency_particle(aim, for, prepositional_complement).
+verb_particle(pay, for).
+prose_valency_particle(pay, for, prepositional_complement).
+verb_particle(aim, at).
+prose_valency_particle(aim, at, prepositional_complement).
+verb_particle(look, at).
+prose_valency_particle(look, at, prepositional_complement).
+verb_particle(arrive, at).
+prose_valency_particle(arrive, at, prepositional_complement).
+verb_particle(point, at).
+prose_valency_particle(point, at, prepositional_complement).
+verb_particle(hint, at).
+prose_valency_particle(hint, at, prepositional_complement).
+verb_particle(glance, at).
+prose_valency_particle(glance, at, prepositional_complement).
+verb_particle(gaze, at).
+prose_valency_particle(gaze, at, prepositional_complement).
+verb_particle(stare, at).
+prose_valency_particle(stare, at, prepositional_complement).
+verb_particle(excel, at).
+prose_valency_particle(excel, at, prepositional_complement).
+prose_valency_particle(divide, into, prepositional_complement).
+verb_particle(split, into).
+prose_valency_particle(split, into, prepositional_complement).
+prose_valency_particle(break, into, prepositional_complement).
+verb_particle(develop, into).
+prose_valency_particle(develop, into, prepositional_complement).
+verb_particle(evolve, into).
+prose_valency_particle(evolve, into, prepositional_complement).
+prose_valency_particle(transform, into, prepositional_complement).
+prose_valency_particle(convert, into, prepositional_complement).
+verb_particle(turn, into).
+prose_valency_particle(turn, into, prepositional_complement).
+verb_particle(translate, into).
+prose_valency_particle(translate, into, prepositional_complement).
+verb_particle(merge, into).
+prose_valency_particle(merge, into, prepositional_complement).
+verb_particle(inquire, into).
+prose_valency_particle(inquire, into, prepositional_complement).
+verb_particle(enquire, into).
+prose_valency_particle(enquire, into, prepositional_complement).
+verb_particle(investigate, into).
+prose_valency_particle(investigate, into, prepositional_complement).
+verb_particle(think, about).
+prose_valency_particle(think, about, prepositional_complement).
+verb_particle(talk, about).
+prose_valency_particle(talk, about, prepositional_complement).
+verb_particle(speak, about).
+prose_valency_particle(speak, about, prepositional_complement).
+verb_particle(write, about).
+prose_valency_particle(write, about, prepositional_complement).
+verb_particle(argue, about).
+prose_valency_particle(argue, about, prepositional_complement).
+verb_particle(care, about).
+prose_valency_particle(care, about, prepositional_complement).
+verb_particle(worry, about).
+prose_valency_particle(worry, about, prepositional_complement).
+verb_particle(inquire, about).
+prose_valency_particle(inquire, about, prepositional_complement).
+verb_particle(enquire, about).
+prose_valency_particle(enquire, about, prepositional_complement).
+verb_particle(speculate, about).
+prose_valency_particle(speculate, about, prepositional_complement).
+verb_particle(complain, about).
+prose_valency_particle(complain, about, prepositional_complement).
+verb_particle(learn, about).
+prose_valency_particle(learn, about, prepositional_complement).
+verb_particle(compete, against).
+prose_valency_particle(compete, against, prepositional_complement).
+verb_particle(fight, against).
+prose_valency_particle(fight, against, prepositional_complement).
+verb_particle(argue, against).
+prose_valency_particle(argue, against, prepositional_complement).
+verb_particle(vote, against).
+prose_valency_particle(vote, against, prepositional_complement).
+verb_particle(warn, against).
+prose_valency_particle(warn, against, prepositional_complement).
+verb_particle(guard, against).
+prose_valency_particle(guard, against, prepositional_complement).
+verb_particle(protect, against).
+prose_valency_particle(protect, against, prepositional_complement).
+verb_particle(discriminate, against).
+prose_valency_particle(discriminate, against, prepositional_complement).
+verb_particle(rebel, against).
+prose_valency_particle(rebel, against, prepositional_complement).
+verb_particle(protest, against).
+prose_valency_particle(protest, against, prepositional_complement).
+verb_particle(pass, through).
+prose_valency_particle(pass, through, prepositional_complement).
+verb_particle(flow, through).
+prose_valency_particle(flow, through, prepositional_complement).
+verb_particle(move, through).
+prose_valency_particle(move, through, prepositional_complement).
+verb_particle(diffuse, through).
+prose_valency_particle(diffuse, through, prepositional_complement).
+verb_particle(permeate, through).
+prose_valency_particle(permeate, through, prepositional_complement).
+verb_particle(travel, through).
+prose_valency_particle(travel, through, prepositional_complement).
+verb_particle(work, through).
+prose_valency_particle(work, through, prepositional_complement).
+verb_particle(progress, through).
+prose_valency_particle(progress, through, prepositional_complement).
+verb_particle(rule, over).
+prose_valency_particle(rule, over, prepositional_complement).
+verb_particle(preside, over).
+prose_valency_particle(preside, over, prepositional_complement).
+verb_particle(prevail, over).
+prose_valency_particle(prevail, over, prepositional_complement).
+verb_particle(argue, over).
+prose_valency_particle(argue, over, prepositional_complement).
+verb_particle(debate, over).
+prose_valency_particle(debate, over, prepositional_complement).
+verb_particle(dispute, over).
+prose_valency_particle(dispute, over, prepositional_complement).
+verb_particle(take, over).
+prose_valency_particle(take, over, prepositional_complement).
+verb_particle(fall, under).
+prose_valency_particle(fall, under, prepositional_complement).
+verb_particle(come, under).
+prose_valency_particle(come, under, prepositional_complement).
+verb_particle(operate, under).
+prose_valency_particle(operate, under, prepositional_complement).
+verb_particle(work, under).
+prose_valency_particle(work, under, prepositional_complement).
+verb_particle(suffer, under).
+prose_valency_particle(suffer, under, prepositional_complement).
+verb_particle(distinguish, between).
+prose_valency_particle(distinguish, between, prepositional_complement).
+verb_particle(differentiate, between).
+prose_valency_particle(differentiate, between, prepositional_complement).
+verb_particle(discriminate, between).
+prose_valency_particle(discriminate, between, prepositional_complement).
+verb_particle(alternate, between).
+prose_valency_particle(alternate, between, prepositional_complement).
+verb_particle(choose, between).
+prose_valency_particle(choose, between, prepositional_complement).
+verb_particle(mediate, between).
+prose_valency_particle(mediate, between, prepositional_complement).
+verb_particle(oscillate, between).
+prose_valency_particle(oscillate, between, prepositional_complement).
+prose_multiword_predicate("account for", account_for).
+prose_expression("account for", predicate_account_for).
+prose_multiword_predicate("add up to", amount_to).
+prose_expression("add up to", predicate_amount_to).
+prose_multiword_predicate("amount to", amount_to).
+prose_expression("amount to", predicate_amount_to).
+prose_multiword_predicate("arise from", arise_from).
+prose_expression("arise from", predicate_arise_from).
+prose_multiword_predicate("back up", support).
+prose_expression("back up", predicate_support).
+prose_multiword_predicate("boil down to", reduce_to).
+prose_expression("boil down to", predicate_reduce_to).
+prose_multiword_predicate("break down", decompose).
+prose_expression("break down", predicate_decompose).
+prose_multiword_predicate("break down into", decompose_into).
+prose_expression("break down into", predicate_decompose_into).
+prose_multiword_predicate("break up", separate).
+prose_expression("break up", predicate_separate).
+prose_multiword_predicate("bring about", cause).
+prose_expression("bring about", predicate_cause).
+prose_multiword_predicate("bring back", restore).
+prose_expression("bring back", predicate_restore).
+prose_multiword_predicate("bring together", combine).
+prose_expression("bring together", predicate_combine).
+prose_multiword_predicate("build on", develop_from).
+prose_expression("build on", predicate_develop_from).
+prose_multiword_predicate("build up", accumulate).
+prose_expression("build up", predicate_accumulate).
+prose_multiword_predicate("call for", require).
+prose_expression("call for", predicate_require).
+prose_multiword_predicate("carry out", perform).
+prose_expression("carry out", predicate_perform).
+prose_multiword_predicate("carry on", continue).
+prose_expression("carry on", predicate_continue).
+prose_multiword_predicate("catch up with", reach).
+prose_expression("catch up with", predicate_reach).
+prose_multiword_predicate("come about", occur).
+prose_expression("come about", predicate_occur).
+prose_multiword_predicate("come from", originate_from).
+prose_expression("come from", predicate_originate_from).
+prose_multiword_predicate("come into being", emerge).
+prose_expression("come into being", predicate_emerge).
+prose_multiword_predicate("come under", fall_under).
+prose_expression("come under", predicate_fall_under).
+prose_multiword_predicate("consist of", consist_of).
+prose_expression("consist of", predicate_consist_of).
+prose_multiword_predicate("contribute to", contribute_to).
+prose_expression("contribute to", predicate_contribute_to).
+prose_multiword_predicate("cut down on", reduce).
+prose_expression("cut down on", predicate_reduce).
+prose_multiword_predicate("date back to", date_from).
+prose_expression("date back to", predicate_date_from).
+prose_multiword_predicate("deal with", address).
+prose_expression("deal with", predicate_address).
+prose_multiword_predicate("depend on", depend_on).
+prose_expression("depend on", predicate_depend_on).
+prose_multiword_predicate("derive from", derive_from).
+prose_expression("derive from", predicate_derive_from).
+prose_multiword_predicate("differ from", differ_from).
+prose_expression("differ from", predicate_differ_from).
+prose_multiword_predicate("do away with", abolish).
+prose_expression("do away with", predicate_abolish).
+prose_multiword_predicate("draw on", use).
+prose_expression("draw on", predicate_use).
+prose_multiword_predicate("end up", eventual_result).
+prose_expression("end up", predicate_eventual_result).
+prose_multiword_predicate("fall into", enter_category).
+prose_expression("fall into", predicate_enter_category).
+prose_multiword_predicate("fall under", enter_category).
+prose_expression("fall under", predicate_enter_category).
+prose_multiword_predicate("figure out", understand).
+prose_expression("figure out", predicate_understand).
+prose_multiword_predicate("find out", discover).
+prose_expression("find out", predicate_discover).
+prose_multiword_predicate("follow from", follow_from).
+prose_expression("follow from", predicate_follow_from).
+prose_multiword_predicate("give rise to", cause).
+prose_expression("give rise to", predicate_cause).
+prose_multiword_predicate("give up", abandon).
+prose_expression("give up", predicate_abandon).
+prose_multiword_predicate("go back to", date_from).
+prose_expression("go back to", predicate_date_from).
+prose_multiword_predicate("go on", continue).
+prose_expression("go on", predicate_continue).
+prose_multiword_predicate("grow out of", develop_from).
+prose_expression("grow out of", predicate_develop_from).
+prose_multiword_predicate("hold together", maintain_cohesion).
+prose_expression("hold together", predicate_maintain_cohesion).
+prose_multiword_predicate("keep up", maintain).
+prose_expression("keep up", predicate_maintain).
+prose_multiword_predicate("lead to", lead_to).
+prose_expression("lead to", predicate_lead_to).
+prose_multiword_predicate("leave out", omit).
+prose_expression("leave out", predicate_omit).
+prose_multiword_predicate("look at", examine).
+prose_expression("look at", predicate_examine).
+prose_multiword_predicate("look for", search_for).
+prose_expression("look for", predicate_search_for).
+prose_multiword_predicate("look into", investigate).
+prose_expression("look into", predicate_investigate).
+prose_multiword_predicate("make up", constitute).
+prose_expression("make up", predicate_constitute).
+prose_multiword_predicate("make up for", compensate_for).
+prose_expression("make up for", predicate_compensate_for).
+prose_multiword_predicate("pass on", transmit).
+prose_expression("pass on", predicate_transmit).
+prose_multiword_predicate("phase out", gradually_discontinue).
+prose_expression("phase out", predicate_gradually_discontinue).
+prose_multiword_predicate("point out", indicate).
+prose_expression("point out", predicate_indicate).
+prose_multiword_predicate("point to", indicate).
+prose_expression("point to", predicate_indicate).
+prose_multiword_predicate("put forward", propose).
+prose_expression("put forward", predicate_propose).
+prose_multiword_predicate("put off", postpone).
+prose_expression("put off", predicate_postpone).
+prose_multiword_predicate("put together", assemble).
+prose_expression("put together", predicate_assemble).
+prose_multiword_predicate("refer to", refer_to).
+prose_expression("refer to", predicate_refer_to).
+prose_multiword_predicate("rely on", depend_on).
+prose_expression("rely on", predicate_depend_on).
+prose_multiword_predicate("result from", result_from).
+prose_expression("result from", predicate_result_from).
+prose_multiword_predicate("result in", result_in).
+prose_expression("result in", predicate_result_in).
+prose_multiword_predicate("rule out", exclude).
+prose_expression("rule out", predicate_exclude).
+prose_multiword_predicate("run into", encounter).
+prose_expression("run into", predicate_encounter).
+prose_multiword_predicate("set aside", reserve).
+prose_expression("set aside", predicate_reserve).
+prose_multiword_predicate("set out", state).
+prose_expression("set out", predicate_state).
+prose_multiword_predicate("set up", establish).
+prose_expression("set up", predicate_establish).
+prose_multiword_predicate("show up", appear).
+prose_expression("show up", predicate_appear).
+prose_multiword_predicate("shut down", stop_operation).
+prose_expression("shut down", predicate_stop_operation).
+prose_multiword_predicate("sort out", resolve).
+prose_expression("sort out", predicate_resolve).
+prose_multiword_predicate("stand for", represent).
+prose_expression("stand for", predicate_represent).
+prose_multiword_predicate("stem from", originate_from).
+prose_expression("stem from", predicate_originate_from).
+prose_multiword_predicate("sum up", summarize).
+prose_expression("sum up", predicate_summarize).
+prose_multiword_predicate("take after", resemble).
+prose_expression("take after", predicate_resemble).
+prose_multiword_predicate("take apart", disassemble).
+prose_expression("take apart", predicate_disassemble).
+prose_multiword_predicate("take into account", consider).
+prose_expression("take into account", predicate_consider).
+prose_multiword_predicate("take on", assume).
+prose_expression("take on", predicate_assume).
+prose_multiword_predicate("take over", assume_control).
+prose_expression("take over", predicate_assume_control).
+prose_multiword_predicate("take part in", participate_in).
+prose_expression("take part in", predicate_participate_in).
+prose_multiword_predicate("take place", occur).
+prose_expression("take place", predicate_occur).
+prose_multiword_predicate("turn down", reject).
+prose_expression("turn down", predicate_reject).
+prose_multiword_predicate("turn into", become).
+prose_expression("turn into", predicate_become).
+prose_multiword_predicate("turn out", eventual_result).
+prose_expression("turn out", predicate_eventual_result).
+prose_multiword_predicate("use up", consume).
+prose_expression("use up", predicate_consume).
+prose_multiword_predicate("wipe out", eliminate).
+prose_expression("wipe out", predicate_eliminate).
+prose_multiword_predicate("work out", solve).
+prose_expression("work out", predicate_solve).
+prose_multiword_predicate("write down", record).
+prose_expression("write down", predicate_record).
+adjective_relation("similar to").
+prose_adjective_complement(similar, to).
+prose_expression("similar to", predication_adjective_complement).
+adjective_relation("identical to").
+prose_adjective_complement(identical, to).
+prose_expression("identical to", predication_adjective_complement).
+adjective_relation("equivalent to").
+prose_adjective_complement(equivalent, to).
+prose_expression("equivalent to", predication_adjective_complement).
+adjective_relation("comparable to").
+prose_adjective_complement(comparable, to).
+prose_expression("comparable to", predication_adjective_complement).
+adjective_relation("analogous to").
+prose_adjective_complement(analogous, to).
+prose_expression("analogous to", predication_adjective_complement).
+adjective_relation("related to").
+prose_adjective_complement(related, to).
+prose_expression("related to", predication_adjective_complement).
+adjective_relation("relevant to").
+prose_adjective_complement(relevant, to).
+prose_expression("relevant to", predication_adjective_complement).
+adjective_relation("pertinent to").
+prose_adjective_complement(pertinent, to).
+prose_expression("pertinent to", predication_adjective_complement).
+adjective_relation("applicable to").
+prose_adjective_complement(applicable, to).
+prose_expression("applicable to", predication_adjective_complement).
+adjective_relation("appropriate to").
+prose_adjective_complement(appropriate, to).
+prose_expression("appropriate to", predication_adjective_complement).
+adjective_relation("suitable to").
+prose_adjective_complement(suitable, to).
+prose_expression("suitable to", predication_adjective_complement).
+adjective_relation("amenable to").
+prose_adjective_complement(amenable, to).
+prose_expression("amenable to", predication_adjective_complement).
+adjective_relation("accessible to").
+prose_adjective_complement(accessible, to).
+prose_expression("accessible to", predication_adjective_complement).
+adjective_relation("available to").
+prose_adjective_complement(available, to).
+prose_expression("available to", predication_adjective_complement).
+adjective_relation("attributable to").
+prose_adjective_complement(attributable, to).
+prose_expression("attributable to", predication_adjective_complement).
+adjective_relation("due to").
+prose_adjective_complement(due, to).
+prose_expression("due to", predication_adjective_complement).
+adjective_relation("subject to").
+prose_adjective_complement(subject, to).
+prose_expression("subject to", predication_adjective_complement).
+adjective_relation("susceptible to").
+prose_adjective_complement(susceptible, to).
+prose_expression("susceptible to", predication_adjective_complement).
+adjective_relation("vulnerable to").
+prose_adjective_complement(vulnerable, to).
+prose_expression("vulnerable to", predication_adjective_complement).
+prose_adjective_complement(sensitive, to).
+prose_expression("sensitive to", predication_adjective_complement).
+adjective_relation("resistant to").
+prose_adjective_complement(resistant, to).
+prose_expression("resistant to", predication_adjective_complement).
+adjective_relation("immune to").
+prose_adjective_complement(immune, to).
+prose_expression("immune to", predication_adjective_complement).
+adjective_relation("allergic to").
+prose_adjective_complement(allergic, to).
+prose_expression("allergic to", predication_adjective_complement).
+adjective_relation("responsive to").
+prose_adjective_complement(responsive, to).
+prose_expression("responsive to", predication_adjective_complement).
+adjective_relation("conducive to").
+prose_adjective_complement(conducive, to).
+prose_expression("conducive to", predication_adjective_complement).
+adjective_relation("detrimental to").
+prose_adjective_complement(detrimental, to).
+prose_expression("detrimental to", predication_adjective_complement).
+adjective_relation("beneficial to").
+prose_adjective_complement(beneficial, to).
+prose_expression("beneficial to", predication_adjective_complement).
+adjective_relation("harmful to").
+prose_adjective_complement(harmful, to).
+prose_expression("harmful to", predication_adjective_complement).
+adjective_relation("fatal to").
+prose_adjective_complement(fatal, to).
+prose_expression("fatal to", predication_adjective_complement).
+adjective_relation("toxic to").
+prose_adjective_complement(toxic, to).
+prose_expression("toxic to", predication_adjective_complement).
+prose_adjective_complement(native, to).
+prose_expression("native to", predication_adjective_complement).
+adjective_relation("endemic to").
+prose_adjective_complement(endemic, to).
+prose_expression("endemic to", predication_adjective_complement).
+adjective_relation("indigenous to").
+prose_adjective_complement(indigenous, to).
+prose_expression("indigenous to", predication_adjective_complement).
+adjective_relation("unique to").
+prose_adjective_complement(unique, to).
+prose_expression("unique to", predication_adjective_complement).
+adjective_relation("peculiar to").
+prose_adjective_complement(peculiar, to).
+prose_expression("peculiar to", predication_adjective_complement).
+adjective_relation("specific to").
+prose_adjective_complement(specific, to).
+prose_expression("specific to", predication_adjective_complement).
+adjective_relation("common to").
+prose_adjective_complement(common, to).
+prose_expression("common to", predication_adjective_complement).
+adjective_relation("familiar to").
+prose_adjective_complement(familiar, to).
+prose_expression("familiar to", predication_adjective_complement).
+adjective_relation("close to").
+prose_adjective_complement(close, to).
+prose_expression("close to", predication_adjective_complement).
+adjective_relation("adjacent to").
+prose_adjective_complement(adjacent, to).
+prose_expression("adjacent to", predication_adjective_complement).
+adjective_relation("next to").
+prose_adjective_complement(next, to).
+prose_expression("next to", predication_adjective_complement).
+adjective_relation("perpendicular to").
+prose_adjective_complement(perpendicular, to).
+prose_expression("perpendicular to", predication_adjective_complement).
+adjective_relation("parallel to").
+prose_adjective_complement(parallel, to).
+prose_expression("parallel to", predication_adjective_complement).
+adjective_relation("proportional to").
+prose_adjective_complement(proportional, to).
+prose_expression("proportional to", predication_adjective_complement).
+prose_adjective_complement(inversely_proportional, to).
+prose_expression("inversely proportional to", predication_adjective_complement).
+adjective_relation("equal to").
+prose_adjective_complement(equal, to).
+prose_expression("equal to", predication_adjective_complement).
+adjective_relation("superior to").
+prose_adjective_complement(superior, to).
+prose_expression("superior to", predication_adjective_complement).
+adjective_relation("inferior to").
+prose_adjective_complement(inferior, to).
+prose_expression("inferior to", predication_adjective_complement).
+adjective_relation("prior to").
+prose_adjective_complement(prior, to).
+prose_expression("prior to", predication_adjective_complement).
+adjective_relation("subsequent to").
+prose_adjective_complement(subsequent, to).
+prose_expression("subsequent to", predication_adjective_complement).
+adjective_relation("contrary to").
+prose_adjective_complement(contrary, to).
+prose_expression("contrary to", predication_adjective_complement).
+adjective_relation("opposed to").
+prose_adjective_complement(opposed, to).
+prose_expression("opposed to", predication_adjective_complement).
+adjective_relation("loyal to").
+prose_adjective_complement(loyal, to).
+prose_expression("loyal to", predication_adjective_complement).
+adjective_relation("committed to").
+prose_adjective_complement(committed, to).
+prose_expression("committed to", predication_adjective_complement).
+adjective_relation("devoted to").
+prose_adjective_complement(devoted, to).
+prose_expression("devoted to", predication_adjective_complement).
+adjective_relation("restricted to").
+prose_adjective_complement(restricted, to).
+prose_expression("restricted to", predication_adjective_complement).
+adjective_relation("limited to").
+prose_adjective_complement(limited, to).
+prose_expression("limited to", predication_adjective_complement).
+adjective_relation("confined to").
+prose_adjective_complement(confined, to).
+prose_expression("confined to", predication_adjective_complement).
+adjective_relation("attached to").
+prose_adjective_complement(attached, to).
+prose_expression("attached to", predication_adjective_complement).
+adjective_relation("linked to").
+prose_adjective_complement(linked, to).
+prose_expression("linked to", predication_adjective_complement).
+adjective_relation("connected to").
+prose_adjective_complement(connected, to).
+prose_expression("connected to", predication_adjective_complement).
+adjective_relation("married to").
+prose_adjective_complement(married, to).
+prose_expression("married to", predication_adjective_complement).
+adjective_relation("capable of").
+prose_adjective_complement(capable, of).
+prose_expression("capable of", predication_adjective_complement).
+adjective_relation("incapable of").
+prose_adjective_complement(incapable, of).
+prose_expression("incapable of", predication_adjective_complement).
+adjective_relation("aware of").
+prose_adjective_complement(aware, of).
+prose_expression("aware of", predication_adjective_complement).
+adjective_relation("unaware of").
+prose_adjective_complement(unaware, of).
+prose_expression("unaware of", predication_adjective_complement).
+adjective_relation("conscious of").
+prose_adjective_complement(conscious, of).
+prose_expression("conscious of", predication_adjective_complement).
+adjective_relation("unconscious of").
+prose_adjective_complement(unconscious, of).
+prose_expression("unconscious of", predication_adjective_complement).
+adjective_relation("mindful of").
+prose_adjective_complement(mindful, of).
+prose_expression("mindful of", predication_adjective_complement).
+adjective_relation("independent of").
+prose_adjective_complement(independent, of).
+prose_expression("independent of", predication_adjective_complement).
+adjective_relation("characteristic of").
+prose_adjective_complement(characteristic, of).
+prose_expression("characteristic of", predication_adjective_complement).
+adjective_relation("typical of").
+prose_adjective_complement(typical, of).
+prose_expression("typical of", predication_adjective_complement).
+adjective_relation("representative of").
+prose_adjective_complement(representative, of).
+prose_expression("representative of", predication_adjective_complement).
+adjective_relation("indicative of").
+prose_adjective_complement(indicative, of).
+prose_expression("indicative of", predication_adjective_complement).
+adjective_relation("symptomatic of").
+prose_adjective_complement(symptomatic, of).
+prose_expression("symptomatic of", predication_adjective_complement).
+adjective_relation("suggestive of").
+prose_adjective_complement(suggestive, of).
+prose_expression("suggestive of", predication_adjective_complement).
+adjective_relation("descriptive of").
+prose_adjective_complement(descriptive, of).
+prose_expression("descriptive of", predication_adjective_complement).
+adjective_relation("illustrative of").
+prose_adjective_complement(illustrative, of).
+prose_expression("illustrative of", predication_adjective_complement).
+adjective_relation("reminiscent of").
+prose_adjective_complement(reminiscent, of).
+prose_expression("reminiscent of", predication_adjective_complement).
+adjective_relation("reflective of").
+prose_adjective_complement(reflective, of).
+prose_expression("reflective of", predication_adjective_complement).
+adjective_relation("predictive of").
+prose_adjective_complement(predictive, of).
+prose_expression("predictive of", predication_adjective_complement).
+adjective_relation("supportive of").
+prose_adjective_complement(supportive, of).
+prose_expression("supportive of", predication_adjective_complement).
+adjective_relation("critical of").
+prose_adjective_complement(critical, of).
+prose_expression("critical of", predication_adjective_complement).
+adjective_relation("full of").
+prose_adjective_complement(full, of).
+prose_expression("full of", predication_adjective_complement).
+adjective_relation("devoid of").
+prose_adjective_complement(devoid, of).
+prose_expression("devoid of", predication_adjective_complement).
+adjective_relation("free of").
+prose_adjective_complement(free, of).
+prose_expression("free of", predication_adjective_complement).
+adjective_relation("proud of").
+prose_adjective_complement(proud, of).
+prose_expression("proud of", predication_adjective_complement).
+adjective_relation("afraid of").
+prose_adjective_complement(afraid, of).
+prose_expression("afraid of", predication_adjective_complement).
+adjective_relation("certain of").
+prose_adjective_complement(certain, of).
+prose_expression("certain of", predication_adjective_complement).
+adjective_relation("uncertain of").
+prose_adjective_complement(uncertain, of).
+prose_expression("uncertain of", predication_adjective_complement).
+adjective_relation("sure of").
+prose_adjective_complement(sure, of).
+prose_expression("sure of", predication_adjective_complement).
+adjective_relation("unsure of").
+prose_adjective_complement(unsure, of).
+prose_expression("unsure of", predication_adjective_complement).
+adjective_relation("guilty of").
+prose_adjective_complement(guilty, of).
+prose_expression("guilty of", predication_adjective_complement).
+adjective_relation("innocent of").
+prose_adjective_complement(innocent, of).
+prose_expression("innocent of", predication_adjective_complement).
+adjective_relation("worthy of").
+prose_adjective_complement(worthy, of).
+prose_expression("worthy of", predication_adjective_complement).
+adjective_relation("inclusive of").
+prose_adjective_complement(inclusive, of).
+prose_expression("inclusive of", predication_adjective_complement).
+adjective_relation("exclusive of").
+prose_adjective_complement(exclusive, of).
+prose_expression("exclusive of", predication_adjective_complement).
+adjective_relation("composed of").
+prose_adjective_complement(composed, of).
+prose_expression("composed of", predication_adjective_complement).
+prose_adjective_complement(rich, in).
+prose_expression("rich in", predication_adjective_complement).
+adjective_relation("poor in").
+prose_adjective_complement(poor, in).
+prose_expression("poor in", predication_adjective_complement).
+adjective_relation("abundant in").
+prose_adjective_complement(abundant, in).
+prose_expression("abundant in", predication_adjective_complement).
+adjective_relation("deficient in").
+prose_adjective_complement(deficient, in).
+prose_expression("deficient in", predication_adjective_complement).
+adjective_relation("involved in").
+prose_adjective_complement(involved, in).
+prose_expression("involved in", predication_adjective_complement).
+adjective_relation("interested in").
+prose_adjective_complement(interested, in).
+prose_expression("interested in", predication_adjective_complement).
+adjective_relation("engaged in").
+prose_adjective_complement(engaged, in).
+prose_expression("engaged in", predication_adjective_complement).
+adjective_relation("active in").
+prose_adjective_complement(active, in).
+prose_expression("active in", predication_adjective_complement).
+adjective_relation("successful in").
+prose_adjective_complement(successful, in).
+prose_expression("successful in", predication_adjective_complement).
+adjective_relation("proficient in").
+prose_adjective_complement(proficient, in).
+prose_expression("proficient in", predication_adjective_complement).
+adjective_relation("skilled in").
+prose_adjective_complement(skilled, in).
+prose_expression("skilled in", predication_adjective_complement).
+adjective_relation("experienced in").
+prose_adjective_complement(experienced, in).
+prose_expression("experienced in", predication_adjective_complement).
+adjective_relation("fluent in").
+prose_adjective_complement(fluent, in).
+prose_expression("fluent in", predication_adjective_complement).
+adjective_relation("instrumental in").
+prose_adjective_complement(instrumental, in).
+prose_expression("instrumental in", predication_adjective_complement).
+adjective_relation("inherent in").
+prose_adjective_complement(inherent, in).
+prose_expression("inherent in", predication_adjective_complement).
+adjective_relation("implicit in").
+prose_adjective_complement(implicit, in).
+prose_expression("implicit in", predication_adjective_complement).
+adjective_relation("explicit in").
+prose_adjective_complement(explicit, in).
+prose_expression("explicit in", predication_adjective_complement).
+adjective_relation("prevalent in").
+prose_adjective_complement(prevalent, in).
+prose_expression("prevalent in", predication_adjective_complement).
+adjective_relation("widespread in").
+prose_adjective_complement(widespread, in).
+prose_expression("widespread in", predication_adjective_complement).
+adjective_relation("situated in").
+prose_adjective_complement(situated, in).
+prose_expression("situated in", predication_adjective_complement).
+adjective_relation("located in").
+prose_adjective_complement(located, in).
+prose_expression("located in", predication_adjective_complement).
+adjective_relation("based in").
+prose_adjective_complement(based, in).
+prose_expression("based in", predication_adjective_complement).
+adjective_relation("immersed in").
+prose_adjective_complement(immersed, in).
+prose_expression("immersed in", predication_adjective_complement).
+adjective_relation("rooted in").
+prose_adjective_complement(rooted, in).
+prose_expression("rooted in", predication_adjective_complement).
+prose_adjective_complement(dependent, on).
+prose_expression("dependent on", predication_adjective_complement).
+adjective_relation("reliant on").
+prose_adjective_complement(reliant, on).
+prose_expression("reliant on", predication_adjective_complement).
+adjective_relation("contingent on").
+prose_adjective_complement(contingent, on).
+prose_expression("contingent on", predication_adjective_complement).
+adjective_relation("conditional on").
+prose_adjective_complement(conditional, on).
+prose_expression("conditional on", predication_adjective_complement).
+adjective_relation("based on").
+prose_adjective_complement(based, on).
+prose_expression("based on", predication_adjective_complement).
+adjective_relation("intent on").
+prose_adjective_complement(intent, on).
+prose_expression("intent on", predication_adjective_complement).
+adjective_relation("keen on").
+prose_adjective_complement(keen, on).
+prose_expression("keen on", predication_adjective_complement).
+adjective_relation("focused on").
+prose_adjective_complement(focused, on).
+prose_expression("focused on", predication_adjective_complement).
+adjective_relation("predicated on").
+prose_adjective_complement(predicated, on).
+prose_expression("predicated on", predication_adjective_complement).
+adjective_relation("consistent with").
+prose_adjective_complement(consistent, with).
+prose_expression("consistent with", predication_adjective_complement).
+adjective_relation("inconsistent with").
+prose_adjective_complement(inconsistent, with).
+prose_expression("inconsistent with", predication_adjective_complement).
+adjective_relation("compatible with").
+prose_adjective_complement(compatible, with).
+prose_expression("compatible with", predication_adjective_complement).
+adjective_relation("incompatible with").
+prose_adjective_complement(incompatible, with).
+prose_expression("incompatible with", predication_adjective_complement).
+adjective_relation("associated with").
+prose_adjective_complement(associated, with).
+prose_expression("associated with", predication_adjective_complement).
+adjective_relation("correlated with").
+prose_adjective_complement(correlated, with).
+prose_expression("correlated with", predication_adjective_complement).
+adjective_relation("connected with").
+prose_adjective_complement(connected, with).
+prose_expression("connected with", predication_adjective_complement).
+adjective_relation("concerned with").
+prose_adjective_complement(concerned, with).
+prose_expression("concerned with", predication_adjective_complement).
+adjective_relation("acquainted with").
+prose_adjective_complement(acquainted, with).
+prose_expression("acquainted with", predication_adjective_complement).
+adjective_relation("familiar with").
+prose_adjective_complement(familiar, with).
+prose_expression("familiar with", predication_adjective_complement).
+adjective_relation("satisfied with").
+prose_adjective_complement(satisfied, with).
+prose_expression("satisfied with", predication_adjective_complement).
+adjective_relation("dissatisfied with").
+prose_adjective_complement(dissatisfied, with).
+prose_expression("dissatisfied with", predication_adjective_complement).
+adjective_relation("content with").
+prose_adjective_complement(content, with).
+prose_expression("content with", predication_adjective_complement).
+adjective_relation("synonymous with").
+prose_adjective_complement(synonymous, with).
+prose_expression("synonymous with", predication_adjective_complement).
+adjective_relation("identical with").
+prose_adjective_complement(identical, with).
+prose_expression("identical with", predication_adjective_complement).
+adjective_relation("comparable with").
+prose_adjective_complement(comparable, with).
+prose_expression("comparable with", predication_adjective_complement).
+adjective_relation("interchangeable with").
+prose_adjective_complement(interchangeable, with).
+prose_expression("interchangeable with", predication_adjective_complement).
+adjective_relation("commensurate with").
+prose_adjective_complement(commensurate, with).
+prose_expression("commensurate with", predication_adjective_complement).
+adjective_relation("congruent with").
+prose_adjective_complement(congruent, with).
+prose_expression("congruent with", predication_adjective_complement).
+adjective_relation("aligned with").
+prose_adjective_complement(aligned, with).
+prose_expression("aligned with", predication_adjective_complement).
+adjective_relation("endowed with").
+prose_adjective_complement(endowed, with).
+prose_expression("endowed with", predication_adjective_complement).
+adjective_relation("equipped with").
+prose_adjective_complement(equipped, with).
+prose_expression("equipped with", predication_adjective_complement).
+adjective_relation("charged with").
+prose_adjective_complement(charged, with).
+prose_expression("charged with", predication_adjective_complement).
+adjective_relation("filled with").
+prose_adjective_complement(filled, with).
+prose_expression("filled with", predication_adjective_complement).
+adjective_relation("coated with").
+prose_adjective_complement(coated, with).
+prose_expression("coated with", predication_adjective_complement).
+adjective_relation("covered with").
+prose_adjective_complement(covered, with).
+prose_expression("covered with", predication_adjective_complement).
+adjective_relation("interspersed with").
+prose_adjective_complement(interspersed, with).
+prose_expression("interspersed with", predication_adjective_complement).
+adjective_relation("confronted with").
+prose_adjective_complement(confronted, with).
+prose_expression("confronted with", predication_adjective_complement).
+adjective_relation("different from").
+prose_adjective_complement(different, from).
+prose_expression("different from", predication_adjective_complement).
+adjective_relation("distinct from").
+prose_adjective_complement(distinct, from).
+prose_expression("distinct from", predication_adjective_complement).
+adjective_relation("separate from").
+prose_adjective_complement(separate, from).
+prose_expression("separate from", predication_adjective_complement).
+adjective_relation("absent from").
+prose_adjective_complement(absent, from).
+prose_expression("absent from", predication_adjective_complement).
+adjective_relation("free from").
+prose_adjective_complement(free, from).
+prose_expression("free from", predication_adjective_complement).
+adjective_relation("derived from").
+prose_adjective_complement(derived, from).
+prose_expression("derived from", predication_adjective_complement).
+adjective_relation("immune from").
+prose_adjective_complement(immune, from).
+prose_expression("immune from", predication_adjective_complement).
+adjective_relation("exempt from").
+prose_adjective_complement(exempt, from).
+prose_expression("exempt from", predication_adjective_complement).
+adjective_relation("remote from").
+prose_adjective_complement(remote, from).
+prose_expression("remote from", predication_adjective_complement).
+adjective_relation("distant from").
+prose_adjective_complement(distant, from).
+prose_expression("distant from", predication_adjective_complement).
+adjective_relation("independent from").
+prose_adjective_complement(independent, from).
+prose_expression("independent from", predication_adjective_complement).
+adjective_relation("safe from").
+prose_adjective_complement(safe, from).
+prose_expression("safe from", predication_adjective_complement).
+adjective_relation("inseparable from").
+prose_adjective_complement(inseparable, from).
+prose_expression("inseparable from", predication_adjective_complement).
+adjective_relation("indistinguishable from").
+prose_adjective_complement(indistinguishable, from).
+prose_expression("indistinguishable from", predication_adjective_complement).
+adjective_relation("responsible for").
+prose_adjective_complement(responsible, for).
+prose_expression("responsible for", predication_adjective_complement).
+adjective_relation("suitable for").
+prose_adjective_complement(suitable, for).
+prose_expression("suitable for", predication_adjective_complement).
+adjective_relation("appropriate for").
+prose_adjective_complement(appropriate, for).
+prose_expression("appropriate for", predication_adjective_complement).
+adjective_relation("adequate for").
+prose_adjective_complement(adequate, for).
+prose_expression("adequate for", predication_adjective_complement).
+adjective_relation("sufficient for").
+prose_adjective_complement(sufficient, for).
+prose_expression("sufficient for", predication_adjective_complement).
+adjective_relation("necessary for").
+prose_adjective_complement(necessary, for).
+prose_expression("necessary for", predication_adjective_complement).
+adjective_relation("essential for").
+prose_adjective_complement(essential, for).
+prose_expression("essential for", predication_adjective_complement).
+adjective_relation("important for").
+prose_adjective_complement(important, for).
+prose_expression("important for", predication_adjective_complement).
+adjective_relation("relevant for").
+prose_adjective_complement(relevant, for).
+prose_expression("relevant for", predication_adjective_complement).
+adjective_relation("useful for").
+prose_adjective_complement(useful, for).
+prose_expression("useful for", predication_adjective_complement).
+adjective_relation("beneficial for").
+prose_adjective_complement(beneficial, for).
+prose_expression("beneficial for", predication_adjective_complement).
+adjective_relation("harmful for").
+prose_adjective_complement(harmful, for).
+prose_expression("harmful for", predication_adjective_complement).
+adjective_relation("available for").
+prose_adjective_complement(available, for).
+prose_expression("available for", predication_adjective_complement).
+adjective_relation("eligible for").
+prose_adjective_complement(eligible, for).
+prose_expression("eligible for", predication_adjective_complement).
+adjective_relation("liable for").
+prose_adjective_complement(liable, for).
+prose_expression("liable for", predication_adjective_complement).
+adjective_relation("accountable for").
+prose_adjective_complement(accountable, for).
+prose_expression("accountable for", predication_adjective_complement).
+adjective_relation("notable for").
+prose_adjective_complement(notable, for).
+prose_expression("notable for", predication_adjective_complement).
+adjective_relation("renowned for").
+prose_adjective_complement(renowned, for).
+prose_expression("renowned for", predication_adjective_complement).
+adjective_relation("famous for").
+prose_adjective_complement(famous, for).
+prose_expression("famous for", predication_adjective_complement).
+adjective_relation("known for").
+prose_adjective_complement(known, for).
+prose_expression("known for", predication_adjective_complement).
+adjective_relation("intended for").
+prose_adjective_complement(intended, for).
+prose_expression("intended for", predication_adjective_complement).
+adjective_relation("designed for").
+prose_adjective_complement(designed, for).
+prose_expression("designed for", predication_adjective_complement).
+adjective_relation("required for").
+prose_adjective_complement(required, for).
+prose_expression("required for", predication_adjective_complement).
+adjective_relation("ready for").
+prose_adjective_complement(ready, for).
+prose_expression("ready for", predication_adjective_complement).
+adjective_relation("fit for").
+prose_adjective_complement(fit, for).
+prose_expression("fit for", predication_adjective_complement).
+adjective_relation("unfit for").
+prose_adjective_complement(unfit, for).
+prose_expression("unfit for", predication_adjective_complement).
+adjective_relation("good at").
+prose_adjective_complement(good, at).
+prose_expression("good at", predication_adjective_complement).
+adjective_relation("bad at").
+prose_adjective_complement(bad, at).
+prose_expression("bad at", predication_adjective_complement).
+adjective_relation("skilled at").
+prose_adjective_complement(skilled, at).
+prose_expression("skilled at", predication_adjective_complement).
+adjective_relation("adept at").
+prose_adjective_complement(adept, at).
+prose_expression("adept at", predication_adjective_complement).
+adjective_relation("proficient at").
+prose_adjective_complement(proficient, at).
+prose_expression("proficient at", predication_adjective_complement).
+adjective_relation("effective at").
+prose_adjective_complement(effective, at).
+prose_expression("effective at", predication_adjective_complement).
+adjective_relation("successful at").
+prose_adjective_complement(successful, at).
+prose_expression("successful at", predication_adjective_complement).
+adjective_relation("present at").
+prose_adjective_complement(present, at).
+prose_expression("present at", predication_adjective_complement).
+adjective_relation("aimed at").
+prose_adjective_complement(aimed, at).
+prose_expression("aimed at", predication_adjective_complement).
+adjective_relation("certain about").
+prose_adjective_complement(certain, about).
+prose_expression("certain about", predication_adjective_complement).
+adjective_relation("uncertain about").
+prose_adjective_complement(uncertain, about).
+prose_expression("uncertain about", predication_adjective_complement).
+adjective_relation("sure about").
+prose_adjective_complement(sure, about).
+prose_expression("sure about", predication_adjective_complement).
+adjective_relation("unsure about").
+prose_adjective_complement(unsure, about).
+prose_expression("unsure about", predication_adjective_complement).
+adjective_relation("concerned about").
+prose_adjective_complement(concerned, about).
+prose_expression("concerned about", predication_adjective_complement).
+adjective_relation("worried about").
+prose_adjective_complement(worried, about).
+prose_expression("worried about", predication_adjective_complement).
+adjective_relation("anxious about").
+prose_adjective_complement(anxious, about).
+prose_expression("anxious about", predication_adjective_complement).
+adjective_relation("sceptical about").
+prose_adjective_complement(sceptical, about).
+prose_expression("sceptical about", predication_adjective_complement).
+adjective_relation("skeptical about").
+prose_adjective_complement(skeptical, about).
+prose_expression("skeptical about", predication_adjective_complement).
+adjective_relation("optimistic about").
+prose_adjective_complement(optimistic, about).
+prose_expression("optimistic about", predication_adjective_complement).
+adjective_relation("pessimistic about").
+prose_adjective_complement(pessimistic, about).
+prose_expression("pessimistic about", predication_adjective_complement).
+adjective_relation("explicit about").
+prose_adjective_complement(explicit, about).
+prose_expression("explicit about", predication_adjective_complement).
+adjective_relation("clear about").
+prose_adjective_complement(clear, about).
+prose_expression("clear about", predication_adjective_complement).
+adjective_relation("intermediate between").
+prose_adjective_complement(intermediate, between).
+prose_expression("intermediate between", predication_adjective_complement).
+event_subject_verb(help).
+event_subject_verb(support).
+event_subject_verb(facilitate).
+event_subject_verb(enable).
+event_subject_verb(prevent).
+event_subject_verb(inhibit).
+event_subject_verb(hinder).
+event_subject_verb(impede).
+event_subject_verb(obstruct).
+event_subject_verb(suppress).
+event_subject_verb(stimulate).
+event_subject_verb(trigger).
+event_subject_verb(cause).
+event_subject_verb(induce).
+event_subject_verb(affect).
+event_subject_verb(influence).
+event_subject_verb(determine).
+event_subject_verb(regulate).
+event_subject_verb(promote).
+event_subject_verb(encourage).
+event_subject_verb(discourage).
+event_subject_verb(enhance).
+event_subject_verb(reduce).
+event_subject_verb(increase).
+event_subject_verb(improve).
+event_subject_verb(worsen).
+event_subject_verb(damage).
+event_subject_verb(threaten).
+event_subject_verb(endanger).
+event_subject_verb(disrupt).
+event_subject_verb(sustain).
+event_subject_verb(maintain).
+event_subject_verb(preserve).
+event_subject_verb(protect).
+collective_relation(combine).
+collective_relation(merge).
+collective_relation(mix).
+collective_relation(blend).
+collective_relation(assemble).
+collective_relation(gather).
+collective_relation(collect).
+collective_relation(unite).
+collective_relation(join).
+collective_relation(compare).
+collective_relation(contrast).
+collective_relation(distinguish).
+collective_relation(differentiate).
+collective_relation(separate).
+collective_relation(divide).
+collective_relation(split).
+collective_relation(exchange).
+collective_relation(trade).
+collective_relation(alternate).
+collective_relation(intersect).
+collective_relation(overlap).
