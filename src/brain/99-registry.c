@@ -2311,6 +2311,20 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
      * e dice come si parla con parrot0 oggi: un'affermazione o una domanda per
      * turno. E' il declino informato del piano universal-comprehension §4(d),
      * e la lettura delle clausole — il prossimo circuito — lo restringera'. */
+    /* Specie A, 19 settembre 2026 — PRIMA DEL «NON SO», IL TURNO E' STATO LETTO?
+     * La IR puo' aver impegnato l'asserzione del turno anche quando nessun
+     * lettore di stringa l'ha letta («The forest is threatened by beetles»): il
+     * muro diceva «I don't know about forest». Che cosa dire lo compone la KB
+     * (`turn_read_ack/2`, input-structure.p0); qui si chiede soltanto. */
+    if (b && b->kb) {
+        char ack[1][KB_TERM_LEN];
+        const char *aq[2] = { "current_turn", NULL };
+        if (kb_match(b->kb, "turn_read_ack", aq, 2, ack, 1) == 1) {
+            char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", ack[0]);
+            put(kb_dequote(ab), out, out_size);
+            return;
+        }
+    }
     {
         const char *cq[2] = { "current_turn", "compound_inquiry" };
         if (b && b->kb && kb_query(b->kb, "turn_illocution", cq, 2)) {

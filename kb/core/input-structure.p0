@@ -677,10 +677,12 @@ input_assertion_bundle($Scope, cons($Part, nil)) :-
     input_scope_language($Scope, $Language),
     input_participial_assertion($Scope, $Language, $Part).
 input_recorded_bundle($Scope, cons(proposition($Operator, $Roles), cons($Part, nil))) :-
+    naf(turn_illocution($Scope, question)),
     input_frame_record($Scope, frame(assertion, $Operator), $Roles),
     input_scope_language($Scope, $Language),
     input_participial_assertion($Scope, $Language, $Part).
 input_recorded_bundle($Scope, cons($Part, nil)) :-
+    naf(turn_illocution($Scope, question)),
     naf(input_frame_record_assertion($Scope)),
     input_scope_language($Scope, $Language),
     input_participial_assertion($Scope, $Language, $Part).
@@ -693,7 +695,11 @@ input_frame_record_assertion($Scope) :- input_frame_record($Scope, frame(asserti
 % commit: ricalcolarli costava 6 s su un paragrafo (19 settembre 2026).
 machinery(input_recorded_bundle).
 input_recorded_bundle($Scope, cons(proposition($Operator, $Roles), nil)) :-
+    naf(turn_illocution($Scope, question)),
     input_frame_record($Scope, frame(assertion, $Operator), $Roles).
+% (Un turno con forza di DOMANDA non impegna asserzioni: «in what water do coral
+% reefs grow best?», letta senza il gap dopo la preposizione, scriveva
+% grow(coral_reefs, best) — 19 settembre 2026.)
 
 input_assertion_bundle($Scope, cons($Assertion, nil)) :-
     input_assertion_unique($Scope, $Assertion).
@@ -782,6 +788,17 @@ input_frame_reading($Scope, membership($Relation), class, $Class) :-
 % parola, per la porta KB `turn_response/2`, soltanto quando la lettura e'
 % UNICA; il valore si dice con le sue parole.
 machinery(ir_reading_answer).
+% E la RESA DEL TURNO LETTO: quando l'osservazione ha registrato l'asserzione
+% di questo turno e il legame e' stato impegnato, il muro non dice «non so»
+% (99-registry.c chiede `turn_read_ack/2` prima del declino).
+machinery(turn_read_ack).
+turn_read_ack($Turn, $Text) :-
+    naf(turn_illocution($Turn, question)),
+    input_frame_record($Turn, frame(assertion, binary($R)), roles(subject($S), object($O))),
+    semantic_binding(binary($R), $S, object($O)),
+    atom_words($S, $SW), words_join($SW, $SN), atom_words($O, $OW), words_join($OW, $ON),
+    concat_atoms("Learned: ", $SN, $A), concat_atoms($A, " ", $B), concat_atoms($B, $R, $C),
+    concat_atoms($C, " ", $D), concat_atoms($D, $ON, $E), concat_atoms($E, ".", $Text).
 % E LA LETTURA TACE dove la domanda chiede piu' di quanto il frame legge
 % (19 settembre 2026, r300): «what PHYLUM does coral belong to?» riceveva la
 % classe (il qualificatore dopo il gap e' un tipo di risposta), «what do coral
