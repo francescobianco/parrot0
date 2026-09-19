@@ -111,6 +111,14 @@ typedef struct {
      * tutti di quella specie — conoscenza dichiarata che non poteva funzionare —
      * e nessuno di loro si e' mai lamentato. */
     unsigned char used;
+    /* E0, 19 settembre 2026 — the fact's hash, computed once by fact_make().
+     * Every retract rebuilt the whole exact-fact index and re-hashed the
+     * strings of every fact (~59,000, up to four 512-byte arguments): 8.6 ms
+     * per rebuild, ~50 rebuilds per turn from the scratch retracts — the
+     * largest single cost outside the solver. A Fact built any other way has
+     * `hashed` = 0 and is hashed from its strings, as before. */
+    unsigned char hashed;
+    uint64_t      hash;
 } Fact;
 
 /* A definite rule  head :- body[0], body[1], ...  (nbody >= 1). */
@@ -463,6 +471,7 @@ static int is_var(const char *s) {
     return s && (s[0] == '$' || s[0] == '_');
 }
 
+static uint64_t fact_hash_strings(const Fact *f);   /* E0: fwd */
 static int fact_make(Fact *f, const char *pred, const char *const *args,
                      size_t argc) {
     if (!term_ok(pred)) return 0;
@@ -473,6 +482,8 @@ static int fact_make(Fact *f, const char *pred, const char *const *args,
         if (!term_ok(args[i])) return 0;
         strcpy(f->args[i], args[i]);
     }
+    f->hash = fact_hash_strings(f);
+    f->hashed = 1;
     return 1;
 }
 
@@ -505,7 +516,11 @@ static int kb_view_live(const KB *kb, const char *pred);   /* gen491 */
 static int kb_view_covers(const KB *kb, const char *pred, size_t argc);
 static int kb_view_fact_visible(const KB *kb, const Fact *f);
 
+static uint64_t fact_hash_strings(const Fact *f);
 static uint64_t fact_hash(const Fact *f) {
+    return f->hashed ? f->hash : fact_hash_strings(f);
+}
+static uint64_t fact_hash_strings(const Fact *f) {
     uint64_t h = UINT64_C(1469598103934665603);
     const unsigned char *p = (const unsigned char *)f->pred;
     while (*p) { h ^= *p++; h *= UINT64_C(1099511628211); }
