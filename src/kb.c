@@ -223,6 +223,10 @@ struct KB {
     size_t cap;
     FactIndexEntry *fact_index;
     size_t fact_index_cap;
+    /* E0: a removal compacts the fact array and so moves positions; the
+     * exact-fact index is rebuilt at the next lookup, not after every
+     * retract — a run of scratch retracts pays one rebuild. */
+    int    fact_index_stale;
     Fact  *neg;
     size_t nn;
     size_t ncap;
@@ -888,6 +892,12 @@ static PredBucket rule_bucket(const KB *kb, const char *pred) {
 #define PRED_VISITS(bk, kb) ((bk).live ? (bk).n : (kb)->n)
 
 static const Fact *kb_find(const KB *kb, const Fact *needle) {
+    if (kb->fact_index_stale) {
+        KB *m = (KB *)kb;      /* the index is a cache OF the facts */
+        fact_index_rebuild_after_remove(&m->fact_index, &m->fact_index_cap,
+                                        m->facts, m->n);
+        m->fact_index_stale = 0;
+    }
     return fact_index_find(kb->fact_index, kb->fact_index_cap,
                            kb->facts, kb->n, needle);
 }
@@ -1011,8 +1021,7 @@ int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (removed) {
         if (derived) kb->n_derived--;
         kb_views_changed(kb, pred);
-        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
-                                        kb->facts, kb->n);
+        kb->fact_index_stale = 1;
         pred_stats_invalidate(kb);
     }
     return removed;
@@ -1038,13 +1047,26 @@ int kb_retract_neg(KB *kb, const char *pred, const char *const *args,
     return removed;
 }
 
+/* E0, 19 settembre 2026 — where a predicate's facts start. The census keeps
+ * each bucket's positions ascending, so its first entry is the earliest fact
+ * of `pred`: a retract by predicate need not walk (and re-copy) the prefix of
+ * ~59,000 facts before it. Stale census => 0, the historical full walk; no
+ * entry in a live census => kb->n, nothing to retract. */
+static size_t kb_pred_first_pos(const KB *kb, const char *pred) {
+    if (!kb->pred_stats || kb->pred_stats_dirty) return 0;
+    PredStat *e = pred_stat_slot((KB *)kb, pred, 0);
+    if (!e || e->nfacts == 0) return kb->n;
+    return e->idx[0] < kb->n ? e->idx[0] : 0;
+}
+
 size_t kb_retract_match(KB *kb, const char *pred,
                         const char *const *args, size_t argc) {
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
     for (size_t a = 0; a < argc; a++)
         if (args[a] && !term_ok(args[a])) return 0;
-    size_t removed = 0, w = 0;
-    for (size_t i = 0; i < kb->n; i++) {
+    size_t start = kb_pred_first_pos(kb, pred);
+    size_t removed = 0, w = start;
+    for (size_t i = start; i < kb->n; i++) {
         Fact *f = &kb->facts[i];
         int match = f->argc == argc && strcmp(f->pred, pred) == 0;
         for (size_t a = 0; a < argc && match; a++)
@@ -1059,8 +1081,7 @@ size_t kb_retract_match(KB *kb, const char *pred,
     kb->n = w;
     if (removed) {
         kb_views_changed(kb, pred);
-        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
-                                        kb->facts, kb->n);
+        kb->fact_index_stale = 1;
         pred_stats_invalidate(kb);
     }
     return removed;
@@ -1068,8 +1089,9 @@ size_t kb_retract_match(KB *kb, const char *pred,
 
 size_t kb_retract_pred(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return 0;
-    size_t removed = 0, w = 0;
-    for (size_t i = 0; i < kb->n; i++) {
+    size_t start = kb_pred_first_pos(kb, pred);
+    size_t removed = 0, w = start;
+    for (size_t i = start; i < kb->n; i++) {
         if (strcmp(kb->facts[i].pred, pred) == 0) {
             if (kb->facts[i].origin == KB_DERIVED) kb->n_derived--;
             removed++; continue;
@@ -1080,8 +1102,7 @@ size_t kb_retract_pred(KB *kb, const char *pred) {
     kb->n = w;
     if (removed) {
         kb_views_changed(kb, pred);
-        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
-                                        kb->facts, kb->n);
+        kb->fact_index_stale = 1;
         pred_stats_invalidate(kb);
     }
     return removed;
@@ -1101,8 +1122,7 @@ size_t kb_retract_origin(KB *kb, int origin_mask) {
     }
     kb->n = w;
     if (removed) {
-        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
-                                        kb->facts, kb->n);
+        kb->fact_index_stale = 1;
         pred_stats_invalidate(kb);
     }
 
@@ -1176,8 +1196,7 @@ int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
     if (fact_remove_origin(kb->facts, &kb->n, &f, kb->origin)) {
         if (kb->origin == KB_DERIVED) kb->n_derived--;
         kb_views_changed(kb, pred);
-        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
-                                        kb->facts, kb->n);
+        kb->fact_index_stale = 1;
         pred_stats_invalidate(kb);
     }
     return kb_assert_neg_only(kb, pred, args, argc);
@@ -2969,8 +2988,7 @@ static void kb_view_clear(KB *kb, const char *pred) {
     if (!removed) return;
     kb->n = w;
     kb->n_derived -= removed;
-    fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
-                                    kb->facts, kb->n);
+    kb->fact_index_stale = 1;
     pred_stats_invalidate(kb);
 }
 
