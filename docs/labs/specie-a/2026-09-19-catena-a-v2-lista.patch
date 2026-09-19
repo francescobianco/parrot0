@@ -1,0 +1,163 @@
+diff --git a/kb/core/grammar.p0 b/kb/core/grammar.p0
+index 69147520..330cc5be 100644
+--- a/kb/core/grammar.p0
++++ b/kb/core/grammar.p0
+@@ -3660,6 +3660,10 @@ semantic_class($C)  :- wiki_concept($C, $Domain, $Gloss).
+ % La superficie di un concetto e' il concetto stesso quando nessun gloss dice
+ % altrimenti: `concept_label/4` resta la via per i casi in cui differiscono.
+ linguistic_form($W, $W, en, common) :- relation_verb($W).
++% E2a, 19 settembre 2026 — e le sue forme flesse: la IR riconosceva come
++% operatore solo la forma nuda («threatens» non era un operatore). Le forme di
++% lettura sono gia' conoscenza (`verb_reading_form/2`, una vista).
++linguistic_form($Form, $Root, en, common) :- verb_reading_form($Root, $Form), dif($Root, $Form).
+ linguistic_form($W, $W, en, common) :- clause_copula($W).
+ linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
+ 
+@@ -3938,6 +3942,14 @@ measured_value_max_words(9).
+ % 210 ms su 7 enumerazioni nella frase del compost, cioe' tutto il costo di
+ % `np_closer`. Il significato non cambia.
+ np_closer($V) :- naf(turn_mentions_word(current_turn)), relation_verb($V).
++% E2a, 19 settembre 2026 — e la sua forma finita al presente (-s, -es, -ies):
++% «The zorvan beetle threatens …» correva fino a fine clausola. Participi e
++% gerundi restano fuori: dentro un sintagma sono modificatori legittimi.
++machinery(finite_present_of).
++np_closer($Form) :- verb_reading_form($Root, $Form), finite_present_of($Root, $Form).
++finite_present_of($Root, $Form) :- concat_atoms($Root, "s", $Form).
++finite_present_of($Root, $Form) :- concat_atoms($Root, "es", $Form).
++finite_present_of($Root, $Form) :- y_to_ies($Root, $Form).
+ machinery(turn_mentions_word).
+ turn_mentions_word($T) :-
+     turn_word($T, $I, $C), clause_copula($C),
+diff --git a/kb/core/input-structure.p0 b/kb/core/input-structure.p0
+index df34123c..e6ad0b1e 100644
+--- a/kb/core/input-structure.p0
++++ b/kb/core/input-structure.p0
+@@ -123,12 +123,58 @@ input_node_form($Scope, $Id, $Language, form($Surface, $Concept)) :-
+ 
+ input_entity_node($Scope, $Language, $Id, $Entity) :-
+     input_node_form($Scope, $Id, $Language, form($Surface, $Entity)),
+-    semantic_entity($Entity).
++    semantic_entity($Entity), naf(input_token_in_phrase($Scope, $Id)).
+ input_entity_node($Scope, $Language, $Id, $Entity) :-
+     input_node($Scope, $Id, node(phrase, $Kind, $Parent), $Range),
+     input_node_surface($Scope, $Id, $Quoted),
+     phrase_form($Quoted, $Entity, $Language, $Register).
+ 
++% E2a, 19 settembre 2026 — UN SINTAGMA NOMINALE NUOVO E' UN CANDIDATO RUOLO, E
++% ANCHE IL NOME NUDO. I frame legavano i ruoli solo a entita' gia' note: su prosa
++% nuova la IR non vedeva ruoli e leggeva soltanto lo schema di stringa (specie B).
++% Il sintagma candidato e' gia' delimitato dalla KB (np_opener … np_closer); il
++% suo nome si costruisce dai TOKEN dentro lo span (pubblicati in minuscolo),
++% senza l'articolo che lo apre. Un token e' candidato quando nessun sintagma lo
++% contiene (vince lo span massimo, anche su un'entita' nota) e quando non
++% appartiene a nessuna classe funzionale che la KB gia' conosce.
++machinery(np_phrase_words).
++machinery(token_in_span).
++machinery(np_words_entity).
++machinery(bare_noun_candidate).
++machinery(input_token_in_phrase).
++machinery(word_is_verb_form).
++machinery(word_is_number).
++input_entity_node($Scope, $Language, $Id, $Entity) :-
++    input_node($Scope, $Id, node(phrase, np_candidate, $Parent), $Range),
++    np_phrase_words($Scope, $Id, $Ws),
++    np_words_entity($Ws, $Entity).
++input_entity_node($Scope, $Language, $Id, $Word) :-
++    input_node_atom($Scope, $Id, $Word),
++    naf(input_token_in_phrase($Scope, $Id)),
++    bare_noun_candidate($Word).
++np_phrase_words($Scope, $Id, $Ws) :-
++    input_node($Scope, $Id, node(phrase, np_candidate, $Parent), range($PS, $PL)),
++    is($PE, add($PS, $PL)),
++    findall($W, token_in_span($Scope, $PS, $PE, $W), $Ws).
++token_in_span($Scope, $PS, $PE, $W) :-
++    input_node($Scope, $T, node(token, token, $TP), range($TS, $TL)),
++    naf(lt($TS, $PS)), lt($TS, $PE), input_node_atom($Scope, $T, $W).
++np_words_entity(cons($Opener, cons($W, $Rest)), $Entity) :-
++    np_opener($Opener), words_underscored(cons($W, $Rest), $Entity).
++input_token_in_phrase($Scope, $Id) :-
++    input_node($Scope, $Id, node(token, token, $TP), $TR),
++    input_node_range($Scope, $Id, $Start, $Len),
++    input_node($Scope, $P, node(phrase, np_candidate, $Parent), range($PS, $PL)),
++    is($PE, add($PS, $PL)), naf(lt($Start, $PS)), lt($Start, $PE).
++bare_noun_candidate($W) :-
++    naf(stopword($W)), naf(np_opener($W)),
++    naf(clause_copula($W)), naf(auxiliary($W)), naf(question_word($W)),
++    naf(word_is_verb_form($W)), naf(word_is_number($W)).
++% `naf` non lega variabili libere: le domande con un argomento incognito passano
++% da un ausiliario ground.
++word_is_verb_form($W) :- verb_reading_form($Root, $W).
++word_is_number($W) :- is($N, add($W, 0)).
++
+ % Un ruolo non si lega a un nome qualunque che cada dalla parte giusta del
+ % verbo. Si lega al nodo semantico piu' vicino. Questo elimina il prodotto
+ % cartesiano che trasformava `A R B and C` in due letture concorrenti prima
+@@ -139,17 +185,40 @@ input_entity_between($Scope, $Language, interval($Left, $Right)) :-
+     input_node_before($Scope, $Left, $Middle),
+     input_node_before($Scope, $Middle, $Right).
+ 
++% E2a, 19 settembre 2026 — LA VICINANZA SI CALCOLA SU UNA LISTA. La versione di
++% prima negava `input_entity_between/3` per ogni candidato, e ogni negazione
++% rienumerava tutte le entita' della clausola: quadratico nel numero di
++% candidati, e ogni candidato e' a sua volta una prova. Appena la IR ha
++% riconosciuto piu' candidati (sintagmi e nomi nuovi) il turno di un paragrafo
++% e' passato da 1,7 a 11 s solo qui. La lista si raccoglie una volta per
++% domanda (`input_entity_item/3` costruisce il termine nella testa: `findall`
++% raccoglie solo template variabili) e l'«in mezzo» si nega su `member`. Stessa
++% relazione: ordine per offset d'inizio, come `input_node_before/3`.
++% `input_entity_between/3` resta per chi la interroga.
++machinery(input_entity_item).
++machinery(input_clause_entities).
++machinery(entity_item_between).
++input_entity_item($Scope, $Language, ent($Start, $Id, $Entity)) :-
++    input_entity_node($Scope, $Language, $Id, $Entity),
++    input_node_range($Scope, $Id, $Start, $Len).
++input_clause_entities($Scope, $Language, $Items) :-
++    findall($Item, input_entity_item($Scope, $Language, $Item), $Items).
++entity_item_between($Items, $Low, $High) :-
++    member(ent($S, $I, $E), $Items), lt($Low, $S), lt($S, $High).
++
+ input_nearest_entity_before($Scope, $Language, $Anchor,
+                             entity($Id, $Entity)) :-
+-    input_entity_node($Scope, $Language, $Id, $Entity),
+-    input_node_before($Scope, $Id, $Anchor),
+-    naf(input_entity_between($Scope, $Language, interval($Id, $Anchor))).
++    input_node_range($Scope, $Anchor, $AStart, $ALen),
++    input_clause_entities($Scope, $Language, $Items),
++    member(ent($Start, $Id, $Entity), $Items), lt($Start, $AStart),
++    naf(entity_item_between($Items, $Start, $AStart)).
+ 
+ input_nearest_entity_after($Scope, $Language, $Anchor,
+                            entity($Id, $Entity)) :-
+-    input_entity_node($Scope, $Language, $Id, $Entity),
+-    input_node_before($Scope, $Anchor, $Id),
+-    naf(input_entity_between($Scope, $Language, interval($Anchor, $Id))).
++    input_node_range($Scope, $Anchor, $AStart, $ALen),
++    input_clause_entities($Scope, $Language, $Items),
++    member(ent($Start, $Id, $Entity), $Items), lt($AStart, $Start),
++    naf(entity_item_between($Items, $AStart, $Start)).
+ 
+ input_class_node($Scope, $Language, $Id, $Class) :-
+     input_node_form($Scope, $Id, $Language, form($Surface, $Class)),
+diff --git a/kb/core/text-structure.p0 b/kb/core/text-structure.p0
+index 8971c463..36a9a643 100644
+--- a/kb/core/text-structure.p0
++++ b/kb/core/text-structure.p0
+@@ -111,7 +111,16 @@ text_opening_np($Surface) :-
+ % da delimitare: allora si chiede all'IR l'entita' nominata dalla prima frase.
+ text_opening_entity($Entity) :-
+     text_first_clause($C), input_entity_node(last_text, $L, $Id, $Entity),
+-    input_node_parent(last_text, $Id, $C).
++    input_node_parent(last_text, $Id, $C),
++    input_node_range(last_text, $Id, $Start, $Len),
++    naf(text_entity_before($C, $Start)).
++% E2a, 19 settembre 2026: da quando la IR riconosce anche sintagmi e nomi nuovi,
++% l'entita' che apre il testo e' quella che nessun'altra della stessa frase
++% precede, non la prima soluzione trovata.
++machinery(text_entity_before).
++text_entity_before($C, $Start) :-
++    input_entity_node(last_text, $L, $Id, $E), input_node_parent(last_text, $Id, $C),
++    input_node_range(last_text, $Id, $S, $Len), lt($S, $Start).
+ % E se il testo apre con un nome che parrot0 non ha mai visto e senza
+ % determinante — «Compost is a mixture…», «Erosion is the action of…» — non
+ % c'e' ne' sintagma ne' entita': resta la parola con cui il testo comincia, che

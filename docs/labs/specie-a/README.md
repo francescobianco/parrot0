@@ -43,3 +43,32 @@ memoria del progetto: **calcolare una volta la lista delle entità della
 clausola** (con posizione) e negare `member` su quella lista, invece di
 rienumerare dentro un `naf`. Prima si applica quella riscrittura, poi la patch,
 poi si rimisura: il piolo sotto i 2 minuti è la condizione.
+
+## v2 (11:10–11:18): la vicinanza su una lista
+
+`2026-09-19-catena-a-v2-lista.patch` (si applica su `b60912e5`) contiene tutta la
+catena, più la riscrittura di `input_nearest_entity_before/after`: la lista delle
+entità si raccoglie una volta per domanda (`input_entity_item/3` costruisce
+`ent(Inizio, Id, Entità)` nella testa) e l'«in mezzo» si nega con `member`.
+Contiene anche il nome del sintagma costruito dai token e il test del nome nudo
+senza `np_closer`.
+
+| misura sul paragrafo di r320 (`/debug`) | `input_frame_observe` | turno |
+|---|---:|---:|
+| senza catena (HEAD) | 1,66 s | 10,1 s |
+| catena, vicinanza con `naf` | 34,6 s | 42,4 s |
+| catena, vicinanza su lista | 15,3 s | 23,4 s |
+| + il nome nudo senza `np_closer` | 12,8 s | 20,8 s |
+| vicinanza su lista da sola (senza catena) | 1,85 s | 10,8 s |
+
+Goal dentro l'osservazione, per una frase del compost: ~12.000 senza catena,
+~65.000 con la catena. **Circa 25.000 sono la selezione della lingua**
+(`turn_language_evidence`, `turn_language_has_better`), perché
+`input_scope_language/2` è il primo goal di ogni clausola e ripete per intero la
+scelta migliore/altra migliore/pareggio. Una vista su `turn_language_selected`
+peggiorava (le evidenze si ripubblicano spesso). Il prossimo passo è conservare
+la lingua **scelta** per lo scope quando il produttore la osserva: `observe_language`
+la calcola già con una `kb_match` e la restituisce al C, ma poi la getta. Va
+pensato con il mantra del C, perché il C ricorderebbe una decisione della KB
+senza prenderla. Solo dopo si riapplica la catena e si rimisura il piolo (sotto
+i 2 minuti).
