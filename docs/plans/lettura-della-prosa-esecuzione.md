@@ -412,6 +412,24 @@ dipendenze passa per `tr/2`, la cui regola in `gloss.p0` usa `apply`, e
 chiamata). Fuori dal solver restano ~860 ms,
 con 12 ricostruzioni d'indice.
 
+### Il ciclo di misura è di nuovo praticabile — piolo r320, 19 settembre 10:21
+
+`scripts/prose-rung.sh r320` (lettura del brano + 68 domande con «who
+answered?») gira in **87 s**, contro i 10–20 minuti in background dei giorni
+precedenti. Referto `docs/labs/prose-ladder/referti/r320-2026-09-19-1021.txt`:
+**merito 19/68**, meta 2/2, struttura 5/5, cancello non superato (105 parole
+contro più di 319 richieste). È la previsione registrata dopo il ritiro della
+guardia sul gerundio, ora misurata. Diff con `-2318`:
+- **+4**: «Gathering a mix» (×2), «providing nutrients», «plant nutrients»,
+  cioè le risposte che la guardia ritirata faceva perdere;
+- **−1**: «what aids the decomposition process?», che prima dava «shredding the
+  plant matter» (una delle tre, via il passivo dalla radice) e ora mura.
+  È il bersaglio di E2b;
+- da rivedere a mano: `knowledge` risponde «how much of the waste in landfill…»
+  con un elenco sul rame (**possibile bugia**); «what is added to the plant
+  matter» riceve la definizione di «matter».
+Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
+
 ### Stato di E1 — 19 settembre 2026 (diagnosi fatta, nessuna modifica tenuta)
 
 Testo: le prime tre frasi di r320 (compost), due sessioni separate con la
