@@ -445,6 +445,27 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- ✅ **Specie A, 13:00–13:08: la participiale e il passivo nella IR.**
+  - «Reefs form ecosystems, displacing the sponge reefs» impegna anche
+    `displace(reefs, sponge_reefs)`: la participiale ha il soggetto della principale
+    (il contrasto del piano). r340 +1 dalla lettura;
+  - il **passivo** è un ordine della IR (`frame_pattern(en, binary, assertion,
+    passive)`): «The forest is threatened by beetles» impegna
+    `threaten(beetles, forest)`, cioè la stessa relazione dell'attivo, e
+    «what threatens the forest?» e «what is the forest threatened by?» leggono lo
+    stesso legame. Un agente al gerundio è un mezzo, e lì la IR tace. È il
+    passo di E2b in specie A che sostituisce lo schema di stringa del mattino,
+    ancora presente in attesa della decisione di F.;
+  - la domanda passiva legge gap e ausiliare dalla **cue** del turno («what is» è
+    `segment_role`, non nodo IR); il participio in coda a un sintagma non entra
+    nel nome dell'entità; un participio dopo un ausiliare passivo non è il verbo
+    di un attivo (prima leggeva `threaten(forest, beetles)`).
+  Pioli invariati e veloci: r300 48/62 con cancello (51 s), r320 20/68 (69 s),
+  r340 7/65 (78 s). Risposte giuste dalla lettura: r300 2, r320 2, r340 3.
+  **Aperto:** quando la IR impegna una frase che nessuno schema di stringa legge,
+  al turno risponde un altro modulo, e la risposta non dice che la frase è stata
+  letta («Hmm, I don't know about forest yet»). La lettura A deve avere la sua
+  resa del turno, come «Learned: …».
 - **Stato a fine giro (12:50).** Risposte giuste lette dalla IR invece che dal
   frasario: r300 1, r320 2, r340 2 («Ancient times.» dopo `tokens_contiguous/3`).
   Nessuna falsa risposta della strada A nei referti. Pioli: r300 48/62 con

@@ -3634,6 +3634,10 @@ frame_gap_form(en, many,   value).
 frame_gap_form(en, what,   subject).
 frame_gap_form(en, who,    subject).
 frame_pattern(en, binary,     question,  qro).
+% E2b in specie A, 19 settembre 2026 — il PASSIVO come ordine della IR
+% (input-structure.p0), al posto dello schema di stringa.
+frame_pattern(en, binary,     assertion, passive).
+frame_pattern(en, binary,     question,  qpassive).
 frame_gap_form(it, cosa,   object).
 frame_gap_form(it, cosa,   class).
 frame_gap_form(it, quale,  class).

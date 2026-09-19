@@ -47,3 +47,12 @@
 <! sponge
 > what do reefs form?
 < Ecosystems.
+
+[test il passivo si legge come la stessa relazione dell'attivo]
+> The forest is threatened by beetles.
+> what threatens the forest?
+< Beetles.
+> what is the forest threatened by?
+< Beetles.
+> who answered?
+<! answerframe

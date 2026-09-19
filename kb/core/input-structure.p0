@@ -214,7 +214,15 @@ token_in_span($Scope, $PS, $PE, $W) :-
     input_node($Scope, $T, node(token, token, $TP), range($TS, $TL)),
     naf(lt($TS, $PS)), lt($TS, $PE), input_node_atom($Scope, $T, $W).
 np_words_entity(cons($Opener, cons($W, $Rest)), $Entity) :-
-    np_opener($Opener), words_underscored(cons($W, $Rest), $Entity).
+    np_opener($Opener), np_trim_verb_tail(cons($W, $Rest), cons($A, $B)),
+    words_underscored(cons($A, $B), $Entity).
+% Una forma di verbo di relazione in CODA al sintagma non e' parte del nome:
+% quando la cue «what is» toglie l'ausiliare dalla IR, «the forest threatened
+% by» diventava l'entita' `forest_threatened`.
+machinery(np_trim_verb_tail).
+np_trim_verb_tail(cons($W, nil), nil) :- word_is_verb_form($W).
+np_trim_verb_tail(cons($W, nil), cons($W, nil)) :- naf(word_is_verb_form($W)).
+np_trim_verb_tail(cons($W, cons($V, $R)), cons($W, $T)) :- np_trim_verb_tail(cons($V, $R), $T).
 input_token_in_phrase($Scope, $Id) :-
     input_node($Scope, $Id, node(token, token, $TP), $TR),
     input_node_range($Scope, $Id, $Start, $Len),
@@ -374,6 +382,7 @@ input_binary_assertion($Scope, $Language, relation($Relation, $RId),
     input_scope_language($Scope, $Language),
     frame_pattern($Language, binary, assertion, sro),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    naf(input_passive_participle($Scope, $RId)),
     input_nearest_entity_before($Scope, $Language, $RId,
                                 entity($SId, $Subject)),
     input_nearest_entity_after($Scope, $Language, $RId,
@@ -411,6 +420,7 @@ input_semantic_frame($Scope, question, binary($Relation),
     frame_pattern($Language, binary, question, qsr),
     input_gap_node($Scope, $Language, object, $QId),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    naf(input_passive_participle($Scope, $RId)),
     input_nearest_entity_before($Scope, $Language, $RId,
                                 entity($SId, $Subject)),
     input_node_order3($Scope, $QId, $SId, $RId).
@@ -497,6 +507,66 @@ input_semantic_frame($Scope, question, binary($Relation),
 % (Il gap e' il soggetto solo se fra lui e il verbo non c'e' un soggetto detto:
 % «what do CORAL POLYPS form colonies of?» non chiede chi forma le colonie —
 % letta cosi' rispondeva «reefs.», r300.)
+
+% E2b in specie A — IL PASSIVO LETTO DALLA IR. «The heat is supplied by burning
+% wood»: paziente, ausiliare, participio di un verbo di relazione, «by», agente.
+% Si impegna la STESSA relazione dell'attivo, V(agente, paziente), cosi' «what
+% supplies the heat?» e «what is the heat supplied by?» leggono un legame solo.
+% L'agente e' un'entita': un «by» seguito da un gerundio nomina un MEZZO (il
+% ritiro del 18 settembre), e li' la lettura tace. Participio = una forma di
+% lettura del verbo che non e' la finita al presente (vista, indicizzata per forma).
+machinery(participle_root).
+% Un participio dopo un ausiliare passivo non e' il verbo di un attivo: «the
+% forest is threatened by beetles» letto come sro diceva threaten(forest, beetles).
+machinery(input_passive_participle).
+input_passive_participle($Scope, $Id) :-
+    input_node_next($Scope, $A, $Id), input_node_atom($Scope, $A, $Aux), passive_auxiliary($Aux).
+participle_root($P, $Root) :-
+    verb_reading_form($Root, $P), dif($Root, $P), naf(finite_present_of($Root, $P)).
+input_passive_core($Scope, $Language, core($AId, $PId, $BId, $Root)) :-
+    input_node_atom($Scope, $AId, $Aux), passive_auxiliary($Aux),
+    input_node_next($Scope, $AId, $PId), input_node_atom($Scope, $PId, $P),
+    participle_root($P, $Root),
+    input_node_next($Scope, $PId, $BId), input_node_atom($Scope, $BId, $By),
+    passive_agent_marker($By).
+input_semantic_frame($Scope, assertion, binary($Root),
+                     roles(subject($Agent), object($Patient))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, assertion, passive),
+    input_passive_core($Scope, $Language, core($AId, $PId, $BId, $Root)),
+    input_nearest_entity_before($Scope, $Language, $AId, entity($XId, $Patient)),
+    input_nearest_entity_after($Scope, $Language, $BId, entity($YId, $Agent)).
+% «what is the heat supplied by?»: gap, ausiliare, paziente, participio, «by»
+% in fondo — chiede l'agente.
+input_semantic_frame($Scope, question, binary($Root),
+                     roles(subject(missing), object($Patient))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, question, qpassive),
+    input_gap_node($Scope, $Language, object, $QId),
+    input_node_next($Scope, $QId, $AId), input_node_atom($Scope, $AId, $Aux),
+    passive_auxiliary($Aux),
+    input_nearest_entity_after($Scope, $Language, $AId, entity($XId, $Patient)),
+    input_node_atom($Scope, $PId, $P), participle_root($P, $Root),
+    input_node_next($Scope, $PId, $BId), input_node_atom($Scope, $BId, $By),
+    passive_agent_marker($By), naf(entity_after_node($Scope, $Language, $BId)).
+% «by» chiude la domanda: dopo non c'e' nessuna entita' (l'agente e' il gap).
+machinery(entity_after_node).
+entity_after_node($Scope, $Language, $Id) :-
+    input_nearest_entity_after($Scope, $Language, $Id, entity($E, $X)).
+
+% E quando «what is» e' la CUE dello span (segment_role), gap e ausiliare non
+% sono nodi della IR: si leggono dalla cue del turno, per classe.
+input_semantic_frame($Scope, question, binary($Root),
+                     roles(subject(missing), object($Patient))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, question, qpassive),
+    turn_span_cue($Scope, $I, $Q), span_atom($Q, $CA),
+    atom_words($CA, cons($G, cons($A, nil))),
+    frame_gap_form($Language, $G, object), passive_auxiliary($A),
+    input_node_atom($Scope, $PId, $P), participle_root($P, $Root),
+    input_node_next($Scope, $PId, $BId), input_node_atom($Scope, $BId, $By),
+    passive_agent_marker($By), naf(entity_after_node($Scope, $Language, $BId)),
+    input_nearest_entity_before($Scope, $Language, $PId, entity($XId, $Patient)).
 
 input_frame_gap($Scope, binary($Relation), object) :-
     input_semantic_frame($Scope, question, binary($Relation),
