@@ -497,6 +497,13 @@ emotion_signal(masked_distress, "sighing").
 emotion_signal(masked_distress, "avoiding eye contact").
 emotion_inference(masked_distress, "They might be upset, tired, anxious, or trying not to discuss what is wrong.").
 topic_noise(process_topic, recipe).
+% 19 settembre 2026 — «materials» e' generica quanto «recipe»: da sola non
+% identifica una procedura. «how much of the waste in landfills do compostable
+% materials make up?» (piolo r320) riceveva i cinque passi per costruire un
+% generatore con materiali di recupero, scelti per quella sola parola. La
+% procedura resta raggiungibile dai suoi topic propri (electric, generator,
+% scavenged).
+topic_noise(process_topic, materials).
 qa_cue(q_vangogh_palette, "paintings").
 qa_cue(q_vangogh_palette, "vincent").
 qa_cue(q_vangogh_palette, "van").
