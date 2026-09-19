@@ -119,6 +119,11 @@ typedef struct {
      * `hashed` = 0 and is hashed from its strings, as before. */
     unsigned char hashed;
     uint64_t      hash;
+    /* E0 — the same for the census: whether any argument carries a variable,
+     * and the hash of the predicate name. The census is rebuilt after every
+     * retract and recomputed both for every fact (20% of a profiled turn). */
+    unsigned char nonground;
+    uint64_t      phash;
 } Fact;
 
 /* A definite rule  head :- body[0], body[1], ...  (nbody >= 1). */
@@ -476,6 +481,8 @@ static int is_var(const char *s) {
 }
 
 static uint64_t fact_hash_strings(const Fact *f);   /* E0: fwd */
+static uint64_t pred_hash(const char *pred);         /* E0: fwd */
+static int term_contains_var(const char *s, int depth);   /* E0: fwd */
 static int fact_make(Fact *f, const char *pred, const char *const *args,
                      size_t argc) {
     if (!term_ok(pred)) return 0;
@@ -487,6 +494,9 @@ static int fact_make(Fact *f, const char *pred, const char *const *args,
         strcpy(f->args[i], args[i]);
     }
     f->hash = fact_hash_strings(f);
+    f->phash = pred_hash(f->pred);
+    for (size_t i = 0; i < argc && !f->nonground; i++)
+        f->nonground = (unsigned char)term_contains_var(f->args[i], 0);
     f->hashed = 1;
     return 1;
 }
@@ -614,10 +624,14 @@ static uint64_t pred_hash(const char *pred) {
 
 /* Slot for `pred`, or NULL. With `create`, an empty slot is claimed and zeroed;
  * the table is never full because pred_stats_note() grows it at 70% load. */
+static PredStat *pred_stat_slot_h(KB *kb, const char *pred, uint64_t h, int create);
 static PredStat *pred_stat_slot(KB *kb, const char *pred, int create) {
+    return pred_stat_slot_h(kb, pred, pred_hash(pred), create);
+}
+static PredStat *pred_stat_slot_h(KB *kb, const char *pred, uint64_t h, int create) {
     if (!kb->pred_stats || !kb->pred_stats_cap) return NULL;
     size_t mask = kb->pred_stats_cap - 1;
-    size_t pos = (size_t)pred_hash(pred) & mask;
+    size_t pos = (size_t)h & mask;
     for (size_t probes = 0; probes <= mask; probes++) {
         PredStat *e = &kb->pred_stats[pos];
         if (!e->pred[0]) {
@@ -663,6 +677,7 @@ static void a0_stale(PredStat *e) {
 }
 
 static int fact_is_nonground(const Fact *f) {
+    if (f->hashed) return f->nonground;
     for (size_t a = 0; a < f->argc; a++)
         if (term_contains_var(f->args[a], 0)) return 1;
     return 0;
@@ -686,7 +701,11 @@ static void pred_stats_drop(KB *kb) {
  * Facts and rule heads share this one structural index: both are candidates for
  * exactly one goal predicate, and keeping separate hash tables would duplicate
  * the same key space. */
+static PredStat *pred_stats_claim_h(KB *kb, const char *pred, uint64_t h);
 static PredStat *pred_stats_claim(KB *kb, const char *pred) {
+    return pred_stats_claim_h(kb, pred, pred_hash(pred));
+}
+static PredStat *pred_stats_claim_h(KB *kb, const char *pred, uint64_t h) {
     if (kb->pred_stats_dirty) return NULL;        /* a rebuild will recount */
     size_t needed = kb->pred_stats_n + 1;
     if (!kb->pred_stats || needed * 10 >= kb->pred_stats_cap * 7) {
@@ -710,7 +729,7 @@ static PredStat *pred_stats_claim(KB *kb, const char *pred) {
         }
         free(old);
     }
-    PredStat *e = pred_stat_slot(kb, pred, 1);
+    PredStat *e = pred_stat_slot_h(kb, pred, h, 1);
     if (!e) pred_stats_drop(kb);
     return e;
 }
@@ -721,7 +740,8 @@ static PredStat *pred_stats_claim(KB *kb, const char *pred) {
 static void pred_stats_note(KB *kb, size_t fi) {
     if (kb->pred_stats_dirty) return;
     const Fact *f = &kb->facts[fi];
-    PredStat *e = pred_stats_claim(kb, f->pred);
+    PredStat *e = pred_stats_claim_h(kb, f->pred,
+                                     f->hashed ? f->phash : pred_hash(f->pred));
     if (!e) return;
     if (e->nfacts == e->idx_cap) {
         size_t next = e->idx_cap ? e->idx_cap * 2 : 4;
