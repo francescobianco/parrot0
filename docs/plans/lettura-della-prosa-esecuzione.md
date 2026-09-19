@@ -454,6 +454,17 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
      (`grammar.p0`);
   3. **risposta**: `input_frame_reading_unique/4` non aveva consumatori. Aggiunto
      `ir_reading_answer/2` sulla porta `turn_response/2`.
+  ⚠ **Rettifica delle 11:08.** Due dei tre anelli, il candidato sintagma e le
+  forme flesse come operatore, **non** erano inerti: su r320 portavano
+  `input_frame_observe` da 1,7 a 11,1 s, perché i frame ora venivano valutati
+  davvero e l'enumerazione sotto `naf` di `input_nearest_entity_*` esplodeva.
+  Il controllo su r300 (74 s) non lo vedeva. Sono stati ritirati; resta solo
+  `ir_reading_answer/2`, che non costa niente senza un legame. La catena
+  completa, compresi il nome nudo e la chiusura alle forme finite, risponde
+  davvero dalla strada A: «what do beetles threaten?» → «forests.» via `turn_plan`.
+  È salvata con le misure in `docs/labs/specie-a/`, e prima di applicarla va
+  riscritta la vicinanza fra entità (lista calcolata una volta, `member`).
+  Il testo qui sotto descrive lo stato prima della rettifica.
   Con i tre anelli la IR osserva il frame della frase nuova
   (`input_semantic_frame` e `input_frame_record` presenti). La catena si ferma
   però al **commit**: la prosa detta nel turno non viene mai impegnata (il commit

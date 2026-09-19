@@ -3660,12 +3660,6 @@ semantic_class($C)  :- wiki_concept($C, $Domain, $Gloss).
 % La superficie di un concetto e' il concetto stesso quando nessun gloss dice
 % altrimenti: `concept_label/4` resta la via per i casi in cui differiscono.
 linguistic_form($W, $W, en, common) :- relation_verb($W).
-% E2a, 19 settembre 2026 — e le sue forme flesse. La IR riconosceva come
-% operatore solo la forma nuda del verbo: «The kelvor fleet orbits the vandra
-% moon» non aveva operatore, e la frase la leggeva soltanto lo schema di stringa.
-% Le forme di lettura sono gia' conoscenza (`verb_reading_form/2`, una vista):
-% qui diventano forme linguistiche della radice, per la IR come per ogni lingua.
-linguistic_form($Form, $Root, en, common) :- verb_reading_form($Root, $Form), dif($Root, $Form).
 linguistic_form($W, $W, en, common) :- clause_copula($W).
 linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
 

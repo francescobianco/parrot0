@@ -1,0 +1,139 @@
+diff --git a/docs/labs/prose-ladder/furti.tsv b/docs/labs/prose-ladder/furti.tsv
+index d2a29c49..3eb9b8c2 100644
+--- a/docs/labs/prose-ladder/furti.tsv
++++ b/docs/labs/prose-ladder/furti.tsv
+@@ -57,3 +57,13 @@ data	piolo	modulo	domanda	risposta
+ 2026-09-19-1039	r340	knowledge	what factors do the properties o	charred, carbonization.
+ 2026-09-19-1039	r340	answerframe	what is the temperature of carbo	Temperature measures the average energy of the ran
+ 2026-09-19-1039	r340	answerframe	what is charcoal made of carbon	The carbon cycle exchanges carbon among air, ocean
++2026-09-19-1059	r320	answerframe	what properties of soil does com	soil fertility.
++2026-09-19-1059	r320	answerframe	what is the resulting mixture ri	plant nutrients.
++2026-09-19-1059	r320	answerframe	where does compost improve soil	Soil fertility.
++2026-09-19-1059	r320	answerframe	what is added to the plant matte	Matter is physical substance made of particles, wi
++2026-09-19-1059	r320	turn_plan	what is this text about?	The text is about mixture.
++2026-09-19-1059	r320	turn_plan	what is the topic?	The text is about mixture.
++2026-09-19-1101	r320	answerframe	what properties of soil does com	soil fertility.
++2026-09-19-1101	r320	answerframe	what is the resulting mixture ri	plant nutrients.
++2026-09-19-1101	r320	answerframe	where does compost improve soil	Soil fertility.
++2026-09-19-1101	r320	answerframe	what is added to the plant matte	Matter is physical substance made of particles, wi
+diff --git a/kb/core/grammar.p0 b/kb/core/grammar.p0
+index 9773d4c4..53d1f475 100644
+--- a/kb/core/grammar.p0
++++ b/kb/core/grammar.p0
+@@ -3944,6 +3944,18 @@ measured_value_max_words(9).
+ % 210 ms su 7 enumerazioni nella frase del compost, cioe' tutto il costo di
+ % `np_closer`. Il significato non cambia.
+ np_closer($V) :- naf(turn_mentions_word(current_turn)), relation_verb($V).
++% E2a, 19 settembre 2026 — E LA SUA FORMA FINITA AL PRESENTE. «The zorvan beetle
++% threatens the kelda forest»: «threatens» non chiudeva il sintagma, che correva
++% fino a fine clausola, e la IR leggeva il soggetto
++% `zorvan_beetle_threatens_kelda_forest`. Solo le forme finite (-s, -es, -ies):
++% participi e gerundi restano fuori, perche' dentro un sintagma sono modificatori
++% legittimi («the preferred method», «the resulting mixture» — la guardia sul
++% gerundio ritirata il 18 settembre).
++machinery(finite_present_of).
++np_closer($Form) :- verb_reading_form($Root, $Form), finite_present_of($Root, $Form).
++finite_present_of($Root, $Form) :- concat_atoms($Root, "s", $Form).
++finite_present_of($Root, $Form) :- concat_atoms($Root, "es", $Form).
++finite_present_of($Root, $Form) :- y_to_ies($Root, $Form).
+ machinery(turn_mentions_word).
+ turn_mentions_word($T) :-
+     turn_word($T, $I, $C), clause_copula($C),
+diff --git a/kb/core/input-structure.p0 b/kb/core/input-structure.p0
+index b11ec805..11f66cf0 100644
+--- a/kb/core/input-structure.p0
++++ b/kb/core/input-structure.p0
+@@ -121,9 +121,11 @@ input_node_form($Scope, $Id, $Language, form($Surface, $Concept)) :-
+ % forme, senza un recognizer C. Le locuzioni e l'induzione degli ordini restano
+ % il lavoro M5/gen439.
+ 
++% (E2a: vince lo span massimo anche per un'entita' nota — «beetle» dentro «the
++% zorvan beetle» non e' il soggetto; lo e' il sintagma.)
+ input_entity_node($Scope, $Language, $Id, $Entity) :-
+     input_node_form($Scope, $Id, $Language, form($Surface, $Entity)),
+-    semantic_entity($Entity).
++    semantic_entity($Entity), naf(input_token_in_phrase($Scope, $Id)).
+ input_entity_node($Scope, $Language, $Id, $Entity) :-
+     input_node($Scope, $Id, node(phrase, $Kind, $Parent), $Range),
+     input_node_surface($Scope, $Id, $Quoted),
+@@ -135,14 +137,52 @@ input_entity_node($Scope, $Language, $Id, $Entity) :-
+ % lo schema di stringa (`extract_frame`, specie B). Il sintagma candidato e' gia'
+ % delimitato dalla KB (np_opener … np_closer); qui diventa un'entita' con il nome
+ % delle sue parole piene, senza l'articolo che lo apre.
+-machinery(np_candidate_entity).
++% Il nome si costruisce dai TOKEN dentro lo span (il produttore li pubblica in
++% minuscolo), non dalla superficie grezza: «The zorvan beetle» a inizio frase e
++% «the Kelda Forest» a meta' frase danno lo stesso atomo che la domanda scrive.
++machinery(np_phrase_words).
++machinery(token_in_span).
++machinery(np_words_entity).
+ input_entity_node($Scope, $Language, $Id, $Entity) :-
+     input_node($Scope, $Id, node(phrase, np_candidate, $Parent), $Range),
+-    input_node_surface($Scope, $Id, $Quoted),
+-    np_candidate_entity($Quoted, $Entity).
+-np_candidate_entity($Quoted, $Entity) :-
+-    span_atom($Quoted, $Atom), atom_words($Atom, cons($Opener, cons($W, $Rest))),
++    np_phrase_words($Scope, $Id, $Ws),
++    np_words_entity($Ws, $Entity).
++np_phrase_words($Scope, $Id, $Ws) :-
++    input_node($Scope, $Id, node(phrase, np_candidate, $Parent), range($PS, $PL)),
++    is($PE, add($PS, $PL)),
++    findall($W, token_in_span($Scope, $PS, $PE, $W), $Ws).
++token_in_span($Scope, $PS, $PE, $W) :-
++    input_node($Scope, $T, node(token, token, $TP), range($TS, $TL)),
++    naf(lt($TS, $PS)), lt($TS, $PE), input_node_atom($Scope, $T, $W).
++np_words_entity(cons($Opener, cons($W, $Rest)), $Entity) :-
+     np_opener($Opener), words_underscored(cons($W, $Rest), $Entity).
++% E2a, 19 settembre 2026 — E IL NOME NUDO. «Mercury is a metal» non aveva
++% soggetto per la IR: niente articolo, quindi niente `np_candidate`, e
++% «mercury» non e' `semantic_entity`. Un token e' candidato ruolo quando nessun
++% sintagma candidato lo contiene (vince lo span massimo: «kelda forest» non
++% compete con «forest») e quando non appartiene a nessuna classe funzionale che
++% la KB gia' conosce. Nessun elenco nuovo: le classi sono quelle del lettore.
++machinery(bare_noun_candidate).
++machinery(input_token_in_phrase).
++input_entity_node($Scope, $Language, $Id, $Word) :-
++    input_node_atom($Scope, $Id, $Word),
++    naf(input_token_in_phrase($Scope, $Id)),
++    bare_noun_candidate($Word).
++input_token_in_phrase($Scope, $Id) :-
++    input_node($Scope, $Id, node(token, token, $TP), $TR),
++    input_node_range($Scope, $Id, $Start, $Len),
++    input_node($Scope, $P, node(phrase, np_candidate, $Parent), range($PS, $PL)),
++    is($PE, add($PS, $PL)), naf(lt($Start, $PS)), lt($Start, $PE).
++bare_noun_candidate($W) :-
++    naf(stopword($W)), naf(np_opener($W)), naf(np_closer($W)),
++    naf(clause_copula($W)), naf(auxiliary($W)), naf(question_word($W)),
++    naf(word_is_verb_form($W)), naf(word_is_number($W)).
++% `naf` non lega variabili libere: le due domande con un argomento incognito
++% si chiedono attraverso un ausiliario ground.
++machinery(word_is_verb_form).
++machinery(word_is_number).
++word_is_verb_form($W) :- verb_reading_form($Root, $W).
++word_is_number($W) :- is($N, add($W, 0)).
+ 
+ % Un ruolo non si lega a un nome qualunque che cada dalla parte giusta del
+ % verbo. Si lega al nodo semantico piu' vicino. Questo elimina il prodotto
+diff --git a/kb/core/text-structure.p0 b/kb/core/text-structure.p0
+index 8971c463..ee91ed3c 100644
+--- a/kb/core/text-structure.p0
++++ b/kb/core/text-structure.p0
+@@ -111,7 +111,17 @@ text_opening_np($Surface) :-
+ % da delimitare: allora si chiede all'IR l'entita' nominata dalla prima frase.
+ text_opening_entity($Entity) :-
+     text_first_clause($C), input_entity_node(last_text, $L, $Id, $Entity),
+-    input_node_parent(last_text, $Id, $C).
++    input_node_parent(last_text, $Id, $C),
++    input_node_range(last_text, $Id, $Start, $Len),
++    naf(text_entity_before($C, $Start)).
++% E2a, 19 settembre 2026: da quando la IR riconosce anche sintagmi e nomi nuovi
++% («Compost is a mixture of ingredients…» ha tre candidati), l'entita' che apre
++% il testo e' quella che nessun'altra della stessa frase precede — non la prima
++% soluzione trovata.
++machinery(text_entity_before).
++text_entity_before($C, $Start) :-
++    input_entity_node(last_text, $L, $Id, $E), input_node_parent(last_text, $Id, $C),
++    input_node_range(last_text, $Id, $S, $Len), lt($S, $Start).
+ % E se il testo apre con un nome che parrot0 non ha mai visto e senza
+ % determinante — «Compost is a mixture…», «Erosion is the action of…» — non
+ % c'e' ne' sintagma ne' entita': resta la parola con cui il testo comincia, che
