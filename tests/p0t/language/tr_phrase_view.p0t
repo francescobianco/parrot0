@@ -1,0 +1,23 @@
+# E0, 19 settembre 2026 — LE SUPERFICI COMPOSTE DI tr/2 SONO UNA VISTA.
+#
+# `tr_phrase_surface/2` (lexicon.p0) congela le traduzioni di piu' parole che
+# `phrase_canon` offre alla canonicalizzazione. `tr/2` passa da un `apply` sulle
+# lingue di glossa; `view_apply_resolved(tr)` e `view_depends(tr, Lingua)`
+# (gloss.p0) dicono al motore dove arriva quella chiamata. Il contrasto: una
+# glossa insegnata parlando entra nella vista al turno dopo, senza ricompilare.
+#
+# Limite noto, fuori da questo test: la domanda «cos è il mar rosso?» dopo la
+# lezione non usa ancora la superficie (anche a vista spenta) — il difetto sta
+# nella canonicalizzazione, non nella vista.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test la vista delle superfici composte segue una glossa insegnata]
+!query tr_phrase_surface("mar nero", black_sea)
+!query! tr_phrase_surface("mar rosso", red_sea)
+> mar_rosso is the italian of red_sea
+< Learned: italian(mar_rosso, red_sea).
+!query tr_phrase_surface("mar rosso", red_sea)

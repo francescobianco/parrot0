@@ -75,6 +75,15 @@ gloss_language(italian).
 %     gloss_language_code(italian, it).
 % e in `kb_tr_it_en` il rifiuto quando il codice del turno non combacia.
 tr($English, $Form) :- gloss_language($Language), apply($Language, cons($Form, cons($English, nil))).
+% E0, 19 settembre 2026 — DOVE ARRIVA QUESTO `apply`. La chiamata qui sopra
+% raggiunge soltanto le tabelle delle lingue di glossa, e dirlo permette al
+% motore di congelare in una vista cio' che dipende da `tr/2` (le superfici
+% composte di `phrase_canon`), invalidandola quando cambia una di quelle
+% tabelle. Una lingua di glossa nuova e' una dipendenza nuova senza un'altra riga.
+machinery(view_apply_resolved).
+view_apply_resolved(tr).
+view_depends(tr, gloss_language).
+view_depends(tr, $Language) :- gloss_language($Language).
 
 % Le spiegazioni localizzate usano la lezione di definizione gia' esistente:
 % «learn italian definition of ohms law: "..."». Non si nomina lo schema.

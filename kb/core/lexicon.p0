@@ -637,9 +637,17 @@ phrase_canon($Surface, $Concept) :- entity_alias($Surface, $Concept).
 % Use the existing word-list projection so underscores in tr/2 are storage,
 % not a spelling the interlocutor must know. Single-word translation keeps
 % its existing language/context selection downstream.
-phrase_canon($Surface, $Concept) :-
+% E0, 19 settembre 2026: le superfici composte sono una vista. Derivate a ogni
+% canonicalizzazione enumeravano le 861 traduzioni con `atom_words` (0,8 s su
+% un paragrafo incollato); ora si ricostruiscono quando cambia una tabella di
+% glossa (`view_apply_resolved(tr)` in gloss.p0), e una traduzione insegnata
+% entra nella vista successiva.
+machinery(tr_phrase_surface).
+tr_phrase_surface($Surface, $Concept) :-
     tr($Concept, $Local), atom_words($Local, cons($A, cons($B, $Rest))),
     words_joined(cons($A, cons($B, $Rest)), $Surface).
+materialized_view(tr_phrase_surface, 2).
+phrase_canon($Surface, $Concept) :- tr_phrase_surface($Surface, $Concept).
 phrase_canon("dove si trovano", "where are").
 phrase_canon("si trova in", "is in").
 phrase_canon("si trovano in", "are in").

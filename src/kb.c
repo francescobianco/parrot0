@@ -3174,12 +3174,24 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
             !strcmp(pred, "prob")) return 0;
+        /* E0, 19 settembre 2026 — an `apply` whose reach the KB has declared.
+         * `view_apply_resolved(P)` says: the meta-call in P's rules only reaches
+         * the predicates named by `view_depends(P, …)` (which may themselves
+         * be derived, e.g. one per gloss language). The declared names then
+         * stand in for the opaque call; without the declaration nothing
+         * changes and the view stays unsupported, as before. */
+        const char *rq[1] = { pred };
+        int apply_resolved = kb_query(kb, "view_apply_resolved", rq, 1);
         PredBucket rb = rule_bucket(kb, pred);
         for (size_t j = 0; j < PRED_VISITS(rb, kb); j++) {
             const Rule *r = &kb->rules[PRED_AT(rb, j)];
             if (strcmp(r->head.pred, pred) != 0) continue;
-            for (size_t b = 0; b < r->nbody; b++)
+            for (size_t b = 0; b < r->nbody; b++) {
+                if (apply_resolved && (!strcmp(r->body[b].pred, "apply") ||
+                                       !strcmp(r->body[b].pred, "call")))
+                    continue;
                 if (!kb_view_dep_add(v, r->body[b].pred)) return 0;
+            }
         }
         const char *q[2] = { pred, NULL };
         char (*deps)[KB_TERM_LEN] = NULL; size_t nd = 0;
