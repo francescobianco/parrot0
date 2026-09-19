@@ -1,0 +1,153 @@
+% self-ability.p0 — «SAI PARLARE ITALIANO?»: una domanda su di sé, letta e
+% risposta dalla conoscenza di sé (19 settembre 2026).
+%
+% F., dal `make chat`: «sai parlare italiano» → «Non capisco ancora.». parrot0
+% parla italiano e non sapeva dirlo; «parli italiano?» rispondeva solo perche'
+% era una cue letterale (`intent_cue(language_switch, "parli italiano")`),
+% «can you speak italian?» murava, e «what languages do you speak?» rispondeva
+% «c, python.» (i linguaggi di programmazione). Il difetto non e' una frase
+% mancante: manca la CAPACITA' — leggere una domanda sulla propria abilita' e
+% rispondere da cio' che parrot0 sa di se'. Qui:
+%
+%   1. LESSICO: le glosse italiane che la canonicalizzazione non aveva
+%      («parlare», «parli», «puoi», «inglese», «lingue»), e le parole-lingua.
+%   2. LETTURA: una domanda di abilita' su di se' e' un modale di abilita'
+%      (can/could/know ← «sai»), oppure «do you», oppure una domanda che si apre
+%      col verbo («parli italiano?» → «speak italian?»): piu' un verbo del
+%      parlare e una lingua, o la domanda sull'insieme («languages»).
+%   3. CONOSCENZA DI SE': parrot0 parla una lingua di cui ha nome e marcatori
+%      (`language_name/2`, lexicon.p0) — la stessa conoscenza con cui riconosce
+%      e sceglie la lingua del turno. Una lingua nuova domani e' una riga li'.
+%   4. RISPOSTA: composta qui, nella lingua della conversazione, per la porta
+%      `turn_response/2`; niente template per domanda.
+
+:- file_attribute(machinery).
+
+% ── 1. Lessico ──────────────────────────────────────────────────────────────
+tr(speak, parlare).
+tr(speak, parli).
+tr(speak, parlo).
+tr(can, puoi).
+tr(can, riesci).
+tr(english, inglese).
+tr(french, francese).
+tr(spanish, spagnolo).
+tr(german, tedesco).
+tr(languages, lingue).
+tr(language, lingua).
+
+language_word(en, english).
+language_word(it, italian).
+language_word(fr, french).
+language_word(es, spanish).
+language_word(de, german).
+
+% Come si chiama una lingua in ciascuna lingua della risposta.
+language_label(en, en, "English").
+language_label(it, en, "Italian").
+language_label(fr, en, "French").
+language_label(es, en, "Spanish").
+language_label(de, en, "German").
+language_label(en, it, "inglese").
+language_label(it, it, "italiano").
+language_label(fr, it, "francese").
+language_label(es, it, "spagnolo").
+language_label(de, it, "tedesco").
+
+% ── 2. Lettura ──────────────────────────────────────────────────────────────
+ability_modal(can).
+ability_modal(could).
+ability_modal(know).
+speak_verb(speak).
+speak_verb(talk).
+language_set_word(languages).
+language_set_word(language).
+
+% I token del turno canonicalizzati SENZA il filtro delle stopword di
+% `turn_word/2`: «italiano» e' una stopword (marcatore di lingua), ma qui e'
+% proprio il contenuto della domanda.
+self_turn_word($T, $W) :- turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $S), canonical_value($S, $W).
+
+% Il modale vale solo se la domanda e' rivolta a parrot0: «you», oppure la
+% seconda persona italiana del modale, dove il soggetto sta nella desinenza.
+% «can they speak italian?», «Mario sa parlare italiano?» non parlano di se'.
+self_ability_marker($T) :- self_turn_word($T, $M), ability_modal($M), self_turn_word($T, you).
+self_ability_marker($T) :- turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $S), second_person_ability($S).
+second_person_ability(sai).
+second_person_ability(puoi).
+second_person_ability(riesci).
+second_person_ability(sapresti).
+second_person_ability(potresti).
+self_ability_marker($T) :- self_turn_word($T, do), self_turn_word($T, you).
+self_ability_marker($T) :- turn_has_question_mark($T), turn_word($T, 0, $W), speak_verb_surface($W).
+% «parli italiano?»: il primo token e' la forma detta; il verbo si riconosce
+% attraverso la stessa glossa della canonicalizzazione.
+speak_verb_surface($W) :- speak_verb($W).
+speak_verb_surface($W) :- tr($V, $W), speak_verb($V).
+
+self_language_query($T, $Code) :-
+    self_ability_marker($T), self_turn_word($T, $V), speak_verb($V),
+    self_turn_word($T, $L), language_word($Code, $L).
+self_language_list_query($T) :-
+    self_turn_word($T, $S), language_set_word($S),
+    self_turn_word($T, $V), speak_verb($V), naf(self_language_named($T)).
+self_language_named($T) :- self_turn_word($T, $L), language_word($Code, $L).
+
+% ── 3. Conoscenza di se' ────────────────────────────────────────────────────
+self_speaks($Code) :- language_name($Code, $Name).
+
+% ── 4. Risposta ─────────────────────────────────────────────────────────────
+self_reply_language($L) :- current_language($L).
+self_reply_language(en) :- naf(self_reply_language_known).
+self_reply_language_known :- current_language($L).
+
+spoken_label($RL, $Lab) :- self_speaks($C), language_label($C, $RL, $Lab).
+spoken_labels($RL, $Text) :-
+    findall($Lab, spoken_label($RL, $Lab), $Ls), labels_joined($RL, $Ls, $Text).
+and_word(en, " and ").
+and_word(it, " e ").
+labels_joined($RL, cons($A, nil), $A).
+labels_joined($RL, cons($A, cons($B, nil)), $T) :-
+    and_word($RL, $And), concat_atoms($A, $And, $X), concat_atoms($X, $B, $T).
+labels_joined($RL, cons($A, cons($B, cons($C, $R))), $T) :-
+    labels_joined($RL, cons($B, cons($C, $R)), $Rest),
+    concat_atoms($A, ", ", $X), concat_atoms($X, $Rest, $T).
+
+self_ability_yes(en, $Lab, $T) :- concat_atoms("Yes, I speak ", $Lab, $X), concat_atoms($X, ".", $T).
+self_ability_yes(it, $Lab, $T) :- concat_atoms("Sì, parlo ", $Lab, $X), concat_atoms($X, ".", $T).
+self_ability_no(en, $Lab, $List, $T) :-
+    concat_atoms("No, I don't speak ", $Lab, $A), concat_atoms($A, ". I speak ", $B),
+    concat_atoms($B, $List, $C), concat_atoms($C, ".", $T).
+self_ability_no(it, $Lab, $List, $T) :-
+    concat_atoms("No, non parlo ", $Lab, $A), concat_atoms($A, ". Parlo ", $B),
+    concat_atoms($B, $List, $C), concat_atoms($C, ".", $T).
+self_language_list(en, $List, $T) :- concat_atoms("I speak ", $List, $X), concat_atoms($X, ".", $T).
+self_language_list(it, $List, $T) :- concat_atoms("Parlo ", $List, $X), concat_atoms($X, ".", $T).
+
+turn_response($T, $Text) :-
+    self_language_query($T, $Code), self_speaks($Code),
+    self_reply_language($RL), language_label($Code, $RL, $Lab),
+    self_ability_yes($RL, $Lab, $Text).
+turn_response($T, $Text) :-
+    self_language_query($T, $Code), naf(self_speaks($Code)),
+    self_reply_language($RL), language_label($Code, $RL, $Lab),
+    spoken_labels($RL, $List), self_ability_no($RL, $Lab, $List, $Text).
+turn_response($T, $Text) :-
+    self_language_list_query($T), self_reply_language($RL),
+    spoken_labels($RL, $List), self_language_list($RL, $List, $Text).
+
+% La pretesa: il piano del turno parla quando la LETTURA dice che il turno
+% chiede di una propria abilita' linguistica — non per una cue.
+turn_plan_candidate($T) :- self_language_query($T, $Code).
+turn_plan_candidate($T) :- self_language_list_query($T).
+
+% «puoi parlare inglese?»: in italiano il soggetto sta nella desinenza, e la
+% forma «can X Y» (`ability_polar`, messages.p0) metteva il VERBO nello slot del
+% soggetto («Non so se parla può inglese»). Come per il deittico «you», la forma
+% cede quando il suo soggetto e' un verbo del parlare.
+speak_surface("speak", speak).
+speak_surface("talk", speak).
+speak_surface("parlare", speak).
+speak_surface("parla", speak).
+speak_surface("parli", speak).
+turn_form_yield(ability_polar, speak_surface, 1, subject).

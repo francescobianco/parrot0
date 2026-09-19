@@ -1,0 +1,38 @@
+# «SAI PARLARE ITALIANO?» — una domanda su di se', letta e risposta dalla
+# conoscenza di se' (kb/core/self-ability.p0, 19 settembre 2026).
+#
+# F. da `make chat`: «sai parlare italiano» → «Non capisco ancora.»; «what
+# languages do you speak?» → «c, python.». La risposta viene dal piano del turno
+# (`turn_response/2`), non da un frasario: la lingua parlata e' `language_name/2`.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!reset
+
+[test in italiano: si, no, l'elenco]
+> sai parlare italiano
+< Sì, parlo italiano.
+> puoi parlare inglese?
+< Sì, parlo inglese.
+> sai parlare francese?
+< No, non parlo francese. Parlo inglese e italiano.
+> che lingue parli?
+< Parlo inglese e italiano.
+> who answered?
+<~ turn_plan
+
+[test in inglese: si, no, l'elenco]
+> can you speak italian?
+< Yes, I speak Italian.
+> do you speak english?
+< Yes, I speak English.
+> can you speak french?
+< No, I don't speak French. I speak English and Italian.
+> what languages do you speak?
+< I speak English and Italian.
+
+[test chi non e' parrot0 non riceve la risposta su di se']
+> can they speak italian?
+<! I speak
+> Mario sa parlare italiano?
+<! parlo

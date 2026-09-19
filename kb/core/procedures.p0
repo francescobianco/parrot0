@@ -1256,6 +1256,7 @@ machinery(sides).
 :- include(gap-kinds.p0).
 :- include(language-forms.p0).
 :- include(language-observation.p0).
+:- include(self-ability.p0).
 :- include(input-structure.p0).
 :- include(document-structure.p0).
 :- include(document-claims.p0).
