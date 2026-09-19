@@ -652,6 +652,12 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
  * Restituisce quante superfici combaciano, dalla piu' specifica alla piu'
  * generica, nella forma CITATA con cui la KB le tiene (la chiave per rileggere
  * la relazione). Il chiamante libera `*hits`. */
+typedef struct { size_t len, idx; } AfSurfaceRank;
+static int af_surface_rank_cmp(const void *x, const void *y) {
+    const AfSurfaceRank *a = x, *b = y;
+    if (a->len != b->len) return a->len > b->len ? -1 : 1;   /* longer first */
+    return a->idx < b->idx ? -1 : (a->idx > b->idx);         /* stable */
+}
 static size_t answer_frame_surfaces(Brain *b, const char *text,
                                     char (**hits)[KB_TERM_LEN]) {
     *hits = NULL;
@@ -667,19 +673,27 @@ static size_t answer_frame_surfaces(Brain *b, const char *text,
      * specifica per prima. A parita' di lunghezza l'ordine resta quello di
      * inserimento, cosi' il contratto additivo fra righe con la stessa cue non
      * cambia. */
-    for (size_t i = 1; i < nf; i++) {
-        char selected[KB_TERM_LEN], probe[KB_TERM_LEN];
-        snprintf(selected, sizeof selected, "%s", cues[i]);
-        snprintf(probe, sizeof probe, "%s", selected);
-        size_t selected_len = strlen(kb_dequote(probe));
-        size_t j = i;
-        while (j > 0) {
-            snprintf(probe, sizeof probe, "%s", cues[j - 1]);
-            if (strlen(kb_dequote(probe)) >= selected_len) break;
-            memcpy(cues[j], cues[j - 1], sizeof cues[j]);
-            j--;
+    /* E0b, 19 settembre 2026: the same stable order (longer first, insertion
+     * order on ties) computed on lengths taken once, instead of an insertion
+     * sort that re-dequoted both rows at every comparison and moved 512-byte
+     * rows one slot at a time (4.9 ms per call, 66 calls on one paragraph). */
+    if (nf > 1) {
+        AfSurfaceRank *rk = malloc(nf * sizeof *rk);
+        char (*sorted)[KB_TERM_LEN] = malloc(nf * sizeof *sorted);
+        if (rk && sorted) {
+            for (size_t i = 0; i < nf; i++) {
+                char probe[KB_TERM_LEN];
+                snprintf(probe, sizeof probe, "%s", cues[i]);
+                rk[i].len = strlen(kb_dequote(probe));
+                rk[i].idx = i;
+            }
+            qsort(rk, nf, sizeof *rk, af_surface_rank_cmp);
+            for (size_t i = 0; i < nf; i++)
+                memcpy(sorted[i], cues[rk[i].idx], sizeof sorted[i]);
+            free(cues);
+            cues = sorted; sorted = NULL;
         }
-        if (j != i) memcpy(cues[j], selected, sizeof cues[j]);
+        free(rk); free(sorted);
     }
     size_t n = 0;
     for (size_t i = 0; i < nf; i++) {
