@@ -445,6 +445,19 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- **E2, la relativa (13:47–13:57): provata e annullata, con la causa trovata a monte.**
+  Una regola `input_relative_proposition/3` (dopo una punteggiatura, un
+  `relative_opener/1` seguito dal verbo; l'antecedente è l'entità prima del relativo;
+  gli oggetti sono quelli di `coord_object/4`) forma la proposizione. Ma su «Coral
+  belongs to the phylum Cnidaria, which includes sea anemones and jellyfish.» la IR
+  **non ha nessuna entità** per «the phylum Cnidaria»: né il sintagma, né «phylum»,
+  né «cnidaria». C'è solo «coral». L'antecedente quindi non si trova, e comunque
+  non coinciderebbe con la domanda del banco («the **animal** phylum Cnidaria» nel
+  testo, «the phylum cnidaria» nella domanda: identità del nome per testa e
+  modificatori, E4b). r300 invariato; la frase singola in chat dà un muro anche
+  senza la regola (preesistente). **Prossima prova:** `!query input_node(current_turn,
+  I, node(phrase, np_candidate, P), R)` e le superfici su quella frase, per vedere
+  dove si chiude o manca il sintagma candidato.
 - ✅ **E3 in specie A, 13:39–13:45: il complemento preposizionale come ruolo.**
   Dopo l'oggetto, una preposizione e un'entità raggiungibile si registrano accanto
   alla proposizione impegnata: `semantic_complement(binding(R, S, O), Prep, X)`.
