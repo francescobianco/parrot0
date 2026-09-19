@@ -460,6 +460,14 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   Pioli invariati e più veloci: r300 48/62 (54 s), r320 20/68 (67 s), r340 5/65
   (74 s). Una risposta del banco viene dalla lettura (r320, «what does composting
   offer?»). `ir_reading_answer.p0t`: 10 verdi.
+  **Aperto (11:55):** «Compost supplies nutrients.» non si impegna dalla IR,
+  e «what does compost supply?» risponde ancora `answerframe`. La IR vede **due**
+  asserzioni `binary(supply)` (misurato con `count_list` su
+  `input_assertion_set(current_turn, S)`), quindi nessuna è unica. Non dipende
+  dal doppio «compost» (entità nota + nome nudo: provato e annullato).
+  Prossima prova: chiedere le due chiavi con il soggetto e l'oggetto legati,
+  per vedere se differiscono nell'oggetto o nell'operatore. Sospetto: «supplies»
+  letto due volte come forma di `supply` (-s e -ies).
   **Regola ricavata:** ogni volta che la strada A risponde dove prima c'era un
   muro, il referto la mostra come «non muro, non giusta». Va guardata subito,
   perché la strada A risponde **prima** del frasario, e una sua falsa risposta
