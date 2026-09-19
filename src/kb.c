@@ -178,6 +178,7 @@ typedef struct {
     size_t   *a0p[2];      /* positions in kb->facts, ascending in a hash    */
     size_t    a0n[2];      /* entries                                        */
     int       a0_state[2]; /* 0 = not built / stale, 1 = built, -1 = unusable*/
+    unsigned char remap_mark;  /* kb_compact: bucket already remapped      */
 } PredStat;
 
 /* ── LA MAPPA DI SALVATAGGIO (save-map), IN RAM ───────────────────────────────
@@ -232,6 +233,7 @@ struct KB {
      * exact-fact index is rebuilt at the next lookup, not after every
      * retract — a run of scratch retracts pays one rebuild. */
     int    fact_index_stale;
+    size_t fact_index_tombs;   /* removed entries awaiting the next rebuild */
     Fact  *neg;
     size_t nn;
     size_t ncap;
@@ -917,6 +919,7 @@ static const Fact *kb_find(const KB *kb, const Fact *needle) {
         fact_index_rebuild_after_remove(&m->fact_index, &m->fact_index_cap,
                                         m->facts, m->n);
         m->fact_index_stale = 0;
+        m->fact_index_tombs = 0;
     }
     return fact_index_find(kb->fact_index, kb->fact_index_cap,
                            kb->facts, kb->n, needle);
@@ -1079,19 +1082,51 @@ static size_t kb_pred_first_pos(const KB *kb, const char *pred) {
     return e->idx[0] < kb->n ? e->idx[0] : 0;
 }
 
-size_t kb_retract_match(KB *kb, const char *pred,
-                        const char *const *args, size_t argc) {
-    if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
-    for (size_t a = 0; a < argc; a++)
-        if (args[a] && !term_ok(args[a])) return 0;
-    size_t start = kb_pred_first_pos(kb, pred);
+/* E0, 19 settembre 2026 — REMOVAL WITHOUT A FULL REBUILD.
+ *
+ * A retract compacts the fact array from the first removed position, so only
+ * the facts from `start` on change position. Rebuilding the exact-fact index
+ * and the census from scratch after every retract cost ~800 full rebuilds on
+ * one pasted paragraph (49 M census notes, 43 M index inserts). Here the moved
+ * and removed facts are recorded before compaction and only their entries are
+ * rewritten: index slots get the new position or a tombstone, census buckets
+ * get the remapped positions (still ascending) and lose the removed ones. Any
+ * surprise — a stale structure, a slot not found, OOM — falls back to the
+ * historical full invalidation, which is always correct. */
+typedef struct {
+    uint64_t h, ph;
+    size_t   newp;
+    unsigned char removed, ng;
+    const char *pred;     /* points into `names`, copied before compaction */
+} KbMoved;
+
+#define KB_INDEX_TOMB ((size_t)-1)
+
+static size_t kb_compact(KB *kb, size_t start,
+                         int (*match)(const Fact *, const void *), const void *ctx) {
+    size_t old_n = kb->n;
+    if (start >= old_n) return 0;
+    size_t m = old_n - start;
+    /* Only a short tail is worth recording; a long one is cheaper rebuilt. */
+    int small = m <= 4096;
+    KbMoved *mv = small ? malloc(m * sizeof *mv) : NULL;
+    char (*names)[KB_TERM_LEN] = small ? malloc(m * sizeof *names) : NULL;
+    int incremental = mv && names;
     size_t removed = 0, w = start;
-    for (size_t i = start; i < kb->n; i++) {
+    for (size_t i = start; i < old_n; i++) {
         Fact *f = &kb->facts[i];
-        int match = f->argc == argc && strcmp(f->pred, pred) == 0;
-        for (size_t a = 0; a < argc && match; a++)
-            if (args[a] && strcmp(args[a], f->args[a]) != 0) match = 0;
-        if (match) {
+        int hit = match(f, ctx);
+        if (incremental) {
+            KbMoved *x = &mv[i - start];
+            x->h = fact_hash(f);
+            x->ph = f->hashed ? f->phash : pred_hash(f->pred);
+            x->ng = (unsigned char)fact_is_nonground(f);
+            x->removed = (unsigned char)hit;
+            memcpy(names[i - start], f->pred, sizeof names[0]);
+            x->pred = names[i - start];
+            x->newp = hit ? KB_INDEX_TOMB : w;
+        }
+        if (hit) {
             if (f->origin == KB_DERIVED) kb->n_derived--;
             removed++; continue;
         }
@@ -1099,32 +1134,88 @@ size_t kb_retract_match(KB *kb, const char *pred,
         w++;
     }
     kb->n = w;
-    if (removed) {
-        kb_views_changed(kb, pred);
+    if (!removed) { free(mv); free(names); return 0; }
+
+    /* exact-fact index: rewrite only the moved and removed entries */
+    if (incremental && !kb->fact_index_stale && kb->fact_index) {
+        size_t cap = kb->fact_index_cap;
+        for (size_t k = 0; k < m && !kb->fact_index_stale; k++) {
+            size_t pos = (size_t)mv[k].h & (cap - 1), probes = 0;
+            for (; probes < cap; probes++) {
+                FactIndexEntry *e = &kb->fact_index[pos];
+                if (e->index_plus_one == 0) { probes = cap; break; }
+                if (e->hash == mv[k].h && e->index_plus_one == start + k + 1) {
+                    if (mv[k].removed) { e->index_plus_one = KB_INDEX_TOMB; kb->fact_index_tombs++; }
+                    else e->index_plus_one = mv[k].newp + 1;
+                    break;
+                }
+                pos = (pos + 1) & (cap - 1);
+            }
+            if (probes >= cap) kb->fact_index_stale = 1;
+        }
+        if (kb->fact_index_tombs * 10 >= cap * 2) kb->fact_index_stale = 1;
+    } else {
         kb->fact_index_stale = 1;
+    }
+
+    /* census: remap each touched predicate's bucket once */
+    if (incremental && !kb->pred_stats_dirty && kb->pred_stats) {
+        for (size_t k = 0; k < m && !kb->pred_stats_dirty; k++) {
+            if (k && mv[k].ph == mv[k - 1].ph && !strcmp(mv[k].pred, mv[k - 1].pred)) continue;
+            PredStat *e = pred_stat_slot_h(kb, mv[k].pred, mv[k].ph, 0);
+            if (!e || e->remap_mark) continue;              /* already remapped */
+            size_t j = 0;
+            for (size_t t = 0; t < e->nfacts; t++) {
+                size_t p = e->idx[t];
+                if (p < start) { e->idx[j++] = p; continue; }
+                if (p - start >= m) { pred_stats_invalidate(kb); break; }
+                const KbMoved *x = &mv[p - start];
+                if (x->removed) { if (x->ng && e->nnonground) e->nnonground--; continue; }
+                e->idx[j++] = x->newp;
+            }
+            if (kb->pred_stats_dirty) break;
+            e->nfacts = j;
+            a0_stale(e);
+            e->remap_mark = 1;
+        }
+        for (size_t k = 0; k < m; k++) {                    /* clear the marks */
+            PredStat *e = pred_stat_slot_h(kb, mv[k].pred, mv[k].ph, 0);
+            if (e) e->remap_mark = 0;
+        }
+    } else {
         pred_stats_invalidate(kb);
     }
+    free(mv); free(names);
+    return removed;
+}
+
+typedef struct { const char *pred; const char *const *args; size_t argc; } KbMatchCtx;
+static int kb_compact_match(const Fact *f, const void *vctx) {
+    const KbMatchCtx *c = vctx;
+    if (f->argc != c->argc || strcmp(f->pred, c->pred) != 0) return 0;
+    for (size_t a = 0; a < c->argc; a++)
+        if (c->args[a] && strcmp(c->args[a], f->args[a]) != 0) return 0;
+    return 1;
+}
+static int kb_compact_pred(const Fact *f, const void *vctx) {
+    return strcmp(f->pred, (const char *)vctx) == 0;
+}
+
+size_t kb_retract_match(KB *kb, const char *pred,
+                        const char *const *args, size_t argc) {
+    if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
+    for (size_t a = 0; a < argc; a++)
+        if (args[a] && !term_ok(args[a])) return 0;
+    KbMatchCtx c = { pred, args, argc };
+    size_t removed = kb_compact(kb, kb_pred_first_pos(kb, pred), kb_compact_match, &c);
+    if (removed) kb_views_changed(kb, pred);
     return removed;
 }
 
 size_t kb_retract_pred(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return 0;
-    size_t start = kb_pred_first_pos(kb, pred);
-    size_t removed = 0, w = start;
-    for (size_t i = start; i < kb->n; i++) {
-        if (strcmp(kb->facts[i].pred, pred) == 0) {
-            if (kb->facts[i].origin == KB_DERIVED) kb->n_derived--;
-            removed++; continue;
-        }
-        if (w != i) kb->facts[w] = kb->facts[i];
-        w++;
-    }
-    kb->n = w;
-    if (removed) {
-        kb_views_changed(kb, pred);
-        kb->fact_index_stale = 1;
-        pred_stats_invalidate(kb);
-    }
+    size_t removed = kb_compact(kb, kb_pred_first_pos(kb, pred), kb_compact_pred, pred);
+    if (removed) kb_views_changed(kb, pred);
     return removed;
 }
 
