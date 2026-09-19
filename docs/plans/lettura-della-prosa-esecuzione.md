@@ -471,11 +471,13 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   lettura in KB. **Profilato alle 12:43** (r340 letto, poi due domande con `/debug`):
   «what is charcoal made of?» costa 292 ms; «where is wood carbonized in modern
   methods?» 698 ms, di cui **377 ms in `extract_frame`** con 40 chiamate e 40 passi.
-  Cioè la **vista `extract_frame` si ricostruisce durante la domanda**: qualcosa
-  nella sua chiusura (70 predicati) cambia fra un turno e l'altro. Prossima prova:
-  contare con una misura temporanea in `kb_views_changed` quale predicato invalida
-  `extract_frame` in quel turno, e se è di turno, toglierlo dalla chiusura
-  o dichiararlo.
+  **Rettifica (12:47):** la vista **non** si ricostruisce. Una misura temporanea in
+  `kb_views_changed` non registra nessuna invalidazione di `extract_frame`, né
+  durante la lettura né durante le domande. I 377 ms sono **40 enumerazioni intere**
+  della vista (un passo e ~9 ms ciascuna), fatte da `analysis_family`, la facoltà
+  che ha risposto a quella domanda (specie C, già nel registro dei furti).
+  Non è un costo introdotto oggi; la cura è quella del registro: migrare o togliere
+  `analysis_family`, non accelerarla.
   Cosmetico aperto: la risposta A non mette la maiuscola iniziale («zilvan.»).
 - ✅ **Specie A, 11:30–11:50: la prosa del turno, il soggetto, e tre false
   risposte chiuse.** Anche la prosa detta nel turno si impegna dalla IR
