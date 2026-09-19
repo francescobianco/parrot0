@@ -445,6 +445,15 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- **Stato a fine giro (12:50).** Risposte giuste lette dalla IR invece che dal
+  frasario: r300 1, r320 2, r340 2 («Ancient times.» dopo `tokens_contiguous/3`).
+  Nessuna falsa risposta della strada A nei referti. Pioli: r300 48/62 con
+  cancello (72 s), r320 20/68 (107 s), r340 6/65 (103 s). I pioli lunghi sono
+  vicini al limite dei 2 minuti: il costo sta nelle domande dopo la lettura, e
+  una parte nota è `analysis_family` (specie C). In parallelo, la capacità
+  «domanda d'abilità su di sé» (`self-ability.p0`: lingue e ogni abilità, in
+  italiano e in inglese) è nata dalla segnalazione di F. «sai parlare italiano»
+  e ha il suo test.
 - ✅ **Specie A, 12:15–12:35: radice preferita, sequenze senza articolo,
   commit dal record.**
   - una forma flessa dichiarata anche verbo a sé si legge come la radice («Compost
