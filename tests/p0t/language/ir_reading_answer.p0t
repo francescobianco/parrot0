@@ -74,3 +74,14 @@
 <! answerframe
 > what reduces dependency?
 < Compost.
+
+[test i gerundi in elenco hanno per agente il possessore del nome d'attivita']
+> The benefits of compost include providing nutrients to crops, increasing the humus, and introducing beneficial microbes.
+> what does compost increase?
+< Humus.
+> what does compost introduce?
+< Beneficial microbes.
+> what does compost provide to crops?
+< Nutrients.
+> what does compost provide to cities?
+<! Nutrients

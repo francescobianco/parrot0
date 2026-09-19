@@ -107,6 +107,14 @@ debug_frame_record($T, frame($F, $R)) :- input_frame_record($T, $F, $R).
 debug_binding(binding($Op, $S, $F)) :- semantic_binding($Op, $S, $F).
 debug_probe(26, debug_frame_record, now, "la lettura registrata del turno (frame e ruoli)").
 debug_probe(27, debug_binding, any, "i legami impegnati dalla lettura").
+machinery(debug_complement).
+debug_complement(complement($B, $P, $X)) :- semantic_complement($B, $P, $X).
+debug_probe(28, debug_complement, any, "i complementi registrati accanto ai legami").
+machinery(debug_frame_candidate).
+debug_frame_candidate($T, frame($M, $Op, $R)) :- input_semantic_frame($T, $M, $Op, $R).
+debug_probe(29, debug_frame_candidate, now, "i frame candidati del turno (tutti, prima dell'unicita')").
+
+
 
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").

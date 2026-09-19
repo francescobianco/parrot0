@@ -493,6 +493,20 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   r300 una risposta in più viene dalla lettura. La regola della relativa non è
   servita, perché la frase la leggeva già il frame principale: resta da scrivere
   per le relative con verbo principale di relazione.
+- ✅ **Sera del 19: elenchi di gerundi e domanda con complemento qualificatore.**
+  - la clausola al gerundio comincia anche dopo una congiunzione o subito dopo un
+    verbo di relazione («include providing …, increasing …, and introducing …»); il
+    bundle impegna **tutte** le participiali;
+  - l'agente è il **possessore** di un nome d'attività («the benefits OF compost
+    include providing nutrients» → `provide(compost, nutrients)`), con la classe
+    insegnabile `activity_noun/1` (benefit, use, function, effect, advantage, role);
+  - «what does compost provide TO CROPS?» risponde l'oggetto solo se il
+    complemento letto combacia; «…to cities?» tace. `qsr` non vale se dopo il verbo
+    c'è qualunque entità;
+  - quattro sonde nuove nell'ispettore (`debug_complement`, `debug_frame_candidate`, …).
+  r320 **21 → 22/68** («Nutrients.» dalla lettura); r300 48/62 con cancello; r340
+  7/65. Aperto sulla stessa frase: «increase IN the soil» (il testo dice «contents
+  OF the soil») e «act AS» (manca `relation_verb(act)`); la lettura tace, e va bene così.
 - ✅ **E3 in specie A, 13:39–13:45: il complemento preposizionale come ruolo.**
   Dopo l'oggetto, una preposizione e un'entità raggiungibile si registrano accanto
   alla proposizione impegnata: `semantic_complement(binding(R, S, O), Prep, X)`.

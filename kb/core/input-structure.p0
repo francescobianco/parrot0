@@ -425,7 +425,7 @@ input_semantic_frame($Scope, question, binary($Relation),
     input_gap_node($Scope, $Language, object, $QId),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
     naf(input_passive_participle($Scope, $RId)),
-    naf(entity_after_node($Scope, $Language, $RId)),
+    naf(any_entity_after($Scope, $Language, $RId)),
     input_nearest_entity_before($Scope, $Language, $RId,
                                 entity($SId, $Subject)),
     input_node_order3($Scope, $QId, $SId, $RId).
@@ -558,6 +558,12 @@ input_semantic_frame($Scope, question, binary($Root),
     passive_agent_marker($By), naf(entity_after_node($Scope, $Language, $BId)).
 % «by» chiude la domanda: dopo non c'e' nessuna entita' (l'agente e' il gap).
 machinery(entity_after_node).
+% Qualunque entita' dopo il nodo, anche oltre una preposizione («provide TO
+% crops»): per `qsr` il gap e' l'oggetto, e la domanda finisce col verbo.
+machinery(any_entity_after).
+any_entity_after($Scope, $Language, $Id) :-
+    input_node_range($Scope, $Id, $S, $L), input_clause_entities($Scope, $Language, $Items),
+    member(ent($ES, $EI, $E), $Items), lt($S, $ES).
 entity_after_node($Scope, $Language, $Id) :-
     input_nearest_entity_after($Scope, $Language, $Id, entity($E, $X)).
 
@@ -589,6 +595,22 @@ input_semantic_frame($Scope, question, complement($Relation, $P),
     naf(entity_after_node($Scope, $Language, $PT)),
     input_node_range($Scope, $PT, $PS, $PL), input_node_range($Scope, $OId, $OS, $OL),
     lt($OS, $PS).
+
+% «what does compost provide TO CROPS?»: gap sull'oggetto, e dopo il verbo un
+% complemento che QUALIFICA la domanda. Si risponde solo con un oggetto la cui
+% proposizione porta quello stesso complemento; se non combacia, la IR tace
+% (il qualificatore ignorato e' una risposta falsa, lettura-della-prosa.md).
+input_semantic_frame($Scope, question, binary_pp($Relation, $P, $X),
+                     roles(subject($Subject), object(missing))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, question, qsr),
+    input_gap_node($Scope, $Language, object, $QId),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    naf(input_passive_participle($Scope, $RId)),
+    input_nearest_entity_before($Scope, $Language, $RId, entity($SId, $Subject)),
+    input_node_next($Scope, $RId, $PT), input_node_atom($Scope, $PT, $P), preposition($P),
+    input_nearest_entity_after($Scope, $Language, $PT, entity($XId, $X)),
+    naf(entity_after_node($Scope, $Language, $XId)).
 
 input_frame_gap($Scope, binary($Relation), object) :-
     input_semantic_frame($Scope, question, binary($Relation),
@@ -757,30 +779,65 @@ entity_item_before_start($Items, $S) :- member(ent($S2, $I, $E), $Items), lt($S2
 input_participial_assertion($Scope, $Language,
                             proposition(binary($Root), roles(subject($Subj), object($Obj)))) :-
     input_node_atom($Scope, $GId, $G), gerund_root($G, $Root),
-    input_node_next($Scope, $P, $GId), naf(tokens_contiguous($Scope, $P, $GId)),
+    input_node_next($Scope, $P, $GId), gerund_clause_start($Scope, $Language, $P, $GId),
     input_node_range($Scope, $GId, $GS, $GL),
     input_clause_entities($Scope, $Language, $Items),
-    clause_first_entity($Items, ent($SS, $SId, $Subj)), lt($SS, $GS),
+    clause_first_entity($Items, ent($SS, $SId, $First)), lt($SS, $GS),
+    clause_agent($Scope, $Language, ent($SId, $First), $Subj),
     input_nearest_entity_after($Scope, $Language, $GId, entity($OId, $Obj)).
-% Il bundle: la principale unica (se c'e') e la participiale.
-input_assertion_bundle($Scope, cons($Main, cons($Part, nil))) :-
+% Dove comincia una clausola al gerundio: dopo una punteggiatura, dopo una
+% congiunzione («…, and introducing …»), o subito dopo un verbo di relazione che
+% la regge («include providing …»).
+machinery(gerund_clause_start).
+gerund_clause_start($Scope, $Language, $P, $GId) :- naf(tokens_contiguous($Scope, $P, $GId)).
+gerund_clause_start($Scope, $Language, $P, $GId) :- input_node_atom($Scope, $P, $W), conjunction($W).
+gerund_clause_start($Scope, $Language, $P, $GId) :-
+    input_operator_node($Scope, $Language, operator(binary, $R), $P).
+% Chi compie l'azione: la prima entita' della clausola, oppure il suo POSSESSORE
+% quando l'entita' e' un nome d'attivita' («the benefits OF compost include
+% providing nutrients» → e' il compost a fornirli). Quali nomi lo siano e' una
+% classe insegnabile (`activity_noun/1`).
+machinery(clause_agent).
+machinery(activity_noun).
+activity_noun(benefit).
+activity_noun(use).
+activity_noun(function).
+activity_noun(effect).
+activity_noun(advantage).
+activity_noun(role).
+clause_agent($Scope, $Language, ent($SId, $First), $Owner) :-
+    entity_is_activity_noun($First),
+    input_node_range($Scope, $SId, $S, $L), is($OfS, add($S, add($L, 1))),
+    input_node($Scope, $T, node(token, token, $TP), range($OfS, $OfL)),
+    input_node_atom($Scope, $T, of),
+    input_nearest_entity_after($Scope, $Language, $T, entity($OId, $Owner)).
+clause_agent($Scope, $Language, ent($SId, $First), $First) :- naf(entity_is_activity_noun($First)).
+machinery(entity_is_activity_noun).
+entity_is_activity_noun($E) :- activity_noun($E).
+entity_is_activity_noun($E) :- lemma_candidate($E, $L), activity_noun($L).
+% Il bundle: la principale unica (se c'e') e TUTTE le participiali.
+input_assertion_bundle($Scope, cons($Main, cons($P1, $Ps))) :-
     input_assertion_unique($Scope, $Main),
     input_scope_language($Scope, $Language),
-    input_participial_assertion($Scope, $Language, $Part).
-input_assertion_bundle($Scope, cons($Part, nil)) :-
+    findall($P, input_participial_assertion($Scope, $Language, $P), $All),
+    list_first_two(cons(x, $All), x, $P1, $Ps).
+input_assertion_bundle($Scope, cons($P1, $Ps)) :-
     input_assertion_set($Scope, nil),
     input_scope_language($Scope, $Language),
-    input_participial_assertion($Scope, $Language, $Part).
-input_recorded_bundle($Scope, cons(proposition($Operator, $Roles), cons($Part, nil))) :-
+    findall($P, input_participial_assertion($Scope, $Language, $P), $All),
+    list_first_two(cons(x, $All), x, $P1, $Ps).
+input_recorded_bundle($Scope, cons(proposition($Operator, $Roles), cons($P1, $Ps))) :-
     naf(turn_illocution($Scope, question)),
     input_frame_record($Scope, frame(assertion, $Operator), $Roles),
     input_scope_language($Scope, $Language),
-    input_participial_assertion($Scope, $Language, $Part).
-input_recorded_bundle($Scope, cons($Part, nil)) :-
+    findall($P, input_participial_assertion($Scope, $Language, $P), $All),
+    list_first_two(cons(x, $All), x, $P1, $Ps).
+input_recorded_bundle($Scope, cons($P1, $Ps)) :-
     naf(turn_illocution($Scope, question)),
     naf(input_frame_record_assertion($Scope)),
     input_scope_language($Scope, $Language),
-    input_participial_assertion($Scope, $Language, $Part).
+    findall($P, input_participial_assertion($Scope, $Language, $P), $All),
+    list_first_two(cons(x, $All), x, $P1, $Ps).
 machinery(input_frame_record_assertion).
 input_frame_record_assertion($Scope) :- input_frame_record($Scope, frame(assertion, $Op), $R).
 
@@ -951,6 +1008,12 @@ turn_response($Turn, $Text) :- ir_reading_answer($Turn, $Text).
 % E l'ELENCO letto: piu' valori per la stessa domanda si dicono tutti.
 turn_response($Turn, $Text) :- ir_reading_list_answer($Turn, $Text).
 turn_response($Turn, $Text) :- ir_complement_answer($Turn, $Text).
+turn_response($Turn, $Text) :- ir_qualified_answer($Turn, $Text).
+machinery(ir_qualified_answer).
+ir_qualified_answer($Turn, $Text) :-
+    input_frame_reading_unique($Turn, binary_pp($R, $P, $X), object, $O),
+    atom_words($O, $Ws), words_join($Ws, $N), upcase_first($N, $Cap),
+    concat_atoms($Cap, ".", $Text).
 machinery(ir_complement_answer).
 ir_complement_answer($Turn, $Text) :-
     input_frame_reading_unique($Turn, complement($R, $P), complement, $X),
@@ -972,6 +1035,11 @@ ir_reading_answer($Turn, $Text) :-
     atom_words($Value, $Ws), words_join($Ws, $Name), upcase_first($Name, $Cap),
     concat_atoms($Cap, ".", $Text).
 
+input_frame_reading($Scope, binary_pp($Relation, $P, $X), object, $O) :-
+    input_frame_record($Scope, frame(question, binary_pp($Relation, $P, $X)),
+                       roles(subject($Subject), object(missing))),
+    semantic_binding(binary($Relation), $Subject, object($O)),
+    semantic_complement(binding($Relation, $Subject, $O), $P, $X).
 input_frame_reading($Scope, complement($Relation, $P), complement, $X) :-
     input_frame_record($Scope, frame(question, complement($Relation, $P)),
                        roles(subject($Subject), object($Object))),
