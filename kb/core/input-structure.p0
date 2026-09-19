@@ -606,9 +606,33 @@ input_frame_reading($Scope, membership($Relation), class, $Class) :-
 % parola, per la porta KB `turn_response/2`, soltanto quando la lettura e'
 % UNICA; il valore si dice con le sue parole.
 machinery(ir_reading_answer).
+% E LA LETTURA TACE dove la domanda chiede piu' di quanto il frame legge
+% (19 settembre 2026, r300): «what PHYLUM does coral belong to?» riceveva la
+% classe (il qualificatore dopo il gap e' un tipo di risposta), «what do coral
+% polyps form COLONIES …?» riceveva «reefs» (la coda dopo il verbo e' un pezzo di
+% domanda che il frame binario non vede). Parola piena = non funzionale e non
+% forma di verbo; allora risponde il percorso di prima.
+machinery(ir_question_qualified).
+machinery(ir_question_tail).
+ir_question_qualified($Turn) :-
+    input_scope_language($Turn, $Language), input_gap_node($Turn, $Language, $Role, $Q),
+    input_node_next($Turn, $Q, $N), input_node_atom($Turn, $N, $W),
+    naf(word_is_function_word($W)), naf(word_is_verb_form($W)).
+ir_question_tail($Turn, object) :-
+    input_scope_language($Turn, $Language),
+    input_operator_node($Turn, $Language, operator(binary, $R), $RId),
+    input_node_range($Turn, $RId, $S, $Len), is($E, add($S, $Len)),
+    unread_word_between($Turn, $E, 1000000).
+ir_question_tail($Turn, subject) :-
+    input_scope_language($Turn, $Language),
+    input_operator_node($Turn, $Language, operator(binary, $R), $RId),
+    input_nearest_entity_after($Turn, $Language, $RId, entity($OId, $O)),
+    input_node_range($Turn, $OId, $S, $Len), is($E, add($S, $Len)),
+    unread_word_between($Turn, $E, 1000000).
 turn_response($Turn, $Text) :- ir_reading_answer($Turn, $Text).
 ir_reading_answer($Turn, $Text) :-
     input_frame_reading_unique($Turn, binary($Relation), $Role, $Value),
+    naf(ir_question_qualified($Turn)), naf(ir_question_tail($Turn, $Role)),
     atom_words($Value, $Ws), words_join($Ws, $Name), concat_atoms($Name, ".", $Text).
 
 input_frame_reading_key($Scope, reading($Operator, $Role, $Value)) :-
