@@ -467,10 +467,23 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   stessa regola già usata per le sequenze senza articolo. Va verificata sulla
   superficie del nodo prima di toccare lo splitter. **Provata (14:03) e smentita:**
   costruendo il nome sulla sola parte contigua all'articolo, `phylum_cnidaria` non
-  compare comunque; modifica annullata. La causa resta da trovare, e serve una
-  sonda che **stampi** i nodi `np_candidate` della frase (`!query` dice solo
-  vero/falso): una riga `/debug` su `input_node_surface`, come chiede la memoria
-  «gli strumenti di debug devono crescere».
+  compare comunque; modifica annullata.
+  **Con le sonde nuove dell'ispettore (14:05–14:10) la diagnosi si rovescia.** In
+  `debug.p0` ora ci sono `debug_np_candidate`, `debug_turn_entity`,
+  `debug_frame_record` e `debug_binding`; si leggono chiamando `/debug` dopo il turno.
+  In chat la IR vede bene «the phylum cnidaria» e le entità `phylum_cnidaria`,
+  `coral`, `jellyfish`, `sea_anemones`: le `!query` del test engine, lanciate dopo il
+  turno, non interrogavano la IR di quel turno. **Regola di metodo: la IR di un
+  turno si guarda con `/debug`, non con `!query` a turno finito.** Le cause vere:
+  1. la lettura registrata è `binary(includes)(phylum_cnidaria, sea_anemones)`: la
+     KB ha `relation_verb(includes)` e non `include` (il caso di «supplies»), e
+     «belongs» non è una relazione della IR;
+  2. **il commit non avviene** («i legami impegnati: niente») nonostante il record:
+     è da trovare, forse nella nuova memorizzazione dei complementi o nel bundle;
+  3. nella domanda «include» nudo non è un operatore, quindi nessun frame.
+  La regola della relativa è stata annullata perché non verificabile fino in
+  fondo; ripartire dalla causa 2, poi dalla 1 (preferenza per la radice, che
+  richiede le due guardie di silenzio già in KB).
 - ✅ **E3 in specie A, 13:39–13:45: il complemento preposizionale come ruolo.**
   Dopo l'oggetto, una preposizione e un'entità raggiungibile si registrano accanto
   alla proposizione impegnata: `semantic_complement(binding(R, S, O), Prep, X)`.

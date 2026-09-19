@@ -100,6 +100,13 @@ debug_np_candidate($T, $Q) :-
 debug_turn_entity($T, $E) :- input_scope_language($T, $L), input_entity_node($T, $L, $I, $E).
 debug_probe(24, debug_np_candidate, now, "i sintagmi candidati della IR del turno").
 debug_probe(25, debug_turn_entity, now, "le entita' che i frame del turno possono legare").
+machinery(debug_frame_record).
+machinery(debug_binding).
+debug_frame_record($T, frame($F, $R)) :- input_frame_record($T, $F, $R).
+debug_binding($Op, binding($S, $F)) :- semantic_binding($Op, $S, $F).
+debug_probe(26, debug_frame_record, now, "la lettura registrata del turno (frame e ruoli)").
+debug_probe(27, debug_binding, any, "i legami impegnati dalla lettura").
+
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").
 
