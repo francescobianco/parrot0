@@ -465,7 +465,12 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   quindi corre oltre «which» e ingloba la relativa. La cura attesa è in KB: il
   sintagma finisce dove i token non sono contigui (`tokens_contiguous/3`), con la
   stessa regola già usata per le sequenze senza articolo. Va verificata sulla
-  superficie del nodo prima di toccare lo splitter.
+  superficie del nodo prima di toccare lo splitter. **Provata (14:03) e smentita:**
+  costruendo il nome sulla sola parte contigua all'articolo, `phylum_cnidaria` non
+  compare comunque; modifica annullata. La causa resta da trovare, e serve una
+  sonda che **stampi** i nodi `np_candidate` della frase (`!query` dice solo
+  vero/falso): una riga `/debug` su `input_node_surface`, come chiede la memoria
+  «gli strumenti di debug devono crescere».
 - ✅ **E3 in specie A, 13:39–13:45: il complemento preposizionale come ruolo.**
   Dopo l'oggetto, una preposizione e un'entità raggiungibile si registrano accanto
   alla proposizione impegnata: `semantic_complement(binding(R, S, O), Prep, X)`.
