@@ -65,3 +65,12 @@
 < Compost.
 > who answered?
 <! answerframe
+
+[test il complemento preposizionale e' un ruolo della stessa proposizione]
+> Compost reduces dependency on chemical fertilizers.
+> what does compost reduce dependency on?
+< Chemical fertilizers.
+> who answered?
+<! answerframe
+> what reduces dependency?
+< Compost.

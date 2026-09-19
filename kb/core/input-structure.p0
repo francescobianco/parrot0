@@ -384,6 +384,7 @@ input_binary_assertion($Scope, $Language, relation($Relation, $RId),
                              entity($OId, $Object))) :-
     input_scope_language($Scope, $Language),
     frame_pattern($Language, binary, assertion, sro),
+    naf(turn_illocution($Scope, question)),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
     naf(input_passive_participle($Scope, $RId)),
     input_nearest_entity_before($Scope, $Language, $RId,
@@ -424,6 +425,7 @@ input_semantic_frame($Scope, question, binary($Relation),
     input_gap_node($Scope, $Language, object, $QId),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
     naf(input_passive_participle($Scope, $RId)),
+    naf(entity_after_node($Scope, $Language, $RId)),
     input_nearest_entity_before($Scope, $Language, $RId,
                                 entity($SId, $Subject)),
     input_node_order3($Scope, $QId, $SId, $RId).
@@ -506,7 +508,9 @@ input_semantic_frame($Scope, question, binary($Relation),
     input_node_order3($Scope, $QId, $RId, $OId),
     input_node_range($Scope, $QId, $QS, $QL), is($QE, add($QS, $QL)),
     input_node_range($Scope, $RId, $RS, $RL),
-    naf(unread_word_between($Scope, $QE, $RS)).
+    naf(unread_word_between($Scope, $QE, $RS)),
+    input_clause_entities($Scope, $Language, $Items),
+    naf(entity_item_between($Items, $QE, $RS)).
 % (Il gap e' il soggetto solo se fra lui e il verbo non c'e' un soggetto detto:
 % «what do CORAL POLYPS form colonies of?» non chiede chi forma le colonie —
 % letta cosi' rispondeva «reefs.», r300.)
@@ -570,6 +574,21 @@ input_semantic_frame($Scope, question, binary($Root),
     input_node_next($Scope, $PId, $BId), input_node_atom($Scope, $BId, $By),
     passive_agent_marker($By), naf(entity_after_node($Scope, $Language, $BId)),
     input_nearest_entity_before($Scope, $Language, $PId, entity($XId, $Patient)).
+
+% «what does compost reduce dependency ON?»: gap, soggetto, verbo, OGGETTO
+% detto, preposizione in fondo — chiede il complemento.
+input_semantic_frame($Scope, question, complement($Relation, $P),
+                     roles(subject($Subject), object($Object))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, question, qsr),
+    input_gap_node($Scope, $Language, object, $QId),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    input_nearest_entity_before($Scope, $Language, $RId, entity($SId, $Subject)),
+    input_nearest_entity_after($Scope, $Language, $RId, entity($OId, $Object)),
+    input_node_atom($Scope, $PT, $P), preposition($P),
+    naf(entity_after_node($Scope, $Language, $PT)),
+    input_node_range($Scope, $PT, $PS, $PL), input_node_range($Scope, $OId, $OS, $OL),
+    lt($OS, $PS).
 
 input_frame_gap($Scope, binary($Relation), object) :-
     input_semantic_frame($Scope, question, binary($Relation),
@@ -824,7 +843,37 @@ input_frame_commit($Scope, $Assertions, $Count) :-
                             provenance($Language, $Quoted,
                                        range($Start, $Length))),
     input_assertion_store($Assertions, $Language, $Quoted,
-                          range($Start, $Length)).
+                          range($Start, $Length)),
+    input_complements_store($Scope, $Language, $Assertions).
+
+% E3/E5, 19 settembre 2026 — IL COMPLEMENTO PREPOSIZIONALE COME RUOLO. «Compost
+% …, reducing dependency ON commercial chemical fertilizers»: dopo l'oggetto,
+% una preposizione e un'entita' raggiungibile sono un complemento della STESSA
+% proposizione, registrato accanto ad essa (non un fatto nuovo sul mondo):
+% `semantic_complement(binding(R, S, O), Prep, X)`.
+machinery(input_complements_store).
+machinery(input_complement_of).
+machinery(complements_assert).
+machinery(semantic_complement).
+input_complements_store($Scope, $Language, $Assertions) :-
+    findall($C, complement_of_assertions($Scope, $Language, $Assertions, $C), $Cs),
+    complements_assert($Cs).
+machinery(complement_of_assertions).
+complement_of_assertions($Scope, $Language, $Assertions, comp(binding($R, $S, $O), $P, $X)) :-
+    member(proposition(binary($R), roles(subject($S), object($O))), $Assertions),
+    input_complement_of($Scope, $Language, $O, pp($P, $X)).
+complements_assert(nil).
+complements_assert(cons(comp($B, $P, $X), $T)) :-
+    assert(semantic_complement, $B, $P, $X), complements_assert($T).
+input_complement_of($Scope, $Language, $O, pp($P, $X)) :-
+    input_clause_entities($Scope, $Language, $Items),
+    member(ent($OS, $OId, $O), $Items), input_node_range($Scope, $OId, $OS, $OL),
+    is($PS, add($OS, add($OL, 1))),
+    input_node($Scope, $PT, node(token, token, $PP), range($PS, $PL)),
+    input_node_atom($Scope, $PT, $P), preposition($P), is($PE, add($PS, $PL)),
+    member(ent($XS, $XId, $X), $Items), lt($PE, $XS),
+    naf(entity_item_between($Items, $PE, $XS)),
+    naf(unread_word_between($Scope, $PE, $XS)).
 
 % Il builtin assert/1 conserva il limite meccanico KB_MAX_ARGS: nome del
 % predicato piu' al massimo tre argomenti. La provenienza e' quindi registrata
@@ -901,6 +950,12 @@ ir_question_tail($Turn, subject) :-
 turn_response($Turn, $Text) :- ir_reading_answer($Turn, $Text).
 % E l'ELENCO letto: piu' valori per la stessa domanda si dicono tutti.
 turn_response($Turn, $Text) :- ir_reading_list_answer($Turn, $Text).
+turn_response($Turn, $Text) :- ir_complement_answer($Turn, $Text).
+machinery(ir_complement_answer).
+ir_complement_answer($Turn, $Text) :-
+    input_frame_reading_unique($Turn, complement($R, $P), complement, $X),
+    atom_words($X, $Ws), words_join($Ws, $N), upcase_first($N, $Cap),
+    concat_atoms($Cap, ".", $Text).
 machinery(ir_reading_list_answer).
 machinery(value_names).
 ir_reading_list_answer($Turn, $Text) :-
@@ -917,6 +972,10 @@ ir_reading_answer($Turn, $Text) :-
     atom_words($Value, $Ws), words_join($Ws, $Name), upcase_first($Name, $Cap),
     concat_atoms($Cap, ".", $Text).
 
+input_frame_reading($Scope, complement($Relation, $P), complement, $X) :-
+    input_frame_record($Scope, frame(question, complement($Relation, $P)),
+                       roles(subject($Subject), object($Object))),
+    semantic_complement(binding($Relation, $Subject, $Object), $P, $X).
 input_frame_reading_key($Scope, reading($Operator, $Role, $Value)) :-
     input_frame_reading($Scope, $Operator, $Role, $Value).
 input_frame_reading_set($Scope, $Readings) :-

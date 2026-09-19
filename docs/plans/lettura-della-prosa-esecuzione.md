@@ -445,6 +445,18 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- ✅ **E3 in specie A, 13:39–13:45: il complemento preposizionale come ruolo.**
+  Dopo l'oggetto, una preposizione e un'entità raggiungibile si registrano accanto
+  alla proposizione impegnata: `semantic_complement(binding(R, S, O), Prep, X)`.
+  Non sono un fatto nuovo sul mondo. «what does S V O Prep?» è un frame di domanda
+  che chiede il complemento. Visti nello stesso giro:
+  - due regole scartate in silenzio per arità 5 (`PARSE ERROR` nel log del demone);
+  - le domande con l'oggetto già detto non sono `qsr`;
+  - la domanda sul soggetto non vale con un soggetto già detto;
+  - un turno con forza di domanda non ha asserzioni binarie da leggere.
+  Sul testo vero: r320 **20 → 21/68**, «what does compost reduce dependency on?» →
+  «Commercial chemical fertilizers.», letta da participiale + complemento. r300
+  48/62 con cancello, r340 7/65; nessuna falsa risposta A.
 - ✅ **E2c in specie A, 13:25–13:38: la coordinazione degli oggetti.** Misurato
   prima di scegliere: gli elenchi «, and» sono la costruzione più frequente dei
   pioli (14 in r320, contro 0–1 relative e 1–2 complementi preposizionali).
