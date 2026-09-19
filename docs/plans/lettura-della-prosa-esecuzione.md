@@ -430,6 +430,30 @@ guardia sul gerundio, ora misurata. Diff con `-2318`:
   matter» riceve la definizione di «matter».
 Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
 
+### E2b e i furti del piolo — 19 settembre, tarda mattinata
+
+- **E2b, primo passo (tenuto).** Il passivo dalla radice torna, ma solo per
+  `event_subject_verb/1`: sono i verbi il cui soggetto può essere un'azione o un
+  mezzo, seme `aid`, insegnabili con «V is an event subject verb» e
+  ritirabili. r320: 19 → 20/68 («what aids…» → «shredding the plant matter.»,
+  vero ma **parziale**: gli altri due mezzi, «adding water» e «ensuring proper
+  aeration…», sono ancora fuori dallo slot, perché la coordinazione è E2c).
+  I verbi agentivi (`prepare`) restano esclusi: lì «by + gerundio» è il mezzo,
+  e serve il lettore che separa mezzo e agente.
+- **Furto chiuso.** «how much of the waste in landfills do compostable materials
+  make up?» riceveva la procedura del generatore, scelta per la sola parola
+  «materials». Aggiunto `topic_noise(process_topic, materials)`. Resta
+  la classe: «how much … make up» viene letto come richiesta di procedimento
+  («how to make make»). La guardia `not_cue(count_question)` è stata provata
+  e scartata perché toglieva la ricetta a «how many eggs … carbonara».
+- **Furto diagnosticato, non chiuso.** «what is added to the plant matter?»
+  riceve la definizione di «matter»: `answer_frame("what is", read_about)`
+  prende il turno quando il ponte del passivo (`participle_of`, «added» → `add`)
+  non ha fatti. È una precedenza fra cue in `answerframe`: una cue più
+  specifica che ha trovato la sua relazione senza valore non dovrebbe cedere
+  a una definizione dell'entità vicina. Prossimo passo: la `turn_focus`
+  (ambito escluso) o una `faculty_yield` KB sul caso «what is + participio».
+
 ### Stato di E1 — 19 settembre 2026 (diagnosi fatta, nessuna modifica tenuta)
 
 Testo: le prime tre frasi di r320 (compost), due sessioni separate con la
