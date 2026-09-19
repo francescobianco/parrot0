@@ -468,7 +468,14 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   e `input_frame_observe` scende da 5,5 a 2,6 s. I pioli però restano r320 95 s e
   r340 108 s, mentre i turni brevi costano come prima (A/B su 14 turni): il
   tempo sta nelle **domande dopo un paragrafo letto**, con molti più fatti di
-  lettura in KB. Prossimo: profilare una domanda di r340 dopo la lettura.
+  lettura in KB. **Profilato alle 12:43** (r340 letto, poi due domande con `/debug`):
+  «what is charcoal made of?» costa 292 ms; «where is wood carbonized in modern
+  methods?» 698 ms, di cui **377 ms in `extract_frame`** con 40 chiamate e 40 passi.
+  Cioè la **vista `extract_frame` si ricostruisce durante la domanda**: qualcosa
+  nella sua chiusura (70 predicati) cambia fra un turno e l'altro. Prossima prova:
+  contare con una misura temporanea in `kb_views_changed` quale predicato invalida
+  `extract_frame` in quel turno, e se è di turno, toglierlo dalla chiusura
+  o dichiararlo.
   Cosmetico aperto: la risposta A non mette la maiuscola iniziale («zilvan.»).
 - ✅ **Specie A, 11:30–11:50: la prosa del turno, il soggetto, e tre false
   risposte chiuse.** Anche la prosa detta nel turno si impegna dalla IR
