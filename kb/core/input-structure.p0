@@ -443,7 +443,13 @@ input_semantic_frame($Scope, question, binary($Relation),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
     input_nearest_entity_after($Scope, $Language, $RId,
                                entity($OId, $Object)),
-    input_node_order3($Scope, $QId, $RId, $OId).
+    input_node_order3($Scope, $QId, $RId, $OId),
+    input_node_range($Scope, $QId, $QS, $QL), is($QE, add($QS, $QL)),
+    input_node_range($Scope, $RId, $RS, $RL),
+    naf(unread_word_between($Scope, $QE, $RS)).
+% (Il gap e' il soggetto solo se fra lui e il verbo non c'e' un soggetto detto:
+% «what do CORAL POLYPS form colonies of?» non chiede chi forma le colonie —
+% letta cosi' rispondeva «reefs.», r300.)
 
 input_frame_gap($Scope, binary($Relation), object) :-
     input_semantic_frame($Scope, question, binary($Relation),

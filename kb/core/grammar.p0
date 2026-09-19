@@ -3664,7 +3664,14 @@ semantic_class($C)  :- wiki_concept($C, $Domain, $Gloss).
 
 % La superficie di un concetto e' il concetto stesso quando nessun gloss dice
 % altrimenti: `concept_label/4` resta la via per i casi in cui differiscono.
-linguistic_form($W, $W, en, common) :- relation_verb($W).
+linguistic_form($W, $W, en, common) :- relation_verb($W), naf(word_has_other_verb_root($W)).
+% 19 settembre 2026 — una forma che e' la flessione di un ALTRO verbo di relazione
+% si legge come la sua radice: «supplies», dichiarato anche verbo a se' da una
+% vecchia lezione, dava due operatori e due asserzioni per «Compost supplies
+% nutrients», e la IR non ne impegnava nessuna. Il fatto resta; cambia quale
+% lettura la IR preferisce.
+machinery(word_has_other_verb_root).
+word_has_other_verb_root($W) :- verb_reading_form($Root, $W), dif($Root, $W).
 % E2a, 19 settembre 2026 — e le sue forme flesse: la IR riconosceva come
 % operatore solo la forma nuda («threatens» non era un operatore). Le forme di
 % lettura sono gia' conoscenza (`verb_reading_form/2`, una vista).
