@@ -3905,7 +3905,12 @@ measured_value_max_words(9).
 % ha per soggetto una parola menzionata, e una parola menzionata non e' chiusa
 % da nessun verbo. E' la stessa regola con una condizione in piu', non un
 % predicato parallelo; `p0_np_closer` la enumera una volta per turno.
-np_closer($V) :- relation_verb($V), naf(turn_mentions_word(current_turn)).
+% E0, 19 settembre 2026: la condizione sul turno e' ground e vale lo stesso per
+% ogni verbo, quindi si chiede PRIMA. Nell'ordine inverso `p0_np_closer`, che
+% enumera la classe, la rivalutava per ognuno dei ~290 verbi di relazione:
+% 210 ms su 7 enumerazioni nella frase del compost, cioe' tutto il costo di
+% `np_closer`. Il significato non cambia.
+np_closer($V) :- naf(turn_mentions_word(current_turn)), relation_verb($V).
 machinery(turn_mentions_word).
 turn_mentions_word($T) :-
     turn_word($T, $I, $C), clause_copula($C),

@@ -316,6 +316,7 @@ Stessa frase del compost, macchina scarica, profiler spento, misure singole
 | `phrase_canon` una volta per canonicalizzazione (`d7dd25c0`) | 2.650,6 ms | 1.542,5 ms | 3.052 chiamate → fuori dalla testa del profilo |
 | `turn_teaching_offer` come domanda di esistenza | 2.075–2.265 ms | 1.530,1 ms | 540 ms in una chiamata → fuori dal profilo |
 | indice del motore sul 1° e 2° argomento (`pred_bucket_a0`, `src/kb.c`) | 1.729 ms (con /debug) | 1.402 ms (con /debug) | fatti visitati 9,3 M → 3,0 M, passi identici (150.323) |
+| `np_closer` sul turno: condizione ground prima del verbo (`grammar.p0`) | 1.664 ms (con /debug) | 1.193 ms (con /debug) | `np_closer` 210 → <5 ms; nella domanda 237 → 5 ms |
 
 Esiti invariati: la frase e la domanda danno ancora i due muri (E2 non è
 cominciata). Le offerte di forma sono intatte: il primo muro di «zilvan brinks
@@ -364,8 +365,12 @@ prima dei contabili (`kb_views_warm`). Ricostruiva anche le altre viste
 sporche (`view_pair` 30 chiamate) e i contabili non miglioravano, perché il loro
 costo non era nei passi.
 
-Restano sopra la soglia, in ordine: `np_closer` 210 ms in 7 chiamate e
-`input_frame_observe` 150 ms in una chiamata. Fuori dal solver restano ~860 ms,
+`np_closer` è chiuso: la clausola `relation_verb($V), naf(turn_mentions_word(…))`
+rivalutava la condizione ground per ognuno dei ~290 verbi a ogni enumerazione.
+Il tentativo di materializzarla non si attiva, perché la chiusura delle
+dipendenze passa per `tr/2`, la cui regola in `gloss.p0` usa `apply`, e
+`kb_view_dependencies` rinuncia. Resta `input_frame_observe` (~80–150 ms in una
+chiamata). Fuori dal solver restano ~860 ms,
 con 12 ricostruzioni d'indice.
 
 **Prossima azione già determinata:** E0, le forme del turno in una vista
