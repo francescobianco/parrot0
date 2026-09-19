@@ -5699,14 +5699,21 @@ int kb_hypothesis_best(const KB *kb, const char *relation, const char *text,
      * one-second deadline. When no rule can derive the relation, collect and
      * score all rows in ONE fact pass. Rule-backed/non-ground tables retain the
      * full solver path below; the result and proof contract is unchanged. */
+    /* E0, 19 settembre 2026: the census buckets name this relation's rules and
+     * facts, in ascending position — the same candidates in the same order as
+     * the historical walks over every rule and every fact, which cost 1.2 s
+     * over the 21,000 calls of one pasted paragraph. */
     int direct_fast = (!candidates || ncandidates == 0);
-    for (size_t i = 0; i < kb->nr && direct_fast; i++)
-        if (kb->rules[i].head.argc == 2 &&
-            strcmp(kb->rules[i].head.pred, relation) == 0)
+    PredBucket hrb = rule_bucket(kb, relation);
+    for (size_t vi = 0; vi < PRED_VISITS(hrb, kb) && direct_fast; vi++) {
+        const Rule *R = &kb->rules[PRED_AT(hrb, vi)];
+        if (R->head.argc == 2 && strcmp(R->head.pred, relation) == 0)
             direct_fast = 0;
+    }
+    PredBucket hfb = pred_bucket(kb, relation);
     size_t direct_rows = 0;
-    for (size_t i = 0; i < kb->n && direct_fast; i++) {
-        const Fact *f = &kb->facts[i];
+    for (size_t vi = 0; vi < PRED_VISITS(hfb, kb) && direct_fast; vi++) {
+        const Fact *f = &kb->facts[PRED_AT(hfb, vi)];
         if (f->argc != 2 || strcmp(f->pred, relation) != 0) continue;
         if (term_contains_var(f->args[0], 0) ||
             term_contains_var(f->args[1], 0)) {
@@ -5722,8 +5729,8 @@ int kb_hypothesis_best(const KB *kb, const char *relation, const char *text,
             hs = calloc(direct_rows, sizeof *hs);
             if (!hs) goto oom;
         }
-        for (size_t i = 0; i < kb->n; i++) {
-            const Fact *f = &kb->facts[i];
+        for (size_t vi = 0; vi < PRED_VISITS(hfb, kb); vi++) {
+            const Fact *f = &kb->facts[PRED_AT(hfb, vi)];
             if (f->argc != 2 || strcmp(f->pred, relation) != 0) continue;
             if (!term_ok(f->args[0]) || term_contains_var(f->args[0], 0))
                 continue;
