@@ -684,7 +684,8 @@ turn_response($Turn, $Text) :- ir_reading_answer($Turn, $Text).
 ir_reading_answer($Turn, $Text) :-
     input_frame_reading_unique($Turn, binary($Relation), $Role, $Value),
     naf(ir_question_qualified($Turn)), naf(ir_question_tail($Turn, $Role)),
-    atom_words($Value, $Ws), words_join($Ws, $Name), concat_atoms($Name, ".", $Text).
+    atom_words($Value, $Ws), words_join($Ws, $Name), upcase_first($Name, $Cap),
+    concat_atoms($Cap, ".", $Text).
 
 input_frame_reading_key($Scope, reading($Operator, $Role, $Value)) :-
     input_frame_reading($Scope, $Operator, $Role, $Value).

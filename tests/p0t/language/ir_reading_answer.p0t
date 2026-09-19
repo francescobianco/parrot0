@@ -17,19 +17,19 @@
 <~ Learned 1 fact
 !query semantic_binding(binary(threaten), beetles, object(forests))
 > what do beetles threaten?
-< forests.
+< Forests.
 > who answered?
 <! answerframe
 > read: The zorvan beetle threatens the kelda forest.
 !query semantic_binding(binary(threaten), zorvan_beetle, object(kelda_forest))
 > what does the zorvan beetle threaten?
-< kelda forest.
+< Kelda forest.
 
 [test la domanda sul soggetto legge lo stesso legame]
 > what threatens forests?
-< beetles.
+< Beetles.
 > who threatens forests?
-< beetles.
+< Beetles.
 > who answered?
 <! answerframe
 
