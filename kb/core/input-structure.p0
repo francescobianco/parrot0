@@ -161,7 +161,7 @@ input_entity_node($Scope, $Language, $Id, $Word) :-
     input_node_atom($Scope, $Id, $Word),
     naf(input_token_in_phrase($Scope, $Id)),
     bare_noun_candidate($Word),
-    naf(bare_noun_neighbour($Scope, $Id)).
+    naf(bare_noun_neighbour_before($Scope, $Id)), naf(bare_noun_neighbour_after($Scope, $Id)).
 % E la SEQUENZA senza articolo: parole piene consecutive, fuori da ogni
 % sintagma con articolo, sono UN'entita' con il nome di tutte («coral polyps»,
 % «ancient times», «hard carbonate exoskeletons»). Il nodo che la porta e' il
@@ -175,14 +175,21 @@ bare_token($Scope, $Id, $W) :-
 bare_run_start($Scope, $Id) :-
     bare_token($Scope, $Id, $W), naf(bare_noun_neighbour_before($Scope, $Id)).
 bare_noun_neighbour_before($Scope, $Id) :-
-    input_node_next($Scope, $P, $Id), bare_token($Scope, $P, $W).
+    input_node_next($Scope, $P, $Id), tokens_contiguous($Scope, $P, $Id), bare_token($Scope, $P, $W).
 bare_run($Scope, $Id, cons($W, $R)) :-
     bare_token($Scope, $Id, $W), input_node_next($Scope, $Id, $N),
-    bare_token($Scope, $N, $W2), bare_run($Scope, $N, $R).
+    tokens_contiguous($Scope, $Id, $N), bare_token($Scope, $N, $W2), bare_run($Scope, $N, $R).
 bare_run($Scope, $Id, cons($W, nil)) :-
     bare_token($Scope, $Id, $W), naf(bare_noun_neighbour_after($Scope, $Id)).
 bare_noun_neighbour_after($Scope, $Id) :-
-    input_node_next($Scope, $Id, $N), bare_token($Scope, $N, $W).
+    input_node_next($Scope, $Id, $N), tokens_contiguous($Scope, $Id, $N), bare_token($Scope, $N, $W).
+% Una sequenza lega soltanto token separati da UNO spazio: gli offset conservano
+% la punteggiatura che i token perdono. «spans ancient times, rooted in …» non
+% e' una sequenza «ancient times rooted» (r340, 19 settembre).
+machinery(tokens_contiguous).
+tokens_contiguous($Scope, $A, $B) :-
+    input_node_range($Scope, $A, $SA, $LA), input_node_range($Scope, $B, $SB, $LB),
+    is($SB, add($SA, add($LA, 1))).
 input_entity_node($Scope, $Language, $Id, $Entity) :-
     bare_run_start($Scope, $Id),
     bare_run($Scope, $Id, cons($A, cons($B, $R))),
