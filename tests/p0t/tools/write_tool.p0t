@@ -16,6 +16,11 @@
 !set PARROT0_LANG=en
 !reset
 
+# Il file si scrive in una sandbox, non nella radice del repository (TEST_TODO
+# §I; F., 19 settembre 2026: niente residui di test nella root).
+!exec rm -rf /tmp/p0t-write && mkdir -p /tmp/p0t-write
+!cwd /tmp/p0t-write
+
 [test the declared write tool receives the turn and verifies by reading back]
 !timeout 20
 > write this into p0t_write_probe.c: ```int hi(void){ return 7; }```
@@ -31,3 +36,5 @@
 !reset
 > write this into p0t_write_probe.c: ```int hi(void){ return 7; }```
 <! verified by reading it back
+
+!cwd off

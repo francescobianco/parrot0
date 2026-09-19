@@ -41,5 +41,9 @@
 <~ Ho capito la richiesta — produrre «calcolatrice» in python
 
 # gen270, F.'s exact phrasing (typo included): the file is REALLY created.
+!exec rm -rf /tmp/p0t-reqgen && mkdir -p /tmp/p0t-reqgen
+!cwd /tmp/p0t-reqgen
 > crea un file chiamata p0tmp_pupo2.txt
-< I understood — create the file p0tmp_pupo2.txt — but a file with that name already exists here, and I won't overwrite it.
+< Created the empty file p0tmp_pupo2.txt in the working directory — verified: it exists and is empty.
+
+!cwd off

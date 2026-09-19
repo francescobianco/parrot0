@@ -1289,3 +1289,24 @@ oggi: da bisecare (R2, attesa da rivalidare: parrot0 SA perché il cielo è blu)
   lo stesso fenomeno che il blocco [una parola sola] del file aggira con parole
   nuove. Da decidere: il test ripete con parole nuove, oppure il muro della
   ricerca porta anche le offerte di forma.
+
+- **19 settembre 2026 — i test non scrivono più nella radice.** F.: i residui
+  nella root davano fastidio. `write_tool.p0t` e `reqgen.p0t`/`reqgen.it.p0t`
+  lavorano ora in una sandbox (`!exec rm -rf /tmp/p0t-… && mkdir -p …` +
+  `!cwd`, TEST_TODO §I). Tre attese di `reqgen` erano **adattate al residuo**:
+  `p0tmp_pupo.txt` rimasto nella root faceva rispondere «already exists» già
+  alla prima richiesta, mentre il commento del test dice che la prima
+  richiesta crea il file. In sandbox la prima richiesta crea il file («Created
+  the empty file … verified»), la seconda rifiuta, e «what have you created»
+  lo elenca. Attese corrette di conseguenza. Rossi **preesistenti** e
+  invariati, verificati sulla versione originale del file: `write_tool` riga
+  23/28 (lo strumento di scrittura non riceve il turno: «produce
+  «p0t_write_probe.c int hi…»»), `reqgen` hello world (righe 25, 18/29 .it) e
+  i due «verified schema» (51, 53: la frase del declino è cambiata), e il
+  controllo aritmetico (71): con `PARROT0_LANG=en` «what is 2 plus 2» **senza
+  punto di domanda** diventa «Learned: what is (2 + 2).». Lo stesso esito
+  si ottiene con la KB d'inizio sessione (`636ce2a2`, A/B per file) e a
+  indice spento. Con «?» risponde «4.». Nella stessa sessione, dopo la forma
+  senza «?», anche quella con «?» risponde «Learned»: lo stato si trascina.
+  `scripts/p0t-echo.py` scrive in `logs/p0t-echo/`; i 48 `run-*`/`trace-*`
+  della root sono stati spostati lì.

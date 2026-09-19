@@ -10,7 +10,8 @@ libera). Non verifica nulla: non certifica un banco.
     python3 scripts/p0t-echo.py tests/p0t/reasoning/taught_decision.p0t
     LANGX=it python3 scripts/p0t-echo.py FILE.p0t     # lingua del discorso
 
-Scrive run-<file>-<ora>.txt e trace-<file>-<ora>.log nella directory corrente.
+Scrive run-<file>-<ora>.txt e trace-<file>-<ora>.log in logs/p0t-echo/ (non nella
+radice del repository: F., 19 settembre 2026).
 """
 import importlib.util, os, pathlib, subprocess, sys, time
 
@@ -20,8 +21,10 @@ mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 eng = mod.Engine.__new__(mod.Engine); eng.n = 0
 src = pathlib.Path(sys.argv[1])
 tag = src.stem + '-' + time.strftime('%H%M%S')
-out = pathlib.Path('run-' + tag + '.txt')
-log = open('trace-' + tag + '.log', 'w')
+logdir = root / 'logs' / 'p0t-echo'
+logdir.mkdir(parents=True, exist_ok=True)
+out = logdir / ('run-' + tag + '.txt')
+log = open(logdir / ('trace-' + tag + '.log'), 'w')
 env = dict(os.environ, PARROT0_SESSION='', PARROT0_PROFILE='kb/profiles/agi.p0',
            PARROT0_WIKI_FETCH='0', PARROT0_TOOLS='1', PARROT0_LANG=os.environ.get('LANGX', 'en'))
 eng.p = subprocess.Popen([str(root / 'bin/parrot0'), '--mcp-engine'], cwd=root, env=env,
