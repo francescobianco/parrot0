@@ -1094,10 +1094,11 @@ static size_t kb_pred_first_pos(const KB *kb, const char *pred) {
  * surprise — a stale structure, a slot not found, OOM — falls back to the
  * historical full invalidation, which is always correct. */
 typedef struct {
-    uint64_t h, ph;
+    uint64_t h;
     size_t   newp;
     unsigned char removed, ng;
-    const char *pred;     /* points into `names`, copied before compaction */
+    PredStat *ps;         /* the fact's census bucket; the table does not move
+                             during a compaction, so the pointer stays valid */
 } KbMoved;
 
 #define KB_INDEX_TOMB ((size_t)-1)
@@ -1110,8 +1111,8 @@ static size_t kb_compact(KB *kb, size_t start,
     /* Only a short tail is worth recording; a long one is cheaper rebuilt. */
     int small = m <= 4096;
     KbMoved *mv = small ? malloc(m * sizeof *mv) : NULL;
-    char (*names)[KB_TERM_LEN] = small ? malloc(m * sizeof *names) : NULL;
-    int incremental = mv && names;
+    int census = kb->pred_stats && !kb->pred_stats_dirty;
+    int incremental = mv != NULL;
     size_t removed = 0, w = start;
     for (size_t i = start; i < old_n; i++) {
         Fact *f = &kb->facts[i];
@@ -1119,11 +1120,11 @@ static size_t kb_compact(KB *kb, size_t start,
         if (incremental) {
             KbMoved *x = &mv[i - start];
             x->h = fact_hash(f);
-            x->ph = f->hashed ? f->phash : pred_hash(f->pred);
             x->ng = (unsigned char)fact_is_nonground(f);
             x->removed = (unsigned char)hit;
-            memcpy(names[i - start], f->pred, sizeof names[0]);
-            x->pred = names[i - start];
+            x->ps = census ? pred_stat_slot_h(kb, f->pred,
+                                              f->hashed ? f->phash : pred_hash(f->pred), 0)
+                           : NULL;
             x->newp = hit ? KB_INDEX_TOMB : w;
         }
         if (hit) {
@@ -1134,7 +1135,7 @@ static size_t kb_compact(KB *kb, size_t start,
         w++;
     }
     kb->n = w;
-    if (!removed) { free(mv); free(names); return 0; }
+    if (!removed) { free(mv); return 0; }
 
     /* exact-fact index: rewrite only the moved and removed entries */
     if (incremental && !kb->fact_index_stale && kb->fact_index) {
@@ -1159,11 +1160,11 @@ static size_t kb_compact(KB *kb, size_t start,
     }
 
     /* census: remap each touched predicate's bucket once */
-    if (incremental && !kb->pred_stats_dirty && kb->pred_stats) {
+    if (incremental && census && !kb->pred_stats_dirty) {
         for (size_t k = 0; k < m && !kb->pred_stats_dirty; k++) {
-            if (k && mv[k].ph == mv[k - 1].ph && !strcmp(mv[k].pred, mv[k - 1].pred)) continue;
-            PredStat *e = pred_stat_slot_h(kb, mv[k].pred, mv[k].ph, 0);
-            if (!e || e->remap_mark) continue;              /* already remapped */
+            PredStat *e = mv[k].ps;
+            if (!e) { pred_stats_invalidate(kb); break; }   /* not in the census */
+            if (e->remap_mark) continue;                    /* already remapped */
             size_t j = 0;
             for (size_t t = 0; t < e->nfacts; t++) {
                 size_t p = e->idx[t];
@@ -1178,14 +1179,12 @@ static size_t kb_compact(KB *kb, size_t start,
             a0_stale(e);
             e->remap_mark = 1;
         }
-        for (size_t k = 0; k < m; k++) {                    /* clear the marks */
-            PredStat *e = pred_stat_slot_h(kb, mv[k].pred, mv[k].ph, 0);
-            if (e) e->remap_mark = 0;
-        }
+        for (size_t k = 0; k < m; k++)                      /* clear the marks */
+            if (mv[k].ps) mv[k].ps->remap_mark = 0;
     } else {
         pred_stats_invalidate(kb);
     }
-    free(mv); free(names);
+    free(mv);
     return removed;
 }
 
