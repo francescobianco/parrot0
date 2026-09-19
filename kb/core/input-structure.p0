@@ -129,6 +129,21 @@ input_entity_node($Scope, $Language, $Id, $Entity) :-
     input_node_surface($Scope, $Id, $Quoted),
     phrase_form($Quoted, $Entity, $Language, $Register).
 
+% E2a, 19 settembre 2026 — UN SINTAGMA NOMINALE NUOVO E' UN CANDIDATO RUOLO.
+% I frame legavano i ruoli solo a entita' gia' note (`semantic_entity`, una
+% `phrase_form`): su prosa nuova la IR non vedeva nessun ruolo e leggeva soltanto
+% lo schema di stringa (`extract_frame`, specie B). Il sintagma candidato e' gia'
+% delimitato dalla KB (np_opener … np_closer); qui diventa un'entita' con il nome
+% delle sue parole piene, senza l'articolo che lo apre.
+machinery(np_candidate_entity).
+input_entity_node($Scope, $Language, $Id, $Entity) :-
+    input_node($Scope, $Id, node(phrase, np_candidate, $Parent), $Range),
+    input_node_surface($Scope, $Id, $Quoted),
+    np_candidate_entity($Quoted, $Entity).
+np_candidate_entity($Quoted, $Entity) :-
+    span_atom($Quoted, $Atom), atom_words($Atom, cons($Opener, cons($W, $Rest))),
+    np_opener($Opener), words_underscored(cons($W, $Rest), $Entity).
+
 % Un ruolo non si lega a un nome qualunque che cada dalla parte giusta del
 % verbo. Si lega al nodo semantico piu' vicino. Questo elimina il prodotto
 % cartesiano che trasformava `A R B and C` in due letture concorrenti prima
@@ -462,6 +477,18 @@ input_frame_reading($Scope, membership($Relation), class, $Class) :-
     input_frame_record($Scope, frame(question, membership($Relation)),
                        roles(subject($Subject), class(missing))),
     semantic_binding(membership($Relation), $Subject, class($Class)).
+
+% E5 (specie A), 19 settembre 2026 — LA DOMANDA LETTA RISPONDE DALLA LETTURA.
+% `input_frame_reading_unique/4` c'era ma nessuno la consumava: la strada «la IR
+% della domanda + il legame semantico impegnato dalla IR del testo» era morta,
+% e rispondeva sempre il frasario (`answerframe`, specie B). Qui prende la
+% parola, per la porta KB `turn_response/2`, soltanto quando la lettura e'
+% UNICA; il valore si dice con le sue parole.
+machinery(ir_reading_answer).
+turn_response($Turn, $Text) :- ir_reading_answer($Turn, $Text).
+ir_reading_answer($Turn, $Text) :-
+    input_frame_reading_unique($Turn, binary($Relation), object, $Value),
+    atom_words($Value, $Ws), words_join($Ws, $Name), concat_atoms($Name, ".", $Text).
 
 input_frame_reading_key($Scope, reading($Operator, $Role, $Value)) :-
     input_frame_reading($Scope, $Operator, $Role, $Value).

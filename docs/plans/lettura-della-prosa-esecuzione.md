@@ -445,6 +445,28 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- **Specie A, la catena misurata (19 settembre, 10:45–10:57).** Su una frase nuova
+  («The zorvan beetle threatens the kelda forest.») la strada A si fermava in tre punti:
+  1. **ruoli**: i frame legavano solo entità note. Aggiunto: un `np_candidate`
+     della IR è un candidato entità (`np_candidate_entity/2`, `input-structure.p0`);
+  2. **operatore**: la IR conosceva solo la forma nuda del verbo. Aggiunto:
+     `linguistic_form(Form, Root, en, common) :- verb_reading_form(Root, Form)`
+     (`grammar.p0`);
+  3. **risposta**: `input_frame_reading_unique/4` non aveva consumatori. Aggiunto
+     `ir_reading_answer/2` sulla porta `turn_response/2`.
+  Con i tre anelli la IR osserva il frame della frase nuova
+  (`input_semantic_frame` e `input_frame_record` presenti). La catena si ferma
+  però al **commit**: la prosa detta nel turno non viene mai impegnata (il commit
+  esiste solo in `extract_clause`, cioè per `read:`), e su `read:` il bundle
+  risulta assente («no bundle» in `P0_READ_TRACE`). Causa non trovata; in più
+  `!query input_entity_node(current_prose, en, _, kelda_forest)` ha dato esiti
+  diversi in due file identici. Le tre regole sono **inerti sul banco**
+  (r300 48/62 identico, stessi moduli; 14 turni identici): sono fondamenta,
+  non un guadagno. Prossimo passo: chiedere `input_assertion_set(current_prose, S)`
+  e `input_assertion_unique` per vedere perché il bundle non si forma, poi
+  impegnare anche la prosa del turno con la stessa coppia di domande
+  (`input_assertion_bundle` → `input_frame_commit`) usata da `extract_clause`.
+  Contrasto: la risposta A deve comparire con `who answered?` diverso da `answerframe`.
 - **E2b, primo passo (tenuto).** Il passivo dalla radice torna, ma solo per
   `event_subject_verb/1`: sono i verbi il cui soggetto può essere un'azione o un
   mezzo, seme `aid`, insegnabili con «V is an event subject verb» e
