@@ -306,7 +306,10 @@ input_nearest_entity_after($Scope, $Language, $Anchor,
     member(ent($Start, $Id, $Entity), $Items), lt($AStart, $Start),
     naf(entity_item_between($Items, $AStart, $Start)),
     is($AEnd, add($AStart, $ALen)),
-    naf(unread_word_between($Scope, $AEnd, $Start)).
+    naf(unread_word_between($Scope, $AEnd, $Start)),
+    naf(preposition_between($Scope, $AEnd, $Start)).
+% (Una preposizione fra il verbo e l'entita' dice che l'entita' NON e' il suo
+% oggetto: «form some OF Earth's most diverse ecosystems» dava «Earth», r300.)
 
 % «Vicino» vuol dire che fra l'operatore e l'entita' ci sono solo parole
 % funzionali. Se in mezzo c'e' una parola piena che la IR non ha letto come
@@ -590,8 +593,22 @@ input_frame_set($Scope, $Frames) :-
 input_frame_unique($Scope, observed($Mode, $Operator, $Roles)) :-
     input_frame_set($Scope, cons(observed($Mode, $Operator, $Roles), nil)).
 input_frame_observe($Scope, observed($Mode, $Operator, $Roles)) :-
-    input_frame_unique($Scope, observed($Mode, $Operator, $Roles)),
+    input_frame_set($Scope, $Set),
+    frame_set_recordable($Set, observed($Mode, $Operator, $Roles)),
     assert(input_frame_record, $Scope, frame($Mode, $Operator), $Roles).
+% Si registra una lettura quando e' UNICA, oppure quando le letture differiscono
+% soltanto nell'oggetto (stessa relazione, stesso soggetto): e' un ELENCO di
+% oggetti, non un'ambiguita' (E2c, 19 settembre 2026). L'insieme si calcola una volta.
+machinery(frame_set_recordable).
+machinery(frames_same_head).
+frame_set_recordable(cons($F, nil), $F).
+frame_set_recordable(cons(observed(assertion, binary($R), roles(subject($S), object($O))),
+                          cons($F2, $Rest)),
+                     observed(assertion, binary($R), roles(subject($S), object($O)))) :-
+    frames_same_head(cons($F2, $Rest), $R, $S).
+frames_same_head(nil, $R, $S).
+frames_same_head(cons(observed(assertion, binary($R), roles(subject($S), object($O))), $T), $R, $S) :-
+    frames_same_head($T, $R, $S).
 
 % ── DALLA PROSA ALLA CONOSCENZA, SENZA UN SECONDO ESTRATTORE ──────────────
 %
@@ -641,6 +658,65 @@ input_assertion_coordinated(
         $Scope, $Language, relation($Relation, $RId),
         coordination(subject($SId, $Subject), first($O1Id, $Object1),
                      cue($CId), second($O2Id, $Object2))).
+
+% E2c, 19 settembre 2026 — L'ELENCO DI OGGETTI. «Compost supplies nitrogen,
+% phosphorus and potassium»: ogni entita' che segue il verbo, raggiungibile senza
+% attraversare una parola piena non letta (solo virgole, congiunzioni, parole
+% funzionali), e' un oggetto dello stesso verbo. La lettura DISTRIBUTIVA e' il
+% default per una relazione binaria; una relazione che si dice di un insieme
+% («mix A and B») si dichiara `collective_relation/1` e l'elenco resta non letto.
+machinery(coord_object).
+machinery(coord_proposition).
+machinery(collective_relation).
+coord_object($Scope, $Language, $RId, $Object) :-
+    input_node_range($Scope, $RId, $RS, $RL), is($RE, add($RS, $RL)),
+    input_clause_entities($Scope, $Language, $Items),
+    member(ent($S, $Id, $Object), $Items), lt($RS, $S),
+    naf(unread_word_between($Scope, $RE, $S)),
+    naf(preposition_between($Scope, $RE, $S)),
+    coord_reach($Scope, $Items, $RE, $S).
+% Il primo oggetto e' il piu' vicino; gli altri solo dentro un ELENCO vero: c'e'
+% una congiunzione dopo il verbo, e l'elenco finisce con l'entita' subito dopo di
+% essa. «improves soil fertility IN gardens, landscaping…» e «spans ancient times,
+% rooted in …» non sono elenchi di oggetti.
+machinery(coord_reach).
+machinery(preposition_between).
+machinery(list_conjunction_after).
+preposition_between($Scope, $Low, $High) :-
+    input_node($Scope, $T, node(token, token, $P), range($S, $L)),
+    naf(lt($S, $Low)), lt($S, $High), input_node_atom($Scope, $T, $W), preposition($W).
+coord_reach($Scope, $Items, $RE, $S) :- naf(entity_item_between($Items, $RE, $S)).
+coord_reach($Scope, $Items, $RE, $S) :-
+    list_conjunction_after($Scope, $RE, $CS),
+    member(ent($ES, $EI, $EE), $Items), lt($CS, $ES),
+    naf(entity_item_between($Items, $CS, $ES)),
+    naf(lt($ES, $S)).
+list_conjunction_after($Scope, $RE, $CS) :-
+    input_node($Scope, $T, node(token, token, $P), range($CS, $L)), lt($RE, $CS),
+    input_node_atom($Scope, $T, $W), conjunction($W),
+    naf(earlier_conjunction($Scope, $RE, $CS)).
+machinery(earlier_conjunction).
+earlier_conjunction($Scope, $RE, $CS) :-
+    input_node($Scope, $T, node(token, token, $P), range($S, $L)), lt($RE, $S), lt($S, $CS),
+    input_node_atom($Scope, $T, $W), conjunction($W).
+coord_proposition($Scope, $Relation, $Subject,
+                  proposition(binary($Relation), roles(subject($Subject), object($Object)))) :-
+    input_scope_language($Scope, $Language),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    coord_object($Scope, $Language, $RId, $Object).
+input_recorded_bundle($Scope, cons($P1, cons($P2, $Ps))) :-
+    naf(turn_illocution($Scope, question)),
+    input_frame_record($Scope, frame(assertion, binary($R)), roles(subject($S), object($O))),
+    naf(collective_relation($R)),
+    findall($P, coord_proposition($Scope, $R, $S, $P), $All),
+    list_first_two($All, $P1, $P2, $Ps).
+input_assertion_bundle($Scope, cons($P1, cons($P2, $Ps))) :-
+    input_assertion_unique($Scope, proposition(binary($R), roles(subject($S), object($O)))),
+    naf(collective_relation($R)),
+    findall($P, coord_proposition($Scope, $R, $S, $P), $All),
+    list_first_two($All, $P1, $P2, $Ps).
+machinery(list_first_two).
+list_first_two(cons($A, cons($B, $R)), $A, $B, $R).
 
 % E2, 19 settembre 2026 — LA PARTICIPIALE HA IL SOGGETTO DELLA PRINCIPALE.
 % «Reefs form ecosystems, displacing the sponge reefs»: chi soppianta sono i
@@ -823,6 +899,18 @@ ir_question_tail($Turn, subject) :-
     input_node_range($Turn, $OId, $S, $Len), is($E, add($S, $Len)),
     unread_word_between($Turn, $E, 1000000).
 turn_response($Turn, $Text) :- ir_reading_answer($Turn, $Text).
+% E l'ELENCO letto: piu' valori per la stessa domanda si dicono tutti.
+turn_response($Turn, $Text) :- ir_reading_list_answer($Turn, $Text).
+machinery(ir_reading_list_answer).
+machinery(value_names).
+ir_reading_list_answer($Turn, $Text) :-
+    input_frame_reading_many($Turn, binary($R), $Role, $Values),
+    naf(ir_question_qualified($Turn)), naf(ir_question_tail($Turn, $Role)),
+    value_names($Values, $Names), labels_joined(en, $Names, $Joined),
+    upcase_first($Joined, $Cap), concat_atoms($Cap, ".", $Text).
+value_names(nil, nil).
+value_names(cons($V, $R), cons($N, $RN)) :-
+    atom_words($V, $Ws), words_join($Ws, $N), value_names($R, $RN).
 ir_reading_answer($Turn, $Text) :-
     input_frame_reading_unique($Turn, binary($Relation), $Role, $Value),
     naf(ir_question_qualified($Turn)), naf(ir_question_tail($Turn, $Role)),

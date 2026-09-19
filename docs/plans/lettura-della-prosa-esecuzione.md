@@ -445,6 +445,25 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- ✅ **E2c in specie A, 13:25–13:38: la coordinazione degli oggetti.** Misurato
+  prima di scegliere: gli elenchi «, and» sono la costruzione più frequente dei
+  pioli (14 in r320, contro 0–1 relative e 1–2 complementi preposizionali).
+  - «Compost supplies nitrogen, phosphorus and potassium» impegna tre
+    proposizioni; «what does compost supply?» → «Nitrogen, phosphorus and
+    potassium.» (dalla lettura, con `input_frame_reading_many/4`), e «what supplies
+    phosphorus?» → «Compost.». La lettura distributiva è il default; una relazione
+    collettiva si dichiara `collective_relation/1`;
+  - l'osservazione registra anche un insieme di frame che differiscono **solo
+    nell'oggetto** (è un elenco, non un'ambiguità), con l'insieme calcolato una volta;
+  - un elenco vero richiede una **congiunzione** e finisce con l'entità subito dopo
+    di essa, senza attraversare preposizioni; la vicinanza dell'oggetto non
+    attraversa una preposizione («form some OF Earth's…» dava «Earth»).
+  Pioli invariati: r300 48/62 con cancello, r320 20/68, r340 7/65; nessuna falsa
+  risposta A. Visti e corretti nello stesso giro: gli elenchi troppo larghi
+  («Gardens, landscaping…» per «what does compost improve?») e «Earth.».
+  **Limite onesto:** l'elenco che continua dopo una preposizione («deliver
+  ecosystem services **for** tourism, fisheries…») resta parziale. Serve il
+  complemento preposizionale come ruolo, che è la capacità successiva.
 - ✅ **Specie A, 13:00–13:08: la participiale e il passivo nella IR.**
   - «Reefs form ecosystems, displacing the sponge reefs» impegna anche
     `displace(reefs, sponge_reefs)`: la participiale ha il soggetto della principale

@@ -56,3 +56,12 @@
 < Beetles.
 > who answered?
 <! answerframe
+
+[test l'elenco di oggetti si legge distributivo]
+> Compost supplies nitrogen, phosphorus and potassium.
+> what does compost supply?
+< Nitrogen, phosphorus and potassium.
+> what supplies phosphorus?
+< Compost.
+> who answered?
+<! answerframe
