@@ -317,6 +317,7 @@ Stessa frase del compost, macchina scarica, profiler spento, misure singole
 | `turn_teaching_offer` come domanda di esistenza | 2.075–2.265 ms | 1.530,1 ms | 540 ms in una chiamata → fuori dal profilo |
 | indice del motore sul 1° e 2° argomento (`pred_bucket_a0`, `src/kb.c`) | 1.729 ms (con /debug) | 1.402 ms (con /debug) | fatti visitati 9,3 M → 3,0 M, passi identici (150.323) |
 | `np_closer` sul turno: condizione ground prima del verbo (`grammar.p0`) | 1.664 ms (con /debug) | 1.193 ms (con /debug) | `np_closer` 210 → <5 ms; nella domanda 237 → 5 ms |
+| `lemma_candidate/2` con `concat_atoms` inverso invece di `chars`+`append_list` (`morphology.p0`) | 1.599–1.638 ms | 1.383 ms | ~34.000 goal `append_list` in meno nei due contabili |
 
 Esiti invariati: la frase e la domanda danno ancora i due muri (E2 non è
 cominciata). Le offerte di forma sono intatte: il primo muro di «zilvan brinks

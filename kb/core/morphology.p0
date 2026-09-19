@@ -89,10 +89,16 @@ search_candidate($W, $N) :- lemma_candidate($W, $L), concat_atoms($S, "oso", $L)
 search_candidate($W, $N) :- concat_atoms($S, "oso", $W), concat_atoms($S, "o", $N).
 search_candidate($W, $N) :- concat_atoms($S, "osa", $W), concat_atoms($S, "o", $N).
 search_candidate($W, $S) :- concat_atoms($S, "ous", $W).
-lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(i, nil), $Chars), append_list($Stem, cons(o, nil), $SingChars), chars($Singular, $SingChars).
-lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(i, nil), $Chars), append_list($Stem, cons(e, nil), $SingChars), chars($Singular, $SingChars).
-lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(e, nil), $Chars), append_list($Stem, cons(a, nil), $SingChars), chars($Singular, $SingChars).
-lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($SingChars, cons(s, nil), $Chars), chars($Singular, $SingChars).
+% E0, 19 settembre 2026 — le stesse quattro flessioni, scritte come si toglie
+% un suffisso (`concat_atoms` inverso: radice incognita, forma data) invece di
+% smontare la parola in una lista di caratteri e cercare l'ultimo con
+% `append_list`. La relazione e' identica; il costo no: `words_in_turn/2` prova
+% il lemma di ogni token per ogni candidato, e sulla frase del compost i due
+% contabili che confrontano la KB col turno facevano ~34.000 goal `append_list`.
+lemma_candidate($Plural, $Singular) :- concat_atoms($Stem, "i", $Plural), concat_atoms($Stem, "o", $Singular).
+lemma_candidate($Plural, $Singular) :- concat_atoms($Stem, "i", $Plural), concat_atoms($Stem, "e", $Singular).
+lemma_candidate($Plural, $Singular) :- concat_atoms($Stem, "e", $Plural), concat_atoms($Stem, "a", $Singular).
+lemma_candidate($Plural, $Singular) :- concat_atoms($Singular, "s", $Plural).
 
 % --- Disambiguation flags: phrases inside a definition that signal it may NOT
 % match the user's intended meaning. Detected post-fetch to warn or refuse. ---
