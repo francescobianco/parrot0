@@ -3589,7 +3589,11 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * the census names them without walking the KB. */
     PredBucket bk = pred_bucket(kb, pred);
     if (simple && bk.live && bk.n == 0) return 0;   /* predicate unknown here */
-    for (size_t vi = 0; vi < PRED_VISITS(bk, kb) && simple; vi++) {
+    /* E0: the census already counts this predicate's non-ground facts; with
+     * none, no fact can disqualify the fast path and the per-fact walk (9.6 M
+     * term_contains_var calls on a prose turn) is skipped. */
+    int walk_nonground = !bk.live || bk.nonground;
+    for (size_t vi = 0; walk_nonground && vi < PRED_VISITS(bk, kb) && simple; vi++) {
         const Fact *f = &kb->facts[PRED_AT(bk, vi)];
         if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
         for (size_t a = 0; a < argc; a++) {
@@ -3603,6 +3607,14 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
         size_t count = 0;
         Subst *work = malloc(sizeof *work);
         if (!work) return 0;
+        /* E0: a bound atom in one of the first two slots selects its slice,
+         * as in the solver (pred_bucket_a0). */
+        for (int k = 0; bk.live && k < 2 && (size_t)k < argc; k++) {
+            if (!args[k]) continue;
+            char fa[KB_TERM_LEN], aa[KB_MAX_ARGS][KB_TERM_LEN]; size_t na = 0;
+            if (split_compound(args[k], fa, aa, &na)) continue;
+            if (pred_bucket_a0(kb, pred, k, args[k], &bk)) break;
+        }
         for (size_t vi = 0; vi < PRED_VISITS(bk, kb); vi++) {
             size_t i = PRED_AT(bk, vi);
             const Fact *f = &kb->facts[i];
