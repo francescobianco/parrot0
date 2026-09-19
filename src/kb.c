@@ -151,6 +151,20 @@ typedef struct {
     size_t nrules;      /* rules whose head has this predicate               */
     size_t *ridx;       /* their positions in kb->rules, in insertion order  */
     size_t  ridx_cap;
+    /* E0, 19 settembre 2026 — the FIRST-ARGUMENT index, built lazily the
+     * first time a goal arrives with a ground atom in first position. Sorted
+     * (hash of arg0, position) pairs: such a goal visits only the facts whose
+     * first argument hashes like its own (plus those with a variable there),
+     * in insertion order, so SLD order and the first solution are unchanged —
+     * a hash collision simply fails unification. Measured on a 34-word prose
+     * turn: 9.3 million fact visits, most of them goals such as
+     * intent_cue(bound, _) walking the whole 3,400-fact bucket. */
+    /* [0] indexes the first argument, [1] the second (tr(C, bound) is the
+     * shape canonical_value/2 asks on every token). */
+    uint64_t *a0h[2];      /* hashes, ascending                              */
+    size_t   *a0p[2];      /* positions in kb->facts, ascending in a hash    */
+    size_t    a0n[2];      /* entries                                        */
+    int       a0_state[2]; /* 0 = not built / stale, 1 = built, -1 = unusable*/
 } PredStat;
 
 /* ── LA MAPPA DI SALVATAGGIO (save-map), IN RAM ───────────────────────────────
@@ -600,6 +614,35 @@ static PredStat *pred_stat_slot(KB *kb, const char *pred, int create) {
     return NULL;
 }
 
+/* Old first-argument arrays are not freed while a resolution may still walk
+ * them: a continuation can assert a fact of the same predicate and so stale
+ * the index under an outer loop. They are released with the census, where
+ * the fact buckets themselves are released. */
+static void **a0_grave;
+static size_t a0_grave_n, a0_grave_cap;
+static void a0_bury(void *p) {
+    if (!p) return;
+    if (a0_grave_n == a0_grave_cap) {
+        size_t next = a0_grave_cap ? a0_grave_cap * 2 : 16;
+        void **g = realloc(a0_grave, next * sizeof *g);
+        if (!g) return;             /* leak rather than free under a reader */
+        a0_grave = g; a0_grave_cap = next;
+    }
+    a0_grave[a0_grave_n++] = p;
+}
+static void a0_grave_empty(void) {
+    for (size_t i = 0; i < a0_grave_n; i++) free(a0_grave[i]);
+    a0_grave_n = 0;
+}
+static void a0_stale(PredStat *e) {
+    for (int k = 0; k < 2; k++) {
+        a0_bury(e->a0h[k]); a0_bury(e->a0p[k]);
+        e->a0h[k] = NULL; e->a0p[k] = NULL;
+        e->a0n[k] = 0;
+        e->a0_state[k] = 0;
+    }
+}
+
 static int fact_is_nonground(const Fact *f) {
     for (size_t a = 0; a < f->argc; a++)
         if (term_contains_var(f->args[a], 0)) return 1;
@@ -611,7 +654,9 @@ static void pred_stats_drop(KB *kb) {
         for (size_t i = 0; i < kb->pred_stats_cap; i++) {
             free(kb->pred_stats[i].idx);
             free(kb->pred_stats[i].ridx);
+            a0_stale(&kb->pred_stats[i]);
         }
+    a0_grave_empty();
     free(kb->pred_stats);
     kb->pred_stats = NULL;
     kb->pred_stats_cap = kb->pred_stats_n = 0;
@@ -667,6 +712,7 @@ static void pred_stats_note(KB *kb, size_t fi) {
     }
     e->idx[e->nfacts++] = fi;
     if (fact_is_nonground(f)) e->nnonground++;
+    if (e->a0_state[0] || e->a0_state[1]) a0_stale(e);
 }
 
 /* Rule-head twin of pred_stats_note(). The stored positions preserve clause
@@ -706,7 +752,9 @@ static void pred_stats_rebuild(KB *kb) {
             free(kb->pred_stats[i].ridx);
             kb->pred_stats[i].ridx = NULL;
             kb->pred_stats[i].ridx_cap = 0;
+            a0_stale(&kb->pred_stats[i]);
         }
+    a0_grave_empty();
     kb->pred_stats_n = 0;
     kb->pred_stats_dirty = 0;
     for (size_t i = 0; i < kb->n; i++) {
@@ -751,6 +799,61 @@ static PredBucket pred_bucket(const KB *kb, const char *pred) {
     b.live = 1;
     if (ps) { b.idx = ps->idx; b.n = ps->nfacts; b.nonground = ps->nnonground > 0; }
     return b;
+}
+
+/* E0 — the first-argument slice of a census bucket. `arg0` must be a ground
+ * atom (no variable, not a compound): unify() compares two atoms with strcmp
+ * and never unifies an atom with a compound, so only facts whose first
+ * argument is the same string — or a bare variable — can match. A predicate
+ * with a bare variable in first position anywhere keeps the full bucket. */
+typedef struct { uint64_t h; size_t p; } A0Pair;
+static int a0_pair_cmp(const void *x, const void *y) {
+    const A0Pair *a = x, *b = y;
+    if (a->h != b->h) return a->h < b->h ? -1 : 1;
+    return a->p < b->p ? -1 : (a->p > b->p);
+}
+static int a0_build(KB *kb, PredStat *e, int k) {
+    for (size_t i = 0; i < e->nfacts; i++) {
+        const Fact *f = &kb->facts[e->idx[i]];
+        if (f->argc <= (size_t)k || is_var(f->args[k])) { e->a0_state[k] = -1; return 0; }
+    }
+    A0Pair *pairs = malloc(e->nfacts * sizeof *pairs);
+    uint64_t *h = malloc(e->nfacts * sizeof *h);
+    size_t *p = malloc(e->nfacts * sizeof *p);
+    if (!pairs || !h || !p) { free(pairs); free(h); free(p); e->a0_state[k] = -1; return 0; }
+    for (size_t i = 0; i < e->nfacts; i++) {
+        pairs[i].h = pred_hash(kb->facts[e->idx[i]].args[k]);
+        pairs[i].p = e->idx[i];
+    }
+    qsort(pairs, e->nfacts, sizeof *pairs, a0_pair_cmp);
+    for (size_t i = 0; i < e->nfacts; i++) { h[i] = pairs[i].h; p[i] = pairs[i].p; }
+    free(pairs);
+    e->a0h[k] = h; e->a0p[k] = p; e->a0n[k] = e->nfacts; e->a0_state[k] = 1;
+    return 1;
+}
+#define A0_MIN_FACTS 16
+static int pred_bucket_a0(const KB *kb, const char *pred, int k, const char *arg,
+                          PredBucket *out) {
+    /* The index is an accelerator, never part of the meaning: with
+     * PARROT0_NO_ARG_INDEX set the same KB answers through the full bucket,
+     * which is how an A/B without the acceleration is run. */
+    static int off = -1;
+    if (off < 0) off = getenv("PARROT0_NO_ARG_INDEX") != NULL;
+    if (off) return 0;
+    int live = 0;
+    PredStat *e = (PredStat *)pred_stats_get((KB *)kb, pred, &live);
+    if (!live || !e || e->nfacts < A0_MIN_FACTS || e->a0_state[k] < 0) return 0;
+    if (e->a0_state[k] == 0 && !a0_build((KB *)kb, e, k)) return 0;
+    uint64_t key = pred_hash(arg);
+    size_t lo = 0, hi = e->a0n[k];
+    while (lo < hi) { size_t m = lo + (hi - lo) / 2; if (e->a0h[k][m] < key) lo = m + 1; else hi = m; }
+    size_t end = lo;
+    while (end < e->a0n[k] && e->a0h[k][end] == key) end++;
+    out->idx = e->a0p[k] + lo;
+    out->n = end - lo;
+    out->live = 1;
+    out->nonground = e->nnonground > 0;
+    return 1;
 }
 
 /* The rule-head candidates for `pred`, with the same fallback contract as
@@ -2534,6 +2637,15 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * predicate, so the census bucket visits exactly the candidates instead of
      * the whole KB at every resolution step. */
     PredBucket gbk = pred_bucket(S->kb, g->pred);
+    /* E0: the first ground ATOM among the first two arguments selects the
+     * slice (see pred_bucket_a0); anything else keeps the whole bucket. */
+    for (int k = 0; gbk.live && ground_fact_mode == 0 && k < 2 &&
+                    (size_t)k < grounded_goal.argc; k++) {
+        if (term_contains_var(grounded_goal.args[k], 0)) continue;
+        char fa[KB_TERM_LEN], aa[KB_MAX_ARGS][KB_TERM_LEN]; size_t na = 0;
+        if (split_compound(grounded_goal.args[k], fa, aa, &na)) continue;
+        if (pred_bucket_a0(S->kb, g->pred, k, grounded_goal.args[k], &gbk)) break;
+    }
     if (S->kb->prof_on) {
         KB *pm = (KB *)S->kb;   /* il contatore e' diagnostica, non stato logico */
         pm->prof_visits += PRED_VISITS(gbk, S->kb);

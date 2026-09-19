@@ -315,6 +315,7 @@ Stessa frase del compost, macchina scarica, profiler spento, misure singole
 | sonda iniziale (`636ce2a2`) | 3.181,8 ms | 1.622,6 ms | — |
 | `phrase_canon` una volta per canonicalizzazione (`d7dd25c0`) | 2.650,6 ms | 1.542,5 ms | 3.052 chiamate → fuori dalla testa del profilo |
 | `turn_teaching_offer` come domanda di esistenza | 2.075–2.265 ms | 1.530,1 ms | 540 ms in una chiamata → fuori dal profilo |
+| indice del motore sul 1° e 2° argomento (`pred_bucket_a0`, `src/kb.c`) | 1.729 ms (con /debug) | 1.402 ms (con /debug) | fatti visitati 9,3 M → 3,0 M, passi identici (150.323) |
 
 Esiti invariati: la frase e la domanda danno ancora i due muri (E2 non è
 cominciata). Le offerte di forma sono intatte: il primo muro di «zilvan brinks
@@ -342,6 +343,26 @@ questo **per ogni candidato**. `diagnosis` si attiva perché «turning» è una
   costa ricostruire per turno le viste già dipendenti dal turno.
   Il risultato discriminante atteso: `diagnosis` + `read_topic_named` sotto
   50 ms, senza cambiare le risposte.
+
+**19 settembre, mattina — l'indice sugli argomenti.** Il contatore temporaneo
+delle visite per predicato del goal ha mostrato che il costo dei contabili era
+di **scansione**, non di passi. I goal con il primo o il secondo argomento
+legato ma non interamente ground (`intent_cue(bound, _)` 2,9 M visite,
+`tr(_, bound)` da `canonical_value/2`, `relation_verb`, `singular`) non
+passavano dall'hash dei fatti ground e scorrevano il secchio intero. Nel
+motore ora c'è un indice pigro (hash dell'argomento → posizioni in ordine di
+inserimento; ordine SLD e prima soluzione invariati). Si sospende per i
+predicati con una variabile nuda in quella posizione, si spegne con
+`PARROT0_NO_ARG_INDEX=1`, e non contiene vocabolario.
+A/B sullo stesso binario e sulla stessa KB, 14 turni vari (insegnamento di
+relation verb, passivo, «mar nero», compost): **risposte identiche**, turni
+più veloci dell'8–12%. I rossi di `basics.p0t` e `facts.p0t` sono identici a
+indice spento, quindi non vengono dall'indice.
+
+Tentativo scartato nella stessa mattina: una vista `turn_word_form/2` scaldata
+prima dei contabili (`kb_views_warm`). Ricostruiva anche le altre viste
+sporche (`view_pair` 30 chiamate) e i contabili non miglioravano, perché il loro
+costo non era nei passi.
 
 Restano sopra la soglia, in ordine: `np_closer` 210 ms in 7 chiamate e
 `input_frame_observe` 150 ms in una chiamata. Fuori dal solver restano ~860 ms,
