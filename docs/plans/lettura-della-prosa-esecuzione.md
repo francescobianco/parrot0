@@ -412,9 +412,57 @@ dipendenze passa per `tr/2`, la cui regola in `gloss.p0` usa `apply`, e
 chiamata). Fuori dal solver restano ~860 ms,
 con 12 ricostruzioni d'indice.
 
-**Prossima azione già determinata:** E1 (stesso testo come prosa incollata e
-con `read:`), usando la frase del compost come sonda e il brano r320 come
-lettura. In parallelo, quando serve: E0b, il costo di `input_frame_observe` —
-quale clausola di `input_semantic_frame` spende i ~12.000 goal per frase. Se il
+### Stato di E1 — 19 settembre 2026 (diagnosi fatta, nessuna modifica tenuta)
+
+Testo: le prime tre frasi di r320 (compost), due sessioni separate con la
+stessa KB (`agi`, rete spenta), una come prosa incollata e una con `read:`.
+Fatti letti dal dump di sessione (`PARROT0_SESSION_DUMP`).
+
+| Oggetto | Prosa incollata | `read:` (oggi) | `read:` con lo splitter che cede al lettore (provato, annullato) |
+|---|---|---|---|
+| documento | nessuno | **2 documenti** da 1 unità | 1 documento, 3 unità |
+| unità della frase 1 | — | spezzata in due frammenti riscritti (`document_1_unit_0` «Compost is a mixture of ingredients», `document_2_unit_0` «Compost used as plant fertilizer…»), range relativi al frammento | giusta, `range(0, 128)` |
+| unità della frase 2 («It is commonly prepared…») | — | nessuna | **sbagliata**: testo della frase 1 troncato, `range(0, 105)` |
+| unità della frase 3 | — | nessuna (letta fuori dal documento) | giusta, `range(232, 123)` |
+| fatti | `mixture(compost)`, `used_as(compost, plant_fertilizer)`, `rich_in(resulting_mixture, plant_nutrients)`, `includes(beneficial_organisms, bacteria)` | gli stessi | `mixture(compost)`, **`used_as(compost_of_ingredients, …)`**; niente `rich_in` |
+| «what is compost used as?» / «…rich in?» | Plant fertilizer. / plant nutrients. | uguali | **muri** |
+
+**Prima divergenza, riproducibile.** `read:` con più frasi è
+`compound_statement` (`turn-frames.p0`), quindi `compound_turn_lead` lo spezza
+e lo riscrive **prima** di `mod_reader`. Ogni frammento che conserva la cue
+diventa un documento a sé, e il resto del testo esce dal documento.
+L'identità documentale del passo si perde nello splitter.
+
+**Perché la cura ovvia è stata annullata.** Una guardia KB,
+`naf(turn_reads_source(T))` con `reader_source_cue/1` derivata da
+`segment_role` + `faculty_for(_, reader)`, restituisce il documento unico. Però
+fa emergere due difetti del lettore di `read_passage`, e fa perdere due risposte vere:
+1. **Span della clausola riscritta** (`extract_clause`, `30-generation-reading.c`):
+   la posizione è `c - source_base`. Quando `reader_focus_rewrite` riscrive
+   «It» → «Compost», la clausola sta in un buffer separato, lo start cade a 0 e
+   l'IR pubblica i primi *len* byte del passo come sorgente dell'unità.
+   L'unità vuole lo span **originale**, l'estrattore legge la clausola
+   **riscritta**: sono due cose, e oggi una sola pubblicazione le confonde.
+2. **Il lettore di `read_passage` legge peggio dello splitter composto**: il
+   modificatore «used as…» diventa `compost_of_ingredients`, e «The resulting
+   mixture is rich in…» non produce `rich_in`. Lo splitter passa ogni frase al
+   lead completo del turno; `read_passage` la passa al solo `extract_clause`.
+
+**Prossima azione E1 (una sola).** Far passare le unità del documento dallo
+stesso percorso di lettura della prosa incollata, invece del contrario:
+- oppure `compound_turn_lead`, quando la cue di sorgente c'è, registra i
+  frammenti come unità di **un** documento (con gli span dell'originale);
+- oppure `read_passage` consegna ogni frase al lead del turno.
+La scelta va misurata con le stesse quattro domande e i quattro fatti di sopra.
+Contrasto obbligatorio: nessuna risposta persa rispetto alla prosa incollata.
+Il difetto 1 (span della clausola riscritta) appartiene a E4a: «It» →
+antecedente va rappresentato come menzione + candidato, non come stringa
+riscritta.
+
+**Prossima azione già determinata:** E1, l'unica modifica descritta in «Stato
+di E1» (unità di un solo documento lungo il percorso della prosa incollata),
+misurata sulle tre frasi del compost. In parallelo, quando serve: E0b, il costo
+di `input_frame_observe`, cioè quale clausola di `input_semantic_frame` spende
+i ~12.000 goal per frase. Se il
 profilo della revisione nuova cambia, aggiornare la priorità con quella
 misura invece di difendere questa diagnosi.
