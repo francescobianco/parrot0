@@ -131,6 +131,11 @@ ground_connector(since).
 relation_verb(releases).
 relation_verb(contains).
 relation_verb(includes).
+% 19 settembre 2026: e la sua radice. Senza, la IR leggeva «includes» come verbo
+% a se' e la domanda «what does the phylum cnidaria INCLUDE?» non trovava il
+% legame; con la radice, la forma flessa si legge come `include`
+% (`word_has_other_verb_root/1`, grammar.p0).
+relation_verb(include).
 relation_verb(causes).
 relation_verb(uses).
 relation_verb(forms).

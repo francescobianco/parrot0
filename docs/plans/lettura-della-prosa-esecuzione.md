@@ -484,6 +484,15 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   La regola della relativa è stata annullata perché non verificabile fino in
   fondo; ripartire dalla causa 2, poi dalla 1 (preferenza per la radice, che
   richiede le due guardie di silenzio già in KB).
+  **Aggiornamento 14:00.** La causa 2 era un falso allarme della sonda: la chiave
+  `any` interroga con arità 1, e con la sonda corretta il commit risulta avvenuto
+  (anche `jellyfish`, attraverso l'elenco). La causa 1 è chiusa aggiungendo la
+  radice `relation_verb(include)` accanto a `includes` (`taught-lexicon.p0`):
+  «what does the phylum cnidaria include?» → «Jellyfish and sea anemones.» dalla
+  lettura. Pioli invariati (r300 48/62 con cancello, r320 21/68, r340 7/65); su
+  r300 una risposta in più viene dalla lettura. La regola della relativa non è
+  servita, perché la frase la leggeva già il frame principale: resta da scrivere
+  per le relative con verbo principale di relazione.
 - ✅ **E3 in specie A, 13:39–13:45: il complemento preposizionale come ruolo.**
   Dopo l'oggetto, una preposizione e un'entità raggiungibile si registrano accanto
   alla proposizione impegnata: `semantic_complement(binding(R, S, O), Prep, X)`.
