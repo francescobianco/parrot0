@@ -2052,6 +2052,26 @@ passive_frame_coordinate($Pat, $Pred, $Aux, $By) :-
 
 extract_frame($Pat, $Pred) :-
     passive_frame_coordinate($Pat, $Pred, $Aux, $By).
+% E2b, 19 settembre 2026 — IL PASSIVO DALLA RADICE TORNA DOVE «BY + AZIONE» E'
+% DAVVERO IL SOGGETTO. Lo schema generale e' ritirato (sotto, ⛔): per un verbo
+% agentivo «prepared by decomposing plant waste» nomina il MEZZO, e scriveva
+% prepare(decomposing_plant, compost). Ma per un verbo il cui soggetto puo'
+% essere un'azione o un mezzo — «shredding aids decomposition» — il
+% complemento d'agente e' il soggetto vero, gerundio compreso: «The
+% decomposition process is aided by shredding the plant matter» e' aid(shredding
+% the plant matter, decomposition process). Quali verbi lo siano e' una classe
+% insegnabile parlando («help is an event subject verb» scrive
+% event_subject_verb(help)); gli agentivi aspettano il lettore che separa il
+% mezzo dall'agente (lettura-della-prosa-esecuzione.md, E2b).
+machinery(event_subject_verb).
+event_subject_verb(aid).
+passive_frame_coordinate($Pat, $Root, $Aux, $By) :-
+    relation_verb($Root), event_subject_verb($Root),
+    participle_of($Root, $Form), naf(relation_verb($Form)),
+    naf(specific_participle($Form)),
+    passive_prefix_coordinate($Prefix, $Aux),
+    passive_suffix_coordinate($Suffix, $By),
+    concat_atoms($Prefix, $Form, $Mid), concat_atoms($Mid, $Suffix, $Pat).
 % 18 settembre 2026, notte — IL PARTICIPIO DI UNA RADICE E' UNA FORMA, come -ies.
 % Il passivo sopra si legge solo se il participio STESSO e' dichiarato verbo di
 % relazione («used»): «Compost is prepared by farmers» murava con
