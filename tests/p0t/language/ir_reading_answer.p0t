@@ -85,3 +85,10 @@
 < Nutrients.
 > what does compost provide to cities?
 <! Nutrients
+
+[test la relazione aggettivale si legge dalla IR, con l'elenco]
+> The resulting mixture is rich in plant nutrients and beneficial organisms.
+> what is the resulting mixture rich in?
+< Plant nutrients and beneficial organisms.
+> who answered?
+<! answerframe

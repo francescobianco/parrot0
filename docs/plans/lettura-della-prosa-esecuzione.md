@@ -493,6 +493,19 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   r300 una risposta in più viene dalla lettura. La regola della relativa non è
   servita, perché la frase la leggeva già il frame principale: resta da scrivere
   per le relative con verbo principale di relazione.
+- ✅ **Sera del 19, 21:30–22:00: la relazione aggettivale dalla IR.** «The
+  resulting mixture is RICH IN plant nutrients and beneficial organisms»: copula +
+  aggettivo + preposizione dichiarati da `adjective_relation/1` (già insegnabile) →
+  `semantic_binding(binary(rich_in), …)` con l'elenco; «what is the resulting
+  mixture rich in?» → «Plant nutrients and beneficial organisms.» dalla lettura
+  (prima: answerframe «plant nutrients.»). Una trappola vista nel giro: impegnare
+  in blocco TUTTI i record d'asserzione del turno faceva perdere il complemento
+  («reduce dependency on» → muro) e allargava «what does compost improve?» a
+  «Soil fertility, dependency and organic farming.». L'elenco di tutti i record
+  vale ora solo per la relazione aggettivale; per il verbo l'elenco lo costruisce
+  `coord_object/4`, che non attraversa le preposizioni. Pioli: r300 48/62 con
+  cancello, r320 **22/68** (12 ✓ dalla lettura, «improve» → «Soil fertility.»),
+  r340 7/65; nessuna falsa risposta A.
 - ✅ **Sera del 19: elenchi di gerundi e domanda con complemento qualificatore.**
   - la clausola al gerundio comincia anche dopo una congiunzione o subito dopo un
     verbo di relazione («include providing …, increasing …, and introducing …»); il

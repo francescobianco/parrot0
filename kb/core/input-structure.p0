@@ -612,6 +612,41 @@ input_semantic_frame($Scope, question, binary_pp($Relation, $P, $X),
     input_nearest_entity_after($Scope, $Language, $PT, entity($XId, $X)),
     naf(entity_after_node($Scope, $Language, $XId)).
 
+% E2, 19 settembre 2026 — LA RELAZIONE AGGETTIVALE. «The resulting mixture is
+% RICH IN plant nutrients and beneficial organisms»: copula, aggettivo e
+% preposizione che la KB dichiara relazione (`adjective_relation/1`, «rich in» →
+% rich_in), poi gli oggetti (anche in elenco). La stessa relazione che lo schema
+% di stringa scriveva, ma letta dalla IR.
+machinery(input_adjective_core).
+machinery(adjective_pair).
+adjective_pair($A, $P, $Pred) :-
+    adjective_relation($Surface), atom_words($Surface, cons($A, cons($P, nil))),
+    adjective_relation_pred($Surface, $Pred).
+input_adjective_core($Scope, core($CId, $PId, $Pred)) :-
+    input_node_atom($Scope, $CId, $Cop), clause_copula($Cop),
+    input_node_next($Scope, $CId, $AId), input_node_atom($Scope, $AId, $A),
+    input_node_next($Scope, $AId, $PId), input_node_atom($Scope, $PId, $P),
+    adjective_pair($A, $P, $Pred).
+input_semantic_frame($Scope, assertion, binary($Pred),
+                     roles(subject($Subject), object($Object))) :-
+    naf(turn_illocution($Scope, question)),
+    input_scope_language($Scope, $Language),
+    input_adjective_core($Scope, core($CId, $PId, $Pred)),
+    input_nearest_entity_before($Scope, $Language, $CId, entity($SId, $Subject)),
+    coord_object($Scope, $Language, $PId, $Object).
+% «what is the resulting mixture rich in?»: «what is» e' la cue dello span; in
+% fondo aggettivo e preposizione della relazione.
+input_semantic_frame($Scope, question, binary($Pred),
+                     roles(subject($Subject), object(missing))) :-
+    input_scope_language($Scope, $Language),
+    turn_span_cue($Scope, $I, $Q), span_atom($Q, $CA),
+    atom_words($CA, cons($G, cons($Cop, nil))),
+    frame_gap_form($Language, $G, object), clause_copula($Cop),
+    input_node_atom($Scope, $AId, $A), input_node_next($Scope, $AId, $PId),
+    input_node_atom($Scope, $PId, $P), adjective_pair($A, $P, $Pred),
+    naf(any_entity_after($Scope, $Language, $PId)),
+    input_nearest_entity_before($Scope, $Language, $AId, entity($SId, $Subject)).
+
 input_frame_gap($Scope, binary($Relation), object) :-
     input_semantic_frame($Scope, question, binary($Relation),
                          roles(subject($Subject), object(missing))).
@@ -636,7 +671,14 @@ input_frame_unique($Scope, observed($Mode, $Operator, $Roles)) :-
 input_frame_observe($Scope, observed($Mode, $Operator, $Roles)) :-
     input_frame_set($Scope, $Set),
     frame_set_recordable($Set, observed($Mode, $Operator, $Roles)),
-    assert(input_frame_record, $Scope, frame($Mode, $Operator), $Roles).
+    frame_records_assert($Scope, $Set).
+% Si registrano TUTTE le letture dell'insieme ammesso: una sola, o l'elenco di
+% oggetti con la stessa testa. Il bundle le rilegge come fatti invece di
+% ricalcolare i frame.
+machinery(frame_records_assert).
+frame_records_assert($Scope, nil).
+frame_records_assert($Scope, cons(observed($M, $Op, $R), $T)) :-
+    assert(input_frame_record, $Scope, frame($M, $Op), $R), frame_records_assert($Scope, $T).
 % Si registra una lettura quando e' UNICA, oppure quando le letture differiscono
 % soltanto nell'oggetto (stessa relazione, stesso soggetto): e' un ELENCO di
 % oggetti, non un'ambiguita' (E2c, 19 settembre 2026). L'insieme si calcola una volta.
@@ -745,12 +787,24 @@ coord_proposition($Scope, $Relation, $Subject,
     input_scope_language($Scope, $Language),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
     coord_object($Scope, $Language, $RId, $Object).
+machinery(recorded_assertion).
+recorded_assertion($Scope, proposition($Op, $R)) :- input_frame_record($Scope, frame(assertion, $Op), $R).
 input_recorded_bundle($Scope, cons($P1, cons($P2, $Ps))) :-
     naf(turn_illocution($Scope, question)),
     input_frame_record($Scope, frame(assertion, binary($R)), roles(subject($S), object($O))),
     naf(collective_relation($R)),
     findall($P, coord_proposition($Scope, $R, $S, $P), $All),
     list_first_two($All, $P1, $P2, $Ps).
+input_recorded_bundle($Scope, cons($P1, cons($P2, $Ps))) :-
+    naf(turn_illocution($Scope, question)),
+    input_adjective_core($Scope, core($C, $PId, $Pred)),
+    findall($P, recorded_adjective_assertion($Scope, $Pred, $P), $All),
+    list_first_two($All, $P1, $P2, $Ps).
+% (Solo per la relazione aggettivale: per un verbo l'elenco lo costruisce
+% `coord_object/4`, che non attraversa le preposizioni.)
+machinery(recorded_adjective_assertion).
+recorded_adjective_assertion($Scope, $Pred, proposition(binary($Pred), $R)) :-
+    input_frame_record($Scope, frame(assertion, binary($Pred)), $R).
 input_assertion_bundle($Scope, cons($P1, cons($P2, $Ps))) :-
     input_assertion_unique($Scope, proposition(binary($R), roles(subject($S), object($O)))),
     naf(collective_relation($R)),
