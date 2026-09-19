@@ -162,7 +162,32 @@ input_entity_node($Scope, $Language, $Id, $Word) :-
     naf(input_token_in_phrase($Scope, $Id)),
     bare_noun_candidate($Word),
     naf(bare_noun_neighbour($Scope, $Id)).
-% Un nome nudo vale solo ISOLATO. «Corals secrete hard carbonate exoskeletons»:
+% E la SEQUENZA senza articolo: parole piene consecutive, fuori da ogni
+% sintagma con articolo, sono UN'entita' con il nome di tutte («coral polyps»,
+% «ancient times», «hard carbonate exoskeletons»). Il nodo che la porta e' il
+% suo primo token; le sue parole sono parti dell'entita', non parole non lette.
+machinery(bare_token).
+machinery(bare_run).
+machinery(bare_run_start).
+bare_token($Scope, $Id, $W) :-
+    input_node_atom($Scope, $Id, $W),
+    naf(input_token_in_phrase($Scope, $Id)), bare_noun_candidate($W).
+bare_run_start($Scope, $Id) :-
+    bare_token($Scope, $Id, $W), naf(bare_noun_neighbour_before($Scope, $Id)).
+bare_noun_neighbour_before($Scope, $Id) :-
+    input_node_next($Scope, $P, $Id), bare_token($Scope, $P, $W).
+bare_run($Scope, $Id, cons($W, $R)) :-
+    bare_token($Scope, $Id, $W), input_node_next($Scope, $Id, $N),
+    bare_token($Scope, $N, $W2), bare_run($Scope, $N, $R).
+bare_run($Scope, $Id, cons($W, nil)) :-
+    bare_token($Scope, $Id, $W), naf(bare_noun_neighbour_after($Scope, $Id)).
+bare_noun_neighbour_after($Scope, $Id) :-
+    input_node_next($Scope, $Id, $N), bare_token($Scope, $N, $W).
+input_entity_node($Scope, $Language, $Id, $Entity) :-
+    bare_run_start($Scope, $Id),
+    bare_run($Scope, $Id, cons($A, cons($B, $R))),
+    words_underscored(cons($A, cons($B, $R)), $Entity).
+% Un nome nudo vale solo ISOLATO (la sequenza e' la clausola sopra). «Corals secrete hard carbonate exoskeletons»:
 % tre parole piene senza articolo sono UN sintagma, e spezzarle faceva leggere
 % l'oggetto «hard» (piolo r300: «what do corals secrete?» → «hard.», perso).
 % Finche' manca il lettore dello span senza articolo, la IR tace su quella
@@ -189,7 +214,7 @@ input_token_in_phrase($Scope, $Id) :-
     input_node($Scope, $P, node(phrase, np_candidate, $Parent), range($PS, $PL)),
     is($PE, add($PS, $PL)), naf(lt($Start, $PS)), lt($Start, $PE).
 bare_noun_candidate($W) :-
-    naf(word_is_function_word($W)),
+    naf(word_is_function_word($W)), naf(preposition($W)), naf(trailing_subordinator($W)),
     naf(word_is_verb_form($W)), naf(word_is_number($W)).
 % Le classi funzionali sono quelle che la KB dichiara (`function_word_class/1`):
 % una classe nuova vale anche qui senza toccare la regola. «yet» (una
@@ -263,7 +288,8 @@ machinery(unread_word_between).
 unread_word_between($Scope, $Low, $High) :-
     input_node($Scope, $T, node(token, token, $P), range($S, $L)),
     naf(lt($S, $Low)), lt($S, $High),
-    input_node_atom($Scope, $T, $W), naf(word_is_function_word($W)).
+    input_node_atom($Scope, $T, $W), naf(bare_noun_candidate($W)),
+    naf(word_is_function_word($W)).
 
 input_class_node($Scope, $Language, $Id, $Class) :-
     input_node_form($Scope, $Id, $Language, form($Surface, $Class)),
@@ -524,6 +550,14 @@ input_assertion_coordinated(
         $Scope, $Language, relation($Relation, $RId),
         coordination(subject($SId, $Subject), first($O1Id, $Object1),
                      cue($CId), second($O2Id, $Object2))).
+
+% Il bundle di cio' che l'osservazione ha GIA' registrato: il frame unico del
+% turno (`input_frame_record/3`) come asserzione, senza ricalcolare i frame. Per
+% la prosa detta nel turno, dove l'osservazione avviene un istante prima del
+% commit: ricalcolarli costava 6 s su un paragrafo (19 settembre 2026).
+machinery(input_recorded_bundle).
+input_recorded_bundle($Scope, cons(proposition($Operator, $Roles), nil)) :-
+    input_frame_record($Scope, frame(assertion, $Operator), $Roles).
 
 input_assertion_bundle($Scope, cons($Assertion, nil)) :-
     input_assertion_unique($Scope, $Assertion).

@@ -5453,7 +5453,7 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
          * nomina relazioni, ordini o lingue; una domanda non ha bundle. */
         char bundles[1][KB_TERM_LEN];
         const char *bq[] = { "current_turn", NULL };
-        if (kb_match(b->kb, "input_assertion_bundle", bq, 2, bundles, 1) == 1) {
+        if (kb_match(b->kb, "input_recorded_bundle", bq, 2, bundles, 1) == 1) {
             char receipts[1][KB_TERM_LEN];
             const char *cq[] = { "current_turn", bundles[0], NULL };
             kb_match(b->kb, "input_frame_commit", cq, 3, receipts, 1);

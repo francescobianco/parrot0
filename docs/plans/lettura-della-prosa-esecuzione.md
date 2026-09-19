@@ -445,6 +445,25 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- ✅ **Specie A, 12:15–12:35: radice preferita, sequenze senza articolo,
+  commit dal record.**
+  - una forma flessa dichiarata anche verbo a sé si legge come la radice («Compost
+    supplies nutrients» ora si impegna);
+  - `qro` vale solo senza un soggetto detto fra gap e verbo;
+  - una **sequenza** di parole piene senza articolo è un'entità («hard carbonate
+    exoskeletons», «coral polyps», «ancient times»), e le sue parole non sono
+    più «parole non lette»;
+  - il nome esclude anche `preposition/1` e `trailing_subordinator/1`: «since.» su
+    r300 era una falsa risposta;
+  - il commit della prosa del turno parte dal frame già registrato
+    (`input_recorded_bundle/2`), senza ricalcolare: -6 s sul paragrafo.
+  Pioli: r300 48/62 con cancello, r320 20/68, r340 **6/65** (+1 dalla lettura:
+  «ancient times rooted.», span di una parola troppo lungo). Risposte giuste lette dalla
+  IR: r300 1, r320 2, r340 1. **Costo:** `input_frame_observe` sul paragrafo di r320
+  passa da 2,1 a 5,5 s (le sequenze si rivalutano a ogni domanda di vicinanza);
+  i pioli durano r320 100 s e r340 108 s, contro 67 e 74. Sono sotto il limite, ma
+  la prossima cosa da fare è una lista delle sequenze calcolata una volta per
+  clausola, come per la vicinanza.
 - ✅ **Specie A, 11:30–11:50: la prosa del turno, il soggetto, e tre false
   risposte chiuse.** Anche la prosa detta nel turno si impegna dalla IR
   (`db2e713a`). Nuove domande sul **soggetto** («what/who threatens forests?»,
