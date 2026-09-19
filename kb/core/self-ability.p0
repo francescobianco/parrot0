@@ -151,3 +151,53 @@ speak_surface("parlare", speak).
 speak_surface("parla", speak).
 speak_surface("parli", speak).
 turn_form_yield(ability_polar, speak_surface, 1, subject).
+
+% ── 5. LA STESSA CAPACITA' PER OGNI ABILITA' (19 settembre 2026) ─────────────
+% «sai parlare italiano» era un caso di una classe: «can you swim?», «can you
+% read?», «sai cucinare?» murano allo stesso modo. La domanda d'abilita' su di
+% se' prende un verbo qualsiasi; la risposta viene da cio' che parrot0 sa di
+% se': che cosa sa fare (legato a una facolta' reale), che cosa non puo' fare
+% perche' non ha un corpo, e per il resto tace (risponde il percorso di prima).
+%
+% L'infinito italiano si riconosce per morfologia sulla glossa gia' presente
+% (la terza persona): «nuotare» → nuot+a → «nuota» → swim. La parola e' data,
+% quindi -ere/-ire non sono un'ambiguita'.
+italian_infinitive($V, $Inf) :- concat_atoms($S, "are", $Inf), concat_atoms($S, "a", $Th), tr($V, $Th).
+italian_infinitive($V, $Inf) :- concat_atoms($S, "ere", $Inf), concat_atoms($S, "e", $Th), tr($V, $Th).
+italian_infinitive($V, $Inf) :- concat_atoms($S, "ire", $Inf), concat_atoms($S, "e", $Th), tr($V, $Th).
+self_turn_verb($T, $V) :- self_turn_word($T, $V).
+self_turn_verb($T, $V) :-
+    turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $S), italian_infinitive($V, $S).
+
+% Che cosa parrot0 sa fare, con la facolta' che lo regge.
+self_can(read).        % «read: …» e la prosa incollata: lettura e domande sul testo
+self_can(write).       % lo strumento di scrittura e la generazione di codice verificata
+self_can(learn).       % le lezioni parlate (LEARN_PROTOCOL.md §6-bis)
+self_can(remember).    % la memoria della sessione e /save
+self_can(translate).   % il modulo di traduzione fra italiano e inglese
+self_can(calculate).   % l'aritmetica e i problemi a parole
+self_can(count).       % il conteggio di parole, frasi, elementi
+% Che cosa richiede un corpo, che parrot0 non ha.
+bodily_action(swim).  bodily_action(walk).  bodily_action(eat).
+bodily_action(drink). bodily_action(sleep). bodily_action(dance).
+bodily_action(fly).   bodily_action(drive). bodily_action(cook).
+bodily_action(sing).  bodily_action(see).   bodily_action(touch).
+
+self_ability_query($T, $V) :-
+    self_ability_marker($T), self_turn_verb($T, $V), naf(speak_verb($V)),
+    self_known_ability($V).
+self_known_ability($V) :- self_can($V).
+self_known_ability($V) :- bodily_action($V).
+
+self_can_yes(en, $V, $T) :- concat_atoms("Yes, I can ", $V, $X), concat_atoms($X, ".", $T).
+self_can_yes(it, $V, "Sì, lo so fare.").
+self_can_no_body(en, $V, $T) :- concat_atoms("No, I can't ", $V, $X), concat_atoms($X, ": I have no body.", $T).
+self_can_no_body(it, $V, "No, non posso: non ho un corpo.").
+
+turn_response($T, $Text) :-
+    self_ability_query($T, $V), self_can($V), self_reply_language($RL),
+    self_can_yes($RL, $V, $Text).
+turn_response($T, $Text) :-
+    self_ability_query($T, $V), bodily_action($V), self_reply_language($RL),
+    self_can_no_body($RL, $V, $Text).
+turn_plan_candidate($T) :- self_ability_query($T, $V).

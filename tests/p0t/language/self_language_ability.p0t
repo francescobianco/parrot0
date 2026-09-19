@@ -36,3 +36,15 @@
 <! I speak
 > Mario sa parlare italiano?
 <! parlo
+
+[test la stessa capacita' per ogni abilita': facolta' reali e azioni del corpo]
+> can you read?
+< Yes, I can read.
+> can you swim?
+< No, I can't swim: I have no body.
+> sai nuotare?
+< No, non posso: non ho un corpo.
+> puoi leggere?
+< Sì, lo so fare.
+> can birds fly?
+<! I have no body
