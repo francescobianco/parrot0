@@ -257,7 +257,18 @@ input_entity_item($Scope, $Language, ent($Start, $Id, $Entity)) :-
     input_entity_node($Scope, $Language, $Id, $Entity),
     input_node_range($Scope, $Id, $Start, $Len).
 input_clause_entities($Scope, $Language, $Items) :-
+    input_entities_observed($Scope, $Language),
+    findall($Item, input_entity_cached($Scope, $Language, $Item), $Items).
+input_clause_entities($Scope, $Language, $Items) :-
+    naf(input_entities_observed($Scope, $Language)),
     findall($Item, input_entity_item($Scope, $Language, $Item), $Items).
+% (19 settembre 2026: le entita' di una clausola si chiedono UNA volta, subito
+% dopo la pubblicazione del turno; il C registra le risposte come
+% `input_entity_cached/3` + `input_entities_observed/2` e le ritira alla
+% pubblicazione successiva. Rivalutarle a ogni domanda di vicinanza costava
+% 5,5 s su un paragrafo.)
+machinery(input_entity_cached).
+machinery(input_entities_observed).
 entity_item_between($Items, $Low, $High) :-
     member(ent($S, $I, $E), $Items), lt($Low, $S), lt($S, $High).
 

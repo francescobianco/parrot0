@@ -1,0 +1,119 @@
+
+═══ PROSA: tests/fixtures/prose/ladder/r340.txt — 338 parole (piolo 0) ═══
+    Charcoal is a lightweight black residue made of carbon that is produced by strongly heating 
+    wood (or other animal and plant materials) in minimal oxygen to remove all water and volatile 
+    constituents. In the traditional version of this pyrolysis process, called charcoal burning, 
+    often by forming a charcoal kiln, the heat is supplied by burning part of the starting material 
+    itself, with a limited supply of oxygen. The material can also be heated in a closed retort. 
+    Modern charcoal briquettes used for outdoor cooking may contain many other additives, e.g. 
+    coal. Charcoal has diverse applications, including as various fuels such as industrial fuel, 
+    cooking and heating fuels, and metallurgical fuel in iron and steel production, as well as a 
+    reducing agent in chemical processes, and as a raw material in pyrotechnics. It is also 
+    utilized in cosmetics, horticulture, animal husbandry, medicine using activated charcoal, and 
+    environmental sustainability efforts, such as carbon sequestration. The early history of wood 
+    charcoal production spans ancient times, rooted in the abundance of wood in various regions. 
+    The process typically involves stacking wood billets to form a conical pile, allowing air to 
+    enter through openings at the bottom, and igniting the pile gradually. Charcoal burners, 
+    skilled professionals tasked with managing the delicate operation, often lived in isolation to 
+    tend their wood piles. Throughout history, the extensive production of charcoal has been a 
+    significant contributor to deforestation, particularly in regions like Central Europe. However, 
+    various management practices, such as coppicing, aimed to maintain a steady supply of wood for 
+    charcoal production. The scarcity of easily accessible wood resources eventually led to the 
+    transition to fossil fuel equivalents like coal. Modern methods of charcoal production involve 
+    carbonizing wood in retorts, yielding higher efficiencies compared to traditional kilning 
+    methods. The properties of charcoal depend on factors such as the material charred and the 
+    temperature of carbonization. The production and utilization of charcoal can have adverse 
+    environmental impacts such as deforestation and emissions. Illegal and unregulated charcoal 
+    production is particularly prevalent in regions like South America and Africa.
+
+(passo 1 saltato: P0_PROBE_STEP2=1)
+
+─── PASSO 2 · legge tutta la prosa, poi risponde. La risposta E' nel testo ───
+
+  banco: 65 domande nel merito, 450 parole per 338 di testo (margine 1.25: ok).
+
+  DOMANDA                            SPECIE     ESITO  RISPOSTA
+  ────────────────────────────────────────────────────────────────────────────────
+  what is charcoal?                  merito     ✓    answerframe  Charcoal is classed as lightweight black residue.
+  what is charcoal made of?          merito     ✓    answerframe  Carbon.
+  what does charcoal have?           merito     ·     fallback     I don't understand that yet.
+  what do the properties of charco   merito     ·     knowledge    I don't know: nothing I hold says properties of ch
+  what does modern charcoal contai   merito     ·     fallback     Hmm, I don't know about contain yet. Want me to le
+  what can the material be heated    merito     ·     fallback     Hmm, I don't know about heated yet. Want me to lea
+  what supplies the heat?            merito     ·     fallback     Hmm, I don't know about supplies yet. Want me to l
+  what is charcoal utilized in?      merito     ·     self         I looked up «supplies» but found nothing. If you
+  what does the process involve?     merito     ✓    answerframe  Stacking wood billets.
+  what did charcoal production con   merito     ·     knowledge    I don't know: nothing I hold says charcoal product
+  what did the scarcity of wood le   merito     ·     knowledge    I don't know: nothing I hold says scarcity of wood
+  what do modern methods involve?    merito     ·     fallback     Hmm, I don't know about methods yet. Want me to le
+  what did management practices ai   merito     ·     fallback     Hmm, I don't know about management yet. Want me to
+  what kind of residue is charcoal   merito     ✓    answerframe  charcoal is classed as lightweight black residue.
+  what is charcoal produced by?      merito     ·     knowledge    I don't know: nothing I hold says charcoal produce
+  what is heated to produce charco   merito     ·     fallback     Hmm, I don't know about heated yet.
+  in what is wood heated to produc   merito     ·     fallback     Hmm, I don't know about heated yet.
+  what does heating wood in minima   merito     ·     fallback     Hmm, I don't know about heating yet. Want me to le
+  what is removed from the wood?     merito     ·     fallback     Hmm, I don't know about removed yet. Want me to le
+  what other materials can be heat   merito     ·     fallback     Hmm, I don't know about materials yet. Want me to 
+  what is the traditional version    merito     ·     fallback     Hmm, I don't know about traditional_version yet.
+  what is charcoal burning?          merito     ·     learn        I don't know much about charcoal burning yet, and 
+  what is often formed in charcoal   merito     ·     knowledge    charcoal is a lightweight black residue.
+  what is the heat supplied by in    merito     ·     knowledge    charcoal is a lightweight black residue.
+  with what supply of oxygen is th   merito     ·     fallback     Hmm, I don't know about supply yet. Want me to lea
+  how can the material also be hea   merito     ·     abduce       I have no rule that would make anything a heated, 
+  what are modern charcoal briquet   merito     ·     knowledge    I don't know: nothing I hold says modern charcoal 
+  what may modern charcoal briquet   merito     ·     fallback     Hmm, I don't know about briquettes yet.
+  what is an example of an additiv   merito     ·     fallback     Hmm, I don't know about additive yet. Want me to l
+  what are the applications of cha   merito     ·     knowledge    I don't know about applications.
+  what fuels does charcoal serve a   merito     ✓    knowledge    cooking, fuels, iron, production, processes, pyrot
+  what is metallurgical fuel used    merito     ·     knowledge    I don't know: nothing I hold says metallurgical fu
+  what is charcoal used as in chem   merito     ·     knowledge    I don't know: nothing I hold says charcoal used as
+  what is charcoal a raw material    merito     ·     learn        I don't know much about charcoal a raw material ye
+  what is charcoal utilized in bes   merito     ·     knowledge    I don't know: nothing I hold says charcoal utilize
+  what kind of charcoal is used in   merito     ·     fallback     I don't understand that yet.
+  what is an example of an environ   merito     ·     knowledge    I can't show that.
+  what does the early history of w   merito     ✓    turn_plan    ancient times rooted.
+  what is the early history of cha   merito     ·     fallback     Hmm, I don't know about early history yet. Want me
+  what are wood billets stacked to   merito     ·     knowledge    I don't know: nothing I hold says wood billets sta
+  where does air enter the pile?     merito     ·     fallback     I don't understand that yet.
+  how is the pile ignited?           merito     ·     fallback     Hmm, I don't know about ignited yet. Want me to le
+  who were charcoal burners?         merito     ·     fallback     Hmm, I don't know about burners yet. Want me to le
+  what were charcoal burners taske   merito     ·     fallback     Hmm, I don't know about burners yet.
+  where did charcoal burners often   merito     ·     fallback     Hmm, I don't know about burners yet.
+  why did charcoal burners live in   merito     ·     knowledge    I don't know: nothing I hold says charcoal burners
+  what has the extensive productio   merito     ·     fallback     Hmm, I don't know about extensive_production yet.
+  in which regions did charcoal pr   merito     ·     knowledge    america, africa.
+  what is an example of a manageme   merito     ·     knowledge    I can't show that.
+  what did coppicing aim to mainta   merito     ·     fallback     Hmm, I don't know about maintain yet. Want me to l
+  what are fossil fuel equivalents   merito     ·     learn        I don't know much about fossil fuel equivalents li
+  where is wood carbonized in mode   merito     ·     analysis_family On wood carbonized in modern, a sound investigatio
+  what do modern methods yield?      merito     ·     fallback     Hmm, I don't know about methods yet.
+  what are modern methods compared   merito     ·     fallback     Hmm, I don't know about methods yet.
+  what factors do the properties o   merito     ·     knowledge    charred, carbonization.
+  what can the production of charc   merito     ·     fallback     I don't understand that yet.
+  what are examples of adverse env   merito     ·     fallback     Hmm, I don't know about adverse yet. Want me to le
+  where is illegal charcoal produc   merito     ·     turn_plan    I don't know: I understood «where is», but I am 
+  what kind of charcoal production   merito     ·     fallback     Hmm, I don't know about prevalent yet. Want me to 
+  what is charcoal used as a reduc   merito     ·     knowledge    I don't know: nothing I hold says charcoal used as
+  what does charcoal have diverse    merito     ·     knowledge    I don't know: nothing I hold says charcoal had div
+  what is the temperature of carbo   merito     ·     answerframe  Temperature measures the average energy of the ran
+  what did the scarcity of wood re   merito     ·     knowledge    I don't know: nothing I hold says scarcity of wood
+  what kind of wood resources beca   merito     ·     fallback     Hmm, I don't know about resources yet. Want me to 
+  what is charcoal made of carbon    merito     ·     answerframe  The carbon cycle exchanges carbon among air, ocean
+  how many sentences does the text   struttura  ✓    turn_plan    The text has 16 sentences.
+  how many words does the text hav   struttura  ✓    turn_plan    The text has 338 words.
+  what is the first sentence?        struttura  ✓    turn_plan    It begins: Charcoal is a lightweight black residue
+  how does the text begin?           struttura  ✓    turn_plan    It begins: Charcoal is a lightweight black residue
+  what is the last sentence?         struttura  ✓    turn_plan    It ends: Illegal and unregulated charcoal producti
+  what is this text about?           meta       ✓    turn_plan    The text is about Charcoal.
+  what is the topic?                 meta       ✓    turn_plan    The text is about Charcoal.
+
+  furti (non muro, non giusta) per modulo:  knowledge×4  answerframe×2  analysis_family×1
+  ────────────────────────────────────────────────────────────────────────────────
+  merito     6/65
+  meta       2/2
+  struttura  5/5
+
+  13 domande su 72 hanno ricevuto quello che il testo dice.
+  ⛔ CANCELLO: 35 parole di domande nel merito risolte, ne servono piu' di 338 (mancano 304).
+  ⛔ 59 restano senza: la risposta E' nel testo, e il lettore non la porta.
+

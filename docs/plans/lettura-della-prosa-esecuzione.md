@@ -463,7 +463,13 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   passa da 2,1 a 5,5 s (le sequenze si rivalutano a ogni domanda di vicinanza);
   i pioli durano r320 100 s e r340 108 s, contro 67 e 74. Sono sotto il limite, ma
   la prossima cosa da fare è una lista delle sequenze calcolata una volta per
-  clausola, come per la vicinanza.
+  clausola, come per la vicinanza. **Fatto alle 12:38:** le entità della clausola
+  si chiedono una volta per pubblicazione e si registrano (`input_entity_cached/3`),
+  e `input_frame_observe` scende da 5,5 a 2,6 s. I pioli però restano r320 95 s e
+  r340 108 s, mentre i turni brevi costano come prima (A/B su 14 turni): il
+  tempo sta nelle **domande dopo un paragrafo letto**, con molti più fatti di
+  lettura in KB. Prossimo: profilare una domanda di r340 dopo la lettura.
+  Cosmetico aperto: la risposta A non mette la maiuscola iniziale («zilvan.»).
 - ✅ **Specie A, 11:30–11:50: la prosa del turno, il soggetto, e tre false
   risposte chiuse.** Anche la prosa detta nel turno si impegna dalla IR
   (`db2e713a`). Nuove domande sul **soggetto** («what/who threatens forests?»,

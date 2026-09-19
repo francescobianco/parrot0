@@ -5444,6 +5444,30 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
      * unique semantic observation.  This call names only the open observation
      * protocol: words, languages, operators and word orders remain KB facts. */
     {
+        /* Le entita' della clausola si chiedono alla KB una volta per
+         * pubblicazione e si registrano: le domande di vicinanza dei frame le
+         * rileggono invece di rivalutarle (input-structure.p0). */
+        {
+            const char *any3[] = { "current_turn", NULL, NULL };
+            const char *any2[] = { "current_turn", NULL };
+            kb_retract_match(b->kb, "input_entity_cached", any3, 3);
+            kb_retract_match(b->kb, "input_entities_observed", any2, 2);
+            char lang[1][KB_TERM_LEN];
+            const char *lq[] = { "current_turn", NULL };
+            if (kb_match(b->kb, "turn_language_observed", lq, 2, lang, 1) == 1) {
+                char (*items)[KB_TERM_LEN] = NULL; size_t ni = 0;
+                const char *iq[] = { "current_turn", lang[0], NULL };
+                if (kb_match_all(b->kb, "input_entity_item", iq, 3, &items, &ni)) {
+                    for (size_t i = 0; i < ni; i++) {
+                        const char *fa[] = { "current_turn", lang[0], items[i] };
+                        kb_assert(b->kb, "input_entity_cached", fa, 3);
+                    }
+                    const char *oa[] = { "current_turn", lang[0] };
+                    kb_assert(b->kb, "input_entities_observed", oa, 2);
+                }
+                free(items);
+            }
+        }
         char observed[1][KB_TERM_LEN];
         const char *q[] = { "current_turn", NULL };
         kb_match(b->kb, "input_frame_observe", q, 2, observed, 1);
