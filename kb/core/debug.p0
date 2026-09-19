@@ -90,6 +90,16 @@ debug_probe(50, gap_register, turn, "registro riconosciuto").
 % condotta che parrot0 ha, l'altro e' quello che ha fatto in questo turno.
 debug_probe(22, plan_move, any, "i PIANI che so: situazione, ordine, mossa").
 debug_probe(21, turn_plan_step, now, "il PIANO INTERNO: i passi fatti dentro questo turno, in ordine").
+% 19 settembre 2026 — che cosa VEDE la IR del turno: i sintagmi candidati e le
+% entita' che i frame possono legare. Senza queste due righe, per capire perche'
+% «the phylum Cnidaria» non era un'entita' si potevano solo fare domande si'/no.
+machinery(debug_np_candidate).
+machinery(debug_turn_entity).
+debug_np_candidate($T, $Q) :-
+    input_node($T, $I, node(phrase, np_candidate, $P), $R), input_node_surface($T, $I, $Q).
+debug_turn_entity($T, $E) :- input_scope_language($T, $L), input_entity_node($T, $L, $I, $E).
+debug_probe(24, debug_np_candidate, now, "i sintagmi candidati della IR del turno").
+debug_probe(25, debug_turn_entity, now, "le entita' che i frame del turno possono legare").
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").
 
