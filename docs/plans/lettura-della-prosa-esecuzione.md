@@ -482,6 +482,17 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che `findall` fallisce se il risultato arriva legato in parte. Prova: una
   frase con entità tutte note, che il percorso IR impegnava già (i test
   `document_*`), e `!query input_assertion_unique(current_prose, _)`.
+  **Misurato alle 10:57.** Il commit della IR su `read:` **non produce bundle nemmeno
+  con la KB d'inizio sessione** (`636ce2a2`, A/B per file), neanche per «read:
+  Mercury is a metal.». Con la KB di oggi il nodo operatore (`membership`) e il
+  nodo classe (`metal`) ci sono, ma **«Mercury» non è un'entità**: non è
+  `semantic_entity`, e senza articolo non diventa `np_candidate`. Quindi non nasce
+  nessun frame, l'insieme delle asserzioni è vuoto, e ogni fatto letto da
+  `read:` viene oggi dagli schemi di stringa (specie B). Il prossimo anello
+  di E2a è riconoscere come candidato ruolo anche il **nome nudo** (un token
+  pieno fuori da ogni classe funzionale e non forma di verbo), sempre
+  come conoscenza KB sulla IR e non come elenco. Solo dopo ha senso
+  provare l'ipotesi (b).
 - **E2b, primo passo (tenuto).** Il passivo dalla radice torna, ma solo per
   `event_subject_verb/1`: sono i verbi il cui soggetto può essere un'azione o un
   mezzo, seme `aid`, insegnabili con «V is an event subject verb» e
