@@ -455,9 +455,17 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   non coinciderebbe con la domanda del banco («the **animal** phylum Cnidaria» nel
   testo, «the phylum cnidaria» nella domanda: identità del nome per testa e
   modificatori, E4b). r300 invariato; la frase singola in chat dà un muro anche
-  senza la regola (preesistente). **Prossima prova:** `!query input_node(current_turn,
-  I, node(phrase, np_candidate, P), R)` e le superfici su quella frase, per vedere
-  dove si chiude o manca il sintagma candidato.
+  senza la regola (preesistente). **Prova fatta (13:58):**
+  - «phylum» e «cnidaria» passano `bare_noun_candidate/1` e non sono `np_closer`;
+  - almeno un token è dentro un sintagma candidato;
+  - nessun `np_candidate` ha la superficie «the phylum Cnidaria», né varianti con
+    la relativa.
+  Ipotesi: il sintagma aperto da «the» **non si chiude alla virgola** (i token perdono la
+  punteggiatura, e lo splitter del sintagma in `src/code.c` guarda solo le parole),
+  quindi corre oltre «which» e ingloba la relativa. La cura attesa è in KB: il
+  sintagma finisce dove i token non sono contigui (`tokens_contiguous/3`), con la
+  stessa regola già usata per le sequenze senza articolo. Va verificata sulla
+  superficie del nodo prima di toccare lo splitter.
 - ✅ **E3 in specie A, 13:39–13:45: il complemento preposizionale come ruolo.**
   Dopo l'oggetto, una preposizione e un'entità raggiungibile si registrano accanto
   alla proposizione impegnata: `semantic_complement(binding(R, S, O), Prep, X)`.
