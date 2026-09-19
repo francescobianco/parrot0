@@ -445,6 +445,25 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
   qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
   cui costruire E2c.
+- ✅ **Specie A, 11:30–11:50: la prosa del turno, il soggetto, e tre false
+  risposte chiuse.** Anche la prosa detta nel turno si impegna dalla IR
+  (`db2e713a`). Nuove domande sul **soggetto** («what/who threatens forests?»,
+  ordine `qro`). Tre false risposte della strada A viste sui pioli e chiuse in KB:
+  - «hard.»: una sequenza senza articolo spezzata in nomi singoli; ora un nome
+    nudo vale solo **isolato**;
+  - «yet.»: una congiunzione presa per un nome; ora vale la classe dichiarata
+    `function_word_class/1`, e i pioli sono anche più veloci;
+  - «abundance.»: la vicinanza saltava parole piene non lette; ora fra operatore
+    ed entità ci possono stare **solo parole funzionali**;
+  - «reefs.»: un gap dopo una preposizione («in what water») letto come ruolo;
+    ora `gap_after_preposition/2` lo esclude.
+  Pioli invariati e più veloci: r300 48/62 (54 s), r320 20/68 (67 s), r340 5/65
+  (74 s). Una risposta del banco viene dalla lettura (r320, «what does composting
+  offer?»). `ir_reading_answer.p0t`: 10 verdi.
+  **Regola ricavata:** ogni volta che la strada A risponde dove prima c'era un
+  muro, il referto la mostra come «non muro, non giusta». Va guardata subito,
+  perché la strada A risponde **prima** del frasario, e una sua falsa risposta
+  vale più di un muro.
 - ✅ **Specie A, la catena ENTRATA (19 settembre, 11:20).** Dopo la lingua
   memorizzata per lo scope (`f4706f2a`) la catena v2 di `docs/labs/specie-a/`
   costa **2,1 s** di `input_frame_observe` sul paragrafo di r320 (erano 34,6 s

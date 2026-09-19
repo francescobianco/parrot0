@@ -25,6 +25,14 @@
 > what does the zorvan beetle threaten?
 < kelda forest.
 
+[test la domanda sul soggetto legge lo stesso legame]
+> what threatens forests?
+< beetles.
+> who threatens forests?
+< beetles.
+> who answered?
+<! answerframe
+
 [test senza un legame letto la strada A tace]
 > what do wolves threaten?
 <! forests

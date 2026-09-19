@@ -3629,6 +3629,11 @@ frame_gap_form(en, what,   object).
 frame_gap_form(en, what,   class).
 frame_gap_form(en, which,  class).
 frame_gap_form(en, many,   value).
+% E2/E5, 19 settembre 2026 — la domanda sul SOGGETTO («what threatens forests?»,
+% «who threatens forests?»): il gap viene prima del verbo e l'oggetto dopo.
+frame_gap_form(en, what,   subject).
+frame_gap_form(en, who,    subject).
+frame_pattern(en, binary,     question,  qro).
 frame_gap_form(it, cosa,   object).
 frame_gap_form(it, cosa,   class).
 frame_gap_form(it, quale,  class).

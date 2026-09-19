@@ -189,9 +189,17 @@ input_token_in_phrase($Scope, $Id) :-
     input_node($Scope, $P, node(phrase, np_candidate, $Parent), range($PS, $PL)),
     is($PE, add($PS, $PL)), naf(lt($Start, $PS)), lt($Start, $PE).
 bare_noun_candidate($W) :-
-    naf(stopword($W)), naf(np_opener($W)),
-    naf(clause_copula($W)), naf(auxiliary($W)), naf(question_word($W)),
+    naf(word_is_function_word($W)),
     naf(word_is_verb_form($W)), naf(word_is_number($W)).
+% Le classi funzionali sono quelle che la KB dichiara (`function_word_class/1`):
+% una classe nuova vale anche qui senza toccare la regola. «yet» (una
+% congiunzione) era diventato un nome e rispondeva a «what do coral reefs provide
+% a home for?» (r300). `np_closer` si salta perche' e' la classe piu' cara da
+% provare parola per parola, e i suoi membri funzionali (preposizioni,
+% congiunzioni) stanno gia' nelle altre.
+machinery(word_is_function_word).
+word_is_function_word($W) :-
+    function_word_class($C), dif($C, np_closer), apply($C, cons($W, nil)).
 % `naf` non lega variabili libere: le domande con un argomento incognito passano
 % da un ausiliario ground.
 word_is_verb_form($W) :- verb_reading_form($Root, $W).
@@ -233,14 +241,29 @@ input_nearest_entity_before($Scope, $Language, $Anchor,
     input_node_range($Scope, $Anchor, $AStart, $ALen),
     input_clause_entities($Scope, $Language, $Items),
     member(ent($Start, $Id, $Entity), $Items), lt($Start, $AStart),
-    naf(entity_item_between($Items, $Start, $AStart)).
+    naf(entity_item_between($Items, $Start, $AStart)),
+    input_node_range($Scope, $Id, $Start, $Len), is($End, add($Start, $Len)),
+    naf(unread_word_between($Scope, $End, $AStart)).
 
 input_nearest_entity_after($Scope, $Language, $Anchor,
                            entity($Id, $Entity)) :-
     input_node_range($Scope, $Anchor, $AStart, $ALen),
     input_clause_entities($Scope, $Language, $Items),
     member(ent($Start, $Id, $Entity), $Items), lt($AStart, $Start),
-    naf(entity_item_between($Items, $AStart, $Start)).
+    naf(entity_item_between($Items, $AStart, $Start)),
+    is($AEnd, add($AStart, $ALen)),
+    naf(unread_word_between($Scope, $AEnd, $Start)).
+
+% «Vicino» vuol dire che fra l'operatore e l'entita' ci sono solo parole
+% funzionali. Se in mezzo c'e' una parola piena che la IR non ha letto come
+% entita' («spans ANCIENT TIMES …, rooted in the abundance»), la vicinanza
+% saltava fino alla prima entita' dopo e scriveva un legame falso (r340:
+% «abundance.» al posto di un muro). La IR tace invece di saltare.
+machinery(unread_word_between).
+unread_word_between($Scope, $Low, $High) :-
+    input_node($Scope, $T, node(token, token, $P), range($S, $L)),
+    naf(lt($S, $Low)), lt($S, $High),
+    input_node_atom($Scope, $T, $W), naf(word_is_function_word($W)).
 
 input_class_node($Scope, $Language, $Id, $Class) :-
     input_node_form($Scope, $Id, $Language, form($Surface, $Class)),
@@ -264,7 +287,15 @@ input_coordination_node($Scope, $Language, $Id, $Surface) :-
 
 input_gap_node($Scope, $Language, $Role, $Id) :-
     input_node_atom($Scope, $Id, $Surface),
-    frame_gap_form($Language, $Surface, $Role).
+    frame_gap_form($Language, $Surface, $Role),
+    naf(gap_after_preposition($Scope, $Id)).
+% «IN what water do coral reefs grow best?»: il gap e' il complemento di una
+% preposizione, non il soggetto ne' l'oggetto del verbo. Letto come ruolo dava
+% «reefs.» (r300, 19 settembre). Le preposizioni sono quelle che chiudono un
+% sintagma (`np_closer/1`).
+machinery(gap_after_preposition).
+gap_after_preposition($Scope, $Id) :-
+    input_node_next($Scope, $P, $Id), input_node_atom($Scope, $P, $W), np_closer($W).
 
 input_number_node($Scope, $Id, $Number) :-
     input_node_atom($Scope, $Id, $Surface),
@@ -404,6 +435,16 @@ input_semantic_frame($Scope, question, membership($Relation),
                                entity($SId, $Subject)),
     input_node_order3($Scope, $QId, $RId, $SId).
 
+input_semantic_frame($Scope, question, binary($Relation),
+                     roles(subject(missing), object($Object))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, question, qro),
+    input_gap_node($Scope, $Language, subject, $QId),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    input_nearest_entity_after($Scope, $Language, $RId,
+                               entity($OId, $Object)),
+    input_node_order3($Scope, $QId, $RId, $OId).
+
 input_frame_gap($Scope, binary($Relation), object) :-
     input_semantic_frame($Scope, question, binary($Relation),
                          roles(subject($Subject), object(missing))).
@@ -538,6 +579,10 @@ proposition_source($Proposition, $Source, $Language, $Range) :-
 % La domanda non viene tradotta in un altro formato: completa il proprio ruolo
 % `missing` contro la proposizione reificata. Questo e' il ponte effettivo fra
 % lettura e dialogo e funziona anche quando le due lingue non coincidono.
+input_frame_reading($Scope, binary($Relation), subject, $Subject) :-
+    input_frame_record($Scope, frame(question, binary($Relation)),
+                       roles(subject(missing), object($Object))),
+    semantic_binding(binary($Relation), $Subject, object($Object)).
 input_frame_reading($Scope, binary($Relation), object, $Object) :-
     input_frame_record($Scope, frame(question, binary($Relation)),
                        roles(subject($Subject), object(missing))),
@@ -563,7 +608,7 @@ input_frame_reading($Scope, membership($Relation), class, $Class) :-
 machinery(ir_reading_answer).
 turn_response($Turn, $Text) :- ir_reading_answer($Turn, $Text).
 ir_reading_answer($Turn, $Text) :-
-    input_frame_reading_unique($Turn, binary($Relation), object, $Value),
+    input_frame_reading_unique($Turn, binary($Relation), $Role, $Value),
     atom_words($Value, $Ws), words_join($Ws, $Name), concat_atoms($Name, ".", $Text).
 
 input_frame_reading_key($Scope, reading($Operator, $Role, $Value)) :-
