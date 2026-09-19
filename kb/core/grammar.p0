@@ -13,9 +13,9 @@
 % funziona allo stesso modo, con zero C.
 :- file_attribute(machinery).
 
-% Prima fogliata di grammatica e pragmatica inglese (19 settembre 2026).
+% Grammatica e pragmatica inglese (prima fogliata, 19 settembre 2026).
 % Conoscenza condivisa da tutti i profili; non un profilo ridotto alternativo.
-:- include(english-prose.p0).
+:- include(english-grammar.p0).
 
 % grammar.p0 — the declarative home of the "grammatical glue" (Secchio B),
 % migrated one rule at a time from C (docs/plans/teach-comprehension-via-mcp.md

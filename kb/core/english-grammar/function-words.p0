@@ -1,0 +1,1347 @@
+% function-words.p0 — determinazione, operatori, quantificazione, tempo e modalita
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+reading_feature(determination_definite, determination, definite).
+reading_name("definite determination", determination_definite).
+expression_reading("the", determination_definite).
+reading_feature(determination_indefinite, determination, indefinite).
+reading_name("indefinite determination", determination_indefinite).
+expression_reading("a", determination_indefinite).
+expression_reading("an", determination_indefinite).
+reading_feature(determination_proximal, determination, proximal).
+reading_name("proximal determination", determination_proximal).
+expression_reading("this", determination_proximal).
+expression_reading("these", determination_proximal).
+reading_feature(determination_distal, determination, distal).
+reading_name("distal determination", determination_distal).
+expression_reading("that", determination_distal).
+expression_reading("those", determination_distal).
+reading_feature(determination_possessive, determination, possessive).
+reading_name("possessive determination", determination_possessive).
+expression_reading("my", determination_possessive).
+expression_reading("your", determination_possessive).
+expression_reading("his", determination_possessive).
+expression_reading("her", determination_possessive).
+expression_reading("its", determination_possessive).
+expression_reading("our", determination_possessive).
+expression_reading("their", determination_possessive).
+expression_reading("whose", determination_possessive).
+reading_feature(determination_distributive, determination, distributive).
+reading_name("distributive determination", determination_distributive).
+expression_reading("each", determination_distributive).
+expression_reading("every", determination_distributive).
+expression_reading("each and every", determination_distributive).
+reading_feature(determination_universal, determination, universal).
+reading_name("universal determination", determination_universal).
+expression_reading("all", determination_universal).
+expression_reading("both", determination_universal).
+expression_reading("the whole of", determination_universal).
+expression_reading("the entirety of", determination_universal).
+reading_feature(determination_existential, determination, existential).
+reading_name("existential determination", determination_existential).
+expression_reading("some", determination_existential).
+expression_reading("several", determination_existential).
+expression_reading("a few", determination_existential).
+expression_reading("a little", determination_existential).
+expression_reading("a number of", determination_existential).
+expression_reading("a certain", determination_existential).
+reading_feature(determination_negative, determination, negative).
+reading_name("negative determination", determination_negative).
+expression_reading("no", determination_negative).
+expression_reading("neither", determination_negative).
+expression_reading("none of", determination_negative).
+expression_reading("not a single", determination_negative).
+reading_feature(determination_proportional, determination, proportional).
+reading_name("proportional determination", determination_proportional).
+expression_reading("most", determination_proportional).
+expression_reading("many", determination_proportional).
+expression_reading("much", determination_proportional).
+expression_reading("few", determination_proportional).
+expression_reading("little", determination_proportional).
+expression_reading("a majority of", determination_proportional).
+expression_reading("the majority of", determination_proportional).
+expression_reading("a minority of", determination_proportional).
+expression_reading("a large proportion of", determination_proportional).
+expression_reading("a small proportion of", determination_proportional).
+reading_feature(determination_alternative, determination, alternative).
+reading_name("alternative determination", determination_alternative).
+expression_reading("either", determination_alternative).
+expression_reading("any", determination_alternative).
+expression_reading("whichever", determination_alternative).
+expression_reading("whatever", determination_alternative).
+reading_feature(determination_additional, determination, additional).
+reading_name("additional determination", determination_additional).
+expression_reading("another", determination_additional).
+expression_reading("other", determination_additional).
+expression_reading("further", determination_additional).
+expression_reading("additional", determination_additional).
+reading_feature(determination_identity, determination, identity).
+reading_name("identity determination", determination_identity).
+expression_reading("the same", determination_identity).
+expression_reading("such", determination_identity).
+expression_reading("the very", determination_identity).
+reading_feature(determination_ordinal, determination, ordinal).
+reading_name("ordinal determination", determination_ordinal).
+expression_reading("first", determination_ordinal).
+expression_reading("second", determination_ordinal).
+expression_reading("third", determination_ordinal).
+expression_reading("fourth", determination_ordinal).
+expression_reading("fifth", determination_ordinal).
+expression_reading("sixth", determination_ordinal).
+expression_reading("seventh", determination_ordinal).
+expression_reading("eighth", determination_ordinal).
+expression_reading("ninth", determination_ordinal).
+expression_reading("tenth", determination_ordinal).
+expression_reading("last", determination_ordinal).
+expression_reading("next", determination_ordinal).
+expression_reading("previous", determination_ordinal).
+expression_reading("subsequent", determination_ordinal).
+expression_reading("preceding", determination_ordinal).
+expression_reading("following", determination_ordinal).
+expression_reading("former", determination_ordinal).
+expression_reading("latter", determination_ordinal).
+reading_feature(quantity_universal, quantity, universal).
+reading_name("universal quantity", quantity_universal).
+expression_reading("both", quantity_universal).
+reading_feature(quantity_existential, quantity, existential).
+reading_name("existential quantity", quantity_existential).
+expression_reading("some", quantity_existential).
+expression_reading("several", quantity_existential).
+expression_reading("a few", quantity_existential).
+expression_reading("a little", quantity_existential).
+expression_reading("at least one", quantity_existential).
+reading_feature(quantity_zero, quantity, zero).
+reading_name("zero quantity", quantity_zero).
+expression_reading("no", quantity_zero).
+expression_reading("none", quantity_zero).
+expression_reading("neither", quantity_zero).
+expression_reading("not any", quantity_zero).
+expression_reading("not a single", quantity_zero).
+reading_feature(quantity_lower_bound, quantity, lower_bound).
+reading_name("lower bound quantity", quantity_lower_bound).
+expression_reading("at least", quantity_lower_bound).
+expression_reading("no fewer than", quantity_lower_bound).
+expression_reading("no less than", quantity_lower_bound).
+expression_reading("not less than", quantity_lower_bound).
+expression_reading("a minimum of", quantity_lower_bound).
+expression_reading("upwards of", quantity_lower_bound).
+expression_reading("more than", quantity_lower_bound).
+expression_reading("over", quantity_lower_bound).
+expression_reading("greater than", quantity_lower_bound).
+expression_reading("in excess of", quantity_lower_bound).
+reading_feature(quantity_upper_bound, quantity, upper_bound).
+reading_name("upper bound quantity", quantity_upper_bound).
+expression_reading("at most", quantity_upper_bound).
+expression_reading("no more than", quantity_upper_bound).
+expression_reading("not more than", quantity_upper_bound).
+expression_reading("a maximum of", quantity_upper_bound).
+expression_reading("up to", quantity_upper_bound).
+expression_reading("fewer than", quantity_upper_bound).
+expression_reading("less than", quantity_upper_bound).
+expression_reading("under", quantity_upper_bound).
+expression_reading("below", quantity_upper_bound).
+reading_feature(quantity_exact, quantity, exact).
+reading_name("exact quantity", quantity_exact).
+expression_reading("exactly", quantity_exact).
+expression_reading("precisely", quantity_exact).
+expression_reading("equal to", quantity_exact).
+expression_reading("amounting to", quantity_exact).
+expression_reading("numbering", quantity_exact).
+reading_feature(quantity_approximate, quantity, approximate).
+reading_name("approximate quantity", quantity_approximate).
+expression_reading("about", quantity_approximate).
+expression_reading("around", quantity_approximate).
+expression_reading("approximately", quantity_approximate).
+expression_reading("roughly", quantity_approximate).
+expression_reading("nearly", quantity_approximate).
+expression_reading("almost", quantity_approximate).
+expression_reading("close to", quantity_approximate).
+expression_reading("on the order of", quantity_approximate).
+expression_reading("in the region of", quantity_approximate).
+expression_reading("or so", quantity_approximate).
+expression_reading("some", quantity_approximate).
+reading_feature(quantity_proportional, quantity, proportional).
+reading_name("proportional quantity", quantity_proportional).
+expression_reading("most", quantity_proportional).
+expression_reading("the majority of", quantity_proportional).
+expression_reading("half of", quantity_proportional).
+expression_reading("one half of", quantity_proportional).
+expression_reading("a third of", quantity_proportional).
+expression_reading("a quarter of", quantity_proportional).
+expression_reading("two thirds of", quantity_proportional).
+expression_reading("a fraction of", quantity_proportional).
+expression_reading("a proportion of", quantity_proportional).
+expression_reading("a percentage of", quantity_proportional).
+reading_feature(quantity_distributive, quantity, distributive).
+reading_name("distributive quantity", quantity_distributive).
+expression_reading("each", quantity_distributive).
+expression_reading("every", quantity_distributive).
+expression_reading("apiece", quantity_distributive).
+expression_reading("per", quantity_distributive).
+expression_reading("respectively", quantity_distributive).
+expression_reading("individually", quantity_distributive).
+expression_reading("separately", quantity_distributive).
+reading_feature(quantity_collective, quantity, collective).
+reading_name("collective quantity", quantity_collective).
+expression_reading("together", quantity_collective).
+expression_reading("jointly", quantity_collective).
+expression_reading("collectively", quantity_collective).
+expression_reading("in combination", quantity_collective).
+expression_reading("as a whole", quantity_collective).
+expression_reading("in total", quantity_collective).
+expression_reading("altogether", quantity_collective).
+expression_reading("combined", quantity_collective).
+reading_feature(quantity_range_start, quantity, range_start).
+reading_name("range start quantity", quantity_range_start).
+expression_reading("between", quantity_range_start).
+expression_reading("from", quantity_range_start).
+expression_reading("ranging from", quantity_range_start).
+expression_reading("ranging between", quantity_range_start).
+reading_feature(quantity_range_end, quantity, range_end).
+reading_name("range end quantity", quantity_range_end).
+expression_reading("to", quantity_range_end).
+expression_reading("through", quantity_range_end).
+expression_reading("until", quantity_range_end).
+expression_reading("and", quantity_range_end).
+reading_feature(quantity_exception, quantity, exception).
+reading_name("exception quantity", quantity_exception).
+expression_reading("except", quantity_exception).
+expression_reading("except for", quantity_exception).
+expression_reading("apart from", quantity_exception).
+expression_reading("excluding", quantity_exception).
+expression_reading("other than", quantity_exception).
+expression_reading("with the exception of", quantity_exception).
+expression_reading("save for", quantity_exception).
+reading_feature(quantity_nonuniversal_negation, quantity, nonuniversal_negation).
+reading_name("nonuniversal negation quantity", quantity_nonuniversal_negation).
+expression_reading("not all", quantity_nonuniversal_negation).
+expression_reading("not every", quantity_nonuniversal_negation).
+expression_reading("not everyone", quantity_nonuniversal_negation).
+expression_reading("not everything", quantity_nonuniversal_negation).
+expression_reading("not both", quantity_nonuniversal_negation).
+expression_reading("not necessarily", quantity_nonuniversal_negation).
+reading_feature(polarity_negated, polarity, negated).
+reading_name("negated polarity", polarity_negated).
+expression_reading("not", polarity_negated).
+expression_reading("never", polarity_negated).
+expression_reading("neither", polarity_negated).
+expression_reading("nor", polarity_negated).
+expression_reading("no longer", polarity_negated).
+expression_reading("not anymore", polarity_negated).
+expression_reading("by no means", polarity_negated).
+expression_reading("in no way", polarity_negated).
+expression_reading("under no circumstances", polarity_negated).
+expression_reading("on no account", polarity_negated).
+expression_reading("not at all", polarity_negated).
+reading_feature(polarity_absence, polarity, absence).
+reading_name("absence polarity", polarity_absence).
+expression_reading("without", polarity_absence).
+expression_reading("lacking", polarity_absence).
+expression_reading("devoid of", polarity_absence).
+expression_reading("free of", polarity_absence).
+expression_reading("free from", polarity_absence).
+expression_reading("absent", polarity_absence).
+expression_reading("in the absence of", polarity_absence).
+reading_feature(polarity_negative_frequency, polarity, negative_frequency).
+reading_name("negative frequency polarity", polarity_negative_frequency).
+expression_reading("rarely", polarity_negative_frequency).
+expression_reading("seldom", polarity_negative_frequency).
+expression_reading("hardly ever", polarity_negative_frequency).
+expression_reading("almost never", polarity_negative_frequency).
+expression_reading("scarcely ever", polarity_negative_frequency).
+reading_feature(polarity_partial, polarity, partial).
+reading_name("partial polarity", polarity_partial).
+expression_reading("not entirely", polarity_partial).
+expression_reading("not completely", polarity_partial).
+expression_reading("not always", polarity_partial).
+expression_reading("not necessarily", polarity_partial).
+expression_reading("not quite", polarity_partial).
+expression_reading("not fully", polarity_partial).
+reading_feature(polarity_litotes, polarity, litotes).
+reading_name("litotes polarity", polarity_litotes).
+expression_reading("not uncommon", polarity_litotes).
+expression_reading("not unknown", polarity_litotes).
+expression_reading("not insignificant", polarity_litotes).
+expression_reading("not unusual", polarity_litotes).
+expression_reading("not impossible", polarity_litotes).
+expression_reading("not unlikely", polarity_litotes).
+expression_reading("not without", polarity_litotes).
+reading_feature(polarity_contrastive, polarity, contrastive).
+reading_name("contrastive polarity", polarity_contrastive).
+expression_reading("not only", polarity_contrastive).
+expression_reading("not merely", polarity_contrastive).
+expression_reading("not simply", polarity_contrastive).
+expression_reading("rather than", polarity_contrastive).
+expression_reading("instead of", polarity_contrastive).
+reading_feature(modality_possible, modality, possible).
+reading_name("epistemic possibility", modality_possible).
+expression_reading("possibly", modality_possible).
+expression_reading("perhaps", modality_possible).
+expression_reading("maybe", modality_possible).
+expression_reading("conceivably", modality_possible).
+expression_reading("potentially", modality_possible).
+expression_reading("it is possible that", modality_possible).
+expression_reading("it may be that", modality_possible).
+reading_feature(modality_probable, modality, probable).
+reading_name("epistemic probability", modality_probable).
+expression_reading("probably", modality_probable).
+expression_reading("likely", modality_probable).
+expression_reading("apparently", modality_probable).
+expression_reading("presumably", modality_probable).
+expression_reading("in all likelihood", modality_probable).
+expression_reading("it is likely that", modality_probable).
+expression_reading("would appear to", modality_probable).
+expression_reading("is expected to", modality_probable).
+reading_feature(modality_necessary, modality, necessary).
+reading_name("necessary modality", modality_necessary).
+expression_reading("necessarily", modality_necessary).
+expression_reading("inevitably", modality_necessary).
+expression_reading("of necessity", modality_necessary).
+expression_reading("cannot but", modality_necessary).
+expression_reading("has to", modality_necessary).
+expression_reading("have to", modality_necessary).
+expression_reading("had to", modality_necessary).
+reading_feature(modality_ability, modality, ability).
+reading_name("ability modality", modality_ability).
+expression_reading("can", modality_ability).
+expression_reading("could", modality_ability).
+expression_reading("be able to", modality_ability).
+expression_reading("is able to", modality_ability).
+expression_reading("are able to", modality_ability).
+expression_reading("was able to", modality_ability).
+expression_reading("were able to", modality_ability).
+expression_reading("capable of", modality_ability).
+reading_feature(modality_permission, modality, permission).
+reading_name("permission modality", modality_permission).
+expression_reading("may", modality_permission).
+expression_reading("can", modality_permission).
+expression_reading("be allowed to", modality_permission).
+expression_reading("is allowed to", modality_permission).
+expression_reading("are allowed to", modality_permission).
+expression_reading("is permitted to", modality_permission).
+expression_reading("are permitted to", modality_permission).
+reading_feature(modality_obligation, modality, obligation).
+reading_name("an obligation", modality_obligation).
+expression_reading("must", modality_obligation).
+expression_reading("should", modality_obligation).
+expression_reading("ought to", modality_obligation).
+expression_reading("shall", modality_obligation).
+expression_reading("have to", modality_obligation).
+expression_reading("has to", modality_obligation).
+expression_reading("need to", modality_obligation).
+expression_reading("needs to", modality_obligation).
+expression_reading("is required to", modality_obligation).
+expression_reading("are required to", modality_obligation).
+expression_reading("is obliged to", modality_obligation).
+reading_feature(modality_prohibition, modality, prohibition).
+reading_name("a prohibition", modality_prohibition).
+expression_reading("must not", modality_prohibition).
+expression_reading("must never", modality_prohibition).
+expression_reading("may not", modality_prohibition).
+expression_reading("is prohibited from", modality_prohibition).
+expression_reading("are prohibited from", modality_prohibition).
+expression_reading("is forbidden to", modality_prohibition).
+expression_reading("are forbidden to", modality_prohibition).
+reading_feature(modality_no_obligation, modality, no_obligation).
+reading_name("no obligation modality", modality_no_obligation).
+expression_reading("need not", modality_no_obligation).
+expression_reading("does not need to", modality_no_obligation).
+expression_reading("do not need to", modality_no_obligation).
+expression_reading("does not have to", modality_no_obligation).
+expression_reading("do not have to", modality_no_obligation).
+expression_reading("is not required to", modality_no_obligation).
+reading_feature(modality_volition, modality, volition).
+reading_name("volition modality", modality_volition).
+expression_reading("will", modality_volition).
+expression_reading("would", modality_volition).
+expression_reading("willing to", modality_volition).
+expression_reading("intends to", modality_volition).
+expression_reading("intend to", modality_volition).
+expression_reading("plans to", modality_volition).
+expression_reading("plan to", modality_volition).
+expression_reading("aims to", modality_volition).
+expression_reading("aim to", modality_volition).
+expression_reading("seeks to", modality_volition).
+expression_reading("seek to", modality_volition).
+reading_feature(modality_counterfactual, modality, counterfactual).
+reading_name("counterfactual modality", modality_counterfactual).
+expression_reading("would have", modality_counterfactual).
+expression_reading("could have", modality_counterfactual).
+expression_reading("might have", modality_counterfactual).
+expression_reading("should have", modality_counterfactual).
+expression_reading("had it not been for", modality_counterfactual).
+expression_reading("but for", modality_counterfactual).
+expression_reading("were it not for", modality_counterfactual).
+reading_feature(modality_habitual, modality, habitual).
+reading_name("habitual modality", modality_habitual).
+expression_reading("would", modality_habitual).
+expression_reading("used to", modality_habitual).
+expression_reading("is accustomed to", modality_habitual).
+expression_reading("are accustomed to", modality_habitual).
+expression_reading("tends to", modality_habitual).
+expression_reading("tend to", modality_habitual).
+reading_feature(time_past, time, past).
+reading_name("past time", time_past).
+expression_reading("formerly", time_past).
+expression_reading("previously", time_past).
+expression_reading("earlier", time_past).
+expression_reading("once", time_past).
+expression_reading("historically", time_past).
+expression_reading("originally", time_past).
+expression_reading("initially", time_past).
+expression_reading("in the past", time_past).
+expression_reading("at that time", time_past).
+expression_reading("in those days", time_past).
+expression_reading("until then", time_past).
+expression_reading("hitherto", time_past).
+expression_reading("heretofore", time_past).
+expression_reading("yesterday", time_past).
+expression_reading("ago", time_past).
+reading_feature(time_present, time, present).
+reading_name("present time", time_present).
+expression_reading("now", time_present).
+expression_reading("currently", time_present).
+expression_reading("presently", time_present).
+expression_reading("today", time_present).
+expression_reading("at present", time_present).
+expression_reading("at the moment", time_present).
+expression_reading("nowadays", time_present).
+expression_reading("to date", time_present).
+expression_reading("as of now", time_present).
+reading_feature(time_future, time, future).
+reading_name("future time", time_future).
+expression_reading("tomorrow", time_future).
+expression_reading("later", time_future).
+expression_reading("subsequently", time_future).
+expression_reading("eventually", time_future).
+expression_reading("henceforth", time_future).
+expression_reading("hereafter", time_future).
+expression_reading("in future", time_future).
+expression_reading("in the future", time_future).
+expression_reading("thereafter", time_future).
+reading_feature(time_anterior, time, anterior).
+reading_name("anterior time", time_anterior).
+expression_reading("before", time_anterior).
+expression_reading("prior to", time_anterior).
+expression_reading("earlier than", time_anterior).
+expression_reading("preceding", time_anterior).
+expression_reading("in advance of", time_anterior).
+expression_reading("already", time_anterior).
+expression_reading("previously", time_anterior).
+expression_reading("by the time", time_anterior).
+reading_feature(time_posterior, time, posterior).
+reading_name("posterior time", time_posterior).
+expression_reading("after", time_posterior).
+expression_reading("following", time_posterior).
+expression_reading("later than", time_posterior).
+expression_reading("subsequent to", time_posterior).
+expression_reading("afterwards", time_posterior).
+expression_reading("afterward", time_posterior).
+expression_reading("then", time_posterior).
+expression_reading("next", time_posterior).
+expression_reading("thereupon", time_posterior).
+expression_reading("subsequently", time_posterior).
+reading_feature(time_simultaneous, time, simultaneous).
+reading_name("simultaneous time", time_simultaneous).
+expression_reading("while", time_simultaneous).
+expression_reading("whilst", time_simultaneous).
+expression_reading("when", time_simultaneous).
+expression_reading("as", time_simultaneous).
+expression_reading("during", time_simultaneous).
+expression_reading("throughout", time_simultaneous).
+expression_reading("meanwhile", time_simultaneous).
+expression_reading("simultaneously", time_simultaneous).
+expression_reading("at the same time", time_simultaneous).
+expression_reading("concurrently", time_simultaneous).
+expression_reading("in the meantime", time_simultaneous).
+reading_feature(time_onset, time, onset).
+reading_name("onset time", time_onset).
+expression_reading("since", time_onset).
+expression_reading("from", time_onset).
+expression_reading("beginning in", time_onset).
+expression_reading("starting in", time_onset).
+expression_reading("commencing in", time_onset).
+expression_reading("as from", time_onset).
+expression_reading("as of", time_onset).
+expression_reading("from then on", time_onset).
+reading_feature(time_termination, time, termination).
+reading_name("termination time", time_termination).
+expression_reading("until", time_termination).
+expression_reading("till", time_termination).
+expression_reading("up to", time_termination).
+expression_reading("by", time_termination).
+expression_reading("ending in", time_termination).
+expression_reading("no later than", time_termination).
+expression_reading("not until", time_termination).
+reading_feature(time_duration, time, duration).
+reading_name("duration time", time_duration).
+expression_reading("for", time_duration).
+expression_reading("over", time_duration).
+expression_reading("throughout", time_duration).
+expression_reading("during", time_duration).
+expression_reading("lasting", time_duration).
+expression_reading("for a period of", time_duration).
+expression_reading("over a period of", time_duration).
+expression_reading("in the course of", time_duration).
+reading_feature(time_iteration, time, iteration).
+reading_name("iteration time", time_iteration).
+expression_reading("again", time_iteration).
+expression_reading("repeatedly", time_iteration).
+expression_reading("recurrently", time_iteration).
+expression_reading("periodically", time_iteration).
+expression_reading("intermittently", time_iteration).
+expression_reading("successively", time_iteration).
+expression_reading("on successive occasions", time_iteration).
+reading_feature(time_frequency, time, frequency).
+reading_name("frequency time", time_frequency).
+expression_reading("always", time_frequency).
+expression_reading("usually", time_frequency).
+expression_reading("often", time_frequency).
+expression_reading("frequently", time_frequency).
+expression_reading("sometimes", time_frequency).
+expression_reading("occasionally", time_frequency).
+expression_reading("rarely", time_frequency).
+expression_reading("seldom", time_frequency).
+expression_reading("never", time_frequency).
+expression_reading("generally", time_frequency).
+expression_reading("typically", time_frequency).
+expression_reading("commonly", time_frequency).
+expression_reading("normally", time_frequency).
+expression_reading("regularly", time_frequency).
+expression_reading("routinely", time_frequency).
+expression_reading("invariably", time_frequency).
+reading_feature(time_continuation, time, continuation).
+reading_name("continuation time", time_continuation).
+expression_reading("still", time_continuation).
+expression_reading("yet", time_continuation).
+expression_reading("continue to", time_continuation).
+expression_reading("continues to", time_continuation).
+expression_reading("remains", time_continuation).
+expression_reading("remain", time_continuation).
+expression_reading("ongoing", time_continuation).
+expression_reading("continuously", time_continuation).
+expression_reading("continually", time_continuation).
+expression_reading("persistently", time_continuation).
+reading_feature(time_completion, time, completion).
+reading_name("completion time", time_completion).
+expression_reading("already", time_completion).
+expression_reading("finally", time_completion).
+expression_reading("at last", time_completion).
+expression_reading("eventually", time_completion).
+expression_reading("completely", time_completion).
+expression_reading("fully", time_completion).
+expression_reading("entirely", time_completion).
+expression_reading("finished", time_completion).
+expression_reading("completed", time_completion).
+reading_feature(space_location, space, location).
+reading_name("location space", space_location).
+expression_reading("in", space_location).
+expression_reading("at", space_location).
+expression_reading("on", space_location).
+expression_reading("within", space_location).
+expression_reading("inside", space_location).
+expression_reading("outside", space_location).
+expression_reading("near", space_location).
+expression_reading("beside", space_location).
+expression_reading("next to", space_location).
+expression_reading("alongside", space_location).
+expression_reading("adjacent to", space_location).
+expression_reading("amid", space_location).
+expression_reading("amidst", space_location).
+expression_reading("among", space_location).
+expression_reading("amongst", space_location).
+expression_reading("between", space_location).
+expression_reading("around", space_location).
+expression_reading("surrounding", space_location).
+expression_reading("aboard", space_location).
+expression_reading("ashore", space_location).
+expression_reading("overseas", space_location).
+reading_feature(space_source, space, source).
+reading_name("source space", space_source).
+expression_reading("from", space_source).
+expression_reading("out of", space_source).
+expression_reading("away from", space_source).
+expression_reading("off", space_source).
+expression_reading("originating in", space_source).
+expression_reading("originating from", space_source).
+expression_reading("derived from", space_source).
+reading_feature(space_goal, space, goal).
+reading_name("goal space", space_goal).
+expression_reading("to", space_goal).
+expression_reading("into", space_goal).
+expression_reading("onto", space_goal).
+expression_reading("toward", space_goal).
+expression_reading("towards", space_goal).
+expression_reading("up to", space_goal).
+expression_reading("as far as", space_goal).
+reading_feature(space_path, space, path).
+reading_name("path space", space_path).
+expression_reading("through", space_path).
+expression_reading("across", space_path).
+expression_reading("along", space_path).
+expression_reading("via", space_path).
+expression_reading("by way of", space_path).
+expression_reading("past", space_path).
+expression_reading("around", space_path).
+expression_reading("over", space_path).
+expression_reading("under", space_path).
+expression_reading("beyond", space_path).
+expression_reading("throughout", space_path).
+reading_feature(space_orientation, space, orientation).
+reading_name("orientation space", space_orientation).
+expression_reading("above", space_orientation).
+expression_reading("below", space_orientation).
+expression_reading("beneath", space_orientation).
+expression_reading("underneath", space_orientation).
+expression_reading("behind", space_orientation).
+expression_reading("in front of", space_orientation).
+expression_reading("opposite", space_orientation).
+expression_reading("north of", space_orientation).
+expression_reading("south of", space_orientation).
+expression_reading("east of", space_orientation).
+expression_reading("west of", space_orientation).
+expression_reading("upstream of", space_orientation).
+expression_reading("downstream of", space_orientation).
+reading_feature(space_extent, space, extent).
+reading_name("extent space", space_extent).
+expression_reading("across", space_extent).
+expression_reading("throughout", space_extent).
+expression_reading("over", space_extent).
+expression_reading("between", space_extent).
+expression_reading("from", space_extent).
+expression_reading("to", space_extent).
+expression_reading("as far as", space_extent).
+reading_feature(adjunct_agent, adjunct, agent).
+reading_name("agent adjunct", adjunct_agent).
+expression_reading("by", adjunct_agent).
+reading_feature(adjunct_instrument, adjunct, instrument).
+reading_name("instrument adjunct", adjunct_instrument).
+expression_reading("with", adjunct_instrument).
+expression_reading("using", adjunct_instrument).
+expression_reading("by means of", adjunct_instrument).
+expression_reading("with the aid of", adjunct_instrument).
+expression_reading("with the help of", adjunct_instrument).
+expression_reading("through the use of", adjunct_instrument).
+reading_feature(adjunct_means, adjunct, means).
+reading_name("means adjunct", adjunct_means).
+expression_reading("by", adjunct_means).
+expression_reading("through", adjunct_means).
+expression_reading("via", adjunct_means).
+expression_reading("by way of", adjunct_means).
+expression_reading("by virtue of", adjunct_means).
+reading_feature(adjunct_material, adjunct, material).
+reading_name("material adjunct", adjunct_material).
+expression_reading("of", adjunct_material).
+expression_reading("from", adjunct_material).
+expression_reading("out of", adjunct_material).
+expression_reading("made of", adjunct_material).
+expression_reading("made from", adjunct_material).
+expression_reading("composed of", adjunct_material).
+reading_feature(adjunct_recipient, adjunct, recipient).
+reading_name("recipient adjunct", adjunct_recipient).
+expression_reading("to", adjunct_recipient).
+expression_reading("for", adjunct_recipient).
+reading_feature(adjunct_beneficiary, adjunct, beneficiary).
+reading_name("beneficiary adjunct", adjunct_beneficiary).
+expression_reading("for", adjunct_beneficiary).
+expression_reading("on behalf of", adjunct_beneficiary).
+expression_reading("for the benefit of", adjunct_beneficiary).
+reading_feature(adjunct_topic, adjunct, topic).
+reading_name("topic adjunct", adjunct_topic).
+expression_reading("about", adjunct_topic).
+expression_reading("concerning", adjunct_topic).
+expression_reading("regarding", adjunct_topic).
+expression_reading("with regard to", adjunct_topic).
+expression_reading("with respect to", adjunct_topic).
+expression_reading("as regards", adjunct_topic).
+expression_reading("in relation to", adjunct_topic).
+expression_reading("in terms of", adjunct_topic).
+reading_feature(adjunct_accompaniment, adjunct, accompaniment).
+reading_name("accompaniment adjunct", adjunct_accompaniment).
+expression_reading("with", adjunct_accompaniment).
+expression_reading("together with", adjunct_accompaniment).
+expression_reading("along with", adjunct_accompaniment).
+expression_reading("in conjunction with", adjunct_accompaniment).
+expression_reading("accompanied by", adjunct_accompaniment).
+reading_feature(adjunct_manner, adjunct, manner).
+reading_name("manner adjunct", adjunct_manner).
+expression_reading("as", adjunct_manner).
+expression_reading("like", adjunct_manner).
+expression_reading("in the manner of", adjunct_manner).
+expression_reading("in a way that", adjunct_manner).
+expression_reading("by analogy with", adjunct_manner).
+reading_feature(adjunct_purpose, adjunct, purpose).
+reading_name("purpose adjunct", adjunct_purpose).
+expression_reading("for", adjunct_purpose).
+expression_reading("to", adjunct_purpose).
+expression_reading("in order to", adjunct_purpose).
+expression_reading("so as to", adjunct_purpose).
+expression_reading("for the purpose of", adjunct_purpose).
+expression_reading("with a view to", adjunct_purpose).
+expression_reading("so that", adjunct_purpose).
+expression_reading("in order that", adjunct_purpose).
+reading_feature(adjunct_cause, adjunct, cause).
+reading_name("cause adjunct", adjunct_cause).
+expression_reading("because of", adjunct_cause).
+expression_reading("owing to", adjunct_cause).
+expression_reading("due to", adjunct_cause).
+expression_reading("as a result of", adjunct_cause).
+expression_reading("on account of", adjunct_cause).
+expression_reading("thanks to", adjunct_cause).
+expression_reading("in consequence of", adjunct_cause).
+reading_feature(adjunct_standard, adjunct, standard).
+reading_name("standard adjunct", adjunct_standard).
+expression_reading("according to", adjunct_standard).
+expression_reading("in accordance with", adjunct_standard).
+expression_reading("consistent with", adjunct_standard).
+expression_reading("in conformity with", adjunct_standard).
+expression_reading("under", adjunct_standard).
+reading_feature(comparison_degree, comparison, degree).
+reading_name("degree comparison", comparison_degree).
+expression_reading("very", comparison_degree).
+expression_reading("extremely", comparison_degree).
+expression_reading("highly", comparison_degree).
+expression_reading("deeply", comparison_degree).
+expression_reading("greatly", comparison_degree).
+expression_reading("particularly", comparison_degree).
+expression_reading("especially", comparison_degree).
+expression_reading("exceptionally", comparison_degree).
+expression_reading("remarkably", comparison_degree).
+expression_reading("considerably", comparison_degree).
+expression_reading("substantially", comparison_degree).
+expression_reading("significantly", comparison_degree).
+expression_reading("relatively", comparison_degree).
+expression_reading("comparatively", comparison_degree).
+expression_reading("fairly", comparison_degree).
+expression_reading("rather", comparison_degree).
+expression_reading("quite", comparison_degree).
+expression_reading("somewhat", comparison_degree).
+expression_reading("slightly", comparison_degree).
+expression_reading("marginally", comparison_degree).
+expression_reading("barely", comparison_degree).
+expression_reading("hardly", comparison_degree).
+expression_reading("scarcely", comparison_degree).
+expression_reading("almost", comparison_degree).
+expression_reading("nearly", comparison_degree).
+expression_reading("fully", comparison_degree).
+expression_reading("entirely", comparison_degree).
+expression_reading("wholly", comparison_degree).
+expression_reading("partly", comparison_degree).
+expression_reading("partially", comparison_degree).
+reading_feature(comparison_greater, comparison, greater).
+reading_name("greater comparison", comparison_greater).
+expression_reading("more", comparison_greater).
+expression_reading("greater", comparison_greater).
+expression_reading("higher", comparison_greater).
+expression_reading("larger", comparison_greater).
+expression_reading("longer", comparison_greater).
+expression_reading("faster", comparison_greater).
+expression_reading("stronger", comparison_greater).
+expression_reading("better", comparison_greater).
+expression_reading("worse", comparison_greater).
+expression_reading("older", comparison_greater).
+expression_reading("younger", comparison_greater).
+expression_reading("earlier", comparison_greater).
+expression_reading("later", comparison_greater).
+expression_reading("heavier", comparison_greater).
+expression_reading("closer", comparison_greater).
+expression_reading("farther", comparison_greater).
+expression_reading("further", comparison_greater).
+reading_feature(comparison_lesser, comparison, lesser).
+reading_name("lesser comparison", comparison_lesser).
+expression_reading("less", comparison_lesser).
+expression_reading("fewer", comparison_lesser).
+expression_reading("lower", comparison_lesser).
+expression_reading("smaller", comparison_lesser).
+expression_reading("shorter", comparison_lesser).
+expression_reading("slower", comparison_lesser).
+expression_reading("weaker", comparison_lesser).
+reading_feature(comparison_equality, comparison, equality).
+reading_name("equality comparison", comparison_equality).
+expression_reading("as", comparison_equality).
+expression_reading("equally", comparison_equality).
+expression_reading("equivalent to", comparison_equality).
+expression_reading("equal to", comparison_equality).
+expression_reading("the same as", comparison_equality).
+expression_reading("as much as", comparison_equality).
+expression_reading("as many as", comparison_equality).
+reading_feature(comparison_inequality, comparison, inequality).
+reading_name("inequality comparison", comparison_inequality).
+expression_reading("than", comparison_inequality).
+expression_reading("different from", comparison_inequality).
+expression_reading("different to", comparison_inequality).
+expression_reading("different than", comparison_inequality).
+expression_reading("unlike", comparison_inequality).
+expression_reading("distinct from", comparison_inequality).
+expression_reading("in contrast to", comparison_inequality).
+reading_feature(comparison_superlative, comparison, superlative).
+reading_name("superlative comparison", comparison_superlative).
+expression_reading("most", comparison_superlative).
+expression_reading("least", comparison_superlative).
+expression_reading("best", comparison_superlative).
+expression_reading("worst", comparison_superlative).
+expression_reading("largest", comparison_superlative).
+expression_reading("smallest", comparison_superlative).
+expression_reading("highest", comparison_superlative).
+expression_reading("lowest", comparison_superlative).
+expression_reading("longest", comparison_superlative).
+expression_reading("shortest", comparison_superlative).
+expression_reading("oldest", comparison_superlative).
+expression_reading("youngest", comparison_superlative).
+expression_reading("earliest", comparison_superlative).
+expression_reading("latest", comparison_superlative).
+expression_reading("nearest", comparison_superlative).
+expression_reading("farthest", comparison_superlative).
+expression_reading("furthest", comparison_superlative).
+expression_reading("greatest", comparison_superlative).
+reading_feature(comparison_proportional, comparison, proportional).
+reading_name("proportional comparison", comparison_proportional).
+expression_reading("the more", comparison_proportional).
+expression_reading("the less", comparison_proportional).
+expression_reading("the greater", comparison_proportional).
+expression_reading("the higher", comparison_proportional).
+expression_reading("the lower", comparison_proportional).
+expression_reading("twice as", comparison_proportional).
+expression_reading("half as", comparison_proportional).
+expression_reading("three times as", comparison_proportional).
+reading_feature(comparison_sufficiency, comparison, sufficiency).
+reading_name("sufficiency comparison", comparison_sufficiency).
+expression_reading("enough", comparison_sufficiency).
+expression_reading("sufficiently", comparison_sufficiency).
+expression_reading("adequately", comparison_sufficiency).
+expression_reading("too", comparison_sufficiency).
+expression_reading("excessively", comparison_sufficiency).
+expression_reading("insufficiently", comparison_sufficiency).
+reading_feature(question_subject, question, subject).
+reading_name("subject question", question_subject).
+expression_reading("who", question_subject).
+expression_reading("what", question_subject).
+expression_reading("which", question_subject).
+reading_feature(question_object, question, object).
+reading_name("object question", question_object).
+expression_reading("whom", question_object).
+expression_reading("who", question_object).
+expression_reading("what", question_object).
+expression_reading("which", question_object).
+reading_feature(question_possessor, question, possessor).
+reading_name("possessor question", question_possessor).
+expression_reading("whose", question_possessor).
+reading_feature(question_place, question, place).
+reading_name("place question", question_place).
+expression_reading("where", question_place).
+expression_reading("whereabouts", question_place).
+expression_reading("in which place", question_place).
+expression_reading("at which location", question_place).
+reading_feature(question_time, question, time).
+reading_name("time question", question_time).
+expression_reading("when", question_time).
+expression_reading("at what time", question_time).
+expression_reading("in what year", question_time).
+expression_reading("on what date", question_time).
+expression_reading("since when", question_time).
+expression_reading("until when", question_time).
+reading_feature(question_reason, question, reason).
+reading_name("reason question", question_reason).
+expression_reading("why", question_reason).
+expression_reading("for what reason", question_reason).
+expression_reading("how come", question_reason).
+reading_feature(question_manner, question, manner).
+reading_name("manner question", question_manner).
+expression_reading("how", question_manner).
+expression_reading("in what way", question_manner).
+expression_reading("by what means", question_manner).
+reading_feature(question_quantity, question, quantity).
+reading_name("quantity question", question_quantity).
+expression_reading("how many", question_quantity).
+expression_reading("how much", question_quantity).
+expression_reading("what number of", question_quantity).
+expression_reading("what proportion of", question_quantity).
+expression_reading("what percentage of", question_quantity).
+reading_feature(question_degree, question, degree).
+reading_name("degree question", question_degree).
+expression_reading("how far", question_degree).
+expression_reading("to what extent", question_degree).
+expression_reading("how strongly", question_degree).
+expression_reading("how likely", question_degree).
+reading_feature(question_duration, question, duration).
+reading_name("duration question", question_duration).
+expression_reading("how long", question_duration).
+expression_reading("for how long", question_duration).
+reading_feature(question_frequency, question, frequency).
+reading_name("frequency question", question_frequency).
+expression_reading("how often", question_frequency).
+expression_reading("how frequently", question_frequency).
+reading_feature(question_identity, question, identity).
+reading_name("identity question", question_identity).
+expression_reading("which one", question_identity).
+expression_reading("which ones", question_identity).
+expression_reading("what kind of", question_identity).
+expression_reading("what type of", question_identity).
+expression_reading("what sort of", question_identity).
+preposition(above).
+preposition(below).
+preposition(beneath).
+preposition(underneath).
+preposition(beside).
+preposition(besides).
+preposition(beyond).
+preposition(inside).
+preposition(outside).
+preposition(near).
+preposition(alongside).
+preposition(amid).
+preposition(amidst).
+preposition(amongst).
+preposition(despite).
+preposition(except).
+preposition(without).
+preposition(past).
+preposition(per).
+preposition(via).
+preposition(versus).
+preposition(unlike).
+preposition(throughout).
+preposition(behind).
+preposition(opposite).
+preposition(until).
+preposition(till).
+preposition(before).
+preposition(after).
+preposition(since).
+preposition(off).
+preposition(along).
+preposition(aboard).
+preposition(circa).
+preposition(concerning).
+preposition(regarding).
+preposition(notwithstanding).
+auxiliary(being).
+auxiliary(ought).
+verb_adverb(normally).
+verb_adverb(regularly).
+verb_adverb(routinely).
+verb_adverb(frequently).
+verb_adverb(occasionally).
+verb_adverb(rarely).
+verb_adverb(seldom).
+verb_adverb(annually).
+verb_adverb(monthly).
+verb_adverb(weekly).
+verb_adverb(daily).
+verb_adverb(continually).
+verb_adverb(continuously).
+verb_adverb(repeatedly).
+verb_adverb(independently).
+verb_adverb(separately).
+verb_adverb(jointly).
+verb_adverb(collectively).
+verb_adverb(respectively).
+verb_adverb(simultaneously).
+verb_adverb(subsequently).
+verb_adverb(previously).
+verb_adverb(initially).
+verb_adverb(ultimately).
+verb_adverb(eventually).
+verb_adverb(directly).
+verb_adverb(indirectly).
+verb_adverb(primarily).
+verb_adverb(principally).
+verb_adverb(chiefly).
+verb_adverb(largely).
+verb_adverb(partly).
+verb_adverb(partially).
+verb_adverb(entirely).
+verb_adverb(completely).
+verb_adverb(fully).
+verb_adverb(approximately).
+verb_adverb(roughly).
+verb_adverb(nearly).
+verb_adverb(almost).
+verb_adverb(significantly).
+verb_adverb(substantially).
+verb_adverb(considerably).
+verb_adverb(gradually).
+verb_adverb(rapidly).
+verb_adverb(slowly).
+verb_adverb(naturally).
+verb_adverb(artificially).
+verb_adverb(effectively).
+verb_adverb(efficiently).
+adverb_degree(extremely).
+adverb_degree(highly).
+adverb_degree(particularly).
+adverb_degree(especially).
+adverb_degree(relatively).
+adverb_degree(comparatively).
+adverb_degree(rather).
+adverb_degree(quite).
+adverb_degree(somewhat).
+adverb_degree(slightly).
+adverb_degree(sufficiently).
+adverb_degree(too).
+adverb_degree(enough).
+adverb_degree(almost).
+adverb_degree(nearly).
+non_universal_quantifier(little).
+non_universal_quantifier(fewer).
+non_universal_quantifier(less).
+non_universal_quantifier(numerous).
+non_universal_quantifier(various).
+non_universal_quantifier(certain).
+non_universal_quantifier(countless).
+subordinator_modifier(partially).
+subordinator_modifier(chiefly).
+subordinator_modifier(principally).
+subordinator_modifier(especially).
+subordinator_modifier(particularly).
+subordinator_modifier(precisely).
+subordinator_modifier(simply).
+subordinator_modifier(just).
+subordinator_modifier(only).
+subordinator_modifier(also).
+subordinator_modifier(even).
+subordinator_stance(whilst, both).
+subordinator_stance(provided, neither).
+subordinator_stance(providing, neither).
+subordinator_stance(supposing, neither).
+subordinator_stance(assuming, neither).
+
+% Preposizioni nuove delimitano anche i sintagmi: un solo lessico.
+np_closer($W) :- preposition($W).
+reading_feature(predicate_account_for, predicate, account_for).
+reading_name("account for predicate", predicate_account_for).
+reading_feature(predicate_amount_to, predicate, amount_to).
+reading_name("amount to predicate", predicate_amount_to).
+reading_feature(predicate_arise_from, predicate, arise_from).
+reading_name("arise from predicate", predicate_arise_from).
+reading_feature(predicate_support, predicate, support).
+reading_name("support predicate", predicate_support).
+reading_feature(predicate_reduce_to, predicate, reduce_to).
+reading_name("reduce to predicate", predicate_reduce_to).
+reading_feature(predicate_decompose, predicate, decompose).
+reading_name("decompose predicate", predicate_decompose).
+reading_feature(predicate_decompose_into, predicate, decompose_into).
+reading_name("decompose into predicate", predicate_decompose_into).
+reading_feature(predicate_separate, predicate, separate).
+reading_name("separate predicate", predicate_separate).
+reading_feature(predicate_cause, predicate, cause).
+reading_name("cause predicate", predicate_cause).
+reading_feature(predicate_restore, predicate, restore).
+reading_name("restore predicate", predicate_restore).
+reading_feature(predicate_combine, predicate, combine).
+reading_name("combine predicate", predicate_combine).
+reading_feature(predicate_develop_from, predicate, develop_from).
+reading_name("develop from predicate", predicate_develop_from).
+reading_feature(predicate_accumulate, predicate, accumulate).
+reading_name("accumulate predicate", predicate_accumulate).
+reading_feature(predicate_require, predicate, require).
+reading_name("require predicate", predicate_require).
+reading_feature(predicate_perform, predicate, perform).
+reading_name("perform predicate", predicate_perform).
+reading_feature(predicate_continue, predicate, continue).
+reading_name("continue predicate", predicate_continue).
+reading_feature(predicate_reach, predicate, reach).
+reading_name("reach predicate", predicate_reach).
+reading_feature(predicate_occur, predicate, occur).
+reading_name("occur predicate", predicate_occur).
+reading_feature(predicate_originate_from, predicate, originate_from).
+reading_name("originate from predicate", predicate_originate_from).
+reading_feature(predicate_emerge, predicate, emerge).
+reading_name("emerge predicate", predicate_emerge).
+reading_feature(predicate_fall_under, predicate, fall_under).
+reading_name("fall under predicate", predicate_fall_under).
+reading_feature(predicate_consist_of, predicate, consist_of).
+reading_name("consist of predicate", predicate_consist_of).
+reading_feature(predicate_contribute_to, predicate, contribute_to).
+reading_name("contribute to predicate", predicate_contribute_to).
+reading_feature(predicate_reduce, predicate, reduce).
+reading_name("reduce predicate", predicate_reduce).
+reading_feature(predicate_date_from, predicate, date_from).
+reading_name("date from predicate", predicate_date_from).
+reading_feature(predicate_address, predicate, address).
+reading_name("address predicate", predicate_address).
+reading_feature(predicate_depend_on, predicate, depend_on).
+reading_name("depend on predicate", predicate_depend_on).
+reading_feature(predicate_derive_from, predicate, derive_from).
+reading_name("derive from predicate", predicate_derive_from).
+reading_feature(predicate_differ_from, predicate, differ_from).
+reading_name("differ from predicate", predicate_differ_from).
+reading_feature(predicate_abolish, predicate, abolish).
+reading_name("abolish predicate", predicate_abolish).
+reading_feature(predicate_use, predicate, use).
+reading_name("use predicate", predicate_use).
+reading_feature(predicate_eventual_result, predicate, eventual_result).
+reading_name("eventual result predicate", predicate_eventual_result).
+reading_feature(predicate_enter_category, predicate, enter_category).
+reading_name("enter category predicate", predicate_enter_category).
+reading_feature(predicate_understand, predicate, understand).
+reading_name("understand predicate", predicate_understand).
+reading_feature(predicate_discover, predicate, discover).
+reading_name("discover predicate", predicate_discover).
+reading_feature(predicate_follow_from, predicate, follow_from).
+reading_name("follow from predicate", predicate_follow_from).
+reading_feature(predicate_abandon, predicate, abandon).
+reading_name("abandon predicate", predicate_abandon).
+reading_feature(predicate_maintain_cohesion, predicate, maintain_cohesion).
+reading_name("maintain cohesion predicate", predicate_maintain_cohesion).
+reading_feature(predicate_maintain, predicate, maintain).
+reading_name("maintain predicate", predicate_maintain).
+reading_feature(predicate_lead_to, predicate, lead_to).
+reading_name("lead to predicate", predicate_lead_to).
+reading_feature(predicate_omit, predicate, omit).
+reading_name("omit predicate", predicate_omit).
+reading_feature(predicate_examine, predicate, examine).
+reading_name("examine predicate", predicate_examine).
+reading_feature(predicate_search_for, predicate, search_for).
+reading_name("search for predicate", predicate_search_for).
+reading_feature(predicate_investigate, predicate, investigate).
+reading_name("investigate predicate", predicate_investigate).
+reading_feature(predicate_constitute, predicate, constitute).
+reading_name("constitute predicate", predicate_constitute).
+reading_feature(predicate_compensate_for, predicate, compensate_for).
+reading_name("compensate for predicate", predicate_compensate_for).
+reading_feature(predicate_transmit, predicate, transmit).
+reading_name("transmit predicate", predicate_transmit).
+reading_feature(predicate_gradually_discontinue, predicate, gradually_discontinue).
+reading_name("gradually discontinue predicate", predicate_gradually_discontinue).
+reading_feature(predicate_indicate, predicate, indicate).
+reading_name("indicate predicate", predicate_indicate).
+reading_feature(predicate_propose, predicate, propose).
+reading_name("propose predicate", predicate_propose).
+reading_feature(predicate_postpone, predicate, postpone).
+reading_name("postpone predicate", predicate_postpone).
+reading_feature(predicate_assemble, predicate, assemble).
+reading_name("assemble predicate", predicate_assemble).
+reading_feature(predicate_refer_to, predicate, refer_to).
+reading_name("refer to predicate", predicate_refer_to).
+reading_feature(predicate_result_from, predicate, result_from).
+reading_name("result from predicate", predicate_result_from).
+reading_feature(predicate_result_in, predicate, result_in).
+reading_name("result in predicate", predicate_result_in).
+reading_feature(predicate_exclude, predicate, exclude).
+reading_name("exclude predicate", predicate_exclude).
+reading_feature(predicate_encounter, predicate, encounter).
+reading_name("encounter predicate", predicate_encounter).
+reading_feature(predicate_reserve, predicate, reserve).
+reading_name("reserve predicate", predicate_reserve).
+reading_feature(predicate_state, predicate, state).
+reading_name("state predicate", predicate_state).
+reading_feature(predicate_establish, predicate, establish).
+reading_name("establish predicate", predicate_establish).
+reading_feature(predicate_appear, predicate, appear).
+reading_name("appear predicate", predicate_appear).
+reading_feature(predicate_stop_operation, predicate, stop_operation).
+reading_name("stop operation predicate", predicate_stop_operation).
+reading_feature(predicate_resolve, predicate, resolve).
+reading_name("resolve predicate", predicate_resolve).
+reading_feature(predicate_represent, predicate, represent).
+reading_name("represent predicate", predicate_represent).
+reading_feature(predicate_summarize, predicate, summarize).
+reading_name("summarize predicate", predicate_summarize).
+reading_feature(predicate_resemble, predicate, resemble).
+reading_name("resemble predicate", predicate_resemble).
+reading_feature(predicate_disassemble, predicate, disassemble).
+reading_name("disassemble predicate", predicate_disassemble).
+reading_feature(predicate_consider, predicate, consider).
+reading_name("consider predicate", predicate_consider).
+reading_feature(predicate_assume, predicate, assume).
+reading_name("assume predicate", predicate_assume).
+reading_feature(predicate_assume_control, predicate, assume_control).
+reading_name("assume control predicate", predicate_assume_control).
+reading_feature(predicate_participate_in, predicate, participate_in).
+reading_name("participate in predicate", predicate_participate_in).
+reading_feature(predicate_reject, predicate, reject).
+reading_name("reject predicate", predicate_reject).
+reading_feature(predicate_become, predicate, become).
+reading_name("become predicate", predicate_become).
+reading_feature(predicate_consume, predicate, consume).
+reading_name("consume predicate", predicate_consume).
+reading_feature(predicate_eliminate, predicate, eliminate).
+reading_name("eliminate predicate", predicate_eliminate).
+reading_feature(predicate_solve, predicate, solve).
+reading_name("solve predicate", predicate_solve).
+reading_feature(predicate_record, predicate, record).
+reading_name("record predicate", predicate_record).
+reading_feature(predication_adjective_complement, predication, adjective_complement).
+reading_name("adjective complement predication", predication_adjective_complement).
+reading_feature(clause_relative_subject, clause, relative_subject).
+reading_name("relative subject clause", clause_relative_subject).
+reading_feature(clause_relative_object, clause, relative_object).
+reading_name("relative object clause", clause_relative_object).
+reading_feature(clause_relative_possessive, clause, relative_possessive).
+reading_name("relative possessive clause", clause_relative_possessive).
+reading_feature(clause_relative_locative, clause, relative_locative).
+reading_name("relative locative clause", clause_relative_locative).
+reading_feature(clause_relative_temporal, clause, relative_temporal).
+reading_name("relative temporal clause", clause_relative_temporal).
+reading_feature(clause_free_relative, clause, free_relative).
+reading_name("free relative clause", clause_free_relative).
+reading_feature(clause_finite_content, clause, finite_content).
+reading_name("finite content clause", clause_finite_content).
+reading_feature(clause_embedded_question, clause, embedded_question).
+reading_name("embedded question clause", clause_embedded_question).
+reading_feature(clause_causal, clause, causal).
+reading_name("causal clause", clause_causal).
+reading_feature(clause_conditional, clause, conditional).
+reading_name("conditional clause", clause_conditional).
+reading_feature(clause_concessive, clause, concessive).
+reading_name("concessive clause", clause_concessive).
+reading_feature(clause_temporal, clause, temporal).
+reading_name("temporal clause", clause_temporal).
+reading_feature(clause_purpose, clause, purpose).
+reading_name("purpose clause", clause_purpose).
+reading_feature(clause_result, clause, result).
+reading_name("result clause", clause_result).
+reading_feature(clause_comparison, clause, comparison).
+reading_name("comparison clause", clause_comparison).
+reading_feature(clause_extent, clause, extent).
+reading_name("extent clause", clause_extent).
+reading_feature(clause_nonfinite_infinitive, clause, nonfinite_infinitive).
+reading_name("nonfinite infinitive clause", clause_nonfinite_infinitive).
+reading_feature(clause_absolute, clause, absolute).
+reading_name("absolute clause", clause_absolute).
+reading_feature(coordination_conjunction, coordination, conjunction).
+reading_name("conjunction coordination", coordination_conjunction).
+reading_feature(coordination_alternative, coordination, alternative).
+reading_name("alternative coordination", coordination_alternative).
+reading_feature(coordination_negative_alternative, coordination, negative_alternative).
+reading_name("negative alternative coordination", coordination_negative_alternative).
+reading_feature(coordination_contrast, coordination, contrast).
+reading_name("contrast coordination", coordination_contrast).
+reading_feature(coordination_correlative_additive, coordination, correlative_additive).
+reading_name("correlative additive coordination", coordination_correlative_additive).
+reading_feature(coordination_pairwise, coordination, pairwise).
+reading_name("pairwise coordination", coordination_pairwise).
+reading_feature(coordination_reformulation, coordination, reformulation).
+reading_name("reformulation coordination", coordination_reformulation).
+reading_feature(verb_chain_progressive, verb_chain, progressive).
+reading_name("progressive verb chain", verb_chain_progressive).
+reading_feature(verb_chain_perfect, verb_chain, perfect).
+reading_name("perfect verb chain", verb_chain_perfect).
+reading_feature(verb_chain_passive, verb_chain, passive).
+reading_name("passive verb chain", verb_chain_passive).
+reading_feature(verb_chain_do_support, verb_chain, do_support).
+reading_name("do support verb chain", verb_chain_do_support).
+reading_feature(verb_chain_future, verb_chain, future).
+reading_name("future verb chain", verb_chain_future).
+reading_feature(verb_chain_perfect_progressive, verb_chain, perfect_progressive).
+reading_name("perfect progressive verb chain", verb_chain_perfect_progressive).
+reading_feature(verb_chain_perfect_passive, verb_chain, perfect_passive).
+reading_name("perfect passive verb chain", verb_chain_perfect_passive).
+reading_feature(verb_chain_progressive_passive, verb_chain, progressive_passive).
+reading_name("progressive passive verb chain", verb_chain_progressive_passive).
+reading_feature(verb_chain_modal_perfect, verb_chain, modal_perfect).
+reading_name("modal perfect verb chain", verb_chain_modal_perfect).
+reading_feature(verb_chain_modal_passive, verb_chain, modal_passive).
+reading_name("modal passive verb chain", verb_chain_modal_passive).
+reading_feature(construction_existential, construction, existential).
+reading_name("existential construction", construction_existential).
+reading_feature(construction_cleft, construction, cleft).
+reading_name("cleft construction", construction_cleft).
+reading_feature(construction_pseudocleft, construction, pseudocleft).
+reading_name("pseudocleft construction", construction_pseudocleft).
+reading_feature(construction_extraposition, construction, extraposition).
+reading_name("extraposition construction", construction_extraposition).
+reading_feature(construction_negative_inversion, construction, negative_inversion).
+reading_name("negative inversion construction", construction_negative_inversion).
+reading_feature(construction_conditional_inversion, construction, conditional_inversion).
+reading_name("conditional inversion construction", construction_conditional_inversion).
+reading_feature(construction_apposition, construction, apposition).
+reading_name("apposition construction", construction_apposition).
+reading_feature(construction_example, construction, example).
+reading_name("example construction", construction_example).
+reading_feature(construction_parenthetical, construction, parenthetical).
+reading_name("parenthetical construction", construction_parenthetical).
+reading_feature(construction_ellipsis, construction, ellipsis).
+reading_name("ellipsis construction", construction_ellipsis).
+reading_feature(discourse_addition, discourse, addition).
+reading_name("addition discourse", discourse_addition).
+reading_feature(discourse_contrast, discourse, contrast).
+reading_name("contrast discourse", discourse_contrast).
+reading_feature(discourse_consequence, discourse, consequence).
+reading_name("consequence discourse", discourse_consequence).
+reading_feature(discourse_ground, discourse, ground).
+reading_name("ground discourse", discourse_ground).
+reading_feature(discourse_elaboration, discourse, elaboration).
+reading_name("elaboration discourse", discourse_elaboration).
+reading_feature(discourse_exemplification, discourse, exemplification).
+reading_name("exemplification discourse", discourse_exemplification).
+reading_feature(discourse_reformulation, discourse, reformulation).
+reading_name("reformulation discourse", discourse_reformulation).
+reading_feature(discourse_concession, discourse, concession).
+reading_name("concession discourse", discourse_concession).
+reading_feature(discourse_sequence, discourse, sequence).
+reading_name("sequence discourse", discourse_sequence).
+reading_feature(discourse_summary, discourse, summary).
+reading_name("summary discourse", discourse_summary).
+reading_feature(discourse_background, discourse, background).
+reading_name("background discourse", discourse_background).
+reading_feature(discourse_topic_shift, discourse, topic_shift).
+reading_name("topic shift discourse", discourse_topic_shift).
+reading_feature(discourse_analogy, discourse, analogy).
+reading_name("analogy discourse", discourse_analogy).
+reading_feature(discourse_qualification, discourse, qualification).
+reading_name("qualification discourse", discourse_qualification).
+reading_feature(discourse_correction, discourse, correction).
+reading_name("correction discourse", discourse_correction).
+reading_feature(discourse_exception, discourse, exception).
+reading_name("exception discourse", discourse_exception).
+reading_feature(discourse_evidence, discourse, evidence).
+reading_name("evidence discourse", discourse_evidence).
+reading_feature(discourse_restatement, discourse, restatement).
+reading_name("restatement discourse", discourse_restatement).
+reading_feature(evidential_reported, evidential, reported).
+reading_name("reported evidential", evidential_reported).
+reading_feature(evidential_hearsay, evidential, hearsay).
+reading_name("hearsay evidential", evidential_hearsay).
+reading_feature(evidential_observation, evidential, observation).
+reading_name("observation evidential", evidential_observation).
+reading_feature(evidential_hypothesis, evidential, hypothesis).
+reading_name("hypothesis evidential", evidential_hypothesis).
+reading_feature(evidential_simulation, evidential, simulation).
+reading_name("simulation evidential", evidential_simulation).
+reading_feature(evidential_uncertainty, evidential, uncertainty).
+reading_name("uncertainty evidential", evidential_uncertainty).
+reading_feature(evidential_consensus, evidential, consensus).
+reading_name("consensus evidential", evidential_consensus).
+reading_feature(evidential_disagreement, evidential, disagreement).
+reading_name("disagreement evidential", evidential_disagreement).
+reading_feature(evidential_limitation, evidential, limitation).
+reading_name("limitation evidential", evidential_limitation).
+reading_feature(presupposition_trigger_additive, presupposition_trigger, additive).
+reading_name("additive presupposition trigger", presupposition_trigger_additive).
+reading_feature(presupposition_trigger_change_of_state, presupposition_trigger, change_of_state).
+reading_name("change of state presupposition trigger", presupposition_trigger_change_of_state).
+reading_feature(presupposition_trigger_factive, presupposition_trigger, factive).
+reading_name("factive presupposition trigger", presupposition_trigger_factive).
+reading_feature(presupposition_trigger_iterative, presupposition_trigger, iterative).
+reading_name("iterative presupposition trigger", presupposition_trigger_iterative).
+reading_feature(presupposition_trigger_existence, presupposition_trigger, existence).
+reading_name("existence presupposition trigger", presupposition_trigger_existence).
+reading_feature(presupposition_trigger_scalar, presupposition_trigger, scalar).
+reading_name("scalar presupposition trigger", presupposition_trigger_scalar).
+reading_feature(presupposition_trigger_counterexpectation, presupposition_trigger, counterexpectation).
+reading_name("counterexpectation presupposition trigger", presupposition_trigger_counterexpectation).
+reading_feature(pragmatics_request, pragmatics, request).
+reading_name("request pragmatics", pragmatics_request).
+reading_feature(pragmatics_suggestion, pragmatics, suggestion).
+reading_name("suggestion pragmatics", pragmatics_suggestion).
+reading_feature(pragmatics_recommendation, pragmatics, recommendation).
+reading_name("recommendation pragmatics", pragmatics_recommendation).
+reading_feature(pragmatics_warning, pragmatics, warning).
+reading_name("warning pragmatics", pragmatics_warning).
+reading_feature(pragmatics_concession, pragmatics, concession).
+reading_name("concession pragmatics", pragmatics_concession).
+reading_feature(pragmatics_hedge, pragmatics, hedge).
+reading_name("hedge pragmatics", pragmatics_hedge).
+reading_feature(pragmatics_emphasis, pragmatics, emphasis).
+reading_name("emphasis pragmatics", pragmatics_emphasis).
+reading_feature(pragmatics_metalinguistic, pragmatics, metalinguistic).
+reading_name("metalinguistic pragmatics", pragmatics_metalinguistic).
+reading_feature(pragmatics_definition_scope, pragmatics, definition_scope).
+reading_name("definition scope pragmatics", pragmatics_definition_scope).
+reading_feature(pragmatics_citation, pragmatics, citation).
+reading_name("citation pragmatics", pragmatics_citation).
+reading_feature(pragmatics_uncertain_reference, pragmatics, uncertain_reference).
+reading_name("uncertain reference pragmatics", pragmatics_uncertain_reference).

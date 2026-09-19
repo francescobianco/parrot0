@@ -1,0 +1,568 @@
+% predication.p0 — reggenze e predicati aggettivali
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+verb_particle(correspond, to).
+verb_particle(contribute, to).
+verb_particle(lead, to).
+verb_particle(amount, to).
+verb_particle(pertain, to).
+verb_particle(allude, to).
+verb_particle(adhere, to).
+verb_particle(conform, to).
+verb_particle(consent, to).
+verb_particle(object, to).
+verb_particle(react, to).
+verb_particle(respond, to).
+verb_particle(resort, to).
+verb_particle(succumb, to).
+verb_particle(appeal, to).
+verb_particle(apply, to).
+verb_particle(adapt, to).
+verb_particle(adjust, to).
+verb_particle(attribute, to).
+verb_particle(ascribe, to).
+verb_particle(assign, to).
+verb_particle(allocate, to).
+verb_particle(dedicate, to).
+verb_particle(devote, to).
+verb_particle(owe, to).
+verb_particle(approve, of).
+verb_particle(dispose, of).
+verb_particle(conceive, of).
+verb_particle(dream, of).
+verb_particle(think, of).
+verb_particle(remind, of).
+verb_particle(inform, of).
+verb_particle(accuse, of).
+verb_particle(deprive, of).
+verb_particle(rid, of).
+verb_particle(smell, of).
+verb_particle(taste, of).
+verb_particle(rely, on).
+verb_particle(rest, on).
+verb_particle(hinge, on).
+verb_particle(focus, on).
+verb_particle(concentrate, on).
+verb_particle(elaborate, on).
+verb_particle(insist, on).
+verb_particle(act, on).
+verb_particle(operate, on).
+verb_particle(work, on).
+verb_particle(prey, on).
+verb_particle(draw, on).
+verb_particle(impose, on).
+verb_particle(confer, on).
+verb_particle(rely, upon).
+verb_particle(rest, upon).
+verb_particle(hinge, upon).
+verb_particle(act, upon).
+verb_particle(draw, upon).
+verb_particle(confer, upon).
+verb_particle(result, in).
+verb_particle(culminate, in).
+verb_particle(participate, in).
+verb_particle(specialize, in).
+verb_particle(specialise, in).
+verb_particle(excel, in).
+verb_particle(succeed, in).
+verb_particle(engage, in).
+verb_particle(involve, in).
+verb_particle(invest, in).
+verb_particle(reside, in).
+verb_particle(originate, in).
+verb_particle(abound, in).
+verb_particle(differ, in).
+verb_particle(persist, in).
+verb_particle(believe, in).
+verb_particle(intervene, in).
+verb_particle(stem, from).
+verb_particle(arise, from).
+verb_particle(emerge, from).
+verb_particle(differ, from).
+verb_particle(depart, from).
+verb_particle(recover, from).
+verb_particle(suffer, from).
+verb_particle(benefit, from).
+verb_particle(escape, from).
+verb_particle(refrain, from).
+verb_particle(abstain, from).
+verb_particle(withdraw, from).
+verb_particle(distinguish, from).
+verb_particle(prevent, from).
+verb_particle(exclude, from).
+verb_particle(remove, from).
+verb_particle(interact, with).
+verb_particle(cooperate, with).
+verb_particle(collaborate, with).
+verb_particle(coincide, with).
+verb_particle(comply, with).
+verb_particle(agree, with).
+verb_particle(disagree, with).
+verb_particle(compete, with).
+verb_particle(correspond, with).
+verb_particle(correlate, with).
+verb_particle(interfere, with).
+verb_particle(associate, with).
+verb_particle(merge, with).
+verb_particle(align, with).
+verb_particle(contrast, with).
+verb_particle(compare, with).
+verb_particle(deal, with).
+verb_particle(cope, with).
+verb_particle(begin, with).
+verb_particle(end, with).
+verb_particle(equip, with).
+verb_particle(supply, with).
+verb_particle(replace, with).
+verb_particle(provide, with).
+verb_particle(charge, with).
+verb_particle(account, for).
+verb_particle(allow, for).
+verb_particle(provide, for).
+verb_particle(stand, for).
+verb_particle(call, for).
+verb_particle(look, for).
+verb_particle(search, for).
+verb_particle(wait, for).
+verb_particle(care, for).
+verb_particle(compensate, for).
+verb_particle(substitute, for).
+verb_particle(qualify, for).
+verb_particle(prepare, for).
+verb_particle(compete, for).
+verb_particle(apply, for).
+verb_particle(vote, for).
+verb_particle(argue, for).
+verb_particle(advocate, for).
+verb_particle(opt, for).
+verb_particle(aim, for).
+verb_particle(pay, for).
+verb_particle(aim, at).
+verb_particle(look, at).
+verb_particle(arrive, at).
+verb_particle(point, at).
+verb_particle(hint, at).
+verb_particle(glance, at).
+verb_particle(gaze, at).
+verb_particle(stare, at).
+verb_particle(excel, at).
+verb_particle(split, into).
+verb_particle(develop, into).
+verb_particle(evolve, into).
+verb_particle(turn, into).
+verb_particle(translate, into).
+verb_particle(merge, into).
+verb_particle(inquire, into).
+verb_particle(enquire, into).
+verb_particle(investigate, into).
+verb_particle(think, about).
+verb_particle(talk, about).
+verb_particle(speak, about).
+verb_particle(write, about).
+verb_particle(argue, about).
+verb_particle(care, about).
+verb_particle(worry, about).
+verb_particle(inquire, about).
+verb_particle(enquire, about).
+verb_particle(speculate, about).
+verb_particle(complain, about).
+verb_particle(learn, about).
+verb_particle(compete, against).
+verb_particle(fight, against).
+verb_particle(argue, against).
+verb_particle(vote, against).
+verb_particle(warn, against).
+verb_particle(guard, against).
+verb_particle(protect, against).
+verb_particle(discriminate, against).
+verb_particle(rebel, against).
+verb_particle(protest, against).
+verb_particle(pass, through).
+verb_particle(flow, through).
+verb_particle(move, through).
+verb_particle(diffuse, through).
+verb_particle(permeate, through).
+verb_particle(travel, through).
+verb_particle(work, through).
+verb_particle(progress, through).
+verb_particle(rule, over).
+verb_particle(preside, over).
+verb_particle(prevail, over).
+verb_particle(argue, over).
+verb_particle(debate, over).
+verb_particle(dispute, over).
+verb_particle(take, over).
+verb_particle(fall, under).
+verb_particle(come, under).
+verb_particle(operate, under).
+verb_particle(work, under).
+verb_particle(suffer, under).
+verb_particle(distinguish, between).
+verb_particle(differentiate, between).
+verb_particle(discriminate, between).
+verb_particle(alternate, between).
+verb_particle(choose, between).
+verb_particle(mediate, between).
+verb_particle(oscillate, between).
+expression_reading("account for", predicate_account_for).
+expression_reading("add up to", predicate_amount_to).
+expression_reading("amount to", predicate_amount_to).
+expression_reading("arise from", predicate_arise_from).
+expression_reading("back up", predicate_support).
+expression_reading("boil down to", predicate_reduce_to).
+expression_reading("break down", predicate_decompose).
+expression_reading("break down into", predicate_decompose_into).
+expression_reading("break up", predicate_separate).
+expression_reading("bring about", predicate_cause).
+expression_reading("bring back", predicate_restore).
+expression_reading("bring together", predicate_combine).
+expression_reading("build on", predicate_develop_from).
+expression_reading("build up", predicate_accumulate).
+expression_reading("call for", predicate_require).
+expression_reading("carry out", predicate_perform).
+expression_reading("carry on", predicate_continue).
+expression_reading("catch up with", predicate_reach).
+expression_reading("come about", predicate_occur).
+expression_reading("come from", predicate_originate_from).
+expression_reading("come into being", predicate_emerge).
+expression_reading("come under", predicate_fall_under).
+expression_reading("consist of", predicate_consist_of).
+expression_reading("contribute to", predicate_contribute_to).
+expression_reading("cut down on", predicate_reduce).
+expression_reading("date back to", predicate_date_from).
+expression_reading("deal with", predicate_address).
+expression_reading("depend on", predicate_depend_on).
+expression_reading("derive from", predicate_derive_from).
+expression_reading("differ from", predicate_differ_from).
+expression_reading("do away with", predicate_abolish).
+expression_reading("draw on", predicate_use).
+expression_reading("end up", predicate_eventual_result).
+expression_reading("fall into", predicate_enter_category).
+expression_reading("fall under", predicate_enter_category).
+expression_reading("figure out", predicate_understand).
+expression_reading("find out", predicate_discover).
+expression_reading("follow from", predicate_follow_from).
+expression_reading("give rise to", predicate_cause).
+expression_reading("give up", predicate_abandon).
+expression_reading("go back to", predicate_date_from).
+expression_reading("go on", predicate_continue).
+expression_reading("grow out of", predicate_develop_from).
+expression_reading("hold together", predicate_maintain_cohesion).
+expression_reading("keep up", predicate_maintain).
+expression_reading("lead to", predicate_lead_to).
+expression_reading("leave out", predicate_omit).
+expression_reading("look at", predicate_examine).
+expression_reading("look for", predicate_search_for).
+expression_reading("look into", predicate_investigate).
+expression_reading("make up", predicate_constitute).
+expression_reading("make up for", predicate_compensate_for).
+expression_reading("pass on", predicate_transmit).
+expression_reading("phase out", predicate_gradually_discontinue).
+expression_reading("point out", predicate_indicate).
+expression_reading("point to", predicate_indicate).
+expression_reading("put forward", predicate_propose).
+expression_reading("put off", predicate_postpone).
+expression_reading("put together", predicate_assemble).
+expression_reading("refer to", predicate_refer_to).
+expression_reading("rely on", predicate_depend_on).
+expression_reading("result from", predicate_result_from).
+expression_reading("result in", predicate_result_in).
+expression_reading("rule out", predicate_exclude).
+expression_reading("run into", predicate_encounter).
+expression_reading("set aside", predicate_reserve).
+expression_reading("set out", predicate_state).
+expression_reading("set up", predicate_establish).
+expression_reading("show up", predicate_appear).
+expression_reading("shut down", predicate_stop_operation).
+expression_reading("sort out", predicate_resolve).
+expression_reading("stand for", predicate_represent).
+expression_reading("stem from", predicate_originate_from).
+expression_reading("sum up", predicate_summarize).
+expression_reading("take after", predicate_resemble).
+expression_reading("take apart", predicate_disassemble).
+expression_reading("take into account", predicate_consider).
+expression_reading("take on", predicate_assume).
+expression_reading("take over", predicate_assume_control).
+expression_reading("take part in", predicate_participate_in).
+expression_reading("take place", predicate_occur).
+expression_reading("turn down", predicate_reject).
+expression_reading("turn into", predicate_become).
+expression_reading("turn out", predicate_eventual_result).
+expression_reading("use up", predicate_consume).
+expression_reading("wipe out", predicate_eliminate).
+expression_reading("work out", predicate_solve).
+expression_reading("write down", predicate_record).
+adjective_relation("similar to").
+adjective_relation("identical to").
+adjective_relation("equivalent to").
+adjective_relation("comparable to").
+adjective_relation("analogous to").
+adjective_relation("related to").
+adjective_relation("relevant to").
+adjective_relation("pertinent to").
+adjective_relation("applicable to").
+adjective_relation("appropriate to").
+adjective_relation("suitable to").
+adjective_relation("amenable to").
+adjective_relation("accessible to").
+adjective_relation("available to").
+adjective_relation("attributable to").
+adjective_relation("due to").
+adjective_relation("subject to").
+adjective_relation("susceptible to").
+adjective_relation("vulnerable to").
+adjective_relation("resistant to").
+adjective_relation("immune to").
+adjective_relation("allergic to").
+adjective_relation("responsive to").
+adjective_relation("conducive to").
+adjective_relation("detrimental to").
+adjective_relation("beneficial to").
+adjective_relation("harmful to").
+adjective_relation("fatal to").
+adjective_relation("toxic to").
+adjective_relation("endemic to").
+adjective_relation("indigenous to").
+adjective_relation("unique to").
+adjective_relation("peculiar to").
+adjective_relation("specific to").
+adjective_relation("common to").
+adjective_relation("familiar to").
+adjective_relation("close to").
+adjective_relation("adjacent to").
+adjective_relation("next to").
+adjective_relation("perpendicular to").
+adjective_relation("parallel to").
+adjective_relation("proportional to").
+expression_reading("inversely proportional to", predication_adjective_complement).
+adjective_relation("equal to").
+adjective_relation("superior to").
+adjective_relation("inferior to").
+adjective_relation("prior to").
+adjective_relation("subsequent to").
+adjective_relation("contrary to").
+adjective_relation("opposed to").
+adjective_relation("loyal to").
+adjective_relation("committed to").
+adjective_relation("devoted to").
+adjective_relation("restricted to").
+adjective_relation("limited to").
+adjective_relation("confined to").
+adjective_relation("attached to").
+adjective_relation("linked to").
+adjective_relation("connected to").
+adjective_relation("married to").
+adjective_relation("capable of").
+adjective_relation("incapable of").
+adjective_relation("aware of").
+adjective_relation("unaware of").
+adjective_relation("conscious of").
+adjective_relation("unconscious of").
+adjective_relation("mindful of").
+adjective_relation("independent of").
+adjective_relation("characteristic of").
+adjective_relation("typical of").
+adjective_relation("representative of").
+adjective_relation("indicative of").
+adjective_relation("symptomatic of").
+adjective_relation("suggestive of").
+adjective_relation("descriptive of").
+adjective_relation("illustrative of").
+adjective_relation("reminiscent of").
+adjective_relation("reflective of").
+adjective_relation("predictive of").
+adjective_relation("supportive of").
+adjective_relation("critical of").
+adjective_relation("full of").
+adjective_relation("devoid of").
+adjective_relation("free of").
+adjective_relation("proud of").
+adjective_relation("afraid of").
+adjective_relation("certain of").
+adjective_relation("uncertain of").
+adjective_relation("sure of").
+adjective_relation("unsure of").
+adjective_relation("guilty of").
+adjective_relation("innocent of").
+adjective_relation("worthy of").
+adjective_relation("inclusive of").
+adjective_relation("exclusive of").
+adjective_relation("composed of").
+adjective_relation("poor in").
+adjective_relation("abundant in").
+adjective_relation("deficient in").
+adjective_relation("involved in").
+adjective_relation("interested in").
+adjective_relation("engaged in").
+adjective_relation("active in").
+adjective_relation("successful in").
+adjective_relation("proficient in").
+adjective_relation("skilled in").
+adjective_relation("experienced in").
+adjective_relation("fluent in").
+adjective_relation("instrumental in").
+adjective_relation("inherent in").
+adjective_relation("implicit in").
+adjective_relation("explicit in").
+adjective_relation("prevalent in").
+adjective_relation("widespread in").
+adjective_relation("situated in").
+adjective_relation("located in").
+adjective_relation("based in").
+adjective_relation("immersed in").
+adjective_relation("rooted in").
+adjective_relation("reliant on").
+adjective_relation("contingent on").
+adjective_relation("conditional on").
+adjective_relation("based on").
+adjective_relation("intent on").
+adjective_relation("keen on").
+adjective_relation("focused on").
+adjective_relation("predicated on").
+adjective_relation("consistent with").
+adjective_relation("inconsistent with").
+adjective_relation("compatible with").
+adjective_relation("incompatible with").
+adjective_relation("associated with").
+adjective_relation("correlated with").
+adjective_relation("connected with").
+adjective_relation("concerned with").
+adjective_relation("acquainted with").
+adjective_relation("familiar with").
+adjective_relation("satisfied with").
+adjective_relation("dissatisfied with").
+adjective_relation("content with").
+adjective_relation("synonymous with").
+adjective_relation("identical with").
+adjective_relation("comparable with").
+adjective_relation("interchangeable with").
+adjective_relation("commensurate with").
+adjective_relation("congruent with").
+adjective_relation("aligned with").
+adjective_relation("endowed with").
+adjective_relation("equipped with").
+adjective_relation("charged with").
+adjective_relation("filled with").
+adjective_relation("coated with").
+adjective_relation("covered with").
+adjective_relation("interspersed with").
+adjective_relation("confronted with").
+adjective_relation("different from").
+adjective_relation("distinct from").
+adjective_relation("separate from").
+adjective_relation("absent from").
+adjective_relation("free from").
+adjective_relation("derived from").
+adjective_relation("immune from").
+adjective_relation("exempt from").
+adjective_relation("remote from").
+adjective_relation("distant from").
+adjective_relation("independent from").
+adjective_relation("safe from").
+adjective_relation("inseparable from").
+adjective_relation("indistinguishable from").
+adjective_relation("responsible for").
+adjective_relation("suitable for").
+adjective_relation("appropriate for").
+adjective_relation("adequate for").
+adjective_relation("sufficient for").
+adjective_relation("necessary for").
+adjective_relation("essential for").
+adjective_relation("important for").
+adjective_relation("relevant for").
+adjective_relation("useful for").
+adjective_relation("beneficial for").
+adjective_relation("harmful for").
+adjective_relation("available for").
+adjective_relation("eligible for").
+adjective_relation("liable for").
+adjective_relation("accountable for").
+adjective_relation("notable for").
+adjective_relation("renowned for").
+adjective_relation("famous for").
+adjective_relation("known for").
+adjective_relation("intended for").
+adjective_relation("designed for").
+adjective_relation("required for").
+adjective_relation("ready for").
+adjective_relation("fit for").
+adjective_relation("unfit for").
+adjective_relation("good at").
+adjective_relation("bad at").
+adjective_relation("skilled at").
+adjective_relation("adept at").
+adjective_relation("proficient at").
+adjective_relation("effective at").
+adjective_relation("successful at").
+adjective_relation("present at").
+adjective_relation("aimed at").
+adjective_relation("certain about").
+adjective_relation("uncertain about").
+adjective_relation("sure about").
+adjective_relation("unsure about").
+adjective_relation("concerned about").
+adjective_relation("worried about").
+adjective_relation("anxious about").
+adjective_relation("sceptical about").
+adjective_relation("skeptical about").
+adjective_relation("optimistic about").
+adjective_relation("pessimistic about").
+adjective_relation("explicit about").
+adjective_relation("clear about").
+adjective_relation("intermediate between").
+event_subject_verb(help).
+event_subject_verb(support).
+event_subject_verb(facilitate).
+event_subject_verb(enable).
+event_subject_verb(prevent).
+event_subject_verb(inhibit).
+event_subject_verb(hinder).
+event_subject_verb(impede).
+event_subject_verb(obstruct).
+event_subject_verb(suppress).
+event_subject_verb(stimulate).
+event_subject_verb(trigger).
+event_subject_verb(cause).
+event_subject_verb(induce).
+event_subject_verb(affect).
+event_subject_verb(influence).
+event_subject_verb(determine).
+event_subject_verb(regulate).
+event_subject_verb(promote).
+event_subject_verb(encourage).
+event_subject_verb(discourage).
+event_subject_verb(enhance).
+event_subject_verb(reduce).
+event_subject_verb(increase).
+event_subject_verb(improve).
+event_subject_verb(worsen).
+event_subject_verb(damage).
+event_subject_verb(threaten).
+event_subject_verb(endanger).
+event_subject_verb(disrupt).
+event_subject_verb(sustain).
+event_subject_verb(maintain).
+event_subject_verb(preserve).
+event_subject_verb(protect).
+collective_relation(combine).
+collective_relation(merge).
+collective_relation(mix).
+collective_relation(blend).
+collective_relation(assemble).
+collective_relation(gather).
+collective_relation(collect).
+collective_relation(unite).
+collective_relation(join).
+collective_relation(compare).
+collective_relation(contrast).
+collective_relation(distinguish).
+collective_relation(differentiate).
+collective_relation(separate).
+collective_relation(divide).
+collective_relation(split).
+collective_relation(exchange).
+collective_relation(trade).
+collective_relation(alternate).
+collective_relation(intersect).
+collective_relation(overlap).

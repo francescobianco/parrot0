@@ -1,0 +1,447 @@
+% discourse.p0 — relazioni retoriche, fonte, pragmatica e impegno epistemico
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+expression_reading("also", discourse_addition).
+expression_reading("too", discourse_addition).
+expression_reading("as well", discourse_addition).
+expression_reading("in addition", discourse_addition).
+expression_reading("besides", discourse_addition).
+expression_reading("what is more", discourse_addition).
+expression_reading("equally important", discourse_addition).
+expression_reading("by contrast", discourse_contrast).
+expression_reading("in contrast", discourse_contrast).
+expression_reading("on the other hand", discourse_contrast).
+expression_reading("instead", discourse_contrast).
+expression_reading("rather", discourse_contrast).
+expression_reading("whereas", discourse_contrast).
+expression_reading("still", discourse_contrast).
+expression_reading("even so", discourse_contrast).
+expression_reading("all the same", discourse_contrast).
+expression_reading("despite this", discourse_contrast).
+expression_reading("in spite of this", discourse_contrast).
+expression_reading("as a result", discourse_consequence).
+expression_reading("as a consequence", discourse_consequence).
+expression_reading("for this reason", discourse_consequence).
+expression_reading("it follows that", discourse_consequence).
+expression_reading("this implies that", discourse_consequence).
+expression_reading("so", discourse_consequence).
+expression_reading("for", discourse_ground).
+expression_reading("given that", discourse_ground).
+expression_reading("on the grounds that", discourse_ground).
+expression_reading("in view of the fact that", discourse_ground).
+expression_reading("this is because", discourse_ground).
+expression_reading("specifically", discourse_elaboration).
+expression_reading("in particular", discourse_elaboration).
+expression_reading("more specifically", discourse_elaboration).
+expression_reading("in detail", discourse_elaboration).
+expression_reading("notably", discourse_elaboration).
+expression_reading("especially", discourse_elaboration).
+expression_reading("particularly", discourse_elaboration).
+expression_reading("to be precise", discourse_elaboration).
+expression_reading("for example", discourse_exemplification).
+expression_reading("for instance", discourse_exemplification).
+expression_reading("such as", discourse_exemplification).
+expression_reading("to illustrate", discourse_exemplification).
+expression_reading("by way of example", discourse_exemplification).
+expression_reading("e.g.", discourse_exemplification).
+expression_reading("in other words", discourse_reformulation).
+expression_reading("that is", discourse_reformulation).
+expression_reading("that is to say", discourse_reformulation).
+expression_reading("namely", discourse_reformulation).
+expression_reading("more precisely", discourse_reformulation).
+expression_reading("put differently", discourse_reformulation).
+expression_reading("to put it another way", discourse_reformulation).
+expression_reading("i.e.", discourse_reformulation).
+expression_reading("admittedly", discourse_concession).
+expression_reading("granted", discourse_concession).
+expression_reading("of course", discourse_concession).
+expression_reading("to be sure", discourse_concession).
+expression_reading("even so", discourse_concession).
+expression_reading("although", discourse_concession).
+expression_reading("though", discourse_concession).
+expression_reading("albeit", discourse_concession).
+expression_reading("first", discourse_sequence).
+expression_reading("second", discourse_sequence).
+expression_reading("third", discourse_sequence).
+expression_reading("next", discourse_sequence).
+expression_reading("then", discourse_sequence).
+expression_reading("afterwards", discourse_sequence).
+expression_reading("to begin with", discourse_sequence).
+expression_reading("in the first place", discourse_sequence).
+expression_reading("in summary", discourse_summary).
+expression_reading("in sum", discourse_summary).
+expression_reading("to summarize", discourse_summary).
+expression_reading("to summarise", discourse_summary).
+expression_reading("in conclusion", discourse_summary).
+expression_reading("to conclude", discourse_summary).
+expression_reading("overall", discourse_summary).
+expression_reading("on balance", discourse_summary).
+expression_reading("in brief", discourse_summary).
+expression_reading("briefly", discourse_summary).
+expression_reading("in short", discourse_summary).
+expression_reading("all in all", discourse_summary).
+expression_reading("historically", discourse_background).
+expression_reading("traditionally", discourse_background).
+expression_reading("originally", discourse_background).
+expression_reading("formerly", discourse_background).
+expression_reading("previously", discourse_background).
+expression_reading("until then", discourse_background).
+expression_reading("at the time", discourse_background).
+expression_reading("in this context", discourse_background).
+expression_reading("against this background", discourse_background).
+expression_reading("meanwhile", discourse_topic_shift).
+expression_reading("elsewhere", discourse_topic_shift).
+expression_reading("turning to", discourse_topic_shift).
+expression_reading("as for", discourse_topic_shift).
+expression_reading("as regards", discourse_topic_shift).
+expression_reading("regarding", discourse_topic_shift).
+expression_reading("with regard to", discourse_topic_shift).
+expression_reading("in relation to", discourse_topic_shift).
+expression_reading("on the subject of", discourse_topic_shift).
+expression_reading("in the same way", discourse_analogy).
+expression_reading("by analogy", discourse_analogy).
+expression_reading("in a similar manner", discourse_analogy).
+expression_reading("correspondingly", discourse_analogy).
+expression_reading("in general", discourse_qualification).
+expression_reading("generally speaking", discourse_qualification).
+expression_reading("as a rule", discourse_qualification).
+expression_reading("for the most part", discourse_qualification).
+expression_reading("in most cases", discourse_qualification).
+expression_reading("under certain conditions", discourse_qualification).
+expression_reading("in principle", discourse_qualification).
+expression_reading("in practice", discourse_qualification).
+expression_reading("at least", discourse_qualification).
+expression_reading("at any rate", discourse_qualification).
+expression_reading("strictly speaking", discourse_qualification).
+expression_reading("broadly speaking", discourse_qualification).
+expression_reading("rather", discourse_correction).
+expression_reading("instead", discourse_correction).
+expression_reading("more accurately", discourse_correction).
+expression_reading("more correctly", discourse_correction).
+expression_reading("to be more precise", discourse_correction).
+expression_reading("in fact", discourse_correction).
+expression_reading("actually", discourse_correction).
+expression_reading("on the contrary", discourse_correction).
+expression_reading("except", discourse_exception).
+expression_reading("except for", discourse_exception).
+expression_reading("apart from", discourse_exception).
+expression_reading("other than", discourse_exception).
+expression_reading("with the exception of", discourse_exception).
+expression_reading("save for", discourse_exception).
+expression_reading("barring", discourse_exception).
+expression_reading("as shown by", discourse_evidence).
+expression_reading("as evidenced by", discourse_evidence).
+expression_reading("as indicated by", discourse_evidence).
+expression_reading("according to", discourse_evidence).
+expression_reading("based on", discourse_evidence).
+expression_reading("in light of", discourse_evidence).
+expression_reading("in view of", discourse_evidence).
+expression_reading("as reported by", discourse_evidence).
+expression_reading("as observed by", discourse_evidence).
+expression_reading("as noted above", discourse_restatement).
+expression_reading("as stated earlier", discourse_restatement).
+expression_reading("as mentioned above", discourse_restatement).
+expression_reading("as discussed previously", discourse_restatement).
+expression_reading("as follows", discourse_restatement).
+expression_reading("the following", discourse_restatement).
+expression_reading("the foregoing", discourse_restatement).
+expression_reading("the above", discourse_restatement).
+contrastive_connector(nonetheless).
+contrastive_connector(conversely).
+consequence_connector(therefore).
+consequence_connector(consequently).
+consequence_connector(hence).
+additive_connector(furthermore).
+additive_connector(moreover).
+additive_connector(additionally).
+example_connector(notably).
+sequence_connector(firstly).
+sequence_connector(secondly).
+sequence_connector(thirdly).
+sequence_connector(subsequently).
+sequence_connector(finally).
+sequence_connector(lastly).
+analogy_connector(similarly).
+analogy_connector(likewise).
+analogy_connector(analogously).
+rhetorical_marker_class(additive_connector, addition, previous_to_current).
+rhetorical_marker_class(example_connector, example, previous_to_current).
+rhetorical_marker_class(sequence_connector, sequence, previous_to_current).
+rhetorical_marker_class(analogy_connector, analogy, previous_to_current).
+expression_reading("according to", evidential_reported).
+expression_reading("as reported by", evidential_reported).
+expression_reading("as stated by", evidential_reported).
+expression_reading("in the words of", evidential_reported).
+expression_reading("as described by", evidential_reported).
+expression_reading("as noted by", evidential_reported).
+expression_reading("as argued by", evidential_reported).
+expression_reading("in the view of", evidential_reported).
+expression_reading("in the opinion of", evidential_reported).
+expression_reading("on the authority of", evidential_reported).
+expression_reading("reportedly", evidential_hearsay).
+expression_reading("allegedly", evidential_hearsay).
+expression_reading("supposedly", evidential_hearsay).
+expression_reading("purportedly", evidential_hearsay).
+expression_reading("it is said that", evidential_hearsay).
+expression_reading("is said to", evidential_hearsay).
+expression_reading("are said to", evidential_hearsay).
+expression_reading("is alleged to", evidential_hearsay).
+expression_reading("are alleged to", evidential_hearsay).
+expression_reading("is reported to", evidential_hearsay).
+expression_reading("are reported to", evidential_hearsay).
+expression_reading("it has been proposed that", evidential_hypothesis).
+expression_reading("it is possible that", evidential_hypothesis).
+expression_reading("possibly", evidential_uncertainty).
+expression_reading("perhaps", evidential_uncertainty).
+expression_reading("apparently", evidential_uncertainty).
+expression_reading("seemingly", evidential_uncertainty).
+expression_reading("presumably", evidential_uncertainty).
+expression_reading("arguably", evidential_uncertainty).
+expression_reading("tentatively", evidential_uncertainty).
+expression_reading("provisionally", evidential_uncertainty).
+expression_reading("uncertain", evidential_uncertainty).
+expression_reading("unclear", evidential_uncertainty).
+expression_reading("unknown", evidential_uncertainty).
+expression_reading("disputed", evidential_uncertainty).
+expression_reading("controversial", evidential_uncertainty).
+expression_reading("unconfirmed", evidential_uncertainty).
+expression_reading("unverified", evidential_uncertainty).
+expression_reading("generally accepted", evidential_consensus).
+expression_reading("widely accepted", evidential_consensus).
+expression_reading("widely regarded", evidential_consensus).
+expression_reading("commonly regarded", evidential_consensus).
+expression_reading("generally considered", evidential_consensus).
+expression_reading("widely believed", evidential_consensus).
+expression_reading("the consensus is that", evidential_consensus).
+expression_reading("disputed", evidential_disagreement).
+expression_reading("contested", evidential_disagreement).
+expression_reading("controversial", evidential_disagreement).
+expression_reading("debated", evidential_disagreement).
+expression_reading("some authors argue", evidential_disagreement).
+expression_reading("other authors argue", evidential_disagreement).
+expression_reading("critics argue", evidential_disagreement).
+expression_reading("in contrast to this view", evidential_disagreement).
+expression_reading("however", evidential_limitation).
+expression_reading("although", evidential_limitation).
+expression_reading("despite", evidential_limitation).
+expression_reading("limited to", evidential_limitation).
+expression_reading("subject to", evidential_limitation).
+expression_reading("provided that", evidential_limitation).
+expression_reading("assuming that", evidential_limitation).
+expression_reading("under the assumption that", evidential_limitation).
+expression_reading("with the caveat that", evidential_limitation).
+expression_reading("does not imply", evidential_limitation).
+expression_reading("does not establish", evidential_limitation).
+expression_reading("does not demonstrate", evidential_limitation).
+hypothesis_report_marker("it is hypothesized that").
+hypothesis_report_marker("it is conjectured that").
+hypothesis_report_marker("the hypothesis is that").
+hypothesis_report_marker("one hypothesis is that").
+hypothesis_report_marker("the authors propose that").
+hypothesis_report_marker("the researchers propose that").
+observation_report_marker("observations show that").
+observation_report_marker("measurements show that").
+observation_report_marker("experiments show that").
+observation_report_marker("the results indicate that").
+observation_report_marker("the study found that").
+observation_report_marker("the study reports that").
+simulation_result_marker("the model predicts that").
+simulation_result_marker("simulations suggest that").
+simulation_result_marker("the simulation indicates that").
+simulation_result_marker("numerical simulations indicate that").
+expression_reading("also", presupposition_trigger_additive).
+expression_reading("too", presupposition_trigger_additive).
+expression_reading("as well", presupposition_trigger_additive).
+expression_reading("again", presupposition_trigger_additive).
+expression_reading("another", presupposition_trigger_additive).
+expression_reading("even", presupposition_trigger_additive).
+expression_reading("stop", presupposition_trigger_change_of_state).
+expression_reading("cease", presupposition_trigger_change_of_state).
+expression_reading("continue", presupposition_trigger_change_of_state).
+expression_reading("resume", presupposition_trigger_change_of_state).
+expression_reading("still", presupposition_trigger_change_of_state).
+expression_reading("no longer", presupposition_trigger_change_of_state).
+expression_reading("begin", presupposition_trigger_change_of_state).
+expression_reading("start", presupposition_trigger_change_of_state).
+expression_reading("know", presupposition_trigger_factive).
+expression_reading("realize", presupposition_trigger_factive).
+expression_reading("realise", presupposition_trigger_factive).
+expression_reading("regret", presupposition_trigger_factive).
+expression_reading("discover", presupposition_trigger_factive).
+expression_reading("notice", presupposition_trigger_factive).
+expression_reading("be aware that", presupposition_trigger_factive).
+expression_reading("be glad that", presupposition_trigger_factive).
+expression_reading("again", presupposition_trigger_iterative).
+expression_reading("once more", presupposition_trigger_iterative).
+expression_reading("return", presupposition_trigger_iterative).
+expression_reading("restore", presupposition_trigger_iterative).
+expression_reading("repeat", presupposition_trigger_iterative).
+expression_reading("resume", presupposition_trigger_iterative).
+expression_reading("reopen", presupposition_trigger_iterative).
+expression_reading("rebuild", presupposition_trigger_iterative).
+expression_reading("the", presupposition_trigger_existence).
+expression_reading("both", presupposition_trigger_existence).
+expression_reading("each", presupposition_trigger_existence).
+expression_reading("all", presupposition_trigger_existence).
+expression_reading("whose", presupposition_trigger_existence).
+expression_reading("his", presupposition_trigger_existence).
+expression_reading("her", presupposition_trigger_existence).
+expression_reading("its", presupposition_trigger_existence).
+expression_reading("their", presupposition_trigger_existence).
+expression_reading("even", presupposition_trigger_scalar).
+expression_reading("only", presupposition_trigger_scalar).
+expression_reading("merely", presupposition_trigger_scalar).
+expression_reading("just", presupposition_trigger_scalar).
+expression_reading("at least", presupposition_trigger_scalar).
+expression_reading("at most", presupposition_trigger_scalar).
+expression_reading("already", presupposition_trigger_scalar).
+expression_reading("yet", presupposition_trigger_scalar).
+expression_reading("still", presupposition_trigger_scalar).
+expression_reading("but", presupposition_trigger_counterexpectation).
+expression_reading("although", presupposition_trigger_counterexpectation).
+expression_reading("even", presupposition_trigger_counterexpectation).
+expression_reading("nevertheless", presupposition_trigger_counterexpectation).
+expression_reading("nonetheless", presupposition_trigger_counterexpectation).
+expression_reading("despite", presupposition_trigger_counterexpectation).
+expression_reading("surprisingly", presupposition_trigger_counterexpectation).
+expression_reading("unexpectedly", presupposition_trigger_counterexpectation).
+expression_reading("please", pragmatics_request).
+expression_reading("could you", pragmatics_request).
+expression_reading("would you", pragmatics_request).
+expression_reading("will you", pragmatics_request).
+expression_reading("can you", pragmatics_request).
+expression_reading("would you mind", pragmatics_request).
+expression_reading("could you please", pragmatics_request).
+expression_reading("i would like you to", pragmatics_request).
+expression_reading("let us", pragmatics_suggestion).
+expression_reading("let s", pragmatics_suggestion).
+expression_reading("why not", pragmatics_suggestion).
+expression_reading("how about", pragmatics_suggestion).
+expression_reading("what about", pragmatics_suggestion).
+expression_reading("we could", pragmatics_suggestion).
+expression_reading("one could", pragmatics_suggestion).
+expression_reading("it may be useful to", pragmatics_suggestion).
+expression_reading("should", pragmatics_recommendation).
+expression_reading("ought to", pragmatics_recommendation).
+expression_reading("it is advisable to", pragmatics_recommendation).
+expression_reading("it is recommended that", pragmatics_recommendation).
+expression_reading("we recommend that", pragmatics_recommendation).
+expression_reading("beware", pragmatics_warning).
+expression_reading("take care", pragmatics_warning).
+expression_reading("be careful", pragmatics_warning).
+expression_reading("note that", pragmatics_warning).
+expression_reading("caution", pragmatics_warning).
+expression_reading("warning", pragmatics_warning).
+expression_reading("avoid", pragmatics_warning).
+expression_reading("admittedly", pragmatics_concession).
+expression_reading("granted", pragmatics_concession).
+expression_reading("to be sure", pragmatics_concession).
+expression_reading("fair enough", pragmatics_concession).
+expression_reading("to some extent", pragmatics_hedge).
+expression_reading("in a sense", pragmatics_hedge).
+expression_reading("as it were", pragmatics_hedge).
+expression_reading("so to speak", pragmatics_hedge).
+expression_reading("roughly speaking", pragmatics_hedge).
+expression_reading("indeed", pragmatics_emphasis).
+expression_reading("in fact", pragmatics_emphasis).
+expression_reading("certainly", pragmatics_emphasis).
+expression_reading("clearly", pragmatics_emphasis).
+expression_reading("undoubtedly", pragmatics_emphasis).
+expression_reading("without doubt", pragmatics_emphasis).
+expression_reading("of particular importance", pragmatics_emphasis).
+expression_reading("above all", pragmatics_emphasis).
+expression_reading("the term", pragmatics_metalinguistic).
+expression_reading("the word", pragmatics_metalinguistic).
+expression_reading("the expression", pragmatics_metalinguistic).
+expression_reading("called", pragmatics_metalinguistic).
+expression_reading("known as", pragmatics_metalinguistic).
+expression_reading("referred to as", pragmatics_metalinguistic).
+expression_reading("denoted by", pragmatics_metalinguistic).
+expression_reading("abbreviated as", pragmatics_metalinguistic).
+expression_reading("means", pragmatics_metalinguistic).
+expression_reading("meaning", pragmatics_metalinguistic).
+expression_reading("in this article", pragmatics_definition_scope).
+expression_reading("in this context", pragmatics_definition_scope).
+expression_reading("for the purposes of", pragmatics_definition_scope).
+expression_reading("here defined as", pragmatics_definition_scope).
+expression_reading("in the sense of", pragmatics_definition_scope).
+expression_reading("in its broadest sense", pragmatics_definition_scope).
+expression_reading("in the narrow sense", pragmatics_definition_scope).
+expression_reading("strictly speaking", pragmatics_definition_scope).
+expression_reading("according to", pragmatics_citation).
+expression_reading("as reported by", pragmatics_citation).
+expression_reading("as described in", pragmatics_citation).
+expression_reading("see also", pragmatics_citation).
+expression_reading("see", pragmatics_citation).
+expression_reading("cf.", pragmatics_citation).
+expression_reading("c.f.", pragmatics_citation).
+expression_reading("ibid.", pragmatics_citation).
+expression_reading("op. cit.", pragmatics_citation).
+expression_reading("the former", pragmatics_uncertain_reference).
+expression_reading("the latter", pragmatics_uncertain_reference).
+expression_reading("this", pragmatics_uncertain_reference).
+expression_reading("that", pragmatics_uncertain_reference).
+expression_reading("these", pragmatics_uncertain_reference).
+expression_reading("those", pragmatics_uncertain_reference).
+expression_reading("it", pragmatics_uncertain_reference).
+expression_reading("they", pragmatics_uncertain_reference).
+expression_reading("such", pragmatics_uncertain_reference).
+expression_reading("the same", pragmatics_uncertain_reference).
+expression_reading("the other", pragmatics_uncertain_reference).
+expression_reading("respectively", pragmatics_uncertain_reference).
+pragmatic_inference(some, not_all, defeasible).
+pragmatic_inference(or, exclusive_alternative, defeasible).
+pragmatic_inference("can you", request, context_required).
+pragmatic_inference("could you", polite_request, context_required).
+pragmatic_inference(only, exclude_focus_alternatives, scope_required).
+pragmatic_inference(even, unexpected_focus, context_required).
+pragmatic_inference(again, prior_event, projection_required).
+pragmatic_inference(stop, prior_activity, projection_required).
+pragmatic_inference(know, embedded_truth, projection_required).
+pragmatic_inference(allegedly, source_distancing, attributed).
+pragmatic_inference(respectively, ordered_alignment, cardinality_required).
+pragmatic_inference(former, first_of_two, antecedents_required).
+pragmatic_inference(latter, second_of_two, antecedents_required).
+commitment_policy(possible, do_not_assert_actual).
+commitment_policy(probable, do_not_assert_certain).
+commitment_policy(obligation, do_not_assert_performed).
+commitment_policy(permission, do_not_assert_performed).
+commitment_policy(prohibition, do_not_assert_absence).
+commitment_policy(no_obligation, do_not_assert_prohibition).
+commitment_policy(counterfactual, do_not_assert_actual).
+commitment_policy(reported, retain_source).
+commitment_policy(hearsay, retain_source_and_distance).
+commitment_policy(hypothesis, retain_hypothetical_scope).
+commitment_policy(simulation, retain_model_scope).
+commitment_policy(uncertainty, retain_uncertainty).
+commitment_policy(nonuniversal_negation, retain_quantifier_scope).
+sentence_boundary_exception("approx.").
+sentence_boundary_exception("ca.").
+sentence_boundary_exception("c.").
+sentence_boundary_exception("ed.").
+sentence_boundary_exception("eds.").
+sentence_boundary_exception("vol.").
+sentence_boundary_exception("vols.").
+sentence_boundary_exception("nos.").
+sentence_boundary_exception("fig.").
+sentence_boundary_exception("figs.").
+sentence_boundary_exception("eq.").
+sentence_boundary_exception("eqs.").
+sentence_boundary_exception("ch.").
+sentence_boundary_exception("chap.").
+sentence_boundary_exception("pp.").
+sentence_boundary_exception("rev.").
+sentence_boundary_exception("trans.").
+sentence_boundary_exception("repr.").
+sentence_boundary_exception("dept.").
+sentence_boundary_exception("est.").
+sentence_boundary_exception("inc.").
+sentence_boundary_exception("ltd.").
+sentence_boundary_exception("co.").
+sentence_boundary_exception("corp.").
+sentence_boundary_exception("jr.").
+sentence_boundary_exception("sr.").
+sentence_boundary_exception("prof.").
+sentence_boundary_exception("mt.").
+sentence_boundary_exception("viz.").

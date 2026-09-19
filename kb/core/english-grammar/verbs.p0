@@ -1,0 +1,3879 @@
+% verbs.p0 — radici, valenze e famiglie di predicati della prosa generale
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+
+% constitution
+verb_family(comprise, constitution).
+verb_valency(comprise, transitive).
+verb_family(contain, constitution).
+verb_valency(contain, transitive).
+verb_family(include, constitution).
+verb_valency(include, transitive).
+verb_family(constitute, constitution).
+verb_valency(constitute, transitive).
+verb_family(compose, constitution).
+verb_valency(compose, transitive).
+verb_family(form, constitution).
+verb_valency(form, transitive).
+relation_verb(embody).
+verb_family(embody, constitution).
+verb_valency(embody, transitive).
+relation_verb(incorporate).
+verb_family(incorporate, constitution).
+verb_valency(incorporate, transitive).
+relation_verb(encompass).
+verb_family(encompass, constitution).
+verb_valency(encompass, transitive).
+relation_verb(integrate).
+verb_family(integrate, constitution).
+verb_valency(integrate, transitive).
+verb_family(combine, constitution).
+verb_valency(combine, transitive).
+relation_verb(unite).
+verb_family(unite, constitution).
+verb_valency(unite, transitive).
+relation_verb(merge).
+verb_family(merge, constitution).
+verb_valency(merge, transitive).
+relation_verb(join).
+verb_family(join, constitution).
+verb_valency(join, transitive).
+relation_verb(link).
+verb_family(link, constitution).
+verb_valency(link, transitive).
+relation_verb(connect).
+verb_family(connect, constitution).
+verb_valency(connect, transitive).
+verb_family(attach, constitution).
+verb_valency(attach, transitive).
+verb_family(bind, constitution).
+verb_valency(bind, transitive).
+relation_verb(couple).
+verb_family(couple, constitution).
+verb_valency(couple, transitive).
+relation_verb(associate).
+verb_family(associate, constitution).
+verb_valency(associate, transitive).
+relation_verb(assemble).
+verb_family(assemble, constitution).
+verb_valency(assemble, transitive).
+relation_verb(collect).
+verb_family(collect, constitution).
+verb_valency(collect, transitive).
+verb_family(gather, constitution).
+verb_valency(gather, transitive).
+relation_verb(accumulate).
+verb_family(accumulate, constitution).
+verb_valency(accumulate, transitive).
+relation_verb(aggregate).
+verb_family(aggregate, constitution).
+verb_valency(aggregate, transitive).
+relation_verb(group).
+verb_family(group, constitution).
+verb_valency(group, transitive).
+verb_family(classify, constitution).
+verb_valency(classify, transitive).
+relation_verb(categorize).
+verb_family(categorize, constitution).
+verb_valency(categorize, transitive).
+relation_verb(organise).
+verb_family(organise, constitution).
+verb_valency(organise, transitive).
+relation_verb(organize).
+verb_family(organize, constitution).
+verb_valency(organize, transitive).
+relation_verb(arrange).
+verb_family(arrange, constitution).
+verb_valency(arrange, transitive).
+relation_verb(structure).
+verb_family(structure, constitution).
+verb_valency(structure, transitive).
+verb_family(build, constitution).
+verb_valency(build, transitive).
+relation_verb(construct).
+verb_family(construct, constitution).
+verb_valency(construct, transitive).
+relation_verb(create).
+verb_family(create, constitution).
+verb_valency(create, transitive).
+relation_verb(generate).
+verb_family(generate, constitution).
+verb_valency(generate, transitive).
+relation_verb(produce).
+verb_family(produce, constitution).
+verb_valency(produce, transitive).
+relation_verb(make).
+verb_family(make, constitution).
+verb_valency(make, transitive).
+relation_verb(establish).
+verb_family(establish, constitution).
+verb_valency(establish, transitive).
+relation_verb(found).
+verb_family(found, constitution).
+verb_valency(found, transitive).
+relation_verb(institute).
+verb_family(institute, constitution).
+verb_valency(institute, transitive).
+
+% causation
+relation_verb(cause).
+verb_family(cause, causation).
+verb_valency(cause, transitive).
+relation_verb(induce).
+verb_family(induce, causation).
+verb_valency(induce, transitive).
+verb_family(trigger, causation).
+verb_valency(trigger, transitive).
+relation_verb(provoke).
+verb_family(provoke, causation).
+verb_valency(provoke, transitive).
+verb_family(produce, causation).
+verb_family(generate, causation).
+verb_family(yield, causation).
+verb_valency(yield, transitive).
+relation_verb(bring).
+verb_family(bring, causation).
+verb_valency(bring, transitive).
+verb_family(drive, causation).
+verb_valency(drive, transitive).
+relation_verb(motivate).
+verb_family(motivate, causation).
+verb_valency(motivate, transitive).
+relation_verb(prompt).
+verb_family(prompt, causation).
+verb_valency(prompt, transitive).
+relation_verb(stimulate).
+verb_family(stimulate, causation).
+verb_valency(stimulate, transitive).
+relation_verb(activate).
+verb_family(activate, causation).
+verb_valency(activate, transitive).
+relation_verb(initiate).
+verb_family(initiate, causation).
+verb_valency(initiate, transitive).
+relation_verb(start).
+verb_family(start, causation).
+verb_valency(start, transitive).
+relation_verb(launch).
+verb_family(launch, causation).
+verb_valency(launch, transitive).
+verb_family(enable, causation).
+verb_valency(enable, transitive).
+verb_family(allow, causation).
+verb_valency(allow, transitive).
+relation_verb(permit).
+verb_family(permit, causation).
+verb_valency(permit, transitive).
+relation_verb(facilitate).
+verb_family(facilitate, causation).
+verb_valency(facilitate, transitive).
+relation_verb(help).
+verb_family(help, causation).
+verb_valency(help, transitive).
+verb_family(aid, causation).
+verb_valency(aid, transitive).
+verb_family(support, causation).
+verb_valency(support, transitive).
+verb_family(sustain, causation).
+verb_valency(sustain, transitive).
+verb_family(maintain, causation).
+verb_valency(maintain, transitive).
+relation_verb(preserve).
+verb_family(preserve, causation).
+verb_valency(preserve, transitive).
+relation_verb(prevent).
+verb_family(prevent, causation).
+verb_valency(prevent, transitive).
+relation_verb(inhibit).
+verb_family(inhibit, causation).
+verb_valency(inhibit, transitive).
+verb_family(suppress, causation).
+verb_valency(suppress, transitive).
+relation_verb(hinder).
+verb_family(hinder, causation).
+verb_valency(hinder, transitive).
+relation_verb(impede).
+verb_family(impede, causation).
+verb_valency(impede, transitive).
+relation_verb(obstruct).
+verb_family(obstruct, causation).
+verb_valency(obstruct, transitive).
+relation_verb(block).
+verb_family(block, causation).
+verb_valency(block, transitive).
+relation_verb(stop).
+verb_family(stop, causation).
+verb_valency(stop, transitive).
+relation_verb(halt).
+verb_family(halt, causation).
+verb_valency(halt, transitive).
+relation_verb(interrupt).
+verb_family(interrupt, causation).
+verb_valency(interrupt, transitive).
+relation_verb(terminate).
+verb_family(terminate, causation).
+verb_valency(terminate, transitive).
+relation_verb(eliminate).
+verb_family(eliminate, causation).
+verb_valency(eliminate, transitive).
+verb_family(remove, causation).
+verb_valency(remove, transitive).
+relation_verb(avert).
+verb_family(avert, causation).
+verb_valency(avert, transitive).
+relation_verb(avoid).
+verb_family(avoid, causation).
+verb_valency(avoid, transitive).
+relation_verb(preclude).
+verb_family(preclude, causation).
+verb_valency(preclude, transitive).
+relation_verb(counteract).
+verb_family(counteract, causation).
+verb_valency(counteract, transitive).
+relation_verb(offset).
+verb_family(offset, causation).
+verb_valency(offset, transitive).
+verb_family(mitigate, causation).
+verb_valency(mitigate, transitive).
+relation_verb(alleviate).
+verb_family(alleviate, causation).
+verb_valency(alleviate, transitive).
+relation_verb(relieve).
+verb_family(relieve, causation).
+verb_valency(relieve, transitive).
+relation_verb(exacerbate).
+verb_family(exacerbate, causation).
+verb_valency(exacerbate, transitive).
+relation_verb(aggravate).
+verb_family(aggravate, causation).
+verb_valency(aggravate, transitive).
+relation_verb(intensify).
+verb_family(intensify, causation).
+verb_valency(intensify, transitive).
+verb_family(amplify, causation).
+verb_valency(amplify, transitive).
+relation_verb(potentiate).
+verb_family(potentiate, causation).
+verb_valency(potentiate, transitive).
+relation_verb(modulate).
+verb_family(modulate, causation).
+verb_valency(modulate, transitive).
+relation_verb(regulate).
+verb_family(regulate, causation).
+verb_valency(regulate, transitive).
+relation_verb(control).
+verb_family(control, causation).
+verb_valency(control, transitive).
+verb_family(determine, causation).
+verb_valency(determine, transitive).
+relation_verb(govern).
+verb_family(govern, causation).
+verb_valency(govern, transitive).
+verb_family(influence, causation).
+verb_valency(influence, transitive).
+verb_family(affect, causation).
+verb_valency(affect, transitive).
+verb_family(shape, causation).
+verb_valency(shape, transitive).
+relation_verb(condition).
+verb_family(condition, causation).
+verb_valency(condition, transitive).
+relation_verb(constrain).
+verb_family(constrain, causation).
+verb_valency(constrain, transitive).
+relation_verb(limit).
+verb_family(limit, causation).
+verb_valency(limit, transitive).
+relation_verb(restrict).
+verb_family(restrict, causation).
+verb_valency(restrict, transitive).
+
+% change
+relation_verb(change).
+verb_family(change, change).
+verb_valency(change, transitive).
+relation_verb(alter).
+verb_family(alter, change).
+verb_valency(alter, transitive).
+relation_verb(modify).
+verb_family(modify, change).
+verb_valency(modify, transitive).
+verb_family(transform, change).
+verb_valency(transform, transitive).
+verb_family(convert, change).
+verb_valency(convert, transitive).
+relation_verb(turn).
+verb_family(turn, change).
+verb_valency(turn, transitive).
+relation_verb(develop).
+verb_family(develop, change).
+verb_valency(develop, transitive).
+verb_family(evolve, change).
+verb_valency(evolve, transitive).
+relation_verb(adapt).
+verb_family(adapt, change).
+verb_valency(adapt, transitive).
+relation_verb(adjust).
+verb_family(adjust, change).
+verb_valency(adjust, transitive).
+relation_verb(revise).
+verb_family(revise, change).
+verb_valency(revise, transitive).
+relation_verb(amend).
+verb_family(amend, change).
+verb_valency(amend, transitive).
+relation_verb(reform).
+verb_family(reform, change).
+verb_valency(reform, transitive).
+relation_verb(reshape).
+verb_family(reshape, change).
+verb_valency(reshape, transitive).
+relation_verb(restructure).
+verb_family(restructure, change).
+verb_valency(restructure, transitive).
+relation_verb(reorganize).
+verb_family(reorganize, change).
+verb_valency(reorganize, transitive).
+relation_verb(reorganise).
+verb_family(reorganise, change).
+verb_valency(reorganise, transitive).
+relation_verb(reconstruct).
+verb_family(reconstruct, change).
+verb_valency(reconstruct, transitive).
+relation_verb(rebuild).
+verb_family(rebuild, change).
+verb_valency(rebuild, transitive).
+verb_family(restore, change).
+verb_valency(restore, transitive).
+relation_verb(recover).
+verb_family(recover, change).
+verb_valency(recover, transitive).
+relation_verb(renew).
+verb_family(renew, change).
+verb_valency(renew, transitive).
+relation_verb(regenerate).
+verb_family(regenerate, change).
+verb_valency(regenerate, transitive).
+verb_family(replace, change).
+verb_valency(replace, transitive).
+relation_verb(substitute).
+verb_family(substitute, change).
+verb_valency(substitute, transitive).
+verb_family(displace, change).
+verb_valency(displace, transitive).
+relation_verb(supersede).
+verb_family(supersede, change).
+verb_valency(supersede, transitive).
+relation_verb(succeed).
+verb_family(succeed, change).
+verb_valency(succeed, transitive).
+relation_verb(precede).
+verb_family(precede, change).
+verb_valency(precede, transitive).
+verb_family(improve, change).
+verb_valency(improve, transitive).
+relation_verb(enhance).
+verb_family(enhance, change).
+verb_valency(enhance, transitive).
+verb_family(strengthen, change).
+verb_valency(strengthen, transitive).
+relation_verb(reinforce).
+verb_family(reinforce, change).
+verb_valency(reinforce, transitive).
+verb_family(weaken, change).
+verb_valency(weaken, transitive).
+relation_verb(diminish).
+verb_family(diminish, change).
+verb_valency(diminish, transitive).
+verb_family(reduce, change).
+verb_valency(reduce, transitive).
+relation_verb(decrease).
+verb_family(decrease, change).
+verb_valency(decrease, transitive).
+verb_family(increase, change).
+verb_valency(increase, transitive).
+relation_verb(raise).
+verb_family(raise, change).
+verb_valency(raise, transitive).
+relation_verb(lower).
+verb_family(lower, change).
+verb_valency(lower, transitive).
+relation_verb(elevate).
+verb_family(elevate, change).
+verb_valency(elevate, transitive).
+relation_verb(expand).
+verb_family(expand, change).
+verb_valency(expand, transitive).
+relation_verb(extend).
+verb_family(extend, change).
+verb_valency(extend, transitive).
+relation_verb(enlarge).
+verb_family(enlarge, change).
+verb_valency(enlarge, transitive).
+relation_verb(shrink).
+verb_family(shrink, change).
+verb_valency(shrink, transitive).
+relation_verb(contract).
+verb_family(contract, change).
+verb_valency(contract, transitive).
+verb_family(compress, change).
+verb_valency(compress, transitive).
+verb_family(stretch, change).
+verb_valency(stretch, transitive).
+relation_verb(lengthen).
+verb_family(lengthen, change).
+verb_valency(lengthen, transitive).
+relation_verb(shorten).
+verb_family(shorten, change).
+verb_valency(shorten, transitive).
+relation_verb(widen).
+verb_family(widen, change).
+verb_valency(widen, transitive).
+relation_verb(narrow).
+verb_family(narrow, change).
+verb_valency(narrow, transitive).
+relation_verb(deepen).
+verb_family(deepen, change).
+verb_valency(deepen, transitive).
+relation_verb(broaden).
+verb_family(broaden, change).
+verb_valency(broaden, transitive).
+relation_verb(accelerate).
+verb_family(accelerate, change).
+verb_valency(accelerate, transitive).
+relation_verb(decelerate).
+verb_family(decelerate, change).
+verb_valency(decelerate, transitive).
+relation_verb(slow).
+verb_family(slow, change).
+verb_valency(slow, transitive).
+relation_verb(stabilize).
+verb_family(stabilize, change).
+verb_valency(stabilize, transitive).
+relation_verb(stabilise).
+verb_family(stabilise, change).
+verb_valency(stabilise, transitive).
+relation_verb(destabilize).
+verb_family(destabilize, change).
+verb_valency(destabilize, transitive).
+relation_verb(deteriorate).
+verb_family(deteriorate, change).
+verb_valency(deteriorate, transitive).
+relation_verb(degrade).
+verb_family(degrade, change).
+verb_valency(degrade, transitive).
+verb_family(damage, change).
+verb_valency(damage, transitive).
+verb_family(destroy, change).
+verb_valency(destroy, transitive).
+relation_verb(disrupt).
+verb_family(disrupt, change).
+verb_valency(disrupt, transitive).
+relation_verb(perturb).
+verb_family(perturb, change).
+verb_valency(perturb, transitive).
+relation_verb(disturb).
+verb_family(disturb, change).
+verb_valency(disturb, transitive).
+relation_verb(reverse).
+verb_family(reverse, change).
+verb_valency(reverse, transitive).
+relation_verb(invert).
+verb_family(invert, change).
+verb_valency(invert, transitive).
+relation_verb(revert).
+verb_family(revert, change).
+verb_valency(revert, transitive).
+relation_verb(vary).
+verb_family(vary, change).
+verb_valency(vary, transitive).
+relation_verb(diversify).
+verb_family(diversify, change).
+verb_valency(diversify, transitive).
+relation_verb(differentiate).
+verb_family(differentiate, change).
+verb_valency(differentiate, transitive).
+relation_verb(distinguish).
+verb_family(distinguish, change).
+verb_valency(distinguish, transitive).
+verb_family(separate, change).
+verb_valency(separate, transitive).
+verb_family(divide, change).
+verb_valency(divide, transitive).
+relation_verb(split).
+verb_family(split, change).
+verb_valency(split, transitive).
+relation_verb(fragment).
+verb_family(fragment, change).
+verb_valency(fragment, transitive).
+verb_family(break, change).
+verb_valency(break, transitive).
+relation_verb(rupture).
+verb_family(rupture, change).
+verb_valency(rupture, transitive).
+relation_verb(fracture).
+verb_family(fracture, change).
+verb_valency(fracture, transitive).
+verb_family(dissolve, change).
+verb_valency(dissolve, transitive).
+relation_verb(melt).
+verb_family(melt, change).
+verb_valency(melt, transitive).
+relation_verb(freeze).
+verb_family(freeze, change).
+verb_valency(freeze, transitive).
+relation_verb(solidify).
+verb_family(solidify, change).
+verb_valency(solidify, transitive).
+verb_family(crystallize, change).
+verb_valency(crystallize, transitive).
+relation_verb(crystallise).
+verb_family(crystallise, change).
+verb_valency(crystallise, transitive).
+relation_verb(evaporate).
+verb_family(evaporate, change).
+verb_valency(evaporate, transitive).
+relation_verb(vaporize).
+verb_family(vaporize, change).
+verb_valency(vaporize, transitive).
+relation_verb(condense).
+verb_family(condense, change).
+verb_valency(condense, transitive).
+verb_family(precipitate, change).
+verb_valency(precipitate, transitive).
+relation_verb(liquefy).
+verb_family(liquefy, change).
+verb_valency(liquefy, transitive).
+verb_family(oxidize, change).
+verb_valency(oxidize, transitive).
+relation_verb(oxidise).
+verb_family(oxidise, change).
+verb_valency(oxidise, transitive).
+verb_family(decompose, change).
+verb_valency(decompose, transitive).
+relation_verb(decay).
+verb_family(decay, change).
+verb_valency(decay, transitive).
+verb_family(recycle, change).
+verb_valency(recycle, transitive).
+
+% physical
+verb_family(absorb, physical).
+verb_valency(absorb, transitive).
+relation_verb(adsorb).
+verb_family(adsorb, physical).
+verb_valency(adsorb, transitive).
+verb_family(emit, physical).
+verb_valency(emit, transitive).
+verb_family(release, physical).
+verb_valency(release, transitive).
+verb_family(radiate, physical).
+verb_valency(radiate, transitive).
+verb_family(reflect, physical).
+verb_valency(reflect, transitive).
+verb_family(refract, physical).
+verb_valency(refract, transitive).
+verb_family(scatter, physical).
+verb_valency(scatter, transitive).
+verb_family(transmit, physical).
+verb_valency(transmit, transitive).
+relation_verb(transfer).
+verb_family(transfer, physical).
+verb_valency(transfer, transitive).
+relation_verb(transport).
+verb_family(transport, physical).
+verb_valency(transport, transitive).
+relation_verb(carry).
+verb_family(carry, physical).
+verb_valency(carry, transitive).
+relation_verb(convey).
+verb_family(convey, physical).
+verb_valency(convey, transitive).
+verb_family(deliver, physical).
+verb_valency(deliver, transitive).
+relation_verb(distribute).
+verb_family(distribute, physical).
+verb_valency(distribute, transitive).
+relation_verb(diffuse).
+verb_family(diffuse, physical).
+verb_valency(diffuse, transitive).
+relation_verb(disperse).
+verb_family(disperse, physical).
+verb_valency(disperse, transitive).
+verb_family(spread, physical).
+verb_valency(spread, transitive).
+relation_verb(propagate).
+verb_family(propagate, physical).
+verb_valency(propagate, transitive).
+verb_family(conduct, physical).
+verb_valency(conduct, transitive).
+verb_family(insulate, physical).
+verb_valency(insulate, transitive).
+verb_family(resist, physical).
+verb_valency(resist, transitive).
+verb_family(attract, physical).
+verb_valency(attract, transitive).
+verb_family(repel, physical).
+verb_valency(repel, transitive).
+relation_verb(deflect).
+verb_family(deflect, physical).
+verb_valency(deflect, transitive).
+relation_verb(divert).
+verb_family(divert, physical).
+verb_valency(divert, transitive).
+relation_verb(redirect).
+verb_family(redirect, physical).
+verb_valency(redirect, transitive).
+relation_verb(focus).
+verb_family(focus, physical).
+verb_valency(focus, transitive).
+relation_verb(concentrate).
+verb_family(concentrate, physical).
+verb_valency(concentrate, transitive).
+relation_verb(exert).
+verb_family(exert, physical).
+verb_valency(exert, transitive).
+relation_verb(apply).
+verb_family(apply, physical).
+verb_valency(apply, transitive).
+relation_verb(experience).
+verb_family(experience, physical).
+verb_valency(experience, transitive).
+verb_family(withstand, physical).
+verb_valency(withstand, transitive).
+verb_family(support, physical).
+verb_family(balance, physical).
+verb_valency(balance, transitive).
+relation_verb(counterbalance).
+verb_family(counterbalance, physical).
+verb_valency(counterbalance, transitive).
+verb_family(offset, physical).
+verb_family(rotate, physical).
+verb_valency(rotate, transitive).
+verb_family(spin, physical).
+verb_valency(spin, transitive).
+relation_verb(revolve).
+verb_family(revolve, physical).
+verb_valency(revolve, transitive).
+relation_verb(oscillate).
+verb_family(oscillate, physical).
+verb_valency(oscillate, transitive).
+relation_verb(vibrate).
+verb_family(vibrate, physical).
+verb_valency(vibrate, transitive).
+verb_family(displace, physical).
+relation_verb(move).
+verb_family(move, physical).
+verb_valency(move, transitive).
+relation_verb(shift).
+verb_family(shift, physical).
+verb_valency(shift, transitive).
+relation_verb(push).
+verb_family(push, physical).
+verb_valency(push, transitive).
+relation_verb(pull).
+verb_family(pull, physical).
+verb_valency(pull, transitive).
+relation_verb(lift).
+verb_family(lift, physical).
+verb_valency(lift, transitive).
+relation_verb(drag).
+verb_family(drag, physical).
+verb_valency(drag, transitive).
+relation_verb(draw).
+verb_family(draw, physical).
+verb_valency(draw, transitive).
+relation_verb(press).
+verb_family(press, physical).
+verb_valency(press, transitive).
+relation_verb(squeeze).
+verb_family(squeeze, physical).
+verb_valency(squeeze, transitive).
+relation_verb(bend).
+verb_family(bend, physical).
+verb_valency(bend, transitive).
+relation_verb(twist).
+verb_family(twist, physical).
+verb_valency(twist, transitive).
+relation_verb(fold).
+verb_family(fold, physical).
+verb_valency(fold, transitive).
+relation_verb(roll).
+verb_family(roll, physical).
+verb_valency(roll, transitive).
+relation_verb(slide).
+verb_family(slide, physical).
+verb_valency(slide, transitive).
+relation_verb(strike).
+verb_family(strike, physical).
+verb_valency(strike, transitive).
+relation_verb(hit).
+verb_family(hit, physical).
+verb_valency(hit, transitive).
+relation_verb(impact).
+verb_family(impact, physical).
+verb_valency(impact, transitive).
+relation_verb(collide).
+verb_family(collide, physical).
+verb_valency(collide, transitive).
+relation_verb(penetrate).
+verb_family(penetrate, physical).
+verb_valency(penetrate, transitive).
+relation_verb(permeate).
+verb_family(permeate, physical).
+verb_valency(permeate, transitive).
+verb_family(filter, physical).
+verb_valency(filter, transitive).
+verb_family(block, physical).
+relation_verb(shield).
+verb_family(shield, physical).
+verb_valency(shield, transitive).
+verb_family(protect, physical).
+verb_valency(protect, transitive).
+verb_family(surround, physical).
+verb_valency(surround, transitive).
+verb_family(enclose, physical).
+verb_valency(enclose, transitive).
+verb_family(cover, physical).
+verb_valency(cover, transitive).
+verb_family(coat, physical).
+verb_valency(coat, transitive).
+verb_family(line, physical).
+verb_valency(line, transitive).
+verb_family(fill, physical).
+verb_valency(fill, transitive).
+verb_family(occupy, physical).
+verb_valency(occupy, transitive).
+verb_family(span, physical).
+verb_valency(span, transitive).
+relation_verb(cross).
+verb_family(cross, physical).
+verb_valency(cross, transitive).
+relation_verb(traverse).
+verb_family(traverse, physical).
+verb_valency(traverse, transitive).
+relation_verb(reach).
+verb_family(reach, physical).
+verb_valency(reach, transitive).
+relation_verb(bridge).
+verb_family(bridge, physical).
+verb_valency(bridge, transitive).
+relation_verb(overlap).
+verb_family(overlap, physical).
+verb_valency(overlap, transitive).
+relation_verb(intersect).
+verb_family(intersect, physical).
+verb_valency(intersect, transitive).
+relation_verb(touch).
+verb_family(touch, physical).
+verb_valency(touch, transitive).
+relation_verb(contact).
+verb_family(contact, physical).
+verb_valency(contact, transitive).
+
+% measurement
+verb_family(measure, measurement).
+verb_valency(measure, transitive).
+relation_verb(quantify).
+verb_family(quantify, measurement).
+verb_valency(quantify, transitive).
+relation_verb(count).
+verb_family(count, measurement).
+verb_valency(count, transitive).
+relation_verb(enumerate).
+verb_family(enumerate, measurement).
+verb_valency(enumerate, transitive).
+verb_family(estimate, measurement).
+verb_valency(estimate, transitive).
+relation_verb(approximate).
+verb_family(approximate, measurement).
+verb_valency(approximate, transitive).
+relation_verb(calculate).
+verb_family(calculate, measurement).
+verb_valency(calculate, transitive).
+relation_verb(compute).
+verb_family(compute, measurement).
+verb_valency(compute, transitive).
+relation_verb(evaluate).
+verb_family(evaluate, measurement).
+verb_valency(evaluate, transitive).
+relation_verb(assess).
+verb_family(assess, measurement).
+verb_valency(assess, transitive).
+relation_verb(rate).
+verb_family(rate, measurement).
+verb_valency(rate, transitive).
+relation_verb(rank).
+verb_family(rank, measurement).
+verb_valency(rank, transitive).
+relation_verb(score).
+verb_family(score, measurement).
+verb_valency(score, transitive).
+relation_verb(weigh).
+verb_family(weigh, measurement).
+verb_valency(weigh, transitive).
+relation_verb(gauge).
+verb_family(gauge, measurement).
+verb_valency(gauge, transitive).
+relation_verb(calibrate).
+verb_family(calibrate, measurement).
+verb_valency(calibrate, transitive).
+relation_verb(compare).
+verb_family(compare, measurement).
+verb_valency(compare, transitive).
+relation_verb(contrast).
+verb_family(contrast, measurement).
+verb_valency(contrast, transitive).
+relation_verb(match).
+verb_family(match, measurement).
+verb_valency(match, transitive).
+relation_verb(equal).
+verb_family(equal, measurement).
+verb_valency(equal, transitive).
+verb_family(exceed, measurement).
+verb_valency(exceed, transitive).
+relation_verb(surpass).
+verb_family(surpass, measurement).
+verb_valency(surpass, transitive).
+relation_verb(outnumber).
+verb_family(outnumber, measurement).
+verb_valency(outnumber, transitive).
+relation_verb(outweigh).
+verb_family(outweigh, measurement).
+verb_valency(outweigh, transitive).
+relation_verb(outpace).
+verb_family(outpace, measurement).
+verb_valency(outpace, transitive).
+relation_verb(underlie).
+verb_family(underlie, measurement).
+verb_valency(underlie, transitive).
+relation_verb(represent).
+verb_family(represent, measurement).
+verb_valency(represent, transitive).
+relation_verb(correspond).
+verb_family(correspond, measurement).
+verb_valency(correspond, transitive).
+verb_family(denote, measurement).
+verb_valency(denote, transitive).
+relation_verb(indicate).
+verb_family(indicate, measurement).
+verb_valency(indicate, transitive).
+relation_verb(express).
+verb_family(express, measurement).
+verb_valency(express, transitive).
+relation_verb(specify).
+verb_family(specify, measurement).
+verb_valency(specify, transitive).
+verb_family(characterize, measurement).
+verb_valency(characterize, transitive).
+relation_verb(characterise).
+verb_family(characterise, measurement).
+verb_valency(characterise, transitive).
+relation_verb(describe).
+verb_family(describe, measurement).
+verb_valency(describe, transitive).
+relation_verb(define).
+verb_family(define, measurement).
+verb_valency(define, transitive).
+relation_verb(identify).
+verb_family(identify, measurement).
+verb_valency(identify, transitive).
+verb_family(distinguish, measurement).
+relation_verb(discriminate).
+verb_family(discriminate, measurement).
+verb_valency(discriminate, transitive).
+relation_verb(mark).
+verb_family(mark, measurement).
+verb_valency(mark, transitive).
+relation_verb(label).
+verb_family(label, measurement).
+verb_valency(label, transitive).
+relation_verb(name).
+verb_family(name, measurement).
+verb_valency(name, transitive).
+relation_verb(designate).
+verb_family(designate, measurement).
+verb_valency(designate, transitive).
+verb_family(classify, measurement).
+verb_family(categorize, measurement).
+relation_verb(categorise).
+verb_family(categorise, measurement).
+verb_valency(categorise, transitive).
+relation_verb(index).
+verb_family(index, measurement).
+verb_valency(index, transitive).
+relation_verb(number).
+verb_family(number, measurement).
+verb_valency(number, transitive).
+relation_verb(order).
+verb_family(order, measurement).
+verb_valency(order, transitive).
+relation_verb(sort).
+verb_family(sort, measurement).
+verb_valency(sort, transitive).
+relation_verb(sample).
+verb_family(sample, measurement).
+verb_valency(sample, transitive).
+relation_verb(test).
+verb_family(test, measurement).
+verb_valency(test, transitive).
+verb_family(detect, measurement).
+verb_valency(detect, transitive).
+relation_verb(observe).
+verb_family(observe, measurement).
+verb_valency(observe, transitive).
+verb_family(monitor, measurement).
+verb_valency(monitor, transitive).
+relation_verb(track).
+verb_family(track, measurement).
+verb_valency(track, transitive).
+verb_family(record, measurement).
+verb_valency(record, transitive).
+relation_verb(register).
+verb_family(register, measurement).
+verb_valency(register, transitive).
+verb_family(capture, measurement).
+verb_valency(capture, transitive).
+relation_verb(map).
+verb_family(map, measurement).
+verb_valency(map, transitive).
+relation_verb(survey).
+verb_family(survey, measurement).
+verb_valency(survey, transitive).
+relation_verb(chart).
+verb_family(chart, measurement).
+verb_valency(chart, transitive).
+relation_verb(plot).
+verb_family(plot, measurement).
+verb_valency(plot, transitive).
+relation_verb(trace).
+verb_family(trace, measurement).
+verb_valency(trace, transitive).
+relation_verb(locate).
+verb_family(locate, measurement).
+verb_valency(locate, transitive).
+relation_verb(pinpoint).
+verb_family(pinpoint, measurement).
+verb_valency(pinpoint, transitive).
+
+% information
+relation_verb(encode).
+verb_family(encode, information).
+verb_valency(encode, transitive).
+relation_verb(decode).
+verb_family(decode, information).
+verb_valency(decode, transitive).
+relation_verb(store).
+verb_family(store, information).
+verb_valency(store, transitive).
+verb_family(retain, information).
+verb_valency(retain, transitive).
+relation_verb(remember).
+verb_family(remember, information).
+verb_valency(remember, transitive).
+relation_verb(retrieve).
+verb_family(retrieve, information).
+verb_valency(retrieve, transitive).
+relation_verb(access).
+verb_family(access, information).
+verb_valency(access, transitive).
+relation_verb(read).
+verb_family(read, information).
+verb_valency(read, transitive).
+relation_verb(write).
+verb_family(write, information).
+verb_valency(write, transitive).
+relation_verb(print).
+verb_family(print, information).
+verb_valency(print, transitive).
+relation_verb(copy).
+verb_family(copy, information).
+verb_valency(copy, transitive).
+relation_verb(duplicate).
+verb_family(duplicate, information).
+verb_valency(duplicate, transitive).
+relation_verb(reproduce).
+verb_family(reproduce, information).
+verb_valency(reproduce, transitive).
+relation_verb(replicate).
+verb_family(replicate, information).
+verb_valency(replicate, transitive).
+verb_family(transmit, information).
+relation_verb(communicate).
+verb_family(communicate, information).
+verb_valency(communicate, transitive).
+verb_family(convey, information).
+relation_verb(send).
+verb_family(send, information).
+verb_valency(send, transitive).
+verb_family(receive, information).
+verb_valency(receive, transitive).
+relation_verb(broadcast).
+verb_family(broadcast, information).
+verb_valency(broadcast, transitive).
+relation_verb(publish).
+verb_family(publish, information).
+verb_valency(publish, transitive).
+verb_family(distribute, information).
+relation_verb(disseminate).
+verb_family(disseminate, information).
+verb_valency(disseminate, transitive).
+relation_verb(display).
+verb_family(display, information).
+verb_valency(display, transitive).
+relation_verb(show).
+verb_family(show, information).
+verb_valency(show, transitive).
+relation_verb(illustrate).
+verb_family(illustrate, information).
+verb_valency(illustrate, transitive).
+relation_verb(depict).
+verb_family(depict, information).
+verb_valency(depict, transitive).
+relation_verb(portray).
+verb_family(portray, information).
+verb_valency(portray, transitive).
+verb_family(represent, information).
+relation_verb(symbolize).
+verb_family(symbolize, information).
+verb_valency(symbolize, transitive).
+relation_verb(symbolise).
+verb_family(symbolise, information).
+verb_valency(symbolise, transitive).
+relation_verb(signify).
+verb_family(signify, information).
+verb_valency(signify, transitive).
+relation_verb(mean).
+verb_family(mean, information).
+verb_valency(mean, transitive).
+verb_family(denote, information).
+relation_verb(imply).
+verb_family(imply, information).
+verb_valency(imply, transitive).
+relation_verb(entail).
+verb_family(entail, information).
+verb_valency(entail, transitive).
+relation_verb(suggest).
+verb_family(suggest, information).
+verb_valency(suggest, transitive).
+relation_verb(reveal).
+verb_family(reveal, information).
+verb_valency(reveal, transitive).
+relation_verb(demonstrate).
+verb_family(demonstrate, information).
+verb_valency(demonstrate, transitive).
+relation_verb(prove).
+verb_family(prove, information).
+verb_valency(prove, transitive).
+verb_family(establish, information).
+relation_verb(confirm).
+verb_family(confirm, information).
+verb_valency(confirm, transitive).
+relation_verb(verify).
+verb_family(verify, information).
+verb_valency(verify, transitive).
+relation_verb(validate).
+verb_family(validate, information).
+verb_valency(validate, transitive).
+relation_verb(substantiate).
+verb_family(substantiate, information).
+verb_valency(substantiate, transitive).
+relation_verb(corroborate).
+verb_family(corroborate, information).
+verb_valency(corroborate, transitive).
+verb_family(support, information).
+relation_verb(refute).
+verb_family(refute, information).
+verb_valency(refute, transitive).
+relation_verb(disprove).
+verb_family(disprove, information).
+verb_valency(disprove, transitive).
+relation_verb(contradict).
+verb_family(contradict, information).
+verb_valency(contradict, transitive).
+relation_verb(challenge).
+verb_family(challenge, information).
+verb_valency(challenge, transitive).
+relation_verb(question).
+verb_family(question, information).
+verb_valency(question, transitive).
+relation_verb(dispute).
+verb_family(dispute, information).
+verb_valency(dispute, transitive).
+relation_verb(falsify).
+verb_family(falsify, information).
+verb_valency(falsify, transitive).
+relation_verb(invalidate).
+verb_family(invalidate, information).
+verb_valency(invalidate, transitive).
+relation_verb(explain).
+verb_family(explain, information).
+verb_valency(explain, transitive).
+relation_verb(account).
+verb_family(account, information).
+verb_valency(account, transitive).
+relation_verb(interpret).
+verb_family(interpret, information).
+verb_valency(interpret, transitive).
+relation_verb(analyse).
+verb_family(analyse, information).
+verb_valency(analyse, transitive).
+relation_verb(analyze).
+verb_family(analyze, information).
+verb_valency(analyze, transitive).
+relation_verb(examine).
+verb_family(examine, information).
+verb_valency(examine, transitive).
+relation_verb(investigate).
+verb_family(investigate, information).
+verb_valency(investigate, transitive).
+relation_verb(explore).
+verb_family(explore, information).
+verb_valency(explore, transitive).
+relation_verb(study).
+verb_family(study, information).
+verb_valency(study, transitive).
+relation_verb(research).
+verb_family(research, information).
+verb_valency(research, transitive).
+relation_verb(discover).
+verb_family(discover, information).
+verb_valency(discover, transitive).
+verb_family(find, information).
+verb_valency(find, transitive).
+relation_verb(uncover).
+verb_family(uncover, information).
+verb_valency(uncover, transitive).
+verb_family(identify, information).
+relation_verb(recognize).
+verb_family(recognize, information).
+verb_valency(recognize, transitive).
+relation_verb(recognise).
+verb_family(recognise, information).
+verb_valency(recognise, transitive).
+relation_verb(understand).
+verb_family(understand, information).
+verb_valency(understand, transitive).
+relation_verb(comprehend).
+verb_family(comprehend, information).
+verb_valency(comprehend, transitive).
+relation_verb(infer).
+verb_family(infer, information).
+verb_valency(infer, transitive).
+relation_verb(deduce).
+verb_family(deduce, information).
+verb_valency(deduce, transitive).
+verb_family(derive, information).
+verb_valency(derive, transitive).
+relation_verb(conclude).
+verb_family(conclude, information).
+verb_valency(conclude, transitive).
+relation_verb(predict).
+verb_family(predict, information).
+verb_valency(predict, transitive).
+relation_verb(forecast).
+verb_family(forecast, information).
+verb_valency(forecast, transitive).
+relation_verb(anticipate).
+verb_family(anticipate, information).
+verb_valency(anticipate, transitive).
+relation_verb(expect).
+verb_family(expect, information).
+verb_valency(expect, transitive).
+relation_verb(simulate).
+verb_family(simulate, information).
+verb_valency(simulate, transitive).
+relation_verb(model).
+verb_family(model, information).
+verb_valency(model, transitive).
+verb_family(approximate, information).
+relation_verb(abstract).
+verb_family(abstract, information).
+verb_valency(abstract, transitive).
+relation_verb(generalize).
+verb_family(generalize, information).
+verb_valency(generalize, transitive).
+relation_verb(generalise).
+verb_family(generalise, information).
+verb_valency(generalise, transitive).
+relation_verb(formalize).
+verb_family(formalize, information).
+verb_valency(formalize, transitive).
+relation_verb(formalise).
+verb_family(formalise, information).
+verb_valency(formalise, transitive).
+
+% biological
+relation_verb(eat).
+verb_family(eat, biological).
+verb_valency(eat, transitive).
+verb_family(consume, biological).
+verb_valency(consume, transitive).
+relation_verb(ingest).
+verb_family(ingest, biological).
+verb_valency(ingest, transitive).
+relation_verb(digest).
+verb_family(digest, biological).
+verb_valency(digest, transitive).
+relation_verb(metabolize).
+verb_family(metabolize, biological).
+verb_valency(metabolize, transitive).
+relation_verb(metabolise).
+verb_family(metabolise, biological).
+verb_valency(metabolise, transitive).
+relation_verb(assimilate).
+verb_family(assimilate, biological).
+verb_valency(assimilate, transitive).
+relation_verb(excrete).
+verb_family(excrete, biological).
+verb_valency(excrete, transitive).
+verb_family(secrete, biological).
+verb_valency(secrete, transitive).
+relation_verb(synthesize).
+verb_family(synthesize, biological).
+verb_valency(synthesize, transitive).
+relation_verb(synthesise).
+verb_family(synthesise, biological).
+verb_valency(synthesise, transitive).
+relation_verb(photosynthesize).
+verb_family(photosynthesize, biological).
+verb_valency(photosynthesize, transitive).
+relation_verb(respire).
+verb_family(respire, biological).
+verb_valency(respire, transitive).
+relation_verb(breathe).
+verb_family(breathe, biological).
+verb_valency(breathe, transitive).
+relation_verb(inhale).
+verb_family(inhale, biological).
+verb_valency(inhale, transitive).
+relation_verb(exhale).
+verb_family(exhale, biological).
+verb_valency(exhale, transitive).
+relation_verb(circulate).
+verb_family(circulate, biological).
+verb_valency(circulate, transitive).
+relation_verb(pump).
+verb_family(pump, biological).
+verb_valency(pump, transitive).
+relation_verb(oxygenate).
+verb_family(oxygenate, biological).
+verb_valency(oxygenate, transitive).
+verb_family(nourish, biological).
+verb_valency(nourish, transitive).
+verb_family(feed, biological).
+verb_valency(feed, transitive).
+relation_verb(fertilize).
+verb_family(fertilize, biological).
+verb_valency(fertilize, transitive).
+relation_verb(fertilise).
+verb_family(fertilise, biological).
+verb_valency(fertilise, transitive).
+verb_family(pollinate, biological).
+verb_valency(pollinate, transitive).
+verb_family(germinate, biological).
+verb_valency(germinate, transitive).
+relation_verb(cultivate).
+verb_family(cultivate, biological).
+verb_valency(cultivate, transitive).
+verb_family(grow, biological).
+verb_valency(grow, transitive).
+relation_verb(harvest).
+verb_family(harvest, biological).
+verb_valency(harvest, transitive).
+relation_verb(breed).
+verb_family(breed, biological).
+verb_valency(breed, transitive).
+verb_family(reproduce, biological).
+verb_family(propagate, biological).
+relation_verb(inherit).
+verb_family(inherit, biological).
+verb_valency(inherit, transitive).
+verb_family(transmit, biological).
+verb_family(express, biological).
+verb_family(regulate, biological).
+relation_verb(transcribe).
+verb_family(transcribe, biological).
+verb_valency(transcribe, transitive).
+relation_verb(translate).
+verb_family(translate, biological).
+verb_valency(translate, transitive).
+verb_family(replicate, biological).
+verb_family(encode, biological).
+relation_verb(mutate).
+verb_family(mutate, biological).
+verb_valency(mutate, transitive).
+relation_verb(infect).
+verb_family(infect, biological).
+verb_valency(infect, transitive).
+relation_verb(colonize).
+verb_family(colonize, biological).
+verb_valency(colonize, transitive).
+relation_verb(colonise).
+verb_family(colonise, biological).
+verb_valency(colonise, transitive).
+relation_verb(invade).
+verb_family(invade, biological).
+verb_valency(invade, transitive).
+relation_verb(parasitize).
+verb_family(parasitize, biological).
+verb_valency(parasitize, transitive).
+relation_verb(parasitise).
+verb_family(parasitise, biological).
+verb_valency(parasitise, transitive).
+relation_verb(prey).
+verb_family(prey, biological).
+verb_valency(prey, transitive).
+relation_verb(hunt).
+verb_family(hunt, biological).
+verb_valency(hunt, transitive).
+verb_family(capture, biological).
+relation_verb(kill).
+verb_family(kill, biological).
+verb_valency(kill, transitive).
+relation_verb(defend).
+verb_family(defend, biological).
+verb_valency(defend, transitive).
+verb_family(protect, biological).
+relation_verb(camouflage).
+verb_family(camouflage, biological).
+verb_valency(camouflage, transitive).
+relation_verb(mimic).
+verb_family(mimic, biological).
+verb_valency(mimic, transitive).
+verb_family(attract, biological).
+verb_family(repel, biological).
+relation_verb(tolerate).
+verb_family(tolerate, biological).
+verb_valency(tolerate, transitive).
+verb_family(withstand, biological).
+verb_family(adapt, biological).
+relation_verb(accommodate).
+verb_family(accommodate, biological).
+verb_valency(accommodate, transitive).
+verb_family(inhabit, biological).
+verb_valency(inhabit, transitive).
+relation_verb(populate).
+verb_family(populate, biological).
+verb_valency(populate, transitive).
+verb_family(occupy, biological).
+relation_verb(migrate).
+verb_family(migrate, biological).
+verb_valency(migrate, transitive).
+verb_family(disperse, biological).
+verb_family(shed, biological).
+verb_valency(shed, transitive).
+relation_verb(molt).
+verb_family(molt, biological).
+verb_valency(molt, transitive).
+verb_family(moult, biological).
+verb_valency(moult, transitive).
+relation_verb(hibernate).
+verb_family(hibernate, biological).
+verb_valency(hibernate, transitive).
+relation_verb(incubate).
+verb_family(incubate, biological).
+verb_valency(incubate, transitive).
+verb_family(hatch, biological).
+verb_valency(hatch, transitive).
+verb_family(raise, biological).
+relation_verb(rear).
+verb_family(rear, biological).
+verb_valency(rear, transitive).
+relation_verb(nurse).
+verb_family(nurse, biological).
+verb_valency(nurse, transitive).
+relation_verb(heal).
+verb_family(heal, biological).
+verb_valency(heal, transitive).
+relation_verb(repair).
+verb_family(repair, biological).
+verb_valency(repair, transitive).
+verb_family(regenerate, biological).
+
+% chemical
+verb_family(react, chemical).
+verb_valency(react, transitive).
+relation_verb(catalyze).
+verb_family(catalyze, chemical).
+verb_valency(catalyze, transitive).
+relation_verb(catalyse).
+verb_family(catalyse, chemical).
+verb_valency(catalyse, transitive).
+verb_family(synthesize, chemical).
+verb_family(synthesise, chemical).
+verb_family(dissolve, chemical).
+relation_verb(dilute).
+verb_family(dilute, chemical).
+verb_valency(dilute, transitive).
+verb_family(concentrate, chemical).
+verb_family(extract, chemical).
+verb_valency(extract, transitive).
+relation_verb(purify).
+verb_family(purify, chemical).
+verb_valency(purify, transitive).
+verb_family(refine, chemical).
+verb_valency(refine, transitive).
+verb_family(distill, chemical).
+verb_valency(distill, transitive).
+relation_verb(distil).
+verb_family(distil, chemical).
+verb_valency(distil, transitive).
+verb_family(filter, chemical).
+verb_family(separate, chemical).
+relation_verb(isolate).
+verb_family(isolate, chemical).
+verb_valency(isolate, transitive).
+verb_family(mix, chemical).
+verb_valency(mix, transitive).
+relation_verb(blend).
+verb_family(blend, chemical).
+verb_valency(blend, transitive).
+relation_verb(stir).
+verb_family(stir, chemical).
+verb_valency(stir, transitive).
+relation_verb(agitate).
+verb_family(agitate, chemical).
+verb_valency(agitate, transitive).
+verb_family(heat, chemical).
+verb_valency(heat, transitive).
+relation_verb(cool).
+verb_family(cool, chemical).
+verb_valency(cool, transitive).
+relation_verb(warm).
+verb_family(warm, chemical).
+verb_valency(warm, transitive).
+relation_verb(burn).
+verb_family(burn, chemical).
+verb_valency(burn, transitive).
+verb_family(ignite, chemical).
+verb_valency(ignite, transitive).
+relation_verb(combust).
+verb_family(combust, chemical).
+verb_valency(combust, transitive).
+verb_family(oxidize, chemical).
+verb_family(oxidise, chemical).
+relation_verb(hydrogenate).
+verb_family(hydrogenate, chemical).
+verb_valency(hydrogenate, transitive).
+relation_verb(dehydrate).
+verb_family(dehydrate, chemical).
+verb_valency(dehydrate, transitive).
+relation_verb(hydrate).
+verb_family(hydrate, chemical).
+verb_valency(hydrate, transitive).
+relation_verb(hydrolyze).
+verb_family(hydrolyze, chemical).
+verb_valency(hydrolyze, transitive).
+relation_verb(hydrolyse).
+verb_family(hydrolyse, chemical).
+verb_valency(hydrolyse, transitive).
+relation_verb(polymerize).
+verb_family(polymerize, chemical).
+verb_valency(polymerize, transitive).
+relation_verb(polymerise).
+verb_family(polymerise, chemical).
+verb_valency(polymerise, transitive).
+relation_verb(depolymerize).
+verb_family(depolymerize, chemical).
+verb_valency(depolymerize, transitive).
+relation_verb(neutralize).
+verb_family(neutralize, chemical).
+verb_valency(neutralize, transitive).
+relation_verb(neutralise).
+verb_family(neutralise, chemical).
+verb_valency(neutralise, transitive).
+relation_verb(titrate).
+verb_family(titrate, chemical).
+verb_valency(titrate, transitive).
+verb_family(precipitate, chemical).
+verb_family(crystallize, chemical).
+verb_family(crystallise, chemical).
+verb_family(evaporate, chemical).
+verb_family(vaporize, chemical).
+relation_verb(ionize).
+verb_family(ionize, chemical).
+verb_valency(ionize, transitive).
+relation_verb(ionise).
+verb_family(ionise, chemical).
+verb_valency(ionise, transitive).
+relation_verb(dissociate).
+verb_family(dissociate, chemical).
+verb_valency(dissociate, transitive).
+verb_family(associate, chemical).
+verb_family(bind, chemical).
+verb_family(adsorb, chemical).
+verb_family(absorb, chemical).
+relation_verb(desorb).
+verb_family(desorb, chemical).
+verb_valency(desorb, transitive).
+verb_family(reduce, chemical).
+verb_family(corrode, chemical).
+verb_valency(corrode, transitive).
+verb_family(erode, chemical).
+verb_valency(erode, transitive).
+relation_verb(etch).
+verb_family(etch, chemical).
+verb_valency(etch, transitive).
+verb_family(coat, chemical).
+relation_verb(plate).
+verb_family(plate, chemical).
+verb_valency(plate, transitive).
+verb_family(deposit, chemical).
+verb_valency(deposit, transitive).
+relation_verb(alloy).
+verb_family(alloy, chemical).
+verb_valency(alloy, transitive).
+verb_family(harden, chemical).
+verb_valency(harden, transitive).
+verb_family(soften, chemical).
+verb_valency(soften, transitive).
+relation_verb(anneal).
+verb_family(anneal, chemical).
+verb_valency(anneal, transitive).
+relation_verb(quench).
+verb_family(quench, chemical).
+verb_valency(quench, transitive).
+relation_verb(temper).
+verb_family(temper, chemical).
+verb_valency(temper, transitive).
+
+% geographical
+relation_verb(border).
+verb_family(border, geographical).
+verb_valency(border, transitive).
+relation_verb(bound).
+verb_family(bound, geographical).
+verb_valency(bound, transitive).
+verb_family(surround, geographical).
+relation_verb(encircle).
+verb_family(encircle, geographical).
+verb_valency(encircle, transitive).
+relation_verb(bisect).
+verb_family(bisect, geographical).
+verb_valency(bisect, transitive).
+verb_family(cross, geographical).
+verb_family(traverse, geographical).
+verb_family(cover, geographical).
+verb_family(occupy, geographical).
+verb_family(span, geographical).
+verb_family(extend, geographical).
+verb_family(connect, geographical).
+verb_family(link, geographical).
+verb_family(separate, geographical).
+verb_family(divide, geographical).
+verb_family(dominate, geographical).
+verb_valency(dominate, transitive).
+relation_verb(overlook).
+verb_family(overlook, geographical).
+verb_valency(overlook, transitive).
+relation_verb(drain).
+verb_family(drain, geographical).
+verb_valency(drain, transitive).
+relation_verb(irrigate).
+verb_family(irrigate, geographical).
+verb_valency(irrigate, transitive).
+relation_verb(flood).
+verb_family(flood, geographical).
+verb_valency(flood, transitive).
+relation_verb(inundate).
+verb_family(inundate, geographical).
+verb_valency(inundate, transitive).
+verb_family(erode, geographical).
+relation_verb(weather).
+verb_family(weather, geographical).
+verb_valency(weather, transitive).
+verb_family(deposit, geographical).
+verb_family(shape, geographical).
+verb_family(form, geographical).
+relation_verb(uplift).
+verb_family(uplift, geographical).
+verb_valency(uplift, transitive).
+relation_verb(submerge).
+verb_family(submerge, geographical).
+verb_valency(submerge, transitive).
+verb_family(displace, geographical).
+verb_family(transport, geographical).
+verb_family(supply, geographical).
+verb_valency(supply, transitive).
+verb_family(support, geographical).
+verb_family(sustain, geographical).
+verb_family(host, geographical).
+verb_valency(host, transitive).
+relation_verb(house).
+verb_family(house, geographical).
+verb_valency(house, transitive).
+verb_family(shelter, geographical).
+verb_valency(shelter, transitive).
+verb_family(inhabit, geographical).
+verb_family(populate, geographical).
+relation_verb(settle).
+verb_family(settle, geographical).
+verb_valency(settle, transitive).
+verb_family(colonize, geographical).
+verb_family(colonise, geographical).
+verb_family(cultivate, geographical).
+relation_verb(farm).
+verb_family(farm, geographical).
+verb_valency(farm, transitive).
+relation_verb(mine).
+verb_family(mine, geographical).
+verb_valency(mine, transitive).
+relation_verb(quarry).
+verb_family(quarry, geographical).
+verb_valency(quarry, transitive).
+relation_verb(excavate).
+verb_family(excavate, geographical).
+verb_valency(excavate, transitive).
+verb_family(extract, geographical).
+
+% historical
+verb_family(found, historical).
+verb_family(establish, historical).
+verb_family(build, historical).
+verb_family(create, historical).
+verb_family(develop, historical).
+relation_verb(invent).
+verb_family(invent, historical).
+verb_valency(invent, transitive).
+verb_family(discover, historical).
+verb_family(introduce, historical).
+verb_valency(introduce, transitive).
+relation_verb(adopt).
+verb_family(adopt, historical).
+verb_valency(adopt, transitive).
+relation_verb(implement).
+verb_family(implement, historical).
+verb_valency(implement, transitive).
+verb_family(institute, historical).
+relation_verb(enact).
+verb_family(enact, historical).
+verb_valency(enact, transitive).
+relation_verb(promulgate).
+verb_family(promulgate, historical).
+verb_valency(promulgate, transitive).
+relation_verb(abolish).
+verb_family(abolish, historical).
+verb_valency(abolish, transitive).
+relation_verb(repeal).
+verb_family(repeal, historical).
+verb_valency(repeal, transitive).
+verb_family(reform, historical).
+verb_family(replace, historical).
+relation_verb(overthrow).
+verb_family(overthrow, historical).
+verb_valency(overthrow, transitive).
+relation_verb(defeat).
+verb_family(defeat, historical).
+verb_valency(defeat, transitive).
+relation_verb(conquer).
+verb_family(conquer, historical).
+verb_valency(conquer, transitive).
+verb_family(invade, historical).
+verb_family(occupy, historical).
+relation_verb(annex).
+verb_family(annex, historical).
+verb_valency(annex, transitive).
+verb_family(capture, historical).
+relation_verb(besiege).
+verb_family(besiege, historical).
+verb_valency(besiege, transitive).
+verb_family(defend, historical).
+relation_verb(liberate).
+verb_family(liberate, historical).
+verb_valency(liberate, transitive).
+relation_verb(unify).
+verb_family(unify, historical).
+verb_valency(unify, transitive).
+verb_family(unite, historical).
+verb_family(divide, historical).
+relation_verb(partition).
+verb_family(partition, historical).
+verb_valency(partition, transitive).
+verb_family(govern, historical).
+relation_verb(rule).
+verb_family(rule, historical).
+verb_valency(rule, transitive).
+relation_verb(administer).
+verb_family(administer, historical).
+verb_valency(administer, transitive).
+verb_family(manage, historical).
+verb_valency(manage, transitive).
+verb_family(lead, historical).
+verb_valency(lead, transitive).
+relation_verb(command).
+verb_family(command, historical).
+verb_valency(command, transitive).
+relation_verb(direct).
+verb_family(direct, historical).
+verb_valency(direct, transitive).
+verb_family(control, historical).
+verb_family(dominate, historical).
+verb_family(influence, historical).
+verb_family(represent, historical).
+relation_verb(appoint).
+verb_family(appoint, historical).
+verb_valency(appoint, transitive).
+relation_verb(elect).
+verb_family(elect, historical).
+verb_valency(elect, transitive).
+relation_verb(nominate).
+verb_family(nominate, historical).
+verb_valency(nominate, transitive).
+relation_verb(crown).
+verb_family(crown, historical).
+verb_valency(crown, transitive).
+verb_family(succeed, historical).
+verb_family(precede, historical).
+verb_family(inherit, historical).
+relation_verb(acquire).
+verb_family(acquire, historical).
+verb_valency(acquire, transitive).
+verb_family(obtain, historical).
+verb_valency(obtain, transitive).
+relation_verb(gain).
+verb_family(gain, historical).
+verb_valency(gain, transitive).
+relation_verb(lose).
+verb_family(lose, historical).
+verb_valency(lose, transitive).
+verb_family(retain, historical).
+relation_verb(cede).
+verb_family(cede, historical).
+verb_valency(cede, transitive).
+relation_verb(surrender).
+verb_family(surrender, historical).
+verb_valency(surrender, transitive).
+relation_verb(abandon).
+verb_family(abandon, historical).
+verb_valency(abandon, transitive).
+relation_verb(evacuate).
+verb_family(evacuate, historical).
+verb_valency(evacuate, transitive).
+verb_family(migrate, historical).
+verb_family(settle, historical).
+verb_family(populate, historical).
+verb_family(colonize, historical).
+verb_family(colonise, historical).
+verb_family(explore, historical).
+verb_family(chart, historical).
+relation_verb(navigate).
+verb_family(navigate, historical).
+verb_valency(navigate, transitive).
+relation_verb(visit).
+verb_family(visit, historical).
+verb_valency(visit, transitive).
+verb_family(reach, historical).
+verb_family(cross, historical).
+relation_verb(commemorate).
+verb_family(commemorate, historical).
+verb_valency(commemorate, transitive).
+relation_verb(celebrate).
+verb_family(celebrate, historical).
+verb_valency(celebrate, transitive).
+relation_verb(honour).
+verb_family(honour, historical).
+verb_valency(honour, transitive).
+relation_verb(honor).
+verb_family(honor, historical).
+verb_valency(honor, transitive).
+verb_family(name, historical).
+relation_verb(rename).
+verb_family(rename, historical).
+verb_valency(rename, transitive).
+relation_verb(date).
+verb_family(date, historical).
+verb_valency(date, transitive).
+verb_family(record, historical).
+relation_verb(document).
+verb_family(document, historical).
+verb_valency(document, transitive).
+relation_verb(chronicle).
+verb_family(chronicle, historical).
+verb_valency(chronicle, transitive).
+verb_family(preserve, historical).
+verb_family(restore, historical).
+
+% social
+verb_family(organize, social).
+verb_family(organise, social).
+relation_verb(coordinate).
+verb_family(coordinate, social).
+verb_valency(coordinate, transitive).
+relation_verb(cooperate).
+verb_family(cooperate, social).
+verb_valency(cooperate, transitive).
+relation_verb(collaborate).
+verb_family(collaborate, social).
+verb_valency(collaborate, transitive).
+relation_verb(negotiate).
+verb_family(negotiate, social).
+verb_valency(negotiate, transitive).
+relation_verb(mediate).
+verb_family(mediate, social).
+verb_valency(mediate, transitive).
+relation_verb(reconcile).
+verb_family(reconcile, social).
+verb_valency(reconcile, transitive).
+relation_verb(resolve).
+verb_family(resolve, social).
+verb_valency(resolve, transitive).
+relation_verb(arbitrate).
+verb_family(arbitrate, social).
+verb_valency(arbitrate, transitive).
+relation_verb(decide).
+verb_family(decide, social).
+verb_valency(decide, transitive).
+relation_verb(choose).
+verb_family(choose, social).
+verb_valency(choose, transitive).
+relation_verb(select).
+verb_family(select, social).
+verb_valency(select, transitive).
+verb_family(elect, social).
+verb_family(appoint, social).
+verb_family(nominate, social).
+relation_verb(authorize).
+verb_family(authorize, social).
+verb_valency(authorize, transitive).
+relation_verb(authorise).
+verb_family(authorise, social).
+verb_valency(authorise, transitive).
+relation_verb(delegate).
+verb_family(delegate, social).
+verb_valency(delegate, transitive).
+relation_verb(empower).
+verb_family(empower, social).
+verb_valency(empower, transitive).
+verb_family(represent, social).
+relation_verb(serve).
+verb_family(serve, social).
+verb_valency(serve, transitive).
+relation_verb(employ).
+verb_family(employ, social).
+verb_valency(employ, transitive).
+relation_verb(hire).
+verb_family(hire, social).
+verb_valency(hire, transitive).
+relation_verb(recruit).
+verb_family(recruit, social).
+verb_valency(recruit, transitive).
+relation_verb(train).
+verb_family(train, social).
+verb_valency(train, transitive).
+relation_verb(teach).
+verb_family(teach, social).
+verb_valency(teach, transitive).
+relation_verb(educate).
+verb_family(educate, social).
+verb_valency(educate, transitive).
+relation_verb(instruct).
+verb_family(instruct, social).
+verb_valency(instruct, transitive).
+relation_verb(guide).
+verb_family(guide, social).
+verb_valency(guide, transitive).
+relation_verb(advise).
+verb_family(advise, social).
+verb_valency(advise, transitive).
+relation_verb(counsel).
+verb_family(counsel, social).
+verb_valency(counsel, transitive).
+relation_verb(mentor).
+verb_family(mentor, social).
+verb_valency(mentor, transitive).
+relation_verb(supervise).
+verb_family(supervise, social).
+verb_valency(supervise, transitive).
+verb_family(manage, social).
+verb_family(administer, social).
+verb_family(govern, social).
+verb_family(regulate, social).
+relation_verb(legislate).
+verb_family(legislate, social).
+verb_valency(legislate, transitive).
+relation_verb(enforce).
+verb_family(enforce, social).
+verb_valency(enforce, transitive).
+relation_verb(prosecute).
+verb_family(prosecute, social).
+verb_valency(prosecute, transitive).
+relation_verb(judge).
+verb_family(judge, social).
+verb_valency(judge, transitive).
+relation_verb(convict).
+verb_family(convict, social).
+verb_valency(convict, transitive).
+relation_verb(acquit).
+verb_family(acquit, social).
+verb_valency(acquit, transitive).
+relation_verb(sentence).
+verb_family(sentence, social).
+verb_valency(sentence, transitive).
+relation_verb(punish).
+verb_family(punish, social).
+verb_valency(punish, transitive).
+relation_verb(reward).
+verb_family(reward, social).
+verb_valency(reward, transitive).
+relation_verb(compensate).
+verb_family(compensate, social).
+verb_valency(compensate, transitive).
+relation_verb(remunerate).
+verb_family(remunerate, social).
+verb_valency(remunerate, transitive).
+relation_verb(pay).
+verb_family(pay, social).
+verb_valency(pay, transitive).
+relation_verb(charge).
+verb_family(charge, social).
+verb_valency(charge, transitive).
+relation_verb(tax).
+verb_family(tax, social).
+verb_valency(tax, transitive).
+relation_verb(fund).
+verb_family(fund, social).
+verb_valency(fund, transitive).
+relation_verb(finance).
+verb_family(finance, social).
+verb_valency(finance, transitive).
+relation_verb(invest).
+verb_family(invest, social).
+verb_valency(invest, transitive).
+relation_verb(lend).
+verb_family(lend, social).
+verb_valency(lend, transitive).
+relation_verb(borrow).
+verb_family(borrow, social).
+verb_valency(borrow, transitive).
+relation_verb(buy).
+verb_family(buy, social).
+verb_valency(buy, transitive).
+relation_verb(sell).
+verb_family(sell, social).
+verb_valency(sell, transitive).
+relation_verb(trade).
+verb_family(trade, social).
+verb_valency(trade, transitive).
+relation_verb(exchange).
+verb_family(exchange, social).
+verb_valency(exchange, transitive).
+verb_family(transfer, social).
+relation_verb(donate).
+verb_family(donate, social).
+verb_valency(donate, transitive).
+verb_family(contribute, social).
+verb_valency(contribute, transitive).
+relation_verb(allocate).
+verb_family(allocate, social).
+verb_valency(allocate, transitive).
+relation_verb(assign).
+verb_family(assign, social).
+verb_valency(assign, transitive).
+verb_family(distribute, social).
+verb_family(provide, social).
+verb_valency(provide, transitive).
+verb_family(supply, social).
+relation_verb(demand).
+verb_family(demand, social).
+verb_valency(demand, transitive).
+relation_verb(request).
+verb_family(request, social).
+verb_valency(request, transitive).
+verb_family(require, social).
+verb_valency(require, transitive).
+verb_family(offer, social).
+verb_valency(offer, transitive).
+relation_verb(accept).
+verb_family(accept, social).
+verb_valency(accept, transitive).
+relation_verb(reject).
+verb_family(reject, social).
+verb_valency(reject, transitive).
+relation_verb(refuse).
+verb_family(refuse, social).
+verb_valency(refuse, transitive).
+relation_verb(oppose).
+verb_family(oppose, social).
+verb_valency(oppose, transitive).
+relation_verb(endorse).
+verb_family(endorse, social).
+verb_valency(endorse, transitive).
+relation_verb(approve).
+verb_family(approve, social).
+verb_valency(approve, transitive).
+relation_verb(ratify).
+verb_family(ratify, social).
+verb_valency(ratify, transitive).
+relation_verb(sign).
+verb_family(sign, social).
+verb_valency(sign, transitive).
+verb_family(conclude, social).
+relation_verb(fulfil).
+verb_family(fulfil, social).
+verb_valency(fulfil, transitive).
+relation_verb(fulfill).
+verb_family(fulfill, social).
+verb_valency(fulfill, transitive).
+relation_verb(violate).
+verb_family(violate, social).
+verb_valency(violate, transitive).
+relation_verb(breach).
+verb_family(breach, social).
+verb_valency(breach, transitive).
+verb_family(honour, social).
+verb_family(honor, social).
+relation_verb(obey).
+verb_family(obey, social).
+verb_valency(obey, transitive).
+relation_verb(follow).
+verb_family(follow, social).
+verb_valency(follow, transitive).
+verb_family(observe, social).
+relation_verb(respect).
+verb_family(respect, social).
+verb_valency(respect, transitive).
+verb_family(protect, social).
+relation_verb(guarantee).
+verb_family(guarantee, social).
+verb_valency(guarantee, transitive).
+relation_verb(secure).
+verb_family(secure, social).
+verb_valency(secure, transitive).
+verb_family(threaten, social).
+verb_valency(threaten, transitive).
+verb_family(endanger, social).
+verb_valency(endanger, transitive).
+relation_verb(undermine).
+verb_family(undermine, social).
+verb_valency(undermine, transitive).
+
+% cognition
+relation_verb(know).
+verb_family(know, cognition).
+verb_valency(know, transitive).
+relation_verb(believe).
+verb_family(believe, cognition).
+verb_valency(believe, transitive).
+relation_verb(think).
+verb_family(think, cognition).
+verb_valency(think, transitive).
+relation_verb(suppose).
+verb_family(suppose, cognition).
+verb_valency(suppose, transitive).
+relation_verb(assume).
+verb_family(assume, cognition).
+verb_valency(assume, transitive).
+relation_verb(presume).
+verb_family(presume, cognition).
+verb_valency(presume, transitive).
+relation_verb(imagine).
+verb_family(imagine, cognition).
+verb_valency(imagine, transitive).
+relation_verb(conceive).
+verb_family(conceive, cognition).
+verb_valency(conceive, transitive).
+relation_verb(consider).
+verb_family(consider, cognition).
+verb_valency(consider, transitive).
+relation_verb(regard).
+verb_family(regard, cognition).
+verb_valency(regard, transitive).
+relation_verb(view).
+verb_family(view, cognition).
+verb_valency(view, transitive).
+relation_verb(perceive).
+verb_family(perceive, cognition).
+verb_valency(perceive, transitive).
+relation_verb(see).
+verb_family(see, cognition).
+verb_valency(see, transitive).
+relation_verb(hear).
+verb_family(hear, cognition).
+verb_valency(hear, transitive).
+relation_verb(smell).
+verb_family(smell, cognition).
+verb_valency(smell, transitive).
+relation_verb(taste).
+verb_family(taste, cognition).
+verb_valency(taste, transitive).
+relation_verb(feel).
+verb_family(feel, cognition).
+verb_valency(feel, transitive).
+verb_family(sense, cognition).
+verb_valency(sense, transitive).
+relation_verb(notice).
+verb_family(notice, cognition).
+verb_valency(notice, transitive).
+verb_family(observe, cognition).
+verb_family(recognize, cognition).
+verb_family(recognise, cognition).
+relation_verb(recall).
+verb_family(recall, cognition).
+verb_valency(recall, transitive).
+verb_family(remember, cognition).
+relation_verb(forget).
+verb_family(forget, cognition).
+verb_valency(forget, transitive).
+relation_verb(learn).
+verb_family(learn, cognition).
+verb_valency(learn, transitive).
+verb_family(understand, cognition).
+verb_family(comprehend, cognition).
+relation_verb(realize).
+verb_family(realize, cognition).
+verb_valency(realize, transitive).
+relation_verb(realise).
+verb_family(realise, cognition).
+verb_valency(realise, transitive).
+relation_verb(appreciate).
+verb_family(appreciate, cognition).
+verb_valency(appreciate, transitive).
+verb_family(infer, cognition).
+verb_family(deduce, cognition).
+verb_family(conclude, cognition).
+relation_verb(reason).
+verb_family(reason, cognition).
+verb_valency(reason, transitive).
+verb_family(judge, cognition).
+verb_family(assess, cognition).
+verb_family(evaluate, cognition).
+verb_family(compare, cognition).
+verb_family(distinguish, cognition).
+verb_family(expect, cognition).
+verb_family(anticipate, cognition).
+verb_family(predict, cognition).
+relation_verb(doubt).
+verb_family(doubt, cognition).
+verb_valency(doubt, transitive).
+relation_verb(suspect).
+verb_family(suspect, cognition).
+verb_valency(suspect, transitive).
+verb_family(question, cognition).
+relation_verb(wonder).
+verb_family(wonder, cognition).
+verb_valency(wonder, transitive).
+verb_family(investigate, cognition).
+verb_family(explore, cognition).
+verb_family(examine, cognition).
+verb_family(study, cognition).
+verb_family(analyse, cognition).
+verb_family(analyze, cognition).
+verb_family(interpret, cognition).
+verb_family(explain, cognition).
+relation_verb(intend).
+verb_family(intend, cognition).
+verb_valency(intend, transitive).
+relation_verb(plan).
+verb_family(plan, cognition).
+verb_valency(plan, transitive).
+relation_verb(propose).
+verb_family(propose, cognition).
+verb_valency(propose, transitive).
+verb_family(decide, cognition).
+verb_family(choose, cognition).
+relation_verb(prefer).
+verb_family(prefer, cognition).
+verb_valency(prefer, transitive).
+relation_verb(want).
+verb_family(want, cognition).
+verb_valency(want, transitive).
+relation_verb(need).
+verb_family(need, cognition).
+verb_valency(need, transitive).
+relation_verb(desire).
+verb_family(desire, cognition).
+verb_valency(desire, transitive).
+relation_verb(hope).
+verb_family(hope, cognition).
+verb_valency(hope, transitive).
+relation_verb(wish).
+verb_family(wish, cognition).
+verb_valency(wish, transitive).
+relation_verb(fear).
+verb_family(fear, cognition).
+verb_valency(fear, transitive).
+relation_verb(regret).
+verb_family(regret, cognition).
+verb_valency(regret, transitive).
+relation_verb(admire).
+verb_family(admire, cognition).
+verb_valency(admire, transitive).
+relation_verb(like).
+verb_family(like, cognition).
+verb_valency(like, transitive).
+relation_verb(love).
+verb_family(love, cognition).
+verb_valency(love, transitive).
+relation_verb(hate).
+verb_family(hate, cognition).
+verb_valency(hate, transitive).
+relation_verb(dislike).
+verb_family(dislike, cognition).
+verb_valency(dislike, transitive).
+relation_verb(trust).
+verb_family(trust, cognition).
+verb_valency(trust, transitive).
+relation_verb(distrust).
+verb_family(distrust, cognition).
+verb_valency(distrust, transitive).
+
+% communication
+relation_verb(say).
+verb_family(say, communication).
+verb_valency(say, transitive).
+relation_verb(state).
+verb_family(state, communication).
+verb_valency(state, transitive).
+relation_verb(assert).
+verb_family(assert, communication).
+verb_valency(assert, transitive).
+relation_verb(claim).
+verb_family(claim, communication).
+verb_valency(claim, transitive).
+relation_verb(allege).
+verb_family(allege, communication).
+verb_valency(allege, transitive).
+relation_verb(report).
+verb_family(report, communication).
+verb_valency(report, transitive).
+relation_verb(announce).
+verb_family(announce, communication).
+verb_valency(announce, transitive).
+relation_verb(declare).
+verb_family(declare, communication).
+verb_valency(declare, transitive).
+relation_verb(proclaim).
+verb_family(proclaim, communication).
+verb_valency(proclaim, transitive).
+relation_verb(affirm).
+verb_family(affirm, communication).
+verb_valency(affirm, transitive).
+relation_verb(deny).
+verb_family(deny, communication).
+verb_valency(deny, transitive).
+relation_verb(acknowledge).
+verb_family(acknowledge, communication).
+verb_valency(acknowledge, transitive).
+relation_verb(admit).
+verb_family(admit, communication).
+verb_valency(admit, transitive).
+relation_verb(concede).
+verb_family(concede, communication).
+verb_valency(concede, transitive).
+verb_family(maintain, communication).
+relation_verb(argue).
+verb_family(argue, communication).
+verb_valency(argue, transitive).
+relation_verb(contend).
+verb_family(contend, communication).
+verb_valency(contend, transitive).
+verb_family(suggest, communication).
+verb_family(propose, communication).
+relation_verb(hypothesize).
+verb_family(hypothesize, communication).
+verb_valency(hypothesize, transitive).
+relation_verb(hypothesise).
+verb_family(hypothesise, communication).
+verb_valency(hypothesise, transitive).
+relation_verb(speculate).
+verb_family(speculate, communication).
+verb_valency(speculate, transitive).
+relation_verb(conjecture).
+verb_family(conjecture, communication).
+verb_valency(conjecture, transitive).
+verb_family(assume, communication).
+relation_verb(posit).
+verb_family(posit, communication).
+verb_valency(posit, transitive).
+relation_verb(postulate).
+verb_family(postulate, communication).
+verb_valency(postulate, transitive).
+verb_family(predict, communication).
+verb_family(forecast, communication).
+verb_family(estimate, communication).
+verb_family(explain, communication).
+verb_family(describe, communication).
+verb_family(define, communication).
+verb_family(depict, communication).
+verb_family(portray, communication).
+relation_verb(recount).
+verb_family(recount, communication).
+verb_valency(recount, transitive).
+relation_verb(narrate).
+verb_family(narrate, communication).
+verb_valency(narrate, transitive).
+relation_verb(tell).
+verb_family(tell, communication).
+verb_valency(tell, transitive).
+relation_verb(inform).
+verb_family(inform, communication).
+verb_valency(inform, transitive).
+relation_verb(notify).
+verb_family(notify, communication).
+verb_valency(notify, transitive).
+verb_family(advise, communication).
+relation_verb(warn).
+verb_family(warn, communication).
+verb_valency(warn, transitive).
+relation_verb(caution).
+verb_family(caution, communication).
+verb_valency(caution, transitive).
+relation_verb(remind).
+verb_family(remind, communication).
+verb_valency(remind, transitive).
+relation_verb(persuade).
+verb_family(persuade, communication).
+verb_valency(persuade, transitive).
+relation_verb(convince).
+verb_family(convince, communication).
+verb_valency(convince, transitive).
+relation_verb(urge).
+verb_family(urge, communication).
+verb_valency(urge, transitive).
+relation_verb(encourage).
+verb_family(encourage, communication).
+verb_valency(encourage, transitive).
+relation_verb(discourage).
+verb_family(discourage, communication).
+verb_valency(discourage, transitive).
+relation_verb(recommend).
+verb_family(recommend, communication).
+verb_valency(recommend, transitive).
+verb_family(request, communication).
+relation_verb(ask).
+verb_family(ask, communication).
+verb_valency(ask, transitive).
+verb_family(demand, communication).
+verb_family(order, communication).
+verb_family(command, communication).
+verb_family(instruct, communication).
+relation_verb(invite).
+verb_family(invite, communication).
+verb_valency(invite, transitive).
+relation_verb(promise).
+verb_family(promise, communication).
+verb_valency(promise, transitive).
+relation_verb(vow).
+verb_family(vow, communication).
+verb_valency(vow, transitive).
+relation_verb(pledge).
+verb_family(pledge, communication).
+verb_valency(pledge, transitive).
+relation_verb(undertake).
+verb_family(undertake, communication).
+verb_valency(undertake, transitive).
+verb_family(guarantee, communication).
+relation_verb(assure).
+verb_family(assure, communication).
+verb_valency(assure, transitive).
+verb_family(confirm, communication).
+verb_family(verify, communication).
+relation_verb(quote).
+verb_family(quote, communication).
+verb_valency(quote, transitive).
+relation_verb(cite).
+verb_family(cite, communication).
+verb_valency(cite, transitive).
+relation_verb(reference).
+verb_family(reference, communication).
+verb_valency(reference, transitive).
+relation_verb(mention).
+verb_family(mention, communication).
+verb_valency(mention, transitive).
+relation_verb(note).
+verb_family(note, communication).
+verb_valency(note, transitive).
+relation_verb(remark).
+verb_family(remark, communication).
+verb_valency(remark, transitive).
+relation_verb(comment).
+verb_family(comment, communication).
+verb_valency(comment, transitive).
+relation_verb(discuss).
+verb_family(discuss, communication).
+verb_valency(discuss, transitive).
+relation_verb(debate).
+verb_family(debate, communication).
+verb_valency(debate, transitive).
+verb_family(dispute, communication).
+relation_verb(criticize).
+verb_family(criticize, communication).
+verb_valency(criticize, transitive).
+relation_verb(criticise).
+verb_family(criticise, communication).
+verb_valency(criticise, transitive).
+relation_verb(praise).
+verb_family(praise, communication).
+verb_valency(praise, transitive).
+verb_family(evaluate, communication).
+relation_verb(review).
+verb_family(review, communication).
+verb_valency(review, transitive).
+relation_verb(summarize).
+verb_family(summarize, communication).
+verb_valency(summarize, transitive).
+relation_verb(summarise).
+verb_family(summarise, communication).
+verb_valency(summarise, transitive).
+relation_verb(outline).
+verb_family(outline, communication).
+verb_valency(outline, transitive).
+relation_verb(list).
+verb_family(list, communication).
+verb_valency(list, transitive).
+verb_family(enumerate, communication).
+relation_verb(exemplify).
+verb_family(exemplify, communication).
+verb_valency(exemplify, transitive).
+verb_family(illustrate, communication).
+verb_family(demonstrate, communication).
+verb_family(express, communication).
+verb_family(convey, communication).
+verb_family(communicate, communication).
+relation_verb(signal).
+verb_family(signal, communication).
+verb_valency(signal, transitive).
+verb_family(indicate, communication).
+verb_family(reveal, communication).
+relation_verb(disclose).
+verb_family(disclose, communication).
+verb_valency(disclose, transitive).
+relation_verb(conceal).
+verb_family(conceal, communication).
+verb_valency(conceal, transitive).
+relation_verb(omit).
+verb_family(omit, communication).
+verb_valency(omit, transitive).
+relation_verb(redact).
+verb_family(redact, communication).
+verb_valency(redact, transitive).
+verb_family(suppress, communication).
+verb_family(publish, communication).
+verb_family(broadcast, communication).
+verb_family(write, communication).
+verb_family(compose, communication).
+verb_family(translate, communication).
+verb_family(interpret, communication).
+relation_verb(paraphrase).
+verb_family(paraphrase, communication).
+verb_valency(paraphrase, transitive).
+relation_verb(rephrase).
+verb_family(rephrase, communication).
+verb_valency(rephrase, transitive).
+relation_verb(spell).
+verb_family(spell, communication).
+verb_valency(spell, transitive).
+relation_verb(pronounce).
+verb_family(pronounce, communication).
+verb_valency(pronounce, transitive).
+relation_verb(utter).
+verb_family(utter, communication).
+verb_valency(utter, transitive).
+verb_family(name, communication).
+relation_verb(call).
+verb_family(call, communication).
+verb_valency(call, transitive).
+verb_family(designate, communication).
+relation_verb(term).
+verb_family(term, communication).
+verb_valency(term, transitive).
+relation_verb(dub).
+verb_family(dub, communication).
+verb_valency(dub, transitive).
+verb_family(label, communication).
+relation_verb(entitle).
+verb_family(entitle, communication).
+verb_valency(entitle, transitive).
+relation_verb(title).
+verb_family(title, communication).
+verb_valency(title, transitive).
+
+% creation
+relation_verb(design).
+verb_family(design, creation).
+verb_valency(design, transitive).
+relation_verb(devise).
+verb_family(devise, creation).
+verb_valency(devise, transitive).
+verb_family(invent, creation).
+relation_verb(formulate).
+verb_family(formulate, creation).
+verb_valency(formulate, transitive).
+verb_family(originate, creation).
+verb_valency(originate, transitive).
+verb_family(develop, creation).
+verb_family(create, creation).
+verb_family(compose, creation).
+verb_family(write, creation).
+verb_family(draw, creation).
+relation_verb(paint).
+verb_family(paint, creation).
+verb_valency(paint, transitive).
+relation_verb(sketch).
+verb_family(sketch, creation).
+verb_valency(sketch, transitive).
+relation_verb(sculpt).
+verb_family(sculpt, creation).
+verb_valency(sculpt, transitive).
+relation_verb(carve).
+verb_family(carve, creation).
+verb_valency(carve, transitive).
+relation_verb(engrave).
+verb_family(engrave, creation).
+verb_valency(engrave, transitive).
+verb_family(etch, creation).
+verb_family(weave, creation).
+verb_valency(weave, transitive).
+relation_verb(knit).
+verb_family(knit, creation).
+verb_valency(knit, transitive).
+relation_verb(sew).
+verb_family(sew, creation).
+verb_valency(sew, transitive).
+relation_verb(stitch).
+verb_family(stitch, creation).
+verb_valency(stitch, transitive).
+relation_verb(embroider).
+verb_family(embroider, creation).
+verb_valency(embroider, transitive).
+verb_family(cast, creation).
+verb_valency(cast, transitive).
+verb_family(forge, creation).
+verb_valency(forge, transitive).
+relation_verb(manufacture).
+verb_family(manufacture, creation).
+verb_valency(manufacture, transitive).
+relation_verb(fabricate).
+verb_family(fabricate, creation).
+verb_valency(fabricate, transitive).
+verb_family(produce, creation).
+verb_family(construct, creation).
+verb_family(build, creation).
+relation_verb(erect).
+verb_family(erect, creation).
+verb_valency(erect, transitive).
+verb_family(assemble, creation).
+relation_verb(install).
+verb_family(install, creation).
+verb_valency(install, transitive).
+verb_family(establish, creation).
+verb_family(found, creation).
+verb_family(institute, creation).
+verb_family(organize, creation).
+verb_family(organise, creation).
+verb_family(arrange, creation).
+relation_verb(perform).
+verb_family(perform, creation).
+verb_valency(perform, transitive).
+relation_verb(play).
+verb_family(play, creation).
+verb_valency(play, transitive).
+relation_verb(sing).
+verb_family(sing, creation).
+verb_valency(sing, transitive).
+verb_family(conduct, creation).
+relation_verb(stage).
+verb_family(stage, creation).
+verb_valency(stage, transitive).
+verb_family(direct, creation).
+relation_verb(film).
+verb_family(film, creation).
+verb_valency(film, transitive).
+relation_verb(photograph).
+verb_family(photograph, creation).
+verb_valency(photograph, transitive).
+verb_family(record, creation).
+verb_family(capture, creation).
+verb_family(reproduce, creation).
+verb_family(print, creation).
+verb_family(publish, creation).
+relation_verb(edit).
+verb_family(edit, creation).
+verb_valency(edit, transitive).
+verb_family(revise, creation).
+verb_family(adapt, creation).
+verb_family(translate, creation).
+verb_family(illustrate, creation).
+relation_verb(decorate).
+verb_family(decorate, creation).
+verb_valency(decorate, transitive).
+relation_verb(embellish).
+verb_family(embellish, creation).
+verb_valency(embellish, transitive).
+verb_family(restore, creation).
+relation_verb(renovate).
+verb_family(renovate, creation).
+verb_valency(renovate, transitive).
+verb_family(reconstruct, creation).
+verb_family(model, creation).
+verb_family(simulate, creation).
+relation_verb(program).
+verb_family(program, creation).
+verb_valency(program, transitive).
+relation_verb(code).
+verb_family(code, creation).
+verb_valency(code, transitive).
+verb_family(implement, creation).
+relation_verb(compile).
+verb_family(compile, creation).
+verb_valency(compile, transitive).
+relation_verb(execute).
+verb_family(execute, creation).
+verb_valency(execute, transitive).
+relation_verb(automate).
+verb_family(automate, creation).
+verb_valency(automate, transitive).
+relation_verb(engineer).
+verb_family(engineer, creation).
+verb_valency(engineer, transitive).
+
+% computation
+verb_family(compute, computation).
+verb_family(calculate, computation).
+verb_family(evaluate, computation).
+relation_verb(solve).
+verb_family(solve, computation).
+verb_valency(solve, transitive).
+verb_family(derive, computation).
+verb_family(prove, computation).
+verb_family(establish, computation).
+verb_family(infer, computation).
+verb_family(deduce, computation).
+verb_family(imply, computation).
+verb_family(entail, computation).
+relation_verb(satisfy).
+verb_family(satisfy, computation).
+verb_valency(satisfy, transitive).
+verb_family(violate, computation).
+verb_family(constrain, computation).
+relation_verb(optimize).
+verb_family(optimize, computation).
+verb_valency(optimize, transitive).
+relation_verb(optimise).
+verb_family(optimise, computation).
+verb_valency(optimise, transitive).
+relation_verb(maximize).
+verb_family(maximize, computation).
+verb_valency(maximize, transitive).
+relation_verb(maximise).
+verb_family(maximise, computation).
+verb_valency(maximise, transitive).
+relation_verb(minimize).
+verb_family(minimize, computation).
+verb_valency(minimize, transitive).
+relation_verb(minimise).
+verb_family(minimise, computation).
+verb_valency(minimise, transitive).
+verb_family(approximate, computation).
+verb_family(estimate, computation).
+relation_verb(interpolate).
+verb_family(interpolate, computation).
+verb_valency(interpolate, transitive).
+relation_verb(extrapolate).
+verb_family(extrapolate, computation).
+verb_valency(extrapolate, transitive).
+verb_family(integrate, computation).
+verb_family(differentiate, computation).
+relation_verb(sum).
+verb_family(sum, computation).
+verb_valency(sum, transitive).
+relation_verb(multiply).
+verb_family(multiply, computation).
+verb_valency(multiply, transitive).
+verb_family(divide, computation).
+relation_verb(subtract).
+verb_family(subtract, computation).
+verb_valency(subtract, transitive).
+relation_verb(add).
+verb_family(add, computation).
+verb_valency(add, transitive).
+relation_verb(factor).
+verb_family(factor, computation).
+verb_valency(factor, transitive).
+relation_verb(factorize).
+verb_family(factorize, computation).
+verb_valency(factorize, transitive).
+relation_verb(factorise).
+verb_family(factorise, computation).
+verb_valency(factorise, transitive).
+verb_family(expand, computation).
+relation_verb(simplify).
+verb_family(simplify, computation).
+verb_valency(simplify, transitive).
+verb_family(reduce, computation).
+verb_family(substitute, computation).
+verb_family(eliminate, computation).
+verb_family(transform, computation).
+verb_family(rotate, computation).
+verb_family(translate, computation).
+verb_family(reflect, computation).
+relation_verb(project).
+verb_family(project, computation).
+verb_valency(project, transitive).
+verb_family(map, computation).
+verb_family(encode, computation).
+verb_family(decode, computation).
+relation_verb(encrypt).
+verb_family(encrypt, computation).
+verb_valency(encrypt, transitive).
+relation_verb(decrypt).
+verb_family(decrypt, computation).
+verb_valency(decrypt, transitive).
+verb_family(compress, computation).
+relation_verb(decompress).
+verb_family(decompress, computation).
+verb_valency(decompress, transitive).
+relation_verb(hash).
+verb_family(hash, computation).
+verb_valency(hash, transitive).
+verb_family(sort, computation).
+relation_verb(search).
+verb_family(search, computation).
+verb_valency(search, transitive).
+verb_family(find, computation).
+verb_family(retrieve, computation).
+verb_family(store, computation).
+relation_verb(cache).
+verb_family(cache, computation).
+verb_valency(cache, transitive).
+relation_verb(load).
+verb_family(load, computation).
+verb_valency(load, transitive).
+relation_verb(save).
+verb_family(save, computation).
+verb_valency(save, transitive).
+verb_family(write, computation).
+verb_family(read, computation).
+relation_verb(parse).
+verb_family(parse, computation).
+verb_valency(parse, transitive).
+relation_verb(tokenize).
+verb_family(tokenize, computation).
+verb_valency(tokenize, transitive).
+relation_verb(tokenise).
+verb_family(tokenise, computation).
+verb_valency(tokenise, transitive).
+relation_verb(normalize).
+verb_family(normalize, computation).
+verb_valency(normalize, transitive).
+relation_verb(normalise).
+verb_family(normalise, computation).
+verb_valency(normalise, transitive).
+relation_verb(canonicalize).
+verb_family(canonicalize, computation).
+verb_valency(canonicalize, transitive).
+relation_verb(canonicalise).
+verb_family(canonicalise, computation).
+verb_valency(canonicalise, transitive).
+verb_family(compile, computation).
+verb_family(interpret, computation).
+verb_family(execute, computation).
+relation_verb(run).
+verb_family(run, computation).
+verb_valency(run, transitive).
+relation_verb(schedule).
+verb_family(schedule, computation).
+verb_valency(schedule, transitive).
+relation_verb(dispatch).
+verb_family(dispatch, computation).
+verb_valency(dispatch, transitive).
+verb_family(allocate, computation).
+verb_family(release, computation).
+relation_verb(free).
+verb_family(free, computation).
+verb_valency(free, transitive).
+verb_family(validate, computation).
+verb_family(verify, computation).
+relation_verb(authenticate).
+verb_family(authenticate, computation).
+verb_valency(authenticate, transitive).
+verb_family(authorize, computation).
+verb_family(authorise, computation).
+relation_verb(synchronize).
+verb_family(synchronize, computation).
+verb_valency(synchronize, transitive).
+relation_verb(synchronise).
+verb_family(synchronise, computation).
+verb_valency(synchronise, transitive).
+relation_verb(serialize).
+verb_family(serialize, computation).
+verb_valency(serialize, transitive).
+relation_verb(serialise).
+verb_family(serialise, computation).
+verb_valency(serialise, transitive).
+verb_family(transmit, computation).
+verb_family(receive, computation).
+relation_verb(route).
+verb_family(route, computation).
+verb_valency(route, transitive).
+relation_verb(forward).
+verb_family(forward, computation).
+verb_valency(forward, transitive).
+verb_family(connect, computation).
+relation_verb(disconnect).
+verb_family(disconnect, computation).
+verb_valency(disconnect, transitive).
+verb_family(bind, computation).
+verb_family(resolve, computation).
+verb_family(register, computation).
+verb_family(implement, computation).
+relation_verb(instantiate).
+verb_family(instantiate, computation).
+verb_valency(instantiate, transitive).
+relation_verb(initialize).
+verb_family(initialize, computation).
+verb_valency(initialize, transitive).
+relation_verb(initialise).
+verb_family(initialise, computation).
+verb_valency(initialise, transitive).
+relation_verb(update).
+verb_family(update, computation).
+verb_valency(update, transitive).
+verb_family(modify, computation).
+relation_verb(delete).
+verb_family(delete, computation).
+verb_valency(delete, transitive).
+verb_family(remove, computation).
+relation_verb(insert).
+verb_family(insert, computation).
+verb_valency(insert, transitive).
+relation_verb(append).
+verb_family(append, computation).
+verb_valency(append, transitive).
+relation_verb(prepend).
+verb_family(prepend, computation).
+verb_valency(prepend, transitive).
+verb_family(merge, computation).
+verb_family(split, computation).
+verb_family(join, computation).
+verb_family(filter, computation).
+verb_family(select, computation).
+relation_verb(query).
+verb_family(query, computation).
+verb_valency(query, transitive).
+verb_family(index, computation).
+relation_verb(scan).
+verb_family(scan, computation).
+verb_valency(scan, transitive).
+verb_family(traverse, computation).
+verb_family(visit, computation).
+verb_family(enumerate, computation).
+verb_family(count, computation).
+verb_family(match, computation).
+verb_family(compare, computation).
+verb_family(test, computation).
+verb_family(measure, computation).
+relation_verb(benchmark).
+verb_family(benchmark, computation).
+verb_valency(benchmark, transitive).
+verb_family(train, computation).
+verb_family(learn, computation).
+verb_family(classify, computation).
+verb_family(predict, computation).
+verb_family(cluster, computation).
+verb_valency(cluster, transitive).
+verb_family(sample, computation).
+relation_verb(fit).
+verb_family(fit, computation).
+verb_valency(fit, transitive).
+relation_verb(regress).
+verb_family(regress, computation).
+verb_valency(regress, transitive).
+
+% perception
+verb_family(see, perception).
+relation_verb(watch).
+verb_family(watch, perception).
+verb_valency(watch, transitive).
+verb_family(observe, perception).
+verb_family(view, perception).
+relation_verb(witness).
+verb_family(witness, perception).
+verb_valency(witness, transitive).
+relation_verb(behold).
+verb_family(behold, perception).
+verb_valency(behold, transitive).
+verb_family(notice, perception).
+relation_verb(spot).
+verb_family(spot, perception).
+verb_valency(spot, transitive).
+verb_family(detect, perception).
+relation_verb(discern).
+verb_family(discern, perception).
+verb_valency(discern, transitive).
+verb_family(perceive, perception).
+verb_family(recognize, perception).
+verb_family(recognise, perception).
+verb_family(hear, perception).
+relation_verb(listen).
+verb_family(listen, perception).
+verb_valency(listen, transitive).
+verb_family(smell, perception).
+relation_verb(sniff).
+verb_family(sniff, perception).
+verb_valency(sniff, transitive).
+verb_family(taste, perception).
+verb_family(sample, perception).
+verb_family(feel, perception).
+verb_family(touch, perception).
+verb_family(sense, perception).
+verb_family(scan, perception).
+relation_verb(inspect).
+verb_family(inspect, perception).
+verb_valency(inspect, transitive).
+verb_family(examine, perception).
+verb_family(survey, perception).
+relation_verb(visualize).
+verb_family(visualize, perception).
+verb_valency(visualize, transitive).
+relation_verb(visualise).
+verb_family(visualise, perception).
+verb_valency(visualise, transitive).
+
+% possession
+relation_verb(have).
+verb_family(have, possession).
+verb_valency(have, transitive).
+relation_verb(own).
+verb_family(own, possession).
+verb_valency(own, transitive).
+relation_verb(possess).
+verb_family(possess, possession).
+verb_valency(possess, transitive).
+verb_family(hold, possession).
+verb_valency(hold, transitive).
+verb_family(contain, possession).
+verb_family(retain, possession).
+relation_verb(keep).
+verb_family(keep, possession).
+verb_valency(keep, transitive).
+verb_family(maintain, possession).
+verb_family(acquire, possession).
+verb_family(obtain, possession).
+verb_family(gain, possession).
+relation_verb(get).
+verb_family(get, possession).
+verb_valency(get, transitive).
+verb_family(receive, possession).
+verb_family(inherit, possession).
+verb_family(buy, possession).
+relation_verb(purchase).
+verb_family(purchase, possession).
+verb_valency(purchase, transitive).
+verb_family(borrow, possession).
+relation_verb(rent).
+verb_family(rent, possession).
+verb_valency(rent, transitive).
+relation_verb(lease).
+verb_family(lease, possession).
+verb_valency(lease, transitive).
+relation_verb(earn).
+verb_family(earn, possession).
+verb_valency(earn, transitive).
+relation_verb(win).
+verb_family(win, possession).
+verb_valency(win, transitive).
+verb_family(lose, possession).
+relation_verb(lack).
+verb_family(lack, possession).
+verb_valency(lack, transitive).
+verb_family(need, possession).
+verb_family(require, possession).
+relation_verb(deserve).
+verb_family(deserve, possession).
+verb_valency(deserve, transitive).
+relation_verb(merit).
+verb_family(merit, possession).
+verb_valency(merit, transitive).
+verb_family(include, possession).
+relation_verb(exclude).
+verb_family(exclude, possession).
+verb_valency(exclude, transitive).
+relation_verb(share).
+verb_family(share, possession).
+verb_valency(share, transitive).
+verb_family(divide, possession).
+verb_family(allocate, possession).
+verb_family(assign, possession).
+relation_verb(give).
+verb_family(give, possession).
+verb_valency(give, transitive).
+relation_verb(grant).
+verb_family(grant, possession).
+verb_valency(grant, transitive).
+relation_verb(award).
+verb_family(award, possession).
+verb_valency(award, transitive).
+verb_family(offer, possession).
+verb_family(supply, possession).
+verb_family(provide, possession).
+relation_verb(furnish).
+verb_family(furnish, possession).
+verb_valency(furnish, transitive).
+relation_verb(equip).
+verb_family(equip, possession).
+verb_valency(equip, transitive).
+relation_verb(endow).
+verb_family(endow, possession).
+verb_valency(endow, transitive).
+relation_verb(entrust).
+verb_family(entrust, possession).
+verb_valency(entrust, transitive).
+verb_family(lend, possession).
+verb_family(donate, possession).
+verb_family(transfer, possession).
+verb_family(convey, possession).
+verb_family(sell, possession).
+verb_family(deliver, possession).
+relation_verb(return).
+verb_family(return, possession).
+verb_valency(return, transitive).
+relation_verb(repay).
+verb_family(repay, possession).
+verb_valency(repay, transitive).
+verb_family(recover, possession).
+verb_family(reclaim, possession).
+verb_valency(reclaim, transitive).
+relation_verb(seize).
+verb_family(seize, possession).
+verb_valency(seize, transitive).
+relation_verb(confiscate).
+verb_family(confiscate, possession).
+verb_valency(confiscate, transitive).
+relation_verb(take).
+verb_family(take, possession).
+verb_valency(take, transitive).
+relation_verb(steal).
+verb_family(steal, possession).
+verb_valency(steal, transitive).
+relation_verb(rob).
+verb_family(rob, possession).
+verb_valency(rob, transitive).
+relation_verb(deprive).
+verb_family(deprive, possession).
+verb_valency(deprive, transitive).
+
+% spatial_action
+relation_verb(put).
+verb_family(put, spatial_action).
+verb_valency(put, transitive).
+relation_verb(place).
+verb_family(place, spatial_action).
+verb_valency(place, transitive).
+relation_verb(position).
+verb_family(position, spatial_action).
+verb_valency(position, transitive).
+verb_family(locate, spatial_action).
+relation_verb(situate).
+verb_family(situate, spatial_action).
+verb_valency(situate, transitive).
+relation_verb(set).
+verb_family(set, spatial_action).
+verb_valency(set, transitive).
+relation_verb(lay).
+verb_family(lay, spatial_action).
+verb_valency(lay, transitive).
+verb_family(arrange, spatial_action).
+relation_verb(align).
+verb_family(align, spatial_action).
+verb_valency(align, transitive).
+relation_verb(orient).
+verb_family(orient, spatial_action).
+verb_valency(orient, transitive).
+relation_verb(face).
+verb_family(face, spatial_action).
+verb_valency(face, transitive).
+relation_verb(point).
+verb_family(point, spatial_action).
+verb_valency(point, transitive).
+verb_family(direct, spatial_action).
+relation_verb(aim).
+verb_family(aim, spatial_action).
+verb_valency(aim, transitive).
+verb_family(project, spatial_action).
+relation_verb(mount).
+verb_family(mount, spatial_action).
+verb_valency(mount, transitive).
+verb_family(install, spatial_action).
+verb_family(insert, spatial_action).
+verb_family(embed, spatial_action).
+verb_valency(embed, transitive).
+relation_verb(immerse).
+verb_family(immerse, spatial_action).
+verb_valency(immerse, transitive).
+verb_family(submerge, spatial_action).
+verb_family(suspend, spatial_action).
+verb_valency(suspend, transitive).
+relation_verb(hang).
+verb_family(hang, spatial_action).
+verb_valency(hang, transitive).
+verb_family(attach, spatial_action).
+relation_verb(detach).
+verb_family(detach, spatial_action).
+verb_valency(detach, transitive).
+verb_family(fasten, spatial_action).
+verb_valency(fasten, transitive).
+relation_verb(fix).
+verb_family(fix, spatial_action).
+verb_valency(fix, transitive).
+verb_family(secure, spatial_action).
+relation_verb(tie).
+verb_family(tie, spatial_action).
+verb_valency(tie, transitive).
+verb_family(bind, spatial_action).
+verb_family(anchor, spatial_action).
+verb_valency(anchor, transitive).
+relation_verb(nail).
+verb_family(nail, spatial_action).
+verb_valency(nail, transitive).
+relation_verb(screw).
+verb_family(screw, spatial_action).
+verb_valency(screw, transitive).
+verb_family(weld, spatial_action).
+verb_valency(weld, transitive).
+relation_verb(glue).
+verb_family(glue, spatial_action).
+verb_valency(glue, transitive).
+relation_verb(stick).
+verb_family(stick, spatial_action).
+verb_valency(stick, transitive).
+verb_family(fold, spatial_action).
+relation_verb(wrap).
+verb_family(wrap, spatial_action).
+verb_valency(wrap, transitive).
+relation_verb(pack).
+verb_family(pack, spatial_action).
+verb_valency(pack, transitive).
+verb_family(enclose, spatial_action).
+verb_family(surround, spatial_action).
+verb_family(encircle, spatial_action).
+relation_verb(frame).
+verb_family(frame, spatial_action).
+verb_valency(frame, transitive).
+verb_family(border, spatial_action).
+verb_family(line, spatial_action).
+verb_family(cover, spatial_action).
+verb_family(uncover, spatial_action).
+verb_family(reveal, spatial_action).
+relation_verb(hide).
+verb_family(hide, spatial_action).
+verb_valency(hide, transitive).
+verb_family(conceal, spatial_action).
+relation_verb(bury).
+verb_family(bury, spatial_action).
+verb_valency(bury, transitive).
+verb_family(excavate, spatial_action).
+verb_family(raise, spatial_action).
+verb_family(lift, spatial_action).
+verb_family(lower, spatial_action).
+relation_verb(drop).
+verb_family(drop, spatial_action).
+verb_valency(drop, transitive).
+verb_family(drag, spatial_action).
+verb_family(pull, spatial_action).
+verb_family(push, spatial_action).
+verb_family(move, spatial_action).
+verb_family(transport, spatial_action).
+verb_family(carry, spatial_action).
+verb_family(bring, spatial_action).
+verb_family(take, spatial_action).
+verb_family(send, spatial_action).
+verb_family(lead, spatial_action).
+verb_family(guide, spatial_action).
+verb_family(follow, spatial_action).
+relation_verb(approach).
+verb_family(approach, spatial_action).
+verb_valency(approach, transitive).
+relation_verb(enter).
+verb_family(enter, spatial_action).
+verb_valency(enter, transitive).
+relation_verb(leave).
+verb_family(leave, spatial_action).
+verb_valency(leave, transitive).
+relation_verb(exit).
+verb_family(exit, spatial_action).
+verb_valency(exit, transitive).
+verb_family(reach, spatial_action).
+verb_family(cross, spatial_action).
+relation_verb(pass).
+verb_family(pass, spatial_action).
+verb_valency(pass, transitive).
+verb_family(traverse, spatial_action).
+relation_verb(ascend).
+verb_family(ascend, spatial_action).
+verb_valency(ascend, transitive).
+verb_family(descend, spatial_action).
+verb_valency(descend, transitive).
+relation_verb(climb).
+verb_family(climb, spatial_action).
+verb_valency(climb, transitive).
+relation_verb(scale).
+verb_family(scale, spatial_action).
+verb_valency(scale, transitive).
+verb_family(bridge, spatial_action).
+verb_family(span, spatial_action).
+
+% relation_logic
+verb_family(include, relation_logic).
+verb_family(exclude, relation_logic).
+verb_family(comprise, relation_logic).
+verb_family(contain, relation_logic).
+verb_family(encompass, relation_logic).
+verb_family(represent, relation_logic).
+verb_family(instantiate, relation_logic).
+verb_family(exemplify, relation_logic).
+verb_family(satisfy, relation_logic).
+verb_family(violate, relation_logic).
+verb_family(entail, relation_logic).
+verb_family(imply, relation_logic).
+relation_verb(presuppose).
+verb_family(presuppose, relation_logic).
+verb_valency(presuppose, transitive).
+verb_family(contradict, relation_logic).
+verb_family(oppose, relation_logic).
+relation_verb(complement).
+verb_family(complement, relation_logic).
+verb_valency(complement, transitive).
+relation_verb(supplement).
+verb_family(supplement, relation_logic).
+verb_valency(supplement, transitive).
+verb_family(corroborate, relation_logic).
+verb_family(refute, relation_logic).
+verb_family(equal, relation_logic).
+verb_family(exceed, relation_logic).
+verb_family(approximate, relation_logic).
+verb_family(resemble, relation_logic).
+verb_valency(resemble, transitive).
+verb_family(match, relation_logic).
+relation_verb(differ).
+verb_family(differ, relation_logic).
+verb_valency(differ, transitive).
+verb_family(distinguish, relation_logic).
+verb_family(separate, relation_logic).
+verb_family(connect, relation_logic).
+verb_family(relate, relation_logic).
+verb_valency(relate, transitive).
+verb_family(associate, relation_logic).
+relation_verb(correlate).
+verb_family(correlate, relation_logic).
+verb_valency(correlate, transitive).
+verb_family(determine, relation_logic).
+verb_family(constrain, relation_logic).
+verb_family(depend, relation_logic).
+verb_valency(depend, transitive).
+verb_family(require, relation_logic).
+relation_verb(necessitate).
+verb_family(necessitate, relation_logic).
+verb_valency(necessitate, transitive).
+verb_family(permit, relation_logic).
+verb_family(allow, relation_logic).
+verb_family(enable, relation_logic).
+relation_verb(prohibit).
+verb_family(prohibit, relation_logic).
+verb_valency(prohibit, transitive).
+verb_family(prevent, relation_logic).
+verb_family(preclude, relation_logic).
+relation_verb(license).
+verb_family(license, relation_logic).
+verb_valency(license, transitive).
+relation_verb(warrant).
+verb_family(warrant, relation_logic).
+verb_valency(warrant, transitive).
+relation_verb(justify).
+verb_family(justify, relation_logic).
+verb_valency(justify, transitive).
+verb_family(explain, relation_logic).
+verb_family(support, relation_logic).
+relation_verb(ground).
+verb_family(ground, relation_logic).
+verb_valency(ground, transitive).
+verb_family(follow, relation_logic).
+verb_family(precede, relation_logic).
+verb_family(succeed, relation_logic).
+verb_family(overlap, relation_logic).
+verb_family(intersect, relation_logic).
+relation_verb(subsume).
+verb_family(subsume, relation_logic).
+verb_valency(subsume, transitive).
+verb_family(generalize, relation_logic).
+verb_family(generalise, relation_logic).
+relation_verb(specialize).
+verb_family(specialize, relation_logic).
+verb_valency(specialize, transitive).
+relation_verb(specialise).
+verb_family(specialise, relation_logic).
+verb_valency(specialise, transitive).
+verb_family(classify, relation_logic).
+verb_family(define, relation_logic).
+verb_family(characterize, relation_logic).
+verb_family(characterise, relation_logic).
+verb_family(identify, relation_logic).
+verb_family(denote, relation_logic).
+verb_family(name, relation_logic).
+verb_family(refer, relation_logic).
+verb_valency(refer, transitive).
+verb_family(exist, existence).
+verb_valency(exist, intransitive).
+verb_family(occur, existence).
+verb_valency(occur, intransitive).
+verb_family(happen, existence).
+verb_valency(happen, intransitive).
+verb_family(arise, existence).
+verb_valency(arise, intransitive).
+verb_family(emerge, existence).
+verb_valency(emerge, intransitive).
+verb_family(appear, existence).
+verb_valency(appear, intransitive).
+verb_family(disappear, existence).
+verb_valency(disappear, intransitive).
+verb_family(vanish, existence).
+verb_valency(vanish, intransitive).
+verb_family(remain, existence).
+verb_valency(remain, intransitive).
+verb_family(persist, existence).
+verb_valency(persist, intransitive).
+verb_family(endure, existence).
+verb_valency(endure, intransitive).
+verb_family(survive, existence).
+verb_valency(survive, intransitive).
+verb_family(last, existence).
+verb_valency(last, intransitive).
+verb_family(prevail, existence).
+verb_valency(prevail, intransitive).
+verb_family(subsist, existence).
+verb_valency(subsist, intransitive).
+verb_family(coexist, existence).
+verb_valency(coexist, intransitive).
+verb_family(abound, existence).
+verb_valency(abound, intransitive).
+verb_family(elapse, existence).
+verb_valency(elapse, intransitive).
+verb_family(ensue, existence).
+verb_valency(ensue, intransitive).
+verb_family(recur, existence).
+verb_valency(recur, intransitive).
+verb_family(go, motion).
+verb_valency(go, intransitive).
+verb_family(come, motion).
+verb_valency(come, intransitive).
+verb_family(arrive, motion).
+verb_valency(arrive, intransitive).
+verb_family(depart, motion).
+verb_valency(depart, intransitive).
+verb_family(travel, motion).
+verb_valency(travel, intransitive).
+verb_family(journey, motion).
+verb_valency(journey, intransitive).
+verb_family(walk, motion).
+verb_valency(walk, intransitive).
+verb_family(run, motion).
+verb_valency(run, intransitive).
+verb_family(swim, motion).
+verb_valency(swim, intransitive).
+verb_family(fly, motion).
+verb_valency(fly, intransitive).
+verb_family(flow, motion).
+verb_valency(flow, intransitive).
+verb_family(drift, motion).
+verb_valency(drift, intransitive).
+verb_family(fall, motion).
+verb_valency(fall, intransitive).
+verb_family(rise, motion).
+verb_valency(rise, intransitive).
+verb_family(ascend, motion).
+verb_valency(ascend, intransitive).
+verb_family(descend, motion).
+verb_valency(descend, intransitive).
+verb_family(migrate, motion).
+verb_valency(migrate, intransitive).
+verb_family(circulate, motion).
+verb_valency(circulate, intransitive).
+verb_family(revolve, motion).
+verb_valency(revolve, intransitive).
+verb_family(rotate, motion).
+verb_valency(rotate, intransitive).
+verb_family(oscillate, motion).
+verb_valency(oscillate, intransitive).
+verb_family(vibrate, motion).
+verb_valency(vibrate, intransitive).
+verb_family(spread, motion).
+verb_valency(spread, intransitive).
+verb_family(disperse, motion).
+verb_valency(disperse, intransitive).
+verb_family(move, motion).
+verb_valency(move, intransitive).
+verb_family(proceed, motion).
+verb_valency(proceed, intransitive).
+verb_family(advance, motion).
+verb_valency(advance, intransitive).
+verb_family(retreat, motion).
+verb_valency(retreat, intransitive).
+verb_family(return, motion).
+verb_valency(return, intransitive).
+verb_family(escape, motion).
+verb_valency(escape, intransitive).
+verb_family(flee, motion).
+verb_valency(flee, intransitive).
+verb_family(wander, motion).
+verb_valency(wander, intransitive).
+verb_family(roam, motion).
+verb_valency(roam, intransitive).
+verb_family(pass, motion).
+verb_valency(pass, intransitive).
+verb_family(leap, motion).
+verb_valency(leap, intransitive).
+verb_family(jump, motion).
+verb_valency(jump, intransitive).
+verb_family(crawl, motion).
+verb_valency(crawl, intransitive).
+verb_family(creep, motion).
+verb_valency(creep, intransitive).
+verb_family(roll, motion).
+verb_valency(roll, intransitive).
+verb_family(slide, motion).
+verb_valency(slide, intransitive).
+verb_family(glide, motion).
+verb_valency(glide, intransitive).
+verb_family(sail, motion).
+verb_valency(sail, intransitive).
+verb_family(float, motion).
+verb_valency(float, intransitive).
+verb_family(sink, motion).
+verb_valency(sink, intransitive).
+verb_family(plunge, motion).
+verb_valency(plunge, intransitive).
+verb_family(soar, motion).
+verb_valency(soar, intransitive).
+verb_family(hover, motion).
+verb_valency(hover, intransitive).
+verb_family(become, change_of_state).
+verb_valency(become, intransitive).
+verb_family(grow, change_of_state).
+verb_valency(grow, intransitive).
+verb_family(develop, change_of_state).
+verb_valency(develop, intransitive).
+verb_family(evolve, change_of_state).
+verb_valency(evolve, intransitive).
+verb_family(decay, change_of_state).
+verb_valency(decay, intransitive).
+verb_family(decompose, change_of_state).
+verb_valency(decompose, intransitive).
+verb_family(deteriorate, change_of_state).
+verb_valency(deteriorate, intransitive).
+verb_family(collapse, change_of_state).
+verb_valency(collapse, intransitive).
+verb_family(crumble, change_of_state).
+verb_valency(crumble, intransitive).
+verb_family(disintegrate, change_of_state).
+verb_valency(disintegrate, intransitive).
+verb_family(perish, change_of_state).
+verb_valency(perish, intransitive).
+verb_family(die, change_of_state).
+verb_valency(die, intransitive).
+verb_family(live, change_of_state).
+verb_valency(live, intransitive).
+verb_family(thrive, change_of_state).
+verb_valency(thrive, intransitive).
+verb_family(flourish, change_of_state).
+verb_valency(flourish, intransitive).
+verb_family(mature, change_of_state).
+verb_valency(mature, intransitive).
+verb_family(age, change_of_state).
+verb_valency(age, intransitive).
+verb_family(bloom, change_of_state).
+verb_valency(bloom, intransitive).
+verb_family(flower, change_of_state).
+verb_valency(flower, intransitive).
+verb_family(germinate, change_of_state).
+verb_valency(germinate, intransitive).
+verb_family(erupt, change_of_state).
+verb_valency(erupt, intransitive).
+verb_family(explode, change_of_state).
+verb_valency(explode, intransitive).
+verb_family(implode, change_of_state).
+verb_valency(implode, intransitive).
+verb_family(burst, change_of_state).
+verb_valency(burst, intransitive).
+verb_family(freeze, change_of_state).
+verb_valency(freeze, intransitive).
+verb_family(melt, change_of_state).
+verb_valency(melt, intransitive).
+verb_family(evaporate, change_of_state).
+verb_valency(evaporate, intransitive).
+verb_family(condense, change_of_state).
+verb_valency(condense, intransitive).
+verb_family(crystallize, change_of_state).
+verb_valency(crystallize, intransitive).
+verb_family(crystallise, change_of_state).
+verb_valency(crystallise, intransitive).
+verb_family(solidify, change_of_state).
+verb_valency(solidify, intransitive).
+verb_family(dry, change_of_state).
+verb_valency(dry, intransitive).
+verb_family(rust, change_of_state).
+verb_valency(rust, intransitive).
+verb_family(corrode, change_of_state).
+verb_valency(corrode, intransitive).
+verb_family(erode, change_of_state).
+verb_valency(erode, intransitive).
+verb_family(fade, change_of_state).
+verb_valency(fade, intransitive).
+verb_family(weaken, change_of_state).
+verb_valency(weaken, intransitive).
+verb_family(strengthen, change_of_state).
+verb_valency(strengthen, intransitive).
+verb_family(increase, change_of_state).
+verb_valency(increase, intransitive).
+verb_family(decrease, change_of_state).
+verb_valency(decrease, intransitive).
+verb_family(fluctuate, change_of_state).
+verb_valency(fluctuate, intransitive).
+verb_family(vary, change_of_state).
+verb_valency(vary, intransitive).
+verb_family(expand, change_of_state).
+verb_valency(expand, intransitive).
+verb_family(contract, change_of_state).
+verb_valency(contract, intransitive).
+verb_family(shrink, change_of_state).
+verb_valency(shrink, intransitive).
+verb_family(participate, participation).
+verb_valency(participate, intransitive).
+verb_family(cooperate, participation).
+verb_valency(cooperate, intransitive).
+verb_family(collaborate, participation).
+verb_valency(collaborate, intransitive).
+verb_family(compete, participation).
+verb_valency(compete, intransitive).
+verb_family(interact, participation).
+verb_valency(interact, intransitive).
+verb_family(communicate, participation).
+verb_valency(communicate, intransitive).
+verb_family(negotiate, participation).
+verb_valency(negotiate, intransitive).
+verb_family(correspond, participation).
+verb_valency(correspond, intransitive).
+verb_family(coexist, participation).
+verb_family(converge, participation).
+verb_valency(converge, intransitive).
+verb_family(diverge, participation).
+verb_valency(diverge, intransitive).
+verb_family(overlap, participation).
+verb_valency(overlap, intransitive).
+verb_family(intersect, participation).
+verb_valency(intersect, intransitive).
+verb_family(interfere, participation).
+verb_valency(interfere, intransitive).
+verb_family(coincide, participation).
+verb_valency(coincide, intransitive).
+verb_family(alternate, participation).
+verb_valency(alternate, intransitive).
+verb_family(agree, participation).
+verb_valency(agree, intransitive).
+verb_family(disagree, participation).
+verb_valency(disagree, intransitive).
+verb_family(concur, participation).
+verb_valency(concur, intransitive).
+verb_family(differ, participation).
+verb_valency(differ, intransitive).
+verb_family(comply, participation).
+verb_valency(comply, intransitive).
+verb_family(conform, participation).
+verb_valency(conform, intransitive).
+verb_family(belong, participation).
+verb_valency(belong, intransitive).
+verb_family(consist, participation).
+verb_valency(consist, intransitive).
+verb_family(depend, participation).
+verb_valency(depend, intransitive).
+verb_family(rely, participation).
+verb_valency(rely, intransitive).
+verb_family(rest, participation).
+verb_valency(rest, intransitive).
+verb_family(reside, participation).
+verb_valency(reside, intransitive).
+verb_family(originate, participation).
+verb_valency(originate, intransitive).
+verb_family(stem, participation).
+verb_valency(stem, intransitive).
+verb_family(result, participation).
+verb_valency(result, intransitive).
+verb_family(culminate, participation).
+verb_valency(culminate, intransitive).
+verb_family(specialize, participation).
+verb_valency(specialize, intransitive).
+verb_family(specialise, participation).
+verb_valency(specialise, intransitive).
+verb_family(excel, participation).
+verb_valency(excel, intransitive).
+verb_family(succeed, participation).
+verb_valency(succeed, intransitive).
+verb_family(fail, participation).
+verb_valency(fail, intransitive).
+verb_family(work, participation).
+verb_valency(work, intransitive).
+verb_family(function, participation).
+verb_valency(function, intransitive).
+verb_family(operate, participation).
+verb_valency(operate, intransitive).
+verb_family(act, participation).
+verb_valency(act, intransitive).
+verb_family(behave, participation).
+verb_valency(behave, intransitive).
+verb_family(sleep, participation).
+verb_valency(sleep, intransitive).
+verb_family(wake, participation).
+verb_valency(wake, intransitive).
+verb_family(breathe, participation).
+verb_valency(breathe, intransitive).
+verb_family(sneeze, participation).
+verb_valency(sneeze, intransitive).
+verb_family(cough, participation).
+verb_valency(cough, intransitive).
+verb_family(laugh, participation).
+verb_valency(laugh, intransitive).
+verb_family(smile, participation).
+verb_valency(smile, intransitive).
+verb_family(cry, participation).
+verb_valency(cry, intransitive).
+verb_family(weep, participation).
+verb_valency(weep, intransitive).
+verb_family(rejoice, participation).
+verb_valency(rejoice, intransitive).
+verb_family(hesitate, participation).
+verb_valency(hesitate, intransitive).
+verb_family(wait, participation).
+verb_valency(wait, intransitive).
+verb_family(pause, participation).
+verb_valency(pause, intransitive).
+verb_family(stop, participation).
+verb_valency(stop, intransitive).
+verb_family(continue, participation).
+verb_valency(continue, intransitive).
+verb_family(begin, participation).
+verb_valency(begin, intransitive).
+verb_valency(give, ditransitive).
+verb_valency(send, ditransitive).
+verb_valency(offer, ditransitive).
+verb_valency(show, ditransitive).
+verb_valency(tell, ditransitive).
+verb_valency(teach, ditransitive).
+verb_valency(lend, ditransitive).
+verb_valency(pay, ditransitive).
+verb_valency(award, ditransitive).
+verb_valency(grant, ditransitive).
+verb_valency(promise, ditransitive).
+verb_valency(hand, ditransitive).
+verb_valency(pass, ditransitive).
+verb_valency(bring, ditransitive).
+verb_valency(buy, ditransitive).
+verb_valency(sell, ditransitive).
+verb_valency(write, ditransitive).
+verb_valency(read, ditransitive).
+verb_valency(feed, ditransitive).
+verb_valency(serve, ditransitive).
+verb_valency(owe, ditransitive).
+verb_valency(allocate, ditransitive).
+verb_valency(assign, ditransitive).
+verb_valency(entrust, ditransitive).
+verb_valency(call, object_predicative).
+verb_valency(name, object_predicative).
+verb_valency(elect, object_predicative).
+verb_valency(appoint, object_predicative).
+verb_valency(consider, object_predicative).
+verb_valency(regard, object_predicative).
+verb_valency(deem, object_predicative).
+verb_valency(find, object_predicative).
+verb_valency(make, object_predicative).
+verb_valency(render, object_predicative).
+verb_valency(keep, object_predicative).
+verb_valency(leave, object_predicative).
+verb_valency(paint, object_predicative).
+verb_valency(declare, object_predicative).
+verb_valency(pronounce, object_predicative).
+verb_valency(label, object_predicative).
+verb_valency(term, object_predicative).
+verb_valency(designate, object_predicative).
+verb_valency(judge, object_predicative).
+verb_valency(prove, object_predicative).
+verb_valency(agree, subject_control).
+verb_valency(aim, subject_control).
+verb_valency(arrange, subject_control).
+verb_valency(attempt, subject_control).
+verb_valency(choose, subject_control).
+verb_valency(decide, subject_control).
+verb_valency(decline, subject_control).
+verb_valency(endeavour, subject_control).
+verb_valency(endeavor, subject_control).
+verb_valency(fail, subject_control).
+verb_valency(hope, subject_control).
+verb_valency(intend, subject_control).
+verb_valency(learn, subject_control).
+verb_valency(manage, subject_control).
+verb_valency(offer, subject_control).
+verb_valency(plan, subject_control).
+verb_valency(prepare, subject_control).
+verb_valency(pretend, subject_control).
+verb_valency(promise, subject_control).
+verb_valency(refuse, subject_control).
+verb_valency(seek, subject_control).
+verb_valency(strive, subject_control).
+verb_valency(threaten, subject_control).
+verb_valency(try, subject_control).
+verb_valency(undertake, subject_control).
+verb_valency(volunteer, subject_control).
+verb_valency(want, subject_control).
+verb_valency(wish, subject_control).
+verb_valency(advise, object_control).
+verb_valency(allow, object_control).
+verb_valency(ask, object_control).
+verb_valency(authorize, object_control).
+verb_valency(authorise, object_control).
+verb_valency(command, object_control).
+verb_valency(compel, object_control).
+verb_valency(convince, object_control).
+verb_valency(enable, object_control).
+verb_valency(encourage, object_control).
+verb_valency(expect, object_control).
+verb_valency(forbid, object_control).
+verb_valency(force, object_control).
+verb_valency(instruct, object_control).
+verb_valency(invite, object_control).
+verb_valency(order, object_control).
+verb_valency(permit, object_control).
+verb_valency(persuade, object_control).
+verb_valency(remind, object_control).
+verb_valency(require, object_control).
+verb_valency(teach, object_control).
+verb_valency(tell, object_control).
+verb_valency(urge, object_control).
+verb_valency(warn, object_control).
+verb_valency(appear, subject_raising).
+verb_valency(seem, subject_raising).
+verb_valency(tend, subject_raising).
+verb_valency(happen, subject_raising).
+verb_valency(prove, subject_raising).
+verb_valency(turn, subject_raising).
+verb_valency(believe, object_raising).
+verb_valency(consider, object_raising).
+verb_valency(expect, object_raising).
+verb_valency(suppose, object_raising).
+verb_valency(understand, object_raising).
+verb_valency(know, object_raising).
+verb_valency(judge, object_raising).
+verb_valency(presume, object_raising).
+verb_valency(let, bare_infinitive).
+verb_valency(make, bare_infinitive).
+verb_valency(help, bare_infinitive).
+verb_valency(see, bare_infinitive).
+verb_valency(hear, bare_infinitive).
+verb_valency(feel, bare_infinitive).
+verb_valency(watch, bare_infinitive).
+verb_valency(notice, bare_infinitive).
+verb_valency(observe, bare_infinitive).
+verb_valency(admit, gerund_complement).
+verb_valency(avoid, gerund_complement).
+verb_valency(consider, gerund_complement).
+verb_valency(contemplate, gerund_complement).
+verb_valency(deny, gerund_complement).
+verb_valency(dislike, gerund_complement).
+verb_valency(enjoy, gerund_complement).
+verb_valency(finish, gerund_complement).
+verb_valency(imagine, gerund_complement).
+verb_valency(involve, gerund_complement).
+verb_valency(keep, gerund_complement).
+verb_valency(mention, gerund_complement).
+verb_valency(mind, gerund_complement).
+verb_valency(miss, gerund_complement).
+verb_valency(postpone, gerund_complement).
+verb_valency(practise, gerund_complement).
+verb_valency(practice, gerund_complement).
+verb_valency(prevent, gerund_complement).
+verb_valency(recommend, gerund_complement).
+verb_valency(recall, gerund_complement).
+verb_valency(resist, gerund_complement).
+verb_valency(resume, gerund_complement).
+verb_valency(risk, gerund_complement).
+verb_valency(suggest, gerund_complement).
+verb_valency(tolerate, gerund_complement).
+verb_valency(quit, gerund_complement).
+verb_valency(stop, gerund_complement).
+verb_valency(continue, gerund_complement).
+verb_valency(begin, gerund_complement).
+verb_valency(start, gerund_complement).
+verb_valency(say, finite_complement).
+verb_valency(state, finite_complement).
+verb_valency(claim, finite_complement).
+verb_valency(report, finite_complement).
+verb_valency(believe, finite_complement).
+verb_valency(think, finite_complement).
+verb_valency(know, finite_complement).
+verb_valency(suppose, finite_complement).
+verb_valency(assume, finite_complement).
+verb_valency(imagine, finite_complement).
+verb_valency(consider, finite_complement).
+verb_valency(expect, finite_complement).
+verb_valency(hope, finite_complement).
+verb_valency(wish, finite_complement).
+verb_valency(fear, finite_complement).
+verb_valency(doubt, finite_complement).
+verb_valency(suggest, finite_complement).
+verb_valency(propose, finite_complement).
+verb_valency(insist, finite_complement).
+verb_valency(recommend, finite_complement).
+verb_valency(demand, finite_complement).
+verb_valency(require, finite_complement).
+verb_valency(recognize, finite_complement).
+verb_valency(recognise, finite_complement).
+verb_valency(realize, finite_complement).
+verb_valency(realise, finite_complement).
+verb_valency(discover, finite_complement).
+verb_valency(find, finite_complement).
+verb_valency(prove, finite_complement).
+verb_valency(demonstrate, finite_complement).
+verb_valency(show, finite_complement).
+verb_valency(reveal, finite_complement).
+verb_valency(confirm, finite_complement).
+verb_valency(deny, finite_complement).
+verb_valency(admit, finite_complement).
+verb_valency(acknowledge, finite_complement).
+verb_valency(explain, finite_complement).
+verb_valency(predict, finite_complement).
+verb_valency(estimate, finite_complement).
+verb_valency(ask, interrogative_complement).
+verb_valency(wonder, interrogative_complement).
+verb_valency(inquire, interrogative_complement).
+verb_valency(enquire, interrogative_complement).
+verb_valency(investigate, interrogative_complement).
+verb_valency(determine, interrogative_complement).
+verb_valency(discover, interrogative_complement).
+verb_valency(establish, interrogative_complement).
+verb_valency(know, interrogative_complement).
+verb_valency(learn, interrogative_complement).
+verb_valency(remember, interrogative_complement).
+verb_valency(forget, interrogative_complement).
+verb_valency(explain, interrogative_complement).
+verb_valency(show, interrogative_complement).
+verb_valency(tell, interrogative_complement).
+verb_valency(decide, interrogative_complement).
+verb_valency(consider, interrogative_complement).
+verb_valency(debate, interrogative_complement).
+verb_valency(discuss, interrogative_complement).
+verb_valency(understand, interrogative_complement).
+verb_valency(see, interrogative_complement).
+verb_valency(be, copular).
+verb_valency(become, copular).
+verb_valency(seem, copular).
+verb_valency(appear, copular).
+verb_valency(remain, copular).
+verb_valency(stay, copular).
+verb_valency(look, copular).
+verb_valency(sound, copular).
+verb_valency(smell, copular).
+verb_valency(taste, copular).
+verb_valency(feel, copular).
+verb_valency(prove, copular).
+verb_valency(turn, copular).
+verb_valency(grow, copular).
+verb_valency(get, copular).

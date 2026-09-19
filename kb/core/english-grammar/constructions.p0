@@ -1,0 +1,580 @@
+% constructions.p0 — costruzioni inglesi e vincoli di interpretazione
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+expression_reading("who", clause_relative_subject).
+expression_reading("which", clause_relative_subject).
+expression_reading("that", clause_relative_subject).
+expression_reading("whom", clause_relative_object).
+expression_reading("who", clause_relative_object).
+expression_reading("which", clause_relative_object).
+expression_reading("that", clause_relative_object).
+expression_reading("whose", clause_relative_possessive).
+expression_reading("where", clause_relative_locative).
+expression_reading("wherein", clause_relative_locative).
+expression_reading("whereby", clause_relative_locative).
+expression_reading("wherefrom", clause_relative_locative).
+expression_reading("when", clause_relative_temporal).
+expression_reading("what", clause_free_relative).
+expression_reading("whatever", clause_free_relative).
+expression_reading("whoever", clause_free_relative).
+expression_reading("whomever", clause_free_relative).
+expression_reading("whichever", clause_free_relative).
+expression_reading("wherever", clause_free_relative).
+expression_reading("whenever", clause_free_relative).
+expression_reading("however", clause_free_relative).
+expression_reading("that", clause_finite_content).
+expression_reading("whether", clause_embedded_question).
+expression_reading("if", clause_embedded_question).
+expression_reading("who", clause_embedded_question).
+expression_reading("what", clause_embedded_question).
+expression_reading("which", clause_embedded_question).
+expression_reading("where", clause_embedded_question).
+expression_reading("when", clause_embedded_question).
+expression_reading("why", clause_embedded_question).
+expression_reading("how", clause_embedded_question).
+expression_reading("because", clause_causal).
+expression_reading("since", clause_causal).
+expression_reading("as", clause_causal).
+expression_reading("inasmuch as", clause_causal).
+expression_reading("insofar as", clause_causal).
+expression_reading("given that", clause_causal).
+expression_reading("seeing that", clause_causal).
+expression_reading("now that", clause_causal).
+expression_reading("on the grounds that", clause_causal).
+expression_reading("if", clause_conditional).
+expression_reading("unless", clause_conditional).
+expression_reading("provided that", clause_conditional).
+expression_reading("providing that", clause_conditional).
+expression_reading("as long as", clause_conditional).
+expression_reading("so long as", clause_conditional).
+expression_reading("on condition that", clause_conditional).
+expression_reading("in the event that", clause_conditional).
+expression_reading("assuming that", clause_conditional).
+expression_reading("supposing that", clause_conditional).
+expression_reading("in case", clause_conditional).
+expression_reading("only if", clause_conditional).
+expression_reading("even if", clause_conditional).
+expression_reading("whether or not", clause_conditional).
+expression_reading("although", clause_concessive).
+expression_reading("though", clause_concessive).
+expression_reading("even though", clause_concessive).
+expression_reading("even if", clause_concessive).
+expression_reading("while", clause_concessive).
+expression_reading("whilst", clause_concessive).
+expression_reading("whereas", clause_concessive).
+expression_reading("much as", clause_concessive).
+expression_reading("albeit", clause_concessive).
+expression_reading("however much", clause_concessive).
+expression_reading("no matter how", clause_concessive).
+expression_reading("no matter what", clause_concessive).
+expression_reading("when", clause_temporal).
+expression_reading("whenever", clause_temporal).
+expression_reading("while", clause_temporal).
+expression_reading("whilst", clause_temporal).
+expression_reading("as", clause_temporal).
+expression_reading("before", clause_temporal).
+expression_reading("after", clause_temporal).
+expression_reading("since", clause_temporal).
+expression_reading("until", clause_temporal).
+expression_reading("till", clause_temporal).
+expression_reading("once", clause_temporal).
+expression_reading("as soon as", clause_temporal).
+expression_reading("as long as", clause_temporal).
+expression_reading("by the time", clause_temporal).
+expression_reading("every time", clause_temporal).
+expression_reading("the moment", clause_temporal).
+expression_reading("the instant", clause_temporal).
+expression_reading("so that", clause_purpose).
+expression_reading("in order that", clause_purpose).
+expression_reading("lest", clause_purpose).
+expression_reading("in case", clause_purpose).
+expression_reading("in order to", clause_purpose).
+expression_reading("so as to", clause_purpose).
+expression_reading("so that", clause_result).
+expression_reading("such that", clause_result).
+expression_reading("with the result that", clause_result).
+expression_reading("so much so that", clause_result).
+expression_reading("thereby", clause_result).
+expression_reading("than", clause_comparison).
+expression_reading("as", clause_comparison).
+expression_reading("as if", clause_comparison).
+expression_reading("as though", clause_comparison).
+expression_reading("rather than", clause_comparison).
+expression_reading("just as", clause_comparison).
+expression_reading("in the same way that", clause_comparison).
+expression_reading("insofar as", clause_extent).
+expression_reading("to the extent that", clause_extent).
+expression_reading("as far as", clause_extent).
+expression_reading("to", clause_nonfinite_infinitive).
+expression_reading("in order to", clause_nonfinite_infinitive).
+expression_reading("so as to", clause_nonfinite_infinitive).
+expression_reading("so as not to", clause_nonfinite_infinitive).
+expression_reading("in order not to", clause_nonfinite_infinitive).
+expression_reading("with", clause_absolute).
+expression_reading("without", clause_absolute).
+expression_reading("and", coordination_conjunction).
+expression_reading("as well as", coordination_conjunction).
+expression_reading("along with", coordination_conjunction).
+expression_reading("together with", coordination_conjunction).
+expression_reading("plus", coordination_conjunction).
+expression_reading("or", coordination_alternative).
+expression_reading("either", coordination_alternative).
+expression_reading("either or", coordination_alternative).
+expression_reading("alternatively", coordination_alternative).
+expression_reading("or else", coordination_alternative).
+expression_reading("nor", coordination_negative_alternative).
+expression_reading("neither", coordination_negative_alternative).
+expression_reading("neither nor", coordination_negative_alternative).
+expression_reading("but", coordination_contrast).
+expression_reading("yet", coordination_contrast).
+expression_reading("whereas", coordination_contrast).
+expression_reading("while", coordination_contrast).
+expression_reading("rather than", coordination_contrast).
+expression_reading("instead of", coordination_contrast).
+expression_reading("both", coordination_correlative_additive).
+expression_reading("both and", coordination_correlative_additive).
+expression_reading("not only", coordination_correlative_additive).
+expression_reading("but also", coordination_correlative_additive).
+expression_reading("not merely", coordination_correlative_additive).
+expression_reading("but even", coordination_correlative_additive).
+expression_reading("respectively", coordination_pairwise).
+expression_reading("in that order", coordination_pairwise).
+expression_reading("correspondingly", coordination_pairwise).
+expression_reading("or rather", coordination_reformulation).
+expression_reading("or more precisely", coordination_reformulation).
+expression_reading("that is", coordination_reformulation).
+expression_reading("namely", coordination_reformulation).
+expression_reading("am", verb_chain_progressive).
+expression_reading("is", verb_chain_progressive).
+expression_reading("are", verb_chain_progressive).
+expression_reading("was", verb_chain_progressive).
+expression_reading("were", verb_chain_progressive).
+expression_reading("be", verb_chain_progressive).
+expression_reading("been", verb_chain_progressive).
+expression_reading("being", verb_chain_progressive).
+expression_reading("have", verb_chain_perfect).
+expression_reading("has", verb_chain_perfect).
+expression_reading("had", verb_chain_perfect).
+expression_reading("having", verb_chain_perfect).
+expression_reading("be", verb_chain_passive).
+expression_reading("am", verb_chain_passive).
+expression_reading("is", verb_chain_passive).
+expression_reading("are", verb_chain_passive).
+expression_reading("was", verb_chain_passive).
+expression_reading("were", verb_chain_passive).
+expression_reading("been", verb_chain_passive).
+expression_reading("being", verb_chain_passive).
+expression_reading("get", verb_chain_passive).
+expression_reading("gets", verb_chain_passive).
+expression_reading("got", verb_chain_passive).
+expression_reading("gotten", verb_chain_passive).
+expression_reading("getting", verb_chain_passive).
+expression_reading("do", verb_chain_do_support).
+expression_reading("does", verb_chain_do_support).
+expression_reading("did", verb_chain_do_support).
+expression_reading("will", verb_chain_future).
+expression_reading("shall", verb_chain_future).
+expression_reading("going to", verb_chain_future).
+expression_reading("is to", verb_chain_future).
+expression_reading("are to", verb_chain_future).
+expression_reading("about to", verb_chain_future).
+expression_reading("have been", verb_chain_perfect_progressive).
+expression_reading("has been", verb_chain_perfect_progressive).
+expression_reading("had been", verb_chain_perfect_progressive).
+expression_reading("having been", verb_chain_perfect_progressive).
+expression_reading("have been", verb_chain_perfect_passive).
+expression_reading("has been", verb_chain_perfect_passive).
+expression_reading("had been", verb_chain_perfect_passive).
+expression_reading("having been", verb_chain_perfect_passive).
+expression_reading("is being", verb_chain_progressive_passive).
+expression_reading("are being", verb_chain_progressive_passive).
+expression_reading("was being", verb_chain_progressive_passive).
+expression_reading("were being", verb_chain_progressive_passive).
+expression_reading("be being", verb_chain_progressive_passive).
+expression_reading("may have", verb_chain_modal_perfect).
+expression_reading("might have", verb_chain_modal_perfect).
+expression_reading("must have", verb_chain_modal_perfect).
+expression_reading("could have", verb_chain_modal_perfect).
+expression_reading("should have", verb_chain_modal_perfect).
+expression_reading("would have", verb_chain_modal_perfect).
+expression_reading("will have", verb_chain_modal_perfect).
+expression_reading("may be", verb_chain_modal_passive).
+expression_reading("might be", verb_chain_modal_passive).
+expression_reading("must be", verb_chain_modal_passive).
+expression_reading("can be", verb_chain_modal_passive).
+expression_reading("could be", verb_chain_modal_passive).
+expression_reading("should be", verb_chain_modal_passive).
+expression_reading("would be", verb_chain_modal_passive).
+expression_reading("will be", verb_chain_modal_passive).
+expression_reading("there is", construction_existential).
+expression_reading("there are", construction_existential).
+expression_reading("there was", construction_existential).
+expression_reading("there were", construction_existential).
+expression_reading("there exists", construction_existential).
+expression_reading("there exist", construction_existential).
+expression_reading("there remains", construction_existential).
+expression_reading("there remain", construction_existential).
+expression_reading("it is", construction_cleft).
+expression_reading("it was", construction_cleft).
+expression_reading("it is not", construction_cleft).
+expression_reading("it was not", construction_cleft).
+expression_reading("what matters is", construction_pseudocleft).
+expression_reading("what follows is", construction_pseudocleft).
+expression_reading("what is needed is", construction_pseudocleft).
+expression_reading("what remains is", construction_pseudocleft).
+expression_reading("it is possible", construction_extraposition).
+expression_reading("it is likely", construction_extraposition).
+expression_reading("it is necessary", construction_extraposition).
+expression_reading("it is important", construction_extraposition).
+expression_reading("it is clear", construction_extraposition).
+expression_reading("it is known", construction_extraposition).
+expression_reading("it is believed", construction_extraposition).
+expression_reading("it is thought", construction_extraposition).
+expression_reading("it is reported", construction_extraposition).
+expression_reading("it seems", construction_extraposition).
+expression_reading("it appears", construction_extraposition).
+expression_reading("it follows", construction_extraposition).
+expression_reading("never", construction_negative_inversion).
+expression_reading("rarely", construction_negative_inversion).
+expression_reading("seldom", construction_negative_inversion).
+expression_reading("hardly", construction_negative_inversion).
+expression_reading("scarcely", construction_negative_inversion).
+expression_reading("not only", construction_negative_inversion).
+expression_reading("under no circumstances", construction_negative_inversion).
+expression_reading("at no time", construction_negative_inversion).
+expression_reading("on no account", construction_negative_inversion).
+expression_reading("only then", construction_negative_inversion).
+expression_reading("only later", construction_negative_inversion).
+expression_reading("had", construction_conditional_inversion).
+expression_reading("were", construction_conditional_inversion).
+expression_reading("should", construction_conditional_inversion).
+expression_reading("namely", construction_apposition).
+expression_reading("that is", construction_apposition).
+expression_reading("that is to say", construction_apposition).
+expression_reading("in other words", construction_apposition).
+expression_reading("also known as", construction_apposition).
+expression_reading("also called", construction_apposition).
+expression_reading("otherwise known as", construction_apposition).
+expression_reading("abbreviated as", construction_apposition).
+expression_reading("hereafter", construction_apposition).
+expression_reading("hereinafter", construction_apposition).
+expression_reading("such as", construction_example).
+expression_reading("including", construction_example).
+expression_reading("for example", construction_example).
+expression_reading("for instance", construction_example).
+expression_reading("notably", construction_example).
+expression_reading("especially", construction_example).
+expression_reading("in particular", construction_example).
+expression_reading("e.g.", construction_example).
+expression_reading("incidentally", construction_parenthetical).
+expression_reading("parenthetically", construction_parenthetical).
+expression_reading("strictly speaking", construction_parenthetical).
+expression_reading("broadly speaking", construction_parenthetical).
+expression_reading("generally speaking", construction_parenthetical).
+expression_reading("technically speaking", construction_parenthetical).
+expression_reading("as noted above", construction_parenthetical).
+expression_reading("as mentioned earlier", construction_parenthetical).
+expression_reading("so do", construction_ellipsis).
+expression_reading("so does", construction_ellipsis).
+expression_reading("so did", construction_ellipsis).
+expression_reading("neither do", construction_ellipsis).
+expression_reading("neither does", construction_ellipsis).
+expression_reading("nor do", construction_ellipsis).
+expression_reading("nor does", construction_ellipsis).
+expression_reading("do so", construction_ellipsis).
+expression_reading("does so", construction_ellipsis).
+expression_reading("did so", construction_ellipsis).
+expression_reading("do the same", construction_ellipsis).
+expression_reading("one another", construction_ellipsis).
+expression_reading("each other", construction_ellipsis).
+construction_family(active_transitive).
+construction_role(active_transitive, 1, finite_predicate).
+construction_role(active_transitive, 2, subject).
+construction_role(active_transitive, 3, object).
+construction_family(active_intransitive).
+construction_role(active_intransitive, 1, finite_predicate).
+construction_role(active_intransitive, 2, subject).
+construction_family(ditransitive).
+construction_role(ditransitive, 1, finite_predicate).
+construction_role(ditransitive, 2, subject).
+construction_role(ditransitive, 3, recipient).
+construction_role(ditransitive, 4, theme).
+construction_family(object_predicative).
+construction_role(object_predicative, 1, finite_predicate).
+construction_role(object_predicative, 2, subject).
+construction_role(object_predicative, 3, object).
+construction_role(object_predicative, 4, object_predicate).
+construction_family(copular).
+construction_role(copular, 1, copula).
+construction_role(copular, 2, subject).
+construction_role(copular, 3, subject_predicate).
+construction_family(passive).
+construction_role(passive, 1, passive_auxiliary).
+construction_role(passive, 2, past_participle).
+construction_role(passive, 3, patient).
+construction_family(passive_agent).
+construction_role(passive_agent, 1, passive_auxiliary).
+construction_role(passive_agent, 2, past_participle).
+construction_role(passive_agent, 3, patient).
+construction_role(passive_agent, 4, agent).
+construction_family(passive_means).
+construction_role(passive_means, 1, passive_auxiliary).
+construction_role(passive_means, 2, past_participle).
+construction_role(passive_means, 3, patient).
+construction_role(passive_means, 4, means_event).
+construction_family(progressive).
+construction_role(progressive, 1, progressive_auxiliary).
+construction_role(progressive, 2, present_participle).
+construction_role(progressive, 3, subject).
+construction_family(perfect).
+construction_role(perfect, 1, perfect_auxiliary).
+construction_role(perfect, 2, past_participle).
+construction_role(perfect, 3, reference_time).
+construction_family(perfect_progressive).
+construction_role(perfect_progressive, 1, perfect_auxiliary).
+construction_role(perfect_progressive, 2, been).
+construction_role(perfect_progressive, 3, present_participle).
+construction_role(perfect_progressive, 4, reference_time).
+construction_family(progressive_passive).
+construction_role(progressive_passive, 1, progressive_auxiliary).
+construction_role(progressive_passive, 2, being).
+construction_role(progressive_passive, 3, past_participle).
+construction_role(progressive_passive, 4, patient).
+construction_family(modal).
+construction_role(modal, 1, modal_operator).
+construction_role(modal, 2, proposition).
+construction_role(modal, 3, modal_sense).
+construction_family(modal_perfect).
+construction_role(modal_perfect, 1, modal_operator).
+construction_role(modal_perfect, 2, perfect_auxiliary).
+construction_role(modal_perfect, 3, past_participle).
+construction_role(modal_perfect, 4, reference_time).
+construction_family(relative_subject).
+construction_role(relative_subject, 1, antecedent).
+construction_role(relative_subject, 2, relative_marker).
+construction_role(relative_subject, 3, subject_gap).
+construction_role(relative_subject, 4, local_predicate).
+construction_family(relative_object).
+construction_role(relative_object, 1, antecedent).
+construction_role(relative_object, 2, relative_marker).
+construction_role(relative_object, 3, object_gap).
+construction_role(relative_object, 4, local_subject).
+construction_role(relative_object, 5, local_predicate).
+construction_family(relative_possessive).
+construction_role(relative_possessive, 1, antecedent).
+construction_role(relative_possessive, 2, possessive_marker).
+construction_role(relative_possessive, 3, possessed_head).
+construction_role(relative_possessive, 4, local_predicate).
+construction_family(relative_reduced_passive).
+construction_role(relative_reduced_passive, 1, antecedent).
+construction_role(relative_reduced_passive, 2, past_participle).
+construction_role(relative_reduced_passive, 3, patient_gap).
+construction_family(relative_reduced_active).
+construction_role(relative_reduced_active, 1, antecedent).
+construction_role(relative_reduced_active, 2, present_participle).
+construction_role(relative_reduced_active, 3, subject_gap).
+construction_family(relative_zero).
+construction_role(relative_zero, 1, antecedent).
+construction_role(relative_zero, 2, object_gap).
+construction_role(relative_zero, 3, local_subject).
+construction_role(relative_zero, 4, local_predicate).
+construction_family(free_relative).
+construction_role(free_relative, 1, relative_marker).
+construction_role(free_relative, 2, embedded_predicate).
+construction_role(free_relative, 3, matrix_role).
+construction_family(finite_content).
+construction_role(finite_content, 1, matrix_predicate).
+construction_role(finite_content, 2, embedded_proposition).
+construction_role(finite_content, 3, embedding_commitment).
+construction_family(embedded_question).
+construction_role(embedded_question, 1, matrix_predicate).
+construction_role(embedded_question, 2, question_operator).
+construction_role(embedded_question, 3, unresolved_role).
+construction_family(subject_control).
+construction_role(subject_control, 1, matrix_subject).
+construction_role(subject_control, 2, control_predicate).
+construction_role(subject_control, 3, infinitive_event).
+construction_family(object_control).
+construction_role(object_control, 1, matrix_object).
+construction_role(object_control, 2, control_predicate).
+construction_role(object_control, 3, infinitive_event).
+construction_family(subject_raising).
+construction_role(subject_raising, 1, raised_subject).
+construction_role(subject_raising, 2, raising_predicate).
+construction_role(subject_raising, 3, embedded_predicate).
+construction_family(object_raising).
+construction_role(object_raising, 1, raised_object).
+construction_role(object_raising, 2, raising_predicate).
+construction_role(object_raising, 3, embedded_predicate).
+construction_family(gerund_complement).
+construction_role(gerund_complement, 1, matrix_predicate).
+construction_role(gerund_complement, 2, gerund_event).
+construction_role(gerund_complement, 3, controller).
+construction_family(causal).
+construction_role(causal, 1, cause_clause).
+construction_role(causal, 2, effect_clause).
+construction_role(causal, 3, causal_marker).
+construction_family(conditional).
+construction_role(conditional, 1, antecedent_clause).
+construction_role(conditional, 2, consequent_clause).
+construction_role(conditional, 3, conditional_marker).
+construction_family(counterfactual).
+construction_role(counterfactual, 1, antecedent_clause).
+construction_role(counterfactual, 2, consequent_clause).
+construction_role(counterfactual, 3, modal_remoteness).
+construction_family(concessive).
+construction_role(concessive, 1, conceded_clause).
+construction_role(concessive, 2, main_clause).
+construction_role(concessive, 3, defeated_expectation).
+construction_family(temporal).
+construction_role(temporal, 1, event_clause).
+construction_role(temporal, 2, reference_clause).
+construction_role(temporal, 3, temporal_relation).
+construction_family(purpose).
+construction_role(purpose, 1, action_clause).
+construction_role(purpose, 2, goal_clause).
+construction_role(purpose, 3, intentional_link).
+construction_family(result).
+construction_role(result, 1, source_clause).
+construction_role(result, 2, result_clause).
+construction_role(result, 3, result_marker).
+construction_family(comparison).
+construction_role(comparison, 1, compared_entity).
+construction_role(comparison, 2, standard).
+construction_role(comparison, 3, dimension).
+construction_role(comparison, 4, comparison_operator).
+construction_family(degree_complement).
+construction_role(degree_complement, 1, degree_operator).
+construction_role(degree_complement, 2, dimension).
+construction_role(degree_complement, 3, threshold_clause).
+construction_family(coordination).
+construction_role(coordination, 1, left_conjunct).
+construction_role(coordination, 2, right_conjunct).
+construction_role(coordination, 3, coordination_operator).
+construction_role(coordination, 4, shared_roles).
+construction_family(alternative).
+construction_role(alternative, 1, left_alternative).
+construction_role(alternative, 2, right_alternative).
+construction_role(alternative, 3, disjunctive_scope).
+construction_family(pairwise).
+construction_role(pairwise, 1, ordered_left_members).
+construction_role(pairwise, 2, ordered_right_members).
+construction_role(pairwise, 3, equal_cardinality).
+construction_family(gapping).
+construction_role(gapping, 1, parallel_clauses).
+construction_role(gapping, 2, elided_predicate).
+construction_role(gapping, 3, contrastive_remnants).
+construction_family(right_node_raising).
+construction_role(right_node_raising, 1, parallel_predicates).
+construction_role(right_node_raising, 2, shared_right_argument).
+construction_family(nominal_ellipsis).
+construction_role(nominal_ellipsis, 1, determiner_or_modifier).
+construction_role(nominal_ellipsis, 2, recoverable_nominal_head).
+construction_family(verb_phrase_ellipsis).
+construction_role(verb_phrase_ellipsis, 1, auxiliary).
+construction_role(verb_phrase_ellipsis, 2, recoverable_predicate).
+construction_role(verb_phrase_ellipsis, 3, polarity).
+construction_family(sluicing).
+construction_role(sluicing, 1, question_remnant).
+construction_role(sluicing, 2, antecedent_proposition).
+construction_role(sluicing, 3, missing_role).
+construction_family(apposition).
+construction_role(apposition, 1, anchor_np).
+construction_role(apposition, 2, appositive_np).
+construction_role(apposition, 3, shared_referent).
+construction_family(absolute).
+construction_role(absolute, 1, local_subject).
+construction_role(absolute, 2, nonfinite_predicate).
+construction_role(absolute, 3, attachment_to_main_clause).
+construction_family(existential).
+construction_role(existential, 1, expletive_there).
+construction_role(existential, 2, existential_predicate).
+construction_role(existential, 3, postverbal_pivot).
+construction_family(cleft).
+construction_role(cleft, 1, expletive_it).
+construction_role(cleft, 2, focused_constituent).
+construction_role(cleft, 3, relative_clause).
+construction_family(pseudocleft).
+construction_role(pseudocleft, 1, free_relative).
+construction_role(pseudocleft, 2, copula).
+construction_role(pseudocleft, 3, focused_constituent).
+construction_family(extraposition).
+construction_role(extraposition, 1, expletive_it).
+construction_role(extraposition, 2, matrix_predicate).
+construction_role(extraposition, 3, extraposed_clause).
+construction_family(negative_inversion).
+construction_role(negative_inversion, 1, fronted_negative).
+construction_role(negative_inversion, 2, auxiliary).
+construction_role(negative_inversion, 3, subject).
+construction_role(negative_inversion, 4, predicate).
+construction_family(conditional_inversion).
+construction_role(conditional_inversion, 1, fronted_auxiliary).
+construction_role(conditional_inversion, 2, subject).
+construction_role(conditional_inversion, 3, antecedent_predicate).
+construction_role(conditional_inversion, 4, consequent_clause).
+construction_family(topicalization).
+construction_role(topicalization, 1, fronted_constituent).
+construction_role(topicalization, 2, resumptive_gap).
+construction_role(topicalization, 3, local_predicate).
+construction_family(left_dislocation).
+construction_role(left_dislocation, 1, detached_topic).
+construction_role(left_dislocation, 2, resumptive_pronoun).
+construction_role(left_dislocation, 3, clause).
+construction_family(quantification).
+construction_role(quantification, 1, quantifier).
+construction_role(quantification, 2, restrictor).
+construction_role(quantification, 3, nuclear_scope).
+construction_family(negation).
+construction_role(negation, 1, negative_operator).
+construction_role(negation, 2, scope).
+construction_role(negation, 3, focus).
+construction_family(attribution).
+construction_role(attribution, 1, source).
+construction_role(attribution, 2, report_predicate).
+construction_role(attribution, 3, embedded_proposition).
+construction_family(presupposition).
+construction_role(presupposition, 1, trigger).
+construction_role(presupposition, 2, background_proposition).
+construction_role(presupposition, 3, projection_context).
+construction_family(implicature).
+construction_role(implicature, 1, literal_proposition).
+construction_role(implicature, 2, context).
+construction_role(implicature, 3, defeasible_inference).
+valency_argument(transitive, 1, subject).
+valency_argument(transitive, 2, object).
+valency_argument(passive, 1, patient).
+valency_argument(passive, 2, agent).
+valency_argument(ditransitive, 1, agent).
+valency_argument(ditransitive, 2, recipient).
+valency_argument(ditransitive, 3, theme).
+valency_argument(copular, 1, subject).
+valency_argument(copular, 2, subject_predicate).
+valency_argument(object_predicative, 1, subject).
+valency_argument(object_predicative, 2, object).
+valency_argument(object_predicative, 3, object_predicate).
+valency_argument(subject_control, 1, matrix_subject).
+valency_argument(subject_control, 2, embedded_subject).
+valency_argument(object_control, 1, matrix_object).
+valency_argument(object_control, 2, embedded_subject).
+valency_argument(subject_raising, 1, raised_subject).
+valency_argument(subject_raising, 2, embedded_subject).
+valency_argument(object_raising, 1, raised_object).
+valency_argument(object_raising, 2, embedded_subject).
+construction_commitment(conditional, conditional).
+construction_commitment(counterfactual, counterfactual).
+construction_commitment(modal, modalized).
+construction_commitment(attribution, attributed).
+construction_commitment(embedded_question, questioned).
+construction_commitment(purpose, intended).
+construction_commitment(alternative, disjunctive).
+construction_commitment(negation, negated).
+construction_commitment(implicature, defeasible).
+construction_commitment(presupposition, backgrounded).
+scope_boundary(question).
+scope_boundary(negation).
+scope_boundary(conditional).
+scope_boundary(modal).
+scope_boundary(quotation).
+scope_boundary(reported_belief).
+scope_boundary(counterfactual).

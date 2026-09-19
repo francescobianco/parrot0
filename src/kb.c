@@ -3267,6 +3267,13 @@ int kb_view_ensure(KB *kb, const char *pred) {
     }
     v->building = 1;
     int complete = 1;
+    /* Quanto costa congelare OGNI vista: `PARROT0_BOOT_TRACE=1` lo stampa
+     * accanto alle fasi del boot. Una KB che cresce moltiplica una vista
+     * lontana da dove e' cresciuta (19 settembre 2026: 844 verbi di relazione
+     * portavano il primo turno da 0,4 a 2,7 s): si guarda qui, non si indovina. */
+    const char *vte = getenv("PARROT0_BOOT_TRACE");
+    int vtrace = vte && strcmp(vte, "1") == 0;
+    struct timespec vt0; if (vtrace) timespec_get(&vt0, TIME_UTC);
     /* gen510 — UNA VISTA BINARIA SI ENUMERA UNA VOLTA, NON UNA PER RIGA.
      *
      * La strada qui sotto raccoglieva i primi argomenti distinti e poi, PER
@@ -3328,6 +3335,13 @@ int kb_view_ensure(KB *kb, const char *pred) {
     }
     free(firsts);
     v->building = 0;
+    if (vtrace) {
+        struct timespec vt1; timespec_get(&vt1, TIME_UTC);
+        fprintf(stderr, "[view] %-28s %8.1f ms%s\n", pred,
+                (double)(vt1.tv_sec - vt0.tv_sec) * 1000.0 +
+                (double)(vt1.tv_nsec - vt0.tv_nsec) / 1e6,
+                complete ? "" : " (incompleta)");
+    }
     if (!complete || v->dirty) {
         kb_view_clear(kb, pred);
         v->live = 0;

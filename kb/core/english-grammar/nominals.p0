@@ -1,0 +1,512 @@
+% nominals.p0 — nombre, numero, pronomi, composizione nominale e riferimento
+% Prima fogliata 2026-09-19. Conoscenza linguistica, non fatti dei testi.
+:- file_attribute(machinery).
+
+plural_of(lice, louse).
+plural_of(oxen, ox).
+plural_of(brethren, brother).
+plural_of(wives, wife).
+plural_of(lives, life).
+plural_of(knives, knife).
+plural_of(wolves, wolf).
+plural_of(calves, calf).
+plural_of(halves, half).
+plural_of(loaves, loaf).
+plural_of(leaves, leaf).
+plural_of(shelves, shelf).
+plural_of(thieves, thief).
+plural_of(selves, self).
+plural_of(scarves, scarf).
+plural_of(hooves, hoof).
+plural_of(elves, elf).
+plural_of(dwarves, dwarf).
+plural_of(analyses, analysis).
+plural_of(axes, axis).
+plural_of(crises, crisis).
+plural_of(theses, thesis).
+plural_of(hypotheses, hypothesis).
+plural_of(parentheses, parenthesis).
+plural_of(syntheses, synthesis).
+plural_of(diagnoses, diagnosis).
+plural_of(prognoses, prognosis).
+plural_of(neuroses, neurosis).
+plural_of(psychoses, psychosis).
+plural_of(metamorphoses, metamorphosis).
+plural_of(emphases, emphasis).
+plural_of(ellipses, ellipsis).
+plural_of(synopses, synopsis).
+plural_of(antitheses, antithesis).
+plural_of(criteria, criterion).
+plural_of(phenomena, phenomenon).
+plural_of(automata, automaton).
+plural_of(polyhedra, polyhedron).
+plural_of(tetrahedra, tetrahedron).
+plural_of(data, datum).
+plural_of(media, medium).
+plural_of(bacteria, bacterium).
+plural_of(memoranda, memorandum).
+plural_of(strata, stratum).
+plural_of(curricula, curriculum).
+plural_of(addenda, addendum).
+plural_of(errata, erratum).
+plural_of(alumni, alumnus).
+plural_of(alumnae, alumna).
+plural_of(fungi, fungus).
+plural_of(cacti, cactus).
+plural_of(nuclei, nucleus).
+plural_of(radii, radius).
+plural_of(stimuli, stimulus).
+plural_of(syllabi, syllabus).
+plural_of(foci, focus).
+plural_of(octopi, octopus).
+plural_of(indices, index).
+plural_of(matrices, matrix).
+plural_of(vertices, vertex).
+plural_of(appendices, appendix).
+plural_of(vortices, vortex).
+plural_of(cortices, cortex).
+plural_of(apices, apex).
+plural_of(codices, codex).
+plural_of(formulae, formula).
+plural_of(vertebrae, vertebra).
+plural_of(larvae, larva).
+plural_of(antennae, antenna).
+plural_of(nebulae, nebula).
+plural_of(algae, alga).
+plural_of(amoebae, amoeba).
+plural_of(spores, spore).
+plural_of(genera, genus).
+plural_of(corpora, corpus).
+plural_of(viscera, viscus).
+plural_of(ova, ovum).
+plural_of(spermatozoa, spermatozoon).
+plural_of(protozoa, protozoan).
+plural_of(mitochondria, mitochondrion).
+plural_of(chloroplasts, chloroplast).
+plural_of(stomata, stoma).
+plural_of(ganglia, ganglion).
+plural_of(lexica, lexicon).
+plural_of(seraphim, seraph).
+plural_of(cherubim, cherub).
+plural_of(graffiti, graffito).
+plural_of(libretti, libretto).
+plural_of(concerti, concerto).
+plural_of(concertos, concerto).
+plural_of(chateaux, chateau).
+plural_of(tableaux, tableau).
+plural_of(bureaux, bureau).
+plural_of(passersby, passerby).
+plural_of(crafts, craft).
+plural_of(deer, deer).
+plural_of(moose, moose).
+plural_of(salmon, salmon).
+plural_of(trout, trout).
+plural_of(cod, cod).
+plural_of(swine, swine).
+plural_of(offspring, offspring).
+plural_of(aircraft, aircraft).
+plural_of(spacecraft, spacecraft).
+plural_of(means, means).
+plural_of(headquarters, headquarters).
+plural_of(crossroads, crossroads).
+noun_feature(water, countability, mass_reading).
+noun_feature(air, countability, mass_reading).
+noun_feature(oxygen, countability, mass_reading).
+noun_feature(hydrogen, countability, mass_reading).
+noun_feature(nitrogen, countability, mass_reading).
+noun_feature(carbon, countability, mass_reading).
+noun_feature(electricity, countability, mass_reading).
+noun_feature(magnetism, countability, mass_reading).
+noun_feature(gravity, countability, mass_reading).
+noun_feature(energy, countability, mass_reading).
+noun_feature(heat, countability, mass_reading).
+noun_feature(light, countability, mass_reading).
+noun_feature(sound, countability, mass_reading).
+noun_feature(radiation, countability, mass_reading).
+noun_feature(matter, countability, mass_reading).
+noun_feature(mass, countability, mass_reading).
+noun_feature(pressure, countability, mass_reading).
+noun_feature(information, countability, mass_reading).
+noun_feature(knowledge, countability, mass_reading).
+noun_feature(evidence, countability, mass_reading).
+noun_feature(research, countability, mass_reading).
+noun_feature(advice, countability, mass_reading).
+noun_feature(equipment, countability, mass_reading).
+noun_feature(furniture, countability, mass_reading).
+noun_feature(machinery, countability, mass_reading).
+noun_feature(software, countability, mass_reading).
+noun_feature(hardware, countability, mass_reading).
+noun_feature(traffic, countability, mass_reading).
+noun_feature(transport, countability, mass_reading).
+noun_feature(transportation, countability, mass_reading).
+noun_feature(vegetation, countability, mass_reading).
+noun_feature(wildlife, countability, mass_reading).
+noun_feature(livestock, countability, mass_reading).
+noun_feature(foliage, countability, mass_reading).
+noun_feature(grass, countability, mass_reading).
+noun_feature(sand, countability, mass_reading).
+noun_feature(soil, countability, mass_reading).
+noun_feature(clay, countability, mass_reading).
+noun_feature(gravel, countability, mass_reading).
+noun_feature(dust, countability, mass_reading).
+noun_feature(ash, countability, mass_reading).
+noun_feature(coal, countability, mass_reading).
+noun_feature(charcoal, countability, mass_reading).
+noun_feature(gold, countability, mass_reading).
+noun_feature(silver, countability, mass_reading).
+noun_feature(copper, countability, mass_reading).
+noun_feature(iron, countability, mass_reading).
+noun_feature(steel, countability, mass_reading).
+noun_feature(aluminium, countability, mass_reading).
+noun_feature(aluminum, countability, mass_reading).
+noun_feature(wood, countability, mass_reading).
+noun_feature(timber, countability, mass_reading).
+noun_feature(paper, countability, mass_reading).
+noun_feature(glass, countability, mass_reading).
+noun_feature(plastic, countability, mass_reading).
+noun_feature(rubber, countability, mass_reading).
+noun_feature(concrete, countability, mass_reading).
+noun_feature(cement, countability, mass_reading).
+noun_feature(blood, countability, mass_reading).
+noun_feature(milk, countability, mass_reading).
+noun_feature(oil, countability, mass_reading).
+noun_feature(fuel, countability, mass_reading).
+noun_feature(steam, countability, mass_reading).
+noun_feature(smoke, countability, mass_reading).
+noun_feature(pollution, countability, mass_reading).
+noun_feature(waste, countability, mass_reading).
+noun_feature(sewage, countability, mass_reading).
+noun_feature(rubbish, countability, mass_reading).
+noun_feature(garbage, countability, mass_reading).
+noun_feature(money, countability, mass_reading).
+noun_feature(wealth, countability, mass_reading).
+noun_feature(work, countability, mass_reading).
+noun_feature(labour, countability, mass_reading).
+noun_feature(labor, countability, mass_reading).
+noun_feature(progress, countability, mass_reading).
+noun_feature(news, countability, mass_reading).
+noun_feature(music, countability, mass_reading).
+noun_feature(poetry, countability, mass_reading).
+noun_feature(prose, countability, mass_reading).
+noun_feature(literature, countability, mass_reading).
+noun_feature(mathematics, countability, mass_reading).
+noun_feature(physics, countability, mass_reading).
+noun_feature(chemistry, countability, mass_reading).
+noun_feature(biology, countability, mass_reading).
+noun_feature(economics, countability, mass_reading).
+noun_feature(archaeology, countability, mass_reading).
+noun_feature(geography, countability, mass_reading).
+noun_feature(history, countability, mass_reading).
+noun_feature(weather, countability, mass_reading).
+noun_feature(rain, countability, mass_reading).
+noun_feature(snow, countability, mass_reading).
+noun_feature(ice, countability, mass_reading).
+noun_feature(frost, countability, mass_reading).
+noun_feature(thunder, countability, mass_reading).
+noun_feature(lightning, countability, mass_reading).
+noun_feature(sunshine, countability, mass_reading).
+noun_feature(humidity, countability, mass_reading).
+noun_feature(darkness, countability, mass_reading).
+noun_feature(patience, countability, mass_reading).
+noun_feature(courage, countability, mass_reading).
+noun_feature(honesty, countability, mass_reading).
+noun_feature(uncertainty, countability, mass_reading).
+noun_feature(significance, countability, mass_reading).
+noun_feature(relevance, countability, mass_reading).
+noun_feature(accuracy, countability, mass_reading).
+noun_feature(precision, countability, mass_reading).
+noun_feature(reliability, countability, mass_reading).
+noun_feature(efficiency, countability, mass_reading).
+noun_feature(entropy, countability, mass_reading).
+noun_feature(friction, countability, mass_reading).
+noun_feature(inertia, countability, mass_reading).
+noun_feature(momentum, countability, mass_reading).
+noun_feature(velocity, countability, mass_reading).
+noun_feature(acceleration, countability, mass_reading).
+noun_feature(resistance, countability, mass_reading).
+noun_feature(conductivity, countability, mass_reading).
+noun_feature(permeability, countability, mass_reading).
+noun_feature(density, countability, mass_reading).
+noun_feature(viscosity, countability, mass_reading).
+noun_feature(elasticity, countability, mass_reading).
+noun_feature(pair, head_role, quantitative_or_collective).
+noun_feature(couple, head_role, quantitative_or_collective).
+noun_feature(dozen, head_role, quantitative_or_collective).
+noun_feature(hundred, head_role, quantitative_or_collective).
+noun_feature(thousand, head_role, quantitative_or_collective).
+noun_feature(million, head_role, quantitative_or_collective).
+noun_feature(billion, head_role, quantitative_or_collective).
+noun_feature(trillion, head_role, quantitative_or_collective).
+noun_feature(score, head_role, quantitative_or_collective).
+noun_feature(group, head_role, quantitative_or_collective).
+noun_feature(set, head_role, quantitative_or_collective).
+noun_feature(series, head_role, quantitative_or_collective).
+noun_feature(collection, head_role, quantitative_or_collective).
+noun_feature(cluster, head_role, quantitative_or_collective).
+noun_feature(array, head_role, quantitative_or_collective).
+noun_feature(assembly, head_role, quantitative_or_collective).
+noun_feature(aggregate, head_role, quantitative_or_collective).
+noun_feature(population, head_role, quantitative_or_collective).
+noun_feature(community, head_role, quantitative_or_collective).
+noun_feature(colony, head_role, quantitative_or_collective).
+noun_feature(herd, head_role, quantitative_or_collective).
+noun_feature(flock, head_role, quantitative_or_collective).
+noun_feature(school, head_role, quantitative_or_collective).
+noun_feature(pack, head_role, quantitative_or_collective).
+noun_feature(swarm, head_role, quantitative_or_collective).
+noun_feature(team, head_role, quantitative_or_collective).
+noun_feature(committee, head_role, quantitative_or_collective).
+noun_feature(council, head_role, quantitative_or_collective).
+noun_feature(staff, head_role, quantitative_or_collective).
+noun_feature(family, head_role, quantitative_or_collective).
+noun_feature(species, head_role, quantitative_or_collective).
+noun_feature(genus, head_role, quantitative_or_collective).
+noun_feature(class, head_role, quantitative_or_collective).
+noun_feature(order, head_role, quantitative_or_collective).
+noun_feature(phylum, head_role, quantitative_or_collective).
+noun_feature(kingdom, head_role, quantitative_or_collective).
+noun_feature(category, head_role, quantitative_or_collective).
+noun_feature(type, head_role, quantitative_or_collective).
+noun_feature(kind, head_role, quantitative_or_collective).
+noun_feature(sort, head_role, quantitative_or_collective).
+noun_feature(variety, head_role, quantitative_or_collective).
+noun_feature(form, head_role, quantitative_or_collective).
+noun_feature(version, head_role, quantitative_or_collective).
+noun_feature(variant, head_role, quantitative_or_collective).
+noun_feature(instance, head_role, quantitative_or_collective).
+noun_feature(example, head_role, quantitative_or_collective).
+noun_feature(sample, head_role, quantitative_or_collective).
+noun_feature(member, head_role, quantitative_or_collective).
+noun_feature(component, head_role, quantitative_or_collective).
+noun_feature(constituent, head_role, quantitative_or_collective).
+noun_feature(element, head_role, quantitative_or_collective).
+noun_feature(ingredient, head_role, quantitative_or_collective).
+noun_feature(part, head_role, quantitative_or_collective).
+noun_feature(portion, head_role, quantitative_or_collective).
+noun_feature(fraction, head_role, quantitative_or_collective).
+noun_feature(majority, head_role, quantitative_or_collective).
+noun_feature(minority, head_role, quantitative_or_collective).
+noun_feature(number, head_role, quantitative_or_collective).
+noun_feature(amount, head_role, quantitative_or_collective).
+noun_feature(quantity, head_role, quantitative_or_collective).
+noun_feature(volume, head_role, quantitative_or_collective).
+noun_feature(mass, head_role, quantitative_or_collective).
+noun_feature(length, head_role, quantitative_or_collective).
+noun_feature(area, head_role, quantitative_or_collective).
+noun_feature(range, head_role, quantitative_or_collective).
+noun_feature(extent, head_role, quantitative_or_collective).
+noun_feature(degree, head_role, quantitative_or_collective).
+noun_feature(level, head_role, quantitative_or_collective).
+noun_feature(rate, head_role, quantitative_or_collective).
+noun_feature(ratio, head_role, quantitative_or_collective).
+noun_feature(proportion, head_role, quantitative_or_collective).
+noun_feature(percentage, head_role, quantitative_or_collective).
+noun_feature(average, head_role, quantitative_or_collective).
+noun_feature(mean, head_role, quantitative_or_collective).
+noun_feature(median, head_role, quantitative_or_collective).
+noun_feature(total, head_role, quantitative_or_collective).
+noun_feature(sum, head_role, quantitative_or_collective).
+noun_feature(product, head_role, quantitative_or_collective).
+noun_feature(difference, head_role, quantitative_or_collective).
+noun_feature(limit, head_role, quantitative_or_collective).
+noun_feature(minimum, head_role, quantitative_or_collective).
+noun_feature(maximum, head_role, quantitative_or_collective).
+noun_feature(ability, head_role, event_or_proposition).
+noun_feature(capacity, head_role, event_or_proposition).
+noun_feature(capability, head_role, event_or_proposition).
+noun_feature(tendency, head_role, event_or_proposition).
+noun_feature(propensity, head_role, event_or_proposition).
+noun_feature(potential, head_role, event_or_proposition).
+noun_feature(possibility, head_role, event_or_proposition).
+noun_feature(probability, head_role, event_or_proposition).
+noun_feature(likelihood, head_role, event_or_proposition).
+noun_feature(necessity, head_role, event_or_proposition).
+noun_feature(obligation, head_role, event_or_proposition).
+noun_feature(permission, head_role, event_or_proposition).
+noun_feature(intention, head_role, event_or_proposition).
+noun_feature(purpose, head_role, event_or_proposition).
+noun_feature(aim, head_role, event_or_proposition).
+noun_feature(objective, head_role, event_or_proposition).
+noun_feature(goal, head_role, event_or_proposition).
+noun_feature(plan, head_role, event_or_proposition).
+noun_feature(proposal, head_role, event_or_proposition).
+noun_feature(attempt, head_role, event_or_proposition).
+noun_feature(effort, head_role, event_or_proposition).
+noun_feature(decision, head_role, event_or_proposition).
+noun_feature(choice, head_role, event_or_proposition).
+noun_feature(belief, head_role, event_or_proposition).
+noun_feature(opinion, head_role, event_or_proposition).
+noun_feature(assumption, head_role, event_or_proposition).
+noun_feature(hypothesis, head_role, event_or_proposition).
+noun_feature(conjecture, head_role, event_or_proposition).
+noun_feature(theory, head_role, event_or_proposition).
+noun_feature(claim, head_role, event_or_proposition).
+noun_feature(assertion, head_role, event_or_proposition).
+noun_feature(allegation, head_role, event_or_proposition).
+noun_feature(report, head_role, event_or_proposition).
+noun_feature(statement, head_role, event_or_proposition).
+noun_feature(announcement, head_role, event_or_proposition).
+noun_feature(explanation, head_role, event_or_proposition).
+noun_feature(argument, head_role, event_or_proposition).
+noun_feature(inference, head_role, event_or_proposition).
+noun_feature(conclusion, head_role, event_or_proposition).
+noun_feature(finding, head_role, event_or_proposition).
+noun_feature(observation, head_role, event_or_proposition).
+noun_feature(measurement, head_role, event_or_proposition).
+noun_feature(estimate, head_role, event_or_proposition).
+noun_feature(prediction, head_role, event_or_proposition).
+noun_feature(forecast, head_role, event_or_proposition).
+noun_feature(evidence, head_role, event_or_proposition).
+noun_feature(proof, head_role, event_or_proposition).
+noun_feature(support, head_role, event_or_proposition).
+noun_feature(reason, head_role, event_or_proposition).
+noun_feature(cause, head_role, event_or_proposition).
+noun_feature(effect, head_role, event_or_proposition).
+noun_feature(result, head_role, event_or_proposition).
+noun_feature(consequence, head_role, event_or_proposition).
+noun_feature(outcome, head_role, event_or_proposition).
+noun_feature(impact, head_role, event_or_proposition).
+noun_feature(influence, head_role, event_or_proposition).
+noun_feature(function, head_role, event_or_proposition).
+noun_feature(role, head_role, event_or_proposition).
+noun_feature(use, head_role, event_or_proposition).
+noun_feature(application, head_role, event_or_proposition).
+noun_feature(benefit, head_role, event_or_proposition).
+noun_feature(advantage, head_role, event_or_proposition).
+noun_feature(disadvantage, head_role, event_or_proposition).
+noun_feature(importance, head_role, event_or_proposition).
+noun_feature(significance, head_role, event_or_proposition).
+noun_feature(relevance, head_role, event_or_proposition).
+noun_feature(similarity, head_role, event_or_proposition).
+noun_feature(difference, head_role, event_or_proposition).
+noun_feature(relation, head_role, event_or_proposition).
+noun_feature(relationship, head_role, event_or_proposition).
+noun_feature(connection, head_role, event_or_proposition).
+noun_feature(association, head_role, event_or_proposition).
+noun_feature(correlation, head_role, event_or_proposition).
+noun_feature(dependence, head_role, event_or_proposition).
+noun_feature(dependency, head_role, event_or_proposition).
+noun_feature(interaction, head_role, event_or_proposition).
+noun_feature(comparison, head_role, event_or_proposition).
+noun_feature(contrast, head_role, event_or_proposition).
+noun_feature(distinction, head_role, event_or_proposition).
+noun_feature(definition, head_role, event_or_proposition).
+noun_feature(description, head_role, event_or_proposition).
+noun_feature(classification, head_role, event_or_proposition).
+noun_feature(identification, head_role, event_or_proposition).
+noun_feature(representation, head_role, event_or_proposition).
+noun_feature(interpretation, head_role, event_or_proposition).
+noun_feature(analysis, head_role, event_or_proposition).
+noun_feature(synthesis, head_role, event_or_proposition).
+noun_feature(evaluation, head_role, event_or_proposition).
+noun_feature(assessment, head_role, event_or_proposition).
+noun_feature(development, head_role, event_or_proposition).
+noun_feature(evolution, head_role, event_or_proposition).
+noun_feature(formation, head_role, event_or_proposition).
+noun_feature(production, head_role, event_or_proposition).
+noun_feature(construction, head_role, event_or_proposition).
+noun_feature(destruction, head_role, event_or_proposition).
+noun_feature(decomposition, head_role, event_or_proposition).
+noun_feature(transformation, head_role, event_or_proposition).
+noun_feature(conversion, head_role, event_or_proposition).
+noun_feature(expansion, head_role, event_or_proposition).
+noun_feature(contraction, head_role, event_or_proposition).
+noun_feature(increase, head_role, event_or_proposition).
+noun_feature(decrease, head_role, event_or_proposition).
+noun_feature(growth, head_role, event_or_proposition).
+noun_feature(decline, head_role, event_or_proposition).
+noun_feature(movement, head_role, event_or_proposition).
+noun_feature(motion, head_role, event_or_proposition).
+noun_feature(transfer, head_role, event_or_proposition).
+noun_feature(transmission, head_role, event_or_proposition).
+noun_feature(transport, head_role, event_or_proposition).
+noun_feature(distribution, head_role, event_or_proposition).
+noun_feature(exchange, head_role, event_or_proposition).
+noun_feature(migration, head_role, event_or_proposition).
+noun_feature(emission, head_role, event_or_proposition).
+noun_feature(absorption, head_role, event_or_proposition).
+noun_feature(reflection, head_role, event_or_proposition).
+noun_feature(refraction, head_role, event_or_proposition).
+noun_feature(diffusion, head_role, event_or_proposition).
+noun_feature(circulation, head_role, event_or_proposition).
+noun_feature(reproduction, head_role, event_or_proposition).
+noun_feature(inheritance, head_role, event_or_proposition).
+noun_feature(variation, head_role, event_or_proposition).
+noun_feature(selection, head_role, event_or_proposition).
+noun_feature(adaptation, head_role, event_or_proposition).
+noun_feature(regulation, head_role, event_or_proposition).
+noun_feature(coordination, head_role, event_or_proposition).
+noun_feature(cooperation, head_role, event_or_proposition).
+noun_feature(competition, head_role, event_or_proposition).
+activity_noun(disadvantage).
+activity_noun(purpose).
+activity_noun(contribution).
+activity_noun(impact).
+pronoun_features(i, first, singular, subject).
+pronoun_features(me, first, singular, object).
+pronoun_features(we, first, plural, subject).
+pronoun_features(us, first, plural, object).
+pronoun_features(you, second, unspecified, subject).
+pronoun_features(you, second, unspecified, object).
+pronoun_features(he, third, singular, subject).
+pronoun_features(him, third, singular, object).
+pronoun_features(she, third, singular, subject).
+pronoun_features(her, third, singular, object).
+pronoun_features(it, third, singular, subject).
+pronoun_features(it, third, singular, object).
+pronoun_features(they, third, unspecified, subject).
+pronoun_features(them, third, unspecified, object).
+pronoun_features(myself, reflexive, singular, local_binding).
+pronoun_features(yourself, reflexive, singular, local_binding).
+pronoun_features(himself, reflexive, singular, local_binding).
+pronoun_features(herself, reflexive, singular, local_binding).
+pronoun_features(itself, reflexive, singular, local_binding).
+pronoun_features(ourselves, reflexive, plural, local_binding).
+pronoun_features(yourselves, reflexive, plural, local_binding).
+pronoun_features(themselves, reflexive, unspecified, local_binding).
+pronoun_features(oneself, reflexive, singular, local_binding).
+noun_feature(this, distance, proximal).
+noun_feature(that, distance, distal).
+noun_feature(these, distance, proximal).
+noun_feature(those, distance, distal).
+noun_feature(former, selection, earlier_of_two).
+noun_feature(latter, selection, later_of_two).
+noun_feature(another, reference, additional).
+noun_feature(other, reference, contrast_set).
+noun_feature(same, reference, identity).
+noun_feature(such, reference, kind_anaphora).
+noun_feature(respective, reference, ordered_pairing).
+noun_feature(someone, reference, indefinite_or_fused_relative).
+noun_feature(somebody, reference, indefinite_or_fused_relative).
+noun_feature(something, reference, indefinite_or_fused_relative).
+noun_feature(anyone, reference, indefinite_or_fused_relative).
+noun_feature(anybody, reference, indefinite_or_fused_relative).
+noun_feature(anything, reference, indefinite_or_fused_relative).
+noun_feature(everyone, reference, indefinite_or_fused_relative).
+noun_feature(everybody, reference, indefinite_or_fused_relative).
+noun_feature(everything, reference, indefinite_or_fused_relative).
+noun_feature(nobody, reference, indefinite_or_fused_relative).
+noun_feature(nothing, reference, indefinite_or_fused_relative).
+noun_feature(none, reference, indefinite_or_fused_relative).
+noun_feature(one, reference, indefinite_or_fused_relative).
+noun_feature(ones, reference, indefinite_or_fused_relative).
+noun_feature(whoever, reference, indefinite_or_fused_relative).
+noun_feature(whomever, reference, indefinite_or_fused_relative).
+noun_feature(whatever, reference, indefinite_or_fused_relative).
+noun_feature(whichever, reference, indefinite_or_fused_relative).
+noun_feature(my, determiner, possessive).
+noun_feature(your, determiner, possessive).
+noun_feature(his, determiner, possessive).
+noun_feature(her, determiner, possessive).
+noun_feature(its, determiner, possessive).
+noun_feature(our, determiner, possessive).
+noun_feature(their, determiner, possessive).
+noun_feature(whose, determiner, possessive).
+noun_feature(mine, pronoun, possessive).
+noun_feature(yours, pronoun, possessive).
+noun_feature(his, pronoun, possessive).
+noun_feature(hers, pronoun, possessive).
+noun_feature(ours, pronoun, possessive).
+noun_feature(theirs, pronoun, possessive).
+auxiliary(being).
+auxiliary(ought).

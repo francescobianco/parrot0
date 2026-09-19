@@ -1,0 +1,322 @@
+% reading.p0 — consumatori della IR e ponti della prima fogliata.
+% Non tokenizza testo e non crea una IR privata. Ogni evidenza conserva gli
+% id dei nodi input_node o document_unit_token che la giustificano.
+% Le letture sono POSSIBILITA': scope, attacco e coreferenza non si inventano.
+% Non promuovere grammatical_cue a semantic_binding senza provare quei ruoli.
+:- file_attribute(machinery).
+
+% MORFOLOGIA. Paradigma irregolare prima delle trasformazioni produttive.
+% La classe del raddoppio dipende anche dall'accento: resta lessico insegnabile.
+has_verb_paradigm($R) :- verb_paradigm($R, $P, $PP, $G).
+has_doubled_stem($R) :- doubled_stem($R, $S).
+has_irregular_present_participle($R) :- irregular_present_participle($R, $G).
+has_irregular_present_third($R) :- irregular_present_third($R, $F).
+takes_third_person_es($R) :- third_person_es_ending($E), concat_atoms($S, $E, $R).
+keeps_e_before_ing($R) :- ing_keeps_e_ending($E), concat_atoms($S, $E, $R).
+regular_verb_lemma($R) :- verb_lemma($R), naf(has_verb_paradigm($R)).
+
+verb_inflection($R, $R, base) :- verb_lemma($R).
+verb_inflection($R, $F, past) :- verb_paradigm($R, $F, $PP, $G).
+verb_inflection($R, $F, past_participle) :- verb_paradigm($R, $P, $F, $G).
+verb_inflection($R, $F, present_participle) :- verb_paradigm($R, $P, $PP, $F).
+verb_inflection($R, $F, present_third) :- irregular_present_third($R, $F).
+verb_inflection($R, $F, present_third) :-
+    verb_lemma($R), naf(has_irregular_present_third($R)),
+    ends_with_consonant_y($R), y_to_ies($R, $F).
+verb_inflection($R, $F, present_third) :-
+    verb_lemma($R), naf(has_irregular_present_third($R)),
+    naf(ends_with_consonant_y($R)), takes_third_person_es($R), concat_atoms($R, "es", $F).
+verb_inflection($R, $F, present_third) :-
+    verb_lemma($R), naf(has_irregular_present_third($R)),
+    naf(ends_with_consonant_y($R)), naf(takes_third_person_es($R)), concat_atoms($R, "s", $F).
+
+regular_past_form($R, $F) :-
+    regular_verb_lemma($R), doubled_stem($R, $S), concat_atoms($S, "ed", $F).
+regular_past_form($R, $F) :-
+    regular_verb_lemma($R), naf(has_doubled_stem($R)),
+    ends_with_e($R), concat_atoms($R, "d", $F).
+regular_past_form($R, $F) :-
+    regular_verb_lemma($R), naf(has_doubled_stem($R)),
+    ends_with_consonant_y($R), concat_atoms($S, "y", $R), concat_atoms($S, "ied", $F).
+regular_past_form($R, $F) :-
+    regular_verb_lemma($R), naf(has_doubled_stem($R)),
+    naf(ends_with_e($R)), naf(ends_with_consonant_y($R)), concat_atoms($R, "ed", $F).
+verb_inflection($R, $F, past) :- regular_past_form($R, $F).
+verb_inflection($R, $F, past_participle) :- regular_past_form($R, $F).
+
+verb_inflection($R, $F, present_participle) :- irregular_present_participle($R, $F).
+regular_ing_lemma($R) :-
+    regular_verb_lemma($R), naf(has_irregular_present_participle($R)).
+verb_inflection($R, $F, present_participle) :-
+    regular_ing_lemma($R), doubled_stem($R, $S), concat_atoms($S, "ing", $F).
+verb_inflection($R, $F, present_participle) :-
+    regular_ing_lemma($R), naf(has_doubled_stem($R)),
+    concat_atoms($S, "e", $R), naf(keeps_e_before_ing($R)), concat_atoms($S, "ing", $F).
+verb_inflection($R, $F, present_participle) :-
+    regular_ing_lemma($R), naf(has_doubled_stem($R)),
+    keeps_e_before_ing($R), concat_atoms($R, "ing", $F).
+verb_inflection($R, $F, present_participle) :-
+    regular_ing_lemma($R), naf(has_doubled_stem($R)),
+    naf(ends_with_e($R)), concat_atoms($R, "ing", $F).
+
+% Il motore materializza viste unarie/binarie: l'analisi tipata viaggia in
+% un termine, e il primo argomento resta la superficie per l'indice esatto.
+verb_form_analysis($F, form($R, $K)) :- verb_inflection($R, $F, $K).
+verb_form($R, $F, $K) :- verb_form_analysis($F, form($R, $K)).
+% La stessa analisi indicizzata per RADICE. Chi parte dal verbo e chiede le sue
+% forme (verb_finite_form dentro i cicli sulle particelle, a ogni turno) non
+% deve scorrere tutta la vista per superficie: misurato, 6 turni da 11 s a ~2.
+verb_root_form($R, form($F, $K)) :- verb_form_analysis($F, form($R, $K)).
+
+% Le forme irregolari sono UNA conoscenza: il paradigma tipato. Le relazioni
+% condivise storiche (irregular_verb_form, irregular_participle) ne leggono
+% le colonne invece di riceverne una seconda copia in fatti.
+irregular_verb_form($R, $P) :- verb_paradigm($R, $P, $PP, $G).
+irregular_verb_form($R, $PP) :- verb_paradigm($R, $P, $PP, $G).
+irregular_participle($PP) :- verb_paradigm($R, $P, $PP, $G).
+
+% Il ponte include finite e participio passato; il gerundio ha gia' il proprio
+% consumatore participiale. Non trasformarlo in un attivo sro concorrente.
+reading_verb_form_kind(present_third).
+reading_verb_form_kind(past).
+reading_verb_form_kind(past_participle).
+active_finite_form_kind(present_third).
+active_finite_form_kind(past).
+verb_reading_form($R, $F) :-
+    verb_form($R, $F, $K), reading_verb_form_kind($K), relation_verb($R).
+verb_finite_form($R, $F) :-
+    verb_root_form($R, form($F, $K)), active_finite_form_kind($K), relation_verb($R).
+extract_frame($Pattern, $R) :-
+    verb_form($R, $F, $K), active_finite_form_kind($K), relation_verb($R),
+    concat_atoms("@S ", $F, $Prefix), concat_atoms($Prefix, " @O", $Pattern).
+verb_stem($F, $R) :- verb_form($R, $F, $K), reading_verb_form_kind($K).
+participle_of($R, $F) :- verb_root_form($R, form($F, past_participle)), relation_verb($R).
+gerund_root($F, $R) :- verb_form($R, $F, present_participle), relation_verb($R).
+gerund_of($R, $F) :- verb_root_form($R, form($F, present_participle)), relation_verb($R).
+finite_present_of($R, $F) :- verb_root_form($R, form($F, present_third)).
+materialized_view(verb_form_analysis, 2).
+materialized_view(verb_root_form, 2).
+view_depends(verb_root_form, verb_form_analysis).
+view_depends(verb_finite_form, verb_root_form).
+view_depends(verb_form_analysis, verb_lemma).
+view_depends(verb_form_analysis, verb_paradigm).
+view_depends(verb_form_analysis, doubled_stem).
+view_depends(verb_form_analysis, irregular_present_participle).
+view_depends(verb_form_analysis, irregular_present_third).
+view_depends(verb_reading_form, verb_form_analysis).
+view_depends(verb_stem, verb_form_analysis).
+view_depends(extract_frame, verb_form_analysis).
+
+% EVIDENZA LESSICALE. Indice per prima parola; mai confronto substring.
+% Il resto e' una lista di token da allineare ai successori della IR.
+expression_first_word($First, tail($Rest, $Meaning)) :-
+    expression_reading($Surface, $Meaning), atom_words($Surface, cons($First, $Rest)).
+expression_starts_with($First, $Rest, $Meaning) :-
+    expression_first_word($First, tail($Rest, $Meaning)).
+materialized_view(expression_first_word, 2).
+view_depends(expression_first_word, expression_reading).
+
+% Le classi lessicali gia' condivise SONO letture: il catalogo non le ricopia.
+% Un membro insegnato a contrastive_connector, modal_force o adjective_relation
+% diventa al turno dopo anche un indizio con span, senza una seconda lezione.
+% La classe retorica si invoca per nome con apply/2, come in
+% document-structure.p0: una classe nuova dichiarata la' vale anche qui.
+expression_reading($W, $Meaning) :-
+    rhetorical_marker_class($Class, $Relation, $Direction),
+    discourse_reading_relation($Value, $Relation),
+    reading_feature($Meaning, discourse, $Value),
+    apply($Class, cons($W, nil)).
+expression_reading($W, $Meaning) :-
+    modal_force($W, $Value), reading_feature($Meaning, modality, $Value).
+expression_reading($S, evidential_observation) :- observation_report_marker($S).
+expression_reading($S, evidential_hypothesis) :- hypothesis_report_marker($S).
+expression_reading($S, evidential_simulation) :- simulation_result_marker($S).
+expression_reading($W, quantity_universal) :- universal_quantifier($W).
+expression_reading($W, pragmatics_hedge) :- hedge_word($W).
+expression_reading($S, predication_adjective_complement) :- adjective_relation($S).
+view_depends(expression_first_word, rhetorical_marker_class).
+view_depends(expression_first_word, contrastive_connector).
+view_depends(expression_first_word, consequence_connector).
+view_depends(expression_first_word, ground_connector).
+view_depends(expression_first_word, additive_connector).
+view_depends(expression_first_word, example_connector).
+view_depends(expression_first_word, sequence_connector).
+view_depends(expression_first_word, analogy_connector).
+view_depends(expression_first_word, modal_force).
+view_depends(expression_first_word, observation_report_marker).
+view_depends(expression_first_word, hypothesis_report_marker).
+view_depends(expression_first_word, simulation_result_marker).
+view_depends(expression_first_word, universal_quantifier).
+view_depends(expression_first_word, hedge_word).
+view_depends(expression_first_word, adjective_relation).
+
+% Adattatori alle due rappresentazioni GIA' esistenti, non nuovi record.
+ir_token(input($Scope), $Id, $W, range($S, $L)) :-
+    input_node_atom($Scope, $Id, $W), input_node_range($Scope, $Id, $S, $L).
+ir_token(document($Unit), $Id, $W, range($S, $L)) :-
+    document_unit_token_surface($Unit, $Id, $W), document_unit_token_range($Unit, $Id, $S, $L).
+ir_next(input($Scope), $A, $B) :-
+    input_node_next($Scope, $A, $B), tokens_contiguous($Scope, $A, $B).
+ir_next(document($Unit), $A, $B) :-
+    document_unit_token_range($Unit, $A, $S, $L), is($N, add($S, add($L, 1))),
+    document_unit_token_range($Unit, $B, $N, $BL).
+expression_tail_at($Scope, $Last, nil, $Last).
+expression_tail_at($Scope, $Prev, cons($W, $Rest), $Last) :-
+    ir_next($Scope, $Prev, $Next), ir_token($Scope, $Next, $W, $Range),
+    expression_tail_at($Scope, $Next, $Rest, $Last).
+expression_at($Scope, span($First, $Last), $Meaning) :-
+    ir_token($Scope, $First, $W, $Range),
+    expression_starts_with($W, $Rest, $Meaning),
+    expression_tail_at($Scope, $First, $Rest, $Last).
+grammatical_cue($Scope, $Span, $Kind, $Value) :-
+    expression_at($Scope, $Span, $Meaning), reading_feature($Meaning, $Kind, $Value).
+
+% Le forme verbali e nominali conservano lemma e ruolo morfologico, anche
+% quando la stessa superficie ha letture concorrenti (saw, lay, read, means).
+token_morphology($Scope, $Id, $Root, $Form) :-
+    ir_token($Scope, $Id, $W, $Range), verb_form($Root, $W, $Form).
+token_morphology($Scope, $Id, $Root, plural) :-
+    ir_token($Scope, $Id, $W, $Range), plural_of($W, $Root).
+token_noun_feature($Scope, $Id, $Kind, $Value) :-
+    ir_token($Scope, $Id, $W, $Range), noun_feature($W, $Kind, $Value).
+token_pronoun_reference($Scope, $Id, $Person, reference($Number, $Case)) :-
+    ir_token($Scope, $Id, $W, $Range), pronoun_features($W, $Person, $Number, $Case).
+token_verb_family($Scope, $Id, $Root, $Family) :-
+    token_morphology($Scope, $Id, $Root, $Form), verb_family($Root, $Family).
+token_verb_valency($Scope, $Id, $Root, $Valency) :-
+    token_morphology($Scope, $Id, $Root, $Form), verb_valency($Root, $Valency).
+
+% Costruzioni LOCALI dimostrate da due nodi contigui, non soltanto da una cue.
+% Una catena lunga puo' avere piu' strati: "has been" perfect + "been built"
+% passive. La composizione non perde le coordinate dei due strati.
+auxiliary_chain_kind($W, $Kind) :-
+    expression_starts_with($W, nil, $Meaning), reading_feature($Meaning, verb_chain, $Kind).
+auxiliary_chain_shape(perfect, past_participle, perfect).
+auxiliary_chain_shape(progressive, present_participle, progressive).
+auxiliary_chain_shape(passive, past_participle, passive).
+auxiliary_chain_shape(do_support, base, do_support).
+auxiliary_chain($Scope, span($Aux, $V), $Kind, $Root) :-
+    ir_token($Scope, $Aux, $W, $Range), auxiliary_chain_kind($W, $AuxKind),
+    ir_next($Scope, $Aux, $V), token_morphology($Scope, $V, $Root, $Form),
+    auxiliary_chain_shape($AuxKind, $Form, $Kind).
+
+% Coesione retorica multi-parola sulla Document IR. L'arco si aggiunge solo
+% per un'espressione INIZIALE; una cue interna non lega due frasi a caso.
+% Le relazioni sono le stesse dei consumatori document-argument/document-method.
+discourse_reading_relation(addition, addition).
+discourse_reading_relation(contrast, contrast).
+discourse_reading_relation(consequence, consequence).
+discourse_reading_relation(ground, ground).
+discourse_reading_relation(elaboration, elaboration).
+discourse_reading_relation(exemplification, example).
+discourse_reading_relation(reformulation, reformulation).
+discourse_reading_relation(concession, concession).
+discourse_reading_relation(sequence, sequence).
+discourse_reading_relation(summary, summary).
+discourse_reading_relation(background, background).
+discourse_reading_relation(topic_shift, topic_shift).
+discourse_reading_relation(analogy, analogy).
+discourse_reading_relation(qualification, qualification).
+discourse_reading_relation(correction, correction).
+discourse_reading_relation(exception, exception).
+discourse_reading_relation(evidence, evidence).
+discourse_reading_relation(restatement, restatement).
+document_rhetorical_link($Document, $Left, $Right, link($Relation, $Span)) :-
+    document_unit_follows($Document, $Left, $Right),
+    document_unit_initial_token($Right, $First),
+    grammatical_cue(document($Right), span($First, $Last), discourse, $Kind),
+    discourse_reading_relation($Kind, $Relation),
+    span_of($First, $Last, $Span).
+span_of($First, $Last, span($First, $Last)).
+% Ambiguita' ("since", "while", "so") resta nella vista di evidenza: la
+% composizione argomentativa non riceve automaticamente un arco causale.
+
+% Richieste di scope e di attacco, ispezionabili prima del commit semantico.
+% Sono residui di lettura, NON un interruttore globale che riduce la KB.
+scope_taking_feature(modality).
+scope_taking_feature(polarity).
+scope_taking_feature(quantity).
+scope_taking_feature(evidential).
+scope_taking_feature(presupposition_trigger).
+scope_requirement($Scope, $Span, $Kind, $Value) :-
+    grammatical_cue($Scope, $Span, $Kind, $Value), scope_taking_feature($Kind).
+commitment_at($Scope, $Span, $Value, $Policy) :-
+    grammatical_cue($Scope, $Span, $Kind, $Value), commitment_policy($Value, $Policy).
+% Le implicature hanno una conclusione e una condizione d'uso: non diventano
+% fatti del mondo soltanto perche' compare la loro superficie.
+pragmatic_first_word($First, tail($Rest, $Inference, $Condition)) :-
+    pragmatic_inference($Trigger, $Inference, $Condition),
+    atom_words($Trigger, cons($First, $Rest)).
+materialized_view(pragmatic_first_word, 2).
+view_depends(pragmatic_first_word, pragmatic_inference).
+pragmatic_candidate($Scope, span($First, $Last), $Inference, $Condition) :-
+    ir_token($Scope, $First, $W, $Range),
+    pragmatic_first_word($W, tail($Rest, $Inference, $Condition)),
+    expression_tail_at($Scope, $First, $Rest, $Last).
+construction_cue_feature(clause).
+construction_cue_feature(construction).
+construction_cue_feature(verb_chain).
+construction_cue($Scope, $Span, $Construction) :-
+    grammatical_cue($Scope, $Span, $Kind, $Construction),
+    construction_cue_feature($Kind), construction_family($Construction).
+construction_role_required($Scope, $Span, $Construction, $Role) :-
+    construction_cue($Scope, $Span, $Construction),
+    construction_role($Construction, $Position, $Role).
+
+% Ispettore esistente: le viste consumano la IR osservabile.
+debug_grammatical_cue($T, evidence($Span, $Kind, $Value)) :-
+    grammatical_cue(input($T), $Span, $Kind, $Value).
+debug_token_morphology($T, morphology($Id, $Root, $Form)) :-
+    token_morphology(input($T), $Id, $Root, $Form).
+debug_auxiliary_chain($T, chain($Span, $Kind, $Root)) :-
+    auxiliary_chain(input($T), $Span, $Kind, $Root).
+debug_scope_requirement($T, scope($Span, $Kind, $Value)) :-
+    scope_requirement(input($T), $Span, $Kind, $Value).
+debug_pragmatic_candidate($T, candidate($Span, $Inference, $Condition)) :-
+    pragmatic_candidate(input($T), $Span, $Inference, $Condition).
+debug_probe(30, debug_grammatical_cue, now, "gli indizi grammaticali e pragmatici con gli span della IR").
+debug_probe(31, debug_token_morphology, now, "lemma e forma: passato, participio, gerundio, plurale").
+debug_probe(32, debug_auxiliary_chain, now, "le catene ausiliare-verbo provate sui nodi contigui").
+debug_probe(33, debug_scope_requirement, now, "gli operatori che richiedono un ambito prima di asserire").
+debug_probe(34, debug_pragmatic_candidate, now, "le inferenze pragmatiche candidate con le condizioni ancora da provare").
+
+% CRESCITA PARLANDO: un'espressione nuova usa il medesimo matcher di span.
+% Esempio: "the expression perchance marks epistemic possibility".
+% La ritrattazione elimina la lettura anche dai nodi gia' trattenuti.
+turn_form(expression_reading_lesson, 1, text("the expression")).
+turn_form(expression_reading_lesson, 2, span(surface)).
+turn_form(expression_reading_lesson, 3, text("marks")).
+turn_form(expression_reading_lesson, 4, named(reading_name, meaning)).
+turn_form_act(expression_reading_lesson, "op(assert, expression_reading, [surface, meaning])").
+turn_form_priority(expression_reading_lesson, early).
+turn_form_view(expression_reading_lesson, said).
+turn_form_reply(expression_reading_lesson, expression_reading_learned).
+response_template(expression_reading_learned, "Learned the grammatical reading of «{surface}».").
+turn_form(expression_reading_forget, 1, text("forget that the expression")).
+turn_form(expression_reading_forget, 2, span(surface)).
+turn_form(expression_reading_forget, 3, text("marks")).
+turn_form(expression_reading_forget, 4, named(reading_name, meaning)).
+turn_form_act(expression_reading_forget, "op(retract, expression_reading, [surface, meaning])").
+turn_form_priority(expression_reading_forget, early).
+turn_form_view(expression_reading_forget, said).
+turn_form_reply(expression_reading_forget, expression_reading_forgotten).
+response_template(expression_reading_forgotten, "Forgotten that grammatical reading of «{surface}».").
+
+% Le radici ulteriori si insegnano con il canale gia' esistente "X is a
+% relation verb"; per attivare anche la morfologia tipata, la forma dice
+% precisamente che si tratta di un lemma, non di un verbo flesso.
+turn_form(verb_lemma_lesson, 1, slot(lemma)).
+turn_form(verb_lemma_lesson, 2, text("is an english verb lemma")).
+turn_form_act(verb_lemma_lesson, "op(assert, verb_lemma, [lemma])").
+turn_form_priority(verb_lemma_lesson, early).
+turn_form_view(verb_lemma_lesson, said).
+turn_form_reply(verb_lemma_lesson, verb_lemma_learned).
+response_template(verb_lemma_learned, "Learned «{lemma}» as an English verb lemma.").
+turn_form(verb_lemma_forget, 1, text("forget that")).
+turn_form(verb_lemma_forget, 2, slot(lemma)).
+turn_form(verb_lemma_forget, 3, text("is an english verb lemma")).
+turn_form_act(verb_lemma_forget, "op(retract, verb_lemma, [lemma])").
+turn_form_priority(verb_lemma_forget, early).
+turn_form_view(verb_lemma_forget, said).
+turn_form_reply(verb_lemma_forget, verb_lemma_forgotten).
+response_template(verb_lemma_forgotten, "Forgotten «{lemma}» as an English verb lemma.").

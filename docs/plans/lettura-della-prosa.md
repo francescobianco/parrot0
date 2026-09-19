@@ -1,12 +1,21 @@
 # Lettura della prosa — il miglioramento continuo della comprensione
 
 > **19 settembre 2026 — prima fogliata massiva richiesta da F.** Integrato
-> [`english-prose.p0`](../../kb/core/english-prose.p0): 10.222 fatti e 67 regole
+> [`english-grammar.p0`](../../kb/core/english-grammar.p0): 10.222 fatti e 67 regole
 > di lessico, morfologia, grammatica e pragmatica inglese, zero modifiche C.
-> [Inventario, consumatori e limiti](../english-prose-first-sheet.md).
+> [Inventario, consumatori e limiti](../english-grammar-first-sheet.md).
 > Verificati sintassi e caricamento della KB completa. **Esperimenti rinviati
 > su richiesta di F.; nessun nuovo punteggio di comprensione.** I cicli
 > sperimentali descritti sotto non sono stati avviati in questa consegna.
+>
+> **Secondo giro, stesso giorno.** F.: i predicati `prose_*` scopizzavano
+> conoscenza universale, e soprattutto producevano «predicati non agganciabili
+> dalla meta linguistica». Il pacchetto e' `kb/core/english-grammar/`: nomi per
+> natura, 1.321 fatti duplicati tolti, e una faccia pronunciabile per ogni
+> distinzione (`naming.p0`) — «is water a mass noun?» risponde, e una lettura
+> insegnata parlando si puo' richiedere parlando. Resta aperto il costo: le 844
+> dichiarazioni `relation_verb` portano `extract_frame` a 2,5 s di
+> costruzione e il turno da 0,1 a 0,4 s.
 
 > **Piano vivo.** Non si chiude: si cricchetta. La misura è
 > [`scripts/prose-probe.sh`](../../scripts/prose-probe.sh) (`make prose-probe`),

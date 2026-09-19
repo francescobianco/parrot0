@@ -1,0 +1,20 @@
+% Grammatica e pragmatica inglese — prima fogliata, 19 settembre 2026.
+% I predicati dicono la NATURA della conoscenza (verb_family, verb_valency,
+% expression_reading, commitment_policy…), mai la missione che li ha scritti:
+% valgono per la conversazione, le domande e i documenti allo stesso modo.
+% Dove una relazione condivisa esisteva gia' (plural_of, verb_particle,
+% adjective_relation, auxiliary, commitment_policy, le classi dei connettivi)
+% il pacchetto la estende o la legge; non ne tiene una copia parallela.
+% Nessun fatto dei brani Wikipedia: qui si insegna la lingua, non le risposte.
+% Un indizio di modalita'/attribuzione non e' una proposizione vera.
+% Inventario, collegamenti e limiti: docs/english-grammar-first-sheet.md.
+:- file_attribute(machinery).
+:- include(english-grammar/verbs.p0).
+:- include(english-grammar/morphology.p0).
+:- include(english-grammar/nominals.p0).
+:- include(english-grammar/function-words.p0).
+:- include(english-grammar/predication.p0).
+:- include(english-grammar/constructions.p0).
+:- include(english-grammar/discourse.p0).
+:- include(english-grammar/reading.p0).
+:- include(english-grammar/naming.p0).

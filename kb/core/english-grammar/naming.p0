@@ -1,0 +1,109 @@
+% naming.p0 — LE FACCE PRONUNCIABILI DELLE DISTINZIONI (19 settembre 2026).
+%
+% F.: «non importano le ridondanze di forma, quella che mi preoccupa e' lo
+% scoping sui predicati che produce predicati non agganciabili dalla meta
+% linguistica».
+%
+% Misurato, ed e' il difetto vero della prima fogliata. Il lettore
+% dell'appartenenza («is X a Y?», «X is a Y») fa una cosa sola: unisce le parole
+% della classe in un atomo e interroga QUEL predicato con arita' 1. Quindi:
+%
+%   is however a contrastive connector?  -> Yes.      (classe unaria, c'era)
+%   is comprise a relation verb?         -> Yes.      (classe unaria, c'era)
+%   is water a mass noun?                -> non lo so (e' noun_feature/3)
+%   what kind of verb is comprise?       -> non lo so (e' verb_family/2)
+%   what does perchance mark?            -> non lo so (e' expression_reading/2)
+%
+% La conoscenza c'era in tutti e cinque i casi: nei due muti non aveva una
+% FACCIA con il nome che se ne dice. Una relazione a due o tre argomenti non e'
+% sbagliata — dice di piu' — ma resta muta finche' nessuno la puo' nominare.
+% Un nome di missione (`prose_*`) e' lo stesso difetto al quadrato: nessuno
+% pronuncia «prose noun feature», quindi nessuno arriva a quella conoscenza.
+%
+% Qui non si ricopia niente: ogni faccia e' una REGOLA sulla relazione ricca.
+% Un membro insegnato alla relazione si nomina lo stesso turno; un membro
+% insegnato alla faccia («cesium is a mass noun») resta un fatto della faccia,
+% ed e' la lezione che l'inglese permette di dire.
+:- file_attribute(machinery).
+
+% ── LE VALENZE: «is X a transitive verb?» ───────────────────────────────────
+transitive_verb($V) :- verb_valency($V, transitive).
+intransitive_verb($V) :- verb_valency($V, intransitive).
+ditransitive_verb($V) :- verb_valency($V, ditransitive).
+copular_verb($V) :- verb_valency($V, copular).
+object_control_verb($V) :- verb_valency($V, object_control).
+subject_control_verb($V) :- verb_valency($V, subject_control).
+object_raising_verb($V) :- verb_valency($V, object_raising).
+subject_raising_verb($V) :- verb_valency($V, subject_raising).
+object_predicative_verb($V) :- verb_valency($V, object_predicative).
+finite_complement_verb($V) :- verb_valency($V, finite_complement).
+gerund_complement_verb($V) :- verb_valency($V, gerund_complement).
+interrogative_complement_verb($V) :- verb_valency($V, interrogative_complement).
+bare_infinitive_verb($V) :- verb_valency($V, bare_infinitive).
+
+% ── LE FAMIGLIE: «is comprise a verb of constitution?» ──────────────────────
+% La forma «verb of X» e non «X verb»: e' come si dice, e non ruba il nome a
+% classi che esistono gia' con un altro significato (`creation_verb/1` raccoglie
+% le forme al passato di «who wrote X», non i lemmi della famiglia).
+verb_of_constitution($V) :- verb_family($V, constitution).
+verb_of_causation($V) :- verb_family($V, causation).
+verb_of_change($V) :- verb_family($V, change).
+verb_of_change_of_state($V) :- verb_family($V, change_of_state).
+verb_of_motion($V) :- verb_family($V, motion).
+verb_of_existence($V) :- verb_family($V, existence).
+verb_of_possession($V) :- verb_family($V, possession).
+verb_of_perception($V) :- verb_family($V, perception).
+verb_of_cognition($V) :- verb_family($V, cognition).
+verb_of_communication($V) :- verb_family($V, communication).
+verb_of_creation($V) :- verb_family($V, creation).
+verb_of_computation($V) :- verb_family($V, computation).
+verb_of_measurement($V) :- verb_family($V, measurement).
+verb_of_information($V) :- verb_family($V, information).
+verb_of_participation($V) :- verb_family($V, participation).
+verb_of_biology($V) :- verb_family($V, biological).
+verb_of_chemistry($V) :- verb_family($V, chemical).
+verb_of_geography($V) :- verb_family($V, geographical).
+verb_of_history($V) :- verb_family($V, historical).
+verb_of_society($V) :- verb_family($V, social).
+verb_of_physics($V) :- verb_family($V, physical).
+verb_of_logic($V) :- verb_family($V, relation_logic).
+verb_of_space($V) :- verb_family($V, spatial_action).
+
+% ── I NOMI E I DETERMINANTI ─────────────────────────────────────────────────
+% `possessive_pronoun/1` e `possessive_determiner/1` esistono gia' altrove come
+% classi: qui ricevono i membri della fogliata, non una classe parallela.
+mass_noun($W) :- noun_feature($W, countability, mass_reading).
+collective_noun($W) :- noun_feature($W, head_role, quantitative_or_collective).
+possessive_determiner($W) :- noun_feature($W, determiner, possessive).
+possessive_pronoun($W) :- noun_feature($W, pronoun, possessive).
+proximal_determiner($W) :- noun_feature($W, distance, proximal).
+distal_determiner($W) :- noun_feature($W, distance, distal).
+
+% ── LE DOMANDE: una forma, non un predicato per lettura ─────────────────────
+% Le letture sono 264 e le famiglie 23: una classe unaria per ciascuna sarebbe
+% un elenco che cresce a ogni lezione. Qui la faccia e' una DOMANDA, e il nome
+% pronunciato della lettura e' gia' un dato (`reading_name/2`), quindi una
+% lettura insegnata adesso si sa anche chiedere subito dopo.
+machinery(expression_reading_answer).
+expression_reading_answer($Surface, $Name) :-
+    expression_reading($Surface, $Meaning), reading_name($Name, $Meaning).
+turn_form(expression_reading_question, 1, text("what does")).
+turn_form(expression_reading_question, 2, span(surface)).
+turn_form(expression_reading_question, 3, text("mark")).
+turn_form_act(expression_reading_question, "op(match, expression_reading_answer, [surface, free])").
+turn_form_priority(expression_reading_question, early).
+turn_form_view(expression_reading_question, said).
+turn_form_reply(expression_reading_question, expression_reading_answered).
+turn_form_slot_form(expression_reading_question, surface, atom).
+response_template(expression_reading_answered, "«{surface}» marks {result}.").
+
+machinery(verb_family_answer).
+verb_family_answer($V, $Family) :- verb_family($V, $Family).
+turn_form(verb_family_question, 1, text("what kind of verb is")).
+turn_form(verb_family_question, 2, span(subject)).
+turn_form_act(verb_family_question, "op(match, verb_family_answer, [subject, free])").
+turn_form_priority(verb_family_question, early).
+turn_form_view(verb_family_question, said).
+turn_form_reply(verb_family_question, verb_family_answered).
+turn_form_slot_form(verb_family_question, subject, atom).
+response_template(verb_family_answered, "A verb of {result}.").
