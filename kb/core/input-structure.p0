@@ -333,7 +333,20 @@ input_unit_node($Scope, $Language, $Id, $Unit) :-
 
 input_operator_node($Scope, $Language, operator($Kind, $Relation), $Id) :-
     input_node_form($Scope, $Id, $Language, form($Surface, $Relation)),
-    frame_operator_concept($Relation, $Kind).
+    frame_operator_concept($Relation, $Kind),
+    naf(nominal_position($Scope, $Id)).
+
+% Una parola subito dopo una preposizione o un'apertura di sintagma nominale
+% («into HEAT», «the USE») occupa un posto di nome, non di verbo: «converting
+% the inputs into heat, carbon dioxide…» non dice che gli input riscaldano.
+% L'infinito («help TO suppress») resta verbo: `infinitive_marker/1`.
+machinery(nominal_position).
+machinery(nominal_opener).
+nominal_position($Scope, $Id) :-
+    input_node_next($Scope, $P, $Id), input_node_atom($Scope, $P, $W), nominal_opener($W).
+nominal_opener($W) :- np_opener($W).
+nominal_opener($W) :- preposition($W), naf(infinitive_marker($W)).
+infinitive_marker(to).
 
 % La superficie della congiunzione resta una classe KB aperta. Il nodo conserva
 % la lingua osservata nello scope; insegnare un nuovo membro a runtime attraverso

@@ -493,6 +493,16 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   r300 una risposta in più viene dalla lettura. La regola della relativa non è
   servita, perché la frase la leggeva già il frame principale: resta da scrivere
   per le relative con verbo principale di relazione.
+- ✅ **Sera del 19, 22:00: il posto di nome non è un verbo.** Nell'ispettore
+  (sonda 29), «converting the inputs into HEAT, carbon dioxide…» produceva
+  `binary(heat)`. Una parola subito dopo una preposizione o un'apertura di
+  sintagma (`np_opener`) non è un operatore (`nominal_position/2`); l'infinito
+  «to V» resta verbo (`infinitive_marker/1`). La frase ora impegna
+  `manage(fungi, chemical_process)`, che è vero ma parziale: manca il **soggetto
+  coordinato** «aerobic bacteria and fungi», il prossimo passo di E2c. Resta
+  registrato, e non impegnato, un frame falso `manage(fungi, ammonium_ions)` da
+  capire. Pioli invariati nel merito (48/62, 22/68, 7/65); r320 da 12 a 14
+  risposte dalla lettura.
 - ✅ **Sera del 19, 21:30–22:00: la relazione aggettivale dalla IR.** «The
   resulting mixture is RICH IN plant nutrients and beneficial organisms»: copula +
   aggettivo + preposizione dichiarati da `adjective_relation/1` (già insegnabile) →
