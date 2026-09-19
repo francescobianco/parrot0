@@ -465,9 +465,22 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   asserzioni `binary(supply)` (misurato con `count_list` su
   `input_assertion_set(current_turn, S)`), quindi nessuna è unica. Non dipende
   dal doppio «compost» (entità nota + nome nudo: provato e annullato).
-  Prossima prova: chiedere le due chiavi con il soggetto e l'oggetto legati,
-  per vedere se differiscono nell'oggetto o nell'operatore. Sospetto: «supplies»
-  letto due volte come forma di `supply` (-s e -ies).
+  **Causa trovata (11:58):** la KB ha sia `relation_verb(supply)` sia
+  `relation_verb(supplies)`, una vecchia lezione. La IR legge due operatori,
+  `supplies(compost, nutrients)` e `supply(compost, nutrients)`, e nessuna
+  asserzione è unica. Provata e **annullata**: preferire la radice
+  (`linguistic_form(W, W) :- relation_verb(W), naf(word_has_other_verb_root(W))`).
+  «what does compost supply?» e «what supplies nutrients?» rispondevano dalla
+  strada A, ma su r300 si passava da 48 a 47/62 e il cancello cadeva, perché la
+  strada A rispondeva anche dove non deve. **Prima di allargare**, la strada A deve
+  imparare a tacere su due classi misurate:
+  1. **domanda qualificata**: «what **phylum** does coral belong to?» → «class
+     anthozoa.». Il qualificatore dopo il gap (`question_qualifier/2`, già
+     insegnabile) va letto anche qui, come fa la porta di `answerframe`;
+  2. **coda dopo il verbo**: «what do coral polyps form **colonies …**?» →
+     «reefs.». Una parola piena non letta dopo l'operatore deve impedire la
+     risposta, come già fa `unread_word_between/3` per la vicinanza.
+  Poi si riprova la preferenza per la radice (+3 risposte dalla lettura su r300).
   **Regola ricavata:** ogni volta che la strada A risponde dove prima c'era un
   muro, il referto la mostra come «non muro, non giusta». Va guardata subito,
   perché la strada A risponde **prima** del frasario, e una sua falsa risposta
