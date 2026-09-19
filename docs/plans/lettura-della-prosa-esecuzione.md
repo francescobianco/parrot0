@@ -467,6 +467,21 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   impegnare anche la prosa del turno con la stessa coppia di domande
   (`input_assertion_bundle` → `input_frame_commit`) usata da `extract_clause`.
   Contrasto: la risposta A deve comparire con `who answered?` diverso da `answerframe`.
+  **Aggiornamento 10:53.** Dopo `read:` l'insieme `input_assertion_set(current_prose, S)`
+  ha **0** elementi (misurato con `count_list`), mentre in un altro file identico
+  `input_semantic_frame(current_prose, assertion, binary(threaten), _)` era riuscito.
+  Due ipotesi da falsificare, in quest'ordine:
+  (a) **guardia del solver**: `input_nearest_entity_before/after` chiude con
+  `naf(input_entity_between(…))`, che ora enumera anche i sintagmi candidati, e
+  `naf` declina sotto qualunque guardia (vedi `docs/parrot-p0-syntax.md`, riga
+  su `naf`). Prova: stessa query con un solo sintagma nuovo e con l'entità
+  nota al posto del secondo; se l'esito diventa stabile, la cura è
+  calcolare una volta la lista delle entità della clausola e negare `member`;
+  (b) **`findall` con risultato parzialmente legato**: `input_assertion_unique`
+  chiama `input_assertion_set(S, cons(A, nil))`, e la memoria del progetto dice
+  che `findall` fallisce se il risultato arriva legato in parte. Prova: una
+  frase con entità tutte note, che il percorso IR impegnava già (i test
+  `document_*`), e `!query input_assertion_unique(current_prose, _)`.
 - **E2b, primo passo (tenuto).** Il passivo dalla radice torna, ma solo per
   `event_subject_verb/1`: sono i verbi il cui soggetto può essere un'azione o un
   mezzo, seme `aid`, insegnabili con «V is an event subject verb» e
