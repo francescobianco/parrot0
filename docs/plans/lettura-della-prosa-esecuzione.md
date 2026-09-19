@@ -305,7 +305,7 @@ Stato: chiuso / parziale / bloccato, con evidenza:
 Prossima azione concreta; file/simbolo; risultato discriminante atteso:
 ```
 
-### Stato di E0 — 19 settembre 2026 (parziale, non chiuso)
+### Stato di E0 — 19 settembre 2026 (chiuso sulla sonda; E0b aperto sul brano intero)
 
 Stessa frase del compost, macchina scarica, profiler spento, misure singole
 (la variabilità fra esecuzioni è di circa 200 ms):
@@ -319,6 +319,35 @@ Stessa frase del compost, macchina scarica, profiler spento, misure singole
 | `np_closer` sul turno: condizione ground prima del verbo (`grammar.p0`) | 1.664 ms (con /debug) | 1.193 ms (con /debug) | `np_closer` 210 → <5 ms; nella domanda 237 → 5 ms |
 | `lemma_candidate/2` con `concat_atoms` inverso invece di `chars`+`append_list` (`morphology.p0`) | 1.599–1.638 ms | 1.383 ms | ~34.000 goal `append_list` in meno nei due contabili |
 | hash del fatto calcolato una volta in `fact_make` (`src/kb.c`) | **1.117 ms** | **872 ms** | `fact_index_rebuild` ri-hashava ~59.000 fatti a ogni retract (8,6 ms × ~50 per turno) |
+| `kb_match`: niente giro fatto per fatto a caccia di variabili senza fatti non-ground; indice nel percorso veloce | 1.010 ms | 797 ms | 9,6 M `term_contains_var` in meno |
+| censimento: `nonground` e hash del predicato calcolati in `fact_make` | 886 ms | 632 ms | `pred_stats_rebuild` era il 20% del turno |
+| `kb_hypothesis_best` sui secchi del censimento | 828 ms | 592 ms | 1,2 s su 21.000 chiamate in un paragrafo |
+| retract incrementale (`kb_compact`: indice e censimento riscritti solo per la coda spostata) | **511 ms** | **479 ms** | ~800 ricostruzioni complete per paragrafo |
+
+**Uscita di E0 sulla sonda: raggiunta.** Frase e domanda sotto 1 s, risposte
+identiche in ogni A/B (14 turni vari e brano r320 + 3 domande), insegnamento e
+ritiro in sessione verificati: una costruzione insegnata cessa col ritiro e
+una nuova vale subito, una glossa insegnata entra in `tr_phrase_surface`
+(`tests/p0t/language/tr_phrase_view.p0t`). `make soft-test` 3,6 s; resta solo
+[antonym] «Held», preesistente.
+
+**E0b, aperto — il brano intero.** Il paragrafo di r320 incollato in un turno
+(2.185 byte, 31 frasi) costava **19,4 s**; ora **11,7 s**, dopo i passi di
+sopra più `tr_phrase_surface` (vista con `view_apply_resolved`) e
+`verb_reading_form` come vista. Resta il costo in ordine: `input_frame_observe`
+~1,7 s (31 chiamate; il tempo sta dentro un `findall` su `input_semantic_frame`,
+~12.000 goal a frase, ~6 µs per goal); `answer_frame` ~1,5 s (599 enumerazioni
+intere dal C); `phrase_canon` ~0,7 s (3.885 enumerazioni); `phrase_boundary`
+~0,7 s; contabili ~0,6 s; fuori dal solver ~4,7 s.
+Tentativi misurati e scartati: vista su tutta `phrase_canon` e cache C con
+chiave sul timbro (−3%, rumore); vista su `answer_frame` (peggiora: 11,7 →
+12,4 s, si ricostruisce più spesso di quanto risparmi); vista `turn_word_form`
+scaldata prima dei contabili (peggiora); riordino di `turn_effect` (193 → 700 ms).
+
+**Nota sugli strumenti.** «fatti visitati» in `/debug` somma il secchio anche
+quando il goal ground salta la scansione (hash esatto): è un limite superiore,
+non il lavoro fatto. Il profilo C si legge con gprof su un binario separato
+(`-pg -fno-inline`: con l'inlining i chiamanti risultano sbagliati).
 
 **Profilo C (gprof, 19 settembre).** Fuori dal solver restavano ~900 ms per
 turno. Il 60% del tempo profilato era `fact_hash` + `fact_index_rebuild`: ogni
@@ -383,8 +412,9 @@ dipendenze passa per `tr/2`, la cui regola in `gloss.p0` usa `apply`, e
 chiamata). Fuori dal solver restano ~860 ms,
 con 12 ricostruzioni d'indice.
 
-**Prossima azione già determinata:** E0, le forme del turno in una vista
-calcolata una volta per turno (vedi «Stato di E0» qui sopra), misurata sui due
-contabili e sul turno intero. Se il
+**Prossima azione già determinata:** E1 (stesso testo come prosa incollata e
+con `read:`), usando la frase del compost come sonda e il brano r320 come
+lettura. In parallelo, quando serve: E0b, il costo di `input_frame_observe` —
+quale clausola di `input_semantic_frame` spende i ~12.000 goal per frase. Se il
 profilo della revisione nuova cambia, aggiornare la priorità con quella
 misura invece di difendere questa diagnosi.
