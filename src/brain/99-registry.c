@@ -5447,6 +5447,17 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         char observed[1][KB_TERM_LEN];
         const char *q[] = { "current_turn", NULL };
         kb_match(b->kb, "input_frame_observe", q, 2, observed, 1);
+        /* Specie A, 19 settembre 2026 — la prosa DETTA nel turno si impegna come
+         * quella data da leggere (`extract_clause`): la stessa coppia di domande,
+         * e la KB decide se c'e' un'asserzione unica da impegnare. Il C non
+         * nomina relazioni, ordini o lingue; una domanda non ha bundle. */
+        char bundles[1][KB_TERM_LEN];
+        const char *bq[] = { "current_turn", NULL };
+        if (kb_match(b->kb, "input_assertion_bundle", bq, 2, bundles, 1) == 1) {
+            char receipts[1][KB_TERM_LEN];
+            const char *cq[] = { "current_turn", bundles[0], NULL };
+            kb_match(b->kb, "input_frame_commit", cq, 3, receipts, 1);
+        }
     }
     kb_set_origin(b->kb, KB_SESSION);
 

@@ -160,7 +160,20 @@ input_entity_node($Scope, $Language, $Id, $Entity) :-
 input_entity_node($Scope, $Language, $Id, $Word) :-
     input_node_atom($Scope, $Id, $Word),
     naf(input_token_in_phrase($Scope, $Id)),
-    bare_noun_candidate($Word).
+    bare_noun_candidate($Word),
+    naf(bare_noun_neighbour($Scope, $Id)).
+% Un nome nudo vale solo ISOLATO. «Corals secrete hard carbonate exoskeletons»:
+% tre parole piene senza articolo sono UN sintagma, e spezzarle faceva leggere
+% l'oggetto «hard» (piolo r300: «what do corals secrete?» → «hard.», perso).
+% Finche' manca il lettore dello span senza articolo, la IR tace su quella
+% sequenza invece di sbagliarla.
+machinery(bare_noun_neighbour).
+bare_noun_neighbour($Scope, $Id) :-
+    input_node_next($Scope, $Id, $N), input_node_atom($Scope, $N, $W),
+    naf(input_token_in_phrase($Scope, $N)), bare_noun_candidate($W).
+bare_noun_neighbour($Scope, $Id) :-
+    input_node_next($Scope, $P, $Id), input_node_atom($Scope, $P, $W),
+    naf(input_token_in_phrase($Scope, $P)), bare_noun_candidate($W).
 np_phrase_words($Scope, $Id, $Ws) :-
     input_node($Scope, $Id, node(phrase, np_candidate, $Parent), range($PS, $PL)),
     is($PE, add($PS, $PL)),
