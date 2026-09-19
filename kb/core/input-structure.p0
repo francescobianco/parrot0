@@ -81,8 +81,17 @@ input_node_range($Scope, $Id, $Start, $Length) :-
 % Turno e prosa passano dallo stesso osservatore n-lingue, ma restano scope
 % separati. Una fonte puo' quindi avere una lingua diversa dalla richiesta che
 % l'ha fatta leggere senza perdere nessuna delle due coordinate.
+% E0b, 19 settembre 2026: la lingua che la KB ha scelto per lo scope quando il
+% produttore l'ha osservata (`turn_language_observed/2`, registrata dal C senza
+% deciderla). Senza quell'osservazione si deriva come prima.
+machinery(turn_language_observed).
+machinery(scope_language_observed).
 input_scope_language($Scope, $Language) :-
+    turn_language_observed($Scope, $Language).
+input_scope_language($Scope, $Language) :-
+    naf(scope_language_observed($Scope)),
     turn_language_selected($Scope, $Language).
+scope_language_observed($Scope) :- turn_language_observed($Scope, $Language).
 
 input_node_atom($Scope, $Id, $Surface) :-
     input_node($Scope, $Id, node(token, token, $Parent), $Range),

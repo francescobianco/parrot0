@@ -2261,6 +2261,7 @@ static int observe_language(Brain *b, const char *scope, const char *norm,
     kb_retract_match(b->kb, "turn_language_support", support_pattern, 4);
     kb_retract_match(b->kb, "turn_language_evidence", support_pattern, 4);
     kb_retract_match(b->kb, "turn_language_sticky", sticky_pattern, 2);
+    kb_retract_match(b->kb, "turn_language_observed", sticky_pattern, 2);
 
     int prev_origin = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
@@ -2404,6 +2405,16 @@ static int observe_language(Brain *b, const char *scope, const char *norm,
                          hit, 1) > 0;
     if (found && selected && selected_size)
         snprintf(selected, selected_size, "%s", hit[0]);
+    /* E0b, 19 settembre 2026 — la risposta della KB si RICORDA per lo scope.
+     * `input_scope_language/2` e' il primo goal di ogni clausola del lettore di
+     * frame, e rifaceva per intero la selezione (migliore, altra migliore,
+     * pareggio) centinaia di volte per frase. Il C non sceglie: registra cio'
+     * che `turn_language_selected/2` ha appena risposto, e lo ritira alla
+     * prossima osservazione dello scope, insieme alle evidenze. */
+    if (found) {
+        const char *obs[] = { scope, hit[0] };
+        kb_assert(b->kb, "turn_language_observed", obs, 2);
+    }
     free(counts);
     kb_set_origin(b->kb, prev_origin);
     return found;
