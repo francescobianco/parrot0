@@ -394,6 +394,15 @@ file durava 133 s il 2026-09-08 e va rimisurato (le clausole nuove di
    lettore. Sonda: `make chat`, poi `/debug` e la domanda; il tracciato dice
    quale facolta' la rivendica (candidati dall'agente di ieri:
    `polar_class_answer` ~riga 1207, `p0_polar_reply` ~7441).
+3. **`conversation/basics.p0t:23` rosso, 19 settembre 2026**: «what is the
+   opposite of hot?» attende «Cold.» e risponde «Held: the opposite of what is
+   hot.» — il turno viene letto come ASSERZIONE, non come domanda, quindi non
+   arriva nemmeno al lettore della relazione lessicale. **Misurato che non
+   dipende** dalla prima fogliata di grammatica inglese (stesso rosso con
+   `english-grammar.p0` escluso) ne' dalla via rapida sulle viste congelate
+   (stesso rosso col motore di prima): e' un rosso anteriore, ed e' l'unico di
+   `soft-test`. Stessa famiglia di NA8 qui sotto, causa diversa: li' la lettura
+   sbaglia l'entita', qui sbaglia l'ILLOCUZIONE.
 3. **NA8 aperto**: «what is the opposite of cold?» → la Guerra fredda.
    `compound_guard(semantic_summary, lexical_relation_request)` non ha effetto:
    verificare come `answer_consumer_guarded` (≈10694–10735) legge le classi di

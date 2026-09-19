@@ -782,6 +782,9 @@ static void pred_stats_invalidate(KB *kb) { if (kb) kb->pred_stats_dirty = 1; }
 
 static void pred_stats_rebuild(KB *kb) {
     if (kb->prof_on) kb->prof_rebuilds++;
+    const char *cte = getenv("PARROT0_BOOT_TRACE");
+    struct timespec ct0; int ctrace = cte && strcmp(cte, "1") == 0;
+    if (ctrace) timespec_get(&ct0, TIME_UTC);
     if (kb->pred_stats)
         for (size_t i = 0; i < kb->pred_stats_cap; i++) {
             kb->pred_stats[i].pred[0] = '\0';
@@ -798,6 +801,12 @@ static void pred_stats_rebuild(KB *kb) {
     a0_grave_empty();
     kb->pred_stats_n = 0;
     kb->pred_stats_dirty = 0;
+    if (ctrace) {
+        struct timespec ct1; timespec_get(&ct1, TIME_UTC);
+        fprintf(stderr, "[census] %8.1f ms  %zu fatti\n",
+                (double)(ct1.tv_sec - ct0.tv_sec) * 1000.0 +
+                (double)(ct1.tv_nsec - ct0.tv_nsec) / 1e6, kb->n);
+    }
     for (size_t i = 0; i < kb->n; i++) {
         pred_stats_note(kb, i);
         if (kb->pred_stats_dirty) return;         /* gave up: readers scan */
@@ -994,6 +1003,15 @@ static void kb_views_changed(KB *kb, const char *pred) {
         for (size_t i = 0; i < v->ndeps && !affected; i++)
             affected = strcmp(v->deps[i], pred) == 0;
         if (!affected) continue;
+        /* Chi invalida che cosa: un turno che ricostruisce una vista cara lo fa
+         * SEMPRE per una asserzione, e con `PARROT0_BOOT_TRACE=1` si legge quale
+         * invece di indovinarla (19 settembre 2026). */
+        if (v->live) {
+            const char *ite = getenv("PARROT0_BOOT_TRACE");
+            if (ite && strcmp(ite, "1") == 0)
+                fprintf(stderr, "[view] %-28s  invalidata da %s%s\n",
+                        v->pred, pred, v->broad ? " (broad)" : "");
+        }
         v->live = 0;
         v->dirty = 1;
         v->attempted = 0;
@@ -3262,6 +3280,12 @@ int kb_view_ensure(KB *kb, const char *pred) {
     }
     v->attempted = 1;
     if (!kb_view_dependencies(kb, v)) {
+        /* Una vista il cui grafo non si chiude resta `broad`: la invalida OGNI
+         * asserzione, quindi si ricostruisce dentro i turni. Chi la rifiuta si
+         * vede con `PARROT0_BOOT_TRACE=1`, invece di dedurlo dai tempi. */
+        const char *dte = getenv("PARROT0_BOOT_TRACE");
+        if (dte && strcmp(dte, "1") == 0)
+            fprintf(stderr, "[view] %-28s  rifiutata: il grafo delle dipendenze non si chiude\n", pred);
         kb->views_preparing = 0;
         return 0;
     }
@@ -3729,7 +3753,17 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
             simple = 0;
     }
     if (first_var < 0) simple = 0; /* preserve the boolean-query behaviour */
-    if (simple) {
+    /* 19 settembre 2026 — UNA VISTA CONGELATA E' TUTTA LA VERITA'.
+     *
+     * Le regole spengono la via rapida sui fatti: giusto in generale, sbagliato
+     * quando la vista di quel predicato e' viva, perche' allora i fatti derivati
+     * SONO le sue soluzioni — il solver lo sa gia' (`kb_view_covers`, dove salta
+     * l'espansione delle regole) e qui non lo sapeva. Con la prima fogliata di
+     * grammatica inglese la differenza e' tutto il turno: `extract_frame` ha
+     * 60 clausole generative e 15.000 cornici congelate, e ogni lookup con lo
+     * schema legato costava 116 ms di unificazioni invece di una ricerca.
+     * Misurato: «is however a contrastive connector?» da 5,4 s a 0,6 s. */
+    if (simple && !kb_view_covers(kb, pred, argc)) {
         PredBucket rbk = rule_bucket(kb, pred);
         for (size_t vi = 0; vi < PRED_VISITS(rbk, kb); vi++) {
             const Rule *r = &kb->rules[PRED_AT(rbk, vi)];

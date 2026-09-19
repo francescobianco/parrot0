@@ -1853,6 +1853,21 @@ void brain_boot(Brain *b) {
     BOOT_MARK("profile");
     brain_policy(b);                                      /* gen331: the effective policy */
     BOOT_MARK("policy");
+    /* 19 settembre 2026 — IL POOL LESSICALE SI CARICA ALL'AVVIO, NON NEL TURNO.
+     *
+     * `lexeme/1` (35k parole) era caricato alla prima frase che poteva essere
+     * una presentazione: non il caricamento a costare — l'intero profilo, 111k
+     * fatti, ne costa 70 — ma la RICOSTRUZIONE DELL'INDICE su una KB che nel
+     * frattempo e' cresciuta. Misurato il 19 settembre, con la prima fogliata
+     * di grammatica inglese: quel turno passava da meno di un secondo a 1,7 s,
+     * e il controllo di salute del test engine non passava piu'.
+     *
+     * Stessa ragione delle viste, poche righe piu' sotto (gen491): un costo che
+     * si paga UNA volta per cambio di conoscenza deve cadere dove non c'e' un
+     * budget. Misurato che a regime i turni non cambiano con il pool dentro
+     * (0,27 s prima e dopo): il timore di gen384 riguardava la KB di allora. */
+    ensure_lexeme(b);
+    BOOT_MARK("lexeme");
     /* gen491 — LE VISTE SI SCALDANO AL BOOT, non dentro un turno.
      *
      * Il congelamento costa una volta per cambio di conoscenza, ma «una volta»
@@ -1864,6 +1879,13 @@ void brain_boot(Brain *b) {
     if (btrace) { kb_profile_set(b->kb, 1); kb_profile_reset(b->kb); }
     kb_views_warm(b->kb);
     BOOT_MARK("views_warm");
+    /* E la LISTA DELLE CORNICI, che il cervello tiene ordinata per specificita'
+     * accanto alla vista: la prima frase che legge una relazione la costruiva
+     * dentro il turno (misurato il 19 settembre 2026 con la fogliata inglese:
+     * 1,7 s il primo turno, 0,2 s tutti gli altri). Stesso principio delle
+     * viste: un costo per cambio di conoscenza non cade in un turno. */
+    { char (*warm_pats)[KB_TERM_LEN] = NULL; (void)p0_frame_patterns(b, &warm_pats); }
+    BOOT_MARK("frame_cache");
     if (btrace) {
         KbProfileRow top[12];
         size_t n = kb_profile_top(b->kb, top, 12);

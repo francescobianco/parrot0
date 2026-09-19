@@ -254,8 +254,26 @@ il commento di gen491 aveva gia' scritto. Ogni turno paga poi lo scorrimento di
 quegli schemi (0,4 s contro 0,1 s). E ogni lezione che tocca un lemma verbale
 invalida quella vista: il ritiro di un lemma costa 7-13 s.
 
-**Decisione aperta per F.**: o si indicizzano le cornici per il verbo che le
-regge (lavoro di motore), o si riduce cio' che la fogliata dichiara come verbo
-di relazione (riduce cio' che parrot0 vede, contro il criterio di evoluzione).
-Finche' resta aperta, `make test-engine` fallisce il controllo di salute e
-`make soft-test` non parte.
+**Deciso da F.: si indicizza, non si pota.** Fatto, e il cancello e' tornato
+verde senza togliere una riga di conoscenza:
+
+| | consegnato | ora |
+|---|---:|---:|
+| 6 turni banali | 8,5 s | 1,18 s |
+| turno a regime | 1,4 s | 0,20 s |
+| «is however a contrastive connector?» | 5,45 s | 0,28 s |
+| controllo di salute | rosso | verde |
+
+Oltre alla vista per radice: tre processi di `answer_frame` congelati
+(`verb_particle_surface`, `adjective_relation_pred`, `passive_participle_frame`);
+`expression_first_word` non e' piu' rifiutata dal grafo delle dipendenze
+(`view_apply_resolved(expression_reading)` dichiara la portata di `apply`); e nel
+motore, il pool lessicale e la lista delle cornici si scaldano all'avvio invece
+che nel primo turno, `kb_match` si fida di una vista congelata come gia' fa il
+solver, e tre lettori chiedono le cornici alla lista del cervello invece di
+rienumerare 15.000 schemi a ogni chiamata.
+
+Resta aperto l'**aggiornamento incrementale** di una vista: una lezione che
+tocca un lemma verbale ricostruisce `extract_frame` (2,3 s), e sono i 12 turni
+fuori budget di `english_grammar_growth.p0t` — verde nel contenuto, 31
+asserzioni. Handoff completo in [lettura-della-prosa](plans/lettura-della-prosa.md).

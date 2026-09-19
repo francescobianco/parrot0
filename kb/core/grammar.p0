@@ -2119,7 +2119,8 @@ answer_frame($Verb, $Verb) :- relation_verb($Verb).
 % 18 settembre 2026, notte — e la domanda al passivo porta il PARTICIPIO («what
 % is compost prepared by?»): la cue e' la forma, la relazione la radice, come
 % per la forma flessa nel ponte della domanda (`turn_question_verb`).
-answer_frame($Form, $Root) :- participle_of($Root, $Form), naf(relation_verb($Form)).
+passive_participle_frame($Form, $Root) :- participle_of($Root, $Form), naf(relation_verb($Form)).
+answer_frame($Form, $Root) :- passive_participle_frame($Form, $Root).
 % gen510 — una relazione DEFINITA per lezione («grandparent is parent twice») si
 % interroga con il lettore «R of» (holds/3 e la scala del verdetto), non con la
 % cornice generica, che provava l'entita' nei due versi e rispondeva «Kim»
@@ -3733,8 +3734,38 @@ view_depends(extract_frame, ternary_relation_verb).
 view_depends(extract_frame, verb_suffix).
 view_depends(extract_frame, verb_stem).
 view_depends(extract_frame, construction_claims).
+% Le cornici delle reggenze e degli aggettivi sono dentro `extract_frame`: se si
+% congelano DOPO di lei, la sua vista nasce vecchia e si rifa' nel primo turno
+% (misurato il 19 settembre 2026: 3,1 s dentro il turno invece che all'avvio).
+% Dichiararle e' dire la verita' sull'ordine, non un trucco della cache.
+view_depends(extract_frame, verb_particle_surface).
+view_depends(extract_frame, adjective_relation_pred).
+view_depends(extract_frame, passive_participle_frame).
 view_depends(verb_stem, relation_verb).
 view_depends(verb_stem, verb_suffix).
+
+% ── 19 settembre 2026 — LE CORNICI CHE LA FOGLIATA HA RESO CARE ─────────────
+%
+% Con il lessico verbale della prima fogliata (1.144 verbi di relazione, 426
+% reggenze, 438 relazioni aggettivali) tre processi di `answer_frame/2` sono
+% diventati il costo del turno: 52 ms -> 364 ms nel solver, 27 chiamate,
+% 100.000 passi (misurato con `/debug`). Nessuno dei tre dipende dal turno —
+% sono superfici del lessico — quindi si congelano come le altre. Il rimedio e'
+% una riga per processo, non una potatura della conoscenza: la stessa scelta che
+% gen491 aveva gia' fatto per `extract_frame`.
+materialized_view(verb_particle_surface, 2).
+view_depends(verb_particle_surface, verb_particle).
+view_depends(verb_particle_surface, relation_verb).
+view_depends(verb_particle_surface, verb_form_analysis).
+materialized_view(adjective_relation_pred, 2).
+view_depends(adjective_relation_pred, adjective_relation).
+% Il participio che interroga il passivo («what is compost prepared by?»): la
+% forma e' lessico, la guardia `naf(relation_verb(Forma))` pure.
+machinery(passive_participle_frame).
+materialized_view(passive_participle_frame, 2).
+view_depends(passive_participle_frame, relation_verb).
+view_depends(passive_participle_frame, verb_form_analysis).
+view_depends(passive_participle_frame, verb_suffix).
 
 % ── gen513 — LE PAROLE CHE APRONO UNA RELATIVA ──────────────────────────────
 % Servono al lettore composto per riconoscere che dopo la virgola comincia una

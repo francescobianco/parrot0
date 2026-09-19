@@ -17,6 +17,72 @@
 > dichiarazioni `relation_verb` portano `extract_frame` a 2,5 s di
 > costruzione e il turno da 0,1 a 0,4 s.
 
+## HANDOFF — 19 settembre 2026, sera (si riprende da qui)
+
+**Che cosa e' successo.** La prima fogliata di grammatica inglese era stata
+consegnata senza essere mai eseguita, con i predicati battezzati dalla missione
+(`prose_*`). F. ha posto il difetto vero: «lo scoping sui predicati produce
+predicati non agganciabili dalla meta linguistica». Il giro ha fatto tre cose.
+
+**1. I nomi.** Il pacchetto e' `kb/core/english-grammar/`; ogni predicato porta
+il nome di cio' che descrive. 1.321 fatti duplicati tolti (`plural_of`,
+`verb_particle`, `adjective_relation`, `auxiliary`, le forme irregolari ora
+derivate da `verb_paradigm/4`, 278 righe di catalogo derivate dalle classi
+condivise). `commitment_policy` FUSA con quella di `context-scope.p0`.
+
+**2. La porta meta-linguistica** (`kb/core/english-grammar/naming.p0`). Il
+lettore dell'appartenenza interroga il predicato che porta il **nome
+pronunciato**, con **arita' 1**: una distinzione tenuta solo in una relazione a
+due o tre argomenti esiste e non si puo' nominare. Le facce sono regole sulle
+relazioni ricche, non copie. Misurato: «is water a mass noun?» da «I don't know
+about mass noun» a «Yes.»; «what kind of verb is comprise?» risponde; «what does
+X mark?» risponde, e il giro insegna→chiedi→ritira→non so e' verde.
+**La regola da portarsi dietro:** una distinzione nuova va rappresentata nella
+relazione ricca *e* affacciata col nome che se ne dice.
+
+**3. La velocita', che era il blocco.** `make test-engine` non passava piu' il
+controllo di salute. Quattro cause, tutte misurate (`/debug`, e il nuovo
+`PARROT0_BOOT_TRACE=1` che ora stampa il costo di ogni vista, chi la invalida e
+chi viene rifiutata):
+
+| | prima | dopo |
+|---|---:|---:|
+| 6 turni banali | 8,5 s | **1,18 s** (senza il pacchetto: 0,60 s) |
+| turno a regime | 1,4 s | **0,20 s** |
+| «is however a contrastive connector?» | 5,45 s | **0,28 s** |
+| primo turno aritmetico | 1,70 s | **0,19 s** |
+| controllo di salute | ROSSO | **verde** |
+
+- `verb_finite_form` risolveva per superficie dentro i cicli sulle particelle →
+  vista gemella per radice (`verb_root_form`).
+- tre processi di `answer_frame` non erano congelati → `materialized_view` per
+  `verb_particle_surface`, `adjective_relation_pred`, `passive_participle_frame`.
+- `expression_first_word` era **rifiutata** (raggiungeva `apply`) e quindi
+  invalidata da ogni asserzione → `view_apply_resolved(expression_reading)`.
+- in C: il pool lessicale e la lista delle cornici si scaldano all'avvio, non
+  nel primo turno; `kb_match` ora si fida di una vista congelata (le regole di
+  quel predicato non si riespandono: il solver lo faceva gia'); tre lettori
+  chiedono le cornici alla lista del cervello invece di rienumerare la KB.
+
+**Aperto, in ordine.**
+1. **I turni di LEZIONE costano 2–4 s**: insegnare o ritirare un lemma verbale
+   invalida `verb_form_analysis` e con essa `extract_frame` (2,3 s di
+   ricostruzione). `english_grammar_growth.p0t` e' **verde nel contenuto, 31
+   asserzioni**, e ha 12 turni oltre il budget solo per questo. Il passo giusto
+   e' l'aggiornamento INCREMENTALE di una vista (aggiungere le cornici del verbo
+   insegnato invece di rifare le 15.000), non alzare i budget.
+2. **L'avvio ora costa ~5 s** (`views_warm` 3,6 s + `frame_cache` 1,5 s). E'
+   infrastruttura e non un turno, ma cresce con la KB: stessa leva del punto 1.
+3. **`conversation/basics.p0t:23`** e' rosso («what is the opposite of hot?»
+   letta come asserzione): misurato ANTERIORE, non causato ne' dalla fogliata
+   ne' dal motore nuovo. Tracciato in `TEST_TODO.md` §5.3. E' l'unico rosso di
+   `soft-test`.
+4. **Le letture non ancora affacciate**: 60 famiglie di costruzioni e i ruoli
+   (`construction_role`, `scope_requirement`, `pragmatic_candidate`) non hanno
+   ancora ne' faccia ne' domanda. Il modello c'e' — si copia da `naming.p0`.
+5. Gli **esperimenti di comprensione** della fogliata restano da fare: nessun
+   punteggio di prosa e' stato rimisurato in questo giro.
+
 > **Piano vivo.** Non si chiude: si cricchetta. La misura è
 > [`scripts/prose-probe.sh`](../../scripts/prose-probe.sh) (`make prose-probe`),
 > e ogni giro deve farne scendere l'ultimo numero.

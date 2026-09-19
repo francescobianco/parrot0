@@ -6146,11 +6146,14 @@ static int p0_align_explicit_lesson(
         Brain *b, const char *lhs, const char *rhs,
         char vars[P0_MAX_SLOTS][KB_TERM_LEN], size_t nvars,
         char *source, size_t source_size, char *target, size_t target_size) {
-    char (*patterns)[KB_TERM_LEN] = NULL; size_t np = 0;
-    const char *any[2] = { NULL, NULL };
-    if (!kb_match_all(b->kb, "extract_frame", any, 2, &patterns, &np)) {
-        free(patterns); return 0;
-    }
+    /* 19 settembre 2026 — LE CORNICI SI CHIEDONO ALLA LISTA, NON ALLA KB.
+     * `extract_frame` e' una vista congelata di 15.000 schemi: rienumerarla
+     * qui costava una scansione intera per chiamata (misurato: 116 ms per
+     * chiamata, decine per turno). La lista ordinata del cervello e' la stessa
+     * conoscenza, gia' enumerata una volta per revisione. */
+    char (*patterns)[KB_TERM_LEN] = NULL;
+    size_t np = p0_frame_patterns(b, &patterns);
+    if (np == 0) return 0;
 
     /* Nel target una variabile e' MENZIONATA, non usata. `a` puo' essere stata
      * insegnata come `rule_variable` e insieme essere un articolo: passarla
@@ -6171,7 +6174,7 @@ static int p0_align_explicit_lesson(
             piece = placeholder;
         }
         if (!p0_pattern_add(synthetic, sizeof synthetic, &synthetic_off, piece)) {
-            free(patterns); return 0;
+            return 0;   /* la lista e' del cervello: non si libera qui */
         }
     }
 
@@ -6219,7 +6222,6 @@ static int p0_align_explicit_lesson(
             ambiguous = 1;
         }
     }
-    free(patterns);
     return found && !ambiguous;
 }
 
@@ -6264,12 +6266,9 @@ static int p0_construction_target(Brain *b, const char *source,
      * la stessa ragione per cui il consumer storico enumera prima tutti i
      * frame. Facciamo lo stesso, senza un tetto fisso, e poi rileggiamo la
      * seconda colonna dalla forma raw esatta. */
-    char (*patterns)[KB_TERM_LEN] = NULL; size_t nframes = 0;
-    const char *any[2] = { NULL, NULL };
-    if (!kb_match_all(b->kb, "extract_frame", any, 2, &patterns, &nframes)) {
-        free(patterns);
-        return 0;
-    }
+    char (*patterns)[KB_TERM_LEN] = NULL;
+    size_t nframes = p0_frame_patterns(b, &patterns);   /* la lista, non la KB */
+    if (nframes == 0) return 0;
     pred[0] = '\0';
     for (size_t i = 0; i < nframes; i++) {
         char display[KB_TERM_LEN];
@@ -6283,10 +6282,9 @@ static int p0_construction_target(Brain *b, const char *source,
             const char *candidate = kb_dequote(rb);
             if (!*candidate) continue;
             if (!pred[0]) snprintf(pred, psz, "%s", candidate);
-            else if (strcmp(pred, candidate)) { free(patterns); return 0; }
+            else if (strcmp(pred, candidate)) return 0;
         }
     }
-    free(patterns);
     return pred[0] != '\0';
 }
 
@@ -14007,9 +14005,9 @@ static int p0_relation_taught_as_p(Brain *b, const char *surface,
      * ma «where does zelnik live?» non porta la particella, e senza questo
      * passaggio la domanda non trovava nessun verbo — mentre il fatto che
      * risponde era gia' in KB, messo li' da quella stessa forma. */
-    char (*pats)[KB_TERM_LEN] = NULL; size_t np = 0;
-    const char *pq[2] = { NULL, NULL };
-    if (kb_match_all(b->kb, "extract_frame", pq, 2, &pats, &np)) {
+    char (*pats)[KB_TERM_LEN] = NULL;
+    size_t np = p0_frame_patterns(b, &pats);            /* la lista, non la KB */
+    if (np) {
         for (size_t i = 0; i < np; i++) {
             char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pats[i]);
             const char *pat = kb_dequote(pb);
@@ -14034,11 +14032,9 @@ static int p0_relation_taught_as_p(Brain *b, const char *surface,
             const char *rel = kb_dequote(rb);
             if (!*rel || !strcmp(rel, surface)) continue;
             snprintf(out, outsz, "%s", rel);
-            free(pats);
             return 1;
         }
     }
-    free(pats);
     return 0;
 }
 

@@ -90,10 +90,10 @@ extract_frame($Pattern, $R) :-
     verb_form($R, $F, $K), active_finite_form_kind($K), relation_verb($R),
     concat_atoms("@S ", $F, $Prefix), concat_atoms($Prefix, " @O", $Pattern).
 verb_stem($F, $R) :- verb_form($R, $F, $K), reading_verb_form_kind($K).
-participle_of($R, $F) :- verb_root_form($R, form($F, past_participle)), relation_verb($R).
+participle_of($R, $F) :- verb_form($R, $F, past_participle), relation_verb($R).
 gerund_root($F, $R) :- verb_form($R, $F, present_participle), relation_verb($R).
-gerund_of($R, $F) :- verb_root_form($R, form($F, present_participle)), relation_verb($R).
-finite_present_of($R, $F) :- verb_root_form($R, form($F, present_third)).
+gerund_of($R, $F) :- verb_form($R, $F, present_participle), relation_verb($R).
+finite_present_of($R, $F) :- verb_form($R, $F, present_third).
 materialized_view(verb_form_analysis, 2).
 materialized_view(verb_root_form, 2).
 view_depends(verb_root_form, verb_form_analysis).
@@ -134,21 +134,26 @@ expression_reading($S, evidential_simulation) :- simulation_result_marker($S).
 expression_reading($W, quantity_universal) :- universal_quantifier($W).
 expression_reading($W, pragmatics_hedge) :- hedge_word($W).
 expression_reading($S, predication_adjective_complement) :- adjective_relation($S).
-view_depends(expression_first_word, rhetorical_marker_class).
-view_depends(expression_first_word, contrastive_connector).
-view_depends(expression_first_word, consequence_connector).
-view_depends(expression_first_word, ground_connector).
-view_depends(expression_first_word, additive_connector).
-view_depends(expression_first_word, example_connector).
-view_depends(expression_first_word, sequence_connector).
-view_depends(expression_first_word, analogy_connector).
-view_depends(expression_first_word, modal_force).
-view_depends(expression_first_word, observation_report_marker).
-view_depends(expression_first_word, hypothesis_report_marker).
-view_depends(expression_first_word, simulation_result_marker).
-view_depends(expression_first_word, universal_quantifier).
-view_depends(expression_first_word, hedge_word).
-view_depends(expression_first_word, adjective_relation).
+% Il meta-richiamo ha una portata DICHIARATA (E0): senza questa riga la vista
+% raggiunge `apply` e il motore la rifiuta, cioe' la invalida a ogni asserzione
+% e la ridiriva dentro i turni. Le classi raggiunte sono quelle elencate qui
+% sotto, ed e' vero: `apply` invoca una classe di `rhetorical_marker_class/3`.
+view_apply_resolved(expression_reading).
+view_depends(expression_reading, rhetorical_marker_class).
+view_depends(expression_reading, contrastive_connector).
+view_depends(expression_reading, consequence_connector).
+view_depends(expression_reading, ground_connector).
+view_depends(expression_reading, additive_connector).
+view_depends(expression_reading, example_connector).
+view_depends(expression_reading, sequence_connector).
+view_depends(expression_reading, analogy_connector).
+view_depends(expression_reading, modal_force).
+view_depends(expression_reading, observation_report_marker).
+view_depends(expression_reading, hypothesis_report_marker).
+view_depends(expression_reading, simulation_result_marker).
+view_depends(expression_reading, universal_quantifier).
+view_depends(expression_reading, hedge_word).
+view_depends(expression_reading, adjective_relation).
 
 % Adattatori alle due rappresentazioni GIA' esistenti, non nuovi record.
 ir_token(input($Scope), $Id, $W, range($S, $L)) :-
