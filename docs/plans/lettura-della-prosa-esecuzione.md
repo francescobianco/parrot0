@@ -446,13 +446,21 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
   la classe: «how much … make up» viene letto come richiesta di procedimento
   («how to make make»). La guardia `not_cue(count_question)` è stata provata
   e scartata perché toglieva la ricetta a «how many eggs … carbonara».
-- **Furto diagnosticato, non chiuso.** «what is added to the plant matter?»
-  riceve la definizione di «matter»: `answer_frame("what is", read_about)`
-  prende il turno quando il ponte del passivo (`participle_of`, «added» → `add`)
-  non ha fatti. È una precedenza fra cue in `answerframe`: una cue più
-  specifica che ha trovato la sua relazione senza valore non dovrebbe cedere
-  a una definizione dell'entità vicina. Prossimo passo: la `turn_focus`
-  (ambito escluso) o una `faculty_yield` KB sul caso «what is + participio».
+- **Classe di furto diagnosticata, non chiusa: «what is + proposizione» →
+  glossa di un'entità vicina.** Tre istanze: r320 «what is added to the plant
+  matter?» → glossa di «matter»; r340 «what is the temperature of
+  carbonization a factor for?» → glossa di «temperature»; r340 «what is
+  charcoal made of carbon by?» → il ciclo del carbonio. La risposta è la glossa
+  `wiki_concept/3` (`kb/facts/foundations.p0`) restituita da `mod_answer_frame`
+  (`who answered?` → answerframe). Non viene da `read_about`, che risponde «I
+  have no definition of it, but I read…»: la prima attribuzione nel
+  registro era sbagliata. Forma comune: dopo «what is» non c'è un sintagma
+  nominale solo ma una proposizione (participio, «a factor for», «made of … by»).
+  La cornice definitoria vale per «what is <SN>?». Prossimo passo: trovare
+  in `mod_answer_frame` il punto in cui la glossa dell'entità risponde, e far
+  decidere alla KB (fuoco del turno o condotta di cessione) che una domanda
+  con la coda proposizionale non è una domanda di definizione. Contrasto:
+  «what is temperature?» deve ancora dare la glossa.
 
 ### Stato di E1 — 19 settembre 2026 (diagnosi fatta, nessuna modifica tenuta)
 
