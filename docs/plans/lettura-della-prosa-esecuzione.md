@@ -432,6 +432,19 @@ Le ottimizzazioni di E0/E0b non hanno perso risposte rispetto allo stato atteso.
 
 ### E2b e i furti del piolo — 19 settembre, tarda mattinata
 
+- ⚠ **Correzione di F. sul passo qui sotto (19 settembre, 10:43).** Una
+  risposta di `answerframe` è **specie B**, cioè un frasario: uno schema di
+  superficie (`extract_frame`, «@O is aided by @S») che scrive un fatto
+  ritrovato per cue. La direzione voluta è la **specie A**: la IR del testo
+  (`input_semantic_frame`, ruoli e span) letta da regole KB che compongono la
+  risposta. Il passo qui sotto è quindi un guadagno di punteggio, **non** di
+  comprensione, e contraddice la regola scritta in E2 («una riscrittura in
+  stringa seguita da nuovo parsing non chiude la migrazione»). Il passo giusto
+  per E2b è un frame `passive` in `input-structure.p0`, con i ruoli
+  agente/mezzo sugli span osservati, e `event_subject_verb/1` come conoscenza
+  che decide il ruolo del complemento con «by». Lo schema di stringa aggiunto
+  qui sotto si tiene o si ritira secondo la decisione di F.; non è la base su
+  cui costruire E2c.
 - **E2b, primo passo (tenuto).** Il passivo dalla radice torna, ma solo per
   `event_subject_verb/1`: sono i verbi il cui soggetto può essere un'azione o un
   mezzo, seme `aid`, insegnabili con «V is an event subject verb» e
