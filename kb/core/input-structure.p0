@@ -222,6 +222,7 @@ input_token_in_phrase($Scope, $Id) :-
     is($PE, add($PS, $PL)), naf(lt($Start, $PS)), lt($Start, $PE).
 bare_noun_candidate($W) :-
     naf(word_is_function_word($W)), naf(preposition($W)), naf(trailing_subordinator($W)),
+    naf(word_is_gerund($W)),
     naf(word_is_verb_form($W)), naf(word_is_number($W)).
 % Le classi funzionali sono quelle che la KB dichiara (`function_word_class/1`):
 % una classe nuova vale anche qui senza toccare la regola. «yet» (una
@@ -236,6 +237,8 @@ word_is_function_word($W) :-
 % da un ausiliario ground.
 word_is_verb_form($W) :- verb_reading_form($Root, $W).
 word_is_number($W) :- is($N, add($W, 0)).
+machinery(word_is_gerund).
+word_is_gerund($W) :- gerund_root($W, $Root).
 
 % Un ruolo non si lega a un nome qualunque che cada dalla parte giusta del
 % verbo. Si lega al nodo semantico piu' vicino. Questo elimina il prodotto
@@ -568,6 +571,51 @@ input_assertion_coordinated(
         $Scope, $Language, relation($Relation, $RId),
         coordination(subject($SId, $Subject), first($O1Id, $Object1),
                      cue($CId), second($O2Id, $Object2))).
+
+% E2, 19 settembre 2026 — LA PARTICIPIALE HA IL SOGGETTO DELLA PRINCIPALE.
+% «Reefs form ecosystems, displacing the sponge reefs»: chi soppianta sono i
+% reef, non gli ecosistemi (lettura-della-prosa.md, contrasto del gerundio).
+% La participiale comincia dopo una punteggiatura (gli offset la conservano) con
+% un gerundio di un verbo di relazione; il soggetto e' la prima entita' della
+% clausola, anche quando il verbo principale non e' una relazione («Coral reefs
+% first appeared …, displacing …»); l'oggetto e' l'entita' vicina dopo il gerundio.
+machinery(gerund_root).
+machinery(gerund_stem_root).
+machinery(input_participial_assertion).
+machinery(clause_first_entity).
+gerund_root($G, $Root) :- concat_atoms($S, "ing", $G), gerund_stem_root($S, $Root).
+gerund_stem_root($S, $S) :- relation_verb($S).
+gerund_stem_root($S, $R) :- concat_atoms($S, "e", $R), relation_verb($R).
+clause_first_entity($Items, ent($S, $Id, $E)) :-
+    member(ent($S, $Id, $E), $Items), naf(entity_item_before_start($Items, $S)).
+entity_item_before_start($Items, $S) :- member(ent($S2, $I, $E), $Items), lt($S2, $S).
+input_participial_assertion($Scope, $Language,
+                            proposition(binary($Root), roles(subject($Subj), object($Obj)))) :-
+    input_node_atom($Scope, $GId, $G), gerund_root($G, $Root),
+    input_node_next($Scope, $P, $GId), naf(tokens_contiguous($Scope, $P, $GId)),
+    input_node_range($Scope, $GId, $GS, $GL),
+    input_clause_entities($Scope, $Language, $Items),
+    clause_first_entity($Items, ent($SS, $SId, $Subj)), lt($SS, $GS),
+    input_nearest_entity_after($Scope, $Language, $GId, entity($OId, $Obj)).
+% Il bundle: la principale unica (se c'e') e la participiale.
+input_assertion_bundle($Scope, cons($Main, cons($Part, nil))) :-
+    input_assertion_unique($Scope, $Main),
+    input_scope_language($Scope, $Language),
+    input_participial_assertion($Scope, $Language, $Part).
+input_assertion_bundle($Scope, cons($Part, nil)) :-
+    input_assertion_set($Scope, nil),
+    input_scope_language($Scope, $Language),
+    input_participial_assertion($Scope, $Language, $Part).
+input_recorded_bundle($Scope, cons(proposition($Operator, $Roles), cons($Part, nil))) :-
+    input_frame_record($Scope, frame(assertion, $Operator), $Roles),
+    input_scope_language($Scope, $Language),
+    input_participial_assertion($Scope, $Language, $Part).
+input_recorded_bundle($Scope, cons($Part, nil)) :-
+    naf(input_frame_record_assertion($Scope)),
+    input_scope_language($Scope, $Language),
+    input_participial_assertion($Scope, $Language, $Part).
+machinery(input_frame_record_assertion).
+input_frame_record_assertion($Scope) :- input_frame_record($Scope, frame(assertion, $Op), $R).
 
 % Il bundle di cio' che l'osservazione ha GIA' registrato: il frame unico del
 % turno (`input_frame_record/3`) come asserzione, senza ricalcolare i frame. Per

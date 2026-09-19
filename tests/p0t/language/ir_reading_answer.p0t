@@ -36,3 +36,14 @@
 [test senza un legame letto la strada A tace]
 > what do wolves threaten?
 <! forests
+
+[test la participiale ha il soggetto della principale]
+# lettura-della-prosa.md: «Reefs form ecosystems, displacing the sponge reefs» →
+# chi soppianta sono i reef, non gli ecosistemi. Frase inventata: meccanica.
+> Reefs form ecosystems, displacing the sponge reefs.
+> what do reefs displace?
+< Sponge reefs.
+> what do ecosystems displace?
+<! sponge
+> what do reefs form?
+< Ecosystems.
