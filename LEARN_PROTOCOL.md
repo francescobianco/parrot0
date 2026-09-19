@@ -476,6 +476,7 @@ classe intera invece di un membro.*
 | `V implies W` | sussunzione: chi tiene `X V Y` risponde anche a `X W Y`, **in un verso solo** (gen507/46, forma #3) |
 | `V chains with opposite W` | **tutta la scheda di una relazione in una frase**: entrambe sono verbi di relazione, entrambe transitive, e l'una è l'inverso dell'altra — cinque fatti (gen507/79) |
 | `X comes before Y` | l'**ordine nel tempo**: pone il fatto *e* dichiara che la catena si percorre e che il verso opposto si chiama `follows` — tre fatti in una frase (gen507/75, forma #17) |
+| `V is an event subject verb` | `event_subject_verb(V)`: il soggetto di V può essere un'**azione o un mezzo**, quindi il passivo `X is Ved by Y` si legge `V(Y, X)` anche quando Y è un gerundio («The decomposition process is aided by shredding the plant matter» → `aid(shredding the plant matter, decomposition process)`, e «what aids the decomposition process?» risponde). Per un verbo agentivo (`prepare`) «by + gerundio» è il **mezzo** e resta non letto: non insegnarla su verbi come *prepare*, *build*, *write*. Si ritira con `forget that V is an event subject verb`, e la lettura si spegne al turno dopo (19 settembre 2026, E2b; piolo r320 19 → 20/68). ⚠ La domanda di verifica «is V an event subject verb?» non la ritrova ancora |
 | `V holds of itself` | riflessiva: `X V X` è vero senza che nessuno lo dica — e resta falso per le relazioni che non lo sono (gen507/48, forma #1) |
 | `V rules out W` | esclusione fra relazioni: chi tiene `X V Y` ha già il «no» su `X W Y`. Una sola riga risponde per tutte le coppie, presenti e future (gen507/47, forma #4) |
 
@@ -512,6 +513,7 @@ classe intera invece di un membro.*
 | `the past of X is Y` · `another form of X is Y` | `irregular_verb_form/2` — una forma che nessuna regola di suffisso produce, e da lì la frase che la usa si legge (gen507/50, forma #25) |
 | `the <primato> <classe> is <risposta>` | un primato del mondo: `the deepest cave is krubera` → `which cave is the deepest?` risponde (gen507/42) |
 | `the italian for X is Y` | `tr/2` — e da lì la parola italiana entra in **tutte** le classi inglesi che X tocca (gen507/39). ⚠ non `X in italian is Y`: quella la prende il lettore che cambia lingua |
+| `x_y is the italian of a_b` | una **glossa composta** (`italian/2`): dal turno dopo entra nella vista `tr_phrase_surface/2`, cioè nelle superfici di più parole della canonicalizzazione (19 settembre 2026, `tr_phrase_view.p0t`). ⚠ La forma con gli spazi (`mar rosso is the italian of red sea`) si legge come appartenenza a classe: si usa l'underscore. ⚠ «cos è il mar rosso?» dopo la lezione non usa ancora la superficie, anche a vista spenta: il difetto è nella canonicalizzazione e non nella lezione. Chi insegna non se ne accorge, perché la lezione dice «Learned» |
 
 ### E. Condotta e ragionamento
 
