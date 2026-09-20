@@ -147,7 +147,7 @@ dialogue_candidate($T, $N, closed, ask_anchor) :-
 dialogue_basis($T, $Move, anchor($S), $Need) :-
     dialogue_candidate($T, $S, $Step, $Move), dialogue_move_need($Move, $Need).
 dialogue_topic($T, $Topic) :- dialogue_now($T, $A, $P), dialogue_task($A, $Task), dif($P, unspecified), words_of($P, $Topic).
-dialogue_topic($T, $Topic) :- dialogue_now($T, $A, unspecified), dialogue_task($A, $Task), current_language($L), dialogue_task_name($Task, $L, $Topic).
+dialogue_topic($T, $Topic) :- dialogue_now($T, $A, unspecified), dialogue_task($A, $Task), dialogue_reply_language($T, $L), dialogue_task_name($Task, $L, $Topic).
 dialogue_topic($T, $Topic) :- dialogue_now($T, $A, $P), dialogue_uptake($A, $Effect), dialogue_previous($S, $K), dialogue_scope($S, $Task, $Topic).
 dialogue_topic($T, $Topic) :- dialogue_now($T, explain, $P), dialogue_previous_open($S, $K), dialogue_scope($S, $Task, $Topic).
 
@@ -177,10 +177,10 @@ turn_bookkeeping($T, dialogue_propose) :-
 
 % Un solo consumatore delle letture: scelta, ancora, bisogno e lingua.
 turn_plan_candidate($T) :- dialogue_now($T, $A, $P).
-dialogue_reply_text($T, $M, $Text) :- dialogue_standalone($M), current_language($L), dialogue_move_text($M, $L, $Text).
+dialogue_reply_text($T, $M, $Text) :- dialogue_standalone($M), dialogue_reply_language($T, $L), dialogue_move_text($M, $L, $Text).
 dialogue_reply_text($T, $M, $Text) :-
     naf(dialogue_standalone($M)), dif($M, explain_move),
-    dialogue_topic($T, $Topic), current_language($L), answer_text(dialogue_reply($Topic, $M, $L), $Base), dialogue_with_detail($T, $L, $Base, $Text).
+    dialogue_topic($T, $Topic), dialogue_reply_language($T, $L), answer_text(dialogue_reply($Topic, $M, $L), $Base), dialogue_with_detail($T, $L, $Base, $Text).
 dialogue_reply_text($T, explain_move, $Text) :- dialogue_reason_text($T, $Text).
 turn_priority_response($T, $Text) :- dialogue_candidate($T, $S, $K, $M), dialogue_reply_text($T, $M, $Text).
 answer_content(dialogue_reply($Topic, $M, $L), 0, opening, $Text) :- dialogue_anchor_open($L, $Text).
@@ -254,3 +254,25 @@ dialogue_reason_text($T, $Text) :-
     dialogue_reason_open($L, $Open), dialogue_reason_close($L, $Close),
     concat_atoms($Open, $Words, $Head), concat_atoms($Head, $Close, $Text).
 turn_priority_response($T, $Text) :- dialogue_reason_text($T, $Text).
+
+% 21 settembre 2026 (T4 di `train-the-learning-process.md`) — LA LINGUA DI UNO
+% SCAMBIO APERTO E' QUELLA DELL'ANCORA.
+%
+% Misurato: «sono indeciso tra leggere e passeggiare» apre in italiano, e il
+% seguito «per me conta riposare» riceve «You added: riposare. On leggere e
+% passeggiare: Use this criterion…». Quattro parole corte e ambigue bastano a
+% far osservare la lingua sbagliata, e la resa seguiva l'osservazione del
+% turno invece della conversazione in corso.
+%
+% La leva esisteva gia' e nessuno la leggeva: `dialogue_language(N, L)` e'
+% scritta a ogni turno dal libro mastro. Finche' uno scambio e' aperto, la
+% resa legge QUELLA: la lingua e' una proprieta' della conversazione, non una
+% scommessa su un turno di quattro parole.
+%
+% ⚠ Limite dichiarato: dentro uno scambio aperto un cambio di lingua non
+% dichiarato non sposta la resa. E' il prezzo voluto — l'osservazione su un
+% seguito corto e' inaffidabile per costruzione — e si paga finche' non
+% esistera' un cambio di lingua ESPLICITO da nominare.
+machinery(dialogue_reply_language).
+dialogue_reply_language($T, $L) :- dialogue_previous_open($S, $K), dialogue_language($S, $L).
+dialogue_reply_language($T, $L) :- naf(dialogue_has_previous), current_language($L).
