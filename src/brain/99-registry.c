@@ -878,17 +878,24 @@ static int wrapper_peel(Brain *b, const char *canon, const char *raw,
  * essay's "integrate a later correction" made into a deterministic state change.
  * Gated on BOTH the explicit marker AND a real negation marker in the residue, so
  * it never fires on a bare "no" answer or "no thanks". Mirror of pragma_peel. */
+size_t p0_turn_ir_words(Brain *b, char out[][KB_TERM_LEN], size_t max);  /* §6.5 */
 static int is_negation_marker(Brain *b, const char *w);
 
 static int correction_peel(Brain *b, const char *canon, const char *raw,
                            char *out, size_t out_size) {
-    char buf[256]; size_t len = strlen(canon);
-    if (len == 0 || len >= sizeof buf) return 0;
-    memcpy(buf, canon, len + 1);
-    char *w[64]; size_t nw = split_words(buf, w, 64);
-    /* split_words keeps a trailing comma on the token ("no,"), so match on the
-     * punctuation-stripped marker. */
-    if (nw < 4 || !lex_class_member(b, "negation_marker", strip_edge_punct(w[0]))) return 0;
+    (void)canon;   /* §6.5: le parole vengono dalla IR, non piu' dalla stringa */
+    /* §6.5, ESEMPIO LAVORATO — questo sito leggeva la stringa per conto suo e
+     * poi doveva TOGLIERE la virgola a mano («no,» invece di «no»), perche' il
+     * suo confine di parola non era quello della IR. Ora chiede alla IR le
+     * parole del turno: la virgola non c'e' mai stata, e lo spogliatore
+     * sparisce con lei. E' il modello per le altre 181 riscansioni che
+     * DECIDONO qualcosa (misurate: 340 in tutto, 158 delle quali compongono
+     * o contano e non hanno un'opinione su dove finisca una parola). */
+    char irw[64][KB_TERM_LEN];
+    size_t nw = p0_turn_ir_words(b, irw, 64);
+    char *w[64];
+    for (size_t i = 0; i < nw; i++) w[i] = irw[i];
+    if (nw < 4 || !lex_class_member(b, "negation_marker", w[0])) return 0;
     int has_neg = 0;
     for (size_t i = 1; i < nw; i++)
         if (is_negation_marker(b, w[i])) { has_neg = 1; break; }
@@ -4042,6 +4049,37 @@ static void turn_publish_tokens(Brain *b, const char *surface,
     }
 }
 
+
+/* ── §6.5 — LEGGERE LA IR INVECE DI RISCANSIONARE LA STRINGA ───────────────
+ *
+ * 21 settembre 2026. Il piano conta le riscansioni come il collo della banda
+ * 61-75: finche' ogni consumatore rilegge la stringa per conto proprio, non
+ * c'e' un DOVE stabile su cui una lezione possa dire qualcosa. Misurate: 340,
+ * di cui 182 DECIDONO qualcosa (confronto su token o classe lessicale) e 158
+ * compongono o contano. Sono le 182 a dover migrare.
+ *
+ * ⛔ Non si migrano cambiando il confine di `split_words`: provato, e il piolo
+ * r300 della prosa e' crollato da 45/62 a 6/62 mentre OGNI suite .p0t restava
+ * verde. I consumatori dipendono dalla semantica a spazi bianchi, e vanno
+ * spostati UNO ALLA VOLTA con il banco della prosa come cancello.
+ *
+ * Questo e' l'attrezzo che rende meccanico ogni passo: le parole del turno
+ * COME LA IR LE VEDE, in ordine. Chi lo usa smette di avere un'opinione
+ * propria su dove finisce una parola. */
+size_t p0_turn_ir_words(Brain *b, char out[][KB_TERM_LEN], size_t max) {
+    if (!b || !b->kb || !out || !max) return 0;
+    size_t n = 0;
+    for (size_t i = 1; i <= max; i++) {
+        char idx[24]; snprintf(idx, sizeof idx, "%zu", i);
+        const char *q[3] = { "current_turn", idx, NULL };
+        char row[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "input_node_atom", q, 3, row, 1) != 1) break;
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", row[0]);
+        snprintf(out[n++], KB_TERM_LEN, "%s", kb_dequote(rb));
+        if (n >= max) break;
+    }
+    return n;
+}
 /* ── gen513 — UNA PAROLA NON E' UN TOKEN, ED E' UN NODO DELLA IR ───────────
  *
  * «how many words does the text have?» rispondeva 311 su un testo di 299

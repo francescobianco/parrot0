@@ -32,7 +32,7 @@ questa è la colonna che dice a che punto è:
 | 6.2 | **il pavimento: nessuna lezione riceve un muro cieco** | ⚠️ **a metà** — declino informato su una forma di condotta (T2); una lezione incompleta ora declina invece di asserire in silenzio; la redirezione «"X" is another way to say "Y"» funziona. Ma il pavimento misurato è **3 esiti onesti su 5**, non 5 |
 | 6.3 | **L4 — la condotta diventa dicibile** | ✅ **fatto** — `conduct-lessons.p0`: la guardia di pertinenza si insegna, trasferisce alla classe, si ritira |
 | 6.4 | **L5/S2 — una lezione che crea una forma di lezione** | ⚠️ **aperto a metà** — una lezione crea ora la **categoria** che un'altra lezione riempie (il genere di lettura), che è A3 su un pezzo della lettura; una lezione che crea una **forma** resta il gradino S2 |
-| 6.5 | **la IR consumata invece che riscansionata** | ⛔ **aperto, con un approccio escluso da una misura** (sotto) |
+| 6.5 | **la IR consumata invece che riscansionata** | ⚠️ **iniziato**: taglia vera **182** (non 349), attrezzo `p0_turn_ir_words/3`, **un sito migrato** col banco della prosa invariato; un approccio escluso da una misura |
 | 6.6 | **il mondo allargato estensibile** | ⛔ non toccato — è **F1** di [`the-rational-philosopher.md`](the-rational-philosopher.md) |
 | 6.7 | **la tripletta di accettazione** | ⛔ non iniziata |
 
@@ -98,6 +98,52 @@ riscansioni **dipendono dalla semantica a spazi bianchi**: non si unificano
 cambiando il confine, vanno tolti **un consumatore alla volta**, e ogni passo
 va misurato **con il banco della prosa**, non con i `.p0t`. Il §6.5 resta il
 lavoro che apre la banda, e ora si sa come non farlo.
+
+### §6.5 — l'attrezzo, la misura giusta della taglia, e un esempio lavorato
+
+**La taglia del §6.5 è la metà di quella scritta nel piano.** Contate le
+riscansioni e classificate per quello che fanno nelle dodici righe seguenti:
+
+| | |
+|---|---|
+| riscansioni totali | **340** |
+| che **decidono** (confronto su token o classe lessicale) | **182** |
+| che compongono o contano | 158 |
+
+Le 158 non hanno un'opinione su *dove finisce una parola*: costruiscono una
+risposta. Il lavoro che apre la banda sono le **182**.
+
+**L'attrezzo che rende meccanico ogni passo:** `p0_turn_ir_words/3` restituisce
+le parole del turno **come la IR le vede**, in ordine. Chi lo usa smette di
+avere un confine proprio.
+
+```text
+"no, the cat is not grey"  →  [no] [the] [cat] [is] [not] [grey]
+```
+
+Nota la virgola che **non c'è**: è la divergenza che i consumatori aggiravano.
+
+**L'esempio lavorato**, `correction_peel` in `src/brain/99-registry.c`. Il sito
+documentava da sé il difetto:
+
+> *«split_words keeps a trailing comma on the token ("no,"), so match on the
+> punctuation-stripped marker.»*
+
+Leggeva la stringa per conto suo e poi toglieva la virgola a mano. Ora chiede
+le parole alla IR, e lo spogliatore sparisce con la virgola.
+
+| cancello | esito |
+|---|---|
+| `make soft-test` | ✅ verde, 12 s |
+| «no, the cat is not grey» | ✅ `Held: the cat is not grey. I no longer hold the opposite.` |
+| **piolo r300 della prosa** | ✅ **45/62, invariato** |
+
+**Il modello per le altre 181 è questo, e il cancello è il banco della prosa**
+— non i `.p0t`, che erano tutti verdi mentre la comprensione crollava dell'87%.
+
+**L'indicatore non si muove per un sito su 182: resta 60–65.** Quello che è
+cambiato è che §6.5 ha ora una taglia misurata, un attrezzo e un passo
+verificato, invece di essere un muro di 349.
 
 ### Da dove ripartire, in ordine
 
