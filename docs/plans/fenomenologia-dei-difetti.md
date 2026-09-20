@@ -268,3 +268,79 @@ Lo spostamento sullo heap resta comunque: un `Solver` finisce sulla pila a ogni
 negazione, e quella pila è il terzo cancello della ricerca. **Il −3 resta non
 attribuito**, e la prossima sessione ha ora `prose-why.sh` per guardarlo turno
 per turno invece che banco per banco.
+
+---
+
+## Il coefficiente, e perché il numero non sale: misurato, non argomentato
+
+La scala di F. non conta le domande che passano: misura **da che cosa vengono
+le risposte**. Questa sessione ha trovato, con il ponte
+[`prose-why.sh`](../../scripts/prose-why.sh), il fatto che spiega il tetto.
+
+**L'esperimento.** Domanda del banco r300: *«what are shallow coral reefs
+sometimes called?»*. La risposta è «Rainforests.», e il testo dice
+«rainforests of the sea».
+
+L'ispettore, sul turno **nello stato in cui sbaglia**, mostra due cose insieme:
+
+```text
+debug_complement   complement(binding(call, shallow_coral_reefs, rainforests), of, sea)
+modulo             answerframe
+```
+
+Cioè: **la lettura ha letto il complemento, e chi risponde non è la lettura.**
+
+**La prova che non è un dettaglio di resa.** Ho scritto la composizione mancante
+come regola KB su `ir_reading_answer` — la faccia che rende una lettura in
+risposta — con la guardia resa ground perché `naf` declina sui goal non ground.
+La regola è corretta e **non cambia niente**: la risposta continua a essere
+«Rainforests.», perché `answerframe` prende il turno prima e non guarda la IR.
+La regola è stata **ritirata**: una regola che non sposta la misura non resta
+in albero.
+
+**Perché questo è IL fatto del coefficiente.** Il piano lo aveva già scritto il
+18 settembre — *«il 49/50 del piolo 300 viene tutto da `answerframe` sopra
+fatti estratti da schemi e ritrovati per cue: un frasario ben fornito, non una
+lettura»* — ma come giudizio. Ora è una misura riproducibile in un comando, su
+una domanda nominata, con la conoscenza mancante visibile accanto alla risposta
+povera che la ignora.
+
+**Ne segue l'ordine del lavoro, e non è «insegnare parole».** Finché
+`answerframe` vince, ogni riga di lessico in più alza il conteggio e lascia il
+coefficiente dov'è. Quello che lo alza è spostare il turno sulla lettura:
+
+1. `answerframe` deve **cedere** quando la IR del turno ha una lettura completa
+   per quella domanda. La condotta esiste già ed è KB: `faculty_yield/3` — la
+   stessa porta con cui l'aritmetica ha smesso di rispondere alle asserzioni.
+2. Solo allora la composizione del complemento (scritta e ritirata qui) sposta
+   una risposta, e si potrà misurarla.
+3. La prova che il passo è avvenuto **non** è il numero del banco: è che la
+   riga risponda con `modulo` di lettura invece che `answerframe`. Il banco
+   mostra già la colonna del modulo: il coefficiente si può leggere **da lì**,
+   contando quante risposte giuste vengono da una lettura e quante da una cue.
+
+### Il numero, misurato per la prima volta
+
+[`scripts/coefficiente.sh`](../../scripts/coefficiente.sh) conta, sui referti
+del banco, quante risposte **giuste** vengono da un circuito di lettura e
+quante dal frasario:
+
+| piolo | lettura | frasario | coefficiente |
+|---|---|---|---|
+| r300 | 10 | 42 | **19%** |
+| r340 | 11 | 4 | 73% |
+
+**r300 dà 19%, e la stima di F. era «20».** La misura e il giudizio coincidono:
+è la prova che la colonna del modulo è la scala, e che da oggi il coefficiente
+si legge invece di stimarlo. (r340 ha un rapporto alto perché il frasario lì
+quasi non aggancia: su 65 domande ne passano 15. Il coefficiente va letto
+accanto al conteggio, non al posto suo.)
+
+La lista dei moduli «di lettura» sta nello script e non in KB **apposta**: è un
+giudizio sul progetto, non conoscenza di parrot0, e va discussa a mano quando
+un modulo cambia natura.
+
+**Una misura per il coefficiente, non più un giudizio.** È la cosa che questa
+sessione lascia di più utile sulla scala di F.: r300 dà 45 risposte nel merito,
+e la colonna dei moduli dice da dove vengono. Contarle è un `awk`, e diventa il
+numero che sostituisce la stima «12–15».
