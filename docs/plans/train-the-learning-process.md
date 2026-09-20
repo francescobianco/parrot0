@@ -1,0 +1,449 @@
+# Train the Learning Process — far crescere la capacità di essere addestrato
+
+> **La missione non è insegnare qualcosa a parrot0. È far crescere le strutture
+> con cui una frase detta lo modifica** — finché la prosa di un maestro non è
+> più un suggerimento, ma **un atto che davvero addestra**.
+>
+> Si agisce su **quattro elementi insieme**: la **KB viva**, la **IR**, la
+> **comprensione universale** e il **mondo allargato**. Un piano che ne tocca
+> uno solo si ferma: è il reperto comune di tutti i tentativi precedenti,
+> consolidati qui.
+
+Aperto il 21 settembre 2026 su richiesta di F. Consolida i tentativi sparsi in
+`docs/plans/` (§2) e definisce l'indicatore **learning-capability** (§4).
+
+---
+
+## 1. Che cosa è «train-the-learning-process», e che cosa non è
+
+### 1.1 La distinzione che fonda tutto
+
+| | |
+|---|---|
+| **Addestrare parrot0** | insegnargli i minerali, i nodi, la grammatica inglese, le leggi fisiche. Cresce ciò che **sa**. |
+| **Addestrare il processo di apprendimento** | far sì che una lezione possa cambiare cose che oggi **nessuna lezione può cambiare**. Cresce ciò che **può diventare**. |
+
+Il primo è lavoro di dominio e si misura in copertura. Il secondo è lavoro di
+struttura e si misura in **altezza**: fin dove, nello stack di parrot0, arriva
+una frase detta in lingua naturale.
+
+Un esempio dalla sessione del 20 settembre 2026 chiarisce la differenza meglio
+di ogni definizione. Al turno
+
+```
+>>> in quale lingua ti ho chiesto quale lingua sai parlare
+c, python.
+```
+
+si può reagire in due modi. **Insegnare la risposta** — e allora si è aggiunto
+un fatto, e la domanda successiva formulata in un altro modo tornerà a
+sbagliare. Oppure **accorgersi che manca un oggetto**: per parrot0 un turno
+passato non è una cosa di cui si possa parlare, quindi «ti ho chiesto…» non ha
+nulla a cui ancorarsi. Finché quell'oggetto non esiste, *nessuna* lezione su
+quella famiglia può attecchire — si potrà solo memorizzare frasi.
+
+**Questo piano lavora sul secondo modo.** Il primo è già coperto da
+[`LEARN_PROTOCOL.md`](../../LEARN_PROTOCOL.md).
+
+### 1.2 Perché è la missione giusta
+
+Perché è l'unica che **compone**. Ogni dominio insegnato con lo stato attuale
+delle strutture costa quanto il precedente. Ogni struttura nuova rende più
+economici **tutti** i domini futuri, compresi quelli che nessuno ha ancora
+nominato. È la stessa ragione per cui
+[`procedura-crescita-kb.md`](procedura-crescita-kb.md) §1 conclude che non
+stiamo accumulando, stiamo **distinguendo**: le otto abilità di una giornata
+non erano otto fatti mancanti, erano otto distinzioni mancanti.
+
+### 1.3 La regola anti-inganno, ereditata e non negoziabile
+
+Da [`MANTRA.md`](../../MANTRA.md) — *anti-barare per l'apprendimento via prompt*:
+
+> «Parlando» significa lingua naturale, non Prolog/P0 o una API serializzata nel
+> testo. Se il teacher deve conoscere nomi di predicati interni, arità, tuple,
+> `!assert`, MCP o la forma di `kb.assert`, non ha insegnato: ha **scritto nella
+> KB attraverso un altro trasporto**. Quel risultato vale zero.
+
+Il controllo operativo: *un esperto del dominio che ignora lo schema interno
+saprebbe formulare la lezione?* Se no, ci si ferma e si amplia la
+meta-comprensione; **non si espone la rappresentazione**.
+
+E il secondo controllo, che vale specificamente per questo piano: **una lezione
+che non si può ritirare non è una lezione.** L'ablazione fa parte della prova,
+sempre. Senza, non si sa se il comportamento nuovo viene dalla lezione o dal
+caso — e per questo progetto vale zero allo stesso modo.
+
+---
+
+## 2. I tentativi precedenti — che cosa hanno trovato, e che cosa resta valido
+
+Questi documenti non sono superati: sono **i pezzi** di questo piano. Qui si
+dice che cosa ciascuno ha stabilito e che cosa va ripreso.
+
+### 2.1 Il metodo — come si trova il prossimo buco
+
+| documento | che cosa ha stabilito | stato |
+|---|---|---|
+| [`radici-insegnabilita.md`](radici-insegnabilita.md) | **La catena di insegnabilità.** Per ogni abilità, quale superficie la insegna; e per quella superficie, quale la insegna a sua volta. Una catena finisce in una **radice** (primitiva del motore: legittima), in un **circolo** (una lezione che estende la propria forma: il caso migliore), o in una **riga a mano** (un buco: il prossimo lavoro). *«Una KB viva è una KB in cui ogni catena finisce in una radice o in un circolo.»* | **il metodo di misura di questo piano** |
+| [`50-iterazioni-insegnabilita.md`](50-iterazioni-insegnabilita.md) | Il bersaglio non è far passare un prompt, è rendere insegnabile **la classe** a cui appartiene. 28 giri su 50 chiusi. | campagna aperta, 22 giri |
+| [`fenomenologia-dei-difetti.md`](fenomenologia-dei-difetti.md), [`fix-patterns.md`](fix-patterns.md) | Le specie ricorrenti di guasto e le forme di cura, fra cui la **guardia di pertinenza** (dire quando una facoltà NON deve prendere il turno) | vivo |
+
+### 2.2 Il livello KB — che cosa può contenere una lezione
+
+| documento | che cosa ha stabilito | stato |
+|---|---|---|
+| [`teach-comprehension-via-prompt.md`](teach-comprehension-via-prompt.md) | La tesi: *ciò che parrot0 sa fare con una forma deve poter cambiare per effetto di una FRASE*. E la contro-tesi: se ogni frase-che-insegna richiede un pezzo di C che la riconosca, il canale-dialogo è un'illusione. | tesi vigente |
+| [`teach-comprehension-via-mcp.md`](teach-comprehension-via-mcp.md) | Il gemello per l'altro canale, e i muri misurati: computazione ricorsiva, generalizzazioni defeasible | muri aperti |
+| [`teachable-procedures.md`](teachable-procedures.md) | La conoscenza non è solo fatti: sono **trasformazioni**. Un interprete di riscrittura generico invece di un consumer C per costrutto. | realizzato in parte |
+| [`due-strutture-kb-viva.md`](due-strutture-kb-viva.md) | **Definizione come espressione** e **fatto a ruoli aperti**: le due strutture che permettono di insegnare *relazioni fra relazioni* | prima realizzazione, non certificata |
+| [`abstraction-ceiling.md`](abstraction-ceiling.md) | Che cosa è esprimibile come conoscenza **senza** nuovi primitivi C, e che cosa sta oltre il soffitto | mappa del possibile |
+| [`insegnamento-super-umano.md`](insegnamento-super-umano.md) | Insegnare la **condotta** e rendere la IR programmabile da prosa. *«Da ora in poi al posto della parola NO dì la parola CAVALLO.»* | proposta, U0→U1 |
+
+### 2.3 La IR — che cosa parrot0 vede, prima di capirlo
+
+| documento | che cosa ha stabilito | stato |
+|---|---|---|
+| [`ir-e-predicato-variabile.md`](ir-e-predicato-variabile.md) | La IR combinata con `apply/2` — il predicato variabile — perché la lettura evolva senza che ogni evoluzione costi un ramo nel motore | forma d'arrivo |
+| [`universal-input.md`](universal-input.md) | Lo scheletro gerarchico: token, span, ruoli, range — il materiale su cui tutto il resto si appoggia | motore |
+| [`lettura-della-prosa.md`](lettura-della-prosa.md) §1 | **Il reperto più duro dell'intero repo:** la IR *esiste* ed è buona (albero con range di byte, ruoli, ~50 viste), ma i file di KB che la consumano sono **7**, contro **217** riscansioni `split_words` nei tre lettori maggiori. Ogni `split_words` riapre la frase con la propria idea di dove finiscono le cose. | **il collo di bottiglia** |
+
+### 2.4 La comprensione universale — la legge che rende una lezione raggiungibile
+
+Non è la IR, ed è l'errore da non fare: la IR è **l'oggetto** che il motore
+pubblica, la comprensione universale è il **regime** che vincola chi lo usa.
+Vive in [`universal-comprehension.md`](universal-comprehension.md), ed è
+l'estensione operativa del manifesto [`kb-first.md`](kb-first.md).
+
+| che cosa stabilisce | perché è decisiva **qui** |
+|---|---|
+| **Nessun muro cieco su una frase ben formata.** parrot0 sa estrarre la struttura di qualsiasi frase; strutture, ruoli e schemi d'intento vivono **nella KB**, non nel C | una lezione **è un turno**. Se una lezione detta in un modo non previsto riceve *«Non capisco ancora»*, il canale di addestramento è morto **prima** di arrivare alla KB |
+| **Comprendere la forma ≠ saper rispondere.** Il muro cieco si sostituisce con il **declino informato**, che dimostra di aver letto la domanda e nomina l'anello mancante | è il **ritorno di informazione al maestro**. Un maestro che riceve *«non so nulla di Zembla»* sa che cosa dire dopo; uno che riceve un muro cieco non impara nulla dalla propria lezione fallita |
+| **La forma rivela l'intento; l'intento dice che cosa servirebbe sapere** | è ciò che permette a una lezione di valere per la **classe** invece che per la frase: senza, ogni superficie nuova è una voce di frasario |
+| **Le tre specie di lacuna** (§10): variante di superficie, costruzione mancante, forma telegrafica — con il test diagnostico che le distingue in tre turni. *Due su tre si chiudono senza mai vedere una chat* | è il **triage** del lavoro di insegnabilità: dice quali buchi si generano dalla struttura e quali vanno resi insegnabili parlando |
+| **Il ramo sociale** (gen240): capire la forma vale anche quando non serve un fatto ma una mossa conversazionale | l'addestramento è una conversazione: il maestro corregge, insiste, cambia esempio. Anche quei turni devono essere compresi |
+
+> **La frase che la lega a questo piano:** *«comprensione universale non vuol
+> dire aver previsto tutto: vuol dire che ciò che è generabile dalla struttura
+> è già chiuso, e ciò che non lo è si chiude parlando»* — §10.
+
+### 2.5 Il mondo allargato — di che cosa parla ciò che viene detto
+
+Cinque oggetti, costruiti il 20 settembre 2026 per la prosa e già eseguibili
+(la mappa delle porte è in
+[`the-rational-philosopher.md`](the-rational-philosopher.md) §4):
+
+| oggetto | porta | che cosa permette |
+|---|---|---|
+| **contenuto** | `kb_clause/4` | menzionare senza credere |
+| **atto** | `kb_act/3` + `act_layer/2` | *chi* ha fatto entrare un contenuto e a quale titolo |
+| **contesto** | `holds_in/2`, `context-scope.p0` | posizioni che convivono senza cancellarsi |
+| **giudizio** | `epistemic-status.p0` | positivo, negativo, entrambi, nessuno, ricerca incompleta |
+| **derivazione** | `kb_derivation/4`, `supported_from_premises/1` | da che cosa viene, e che cosa cade se l'assunto cade |
+
+**Quello che manca non è l'astrazione: è che quasi nulla è ancora un oggetto di
+quell'astrazione** — e che nessuna lezione può aggiungerne uno.
+
+### 2.6 I bersagli — dove si vede se il processo funziona
+
+| documento | ruolo in questo piano |
+|---|---|
+| [`mimic-llm.md`](mimic-llm.md) | il bersaglio «clone di un LLM»: un profilo, pesi che fanno emergere la risposta, condotta imitata |
+| [`motorize-the-class.md`](motorize-the-class.md) | *motorizza la classe, poi nutri il motore* — perché una tabella non scala e un motore sì |
+| [`learning-mesh.md`](learning-mesh.md) | catene di addestramento su una KB condivisa: maestro → parrot0 A → parrot0 B |
+| [`quanto-manca.md`](quanto-manca.md) | il precedente di una misura onesta: muri, risposte buone, **turni rubati** |
+
+---
+
+## 3. I quattro elementi, e perché vanno mossi insieme
+
+```text
+             ┌──────────────────────────────────────────────────────┐
+     dice →  │  MONDO ALLARGATO   di che cosa si può parlare         │ ← qui nascono
+             │  contenuto · atto · contesto · giudizio · derivazione │   i generi di cosa
+             ├──────────────────────────────────────────────────────┤
+             │  IR                che cosa parrot0 vede in un turno  │ ← qui si decide
+             │  nodi · ruoli · range · forza · lingua                │   se c'è appiglio
+             ├──────────────────────────────────────────────────────┤
+             │  KB VIVA           che cosa ne fa                     │ ← qui vive
+             │  fatti · forme · procedure · condotta                 │   la lezione
+             └──────────────────────────────────────────────────────┘
+      ╔══════════════════════════════════════════════════════════════════╗
+      ║  COMPRENSIONE UNIVERSALE — la legge che attraversa tutti e tre:   ║
+      ║  nessun muro cieco su una frase ben formata; la forma rivela      ║
+      ║  l'intento; ciò che manca si NOMINA invece di tacere.             ║
+      ╚══════════════════════════════════════════════════════════════════╝
+```
+
+I primi tre sono **strati**: ognuno è un posto dove stanno delle cose. Il
+quarto non è uno strato, è un **regime** — la disciplina che attraversa gli
+altri tre e dice come devono comportarsi. Disegnarlo come un quarto piano
+sarebbe comodo e falso.
+
+**La regola di dipendenza, che è il cuore di questo piano:**
+
+> Una lezione può cambiare solo ciò che la **KB viva** sa esprimere; la KB può
+> esprimere solo ciò su cui la **IR** le dà un appiglio; la IR può dare un
+> appiglio solo a ciò che il **mondo allargato** ammette come *genere di cosa*;
+> e **nulla di tutto questo si mette in moto se la lezione non viene capita** —
+> che è il mestiere della **comprensione universale**.
+
+La quarta clausola non è un'aggiunta ornamentale. Le prime tre descrivono che
+cosa una lezione *potrebbe* cambiare una volta arrivata. La quarta dice se
+**arriva**. Ed è la sola che lavora in **entrambe le direzioni**: fa entrare la
+lezione, e fa uscire il **declino informato** che dice al maestro che cosa
+insegnare dopo. Un canale che non parla all'indietro non è un canale di
+addestramento: è un imbuto.
+
+Da cui i **quattro** modi tipici di fallire, che sono i quattro modi in cui i
+piani precedenti si sono fermati:
+
+| sintomo | elemento mancante | esempio reale |
+|---|---|---|
+| la lezione detta in un modo nuovo riceve *«Non capisco ancora»*, e il maestro non sa perché | **comprensione universale**: muro cieco invece di declino informato | le quattro forme di lezione **italiane** del circuito del dialogo erano dichiarate e *«non ancora verificate end-to-end»* (`LEARN_PROTOCOL.md`): sembravano insegnabili. Una è stata provata il 20 settembre e funziona; le altre tre restano non verificate, e nulla lo direbbe |
+| la lezione entra, il comportamento non cambia | **KB viva**: il predicato che la lezione scrive non lo legge nessuno | `greeting(ahoy)`: vero in KB, invisibile al comportamento |
+| la lezione sarebbe esprimibile ma non c'è su che cosa dirla | **IR**: il turno non pubblica il pezzo di cui la lezione parla | insegnare a trattare l'avverbiale di tempo, quando la lettura lo scarta |
+| la lezione non è nemmeno formulabile | **mondo allargato**: manca il genere di oggetto | «in quale lingua ti ho chiesto…»: un turno passato non è una cosa |
+
+**Corollario operativo per chi legge questo piano.** Prima di aprire il codice,
+dire a quale dei quattro appartiene il buco — e il primo si controlla per
+primo, perché è il più economico da verificare e il più facile da scambiare per
+uno degli altri tre. Una cura all'elemento sbagliato produce un verde che non
+compone: è il modo più efficiente di perdere una sessione, e questo repo ne ha
+esempi committati.
+
+---
+
+## 4. L'indicatore: **learning-capability**, da 0 a 100
+
+### 4.1 La definizione
+
+> **learning-capability misura quanto di parrot0 può essere cambiato
+> parlandogli**, in natura e in altezza — non quanto sa.
+>
+> **0** = parrot0 non impara nulla: nessuna frase detta modifica alcun suo
+> comportamento, e ogni sua capacità è una riga scritta da qualcuno.
+>
+> **100** = parrot0 può imparare e **diventare qualsiasi cosa** lo si voglia far
+> diventare: un esperto di astrofisica, un clone di un LLM, un interprete di
+> file PGN scacchistici. Sono esempi: **100 vuol dire ogni cosa**, e senza mai
+> ricompilare.
+
+È la gemella della **scala di F.** per la comprensione
+([`lettura-della-prosa.md`](lettura-della-prosa.md) §0-bis), e ne eredita il
+carattere: **non misura quante lezioni passano, misura che cosa una lezione può
+raggiungere.** Le due scale sono indipendenti. Un parrot0 che capisce benissimo
+e non si lascia modificare sta alto sulla prima e a zero su questa.
+
+**Ma non sono scorrelate in un punto solo, ed è la comprensione universale.**
+Una lezione è un turno: se la frase che insegna non viene compresa, la lezione
+non arriva. Per questo la comprensione universale è **il pavimento** di questa
+scala — non un elemento fra gli altri tre, ma la condizione perché gli altri
+tre siano misurabili. Se la banda di comprensione crolla, questa crolla con
+lei; il contrario non vale.
+
+### 4.2 Le due dimensioni che F. ha nominato
+
+**Forza modificativa** — *che cosa* una lezione può cambiare:
+
+| | livello | una lezione può cambiare… |
+|---|---|---|
+| **L0** | niente | nulla |
+| **L1** | contenuto | un fatto del mondo |
+| **L2** | superficie | una forma riconosciuta: un sinonimo, un indizio, una parafrasi |
+| **L3** | procedura | una trasformazione, un piano, una mossa: il *come si fa* |
+| **L4** | condotta | chi prende il turno, con quale precedenza, e **quando NON deve** |
+| **L5** | struttura | un genere di cosa nuovo: un ruolo nella IR, uno strato del mondo allargato, **una forma di lezione** |
+
+**Astrazione** — su *quale ordine* la lezione agisce:
+
+| | ordine | la lezione vale per… |
+|---|---|---|
+| **A0** | istanza | questa risposta, questo turno |
+| **A1** | classe | ogni membro della classe, anche futuro |
+| **A2** | relazione fra relazioni | *«doubled x is x followed by x»*, poi *«grandparent is doubled parent»* |
+| **A3** | la lezione stessa | una lezione che crea una **forma di lezione**: il circolo si chiude |
+
+L5 e A3 sono il punto dove il sistema comincia a nutrirsi da sé. Sono anche i
+due dove parrot0 oggi è più debole, e non è una coincidenza: sono gli unici due
+che nessun lavoro di dominio produce come effetto collaterale.
+
+### 4.3 Le bande, con le loro àncore
+
+| banda | che cosa è vero a quella banda |
+|---|---|
+| **0** | nessuna frase cambia nulla |
+| **1–15** | solo **fatti** (L1/A0). Ogni forma nuova costa C |
+| **16–30** | **+ superfici** (L2): sinonimi, indizi, parafrasi di forme **esistenti**. Un *genere* di forma nuovo costa C. **Soglia di comprensione universale:** una lezione detta in un modo non previsto riceve un **declino informato**, non un muro cieco — sotto questa riga il maestro lavora alla cieca e nessuna banda superiore è raggiungibile |
+| **31–45** | **+ procedure** (L3) e classi (A1): si insegna a *fare*, non solo a sapere. La condotta resta compilata |
+| **46–60** | **+ condotta** (L4): precedenza, cessione e guardie di pertinenza si insegnano **e si ritirano** |
+| **61–75** | **+ la lettura** (IR): un ruolo o un genere di nodo nuovo costa **una lezione**, non un ramo. Le riscansioni della stringa sono sparite, quindi due lettori dello stesso turno non possono più essere in disaccordo su che cosa c'è scritto |
+| **76–90** | **+ il mondo allargato** è estensibile, e **A3**: una lezione crea una forma di lezione. Le catene finiscono in radici e circoli, non in righe a mano |
+| **91–100** | **la tripletta di accettazione** (§4.4) passa per sola conversazione e curriculum, su un dominio, una condotta e una notazione **mai visti** |
+
+### 4.4 La tripletta di accettazione per il 100
+
+I tre esempi di F. non sono intercambiabili: **misurano tre assi diversi**, ed è
+per questo che insieme definiscono il 100 meglio di qualsiasi formula.
+
+| bersaglio | che cosa mette davvero alla prova | livello richiesto |
+|---|---|---|
+| **esperto di astrofisica** | ingestione su scala + forme di domanda: sapere molto e farsi interrogare in modi non previsti | L1+L2 su volume, A1 |
+| **clone di un LLM** | **condotta**: registro, iniziativa, quando rispondere e quando tacere, che cosa non dire | L4, A1 — vedi [`mimic-llm.md`](mimic-llm.md) |
+| **interprete di file PGN** | una **notazione** nuova (una grammatica), una **procedura** (applicare una mossa), un **oggetto** nuovo (lo stato della scacchiera) | L3+L5, A2 — tocca tutti e tre i livelli del §3 |
+
+Il terzo è il più esigente e va tenuto come bersaglio di riferimento: un file
+PGN non è prosa, non è un fatto e non è un dialogo. Se parrot0 può imparare a
+leggerlo **parlandogli**, allora la IR non era una scansione dell'inglese e il
+mondo allargato non era una lista di cinque parole.
+
+### 4.5 Come si misura — il censimento delle catene
+
+Non si stima: si conta. La procedura eredita da
+[`radici-insegnabilita.md`](radici-insegnabilita.md) §3, che fissa il vantaggio
+decisivo — **il punto di partenza è dato**, perché ogni abilità che parrot0 ha
+già dimostra che una catena la sostiene.
+
+1. **Campionare** N abilità reali da tre pozzi, non da un elenco scritto per
+   l'occasione: le asserzioni dei `.p0t`; le forme del catalogo
+   (`LEARN_PROTOCOL.md` §6-bis); **ogni ramo C che decide qualcosa**.
+2. Per ciascuna, la domanda di risalita: *parrot0 potrebbe riapprenderla da una
+   lezione di ordine superiore?* — e si classifica la fine della catena:
+   **radice**, **circolo**, **riga a mano**.
+3. Per ciascuna, segnare il livello **L** e l'ordine **A** più alti raggiunti.
+4. Il referto è **un istogramma su L0–L5, più la quota di catene che finiscono
+   in una riga a mano**. La banda si legge da lì.
+5. Ogni abilità marcata insegnabile va **provata parlando**: replay, altro
+   argomento, ritiro, replay. Un censimento che controlla solo che la forma
+   esista non vede gli anelli rotti — il gen510 ne ha trovato uno che rompeva
+   *tutte* le catene di un tipo, in silenzio.
+6. **E si misura anche il pavimento.** Per ogni lezione del campione, dirla una
+   seconda volta **in un modo non previsto** (altra formulazione, altra lingua,
+   forma telegrafica) e registrare che cosa torna: la lezione capita, un
+   **declino informato** che nomina ciò che manca, o un **muro cieco**. La quota
+   di muri ciechi sulle lezioni è l'indicatore anticipato di tutto il resto:
+   sale sempre prima che la banda scenda. Le tre specie di lacuna di
+   [`universal-comprehension.md`](universal-comprehension.md) §10 dicono quale
+   dei tre esiti ci si doveva aspettare.
+
+### 4.6 Le regole di lettura — che cosa muove l'ago
+
+Stessa disciplina della scala della prosa, perché ha funzionato.
+
+| muove l'ago | **non** lo muove, anche se il numero sale |
+|---|---|
+| una catena che passa da **riga a mano** a radice o circolo | una superficie in più per una forma che già esisteva |
+| una lezione che raggiunge un livello **L più alto** di prima | una lezione in più allo stesso livello |
+| un'ablazione che **toglie davvero** il comportamento insegnato | un acknowledgement (*«ho imparato»*) senza cambiamento misurato |
+| un **trasferimento** a un membro mai visto della classe | il replay dello stesso turno della lezione |
+| una riscansione della stringa **sostituita** da un consumatore della IR | un consumatore della IR aggiunto accanto a una riscansione che resta |
+| un **muro cieco** su una lezione diventato **declino informato**: il maestro ora sa che cosa dire dopo | un muro cieco chiuso aggiungendo la superficie che l'ha prodotto — chiude quel turno, non la specie |
+| una specie di lacuna **generata dalla struttura** invece che attesa in chat (`universal-comprehension.md` §10, specie 1 e 2) | una variante in più registrata a mano dopo averla vista fallire |
+| un genere di cosa nuovo, di cui ora si può parlare | un predicato nuovo senza una forma che lo insegni — *un cassetto senza maniglia*, mantra #26 |
+
+### 4.7 Anti-inganno specifico dell'indicatore
+
+- **Il maestro non conosce lo schema.** Se la lezione nomina predicati, arità o
+  tuple, quel punto non si conta (§1.3).
+- **Nessuna ricompilazione**, mai, fra la lezione e la prova.
+- **L'ablazione è obbligatoria.** Se ritirando la lezione il comportamento
+  resta, il punto non si conta: non veniva da lì.
+- **Il campione non si sceglie dopo.** Le abilità del censimento si fissano
+  prima di misurarle, e il banco non si allarga per abbassare la quota di righe
+  a mano.
+- **Una lezione che vale per una frase sola è A0**, anche se sembra una regola.
+  La prova è il membro mai visto.
+
+---
+
+## 5. Dove siamo oggi — stima con le sue ragioni, da contraddire con una misura
+
+**learning-capability ≈ 30–35** al 21 settembre 2026. È una **stima**: il
+censimento del §4.5 non è ancora stato eseguito, e la prima sessione che lo
+esegue deve sostituire questo numero con quello contato.
+
+| livello | stato | evidenza |
+|---|---|---|
+| **L1** contenuto | solido | l'intero canale di crescita parlando |
+| **L2** superficie | solido, con un **circolo** già chiuso | la lezione di parafrasi (`phrase_canon`) estende anche la propria superficie — `radici-insegnabilita.md` §4.1, S2′ |
+| **L3** procedura | **parziale** | procedure e piani insegnabili (gen507); le trasformazioni generiche restano incomplete |
+| **L4** condotta | **appena aperto** | `turn_pattern_force`/`unforce` permettono di dire che una forma **è** o **non è** una forza; `faculty_yield*` è KB. Ma le lezioni di condotta realmente pronunciabili sono poche, e la precedenza fra facoltà resta quasi tutta scritta |
+| **L5** struttura | **quasi chiuso** | il gen511 ha aperto uno spiraglio (*«S means T»* crea una forma di lezione); un genere di forma **nuovo** resta una riga a mano — è il gradino **S2** di `radici-insegnabilita.md`, il buco dichiarato |
+| **comprensione universale** | **il pavimento, incrinato** | il declino informato esiste e per tre classi della prosa (tempo, porzione, causa) nomina ciò che manca; ma il muro cieco resta la risposta ordinaria a una formulazione non prevista — **incluse le lezioni**. Il catalogo dichiara quattro forme italiane *«non ancora verificate end-to-end»*: una provata, tre no, e nessuno se ne accorgerebbe senza parlarci |
+| **IR** | **il collo** | 7 file di KB consumano la IR contro **217** `split_words`. Nessuna lezione può aggiungere un ruolo o un genere di nodo |
+| **mondo allargato** | esiste, non è estensibile | i cinque oggetti sono eseguibili; nessuna superficie ne aggiunge uno |
+
+**Perché non meno di 30:** L1 e L2 sono solidi e c'è almeno un circolo chiuso;
+le procedure si insegnano; l'ablazione funziona e viene richiesta dal protocollo.
+
+**Perché non più di 35:** il 20 settembre 2026, in una sola sessione sul
+circuito del dialogo, sono emersi tre guasti del **canale** di apprendimento,
+non del suo contenuto (vedi [`the-rational-philosopher.md`](the-rational-philosopher.md),
+handoff vigente): una lettura abbandonata che **scriveva comunque** in KB una
+lezione mutilata; una seconda lezione sulla stessa mossa che **non aveva
+effetto** senza che nulla lo dicesse; e un confine di arbitrato per cui una
+forma insegnata correttamente non cambiava nulla — e non cambiava nulla
+**neanche la sua gemella nativa**. Un canale su cui tre difetti di quella specie
+convivono non sta sopra la metà di nessuna scala.
+
+---
+
+## 6. Il lavoro — che cosa alza il numero, in ordine
+
+L'ordine non è un gusto: ogni riga è la condizione della successiva.
+
+1. **Guarire il canale prima di allargarlo.** Una lezione deve arrivare al
+   proprio lettore, avere effetto, essere l'ultima detta a contare, e sparire
+   quando la si ritira. I tre guasti del §5 sono chiusi; il metodo che li ha
+   trovati — provare la forma **nativa** prima di accusare la lezione — va
+   applicato al catalogo intero. *Nessun punto nuovo: toglie punti falsi.*
+2. **Il pavimento: nessuna lezione riceve un muro cieco.** È il §10 di
+   [`universal-comprehension.md`](universal-comprehension.md) applicato al
+   catalogo delle forme di lezione invece che alle domande. Per ogni forma:
+   generare dalla struttura le varianti di superficie (specie 1) e le
+   costruzioni simmetriche mancanti (specie 2) — *due specie su tre si chiudono
+   senza mai vedere una chat* — e rendere la terza insegnabile parlando. Chi
+   insegna deve ricevere, sempre, o la lezione capita o il nome di ciò che
+   manca. **È il lavoro con il rapporto valore/costo più alto dell'intero
+   elenco**, perché ogni banda superiore lo assume già fatto.
+3. **L4 — la condotta diventa dicibile.** «Quando il tema di una domanda è un
+   turno di questa conversazione, non rispondere con l'elenco delle cose che
+   sai.» La **guardia di pertinenza** è la forma di seme che il `/debug` di
+   parrot0 già nomina quando un turno gli riesce per il motore e fallisce per
+   l'interlocutore. È il salto di banda più economico disponibile: **46–60**.
+4. **L5/S2 — una lezione che crea una forma di lezione.** Il buco dichiarato da
+   `radici-insegnabilita.md`, aperto a metà dal gen511. Chiuderlo trasforma il
+   grafo: le catene cominciano a finire in circoli. Porta verso **76–90**.
+5. **La IR consumata invece che riscansionata.** I 217 `split_words` sono il
+   motivo per cui due lettori dello stesso turno sono in disaccordo su che cosa
+   c'è scritto. Finché durano, la banda **61–75** è irraggiungibile per
+   costruzione: non c'è un *dove* stabile su cui una lezione possa dire qualcosa.
+6. **Il mondo allargato estensibile.** Un genere di cosa nuovo — *un turno
+   passato è una cosa*, cioè **F1** di
+   [`the-rational-philosopher.md`](the-rational-philosopher.md) — deve poter
+   nascere da una lezione. È il gradino che rende plausibile la tripletta §4.4.
+7. **Solo allora, la tripletta.** Tre curricula veri, tre profili, nessuna
+   riga di C: astrofisica, condotta imitata, PGN.
+
+---
+
+## 7. Come si usa questo piano
+
+**Chi apre una sessione su questo piano dichiara tre cose, prima di lavorare:**
+
+1. **a quale dei quattro elementi** (§3) appartiene il buco che sta aprendo —
+   e, prima di ogni altra cosa, di aver verificato che la lezione che intende
+   usare **venga compresa**: un buco attribuito alla KB che era un muro cieco
+   della comprensione è la diagnosi sbagliata più frequente;
+2. **quale livello L e quale ordine A** la lezione dovrà raggiungere (§4.2);
+3. **quale abilità esistente** userà come punto di partenza della catena — mai
+   il vuoto, perché il punto di partenza è dato (§4.5).
+
+**E chiude dichiarando:** dove ha mosso l'ago, con quale evidenza, e quali
+catene sono passate da riga a mano a radice o circolo. Se il numero non si è
+mosso, si dice — un giro che guarisce il canale senza alzare la banda è un
+buon giro, e va raccontato per quello che è.
+
+**Un giro non vale** se il comportamento nuovo non sopravvive al trasferimento,
+se non sparisce all'ablazione, o se la lezione ha dovuto nominare lo schema
+interno. In nessuno di quei casi si è addestrato il processo di apprendimento:
+si è scritto nella KB con più passaggi.

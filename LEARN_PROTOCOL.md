@@ -1,5 +1,11 @@
 # Protocollo operativo di addestramento di parrot0
 
+> **Questo file dice come si addestra parrot0.** Far crescere ciò che
+> l'addestramento *può raggiungere* — le strutture di KB, IR e mondo allargato
+> che decidono quanto in alto arriva una lezione — è l'altro mestiere, e sta in
+> [docs/plans/train-the-learning-process.md](docs/plans/train-the-learning-process.md),
+> con l'indicatore `learning-capability` (0–100).
+
 ## Aggiornamento 20 settembre 2026 — insegnare aperture, mosse e iniziativa
 
 **Stato: primo circuito operativo, con limiti noti.** Il passaggio di consegne

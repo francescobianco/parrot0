@@ -6,6 +6,12 @@ metodo di lavoro. Si affianca a [LEARN_PROTOCOL.md](../../LEARN_PROTOCOL.md)
 [50-iterazioni-insegnabilita.md](50-iterazioni-insegnabilita.md) e al
 [quadro preliminare della KB viva](quadro-preliminare-kb-viva.md) §5.7.
 
+> **21 settembre 2026 — questo metodo è ora il metodo di misura di
+> [train-the-learning-process.md](train-the-learning-process.md)**, il piano
+> che consolida tutti i tentativi di far crescere l'addestrabilità e ne fissa
+> l'indicatore (`learning-capability`, 0–100). Il censimento delle catene
+> descritto qui è la sua procedura di misura.
+
 > *«preso una qualsiasi cosa che può essere insegnata a parrot0 si può
 > individuare la superficie che la insegna e chiedersi quale superficie serve
 > per insegnare quella abilità di insegnamento, e così facendo a ricorsione
