@@ -53,3 +53,36 @@ derivation_rests_on_cache($D) :-
 % Un insieme troncato non e' un insieme piu' piccolo: la dipendenza lo dichiara.
 derivation_needs_cut_aggregate($D, $G) :-
     derivation_depends_on($D, aggregate_incomplete($G)).
+
+% ─── Quali sostegni VALGONO per questa richiesta (M3, primo passo) ───────────
+%
+% docs/plans/lettura-della-prosa.md §8: «Non limitarsi a spostare
+% `from_premises ? Yes : No` in una tabella: la prova scelta sarebbe ancora
+% sbagliata». Il difetto del caso Zelvo non e' il verdetto, e' che si
+% giudicava la PRIMA prova trovata invece di cercarne una AMMISSIBILE. Con
+% kb_derivation le alternative arrivano col backtracking, quindi la domanda
+% giusta si scrive come conoscenza e non come un ramo del motore:
+%
+%   esiste una derivazione di Goal le cui dipendenze sono tutte ammesse?
+%
+% Nessun flag globale, nessuna vista ristretta: il mondo resta interrogabile e
+% la differenza la fa il SOSTEGNO (mantra #25, one-kb.md §5b).
+
+% Una dipendenza e' fra le premesse del turno se il suo contenuto e' entrato
+% ANCHE come supposizione. Un contenuto che il mondo gia' sapeva e che il turno
+% ha supposto ha due atti: conta come premessa, perche' la premessa e' stata
+% davvero posta.
+dependency_supposed($Dep) :- content_act($Dep, hypothetical).
+
+derivation_outside_premises($D) :-
+    derivation_depends_on($D, $Dep), naf(dependency_supposed($Dep)).
+derivation_only_from_premises($D) :- naf(derivation_outside_premises($D)).
+
+% Il punto: si CERCA una prova ammissibile, non si giudica la prima trovata.
+supported_from_premises($Goal) :-
+    kb_derivation($D, $Goal, 0, $N), derivation_only_from_premises($D).
+
+% E la distinzione che il verdetto deve conservare: una conclusione puo' essere
+% sostenuta dal mondo, dalle premesse, o da entrambi — sono tre cose diverse.
+supported_from_world($Goal) :-
+    kb_derivation($D, $Goal, 0, $N), naf(derivation_only_from_premises($D)).

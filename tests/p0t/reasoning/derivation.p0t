@@ -166,3 +166,42 @@
 !forget abstraction_link(b, c)
 !query! derivation_of(abstraction_reach(a, d), $D)
 !query derivation_of(abstraction_reach(a, b), $D)
+
+[test the_zelvo_shape_a_taught_conclusion_does_not_erase_the_premise_proof]
+# M3, primo passo — il difetto misurato dal piano: il sillogismo rispondeva
+# Yes, si insegnava separatamente la conclusione, e rispondeva No. Non perche'
+# il verdetto fosse sbagliato, ma perche' si giudicava la PRIMA prova trovata
+# invece di cercarne una AMMISSIBILE. Qui la ricerca continua dopo una prova
+# dal mondo non sufficiente, e la conoscenza in piu' non toglie niente.
+#
+# Il mondo non sa ancora nulla di zelvo: si suppongono le premesse.
+!suppose abstraction_narp(zelvo).
+!suppose abstraction_vorn($X) :- abstraction_narp($X).
+!query abstraction_vorn(zelvo)
+!query supported_from_premises(abstraction_vorn(zelvo))
+!query! supported_from_world(abstraction_vorn(zelvo))
+
+# Ora si INSEGNA la conclusione come fatto del mondo. La prova diretta esiste,
+# ed e' piu' corta: e' quella che il vecchio circuito trovava per prima.
+!assert abstraction_vorn(zelvo)
+!query supported_from_world(abstraction_vorn(zelvo))
+# la prova dalle premesse c'e' ancora, e si trova tornando indietro
+!query supported_from_premises(abstraction_vorn(zelvo))
+
+# Ritirando il solo fatto insegnato resta la prova dalle premesse
+!forget abstraction_vorn(zelvo)
+!query supported_from_premises(abstraction_vorn(zelvo))
+!query! supported_from_world(abstraction_vorn(zelvo))
+
+[test with_a_premise_really_missing_nothing_is_invented]
+# l'altra meta': se una premessa manca davvero, non si inventa l'implicazione
+!suppose abstraction_zorb($X) :- abstraction_quib($X).
+!query! supported_from_premises(abstraction_zorb(nobody))
+!query! abstraction_zorb(nobody)
+# e appena la premessa c'e', la prova dalle premesse compare
+!suppose abstraction_quib(nobody).
+!query supported_from_premises(abstraction_zorb(nobody))
+# ritirando le supposizioni cade tutto, e nessun contenuto resta appeso
+!forget @hypothetical
+!query! abstraction_zorb(nobody)
+!query! supported_from_premises(abstraction_zorb(nobody))
