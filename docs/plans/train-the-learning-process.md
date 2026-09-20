@@ -498,6 +498,124 @@ già dimostra che una catena la sostiene.
    [`universal-comprehension.md`](universal-comprehension.md) §10 dicono quale
    dei tre esiti ci si doveva aspettare.
 
+## 4.5-bis. IL CENSIMENTO ESEGUITO — 21 settembre 2026
+
+**Questa sezione sostituisce la stima del §5 con una misura, e la contraddice.**
+Il numero contato è **più basso** di quello stimato, e la ragione è una sola:
+la stima guardava che cosa parrot0 *può* imparare, il censimento guarda che
+cosa arriva quando il maestro non conosce la superficie esatta.
+
+### Il campione, fissato prima di misurare
+
+Regola meccanica, nessuna scelta a mano: ogni pozzo ordinato in modo
+deterministico, un elemento ogni ⌊N/10⌋ a partire dal primo. **N = 30**, dieci
+per pozzo (4.676 asserzioni `.p0t`; 199 righe del catalogo §6-bis; 80 facoltà
+`mod_*`). Il campione è riproducibile con lo script di estrazione; una riga
+estratta (`B1`) è risultata l'intestazione della tabella — **artefatto del
+campionamento, lasciato dentro** proprio perché prova che la scelta è stata
+meccanica.
+
+**Misurati parlando: 12 dei 30.** Gli altri 18 restano da classificare, e
+questa sezione non finge di averli visti.
+
+### Il pavimento — la misura che decide tutto
+
+Per ogni lezione: detta nella forma prevista, poi in una forma **non prevista**.
+Il §4.5 punto 6 attendeva tre esiti; la misura ne trova **un quarto, ed è il
+più numeroso e il peggiore**.
+
+| lezione, detta in modo non previsto | esito | specie |
+|---|---|---|
+| «zorbo **belongs to** the birds» | `Learned: zorbo belong birds.` | **fatto storto, in silenzio** |
+| «zorbi is the **plural form of** zorbo» | `Learned: zorbi is a plural. Learned: zorbi form zorbo.` | **due fatti storti** |
+| «glorp **takes an event as its subject**» | `Learned: glorp take event as its subject.` | **fatto storto** |
+| «**the opposite of** zabby **is** zibby» (ordine invertito) | `I don't understand that yet.` | muro cieco |
+| «grandparent **means** parent **then** parent» | «I found the teaching pivot, but I cannot align the same variables…» | **declino informato** ✓ |
+
+| esito | quota sul campione |
+|---|---|
+| lezione capita | — (nessuna delle cinque varianti) |
+| **declino informato** | **1 su 5 (20%)** |
+| muro cieco | 1 su 5 (20%) |
+| **fatto storto entrato in silenzio** | **3 su 5 (60%)** |
+
+**La quarta specie non era prevista dal piano, e va aggiunta al §4.5.** Un muro
+cieco lascia il maestro all'oscuro; un fatto storto gli dice **«Learned»**
+mentre scrive in KB una cosa sbagliata. È peggio del muro per la stessa ragione
+per cui, sulla scala della prosa, una risposta fluente e infondata è peggio di
+un «non so»: il maestro crede di aver insegnato e non ha nessun segnale.
+
+### Le forme che funzionano, e fin dove arrivano
+
+| # | forma | esito nella forma prevista | L | A |
+|---|---|---|---|---|
+| B2 | `X is a member of <classe>` | ✅ `what is zorbo?` → «zorbo is a birds»; `is zorbo a birds?` → «Yes» | L1 | A1 |
+| B4 | `the plural of X is Y` | ✅ accettata e ritenuta | L2 | A1 |
+| B5 | `X is the opposite of Y` | ✅ replay: `what is the opposite of zabby?` → «Zibby» | L2 | A1 |
+| B9 | `V is W followed by Z` | ✅ **catena intera**: insegnata la composizione, dati due fatti, `who is the grandparent of carl?` → «ann» | **L3** | **A2** |
+| — | `X is a Y` (base) | ✅ lezione, replay, **ablazione** (`Forgotten: animal(bob)`), replay | L1 | A1 |
+| T3 | `when the topic … do not answer with …` | ✅ lezione, effetto, **trasferimento alla classe**, ritiro | **L4** | A1 |
+
+**B9 e T3 sono i due punti alti misurati**, e sono veri: una relazione fra
+relazioni e una condotta, entrambe insegnate parlando, entrambe con effetto
+verificato.
+
+### Le rotture misurate
+
+| # | che cosa | esito |
+|---|---|---|
+| A5 | `X is the capital of Y` — **ablazione** | 🔴 **tre formulazioni, nessuna ritira**: «forget that bezra is the capital of nivora» → «I didn't know that anyway» e il fatto **resta**; «forget that the capital of nivora is bezra» → muro cieco. La forma semplice `X is a Y` invece ritira: il buco è della forma **relazionale** |
+| A7 | forma di domanda con variabile (`when i say what shade is X i mean what colour is X`) | 🔴 muro cieco |
+| A1 | procedura detta in prosa (`to double a number multiply it by two`) | 🔴 muro cieco, poi «I looked up «double» but found nothing» |
+| B3 | `V is an event subject verb` | 🔴 **letta come due fatti mutilati**: `Learned: glorp is an event. Learned: glorp subject verb.` |
+
+§4.7 è esplicito: **se ritirando la lezione il comportamento resta, il punto
+non si conta**. A5 quindi non si conta, e con lei ogni abilità relazionale
+della stessa famiglia.
+
+### L'istogramma, e la banda
+
+Sui **12 misurati**, livello più alto raggiunto:
+
+| | L0 | L1 | L2 | L3 | L4 | L5 |
+|---|---|---|---|---|---|---|
+| abilità | 4 (rotte) | 2 | 2 | 1 | 1 | 0 |
+
+Catene che finiscono in una **riga a mano**: le quattro rotture più le facoltà
+`mod_*` del pozzo C non ancora risalite. Sulla parte misurata, **un terzo delle
+abilità campionate non arriva affatto quando il maestro cambia una parola**.
+
+> **learning-capability contato ≈ 30**, non 45–50.
+
+**Perché non di più, ed è il punto del censimento.** La forza modificativa
+*arriva* a L4 e ad A2 — B9 e T3 lo provano, e non sono stime. Ma il §4.1 dice
+che la comprensione universale **non è un elemento fra gli altri: è il
+pavimento**, e che *«se la banda di comprensione crolla, questa crolla con
+lei»*. Il pavimento misurato è sotto la sua soglia: **l'80% delle formulazioni
+non previste non riceve un declino informato**, e il 60% scrive un fatto
+sbagliato dicendo «Learned». La banda 16–30 chiede esattamente il contrario.
+
+**Perché non di meno.** Due punti alti sono reali e ripetibili, l'ablazione
+funziona sulla forma base, e il canale ha imparato a parlare all'indietro su
+almeno una forma (T2). Non è un sistema che «non impara nulla».
+
+**Che cosa muoverebbe il numero più di ogni altra cosa**, e adesso è contato e
+non argomentato: **le tre superfici che scrivono un fatto storto invece di
+declinare**. Non servono forme nuove — serve che una forma *quasi* riconosciuta
+smetta di essere accettata a metà. È il §6.2, e la misura dice che vale più di
+tutto il resto messo insieme.
+
+### Che cosa questo censimento non ha fatto
+
+- **18 elementi su 30 non sono stati misurati parlando** (gran parte del pozzo A
+  e tutto il pozzo C). La risalita delle facoltà `mod_*` — *questa decisione
+  potrebbe essere riappresa da una lezione?* — è la metà più costosa e manca.
+- La quota di «riga a mano» è quindi **una stima inferiore**, non un conteggio.
+- Il campione è di 30 su migliaia: dice la specie dei guasti, non la loro
+  frequenza esatta nella KB intera.
+
+---
+
 ### 4.6 Le regole di lettura — che cosa muove l'ago
 
 Stessa disciplina della scala della prosa, perché ha funzionato.
@@ -530,9 +648,13 @@ Stessa disciplina della scala della prosa, perché ha funzionato.
 
 ## 5. Dove siamo oggi — stima con le sue ragioni, da contraddire con una misura
 
-**learning-capability ≈ 45–50** al 21 settembre 2026, salito da **30–35**. È
-ancora una **stima**: il censimento del §4.5 non è stato eseguito, e la prima
-sessione che lo esegue deve sostituire questo numero con quello contato.
+**learning-capability ≈ 30, CONTATO** al 21 settembre 2026 — vedi il censimento
+eseguito in **§4.5-bis**, che sostituisce e **contraddice** la stima di 45–50
+scritta poche ore prima nella stessa giornata. La stima guardava che cosa
+parrot0 *può* imparare; il censimento guarda che cosa **arriva** quando il
+maestro non conosce la superficie esatta, e il pavimento è sotto la sua soglia.
+La tabella qui sotto resta valida su *che cosa esiste*: è la sua raggiungibilità
+che il numero contato corregge.
 
 **Che cosa ha mosso l'ago, il 21 settembre** — tre TODO chiusi, e per ognuno
 la regola del §4.6 che dice perché conta:
