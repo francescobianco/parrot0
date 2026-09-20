@@ -221,6 +221,8 @@ typedef struct {
     size_t ndeps, dep_cap;
     int live, building, dirty, attempted, broad;
     size_t stamp;          /* kb->view_clock at the last invalidation */
+    uint64_t content;      /* impronta delle righe dell'ultima costruzione */
+    int has_content;
 } KbView;
 
 struct KB {
@@ -994,11 +996,12 @@ static int fact_append_indexed(Fact **facts, size_t *n, size_t *cap,
 /* Invalidate on a CHANGE, not on cardinality: retract+assert can preserve both
  * counts. Dependencies include the transitive rule bodies, even predicates
  * with no facts yet. No fact-table mutation here: a solver may own pointers. */
-static void kb_views_changed(KB *kb, const char *pred) {
+static void kb_views_changed_ex(KB *kb, const char *pred, const KbView *self) {
     int registry = strcmp(pred, "materialized_view") == 0;
     if (registry) kb->views_reload = 1;
     for (size_t k = 0; k < kb->nviews; k++) {
         KbView *v = &kb->views[k];
+        if (v == self) continue;   /* una vista non invalida se' stessa */
         int affected = registry || v->broad;
         for (size_t i = 0; i < v->ndeps && !affected; i++)
             affected = strcmp(v->deps[i], pred) == 0;
@@ -1018,6 +1021,10 @@ static void kb_views_changed(KB *kb, const char *pred) {
         v->stamp = ++kb->view_clock;
         kb->views_pending = 1;
     }
+}
+
+static void kb_views_changed(KB *kb, const char *pred) {
+    kb_views_changed_ex(kb, pred, NULL);
 }
 
 int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
@@ -3182,9 +3189,30 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
     v->broad = 1;                 /* OOM/unsupported => conservative fallback */
     if (!kb_view_dep_add(v, v->pred) ||
         !kb_view_dep_add(v, "view_depends")) return 0;
+    /* 20 settembre 2026 — UNA VISTA CONGELATA E' UN CONFINE DEL GRAFO.
+     *
+     * Camminare dentro le regole di un'altra vista porta qui i predicati di
+     * partenza — insegnare un lemma verbale arrivava fino a `extract_frame`,
+     * tre salti piu' in la', e ricostruiva 27.000 cornici per quattro forme
+     * nuove. Ma una vista viva E' gia' le sue soluzioni: da lei dipendiamo, e
+     * cio' da cui dipende lei e' affar suo. Chi la consuma viene avvisato
+     * quando il suo CONTENUTO cambia (l'impronta, sotto), non quando cambia
+     * qualcosa a monte che potrebbe non cambiarne una riga.
+     * `PARROT0_NO_VIEW_BARRIER` toglie il confine e riporta il grafo di prima:
+     * il confine e' un acceleratore, mai parte del significato. */
+    static int nobar = -1;
+    if (nobar < 0) nobar = getenv("PARROT0_NO_VIEW_BARRIER") != NULL;
     for (size_t i = 0; i < v->ndeps; i++) {
         char pred[KB_TERM_LEN];
         snprintf(pred, sizeof pred, "%s", v->deps[i]);
+        if (!nobar && strcmp(pred, v->pred) != 0) {
+            size_t bk = kb_view_slot(kb, pred);
+            /* solo una vista VIVA fa da confine: una rifiutata o non ancora
+             * costruita risponde ancora dalle sue regole, e quelle vanno
+             * attraversate come prima. */
+            if (bk != (size_t)-1 && kb->views[bk].live && !kb->views[bk].broad)
+                continue;
+        }
         if (!strcmp(pred, "call") || !strcmp(pred, "apply") ||
             !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
             !strcmp(pred, "kb_rule_body") ||
@@ -3221,6 +3249,17 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
         free(deps);
     }
     v->broad = 0;
+    {   /* `PARROT0_VIEW_DEPS=<vista>` stampa da CHE COSA dipende: e' l'elenco
+         * che decide chi la invalida, e un arco dichiarato di troppo si paga
+         * in ricostruzioni (20 settembre 2026: un `view_depends` rimasto
+         * indietro rifaceva 27.000 cornici a ogni lemma insegnato). */
+        const char *lte = getenv("PARROT0_VIEW_DEPS");
+        if (lte && !strcmp(lte, v->pred)) {
+            fprintf(stderr, "[deps] %s <-", v->pred);
+            for (size_t i = 0; i < v->ndeps; i++) fprintf(stderr, " %s", v->deps[i]);
+            fprintf(stderr, "\n");
+        }
+    }
     return 1;
 }
 
@@ -3245,6 +3284,37 @@ int kb_view_ensure(KB *kb, const char *pred) {
     size_t k = kb_view_slot(kb, pred);
     if (k == (size_t)-1) { kb->views_preparing = 0; return 0; }
     KbView *v = &kb->views[k];
+    /* 20 settembre 2026 — PRIMA DI FIDARSI, GUARDA LE VISTE DA CUI DIPENDI.
+     *
+     * Con il confine (sopra) questa vista non si sporca piu' quando cambia un
+     * predicato tre salti a monte: si sporca quando cambia il CONTENUTO della
+     * vista che consuma. Ma quel contenuto si ricalcola solo quando qualcuno
+     * la chiede, e allora una vista viva potrebbe rispondere con righe vecchie.
+     * Quindi: se una delle viste da cui dipendo non e' viva, la si costruisce
+     * ORA — e se le sue righe sono cambiate, mi ha appena sporcato. Il
+     * contratto resta quello di gen491: un verbo insegnato adesso si vede in
+     * questo turno. */
+    if (v->live && !v->building && v->ndeps) {
+        v->building = 1;
+        kb->views_preparing = 0;
+        for (size_t i = 0; i < v->ndeps; i++) {
+            if (!strcmp(v->deps[i], pred)) continue;
+            size_t dk = kb_view_slot(kb, v->deps[i]);
+            if (dk == (size_t)-1) continue;
+            const KbView *dv = &kb->views[dk];
+            if (dv->live || dv->building) continue;
+            kb_view_ensure(kb, v->deps[i]);
+        }
+        kb->views_preparing = 1;
+        k = kb_view_slot(kb, pred);
+        if (k == (size_t)-1) { kb->views_preparing = 0; return 0; }
+        v = &kb->views[k];
+        v->building = 0;
+        if (v->dirty) {           /* una dipendenza ha cambiato contenuto */
+            kb_view_clear(kb, pred);
+            v->dirty = 0; v->live = 0; v->attempted = 0;
+        }
+    }
     if (v->live || v->building || v->attempted) {
         kb->views_preparing = 0;
         return v->live;
@@ -3291,6 +3361,9 @@ int kb_view_ensure(KB *kb, const char *pred) {
     }
     v->building = 1;
     int complete = 1;
+    /* L'impronta del CONTENUTO: commutativa, perche' conta l'insieme delle
+     * righe e non l'ordine in cui l'enumerazione le ha trovate. */
+    uint64_t vcontent = 0; size_t vrows = 0;
     /* Quanto costa congelare OGNI vista: `PARROT0_BOOT_TRACE=1` lo stampa
      * accanto alle fasi del boot. Una KB che cresce moltiplica una vista
      * lontana da dove e' cresciuta (19 settembre 2026: 844 verbi di relazione
@@ -3329,6 +3402,8 @@ int kb_view_ensure(KB *kb, const char *pred) {
                 int origin = kb->origin; kb->origin = KB_DERIVED;
                 complete = kb_assert(kb, pred, a, 2);
                 kb->origin = origin;
+                vcontent ^= pred_hash(a[0]) * UINT64_C(31) + pred_hash(a[1]);
+                vrows++;
             }
         }
         free(pairs);
@@ -3343,6 +3418,8 @@ int kb_view_ensure(KB *kb, const char *pred) {
             int origin = kb->origin; kb->origin = KB_DERIVED;
             complete = kb_assert(kb, pred, a, 1);
             kb->origin = origin;
+            vcontent ^= pred_hash(a[0]);
+            vrows++;
         } else {
             char (*seconds)[KB_TERM_LEN] = NULL; size_t n2 = 0;
             const char *qi[2] = { firsts[i], NULL };
@@ -3353,6 +3430,8 @@ int kb_view_ensure(KB *kb, const char *pred) {
                 int origin = kb->origin; kb->origin = KB_DERIVED;
                 complete = kb_assert(kb, pred, a, 2);
                 kb->origin = origin;
+                vcontent ^= pred_hash(a[0]) * UINT64_C(31) + pred_hash(a[1]);
+                vrows++;
             }
             free(seconds);
         }
@@ -3370,6 +3449,15 @@ int kb_view_ensure(KB *kb, const char *pred) {
         kb_view_clear(kb, pred);
         v->live = 0;
     } else v->live = 1;
+    if (v->live) {
+        uint64_t fresh = vcontent ^ (uint64_t)vrows * UINT64_C(1099511628211);
+        int changed = !v->has_content || v->content != fresh;
+        v->content = fresh;
+        v->has_content = 1;
+        /* Chi consuma questa vista si invalida SOLO se le righe sono cambiate:
+         * e' il confine del grafo a valere, non il predicato di partenza. */
+        if (changed) kb_views_changed_ex(kb, pred, v);
+    }
     kb->views_preparing = 0;
     return v->live;
 }

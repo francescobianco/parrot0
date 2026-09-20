@@ -3757,6 +3757,10 @@ materialized_view(verb_particle_surface, 2).
 view_depends(verb_particle_surface, verb_particle).
 view_depends(verb_particle_surface, relation_verb).
 view_depends(verb_particle_surface, verb_form_analysis).
+% E la vista per RADICE, che e' la strada vera di `verb_finite_form`: senza
+% dichiararla, dopo una lezione si ricostruiva con la dipendenza ancora sporca
+% e la ri-derivava a mano — 958 ms invece di 9 (misurato il 19 settembre 2026).
+view_depends(verb_particle_surface, verb_root_form).
 materialized_view(adjective_relation_pred, 2).
 view_depends(adjective_relation_pred, adjective_relation).
 % Il participio che interroga il passivo («what is compost prepared by?»): la

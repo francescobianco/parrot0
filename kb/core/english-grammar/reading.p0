@@ -82,30 +82,44 @@ reading_verb_form_kind(past).
 reading_verb_form_kind(past_participle).
 active_finite_form_kind(present_third).
 active_finite_form_kind(past).
+% LE FORME DEI VERBI DI RELAZIONE sono una vista a se'. Non e' un doppione
+% della morfologia: e' il CONFINE fra «tutte le forme inglesi», che cambiano
+% ogni volta che si insegna un lemma, e le cornici, che cambiano solo se il
+% verbo nuovo e' un verbo di relazione. Insegnare «zorbify» muove la prima e
+% lascia ferma questa, e cosi' le 27.000 cornici non si rifanno per niente
+% (20 settembre 2026; il motore se ne accorge dall'impronta del contenuto).
+relation_verb_form($R, form($F, $K)) :-
+    verb_root_form($R, form($F, $K)), relation_verb($R).
 verb_reading_form($R, $F) :-
-    verb_form($R, $F, $K), reading_verb_form_kind($K), relation_verb($R).
+    relation_verb_form($R, form($F, $K)), reading_verb_form_kind($K).
 verb_finite_form($R, $F) :-
-    verb_root_form($R, form($F, $K)), active_finite_form_kind($K), relation_verb($R).
+    relation_verb_form($R, form($F, $K)), active_finite_form_kind($K).
 extract_frame($Pattern, $R) :-
-    verb_form($R, $F, $K), active_finite_form_kind($K), relation_verb($R),
+    relation_verb_form($R, form($F, $K)), active_finite_form_kind($K),
     concat_atoms("@S ", $F, $Prefix), concat_atoms($Prefix, " @O", $Pattern).
 verb_stem($F, $R) :- verb_form($R, $F, $K), reading_verb_form_kind($K).
-participle_of($R, $F) :- verb_form($R, $F, past_participle), relation_verb($R).
-gerund_root($F, $R) :- verb_form($R, $F, present_participle), relation_verb($R).
-gerund_of($R, $F) :- verb_form($R, $F, present_participle), relation_verb($R).
+participle_of($R, $F) :- relation_verb_form($R, form($F, past_participle)).
+gerund_root($F, $R) :- relation_verb_form($R, form($F, present_participle)).
+gerund_of($R, $F) :- relation_verb_form($R, form($F, present_participle)).
 finite_present_of($R, $F) :- verb_form($R, $F, present_third).
 materialized_view(verb_form_analysis, 2).
 materialized_view(verb_root_form, 2).
 view_depends(verb_root_form, verb_form_analysis).
-view_depends(verb_finite_form, verb_root_form).
+materialized_view(relation_verb_form, 2).
+view_depends(relation_verb_form, verb_root_form).
+view_depends(relation_verb_form, relation_verb).
+view_depends(verb_finite_form, relation_verb_form).
+view_depends(verb_reading_form, relation_verb_form).
+view_depends(extract_frame, relation_verb_form).
 view_depends(verb_form_analysis, verb_lemma).
 view_depends(verb_form_analysis, verb_paradigm).
 view_depends(verb_form_analysis, doubled_stem).
 view_depends(verb_form_analysis, irregular_present_participle).
 view_depends(verb_form_analysis, irregular_present_third).
-view_depends(verb_reading_form, verb_form_analysis).
 view_depends(verb_stem, verb_form_analysis).
-view_depends(extract_frame, verb_form_analysis).
+% ⚠ `extract_frame` e `verb_reading_form` NON dipendono piu' da tutte le forme
+% inglesi: passano da `relation_verb_form` (sopra). Rimettere qui l'arco a
+% `verb_form_analysis` fa ricostruire 27.000 cornici a ogni lemma insegnato.
 
 % EVIDENZA LESSICALE. Indice per prima parola; mai confronto substring.
 % Il resto e' una lista di token da allineare ai successori della IR.
