@@ -17,6 +17,106 @@
 > dichiarazioni `relation_verb` portano `extract_frame` a 2,5 s di
 > costruzione e il turno da 0,1 a 0,4 s.
 
+## HANDOFF — 20 settembre 2026, notte: L'IPOTETICO SENZA UN SECONDO CERVELLO
+
+> **La premessa, nelle parole di F.** *Esiste un'evoluzione dell'astrazione
+> della KB che produca come effetto una gestione NATURALE di rappresentazioni
+> come questa — casi ipotetici, premesse, mondo concreto — e che implichi la
+> missione di ridurre enormemente la parte «C» di parrot0?*
+>
+> **La risposta che questo giro ha trovato: sì, e sono due mosse.** La prima è
+> contestualizzare le proposizioni (`holds_in(Contesto, Proposizione)`, K4 di
+> [frontier-kb-natural-dialogue](frontier-kb-natural-dialogue.md)): un fatto
+> vale in un contesto **senza sparire dagli altri**. La seconda — quella che
+> mancava, ed è la chiave — è rendere primitiva la **provenienza della PROVA**:
+> una risposta porta con sé *da che cosa è sostenuta*. Allora «le premesse lo
+> implicano» e «lo so dal mondo» non sono due motori né due viste: sono due
+> **letture dello stesso sostegno**, e la differenza la dice una regola di KB.
+>
+> **E la domanda di ripartenza, nella sua forma piena (F.).** L'astrazione
+> nuova — della KB *e* della IR — deve valere **per generalità**, non solo per
+> l'ipotetico: deve ospitare anche ciò che **il mondo non prevede**. Una
+> generalizzazione («tutti i corvi sono neri» detta come regola, non come
+> fatto), un'astrazione (una classe che nessuno ha ancora popolato), una
+> premessa, un **teorema** (qualcosa che vale *dati* certi assunti), un'idea
+> temporanea («mettiamo per un attimo che…»), una finzione, una citazione, una
+> credenza altrui. Oggi ognuna di queste, quando serve, si ottiene con un
+> **trucco locale** — uno strato, un sandbox, un flag, un lettore dedicato — e
+> quel trucco è esattamente la parte di C che non si riesce a togliere.
+> Il criterio di riuscita è perciò: *una proposizione deve poter valere in un
+> contesto qualunque, dichiarato dalla KB, e una risposta deve poter dire in
+> quale contesto vale e da che cosa è sostenuta* — senza che il motore sappia
+> nulla di «ipotesi», «teorema» o «finzione». Se quei nomi restano in C, siamo
+> ancora al trucco.
+>
+> È questo che riduce il C. Oggi esistono quattro lettori speciali — sillogismo
+> in un turno (101 righe), sillogismo multi-frase (82), entailment (76+27),
+> catena transitiva, supposizione — e ciascuno esiste **solo per ricostruire un
+> mondo ristretto** in cui la domanda abbia la risposta giusta. Con contesti e
+> sostegno restano: la IR che dà le clausole, un risolutore, una regola di
+> verdetto. I lettori diventano righe di conoscenza.
+
+**Che cosa è stato fatto stanotte.**
+
+1. **Mantra #25 — non si pensa in un secondo cervello.** F.: «ogni astrazione è
+   dentro il cervello, non in un cervello secondario; questo crea handicap di
+   crescita». La critica era già scritta in [`one-kb.md`](one-kb.md) §3/§6
+   («`brain_scratch_init` non va perfezionato: va fatto sparire») ed è tornata
+   viva in `MANTRA.md` con il danno misurato: ogni classe portata in KB doveva
+   lasciare nel C una lista di riserva, perché nel sandbox la lookup non
+   trovava niente.
+
+2. **I quattro sandbox sono spariti**, `brain_scratch_init` compreso. Le
+   premesse entrano nello strato `KB_HYPOTHETICAL` della mente unica.
+
+3. **Il passaggio che conta, e l'errore che l'ha preceduto.** Per tenere la
+   semantica closed-world avevo aggiunto `kb_read_scope`: un flag in C che
+   *nasconde* il mondo. F. l'ha respinto — «deve essere un'astrazione che
+   permette la convivenza fra KB e IR, non una differenziazione operativa
+   derivata da un flag in C» — ed è stato sostituito dal **sostegno**:
+   - `kb_prove_support/6` dimostra e dice **con che cosa** (fatti e regole
+     usati, senza la macchineria, che `machinery/1` dichiara);
+   - il **giornale** delle asserzioni registra che cosa le premesse hanno
+     *detto*, anche quando ripetono ciò che il mondo già sa (riga `=`);
+   - il verdetto nasce dal confronto: ogni sostegno viene dalle premesse →
+     implicato; qualcuno viene dal mondo → non implicato **da queste premesse**.
+
+   Niente è nascosto: mondo e premesse convivono nella stessa mente, e la
+   differenza è **conoscenza in più**, non una vista in meno.
+
+4. **E si fa guardare** (`/debug dump`): `turn_premise_read` dice quale premessa
+   è stata presa o rifiutata, `turn_answer_support` su che cosa poggia la
+   risposta e se quel sostegno stava fra le premesse.
+
+**Misurato.**
+
+| caso | prima | ora |
+|---|---|---|
+| `io is a glorp. every glorp is a dax. is io a dax?` | Yes (mondo ristretto) | **Yes** (sostegno: tutto dalle premesse) |
+| `rex is a dog. all cats are animals. is rex an animal?` | No (il mondo era nascosto) | **No** (sostegno: `dax`… viene dal mondo) |
+| `socrates is a man. all men are mortal. is socrates mortal?` | Yes | **Yes** |
+| `taught_lexicon.p0t` | 29/11 | 29/11 (pari) |
+| `soft-test` | verde | **verde, 11 s** |
+| `entail.p0t` | 13/1 | 10/4 — 3 solo tempo, 1 rosso preesistente |
+
+**Aperto, in ordine di leva.**
+
+1. **I turni ipotetici costano ~2 s**: pensare nella mente piena costa più che
+   in una mente vuota. È il prezzo onesto del mantra #25, e si paga una volta
+   sola se le premesse smettono di essere riasserite (vedi punto 3).
+2. **Il verdetto è ancora in C** (`from_premises ? "Yes." : "No."`). Deve
+   diventare una regola: `entailment_verdict(SostegnoKind, Verdetto)` più i
+   template, e il C consegna solo i sostegni.
+3. **`holds_in` non è ancora la strada delle premesse**: oggi si scrive un
+   fatto nello strato e si confronta col giornale. Il passo successivo è che la
+   premessa sia *una proposizione che vale in un contesto*, e che il contesto
+   sia nominato dalla IR (lo span `condition` lo nomina già).
+4. **`kb_read_scope` resta nel motore, inutilizzato dai lettori**: o diventa la
+   meccanica di `holds_in` (lettura per contesto dichiarato dalla KB) o si
+   toglie. Non deve restare un flag comodo.
+5. `entail.p0t:30` — la forma «explain premise: …» non arriva al lettore
+   (rosso anteriore a questo giro).
+
 ## HANDOFF — 19 settembre 2026, sera (si riprende da qui)
 
 **Che cosa e' successo.** La prima fogliata di grammatica inglese era stata

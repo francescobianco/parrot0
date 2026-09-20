@@ -44,6 +44,13 @@
  * ONE KB and are told apart by origin instead of by container.
  * See docs/plans/one-kb.md. */
 #define KB_HYPOTHETICAL 16
+/* 20 settembre 2026 — il secondo livello DENTRO l'ipotesi: «base says X» e
+ * «session says Y» dicono a quale livello una premessa pretende di stare, e su
+ * quella differenza si regge il verdetto «Conflicted» (due pretese opposte che
+ * convivono invece di cancellarsi). Il sandbox la otteneva col CONTENITORE —
+ * una KB vuota con i suoi strati; nella mente unica e' un secondo strato
+ * ipotetico, e si ritira insieme all'altro (mantra #25). */
+#define KB_SUPPOSED_BASE 64
 
 typedef struct KB KB;
 
@@ -110,6 +117,14 @@ void   kb_journal_refused(KB *kb, const char *pred, const char *const *args,
  * piece described in docs/plans/one-kb.md §4; this is its ground-fact half. */
 int    kb_query_origin(const KB *kb, int origin_mask, const char *pred,
                        const char *const *args, size_t argc);
+
+/* La lettura con SCOPE: mentre e' attiva, il solver vede solo i fatti degli
+ * strati in `origin_mask` — piu' la macchineria dichiarata da `machinery/1`,
+ * che resta sempre leggibile. 0 rimette tutto. E' la meta' di lettura delle
+ * provenienze (one-kb.md §4): con questa, una vista ristretta si ottiene con
+ * uno strato e non costruendo un secondo Brain (mantra #25). */
+void   kb_read_scope(KB *kb, int origin_mask);
+int    kb_read_scope_get(const KB *kb);
 
 /* Assert an explicit negative ground fact: known-false `pred(args...)`.
  * Idempotent. Clears the matching positive fact from the same provenance layer,
@@ -295,6 +310,13 @@ int    kb_save_routed(const KB *kb, const char *default_path, const char *root);
  * `out` — e.g. "mortal(socrates) because man(socrates)" — derived from the
  * actual proof tree (facts, rule chains, multi-goal bodies with their
  * bindings). Returns 1 if proven (out filled), 0 if not (out untouched). */
+/* Dimostra e dice CON CHE COSA: le righe di sostegno (fatti e regole usati,
+ * senza la macchineria) finiscono in `out`. E' l'alternativa al nascondere: il
+ * mondo e le premesse convivono, e la differenza la fa il SOSTEGNO — non una
+ * vista ristretta (mantra #25, one-kb.md §5b). */
+int    kb_prove_support(KB *kb, const char *pred, const char *const *args,
+                        size_t argc, char out[][KB_TERM_LEN], size_t max, size_t *n);
+
 int    kb_explain(KB *kb, const char *pred, const char *const *args,
                   size_t argc, char *out, size_t out_size);
 

@@ -705,6 +705,51 @@ prompt senza chiudere la sua classe non conta come progresso.
     la IR e si scrive un consumatore. Se si sceglie di aggirare, si scrivono
     subito la riga di debito e la sua scadenza.
 
+25. **⛔ NON SI PENSA IN UN SECONDO CERVELLO: OGNI ASTRAZIONE STA DENTRO LA
+    MENTE UNICA, COME STRATO.**
+
+    F., 20 settembre 2026, trovando un sandbox ancora vivo:
+    *«abbiamo più volte sperimentato che l'utilizzo di istanze di brain al fine
+    di operare in isolamento è un errore forte — il nostro cervello non lavora
+    così: ogni astrazione è dentro il cervello, non in un cervello secondario.
+    Questo crea degli handicap di crescita del progetto.»*
+
+    La critica non è nuova ed è già scritta per esteso in
+    [`docs/plans/one-kb.md`](docs/plans/one-kb.md) §3 e §6: *«`brain_scratch_init`
+    non va perfezionato: va fatto sparire, e con lui l'ultimo posto in cui
+    parrot0 pensa da menomato»*. Qui torna viva perché un residuo la stava
+    ancora aggirando.
+
+    **L'esigenza è legittima, lo strumento no.** Le premesse di un ipotetico
+    («if all cats are mammals and Tom is a cat, is Tom a mammal?») devono valere
+    per quel turno e non sporcare la conoscenza: giusto, ed è closed-world sulle
+    premesse. Ma isolare *ricominciando da zero* — un secondo `Brain` sopra un
+    `kb_create()` nudo — butta via anche grammatica, classi lessicali e
+    instradamento: il sandbox non distingueva un articolo da un sostantivo.
+
+    **L'handicap di crescita, misurato (one-kb.md §1).** Ogni classe portata dal
+    C alla KB doveva lasciare nel C una lista di parole di riserva, perché nel
+    cervello secondario la lookup non trovava niente: si toglieva l'inglese dal
+    motore e lo si rimetteva accanto. La migrazione KB-first non poteva chiudersi.
+
+    **La forma giusta è lo STRATO.** Le provenienze esistono già
+    (`KB_BASE`, `KB_SESSION`, `KB_INDUCED`, `KB_REFLECTIVE`, `KB_HYPOTHETICAL`) e
+    oggi valgono in scrittura e non in lettura: `kb_save` sa restringersi a uno
+    strato, `kb_query` no. La cura è portare le provenienze anche in lettura —
+    asserisci in `KB_HYPOTHETICAL`, interroga con quello strato più la
+    macchineria, ritira lo strato a fine turno — e `brain_scratch_init` sparisce
+    invece di essere mantenuto. Il percorso migliore già fa così
+    (`one_turn_syllogism` applica le premesse sul cervello vero in strato
+    ipotetico); i `brain_scratch_init` rimasti sono il debito da chiudere.
+
+    **E la misura non è «isolare meglio» (one-kb.md §5b).** Un LLM sullo stesso
+    item non isola niente: vede tutto e **sceglie**. L'obiettivo non è un
+    sandbox più pulito, è una decisione presa dalla conoscenza.
+
+    **Il test, prima di creare un contenitore:** *«mi serve una VISTA ristretta o
+    un SOGGETTO diverso?»* È sempre la prima: e una vista si ottiene con uno
+    strato, mai con un altro cervello.
+
 ## Dove sta il resto
 
 - `PRINCIPLES.md` — il *perché* dell'esperimento (la regola anti-inganno).

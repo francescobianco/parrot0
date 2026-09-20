@@ -199,4 +199,16 @@ turn_reading_predicate(turn_illocution).
 turn_reading_predicate(turn_said_by).
 turn_reading_predicate(turn_class_read).
 turn_reading_predicate(turn_yield_outcome).
+% Il sandbox delle premesse («if A and B, is C?») depone qui che cosa ha preso
+% e che cosa ha rifiutato: senza, un turno ipotetico cadeva al muro e la
+% premessa colpevole restava invisibile.
+machinery(turn_premise_read).
+turn_scratch(turn_premise_read).
+turn_reading_predicate(turn_premise_read).
+% Su che cosa poggia la risposta, e se quel sostegno stava fra le premesse:
+% e' la differenza fra «le premesse lo implicano» e «lo so dal mondo», detta
+% come conoscenza invece che ottenuta nascondendo il mondo (mantra #25).
+machinery(turn_answer_support).
+turn_scratch(turn_answer_support).
+turn_reading_predicate(turn_answer_support).
 turn_reading_predicate(machinery_gap).

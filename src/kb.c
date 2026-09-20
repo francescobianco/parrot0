@@ -276,6 +276,26 @@ struct KB {
     size_t nviews, view_cap;
     int views_loaded, views_reload, views_pending, views_preparing;
     size_t view_clock;     /* grows on every view invalidation, never resets */
+    /* ── 20 settembre 2026 — LA LETTURA CON SCOPE (one-kb.md §4, mantra #25) ──
+     * La meta' che mancava: `kb_save` sapeva restringersi a uno strato, la
+     * lettura no — ed e' per questo che per avere una vista ristretta si
+     * costruiva un SECONDO cervello. Qui lo strato si legge: 0 = tutto.
+     * La macchineria resta sempre visibile, e lo dice `machinery/1`, che e'
+     * conoscenza viva (one-kb.md §4b: la partizione congelata fu scartata). */
+    int read_mask;
+    /* ── 20 settembre 2026 (F.) — IL SOSTEGNO DI UNA DERIVAZIONE ─────────────
+     * F.: «la differenziazione deve essere un'astrazione che permette la
+     * convivenza fra KB e IR, non una differenziazione operativa derivata da un
+     * flag in C». Quindi non si nasconde piu' niente: mondo e premesse stanno
+     * insieme, e la prova REGISTRA da che cosa e' sostenuta. Chi risponde
+     * confronta quel sostegno con cio' che le premesse hanno detto, e la KB
+     * decide che cosa dire. */
+    char support[24][KB_TERM_LEN];
+    size_t support_n;
+    int support_on;
+    char mach_cache[32][KB_TERM_LEN];
+    signed char mach_flag[32];
+    size_t mach_n;
     size_t n_derived;      /* fatti con origine KB_DERIVED, esclusi dalla revisione */
 
     /* Turn-local metadata; the fact-table mutation happens once at commit. */
@@ -413,6 +433,18 @@ void kb_saturation_commit(KB *kb) {
     kb->saturation_pred[0] = '\0';
 }
 
+/* Una riga del giornale gia' formata (il marcatore e' il primo carattere). */
+static void journal_row(KB *kb, const char *row) {
+    if (!kb || !kb->journal_on || !row) return;
+    if (kb->journal_n == kb->journal_cap) {
+        size_t cap = kb->journal_cap ? kb->journal_cap * 2 : 64;
+        char (*g)[KB_TERM_LEN] = realloc(kb->journal, cap * sizeof *g);
+        if (!g) return;
+        kb->journal = g; kb->journal_cap = cap;
+    }
+    snprintf(kb->journal[kb->journal_n++], KB_TERM_LEN, "%s", row);
+}
+
 static void journal_note(KB *kb, const Fact *f, char mark) {
     if (!kb || !kb->journal_on || !f) return;
     if (kb->journal_n == kb->journal_cap) {
@@ -486,6 +518,8 @@ static int is_var(const char *s) {
 
 static uint64_t fact_hash_strings(const Fact *f);   /* E0: fwd */
 static uint64_t pred_hash(const char *pred);         /* E0: fwd */
+static int pred_is_machinery_scoped(const KB *kb, const char *pred);  /* fwd */
+static void kb_support_note(KB *kb, const Fact *f, const Rule *R);   /* fwd */
 static int term_contains_var(const char *s, int depth);   /* E0: fwd */
 static int fact_make(Fact *f, const char *pred, const char *const *args,
                      size_t argc) {
@@ -1368,10 +1402,24 @@ static int kb_add_rule(KB *kb, const Rule *r) {
     kb->rules[kb->nr++] = *r;
     pred_stats_note_rule(kb, kb->nr - 1);
     kb_views_changed(kb, r->head.pred);
+    /* 20 settembre 2026 — anche una REGOLA e' qualcosa che una lettura ha fatto
+     * entrare: il giornale la registra nella stessa forma con cui la prova
+     * nomina i propri sostegni («testa :- corpo»), cosi' «cio' che le premesse
+     * hanno detto» e «cio' che ha sostenuto la risposta» si confrontano. */
+    if (kb->journal_on) {
+        char row[KB_TERM_LEN];
+        size_t o = (size_t)snprintf(row, sizeof row, "+%s :-", r->head.pred);
+        for (size_t b = 0; b < r->nbody && o < sizeof row; b++)
+            o += (size_t)snprintf(row + o, sizeof row - o, " %s", r->body[b].pred);
+        journal_row(kb, row);   /* la STESSA forma con cui la prova la nomina */
+    }
     return 1;
 }
 
 /* True if the simple unary rule  head(X) :- body(X)  already exists. */
+/* Una premessa che ripete cio' che il mondo gia' sa non viene riasserita: e' il
+ * GIORNALE a dire che la lettura l'ha fatta entrare (riga «=»), e il confronto
+ * con i sostegni della prova avviene sulle proposizioni, non sulle copie. */
 static int rule_exists(KB *kb, const char *head, const char *body) {
     for (size_t i = 0; i < kb->nr; i++) {
         const Rule *r = &kb->rules[i];
@@ -1384,7 +1432,14 @@ static int rule_exists(KB *kb, const char *head, const char *body) {
 
 int kb_assert_rule(KB *kb, const char *head, const char *body) {
     if (!kb || !term_ok(head) || !term_ok(body)) return 0;
-    if (rule_exists(kb, head, body)) return 1; /* idempotent */
+    if (rule_exists(kb, head, body)) {
+        if (kb->journal_on) {      /* gia' nota, ma DETTA: il giornale la vede */
+            char row[KB_TERM_LEN];
+            snprintf(row, sizeof row, "=%s :- %s", head, body);
+            journal_row(kb, row);
+        }
+        return 1;                              /* idempotent */
+    }
 
     Rule r;
     memset(&r, 0, sizeof r);
@@ -3102,7 +3157,35 @@ static int kb_view_covers(const KB *kb, const char *pred, size_t argc) {
 
 /* Stale rows may still exist during a recursive solve. Hide them immediately;
  * physical removal waits for a safe public entry, outside both solvers. */
+/* La macchineria e' sempre leggibile, anche dentro uno scope: senza, uno strato
+ * ipotetico tornerebbe a non saper distinguere un articolo da un sostantivo —
+ * il danno del cervello secondario (one-kb.md §1). Il flag si ricorda per
+ * predicato: dentro uno scope la domanda si ripete per ogni fatto visitato. */
+static int pred_is_machinery_scoped(const KB *kb, const char *pred) {
+    KB *m = (KB *)kb;
+    for (size_t i = 0; i < m->mach_n; i++)
+        if (!strcmp(m->mach_cache[i], pred)) return m->mach_flag[i];
+    int saved = m->read_mask;
+    m->read_mask = 0;                 /* la domanda sulla macchineria vede tutto */
+    const char *q[1] = { pred };
+    int is_m = kb_query(m, "machinery", q, 1) ? 1 : 0;
+    m->read_mask = saved;
+    if (m->mach_n < sizeof m->mach_cache / sizeof m->mach_cache[0]) {
+        snprintf(m->mach_cache[m->mach_n], KB_TERM_LEN, "%s", pred);
+        m->mach_flag[m->mach_n] = (signed char)is_m;
+        m->mach_n++;
+    }
+    return is_m;
+}
+
+static int kb_fact_in_read_scope(const KB *kb, const Fact *f) {
+    if (!kb->read_mask || !f) return 1;
+    if (f->origin & kb->read_mask) return 1;
+    return pred_is_machinery_scoped(kb, f->pred);
+}
+
 static int kb_view_fact_visible(const KB *kb, const Fact *f) {
+    if (f && !kb_fact_in_read_scope(kb, f)) return 0;
     if (!f || f->origin != KB_DERIVED) return f != NULL;
     size_t k = kb_view_slot(kb, f->pred);
     return k != (size_t)-1 &&
@@ -4185,6 +4268,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         if (unify_term_fact(s2, g, &kb->facts[PRED_AT(pbk, vi)])) {
             if (prove_seq_ex(kb, goals, n, idx + 1, s2, depth, frame, out)) {
                 render_goal_named(kb, s2, g, out[idx], KB_PROOF_LEN);
+                kb_support_note(kb, &kb->facts[PRED_AT(pbk, vi)], NULL);
                 return 1;
             }
         }
@@ -4218,6 +4302,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
 
         char (*cout)[KB_PROOF_LEN] = scratch->proofs;
         if (prove_seq_ex(kb, comb, m, 0, s2, depth + 1, frame, cout)) {
+            kb_support_note(kb, NULL, R);
             char head[KB_PROOF_LEN];
             render_goal_named(kb, s2, g, head, sizeof head);
             int off = snprintf(out[idx], KB_PROOF_LEN, "%s because ", head);
@@ -4232,6 +4317,52 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         }
     }
     return 0;
+}
+
+/* Registra un SOSTEGNO della prova in corso: un fatto che ha chiuso un goal o
+ * una regola che e' stata espansa. Si scrive come si legge — «pred(a, b)» o
+ * «testa :- corpo» — perche' chi decide confronta con cio' che le premesse
+ * hanno DETTO, non con indici interni. La macchineria non e' un sostegno: e'
+ * il modo in cui parrot0 legge, non una ragione per credere (machinery/1). */
+static void kb_support_note(KB *kb, const Fact *f, const Rule *R) {
+    if (!kb || !kb->support_on) return;
+    if (kb->support_n >= sizeof kb->support / sizeof kb->support[0]) return;
+    char row[KB_TERM_LEN];
+    if (f) {
+        if (pred_is_machinery_scoped(kb, f->pred)) return;
+        size_t o = (size_t)snprintf(row, sizeof row, "%s(", f->pred);
+        for (size_t a = 0; a < f->argc && o < sizeof row; a++)
+            o += (size_t)snprintf(row + o, sizeof row - o, "%s%s", a ? ", " : "", f->args[a]);
+        if (o < sizeof row) snprintf(row + o, sizeof row - o, ")");
+    } else if (R) {
+        if (pred_is_machinery_scoped(kb, R->head.pred)) return;
+        size_t o = (size_t)snprintf(row, sizeof row, "%s :-", R->head.pred);
+        for (size_t b = 0; b < R->nbody && o < sizeof row; b++)
+            o += (size_t)snprintf(row + o, sizeof row - o, " %s", R->body[b].pred);
+    } else return;
+    for (size_t i = 0; i < kb->support_n; i++)
+        if (!strcmp(kb->support[i], row)) return;
+    snprintf(kb->support[kb->support_n++], KB_TERM_LEN, "%s", row);
+}
+
+/* Dimostra `pred(args…)` e dice CON CHE COSA: i sostegni finiscono in `out`,
+ * uno per riga, senza la macchineria. Non nasconde niente — il mondo e le
+ * premesse partecipano insieme — e lascia a chi chiama (e alla KB) il giudizio
+ * su quale sostegno fosse quello richiesto. */
+int kb_prove_support(KB *kb, const char *pred, const char *const *args,
+                     size_t argc, char out[][KB_TERM_LEN], size_t max, size_t *n) {
+    if (n) *n = 0;
+    if (!kb || argc > KB_MAX_ARGS) return 0;
+    kb->support_n = 0;
+    kb->support_on = 1;
+    char proof[KB_TERM_LEN * 2];
+    int ok = kb_explain(kb, pred, args, argc, proof, sizeof proof);
+    kb->support_on = 0;
+    if (!ok) return 0;
+    size_t k = kb->support_n < max ? kb->support_n : max;
+    for (size_t i = 0; i < k; i++) snprintf(out[i], KB_TERM_LEN, "%s", kb->support[i]);
+    if (n) *n = k;
+    return 1;
 }
 
 int kb_explain(KB *kb, const char *pred, const char *const *args,
@@ -7212,6 +7343,21 @@ int kb_derive_part_of(KB *kb) {
 
 int kb_knows_pred(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
+    /* Dentro uno scope, «lo conosco» vale per cio' che lo scope vede: senza,
+     * un ipotetico direbbe «non entailed» dove doveva dire «non lo conosco»,
+     * perche' il mondo conosce il predicato e lo strato no. */
+    if (kb->read_mask) {
+        for (size_t i = 0; i < kb->n; i++)
+            if (!strcmp(kb->facts[i].pred, pred) &&
+                kb_fact_in_read_scope(kb, &kb->facts[i])) return 1;
+        for (size_t i = 0; i < kb->nn; i++)
+            if (!strcmp(kb->neg[i].pred, pred) &&
+                kb_fact_in_read_scope(kb, &kb->neg[i])) return 1;
+        for (size_t i = 0; i < kb->nr; i++)
+            if (!strcmp(kb->rules[i].head.pred, pred) &&
+                (kb->rules[i].origin & kb->read_mask)) return 1;
+        return pred_is_machinery_scoped(kb, pred);
+    }
     PredBucket bk = pred_bucket(kb, pred);
     if (bk.live && bk.n > 0) return 1;
     for (size_t i = 0; i < kb->n && !bk.live; i++)
@@ -7411,6 +7557,19 @@ int kb_mentions_term(const KB *kb, const char *term) {
  * sbagliata per GUARDARE. Un dump della lettura del turno («/debug dump») deve
  * rendere la riga come e' stata scritta, perche' le incongruenze si vedono
  * incrociando le colonne, non leggendole una per volta. */
+/* Legge SOLO gli strati in `origin_mask` (0 = tutti), piu' la macchineria che
+ * `machinery/1` dichiara. E' la meta' di lettura delle provenienze che
+ * `one-kb.md` §4 chiedeva, e che rende inutile il secondo cervello: una vista
+ * ristretta e' uno SCOPE, non un altro soggetto (mantra #25).
+ * Si apre e si chiude attorno a una domanda; non e' uno stato del turno. */
+void kb_read_scope(KB *kb, int origin_mask) {
+    if (!kb) return;
+    kb->read_mask = origin_mask;
+    kb->mach_n = 0;          /* la cache vale dentro uno scope, non fra scope */
+}
+
+int kb_read_scope_get(const KB *kb) { return kb ? kb->read_mask : 0; }
+
 size_t kb_dump_pred(const KB *kb, const char *pred, char out[][KB_TERM_LEN], size_t max) {
     if (!kb || !pred || !out || !max) return 0;
     size_t n = 0;

@@ -2991,21 +2991,183 @@ static int apply_premise_clause(Brain *tmp, char *clause) {
     clause = trim_mut(clause);
     if (*clause == '\0') return 1;
 
-    int origin = KB_SESSION;
+    /* 20 settembre 2026 (mantra #25) — L'ORIGINE IN INGRESSO COMANDA.
+     *
+     * Le premesse di un ipotetico ora entrano in `KB_HYPOTHETICAL` nella mente
+     * unica: qui si sovrascriveva l'origine con `KB_SESSION`, e lo strato
+     * restava vuoto. I prefissi «base says» / «session says» dicono a quale
+     * livello una premessa pretende di stare — una distinzione che serve solo
+     * quando NON si sta gia' lavorando dentro uno strato ipotetico. */
+    int incoming = kb_origin(tmp->kb);
+    int hypo = incoming == KB_HYPOTHETICAL;
+    int origin = hypo ? KB_HYPOTHETICAL : KB_SESSION;
     if (strncmp(clause, "base says ", 10) == 0) {
-        origin = KB_BASE;
+        origin = hypo ? KB_SUPPOSED_BASE : KB_BASE;
         clause = trim_mut(clause + 10);
     } else if (strncmp(clause, "session says ", 13) == 0) {
-        origin = KB_SESSION;
         clause = trim_mut(clause + 13);
     }
 
     kb_set_origin(tmp->kb, origin);
     char discard[256];
     int claimed = mod_knowledge(tmp, clause, clause, discard, sizeof discard);
-    kb_set_origin(tmp->kb, KB_SESSION);
-    return claimed && strncmp(discard, "I couldn't", 10) != 0 &&
-           strncmp(discard, "I don't understand", 18) != 0;
+    kb_set_origin(tmp->kb, incoming);
+    int ok = claimed && strncmp(discard, "I couldn't", 10) != 0 &&
+             strncmp(discard, "I don't understand", 18) != 0;
+    /* ── 20 settembre 2026 (F.) — IL SANDBOX SI FA GUARDARE ────────────────
+     *
+     * F.: «la risposta a "il sandbox e' invisibile" dovrebbe essere: evolviamo
+     * /debug per poter vedere il sandbox». Giusto, e vale come regola: una
+     * traccia privata su stderr e' un debito, non uno strumento. Il sandbox
+     * delle premesse depone la propria lettura come FATTO del turno — nella KB
+     * VERA (`tmp->substrate`), perche' la sua muore con lui — e da li' la
+     * mostra `/debug dump` insieme a tutto il resto della lettura. */
+    /* ⚠ Il «sandbox» a volte E' il cervello vero: `one_turn_syllogism` applica
+     * le premesse su `b` in ipotetico, e li' `substrate` e' nullo. La lettura
+     * si depone dove c'e' una KB che sopravvive al turno. */
+    KB *seen = tmp->substrate ? tmp->substrate : tmp->kb;
+    if (seen) {
+        char cq[KB_TERM_LEN], rq[KB_TERM_LEN];
+        snprintf(cq, sizeof cq, "\"%s\"", clause);
+        snprintf(rq, sizeof rq, "\"%s\"", discard[0] ? discard : "nessuna risposta");
+        const char *a[4] = { "current_turn", cq, ok ? "presa" : "rifiutata", rq };
+        int prev = kb_origin(seen);
+        kb_set_origin(seen, KB_REFLECTIVE);
+        kb_assert(seen, "turn_premise_read", a, 4);
+        kb_set_origin(seen, prev);
+    }
+    return ok;
+}
+
+static int apply_premises(Brain *tmp, char *premises);   /* fwd */
+
+/* ── 20 settembre 2026 (F.) — IL SOSTEGNO, NON LA VISTA RISTRETTA ───────────
+ *
+ * F.: «la differenziazione deve essere un'astrazione che permette la convivenza
+ * fra KB e IR, non una differenziazione operativa derivata da un flag in C».
+ *
+ * Quindi: le premesse entrano nella mente unica (strato `KB_HYPOTHETICAL`) e
+ * non nascondono niente. Il GIORNALE dice che cosa hanno detto — anche quando
+ * ripetono qualcosa che il mondo gia' sapeva, perche' la riga «=» registra la
+ * proposizione lo stesso. La prova dice con che cosa ha risposto. Confrontando
+ * i due si sa se la conclusione viene DALLE PREMESSE o dal mondo, e la
+ * differenza e' una conoscenza in piu', non una vista in meno. */
+typedef struct {
+    char rows[64][KB_TERM_LEN];
+    size_t n;
+} P0PremiseSaid;
+
+static int premises_said(Brain *b, char *premises, P0PremiseSaid *said) {
+    said->n = 0;
+    kb_journal_start(b->kb);
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_HYPOTHETICAL);
+    int ok = apply_premises(b, premises);
+    kb_set_origin(b->kb, prev);
+    char (*lines)[KB_TERM_LEN] = NULL;
+    size_t n = kb_journal_stop(b->kb, &lines);
+    for (size_t i = 0; i < n && said->n < 64; i++)
+        if (lines[i][0] == '+' || lines[i][0] == '=')
+            snprintf(said->rows[said->n++], KB_TERM_LEN, "%s", lines[i] + 1);
+    free(lines);
+    return ok;
+}
+
+/* La FORZA e' del turno DETTO. Un lettore che si ritaglia una clausola — le
+ * premesse di un ipotetico, una frase dentro un periodo — non eredita
+ * l'illocuzione del turno: «if every cat is a mammal and tom is a cat, is tom a
+ * mammal?» e' una domanda, ma «every cat is a mammal» dentro di essa e'
+ * un'asserzione, e il veto «una domanda non insegna» la rifiutava (20 settembre
+ * 2026: il sillogismo cadeva al muro). */
+static int p0_clause_is_the_turn(Brain *b, const char *norm) {
+    return !b || !b->active_turn_norm || !norm || !strcmp(b->active_turn_norm, norm);
+}
+
+/* La forma dell'ipotesi: «is X a Y» -> Y(X), «is X the R of Z» -> R(X, Z).
+ * Quali parole siano copula, articolo e preposizione lo dice la KB
+ * (`entailment_copula/1`, `entailment_article/1`,
+ * `entailment_relation_preposition/1`): qui c'e' solo la meccanica. */
+static int parse_hypothesis_goal(Brain *b, const char *hyp,
+                                 char *pred, size_t predsz,
+                                 char args[2][KB_TERM_LEN], size_t *argc) {
+    if (!b || !b->kb || !hyp) return 0;
+    char hbuf[256];
+    size_t len = strlen(hyp);
+    if (len >= sizeof hbuf) return 0;
+    memcpy(hbuf, hyp, len + 1);
+    if (len > 0 && hbuf[len - 1] == '?') hbuf[len - 1] = '\0';
+    char *w[8];
+    size_t nw = split_words(hbuf, w, 8);
+    if (nw < 3) return 0;
+    const char *eq0[] = { w[0] }, *eq2[] = { nw >= 3 ? w[2] : w[0] },
+               *eq4[] = { nw >= 6 ? w[4] : w[0] };
+    if (!kb_query(b->kb, "entailment_copula", eq0, 1)) return 0;
+    /* «is socrates mortal» — predicato senza articolo: la forma piu' corta di
+     * una domanda di appartenenza, e la piu' comune nei sillogismi. */
+    if (nw == 3) {
+        snprintf(pred, predsz, "%s", w[2]);
+        snprintf(args[0], KB_TERM_LEN, "%s", w[1]);
+        *argc = 1;
+        return 1;
+    }
+    if (nw == 4 && is_article(b, w[2])) {
+        snprintf(pred, predsz, "%s", w[3]);
+        snprintf(args[0], KB_TERM_LEN, "%s", w[1]);
+        *argc = 1;
+        return 1;
+    }
+    if (nw == 6 && kb_query(b->kb, "entailment_article", eq2, 1) &&
+        kb_query(b->kb, "entailment_relation_preposition", eq4, 1)) {
+        snprintf(pred, predsz, "%s", w[3]);
+        snprintf(args[0], KB_TERM_LEN, "%s", w[1]);
+        snprintf(args[1], KB_TERM_LEN, "%s", w[5]);
+        *argc = 2;
+        return 1;
+    }
+    return 0;
+}
+
+/* La conclusione poggia SOLO su cio' che le premesse hanno detto? */
+static int supported_by_premises(Brain *b, const P0PremiseSaid *said,
+                                 const char *pred, const char *const *args,
+                                 size_t argc, int *provable) {
+    char sup[24][KB_TERM_LEN]; size_t ns = 0;
+    int ok = kb_prove_support(b->kb, pred, args, argc, sup, 24, &ns);
+    if (provable) *provable = ok;
+    int only = ok;
+    for (size_t i = 0; i < ns; i++) {
+        int seen = 0;
+        for (size_t j = 0; j < said->n && !seen; j++)
+            if (!strcmp(said->rows[j], sup[i])) seen = 1;
+        if (!seen) only = 0;          /* un sostegno viene da fuori le premesse */
+        /* Il sostegno si fa guardare: `/debug dump` mostra su che cosa poggia
+         * la risposta e se quel sostegno era fra le premesse (F., 20 set). */
+        char row[KB_TERM_LEN];
+        snprintf(row, sizeof row, "\"%s\"", sup[i]);
+        const char *a[3] = { "current_turn", row, seen ? "dalle_premesse" : "dal_mondo" };
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_assert(b->kb, "turn_answer_support", a, 3);
+        kb_set_origin(b->kb, prev);
+    }
+    return only;
+}
+
+
+/* ⚠ 20 settembre 2026 — LE PREMESSE SI SCRIVONO ANCHE CON LO SCOPE ADDOSSO.
+ *
+ * Una premessa che il mondo GIA' sa («all cats are animals») non veniva
+ * riasserita — la lettura la riconosceva come nota e non rivendicava niente —
+ * e lo strato ipotetico restava vuoto: la domanda chiusa sulle premesse
+ * rispondeva «non lo so» invece di «No». Nel cervello vuoto non succedeva,
+ * perche' li' TUTTO era nuovo. Scrivendo con lo scope dello strato, la
+ * premessa e' nuova rispetto a cio' che lo strato vede, ed entra. */
+static int apply_premises_scoped(Brain *b, char *premises, int mask) {
+    int prev_scope = kb_read_scope_get(b->kb);
+    kb_read_scope(b->kb, mask);
+    int ok = apply_premises(b, premises);
+    kb_read_scope(b->kb, prev_scope);
+    return ok;
 }
 
 static int apply_premises(Brain *tmp, char *premises) {
@@ -3112,28 +3274,43 @@ static void entailment_status(Brain *tmp, Brain *lex, const char *hyp, int mode,
         put(mode == ENT_LABEL ? "Neutral." : "Not entailed.", out, out_size);
 }
 
+/* ── 20 settembre 2026 (mantra #25) — L'IPOTESI E' UNO STRATO, NON UN CERVELLO.
+ *
+ * Qui si costruiva un secondo `Brain` sopra una KB vuota. L'esigenza era
+ * giusta — le premesse decidono da sole, closed-world — lo strumento no:
+ * ricominciare da zero butta via anche grammatica e classi, ed e' l'handicap
+ * di crescita che `one-kb.md` §1 ha misurato.
+ *
+ * Ora la stessa semantica sta nella mente unica: le premesse entrano in
+ * `KB_HYPOTHETICAL`, la domanda si legge con lo SCOPE di quello strato (piu' la
+ * macchineria, che `machinery/1` dichiara), e a fine risposta lo strato si
+ * ritira. Nessun substrato da collegare, nessun pezzo di parrot0 che pensa da
+ * menomato. */
 static int entailment_reply(Brain *b, const char *premises, const char *hypothesis,
                             int mode, char *out, size_t out_size) {
-    Brain tmp;
-    if (!brain_scratch_init(&tmp, b)) { kb_term_say(b, "i_couldn_t_evaluate_that_entailment", NULL, 0, out, out_size); return 1; }
-
     char pbuf[512];
     size_t plen = strlen(premises);
     if (plen >= sizeof pbuf) {
-        kb_destroy(tmp.kb);
         kb_term_say(b, "entailment_not_understood", NULL, 0, out, out_size);
         return 1;
     }
     memcpy(pbuf, premises, plen + 1);
 
-    if (!apply_premises(&tmp, pbuf)) {
-        kb_destroy(tmp.kb);
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_HYPOTHETICAL);
+    int ok = apply_premises_scoped(b, pbuf, KB_HYPOTHETICAL | KB_SUPPOSED_BASE);
+    kb_set_origin(b->kb, prev);
+
+    if (!ok) {
+        kb_retract_origin(b->kb, KB_HYPOTHETICAL | KB_SUPPOSED_BASE);
         kb_term_say(b, "entailment_not_understood", NULL, 0, out, out_size);
         return 1;
     }
 
-    entailment_status(&tmp, b, trim_mut((char *)hypothesis), mode, out, out_size);
-    kb_destroy(tmp.kb);
+    kb_read_scope(b->kb, KB_HYPOTHETICAL | KB_SUPPOSED_BASE);
+    entailment_status(b, b, trim_mut((char *)hypothesis), mode, out, out_size);
+    kb_read_scope(b->kb, 0);
+    kb_retract_origin(b->kb, KB_HYPOTHETICAL | KB_SUPPOSED_BASE);
     return 1;
 }
 
@@ -3555,19 +3732,34 @@ static int multi_sentence_syllogism(Brain *b, const char *norm,
         off += (size_t)n;
     }
 
-    Brain tmp;
-    if (!brain_scratch_init(&tmp, b)) return 0;
-    kb_set_origin(tmp.kb, KB_SESSION);
-    if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
+    /* mantra #25 — le premesse sono uno STRATO della mente unica, non un
+     * secondo cervello: si scrivono in `KB_HYPOTHETICAL`, la domanda si legge
+     * con lo scope di quello strato, e a fine turno lo strato si ritira. */
+    P0PremiseSaid said;
+    if (!premises_said(b, prem, &said)) {
+        kb_retract_origin(b->kb, KB_HYPOTHETICAL);
+        return 0;
+    }
 
     char qbuf[256];
     snprintf(qbuf, sizeof qbuf, "%s", query);
     /* gen326: the universal conclusion reaches the multi-sentence form through
      * the SAME witness helper — one mechanism, both surfaces. */
-    universal_to_witness(b, &tmp, qbuf, sizeof qbuf);
-    char ans[256];
-    int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
-    kb_destroy(tmp.kb);
+    universal_to_witness(b, b, qbuf, sizeof qbuf);
+
+    /* La domanda si risolve nella mente PIENA; a decidere e' il sostegno: una
+     * conclusione che poggia su un fatto del mondo non e' implicata da queste
+     * premesse, e dirlo e' piu' onesto che non aver visto il mondo. */
+    char hpred[KB_TERM_LEN], hargs[2][KB_TERM_LEN]; size_t hargc = 0;
+    char ans[256]; int claimed = 0;
+    if (parse_hypothesis_goal(b, qbuf, hpred, sizeof hpred, hargs, &hargc)) {
+        const char *qa[2] = { hargs[0], hargs[1] };
+        int provable = 0;
+        int from_premises = supported_by_premises(b, &said, hpred, qa, hargc, &provable);
+        snprintf(ans, sizeof ans, "%s", from_premises ? "Yes." : "No.");
+        claimed = 1;
+    }
+    kb_retract_origin(b->kb, KB_HYPOTHETICAL);
     if (!claimed) return 0;
     /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
      * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
@@ -3653,13 +3845,14 @@ static int transitive_comparison(Brain *b, const char *norm,
         if (strcmp(rels[i], rels[0]) != 0) return 0;   /* one relation throughout */
 
     const char *rel = rels[0];
-    Brain tmp;
-    if (!brain_scratch_init(&tmp, b)) return 0;
-    kb_set_origin(tmp.kb, KB_SESSION);
+    /* mantra #25 — la catena si costruisce nello STRATO ipotetico della mente
+     * unica: gli stessi confronti, senza un secondo cervello da riempire. */
+    int prev_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_HYPOTHETICAL);
 
     for (size_t i = 0; i + 1 < nt; i++) {        /* premises = all but the last */
         const char *args[] = { lefts[i], rights[i] };
-        kb_assert(tmp.kb, rel, args, 2);
+        kb_assert(b->kb, rel, args, 2);
     }
     /* transitivity clause: rel($A,$C) :- rel($A,$B), rel($B,$C) */
     const char *ha[] = { "$A", "$C" };
@@ -3667,7 +3860,8 @@ static int transitive_comparison(Brain *b, const char *norm,
     const char *bc[] = { "$B", "$C" };
     KbGoal head = { rel, ha, 2, 0 };
     KbGoal body[2] = { { rel, ba, 2, 0 }, { rel, bc, 2, 0 } };
-    kb_assert_clause(tmp.kb, &head, body, 2);
+    kb_assert_clause(b->kb, &head, body, 2);
+    kb_set_origin(b->kb, prev_origin);
 
     /* gen349 (Fase 3): a SUPERLATIVE query ("who is the shortest/tallest?") has no
      * final than-frame — ALL frames are premises. Answer the extremum of the order
@@ -3696,7 +3890,7 @@ static int transitive_comparison(Brain *b, const char *norm,
                     if (!strcmp(cand, want_max ? rights[f] : lefts[f])) { on_other = 1; break; }
                 if (!on_other) { snprintf(ans, sizeof ans, "%s", cand); break; }
             }
-            kb_destroy(tmp.kb);
+            kb_retract_origin(b->kb, KB_HYPOTHETICAL);
             if (!ans[0]) return 0;
             char msg[80]; snprintf(msg, sizeof msg, "%c%s.",
                 (char)toupper((unsigned char)ans[0]), ans + 1);
@@ -3710,8 +3904,10 @@ static int transitive_comparison(Brain *b, const char *norm,
     }
 
     const char *qa[] = { lefts[nt - 1], rights[nt - 1] };   /* query = last frame */
-    int yes = kb_query(tmp.kb, rel, qa, 2);
-    kb_destroy(tmp.kb);
+    kb_read_scope(b->kb, KB_HYPOTHETICAL);
+    int yes = kb_query(b->kb, rel, qa, 2);
+    kb_read_scope(b->kb, 0);
+    kb_retract_origin(b->kb, KB_HYPOTHETICAL);
     put(yes ? "Yes." : "No.", out, out_size);
     return 1;
 }
@@ -20337,12 +20533,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char sn[256], sc[256];
             normalize(supp, sn, sizeof sn);
             canonicalize_lang(b, sn, sc, sizeof sc);
-            /* Assert supposition, then query. */
-            Brain hypo;
-            if (!brain_scratch_init(&hypo, b)) return 0;
-            kb_set_origin(hypo.kb, KB_SESSION);
+            /* mantra #25 — la supposizione e' uno STRATO, non un cervello:
+             * si scrive in `KB_HYPOTHETICAL`, si legge con il suo scope e si
+             * ritira a risposta data. */
+            int prev_origin = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_HYPOTHETICAL);
             char discard[256];
-            mod_knowledge(&hypo, sc, sc, discard, sizeof discard);
+            mod_knowledge(b, sc, sc, discard, sizeof discard);
+            kb_set_origin(b->kb, prev_origin);
             char qn[256], qc[256];
             normalize(query_text, qn, sizeof qn);
             canonicalize_lang(b, qn, qc, sizeof qc);
@@ -20355,13 +20553,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             size_t qnw = split_words(qbuf, qw, 8);
             if (qnw == 4 && lex_class_member(b, "10_memory_knowledge_lex10669", qw[0]) && is_article(b, qw[2])) {
                 const char *args[] = {qw[1]};
-                int yes = kb_query(hypo.kb, qw[3], args, 1);
+                kb_read_scope(b->kb, KB_HYPOTHETICAL);
+                int yes = kb_query(b->kb, qw[3], args, 1);
+                kb_read_scope(b->kb, 0);
                 put(yes ? "Yes, under that supposition." : "No, even with that supposition.",
                     out, out_size);
             } else {
                 kb_term_say(b, "i_supposed_that_what_should_i_check", NULL, 0, out, out_size);
             }
-            kb_destroy(hypo.kb);
+            kb_retract_origin(b->kb, KB_HYPOTHETICAL);
             return 1;
         }
     }
@@ -22789,8 +22989,20 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * arrivava qui col «?» gia' tolto, e nessuno chiedeva l'atto del turno.
      * Si consuma la lettura pubblicata (`turn_illocution`, gen505y), non una
      * terza lettura privata. */
+    /* ⚠ 20 settembre 2026 — LA FORZA E' DEL TURNO, LA CLAUSOLA E' UN'ALTRA COSA.
+     *
+     * Il veto sopra (gen505y) impedisce che «is every sailor a pilot?» scriva
+     * una regola: giusto. Ma qui arriva anche la PREMESSA di un ipotetico —
+     * «if every cat is a mammal and tom is a cat, is tom a mammal?» applica
+     * «every cat is a mammal» mentre il turno, giustamente, e' una domanda — e
+     * il veto la rifiutava, facendo cadere l'intero sillogismo al muro.
+     * Fino al 20 settembre il difetto era invisibile perche' quel turno non
+     * aveva NESSUNA forza pubblicata (il congelamento arrivava prima degli
+     * span): correggendo la forza e' emerso il veto di troppo.
+     * La distinzione e' quella giusta: la forza vale per il turno DETTO, non
+     * per un frammento che un lettore si e' ritagliato. */
     if (nw >= 5 && is_universal_word(b, w[0]) && !interrogative &&
-        !p0_turn_is(b, "question", norm))
+        !(p0_clause_is_the_turn(b, norm) && p0_turn_is(b, "question", norm)))
         for (size_t i = 2; i + 2 < nw && !u_cop; i++)
             if (lex_class_member(b, "clause_copula", w[i]) && is_article(b, w[i + 1]))
                 u_cop = i;
@@ -23121,7 +23333,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * `request_opener`, lexicon.p0); chi impara le consulta come consulta
          * la domanda: si verifica l'atto prima di scrivere. */
         if (nw == 6 && lex_class_member(b, "10_memory_knowledge_lex12439", w[1]) &&
-            !interrogative && !p0_turn_is(b, "question", norm) &&
+            !interrogative &&
+            !(p0_clause_is_the_turn(b, norm) && p0_turn_is(b, "question", norm)) &&
             !p0_turn_opens_directive(b, norm) &&
             !lex_class_member(b, "question_word", w[0])) {
             const char *subj = w[0];
@@ -23241,7 +23454,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * and "is <r> a flower?" deduce over the rule plus the ground fact. This is real
      * syllogistic reasoning on parrot0's own engine, not a recited string. */
     /* gen506c: una domanda non insegna una regola (vedi il lettore lungo piu' sotto). */
-    if (nw >= 4 && nw <= 6 && !interrogative && !p0_turn_is(b, "question", norm) &&
+    if (nw >= 4 && nw <= 6 && !interrogative &&
+        !(p0_clause_is_the_turn(b, norm) && p0_turn_is(b, "question", norm)) &&
         (lex_class_member(b, "universal_quantifier", w[0]) || lex_class_member(b, "universal_quantifier", w[0]) ||
          lex_class_member(b, "universal_quantifier", w[0]))) {
         /* gen290: locate the copula STRUCTURALLY rather than by fixed position, so

@@ -1334,23 +1334,19 @@ void brain_destroy(Brain *b) {
 /* gen277: the brain's KB, for a host that drives the engine directly (MCP). */
 KB *brain_kb(Brain *b) { return b ? b->kb : NULL; }
 
-/* Prepare `scratch` as an isolated reasoning sandbox spawned from `parent`.
+/* ⛔ `brain_scratch_init` E' STATO RIMOSSO — 20 settembre 2026, mantra #25.
  *
- * The sandbox owns a fresh, EMPTY KB: premises asserted into it never touch the
- * real one, and a query over world facts still sees only what this turn stated —
- * the closed world that makes syllogism reasoning meaningful. What it no longer
- * loses is parrot0's MACHINERY: `substrate` links back to the parent's KB so
- * grammar and closed lexical classes stay reachable (brain_substrate_query).
+ * Costruiva un secondo `Brain` sopra una KB vuota per «isolare» le premesse di
+ * un ipotetico. F.: «ogni astrazione e' dentro il cervello, non in un cervello
+ * secondario»; `one-kb.md` §6 lo diceva gia': «non va perfezionato, va fatto
+ * sparire, e con lui l'ultimo posto in cui parrot0 pensa da menomato».
  *
- * Returns 0 if the KB could not be created, leaving `scratch` zeroed. */
-int brain_scratch_init(Brain *scratch, Brain *parent) {
-    if (!scratch) return 0;
-    memset(scratch, 0, sizeof *scratch);
-    scratch->kb = kb_create();
-    if (!scratch->kb) return 0;
-    scratch->substrate = parent ? parent->kb : NULL;
-    return 1;
-}
+ * Al suo posto: le premesse si scrivono in `KB_HYPOTHETICAL` (e «base says …»
+ * in `KB_SUPPOSED_BASE`), la domanda si legge con `kb_read_scope` su quegli
+ * strati — piu' la macchineria, che `machinery/1` dichiara viva — e lo strato
+ * si ritira con `kb_retract_origin`. Stessa semantica closed-world, una sola
+ * mente, nessun substrato da collegare.
+ */
 
 /* Look up a MACHINERY fact: the sandbox's own KB first, then the substrate it
  * was spawned from. Only for parrot0's own engine knowledge (grammar, lexical
@@ -5612,7 +5608,54 @@ void brain_turn_dump(Brain *b) {
         size_t n = kb_dump_pred(b->kb, pred, rows, IR_ROWS);
         for (size_t r = 0; r < n; r++) fprintf(stderr, "[ir] %s\n", rows[r]);
         if (n == IR_ROWS) fprintf(stderr, "[ir] %s … (tetto %d)\n", pred, IR_ROWS);
-        if (!n) fprintf(stderr, "[ir] %s: nessun fatto\n", pred);
+        /* ⚠ Un predicato DERIVATO non ha fatti: la sua lettura esiste solo
+         * quando la si chiede. Un dump che mostrasse «nessun fatto» mentirebbe
+         * — e mi ha gia' ingannato una volta, con `input_node_atom` (20
+         * settembre 2026). Quindi qui si ENUMERA, colonna dopo colonna. */
+        size_t derived = 0;
+        for (size_t a = 1; a <= 4 && !n; a++) {
+            if (!kb_rules_for_head(b->kb, pred, a)) continue;
+            char c1[64][KB_TERM_LEN];
+            const char *q1[4] = { NULL, NULL, NULL, NULL };
+            size_t n1 = kb_match(b->kb, pred, q1, a, c1, 64);
+            for (size_t i = 0; i < n1; i++) {
+                if (a == 1) {
+                    fprintf(stderr, "[ir] %s(%s)  [derivato]\n", pred, c1[i]);
+                    derived++;
+                    continue;
+                }
+                char c2[64][KB_TERM_LEN];
+                const char *q2[4] = { c1[i], NULL, NULL, NULL };
+                size_t n2 = kb_match(b->kb, pred, q2, a, c2, 64);
+                for (size_t j = 0; j < n2; j++) {
+                    if (a == 2) {
+                        fprintf(stderr, "[ir] %s(%s, %s)  [derivato]\n", pred, c1[i], c2[j]);
+                        derived++;
+                        continue;
+                    }
+                    char c3[64][KB_TERM_LEN];
+                    const char *q3[4] = { c1[i], c2[j], NULL, NULL };
+                    size_t n3 = kb_match(b->kb, pred, q3, a, c3, 64);
+                    for (size_t k = 0; k < n3; k++) {
+                        if (a == 3) {
+                            fprintf(stderr, "[ir] %s(%s, %s, %s)  [derivato]\n",
+                                    pred, c1[i], c2[j], c3[k]);
+                            derived++;
+                            continue;
+                        }
+                        char c4[64][KB_TERM_LEN];
+                        const char *q4[4] = { c1[i], c2[j], c3[k], NULL };
+                        size_t n4 = kb_match(b->kb, pred, q4, a, c4, 64);
+                        for (size_t m = 0; m < n4; m++) {
+                            fprintf(stderr, "[ir] %s(%s, %s, %s, %s)  [derivato]\n",
+                                    pred, c1[i], c2[j], c3[k], c4[m]);
+                            derived++;
+                        }
+                    }
+                }
+            }
+        }
+        if (!n && !derived) fprintf(stderr, "[ir] %s: niente\n", pred);
     }
     fprintf(stderr, "[ir] ── fine ──\n");
 }

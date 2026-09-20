@@ -866,7 +866,7 @@ static int is_internal_pred(const KB *kb, const char *pred);
 static int domain_query(Brain *b, const char *role, const char *const *args, size_t argc);
 int brain_policy_on(Brain *b, const char *key);       /* gen331: the effective policy */
 /* gen371: the reasoning-sandbox seam and its substrate lookups (99-registry.c). */
-int brain_scratch_init(Brain *scratch, Brain *parent);
+/* brain_scratch_init: rimosso il 20 settembre 2026 (mantra #25). */
 int brain_fresh_token(Brain *b, const char *base, char *out, size_t n);
 int brain_substrate_query(Brain *b, const char *pred,
                           const char *const *args, size_t argc);
