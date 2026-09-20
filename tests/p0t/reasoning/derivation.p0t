@@ -1,9 +1,9 @@
 # M2 — la derivazione prodotta dalla ricerca che decide
 # (docs/plans/lettura-della-prosa.md, HANDOFF «contenuti, atti e giudizi»).
 #
-# kb_prove_support riferiva la PRIMA prova trovata da un secondo risolutore: nel
-# caso Zelvo aggiungere una conoscenza vera cambiava il verdetto. Qui la prova
-# e' raccolta dentro `solve`: kb_derivation(D, Goal, I, Dep), con le
+# kb_prove_support riferiva la PRIMA prova trovata da un secondo risolutore:
+# nel caso Zelvo aggiungere una conoscenza vera cambiava il verdetto. Qui la
+# prova e' raccolta dentro `solve`: kb_derivation(D, Goal, I, Dip), con le
 # alternative sul backtracking (OR) e le dipendenze congiunte (AND).
 #
 # I nomi abstraction_* sono inventati e provano SOLO la meccanica (MANTRA: un
@@ -24,11 +24,15 @@
 !query kb_derivation($D, abstraction_target(x), 0, 2)
 !query derivation_alternative(abstraction_target(x), $A, $B)
 # la derivazione torna alle clausole giuste: il fatto seme e la regola
-!clause abstraction_via_seed(yes) :- kb_derivation($D, abstraction_target(x), 0, 2), kb_derivation($D, abstraction_target(x), $I, $C), kb_clause($C, abstraction_seed(x), 0, 0)
+!clause abstraction_via_seed(yes) :- kb_derivation($D, abstraction_target(x), 0, 2), derivation_depends_on($D, $C), kb_clause($C, app(abstraction_seed, cons(atom(x), nil)), 0, 0)
 !query abstraction_via_seed(yes)
-!clause abstraction_via_rule(yes) :- kb_derivation($D, abstraction_target(x), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, abstraction_target(var(0)), 1, abstraction_seed(var(0)))
+!clause abstraction_via_rule(yes) :- kb_derivation($D, abstraction_target(x), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, app(abstraction_target, cons(var(0), nil)), 1, app(abstraction_seed, cons(var(0), nil)))
 !query abstraction_via_rule(yes)
-!query derivation_complete($D)
+!clause abstraction_complete(yes) :- kb_derivation($D, abstraction_target(x), 0, 2), derivation_complete($D)
+!query abstraction_complete(yes)
+# e la prova sa dire su che cosa poggia
+!clause abstraction_rests(yes) :- kb_derivation($D, abstraction_target(x), 0, 2), derivation_rests_on($D, abstraction_seed)
+!query abstraction_rests(yes)
 
 [test retracting_one_support_keeps_the_other_way]
 !forget abstraction_target(x)
@@ -49,37 +53,43 @@
 [test machinery_hides_nothing_from_a_derivation]
 !assert machinery(abstraction_seed)
 !query kb_derivation($D, abstraction_target(x), 0, 2)
+!clause abstraction_still_rests(yes) :- kb_derivation($D, abstraction_target(x), 0, 2), derivation_rests_on($D, abstraction_seed)
+!query abstraction_still_rests(yes)
 !forget machinery(abstraction_seed)
 
 [test the_inverse_rule_is_the_rule_used]
 !assert abstraction_edge(a, b)
 !clause abstraction_path($X, $Y) :- abstraction_edge($X, $Y)
 !clause abstraction_path($X, $Y) :- abstraction_edge($Y, $X)
-!clause abstraction_inverse_used(yes) :- kb_derivation($D, abstraction_path(b, a), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(0)))
+!clause abstraction_inverse_used(yes) :- kb_derivation($D, abstraction_path(b, a), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, app(abstraction_path, cons(var(0), cons(var(1), nil))), 1, app(abstraction_edge, cons(var(1), cons(var(0), nil))))
 !query abstraction_inverse_used(yes)
-!clause abstraction_direct_in($D) :- derivation_uses_clause($D, $C), kb_clause($C, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(0), var(1)))
+!clause abstraction_direct_in($D) :- derivation_uses_clause($D, $C), kb_clause($C, app(abstraction_path, cons(var(0), cons(var(1), nil))), 1, app(abstraction_edge, cons(var(0), cons(var(1), nil))))
 !clause abstraction_direct_not_used(yes) :- kb_derivation($D, abstraction_path(b, a), 0, 2), naf(abstraction_direct_in($D))
 !query abstraction_direct_not_used(yes)
 
 [test absence_is_a_declared_dependency]
 !assert abstraction_thing(x)
 !clause abstraction_lonely($X) :- abstraction_thing($X), naf(abstraction_edge($X, x))
-!query kb_derivation($D, abstraction_lonely(x), $I, absent(abstraction_edge(x, x)))
-!query derivation_needs_absent($D, abstraction_edge(x, x))
-# e la dipendenza e' vera: data l'assenza, la prova cade
+!query kb_derivation($D, abstraction_lonely(x), $I, absent(app(abstraction_edge, cons(atom(x), cons(atom(x), nil)))))
+!clause abstraction_absent_named(yes) :- kb_derivation($D, abstraction_lonely(x), 0, $N), derivation_needs_absent($D, app(abstraction_edge, cons(atom(x), cons(atom(x), nil))))
+!query abstraction_absent_named(yes)
+# e la dipendenza e' vera: tolta l'assenza, la prova cade
 !assert abstraction_edge(x, x)
 !query! derivation_of(abstraction_lonely(x), $D)
 !forget abstraction_edge(x, x)
+!query derivation_of(abstraction_lonely(x), $D)
 
 [test no_proof_no_derivation_and_a_bound_id_reads_the_store]
 !query! kb_derivation($D, abstraction_nothing(x), 0, $N)
-!clause abstraction_reread(yes) :- kb_derivation($D, abstraction_lonely(x), 0, $N), kb_derivation($D, $Goal, 0, $N), kb_derivation($D, abstraction_lonely(x), 1, $Dep)
+!clause abstraction_reread(yes) :- kb_derivation($D, abstraction_lonely(x), 0, $N), kb_derivation($D, $Goal, 0, $N), kb_derivation($D, abstraction_lonely(x), 1, $Dip)
 !query abstraction_reread(yes)
 !query! kb_derivation(derivation_999999, $Goal, 0, $N)
 
 [test a_proof_on_real_knowledge]
-# man(plato) e mortal(X) :- man(X) sono nella KB viva (kb/core/base.p0)
-!clause abstraction_plato(yes) :- kb_derivation($D, mortal(plato), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, man(plato), 0, 0)
+# man(plato) e mortal($X) :- man($X) sono nella KB viva (kb/core/base.p0)
+!clause abstraction_plato(yes) :- kb_derivation($D, mortal(plato), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, app(man, cons(atom(plato), nil)), 0, 0)
 !query abstraction_plato(yes)
-!clause abstraction_plato_rule(yes) :- kb_derivation($D, mortal(plato), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, mortal(var(0)), 1, man(var(0)))
+!clause abstraction_plato_rule(yes) :- kb_derivation($D, mortal(plato), 0, 2), derivation_uses_clause($D, $C), kb_clause($C, app(mortal, cons(var(0), nil)), 1, app(man, cons(var(0), nil)))
 !query abstraction_plato_rule(yes)
+!clause abstraction_plato_rests(yes) :- kb_derivation($D, mortal(plato), 0, 2), derivation_rests_on($D, man), derivation_rests_on($D, mortal)
+!query abstraction_plato_rests(yes)

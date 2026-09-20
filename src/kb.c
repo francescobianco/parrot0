@@ -2621,11 +2621,15 @@ static int derivation_close(Solver *S, const Term *goals, size_t ngoals, size_t 
     char rowf[KB_TERM_LEN], rowargs[KB_MAX_ARGS][KB_TERM_LEN];
     size_t nra = 0;
     if (!split_compound(g->args[2], rowf, rowargs, &nra) || nra != 2) return 0;
+    /* Il goal si conserva come il chiamante lo ha scritto, RISOLTO: e' l'istanza
+     * dimostrata, e chi rilegge la derivazione deve poterla ridimostrare. Le
+     * DIPENDENZE sono invece contenuti, e portano la forma canonica: due ruoli
+     * diversi, due forme, ciascuna coerente con se' stessa. Conservare qui la
+     * forma canonica rendeva la stessa derivazione diversa a seconda che il
+     * goal fosse legato o libero. */
     char rg[KB_TERM_LEN], goal_text[KB_TERM_LEN];
     deep_resolve(s, g->args[1], rg, sizeof rg, 0);
-    Term gt;
-    if (parse_to_term(rg, &gt)) goal_canon_text(&gt, goal_text);
-    else snprintf(goal_text, sizeof goal_text, "%s", rg);
+    snprintf(goal_text, sizeof goal_text, "%s", rg);
     char **deps = calloc(KB_DERIV_DEPS, sizeof *deps);
     if (!deps) return 0;
     size_t nd = 0, top = S->nproof < KB_DERIV_DEPS ? S->nproof : KB_DERIV_DEPS;
@@ -3608,7 +3612,22 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                                   grounded_goal.argc) &&
                         kb_view_fact_visible(S->kb, kb_find(S->kb, &needle));
             if (exact) {
-                if (solve(S, goals, ngoals, idx + 1, s, depth)) return 1;
+                /* M2 — anche QUESTA strada e' un passo della prova. La via
+                 * rapida del fatto ground esatto salta il ciclo dei candidati
+                 * qui sotto: senza questa registrazione la stessa conclusione
+                 * aveva due prove diverse a seconda di come era stata trovata,
+                 * che e' esattamente il difetto che M2 deve togliere. */
+                int erec = S->recording;
+                if (erec) {
+                    char cid[KB_TERM_LEN];
+                    clause_identity(cid, grounded_goal.pred, grounded_goal.argc,
+                                    (const char (*)[KB_TERM_LEN])grounded_goal.args,
+                                    0, NULL, 0);
+                    proof_push(S, cid);
+                }
+                int eok = solve(S, goals, ngoals, idx + 1, s, depth);
+                if (erec) S->nproof--;
+                if (eok) return 1;
                 /* A continuation may contain assert/retract and then fail.
                  * Side effects persist in this engine, so refresh the census
                  * before considering alternative unit clauses. */

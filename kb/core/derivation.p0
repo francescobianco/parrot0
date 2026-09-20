@@ -3,31 +3,36 @@
 % docs/plans/lettura-della-prosa.md, HANDOFF «contenuti, atti e giudizi»: il
 % caso Zelvo mostrava che una prova riferita da un secondo risolutore era la
 % PRIMA trovata, e che aggiungere conoscenza vera cambiava il verdetto. Ora la
-% prova e' un prodotto di `solve` stesso, esposto con una porta sola
+% prova e' un prodotto di `solve` stesso, esposta con una porta sola
 % (src/kb.c, derivation_door):
 %
 %   kb_derivation(D, Goal, 0, N)      una derivazione di Goal con N dipendenze
-%   kb_derivation(D, Goal, I, Dep)    la I-esima dipendenza, I in 1..N
+%   kb_derivation(D, Goal, I, Dip)    la I-esima dipendenza, I in 1..N
 %
-% Con D libera e Goal legato si cerca nella stessa ricerca: ogni soluzione
-% del backtracking e' una derivazione ALTERNATIVA (l'OR), le sue dipendenze
-% sono congiunte (l'AND). Una dipendenza e' `content_<id>` (una clausola usata,
-% la stessa Id di kb_clause/4), `absent(G)` (una negazione per fallimento:
-% dipende dall'assenza di G) o `aggregate(G)` (un findall: dipende dall'insieme
-% delle soluzioni di G). `incomplete(N)` al posto di N dichiara che i passi
-% hanno superato la pila. `derivation_<n>` vale nella sessione e non si salva.
+% Con D libera e Goal legato si cerca nella stessa ricerca: ogni soluzione del
+% backtracking e' una derivazione ALTERNATIVA (l'OR), le sue dipendenze sono
+% congiunte (l'AND). Una dipendenza e' `content(Pred, impronta)` — una clausola
+% usata, la stessa identita' di kb_clause/4 —, `absent(G)` — una negazione per
+% fallimento: la prova dipende dall'ASSENZA di G in questa KB — oppure
+% `aggregate(G)` — un findall: dipende dall'insieme delle soluzioni di G.
+% `incomplete(N)` al posto di N dichiara che i passi hanno superato la pila.
+% `derivation_<n>` vale nella sessione e non si salva.
 %
 % Qui stanno le facce NOMINABILI: che cosa una derivazione e' e da che cosa
 % dipende. Che cosa sia AMMESSO in un contesto e' il lavoro di M3.
 
 derivation_of($Goal, $D) :- kb_derivation($D, $Goal, 0, $N).
 derivation_dependency_count($D, $N) :- kb_derivation($D, $Goal, 0, $N).
-derivation_depends_on($D, $Dep) :- kb_derivation($D, $Goal, $I, $Dep), dif($I, 0).
+derivation_depends_on($D, $Dip) :- kb_derivation($D, $Goal, $I, $Dip), dif($I, 0).
 
-% Le tre specie di dipendenza.
-derivation_uses_clause($D, $Id) :- derivation_depends_on($D, $Id), kb_clause($Id, $Head, 0, $C).
+% Le tre specie di dipendenza, ciascuna dicibile per quello che e'.
+derivation_uses_clause($D, $Id) :-
+    derivation_depends_on($D, $Id), kb_clause($Id, $Head, 0, $C).
 derivation_needs_absent($D, $G) :- derivation_depends_on($D, absent($G)).
 derivation_needs_aggregate($D, $G) :- derivation_depends_on($D, aggregate($G)).
+derivation_uses_rule($D, $Id) :-
+    derivation_depends_on($D, $Id), kb_clause($Id, $Head, 0, $N), dif($N, 0).
+derivation_uses_fact($D, $Id) :- derivation_depends_on($D, $Id), kb_clause($Id, $Head, 0, 0).
 
 % Una derivazione che ha perso passi non e' una derivazione piu' corta.
 derivation_incomplete($D) :- kb_derivation($D, $Goal, 0, incomplete($N)).
@@ -36,3 +41,6 @@ derivation_complete($D) :- kb_derivation($D, $Goal, 0, $N), naf(derivation_incom
 % Un goal ha piu' di una via: due derivazioni distinte dello stesso goal.
 derivation_alternative($Goal, $D1, $D2) :-
     kb_derivation($D1, $Goal, 0, $N1), kb_derivation($D2, $Goal, 0, $N2), dif($D1, $D2).
+
+% La prova nomina il predicato su cui poggia: e' l'identita' a dirlo.
+derivation_rests_on($D, $Pred) :- derivation_depends_on($D, content($Pred, $Print)).
