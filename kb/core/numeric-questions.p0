@@ -215,6 +215,61 @@ count_total_text(it, $Total, counted($N, $Word, $Unit, $K), $Text) :-
 turn_plan_candidate($Turn) :- count_total($Turn, $Total, $How).
 turn_response($Turn, $Text) :- count_total($Turn, $Total, $How), current_language($Language), count_total_text($Language, $Total, $How, $Text).
 
+% ── RI-005 — UN NUMERO MISTO: «two and a half hours» ───────────────────────
+%
+% «how many minutes are there in two and a half hours?» rispondeva «1.»: un
+% numero falso detto come un fatto, sulla domanda piu' naturale che esista su
+% un'unita' di tempo. E la conoscenza c'era tutta — «in an hour» rende 60, «in
+% two hours» rende 120 e spiega il conto, «half of 60» rende 30. Mancava la
+% lettura di UNA quantita' scritta in due pezzi: il lettore vedeva il «two», poi
+% la congiunzione, e la frase gli si spezzava in mano (`/debug`:
+% `debug_np_candidate` = «a half hours», `debug_turn_entity` = `half_hours two`).
+%
+% Quali parole leghino l'intero alla sua frazione e' conoscenza, e le frazioni
+% le sa gia' `fraction_word/2` (lexicon.p0). Il conto si fa nell'unita' PICCOLA,
+% come lo direbbe una persona — due ore sono 120 minuti, la mezza ne fa 30 —
+% cosi' il conto resta nei numeri che la domanda nomina. La divisione del
+% motore e' in virgola mobile, quindi «two and a half weeks» rende 17.5 giorni
+% senza nessun caso speciale — misurato, non supposto.
+machinery(mixed_connector).
+mixed_connector(and).
+mixed_connector(e).
+machinery(fraction_article).
+fraction_article(a).
+fraction_article(an).
+fraction_article(un).
+fraction_article(una).
+
+machinery(mixed_count).
+mixed_count($Turn, pos($S, $P), $PEnd, mixed($Whole, $D)) :-
+    turn_span_token($Turn, $S, $P, $TN), duration_count($TN, $Whole),
+    is($P1, add($P, 1)), turn_span_token($Turn, $S, $P1, $TC),
+    span_atom($TC, $C), mixed_connector($C),
+    is($P2, add($P1, 1)), turn_span_token($Turn, $S, $P2, $TA),
+    span_atom($TA, $A), fraction_article($A),
+    is($P3, add($P2, 1)), turn_span_token($Turn, $S, $P3, $TF),
+    span_atom($TF, $F), fraction_word($F, $D),
+    is($PEnd, add($P3, 1)).
+
+machinery(mixed_total).
+mixed_total($Turn, $Total, $Word, $Unit) :-
+    turn_cue_form($Turn, total_amount_cue, $Q),
+    mixed_count($Turn, pos($S, $P), $PEnd, mixed($Whole, $D)),
+    turn_span_token($Turn, $S, $PEnd, $TW), span_atom($TW, $Word),
+    counted_thing($Word, $Thing), quantity($Thing, $Unit, $K),
+    turn_span_token($Turn, $S2, $PU, $TU), span_atom($TU, $Unit),
+    is($Base, mul($Whole, $K)), is($Part, div($K, $D)), is($Total, add($Base, $Part)).
+
+machinery(mixed_total_text).
+mixed_total_text($Total, $Unit, $Text) :-
+    concat_atoms($Total, " ", $A), concat_atoms($A, $Unit, $B),
+    concat_atoms($B, ".", $Text).
+
+turn_plan_candidate($Turn) :- mixed_total($Turn, $Total, $Word, $Unit).
+turn_response($Turn, $Text) :-
+    mixed_total($Turn, $Total, $Word, $Unit), mixed_total_text($Total, $Unit, $Text).
+
+
 % ── 6. mix 13×15 — QUANTO CONSUMA E QUANTO COSTA UN APPARECCHIO ─────────────
 %
 % «how much does it cost to run a 2000 watt heater for 3 hours at 0.25 euros per

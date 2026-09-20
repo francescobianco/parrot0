@@ -2021,6 +2021,7 @@ quantity(cuboid, faces, 6).
 quantity(cuboid, vertices, 8).
 quantity(cylinder, faces, 3).
 quantity(day, hours, 24).
+quantity(day, minutes, 1440).
 quantity(decagon, sides, 10).
 quantity(deck, cards, 52).
 quantity(dodecahedron, faces, 12).
@@ -2104,6 +2105,7 @@ quantity(kilometer, meters, 1000).
 quantity(meter, millimeters, 1000).
 quantity(meter, centimeters, 100).
 quantity(week, weekdays, 5).
+quantity(week, hours, 168).
 quantity(world, continents, 7).
 quantity(year, days, 365).
 quantity(year, months, 12).

@@ -65,6 +65,9 @@ proposition_source_record(proposition(binary(teach), roles(subject(socrates), ob
 teach(socrates, plato).
 react(sodium, water).
 input_entity_cached(current_turn, en, ent(6, 2, goes_both_ways)).
+input_entity_cached(current_turn, en, ent(4, 2, many_minutes)).
+input_entity_cached(current_turn, en, ent(30, 7, two)).
+input_entity_cached(current_turn, en, ent(38, 12, half_days)).
 input_entities_observed(current_turn, en).
 symmetric_relation(react).
 city(milan).
