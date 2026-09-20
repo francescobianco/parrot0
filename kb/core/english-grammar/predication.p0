@@ -180,6 +180,7 @@ verb_particle(rebel, against).
 verb_particle(protest, against).
 verb_particle(pass, through).
 verb_particle(flow, through).
+verb_particle(flow, into).
 verb_particle(move, through).
 verb_particle(diffuse, through).
 verb_particle(permeate, through).

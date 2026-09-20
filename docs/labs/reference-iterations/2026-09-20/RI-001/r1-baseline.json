@@ -1,0 +1,37 @@
+{
+ "seconds": 8.33,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@3cef7a5a]\nmode: agent (tools on, network off) - 156593 facts, 4983 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Which sea does the Aare flow into?",
+   "answer": "Hmm, I don't know about aare flow yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "Which sea does the Moselle flow into?",
+   "answer": "Hmm, I don't know about moselle flow yet. Want me to learn about it?"
+  },
+  {
+   "turn": 3,
+   "prompt": "Which sea does the Salzach flow into?",
+   "answer": "Hmm, I don't know about salzach flow yet. Want me to learn about it?"
+  },
+  {
+   "turn": 4,
+   "prompt": "Does the Danube flow into the North Sea?",
+   "answer": "I don't know: nothing I hold says danube flows into the north sea, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 5,
+   "prompt": "Does the Rhine flow into the Aare?",
+   "answer": "I don't know: nothing I hold says rhine flows into the aare, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 6,
+   "prompt": "What is the capital of Germany?",
+   "answer": "Berlin."
+  }
+ ]
+}

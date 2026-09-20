@@ -1329,6 +1329,27 @@ turn_form_mood(transitive_taught2, statement).
 turn_form_act(transitive_taught2, assert_unary).
 turn_form_reply(transitive_taught2, learned_transitive).
 
+% RI-001 — E IL RITIRO, che mancava: una proprieta' che si dice deve potersi
+% disdire con le stesse parole di chi l'ha detta, altrimenti la lezione non si
+% puo' nemmeno mettere alla prova (si toglie la catena e si guarda che cosa
+% resta). Le due superfici della lezione, con «forget that» davanti.
+response_template(unlearned_transitive, "Forgotten: {subject} no longer chains.").
+response_template(unlearned_transitive, it, "Dimenticato: {subject} non si concatena più.").
+
+turn_form(untransitive_taught, 1, text("forget that")).
+turn_form(untransitive_taught, 2, slot(subject)).
+turn_form(untransitive_taught, 3, text("chains transitively")).
+turn_form_mood(untransitive_taught, statement).
+turn_form_act(untransitive_taught, "op(retract, transitive_relation, [subject])").
+turn_form_reply(untransitive_taught, unlearned_transitive).
+
+turn_form(untransitive_taught2, 1, text("forget that")).
+turn_form(untransitive_taught2, 2, slot(subject)).
+turn_form(untransitive_taught2, 3, text("chains")).
+turn_form_mood(untransitive_taught2, statement).
+turn_form_act(untransitive_taught2, "op(retract, transitive_relation, [subject])").
+turn_form_reply(untransitive_taught2, unlearned_transitive).
+
 
 
 % ══ gen507/36 — I PIANI SI INSEGNANO PARLANDO ═════════════════════════════
@@ -2500,6 +2521,52 @@ turn_form_mood(teach_class_rule, statement).
 turn_form_act(teach_class_rule, "op(assert, relation_verb, [object])").
 turn_form_act(teach_class_rule, "op(assert, class_from_relation, [subject, object])").
 turn_form_reply(teach_class_rule, learned_class_rule).
+
+% ── RI-001 — INSEGNARE UN VERBO DI RELAZIONE CON PARTICELLA ───────────────
+% «flow into is a relation verb»: due parole, una relazione sola. Il verbo e la
+% particella si dicono insieme perche' insieme formano la superficie con cui la
+% relazione compare nel testo; il predicato che ne esce e' la RADICE, come
+% `verb_particle/2` gia' prescrive. La particella e' legata dal pezzo `named`,
+% che tiene solo dove la KB la riconosce: cosi' «north sea is a relation verb»
+% non diventa mai `verb_particle(north, sea)`.
+response_template(learned_verb_particle, "Learned: {subject} {particle} is a relation verb.").
+% E il muro onesto della domanda con la classe: riconosciuta la domanda, il
+% turno non torna a chi elenca la classe — «which sea does the North Sea flow
+% into?» non ha risposta, e dirlo e' la risposta.
+response_template(no_value_in_class, "I don't know: nothing I hold gives {subject} a {kind} there.").
+response_template(no_value_in_class, it, "Non so: non tengo nessun {kind} per {subject} su quella relazione").
+response_template(learned_verb_particle, it, "Imparato: «{subject} {particle}» è un verbo di relazione.").
+turn_form(teach_verb_particle, 1, slot(subject)).
+turn_form(teach_verb_particle, 2, named(particle_named, particle)).
+turn_form(teach_verb_particle, 3, text("is a relation verb")).
+turn_form_mood(teach_verb_particle, statement).
+turn_form_act(teach_verb_particle, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_verb_particle, "op(assert, verb_particle, [subject, particle])").
+turn_form_reply(teach_verb_particle, learned_verb_particle).
+
+% ── RI-001 — «WHICH <CLASSE> DOES <X> <V>?»: LA CLASSE E' UN FILTRO ───────
+% La domanda nomina un soggetto e una relazione: la classe dice di che specie
+% deve essere il valore, non che cosa si chiede. Due forme perche' la
+% particella o c'e' o non c'e'; l'atto (`answer_relation_in_class`) e' lo
+% stesso, e legge i valori da `holds/3`, cioe' anche dalle catene insegnate.
+turn_form(which_kind_relation, 1, text("which")).
+turn_form(which_kind_relation, 2, slot(kind)).
+turn_form(which_kind_relation, 3, class(auxiliary)).
+turn_form(which_kind_relation, 4, slot(subject)).
+turn_form(which_kind_relation, 5, relation(relation)).
+turn_form_mood(which_kind_relation, question).
+turn_form_act(which_kind_relation, answer_relation_in_class).
+turn_form_empty_reply(which_kind_relation, no_value_in_class).
+
+turn_form(which_kind_relation_particle, 1, text("which")).
+turn_form(which_kind_relation_particle, 2, slot(kind)).
+turn_form(which_kind_relation_particle, 3, class(auxiliary)).
+turn_form(which_kind_relation_particle, 4, slot(subject)).
+turn_form(which_kind_relation_particle, 5, relation(relation)).
+turn_form(which_kind_relation_particle, 6, class(verb_particle_word)).
+turn_form_mood(which_kind_relation_particle, question).
+turn_form_act(which_kind_relation_particle, answer_relation_in_class).
+turn_form_empty_reply(which_kind_relation_particle, no_value_in_class).
 
 % (superficie superiore #5) — una RELAZIONE DEFINITA DA DUE: insegnare una
 % REGOLA invece di un fatto. E' il mantra #19 applicato alle relazioni: la

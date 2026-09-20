@@ -1,0 +1,87 @@
+{
+ "seconds": 37.09,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@3cef7a5a]\nmode: agent (tools on, network off) - 156620 facts, 4986 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "flow into is a relation verb",
+   "answer": "Learned: flow into is a relation verb."
+  },
+  {
+   "turn": 2,
+   "prompt": "The Aare flows into the Rhine.",
+   "answer": "Learned: aare flow rhine."
+  },
+  {
+   "turn": 3,
+   "prompt": "The Rhine flows into the North Sea.",
+   "answer": "Learned: rhine flow north sea."
+  },
+  {
+   "turn": 4,
+   "prompt": "The North Sea is a sea.",
+   "answer": "Learned: north sea is a sea."
+  },
+  {
+   "turn": 5,
+   "prompt": "flow chains",
+   "answer": "Held: flow chains -- if a flow b and b flow c, then a flow c."
+  },
+  {
+   "turn": 6,
+   "prompt": "Which sea does the Aare flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 7,
+   "prompt": "The Moselle flows into the Rhine.",
+   "answer": "Learned: moselle flow rhine."
+  },
+  {
+   "turn": 8,
+   "prompt": "Which sea does the Moselle flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 9,
+   "prompt": "The Salzach flows into the Inn.",
+   "answer": "Learned: salzach flow inn."
+  },
+  {
+   "turn": 10,
+   "prompt": "The Inn flows into the Danube.",
+   "answer": "Learned: inn flow danube."
+  },
+  {
+   "turn": 11,
+   "prompt": "The Danube flows into the Black Sea.",
+   "answer": "Learned: danube flow black sea."
+  },
+  {
+   "turn": 12,
+   "prompt": "The Black Sea is a sea.",
+   "answer": "Learned: black sea is a sea."
+  },
+  {
+   "turn": 13,
+   "prompt": "Which sea does the Salzach flow into?",
+   "answer": "black sea."
+  },
+  {
+   "turn": 14,
+   "prompt": "Which sea does the Aare flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 15,
+   "prompt": "Which sea does the North Sea flow into?",
+   "answer": "north sea, black sea."
+  },
+  {
+   "turn": 16,
+   "prompt": "Which river does the Rhine flow into?",
+   "answer": "I don't understand that yet."
+  }
+ ]
+}

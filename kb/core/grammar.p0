@@ -1596,6 +1596,33 @@ extract_frame($Pat, $Root) :-
 machinery(verb_particle).
 machinery(verb_reading_form).
 
+% ── RI-001 — QUALI PARTICELLE ESISTONO, E COME SE NE INSEGNA UNA NUOVA ─────
+%
+% Le 265 righe `verb_particle/2` sono state scritte a mano leggendo la prosa:
+% il maestro che dice «flow into is a relation verb» non ne otteneva nulla —
+% la frase cadeva nell'ultima istanza, che leggeva la sola prima parola e
+% rispondeva «I already know that flow is a relation verb». Una perdita
+% silenziosa: chi insegna sente una conferma e la particella non c'e'.
+%
+% La particella non e' vocabolario del motore: e' la seconda parola di una
+% relazione che qualcuno ha gia' insegnato. La classe si DERIVA da cio' che la
+% KB tiene, quindi ognuna delle 21 particelle gia' in uso (to, of, from, into,
+% on, with, through, …) apre un verbo nuovo senza una riga.
+%
+% ⚠ MISURATO, e NON ancora vero: una particella mai vista non si insegna.
+% «onto is a verb particle» cade nel muro, perche' la superficie detta si
+% risolve nel predicato `verb_particle/2` — che esiste con un'arieta' diversa —
+% e non in questa classe. `class_surface/2` non viene consultato in quel verso.
+% Finche' e' cosi', il test del mantra passa per il VERBO e non per la
+% PARTICELLA: cfr. docs/labs/reference-iterations/2026-09-20/RI-001/scheda.md.
+machinery(verb_particle_word).
+verb_particle_word($P) :- verb_particle($Root, $P).
+class_surface(verb_particle_word, verb particle).
+% E il nome della particella e' la particella stessa: serve al pezzo `named`
+% della forma di turno, che lega un valore solo dove la KB lo riconosce.
+machinery(particle_named).
+particle_named($P, $P) :- verb_particle_word($P).
+
 % Le forme con cui un verbo di relazione si presenta in un testo: nuda,
 % flessa, irregolare. Era conoscenza gia' presente tre volte, una per ogni
 % regola di `extract_frame`; qui si nomina una volta e si riusa.

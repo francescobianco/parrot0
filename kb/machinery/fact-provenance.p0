@@ -478,6 +478,14 @@ fact_source(consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel), f
 fact_source(cause(slippery_surfaces, falls), slippery_surfaces, "slippery surfaces cause falls").
 fact_source(cause(legionella_outbreaks, legionnaires_disease), legionella_outbreaks, "legionella outbreaks cause legionnaires disease").
 fact_source(carbonate_mineral(calcite), calcite, "calcite is a carbonate mineral").
+fact_source(sea(black_sea), black_sea, "the black sea is a sea.").
+fact_source(flow(danube, black_sea), danube, "the danube flows into the black sea.").
+fact_source(flow(inn, danube), inn, "the inn flows into the danube.").
+fact_source(flow(salzach, inn), salzach, "the salzach flows into the inn.").
+fact_source(flow(moselle, rhine), moselle, "the moselle flows into the rhine.").
+fact_source(sea(north_sea), north_sea, "the north sea is a sea.").
+fact_source(flow(rhine, north_sea), rhine, "the rhine flows into the north sea.").
+fact_source(flow(aare, rhine), aare, "the aare flows into the rhine.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -831,13 +839,21 @@ reading_fact(causes(high_humidity, mold), "high humidity causes mold").
 reading_fact(pressure_surge(hydraulic_shock), "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 reading_fact(sense(smoke_detector, smoke), "a smoke detector senses smoke").
 reading_fact(cause(lithium_batteries, fires), "lithium batteries cause fires").
+reading_fact(sea(black_sea), "the black sea is a sea.").
 reading_fact(safety_device(fire_blanket), "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+reading_fact(flow(danube, black_sea), "the danube flows into the black sea.").
 reading_fact(causes(poorly_maintained_cooling_towers, legionella_outbreaks), "most legionella outbreaks result from poorly maintained cooling towers").
+reading_fact(flow(inn, danube), "the inn flows into the danube.").
 reading_fact(relation_verb(sense), "sense is a relation verb").
+reading_fact(flow(salzach, inn), "the salzach flows into the inn.").
 reading_fact(consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel), "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+reading_fact(flow(moselle, rhine), "the moselle flows into the rhine.").
 reading_fact(cause(slippery_surfaces, falls), "slippery surfaces cause falls").
+reading_fact(sea(north_sea), "the north sea is a sea.").
 reading_fact(cause(legionella_outbreaks, legionnaires_disease), "legionella outbreaks cause legionnaires disease").
+reading_fact(flow(rhine, north_sea), "the rhine flows into the north sea.").
 reading_fact(carbonate_mineral(calcite), "calcite is a carbonate mineral").
+reading_fact(flow(aare, rhine), "the aare flows into the rhine.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -891,20 +907,34 @@ fact_mention(legionella, "legionella is a genus of gram-negative bacteria that c
 fact_mention(underwatering, "underwatering causes yellow leaves").
 fact_mention(yellow_leaves, "overwatering causes yellow leaves").
 fact_mention(overwatering, "overwatering causes yellow leaves").
+fact_mention(black_sea, "the black sea is a sea.").
 fact_mention(hydraulic_shock, "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 fact_mention(mold, "high humidity causes mold").
+fact_mention(black_sea, "the danube flows into the black sea.").
+fact_mention(danube, "the danube flows into the black sea.").
 fact_mention(high_humidity, "high humidity causes mold").
 fact_mention(presence_of_carbon_monoxide_gas, "a carbon monoxide detector detects the presence of carbon monoxide gas").
+fact_mention(danube, "the inn flows into the danube.").
+fact_mention(inn, "the inn flows into the danube.").
 fact_mention(fires, "lithium batteries cause fires").
 fact_mention(fire_blanket, "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+fact_mention(inn, "the salzach flows into the inn.").
+fact_mention(salzach, "the salzach flows into the inn.").
 fact_mention(smoke, "a smoke detector senses smoke").
 fact_mention(legionella_outbreaks, "most legionella outbreaks result from poorly maintained cooling towers").
+fact_mention(rhine, "the moselle flows into the rhine.").
+fact_mention(moselle, "the moselle flows into the rhine.").
 fact_mention(legionella_outbreaks, "legionella outbreaks cause legionnaires disease").
 fact_mention(lithium_batteries, "lithium batteries cause fires").
+fact_mention(north_sea, "the north sea is a sea.").
 fact_mention(hand-held_cylindrical_pressure_vessel, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 fact_mention(fire_extinguisher, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+fact_mention(north_sea, "the rhine flows into the north sea.").
+fact_mention(rhine, "the rhine flows into the north sea.").
 fact_mention(falls, "slippery surfaces cause falls").
 fact_mention(calcite, "calcite is a carbonate mineral").
+fact_mention(rhine, "the aare flows into the rhine.").
+fact_mention(aare, "the aare flows into the rhine.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

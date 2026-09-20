@@ -706,6 +706,8 @@ classe intera invece di un membro.*
 | `<frase con x, y> means <un'altra lezione, domanda o frase con x, y>` | una **FORMA NUOVA**: quando il secondo lato non è un fatto ma qualcosa che parrot0 legge — una lezione, una proprietà di relazione, una regola — la frase d'esempio diventa una forma che si ridice come il secondo lato (`reread`). «x counts as a question means treat as a question any turn that contains x». Una forma può puntare a un'altra forma insegnata; vale anche in italiano con «significa». Si disfa con `forget that …` (gen511, `taught_lesson_form.p0t`). Dal gen512 anche i bersagli che presuppongono un referente (`forget that x`, `when x then y`, `your plan when x?`): la variabile vale per ciò che la forma dichiara in quel posto; salvate e riverificate «what is your plan when x» e «stop believing that x». ⚠ `correction:` ancora no (lettore compilato che vuole un valore noto); dal secondo giro gen512 una lezione e la sua ritrattazione dicono sempre che cosa hanno fatto, anche quando la sorgente comincia con «what», «how», «do» (riverificato con «how do you act when x»); le parole passano come sono dette (un plurale non diventa singolare) |
 | `X is a relation` | `relation_noun`: apre insieme `il V di X è Y` **e** `che V è X?` (gen507/5) |
 | `V chains` | la relazione è transitiva: la catena si percorre (gen507/27) |
+| `V P is a relation verb` (verbo + particella) | **RI-001** — `relation_verb(V)` *e* `verb_particle(V, P)` in una frase: «flow into is a relation verb», poi «The Aare flows into the Rhine.» si legge e «Does the Aare flow into the Rhine?» risponde. Il predicato è la RADICE. La particella è legata solo se la KB già la conosce (`verb_particle_word/1`, derivata dalle 21 in uso): «north sea is a relation verb» non diventa mai `verb_particle(north, sea)`. ⚠ misurato: una particella **mai vista** non si insegna — «onto is a verb particle» cade nel muro perché la superficie si risolve in `verb_particle/2`, di arietà diversa |
+| `forget that V chains` · `forget that V chains transitively` | **RI-001** — il ritiro della transitività, che mancava: senza, la lezione non si può mettere alla prova. «Forgotten: flow no longer chains.», e la domanda a due salti perde la risposta mentre il fatto diretto resta |
 | `V is the inverse of W` | un fatto solo, visto dai due lati: asserire `X V Y` risponde anche a `Y W X`, e si legge nei due sensi (gen507/40) |
 | `V goes both ways` | la relazione è simmetrica: `X V Y` risponde anche a `Y V X` (gen507/41) |
 | `V has one value` | funzionale: se il posto è occupato da un altro valore, il «no» è **guadagnato** senza elencare il mondo (gen507/45, forma #2) |
@@ -722,6 +724,16 @@ classe intera invece di un membro.*
 > *percorrere la catena* e *scambiare i posti*; non sa **quando**, e quel «quando»
 > è esattamente la conoscenza che si dice.
 | `X è più V di Y` | il comparativo, una volta che `V` è un verbo di relazione (gen507/8) |
+
+> **La domanda che restringe con una CLASSE** (RI-001, non è una lezione ma il
+> consumatore che le lezioni qui sopra abilitano): «which *sea* does the Aare
+> flow into?» legge la classe come un **filtro sul valore**, non come la cosa
+> chiesta; i valori vengono da `holds/3`, quindi la catena insegnata vale. E se
+> nessun valore è di quella classe **il turno resta suo**, con un muro onesto
+> (`turn_form_empty_reply`): cederlo significava consegnarlo a chi elenca la
+> classe, che rispondeva «north sea, black sea» a una domanda su un fiume mai
+> sentito. ⚠ Il soggetto di più parole non combacia ancora (`slot/1` prende un
+> token): «which sea does the North Sea flow into?» torna all'elencatore.
 | `X ha un Y` | `has_part` (gen507/14) |
 
 ### C. Attributi e valori

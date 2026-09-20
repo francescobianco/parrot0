@@ -43,3 +43,11 @@
 %
 % ⚠ Le REGOLE e le negazioni il `/save` le scrive sempre qui (kb_save_routed non
 % le instrada): se ne compaiono, vanno spostate a mano in taught-rules.p0.
+flow(aare, rhine).
+flow(rhine, north_sea).
+sea(north_sea).
+flow(moselle, rhine).
+flow(salzach, inn).
+flow(inn, danube).
+flow(danube, black_sea).
+sea(black_sea).

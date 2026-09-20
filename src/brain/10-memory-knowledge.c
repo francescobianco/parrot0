@@ -16785,6 +16785,95 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             put(msg2, out, out_size);
             free(forms);
             return 1;
+        } else if (!strcmp(act, "answer_relation_in_class") && sub && rel) {
+            /* RI-001 — LA CLASSE DI UNA DOMANDA E' UN FILTRO SUL VALORE.
+             *
+             * «which sea does the Aare flow into?» finiva all'elencatore, che
+             * prende la parola dopo la cue come CLASSE e rende i suoi membri:
+             * rispondeva «north sea, black sea» qualunque cosa il turno dicesse
+             * del soggetto e della relazione — una risposta sbagliata che
+             * sembra una risposta, la specie peggiore. Il segnale che distingue
+             * le due letture non e' una parola in piu': e' che il turno NOMINA
+             * una relazione e un soggetto, e allora la classe non e' cio' che
+             * si chiede, e' cio' a cui il valore deve appartenere.
+             *
+             * I valori si leggono da `holds/3` prima che dai fatti nudi, cosi'
+             * la catena, il verso rovescio e le definizioni insegnate valgono
+             * qui come altrove: e' la stessa vista della polare. Il nome della
+             * classe si porta al singolare con la KB (`singularize_kb`), non
+             * con una «s» tolta a mano. Se nessun valore appartiene alla
+             * classe, questo atto NON risponde: il turno prosegue. */
+            const char *kind = p0_form_slot(slots, ns, "kind");
+            if (!kind || !*kind) continue;
+            char cls[KB_TERM_LEN]; snprintf(cls, sizeof cls, "%s", kind);
+            char vals[32][KB_TERM_LEN]; size_t nv = 0;
+            {   const char *hq4[3] = { rel, sub, NULL };
+                nv = kb_match(b->kb, "holds", hq4, 3, vals, 32); }
+            if (nv < 32) {
+                char direct[32][KB_TERM_LEN];
+                const char *dq[2] = { sub, NULL };
+                size_t nd = kb_match(b->kb, rel, dq, 2, direct, 32);
+                for (size_t k = 0; k < nd && nv < 32; k++) {
+                    int seen = 0;
+                    for (size_t j = 0; j < nv; j++)
+                        if (!strcmp(vals[j], direct[k])) { seen = 1; break; }
+                    if (!seen) snprintf(vals[nv++], KB_TERM_LEN, "%s", direct[k]);
+                }
+            }
+            /* nv == 0 non e' una cessione: la domanda e' stata riconosciuta
+             * lo stesso, e il muro onesto sta piu' sotto. */
+            char list[460]; size_t off = 0; size_t kept = 0;
+            for (size_t k = 0; k < nv; k++) {
+                char vb3[KB_TERM_LEN]; snprintf(vb3, sizeof vb3, "%s", vals[k]);
+                const char *v = kb_dequote(vb3);
+                const char *mq[1] = { v };
+                int in_class = kb_query(b->kb, cls, mq, 1);
+                if (!in_class) {
+                    char sing[KB_TERM_LEN]; sing[0] = '\0';
+                    singularize_kb(b, cls, sing, sizeof sing);
+                    if (sing[0] && strcmp(sing, cls)) {
+                        in_class = kb_query(b->kb, sing, mq, 1);
+                        if (in_class) snprintf(cls, sizeof cls, "%s", sing);
+                    }
+                }
+                if (!in_class) continue;
+                char shown[KB_TERM_LEN];
+                present_atom(b, v, shown, sizeof shown);
+                if (off + 1 >= sizeof list) break;
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                        "%s%s", kept ? ", " : "", shown);
+                kept++;
+            }
+            if (!kept) {
+                /* La domanda e' stata RICONOSCIUTA: cedere il turno qui
+                 * significa consegnarlo a chi elenca la classe, che
+                 * risponderebbe «north sea, black sea» a «which sea does the
+                 * North Sea flow into?». Il muro onesto e' la risposta giusta,
+                 * e la frase la dichiara la forma (`turn_form_empty_reply`);
+                 * senza dichiarazione si torna al comportamento storico. */
+                char er4[4][KB_TERM_LEN];
+                const char *eq4[2] = { forms[f], NULL };
+                if (kb_match(b->kb, "turn_form_empty_reply", eq4, 2, er4, 4) == 1) {
+                    char eb4[KB_TERM_LEN]; snprintf(eb4, sizeof eb4, "%s", er4[0]);
+                    char ss4[KB_TERM_LEN], ks4[KB_TERM_LEN];
+                    present_atom(b, sub, ss4, sizeof ss4);
+                    present_atom(b, kind, ks4, sizeof ks4);
+                    const KbResponseSlot rs4[] = { { "subject", ss4 },
+                                                   { "kind", ks4 } };
+                    char m4[400];
+                    if (kb_response_slots(b, kb_dequote(eb4), rs4, 2, m4, sizeof m4)) {
+                        put(m4, out, out_size);
+                        store_proof(b, "Read the relation; no value of that class.");
+                        free(forms); return 1;
+                    }
+                }
+                continue;
+            }
+            char msg4[480]; snprintf(msg4, sizeof msg4, "%s.", list);
+            put(msg4, out, out_size);
+            store_proof(b, "Read the relation, then kept the values of that class.");
+            free(forms);
+            return 1;
         }
         if (!ok) continue;
 

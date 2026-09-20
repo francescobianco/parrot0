@@ -1,0 +1,47 @@
+{
+ "seconds": 9.51,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@3cef7a5a]\nmode: agent (tools on, network off) - 156770 facts, 4986 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Which sea does the Aare flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 2,
+   "prompt": "Which sea does the Salzach flow into?",
+   "answer": "black sea."
+  },
+  {
+   "turn": 3,
+   "prompt": "What does the Moselle flow into?",
+   "answer": "Rhine."
+  },
+  {
+   "turn": 4,
+   "prompt": "Which sea does the Inn flow into?",
+   "answer": "black sea."
+  },
+  {
+   "turn": 5,
+   "prompt": "Does the Aare flow into the Rhine?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 6,
+   "prompt": "Which sea does the Tiber flow into?",
+   "answer": "I don't know: nothing I hold gives tiber a sea there."
+  },
+  {
+   "turn": 7,
+   "prompt": "What is the capital of Germany?",
+   "answer": "Berlin."
+  },
+  {
+   "turn": 8,
+   "prompt": "Why does bread rise?",
+   "answer": "Because yeast releases carbon dioxide gas that gets trapped in the dough."
+  }
+ ]
+}

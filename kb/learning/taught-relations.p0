@@ -9,6 +9,7 @@
 % specie aveva una casa.
 
 transitive_relation(precedes).
+transitive_relation(flow).
 inverse_relation(precedes, follows).
 relation_role(battle, winner).
 relation_role(battle, loser).

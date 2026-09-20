@@ -556,6 +556,7 @@ class_surface(pressure_surge, pressure surge).
 class_surface(acid, acid).
 class_surface(perishable, perishable).
 class_surface(safety_device, safety device).
+class_surface(sea, sea).
 % ── 18 settembre 2026, notte — i verbi che i muri dei pioli 300/320/340 hanno
 % nominato («Hmm, I don't know about displace yet»). Insegnati parlando e
 % verificati «Learned»: displace, introduce, heat, prepare, reclaim, utilize.
@@ -582,3 +583,4 @@ relation_verb(ignite).
 % materials»), insegnati parlando e verificati; il loro gerundio e' un confine.
 relation_verb(decompose).
 relation_verb(recycle).
+relation_verb(flow).

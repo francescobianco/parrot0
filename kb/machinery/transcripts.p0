@@ -124,6 +124,7 @@ utterance(5, user, "what does a fire extinguisher do?").
 utterance(5, user, "how do you know that?").
 utterance(5, user, "what does a sump pump do?").
 utterance(5, user, "the italian for firewood is legna").
+utterance(5, user, "The Rhine flows into the North Sea.").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -228,6 +229,7 @@ utterance(6, self, "I did not read that as one sentence: I derived it from what 
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(6, self, "From what I read: A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
 utterance(6, self, "Held: «legna» is how firewood is said in that language.").
+utterance(6, self, "Learned: rhine flow north sea.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -737,6 +739,7 @@ utterance(7, user, "hydraulic_shock wave caused when a fluid in motion is forced
 utterance(7, user, "a smoke detector is a device that senses smoke").
 utterance(7, user, "where did you read that?").
 utterance(7, user, "the italian for fuel is combustibile").
+utterance(7, user, "The North Sea is a sea.").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1207,7 +1210,11 @@ utterance(8, self, "Held: «combustibile» is how fuel is said in that language.
 utterance(9, user, "the italian for carbonization is carbonizzazione").
 utterance(10, self, "Held: «carbonizzazione» is how carbonization is said in that language.").
 utterance(11, user, "a carbon monoxide detector is a device").
+utterance(8, self, "Learned: north sea is a sea.").
+utterance(9, user, "flow chains").
+utterance(10, self, "Held: flow chains -- if a flow b and b flow c, then a flow c.").
 utterance(11, user, "the italian for transformation is trasformazione").
+utterance(11, user, "The Moselle flows into the Rhine.").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2134,6 +2141,15 @@ utterance(70, self, "Held: «rientra» is how falls_within is said in that langu
 utterance(71, user, "the italian for high is alta").
 utterance(72, self, "Held: «alta» is how high is said in that language.").
 utterance(73, user, "the italian for small is piccole").
+utterance(12, self, "Learned: moselle flow rhine.").
+utterance(13, user, "The Salzach flows into the Inn.").
+utterance(14, self, "Learned: salzach flow inn.").
+utterance(15, user, "The Inn flows into the Danube.").
+utterance(16, self, "Learned: inn flow danube.").
+utterance(17, user, "The Danube flows into the Black Sea.").
+utterance(18, self, "Learned: danube flow black sea.").
+utterance(19, user, "The Black Sea is a sea.").
+utterance(20, self, "Learned: black sea is a sea.").
 utterance(74, self, "Held: «piccole» is how small is said in that language.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2543,6 +2559,7 @@ utterance(2, self, "Learned: slippery surfaces cause falls.").
 utterance(2, self, "Learned: legionella outbreaks cause legionnaires disease.").
 utterance(2, self, "Hmm, I don't know about sump pump yet. Want me to learn about it?").
 utterance(2, self, "Held: «carbone» is how coal is said in that language.").
+utterance(2, self, "Learned: flow into is a relation verb.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2653,6 +2670,7 @@ utterance(1, user, "slippery surfaces cause falls").
 utterance(1, user, "legionella outbreaks cause legionnaires disease").
 utterance(1, user, "what does a sump pump do?").
 utterance(1, user, "the italian for coal is carbone").
+utterance(1, user, "flow into is a relation verb").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2755,6 +2773,7 @@ utterance(4, self, "Yes: rain causes wet ground, and wet ground causes slippery 
 utterance(4, self, "Yes: poorly maintained cooling towers causes legionella outbreaks, and legionella outbreaks causes legionnaires disease.").
 utterance(4, self, "Looking up sump pump... A sump pump is a pump used to remove water that has accumulated in a water-collecting sump basin, commonly found in the basements of homes and other buildings, and in other locations where water must be removed, such as construction sites.").
 utterance(4, self, "Held: «carbone_vegetale» is how charcoal is said in that language.").
+utterance(4, self, "Learned: aare flow rhine.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2854,6 +2873,7 @@ utterance(3, user, "yes").
 utterance(3, user, "does rain lead to falls?").
 utterance(3, user, "do poorly maintained cooling towers cause legionnaires disease?").
 utterance(3, user, "the italian for charcoal is carbone vegetale").
+utterance(3, user, "The Aare flows into the Rhine.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

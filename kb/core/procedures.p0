@@ -1698,6 +1698,20 @@ machinery(context_alias).
 % (a) la strada diretta: la relazione vale davvero.
 holds($Rel, $X, $Y) :- apply($Rel, cons($X, cons($Y, nil))).
 
+% (a-bis) RI-001 — LA CATENA SI PERCORRE ANCHE QUANDO NON SI SA DOVE ARRIVA.
+%     `transitive_relation/1` si insegna («flow chains») e il motore la sa
+%     percorrere — ma solo in VERIFICA, con i due estremi gia' in mano
+%     (`p0_relation_transitive`, 10-memory-knowledge.c). Chi CHIEDE («which sea
+%     does the Aare flow into?») non ha il secondo estremo: la catena qui non
+%     esisteva, e la domanda tornava a chi elenca una classe.
+%     La guardia sta davanti: per una relazione non transitiva questa clausola
+%     fallisce alla prima condizione e non costa il resto.
+holds($V, $X, $Y) :-
+    transitive_relation($V),
+    apply($V, cons($X, cons($Z, nil))),
+    dif($X, $Z),
+    holds($V, $Z, $Y).
+
 % (b) IL CONTESTO. `context_alias(Contesto, Locale, Generale)` dice che dentro
 %     un contesto una relazione locale E' un caso di una generale: nello sport
 %     «gioca per» e' un modo di dire «fa parte di». Chi chiede la generale
