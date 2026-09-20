@@ -14,6 +14,86 @@ Aperto il 21 settembre 2026 su richiesta di F. Consolida i tentativi sparsi in
 
 ---
 
+## HANDOFF — 21 settembre 2026, notte: SI RIPRENDE DA QUI
+
+**learning-capability ≈ 60–65.** Dentro la banda 61–75, non oltre. Il percorso
+della giornata, con le misure: **30 contato** dal censimento (§4.5-bis) → 50
+(pavimento risalito, condotta insegnabile) → 60–65 (la lettura estensibile
+parlando).
+
+### Che cosa è vero adesso, e come si verifica in un minuto
+
+```sh
+# un GENERE di indizio grammaticale nuovo, insegnato parlando
+printf '%s\n' 'the reading hedge is of kind modality' \
+  'the expression forsooth marks hedge' 'forsooth the cat sleeps' '/debug' '/quit' | \
+  PARROT0_SESSION= PARROT0_LANG=en PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0 | \
+  grep debug_grammatical_cue
+# → evidence(span(1, 1), modality, hedge)   accanto a quelle native
+```
+
+| capacità | dove | prova |
+|---|---|---|
+| un **genere di lettura** nuovo costa una lezione | `kb/core/taught-reading-kind.p0` | insegna, trasferisce a una seconda espressione, si ritira, compare nell'ispettore |
+| la **condotta** si insegna e si ritira | `kb/core/conduct-lessons.p0` | la guardia di pertinenza, con trasferimento alla classe |
+| «una forma ha concluso» è **interrogabile** | `turn_form_concluded/2` | distingue la lezione riuscita dal quasi |
+| la cessione si decide **dopo** le forme | `mod_knowledge` | una condotta può guardare che cosa il turno *non* è riuscito a essere |
+| una **regola KB può contribuire un nodo** alla IR | misurato, non ancora usato | `input_node(...) :- …` è visto dai consumatori |
+
+### ⛔ L'esperimento del §6.5, fatto e FALLITO — leggere prima di ritentarlo
+
+Il piano dice che le riscansioni sono il collo, e che finché durano la banda è
+irraggiungibile. **La prima ipotesi era che bastasse un cambio solo**, e aveva
+una base misurata: `split_words` è **una funzione sola**, quindi i suoi 349
+chiamanti concordano già fra loro; il disaccordo è fra *quel* confine e quello
+della IR. Cambiare il confine in un punto avrebbe fatto leggere a tutti lo
+stesso testo.
+
+**Provato.** `split_words` allineato al confine della IR (caratteri di parola,
+più il decimale). **Misurato:**
+
+| cancello | esito |
+|---|---|
+| `soft-test` | verde, un turno a 1,25 s |
+| `facts`, `derivation`, `clause_content` | **tutti verdi** |
+| `english_grammar_growth`, `taught_lexicon` | solo tempi, nessuna asserzione rotta |
+| **piolo r300 della prosa** | **45/62 → 6/62** |
+
+**Il banco dei `.p0t` non protegge il lettore di prosa.** Ogni suite era verde
+e la comprensione era crollata dell'87%: le suite fanno turni corti, la prosa
+no. **Revocato**, e r300 riverificato a 45/62.
+
+**Che cosa se ne impara, e vale più del tentativo.** I consumatori delle
+riscansioni **dipendono dalla semantica a spazi bianchi**: non si unificano
+cambiando il confine, vanno tolti **un consumatore alla volta**, e ogni passo
+va misurato **con il banco della prosa**, non con i `.p0t`. Il §6.5 resta il
+lavoro che apre la banda, e ora si sa come non farlo.
+
+### Da dove ripartire, in ordine
+
+1. **Il §6.5, un consumatore alla volta.** Scegliere un `split_words` che
+   *decide* qualcosa, sostituirlo con un consumatore della IR, e misurare
+   r300 **prima e dopo**. Il gate è il banco della prosa; i `.p0t` non bastano.
+2. **Il limite del nome multiparola** (`taught-reading-kind.p0`): un genere con
+   un nome di due parole insegna ma non raggiunge la IR — l'atomo quotato non
+   sopravvive dentro il termine della vista `expression_first_word`. Isolato,
+   non curato.
+3. **Il rilevatore del «quasi una lezione»** è collegato e funziona; restano i
+   suoi due falsi negativi misurati (testo fisso parziale, sinonimi).
+4. **18 dei 30 elementi del censimento non sono stati misurati**: la quota di
+   catene che finiscono a mano resta una stima inferiore.
+
+### Le due trappole pagate oggi, da non ripagare
+
+- **`naf` con una variabile libera flounderà**, quindi la clausola non scatta
+  mai e sembra che la regola non esista. Mi ha morso **due volte**. Le guardie
+  si scrivono come facce unarie su termini legati.
+- **Una forma di lezione che comincia con un jolly** non può avere una gemella
+  di ritiro distinguibile: «forget that X is …» viene letta dalla forma di
+  insegnamento con nome «forget that X». L'apertura dev'essere testo fisso.
+
+---
+
 ## ⇨ TODO PRIORITARI — da qui si comincia
 
 Cinque attività **puntuali** (T1–T5): ognuna ha un esito binario, un costo in minuti e
