@@ -172,8 +172,17 @@ revisione profonda, se motivata. Conservare piano e ragionamento per chi
 continua.
 
 **Stato: M0 fatta; M1 riaperta dalla revisione qui sopra, corretta e
-riverificata; M2 conclusa. M3–M5 da implementare.** Non descrivere M3–M5 come
-capacità già disponibili.
+riverificata; M2 conclusa; M3 ha il suo primo passo, il più importante.
+M3 (resto), M4 e M5 da implementare.** Non descrivere M4–M5 come capacità già
+disponibili.
+
+**Il primo passo di M3, in una riga:** quale sostegno vale per una richiesta è
+ora **conoscenza, non un ramo del motore** — `supported_from_premises/1` e
+`supported_from_world/1` in `kb/core/derivation.p0`, **zero righe di C nuove**.
+La forma Zelvo si chiude al livello del meccanismo: si suppongono premessa e
+regola, si insegna poi la conclusione come fatto del mondo, e la prova dalle
+premesse **c'è ancora**, trovata tornando indietro fra le alternative. Non si
+giudica più la prima prova trovata: se ne cerca una ammissibile.
 
 ### La revisione prioritaria è stata processata
 
@@ -287,11 +296,15 @@ servirà.
    rilanciare `make test-engine`:** `--test` interroga il demone in piedi, e un
    demone vecchio dà rossi che sembrano del codice nuovo (mi è costato una
    diagnosi sbagliata).
-4. **Implementare M3**, le condizioni di riuscita sono sotto. Il primo passo
-   concreto: far sì che la ricerca continui dopo una prova dal mondo non
-   sufficiente, usando `kb_derivation` per decidere in KB quale sostegno vale —
-   senza un flag globale che renda invisibile il resto della conoscenza.
-5. Prima di dichiarare chiusa qualunque M, cercare **due oggetti che la
+4. **Il resto di M3, e poi M4.** Il meccanismo dell'ammissibilità c'è ed è in
+   KB; manca il contesto come oggetto (collegare occorrenze, contesti e assunti
+   riusando `holds_in`; dichiarare un contesto di specie nuova a runtime) e
+   manca restituire separatamente prova ammessa, prova che richiede altri
+   assunti e stato di completezza. Poi M4: la risposta in lingua passa ancora
+   da `supported_by_premises` in `src/brain/10-memory-knowledge.c`, che
+   confronta stringhe sulla prima prova di `kb_prove_support`. Sostituirla con
+   `supported_from_premises/1` è la migrazione che rende il caso Zelvo chiuso
+   anche in NL — ed è lì che il C comincia davvero a scendere.
    rappresentazione potrebbe rendere uguali** e **lo stesso oggetto letto per
    due strade**. È il lascito più utile della revisione.
 
