@@ -87,12 +87,15 @@
 # 3. DOPO — la stessa frase e' ora un'asserzione di relazione binaria: parrot0
 #    ha letto `zorf` nel RUOLO di articolo determinativo.
 > leak is zorf trigger of outage
-< Learned: trigger(leak, outage).
+# 20 settembre 2026: la resa non e' piu' una tupla ma una frase — parrot0 dice
+# la conoscenza, non la sua rappresentazione (mantra: non esporre lo schema).
+< Learned: leak trigger outage.
 
 # E la relazione cosi' appresa e' interrogabile nel modo consueto: cio' che e'
 # entrato dalla parola inventata e' conoscenza normale, non un caso speciale.
 > who is the trigger of outage?
-< leak.
+# (la risposta comincia per maiuscola: e' una frase)
+< Leak.
 
 # ── relation_preposition/1 (kb/core/grammar.p0) ──────────────────────────────
 # Stesso frame, l'altra parola funzionale: strcmp(w[4], "of").
@@ -102,7 +105,10 @@
 # 1. PRIMA — senza la preposizione il frame non si chiude, e le tre parole
 #    finali vengono lette come UN unico nome di classe composto.
 > spark is the cause blim fire
-< Learned: spark is a cause blim fire.
+# 20 settembre 2026: prima le quattro parole finali venivano lette come UN nome
+# di classe composto — una lettura inventata. Ora e' un muro, ed e' meglio: il
+# contrasto col DOPO resta netto e nessun fatto storto entra in KB.
+< I don't understand that yet.
 
 # 2. INSEGNAMENTO.
 > blim is a relation_preposition
@@ -113,7 +119,7 @@
 > spark is the cause blim fire
 < Learned: spark cause fire.
 > who is the cause of fire?
-< spark.
+< Spark.
 
 # ── asks_slot/2 (kb/core/meta.p0) ────────────────────────────────────────────
 # Sito migrato in gen368: quale SLOT di una relazione un interrogativo lascia
@@ -152,7 +158,10 @@
 # sandbox la usa: prima la premessa non e' universale e nulla e' derivabile,
 # dopo la stessa identica domanda si risolve.
 > if puppo cat is a mammal and tom is a cat, is tom a mammal?
-< No.
+# 20 settembre 2026: prima rispondeva «No.» — un falso detto con sicurezza su
+# una premessa che non sapeva leggere. Ora dichiara di non capire: sulla scala
+# di F. e' la differenza che conta piu' del numero.
+< I don't understand that yet.
 > puppo is a universal_quantifier
 < Learned: puppo is an universal quantifier.
 > if puppo cat is a mammal and tom is a cat, is tom a mammal?

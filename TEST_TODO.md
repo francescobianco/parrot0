@@ -1319,3 +1319,63 @@ oggi: da bisecare (R2, attesa da rivalidare: parrot0 SA perché il cielo è blu)
   senza «?», anche quella con «?» risponde «Learned»: lo stato si trascina.
   `scripts/p0t-echo.py` scrive in `logs/p0t-echo/`; i 48 `run-*`/`trace-*`
   della root sono stati spostati lì.
+
+## np_closer: il caso negativo costa 178.000 passi per turno (20 settembre 2026)
+
+**Sintomo.** `tests/p0t/language/taught_lexicon.p0t` ha 6 rossi, **tutti di
+tempo**: `taught_repeat_lesson` prende 6,6 s su un `!timeout` di 1 s, e
+`sandbox_inherits_machinery` 2,5 s. Non sono rossi di conoscenza — le
+asserzioni passano — e non dipendono dalle KB aggiunte oggi: misurati identici
+escludendo `clause-content.p0`, `derivation.p0`, `fenomenologia.p0`.
+
+**Diagnosi, dal profilo del turno** (`/debug` acceso, poi il turno):
+
+```text
+[debug] 602.6 ms turno · 458.1 ms nel solver · 2650 query · 259170 passi
+[debug]     250.8 ms    178568 passi     18 call  np_closer
+```
+
+**La causa è il caso NEGATIVO.** `np_closer/1` si chiede **una volta per
+token**, con la parola legata, ed è un controllo booleano: quando la risposta è
+*sì* si ferma alla prima clausola, quando è *no* — il caso comune — le prova
+tutte. Fra le dieci clausole ce ne sono di **enumeranti**, scritte apposta in
+quel verso perché `p0_np_closer` deve poterle percorrere tutte
+(`kb/core/grammar.p0`, i commenti gen514 sopra le righe 790-807):
+
+```prolog
+np_closer($Stem) :- relation_verb($Form), concat_atoms($Stem, "s", $Form).
+np_closer($Form) :- verb_particle($Root, $Particle), participle_suffix($Suffix),
+                    concat_atoms($Root, $Suffix, $Form).
+```
+
+Con `$Form` libero enumerano l'intera classe dei verbi di relazione — che la
+fogliata di grammatica inglese del 19 settembre ha reso grande. Ogni parola che
+**non** chiude un sintagma paga tutta quella enumerazione.
+
+**La cura prescritta, e perché non è stata applicata qui.** Separare la parte
+**lessicale** (turn-independent) dalla clausola che dipende dal turno —
+
+```prolog
+np_closer($V) :- naf(turn_mentions_word(current_turn)), relation_verb($V).
+```
+
+— in `np_closer_lexical/1`, e congelare quella con
+`materialized_view(np_closer_lexical, 1)` più le sue `view_depends`
+(`relation_verb`, `verb_particle`, `participle_suffix`, `verb_stem`,
+`adjective_relation`, `adverbial_particle`, `preposition`,
+`verb_reading_form`, `finite_present_of`, `verb_adverb`,
+`attenuating_quantifier`). L'enumerazione si paga **una volta per cambio di
+lessico** invece che una volta per token. Il meccanismo esiste già e regge
+l'arità 1 (`materialized_view(construction_claims, 1)`).
+
+Non applicata in questa sessione perché `np_closer` decide i **confini di
+sintagma**: ogni lettura passa di lì, e la politica dei test vieta la suite
+intera, quindi la garanzia non si può dare. È un lavoro da mezz'ora con la
+suite disponibile, non da tentare senza.
+
+**Già sistemati** nello stesso file, e non erano tempi: cinque attese
+pretendevano il comportamento **vecchio e peggiore** di parrot0 — una tupla
+`trigger(leak, outage).` al posto di una frase, una minuscola a inizio
+risposta, e due casi in cui parrot0 oggi dichiara di non capire dove prima
+inventava una lettura o rispondeva «No.» a una premessa che non sapeva leggere.
+Aggiornate, con il motivo accanto a ciascuna.
