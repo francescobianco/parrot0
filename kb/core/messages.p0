@@ -1560,6 +1560,28 @@ turn_form_mood(teach_symmetric_it, statement).
 turn_form_act(teach_symmetric_it, assert_unary).
 turn_form_reply(teach_symmetric_it, learned_symmetric).
 
+% RI-002 — e il RITIRO della simmetria, che mancava come mancava quello della
+% transitivita'. Serve a due cose, e la seconda conta piu' della prima: disdire
+% una proprieta' detta per sbaglio, e mettere alla prova la lezione (tolta la
+% simmetria, la domanda rovesciata deve tornare onesta). Una proprieta' che non
+% si puo' togliere non si puo' nemmeno verificare.
+response_template(unlearned_symmetric, "Forgotten: {subject} no longer goes both ways.").
+response_template(unlearned_symmetric, it, "Dimenticato: {subject} non vale più nei due versi.").
+
+turn_form(unteach_symmetric, 1, text("forget that")).
+turn_form(unteach_symmetric, 2, slot(subject)).
+turn_form(unteach_symmetric, 3, text("goes both ways")).
+turn_form_mood(unteach_symmetric, statement).
+turn_form_act(unteach_symmetric, "op(retract, symmetric_relation, [subject])").
+turn_form_reply(unteach_symmetric, unlearned_symmetric).
+
+turn_form(unteach_symmetric_it, 1, text("dimentica che")).
+turn_form(unteach_symmetric_it, 2, slot(subject)).
+turn_form(unteach_symmetric_it, 3, text("vale nei due versi")).
+turn_form_mood(unteach_symmetric_it, statement).
+turn_form_act(unteach_symmetric_it, "op(retract, symmetric_relation, [subject])").
+turn_form_reply(unteach_symmetric_it, unlearned_symmetric).
+
 % ══ gen507/42 — INSEGNARE UN PRIMATO DEL MONDO ════════════════════════════
 %
 % Il giro /30 ha riempito `world_superlative/3` da 11 a 86 coppie, ma DA FILE:

@@ -1,0 +1,32 @@
+{
+ "seconds": 6.12,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@3cef7a5a]\nmode: agent (tools on, network off) - 156770 facts, 4986 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "teach is a relation verb",
+   "answer": "Hmm, I don't know about relation verb yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "Plato taught Aristotle.",
+   "answer": "Learned: plato teach aristotle."
+  },
+  {
+   "turn": 3,
+   "prompt": "Did Plato teach Aristotle?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 4,
+   "prompt": "Did Aristotle teach Plato?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 5,
+   "prompt": "Who did Plato teach?",
+   "answer": "Aristotle."
+  }
+ ]
+}

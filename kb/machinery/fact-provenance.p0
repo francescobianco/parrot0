@@ -486,6 +486,10 @@ fact_source(flow(moselle, rhine), moselle, "the moselle flows into the rhine.").
 fact_source(sea(north_sea), north_sea, "the north sea is a sea.").
 fact_source(flow(rhine, north_sea), rhine, "the rhine flows into the north sea.").
 fact_source(flow(aare, rhine), aare, "the aare flows into the rhine.").
+fact_source(react(sodium, water), sodium, "sodium reacts with water.").
+fact_source(teach(socrates, plato), socrates, "socrates taught plato.").
+fact_source(teach(aristotle, alexander_the_great), aristotle, "aristotle taught alexander the great.").
+fact_source(teach(plato, aristotle), plato, "plato taught aristotle.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -851,10 +855,17 @@ reading_fact(flow(moselle, rhine), "the moselle flows into the rhine.").
 reading_fact(cause(slippery_surfaces, falls), "slippery surfaces cause falls").
 reading_fact(sea(north_sea), "the north sea is a sea.").
 reading_fact(cause(legionella_outbreaks, legionnaires_disease), "legionella outbreaks cause legionnaires disease").
+reading_fact(react(sodium, water), "sodium reacts with water.").
 reading_fact(flow(rhine, north_sea), "the rhine flows into the north sea.").
+reading_fact(teach(socrates, plato), "socrates taught plato.").
 reading_fact(carbonate_mineral(calcite), "calcite is a carbonate mineral").
+reading_fact(proposition(binary(teach), roles(subject(socrates), object(plato))), "socrates taught plato.").
+reading_fact(teach(aristotle, alexander_the_great), "aristotle taught alexander the great.").
 reading_fact(flow(aare, rhine), "the aare flows into the rhine.").
+reading_fact(proposition(binary(teach), roles(subject(aristotle), object(alexander))), "aristotle taught alexander the great.").
+reading_fact(teach(plato, aristotle), "plato taught aristotle.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
+reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
 % nega la provenienza di un fatto, la ritira insieme al fatto.
@@ -926,14 +937,22 @@ fact_mention(rhine, "the moselle flows into the rhine.").
 fact_mention(moselle, "the moselle flows into the rhine.").
 fact_mention(legionella_outbreaks, "legionella outbreaks cause legionnaires disease").
 fact_mention(lithium_batteries, "lithium batteries cause fires").
+fact_mention(water, "sodium reacts with water.").
+fact_mention(sodium, "sodium reacts with water.").
 fact_mention(north_sea, "the north sea is a sea.").
 fact_mention(hand-held_cylindrical_pressure_vessel, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+fact_mention(plato, "socrates taught plato.").
+fact_mention(socrates, "socrates taught plato.").
 fact_mention(fire_extinguisher, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 fact_mention(north_sea, "the rhine flows into the north sea.").
 fact_mention(rhine, "the rhine flows into the north sea.").
+fact_mention(alexander_the_great, "aristotle taught alexander the great.").
+fact_mention(aristotle, "aristotle taught alexander the great.").
 fact_mention(falls, "slippery surfaces cause falls").
 fact_mention(calcite, "calcite is a carbonate mineral").
 fact_mention(rhine, "the aare flows into the rhine.").
+fact_mention(aristotle, "plato taught aristotle.").
+fact_mention(plato, "plato taught aristotle.").
 fact_mention(aare, "the aare flows into the rhine.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").

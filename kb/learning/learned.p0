@@ -51,3 +51,19 @@ flow(salzach, inn).
 flow(inn, danube).
 flow(danube, black_sea).
 sea(black_sea).
+semantic_proposition(proposition(binary(teach), roles(subject(plato), object(aristotle)))).
+semantic_binding(binary(teach), plato, object(aristotle)).
+proposition_source_record(proposition(binary(teach), roles(subject(plato), object(aristotle))), source(inline, "plato taught aristotle."), provenance(language(en), range(0, 23))).
+teach(plato, aristotle).
+semantic_proposition(proposition(binary(teach), roles(subject(aristotle), object(alexander)))).
+semantic_binding(binary(teach), aristotle, object(alexander)).
+proposition_source_record(proposition(binary(teach), roles(subject(aristotle), object(alexander))), source(inline, "aristotle taught alexander the great."), provenance(language(en), range(0, 37))).
+teach(aristotle, alexander_the_great).
+semantic_proposition(proposition(binary(teach), roles(subject(socrates), object(plato)))).
+semantic_binding(binary(teach), socrates, object(plato)).
+proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
+teach(socrates, plato).
+react(sodium, water).
+input_entity_cached(current_turn, en, ent(6, 2, goes_both_ways)).
+input_entities_observed(current_turn, en).
+symmetric_relation(react).

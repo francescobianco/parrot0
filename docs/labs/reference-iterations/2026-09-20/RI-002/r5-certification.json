@@ -1,0 +1,122 @@
+{
+ "seconds": 14.1,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@1df94622]\nmode: agent (tools on, network off) - 156788 facts, 4987 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Plato taught Aristotle.",
+   "answer": "Learned: plato teach aristotle."
+  },
+  {
+   "turn": 2,
+   "prompt": "Did Plato teach Aristotle?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 3,
+   "prompt": "Did Aristotle teach Plato?",
+   "answer": "I don't know: nothing I hold says aristotle teach plato, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 4,
+   "prompt": "Aristotle taught Alexander the Great.",
+   "answer": "Learned: aristotle teach alexander the great."
+  },
+  {
+   "turn": 5,
+   "prompt": "Who did Aristotle teach?",
+   "answer": "Alexander the great."
+  },
+  {
+   "turn": 6,
+   "prompt": "Socrates taught Plato.",
+   "answer": "Learned: socrates teach plato."
+  },
+  {
+   "turn": 7,
+   "prompt": "Did Socrates teach Plato?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 8,
+   "prompt": "Did Plato teach Socrates?",
+   "answer": "I don't know: nothing I hold says plato teach socrates, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 9,
+   "prompt": "Does the Aare flow into the Rhine?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 10,
+   "prompt": "Does the Rhine flow into the Aare?",
+   "answer": "I don't know: nothing I hold says rhine flow into the aare, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 11,
+   "prompt": "react with is a relation verb",
+   "answer": "Learned: react with is a relation verb."
+  },
+  {
+   "turn": 12,
+   "prompt": "Sodium reacts with water.",
+   "answer": "Learned: sodium react water."
+  },
+  {
+   "turn": 13,
+   "prompt": "Does sodium react with water?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 14,
+   "prompt": "Does water react with sodium?",
+   "answer": "I don't know: nothing I hold says water react with sodium, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 15,
+   "prompt": "react goes both ways",
+   "answer": "Held: react goes both ways -- if a react b then b react a."
+  },
+  {
+   "turn": 16,
+   "prompt": "Does water react with sodium?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 17,
+   "prompt": "forget that react goes both ways",
+   "answer": "Forgotten: react no longer goes both ways."
+  },
+  {
+   "turn": 18,
+   "prompt": "Does water react with sodium?",
+   "answer": "I don't know: nothing I hold says water react with sodium, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 19,
+   "prompt": "Does sodium react with water?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 20,
+   "prompt": "react goes both ways",
+   "answer": "Held: react goes both ways -- if a react b then b react a."
+  },
+  {
+   "turn": 21,
+   "prompt": "Is Paris the capital of France?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 22,
+   "prompt": "Is Rome the capital of France?",
+   "answer": "Not as far as I know: I know Paris as the capital of France."
+  },
+  {
+   "turn": 23,
+   "prompt": "Which sea does the Aare flow into?",
+   "answer": "north sea."
+  }
+ ]
+}

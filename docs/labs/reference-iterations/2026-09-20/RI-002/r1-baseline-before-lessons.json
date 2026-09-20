@@ -1,0 +1,42 @@
+{
+ "seconds": 6.86,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@3cef7a5a]\nmode: agent (tools on, network off) - 156770 facts, 4986 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Did Aristotle teach Plato?",
+   "answer": "I don't know: nothing I hold says aristotle teach plato, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 2,
+   "prompt": "Did Plato teach Aristotle?",
+   "answer": "I don't know: nothing I hold says plato teach aristotle, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 3,
+   "prompt": "Is Paris the capital of France?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 4,
+   "prompt": "Is Rome the capital of France?",
+   "answer": "Not as far as I know: I know Paris as the capital of France."
+  },
+  {
+   "turn": 5,
+   "prompt": "Does France border Spain?",
+   "answer": "I don't know: nothing I hold says france border spain, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 6,
+   "prompt": "Does Spain border France?",
+   "answer": "I don't know: nothing I hold says spain border france, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 7,
+   "prompt": "Who taught Aristotle?",
+   "answer": "Hmm, I don't know about taught yet. Want me to learn about it?"
+  }
+ ]
+}

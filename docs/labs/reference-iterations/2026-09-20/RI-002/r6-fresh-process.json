@@ -1,0 +1,47 @@
+{
+ "seconds": 7.93,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@1df94622]\nmode: agent (tools on, network off) - 156835 facts, 4987 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Who did Plato teach?",
+   "answer": "Aristotle."
+  },
+  {
+   "turn": 2,
+   "prompt": "Who did Socrates teach?",
+   "answer": "Plato."
+  },
+  {
+   "turn": 3,
+   "prompt": "Did Aristotle teach Plato?",
+   "answer": "I don't know: nothing I hold says aristotle teach plato, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 4,
+   "prompt": "Did Plato teach Aristotle?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 5,
+   "prompt": "Does water react with sodium?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 6,
+   "prompt": "Does the Rhine flow into the Aare?",
+   "answer": "I don't know: nothing I hold says rhine flow into the aare, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 7,
+   "prompt": "Which sea does the Salzach flow into?",
+   "answer": "black sea."
+  },
+  {
+   "turn": 8,
+   "prompt": "Is Paris the capital of France?",
+   "answer": "Yes."
+  }
+ ]
+}

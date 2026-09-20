@@ -8699,14 +8699,35 @@ static int p0_polar_reply(Brain *b, const char *norm, char **w, size_t nw,
     if (!p0_turn_is_polar(b, w, nw)) return 0;
 
     /* La proposta e' fatta di token del turno: se una COPPIA di essi soddisfa
-     * la relazione, la proposta regge. Non serve sapere quale sia il soggetto e
-     * quale il valore — lo decide il fatto, non una posizione. */
+     * la relazione, la proposta regge. Quale dei due sia il soggetto lo decide
+     * il fatto — TRANNE dove la lingua l'ha gia' deciso.
+     *
+     * RI-002 — «Plato taught Aristotle.» e poi «Did Aristotle teach Plato?»
+     * rispondeva «Yes», perche' la coppia rovesciata soddisfa comunque il
+     * fatto. In una polare che si apre con l'ausiliare del fare il soggetto
+     * viene PRIMA del verbo: e' grammatica, e sta in KB
+     * (`subject_before_verb_question/1`, derivata da `aux_question/1`). Qui
+     * non c'e' nessuna parola: si chiede alla KB se la prima del turno e' una
+     * di quelle. L'eccezione e' quella gia' detta — una relazione dichiarata
+     * simmetrica si legge nei due versi (`symmetric_relation/1`). */
+    int order_fixed = 0;
+    {
+        char ob2[KB_TERM_LEN];
+        snprintf(ob2, sizeof ob2, "%s", strip_edge_punct(w[0]));
+        lowercase_copy(ob2, sizeof ob2, ob2);
+        const char *oq2[1] = { ob2 };
+        const char *sq2[1] = { pred };
+        if (*ob2 && kb_query(b->kb, "subject_before_verb_question", oq2, 1) &&
+            !kb_query(b->kb, "symmetric_relation", sq2, 1))
+            order_fixed = 1;
+    }
     for (size_t i = 0; i < nw; i++) {
         char a[KB_TERM_LEN];
         snprintf(a, sizeof a, "%s", strip_edge_punct(w[i]));
         if (strlen(a) < 2) continue;
         for (size_t j = 0; j < nw; j++) {
             if (i == j) continue;
+            if (order_fixed && j < i) continue;
             char c[KB_TERM_LEN];
             snprintf(c, sizeof c, "%s", strip_edge_punct(w[j]));
             if (strlen(c) < 2) continue;

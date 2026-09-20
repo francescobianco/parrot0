@@ -1,0 +1,27 @@
+{
+ "seconds": 6.34,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@1df94622]\nmode: agent (tools on, network off) - 156774 facts, 4987 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Did Plato teach Aristotle?",
+   "answer": "I don't know: nothing I hold says plato teach aristotle, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 2,
+   "prompt": "Did Aristotle teach Plato?",
+   "answer": "I don't know: nothing I hold says aristotle teach plato, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 3,
+   "prompt": "Does water react with sodium?",
+   "answer": "I don't know: nothing I hold says water react with sodium, and nothing says it isn't so. Tell me either way and I will hold it."
+  },
+  {
+   "turn": 4,
+   "prompt": "Is Paris the capital of France?",
+   "answer": "Yes."
+  }
+ ]
+}
