@@ -1,5 +1,74 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## ⏸ HANDOFF — lotto `2026-09-20`, 4 complete + 1 parziale su 10 (21 settembre 2026)
+
+**Dove riprendere: RI-006, da R1.** Il metodo del §0 è stato eseguito alla
+lettera; sotto c'è lo stato, e le schede stanno in
+`docs/labs/reference-iterations/2026-09-20/RI-00N/scheda.md` con i transcript.
+
+| ID | capacità guadagnata | stato | `W` | commit |
+|---|---|---|---:|---|
+| RI-001 | un verbo di relazione **con particella** si insegna parlando, la sua catena si percorre anche senza conoscere l'arrivo, e «which *classe* does X V?» usa la classe come **filtro** | completa | 8 | `1df94622` |
+| RI-002 | una relazione ha un **verso**: la polare col *fare* non lo inverte più, e l'inversione resta dove qualcuno l'ha **detta** | completa | 4 | `450a5ba8` |
+| RI-003 | una **richiesta può escludere** («but do not mention X»), e una classe insegnata parlando è scegliibile | **parziale** | 3 | `2451c96d` |
+| RI-004 | una lezione **nasce nello strato che si salva** — e così la seconda metà di RI-003 si chiude | completa | 4 | `749299b9` |
+| RI-005 | «two and a half hours» è **una** quantità — cura interamente KB, nessuna riga di C | completa | 2 | `2c24584c` |
+
+**Contatori (§0.5):** richieste `N = 10`; tentativi 5; `iterazioni_complete = 4`;
+famiglie distinte 5 (composizione/superficie, verso, vincolo in una richiesta,
+persistenza, lettura di una quantità); `W` totale salvato e verificato in
+processo nuovo = **21**; `X = 0` in tutte.
+
+**Perché RI-003 è parziale e non va riaperta.** Si è chiusa con
+`FreshProcessRecall` 4/5: le sue lezioni di classe non sopravvivevano al
+`/save`. RI-004 ha trovato e riparato la causa — la lezione nasceva con origine
+`KB_REFLECTIVE`, lo strato che `src/kb.h` dichiara «never persisted» — e il suo
+processo nuovo dimostra che adesso la capacità di RI-003 persiste. Il contatore
+resta 4 perché la prova di RI-003 è stata fatta prima della cura; la capacità
+c'è.
+
+**Candidati già misurati per le prossime iterazioni** (in ordine di valore, e
+ciascuno con il sito già nominato):
+
+1. **Il ritiro non si persiste.** «forget that bologna is a city» risponde
+   «Forgotten» e il `/save` successivo non toglie la riga dal file:
+   `kb_save_routed` sa solo aggiungere. Una KB che non sa dimenticare su disco.
+2. **`scope_requirement/4` è prodotto e non consumato.** Su «tell me a city, but
+   do not mention Rome» con la categoria ignota, `/debug` mostra
+   `turn_illocution = directive`, `debug_scope_requirement = scope(span(7,7),
+   polarity, negated)` e un `debug_frame_record` impegnato **come assertion**: la
+   IR vede la negazione, dichiara che serve un ambito prima di asserire, e il
+   commit non glielo chiede (`kb/core/english-grammar/reading.p0:260`).
+3. **Soggetto di più parole**: `slot/1` prende un token, quindi «which sea does
+   the North Sea flow into?» torna all'elencatore.
+4. **Una particella mai vista non si insegna**: «onto is a verb particle» cade
+   nel muro perché la superficie si risolve in `verb_particle/2`, arietà diversa.
+5. **La frazione senza intero** («half an hour») e l'ordine italiano («due ore e
+   mezza») non sono letti.
+6. **Clausole `answer_frame` fabbricate** dal muro di una domanda
+   (`answer_frame("which sea does", search)`): trovate in pre-save e per questo
+   non salvate.
+
+**Come si è lavorato, e conviene continuare così.**
+
+- `/debug` prima del grep. Due volte ha nominato in una riga il sito che la
+  lettura del sorgente non trovava (`debug_frame_record` +
+  `debug_scope_requirement` in RI-003, `debug_np_candidate` in RI-005).
+- Due sonde temporanee nel router (`P0_SAVE_TRACE`, rimasta) e in
+  `kb_set_origin` (rimossa) hanno risolto RI-004 in due giri: la domanda non era
+  «quale codice» ma «con quale **origine**».
+- Ogni rosso incontrato è stato **misurato anche sull'albero pulito** prima di
+  attribuirselo: `enumerate`, `faceted_enumeration`, `answerframe`,
+  `abduce_chain`, `magnitude_compare`, `earned_negation`,
+  `instance_under_constraint`, `persist` erano già rossi, con gli stessi numeri.
+- Due guardie scritte in RI-003 non cambiavano nulla di misurabile e sono state
+  **tolte** invece di restare come decorazione.
+- `make soft-test` dopo ogni modifica al motore: sempre verde, 8-13 s su 15.
+
+**Il prompt per ripartire è quello del §0**, e vale sulla KB appena cresciuta.
+
+---
+
 ## 0. Metodo operativo vigente — l’iterazione di riferimento
 
 **Questo piano si esegue per «iterazioni di riferimento».** Il coding agent
