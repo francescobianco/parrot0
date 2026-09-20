@@ -157,3 +157,28 @@ response_template(event_subject_verb_learned,
     "Held: the subject of «{verb}» can be an action or a means.").
 response_template(event_subject_verb_forgotten,
     "Dropped: the subject of «{verb}» is an agent again.").
+
+% ─── QUASI UNA LEZIONE: il rilevatore, prima di collegarlo ─────────────────
+% (§6.2 del piano — il pavimento. 21 settembre 2026)
+%
+% La specie che tiene il pavimento sotto la soglia: un turno che SOMIGLIA a una
+% lezione dichiarata, non viene completato da nessuna forma, e finisce al
+% lettore generico che asserisce qualcosa in silenzio. Il maestro riceve
+% «Learned» e crede di aver insegnato.
+%
+% Il segnale c'e' ed e' strutturale: il turno contiene il TESTO FISSO di una
+% forma dichiarata — la parte che non varia, quella che identifica la lezione —
+% e nessuna forma ha concluso. Le forme si dichiarano da se', quindi il
+% rilevatore vale anche per le forme che verranno.
+%
+% ⚠ DICHIARATO E NON ANCORA COLLEGATO. Un falso positivo qui spegnerebbe
+% l'apprendimento ordinario, che e' il canale principale: prima si misura
+% quanto spesso scatta su turni che NON sono lezioni, poi si decide. La misura
+% sta nel piano, §4.5-bis.
+machinery(lesson_fixed_text).
+machinery(lesson_near_miss).
+lesson_fixed_text($Form, $Text) :- turn_form($Form, $N, text($Text)).
+lesson_near_miss($T, $Form) :-
+    lesson_fixed_text($Form, $Text),
+    atom_words($Text, $Words), count_list($Words, $N), gt($N, 2),
+    words_in_turn($T, $Words).

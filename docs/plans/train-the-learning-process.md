@@ -716,6 +716,42 @@ resta una stima inferiore.
 di una lezione non asserisca nulla e lo dica — la specie, non le superfici.
 È il §6.2, ed è l'unica cosa che porta il pavimento sopra la sua soglia.
 
+### Il passo verso il pavimento: rilevatore costruito, **misurato, non collegato**
+
+Il §6.2 chiede che una lettura *parziale* di una lezione non asserisca nulla e
+lo dica. Il segnale strutturale c'è: il turno contiene il **testo fisso** di
+una forma dichiarata — la parte che non varia, quella che identifica la
+lezione — e nessuna forma conclude. Le forme si dichiarano da sé, quindi il
+rilevatore varrebbe anche per quelle che verranno.
+
+`lesson_near_miss/2` è scritto (`kb/core/conduct-lessons.p0`) e misurato:
+
+| turno | scatta? | giudizio |
+|---|---|---|
+| «zorbo **is a member of**» (forma incompleta) | ✅ sì | vero positivo |
+| «socrates is a man» | ❌ no | corretto |
+| «what is the capital of france» | ❌ no | corretto |
+| «the cat sleeps on the mat» | ❌ no | corretto |
+| «glorp is an event subject» (testo fisso **parziale**) | ❌ no | falso negativo: chiede tutte le parole del testo fisso |
+| «zorbo **belongs to** the birds» | ❌ no | falso negativo: è un **sinonimo**, non una forma incompleta |
+| «zorbo is a member of birds» (forma **completa**) | ⚠️ **sì** | **ecco il blocco** |
+
+**Perché non è collegato.** L'ultima riga: il rilevatore scatta anche quando la
+lezione è completa e ha funzionato. Per usarlo servirebbe sapere che **nessuna
+forma ha concluso**, e quel fatto oggi non è interrogabile dalla KB. Collegarlo
+così spegnerebbe l'apprendimento ordinario — il canale principale — per un
+segnale che non distingue il successo dal quasi.
+
+**E non copre la specie del censimento.** I tre casi erano **sinonimi**, non
+lezioni digitate a metà: «belongs to» non contiene il testo fisso di nessuna
+forma. Sono due specie diverse, e averle separate misurando vale più che
+averle confuse in una cura.
+
+**Il prossimo passo, ora preciso:** rendere interrogabile *«in questo turno una
+forma ha concluso»*. È un fatto che il motore già conosce — decide su di esso —
+e che la KB non può leggere. Con quello, il rilevatore diventa una porta in una
+riga; senza, resta una sonda.
+
 ### Che cosa questo censimento non ha fatto
 
 - **18 elementi su 30 non sono stati misurati parlando** (gran parte del pozzo A
