@@ -791,6 +791,76 @@ questo, il rilevatore resta una sonda e il pavimento resta sotto la soglia.
 in più e una porta provata e ritirata non sono una banda nuova, e contarli
 sarebbe esattamente ciò che il §4.6 vieta.
 
+### L'ordine del turno cambiato, la porta collegata, e il pavimento che si muove
+
+Il blocco nominato dal giro precedente — *«la cessione si decide prima che le
+forme vengano tentate»* — è stato tolto. In `mod_knowledge` la chiamata alla
+porta condivisa è ora **dopo** `p0_turn_form_views`: le forme dichiarate hanno
+già avuto il turno e, se una ha concluso, la funzione è già tornata. Solo
+allora una condotta può guardare un fatto vero: **che cosa questo turno non è
+riuscito a essere**.
+
+Con quell'ordine, la porta sul «quasi una lezione» si collega senza regressione:
+
+| turno | prima | ora |
+|---|---|---|
+| «zorbo is a member of birds» (lezione **completa**) | ⛔ declinava | ✅ `Held: zorbo is one of the birds…` |
+| «zorbo is a member of» (incompleta) | `Learned: zorbo is a member.` | ✅ **declina** |
+| «socrates is a man», «bob is an animal» | imparano | ✅ imparano |
+| «glorp is an event subject verb» | ✅ | ✅ |
+| guardia di pertinenza (T3) | ✅ | ✅ invariata |
+
+### Il pavimento, rimisurato sulle stesse cinque sonde del censimento
+
+| sonda | censimento | ora |
+|---|---|---|
+| «zorbo is a member of» | fatto storto | ✅ **declina** |
+| «zorbi is the plural form of zorbo» | due fatti mutilati | ✅ **lacuna onesta** |
+| «the plural of» | — | ✅ lacuna onesta |
+| «glorp is an event subject» (testo fisso **parziale**) | fatto storto | ⛔ resta |
+| «zorbo belongs to the birds» (**sinonimo**) | fatto storto | ⛔ resta, **ma riparabile parlando** |
+
+| esito | censimento | ora |
+|---|---|---|
+| declino informato / lacuna onesta | **1 su 5 (20%)** | **3 su 5 (60%)** |
+| fatto storto in silenzio | **3 su 5 (60%)** | **2 su 5 (40%)**, entrambi riparabili con una lezione |
+
+> ## learning-capability ≈ **50**
+>
+> Contato, con le misure di questa sezione.
+
+**Che cosa lo sostiene, riga per riga del §4.3:**
+
+- **banda 16–30, la soglia del pavimento:** *«una lezione detta in un modo non
+  previsto riceve un declino informato, non un muro cieco»* — ora vale per la
+  **maggioranza** delle sonde (60%), e i due residui non lasciano il maestro
+  senza strumento: la redirezione *«"X" is another way to say "Y"»* funziona e
+  chiude il caso parlando. Al censimento questa riga era **sotto** soglia, ed
+  era la ragione del 30.
+- **banda 31–45, procedure e classi:** `V is W followed by Z` insegna una
+  relazione fra relazioni e la catena regge fino in fondo (**L3 × A2**);
+  la forma di `event_subject_verb` insegna, trasferisce a un membro mai visto
+  e si ritira in modo mirato (**A1** con ablazione).
+- **banda 46–60, l'àncora:** *«precedenza, cessione e guardie di pertinenza si
+  insegnano e si ritirano»* — la guardia di pertinenza si insegna in lingua
+  naturale, ha effetto, **trasferisce alla classe** senza una seconda lezione,
+  e il ritiro riporta il comportamento di prima. E da questo giro la cessione
+  si decide **nel punto giusto del turno**, che è ciò che la rendeva
+  inutilizzabile per le condotte che dipendono dall'esito delle forme.
+
+**Perché 50 e non di più.** Le bande sopra chiedono cose che non ci sono e che
+non ho finto: **61–75** vuole la IR consumata invece che riscansionata (217
+`split_words` sono ancora lì); **76–90** vuole il mondo allargato estensibile e
+**A3**, una lezione che crea una forma di lezione — il gradino S2, tuttora una
+riga a mano. E **18 dei 30 elementi campionati non sono stati misurati**: la
+quota di catene che finiscono a mano resta una stima inferiore, quindi 50 è il
+**limite superiore difendibile** di questa misura, non il suo centro.
+
+**Costo pagato, dichiarato:** `taught_lexicon.p0t` passa da 6 a 7 rossi. Tutti
+e sette sono **tempi**, nessuna asserzione rotta; il settimo è un turno a
+1,16 s su un budget di 1,00. `soft-test` resta verde a 12 s, `facts.p0t` e
+`derivation.p0t` verdi.
+
 ### Che cosa questo censimento non ha fatto
 
 - **18 elementi su 30 non sono stati misurati parlando** (gran parte del pozzo A
@@ -834,7 +904,7 @@ Stessa disciplina della scala della prosa, perché ha funzionato.
 
 ## 5. Dove siamo oggi — stima con le sue ragioni, da contraddire con una misura
 
-**learning-capability ≈ 35–40** a fine giornata del 21 settembre 2026 — **30 contato** dal censimento, poi risalito dalle due chiusure che seguono nel §4.5-bis — vedi il censimento
+**learning-capability ≈ 50** a fine giornata del 21 settembre 2026 — **30 contato** dal censimento, poi risalito dalle due chiusure che seguono nel §4.5-bis — vedi il censimento
 eseguito in **§4.5-bis**, che sostituisce e **contraddice** la stima di 45–50
 scritta poche ore prima nella stessa giornata. La stima guardava che cosa
 parrot0 *può* imparare; il censimento guarda che cosa **arriva** quando il

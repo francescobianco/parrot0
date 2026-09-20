@@ -17382,9 +17382,22 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * La porta e' quella condivisa e la politica sta in KB, dicibile e
      * ritirabile: senza fatti `faculty_yield_when` il comportamento non cambia
      * (additivo per costruzione). */
-    if (p0_faculty_yields(b, "knowledge", "open", norm, raw)) return 0;
     if (p0_why_question(b, norm, out, out_size)) return 1;
     if (p0_turn_form_views(b, norm, raw, out, out_size)) return 1;
+    /* 21 settembre 2026 — LA CESSIONE SI DECIDE DOPO AVER PROVATO LE FORME.
+     *
+     * Stava prima, e nessuna guardia poteva distinguere «questo turno e' una
+     * lezione riuscita» da «questo turno somiglia a una lezione e non lo e'»:
+     * al momento del cancello nessuna forma era stata ancora tentata. Misurato:
+     * la porta sul «quasi una lezione» declinava anche «zorbo is a member of
+     * birds», che e' la lezione COMPLETA.
+     *
+     * Qui sopra le forme dichiarate hanno gia' avuto il turno e, se una ha
+     * concluso, la funzione e' gia' tornata. Quindi la condotta che cede puo'
+     * finalmente guardare un fatto vero: che cosa questo turno NON e' riuscito
+     * a essere. La guardia di pertinenza non cambia comportamento — le sue
+     * situazioni non passano dalle forme. */
+    if (p0_faculty_yields(b, "knowledge", "open", norm, raw)) return 0;
     /* gen507 — L'ANNUNCIO DI UNA CORREZIONE VIENE PRIMA DEL SUO BERSAGLIO.
      *
      * «actually zelnik is green» arriva ai lettori gia' sbucciato: «actually»

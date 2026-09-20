@@ -218,3 +218,10 @@ machinery(lesson_almost).
 lesson_almost($T, $Form, $Text) :-
     lesson_near_miss($T, $Form), lesson_fixed_text($Form, $Text),
     naf(lesson_concluded(yes)).
+
+% ─── LA PORTA, RICOLLEGATA DOPO IL CAMBIO D'ORDINE ─────────────────────────
+% Ora la cessione si decide dopo che le forme dichiarate hanno avuto il turno,
+% quindi «quasi una lezione» non puo' piu' scattare su una lezione riuscita.
+machinery(lesson_almost_turn).
+lesson_almost_turn($T, yes) :- lesson_almost($T, $Form, $Text).
+faculty_yield_when(knowledge, open, lesson_almost_turn).
