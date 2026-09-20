@@ -1,0 +1,70 @@
+% fenomenologia.p0 — LE SPECIE DEI DIFETTI, E COME TROVARLE TUTTE IN UN COLPO
+% (20 settembre 2026, chiesto da F. partendo dal caso «2.7 al quadrato»)
+%
+% ── IL CASO CHE HA APERTO IL DISCORSO ──────────────────────────────────────
+%
+% «The reef covers 2.7 million square kilometres.» rispondeva «7.29»: la
+% facolta' aritmetica leggeva «square» come operazione e prendeva un turno che
+% era un'ASSERZIONE di prosa. Non era un difetto dell'aritmetica ne' del
+% lessico: era che nessuno aveva mai chiesto «su quali FORZE questa facolta'
+% ha diritto di parlare?». La stessa domanda vale per le altre novanta.
+%
+% Fino a ieri un difetto cosi' si trovava quando appariva — un banco rosso, una
+% risposta assurda notata da qualcuno — e si chiudeva uno alla volta. Il costo
+% non e' la riparazione: e' che le altre istanze della STESSA specie restano
+% vive e invisibili, e si ripresentano una per volta per mesi.
+%
+% Qui si fa il contrario: si nomina la SPECIE, si scrive il suo RILEVATORE, e
+% lo si passa su tutto. Una specie nominata e' una domanda che parrot0 puo'
+% porsi da solo; un rilevatore e' la stessa domanda posta a tutta la KB.
+%
+% ── LE SPECIE, CON LA LORO FIRMA ───────────────────────────────────────────
+%
+% defect_species(Nome, Firma, Rilevatore)
+%   Firma      — che cosa si osserva quando la specie e' presente
+%   Rilevatore — come si trovano TUTTE le istanze, non quella che e' apparsa
+
+defect_species(turn_theft,
+    "una facolta' risponde a un turno la cui FORZA non le appartiene",
+    "passare un corpus di asserzioni e raggruppare per facolta' che risponde").
+defect_species(diverging_paths,
+    "lo stesso oggetto letto per due strade da'  due risultati",
+    "confrontare i flussi paralleli sullo stesso turno e dichiarare ogni disaccordo").
+defect_species(collapsed_distinction,
+    "due oggetti diversi che la rappresentazione rende uguali",
+    "contare gli oggetti distinti e le loro identita': se le identita' sono meno, collassano").
+defect_species(silent_instrument,
+    "uno strumento di misura che fallisce e sembra dire «la conoscenza non c'e'»",
+    "confrontare il risultato con il tetto dello strumento: uguale al tetto = troncato").
+
+% ── RILEVATORE DELLA SPECIE «due strade che divergono» ─────────────────────
+%
+% Il motore ha PIU' flussi di token sullo stesso testo, e devono dire la stessa
+% cosa. Il caso 2.7 e' nato proprio qui: `turn_span_token` teneva «3.5» e la IR
+% la spezzava in «3» e «5» — tre regole di confine diverse, di cui una sola
+% sapeva che un punto fra due cifre appartiene al numero.
+%
+% Un disaccordo non e' per forza un difetto: i flussi hanno scopi diversi e
+% possono segmentare diversamente APPOSTA. Per questo il rilevatore DICHIARA il
+% disaccordo e non lo giudica: il giudizio e' di chi legge, e la voce va
+% guardata a mano — come i furti del banco di prosa.
+
+stream_token_ir($T, $Pos, $W) :- input_node_atom($T, $Id, $W), is($Pos, sub($Id, 1)).
+stream_token_span($T, $Pos, $W) :- turn_span_token($T, 0, $Pos, $Q), span_atom($Q, $W).
+
+token_stream_disagreement($T, $Pos, $Span, $Ir) :-
+    stream_token_span($T, $Pos, $Span),
+    stream_token_ir($T, $Pos, $Ir),
+    dif($Span, $Ir).
+% Un flusso finisce prima dell'altro: anche questo e' un disaccordo, e la
+% posizione dice dove le due letture si sono separate.
+token_stream_shorter($T, $Pos, $Span) :-
+    stream_token_span($T, $Pos, $Span), naf(stream_token_ir($T, $Pos, $Any)).
+
+machinery(stream_token_ir).
+machinery(stream_token_span).
+debug_token_streams($T, at($Pos, span($S), ir($I))) :-
+    token_stream_disagreement($T, $Pos, $S, $I).
+debug_token_streams($T, only_in_span($Pos, $S)) :- token_stream_shorter($T, $Pos, $S).
+debug_probe(38, debug_token_streams, now,
+    "DOVE i due flussi di token dicono cose diverse sullo stesso turno").

@@ -1260,6 +1260,21 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw;
 
+    /* 20 settembre 2026 — UN'ASSERZIONE DI PROSA NON E' UN CALCOLO.
+     *
+     * «The reef covers 2 million square kilometres.» rispondeva «4»: la
+     * facolta' aritmetica leggeva «square» come operazione e prendeva un turno
+     * che era un'ASSERZIONE. E' la specie di errore che la scala di F. punisce
+     * di piu' — una risposta confidente e sbagliata, non un muro onesto — e
+     * con i decimali interi nella IR diventava visibile su ogni statistica
+     * («2.7 million square kilometres» → 7.29).
+     *
+     * Il cancello esisteva gia' ed e' condiviso: `faculty_force/2` dice su
+     * quali FORZE una facolta' puo' parlare, e la forza e' una lettura sola che
+     * migliora per tutti. Additivo per costruzione: senza quei fatti in KB il
+     * comportamento resta identico, e la condotta si corregge parlando. */
+    if (!p0_move_allowed(b, "arith", norm)) return 0;
+
     if (p0_probability_inverse_draw(b, norm, out, out_size)) return 1;
 
     /* gen357: a scalar fold must not preempt a registered multi-step schema.

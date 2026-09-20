@@ -6385,3 +6385,12 @@ intent_cue(text_summary_request, "summarise this").
 intent_cue(text_summary_request, "riassumi questo").
 intent_cue(text_summary_request, "riassumi il seguente").
 faculty_yield(discourse, open, text_summary_request).
+
+% 20 settembre 2026 — L'ARITMETICA PARLA SOLO SE LE VIENE CHIESTO.
+% «The reef covers 2 million square kilometres.» rispondeva «4»: «square» letto
+% come operazione dentro un'ASSERZIONE di prosa. Il conto si chiede, non si
+% annuncia; una frase che riferisce una misura non domanda il suo quadrato.
+% Senza queste righe la facolta' torna a parlare su ogni forza (mantra:
+% additivo per costruzione), e una forza in piu' e' una riga, non una patch.
+faculty_force(arith, question).
+faculty_force(arith, directive).

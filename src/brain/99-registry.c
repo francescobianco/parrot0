@@ -4013,25 +4013,45 @@ static size_t turn_publish_words(Brain *b, const char *surface,
     /* Lo spazio in tutte le sue forme resta meccanica: che un a capo separi due
      * parole non e' una tesi sulla lingua. Quali ALTRI caratteri separino si'. */
 #define P0_WORDSEP(c) (isspace((unsigned char)(c)) || memchr(seps, (c), nsep))
+    /* 20 settembre 2026 — DUE FLUSSI DI TOKEN NON POSSONO AVERE DUE REGOLE DI
+     * CONFINE DIVERSE.
+     *
+     * `turn_publish_tokens` sa dal gen399 che «un punto FRA DUE CIFRE appartiene
+     * al numero»; questo flusso non lo sapeva, e spezzava «2.7» in «2» e «7».
+     * Effetto misurato sulla prosa: «US$2.7 trillion (a 2020 estimate)» arrivava
+     * alla IR come «us», «2», «7», quindi nessuna regola poteva legare il valore
+     * al suo anno, e la frase finiva catturata in superficie invece che letta.
+     * Ogni statistica di una prosa enciclopedica passa di qui.
+     *
+     * Non e' vocabolario: e' lo stesso confine, detto una volta sola. Il C
+     * continua a NON sapere quali caratteri separino — lo chiede alla KB
+     * (`word_separator/1`) — e sa soltanto che una cifra a destra e una a
+     * sinistra tengono insieme cio' che sta in mezzo. */
+#define P0_DIGIT_GLUE(s, p, t, end) \
+    ((p) > (t) && (p) + 1 < (end) && \
+     isdigit((unsigned char)(s)[(p) - 1]) && isdigit((unsigned char)(s)[(p) + 1]))
     size_t k = 0;
-    for (const char *p = surface; *p; ) {
-        while (*p && P0_WORDSEP(*p)) p++;
-        if (!*p) break;
-        const char *t = p;
-        while (*p && !P0_WORDSEP(*p)) p++;
+    size_t slen = strlen(surface);
+    for (size_t p = 0; p < slen; ) {
+        while (p < slen && P0_WORDSEP(surface[p]) &&
+               !P0_DIGIT_GLUE(surface, p, (size_t)0, slen)) p++;
+        if (p >= slen) break;
+        size_t t = p;
+        while (p < slen && (!P0_WORDSEP(surface[p]) ||
+                            P0_DIGIT_GLUE(surface, p, t, slen))) p++;
         char tok[KB_TERM_LEN];
-        if (!turn_quote(surface, (size_t)(t - surface), (size_t)(p - t), tok, sizeof tok))
+        if (!turn_quote(surface, t, p - t, tok, sizeof tok))
             continue;
         char id[24], node[KB_TERM_LEN], range[KB_TERM_LEN];
         snprintf(id, sizeof id, "%zu", id_base + k++);
         snprintf(node, sizeof node, "node(word, word, root)");
-        snprintf(range, sizeof range, "range(%zu, %zu)",
-                 (size_t)(t - surface), (size_t)(p - t));
+        snprintf(range, sizeof range, "range(%zu, %zu)", t, p - t);
         const char *args[] = { scope, id, node, range };
         kb_assert(b->kb, "input_node", args, 4);
         const char *sf[] = { scope, id, tok };
         kb_assert(b->kb, "input_node_surface", sf, 3);
     }
+#undef P0_DIGIT_GLUE
 #undef P0_WORDSEP
     return k;
 }

@@ -212,3 +212,13 @@ machinery(turn_answer_support).
 turn_scratch(turn_answer_support).
 turn_reading_predicate(turn_answer_support).
 turn_reading_predicate(machinery_gap).
+
+% 20 settembre 2026 — I TOKEN DELLA IR, con l'ordine e la superficie.
+% Ogni sonda nuova e' una riga di KB: per capire perche' una frase non viene
+% letta serve poter guardare da che cosa il lettore parte, non dedurlo.
+machinery(debug_ir_token).
+debug_ir_token($T, tok($Id, $W)) :- ir_token(input($T), $Id, $W, $Range).
+debug_probe(36, debug_ir_token, now, "i token della IR del turno, con l'indice").
+machinery(debug_ir_node).
+debug_ir_node($T, n($Id, $Node)) :- input_node($T, $Id, $Node, $R).
+debug_probe(37, debug_ir_node, now, "i nodi grezzi della IR del turno, con il livello").

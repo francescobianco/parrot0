@@ -73,11 +73,32 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
 
     typedef struct { size_t start, len; char word[KB_TERM_LEN]; } Word;
     Word words[64]; size_t nw = 0;
+    /* 20 settembre 2026 — UN NUMERO DECIMALE E' UNA PAROLA SOLA.
+     *
+     * Questo e' il terzo confine di parola del motore, e fino a oggi era
+     * l'unico che non sapeva quello che gli altri due sapevano dal gen399:
+     * «un punto FRA DUE CIFRE appartiene al numero». `turn_span_token` teneva
+     * «3.5», la IR la spezzava in «3» e «5» — lo stesso testo letto per due
+     * strade che divergono. Effetto misurato sulla prosa enciclopedica, dove
+     * quasi ogni dato e' decimale: «US$2.7 trillion (a 2020 estimate)»
+     * arrivava alla IR come «us», «2», «7», quindi nessuna regola poteva
+     * legare il valore al suo anno e la frase finiva catturata in superficie
+     * invece che letta.
+     *
+     * Si incollano solo il punto e la virgola, e solo con una cifra da
+     * entrambi i lati: sono le marche del decimale e delle migliaia. Il trattino
+     * resta un confine (un intervallo «30-375» sono due numeri), e «2+3» resta
+     * due token piu' un operatore, altrimenti l'aritmetica smetterebbe di
+     * leggersi. */
+#define P0_IR_WORDCH(c) (isalnum((unsigned char)(c)) || (c) == '_')
+#define P0_IR_NUMGLUE(r, p, lo, hi) \
+    (((r)[(p)] == '.' || (r)[(p)] == ',') && (p) > (lo) && (p) + 1 < (hi) && \
+     isdigit((unsigned char)(r)[(p) - 1]) && isdigit((unsigned char)(r)[(p) + 1]))
     for (size_t p = begin; p < end && nw < 64; ) {
-        while (p < end && !(isalnum((unsigned char)raw[p]) || raw[p] == '_')) p++;
+        while (p < end && !P0_IR_WORDCH(raw[p])) p++;
         if (p >= end) break;
         size_t s = p++;
-        while (p < end && (isalnum((unsigned char)raw[p]) || raw[p] == '_')) p++;
+        while (p < end && (P0_IR_WORDCH(raw[p]) || P0_IR_NUMGLUE(raw, p, s, end))) p++;
         size_t len = p - s;
         if (len >= sizeof words[nw].word) len = sizeof words[nw].word - 1;
         memcpy(words[nw].word, raw + s, len);
@@ -90,6 +111,8 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
                        "token", "token", "", words[nw].word);
         nw++;
     }
+#undef P0_IR_NUMGLUE
+#undef P0_IR_WORDCH
 
     /* Candidate noun phrases are delimited by KB knowledge.  A verb POS fact
      * closes the candidate early; otherwise the declared NP closer does. */

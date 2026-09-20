@@ -1014,9 +1014,14 @@ static void debug_inspect(Brain *brain, const char *last_line) {
         brain_canonical(brain, last_line, canon, sizeof canon);
         char quoted[KB_TERM_LEN];
         snprintf(quoted, sizeof quoted, "\"%s\"", canon);
-        char ord[32][KB_TERM_LEN];
+        /* 20 settembre 2026 — l'ispettore deve crescere con le sonde. Il tetto
+         * era 32 e le sonde erano gia' 37: le ultime sparivano in silenzio, e
+         * una sonda che non si vede e' peggio di una che manca — si crede di
+         * aver guardato. */
+        char ord[96][KB_TERM_LEN];
         const char *q[4] = { NULL, NULL, NULL, NULL };
-        size_t n = kb_match(kb, "debug_probe", q, 4, ord, 32);
+        size_t n = kb_match(kb, "debug_probe", q, 4, ord,
+                            sizeof ord / sizeof *ord);
         fprintf(stderr, "\n  SONDE\n");
         for (size_t i = 0; i < n; i++) {
             const char *q2[4] = { ord[i], NULL, NULL, NULL };

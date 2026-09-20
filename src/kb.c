@@ -1140,9 +1140,17 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
          * Un fatto insegnato deve sopravvivere alla cache che lo conteneva:
          * ora non perche' la sostituisce, ma perche' e' un atto in piu'. */
         int before = known->origin;
-        if (before == KB_DERIVED && kb->origin != KB_DERIVED) kb->n_derived--;
         known->origin |= kb->origin;
-        if (known->origin != before) kb_views_changed(kb, pred);
+        /* ⚠ L'INVALIDAZIONE E' PER LA CACHE, NON PER L'ATTO. Invalidando a ogni
+         * cambio di origine, un fatto gia' noto che il turno ri-asserisce
+         * buttava le viste materializzate (`extract_frame` fra le altre): i
+         * sintagmi si accorciavano e r300 perdeva cinque risposte («water
+         * conditions» → «water»). Solo l'uscita dallo stato di SOLA cache
+         * cambia che cosa la vista puo' tenere. */
+        if (before == KB_DERIVED && kb->origin != KB_DERIVED) {
+            kb->n_derived--;
+            kb_views_changed(kb, pred);
+        }
         return 1; /* contenuto gia' noto — l'atto si e' aggiunto */
     }
     f.origin = kb->origin;
