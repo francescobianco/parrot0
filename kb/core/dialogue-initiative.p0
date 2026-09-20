@@ -1,0 +1,171 @@
+% Il seguito motivato: una lettura IR, atti citati, proposte e uptake.
+% Primo circuito operativo di docs/plans/the-rational-philosopher.md.
+% Non prova il contenuto del payload e non lo asserisce come fatto del mondo.
+% Nuove forme, atti, itinerari e mosse sono conoscenza; nessun consumer C nuovo.
+:- file_attribute(machinery).
+:- include(dialogue-initiative/forms.p0).
+:- include(dialogue-initiative/moves.p0).
+:- include(dialogue-initiative/teaching.p0).
+
+% Il matcher consuma i token gia' pubblicati dalla IR universale, dall'inizio
+% del turno: una menzione incassata non diventa un'intenzione dell'utente.
+dialogue_prefix($T, $I, nil, $I).
+dialogue_prefix($T, $I, cons($W, $Ws), $End) :-
+    turn_word($T, $I, $W), is($Next, add($I, 1)),
+    dialogue_prefix($T, $Next, $Ws, $End).
+dialogue_tail($T, $I, $W) :-
+    turn_word($T, $I, $W), is($Next, add($I, 1)), naf(turn_word_at($T, $Next)).
+dialogue_tail($T, $I, $Text) :-
+    turn_word($T, $I, $W), is($Next, add($I, 1)), turn_word_at($T, $Next),
+    dialogue_tail($T, $Next, $Tail), concat_atoms($W, " ", $Head), concat_atoms($Head, $Tail, $Text).
+dialogue_payload($T, $End, rest, $Text) :- dialogue_tail($T, $End, $Text).
+dialogue_payload($T, $End, whole, unspecified) :- naf(turn_word_at($T, $End)).
+dialogue_payload($T, $End, optional, $Text) :- dialogue_tail($T, $End, $Text).
+dialogue_payload($T, $End, optional, unspecified) :- naf(turn_word_at($T, $End)).
+
+% Le cue sono solo un indice dei candidati; la prova e' la sequenza intera.
+% La forma piu' lunga prevale. Due atti diversi alla stessa estensione restano
+% ambigui: nessuna vittoria per ordine di caricamento.
+turn_cue_registry(dialogue_opening, 1).
+dialogue_form_read($T, $Act, $Text, $End) :-
+    turn_cue_form($T, dialogue_opening, $Surface), dialogue_opening($Surface, $Act),
+    atom_words($Surface, $Words), dialogue_prefix($T, 0, $Words, $End),
+    dialogue_shape($Act, $Mode), dialogue_payload($T, $End, $Mode, $Text).
+% Si pubblicano le letture prima di confrontarle: negare una rilettura
+% ricorsiva completa faceva esaurire la profondita' sulle aperture inglesi.
+% L'assenza di un'alternativa deve essere una verifica finita sui candidati.
+machinery(dialogue_raw).
+turn_scratch(dialogue_raw).
+bookkeeper(dialogue_parse).
+dialogue_record_form($T, $N, $End) :-
+    dialogue_form_read($T, $A, $P, $End), assert(dialogue_raw, $N, $A, payload($P, $End)).
+turn_bookkeeping($T, dialogue_parse) :-
+    turn_counter($N), findall($End, dialogue_record_form($T, $N, $End), $Ends).
+dialogue_current_raw($T, $A, $P, $End) :- turn_counter($N), dialogue_raw($N, $A, payload($P, $End)).
+dialogue_longer($T, $End) :- dialogue_current_raw($T, $A, $P, $Other), gt($Other, $End).
+dialogue_best($T, $Act, $Text) :-
+    dialogue_current_raw($T, $Act, $Text, $End), naf(dialogue_longer($T, $End)).
+dialogue_ambiguous($T, $Act) :- dialogue_best($T, $Other, $P), dif($Act, $Other).
+dialogue_excluded($T) :- inner_turn.
+dialogue_excluded($T) :- turn_cue($T, sentence_boundary_cue, $C).
+dialogue_excluded($T) :- turn_cue($T, dialogue_quotation_cue, $C).
+turn_cue_registry(dialogue_quotation_cue, 1).
+dialogue_quotation_cue("\"").
+dialogue_quotation_cue("«").
+dialogue_quotation_cue("»").
+dialogue_reading($T, $Act, $Text) :-
+    dialogue_best($T, $Act, $Text), naf(dialogue_ambiguous($T, $Act)), naf(dialogue_excluded($T)).
+
+% Stato di sessione, mai training del mondo o persistenza di una conversazione.
+machinery(dialogue_seen).
+machinery(dialogue_scope).
+machinery(dialogue_emitted).
+machinery(dialogue_language).
+machinery(dialogue_detail).
+machinery(dialogue_offered).
+turn_scratch(dialogue_seen).
+turn_scratch(dialogue_scope).
+turn_scratch(dialogue_emitted).
+turn_scratch(dialogue_language).
+turn_scratch(dialogue_detail).
+turn_scratch(dialogue_offered).
+bookkeeper(dialogue_observe).
+turn_bookkeeping($T, dialogue_observe) :-
+    turn_counter($N), input_scope_language($T, $L), assert(dialogue_language, $N, $L),
+    dialogue_reading($T, $A, $P), assert(dialogue_seen, $N, $A, $P).
+
+dialogue_now(current_turn, $Act, $P) :- turn_counter($N), dialogue_seen($N, $Act, $P).
+dialogue_previous($Scope, $Step) :-
+    turn_counter($N), is($Before, sub($N, 1)), dialogue_emitted($Before, $Scope, $Step).
+dialogue_previous_open($Scope, $Step) :- dialogue_previous($Scope, $Step), dif($Step, closed).
+dialogue_has_previous :- dialogue_previous_open($S, $K).
+
+% La proposta e' fondata sull'atto e sull'itinerario dichiarato, non una prova
+% della verita' del tema. Step e bisogno sono interrogabili prima della resa.
+dialogue_candidate($T, $N, 1, $Move) :-
+    dialogue_now($T, $A, $P), dialogue_task($A, $Task), turn_counter($N),
+    dialogue_initial($Task, $Move).
+dialogue_candidate($T, $S, $Next, $Move) :-
+    dialogue_now($T, $A, $P), dialogue_uptake($A, advance), dialogue_previous_open($S, $K),
+    dialogue_scope($S, $Task, $Topic), is($Next, add($K, 1)), dialogue_step($Task, $Next, $Move).
+dialogue_next_exists($Task, $K) :- is($Next, add($K, 1)), dialogue_step($Task, $Next, $M).
+dialogue_candidate($T, $S, $K, review_outcome) :-
+    dialogue_now($T, $A, $P), dialogue_uptake($A, advance), dialogue_previous_open($S, $K),
+    dialogue_scope($S, $Task, $Topic), naf(dialogue_next_exists($Task, $K)).
+dialogue_candidate($T, $S, closed, respect_stop) :-
+    dialogue_now($T, $A, $P), dialogue_uptake($A, stop), dialogue_previous($S, $K).
+dialogue_candidate($T, $N, closed, respect_stop) :-
+    dialogue_now($T, $A, $P), dialogue_uptake($A, stop), naf(dialogue_any_previous), turn_counter($N).
+dialogue_any_previous :- dialogue_previous($S, $K).
+dialogue_candidate($T, $N, closed, ask_anchor) :-
+    dialogue_now($T, $A, $P), dialogue_uptake($A, advance), naf(dialogue_has_previous), turn_counter($N).
+dialogue_candidate($T, $S, $K, explain_move) :-
+    dialogue_now($T, explain, $P), dialogue_previous_open($S, $K).
+dialogue_candidate($T, $N, closed, ask_anchor) :-
+    dialogue_now($T, explain, $P), naf(dialogue_has_previous), turn_counter($N).
+
+% Il bisogno non e' inventato dalla frase di risposta: appartiene alla mossa.
+dialogue_basis($T, $Move, anchor($S), $Need) :-
+    dialogue_candidate($T, $S, $Step, $Move), dialogue_move_need($Move, $Need).
+dialogue_topic($T, $Topic) :- dialogue_now($T, $A, $P), dialogue_task($A, $Task), dif($P, unspecified), words_of($P, $Topic).
+dialogue_topic($T, $Topic) :- dialogue_now($T, $A, unspecified), dialogue_task($A, $Task), current_language($L), dialogue_task_name($Task, $L, $Topic).
+dialogue_topic($T, $Topic) :- dialogue_now($T, $A, $P), dialogue_uptake($A, $Effect), dialogue_previous($S, $K), dialogue_scope($S, $Task, $Topic).
+dialogue_topic($T, $Topic) :- dialogue_now($T, explain, $P), dialogue_previous_open($S, $K), dialogue_scope($S, $Task, $Topic).
+
+bookkeeper(dialogue_remember).
+turn_bookkeeping($T, dialogue_remember) :-
+    dialogue_now($T, $A, $P), dialogue_task($A, $Task), turn_counter($N),
+    dialogue_topic($T, $Topic), assert(dialogue_scope, $N, $Task, $Topic).
+bookkeeper(dialogue_propose).
+turn_bookkeeping($T, dialogue_propose) :-
+    dialogue_candidate($T, $S, $Step, $M), turn_counter($N), assert(dialogue_emitted, $N, $S, $Step), assert(dialogue_offered, $N, $M).
+
+% Un solo consumatore delle letture: scelta, ancora, bisogno e lingua.
+turn_plan_candidate($T) :- dialogue_now($T, $A, $P).
+turn_priority_response($T, $Text) :- dialogue_candidate($T, $S, $K, $M), dialogue_standalone($M), current_language($L), dialogue_move_text($M, $L, $Text).
+turn_priority_response($T, $Text) :-
+    dialogue_candidate($T, $S, $K, $M), naf(dialogue_standalone($M)), dif($M, explain_move),
+    dialogue_topic($T, $Topic), current_language($L), answer_text(dialogue_reply($Topic, $M, $L), $Base), dialogue_with_detail($T, $L, $Base, $Text).
+answer_content(dialogue_reply($Topic, $M, $L), 0, opening, $Text) :- dialogue_anchor_open($L, $Text).
+answer_content(dialogue_reply($Topic, $M, $L), 1, anchor, $Topic).
+answer_content(dialogue_reply($Topic, $M, $L), 2, separator, $Text) :- dialogue_anchor_close($L, $Text).
+answer_content(dialogue_reply($Topic, $M, $L), 3, proposal, $Text) :- dialogue_move_text($M, $L, $Text).
+
+% Ispezione condivisa: la mossa si giustifica sullo stesso oggetto che parla.
+turn_reading_predicate(dialogue_seen).
+turn_reading_predicate(dialogue_scope).
+turn_reading_predicate(dialogue_emitted).
+answer_frame("dialogue purpose", dialogue_move_need).
+
+% La policy iniziale e' correggibile parlando. Una policy ambigua non sceglie
+% per ordine di inserimento: resta visibile come gap, senza dire due mosse.
+dialogue_has_first($Task) :- dialogue_first($Task, $Move).
+dialogue_first_conflict($Task, $Move) :- dialogue_first($Task, $Other), dif($Move, $Other).
+dialogue_initial($Task, $Move) :- dialogue_first($Task, $Move), naf(dialogue_first_conflict($Task, $Move)), dialogue_move_need($Move, $Need).
+dialogue_initial($Task, $Move) :- naf(dialogue_has_first($Task)), dialogue_step($Task, 1, $Move).
+
+% Un vincolo cambia il passo in corso: non significa averlo eseguito.
+dialogue_candidate($T, $S, $K, $Move) :-
+    dialogue_now($T, $A, $P), dialogue_uptake($A, update), dialogue_previous_open($S, $K),
+    dialogue_update_move($A, $Move).
+dialogue_candidate($T, $N, closed, ask_anchor) :-
+    dialogue_now($T, $A, $P), dialogue_uptake($A, update), naf(dialogue_has_previous), turn_counter($N).
+bookkeeper(dialogue_detail).
+turn_bookkeeping($T, dialogue_detail) :-
+    dialogue_now($T, $A, $P), dialogue_detail_role($A, $Role), dialogue_previous_open($S, $K),
+    turn_counter($N), assert(dialogue_detail, $S, $Role, said($N, $P)).
+dialogue_has_current_detail($T) :- dialogue_now($T, $A, $P), dialogue_detail_role($A, $R), dialogue_has_previous.
+dialogue_with_detail($T, $L, $Base, $Text) :-
+    dialogue_now($T, $A, $P), dialogue_detail_role($A, $Role), dialogue_has_previous,
+    dialogue_detail_open($L, $Open), dialogue_detail_close($L, $Close),
+    concat_atoms($Open, $P, $Head), concat_atoms($Head, $Close, $Prefix), concat_atoms($Prefix, $Base, $Text).
+dialogue_with_detail($T, $L, $Text, $Text) :- naf(dialogue_has_current_detail($T)).
+
+% La ragione della proposta legge la mossa effettivamente emessa, anche se
+% modificata da una lezione. Non usa un testo identico per tutte le mosse.
+dialogue_previous_move($M) :- turn_counter($N), is($K, sub($N, 1)), dialogue_offered($K, $M).
+turn_priority_response($T, $Text) :-
+    dialogue_now($T, explain, $P), dialogue_previous_open($S, $K), dialogue_previous_move($M),
+    dialogue_move_need($M, $Need), current_language($L), dialogue_need_words($Need, $L, $Words),
+    dialogue_reason_open($L, $Open), dialogue_reason_close($L, $Close),
+    concat_atoms($Open, $Words, $Head), concat_atoms($Head, $Close, $Text).

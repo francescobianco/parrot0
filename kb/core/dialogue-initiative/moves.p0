@@ -1,0 +1,375 @@
+% Itinerari e bisogni: conoscenza di metodo, non esiti gia' dimostrati.
+dialogue_anchor_open(en, "On ").
+dialogue_anchor_open(it, "Su ").
+dialogue_anchor_close(en, ": ").
+dialogue_anchor_close(it, ": ").
+dialogue_task_name(planning, en, "your project").
+dialogue_task_name(planning, it, "il tuo progetto").
+dialogue_step(planning, 1, define_success).
+dialogue_step(planning, 2, smallest_step).
+dialogue_step(planning, 3, identify_obstacle).
+dialogue_step(planning, 4, review_outcome).
+dialogue_task_name(learning, en, "what you want to learn").
+dialogue_task_name(learning, it, "ciò che vuoi imparare").
+dialogue_step(learning, 1, baseline_example).
+dialogue_step(learning, 2, practice_small).
+dialogue_step(learning, 3, compare_attempt).
+dialogue_step(learning, 4, review_outcome).
+dialogue_task_name(choice, en, "the choice").
+dialogue_task_name(choice, it, "la scelta").
+dialogue_step(choice, 1, criteria).
+dialogue_step(choice, 2, compare_options).
+dialogue_step(choice, 3, reversible_trial).
+dialogue_step(choice, 4, review_outcome).
+dialogue_task_name(inquiry, en, "the subject to explore").
+dialogue_task_name(inquiry, it, "il tema da esplorare").
+dialogue_step(inquiry, 1, specify_uncertainty).
+dialogue_step(inquiry, 2, distinguish_claims).
+dialogue_step(inquiry, 3, seek_counterexample).
+dialogue_step(inquiry, 4, revise_claim).
+dialogue_task_name(reflection, en, "the reflection").
+dialogue_task_name(reflection, it, "la riflessione").
+dialogue_step(reflection, 1, clarify_meaning).
+dialogue_step(reflection, 2, distinguish_claims).
+dialogue_step(reflection, 3, seek_counterexample).
+dialogue_step(reflection, 4, revise_claim).
+dialogue_task_name(problem, en, "the difficulty").
+dialogue_task_name(problem, it, "la difficoltà").
+dialogue_step(problem, 1, describe_failure).
+dialogue_step(problem, 2, reproduce_case).
+dialogue_step(problem, 3, test_one_change).
+dialogue_step(problem, 4, compare_attempt).
+dialogue_task_name(overload, en, "what feels overwhelming").
+dialogue_task_name(overload, it, "ciò che ti sovraccarica").
+dialogue_step(overload, 1, choose_one).
+dialogue_step(overload, 2, smallest_step).
+dialogue_step(overload, 3, protect_limit).
+dialogue_step(overload, 4, review_outcome).
+dialogue_task_name(emotional, en, "what you are experiencing").
+dialogue_task_name(emotional, it, "ciò che stai vivendo").
+dialogue_step(emotional, 1, name_experience).
+dialogue_step(emotional, 2, listen_example).
+dialogue_step(emotional, 3, separate_needs).
+dialogue_step(emotional, 4, optional_step).
+dialogue_task_name(conflict, en, "the disagreement").
+dialogue_task_name(conflict, it, "il disaccordo").
+dialogue_step(conflict, 1, separate_observation).
+dialogue_step(conflict, 2, identify_needs).
+dialogue_step(conflict, 3, draft_request).
+dialogue_step(conflict, 4, check_understanding).
+dialogue_task_name(creation, en, "the idea").
+dialogue_task_name(creation, it, "l idea").
+dialogue_step(creation, 1, seed_scene).
+dialogue_step(creation, 2, vary_one_feature).
+dialogue_step(creation, 3, choose_version).
+dialogue_step(creation, 4, refine_artifact).
+
+dialogue_move_need(define_success, outcome).
+dialogue_move_text(define_success, en, "Let us start with one observable result. Describe what would be different if this worked; we can use that to choose a first step.").
+dialogue_move_text(define_success, it, "Partiamo da un risultato osservabile. Descrivi che cosa sarebbe diverso se funzionasse: da lì scegliamo un primo passo.").
+
+dialogue_move_need(smallest_step, first_action).
+dialogue_move_text(smallest_step, en, "I propose a small reversible attempt. Write one action you could try now and one sign that would tell us whether it helped.").
+dialogue_move_text(smallest_step, it, "Propongo un tentativo piccolo e reversibile. Scrivi una sola azione da provare adesso e un segnale per capire se è servita.").
+
+dialogue_move_need(identify_obstacle, constraint).
+dialogue_move_text(identify_obstacle, en, "Let us identify the obstacle before adding work. Is the missing piece time, a resource, information or a decision? Keep the first step within that limit.").
+dialogue_move_text(identify_obstacle, it, "Individuiamo l ostacolo prima di aggiungere lavoro: manca tempo, una risorsa, un informazione o una decisione? Teniamo il primo passo entro quel limite.").
+
+dialogue_move_need(review_outcome, observed_result).
+dialogue_move_text(review_outcome, en, "We have a proposed route, not a demonstrated result. Tell me what you actually tried and what happened; then we can keep, change or stop the next step.").
+dialogue_move_text(review_outcome, it, "Abbiamo un percorso proposto, non un risultato dimostrato. Dimmi che cosa hai davvero provato e che cosa è successo: poi possiamo mantenere, cambiare o interrompere il passo successivo.").
+
+dialogue_move_need(baseline_example, starting_point).
+dialogue_move_text(baseline_example, en, "Let us use one concrete example to find your starting point. Show what you can already do or explain; we will choose the next exercise from the missing part.").
+dialogue_move_text(baseline_example, it, "Usiamo un esempio concreto per trovare il punto di partenza. Mostrami che cosa sai già fare o spiegare: scegliamo il prossimo esercizio dalla parte che manca.").
+
+dialogue_move_need(practice_small, attempt).
+dialogue_move_text(practice_small, en, "Try a minimal example and explain each step in your own words. Keep the first point where you get stuck: it gives us a precise place to work.").
+dialogue_move_text(practice_small, it, "Prova un esempio minimo e spiega ogni passo con parole tue. Conserva il primo punto in cui ti blocchi: ci dà un punto preciso su cui lavorare.").
+
+dialogue_move_need(compare_attempt, difference).
+dialogue_move_text(compare_attempt, en, "Compare the attempt with the intended result. Separate what happened from your explanation of it, then choose one difference to investigate.").
+dialogue_move_text(compare_attempt, it, "Confronta il tentativo con il risultato desiderato. Separa ciò che è successo dalla tua spiegazione e scegli una differenza da indagare.").
+
+dialogue_move_need(criteria, criterion).
+dialogue_move_text(criteria, en, "Before choosing, name one criterion that matters to you and one constraint you cannot trade away. Then compare the alternatives against those same criteria.").
+dialogue_move_text(criteria, it, "Prima di scegliere, nomina un criterio importante per te e un vincolo a cui non puoi rinunciare. Confrontiamo poi le alternative sugli stessi criteri.").
+
+dialogue_move_need(compare_options, alternatives).
+dialogue_move_text(compare_options, en, "Put two alternatives side by side. For each, record one benefit, one cost and one thing you do not yet know; leave unknowns marked as unknown.").
+dialogue_move_text(compare_options, it, "Metti due alternative una accanto all altra. Per ciascuna annota un vantaggio, un costo e una cosa che ancora non sai: le incognite restano incognite.").
+
+dialogue_move_need(reversible_trial, reversibility).
+dialogue_move_text(reversible_trial, en, "If a small reversible trial is possible, choose an observation that would distinguish the options. A trial is useful only if its outcome could change the choice.").
+dialogue_move_text(reversible_trial, it, "Se è possibile una piccola prova reversibile, scegli un osservazione che distingua le opzioni. Una prova serve se il suo esito può cambiare la scelta.").
+
+dialogue_move_need(specify_uncertainty, question).
+dialogue_move_text(specify_uncertainty, en, "Let us turn this interest into something we can investigate: choose a claim, an example or a contrast that puzzles you. We can start with the contrast between what you expect and what you observe.").
+dialogue_move_text(specify_uncertainty, it, "Trasformiamo questo interesse in qualcosa da indagare: scegli una tesi, un esempio o un contrasto che ti incuriosisce. Possiamo partire dalla differenza fra ciò che ti aspetti e ciò che osservi.").
+
+dialogue_move_need(clarify_meaning, meaning).
+dialogue_move_text(clarify_meaning, en, "I propose distinguishing the meaning of the words from the claim we want to assess. Give one example that belongs to the idea and one that might sit at its boundary.").
+dialogue_move_text(clarify_meaning, it, "Propongo di distinguere il significato delle parole dalla tesi da valutare. Porta un esempio che rientra nell idea e uno che potrebbe stare sul suo confine.").
+
+dialogue_move_need(distinguish_claims, assumptions).
+dialogue_move_text(distinguish_claims, en, "Separate the observation, the assumption and the conclusion. We can examine a position without treating it as true; name which premise the conclusion needs.").
+dialogue_move_text(distinguish_claims, it, "Separiamo osservazione, assunto e conclusione. Possiamo esaminare una posizione senza considerarla vera: nominiamo la premessa necessaria alla conclusione.").
+
+dialogue_move_need(seek_counterexample, counterexample).
+dialogue_move_text(seek_counterexample, en, "Look for a case in which the premises still hold but the proposed conclusion does not. If no case comes to mind, that alone does not prove the claim.").
+dialogue_move_text(seek_counterexample, it, "Cerchiamo un caso in cui le premesse restino valide ma la conclusione proposta no. Se non viene in mente un caso, questo da solo non dimostra la tesi.").
+
+dialogue_move_need(revise_claim, scope).
+dialogue_move_text(revise_claim, en, "Keep the conditions under which the position is supported and name what would change your assessment. A narrower claim can be more useful than an unsupported universal one.").
+dialogue_move_text(revise_claim, it, "Conserviamo le condizioni che sostengono la posizione e nominiamo ciò che cambierebbe la valutazione. Una tesi più circoscritta può essere più utile di una universale senza sostegno.").
+
+dialogue_move_need(describe_failure, symptom).
+dialogue_move_text(describe_failure, en, "Let us start from the observed difficulty. Describe what you expected, what actually happened and the smallest example that shows the difference.").
+dialogue_move_text(describe_failure, it, "Partiamo dalla difficoltà osservata. Descrivi che cosa ti aspettavi, che cosa è successo e il più piccolo esempio che mostra la differenza.").
+
+dialogue_move_need(reproduce_case, reproduction).
+dialogue_move_text(reproduce_case, en, "Keep the conditions fixed and check whether the difficulty repeats. Record the case before changing anything so that we can compare the next attempt.").
+dialogue_move_text(reproduce_case, it, "Teniamo ferme le condizioni e verifichiamo se la difficoltà si ripete. Conserva il caso prima di cambiare qualcosa, così possiamo confrontare il prossimo tentativo.").
+
+dialogue_move_need(test_one_change, test).
+dialogue_move_text(test_one_change, en, "Choose one explanation and a small test that could refute it. Change one relevant condition and compare the outcome with the previous case.").
+dialogue_move_text(test_one_change, it, "Scegliamo una spiegazione e una piccola prova che possa smentirla. Cambia una condizione rilevante e confronta l esito con il caso precedente.").
+
+dialogue_move_need(choose_one, priority).
+dialogue_move_text(choose_one, en, "Let us reduce the next decision to one thing. Name the item that matters most now; the others can stay on a list without being solved at the same time.").
+dialogue_move_text(choose_one, it, "Riduciamo la prossima decisione a una sola cosa. Nomina quella che conta di più adesso: le altre possono restare in una lista senza doverle risolvere insieme.").
+
+dialogue_move_need(protect_limit, limit).
+dialogue_move_text(protect_limit, en, "Set a stopping point for this attempt: a time limit or a clearly defined result. Stopping there gives us something to review instead of an endlessly growing task.").
+dialogue_move_text(protect_limit, it, "Fissiamo un punto di arresto per il tentativo: un limite di tempo o un risultato definito. Fermarci lì ci dà qualcosa da rivedere, invece di un compito che cresce senza fine.").
+
+dialogue_move_need(name_experience, desired_support).
+dialogue_move_text(name_experience, en, "I can listen without rushing to a solution. We can start with what happened or with what feels hardest now; you can also tell me that you only want to be heard.").
+dialogue_move_text(name_experience, it, "Posso ascoltarti senza correre a una soluzione. Possiamo partire da ciò che è successo o dalla parte più difficile adesso; puoi anche dirmi che desideri soltanto essere ascoltato.").
+
+dialogue_move_need(listen_example, experience).
+dialogue_move_text(listen_example, en, "Choose one moment that captures what you mean. I will keep the event separate from guesses about other people or about what you ought to feel.").
+dialogue_move_text(listen_example, it, "Scegli un momento che renda concreto ciò che intendi. Teniamo separato l episodio dalle supposizioni sugli altri o su ciò che dovresti provare.").
+
+dialogue_move_need(separate_needs, need).
+dialogue_move_text(separate_needs, en, "Distinguish what you can influence from what depends on others. We can name the need without assuming that there is already a solution.").
+dialogue_move_text(separate_needs, it, "Distinguiamo ciò su cui puoi incidere da ciò che dipende dagli altri. Possiamo nominare il bisogno senza presumere di avere già una soluzione.").
+
+dialogue_move_need(optional_step, choice_of_support).
+dialogue_move_text(optional_step, en, "If you want a practical next step, choose one small thing within your control. If you prefer to keep talking, we can stay with the experience instead.").
+dialogue_move_text(optional_step, it, "Se desideri un passo pratico, scegliamo una piccola cosa sotto il tuo controllo. Se preferisci continuare a parlarne, possiamo restare sull esperienza.").
+
+dialogue_move_need(separate_observation, observation).
+dialogue_move_text(separate_observation, en, "Start with what was said or done, then separate your interpretation from that observation. This gives us a shared point to discuss without guessing the other person s motives.").
+dialogue_move_text(separate_observation, it, "Partiamo da ciò che è stato detto o fatto e separiamo la tua interpretazione dall osservazione. Avremo un punto da discutere senza indovinare le intenzioni dell altra persona.").
+
+dialogue_move_need(identify_needs, interests).
+dialogue_move_text(identify_needs, en, "Name what matters to you and what remains unknown about the other person s position. A disagreement about a proposed solution may conceal different needs.").
+dialogue_move_text(identify_needs, it, "Nomina ciò che conta per te e ciò che ancora non sai della posizione dell altra persona. Un disaccordo sulla soluzione proposta può nascondere bisogni diversi.").
+
+dialogue_move_need(draft_request, request).
+dialogue_move_text(draft_request, en, "Try a draft with three parts: the specific event, its effect on you and a concrete request. Keep the request open to a response instead of claiming to know what the other person thinks.").
+dialogue_move_text(draft_request, it, "Prova una bozza in tre parti: l episodio preciso, il suo effetto su di te e una richiesta concreta. Lascia spazio alla risposta senza attribuire pensieri all altra persona.").
+
+dialogue_move_need(check_understanding, confirmation).
+dialogue_move_text(check_understanding, en, "Restate the other position as fairly as you can and check whether it has been understood. Agreement and understanding are different outcomes.").
+dialogue_move_text(check_understanding, it, "Riformula la posizione dell altra persona nel modo più fedele possibile e verifica di averla capita. Capire e concordare sono risultati diversi.").
+
+dialogue_move_need(seed_scene, seed).
+dialogue_move_text(seed_scene, en, "Start with a minimal seed: someone or something, a situation and one change. We can develop that seed without deciding the whole work in advance.").
+dialogue_move_text(seed_scene, it, "Partiamo da un seme minimo: qualcuno o qualcosa, una situazione e un cambiamento. Possiamo svilupparlo senza decidere in anticipo tutta l opera.").
+
+dialogue_move_need(vary_one_feature, variation).
+dialogue_move_text(vary_one_feature, en, "Make two versions by changing one feature while keeping the rest fixed. The contrast will show which direction is worth developing.").
+dialogue_move_text(vary_one_feature, it, "Crea due versioni cambiando una caratteristica e tenendo fermo il resto. Il contrasto mostrerà quale direzione vale la pena sviluppare.").
+
+dialogue_move_need(choose_version, selection).
+dialogue_move_text(choose_version, en, "Choose the version that best serves the effect you want. Name what works in it before adding details, so that revision preserves its useful part.").
+dialogue_move_text(choose_version, it, "Scegli la versione che serve meglio l effetto desiderato. Nomina ciò che funziona prima di aggiungere dettagli, così la revisione conserva la parte utile.").
+
+dialogue_move_need(refine_artifact, revision).
+dialogue_move_text(refine_artifact, en, "Revise one concrete passage or component. Compare before and after against the intended effect; more detail is not automatically an improvement.").
+dialogue_move_text(refine_artifact, it, "Rivedi un passaggio o un componente concreto. Confronta prima e dopo rispetto all effetto desiderato: aggiungere dettagli non è automaticamente migliorare.").
+
+dialogue_move_need(respect_stop, withdrawal).
+dialogue_move_text(respect_stop, en, "All right. I will stop this proposal; you can choose whether to return to it.").
+dialogue_move_text(respect_stop, it, "Va bene. Interrompo questa proposta; decidi tu se riprenderla.").
+
+dialogue_move_need(ask_anchor, anchor).
+dialogue_move_text(ask_anchor, en, "I do not have an active proposal to continue. Give me the topic or the point you want to resume.").
+dialogue_move_text(ask_anchor, it, "Non ho una proposta attiva da continuare. Indicami il tema o il punto da cui vuoi riprendere.").
+
+dialogue_move_need(explain_move, rationale).
+dialogue_move_text(explain_move, en, "This is a proposed method anchored to what you introduced, not a conclusion about its truth. The purpose is to make the next assumption or observation explicit; you can change the direction.").
+dialogue_move_text(explain_move, it, "È un metodo proposto a partire da ciò che hai introdotto, non una conclusione sulla sua verità. Serve a rendere esplicito il prossimo assunto o dato da osservare; puoi cambiare direzione.").
+dialogue_standalone(respect_stop).
+dialogue_standalone(ask_anchor).
+
+dialogue_move_need(adapt_constraint, constraint).
+dialogue_move_text(adapt_constraint, en, "Keep this constraint attached to the proposal. Reduce the scope of the next attempt until it fits; if nothing fits, we should change the proposal rather than ignore the limit.").
+dialogue_move_text(adapt_constraint, it, "Teniamo questo vincolo legato alla proposta. Riduciamo il prossimo tentativo finché ci rientra; se non è possibile, cambiamo proposta invece di ignorare il limite.").
+dialogue_move_need(apply_criterion, criterion).
+dialogue_move_text(apply_criterion, en, "Use this criterion to compare the alternatives. It expresses what matters to you; it does not by itself establish which alternative satisfies it.").
+dialogue_move_text(apply_criterion, it, "Usiamo questo criterio per confrontare le alternative. Esprime ciò che conta per te; da solo non dimostra quale alternativa lo soddisfi.").
+dialogue_move_need(assess_observation, observed_result).
+dialogue_move_text(assess_observation, en, "Keep the observation separate from its explanation. Compare it with what the proposal predicted and identify what it supports, what it challenges and what remains undecided.").
+dialogue_move_text(assess_observation, it, "Teniamo separata l osservazione dalla sua spiegazione. Confrontiamola con ciò che la proposta prevedeva: che cosa sostiene, che cosa mette in dubbio e che cosa resta da decidere?").
+dialogue_move_need(check_correction, meaning).
+dialogue_move_text(check_correction, en, "Thank you for the correction. Let us use this wording to check the direction before continuing; the earlier interpretation must not silently decide the next step.").
+dialogue_move_text(check_correction, it, "Grazie della correzione. Usiamo questa formulazione per verificare la direzione prima di proseguire; la lettura precedente non deve decidere in silenzio il prossimo passo.").
+dialogue_move_need(examine_example, example).
+dialogue_move_text(examine_example, en, "Let us work on this example. Identify the relevant parts and where the uncertainty begins; one example illustrates a claim but does not establish a universal rule.").
+dialogue_move_text(examine_example, it, "Lavoriamo su questo esempio. Individuiamo le parti rilevanti e il punto in cui comincia l incertezza; un esempio illustra una tesi ma non dimostra una regola universale.").
+dialogue_need_words(outcome, en, "the result you want").
+dialogue_need_words(outcome, it, "il risultato desiderato").
+dialogue_need_name("the result you want", outcome).
+dialogue_need_name("il risultato desiderato", outcome).
+dialogue_need_words(first_action, en, "a small action to try").
+dialogue_need_words(first_action, it, "una piccola azione da provare").
+dialogue_need_name("a small action to try", first_action).
+dialogue_need_name("una piccola azione da provare", first_action).
+dialogue_need_words(constraint, en, "the limit the proposal must respect").
+dialogue_need_words(constraint, it, "il limite da rispettare").
+dialogue_need_name("the limit the proposal must respect", constraint).
+dialogue_need_name("il limite da rispettare", constraint).
+dialogue_need_words(observed_result, en, "the result actually observed").
+dialogue_need_words(observed_result, it, "il risultato osservato").
+dialogue_need_name("the result actually observed", observed_result).
+dialogue_need_name("il risultato osservato", observed_result).
+dialogue_need_words(starting_point, en, "your current starting point").
+dialogue_need_words(starting_point, it, "il tuo punto di partenza").
+dialogue_need_name("your current starting point", starting_point).
+dialogue_need_name("il tuo punto di partenza", starting_point).
+dialogue_need_words(attempt, en, "a concrete attempt").
+dialogue_need_words(attempt, it, "un tentativo concreto").
+dialogue_need_name("a concrete attempt", attempt).
+dialogue_need_name("un tentativo concreto", attempt).
+dialogue_need_words(difference, en, "the difference between expected and observed").
+dialogue_need_words(difference, it, "la differenza fra atteso e osservato").
+dialogue_need_name("the difference between expected and observed", difference).
+dialogue_need_name("la differenza fra atteso e osservato", difference).
+dialogue_need_words(criterion, en, "the criterion for judging the options").
+dialogue_need_words(criterion, it, "il criterio di confronto").
+dialogue_need_name("the criterion for judging the options", criterion).
+dialogue_need_name("il criterio di confronto", criterion).
+dialogue_need_words(alternatives, en, "the available alternatives").
+dialogue_need_words(alternatives, it, "le alternative disponibili").
+dialogue_need_name("the available alternatives", alternatives).
+dialogue_need_name("le alternative disponibili", alternatives).
+dialogue_need_words(reversibility, en, "a way to compare without committing too early").
+dialogue_need_words(reversibility, it, "un confronto senza impegnarsi prematuramente").
+dialogue_need_name("a way to compare without committing too early", reversibility).
+dialogue_need_name("un confronto senza impegnarsi prematuramente", reversibility).
+dialogue_need_words(question, en, "what we want to investigate").
+dialogue_need_words(question, it, "che cosa vogliamo indagare").
+dialogue_need_name("what we want to investigate", question).
+dialogue_need_name("che cosa vogliamo indagare", question).
+dialogue_need_words(meaning, en, "the meaning being used").
+dialogue_need_words(meaning, it, "il significato usato").
+dialogue_need_name("the meaning being used", meaning).
+dialogue_need_name("il significato usato", meaning).
+dialogue_need_words(assumptions, en, "the assumptions the conclusion depends on").
+dialogue_need_words(assumptions, it, "gli assunti da cui dipende la conclusione").
+dialogue_need_name("the assumptions the conclusion depends on", assumptions).
+dialogue_need_name("gli assunti da cui dipende la conclusione", assumptions).
+dialogue_need_words(counterexample, en, "a case that could challenge the claim").
+dialogue_need_words(counterexample, it, "un caso che possa mettere in dubbio la tesi").
+dialogue_need_name("a case that could challenge the claim", counterexample).
+dialogue_need_name("un caso che possa mettere in dubbio la tesi", counterexample).
+dialogue_need_words(scope, en, "the conditions under which the claim holds").
+dialogue_need_words(scope, it, "le condizioni in cui vale la tesi").
+dialogue_need_name("the conditions under which the claim holds", scope).
+dialogue_need_name("le condizioni in cui vale la tesi", scope).
+dialogue_need_words(symptom, en, "the difficulty actually observed").
+dialogue_need_words(symptom, it, "la difficoltà osservata").
+dialogue_need_name("the difficulty actually observed", symptom).
+dialogue_need_name("la difficoltà osservata", symptom).
+dialogue_need_words(reproduction, en, "whether the difficulty can be reproduced").
+dialogue_need_words(reproduction, it, "se la difficoltà si riproduce").
+dialogue_need_name("whether the difficulty can be reproduced", reproduction).
+dialogue_need_name("se la difficoltà si riproduce", reproduction).
+dialogue_need_words(test, en, "a test that can distinguish explanations").
+dialogue_need_words(test, it, "una prova che distingua le spiegazioni").
+dialogue_need_name("a test that can distinguish explanations", test).
+dialogue_need_name("una prova che distingua le spiegazioni", test).
+dialogue_need_words(priority, en, "what matters first to you").
+dialogue_need_words(priority, it, "ciò che conta per primo per te").
+dialogue_need_name("what matters first to you", priority).
+dialogue_need_name("ciò che conta per primo per te", priority).
+dialogue_need_words(limit, en, "a stopping point").
+dialogue_need_words(limit, it, "un punto di arresto").
+dialogue_need_name("a stopping point", limit).
+dialogue_need_name("un punto di arresto", limit).
+dialogue_need_words(desired_support, en, "the kind of support you want").
+dialogue_need_words(desired_support, it, "il tipo di sostegno desiderato").
+dialogue_need_name("the kind of support you want", desired_support).
+dialogue_need_name("il tipo di sostegno desiderato", desired_support).
+dialogue_need_words(experience, en, "the experience you want to share").
+dialogue_need_words(experience, it, "l esperienza che vuoi condividere").
+dialogue_need_name("the experience you want to share", experience).
+dialogue_need_name("l esperienza che vuoi condividere", experience).
+dialogue_need_words(need, en, "the need behind the experience").
+dialogue_need_words(need, it, "il bisogno legato all esperienza").
+dialogue_need_name("the need behind the experience", need).
+dialogue_need_name("il bisogno legato all esperienza", need).
+dialogue_need_words(choice_of_support, en, "whether to act or keep listening").
+dialogue_need_words(choice_of_support, it, "se agire o continuare ad ascoltare").
+dialogue_need_name("whether to act or keep listening", choice_of_support).
+dialogue_need_name("se agire o continuare ad ascoltare", choice_of_support).
+dialogue_need_words(observation, en, "what was actually said or done").
+dialogue_need_words(observation, it, "ciò che è stato detto o fatto").
+dialogue_need_name("what was actually said or done", observation).
+dialogue_need_name("ciò che è stato detto o fatto", observation).
+dialogue_need_words(interests, en, "the interests involved").
+dialogue_need_words(interests, it, "gli interessi coinvolti").
+dialogue_need_name("the interests involved", interests).
+dialogue_need_name("gli interessi coinvolti", interests).
+dialogue_need_words(request, en, "a concrete request").
+dialogue_need_words(request, it, "una richiesta concreta").
+dialogue_need_name("a concrete request", request).
+dialogue_need_name("una richiesta concreta", request).
+dialogue_need_words(confirmation, en, "whether the other position was understood").
+dialogue_need_words(confirmation, it, "se la posizione altrui è stata capita").
+dialogue_need_name("whether the other position was understood", confirmation).
+dialogue_need_name("se la posizione altrui è stata capita", confirmation).
+dialogue_need_words(seed, en, "a starting point for the creation").
+dialogue_need_words(seed, it, "un punto di partenza per creare").
+dialogue_need_name("a starting point for the creation", seed).
+dialogue_need_name("un punto di partenza per creare", seed).
+dialogue_need_words(variation, en, "a meaningful variation").
+dialogue_need_words(variation, it, "una variazione significativa").
+dialogue_need_name("a meaningful variation", variation).
+dialogue_need_name("una variazione significativa", variation).
+dialogue_need_words(selection, en, "the effect the chosen version should serve").
+dialogue_need_words(selection, it, "l effetto che la versione scelta deve servire").
+dialogue_need_name("the effect the chosen version should serve", selection).
+dialogue_need_name("l effetto che la versione scelta deve servire", selection).
+dialogue_need_words(revision, en, "a concrete revision").
+dialogue_need_words(revision, it, "una revisione concreta").
+dialogue_need_name("a concrete revision", revision).
+dialogue_need_name("una revisione concreta", revision).
+dialogue_need_words(withdrawal, en, "the withdrawal of the proposal").
+dialogue_need_words(withdrawal, it, "il ritiro della proposta").
+dialogue_need_name("the withdrawal of the proposal", withdrawal).
+dialogue_need_name("il ritiro della proposta", withdrawal).
+dialogue_need_words(anchor, en, "the topic to return to").
+dialogue_need_words(anchor, it, "il tema da riprendere").
+dialogue_need_name("the topic to return to", anchor).
+dialogue_need_name("il tema da riprendere", anchor).
+dialogue_need_words(rationale, en, "the reason for a proposed move").
+dialogue_need_words(rationale, it, "il motivo della mossa proposta").
+dialogue_need_name("the reason for a proposed move", rationale).
+dialogue_need_name("il motivo della mossa proposta", rationale).
+dialogue_need_words(example, en, "a concrete example").
+dialogue_need_words(example, it, "un esempio concreto").
+dialogue_need_name("a concrete example", example).
+dialogue_need_name("un esempio concreto", example).
+dialogue_detail_open(en, "You added: ").
+dialogue_detail_open(it, "Hai aggiunto: ").
+dialogue_detail_close(en, ". ").
+dialogue_detail_close(it, ". ").
+dialogue_reason_open(en, "I proposed that step to make explicit ").
+dialogue_reason_open(it, "Ho proposto quel passo per rendere esplicito ").
+dialogue_reason_close(en, ". This is the purpose of the method, not proof that its outcome is true.").
+dialogue_reason_close(it, ". È lo scopo del metodo, non la prova che il suo esito sia vero.").

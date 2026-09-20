@@ -1,0 +1,30 @@
+# Sonda di conversazione, non certificazione di comprensione universale.
+# LANGX=it python3 scripts/p0t-echo.py tests/probes/rational_philosopher.it.p0t
+# Il driver mostra parole e tempi; non verifica attese e non fa reset impliciti.
+> vorrei imparare a dipingere
+? dialogue_seen _ _ _
+> continua
+> ho solo dieci minuti
+? dialogue_detail _ _ _
+> perché
+> no grazie
+> continua
+> sono indeciso tra leggere e passeggiare
+> per me conta riposare
+> continua
+> mi interessa il tempo
+> continua
+> perché
+> non so da dove cominciare
+> mi sento frustrato
+> no grazie
+> ho un idea per un racconto
+> continua
+# Controlli: una menzione, una citazione e un calcolo non sono inviti al metodo.
+> maria dice che vorrei imparare a dipingere
+> "vorrei imparare a dipingere"
+> quanto fa 2 più 3
+# F1 storico resta da misurare: il nuovo circuito non lo dichiara chiuso.
+> sai parlare italiano
+> quali parole conosci che possono sorprendermi
+> in quale lingua ti ho chiesto quale lingua sai parlare

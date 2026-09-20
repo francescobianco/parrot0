@@ -1,0 +1,31 @@
+# Sonda di insegnabilita'. Gli acknowledgement NON contano come successo.
+# python3 scripts/p0t-echo.py tests/probes/rational_philosopher.en.p0t
+> i want to learn to paint
+> continue
+> my constraint is ten minutes
+> why
+> no thanks
+> continue
+# Una nuova forma: prima, lezione, replay, trasferimento, ritiro, replay.
+> let us study pottery
+> when i say let us study i mean wanting to learn
+> let us study pottery
+> let us study algebra
+> forget that when i say let us study i mean wanting to learn
+> let us study pottery
+# Una nuova mossa e una nuova policy, tutte in lingua naturale.
+> the conversational move careful beginning addresses a concrete example
+> for the conversational move careful beginning say Show one example.
+> when guiding learning start with careful beginning
+> i want to learn to paint
+> why
+> forget that when guiding learning start with careful beginning
+> i want to learn to paint
+# Controesempi gia' osservati: non rimuoverli per rendere verde il resoconto.
+> when i say i am keen to i mean wanting to learn
+> i am keen to draw
+> for the conversational move careful beginning say Show one example and explain what is unclear.
+> when guiding learning start with careful beginning
+> i want to learn to paint
+> forget that when guiding learning start with careful beginning
+> forget that when i say i am keen to i mean wanting to learn

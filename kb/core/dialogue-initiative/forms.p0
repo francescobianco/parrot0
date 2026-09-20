@@ -1,0 +1,396 @@
+% Forme di atti, non risposte per argomento. Payload arbitrario.
+% La lettura controlla inizio, ordine e fine sui token della IR condivisa.
+
+dialogue_shape(goal, rest).
+dialogue_act_name("expressing a goal", goal).
+dialogue_act_name("esprimere un obiettivo", goal).
+dialogue_task(goal, planning).
+dialogue_opening("i want to", goal).
+dialogue_opening("i would like to", goal).
+dialogue_opening("my goal is", goal).
+dialogue_opening("i am trying to", goal).
+dialogue_opening("i intend to", goal).
+dialogue_opening("i hope to", goal).
+dialogue_opening("i need to", goal).
+dialogue_opening("i wish to", goal).
+dialogue_opening("vorrei", goal).
+dialogue_opening("voglio", goal).
+dialogue_opening("il mio obiettivo è", goal).
+dialogue_opening("il mio obiettivo e", goal).
+dialogue_opening("sto cercando di", goal).
+dialogue_opening("intendo", goal).
+dialogue_opening("mi piacerebbe", goal).
+dialogue_opening("ho bisogno di", goal).
+
+dialogue_shape(learn, rest).
+dialogue_act_name("wanting to learn", learn).
+dialogue_act_name("voler imparare", learn).
+dialogue_task(learn, learning).
+dialogue_opening("i want to learn", learn).
+dialogue_opening("i would like to learn", learn).
+dialogue_opening("i am learning", learn).
+dialogue_opening("i need to understand", learn).
+dialogue_opening("teach me about", learn).
+dialogue_opening("help me understand", learn).
+dialogue_opening("i am studying", learn).
+dialogue_opening("vorrei imparare", learn).
+dialogue_opening("voglio imparare", learn).
+dialogue_opening("sto imparando", learn).
+dialogue_opening("sto studiando", learn).
+dialogue_opening("vorrei capire", learn).
+dialogue_opening("aiutami a capire", learn).
+dialogue_opening("voglio capire", learn).
+dialogue_opening("mi piacerebbe imparare", learn).
+
+dialogue_shape(choice, rest).
+dialogue_act_name("facing a choice", choice).
+dialogue_act_name("affrontare una scelta", choice).
+dialogue_task(choice, choice).
+dialogue_opening("i am choosing between", choice).
+dialogue_opening("i need to choose", choice).
+dialogue_opening("i am torn between", choice).
+dialogue_opening("i cannot decide between", choice).
+dialogue_opening("help me choose", choice).
+dialogue_opening("i have to decide", choice).
+dialogue_opening("i am undecided about", choice).
+dialogue_opening("sono indeciso tra", choice).
+dialogue_opening("sono indecisa tra", choice).
+dialogue_opening("devo scegliere", choice).
+dialogue_opening("devo decidere", choice).
+dialogue_opening("aiutami a scegliere", choice).
+dialogue_opening("non so scegliere tra", choice).
+dialogue_opening("sono combattuto tra", choice).
+dialogue_opening("sono combattuta tra", choice).
+
+dialogue_shape(curiosity, rest).
+dialogue_act_name("exploring an interest", curiosity).
+dialogue_act_name("esplorare un interesse", curiosity).
+dialogue_task(curiosity, inquiry).
+dialogue_opening("i am curious about", curiosity).
+dialogue_opening("i am interested in", curiosity).
+dialogue_opening("i wonder about", curiosity).
+dialogue_opening("i keep thinking about", curiosity).
+dialogue_opening("let us explore", curiosity).
+dialogue_opening("let s explore", curiosity).
+dialogue_opening("i would like to explore", curiosity).
+dialogue_opening("mi interessa", curiosity).
+dialogue_opening("sono curioso di", curiosity).
+dialogue_opening("sono curiosa di", curiosity).
+dialogue_opening("mi incuriosisce", curiosity).
+dialogue_opening("continuo a pensare a", curiosity).
+dialogue_opening("esploriamo", curiosity).
+dialogue_opening("vorrei esplorare", curiosity).
+dialogue_opening("mi domando", curiosity).
+
+dialogue_shape(reflect, rest).
+dialogue_act_name("opening a reflection", reflect).
+dialogue_act_name("aprire una riflessione", reflect).
+dialogue_task(reflect, reflection).
+dialogue_opening("what do you think about", reflect).
+dialogue_opening("what do you think of", reflect).
+dialogue_opening("i am reflecting on", reflect).
+dialogue_opening("i want to reflect on", reflect).
+dialogue_opening("let us think about", reflect).
+dialogue_opening("what is your view on", reflect).
+dialogue_opening("cosa pensi della", reflect).
+dialogue_opening("cosa pensi del", reflect).
+dialogue_opening("cosa pensi di", reflect).
+dialogue_opening("che cosa pensi di", reflect).
+dialogue_opening("secondo te", reflect).
+dialogue_opening("sto riflettendo su", reflect).
+dialogue_opening("riflettiamo su", reflect).
+dialogue_opening("vorrei riflettere su", reflect).
+
+dialogue_shape(problem, rest).
+dialogue_act_name("reporting a difficulty", problem).
+dialogue_act_name("segnalare una difficoltà", problem).
+dialogue_task(problem, problem).
+dialogue_opening("i am struggling with", problem).
+dialogue_opening("i am stuck on", problem).
+dialogue_opening("i cannot make sense of", problem).
+dialogue_opening("i have a problem with", problem).
+dialogue_opening("i cannot get", problem).
+dialogue_opening("help me with", problem).
+dialogue_opening("i keep failing at", problem).
+dialogue_opening("non riesco a", problem).
+dialogue_opening("sono bloccato su", problem).
+dialogue_opening("sono bloccata su", problem).
+dialogue_opening("ho difficoltà con", problem).
+dialogue_opening("ho difficolta con", problem).
+dialogue_opening("ho un problema con", problem).
+dialogue_opening("faccio fatica a", problem).
+dialogue_opening("non mi riesce", problem).
+
+dialogue_shape(overload, whole).
+dialogue_act_name("feeling overwhelmed", overload).
+dialogue_act_name("sentirsi sopraffatti", overload).
+dialogue_task(overload, overload).
+dialogue_opening("i do not know where to start", overload).
+dialogue_opening("i don t know where to start", overload).
+dialogue_opening("i am overwhelmed", overload).
+dialogue_opening("there is too much to do", overload).
+dialogue_opening("everything feels too much", overload).
+dialogue_opening("i have too many things to do", overload).
+dialogue_opening("non so da dove cominciare", overload).
+dialogue_opening("non so da dove iniziare", overload).
+dialogue_opening("ho troppe cose da fare", overload).
+dialogue_opening("mi sento sopraffatto", overload).
+dialogue_opening("mi sento sopraffatta", overload).
+dialogue_opening("non so più da dove partire", overload).
+dialogue_opening("non so piu da dove partire", overload).
+dialogue_opening("non so cosa fare", overload).
+
+dialogue_shape(emotion, rest).
+dialogue_act_name("sharing an experience", emotion).
+dialogue_act_name("condividere un vissuto", emotion).
+dialogue_task(emotion, emotional).
+dialogue_opening("i feel", emotion).
+dialogue_opening("i am feeling", emotion).
+dialogue_opening("i am worried about", emotion).
+dialogue_opening("i am disappointed about", emotion).
+dialogue_opening("i am afraid of", emotion).
+dialogue_opening("i feel upset about", emotion).
+dialogue_opening("mi sento", emotion).
+dialogue_opening("mi preoccupa", emotion).
+dialogue_opening("sono preoccupato per", emotion).
+dialogue_opening("sono preoccupata per", emotion).
+dialogue_opening("mi dispiace per", emotion).
+dialogue_opening("ho paura di", emotion).
+dialogue_opening("sono deluso da", emotion).
+dialogue_opening("sono delusa da", emotion).
+
+dialogue_shape(conflict, rest).
+dialogue_act_name("describing a disagreement", conflict).
+dialogue_act_name("descrivere un disaccordo", conflict).
+dialogue_task(conflict, conflict).
+dialogue_opening("i disagree with", conflict).
+dialogue_opening("i had an argument with", conflict).
+dialogue_opening("i am in conflict with", conflict).
+dialogue_opening("we disagree about", conflict).
+dialogue_opening("i cannot agree with", conflict).
+dialogue_opening("i argued with", conflict).
+dialogue_opening("non sono d accordo con", conflict).
+dialogue_opening("ho litigato con", conflict).
+dialogue_opening("siamo in disaccordo su", conflict).
+dialogue_opening("sono in conflitto con", conflict).
+dialogue_opening("non riesco a parlare con", conflict).
+dialogue_opening("abbiamo litigato per", conflict).
+
+dialogue_shape(create, rest).
+dialogue_act_name("starting a creation", create).
+dialogue_act_name("iniziare una creazione", create).
+dialogue_task(create, creation).
+dialogue_opening("i have an idea for", create).
+dialogue_opening("i want to invent", create).
+dialogue_opening("i would like to create", create).
+dialogue_opening("i am imagining", create).
+dialogue_opening("here is an idea for", create).
+dialogue_opening("let us invent", create).
+dialogue_opening("ho un idea per", create).
+dialogue_opening("vorrei inventare", create).
+dialogue_opening("vorrei creare", create).
+dialogue_opening("sto immaginando", create).
+dialogue_opening("mi è venuta un idea per", create).
+dialogue_opening("mi e venuta un idea per", create).
+dialogue_opening("inventiamo", create).
+dialogue_opening("immaginiamo", create).
+
+dialogue_shape(hypothesis, rest).
+dialogue_act_name("considering a hypothesis", hypothesis).
+dialogue_act_name("considerare un ipotesi", hypothesis).
+dialogue_task(hypothesis, reflection).
+dialogue_opening("let us suppose", hypothesis).
+dialogue_opening("let s suppose", hypothesis).
+dialogue_opening("i am considering the possibility that", hypothesis).
+dialogue_opening("as a hypothesis", hypothesis).
+dialogue_opening("let us assume", hypothesis).
+dialogue_opening("supponiamo che", hypothesis).
+dialogue_opening("ipotizziamo che", hypothesis).
+dialogue_opening("come ipotesi", hypothesis).
+dialogue_opening("sto considerando la possibilità che", hypothesis).
+dialogue_opening("sto considerando la possibilita che", hypothesis).
+
+dialogue_shape(first_step, whole).
+dialogue_act_name("asking for a starting point", first_step).
+dialogue_act_name("chiedere un punto di partenza", first_step).
+dialogue_task(first_step, planning).
+dialogue_opening("where do we start", first_step).
+dialogue_opening("what should we do next", first_step).
+dialogue_opening("help me get started", first_step).
+dialogue_opening("take the lead", first_step).
+dialogue_opening("give me a starting point", first_step).
+dialogue_opening("guide me", first_step).
+dialogue_opening("da dove partiamo", first_step).
+dialogue_opening("cosa facciamo adesso", first_step).
+dialogue_opening("aiutami a cominciare", first_step).
+dialogue_opening("guidami", first_step).
+dialogue_opening("prendi tu l iniziativa", first_step).
+dialogue_opening("dammi un punto di partenza", first_step).
+
+dialogue_shape(continue, whole).
+dialogue_act_name("asking to continue", continue).
+dialogue_act_name("chiedere di continuare", continue).
+dialogue_opening("continue", continue).
+dialogue_opening("go on", continue).
+dialogue_opening("keep going", continue).
+dialogue_opening("what next", continue).
+dialogue_opening("and then", continue).
+dialogue_opening("carry on", continue).
+dialogue_opening("next step", continue).
+dialogue_opening("continua", continue).
+dialogue_opening("prosegui", continue).
+dialogue_opening("vai avanti", continue).
+dialogue_opening("e poi", continue).
+dialogue_opening("e dopo", continue).
+dialogue_opening("passo successivo", continue).
+dialogue_opening("procediamo", continue).
+
+dialogue_shape(accept, whole).
+dialogue_act_name("accepting a proposal", accept).
+dialogue_act_name("accettare una proposta", accept).
+dialogue_opening("yes", accept).
+dialogue_opening("yes please", accept).
+dialogue_opening("okay", accept).
+dialogue_opening("ok", accept).
+dialogue_opening("sounds good", accept).
+dialogue_opening("let us try", accept).
+dialogue_opening("let s try", accept).
+dialogue_opening("agreed", accept).
+dialogue_opening("va bene", accept).
+dialogue_opening("sì", accept).
+dialogue_opening("si", accept).
+dialogue_opening("d accordo", accept).
+dialogue_opening("proviamo", accept).
+dialogue_opening("facciamolo", accept).
+dialogue_opening("ci sto", accept).
+
+dialogue_shape(reject, whole).
+dialogue_act_name("declining a proposal", reject).
+dialogue_act_name("rifiutare una proposta", reject).
+dialogue_opening("no", reject).
+dialogue_opening("no thanks", reject).
+dialogue_opening("not now", reject).
+dialogue_opening("leave it", reject).
+dialogue_opening("stop", reject).
+dialogue_opening("never mind", reject).
+dialogue_opening("no thank you", reject).
+dialogue_opening("non ora", reject).
+dialogue_opening("no grazie", reject).
+dialogue_opening("lascia stare", reject).
+dialogue_opening("fermati", reject).
+dialogue_opening("basta", reject).
+dialogue_opening("non voglio consigli", reject).
+dialogue_opening("non darmi consigli", reject).
+dialogue_opening("preferisco fermarmi", reject).
+
+dialogue_shape(explain, whole).
+dialogue_act_name("asking for the reason of a move", explain).
+dialogue_act_name("chiedere il motivo di una mossa", explain).
+dialogue_opening("why", explain).
+dialogue_opening("why this step", explain).
+dialogue_opening("why do you suggest that", explain).
+dialogue_opening("what is your reason", explain).
+dialogue_opening("why are you asking", explain).
+dialogue_opening("perché", explain).
+dialogue_opening("perche", explain).
+dialogue_opening("perché questo passo", explain).
+dialogue_opening("perche questo passo", explain).
+dialogue_opening("perché me lo chiedi", explain).
+dialogue_opening("perche me lo chiedi", explain).
+dialogue_opening("perché lo proponi", explain).
+dialogue_opening("perche lo proponi", explain).
+
+dialogue_shape(constraint, rest).
+dialogue_act_name("adding a constraint", constraint).
+dialogue_act_name("aggiungere un vincolo", constraint).
+dialogue_opening("my constraint is", constraint).
+dialogue_opening("the constraint is", constraint).
+dialogue_opening("i can only", constraint).
+dialogue_opening("i have only", constraint).
+dialogue_opening("the limit is", constraint).
+dialogue_opening("we must avoid", constraint).
+dialogue_opening("il vincolo è", constraint).
+dialogue_opening("il vincolo e", constraint).
+dialogue_opening("il limite è", constraint).
+dialogue_opening("il limite e", constraint).
+dialogue_opening("posso solo", constraint).
+dialogue_opening("ho solo", constraint).
+dialogue_opening("dobbiamo evitare", constraint).
+
+dialogue_shape(criterion, rest).
+dialogue_act_name("adding a criterion", criterion).
+dialogue_act_name("aggiungere un criterio", criterion).
+dialogue_opening("what matters to me is", criterion).
+dialogue_opening("my priority is", criterion).
+dialogue_opening("the criterion is", criterion).
+dialogue_opening("i care about", criterion).
+dialogue_opening("success means", criterion).
+dialogue_opening("per me conta", criterion).
+dialogue_opening("la mia priorità è", criterion).
+dialogue_opening("la mia priorita e", criterion).
+dialogue_opening("il criterio è", criterion).
+dialogue_opening("il criterio e", criterion).
+dialogue_opening("considero un successo", criterion).
+dialogue_opening("mi importa", criterion).
+
+dialogue_shape(evidence, rest).
+dialogue_act_name("adding evidence", evidence).
+dialogue_act_name("aggiungere un osservazione", evidence).
+dialogue_opening("i noticed that", evidence).
+dialogue_opening("what i observed is", evidence).
+dialogue_opening("the result was", evidence).
+dialogue_opening("i found that", evidence).
+dialogue_opening("i tried", evidence).
+dialogue_opening("ho notato che", evidence).
+dialogue_opening("ho osservato che", evidence).
+dialogue_opening("il risultato è", evidence).
+dialogue_opening("il risultato e", evidence).
+dialogue_opening("ho provato", evidence).
+dialogue_opening("ho scoperto che", evidence).
+
+dialogue_shape(correction, rest).
+dialogue_act_name("correcting the direction", correction).
+dialogue_act_name("correggere la direzione", correction).
+dialogue_opening("actually i mean", correction).
+dialogue_opening("that is not what i meant", correction).
+dialogue_opening("let me correct that", correction).
+dialogue_opening("instead i mean", correction).
+dialogue_opening("in realtà intendo", correction).
+dialogue_opening("in realta intendo", correction).
+dialogue_opening("intendevo", correction).
+dialogue_opening("mi correggo", correction).
+dialogue_opening("piuttosto intendo", correction).
+dialogue_opening("volevo dire", correction).
+
+dialogue_shape(example, rest).
+dialogue_act_name("providing an example", example).
+dialogue_act_name("portare un esempio", example).
+dialogue_opening("for example", example).
+dialogue_opening("for instance", example).
+dialogue_opening("here is an example", example).
+dialogue_opening("a concrete case is", example).
+dialogue_opening("per esempio", example).
+dialogue_opening("ad esempio", example).
+dialogue_opening("un esempio è", example).
+dialogue_opening("un esempio e", example).
+dialogue_opening("un caso concreto è", example).
+dialogue_opening("un caso concreto e", example).
+dialogue_uptake(continue, advance).
+dialogue_uptake(accept, advance).
+dialogue_uptake(constraint, update).
+dialogue_uptake(criterion, update).
+dialogue_uptake(evidence, update).
+dialogue_uptake(correction, update).
+dialogue_uptake(example, update).
+dialogue_uptake(reject, stop).
+dialogue_detail_role(constraint, constraint).
+dialogue_detail_role(criterion, criterion).
+dialogue_detail_role(evidence, observation).
+dialogue_detail_role(correction, correction).
+dialogue_detail_role(example, example).
+
+dialogue_update_move(constraint, adapt_constraint).
+dialogue_update_move(criterion, apply_criterion).
+dialogue_update_move(evidence, assess_observation).
+dialogue_update_move(correction, check_correction).
+dialogue_update_move(example, examine_example).

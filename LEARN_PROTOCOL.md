@@ -1,5 +1,74 @@
 # Protocollo operativo di addestramento di parrot0
 
+## Aggiornamento 20 settembre 2026 — insegnare aperture, mosse e iniziativa
+
+**Stato: primo circuito operativo, con limiti noti.** Il passaggio di consegne
+e le prove da completare sono **in testa a
+[`docs/plans/the-rational-philosopher.md`](docs/plans/the-rational-philosopher.md)**.
+Il circuito è `kb/core/dialogue-initiative.p0` e i suoi tre file inclusi.
+Non considerare la conferma della lezione come prova che il turno successivo
+la userà: leggere sempre replay, trasferimento e ritrattazione.
+
+### Forme nuove e grado di verifica
+
+| cosa si insegna | lezione pronunciabile | ritrattazione | evidenza attuale |
+|---|---|---|---|
+| una nuova apertura di apprendimento | `when i say let us study i mean wanting to learn` | `forget that when i say let us study i mean wanting to learn` | `let us study pottery` usa il circuito dopo la lezione e perde quella lettura dopo il ritiro; il fallback legacy può imparare un fatto improprio |
+| il bisogno di una nuova mossa | `the conversational move careful beginning addresses a concrete example` | `forget that the conversational move careful beginning addresses a concrete example` | la mossa nuova è stata usata e `why` ha nominato il bisogno; il ritiro di questa singola componente resta da provare |
+| le parole di una mossa | `for the conversational move careful beginning say Show one example.` | `forget that for the conversational move careful beginning say Show one example.` | il percorso di resa è stato usato; **una versione con `and` ha perso la seconda parte**, quindi la fedeltà generale è ancora aperta |
+| la prima mossa di un'attività | `when guiding learning start with careful beginning` | `forget that when guiding learning start with careful beginning` | dopo la lezione `i want to learn to paint` usa la mossa insegnata; dopo il ritiro torna la mossa di base |
+
+Le quattro lezioni si compongono: nominare una mossa e il suo bisogno,
+insegnarne la resa, scegliere quando usarla, insegnare una nuova apertura
+dello stesso atto. Non occorre conoscere predicati, arità o tuple interne.
+I nomi delle attività disponibili includono `learning`, `planning`,
+`a choice`, `an inquiry`, `a reflection`, `a difficulty`, `overload`,
+`an experience`, `a disagreement`, `a creation`. I nomi degli atti sono
+consultabili in `forms.p0`; i bisogni pronunciabili in `moves.p0`.
+
+Sono dichiarate anche forme italiane, **non ancora verificate end-to-end**:
+
+```text
+quando dico studiamo insieme intendo voler imparare
+la mossa conversazionale partenza concreta riguarda un esempio concreto
+per la mossa conversazionale partenza concreta di Mostrami un esempio.
+quando guidi apprendimento inizia con partenza concreta
+```
+
+La ritrattazione italiana premette `dimentica che` alla stessa lezione.
+Verificare queste forme prima di inserirle in un lotto di training reale:
+canonicalizzazione e concorrenza tra lettori possono impedirne l'effetto.
+
+### Ciclo minimo da eseguire
+
+1. Provare una formulazione non ancora dichiarata e conservare risposta e modulo.
+2. Insegnarla in lingua naturale, senza API mascherate nel prompt.
+3. Ripetere lo stesso turno e poi cambiare argomento: la nuova forma deve
+   portare lo stesso ruolo a un contenuto diverso, non ripetere una frase.
+4. Provare `continue`, un vincolo esplicito, `why`, `no thanks`, `continue`.
+   Il vincolo deve cambiare la proposta pertinente; il rifiuto deve fermarla.
+5. Ritirare la lezione precisa e ripetere il turno. Distinguere la scomparsa
+   dell'effetto insegnato dall'eventuale difetto del fallback rimasto.
+6. Per una mossa nuova, ritirare separatamente apertura, policy, bisogno e
+   resa. Non chiamare completo il circuito finché uno di questi ritiri può
+   lasciare una promessa priva di comportamento o una resa mutilata.
+
+**Controesempio da non nascondere:** insegnare `i am keen to` con l'atto
+`wanting to learn` registra la forma, ma il replay osservato è stato risposto
+da `smalltalk`. La nuova porta è fertile su alcuni casi, non ancora affidabile
+su tutte le forme. Le sonde durature sono
+`tests/probes/rational_philosopher.en.p0t` e `.it.p0t`; il driver
+`scripts/p0t-echo.py` ne mostra i transcript ma non certifica le attese.
+Persistenza con `/save` e rilettura in un processo nuovo **non ancora
+verificate per queste lezioni**: le prove riportate riguardano il runtime.
+
+**Criterio di progetto aggiunto al mantra #26:** ampliare lo strato di
+insegnabilità avvalora un'ipotesi e una soluzione. Richiede una nuova lezione
+possibile, un cambiamento effettivo della condotta, trasferimento e ablazione;
+non basta aggiungere parametri o una risposta configurabile. Ogni nuova porta
+va documentata qui con ciò che si può dire, che cosa cambia e che cosa resta
+incerto.
+
 > **Regola vigente — KB viva (13 settembre 2026).** parrot0 è il motore con
 > la KB completa del profilo scelto; la sua crescita è crescita della KB.
 > Non esistono modalità ermetiche o interruttori dei fatti del mondo.

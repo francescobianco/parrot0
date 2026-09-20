@@ -750,6 +750,40 @@ prompt senza chiudere la sua classe non conta come progresso.
     un SOGGETTO diverso?»* È sempre la prima: e una vista si ottiene con uno
     strato, mai con un altro cervello.
 
+26. **⛔ UNA SOLUZIONE VALE DI PIÙ SE AMPLIA CIÒ CHE SI PUÒ INSEGNARE.**
+
+    F., 20 settembre 2026, durante il lavoro sul filosofo razionale: espandere
+    lo strato di insegnabilità avvalora un'ipotesi e una soluzione. Il valore
+    non è soltanto il caso risolto: è la nuova distinzione che un interlocutore
+    potrà insegnare domani, senza conoscere lo schema interno e senza cambiare
+    il motore.
+
+    **Il test prima della proposta:** *«dopo questa modifica, quale lezione
+    nuova potrà ricevere parrot0, e quale comportamento potrà cambiare grazie
+    a quella lezione?»* Scrivere la lezione in lingua naturale, il trasferimento
+    a un caso diverso e la ritrattazione che deve toglierne l'effetto. Se non
+    si riesce a farlo, non chiamare la soluzione «più generale» soltanto perché
+    ha più parametri, più righe di KB o nomi più astratti.
+
+    **Non basta rendere insegnabile una parola.** Chiedersi se la stessa porta
+    permetta di insegnare un ruolo, una condizione d'uso, una mossa, il motivo
+    per sceglierla e la sua resa. Una soluzione fertile apre composizioni fra
+    queste distinzioni: la nuova superficie arriva a una condotta già
+    interpretabile; la nuova condotta riusa lettura, contesto e inferenza.
+    Evitare un teach-handler C per ciascuna nuova capacità.
+
+    **È un criterio di selezione, non una prova automatica di verità.**
+    L'insegnabilità avvalora l'ipotesi solo se le lezioni cambiano davvero il
+    comportamento e conservano correttezza, pertinenza e provenienza. Una
+    risposta falsa diventata configurabile resta falsa; una conferma di
+    apprendimento senza replay non è una capacità.
+
+    Quando entra una nuova forma di insegnamento, aggiornare nello stesso
+    lavoro `LEARN_PROTOCOL.md` con sintassi pronunciabile, esempio verificato,
+    effetto, ritrattazione e limiti. Distinguere sempre forme operative e
+    contratti ancora progettati. La documentazione è la maniglia con cui il
+    prossimo interlocutore può usare la crescita.
+
 ## Dove sta il resto
 
 - `PRINCIPLES.md` — il *perché* dell'esperimento (la regola anti-inganno).

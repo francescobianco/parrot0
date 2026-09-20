@@ -1,0 +1,174 @@
+% Meta-comprensione: insegnare e ritirare aperture con nomi pronunciabili.
+turn_form(teach_dialogue_opening, 1, text("when i say")).
+turn_form(teach_dialogue_opening, 2, span(surface)).
+turn_form(teach_dialogue_opening, 3, text("i mean")).
+turn_form(teach_dialogue_opening, 4, named(dialogue_act_name, act)).
+turn_form_view(teach_dialogue_opening, said).
+turn_form_priority(teach_dialogue_opening, early).
+turn_form_act(teach_dialogue_opening, "op(assert, dialogue_opening, [surface, act])").
+turn_form_reply(teach_dialogue_opening, dialogue_form_assert).
+turn_form(forget_dialogue_opening, 1, text("forget that when i say")).
+turn_form(forget_dialogue_opening, 2, span(surface)).
+turn_form(forget_dialogue_opening, 3, text("i mean")).
+turn_form(forget_dialogue_opening, 4, named(dialogue_act_name, act)).
+turn_form_view(forget_dialogue_opening, said).
+turn_form_priority(forget_dialogue_opening, early).
+turn_form_act(forget_dialogue_opening, "op(retract, dialogue_opening, [surface, act])").
+turn_form_reply(forget_dialogue_opening, dialogue_form_retract).
+turn_form(teach_dialogue_opening_it, 1, text("quando dico")).
+turn_form(teach_dialogue_opening_it, 2, span(surface)).
+turn_form(teach_dialogue_opening_it, 3, text("intendo")).
+turn_form(teach_dialogue_opening_it, 4, named(dialogue_act_name, act)).
+turn_form_view(teach_dialogue_opening_it, said).
+turn_form_priority(teach_dialogue_opening_it, early).
+turn_form_act(teach_dialogue_opening_it, "op(assert, dialogue_opening, [surface, act])").
+turn_form_reply(teach_dialogue_opening_it, dialogue_form_assert).
+turn_form(forget_dialogue_opening_it, 1, text("dimentica che quando dico")).
+turn_form(forget_dialogue_opening_it, 2, span(surface)).
+turn_form(forget_dialogue_opening_it, 3, text("intendo")).
+turn_form(forget_dialogue_opening_it, 4, named(dialogue_act_name, act)).
+turn_form_view(forget_dialogue_opening_it, said).
+turn_form_priority(forget_dialogue_opening_it, early).
+turn_form_act(forget_dialogue_opening_it, "op(retract, dialogue_opening, [surface, act])").
+turn_form_reply(forget_dialogue_opening_it, dialogue_form_retract).
+response_template(dialogue_form_assert, "I will read that expression with the intention you named.").
+response_template(dialogue_form_assert, it, "Leggerò quella espressione con l intenzione che hai indicato.").
+response_template(dialogue_form_retract, "I have withdrawn that reading of the expression.").
+response_template(dialogue_form_retract, it, "Ho ritirato quella lettura dell espressione.").
+
+dialogue_task_label("planning", planning).
+dialogue_task_label("pianificazione", planning).
+dialogue_task_label("learning", learning).
+dialogue_task_label("apprendimento", learning).
+dialogue_task_label("a choice", choice).
+dialogue_task_label("una scelta", choice).
+dialogue_task_label("an inquiry", inquiry).
+dialogue_task_label("una ricerca", inquiry).
+dialogue_task_label("a reflection", reflection).
+dialogue_task_label("una riflessione", reflection).
+dialogue_task_label("a difficulty", problem).
+dialogue_task_label("una difficoltà", problem).
+dialogue_task_label("overload", overload).
+dialogue_task_label("sovraccarico", overload).
+dialogue_task_label("an experience", emotional).
+dialogue_task_label("un vissuto", emotional).
+dialogue_task_label("a disagreement", conflict).
+dialogue_task_label("un disaccordo", conflict).
+dialogue_task_label("a creation", creation).
+dialogue_task_label("una creazione", creation).
+turn_form(teach_dialogue_first, 1, text("when guiding")).
+turn_form(teach_dialogue_first, 2, named(dialogue_task_label, task)).
+turn_form(teach_dialogue_first, 3, text("start with")).
+turn_form(teach_dialogue_first, 4, rest(move)).
+turn_form_slot_form(teach_dialogue_first, move, atom).
+turn_form_priority(teach_dialogue_first, early).
+turn_form_view(teach_dialogue_first, said).
+turn_form_act(teach_dialogue_first, "op(assert, dialogue_first, [task, move])").
+turn_form_reply(teach_dialogue_first, dialogue_form_assert).
+turn_form(forget_dialogue_first, 1, text("forget that when guiding")).
+turn_form(forget_dialogue_first, 2, named(dialogue_task_label, task)).
+turn_form(forget_dialogue_first, 3, text("start with")).
+turn_form(forget_dialogue_first, 4, rest(move)).
+turn_form_slot_form(forget_dialogue_first, move, atom).
+turn_form_priority(forget_dialogue_first, early).
+turn_form_view(forget_dialogue_first, said).
+turn_form_act(forget_dialogue_first, "op(retract, dialogue_first, [task, move])").
+turn_form_reply(forget_dialogue_first, dialogue_form_retract).
+turn_form(teach_dialogue_first_it, 1, text("quando guidi")).
+turn_form(teach_dialogue_first_it, 2, named(dialogue_task_label, task)).
+turn_form(teach_dialogue_first_it, 3, text("inizia con")).
+turn_form(teach_dialogue_first_it, 4, rest(move)).
+turn_form_slot_form(teach_dialogue_first_it, move, atom).
+turn_form_priority(teach_dialogue_first_it, early).
+turn_form_view(teach_dialogue_first_it, said).
+turn_form_act(teach_dialogue_first_it, "op(assert, dialogue_first, [task, move])").
+turn_form_reply(teach_dialogue_first_it, dialogue_form_assert).
+turn_form(forget_dialogue_first_it, 1, text("dimentica che quando guidi")).
+turn_form(forget_dialogue_first_it, 2, named(dialogue_task_label, task)).
+turn_form(forget_dialogue_first_it, 3, text("inizia con")).
+turn_form(forget_dialogue_first_it, 4, rest(move)).
+turn_form_slot_form(forget_dialogue_first_it, move, atom).
+turn_form_priority(forget_dialogue_first_it, early).
+turn_form_view(forget_dialogue_first_it, said).
+turn_form_act(forget_dialogue_first_it, "op(retract, dialogue_first, [task, move])").
+turn_form_reply(forget_dialogue_first_it, dialogue_form_retract).
+turn_form(teach_dialogue_need, 1, text("the conversational move")).
+turn_form(teach_dialogue_need, 2, span(move)).
+turn_form_slot_form(teach_dialogue_need, move, atom).
+turn_form(teach_dialogue_need, 3, text("addresses")).
+turn_form(teach_dialogue_need, 4, named(dialogue_need_name, need)).
+turn_form_priority(teach_dialogue_need, early).
+turn_form_view(teach_dialogue_need, said).
+turn_form_act(teach_dialogue_need, "op(assert, dialogue_move_need, [move, need])").
+turn_form_reply(teach_dialogue_need, dialogue_form_assert).
+turn_form(forget_dialogue_need, 1, text("forget that the conversational move")).
+turn_form(forget_dialogue_need, 2, span(move)).
+turn_form_slot_form(forget_dialogue_need, move, atom).
+turn_form(forget_dialogue_need, 3, text("addresses")).
+turn_form(forget_dialogue_need, 4, named(dialogue_need_name, need)).
+turn_form_priority(forget_dialogue_need, early).
+turn_form_view(forget_dialogue_need, said).
+turn_form_act(forget_dialogue_need, "op(retract, dialogue_move_need, [move, need])").
+turn_form_reply(forget_dialogue_need, dialogue_form_retract).
+turn_form(teach_dialogue_need_it, 1, text("la mossa conversazionale")).
+turn_form(teach_dialogue_need_it, 2, span(move)).
+turn_form_slot_form(teach_dialogue_need_it, move, atom).
+turn_form(teach_dialogue_need_it, 3, text("riguarda")).
+turn_form(teach_dialogue_need_it, 4, named(dialogue_need_name, need)).
+turn_form_priority(teach_dialogue_need_it, early).
+turn_form_view(teach_dialogue_need_it, said).
+turn_form_act(teach_dialogue_need_it, "op(assert, dialogue_move_need, [move, need])").
+turn_form_reply(teach_dialogue_need_it, dialogue_form_assert).
+turn_form(forget_dialogue_need_it, 1, text("dimentica che la mossa conversazionale")).
+turn_form(forget_dialogue_need_it, 2, span(move)).
+turn_form_slot_form(forget_dialogue_need_it, move, atom).
+turn_form(forget_dialogue_need_it, 3, text("riguarda")).
+turn_form(forget_dialogue_need_it, 4, named(dialogue_need_name, need)).
+turn_form_priority(forget_dialogue_need_it, early).
+turn_form_view(forget_dialogue_need_it, said).
+turn_form_act(forget_dialogue_need_it, "op(retract, dialogue_move_need, [move, need])").
+turn_form_reply(forget_dialogue_need_it, dialogue_form_retract).
+turn_form(teach_dialogue_words, 1, text("for the conversational move")).
+turn_form(teach_dialogue_words, 2, span(move)).
+turn_form_slot_form(teach_dialogue_words, move, atom).
+turn_form(teach_dialogue_words, 3, text("say")).
+turn_form(teach_dialogue_words, 4, rest(words)).
+turn_form_slot_form(teach_dialogue_words, words, mention).
+turn_form(teach_dialogue_words, 5, bind(language, en)).
+turn_form_priority(teach_dialogue_words, early).
+turn_form_view(teach_dialogue_words, said).
+turn_form_act(teach_dialogue_words, "op(assert, dialogue_move_text, [move, language, words])").
+turn_form_reply(teach_dialogue_words, dialogue_form_assert).
+turn_form(forget_dialogue_words, 1, text("forget that for the conversational move")).
+turn_form(forget_dialogue_words, 2, span(move)).
+turn_form_slot_form(forget_dialogue_words, move, atom).
+turn_form(forget_dialogue_words, 3, text("say")).
+turn_form(forget_dialogue_words, 4, rest(words)).
+turn_form_slot_form(forget_dialogue_words, words, mention).
+turn_form(forget_dialogue_words, 5, bind(language, en)).
+turn_form_priority(forget_dialogue_words, early).
+turn_form_view(forget_dialogue_words, said).
+turn_form_act(forget_dialogue_words, "op(retract, dialogue_move_text, [move, language, words])").
+turn_form_reply(forget_dialogue_words, dialogue_form_retract).
+turn_form(teach_dialogue_words_it, 1, text("per la mossa conversazionale")).
+turn_form(teach_dialogue_words_it, 2, span(move)).
+turn_form_slot_form(teach_dialogue_words_it, move, atom).
+turn_form(teach_dialogue_words_it, 3, text("di")).
+turn_form(teach_dialogue_words_it, 4, rest(words)).
+turn_form_slot_form(teach_dialogue_words_it, words, mention).
+turn_form(teach_dialogue_words_it, 5, bind(language, it)).
+turn_form_priority(teach_dialogue_words_it, early).
+turn_form_view(teach_dialogue_words_it, said).
+turn_form_act(teach_dialogue_words_it, "op(assert, dialogue_move_text, [move, language, words])").
+turn_form_reply(teach_dialogue_words_it, dialogue_form_assert).
+turn_form(forget_dialogue_words_it, 1, text("dimentica che per la mossa conversazionale")).
+turn_form(forget_dialogue_words_it, 2, span(move)).
+turn_form_slot_form(forget_dialogue_words_it, move, atom).
+turn_form(forget_dialogue_words_it, 3, text("di")).
+turn_form(forget_dialogue_words_it, 4, rest(words)).
+turn_form_slot_form(forget_dialogue_words_it, words, mention).
+turn_form(forget_dialogue_words_it, 5, bind(language, it)).
+turn_form_priority(forget_dialogue_words_it, early).
+turn_form_view(forget_dialogue_words_it, said).
+turn_form_act(forget_dialogue_words_it, "op(retract, dialogue_move_text, [move, language, words])").
+turn_form_reply(forget_dialogue_words_it, dialogue_form_retract).
