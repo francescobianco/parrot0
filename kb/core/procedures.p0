@@ -1249,6 +1249,7 @@ machinery(sides).
 :- include(discourse.p0).
 :- include(dialogue-initiative.p0).
 :- include(conduct-lessons.p0).
+:- include(taught-reading-kind.p0).
 :- include(inquiry.p0).
 :- include(risk.p0).
 :- include(numeric-questions.p0).

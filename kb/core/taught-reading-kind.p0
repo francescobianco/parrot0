@@ -1,0 +1,59 @@
+% taught-reading-kind.p0 — UN GENERE DI LETTURA NUOVO COSTA UNA LEZIONE
+% (banda 61–75 di docs/plans/train-the-learning-process.md, 21 settembre 2026)
+%
+% ── IL BUCO, MISURATO ──────────────────────────────────────────────────────
+%
+% «the expression X marks Y» insegna una lettura nuova — ma solo dentro un
+% GENERE che esiste già: lo slot `named(reading_name, meaning)` accetta
+% soltanto nomi dichiarati. Un genere nuovo era una riga a mano in
+% `function-words.p0`, e la banda 61–75 chiede l'opposto: *«un ruolo o un
+% genere di nodo nuovo costa una lezione, non un ramo»*.
+%
+% ── LA FORMA ───────────────────────────────────────────────────────────────
+%
+%   the reading epistemic hedge is of kind modality
+%   the expression perchance marks epistemic hedge
+%
+% La prima crea il GENERE, la seconda lo popola con la forma che esisteva già.
+% Le due si compongono: una lezione crea la categoria che un'altra lezione
+% riempie — ed è il circolo che la scala chiama A3.
+%
+% Il nome pronunciato È l'atomo: il maestro non deve conoscere una seconda
+% notazione, e `reading_name/2` lo mappa su se stesso. Il genere (`modality`,
+% `discourse`, `quantity`, …) è quello che i consumatori della IR già leggono,
+% quindi la lettura nuova arriva a `grammatical_cue/4` e da lì a
+% `scope_requirement`, all'ispettore e a chi legge la prosa, senza che nessuno
+% sappia che è nata parlando.
+machinery(taught_reading_kind).
+
+reading_name($Name, $Name) :- taught_reading_kind($Name, $Kind).
+reading_feature($Name, $Kind, $Name) :- taught_reading_kind($Name, $Kind).
+
+% ⚠ L'APERTURA E' TESTO FISSO, e non e' uno stile: una forma che comincia con
+% un jolly non puo' avere una gemella di ritiro distinguibile — «forget that X
+% is …» verrebbe letta dalla forma di insegnamento con nome «forget that X».
+% Misurato. Le coppie che funzionano nel resto della KB fanno tutte cosi'.
+turn_form(reading_kind_lesson, 1, text("the reading")).
+turn_form(reading_kind_lesson, 2, span(name)).
+turn_form(reading_kind_lesson, 3, text("is of kind")).
+turn_form(reading_kind_lesson, 4, slot(kind)).
+turn_form_slot_form(reading_kind_lesson, kind, atom).
+turn_form_priority(reading_kind_lesson, early).
+turn_form_view(reading_kind_lesson, said).
+turn_form_act(reading_kind_lesson, "op(assert, taught_reading_kind, [name, kind])").
+turn_form_reply(reading_kind_lesson, reading_kind_learned).
+
+turn_form(reading_kind_forget, 1, text("forget that the reading")).
+turn_form(reading_kind_forget, 2, span(name)).
+turn_form(reading_kind_forget, 3, text("is of kind")).
+turn_form(reading_kind_forget, 4, slot(kind)).
+turn_form_slot_form(reading_kind_forget, kind, atom).
+turn_form_priority(reading_kind_forget, early).
+turn_form_view(reading_kind_forget, said).
+turn_form_act(reading_kind_forget, "op(retract, taught_reading_kind, [name, kind])").
+turn_form_reply(reading_kind_forget, reading_kind_forgotten).
+
+response_template(reading_kind_learned,
+    "Held: «{name}» is now a reading of the {kind} kind. Teach me an expression with «the expression … marks {name}».").
+response_template(reading_kind_forgotten,
+    "Dropped: «{name}» is no longer a reading of the {kind} kind.").

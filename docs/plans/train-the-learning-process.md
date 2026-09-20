@@ -861,6 +861,93 @@ e sette sono **tempi**, nessuna asserzione rotta; il settimo è un turno a
 1,16 s su un budget di 1,00. `soft-test` resta verde a 12 s, `facts.p0t` e
 `derivation.p0t` verdi.
 
+### La lettura diventa estensibile parlando (21 settembre 2026, notte)
+
+La banda **61–75** chiede due cose. La prima è fatta e misurata; la seconda no,
+e lo dico prima dei dettagli.
+
+#### Prima clausola: *«un ruolo o un genere di nodo nuovo costa una lezione, non un ramo»* ✅
+
+«the expression X marks Y» insegnava una lettura nuova **solo dentro un genere
+che esisteva già**: lo slot accetta soltanto nomi dichiarati, e un genere nuovo
+era una riga a mano in `function-words.p0`. Ora il genere si insegna:
+
+```text
+> the reading hedge is of kind modality
+Held: «hedge» is now a reading of the modality kind. Teach me an expression
+with «the expression … marks hedge».
+> the expression forsooth marks hedge
+> forsooth the cat sleeps
+```
+
+e l'ispettore, sulla IR di quel turno, mostra la lettura nuova **accanto a
+quelle native**:
+
+```text
+debug_grammatical_cue — evidence(span(1, 1), modality, hedge)
+                        evidence(span(2, 2), determination, definite)
+```
+
+| prova | esito |
+|---|---|
+| il genere arriva a `grammatical_cue/4`, cioè alla IR che i consumatori leggono | ✅ |
+| una **seconda** espressione nello stesso genere insegnato | ✅ senza una seconda lezione sul genere |
+| **ablazione**: ritirato il genere, l'indizio sparisce dal turno | ✅ |
+| visibile nell'ispettore come una lettura qualunque | ✅ |
+
+**Due lezioni che si compongono**: la prima crea la categoria, la seconda la
+riempie. È il circolo che la scala chiama **A3** — una lezione che apre lo
+spazio di un'altra lezione — su un pezzo della **lettura**, non del contenuto.
+
+**Limiti misurati, non nascosti:**
+
+- il nome del genere dev'essere di **una parola**. Con un nome multiparola
+  («epistemic hedge») le prime quattro maglie tengono e `expression_at` non
+  trova più l'espressione: l'atomo quotato non sopravvive dentro il termine
+  della vista materializzata `expression_first_word`. Misurato, isolato, non
+  curato;
+- una forma di lezione che **comincia con un jolly** non può avere una gemella
+  di ritiro distinguibile — «forget that X is …» viene letta dalla forma di
+  insegnamento con nome «forget that X». Misurato due volte oggi. L'apertura è
+  ora testo fisso, come tutte le coppie che funzionano.
+
+**Un reperto abilitante, registrato per chi continua:** una **regola KB può
+contribuire un nodo alla IR**. `input_node(...) :- …` scritto in KB viene visto
+dai consumatori e dalle viste derivate (`input_node_parent` lo trova). Non
+serve un ramo C per un genere di nodo: serve la forma di lezione che scriva
+quella regola. È il gradino successivo, ed è ora a portata.
+
+#### Seconda clausola: *«le riscansioni della stringa sono sparite»* ⛔
+
+**Non è vera, e il numero non la aiuta: sono 349** `split_words` in 14 file
+(erano 217 quando il piano fu scritto: il conteggio è cresciuto). Quello che è
+misurabile è la **conseguenza** che la clausola nomina — *«due lettori dello
+stesso turno non possono più essere in disaccordo su che cosa c'è scritto»*:
+
+```text
+scripts/fenomeni.sh flussi  →  nessun disaccordo sul corpus
+```
+
+dopo l'unificazione delle tre regole di confine di parola. **È meno di quanto
+la clausola chiede**: il rilevatore guarda due flussi su un corpus di prosa,
+non tutti i lettori su tutti gli input.
+
+> ## learning-capability ≈ **60–65**
+>
+> Dentro la banda 61–75, non oltre: la prima clausola è soddisfatta e
+> verificata, la seconda no.
+
+**Che cosa serve per il 70, ora nominato al livello giusto.** Non un'altra
+forma di lezione: **togliere le riscansioni**. Finché 349 chiamate leggono la
+stringa per conto proprio, non c'è un *dove* stabile su cui una lezione possa
+dire qualcosa, e ogni guadagno sulla lettura resta locale al consumatore che lo
+ha ricevuto. È il §6.5, ed è l'unico lavoro che sposta questa banda.
+
+**Costo dichiarato:** `english_grammar_growth.p0t` ha un rosso nuovo — un turno
+a **1,01 s** su un budget di 1,00, nessuna asserzione rotta. `soft-test` verde
+a 12 s, `derivation.p0t` verde, `taught_lexicon.p0t` invariato ai suoi sette
+tempi.
+
 ### Che cosa questo censimento non ha fatto
 
 - **18 elementi su 30 non sono stati misurati parlando** (gran parte del pozzo A
@@ -904,7 +991,7 @@ Stessa disciplina della scala della prosa, perché ha funzionato.
 
 ## 5. Dove siamo oggi — stima con le sue ragioni, da contraddire con una misura
 
-**learning-capability ≈ 50** a fine giornata del 21 settembre 2026 — **30 contato** dal censimento, poi risalito dalle due chiusure che seguono nel §4.5-bis — vedi il censimento
+**learning-capability ≈ 60–65** a fine giornata del 21 settembre 2026 — **30 contato** dal censimento, poi risalito dalle due chiusure che seguono nel §4.5-bis — vedi il censimento
 eseguito in **§4.5-bis**, che sostituisce e **contraddice** la stima di 45–50
 scritta poche ore prima nella stessa giornata. La stima guardava che cosa
 parrot0 *può* imparare; il censimento guarda che cosa **arriva** quando il
