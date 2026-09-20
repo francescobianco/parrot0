@@ -120,6 +120,8 @@ quel nome, quindi non si ridefiniscono.
 | `apply($Op, cons($A, cons($B, nil)))` | applica un confronto o un'operazione nominata da un atomo | `apply(le, …)`, `apply(gt, …)`, `apply(dif, …)`: il verso di un confronto diventa un **dato** |
 | `kb_fact/2`, `kb_rule/2`, `kb_rule_body/2` | introspezione: fatti, regole, nomi dei predicati del corpo | `kb_rule_body` dà solo nomi, non argomenti |
 | `kb_clause/4`, `kb_clause_arg/4` | la clausola INTERA come dato (M1, 20 settembre 2026): `kb_clause(Id, Testa, 0, N)` la clausola con N premesse, `kb_clause(Id, Testa, I, Premessa)` la I-esima; `kb_clause_arg(Id, Dove, Cammino, Nodo)` la stessa per nodi e archi. Forma canonica taggata a ogni livello — `var(N)` variabile, `atom(A)` costante, `app(F, cons(…, nil))` applicazione — così un dato scritto `var(0)` è `app(var, cons(atom(0), nil))` e non si confonde con la variabile. Fatti negativi `not(E)`, `naf(G)` conservato. Identità `content(Pred, impronta)` | l'impronta copre la struttura intera, non un testo che un buffer può tagliare; con l'Id o la testa legata costa un bucket; un pezzo che non entra in un termine vale `overflow(Pred)`, resta ritrovabile legandone testa e Id, e si legge per archi; facce nominabili in `kb/core/clause-content.p0` |
+| `kb_act/3` | gli ATTI di un contenuto (M2): `kb_act(Id, Testa, Bit)`, un atto per livello di provenienza che lo ha fatto entrare. Lo stesso contenuto entrato per due vie ha due atti, e ritirarne uno lascia vivo l'altro | il motore dà il BIT, il NOME del livello è un fatto KB (`act_layer/2`): un livello si nomina senza ricompilare |
+| `kb_derivation/4` | la PROVA prodotta dalla ricerca che decide (M2): `kb_derivation(D, Goal, 0, N)` una derivazione con N dipendenze, `kb_derivation(D, Goal, I, Dip)` la I-esima. Dipendenze congiunte (AND), derivazioni alternative sul backtracking (OR). Tre specie: `content(P, impronta)` una clausola usata, `absent(G)` una negazione per fallimento, `aggregate(G)` un findall | con D libera e Goal legato non si apre una seconda ricerca; `aggregate_incomplete(G)` se l'enumerazione è stata tagliata, `incomplete(N)` se i passi hanno superato la pila; `derivation_<n>` vale nella sessione e non si salva; facce in `kb/core/derivation.p0` |
 | `present_term/2` | resa di un termine secondo le `present_rule` | |
 | `prob/2`, `ranges_over/3` | probabilità KB-backed, intervalli temporali | usi rari |
 
@@ -602,7 +604,11 @@ ordinario collassati, identità calcolata su un testo troncato, riga con testa
 in overflow non più ritrovabile — ed è ora corretta e verificata:
 `kb_clause/4` e `kb_clause_arg/4`, `kb/core/clause-content.p0`,
 `tests/p0t/reasoning/clause_content.p0t` (52 assert, i tre controesempi
-inclusi). Seguono M2 (atti e derivazioni), M3 (ammissibilità KB), M4 (producer
-IR e migrazione di un lettore). Ogni costrutto diventato eseguibile va
-spostato dalla descrizione progettata alla sezione operativa pertinente, con
-un test e un esempio realmente verificati.
+inclusi). **M2 è conclusa:** `kb_derivation/4` e `kb_act/3`,
+`kb/core/derivation.p0`, `tests/p0t/reasoning/derivation.p0t` (50 assert) —
+la prova esce dalla ricerca che decide, con AND fra i passi e OR fra le
+derivazioni, e un contenuto può avere più atti. Il caso Zelvo resta aperto:
+`kb_prove_support` e `supported_by_premises` non sono stati toccati. Seguono
+M3 (ammissibilità KB) e M4 (producer IR e migrazione di un lettore). Ogni
+costrutto diventato eseguibile va spostato dalla descrizione progettata alla
+sezione operativa pertinente, con un test e un esempio realmente verificati.
