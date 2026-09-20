@@ -1195,3 +1195,40 @@ ir_membership_answer($Turn, $Text) :-
     atom_words($Class, $Ws), words_join($Ws, $Name),
     upcase_first($Name, $Cap), concat_atoms($Cap, ".", $Text).
 turn_response($Turn, $Text) :- ir_membership_answer($Turn, $Text).
+
+% 20 settembre 2026 — S + V + SINTAGMA PREPOSIZIONALE, LA FORMA CHE MANCAVA.
+%
+% «Coral reefs flourish IN ocean waters.», «Most reefs grow IN warm water.»
+% non producevano nessun frame: la cornice dell'asserzione voleva un OGGETTO
+% subito dopo il verbo, e dopo il verbo c'era una preposizione. La stessa forma
+% esisteva gia' per la DOMANDA (`binary_pp`, sopra): si poteva CHIEDERE cio'
+% che non si poteva LEGGERE — e una domanda senza la sua asserzione e' una
+% strada che non porta da nessuna parte.
+%
+% Misurato sul piolo r300 prima di scriverla: 12 frasi su 16 non producevano
+% frame, e questa e' la specie piu' numerosa fra loro. La lettura si registra
+% come `binary`, cosi' ogni consumatore a valle (letture, risposte, complementi)
+% funziona senza sapere che il valore veniva da un sintagma preposizionale; la
+% preposizione resta visibile a chi la cerca, perche' e' nel nodo fra i due.
+input_semantic_frame($Scope, assertion, binary($Relation),
+                     roles(entity($SId, $Subject), entity($XId, $X))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, assertion, sro),
+    naf(turn_illocution($Scope, question)),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    naf(input_passive_participle($Scope, $RId)),
+    input_nearest_entity_before($Scope, $Language, $RId, entity($SId, $Subject)),
+    input_node_next($Scope, $RId, $PT), input_node_atom($Scope, $PT, $P),
+    preposition($P),
+    input_nearest_entity_after($Scope, $Language, $PT, entity($XId, $X)),
+    naf(entity_name_extends($Scope, $Language, $XId, $X)).
+
+% Sullo STESSO nodo la IR puo' nominare piu' entita' annidate — «ocean» e
+% «ocean waters» — e due letture dello stesso frame che differiscono solo per
+% questo non sono due letture: sono la stessa, letta corta e letta intera.
+% Si tiene il sintagma MASSIMO, e l'ambiguita' che sopprimeva la lettura sparisce.
+machinery(entity_name_extends).
+entity_name_extends($Scope, $Language, $Id, $X) :-
+    input_entity_node($Scope, $Language, $Id, $Y), dif($X, $Y),
+    atom_words($X, $WX), count_list($WX, $NX),
+    atom_words($Y, $WY), count_list($WY, $NY), lt($NX, $NY).
