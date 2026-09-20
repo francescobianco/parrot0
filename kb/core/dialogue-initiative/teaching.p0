@@ -99,6 +99,7 @@ turn_form(teach_dialogue_need, 3, text("addresses")).
 turn_form(teach_dialogue_need, 4, named(dialogue_need_name, need)).
 turn_form_priority(teach_dialogue_need, early).
 turn_form_view(teach_dialogue_need, said).
+turn_form_act(teach_dialogue_need, "op(retract_all, dialogue_move_need, [move, free])").
 turn_form_act(teach_dialogue_need, "op(assert, dialogue_move_need, [move, need])").
 turn_form_reply(teach_dialogue_need, dialogue_form_assert).
 turn_form(forget_dialogue_need, 1, text("forget that the conversational move")).
@@ -117,6 +118,7 @@ turn_form(teach_dialogue_need_it, 3, text("riguarda")).
 turn_form(teach_dialogue_need_it, 4, named(dialogue_need_name, need)).
 turn_form_priority(teach_dialogue_need_it, early).
 turn_form_view(teach_dialogue_need_it, said).
+turn_form_act(teach_dialogue_need_it, "op(retract_all, dialogue_move_need, [move, free])").
 turn_form_act(teach_dialogue_need_it, "op(assert, dialogue_move_need, [move, need])").
 turn_form_reply(teach_dialogue_need_it, dialogue_form_assert).
 turn_form(forget_dialogue_need_it, 1, text("dimentica che la mossa conversazionale")).
@@ -137,6 +139,18 @@ turn_form_slot_form(teach_dialogue_words, words, mention).
 turn_form(teach_dialogue_words, 5, bind(language, en)).
 turn_form_priority(teach_dialogue_words, early).
 turn_form_view(teach_dialogue_words, said).
+% ── 20 settembre 2026 — DIRLO DUE VOLTE E' CORREGGERSI, NON AGGIUNGERE ─────
+%
+% Reperto della sonda `rational_philosopher.en.p0t`: insegnata prima «say Show
+% one example.» e poi «say Show one example and explain what is unclear.», la
+% mossa continuava a dire la PRIMA. Non era il taglio su «and» (quello era il
+% difetto della decomposizione abbandonata, chiuso a parte): erano due rese
+% vive per la stessa mossa nella stessa lingua, e parlava quella entrata
+% prima — cioe' la lezione piu' recente non aveva effetto e nulla lo diceva.
+% Una resa e una ragione sono a VALORE UNICO: la seconda lezione sostituisce.
+% Per un'apertura invece il conflitto resta visibile (`dialogue_ambiguous`),
+% perche' li' due letture dello stesso turno sono davvero un'ambiguita'.
+turn_form_act(teach_dialogue_words, "op(retract_all, dialogue_move_text, [move, language, free])").
 turn_form_act(teach_dialogue_words, "op(assert, dialogue_move_text, [move, language, words])").
 turn_form_reply(teach_dialogue_words, dialogue_form_assert).
 turn_form(forget_dialogue_words, 1, text("forget that for the conversational move")).
@@ -159,6 +173,7 @@ turn_form_slot_form(teach_dialogue_words_it, words, mention).
 turn_form(teach_dialogue_words_it, 5, bind(language, it)).
 turn_form_priority(teach_dialogue_words_it, early).
 turn_form_view(teach_dialogue_words_it, said).
+turn_form_act(teach_dialogue_words_it, "op(retract_all, dialogue_move_text, [move, language, free])").
 turn_form_act(teach_dialogue_words_it, "op(assert, dialogue_move_text, [move, language, words])").
 turn_form_reply(teach_dialogue_words_it, dialogue_form_assert).
 turn_form(forget_dialogue_words_it, 1, text("dimentica che per la mossa conversazionale")).

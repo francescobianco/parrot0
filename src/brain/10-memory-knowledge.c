@@ -15679,6 +15679,12 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
 
             char result[500]; result[0] = '\0'; size_t nres = 0;
             int done2 = 0;
+            if (getenv("P0_FORM_TRACE")) {
+                fprintf(stderr, "[form] op %s %s/%zu <%s", opname, pred, argc2, formname);
+                for (size_t y = 0; y < argc2; y++)
+                    fprintf(stderr, " %s", argv2[y] ? argv2[y] : "_");
+                fprintf(stderr, ">\n");
+            }
             if (!strcmp(opname, "assert"))       done2 = kb_assert(b->kb, pred, argv2, argc2);
             else if (!strcmp(opname, "assert_neg")) done2 = kb_assert_neg(b->kb, pred, argv2, argc2);
             else if (!strcmp(opname, "retract"))    done2 = kb_retract(b->kb, pred, argv2, argc2);
@@ -15849,6 +15855,9 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
     char *w[48]; size_t nw = split_words(buf, w, 48);
     if (nw < 2) return 0;
 
+    if (getenv("P0_FORM_TRACE"))
+        fprintf(stderr, "[form] reader depth=%d early=%d said=%d «%s»\n",
+                b->respond_depth, p0_forms_early_only, p0_forms_said_only, norm);
     char (*forms)[KB_TERM_LEN] = NULL; size_t nf = 0;
     const char *fq[2] = { NULL, NULL };
     /* gen510: nel passaggio anticipato si enumerano SOLO le forme dichiarate

@@ -1,0 +1,52 @@
+> i want to learn to paint
+  = On to paint: Let us use one concrete example to find your starting point. Show what you can already do or explain; we will choose the next exercise from the missing part.   [0.27s]
+> continue
+  = On to paint: Try a minimal example and explain each step in your own words. Keep the first point where you get stuck: it gives us a precise place to work.   [0.03s]
+> my constraint is ten minutes
+  = You added: ten minutes. On to paint: Keep this constraint attached to the proposal. Reduce the scope of the next attempt until it fits; if nothing fits, we should change the proposal rather than ignore the limit.   [0.08s]
+> why
+  = I proposed that step to make explicit the limit the proposal must respect. This is the purpose of the method, not proof that its outcome is true.   [0.02s]
+> no thanks
+  = All right. I will stop this proposal; you can choose whether to return to it.   [0.03s]
+> continue
+  = I do not have an active proposal to continue. Give me the topic or the point you want to resume.   [0.03s]
+> let us study pottery
+  = Learned: let study pottery.   [0.84s]
+> when i say let us study i mean wanting to learn
+  = I will read that expression with the intention you named.   [0.42s]
+> let us study pottery
+  = On pottery: Let us use one concrete example to find your starting point. Show what you can already do or explain; we will choose the next exercise from the missing part.   [0.27s]
+> let us study algebra
+  = On algebra: Let us use one concrete example to find your starting point. Show what you can already do or explain; we will choose the next exercise from the missing part.   [0.26s]
+> forget that when i say let us study i mean wanting to learn
+  = I have withdrawn that reading of the expression.   [0.47s]
+> let us study pottery
+  = Learned: let study pottery.   [0.81s]
+> the conversational move careful beginning addresses a concrete example
+  = I will read that expression with the intention you named.   [0.49s]
+> for the conversational move careful beginning say Show one example.
+  = I will read that expression with the intention you named.   [0.48s]
+> when guiding learning start with careful beginning
+  = I will read that expression with the intention you named.   [0.44s]
+> i want to learn to paint
+  = On to paint: show one example   [0.25s]
+> why
+  = I proposed that step to make explicit a concrete example. This is the purpose of the method, not proof that its outcome is true.   [0.01s]
+> forget that when guiding learning start with careful beginning
+  = I have withdrawn that reading of the expression.   [0.51s]
+> i want to learn to paint
+  = On to paint: Let us use one concrete example to find your starting point. Show what you can already do or explain; we will choose the next exercise from the missing part.   [0.26s]
+> when i say i am keen to i mean wanting to learn
+  = I will read that expression with the intention you named.   [0.43s]
+> i am keen to draw
+  = On draw: Let us use one concrete example to find your starting point. Show what you can already do or explain; we will choose the next exercise from the missing part.   [0.07s]
+> for the conversational move careful beginning say Show one example and explain what is unclear.
+  = I will read that expression with the intention you named.   [0.67s]
+> when guiding learning start with careful beginning
+  = I will read that expression with the intention you named.   [0.39s]
+> i want to learn to paint
+  = On to paint: show one example and explain what is unclear   [0.25s]
+> forget that when guiding learning start with careful beginning
+  = I have withdrawn that reading of the expression.   [0.46s]
+> forget that when i say i am keen to i mean wanting to learn
+  = I have withdrawn that reading of the expression.   [0.46s]

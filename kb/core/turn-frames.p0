@@ -393,10 +393,29 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_has_sign_answer($Turn)),
     naf(turn_has_range_surface($Turn)),
     naf(event_described($Turn)),
+    naf(turn_opens_act($Turn)),
     naf(turn_describes_setting($Turn)).
 % «we are in Rome» ha la copula, ma e' un'ambientazione (state-description.p0):
 % il piano di turno la riconosce, non la cede alla prosa.
 turn_describes_setting($Turn) :- setting_unique($Turn, $Place).
+% ── 20 settembre 2026 — CHI APRE UN ATTO NON PORTA PROSA ───────────────────
+%
+% Reperto del filosofo razionale (docs/plans/the-rational-philosopher.md §D.1).
+% «i am studying drawing» e «i am keen to draw» (dopo la lezione) ricevevano
+% «That sounds nice -- tell me more about it.»: hanno la copula, nessun «?» e
+% nessuna delle eccezioni qui sopra, quindi risultavano PROSA PORTATA; e il
+% piano di turno cede la prosa (`faculty_yield_force(turn_plan, open,
+% prose_carried)`), cosi' il turno arrivava intero allo smalltalk di ultima
+% istanza. Il difetto non era nella lezione ne' nella parola «keen»: la stessa
+% cosa accadeva a un'apertura NATIVA della stessa forma. Era un confine di
+% arbitrato, non una forma da riconoscere.
+%
+% La cura e' quella di U2 ed E3 con un'altra sorgente di evidenza: chi
+% DICHIARA di aprire un atto conversazionale non sta portando un paragrafo da
+% leggere. `turn_opens_act/1` e' il gancio e non nomina nessun atto: oggi lo
+% riempie kb/core/dialogue-initiative.p0, domani chiunque legga un'apertura.
+% Un'apertura insegnata parlando eredita l'eccezione senza una riga in piu'.
+machinery(turn_opens_act).
 % gen513 — E UNA FRASE LUNGA SENZA COPULA E' PROSA LO STESSO. «Together with
 % rapid cooling, this results in a natural glass forming from the lava» riceveva
 % un racconto («Together was a mysterious Together…»): nessuna copula, quindi la
@@ -414,6 +433,7 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_is_problem_text($Turn)),
     naf(turn_guided_inquiry($Turn)),
     naf(turn_opens_request($Turn)),
+    naf(turn_opens_act($Turn)),
     naf(event_described($Turn)).
 % E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
 % (mantra #17): la facolta' ha gia' un nome pubblico.

@@ -1,0 +1,50 @@
+> vorrei imparare a dipingere
+  = Su a dipingere: Usiamo un esempio concreto per trovare il punto di partenza. Mostrami che cosa sai già fare o spiegare: scegliamo il prossimo esercizio dalla parte che manca.   [0.11s]
+? dialogue_seen [None, None, None]
+  = {'bindings': ['1'], 'total': 1}
+> continua
+  = Su a dipingere: Prova un esempio minimo e spiega ogni passo con parole tue. Conserva il primo punto in cui ti blocchi: ci dà un punto preciso su cui lavorare.   [0.03s]
+> ho solo dieci minuti
+  = Hai aggiunto: dieci minuti. Su a dipingere: Teniamo questo vincolo legato alla proposta. Riduciamo il prossimo tentativo finché ci rientra; se non è possibile, cambiamo proposta invece di ignorare il limite.   [0.07s]
+? dialogue_detail [None, None, None]
+  = {'bindings': ['1'], 'total': 1}
+> perché
+  = Ho proposto quel passo per rendere esplicito il limite da rispettare. È lo scopo del metodo, non la prova che il suo esito sia vero.   [0.02s]
+> no grazie
+  = Va bene. Interrompo questa proposta; decidi tu se riprenderla.   [0.03s]
+> continua
+  = Non ho una proposta attiva da continuare. Indicami il tema o il punto da cui vuoi riprendere.   [0.03s]
+> sono indeciso tra leggere e passeggiare
+  = Su leggere e passeggiare: Prima di scegliere, nomina un criterio importante per te e un vincolo a cui non puoi rinunciare. Confrontiamo poi le alternative sugli stessi criteri.   [0.06s]
+> per me conta riposare
+  = You added: riposare. On leggere e passeggiare: Use this criterion to compare the alternatives. It expresses what matters to you; it does not by itself establish which alternative satisfies it.   [0.07s]
+> continua
+  = Su leggere e passeggiare: Metti due alternative una accanto all altra. Per ciascuna annota un vantaggio, un costo e una cosa che ancora non sai: le incognite restano incognite.   [0.03s]
+> mi interessa il tempo
+  = Su il tempo: Trasformiamo questo interesse in qualcosa da indagare: scegli una tesi, un esempio o un contrasto che ti incuriosisce. Possiamo partire dalla differenza fra ciò che ti aspetti e ciò che osservi.   [0.05s]
+> continua
+  = Su il tempo: Separiamo osservazione, assunto e conclusione. Possiamo esaminare una posizione senza considerarla vera: nominiamo la premessa necessaria alla conclusione.   [0.03s]
+> perché
+  = Ho proposto quel passo per rendere esplicito gli assunti da cui dipende la conclusione. È lo scopo del metodo, non la prova che il suo esito sia vero.   [0.02s]
+> non so da dove cominciare
+  = Su ciò che ti sovraccarica: Riduciamo la prossima decisione a una sola cosa. Nomina quella che conta di più adesso: le altre possono restare in una lista senza doverle risolvere insieme.   [0.05s]
+> mi sento frustrato
+  = Su frustrato: Posso ascoltarti senza correre a una soluzione. Possiamo partire da ciò che è successo o dalla parte più difficile adesso; puoi anche dirmi che desideri soltanto essere ascoltato.   [0.06s]
+> no grazie
+  = Va bene. Interrompo questa proposta; decidi tu se riprenderla.   [0.03s]
+> ho un idea per un racconto
+  = Su un racconto: Partiamo da un seme minimo: qualcuno o qualcosa, una situazione e un cambiamento. Possiamo svilupparlo senza decidere in anticipo tutta l opera.   [0.07s]
+> continua
+  = Su un racconto: Crea due versioni cambiando una caratteristica e tenendo fermo il resto. Il contrasto mostrerà quale direzione vale la pena sviluppare.   [0.03s]
+> maria dice che vorrei imparare a dipingere
+  = Learned: maria dice say vorrei imparare.   [0.9s]
+> "vorrei imparare a dipingere"
+  = Su a dipingere: Usiamo un esempio concreto per trovare il punto di partenza. Mostrami che cosa sai già fare o spiegare: scegliamo il prossimo esercizio dalla parte che manca.   [0.09s]
+> quanto fa 2 più 3
+  = I understood you're asking how to make più, but I don't have the steps for it yet.   [0.51s]
+> sai parlare italiano
+  = Sì, parlo italiano.   [0.06s]
+> quali parole conosci che possono sorprendermi
+  = Non capisco ancora.   [0.93s]
+> in quale lingua ti ho chiesto quale lingua sai parlare
+  = c, python.   [0.92s]

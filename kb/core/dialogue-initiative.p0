@@ -13,10 +13,28 @@ dialogue_prefix($T, $I, nil, $I).
 dialogue_prefix($T, $I, cons($W, $Ws), $End) :-
     turn_word($T, $I, $W), is($Next, add($I, 1)),
     dialogue_prefix($T, $Next, $Ws, $End).
-dialogue_tail($T, $I, $W) :-
-    turn_word($T, $I, $W), is($Next, add($I, 1)), naf(turn_word_at($T, $Next)).
+% Un avverbio dell'ATTO non e' il tema. «facciamo filosofia insieme» parla di
+% filosofia, non di «filosofia insieme»: «insieme» dice COME si propone di
+% procedere, e appartiene alla proposta. Quali parole in coda appartengano
+% all'atto invece che al complemento e' conoscenza — una in piu' e' una riga,
+% e nessuna e' legata a un atto particolare.
+machinery(dialogue_payload_trim).
+dialogue_payload_trim(insieme).
+dialogue_payload_trim(together).
+dialogue_payload_trim(please).
+% L'ultimo indice del complemento: l'ultima parola, oppure quella prima di un
+% avverbio dell'atto in coda. Le due clausole si escludono, quindi il tema ha
+% una lettura sola: due code diverse darebbero due proposte per lo stesso atto.
+dialogue_payload_last($T, $I) :-
+    turn_word($T, $I, $W), is($N, add($I, 1)), naf(turn_word_at($T, $N)),
+    naf(dialogue_payload_trim($W)).
+dialogue_payload_last($T, $I) :-
+    turn_word($T, $I, $W), is($N, add($I, 1)), turn_word($T, $N, $L),
+    dialogue_payload_trim($L), is($A, add($N, 1)), naf(turn_word_at($T, $A)).
+dialogue_tail($T, $I, $W) :- dialogue_payload_last($T, $I), turn_word($T, $I, $W).
 dialogue_tail($T, $I, $Text) :-
-    turn_word($T, $I, $W), is($Next, add($I, 1)), turn_word_at($T, $Next),
+    turn_word($T, $I, $W), naf(dialogue_payload_last($T, $I)),
+    is($Next, add($I, 1)), turn_word_at($T, $Next),
     dialogue_tail($T, $Next, $Tail), concat_atoms($W, " ", $Head), concat_atoms($Head, $Tail, $Text).
 dialogue_payload($T, $End, rest, $Text) :- dialogue_tail($T, $End, $Text).
 dialogue_payload($T, $End, whole, unspecified) :- naf(turn_word_at($T, $End)).
@@ -27,9 +45,17 @@ dialogue_payload($T, $End, optional, unspecified) :- naf(turn_word_at($T, $End))
 % La forma piu' lunga prevale. Due atti diversi alla stessa estensione restano
 % ambigui: nessuna vittoria per ordine di caricamento.
 turn_cue_registry(dialogue_opening, 1).
-dialogue_form_read($T, $Act, $Text, $End) :-
+% L'apertura e il suo complemento sono due cose: l'atto e' gia' deciso dalla
+% sequenza iniziale, il complemento costa la costruzione della coda. Separarli
+% permette di chiedere «questo turno apre un atto?» senza pagare la coda — ed
+% e' la domanda che il confine di arbitrato pone (turn-frames.p0,
+% `turn_opens_act/1`): una copula dentro un'apertura non e' prosa da leggere.
+dialogue_opening_at($T, $Act, $End) :-
     turn_cue_form($T, dialogue_opening, $Surface), dialogue_opening($Surface, $Act),
-    atom_words($Surface, $Words), dialogue_prefix($T, 0, $Words, $End),
+    atom_words($Surface, $Words), dialogue_prefix($T, 0, $Words, $End).
+turn_opens_act($T) :- dialogue_opening_at($T, $Act, $End).
+dialogue_form_read($T, $Act, $Text, $End) :-
+    dialogue_opening_at($T, $Act, $End),
     dialogue_shape($Act, $Mode), dialogue_payload($T, $End, $Mode, $Text).
 % Si pubblicano le letture prima di confrontarle: negare una rilettura
 % ricorsiva completa faceva esaurire la profondita' sulle aperture inglesi.
@@ -47,6 +73,19 @@ dialogue_best($T, $Act, $Text) :-
     dialogue_current_raw($T, $Act, $Text, $End), naf(dialogue_longer($T, $End)).
 dialogue_ambiguous($T, $Act) :- dialogue_best($T, $Other, $P), dif($Act, $Other).
 dialogue_excluded($T) :- inner_turn.
+% 20 settembre 2026 — UN PIANO INSEGNATO BATTE UN ITINERARIO DI BOOTSTRAP.
+% Aperto il confine di arbitrato (turn-frames.p0, `turn_opens_act/1`), «I have
+% a problem with my bike.» arriva al circuito — ed e' un'apertura `problem`
+% vera — ma per quella situazione qualcuno ha gia' IMPARATO che cosa fare
+% (user-situations.p0). I quattro passi per attivita' sono un bootstrap, non
+% una risposta migliore di una lezione ricevuta: chi ha il piano risponde lui.
+% ⚠ La vista giusta e' `direct_situation/2`, NON `turn_has_situation_plan/1`.
+% La seconda e' vera anche quando il turno non nomina nessun guaio: le basta
+% una questione di ricerca aperta, e con un'issue aperta OGNI seguito le
+% apparterrebbe. La precedenza si merita nominando la situazione, non essendo
+% il turno dopo.
+dialogue_direct_plan($T) :- direct_situation($T, $S), plan_move($S, 1, $M).
+dialogue_excluded($T) :- dialogue_direct_plan($T).
 dialogue_excluded($T) :- turn_cue($T, sentence_boundary_cue, $C).
 dialogue_excluded($T) :- turn_cue($T, dialogue_quotation_cue, $C).
 turn_cue_registry(dialogue_quotation_cue, 1).
@@ -117,15 +156,33 @@ turn_bookkeeping($T, dialogue_remember) :-
     dialogue_now($T, $A, $P), dialogue_task($A, $Task), turn_counter($N),
     dialogue_topic($T, $Topic), assert(dialogue_scope, $N, $Task, $Topic).
 bookkeeper(dialogue_propose).
+% ── 20 settembre 2026 — SI REGISTRA CIO' CHE HA DELLE PAROLE ───────────────
+%
+% Debito dichiarato in docs/plans/the-rational-philosopher.md §D.4: il
+% contabile registrava la CANDIDATURA, non la resa. Una mossa scelta ma senza
+% parole nella lingua del turno lasciava `dialogue_emitted` dietro di se': il
+% turno dopo trovava una proposta aperta che nessuno aveva mai fatto, e
+% «continua» proseguiva da un passo mai pronunciato — una falsa memoria, la
+% specie peggiore perche' non si vede.
+% La resa e' ora UN oggetto solo (`dialogue_reply_text/3`): chi parla e chi
+% registra leggono la stessa cosa, quindi non possono divergere.
+% ⚠ Resta aperto il pezzo che questo non chiude: le parole esistono, ma che il
+% turno sia stato DETTO da questo circuito lo sa solo l'arbitrato, e il
+% contabile corre prima della risposta. L'osservabile comune (`turn_done`) e'
+% il passo successivo; questa riga toglie la falsa memoria da resa mancante,
+% non quella da turno perso.
 turn_bookkeeping($T, dialogue_propose) :-
-    dialogue_candidate($T, $S, $Step, $M), turn_counter($N), assert(dialogue_emitted, $N, $S, $Step), assert(dialogue_offered, $N, $M).
+    dialogue_candidate($T, $S, $Step, $M), dialogue_reply_text($T, $M, $Text),
+    turn_counter($N), assert(dialogue_emitted, $N, $S, $Step), assert(dialogue_offered, $N, $M).
 
 % Un solo consumatore delle letture: scelta, ancora, bisogno e lingua.
 turn_plan_candidate($T) :- dialogue_now($T, $A, $P).
-turn_priority_response($T, $Text) :- dialogue_candidate($T, $S, $K, $M), dialogue_standalone($M), current_language($L), dialogue_move_text($M, $L, $Text).
-turn_priority_response($T, $Text) :-
-    dialogue_candidate($T, $S, $K, $M), naf(dialogue_standalone($M)), dif($M, explain_move),
+dialogue_reply_text($T, $M, $Text) :- dialogue_standalone($M), current_language($L), dialogue_move_text($M, $L, $Text).
+dialogue_reply_text($T, $M, $Text) :-
+    naf(dialogue_standalone($M)), dif($M, explain_move),
     dialogue_topic($T, $Topic), current_language($L), answer_text(dialogue_reply($Topic, $M, $L), $Base), dialogue_with_detail($T, $L, $Base, $Text).
+dialogue_reply_text($T, explain_move, $Text) :- dialogue_reason_text($T, $Text).
+turn_priority_response($T, $Text) :- dialogue_candidate($T, $S, $K, $M), dialogue_reply_text($T, $M, $Text).
 answer_content(dialogue_reply($Topic, $M, $L), 0, opening, $Text) :- dialogue_anchor_open($L, $Text).
 answer_content(dialogue_reply($Topic, $M, $L), 1, anchor, $Topic).
 answer_content(dialogue_reply($Topic, $M, $L), 2, separator, $Text) :- dialogue_anchor_close($L, $Text).
@@ -164,8 +221,9 @@ dialogue_with_detail($T, $L, $Text, $Text) :- naf(dialogue_has_current_detail($T
 % La ragione della proposta legge la mossa effettivamente emessa, anche se
 % modificata da una lezione. Non usa un testo identico per tutte le mosse.
 dialogue_previous_move($M) :- turn_counter($N), is($K, sub($N, 1)), dialogue_offered($K, $M).
-turn_priority_response($T, $Text) :-
+dialogue_reason_text($T, $Text) :-
     dialogue_now($T, explain, $P), dialogue_previous_open($S, $K), dialogue_previous_move($M),
     dialogue_move_need($M, $Need), current_language($L), dialogue_need_words($Need, $L, $Words),
     dialogue_reason_open($L, $Open), dialogue_reason_close($L, $Close),
     concat_atoms($Open, $Words, $Head), concat_atoms($Head, $Close, $Text).
+turn_priority_response($T, $Text) :- dialogue_reason_text($T, $Text).

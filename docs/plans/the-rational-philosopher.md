@@ -1,8 +1,12 @@
 # The Rational Philosopher — conversare nello spazio logico dell'interlocutore
 
-## HANDOFF PRIORITARIO — dal dialogo interrogativo all'iniziativa motivata (20 settembre 2026)
+## Primo giro — dal dialogo interrogativo all'iniziativa motivata (storico)
 
-**Leggere questa sezione prima del piano iniziale più sotto.** La richiesta
+> ⚠ **Questo era l'handoff; ora non lo è più.** L'handoff vigente è la sezione
+> successiva, che ne **rettifica il §D.1 e il §D.4**. Questa resta per il
+> contesto e per le parti non toccate (§B, §C, §E, §F, §G).
+
+**Leggere questa sezione dopo l'handoff vigente.** La richiesta
 attuale di F. è più ampia: trasformare il mondo allargato in un framework
 operativo per i contesti umani, comprese aperture senza domanda, desideri,
 incertezze, vissuti, creazione, collaborazione e continuazioni. Quando manca
@@ -15,6 +19,295 @@ riprodurre il circuito e i difetti riportati qui. La nuova consegna è un
 **prototipo KB-only funzionante su un sottoinsieme, non il completamento del
 piano né comprensione universale certificata**. Le modifiche sono nel working
 tree; nessun commit o push è stato eseguito per questo lavoro.
+
+## ⇨ HANDOFF VIGENTE — secondo giro: i confini misurati (20 settembre 2026)
+
+**Questa è la sezione da leggere per prima.** Rettifica il §D.1 e il §D.4 del
+primo giro: non riaprirli senza averla letta.
+
+### In una pagina
+
+Consegna: il piano, più questo dialogo reale del profilo `agi`:
+
+```
+>>> come stai
+Sto bene, grazie. Come posso aiutarti?
+>>> facciamo filosofia insieme
+Non capisco ancora.
+```
+
+I due difetti che il §D.1 chiamava «le due lesioni concrete» **non erano quello
+che il §D.1 diceva**, e il turno di F. era una terza cosa ancora. Sei reperti
+(S1-S6), tutti misurati; quattro chiusi, uno chiuso a metà, sei rossi lasciati
+aperti e dichiarati.
+
+| | stato |
+|---|---|
+| `facciamo filosofia insieme` → proposta, `perché`, `continua`, vincolo, rifiuto | ✅ chiuso (S3) |
+| `i am keen to` / `i am studying drawing` → il circuito, non lo smalltalk | ✅ chiuso (S1) |
+| resa con `and` non più mutilata, e niente fatto falso in KB | ✅ chiuso (S2) |
+| una seconda lezione sulla stessa mossa **sostituisce** | ✅ chiuso (S5) |
+| `dialogue_emitted` non registra una proposta senza parole | ◐ metà (S4) |
+| precedenza a chi ha un piano insegnato | ✅ chiuso (S6) |
+| F1 (il turno come contenuto con un atto) | ✗ non iniziato |
+
+**Stato del lavoro:** tutto nel working tree, **nessun commit e nessun push**.
+Nove file toccati: quattro KB, tre C, due documenti.
+
+| file | che cosa |
+|---|---|
+| `kb/core/turn-frames.p0` | `turn_opens_act/1` — chi apre un atto non porta prosa (S1) |
+| `kb/core/dialogue-initiative.p0` | `dialogue_opening_at/3`, `dialogue_payload_trim`, `dialogue_reply_text/3`, `dialogue_direct_plan/1` (S1, S3, S4, S6) |
+| `kb/core/dialogue-initiative/forms.p0` | atto `together`, 16 aperture IT/EN (S3) |
+| `kb/core/dialogue-initiative/teaching.p0` | ritira-prima-di-asserire su resa e bisogno (S5) |
+| `src/brain/99-registry.c` | `decompose_undo` — una decomposizione abbandonata non lascia fatti (S2) |
+| `src/kb.c`, `src/kb.h` | `kb_journal_start_scoped` — il giornale per origine |
+| `src/brain/10-memory-knowledge.c` | due tracce `P0_FORM_TRACE` (nessuna conoscenza) |
+| `docs/plans/the-rational-philosopher.md`, `LEARN_PROTOCOL.md` | questo referto |
+
+### Come ripartire, in quest'ordine
+
+```sh
+make build && make test-engine          # ⛔ sempre entrambi prima di misurare
+printf '%s\n' 'come stai' 'facciamo filosofia insieme' 'continua' \
+  'ho solo dieci minuti' 'no grazie' 'continua' '/quit' | \
+  PARROT0_SESSION= PARROT0_LANG=it PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+python3 scripts/p0t-echo.py tests/probes/rational_philosopher.it.p0t
+python3 scripts/p0t-echo.py tests/probes/rational_philosopher.en.p0t
+make soft-test                          # 12-14s su 15 di budget: vedi il rischio sotto
+```
+
+### ⚠ Tre trappole che hanno fatto perdere tempo in questo giro
+
+1. **`/save` scrive nell'albero KB tracciato.** Non produce un file di sessione:
+   *routa le clausole* dentro `kb/core/**.p0` e `kb/machinery/transcripts.p0`,
+   e `PARROT0_SESSION=` non lo devia. È il modo più rapido di vedere che cosa
+   una lezione ha **davvero** asserito (`/save` + `git diff`) — ma si ripulisce
+   **file per nome**. Un `git checkout -- kb/` si porta via anche le proprie
+   modifiche: è successo, e sono state riscritte da zero.
+2. **Mai `git stash` dentro un job in background** mentre si continua a
+   modificare: il `pop` va in conflitto e lascia l'albero mezzo-baseline. Letto
+   come regressione fantasma, ha prodotto due diagnosi sbagliate di fila. Per
+   confrontare con la baseline si usa un **worktree**
+   (`git worktree add --detach /tmp/p0base HEAD`), che ha il suo socket.
+3. **Un `make test-engine` concorrente uccide il demone di un altro banco.**
+   I `.p0t` in corso riportano `test-send: cannot reach engine` e «0 passed»,
+   che si legge come rosso. Un banco alla volta.
+
+### S1. `i am keen to` non era un difetto della lezione
+
+La stessa risposta — «That sounds nice -- tell me more about it.» — arriva a
+un'apertura **nativa** della stessa forma:
+
+| turno | prima | dopo |
+|---|---|---|
+| `i am studying drawing` (nativa) | smalltalk | proposta sul tema `drawing` |
+| `i am keen to draw` (dopo la lezione) | smalltalk | proposta sul tema `draw` |
+| `sono indeciso tra leggere e passeggiare` | «Non so ancora tradurre «indeciso»» | proposta sulla scelta |
+
+La catena, letta con `/debug`: la copula fa dichiarare `prose_carried`; il
+piano di turno **cede la prosa** (`faculty_yield_force(turn_plan, open,
+prose_carried)`); il turno arriva intero allo smalltalk di ultima istanza.
+`keen` non c'entrava, e nemmeno la lezione: era un **confine di arbitrato**.
+
+**Cura:** `turn_opens_act/1` in `turn-frames.p0`, accanto alle eccezioni U2 ed
+E3 che esistevano già — *chi dichiara di aprire un atto non porta un paragrafo
+da leggere*. Il gancio non nomina nessun atto; lo riempie
+`dialogue-initiative.p0` con `dialogue_opening_at/3` (l'atto senza pagare la
+costruzione della coda). **Un'apertura insegnata parlando eredita l'eccezione
+senza una riga in più.**
+
+**La lezione generale, da aggiungere al §F:** quando una forma insegnata non
+cambia niente, provare la stessa forma **nativa** prima di cercare il difetto
+nella lezione. Se fallisce anche quella, il difetto non è nell'insegnabilità.
+
+### S2. La resa tagliata su `and` non era «and»
+
+`decompose_and_dispatch` taglia su « and » quando la seconda metà apre con un
+verbo di richiesta, manda la **prima metà al registro per davvero** — la forma
+di lezione la legge e asserisce la resa **troncata** — poi la seconda metà non
+viene rivendicata, la decomposizione **si annulla** (`return 0`) e il turno
+intero viene dispatchato di nuovo, stavolta con la resa giusta.
+
+```
+[form] op assert dialogue_move_text/3 <… careful_beginning en alpha>
+[form] op assert dialogue_move_text/3 <… careful_beginning en "alpha and explain what is unclear">
+```
+
+La risposta è corretta e in KB restano **due** lezioni, di cui una falsa — ed è
+quella che poi parla. Non è un difetto di `and`: **una lettura abbandonata
+aveva comunque scritto.** Vale per qualunque modulo con un effetto — un fatto
+personale, una policy, una lezione — dietro ogni split che non regge.
+
+**Cura (meccanica, non conoscenza):** una decomposizione è un'**ipotesi** sul
+turno; finché non è accettata i suoi effetti non sono del mondo. Il giornale
+della KB dice che cosa è entrato di nuovo e l'annullamento lo ritira.
+
+⚠ **Primo tentativo sbagliato, da non rifare:** giornale non filtrato. Registrava
+le migliaia di pubblicazioni riflessive e di scratch di ogni turno —
+`soft-test` a **16s, fuori budget** — e l'annullamento avrebbe ritirato anche
+fatti che non erano suoi. `kb_journal_start_scoped(KB_SESSION | KB_BASE)`:
+si registra solo ciò che la lettura ha **insegnato**, e il giornale torna di
+poche righe invece di migliaia.
+
+### S3. «facciamo filosofia insieme» era una famiglia mancante
+
+Non un sinonimo di un atto già coperto: `first_step` chiede di prendere
+l'iniziativa e non nomina niente, `curiosity` dichiara un interesse di chi
+parla. Qui l'interlocutore **nomina un tema e propone di lavorarci in due**.
+Nuovo atto `together` (16 aperture IT/EN), `dialogue_task(together, inquiry)`:
+la prima mossa è `specify_uncertainty`, che è esattamente il §3 di questo piano
+— *quando manca ciò da cui la risposta dipende, si nomina la dipendenza*.
+
+E un avverbio dell'atto non è il tema: `dialogue_payload_trim` tiene «insieme»
+fuori dal complemento («Su filosofia», non «Su filosofia insieme»). Verificato
+con ablazione: `quando dico affrontiamo intendo proporre di occuparsene
+insieme` cambia condotta, il ritiro la toglie.
+
+### S4. §D.4 — si registra ciò che ha delle parole
+
+Il contabile registrava la **candidatura**, non la resa: una mossa senza parole
+nella lingua del turno lasciava `dialogue_emitted` dietro di sé, e «continua»
+proseguiva da un passo mai pronunciato. Resa e registrazione sono ora **un
+oggetto solo** (`dialogue_reply_text/3`): chi parla e chi registra leggono la
+stessa cosa, quindi non possono divergere.
+
+**Non chiude tutto il §D.4.** Tolta la falsa memoria da *resa mancante*, resta
+quella da *turno perso*: che il circuito abbia davvero parlato lo sa l'arbitrato,
+e il contabile corre prima della risposta. L'osservabile comune (`turn_done`)
+è il passo successivo.
+
+### S5. Dirlo due volte è correggersi, non aggiungere
+
+Reperto della sonda `rational_philosopher.en.p0t`: insegnata prima «say Show one
+example.» e poi «say Show one example and explain what is unclear.», la mossa
+continuava a dire la **prima**. Due rese vive per la stessa mossa nella stessa
+lingua, e parlava quella entrata prima: **la lezione più recente non aveva
+effetto e nulla lo diceva**. Una resa e una ragione sono a valore unico, quindi
+la forma di lezione ora ritira prima di asserire (due `turn_form_act` in
+sequenza, tutto in KB). Per un'**apertura** il conflitto resta invece visibile
+(`dialogue_ambiguous`): lì due letture dello stesso turno sono un'ambiguità
+vera, non una correzione.
+
+### S6. Aprire un confine sposta il turno a chi lo prendeva prima
+
+Conseguenza immediata di S1, misurata su `user_situations.p0t` (49/7 rossi):
+`I have a problem with my bike.` è un'apertura `problem` **vera**, e appena il
+piano di turno smette di cedere la prosa il circuito se la prende — ma per
+quella situazione qualcuno ha già **imparato** che cosa fare. I quattro passi
+per attività sono un bootstrap, non una risposta migliore di una lezione
+ricevuta: `dialogue_excluded` ora cede a chi ha il piano (56/56).
+
+⚠ **La vista giusta è `direct_situation/2`, non `turn_has_situation_plan/1`.**
+La seconda è vera anche quando il turno non nomina nessun guaio — le basta una
+questione di ricerca aperta — e con un'issue aperta **ogni seguito** le
+apparterrebbe: «facciamo filosofia insieme» al secondo turno tornava al muro.
+La precedenza si merita nominando la situazione, non essendo il turno dopo.
+
+**Vale come regola per chi apre il prossimo confine:** ogni `naf(...)` tolto da
+una forza restituisce turni a una facoltà, e alcuni di quei turni avevano già
+una risposta migliore. Si misura *prima* quali file cambiano, non dopo.
+
+### Misure di questo giro
+
+| prova | esito |
+|---|---|
+| `make soft-test` | **verde 5 volte su 5, 12-14s** su 15 di budget (baseline 11-12s) — vedi il rischio dichiarato sotto |
+| `tests/probes/rational_philosopher.en.p0t` | i **due controesempi** del §D.1 sono verdi |
+| `tests/probes/rational_philosopher.it.p0t` | l'intero circuito IT: proposta, `perché`, `continua`, vincolo, rifiuto, non-ripresa |
+| `tests/p0t/meta/decompose.p0t` | 6 passed |
+| `tests/p0t/conversation/move_precedence.p0t` | 9 passed |
+| `tests/p0t/conversation/user_situations.p0t` | 56 passed (49/7 prima di S6) |
+| `dialogue_moves` / `smalltalk` / `turn_thefts` | 1 rosso ciascuno — **identici sulla baseline**, non di questo giro |
+| `continuation.p0t` (0/5), `compound_inquiry.p0t` (30/1) | rossi **identici sulla baseline** |
+| suite intera | **non eseguita** (serve l'approvazione di F.) |
+
+### Rossi misurati e NON toccati — non rimuoverli per far quadrare il referto
+
+1. **La lingua salta a metà scambio.** `per me conta riposare` dentro uno
+   scambio italiano risponde «You added: riposare. On leggere e passeggiare:
+   Use this criterion…». È il rilevatore di lingua sul turno corto, non il
+   circuito — **pre-esistente**, identico sulla baseline. Ma colpisce l'asse
+   «continuità dopo un seguito»: una proposta che cambia lingua a metà l'ha già
+   persa. La leva: la lingua dell'**ancora** è già registrata
+   (`dialogue_language/2`), quindi la resa potrebbe leggerla invece di
+   `current_language/1`. Non fatto qui: è un quinto problema strutturale e il
+   §D dice uno per volta.
+2. **Il circuito ruba un turno che aveva una risposta onesta.**
+   `turn_thefts.p0t`: «what do you think about artificial intelligence» riceve
+   la proposta di `reflect` invece del «non ho opinioni mie». Rosso **già
+   prima** di questo giro. È esattamente la riga «il problema si sposta a
+   un'altra facoltà» del §F: si classifica con il mantra #21 e si migra la
+   specie, non si mette una cue di cessione per il caso.
+3. **Una citazione non è ancora esclusa.** `"vorrei imparare a dipingere"` fra
+   virgolette viene letta come intenzione di chi parla: `dialogue_quotation_cue`
+   non scatta sul virgolettato semplice.
+4. **Il discorso riportato produce un fatto spazzatura.** `maria dice che vorrei
+   imparare a dipingere` → «Learned: maria dice say vorrei imparare.»
+5. **Preposizione articolata.** «Su **il** tempo», «Su **la** filosofia»:
+   difetto di presentazione dell'ancora italiana, non di lettura.
+6. **F1 non è costruito.** I turni 2 e 3 dell'esempio del §1 rispondono come
+   prima: «Non capisco ancora.» e «c, python.». Il §8 resta valido.
+
+### ⚠ Rischio dichiarato: il budget di `soft-test`
+
+`soft-test` sta a **12-14s** contro un budget di **15s** (baseline 11-12s).
+Verde 5 volte su 5 a macchina scarica, ma durante questo giro ha toccato
+**16s e fallito** mentre altri banchi giravano. Il margine è sottile e la
+politica è chiara: *il budget non si alza, si cura la lentezza o si tolgono
+casi*.
+
+**Non è stato possibile attribuire il delta a una modifica sola:** togliendo
+`naf(turn_opens_act($Turn))` dalle due regole di `prose_carried` la misura
+resta 12-15s, cioè dentro la dispersione della macchina (±3s fra run
+identiche). Le leve da provare, in ordine di sospetto:
+
+1. `dialogue_reply_text/3` è derivata **due volte** per turno — una dal
+   contabile (S4), una da `turn_priority_response`. Un osservabile pubblicato
+   una volta sola la pagherebbe una volta.
+2. Le 16 aperture nuove entrano nella ricerca di sottostringa che
+   `turn_publish_cues` fa su **ogni** turno, su quattro viste del testo.
+3. `dialogue_payload_last/2` aggiunge un `naf` per parola nella ricorsione
+   della coda (solo sui turni che aprono un atto).
+
+**Prima di ottimizzare, misurare per file** con `/usr/bin/time` sui tre `.p0t`
+del soft-test e su un worktree di baseline: senza quel confronto si ottimizza
+il rumore.
+
+### Da dove riprendere
+
+Non dal §D.1 (chiuso) né dal §D.4 (chiuso a metà, il residuo è scritto sopra).
+Tre candidati, in ordine di rapporto valore/rischio:
+
+1. **Il rischio del budget qui sopra**, se la prossima sessione deve toccare
+   ancora questo circuito: lavorare sopra un banco che fallisce a intermittenza
+   rende ogni misura successiva discutibile. È il lavoro meno creativo e il più
+   abilitante.
+2. **Il rosso 1** (la lingua che salta a metà scambio): piccolo, misurato, su
+   un asse dichiarato («continuità dopo un seguito»), e la leva esiste già —
+   la lingua dell'ancora è registrata in `dialogue_language/2`.
+3. **Il §D.3** — la semantica degli aggiornamenti, dove `correction` non
+   ricostruisce ancora il tema. È il prossimo problema strutturale vero.
+
+Il **§D.2** (sonde → regressioni con attese semantiche) resta aperto e diventa
+ogni giro più caro: il driver `p0t-echo.py` **non verifica attese**, quindi i
+verdi di questo referto si rileggono a mano e nessuno se ne accorge se
+regrediscono. Chiunque prenda il punto 1 dovrebbe valutare di chiudere prima
+questo, perché rende verificabile tutto il resto.
+
+**E per chi arriva da un modello meno potente:** i sei reperti sotto sono
+scritti come *catene causali misurate*, non come conclusioni. Il valore non è
+nella patch ma nel metodo che l'ha trovata — le righe nuove della tabella §F
+(«le domande da porsi quando ci si blocca») sono il precipitato riusabile di
+questo giro. Leggerle prima di aprire il codice.
+
+---
+
+## ⤶ Riprende il PRIMO GIRO (storico) — §A-§G
+
+> Da qui in poi è il referto del primo giro. Vale ancora per intero **tranne
+> il §D.1 e il §D.4**, rettificati dall'handoff sopra. Le righe rettificate
+> portano un rimando in linea.
 
 ### A. Che cosa è stato costruito e dove
 
@@ -81,6 +374,10 @@ giustificano. Non alzare budget e non togliere conoscenza.
 ### D. Ordine di lavoro obbligatorio: un problema strutturale alla volta
 
 1. **Rendere affidabile il giro insegnamento → lettura → scelta → resa.**
+   ✅ **CHIUSO nel secondo giro — vedi S1 e S2.** La diagnosi qui sotto era
+   sbagliata in entrambi i casi: `i am keen to` non era un difetto della
+   lezione (falliva anche la forma nativa) e la resa tagliata non era «and».
+   Il testo resta come esempio di *diagnosi plausibile e falsa*.
    Partire dalle due lesioni concrete: `i am keen to` e la resa tagliata su
    `and`. Confrontare il valore appena insegnato, `dialogue_raw`,
    `dialogue_seen`, `dialogue_candidate`, `turn_priority_response` e
@@ -98,7 +395,12 @@ giustificano. Non alzare budget e non togliere conoscenza.
    sceglie una mossa distinta, ma il vincolo non governa ancora tutti i passi
    successivi e `correction` non ricostruisce il tema. Chiudere questo prima
    di aggiungere altre aperture.
-4. **Collegare la memoria al tabellone unico.** `dialogue_scope` e
+4. **Collegare la memoria al tabellone unico.**
+   ◐ **META' CHIUSO nel secondo giro — vedi S4.** La falsa memoria da *resa
+   mancante* è tolta; resta quella da *turno perso*, e il collegamento a
+   `open_issue`/`issue_turn` non è iniziato. Il caso `i am keen to draw`
+   citato qui sotto non è più riproducibile: quel turno ora è servito dal
+   circuito. `dialogue_scope` e
    `dialogue_emitted` sono un primo registro del circuito; non inventare un
    secondo `pending_*`. Farne contenuti/atti riferiti da `open_issue`,
    `issue_turn`, `issue_topic` e viste di stato. Aprire la questione per una
@@ -179,6 +481,10 @@ nelle distinzioni e nella continuità, non in un'altra lista di sinonimi.
 | la replica parla ancora del vecchio tema | la correzione cambia contenuto, atto o contesto? | due temi reali; correzione esplicita; `continua`; verificare quale identità è rimasta attiva |
 | un «sì» scatena qualcosa di inatteso | a quale proposta e a quale forza si è legato? | interporre un turno estraneo, un rifiuto o una proposta concorrente; mai trattare l'assenso come autorizzazione globale |
 | aggiungere conoscenza peggiora le risposte | viene scelta una lettura o solo la prima? | inserire una lettura concorrente e invertire l'ordine; il conflitto deve restare interrogabile |
+| una forma INSEGNATA non cambia niente | la stessa forma **nativa** funziona? | provarla; se fallisce anche quella il difetto non e' nell'insegnabilita' ma in chi prende il turno (S1) |
+| la risposta e' giusta e la KB e' sbagliata | qualche lettura ha scritto ed e' stata **abbandonata**? | `P0_FORM_TRACE=1` e leggere gli `op assert`: due righe per la stessa relazione sono uno split che non ha retto (S2) |
+| la seconda lezione non ha effetto | la prima e' ancora viva? | `/save` e contare i fatti: una relazione a valore unico deve **sostituire**, non accumulare (S5) |
+| apro un confine e altri file diventano rossi | quali turni ho restituito, e a chi li stavo togliendo? | misurare i file che cambiano PRIMA; cedere a chi ha una lezione piu' specifica, con la vista piu' stretta che regge (S6) |
 | sembra tutto corretto ma è generico | quale dato dell'utente cambia davvero la decisione? | mantenere le parole quasi uguali e cambiare vincolo, criterio o commitment; la mossa deve cambiare per quella ragione |
 
 ### G. Ipotesi da sperimentare, non capacità già consegnate

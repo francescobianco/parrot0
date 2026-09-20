@@ -2847,6 +2847,67 @@ static int is_negation_marker(Brain *b, const char *w) {
 /* gen80: split `canon` on discourse connectors where the second half starts
  * with an intent marker, dispatch each sub-turn, and join responses. Returns
  * 1 if decomposition was applied, 0 to use normal dispatch. */
+/* ── 20 settembre 2026 — UNA DECOMPOSIZIONE ABBANDONATA NON LASCIA FATTI ───
+ *
+ * Reperto del filosofo razionale (docs/plans/the-rational-philosopher.md §D.1).
+ *
+ *     for the conversational move careful beginning say alpha and explain
+ *     what is unclear.
+ *
+ * `decompose_and_dispatch` taglia su « and » e manda la PRIMA meta' al
+ * registro intera, per davvero: la forma di lezione la legge e asserisce
+ * `dialogue_move_text(careful_beginning, en, alpha)` — la resa TRONCATA. Poi
+ * la seconda meta' non viene rivendicata da nessuno, la decomposizione si
+ * annulla (`return 0`) e il turno intero viene dispatchato di nuovo, stavolta
+ * con la resa giusta. La risposta e' corretta e in KB restano DUE lezioni, di
+ * cui una falsa — ed e' quella che poi parla.
+ *
+ * Non e' un difetto di «and»: e' che una lettura ABBANDONATA aveva comunque
+ * scritto. Qualunque modulo con un effetto — una lezione, un fatto personale,
+ * una policy — lascia la meta' di se' dietro a ogni split che non regge. Una
+ * decomposizione e' un'IPOTESI sul turno: finche' non e' accettata, i suoi
+ * effetti non sono del mondo.
+ *
+ * Qui c'e' solo la meccanica: il giornale della KB (`kb_journal_*`) dice che
+ * cosa e' entrato di nuovo, e l'annullamento lo ritira. Il C non sa quali
+ * fatti, di quale modulo, ne' perche'. Le righe «=» (gia' noto) e «!»
+ * (rifiutato) non si toccano: non le ha messe questa lettura. */
+static void decompose_undo(KB *kb) {
+    char (*lines)[KB_TERM_LEN] = NULL;
+    size_t n = kb_journal_stop(kb, &lines);
+    for (size_t i = 0; i < n; i++) {
+        if (lines[i][0] != '+') continue;
+        char row[KB_TERM_LEN]; snprintf(row, sizeof row, "%s", lines[i] + 1);
+        char *lb = strchr(row, '(');
+        if (!lb) continue;
+        *lb = '\0';
+        char *body = lb + 1;
+        size_t bl = strlen(body);
+        while (bl && (body[bl - 1] == ')' || body[bl - 1] == ' ')) body[--bl] = '\0';
+        /* Gli argomenti sono separati da «, » AL LIVELLO ZERO: un testo citato
+         * puo' contenere una virgola, e spezzarci sopra ritirerebbe un fatto
+         * diverso da quello entrato. */
+        const char *argv[KB_MAX_ARGS];
+        char args[KB_MAX_ARGS][KB_TERM_LEN];
+        size_t argc = 0, o = 0; int q = 0;
+        args[0][0] = '\0';
+        for (size_t k = 0; body[k] && argc < KB_MAX_ARGS; k++) {
+            if (body[k] == '"') q = !q;
+            if (!q && body[k] == ',' && body[k + 1] == ' ') {
+                args[argc][o] = '\0'; argc++; o = 0; k++;
+                if (argc < KB_MAX_ARGS) args[argc][0] = '\0';
+                continue;
+            }
+            if (o + 1 < KB_TERM_LEN) args[argc][o++] = body[k];
+        }
+        if (argc < KB_MAX_ARGS) { args[argc][o] = '\0'; argc++; }
+        if (q) continue;                 /* citazione non chiusa: non si indovina */
+        for (size_t k = 0; k < argc; k++) argv[k] = args[k];
+        kb_retract(kb, row, argv, argc);
+    }
+    free(lines);
+}
+
 static int decompose_and_dispatch(Brain *b, const char *canon, const char *input,
                                    char *out, size_t out_size) {
     if (b && b->kb) {
@@ -3007,6 +3068,9 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
             }
         }
     }
+    /* Da qui in poi le due meta' vengono dispatchate PER DAVVERO: il giornale
+     * apre, e ogni uscita senza accettare la decomposizione lo annulla. */
+    if (b->kb) kb_journal_start_scoped(b->kb, KB_SESSION | KB_BASE);
     if (!is_but) {
         for (size_t i = 0; i < registry_len; i++) {
             if (negate1) break; /* gen88: skip negated sub-turn */
@@ -3020,7 +3084,7 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
                 break;
             }
         }
-        if (!h1 && !negate1) return 0;
+        if (!h1 && !negate1) { if (b->kb) decompose_undo(b->kb); return 0; }
     } /* first sub-turn unclaimed → fall through to normal dispatch */
 
     for (size_t i = 0; i < registry_len; i++) {
@@ -3029,7 +3093,7 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
             h2 = 1; break;
         }
     }
-    if (!h2 && !negate2) return 0;
+    if (!h2 && !negate2) { if (b->kb) decompose_undo(b->kb); return 0; }
 
     /* gen254: if the second half only earned repair's clarification ("who or
      * what does 'it' refer to?"), the WHOLE turn may still be answerable by a
@@ -3043,6 +3107,8 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
             if (strcmp(registry[i].name, "repair") == 0) continue;
             if (registry[i].handle(b, canon, input, full, sizeof full)) {
                 if (!strstr(full, "refer to?")) {
+                    /* Accettata su tutto il turno: anche qui il giornale chiude. */
+                    if (b->kb) { char (*keep)[KB_TERM_LEN] = NULL; kb_journal_stop(b->kb, &keep); free(keep); }
                     snprintf(out, out_size, "%s", full);
                     if (b) {
                         snprintf(b->last_reply, sizeof b->last_reply, "%s", full);
@@ -3064,6 +3130,8 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
     else
         snprintf(out, out_size, "%s%s%s", r1,
                  (r2[0] && r1[0]) ? " " : "", r2);
+    /* Accettata: cio' che le due meta' hanno scritto e' del mondo. */
+    if (b->kb) { char (*keep)[KB_TERM_LEN] = NULL; kb_journal_stop(b->kb, &keep); free(keep); }
     if (!is_but && h1 && !h1_disc) update_topics(b, sub1);
     return 1;
 }

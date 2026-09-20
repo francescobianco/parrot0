@@ -98,6 +98,11 @@ size_t kb_retract_origin(KB *kb, int origin_mask);
  * stop consegna le righe al chiamante, che le libera. Meccanica: non decide
  * niente, registra cio' che una lettura ha provato a far entrare. */
 void   kb_journal_start(KB *kb);
+/* Lo stesso giornale, ristretto alle origini di `origin_mask` (0 = tutte).
+ * Serve a chi deve poter ANNULLARE una lettura: le righe che interessano sono
+ * i fatti che la lettura ha insegnato, non le pubblicazioni riflessive e di
+ * scratch del turno, che sono migliaia e non sono sue. */
+void   kb_journal_start_scoped(KB *kb, int origin_mask);
 size_t kb_journal_stop(KB *kb, char (**out)[KB_TERM_LEN]);
 
 /* gen512 — e la riga del RIFIUTO: «!pred(a, b)» dice che la lettura ha

@@ -338,6 +338,7 @@ struct KB {
     char (*journal)[KB_TERM_LEN];
     size_t journal_n, journal_cap;
     int journal_on;
+    int journal_mask;   /* 0 = tutte le origini; altrimenti solo queste */
 
     /* gen422 — LA FIRMA DEL FLUSSO DI INFERENZA (F.).
      *
@@ -484,6 +485,12 @@ static void journal_row(KB *kb, const char *row) {
 
 static void journal_note(KB *kb, const Fact *f, char mark) {
     if (!kb || !kb->journal_on || !f) return;
+    /* Un giornale SCOPED registra solo le origini che gli interessano. Chi
+     * deve poter annullare una lettura vuole i fatti che la lettura ha
+     * INSEGNATO, non le migliaia di pubblicazioni riflessive e di scratch che
+     * ogni turno produce comunque: senza il filtro il giornale e' un costo per
+     * turno, e annullarlo toglierebbe anche cio' che non e' suo. */
+    if (mark == '+' && kb->journal_mask && !(f->origin & kb->journal_mask)) return;
     if (kb->journal_n == kb->journal_cap) {
         size_t cap = kb->journal_cap ? kb->journal_cap * 2 : 64;
         char (*g)[KB_TERM_LEN] = realloc(kb->journal, cap * sizeof *g);
@@ -501,11 +508,18 @@ void kb_journal_start(KB *kb) {
     if (!kb) return;
     free(kb->journal); kb->journal = NULL; kb->journal_n = kb->journal_cap = 0;
     kb->journal_on = 1;
+    kb->journal_mask = 0;
+}
+
+void kb_journal_start_scoped(KB *kb, int origin_mask) {
+    kb_journal_start(kb);
+    if (kb) kb->journal_mask = origin_mask;
 }
 
 size_t kb_journal_stop(KB *kb, char (**out)[KB_TERM_LEN]) {
     if (!kb) { if (out) *out = NULL; return 0; }
     kb->journal_on = 0;
+    kb->journal_mask = 0;
     size_t n = kb->journal_n;
     if (out) *out = kb->journal; else free(kb->journal);
     kb->journal = NULL; kb->journal_n = kb->journal_cap = 0;

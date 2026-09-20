@@ -15,7 +15,7 @@ la userà: leggere sempre replay, trasferimento e ritrattazione.
 |---|---|---|---|
 | una nuova apertura di apprendimento | `when i say let us study i mean wanting to learn` | `forget that when i say let us study i mean wanting to learn` | `let us study pottery` usa il circuito dopo la lezione e perde quella lettura dopo il ritiro; il fallback legacy può imparare un fatto improprio |
 | il bisogno di una nuova mossa | `the conversational move careful beginning addresses a concrete example` | `forget that the conversational move careful beginning addresses a concrete example` | la mossa nuova è stata usata e `why` ha nominato il bisogno; il ritiro di questa singola componente resta da provare |
-| le parole di una mossa | `for the conversational move careful beginning say Show one example.` | `forget that for the conversational move careful beginning say Show one example.` | il percorso di resa è stato usato; **una versione con `and` ha perso la seconda parte**, quindi la fedeltà generale è ancora aperta |
+| le parole di una mossa | `for the conversational move careful beginning say Show one example.` | `forget that for the conversational move careful beginning say Show one example.` | verde, **congiunzioni comprese** (20 settembre, secondo giro): la perdita su `and` era una decomposizione abbandonata che scriveva, non la resa. Dirlo due volte **sostituisce** |
 | la prima mossa di un'attività | `when guiding learning start with careful beginning` | `forget that when guiding learning start with careful beginning` | dopo la lezione `i want to learn to paint` usa la mossa insegnata; dopo il ritiro torna la mossa di base |
 
 Le quattro lezioni si compongono: nominare una mossa e il suo bisogno,
@@ -53,10 +53,33 @@ canonicalizzazione e concorrenza tra lettori possono impedirne l'effetto.
    resa. Non chiamare completo il circuito finché uno di questi ritiri può
    lasciare una promessa priva di comportamento o una resa mutilata.
 
-**Controesempio da non nascondere:** insegnare `i am keen to` con l'atto
-`wanting to learn` registra la forma, ma il replay osservato è stato risposto
-da `smalltalk`. La nuova porta è fertile su alcuni casi, non ancora affidabile
-su tutte le forme. Le sonde durature sono
+**Controesempio risolto, e come si era sbagliata la diagnosi (20 settembre,
+secondo giro).** Si era scritto qui che insegnare `i am keen to` registra la
+forma ma il replay viene risposto da `smalltalk`, e che quindi «la nuova porta
+non è ancora affidabile su tutte le forme». La diagnosi era sbagliata: la
+stessa risposta arrivava a un'apertura **nativa** della stessa forma
+(`i am studying drawing`), quindi non c'entrava né `keen` né l'insegnabilità.
+Era un confine di arbitrato — la copula faceva cedere il turno alla prosa — e
+ora entrambe funzionano.
+
+> **Regola di diagnosi:** prima di dare la colpa alla lezione, provare la
+> stessa forma **nativa**. Se fallisce anche quella, il difetto è in chi prende
+> il turno, non nello strato di insegnabilità.
+
+**Aggiunte di questo giro.** Un nuovo atto `together` — «facciamo filosofia
+insieme», `let us talk about X` — per quando l'interlocutore nomina un tema e
+propone di lavorarci in due; si insegna e si ritira come gli altri
+(`quando dico affrontiamo intendo proporre di occuparsene insieme`, verificato
+con ablazione). E una semantica che prima mancava: **una resa e un bisogno sono
+a valore unico**, quindi ridirli è correggersi, non aggiungere. Una seconda
+`for the conversational move X say …` sostituisce la prima. Per un'**apertura**
+invece il conflitto resta visibile: due letture dello stesso turno sono
+un'ambiguità vera, non una correzione.
+
+**Resta incerto:** che il circuito abbia davvero *parlato* lo sa l'arbitrato, e
+il contabile della proposta corre prima della risposta — una proposta può
+ancora essere registrata e non detta se un'altra facoltà prende il turno.
+Le sonde durature sono
 `tests/probes/rational_philosopher.en.p0t` e `.it.p0t`; il driver
 `scripts/p0t-echo.py` ne mostra i transcript ma non certifica le attese.
 Persistenza con `/save` e rilettura in un processo nuovo **non ancora

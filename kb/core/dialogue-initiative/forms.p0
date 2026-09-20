@@ -210,6 +210,37 @@ dialogue_opening("come ipotesi", hypothesis).
 dialogue_opening("sto considerando la possibilità che", hypothesis).
 dialogue_opening("sto considerando la possibilita che", hypothesis).
 
+% ── 20 settembre 2026 — LA PROPOSTA DI FARE QUALCOSA INSIEME ───────────────
+%
+% Reperto da una conversazione reale: «facciamo filosofia insieme» riceveva
+% «Non capisco ancora.». Non e' un sinonimo mancante di un atto gia' coperto:
+% e' una FAMIGLIA che mancava. `first_step` chiede di prendere l'iniziativa e
+% non nomina niente; `curiosity` dichiara un interesse di chi parla. Qui
+% l'interlocutore nomina un tema E propone di lavorarci in due — cioe' porta
+% il complemento e chiede la mossa insieme.
+% Il tema resta un contenuto attribuito: non si asserisce che la filosofia sia
+% qualcosa, si conserva di che cosa si e' proposto di occuparsi.
+dialogue_shape(together, rest).
+dialogue_act_name("proposing to work on something together", together).
+dialogue_act_name("proporre di occuparsene insieme", together).
+dialogue_task(together, inquiry).
+dialogue_opening("let us do", together).
+dialogue_opening("let s do", together).
+dialogue_opening("lets do", together).
+dialogue_opening("let us work on", together).
+dialogue_opening("let us talk about", together).
+dialogue_opening("let s talk about", together).
+dialogue_opening("can we talk about", together).
+dialogue_opening("shall we talk about", together).
+dialogue_opening("can we do", together).
+dialogue_opening("shall we do", together).
+dialogue_opening("facciamo", together).
+dialogue_opening("parliamo di", together).
+dialogue_opening("discutiamo di", together).
+dialogue_opening("possiamo parlare di", together).
+dialogue_opening("lavoriamo su", together).
+dialogue_opening("occupiamoci di", together).
+
 dialogue_shape(first_step, whole).
 dialogue_act_name("asking for a starting point", first_step).
 dialogue_act_name("chiedere un punto di partenza", first_step).
