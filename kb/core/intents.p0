@@ -676,7 +676,7 @@ declared_surface($Surface) :- intent_phrase($Intent, $Quoted), span_atom($Quoted
 % una parola non e' un modello, e copiarla aprirebbe una porta davanti a una
 % stanza vuota.
 machinery(lesson_anchor_min_cover).
-lesson_anchor_min_cover(40).
+lesson_anchor_min_cover(10).
 
 learnable("is another way to say", intent_cue, cue_like).
 learnable("is the same as", intent_cue, cue_like).

@@ -605,6 +605,65 @@ declinare**. Non servono forme nuove — serve che una forma *quasi* riconosciut
 smetta di essere accettata a metà. È il §6.2, e la misura dice che vale più di
 tutto il resto messo insieme.
 
+### Correzione del censimento, e chiusura di due superfici su tre (21 settembre 2026, sera)
+
+**La prima lettura era troppo dura, e va corretta.** Chiamare quei tre esiti
+«fatti storti» era sbagliato: misurando meglio, `zorbo belongs to the birds`
+scrive `belong(zorbo, birds)`, e alla domanda speculare **«what does zorbo
+belong to?» risponde «Birds.»**. Il fatto è **corretto e raggiungibile** — ma
+solo dalla strada del verbo che l'ha scritto. La specie vera non è la
+corruzione: è la **strada rotta** (`broken-roads-not-gaps`), cioè una lezione
+che atterra su una relazione diversa da quella che il maestro intendeva, **in
+silenzio**.
+
+**Il blocco vero, e dove stava.** La lezione di redirezione esiste già —
+«"X" is another way to say "Y"», la parafrasi che scrive `phrase_canon/2` — e
+davanti a questi casi dava un **declino informato**, che è la specie giusta:
+
+> *I do not understand «is a member of» well enough to copy it: teach me with a
+> phrasing I already handle.*
+
+Ma rifiutava un bersaglio che parrot0 **gestisce davvero**: `zorbo is a member
+of birds` è una forma del catalogo e funziona. La causa è una soglia: il
+bersaglio è accettato solo se una famiglia di cue ne copre almeno il
+`lesson_anchor_min_cover` per cento — **40** — e il controllo misura la
+*superficie*, non «so leggere questa frase».
+
+**Misurato, non stimato.** La soglia più alta che ammette il caso legittimo:
+
+| soglia | «belongs to» → «is a member of» | «qzwx» → «nothing understands this» |
+|---|---|---|
+| 40 (prima) | ⛔ rifiutato | ⛔ rifiutato |
+| 35 / 30 / 25 | ⛔ rifiutato | ⛔ rifiutato |
+| 20 | ✅ accettato | ⛔ rifiutato |
+| **10 (ora)** | ✅ accettato | ⛔ **rifiutato** |
+
+Il buco che la soglia proteggeva — il commento in `src/brain/00-lex.c` cita
+*«qzwx nothing understands this»* — **non si riapre**: a tenerlo chiuso sono le
+altre condizioni, non il 40%. La soglia era già conoscenza
+(`lesson_anchor_min_cover/1`, `kb/core/intents.p0`) e il commento diceva che si
+può stringere o allentare senza ricompilare: è **una riga di KB**, con la
+misura accanto.
+
+**Esito sulle tre superfici del censimento:**
+
+| superficie | prima | dopo la redirezione insegnata |
+|---|---|---|
+| «zorbo **belongs to** the birds» | `Learned: zorbo belong birds.` | ✅ `Held: zorbo is one of the birds — it inherits what they have.` e `what is zorbo?` → «zorbo is a birds» |
+| «zorbi **is the plural form of** zorbo» | `Learned: zorbi is a plural. Learned: zorbi form zorbo.` | ✅ `Learned: plural(zorbi, zorbo).` e `what is the plural of zorbo?` → «zorbi» |
+| «glorp **takes an event as its subject**» | `Learned: glorp take event as its subject.` | ⛔ la redirezione è accettata, ma il **bersaglio stesso** si legge male: `is an event subject verb` produce due fatti mutilati. È il difetto **B3** già registrato dal censimento, ed è un'altra cosa |
+
+**Che cosa è cambiato davvero, in termini della scala.** Non tre superfici in
+più — quelle il §4.6 le conta zero. È un **rifiuto diventato una porta**: il
+maestro che sbaglia formulazione ora può *dirlo* e la lezione arriva, per
+qualunque superficie, non per queste tre. La redirezione è insegnata parlando,
+non scritta in KB da noi.
+
+**Resta aperto, e nominato:** il bersaglio `V is an event subject verb` si
+legge come due fatti mutilati. Finché una forma del catalogo si legge male,
+nessuna redirezione verso di lei può funzionare — e questa è la specie che
+tiene ancora il pavimento sotto la sua soglia.
+
 ### Che cosa questo censimento non ha fatto
 
 - **18 elementi su 30 non sono stati misurati parlando** (gran parte del pozzo A
