@@ -305,6 +305,7 @@ servirà.
    confronta stringhe sulla prima prova di `kb_prove_support`. Sostituirla con
    `supported_from_premises/1` è la migrazione che rende il caso Zelvo chiuso
    anche in NL — ed è lì che il C comincia davvero a scendere.
+5. Prima di dichiarare chiusa qualunque M, cercare **due oggetti che la
    rappresentazione potrebbe rendere uguali** e **lo stesso oggetto letto per
    due strade**. È il lascito più utile della revisione.
 
