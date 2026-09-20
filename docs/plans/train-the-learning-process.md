@@ -22,14 +22,15 @@ largo spettro — quelle si fanno dopo, e il §6 dice in quale ordine.
 
 | # | attività | elemento (§3) | livello (§4.2) | passo del §6 | costo |
 |---|---|---|---|---|---|
-| **T1** | provare le tre forme di lezione italiane mai verificate | comprensione universale | L2 | 1 | ~20 min |
-| **T2** | declino informato su **una** forma di lezione | comprensione universale | — (il pavimento) | 2 | ~1 h |
-| **T3** | la guardia di pertinenza sul turno «in quale lingua ti ho chiesto…» | KB viva | **L4** | 3 | ~1–2 h |
+| ~~**T1**~~ | ✅ **fatta il 21 settembre** — le tre forme italiane insegnano; trovato e chiuso un guasto del canale (policy incompleta accettata che rompeva il turno dopo) | comprensione universale | L2 | 1 | ~20 min |
+| ~~**T2**~~ | ✅ **fatta il 21 settembre** — declino informato su una forma: tre stati, tre messaggi, ognuno dice che cosa scrivere dopo | comprensione universale | — (il pavimento) | 2 | ~1 h |
+| ~~**T3**~~ | ✅ **fatta il 21 settembre** — la guardia di pertinenza si insegna, trasferisce alla classe e si ritira. **Prima lezione L4** | KB viva | **L4** | 3 | ~1–2 h |
 | **T4** | la lingua che salta a metà scambio | KB viva | L4 | 1 | ~45 min |
 | **T5** | il costo di `soft-test` | — (banco) | — | 0 | ~1 h |
 
-> **Se se ne può fare una sola: la T1.** È l'unica che può cambiare la stima
-> dell'indicatore (§5) in venti minuti, in una direzione o nell'altra.
+> **Restano T4 e T5.** Il §5 riporta dove l'ago si è mosso e che cosa tiene il
+> numero sotto 50: una coppia `situazione × comportamento` sola, la precedenza
+> fra facoltà ancora scritta, e il censimento del §4.5 mai eseguito.
 
 ---
 
@@ -480,35 +481,76 @@ Stessa disciplina della scala della prosa, perché ha funzionato.
 
 ## 5. Dove siamo oggi — stima con le sue ragioni, da contraddire con una misura
 
-**learning-capability ≈ 30–35** al 21 settembre 2026. È una **stima**: il
-censimento del §4.5 non è ancora stato eseguito, e la prima sessione che lo
-esegue deve sostituire questo numero con quello contato.
+**learning-capability ≈ 45–50** al 21 settembre 2026, salito da **30–35**. È
+ancora una **stima**: il censimento del §4.5 non è stato eseguito, e la prima
+sessione che lo esegue deve sostituire questo numero con quello contato.
+
+**Che cosa ha mosso l'ago, il 21 settembre** — tre TODO chiusi, e per ognuno
+la regola del §4.6 che dice perché conta:
+
+| | esito | perché muove l'ago |
+|---|---|---|
+| **T1** | ✅ le tre forme italiane insegnano davvero, con replay, trasferimento e ablazione; ognuna ha un effetto proprio | *un'ablazione che toglie davvero il comportamento insegnato* |
+| **T1-bis** | 🔴→✅ trovato e chiuso un guasto del canale: la sola policy, senza bisogno né parole, veniva **accettata** e il turno dopo crollava dove prima funzionava | *toglie punti falsi* (§6.1): una lezione confermata che peggiora il comportamento è peggio di un muro |
+| **T2** | ✅ declino informato su una forma: tre stati, tre messaggi, ognuno dice **che cosa scrivere dopo** | *un muro cieco diventato declino informato: il maestro ora sa che cosa dire* |
+| **T3** | ✅ **la prima lezione L4 con ablazione e trasferimento** | *una lezione che raggiunge un livello L più alto di prima* |
+
+**T3, per esteso, perché è il salto di banda.** Questo è ora dicibile, e
+nessuna parte nomina predicati, arità o tuple:
+
+```text
+when the topic of a question is a turn of this conversation
+do not answer with the list of things you know
+```
+
+| prova | prima | dopo la lezione | dopo il ritiro |
+|---|---|---|---|
+| `in which language did i ask you which language you speak` | `c, python.` | `I don't understand that yet.` | `c, python.` |
+| `in which language did i ask you about python` | `c, python.` | muro onesto | — |
+| `which language did i ask you about` | `c, python.` | muro onesto | — |
+
+Le ultime due **non sono state insegnate**: vengono dalla stessa lezione. È
+**L4 × A1** — condotta, valida per la classe — ed è esattamente l'àncora della
+banda 46–60: *precedenza, cessione e guardie di pertinenza si insegnano e si
+ritirano*.
+
+E la specie tolta è quella peggiore sulla scala di F.: non una risposta giusta
+in più, ma una **risposta fluente e infondata in meno**.
 
 | livello | stato | evidenza |
 |---|---|---|
 | **L1** contenuto | solido | l'intero canale di crescita parlando |
-| **L2** superficie | solido, con un **circolo** già chiuso | la lezione di parafrasi (`phrase_canon`) estende anche la propria superficie — `radici-insegnabilita.md` §4.1, S2′ |
+| **L2** superficie | solido, con un **circolo** già chiuso | la lezione di parafrasi (`phrase_canon`) estende anche la propria superficie |
 | **L3** procedura | **parziale** | procedure e piani insegnabili (gen507); le trasformazioni generiche restano incomplete |
-| **L4** condotta | **appena aperto** | `turn_pattern_force`/`unforce` permettono di dire che una forma **è** o **non è** una forza; `faculty_yield*` è KB. Ma le lezioni di condotta realmente pronunciabili sono poche, e la precedenza fra facoltà resta quasi tutta scritta |
-| **L5** struttura | **quasi chiuso** | il gen511 ha aperto uno spiraglio (*«S means T»* crea una forma di lezione); un genere di forma **nuovo** resta una riga a mano — è il gradino **S2** di `radici-insegnabilita.md`, il buco dichiarato |
-| **comprensione universale** | **il pavimento, incrinato** | il declino informato esiste e per tre classi della prosa (tempo, porzione, causa) nomina ciò che manca; ma il muro cieco resta la risposta ordinaria a una formulazione non prevista — **incluse le lezioni**. Il catalogo dichiara quattro forme italiane *«non ancora verificate end-to-end»*: una provata, tre no, e nessuno se ne accorgerebbe senza parlarci |
-| **IR** | **il collo** | 7 file di KB consumano la IR contro **217** `split_words`. Nessuna lezione può aggiungere un ruolo o un genere di nodo |
+| **L4** condotta | **dimostrato su una coppia** | `kb/core/conduct-lessons.p0`: `situazione × comportamento` con nomi pronunciabili, lezione, effetto, trasferimento alla classe, ritiro. Una coppia nuova costa **un nome**, non una riga di C. La precedenza fra facoltà resta però quasi tutta scritta |
+| **L5** struttura | **quasi chiuso** | il gen511 ha aperto uno spiraglio; un genere di forma **nuovo** resta una riga a mano — gradino **S2** di `radici-insegnabilita.md` |
+| **comprensione universale** | **il pavimento, meno incrinato** | il declino informato esiste ora anche su una **lezione**, non solo su una domanda; le tre forme italiane sono verificate. Resta la regola ordinaria altrove |
+| **IR** | **il collo** | 7 file di KB consumano la IR contro **217** `split_words` |
 | **mondo allargato** | esiste, non è estensibile | i cinque oggetti sono eseguibili; nessuna superficie ne aggiunge uno |
 
-**Perché non meno di 30:** L1 e L2 sono solidi e c'è almeno un circolo chiuso;
-le procedure si insegnano; l'ablazione funziona e viene richiesta dal protocollo.
+**Perché non meno di 45:** la condotta si insegna, ha effetto, trasferisce alla
+classe e si ritira — l'àncora della banda 46–60 è dimostrata, e i tre guasti
+del canale che tenevano il numero sotto 35 sono chiusi o localizzati.
 
-**Perché non più di 35:** il 20 settembre 2026, in una sola sessione sul
-circuito del dialogo, sono emersi tre guasti del **canale** di apprendimento,
-non del suo contenuto (vedi [`the-rational-philosopher.md`](the-rational-philosopher.md),
-handoff vigente): una lettura abbandonata che **scriveva comunque** in KB una
-lezione mutilata; una seconda lezione sulla stessa mossa che **non aveva
-effetto** senza che nulla lo dicesse; e un confine di arbitrato per cui una
-forma insegnata correttamente non cambiava nulla — e non cambiava nulla
-**neanche la sua gemella nativa**. Un canale su cui tre difetti di quella specie
-convivono non sta sopra la metà di nessuna scala.
+**Perché non più di 50:** una coppia sola è dimostrata, e una coppia nuova è
+ancora una riga di KB, non una lezione (*A3 non è toccato*); la precedenza fra
+facoltà resta scritta; L5 e la IR sono dove erano. E **il censimento non è
+stato eseguito**: finché non lo è, questo resta un numero argomentato, non
+contato — va detto ogni volta che lo si cita.
 
----
+**Limiti misurati e non nascosti, del circuito T3:**
+
+- La forma **italiana** insegna e ha effetto, ma la conferma mostra i nomi
+  interni in inglese, e la forma di **ritiro** italiana non aggancia — viene
+  letta come un fatto. L'inglese è completo.
+- Il rilevatore della situazione usa `words_in_turn`, che **non richiede
+  contiguità**: una domanda che contenga quelle parole sparse verrebbe
+  catturata. Si stringe quando il turno sarà un contenuto con un atto (**F1**
+  di [`the-rational-philosopher.md`](the-rational-philosopher.md)).
+- La cessione è **per facoltà**, non per template: la lezione nomina «l'elenco
+  delle cose che sai» e la KB cede l'intera facoltà `knowledge` in quella
+  situazione. Proporzionato finché la situazione è stretta, da raffinare quando
+  una condotta dovrà spegnere una sola resa.
 
 ## 6. Il lavoro — che cosa alza il numero, in ordine
 

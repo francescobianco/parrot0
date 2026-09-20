@@ -17345,6 +17345,17 @@ static int mod_lesson_form(Brain *b, const char *norm, const char *raw,
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+    /* 21 settembre 2026 (T3 di train-the-learning-process.md) — LA GUARDIA DI
+     * PERTINENZA E' CONOSCENZA.
+     *
+     * «in quale lingua ti ho chiesto quale lingua sai parlare» rispondeva
+     * «c, python»: il tema della domanda era un TURNO di questa conversazione
+     * e la facolta' rispondeva con l'elenco delle cose che sa. Fluente e
+     * infondato — sulla scala di F. la specie peggiore, peggio di un muro.
+     * La porta e' quella condivisa e la politica sta in KB, dicibile e
+     * ritirabile: senza fatti `faculty_yield_when` il comportamento non cambia
+     * (additivo per costruzione). */
+    if (p0_faculty_yields(b, "knowledge", "open", norm, raw)) return 0;
     if (p0_why_question(b, norm, out, out_size)) return 1;
     if (p0_turn_form_views(b, norm, raw, out, out_size)) return 1;
     /* gen507 — L'ANNUNCIO DI UNA CORREZIONE VIENE PRIMA DEL SUO BERSAGLIO.

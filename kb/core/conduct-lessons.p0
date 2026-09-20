@@ -1,0 +1,121 @@
+% conduct-lessons.p0 — LA CONDOTTA SI INSEGNA PARLANDO, E SI RITIRA
+% (T3 di docs/plans/train-the-learning-process.md, 21 settembre 2026)
+%
+% ── IL CASO ────────────────────────────────────────────────────────────────
+%
+%   >>> sai parlare italiano
+%   Sì, parlo italiano.
+%   >>> in quale lingua ti ho chiesto quale lingua sai parlare
+%   c, python.
+%
+% Il tema della domanda è un TURNO di questa conversazione, e parrot0 ha
+% risposto con l'elenco delle cose che sa. Non è un muro: è fluente e
+% infondato, la specie peggiore sulla scala di F. La cura giusta non è
+% indovinare «in italiano» — è **tacere con onestà** finché non si sa leggere
+% il riferimento, e soprattutto poterlo **dire parlando**.
+%
+% ── LA FORMA, E PERCHÉ È PIÙ GRANDE DEL CASO ───────────────────────────────
+%
+%   quando il tema di una domanda è un turno di questa conversazione
+%   non rispondere con l elenco delle cose che sai
+%
+% Non è una regola per quel turno: è `situazione × comportamento`, e ogni
+% coppia nuova costa **un nome**, non una riga di C. È il livello L4 della
+% scala learning-capability (§4.2 del piano) — la condotta — con ordine A1:
+% vale per ogni domanda della famiglia, anche mai vista.
+%
+% Il maestro nomina ciò che VEDE («l'elenco delle cose che sai»); la KB sa
+% quale facoltà lo produce. È il ponte «nome pronunciabile → ruolo» che il
+% piano indica come il più fertile, e nessuna parte della lezione nomina
+% predicati, arità o tuple.
+
+% ── Le situazioni nominabili ───────────────────────────────────────────────
+% Una situazione nuova e' una riga qui, e da quel momento e' dicibile.
+conduct_situation("un turno di questa conversazione", a_turn_of_this_conversation).
+conduct_situation("a turn of this conversation", a_turn_of_this_conversation).
+% Il nome pronunciabile e' una cosa, il rilevatore un'altra: cosi' la conferma
+% parla la lingua del maestro invece di esporre lo schema interno.
+conduct_situation_test(a_turn_of_this_conversation, topic_is_a_turn).
+
+% Il rilevatore: la domanda nomina un ATTO dello scambio. Quali espressioni
+% nominino un atto e' conoscenza, non un ramo: una lingua nuova o una
+% formulazione nuova e' una riga, e la si puo' insegnare.
+conversation_act_phrase(it, "ti ho chiesto").
+conversation_act_phrase(it, "ti ho detto").
+conversation_act_phrase(it, "mi hai chiesto").
+conversation_act_phrase(it, "mi hai detto").
+conversation_act_phrase(it, "hai detto").
+conversation_act_phrase(it, "ho detto").
+conversation_act_phrase(en, "i asked you").
+conversation_act_phrase(en, "i ask you").
+conversation_act_phrase(en, "did i ask").
+conversation_act_phrase(en, "did you say").
+conversation_act_phrase(en, "i told you").
+conversation_act_phrase(en, "you asked me").
+conversation_act_phrase(en, "you said").
+conversation_act_phrase(en, "i said").
+machinery(conversation_act_phrase).
+machinery(topic_is_a_turn).
+topic_is_a_turn($T, named_act) :-
+    current_language($L), conversation_act_phrase($L, $Phrase),
+    atom_words($Phrase, $Words), words_in_turn($T, $Words).
+
+% ── I comportamenti nominabili ─────────────────────────────────────────────
+% Il nome e' quello che l'interlocutore VEDE; la facolta' la sa la KB.
+conduct_behaviour("l elenco delle cose che sai", what_you_know).
+conduct_behaviour("the list of things you know", what_you_know).
+conduct_behaviour_faculty(what_you_know, knowledge).
+
+% ── Il ponte alla porta condivisa ──────────────────────────────────────────
+% `faculty_yield_when(Facolta', Stadio, Predicato)` interroga il predicato sul
+% turno corrente. Qui una coppia insegnata diventa una cessione.
+faculty_yield_when($Faculty, open, $Pred) :-
+    conduct_forbidden($Situation, $Behaviour),
+    conduct_situation_test($Situation, $Pred),
+    conduct_behaviour_faculty($Behaviour, $Faculty).
+
+% ── La lezione, e la sua ritrattazione ─────────────────────────────────────
+turn_form(teach_conduct_yield, 1, text("when the topic of a question is")).
+turn_form(teach_conduct_yield, 2, named(conduct_situation, situation)).
+turn_form(teach_conduct_yield, 3, text("do not answer with")).
+turn_form(teach_conduct_yield, 4, named(conduct_behaviour, behaviour)).
+turn_form_priority(teach_conduct_yield, early).
+turn_form_view(teach_conduct_yield, said).
+turn_form_act(teach_conduct_yield, "op(assert, conduct_forbidden, [situation, behaviour])").
+turn_form_reply(teach_conduct_yield, conduct_yield_learned).
+
+turn_form(forget_conduct_yield, 1, text("forget that when the topic of a question is")).
+turn_form(forget_conduct_yield, 2, named(conduct_situation, situation)).
+turn_form(forget_conduct_yield, 3, text("do not answer with")).
+turn_form(forget_conduct_yield, 4, named(conduct_behaviour, behaviour)).
+turn_form_priority(forget_conduct_yield, early).
+turn_form_view(forget_conduct_yield, said).
+turn_form_act(forget_conduct_yield, "op(retract, conduct_forbidden, [situation, behaviour])").
+turn_form_reply(forget_conduct_yield, conduct_yield_forgotten).
+
+turn_form(teach_conduct_yield_it, 1, text("quando il tema di una domanda è")).
+turn_form(teach_conduct_yield_it, 2, named(conduct_situation, situation)).
+turn_form(teach_conduct_yield_it, 3, text("non rispondere con")).
+turn_form(teach_conduct_yield_it, 4, named(conduct_behaviour, behaviour)).
+turn_form_priority(teach_conduct_yield_it, early).
+turn_form_view(teach_conduct_yield_it, said).
+turn_form_act(teach_conduct_yield_it, "op(assert, conduct_forbidden, [situation, behaviour])").
+turn_form_reply(teach_conduct_yield_it, conduct_yield_learned_it).
+
+turn_form(forget_conduct_yield_it, 1, text("dimentica che quando il tema di una domanda è")).
+turn_form(forget_conduct_yield_it, 2, named(conduct_situation, situation)).
+turn_form(forget_conduct_yield_it, 3, text("non rispondere con")).
+turn_form(forget_conduct_yield_it, 4, named(conduct_behaviour, behaviour)).
+turn_form_priority(forget_conduct_yield_it, early).
+turn_form_view(forget_conduct_yield_it, said).
+turn_form_act(forget_conduct_yield_it, "op(retract, conduct_forbidden, [situation, behaviour])").
+turn_form_reply(forget_conduct_yield_it, conduct_yield_forgotten_it).
+
+response_template(conduct_yield_learned,
+    "Understood: when the topic is {situation}, I will not answer with {behaviour}.").
+response_template(conduct_yield_forgotten,
+    "I dropped that rule: when the topic is {situation}, I may answer with {behaviour} again.").
+response_template(conduct_yield_learned_it,
+    "Inteso: quando il tema è {situation}, non risponderò con {behaviour}.").
+response_template(conduct_yield_forgotten_it,
+    "Ho ritirato quella regola: quando il tema è {situation}, potrò di nuovo rispondere con {behaviour}.").
