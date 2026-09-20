@@ -783,6 +783,34 @@ static int te_process_stream(TeState *t, FILE *in) {
             if (!*q || !kb_load_clause(brain_kb(t->b), q)) syntax_err = 1;
             continue;
         }
+        /* `!suppose PRED(a, …)` — la meta' che mancava alla simmetria: il
+         * cricchetto sapeva RITIRARE le ipotesi (`!forget @hypothetical`) e non
+         * sapeva PORLE, quindi nessun test poteva misurare la differenza fra
+         * «detto» e «supposto» sullo stesso contenuto — che e' esattamente la
+         * distinzione fra un contenuto e i suoi ATTI (M2). Scrive lo stesso
+         * fatto di `!assert`, nel livello delle premesse supposte. */
+        if (strncmp(p, "!suppose", 8) == 0 && (p[8] == ' ' || p[8] == '\t')) {
+            te_flush(t);
+            char *q = p + 8;
+            while (*q == ' ' || *q == '\t') q++;
+            char pred[TE_NAME]; size_t k = 0;
+            while (*q && *q != '(' && *q != ' ' && *q != '\t' && k + 1 < sizeof pred)
+                pred[k++] = *q++;
+            pred[k] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            if (k == 0 || *q != '(') { syntax_err = 1; continue; }
+            q++;
+            char argbuf[KB_MAX_ARGS][KB_TERM_LEN];
+            const char *args[KB_MAX_ARGS];
+            size_t argc = te_split_args(q, argbuf, args, &q);
+            if (argc == 0) { syntax_err = 1; continue; }
+            KB *kb = brain_kb(t->b);
+            int saved = kb_origin(kb);
+            kb_set_origin(kb, KB_HYPOTHETICAL);
+            kb_assert(kb, pred, args, argc);
+            kb_set_origin(kb, saved);
+            continue;
+        }
         if (strncmp(p, "!assert", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {
             te_flush(t);
             char *q = p + 7;

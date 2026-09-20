@@ -93,3 +93,30 @@
 !query abstraction_plato_rule(yes)
 !clause abstraction_plato_rests(yes) :- kb_derivation($D, mortal(plato), 0, 2), derivation_rests_on($D, man), derivation_rests_on($D, mortal)
 !query abstraction_plato_rests(yes)
+
+[test one_content_two_acts]
+# M2, la seconda meta': lo stesso contenuto entrato per due vie ha DUE atti.
+# Il contenuto resta uno — e' la stessa proposizione — ma ritirarne uno lascia
+# vivo l'altro. Prima il secondo atto era invisibile e ritirare l'ipotesi
+# portava via anche cio' che la sessione sapeva.
+!assert abstraction_shared(x)
+!query content_act(content(abstraction_shared, $P), session)
+!query! content_act(content(abstraction_shared, $P), hypothetical)
+!suppose abstraction_shared(x)
+!query content_act(content(abstraction_shared, $P), session)
+!query content_act(content(abstraction_shared, $P), hypothetical)
+!query content_entered_twice(content(abstraction_shared, $P))
+# ritirare l'ipotesi toglie QUELL'atto, non il contenuto
+!forget @hypothetical
+!query content_act(content(abstraction_shared, $P), session)
+!query! content_act(content(abstraction_shared, $P), hypothetical)
+!query abstraction_shared(x)
+
+[test a_content_only_supposed_falls_with_its_act]
+!suppose abstraction_supposed(y)
+!query content_act(content(abstraction_supposed, $P), hypothetical)
+!query content_only_supposed(content(abstraction_supposed, $P))
+!query abstraction_supposed(y)
+!forget @hypothetical
+!query! abstraction_supposed(y)
+!query! content_act(content(abstraction_supposed, $P), hypothetical)

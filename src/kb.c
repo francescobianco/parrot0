@@ -1031,14 +1031,22 @@ static int fact_remove(Fact *facts, size_t *n, const Fact *needle) {
     return 0;
 }
 
+/* M2 — RITIRARE UN ATTO, non per forza il contenuto.
+ *
+ * Un contenuto puo' essere entrato per piu' atti (piu' origini): `kb_assert`
+ * le SOMMA invece di ignorare il secondo. Qui si toglie l'atto indicato; il
+ * fatto sparisce solo quando non ne resta nessuno. Ritorna 1 se il fatto e'
+ * stato rimosso, 2 se e' stato tolto un atto e il contenuto resta, 0 se non
+ * c'era niente da togliere. */
 static int fact_remove_origin(Fact *facts, size_t *n, const Fact *needle,
                               int origin) {
     for (size_t i = 0; i < *n; i++) {
-        if (fact_eq(&facts[i], needle) && facts[i].origin == origin) {
-            memmove(&facts[i], &facts[i + 1], (*n - i - 1) * sizeof *facts);
-            (*n)--;
-            return 1;
-        }
+        if (!fact_eq(&facts[i], needle) || !(facts[i].origin & origin)) continue;
+        int rest = facts[i].origin & ~origin;
+        if (rest) { facts[i].origin = rest; return 2; }
+        memmove(&facts[i], &facts[i + 1], (*n - i - 1) * sizeof *facts);
+        (*n)--;
+        return 1;
     }
     return 0;
 }
@@ -1112,21 +1120,30 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    if (fact_remove_origin(kb->neg, &kb->nn, &f, kb->origin)) {
-        fact_index_rebuild_after_remove(&kb->neg_index, &kb->neg_index_cap,
-                                        kb->neg, kb->nn);
+    int neggone = fact_remove_origin(kb->neg, &kb->nn, &f, kb->origin);
+    if (neggone) {
+        if (neggone == 1)
+            fact_index_rebuild_after_remove(&kb->neg_index, &kb->neg_index_cap,
+                                            kb->neg, kb->nn);
         kb_views_changed(kb, pred);
     }
     Fact *known = (Fact *)kb_find(kb, &f);
     if (known) {
         journal_note(kb, &f, '=');
-        /* A taught fact must outlive the cache that happened to contain it. */
-        if (known->origin == KB_DERIVED && kb->origin != KB_DERIVED) {
-            known->origin = kb->origin;
-            kb->n_derived--;
-            kb_views_changed(kb, pred);
-        }
-        return 1; /* already known — idempotent */
+        /* M2 — LO STESSO CONTENUTO PUO' ENTRARE PER PIU' ATTI.
+         *
+         * Il contenuto resta deduplicato — e' la stessa proposizione — ma le
+         * OCCORRENZE si sommano, e ritirarne una lascia vive le altre. Prima il
+         * secondo atto era invisibile: la sonda del piano misurava session=1 e
+         * hypothetical=0 dopo che lo stesso contenuto era stato detto due volte,
+         * e ritirare l'ipotesi portava via anche cio' che la sessione sapeva.
+         * Un fatto insegnato deve sopravvivere alla cache che lo conteneva:
+         * ora non perche' la sostituisce, ma perche' e' un atto in piu'. */
+        int before = known->origin;
+        if (before == KB_DERIVED && kb->origin != KB_DERIVED) kb->n_derived--;
+        known->origin |= kb->origin;
+        if (known->origin != before) kb_views_changed(kb, pred);
+        return 1; /* contenuto gia' noto — l'atto si e' aggiunto */
     }
     f.origin = kb->origin;
     if (!fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
@@ -1326,10 +1343,18 @@ size_t kb_retract_origin(KB *kb, int origin_mask) {
     if (!kb || !origin_mask) return 0;
     size_t removed = 0, w = 0;
     for (size_t i = 0; i < kb->n; i++) {
-        if (kb->facts[i].origin & origin_mask) {
+        int before = kb->facts[i].origin;
+        if (before & origin_mask) {
+            /* M2 — si ritira l'ATTO, non per forza il contenuto: se il fatto
+             * e' entrato anche per un'altra via, quella resta viva. */
             kb_views_changed(kb, kb->facts[i].pred);
-            if (kb->facts[i].origin == KB_DERIVED) kb->n_derived--;
-            removed++; continue;
+            int rest = before & ~origin_mask;
+            if (rest) {
+                kb->facts[i].origin = rest;
+            } else {
+                if (before == KB_DERIVED) kb->n_derived--;
+                removed++; continue;
+            }
         }
         if (w != i) kb->facts[w] = kb->facts[i];
         w++;
@@ -1407,11 +1432,14 @@ int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    if (fact_remove_origin(kb->facts, &kb->n, &f, kb->origin)) {
-        if (kb->origin == KB_DERIVED) kb->n_derived--;
+    int gone = fact_remove_origin(kb->facts, &kb->n, &f, kb->origin);
+    if (gone) {
+        if (gone == 1 && kb->origin == KB_DERIVED) kb->n_derived--;
         kb_views_changed(kb, pred);
-        kb->fact_index_stale = 1;
-        pred_stats_invalidate(kb);
+        if (gone == 1) {
+            kb->fact_index_stale = 1;
+            pred_stats_invalidate(kb);
+        }
     }
     return kb_assert_neg_only(kb, pred, args, argc);
 }
@@ -2308,17 +2336,49 @@ static int clause_yield(Solver *S, const Term *goals, size_t ngoals, size_t idx,
  * gli archi. Un solo attraversamento del censimento per le due porte. */
 typedef int (*ClauseVisit)(Solver *, const Term *, size_t, size_t, const Subst *,
                            int, SolveFrame *, const char *, size_t,
-                           const char (*)[KB_TERM_LEN], int, const Term *, size_t);
+                           const char (*)[KB_TERM_LEN], int, const Term *, size_t,
+                           int);
 
 static int visit_rows(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                       const Subst *s, int depth, SolveFrame *scratch,
                       const char *hpred, size_t hargc,
                       const char (*hargs)[KB_TERM_LEN], int neg,
-                      const Term *body, size_t nbody) {
+                      const Term *body, size_t nbody, int origin) {
+    (void)origin;
     ClauseWork *w = calloc(1, sizeof *w);
     if (!w) return 0;
     clause_render(w, hpred, hargc, hargs, neg, body, nbody);
     int ok = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
+    free(w);
+    return ok;
+}
+
+/* Gli ATTI che hanno fatto entrare questo contenuto: uno per livello di
+ * provenienza. Il motore da' il BIT; il nome del livello e' un fatto della KB
+ * (`act_layer/2` in kb/core/clause-content.p0), percio' un livello si nomina
+ * senza ricompilare e il C non porta un elenco di parole. Lo stesso contenuto
+ * entrato per due vie ha due atti: `kb_assert` li somma invece di ignorare il
+ * secondo, e ritirarne uno lascia vivo l'altro. */
+static int visit_acts(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                      const Subst *s, int depth, SolveFrame *scratch,
+                      const char *hpred, size_t hargc,
+                      const char (*hargs)[KB_TERM_LEN], int neg,
+                      const Term *body, size_t nbody, int origin) {
+    const Term *g = &goals[idx];
+    ClauseWork *w = calloc(1, sizeof *w);
+    if (!w) return 0;
+    clause_render(w, hpred, hargc, hargs, neg, body, nbody);
+    Subst *s2 = &scratch->subst;
+    int ok = 0;
+    for (int bit = 1; bit && !ok; bit <<= 1) {
+        if (!(origin & bit)) continue;
+        char b[32];
+        snprintf(b, sizeof b, "%d", bit);
+        subst_copy(s2, s);
+        if (unify(s2, g->args[0], w->id) && unify(s2, g->args[1], w->head) &&
+            unify(s2, g->args[2], b))
+            ok = solve(S, goals, ngoals, idx + 1, s2, depth);
+    }
     free(w);
     return ok;
 }
@@ -2383,7 +2443,8 @@ static int visit_args(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                       const Subst *s, int depth, SolveFrame *scratch,
                       const char *hpred, size_t hargc,
                       const char (*hargs)[KB_TERM_LEN], int neg,
-                      const Term *body, size_t nbody) {
+                      const Term *body, size_t nbody, int origin) {
+    (void)origin;
     const Term *g = &goals[idx];
     ClauseWork *w = calloc(1, sizeof *w);
     size_t *ix = calloc(KB_ARG_DEPTH + 2, sizeof *ix);
@@ -2444,7 +2505,7 @@ static int clause_scan(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             if (bound && strcmp(R->head.pred, want) != 0) continue;
             hit = visit(S, goals, ngoals, idx, s, depth, scratch,
                         R->head.pred, R->head.argc, R->head.args, 0,
-                        R->body, R->nbody);
+                        R->body, R->nbody, R->origin);
         }
         PredBucket fb = { NULL, 0, 0, 0 };
         if (bound) fb = pred_bucket(kb, want);
@@ -2457,14 +2518,14 @@ static int clause_scan(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             if (!kb_view_fact_visible(kb, F)) continue;
             if (bound && strcmp(F->pred, want) != 0) continue;
             hit = visit(S, goals, ngoals, idx, s, depth, scratch,
-                        F->pred, F->argc, F->args, 0, NULL, 0);
+                        F->pred, F->argc, F->args, 0, NULL, 0, F->origin);
         }
     }
     for (size_t i = 0; i < kb->nn && !hit; i++) {
         const Fact *F = &kb->neg[i];
         if (bound && strcmp(F->pred, want) != 0) continue;
         hit = visit(S, goals, ngoals, idx, s, depth, scratch,
-                    F->pred, F->argc, F->args, 1, NULL, 0);
+                    F->pred, F->argc, F->args, 1, NULL, 0, F->origin);
     }
     return hit;
 }
@@ -3077,6 +3138,8 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return clause_scan(S, goals, ngoals, idx, s, depth, scratch, visit_rows);
     if (g->argc == 4 && strcmp(g->pred, "kb_clause_arg") == 0)
         return clause_scan(S, goals, ngoals, idx, s, depth, scratch, visit_args);
+    if (g->argc == 3 && strcmp(g->pred, "kb_act") == 0)
+        return clause_scan(S, goals, ngoals, idx, s, depth, scratch, visit_acts);
     if (g->argc == 4 && strcmp(g->pred, "kb_derivation") == 0)
         return derivation_door(S, goals, ngoals, idx, s, depth, scratch);
 
@@ -4098,6 +4161,7 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
             !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
             !strcmp(pred, "kb_rule_body") || !strcmp(pred, "kb_clause") ||
             !strcmp(pred, "kb_clause_arg") || !strcmp(pred, "kb_derivation") ||
+            !strcmp(pred, "kb_act") ||
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
             !strcmp(pred, "prob")) return 0;
@@ -4587,7 +4651,8 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     /* The overwhelmingly common KB-first lookup is a ground fact predicate with
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
-    int has_rule = (argc == 4 && (strcmp(pred, "kb_clause") == 0 ||      /* la clausola integra */
+    int has_rule = (argc == 3 && strcmp(pred, "kb_act") == 0) ||         /* gli atti */
+                   (argc == 4 && (strcmp(pred, "kb_clause") == 0 ||      /* la clausola integra */
                                   strcmp(pred, "kb_clause_arg") == 0 ||    /* i suoi archi */
                                   strcmp(pred, "kb_derivation") == 0)) ||  /* e la sua prova */
                    (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
@@ -4720,7 +4785,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                     strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
                     strcmp(pred, "kb_rule_body") != 0 &&
                     strcmp(pred, "kb_clause") != 0 && strcmp(pred, "kb_derivation") != 0 &&
-                    strcmp(pred, "kb_clause_arg") != 0 &&
+                    strcmp(pred, "kb_clause_arg") != 0 && strcmp(pred, "kb_act") != 0 &&
                     strcmp(pred, "apply") != 0;
     for (size_t i = 0; i < argc; i++) {
         if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
@@ -8235,7 +8300,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
         "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body",
-        "kb_clause", "kb_clause_arg", "kb_derivation",
+        "kb_clause", "kb_clause_arg", "kb_act", "kb_derivation",
         "apply", "atom_words", "map_words", NULL };
     for (size_t i = 0; builtins[i]; i++)
         if (strcmp(pred, builtins[i]) == 0) return 1;

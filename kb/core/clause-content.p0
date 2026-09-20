@@ -67,3 +67,32 @@ clause_argument($Id, $Where, $K, $Node) :- kb_clause_arg($Id, $Where, cons($K, n
 clause_said_twice($Head) :-
     findall($One, kb_clause($One, $Head, 0, $C1), cons($Only, nil)),
     findall_bag($Each, kb_clause($Each, $Head, 0, $C2), cons($First, cons($Second, $Rest))).
+
+% ─── Gli ATTI: le occorrenze di un contenuto (M2, 20 settembre 2026) ──────────
+%
+% Lo stesso contenuto puo' essere entrato per piu' vie. Il contenuto resta
+% deduplicato — e' la stessa proposizione — ma le OCCORRENZE si sommano, e
+% ritirarne una lascia vive le altre. Prima il secondo atto era invisibile:
+% ritirare l'ipotesi portava via anche cio' che la sessione sapeva.
+%
+%   kb_act(Id, Testa, Bit)   un atto che ha fatto entrare questo contenuto
+%
+% Il motore da' il BIT della provenienza; il NOME del livello e' un fatto qui
+% sotto, quindi si nomina senza ricompilare e nessun elenco di parole sta nel C.
+% Un atto e' «a quale livello questo contenuto e' entrato»; CHI l'ha detto, in
+% quale turno e con quale forza sono conoscenze ulteriori sulla stessa
+% identita' — si scrivono come fatti normali, non servono altre porte.
+
+act_layer(1, base).
+act_layer(2, session).
+act_layer(4, induced).
+act_layer(8, reflective).
+act_layer(16, hypothetical).
+act_layer(32, derived).
+
+content_act($Id, $Layer) :- kb_act($Id, $Head, $Bit), act_layer($Bit, $Layer).
+content_act_of($Id, $Head, $Layer) :- kb_act($Id, $Head, $Bit), act_layer($Bit, $Layer).
+content_entered_twice($Id) :-
+    kb_act($Id, $Head, $B1), kb_act($Id, $Head, $B2), dif($B1, $B2).
+content_only_supposed($Id) :-
+    content_act($Id, hypothetical), naf(content_act($Id, session)), naf(content_act($Id, base)).
