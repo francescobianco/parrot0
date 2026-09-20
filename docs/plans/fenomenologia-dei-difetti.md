@@ -170,3 +170,101 @@ ir(30))`).
 - Una specie nuova si aggiunge in tre posti: una riga in
   `kb/core/fenomenologia.p0`, un ramo in `scripts/fenomeni.sh`, una riga nella
   tabella delle specie. Se costa più di così, la specie non è stata capita.
+---
+
+## Perché l'ispettore non aveva trovato il difetto (F., 20 settembre 2026)
+
+> «Come mai le tecniche di dump della IR e tracking della KB con `/debug` non
+> ci permettono di trovare il problema? Riusciamo a fare tesoro di quali
+> elementi per il debug sono emersi qui?»
+
+**La risposta, in una riga: l'ispettore mostra uno STATO, e i difetti che
+cacciamo sono DIFFERENZE.** `/debug` e `/debug dump` rispondono benissimo a
+«che cosa c'è adesso in questo turno»; nessuno dei due risponde a «che cosa è
+cambiato», «chi ha perso la gara» e «perché qui e non là». Da qui tre cecità
+precise, tutte misurate in questa sessione.
+
+### 1. L'ispettore guarda un turno; il banco misura una sessione
+
+Una domanda del banco non è un turno isolato: arriva **dopo** che sedici frasi
+sono state lette, e lo stato che la fa sbagliare è quello. Chi rifaceva la
+domanda da sola ispezionava un altro turno e non riproduceva niente — è il
+motivo per cui la diagnosi era ferma.
+
+**Il ponte, ora esiste:** [`scripts/prose-why.sh`](../../scripts/prose-why.sh)
+
+```sh
+scripts/prose-why.sh r300 "what are shallow coral reefs sometimes called?"
+```
+
+Stessa prosa, stessa domanda, ispettore addosso. **Ha trovato il difetto in una
+passata:** la lettura aveva registrato
+`complement(binding(call, shallow_coral_reefs, rainforests), of, sea)` e la
+risposta diceva «Rainforests.». Il complemento era **conoscenza già acquisita**
+e la resa lo buttava — una risposta più povera della lettura che la sostiene.
+Sulla scala di F. questa è la specie giusta da chiudere: non aggiunge un
+frasario, compone ciò che il testo ha già detto.
+
+### 2. L'ispettore nomina il vincitore, non la gara
+
+`turn_module` dice chi ha risposto; `turn_said_by` dice con quale modello di
+frase. Nessuno dei due dice **quali altri candidati c'erano e perché hanno
+perso**. Per una troncatura — «rainforests of the sea» → «rainforests»,
+«water conditions» → «water» — è esattamente il fatto mancante: la risposta
+lunga non è stata rifiutata, non è mai stata costruita. `turn_focus_rejected`
+copre un solo motivo di scarto (fuori fuoco) e taceva su tutti gli altri.
+
+### 3. L'ispettore non si confronta con se stesso
+
+Il caso «2.7» non si vedeva guardando la IR: la IR era **coerente con sé
+stessa**, semplicemente diceva `2` e `7`. Si è visto solo mettendo due flussi
+uno accanto all'altro. Da qui la sonda `debug_token_streams`, che non ispeziona
+una rappresentazione ma **dichiara dove due rappresentazioni che devono
+concordare non concordano**.
+
+## La regola che ne esce
+
+> **Una sonda nuova che mostra uno stato vale poco; una sonda che mostra una
+> DIFFERENZA trova i difetti da sola.**
+
+Le sonde differenziali da scrivere, in ordine di resa:
+
+| sonda | differenza che mostra | stato |
+|---|---|---|
+| `debug_token_streams` | due flussi di token sullo stesso turno | ✅ fatta |
+| `prose-why.sh` | il turno del banco contro il turno isolato | ✅ fatto |
+| la gara | il vincitore contro i candidati scartati, con il motivo | da scrivere |
+| la lettura contro la resa | ciò che è stato letto contro ciò che è stato detto | da scrivere — è quella che ha trovato il complemento buttato, ma a mano |
+| due letture dello stesso testo | la IR di ieri contro quella di oggi | da scrivere |
+
+## Quello che gli strumenti hanno anche rivelato di sé
+
+- **`/debug` enumerava 32 sonde e ce n'erano 37.** Le ultime sparivano in
+  silenzio: si credeva di aver guardato. Tetto a 96. È la specie «strumento
+  muto», trovata mentre se ne aggiungeva una.
+- **Due sonde nuove, due righe di KB** (`debug_ir_token`, `debug_ir_node`):
+  senza di esse la diagnosi del caso 2.7 non era possibile. Il costo di vedere
+  una cosa nuova deve restare una riga.
+- **Il dump distingue i fatti dai DERIVATI** (`[derivato]`), ed è così che si è
+  capito che `input_node_atom` non è memorizzato ma calcolato. Un dump che
+  avesse detto «nessun fatto» avrebbe mentito.
+- **Il demone dei test resta in piedi dopo `make build`**: `--test` interroga
+  quello vecchio e dà rossi che sembrano del codice nuovo. Costa una diagnosi
+  sbagliata a chi non lo sa; `make test-engine` dopo ogni build.
+
+## Il debito misurato, non attribuito
+
+`r300` è **45/62**, contro il 48/62 del referto del 19 settembre sera. Le
+cinque risposte perse sono tutte **troncature di sintagma**. Tre sospetti sono
+stati **esclusi con una misura ciascuno**, non per ragionamento:
+
+| sospetto | prova | esito |
+|---|---|---|
+| unione delle origini (`kb_assert`) | disabilitata, banco rilanciato | 45/62 — **non è lei** |
+| le tre KB nuove (clause-content, derivation, fenomenologia) | includes esclusi, banco rilanciato | 45/62 — **non sono loro** |
+| il `Solver` cresciuto di 4 KB sulla pila C (tetto gen514) | pila dei passi spostata sullo heap | 45/62 — **non è lui** |
+
+Lo spostamento sullo heap resta comunque: un `Solver` finisce sulla pila a ogni
+negazione, e quella pila è il terzo cancello della ricerca. **Il −3 resta non
+attribuito**, e la prossima sessione ha ora `prose-why.sh` per guardarlo turno
+per turno invece che banco per banco.

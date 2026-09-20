@@ -1870,7 +1870,13 @@ typedef struct {
      * quando il ramo torna indietro: a una soluzione la pila sopra la base
      * del marcatore e' esattamente l'AND della prova. Costa solo dentro uno
      * scope di kb_derivation (`recording` > 0). */
-    DepRef   proof[KB_DERIV_DEPS];
+    /* ⚠ SULLO HEAP, NON QUI. Un `Solver` finisce sulla pila C a ogni
+     * negazione (`goal_provable`), e il tetto della pila e' il terzo cancello
+     * della ricerca (gen514): 4 KB in piu' per livello tagliavano prove che
+     * prima arrivavano in fondo — r300 perdeva cinque risposte, tutte per
+     * troncatura, senza che nessuna conoscenza fosse cambiata. La pila dei
+     * passi serve solo dentro uno scope di `kb_derivation`: si alloca li'. */
+    DepRef  *proof;
     size_t   nproof;      /* puo' superare KB_DERIV_DEPS: i passi persi rendono la derivazione incompleta */
     int      recording;
 
@@ -2594,7 +2600,7 @@ static uint32_t dep_arena_put(KB *kb, const char *s) {
 static void proof_push(Solver *S, const char *text) {
     uint64_t h = fnv_text_of(text);
     uint32_t at = dep_arena_put((KB *)S->kb, text);
-    if (S->nproof < KB_DERIV_DEPS) {
+    if (S->proof && S->nproof < KB_DERIV_DEPS) {
         S->proof[S->nproof].h  = h;
         S->proof[S->nproof].at = at;
     }
@@ -2702,6 +2708,7 @@ static int derivation_close(Solver *S, const Term *goals, size_t ngoals, size_t 
     char **deps = calloc(KB_DERIV_DEPS, sizeof *deps);
     if (!deps) return 0;
     size_t nd = 0, top = S->nproof < KB_DERIV_DEPS ? S->nproof : KB_DERIV_DEPS;
+    if (!S->proof) top = 0;
     KB *km = (KB *)S->kb;
     for (size_t k = base; k < top; k++) {           /* l'AND, senza doppioni */
         if (S->proof[k].at == UINT32_MAX) continue;
@@ -2761,10 +2768,15 @@ static int derivation_door(Solver *S, const Term *goals, size_t ngoals, size_t i
         term_copy(&ng[m++], &goals[k]);
     if (m >= KB_MAX_GOALS && idx + 1 < ngoals) { S->budget_hit = 1; return 0; }
     KB *km = (KB *)S->kb;
-    if (S->recording == 0) km->dep_len = 0;   /* lo scope piu' esterno azzera */
+    if (S->recording == 0) {                  /* lo scope piu' esterno azzera */
+        km->dep_len = 0;
+        S->proof = calloc(KB_DERIV_DEPS, sizeof *S->proof);
+        if (!S->proof) return 0;              /* senza pila non si finge una prova */
+    }
     S->recording++;
     int ok = solve(S, ng, m, 0, s, depth + 1);
     S->recording--;
+    if (S->recording == 0) { free(S->proof); S->proof = NULL; S->nproof = 0; }
     return ok;
 }
 

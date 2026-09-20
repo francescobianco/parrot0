@@ -58,9 +58,14 @@ if [ "$WHAT" = furti ] || [ "$WHAT" = tutto ]; then
   echo "═══ specie: furto di turno (chi risponde a un'ASSERZIONE di prosa)"
   : > "$OUT/mod"
   for t in $texts; do
-    feed "$t" | grep -E "^  modulo" | awk '{print $2}' >> "$OUT/mod"
+    # la frase e la facolta' che l'ha presa, appaiate: una riga si legge
+    feed "$t" | awk '/^  TURNO/ { $1=""; $2=""; s=substr($0,3,78) }
+                   /^  modulo/ { print $2 "\t" s }' >> "$OUT/mod"
   done
-  sort "$OUT/mod" | uniq -c | sort -rn
+  cut -f1 "$OUT/mod" | sort | uniq -c | sort -rn
+  echo
+  echo "  ── le righe delle facolta' che non leggono e non registrano:"
+  grep -vE "^(knowledge|fallback|input|reader|discourse|coref)\t" "$OUT/mod" | sort | sed "s/^/     /"
   echo "  ── leggono/registrano di diritto: knowledge, input, reader, discourse, coref."
   echo "     ogni ALTRA facolta' in questa lista e' una candidata al furto."
 fi
