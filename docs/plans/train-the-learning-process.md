@@ -1,5 +1,319 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## 0. Metodo operativo vigente — l’iterazione di riferimento
+
+**Questo piano si esegue per «iterazioni di riferimento».** Il coding agent
+sceglie uno stimolo umano significativo che parrot0 non sa ancora affrontare,
+misura quel fallimento, prepara un curriculum plausibile con dati veri e
+lavora sui punti che impediscono alle lezioni di produrre apprendimento.
+L'iterazione termina quando parrot0 affronta lo stimolo grazie alle lezioni,
+trasferisce la capacità e la conserva nella KB versionata, con un commit che
+rende verificabile la crescita.
+
+> **ISTRUZIONE DI AMBITO: in questo piano il banco della prosa va ignorato.**
+> Non lanciare `prose-record`, `prose-gate`, `prose-rung`, la ladder o r300;
+> non usare i loro punteggi come obiettivo, prerequisito o criterio di chiusura.
+> Le prescrizioni storiche di questo file che li imponevano sono superate.
+> Qui la verifica è la catena **stimolo → lezioni → capacità → trasferimento →
+> persistenza → commit**. Una lezione può contenere prosa naturale: a essere
+> escluso è quel banco, non la possibilità di imparare leggendo.
+
+**Per riprendere basta questo prompt:**
+
+```text
+Fai 10 iterazioni di riferimento secondo
+docs/plans/train-the-learning-process.md.
+```
+
+L'invocazione autorizza l'esecuzione del ciclo e i commit delle iterazioni;
+non è una richiesta di scrivere dieci proposte. Dopo ogni iterazione completa
+si prosegue autonomamente alla successiva. Il ciclo vale per qualsiasi N
+richiesto. Una richiesta di descrivere o modificare il metodo non avvia da sola
+un lotto di training.
+
+### 0.1 Che cosa conta come una iterazione
+
+**Una iterazione = una lacuna di comprensione/insegnabilità superata attraverso
+un curriculum reale**, con uno stimolo iniziale fissato e un incremento
+persistente della KB. Le modifiche tecniche necessarie sono parte del ciclo;
+non sono di per sé il suo risultato.
+
+- Lo stimolo può essere domanda, richiesta composta, dichiarazione di intento,
+  correzione, vincolo nuovo o continuazione di un'attività. Se dipende da una
+  conversazione, lo stimolo comprende **tutto il preambolo necessario**, fissato
+  e ripetuto nelle prove. Il successo può essere una risposta motivata oppure
+  una mossa pertinente seguita da avanzamento osservabile.
+- Il fallimento iniziale va **osservato**, non presunto dall'agente. Se parrot0
+  riesce già, il candidato è scartato con motivazione; non si impoverisce la KB
+  né si rende artificiosamente difficile la frase per fabbricare un rosso.
+- La crescita deve comprendere **nuova conoscenza vera appresa e conservata**
+  (clausole apprese in `W`, `L` o `C` di `LEARN_PROTOCOL.md`) e un guadagno
+  di comprensione trasferibile, dimostrato su dati reali. Aprire soltanto un
+  meccanismo è progresso infrastrutturale;
+  aggiungere soltanto una curiosità enciclopedica è training di contenuti.
+  Nessuno dei due basta, da solo, per contare una iterazione di questo piano.
+- Ogni iterazione completa ha un **commit proprio**, con KB, prove e spiegazione
+  della capacità guadagnata. Dieci iterazioni richiedono dieci chiusure causali
+  riconoscibili, non dieci commit vuoti o dieci varianti di una stessa lezione.
+
+Usare ID stabili, per esempio `RI-001`, all'interno di un lotto identificato.
+Distinguere `tentativi`, `iterazioni_complete` e `famiglie_superate`. Un tentativo
+fallito può produrre un reperto o un commit diagnostico, ma non incrementa il
+numero di iterazioni complete. Uno stato `partial` non diventa riuscito perché
+il budget finisce. Se resta un impedimento reale, riportare quante delle N
+sono concluse, che cosa manca e come riprendere; non inventare le restanti.
+
+### 0.2 Scegliere stimoli che facciano crescere la comprensione
+
+Partire da un'esigenza riconoscibile: un'attività umana, una spiegazione utile,
+un documento reale, una decisione con vincoli, una correzione da incorporare.
+Cercare conoscenze vere già presenti nella KB alle quali connettere quelle
+nuove. Scrivere **prima dello sviluppo** perché una persona porrebbe quello
+stimolo e quale distinzione generale servirebbe per affrontarlo.
+
+| scegliere | evitare |
+|---|---|
+| una richiesta naturale che esige collegare, distinguere, applicare o proseguire | il template esatto che il parser sa già leggere, scelto per facilitare il verde |
+| una lacuna che un curriculum finito e motivato potrebbe colmare | una frase indecifrabile, una contraddizione fabbricata o una richiesta impossibile |
+| dati reali con fonte, condizioni di validità e utilità oltre il turno | entità inventate, nonce words, fatti di test salvati, numeri adattati al parser |
+| una nuova composizione di capacità o un limite di apprendimento | sostituire solo nomi e numeri nello stimolo dell'iterazione precedente |
+| esiti verificabili nel merito e nella pertinenza | giudicare dal tono convincente, da una parola attesa o dal solo «Learned» |
+
+**Controllo contro i prompt viziati:** «Lo avrei formulato così anche senza
+conoscere i rami di parrot0? Quale altro problema diventa affrontabile se questa
+lezione funziona?». Se la risposta è soltanto «questa frase passa», cambiare
+il candidato prima di sviluppare. Non accorciare lo stimolo, togliere vincoli
+o inserirvi la risposta dopo averlo visto fallire.
+
+Nel lotto variare contesti, atti e soprattutto **cause del fallimento**.
+Inserire anche iniziative e continuazioni, senza trasformare il lavoro in una
+serie di domande scolastiche. La varietà dei sostantivi non dimostra varietà
+delle capacità. La prima iterazione può aprire una forma; la successiva deve
+metterla alla prova in un uso nuovo o aprire una distinzione ulteriore, invece
+di ripetere la stessa dimostrazione con altri nomi.
+
+### 0.3 Preparazione minima del lotto
+
+Leggere `MANTRA.md`, `PRINCIPLES.md` e le sezioni pertinenti di
+[`LEARN_PROTOCOL.md`](../../LEARN_PROTOCOL.md) su fonti, insegnamento, salvataggio,
+conteggio e persistenza. Usare sempre il profilo completo, normalmente `agi`.
+Le sessioni nuove azzerano la conversazione, non la KB condivisa.
+
+Registrare stato Git iniziale, profilo, versione del motore e KB. Conservare
+le modifiche preesistenti; scegliere un checkout separato quando serve a
+rendere distinguibili gli incrementi. Non attribuire al lotto lavoro altrui.
+Preparare una coda breve di candidati e un registro in
+`docs/labs/reference-iterations/<lotto>/`. La baseline di ciascun candidato
+va comunque misurata **dopo il commit precedente**, perché la KB è cresciuta.
+
+Non serve completare il censimento delle 30 righe né costruire l'intero
+manifest del §4.5 per iniziare. Il registro nasce dalla prima iterazione;
+l'indicatore globale resta NC finché non esiste evidenza sufficiente.
+
+### 0.4 Il ciclo, da eseguire nell'ordine
+
+**R1 — Fissare lo stimolo e provare il limite.** Salvare testo esatto,
+preambolo, esito semanticamente richiesto, fonte che lo rende verificabile e
+risposta iniziale integrale. Spiegare il difetto: dato mancante, relazione non
+composta, lezione non capita, scope perso, condotta inadeguata, stato dimenticato.
+Registrare anche un caso affine già riuscito come controllo. Non chiamare
+«mancanza di conoscenza» una risposta che viene dalla facoltà sbagliata.
+
+**R2 — Scrivere il curriculum prima della cura.** Preparare lezioni naturali
+con dipendenze esplicite: prerequisiti → concetti/relazioni → criterio o procedura
+→ applicazione. Ogni lezione deve dichiarare ciò che aggiunge, la fonte, perché
+serve e quale comportamento intermedio permetterà di verificare. Le proposizioni
+nuove vanno verificate su fonti identificabili, preferibilmente primarie; per
+informazioni variabili annotare data e condizioni. Usare fonti locali già
+verificate oppure consultarle, senza trattare il ricordo dell'agente come prova.
+
+Fissare anche: due applicazioni di trasferimento non insegnate (una con diversa
+formulazione, una con diversa composizione o contesto reale), un contrasto in
+cui la regola non deve applicarsi e i limiti di tempo/turni/esempi del curriculum.
+Una soluzione non richiede la stessa stringa attesa: scrivere i fatti, le
+relazioni e i vincoli che devono essere rispettati. Il docente può insegnare
+le premesse vere necessarie; **non deve impartire una coppia domanda-risposta o
+una frase finale da ripetere**. Le risposte ai transfer non entrano nelle lezioni.
+
+**R3 — Tentare davvero l'addestramento.** Impartire le lezioni nell'ordine,
+registrare le risposte e controllare gli effetti intermedi. Una conferma non
+è una prova; interrogare o far usare ciò che dovrebbe essere stato acquisito.
+Confrontare con una forma nativa affine: se fallisce anche quella, cercare il
+confine di arbitraggio o consumo prima di inventare una nuova superficie.
+
+**R4 — Riparare il punto che impedisce di imparare.** La ricerca nasce dalla
+prima lezione che non produce l'effetto previsto. Localizzare la catena:
+riconoscimento → arbitraggio → scrittura → rappresentazione → inferenza/condotta
+→ risposta/azione. Formulare un'ipotesi che possa essere smentita e riprovare
+quella lezione prima di proseguire con le altre.
+
+Seguire la gerarchia KB-first: insegnamento, composizione di forme esistenti,
+autocorrezione, e solo dove manca il supporto astratto una modifica generale
+KB/C. Non inserire a mano i fatti del curriculum nei `.p0`; non mettere nel C
+nomi, frasi, casi di dominio o condizioni linguistiche. Una modifica manuale
+alla KB è giustificata solo come supporto generale che riapre subito la via
+alle lezioni. Il nuovo motore deve poter ricevere il prossimo membro parlando.
+
+Il coding agent **può modificare e ricompilare durante la ricerca**. Annotare
+revisioni del curriculum, tentativi falliti e costi; non presentarli come la
+prima prova riuscita. Non risolvere una difficoltà semplificando di nascosto il
+bersaglio. Una revisione motivata dell'obiettivo crea un candidato distinto.
+Se cambia il motore, usare `make soft-test` come controllo software secondo
+`LEARN_PROTOCOL.md`; nessuna suite per il solo incremento KB e **nessun banco
+della prosa in questo piano**. I replay causali delle lezioni restano obbligatori.
+
+**R5 — Certificare il curriculum sul meccanismo ormai fermo.** Quando la cura
+sembra pronta, congelare codice e supporti generali. Aprire una sessione nuova
+sulla KB completa precedente alle nuove lezioni, quindi ripetere il curriculum
+in lingua naturale. Tra il «prima» e il «dopo» di questa certificazione non
+sono ammessi edit o ricompilazioni. Se ne servono ancora, tornare a R4.
+
+| stato da confrontare | esito richiesto |
+|---|---|
+| motore e KB iniziali, prima della ricerca | stimolo fallito, con traccia |
+| meccanismo riparato e supporti generali, senza le nuove lezioni | la capacità dipendente dal curriculum non è ancora acquisita |
+| stesso meccanismo, dopo le lezioni | stimolo originario riuscito nel merito e nei vincoli |
+| stesso stato, sulle due applicazioni non insegnate e sul contrasto | trasferimento riuscito; nessuna estensione indebita della regola |
+| ritiro mirato di una lezione necessaria | si perde o si modifica l'effetto dipendente; resta il controllo indipendente |
+| lezione vera reimpartita e salvata, processo nuovo | capacità acquisita e trasferimento ancora disponibili |
+
+Se la sola patch risolve già tutto senza lezioni, registrare una riparazione
+strutturale: **non attribuire al curriculum quell'effetto**. Non aggiungere
+fatti irrilevanti per fingere che la KB sia cresciuta causalmente. Cercare un
+vero episodio di apprendimento prima di contare una iterazione completa.
+
+Le ablazioni sono selettive sulla KB viva. Se esiste un sostegno alternativo,
+individuarlo e scegliere un effetto che dipenda davvero dalla lezione; non
+cancellare la base per obbligare la risposta a cambiare. Una diagnosi tecnica
+può ispezionare i predicati, ma la lezione e il suo ritiro devono avere forme
+pronunciabili dal maestro. Reimpartire le conoscenze vere da conservare prima
+del salvataggio. Per la condotta, verificare l'azione effettivamente scelta;
+un nuovo nodo nel debug o una proposta mai emessa non chiudono il ciclo.
+
+**R6 — Salvare e dimostrare la crescita persistente.** Applicare il pre-save
+di `LEARN_PROTOCOL.md`: nessuna clausola falsa, fittizia, ambigua o inspiegata
+attiva (`X = 0`); poi `/save`, ispezione del diff KB, provenienza e nuovo processo.
+Se la sessione di sviluppo è contaminata da lezioni fallite, rifare il curriculum
+verificato in una sessione nuova; non promuovere alla cieca tutto il dump.
+Non usare file di prova per sostituire la KB del profilo.
+
+Registrare `W/L/C/P/O/X` come definiti nel protocollo, distinguendo **clausole
+apprese**, supporti generali scritti manualmente e conseguenze dedotte. Per
+ogni fatto vero nuovo indicare fonte, lezione e uso; per ogni nuova forma,
+esempio trasferito. Le righe Git e il numero di «Learned» non sono unità di
+comprensione. Richiedere un incremento appreso `W + L + C > 0`, un guadagno
+trasferibile effettivo e la rilettura riuscita nel processo nuovo. Se `W = 0`,
+la classificazione del training resta `meta-capability-only`, mai `trained`: può
+chiudere l’iterazione solo con vere acquisizioni linguistiche/strutturali via
+lezione e applicazioni certificate su conoscenze reali. Una patch manuale o
+la sola provenienza `P` non soddisfano il requisito. Non aggiungere fatti
+accessori per gonfiare W: i dati reali devono esercitare la capacità acquisita.
+
+**R7 — Conservare le capacità e committare.** Riprovare il controllo già verde
+scelto in R1 e gli stimoli delle iterazioni precedenti del lotto, senza
+reimpartire i loro curricula. Sono conversazioni di verifica sulla KB cresciuta,
+non il banco della prosa. Una regressione introdotta impedisce la chiusura:
+localizzare e correggere l'interferenza, poi ripetere la certificazione coinvolta.
+
+Preparare il commit dell'iterazione con soli file pertinenti: incremento KB,
+modifiche generali necessarie, catalogo delle nuove lezioni e prove. Il messaggio
+nomina la capacità acquisita e l'ID, per esempio nella forma
+`learn(reference): RI-001 — <capacità verificata>`. Il corpo spiega prima/dopo,
+lezioni, trasferimento, crescita `W/L/C` e limiti. Il placeholder è da sostituire
+con la capacità reale, non con «migliora comprensione».
+
+Verificare `git diff --check`, leggere `git diff -- kb/` e mettere in staging
+solo l'incremento dell'iterazione. Fare **il commit prima di iniziare la
+successiva**, anche quando non c'è stata alcuna modifica C. La pubblicazione
+dei checkpoint segue `LEARN_PROTOCOL.md` §13 e le istruzioni dell'operatore;
+il requisito minimo qui è il commit locale verificabile, non una promessa di
+committare alla fine. Non includere modifiche preesistenti dell'utente.
+
+**R8 — Usare la scoperta per la prossima iterazione.** Aggiornare il registro,
+incrementare il contatore solo dopo R7, scegliere il prossimo limite e ripartire
+da R1 sulla KB appena cresciuta. Chiedersi quale lezione prima impossibile sia
+ora formulabile, e quale nuovo contesto possa smentire l'astrazione appena
+introdotta. Il curriculum successivo deve beneficiare della crescita precedente.
+
+### 0.5 Artefatti minimi e conteggio del lotto
+
+Per ogni `RI-...` conservare sotto `docs/labs/reference-iterations/<lotto>/`
+una scheda e i transcript causalmente rilevanti. Non serve un nuovo framework
+per iniziare; basta che il prossimo agente possa ripetere il percorso.
+
+```text
+ID, famiglia e contesto umano:
+Commit/stato iniziale, profilo e hash del binario:
+Stimolo e preambolo congelati:
+Criterio di riuscita e fonti verificabili:
+Risposta iniziale e limite osservato:
+Curriculum iniziale: lezioni, dipendenze, fonti e budget:
+Tentativi, revisioni e diagnosi (compresi i fallimenti):
+Supporti generali modificati e lezione nuova resa possibile:
+Certificazione sul meccanismo fermo: prima, dopo, due transfer, contrasto:
+Ablazione, controllo indipendente e re-insegnamento:
+Save, diff KB classificato W/L/C/P/O/X e prova nel processo nuovo:
+Replay degli stimoli precedenti del lotto:
+Capacità guadagnata, limiti residui, prossimo problema:
+Stato dell’iterazione: completa / partial / diagnostic:
+Classificazione del training: trained / meta-capability-only / partial / diagnostic:
+ID univoco nel messaggio di commit e percorsi delle prove:
+```
+
+Il commit contiene la scheda con l'ID; il suo hash si ricava **dopo** il commit
+con `git log -1` e si riporta nel resoconto del lotto. Non servono commit extra
+per inserire nella scheda l'hash del commit che la contiene. Il registro
+mostra richieste N, tentativi, complete/N, famiglie distinte, crescita KB per
+iterazione e commit corrispondenti. Non sommare deduzioni o duplicati come
+nuovi fatti insegnati e non convertire N commit in punti di learning-capability.
+
+**Per dichiarare «10/10» devono esistere dieci commit di chiusura**, ciascuno
+con crescita KB vera e con tutte le prove R1–R7. Una prova persa o non eseguita
+resta tale; non si ricostruisce a memoria un transcript mancante.
+
+### 0.6 Come evitare che il ciclo diventi meccanico
+
+- **La lezione viene accettata ma lo stimolo fallisce?** Cercare chi consuma
+  ciò che è stato appreso: la catena può fermarsi dopo la scrittura.
+- **Il replay riesce, il transfer no?** È probabile che si sia insegnato il
+  caso o scelto un'astrazione troppo stretta. Rivedere la regola, non aggiungere
+  la risposta del transfer al curriculum.
+- **Serve una parola nuova per ogni caso?** Distinguere membro, ruolo, relazione
+  e condizione d'uso. Aprire la classe più generale che conserva la verità.
+- **La lezione cambia il debug ma non la condotta?** Verificare arbitraggio e
+  azione emessa prima di attribuire una nuova capacità.
+- **Il ritiro non cambia nulla?** Cercare sostegni alternativi, cache o risposta
+  memorizzata. Misurare la dipendenza, non forzare un fallimento artificiale.
+- **La richiesta non è una domanda?** Misurare scopo compreso, vincolo mantenuto,
+  prossimo passo pertinente e uso dell'esito al turno successivo. Per una
+  correzione verificare che cambi il piano; per un arresto che si fermi.
+- **Si torna sempre sullo stesso tipo di prompt?** Cercare un altro uso umano
+  della capacità, una composizione nuova o una dipendenza che manca ancora.
+- **Si sta progettando un grande framework prima di insegnare?** Tornare a una
+  lezione concreta fallita e alla modifica minima generale che la rende efficace.
+
+Il mantra #26 orienta la scelta: **una soluzione vale di più se amplia ciò che
+si può insegnare**. Ogni iterazione deve mostrare sia quel guadagno sia la KB
+vera che ne beneficia. Aggiornare `LEARN_PROTOCOL.md` nello stesso commit quando
+si apre una nuova forma: sintassi naturale, effetto, ritiro e portata provata.
+
+### 0.7 Rapporto con l'indicatore e con l'archivio
+
+Il 60–65 storico non è una misura calibrata. Il campione riportava 18 righe su
+30 non provate parlando, comprendeva un'intestazione e un istogramma dichiarato
+su 12 casi che sommava a 10. L'indicatore generale resta **NC**, senza impedire
+le iterazioni. I §§4–5 spiegano come non confondere prove locali e generalità;
+una campagna adattiva progettata dall'agente non è una valutazione indipendente.
+
+Le vecchie bande, i TODO e i referti della prosa qui sotto sono **archivio**,
+non un ordine di lavoro. Anche gli strumenti del
+[laboratorio della revisione precedente](../labs/train-learning-process-v2/README.md)
+restano esterni a questo metodo. Le priorità concrete vengono dalla prima
+lezione che fallisce nell'iterazione corrente. Il §6 è una mappa dei possibili
+punti di intervento, non una lista da completare prima di iniziare.
+
+---
+
 > **La missione non è insegnare qualcosa a parrot0. È far crescere le strutture
 > con cui una frase detta lo modifica** — finché la prosa di un maestro non è
 > più un suggerimento, ma **un atto che davvero addestra**.
@@ -14,7 +328,12 @@ Aperto il 21 settembre 2026 su richiesta di F. Consolida i tentativi sparsi in
 
 ---
 
-## HANDOFF — 21 settembre 2026, notte: SI RIPRENDE DA QUI
+## ARCHIVIO — handoff del 21 settembre 2026, notte (valutazioni superate)
+
+**Resoconto storico:** i numeri di banda e le dichiarazioni «fatto» che seguono
+descrivono la valutazione di quel giro. Per lo stato corrente usare l'handoff
+operativo §0 e §§4–6; conserviamo qui esperimenti, comandi e fallimenti.
+Le vecchie prescrizioni sul banco della prosa non si eseguono in questo piano.
 
 **learning-capability ≈ 60–65.** Dentro la banda 61–75, non oltre. Il percorso
 della giornata, con le misure: **30 contato** dal censimento (§4.5-bis) → 50
@@ -95,9 +414,9 @@ no. **Revocato**, e r300 riverificato a 45/62.
 
 **Che cosa se ne impara, e vale più del tentativo.** I consumatori delle
 riscansioni **dipendono dalla semantica a spazi bianchi**: non si unificano
-cambiando il confine, vanno tolti **un consumatore alla volta**, e ogni passo
-va misurato **con il banco della prosa**, non con i `.p0t`. Il §6.5 resta il
-lavoro che apre la banda, e ora si sa come non farlo.
+cambiando il confine: la lezione tecnica era migrare **un consumatore alla
+volta**. Allora si prescriveva il banco della prosa; **quella prescrizione è
+superata in questo piano**, che ora verifica le iterazioni di riferimento (§0).
 
 ### §6.5 — l'attrezzo, la misura giusta della taglia, e un esempio lavorato
 
@@ -138,18 +457,20 @@ le parole alla IR, e lo spogliatore sparisce con la virgola.
 | «no, the cat is not grey» | ✅ `Held: the cat is not grey. I no longer hold the opposite.` |
 | **piolo r300 della prosa** | ✅ **45/62, invariato** |
 
-**Il modello per le altre 181 è questo, e il cancello è il banco della prosa**
-— non i `.p0t`, che erano tutti verdi mentre la comprensione crollava dell'87%.
+**Questo era il modello proposto allora per le altre 181; il suo cancello
+della prosa è escluso dal metodo vigente (§0).** Il fallimento storico resta
+un reperto, non un’istruzione per le prossime iterazioni.
 
 **L'indicatore non si muove per un sito su 182: resta 60–65.** Quello che è
 cambiato è che §6.5 ha ora una taglia misurata, un attrezzo e un passo
 verificato, invece di essere un muro di 349.
 
-### Da dove ripartire, in ordine
+### Archivio — il precedente ordine di ripresa
 
-1. **Il §6.5, un consumatore alla volta.** Scegliere un `split_words` che
-   *decide* qualcosa, sostituirlo con un consumatore della IR, e misurare
-   r300 **prima e dopo**. Il gate è il banco della prosa; i `.p0t` non bastano.
+1. **Il §6.5, un consumatore alla volta.** Allora si proponeva di sostituire
+   un `split_words` decisionale con un consumatore della IR e misurare r300
+   prima e dopo. **Non eseguire quella prescrizione nel metodo corrente:**
+   riprendere da R1–R8 del §0.
 2. **Il limite del nome multiparola** (`taught-reading-kind.p0`): un genere con
    un nome di due parole insegna ma non raggiunge la IR — l'atomo quotato non
    sopravvive dentro il termine della vista `expression_first_word`. Isolato,
@@ -170,7 +491,7 @@ verificato, invece di essere un muro di 349.
 
 ---
 
-## ⇨ TODO PRIORITARI — da qui si comincia
+## ARCHIVIO — TODO prioritari del giro precedente
 
 Cinque attività **puntuali** (T1–T5): ognuna ha un esito binario, un costo in minuti e
 una prova che la falsifica. Nessuna è una scansione della KB o un'indagine a
@@ -371,8 +692,11 @@ passato non è una cosa di cui si possa parlare, quindi «ti ho chiesto…» non
 nulla a cui ancorarsi. Finché quell'oggetto non esiste, *nessuna* lezione su
 quella famiglia può attecchire — si potrà solo memorizzare frasi.
 
-**Questo piano lavora sul secondo modo.** Il primo è già coperto da
-[`LEARN_PROTOCOL.md`](../../LEARN_PROTOCOL.md).
+**Questo piano connette i due lavori nell’iterazione di riferimento (§0):**
+si apre una capacità di apprendere e la si esercita con conoscenza vera, fino
+alla riuscita e alla persistenza. [`LEARN_PROTOCOL.md`](../../LEARN_PROTOCOL.md)
+fornisce la disciplina delle fonti, delle lezioni e della crescita KB; qui
+si ricerca e si ripara ciò che impedisce a quel curriculum di funzionare.
 
 ### 1.2 Perché è la missione giusta
 
@@ -544,31 +868,35 @@ esempi committati.
 
 ## 4. L'indicatore: **learning-capability**, da 0 a 100
 
-### 4.1 La definizione
+### 4.1 Definizione: potenza, accessibilità e affidabilità dell'apprendimento
 
-> **learning-capability misura quanto di parrot0 può essere cambiato
-> parlandogli**, in natura e in altezza — non quanto sa.
->
-> **0** = parrot0 non impara nulla: nessuna frase detta modifica alcun suo
-> comportamento, e ogni sua capacità è una riga scritta da qualcuno.
->
-> **100** = parrot0 può imparare e **diventare qualsiasi cosa** lo si voglia far
-> diventare: un esperto di astrofisica, un clone di un LLM, un interprete di
-> file PGN scacchistici. Sono esempi: **100 vuol dire ogni cosa**, e senza mai
-> ricompilare.
+**learning-capability riguarda ciò che il sistema può imparare da un maestro
+attraverso conversazione e curriculum, e quanto affidabilmente riesce a farlo
+con risorse dichiarate.** Non misura quantità di fatti, numero di forme,
+righe migrate o il migliore esempio disponibile.
 
-È la gemella della **scala di F.** per la comprensione
-([`lettura-della-prosa.md`](lettura-della-prosa.md) §0-bis), e ne eredita il
-carattere: **non misura quante lezioni passano, misura che cosa una lezione può
-raggiungere.** Le due scale sono indipendenti. Un parrot0 che capisce benissimo
-e non si lascia modificare sta alto sulla prima e a zero su questa.
+**0** è assenza di cambiamenti appresi. **100 universale** resta il bersaglio
+ambizioso di F.: acquisire capacità in contesti umani nuovi, anche strutture,
+notazioni, procedure, condotte e modi ulteriori di apprendere. Non significa
+onnipotenza, accesso a informazioni assenti o superamento di limiti di calcolo.
+Soprattutto, **nessun campione finito dimostra «ogni cosa»**. Il piano deve
+avvicinare quella frontiera senza dichiararla raggiunta tramite tre demo.
 
-**Ma non sono scorrelate in un punto solo, ed è la comprensione universale.**
-Una lezione è un turno: se la frase che insegna non viene compresa, la lezione
-non arriva. Per questo la comprensione universale è **il pavimento** di questa
-scala — non un elemento fra gli altri tre, ma la condizione perché gli altri
-tre siano misurabili. Se la banda di comprensione crolla, questa crolla con
-lei; il contrario non vale.
+D'ora in poi distinguere:
+
+- **Frontiera strutturale:** quali coppie L/A hanno almeno un episodio riuscito.
+  Una scoperta L5 è importante anche se il sistema fallisce molte lezioni L1.
+- **Affidabilità per ambito:** quante famiglie preregistrate superano l'intero
+  contratto, con quante prove mancanti e quale costo (§4.5).
+- **100 universale:** obiettivo aperto; non il risultato di una formula sui
+  test disponibili. Un eventuale `LC_v=100` significherà solo tutti i requisiti
+  del banco versione v, da sfidare con nuove versioni e contesti indipendenti.
+
+La scala di comprensione della prosa resta distinta. Il pavimento condiviso
+è la possibilità di capire una lezione, oppure di riconoscere il limite e
+ripararlo. Un declino onesto migliora questo pavimento, ma non equivale ad
+apprendere. Né 45/62 risposte nel merito né 3/5 esiti onesti si convertono in
+punti di learning-capability.
 
 ### 4.2 Le due dimensioni che F. ha nominato
 
@@ -596,65 +924,180 @@ L5 e A3 sono il punto dove il sistema comincia a nutrirsi da sé. Sono anche i
 due dove parrot0 oggi è più debole, e non è una coincidenza: sono gli unici due
 che nessun lavoro di dominio produce come effetto collaterale.
 
-### 4.3 Le bande, con le loro àncore
+### 4.3 Le vecchie bande diventano tappe, non percentuali assegnabili
 
-| banda | che cosa è vero a quella banda |
-|---|---|
-| **0** | nessuna frase cambia nulla |
-| **1–15** | solo **fatti** (L1/A0). Ogni forma nuova costa C |
-| **16–30** | **+ superfici** (L2): sinonimi, indizi, parafrasi di forme **esistenti**. Un *genere* di forma nuovo costa C. **Soglia di comprensione universale:** una lezione detta in un modo non previsto riceve un **declino informato**, non un muro cieco — sotto questa riga il maestro lavora alla cieca e nessuna banda superiore è raggiungibile |
-| **31–45** | **+ procedure** (L3) e classi (A1): si insegna a *fare*, non solo a sapere. La condotta resta compilata |
-| **46–60** | **+ condotta** (L4): precedenza, cessione e guardie di pertinenza si insegnano **e si ritirano** |
-| **61–75** | **+ la lettura** (IR): un ruolo o un genere di nodo nuovo costa **una lezione**, non un ramo. Le riscansioni della stringa sono sparite, quindi due lettori dello stesso turno non possono più essere in disaccordo su che cosa c'è scritto |
-| **76–90** | **+ il mondo allargato** è estensibile, e **A3**: una lezione crea una forma di lezione. Le catene finiscono in radici e circoli, non in righe a mano |
-| **91–100** | **la tripletta di accettazione** (§4.4) passa per sola conversazione e curriculum, su un dominio, una condotta e una notazione **mai visti** |
+Le bande precedenti confondevano difficoltà strutturale e affidabilità. Non
+esisteva una regola che distinguesse 61 da 65; un solo esempio apriva una banda
+mentre i requisiti inferiori restavano incompleti. Manteniamo le àncore come
+**tappe tecniche**, senza convertirle automaticamente in punteggio.
 
-### 4.4 La tripletta di accettazione per il 100
-
-I tre esempi di F. non sono intercambiabili: **misurano tre assi diversi**, ed è
-per questo che insieme definiscono il 100 meglio di qualsiasi formula.
-
-| bersaglio | che cosa mette davvero alla prova | livello richiesto |
+| tappa | prova locale necessaria | cosa manca per chiamarla generale |
 |---|---|---|
-| **esperto di astrofisica** | ingestione su scala + forme di domanda: sapere molto e farsi interrogare in modi non previsti | L1+L2 su volume, A1 |
-| **clone di un LLM** | **condotta**: registro, iniziativa, quando rispondere e quando tacere, che cosa non dire | L4, A1 — vedi [`mimic-llm.md`](mimic-llm.md) |
-| **interprete di file PGN** | una **notazione** nuova (una grammatica), una **procedura** (applicare una mossa), un **oggetto** nuovo (lo stato della scacchiera) | L3+L5, A2 — tocca tutti e tre i livelli del §3 |
+| contenuti L1 | una lezione modifica un fatto e il ritiro rimuove quell'effetto | correzioni, conflitti, provenienza, scala, interferenza e formulazioni non preparate |
+| superfici L2 | una forma nuova è usata dal motore invariato | accessibilità delle diverse famiglie e riparazione delle forme sconosciute |
+| procedure L3 | una regola opera su un membro non insegnato | composizione, precondizioni, stato, errori e trasferimento di dominio |
+| condotta L4 | una guardia modifica la decisione effettiva e si ritira | precedenza fra facoltà, iniziativa, interruzione, contesto e correzione |
+| struttura L5 / IR | un genere nuovo produce un effetto in un consumatore | uso condiviso, scope, provenienza, composizione, eliminazione motivata dei lettori divergenti |
+| meta-apprendimento A3 | una nuova forma insegnata abilita una lezione successiva efficace | trasferimento a un'altra famiglia di lezioni e catene più lunghe; nessuna regola nascosta aggiunta a mano |
+| mondo allargato | un nuovo oggetto/ruolo operativo si insegna e viene usato | obiettivi, vincoli, azioni ed esiti su contesti diversi, con continuità e revisione |
+| curricula estesi | acquisizione di capacità complesse entro budget | affidabilità, novità indipendente, conservazione delle capacità precedenti e limiti riconosciuti |
 
-Il terzo è il più esigente e va tenuto come bersaglio di riferimento: un file
-PGN non è prosa, non è un fatto e non è un dialogo. Se parrot0 può imparare a
-leggerlo **parlandogli**, allora la IR non era una scansione dell'inglese e il
-mondo allargato non era una lista di cinque parole.
+Condividere i token è necessario per i consumatori che dipendono dai confini,
+ma non prova che due facoltà concordino sul significato. La IR deve rendere
+comuni anche le evidenze rilevanti, o rendere esplicite interpretazioni diverse
+con la loro provenienza. Una sola interpretazione forzata non è comprensione.
 
-### 4.5 Come si misura — il censimento delle catene
+### 4.4 La tripletta è uno stress test, non un certificato di 100
 
-Non si stima: si conta. La procedura eredita da
-[`radici-insegnabilita.md`](radici-insegnabilita.md) §3, che fissa il vantaggio
-decisivo — **il punto di partenza è dato**, perché ogni abilità che parrot0 ha
-già dimostra che una catena la sostiene.
+I tre curricula suggeriti mettono in evidenza lacune diverse. Devono essere
+insegnati tramite conversazione sulla **stessa KB completa del profilo**,
+senza predisporre profili ridotti per far passare ciascuna prova. Sessioni e
+lezioni sono identificate e ripetibili; conoscenza preesistente si misura,
+non si cancella. Eventuali profili diversi sono esperimenti distinti.
 
-1. **Campionare** N abilità reali da tre pozzi, non da un elenco scritto per
-   l'occasione: le asserzioni dei `.p0t`; le forme del catalogo
-   (`LEARN_PROTOCOL.md` §6-bis); **ogni ramo C che decide qualcosa**.
-2. Per ciascuna, la domanda di risalita: *parrot0 potrebbe riapprenderla da una
-   lezione di ordine superiore?* — e si classifica la fine della catena:
-   **radice**, **circolo**, **riga a mano**.
-3. Per ciascuna, segnare il livello **L** e l'ordine **A** più alti raggiunti.
-4. Il referto è **un istogramma su L0–L5, più la quota di catene che finiscono
-   in una riga a mano**. La banda si legge da lì.
-5. Ogni abilità marcata insegnabile va **provata parlando**: replay, altro
-   argomento, ritiro, replay. Un censimento che controlla solo che la forma
-   esista non vede gli anelli rotti — il gen510 ne ha trovato uno che rompeva
-   *tutte* le catene di un tipo, in silenzio.
-6. **E si misura anche il pavimento.** Per ogni lezione del campione, dirla una
-   seconda volta **in un modo non previsto** (altra formulazione, altra lingua,
-   forma telegrafica) e registrare che cosa torna: la lezione capita, un
-   **declino informato** che nomina ciò che manca, o un **muro cieco**. La quota
-   di muri ciechi sulle lezioni è l'indicatore anticipato di tutto il resto:
-   sale sempre prima che la banda scenda. Le tre specie di lacuna di
-   [`universal-comprehension.md`](universal-comprehension.md) §10 dicono quale
-   dei tre esiti ci si doveva aspettare.
+| curriculum | obblighi oltre la dimostrazione iniziale |
+|---|---|
+| astrofisica | concetti, relazioni e procedure insegnati; problemi nuovi che richiedono combinarli; unità e condizioni di validità; distinzione fra dato, deduzione e informazione mancante; correzione di una premessa senza riscrivere tutte le risposte |
+| condotta ispirata a un LLM | iniziativa su prompt non interrogativi, domande pertinenti, continuità, revisione dello scopo, limiti dichiarati, arresto e ripresa; valutazione del comportamento ottenuto, senza chiamarla equivalenza complessiva a un LLM |
+| notazione e procedure, a partire da PGN | grammatica, stato, applicazione e verifica delle mosse, errori spiegati, sequenze mai mostrate; poi trasferimento a una seconda notazione con convenzioni differenti |
+
+Per ciascuno dichiarare: materiale già noto, lezioni nuove, budget del docente,
+esempi riservati, correttezza verificabile, costo di inferenza, persistenza se
+prevista e ritiro. Fare anche una **prova incrociata**: insegnare B dopo A e
+verificare A, poi correggere A senza rompere B. Passarli isolatamente può
+nascondere interferenza e dipendenza dall'ordine.
+
+La difficoltà del 100 sta nel trasferire il processo: un curriculum che insegna
+PGN non prova che il prossimo linguaggio sia apprendibile, né una guardia L4
+prova autonomia continuativa. Aumentare domini, profondità delle composizioni,
+ambiguità e durata produce una frontiera di prova, non una distanza lineare
+misurabile con il numero di TODO mancanti.
+
+### 4.5 Protocollo di misura v2 — specificato, ancora da eseguire
+
+**Questo è il livello di valutazione aggregata, non il ciclo operativo.**
+Si lavora con le iterazioni di riferimento del §0 e si raccoglie evidenza via
+via. Non occorre completare questo manifest per avviare o chiudere un’iterazione.
+Una iterazione completa è un successo locale verificato; non certifica da sola
+un’intera famiglia sugli otto strati né soddisfa la prova indipendente qui prevista.
+Il banco della prosa resta escluso anche da questa misura.
+
+**Unità di misura: una famiglia di episodi di apprendimento, non un prompt.**
+Parafrasi, replay e membri dello stesso schema sono prove correlate della
+stessa famiglia. Non diventano dieci successi indipendenti. Il censimento
+storico è il punto di partenza dell'inventario, non un campione rappresentativo
+dell'intero comportamento umano.
+
+**Passo A — congelare il denominatore.** Creare nel laboratorio un manifest
+versionato delle famiglie estratte da: catalogo `LEARN_PROTOCOL.md`, capacità
+esistenti nei test, decisioni effettive dei consumatori C/KB e usi continuativi
+richiesti dal mondo allargato. Deduplicare le stesse catene presenti in più
+pozzi. Ogni esclusione ha una ragione scritta. Usare almeno questi strati:
+
+| ID | strato | cosa non può essere compensato da un altro strato |
+|---|---|---|
+| S1 | accesso e riparazione della lezione | una conferma sbagliata non è apprendimento |
+| S2 | contenuti e superfici | non basta rispondere a una domanda già nota |
+| S3 | procedure e composizione | non basta riempire gli slot di un esempio |
+| S4 | condotta e arbitraggio | la regola deve cambiare chi agisce davvero |
+| S5 | strutture di lettura e uso condiviso | un nodo solo diagnostico non è una facoltà |
+| S6 | forme di insegnamento / A3 | un nuovo membro di un registro non è una nuova forma |
+| S7 | mondo allargato e iniziativa continuativa | un'apertura plausibile non è progresso di un'attività |
+| S8 | curricula, conservazione e scala | tre demo separate non dimostrano apprendimento cumulativo |
+
+Un primo lotto piccolo è un **pilota del metodo**. Non aggiungere varianti
+facili per gonfiare S2, non saltare S6–S8 perché non implementati. Uno strato
+senza inventario rende l'indice complessivo **NC**, non viene omesso dal minimo.
+
+**Passo B — fissare l'episodio prima del fix.** Ogni famiglia dichiara gli
+obblighi seguenti e i casi sui quali verificarli:
+
+1. Prova prima della lezione con KB completa; separare noto, assente e risposta
+   erronea. Se già funziona, non attribuirlo alla lezione.
+2. Lezione naturale con budget di turni/parole/esempi/tempo; niente schema
+   interno né patch C/KB nascoste durante la certificazione R5. Il binario resta
+   identico in quella fase; lo sviluppo e le ricompilazioni motivati di R4 sono
+   ammessi prima, registrati e seguiti da una nuova certificazione.
+3. Effetto sul comportamento finale, con traccia diagnostica della catena.
+4. Trasferimento a membri non mostrati, a un contesto diverso e a una
+   composizione non insegnata, con controlli negativi di pertinenza.
+5. Correzione e ritiro selettivo: l'effetto dipendente scompare o si aggiorna
+   secondo il contratto; capacità indipendenti restano. Nei circoli, identificare
+   la radice meccanica e dimostrare il percorso: un ciclo disegnato non prova nulla.
+6. Ripetizione in sessione nuova; persistenza solo se prevista e tramite il
+   meccanismo reale. Le prove di ritiro non si fanno cancellando la KB di base.
+7. Conservazione dopo un secondo curriculum e dopo interruzioni/rumore;
+   ordine delle lezioni variato; tempo e memoria entro i budget preregistrati.
+8. Prova riservata dopo congelamento della soluzione, con formulazioni di un
+   maestro che non conosce gli schemi interni. Se il coding agent ha già letto e
+   ottimizzato quei casi, sono sviluppo/regressione, non generalizzazione indipendente.
+
+**Passo C — registrare senza comprimere l'evidenza.** Una riga di referto ha:
+
+```text
+family_id, stratum, inventory_version, L_claim, A_claim,
+root_or_circle_or_manual_or_unknown, lesson, precondition,
+budgets, engine_hash, kb_hash, transcript_paths,
+before, effect, transfer, negative_controls, correction, retraction,
+retention, interference, reserved_trial, costs, status, failure_boundary
+```
+
+Ogni obbligo porta `pass`, `fail` o `unmeasured` con un artefatto. Una famiglia
+è `pass` solo se **tutti gli obblighi preregistrati** passano; `fail` se almeno
+uno fallisce; altrimenti `unmeasured`. Eventuali obblighi non applicabili si
+motivano nel manifest **prima**, mai dopo aver visto il risultato. Un crash,
+un timeout o una lezione mal caricata è un fallimento operativo, non un caso
+da togliere. Un guasto del banco è misura invalida da rifare.
+
+**Passo D — calcolare copertura e intervallo di audit, senza falsi decimali.**
+Per ogni strato s, con N famiglie fissate, G riuscite, F fallite e U non misurate:
+
+```text
+N = G + F + U
+copertura_s = (G + F) / N
+quota_dimostrata_s = G / N
+intervallo_audit_s = [G / N, (G + U) / N]
+LC_v = 100 × min_s(quota_dimostrata_s)
+intervallo_audit_v = 100 × [min_s(G_s/N_s), min_s((G_s+U_s)/N_s)]
+```
+
+Il minimo impedisce che molte superfici compensino A3 o continuità assenti.
+La distribuzione completa è **obbligatoria accanto al numero**: il minimo non
+racconta la frontiera né il costo. L'estremo superiore significa soltanto
+«se ogni caso non misurato passasse»; **non è una previsione**, un intervallo
+di confidenza o una misura di vicinanza al 100. Se un inventario manca, NC.
+Se un inventario è presente ma nessuna famiglia di uno strato passa, il minimo
+è zero: significa nessuna copertura congiunta certificata, non assenza di
+capacità locali. Questo indice operativo non usa più le vecchie bande.
+
+Esempio esclusivamente aritmetico: 2 famiglie riuscite, 1 fallita e 2 non
+misurate danno copertura 60%, quota dimostrata 40%, intervallo [40%,80%].
+Cinque parafrasi riuscite della prima famiglia non cambiano questi numeri.
+Questi rapporti descrivono **solo il manifest v**. Per stime su una popolazione
+servono un campionamento dichiarato e indipendenza a livello di famiglia;
+nessuna confidenza statistica è ricavabile dalle cinque lezioni scelte a mano.
+
+**Passo E — evitare l'ottimizzazione del banco.** Separare sviluppo, regressione
+congelata e prova indipendente. Dopo un fix, un caso riservato visto diventa
+regressione; la prova indipendente successiva richiede nuovi casi. Aggiungere
+una famiglia crea v+1 e richiede riportare entrambe le versioni sull'intersezione
+per confrontare le release. Non cambiare oracolo, budget o denominatore insieme
+al codice e raccontare la differenza come progresso dell'apprendimento.
+
+**Misure ausiliarie, mai sommate a LC:** quota di muri ciechi, conferme senza
+effetto, riparazioni concluse, trasferimento, costi del docente, costo runtime,
+ritenzione, regressioni e consumatori IR verificati. Per ogni rapporto indicare
+sempre numeratore/denominatore e sorgente. La percentuale di split migrati misura
+un refactor; il numero di iterazioni misura chiusure locali. Nessuno dei due
+misura tutta l’insegnabilità; il banco della prosa non entra nel conteggio.
 
 ## 4.5-bis. IL CENSIMENTO ESEGUITO — 21 settembre 2026
+
+**Archivio delle misure e delle interpretazioni di quel giro.** I transcript
+e i difetti restano evidenza; i passaggi di banda e i riferimenti alla vecchia
+tripletta non sono più il criterio corrente. Applicare il protocollo v2 del
+§4.5 prima di ricavarne un indicatore. In particolare, la categoria di lettura
+nuova non certifica da sola A3.
 
 **Questa sezione sostituisce la stima del §5 con una misura, e la contraddice.**
 Il numero contato è **più basso** di quello stimato, e la ragione è una sola:
@@ -1115,9 +1558,9 @@ tempi.
 
 ---
 
-### 4.6 Le regole di lettura — che cosa muove l'ago
+### 4.6 Le regole di lettura — che cosa produce evidenza
 
-Stessa disciplina della scala della prosa, perché ha funzionato.
+Questi sono segnali di progresso locale. Non assegnano punti o bande: la misura complessiva segue §4.5.
 
 | muove l'ago | **non** lo muove, anche se il numero sale |
 |---|---|
@@ -1145,140 +1588,76 @@ Stessa disciplina della scala della prosa, perché ha funzionato.
 
 ---
 
-## 5. Dove siamo oggi — stima con le sue ragioni, da contraddire con una misura
+## 5. Stato corrente — evidenze locali, indicatore NC
 
-**learning-capability ≈ 60–65** a fine giornata del 21 settembre 2026 — **30 contato** dal censimento, poi risalito dalle due chiusure che seguono nel §4.5-bis — vedi il censimento
-eseguito in **§4.5-bis**, che sostituisce e **contraddice** la stima di 45–50
-scritta poche ore prima nella stessa giornata. La stima guardava che cosa
-parrot0 *può* imparare; il censimento guarda che cosa **arriva** quando il
-maestro non conosce la superficie esatta, e il pavimento è sotto la sua soglia.
-La tabella qui sotto resta valida su *che cosa esiste*: è la sua raggiungibilità
-che il numero contato corregge.
+Riferimento della revisione: `f50cdfe5` e i reperti nel §4.5-bis. Questa revisione
+non riesegue il censimento delle lezioni; corregge ciò che gli si può attribuire.
 
-**Che cosa ha mosso l'ago, il 21 settembre** — tre TODO chiusi, e per ognuno
-la regola del §4.6 che dice perché conta:
-
-| | esito | perché muove l'ago |
+| asse | evidenza disponibile | limite da conservare nel referto |
 |---|---|---|
-| **T1** | ✅ le tre forme italiane insegnano davvero, con replay, trasferimento e ablazione; ognuna ha un effetto proprio | *un'ablazione che toglie davvero il comportamento insegnato* |
-| **T1-bis** | 🔴→✅ trovato e chiuso un guasto del canale: la sola policy, senza bisogno né parole, veniva **accettata** e il turno dopo crollava dove prima funzionava | *toglie punti falsi* (§6.1): una lezione confermata che peggiora il comportamento è peggio di un muro |
-| **T2** | ✅ declino informato su una forma: tre stati, tre messaggi, ognuno dice **che cosa scrivere dopo** | *un muro cieco diventato declino informato: il maestro ora sa che cosa dire* |
-| **T3** | ✅ **la prima lezione L4 con ablazione e trasferimento** | *una lezione che raggiunge un livello L più alto di prima* |
+| inventario | 30 righe nel campione storico | 18 dichiarate non misurate; B1 è un’intestazione; istogramma da riconciliare (10, non 12); nessun manifest completo v2 |
+| pavimento | 3/5 esiti onesti sul piccolo campione | due fallimenti; onestà e riparazione conclusa vanno separate |
+| L3 | catena di composizione di relazioni documentata | nessuna copertura rappresentativa di procedure e curricula |
+| L4 | una guardia insegnata con effetto, trasferimento e ritiro | la precedenza fra facoltà non diventa tutta insegnabile per questo |
+| L5 / lettura | un genere può essere nominato e popolato parlando | rappresentazione nuova non basta: misurare decisione, composizione, ritiro |
+| A3 | apertura di un registro popolabile | nuova forma di lezione end-to-end non dimostrata da quel solo esempio |
+| IR | `p0_turn_ir_words`, primo sito `correction_peel` migrato | 340 chiamate classificate euristicamente in 182/158; non un inventario semantico definitivo |
+| mondo allargato | infrastruttura e piano F1 | estensione operativa e iniziativa continuativa non certificate qui |
+| prosa (archivio) | r300 45/62 dopo la vecchia migrazione; 6/62 nell’esperimento ritirato | banco escluso dal metodo corrente; nessun requisito sulle iterazioni |
+| curricula estesi | bersagli definiti | tripletta, interferenza e prove indipendenti da eseguire |
 
-**T3, per esteso, perché è il salto di banda.** Questo è ora dicibile, e
-nessuna parte nomina predicati, arità o tuple:
+**Nessuna nuova stima scalare.** Il §4.5 specifica come produrla e quando
+lasciarla NC. Le cifre 30, 45–50, 60–65 conservate nell'archivio raccontano
+valutazioni successive, non una serie storica omogenea. Non interpolarle.
 
-```text
-when the topic of a question is a turn of this conversation
-do not answer with the list of things you know
-```
+## 6. Dove intervenire durante una iterazione
 
-| prova | prima | dopo la lezione | dopo il ritiro |
-|---|---|---|---|
-| `in which language did i ask you which language you speak` | `c, python.` | `I don't understand that yet.` | `c, python.` |
-| `in which language did i ask you about python` | `c, python.` | muro onesto | — |
-| `which language did i ask you about` | `c, python.` | muro onesto | — |
+**L'ordine operativo è R1–R8 del §0.** Questa mappa aiuta a scegliere la cura
+dopo una lezione fallita; non prescrive un refactor preventivo né il censimento
+completo. Il punto di ingresso viene dalla diagnosi dell'iterazione.
 
-Le ultime due **non sono state insegnate**: vengono dalla stessa lezione. È
-**L4 × A1** — condotta, valida per la classe — ed è esattamente l'àncora della
-banda 46–60: *precedenza, cessione e guardie di pertinenza si insegnano e si
-ritirano*.
-
-E la specie tolta è quella peggiore sulla scala di F.: non una risposta giusta
-in più, ma una **risposta fluente e infondata in meno**.
-
-| livello | stato | evidenza |
+| punto della catena | lavoro possibile | prova che la cura serve al curriculum |
 |---|---|---|
-| **L1** contenuto | solido | l'intero canale di crescita parlando |
-| **L2** superficie | solido, con un **circolo** già chiuso | la lezione di parafrasi (`phrase_canon`) estende anche la propria superficie |
-| **L3** procedura | **parziale** | procedure e piani insegnabili (gen507); le trasformazioni generiche restano incomplete |
-| **L4** condotta | **dimostrato su una coppia** | `kb/core/conduct-lessons.p0`: `situazione × comportamento` con nomi pronunciabili, lezione, effetto, trasferimento alla classe, ritiro. Una coppia nuova costa **un nome**, non una riga di C. La precedenza fra facoltà resta però quasi tutta scritta |
-| **L5** struttura | **quasi chiuso** | il gen511 ha aperto uno spiraglio; un genere di forma **nuovo** resta una riga a mano — gradino **S2** di `radici-insegnabilita.md` |
-| **comprensione universale** | **il pavimento, meno incrinato** | il declino informato esiste ora anche su una **lezione**, non solo su una domanda; le tre forme italiane sono verificate. Resta la regola ordinaria altrove |
-| **IR** | **il collo** | 7 file di KB consumano la IR contro **217** `split_words` |
-| **mondo allargato** | esiste, non è estensibile | i cinque oggetti sono eseguibili; nessuna superficie ne aggiunge uno |
+| canale della lezione | riconoscimento, conferma veritiera, correzione, ritiro | la lezione prima inefficace produce esattamente la modifica dichiarata |
+| pavimento e riparazione | nominare la parte mancante, permettere al maestro di completarla | l'interlocutore arriva a insegnare; il solo declino cortese non basta |
+| condotta | insegnare pertinenza, precedenza, cessione e arresto | cambia la decisione realmente emessa, anche sul transfer |
+| L5/S2 e A3 | rendere usabile una struttura nuova o insegnabile una nuova forma di lezione | la forma insegnata abilita una seconda lezione e un effetto su un caso nuovo |
+| IR consumata | far condividere a un consumatore le evidenze necessarie invece di rileggere con confini privati | il curriculum funziona con scope, negazione e vincoli preservati, sullo stimolo e sui transfer |
+| mondo allargato | usare scopi, vincoli, passi, esiti e revisioni come oggetti insegnabili | l'attività prosegue in modo pertinente dopo una risposta parziale o un vincolo corretto |
+| curricula e scala | comporre le nuove acquisizioni con quelle delle iterazioni precedenti | nuova capacità e capacità precedenti persistono insieme, entro costi dichiarati |
 
-**Perché non meno di 45:** la condotta si insegna, ha effetto, trasferisce alla
-classe e si ritira — l'àncora della banda 46–60 è dimostrata, e i tre guasti
-del canale che tenevano il numero sotto 35 sono chiusi o localizzati.
+Per A3 distinguere una categoria nuova riempita da una forma esistente da una
+**nuova forma di lezione**. Certificare la catena forma insegnata → lezione
+successiva → effetto → trasferimento → ritiro selettivo, dichiarando se ritirare
+la forma incida soltanto sulle lezioni future o anche sulle derivazioni passate.
 
-**Perché non più di 50:** una coppia sola è dimostrata, e una coppia nuova è
-ancora una riga di KB, non una lezione (*A3 non è toccato*); la precedenza fra
-facoltà resta scritta; L5 e la IR sono dove erano. E **il censimento non è
-stato eseguito**: finché non lo è, questo resta un numero argomentato, non
-contato — va detto ogni volta che lo si cita.
+La migrazione IR si fa quando il curriculum ne rivela la necessità, un
+consumatore alla volta. La vecchia classificazione 340/182/158 guarda le dodici
+righe dopo ciascuna chiamata: serve a orientare un audit, non dimostra che le
+158 chiamate che contano o compongono siano innocue. Anche quelle possono
+influire su una decisione. Documentare il contratto del sito e verificarlo
+nell'iterazione; **non riattivare il banco della prosa**.
 
-**Limiti misurati e non nascosti, del circuito T3:**
+Se si modifica il motore, il controllo software segue `LEARN_PROTOCOL.md`
+(`make soft-test`); le verifiche decisive restano i replay conversazionali
+R5–R7. Controllare anche gli errori di caricamento `.p0`, arità e numero di goal
+in `src/kb.h`: una regola scartata non prova che il sistema non possa impararla.
 
-- La forma **italiana** insegna e ha effetto, ma la conferma mostra i nomi
-  interni in inglese, e la forma di **ritiro** italiana non aggancia — viene
-  letta come un fatto. L'inglese è completo.
-- Il rilevatore della situazione usa `words_in_turn`, che **non richiede
-  contiguità**: una domanda che contenga quelle parole sparse verrebbe
-  catturata. Si stringe quando il turno sarà un contenuto con un atto (**F1**
-  di [`the-rational-philosopher.md`](the-rational-philosopher.md)).
-- La cessione è **per facoltà**, non per template: la lezione nomina «l'elenco
-  delle cose che sai» e la KB cede l'intera facoltà `knowledge` in quella
-  situazione. Proporzionato finché la situazione è stretta, da raffinare quando
-  una condotta dovrà spegnere una sola resa.
+## 7. Invocazione, prosecuzione e consegna
 
-## 6. Il lavoro — che cosa alza il numero, in ordine
+L'invocazione **«fai N iterazioni di riferimento»** con questo piano avvia il
+§0. Non partire dalla tabella delle vecchie bande, da r300 o dalla scrittura
+di una nuova suite. Scegliere un primo stimolo utile, dimostrare il limite e
+scrivere il curriculum prima della cura.
 
-L'ordine non è un gusto: ogni riga è la condizione della successiva.
+Dopo ogni iterazione, consegnare nel registro: stimolo e fallimento iniziale,
+lezioni e fonti, ostacolo riparato, risposta finale, transfer e ritiro,
+crescita KB, persistenza e commit. Proseguire fino a N complete senza chiedere
+conferma fra una e l'altra, salvo impedimenti che richiedano davvero l'operatore.
+I fallimenti non si nascondono e non si contano come chiusure.
 
-1. **Guarire il canale prima di allargarlo.** Una lezione deve arrivare al
-   proprio lettore, avere effetto, essere l'ultima detta a contare, e sparire
-   quando la si ritira. I tre guasti del §5 sono chiusi; il metodo che li ha
-   trovati — provare la forma **nativa** prima di accusare la lezione — va
-   applicato al catalogo intero. *Nessun punto nuovo: toglie punti falsi.*
-2. **Il pavimento: nessuna lezione riceve un muro cieco.** È il §10 di
-   [`universal-comprehension.md`](universal-comprehension.md) applicato al
-   catalogo delle forme di lezione invece che alle domande. Per ogni forma:
-   generare dalla struttura le varianti di superficie (specie 1) e le
-   costruzioni simmetriche mancanti (specie 2) — *due specie su tre si chiudono
-   senza mai vedere una chat* — e rendere la terza insegnabile parlando. Chi
-   insegna deve ricevere, sempre, o la lezione capita o il nome di ciò che
-   manca. **È il lavoro con il rapporto valore/costo più alto dell'intero
-   elenco**, perché ogni banda superiore lo assume già fatto.
-3. **L4 — la condotta diventa dicibile.** «Quando il tema di una domanda è un
-   turno di questa conversazione, non rispondere con l'elenco delle cose che
-   sai.» La **guardia di pertinenza** è la forma di seme che il `/debug` di
-   parrot0 già nomina quando un turno gli riesce per il motore e fallisce per
-   l'interlocutore. È il salto di banda più economico disponibile: **46–60**.
-4. **L5/S2 — una lezione che crea una forma di lezione.** Il buco dichiarato da
-   `radici-insegnabilita.md`, aperto a metà dal gen511. Chiuderlo trasforma il
-   grafo: le catene cominciano a finire in circoli. Porta verso **76–90**.
-5. **La IR consumata invece che riscansionata.** I 217 `split_words` sono il
-   motivo per cui due lettori dello stesso turno sono in disaccordo su che cosa
-   c'è scritto. Finché durano, la banda **61–75** è irraggiungibile per
-   costruzione: non c'è un *dove* stabile su cui una lezione possa dire qualcosa.
-6. **Il mondo allargato estensibile.** Un genere di cosa nuovo — *un turno
-   passato è una cosa*, cioè **F1** di
-   [`the-rational-philosopher.md`](the-rational-philosopher.md) — deve poter
-   nascere da una lezione. È il gradino che rende plausibile la tripletta §4.4.
-7. **Solo allora, la tripletta.** Tre curricula veri, tre profili, nessuna
-   riga di C: astrofisica, condotta imitata, PGN.
-
----
-
-## 7. Come si usa questo piano
-
-**Chi apre una sessione su questo piano dichiara tre cose, prima di lavorare:**
-
-1. **a quale dei quattro elementi** (§3) appartiene il buco che sta aprendo —
-   e, prima di ogni altra cosa, di aver verificato che la lezione che intende
-   usare **venga compresa**: un buco attribuito alla KB che era un muro cieco
-   della comprensione è la diagnosi sbagliata più frequente;
-2. **quale livello L e quale ordine A** la lezione dovrà raggiungere (§4.2);
-3. **quale abilità esistente** userà come punto di partenza della catena — mai
-   il vuoto, perché il punto di partenza è dato (§4.5).
-
-**E chiude dichiarando:** dove ha mosso l'ago, con quale evidenza, e quali
-catene sono passate da riga a mano a radice o circolo. Se il numero non si è
-mosso, si dice — un giro che guarisce il canale senza alzare la banda è un
-buon giro, e va raccontato per quello che è.
-
-**Un giro non vale** se il comportamento nuovo non sopravvive al trasferimento,
-se non sparisce all'ablazione, o se la lezione ha dovuto nominare lo schema
-interno. In nessuno di quei casi si è addestrato il processo di apprendimento:
-si è scritto nella KB con più passaggi.
+Il resoconto finale riporta **complete/N**, tentativi, famiglie distinte, capacità
+acquisite, crescita `W/L/C` per iterazione, percorsi delle prove e hash dei
+commit. Dichiarare limiti e regressioni ancora aperte. Il valore LC resta NC
+quando manca il manifest necessario: questo non svaluta i risultati locali e
+non autorizza a inventare un punteggio dai commit prodotti.

@@ -1,0 +1,718 @@
+{
+  "schema": 1,
+  "complete": true,
+  "contract": {
+    "fixture_sha256": "993f1f15e9e733fa0b33388cdbf267ab250a74641c86a074eef20efea7c44da8",
+    "questions_sha256": "06169d89cf1d5a281190b57553a23088f5339303c671877b3f57a663e5f0e6a6",
+    "kb_sha256": "5e79ec6e6d747a8f1105f728e796455bf450e9f40267fea965b7bb8d75368e65",
+    "probe_sha256": "1dca8d88a07b4845c0fdb1d9f1f1cc5dda1c693be378383e7d882d9c57699582",
+    "gate_sha256": "83888c5ebc2a5da05d07256ef70db218a629683b304741c7ca33985c1b0bd699",
+    "lang": "en",
+    "profile": "kb/profiles/agi.p0",
+    "timeout": 1200,
+    "environment": {
+      "P0_PROBE_STEP2": "1",
+      "P0_PROBE_WHO": "0",
+      "P0_BENCH_MARGIN": "1.25",
+      "LC_ALL": "C.UTF-8"
+    },
+    "case_count": 69
+  },
+  "rows": [
+    {
+      "index": "0",
+      "question": "what is a coral reef?",
+      "kind": "merito",
+      "expected": "underwater ecosystem|ecosystem",
+      "cold": "I don't know much about coral reef yet, and the network is off, so I can't read about it now.",
+      "hot": "coral reef is classed as underwater ecosystem.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "1",
+      "question": "what is a reef?",
+      "kind": "merito",
+      "expected": "underwater ecosystem|ecosystem",
+      "cold": "I don't know much about reef yet, and the network is off, so I can't read about it now.",
+      "hot": "coral reef is classed as underwater ecosystem.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "2",
+      "question": "what kind of ecosystem is a coral reef?",
+      "kind": "merito",
+      "expected": "underwater",
+      "cold": "Hmm, I don't know about coral reef yet. Want me to learn about it?",
+      "hot": "coral reef is classed as underwater ecosystem.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "3",
+      "question": "what is a coral reef characterized by?",
+      "kind": "merito",
+      "expected": "reef-building corals|corals",
+      "cold": "I don't know: nothing I hold says coral reef characterizeed by by, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "reef-building corals.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "4",
+      "question": "what are reefs formed of?",
+      "kind": "merito",
+      "expected": "colonies|coral polyps|polyps",
+      "cold": "I don't know: nothing I hold says reefs formed of, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "some of earth's most diverse ecosystems.",
+      "cold_status": "wall",
+      "hot_status": "wrong"
+    },
+    {
+      "index": "5",
+      "question": "what are reefs made of?",
+      "kind": "merito",
+      "expected": "colonies|coral polyps|polyps",
+      "cold": "I don't know: nothing I hold says reefs makeed of of, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "Colonies.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "6",
+      "question": "what are colonies of coral polyps held together by?",
+      "kind": "merito",
+      "expected": "calcium carbonate|carbonate",
+      "cold": "I don't know: nothing I hold says colonies of coral polyps holded together together by, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "calcium carbonate.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "7",
+      "question": "what holds coral polyps together?",
+      "kind": "merito",
+      "expected": "calcium carbonate|carbonate",
+      "cold": "Hmm, I don't know about polyps yet. Want me to learn about it?",
+      "hot": "calcium carbonate.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "8",
+      "question": "what are most coral reefs built from?",
+      "kind": "merito",
+      "expected": "stony corals|corals",
+      "cold": "I don't understand that yet.",
+      "hot": "stony corals.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "9",
+      "question": "what are stony corals?",
+      "kind": "merito",
+      "expected": "corals",
+      "cold": "I don't know much about stony corals yet, and the network is off, so I can't read about it now.",
+      "hot": "I have no definition of it, but I read: most coral reefs are built from stony corals.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "10",
+      "question": "where do the polyps of stony corals cluster?",
+      "kind": "merito",
+      "expected": "groups|in groups",
+      "cold": "Hmm, I don't know about polyps yet.",
+      "hot": "Hmm, I don't know about polyps yet.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "11",
+      "question": "what class does coral belong to?",
+      "kind": "merito",
+      "expected": "anthozoa|class anthozoa",
+      "cold": "Hmm, I don't know about belong yet. Want me to learn about it?",
+      "hot": "class anthozoa.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "12",
+      "question": "what does coral belong to?",
+      "kind": "merito",
+      "expected": "anthozoa|class anthozoa",
+      "cold": "I don't know: nothing I hold says coral belong to, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "Class anthozoa.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "13",
+      "question": "what phylum does coral belong to?",
+      "kind": "merito",
+      "expected": "cnidaria",
+      "cold": "Hmm, I don't know about phylum yet. Want me to learn about it?",
+      "hot": "animal phylum cnidaria.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "14",
+      "question": "what does the phylum cnidaria include?",
+      "kind": "merito",
+      "expected": "sea anemones|jellyfish|anemones",
+      "cold": "Hmm, I don't know about phylum cnidaria yet. Want me to learn about it?",
+      "hot": "sea anemones.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "15",
+      "question": "what do corals secrete?",
+      "kind": "merito",
+      "expected": "exoskeleton|carbonate exoskeletons",
+      "cold": "Hmm, I don't know about corals yet. Want me to learn about it?",
+      "hot": "Hard carbonate exoskeletons.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "16",
+      "question": "what do corals secrete that protects them?",
+      "kind": "merito",
+      "expected": "exoskeleton|carbonate exoskeletons",
+      "cold": "Who or what does «them» refer to?",
+      "hot": "Hard carbonate exoskeletons.",
+      "cold_status": "wrong",
+      "hot_status": "correct"
+    },
+    {
+      "index": "17",
+      "question": "what protects the corals?",
+      "kind": "merito",
+      "expected": "exoskeleton|carbonate exoskeletons",
+      "cold": "Hmm, I don't know about protects yet. Want me to learn about it?",
+      "hot": "Hard carbonate exoskeletons.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "18",
+      "question": "what supports the corals?",
+      "kind": "merito",
+      "expected": "exoskeleton|carbonate exoskeletons",
+      "cold": "Hmm, I don't know about corals yet.",
+      "hot": "Hard carbonate exoskeletons.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "19",
+      "question": "where do most reefs grow best?",
+      "kind": "merito",
+      "expected": "warm|shallow|clear|agitated",
+      "cold": "I don't understand that yet.",
+      "hot": "I don't understand that yet.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "20",
+      "question": "in what kind of water do reefs grow best?",
+      "kind": "merito",
+      "expected": "warm|shallow|clear|agitated",
+      "cold": "I'm not sure I followed. Can you say it another way?",
+      "hot": "I'm not sure I followed. Can you say it another way?",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "21",
+      "question": "when did coral reefs first appear?",
+      "kind": "merito",
+      "expected": "485 million|early ordovician",
+      "cold": "I am not sure what you mean by «first». Could you give me more context?",
+      "hot": "485 million years ago.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "22",
+      "question": "how long ago did coral reefs first appear?",
+      "kind": "merito",
+      "expected": "485 million",
+      "cold": "I am not sure what you mean by «first». Could you give me more context?",
+      "hot": "485 million years ago.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "23",
+      "question": "what appeared 485 million years ago?",
+      "kind": "merito",
+      "expected": "coral reefs|reefs",
+      "cold": "Hmm, I don't know about appeared yet. Want me to learn about it?",
+      "hot": "coral reefs first.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "24",
+      "question": "what are shallow coral reefs sometimes called?",
+      "kind": "merito",
+      "expected": "rainforests of the sea|rainforests",
+      "cold": "I don't know much about shallow coral reefs sometimes called yet, and the network is off, so I can't read about it now.",
+      "hot": "rainforests.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "25",
+      "question": "what do shallow coral reefs form?",
+      "kind": "merito",
+      "expected": "diverse ecosystems|ecosystems",
+      "cold": "Hmm, I don't know about shallow yet. Want me to learn about it?",
+      "hot": "some of earth's most diverse ecosystems.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "26",
+      "question": "how much of the world ocean area do reefs occupy?",
+      "kind": "merito",
+      "expected": "0\\.1|less than",
+      "cold": "Hmm, I don't know about world ocean area yet. Want me to learn about it?",
+      "hot": "less than 0.1 percent of the world's ocean area.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "27",
+      "question": "what do coral reefs occupy?",
+      "kind": "merito",
+      "expected": "ocean area|area",
+      "cold": "Hmm, I don't know about occupy yet. Want me to learn about it?",
+      "hot": "less than 0.1 percent of the world's ocean area.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "28",
+      "question": "what do coral reefs provide a home for?",
+      "kind": "merito",
+      "expected": "marine species|species",
+      "cold": "I don't know: nothing I hold says coral reefs provide home for, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "at least 25 percent of all marine species.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "29",
+      "question": "how many marine species do reefs provide a home for?",
+      "kind": "merito",
+      "expected": "25|quarter",
+      "cold": "Hmm, I don't know about marine yet. Want me to learn about it?",
+      "hot": "at least 25 percent of all marine species.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "30",
+      "question": "what lives in coral reefs?",
+      "kind": "merito",
+      "expected": "fish|mollusks|worms|crustaceans|species",
+      "cold": "I don't understand that yet.",
+      "hot": "I don't understand that yet.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "31",
+      "question": "where do coral reefs flourish?",
+      "kind": "merito",
+      "expected": "ocean waters|waters",
+      "cold": "Hmm, I don't know about flourish yet. Want me to learn about it?",
+      "hot": "ocean waters.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "32",
+      "question": "what do those ocean waters provide?",
+      "kind": "merito",
+      "expected": "few nutrients|nutrients",
+      "cold": "I don't actually see or experience things, but I can describe it: a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves.",
+      "hot": "few nutrients.",
+      "cold_status": "wrong",
+      "hot_status": "correct"
+    },
+    {
+      "index": "33",
+      "question": "where are coral reefs most commonly found?",
+      "kind": "merito",
+      "expected": "shallow depths|tropical waters|shallow",
+      "cold": "Hmm, I don't know about commonly yet. Want me to learn about it?",
+      "hot": "shallow depths.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "34",
+      "question": "at what depths are reefs commonly found?",
+      "kind": "merito",
+      "expected": "shallow",
+      "cold": "Hmm, I don't know about depths yet. Want me to learn about it?",
+      "hot": "shallow depths.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "35",
+      "question": "what have shallow tropical coral reefs declined by?",
+      "kind": "merito",
+      "expected": "50|half",
+      "cold": "Hmm, I don't know about shallow yet.",
+      "hot": "50 percent.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "36",
+      "question": "since when have coral reefs declined?",
+      "kind": "merito",
+      "expected": "1950",
+      "cold": "Hmm, I don't know about declined yet. Want me to learn about it?",
+      "hot": "1950.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "37",
+      "question": "what are coral reefs sensitive to?",
+      "kind": "merito",
+      "expected": "water conditions|conditions",
+      "cold": "Hmm, I don't know about sensitive yet. Want me to learn about it?",
+      "hot": "water.",
+      "cold_status": "wall",
+      "hot_status": "wrong"
+    },
+    {
+      "index": "38",
+      "question": "what threatens coral reefs?",
+      "kind": "merito",
+      "expected": "excess nutrients|nitrogen|phosphorus|ocean heat",
+      "cold": "Hmm, I don't know about threatens yet. Want me to learn about it?",
+      "hot": "excess nutrients.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "39",
+      "question": "what are coral reefs under threat from?",
+      "kind": "merito",
+      "expected": "excess nutrients|nitrogen|phosphorus|ocean heat",
+      "cold": "I don't know much about coral reefs yet, and the network is off, so I can't read about it now.",
+      "hot": "excess nutrients.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "40",
+      "question": "what do excess nutrients include?",
+      "kind": "merito",
+      "expected": "nitrogen|phosphorus",
+      "cold": "Hmm, I don't know about excess yet. Want me to learn about it?",
+      "hot": "Nitrogen and phosphorus.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "41",
+      "question": "what do coral reefs deliver?",
+      "kind": "merito",
+      "expected": "ecosystem services|services",
+      "cold": "Hmm, I don't know about deliver yet. Want me to learn about it?",
+      "hot": "Ecosystem and ecosystem services.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "42",
+      "question": "what do coral reefs deliver services for?",
+      "kind": "merito",
+      "expected": "tourism|fisheries|shoreline protection",
+      "cold": "I don't know: nothing I hold says coral reefs deliver services for, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "tourism.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "43",
+      "question": "what has been estimated at billions?",
+      "kind": "merito",
+      "expected": "economic value|value",
+      "cold": "Hmm, I don't know about estimated yet. Want me to learn about it?",
+      "hot": "annual global economic value of coral reefs.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "44",
+      "question": "what is the annual global economic value of coral reefs?",
+      "kind": "merito",
+      "expected": "30|billion",
+      "cold": "Hmm, I don't know about annual yet. Want me to learn about it?",
+      "hot": "anywhere from us$30–375 billion.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "45",
+      "question": "what is coral?",
+      "kind": "merito",
+      "expected": "animal|anthozoa",
+      "cold": "I don't know much about coral yet, and the network is off, so I can't read about it now.",
+      "hot": "I have no definition of it, but I read: coral belongs to the class anthozoa, I have no definition of it, but I read: hard carbonate exoskeletons support the coral and I have no definition of it, but I read: hard carbonate exoskeletons protect the coral.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "46",
+      "question": "what is calcium carbonate for?",
+      "kind": "merito",
+      "expected": "holding|together",
+      "cold": "Hmm, I don't know about carbonate yet. Want me to learn about it?",
+      "hot": "holding colonies of coral polyps together.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "47",
+      "question": "what are coral polyps?",
+      "kind": "merito",
+      "expected": "polyps|colonies",
+      "cold": "I don't know much about coral polyps yet, and the network is off, so I can't read about it now.",
+      "hot": "I have no definition of it, but I read: colonies of coral polyps held together by calcium carbonate.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "48",
+      "question": "what do reef-building corals build?",
+      "kind": "merito",
+      "expected": "reefs|coral reefs",
+      "cold": "Hmm, I don't know about reef-building yet. Want me to learn about it?",
+      "hot": "reefs.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "49",
+      "question": "what kind of corals are most reefs built from?",
+      "kind": "merito",
+      "expected": "stony",
+      "cold": "Hmm, I don't know about corals yet.",
+      "hot": "stony corals.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "50",
+      "question": "what do coral polyps form colonies of?",
+      "kind": "merito",
+      "expected": "coral polyps|polyps",
+      "cold": "I don't know: nothing I hold says coral polyps form colonies of, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "I don't know: nothing I hold says coral polyps form colonies of, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "51",
+      "question": "in what water do coral reefs grow best?",
+      "kind": "merito",
+      "expected": "warm|shallow|clear|sunny|agitated",
+      "cold": "I don't understand that yet.",
+      "hot": "I don't understand that yet.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "52",
+      "question": "what did coral reefs displace when they appeared?",
+      "kind": "merito",
+      "expected": "microbial|sponge reefs",
+      "cold": "Who or what does «they» refer to?",
+      "hot": "I don't know: nothing I hold says coral reefs displace when they appeared, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "cold_status": "wrong",
+      "hot_status": "wall"
+    },
+    {
+      "index": "53",
+      "question": "at the dawn of which period did coral reefs appear?",
+      "kind": "merito",
+      "expected": "early ordovician|ordovician",
+      "cold": "I don't know: nothing I hold says coral reefs displace when appear appeared, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "Hmm, I don't know about period yet. Want me to learn about it?",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "54",
+      "question": "what area do coral reefs occupy about half of?",
+      "kind": "merito",
+      "expected": "france|area of france",
+      "cold": "Hmm, I don't know about occupy yet.",
+      "hot": "I don't know about «half of» here: what I read is that coral reefs occupy less than 0.1 percent of the world's ocean area.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "55",
+      "question": "what percentage of marine species do reefs provide a home for?",
+      "kind": "merito",
+      "expected": "25",
+      "cold": "Hmm, I don't know about percentage yet. Want me to learn about it?",
+      "hot": "at least 25 percent of all marine species.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "56",
+      "question": "what other cnidarians live in coral reefs?",
+      "kind": "merito",
+      "expected": "tunicates|sponges|echinoderms|other cnidarians",
+      "cold": "Hmm, I don't know about cnidarians yet. Want me to learn about it?",
+      "hot": "Hmm, I don't know about cnidarians yet. Want me to learn about it?",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "57",
+      "question": "where do deep water and cold water coral reefs exist?",
+      "kind": "merito",
+      "expected": "smaller scales|other areas",
+      "cold": "I don't understand that yet.",
+      "hot": "I don't understand that yet.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "58",
+      "question": "what kind of fishing threatens coral reefs?",
+      "kind": "merito",
+      "expected": "blast fishing|cyanide fishing|spearfishing|overfishing",
+      "cold": "Hmm, I don't know about threatens yet.",
+      "hot": "Hmm, I don't know about threatens yet. Want me to learn about it?",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "59",
+      "question": "what land-use practices threaten coral reefs?",
+      "kind": "merito",
+      "expected": "runoff|seeps|harmful",
+      "cold": "Hmm, I don't know about land-use yet. Want me to learn about it?",
+      "hot": "Hmm, I don't know about land-use yet. Want me to learn about it?",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "60",
+      "question": "what was the economic value of coral reefs estimated at in 2020?",
+      "kind": "merito",
+      "expected": "2.7 trillion|2\\.7",
+      "cold": "I don't know: nothing I hold says economic value of coral reefs estimateed at at in 2020, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "I don't know about «in 2020» here: what I read is that economic value of coral reefs estimated at anywhere from us$30–375 billion.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "61",
+      "question": "what was the economic value of coral reefs estimated at in 2014?",
+      "kind": "merito",
+      "expected": "9.9 trillion|9\\.9",
+      "cold": "I don't know: nothing I hold says economic value of coral reefs estimateed at at in 2014, and nothing says it isn't so. Tell me either way and I will hold it.",
+      "hot": "I don't know about «in 2014» here: what I read is that economic value of coral reefs estimated at anywhere from us$30–375 billion.",
+      "cold_status": "wall",
+      "hot_status": "wall"
+    },
+    {
+      "index": "62",
+      "question": "how many sentences does the text have?",
+      "kind": "struttura",
+      "expected": "has 16 sentences",
+      "cold": "The text has 0 sentences.",
+      "hot": "The text has 16 sentences.",
+      "cold_status": "wrong",
+      "hot_status": "correct"
+    },
+    {
+      "index": "63",
+      "question": "how many words does the text have?",
+      "kind": "struttura",
+      "expected": "has 299 words",
+      "cold": "I don't understand that yet.",
+      "hot": "The text has 299 words.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "64",
+      "question": "what is the first sentence?",
+      "kind": "struttura",
+      "expected": "coral reef is an underwater ecosystem",
+      "cold": "I am not sure what you mean by «first». Could you give me more context?",
+      "hot": "It begins: A coral reef is an underwater ecosystem characterized by reef-building corals",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "65",
+      "question": "how does the text begin?",
+      "kind": "struttura",
+      "expected": "coral reef is an underwater ecosystem",
+      "cold": "I don't understand that yet.",
+      "hot": "It begins: A coral reef is an underwater ecosystem characterized by reef-building corals",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "66",
+      "question": "what is the last sentence?",
+      "kind": "struttura",
+      "expected": "The annual global economic value of",
+      "cold": "I don't know much about last sentence yet, and the network is off, so I can't read about it now.",
+      "hot": "It ends: The annual global economic value of coral reefs has been estimated at anywhere from US$30–375 billion (1997 and 2003 estimates) to US$2.7 trillion (a 2020 estimate) to US$9.9 trillion (a 2014 estimate).",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    },
+    {
+      "index": "67",
+      "question": "what is this text about?",
+      "kind": "meta",
+      "expected": "coral",
+      "cold": "I don't have the text you mean — paste it here and I'll work on it.",
+      "hot": "The text is about A coral reef.",
+      "cold_status": "wrong",
+      "hot_status": "correct"
+    },
+    {
+      "index": "68",
+      "question": "what is the topic?",
+      "kind": "meta",
+      "expected": "coral",
+      "cold": "I don't know much about topic yet, and the network is off, so I can't read about it now.",
+      "hot": "The text is about A coral reef.",
+      "cold_status": "wall",
+      "hot_status": "correct"
+    }
+  ],
+  "binary_sha256": "efdf0488ba305d394c3f971298e54c826c395df041395a1063e26335c2f56eee",
+  "fixture": "tests/fixtures/prose/ladder/r300.txt",
+  "measured_at": "2026-09-20T20:16:01.845436+00:00",
+  "git_head": "f50cdfe5b9ee4ec5735fed6dae4d34e0dee6fe94",
+  "git_status": " M LEARN_PROTOCOL.md\n M Makefile\n M docs/plans/train-the-learning-process.md\n M scripts/prose-probe.sh\n?? scripts/prose-gate.py\n?? tests/test_prose_gate.py\n"
+}

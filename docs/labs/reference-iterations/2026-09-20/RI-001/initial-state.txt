@@ -1,0 +1,10 @@
+f50cdfe5b9ee4ec5735fed6dae4d34e0dee6fe94
+ M LEARN_PROTOCOL.md
+ M Makefile
+ M docs/plans/train-the-learning-process.md
+ M scripts/prose-probe.sh
+?? docs/labs/reference-iterations/
+?? docs/labs/train-learning-process-v2/
+?? scripts/prose-gate.py
+?? tests/test_prose_gate.py
+binary_sha256 efdf0488ba305d394c3f971298e54c826c395df041395a1063e26335c2f56eee

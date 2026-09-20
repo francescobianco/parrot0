@@ -43,6 +43,10 @@
 #       make prose-probe                 (tutti i testi presenti)
 set -u
 cd "$(dirname "$0")/.." || exit 1
+# Optional lossless records for prose-gate.py (eight NUL-delimited fields).
+if [ -n "${P0_PROBE_DATA:-}" ]; then
+  : > "$P0_PROBE_DATA" || exit 1
+fi
 
 NAME="${1:-tardigrade}"
 BUDGET="${2:-0}"          # 0 = tutto il testo; N = i primi N token (al confine di frase)
@@ -82,6 +86,20 @@ WORDS=$(wc -w < "$CUT")
 # tutto cio' che una lezione ha messo in KB con `/save` resta, ed e' proprio il
 # motivo per cui il banco migliora quando la KB cresce.
 run() {  # sessione nuova, KB viva; le righe come argomenti, una risposta per riga
+  if [ -n "${P0_PROBE_DATA:-}" ]; then
+    local raw
+    raw=$(printf '%s\n' "$@" '/quit' |
+      PARROT0_SESSION= PARROT0_WIKI_FETCH=0 PARROT0_TOOLS=1 PARROT0_LANG="${P0LANG:-en}" \
+      PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0 2>&1) || {
+        printf '%s\nPROSE_RUN_ERROR\n' "$raw" >> "${P0_PROBE_DATA}.engine.log"
+        return 1
+      }
+    printf '%s\n' "$raw" >> "${P0_PROBE_DATA}.engine.log"
+    # /quit emits one final empty prompt, not an answer. Remove only that
+    # terminal frame; an empty answer inside the stream must remain visible.
+    printf '%s\n' "$raw" | grep '>>>' | sed 's/^.*>>> //; ${ /^$/d; }'
+    return
+  fi
   # ⚠ fuori da un terminale parrot0 stampa le risposte su stdout e il prompt
   # «>>> » su stderr: si uniscono, e il marcatore e' quello che separa un turno
   # dal successivo. (Una risposta su piu' righe — un blocco di codice — perde le
@@ -237,9 +255,21 @@ for idx in "${!QS[@]}"; do
   n=$((n+1))
   q="${QS[$idx]}"; want="${AS[$idx]}"; got="${REPLIES[$idx]:-}"; kind="${KS[$idx]:-merito}"
   cold="${COLD[$idx]:-}"
+  # Record BOTH sessions, including answers already known before reading.
+  # The human table intentionally truncates answers; the gate must not use it.
+  cold_status=wrong; hot_status=wrong
+  if printf '%s' "$cold" | grep -qiE "$WALL"; then cold_status=wall
+  elif printf '%s' "$cold" | grep -qiE -- "$want"; then cold_status=correct; fi
+  if printf '%s' "$got" | grep -qiE "$WALL"; then hot_status=wall
+  elif printf '%s' "$got" | grep -qiE -- "$want"; then hot_status=correct; fi
+  if [ -n "${P0_PROBE_DATA:-}" ]; then
+    [ "${#COLD[@]}" -eq "${#QS[@]}" ] && [ "${#REPLIES[@]}" -eq "${#QS[@]}" ] || {
+      echo 'prose-probe: incomplete or misaligned turn stream' >&2; exit 2;
+    }
+    printf '%s\0' "$idx" "$q" "$kind" "$want" "$cold" "$got" "$cold_status" "$hot_status" >> "$P0_PROBE_DATA" || exit 1
+  fi
   # la stessa regola di giudizio del caldo: un muro non e' mai una risposta
-  if printf '%s' "$cold" | grep -qiE "$WALL"; then knew=0
-  elif printf '%s' "$cold" | grep -qiE -- "$want"; then knew=1; else knew=0; fi
+  knew=0; [ "$cold_status" = correct ] && knew=1
   if [ "$knew" = 1 ]; then
     already=$((already+1))
     printf '  %-34s %-10s %-6s %s\n' "$(printf '%s' "$q" | cut -c1-32)" "$kind" "già" "$(printf '%s' "$cold" | cut_to 62)"
@@ -256,9 +286,7 @@ for idx in "${!QS[@]}"; do
   # la cosa peggiore che un banco possa fare. I marcatori di muro sono una
   # euristica di shell — grossolana apposta: meglio scartare una risposta buona
   # che contarne una falsa.
-  if printf '%s' "$got" | grep -qiE "$WALL"; then
-    verdict="·"
-  elif printf '%s' "$got" | grep -qiE -- "$want"; then
+  if [ "$hot_status" = correct ]; then
     verdict="✓"; ok=$((ok+1)); KOK[$kind]=$(( ${KOK[$kind]:-0} + 1 ))
     [ "$kind" = merito ] && gate_words=$(( gate_words + $(printf '%s' "$q" | wc -w) ))
   else verdict="·"; fi

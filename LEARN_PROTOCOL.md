@@ -597,6 +597,42 @@ rimandarlo soltanto perché l'ora, il dominio o la sessione non sono finiti.
 
 ## 6-bis. FORME DI APPRENDIMENTO — che cosa si può insegnare parlando
 
+**Uso nella ricerca per «iterazioni di riferimento».** L'invocazione
+«fai N iterazioni di riferimento» è definita nel
+[§0 di train-the-learning-process.md](docs/plans/train-the-learning-process.md#0-metodo-operativo-vigente--literazione-di-riferimento).
+Quel ciclo parte da uno stimolo naturale realmente fallito, prepara il
+curriculum, ripara le lezioni inefficaci e certifica apprendimento,
+trasferimento, ritiro e persistenza prima del commit dell'iterazione. La
+ricerca può modificare il motore; il replay di certificazione avviene sul
+meccanismo congelato. Il banco della prosa è escluso da quel piano.
+Le acquisizioni di sole forme/regole restano `meta-capability-only` quando
+`W = 0`, anche se soddisfano il contratto di una iterazione completa: non
+confondere il contatore delle iterazioni con quello dei fatti veri nuovi.
+
+**Portata delle prove — raccordo con la revisione di
+[`train-the-learning-process.md`](docs/plans/train-the-learning-process.md#45-protocollo-di-misura-v2--specificato-ancora-da-eseguire).**
+Una forma nuova avvalora una soluzione quando amplia ciò che si può insegnare,
+come chiede il mantra #26. La sua presenza nel catalogo non certifica una
+percentuale di capacità generale. Per ogni nuova forma o verifica aggiungere:
+lezione naturale, effetto consumato nella risposta/azione, trasferimento,
+controllo negativo, correzione/ritiro, artefatto e limiti residui. Distinguere
+`progettata`, `provata localmente` e `verificata sul manifest <versione>`;
+le righe storiche prive di questi dati non si promuovono automaticamente.
+
+In particolare, una categoria nuova che una forma esistente popola è distinta
+da una **nuova forma di lezione insegnata**. Per rivendicare A3 occorre la
+catena: insegnare la forma → impartire una lezione attraverso di essa →
+ottenere un effetto su un caso nuovo → ritirare selettivamente. Dichiarare
+se il ritiro della forma riguarda lezioni future o anche derivazioni passate.
+Non abbiamo aggiunto nuove forme runtime con questa revisione: abbiamo reso
+più rigoroso il contratto con cui verificarle.
+
+Un declino informato è un esito onesto; una **riparazione riuscita** richiede
+che il maestro riesca poi a insegnare entro un budget dichiarato. Per condotta
+e iniziativa provare anche continuazione, cambio di vincolo e arresto: una
+singola apertura pertinente non basta. Registrare separatamente queste prove,
+senza contare le parafrasi della stessa famiglia come capacità indipendenti.
+
 *Il catalogo delle superfici con cui una lezione entra in KB senza toccare il C.
 È la lista da cui si sceglie prima di aprire una chat, ed è anche il metro del
 progresso: **una forma nuova qui vale più di cento fatti**, perché apre una

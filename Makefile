@@ -138,6 +138,17 @@ bin obj:
 # binario fresco, demone, rimisura dell'ultimo piolo in background (§4-quater).
 prose-session:
 	@./scripts/prose-session.sh $(RUNGS)
+.PHONY: prose-record prose-gate test-prose-gate
+# Capture BEFORE the consumer edit. Use new report paths; never overwrite evidence.
+prose-record: build
+	@python3 scripts/prose-gate.py record "$(REPORT)" $(PROSE_GATE_ARGS)
+# Separate from the 15-second soft-test: both are required for reader migrations.
+prose-gate: build
+	@test -n "$(BASELINE)" && test -f "$(BASELINE)"
+	@python3 scripts/prose-gate.py record "$(REPORT)" $(PROSE_GATE_ARGS)
+	@python3 scripts/prose-gate.py compare "$(BASELINE)" "$(REPORT)"
+test-prose-gate:
+	@python3 tests/test_prose_gate.py
 prose-probe: build
 	@for f in tests/fixtures/prose/*.txt; do ./scripts/prose-probe.sh "$$f"; done
 
