@@ -14,6 +14,129 @@ Aperto il 21 settembre 2026 su richiesta di F. Consolida i tentativi sparsi in
 
 ---
 
+## ⇨ TODO PRIORITARI — da qui si comincia
+
+Cinque attività **puntuali** (T1–T5): ognuna ha un esito binario, un costo in minuti e
+una prova che la falsifica. Nessuna è una scansione della KB o un'indagine a
+largo spettro — quelle si fanno dopo, e il §6 dice in quale ordine.
+
+| # | attività | elemento (§3) | livello (§4.2) | passo del §6 | costo |
+|---|---|---|---|---|---|
+| **T1** | provare le tre forme di lezione italiane mai verificate | comprensione universale | L2 | 1 | ~20 min |
+| **T2** | declino informato su **una** forma di lezione | comprensione universale | — (il pavimento) | 2 | ~1 h |
+| **T3** | la guardia di pertinenza sul turno «in quale lingua ti ho chiesto…» | KB viva | **L4** | 3 | ~1–2 h |
+| **T4** | la lingua che salta a metà scambio | KB viva | L4 | 1 | ~45 min |
+| **T5** | il costo di `soft-test` | — (banco) | — | 0 | ~1 h |
+
+> **Se se ne può fare una sola: la T1.** È l'unica che può cambiare la stima
+> dell'indicatore (§5) in venti minuti, in una direzione o nell'altra.
+
+---
+
+### T1 — Provare le tre forme di lezione italiane mai verificate
+
+[`LEARN_PROTOCOL.md`](../../LEARN_PROTOCOL.md) dichiara quattro forme italiane
+*«non ancora verificate end-to-end»*. **Una** è stata provata il 20 settembre
+(`quando dico X intendo Y`) e funziona, con ablazione. Le altre tre no:
+
+```text
+la mossa conversazionale partenza concreta riguarda un esempio concreto
+per la mossa conversazionale partenza concreta di Mostrami un esempio.
+quando guidi apprendimento inizia con partenza concreta
+```
+
+**Perché per prima.** È il §6.1 — *guarire il canale prima di allargarlo* — e ha
+l'esito più netto che esista: ogni forma o insegna, o riceve un muro, o la
+prende il lettore sbagliato. Nessuna interpretazione. E i difetti, se ci sono,
+non vanno **cercati**: li ha già nominati il catalogo.
+
+**Prova.** Tre righe di tabella: replay, trasferimento a un altro argomento,
+ritiro, replay. Verde = un sospetto in meno sulla banda. Rosso = tre difetti
+localizzati senza aver scansionato niente.
+
+### T2 — Declino informato su **una** forma di lezione
+
+Oggi una lezione non riconosciuta riceve `Non capisco ancora.`, e il maestro non
+sa se ha sbagliato la frase, il nome della mossa, o se la forma non esiste. Si
+prende **una** forma e le si fa dire che cosa le mancava:
+
+> *«sembra una lezione sulla condotta, ma non riconosco «partenza concreta»
+> come nome di mossa»*
+
+**Perché.** È il canale che **parla all'indietro** (§3): senza, l'addestramento
+è un imbuto. Il §6.2 lo vuole sul catalogo intero; qui si restringe a **una**
+forma per vedere se il meccanismo regge prima di generalizzarlo.
+
+**Prova.** Si sbaglia la lezione in tre modi diversi e si ricevono tre messaggi
+diversi, ognuno dei quali dice che cosa scrivere al turno dopo.
+
+**Rischio dichiarato.** Potrebbe non esistere un punto unico a cui appendere il
+messaggio. Se è così **si dice**, invece di forzarlo: sarebbe un reperto sulla
+comprensione universale, non un fallimento dell'attività.
+
+### T3 — La guardia di pertinenza sul turno che fallisce
+
+Non costruire F1. Rendere **dicibile** questo, e basta:
+
+> *«Quando il tema di una domanda è un turno di questa conversazione, non
+> rispondere con l'elenco delle cose che sai.»*
+
+**Perché.** Il turno di partenza — `in quale lingua ti ho chiesto quale lingua
+sai parlare` → **`c, python.`** — non deve diventare *«in italiano»*: deve
+diventare un **muro onesto**. Sulla scala di F. è un salto più grande di una
+risposta giusta presa dal frasario, perché toglie la specie peggiore, *fluente e
+infondato*. Ed è **L4** — la banda dove parrot0 è più debole — al costo di un
+caso solo. La forma di seme è quella che il `/debug` di parrot0 già nomina da sé.
+
+**Prova.** Il turno cambia; il **ritiro** lo riporta a `c, python`; e una
+domanda diversa della stessa famiglia riceve lo stesso trattamento **senza una
+seconda lezione**.
+
+### T4 — La lingua che salta a metà scambio
+
+```text
+>>> sono indeciso tra leggere e passeggiare
+Su leggere e passeggiare: Prima di scegliere, nomina un criterio…
+>>> per me conta riposare
+You added: riposare. On leggere e passeggiare: Use this criterion…
+```
+
+Rosso misurato e **pre-esistente** (identico sulla baseline), su un asse
+dichiarato: *continuità dopo un seguito*. È il rosso 1 dell'handoff di
+[`the-rational-philosopher.md`](the-rational-philosopher.md), e **la leva
+esiste già**: la lingua dell'ancora è registrata, quindi la resa può leggere
+quella invece di indovinare su quattro parole ambigue.
+
+**Prova.** Un seguito corto non sposta più la lingua; un cambio di lingua
+**esplicito** continua a funzionare.
+
+### T5 — Il costo di `soft-test`
+
+Il banco sta a **12–14s su 15 di budget** e ha toccato 16 con un fallimento
+durante la sessione del 20 settembre. Misurare per file contro un worktree di
+baseline, trovare il costo vero, curarlo. Le leve candidate sono già elencate
+nell'handoff di [`the-rational-philosopher.md`](the-rational-philosopher.md).
+
+**Perché non è manutenzione.** Finché il banco fallisce a intermittenza, **ogni
+misura successiva è contestabile** — comprese quelle che direbbero se le
+attività T1–T4 hanno funzionato. È la meno creativa e la più abilitante.
+
+**Prova.** Cinque run consecutive sotto i 12s, e il delta attribuito a una
+modifica precisa invece che al rumore.
+
+---
+
+### Il resto, dopo
+
+| | |
+|---|---|
+| **L'ordine strategico** | §6 — che cosa alza il numero, e perché ogni riga è la condizione della successiva |
+| **La misura vera** | §4.5, il censimento delle catene. **È un'indagine a largo spettro**, ed è per questo che non sta qui: ma finché non si esegue, il `30–35` del §5 resta una stima e va detto ogni volta che lo si cita |
+| **F1 — il turno come contenuto con un atto** | non è un'attività d'apertura: è il gradino su cui poggiano quattro facoltà di [`the-rational-philosopher.md`](the-rational-philosopher.md). Costruirlo prima che il canale regga significa costruirlo e non riuscire a insegnargli niente |
+| **La tripletta di accettazione** | §4.4 — astrofisica, clone di un LLM, interprete PGN. Sono il bersaglio del 100, non il lavoro di domani |
+
+---
+
 ## 1. Che cosa è «train-the-learning-process», e che cosa non è
 
 ### 1.1 La distinzione che fonda tutto
