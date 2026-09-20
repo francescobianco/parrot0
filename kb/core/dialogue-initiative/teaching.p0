@@ -64,7 +64,7 @@ turn_form_slot_form(teach_dialogue_first, move, atom).
 turn_form_priority(teach_dialogue_first, early).
 turn_form_view(teach_dialogue_first, said).
 turn_form_act(teach_dialogue_first, "op(assert, dialogue_first, [task, move])").
-turn_form_reply(teach_dialogue_first, dialogue_form_assert).
+% (la risposta di questa forma e' condizionale: vedi il declino informato in fondo)
 turn_form(forget_dialogue_first, 1, text("forget that when guiding")).
 turn_form(forget_dialogue_first, 2, named(dialogue_task_label, task)).
 turn_form(forget_dialogue_first, 3, text("start with")).
@@ -82,7 +82,7 @@ turn_form_slot_form(teach_dialogue_first_it, move, atom).
 turn_form_priority(teach_dialogue_first_it, early).
 turn_form_view(teach_dialogue_first_it, said).
 turn_form_act(teach_dialogue_first_it, "op(assert, dialogue_first, [task, move])").
-turn_form_reply(teach_dialogue_first_it, dialogue_form_assert).
+% (idem per la forma italiana)
 turn_form(forget_dialogue_first_it, 1, text("dimentica che quando guidi")).
 turn_form(forget_dialogue_first_it, 2, named(dialogue_task_label, task)).
 turn_form(forget_dialogue_first_it, 3, text("inizia con")).
@@ -187,3 +187,56 @@ turn_form_priority(forget_dialogue_words_it, early).
 turn_form_view(forget_dialogue_words_it, said).
 turn_form_act(forget_dialogue_words_it, "op(retract, dialogue_move_text, [move, language, words])").
 turn_form_reply(forget_dialogue_words_it, dialogue_form_retract).
+
+% ─── IL DECLINO INFORMATO SU UNA LEZIONE DI CONDOTTA ────────────────────────
+% (T2 di `docs/plans/train-the-learning-process.md`, 21 settembre 2026)
+%
+% Prima: qualunque lezione di policy riceveva «Leggero' quella espressione con
+% l'intenzione che hai indicato.» — anche quando la mossa nominata non aveva
+% ne' un bisogno ne' delle parole, cioe' quando la lezione NON avrebbe potuto
+% avere effetto. Il maestro non poteva sapere se aveva sbagliato la frase, il
+% nome della mossa, o se mancava un pezzo: lavorava alla cieca, ed e'
+% esattamente il «pavimento» del §6.2 del piano.
+%
+% Ora la conferma dice che cosa manca e COME DIRLO al turno dopo. Le tre
+% clausole sono mutuamente esclusive apposta: il motore pretende UNA sola
+% risposta per forma (`kb_match(..., turn_form_reply, ...) == 1`), quindi due
+% clausole vere insieme lascerebbero il turno muto.
+%
+% ⚠ Limite dichiarato: la guardia guarda QUALUNQUE policy incompleta, non
+% solo quella appena detta. Con una policy incompleta gia' in memoria, la
+% conferma della prossima nominerebbe quella. Si stringe quando esistera' un
+% riferimento all'atto del turno corrente (F1 di the-rational-philosopher).
+% ⚠ Le guardie sono UNARIE SU TERMINI LEGATI apposta: `naf` declina se il goal
+% non e' ground, quindi `naf(dialogue_move_need($Move, $N))` con $N libero
+% fallisce SEMPRE e la clausola non scatta mai — il declino sarebbe rimasto
+% invisibile. Le due facce a un argomento nascondono la variabile libera.
+machinery(dialogue_first_missing).
+machinery(dialogue_move_has_need).
+machinery(dialogue_move_has_text).
+dialogue_move_has_need($Move) :- dialogue_move_need($Move, $N).
+dialogue_move_has_text($Move) :- current_language($L), dialogue_move_text($Move, $L, $T).
+dialogue_first_missing(need) :-
+    dialogue_first($Task, $Move), naf(dialogue_move_has_need($Move)).
+dialogue_first_missing(words) :-
+    dialogue_first($Task, $Move), dialogue_move_has_need($Move),
+    naf(dialogue_move_has_text($Move)).
+dialogue_first_ready :-
+    naf(dialogue_first_missing(need)), naf(dialogue_first_missing(words)).
+
+response_template(dialogue_first_needs_need,
+    "I noted that policy, and I cannot use it yet: I do not know what «{move}» addresses. Tell me «the conversational move {move} addresses …» and then what to say for it.").
+response_template(dialogue_first_needs_words,
+    "I noted that policy, and I cannot use it yet: I know what «{move}» addresses but not what to say for it. Tell me «for the conversational move {move} say …».").
+response_template(dialogue_first_needs_need_it,
+    "Ho annotato quella regola, e non posso ancora usarla: non so che cosa affronti «{move}». Dimmi «la mossa conversazionale {move} riguarda …» e poi che cosa dire per quella mossa.").
+response_template(dialogue_first_needs_words_it,
+    "Ho annotato quella regola, e non posso ancora usarla: so che cosa affronta «{move}» ma non che cosa dire. Dimmi «per la mossa conversazionale {move} di …».").
+turn_form_reply(teach_dialogue_first, dialogue_form_assert) :- dialogue_first_ready.
+turn_form_reply(teach_dialogue_first, dialogue_first_needs_need) :- dialogue_first_missing(need).
+turn_form_reply(teach_dialogue_first, dialogue_first_needs_words) :-
+    dialogue_first_missing(words), naf(dialogue_first_missing(need)).
+turn_form_reply(teach_dialogue_first_it, dialogue_form_assert) :- dialogue_first_ready.
+turn_form_reply(teach_dialogue_first_it, dialogue_first_needs_need_it) :- dialogue_first_missing(need).
+turn_form_reply(teach_dialogue_first_it, dialogue_first_needs_words_it) :-
+    dialogue_first_missing(words), naf(dialogue_first_missing(need)).

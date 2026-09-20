@@ -198,8 +198,35 @@ answer_frame("dialogue purpose", dialogue_move_need).
 % per ordine di inserimento: resta visibile come gap, senza dire due mosse.
 dialogue_has_first($Task) :- dialogue_first($Task, $Move).
 dialogue_first_conflict($Task, $Move) :- dialogue_first($Task, $Other), dif($Move, $Other).
-dialogue_initial($Task, $Move) :- dialogue_first($Task, $Move), naf(dialogue_first_conflict($Task, $Move)), dialogue_move_need($Move, $Need).
-dialogue_initial($Task, $Move) :- naf(dialogue_has_first($Task)), dialogue_step($Task, 1, $Move).
+
+% 21 settembre 2026 (T1 di `train-the-learning-process.md`) — UNA POLICY
+% INUSABILE NON CANCELLA IL COMPORTAMENTO DI BASE.
+%
+% Misurato: insegnando la SOLA policy «quando guidi apprendimento inizia con
+% partenza concreta», senza aver prima detto che cosa quella mossa affronta e
+% che cosa deve dire, la lezione veniva ACCETTATA e il turno successivo
+% crollava in «Non capisco ancora.» — dove prima rispondeva con la mossa di
+% base. Una lezione confermata che PEGGIORA il comportamento e' peggio di un
+% muro: il maestro crede di aver insegnato, e ha rotto.
+%
+% La causa era una guardia troppo larga: il ramo di base si spegneva appena
+% ESISTEVA una policy, anche quando quella policy non era usabile. Una mossa e'
+% usabile quando si sa che cosa affronta e che cosa dire nella lingua del
+% turno; finche' manca uno dei due, il piano di base resta in piedi e la
+% lezione incompleta non toglie nulla.
+machinery(dialogue_move_usable).
+machinery(dialogue_usable_first).
+dialogue_move_usable($Move) :-
+    dialogue_move_need($Move, $Need),
+    current_language($L), dialogue_move_text($Move, $L, $Text).
+dialogue_usable_first($Task) :-
+    dialogue_first($Task, $Move), dialogue_move_usable($Move).
+
+dialogue_initial($Task, $Move) :-
+    dialogue_first($Task, $Move), naf(dialogue_first_conflict($Task, $Move)),
+    dialogue_move_usable($Move).
+dialogue_initial($Task, $Move) :-
+    naf(dialogue_usable_first($Task)), dialogue_step($Task, 1, $Move).
 
 % Un vincolo cambia il passo in corso: non significa averlo eseguito.
 dialogue_candidate($T, $S, $K, $Move) :-
