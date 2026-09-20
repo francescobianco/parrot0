@@ -664,6 +664,58 @@ legge come due fatti mutilati. Finché una forma del catalogo si legge male,
 nessuna redirezione verso di lei può funzionare — e questa è la specie che
 tiene ancora il pavimento sotto la sua soglia.
 
+### B3 chiusa, e il terzo esito del censimento con lei (21 settembre 2026, sera tardi)
+
+`LEARN_PROTOCOL.md` dichiara la forma `V is an event subject verb` e la dà per
+verificata. Misurata su un verbo **mai visto**, non insegnava:
+
+```text
+> glorp is an event subject verb
+Learned: glorp is an event. Learned: glorp subject verb.      (9,7 s)
+```
+
+Due fatti mutilati. La causa: «event subject verb» è un nome di classe di
+**tre parole** e il lettore generico lo spezza — con `help`, già presente in
+KB, non si vedeva. **Una forma che vale solo per i membri già presenti non è
+una forma: è un ricordo**, e il catalogo la contava come capacità.
+
+Chiusa dichiarandola, con la sua ritrattazione (`kb/core/conduct-lessons.p0`):
+
+| prova | esito |
+|---|---|
+| lezione su un verbo nuovo | ✅ `Held: the subject of «glorp» can be an action or a means.` |
+| **trasferimento** a un secondo verbo mai visto | ✅ `event_subject_verb(zorblax)` |
+| **ablazione mirata** | ✅ `glorp` sparisce, `zorblax` **resta** |
+| tempo del turno | 9,7 s → 4,9 s (ancora lento: è il costo del turno, non della forma) |
+
+Con questa, il **terzo** esito del censimento è affrontato: non più «fatto
+storto», ma una forma dichiarata che ora regge un membro nuovo.
+
+### Riletura dell'indicatore dopo le due chiusure
+
+| | prima | dopo |
+|---|---|---|
+| formulazione non prevista che diverge in silenzio | il maestro non aveva strumento | **può redirigerla parlando**: la porta esiste e funziona su ogni superficie |
+| forme del catalogo che valgono solo per membri noti | B3, contata come capacità | chiusa, con trasferimento e ablazione |
+
+> **learning-capability ≈ 35–40**, contro i **30** contati dal censimento.
+
+**Perché sale.** Il §4.6 conta *«un muro cieco su una lezione diventato
+declino informato»*: qui un **rifiuto** è diventato una **porta che funziona**,
+che è di più. E una catena che finiva in una riga a mano (B3) ora finisce in
+una forma con ablazione.
+
+**Perché non arriva a 50, e va detto.** La divergenza silenziosa è ora
+*riparabile* parlando, non *prevenuta*: il maestro deve accorgersene. Finché
+una lezione quasi riconosciuta viene accettata a metà senza dirlo, il pavimento
+resta sotto la soglia della banda 16–30 per quella specie. E **18 dei 30
+elementi campionati non sono ancora stati misurati**: la quota di «riga a mano»
+resta una stima inferiore.
+
+**Il prossimo passo, ora nominato e non generico:** che una lettura *parziale*
+di una lezione non asserisca nulla e lo dica — la specie, non le superfici.
+È il §6.2, ed è l'unica cosa che porta il pavimento sopra la sua soglia.
+
 ### Che cosa questo censimento non ha fatto
 
 - **18 elementi su 30 non sono stati misurati parlando** (gran parte del pozzo A
@@ -707,7 +759,7 @@ Stessa disciplina della scala della prosa, perché ha funzionato.
 
 ## 5. Dove siamo oggi — stima con le sue ragioni, da contraddire con una misura
 
-**learning-capability ≈ 30, CONTATO** al 21 settembre 2026 — vedi il censimento
+**learning-capability ≈ 35–40** a fine giornata del 21 settembre 2026 — **30 contato** dal censimento, poi risalito dalle due chiusure che seguono nel §4.5-bis — vedi il censimento
 eseguito in **§4.5-bis**, che sostituisce e **contraddice** la stima di 45–50
 scritta poche ore prima nella stessa giornata. La stima guardava che cosa
 parrot0 *può* imparare; il censimento guarda che cosa **arriva** quando il

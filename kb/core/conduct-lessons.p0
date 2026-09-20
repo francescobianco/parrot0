@@ -119,3 +119,41 @@ response_template(conduct_yield_learned_it,
     "Inteso: quando il tema è {situation}, non risponderò con {behaviour}.").
 response_template(conduct_yield_forgotten_it,
     "Ho ritirato quella regola: quando il tema è {situation}, potrò di nuovo rispondere con {behaviour}.").
+
+% ─── UNA FORMA DEL CATALOGO CHE NON REGGEVA UN VERBO NUOVO ─────────────────
+% (censimento §4.5-bis, reperto B3 — 21 settembre 2026)
+%
+% `LEARN_PROTOCOL.md` dichiara la forma «V is an event subject verb» e la dà
+% per verificata. Misurata su un verbo MAI VISTO, non insegna:
+%
+%   > glorp is an event subject verb
+%   Learned: glorp is an event. Learned: glorp subject verb.
+%
+% Due fatti mutilati, e il turno costava 9,7 s. La causa è che «event subject
+% verb» è un nome di classe di TRE parole, e il lettore generico lo spezza —
+% con `help`, già noto alla KB, non si vedeva. Una forma dichiarata che vale
+% solo per i membri già presenti non è una forma: è un ricordo.
+%
+% Qui la forma si dichiara, con la sua ritrattazione. Il nome di classe resta
+% una superficie, quindi un altro nome multiparola costa una riga.
+turn_form(teach_event_subject_verb, 1, slot(verb)).
+turn_form(teach_event_subject_verb, 2, text("is an event subject verb")).
+turn_form_slot_form(teach_event_subject_verb, verb, atom).
+turn_form_priority(teach_event_subject_verb, early).
+turn_form_view(teach_event_subject_verb, said).
+turn_form_act(teach_event_subject_verb, "op(assert, event_subject_verb, [verb])").
+turn_form_reply(teach_event_subject_verb, event_subject_verb_learned).
+
+turn_form(forget_event_subject_verb, 1, text("forget that")).
+turn_form(forget_event_subject_verb, 2, slot(verb)).
+turn_form(forget_event_subject_verb, 3, text("is an event subject verb")).
+turn_form_slot_form(forget_event_subject_verb, verb, atom).
+turn_form_priority(forget_event_subject_verb, early).
+turn_form_view(forget_event_subject_verb, said).
+turn_form_act(forget_event_subject_verb, "op(retract, event_subject_verb, [verb])").
+turn_form_reply(forget_event_subject_verb, event_subject_verb_forgotten).
+
+response_template(event_subject_verb_learned,
+    "Held: the subject of «{verb}» can be an action or a means.").
+response_template(event_subject_verb_forgotten,
+    "Dropped: the subject of «{verb}» is an agent again.").
