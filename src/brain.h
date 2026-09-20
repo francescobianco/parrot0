@@ -33,6 +33,9 @@ KB *brain_kb(Brain *b);
  * sa rispondere «which part of you answered that?»); questa e' la porta per il
  * profiler, che deve poter dire dove il tempo e' stato speso E chi ha parlato. */
 const char *brain_last_module(Brain *b);
+/* Stampa su stderr tutto cio' che il motore ha pubblicato sul turno corrente
+ * (`turn_reading_predicate/1` dice che cosa ne fa parte). */
+void brain_turn_dump(Brain *b);
 
 /* Atomically change one typed agent record's state. The in-memory P0AStore and
  * its live rec(Id,Kind,Parent,State) projection either both move or both remain

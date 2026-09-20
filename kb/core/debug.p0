@@ -116,6 +116,14 @@ debug_probe(29, debug_frame_candidate, now, "i frame candidati del turno (tutti,
 
 
 
+% 20 settembre 2026 (F.) — «non posso accettare che scoprire chi stampa "Held:"
+% non sia banalmente gestito da un /debug». Ora chi parla lascia il proprio nome
+% nel turno: la forma che ha rivendicato la frase e il template che l'ha detta,
+% nell'ordine in cui sono stati usati. Un template che manca si vede come
+% `template_missing(nome)`, che e' esattamente la famiglia da insegnare.
+machinery(turn_said_by).
+turn_scratch(turn_said_by).
+debug_probe(35, turn_said_by, now, "chi ha prodotto la risposta: la forma di turno e il template di frase").
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").
 
@@ -168,3 +176,27 @@ debug_pred_arity_max(4).
 debug_probe(17, turn_yield_view, now, "cessione: quanto e' lunga OGNI vista consultata").
 debug_probe(18, turn_yield_probe, now, "cessione: quale vista ha visto la classe").
 debug_probe(19, turn_yield_outcome, now, "cessione: chi ha ceduto il turno").
+
+% ── 20 settembre 2026 (F.) — CHE COSA E' «LA LETTURA DEL TURNO» ─────────────
+% Il dump (`/debug dump`, o PARROT0_TURN_DUMP=1 a ogni turno) stampa i fatti di
+% questi predicati: e' il tracciato ricco da cui si leggono le incongruenze per
+% incrocio, invece di chiederle una sonda per volta. Un predicato nuovo qui
+% entra nel dump senza ricompilare.
+machinery(turn_reading_predicate).
+turn_reading_predicate(turn_span).
+turn_reading_predicate(turn_span_surface).
+turn_reading_predicate(turn_span_cue).
+turn_reading_predicate(turn_span_token).
+turn_reading_predicate(turn_span_binding).
+turn_reading_predicate(input_node_atom).
+turn_reading_predicate(input_node_range).
+turn_reading_predicate(input_node_next).
+turn_reading_predicate(turn_word).
+turn_reading_predicate(turn_surface_token).
+turn_reading_predicate(turn_cue).
+turn_reading_predicate(turn_pattern_match).
+turn_reading_predicate(turn_illocution).
+turn_reading_predicate(turn_said_by).
+turn_reading_predicate(turn_class_read).
+turn_reading_predicate(turn_yield_outcome).
+turn_reading_predicate(machinery_gap).

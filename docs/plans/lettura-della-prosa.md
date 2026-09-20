@@ -83,6 +83,73 @@ chi viene rifiutata):
 5. Gli **esperimenti di comprensione** della fogliata restano da fare: nessun
    punteggio di prosa e' stato rimisurato in questo giro.
 
+## La pratica dell'ottimizzazione — ottimizzare e' trovare la causa piu' in fretta
+
+F., 20 settembre 2026: «non posso accettare che il debug di "scoprire chi
+stampa Held:" non sia banalmente gestito da un `/debug` che ti certifica i
+passaggi». E' il criterio giusto, ed e' piu' largo di quanto sembri: in questo
+giro **ogni guadagno di velocita' e' venuto da uno strumento che ha accorciato
+la distanza fra il sintomo e la causa**, mai da un'intuizione.
+
+**Il conto di questo giro.** Tre ipotesi le ho fatte a naso e la misura le ha
+smontate in pochi minuti: l'indice del participio (nessun effetto), il
+censimento dei predicati (0,8 ms, non era lui), la ricostruzione delle viste
+dentro il turno aritmetico (non c'era). Le cause vere le ha dette uno
+strumento, ogni volta:
+
+| domanda | prima | strumento | dopo |
+|---|---|---|---|
+| quale predicato costa il turno? | si leggeva il C | `/debug` (profilo per predicato) | `answer_frame 364 ms, 27 chiamate` |
+| quale vista costa l'avvio? | si sommavano i tempi a occhio | `PARROT0_BOOT_TRACE=1` | `extract_frame 2,4 s` |
+| chi invalida quella vista? | si deduceva dalle dipendenze | stesso tracciato | `invalidata da verb_lemma` |
+| perche' una vista non si congela mai? | invisibile | stesso tracciato | `rifiutata: il grafo non si chiude` |
+| da che cosa dipende? | si leggeva la KB a mano | `PARROT0_VIEW_DEPS=<vista>` | l'arco di troppo, in una riga |
+| chi ha detto questa frase? | ~20 letture del sorgente | `/debug`, sonda 35 | `template(learned_opposite) form(teach_opposite)` |
+
+L'ultima riga e' la piu' istruttiva. Il rosso di `basics.p0t` («what is the
+opposite of hot» senza «?» risponde «Held: …») e' rimasto aperto per giorni
+perche' *nessuno sapeva chi rispondeva*. Con la sonda, la causa si legge in un
+turno: e' la forma di lezione `teach_opposite`, che rivendica la frase perche'
+la lettura «domanda» del turno non e' ancora pubblicata quando lei decide. Il
+tempo speso a costruire la sonda e' meno di quello speso a cercare a mano UNA
+volta — e la prossima volta e' gratis.
+
+**La regola operativa.** Quando per rispondere a una domanda sul turno bisogna
+leggere il C, quella domanda diventa una sonda: il motore sa gia' la risposta
+mentre agisce, e deve depositarla (`turn_said_by/2` e' esattamente questo —
+il C aveva gia' `b->turn_frame` dal gen363 e non lo diceva a nessuno).
+Vale l'inverso come criterio di maturita': **un progetto e' maturo quando il
+debug non e' esplorazione ma interrogazione.** Oggi non lo siamo ancora: le
+tracce vivono in variabili d'ambiente diverse (`PARROT0_BOOT_TRACE`,
+`PARROT0_VIEW_DEPS`, `P0_FORM_TRACE`, `P0_READ_TRACE`, `PARROT0_TE_SLOW`) e
+`/debug` ne raccoglie solo una parte.
+
+**La seconda strategia: il DUMP, non la sonda.** F., stesso giorno: «un
+`/debug dump_ir=on` accelererebbe di molto la scoperta di comportamenti non
+allineati — un tracciato ricco da cui estrarre incongruenze, invece di muoversi
+punto per punto come un debug umano». E' un punto sul METODO, e riguarda chi
+legge: una sonda per volta e' il modo in cui indaga una persona, che di dati ne
+regge pochi; un agente regge una finestra grande e trova le incongruenze per
+INCROCIO — ma solo se qualcuno gliela riempie.
+
+Da qui `/debug dump` (e `turn_reading_predicate/1` in `kb/core/debug.p0`, che
+dice quali predicati sono «la lettura del turno»): un blocco solo con gli span
+e i loro ruoli, i nodi della IR, le cue, la forza, chi ha parlato. Nel motore
+e' servita una primitiva che mancava — `kb_dump_pred`, i fatti come RIGHE
+INTERE: `kb_match` raccoglie una colonna, che e' la forma giusta per
+interrogare e quella sbagliata per guardare.
+
+Il primo dump ha gia' pagato, e non sulla domanda che stavo indagando: su «is
+bob a man?» mostra `input_node_next` popolato e `input_node_atom` /
+`input_node_range` **vuoti**, cioe' una IR pubblicata a meta'. Nessuna sonda
+mirata l'avrebbe detto, perche' nessuno avrebbe pensato a chiederlo: si vede
+solo mettendo le colonne una accanto all'altra.
+
+**Il debito misurato di questa sonda:** `turn_said_by` copre le risposte che
+passano dal rendering dei template; «hello» e «what is the capital of france»
+non lasciano ancora provenienza. Chiuderlo significa far passare di li' anche
+le risposte composte — e' il prossimo pezzo della stessa pratica.
+
 > **Piano vivo.** Non si chiude: si cricchetta. La misura è
 > [`scripts/prose-probe.sh`](../../scripts/prose-probe.sh) (`make prose-probe`),
 > e ogni giro deve farne scendere l'ultimo numero.

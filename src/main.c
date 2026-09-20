@@ -1490,6 +1490,10 @@ int main(int argc, char **argv) {
          * Deliberatamente piccolo. Cresce quando una domanda di ottimizzazione
          * lo chiede — un profiler scritto tutto in anticipo misura cio' che
          * l'autore immaginava, non cio' che poi rallenta. */
+        if (strcmp(line, "/debug dump") == 0) {
+            brain_turn_dump(brain);
+            continue;
+        }
         if (strncmp(line, "/debug ", 7) == 0 &&
             strcmp(line, "/debug off") != 0) {
             debug_predicate(brain_kb(brain), line + 7);

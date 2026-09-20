@@ -15999,12 +15999,16 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * sorgente larga («what about x») ridiceva ogni turno che le
              * somigliava e restituiva il muro della frase ridetta, invece di
              * lasciare il turno a chi lo sa leggere. */
-            if (rn && out[0] && !reply_is_wall(b, out)) { free(forms); return 1; }
+            if (rn && out[0] && !reply_is_wall(b, out)) {
+                p0_said_by(b, "form", form);   /* chi ha parlato, per /debug */
+                free(forms); return 1;
+            }
             out[0] = '\0';
             continue;
         }
         if (!strncmp(act, "op(", 3)) {
             if (p0_run_op_named(b, act, slots, ns, forms[f], out, out_size)) {
+                p0_said_by(b, "form", form);   /* chi ha parlato, per /debug */
                 free(forms);
                 return 1;
             }

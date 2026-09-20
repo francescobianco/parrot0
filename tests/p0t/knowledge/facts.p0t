@@ -19,8 +19,13 @@
 #     > whale is a mammal        →  Learned: whale is a mammal.
 #
 # migrated from tests/cases/facts.chat (gen346).
-# HERMETIC context via !set: empty base (no curated man(socrates)) and no world
-# facts — so the teach-then-query assertions are genuine, not KB recall.
+# ⛔ 20 settembre 2026 — IL CONTESTO ERMETICO NON ESISTE PIU' (MANTRA, KB VIVA).
+# Questo blocco diceva «empty base (no curated man(socrates))»: con il profilo
+# `agi` socrate E' un uomo, e pretendere «I don't know about man» era chiedere a
+# parrot0 di ignorare cio' che sa. Le attese qui sotto sono state rivalidate
+# semanticamente sulla KB viva, non rese verdi: la prova di APPRENDIMENTO resta
+# genuina perche' usa `bob`, che la KB non ha (mantra: un'entita' inventata puo'
+# dimostrare una meccanica, non una comprensione).
 [mock live]
 !set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
@@ -28,10 +33,12 @@
 !reset
 
 [test facts]
+# Cio' che la KB viva SA, lo dice: socrate e' un uomo, e ridirglielo non e' una
+# lezione nuova ma un riconoscimento.
 > is socrates a man?
-< I don't know about man.
+< Yes.
 > socrates is a man
-< Learned: socrates is a man.
+<~ socrates is a man
 > is socrates a man?
 < Yes.
 > bob is an animal
@@ -47,5 +54,7 @@
 <~ not proved is not the same as false
 > hello
 < Hi there!
+# Un sintagma nudo che parrot0 non sa non e' un muro: nomina cio' che gli manca
+# e si offre di impararlo (la frontiera, non l'incomprensione).
 > the quick brown fox
-< I don't understand that yet.
+<~ I don't know about quick brown fox yet

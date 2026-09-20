@@ -7405,6 +7405,28 @@ int kb_mentions_term(const KB *kb, const char *term) {
     return 0;
 }
 
+/* 20 settembre 2026 — I FATTI INTERI DI UN PREDICATO, non una colonna.
+ *
+ * `kb_match` raccoglie UNO slot: e' la forma giusta per interrogare, e quella
+ * sbagliata per GUARDARE. Un dump della lettura del turno («/debug dump») deve
+ * rendere la riga come e' stata scritta, perche' le incongruenze si vedono
+ * incrociando le colonne, non leggendole una per volta. */
+size_t kb_dump_pred(const KB *kb, const char *pred, char out[][KB_TERM_LEN], size_t max) {
+    if (!kb || !pred || !out || !max) return 0;
+    size_t n = 0;
+    for (size_t i = 0; i < kb->n && n < max; i++) {
+        const Fact *f = &kb->facts[i];
+        if (strcmp(f->pred, pred) != 0) continue;
+        size_t o = (size_t)snprintf(out[n], KB_TERM_LEN, "%s(", f->pred);
+        for (size_t a = 0; a < f->argc && o < KB_TERM_LEN; a++)
+            o += (size_t)snprintf(out[n] + o, KB_TERM_LEN - o, "%s%s",
+                                  a ? ", " : "", f->args[a]);
+        if (o < KB_TERM_LEN) snprintf(out[n] + o, KB_TERM_LEN - o, ")");
+        n++;
+    }
+    return n;
+}
+
 size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
     if (!kb) return 0;
     size_t n = 0;

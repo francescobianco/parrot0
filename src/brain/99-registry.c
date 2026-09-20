@@ -4861,6 +4861,40 @@ int brain_self_repair(Brain *b, char *out, size_t out_size) {
  *
  * Additivo: pubblica fatti e non toglie niente. Un token che non ha nessuna forma
  * dichiarata resta esattamente quello che era. */
+/* La forza NETTA del turno (atti dichiarati meno i blocchi insegnati,
+ * `turn_force/2` in turn-frames.p0), congelata come fatto.
+ *
+ * ⚠ 20 settembre 2026 — SI CONGELA DUE VOLTE, E LA SECONDA E' QUELLA CHE
+ * CONTA. Una delle letture di «questo turno chiede» e' il ruolo `query` degli
+ * SPAN, che il segmentatore pubblica piu' avanti in questa stessa funzione:
+ * congelando solo prima, un turno come «what is the opposite of hot» (senza
+ * «?») restava senza forza per tutto il turno. La KB lo sapeva —
+ * `turn_force(current_turn, question)` era dimostrabile — e nessun consumatore
+ * poteva vederlo, perche' tutti leggono il fatto congelato. Risultato: la
+ * forma di lezione `teach_opposite` rivendicava la domanda e rispondeva
+ * «Held: the opposite of what is hot» (basics.p0t, rosso dal gen507/71).
+ * Le asserzioni sono idempotenti: la seconda chiamata aggiunge le letture che
+ * prima non esistevano ancora. */
+static void turn_freeze_forces(Brain *b) {
+    char (*forces)[KB_TERM_LEN] = NULL; size_t nf = 0;
+    const char *fq[2] = { "current_turn", NULL };
+    if (kb_match_all(b->kb, "turn_force", fq, 2, &forces, &nf)) {
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        for (size_t i = 0; i < nf; i++) {
+            char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forces[i]);
+            const char *f = kb_dequote(fb);
+            if (!*f) continue;
+            const char *fa[2] = { "current_turn", f };
+            kb_assert(b->kb, "turn_illocution", fa, 2);
+            if (getenv("P0_READ_TRACE"))
+                fprintf(stderr, "[turn] force %s\n", f);
+        }
+        kb_set_origin(b->kb, prev);
+    }
+    free(forces);
+}
+
 static void turn_publish_transcodes(Brain *b, const char *surface) {
     if (!b || !b->kb || !surface) return;
     char shapes[16][KB_TERM_LEN];
@@ -5393,27 +5427,7 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         }
         free(pats);
     }
-    {
-        char (*forces)[KB_TERM_LEN] = NULL; size_t nf = 0;
-        const char *fq[2] = { "current_turn", NULL };
-        /* 15 settembre 2026: la forza NETTA (atti dichiarati meno i blocchi
-         * insegnati, `turn_force/2` in turn-frames.p0). */
-        if (kb_match_all(b->kb, "turn_force", fq, 2, &forces, &nf)) {
-            int prev = kb_origin(b->kb);
-            kb_set_origin(b->kb, KB_REFLECTIVE);
-            for (size_t i = 0; i < nf; i++) {
-                char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forces[i]);
-                const char *f = kb_dequote(fb);
-                if (!*f) continue;
-                const char *fa[2] = { "current_turn", f };
-                kb_assert(b->kb, "turn_illocution", fa, 2);
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[turn] force %s\n", f);
-            }
-            kb_set_origin(b->kb, prev);
-        }
-        free(forces);
-    }
+    turn_freeze_forces(b);
     turn_publish_transcodes(b, surface);
     /* ── gen513 — IL TESTO RESTA, IL TURNO PASSA ─────────────────────────────
      *
@@ -5475,6 +5489,9 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         turn_publish_tokens(b, surface, &spans[i], index, "turn_span_token", TURN_MAX_TOKENS);
         turn_publish_state(b, surface, &spans[i], index);
     }
+    /* Gli span esistono ORA: la forza si rilegge, perche' il ruolo `query` di
+     * uno span e' una delle letture che la dichiarano (vedi turn_freeze_forces). */
+    turn_freeze_forces(b);
 
     /* Resolve the accumulated hierarchy once and let the KB materialize its
      * unique semantic observation.  This call names only the open observation
@@ -5567,6 +5584,37 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         scope = next;
     }
     return rc;
+}
+
+/* ── 20 settembre 2026 (F.) — IL DUMP DELLA LETTURA, TUTTO IN UN COLPO ──────
+ *
+ * F.: «un /debug dump_ir=on accelererebbe di molto la scoperta di
+ * comportamenti non allineati: un tracciato ricco da cui estrarre
+ * incongruenze, invece di muoversi punto per punto come un debug umano».
+ *
+ * Qui il motore stampa TUTTO cio' che ha pubblicato sul turno: gli span e i
+ * loro ruoli, i nodi della IR con gli offset, le cue, la forza, chi ha
+ * parlato. Quali predicati siano «la lettura del turno» e' conoscenza
+ * (`turn_reading_predicate/1`, kb/core/debug.p0): aggiungerne uno domani e'
+ * una riga, e il dump lo mostra senza ricompilare. */
+void brain_turn_dump(Brain *b) {
+    if (!b || !b->kb) return;
+    char preds[64][KB_TERM_LEN];
+    const char *lq[1] = { NULL };
+    size_t np = kb_match(b->kb, "turn_reading_predicate", lq, 1, preds, 64);
+    fprintf(stderr, "\n[ir] ── lettura del turno: %zu predicati dichiarati ──\n", np);
+    for (size_t i = 0; i < np; i++) {
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", preds[i]);
+        const char *pred = kb_dequote(pb);
+        if (!*pred) continue;
+        enum { IR_ROWS = 512 };
+        static char rows[IR_ROWS][KB_TERM_LEN];
+        size_t n = kb_dump_pred(b->kb, pred, rows, IR_ROWS);
+        for (size_t r = 0; r < n; r++) fprintf(stderr, "[ir] %s\n", rows[r]);
+        if (n == IR_ROWS) fprintf(stderr, "[ir] %s … (tetto %d)\n", pred, IR_ROWS);
+        if (!n) fprintf(stderr, "[ir] %s: nessun fatto\n", pred);
+    }
+    fprintf(stderr, "[ir] ── fine ──\n");
 }
 
 const char *brain_last_module(Brain *b) {

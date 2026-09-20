@@ -421,6 +421,9 @@ size_t kb_unary_predicates_for(const KB *kb, const char *entity,
 /* Collect all distinct predicate symbols (any arity). gen77 for self-model
  * introspection: "what predicates do you know?". Returns count (capped). */
 size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
+/* I fatti di `pred` come righe intere «pred(a1, a2, …)»: per guardare, non per
+ * interrogare (kb_match rende una colonna sola). */
+size_t kb_dump_pred(const KB *kb, const char *pred, char out[][KB_TERM_LEN], size_t max);
 
 /* Il termine compare da qualche parte — predicato, argomento, testa o corpo di
  * una regola? Verifica che un token scelto per chiudere un ragionamento

@@ -419,6 +419,8 @@ static int kb_fill_slots(const char *tpl, const KbResponseSlot *slots,
 
 /* Fixed renderer for KB response templates with named slots. The wording and
  * placeholder layout remain knowledge; C only substitutes values. */
+static void p0_said_by(Brain *b, const char *kind, const char *name);  /* fwd */
+
 static int kb_response_slots(Brain *b, const char *intent,
                              const KbResponseSlot *slots, size_t nslots,
                              char *out, size_t outsz) {
@@ -518,6 +520,10 @@ static int kb_response_slots(Brain *b, const char *intent,
     /* gen363: record WHICH frame spoke, so a rule over knowledge can later ask
      * what kind of reply this was without inspecting its words. */
     snprintf(b->turn_frame, sizeof b->turn_frame, "%s", intent);
+    /* 20 settembre 2026 — e lo dice anche alla KB: `turn_said_by/2` e' la
+     * stessa notizia come FATTO del turno, quindi `/debug` (sonda 35) risponde
+     * a «chi ha detto questa frase» senza leggere il C. */
+    p0_said_by(b, "template", intent);
     return 1;
 }
 
@@ -561,10 +567,30 @@ static size_t put(const char *s, char *out, size_t out_size);   /* fwd */
  *
  * Se si legge un termine in chat, non e' un errore: e' una famiglia che nessuno
  * ha ancora insegnato, e si vede subito quale. */
+/* ── 20 settembre 2026 (F.) — CHI HA DETTO QUESTA FRASE E' UN FATTO DEL TURNO ─
+ *
+ * F.: «non posso accettare che il debug di "scoprire chi stampa Held:" non sia
+ * banalmente gestito da un /debug che ti certifica i passaggi». Aveva ragione:
+ * per sapere quale template avesse prodotto una risposta si leggeva il C. Il
+ * motore lo sa mentre parla — la chiave del template e' l'argomento che ha in
+ * mano — e da qui lo DEPOSITA. `/debug` lo mostra (sonda 16), e la prossima
+ * domanda «chi l'ha detto» costa un turno, non una lettura del sorgente. */
+static void p0_said_by(Brain *b, const char *kind, const char *name) {
+    if (!b || !b->kb || !kind || !name || !*name) return;
+    char term[KB_TERM_LEN];
+    if ((size_t)snprintf(term, sizeof term, "%s(%s)", kind, name) >= sizeof term) return;
+    const char *a[2] = { "current_turn", term };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "turn_said_by", a, 2);
+    kb_set_origin(b->kb, prev);
+}
+
 static int kb_term_say(Brain *b, const char *key,
                        const KbResponseSlot *slots, size_t n,
                        char *out, size_t outsz) {
     if (b && kb_response_slots(b, key, slots, n, out, outsz) && out[0]) return 1;
+    p0_said_by(b, "template_missing", key);
     size_t o = (size_t)snprintf(out, outsz, "%s", key ? key : "?");
     if (n && slots) {
         if (o < outsz) o += (size_t)snprintf(out + o, outsz - o, "(");
@@ -584,6 +610,7 @@ static int kb_say(Brain *b, const char *key, const char *fallback,
         return 1;
     }
     put(fallback, out, outsz);
+    p0_said_by(b, "template_missing", key);
     return 1;
 }
 
