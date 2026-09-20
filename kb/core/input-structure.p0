@@ -1221,7 +1221,22 @@ input_semantic_frame($Scope, assertion, binary($Relation),
     input_node_next($Scope, $RId, $PT), input_node_atom($Scope, $PT, $P),
     preposition($P),
     input_nearest_entity_after($Scope, $Language, $PT, entity($XId, $X)),
-    naf(entity_name_extends($Scope, $Language, $XId, $X)).
+    naf(entity_name_extends($Scope, $Language, $XId, $X)),
+    naf(turn_other_relation($Scope, $Language, $RId)).
+
+% La forma nuova e' PRUDENTE: vale quando il turno porta UN SOLO verbo di
+% relazione. Con due verbi la frase ha gia' letture migliori, e un candidato in
+% piu' le sopprime tutte per ambiguita'. Misurato tre volte: senza guardia si
+% guadagnava «flourish in ocean waters» e si perdeva «Coral belongs to the class
+% Anthozoa …, which INCLUDES sea anemones»; con la guardia sul solo verbo
+% PRECEDENTE si perdeva lo stesso. Meglio leggere meno che leggere peggio.
+% Allentarla richiede prima la struttura delle proposizioni: finche' la
+% subordinata non si distingue dalla principale, «un solo verbo» e' il confine
+% onesto.
+machinery(turn_other_relation).
+turn_other_relation($Scope, $Language, $RId) :-
+    input_operator_node($Scope, $Language, operator(binary, $Other), $OId),
+    dif($OId, $RId).
 
 % Sullo STESSO nodo la IR puo' nominare piu' entita' annidate — «ocean» e
 % «ocean waters» — e due letture dello stesso frame che differiscono solo per

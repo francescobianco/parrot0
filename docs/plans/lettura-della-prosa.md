@@ -1,5 +1,126 @@
 # Lettura della prosa — il miglioramento continuo della comprensione
 
+## HANDOFF — 20 settembre 2026, sera tardi: SI RIPRENDE DA QUI
+
+**Che cosa si sta facendo.** Alzare il **coefficiente di comprensione della
+prosa** — la scala di F.: non quante domande passano, ma **da che cosa vengono
+le risposte** (§0-bis di questo file).
+
+### Il coefficiente ora è un numero, non una stima
+
+```sh
+scripts/coefficiente.sh                      # l'ultimo referto di ogni piolo
+scripts/coefficiente.sh referti/r300-*.txt   # referti scelti
+```
+
+| piolo | lettura | frasario | coefficiente |
+|---|---|---|---|
+| r300 | 10 | 42 | **19%** |
+| r340 | 11 | 4 | 73% |
+
+**r300 dà 19% e la stima di F. era 20:** misura e giudizio coincidono, e la
+colonna del modulo nel referto *è* la scala. Da qui il coefficiente si legge,
+non si discute.
+
+### La catena causale, misurata tutta
+
+1. **Non è la condotta.** Tre tentativi di spostare il turno dal frasario alla
+   lettura — composizione del complemento, `faculty_yield_when(answer_frame,
+   …)`, renderer della classe — hanno dato **45/62 e 19%, identici**. Le regole
+   che non spostano la misura sono state **ritirate**, con il motivo scritto
+   accanto in `kb/core/intents.p0`.
+2. **Non è il lessico.** Una riga di vocabolario in più alza il *conteggio* e
+   lascia il coefficiente dov'è, per costruzione della scala.
+3. **È la copertura della lettura.** Contate le frasi del piolo r300 una per
+   una con l'ispettore addosso: **11 su 16 non producono nessun frame.** Il
+   frasario non ruba il turno a una lettura disponibile: per quelle domande la
+   lettura *non esiste*.
+
+### Il punto esatto di ripresa
+
+**Portare le 11 frasi non lette dentro la lettura, una specie alla volta.** Il
+metodo che ha funzionato, e che va ripetuto:
+
+```sh
+scripts/prose-why.sh r300 "<la domanda del banco che fallisce>"
+```
+
+poi si isola la forma con varianti progressivamente semplificate, finché il
+`debug_frame_record` passa da `niente` a un frame. Così è stata trovata e
+chiusa la prima specie: **soggetto + verbo + sintagma preposizionale**
+(«Coral reefs flourish IN ocean waters.»), che esisteva per la *domanda*
+(`binary_pp`) e non per l'*asserzione* — si poteva chiedere ciò che non si
+poteva leggere. Copertura r300: **da 4 frasi su 16 a 5**.
+
+**Le specie che restano, dalle 11 frasi, in ordine di frequenza:**
+
+| specie | esempio dal piolo | quante |
+|---|---|---|
+| soggetto pronominale non risolto | «**They** occupy less than 0.1% …» | 4 |
+| due verbi nella stessa frase (principale + relativa/subordinata) | «Coral reefs flourish in ocean waters **that provide** few nutrients.» | 4 |
+| passivo con agente preposizionale | «Most coral reefs **are built from** stony corals» | 2 |
+| participio in testa | «**Sometimes called** rainforests of the sea, …» | 1 |
+| avverbio fra verbo e complemento | «Most reefs grow **best** in … water.» | 1 |
+
+(Le categorie si sovrappongono: una frase può stare in due righe.)
+
+### Due trappole già pagate, da non ripagare
+
+- **La guardia del verbo unico.** La cornice nuova vale solo quando il turno
+  porta **un solo** verbo di relazione. Senza guardia si guadagna una frase e
+  se ne perde un'altra: un candidato in più su una frase che ne ha già di
+  migliori le sopprime **tutte** per ambiguità. Provata anche la variante «solo
+  il verbo precedente»: perde lo stesso. Allentarla richiede prima la
+  **struttura delle proposizioni** — finché la subordinata non si distingue
+  dalla principale, «un solo verbo» è il confine onesto. È anche la ragione per
+  cui la specie «due verbi» (4 frasi) non si chiude senza quel pezzo.
+- **Sintagmi annidati sullo stesso nodo.** «ocean» e «ocean waters» sono due
+  nomi per un nodo solo, e due letture che differiscono solo per questo non
+  sono due letture: sono la stessa, letta corta e letta intera.
+  `entity_name_extends/4` tiene il sintagma massimo, ed è generale.
+
+### Gli strumenti nati qui, da usare subito
+
+| strumento | che cosa dà |
+|---|---|
+| `scripts/coefficiente.sh` | il numero della scala di F., dai referti |
+| `scripts/prose-why.sh PIOLO "domanda"` | il turno del banco **nello stato in cui sbaglia**, con l'ispettore |
+| `scripts/fenomeni.sh flussi\|furti` | le specie di difetto cercate **tutte in una passata** |
+| `/debug` → `debug_ir_token`, `debug_ir_node`, `debug_token_streams` | i token e i nodi grezzi della IR, e dove due flussi divergono |
+
+La regola che ne è uscita, e che vale oltre questo piano: **una sonda che mostra
+uno STATO vale poco; una sonda che mostra una DIFFERENZA trova i difetti da
+sola.** La fenomenologia delle specie di difetto sta in
+[`docs/plans/fenomenologia-dei-difetti.md`](fenomenologia-dei-difetti.md).
+
+### Stato dei cancelli
+
+- `make soft-test` **verde in 12 s** (budget 15).
+- `tests/p0t/reasoning/clause_content.p0t` 52, `derivation.p0t` 62.
+- `tests/p0t/language/taught_lexicon.p0t`: **da 11 rossi a 6**. I cinque chiusi
+  erano cancelli fermi — il test pretendeva il comportamento vecchio e peggiore
+  (una tupla al posto di una frase, una minuscola, due casi in cui parrot0 oggi
+  dichiara di non capire dove prima inventava). I **6 che restano sono tutti di
+  tempo**, non sono nuovi, e hanno una diagnosi completa e una cura scritta in
+  `TEST_TODO.md`: `np_closer` costa **178.000 passi per turno** nel caso
+  *negativo*, perché si chiede una volta per token e, quando la risposta è
+  «no», prova anche le clausole scritte in verso enumerante. La cura è separare
+  la parte lessicale dalla clausola che dipende dal turno e congelarla con
+  `materialized_view`. **Non applicata qui** perché `np_closer` decide i confini
+  di sintagma — ogni lettura passa di lì — e senza la suite intera la garanzia
+  non si può dare.
+
+### Un debito aperto, misurato e non attribuito
+
+`r300` è **45/62** contro il 48/62 del referto del 19 settembre sera, e le
+cinque risposte perse sono tutte **troncature di sintagma** («water conditions»
+→ «water»). Tre sospetti sono stati esclusi **con una misura ciascuno**:
+l'unione delle origini, le tre KB nuove, il `Solver` cresciuto di 4 KB sulla
+pila C. Con `prose-why.sh` ora si guarda turno per turno invece che banco per
+banco.
+
+---
+
 ## ⛔ REVISIONE PRIORITARIA — M1 RIAPERTA: correggere l'astrazione prima di proseguire (20 settembre 2026)
 
 > **✅ PROCESSATA la sera del 20 settembre 2026.** I tre controesempi sono stati
