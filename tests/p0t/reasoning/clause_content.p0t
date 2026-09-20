@@ -1,73 +1,166 @@
 # M1 — la clausola come contenuto integro (docs/plans/lettura-della-prosa.md,
-# HANDOFF «contenuti, atti e giudizi», 20 settembre 2026).
+# HANDOFF «contenuti, atti e giudizi» + REVISIONE PRIORITARIA del 20 settembre
+# 2026, che ha riaperto M1 per tre difetti dell'astrazione).
 #
 # Prima di questo file la KB vedeva di una regola la testa (kb_rule/2) e i NOMI
 # dei predicati del corpo (kb_rule_body/2): `path(X,Y) :- edge(X,Y)` e
-# `path(X,Y) :- edge(Y,X)` erano indistinguibili, e la sonda
-# tests/probes/kb_abstraction_probe.sh li vedeva collassare nello stesso
-# sostegno. Qui la clausola e' un dato intero: kb_clause(Id, Head, I, Premise).
+# `path(X,Y) :- edge(Y,X)` erano indistinguibili. Qui la clausola e' un dato
+# intero: kb_clause(Id, Testa, I, Premessa), in forma canonica taggata
+# (var/atom/app), con identita' `content(Pred, impronta)`.
 #
-# I nomi abstraction_* sono inventati e provano SOLO la meccanica della
-# rappresentazione (MANTRA: un test non inventa la conoscenza che dichiara di
-# scoprire). L'ultimo blocco legge una clausola VERA della KB viva.
+# Il criterio non e' «i predicati previsti esistono» ma «le distinzioni si
+# conservano». I tre blocchi `review_*` sono i controesempi della revisione,
+# verificati rossi sul commit 32c19de6 e qui durevoli.
+#
+# I nomi abstraction_*/review_* sono inventati e provano SOLO la meccanica
+# della rappresentazione (MANTRA: un test non inventa la conoscenza che
+# dichiara di scoprire). Gli ultimi due blocchi leggono la KB viva.
 [mock live]
 !set PARROT0_SESSION=
 !set PARROT0_LANG=en
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
+[test review_a_represented_variable_is_not_an_ordinary_term]
+# Difetto 1 della revisione: `$X` e il termine ground `var(0)` collassavano in
+# un solo contenuto. Il tag sull'applicazione li separa a ogni livello.
+!clause review_m1_variable($X) :- review_m1_seed($X)
+!clause review_m1_variable(var(0)) :- review_m1_seed(var(0))
+!query kb_clause($I, app(review_m1_variable, cons(var(0), nil)), 1, app(review_m1_seed, cons(var(0), nil)))
+!query kb_clause($I, app(review_m1_variable, cons(app(var, cons(atom(0), nil)), nil)), 1, app(review_m1_seed, cons(app(var, cons(atom(0), nil)), nil)))
+!clause review_m1_two_contents(yes) :- kb_clause($A, app(review_m1_variable, cons(var(0), nil)), 0, 1), kb_clause($B, app(review_m1_variable, cons(app(var, cons(atom(0), nil)), nil)), 0, 1), dif($A, $B)
+!query review_m1_two_contents(yes)
+# e la variabile non si confonde con il termine nemmeno sotto un'altra applicazione
+!query! kb_clause($I, app(review_m1_variable, cons(var(0), nil)), 1, app(review_m1_seed, cons(app(var, cons(atom(0), nil)), nil)))
+
+[test review_identity_covers_the_whole_structure]
+# Difetto 2: due alberi profondi diversi venivano troncati nello stesso testo
+# prima dell'impronta, e diventavano lo stesso Id. Ora l'impronta si alimenta
+# percorrendo la struttura; la RESA dichiara il limite e gli ARCHI la leggono.
+!clause review_m1_nested($X) :- review_m1_sub(g(g(g($X, $X, $X, a), g($X, $X, $X, $X), $X, $X), $X, $X, $X))
+!clause review_m1_nested($X) :- review_m1_sub(g(g(g($X, $X, $X, b), g($X, $X, $X, $X), $X, $X), $X, $X, $X))
+!clause review_m1_deep_two(yes) :- kb_clause($A, app(review_m1_nested, cons(var(0), nil)), 1, $P1), kb_clause($B, app(review_m1_nested, cons(var(0), nil)), 1, $P2), dif($A, $B)
+!query review_m1_deep_two(yes)
+# la differenza e' a una foglia, e si raggiunge per archi
+!clause review_m1_leaf($Id, $Leaf) :- kb_clause_arg($Id, premise(1), cons(1, cons(1, cons(1, cons(4, nil)))), $Leaf)
+!query review_m1_leaf($I, atom(a))
+!query review_m1_leaf($I, atom(b))
+!clause review_m1_leaves_differ(yes) :- review_m1_leaf($A, atom(a)), review_m1_leaf($B, atom(b)), dif($A, $B)
+!query review_m1_leaves_differ(yes)
+
+[test review_an_overflowed_row_stays_findable]
+# Difetto 3: la riga tornata con la testa libera non era piu' ritrovabile
+# legandone la testa, perche' il bucket veniva preso dal funtore `overflow`.
+# Ora l'identita' porta il predicato e la dichiarazione di limite e' cercabile.
+!clause review_m1_long(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc) :- review_m1_gate(x)
+!query kb_clause($I, overflow(review_m1_long), 0, 1)
+!query clause_head_overflows($I, review_m1_long)
+# la stessa riga, trovata con la testa libera e poi ritrovata legandola
+!clause review_m1_roundtrip(yes) :- kb_clause($I, $H, 1, app(review_m1_gate, cons(atom(x), nil))), kb_clause($I, $H, 0, 1)
+!query review_m1_roundtrip(yes)
+# e il contenuto vero della testa resta leggibile per archi
+!query clause_argument($I, head, 1, atom(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa))
+
 [test direct_and_inverse_rules_are_two_contents]
 !clause abstraction_path($X, $Y) :- abstraction_edge($X, $Y)
 !clause abstraction_path($X, $Y) :- abstraction_edge($Y, $X)
-!query kb_clause($I, abstraction_path(var(0), var(1)), 0, 1)
-!query kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(0), var(1)))
-!query kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(0)))
-!query! kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(1)))
-# due contenuti, due Id: la stessa testa con premesse diverse non e' la stessa clausola
-!clause abstraction_two_ids(yes) :- kb_clause($A, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(0), var(1))), kb_clause($B, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(0))), dif($A, $B)
+!query kb_clause($I, app(abstraction_path, cons(var(0), cons(var(1), nil))), 0, 1)
+!query kb_clause($I, app(abstraction_path, cons(var(0), cons(var(1), nil))), 1, app(abstraction_edge, cons(var(0), cons(var(1), nil))))
+!query kb_clause($I, app(abstraction_path, cons(var(0), cons(var(1), nil))), 1, app(abstraction_edge, cons(var(1), cons(var(0), nil))))
+!query! kb_clause($I, app(abstraction_path, cons(var(0), cons(var(1), nil))), 1, app(abstraction_edge, cons(var(1), cons(var(1), nil))))
+!clause abstraction_two_ids(yes) :- kb_clause($A, app(abstraction_path, cons(var(0), cons(var(1), nil))), 1, app(abstraction_edge, cons(var(0), cons(var(1), nil)))), kb_clause($B, app(abstraction_path, cons(var(0), cons(var(1), nil))), 1, app(abstraction_edge, cons(var(1), cons(var(0), nil)))), dif($A, $B)
 !query abstraction_two_ids(yes)
 
 [test repeated_argument_differs_from_distinct]
 !clause abstraction_same($X, $X) :- abstraction_thing($X)
 !clause abstraction_pair($X, $Y) :- abstraction_thing($X), abstraction_thing($Y)
-!query kb_clause($I, abstraction_same(var(0), var(0)), 1, abstraction_thing(var(0)))
-!query! kb_clause($I, abstraction_same(var(0), var(1)), $J, $G)
-!query kb_clause($I, abstraction_pair(var(0), var(1)), 0, 2)
-!query kb_clause($I, abstraction_pair(var(0), var(1)), 2, abstraction_thing(var(1)))
+!query kb_clause($I, app(abstraction_same, cons(var(0), cons(var(0), nil))), 1, app(abstraction_thing, cons(var(0), nil)))
+!query! kb_clause($I, app(abstraction_same, cons(var(0), cons(var(1), nil))), $J, $G)
+!query kb_clause($I, app(abstraction_pair, cons(var(0), cons(var(1), nil))), 0, 2)
+!query kb_clause($I, app(abstraction_pair, cons(var(0), cons(var(1), nil))), 2, app(abstraction_thing, cons(var(1), nil)))
 !query clause_premise_count($I, 2)
+
+[test premise_order_is_part_of_the_content]
+!clause abstraction_ordered($X) :- abstraction_first($X), abstraction_second($X)
+!clause abstraction_ordered($X) :- abstraction_second($X), abstraction_first($X)
+!clause abstraction_order_matters(yes) :- kb_clause($A, app(abstraction_ordered, cons(var(0), nil)), 1, app(abstraction_first, cons(var(0), nil))), kb_clause($B, app(abstraction_ordered, cons(var(0), nil)), 1, app(abstraction_second, cons(var(0), nil))), dif($A, $B)
+!query abstraction_order_matters(yes)
+
+[test different_constants_are_different_contents]
+!assert abstraction_const(alfa)
+!assert abstraction_const(beta)
+!clause abstraction_consts_differ(yes) :- kb_clause($A, app(abstraction_const, cons(atom(alfa), nil)), 0, 0), kb_clause($B, app(abstraction_const, cons(atom(beta), nil)), 0, 0), dif($A, $B)
+!query abstraction_consts_differ(yes)
 
 [test alpha_renamed_spellings_share_one_content]
 # le variabili sono legami, non nomi: $Q/$R e $A/$B scrivono la stessa clausola
 !clause abstraction_alpha($Q, $R) :- abstraction_edge($Q, $R)
 !clause abstraction_alpha($A, $B) :- abstraction_edge($A, $B)
-!query clause_said_twice(abstraction_alpha(var(0), var(1)))
-!query! clause_said_twice(abstraction_path(var(0), var(1)))
+!query clause_said_twice(app(abstraction_alpha, cons(var(0), cons(var(1), nil))))
+!query! clause_said_twice(app(abstraction_path, cons(var(0), cons(var(1), nil))))
+
+[test anonymous_variables_are_each_fresh]
+!clause abstraction_anon($X) :- abstraction_thing(_), abstraction_thing(_)
+# due `_` sono due variabili diverse: var(1) e var(2), non due volte var(1)
+!query kb_clause($I, app(abstraction_anon, cons(var(0), nil)), 1, app(abstraction_thing, cons(var(1), nil)))
+!query kb_clause($I, app(abstraction_anon, cons(var(0), nil)), 2, app(abstraction_thing, cons(var(2), nil)))
+!query! kb_clause($I, app(abstraction_anon, cons(var(0), nil)), 2, app(abstraction_thing, cons(var(1), nil)))
+
+[test nested_variables_keep_their_binding]
+!clause abstraction_nest($X) :- abstraction_thing(s($X, t($X)))
+!query kb_clause($I, app(abstraction_nest, cons(var(0), nil)), 1, app(abstraction_thing, cons(app(s, cons(var(0), cons(app(t, cons(var(0), nil)), nil))), nil)))
+!clause abstraction_nest2($X) :- abstraction_thing(s($X, t($Y)))
+!query kb_clause($I, app(abstraction_nest2, cons(var(0), nil)), 1, app(abstraction_thing, cons(app(s, cons(var(0), cons(app(t, cons(var(1), nil)), nil))), nil)))
 
 [test polarity_is_content]
 # P su x e non-P su y: parrot0 rifiuta di tenere P e non-P sullo STESSO
 # contenuto, e il test non chiede una contraddizione
 !assert abstraction_flag(x)
 !clause not(abstraction_flag(y))
-!query kb_clause($I, abstraction_flag(x), 0, 0)
-!query kb_clause($I, not(abstraction_flag(y)), 0, 0)
-!query clause_denies($I, abstraction_flag(y))
+!query kb_clause($I, app(abstraction_flag, cons(atom(x), nil)), 0, 0)
+!query kb_clause($I, not(app(abstraction_flag, cons(atom(y), nil))), 0, 0)
+!query clause_denies($I, app(abstraction_flag, cons(atom(y), nil)))
 !query clause_is_fact($I)
 !clause abstraction_lonely($X) :- abstraction_thing($X), naf(abstraction_edge($X, $Other))
-!query kb_clause($I, abstraction_lonely(var(0)), 2, naf(abstraction_edge(var(0), var(1))))
+!query kb_clause($I, app(abstraction_lonely, cons(var(0), nil)), 2, naf(app(abstraction_edge, cons(var(0), cons(var(1), nil)))))
 !query clause_is_rule($I)
+!query clause_premise_is_negative($I, 2, app(abstraction_edge, cons(var(0), cons(var(1), nil))))
 
-[test identity_survives_a_retract]
-# l'Id e' del contenuto, non della riga: togliere un fatto non sposta nulla
-!forget abstraction_flag(x)
-!query! kb_clause($I, abstraction_flag(x), 0, 0)
-!query kb_clause($I, not(abstraction_flag(y)), 0, 0)
-!query kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(0)))
+[test the_identity_is_of_the_content_not_of_the_row]
+# l'Id di una clausola che RESTA non cambia quando un'altra viene ritirata:
+# non e' la posizione in un vettore
+!clause abstraction_keep(one) :- abstraction_edge(a, b)
+!clause abstraction_before($I) :- kb_clause($I, app(abstraction_keep, cons(atom(one), nil)), 0, 1)
+!assert abstraction_doomed(x)
+!query abstraction_before($I)
+!clause abstraction_id_survives(yes) :- abstraction_before($I), kb_clause($I, app(abstraction_keep, cons(atom(one), nil)), 0, 1)
+!query abstraction_id_survives(yes)
+!forget abstraction_doomed(x)
+!query! kb_clause($I, app(abstraction_doomed, cons(atom(x), nil)), 0, 0)
+# la stessa identita', dopo il ritiro dell'altra
+!query abstraction_id_survives(yes)
 
 [test a_live_reading_rule_is_readable_whole]
-# una regola VERA della KB: la lettura dichiarativa di una domanda binaria.
-# La sua lista di premesse non entra in un termine (misurato: venti regole di
-# lettura sono cosi'), e per archi si legge intera lo stesso.
-!query kb_clause($I, input_semantic_frame(var(0), question, binary(var(1)), roles(subject(missing), object(var(2)))), 0, $N)
-!query kb_clause($I, input_semantic_frame(var(0), question, binary(var(1)), roles(subject(missing), object(var(2)))), 1, $First)
+# una regola VERA della KB: mortal($X) :- man($X), in kb/core/base.p0
+!query kb_clause($I, app(mortal, cons(var(0), nil)), 1, app(man, cons(var(0), nil)))
 !query clause_is_rule($I)
-!query! clause_head_overflows($I, input_semantic_frame)
+!query kb_clause($I, app(man, cons(atom(plato), nil)), 0, 0)
+!query clause_is_fact($I)
+!query clause_about($I, man)
+
+[test a_live_rule_renders_whole_and_is_walkable]
+# la lettura dichiarativa di una domanda binaria: nel primo giro di M1 la sua
+# testa risultava `overflow` perche' un corpo lungo contaminava la resa della
+# testa. Ogni pezzo ora si misura da solo: la testa entra e si legge per archi.
+!clause abstraction_frame_whole(yes) :- kb_clause(content(input_semantic_frame, $P), $H, 0, $N), clause_argument(content(input_semantic_frame, $P), head, 2, atom(question))
+!query abstraction_frame_whole(yes)
+!clause abstraction_frame_not_overflow(yes) :- kb_clause(content(input_semantic_frame, $P), $H, 0, $N), naf(clause_head_overflows(content(input_semantic_frame, $P), input_semantic_frame))
+!query abstraction_frame_not_overflow(yes)
+
+[test a_live_head_too_long_to_render_declares_its_limit]
+# 41 teste vive non entrano davvero in un termine (testi lunghi di risposta).
+# Il limite si dichiara, resta cercabile, e il contenuto si legge per archi.
+!query kb_clause($I, overflow(response_template), 0, 0)
+!query clause_head_overflows($I, response_template)
+!clause abstraction_ovf_roundtrip(yes) :- kb_clause($I, overflow(response_template), 0, 0), kb_clause($I, overflow(response_template), 0, 0), clause_argument($I, head, 1, $First)
+!query abstraction_ovf_roundtrip(yes)

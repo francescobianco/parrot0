@@ -133,6 +133,34 @@ typedef struct {
     size_t nbody;
     int    origin;
 } Rule;
+/* M2 (20 settembre 2026) — una DERIVAZIONE raccolta dalla ricerca comune: il
+ * goal dimostrato e le sue dipendenze (AND), nominate con la stessa identita'
+ * di contenuto che kb_clause/4 pubblica. `derivation_<serial>` vale nella
+ * sessione e non si salva. Vedi derivation_door / derivation_close. */
+#define KB_DERIV_MAX  128   /* anello delle derivazioni raccolte              */
+#define KB_DERIV_DEPS 256   /* passi per prova; oltre, `incomplete(N)`         */
+/* Un passo: la sua impronta (per il confronto) e dove sta il suo testo
+ * nell'arena. Il testo NON vive nel risolutore: `Solver` finisce sulla pila C
+ * a ogni negazione, e i byte lasciati li' pesano sotto tutta la prova. */
+typedef struct { uint64_t h; uint32_t at; } DepRef;
+typedef struct {
+    uint64_t serial;
+    char     goal[KB_TERM_LEN];
+    char   **dep;          /* esattamente ndeps testi, propri della derivazione */
+    size_t   ndeps;
+    int      incomplete;
+} Derivation;
+
+/* FNV-1a di un testo, con il terminatore di campo: la stessa funzione che
+ * alimenta la forma canonica. */
+static uint64_t fnv_text_of(const char *s) {
+    uint64_t h = UINT64_C(1469598103934665603);
+    for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
+        h ^= *p; h *= UINT64_C(1099511628211);
+    }
+    return h;
+}
+
 
 typedef struct {
     uint64_t hash;
@@ -332,6 +360,15 @@ struct KB {
      * memoria e una copia per predicato, quindi si raccolgono soltanto quando
      * qualcuno sta guardando — la stessa disciplina del profiler: spento non
      * costa nulla. */
+    /* M2 — le derivazioni raccolte in sessione (allocate al primo uso) e
+     * l'arena dei testi delle dipendenze, azzerata allo scope piu' esterno. */
+    Derivation   *derivs;
+    size_t        nderivs;
+    size_t        deriv_next;
+    uint64_t      deriv_serial;
+    char         *dep_arena;
+    size_t        dep_len;
+    size_t        dep_cap;
     char          fp_name[128][48];
     size_t        fp_n;
 };
@@ -483,6 +520,14 @@ void kb_destroy(KB *kb) {
     free(kb->neg);
     free(kb->neg_index);
     free(kb->rules);
+    if (kb->derivs) {                                              /* M2 */
+        for (size_t i = 0; i < kb->nderivs; i++) {
+            for (size_t j = 0; j < kb->derivs[i].ndeps; j++) free(kb->derivs[i].dep[j]);
+            free(kb->derivs[i].dep);
+        }
+        free(kb->derivs);
+    }
+    free(kb->dep_arena);
     if (kb->pred_stats)
         for (size_t i = 0; i < kb->pred_stats_cap; i++) {
             free(kb->pred_stats[i].idx);
@@ -1784,6 +1829,15 @@ typedef struct {
     int      loops_cut;
     uint64_t anc[KB_MAX_DEPTH + 2];
     size_t   nanc;
+    /* M2 — i passi della prova in corso, come impronte di contenuto (la
+     * stessa Id di kb_clause/4). Una clausola usata si spinge, e si toglie
+     * quando il ramo torna indietro: a una soluzione la pila sopra la base
+     * del marcatore e' esattamente l'AND della prova. Costa solo dentro uno
+     * scope di kb_derivation (`recording` > 0). */
+    DepRef   proof[KB_DERIV_DEPS];
+    size_t   nproof;      /* puo' superare KB_DERIV_DEPS: i passi persi rendono la derivazione incompleta */
+    int      recording;
+
 } Solver;
 
 /* FNV-1a over a resolved goal. Collisions would cut a live branch, so the
@@ -1957,168 +2011,280 @@ static int list_to_args(const char *list,
 
 /* ----------------------------------------------------------------------------
  * 20 settembre 2026 — LA CLAUSOLA COME CONTENUTO INTEGRO
- * (M1 di docs/plans/lettura-della-prosa.md, «contenuti, atti e giudizi»).
+ * (M1 di docs/plans/lettura-della-prosa.md, riaperta dalla REVISIONE
+ * PRIORITARIA dello stesso giorno e qui corretta.)
  *
  * `kb_rule/2` dava le teste e `kb_rule_body/2` i NOMI dei predicati del corpo:
- * `path(X,Y) :- edge(X,Y)` e `path(X,Y) :- edge(Y,X)` erano la stessa riga, e
- * nessuna clausola aveva un'identita' che sopravvivesse a un retract (l'indice
- * nel vettore scivola). Non e' una porta nuova: e' la porta riflessiva gia'
- * aperta (kb_fact, kb_rule, kb_rule_body) portata fino in fondo, perche' la
- * KB non puo' ragionare su cio' che nessuna porta le mostra. UNA forma sola:
+ * `path(X,Y) :- edge(X,Y)` e `path(X,Y) :- edge(Y,X)` erano la stessa riga.
+ * Non e' una porta nuova: e' la porta riflessiva gia' aperta (kb_fact,
+ * kb_rule, kb_rule_body) portata fino in fondo. Due forme, una specie:
  *
- *   kb_clause(Id, Head, 0, N)        la clausola esiste e ha N premesse
- *   kb_clause(Id, Head, I, Premise)  la I-esima premessa, I in 1..N
+ *   kb_clause(Id, Testa, 0, N)          la clausola esiste e ha N premesse
+ *   kb_clause(Id, Testa, I, Premessa)   la I-esima premessa, I in 1..N
+ *   kb_clause_arg(Id, Dove, Cammino, Nodo)   la stessa per NODI e ARCHI
  *
- * Fatto, fatto negativo (testa `not(F)`) e regola sono la stessa specie di
- * dato; un fatto ha N = 0. Il corpo e' dato per ARCHI e non per lista perche'
- * misurato sulla KB viva: venti regole di lettura (input_semantic_frame,
- * event_*, food_time_answer, ...) hanno un corpo che non entra in un termine
- * da KB_TERM_LEN byte. Una premessa che da sola non ci entra si dichiara
- * `overflow(pred)`, mai un testo tagliato spacciato per intero; lo stesso per
- * una testa. L'Id copre sempre il contenuto integro.
+ * Fatto, fatto negativo (testa `not(E)`) e regola sono la stessa specie di
+ * dato; un fatto ha N = 0. Un `naf(G)` del corpo resta `naf(E)`.
  *
- * Nella forma da discutere le variabili sono OGGETTI, non variabili del
- * risolutore: `var(N)`, numerate per ordine di prima occorrenza (testa, poi
- * corpo), cosi' due clausole alfa-equivalenti hanno la stessa forma e lo
- * stesso Id, e `same(X,X)` non si confonde con `same(X,Y)`. Il binder e' la
- * chiusura universale della clausola. L'istanza di ESECUZIONE non ha bisogno
- * di una porta: e' cio' che il risolutore fa gia' rinominando la clausola a
- * ogni applicazione. Un `naf(G)` del corpo resta `naf(G)`.
+ * LA FORMA CANONICA porta un tag a OGNI livello, ed e' la correzione del
+ * difetto 1 della revisione:
  *
- * L'Id (`content_<64 bit>`) e' l'impronta del CONTENUTO canonico intero, non
- * una posizione: due occorrenze dello stesso contenuto hanno lo stesso Id,
- * e l'Id si ricalcola a ogni lettura — non si salva, non scade, non si
- * sposta. Le OCCORRENZE (gli atti) sono il lavoro di M2.
+ *   variabile     var(N)      N = ordine di PRIMA occorrenza nella clausola
+ *   costante      atom(A)
+ *   applicazione  app(F, cons(E1, cons(..., nil)))
  *
- * Tutto questo e' meccanica: nessun nome di predicato, nessuna specie di
- * contesto, nessun giudizio. Le facce nominabili stanno in
- * kb/core/clause-content.p0. Con la testa legata si cammina sul bucket del
- * censimento; con la sola Id legata si enumera e si confronta — la domanda
- * posta e' quella, e un indice per Id arriva quando costa davvero.
+ * Cosi' un dato scritto `var(0)` e' `app(var, cons(atom(0), nil))` e NON si
+ * confonde con la variabile `var(0)`: la decodifica e' univoca a ogni nodo.
+ * Era l'errore di classe segnalato dalla revisione — non il nome `var`, ma
+ * l'assenza del tag sull'applicazione. Il binder e' la chiusura universale
+ * della clausola Horn: quantificatori annidati, astrazioni e citazioni sono
+ * legami che questo frammento NON ha ancora.
+ *
+ * L'IDENTITA' non passa mai da un buffer. L'impronta si alimenta mentre la
+ * struttura si percorre (`CanonSink`), quindi copre il contenuto intero anche
+ * quando la RESA non entra in un termine; la mappa delle variabili cresce e
+ * non ha piu' un tetto di slot. Erano il difetto 2: due alberi diversi
+ * venivano troncati nello stesso testo e diventavano lo stesso Id.
+ *
+ * L'Id e' `content(Predicato, impronta)`. Porta il predicato della testa
+ * perche' una lettura con l'Id legata deve trovare il bucket del censimento
+ * invece di enumerare centocinquantamila clausole e sforare il budget — e
+ * perche' una identita' dicibile e' preferibile a un opaco. L'impronta copre
+ * comunque il predicato: due clausole con teste diverse non collidono.
+ * L'Id si ricalcola a ogni lettura, non si salva e non scade; le OCCORRENZE
+ * (gli atti) sono il lavoro di M2.
+ *
+ * Una testa o una premessa che non entra in un termine da KB_TERM_LEN byte si
+ * dichiara `overflow(Pred)` — misurato: venti regole di lettura vive sono
+ * cosi'. Quella riga resta RITROVABILE legandone testa e Id (difetto 3), e il
+ * suo contenuto resta leggibile per archi con `kb_clause_arg/4`, che scende un
+ * nodo alla volta finche' i pezzi entrano. Il limite si dichiara, non si
+ * nasconde e non inventa uguaglianze.
  * ------------------------------------------------------------------------- */
-#define KB_CANON_VARS 128
-#define KB_CLAUSE_TEXT_MAX ((KB_MAX_ARGS + 1) * KB_TERM_LEN + 32)
+#define FNV_BASIS       UINT64_C(1469598103934665603)
+#define KB_CANON_DEPTH  64   /* oltre, il sotto-termine si cita grezzo       */
+#define KB_ARG_DEPTH    32   /* profondita' massima di un cammino di archi   */
 
+/* La mappa delle variabili di UNA clausola: nome -> ordine di prima
+ * occorrenza. Cresce; non ha un tetto oltre il quale due variabili diverse
+ * prenderebbero lo stesso numero. */
+typedef struct { char **name; size_t n, cap; int frozen; } CanonMap;
+
+static void canon_free(CanonMap *m) {
+    for (size_t i = 0; i < m->n; i++) free(m->name[i]);
+    free(m->name);
+    m->name = NULL; m->n = m->cap = 0;
+}
+
+/* 1 e l'indice in `*out`; 0 solo se la memoria manca — l'identita' non si
+ * finge mai. Ogni `_` e' una variabile NUOVA. */
+static int canon_var(CanonMap *m, const char *a, size_t *out) {
+    if (strcmp(a, "_") != 0)
+        for (size_t i = 0; i < m->n; i++)
+            if (strcmp(m->name[i], a) == 0) { *out = i; return 1; }
+    if (m->frozen) return 0;
+    if (m->n == m->cap) {
+        size_t cap = m->cap ? m->cap * 2 : 16;
+        char **g = realloc(m->name, cap * sizeof *g);
+        if (!g) return 0;
+        m->name = g; m->cap = cap;
+    }
+    m->name[m->n] = malloc(strlen(a) + 1);
+    if (!m->name[m->n]) return 0;
+    memcpy(m->name[m->n], a, strlen(a) + 1);
+    *out = m->n++;
+    return 1;
+}
+
+/* Il collettore della forma canonica: l'impronta si alimenta SEMPRE, la resa
+ * solo se c'e' un buffer e finche' ci sta. Separare le due cose e' la
+ * correzione del difetto 2. */
 typedef struct {
-    char   name[KB_CANON_VARS][KB_VAR_LEN];
-    size_t n;
-    int    overflow;   /* piu' variabili distinte che slot: mai in silenzio */
-} CanonMap;
+    uint64_t h;
+    char    *out;      /* NULL = sola impronta */
+    size_t   cap, off;
+    int      ovf;      /* la RESA non entra; l'impronta resta intera */
+    int      fail;     /* memoria mancante: niente identita' */
+} CanonSink;
 
-/* Un argomento in forma canonica: variabili nominate numerate per prima
- * occorrenza, ogni `_` un numero nuovo, i termini composti ricorsi. */
-static void canon_arg(const char *a, CanonMap *m, char *dst, size_t dstsz) {
+static void sink(CanonSink *k, const char *s) {
+    for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
+        k->h ^= *p; k->h *= UINT64_C(1099511628211);
+    }
+    if (!k->out || k->ovf) return;
+    size_t n = strlen(s);
+    if (k->off + n >= k->cap) { k->ovf = 1; return; }
+    memcpy(k->out + k->off, s, n + 1);
+    k->off += n;
+}
+
+static void canon_walk(const char *a, CanonMap *m, CanonSink *k, int depth);
+
+/* Un'APPLICAZIONE: il funtore e i suoi argomenti in ordine. Una testa, una
+ * premessa e un termine composto passano tutti di qui. */
+static void canon_apply(const char *pred, size_t argc,
+                        const char args[][KB_TERM_LEN],
+                        CanonMap *m, CanonSink *k, int depth) {
+    sink(k, "app("); sink(k, pred); sink(k, ", ");
+    for (size_t i = 0; i < argc; i++) {
+        sink(k, "cons(");
+        canon_walk(args[i], m, k, depth + 1);
+        sink(k, ", ");
+    }
+    sink(k, "nil");
+    for (size_t i = 0; i < argc; i++) sink(k, ")");
+    sink(k, ")");
+}
+
+static void canon_walk(const char *a, CanonMap *m, CanonSink *k, int depth) {
     if (is_var(a)) {
-        size_t k = m->n;
-        if (strcmp(a, "_") != 0)
-            for (k = 0; k < m->n; k++)
-                if (strcmp(m->name[k], a) == 0) break;
-        if (k == m->n) {
-            if (m->n < KB_CANON_VARS)
-                snprintf(m->name[m->n++], KB_VAR_LEN, "%s", a);
-            else m->overflow = 1;
+        size_t idx = 0;
+        if (!canon_var(m, a, &idx)) {
+            if (!m->frozen) k->fail = 1;
+            sink(k, "var(unknown)");      /* mai un numero preso in prestito */
+            return;
         }
-        snprintf(dst, dstsz, "var(%zu)", k);
+        char n[32];
+        snprintf(n, sizeof n, "var(%zu)", idx);
+        sink(k, n);
+        return;
+    }
+    if (depth > KB_CANON_DEPTH) {        /* piu' a fondo si cita il testo grezzo */
+        sink(k, "deep("); sink(k, a); sink(k, ")");
         return;
     }
     char f[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN];
     size_t n = 0;
     if (split_compound(a, f, args, &n)) {
-        int off = snprintf(dst, dstsz, "%s(", f);
-        for (size_t i = 0; i < n && off > 0 && (size_t)off < dstsz; i++) {
-            char sub[KB_TERM_LEN];
-            canon_arg(args[i], m, sub, sizeof sub);
-            off += snprintf(dst + off, dstsz - (size_t)off,
-                            "%s%s", i ? ", " : "", sub);
-        }
-        if (off > 0 && (size_t)off < dstsz)
-            snprintf(dst + off, dstsz - (size_t)off, ")");
+        canon_apply(f, n, (const char (*)[KB_TERM_LEN])args, m, k, depth);
         return;
     }
-    snprintf(dst, dstsz, "%s", a);
+    sink(k, "atom("); sink(k, a); sink(k, ")");
 }
 
-static int sput(char *dst, size_t dstsz, size_t *off, const char *s) {
-    size_t n = strlen(s);
-    if (*off + n >= dstsz) return 0;
-    memcpy(dst + *off, s, n + 1);
-    *off += n;
-    return 1;
+/* Il testo `overflow(Pred)`: la dichiarazione del limite, mai un testo tagliato. */
+static void canon_overflow(char *out, const char *pred) {
+    snprintf(out, KB_TERM_LEN, "overflow(%.*s)", KB_TERM_LEN - 12, pred);
 }
 
-/* Il testo canonico di un termine intero (testa o premessa); `wrap` e' NULL,
- * "naf" o "not". 0 solo se il buffer non basta: allora e' overflow. */
-static int clause_term_text(const char *pred, size_t argc,
-                            const char args[][KB_TERM_LEN], const char *wrap,
-                            CanonMap *m, char *dst, size_t dstsz) {
-    size_t off = 0;
-    if (wrap && !(sput(dst, dstsz, &off, wrap) && sput(dst, dstsz, &off, "(")))
-        return 0;
-    if (!sput(dst, dstsz, &off, pred)) return 0;
-    if (argc) {
-        if (!sput(dst, dstsz, &off, "(")) return 0;
-        for (size_t i = 0; i < argc; i++) {
-            char sub[KB_TERM_LEN];
-            canon_arg(args[i], m, sub, sizeof sub);
-            if (i && !sput(dst, dstsz, &off, ", ")) return 0;
-            if (!sput(dst, dstsz, &off, sub)) return 0;
-        }
-        if (!sput(dst, dstsz, &off, ")")) return 0;
-    }
-    if (wrap && !sput(dst, dstsz, &off, ")")) return 0;
-    return 1;
+/* UNA parte (testa o premessa) resa e contata. `wrap` e' NULL, "not" o "naf". */
+static void canon_piece(const char *pred, size_t argc,
+                        const char args[][KB_TERM_LEN], const char *wrap,
+                        CanonMap *m, uint64_t *h, char *out, int *fail) {
+    char buf[KB_TERM_LEN];
+    CanonSink k;
+    memset(&k, 0, sizeof k);
+    k.h = *h; k.out = buf; k.cap = sizeof buf;
+    if (wrap) { sink(&k, wrap); sink(&k, "("); }
+    canon_apply(pred, argc, args, m, &k, 0);
+    if (wrap) sink(&k, ")");
+    *h = k.h;
+    if (k.fail) *fail = 1;
+    if (k.ovf || k.fail) canon_overflow(out, pred);
+    else memcpy(out, buf, k.off + 1);
 }
 
-static uint64_t fnv_text(uint64_t h, const char *s) {
-    for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
-        h ^= *p; h *= UINT64_C(1099511628211);
-    }
-    h ^= UINT64_C(255); h *= UINT64_C(1099511628211);
-    return h;
+/* L'identita' di un contenuto: `content(Predicato, impronta)`. Il predicato e'
+ * un suggerimento di bucket, l'impronta copre tutto. */
+static void clause_id_text(char *out, const char *pred, uint64_t h) {
+    if (strlen(pred) + 32 < KB_TERM_LEN)
+        snprintf(out, KB_TERM_LEN, "content(%s, %016llx)",
+                 pred, (unsigned long long)h);
+    else                                   /* predicato smisurato: resta l'impronta */
+        snprintf(out, KB_TERM_LEN, "content(overflow, %016llx)",
+                 (unsigned long long)h);
 }
 
-/* Lo spazio di lavoro sta nello heap: il risolutore e' a continuazione e ogni
- * byte lasciato nel frame C resta sotto tutta la prova (gen514). */
 typedef struct {
-    char     id[KB_TERM_LEN];
-    char     text[KB_CLAUSE_TEXT_MAX];
-    char     head_out[KB_TERM_LEN];
-    char     goal_out[KB_MAX_BODY][KB_TERM_LEN];
-    size_t   nbody;
-    CanonMap map;
+    char   id[KB_TERM_LEN];
+    char   head[KB_TERM_LEN];
+    char   goal[KB_MAX_BODY][KB_TERM_LEN];
+    size_t nbody;
+    int    fail;
 } ClauseWork;
 
-/* Un pezzo pubblico: il testo intero se entra in un termine, altrimenti la
- * dichiarazione `overflow(pred)`. */
-static void clause_piece(char *out, const char *text, int whole, const char *pred) {
-    size_t n = strlen(text);
-    if (whole && n < KB_TERM_LEN) memcpy(out, text, n + 1);
-    else snprintf(out, KB_TERM_LEN, "overflow(%.*s)", KB_TERM_LEN - 12, pred);
-}
-
-/* Rende UNA clausola: Id del contenuto canonico intero, testa e premesse. */
+/* Rende UNA clausola: identita' del contenuto canonico intero, testa e
+ * premesse in ordine. L'ordine delle premesse fa parte dell'identita'. */
 static void clause_render(ClauseWork *w, const char *hpred, size_t hargc,
                           const char hargs[][KB_TERM_LEN], int neg_head,
                           const Term *body, size_t nbody) {
-    w->map.n = 0; w->map.overflow = 0; w->nbody = nbody;
-    uint64_t h = UINT64_C(1469598103934665603);
-    int whole = clause_term_text(hpred, hargc, hargs, neg_head ? "not" : NULL,
-                                 &w->map, w->text, sizeof w->text);
-    h = fnv_text(h, w->text);
-    clause_piece(w->head_out, w->text, whole && !w->map.overflow, hpred);
-    for (size_t i = 0; i < nbody; i++) {
-        whole = clause_term_text(body[i].pred, body[i].argc, body[i].args,
-                                 body[i].neg ? "naf" : NULL, &w->map,
-                                 w->text, sizeof w->text);
-        h = fnv_text(h, w->text);
-        clause_piece(w->goal_out[i], w->text, whole && !w->map.overflow, body[i].pred);
-    }
-    if (w->map.overflow)            /* piu' variabili che slot: nessun pezzo intero */
-        clause_piece(w->head_out, "", 0, hpred);
-    snprintf(w->id, sizeof w->id, "content_%016llx", (unsigned long long)h);
+    CanonMap m;
+    memset(&m, 0, sizeof m);
+    uint64_t h = FNV_BASIS;
+    w->nbody = nbody; w->fail = 0;
+    canon_piece(hpred, hargc, hargs, neg_head ? "not" : NULL, &m, &h,
+                w->head, &w->fail);
+    for (size_t i = 0; i < nbody && i < KB_MAX_BODY; i++)
+        canon_piece(body[i].pred, body[i].argc, body[i].args,
+                    body[i].neg ? "naf" : NULL, &m, &h, w->goal[i], &w->fail);
+    canon_free(&m);
+    clause_id_text(w->id, hpred, h);
 }
 
-/* Le righe di una clausola resa: (Id, Head, 0, N) e (Id, Head, I, Premessa). */
+/* La sola identita', senza rendere niente: quel che serve a M2 per nominare
+ * la clausola che un passo della prova ha usato. */
+static void clause_identity(char *out, const char *hpred, size_t hargc,
+                            const char hargs[][KB_TERM_LEN], int neg_head,
+                            const Term *body, size_t nbody) {
+    CanonMap m;
+    memset(&m, 0, sizeof m);
+    CanonSink k;
+    memset(&k, 0, sizeof k);
+    k.h = FNV_BASIS;
+    if (neg_head) { sink(&k, "not"); sink(&k, "("); }
+    canon_apply(hpred, hargc, hargs, &m, &k, 0);
+    if (neg_head) sink(&k, ")");
+    for (size_t i = 0; i < nbody && i < KB_MAX_BODY; i++) {
+        if (body[i].neg) { sink(&k, "naf"); sink(&k, "("); }
+        canon_apply(body[i].pred, body[i].argc, body[i].args, &m, &k, 0);
+        if (body[i].neg) sink(&k, ")");
+    }
+    canon_free(&m);
+    clause_id_text(out, hpred, k.h);
+}
+
+/* Il testo canonico di un goal gia' risolto (per `absent`/`aggregate` di M2). */
+static void goal_canon_text(const Term *g, char *out) {
+    CanonMap m;
+    memset(&m, 0, sizeof m);
+    uint64_t h = FNV_BASIS;
+    int fail = 0;
+    canon_piece(g->pred, g->argc, g->args, NULL, &m, &h, out, &fail);
+    canon_free(&m);
+}
+
+/* Il predicato di bucket di una richiesta. Dall'Id se legata — e' il motivo
+ * per cui l'Id lo porta; altrimenti dal modello della testa, che puo' essere
+ * `app(P, …)`, `not(app(P, …))` oppure la dichiarazione `overflow(P)`: una
+ * riga tornata con la testa libera deve restare ritrovabile legandola
+ * (difetto 3 della revisione). Bucket vuoto = enumera, che e' la domanda. */
+static void clause_bucket_of(const Subst *s, const Term *g,
+                             char *want, int *only_neg) {
+    char r[KB_TERM_LEN], t[KB_TERM_LEN];
+    char f[KB_TERM_LEN], p[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t n = 0;
+    want[0] = '\0'; *only_neg = 0;
+    deep_resolve(s, g->args[0], r, sizeof r, 0);
+    if (!is_var(r) && split_compound(r, f, p, &n) &&
+        strcmp(f, "content") == 0 && n == 2 &&
+        !is_var(p[0]) && term_ok(p[0]) && strcmp(p[0], "overflow") != 0) {
+        memcpy(want, p[0], strlen(p[0]) + 1);
+        return;
+    }
+    deep_resolve(s, g->args[1], r, sizeof r, 0);
+    if (is_var(r)) return;
+    if (split_compound(r, f, p, &n) && strcmp(f, "not") == 0 && n == 1) {
+        *only_neg = 1;
+        memcpy(t, p[0], strlen(p[0]) + 1);
+        memcpy(r, t, strlen(t) + 1);
+    }
+    if (split_compound(r, f, p, &n) && n >= 1 &&
+        (strcmp(f, "app") == 0 || strcmp(f, "overflow") == 0) &&
+        !is_var(p[0]) && term_ok(p[0]))
+        memcpy(want, p[0], strlen(p[0]) + 1);
+}
+
+/* Le righe di una clausola resa: (Id, Testa, 0, N) e (Id, Testa, I, Premessa). */
 static int clause_yield(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                         const Subst *s, int depth, SolveFrame *scratch,
                         const ClauseWork *w) {
@@ -2129,38 +2295,144 @@ static int clause_yield(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         snprintf(ix, sizeof ix, "%zu", i);
         snprintf(count, sizeof count, "%zu", w->nbody);
         subst_copy(s2, s);
-        if (!unify(s2, g->args[0], w->id) || !unify(s2, g->args[1], w->head_out) ||
+        if (!unify(s2, g->args[0], w->id) || !unify(s2, g->args[1], w->head) ||
             !unify(s2, g->args[2], ix) ||
-            !unify(s2, g->args[3], i ? w->goal_out[i - 1] : count))
+            !unify(s2, g->args[3], i ? w->goal[i - 1] : count))
             continue;
         if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
     }
     return 0;
 }
 
-static int clause_reflect(Solver *S, const Term *goals, size_t ngoals, size_t idx,
-                          const Subst *s, int depth, SolveFrame *scratch) {
-    const Term *g = &goals[idx];
-    const KB *kb = S->kb;
-    char want[KB_TERM_LEN];                 /* il funtore della testa, se noto */
-    char hp[KB_TERM_LEN], f[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN];
-    size_t np = 0;
-    int only_neg = 0;
-    want[0] = '\0';
-    deep_resolve(s, g->args[1], hp, sizeof hp, 0);
-    if (!is_var(hp)) {
-        if (split_compound(hp, f, parts, &np) && strcmp(f, "not") == 0 && np == 1) {
-            only_neg = 1;
-            memcpy(hp, parts[0], strlen(parts[0]) + 1);
-        }
-        if (split_compound(hp, f, parts, &np)) memcpy(want, f, strlen(f) + 1);
-        else memcpy(want, hp, strlen(hp) + 1);
-        if (is_var(want) || !term_ok(want)) want[0] = '\0';
-    }
+/* Che cosa fare di UNA clausola trovata: renderne le righe, oppure scenderne
+ * gli archi. Un solo attraversamento del censimento per le due porte. */
+typedef int (*ClauseVisit)(Solver *, const Term *, size_t, size_t, const Subst *,
+                           int, SolveFrame *, const char *, size_t,
+                           const char (*)[KB_TERM_LEN], int, const Term *, size_t);
+
+static int visit_rows(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                      const Subst *s, int depth, SolveFrame *scratch,
+                      const char *hpred, size_t hargc,
+                      const char (*hargs)[KB_TERM_LEN], int neg,
+                      const Term *body, size_t nbody) {
     ClauseWork *w = calloc(1, sizeof *w);
     if (!w) return 0;
+    clause_render(w, hpred, hargc, hargs, neg, body, nbody);
+    int ok = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
+    free(w);
+    return ok;
+}
+
+/* Il testo di un cammino: nil, cons(1, nil), cons(1, cons(2, nil)), … */
+static void path_text(const size_t *ix, size_t d, char *out) {
+    size_t off = 0;
+    for (size_t i = 0; i < d; i++)
+        off += (size_t)snprintf(out + off, KB_TERM_LEN - off, "cons(%zu, ", ix[i]);
+    off += (size_t)snprintf(out + off, KB_TERM_LEN - off, "nil");
+    for (size_t i = 0; i < d; i++)
+        off += (size_t)snprintf(out + off, KB_TERM_LEN - off, ")");
+}
+
+/* Scende gli archi di UNA parte: prima il nodo corrente, poi i figli. La
+ * ricorsione E' l'enumerazione, e si ferma alla prima soluzione utile. `src`
+ * NULL significa «la radice», cioe' l'applicazione (pred, args). */
+static int arg_walk(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                    const Subst *s, int depth, SolveFrame *scratch,
+                    const char *id, const char *place, const char *src,
+                    const char *pred, size_t argc, const char (*args)[KB_TERM_LEN],
+                    const char *wrap, CanonMap *m, size_t *ix, size_t d) {
+    const Term *g = &goals[idx];
+    char node[KB_TERM_LEN], buf[KB_TERM_LEN], path[KB_TERM_LEN];
+    CanonSink k;
+    memset(&k, 0, sizeof k);
+    k.h = FNV_BASIS; k.out = buf; k.cap = sizeof buf;
+    if (src) canon_walk(src, m, &k, 0);
+    else {
+        if (wrap) { sink(&k, wrap); sink(&k, "("); }
+        canon_apply(pred, argc, args, m, &k, 0);
+        if (wrap) sink(&k, ")");
+    }
+    if (k.ovf) canon_overflow(node, pred);
+    else memcpy(node, buf, k.off + 1);
+    path_text(ix, d, path);
+    Subst *s2 = &scratch->subst;
+    subst_copy(s2, s);
+    if (unify(s2, g->args[0], id) && unify(s2, g->args[1], place) &&
+        unify(s2, g->args[2], path) && unify(s2, g->args[3], node) &&
+        solve(S, goals, ngoals, idx + 1, s2, depth))
+        return 1;
+    if (d >= KB_ARG_DEPTH) return 0;
+    char f[KB_TERM_LEN], kids[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t n = 0;
+    const char (*child)[KB_TERM_LEN] = NULL;
+    if (src) {
+        if (!split_compound(src, f, kids, &n)) return 0;
+        child = (const char (*)[KB_TERM_LEN])kids;
+    }
+    else { n = argc; child = args; }
+    for (size_t i = 0; i < n; i++) {
+        ix[d] = i + 1;
+        if (arg_walk(S, goals, ngoals, idx, s, depth, scratch, id, place,
+                     child[i], pred, 0, NULL, NULL, m, ix, d + 1))
+            return 1;
+    }
+    return 0;
+}
+
+static int visit_args(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                      const Subst *s, int depth, SolveFrame *scratch,
+                      const char *hpred, size_t hargc,
+                      const char (*hargs)[KB_TERM_LEN], int neg,
+                      const Term *body, size_t nbody) {
+    const Term *g = &goals[idx];
+    ClauseWork *w = calloc(1, sizeof *w);
+    size_t *ix = calloc(KB_ARG_DEPTH + 2, sizeof *ix);
+    if (!w || !ix) { free(w); free(ix); return 0; }
+    clause_render(w, hpred, hargc, hargs, neg, body, nbody);
+    /* La numerazione delle variabili e' della CLAUSOLA, non del pezzo: si
+     * ricostruisce la mappa intera e poi la si congela. */
+    CanonMap m;
+    memset(&m, 0, sizeof m);
+    CanonSink k;
+    memset(&k, 0, sizeof k);
+    k.h = FNV_BASIS;
+    canon_apply(hpred, hargc, hargs, &m, &k, 0);
+    for (size_t i = 0; i < nbody && i < KB_MAX_BODY; i++)
+        canon_apply(body[i].pred, body[i].argc, body[i].args, &m, &k, 0);
+    m.frozen = 1;
+    char rp[KB_TERM_LEN];
+    deep_resolve(s, g->args[1], rp, sizeof rp, 0);
+    int ok = 0;
+    for (size_t place = 0; place <= nbody && !ok; place++) {
+        char ptext[KB_TERM_LEN];
+        if (place == 0) snprintf(ptext, sizeof ptext, "head");
+        else snprintf(ptext, sizeof ptext, "premise(%zu)", place);
+        if (!is_var(rp) && strcmp(rp, ptext) != 0) continue;
+        ok = arg_walk(S, goals, ngoals, idx, s, depth, scratch, w->id, ptext,
+                      NULL,
+                      place ? body[place - 1].pred : hpred,
+                      place ? body[place - 1].argc : hargc,
+                      place ? body[place - 1].args : hargs,
+                      place ? (body[place - 1].neg ? "naf" : NULL)
+                            : (neg ? "not" : NULL),
+                      &m, ix, 0);
+    }
+    canon_free(&m);
+    free(w); free(ix);
+    return ok;
+}
+
+/* L'attraversamento comune alle due porte: regole, fatti, negazioni esplicite,
+ * sul bucket del censimento quando la richiesta lo consente. */
+static int clause_scan(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                       const Subst *s, int depth, SolveFrame *scratch,
+                       ClauseVisit visit) {
+    const KB *kb = S->kb;
+    char want[KB_TERM_LEN];
+    int only_neg = 0;
+    clause_bucket_of(s, &goals[idx], want, &only_neg);
     int bound = want[0] != '\0', hit = 0;
-    if (!only_neg) {                                              /* regole */
+    if (!only_neg) {
         PredBucket rb = { NULL, 0, 0, 0 };
         if (bound) rb = rule_bucket(kb, want);
         size_t visits = (bound && rb.live && rb.n == 0) ? 0
@@ -2170,36 +2442,257 @@ static int clause_reflect(Solver *S, const Term *goals, size_t ngoals, size_t id
             if (i >= kb->nr) continue;
             const Rule *R = &kb->rules[i];
             if (bound && strcmp(R->head.pred, want) != 0) continue;
-            clause_render(w, R->head.pred, R->head.argc, R->head.args, 0,
-                          R->body, R->nbody);
-            hit = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
+            hit = visit(S, goals, ngoals, idx, s, depth, scratch,
+                        R->head.pred, R->head.argc, R->head.args, 0,
+                        R->body, R->nbody);
         }
-    }
-    if (!hit && !only_neg) {                                      /* fatti */
         PredBucket fb = { NULL, 0, 0, 0 };
         if (bound) fb = pred_bucket(kb, want);
-        size_t visits = (bound && fb.live && fb.n == 0) ? 0
-                      : bound ? PRED_VISITS(fb, kb) : kb->n;
+        visits = (bound && fb.live && fb.n == 0) ? 0
+               : bound ? PRED_VISITS(fb, kb) : kb->n;
         for (size_t vi = 0; vi < visits && !hit; vi++) {
             size_t i = bound ? PRED_AT(fb, vi) : vi;
             if (i >= kb->n) continue;
             const Fact *F = &kb->facts[i];
             if (!kb_view_fact_visible(kb, F)) continue;
             if (bound && strcmp(F->pred, want) != 0) continue;
-            clause_render(w, F->pred, F->argc, F->args, 0, NULL, 0);
-            hit = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
+            hit = visit(S, goals, ngoals, idx, s, depth, scratch,
+                        F->pred, F->argc, F->args, 0, NULL, 0);
         }
     }
-    if (!hit) {                                          /* negazioni esplicite */
-        for (size_t i = 0; i < kb->nn && !hit; i++) {
-            const Fact *F = &kb->neg[i];
-            if (bound && strcmp(F->pred, want) != 0) continue;
-            clause_render(w, F->pred, F->argc, F->args, 1, NULL, 0);
-            hit = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
-        }
+    for (size_t i = 0; i < kb->nn && !hit; i++) {
+        const Fact *F = &kb->neg[i];
+        if (bound && strcmp(F->pred, want) != 0) continue;
+        hit = visit(S, goals, ngoals, idx, s, depth, scratch,
+                    F->pred, F->argc, F->args, 1, NULL, 0);
     }
-    free(w);
     return hit;
+}
+
+/* ----------------------------------------------------------------------------
+ * 20 settembre 2026 — LA DERIVAZIONE PRODOTTA DALLA RICERCA CHE DECIDE
+ * (M2 di docs/plans/lettura-della-prosa.md).
+ *
+ * `kb_prove_support` era un secondo risolutore che riferiva la PRIMA
+ * spiegazione: nel caso Zelvo aggiungere una conoscenza vera cambiava il
+ * verdetto, perche' la prova dal mondo veniva trovata prima di quella dalle
+ * premesse e nessuno cercava oltre. Qui la prova e' un prodotto di `solve`:
+ *
+ *   kb_derivation(D, Goal, 0, N)     una derivazione di Goal con N dipendenze
+ *   kb_derivation(D, Goal, I, Dip)   la I-esima dipendenza, I in 1..N
+ *
+ * Con D libera e Goal legato la porta NON apre una seconda ricerca: mette
+ * Goal nel risolvente seguito dal marcatore interno `__derivation_close`,
+ * come fa gia' `__end_inference_scope`. Ogni clausola usata spinge la propria
+ * identita' di contenuto sulla pila del risolutore e la toglie quando il ramo
+ * torna indietro; al marcatore la pila sopra la base e' l'AND della prova
+ * appena riuscita, senza i passi dei rami falliti. Tornare indietro nel Goal e
+ * raggiungere di nuovo il marcatore da' la derivazione ALTERNATIVA (l'OR): su
+ * richiesta, col backtracking normale, senza enumerare nulla in anticipo.
+ * Con D legata la porta rilegge una derivazione gia' raccolta.
+ *
+ * Tre specie di dipendenza, tutte dichiarate: `content(P, impronta)` una
+ * clausola usata (la stessa identita' di kb_clause/4); `absent(G)` una
+ * negazione per fallimento riuscita, cioe' la dipendenza dall'ASSENZA di G in
+ * questa KB; `aggregate(G)` un findall, cioe' la dipendenza dall'insieme
+ * delle soluzioni di G. Un builtin non e' una dipendenza. Se i passi superano
+ * la pila la derivazione si dichiara `incomplete(N)`, mai piu' corta di quel
+ * che e'. `machinery/1` non tocca niente qui: e' presentazione, non logica.
+ *
+ * L'identita' `derivation_<n>` vale nella sessione e non si salva: un anello
+ * di KB_DERIV_MAX derivazioni; la stessa (goal, dipendenze) riusa la sua Id.
+ * I testi delle dipendenze stanno in un'arena che CRESCE e si azzera solo
+ * all'ingresso dello scope di registrazione piu' esterno: un anello che
+ * evince perderebbe il nome di un passo e mentirebbe sulla prova.
+ * ------------------------------------------------------------------------- */
+
+/* L'arena dei testi delle dipendenze: append-only dentro uno scope. */
+static uint32_t dep_arena_put(KB *kb, const char *s) {
+    size_t n = strlen(s) + 1;
+    if (kb->dep_len + n > kb->dep_cap) {
+        size_t cap = kb->dep_cap ? kb->dep_cap : 4096;
+        while (cap < kb->dep_len + n) cap *= 2;
+        char *g = realloc(kb->dep_arena, cap);
+        if (!g) return UINT32_MAX;
+        kb->dep_arena = g; kb->dep_cap = cap;
+    }
+    uint32_t at = (uint32_t)kb->dep_len;
+    memcpy(kb->dep_arena + kb->dep_len, s, n);
+    kb->dep_len += n;
+    return at;
+}
+
+static void proof_push(Solver *S, const char *text) {
+    uint64_t h = fnv_text_of(text);
+    uint32_t at = dep_arena_put((KB *)S->kb, text);
+    if (S->nproof < KB_DERIV_DEPS) {
+        S->proof[S->nproof].h  = h;
+        S->proof[S->nproof].at = at;
+    }
+    S->nproof++;      /* oltre la pila: la derivazione si dichiara incompleta */
+}
+
+/* Una dipendenza da un GOAL (assenza, aggregato). */
+static void proof_push_goal(Solver *S, const Term *g, const char *wrap) {
+    char text[KB_TERM_LEN], body[KB_TERM_LEN];
+    goal_canon_text(g, body);
+    if (strlen(body) + strlen(wrap) + 3 >= KB_TERM_LEN)
+        snprintf(text, sizeof text, "%s(overflow(%.*s))", wrap, 200, g->pred);
+    else
+        snprintf(text, sizeof text, "%s(%s)", wrap, body);
+    proof_push(S, text);
+}
+
+static void deriv_free(Derivation *d) {
+    for (size_t i = 0; i < d->ndeps; i++) free(d->dep[i]);
+    free(d->dep);
+    d->dep = NULL; d->ndeps = 0;
+}
+
+static int deriv_store_ready(KB *kb) {
+    if (kb->derivs) return 1;
+    kb->derivs = calloc(KB_DERIV_MAX, sizeof *kb->derivs);
+    return kb->derivs != NULL;
+}
+
+static const Derivation *deriv_record(KB *kb, const char *goal_text,
+                                      char **deps, size_t ndeps, int incomplete) {
+    if (!deriv_store_ready(kb)) return NULL;
+    for (size_t k = 0; k < kb->nderivs; k++) {   /* la stessa prova riusa la sua Id */
+        Derivation *d = &kb->derivs[k];
+        if (d->ndeps != ndeps || d->incomplete != incomplete ||
+            strcmp(d->goal, goal_text) != 0) continue;
+        int same = 1;
+        for (size_t i = 0; i < ndeps && same; i++)
+            if (strcmp(d->dep[i], deps[i]) != 0) same = 0;
+        if (same) return d;
+    }
+    Derivation *d = &kb->derivs[kb->deriv_next];
+    kb->deriv_next = (kb->deriv_next + 1) % KB_DERIV_MAX;
+    if (kb->nderivs < KB_DERIV_MAX) kb->nderivs++;
+    deriv_free(d);
+    memset(d, 0, sizeof *d);
+    d->serial = ++kb->deriv_serial;
+    snprintf(d->goal, sizeof d->goal, "%s", goal_text);
+    d->incomplete = incomplete;
+    if (ndeps) {
+        d->dep = calloc(ndeps, sizeof *d->dep);
+        if (!d->dep) return NULL;
+        for (size_t i = 0; i < ndeps; i++) {
+            d->dep[i] = malloc(strlen(deps[i]) + 1);
+            if (!d->dep[i]) { d->ndeps = i; return NULL; }
+            memcpy(d->dep[i], deps[i], strlen(deps[i]) + 1);
+        }
+        d->ndeps = ndeps;
+    }
+    return d;
+}
+
+/* Le righe di una derivazione: (D, Goal, 0, N) e (D, Goal, I, Dip). */
+static int derivation_rows(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                           const Subst *s, int depth, SolveFrame *scratch,
+                           const Derivation *d, const char *dvar, const char *gvar,
+                           const char *ivar, const char *depvar) {
+    char id[64];
+    snprintf(id, sizeof id, "derivation_%llu", (unsigned long long)d->serial);
+    Subst *s2 = &scratch->subst;
+    for (size_t i = 0; i <= d->ndeps; i++) {
+        char ix[32], val[KB_TERM_LEN];
+        snprintf(ix, sizeof ix, "%zu", i);
+        if (i == 0) {
+            if (d->incomplete) snprintf(val, sizeof val, "incomplete(%zu)", d->ndeps);
+            else snprintf(val, sizeof val, "%zu", d->ndeps);
+        } else snprintf(val, sizeof val, "%s", d->dep[i - 1]);
+        subst_copy(s2, s);
+        if (!unify(s2, dvar, id) || (gvar && !unify(s2, gvar, d->goal)) ||
+            !unify(s2, ivar, ix) || !unify(s2, depvar, val))
+            continue;
+        if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+    }
+    return 0;
+}
+
+/* Il marcatore raggiunto: la prova del goal e' riuscita, e la pila sopra la
+ * base e' la sua. __derivation_close(D, Goal, row(I, Dip), Base). */
+static int derivation_close(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                            const Subst *s, int depth, SolveFrame *scratch) {
+    const Term *g = &goals[idx];
+    size_t base = (size_t)strtoul(g->args[3], NULL, 10);
+    char rowf[KB_TERM_LEN], rowargs[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t nra = 0;
+    if (!split_compound(g->args[2], rowf, rowargs, &nra) || nra != 2) return 0;
+    char rg[KB_TERM_LEN], goal_text[KB_TERM_LEN];
+    deep_resolve(s, g->args[1], rg, sizeof rg, 0);
+    Term gt;
+    if (parse_to_term(rg, &gt)) goal_canon_text(&gt, goal_text);
+    else snprintf(goal_text, sizeof goal_text, "%s", rg);
+    char **deps = calloc(KB_DERIV_DEPS, sizeof *deps);
+    if (!deps) return 0;
+    size_t nd = 0, top = S->nproof < KB_DERIV_DEPS ? S->nproof : KB_DERIV_DEPS;
+    KB *km = (KB *)S->kb;
+    for (size_t k = base; k < top; k++) {           /* l'AND, senza doppioni */
+        if (S->proof[k].at == UINT32_MAX) continue;
+        char *text = km->dep_arena + S->proof[k].at;
+        int dup = 0;
+        for (size_t j = 0; j < nd && !dup; j++)
+            if (strcmp(deps[j], text) == 0) dup = 1;
+        if (!dup) deps[nd++] = text;
+    }
+    const Derivation *d = deriv_record(km, goal_text, deps, nd,
+                                       S->nproof > KB_DERIV_DEPS);
+    free(deps);
+    if (!d) return 0;
+    Derivation copy = *d;   /* l'anello puo' girare sotto la continuazione */
+    return derivation_rows(S, goals, ngoals, idx, s, depth, scratch, &copy,
+                           g->args[0], NULL, rowargs[0], rowargs[1]);
+}
+
+/* kb_derivation(D, Goal, I, Dip): con D legata rilegge; con Goal legato cerca
+ * nella STESSA ricerca, mettendo Goal e il marcatore nel risolvente. */
+static int derivation_door(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                           const Subst *s, int depth, SolveFrame *scratch) {
+    const Term *g = &goals[idx];
+    char rd[KB_TERM_LEN];
+    deep_resolve(s, g->args[0], rd, sizeof rd, 0);
+    if (!is_var(rd)) {
+        const KB *kb = S->kb;
+        if (!kb->derivs || strncmp(rd, "derivation_", 11) != 0) return 0;
+        unsigned long long serial = strtoull(rd + 11, NULL, 10);
+        for (size_t k = 0; k < kb->nderivs; k++) {
+            if (kb->derivs[k].serial != serial) continue;
+            Derivation copy = kb->derivs[k];
+            return derivation_rows(S, goals, ngoals, idx, s, depth, scratch,
+                                   &copy, g->args[0], g->args[1],
+                                   g->args[2], g->args[3]);
+        }
+        return 0;                    /* Id uscita dall'anello, o mai esistita */
+    }
+    char rg[KB_TERM_LEN];
+    deep_resolve(s, g->args[1], rg, sizeof rg, 0);
+    if (is_var(rg)) return 0;        /* senza un goal non c'e' ricerca da osservare */
+    Term goal;
+    if (!parse_to_term(rg, &goal)) return 0;
+    Term *ng = scratch->goals;
+    size_t m = 0;
+    term_copy(&ng[m++], &goal);
+    Term *mk = &ng[m++];
+    memset(mk, 0, sizeof *mk);
+    snprintf(mk->pred, sizeof mk->pred, "%s", "__derivation_close");
+    mk->argc = 4;
+    snprintf(mk->args[0], KB_TERM_LEN, "%s", g->args[0]);
+    snprintf(mk->args[1], KB_TERM_LEN, "%s", g->args[1]);
+    if (snprintf(mk->args[2], KB_TERM_LEN, "row(%s, %s)", g->args[2], g->args[3])
+        >= KB_TERM_LEN) return 0;
+    snprintf(mk->args[3], KB_TERM_LEN, "%zu", S->nproof);
+    for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
+        term_copy(&ng[m++], &goals[k]);
+    if (m >= KB_MAX_GOALS && idx + 1 < ngoals) { S->budget_hit = 1; return 0; }
+    KB *km = (KB *)S->kb;
+    if (S->recording == 0) km->dep_len = 0;   /* lo scope piu' esterno azzera */
+    S->recording++;
+    int ok = solve(S, ng, m, 0, s, depth + 1);
+    S->recording--;
+    return ok;
 }
 
 /* Prove the goal list under substitution `s`. Returns 1 to stop all search
@@ -2427,6 +2920,10 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * longer open and a sibling continuation may legitimately ask the same
      * ground view again.  This internal marker closes that logical scope before
      * continuing, then restores it while backtracking unwinds to the owner. */
+    /* M2: la prova del goal osservato e' riuscita — vedi derivation_close. */
+    if (strcmp(g->pred, "__derivation_close") == 0 && g->argc == 4)
+        return derivation_close(S, goals, ngoals, idx, s, depth, scratch);
+
     if (strcmp(g->pred, "__end_inference_scope") == 0 && g->argc == 0) {
         if (S->nanc == 0) return 0;            /* malformed internal resolvent */
         uint64_t closed = S->anc[--S->nanc];
@@ -2444,6 +2941,12 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (pv == GOAL_INCOMPLETE) {   /* exhaustion is not absence: decline, loudly */
             S->budget_hit = 1;
             return 0;
+        }
+        if (S->recording) {            /* M2: l'assenza e' una dipendenza dichiarata */
+            proof_push_goal(S, &gg, "absent");
+            int ok = solve(S, goals, ngoals, idx + 1, s, depth);
+            S->nproof--;
+            return ok;
         }
         return solve(S, goals, ngoals, idx + 1, s, depth);   /* not provable -> naf ok */
     }
@@ -2565,9 +3068,13 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return 0;
     }
 
-    /* 20 settembre 2026 — la clausola integra come dato: vedi clause_reflect. */
+    /* 20 settembre 2026 — la clausola integra come dato, per righe o per archi. */
     if (g->argc == 4 && strcmp(g->pred, "kb_clause") == 0)
-        return clause_reflect(S, goals, ngoals, idx, s, depth, scratch);
+        return clause_scan(S, goals, ngoals, idx, s, depth, scratch, visit_rows);
+    if (g->argc == 4 && strcmp(g->pred, "kb_clause_arg") == 0)
+        return clause_scan(S, goals, ngoals, idx, s, depth, scratch, visit_args);
+    if (g->argc == 4 && strcmp(g->pred, "kb_derivation") == 0)
+        return derivation_door(S, goals, ngoals, idx, s, depth, scratch);
 
     if (strcmp(g->pred, "chars") == 0 && g->argc == 2) {   /* U4: chars/2 builtin */
         char a0[KB_CHARLIST_MAX], a1[KB_CHARLIST_MAX];
@@ -3026,8 +3533,13 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         free(solutions);
         Subst *s2 = &scratch->subst;
         subst_copy(s2, s);
-        if (unify(s2, g->args[2], list_buf))
-            return solve(S, goals, ngoals, idx + 1, s2, depth);
+        if (unify(s2, g->args[2], list_buf)) {
+            if (!S->recording) return solve(S, goals, ngoals, idx + 1, s2, depth);
+            proof_push_goal(S, &goal, "aggregate");   /* M2: l'insieme e' la dipendenza */
+            int ok = solve(S, goals, ngoals, idx + 1, s2, depth);
+            S->nproof--;
+            return ok;
+        }
         return 0;
     }
 
@@ -3172,7 +3684,15 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (matched) {
             if (S->kb->audit_on)
                 ((Fact *)f)->used = 1;      /* gen435: ha unificato almeno una volta */
-            if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+            int rec = S->recording;         /* M2: il passo della prova, se qualcuno la chiede */
+            if (rec) {
+                char cid[KB_TERM_LEN];
+                clause_identity(cid, f->pred, f->argc, f->args, 0, NULL, 0);
+                proof_push(S, cid);
+            }
+            int ok = solve(S, goals, ngoals, idx + 1, s2, depth);
+            if (rec) S->nproof--;
+            if (ok) return 1;
         }
         s2->n = undo_n;            /* annulla il tentativo, riusa la copia */
         s2->ndif = undo_ndif;
@@ -3258,7 +3778,15 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             s2->n = rundo_n; s2->ndif = rundo_ndif;
             continue;
         }
+        int rec = S->recording;             /* M2: la regola usata e' un passo */
+        if (rec) {
+            char cid[KB_TERM_LEN];
+            clause_identity(cid, R->head.pred, R->head.argc, R->head.args,
+                            0, R->body, R->nbody);
+            proof_push(S, cid);
+        }
         int ok = solve(S, ng, m, 0, s2, depth + 1);
+        if (rec) S->nproof--;
         if (pushed) S->nanc--;
         if (ok) return 1;
         /* La regola non ha portato una soluzione: la sostituzione torna dov'era
@@ -3550,6 +4078,7 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
         if (!strcmp(pred, "call") || !strcmp(pred, "apply") ||
             !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
             !strcmp(pred, "kb_rule_body") || !strcmp(pred, "kb_clause") ||
+            !strcmp(pred, "kb_clause_arg") || !strcmp(pred, "kb_derivation") ||
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
             !strcmp(pred, "prob")) return 0;
@@ -4039,7 +4568,9 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     /* The overwhelmingly common KB-first lookup is a ground fact predicate with
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
-    int has_rule = (argc == 4 && strcmp(pred, "kb_clause") == 0) ||  /* la clausola integra */
+    int has_rule = (argc == 4 && (strcmp(pred, "kb_clause") == 0 ||      /* la clausola integra */
+                                  strcmp(pred, "kb_clause_arg") == 0 ||    /* i suoi archi */
+                                  strcmp(pred, "kb_derivation") == 0)) ||  /* e la sua prova */
                    (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
                                   strcmp(pred, "atom_words") == 0 ||
         strcmp(pred,"upcase_first")==0 || strcmp(pred,"concat_atoms")==0 ||
@@ -4169,7 +4700,8 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                     strcmp(pred, "atom_words") != 0 &&
                     strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
                     strcmp(pred, "kb_rule_body") != 0 &&
-                    strcmp(pred, "kb_clause") != 0 &&
+                    strcmp(pred, "kb_clause") != 0 && strcmp(pred, "kb_derivation") != 0 &&
+                    strcmp(pred, "kb_clause_arg") != 0 &&
                     strcmp(pred, "apply") != 0;
     for (size_t i = 0; i < argc; i++) {
         if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
@@ -7684,7 +8216,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
         "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body",
-        "kb_clause",
+        "kb_clause", "kb_clause_arg", "kb_derivation",
         "apply", "atom_words", "map_words", NULL };
     for (size_t i = 0; builtins[i]; i++)
         if (strcmp(pred, builtins[i]) == 0) return 1;

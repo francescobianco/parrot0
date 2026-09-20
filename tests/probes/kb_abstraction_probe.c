@@ -80,15 +80,17 @@ int main(void) {
     const char *ab[] = {"a", "b"}, *ba[] = {"b", "a"};
     support(kb, "FORWARD", "abstraction_path", ab, 2);
     support(kb, "INVERSE", "abstraction_path", ba, 2);
-
-    /* M1 (20 settembre 2026): the same two rules read as WHOLE contents through
-     * kb_clause/4 — two ids, two premises; the journal above still collapses. */
+    /* M1 (20 settembre 2026, corretta dalla revisione): le stesse due regole
+     * lette come CONTENUTI INTERI — due identita', due premesse distinte; il
+     * giornale qui sopra le collassa ancora. */
     {
         char ids[8][KB_TERM_LEN], prem[8][KB_TERM_LEN];
-        const char *qi[] = { NULL, "abstraction_path(var(0), var(1))", "1", NULL };
-        size_t ni = kb_match(kb, "kb_clause", qi, 4, ids, 8);
-        printf("M1 kb_clause contents for abstraction_path: %zu\n", ni);
-        const char *qp[] = { "$Id", "abstraction_path(var(0), var(1))", "1", NULL };
+        const char *qi[] = { NULL,
+            "app(abstraction_path, cons(var(0), cons(var(1), nil)))", "0", "1" };
+        printf("M1 kb_clause contents for abstraction_path: %zu\n",
+               kb_match(kb, "kb_clause", qi, 4, ids, 8));
+        const char *qp[] = { "$Id",
+            "app(abstraction_path, cons(var(0), cons(var(1), nil)))", "1", NULL };
         size_t np = kb_match(kb, "kb_clause", qp, 4, prem, 8);
         for (size_t i = 0; i < np; i++) printf("  premise 1: %s\n", prem[i]);
     }

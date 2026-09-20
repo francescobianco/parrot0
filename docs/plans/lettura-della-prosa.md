@@ -1,5 +1,158 @@
 # Lettura della prosa — il miglioramento continuo della comprensione
 
+## ⛔ REVISIONE PRIORITARIA — M1 RIAPERTA: correggere l'astrazione prima di proseguire (20 settembre 2026)
+
+**Da processare prima dell'HANDOFF seguente.** Review del commit
+[`32c19de6f70bf23d2da452dad558496756c92898`](https://github.com/francescobianco/parrot0/commit/32c19de6f70bf23d2da452dad558496756c92898),
+richiesta da F. per verificarne la generalità rispetto a questo piano.
+**La dichiarazione «M1 conclusa» più sotto è superata da questa revisione.**
+L'agente che riprende deve correggere e verificare M1 prima di dichiararla
+chiusa o fondarvi la consegna M2. Le «scelte fissate» dell'handoff non
+autorizzano a conservare una rappresentazione che perde distinzioni.
+
+**Giudizio:** il commit contiene un progresso infrastrutturale pertinente:
+espone argomenti, ordine delle premesse e legami prima invisibili, senza
+aggiungere un lettore di dominio. Il piano consente questo investimento in C
+e consente di cominciare dal frammento Horn. Ma la chiusura di M1 è prematura:
+due controesempi riprodotti violano proprio il suo contratto di identità;
+un terzo rende inaffidabile la diagnosi dell'overflow. Non sono funzionalità
+future di M2–M5, né una critica al fatto che il commit non completi tutto il
+piano. Sono difetti del fondamento dichiarato già completo.
+
+### Evidenza riprodotta sul commit, con la KB viva completa
+
+Build riuscita; sonda C temporanea collegata agli oggetti del progetto,
+`brain_create` + `brain_boot`, profilo `kb/profiles/agi.p0`, sessione senza
+salvataggio. Baseline: **155.467 fatti, 4.850 regole**. Le clausole di prova
+sono aggiunte in memoria a questa KB, non a una base ridotta. Questa è una
+verifica meccanica, non un punteggio di comprensione. La suite completa non
+è stata rieseguita durante la review. I risultati riguardano il commit
+indicato, non eventuali modifiche successive nel working tree.
+
+**1. Variabile rappresentata e termine ordinario collassano.**
+
+```prolog
+review_m1_variable($X) :- review_m1_seed($X).
+review_m1_variable(var(0)) :- review_m1_seed(var(0)).
+```
+
+Caricate entrambe con `kb_load_clause`, la lettura
+`kb_clause($I, review_m1_variable(var(0)), 0, 1)` restituisce **un solo Id
+distinto**, `content_da560be337b34f68`, invece dei due necessari. La prima
+regola quantifica su un argomento; la seconda riguarda il termine ground
+`var(0)`. Non sono alfa-rinominazioni della stessa regola.
+
+Causa nel commit: `canon_arg`, in `src/kb.c`, rende `$X` come `var(0)` e
+ricopia un'applicazione ordinaria `var(0)` nella stessa forma. Manca la
+distinzione strutturale fra il dato rappresentato e il costruttore che lo
+rappresenta. **Cambiare il nome `var` non risolve la classe del problema.**
+Un sistema che deve discutere anche la propria rappresentazione deve poter
+menzionare quei costruttori senza confonderli con il loro uso.
+
+**2. L'Id non copre sempre il contenuto intero: la canonicalizzazione tronca.**
+
+Riproduzione: costruire due argomenti ad albero `f/4`, profondità 3, con 64
+foglie: le prime 63 sono `$X`, l'ultima rispettivamente `a` e `b`. Ogni
+argomento sorgente, senza spazi, occupa **253 byte**, quindi è entro il limite.
+Inserirli come unica premessa di due regole con la stessa testa:
+
+```text
+review_m1_nested($X) :- review_m1_sub(ALBERO_CON_CODA_a).
+review_m1_nested($X) :- review_m1_sub(ALBERO_CON_CODA_b).
+```
+
+Il generatore è: una foglia restituisce `$X`, salvo l'ultima; ogni livello
+superiore restituisce `f(figlio1,figlio2,figlio3,figlio4)`. Le maiuscole qui
+sono segnaposti descrittivi, non sintassi da caricare.
+
+Risultato: **un solo Id distinto**, `content_c6445aa7bb8f94e1`; la premessa
+esposta è `overflow(review_m1_sub)`. In `canon_arg`, i buffer ricorsivi
+`sub[KB_TERM_LEN]` e gli `snprintf` troncano l'espansione delle variabili
+prima che `clause_render` calcoli l'impronta. La differenza finale è già
+persa. **Non è una collisione probabilistica di FNV:** sono due contenuti
+diversi trasformati nello stesso testo mutilato prima dell'hash.
+Il marcatore di overflow della premessa non ripara l'identità falsa.
+
+**3. Il controllo dell'overflow dipende da come si interroga.**
+
+Inserire una regola `review_m1_long(A, C) :- review_m1_gate(x).`, dove `A`
+è un atomo di 300 lettere `a` e `C` uno di 300 lettere `c`. I singoli
+argomenti sono validi; la testa serializzata supera 512 byte.
+
+- `kb_clause($I, $H, 1, review_m1_gate(x))` trova la regola.
+- Legando quell'Id, `kb_clause(Id, $H, 0, 1)` espone correttamente
+  `overflow(review_m1_long)`.
+- `kb_clause($I, overflow(review_m1_long), 0, 1)` non trova nulla.
+- `clause_head_overflows($I, review_m1_long)` restituisce falso.
+
+Causa: `clause_reflect` ricava il bucket dal funtore della testa richiesta.
+Con `overflow(...)` cerca il predicato **overflow**, mentre la clausola è
+indicizzata sotto **review_m1_long**. La regola diagnostica in
+`kb/core/clause-content.p0` usa proprio la modalità difettosa. Il limite
+esiste ma il suo controllo lo nega; il test negativo sull'overflow della
+regola viva non basta quindi a certificare nulla su questo percorso.
+
+### Correzione richiesta all'agente: salvare le distinzioni, non i tre esempi
+
+1. **Scrivere prima i controesempi come regressioni durevoli**, sul profilo
+   completo. Verificare che falliscano sul commit recensito. La sonda
+   temporanea della review non sostituisce test versionati. Conservare le
+   proprietà semantiche, senza fissare gli Id esadecimali o obbligare la
+   nuova rappresentazione a mantenere la forma ambigua `var(N)`.
+2. **Rendere non ambigua la reificazione ricorsiva.** Variabile legata,
+   costante e applicazione devono restare distinguibili anche quando il
+   contenuto usa i nomi dei costruttori della rappresentazione. Riutilizzare
+   le strutture comuni; non aggiungere un parser o un solver parallelo.
+   Documentare il binder della clausola Horn come il frammento attuale:
+   non equivale ad avere già legami generali per quantificatori annidati,
+   astrazioni e citazioni previsti dal piano.
+3. **Separare identità strutturale e resa limitata.** Calcolare l'identità
+   sull'intera struttura canonica, senza attraversare buffer che possono
+   troncarla. Esporre per nodi/archi ciò che richiede struttura; se una vista
+   non riesce a rappresentarlo, dichiararne il limite senza inventare
+   uguaglianze. Non risolvere alzando semplicemente il buffer: il problema
+   si ripresenterebbe alla crescita successiva. Verificare anche il limite
+   di `CanonMap` e il comportamento oltre i suoi slot.
+4. **Rendere coerenti enumerazione e lookup.** Una riga restituita con testa
+   libera deve restare ritrovabile vincolandone testa e Id. Gli indici sono
+   acceleratori, non una seconda semantica. Coprire teste ordinarie,
+   negazioni e segnalazioni di overflow; un errore di rappresentazione non
+   deve diventare assenza del contenuto.
+5. **Completare le prove promesse da M1.** Il test attuale
+   `identity_survives_a_retract` verifica la presenza delle clausole rimaste,
+   ma non confronta un Id conservato prima e dopo il ritiro. Aggiungere quel
+   confronto, istanze fresche indipendenti, variabili anonime e annidate,
+   alfa-rinominazioni, costanti diverse, ordine delle premesse e limiti.
+   Riutilizzare i test esistenti dove provano davvero la proprietà.
+6. Eseguire i test strutturali aggiornati, la sonda del piano e
+   `make soft-test`, controllando anche gli errori di caricamento. Dopo una
+   build assicurarsi che il demone dei `.p0t` esegua il nuovo binario, come
+   descritto nell'handoff. Registrare comandi, risultati e limiti delle
+   verifiche; correggere le dichiarazioni di completezza anche in
+   `docs/parrot-p0-syntax.md`. **Solo allora richiudere M1 e proseguire M2.**
+
+### Errore di metodo da non ripetere
+
+Il criterio di riuscita è la conservazione delle distinzioni del piano,
+non la presenza dei predicati previsti né il numero degli assert verdi.
+«Variabili come oggetti» richiede di distinguere una variabile da un oggetto
+che ne descrive una; «contenuto integro» richiede di seguire tutti i passaggi
+fino all'identità, inclusi i buffer interni; «limite esplicito» richiede che
+quel limite sia interrogabile nelle modalità usate dai consumatori.
+
+**Prima di dichiarare completa un'astrazione, cercare due oggetti diversi
+che la sua rappresentazione potrebbe rendere uguali; poi lo stesso oggetto
+letto attraverso due percorsi che potrebbero divergere.** Provare questi
+casi, anche al confine dei limiti, è parte del lavoro di astrazione. Non
+aggiungere eccezioni per `review_m1_*`: correggere la procedura generale.
+
+La riflessione delle clausole native è un pezzo utile del piano; non è ancora
+il contratto comune fra contenuti della IR, atti e inferenza. M2–M5 possono
+restare successive senza che sia accettabile fondarle su identità ambigue.
+Questa review **richiede la correzione; non dichiara il codice già corretto**.
+
+---
+
 ## HANDOFF IMMEDIATO — per il prossimo coding agent (20 settembre 2026)
 
 **Richiesta attiva di F.:** evolvere l'astrazione comune di KB e IR per pensare

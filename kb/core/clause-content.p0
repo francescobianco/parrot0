@@ -1,24 +1,40 @@
 % clause-content.p0 — la clausola come contenuto integro (M1, 20 settembre 2026)
 %
-% docs/plans/lettura-della-prosa.md, HANDOFF «contenuti, atti e giudizi»: il
-% primo pezzo che mancava era poter DISCUTERE una clausola — fatto, regola,
-% negazione — come un dato intero, con i suoi legami e la sua polarita', e
-% con un'identita' che non sia la riga di un vettore. Il motore la espone con
-% una porta sola (src/kb.c, clause_reflect):
+% docs/plans/lettura-della-prosa.md, HANDOFF «contenuti, atti e giudizi» e la
+% REVISIONE PRIORITARIA che ha riaperto M1. Il primo pezzo che mancava era
+% poter DISCUTERE una clausola — fatto, regola, negazione — come un dato
+% intero, con i suoi legami e la sua polarita', e con un'identita' che non sia
+% la riga di un vettore. Il motore la espone con due forme (src/kb.c,
+% clause_scan):
 %
-%   kb_clause(Id, Head, 0, N)         la clausola esiste e ha N premesse
-%   kb_clause(Id, Head, I, Premise)   la I-esima premessa, I in 1..N
+%   kb_clause(Id, Testa, 0, N)          la clausola esiste e ha N premesse
+%   kb_clause(Id, Testa, I, Premessa)   la I-esima premessa, I in 1..N
+%   kb_clause_arg(Id, Dove, Cammino, Nodo)   la stessa, per NODI e ARCHI
 %
-% Le variabili della clausola sono OGGETTI, var(0), var(1), ... numerate per
-% prima occorrenza: due modi alfa-equivalenti di scrivere la stessa clausola
-% hanno lo stesso Id (content_<impronta>), che si ricalcola a ogni lettura e
-% non si salva. Un fatto negativo ha testa not(F); una premessa naf(G) resta
-% naf(G); una testa o una premessa che non entra in un termine si dichiara
-% overflow(pred), mai un testo tagliato.
+% LA FORMA CANONICA porta un tag a ogni livello:
+%
+%   var(N)                    una variabile, N = ordine di prima occorrenza
+%   atom(A)                   una costante
+%   app(F, cons(E, ... nil))  un'applicazione del funtore F ai suoi argomenti
+%
+% Percio' un dato scritto `var(0)` e' `app(var, cons(atom(0), nil))` e NON si
+% confonde con la variabile `var(0)`. Era il difetto di classe della revisione:
+% non il nome `var`, ma l'assenza del tag sull'applicazione.
+%
+% L'identita' e' `content(Predicato, impronta)`: l'impronta copre il contenuto
+% canonico INTERO — si calcola mentre la struttura si percorre, non da un testo
+% che un buffer puo' tagliare — e il predicato la rende dicibile e cercabile.
+% Due scritture alfa-equivalenti hanno la stessa identita'; l'ordine delle
+% premesse ne fa parte. L'identita' si ricalcola a ogni lettura, non si salva.
+%
+% Un fatto negativo ha testa `not(E)`; una premessa `naf(G)` resta `naf(E)`;
+% un pezzo che non entra in un termine si dichiara `overflow(Pred)` e resta
+% leggibile per archi. Il binder e' la chiusura universale della clausola Horn:
+% quantificatori annidati, astrazioni e citazioni sono legami che questo
+% frammento NON ha ancora.
 %
 % Qui stanno le facce NOMINABILI di quel dato: che cosa una clausola e', non
-% come e' conservata. Nessuna e' una vista materializzata: si legge quando
-% serve, e con la testa legata costa un bucket, non la KB.
+% come e' conservata. Nessuna e' una vista materializzata.
 
 clause_head($Id, $Head) :- kb_clause($Id, $Head, 0, $Count).
 clause_premise_count($Id, $N) :- kb_clause($Id, $Head, 0, $N).
@@ -27,14 +43,26 @@ clause_premise($Id, $I, $Goal) :- kb_clause($Id, $Head, $I, $Goal), dif($I, 0).
 clause_is_fact($Id) :- kb_clause($Id, $Head, 0, 0).
 clause_is_rule($Id) :- kb_clause($Id, $Head, 0, $N), dif($N, 0).
 clause_denies($Id, $Content) :- kb_clause($Id, not($Content), 0, 0).
+clause_premise_is_negative($Id, $I, $G) :- clause_premise($Id, $I, naf($G)).
+
+% L'identita' si puo' NOMINARE: di che cosa parla questa clausola.
+clause_about(content($Pred, $Print), $Pred) :- kb_clause(content($Pred, $Print), $Head, 0, $N).
+clause_content_print(content($Pred, $Print), $Print).
 
 % Il limite del termine, dichiarato e non nascosto: la clausola e' intera nella
-% KB, e' il suo TESTO che non entra in KB_TERM_LEN byte.
+% KB, e' il suo TESTO che non entra in un termine. Una riga tornata con la
+% testa libera resta ritrovabile legandone testa e identita'.
 clause_head_overflows($Id, $Pred) :- kb_clause($Id, overflow($Pred), 0, $Count).
 clause_premise_overflows($Id, $I, $Pred) :-
     kb_clause($Id, $Head, $I, overflow($Pred)), dif($I, 0).
 
-% Lo stesso contenuto detto due volte ha un Id solo: due occorrenze, un
+% Gli ARCHI: quando un pezzo non entra, si scende un nodo alla volta.
+clause_node($Id, $Where, $Path, $Node) :- kb_clause_arg($Id, $Where, $Path, $Node).
+clause_head_node($Id, $Path, $Node) :- kb_clause_arg($Id, head, $Path, $Node).
+clause_premise_node($Id, $I, $Path, $Node) :- kb_clause_arg($Id, premise($I), $Path, $Node).
+clause_argument($Id, $Where, $K, $Node) :- kb_clause_arg($Id, $Where, cons($K, nil), $Node).
+
+% Lo stesso contenuto detto due volte ha un'identita' sola: due occorrenze, un
 % contenuto. Distinguere le occorrenze (gli ATTI) e' il lavoro di M2.
 clause_said_twice($Head) :-
     findall($One, kb_clause($One, $Head, 0, $C1), cons($Only, nil)),
