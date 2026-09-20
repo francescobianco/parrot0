@@ -182,3 +182,39 @@ lesson_near_miss($T, $Form) :-
     lesson_fixed_text($Form, $Text),
     atom_words($Text, $Words), count_list($Words, $N), gt($N, 2),
     words_in_turn($T, $Words).
+
+% `turn_form_concluded(Turno, Forma)` — scritto dal motore quando una forma
+% dichiarata conclude davvero. E' il fatto che mancava: senza, «quasi una
+% lezione» non si distingueva da «una lezione riuscita».
+machinery(turn_form_concluded).
+turn_scratch(turn_form_concluded).
+lesson_concluded(yes) :- turn_counter($N), turn_form_concluded($N, $Form).
+
+% ─── IL DECLINO SUL «QUASI UNA LEZIONE»: PROVATO E RITIRATO ────────────────
+%
+% Con `turn_form_concluded` interrogabile, il rilevatore sembrava poter
+% diventare una porta: un turno che porta il testo identificativo di una
+% lezione e non ne conclude nessuna riceve il nome di cio' che manca.
+% Scritto, collegato con `faculty_yield_when(knowledge, open, …)` e MISURATO:
+%
+%   «zorbo is a member of»        ✅ declina invece di asserire in silenzio
+%   «socrates is a man»           ✅ impara, nessun falso positivo
+%   «bob is an animal»            ✅ impara
+%   «zorbo is a member of birds»  ⛔ DECLINA — ed e' la lezione COMPLETA
+%
+% Il cancello della cessione si decide PRIMA che la forma concluda, quindi la
+% guardia `naf(lesson_concluded(yes))` non puo' ancora vedere il successo.
+% Ritirato: una regressione su una lezione che funziona non e' accettabile.
+%
+% Il pezzo che manca non e' un altro fatto: e' che la cessione possa essere
+% decisa DOPO il tentativo delle forme dichiarate. Finche' l'ordine e' questo,
+% il rilevatore resta una sonda.
+
+% Ora che «una forma ha concluso» e' interrogabile, il rilevatore diventa una
+% porta: un turno che porta il testo identificativo di una lezione e non ne
+% conclude nessuna riceve il nome di cio' che manca, invece di finire al
+% lettore generico che asserisce in silenzio.
+machinery(lesson_almost).
+lesson_almost($T, $Form, $Text) :-
+    lesson_near_miss($T, $Form), lesson_fixed_text($Form, $Text),
+    naf(lesson_concluded(yes)).

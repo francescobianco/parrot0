@@ -752,6 +752,45 @@ forma ha concluso»*. È un fatto che il motore già conosce — decide su di es
 e che la KB non può leggere. Con quello, il rilevatore diventa una porta in una
 riga; senza, resta una sonda.
 
+### «Una forma ha concluso» è ora interrogabile — e il collegamento è stato provato e ritirato
+
+Il passo nominato dalla sezione precedente è fatto: `turn_form_concluded(N, Forma)`
+è scritto dal motore dove una forma dichiarata **conclude davvero**, indicizzato
+col contatore del turno come ogni altro fatto di turno. Verificato:
+
+| turno | `lesson_concluded(yes)` |
+|---|---|
+| «glorp is an event subject verb» (lezione riuscita) | ✅ vero |
+| «zorbo is a member of» (incompleta) | ✅ falso |
+
+Era il fatto che mancava: prima il rilevatore non distingueva il successo dal
+quasi, e per questo non si poteva collegare.
+
+**Collegato, misurato, ritirato.** Con la guardia `naf(lesson_concluded(yes))`
+la porta è stata costruita davvero:
+
+| turno | esito col collegamento |
+|---|---|
+| «zorbo is a member of» | ✅ **declina** invece di asserire in silenzio |
+| «socrates is a man» | ✅ impara, nessun falso positivo |
+| «bob is an animal» | ✅ impara |
+| «zorbo is a member of birds» (lezione **completa**) | ⛔ **declina** |
+
+**Il cancello della cessione si decide PRIMA che le forme vengano tentate**,
+quindi la guardia non può ancora vedere il successo. Una regressione su una
+lezione che funziona non è accettabile: ritirato, con il commento accanto in
+`kb/core/conduct-lessons.p0`.
+
+**Che cosa manca davvero, ora nominato al livello giusto.** Non un altro fatto:
+**che la cessione possa essere decisa dopo il tentativo delle forme dichiarate**.
+È una questione di *ordine del turno*, non di conoscenza mancante — ed è la
+stessa specie del §6.1: il canale, non il suo contenuto. Finché l'ordine è
+questo, il rilevatore resta una sonda e il pavimento resta sotto la soglia.
+
+**L'indicatore non si muove per questo giro: resta 35–40.** Un fatto abilitante
+in più e una porta provata e ritirata non sono una banda nuova, e contarli
+sarebbe esattamente ciò che il §4.6 vieta.
+
 ### Che cosa questo censimento non ha fatto
 
 - **18 elementi su 30 non sono stati misurati parlando** (gran parte del pozzo A

@@ -16087,6 +16087,33 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         const char *aq[2] = { forms[f], NULL };
         size_t nacts = kb_match(b->kb, "turn_form_act", aq, 2, acts, 8);
         if (nacts < 1) continue;
+        /* 21 settembre 2026 (§6.2 di train-the-learning-process.md) — «IN
+         * QUESTO TURNO UNA FORMA HA CONCLUSO» DEVE ESSERE INTERROGABILE.
+         *
+         * Il motore lo sapeva e ci decideva sopra; la KB non poteva leggerlo,
+         * e per questo il rilevatore del «quasi una lezione» non si poteva
+         * collegare: scattava anche sulle lezioni RIUSCITE, e non distingueva
+         * il successo dal quasi. Un fatto riflessivo, scritto dove la forma
+         * conclude davvero, e la distinzione diventa una riga di KB. */
+        {
+            char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forms[f]);
+            const char *fname = kb_dequote(fb);
+            /* Indicizzato col CONTATORE del turno, come ogni altro fatto di
+             * turno della KB: `current_turn` non si pulisce da solo, e un
+             * fatto del turno precedente risponderebbe per questo. */
+            char tn[32]; snprintf(tn, sizeof tn, "%s", "0");
+            { char tv[1][KB_TERM_LEN]; const char *tq[1] = { NULL };
+              if (kb_match(b->kb, "turn_counter", tq, 1, tv, 1) == 1) {
+                  char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tv[0]);
+                  snprintf(tn, sizeof tn, "%s", kb_dequote(tb));
+              } }
+            const char *fa[2] = { tn, fname };
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_assert(b->kb, "turn_form_concluded", fa, 2);
+            kb_set_origin(b->kb, prev);
+        }
+
         for (size_t ai = 0; ai + 1 < nacts; ai++) {
             char pb9[KB_TERM_LEN]; snprintf(pb9, sizeof pb9, "%s", acts[ai]);
             const char *pre = kb_dequote(pb9);
