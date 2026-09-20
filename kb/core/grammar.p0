@@ -3630,6 +3630,13 @@ frame_pattern(it, membership, assertion, src).
 frame_pattern(it, membership, question,  qrs).
 
 % Quale interrogativo lascia scoperto quale ruolo.
+% 20 settembre 2026 — «WHERE do coral reefs flourish?». Nella costruzione
+% «soggetto + verbo + sintagma preposizionale» il luogo E' l'oggetto letto: la
+% frase «Coral reefs flourish IN ocean waters» si registra come
+% binary(flourish) con oggetto ocean_waters, quindi la domanda di luogo chiede
+% quello stesso ruolo. Senza questa riga la domanda non produceva frame e
+% rispondeva il frasario — la conoscenza c'era e la strada no.
+frame_gap_form(en, where,  object).
 frame_gap_form(en, what,   object).
 frame_gap_form(en, what,   class).
 frame_gap_form(en, which,  class).

@@ -64,6 +64,43 @@ poteva leggere. Copertura r300: **da 4 frasi su 16 a 5**.
 
 (Le categorie si sovrappongono: una frase può stare in due righe.)
 
+### Il punto esatto dove si è fermata la caccia (leggere prima di ripartire)
+
+Cinque tentativi, cinque misure, tutte **45/62 e 19%**. L'ultimo è arrivato a
+un passo e dice dove premere:
+
+**«where do coral reefs flourish?»** — il banco la dà ✓, ma la risponde il
+frasario. Il testo dice «Coral reefs flourish in ocean waters», e quella frase
+**ora si legge**. Mancava che la *domanda* si leggesse: `where` non era
+dichiarata come forma di lacuna. Aggiunta una riga —
+`frame_gap_form(en, where, object)` — la domanda ora produce il frame
+`binary(flourish)` con `object(missing)`. **Verificato.**
+
+**E lì si ferma, per una ragione precisa.** La lettura non risponde ancora
+perché manca il *legame*: la frase del banco è
+
+> «Coral reefs flourish in ocean waters **that provide** few nutrients.»
+
+cioè ha **due** verbi, e la guardia della cornice nuova vale solo con un verbo
+solo. Quindi l'asserzione non viene registrata, `semantic_binding(binary(
+flourish), coral_reefs, object(ocean_waters))` non esiste, e `ir_reading_answer`
+non ha nulla da dire.
+
+**Il prossimo passo è uno, ed è strutturale.** Oggi l'unicità del frame è **per
+turno**: due operatori diversi nella stessa frase producono più candidati e la
+lettura si sopprime tutta. Finché è così, ogni tentativo di allentare la
+guardia fa guadagnare una frase e perderne un'altra — provato due volte, con
+«un solo verbo» e con «nessun verbo prima». Serve che l'unicità diventi **per
+operatore** (o che la subordinata si distingua dalla principale): allora la
+guardia cade, la frase con la relativa si legge, e la domanda `where` già
+pronta trova il suo legame.
+
+Quando quel pezzo c'è, il resto è già in posizione: la cornice S+V+PP, la
+lacuna `where`, il renderer, e la porta `faculty_yield_when(answer_frame, open,
+ir_reading_answer)` — scritta, misurata, tolta e commentata in
+`kb/core/intents.p0`, pronta a essere riaccesa **dopo** che i legami esistono.
+Una risposta spostata dal frasario alla lettura porta r300 da 19% a 21%.
+
 ### Due trappole già pagate, da non ripagare
 
 - **La guardia del verbo unico.** La cornice nuova vale solo quando il turno
