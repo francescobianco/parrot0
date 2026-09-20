@@ -25,12 +25,14 @@ largo spettro — quelle si fanno dopo, e il §6 dice in quale ordine.
 | ~~**T1**~~ | ✅ **fatta il 21 settembre** — le tre forme italiane insegnano; trovato e chiuso un guasto del canale (policy incompleta accettata che rompeva il turno dopo) | comprensione universale | L2 | 1 | ~20 min |
 | ~~**T2**~~ | ✅ **fatta il 21 settembre** — declino informato su una forma: tre stati, tre messaggi, ognuno dice che cosa scrivere dopo | comprensione universale | — (il pavimento) | 2 | ~1 h |
 | ~~**T3**~~ | ✅ **fatta il 21 settembre** — la guardia di pertinenza si insegna, trasferisce alla classe e si ritira. **Prima lezione L4** | KB viva | **L4** | 3 | ~1–2 h |
-| **T4** | la lingua che salta a metà scambio | KB viva | L4 | 1 | ~45 min |
-| **T5** | il costo di `soft-test` | — (banco) | — | 0 | ~1 h |
+| ~~**T4**~~ | ✅ **fatta il 21 settembre** — la lingua di uno scambio aperto è quella dell'ancora; un seguito corto non la sposta più | KB viva | L4 | 1 | ~45 min |
+| ~~**T5**~~ | ⚠ **misurata, non curata il 21 settembre** — il costo è attribuito (il boot, 5,7 s) e una cura è stata provata e ritirata perché dannosa; vedi la scheda sotto | — (banco) | — | 0 | ~1 h |
 
-> **Restano T4 e T5.** Il §5 riporta dove l'ago si è mosso e che cosa tiene il
-> numero sotto 50: una coppia `situazione × comportamento` sola, la precedenza
-> fra facoltà ancora scritta, e il censimento del §4.5 mai eseguito.
+> **I cinque TODO sono chiusi**, con T5 chiusa come *misura* e non come cura:
+> la sua scheda qui sotto dice perché, e sposta la domanda dal banco al boot.
+> Il §5 riporta dove l'ago si è mosso e che cosa tiene il numero sotto 50: una
+> coppia `situazione × comportamento` sola, la precedenza fra facoltà ancora
+> scritta, e il censimento del §4.5 mai eseguito.
 
 ---
 
@@ -126,6 +128,53 @@ attività T1–T4 hanno funzionato. È la meno creativa e la più abilitante.
 modifica precisa invece che al rumore.
 
 ---
+
+### T5 — il costo di `soft-test`: misurato e attribuito, non curato
+
+**Misura, 21 settembre 2026.** Cinque esecuzioni consecutive: **12, 12, 12, 11,
+11 s** su un budget di 15. Stabile, nessuna intermittenza osservata — ma la
+metà del budget ha un nome.
+
+| file | costo | quota |
+|---|---|---|
+| `tests/p0t/knowledge/facts.p0t` | **9,3 s** | **80%** |
+| `tests/p0t/conversation/basics.p0t` | 1,8 s | 15% |
+| `tests/p0t/health.p0t` | 0,47 s | 4% |
+
+**Dentro `facts.p0t`, il costo è uno solo.** Nove turni valgono ~3,5 s; il
+`!reset` in testa al file ne vale **5,8**, misurato isolandolo in un file che
+contiene solo le direttive e nessun turno. Il `!reset` è già «smart» — salta se
+la configurazione non è cambiata e nulla è stato insegnato — ma qui la
+configurazione cambia, quindi ricarica.
+
+**E la ricarica è un boot.** Un boot a freddo, a vuoto, costa **5,7 s** su
+156.451 fatti e 4.950 regole. La memoria di progetto registrava **0,40 s**:
+il boot è cresciuto di circa **quattordici volte** insieme alla KB. Non è il
+banco a essere lento: è l'avvio, e il banco lo paga una volta per file che
+ricarica.
+
+**Una cura provata e misurata DANNOSA, quindi ritirata.** Poiché ciò che un
+test insegna vive negli strati di runtime, sembrava che un reset potesse
+togliere per **origine** (`KB_SESSION|INDUCED|HYPOTHETICAL|REFLECTIVE|DERIVED`)
+invece di rileggere il disco. Misurato: **15,8 s e cinque rossi**. Il livello
+riflessivo non è scarto di sessione — contiene il modello di sé — e le viste
+ricostruite costano più di quanto la ricarica risparmi. Revocata.
+
+**Che cosa resta, con la sua evidenza.** La prova che T5 chiede — *cinque run
+sotto i 12s con il delta attribuito a una modifica precisa* — **non è
+raggiunta**: le run stanno a 11–12 s e nessuna modifica le ha spostate. Ma la
+domanda è cambiata: non «perché il banco è lento» bensì **«perché il boot costa
+5,7 s»**, che è una domanda sul motore e vale per ogni cosa, non per il banco.
+Le leve candidate, in ordine di resa attesa:
+
+1. **Il boot stesso** — è il 100% del costo di ogni ricarica. Vedi la memoria
+   «KB growth degrades the engine»: lookup O(n) e un pass di boot quadratico.
+2. **Una ricarica che conservi il livello curato** invece di rileggerlo: è ciò
+   che la cura ritirata cercava di fare dalla parte sbagliata. Va fatta
+   preservando il riflessivo e le viste, non buttandoli.
+3. **`facts.p0t` che non cambi la configurazione**: provato, **non sposta la
+   misura** (11 s con e senza le righe `!set`). Annotato perché non venga
+   ritentato.
 
 ### Il resto, dopo
 
