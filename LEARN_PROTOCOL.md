@@ -115,6 +115,107 @@ Prima di agire leggere integralmente:
 > **guarda prima di ipotizzare, prova in KB prima di compilare, e data ogni
 > misura.** Questo file resta la procedura per l'insegnamento puro.
 
+## 1-bis. Insegnare nel mondo allargato — framework cognitivo (20 settembre 2026)
+
+**Stato: contratto per l'evoluzione, non catalogo di nuove forme già pronte.**
+Il [piano operativo M0–M5](docs/plans/lettura-della-prosa.md#handoff--20-settembre-2026-contenuti-atti-e-giudizi-sostenuti)
+contiene baseline, controesempi, componenti da riusare e condizioni di riuscita.
+La [sintassi §16](docs/parrot-p0-syntax.md#16-contenuti-contesti-e-prove--contratto-progettato-20-settembre-2026)
+distingue ciò che oggi si può scrivere dalle rappresentazioni da implementare.
+Non aggiungere queste capacità al catalogo §6-bis prima della verifica.
+
+### L'oggetto della lezione non coincide sempre con un fatto creduto
+
+parrot0 deve poter comprendere una regola, una definizione di classe senza
+membri, un teorema sotto assunti, una citazione, una finzione o un'ipotesi
+incompatibile con il mondo. La conoscenza acquisita deve preservare **che cosa
+è stato detto, con quale atto, in quale contesto e da che cosa è sostenuto**.
+
+Questo non autorizza ad addestrare la KB del mondo con fatti inventati. Restano
+in vigore il divieto di fixture nel training e la distinzione fra sviluppo e
+insegnamento reale. Si può apprendere un'informazione vera su un testo, una
+teoria o un racconto documentato senza promuoverne ogni contenuto a fatto del
+mondo. «La fonte assume P» è diverso da P. Un teorema va conservato insieme ai
+suoi assunti; la definizione di una classe non certifica l'esistenza di membri.
+
+Il modello a cui il ciclo deve arrivare è:
+
+```text
+contenuto -> atto/fonte -> contesto -> giudizio -> derivazioni e dipendenze
+```
+
+La freccia indica una relazione, non una pipeline che cancelli il livello
+precedente. Uno stesso contenuto può avere più atti e più prove. La KB unica
+conserva queste distinzioni; la IR deve renderle disponibili dalla lettura.
+
+### Scheda della lezione contestuale
+
+Prima della lezione annotare, in parole del dominio:
+
+| campo | che cosa fissare |
+|---|---|
+| contenuto | che cosa viene definito, generalizzato, assunto o riferito |
+| atto e fonte | chi lo afferma/assume/cita; passo del testo o origine verificabile |
+| contesto | dove vale e quali assunti richiede |
+| commitment | che cosa parrot0 può affermare in proprio dopo la lezione |
+| trasferimento | una domanda nuova che richieda usare il contenuto |
+| contrasto | una domanda simile alla quale quel contenuto NON basta |
+| ritrattazione | quale atto o regola si ritira e quali altri sostegni devono restare |
+
+La scheda è per il report, **non un'API da dettare a parrot0**. La lezione
+rimane lingua naturale, senza nomi di relazioni interne o tuple.
+
+### Ciclo di verifica, quando il circuito sarà implementato
+
+1. Misurare la risposta prima della lezione sulla KB completa. Non creare un
+   contesto vuoto per sostituire il soggetto: un contesto nomina assunti,
+   non carica una seconda mente.
+2. Insegnare il contenuto con la forza appropriata. Verificare che la IR
+   conservi clausola, eventuali variabili/quantificatori e fonte, e che
+   l'acknowledgement non venga contato come comprensione.
+3. Chiedere che cosa segue **in quel contesto**, che cosa si sa indipendentemente
+   e su quali assunti poggia la differenza. Non etichettare «vero nel mondo»
+   un risultato che usa ancora una premessa ipotetica sull'individuo.
+4. Provare trasferimento e contrasto con conoscenze reali, senza insegnare la
+   conclusione attesa. Per una generalizzazione, variare il membro; per una
+   definizione, distinguere descrizione ed esistenza; per una citazione,
+   distinguere contenuto riportato e commitment dell'autore.
+5. Ritirare una sola lezione. Deve cadere la derivazione che la richiede;
+   una prova indipendente può legittimamente mantenere la risposta. Quindi
+   l'ablazione si valuta sui sostegni e sul contrasto, non obbligando sempre
+   la risposta a diventare «non so».
+6. Ripristinare soltanto la lezione verificata. Prima di `/save` ispezionare
+   contenuti **e atti/contesti**: nessuna assunzione temporanea deve essere
+   promossa accidentalmente a fatto del mondo.
+7. Riaprire in un processo nuovo e verificare anche assunti, attribuzione e
+   limiti. Una frase corretta con provenienza persa non certifica la capacità.
+
+**Conteggi:** una nuova derivazione non è un nuovo fatto insegnato. Le
+ipotesi locali e i contenuti di finzione non aumentano `W` come se fossero
+fatti del mondo; eventuali fatti veri sulla fonte vanno contati come tali.
+Regole/definizioni persistite vanno in `C`, provenienza in `P`, secondo le
+definizioni già vigenti. Documentare gli oggetti temporanei separatamente.
+Il nuovo framework non cambia da solo lo stato di una sessione in `trained`.
+
+### Arresti da classificare, senza correggere il singolo prompt
+
+| sintomo | dimensione da controllare |
+|---|---|
+| una conclusione già nota fa fallire una deduzione dalle premesse | scelta della prima prova invece di ricerca di una prova ammissibile |
+| due regole diverse hanno lo stesso sostegno | rappresentazione incompleta di argomenti, legami o polarità |
+| ritirare una fonte cancella anche l'altra | contenuto e occorrenza sono stati confusi |
+| una citazione è imparata come verità | contenuto e commitment non sono distinti |
+| una classe vuota non è discutibile | concetto confuso con enumerazione dei membri |
+| una prova locale produce una verità globale | dipendenze o scarico degli assunti persi |
+| una contraddizione rende vero un contenuto estraneo | inferenza non giustificata dalla logica dichiarata |
+| timeout interpretato come negazione | incompletezza della ricerca non rappresentata |
+
+Oggi il primo sintomo è riproducibile nel probe del piano: un sillogismo passa
+da `Yes` a `No` quando si insegna separatamente la conclusione, e torna `Yes`
+ritirando quel fatto. È una **diagnosi di sviluppo**, non una sessione di
+training riuscita. Un coding agent che riparte deve lavorare da M1; non
+aggiungere una risposta memorizzata né altre cue per quel sillogismo.
+
 ## 2. Parametri obbligatori della sessione
 
 Il coding agent deve fissare e riportare questi parametri prima di aprire la

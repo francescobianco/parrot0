@@ -1,5 +1,54 @@
 # Lettura della prosa — il miglioramento continuo della comprensione
 
+## HANDOFF IMMEDIATO — per il prossimo coding agent (20 settembre 2026)
+
+**Richiesta attiva di F.:** evolvere l'astrazione comune di KB e IR per pensare
+premesse, teoremi, generalizzazioni, classi senza membri, finzioni, citazioni e
+contenuti incoerenti, riducendo i lettori speciali in C. È autorizzata una
+revisione profonda, se motivata. L'ultima richiesta è preparare questo
+passaggio di consegne per un altro agente, conservando piano e ragionamento.
+
+**Consegna di questa sessione:** piano M0–M5 e framework cognitivo nei tre
+documenti richiesti; sonda eseguibile nei due file
+`tests/probes/kb_abstraction_probe.{c,sh}`. **Nessuna modifica a `src/` o `kb/`;
+M0 conclusa, M1–M5 da implementare.** Le modifiche sono nel working tree, non
+committate. Non descrivere il nuovo framework come capacità già disponibile.
+
+**Scoperta da non perdere:** sulla KB completa, il sillogismo Zelvo risponde
+`Yes`; insegnando separatamente la conclusione risponde `No`; ritirando il
+solo fatto aggiunto torna `Yes`. Il sistema giudica la prima prova trovata e
+non cerca quella ammissibile dalle premesse. Anche regole dirette e inverse
+collassano nello stesso sostegno testuale. L'HANDOFF della notte sovrastimava
+la migrazione: `kb_read_scope` ha ancora consumatori vivi.
+
+**Ipotesi da sviluppare:** distinguere **contenuto, atto, contesto, giudizio e
+derivazione**. Contenuti con variabili legate; atti distinti sullo stesso
+contenuto; prove con dipendenze congiunte e alternative; validità/commitment
+decisi dalla KB. Non un altro contenitore di fatti, non un flag che nasconde
+il mondo, non un secondo parser o solver.
+
+**Ripartenza, in ordine:**
+
+1. Leggere `MANTRA.md`, `PRINCIPLES.md`, poi il
+   [piano dettagliato qui sotto](#handoff--20-settembre-2026-contenuti-atti-e-giudizi-sostenuti).
+2. Leggere [sintassi §16](../parrot-p0-syntax.md#16-contenuti-contesti-e-prove--contratto-progettato-20-settembre-2026)
+   e [protocollo §1-bis](../../LEARN_PROTOCOL.md#1-bis-insegnare-nel-mondo-allargato--framework-cognitivo-20-settembre-2026).
+   Sono contratti progettati, non nuove API già eseguibili.
+3. Eseguire `bash tests/probes/kb_abstraction_probe.sh` dalla radice. Ultima
+   misura: **155.467 fatti / 4.841 regole**, profilo agi completo, zero parse
+   error. La sonda non salva e non è un golden che rende verdi i difetti.
+4. **Implementare M1 per prima:** test di clausole dirette/inverse, legami e
+   variabili fresche; riuso del motore esistente; riflessione integrale della
+   clausola soltanto dove manca. Fissare identità e durata dei riferimenti.
+5. Seguire le condizioni di riuscita M1–M5 sotto. Aggiornare questo HANDOFF
+   con la prima consegna realmente conclusa e il bilancio C/KB.
+
+Build e sonda sono riuscite. La suite non è stata rilanciata per questa
+consegna di documentazione e diagnostica. Il motore presenta ancora il difetto
+misurato: **nessun fix è implicito nel piano**.
+
+---
+
 > **19 settembre 2026 — prima fogliata massiva richiesta da F.** Integrato
 > [`english-grammar.p0`](../../kb/core/english-grammar.p0): 10.222 fatti e 67 regole
 > di lessico, morfologia, grammatica e pragmatica inglese, zero modifiche C.
@@ -17,7 +66,402 @@
 > dichiarazioni `relation_verb` portano `extract_frame` a 2,5 s di
 > costruzione e il turno da 0,1 a 0,4 s.
 
-## HANDOFF — 20 settembre 2026, notte: L'IPOTETICO SENZA UN SECONDO CERVELLO
+## HANDOFF — 20 settembre 2026: CONTENUTI, ATTI E GIUDIZI SOSTENUTI
+
+**Ripartire da qui.** F. chiede un'astrazione di KB **e** IR capace di trattare
+premesse, teoremi, classi vuote, finzioni, credenze e contenuti persino
+incoerenti come oggetti del pensiero. Autorizza una revisione profonda se dà
+fondamenta migliori; chiede di conservare il ragionamento per chi continuerà.
+Questo giro ha **misurato il limite della proposta precedente** e fissato il
+framework e il piano qui sotto. **Non ha ancora cambiato il motore o la KB.**
+Sono nuovi soltanto documentazione e una sonda riproducibile. Non dichiarare
+implementate le relazioni proposte, né risolto il controesempio.
+
+### 0. La risposta alla domanda fondamentale
+
+**L'unità che manca è un giudizio sostenuto su un contenuto, in un contesto.**
+Il fatto del mondo diventa un caso di questa struttura. Il contenuto deve
+poter esistere come oggetto rappresentato prima di essere creduto, provato o
+eseguito. Una regola, una domanda, una negazione e un'astrazione con variabili
+sono anch'esse contenuti; non devono essere ricostruite ogni volta da un
+lettore C diverso.
+
+Le distinzioni necessarie sono cinque, con identità separate:
+
+| oggetto | domanda a cui risponde | esempio |
+|---|---|---|
+| **espressione/contenuto** | che cosa viene pensato? | «ogni corvo è nero», con quantificatore e variabile legata |
+| **occorrenza/atto** | chi lo ha introdotto, dove, facendo cosa? | una citazione nel testo; una premessa nel turno; una successiva ritrattazione |
+| **contesto** | sotto quali assunti e impegni lo si considera? | l'esperimento Alfa, il racconto Beta, la credenza attribuita a un autore |
+| **giudizio** | che cosa risulta sostenibile qui? | sotto gli assunti di Alfa, P è derivabile |
+| **derivazione** | attraverso quali passi e dipendenze? | una regola applicata a due premesse, oppure una seconda prova indipendente |
+
+La IR conserva struttura, legami e provenienza del contenuto. La KB contiene
+questi stessi oggetti e le regole per interpretarli, comporli, ammetterli e
+dirli. **IR e KB non sono due mondi da sincronizzare:** la IR semantica è la
+forma strutturata della conoscenza sulla quale la KB può ragionare. Il grafo
+dei token resta la testimonianza di come il contenuto è stato letto.
+
+La formula guida, non sintassi `.p0`, è:
+
+```text
+nel contesto C, dagli assunti Γ, la derivazione D sostiene l'espressione E
+```
+
+`Γ` non è una copia della KB. È una collezione di riferimenti agli atti e alle
+regole usati. Tutta la KB resta interrogabile. «Premesse sufficienti» significa
+**esiste una derivazione ammissibile**, non «la prima derivazione trovata usa
+solo le premesse».
+
+**È una proposta di architettura motivata da controesempi, non la prova che
+abbiamo trovato l'astrazione definitiva.** Il primo esperimento implementativo
+deve poterla smentire. Non promette tutta la logica del primo ordine né la
+comprensione di tutte le frasi che il modello può rappresentare.
+
+### 1. Misura della proposta della notte: un controesempio reversibile
+
+Base di confronto: commit `319a41b1`; profilo **agi completo**, all'avvio
+155.467 fatti e 4.841 regole. Riproduzione dalla radice:
+
+```sh
+bash tests/probes/kb_abstraction_probe.sh
+```
+
+La sonda compila un piccolo host contro gli oggetti correnti, chiama
+`brain_create()` **e `brain_boot()`**, usa una sola mente e non salva niente.
+`brain_create()` da solo non completa il profilo: una prima esecuzione senza
+`brain_boot()` è stata scartata e non è evidenza. I nomi inventati qui provano
+la meccanica e un difetto del ragionamento, **non** connecting dots o conoscenza
+del mondo. Exit zero indica sonda eseguita, non conformità dell'architettura.
+
+**Controesempio naturale, misurato nella stessa sessione:**
+
+```text
+> zelvo is a narp. every narp is a vorn. is zelvo a vorn?
+Yes.
+> zelvo is a vorn
+Learned: zelvo is a vorn.
+> zelvo is a narp. every narp is a vorn. is zelvo a vorn?
+No.
+[ritrattazione mirata del solo fatto vorn(zelvo), attraverso l'API]
+> zelvo is a narp. every narp is a vorn. is zelvo a vorn?
+Yes.
+```
+
+La lezione aggiunge una prova diretta dal mondo. `kb_prove_support` prende
+quella e `supported_by_premises` la rifiuta: non cerca la prova dalle premesse
+che esiste ancora. **Aggiungere conoscenza peggiora il verdetto senza cambiare
+gli assunti.** Questo è il primo cricchetto della migrazione.
+
+Le quattro sonde dell'HANDOFF precedente restano `Yes / No / Yes / Yes`
+(glorp→dax; Rex con regola sui gatti; Socrate; Rex con regola sui cani).
+Passarle non copreva la competizione fra prove.
+
+**Le altre misure, sullo stesso profilo completo:**
+
+| sonda | osservato | conseguenza architetturale |
+|---|---|---|
+| fatto diretto e regola che provano lo stesso goal | prima si restituisce un sostegno; tolto il fatto, se ne restituiscono due della prova alternativa | serve la distinzione AND fra passi / OR fra derivazioni |
+| `path(X,Y) :- edge(X,Y)` e `path(X,Y) :- edge(Y,X)` | giornale e sostegno scrivono per entrambe `abstraction_path :- abstraction_edge` | nomi dei predicati non identificano una regola: mancano argomenti, legami, polarità |
+| stesso contenuto asserito prima in sessione e poi in ipotetico | `session=1`, `hypothetical=0`; un solo sostegno testuale | la deduplicazione del contenuto non conserva due atti di assunzione |
+| predicato dichiarato `machinery` prima della prima prova | `proof=1`, **`support=0`** | una classificazione di presentazione non deve cancellare dipendenze logiche |
+| `holds_in(C, abstraction_local(x))` | holds=1, visible=1, domanda non qualificata=0 | il contenuto contestuale si conserva; non c'è ancora un interprete generale delle sue inferenze |
+
+La sonda mostra anche un difetto distinto: aggiungere `machinery` **dopo** la
+prima prova lascia il sostegno presente, per la cache del classificatore.
+Non inseguirlo come soluzione dell'astrazione: documenta un ulteriore motivo
+per non usare quel classificatore come certificato di indipendenza.
+
+**Correzione dell'HANDOFF precedente:** `kb_read_scope` non è inutilizzato.
+È chiamato in `apply_premises_scoped`, `entailment_reply`, nel ragionamento
+transitivo e nel ramo `suppose`. `one_turn_syllogism` mantiene anche la
+rinomina dei contenuti (`p0_rename_content`). Il percorso con sostegni riguarda
+`multi_sentence_syllogism`. Non cancellare il flag prima di migrare i suoi
+consumatori. Il vecchio testo sotto resta come storia, non come inventario.
+
+### 2. Perché `holds_in` più un elenco di sostegni non basta
+
+1. **Citare P non assume P.** Si può sostenere «l'autore ha scritto P» senza
+   sostenere P, nemmeno come credenza dell'autore: potrebbe citarlo per
+   confutarlo. L'atto e il suo contenuto non hanno lo stesso commitment.
+2. **Visibilità non è ammissibilità.** `context_parent` può dare accesso a una
+   conoscenza o a un antecedente senza autorizzare l'importazione di tutte le
+   sue conclusioni. Il genitore lessicale/strutturale non è automaticamente
+   un insieme di assiomi ereditati.
+3. **Una regola ha variabili e scope.** «Tutti gli A sono B» non è un fatto su
+   un individuo chiamato `all_A`, né una lista di membri attuali. Può valere
+   prima che si conosca un A. Le variabili della rappresentazione devono
+   restare distinte dalle variabili del solver che la sta interrogando.
+4. **Un teorema conserva e può scaricare assunti.** Da una prova di Q che usa
+   un'assunzione locale P si può ottenere, con una regola d'inferenza ammessa,
+   il contenuto P⇒Q, senza promuovere Q nel mondo. Gli altri assunti restano.
+   Non basta marcare Q con un'origine `hypothetical` e poi cancellarla.
+5. **Il sostegno è strutturato.** Due vie alternative non si fondono in un
+   insieme che le richieda entrambe. Una prova tiene insieme TUTTI i suoi
+   passi; una conclusione può sopravvivere grazie a UN'ALTRA prova.
+6. **L'incoerenza è rappresentabile.** P e ¬P possono essere sostenuti nello
+   stesso contesto; questo non autorizza qualunque Q. La logica ammessa nel
+   contesto deve dichiarare quali inferenze consente. Non implementare una
+   generica esplosione e chiamarla comprensione.
+7. **Non dimostrato non vuol dire falso.** Positivo, negativo, entrambi,
+   nessuno e ricerca incompleta sono distinzioni già motivate in
+   `kb/core/epistemic-status.p0`. Un timeout non dimostra neppure
+   «non implicato»: manca la completezza della ricerca richiesta.
+
+Un dettaglio importante del caso Rex: se «Rex è un cane» è soltanto supposto,
+la tassonomia del mondo permette **«dato che Rex sia un cane, è un animale»**.
+Non prova da sola che nel mondo esista Rex e sia un cane. La risposta deve
+conservare anche questa dipendenza, non etichettare indiscriminatamente il
+risultato «vero nel mondo».
+
+### 3. Modello minimo, e cosa significa aumentare l'astrazione della IR
+
+**Contratto concettuale proposto; NON predicati già implementati.** I nomi
+definitivi vanno accordati alle relazioni esistenti prima di introdurli.
+
+```text
+contenuto:   nodo dell'espressione + operatore + argomenti/ruoli ordinati
+legame:     occorrenza di variabile -> quantificatore/astrazione che la lega
+atto:       identità + contenuto + contesto + forza + agente/fonte
+giudizio:   identità + contesto + contenuto
+derivazione: identità + giudizio concluso + regola usata + istanziazione
+dipendenza: derivazione -> atti/giudizi necessari (AND)
+alternativa: più derivazioni dello stesso giudizio (OR)
+scarico:    derivazione -> assunzione locale scaricata
+```
+
+Le relazioni restano entro arità 4 usando identità e archi, come la IR attuale.
+Non comprimere una prova arbitrariamente grande in una stringa da 512 byte.
+Un DAG di prove può condividere sottoprove; ricorsione e cicli richiedono
+controllo esplicito, non la promessa che qualsiasi ricerca termini.
+
+**Contenuti di primo livello:** applicazione di una relazione ai suoi
+argomenti, negazione esplicita, congiunzione, implicazione, quantificazione e
+astrazione con legami espliciti. Si comincia dal frammento Horn positivo
+attualmente eseguibile. Gli altri costruttori possono essere rappresentati
+prima di essere inferenzialmente supportati; il sistema deve dirlo.
+`naf(P)` è un controllo su una ricerca sotto condizioni dichiarate, **non**
+la negazione esplicita del contenuto P.
+
+**Esempio concettuale:** «tutti i corvi sono neri» diventa una quantificazione
+su una variabile, con implicazione fra due applicazioni alla STESSA variabile.
+Non asserisce un corvo. «Definiamo i corvi impossibili come…» introduce una
+definizione nominabile, non un testimone. «Immagina un corvo bianco» può
+introdurre un referente locale; non certifica la sua esistenza nel mondo.
+Un'espressione illogica può essere menzionata e analizzata: rappresentabilità,
+buona formazione, soddisfacibilità e derivabilità sono domande diverse.
+
+**Non fare una seconda IR.** Riutilizzare gli span e gli id di `input_node`,
+le letture `input_semantic_frame`, `semantic_proposition`, `claim_proposition`,
+le fonti e i contesti K4. Aggiungere i nodi semantici/legami che mancano e
+rendere le vecchie forme viste della struttura comune. Non riscrivere token,
+NP, parser dichiarativo e provenance in un nuovo modulo dell'ipotetico.
+
+Non trasformare subito tutto in triple anonime: predicati specifici, indici e
+viste tipate restano utili. L'unificazione è **del contratto semantico**, non
+l'obbligo di sostituire tutta la KB con `edge/3`.
+
+### 4. Confine fra motore e conoscenza
+
+**Nel C possono restare:** allocazione/identità, strutture e indici,
+unificazione e sostituzione senza cattura, variabili fresche, ricerca con
+backtracking, gestione dei limiti e raccolta fedele dei passi effettivi.
+Questi meccanismi non conoscono «finzione», «teorema» o «premessa scolastica».
+
+**In KB devono stare:** costruttori e ruoli semantici, forme linguistiche,
+interpretazioni degli atti, accessibilità e regole di importazione fra
+contesti, inferenze ammesse, criteri di commitment e di sufficienza delle
+prove, verdetti, strategie di ricerca modificabili e resa della risposta.
+Una regola di dominio deve poter essere pensata, citata, assunta, applicata e
+corretta come conoscenza. Un nuovo nome di contesto non richiede un enum C.
+
+**La prova va prodotta dalla ricerca che decide.** Oggi `solve` e
+`prove_seq_ex` sono due percorsi; il secondo ha trattamenti propri dei builtin
+e non può essere assunto equivalente al primo. Estendere un renderer di
+spiegazioni fino a farne un secondo solver sarebbe un'altra duplicazione.
+Preferire l'osservazione strutturata del solver comune. Valutare una procedura
+KB sul contenuto reificato solo se riusa quella stessa unificazione e ricerca,
+non se introduce un interprete C parallelo.
+
+`machinery/1` può rendere compatta la **spiegazione**, mai eliminare una
+dipendenza dal certificato. Le viste materializzate devono rinviare alle
+derivazioni/origini: un fatto di cache non è un nuovo assioma gratuito.
+
+### 5. Inventario dei pezzi da riusare e dei limiti concreti
+
+| posto | già disponibile | cosa manca / cosa non assumere |
+|---|---|---|
+| `src/kb.c`: `kb_fact`, `kb_rule`, `kb_rule_body` | introspezione su fatti, teste e nomi dei predicati dei corpi | struttura integrale, identità di clausola, legami, polarità e prova |
+| `src/kb.c`: unit clauses, `rename_term`, `solve` | variabili annidate standardizzate a parte e risoluzione comune | variabili reificate come contenuto; prove come risultati della stessa ricerca |
+| `src/kb.c`: `kb_prove_support`, `kb_support_note` | sonda della prima spiegazione | limite interno 24 righe, collisioni fra regole, nessuna identità dell'atto, nessuna completezza certificata |
+| `kb/core/context-scope.p0` | contesti, credenze visibili, commitment, supersessione | distinguere accesso da licenza inferenziale; niente equivalenza automatica fra parent e import |
+| `kb/core/document-claims.p0` | claim, fonte, status, normalizzazione senza commitment | generalizzare l'atto oltre la sola claim documentale |
+| `kb/core/input-structure.p0` | contenuti e legami verso la fonte | quantificatori, binder, scope semantici e atti sullo stesso contenuto |
+| `kb/core/document-argument.p0` | dipendenze e distinzione del sostegno congiunto | collegarle ai passi realmente eseguiti; un arco retorico non certifica una deduzione |
+| `kb/core/epistemic-status.p0` | motivazione dei cinque stati epistemici | applicarli al contesto e alla completezza delle ricerche, senza ricopiare la dottrina |
+| `src/brain/10-memory-knowledge.c` | lettori correnti, giornale, parser dichiarativo | separare produzione di contenuto, assunzione e risposta; migrare i lettori uno per volta |
+
+Nota per chi legge istruzioni storiche: `src/kb.h` dichiara oggi arità **4**,
+corpo **16** e termine **512** byte. L'8 riportato in vecchie istruzioni non è
+il valore del sorgente misurato. Disegnare piccoli predicati resta preferibile
+a usare tutto il limite.
+
+### 6. Piano eseguibile per la prossima sessione
+
+**Una consegna per volta.** Scrivere nel prossimo HANDOFF quale M è conclusa,
+con file, comando e risultato. Non saltare M1 per aggiungere frasi di risposta.
+
+**M0 — baseline e banco (fatto in questa sessione).**
+
+- Eseguire la sonda, conservare i numeri della KB e il transcript del
+  controesempio. Il probe non certifica correttezza e non va aggiunto alla
+  suite come golden dei difetti attuali.
+- Nessuna modifica a `src/` o `kb/` è stata fatta da questa sessione.
+- La build è riuscita; la sonda completa non ha emesso `PARSE ERROR`.
+  La suite di regressione non è stata rieseguita per sole modifiche documentali.
+
+**M1 — rendere una clausola un contenuto integro e identificabile.**
+
+1. Scrivere prima i test di identità: regola diretta/inversa; argomento
+   ripetuto/distinto; costante diversa; positivo/negativo; variabili
+   alpha-rinominate; una congiunzione con più premesse.
+2. Verificare quanto si ottiene già con termini composti e unit clauses a
+   variabili fresche. La sintassi esiste; non inventare un nuovo parser.
+3. Se serve un nuovo primitivo riflessivo, esporre **la clausola completa**
+   (testa, corpo ordinato, legami e polarità) con riferimento stabile durante
+   la sua vita. Non aggiungere un'altra vista che restituisce soltanto nomi.
+   L'indice della riga nel vettore non è un'identità: i retract lo spostano.
+4. Separare la forma da discutere (variabili come oggetti legati) dalla sua
+   istanza di esecuzione (variabili fresche del solver). Non usare `$X` in un
+   fatto metalinguistico come se fosse un atomo: oggi è una variabile attiva.
+5. Verificare lettura a runtime, ritiro mirato, ricostruzione delle viste e
+   nessuna cattura di variabile. Stabilire la persistenza: riferimenti validi
+   soltanto nella sessione non vanno salvati come identità durevoli.
+
+**Done M1:** due regole semanticamente diverse non collassano; una stessa
+regola invocata due volte ha istanze indipendenti; nessuna clausola troppo
+grande è troncata e spacciata per completa. Questo è il primo pezzo da
+implementare, non il generatore di mondi ipotetici.
+
+**M2 — atti e provenienza strutturata nella ricerca comune.**
+
+1. Aggiungere identità delle occorrenze: stessa proposizione, due atti/fonti,
+   due ritrattazioni possibili. La deduplicazione del contenuto resta utile.
+2. Raccogliere il passo della prova nella stessa ricerca di `solve`, inclusi
+   regola, istanziazione e premesse usate. Il backtracking deve ritirare i
+   passi del ramo fallito o marcarli come tali, senza sporcare il vincente.
+3. Conservare alternative e dipendenze congiunte. Non enumerare ciecamente
+   tutte le prove ricorsive: cercare su richiesta, condividere sottoprove,
+   riferire se l'esplorazione è completa o incompleta.
+4. Trattare cache, builtin e `naf` esplicitamente. Il limite raggiunto deve
+   restare distinto da una ricerca conclusa senza prova. Non assumere che
+   una spiegazione testuale o una lista troncata costituiscano un certificato.
+
+**Done M2:** una prova interrogabile torna alla clausola e all'atto giusti;
+ritirare un sostegno lascia vive le vie indipendenti; l'ordine di inserimento
+dei fatti non determina il verdetto. Nessuna prova perde dipendenze perché
+una clausola è dichiarata `machinery`.
+
+**M3 — giudizio contestuale deciso dalla KB.**
+
+1. Collegare occorrenze, contesti e assunti. Riutilizzare `holds_in` come
+   vista compatibile; distinguere le letture «detto», «assunto», «derivato».
+2. La KB dichiara quali sostegni valgono per la richiesta. Cercare una prova
+   ammessa con backtracking, continuando dopo una prova dal mondo non
+   sufficiente. La policy deve partecipare alla ricerca senza un flag globale
+   che renda il resto della KB invisibile.
+3. Restituire separatamente prova ammessa, eventuale prova che richiede altri
+   assunti e stato di completezza. La resa nasce da `response_template` e
+   dalla policy epistemica, non dal ternario C `Yes/No`.
+4. Dichiarare un contesto di specie nuova a runtime e usarlo senza compilare.
+   Poi cambiare/ritirare una sua policy e verificare il cambiamento mirato.
+
+**Done M3:** il controesempio Zelvo resta positivo prima/dopo la lezione;
+con una premessa davvero mancante non si inventa l'implicazione. Due contesti
+opposti convivono e si possono confrontare; una citazione non diventa assioma.
+
+**M4 — collegare la IR e migrare UN lettore, `multi_sentence_syllogism`.**
+
+1. La lettura dichiarativa pura produce gli stessi contenuti per enunciato,
+   premessa e citazione. Gli span della IR individuano clausole e scope;
+   la KB decide l'atto. Non richiamare `mod_knowledge` per ottenere il
+   contenuto attraverso il suo effetto collaterale di asserzione.
+2. Collegare ogni assunzione allo span/origine che l'ha introdotta. Conservare
+   letture concorrenti e gap: una frase parzialmente letta non è premessa
+   completamente acquisita.
+3. Spostare il verdetto nella KB, usare il percorso M3 e togliere dal lettore
+   la divisione privata delle frasi, `P0PremiseSaid` e il confronto di stringhe
+   SOLO quando i loro consumatori sono migrati.
+4. Insegnare in lingua naturale una variante, provarla sulla stessa IR e
+   ritirarla. Il teacher non deve conoscere il nome di un predicato interno.
+5. Eseguire `make soft-test`, i test di sillogismo/entailment, context scope,
+   document claims e input universale. Separare rossi anteriori, nuovi e di
+   tempo; non alzare budget né ridurre la KB.
+
+**Done M4:** un solo circuito di lettura e inferenza regge le varianti della
+classe; il C del percorso migrato si accorcia. Pubblicare il bilancio
+`src/` e `kb/`. Un investimento iniziale in M1/M2 può aumentare il C: chiamarlo
+infrastruttura, non migrazione compiuta.
+
+**M5 — declinare, poi chiudere il debito.** Migrare gli altri lettori e soltanto
+allora rimuovere `kb_read_scope`, rinomina dei concetti e strati dedicati non
+più necessari. Distinguere i campi di persistenza dagli ambiti semantici.
+Applicare lo stesso circuito a generalizzazioni senza membri, dimostrazioni
+con scarico degli assunti, supposizioni annidate, finzioni e credenze
+attribuite. Una specie nuova deve richiedere conoscenza e non un motore C.
+
+### 7. Banco di accettazione: i casi che impediscono scorciatoie
+
+| prova | comportamento richiesto |
+|---|---|
+| Zelvo + conclusione già nota | la prova dalle premesse non sparisce |
+| invertire l'ordine di inserimento delle prove | stesso giudizio, spiegazioni eventualmente diverse |
+| regola diretta/inversa con stessi predicati | sostegni e applicazioni distinti |
+| P detto da due fonti; ritiro di una | resta il sostegno dell'altra |
+| due premesse necessarie; ritiro di una | cade QUELLA derivazione, non le alternative |
+| stesso predicato con e senza cache | stessa giustificazione semantica |
+| regola su una classe senza membri | regola discutibile e utilizzabile; nessun membro inventato |
+| P e ¬P nel contesto Alfa | conflitto locale; un Q estraneo non diventa provato |
+| citazione «P» dentro una confutazione | si conserva la menzione, non si attribuisce automaticamente la credenza P |
+| prova di Q sotto P | eventuale teorema P⇒Q conserva gli altri assunti; Q non migra al mondo |
+| due assunzioni annidate | chiudere l'interna non distrugge l'esterna; nessun `someone` globale |
+| nuova forma/nuova policy insegnata e ritirata | cambia solo la distinzione insegnata, senza ricompilare |
+| budget o rappresentazione insufficienti | incompleto esplicito, mai falso o «non implicato» per default |
+| conoscenza reale preesistente, es. `man(plato)` e `mortal(X) :- man(X)` | il ponte usa il profilo vivo e non una copia fabbricata nel test |
+
+Il banco meccanico e il banco di comprensione restano distinti. Il primo può
+usare classi inventate per isolare un meccanismo; il secondo deve leggere
+testi/prompt naturali e collegare conoscenze reali già presenti. Le prove in
+API non valgono come insegnamento naturale.
+
+### 8. Cosa NON fare e punto esatto di ripartenza
+
+- Non limitarsi a spostare `from_premises ? Yes : No` in una tabella: la
+  prova scelta sarebbe ancora sbagliata.
+- Non usare il primo supporto come se fosse l'unico e non usare la sua
+  assenza come negazione. Non unire tutte le alternative in un unico AND.
+- Non sostituire il flag di visibilità con un altro enum di generi di mondo.
+  Un contesto è un oggetto della KB, non un ramo del motore.
+- Non fare diventare l'ipotetico il quarto parser della stessa frase.
+- Non trasformare ogni fonte in una KB isolata; non duplicare manualmente i
+  fatti del profilo in un micro-mondo per far passare il banco.
+- Non chiamare un nuovo interprete del contenuto «comprensione universale»
+  prima che lo usino la IR e i turni naturali.
+
+**Prossima azione concreta: M1.** Leggere `src/kb.c` nelle sezioni `Term`,
+`Fact`, `Rule`, `rename_term`, `kb_fact`, `kb_rule`, `kb_rule_body`, `solve`,
+`prove_seq_ex`; ripetere la sonda; costruire il test strutturale prima della
+nuova porta riflessiva. Le prove su runtime growth devono essere aggiunte
+quando entra il primo comportamento nuovo. Le decisioni su binder, identità
+e persistenza vanno scritte qui prima di propagare uno schema nella KB.
+
+Il contratto di rappresentazione è riportato anche in
+[`parrot-p0-syntax.md`](../parrot-p0-syntax.md), nella sezione progettata, e
+il ciclo di insegnamento in [`LEARN_PROTOCOL.md`](../../LEARN_PROTOCOL.md).
+
+---
+
+## HANDOFF STORICO — 20 settembre 2026, notte: L'IPOTETICO SENZA UN SECONDO CERVELLO
 
 > **La premessa, nelle parole di F.** *Esiste un'evoluzione dell'astrazione
 > della KB che produca come effetto una gestione NATURALE di rappresentazioni

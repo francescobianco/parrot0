@@ -19,7 +19,8 @@
 7 Viste materializzate · 8 Provenienza e stato · 9 Lo strato di superficie
 (`turn_form`) · 10 Le risposte: template, `answer_content`, stadi · 11 Cue, classi e condotta
 · 12 Il tabellone e i contabili · 13 Pratiche di buona scrittura · 14 Diagnosi
-rapida · 15 Come si verifica.
+rapida · 15 Come si verifica · 16 Contenuti, contesti e prove (contratto
+progettato, non nuova sintassi eseguibile).
 
 ---
 
@@ -495,3 +496,97 @@ make soft-test                                                     # avanzamento
 ```
 
 La suite intera si lancia solo con l'approvazione di F. (`CLAUDE.md`).
+
+## 16. Contenuti, contesti e prove — contratto progettato (20 settembre 2026)
+
+**Stato: progetto, non implementazione.** Il piano autoritativo, la baseline
+e l'ordine M0–M5 sono nell'[HANDOFF della lettura della
+prosa](plans/lettura-della-prosa.md#handoff--20-settembre-2026-contenuti-atti-e-giudizi-sostenuti).
+Questa sezione impedisce di confondere il modello desiderato con ciò che il
+loader e il solver fanno oggi. Non aggiungere direttive o builtin operativi
+copiando nomi da questo progetto.
+
+### 16.1 Quello che la sintassi corrente esprime davvero
+
+```prolog
+% Esempi di rappresentazione, NON lezioni da promuovere nella KB viva.
+context(studio_alfa, hypothesis).
+holds_in(studio_alfa, proposition(frame(colore, roles(oggetto, bianco)))).
+```
+
+I termini composti sono dati unificabili. `holds_in/2` e le viste di
+`context-scope.p0` permettono di conservarli e interrogarli. **Inserire quel
+termine non esegue `colore(oggetto, bianco)`**, né realizza automaticamente un
+ragionamento contestuale. `context_parent/2` oggi alimenta la vista delle
+credenze ereditate: non va assunto come semantica universale dell'importazione
+di assiomi.
+
+Una regola nativa `p($X) :- q($X).` viene eseguita dal solver. Il testo di
+quella regola conservato in una stringa è invece testo. Non sono intercambiabili.
+`kb_rule/2` espone le teste e `kb_rule_body/2` i nomi dei predicati del corpo;
+non offrono ancora un'AST integrale della clausola da discutere o istanziare.
+
+**Variabile del solver ≠ variabile menzionata.** `$X` anche dentro un termine
+composto resta una variabile attiva. Un fatto che la contiene è una unit clause
+standardizzata a parte a ogni uso, non una citazione di una variabile chiamata
+X. Un futuro nodo come `variable(binder_id, posizione)` sarebbe un dato legato
+a un binder; non si istanzierebbe magicamente con l'unificazione corrente.
+Il ponte fra queste due rappresentazioni va progettato e testato in M1.
+
+### 16.2 Il contratto della rappresentazione da costruire
+
+La seguente è **notazione di progetto**, non grammatica `.p0`:
+
+```text
+Espressione  = operatore + argomenti ordinati + legami delle variabili
+Atto        = identità + espressione + contesto + forza + fonte/agente
+Giudizio    = contesto + espressione sostenuta
+Derivazione = giudizio concluso + regola + istanziazione + dipendenze
+```
+
+- Un contenuto ha identità indipendente dalle sue occorrenze. Due fonti
+  possono affermarlo e una sola ritrattarlo; deduplicare il contenuto non
+  autorizza a deduplicare gli atti.
+- Applicazione, congiunzione, implicazione, quantificazione e negazione
+  devono conservare la propria struttura. I quantificatori legano occorrenze
+  di variabili; i nomi degli individui non diventano testimoni per convenzione.
+- La stessa espressione può essere citata, assunta, negata o provata. La
+  citazione di P non implica P, né implica automaticamente che chi cita
+  creda P. La buona formazione di P non prova la sua verità o soddisfacibilità.
+- Gli assunti sono riferimenti. Un teorema conserva le dipendenze rimaste
+  dopo lo scarico delle assunzioni locali: chiudere lo scope non trasforma la
+  conclusione locale in fatto globale.
+- Le dipendenze di UNA derivazione sono congiunte; derivazioni distinte
+  dello stesso giudizio sono alternative. Non sostituire questo grafo con
+  una lista unica di nomi di predicati.
+- `naf` non è negazione esplicita. Il suo eventuale certificato deve portare
+  ambito e completezza della ricerca; una guardia non autorizza una negazione.
+
+Identità e archi consentono relazioni entro arità 4 e termini entro 512 byte.
+L'eventuale serializzazione deve segnalare un limite, mai troncare una formula
+o un certificato facendolo passare per intero. Le identità di clausola non
+possono essere indici mobili del vettore dei fatti. Va dichiarato se durano
+una sessione oppure sopravvivono al salvataggio e alla rilettura.
+
+### 16.3 Cosa NON certifica una prova oggi
+
+Misurato con `bash tests/probes/kb_abstraction_probe.sh` sul profilo completo:
+
+- `kb_prove_support` restituisce il sostegno della prima spiegazione; non
+  certifica che non esistano prove alternative ammissibili.
+- Le regole diretta e inversa con gli stessi predicati collassano nella
+  medesima riga testuale; il limite interno è di 24 sostegni.
+- `machinery/1` può togliere sostegni dalla rappresentazione. Una prova con
+  elenco vuoto non è per questo indipendente dalle conoscenze del mondo.
+- Ripetere un fatto sotto un'altra origine non crea una seconda occorrenza
+  interrogabile: il fatto già noto viene deduplicato.
+
+Perciò né il giornale né le righe di supporto correnti sono il formato da
+estendere a teoremi e citazioni. Servono come diagnostica della baseline.
+La nuova prova dovrà essere prodotta dalla ricerca che decide, conservare
+gli effetti del backtracking e distinguere completamento da interruzione.
+
+Prima implementare M1 (clausola integra e legami), poi M2 (atti e derivazioni),
+M3 (ammissibilità KB), M4 (producer IR e migrazione di un lettore). Ogni
+costrutto diventato eseguibile va spostato dalla descrizione progettata alla
+sezione operativa pertinente, con un test e un esempio realmente verificati.
