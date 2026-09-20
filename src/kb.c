@@ -3602,7 +3602,12 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         subst_copy(s2, s);
         if (unify(s2, g->args[2], list_buf)) {
             if (!S->recording) return solve(S, goals, ngoals, idx + 1, s2, depth);
-            proof_push_goal(S, &goal, "aggregate");   /* M2: l'insieme e' la dipendenza */
+            /* M2 — la dipendenza e' l'INSIEME delle soluzioni, e un insieme
+             * troncato non e' un insieme piu' piccolo. Se l'enumerazione e'
+             * stata tagliata la dipendenza lo dice con un altro nome, invece
+             * di far passare una ricerca interrotta per una conclusa. */
+            proof_push_goal(S, &goal, F.budget_hit ? "aggregate_incomplete"
+                                                   : "aggregate");
             int ok = solve(S, goals, ngoals, idx + 1, s2, depth);
             S->nproof--;
             return ok;

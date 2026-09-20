@@ -120,3 +120,49 @@
 !forget @hypothetical
 !query! abstraction_supposed(y)
 !query! content_act(content(abstraction_supposed, $P), hypothetical)
+
+[test a_cache_is_not_a_free_axiom]
+# Una vista materializzata congela le soluzioni di una regola. Il fatto
+# congelato e' conoscenza vecchia in forma veloce, non un assioma in piu':
+# la prova che ci poggia deve poterlo DIRE, non ereditarlo di nascosto.
+# (Nota: `content(Pred, $P)` con l'impronta libera nomina un PREDICATO, non un
+# contenuto — qui la regola e il fatto congelato sono due contenuti diversi
+# con la stessa testa, e i loro atti sono diversi.)
+!assert abstraction_base(x)
+!clause abstraction_cached($X) :- abstraction_base($X)
+!assert materialized_view(abstraction_cached, 1)
+!query abstraction_cached(x)
+!clause abstraction_frozen($Id) :- kb_clause($Id, app(abstraction_cached, cons(atom(x), nil)), 0, 0)
+!query abstraction_frozen($Id)
+!clause abstraction_cache_act(yes) :- abstraction_frozen($Id), content_act($Id, derived)
+!query abstraction_cache_act(yes)
+# il contenuto congelato non si spaccia per una cosa detta
+!clause abstraction_cache_not_said(yes) :- abstraction_frozen($Id), naf(content_act($Id, session))
+!query abstraction_cache_not_said(yes)
+# e la regola da cui viene, che e' un altro contenuto, invece e' stata detta
+!clause abstraction_rule_said(yes) :- kb_clause($Id, app(abstraction_cached, cons(var(0), nil)), 0, 1), content_act($Id, session)
+!query abstraction_rule_said(yes)
+# la prova che poggia sulla cache lo sa dire di se'
+!clause abstraction_cache_seen(yes) :- kb_derivation($D, abstraction_cached(x), 0, $N), derivation_rests_on_cache($D)
+!query abstraction_cache_seen(yes)
+
+[test the_dependency_set_says_what_must_hold_not_how_often]
+# Una catena a->b->c->d usa la regola transitiva DUE volte. L'insieme delle
+# dipendenze risponde a «che cosa deve valere perche' la prova stia in piedi»,
+# non a «quanti passi ha fatto»: la stessa clausola usata due volte e' una
+# dipendenza sola, perche' ritirarla fa cadere la prova una volta sola.
+# E' una proprieta' DICHIARATA della rappresentazione, non un proof-tree
+# mancato: l'albero completo dei passi sarebbe un'altra cosa, e si chiedera'
+# quando qualcuno ne avra' bisogno.
+!assert abstraction_link(a, b)
+!assert abstraction_link(b, c)
+!assert abstraction_link(c, d)
+!clause abstraction_reach($X, $Y) :- abstraction_link($X, $Y)
+!clause abstraction_reach($X, $Y) :- abstraction_link($X, $Z), abstraction_reach($Z, $Y)
+# due regole + tre archi = cinque dipendenze, non sei
+!query kb_derivation($D, abstraction_reach(a, d), 0, 5)
+!query! kb_derivation($D, abstraction_reach(a, d), 0, 6)
+# e ritirare UN arco fa cadere quella prova
+!forget abstraction_link(b, c)
+!query! derivation_of(abstraction_reach(a, d), $D)
+!query derivation_of(abstraction_reach(a, b), $D)

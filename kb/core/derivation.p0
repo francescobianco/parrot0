@@ -44,3 +44,12 @@ derivation_alternative($Goal, $D1, $D2) :-
 
 % La prova nomina il predicato su cui poggia: e' l'identita' a dirlo.
 derivation_rests_on($D, $Pred) :- derivation_depends_on($D, content($Pred, $Print)).
+
+% Una prova puo' poggiare su un fatto CONGELATO da una vista: non e' un assioma
+% in piu', e' conoscenza vecchia in forma veloce. L'atto lo dice, e la prova
+% puo' dirlo di se' — senza che il motore debba nasconderlo o fingerlo.
+derivation_rests_on_cache($D) :-
+    derivation_depends_on($D, $Id), content_act($Id, derived).
+% Un insieme troncato non e' un insieme piu' piccolo: la dipendenza lo dichiara.
+derivation_needs_cut_aggregate($D, $G) :-
+    derivation_depends_on($D, aggregate_incomplete($G)).
