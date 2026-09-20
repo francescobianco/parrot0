@@ -67,3 +67,7 @@ react(sodium, water).
 input_entity_cached(current_turn, en, ent(6, 2, goes_both_ways)).
 input_entities_observed(current_turn, en).
 symmetric_relation(react).
+city(milan).
+city(naples).
+city(turin).
+city(rome).

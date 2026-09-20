@@ -7424,12 +7424,19 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *fa = &kb->facts[i];
         if (!(fa->origin & KB_SESSION) || fa->argc == 0) continue;   /* gen505c */
-        if (sm_is_turn_scratch(kb, fa->pred)) { routed[i] = 1; continue; }
+        if (sm_is_turn_scratch(kb, fa->pred)) { routed[i] = 1;
+            if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s/%zu: turn_scratch\n", fa->pred, fa->argc);
+            continue; }
         const char *file = NULL; int line = 0;
-        if (!smap_home(kb, fa->pred, fa->args[0], &file, &line)) continue;
+        if (!smap_home(kb, fa->pred, fa->args[0], &file, &line)) {
+            if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s(%s): nessuna casa\n", fa->pred, fa->args[0]);
+            continue; }
         char text[2048];
         sm_fact_text(fa, text, sizeof text);
-        if (!sm_insert(file, line, text)) continue;
+        if (!sm_insert(file, line, text)) {
+            if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s(%s): casa %s:%d, insert FALLITA\n", fa->pred, fa->args[0], file, line);
+            continue; }
+        if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s(%s) -> %s:%d\n", fa->pred, fa->args[0], file, line);
         routed[i] = 1; count++;
         if (!sm_same_file(file, default_path)) sml_push(&homed, text);
     }

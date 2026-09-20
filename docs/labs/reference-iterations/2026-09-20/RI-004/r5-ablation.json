@@ -1,0 +1,17 @@
+{
+ "seconds": 6.29,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@2451c96d]\nmode: agent (tools on, network off) - 156909 facts, 4989 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "forget that bologna is a city",
+   "answer": "Forgotten: city(bologna)."
+  },
+  {
+   "turn": 2,
+   "prompt": "/save",
+   "answer": "parrot0: routed 3 clause(s) into the KB tree"
+  }
+ ]
+}

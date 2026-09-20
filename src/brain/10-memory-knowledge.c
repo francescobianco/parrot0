@@ -7897,6 +7897,22 @@ static int extract_class_statement(Brain *b, const char *norm,
                 continue;
             }
         }
+        /* ── RI-004 — UNA LEZIONE SI SCRIVE NELLO STRATO DELLA SESSIONE ───
+         *
+         * `KB_REFLECTIVE` e' il MODELLO DI SE' (`i_am`, `module`, le sonde di
+         * /debug): kb.h lo dice — «never persisted». Questo lettore asseriva
+         * la classe insegnata con l'origine che si trovava addosso, e quando
+         * il turno arrivava qui da dentro un blocco riflessivo la lezione
+         * finiva li': «Learned: verona is a city.» e poi, al `/save`,
+         * `routed 6` con cinque clausole scritte e la SESTA — il fatto —
+         * scomparsa. Misurato: `grep -rn "^city(" kb/` rendeva zero dopo
+         * quattro lezioni di classe accettate.
+         *
+         * Non e' una politica nuova: e' quella di `mod_mention`, poco piu'
+         * sopra, che per lo stesso atto fissa `KB_SESSION` e poi ripristina.
+         * Qui mancava, e la differenza non si vedeva nel turno — solo dopo. */
+        int prev_origin_cls = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_SESSION);
         p0_note_class_surface(b, classes[i]);   /* gen505 */
         if (kb_query(b->kb, classes[i], ca, 1)) {   /* kb_assert e' idempotente: si chiede prima */
             char one[192];
@@ -7924,6 +7940,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                                        any ? ", " : "", classes[i], subj);
             any = 1;
         }
+        kb_set_origin(b->kb, prev_origin_cls);
     }
     if (loc) {
         const char *la[] = { subj, obj };
@@ -24137,8 +24154,28 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
         note_contradiction(b, cls, subj, 1); /* gen142 (E8): self-contradiction? */
+        /* ── RI-004 — UNA LEZIONE SI SCRIVE NELLO STRATO DELLA SESSIONE ───
+         *
+         * `KB_REFLECTIVE` e' il modello di se' (`i_am`, `module`, le sonde di
+         * /debug) e kb.h lo dice: «never persisted». Questo lettore asseriva
+         * la classe insegnata con l'origine che si trovava addosso, e il turno
+         * arriva qui da dentro una finestra riflessiva: la lezione nasceva
+         * gia' non salvabile. Misurato: «Verona is a city.» rispondeva
+         * «Learned», `/save` diceva `routed 6` e scriveva CINQUE clausole —
+         * provenienza, menzione e battute — mentre il fatto spariva;
+         * `grep -rn "^city(" kb/` rendeva zero dopo quattro lezioni accettate.
+         * Il maestro non poteva accorgersene: il turno diceva di sì.
+         *
+         * Non e' una politica nuova, e' quella che `mod_mention` applica allo
+         * stesso atto: si fissa `KB_SESSION` per la scrittura e si ripristina.
+         * Chi deve restare riflessivo (le sonde, il pid, la lingua del giro)
+         * continua a dichiararlo nel punto in cui nasce. */
+        int prev_origin_lesson = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_SESSION);
         p0_note_class_surface(b, cls);   /* gen505 */
-        if (kb_assert(b->kb, cls, args, 1)) {
+        int asserted_cls = kb_assert(b->kb, cls, args, 1);
+        kb_set_origin(b->kb, prev_origin_lesson);
+        if (asserted_cls) {
             p0_learn_source(b, cls, args, 1, norm);   /* M1: provenance */
             char msg[192];
             p0_say_class(b, cls, subj, msg, sizeof msg);

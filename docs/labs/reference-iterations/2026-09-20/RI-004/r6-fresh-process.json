@@ -1,0 +1,37 @@
+{
+ "seconds": 9.77,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@2451c96d]\nmode: agent (tools on, network off) - 156903 facts, 4989 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Tell me a city in Italy.",
+   "answer": "Milan."
+  },
+  {
+   "turn": 2,
+   "prompt": "Tell me a city in Italy, but do not mention Milan.",
+   "answer": "Naples."
+  },
+  {
+   "turn": 3,
+   "prompt": "Is Milan a city?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 4,
+   "prompt": "Tell me a country in Asia, but do not mention China.",
+   "answer": "India."
+  },
+  {
+   "turn": 5,
+   "prompt": "Did Plato teach Aristotle?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 6,
+   "prompt": "Which sea does the Salzach flow into?",
+   "answer": "black sea."
+  }
+ ]
+}
