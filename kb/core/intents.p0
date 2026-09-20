@@ -6394,3 +6394,23 @@ faculty_yield(discourse, open, text_summary_request).
 % additivo per costruzione), e una forza in piu' e' una riga, non una patch.
 faculty_force(arith, question).
 faculty_force(arith, directive).
+
+% 20 settembre 2026 — IL FRASARIO CEDE ALLA LETTURA.
+% Misurato: su r300, 42 risposte giuste su 52 venivano da `answerframe` — una
+% pretesa su una cue, provata sulla superficie del valore — e 10 da un circuito
+% che compone la risposta dalla IR del testo. La conoscenza per rispondere
+% meglio c'era gia': alla domanda «what are shallow coral reefs sometimes
+% called?» la lettura aveva registrato il complemento «of the sea» e il
+% frasario rispondeva «Rainforests.». Finche' il frasario prende il turno per
+% primo, ogni riga di lessico in piu' alza il conteggio e lascia il
+% coefficiente dov'e'.
+% Non e' una cue: e' un fatto del turno, e si chiede alla lettura.
+% ⚠ NESSUNA POLITICA, ANCORA, E IL MOTIVO E' MISURATO. Le due righe
+%   faculty_yield_when(answer_frame, open, ir_reading_answer).
+%   faculty_yield_when(answer_frame, open, ir_membership_answer).
+% sono state scritte, misurate e TOLTE: con esse r300 resta 45/62 e il
+% coefficiente 19%, identici. Il motivo e' che il frasario non sta rubando un
+% turno a una lettura disponibile — la lettura per quelle domande NON ESISTE:
+% 12 frasi su 16 del piolo r300 non producono nessun frame. Far cedere il
+% frasario prima che la lettura copra il testo toglierebbe risposte senza
+% darne. La porta resta pronta per quando la copertura sale.

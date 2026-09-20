@@ -344,3 +344,39 @@ un modulo cambia natura.
 sessione lascia di più utile sulla scala di F.: r300 dà 45 risposte nel merito,
 e la colonna dei moduli dice da dove vengono. Contarle è un `awk`, e diventa il
 numero che sostituisce la stima «12–15».
+
+### Il tetto, misurato: non è chi risponde, è quanto viene letto
+
+Tre tentativi di alzare il coefficiente, tre misure, tutte nulle. Vale la pena
+riportarli perché la conclusione vale più di un guadagno:
+
+| tentativo | ipotesi | misura |
+|---|---|---|
+| composizione del complemento su `ir_reading_answer` | la resa butta ciò che la lettura ha letto | r300 invariato: `answerframe` prende il turno prima — **regola ritirata** |
+| `faculty_yield_when(answer_frame, …, ir_reading_answer)` | il frasario ruba il turno a una lettura disponibile | 45/62, 19% — **identico** |
+| renderer della classe (`ir_membership_answer`) | una lettura di `membership` esisteva senza voce | 45/62, 19% — **identico**, ma la voce ora c'è e si vede rispondere |
+
+**Perché nessuna sposta il numero.** Contate le frasi del piolo r300, una per
+una, con l'ispettore addosso:
+
+```text
+debug_frame_record — niente  →  12 frasi su 16
+```
+
+**Tre quarti del testo non vengono letti in nessuna struttura.** Il frasario
+non sta rubando il turno a una lettura disponibile: per quelle domande la
+lettura *non esiste*. Far cedere `answerframe` prima che la copertura salga
+toglierebbe risposte senza darne — ed è esattamente quello che la misura dice.
+
+**Ne segue l'ordine vero del lavoro, e non è quello che sembrava.** Il passo
+che alza il coefficiente non è la condotta (chi risponde) né il lessico (quante
+parole si conoscono): è la **copertura della lettura** — quante frasi di prosa
+reale diventano frame. Da 4 su 16 in su, ogni frase letta in più è una domanda
+che può essere risposta da una lettura invece che da una cue.
+
+Restano in albero, perché chiudono buchi reali e si sono viste funzionare:
+`faculty_yield_when/3` (la condotta può ora dipendere da una lettura e non solo
+da una cue di superficie — la porta è pronta per quando la copertura sale) e
+`ir_membership_answer/2` (una lettura che esisteva senza voce). La politica che
+le userebbe è stata scritta, misurata e **tolta**: una regola che non sposta la
+misura non resta in albero, e il commento in `kb/core/intents.p0` dice perché.

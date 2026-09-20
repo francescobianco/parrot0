@@ -1304,6 +1304,42 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
     free(classes);
     if (yield) { p0_yield_note(b, "turn_yield_outcome", faculty); return 1; }
 
+    /* 20 settembre 2026 — LA CESSIONE PUO' DIPENDERE DA UNA LETTURA, NON SOLO
+     * DA UNA CUE.
+     *
+     * `faculty_yield/3` nomina una classe di SUPERFICIE, e basta finche' la
+     * condotta si decide dalle parole del turno. Ma la condotta che alza la
+     * comprensione della prosa e' un'altra — «cedi se la IR di questo turno ha
+     * gia' una risposta» — e quella non e' una cue: e' un fatto del turno.
+     * Misurato: alla domanda «what are shallow coral reefs sometimes called?»
+     * la lettura aveva registrato il complemento («of the sea») e a rispondere
+     * era il frasario, che lo butta.
+     *
+     * `faculty_yield_when(Facolta', Stadio, Predicato)` interroga il PREDICATO
+     * con il turno corrente. Il C non sa che cosa significhi — lo chiede — e
+     * una condotta nuova resta una riga di KB. */
+    if (!yield) {
+        char (*preds)[KB_TERM_LEN] = NULL; size_t np = 0;
+        const char *wq[3] = { faculty, stage, NULL };
+        if (kb_match_all(b->kb, "faculty_yield_when", wq, 3, &preds, &np)) {
+            for (size_t i = 0; i < np && !yield; i++) {
+                char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", preds[i]);
+                const char *pred = kb_dequote(pb);
+                const char *tq[2] = { "current_turn", NULL };
+                char row[1][KB_TERM_LEN];
+                if (kb_match(b->kb, pred, tq, 2, row, 1) > 0) yield = 1;
+                if (b->kb && kb_profile_on(b->kb)) {
+                    char line[KB_TERM_LEN];
+                    snprintf(line, sizeof line, "%s reading=%s", pred,
+                             yield ? "HIT" : "miss");
+                    p0_yield_note(b, "turn_yield_probe", line);
+                }
+            }
+        }
+        free(preds);
+        if (yield) { p0_yield_note(b, "turn_yield_outcome", faculty); return 1; }
+    }
+
     /* ⛔ gen502 — LA CESSIONE CONGIUNTA LEGGEVA MEZZO TURNO.
      *
      * `faculty_yield/3` qui sopra prova `norm` E `raw`, perche' — dice il

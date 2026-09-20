@@ -1178,3 +1178,20 @@ turn_response($Turn, $Text) :-
     input_answer_surface_list($Language, $Values, $Surfaces),
     input_answer_list_text($Language, $Surfaces, $Surface),
     value_statement($Language, $Surface, $Text).
+
+% 20 settembre 2026 — LA LETTURA DI CLASSE AVEVA UNA LETTURA E NESSUNA VOCE.
+%
+% `input_frame_reading(.., membership(R), class, C)` esiste dal giorno in cui
+% la lettura ha imparato l'appartenenza, e nessuna regola la rendeva in
+% risposta: c'erano il renderer di `binary`, quello di `binary_pp` e quello del
+% complemento, non quello della classe. La domanda «what is X?» sul testo
+% veniva quindi presa dal frasario anche quando la lettura sapeva rispondere.
+% Misurato sul piolo r300: 42 risposte giuste su 52 venivano da `answerframe`,
+% 10 da un circuito di lettura — e la scala di F. conta DA CHE COSA vengono.
+machinery(ir_membership_answer).
+ir_membership_answer($Turn, $Text) :-
+    input_frame_reading_unique($Turn, membership($Relation), class, $Class),
+    naf(ir_question_qualified($Turn)),
+    atom_words($Class, $Ws), words_join($Ws, $Name),
+    upcase_first($Name, $Cap), concat_atoms($Cap, ".", $Text).
+turn_response($Turn, $Text) :- ir_membership_answer($Turn, $Text).
