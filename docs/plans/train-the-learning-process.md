@@ -21,6 +21,36 @@ della giornata, con le misure: **30 contato** dal censimento (§4.5-bis) → 50
 (pavimento risalito, condotta insegnabile) → 60–65 (la lettura estensibile
 parlando).
 
+### Lo stato del PIANO, sezione per sezione
+
+**L'ordine di lavoro del §6** — ogni riga è la condizione della successiva, e
+questa è la colonna che dice a che punto è:
+
+| § | passo | stato |
+|---|---|---|
+| 6.1 | **guarire il canale prima di allargarlo** | ✅ **fatto** — chiusi i tre guasti dichiarati, più due trovati misurando: una policy incompleta accettata che rompeva il turno dopo, e la cessione decisa prima che le forme fossero tentate |
+| 6.2 | **il pavimento: nessuna lezione riceve un muro cieco** | ⚠️ **a metà** — declino informato su una forma di condotta (T2); una lezione incompleta ora declina invece di asserire in silenzio; la redirezione «"X" is another way to say "Y"» funziona. Ma il pavimento misurato è **3 esiti onesti su 5**, non 5 |
+| 6.3 | **L4 — la condotta diventa dicibile** | ✅ **fatto** — `conduct-lessons.p0`: la guardia di pertinenza si insegna, trasferisce alla classe, si ritira |
+| 6.4 | **L5/S2 — una lezione che crea una forma di lezione** | ⚠️ **aperto a metà** — una lezione crea ora la **categoria** che un'altra lezione riempie (il genere di lettura), che è A3 su un pezzo della lettura; una lezione che crea una **forma** resta il gradino S2 |
+| 6.5 | **la IR consumata invece che riscansionata** | ⛔ **aperto, con un approccio escluso da una misura** (sotto) |
+| 6.6 | **il mondo allargato estensibile** | ⛔ non toccato — è **F1** di [`the-rational-philosopher.md`](the-rational-philosopher.md) |
+| 6.7 | **la tripletta di accettazione** | ⛔ non iniziata |
+
+**Le bande del §4.3:**
+
+| banda | stato |
+|---|---|
+| 1–15 fatti · 16–30 superfici | ✅ con il pavimento **appena** sopra la sua soglia (maggioranza, non totalità) |
+| 31–45 procedure e classi | ✅ `V is W followed by Z` regge la catena: **L3 × A2** |
+| 46–60 condotta | ✅ l'àncora — *si insegnano **e** si ritirano* — è dimostrata |
+| **61–75 la lettura** | ⚠️ **prima clausola sì** (un genere nuovo costa una lezione), **seconda no** (349 riscansioni, erano 217) |
+| 76–90 mondo allargato + A3 | ⛔ |
+| 91–100 la tripletta | ⛔ |
+
+**I cinque TODO prioritari** (§ subito sotto) sono tutti chiusi: T1, T2, T3 e
+T4 verdi; T5 chiusa come **misura** e non come cura — il costo di `soft-test`
+è attribuito al boot (5,7 s), non al banco.
+
 ### Che cosa è vero adesso, e come si verifica in un minuto
 
 ```sh
