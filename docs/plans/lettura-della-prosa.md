@@ -5,27 +5,62 @@
 **Richiesta attiva di F.:** evolvere l'astrazione comune di KB e IR per pensare
 premesse, teoremi, generalizzazioni, classi senza membri, finzioni, citazioni e
 contenuti incoerenti, riducendo i lettori speciali in C. È autorizzata una
-revisione profonda, se motivata. L'ultima richiesta è preparare questo
-passaggio di consegne per un altro agente, conservando piano e ragionamento.
+revisione profonda, se motivata. Conservare piano e ragionamento per chi
+continua.
 
-**Consegna di questa sessione:** piano M0–M5 e framework cognitivo nei tre
-documenti richiesti; sonda eseguibile nei due file
-`tests/probes/kb_abstraction_probe.{c,sh}`. **Nessuna modifica a `src/` o `kb/`;
-M0 conclusa, M1–M5 da implementare.** Le modifiche sono nel working tree, non
-committate. Non descrivere il nuovo framework come capacità già disponibile.
+**Stato: M0 e M1 concluse, M2–M5 da implementare.** Non descrivere M2–M5 come
+capacità già disponibili.
+
+**Consegna M1 (20 settembre 2026, sera) — la clausola è un contenuto integro
+e identificabile:**
+
+- `src/kb.c`, `clause_reflect`: **una** porta, `kb_clause(Id, Head, 0, N)` /
+  `kb_clause(Id, Head, I, Premessa)`. Variabili reificate `var(N)` per prima
+  occorrenza (alfa-invarianti), fatti negativi con testa `not(F)`, `naf(G)`
+  conservato, `Id` = impronta FNV-64 del contenuto canonico intero
+  (`content_…`), ricalcolata a ogni lettura e mai salvata. Il corpo è dato per
+  archi e non per lista, perché misurato: venti regole di lettura vive
+  (`input_semantic_frame`, `event_*`, `food_time_answer`, …) hanno un corpo che
+  non entra in un termine; un pezzo che non entra si dichiara `overflow(pred)`.
+- `kb/core/clause-content.p0`: le facce nominabili (`clause_head`,
+  `clause_premise`, `clause_is_fact`/`clause_is_rule`, `clause_denies`,
+  `clause_*_overflows`, `clause_said_twice`).
+- `tests/p0t/reasoning/clause_content.p0t`: 25 assert verdi — diretta/inversa,
+  argomento ripetuto/distinto, alfa-rinominate = un contenuto, polarità,
+  ritiro mirato, una regola vera della KB letta per archi. `make soft-test`
+  verde in 8 s. Suite intera non lanciata.
+- Sonda: `bash tests/probes/kb_abstraction_probe.sh` stampa ora «M1 kb_clause
+  contents for abstraction_path: 2» con le due premesse distinte; il giornale
+  e `kb_prove_support` collassano ancora, ed è il lavoro di M2. Misura:
+  155.467 fatti / 4.850 regole.
+
+**Bilancio C/KB di M1:** +258 righe in `src/kb.c` (serializzazione canonica,
+identità, enumerazione sui bucket: meccanica, nessun nome di dominio), +42
+righe di KB, +1 test. È infrastruttura, non migrazione: `kb_rule/2` e
+`kb_rule_body/2` restano per i loro consumer in `epistemic-status.p0`.
+Perché è C e non conoscenza: la KB non può vedere argomenti e legami di un
+corpo che nessuna porta le mostra; questa è la porta riflessiva esistente
+(`kb_fact`, `kb_rule`, `kb_rule_body`) portata fino in fondo, non una nuova.
+Obiezione di F. del 20 settembre («l'ennesima porta»): tre nomi ridotti a
+uno; l'istanza fresca e la forma a lista non sono state implementate perché
+senza consumer, e l'istanza di esecuzione la fa già il risolutore.
+
+**Scelte fissate in M1, da non riaprire senza motivo misurato:** binder =
+chiusura universale della clausola; identità = contenuto, non occorrenza;
+persistenza = nessuna (l'Id si ricalcola). Con la sola Id legata la porta
+enumera e confronta: un indice per Id si aggiunge quando costa davvero.
 
 **Scoperta da non perdere:** sulla KB completa, il sillogismo Zelvo risponde
 `Yes`; insegnando separatamente la conclusione risponde `No`; ritirando il
 solo fatto aggiunto torna `Yes`. Il sistema giudica la prima prova trovata e
-non cerca quella ammissibile dalle premesse. Anche regole dirette e inverse
-collassano nello stesso sostegno testuale. L'HANDOFF della notte sovrastimava
-la migrazione: `kb_read_scope` ha ancora consumatori vivi.
+non cerca quella ammissibile dalle premesse. `kb_read_scope` ha ancora
+consumatori vivi.
 
 **Ipotesi da sviluppare:** distinguere **contenuto, atto, contesto, giudizio e
-derivazione**. Contenuti con variabili legate; atti distinti sullo stesso
-contenuto; prove con dipendenze congiunte e alternative; validità/commitment
-decisi dalla KB. Non un altro contenitore di fatti, non un flag che nasconde
-il mondo, non un secondo parser o solver.
+derivazione**. Contenuti con variabili legate (fatto in M1); atti distinti
+sullo stesso contenuto; prove con dipendenze congiunte e alternative;
+validità/commitment decisi dalla KB. Non un altro contenitore di fatti, non un
+flag che nasconde il mondo, non un secondo parser o solver.
 
 **Ripartenza, in ordine:**
 
@@ -33,19 +68,17 @@ il mondo, non un secondo parser o solver.
    [piano dettagliato qui sotto](#handoff--20-settembre-2026-contenuti-atti-e-giudizi-sostenuti).
 2. Leggere [sintassi §16](../parrot-p0-syntax.md#16-contenuti-contesti-e-prove--contratto-progettato-20-settembre-2026)
    e [protocollo §1-bis](../../LEARN_PROTOCOL.md#1-bis-insegnare-nel-mondo-allargato--framework-cognitivo-20-settembre-2026).
-   Sono contratti progettati, non nuove API già eseguibili.
-3. Eseguire `bash tests/probes/kb_abstraction_probe.sh` dalla radice. Ultima
-   misura: **155.467 fatti / 4.841 regole**, profilo agi completo, zero parse
-   error. La sonda non salva e non è un golden che rende verdi i difetti.
-4. **Implementare M1 per prima:** test di clausole dirette/inverse, legami e
-   variabili fresche; riuso del motore esistente; riflessione integrale della
-   clausola soltanto dove manca. Fissare identità e durata dei riferimenti.
-5. Seguire le condizioni di riuscita M1–M5 sotto. Aggiornare questo HANDOFF
-   con la prima consegna realmente conclusa e il bilancio C/KB.
-
-Build e sonda sono riuscite. La suite non è stata rilanciata per questa
-consegna di documentazione e diagnostica. Il motore presenta ancora il difetto
-misurato: **nessun fix è implicito nel piano**.
+   Solo `kb_clause/4` è eseguibile; il resto è contratto progettato.
+3. Eseguire `bash tests/probes/kb_abstraction_probe.sh` dalla radice e
+   `./bin/parrot0 --test tests/p0t/reasoning/clause_content.p0t`. Dopo ogni
+   `make build` rilanciare `make test-engine`: `--test` interroga il demone in
+   piedi, e un demone vecchio dà rossi che sembrano del codice nuovo.
+4. **Implementare M2:** identità delle occorrenze (atti) sullo stesso
+   contenuto — `clause_said_twice` mostra il seme —, passo della prova raccolto
+   nella stessa ricerca di `solve`, AND fra passi / OR fra derivazioni.
+   Partire dal controesempio Zelvo e dal collasso del giornale.
+5. Seguire le condizioni di riuscita M2–M5 sotto. Aggiornare questo HANDOFF
+   con la consegna conclusa e il bilancio C/KB.
 
 ---
 
@@ -342,6 +375,14 @@ con file, comando e risultato. Non saltare M1 per aggiungere frasi di risposta.
 regola invocata due volte ha istanze indipendenti; nessuna clausola troppo
 grande è troncata e spacciata per completa. Questo è il primo pezzo da
 implementare, non il generatore di mondi ipotetici.
+**Consegna M1, 20 settembre 2026 (sera):** fatta e verificata — vedi l'HANDOFF
+IMMEDIATO in testa al file per file, comandi, numeri e bilancio C/KB. In
+sintesi: `kb_clause/4` in `src/kb.c`, facce in `kb/core/clause-content.p0`,
+25 assert in `tests/p0t/reasoning/clause_content.p0t`. Tre scelte fissate:
+`var(N)` con la clausola come binder; Id = impronta del contenuto, alfa-
+invariante, mai salvata; corpo per archi perché venti regole di lettura vive
+non entrano in un termine. Non implementate, perché senza consumer: istanza
+fresca e forma a lista.
 
 **M2 — atti e provenienza strutturata nella ricerca comune.**
 

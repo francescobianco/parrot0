@@ -1258,6 +1258,7 @@ machinery(sides).
 :- include(language-observation.p0).
 :- include(self-ability.p0).
 :- include(input-structure.p0).
+:- include(clause-content.p0).
 :- include(document-structure.p0).
 :- include(document-claims.p0).
 :- include(document-argument.p0).

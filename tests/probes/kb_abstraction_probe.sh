@@ -10,7 +10,7 @@ for object in obj/*.o; do
     [[ "$object" == obj/main.o ]] || objects+=("$object")
 done
 curl_libs=()
-if nm -u obj/*.o | rg ' U curl_' > /dev/null; then
+if nm -u obj/*.o | grep ' U curl_' > /dev/null; then   # no -q: pipefail + SIGPIPE
     curl_libs=(-l:libcurl.so.4)
 fi
 "${CC:-cc}" -std=c11 -Wall -Wextra -Wpedantic -O2 -Isrc \

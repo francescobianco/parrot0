@@ -1,0 +1,73 @@
+# M1 — la clausola come contenuto integro (docs/plans/lettura-della-prosa.md,
+# HANDOFF «contenuti, atti e giudizi», 20 settembre 2026).
+#
+# Prima di questo file la KB vedeva di una regola la testa (kb_rule/2) e i NOMI
+# dei predicati del corpo (kb_rule_body/2): `path(X,Y) :- edge(X,Y)` e
+# `path(X,Y) :- edge(Y,X)` erano indistinguibili, e la sonda
+# tests/probes/kb_abstraction_probe.sh li vedeva collassare nello stesso
+# sostegno. Qui la clausola e' un dato intero: kb_clause(Id, Head, I, Premise).
+#
+# I nomi abstraction_* sono inventati e provano SOLO la meccanica della
+# rappresentazione (MANTRA: un test non inventa la conoscenza che dichiara di
+# scoprire). L'ultimo blocco legge una clausola VERA della KB viva.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!reset
+
+[test direct_and_inverse_rules_are_two_contents]
+!clause abstraction_path($X, $Y) :- abstraction_edge($X, $Y)
+!clause abstraction_path($X, $Y) :- abstraction_edge($Y, $X)
+!query kb_clause($I, abstraction_path(var(0), var(1)), 0, 1)
+!query kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(0), var(1)))
+!query kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(0)))
+!query! kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(1)))
+# due contenuti, due Id: la stessa testa con premesse diverse non e' la stessa clausola
+!clause abstraction_two_ids(yes) :- kb_clause($A, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(0), var(1))), kb_clause($B, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(0))), dif($A, $B)
+!query abstraction_two_ids(yes)
+
+[test repeated_argument_differs_from_distinct]
+!clause abstraction_same($X, $X) :- abstraction_thing($X)
+!clause abstraction_pair($X, $Y) :- abstraction_thing($X), abstraction_thing($Y)
+!query kb_clause($I, abstraction_same(var(0), var(0)), 1, abstraction_thing(var(0)))
+!query! kb_clause($I, abstraction_same(var(0), var(1)), $J, $G)
+!query kb_clause($I, abstraction_pair(var(0), var(1)), 0, 2)
+!query kb_clause($I, abstraction_pair(var(0), var(1)), 2, abstraction_thing(var(1)))
+!query clause_premise_count($I, 2)
+
+[test alpha_renamed_spellings_share_one_content]
+# le variabili sono legami, non nomi: $Q/$R e $A/$B scrivono la stessa clausola
+!clause abstraction_alpha($Q, $R) :- abstraction_edge($Q, $R)
+!clause abstraction_alpha($A, $B) :- abstraction_edge($A, $B)
+!query clause_said_twice(abstraction_alpha(var(0), var(1)))
+!query! clause_said_twice(abstraction_path(var(0), var(1)))
+
+[test polarity_is_content]
+# P su x e non-P su y: parrot0 rifiuta di tenere P e non-P sullo STESSO
+# contenuto, e il test non chiede una contraddizione
+!assert abstraction_flag(x)
+!clause not(abstraction_flag(y))
+!query kb_clause($I, abstraction_flag(x), 0, 0)
+!query kb_clause($I, not(abstraction_flag(y)), 0, 0)
+!query clause_denies($I, abstraction_flag(y))
+!query clause_is_fact($I)
+!clause abstraction_lonely($X) :- abstraction_thing($X), naf(abstraction_edge($X, $Other))
+!query kb_clause($I, abstraction_lonely(var(0)), 2, naf(abstraction_edge(var(0), var(1))))
+!query clause_is_rule($I)
+
+[test identity_survives_a_retract]
+# l'Id e' del contenuto, non della riga: togliere un fatto non sposta nulla
+!forget abstraction_flag(x)
+!query! kb_clause($I, abstraction_flag(x), 0, 0)
+!query kb_clause($I, not(abstraction_flag(y)), 0, 0)
+!query kb_clause($I, abstraction_path(var(0), var(1)), 1, abstraction_edge(var(1), var(0)))
+
+[test a_live_reading_rule_is_readable_whole]
+# una regola VERA della KB: la lettura dichiarativa di una domanda binaria.
+# La sua lista di premesse non entra in un termine (misurato: venti regole di
+# lettura sono cosi'), e per archi si legge intera lo stesso.
+!query kb_clause($I, input_semantic_frame(var(0), question, binary(var(1)), roles(subject(missing), object(var(2)))), 0, $N)
+!query kb_clause($I, input_semantic_frame(var(0), question, binary(var(1)), roles(subject(missing), object(var(2)))), 1, $First)
+!query clause_is_rule($I)
+!query! clause_head_overflows($I, input_semantic_frame)

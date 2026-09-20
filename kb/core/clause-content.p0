@@ -1,0 +1,41 @@
+% clause-content.p0 — la clausola come contenuto integro (M1, 20 settembre 2026)
+%
+% docs/plans/lettura-della-prosa.md, HANDOFF «contenuti, atti e giudizi»: il
+% primo pezzo che mancava era poter DISCUTERE una clausola — fatto, regola,
+% negazione — come un dato intero, con i suoi legami e la sua polarita', e
+% con un'identita' che non sia la riga di un vettore. Il motore la espone con
+% una porta sola (src/kb.c, clause_reflect):
+%
+%   kb_clause(Id, Head, 0, N)         la clausola esiste e ha N premesse
+%   kb_clause(Id, Head, I, Premise)   la I-esima premessa, I in 1..N
+%
+% Le variabili della clausola sono OGGETTI, var(0), var(1), ... numerate per
+% prima occorrenza: due modi alfa-equivalenti di scrivere la stessa clausola
+% hanno lo stesso Id (content_<impronta>), che si ricalcola a ogni lettura e
+% non si salva. Un fatto negativo ha testa not(F); una premessa naf(G) resta
+% naf(G); una testa o una premessa che non entra in un termine si dichiara
+% overflow(pred), mai un testo tagliato.
+%
+% Qui stanno le facce NOMINABILI di quel dato: che cosa una clausola e', non
+% come e' conservata. Nessuna e' una vista materializzata: si legge quando
+% serve, e con la testa legata costa un bucket, non la KB.
+
+clause_head($Id, $Head) :- kb_clause($Id, $Head, 0, $Count).
+clause_premise_count($Id, $N) :- kb_clause($Id, $Head, 0, $N).
+clause_premise($Id, $I, $Goal) :- kb_clause($Id, $Head, $I, $Goal), dif($I, 0).
+
+clause_is_fact($Id) :- kb_clause($Id, $Head, 0, 0).
+clause_is_rule($Id) :- kb_clause($Id, $Head, 0, $N), dif($N, 0).
+clause_denies($Id, $Content) :- kb_clause($Id, not($Content), 0, 0).
+
+% Il limite del termine, dichiarato e non nascosto: la clausola e' intera nella
+% KB, e' il suo TESTO che non entra in KB_TERM_LEN byte.
+clause_head_overflows($Id, $Pred) :- kb_clause($Id, overflow($Pred), 0, $Count).
+clause_premise_overflows($Id, $I, $Pred) :-
+    kb_clause($Id, $Head, $I, overflow($Pred)), dif($I, 0).
+
+% Lo stesso contenuto detto due volte ha un Id solo: due occorrenze, un
+% contenuto. Distinguere le occorrenze (gli ATTI) e' il lavoro di M2.
+clause_said_twice($Head) :-
+    findall($One, kb_clause($One, $Head, 0, $C1), cons($Only, nil)),
+    findall_bag($Each, kb_clause($Each, $Head, 0, $C2), cons($First, cons($Second, $Rest))).

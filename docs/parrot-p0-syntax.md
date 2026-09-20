@@ -119,6 +119,7 @@ quel nome, quindi non si ridefiniscono.
 | `chars($A, $L)` | atomo ↔ lista di caratteri | |
 | `apply($Op, cons($A, cons($B, nil)))` | applica un confronto o un'operazione nominata da un atomo | `apply(le, …)`, `apply(gt, …)`, `apply(dif, …)`: il verso di un confronto diventa un **dato** |
 | `kb_fact/2`, `kb_rule/2`, `kb_rule_body/2` | introspezione: fatti, regole, nomi dei predicati del corpo | `kb_rule_body` dà solo nomi, non argomenti |
+| `kb_clause/4` | la clausola INTERA come dato (M1, 20 settembre 2026): `kb_clause(Id, Head, 0, N)` la clausola con N premesse; `kb_clause(Id, Head, I, Premessa)` la I-esima premessa. Variabili reificate `var(N)` per prima occorrenza, fatti negativi `not(F)`, `naf(G)` conservato, `Id` = impronta del contenuto canonico | con la testa legata costa un bucket, con la sola Id legata enumera; un pezzo che non entra in un termine vale `overflow(pred)`, mai un testo tagliato; facce nominabili in `kb/core/clause-content.p0` |
 | `present_term/2` | resa di un termine secondo le `present_rule` | |
 | `prob/2`, `ranges_over/3` | probabilità KB-backed, intervalli temporali | usi rari |
 
@@ -523,15 +524,23 @@ di assiomi.
 
 Una regola nativa `p($X) :- q($X).` viene eseguita dal solver. Il testo di
 quella regola conservato in una stringa è invece testo. Non sono intercambiabili.
-`kb_rule/2` espone le teste e `kb_rule_body/2` i nomi dei predicati del corpo;
-non offrono ancora un'AST integrale della clausola da discutere o istanziare.
+`kb_rule/2` espone le teste e `kb_rule_body/2` i nomi dei predicati del corpo.
+**Dal 20 settembre 2026 (M1)** `kb_clause/4` espone la clausola integra — testa,
+premesse ordinate, polarità (`not(F)`, `naf(G)`) e legami — con variabili
+reificate `var(N)` e un Id di contenuto: vedi la tabella dei builtin in §6 e
+`kb/core/clause-content.p0`. Il corpo è dato per archi (una premessa per
+riga) perché venti regole di lettura vive hanno un corpo che non entra in un
+termine da 512 byte: la lista non è mai stata la forma giusta.
 
 **Variabile del solver ≠ variabile menzionata.** `$X` anche dentro un termine
 composto resta una variabile attiva. Un fatto che la contiene è una unit clause
 standardizzata a parte a ogni uso, non una citazione di una variabile chiamata
-X. Un futuro nodo come `variable(binder_id, posizione)` sarebbe un dato legato
-a un binder; non si istanzierebbe magicamente con l'unificazione corrente.
-Il ponte fra queste due rappresentazioni va progettato e testato in M1.
+X. In M1 il nodo è `var(N)`, con la clausola come binder (chiusura
+universale): un dato ground, che si unifica strutturalmente e non si istanzia
+da solo. L'istanza di esecuzione resta quella che il risolutore produce
+rinominando la clausola a ogni applicazione; un ponte esplicito verso
+un'istanza fresca si aggiunge quando un consumer lo chiede (M3, la ricerca di
+una prova ammessa), non prima.
 
 ### 16.2 Il contratto della rappresentazione da costruire
 
@@ -586,7 +595,9 @@ estendere a teoremi e citazioni. Servono come diagnostica della baseline.
 La nuova prova dovrà essere prodotta dalla ricerca che decide, conservare
 gli effetti del backtracking e distinguere completamento da interruzione.
 
-Prima implementare M1 (clausola integra e legami), poi M2 (atti e derivazioni),
-M3 (ammissibilità KB), M4 (producer IR e migrazione di un lettore). Ogni
+M1 (clausola integra e legami) è implementata e verificata: `kb_clause/4`,
+`kb/core/clause-content.p0`, `tests/p0t/reasoning/clause_content.p0t`. Seguono
+M2 (atti e derivazioni), M3 (ammissibilità KB), M4 (producer IR e migrazione
+di un lettore). Ogni
 costrutto diventato eseguibile va spostato dalla descrizione progettata alla
 sezione operativa pertinente, con un test e un esempio realmente verificati.

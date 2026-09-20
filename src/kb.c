@@ -1955,6 +1955,253 @@ static int list_to_args(const char *list,
     return 0;
 }
 
+/* ----------------------------------------------------------------------------
+ * 20 settembre 2026 — LA CLAUSOLA COME CONTENUTO INTEGRO
+ * (M1 di docs/plans/lettura-della-prosa.md, «contenuti, atti e giudizi»).
+ *
+ * `kb_rule/2` dava le teste e `kb_rule_body/2` i NOMI dei predicati del corpo:
+ * `path(X,Y) :- edge(X,Y)` e `path(X,Y) :- edge(Y,X)` erano la stessa riga, e
+ * nessuna clausola aveva un'identita' che sopravvivesse a un retract (l'indice
+ * nel vettore scivola). Non e' una porta nuova: e' la porta riflessiva gia'
+ * aperta (kb_fact, kb_rule, kb_rule_body) portata fino in fondo, perche' la
+ * KB non puo' ragionare su cio' che nessuna porta le mostra. UNA forma sola:
+ *
+ *   kb_clause(Id, Head, 0, N)        la clausola esiste e ha N premesse
+ *   kb_clause(Id, Head, I, Premise)  la I-esima premessa, I in 1..N
+ *
+ * Fatto, fatto negativo (testa `not(F)`) e regola sono la stessa specie di
+ * dato; un fatto ha N = 0. Il corpo e' dato per ARCHI e non per lista perche'
+ * misurato sulla KB viva: venti regole di lettura (input_semantic_frame,
+ * event_*, food_time_answer, ...) hanno un corpo che non entra in un termine
+ * da KB_TERM_LEN byte. Una premessa che da sola non ci entra si dichiara
+ * `overflow(pred)`, mai un testo tagliato spacciato per intero; lo stesso per
+ * una testa. L'Id copre sempre il contenuto integro.
+ *
+ * Nella forma da discutere le variabili sono OGGETTI, non variabili del
+ * risolutore: `var(N)`, numerate per ordine di prima occorrenza (testa, poi
+ * corpo), cosi' due clausole alfa-equivalenti hanno la stessa forma e lo
+ * stesso Id, e `same(X,X)` non si confonde con `same(X,Y)`. Il binder e' la
+ * chiusura universale della clausola. L'istanza di ESECUZIONE non ha bisogno
+ * di una porta: e' cio' che il risolutore fa gia' rinominando la clausola a
+ * ogni applicazione. Un `naf(G)` del corpo resta `naf(G)`.
+ *
+ * L'Id (`content_<64 bit>`) e' l'impronta del CONTENUTO canonico intero, non
+ * una posizione: due occorrenze dello stesso contenuto hanno lo stesso Id,
+ * e l'Id si ricalcola a ogni lettura — non si salva, non scade, non si
+ * sposta. Le OCCORRENZE (gli atti) sono il lavoro di M2.
+ *
+ * Tutto questo e' meccanica: nessun nome di predicato, nessuna specie di
+ * contesto, nessun giudizio. Le facce nominabili stanno in
+ * kb/core/clause-content.p0. Con la testa legata si cammina sul bucket del
+ * censimento; con la sola Id legata si enumera e si confronta — la domanda
+ * posta e' quella, e un indice per Id arriva quando costa davvero.
+ * ------------------------------------------------------------------------- */
+#define KB_CANON_VARS 128
+#define KB_CLAUSE_TEXT_MAX ((KB_MAX_ARGS + 1) * KB_TERM_LEN + 32)
+
+typedef struct {
+    char   name[KB_CANON_VARS][KB_VAR_LEN];
+    size_t n;
+    int    overflow;   /* piu' variabili distinte che slot: mai in silenzio */
+} CanonMap;
+
+/* Un argomento in forma canonica: variabili nominate numerate per prima
+ * occorrenza, ogni `_` un numero nuovo, i termini composti ricorsi. */
+static void canon_arg(const char *a, CanonMap *m, char *dst, size_t dstsz) {
+    if (is_var(a)) {
+        size_t k = m->n;
+        if (strcmp(a, "_") != 0)
+            for (k = 0; k < m->n; k++)
+                if (strcmp(m->name[k], a) == 0) break;
+        if (k == m->n) {
+            if (m->n < KB_CANON_VARS)
+                snprintf(m->name[m->n++], KB_VAR_LEN, "%s", a);
+            else m->overflow = 1;
+        }
+        snprintf(dst, dstsz, "var(%zu)", k);
+        return;
+    }
+    char f[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t n = 0;
+    if (split_compound(a, f, args, &n)) {
+        int off = snprintf(dst, dstsz, "%s(", f);
+        for (size_t i = 0; i < n && off > 0 && (size_t)off < dstsz; i++) {
+            char sub[KB_TERM_LEN];
+            canon_arg(args[i], m, sub, sizeof sub);
+            off += snprintf(dst + off, dstsz - (size_t)off,
+                            "%s%s", i ? ", " : "", sub);
+        }
+        if (off > 0 && (size_t)off < dstsz)
+            snprintf(dst + off, dstsz - (size_t)off, ")");
+        return;
+    }
+    snprintf(dst, dstsz, "%s", a);
+}
+
+static int sput(char *dst, size_t dstsz, size_t *off, const char *s) {
+    size_t n = strlen(s);
+    if (*off + n >= dstsz) return 0;
+    memcpy(dst + *off, s, n + 1);
+    *off += n;
+    return 1;
+}
+
+/* Il testo canonico di un termine intero (testa o premessa); `wrap` e' NULL,
+ * "naf" o "not". 0 solo se il buffer non basta: allora e' overflow. */
+static int clause_term_text(const char *pred, size_t argc,
+                            const char args[][KB_TERM_LEN], const char *wrap,
+                            CanonMap *m, char *dst, size_t dstsz) {
+    size_t off = 0;
+    if (wrap && !(sput(dst, dstsz, &off, wrap) && sput(dst, dstsz, &off, "(")))
+        return 0;
+    if (!sput(dst, dstsz, &off, pred)) return 0;
+    if (argc) {
+        if (!sput(dst, dstsz, &off, "(")) return 0;
+        for (size_t i = 0; i < argc; i++) {
+            char sub[KB_TERM_LEN];
+            canon_arg(args[i], m, sub, sizeof sub);
+            if (i && !sput(dst, dstsz, &off, ", ")) return 0;
+            if (!sput(dst, dstsz, &off, sub)) return 0;
+        }
+        if (!sput(dst, dstsz, &off, ")")) return 0;
+    }
+    if (wrap && !sput(dst, dstsz, &off, ")")) return 0;
+    return 1;
+}
+
+static uint64_t fnv_text(uint64_t h, const char *s) {
+    for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
+        h ^= *p; h *= UINT64_C(1099511628211);
+    }
+    h ^= UINT64_C(255); h *= UINT64_C(1099511628211);
+    return h;
+}
+
+/* Lo spazio di lavoro sta nello heap: il risolutore e' a continuazione e ogni
+ * byte lasciato nel frame C resta sotto tutta la prova (gen514). */
+typedef struct {
+    char     id[KB_TERM_LEN];
+    char     text[KB_CLAUSE_TEXT_MAX];
+    char     head_out[KB_TERM_LEN];
+    char     goal_out[KB_MAX_BODY][KB_TERM_LEN];
+    size_t   nbody;
+    CanonMap map;
+} ClauseWork;
+
+/* Un pezzo pubblico: il testo intero se entra in un termine, altrimenti la
+ * dichiarazione `overflow(pred)`. */
+static void clause_piece(char *out, const char *text, int whole, const char *pred) {
+    size_t n = strlen(text);
+    if (whole && n < KB_TERM_LEN) memcpy(out, text, n + 1);
+    else snprintf(out, KB_TERM_LEN, "overflow(%.*s)", KB_TERM_LEN - 12, pred);
+}
+
+/* Rende UNA clausola: Id del contenuto canonico intero, testa e premesse. */
+static void clause_render(ClauseWork *w, const char *hpred, size_t hargc,
+                          const char hargs[][KB_TERM_LEN], int neg_head,
+                          const Term *body, size_t nbody) {
+    w->map.n = 0; w->map.overflow = 0; w->nbody = nbody;
+    uint64_t h = UINT64_C(1469598103934665603);
+    int whole = clause_term_text(hpred, hargc, hargs, neg_head ? "not" : NULL,
+                                 &w->map, w->text, sizeof w->text);
+    h = fnv_text(h, w->text);
+    clause_piece(w->head_out, w->text, whole && !w->map.overflow, hpred);
+    for (size_t i = 0; i < nbody; i++) {
+        whole = clause_term_text(body[i].pred, body[i].argc, body[i].args,
+                                 body[i].neg ? "naf" : NULL, &w->map,
+                                 w->text, sizeof w->text);
+        h = fnv_text(h, w->text);
+        clause_piece(w->goal_out[i], w->text, whole && !w->map.overflow, body[i].pred);
+    }
+    if (w->map.overflow)            /* piu' variabili che slot: nessun pezzo intero */
+        clause_piece(w->head_out, "", 0, hpred);
+    snprintf(w->id, sizeof w->id, "content_%016llx", (unsigned long long)h);
+}
+
+/* Le righe di una clausola resa: (Id, Head, 0, N) e (Id, Head, I, Premessa). */
+static int clause_yield(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                        const Subst *s, int depth, SolveFrame *scratch,
+                        const ClauseWork *w) {
+    const Term *g = &goals[idx];
+    Subst *s2 = &scratch->subst;
+    for (size_t i = 0; i <= w->nbody; i++) {
+        char ix[32], count[32];
+        snprintf(ix, sizeof ix, "%zu", i);
+        snprintf(count, sizeof count, "%zu", w->nbody);
+        subst_copy(s2, s);
+        if (!unify(s2, g->args[0], w->id) || !unify(s2, g->args[1], w->head_out) ||
+            !unify(s2, g->args[2], ix) ||
+            !unify(s2, g->args[3], i ? w->goal_out[i - 1] : count))
+            continue;
+        if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+    }
+    return 0;
+}
+
+static int clause_reflect(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                          const Subst *s, int depth, SolveFrame *scratch) {
+    const Term *g = &goals[idx];
+    const KB *kb = S->kb;
+    char want[KB_TERM_LEN];                 /* il funtore della testa, se noto */
+    char hp[KB_TERM_LEN], f[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t np = 0;
+    int only_neg = 0;
+    want[0] = '\0';
+    deep_resolve(s, g->args[1], hp, sizeof hp, 0);
+    if (!is_var(hp)) {
+        if (split_compound(hp, f, parts, &np) && strcmp(f, "not") == 0 && np == 1) {
+            only_neg = 1;
+            memcpy(hp, parts[0], strlen(parts[0]) + 1);
+        }
+        if (split_compound(hp, f, parts, &np)) memcpy(want, f, strlen(f) + 1);
+        else memcpy(want, hp, strlen(hp) + 1);
+        if (is_var(want) || !term_ok(want)) want[0] = '\0';
+    }
+    ClauseWork *w = calloc(1, sizeof *w);
+    if (!w) return 0;
+    int bound = want[0] != '\0', hit = 0;
+    if (!only_neg) {                                              /* regole */
+        PredBucket rb = { NULL, 0, 0, 0 };
+        if (bound) rb = rule_bucket(kb, want);
+        size_t visits = (bound && rb.live && rb.n == 0) ? 0
+                      : bound ? PRED_VISITS(rb, kb) : kb->nr;
+        for (size_t vi = 0; vi < visits && !hit; vi++) {
+            size_t i = bound ? PRED_AT(rb, vi) : vi;
+            if (i >= kb->nr) continue;
+            const Rule *R = &kb->rules[i];
+            if (bound && strcmp(R->head.pred, want) != 0) continue;
+            clause_render(w, R->head.pred, R->head.argc, R->head.args, 0,
+                          R->body, R->nbody);
+            hit = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
+        }
+    }
+    if (!hit && !only_neg) {                                      /* fatti */
+        PredBucket fb = { NULL, 0, 0, 0 };
+        if (bound) fb = pred_bucket(kb, want);
+        size_t visits = (bound && fb.live && fb.n == 0) ? 0
+                      : bound ? PRED_VISITS(fb, kb) : kb->n;
+        for (size_t vi = 0; vi < visits && !hit; vi++) {
+            size_t i = bound ? PRED_AT(fb, vi) : vi;
+            if (i >= kb->n) continue;
+            const Fact *F = &kb->facts[i];
+            if (!kb_view_fact_visible(kb, F)) continue;
+            if (bound && strcmp(F->pred, want) != 0) continue;
+            clause_render(w, F->pred, F->argc, F->args, 0, NULL, 0);
+            hit = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
+        }
+    }
+    if (!hit) {                                          /* negazioni esplicite */
+        for (size_t i = 0; i < kb->nn && !hit; i++) {
+            const Fact *F = &kb->neg[i];
+            if (bound && strcmp(F->pred, want) != 0) continue;
+            clause_render(w, F->pred, F->argc, F->args, 1, NULL, 0);
+            hit = clause_yield(S, goals, ngoals, idx, s, depth, scratch, w);
+        }
+    }
+    free(w);
+    return hit;
+}
+
 /* Prove the goal list under substitution `s`. Returns 1 to stop all search
  * (boolean solution found, or the collector is full). */
 /* gen335 (teachable-procedures): a small arithmetic evaluator over a RESOLVED term
@@ -2317,6 +2564,10 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         }
         return 0;
     }
+
+    /* 20 settembre 2026 — la clausola integra come dato: vedi clause_reflect. */
+    if (g->argc == 4 && strcmp(g->pred, "kb_clause") == 0)
+        return clause_reflect(S, goals, ngoals, idx, s, depth, scratch);
 
     if (strcmp(g->pred, "chars") == 0 && g->argc == 2) {   /* U4: chars/2 builtin */
         char a0[KB_CHARLIST_MAX], a1[KB_CHARLIST_MAX];
@@ -3298,7 +3549,7 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
         }
         if (!strcmp(pred, "call") || !strcmp(pred, "apply") ||
             !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
-            !strcmp(pred, "kb_rule_body") ||
+            !strcmp(pred, "kb_rule_body") || !strcmp(pred, "kb_clause") ||
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
             !strcmp(pred, "prob")) return 0;
@@ -3788,7 +4039,8 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     /* The overwhelmingly common KB-first lookup is a ground fact predicate with
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
-    int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
+    int has_rule = (argc == 4 && strcmp(pred, "kb_clause") == 0) ||  /* la clausola integra */
+                   (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
                                   strcmp(pred, "atom_words") == 0 ||
         strcmp(pred,"upcase_first")==0 || strcmp(pred,"concat_atoms")==0 ||
         strcmp(pred,"map_words")==0 ||
@@ -3917,6 +4169,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                     strcmp(pred, "atom_words") != 0 &&
                     strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
                     strcmp(pred, "kb_rule_body") != 0 &&
+                    strcmp(pred, "kb_clause") != 0 &&
                     strcmp(pred, "apply") != 0;
     for (size_t i = 0; i < argc; i++) {
         if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
@@ -7431,6 +7684,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
         "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body",
+        "kb_clause",
         "apply", "atom_words", "map_words", NULL };
     for (size_t i = 0; builtins[i]; i++)
         if (strcmp(pred, builtins[i]) == 0) return 1;
