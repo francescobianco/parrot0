@@ -227,6 +227,37 @@ auxiliary(does).
 machinery(member_satisfies).
 member_satisfies($Member, $Value) :- kb_fact($Pred, cons($Member, cons($Value, nil))).
 
+% ── RI-003 — UNA RICHIESTA PUO' ESCLUDERE ─────────────────────────────────
+%
+% «tell me a country in asia, but do not mention china» non riceveva una
+% risposta: riceveva una LEZIONE. La forma generica della negazione
+% (`negate_relation`) leggeva «do not mention china» come un fatto negativo —
+% soggetto «do», relazione «mention» — e rispondeva «Held: do does not mention
+% china». Una richiesta letta come un insegnamento, con una clausola falsa in
+% sessione: peggio di un muro, perche' `/save` la porterebbe in KB.
+%
+% Il residuo dopo la categoria era gia' un VINCOLO (`member_satisfies/2`, qui
+% sopra). Mancava il suo verso negativo: quali superfici aprano un'esclusione
+% e' conoscenza, e si insegna — «"apart from" is an exclusion marker» —
+% perche' `class_surface/2` da' alla classe la sua superficie pronunciata.
+machinery(exclusion_marker).
+class_surface(exclusion_marker, exclusion marker).
+exclusion_marker("but do not mention").
+exclusion_marker("but not").
+exclusion_marker("other than").
+exclusion_marker("apart from").
+exclusion_marker("except").
+exclusion_marker("ma non").
+exclusion_marker("tranne").
+exclusion_marker("a parte").
+% E la forma della negazione CEDE il turno dove c'e' un'esclusione: il
+% meccanismo esiste gia' (`turn_form_yield/4`, user-state.p0) e non costa C.
+% Vuole una relazione binaria (chiave, superficie): la vista la da', cosi' la
+% classe insegnabile resta unaria e una sola.
+machinery(exclusion_cue).
+exclusion_cue(exclusion, $S) :- exclusion_marker($S).
+turn_form_yield(negate_relation, exclusion_cue, 2, subject).
+
 % ── LA DOMANDA INVERSA, che e' la stessa e costa un ordine di grandezza meno ──
 %
 % `member_satisfies/2` risponde per UN membro, e col predicato non legato ogni

@@ -2556,6 +2556,10 @@ response_template(learned_verb_particle, "Learned: {subject} {particle} is a rel
 % turno non torna a chi elenca la classe — «which sea does the North Sea flow
 % into?» non ha risposta, e dirlo e' la risposta.
 response_template(no_value_in_class, "I don't know: nothing I hold gives {subject} a {kind} there.").
+% RI-003 — e quando l'esclusione toglie l'ultimo membro rimasto: si dice, non
+% si tace e non si nomina lo stesso l'escluso.
+response_template(instance_all_excluded, "The only {category} I hold is {excluded}, and you asked me not to mention it.").
+response_template(instance_all_excluded, it, "L'unico {category} che tengo è {excluded}, e mi hai chiesto di non nominarlo.").
 response_template(no_value_in_class, it, "Non so: non tengo nessun {kind} per {subject} su quella relazione").
 response_template(learned_verb_particle, it, "Imparato: «{subject} {particle}» è un verbo di relazione.").
 turn_form(teach_verb_particle, 1, slot(subject)).

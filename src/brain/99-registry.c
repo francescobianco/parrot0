@@ -731,6 +731,23 @@ static int adjunct_peel(Brain *b, const char *canon, const char *raw,
     const char *rest = comma + 1;
     while (*rest && isspace((unsigned char)*rest)) rest++;
     if (!*rest) return 0;
+    /* ── RI-003 — UN'ESCLUSIONE NON E' UNA PROPOSIZIONE A SE' ──────────────
+     *
+     * «tell me a country in asia, but do not mention china»: qui l'inciso
+     * veniva sbucciato e il RESIDUO ridispacciato da solo. Senza la richiesta
+     * davanti, «but do not mention china» e' un turno senza contenuto, e se lo
+     * prendeva il registro sociale — «Fair enough, tell me where I went
+     * wrong». La richiesta non veniva mai servita.
+     *
+     * Quali superfici aprano un'esclusione e' conoscenza (`exclusion_marker/1`,
+     * grammar.p0): qui non c'e' nessuna parola, si chiede alla KB. Un residuo
+     * che si apre cosi' e' il VINCOLO di cio' che lo precede, e il turno deve
+     * restare intero perche' chi sceglie il membro possa leggerlo. */
+    if (p0_text_has_exclusion(b, rest)) {
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[adjunct] «%s» e' un'esclusione: il turno resta intero\n", rest);
+        return 0;
+    }
     /* Il residuo dev'essere una proposizione, non un secondo pezzo di elenco:
      * almeno tre parole. */
     { int rw = 1; for (const char *p = rest; *p; p++) if (isspace((unsigned char)*p)) rw++;

@@ -2598,6 +2598,59 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     size_t k = domain_match(b, "membership", pat, 2, members, 64);
     if (k == 0) return 0;   /* unknown category: let an honest wall handle it */
 
+    /* ── RI-003 — IL RESIDUO PUO' ANCHE ESCLUDERE ──────────────────────────
+     *
+     * «tell me a country in asia, BUT DO NOT MENTION CHINA»: la coda non e'
+     * un vincolo da soddisfare, e' un membro da togliere. Finche' non lo era,
+     * la frase veniva letta come una lezione («Held: do does not mention
+     * china») o memorizzata come una confidenza — in entrambi i casi la
+     * richiesta non veniva servita e restava in sessione una clausola falsa.
+     *
+     * Quali superfici aprano un'esclusione e' conoscenza (`exclusion_marker/1`,
+     * grammar.p0), quindi qui non c'e' nessuna parola: si cerca la piu' lunga
+     * superficie che la KB riconosca, si toglie dai membri cio' che viene
+     * dopo, e il vincolo POSITIVO si legge solo su cio' che viene prima. */
+    size_t res_end = nw;
+    {
+        size_t xs = nw, xe = nw;
+        if (!p0_find_exclusion(b, w, nw, ci + 1, &xs, &xe)) { xs = nw; xe = nw; }
+        if (xs != nw && xe < nw) {
+            char excluded[KB_TERM_LEN];
+            if (p0_join_tail(w, xe, nw, excluded, sizeof excluded) && *excluded) {
+                /* l'articolo del nome escluso non fa parte del nome */
+                char *ex = excluded;
+                { char lead[KB_TERM_LEN]; snprintf(lead, sizeof lead, "%s", excluded);
+                  char *us = strchr(lead, '_');
+                  if (us) { *us = '\0';
+                      if (lex_class_member(b, "definite_article", lead) ||
+                          lex_class_member(b, "indefinite_article", lead))
+                          ex = excluded + (us - lead) + 1; } }
+                size_t keep = 0;
+                for (size_t i = 0; i < k; i++) {
+                    if (!strcasecmp(members[i], ex)) continue;
+                    if (keep != i) snprintf(members[keep], KB_TERM_LEN, "%s", members[i]);
+                    keep++;
+                }
+                if (keep < k) {
+                    k = keep;
+                    store_proof(b, "The turn excluded a member by name; it was "
+                                   "removed before choosing.");
+                }
+                res_end = xs;
+                if (k == 0) {
+                    char msg0[256];
+                    char exs[KB_TERM_LEN]; snprintf(exs, sizeof exs, "%s", ex);
+                    for (char *c = exs; *c; c++) if (*c == '_') *c = ' ';
+                    const KbResponseSlot rs0[] = { { "category", category },
+                                                   { "excluded", exs } };
+                    kb_term_say(b, "instance_all_excluded", rs0, 2, msg0, sizeof msg0);
+                    put(msg0, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* ── IL RESIDUO DEL TURNO E' UN VINCOLO: O LO SI VERIFICA, O SI CEDE ────
      *
      * Questa facolta' sceglieva un membro della categoria e lo diceva, buttando
@@ -2624,7 +2677,7 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
      * Verificare non costa vocabolario: `member_satisfies/2` in KB chiede, via
      * `kb_fact/2`, se QUALCHE relazione lega il membro al valore. Una relazione
      * nuova vale subito, e il C non ne conosce nessuna. */
-    if (!init && ci + 1 < nw) {
+    if (!init && ci + 1 < res_end) {
         /* ── EXIT CONDITION, e non e' un dettaglio ─────────────────────────
          *
          * `member_satisfies/2` chiede a `kb_fact/2` se QUALCHE relazione lega
@@ -2644,10 +2697,10 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
          *    un membro: appena uno soddisfa, si smette di cercare. Continuare
          *    a filtrare l'intera categoria e' lavoro che nessuno legge. */
         size_t kept = 0;
-        for (size_t vi = nw; vi > ci + 1 && kept == 0; vi--) {
+        for (size_t vi = res_end; vi > ci + 1 && kept == 0; vi--) {
             /* il valore del vincolo: la coda del residuo, la piu' lunga prima */
             char value[KB_TERM_LEN];
-            if (!p0_join_tail(w, vi - 1, nw, value, sizeof value)) continue;
+            if (!p0_join_tail(w, vi - 1, res_end, value, sizeof value)) continue;
             /* IL JOIN SI FA UNA VOLTA, NON UNA PER MEMBRO.
              *
              * Chiedere «questo membro e' legato al valore?» costa, con il
@@ -2685,7 +2738,7 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
              * quale vincolo non si e' potuto verificare. E' la differenza fra
              * «non lo so» e «ecco un membro a caso». */
             char cbuf[KB_TERM_LEN];
-            if (!p0_join_tail(w, ci + 1, nw, cbuf, sizeof cbuf))
+            if (!p0_join_tail(w, ci + 1, res_end, cbuf, sizeof cbuf))
                 snprintf(cbuf, sizeof cbuf, "%s", "");
             for (char *c = cbuf; *c; c++) if (*c == '_') *c = ' ';
             const KbResponseSlot rs[] = {

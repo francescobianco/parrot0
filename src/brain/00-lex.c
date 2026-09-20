@@ -1140,6 +1140,50 @@ int try_forget_form(Brain *b, const char *norm, const char *raw,
  * sarebbe il mantra #2 al contrario (ed e' l'errore che questa funzione ha fatto
  * nella sua prima versione, vedi il blocco in kb/core/intents.p0). Migliorare la
  * lettura migliora ogni facolta' insieme. */
+/* ── RI-003 — DOV'E' L'ESCLUSIONE, E DOVE COMINCIA ─────────────────────────
+ *
+ * Tre lettori hanno bisogno della stessa risposta: chi sbuccia l'inciso (non
+ * deve staccare il vincolo dalla richiesta), chi sceglie un membro (deve
+ * toglierlo) e chi impara (non deve credere la coda di un vincolo). La
+ * conoscenza e' una sola — `exclusion_marker/1`, grammar.p0 — e qui c'e' solo
+ * il modo di cercarla: la superficie PIU' LUNGA che la KB riconosce, a partire
+ * da ogni parola. Nel C non entra nessuna parola, e una superficie nuova si
+ * insegna («"apart from" is an exclusion marker»).
+ *
+ * Rende 1 e, se richiesto, l'indice della prima parola del marcatore (`at`) e
+ * quello della prima parola DOPO di esso (`after`). */
+static int p0_find_exclusion(Brain *b, char **w, size_t nw, size_t from,
+                             size_t *at, size_t *after) {
+    if (!b || !b->kb || !w) return 0;
+    for (size_t i = from; i < nw; i++) {
+        char acc[KB_TERM_LEN]; size_t off = 0; size_t end = 0;
+        for (size_t j = i; j < nw && j < i + 5; j++) {
+            char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[j]);
+            const char *bare = strip_edge_punct(t);
+            int n = snprintf(acc + off, sizeof acc - off, "%s%s", off ? " " : "", bare);
+            if (n < 0 || (size_t)n >= sizeof acc - off) break;
+            off += (size_t)n;
+            char q2[KB_TERM_LEN]; snprintf(q2, sizeof q2, "\"%s\"", acc);
+            const char *m1[1] = { acc };
+            const char *m2[1] = { q2 };
+            if (kb_query(b->kb, "exclusion_marker", m1, 1) ||
+                kb_query(b->kb, "exclusion_marker", m2, 1)) end = j + 1;
+        }
+        if (end) { if (at) *at = i; if (after) *after = end; return 1; }
+    }
+    return 0;
+}
+
+static int p0_text_has_exclusion(Brain *b, const char *text) {
+    if (!b || !text || !*text) return 0;
+    char buf[400]; size_t L = strlen(text);
+    if (L == 0 || L >= sizeof buf) return 0;
+    memcpy(buf, text, L + 1);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    if (nw == 0) return 0;
+    return p0_find_exclusion(b, w, nw, 0, NULL, NULL);
+}
+
 static int p0_turn_is(Brain *b, const char *force, const char *turn) {
     if (b && b->kb) {
         /* Una domanda BOOLEANA si fa con `kb_query`. Con `kb_match` non c'era

@@ -15921,6 +15921,21 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                  * lettore delle regole universali (gen506c). */
                 int isq = norm[L - 1] == '?' || p0_turn_is(b, "question", norm);
                 if (!strcmp(want, "question") && !isq) continue;
+                /* RI-003 — UNA RICHIESTA NON E' UNA LEZIONE.
+                 * «tell me a country in asia, but do not mention china»
+                 * combaciava con `negate_relation` (mood `statement`) e
+                 * rispondeva «Held: do does not mention china»: la richiesta
+                 * letta come insegnamento, con una clausola falsa in sessione
+                 * che `/save` porterebbe in KB. Il modo dichiarato conosceva
+                 * due forze su tre; la terza la KB la pubblica gia'
+                 * (`turn_illocution`, `illocution_cue(directive, …)`) e
+                 * nessuno gliela chiedeva. */
+                if (!strcmp(want, "statement") && !isq &&
+                    p0_turn_is(b, "directive", norm)) {
+                    if (getenv("P0_FORM_TRACE"))
+                        fprintf(stderr, "[form] %s skipped: mood statement, turn read as directive\n", form);
+                    continue;
+                }
                 if (!strcmp(want, "statement") && isq) {
                     if (getenv("P0_FORM_TRACE"))
                     {
@@ -17156,6 +17171,12 @@ static int p0_negation_lead(Brain *b, const char *canon, const char *input,
     size_t L = strlen(canon);
     if (L < 6 || canon[L - 1] == '?' || strchr(canon, '"') || strstr(canon, "«")) return 0;
     { const char *q[2] = { "current_turn", "question" };
+      if (kb_query(b->kb, "turn_illocution", q, 2)) return 0; }
+    /* RI-003 — e nemmeno una RICHIESTA e' una lezione. «tell me a country in
+     * asia, but do not mention china» finiva qui e tornava «Learned: …»: il
+     * vincolo di una richiesta letto come una cosa da credere. La forza del
+     * turno e' gia' pubblicata; mancava la seconda riga che la legge. */
+    { const char *q[2] = { "current_turn", "directive" };
       if (kb_query(b->kb, "turn_illocution", q, 2)) return 0; }
     char (*ms)[KB_TERM_LEN] = NULL; size_t nm = 0;
     const char *mq[1] = { NULL };

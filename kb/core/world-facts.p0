@@ -2489,6 +2489,9 @@ element_type(gold, metal).
 located_in(machu_picchu, peru).
 located_in(bergamo, lombardy).
 located_in(probe, orbit).
+located_in(turin, italy).
+located_in(naples, italy).
+located_in(milan, italy).
 
 % gen353: grammar-error knowledge. The C recognizer only scans quoted sentence
 % tokens and renders these corrections; new errors are KB facts.

@@ -1495,6 +1495,20 @@ domain_relation(capital, capital_of_country).
 domain_relation(magnitude, magnitude).
 domain_relation(planet_superlative, planet_superlative).
 domain_relation(membership, category_member).
+
+% ── RI-003 — UNA CLASSE INSEGNATA PARLANDO DEV'ESSERE SCEGLIBILE ──────────
+%
+% «Milan is a city.» entrava («Learned»), e «tell me a city» restava un muro:
+% chi sceglie un membro legge `category_member/2`, che era scritto a mano.
+% Il test del mantra era rosso — un membro nuovo costava un commit.
+%
+% Un fatto unario E' un'appartenenza: `kb_fact/2` lo sa senza nominare nessuna
+% classe. La guardia e' che la classe abbia una superficie pronunciata e non
+% sia macchina: cosi' le classi del motore non diventano categorie da
+% enumerare, e una classe nuova vale dal turno dopo.
+category_member($Class, $Member) :-
+    class_surface($Class, $Surface), naf(machinery($Class)),
+    kb_fact($Class, cons($Member, nil)).
 domain_relation(difference, difference_between).
 domain_relation(sound, sound_of).
 domain_relation(no_land_border, no_land_border).

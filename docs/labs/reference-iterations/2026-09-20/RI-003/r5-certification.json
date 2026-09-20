@@ -1,0 +1,107 @@
+{
+ "seconds": 13.47,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@450a5ba8]\nmode: agent (tools on, network off) - 156851 facts, 4989 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Milan is a city.",
+   "answer": "Learned: milan is a city."
+  },
+  {
+   "turn": 2,
+   "prompt": "Milan is in Italy.",
+   "answer": "Learned: milan is located in italy."
+  },
+  {
+   "turn": 3,
+   "prompt": "Naples is a city.",
+   "answer": "Learned: naples is a city."
+  },
+  {
+   "turn": 4,
+   "prompt": "Naples is in Italy.",
+   "answer": "Learned: naples is located in italy."
+  },
+  {
+   "turn": 5,
+   "prompt": "Turin is a city.",
+   "answer": "Learned: turin is a city."
+  },
+  {
+   "turn": 6,
+   "prompt": "Turin is in Italy.",
+   "answer": "Learned: turin is located in italy."
+  },
+  {
+   "turn": 7,
+   "prompt": "Rome is a city.",
+   "answer": "Learned: rome is a city."
+  },
+  {
+   "turn": 8,
+   "prompt": "Rome is in Italy.",
+   "answer": "Learned: rome is located in italy."
+  },
+  {
+   "turn": 9,
+   "prompt": "Tell me a city in Italy.",
+   "answer": "Milan."
+  },
+  {
+   "turn": 10,
+   "prompt": "Tell me a city in Italy, but do not mention Milan.",
+   "answer": "Naples."
+  },
+  {
+   "turn": 11,
+   "prompt": "Tell me a city, but do not mention Milan.",
+   "answer": "Rome."
+  },
+  {
+   "turn": 12,
+   "prompt": "Tell me a country in Asia, but do not mention China.",
+   "answer": "India."
+  },
+  {
+   "turn": 13,
+   "prompt": "Tell me a country in Asia.",
+   "answer": "China."
+  },
+  {
+   "turn": 14,
+   "prompt": "Tell me a mammal, but do not mention the dog.",
+   "answer": "Elephant."
+  },
+  {
+   "turn": 15,
+   "prompt": "forget that milan is a city",
+   "answer": "Forgotten: city(milan)."
+  },
+  {
+   "turn": 16,
+   "prompt": "Tell me a city, but do not mention Naples.",
+   "answer": "Turin."
+  },
+  {
+   "turn": 17,
+   "prompt": "Milan is a city.",
+   "answer": "Learned: milan is a city."
+  },
+  {
+   "turn": 18,
+   "prompt": "Tell me a city, but do not mention Naples.",
+   "answer": "Rome."
+  },
+  {
+   "turn": 19,
+   "prompt": "Did Plato teach Aristotle?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 20,
+   "prompt": "Which sea does the Aare flow into?",
+   "answer": "north sea."
+  }
+ ]
+}

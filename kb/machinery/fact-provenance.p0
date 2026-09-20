@@ -490,6 +490,14 @@ fact_source(react(sodium, water), sodium, "sodium reacts with water.").
 fact_source(teach(socrates, plato), socrates, "socrates taught plato.").
 fact_source(teach(aristotle, alexander_the_great), aristotle, "aristotle taught alexander the great.").
 fact_source(teach(plato, aristotle), plato, "plato taught aristotle.").
+fact_source(located_in(rome, italy), rome, "rome is in italy.").
+fact_source(city(rome), rome, "rome is a city.").
+fact_source(located_in(turin, italy), turin, "turin is in italy.").
+fact_source(city(turin), turin, "turin is a city.").
+fact_source(located_in(naples, italy), naples, "naples is in italy.").
+fact_source(city(naples), naples, "naples is a city.").
+fact_source(located_in(milan, italy), milan, "milan is in italy.").
+fact_source(city(milan), milan, "milan is a city.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -858,13 +866,21 @@ reading_fact(cause(legionella_outbreaks, legionnaires_disease), "legionella outb
 reading_fact(react(sodium, water), "sodium reacts with water.").
 reading_fact(flow(rhine, north_sea), "the rhine flows into the north sea.").
 reading_fact(teach(socrates, plato), "socrates taught plato.").
+reading_fact(located_in(rome, italy), "rome is in italy.").
 reading_fact(carbonate_mineral(calcite), "calcite is a carbonate mineral").
+reading_fact(city(rome), "rome is a city.").
 reading_fact(proposition(binary(teach), roles(subject(socrates), object(plato))), "socrates taught plato.").
+reading_fact(located_in(turin, italy), "turin is in italy.").
 reading_fact(teach(aristotle, alexander_the_great), "aristotle taught alexander the great.").
+reading_fact(city(turin), "turin is a city.").
 reading_fact(flow(aare, rhine), "the aare flows into the rhine.").
+reading_fact(located_in(naples, italy), "naples is in italy.").
 reading_fact(proposition(binary(teach), roles(subject(aristotle), object(alexander))), "aristotle taught alexander the great.").
+reading_fact(city(naples), "naples is a city.").
 reading_fact(teach(plato, aristotle), "plato taught aristotle.").
+reading_fact(located_in(milan, italy), "milan is in italy.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
+reading_fact(city(milan), "milan is a city.").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -940,20 +956,32 @@ fact_mention(lithium_batteries, "lithium batteries cause fires").
 fact_mention(water, "sodium reacts with water.").
 fact_mention(sodium, "sodium reacts with water.").
 fact_mention(north_sea, "the north sea is a sea.").
+fact_mention(italy, "rome is in italy.").
+fact_mention(rome, "rome is in italy.").
 fact_mention(hand-held_cylindrical_pressure_vessel, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 fact_mention(plato, "socrates taught plato.").
+fact_mention(rome, "rome is a city.").
 fact_mention(socrates, "socrates taught plato.").
 fact_mention(fire_extinguisher, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+fact_mention(italy, "turin is in italy.").
+fact_mention(turin, "turin is in italy.").
 fact_mention(north_sea, "the rhine flows into the north sea.").
 fact_mention(rhine, "the rhine flows into the north sea.").
+fact_mention(turin, "turin is a city.").
 fact_mention(alexander_the_great, "aristotle taught alexander the great.").
 fact_mention(aristotle, "aristotle taught alexander the great.").
+fact_mention(italy, "naples is in italy.").
+fact_mention(naples, "naples is in italy.").
 fact_mention(falls, "slippery surfaces cause falls").
 fact_mention(calcite, "calcite is a carbonate mineral").
+fact_mention(naples, "naples is a city.").
 fact_mention(rhine, "the aare flows into the rhine.").
 fact_mention(aristotle, "plato taught aristotle.").
+fact_mention(italy, "milan is in italy.").
+fact_mention(milan, "milan is in italy.").
 fact_mention(plato, "plato taught aristotle.").
 fact_mention(aare, "the aare flows into the rhine.").
+fact_mention(milan, "milan is a city.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

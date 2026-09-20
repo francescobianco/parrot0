@@ -1,0 +1,32 @@
+{
+ "seconds": 7.57,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@450a5ba8]\nmode: agent (tools on, network off) - 156898 facts, 4989 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Tell me a city in Italy.",
+   "answer": "I don't understand that yet."
+  },
+  {
+   "turn": 2,
+   "prompt": "Tell me a city in Italy, but do not mention Milan.",
+   "answer": "Learned: italy mention milan."
+  },
+  {
+   "turn": 3,
+   "prompt": "Where is Turin?",
+   "answer": "Italy and piedmont."
+  },
+  {
+   "turn": 4,
+   "prompt": "Tell me a country in Asia, but do not mention China.",
+   "answer": "India."
+  },
+  {
+   "turn": 5,
+   "prompt": "Is Milan a city?",
+   "answer": "I don't know about city."
+  }
+ ]
+}

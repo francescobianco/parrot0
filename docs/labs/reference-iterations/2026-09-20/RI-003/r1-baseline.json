@@ -1,0 +1,37 @@
+{
+ "seconds": 8.2,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@1df94622]\nmode: agent (tools on, network off) - 156835 facts, 4987 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Name three Italian cities.",
+   "answer": "Hmm, I don't know about cities yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "Name three Italian cities, but do not mention Rome.",
+   "answer": "Held: do does not mention rome."
+  },
+  {
+   "turn": 3,
+   "prompt": "Which cities do you know in Italy?",
+   "answer": "That sounds nice -- tell me more about it."
+  },
+  {
+   "turn": 4,
+   "prompt": "Tell me a country in Asia.",
+   "answer": "China."
+  },
+  {
+   "turn": 5,
+   "prompt": "List the seas.",
+   "answer": "I looked up «cities» but found nothing. If you know it, teach me: «cities is defined as …»."
+  },
+  {
+   "turn": 6,
+   "prompt": "Name two seas, but do not mention the North Sea.",
+   "answer": "Held: do does not mention north_sea."
+  }
+ ]
+}

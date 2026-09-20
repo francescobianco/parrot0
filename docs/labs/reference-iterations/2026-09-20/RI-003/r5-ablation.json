@@ -1,0 +1,37 @@
+{
+ "seconds": 7.12,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@450a5ba8]\nmode: agent (tools on, network off) - 156851 facts, 4989 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Milan is a city.",
+   "answer": "Learned: milan is a city."
+  },
+  {
+   "turn": 2,
+   "prompt": "Naples is a city.",
+   "answer": "Learned: naples is a city."
+  },
+  {
+   "turn": 3,
+   "prompt": "Tell me a city, but do not mention Milan.",
+   "answer": "Naples."
+  },
+  {
+   "turn": 4,
+   "prompt": "forget that milan is a city",
+   "answer": "Forgotten: city(milan)."
+  },
+  {
+   "turn": 5,
+   "prompt": "Tell me a city.",
+   "answer": "Naples."
+  },
+  {
+   "turn": 6,
+   "prompt": "Is Milan a city?",
+   "answer": "I don't know: nothing I hold says milan is a city, and nothing says it isn't. Knowing some citys does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it."
+  }
+ ]
+}
