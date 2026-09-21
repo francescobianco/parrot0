@@ -1476,7 +1476,7 @@ int test_engine_send(const char *sockpath, FILE *in, const char *label) {
     close(fd);
     if (rep) rep[len] = '\0';
 
-    int code = 0, passed = 0, failed = 0;
+    int code = 0, passed = 0, failed = 0, counted = 0;
     size_t body = len;   /* bytes of the reply that are failure detail (printed) */
     if (rep && len) {
         /* strip the trailing control lines, youngest first: EXIT then COUNT. */
@@ -1489,9 +1489,18 @@ int test_engine_send(const char *sockpath, FILE *in, const char *label) {
             ls = e; while (ls > 0 && rep[ls - 1] != '\n') ls--;
         }
         if (strncmp(rep + ls, "COUNT ", 6) == 0) {
-            sscanf(rep + ls + 6, "%d %d", &passed, &failed);
+            counted = sscanf(rep + ls + 6, "%d %d", &passed, &failed) == 2;
             body = ls;              /* everything before COUNT is failure detail */
         }
+    }
+    /* No COUNT line means the engine never finished the file (it died, e.g.
+     * SIGSEGV): that is a failure, never «ok — 0 passed». */
+    if (!counted) {
+        if (rep && len) fwrite(rep, 1, len, stdout);
+        printf("FAIL  %s — no report from the engine (did it die?)\n",
+               label ? te_base(label) : "total");
+        free(rep);
+        return 2;
     }
 
     if (failed > 0 && body > 0) fwrite(rep, 1, body, stdout);   /* useful detail */

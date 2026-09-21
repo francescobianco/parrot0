@@ -744,29 +744,42 @@ static PredStat *pred_stat_slot_h(KB *kb, const char *pred, uint64_t h, int crea
     return NULL;
 }
 
-/* Old first-argument arrays are not freed while a resolution may still walk
- * them: a continuation can assert a fact of the same predicate and so stale
- * the index under an outer loop. They are released with the census, where
- * the fact buckets themselves are released. */
-static void **a0_grave;
-static size_t a0_grave_n, a0_grave_cap;
-static void a0_bury(void *p) {
+/* No census array is freed while a resolution may still walk it. A
+ * continuation can assert or retract (reading-choices.p0 does both inside a
+ * turn_form query): the append may move a bucket, the retract marks the census
+ * stale and the next lookup rebuilds it — under outer loops that still hold
+ * the old `idx`/`ridx`/first-argument arrays. Old arrays are buried here and
+ * released only when no resolution frame is live (gen516, the L2 SIGSEGV). */
+static int census_readers_live(void);
+static void **census_grave;
+static size_t census_grave_n, census_grave_cap;
+static void census_bury(void *p) {
     if (!p) return;
-    if (a0_grave_n == a0_grave_cap) {
-        size_t next = a0_grave_cap ? a0_grave_cap * 2 : 16;
-        void **g = realloc(a0_grave, next * sizeof *g);
+    if (census_grave_n == census_grave_cap) {
+        size_t next = census_grave_cap ? census_grave_cap * 2 : 16;
+        void **g = realloc(census_grave, next * sizeof *g);
         if (!g) return;             /* leak rather than free under a reader */
-        a0_grave = g; a0_grave_cap = next;
+        census_grave = g; census_grave_cap = next;
     }
-    a0_grave[a0_grave_n++] = p;
+    census_grave[census_grave_n++] = p;
 }
-static void a0_grave_empty(void) {
-    for (size_t i = 0; i < a0_grave_n; i++) free(a0_grave[i]);
-    a0_grave_n = 0;
+static void census_grave_release(void) {
+    if (census_readers_live()) return;
+    for (size_t i = 0; i < census_grave_n; i++) free(census_grave[i]);
+    census_grave_n = 0;
+}
+/* A bucket grows in place only when nobody can be walking it. */
+static size_t *census_grow(size_t *old, size_t n, size_t next) {
+    if (!census_readers_live()) return realloc(old, next * sizeof *old);
+    size_t *grown = malloc(next * sizeof *grown);
+    if (!grown) return NULL;
+    if (n) memcpy(grown, old, n * sizeof *grown);
+    census_bury(old);
+    return grown;
 }
 static void a0_stale(PredStat *e) {
     for (int k = 0; k < 2; k++) {
-        a0_bury(e->a0h[k]); a0_bury(e->a0p[k]);
+        census_bury(e->a0h[k]); census_bury(e->a0p[k]);
         e->a0h[k] = NULL; e->a0p[k] = NULL;
         e->a0n[k] = 0;
         e->a0_state[k] = 0;
@@ -787,7 +800,7 @@ static void pred_stats_drop(KB *kb) {
             free(kb->pred_stats[i].ridx);
             a0_stale(&kb->pred_stats[i]);
         }
-    a0_grave_empty();
+    census_grave_release();
     free(kb->pred_stats);
     kb->pred_stats = NULL;
     kb->pred_stats_cap = kb->pred_stats_n = 0;
@@ -842,7 +855,7 @@ static void pred_stats_note(KB *kb, size_t fi) {
     if (!e) return;
     if (e->nfacts == e->idx_cap) {
         size_t next = e->idx_cap ? e->idx_cap * 2 : 4;
-        size_t *grown = realloc(e->idx, next * sizeof *grown);
+        size_t *grown = census_grow(e->idx, e->nfacts, next);
         if (!grown) { pred_stats_drop(kb); return; }
         e->idx = grown; e->idx_cap = next;
     }
@@ -861,7 +874,7 @@ static void pred_stats_note_rule(KB *kb, size_t ri) {
     if (!e) return;
     if (e->nrules == e->ridx_cap) {
         size_t next = e->ridx_cap ? e->ridx_cap * 2 : 4;
-        size_t *grown = realloc(e->ridx, next * sizeof *grown);
+        size_t *grown = census_grow(e->ridx, e->nrules, next);
         if (!grown) { pred_stats_drop(kb); return; }
         e->ridx = grown;
         e->ridx_cap = next;
@@ -885,15 +898,15 @@ static void pred_stats_rebuild(KB *kb) {
             kb->pred_stats[i].pred[0] = '\0';
             kb->pred_stats[i].nfacts = kb->pred_stats[i].nnonground = 0;
             kb->pred_stats[i].nrules = 0;
-            free(kb->pred_stats[i].idx);
+            census_bury(kb->pred_stats[i].idx);
             kb->pred_stats[i].idx = NULL;
             kb->pred_stats[i].idx_cap = 0;
-            free(kb->pred_stats[i].ridx);
+            census_bury(kb->pred_stats[i].ridx);
             kb->pred_stats[i].ridx = NULL;
             kb->pred_stats[i].ridx_cap = 0;
             a0_stale(&kb->pred_stats[i]);
         }
-    a0_grave_empty();
+    census_grave_release();
     kb->pred_stats_n = 0;
     kb->pred_stats_dirty = 0;
     if (ctrace) {
@@ -2911,6 +2924,7 @@ static void frame_give(SolveFrame *scratch) {
     if (!scratch) return;
     frame_depth--;
     if (frame_depth >= KB_FRAME_POOL) free(scratch);
+    if (!frame_depth && census_grave_n) census_grave_release();
 }
 
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
@@ -3072,6 +3086,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         size_t visits = bound ? PRED_VISITS(fbk, S->kb) : S->kb->n;
         for (size_t vi = 0; vi < visits; vi++) {
             size_t i = bound ? PRED_AT(fbk, vi) : vi;
+            if (i >= S->kb->n) continue;      /* retracted under this walk */
             const Fact *f = &S->kb->facts[i];
             if (!kb_view_fact_visible(S->kb, f)) continue;
             if (bound && strcmp(f->pred, rp) != 0) continue;
@@ -3761,6 +3776,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     }
     for (size_t vi = 0; ground_fact_mode != 2 &&
                         vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
+        /* A continuation may have retracted: the census positions this walk
+         * holds can then run past the compacted fact table (see census_bury). */
+        if (PRED_AT(gbk, vi) >= S->kb->n) continue;
         const Fact *f = &S->kb->facts[PRED_AT(gbk, vi)];
         Subst *s2 = &scratch->subst;
         if (vi == 0 || s2->overflow != s->overflow) subst_copy(s2, s);
@@ -3825,6 +3843,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     PredBucket rbk = rule_bucket(S->kb, g->pred);
     int rule_copy_done = 0;
     for (size_t vi = 0; vi < PRED_VISITS(rbk, S->kb); vi++) { /* expand rules */
+        if (PRED_AT(rbk, vi) >= S->kb->nr) continue;
         const Rule *R = &S->kb->rules[PRED_AT(rbk, vi)];
         if (R->head.argc != g->argc || strcmp(R->head.pred, g->pred) != 0)
             continue;
@@ -4249,6 +4268,7 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
 }
 
 static size_t proof_depth;
+static int census_readers_live(void) { return frame_depth || proof_depth; }
 
 int kb_view_ensure(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return 0;
@@ -5058,6 +5078,7 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
     proof_depth++;
     int result = prove_seq_frame(kb, goals, n, idx, s, depth, frame, out, scratch);
     proof_depth--;
+    if (!proof_depth && census_grave_n) census_grave_release();
     free(scratch);
     return result;
 }
@@ -5170,6 +5191,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
 
     PredBucket pbk = pred_bucket(kb, g->pred);
     for (size_t vi = 0; vi < PRED_VISITS(pbk, kb); vi++) {  /* close by a fact */
+        if (PRED_AT(pbk, vi) >= kb->n) continue;
         if (!kb_view_fact_visible(kb, &kb->facts[PRED_AT(pbk, vi)])) continue;
         Subst *s2 = &scratch->subst;
         subst_copy(s2, s);
@@ -5185,6 +5207,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
     if (depth > KB_MAX_DEPTH) return 0;
     PredBucket rbk = rule_bucket(kb, g->pred);
     for (size_t vi = 0; vi < PRED_VISITS(rbk, kb); vi++) { /* expand a rule */
+        if (PRED_AT(rbk, vi) >= kb->nr) continue;
         const Rule *R = &kb->rules[PRED_AT(rbk, vi)];
         if (R->head.argc != g->argc || strcmp(R->head.pred, g->pred) != 0)
             continue;
