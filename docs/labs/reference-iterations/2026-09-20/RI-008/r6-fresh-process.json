@@ -1,0 +1,42 @@
+{
+ "seconds": 11.25,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@ee05216c]\nmode: agent (tools on, network off) - 157032 facts, 4996 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Which sea does the Rhone flow into?",
+   "answer": "mediterranean sea."
+  },
+  {
+   "turn": 2,
+   "prompt": "Tell me about flurbles.",
+   "answer": "I don't know much about flurbles yet, and the network is off, so I can't read about it now."
+  },
+  {
+   "turn": 3,
+   "prompt": "Stop, never mind.",
+   "answer": "All right. I will stop this proposal; you can choose whether to return to it."
+  },
+  {
+   "turn": 4,
+   "prompt": "Tell me about flurbles.",
+   "answer": "I don't know much about flurbles yet, and the network is off, so I can't read about it now."
+  },
+  {
+   "turn": 5,
+   "prompt": "continue, go on",
+   "answer": "I do not have an active proposal to continue. Give me the topic or the point you want to resume."
+  },
+  {
+   "turn": 6,
+   "prompt": "Which sea does the river of Germany flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 7,
+   "prompt": "How many minutes are there in two and a half hours?",
+   "answer": "150 minutes."
+  }
+ ]
+}

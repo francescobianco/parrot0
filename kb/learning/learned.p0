@@ -53,6 +53,7 @@ flow(danube, black_sea).
 flow(po, adriatic_sea).
 flow(thames, north_sea).
 flow(nile, mediterranean_sea).
+flow(rhone, mediterranean_sea).
 sea(adriatic_sea).
 sea(mediterranean_sea).
 sea(black_sea).
@@ -77,6 +78,8 @@ input_entity_cached(current_turn, en, ent(22, 9, north_sea)).
 input_entity_cached(current_turn, en, ent(0, 8, thames)).
 input_entity_cached(current_turn, en, ent(30, 7, two)).
 input_entity_cached(current_turn, en, ent(38, 12, half_days)).
+input_entity_cached(current_turn, en, ent(21, 9, mediterranean_sea)).
+input_entity_cached(current_turn, en, ent(0, 8, rhone)).
 input_entities_observed(current_turn, en).
 symmetric_relation(react).
 city(milan).

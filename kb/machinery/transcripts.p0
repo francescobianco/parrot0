@@ -2603,6 +2603,7 @@ utterance(2, self, "Learned: milan is a city.").
 utterance(2, self, "Learned: week has 168 hours.").
 utterance(2, self, "Learned: po flow adriatic sea.").
 utterance(2, self, "Learned: river is a relation.").
+utterance(2, self, "Learned: rhone flow mediterranean sea.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2719,6 +2720,7 @@ utterance(1, user, "Milan is a city.").
 utterance(1, user, "A week has 168 hours.").
 utterance(1, user, "The Po flows into the Adriatic Sea.").
 utterance(1, user, "river is a relation").
+utterance(1, user, "The Rhone flows into the Mediterranean Sea.").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

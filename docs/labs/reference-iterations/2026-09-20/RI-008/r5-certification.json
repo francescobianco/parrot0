@@ -1,0 +1,52 @@
+{
+ "seconds": 12.69,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@ee05216c]\nmode: agent (tools on, network off) - 157023 facts, 4996 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Tell me about flurbles.",
+   "answer": "I don't know much about flurbles yet, and the network is off, so I can't read about it now."
+  },
+  {
+   "turn": 2,
+   "prompt": "Stop, never mind.",
+   "answer": "All right. I will stop this proposal; you can choose whether to return to it."
+  },
+  {
+   "turn": 3,
+   "prompt": "The Rhone flows into the Mediterranean Sea.",
+   "answer": "Learned: rhone flow mediterranean sea."
+  },
+  {
+   "turn": 4,
+   "prompt": "Which sea does the Rhone flow into?",
+   "answer": "mediterranean sea."
+  },
+  {
+   "turn": 5,
+   "prompt": "Tell me about zorbium.",
+   "answer": "I don't know much about zorbium yet, and the network is off, so I can't read about it now."
+  },
+  {
+   "turn": 6,
+   "prompt": "never mind, stop",
+   "answer": "All right. I will stop this proposal; you can choose whether to return to it."
+  },
+  {
+   "turn": 7,
+   "prompt": "Which sea does the Rhone flow into?",
+   "answer": "mediterranean sea."
+  },
+  {
+   "turn": 8,
+   "prompt": "Tell me about zorbium.",
+   "answer": "I don't know much about zorbium yet, and the network is off, so I can't read about it now."
+  },
+  {
+   "turn": 9,
+   "prompt": "Stop, tell me about Berlin.",
+   "answer": "I don't know much about berlin yet, and the network is off, so I can't read about it now."
+  }
+ ]
+}

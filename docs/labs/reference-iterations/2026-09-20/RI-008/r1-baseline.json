@@ -1,0 +1,42 @@
+{
+ "seconds": 9.77,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@ee05216c]\nmode: agent (tools on, network off) - 157022 facts, 4994 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Which is longer, the Po or the Tiber?",
+   "answer": "Hmm, I don't know about longer yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "The Po has length 652.",
+   "answer": "Held: po scores 652 on length."
+  },
+  {
+   "turn": 3,
+   "prompt": "The Tiber has length 406.",
+   "answer": "Held: tiber scores 406 on length."
+  },
+  {
+   "turn": 4,
+   "prompt": "Which is longer, the Po or the Tiber?",
+   "answer": "Po."
+  },
+  {
+   "turn": 5,
+   "prompt": "long is the most length",
+   "answer": "Held: «long» ranks by length."
+  },
+  {
+   "turn": 6,
+   "prompt": "Which is longer, the Po or the Tiber?",
+   "answer": "Po."
+  },
+  {
+   "turn": 7,
+   "prompt": "Is the Po longer than the Tiber?",
+   "answer": "Yes."
+  }
+ ]
+}

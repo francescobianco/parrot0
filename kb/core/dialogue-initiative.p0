@@ -57,6 +57,27 @@ turn_opens_act($T) :- dialogue_opening_at($T, $Act, $End).
 dialogue_form_read($T, $Act, $Text, $End) :-
     dialogue_opening_at($T, $Act, $End),
     dialogue_shape($Act, $Mode), dialogue_payload($T, $End, $Mode, $Text).
+
+% ── RI-008 — L'INSISTENZA NON E' UN TURNO PIU' DIFFICILE ──────────────────
+%
+% «never mind» si ferma; «stop» si ferma; «Stop, never mind.» — le stesse due
+% parole dette con piu' forza — cadeva nel muro. Un atto di forma `whole`
+% vuole che il turno sia SOLO la sua apertura, e chi insiste ne mette due.
+% Chi si ferma due volte veniva capito di meno, ed e' il contrario di quello
+% che una persona si aspetta.
+%
+% Non si allarga la forma: si riconosce la RIPETIZIONE. La seconda apertura
+% dev'essere dello stesso atto, cominciare dove finisce la prima e chiudere il
+% turno. Vale per ogni atto `whole` dichiarato, oggi e domani, e non tocca gli
+% atti che una coda ce l'hanno per contratto (`rest`, `optional`).
+machinery(dialogue_second_opening).
+dialogue_second_opening($T, $Act, $From, $End) :-
+    turn_cue_form($T, dialogue_opening, $Surface), dialogue_opening($Surface, $Act),
+    atom_words($Surface, $Words), dialogue_prefix($T, $From, $Words, $End).
+dialogue_form_read($T, $Act, unspecified, $End2) :-
+    dialogue_opening_at($T, $Act, $End), dialogue_shape($Act, whole),
+    dialogue_second_opening($T, $Act, $End, $End2),
+    naf(turn_word_at($T, $End2)).
 % Si pubblicano le letture prima di confrontarle: negare una rilettura
 % ricorsiva completa faceva esaurire la profondita' sulle aperture inglesi.
 % L'assenza di un'alternativa deve essere una verifica finita sui candidati.
