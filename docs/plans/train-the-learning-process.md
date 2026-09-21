@@ -1,84 +1,85 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
-## ⏸ HANDOFF — lotto `2026-09-20`: **9 complete + 1 parziale su 10** (21 settembre 2026)
+## ⏸ HANDOFF — due lotti chiusi (21 settembre 2026)
 
-**Il lotto è chiuso.** Il §0 è stato eseguito alla lettera dieci volte; le
-schede con i transcript stanno in
-`docs/labs/reference-iterations/2026-09-20/RI-0NN/scheda.md`.
-**Per riprendere: un lotto nuovo, da R1**, sui candidati elencati in fondo.
+### Lotto `2026-09-21` — conoscenza TECNICA, su istruzione di F. (niente capitali, fiumi o filosofi)
+
+**4 complete + 1 reperto diagnostico.** Riprendere da **RI-015**, che è già
+diagnosticato e aspetta solo la cura.
 
 | ID | capacità guadagnata | stato | `W` | commit |
 |---|---|---|---:|---|
-| RI-001 | un verbo di relazione **con particella** si insegna parlando; la catena si percorre anche senza sapere dove arriva; «which *classe* does X V?» usa la classe come **filtro** | completa | 8 | `1df94622` |
-| RI-002 | una relazione ha un **verso**: la polare col *fare* non lo inverte, e l'inversione resta dove qualcuno l'ha **detta** | completa | 4 | `450a5ba8` |
-| RI-003 | una **richiesta può escludere** («but do not mention X»); una classe insegnata è scegliibile | **parziale** | 3 | `2451c96d` |
-| RI-004 | una lezione **nasce nello strato che si salva** — e chiude la seconda metà di RI-003 | completa | 4 | `749299b9` |
-| RI-005 | «two and a half hours» è **una** quantità — cura interamente KB | completa | 2 | `2c24584c` |
-| RI-006 | **si disdice con le parole con cui si è insegnato**, e il ritiro arriva su disco | completa | 2 | `ee05216c` |
-| RI-007 | al posto di un nome può stare una **descrizione** («il fiume della Germania») | completa | 3 | `f326f6ac` |
-| RI-008 | **l'insistenza** non è un turno più difficile («Stop, never mind.») | completa | 1 | `3522504e` |
-| RI-009 | una **cue dice che domanda è, non di che cosa parla** (la guardia di pertinenza) | completa | 2 | `0ceee46e` |
-| RI-010 | un **nome di relazione di più parole** («the largest city of X») | completa | 2 | `cf81c5d7` |
+| RI-011 | un **termine tecnico di più parole** è un soggetto come gli altri (metallurgia, saldatura) | completa | 4 | `723072fd` |
+| RI-012 | una frase ha **un** verbo finito, e il secondo non lo è — «direct current» non è un verbo (elettronica) | completa | 5 | `4da773f7` |
+| RI-013 | **che esistano numeri con un'unità si insegna** (networking, ottica, elettrotecnica) | completa | 3 | `108d4e23` |
+| RI-014 | una parola è **insieme nome e verbo**, e a dirlo è il maestro (idraulica, strutture) | completa | 5 | `b0554b7f` |
+| RI-015 | la lezione che apre un verbo non funziona nella forma **nuda** | **diagnostic** | 0 | `7e62bc5d` |
 
-**Contatori (§0.5).** Richieste `N = 10`; tentativi 11 (uno **scartato con
-motivazione**: il confronto su una misura risponde già appena si insegnano le
-due lunghezze — mancavano i dati, non la capacità); `iterazioni_complete = 9`;
-famiglie distinte **10**; `W` totale salvato e verificato in processo nuovo =
-**31**; `X = 0` in tutte.
+**La correzione di rotta che ha cambiato il lotto.** A metà, F.: «la missione è
+stata tradita dall'insegnare nuove forme di apprendibilità; mi sembra che gli
+stai verificando la grammatica — forse dobbiamo mettere in discussione il C che
+stiamo scrivendo». Aveva ragione: la prima cura di RI-013 era una forma di turno
+più un atto in C che faceva passare **una** frase. Il caso è scritto per intero
+nel **§0.5-bis**, con il test da applicare **prima** di scrivere una cura. Da lì
+in poi le cure hanno avuto la forma giusta:
 
-**Perché RI-003 resta parziale.** Si è chiusa con `FreshProcessRecall` 4/5: le
-sue lezioni di classe non sopravvivevano al `/save`. RI-004 ne ha trovato e
-riparato la causa — la lezione nasceva con origine `KB_REFLECTIVE`, lo strato
-che `src/kb.h` dichiara «never persisted» — e il suo processo nuovo lo
-dimostra. Il contatore resta 9 perché la prova di RI-003 è stata fatta **prima**
-della cura; la capacità c'è.
+- RI-013: tre righe di KB, **zero C**, e una **lezione** al centro («The hertz
+  measures frequency.») — il turno 4 si incolla, il 5 è la lezione, il 6 è la
+  stessa frase che si legge, e l'ablazione riporta indietro.
+- RI-014: il cancello dei concetti non decide più da solo, **chiede** — e ciò
+  che chiede è quello che il maestro ha dichiarato.
 
-**Le sei iterazioni che si sono chiamate a vicenda.** RI-002 ha chiuso il
-limite residuo n. 1 di RI-001 senza una riga scritta per quel caso; RI-004 ha
-chiuso RI-003; RI-006 ha dato a RI-007 e a RI-010 la loro **ablazione**
-(«forget that …»); RI-007 ha usato la catena di RI-001; RI-010 ha usato la
-specie diagnosticata da RI-009 per spiegare il proprio limite residuo. È il
-segno che le famiglie non erano dieci esercizi scollegati.
+**Il secondo errore mio, trovato e corretto dentro il lotto.** Il commit di
+RI-011 non conteneva i fatti appresi: li aveva portati via un `git checkout --
+kb/` fatto per ripulire i residui di `persist.p0t`, che scrive nella KB vera.
+Il processo nuovo di RI-012 l'ha scoperto, RI-012 li ha reinsegnati e
+risalvati. **Regola: dopo una suite che tocca la KB si ripulisce prima di
+salvare, mai dopo.**
 
-**Candidati per il lotto successivo, ciascuno con il sito già nominato:**
+### Lotto `2026-09-20` — 9 complete + 1 parziale
 
-1. **Le risposte inscatolate rubano la superficie** (specie di RI-009, membri
-   diversi): «largest lake is a relation» riceve la risposta sul Caspio,
-   «longest river» quella sul Nilo, «highest mountain» quella sull'Everest — e
-   la lezione non arriva mai. È il candidato più grosso che il lotto lascia.
-2. **`scope_requirement/4` è prodotto e non consumato**
-   (`kb/core/english-grammar/reading.p0:260`): la IR vede la polarità negata,
-   dichiara che serve un ambito **prima di asserire**, e il commit non glielo
-   chiede (`debug_frame_record` impegna `assertion` su un turno `directive`).
-3. **Un nome composto da due sostantivi** legge un'altra forma: «birth place is
-   a relation» rende `relation(birth, place)`, non `relation("birth place")`.
-4. **«the teacher of X»**: il nome della relazione è un agentivo del verbo
-   (teach → teacher) e `relation_noun/2` non lo deriva.
-5. **Una particella mai vista non si insegna**: «onto is a verb particle» cade
-   nel muro perché la superficie si risolve in `verb_particle/2`, arietà diversa.
-6. **La frazione senza intero** («half an hour») e l'ordine italiano («due ore
-   e mezza»).
-7. **Clausole `answer_frame` fabbricate** dal muro di una domanda
-   (`answer_frame("which sea does", search)`): trovate in pre-save e per questo
-   non salvate.
+| ID | capacità | `W` | commit |
+|---|---|---:|---|
+| RI-001 | verbo di relazione **con particella**, catena percorribile, classe come **filtro** | 8 | `1df94622` |
+| RI-002 | una relazione ha un **verso** | 4 | `450a5ba8` |
+| RI-003 | una **richiesta può escludere** (parziale) | 3 | `2451c96d` |
+| RI-004 | una lezione **nasce nello strato che si salva** | 4 | `749299b9` |
+| RI-005 | «two and a half hours» è **una** quantità | 2 | `2c24584c` |
+| RI-006 | **si disdice con le parole con cui si è insegnato**, e il ritiro arriva su disco | 2 | `ee05216c` |
+| RI-007 | al posto di un nome può stare una **descrizione** | 3 | `f326f6ac` |
+| RI-008 | **l'insistenza** non è un turno più difficile | 1 | `3522504e` |
+| RI-009 | una **cue dice che domanda è, non di che cosa parla** | 2 | `0ceee46e` |
+| RI-010 | un **nome di relazione di più parole** | 2 | `cf81c5d7` |
 
-**Come si è lavorato, e conviene continuare così.**
+**Contatori complessivi.** Richieste `N = 20`; iterazioni complete **13**; una
+parziale, un reperto diagnostico, un candidato **scartato con motivazione**;
+famiglie distinte **15**; `W` totale salvato e verificato in processo nuovo =
+**48**; `X = 0` in tutte.
 
-- **`/debug` prima del grep.** Tre volte ha nominato in una riga il sito che la
-  lettura del sorgente non trovava: `debug_frame_record` +
-  `debug_scope_requirement` (RI-003), `debug_np_candidate` (RI-005), il frame
-  che legge «teacher» come oggetto (RI-007).
-- **La domanda giusta non è «quale codice» ma «con quale origine»**: due sonde
-  temporanee hanno risolto RI-004 in due giri, e una di esse — `P0_SAVE_TRACE` —
-  è rimasta, perché è l'altra metà di `savemap.tsv`.
-- **Ogni rosso è stato misurato anche sull'albero pulito** prima di
-  attribuirselo: `enumerate`, `faceted_enumeration`, `answerframe`,
-  `abduce_chain`, `magnitude_compare`, `earned_negation`,
-  `instance_under_constraint`, `persist` erano già rossi, con gli stessi numeri.
-- **Le cure senza effetto misurabile sono state tolte**, non lasciate come
-  decorazione: due guardie in RI-003, una regola sull'ipotesi sbagliata in
-  RI-008, una guardia ricorsiva in RI-009 (che una regressione ha smascherato).
-- **Un candidato è stato scartato** invece di fabbricare un rosso (RI-008).
+### Candidati per il lotto successivo, con il sito già nominato
+
+1. **RI-015** (il primo): la forma nuda «X is a relation verb».
+   `p0_parse_mention_membership` esce sul marcatore di menzione; la cura è
+   accettare la forma nuda quando la classe è una **classe di parole**
+   (derivabile da `metalinguistic_head/1`). Va certificata col contrasto: «A
+   pump is a device.» non deve diventare una menzione.
+2. Le **risposte inscatolate** rubano la superficie: «largest lake is a
+   relation» riceve la risposta sul Caspio.
+3. `scope_requirement/4` prodotto e non consumato
+   (`kb/core/english-grammar/reading.p0:260`).
+4. Il **ruolo di due parole** in «the <ruolo> di <cosa> è <valore>».
+5. La coda preposizionale di un oggetto si perde («work in progress» → `work`).
+6. Una **particella mai vista** non si insegna.
+7. `answer_frame` fabbricate dal muro di una domanda.
+
+### Come si è lavorato
+
+- **`/debug` prima del grep**: cinque volte ha nominato in una riga il sito che
+  la lettura del sorgente non trovava.
+- La domanda giusta non è «quale codice» ma **«con quale origine»** (RI-004).
+- **Ogni rosso misurato anche sull'albero pulito** prima di attribuirselo.
+- **Le cure senza effetto misurabile si tolgono**, e le strade sbagliate si
+  scrivono nel commento perché il prossimo non le riprovi (RI-014 ne ha due).
 - `make soft-test` dopo ogni modifica al motore: sempre verde, 8-14 s su 15.
 
 **Il prompt per ripartire è quello del §0**, e vale sulla KB appena cresciuta.
