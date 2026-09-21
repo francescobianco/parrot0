@@ -2252,14 +2252,16 @@ nuovo.
 
 Se una casella critica resta vuota, lo stato non è `trained`.
 
-## L2: correzione dei confini di lettura — WIP, 21 settembre 2026
+## L2: correzione dei confini di lettura — stadio 0 provato, 22 settembre 2026
 
-**Non certificato `trained`.** Primo incremento in
+**Non ancora `trained` come capacità L2 completa**: è provato il primo gradino
+(confine di sintagma), non la comprensione della frase corretta. Stato, prove
+e punto di ripresa in
 [`docs/plans/l2-upgrade.md`](docs/plans/l2-upgrade.md#137-handoff--ripartire-qui).
-Il banco esteso riproduce un SIGSEGV nel solver: leggere il handoff prima di
-usare queste superfici per un addestramento persistente. Nessuna persistenza
-è stata verificata. Le seguenti forme sono state esercitate in questa
-sessione, ma non costituiscono ancora una capacità L2 completa e stabile.
+Il SIGSEGV del 21 settembre era un difetto del motore (`ff42ab99`), curato.
+Banco: `tests/p0t/language/l2_reading_choices.p0t`, **47/47**, anche sotto ASan.
+
+### Superfici provate, ed effetto
 
 ```text
 A relief valve opens above its set pressure.
@@ -2270,13 +2272,18 @@ how did you read the noun phrase
 forget the boundary for opens
 ```
 
-La correzione cambia il sintagma nella IR del turno precedente; non insegna
-il significato del verbo e non ripara i fatti già acquisiti. La portata per
-parola si estende soltanto dopo la richiesta esplicita. Per ritirare una
-correzione locale ancora conservata: `undo the local boundary correction for
-opens`. Le parole ripetute o più occorrenze compatibili vengono rifiutate.
-
-La portata per classe riusa le normali membership insegnate parlando:
+- **Correzione locale** (`end the previous noun phrase before X`): cambia il
+  sintagma nella IR del **turno precedente** soltanto. Parola ripetuta o più
+  occorrenze compatibili → rifiuto, mai la prima a caso. Si annulla con
+  `undo the local boundary correction for X`.
+- **Durata della correzione locale**: quanto la ritenzione del turno corretto,
+  dichiarata in KB (`turn_retained/1`, `session_window(6)`). Se da quel turno è
+  nata una questione ancora aperta, il turno — e la correzione — restano.
+- **Portata per parola**: solo dopo la richiesta esplicita (`use that boundary
+  for X in future sentences`).
+- **Portata per classe**: riusa le membership insegnate parlando, e legge la
+  classe **viva**: un membro insegnato dopo la lezione ne eredita l'effetto,
+  un membro ritirato (`forget that X is a verb`) lo perde.
 
 ```text
 opens is a verb
@@ -2286,17 +2293,51 @@ end the previous noun phrase before opens
 which classes could share the boundary for opens
 use that boundary for every verb
 A safety valve vents under pressure.
-how did you read the noun phrase
 forget the boundary for every verb
 ```
 
-Questo transcript ha mostrato il trasferimento a `vents`: il sintagma letto
-è `safety valve`. La regola consulta la classe viva, quindi il banco verifica
-anche membri successivi; **quel banco completo è attualmente bloccato dal
-crash**, non chiamare dimostrata la sua stabilità. Non contare le membership
-prerequisite come trasferimenti della lezione L2. La portata attuale è su
-ogni uso della parola: non distingue ancora omonimi nominali e verbali.
+- **Salvataggio**: `/save` conserva la sola lezione approvata, con un contrasto
+  leggibile (`reading_boundary_lesson(opens, contrast(relief_valve_opens,
+  relief_valve))`). Ricevute (`reading_choice`) e revisioni
+  (`reading_revision`) sono riflessive: non si salvano e non tornano al boot.
+- **Ritiro su disco**: `forget the boundary for …` toglie anche la riga dal
+  file (lapide `forgotten/1`). Provato salva → riparti → ritira → salva →
+  riparti, su una **copia** dell'albero `kb/`.
 
-Sono ancora progettati: portate per contesto, replay completo con revisione
-dei fatti derivati, antecedenti/ruoli, scelta ottimizzata della generalizzazione,
-save/restart/retract e insegnamento naturale di nuove forme di correzione.
+### Limiti, da non spacciare per capacità
+
+- La correzione **non** insegna il significato del verbo e **non** ripara i
+  fatti già acquisiti dalla lettura sbagliata. Non chiude nemmeno la questione
+  nata da quella lettura («Want me to learn about relief valve opens?»).
+- La risposta legacy può ancora nominare il sintagma vecchio («I don't know
+  about safety valve vents») anche quando la IR legge `safety valve`: due
+  lettori, uno solo dei quali legge la revisione.
+- La portata per classe vale su **ogni** uso della parola: un omonimo nominale
+  («check valve» dopo «check is a verb») perde il sintagma. La portata per
+  contesto è il punto 4 del piano, da discutere prima di scrivere.
+- «its» viene legato all'ultima entità insegnata, e il falso entra in KB:
+  dopo `opens is a verb` il turno della valvola acquisisce «relief valve opens
+  above **opens** set pressure». Non insegnare frasi con possessivi in una
+  sessione che si salva finché il punto 6 del piano non è chiuso.
+- La vecchia superficie `in that sentence the noun phrase ends before X` resta
+  un gap, non un sinonimo supportato.
+- Le membership prerequisite (`opens is a verb`) non si contano come
+  trasferimenti della lezione L2.
+
+### Regole valide per ogni lezione, scoperte qui
+
+1. **Ogni ritiro insegnato arriva su disco** (`978858c9`): gli atti
+   `op(retract)`/`op(retract_all)` delle forme di turno lasciano la lapide
+   `forgotten/1`, come `forget that …` di RI-006. Prima soglie, condotte e
+   lezioni disdette parlando **tornavano al boot**. Residuo: `retract_all` con
+   più posti liberi non lascia lapide.
+2. **Una forma di ritiro si scrive con l'atto `op(retract_all, …)`**, non con
+   una regola che fa `retract` dentro `op(match)`: così eredita la lapide.
+3. **Ciò che descrive il turno è `turn_scratch/1`**, o `/save` lo persiste:
+   16 righe di cache IR `current_turn` erano finite in `learned.p0`.
+4. **Un `retract` dentro una regola non fa più cadere il processo**: il
+   censimento dei predicati non libera memoria sotto una risoluzione viva.
+   Ma una scrittura dentro una query resta un effetto immediato, non una
+   transazione.
+5. **`ok … 0 passed` non esiste più**: se il demone muore, il client stampa
+   `FAIL … no report from the engine` ed esce con 2.

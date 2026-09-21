@@ -2,6 +2,48 @@
 
 ## ⏸ HANDOFF — due lotti chiusi (21 settembre 2026)
 
+### ⚠ Aggiornamento 22 settembre — che cosa cambia per i lotti dopo L2
+
+Il §0.5-bis ha un seguito operativo:
+[`l2-upgrade.md`](l2-upgrade.md). Le quattro «cure» RI-011…RI-014 erano
+decisioni **per occorrenza** (dove finisce un sintagma, quale parola è il
+verbo) che si stavano curando come proprietà di una classe. Da qui in poi,
+prima di scegliere uno stimolo, chiedersi: **l'errore è di una classe (L1) o
+di questa occorrenza (L2)?** Se è di questa occorrenza, la cura non è una forma
+di turno nuova: è una correzione della lettura con portata dichiarata
+(occorrenza → parola → classe), ed esiste già per il confine di sintagma
+(`kb/core/reading-choices.p0`, superfici in `LEARN_PROTOCOL.md` §L2).
+
+Scoperte che valgono per **ogni** iterazione di riferimento:
+
+1. **I ritiri insegnati non arrivavano su disco** — tranne `forget that …`
+   (RI-006). Gli atti `op(retract)`/`op(retract_all)` non lasciavano la lapide
+   `forgotten/1`: soglie, condotte e lezioni disdette parlando tornavano al
+   boot. Curato in `978858c9`. **Conseguenza per i conteggi:** un `W` che
+   contava un ritiro «verificato in processo nuovo» attraverso una di quelle
+   forme prima di questa data va riverificato.
+2. **Le scritture dentro una regola potevano far cadere il processo** (SIGSEGV,
+   use-after-free nel censimento, `ff42ab99`). 114 righe KB scrivono dentro
+   una regola: ogni crash «inspiegabile» in un banco di lezioni va letto con
+   ASan prima di sospettare la KB.
+3. **Il client dei test mentiva sui crash**: `ok … 0 passed` con demone morto.
+   Ora è `FAIL`. Un banco verde con **0** asserzioni non è mai stato verde.
+4. **La cache IR del turno finiva nei file curati** al `/save`
+   (`input_entity_cached(current_turn, …)`, 16 righe in `learned.p0`). Ogni
+   predicato che descrive il turno va dichiarato `turn_scratch/1`: controllarlo
+   nel diff del salvataggio a ogni iterazione.
+5. **«its» contamina i fatti appresi**: il possessivo viene legato all'ultima
+   entità insegnata, e il falso si salva («relief valve opens above **opens**
+   set pressure»). Nei lotti che salvano, evitare stimoli con possessivi finché
+   il punto 6 di `l2-upgrade.md` non è chiuso, oppure contarli come reperti
+   diagnostici, non come iterazioni complete.
+6. **Una correzione di lettura non chiude la questione nata dall'errore**:
+   l'offerta «Want me to learn about relief valve opens?» resta aperta e
+   trattiene il turno. È il debito fatto→lettura (punto 5 di `l2-upgrade.md`).
+7. **`!reset` costa ~5,5 s**, non 0,40 s (`views_warm` 3,5 s, `frame_cache`
+   1,3 s): il budget dei banchi di lezione va pensato in reset, non in turni.
+
+
 ### Lotto `2026-09-21` — conoscenza TECNICA, su istruzione di F. (niente capitali, fiumi o filosofi)
 
 **4 complete + 1 reperto diagnostico.** Riprendere da **RI-015**, che è già
