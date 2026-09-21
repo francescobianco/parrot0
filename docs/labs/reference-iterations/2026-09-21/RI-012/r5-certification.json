@@ -1,0 +1,72 @@
+{
+ "seconds": 16.81,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@723072fd]\nmode: agent (tools on, network off) - 157136 facts, 5001 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Capacitors block direct current.",
+   "answer": "Learned: capacitors block direct current."
+  },
+  {
+   "turn": 2,
+   "prompt": "What do capacitors block?",
+   "answer": "Direct current."
+  },
+  {
+   "turn": 3,
+   "prompt": "Capacitors pass alternating current.",
+   "answer": "Learned: capacitors pass alternating current."
+  },
+  {
+   "turn": 4,
+   "prompt": "What do capacitors pass?",
+   "answer": "Alternating current."
+  },
+  {
+   "turn": 5,
+   "prompt": "Rectifiers produce direct current.",
+   "answer": "Learned: rectifiers produce direct current."
+  },
+  {
+   "turn": 6,
+   "prompt": "What do rectifiers produce?",
+   "answer": "Direct current."
+  },
+  {
+   "turn": 7,
+   "prompt": "Batteries supply direct current.",
+   "answer": "Learned: batteries supply direct current."
+  },
+  {
+   "turn": 8,
+   "prompt": "What do batteries supply?",
+   "answer": "Direct current."
+  },
+  {
+   "turn": 9,
+   "prompt": "Kanban limits work in progress.",
+   "answer": "Learned: kanban limits work in progress."
+  },
+  {
+   "turn": 10,
+   "prompt": "What does kanban limit?",
+   "answer": "Work."
+  },
+  {
+   "turn": 11,
+   "prompt": "forget that capacitors block direct current.",
+   "answer": "Forgotten: capacitors block direct current."
+  },
+  {
+   "turn": 12,
+   "prompt": "What do capacitors block?",
+   "answer": "I don't understand that yet."
+  },
+  {
+   "turn": 13,
+   "prompt": "What do rectifiers produce?",
+   "answer": "Direct current."
+  }
+ ]
+}

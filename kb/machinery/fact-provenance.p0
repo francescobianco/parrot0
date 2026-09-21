@@ -510,6 +510,12 @@ fact_source(located_in(brandenburg_gate, berlin), brandenburg_gate, "the branden
 fact_source(largest_city_of(germany, berlin), germany, "the largest city of germany is berlin.").
 fact_source(largest_city_of(turkey, istanbul), turkey, "the largest city of turkey is istanbul.").
 fact_source(relation(largest_city), largest_city, "largest city is a relation").
+fact_source(limits(kanban, work_in_progress), kanban, "kanban limits work in progress.").
+fact_source(supply(batteries, direct_current), batteries, "batteries supply direct current.").
+fact_source(produce(rectifiers, direct_current), rectifiers, "rectifiers produce direct current.").
+fact_source(pass(capacitors, alternating_current), capacitors, "capacitors pass alternating current.").
+fact_source(block(capacitors, direct_current), capacitors, "capacitors block direct current.").
+fact_source(process(shielded_metal_arc_welding), shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -901,10 +907,18 @@ reading_fact(flow(po, adriatic_sea), "the po flows into the adriatic sea.").
 reading_fact(relation(river), "river is a relation").
 reading_fact(located_in(reichstag, berlin), "the reichstag is in berlin.").
 reading_fact(largest_city_of(germany, berlin), "the largest city of germany is berlin.").
+reading_fact(limits(kanban, work_in_progress), "kanban limits work in progress.").
 reading_fact(flow(rhone, mediterranean_sea), "the rhone flows into the mediterranean sea.").
+reading_fact(proposition(binary(limit), roles(subject(kanban), object(work))), "kanban limits work in progress.").
+reading_fact(supply(batteries, direct_current), "batteries supply direct current.").
 reading_fact(largest_city_of(turkey, istanbul), "the largest city of turkey is istanbul.").
+reading_fact(produce(rectifiers, direct_current), "rectifiers produce direct current.").
 reading_fact(located_in(brandenburg_gate, berlin), "the brandenburg gate is in berlin.").
+reading_fact(pass(capacitors, alternating_current), "capacitors pass alternating current.").
 reading_fact(relation(largest_city), "largest city is a relation").
+reading_fact(proposition(binary(pass), roles(subject(capacitors), object(alternating_current))), "capacitors pass alternating current.").
+reading_fact(block(capacitors, direct_current), "capacitors block direct current.").
+reading_fact(process(shielded_metal_arc_welding), "shielded metal arc welding is a process.").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -1016,16 +1030,27 @@ fact_mention(milan, "milan is a city.").
 fact_mention(mediterranean_sea, "the nile flows into the mediterranean sea.").
 fact_mention(nile, "the nile flows into the mediterranean sea.").
 fact_mention(berlin, "the largest city of germany is berlin.").
+fact_mention(work_in_progress, "kanban limits work in progress.").
+fact_mention(kanban, "kanban limits work in progress.").
 fact_mention(adriatic_sea, "the po flows into the adriatic sea.").
 fact_mention(berlin, "the reichstag is in berlin.").
 fact_mention(reichstag, "the reichstag is in berlin.").
+fact_mention(direct_current, "batteries supply direct current.").
+fact_mention(batteries, "batteries supply direct current.").
 fact_mention(germany, "the largest city of germany is berlin.").
 fact_mention(po, "the po flows into the adriatic sea.").
+fact_mention(direct_current, "rectifiers produce direct current.").
+fact_mention(rectifiers, "rectifiers produce direct current.").
 fact_mention(rhone, "the rhone flows into the mediterranean sea.").
 fact_mention(istanbul, "the largest city of turkey is istanbul.").
+fact_mention(alternating_current, "capacitors pass alternating current.").
+fact_mention(capacitors, "capacitors pass alternating current.").
 fact_mention(turkey, "the largest city of turkey is istanbul.").
 fact_mention(berlin, "the brandenburg gate is in berlin.").
 fact_mention(brandenburg_gate, "the brandenburg gate is in berlin.").
+fact_mention(direct_current, "capacitors block direct current.").
+fact_mention(capacitors, "capacitors block direct current.").
+fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

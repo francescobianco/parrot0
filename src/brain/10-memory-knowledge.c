@@ -4715,7 +4715,49 @@ static int p0_np_closer(Brain *b, const char *t) {
         b->n_np_closers = n;
         b->np_closers_rev = rev;
         b->np_closers_turn = b->turns;
+        b->np_closers_turn_filtered = 0;
         b->np_closers_live = 1;
+    }
+    /* ── RI-012 — UNA FRASE HA UN VERBO FINITO, E IL SECONDO NON LO E' ─────
+     *
+     * «Capacitors block direct current.» non si leggeva: «direct» e' un verbo
+     * di relazione (dirigere), quindi chiudeva il sintagma e l'oggetto di
+     * «block» restava vuoto. Con «alternating current» — stessa forma, una
+     * parola che non e' un verbo — la frase entra: e' la misura che isola la
+     * causa, ed e' una classe intera di termini tecnici («direct current»,
+     * «check valve», «lead time», «pressure drop»).
+     *
+     * Dentro UN turno, il primo verbo e' il verbo della frase; quelli che
+     * vengono dopo, senza congiunzione, sono modificatori. La vista dei
+     * chiusori si ricostruisce gia' a ogni turno (vedi sopra), quindi la
+     * condizione si paga una volta: si toglie dal set chi nel turno compare
+     * solo DOPO un altro chiusore. Nessuna parola nel C. */
+    if (b->active_turn_norm && !b->np_closers_turn_filtered) {
+        b->np_closers_turn_filtered = 1;
+        char tb[512];
+        size_t tl = strlen(b->active_turn_norm);
+        if (tl && tl < sizeof tb) {
+            memcpy(tb, b->active_turn_norm, tl + 1);
+            char *tw[64]; size_t tn = split_words(tb, tw, 64);
+            size_t first_closer = tn;
+            for (size_t k = 0; k < tn && first_closer == tn; k++) {
+                const char *bare = strip_edge_punct(tw[k]);
+                for (size_t i = 0; i < b->n_np_closers; i++) {
+                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", b->np_closers[i]);
+                    if (!strcmp(kb_dequote(rb2), bare)) { first_closer = k; break; }
+                }
+            }
+            for (size_t k = first_closer + 1; k < tn; k++) {
+                const char *bare = strip_edge_punct(tw[k]);
+                for (size_t i = 0; i < b->n_np_closers; i++) {
+                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", b->np_closers[i]);
+                    if (strcmp(kb_dequote(rb2), bare)) continue;
+                    /* si toglie dalla vista di QUESTO turno */
+                    b->np_closers[i][0] = '\0';
+                    break;
+                }
+            }
+        }
     }
     for (size_t i = 0; i < b->n_np_closers; i++) {
         char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", b->np_closers[i]);
@@ -4769,6 +4811,25 @@ static int p0_bad_subject(Brain *b, const char *t) {
         char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", t);
         char *ptoks[16]; size_t pn = 0;
         for (char *tok = strtok(pb, "_ "); tok && pn < 16; tok = strtok(NULL, "_ ")) ptoks[pn++] = tok;
+        /* ── RI-012 — UN SINTAGMA NON FINISCE CON UN VERBO NUDO DOPO UN NOME.
+         *
+         * «Capacitors block direct current.» non si leggeva: «direct» E' un
+         * verbo di relazione (dirigere), quindi uno schema «@S direct @O»
+         * combaciava con soggetto «capacitors block» e oggetto «current», e il
+         * fatto veniva respinto. Con «alternating current» — stessa forma, una
+         * parola che non e' un verbo — la frase entra senza problemi: e' la
+         * misura che isola la causa.
+         *
+         * La regola e' di lingua: una frase ha un verbo finito, e un nome
+         * seguito da un verbo nudo non e' un nome. L'eccezione e' il
+         * determinante davanti («the block»), dove il verbo E' il nome. Quali
+         * parole siano verbi di relazione e determinanti lo dice la KB. */
+        if (pn >= 2) {
+            const char *lastq[1] = { ptoks[pn - 1] };
+            if (kb_query(b->kb, "relation_verb", lastq, 1) &&
+                !p0_lead_det(b, ptoks[pn - 2]) &&
+                !kb_query(b->kb, "known_referent", q, 1)) return 1;
+        }
         /* gen514 — una QUANTITA' MISURATA come soggetto («at least 25 percent
          * of all marine species live in coral reefs», dopo una costruzione che
          * inverte i ruoli): limite eventuale, poi un numero. Le sue parole

@@ -1,0 +1,42 @@
+{
+ "seconds": 12.62,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@fa254ec8]\nmode: agent (tools on, network off) - 157136 facts, 5001 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "block is a relation verb",
+   "answer": "Hmm, I don't know about relation verb yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "pass is a relation verb",
+   "answer": "Hmm, I don't know about relation_verb yet."
+  },
+  {
+   "turn": 3,
+   "prompt": "A capacitor blocks direct current but passes alternating current.",
+   "answer": "I didn't keep that: «capacitor_blocks» and «current» don't read as things I can hold a fact about."
+  },
+  {
+   "turn": 4,
+   "prompt": "What does a capacitor block?",
+   "answer": "I don't understand that yet."
+  },
+  {
+   "turn": 5,
+   "prompt": "What does a capacitor pass?",
+   "answer": "I'm not sure I followed. Can you say it another way?"
+  },
+  {
+   "turn": 6,
+   "prompt": "A capacitor blocks direct current.",
+   "answer": "I didn't keep that: «capacitor_blocks» and «current» don't read as things I can hold a fact about."
+  },
+  {
+   "turn": 7,
+   "prompt": "What does a capacitor block?",
+   "answer": "I don't understand that yet."
+  }
+ ]
+}

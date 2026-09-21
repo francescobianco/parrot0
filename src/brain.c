@@ -359,6 +359,7 @@ struct Brain {
     size_t   np_closers_rev;
     unsigned long np_closers_turn;   /* 18 set 2026: la classe vede il turno (turn_mentions_word) */
     int      np_closers_live;
+    int      np_closers_turn_filtered;  /* RI-012: la vista di QUESTO turno e' gia' potata */
 
     /* gen212 (KB-first responses): rotation cursor over response_template/2 phrasings,
      * so when more than one form is registered for an intent they alternate (the gen55

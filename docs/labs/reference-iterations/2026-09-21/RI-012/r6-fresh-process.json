@@ -1,0 +1,32 @@
+{
+ "seconds": 9.09,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@723072fd]\nmode: agent (tools on, network off) - 157198 facts, 5001 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "What do capacitors block?",
+   "answer": "Direct current."
+  },
+  {
+   "turn": 2,
+   "prompt": "What do capacitors pass?",
+   "answer": "Alternating current."
+  },
+  {
+   "turn": 3,
+   "prompt": "What do batteries supply?",
+   "answer": "Direct current."
+  },
+  {
+   "turn": 4,
+   "prompt": "Is austenitic stainless steel magnetic?",
+   "answer": "No."
+  },
+  {
+   "turn": 5,
+   "prompt": "Is a tiger a mammal?",
+   "answer": "Yes."
+  }
+ ]
+}
