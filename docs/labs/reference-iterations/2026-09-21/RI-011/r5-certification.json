@@ -1,0 +1,67 @@
+{
+ "seconds": 17.6,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@fa254ec8]\nmode: agent (tools on, network off) - 157136 facts, 5001 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Austenitic stainless steel is a steel.",
+   "answer": "Learned: austenitic stainless steel is steel."
+  },
+  {
+   "turn": 2,
+   "prompt": "Austenitic stainless steel is not magnetic.",
+   "answer": "Learned: austenitic stainless steel is not magnetic."
+  },
+  {
+   "turn": 3,
+   "prompt": "Is austenitic stainless steel magnetic?",
+   "answer": "No."
+  },
+  {
+   "turn": 4,
+   "prompt": "Is austenitic stainless steel a steel?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 5,
+   "prompt": "Is ferritic stainless steel magnetic?",
+   "answer": "I don't know: nothing I hold says ferritic stainless steel is magnetic, and nothing says it isn't."
+  },
+  {
+   "turn": 6,
+   "prompt": "Ferritic stainless steel is magnetic.",
+   "answer": "Learned: ferritic stainless steel is magnetic."
+  },
+  {
+   "turn": 7,
+   "prompt": "Is ferritic stainless steel magnetic?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 8,
+   "prompt": "Shielded metal arc welding is a process.",
+   "answer": "Learned: shielded metal arc welding is a process."
+  },
+  {
+   "turn": 9,
+   "prompt": "Is shielded metal arc welding a process?",
+   "answer": "Yes."
+  },
+  {
+   "turn": 10,
+   "prompt": "forget that shielded metal arc welding is a process.",
+   "answer": "Forgotten: shielded metal arc welding is a process."
+  },
+  {
+   "turn": 11,
+   "prompt": "Is shielded metal arc welding a process?",
+   "answer": "I don't know: nothing I hold says shielded metal arc welding is process, and nothing says it isn't."
+  },
+  {
+   "turn": 12,
+   "prompt": "Is austenitic stainless steel a steel?",
+   "answer": "Yes."
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+{
+ "seconds": 11.72,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@fa254ec8]\nmode: agent (tools on, network off) - 157106 facts, 5000 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Is austenitic stainless steel magnetic?",
+   "answer": "Hmm, I don't know about austenitic yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "Austenitic stainless steel is a steel.",
+   "answer": "Learned: austenitic stainless steel is a steel."
+  },
+  {
+   "turn": 3,
+   "prompt": "Is austenitic stainless steel a steel?",
+   "answer": "Hmm, I don't know about austenitic yet."
+  },
+  {
+   "turn": 4,
+   "prompt": "Austenitic stainless steel is not magnetic.",
+   "answer": "I looked up «austenitic» but found nothing. If you know it, teach me: «austenitic is defined as …»."
+  },
+  {
+   "turn": 5,
+   "prompt": "Is austenitic stainless steel magnetic?",
+   "answer": "Hmm, I don't know about austenitic yet."
+  },
+  {
+   "turn": 6,
+   "prompt": "What is austenitic stainless steel?",
+   "answer": "austenitic stainless steel is classed as steel."
+  }
+ ]
+}

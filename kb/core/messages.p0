@@ -2621,6 +2621,51 @@ turn_form_mood(which_kind_relation_particle, question).
 turn_form_act(which_kind_relation_particle, answer_relation_in_class).
 turn_form_empty_reply(which_kind_relation_particle, no_value_in_class).
 
+% ── RI-011 — IL TERMINE TECNICO DI PIU' PAROLE, DETTO E CHIESTO ──────────
+% Il soggetto lo lega il pezzo `named` sulla vista delle entita' del turno
+% (`turn_entity_named/2`, grammar.p0): prende la superficie piu' lunga che la
+% IR ha gia' riconosciuto, quindi «austenitic stainless steel» resta intero.
+response_template(learned_property_phrase, "Learned: {subject} is {class}.").
+response_template(unary_polar_unknown, "I don't know: nothing I hold says {subject} is {kind}, and nothing says it isn't.").
+response_template(unary_polar_unknown, it, "Non so: non tengo che {subject} sia {kind}, né il contrario.").
+response_template(learned_property_phrase, it, "Imparato: {subject} è {class}.").
+turn_form(teach_property_phrase, 1, named(turn_entity_named, subject)).
+turn_form(teach_property_phrase, 2, text("is")).
+turn_form(teach_property_phrase, 3, slot(class)).
+turn_form_mood(teach_property_phrase, statement).
+turn_form_act(teach_property_phrase, assert_unary).
+turn_form_reply(teach_property_phrase, learned_property_phrase).
+
+% ⚠ Qui il pezzo `class` puo' arrivare VUOTO: la IR incolla il soggetto e la
+% proprieta' in una sola entita' («austenitic_stainless_steel_ductile»),
+% perche' fra le due non c'e' nessun marcatore. Il confine non lo indovina il
+% motore: lo cerca nella KB (vedi `answer_unary_polar`).
+turn_form(ask_property_polar, 1, class(polar_opener)).
+turn_form(ask_property_polar, 2, named(turn_entity_named, subject)).
+turn_form_mood(ask_property_polar, question).
+turn_form_act(ask_property_polar, answer_unary_polar).
+turn_form_empty_reply(ask_property_polar, unary_polar_unknown).
+
+% ⚠ qui il soggetto lo prende `span`, non `named`: l'articolo e' un'ANCORA di
+% testo, e uno span si ferma li'. Serve perche' la IR non lega sempre il
+% termine intero — con quattro parole («shielded metal arc welding») ne lega
+% dei pezzi — e allora `named` non avrebbe niente da riconoscere.
+turn_form(ask_class_polar, 1, class(polar_opener)).
+turn_form(ask_class_polar, 2, span(subject)).
+turn_form(ask_class_polar, 3, text("a")).
+turn_form(ask_class_polar, 4, rest(class)).
+turn_form_mood(ask_class_polar, question).
+turn_form_act(ask_class_polar, answer_unary_polar).
+turn_form_empty_reply(ask_class_polar, unary_polar_unknown).
+
+turn_form(ask_class_polar_an, 1, class(polar_opener)).
+turn_form(ask_class_polar_an, 2, span(subject)).
+turn_form(ask_class_polar_an, 3, text("an")).
+turn_form(ask_class_polar_an, 4, rest(class)).
+turn_form_mood(ask_class_polar_an, question).
+turn_form_act(ask_class_polar_an, answer_unary_polar).
+turn_form_empty_reply(ask_class_polar_an, unary_polar_unknown).
+
 % ── RI-010 — «WHAT IS THE <NOME DI DUE PAROLE> OF <X>?» ──────────────────
 % Il lettore storico di «the R of X» vuole UN token come nome della relazione,
 % quindi «the largest city of Turkey» non combaciava e il turno finiva a chi

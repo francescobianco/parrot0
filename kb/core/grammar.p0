@@ -224,6 +224,28 @@ auxiliary(does).
 % relazione diretta che lega i due? `kb_fact/2` e' la riflessione sui fatti, per
 % cui questa riga non nomina `located_in` ne' nessun'altra relazione — e una
 % relazione insegnata domani vale come vincolo lo stesso giorno.
+% ── RI-011 — UN TERMINE TECNICO DI PIU' PAROLE E' UN SOGGETTO COME GLI ALTRI
+%
+% «Austenitic stainless steel is a steel.» entra; «Is austenitic stainless
+% steel a steel?» no, e nemmeno «… is ductile». Il cassetto accetta il termine
+% e le maniglie lo troncano alla prima parola: `/debug` lo dice senza margini —
+% `debug_turn_entity` lega gia' `austenitic_stainless_steel`, e
+% `turn_gap_remedy` risponde «manca la STRADA: una superficie che porti il
+% fatto che gia' possiedo al turno».
+%
+% La strada e' il pezzo `named` delle forme di turno, che prende la superficie
+% PIU' LUNGA che una relazione riconosce. Qui la relazione dice soltanto come
+% si scrive, a parole staccate, un'entita' che la IR ha gia' legato in questo
+% turno: nessuna lista, nessuna scansione della KB, e vale per ogni termine
+% nuovo — «reverse osmosis membrane», «austenitic stainless steel» — il giorno
+% in cui il lettore lo lega.
+machinery(turn_entity_named).
+turn_entity_named($Surface, $Key) :-
+    input_scope_language(current_turn, $L),
+    input_entity_node(current_turn, $L, $I, $Key),
+    atom_words($Key, cons($W, cons($V, $R))),
+    words_joined(cons($W, cons($V, $R)), $Surface).
+
 machinery(member_satisfies).
 member_satisfies($Member, $Value) :- kb_fact($Pred, cons($Member, cons($Value, nil))).
 

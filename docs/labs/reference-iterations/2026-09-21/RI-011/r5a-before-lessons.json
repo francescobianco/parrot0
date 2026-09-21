@@ -1,0 +1,22 @@
+{
+ "seconds": 12.88,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@fa254ec8]\nmode: agent (tools on, network off) - 157136 facts, 5001 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Is austenitic stainless steel magnetic?",
+   "answer": "Hmm, I don't know about austenitic yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "Is ferritic stainless steel magnetic?",
+   "answer": "Hmm, I don't know about ferritic yet. Want me to learn about it?"
+  },
+  {
+   "turn": 3,
+   "prompt": "Is shielded metal arc welding a process?",
+   "answer": "Hmm, I don't know about shielded yet. Want me to learn about it?"
+  }
+ ]
+}

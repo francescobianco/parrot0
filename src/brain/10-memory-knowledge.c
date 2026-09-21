@@ -15446,6 +15446,23 @@ static void p0_forget_companions(Brain *b, const char *fact_text) {
     free(preds);
 }
 
+/* ── RI-011 — UNA LEZIONE CHE PASSA DA UNA FORMA E' UNA LEZIONE COME LE ALTRE
+ *
+ * Stessa cosa che RI-004 ha trovato nel lettore delle classi, qui nel
+ * linguaggio degli ATTI: si asseriva con l'origine che ci si trovava addosso,
+ * e il turno arriva spesso da dentro una finestra riflessiva — lo strato che
+ * `kb.h` dichiara «never persisted». Misurato: «Austenitic stainless steel is
+ * a steel.» rispondeva «Learned», e dopo il `/save` in KB non c'era. */
+static int p0_assert_taught(Brain *b, const char *pred,
+                            const char *const *args, size_t argc) {
+    if (!b || !b->kb) return 0;
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    int ok = kb_assert(b->kb, pred, args, argc);
+    kb_set_origin(b->kb, prev);
+    return ok;
+}
+
 /* L'innesco: una sola porta in C, e dietro tutte le forme che la KB dichiara. */
 /* ══ gen507/51 (forma #43) — UNA PROCEDURA PUO' CHIAMARNE UN'ALTRA ═════════
  *
@@ -16400,10 +16417,11 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                     sub ? sub : "-", rel ? rel : "-", obj ? obj : "-");
         if (!strcmp(act, "assert_negative") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
-            ok = kb_assert_neg(b->kb, rel, fa, 2);
+            { int pv = kb_origin(b->kb); kb_set_origin(b->kb, KB_SESSION);
+              ok = kb_assert_neg(b->kb, rel, fa, 2); kb_set_origin(b->kb, pv); }
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
-            ok = kb_assert(b->kb, rel, fa, 2);
+            ok = p0_assert_taught(b, rel, fa, 2);
         } else if (!strcmp(act, "recite_plan")) {
             /* gen507/61 (forma #91) — RACCONTARE LA PROPRIA CONDOTTA.
              *
@@ -16821,7 +16839,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *who = sub;
             if (!cls || !who) continue;
             const char *ua[1] = { who };
-            ok = kb_assert(b->kb, cls, ua, 1);
+            ok = p0_assert_taught(b, cls, ua, 1);
         } else if (!strcmp(act, "answer_choice") && rel) {
             /* gen507 — SCEGLIERE FRA DUE E' UN ATTO A SE'.
              * «which is bigger, zelnik or grum?» non chiede un valore: chiede
@@ -16927,6 +16945,111 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             put(msg2, out, out_size);
             free(forms);
             return 1;
+        } else if (!strcmp(act, "answer_unary_polar")) {
+            /* ── RI-011 — LA POLARE SU UNA CLASSE, CON IL SOGGETTO INTERO ───
+             *
+             * «Is austenitic stainless steel a steel?» cadeva nel muro sulla
+             * prima parola mentre la lezione gemella era gia' entrata: il
+             * cassetto accettava il termine e la maniglia lo troncava. Il
+             * soggetto qui arriva intero dal pezzo `named`, che legge la vista
+             * delle entita' del turno.
+             *
+             * La scala del verdetto e' quella di sempre: «si'» dai fatti,
+             * «no» solo se GUADAGNATO (una negazione detta), altrimenti
+             * l'onesta' — non provato non e' falso. */
+            const char *who = p0_form_slot(slots, ns, "subject");
+            const char *cls2 = p0_form_slot(slots, ns, "class");
+            if (!who || !*who) continue;
+            char subj2[KB_TERM_LEN]; snprintf(subj2, sizeof subj2, "%s", who);
+            /* L'ARTICOLO NON FA PARTE DEL NOME. `span` prende le parole fino
+             * all'ancora e non salta il determinante come fa `slot`: «is a
+             * tiger a mammal?» chiedeva `mammal(a_tiger)` e rispondeva di non
+             * sapere su un fatto che la KB tiene (rosso di `basics.p0t`, preso
+             * da `make soft-test`). Quali parole siano determinanti lo dice la
+             * KB, come sempre. */
+            {   char *us = strchr(subj2, '_');
+                if (us) {
+                    char lead[KB_TERM_LEN];
+                    snprintf(lead, sizeof lead, "%.*s", (int)(us - subj2), subj2);
+                    if (lex_class_member(b, "indefinite_article", lead) ||
+                        lex_class_member(b, "definite_article", lead))
+                        memmove(subj2, us + 1, strlen(us + 1) + 1);
+                } }
+            char kind2[KB_TERM_LEN];
+            if (cls2 && *cls2) snprintf(kind2, sizeof kind2, "%s", cls2);
+            else {
+                /* IL CONFINE LO SA LA KB, NON IL MOTORE.
+                 * «Is austenitic stainless steel ductile?» arriva con una sola
+                 * entita' incollata — `austenitic_stainless_steel_ductile` —
+                 * perche' fra il termine e la sua proprieta' non c'e' nessun
+                 * marcatore. Si prova a tagliare da destra e si tiene il primo
+                 * taglio in cui la KB riconosce ENTRAMBE le parti: a sinistra
+                 * qualcosa di cui sa qualcosa, a destra un predicato che sa
+                 * interrogare. Nessuna parola nel C, e un termine nuovo di
+                 * quattro parole funziona il giorno in cui lo si insegna. */
+                char glued[KB_TERM_LEN]; snprintf(glued, sizeof glued, "%s", who);
+                for (char *c = glued; *c; c++) if (*c == ' ') *c = '_';
+                kind2[0] = '\0';
+                for (char *cut = strrchr(glued, '_'); cut; ) {
+                    *cut = '\0';
+                    const char *tail = cut + 1;
+                    if (kb_knows_pred(b->kb, tail) && kb_mentions_term(b->kb, glued)) {
+                        snprintf(subj2, sizeof subj2, "%s", glued);
+                        snprintf(kind2, sizeof kind2, "%s", tail);
+                        break;
+                    }
+                    *cut = '_';
+                    char *prev = cut - 1;
+                    while (prev > glued && *prev != '_') prev--;
+                    cut = (prev > glued) ? prev : NULL;
+                }
+                if (!kind2[0]) continue;
+            }
+            who = subj2;
+            /* ── IL CONFINE DI QUESTA FORMA: solo il termine di PIU' PAROLE ──
+             * Su un soggetto di una parola sola il lettore storico c'era gia' e
+             * sa di piu': distingue il «no» guadagnato dal CONFLITTO («is
+             * socrates a man?» con il fatto e la sua negazione entrambi tenuti
+             * → «Conflicted.») e dice «non provato non e' lo stesso che
+             * falso». Prendergli il turno lo peggiorava per uniformita':
+             * misurato sui rossi di `persist.p0t` (30/7 invece di 31/6) e di
+             * `facts.p0t`. Questa forma esiste per il caso che quel lettore
+             * non vede, e si ferma li'. */
+            if (!strchr(who, '_')) continue;
+            { size_t kl = strlen(kind2);
+              while (kl && (kind2[kl - 1] == '?' || kind2[kl - 1] == '.' ||
+                            kind2[kl - 1] == ' ')) kind2[--kl] = '\0'; }
+            for (char *c = kind2; *c; c++) if (*c == ' ') *c = '_';
+            if (!kind2[0]) continue;
+            const char *ua2[1] = { who };
+            if (kb_query(b->kb, kind2, ua2, 1)) {
+                kb_say(b, "yes", "Yes.", out, out_size);
+                p0_said_by(b, "form", forms[f]);
+                free(forms); return 1;
+            }
+            if (kb_is_negated(b->kb, kind2, ua2, 1)) {
+                kb_say(b, "no", "No.", out, out_size);
+                p0_said_by(b, "form", forms[f]);
+                free(forms); return 1;
+            }
+            /* Riconosciuta la domanda, il turno resta suo. */
+            {   char er7[4][KB_TERM_LEN];
+                const char *eq7[2] = { forms[f], NULL };
+                if (kb_match(b->kb, "turn_form_empty_reply", eq7, 2, er7, 4) == 1) {
+                    char eb7[KB_TERM_LEN]; snprintf(eb7, sizeof eb7, "%s", er7[0]);
+                    char ss7[KB_TERM_LEN], ks7[KB_TERM_LEN];
+                    present_atom(b, who, ss7, sizeof ss7);
+                    present_atom(b, kind2, ks7, sizeof ks7);
+                    const KbResponseSlot rs7[] = { { "subject", ss7 }, { "kind", ks7 } };
+                    char m7[400];
+                    if (kb_response_slots(b, kb_dequote(eb7), rs7, 2, m7, sizeof m7)) {
+                        put(m7, out, out_size);
+                        p0_said_by(b, "form", forms[f]);
+                        free(forms); return 1;
+                    }
+                }
+            }
+            continue;
         } else if (!strcmp(act, "answer_noun_of")) {
             /* ── RI-010 — UN NOME DI RELAZIONE DI PIU' PAROLE ───────────────
              *
@@ -17190,12 +17313,29 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         if (kb_match(b->kb, "turn_form_reply", tq, 2, tpl, 4) == 1) {
             char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tpl[0]);
             char rr[KB_TERM_LEN]; present_atom(b, rel ? rel : "", rr, sizeof rr);
-            const char *cl = p0_form_slot(slots, ns, "class");
-            (void)cl;
-            const KbResponseSlot rs[] = { { "subject", sub ? sub : "" },
-                                          { "rel", rr },
-                                          { "object", obj ? obj : "" } };
-            if (kb_response_slots(b, kb_dequote(tb), rs, 3, msg, sizeof msg)) {
+            /* RI-011 — la frase di una forma puo' nominare QUALUNQUE suo pezzo.
+             * Prima ne arrivavano tre (soggetto, relazione, oggetto) e gli
+             * altri restavano scritti come `{class}` dentro la risposta: una
+             * forma nuova non poteva dire in lingua cio' che aveva letto. I
+             * nomi li porta gia' la forma; qui si passano tutti, resi come si
+             * dicono (underscore → spazi). */
+            KbResponseSlot rs[P0_FORM_SLOTS + 3];
+            char shown_slots[P0_FORM_SLOTS][KB_TERM_LEN];
+            size_t nrs = 0;
+            for (size_t z = 0; z < ns && z < P0_FORM_SLOTS; z++) {
+                present_atom(b, slots[z].value, shown_slots[z], KB_TERM_LEN);
+                rs[nrs].name = slots[z].name;
+                rs[nrs].value = shown_slots[z];
+                nrs++;
+            }
+            char subj_shown[KB_TERM_LEN];
+            present_atom(b, sub ? sub : "", subj_shown, sizeof subj_shown);
+            if (!p0_form_slot(slots, ns, "subject"))
+                { rs[nrs].name = "subject"; rs[nrs].value = subj_shown; nrs++; }
+            rs[nrs].name = "rel"; rs[nrs].value = rr; nrs++;
+            if (!p0_form_slot(slots, ns, "object"))
+                { rs[nrs].name = "object"; rs[nrs].value = obj ? obj : ""; nrs++; }
+            if (kb_response_slots(b, kb_dequote(tb), rs, nrs, msg, sizeof msg)) {
                 put(msg, out, out_size);
                 done = 1;
             }
