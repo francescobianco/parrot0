@@ -448,6 +448,11 @@ Build della patch C: `make -j2 build`, riuscita, senza nuovi warning.
 | Banco dopo la cura | **36/36**, anche sotto ASan con zero errori; `make soft-test` verde in 12 s |
 | Client `ok … 0 passed` | corretto: senza riga `COUNT` stampa `FAIL … no report from the engine` ed esce con 2 |
 | Costo dei turni L2 | `which classes could share…` 2,6 s → < 0,3 s (percorre `class_surface`, non `kb_fact/2` su tutta la KB). Il banco ora usa `!timeout 2`: il turno di **lettura** della frase della valvola costa 1,5–1,8 s già prima di ogni regola L2 |
+| **Punto 3, `978858c9` + questo commit** | banco **47/47**. Chiuse: ritiro di un membro della classe (`forget that unseats is a verb` toglie solo la sua quota della lezione per classe); scadenza della revisione locale = ritenzione del turno dichiarata in KB (`session_window(6)`), provata a 8 turni; ablazione della superficie (`!forget` della `turn_form` → muro onesto, nessuna revisione, nessun «Learned»; una superficie nuova asserita funziona senza ricompilare) |
+| Salvataggio e processo nuovo, su **copia** dell'albero `kb/` | salvata la sola `reading_boundary_lesson(opens, contrast(relief_valve_opens, relief_valve))`; ricevute e revisioni **non** salvate e assenti al boot; trasferimento a «check valve opens» nel processo nuovo; ritiro **persistito** su disco; lettura originale nel terzo processo |
+| Ritiro che non arrivava su disco (difetto di **specie**) | `op(retract)`/`op(retract_all)` non lasciavano la lapide `forgotten/1` di RI-006: ogni soglia, condotta o lezione disdetta parlando tornava al boot. Cura unica: `p0_leave_tombstone`, condivisa con `p0_forget_clause`. Residuo: il ramo `retract_all` con più posti liberi (`kb_retract_match`) non conosce le righe tolte e non lascia lapide |
+| Cache IR nel salvataggio | `input_entity_cached`/`input_entities_observed` non erano `turn_scratch`: 16 righe `current_turn` erano in `learning/learned.p0`. Dichiarate scratch, righe tolte |
+| Nuove osservazioni, **non** curate | (a) una correzione di lettura non chiude la questione nata dalla lettura sbagliata (`gap_offer_relief_valve_opens` resta aperta e trattiene il turno): è il debito fatto→lettura del punto 5; (b) dopo `opens is a verb` il turno della valvola acquisisce **«relief valve opens above opens set pressure»**: «its» legato all'ultima entità insegnata, e il falso entra in KB (§13.6.2, punto 6) |
 | Costo di `!reset` (preesistente, **non** L2) | ~5,5 s ciascuno: `views_warm` 3,5 s (di cui `extract_frame` 2,0 s, `view_pair` 810 k passi) + `frame_cache` 1,3 s. La cifra «boot 0,40 s» non vale più. Verificato identico col `kb.c` di HEAD: non è una regressione della cura. È il grosso dei 40 s del banco |
 
 Il banco esteso è stato corretto per usare la categoria `verb`, che il
@@ -522,8 +527,9 @@ di un commit di capacità. Il banco corrente non ha un risultato verde.
 | `LEARN_PROTOCOL.md` | superfici del primo incremento e limiti |
 | questo piano | revisione, contratti, rischi e sequenza di continuazione |
 
-**Aggiornamento 22 set:** i punti 1 e 2 sotto sono chiusi (vedi le ultime
-righe del §13.5). Si riparte dal punto 3.
+**Aggiornamento 22 set:** i punti 1, 2 e 3 sotto sono chiusi (vedi le ultime
+righe del §13.5). Si riparte dal punto 4, che va **discusso con F. prima di
+scrivere** (§12: come si rappresenta il contesto di una portata).
 
 **Prossima sessione, evitare deviazioni:**
 
