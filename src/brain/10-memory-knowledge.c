@@ -6804,6 +6804,18 @@ static int p0_atom_is_concept(Brain *b, const char *atom) {
         if (!p0_np_closer(b, toks[k])) continue;
         /* dopo un articolo viene un nome, anche se e' la forma di un verbo */
         if (k > 0 && p0_lead_det(b, toks[k - 1])) continue;
+        /* RI-014 — e una parola di cui il MAESTRO ha gia' detto qualcosa e' una
+         * cosa, anche se e' anche un verbo: «A pump is a device.» e da li'
+         * «Pumps move fluid.» si legge. Il plurale si porta al singolare con la
+         * KB, come ovunque. La conoscenza e' `known_referent/1` (grammar.p0),
+         * che ora include la provenienza: il motore non decide, chiede. */
+        {   const char *kq[1] = { toks[k] };
+            if (kb_query(brain_kb(b), "declared_thing", kq, 1)) continue;
+            char sing[KB_TERM_LEN]; sing[0] = '\0';
+            singularize_kb(b, toks[k], sing, sizeof sing);
+            const char *sq[1] = { sing };
+            if (sing[0] && strcmp(sing, toks[k]) &&
+                kb_query(brain_kb(b), "declared_thing", sq, 1)) continue; }
         /* gen510 — una preposizione FRA due parole piene non e' un confine
          * attraversato: e' dentro il sintagma («fall_from_height»). Il confine
          * attraversato e' quello in testa o in coda («island_country_located»,

@@ -73,6 +73,7 @@ semantic_proposition(proposition(binary(pass), roles(subject(capacitors), object
 semantic_proposition(proposition(binary(measure), roles(subject(nanometre), object(length)))).
 semantic_proposition(proposition(binary(measure), roles(subject(hertz), object(frequency)))).
 semantic_proposition(proposition(binary(measure), roles(subject(byte), object(information)))).
+semantic_proposition(proposition(binary(move), roles(subject(pump), object(fluid)))).
 semantic_binding(binary(measure), nanometre, object(length)).
 proposition_source_record(proposition(binary(measure), roles(subject(nanometre), object(length))), source(inline, "the nanometre measures length."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(pass), capacitors, object(alternating_current)).
@@ -81,6 +82,8 @@ proposition_source_record(proposition(binary(measure), roles(subject(hertz), obj
 proposition_source_record(proposition(binary(pass), roles(subject(capacitors), object(alternating_current))), source(inline, "capacitors pass alternating current."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), byte, object(information)).
 proposition_source_record(proposition(binary(measure), roles(subject(byte), object(information))), source(inline, "the byte measures information."), provenance(language(en), range(0, 30))).
+semantic_binding(binary(move), pump, object(fluid)).
+proposition_source_record(proposition(binary(move), roles(subject(pump), object(fluid))), source(inline, "pumps move fluid."), provenance(language(en), range(0, 17))).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 teach(socrates, plato).
@@ -118,3 +121,6 @@ steel(austenitic_stainless_steel).
 magnetic(ferritic_stainless_steel).
 process(shielded_metal_arc_welding).
 not(magnetic(austenitic_stainless_steel)).
+move(pumps, fluid).
+part(plate).
+carry(plates, load).

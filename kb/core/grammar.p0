@@ -2498,6 +2498,33 @@ known_referent($A) :- entity_role($A, $I).
 known_referent($V) :-
     relation_role($R, $Role), concat_atoms($Role, "_of", $P),
     apply($P, cons($O, cons($V, nil))).
+% ── RI-014 — E UNA PAROLA DI CUI IL MAESTRO HA GIA' DETTO QUALCOSA ────────
+%
+% «Pumps move fluid.» veniva respinta — «"pumps" e "fluid" non si leggono come
+% cose su cui tenere un fatto» — mentre «Compressors move fluid.», stessa forma
+% e stesso oggetto, entrava. La differenza: «pumps» e' anche la forma verbale
+% di «pump», e il cancello dei concetti rifiuta qualunque parola che sia un
+% chiusore di sintagma. Una decisione compilata che il maestro non poteva
+% correggere: gli si diceva «A pump is a device.» e la frase dopo era respinta
+% lo stesso.
+%
+% In inglese mezzo lessico tecnico e' insieme nome e verbo — pump, drive, mount,
+% coat, plate, weld, press — e quale delle due sia lo decide la frase, non un
+% elenco. Qui la conoscenza c'e' gia' e non la leggeva nessuno: la PROVENIENZA.
+% Se il maestro ha detto qualcosa di quella parola, quella parola e' una cosa.
+machinery(declared_thing).
+% Il maestro ha detto CHE COS'E': una appartenenza a una classe che ha un nome
+% pronunciato (`class_surface/2`) e non e' macchina. «A pump is a device.»
+% conta; «pumps is a relation verb» no — quella parla della PAROLA.
+declared_thing($A) :-
+    class_surface($C, $S), naf(machinery($C)), apply($C, cons($A, nil)).
+% ⚠ due strade scartate, e vale la pena scriverle:
+%  - `known_referent/1` include gia' le entita' che la IR lega nel turno
+%    (`entity_role/2`): il cancello avrebbe accettato QUALUNQUE soggetto, e
+%    l'ablazione non avrebbe mostrato piu' niente (misurato);
+%  - `fact_source($F, $A, $S)` da sola bastava a rendere «pumps» una cosa,
+%    perche' in KB c'e' `fact_source(relation_verb(pumps), pumps, "pumps is a
+%    relation verb")`: una lezione sulla PAROLA, non sulla cosa (misurato).
 
 % ── gen510 — UNA FRASE SU UN NOME NON DICE DOVE STA UNA COSA ─────────────────
 % Una ricerca su «charles» ha letto «Charles is a male given name predominantly

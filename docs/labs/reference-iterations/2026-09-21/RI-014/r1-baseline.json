@@ -1,0 +1,32 @@
+{
+ "seconds": 10.6,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@4da773f7]\nmode: agent (tools on, network off) - 157246 facts, 5007 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Engineers direct the current.",
+   "answer": "I didn't keep that: «engineers» and «current» don't read as things I can hold a fact about."
+  },
+  {
+   "turn": 2,
+   "prompt": "Welders strike an arc.",
+   "answer": "Learned: welders strike arc."
+  },
+  {
+   "turn": 3,
+   "prompt": "Anodising thickens the oxide layer.",
+   "answer": "Hmm, I don't know about oxide layer yet. Want me to learn about it?"
+  },
+  {
+   "turn": 4,
+   "prompt": "Pumps move fluid.",
+   "answer": "I didn't keep that: «pumps» and «fluid» don't read as things I can hold a fact about."
+  },
+  {
+   "turn": 5,
+   "prompt": "Surveyors measure angles.",
+   "answer": "Learned: surveyors measure angles."
+  }
+ ]
+}

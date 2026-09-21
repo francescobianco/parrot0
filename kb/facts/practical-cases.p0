@@ -26,6 +26,7 @@ pressure_surge(hydraulic_shock).
 device(carbon_monoxide_detector).
 use(co_detectors, sensor).
 device(smoke_detector).
+device(pump).
 sense(smoke_detector, smoke).
 detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas).
 consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel).

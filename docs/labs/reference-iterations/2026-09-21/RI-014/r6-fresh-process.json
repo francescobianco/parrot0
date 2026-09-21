@@ -1,0 +1,27 @@
+{
+ "seconds": 9.76,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@108d4e23]\nmode: agent (tools on, network off) - 157278 facts, 5008 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "What do pumps move?",
+   "answer": "Fluid."
+  },
+  {
+   "turn": 2,
+   "prompt": "What do plates carry?",
+   "answer": "Load."
+  },
+  {
+   "turn": 3,
+   "prompt": "Is austenitic stainless steel magnetic?",
+   "answer": "No."
+  },
+  {
+   "turn": 4,
+   "prompt": "What is the MTU of standard Ethernet?",
+   "answer": "I don't know about mtu."
+  }
+ ]
+}

@@ -519,6 +519,10 @@ fact_source(process(shielded_metal_arc_welding), shielded_metal_arc_welding, "sh
 fact_source(measures(nanometre, length), nanometre, "the nanometre measures length.").
 fact_source(measures(hertz, frequency), hertz, "the hertz measures frequency.").
 fact_source(measures(byte, information), byte, "the byte measures information.").
+fact_source(carry(plates, load), plates, "plates carry load.").
+fact_source(part(plate), plate, "a plate is a part.").
+fact_source(move(pumps, fluid), pumps, "pumps move fluid.").
+fact_source(device(pump), pump, "a pump is a device.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -925,9 +929,14 @@ reading_fact(block(capacitors, direct_current), "capacitors block direct current
 reading_fact(proposition(binary(measure), roles(subject(nanometre), object(length))), "the nanometre measures length.").
 reading_fact(measures(hertz, frequency), "the hertz measures frequency.").
 reading_fact(process(shielded_metal_arc_welding), "shielded metal arc welding is a process.").
+reading_fact(carry(plates, load), "plates carry load.").
 reading_fact(proposition(binary(measure), roles(subject(hertz), object(frequency))), "the hertz measures frequency.").
+reading_fact(part(plate), "a plate is a part.").
 reading_fact(measures(byte, information), "the byte measures information.").
+reading_fact(move(pumps, fluid), "pumps move fluid.").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
+reading_fact(proposition(binary(move), roles(subject(pump), object(fluid))), "pumps move fluid.").
+reading_fact(device(pump), "a pump is a device.").
 reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -1059,13 +1068,19 @@ fact_mention(capacitors, "capacitors pass alternating current.").
 fact_mention(turkey, "the largest city of turkey is istanbul.").
 fact_mention(berlin, "the brandenburg gate is in berlin.").
 fact_mention(frequency, "the hertz measures frequency.").
+fact_mention(load, "plates carry load.").
+fact_mention(plates, "plates carry load.").
 fact_mention(hertz, "the hertz measures frequency.").
 fact_mention(brandenburg_gate, "the brandenburg gate is in berlin.").
+fact_mention(plate, "a plate is a part.").
 fact_mention(direct_current, "capacitors block direct current.").
 fact_mention(capacitors, "capacitors block direct current.").
+fact_mention(fluid, "pumps move fluid.").
+fact_mention(pumps, "pumps move fluid.").
 fact_mention(information, "the byte measures information.").
 fact_mention(byte, "the byte measures information.").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
+fact_mention(pump, "a pump is a device.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

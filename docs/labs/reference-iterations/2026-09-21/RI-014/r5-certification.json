@@ -1,0 +1,67 @@
+{
+ "seconds": 15.64,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@108d4e23]\nmode: agent (tools on, network off) - 157247 facts, 5008 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Pumps move fluid.",
+   "answer": "I didn't keep that: «pumps» and «fluid» don't read as things I can hold a fact about."
+  },
+  {
+   "turn": 2,
+   "prompt": "A pump is a device.",
+   "answer": "Learned: pump is a device."
+  },
+  {
+   "turn": 3,
+   "prompt": "Pumps move fluid.",
+   "answer": "Learned: pumps move fluid."
+  },
+  {
+   "turn": 4,
+   "prompt": "What do pumps move?",
+   "answer": "Fluid."
+  },
+  {
+   "turn": 5,
+   "prompt": "Compressors move fluid.",
+   "answer": "Learned: compressors move fluid."
+  },
+  {
+   "turn": 6,
+   "prompt": "Welders strike an arc.",
+   "answer": "Learned: welders strike arc."
+  },
+  {
+   "turn": 7,
+   "prompt": "A plate is a part.",
+   "answer": "Learned: plate is a part."
+  },
+  {
+   "turn": 8,
+   "prompt": "Plates carry load.",
+   "answer": "Learned: plates carry load."
+  },
+  {
+   "turn": 9,
+   "prompt": "What do plates carry?",
+   "answer": "Load."
+  },
+  {
+   "turn": 10,
+   "prompt": "forget that a pump is a device.",
+   "answer": "Forgotten: a pump is a device."
+  },
+  {
+   "turn": 11,
+   "prompt": "Pumps move fluid.",
+   "answer": "I didn't keep that: «pumps» and «fluid» don't read as things I can hold a fact about."
+  },
+  {
+   "turn": 12,
+   "prompt": "What do plates carry?",
+   "answer": "Load."
+  }
+ ]
+}
