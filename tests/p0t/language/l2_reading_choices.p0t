@@ -141,3 +141,18 @@
 > pump is part of the noun phrase
 <~ Learned: float switch controls sump pump.
 !query reading_local_continuer($Quoted, pump)
+
+[test stage 3: the antecedent chosen by the text rewrite has a receipt and is corrected]
+!reset
+!timeout 3
+# Only the receipt, the inspection and the correction are certified here: the
+# sentence still does not become a fact (the reader takes «set» as its verb).
+> opens is a verb
+> A relief valve opens above its set pressure.
+> what did its refer to
+<~ I read «its» as «opens»
+!query reading_choice($Scope, its, antecedent, choice(opens, most_recent))
+> its refers to the relief valve
+> what did its refer to
+<~ I read «its» as «relief valve»
+!query reading_local_antecedent($Quoted, its, relief_valve)

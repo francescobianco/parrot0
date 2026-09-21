@@ -31,6 +31,12 @@ machinery(reading_closer).
 machinery(reading_continuer).
 machinery(reading_meta_form).
 machinery(reading_stale_clause).
+turn_scratch(reading_local_antecedent).
+turn_scratch(reading_rewrite).
+machinery(reading_local_antecedent).
+machinery(reading_rewrite).
+machinery(reading_antecedent).
+machinery(reading_antecedent_lesson).
 
 reading_has_revision($Scope, $Id) :- reading_revision($Scope, $Id, $Revision).
 reading_single(cons($X, nil), $X).
@@ -48,6 +54,8 @@ reading_meta_form(reading_boundary_undo).
 reading_meta_form(reading_boundary_promote).
 reading_meta_form(reading_reading_promote).
 reading_meta_form(reading_boundary_class_promote).
+reading_meta_form(reading_antecedent_correct).
+reading_meta_form(reading_antecedent_inspect).
 reading_meta_turn($Scope) :-
     turn_archived($Scope, $K), turn_form_concluded($K, $Form), reading_meta_form($Form),
     naf(reading_reread_scope($Scope)).
@@ -55,6 +63,7 @@ reading_reread_scope($Scope) :-
     input_node_surface($Scope, 0, $Quoted), reading_local_mark($Quoted).
 reading_local_mark($Quoted) :- reading_local_boundary($Quoted, $Word).
 reading_local_mark($Quoted) :- reading_local_continuer($Quoted, $Word).
+reading_local_mark($Quoted) :- reading_local_antecedent($Quoted, $Word, $Entity).
 reading_turn_before($Scope, $Before) :-
     turn_archived($Scope, $K), is($J, sub($K, 1)), concat_atoms(turn_, $J, $Before).
 reading_back($Scope, $Scope) :- naf(reading_meta_turn($Scope)).
@@ -202,6 +211,12 @@ reading_closer_exists(any) :- reading_boundary_class($C, $E).
 reading_stale_clause($Clause) :-
     turn_counter($N), reading_repair_pending($N, $Quoted),
     reading_fact($Fact, $Quoted), reading_stale_of($Fact, $Clause).
+% Un pronome sostituito nel testo (`coref_resolve`) fa scrivere i fatti con la
+% frase RISCRITTA come provenienza: la ricevuta `reading_rewrite/2` le collega.
+reading_stale_clause($Clause) :-
+    turn_counter($N), reading_repair_pending($N, $Quoted),
+    reading_rewrite($Quoted, $Written),
+    reading_fact($Fact, $Written), reading_stale_of($Fact, $Clause).
 reading_stale_of(proposition($Op, $Roles), semantic_proposition(proposition($Op, $Roles))).
 reading_stale_of(proposition($Op, $Roles), semantic_binding($O, $S, $F)) :-
     input_proposition_binding(proposition($Op, $Roles), $O, $S, $F),
@@ -212,6 +227,51 @@ reading_stale_of(proposition($Op, $Roles), reading_fact(proposition($Op, $Roles)
     reading_fact(proposition($Op, $Roles), $Quoted).
 reading_stale_of($Fact, $Fact) :- naf(reading_is_proposition($Fact)).
 reading_is_proposition(proposition($Op, $Roles)).
+
+% ── 5-bis. L'antecedente (stadio 3) ───────────────────────────────────────
+% Chi legge un pronome sostituito nel testo chiede qui a chi riferisce: prima
+% una correzione del maestro su QUESTA frase, poi una lezione per ruolo («its»
+% = il soggetto della sua frase). Senza risposta decide la recenza, e la sua
+% scelta lascia comunque una ricevuta (`reading_choice(…, antecedent, …)`).
+reading_antecedent($Pronoun, $Entity) :-
+    turn_span_surface(current_turn, $I, $Quoted),
+    reading_local_antecedent($Quoted, $Pronoun, $Entity).
+reading_antecedent($Pronoun, $Entity) :-
+    reading_antecedent_lesson($Pronoun, subject_of_sentence($Example)),
+    reading_current_subject($Entity).
+% Il soggetto della frase che si sta leggendo: la prima entita' della clausola.
+reading_current_subject($Entity) :-
+    input_scope_language(current_turn, $Language),
+    input_clause_entities(current_turn, $Language, $Items),
+    clause_first_entity($Items, ent($S, $Id, $Entity)).
+
+% «its refers to the relief valve»: il nome detto dal maestro, senza articolo.
+reading_span_entity($Span, $Entity) :-
+    atom_words($Span, cons($Opener, $Rest)), np_opener($Opener),
+    words_underscored($Rest, $Entity).
+reading_span_entity($Span, $Span) :-
+    atom_words($Span, cons($First, $Rest)), naf(np_opener($First)).
+% Anche un pronome che la lettura NON aveva legato si puo' legare: allora la
+% vecchia scelta e' `unbound`, purche' il pronome stia davvero nella frase.
+reading_old_antecedent($Scope, $Pronoun, $Old) :-
+    reading_choice($Scope, $Pronoun, antecedent, choice($Old, $Reason)).
+reading_old_antecedent($Scope, $Pronoun, unbound) :-
+    naf(reading_has_antecedent_choice($Scope, $Pronoun)),
+    reading_unique_token($Scope, $Pronoun, $Token).
+reading_has_antecedent_choice($Scope, $Pronoun) :-
+    reading_choice($Scope, $Pronoun, antecedent, $Choice).
+reading_correct_antecedent($Pronoun, $Span, $Quoted) :-
+    reading_discussed_scope($Scope),
+    reading_old_antecedent($Scope, $Pronoun, $Old),
+    reading_span_entity($Span, $Entity), dif($Old, $Entity),
+    input_node_surface($Scope, 0, $Quoted),
+    naf(reading_local_antecedent($Quoted, $Pronoun, $Entity)),
+    assert(reading_local_antecedent, $Quoted, $Pronoun, $Entity),
+    turn_counter($N), assert(reading_repair_pending, $N, $Quoted).
+
+reading_previous_antecedent($Pronoun, $Entity) :-
+    reading_discussed_scope($Scope),
+    reading_choice($Scope, $Pronoun, antecedent, choice($Entity, $Reason)).
 
 % ── 6. Dire come si e' letto ───────────────────────────────────────────────
 % Si cita cio' che la lettura ha registrato (le entita' della frase discussa,
@@ -282,6 +342,19 @@ reading_with_word($Scope, $Word, $Ws, $All) :-
     input_node_next($Scope, $P, $Token), bare_token($Scope, $P, $W),
     append_list($Ws, cons($Word, nil), $All).
 
+reading_correction_example($Word, antecedent, contrast($Old, $New)) :-
+    reading_local_antecedent($Quoted, $Word, $New),
+    reading_quoted_scope($Quoted, $Scope),
+    reading_choice($Scope, $Word, antecedent, choice($Old, $Reason)),
+    reading_scope_subject($Scope, $New).
+% il soggetto: il primo sintagma, letto con la sua eventuale correzione
+reading_scope_subject($Scope, $Entity) :-
+    reading_choice($Scope, $Id, np_boundary, choice(range(0, $L), $R)),
+    input_node_range($Scope, $Id, 0, $L2), reading_range_entity($Scope, range(0, $L2), $Entity).
+reading_scope_subject($Scope, $Entity) :-
+    input_node_surface($Scope, 0, $Quoted), reading_local_boundary($Quoted, $W),
+    reading_bare_run_with($Scope, $W, $Ws), reading_prefix_before($Ws, $W, $Pre),
+    words_underscored($Pre, $Entity).
 reading_correction_key($Word, k($Kind, $Example)) :-
     reading_correction_example($Word, $Kind, $Example).
 reading_promote_boundary($Word, $What) :-
@@ -292,6 +365,8 @@ reading_promote_kind(before, $Word, $Example, the_end_of_a_noun_phrase) :-
     assert(reading_boundary_lesson, $Word, $Example).
 reading_promote_kind(through, $Word, $Example, part_of_a_noun_phrase) :-
     assert(reading_continuer_lesson, $Word, $Example).
+reading_promote_kind(antecedent, $Word, $Example, the_subject_of_its_sentence) :-
+    assert(reading_antecedent_lesson, $Word, subject_of_sentence($Example)).
 
 % Una classe e' gia' un oggetto insegnabile (class_surface + appartenenza
 % unaria): si riusa, senza un elenco chiuso di classi ammesse. Si percorrono le
@@ -366,6 +441,43 @@ turn_form_act(reading_phrase_extend, "reread({result})").
 turn_form_effect_origin(reading_phrase_extend, reflective).
 turn_form_empty_reply(reading_phrase_extend, reading_no_extension).
 turn_form_wall_reply(reading_phrase_extend, reading_extended_holds_nothing).
+
+% Un pronome e' un determinante per il pezzo `slot`, che lo salterebbe: lo si
+% nomina con `named`, dai pronomi che la KB gia' conosce.
+machinery(reading_pronoun_surface).
+reading_pronoun_surface($P, $P) :- entity_pronoun($P).
+reading_pronoun_surface($P, $P) :- possessive_pronoun($P).
+% «its refers to the relief valve» — la stessa sequenza di atti del confine.
+turn_form(reading_antecedent_correct, 1, named(reading_pronoun_surface, word)).
+turn_form(reading_antecedent_correct, 2, text("refers to")).
+turn_form(reading_antecedent_correct, 3, span(entity)).
+turn_form_slot_form(reading_antecedent_correct, entity, atom).
+turn_form_priority(reading_antecedent_correct, early).
+turn_form_view(reading_antecedent_correct, said).
+turn_form_act(reading_antecedent_correct, "op(match, reading_correct_antecedent, [word, entity, free])").
+turn_form_act(reading_antecedent_correct, "op(forget_each, reading_stale_clause, [free])").
+turn_form_act(reading_antecedent_correct, "reread({result})").
+turn_form_effect_origin(reading_antecedent_correct, reflective).
+turn_form_empty_reply(reading_antecedent_correct, reading_no_antecedent_choice).
+turn_form_wall_reply(reading_antecedent_correct, reading_antecedent_holds_nothing).
+
+turn_form(reading_antecedent_inspect, 1, text("what did")).
+turn_form(reading_antecedent_inspect, 2, named(reading_pronoun_surface, word)).
+turn_form(reading_antecedent_inspect, 3, text("refer to")).
+turn_form_priority(reading_antecedent_inspect, early).
+turn_form_view(reading_antecedent_inspect, said).
+turn_form_act(reading_antecedent_inspect, "op(match, reading_previous_antecedent, [word, free])").
+turn_form_reply(reading_antecedent_inspect, reading_antecedent_inspected).
+turn_form_empty_reply(reading_antecedent_inspect, reading_no_antecedent_choice).
+
+turn_form(reading_antecedent_forget, 1, text("forget what")).
+turn_form(reading_antecedent_forget, 2, named(reading_pronoun_surface, word)).
+turn_form(reading_antecedent_forget, 3, text("refers to")).
+turn_form_priority(reading_antecedent_forget, early).
+turn_form_view(reading_antecedent_forget, said).
+turn_form_act(reading_antecedent_forget, "op(retract_all, reading_antecedent_lesson, [word, free])").
+turn_form_reply(reading_antecedent_forget, reading_antecedent_forgotten).
+turn_form_empty_reply(reading_antecedent_forget, reading_no_lesson).
 
 turn_form(reading_boundary_promote, 1, text("use that boundary for")).
 turn_form(reading_boundary_promote, 2, slot(word)).
@@ -459,6 +571,10 @@ turn_form_reply(reading_boundary_undo, reading_boundary_undone).
 turn_form_empty_reply(reading_boundary_undo, reading_no_local_revision).
 
 response_template(reading_inspected, "I read these noun phrases: {result}.").
+response_template(reading_antecedent_inspected, "In the sentence we are discussing I read «{word}» as «{result}».").
+response_template(reading_no_antecedent_choice, "I did not bind «{word}» to anything in the sentence we are discussing, or it already refers to that. I have not changed its reading.").
+response_template(reading_antecedent_holds_nothing, "I now read «{word}» as that, and I have withdrawn what my first reading had kept. Read again, the sentence still gives me nothing to hold: {reread}").
+response_template(reading_antecedent_forgotten, "I have withdrawn the lesson about what «{word}» refers to.").
 response_template(reading_no_choice, "I have no noun-phrase reading of the sentence we are discussing to show.").
 response_template(reading_reread_holds_nothing, "I now end that noun phrase before «{word}», and I have withdrawn what my first reading had kept. Read again, the sentence still gives me nothing to hold: {reread}").
 response_template(reading_extended_holds_nothing, "I now keep «{word}» inside that noun phrase, and I have withdrawn what my first reading had kept. Read again, the sentence still gives me nothing to hold: {reread}").

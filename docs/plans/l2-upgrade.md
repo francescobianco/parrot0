@@ -6,7 +6,8 @@ un'obiezione di F. che ne ha rovesciato il senso. Si appoggia al metodo delle
 [radici dell'insegnabilità](radici-insegnabilita.md), di cui è l'applicazione a
 una classe di catene che quel documento non aveva ancora censito.
 
-**Stato operativo:** i §§1–6 conservano la diagnosi storica, non una nuova
+**Stato operativo (22 settembre, sera): ripartire dal §14**, che sostituisce il
+§13.7 come handoff. I §§1–6 conservano la diagnosi storica, non una nuova
 misurazione del codice corrente. Contratto eseguibile, lavoro in corso,
 prove e guida di continuazione sono nel §13. La sola presenza della patch non
 certifica L2: servono correzione, trasferimento controllato e ritrattazione.
@@ -502,7 +503,7 @@ insegnare prima.
    erano aspettative sbagliate, non un fallimento della correzione. I test
    semantici devono verificare anche la lettura, non soltanto il template.
 
-### 13.7 HANDOFF — ripartire qui
+### 13.7 HANDOFF del 21 settembre (superato: vedi §14)
 
 **Richiesta dell'utente:** continuare il piano L2 con forte astrazione KB-first,
 massimizzando i casi coperti per lezione. L'utente ha chiesto esplicitamente
@@ -597,3 +598,139 @@ di cambiare il solver. Non introdurre una seconda KB per evitare il crash.
 Il processo gdb è terminato dopo la traccia; non occorre continuare quel
 processo. Il controllo `git diff --check` è passato. Nessun salvataggio di
 lezioni, commit o push è stato eseguito.
+
+## 14. HANDOFF — 22 settembre 2026, sera: ripartire qui
+
+**Stato in una riga.** Lo stadio 2 funziona su prosa tecnica vera: una
+correzione della lettura **arriva alla conoscenza**. Il fatto della lettura
+sbagliata si dimentica, la frase si rilegge e il fatto nuovo si tiene, con la
+portata scelta dal maestro. Lo stadio 3 (antecedente) ha ricevuta, ispezione e
+correzione, ma su un solo dei risolutori di pronomi. Banco
+`tests/p0t/language/l2_reading_choices.p0t` **53/53**; `make soft-test` verde
+in 14 s.
+
+### 14.1 Commit della giornata
+
+| commit | che cosa |
+|---|---|
+| `ff42ab99` | SIGSEGV del §13.6.5: il censimento liberava `idx`/`ridx` sotto una risoluzione viva (difetto del motore). Client `ok … 0 passed` → `FAIL` |
+| `978858c9` | ogni ritiro insegnato (`op(retract…)`) lascia la lapide e arriva su disco; cache IR dichiarata `turn_scratch` |
+| `8c6347cf` | **stadio 2**: tre atti per correzione (correggi → dimentica → rileggi), due versi, portate frase/parola/classe |
+| questo | **stadio 3, prima parte**: ricevuta, ispezione e correzione dell'antecedente in `coref_resolve` |
+
+### 14.2 Che cosa si insegna oggi, parlando (tutto provato nel banco)
+
+```text
+end the previous noun phrase before X      il sintagma finisce prima di X, in questa frase
+X belongs to the noun phrase               X sta dentro il sintagma, in questa frase
+use that reading for X in future sentences portata: la parola
+which classes could share the boundary for X   parrot0 propone le classi con un nome
+use that reading for every C               portata: la classe (membri futuri compresi)
+forget the boundary for X / for every C    ritiro, su disco
+forget that X belongs to noun phrases      ritiro della continuazione
+undo the local boundary correction for X   annulla la correzione locale
+how did you read the noun phrase           ciò che la lettura ha REGISTRATO
+what did its refer to                      l'antecedente scelto e perché
+its refers to the relief valve             correzione dell'antecedente
+```
+
+Esiti misurati (prima → dopo, stessa sessione):
+
+| frase | prima | dopo la correzione |
+|---|---|---|
+| A float switch controls the sump pump. | IR `object(sump)` contro storico `sump_pump`: due fatti in contraddizione | solo `sump_pump`; «condensate pump», «vacuum pump» si leggono giusti dopo la lezione per parola; «The station pumps water» invariata |
+| Heat treatment relieves residual stress. | rifiutata | `relieve(heat_treatment, residual_stress)`, risponde a «What relieves residual stress?» |
+| Expansive clay swells when it absorbs water. | `absorb(expansive_clay_swells, water)`, falso | ritirato; la rilettura non tiene nulla e lo dice |
+
+### 14.3 Dove vive, e il C che è servito
+
+KB: `kb/core/reading-choices.p0` (riscritto per intero: frase in discussione,
+due classi piccole `reading_closer/1` e `reading_continuer/1` con guardia
+ground di esistenza, clausole stantie, ispezione da `input_entity_cached`
+archiviato, promozione per tipo, antecedente). Agganci in `input.p0`
+(`phrase_boundary_stop`), `input-structure.p0` (`bare_noun_candidate`,
+`np_trim_verb_tail`, archivio della cache), `grammar.p0` (chiusori dei verbi di
+relazione).
+
+C, solo meccanica generica degli atti e ricevute:
+- il risultato di un `op(match)` diventa lo slot `{result}` dell'atto seguente;
+- `op(forget_each, Pred, [free])`;
+- `reread`: vista propria, frase intera in `{result}`, ricaduta su
+  `turn_form_empty_reply` / `turn_form_wall_reply`;
+- `/save`: una lapide per una clausola di nuovo viva è nulla;
+- `coref_resolve`: chiede `reading_antecedent/2` alla KB prima della recenza e
+  lascia `reading_choice(…, antecedent, …)` e `reading_rewrite/2`.
+
+Costo: con la guardia di esistenza una lettura senza lezioni fa +42 passi su
+370 k (1000 ms contro 1041 della base); una correzione rilegge (~2 s).
+
+### 14.4 Che cosa NON funziona ancora — misurato, non presunto
+
+1. **Più risolutori di pronomi, uno solo contestabile.** «A centrifugal pump
+   uses an impeller. / Cavitation damages the impeller. / It converts shaft
+   power into fluid energy.» → **«Learned: cavitation converts …»**, un fatto
+   falso. Lo lega il binder dei frame (`p0_resolve_reference`,
+   `10-memory-knowledge.c`), che non lascia ricevuta: «what did it refer to»
+   non lo vede e «it refers to the centrifugal pump» non lo corregge. Esistono
+   almeno quattro risolutori (`resolve_entity`, `p0_resolve_reference`,
+   `coref_resolve`, `reader_focus_rewrite`): la stessa scelta va portata su
+   `reading_antecedent/2` + ricevuta in ciascuno, **prima** di ogni altra specie.
+   È il primo lavoro della prossima sessione.
+2. **La specie «ruolo/verbo» non ha ancora superficie.** Nella frase della
+   valvola, con sintagma e antecedente corretti, il lettore prende ancora «set»
+   come verbo («its set pressure»). Serve «X is not the verb here» con lo stesso
+   schema (ricevuta del verbo scelto → correzione → rilettura).
+3. **Frasi che nessun lettore sa leggere.** «S V₁ when it V₂ O» (l'argilla):
+   con sintagma e antecedente giusti non nasce comunque un fatto. È un limite
+   del lettore, non dell'insegnabilità: non spacciarlo per L2.
+4. **Stadio 1 incompleto.** parrot0 dice come ha letto **se glielo si chiede**
+   e, dopo una correzione fallita, lo dice nel muro. La riga spontanea del §7.2
+   («ho letto X come una cosa sola») sul turno rifiutato non esiste ancora.
+5. **Portata per contesto** (§13.3): la classe vale su ogni uso della parola.
+   La promozione dell'antecedente è per **ruolo** («its» = il soggetto della sua
+   frase, `reading_antecedent_lesson/2`), ma è certificata solo nella regola,
+   non da un trasferimento nel banco.
+6. **Stadio 4 per i tipi nuovi.** Salva/riparti/ritira è provato (21 e 22 set)
+   per il confine per parola. Per le lezioni di continuazione, di classe e di
+   antecedente la meccanica è la stessa (`op(retract_all)` con lapide), ma
+   **non è stata riprovata in un processo nuovo**.
+7. **I segni locali durano la sessione.** `reading_local_boundary/2` e
+   `reading_local_continuer/2` sono chiavati sulla frase, non sul turno: se la
+   stessa frase torna, torna la stessa lettura. Non si salvano. Se si vuole la
+   scadenza del turno, va dichiarata in KB, non nel C.
+8. **Costo di `!reset`** ~5,5 s (preesistente, `views_warm`): è il grosso dei
+   ~90 s del banco.
+
+### 14.5 Insight pagati oggi, da non ripagare
+
+- **`naf` con variabili libere fallisce sempre**: una guardia «non esiste una
+  proposta» va chiesta con un ausiliario ground (`reading_has_proposal/2`).
+- **Le righe `current_turn` dei predicati di turno non si azzerano da sole**:
+  il segno di una correzione, chiavato così, ha fatto dimenticare anche la
+  frase corretta prima. Chiavare sul numero del turno (`turn_counter/1`).
+- **Un `brain_respond` annidato eredita la vista del turno esterno**, e la
+  potatura RI-012 dei chiusori girava sul testo della correzione. Una frase
+  riletta è un'altra frase: vista propria.
+- **Il pezzo `slot` salta un determinante iniziale**, e «its» lo è: un pronome
+  si nomina con `named(reading_pronoun_surface, word)`.
+- **La lapide di RI-006 cancellava anche una riga reinsegnata**: per questo la
+  provenienza del fatto riletto spariva al `/save`.
+- **Ordine dei goal = costo**: chiedere prima la lezione (quasi sempre assente)
+  e poi la guardia sul turno; per chi enumera centinaia di parole, una guardia
+  ground di esistenza. Misurare con `/debug` (profilo per predicato) contro un
+  binario e una KB di base, non contro la KB attuale.
+- **L'ispezione deve citare ciò che è stato letto** (`input_entity_cached`
+  archiviato), non ricostruirlo con la grammatica di adesso: dopo una
+  correzione le due cose divergono.
+
+### 14.6 Ordine di ripresa
+
+1. Portare `reading_antecedent/2` + ricevuta in `p0_resolve_reference` (il
+   binder), poi negli altri risolutori; certificare con la sequenza della pompa
+   centrifuga (§14.4.1): «it refers to the centrifugal pump» deve ritirare
+   `converts(cavitation, …)` e tenere `converts(centrifugal_pump, …)`.
+2. Trasferimento della lezione per ruolo («use that reading for its in future
+   sentences») su una frase mai corretta, con contrasto.
+3. Specie «verbo»: ricevuta della scelta del verbo, «X is not the verb here».
+4. Stadio 4 in processo nuovo per continuazione, classe, antecedente.
+5. Stadio 1: la riga spontanea sul turno rifiutato, detta con le ricevute.
