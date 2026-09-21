@@ -1,69 +1,85 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
-## ⏸ HANDOFF — lotto `2026-09-20`, 4 complete + 1 parziale su 10 (21 settembre 2026)
+## ⏸ HANDOFF — lotto `2026-09-20`: **9 complete + 1 parziale su 10** (21 settembre 2026)
 
-**Dove riprendere: RI-006, da R1.** Il metodo del §0 è stato eseguito alla
-lettera; sotto c'è lo stato, e le schede stanno in
-`docs/labs/reference-iterations/2026-09-20/RI-00N/scheda.md` con i transcript.
+**Il lotto è chiuso.** Il §0 è stato eseguito alla lettera dieci volte; le
+schede con i transcript stanno in
+`docs/labs/reference-iterations/2026-09-20/RI-0NN/scheda.md`.
+**Per riprendere: un lotto nuovo, da R1**, sui candidati elencati in fondo.
 
 | ID | capacità guadagnata | stato | `W` | commit |
 |---|---|---|---:|---|
-| RI-001 | un verbo di relazione **con particella** si insegna parlando, la sua catena si percorre anche senza conoscere l'arrivo, e «which *classe* does X V?» usa la classe come **filtro** | completa | 8 | `1df94622` |
-| RI-002 | una relazione ha un **verso**: la polare col *fare* non lo inverte più, e l'inversione resta dove qualcuno l'ha **detta** | completa | 4 | `450a5ba8` |
-| RI-003 | una **richiesta può escludere** («but do not mention X»), e una classe insegnata parlando è scegliibile | **parziale** | 3 | `2451c96d` |
-| RI-004 | una lezione **nasce nello strato che si salva** — e così la seconda metà di RI-003 si chiude | completa | 4 | `749299b9` |
-| RI-005 | «two and a half hours» è **una** quantità — cura interamente KB, nessuna riga di C | completa | 2 | `2c24584c` |
+| RI-001 | un verbo di relazione **con particella** si insegna parlando; la catena si percorre anche senza sapere dove arriva; «which *classe* does X V?» usa la classe come **filtro** | completa | 8 | `1df94622` |
+| RI-002 | una relazione ha un **verso**: la polare col *fare* non lo inverte, e l'inversione resta dove qualcuno l'ha **detta** | completa | 4 | `450a5ba8` |
+| RI-003 | una **richiesta può escludere** («but do not mention X»); una classe insegnata è scegliibile | **parziale** | 3 | `2451c96d` |
+| RI-004 | una lezione **nasce nello strato che si salva** — e chiude la seconda metà di RI-003 | completa | 4 | `749299b9` |
+| RI-005 | «two and a half hours» è **una** quantità — cura interamente KB | completa | 2 | `2c24584c` |
+| RI-006 | **si disdice con le parole con cui si è insegnato**, e il ritiro arriva su disco | completa | 2 | `ee05216c` |
+| RI-007 | al posto di un nome può stare una **descrizione** («il fiume della Germania») | completa | 3 | `f326f6ac` |
+| RI-008 | **l'insistenza** non è un turno più difficile («Stop, never mind.») | completa | 1 | `3522504e` |
+| RI-009 | una **cue dice che domanda è, non di che cosa parla** (la guardia di pertinenza) | completa | 2 | `0ceee46e` |
+| RI-010 | un **nome di relazione di più parole** («the largest city of X») | completa | 2 | `cf81c5d7` |
 
-**Contatori (§0.5):** richieste `N = 10`; tentativi 5; `iterazioni_complete = 4`;
-famiglie distinte 5 (composizione/superficie, verso, vincolo in una richiesta,
-persistenza, lettura di una quantità); `W` totale salvato e verificato in
-processo nuovo = **21**; `X = 0` in tutte.
+**Contatori (§0.5).** Richieste `N = 10`; tentativi 11 (uno **scartato con
+motivazione**: il confronto su una misura risponde già appena si insegnano le
+due lunghezze — mancavano i dati, non la capacità); `iterazioni_complete = 9`;
+famiglie distinte **10**; `W` totale salvato e verificato in processo nuovo =
+**31**; `X = 0` in tutte.
 
-**Perché RI-003 è parziale e non va riaperta.** Si è chiusa con
-`FreshProcessRecall` 4/5: le sue lezioni di classe non sopravvivevano al
-`/save`. RI-004 ha trovato e riparato la causa — la lezione nasceva con origine
-`KB_REFLECTIVE`, lo strato che `src/kb.h` dichiara «never persisted» — e il suo
-processo nuovo dimostra che adesso la capacità di RI-003 persiste. Il contatore
-resta 4 perché la prova di RI-003 è stata fatta prima della cura; la capacità
-c'è.
+**Perché RI-003 resta parziale.** Si è chiusa con `FreshProcessRecall` 4/5: le
+sue lezioni di classe non sopravvivevano al `/save`. RI-004 ne ha trovato e
+riparato la causa — la lezione nasceva con origine `KB_REFLECTIVE`, lo strato
+che `src/kb.h` dichiara «never persisted» — e il suo processo nuovo lo
+dimostra. Il contatore resta 9 perché la prova di RI-003 è stata fatta **prima**
+della cura; la capacità c'è.
 
-**Candidati già misurati per le prossime iterazioni** (in ordine di valore, e
-ciascuno con il sito già nominato):
+**Le sei iterazioni che si sono chiamate a vicenda.** RI-002 ha chiuso il
+limite residuo n. 1 di RI-001 senza una riga scritta per quel caso; RI-004 ha
+chiuso RI-003; RI-006 ha dato a RI-007 e a RI-010 la loro **ablazione**
+(«forget that …»); RI-007 ha usato la catena di RI-001; RI-010 ha usato la
+specie diagnosticata da RI-009 per spiegare il proprio limite residuo. È il
+segno che le famiglie non erano dieci esercizi scollegati.
 
-1. **Il ritiro non si persiste.** «forget that bologna is a city» risponde
-   «Forgotten» e il `/save` successivo non toglie la riga dal file:
-   `kb_save_routed` sa solo aggiungere. Una KB che non sa dimenticare su disco.
-2. **`scope_requirement/4` è prodotto e non consumato.** Su «tell me a city, but
-   do not mention Rome» con la categoria ignota, `/debug` mostra
-   `turn_illocution = directive`, `debug_scope_requirement = scope(span(7,7),
-   polarity, negated)` e un `debug_frame_record` impegnato **come assertion**: la
-   IR vede la negazione, dichiara che serve un ambito prima di asserire, e il
-   commit non glielo chiede (`kb/core/english-grammar/reading.p0:260`).
-3. **Soggetto di più parole**: `slot/1` prende un token, quindi «which sea does
-   the North Sea flow into?» torna all'elencatore.
-4. **Una particella mai vista non si insegna**: «onto is a verb particle» cade
+**Candidati per il lotto successivo, ciascuno con il sito già nominato:**
+
+1. **Le risposte inscatolate rubano la superficie** (specie di RI-009, membri
+   diversi): «largest lake is a relation» riceve la risposta sul Caspio,
+   «longest river» quella sul Nilo, «highest mountain» quella sull'Everest — e
+   la lezione non arriva mai. È il candidato più grosso che il lotto lascia.
+2. **`scope_requirement/4` è prodotto e non consumato**
+   (`kb/core/english-grammar/reading.p0:260`): la IR vede la polarità negata,
+   dichiara che serve un ambito **prima di asserire**, e il commit non glielo
+   chiede (`debug_frame_record` impegna `assertion` su un turno `directive`).
+3. **Un nome composto da due sostantivi** legge un'altra forma: «birth place is
+   a relation» rende `relation(birth, place)`, non `relation("birth place")`.
+4. **«the teacher of X»**: il nome della relazione è un agentivo del verbo
+   (teach → teacher) e `relation_noun/2` non lo deriva.
+5. **Una particella mai vista non si insegna**: «onto is a verb particle» cade
    nel muro perché la superficie si risolve in `verb_particle/2`, arietà diversa.
-5. **La frazione senza intero** («half an hour») e l'ordine italiano («due ore e
-   mezza») non sono letti.
-6. **Clausole `answer_frame` fabbricate** dal muro di una domanda
+6. **La frazione senza intero** («half an hour») e l'ordine italiano («due ore
+   e mezza»).
+7. **Clausole `answer_frame` fabbricate** dal muro di una domanda
    (`answer_frame("which sea does", search)`): trovate in pre-save e per questo
    non salvate.
 
 **Come si è lavorato, e conviene continuare così.**
 
-- `/debug` prima del grep. Due volte ha nominato in una riga il sito che la
-  lettura del sorgente non trovava (`debug_frame_record` +
-  `debug_scope_requirement` in RI-003, `debug_np_candidate` in RI-005).
-- Due sonde temporanee nel router (`P0_SAVE_TRACE`, rimasta) e in
-  `kb_set_origin` (rimossa) hanno risolto RI-004 in due giri: la domanda non era
-  «quale codice» ma «con quale **origine**».
-- Ogni rosso incontrato è stato **misurato anche sull'albero pulito** prima di
+- **`/debug` prima del grep.** Tre volte ha nominato in una riga il sito che la
+  lettura del sorgente non trovava: `debug_frame_record` +
+  `debug_scope_requirement` (RI-003), `debug_np_candidate` (RI-005), il frame
+  che legge «teacher» come oggetto (RI-007).
+- **La domanda giusta non è «quale codice» ma «con quale origine»**: due sonde
+  temporanee hanno risolto RI-004 in due giri, e una di esse — `P0_SAVE_TRACE` —
+  è rimasta, perché è l'altra metà di `savemap.tsv`.
+- **Ogni rosso è stato misurato anche sull'albero pulito** prima di
   attribuirselo: `enumerate`, `faceted_enumeration`, `answerframe`,
   `abduce_chain`, `magnitude_compare`, `earned_negation`,
   `instance_under_constraint`, `persist` erano già rossi, con gli stessi numeri.
-- Due guardie scritte in RI-003 non cambiavano nulla di misurabile e sono state
-  **tolte** invece di restare come decorazione.
-- `make soft-test` dopo ogni modifica al motore: sempre verde, 8-13 s su 15.
+- **Le cure senza effetto misurabile sono state tolte**, non lasciate come
+  decorazione: due guardie in RI-003, una regola sull'ipotesi sbagliata in
+  RI-008, una guardia ricorsiva in RI-009 (che una regressione ha smascherato).
+- **Un candidato è stato scartato** invece di fabbricare un rosso (RI-008).
+- `make soft-test` dopo ogni modifica al motore: sempre verde, 8-14 s su 15.
 
 **Il prompt per ripartire è quello del §0**, e vale sulla KB appena cresciuta.
 
