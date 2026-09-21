@@ -4151,12 +4151,18 @@ measured_value_max_words(9).
 % enumera la classe, la rivalutava per ognuno dei ~290 verbi di relazione:
 % 210 ms su 7 enumerazioni nella frase del compost, cioe' tutto il costo di
 % `np_closer`. Il significato non cambia.
-np_closer($V) :- naf(turn_mentions_word(current_turn)), relation_verb($V).
+% L2 (reading-choices.p0): una parola che il maestro ha detto parte del sintagma
+% QUI — «trap belongs to the noun phrase» — non lo chiude, anche se e' un verbo.
+% La guardia si chiede UNA volta (`reading_continuer_exists(any)`, ground): senza
+% lezioni la regola e' quella di prima, e non paga ~290 prove per enumerazione.
+np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V).
+np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)).
 % E2a, 19 settembre 2026 — e la sua forma finita al presente (-s, -es, -ies):
 % «The zorvan beetle threatens …» correva fino a fine clausola. Participi e
 % gerundi restano fuori: dentro un sintagma sono modificatori legittimi.
 machinery(finite_present_of).
-np_closer($Form) :- verb_reading_form($Root, $Form), finite_present_of($Root, $Form).
+np_closer($Form) :- naf(reading_continuer_exists(any)), verb_reading_form($Root, $Form), finite_present_of($Root, $Form).
+np_closer($Form) :- reading_continuer_exists(any), verb_reading_form($Root, $Form), finite_present_of($Root, $Form), naf(reading_continuer($Form)).
 finite_present_of($Root, $Form) :- concat_atoms($Root, "s", $Form).
 finite_present_of($Root, $Form) :- concat_atoms($Root, "es", $Form).
 finite_present_of($Root, $Form) :- y_to_ies($Root, $Form).

@@ -224,8 +224,12 @@ np_words_entity(cons($Opener, cons($W, $Rest)), $Entity) :-
 % quando la cue «what is» toglie l'ausiliare dalla IR, «the forest threatened
 % by» diventava l'entita' `forest_threatened`.
 machinery(np_trim_verb_tail).
-np_trim_verb_tail(cons($W, nil), nil) :- word_is_verb_form($W).
+np_trim_verb_tail(cons($W, nil), nil) :- word_is_verb_form($W), naf(reading_continuer_here($W)).
 np_trim_verb_tail(cons($W, nil), cons($W, nil)) :- naf(word_is_verb_form($W)).
+% ...salvo che il maestro l'abbia detta parte del sintagma (L2, reading-choices.p0).
+np_trim_verb_tail(cons($W, nil), cons($W, nil)) :- word_is_verb_form($W), reading_continuer_here($W).
+machinery(reading_continuer_here).
+reading_continuer_here($W) :- reading_continuer_exists(any), reading_continuer($W).
 np_trim_verb_tail(cons($W, cons($V, $R)), cons($W, $T)) :- np_trim_verb_tail(cons($V, $R), $T).
 input_token_in_phrase($Scope, $Id) :-
     input_node($Scope, $Id, node(token, token, $TP), $TR),
@@ -235,6 +239,7 @@ input_token_in_phrase($Scope, $Id) :-
     is($PE, add($PS, $PL)), naf(lt($Start, $PS)), lt($Start, $PE).
 bare_noun_candidate($W) :-
     naf(word_is_function_word($W)), naf(preposition($W)), naf(trailing_subordinator($W)),
+    naf(reading_closer_here($W)),
     naf(word_is_gerund($W)),
     naf(word_is_verb_form($W)), naf(word_is_number($W)).
 % Le classi funzionali sono quelle che la KB dichiara (`function_word_class/1`):
@@ -243,6 +248,9 @@ bare_noun_candidate($W) :-
 % a home for?» (r300). `np_closer` si salta perche' e' la classe piu' cara da
 % provare parola per parola, e i suoi membri funzionali (preposizioni,
 % congiunzioni) stanno gia' nelle altre.
+% (L2: una chiusura insegnata, chiesta solo se ne esiste una — reading-choices.p0.)
+machinery(reading_closer_here).
+reading_closer_here($W) :- reading_closer_exists(any), reading_closer($W).
 machinery(word_is_function_word).
 word_is_function_word($W) :-
     function_word_class($C), dif($C, np_closer), apply($C, cons($W, nil)).
@@ -296,6 +304,11 @@ machinery(input_entities_observed).
 % line 16 rows of `current_turn` cache had reached learning/learned.p0 (gen516).
 turn_scratch(input_entity_cached).
 turn_scratch(input_entities_observed).
+% ...e restano nello scope del turno archiviato: sono CIO' CHE E' STATO LETTO,
+% che un'ispezione della lettura (L2, reading-choices.p0) deve poter citare
+% invece di ricostruirlo con la grammatica di adesso.
+turn_scoped(input_entity_cached, 3).
+turn_scoped(input_entities_observed, 2).
 entity_item_between($Items, $Low, $High) :-
     member(ent($S, $I, $E), $Items), lt($Low, $S), lt($S, $High).
 

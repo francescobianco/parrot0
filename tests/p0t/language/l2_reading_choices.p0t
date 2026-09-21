@@ -1,132 +1,143 @@
-# L2 structural slice. The full profile stays loaded; teaching is natural
-# language. Internal queries prove that the ordinary IR consumer changes.
-# !timeout 2, not 1: the reading turn of the valve sentence costs 1.5-1.8 s
-# BEFORE any L2 rule runs (PARROT0_TE_SLOW, gen516). The L2 turns stay < 0.3 s.
+# L2 — docs/plans/l2-upgrade.md. The full profile stays loaded; teaching is
+# natural language; the sentences are real technical prose. Internal queries
+# check that the correction reaches the KNOWLEDGE (the wrong reading's facts
+# are withdrawn, the re-read sentence's facts are kept), not only the IR.
+# !timeout 3: a correction re-reads the sentence inside the same turn.
 [mock live]
 !set PARROT0_SESSION=
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 
-[test occurrence correction then explicit word transfer]
-!timeout 2
-> A relief valve opens above its set pressure.
-!query reading_choice(current_turn, $Id, np_boundary, $Choice)
-!query input_entity_node(current_turn, en, $Id, relief_valve_opens)
-> end the previous noun phrase before opens
-<~ For that occurrence I now read «relief valve» before «opens».
-!query reading_revision($Scope, $Id, revision($Range, before(opens)))
-!query input_entity_node(turn_1, en, $Id, relief_valve)
-!query! reading_boundary_lesson(opens, $Example)
-> use that boundary for opens in future sentences
-<~ I will end noun phrases before «opens» in future sentences.
-> A safety valve opens under pressure.
-!query input_entity_node(current_turn, en, $Id, safety_valve)
-!query! input_entity_node(current_turn, en, $Id, safety_valve_opens)
-> forget the boundary for opens
-< I have withdrawn the boundary lesson for «opens».
-> A safety valve opens under pressure.
-!query input_entity_node(current_turn, en, $Id, safety_valve_opens)
+[test a word kept inside the phrase replaces the wrong fact with the right one]
+!timeout 3
+> A float switch controls the sump pump.
+!query semantic_binding(binary(control), float_switch, object(sump))
+> how did you read the noun phrase
+<~ sump
+> pump belongs to the noun phrase
+<~ Learned: float switch controls sump pump.
+!query semantic_binding(binary(control), float_switch, object(sump_pump))
+!query! semantic_binding(binary(control), float_switch, object(sump))
+!query controls(float_switch, sump_pump)
+> how did you read the noun phrase
+<~ sump pump
+> What does a float switch control?
+<~ Sump pump.
 
-[test one boundary lesson transfers across an open class]
+[test a rejected sentence becomes knowledge after the correction]
 !reset
-!timeout 2
+!timeout 3
+> Heat treatment relieves residual stress.
+<~ I didn't keep that
+> heat belongs to the noun phrase
+<~ Learned: heat treatment relieve residual stress.
+!query relieve(heat_treatment, residual_stress)
+> What relieves residual stress?
+<~ heat treatment
+
+[test a false fact is withdrawn even when the re-read keeps nothing]
+!reset
+!timeout 3
+> Expansive clay swells when it absorbs water.
+!query semantic_binding(binary(absorb), expansive_clay_swells, object(water))
+> how did you read the noun phrase
+<~ expansive clay swells
+> end the previous noun phrase before swells
+<~ I have withdrawn what my first reading had kept
+<! Learned
+!query! semantic_binding(binary(absorb), expansive_clay_swells, object(water))
+> how did you read the noun phrase
+<~ expansive clay
+<! swells
+
+[test a word lesson transfers to sentences never corrected, and withdraws]
+!reset
+!timeout 3
+> A float switch controls the sump pump.
+> pump belongs to the noun phrase
+> use that reading for pump in future sentences
+<~ In future sentences I will read «pump» as part of a noun phrase.
+!query reading_continuer_lesson(pump, $Example)
+> The condensate pump returns water to the boiler.
+> how did you read the noun phrase
+<~ condensate pump
+> A vacuum pump removes air from the condenser.
+> how did you read the noun phrase
+<~ vacuum pump
+> forget that pump belongs to noun phrases
+< I have withdrawn the lesson that «pump» belongs to noun phrases.
+> The condensate pump returns water to the boiler.
+> how did you read the noun phrase
+<! condensate pump
+
+[test an ending lesson transfers across an open class]
+!reset
+!timeout 3
 # These memberships are prerequisite lessons, not L2 transfer successes.
 > opens is a verb
 > vents is a verb
-!query verb(opens)
-!query verb(vents)
-> A relief valve opens above its set pressure.
+# no pronoun here: the antecedent is stage 3 (its own test)
+> A relief valve opens above the set pressure.
 > end the previous noun phrase before opens
-<~ For that occurrence I now read «relief valve» before «opens».
+<~ I now end that noun phrase before «opens»
 > which classes could share the boundary for opens
 <~ verb
-> use that boundary for every verb
-<~ I will end noun phrases before members of «verb»
+> use that reading for every verb
+<~ I will read members of «verb» as the end of a noun phrase
 !query reading_boundary_class(verb, $Example)
-# New word, new subject: no occurrence correction for vents.
 > A safety valve vents under pressure.
 !query input_entity_node(current_turn, en, $Id, safety_valve)
 !query! input_entity_node(current_turn, en, $Id, safety_valve_vents)
-# The class grows after the L2 lesson, in the same binary.
 > unseats is a verb
-!query verb(unseats)
 > A pilot valve unseats under pressure.
 !query input_entity_node(current_turn, en, $Id, pilot_valve)
-!query! input_entity_node(current_turn, en, $Id, pilot_valve_unseats)
-# Withdrawing ONE member withdraws its share of the class lesson, nothing else.
 > forget that unseats is a verb
 > A pilot valve unseats under pressure.
 !query input_entity_node(current_turn, en, $Id, pilot_valve_unseats)
-> A safety valve vents under pressure.
-!query input_entity_node(current_turn, en, $Id, safety_valve)
 > forget the boundary for every verb
-< I have withdrawn the boundary lesson for the class «verb».
+< I have withdrawn the reading lesson for the class «verb».
 > A safety valve vents under pressure.
 !query input_entity_node(current_turn, en, $Id, safety_valve_vents)
 
-[test local correction is reversible and never a global lesson]
+[test a local correction is undone and never becomes a lesson]
 !reset
-!timeout 2
-> A relief valve opens above its set pressure.
-> end the previous noun phrase before opens
-<~ For that occurrence I now read «relief valve» before «opens».
-!query input_entity_node(turn_1, en, $Id, relief_valve)
-> undo the local boundary correction for opens
-<~ The original phrase reading is «relief valve opens».
+!timeout 3
+> A float switch controls the sump pump.
+> pump belongs to the noun phrase
+> undo the local boundary correction for pump
+<~ I have withdrawn the local correction for «pump»
+!query! reading_local_continuer($Quoted, pump)
 !query! reading_revision($Scope, $Id, $Revision)
-!query input_entity_node(turn_1, en, $Id, relief_valve_opens)
-> A safety valve opens under pressure.
-!query input_entity_node(current_turn, en, $Id, safety_valve_opens)
+> The condensate pump returns water to the boiler.
+> how did you read the noun phrase
+<! condensate pump
 
-[test ambiguous and absent occurrences cannot mutate readings]
+[test ambiguous and absent occurrences cannot change a reading]
 !reset
-!timeout 2
+!timeout 3
 > A relief valve opens opens under pressure.
 > end the previous noun phrase before opens
-<~ I cannot identify one unrevised noun phrase
+<~ I cannot identify one uncorrected noun phrase
 !query! reading_revision($Scope, $Id, $Revision)
 > use that boundary for opens in future sentences
 <~ I need one unambiguous corrected reading
 !query! reading_boundary_lesson(opens, $Example)
 > A relief valve opens under pressure.
-> end the previous noun phrase before absentword
-<~ I cannot identify one unrevised noun phrase
+> absentword belongs to the noun phrase
+<~ I cannot find one uncorrected noun phrase
 !query! reading_revision($Scope, $Id, $Revision)
-
-[test a local correction lasts as long as its turn is retained, no longer]
-!reset
-!timeout 2
-# Prerequisite lesson, so the sentence is acquired and opens no question:
-# with an open question the turn (and its correction) is rightly retained.
-> opens is a verb
-> A relief valve opens above its set pressure.
-> end the previous noun phrase before opens
-<~ For that occurrence I now read «relief valve» before «opens».
-!query reading_revision(turn_2, $Id, $Revision)
-> a pump is a device
-> a fan is a device
-> a lamp is a device
-> a bell is a device
-> a drum is a device
-> a gong is a device
-> a horn is a device
-> a siren is a device
-!query! reading_revision($Scope, $Id, $Revision)
-> undo the local boundary correction for opens
-<~ I cannot identify one local correction for «opens» to withdraw.
 
 [test the correction surface is knowledge: ablate it, add another, no rebuild]
 !reset
-!timeout 2
-!forget turn_form(reading_boundary_correct, 1, text("end the previous noun phrase before"))
-> A relief valve opens above its set pressure.
-> end the previous noun phrase before opens
-<! For that occurrence
-<! Learned
-!query! reading_revision($Scope, $Id, $Revision)
-!assert turn_form(reading_boundary_correct, 1, text("close the noun phrase before"))
-> A relief valve opens above its set pressure.
-> close the noun phrase before opens
-<~ For that occurrence I now read «relief valve» before «opens».
-!query reading_revision($Scope, $Id, revision($Range, before(opens)))
+!timeout 3
+!forget turn_form(reading_phrase_extend, 2, text("belongs to the noun phrase"))
+> A float switch controls the sump pump.
+> pump belongs to the noun phrase
+<! Learned: float switch controls sump pump.
+!query! reading_local_continuer($Quoted, pump)
+!assert turn_form(reading_phrase_extend, 2, text("is part of the noun phrase"))
+> A float switch controls the sump pump.
+> pump is part of the noun phrase
+<~ Learned: float switch controls sump pump.
+!query reading_local_continuer($Quoted, pump)

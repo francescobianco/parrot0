@@ -156,10 +156,11 @@ phrase_boundary(np, breaker, $Word) :- pos($Word, verb).
 phrase_boundary(np, breaker, $Word) :- clause_copula($Word).
 
 % The disjunction is knowledge; the observer keeps the evidence it used.
+% A word a lesson keeps INSIDE the phrase (reading-choices.p0) stops nothing.
 phrase_boundary_stop($Kind, $Word, phrase_boundary($Kind, breaker, $Word)) :-
-    phrase_boundary($Kind, breaker, $Word).
+    phrase_boundary($Kind, breaker, $Word), naf(reading_continuer($Word)).
 phrase_boundary_stop($Kind, $Word, phrase_boundary($Kind, closer, $Word)) :-
-    phrase_boundary($Kind, closer, $Word).
+    phrase_boundary($Kind, closer, $Word), naf(reading_continuer($Word)).
 
 register_label(c, "C").
 register_label(python, "Python").

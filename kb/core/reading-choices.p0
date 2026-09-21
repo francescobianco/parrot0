@@ -1,22 +1,70 @@
-% L2, first vertical slice: an observed NP boundary can be contradicted.
-% See docs/plans/l2-upgrade.md §13. No world fact is asserted by a repair.
+% L2 — che cosa e' vero di QUESTA occorrenza (docs/plans/l2-upgrade.md).
+%
+% Una lettura decide per occorrenza dove finisce un sintagma. Qui quella
+% decisione ha una ricevuta, si contesta parlando in due versi («end the
+% previous noun phrase before X», «X belongs to the noun phrase»), la
+% correzione arriva alla CONOSCENZA (cio' che la lettura sbagliata aveva scritto
+% si dimentica, la frase si rilegge) e si estende solo su richiesta, per parola
+% o per classe. Nessun fatto del mondo nasce dalla correzione: nasce dalla
+% rilettura, con la sua provenienza ordinaria.
 :- file_attribute(machinery).
 
 turn_scoped(reading_choice, 4).
 turn_scoped(reading_revision, 3).
 turn_scratch(reading_choice).
 turn_scratch(reading_revision).
+turn_scratch(reading_repair_pending).
+turn_scratch(reading_local_boundary).
+turn_scratch(reading_local_continuer).
 machinery(turn_form_effect_origin).
+machinery(turn_form_wall_reply).
 machinery(reading_choice).
 machinery(reading_revision).
+machinery(reading_repair_pending).
+machinery(reading_local_boundary).
+machinery(reading_local_continuer).
 machinery(reading_boundary_lesson).
 machinery(reading_boundary_class).
+machinery(reading_continuer_lesson).
+machinery(reading_continuer_class).
+machinery(reading_closer).
+machinery(reading_continuer).
+machinery(reading_meta_form).
+machinery(reading_stale_clause).
 
 reading_has_revision($Scope, $Id) :- reading_revision($Scope, $Id, $Revision).
 reading_single(cons($X, nil), $X).
 
-% A correction addresses a unique TOKEN in a unique observed phrase. Repeated
-% words and overlapping candidates are ambiguity, never a first-match guess.
+% ── 1. Quale frase si discute ──────────────────────────────────────────────
+% L'ultimo turno che il maestro non ha speso a INTERROGARE o correggere la
+% lettura: «how did you read …» seguito da una correzione deve correggere la
+% frase, non la domanda (misurato il 22 settembre). Ma un turno di correzione
+% riuscita contiene la RILETTURA della frase: e' esso stesso la frase letta.
+reading_meta_form(reading_inspect).
+reading_meta_form(reading_boundary_classes).
+reading_meta_form(reading_boundary_correct).
+reading_meta_form(reading_phrase_extend).
+reading_meta_form(reading_boundary_undo).
+reading_meta_form(reading_boundary_promote).
+reading_meta_form(reading_reading_promote).
+reading_meta_form(reading_boundary_class_promote).
+reading_meta_turn($Scope) :-
+    turn_archived($Scope, $K), turn_form_concluded($K, $Form), reading_meta_form($Form),
+    naf(reading_reread_scope($Scope)).
+reading_reread_scope($Scope) :-
+    input_node_surface($Scope, 0, $Quoted), reading_local_mark($Quoted).
+reading_local_mark($Quoted) :- reading_local_boundary($Quoted, $Word).
+reading_local_mark($Quoted) :- reading_local_continuer($Quoted, $Word).
+reading_turn_before($Scope, $Before) :-
+    turn_archived($Scope, $K), is($J, sub($K, 1)), concat_atoms(turn_, $J, $Before).
+reading_back($Scope, $Scope) :- naf(reading_meta_turn($Scope)).
+reading_back($Scope, $Target) :-
+    reading_meta_turn($Scope), reading_turn_before($Scope, $Before),
+    reading_back($Before, $Target).
+reading_discussed_scope($Scope) :- previous_turn($P), reading_back($P, $Scope).
+
+% ── 2. Il bersaglio: UN token, in UN sintagma ──────────────────────────────
+% Parole ripetute e candidati sovrapposti sono ambiguita', mai il primo a caso.
 reading_word_token($Scope, $Word, $Token) :-
     input_node_atom($Scope, $Token, $Word).
 reading_unique_token($Scope, $Word, $Token) :-
@@ -30,75 +78,263 @@ reading_boundary_target($Scope, $Word, $Id, $Token) :-
     reading_unique_token($Scope, $Word, $Token),
     findall($P, reading_boundary_candidate($Scope, $Token, $P), $Ps),
     reading_single($Ps, $Id).
+% (`naf` non lega variabili libere: si chiede con un ausiliario ground.)
+reading_has_proposal($Scope, $Word) :- reading_boundary_proposal($Scope, $Word, $Id, $Range).
+reading_has_extension($Scope, $Word) :- reading_extension_proposal($Scope, $Word, $Id, $Range).
 
-% Replay uses the existing token/span consumer, with the proposed interval.
-% All validation and wording happen BEFORE the only write (last goal).
+% Chiudere prima di X: l'intervallo finisce col token che precede X.
 reading_boundary_proposal($Scope, $Word, $Id, range($PS, $Len)) :-
     reading_boundary_target($Scope, $Word, $Id, $Token),
     reading_choice($Scope, $Id, np_boundary, choice(range($PS, $OldLen), $Reason)),
     input_node_next($Scope, $Prev, $Token),
     input_node_range($Scope, $Prev, $BS, $BL),
     is($End, add($BS, $BL)), is($Len, sub($End, $PS)), gt($Len, 0).
+% X appartiene al sintagma: X e' il token subito dopo la sua fine.
+reading_extension_proposal($Scope, $Word, $Id, range($PS, $Len)) :-
+    reading_unique_token($Scope, $Word, $Token),
+    reading_choice($Scope, $Id, np_boundary, choice(range($PS, $PL), $Reason)),
+    input_node_range($Scope, $Token, $TS, $TL),
+    is($TS, add($PS, add($PL, 1))), is($Len, sub(add($TS, $TL), $PS)).
 reading_range_entity($Scope, range($PS, $Len), $Entity) :-
     is($End, add($PS, $Len)),
     findall($W, token_in_span($Scope, $PS, $End, $W), $Ws),
     np_words_entity($Ws, $Entity).
-reading_correct_boundary($Word, $Entity) :-
-    previous_turn($Scope),
+
+% Senza articolo il sintagma non ha ricevuta del produttore: lo decide la KB
+% (`bare_run`). La correzione vale allora per la frase — confine locale, oblio,
+% rilettura — senza un intervallo da rivedere.
+reading_bare_target($Scope, $Word) :-
+    reading_unique_token($Scope, $Word, $Token),
+    bare_noun_neighbour_before($Scope, $Token).
+reading_bare_adjacent($Scope, $Word) :-
+    reading_unique_token($Scope, $Word, $Token),
+    input_node_next($Scope, $Token, $N), tokens_contiguous($Scope, $Token, $N),
+    bare_token($Scope, $N, $W).
+reading_bare_adjacent($Scope, $Word) :-
+    reading_unique_token($Scope, $Word, $Token),
+    input_node_next($Scope, $P, $Token), tokens_contiguous($Scope, $P, $Token),
+    bare_token($Scope, $P, $W).
+
+% ── 3. La correzione di UNA occorrenza ─────────────────────────────────────
+% Revisione della IR (se c'e' una ricevuta) e un segno che vale per QUELLA frase
+% (chiave: la sua superficie), letto da chi legge i sintagmi quando la frase
+% torna a essere letta. Il risultato e' la frase: l'atto seguente la rilegge.
+% Tutte le validazioni precedono le scritture.
+reading_correct_boundary($Word, $Quoted) :-
+    reading_discussed_scope($Scope),
     reading_boundary_proposal($Scope, $Word, $Id, $Range),
     naf(reading_has_revision($Scope, $Id)),
-    reading_range_entity($Scope, $Range, $Entity),
+    input_node_surface($Scope, 0, $Quoted),
+    assert(reading_local_boundary, $Quoted, $Word),
+    turn_counter($N), assert(reading_repair_pending, $N, $Quoted),
     assert(reading_revision, $Scope, $Id, revision($Range, before($Word))).
+reading_correct_boundary($Word, $Quoted) :-
+    reading_discussed_scope($Scope),
+    naf(reading_has_proposal($Scope, $Word)),
+    reading_bare_target($Scope, $Word),
+    input_node_surface($Scope, 0, $Quoted),
+    naf(reading_local_boundary($Quoted, $Word)),
+    assert(reading_local_boundary, $Quoted, $Word),
+    turn_counter($N), assert(reading_repair_pending, $N, $Quoted).
+reading_extend_phrase($Word, $Quoted) :-
+    reading_discussed_scope($Scope),
+    reading_extension_proposal($Scope, $Word, $Id, $Range),
+    naf(reading_has_revision($Scope, $Id)),
+    input_node_surface($Scope, 0, $Quoted),
+    assert(reading_local_continuer, $Quoted, $Word),
+    turn_counter($N), assert(reading_repair_pending, $N, $Quoted),
+    assert(reading_revision, $Scope, $Id, revision($Range, through($Word))).
+reading_extend_phrase($Word, $Quoted) :-
+    reading_discussed_scope($Scope),
+    naf(reading_has_extension($Scope, $Word)),
+    reading_bare_adjacent($Scope, $Word),
+    input_node_surface($Scope, 0, $Quoted),
+    naf(reading_local_continuer($Quoted, $Word)),
+    assert(reading_local_continuer, $Quoted, $Word),
+    turn_counter($N), assert(reading_repair_pending, $N, $Quoted).
 
-% Inspection reads receipts, not a reconstruction of the current grammar.
+% ── 4. Chi legge la correzione ─────────────────────────────────────────────
+% Tutte le portate sono DUE classi piccole. `reading_closer/1` chiude un
+% sintagma: la chiede `np_closer/1` (la IR e il lettore dei fatti) e la
+% sequenza senza articolo (`bare_noun_candidate/1`, che non interroga
+% `np_closer` intero perche' costa). `reading_continuer/1` tiene una parola
+% DENTRO il sintagma: il produttore non si ferma li' (`phrase_boundary_stop`),
+% la sequenza nuda la accetta, e un verbo di relazione non la chiude. Come un
+% verbo di relazione, nessuna delle due vale in un turno che parla di una
+% parola. Una portata nuova domani e' una regola qui.
+reading_closer($Word) :-
+    reading_local_boundary($Quoted, $Word), turn_span_surface(current_turn, $I, $Quoted).
+% (Ordine misurato: la lezione, quasi sempre assente, si chiede PRIMA della
+% guardia sul turno, che scorre le parole e si pagava per ogni parola letta.)
+reading_closer($Word) :-
+    reading_boundary_lesson($Word, $Example), naf(turn_mentions_word(current_turn)).
+reading_closer($Word) :-
+    reading_boundary_class($Class, $Example), apply($Class, cons($Word, nil)),
+    naf(turn_mentions_word(current_turn)).
+np_closer($Word) :- reading_closer_exists(any), reading_closer($Word).
+reading_continuer($Word) :-
+    reading_local_continuer($Quoted, $Word), turn_span_surface(current_turn, $I, $Quoted).
+reading_continuer($Word) :-
+    reading_continuer_lesson($Word, $Example), naf(turn_mentions_word(current_turn)).
+reading_continuer($Word) :-
+    reading_continuer_class($Class, $Example), apply($Class, cons($Word, nil)),
+    naf(turn_mentions_word(current_turn)).
+bare_noun_candidate($Word) :- reading_continuer_exists(any), reading_continuer($Word).
+% Esiste almeno una continuazione o una chiusura insegnata? Una domanda ground,
+% cosi' chi enumera centinaia di parole non paga le prove quando non ce n'e'.
+machinery(reading_continuer_exists).
+machinery(reading_closer_exists).
+reading_continuer_exists(any) :- reading_local_continuer($Q, $W).
+reading_continuer_exists(any) :- reading_continuer_lesson($W, $E).
+reading_continuer_exists(any) :- reading_continuer_class($C, $E).
+reading_closer_exists(any) :- reading_local_boundary($Q, $W).
+reading_closer_exists(any) :- reading_boundary_lesson($W, $E).
+reading_closer_exists(any) :- reading_boundary_class($C, $E).
+
+% ── 5. Che cosa aveva scritto la lettura sbagliata ─────────────────────────
+% Ogni clausola la cui provenienza e' quella frase. Una proposizione della IR
+% vive in tre clausole (proposizione, legame, provenienza); un fatto del
+% lettore storico e' la clausola stessa. Le scie (`reading_fact`,
+% `fact_source`) se ne vanno con `retraction_companion/1`.
+% Il segno e' chiavato sul NUMERO del turno (come `turn_form_concluded/2`):
+% le righe `current_turn` non si azzerano da sole, e il segno di una correzione
+% precedente farebbe dimenticare anche la frase che quella aveva gia' riletto.
+reading_stale_clause($Clause) :-
+    turn_counter($N), reading_repair_pending($N, $Quoted),
+    reading_fact($Fact, $Quoted), reading_stale_of($Fact, $Clause).
+reading_stale_of(proposition($Op, $Roles), semantic_proposition(proposition($Op, $Roles))).
+reading_stale_of(proposition($Op, $Roles), semantic_binding($O, $S, $F)) :-
+    input_proposition_binding(proposition($Op, $Roles), $O, $S, $F),
+    semantic_binding($O, $S, $F).
+reading_stale_of(proposition($Op, $Roles), proposition_source_record(proposition($Op, $Roles), $Src, $Prov)) :-
+    proposition_source_record(proposition($Op, $Roles), $Src, $Prov).
+reading_stale_of(proposition($Op, $Roles), reading_fact(proposition($Op, $Roles), $Quoted)) :-
+    reading_fact(proposition($Op, $Roles), $Quoted).
+reading_stale_of($Fact, $Fact) :- naf(reading_is_proposition($Fact)).
+reading_is_proposition(proposition($Op, $Roles)).
+
+% ── 6. Dire come si e' letto ───────────────────────────────────────────────
+% Si cita cio' che la lettura ha registrato (le entita' della frase discussa,
+% conservate nel suo scope), non una ricostruzione con la grammatica di adesso:
+% dopo una correzione la grammatica di adesso non e' piu' quella della lettura.
 reading_previous_phrase($Entity) :-
-    previous_turn($Scope), reading_choice($Scope, $Id, np_boundary, $Choice),
+    reading_discussed_scope($Scope), input_entities_observed($Scope, $Language),
+    input_entity_cached($Scope, $Language, ent($S, $Id, $Entity)).
+reading_previous_phrase($Entity) :-
+    reading_discussed_scope($Scope), naf(reading_scope_observed($Scope)),
+    reading_choice($Scope, $Id, np_boundary, $Choice),
     np_phrase_words($Scope, $Id, $Ws), np_words_entity($Ws, $Entity).
+reading_scope_observed($Scope) :- input_entities_observed($Scope, $Language).
 
-% Generalisation is an explicit, separate act. Its provenance is a durable
-% contrast of readings, not a dangling turn id. No verb meaning is invented.
-reading_boundary_example($Word, contrast($Old, $New)) :-
+% ── 7. Estendere: una scelta esplicita, con un contrasto leggibile ─────────
+% La provenienza di una lezione e' il contrasto fra le due letture, non un id
+% di turno che scade. Nessun significato di verbo viene inventato.
+reading_correction_example($Word, before, contrast($Old, $New)) :-
     reading_revision($Scope, $Id, revision($Range, before($Word))),
     reading_choice($Scope, $Id, np_boundary, choice($OldRange, $Reason)),
     reading_range_entity($Scope, $OldRange, $Old),
     reading_range_entity($Scope, $Range, $New).
-reading_promote_boundary($Word, $Word) :-
-    findall($E, reading_boundary_example($Word, $E), $Es),
-    reading_single($Es, $Example),
-    assert(reading_boundary_lesson, $Word, $Example).
-phrase_boundary(np, breaker, $Word) :- reading_boundary_lesson($Word, $Example).
-
-% A class is already an ordinary teachable object (class_surface + unary
-% membership). Reuse it; do not introduce a closed list of eligible classes.
-% Walk the nameable classes, not every fact: a class nobody can pronounce
-% cannot be offered as a scope anyway. kb_fact/2 over the whole KB cost 2.6 s
-% per turn; this order stays under 0.3 s (gen516, PARROT0_TE_SLOW).
-reading_boundary_class_option($Word, $Surface) :-
-    reading_boundary_example($Word, $Example),
-    class_surface($Class, $Surface), naf(machinery($Class)),
-    apply($Class, cons($Word, nil)).
-reading_boundary_class_example($Class, example($Word, $Example)) :-
-    class_surface($Class, $Surface),
-    reading_boundary_example($Word, $Example), apply($Class, cons($Word, nil)).
-reading_promote_boundary_class($Class, $Class) :-
-    findall($E, reading_boundary_class_example($Class, $E), $Es),
-    reading_single($Es, $Example),
-    assert(reading_boundary_class, $Class, $Example).
-phrase_boundary(np, breaker, $Word) :-
-    reading_boundary_class($Class, $Example), apply($Class, cons($Word, nil)).
-
-reading_revision_scope($Word, $Scope) :-
-    reading_revision($Scope, $Id, revision($Range, before($Word))).
-reading_revision_id($Scope, $Word, $Id) :-
-    reading_revision($Scope, $Id, revision($Range, before($Word))).
-reading_undo_boundary($Word, $Old) :-
-    findall($S, reading_revision_scope($Word, $S), $Ss), reading_single($Ss, $Scope),
-    findall($I, reading_revision_id($Scope, $Word, $I), $Is), reading_single($Is, $Id),
+reading_correction_example($Word, through, contrast($Old, $New)) :-
+    reading_revision($Scope, $Id, revision($Range, through($Word))),
     reading_choice($Scope, $Id, np_boundary, choice($OldRange, $Reason)),
     reading_range_entity($Scope, $OldRange, $Old),
-    reading_revision($Scope, $Id, $Revision),
-    retract(reading_revision, $Scope, $Id, $Revision).
+    reading_range_entity($Scope, $Range, $New).
+reading_correction_example($Word, before, contrast($Old, $New)) :-
+    reading_local_boundary($Quoted, $Word), naf(reading_revised_word($Word)),
+    reading_quoted_scope($Quoted, $Scope),
+    reading_bare_run_with($Scope, $Word, $Ws),
+    words_underscored($Ws, $Old), reading_prefix_before($Ws, $Word, $Pre),
+    words_underscored($Pre, $New).
+reading_correction_example($Word, through, contrast($Old, $New)) :-
+    reading_local_continuer($Quoted, $Word), naf(reading_revised_word($Word)),
+    reading_quoted_scope($Quoted, $Scope),
+    reading_bare_neighbour_run($Scope, $Word, $Ws),
+    words_underscored($Ws, $Old), reading_with_word($Scope, $Word, $Ws, $All),
+    words_underscored($All, $New).
+reading_revised_word($Word) :- reading_revision($Scope, $Id, revision($Range, before($Word))).
+reading_revised_word($Word) :- reading_revision($Scope, $Id, revision($Range, through($Word))).
+% la PRIMA lettura della frase: il turno in cui e' stata detta, non la rilettura
+reading_quoted_scope($Quoted, $Scope) :-
+    input_node_surface($Scope, 0, $Quoted), naf(reading_reread_scope($Scope)).
+reading_bare_run_with($Scope, $Word, $Ws) :-
+    bare_run_start($Scope, $Id), bare_run($Scope, $Id, $Ws), member($Word, $Ws).
+reading_prefix_before(cons($Word, $R), $Word, nil).
+reading_prefix_before(cons($X, $R), $Word, cons($X, $P)) :-
+    dif($X, $Word), reading_prefix_before($R, $Word, $P).
+% la sequenza nuda accanto alla parola aggiunta, e la stessa con la parola
+reading_bare_neighbour_run($Scope, $Word, $Ws) :-
+    reading_unique_token($Scope, $Word, $Token),
+    input_node_next($Scope, $Token, $N), bare_run($Scope, $N, $Ws).
+reading_bare_neighbour_run($Scope, $Word, $Ws) :-
+    reading_unique_token($Scope, $Word, $Token),
+    input_node_next($Scope, $P, $Token), bare_token($Scope, $P, $W),
+    reading_bare_run_ending($Scope, $P, $Ws).
+reading_bare_run_ending($Scope, $Last, $Ws) :-
+    bare_run_start($Scope, $Id), bare_run($Scope, $Id, $Ws),
+    input_node_atom($Scope, $Last, $W), reading_last($Ws, $W).
+reading_last(cons($X, nil), $X).
+reading_last(cons($X, cons($Y, $R)), $L) :- reading_last(cons($Y, $R), $L).
+reading_with_word($Scope, $Word, $Ws, cons($Word, $Ws)) :-
+    reading_unique_token($Scope, $Word, $Token),
+    input_node_next($Scope, $Token, $N), bare_token($Scope, $N, $W).
+reading_with_word($Scope, $Word, $Ws, $All) :-
+    reading_unique_token($Scope, $Word, $Token),
+    input_node_next($Scope, $P, $Token), bare_token($Scope, $P, $W),
+    append_list($Ws, cons($Word, nil), $All).
 
+reading_correction_key($Word, k($Kind, $Example)) :-
+    reading_correction_example($Word, $Kind, $Example).
+reading_promote_boundary($Word, $What) :-
+    findall($K, reading_correction_key($Word, $K), $Ks),
+    reading_single($Ks, k($Kind, $Example)),
+    reading_promote_kind($Kind, $Word, $Example, $What).
+reading_promote_kind(before, $Word, $Example, the_end_of_a_noun_phrase) :-
+    assert(reading_boundary_lesson, $Word, $Example).
+reading_promote_kind(through, $Word, $Example, part_of_a_noun_phrase) :-
+    assert(reading_continuer_lesson, $Word, $Example).
+
+% Una classe e' gia' un oggetto insegnabile (class_surface + appartenenza
+% unaria): si riusa, senza un elenco chiuso di classi ammesse. Si percorrono le
+% classi con un nome: una classe che nessuno sa dire non si puo' proporre.
+% (kb_fact/2 su tutta la KB costava 2,6 s per turno; cosi' < 0,3 s.)
+reading_boundary_class_option($Word, $Surface) :-
+    reading_correction_example($Word, $Kind, $Example),
+    class_surface($Class, $Surface), naf(machinery($Class)),
+    apply($Class, cons($Word, nil)).
+reading_class_key($Class, k($Kind, example($Word, $Example))) :-
+    class_surface($Class, $Surface),
+    reading_correction_example($Word, $Kind, $Example), apply($Class, cons($Word, nil)).
+reading_promote_boundary_class($Class, $What) :-
+    findall($K, reading_class_key($Class, $K), $Ks),
+    reading_single($Ks, k($Kind, $Example)),
+    reading_promote_class_kind($Kind, $Class, $Example, $What).
+reading_promote_class_kind(before, $Class, $Example, the_end_of_a_noun_phrase) :-
+    assert(reading_boundary_class, $Class, $Example).
+reading_promote_class_kind(through, $Class, $Example, part_of_a_noun_phrase) :-
+    assert(reading_continuer_class, $Class, $Example).
+
+% ── 8. Annullare una correzione locale ─────────────────────────────────────
+% Toglie la revisione (se c'era) e il segno sulla frase. Non riporta i fatti
+% della prima lettura: erano sbagliati, ed e' per questo che si e' corretto.
+reading_undo_mark($Word, $Quoted) :- reading_local_boundary($Quoted, $Word).
+reading_undo_mark($Word, $Quoted) :- reading_local_continuer($Quoted, $Word).
+reading_undo_boundary($Word, $Quoted) :-
+    findall($Q, reading_undo_mark($Word, $Q), $Qs), reading_single($Qs, $Quoted),
+    reading_undo_revision($Word),
+    reading_undo_local($Quoted, $Word).
+reading_undo_revision($Word) :- naf(reading_revised_word($Word)).
+reading_undo_revision($Word) :-
+    reading_revision($Scope, $Id, revision($Range, before($Word))),
+    retract(reading_revision, $Scope, $Id, revision($Range, before($Word))).
+reading_undo_revision($Word) :-
+    reading_revision($Scope, $Id, revision($Range, through($Word))),
+    retract(reading_revision, $Scope, $Id, revision($Range, through($Word))).
+reading_undo_local($Quoted, $Word) :-
+    reading_local_boundary($Quoted, $Word), retract(reading_local_boundary, $Quoted, $Word).
+reading_undo_local($Quoted, $Word) :-
+    reading_local_continuer($Quoted, $Word), retract(reading_local_continuer, $Quoted, $Word).
+
+% ── 9. Le forme ────────────────────────────────────────────────────────────
 turn_form(reading_inspect, 1, text("how did you read the noun phrase")).
 turn_form_priority(reading_inspect, early).
 turn_form_view(reading_inspect, said).
@@ -106,14 +342,30 @@ turn_form_act(reading_inspect, "op(match, reading_previous_phrase, [free])").
 turn_form_reply(reading_inspect, reading_inspected).
 turn_form_empty_reply(reading_inspect, reading_no_choice).
 
+% Tre atti, in ordine: correggere l'occorrenza (riflessivo: revisione e segno
+% locale non sono conoscenza del mondo), dimenticare cio' che la lettura
+% sbagliata aveva scritto, rileggere la frase. La risposta e' la rilettura.
 turn_form(reading_boundary_correct, 1, text("end the previous noun phrase before")).
 turn_form(reading_boundary_correct, 2, slot(word)).
 turn_form_priority(reading_boundary_correct, early).
 turn_form_view(reading_boundary_correct, said).
 turn_form_act(reading_boundary_correct, "op(match, reading_correct_boundary, [word, free])").
+turn_form_act(reading_boundary_correct, "op(forget_each, reading_stale_clause, [free])").
+turn_form_act(reading_boundary_correct, "reread({result})").
 turn_form_effect_origin(reading_boundary_correct, reflective).
-turn_form_reply(reading_boundary_correct, reading_boundary_corrected).
 turn_form_empty_reply(reading_boundary_correct, reading_no_unique_choice).
+turn_form_wall_reply(reading_boundary_correct, reading_reread_holds_nothing).
+
+turn_form(reading_phrase_extend, 1, slot(word)).
+turn_form(reading_phrase_extend, 2, text("belongs to the noun phrase")).
+turn_form_priority(reading_phrase_extend, early).
+turn_form_view(reading_phrase_extend, said).
+turn_form_act(reading_phrase_extend, "op(match, reading_extend_phrase, [word, free])").
+turn_form_act(reading_phrase_extend, "op(forget_each, reading_stale_clause, [free])").
+turn_form_act(reading_phrase_extend, "reread({result})").
+turn_form_effect_origin(reading_phrase_extend, reflective).
+turn_form_empty_reply(reading_phrase_extend, reading_no_extension).
+turn_form_wall_reply(reading_phrase_extend, reading_extended_holds_nothing).
 
 turn_form(reading_boundary_promote, 1, text("use that boundary for")).
 turn_form(reading_boundary_promote, 2, slot(word)).
@@ -124,15 +376,33 @@ turn_form_act(reading_boundary_promote, "op(match, reading_promote_boundary, [wo
 turn_form_reply(reading_boundary_promote, reading_boundary_promoted).
 turn_form_empty_reply(reading_boundary_promote, reading_no_example).
 
+turn_form(reading_reading_promote, 1, text("use that reading for")).
+turn_form(reading_reading_promote, 2, slot(word)).
+turn_form(reading_reading_promote, 3, text("in future sentences")).
+turn_form_priority(reading_reading_promote, early).
+turn_form_view(reading_reading_promote, said).
+turn_form_act(reading_reading_promote, "op(match, reading_promote_boundary, [word, free])").
+turn_form_reply(reading_reading_promote, reading_boundary_promoted).
+turn_form_empty_reply(reading_reading_promote, reading_no_example).
+
+% Il ritiro usa l'atto ordinario di ritiro: lascia la lapide che /save legge,
+% quindi una lezione ritirata esce anche dal file curato.
 turn_form(reading_boundary_forget, 1, text("forget the boundary for")).
 turn_form(reading_boundary_forget, 2, slot(word)).
 turn_form_priority(reading_boundary_forget, early).
 turn_form_view(reading_boundary_forget, said).
-% Withdrawal uses the ordinary retract act: it leaves the tombstone that
-% /save reads, so a withdrawn lesson leaves the curated file too.
 turn_form_act(reading_boundary_forget, "op(retract_all, reading_boundary_lesson, [word, free])").
 turn_form_reply(reading_boundary_forget, reading_boundary_forgotten).
 turn_form_empty_reply(reading_boundary_forget, reading_no_lesson).
+
+turn_form(reading_continuer_forget, 1, text("forget that")).
+turn_form(reading_continuer_forget, 2, slot(word)).
+turn_form(reading_continuer_forget, 3, text("belongs to noun phrases")).
+turn_form_priority(reading_continuer_forget, early).
+turn_form_view(reading_continuer_forget, said).
+turn_form_act(reading_continuer_forget, "op(retract_all, reading_continuer_lesson, [word, free])").
+turn_form_reply(reading_continuer_forget, reading_continuer_forgotten).
+turn_form_empty_reply(reading_continuer_forget, reading_no_lesson).
 
 turn_form(reading_boundary_classes, 1, text("which classes could share the boundary for")).
 turn_form(reading_boundary_classes, 2, slot(word)).
@@ -151,6 +421,15 @@ turn_form_act(reading_boundary_class_promote, "op(match, reading_promote_boundar
 turn_form_reply(reading_boundary_class_promote, reading_boundary_class_promoted).
 turn_form_empty_reply(reading_boundary_class_promote, reading_no_class_example).
 
+turn_form(reading_reading_class_promote, 1, text("use that reading for every")).
+turn_form(reading_reading_class_promote, 2, span(class)).
+turn_form_slot_form(reading_reading_class_promote, class, atom).
+turn_form_priority(reading_reading_class_promote, early).
+turn_form_view(reading_reading_class_promote, said).
+turn_form_act(reading_reading_class_promote, "op(match, reading_promote_boundary_class, [class, free])").
+turn_form_reply(reading_reading_class_promote, reading_boundary_class_promoted).
+turn_form_empty_reply(reading_reading_class_promote, reading_no_class_example).
+
 turn_form(reading_boundary_class_forget, 1, text("forget the boundary for every")).
 turn_form(reading_boundary_class_forget, 2, span(class)).
 turn_form_slot_form(reading_boundary_class_forget, class, atom).
@@ -159,6 +438,16 @@ turn_form_view(reading_boundary_class_forget, said).
 turn_form_act(reading_boundary_class_forget, "op(retract_all, reading_boundary_class, [class, free])").
 turn_form_reply(reading_boundary_class_forget, reading_boundary_class_forgotten).
 turn_form_empty_reply(reading_boundary_class_forget, reading_no_class_lesson).
+
+turn_form(reading_continuer_class_forget, 1, text("forget that every")).
+turn_form(reading_continuer_class_forget, 2, span(class)).
+turn_form(reading_continuer_class_forget, 3, text("belongs to noun phrases")).
+turn_form_slot_form(reading_continuer_class_forget, class, atom).
+turn_form_priority(reading_continuer_class_forget, early).
+turn_form_view(reading_continuer_class_forget, said).
+turn_form_act(reading_continuer_class_forget, "op(retract_all, reading_continuer_class, [class, free])").
+turn_form_reply(reading_continuer_class_forget, reading_boundary_class_forgotten).
+turn_form_empty_reply(reading_continuer_class_forget, reading_no_class_lesson).
 
 turn_form(reading_boundary_undo, 1, text("undo the local boundary correction for")).
 turn_form(reading_boundary_undo, 2, slot(word)).
@@ -170,18 +459,21 @@ turn_form_reply(reading_boundary_undo, reading_boundary_undone).
 turn_form_empty_reply(reading_boundary_undo, reading_no_local_revision).
 
 response_template(reading_inspected, "I read these noun phrases: {result}.").
-response_template(reading_no_choice, "I have no noun-phrase reading from the preceding turn to show.").
-response_template(reading_boundary_corrected, "For that occurrence I now read «{result}» before «{word}». This changes the phrase reading only. To extend it, say «use that boundary for {word} in future sentences».").
-response_template(reading_no_unique_choice, "I cannot identify one unrevised noun phrase containing «{word}» in the preceding turn. I have not changed its reading.").
-response_template(reading_boundary_promoted, "I will end noun phrases before «{word}» in future sentences. This teaches a boundary, not a verb meaning.").
-response_template(reading_no_example, "I need one unambiguous corrected reading of «{word}» before extending its boundary.").
+response_template(reading_no_choice, "I have no noun-phrase reading of the sentence we are discussing to show.").
+response_template(reading_reread_holds_nothing, "I now end that noun phrase before «{word}», and I have withdrawn what my first reading had kept. Read again, the sentence still gives me nothing to hold: {reread}").
+response_template(reading_extended_holds_nothing, "I now keep «{word}» inside that noun phrase, and I have withdrawn what my first reading had kept. Read again, the sentence still gives me nothing to hold: {reread}").
+response_template(reading_no_unique_choice, "I cannot identify one uncorrected noun phrase containing «{word}» in the sentence we are discussing. I have not changed its reading.").
+response_template(reading_no_extension, "I cannot find one uncorrected noun phrase that «{word}» directly follows or precedes in the sentence we are discussing. I have not changed its reading.").
+response_template(reading_boundary_promoted, "In future sentences I will read «{word}» as {result}. This teaches a reading, not a meaning.").
+response_template(reading_no_example, "I need one unambiguous corrected reading of «{word}» before extending it.").
 response_template(reading_boundary_forgotten, "I have withdrawn the boundary lesson for «{word}».").
-response_template(reading_no_lesson, "I have no boundary lesson for «{word}» to withdraw.").
-response_template(reading_boundary_classes, "Known classes for «{word}» with a corrected example: {result}. You can choose «use that boundary for every ...». Membership alone does not prove that every use needs this boundary.").
+response_template(reading_continuer_forgotten, "I have withdrawn the lesson that «{word}» belongs to noun phrases.").
+response_template(reading_no_lesson, "I have no reading lesson for «{word}» to withdraw.").
+response_template(reading_boundary_classes, "Known classes for «{word}» with a corrected example: {result}. You can choose «use that reading for every ...». Membership alone does not prove that every use needs this reading.").
 response_template(reading_no_class, "I have no named class backed by a corrected occurrence of «{word}» to propose.").
-response_template(reading_boundary_class_promoted, "I will end noun phrases before members of «{class}», including members taught later. This applies to every use of those words; contextual exceptions are not yet represented.").
-response_template(reading_no_class_example, "I need one corrected example belonging to «{class}» before extending that boundary to the class.").
-response_template(reading_boundary_class_forgotten, "I have withdrawn the boundary lesson for the class «{class}».").
-response_template(reading_no_class_lesson, "I have no boundary lesson for the class «{class}» to withdraw.").
-response_template(reading_boundary_undone, "I have withdrawn the local correction for «{word}». The original phrase reading is «{result}».").
+response_template(reading_boundary_class_promoted, "I will read members of «{class}» as {result}, including members taught later. This applies to every use of those words; contextual exceptions are not yet represented.").
+response_template(reading_no_class_example, "I need one corrected example belonging to «{class}» before extending that reading to the class.").
+response_template(reading_boundary_class_forgotten, "I have withdrawn the reading lesson for the class «{class}».").
+response_template(reading_no_class_lesson, "I have no reading lesson for the class «{class}» to withdraw.").
+response_template(reading_boundary_undone, "I have withdrawn the local correction for «{word}» in «{result}». What my first reading had kept stays withdrawn.").
 response_template(reading_no_local_revision, "I cannot identify one local correction for «{word}» to withdraw.").

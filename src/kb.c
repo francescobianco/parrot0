@@ -7555,6 +7555,22 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
                     a0[k] = '\0';
                     while (k && a0[k - 1] == ' ') a0[--k] = '\0';
                 }
+                /* Una lapide per una clausola di nuovo VIVA e' nulla: la frase
+                 * riletta dopo una correzione (L2), o una lezione reinsegnata
+                 * dopo il ritiro, riscrive lo stesso testo — e toglierlo dal
+                 * file perderebbe proprio cio' che il maestro ha confermato. */
+                int live = 0;
+                if (pred[0]) {
+                    PredBucket lb = pred_bucket(kb, pred);
+                    for (size_t vi = 0; vi < PRED_VISITS(lb, kb) && !live; vi++) {
+                        if (PRED_AT(lb, vi) >= kb->n) continue;
+                        const Fact *lf = &kb->facts[PRED_AT(lb, vi)];
+                        if (strcmp(lf->pred, pred)) continue;
+                        char lt[2048]; sm_fact_text(lf, lt, sizeof lt);
+                        if (!strcmp(lt, line)) live = 1;
+                    }
+                }
+                if (live) continue;
                 const char *file = NULL; int line_no = 0; int removed = 0;
                 if (pred[0] && a0[0] && smap_home(kb, pred, a0, &file, &line_no))
                     removed = sm_delete(file, line);

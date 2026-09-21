@@ -15824,6 +15824,38 @@ static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
  * forma possa dichiararne piu' d'una in sequenza. */
 static int p0_run_op(Brain *b, const char *act, P0FormSlot *slots, size_t ns,
                      char *out, size_t out_size);
+/* L2 (docs/plans/l2-upgrade.md §7.4) — IL RISULTATO DI UN ATTO E' UNO SLOT DEL
+ * SEGUENTE. Una forma con piu' atti li esegue in ordine (gen507/66), ma cio'
+ * che il primo trovava si perdeva: «correggi la lettura, poi rileggi LA FRASE
+ * che hai corretto» non si poteva dire, perche' la frase non e' nel turno
+ * della correzione — la sa la KB. Il valore grezzo dell'ultimo `op(match)`
+ * resta qui e il ciclo degli atti lo offre al successivo come `{result}`. */
+static char p0_last_op_result[600];
+
+/* La risposta di una forma che NON ha concluso, se la forma la dichiara
+ * (`turn_form_empty_reply/2`, o `turn_form_wall_reply/2` quando e' la sola
+ * rilettura a non tenere): la stessa regola di `op(match)`, qui per ogni atto.
+ * `{reread}` porta, se c'e', cio' che la rilettura ha detto. */
+static int p0_form_empty_reply(Brain *b, const char *formname, P0FormSlot *slots,
+                               size_t ns, const char *reread_said,
+                               char *out, size_t out_size) {
+    if (!formname || !*formname) return 0;
+    char er[2][KB_TERM_LEN];
+    const char *eq[2] = { formname, NULL };
+    /* Gli atti hanno agito e solo la rilettura non tiene: e' un altro esito,
+     * con la sua frase (`turn_form_wall_reply/2`), non «non ho trovato». */
+    if (!(reread_said && kb_match(b->kb, "turn_form_wall_reply", eq, 2, er, 2) >= 1) &&
+        kb_match(b->kb, "turn_form_empty_reply", eq, 2, er, 2) < 1) return 0;
+    char eb[KB_TERM_LEN]; snprintf(eb, sizeof eb, "%s", er[0]);
+    KbResponseSlot ef[P0_FORM_SLOTS + 1];
+    size_t nef = 0;
+    for (size_t k = 0; k < ns && nef < P0_FORM_SLOTS; k++) {
+        ef[nef].name = slots[k].name; ef[nef].value = slots[k].value; nef++;
+    }
+    ef[nef].name = "reread"; ef[nef].value = reread_said ? reread_said : ""; nef++;
+    return kb_response_slots(b, kb_dequote(eb), ef, nef, out, out_size);
+}
+
 static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                            size_t ns, const char *formname,
                            char *out, size_t out_size) {
@@ -15943,6 +15975,21 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                         p0_leave_tombstone(b, pred, ra, argc2);
                     }
                 }
+            } else if (!strcmp(opname, "forget_each")) {
+                /* L2 — DIMENTICARE CIO' CHE LA KB NOMINA. Le clausole da togliere
+                 * (qui: cio' che una lettura sbagliata ha scritto) le elenca una
+                 * regola, come termini interi; il motore le ritira con lo stesso
+                 * atto di «forget that …» (RI-006): lapide per il `/save` e scia
+                 * della provenienza comprese. Quali clausole, e perche', resta
+                 * conoscenza. */
+                char rows[64][KB_TERM_LEN];
+                size_t nr = kb_match(b->kb, pred, argv2, argc2, rows, 64);
+                for (size_t k = 0; k < nr; k++) {
+                    char row[KB_TERM_LEN]; snprintf(row, sizeof row, "%s", rows[k]);
+                    if (!p0_forget_clause(b, row)) continue;
+                    p0_forget_companions(b, row);
+                    done2 = 1; nres++;
+                }
             } else if (!strcmp(opname, "match") || !strcmp(opname, "count")) {
                 char rows[64][KB_TERM_LEN];
                 /* Query actions can describe transient revisions of an IR.
@@ -15969,6 +16016,8 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                     nres++;
                 }
                 done2 = nres > 0;
+                snprintf(p0_last_op_result, sizeof p0_last_op_result, "%s",
+                         nres ? result : "");
             }
             /* gen510 — UNA DOMANDA SENZA RISPOSTA NON E' UN TURNO DI NESSUNO.
              * Una forma di domanda che trova zero righe cedeva in silenzio, e il
@@ -16373,7 +16422,15 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *pre = kb_dequote(pb9);
             if (strncmp(pre, "op(", 3)) continue;
             char scratch[600]; scratch[0] = '\0';
+            p0_last_op_result[0] = '\0';
             p0_run_op(b, pre, slots, ns, scratch, sizeof scratch);
+            if (p0_last_op_result[0] && !p0_form_slot(slots, ns, "result") &&
+                ns < P0_FORM_SLOTS) {
+                snprintf(slots[ns].name, sizeof slots[ns].name, "%s", "result");
+                snprintf(slots[ns].value, sizeof slots[ns].value, "%s", p0_last_op_result);
+                slots[ns].is_text = 1;
+                ns++;
+            }
         }
         char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", acts[nacts - 1]);
         const char *act = kb_dequote(ab);
@@ -16449,6 +16506,10 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * lingua nuova non costa motore. */
             int slot_has_verb = 0;
             for (size_t k = 0; k < ns && k < P0_FORM_SLOTS && !slot_has_verb; k++) {
+                /* `{result}` non e' uno span catturato fra due ancore: e' una
+                 * frase intera che la KB ha restituito, e deve portare il suo
+                 * verbo. La guardia vale per cio' che il matcher ha tagliato. */
+                if (!strcmp(slots[k].name, "result")) continue;
                 char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", slots[k].value);
                 for (char *c = sb; *c; c++) if (*c == '_') *c = ' ';
                 char *sw[24]; size_t sn = split_words(sb, sw, 24);
@@ -16471,13 +16532,26 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 fill[k].name = slots[k].name; fill[k].value = vals[k];
             }
             char said[KB_TERM_LEN];
-            if (!kb_fill_slots(tpl, fill, ns, 1, said, sizeof said) || !*said) continue;
+            if (!kb_fill_slots(tpl, fill, ns, 1, said, sizeof said) || !*said) {
+                /* un buco che nessun atto ha riempito: la forma non ha concluso */
+                if (p0_form_empty_reply(b, form, slots, ns, NULL, out, out_size)) {
+                    p0_said_by(b, "form", form);
+                    free(forms); return 1;
+                }
+                continue;
+            }
             if (getenv("P0_READ_TRACE"))
                 fprintf(stderr, "[form] %s: reread «%s»\n", form, said);
             int saved_early = p0_forms_early_only;
             p0_forms_early_only = 0;
             reread_depth++;
+            /* Una rilettura e' un'ALTRA frase, non un frammento del turno: la
+             * sua vista e' propria (come 99-registry.c fa per le clausole
+             * ridette). Ereditata, la potatura dei chiusori di RI-012 girava sul
+             * testo della correzione e cambiava il sintagma della frase riletta. */
+            char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
             size_t rn = brain_respond(b, said, out, out_size);
+            b->active_turn_norm = outer_view;
             reread_depth--;
             p0_forms_early_only = saved_early;
             /* gen512 — la rilettura rivendica il turno solo se TIENE, con lo
@@ -16489,6 +16563,15 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 p0_said_by(b, "form", form);   /* chi ha parlato, per /debug */
                 free(forms); return 1;
             }
+            /* La rilettura non tiene. Se la forma sa che cosa dirne, lo dice —
+             * con le parole del muro — invece di cedere il turno: gli atti
+             * precedenti hanno GIA' agito, e tacerli sarebbe una bugia. */
+            { char wall[600]; snprintf(wall, sizeof wall, "%s", out);
+              out[0] = '\0';
+              if (p0_form_empty_reply(b, form, slots, ns, wall, out, out_size)) {
+                  p0_said_by(b, "form", form);
+                  free(forms); return 1;
+              } }
             out[0] = '\0';
             continue;
         }
