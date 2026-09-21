@@ -1,0 +1,87 @@
+# L2 structural slice. The full profile stays loaded; teaching is natural
+# language. Internal queries prove that the ordinary IR consumer changes.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test occurrence correction then explicit word transfer]
+!timeout 60
+> A relief valve opens above its set pressure.
+!query reading_choice(current_turn, $Id, np_boundary, $Choice)
+!query input_entity_node(current_turn, en, $Id, relief_valve_opens)
+> end the previous noun phrase before opens
+<~ For that occurrence I now read «relief valve» before «opens».
+!query reading_revision($Scope, $Id, revision($Range, before(opens)))
+!query input_entity_node(turn_1, en, $Id, relief_valve)
+!query! reading_boundary_lesson(opens, $Example)
+> use that boundary for opens in future sentences
+<~ I will end noun phrases before «opens» in future sentences.
+> A safety valve opens under pressure.
+!query input_entity_node(current_turn, en, $Id, safety_valve)
+!query! input_entity_node(current_turn, en, $Id, safety_valve_opens)
+> forget the boundary for opens
+< I have withdrawn the boundary lesson for «opens».
+> A safety valve opens under pressure.
+!query input_entity_node(current_turn, en, $Id, safety_valve_opens)
+
+[test one boundary lesson transfers across an open class]
+!reset
+!timeout 60
+# These memberships are prerequisite lessons, not L2 transfer successes.
+> opens is a verb
+> vents is a verb
+!query verb(opens)
+!query verb(vents)
+> A relief valve opens above its set pressure.
+> end the previous noun phrase before opens
+<~ For that occurrence I now read «relief valve» before «opens».
+> which classes could share the boundary for opens
+<~ verb
+> use that boundary for every verb
+<~ I will end noun phrases before members of «verb»
+!query reading_boundary_class(verb, $Example)
+# New word, new subject: no occurrence correction for vents.
+> A safety valve vents under pressure.
+!query input_entity_node(current_turn, en, $Id, safety_valve)
+!query! input_entity_node(current_turn, en, $Id, safety_valve_vents)
+# The class grows after the L2 lesson, in the same binary.
+> unseats is a verb
+!query verb(unseats)
+> A pilot valve unseats under pressure.
+!query input_entity_node(current_turn, en, $Id, pilot_valve)
+!query! input_entity_node(current_turn, en, $Id, pilot_valve_unseats)
+> forget the boundary for every verb
+< I have withdrawn the boundary lesson for the class «verb».
+> A safety valve vents under pressure.
+!query input_entity_node(current_turn, en, $Id, safety_valve_vents)
+
+[test local correction is reversible and never a global lesson]
+!reset
+!timeout 60
+> A relief valve opens above its set pressure.
+> end the previous noun phrase before opens
+<~ For that occurrence I now read «relief valve» before «opens».
+!query input_entity_node(turn_1, en, $Id, relief_valve)
+> undo the local boundary correction for opens
+<~ The original phrase reading is «relief valve opens».
+!query! reading_revision($Scope, $Id, $Revision)
+!query input_entity_node(turn_1, en, $Id, relief_valve_opens)
+> A safety valve opens under pressure.
+!query input_entity_node(current_turn, en, $Id, safety_valve_opens)
+
+[test ambiguous and absent occurrences cannot mutate readings]
+!reset
+!timeout 60
+> A relief valve opens opens under pressure.
+> end the previous noun phrase before opens
+<~ I cannot identify one unrevised noun phrase
+!query! reading_revision($Scope, $Id, $Revision)
+> use that boundary for opens in future sentences
+<~ I need one unambiguous corrected reading
+!query! reading_boundary_lesson(opens, $Example)
+> A relief valve opens under pressure.
+> end the previous noun phrase before absentword
+<~ I cannot identify one unrevised noun phrase
+!query! reading_revision($Scope, $Id, $Revision)

@@ -2251,3 +2251,52 @@ nuovo.
 - [ ] Ho pushato il commit prima di iniziare un incremento indipendente.
 
 Se una casella critica resta vuota, lo stato non è `trained`.
+
+## L2: correzione dei confini di lettura — WIP, 21 settembre 2026
+
+**Non certificato `trained`.** Primo incremento in
+[`docs/plans/l2-upgrade.md`](docs/plans/l2-upgrade.md#137-handoff--ripartire-qui).
+Il banco esteso riproduce un SIGSEGV nel solver: leggere il handoff prima di
+usare queste superfici per un addestramento persistente. Nessuna persistenza
+è stata verificata. Le seguenti forme sono state esercitate in questa
+sessione, ma non costituiscono ancora una capacità L2 completa e stabile.
+
+```text
+A relief valve opens above its set pressure.
+end the previous noun phrase before opens
+use that boundary for opens in future sentences
+A safety valve opens under pressure.
+how did you read the noun phrase
+forget the boundary for opens
+```
+
+La correzione cambia il sintagma nella IR del turno precedente; non insegna
+il significato del verbo e non ripara i fatti già acquisiti. La portata per
+parola si estende soltanto dopo la richiesta esplicita. Per ritirare una
+correzione locale ancora conservata: `undo the local boundary correction for
+opens`. Le parole ripetute o più occorrenze compatibili vengono rifiutate.
+
+La portata per classe riusa le normali membership insegnate parlando:
+
+```text
+opens is a verb
+vents is a verb
+A relief valve opens above its set pressure.
+end the previous noun phrase before opens
+which classes could share the boundary for opens
+use that boundary for every verb
+A safety valve vents under pressure.
+how did you read the noun phrase
+forget the boundary for every verb
+```
+
+Questo transcript ha mostrato il trasferimento a `vents`: il sintagma letto
+è `safety valve`. La regola consulta la classe viva, quindi il banco verifica
+anche membri successivi; **quel banco completo è attualmente bloccato dal
+crash**, non chiamare dimostrata la sua stabilità. Non contare le membership
+prerequisite come trasferimenti della lezione L2. La portata attuale è su
+ogni uso della parola: non distingue ancora omonimi nominali e verbali.
+
+Sono ancora progettati: portate per contesto, replay completo con revisione
+dei fatti derivati, antecedenti/ruoli, scelta ottimizzata della generalizzazione,
+save/restart/retract e insegnamento naturale di nuove forme di correzione.

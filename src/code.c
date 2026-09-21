@@ -119,9 +119,14 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
     for (size_t i = 0; i < nw && count < max; i++) {
         if (!input_phrase_boundary(kb, "np", "opener", words[i].word)) continue;
         size_t j = i + 1;
+        char reason[KB_TERM_LEN] = "end_of_span";
         for (; j < nw; j++) {
-            if (input_phrase_boundary(kb, "np", "breaker", words[j].word) ||
-                input_phrase_boundary(kb, "np", "closer", words[j].word)) break;
+            char evidence[1][KB_TERM_LEN];
+            const char *q[] = { "np", words[j].word, NULL };
+            if (kb_match(kb, "phrase_boundary_stop", q, 3, evidence, 1)) {
+                snprintf(reason, sizeof reason, "%s", evidence[0]);
+                break;
+            }
         }
         if (j <= i + 1) continue;
         size_t s = words[i].start;
@@ -131,8 +136,11 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
         if (slen >= sizeof surface) slen = sizeof surface - 1;
         memcpy(surface, raw + s, slen);
         surface[slen] = '\0';
-        input_add_node(nodes, &count, max, s, e - s, 0,
-                       "phrase", "np_candidate", "", surface);
+        size_t added = input_add_node(nodes, &count, max, s, e - s, 0,
+                                      "phrase", "np_candidate", "", surface);
+        if (added < max)
+            snprintf(nodes[added].reading_reason, sizeof nodes[added].reading_reason,
+                     "%s", reason);
     }
     return count;
 }
@@ -146,6 +154,8 @@ void input_structure_clear(KB *kb, const char *scope) {
     kb_retract_match(kb, "input_node_role", sidecar, 3);
     kb_retract_match(kb, "input_frame_record", sidecar, 3);
     kb_retract_match(kb, "input_node_next", sidecar, 3);
+    kb_retract_match(kb, "reading_choice", node, 4);
+    kb_retract_match(kb, "reading_revision", sidecar, 3);
 }
 
 size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
@@ -177,6 +187,15 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
         kb_assert(kb, "input_node", args, 4);
         const char *surface[] = { scope, id, qs };
         kb_assert(kb, "input_node_surface", surface, 3);
+        if (nodes[i].reading_reason[0]) {
+            char choice[KB_TERM_LEN];
+            int len = snprintf(choice, sizeof choice, "choice(%s, %s)",
+                               range, nodes[i].reading_reason);
+            if (len > 0 && (size_t)len < sizeof choice) {
+                const char *receipt[] = { scope, id, "np_boundary", choice };
+                kb_assert(kb, "reading_choice", receipt, 4);
+            }
+        }
         if (nodes[i].role[0]) {
             const char *role[] = { scope, id, nodes[i].role };
             kb_assert(kb, "input_node_role", role, 3);

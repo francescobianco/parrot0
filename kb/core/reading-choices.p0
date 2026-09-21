@@ -1,0 +1,188 @@
+% L2, first vertical slice: an observed NP boundary can be contradicted.
+% See docs/plans/l2-upgrade.md §13. No world fact is asserted by a repair.
+:- file_attribute(machinery).
+
+turn_scoped(reading_choice, 4).
+turn_scoped(reading_revision, 3).
+turn_scratch(reading_choice).
+turn_scratch(reading_revision).
+machinery(turn_form_effect_origin).
+machinery(reading_choice).
+machinery(reading_revision).
+machinery(reading_boundary_lesson).
+machinery(reading_boundary_class).
+
+reading_has_revision($Scope, $Id) :- reading_revision($Scope, $Id, $Revision).
+reading_single(cons($X, nil), $X).
+
+% A correction addresses a unique TOKEN in a unique observed phrase. Repeated
+% words and overlapping candidates are ambiguity, never a first-match guess.
+reading_word_token($Scope, $Word, $Token) :-
+    input_node_atom($Scope, $Token, $Word).
+reading_unique_token($Scope, $Word, $Token) :-
+    findall($T, reading_word_token($Scope, $Word, $T), $Ts),
+    reading_single($Ts, $Token).
+reading_boundary_candidate($Scope, $Token, $Id) :-
+    reading_choice($Scope, $Id, np_boundary, choice(range($PS, $PL), $Reason)),
+    input_node_range($Scope, $Token, $TS, $TL),
+    is($PE, add($PS, $PL)), gt($TS, $PS), lt($TS, $PE).
+reading_boundary_target($Scope, $Word, $Id, $Token) :-
+    reading_unique_token($Scope, $Word, $Token),
+    findall($P, reading_boundary_candidate($Scope, $Token, $P), $Ps),
+    reading_single($Ps, $Id).
+
+% Replay uses the existing token/span consumer, with the proposed interval.
+% All validation and wording happen BEFORE the only write (last goal).
+reading_boundary_proposal($Scope, $Word, $Id, range($PS, $Len)) :-
+    reading_boundary_target($Scope, $Word, $Id, $Token),
+    reading_choice($Scope, $Id, np_boundary, choice(range($PS, $OldLen), $Reason)),
+    input_node_next($Scope, $Prev, $Token),
+    input_node_range($Scope, $Prev, $BS, $BL),
+    is($End, add($BS, $BL)), is($Len, sub($End, $PS)), gt($Len, 0).
+reading_range_entity($Scope, range($PS, $Len), $Entity) :-
+    is($End, add($PS, $Len)),
+    findall($W, token_in_span($Scope, $PS, $End, $W), $Ws),
+    np_words_entity($Ws, $Entity).
+reading_correct_boundary($Word, $Entity) :-
+    previous_turn($Scope),
+    reading_boundary_proposal($Scope, $Word, $Id, $Range),
+    naf(reading_has_revision($Scope, $Id)),
+    reading_range_entity($Scope, $Range, $Entity),
+    assert(reading_revision, $Scope, $Id, revision($Range, before($Word))).
+
+% Inspection reads receipts, not a reconstruction of the current grammar.
+reading_previous_phrase($Entity) :-
+    previous_turn($Scope), reading_choice($Scope, $Id, np_boundary, $Choice),
+    np_phrase_words($Scope, $Id, $Ws), np_words_entity($Ws, $Entity).
+
+% Generalisation is an explicit, separate act. Its provenance is a durable
+% contrast of readings, not a dangling turn id. No verb meaning is invented.
+reading_boundary_example($Word, contrast($Old, $New)) :-
+    reading_revision($Scope, $Id, revision($Range, before($Word))),
+    reading_choice($Scope, $Id, np_boundary, choice($OldRange, $Reason)),
+    reading_range_entity($Scope, $OldRange, $Old),
+    reading_range_entity($Scope, $Range, $New).
+reading_promote_boundary($Word, $Word) :-
+    findall($E, reading_boundary_example($Word, $E), $Es),
+    reading_single($Es, $Example),
+    assert(reading_boundary_lesson, $Word, $Example).
+phrase_boundary(np, breaker, $Word) :- reading_boundary_lesson($Word, $Example).
+reading_forget_boundary($Word, $Word) :-
+    reading_boundary_lesson($Word, $Example),
+    retract(reading_boundary_lesson, $Word, $Example).
+
+% A class is already an ordinary teachable object (class_surface + unary
+% membership). Reuse it; do not introduce a closed list of eligible classes.
+reading_boundary_class_option($Word, $Surface) :-
+    reading_boundary_example($Word, $Example),
+    kb_fact($Class, cons($Word, nil)),
+    class_surface($Class, $Surface), naf(machinery($Class)).
+reading_boundary_class_example($Class, example($Word, $Example)) :-
+    class_surface($Class, $Surface),
+    reading_boundary_example($Word, $Example), apply($Class, cons($Word, nil)).
+reading_promote_boundary_class($Class, $Class) :-
+    findall($E, reading_boundary_class_example($Class, $E), $Es),
+    reading_single($Es, $Example),
+    assert(reading_boundary_class, $Class, $Example).
+phrase_boundary(np, breaker, $Word) :-
+    reading_boundary_class($Class, $Example), apply($Class, cons($Word, nil)).
+reading_forget_boundary_class($Class, $Class) :-
+    reading_boundary_class($Class, $Example),
+    retract(reading_boundary_class, $Class, $Example).
+
+reading_revision_scope($Word, $Scope) :-
+    reading_revision($Scope, $Id, revision($Range, before($Word))).
+reading_revision_id($Scope, $Word, $Id) :-
+    reading_revision($Scope, $Id, revision($Range, before($Word))).
+reading_undo_boundary($Word, $Old) :-
+    findall($S, reading_revision_scope($Word, $S), $Ss), reading_single($Ss, $Scope),
+    findall($I, reading_revision_id($Scope, $Word, $I), $Is), reading_single($Is, $Id),
+    reading_choice($Scope, $Id, np_boundary, choice($OldRange, $Reason)),
+    reading_range_entity($Scope, $OldRange, $Old),
+    reading_revision($Scope, $Id, $Revision),
+    retract(reading_revision, $Scope, $Id, $Revision).
+
+turn_form(reading_inspect, 1, text("how did you read the noun phrase")).
+turn_form_priority(reading_inspect, early).
+turn_form_view(reading_inspect, said).
+turn_form_act(reading_inspect, "op(match, reading_previous_phrase, [free])").
+turn_form_reply(reading_inspect, reading_inspected).
+turn_form_empty_reply(reading_inspect, reading_no_choice).
+
+turn_form(reading_boundary_correct, 1, text("end the previous noun phrase before")).
+turn_form(reading_boundary_correct, 2, slot(word)).
+turn_form_priority(reading_boundary_correct, early).
+turn_form_view(reading_boundary_correct, said).
+turn_form_act(reading_boundary_correct, "op(match, reading_correct_boundary, [word, free])").
+turn_form_effect_origin(reading_boundary_correct, reflective).
+turn_form_reply(reading_boundary_correct, reading_boundary_corrected).
+turn_form_empty_reply(reading_boundary_correct, reading_no_unique_choice).
+
+turn_form(reading_boundary_promote, 1, text("use that boundary for")).
+turn_form(reading_boundary_promote, 2, slot(word)).
+turn_form(reading_boundary_promote, 3, text("in future sentences")).
+turn_form_priority(reading_boundary_promote, early).
+turn_form_view(reading_boundary_promote, said).
+turn_form_act(reading_boundary_promote, "op(match, reading_promote_boundary, [word, free])").
+turn_form_reply(reading_boundary_promote, reading_boundary_promoted).
+turn_form_empty_reply(reading_boundary_promote, reading_no_example).
+
+turn_form(reading_boundary_forget, 1, text("forget the boundary for")).
+turn_form(reading_boundary_forget, 2, slot(word)).
+turn_form_priority(reading_boundary_forget, early).
+turn_form_view(reading_boundary_forget, said).
+turn_form_act(reading_boundary_forget, "op(match, reading_forget_boundary, [word, free])").
+turn_form_reply(reading_boundary_forget, reading_boundary_forgotten).
+turn_form_empty_reply(reading_boundary_forget, reading_no_lesson).
+
+turn_form(reading_boundary_classes, 1, text("which classes could share the boundary for")).
+turn_form(reading_boundary_classes, 2, slot(word)).
+turn_form_priority(reading_boundary_classes, early).
+turn_form_view(reading_boundary_classes, said).
+turn_form_act(reading_boundary_classes, "op(match, reading_boundary_class_option, [word, free])").
+turn_form_reply(reading_boundary_classes, reading_boundary_classes).
+turn_form_empty_reply(reading_boundary_classes, reading_no_class).
+
+turn_form(reading_boundary_class_promote, 1, text("use that boundary for every")).
+turn_form(reading_boundary_class_promote, 2, span(class)).
+turn_form_slot_form(reading_boundary_class_promote, class, atom).
+turn_form_priority(reading_boundary_class_promote, early).
+turn_form_view(reading_boundary_class_promote, said).
+turn_form_act(reading_boundary_class_promote, "op(match, reading_promote_boundary_class, [class, free])").
+turn_form_reply(reading_boundary_class_promote, reading_boundary_class_promoted).
+turn_form_empty_reply(reading_boundary_class_promote, reading_no_class_example).
+
+turn_form(reading_boundary_class_forget, 1, text("forget the boundary for every")).
+turn_form(reading_boundary_class_forget, 2, span(class)).
+turn_form_slot_form(reading_boundary_class_forget, class, atom).
+turn_form_priority(reading_boundary_class_forget, early).
+turn_form_view(reading_boundary_class_forget, said).
+turn_form_act(reading_boundary_class_forget, "op(match, reading_forget_boundary_class, [class, free])").
+turn_form_reply(reading_boundary_class_forget, reading_boundary_class_forgotten).
+turn_form_empty_reply(reading_boundary_class_forget, reading_no_class_lesson).
+
+turn_form(reading_boundary_undo, 1, text("undo the local boundary correction for")).
+turn_form(reading_boundary_undo, 2, slot(word)).
+turn_form_priority(reading_boundary_undo, early).
+turn_form_view(reading_boundary_undo, said).
+turn_form_act(reading_boundary_undo, "op(match, reading_undo_boundary, [word, free])").
+turn_form_effect_origin(reading_boundary_undo, reflective).
+turn_form_reply(reading_boundary_undo, reading_boundary_undone).
+turn_form_empty_reply(reading_boundary_undo, reading_no_local_revision).
+
+response_template(reading_inspected, "I read these noun phrases: {result}.").
+response_template(reading_no_choice, "I have no noun-phrase reading from the preceding turn to show.").
+response_template(reading_boundary_corrected, "For that occurrence I now read «{result}» before «{word}». This changes the phrase reading only. To extend it, say «use that boundary for {word} in future sentences».").
+response_template(reading_no_unique_choice, "I cannot identify one unrevised noun phrase containing «{word}» in the preceding turn. I have not changed its reading.").
+response_template(reading_boundary_promoted, "I will end noun phrases before «{word}» in future sentences. This teaches a boundary, not a verb meaning.").
+response_template(reading_no_example, "I need one unambiguous corrected reading of «{word}» before extending its boundary.").
+response_template(reading_boundary_forgotten, "I have withdrawn the boundary lesson for «{word}».").
+response_template(reading_no_lesson, "I have no boundary lesson for «{word}» to withdraw.").
+response_template(reading_boundary_classes, "Known classes for «{word}» with a corrected example: {result}. You can choose «use that boundary for every ...». Membership alone does not prove that every use needs this boundary.").
+response_template(reading_no_class, "I have no named class backed by a corrected occurrence of «{word}» to propose.").
+response_template(reading_boundary_class_promoted, "I will end noun phrases before members of «{class}», including members taught later. This applies to every use of those words; contextual exceptions are not yet represented.").
+response_template(reading_no_class_example, "I need one corrected example belonging to «{class}» before extending that boundary to the class.").
+response_template(reading_boundary_class_forgotten, "I have withdrawn the boundary lesson for the class «{class}».").
+response_template(reading_no_class_lesson, "I have no boundary lesson for the class «{class}» to withdraw.").
+response_template(reading_boundary_undone, "I have withdrawn the local correction for «{word}». The original phrase reading is «{result}».").
+response_template(reading_no_local_revision, "I cannot identify one local correction for «{word}» to withdraw.").

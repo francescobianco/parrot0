@@ -76,7 +76,10 @@ input_node_kind($Scope, $Id, $Kind) :-
 input_node_parent($Scope, $Id, $Parent) :-
     input_node($Scope, $Id, node($Level, $Kind, $Parent), $Range).
 input_node_range($Scope, $Id, $Start, $Length) :-
-    input_node($Scope, $Id, $Node, range($Start, $Length)).
+    input_node($Scope, $Id, $Node, range($Start, $Length)),
+    naf(reading_has_revision($Scope, $Id)).
+input_node_range($Scope, $Id, $Start, $Length) :-
+    reading_revision($Scope, $Id, revision(range($Start, $Length), $Evidence)).
 
 % Turno e prosa passano dallo stesso osservatore n-lingue, ma restano scope
 % separati. Una fonte puo' quindi avere una lingua diversa dalla richiesta che
@@ -207,7 +210,8 @@ bare_noun_neighbour($Scope, $Id) :-
     input_node_next($Scope, $P, $Id), input_node_atom($Scope, $P, $W),
     naf(input_token_in_phrase($Scope, $P)), bare_noun_candidate($W).
 np_phrase_words($Scope, $Id, $Ws) :-
-    input_node($Scope, $Id, node(phrase, np_candidate, $Parent), range($PS, $PL)),
+    input_node($Scope, $Id, node(phrase, np_candidate, $Parent), $Range),
+    input_node_range($Scope, $Id, $PS, $PL),
     is($PE, add($PS, $PL)),
     findall($W, token_in_span($Scope, $PS, $PE, $W), $Ws).
 token_in_span($Scope, $PS, $PE, $W) :-
@@ -226,7 +230,8 @@ np_trim_verb_tail(cons($W, cons($V, $R)), cons($W, $T)) :- np_trim_verb_tail(con
 input_token_in_phrase($Scope, $Id) :-
     input_node($Scope, $Id, node(token, token, $TP), $TR),
     input_node_range($Scope, $Id, $Start, $Len),
-    input_node($Scope, $P, node(phrase, np_candidate, $Parent), range($PS, $PL)),
+    input_node($Scope, $P, node(phrase, np_candidate, $Parent), $Range),
+    input_node_range($Scope, $P, $PS, $PL),
     is($PE, add($PS, $PL)), naf(lt($Start, $PS)), lt($Start, $PE).
 bare_noun_candidate($W) :-
     naf(word_is_function_word($W)), naf(preposition($W)), naf(trailing_subordinator($W)),

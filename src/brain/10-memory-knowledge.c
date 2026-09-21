@@ -15930,7 +15930,14 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                 }
             } else if (!strcmp(opname, "match") || !strcmp(opname, "count")) {
                 char rows[64][KB_TERM_LEN];
+                /* Query actions can describe transient revisions of an IR.
+                 * The lifetime is declared by the form, never by its name. */
+                int saved_origin = kb_origin(b->kb);
+                const char *oq[] = { formname, "reflective" };
+                if (kb_query(b->kb, "turn_form_effect_origin", oq, 2))
+                    kb_set_origin(b->kb, KB_REFLECTIVE);
                 size_t nr = kb_match(b->kb, pred, argv2, argc2, rows, 64);
+                kb_set_origin(b->kb, saved_origin);
                 size_t off2 = 0;
                 for (size_t k = 0; k < nr; k++) {
                     char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rows[k]);

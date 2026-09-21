@@ -346,6 +346,7 @@ typedef struct {
     char kind[KB_TERM_LEN];            /* np/vp/pp/... or candidate */
     char role[KB_TERM_LEN];            /* open KB term, empty when unresolved */
     char surface[KB_TERM_LEN];
+    char reading_reason[KB_TERM_LEN]; /* evidence used for this candidate */
 } InputNode;
 
 /* Historical name retained as an alias while consumers migrate from "code

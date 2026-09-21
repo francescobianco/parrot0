@@ -1261,6 +1261,7 @@ machinery(sides).
 :- include(language-observation.p0).
 :- include(self-ability.p0).
 :- include(input-structure.p0).
+:- include(reading-choices.p0).
 :- include(clause-content.p0).
 :- include(derivation.p0).
 :- include(fenomenologia.p0).

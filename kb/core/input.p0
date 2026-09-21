@@ -155,6 +155,12 @@ phrase_boundary(np, breaker, $Word) :- pos($Word, verb).
 % lingua nuova e' una riga li', non qui.
 phrase_boundary(np, breaker, $Word) :- clause_copula($Word).
 
+% The disjunction is knowledge; the observer keeps the evidence it used.
+phrase_boundary_stop($Kind, $Word, phrase_boundary($Kind, breaker, $Word)) :-
+    phrase_boundary($Kind, breaker, $Word).
+phrase_boundary_stop($Kind, $Word, phrase_boundary($Kind, closer, $Word)) :-
+    phrase_boundary($Kind, closer, $Word).
+
 register_label(c, "C").
 register_label(python, "Python").
 register_label(json, "JSON").
