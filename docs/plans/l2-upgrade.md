@@ -444,6 +444,11 @@ Build della patch C: `make -j2 build`, riuscita, senza nuovi warning.
 | Caricamento nelle sessioni CLI osservate | nessun `PARSE ERROR` riportato |
 | `make soft-test` dopo la patch | **non eseguito**, resta requisito prima di considerare chiuso lo stadio 0 |
 | Persistenza e processo nuovo | **non verificati** |
+| **22 set, `ff42ab99`: SIGSEGV isolato con ASan** | `heap-use-after-free` in `solve_frame`: un `retract` dentro la query marca il censimento stale, il lookup successivo lo ricostruisce e **libera `idx`/`ridx` sotto i frame esterni**. Difetto del motore, non di L2: le 114 righe KB che scrivono dentro una regola ne erano esposte. Cura: il cimitero dell'indice `a0` diventa cimitero del censimento, svuotato solo a `frame_depth == proof_depth == 0`; posizioni oltre `kb->n` saltate |
+| Banco dopo la cura | **36/36**, anche sotto ASan con zero errori; `make soft-test` verde in 12 s |
+| Client `ok … 0 passed` | corretto: senza riga `COUNT` stampa `FAIL … no report from the engine` ed esce con 2 |
+| Costo dei turni L2 | `which classes could share…` 2,6 s → < 0,3 s (percorre `class_surface`, non `kb_fact/2` su tutta la KB). Il banco ora usa `!timeout 2`: il turno di **lettura** della frase della valvola costa 1,5–1,8 s già prima di ogni regola L2 |
+| Costo di `!reset` (preesistente, **non** L2) | ~5,5 s ciascuno: `views_warm` 3,5 s (di cui `extract_frame` 2,0 s, `view_pair` 810 k passi) + `frame_cache` 1,3 s. La cifra «boot 0,40 s» non vale più. Verificato identico col `kb.c` di HEAD: non è una regressione della cura. È il grosso dei 40 s del banco |
 
 Il banco esteso è stato corretto per usare la categoria `verb`, che il
 transcript ha realmente insegnato. Il suo ultimo esito è riportato nel §13.7.
@@ -516,6 +521,9 @@ di un commit di capacità. Il banco corrente non ha un risultato verde.
 | `tests/p0t/language/l2_reading_choices.p0t` **nuovo** | quattro casi sulla KB completa: parola, classe aperta, undo locale, rifiuto di ambiguità/assenza |
 | `LEARN_PROTOCOL.md` | superfici del primo incremento e limiti |
 | questo piano | revisione, contratti, rischi e sequenza di continuazione |
+
+**Aggiornamento 22 set:** i punti 1 e 2 sotto sono chiusi (vedi le ultime
+righe del §13.5). Si riparte dal punto 3.
 
 **Prossima sessione, evitare deviazioni:**
 

@@ -73,10 +73,13 @@ reading_forget_boundary($Word, $Word) :-
 
 % A class is already an ordinary teachable object (class_surface + unary
 % membership). Reuse it; do not introduce a closed list of eligible classes.
+% Walk the nameable classes, not every fact: a class nobody can pronounce
+% cannot be offered as a scope anyway. kb_fact/2 over the whole KB cost 2.6 s
+% per turn; this order stays under 0.3 s (gen516, PARROT0_TE_SLOW).
 reading_boundary_class_option($Word, $Surface) :-
     reading_boundary_example($Word, $Example),
-    kb_fact($Class, cons($Word, nil)),
-    class_surface($Class, $Surface), naf(machinery($Class)).
+    class_surface($Class, $Surface), naf(machinery($Class)),
+    apply($Class, cons($Word, nil)).
 reading_boundary_class_example($Class, example($Word, $Example)) :-
     class_surface($Class, $Surface),
     reading_boundary_example($Word, $Example), apply($Class, cons($Word, nil)).
