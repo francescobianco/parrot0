@@ -134,6 +134,7 @@ utterance(5, user, "The Reichstag is in Berlin.").
 utterance(5, user, "The largest city of Germany is Berlin.").
 utterance(5, user, "Rectifiers produce direct current.").
 utterance(5, user, "Ferritic stainless steel is magnetic.").
+utterance(5, user, "The nanometre measures length.").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -248,6 +249,7 @@ utterance(6, self, "Learned: reichstag is located in berlin.").
 utterance(6, self, "Learned: the largest city of germany is berlin.").
 utterance(6, self, "Learned: rectifiers produce direct current.").
 utterance(6, self, "Learned: ferritic stainless steel is magnetic.").
+utterance(6, self, "Learned: nanometre measures length.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -2622,6 +2624,7 @@ utterance(2, self, "Held: in that situation, move 1 is «Start from what you wan
 utterance(2, self, "Learned: largest city is a relation.").
 utterance(2, self, "Learned: capacitors block direct current.").
 utterance(2, self, "Learned: austenitic stainless steel is steel.").
+utterance(2, self, "Learned: byte measures information.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2743,6 +2746,7 @@ utterance(1, user, "when someone is planning a trip then ask what they want to s
 utterance(1, user, "largest city is a relation").
 utterance(1, user, "Capacitors block direct current.").
 utterance(1, user, "Austenitic stainless steel is a steel.").
+utterance(1, user, "The byte measures information.").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2855,6 +2859,7 @@ utterance(4, self, "Learned: brandenburg gate is located in berlin.").
 utterance(4, self, "Learned: the largest city of turkey is istanbul.").
 utterance(4, self, "Learned: capacitors pass alternating current.").
 utterance(4, self, "Learned: austenitic stainless steel is not magnetic.").
+utterance(4, self, "Learned: hertz measures frequency.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2964,6 +2969,7 @@ utterance(3, user, "The Brandenburg Gate is in Berlin.").
 utterance(3, user, "The largest city of Turkey is Istanbul.").
 utterance(3, user, "Capacitors pass alternating current.").
 utterance(3, user, "Austenitic stainless steel is not magnetic.").
+utterance(3, user, "The hertz measures frequency.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

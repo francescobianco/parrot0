@@ -1,0 +1,42 @@
+{
+ "seconds": 16.71,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@723072fd]\nmode: agent (tools on, network off) - 157198 facts, 5001 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "The MTU of standard Ethernet is 1500 bytes.",
+   "answer": "Learned: the_mtu_of_standard_ethernet has 1500 bytes."
+  },
+  {
+   "turn": 2,
+   "prompt": "What is the MTU of standard Ethernet?",
+   "answer": "I don't know about mtu."
+  },
+  {
+   "turn": 3,
+   "prompt": "mtu is a relation",
+   "answer": "Learned: mtu is a relation."
+  },
+  {
+   "turn": 4,
+   "prompt": "The MTU of standard Ethernet is 1500 bytes.",
+   "answer": "Learned: the_mtu_of_standard_ethernet has 1500 bytes."
+  },
+  {
+   "turn": 5,
+   "prompt": "What is the MTU of standard Ethernet?",
+   "answer": "I don't know about mtu."
+  },
+  {
+   "turn": 6,
+   "prompt": "Ethernet has an MTU of 1500 bytes.",
+   "answer": "Held: ethernet scores of 1500 bytes on mtu."
+  },
+  {
+   "turn": 7,
+   "prompt": "What is the MTU of Ethernet?",
+   "answer": "I don't know about mtu."
+  }
+ ]
+}

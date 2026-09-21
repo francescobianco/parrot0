@@ -1,0 +1,27 @@
+{
+ "seconds": 11.6,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@4da773f7]\nmode: agent (tools on, network off) - 157211 facts, 5007 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "The MTU of standard Ethernet is 1500 bytes.",
+   "answer": "Learned: the_mtu_of_standard_ethernet has 1500 bytes."
+  },
+  {
+   "turn": 2,
+   "prompt": "What is the MTU of standard Ethernet?",
+   "answer": "I don't know about mtu."
+  },
+  {
+   "turn": 3,
+   "prompt": "The sample rate of CD audio is 44100 hertz.",
+   "answer": "Hmm, I don't know about sample yet. Want me to learn about it?"
+  },
+  {
+   "turn": 4,
+   "prompt": "What is the sample rate of CD audio?",
+   "answer": "Hmm, I don't know about sample yet."
+  }
+ ]
+}

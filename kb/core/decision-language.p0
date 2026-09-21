@@ -15,6 +15,21 @@ turn_form_slot_class(decision_value_lesson, value, decision_numeric).
 turn_form_act(decision_value_lesson, "op(match, decision_store, [subject, role, value, free])").
 turn_form_priority(decision_value_lesson, early).
 turn_form_reply(decision_value_lesson, decision_value_learned).
+
+% ── RI-013 — E LO STESSO, con il valore di DUE parole: numero piu' unita'.
+% La classe del valore resta la stessa (`decision_numeric`), quindi la coda
+% non e' un buco: passa solo se e' davvero un valore misurato.
+turn_form(decision_value_lesson_unit, 1, text("the")).
+turn_form(decision_value_lesson_unit, 2, slot(role)).
+turn_form(decision_value_lesson_unit, 3, text("of")).
+turn_form(decision_value_lesson_unit, 4, span(subject)).
+turn_form(decision_value_lesson_unit, 5, text("is")).
+turn_form(decision_value_lesson_unit, 6, rest(value)).
+turn_form_slot_form(decision_value_lesson_unit, subject, atom).
+turn_form_slot_class(decision_value_lesson_unit, value, decision_numeric).
+turn_form_act(decision_value_lesson_unit, "op(match, decision_store, [subject, role, value, free])").
+turn_form_priority(decision_value_lesson_unit, early).
+turn_form_reply(decision_value_lesson_unit, decision_value_learned).
 response_template(decision_value_learned, "Noted: the {role} of {subject} is {value}.").
 response_template(decision_value_learned, it, "Annotato: {role} di {subject} vale {value}.").
 

@@ -13,6 +13,29 @@ decision_role_name($R) :- decision_minimum($R, $N).
 decision_role_name($R) :- decision_maximum($R, $N).
 role($O, $R, $V) :- situation_state(described_situation, $O, $R, $V).
 decision_numeric($V) :- is($N, $V).
+% ── RI-013 — UN NUMERO CON LA SUA UNITA' E' UN VALORE SOLO ────────────────
+%
+% «The MTU of standard Ethernet is 1500 bytes.» finiva al lettore delle
+% quantita', che incollava tutto il sintagma del soggetto:
+% `has(the_mtu_of_standard_ethernet, 1500 bytes)` — un cassetto che nessuno
+% puo' aprire. La misura che isola la causa: senza unita' («… is 1500.») la
+% stessa frase si legge bene, e con un valore non numerico («… is large.»)
+% anche. Rompe l'UNITA', e in prosa tecnica l'unita' c'e' sempre.
+%
+% La forma giusta esisteva gia' («the <ruolo> di <cosa> e' <valore>»); mancava
+% che un valore potesse essere di DUE parole. E quali parole siano unita' non
+% e' vocabolario del motore: e' `measures/2`, la relazione che si insegna
+% parlando («the byte measures information») e che tiene gia' ohm, farad,
+% watt. Quindi un'unita' NUOVA — il byte, il pascal, il nodo — costa una
+% lezione, e da quella lezione tutte le frasi che la usano si leggono.
+machinery(unit_word_kb).
+unit_word_kb($U) :- measures($U, $Q).
+unit_word_kb($U) :- measures($S, $Q), plural_of($U, $S).
+unit_word_kb($U) :- measures($S, $Q), concat_atoms($S, "s", $U).
+machinery(measured_value).
+measured_value($V) :-
+    atom_words($V, cons($N, cons($U, nil))), is($X, $N), unit_word_kb($U).
+decision_numeric($V) :- measured_value($V).
 decision_store($O, $R, $V, $V) :- decision_numeric($V), state_commit($O, $R, $V).
 
 % ── 1. IL VALORE E' UNA PROCEDURA SULLA KB ─────────────────────────────────
@@ -22,6 +45,13 @@ decision_store($O, $R, $V, $V) :- decision_numeric($V), state_commit($O, $R, $V)
 % circolare — vista sotto, §3 — e la ricerca del valore la salta.
 decision_value($O, $R, $V) :- decision_eval($O, $R, $V, nil).
 decision_eval($O, $R, $V, $Seen) :- role($O, $R, $Raw), is($V, $Raw).
+% RI-013 — e un valore MISURATO e' il valore di se stesso: `is/2` lo pretende
+% aritmetico, e «1500 bytes» non lo e'. Non serve un lettore nuovo: serve che
+% la stessa strada ammetta la classe che una LEZIONE ha aperto
+% (`measured_value/1`, da `measures/2` — «the byte measures information»). Le
+% formule continuano a usare `is/2` e su una misura falliscono: e' onesto,
+% perche' sommare «1500 bytes» e «2 kilobytes» non e' un'addizione.
+decision_eval($O, $R, $V, $Seen) :- role($O, $R, $V), measured_value($V).
 decision_eval($O, $R, $V, $Seen) :- decision_formula($R, $A, $B), naf(member($R, $Seen)), decision_number_in($O, $A, $X, cons($R, $Seen)), decision_number_in($O, $B, $Y, cons($R, $Seen)), is($V, add($X, $Y)).
 decision_values_in($O, $R, $Vs, $Seen) :- findall($V, decision_eval($O, $R, $V, $Seen), $Vs).
 decision_number_in($O, $R, $V, $Seen) :- decision_values_in($O, $R, cons($V, nil), $Seen).

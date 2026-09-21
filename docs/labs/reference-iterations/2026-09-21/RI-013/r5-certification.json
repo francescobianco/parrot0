@@ -1,0 +1,77 @@
+{
+ "seconds": 13.17,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@4da773f7]\nmode: agent (tools on, network off) - 157211 facts, 5007 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "The byte measures information.",
+   "answer": "Learned: byte measures information."
+  },
+  {
+   "turn": 2,
+   "prompt": "The MTU of standard Ethernet is 1500 bytes.",
+   "answer": "Noted: the mtu of standard ethernet is 1500 bytes."
+  },
+  {
+   "turn": 3,
+   "prompt": "What is the MTU of standard Ethernet?",
+   "answer": "For standard ethernet: the mtu is 1500 bytes."
+  },
+  {
+   "turn": 4,
+   "prompt": "The frequency of European mains is 50 hertz.",
+   "answer": "Learned: the_frequency_of_european_mains has 50 hertz."
+  },
+  {
+   "turn": 5,
+   "prompt": "The hertz measures frequency.",
+   "answer": "Learned: hertz measures frequency."
+  },
+  {
+   "turn": 6,
+   "prompt": "The frequency of European mains is 50 hertz.",
+   "answer": "Noted: the frequency of european mains is 50 hertz."
+  },
+  {
+   "turn": 7,
+   "prompt": "What is the frequency of European mains?",
+   "answer": "For european mains: the frequency is 50 hertz."
+  },
+  {
+   "turn": 8,
+   "prompt": "The wavelength of green light is 550 nanometres.",
+   "answer": "Learned: the_wavelength_of_green_light has 550 nanometres."
+  },
+  {
+   "turn": 9,
+   "prompt": "The nanometre measures length.",
+   "answer": "Learned: nanometre measures length."
+  },
+  {
+   "turn": 10,
+   "prompt": "The wavelength of green light is 550 nanometres.",
+   "answer": "Noted: the wavelength of green light is 550 nanometres."
+  },
+  {
+   "turn": 11,
+   "prompt": "What is the wavelength of green light?",
+   "answer": "For green light: the wavelength is 550 nanometres."
+  },
+  {
+   "turn": 12,
+   "prompt": "forget that the hertz measures frequency.",
+   "answer": "Forgotten: hertz measures frequency."
+  },
+  {
+   "turn": 13,
+   "prompt": "The frequency of Japanese mains is 60 hertz.",
+   "answer": "Learned: the_frequency_of_japanese_mains has 60 hertz."
+  },
+  {
+   "turn": 14,
+   "prompt": "What is the MTU of standard Ethernet?",
+   "answer": "For standard ethernet: the mtu is 1500 bytes."
+  }
+ ]
+}

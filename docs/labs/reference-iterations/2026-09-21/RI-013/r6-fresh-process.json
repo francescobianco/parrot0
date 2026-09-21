@@ -1,0 +1,32 @@
+{
+ "seconds": 7.94,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@4da773f7]\nmode: agent (tools on, network off) - 157246 facts, 5007 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "The MTU of standard Ethernet is 1500 bytes.",
+   "answer": "Noted: the mtu of standard ethernet is 1500 bytes."
+  },
+  {
+   "turn": 2,
+   "prompt": "What is the MTU of standard Ethernet?",
+   "answer": "For standard ethernet: the mtu is 1500 bytes."
+  },
+  {
+   "turn": 3,
+   "prompt": "The wavelength of green light is 550 nanometres.",
+   "answer": "Noted: the wavelength of green light is 550 nanometres."
+  },
+  {
+   "turn": 4,
+   "prompt": "What is the wavelength of green light?",
+   "answer": "For green light: the wavelength is 550 nanometres."
+  },
+  {
+   "turn": 5,
+   "prompt": "What do capacitors block?",
+   "answer": "Direct current."
+  }
+ ]
+}

@@ -28,3 +28,6 @@ measures(volt, voltage).
 measures(watt, power).
 measures(ampere, current).
 measures(kelvin, temperature).
+measures(nanometre, length).
+measures(hertz, frequency).
+measures(byte, information).

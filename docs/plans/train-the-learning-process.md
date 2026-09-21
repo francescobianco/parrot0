@@ -356,6 +356,59 @@ nuovi fatti insegnati e non convertire N commit in punti di learning-capability.
 con crescita KB vera e con tutte le prove R1–R7. Una prova persa o non eseguita
 resta tale; non si ricostruisce a memoria un transcript mancante.
 
+### 0.5-bis ⛔ LA DERIVA DA EVITARE — «verificare la grammatica» invece di far crescere l'addestrabilità (F., 21 settembre 2026)
+
+**Il caso, per intero, perché si riconosca quando ricapita.** Nel lotto
+`2026-09-21` lo stimolo era una frase tecnica ordinaria:
+
+```text
+The MTU of standard Ethernet is 1500 bytes.
+```
+
+La misura che isolava la causa era buona: senza unità («… is 1500.») la frase
+si legge, con un valore non numerico («… is large.») anche — **rompe l'unità**.
+Fin qui il metodo funzionava. Poi la cura è andata nel posto sbagliato: una
+**forma di turno nuova più un atto nuovo in C** che prendeva «1500 bytes» e lo
+conservava come testo opaco. La frase passava, il banco diventava verde, e
+l'effetto reale era **zero**: parrot0 non aveva imparato niente: aveva imparato
+il *motore*, ricompilando, e a insegnarglielo ero stato io.
+
+F., vedendolo: «la missione è stata tradita dall'insegnare nuove forme di
+apprendibilità; mi sembra che gli stai verificando la grammatica — forse
+dobbiamo mettere in discussione il C che stiamo scrivendo».
+
+**La cura giusta, per contrasto.** La stessa lacuna, letta come conoscenza:
+*che esistano numeri con un'unità si insegna*. Quali parole siano unità la KB
+lo dice già con `measures/2` — una relazione **aperta parlando** («the byte
+measures information»), che tiene ohm, farad e watt insegnati uno alla volta.
+Allora la cura è una classe che si allarga (`measured_value`, `unit_word_kb`) e
+una forma che riusa quella classe: da quel momento **un'unità nuova costa una
+lezione**, e tutte le frasi che la usano si leggono senza toccare niente.
+
+**Il test da applicare a ogni cura, prima di scriverla.**
+
+| domanda | se la risposta è… |
+|---|---|
+| Dopo la cura, un maestro ottiene lo stesso effetto per un **membro nuovo** solo parlando? | **no** → la cura è nel posto sbagliato |
+| Quante frasi nuove diventano leggibili? Una, o una classe? | **una** → è una verifica di grammatica |
+| Chi ha imparato: parrot0, o il motore? | **il motore** → l'hai insegnato tu, ricompilando |
+| Se domani serve il caso gemello, serve un altro atto in C? | **sì** → stai costruendo un frasario in C |
+
+**Il sintomo da cui accorgersene**, perché arriva prima della diagnosi: le forme
+e gli atti si **moltiplicano**, uno per superficie, e ciascuno con il suo
+`turn_form_empty_reply`. Un atto nuovo si giustifica solo quando è **una cosa
+nuova da FARE** (asserire, ritirare, interrogare) — è il confine che
+`turn_form_act` dichiara da sé. Se l'atto nuovo *significa* qualcosa (questo
+valore è una misura, questo termine è un soggetto), quel significato è
+conoscenza e va in KB.
+
+**E la conseguenza sul C già scritto.** Quando un pezzo di C impedisce a una
+lezione di avere effetto, la mossa non è aggirarlo con una forma nuova: è
+**metterlo in discussione**. Si nomina il sito, si dice quale conoscenza
+dovrebbe leggere al posto della propria decisione compilata, e lo si iscrive
+in `C_TODO.md`. Un cancello che rifiuta ciò che il maestro ha appena detto è
+debito del C, non un limite del maestro.
+
 ### 0.6 Come evitare che il ciclo diventi meccanico
 
 - **La lezione viene accettata ma lo stimolo fallisce?** Cercare chi consuma

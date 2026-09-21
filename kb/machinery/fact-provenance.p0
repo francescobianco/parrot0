@@ -516,6 +516,9 @@ fact_source(produce(rectifiers, direct_current), rectifiers, "rectifiers produce
 fact_source(pass(capacitors, alternating_current), capacitors, "capacitors pass alternating current.").
 fact_source(block(capacitors, direct_current), capacitors, "capacitors block direct current.").
 fact_source(process(shielded_metal_arc_welding), shielded_metal_arc_welding, "shielded metal arc welding is a process.").
+fact_source(measures(nanometre, length), nanometre, "the nanometre measures length.").
+fact_source(measures(hertz, frequency), hertz, "the hertz measures frequency.").
+fact_source(measures(byte, information), byte, "the byte measures information.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -917,9 +920,15 @@ reading_fact(located_in(brandenburg_gate, berlin), "the brandenburg gate is in b
 reading_fact(pass(capacitors, alternating_current), "capacitors pass alternating current.").
 reading_fact(relation(largest_city), "largest city is a relation").
 reading_fact(proposition(binary(pass), roles(subject(capacitors), object(alternating_current))), "capacitors pass alternating current.").
+reading_fact(measures(nanometre, length), "the nanometre measures length.").
 reading_fact(block(capacitors, direct_current), "capacitors block direct current.").
+reading_fact(proposition(binary(measure), roles(subject(nanometre), object(length))), "the nanometre measures length.").
+reading_fact(measures(hertz, frequency), "the hertz measures frequency.").
 reading_fact(process(shielded_metal_arc_welding), "shielded metal arc welding is a process.").
+reading_fact(proposition(binary(measure), roles(subject(hertz), object(frequency))), "the hertz measures frequency.").
+reading_fact(measures(byte, information), "the byte measures information.").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
+reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
 % nega la provenienza di un fatto, la ritira insieme al fatto.
@@ -1044,12 +1053,18 @@ fact_mention(rectifiers, "rectifiers produce direct current.").
 fact_mention(rhone, "the rhone flows into the mediterranean sea.").
 fact_mention(istanbul, "the largest city of turkey is istanbul.").
 fact_mention(alternating_current, "capacitors pass alternating current.").
+fact_mention(length, "the nanometre measures length.").
+fact_mention(nanometre, "the nanometre measures length.").
 fact_mention(capacitors, "capacitors pass alternating current.").
 fact_mention(turkey, "the largest city of turkey is istanbul.").
 fact_mention(berlin, "the brandenburg gate is in berlin.").
+fact_mention(frequency, "the hertz measures frequency.").
+fact_mention(hertz, "the hertz measures frequency.").
 fact_mention(brandenburg_gate, "the brandenburg gate is in berlin.").
 fact_mention(direct_current, "capacitors block direct current.").
 fact_mention(capacitors, "capacitors block direct current.").
+fact_mention(information, "the byte measures information.").
+fact_mention(byte, "the byte measures information.").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
