@@ -1,0 +1,27 @@
+{
+ "seconds": 7.68,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@f326f6ac]\nmode: agent (tools on, network off) - 157032 facts, 4996 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "I am planning a three-day trip to Berlin: where do I start?",
+   "answer": "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?"
+  },
+  {
+   "turn": 2,
+   "prompt": "I want to learn Spanish: where do I start?",
+   "answer": "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?"
+  },
+  {
+   "turn": 3,
+   "prompt": "I am planning a trip to Berlin.",
+   "answer": "That sounds nice -- tell me more about it."
+  },
+  {
+   "turn": 4,
+   "prompt": "Where do I start?",
+   "answer": "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?"
+  }
+ ]
+}

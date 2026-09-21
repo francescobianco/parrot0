@@ -505,6 +505,8 @@ fact_source(sea(mediterranean_sea), mediterranean_sea, "the mediterranean sea is
 fact_source(flow(nile, mediterranean_sea), nile, "the nile flows into the mediterranean sea.").
 fact_source(relation(river), river, "river is a relation").
 fact_source(flow(rhone, mediterranean_sea), rhone, "the rhone flows into the mediterranean sea.").
+fact_source(located_in(reichstag, berlin), reichstag, "the reichstag is in berlin.").
+fact_source(located_in(brandenburg_gate, berlin), brandenburg_gate, "the brandenburg gate is in berlin.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -894,7 +896,9 @@ reading_fact(city(milan), "milan is a city.").
 reading_fact(flow(nile, mediterranean_sea), "the nile flows into the mediterranean sea.").
 reading_fact(flow(po, adriatic_sea), "the po flows into the adriatic sea.").
 reading_fact(relation(river), "river is a relation").
+reading_fact(located_in(reichstag, berlin), "the reichstag is in berlin.").
 reading_fact(flow(rhone, mediterranean_sea), "the rhone flows into the mediterranean sea.").
+reading_fact(located_in(brandenburg_gate, berlin), "the brandenburg gate is in berlin.").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -1006,8 +1010,12 @@ fact_mention(milan, "milan is a city.").
 fact_mention(mediterranean_sea, "the nile flows into the mediterranean sea.").
 fact_mention(nile, "the nile flows into the mediterranean sea.").
 fact_mention(adriatic_sea, "the po flows into the adriatic sea.").
+fact_mention(berlin, "the reichstag is in berlin.").
+fact_mention(reichstag, "the reichstag is in berlin.").
 fact_mention(po, "the po flows into the adriatic sea.").
 fact_mention(rhone, "the rhone flows into the mediterranean sea.").
+fact_mention(berlin, "the brandenburg gate is in berlin.").
+fact_mention(brandenburg_gate, "the brandenburg gate is in berlin.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

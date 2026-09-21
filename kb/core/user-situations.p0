@@ -211,7 +211,51 @@ getting_started_cue("da dove comincio").
 getting_started_cue("da dove inizio").
 getting_started_cue("da dove parto").
 turn_cue_registry(getting_started_cue, 1).
-direct_situation($Turn, user_getting_started) :- turn_cue_form($Turn, getting_started_cue, $Cue).
+% ── RI-009 — UNA CUE DICE CHE DOMANDA E', NON DI CHE COSA PARLA ───────────
+%
+% «where do i start» e' la FORMA della domanda, e da sola decideva anche il
+% TEMA: «I am planning a three-day trip to Berlin: where do i start?» riceveva
+% il piano dello studio — «una sessione breve tre volte a settimana» — che per
+% tre giorni a Berlino non vuol dire niente. La stessa risposta arrivava a
+% «I want to learn Spanish: where do i start?», dove invece e' giusta: e'
+% quello il segno che la cue non stava scegliendo nulla.
+%
+% Quindi la cue della forma vale solo quando il turno non nomina gia' una
+% situazione sua. Non si toglie niente a chi chiede «where do i start» e basta.
+% ⚠ La guardia si scrive sulle CUE e non sulle situazioni derivate: negare
+% `direct_situation` dentro una clausola di `direct_situation` e' una
+% ricorsione negativa, e il solver declina tutto. Misurato: con quella versione
+% «I want to learn Spanish: where do i start?» finiva al traduttore.
+machinery(specific_situation_cue).
+turn_names_specific_situation($Turn) :-
+    specific_situation_cue($Registry), turn_cue_form($Turn, $Registry, $Cue).
+direct_situation($Turn, user_getting_started) :-
+    turn_cue_form($Turn, getting_started_cue, $Cue),
+    naf(turn_names_specific_situation($Turn)).
+
+% ── RI-009 — CHI PREPARA UN VIAGGIO ────────────────────────────────────────
+% Il NOME della situazione e il modo di riconoscerla sono il supporto generale
+% che riapre la via alla lezione: il piano vero e proprio si insegna parlando
+% («when someone is planning a trip then …»), come ogni altro piano.
+machinery(trip_cue).
+turn_cue_registry(trip_cue, 1).
+trip_cue("planning a trip").
+trip_cue("planning a three-day trip").
+trip_cue("a trip to").
+trip_cue("sto preparando un viaggio").
+trip_cue("un viaggio a").
+direct_situation($Turn, user_trip) :- turn_cue_form($Turn, trip_cue, $Cue).
+specific_situation_cue(trip_cue).
+situation_cue("someone is planning a trip", user_trip).
+situation_cue("qualcuno sta preparando un viaggio", user_trip).
+situation_label(user_trip, en, "someone is planning a trip").
+situation_label(user_trip, it, "qualcuno sta preparando un viaggio").
+% E una mossa che ha senso per un viaggio, con il suo testo: la mossa e' il
+% vocabolario del meccanismo, l'ASSOCIAZIONE alla situazione e' la lezione.
+move_cue("ask what they want to see", ask_trip_goal).
+move_cue("chiedi che cosa vogliono vedere", ask_trip_goal).
+plan_step_text_lang(ask_trip_goal, en, "Start from what you want to see: pick two or three places that matter to you, and the days will arrange themselves around them.").
+plan_step_text_lang(ask_trip_goal, it, "Comincia da che cosa vuoi vedere: scegli due o tre posti che ti stanno a cuore, e le giornate si organizzano intorno a quelli.").
 
 % assistente utile U14 — ORGANIZZARE IL PROPRIO TEMPO. «Come posso organizzare
 % meglio la mia giornata?» (il prompt `italian` del banco) riceveva «Non capisco

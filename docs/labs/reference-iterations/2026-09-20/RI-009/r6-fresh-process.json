@@ -1,0 +1,32 @@
+{
+ "seconds": 8.96,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@f326f6ac]\nmode: agent (tools on, network off) - 157067 facts, 4998 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "I am planning a three-day trip to Berlin: where do I start?",
+   "answer": "Start from what you want to see: pick two or three places that matter to you, and the days will arrange themselves around them."
+  },
+  {
+   "turn": 2,
+   "prompt": "Where is the Brandenburg Gate?",
+   "answer": "berlin."
+  },
+  {
+   "turn": 3,
+   "prompt": "I want to learn Spanish: where do I start?",
+   "answer": "Start small and regular: a short session three times a week, building up a little each week, is easier to keep than a big plan. How much time can you give it each week?"
+  },
+  {
+   "turn": 4,
+   "prompt": "Stop, never mind.",
+   "answer": "All right. I will stop this proposal; you can choose whether to return to it."
+  },
+  {
+   "turn": 5,
+   "prompt": "Which sea does the river of Germany flow into?",
+   "answer": "north sea."
+  }
+ ]
+}
