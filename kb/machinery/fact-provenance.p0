@@ -498,6 +498,8 @@ fact_source(located_in(naples, italy), naples, "naples is in italy.").
 fact_source(city(naples), naples, "naples is a city.").
 fact_source(located_in(milan, italy), milan, "milan is in italy.").
 fact_source(city(milan), milan, "milan is a city.").
+fact_source(sea(adriatic_sea), adriatic_sea, "the adriatic sea is a sea.").
+fact_source(flow(po, adriatic_sea), po, "the po flows into the adriatic sea.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -880,7 +882,9 @@ reading_fact(city(naples), "naples is a city.").
 reading_fact(teach(plato, aristotle), "plato taught aristotle.").
 reading_fact(located_in(milan, italy), "milan is in italy.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
+reading_fact(sea(adriatic_sea), "the adriatic sea is a sea.").
 reading_fact(city(milan), "milan is a city.").
+reading_fact(flow(po, adriatic_sea), "the po flows into the adriatic sea.").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -934,6 +938,7 @@ fact_mention(legionella, "legionella is a genus of gram-negative bacteria that c
 fact_mention(underwatering, "underwatering causes yellow leaves").
 fact_mention(yellow_leaves, "overwatering causes yellow leaves").
 fact_mention(overwatering, "overwatering causes yellow leaves").
+fact_mention(black_sea, "the po flows into the black sea.").
 fact_mention(black_sea, "the black sea is a sea.").
 fact_mention(hydraulic_shock, "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 fact_mention(mold, "high humidity causes mold").
@@ -980,8 +985,12 @@ fact_mention(aristotle, "plato taught aristotle.").
 fact_mention(italy, "milan is in italy.").
 fact_mention(milan, "milan is in italy.").
 fact_mention(plato, "plato taught aristotle.").
+fact_mention(po, "the po flows into the black sea.").
+fact_mention(adriatic_sea, "the adriatic sea is a sea.").
 fact_mention(aare, "the aare flows into the rhine.").
 fact_mention(milan, "milan is a city.").
+fact_mention(adriatic_sea, "the po flows into the adriatic sea.").
+fact_mention(po, "the po flows into the adriatic sea.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

@@ -15357,6 +15357,95 @@ static const char *p0_form_slot(P0FormSlot *slots, size_t n, const char *name) {
     return NULL;
 }
 
+/* ── RI-006 — RITIRARE UNA CLAUSOLA SCRITTA COME TESTO, E LASCIARNE LA LAPIDE
+ *
+ * Il ritiro deve arrivare su disco, e chi salva legge `forgotten/1`: quindi
+ * ogni clausola tolta lascia la propria riga esatta. Una sola funzione perche'
+ * il fatto, la sua provenienza e le registrazioni del conflitto se ne vadano
+ * insieme — un fatto che non c'e' piu' non deve lasciare in giro chi lo cita. */
+static int p0_forget_clause(Brain *b, const char *clause_text) {
+    if (!b || !b->kb || !clause_text || !*clause_text) return 0;
+    char term[KB_TERM_LEN]; snprintf(term, sizeof term, "%s", clause_text);
+    char *lp = strchr(term, '('); char *rp = strrchr(term, ')');
+    if (!lp || !rp || rp < lp) return 0;
+    *lp = '\0'; *rp = '\0';
+    const char *pred = term;
+    const char *args[KB_MAX_ARGS]; size_t argc = 0;
+    char abuf[KB_MAX_ARGS][KB_TERM_LEN];
+    char *q = lp + 1; int depth = 0;
+    /* un argomento puo' essere a sua volta un termine: la virgola dentro le
+     * parentesi non separa (holds_in(conversation, located_in(a, b))) */
+    char *start = q;
+    for (char *c = q; ; c++) {
+        if (*c == '(') depth++;
+        else if (*c == ')') depth--;
+        if ((*c == ',' && depth == 0) || *c == '\0') {
+            char save = *c; *c = '\0';
+            while (*start == ' ') start++;
+            size_t l = strlen(start); while (l && start[l - 1] == ' ') start[--l] = '\0';
+            if (l && argc < KB_MAX_ARGS) {
+                snprintf(abuf[argc], KB_TERM_LEN, "%s", start);
+                args[argc] = abuf[argc]; argc++;
+            }
+            if (save == '\0') break;
+            start = c + 1;
+        }
+    }
+    if (!argc) return 0;
+    if (!kb_retract(b->kb, pred, args, argc)) return 0;
+    char whole[KB_TERM_LEN];
+    size_t o = (size_t)snprintf(whole, sizeof whole, "%s(", pred);
+    for (size_t a = 0; a < argc && o < sizeof whole; a++)
+        o += (size_t)snprintf(whole + o, sizeof whole - o, "%s%s", a ? ", " : "", args[a]);
+    if (o + 1 < sizeof whole) { whole[o++] = ')'; whole[o] = '\0'; }
+    char qt[KB_TERM_LEN];
+    /* la lapide porta il TESTO della clausola: le virgolette interne vanno
+     * sfuggite, altrimenti la riga salvata non si rilegge (`p0_quote_text`). */
+    p0_quote_text(whole, qt, sizeof qt);
+    if (qt[0]) {
+        int prev_o = kb_origin(b->kb);
+        /* La lapide serve al salvataggio di QUESTA sessione e non e' conoscenza
+         * del mondo: riflessiva, quindi non finisce nei file curati (kb.h:
+         * «never persisted»). Chi non salva non ha niente da togliere. */
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        const char *ga[1] = { qt };
+        kb_assert(b->kb, "forgotten", ga, 1);
+        kb_set_origin(b->kb, prev_o);
+    }
+    return 1;
+}
+
+/* E chi CITA il fatto ritirato se ne va con lui: quali predicati siano la
+ * scia di un fatto e' conoscenza (`retraction_companion/1`), non una lista
+ * nel motore — una registrazione nuova domani e' una riga di .p0. */
+static void p0_forget_companions(Brain *b, const char *fact_text) {
+    if (!b || !b->kb || !fact_text || !*fact_text) return;
+    char (*preds)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *cq[1] = { NULL };
+    if (!kb_match_all(b->kb, "retraction_companion", cq, 1, &preds, &np)) { free(preds); return; }
+    for (size_t i = 0; i < np; i++) {
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", preds[i]);
+        const char *pd = kb_dequote(pb);
+        if (!*pd) continue;
+        /* ⚠ misurato: con un tetto di 64 righe la provenienza non si vedeva
+         * nemmeno — `fact_source/3` ne ha centinaia, e le nuove stanno in
+         * fondo. Un tetto che nasconde ESATTAMENTE il caso che interessa e'
+         * peggio di nessun tetto: qui si alloca per la scansione intera. */
+        size_t cap = 4096;
+        char (*rows)[KB_TERM_LEN] = malloc(cap * sizeof *rows);
+        if (!rows) continue;
+        size_t nr = kb_dump_pred(b->kb, pd, rows, cap);
+        for (size_t r = 0; r < nr; r++)
+            if (strstr(rows[r], fact_text)) {
+                int okr = p0_forget_clause(b, rows[r]);
+                if (getenv("P0_SAVE_TRACE"))
+                    fprintf(stderr, "[forget] %s -> %s\n", rows[r], okr ? "tolto" : "NO");
+            }
+        free(rows);
+    }
+    free(preds);
+}
+
 /* L'innesco: una sola porta in C, e dietro tutte le forme che la KB dichiara. */
 /* ══ gen507/51 (forma #43) — UNA PROCEDURA PUO' CHIAMARNE UN'ALTRA ═════════
  *
@@ -16838,6 +16927,66 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             put(msg2, out, out_size);
             free(forms);
             return 1;
+        } else if (!strcmp(act, "retract_said")) {
+            /* ── RI-006 — SI DISDICE CON LE PAROLE CON CUI SI E' INSEGNATO ──
+             *
+             * «Turin is in France.» entra come `located_in(turin, france)`;
+             * «forget that Turin is in France.» non entrava affatto — la forma
+             * generica del ritiro vuole UN verbo di relazione, e qui la
+             * superficie e' la copula piu' la preposizione. Il maestro poteva
+             * insegnare un errore e non poteva riprenderselo: il gate di
+             * LEARN_PROTOCOL §8 («X = 0») non era raggiungibile parlando.
+             *
+             * La strada c'era gia' e non la leggeva nessuno: ogni fatto letto
+             * porta la FRASE che l'ha prodotto (`reading_fact/2`, la
+             * provenienza del §6.8). Quindi non serve saper analizzare di nuovo
+             * la frase: basta cercare quale fatto quella frase ha scritto.
+             * Qualunque superficie futura funziona il giorno in cui funziona la
+             * lezione, perche' e' la lezione stessa a lasciare la traccia.
+             *
+             * Il ritiro lascia a sua volta una traccia — `forgotten/1`, un
+             * fatto, non uno stato nascosto — che `kb_save_routed` legge per
+             * togliere la riga dal file curato. */
+            const char *said = p0_form_slot(slots, ns, "said");
+            if (!said || !*said) continue;
+            char sent[KB_TERM_LEN];
+            snprintf(sent, sizeof sent, "%s", said);
+            for (char *c = sent; *c; c++) if (*c == '_') *c = ' ';
+            { size_t sl = strlen(sent);
+              while (sl && (sent[sl - 1] == ' ' || sent[sl - 1] == '.')) sent[--sl] = '\0'; }
+            if (!sent[0]) continue;
+            char quoted[KB_TERM_LEN + 8];
+            if ((size_t)snprintf(quoted, sizeof quoted, "\"%s.\"", sent) >= sizeof quoted) continue;
+            char terms[8][KB_TERM_LEN];
+            const char *rq2[2] = { NULL, quoted };
+            size_t nt = kb_match(b->kb, "reading_fact", rq2, 2, terms, 8);
+            if (nt == 0) {
+                const char *fq2[3] = { NULL, NULL, quoted };
+                nt = kb_match(b->kb, "fact_source", fq2, 3, terms, 8);
+            }
+            if (nt == 0) continue;
+            size_t dropped = 0;
+            for (size_t t = 0; t < nt; t++) {
+                char row[KB_TERM_LEN]; snprintf(row, sizeof row, "%s", terms[t]);
+                if (!p0_forget_clause(b, row)) continue;
+                dropped++;
+                p0_forget_companions(b, row);
+            }
+            if (!dropped) continue;
+            {   char tpl3[1][KB_TERM_LEN];
+                const char *tq3[2] = { forms[f], NULL };
+                char msg5[400];
+                if (kb_match(b->kb, "turn_form_reply", tq3, 2, tpl3, 1) == 1) {
+                    char tb3[KB_TERM_LEN]; snprintf(tb3, sizeof tb3, "%s", tpl3[0]);
+                    const KbResponseSlot rs5[] = { { "said", sent } };
+                    if (kb_response_slots(b, kb_dequote(tb3), rs5, 1, msg5, sizeof msg5)) {
+                        put(msg5, out, out_size);
+                        p0_said_by(b, "form", forms[f]);
+                        free(forms); return 1;
+                    }
+                }
+            }
+            continue;
         } else if (!strcmp(act, "answer_relation_in_class") && sub && rel) {
             /* RI-001 — LA CLASSE DI UNA DOMANDA E' UN FILTRO SUL VALORE.
              *

@@ -1,0 +1,22 @@
+{
+ "seconds": 7.45,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@749299b9]\nmode: agent (tools on, network off) - 156942 facts, 4994 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "forget that Turin is in France.",
+   "answer": "Hmm, I don't know about forget yet. Want me to learn about it?"
+  },
+  {
+   "turn": 2,
+   "prompt": "Where is Turin?",
+   "answer": "Italy, france and piedmont."
+  },
+  {
+   "turn": 3,
+   "prompt": "/save",
+   "answer": "parrot0: routed 13 clause(s) into the KB tree"
+  }
+ ]
+}

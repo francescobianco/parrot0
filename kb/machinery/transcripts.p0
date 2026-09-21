@@ -128,6 +128,7 @@ utterance(5, user, "The Rhine flows into the North Sea.").
 utterance(5, user, "Socrates taught Plato.").
 utterance(5, user, "Naples is a city.").
 utterance(5, user, "How many hours are there in a week?").
+utterance(5, user, "The Po flows into the Black Sea.").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -236,6 +237,7 @@ utterance(6, self, "Learned: rhine flow north sea.").
 utterance(6, self, "Learned: socrates teach plato.").
 utterance(6, self, "Learned: naples is a city.").
 utterance(6, self, "A week has 168 hours.").
+utterance(6, self, "Learned: po flow black sea.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -749,6 +751,7 @@ utterance(7, user, "The North Sea is a sea.").
 utterance(7, user, "react with is a relation verb").
 utterance(7, user, "Naples is in Italy.").
 utterance(7, user, "How many hours are there in one and a half weeks?").
+utterance(7, user, "Which sea does the Po flow into?").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1234,7 +1237,11 @@ utterance(11, user, "react goes both ways").
 utterance(8, self, "252 hours.").
 utterance(9, user, "How many minutes are there in two and a half days?").
 utterance(10, self, "3600 minutes.").
+utterance(8, self, "adriatic sea.").
+utterance(9, user, "forget that the Po flows into the Black Sea.").
+utterance(10, self, "Forgotten: the po flows into the black sea.").
 utterance(11, user, "Turin is in Italy.").
+utterance(11, user, "Which sea does the Po flow into?").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2176,6 +2183,7 @@ utterance(13, user, "Rome is a city.").
 utterance(14, self, "Learned: rome is a city.").
 utterance(15, user, "Rome is in Italy.").
 utterance(16, self, "Learned: rome is located in italy.").
+utterance(12, self, "adriatic sea.").
 utterance(74, self, "Held: «piccole» is how small is said in that language.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2589,6 +2597,7 @@ utterance(2, self, "Learned: flow into is a relation verb.").
 utterance(2, self, "Learned: plato teach aristotle.").
 utterance(2, self, "Learned: milan is a city.").
 utterance(2, self, "Learned: week has 168 hours.").
+utterance(2, self, "Learned: po flow adriatic sea.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2703,6 +2712,7 @@ utterance(1, user, "flow into is a relation verb").
 utterance(1, user, "Plato taught Aristotle.").
 utterance(1, user, "Milan is a city.").
 utterance(1, user, "A week has 168 hours.").
+utterance(1, user, "The Po flows into the Adriatic Sea.").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2809,6 +2819,7 @@ utterance(4, self, "Learned: aare flow rhine.").
 utterance(4, self, "Learned: aristotle teach alexander the great.").
 utterance(4, self, "Learned: milan is located in italy.").
 utterance(4, self, "Learned: day has 1440 minutes.").
+utterance(4, self, "Learned: adriatic sea is a sea.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2912,6 +2923,7 @@ utterance(3, user, "The Aare flows into the Rhine.").
 utterance(3, user, "Aristotle taught Alexander the Great.").
 utterance(3, user, "Milan is in Italy.").
 utterance(3, user, "A day has 1440 minutes.").
+utterance(3, user, "The Adriatic Sea is a sea.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

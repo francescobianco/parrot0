@@ -50,6 +50,8 @@ flow(moselle, rhine).
 flow(salzach, inn).
 flow(inn, danube).
 flow(danube, black_sea).
+flow(po, adriatic_sea).
+sea(adriatic_sea).
 sea(black_sea).
 semantic_proposition(proposition(binary(teach), roles(subject(plato), object(aristotle)))).
 semantic_binding(binary(teach), plato, object(aristotle)).
@@ -66,6 +68,8 @@ teach(socrates, plato).
 react(sodium, water).
 input_entity_cached(current_turn, en, ent(6, 2, goes_both_ways)).
 input_entity_cached(current_turn, en, ent(4, 2, many_minutes)).
+input_entity_cached(current_turn, en, ent(6, 2, sea)).
+input_entity_cached(current_turn, en, ent(15, 8, po)).
 input_entity_cached(current_turn, en, ent(30, 7, two)).
 input_entity_cached(current_turn, en, ent(38, 12, half_days)).
 input_entities_observed(current_turn, en).

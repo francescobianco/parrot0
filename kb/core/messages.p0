@@ -2023,6 +2023,31 @@ turn_form_mood(forget_fact, statement).
 turn_form_act(forget_fact, "op(retract, relation, [subject, object])").
 turn_form_reply(forget_fact, forgot_fact).
 
+% ── RI-006 — SI DISDICE CON LE PAROLE CON CUI SI E' INSEGNATO ─────────────
+% La forma qui sopra vuole UN verbo di relazione al posto giusto: «forget that
+% Turin is in France» non combaciava, perche' li' la superficie e' la copula
+% piu' la preposizione, e il maestro non poteva riprendersi un errore — cioe'
+% il cancello «X = 0» di LEARN_PROTOCOL §8 non era raggiungibile parlando.
+% Questa forma non analizza la frase: cerca quale FATTO quella frase ha
+% scritto (`reading_fact/2`, la provenienza che ogni lettura lascia gia').
+% Cosi' una superficie che si impara domani si disdice lo stesso giorno.
+response_template(forgot_said, "Forgotten: {said}.").
+response_template(forgot_said, it, "Dimenticato: {said}.").
+turn_form(forget_said, 1, text("forget that")).
+turn_form(forget_said, 2, span(said)).
+turn_form_mood(forget_said, statement).
+turn_form_act(forget_said, retract_said).
+turn_form_reply(forget_said, forgot_said).
+% La SCIA di un fatto: chi lo cita se ne va con lui. E' conoscenza, cosi' una
+% registrazione nuova domani non costa motore. (`fact_mention/2` NON e' qui:
+% dice che un'entita' e' comparsa in una frase, e quella frase e' stata detta
+% davvero — il registro di cio' che si e' detto non si riscrive.)
+machinery(retraction_companion).
+retraction_companion(fact_source).
+retraction_companion(reading_fact).
+retraction_companion(holds_in).
+retraction_companion(supersedes_in).
+
 % ══ gen507/63 (forma #8) — DUE NOMI, UNA COSA SOLA ════════════════════════
 % «X e Y sono la stessa cosa»: da li' cio' che si dice di uno vale per l'altro,
 % perche' il lettore risolve l'alias prima di cercare. Non e' un fatto sul

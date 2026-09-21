@@ -1,0 +1,42 @@
+{
+ "seconds": 11.68,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@a209504f]\nmode: agent (tools on, network off) - 156941 facts, 4994 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "The Po flows into the Adriatic Sea.",
+   "answer": "Learned: po flow adriatic sea."
+  },
+  {
+   "turn": 2,
+   "prompt": "The Adriatic Sea is a sea.",
+   "answer": "Learned: adriatic sea is a sea."
+  },
+  {
+   "turn": 3,
+   "prompt": "The Po flows into the Black Sea.",
+   "answer": "Learned: po flow black sea."
+  },
+  {
+   "turn": 4,
+   "prompt": "Which sea does the Po flow into?",
+   "answer": "adriatic sea."
+  },
+  {
+   "turn": 5,
+   "prompt": "forget that the Po flows into the Black Sea.",
+   "answer": "Forgotten: the po flows into the black sea."
+  },
+  {
+   "turn": 6,
+   "prompt": "Which sea does the Po flow into?",
+   "answer": "adriatic sea."
+  },
+  {
+   "turn": 7,
+   "prompt": "/save",
+   "answer": "parrot0: routed 27 clause(s) into the KB tree"
+  }
+ ]
+}

@@ -7278,6 +7278,48 @@ static int sm_same_file(const char *a, const char *b) {
     return sa.st_dev == sb.st_dev && sa.st_ino == sb.st_ino;
 }
 
+/* ── RI-006 — TOGLIERE UNA RIGA DA UN FILE CURATO ──────────────────────────
+ *
+ * `sm_insert` sa mettere un fatto accanto ai suoi simili; non esisteva il
+ * gesto contrario, e una KB che non sa dimenticare su disco tiene per sempre
+ * cio' che il maestro ha ritirato. Si riscrive il file senza quella riga,
+ * confrontata per testo esatto come fa gia' l'inserimento. Rende 1 se ha
+ * tolto qualcosa. */
+static int sm_delete(const char *file, const char *text) {
+    FILE *f = fopen(file, "r");
+    if (!f) return 0;
+    char **lines = NULL; size_t n = 0, cap = 0; char buf[2048];
+    int found = 0;
+    while (fgets(buf, sizeof buf, f)) {
+        char t[2048]; snprintf(t, sizeof t, "%s", buf);
+        size_t tl = strlen(t);
+        while (tl && (t[tl - 1] == '\n' || t[tl - 1] == '\r' || t[tl - 1] == ' ')) t[--tl] = '\0';
+        if (!strcmp(t, text)) { found = 1; continue; }
+        if (n >= cap) { cap = cap ? cap * 2 : 128;
+            char **nl = realloc(lines, cap * sizeof *lines);
+            if (!nl) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); fclose(f); return 0; }
+            lines = nl;
+        }
+        size_t bl = strlen(buf);
+        lines[n] = malloc(bl + 1);
+        if (!lines[n]) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); fclose(f); return 0; }
+        memcpy(lines[n], buf, bl + 1); n++;
+    }
+    fclose(f);
+    if (!found) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); return 0; }
+    FILE *o = fopen(file, "w");
+    if (!o) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); return 0; }
+    for (size_t i = 0; i < n; i++) {
+        size_t bl = strlen(lines[i]);
+        if (bl && lines[i][bl - 1] != '\n') { fputs(lines[i], o); fputc('\n', o); }
+        else fputs(lines[i], o);
+        free(lines[i]);
+    }
+    free(lines);
+    fclose(o);
+    return 1;
+}
+
 static int sm_insert(const char *file, int after, const char *text) {
     FILE *f = fopen(file, "r");
     if (!f) return 0;
@@ -7439,6 +7481,66 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
         if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s(%s) -> %s:%d\n", fa->pred, fa->args[0], file, line);
         routed[i] = 1; count++;
         if (!sm_same_file(file, default_path)) sml_push(&homed, text);
+    }
+
+    /* ── RI-006 — CIO' CHE IL MAESTRO HA RITIRATO SE NE VA ANCHE DAL FILE ───
+     *
+     * `/save` sapeva solo aggiungere: «forget that Turin is in France» toglieva
+     * il fatto dalla sessione, e al salvataggio successivo la riga era ancora
+     * nel file curato — anzi, la KB cresceva ATTORNO al falso (`holds_in`,
+     * `supersedes_in`). Un ritiro che non arriva su disco non e' un ritiro.
+     *
+     * La traccia e' un fatto, non uno stato nascosto del motore: `forgotten/1`
+     * porta il termine ritirato, chiunque puo' interrogarla, e qui si legge.
+     * La casa della riga la dice il save-map, come per l'inserimento; se non
+     * ne ha una si prova la ricaduta. */
+    {
+        char (*gone)[KB_TERM_LEN] = NULL; size_t ngone = 0;
+        const char *gq[1] = { NULL };
+        if (kb_match_all(kb, "forgotten", gq, 1, &gone, &ngone)) {
+            for (size_t g = 0; g < ngone; g++) {
+                char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", gone[g]);
+                char *term = tb;
+                { size_t tl = strlen(term);
+                  if (tl >= 2 && term[0] == '"' && term[tl - 1] == '"') {
+                      term[tl - 1] = '\0'; term++; } }
+                /* la lapide arriva sfuggita (`p0_quote_text`): qui si rimette
+                 * il testo com'e' scritto nel file, o il confronto non tiene */
+                { char *r = term, *w = term;
+                  while (*r) { if (*r == '\\' && (r[1] == '"' || r[1] == '\\')) r++;
+                               *w++ = *r++; }
+                  *w = '\0'; }
+                if (!*term) continue;
+                char line[2048];
+                if ((size_t)snprintf(line, sizeof line, "%s.", term) >= sizeof line) continue;
+                /* il predicato e il primo argomento bastano al save-map */
+                char pred[KB_TERM_LEN] = "", a0[KB_TERM_LEN] = "";
+                const char *lp = strchr(term, '(');
+                if (lp && (size_t)(lp - term) < sizeof pred) {
+                    memcpy(pred, term, (size_t)(lp - term)); pred[lp - term] = '\0';
+                    /* ⚠ il primo argomento puo' essere a sua volta un termine:
+                     * `fact_source(located_in(turin, france), …)`. Fermarsi
+                     * alla prima virgola dava la chiave «located_in(turin», il
+                     * save-map non trovava casa e la riga restava nel file. */
+                    const char *p2 = lp + 1; size_t k = 0; int d = 0;
+                    while (*p2 && k + 1 < sizeof a0) {
+                        if (*p2 == '(') d++;
+                        else if (*p2 == ')') { if (d == 0) break; d--; }
+                        else if (*p2 == ',' && d == 0) break;
+                        a0[k++] = *p2++;
+                    }
+                    a0[k] = '\0';
+                    while (k && a0[k - 1] == ' ') a0[--k] = '\0';
+                }
+                const char *file = NULL; int line_no = 0; int removed = 0;
+                if (pred[0] && a0[0] && smap_home(kb, pred, a0, &file, &line_no))
+                    removed = sm_delete(file, line);
+                if (!removed) removed = sm_delete(default_path, line);
+                if (removed && getenv("P0_SAVE_TRACE"))
+                    fprintf(stderr, "[save] ritirato: %s\n", line);
+            }
+        }
+        free(gone);
     }
 
     /* ── LA RICADUTA SI RISCRIVE ─────────────────────────────────────────────
