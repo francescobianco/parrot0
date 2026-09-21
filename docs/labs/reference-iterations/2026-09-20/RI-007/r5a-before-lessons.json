@@ -1,0 +1,22 @@
+{
+ "seconds": 9.89,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@ee05216c]\nmode: agent (tools on, network off) - 156989 facts, 4994 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Which sea does the river of Germany flow into?",
+   "answer": "north sea, adriatic sea, black sea."
+  },
+  {
+   "turn": 2,
+   "prompt": "What is the river of Germany?",
+   "answer": "I don't know about river."
+  },
+  {
+   "turn": 3,
+   "prompt": "Which sea does the river of Austria flow into?",
+   "answer": "north sea, adriatic sea, black sea."
+  }
+ ]
+}

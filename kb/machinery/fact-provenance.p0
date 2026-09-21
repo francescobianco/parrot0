@@ -500,6 +500,10 @@ fact_source(located_in(milan, italy), milan, "milan is in italy.").
 fact_source(city(milan), milan, "milan is a city.").
 fact_source(sea(adriatic_sea), adriatic_sea, "the adriatic sea is a sea.").
 fact_source(flow(po, adriatic_sea), po, "the po flows into the adriatic sea.").
+fact_source(flow(thames, north_sea), thames, "the thames flows into the north sea.").
+fact_source(sea(mediterranean_sea), mediterranean_sea, "the mediterranean sea is a sea.").
+fact_source(flow(nile, mediterranean_sea), nile, "the nile flows into the mediterranean sea.").
+fact_source(relation(river), river, "river is a relation").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -882,9 +886,13 @@ reading_fact(city(naples), "naples is a city.").
 reading_fact(teach(plato, aristotle), "plato taught aristotle.").
 reading_fact(located_in(milan, italy), "milan is in italy.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
+reading_fact(flow(thames, north_sea), "the thames flows into the north sea.").
 reading_fact(sea(adriatic_sea), "the adriatic sea is a sea.").
+reading_fact(sea(mediterranean_sea), "the mediterranean sea is a sea.").
 reading_fact(city(milan), "milan is a city.").
+reading_fact(flow(nile, mediterranean_sea), "the nile flows into the mediterranean sea.").
 reading_fact(flow(po, adriatic_sea), "the po flows into the adriatic sea.").
+reading_fact(relation(river), "river is a relation").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -963,6 +971,7 @@ fact_mention(sodium, "sodium reacts with water.").
 fact_mention(north_sea, "the north sea is a sea.").
 fact_mention(italy, "rome is in italy.").
 fact_mention(rome, "rome is in italy.").
+fact_mention(north_sea, "the thames flows into the north sea.").
 fact_mention(hand-held_cylindrical_pressure_vessel, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 fact_mention(plato, "socrates taught plato.").
 fact_mention(rome, "rome is a city.").
@@ -985,10 +994,14 @@ fact_mention(aristotle, "plato taught aristotle.").
 fact_mention(italy, "milan is in italy.").
 fact_mention(milan, "milan is in italy.").
 fact_mention(plato, "plato taught aristotle.").
+fact_mention(thames, "the thames flows into the north sea.").
 fact_mention(po, "the po flows into the black sea.").
 fact_mention(adriatic_sea, "the adriatic sea is a sea.").
+fact_mention(mediterranean_sea, "the mediterranean sea is a sea.").
 fact_mention(aare, "the aare flows into the rhine.").
 fact_mention(milan, "milan is a city.").
+fact_mention(mediterranean_sea, "the nile flows into the mediterranean sea.").
+fact_mention(nile, "the nile flows into the mediterranean sea.").
 fact_mention(adriatic_sea, "the po flows into the adriatic sea.").
 fact_mention(po, "the po flows into the adriatic sea.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").

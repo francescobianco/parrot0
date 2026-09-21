@@ -16987,7 +16987,41 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 }
             }
             continue;
-        } else if (!strcmp(act, "answer_relation_in_class") && sub && rel) {
+        } else if (!strcmp(act, "answer_relation_in_class") && rel &&
+                   (sub || p0_form_slot(slots, ns, "of_entity"))) {
+            /* ── RI-007 — AL POSTO DI UN NOME PUO' STARE UNA DESCRIZIONE ────
+             *
+             * «which sea does THE RIVER OF GERMANY flow into?» non combaciava
+             * (uno slot prende un token) e il turno tornava a chi elenca la
+             * classe: «north sea, adriatic sea, black sea» — tre mari a una
+             * domanda su un fiume solo. La descrizione si risolve prima, con la
+             * relazione che il suo NOME dichiara (`relation_noun/2`, aperta
+             * parlando da «river is a relation»), e il soggetto e' il valore
+             * che ne esce. */
+            char resolved[KB_TERM_LEN] = "";
+            int unresolved_of = 0;
+            if (!sub) {
+                const char *noun = p0_form_slot(slots, ns, "of_noun");
+                const char *ent  = p0_form_slot(slots, ns, "of_entity");
+                if (!noun || !ent) continue;
+                char preds2[4][KB_TERM_LEN];
+                const char *nq[2] = { NULL, noun };
+                size_t npn = kb_match(b->kb, "relation_noun", nq, 2, preds2, 4);
+                for (size_t z = 0; z < npn && !resolved[0]; z++) {
+                    char pb2[KB_TERM_LEN]; snprintf(pb2, sizeof pb2, "%s", preds2[z]);
+                    const char *pd2 = kb_dequote(pb2);
+                    char vals2[4][KB_TERM_LEN];
+                    const char *vq2[2] = { ent, NULL };
+                    if (kb_match(b->kb, pd2, vq2, 2, vals2, 4) >= 1)
+                        snprintf(resolved, sizeof resolved, "%s", vals2[0]);
+                }
+                /* Se la descrizione non si risolve, il turno resta comunque
+                 * SUO: cederlo vuol dire consegnarlo a chi elenca la classe,
+                 * che rispondeva «north sea, adriatic sea, black sea» a una
+                 * domanda su una citta'. Il muro onesto e' piu' sotto. */
+                sub = resolved[0] ? resolved : ent;
+                if (!resolved[0]) unresolved_of = 1;
+            }
             /* RI-001 — LA CLASSE DI UNA DOMANDA E' UN FILTRO SUL VALORE.
              *
              * «which sea does the Aare flow into?» finiva all'elencatore, che
@@ -17009,9 +17043,9 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             if (!kind || !*kind) continue;
             char cls[KB_TERM_LEN]; snprintf(cls, sizeof cls, "%s", kind);
             char vals[32][KB_TERM_LEN]; size_t nv = 0;
-            {   const char *hq4[3] = { rel, sub, NULL };
+            if (!unresolved_of) {   const char *hq4[3] = { rel, sub, NULL };
                 nv = kb_match(b->kb, "holds", hq4, 3, vals, 32); }
-            if (nv < 32) {
+            if (!unresolved_of && nv < 32) {
                 char direct[32][KB_TERM_LEN];
                 const char *dq[2] = { sub, NULL };
                 size_t nd = kb_match(b->kb, rel, dq, 2, direct, 32);

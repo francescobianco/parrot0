@@ -1,0 +1,72 @@
+{
+ "seconds": 24.77,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@ee05216c]\nmode: agent (tools on, network off) - 156989 facts, 4994 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "river is a relation",
+   "answer": "Learned: river is a relation."
+  },
+  {
+   "turn": 2,
+   "prompt": "What is the river of Germany?",
+   "answer": "rhine."
+  },
+  {
+   "turn": 3,
+   "prompt": "Which sea does the river of Germany flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 4,
+   "prompt": "Which sea does the river of Austria flow into?",
+   "answer": "black sea."
+  },
+  {
+   "turn": 5,
+   "prompt": "The Nile flows into the Mediterranean Sea.",
+   "answer": "Learned: nile flow mediterranean sea."
+  },
+  {
+   "turn": 6,
+   "prompt": "The Mediterranean Sea is a sea.",
+   "answer": "Learned: mediterranean sea is a sea."
+  },
+  {
+   "turn": 7,
+   "prompt": "Which sea does the river of Egypt flow into?",
+   "answer": "mediterranean sea."
+  },
+  {
+   "turn": 8,
+   "prompt": "The Thames flows into the North Sea.",
+   "answer": "Learned: thames flow north sea."
+  },
+  {
+   "turn": 9,
+   "prompt": "Which sea does the river of England flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 10,
+   "prompt": "Which sea does the river of Brazil flow into?",
+   "answer": "I don't know: nothing I hold gives amazon a sea there."
+  },
+  {
+   "turn": 11,
+   "prompt": "forget that the Nile flows into the Mediterranean Sea.",
+   "answer": "Forgotten: the nile flows into the mediterranean sea."
+  },
+  {
+   "turn": 12,
+   "prompt": "Which sea does the river of Egypt flow into?",
+   "answer": "I don't know: nothing I hold gives nile a sea there."
+  },
+  {
+   "turn": 13,
+   "prompt": "Which sea does the river of England flow into?",
+   "answer": "north sea."
+  }
+ ]
+}

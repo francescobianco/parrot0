@@ -1,0 +1,42 @@
+{
+ "seconds": 14.52,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@ee05216c]\nmode: agent (tools on, network off) - 157022 facts, 4994 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Which sea does the river of Germany flow into?",
+   "answer": "north sea."
+  },
+  {
+   "turn": 2,
+   "prompt": "Which sea does the river of Egypt flow into?",
+   "answer": "mediterranean sea."
+  },
+  {
+   "turn": 3,
+   "prompt": "Which sea does the river of Austria flow into?",
+   "answer": "black sea."
+  },
+  {
+   "turn": 4,
+   "prompt": "What is the river of France?",
+   "answer": "seine."
+  },
+  {
+   "turn": 5,
+   "prompt": "Which sea does the capital of Germany flow into?",
+   "answer": "I don't know: nothing I hold gives germany a sea there."
+  },
+  {
+   "turn": 6,
+   "prompt": "Which sea does the Po flow into?",
+   "answer": "adriatic sea."
+  },
+  {
+   "turn": 7,
+   "prompt": "Tell me a city in Italy, but do not mention Milan.",
+   "answer": "Naples."
+  }
+ ]
+}

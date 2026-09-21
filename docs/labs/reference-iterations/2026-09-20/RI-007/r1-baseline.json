@@ -1,0 +1,32 @@
+{
+ "seconds": 9.39,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@a209504f]\nmode: agent (tools on, network off) - 156966 facts, 4994 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "Who taught the teacher of Alexander the Great?",
+   "answer": "aristotle."
+  },
+  {
+   "turn": 2,
+   "prompt": "Who taught Aristotle?",
+   "answer": "Plato."
+  },
+  {
+   "turn": 3,
+   "prompt": "Who did Aristotle teach?",
+   "answer": "Alexander the great."
+  },
+  {
+   "turn": 4,
+   "prompt": "Who is the teacher of Alexander the Great?",
+   "answer": "I don't know about teacher."
+  },
+  {
+   "turn": 5,
+   "prompt": "Who taught the teacher of Plato?",
+   "answer": "Aristotle."
+  }
+ ]
+}

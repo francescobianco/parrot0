@@ -558,6 +558,7 @@ class_surface(perishable, perishable).
 class_surface(safety_device, safety device).
 class_surface(sea, sea).
 class_surface(city, city).
+class_surface(relation, relation).
 % ── 18 settembre 2026, notte — i verbi che i muri dei pioli 300/320/340 hanno
 % nominato («Hmm, I don't know about displace yet»). Insegnati parlando e
 % verificati «Learned»: displace, introduce, heat, prepare, reclaim, utilize.
