@@ -2526,6 +2526,31 @@ metalinguistic_head(closer).   metalinguistic_head(greeting).
 % of denim?»). Dichiarare la relazione una volta deve aprirle entrambe, altrimenti
 % si torna al cassetto senza maniglia — imparabile e non interrogabile.
 relation_noun($Pred, $Noun) :- relation($Noun), concat_atoms($Noun, "_of", $Pred).
+% ── RI-010 — UN NOME DI RELAZIONE PUO' ESSERE DI PIU' PAROLE ──────────────
+%
+% «largest city is a relation» entrava, e «The largest city of Turkey is
+% Istanbul.» non scriveva niente: il cassetto si chiamava «largest city_of»,
+% un atomo con uno spazio dentro che nessuno puo' interrogare. Intanto «What
+% is the largest city of Turkey?» rispondeva «Ankara» — la CAPITALE, cioe' la
+% specie peggiore: un'altra relazione spacciata per quella chiesta.
+%
+% Le parole di un nome si uniscono con l'underscore, come ogni entita' di piu'
+% parole in questa KB. La regola sopra resta per i nomi di una parola sola:
+% costa meno e copre il caso comune.
+machinery(words_underscored).
+words_underscored(cons($W, nil), $W).
+words_underscored(cons($W, cons($V, $R)), $Text) :-
+    words_underscored(cons($V, $R), $Rest),
+    concat_atoms($W, "_", $A), concat_atoms($A, $Rest, $Text).
+% ⚠ due forme, e servono ENTRAMBE: il PREDICATO vuole le parole unite
+% dall'underscore (un atomo non ha spazi), la SUPERFICIE le vuole separate
+% perche' e' con quelle che la frase e la domanda si scrivono. Legarle nella
+% stessa riga e' cio' che tiene insieme il cassetto e la sua maniglia.
+relation_noun($Pred, $Surface) :-
+    relation($Noun), atom_words($Noun, cons($W, cons($V, $R))),
+    words_underscored(cons($W, cons($V, $R)), $Joined),
+    concat_atoms($Joined, "_of", $Pred),
+    words_joined(cons($W, cons($V, $R)), $Surface).
 
 % gen506: i nomi qui sotto erano fra virgolette («"capital"») e quelli
 % insegnati parlando no (`relation(warp)` → `warp`). La domanda «what is the

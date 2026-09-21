@@ -1,0 +1,62 @@
+{
+ "seconds": 21.66,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@0ceee46e]\nmode: agent (tools on, network off) - 157077 facts, 5000 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "largest city is a relation",
+   "answer": "Learned: largest city is a relation."
+  },
+  {
+   "turn": 2,
+   "prompt": "The largest city of Turkey is Istanbul.",
+   "answer": "Learned: the largest city of turkey is istanbul."
+  },
+  {
+   "turn": 3,
+   "prompt": "What is the largest city of Turkey?",
+   "answer": "istanbul."
+  },
+  {
+   "turn": 4,
+   "prompt": "What is the capital of Turkey?",
+   "answer": "Ankara."
+  },
+  {
+   "turn": 5,
+   "prompt": "The largest city of Germany is Berlin.",
+   "answer": "Learned: the largest city of germany is berlin."
+  },
+  {
+   "turn": 6,
+   "prompt": "What is the largest city of Germany?",
+   "answer": "berlin."
+  },
+  {
+   "turn": 7,
+   "prompt": "Which is the largest city of Turkey?",
+   "answer": "istanbul."
+  },
+  {
+   "turn": 8,
+   "prompt": "What is the largest city of Japan?",
+   "answer": "Heian court culture developed aristocratic institutions, Buddhist networks and major writing in kana."
+  },
+  {
+   "turn": 9,
+   "prompt": "forget that the largest city of Turkey is Istanbul.",
+   "answer": "Forgotten: the largest city of turkey is istanbul."
+  },
+  {
+   "turn": 10,
+   "prompt": "What is the largest city of Turkey?",
+   "answer": "I don't know: nothing I hold gives turkey a largest city there."
+  },
+  {
+   "turn": 11,
+   "prompt": "What is the largest city of Germany?",
+   "answer": "berlin."
+  }
+ ]
+}

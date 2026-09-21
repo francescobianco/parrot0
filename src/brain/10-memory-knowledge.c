@@ -16927,6 +16927,77 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             put(msg2, out, out_size);
             free(forms);
             return 1;
+        } else if (!strcmp(act, "answer_noun_of")) {
+            /* ── RI-010 — UN NOME DI RELAZIONE DI PIU' PAROLE ───────────────
+             *
+             * «What is the largest city of Turkey?» rispondeva «Ankara» — la
+             * CAPITALE: un'altra relazione spacciata per quella chiesta, con
+             * l'aria di saperlo. Il lettore storico di «the R of X» prende UN
+             * token come nome della relazione (l'articolo, il nome, «of»), e
+             * con due parole non combacia nemmeno: il turno finiva a chi
+             * risponde sulle capitali.
+             *
+             * Qui la forma dice dove stanno i pezzi e il nome si ricompone.
+             * `relation_noun/2` fa il resto: il cassetto (`largest_city_of`) e
+             * la sua maniglia (la superficie «largest city») sono legati da
+             * una riga sola di KB, quindi asserire e interrogare non possono
+             * divergere. */
+            const char *n1 = p0_form_slot(slots, ns, "n1");
+            const char *n2 = p0_form_slot(slots, ns, "n2");
+            const char *ent2 = p0_form_slot(slots, ns, "entity");
+            if (!n1 || !n2 || !ent2) continue;
+            char surface[KB_TERM_LEN];
+            if ((size_t)snprintf(surface, sizeof surface, "%s %s", n1, n2) >= sizeof surface)
+                continue;
+            char preds3[4][KB_TERM_LEN];
+            const char *nq3[2] = { NULL, surface };
+            size_t npr3 = kb_match(b->kb, "relation_noun", nq3, 2, preds3, 4);
+            if (npr3 == 0) continue;
+            char ent_key[KB_TERM_LEN];
+            snprintf(ent_key, sizeof ent_key, "%s", ent2);
+            for (char *c = ent_key; *c; c++) if (*c == ' ') *c = '_';
+            { size_t el = strlen(ent_key);
+              while (el && (ent_key[el - 1] == '?' || ent_key[el - 1] == '.')) ent_key[--el] = '\0'; }
+            for (size_t z = 0; z < npr3; z++) {
+                char pb3[KB_TERM_LEN]; snprintf(pb3, sizeof pb3, "%s", preds3[z]);
+                const char *pd3 = kb_dequote(pb3);
+                char vals3[8][KB_TERM_LEN];
+                const char *vq3[2] = { ent_key, NULL };
+                size_t nv3 = kb_match(b->kb, pd3, vq3, 2, vals3, 8);
+                if (nv3 == 0) {
+                    const char *vq4[2] = { NULL, ent_key };
+                    nv3 = kb_match(b->kb, pd3, vq4, 2, vals3, 8);
+                }
+                if (nv3 == 0) continue;
+                char shown3[KB_TERM_LEN];
+                present_atom(b, kb_dequote(vals3[0]), shown3, sizeof shown3);
+                char msg6[300]; snprintf(msg6, sizeof msg6, "%s.", shown3);
+                put(msg6, out, out_size);
+                store_proof(b, "Read the multi-word relation noun, then its value.");
+                p0_said_by(b, "form", forms[f]);
+                free(forms); return 1;
+            }
+            /* Riconosciuta la domanda, il turno resta suo anche quando non sa:
+             * cederlo qui riportava a galla «Ankara» — la capitale al posto
+             * della citta' piu' grande, cioe' il difetto di partenza, proprio
+             * dopo che il maestro aveva RITIRATO il fatto giusto. */
+            {   char er6[4][KB_TERM_LEN];
+                const char *eq6[2] = { forms[f], NULL };
+                if (kb_match(b->kb, "turn_form_empty_reply", eq6, 2, er6, 4) == 1) {
+                    char eb6[KB_TERM_LEN]; snprintf(eb6, sizeof eb6, "%s", er6[0]);
+                    char es6[KB_TERM_LEN];
+                    present_atom(b, ent_key, es6, sizeof es6);
+                    const KbResponseSlot rs6[] = { { "subject", es6 },
+                                                   { "kind", surface } };
+                    char m6[400];
+                    if (kb_response_slots(b, kb_dequote(eb6), rs6, 2, m6, sizeof m6)) {
+                        put(m6, out, out_size);
+                        p0_said_by(b, "form", forms[f]);
+                        free(forms); return 1;
+                    }
+                }
+            }
+            continue;
         } else if (!strcmp(act, "retract_said")) {
             /* ── RI-006 — SI DISDICE CON LE PAROLE CON CUI SI E' INSEGNATO ──
              *

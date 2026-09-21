@@ -372,7 +372,13 @@ opposite(wild, tame).
 opposite(win, lose).
 opposite(yes, no).
 opposite(young, old).
-also_known_as(constantinople, istanbul).
+% RI-010 — il verso era rovesciato, e si e' visto insegnando: «The largest
+% city of Turkey is Istanbul.» tornava «… is constantinople». `entity_alias/2`
+% legge il PRIMO argomento come concetto e il secondo come superficie alias
+% (procedures.p0), e la riga vicina lo fa bene — `also_known_as(mumbai,
+% bombay)`. Qui il nome storico faceva da concetto, quindi chi diceva il nome
+% di oggi si sentiva rispondere con quello di ieri.
+also_known_as(istanbul, constantinople).
 also_known_as(mumbai, bombay).
 also_known_as(density_law, "formula della densit").
 also_known_as(kinetic_energy_law, "legge dell energia cinetica").

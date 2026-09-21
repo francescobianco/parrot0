@@ -1,0 +1,32 @@
+{
+ "seconds": 10.71,
+ "returncode": 0,
+ "banner": "parrot0 [gen510-riparazioni@0ceee46e]\nmode: agent (tools on, network off) - 157106 facts, 5000 rules (3.18%)\nsay something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)",
+ "rows": [
+  {
+   "turn": 1,
+   "prompt": "What is the largest city of Turkey?",
+   "answer": "istanbul."
+  },
+  {
+   "turn": 2,
+   "prompt": "What is the largest city of Germany?",
+   "answer": "berlin."
+  },
+  {
+   "turn": 3,
+   "prompt": "What is the capital of Turkey?",
+   "answer": "Ankara."
+  },
+  {
+   "turn": 4,
+   "prompt": "I am planning a three-day trip to Berlin: where do I start?",
+   "answer": "Start from what you want to see: pick two or three places that matter to you, and the days will arrange themselves around them."
+  },
+  {
+   "turn": 5,
+   "prompt": "Which sea does the river of Germany flow into?",
+   "answer": "north sea."
+  }
+ ]
+}

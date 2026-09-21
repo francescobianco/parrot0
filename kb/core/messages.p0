@@ -1235,6 +1235,7 @@ turn_form_act(similar_asked, answer_relation).
 % ── Che cosa una cosa sa fare ─────────────────────────────────────────────
 relation(ability).
 relation(river).
+relation(largest_city).
 response_template(learned_ability, "Held: {subject} can {object}.").
 response_template(learned_ability, it, "Tengo: {subject} può {object}.").
 turn_form(ability_stated, 1, slot(subject)).
@@ -2619,6 +2620,23 @@ turn_form(which_kind_relation_particle, 6, class(verb_particle_word)).
 turn_form_mood(which_kind_relation_particle, question).
 turn_form_act(which_kind_relation_particle, answer_relation_in_class).
 turn_form_empty_reply(which_kind_relation_particle, no_value_in_class).
+
+% ── RI-010 — «WHAT IS THE <NOME DI DUE PAROLE> OF <X>?» ──────────────────
+% Il lettore storico di «the R of X» vuole UN token come nome della relazione,
+% quindi «the largest city of Turkey» non combaciava e il turno finiva a chi
+% risponde sulle capitali — «Ankara» a una domanda sulla citta' piu' grande.
+% La forma dice solo dove stanno i pezzi; il nome lo ricompone l'atto, e
+% `relation_noun/2` lega il cassetto alla sua maniglia.
+turn_form(ask_noun_of, 1, class(question_word)).
+turn_form(ask_noun_of, 2, class(clause_copula)).
+turn_form(ask_noun_of, 3, text("the")).
+turn_form(ask_noun_of, 4, slot(n1)).
+turn_form(ask_noun_of, 5, slot(n2)).
+turn_form(ask_noun_of, 6, text("of")).
+turn_form(ask_noun_of, 7, rest(entity)).
+turn_form_mood(ask_noun_of, question).
+turn_form_act(ask_noun_of, answer_noun_of).
+turn_form_empty_reply(ask_noun_of, no_value_in_class).
 
 % ── RI-007 — E AL POSTO DEL SOGGETTO PUO' STARE UNA DESCRIZIONE ───────────
 % «which sea does THE RIVER OF GERMANY flow into?»: il soggetto non e' un nome,

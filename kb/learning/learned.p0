@@ -86,3 +86,5 @@ city(milan).
 city(naples).
 city(turin).
 city(rome).
+largest_city_of(turkey, istanbul).
+largest_city_of(germany, berlin).
