@@ -67,9 +67,6 @@ reading_promote_boundary($Word, $Word) :-
     reading_single($Es, $Example),
     assert(reading_boundary_lesson, $Word, $Example).
 phrase_boundary(np, breaker, $Word) :- reading_boundary_lesson($Word, $Example).
-reading_forget_boundary($Word, $Word) :-
-    reading_boundary_lesson($Word, $Example),
-    retract(reading_boundary_lesson, $Word, $Example).
 
 % A class is already an ordinary teachable object (class_surface + unary
 % membership). Reuse it; do not introduce a closed list of eligible classes.
@@ -89,9 +86,6 @@ reading_promote_boundary_class($Class, $Class) :-
     assert(reading_boundary_class, $Class, $Example).
 phrase_boundary(np, breaker, $Word) :-
     reading_boundary_class($Class, $Example), apply($Class, cons($Word, nil)).
-reading_forget_boundary_class($Class, $Class) :-
-    reading_boundary_class($Class, $Example),
-    retract(reading_boundary_class, $Class, $Example).
 
 reading_revision_scope($Word, $Scope) :-
     reading_revision($Scope, $Id, revision($Range, before($Word))).
@@ -134,7 +128,9 @@ turn_form(reading_boundary_forget, 1, text("forget the boundary for")).
 turn_form(reading_boundary_forget, 2, slot(word)).
 turn_form_priority(reading_boundary_forget, early).
 turn_form_view(reading_boundary_forget, said).
-turn_form_act(reading_boundary_forget, "op(match, reading_forget_boundary, [word, free])").
+% Withdrawal uses the ordinary retract act: it leaves the tombstone that
+% /save reads, so a withdrawn lesson leaves the curated file too.
+turn_form_act(reading_boundary_forget, "op(retract_all, reading_boundary_lesson, [word, free])").
 turn_form_reply(reading_boundary_forget, reading_boundary_forgotten).
 turn_form_empty_reply(reading_boundary_forget, reading_no_lesson).
 
@@ -160,7 +156,7 @@ turn_form(reading_boundary_class_forget, 2, span(class)).
 turn_form_slot_form(reading_boundary_class_forget, class, atom).
 turn_form_priority(reading_boundary_class_forget, early).
 turn_form_view(reading_boundary_class_forget, said).
-turn_form_act(reading_boundary_class_forget, "op(match, reading_forget_boundary_class, [class, free])").
+turn_form_act(reading_boundary_class_forget, "op(retract_all, reading_boundary_class, [class, free])").
 turn_form_reply(reading_boundary_class_forget, reading_boundary_class_forgotten).
 turn_form_empty_reply(reading_boundary_class_forget, reading_no_class_lesson).
 

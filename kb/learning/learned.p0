@@ -88,22 +88,6 @@ semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 teach(socrates, plato).
 react(sodium, water).
-input_entity_cached(current_turn, en, ent(6, 2, goes_both_ways)).
-input_entity_cached(current_turn, en, ent(4, 2, many_minutes)).
-input_entity_cached(current_turn, en, ent(6, 2, sea)).
-input_entity_cached(current_turn, en, ent(15, 8, po)).
-input_entity_cached(current_turn, en, ent(22, 9, north_sea)).
-input_entity_cached(current_turn, en, ent(0, 8, thames)).
-input_entity_cached(current_turn, en, ent(30, 7, two)).
-input_entity_cached(current_turn, en, ent(23, 4, length)).
-input_entity_cached(current_turn, en, ent(0, 5, nanometre)).
-input_entity_cached(current_turn, en, ent(22, 5, progress)).
-input_entity_cached(current_turn, en, ent(14, 3, work)).
-input_entity_cached(current_turn, en, ent(0, 1, kanban)).
-input_entity_cached(current_turn, en, ent(38, 12, half_days)).
-input_entity_cached(current_turn, en, ent(21, 9, mediterranean_sea)).
-input_entity_cached(current_turn, en, ent(0, 8, rhone)).
-input_entities_observed(current_turn, en).
 symmetric_relation(react).
 city(milan).
 city(naples).

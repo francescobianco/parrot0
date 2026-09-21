@@ -292,6 +292,10 @@ input_clause_entities($Scope, $Language, $Items) :-
 % 5,5 s su un paragrafo.)
 machinery(input_entity_cached).
 machinery(input_entities_observed).
+% They describe the turn being read, so /save must not keep them: before this
+% line 16 rows of `current_turn` cache had reached learning/learned.p0 (gen516).
+turn_scratch(input_entity_cached).
+turn_scratch(input_entities_observed).
 entity_item_between($Items, $Low, $High) :-
     member(ent($S, $I, $E), $Items), lt($Low, $S), lt($S, $High).
 

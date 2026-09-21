@@ -372,6 +372,7 @@ file durava 133 s il 2026-09-08 e va rimisurato (le clausole nuove di
 |---|---|---|---|
 | `language/accentless_copula.p0t` | 5 ok / 4 FAIL | fuori da `make test` | bisezione contro `ec7d4b5` |
 | `language/assisted_construction.p0t` | 54 / 12 | LEARN_TODO: 65/1 | **probabile regressione**: bisezione (C1? C2?) |
+| ↳ 22 set (gen516) | riga 44 `x glints y means x glorphs y`: **turno bloccato > 60 s**, demone fermato | riprodotto identico con binario **e** KB di `94b69234` | preesistente alla cura del censimento; cercare il ciclo nel C su quel turno |
 | `language/assisted_construction_ternary.p0t` | 27 / 6 | LEARN_TODO: 33 ok | **probabile regressione**, come sopra |
 | `language/compose_coref.it.p0t` | 3 / 1 | ok | candidata regressione |
 | `language/compose_coref.p0t` | 4 / 2 | 4 / 2 | invariato |

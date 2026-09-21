@@ -54,6 +54,12 @@
 > A pilot valve unseats under pressure.
 !query input_entity_node(current_turn, en, $Id, pilot_valve)
 !query! input_entity_node(current_turn, en, $Id, pilot_valve_unseats)
+# Withdrawing ONE member withdraws its share of the class lesson, nothing else.
+> forget that unseats is a verb
+> A pilot valve unseats under pressure.
+!query input_entity_node(current_turn, en, $Id, pilot_valve_unseats)
+> A safety valve vents under pressure.
+!query input_entity_node(current_turn, en, $Id, safety_valve)
 > forget the boundary for every verb
 < I have withdrawn the boundary lesson for the class «verb».
 > A safety valve vents under pressure.
@@ -87,3 +93,25 @@
 > end the previous noun phrase before absentword
 <~ I cannot identify one unrevised noun phrase
 !query! reading_revision($Scope, $Id, $Revision)
+
+[test a local correction lasts as long as its turn is retained, no longer]
+!reset
+!timeout 2
+# Prerequisite lesson, so the sentence is acquired and opens no question:
+# with an open question the turn (and its correction) is rightly retained.
+> opens is a verb
+> A relief valve opens above its set pressure.
+> end the previous noun phrase before opens
+<~ For that occurrence I now read «relief valve» before «opens».
+!query reading_revision(turn_2, $Id, $Revision)
+> a pump is a device
+> a fan is a device
+> a lamp is a device
+> a bell is a device
+> a drum is a device
+> a gong is a device
+> a horn is a device
+> a siren is a device
+!query! reading_revision($Scope, $Id, $Revision)
+> undo the local boundary correction for opens
+<~ I cannot identify one local correction for «opens» to withdraw.

@@ -15436,6 +15436,33 @@ static const char *p0_form_slot(P0FormSlot *slots, size_t n, const char *name) {
  * ogni clausola tolta lascia la propria riga esatta. Una sola funzione perche'
  * il fatto, la sua provenienza e le registrazioni del conflitto se ne vadano
  * insieme — un fatto che non c'e' piu' non deve lasciare in giro chi lo cita. */
+/* La lapide di una clausola appena ritirata: `/save` la legge per togliere la
+ * riga anche dal file curato. Vale per OGNI ritiro insegnato — «forget that …»
+ * di RI-006 e gli atti `op(retract…)` delle forme di turno — perche' un ritiro
+ * che non arriva su disco non e' un ritiro (gen516: la lezione L2 ritirata
+ * tornava al boot, e con lei ogni soglia o condotta disdetta parlando). */
+static void p0_leave_tombstone(Brain *b, const char *pred,
+                               const char *const *args, size_t argc) {
+    char whole[KB_TERM_LEN];
+    size_t o = (size_t)snprintf(whole, sizeof whole, "%s(", pred);
+    for (size_t a = 0; a < argc && o < sizeof whole; a++)
+        o += (size_t)snprintf(whole + o, sizeof whole - o, "%s%s", a ? ", " : "", args[a]);
+    if (o + 1 < sizeof whole) { whole[o++] = ')'; whole[o] = '\0'; }
+    char qt[KB_TERM_LEN];
+    /* la lapide porta il TESTO della clausola: le virgolette interne vanno
+     * sfuggite, altrimenti la riga salvata non si rilegge (`p0_quote_text`). */
+    p0_quote_text(whole, qt, sizeof qt);
+    if (!qt[0]) return;
+    int prev_o = kb_origin(b->kb);
+    /* La lapide serve al salvataggio di QUESTA sessione e non e' conoscenza
+     * del mondo: riflessiva, quindi non finisce nei file curati (kb.h:
+     * «never persisted»). Chi non salva non ha niente da togliere. */
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *ga[1] = { qt };
+    kb_assert(b->kb, "forgotten", ga, 1);
+    kb_set_origin(b->kb, prev_o);
+}
+
 static int p0_forget_clause(Brain *b, const char *clause_text) {
     if (!b || !b->kb || !clause_text || !*clause_text) return 0;
     char term[KB_TERM_LEN]; snprintf(term, sizeof term, "%s", clause_text);
@@ -15466,25 +15493,7 @@ static int p0_forget_clause(Brain *b, const char *clause_text) {
     }
     if (!argc) return 0;
     if (!kb_retract(b->kb, pred, args, argc)) return 0;
-    char whole[KB_TERM_LEN];
-    size_t o = (size_t)snprintf(whole, sizeof whole, "%s(", pred);
-    for (size_t a = 0; a < argc && o < sizeof whole; a++)
-        o += (size_t)snprintf(whole + o, sizeof whole - o, "%s%s", a ? ", " : "", args[a]);
-    if (o + 1 < sizeof whole) { whole[o++] = ')'; whole[o] = '\0'; }
-    char qt[KB_TERM_LEN];
-    /* la lapide porta il TESTO della clausola: le virgolette interne vanno
-     * sfuggite, altrimenti la riga salvata non si rilegge (`p0_quote_text`). */
-    p0_quote_text(whole, qt, sizeof qt);
-    if (qt[0]) {
-        int prev_o = kb_origin(b->kb);
-        /* La lapide serve al salvataggio di QUESTA sessione e non e' conoscenza
-         * del mondo: riflessiva, quindi non finisce nei file curati (kb.h:
-         * «never persisted»). Chi non salva non ha niente da togliere. */
-        kb_set_origin(b->kb, KB_REFLECTIVE);
-        const char *ga[1] = { qt };
-        kb_assert(b->kb, "forgotten", ga, 1);
-        kb_set_origin(b->kb, prev_o);
-    }
+    p0_leave_tombstone(b, pred, args, argc);
     return 1;
 }
 
@@ -15904,7 +15913,10 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
             }
             if (!strcmp(opname, "assert"))       done2 = kb_assert(b->kb, pred, argv2, argc2);
             else if (!strcmp(opname, "assert_neg")) done2 = kb_assert_neg(b->kb, pred, argv2, argc2);
-            else if (!strcmp(opname, "retract"))    done2 = kb_retract(b->kb, pred, argv2, argc2);
+            else if (!strcmp(opname, "retract")) {
+                done2 = kb_retract(b->kb, pred, argv2, argc2);
+                if (done2) p0_leave_tombstone(b, pred, argv2, argc2);
+            }
             else if (!strcmp(opname, "retract_all")) {
                 /* assistente utile U2 — con PIU' posti liberi («dimentica il
                  * piano per la situazione»: [situation, free, free]) la riga
@@ -15926,7 +15938,10 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                     const char *ra[KB_MAX_ARGS];
                     for (size_t y = 0; y < argc2; y++) ra[y] = argv2[y];
                     if (free_at >= 0) ra[free_at] = rows[k];
-                    if (kb_retract(b->kb, pred, ra, argc2)) { done2 = 1; nres++; }
+                    if (kb_retract(b->kb, pred, ra, argc2)) {
+                        done2 = 1; nres++;
+                        p0_leave_tombstone(b, pred, ra, argc2);
+                    }
                 }
             } else if (!strcmp(opname, "match") || !strcmp(opname, "count")) {
                 char rows[64][KB_TERM_LEN];
