@@ -3300,12 +3300,10 @@ static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size
      * frase), la precede: quale vale lo decide `reading_antecedent/2`. Senza
      * ricevuta la scelta non si poteva contestare, e finiva dentro l'atomo. */
     char pron[KB_TERM_LEN]; snprintf(pron, sizeof pron, "%s", strip_edge_punct(w[pidx]));
-    char taught[1][KB_TERM_LEN]; const char *aq[2] = { pron, NULL };
     const char *reason = "most_recent";
     char taught_ent[KB_TERM_LEN] = "";
-    if (kb_match(b->kb, "reading_antecedent", aq, 2, taught, 1) == 1) {
-        snprintf(taught_ent, sizeof taught_ent, "%s", kb_dequote(taught[0]));
-        if (taught_ent[0]) { ent = taught_ent; reason = "reading_antecedent"; }
+    if (p0_taught_antecedent(b, pron, taught_ent, sizeof taught_ent)) {
+        ent = taught_ent; reason = "reading_antecedent";
     }
 
     char rw[256]; size_t off = 0; rw[0] = '\0';
@@ -3314,14 +3312,10 @@ static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size
         off += (size_t)snprintf(rw + off, sizeof rw - off, "%s%s", i ? " " : "", tok);
     }
     if (!rw[0] || strcmp(rw, canon) == 0) return 0;
-    {   /* la ricevuta: che cosa ho legato, perche', e quale frase ne e' uscita */
+    p0_antecedent_receipt(b, pron, ent, reason);
+    {   /* e quale frase ne e' uscita */
         int prev = kb_origin(b->kb);
         kb_set_origin(b->kb, KB_REFLECTIVE);
-        char choice[KB_TERM_LEN];
-        snprintf(choice, sizeof choice, "choice(%s, %s)", ent, reason);
-        const char *ra[4] = { "current_turn", pron, "antecedent", choice };
-        kb_retract_match(b->kb, "reading_choice", (const char *[]){ "current_turn", pron, "antecedent", NULL }, 4);
-        kb_assert(b->kb, "reading_choice", ra, 4);
         char qc[KB_TERM_LEN], qr[KB_TERM_LEN];
         p0_quote_text(canon, qc, sizeof qc);
         p0_quote_text(rw, qr, sizeof qr);

@@ -156,3 +156,23 @@
 > what did its refer to
 <~ I read «its» as «relief valve»
 !query reading_local_antecedent($Quoted, its, relief_valve)
+
+[test stage 3: the frame binder's antecedent has a receipt, and its correction reaches the knowledge]
+!reset
+!timeout 3
+# Real prose, three sentences. Role parallelism binds «it» to the last subject
+# (cavitation) and a false fact is kept; the correction withdraws it and the
+# re-read keeps the right one, answerable by a question.
+> A centrifugal pump uses an impeller.
+> Cavitation damages the impeller.
+> It converts shaft power into fluid energy.
+<~ cavitation converts
+> what did it refer to
+<~ I read «it» as «cavitation»
+!query reading_choice($Scope, it, antecedent, choice(cavitation, role_parallel))
+> it refers to the centrifugal pump
+<~ Learned: centrifugal pump converts shaft power into fluid energy.
+!query! converts(cavitation, $X)
+!query converts(centrifugal_pump, shaft_power_into_fluid_energy)
+> What converts shaft power into fluid energy?
+<~ centrifugal pump

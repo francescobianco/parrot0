@@ -2498,6 +2498,12 @@ known_referent($A) :- entity_role($A, $I).
 known_referent($V) :-
     relation_role($R, $Role), concat_atoms($Role, "_of", $P),
     apply($P, cons($O, cons($V, nil))).
+% L2 stadio 3 — l'ANTECEDENTE di un pronome di questa frase e' un referente:
+% non e' un pezzo di testo tagliato, e' cio' a cui il pronome e' stato legato,
+% con la sua ricevuta (reading-choices.p0). Senza, «it» corretto in «the
+% centrifugal pump» veniva bocciato come «un nome che finisce con un verbo».
+known_referent($A) :-
+    reading_choice(current_turn, $P, antecedent, choice($A, $Reason)).
 % ── RI-014 — E UNA PAROLA DI CUI IL MAESTRO HA GIA' DETTO QUALCOSA ────────
 %
 % «Pumps move fluid.» veniva respinta — «"pumps" e "fluid" non si leggono come

@@ -734,3 +734,18 @@ Costo: con la guardia di esistenza una lettura senza lezioni fa +42 passi su
 3. Specie «verbo»: ricevuta della scelta del verbo, «X is not the verb here».
 4. Stadio 4 in processo nuovo per continuazione, classe, antecedente.
 5. Stadio 1: la riga spontanea sul turno rifiutato, detta con le ricevute.
+
+### 14.7 Appunto di F. (23 settembre) — **importantissimo, da non lavorare ora**
+
+In `src/brain/10-memory-knowledge.c` (`p0_try_extract_frames_only`, il
+`if (query_only) continue;` preceduto da «un turno interrogativo … non c'è
+niente da imparare: una domanda non è un'asserzione») c'è un **assunto cablato**:
+che una domanda non porti mai conoscenza. F.: *questo assunto non deve essere
+cablato ma insegnato*. È esattamente il tipo di cosa che **espande la superficie
+di insegnabilità**: la relazione fra forza del turno (domanda / asserzione) e ciò
+che se ne può tenere è una condotta, quindi conoscenza (mantra #17), e deve
+potersi dire, ritirare e raffinare parlando — per esempio una domanda con
+presupposizione («why does the relief valve open above its set pressure?»
+presuppone un fatto). Metodo: censire gli altri punti dove la forza del turno
+decide in C che cosa si impara, poi una sola politica KB che li governi tutti,
+non un'eccezione per sito.

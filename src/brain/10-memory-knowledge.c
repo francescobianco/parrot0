@@ -2573,6 +2573,34 @@ static int resolve_entity(Brain *b, const char *word, const char **entity,
 
 static void note_entity_seq(Brain *b, const char *raw_name);  /* definita in 99 */
 
+/* L2 stadio 3 (docs/plans/l2-upgrade.md §14.6) — OGNI RISOLUTORE DI PRONOMI
+ * CHIEDE ALLA STESSA KB E LASCIA LA STESSA RICEVUTA. Prima una correzione del
+ * maestro su questa frase o una lezione per ruolo (`reading_antecedent/2`),
+ * poi la politica del risolutore; la scelta, qualunque sia, si registra come
+ * `reading_choice(current_turn, Pronome, antecedent, choice(Entita', Ragione))`
+ * cosi' «what did it refer to» la vede e «it refers to …» la puo' correggere. */
+static int p0_taught_antecedent(Brain *b, const char *pron, char *out, size_t outsz) {
+    if (!b || !b->kb || !pron || !*pron) return 0;
+    char taught[1][KB_TERM_LEN]; const char *aq[2] = { pron, NULL };
+    if (kb_match(b->kb, "reading_antecedent", aq, 2, taught, 1) != 1) return 0;
+    snprintf(out, outsz, "%s", kb_dequote(taught[0]));
+    return out[0] != '\0';
+}
+
+static void p0_antecedent_receipt(Brain *b, const char *pron, const char *ent,
+                                  const char *reason) {
+    if (!b || !b->kb || !pron || !*pron || !ent || !*ent) return;
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    char choice[KB_TERM_LEN];
+    snprintf(choice, sizeof choice, "choice(%s, %s)", ent, reason);
+    const char *ra[4] = { "current_turn", pron, "antecedent", choice };
+    kb_retract_match(b->kb, "reading_choice",
+                     (const char *[]){ "current_turn", pron, "antecedent", NULL }, 4);
+    kb_assert(b->kb, "reading_choice", ra, 4);
+    kb_set_origin(b->kb, prev);
+}
+
 /* ── UN RIFERIMENTO IN QUALUNQUE RUOLO, E MAI UN RIFERIMENTO NON RISOLTO ────
  *
  * Il binder risolveva il pronome SOLO nel primo slot, e negli altri lo lasciava
@@ -2604,6 +2632,10 @@ static int p0_resolve_reference(Brain *b, const char *surface,
                                 char (*bound)[KB_TERM_LEN], size_t nbound,
                                 char *out, size_t outsz) {
     if (!b || !b->kb || !surface || !out || outsz == 0) return 0;
+    if (p0_taught_antecedent(b, surface, out, outsz)) {
+        p0_antecedent_receipt(b, surface, out, "reading_antecedent");
+        return 1;
+    }
     const char *pq[1] = { "most_recent" };
     if (!kb_query(b->kb, "reference_binding", pq, 1)) return 0;
     const char *dq[1] = { "distinct_in_frame" };
@@ -2624,7 +2656,9 @@ static int p0_resolve_reference(Brain *b, const char *surface,
      * poi tutti. Il parallelismo di ruolo e' l'ordinamento; la recenza decide
      * dentro ciascun gruppo. */
     char best[KB_TERM_LEN] = "";
+    const char *reason = "most_recent";
     for (int pass = 0; pass < 2 && !best[0]; pass++) {
+        reason = pass == 0 ? "role_parallel" : "most_recent";
         if (pass == 0 && !parallel) continue;
         long best_seq = -1;
         for (size_t i = 0; i < nn; i++) {
@@ -2658,6 +2692,7 @@ static int p0_resolve_reference(Brain *b, const char *surface,
     free(names);
     if (!best[0]) return 0;
     snprintf(out, outsz, "%s", best);
+    p0_antecedent_receipt(b, surface, best, reason);
     return 1;
 }
 
@@ -5537,8 +5572,10 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                 if (p0_resolve_reference(b, dst, r->slot, r->nslots,
                                          bound_to, sizeof bound_to))
                     snprintf(dst, KB_TERM_LEN, "%s", bound_to);
-                else if (r->nslots == 0 && b->has_last_entity)
+                else if (r->nslots == 0 && b->has_last_entity) {
+                    p0_antecedent_receipt(b, dst, b->last_entity, "last_entity");
                     snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
+                }
                 else
                     r->nunresolved++;   /* la lettura resta, chi scrive rifiuta */
             }
