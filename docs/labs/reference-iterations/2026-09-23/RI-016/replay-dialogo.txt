@@ -1,0 +1,16 @@
+> Austenitic stainless steel is a steel.
+Learned: austenitic stainless steel is steel.
+> Capacitors block direct current.
+Learned: capacitors block direct current.
+> What do capacitors block?
+Direct current.
+> The MTU of standard Ethernet is 1500 bytes.
+Noted: the mtu of standard ethernet is 1500 bytes.
+> Pumps move fluid.
+Learned: pumps move fluid.
+> A float switch controls the sump pump.
+Learned: float switch controls sump pump.
+> glimmers is a relation verb
+Learned: glimmers is a relation verb.
+> conosci xdebug
+Su xdebug non so ancora molto, e la rete è spenta: adesso non posso leggerne.

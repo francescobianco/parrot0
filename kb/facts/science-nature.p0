@@ -299,3 +299,6 @@ class_surface(ordine, ordine).
 class_surface(uncontrolled_positive_feedback, uncontrolled positive feedback).
 class_surface(intracellular_pathogen, intracellular pathogen).
 class_surface(genus, genus).
+
+% RI-016 (23 settembre 2026) — l'amilasi scinde l'amido (idrolisi).
+break_down(amylase, starch).

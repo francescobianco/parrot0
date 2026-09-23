@@ -1,0 +1,2 @@
+6a7c0ec4f7ec262a045573d7141a1a0f67af8189abd90abdb8592c36757e6b74  bin/parrot0
+9f2bf5c6 Il trace unico del turno: un filo solo attraverso C e KB, sempre registrato

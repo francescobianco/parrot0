@@ -607,6 +607,7 @@ verb_particle(hold, together).
 verb_particle(divide, into).
 verb_particle(convert, into).
 verb_particle(break, into).
+verb_particle(break, down).
 verb_particle(transform, into).
 verb_particle(coat, in).
 verb_particle(cover, in).
@@ -643,3 +644,5 @@ verb_particle(thrive, in).
 verb_particle(protect, from).
 verb_particle(inhabit, in).
 verb_particle(decline, since).
+verb_particle(step, down).
+verb_particle(step, up).

@@ -4214,3 +4214,4 @@ relation_verb(contain).
 relation_verb(decompose).
 relation_verb(recycle).
 relation_verb(flow).
+relation_verb(step).

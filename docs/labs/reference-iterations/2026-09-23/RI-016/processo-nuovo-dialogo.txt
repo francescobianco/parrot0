@@ -1,0 +1,14 @@
+> What steps up the voltage?
+Flyback transformer.
+> What steps down the voltage?
+Buck converter.
+> Does a flyback transformer step up the voltage?
+Yes.
+> What breaks down starch?
+Amylase.
+> is up an adverbial particle?
+Yes.
+> A DC-DC boost converter steps up the voltage.
+Learned: dc-dc boost converter step up voltage.
+> Does the Inn flow into the Danube?
+Yes.

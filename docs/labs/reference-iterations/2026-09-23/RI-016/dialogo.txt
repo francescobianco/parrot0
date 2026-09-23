@@ -1,0 +1,42 @@
+> A flyback transformer steps up the voltage.
+I don't have the steps for voltage yet. But I know what one is made of, so you would need: difference. That is what it is, not how to do it.
+> What steps up the voltage?
+I don't have the steps for voltage yet. But I know what one is made of, so you would need: difference. That is what it is, not how to do it.
+> up is an adverbial particle
+Learned: up is an adverbial particle.
+> down is an adverbial particle
+Learned: down is an adverbial particle.
+> step up is a relation verb
+Learned: step up is a relation verb.
+> step down is a relation verb
+Learned: step down is a relation verb.
+> A flyback transformer steps up the voltage.
+Learned: flyback transformer step up voltage.
+> A buck converter steps down the voltage.
+Learned: buck converter step down voltage.
+> What steps up the voltage?
+Flyback transformer.
+> What steps down the voltage?
+Buck converter.
+> Does a flyback transformer step up the voltage?
+Yes.
+> Does a buck converter step up the voltage?
+I don't know: nothing I hold says buck converter step up the voltage, and nothing says it isn't so. Tell me either way and I will hold it.
+> break down is a relation verb
+Learned: break down is a relation verb.
+> Amylase breaks down starch.
+Learned: amylase break down starch.
+> What breaks down starch?
+Amylase.
+> The Inn flows into the Danube.
+Learned: inn flow danube.
+> Does the Inn flow into the Danube?
+Yes.
+> What are the steps to replace a fuse?
+I understood you're asking how to make fuse, but I don't have the steps for it yet.
+> forget that up is an adverbial particle
+I no longer treat «up» as a adverbial particle.
+> A boost converter steps up the voltage.
+Learned: boost converter step voltage.
+> What steps up the voltage?
+Boost converter.

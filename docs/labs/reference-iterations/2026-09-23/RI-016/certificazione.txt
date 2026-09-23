@@ -1,0 +1,21 @@
+A flyback transformer steps up the voltage.
+What steps up the voltage?
+up is an adverbial particle
+down is an adverbial particle
+step up is a relation verb
+step down is a relation verb
+A flyback transformer steps up the voltage.
+A buck converter steps down the voltage.
+What steps up the voltage?
+What steps down the voltage?
+Does a flyback transformer step up the voltage?
+Does a buck converter step up the voltage?
+break down is a relation verb
+Amylase breaks down starch.
+What breaks down starch?
+The Inn flows into the Danube.
+Does the Inn flow into the Danube?
+What are the steps to replace a fuse?
+forget that up is an adverbial particle
+A boost converter steps up the voltage.
+What steps up the voltage?

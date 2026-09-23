@@ -26,6 +26,9 @@ semantic_proposition(proposition(binary(measure), roles(subject(nanometre), obje
 semantic_proposition(proposition(binary(measure), roles(subject(hertz), object(frequency)))).
 semantic_proposition(proposition(binary(measure), roles(subject(byte), object(information)))).
 semantic_proposition(proposition(binary(move), roles(subject(pump), object(fluid)))).
+semantic_proposition(proposition(binary(break_down), roles(subject(amylase), object(starch)))).
+semantic_proposition(proposition(binary(step_down), roles(subject(buck_converter), object(voltage)))).
+semantic_proposition(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage)))).
 semantic_binding(binary(measure), nanometre, object(length)).
 proposition_source_record(proposition(binary(measure), roles(subject(nanometre), object(length))), source(inline, "the nanometre measures length."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(pass), capacitors, object(alternating_current)).
@@ -34,8 +37,14 @@ proposition_source_record(proposition(binary(measure), roles(subject(hertz), obj
 proposition_source_record(proposition(binary(pass), roles(subject(capacitors), object(alternating_current))), source(inline, "capacitors pass alternating current."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), byte, object(information)).
 proposition_source_record(proposition(binary(measure), roles(subject(byte), object(information))), source(inline, "the byte measures information."), provenance(language(en), range(0, 30))).
+semantic_binding(binary(break_down), amylase, object(starch)).
+proposition_source_record(proposition(binary(break_down), roles(subject(amylase), object(starch))), source(inline, "amylase breaks down starch."), provenance(language(en), range(0, 27))).
 semantic_binding(binary(move), pump, object(fluid)).
+semantic_binding(binary(step_down), buck_converter, object(voltage)).
+proposition_source_record(proposition(binary(step_down), roles(subject(buck_converter), object(voltage))), source(inline, "a buck converter steps down the voltage."), provenance(language(en), range(0, 40))).
 proposition_source_record(proposition(binary(move), roles(subject(pump), object(fluid))), source(inline, "pumps move fluid."), provenance(language(en), range(0, 17))).
+semantic_binding(binary(step_up), flyback_transformer, object(voltage)).
+proposition_source_record(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage))), source(inline, "a flyback transformer steps up the voltage."), provenance(language(en), range(0, 43))).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

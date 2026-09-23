@@ -136,6 +136,7 @@ utterance(5, user, "Rectifiers produce direct current.").
 utterance(5, user, "Ferritic stainless steel is magnetic.").
 utterance(5, user, "The nanometre measures length.").
 utterance(5, user, "A plate is a part.").
+utterance(5, user, "step up is a relation verb").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -252,6 +253,7 @@ utterance(6, self, "Learned: rectifiers produce direct current.").
 utterance(6, self, "Learned: ferritic stainless steel is magnetic.").
 utterance(6, self, "Learned: nanometre measures length.").
 utterance(6, self, "Learned: plate is a part.").
+utterance(6, self, "Learned: step up is a relation verb.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -770,6 +772,7 @@ utterance(7, user, "The Thames flows into the North Sea.").
 utterance(7, user, "Batteries supply direct current.").
 utterance(7, user, "Shielded metal arc welding is a process.").
 utterance(7, user, "Plates carry load.").
+utterance(7, user, "step down is a relation verb").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1265,7 +1268,11 @@ utterance(9, user, "Kanban limits work in progress.").
 utterance(10, self, "Learned: kanban limits work in progress.").
 utterance(8, self, "Learned: shielded metal arc welding is a process.").
 utterance(8, self, "Learned: plates carry load.").
+utterance(8, self, "Learned: step down is a relation verb.").
+utterance(9, user, "A flyback transformer steps up the voltage.").
+utterance(10, self, "Learned: flyback transformer step up voltage.").
 utterance(11, user, "Which sea does the Po flow into?").
+utterance(11, user, "A buck converter steps down the voltage.").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2208,6 +2215,11 @@ utterance(14, self, "Learned: rome is a city.").
 utterance(15, user, "Rome is in Italy.").
 utterance(16, self, "Learned: rome is located in italy.").
 utterance(12, self, "adriatic sea.").
+utterance(12, self, "Learned: buck converter step down voltage.").
+utterance(13, user, "break down is a relation verb").
+utterance(14, self, "Learned: break down is a relation verb.").
+utterance(15, user, "Amylase breaks down starch.").
+utterance(16, self, "Learned: amylase break down starch.").
 utterance(74, self, "Held: «piccole» is how small is said in that language.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2632,6 +2644,7 @@ utterance(2, self, "Learned: byte measures information.").
 utterance(2, self, "Learned: pump is a device.").
 utterance(2, self, "Got it - «conosci» asks for the same thing as «cosa sai di».").
 utterance(2, self, "Got it - «do you know» asks for the same thing as «what do you know about».").
+utterance(2, self, "Learned: up is an adverbial particle.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2757,6 +2770,7 @@ utterance(1, user, "The byte measures information.").
 utterance(1, user, "A pump is a device.").
 utterance(1, user, "'conosci' is another way to say 'cosa sai di'").
 utterance(1, user, "'do you know' is another way to say 'what do you know about'").
+utterance(1, user, "up is an adverbial particle").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2871,6 +2885,7 @@ utterance(4, self, "Learned: capacitors pass alternating current.").
 utterance(4, self, "Learned: austenitic stainless steel is not magnetic.").
 utterance(4, self, "Learned: hertz measures frequency.").
 utterance(4, self, "Learned: pumps move fluid.").
+utterance(4, self, "Learned: down is an adverbial particle.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -2982,6 +2997,7 @@ utterance(3, user, "Capacitors pass alternating current.").
 utterance(3, user, "Austenitic stainless steel is not magnetic.").
 utterance(3, user, "The hertz measures frequency.").
 utterance(3, user, "Pumps move fluid.").
+utterance(3, user, "down is an adverbial particle").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

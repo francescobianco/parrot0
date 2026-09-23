@@ -7324,7 +7324,9 @@ static int p0_parse_multiword_unary_membership(
     snprintf(cb, sizeof cb, "%s", w[1]);
     const char *subject_atom = strip_edge_punct(sb);
     if (!*subject_atom || strchr(subject_atom, ' ') ||
-        p0_bad_subject(b, subject_atom)) return 0;
+        (p0_bad_subject(b, subject_atom) &&
+         !kb_query(b->kb, "turn_mentions_word", (const char *[]){ "current_turn" }, 1)))
+        return 0;   /* RI-016: «forget that up is an adverbial particle» menziona «up» */
     const char *copula_q[] = { strip_edge_punct(cb) };
     if (!copula_q[0][0] || !kb_query(b->kb, "clause_copula", copula_q, 1))
         return 0;
@@ -7788,7 +7790,9 @@ static int extract_class_statement(Brain *b, const char *norm,
      * la classe e' una classe di parole, `turn_mentions_word/1`), il soggetto e'
      * la parola menzionata, e che sia una parola funzionale non la esclude. */
     const char *mq[1] = { "current_turn" };
-    int mentions_word = kb_query(b->kb, "turn_mentions_word", mq, 1);
+    /* ...ma solo per UNA parola subito prima della copula: «forget that up is
+     * an adverbial particle» non fa di «forget» la parola menzionata. */
+    int mentions_word = sstart + 1 == cop && kb_query(b->kb, "turn_mentions_word", mq, 1);
     if (!mentions_word && p0_bad_subject(b, strip_edge_punct(w[sstart]))) { p0_class_gate(b, "gate: first subject word is not a subject (subject_guard)"); return 0; }   /* not a real subject */
     char subj[KB_TERM_LEN];
     if (!p0_join(w, sstart, send, subj, sizeof subj)) { p0_class_gate(b, "gate: subject does not join"); return 0; }
@@ -8903,23 +8907,57 @@ static int p0_polar_reply(Brain *b, const char *norm, char **w, size_t nw,
             !kb_query(b->kb, "symmetric_relation", sq2, 1))
             order_fixed = 1;
     }
+    /* RI-016 (23 settembre 2026) — I CANDIDATI SONO ANCHE I SINTAGMI DEL TURNO.
+     * Si provavano solo coppie di token: «Does a flyback transformer step up the
+     * voltage?» non trovava mai `step_up(flyback_transformer, voltage)`, mentre
+     * «Does the Inn flow into the Danube?» si'. Le entita' di piu' parole che la
+     * IR ha legato nel turno (`turn_entity_named/2`, KB) entrano fra i
+     * candidati, nell'ordine in cui compaiono; i token restano. */
+    char (*cand)[KB_TERM_LEN] = malloc((nw + 16) * sizeof *cand);
+    size_t *cpos = malloc((nw + 16) * sizeof *cpos);
+    size_t nc = 0;
+    if (!cand || !cpos) { free(cand); free(cpos); return 0; }
     for (size_t i = 0; i < nw; i++) {
-        char a[KB_TERM_LEN];
-        snprintf(a, sizeof a, "%s", strip_edge_punct(w[i]));
+        snprintf(cand[nc], KB_TERM_LEN, "%s", strip_edge_punct(w[i]));
+        cpos[nc++] = i;
+    }
+    {
+        char (*keys)[KB_TERM_LEN] = NULL; size_t nk = 0;
+        const char *kq[2] = { NULL, NULL };
+        if (kb_match_all(b->kb, "turn_entity_named", kq, 2, &keys, &nk)) {
+            for (size_t k = 0; k < nk && nc < nw + 16; k++) {
+                char kb2[KB_TERM_LEN]; snprintf(kb2, sizeof kb2, "%s", kb_dequote(keys[k]));
+                char first[KB_TERM_LEN]; snprintf(first, sizeof first, "%s", kb2);
+                char *sp = strchr(first, ' '); if (sp) *sp = '\0';
+                size_t pos = nw;
+                for (size_t i = 0; i < nw && pos == nw; i++)
+                    if (!strcmp(strip_edge_punct(w[i]), first)) pos = i;
+                for (char *c = kb2; *c; c++) if (*c == ' ') *c = '_';
+                snprintf(cand[nc], KB_TERM_LEN, "%s", kb2);
+                cpos[nc++] = pos;
+            }
+        }
+        free(keys);
+    }
+    for (size_t i = 0; i < nc; i++) {
+        const char *a = cand[i];
         if (strlen(a) < 2) continue;
-        for (size_t j = 0; j < nw; j++) {
+        for (size_t j = 0; j < nc; j++) {
             if (i == j) continue;
-            if (order_fixed && j < i) continue;
-            char c[KB_TERM_LEN];
-            snprintf(c, sizeof c, "%s", strip_edge_punct(w[j]));
+            if (order_fixed && cpos[j] < cpos[i]) continue;
+            const char *c = cand[j];
             if (strlen(c) < 2) continue;
             const char *q[2] = { a, c };
             if (kb_query(b->kb, pred, q, 2)) {
+                p0_trace(b, "polar", "%s(%s, %s) holds", pred, a, c);
+                free(cand); free(cpos);
                 kb_say(b, "yes", "Yes.", out, out_size);
                 return 1;
             }
         }
     }
+    p0_trace(b, "polar", "%s: no pair of %zu candidates holds", pred, nc);
+    free(cand); free(cpos);
     /* Non regge. Un «No.» affermerebbe che l'altro valore e' FALSO, e non
      * provato non e' falso: si dice solo dove la KB lo autorizza. Altrimenti
      * questa via si ritira e il turno scende a un muro onesto (mantra #7). */
@@ -13339,6 +13377,21 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                     char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", first);
                     const char *sw[1] = { strip_edge_punct(fb) };
                     if (!fl || !kb_query(b->kb, "stopword", sw, 1)) break;
+                    /* RI-016: una parola subito prima della copula e' il
+                     * SOGGETTO, anche se e' una parola funzionale: in «forget
+                     * that up is an adverbial particle» si salta «that», non
+                     * «up». Quali parole siano copule lo dice la KB. */
+                    {
+                        const char *nx = content + fl;
+                        while (*nx && isspace((unsigned char)*nx)) nx++;
+                        char nw[KB_TERM_LEN]; size_t nl = 0;
+                        while (nx[nl] && !isspace((unsigned char)nx[nl]) && nl + 1 < sizeof nw) {
+                            nw[nl] = nx[nl]; nl++;
+                        }
+                        nw[nl] = '\0';
+                        const char *cq[1] = { nw };
+                        if (nl && kb_query(b->kb, "clause_copula", cq, 1)) break;
+                    }
                     content += fl;
                     while (*content && isspace((unsigned char)*content)) content++;
                 }

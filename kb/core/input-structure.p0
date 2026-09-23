@@ -356,7 +356,25 @@ input_unit_node($Scope, $Language, $Id, $Unit) :-
 input_operator_node($Scope, $Language, operator($Kind, $Relation), $Id) :-
     input_node_form($Scope, $Id, $Language, form($Surface, $Relation)),
     frame_operator_concept($Relation, $Kind),
-    naf(nominal_position($Scope, $Id)).
+    naf(nominal_position($Scope, $Id)),
+    naf(operator_particle_follows($Scope, $Id)).
+% RI-016 (23 settembre 2026) — il verbo con la sua particella AVVERBIALE e' un
+% operatore solo: «steps down» non e' «steps» piu' qualcosa. La IR scriveva
+% `binary(step)` per «A step-down transformer steps down the voltage.», e la
+% domanda «What steps up the voltage?» ne riceveva la risposta: un falso. La
+% stessa conoscenza del lettore dei frame (grammar.p0): `verb_particle/2` +
+% `adverbial_particle/1`; l'operatore e' il predicato composto (`step_up`).
+machinery(operator_particle_follows).
+operator_particle_follows($Scope, $Id) :-
+    input_node_form($Scope, $Id, $Language, form($Surface, $Root)),
+    input_node_next($Scope, $Id, $Next), input_node_atom($Scope, $Next, $P),
+    adverbial_particle($P), verb_particle($Root, $P).
+input_operator_node($Scope, $Language, operator(binary, $Relation), $Id) :-
+    input_node_form($Scope, $Id, $Language, form($Surface, $Root)),
+    frame_operator_concept($Root, binary),
+    input_node_next($Scope, $Id, $Next), input_node_atom($Scope, $Next, $P),
+    adverbial_particle($P), verb_particle($Root, $P),
+    concat_atoms($Root, "_", $R1), concat_atoms($R1, $P, $Relation).
 
 % Una parola subito dopo una preposizione o un'apertura di sintagma nominale
 % («into HEAT», «the USE») occupa un posto di nome, non di verbo: «converting

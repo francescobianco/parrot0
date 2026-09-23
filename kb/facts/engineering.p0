@@ -27,3 +27,10 @@ carry(plates, load).
 not(magnetic(austenitic_stainless_steel)).
 class_surface(process, process).
 class_surface(part, part).
+
+% RI-016 (23 settembre 2026) — chi alza e chi abbassa la tensione. Il flyback
+% di un CRT porta la tensione anodica a decine di kV; un convertitore buck
+% abbassa una tensione continua. (F.: «esistono anche trasformatori step up»:
+% «a transformer steps down the voltage» come verita' generale e' falsa.)
+step_up(flyback_transformer, voltage).
+step_down(buck_converter, voltage).

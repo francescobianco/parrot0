@@ -1761,18 +1761,24 @@ verb_particle_surface($Root, $Surface) :-
     concat_atoms($Form, " ", $A), concat_atoms($A, $Particle, $Surface).
 
 extract_frame($Pat, $Root) :-
-    verb_particle_surface($Root, $Surface),
     verb_particle($Root, $Particle), naf(converse_particle_pair($Root, $Particle)),
     naf(adverbial_particle($Particle)),
+    verb_finite_form($Root, $Form),
+    concat_atoms($Form, " ", $F1), concat_atoms($F1, $Particle, $Surface),
     concat_atoms("@S ", $Surface, $A),
     concat_atoms($A, " @O", $Pat).
+% (23 settembre 2026, RI-016: la superficie veniva da `verb_particle_surface` e
+% la particella da una seconda enumerazione INDIPENDENTE di `verb_particle`: un
+% verbo con due particelle — «break down», «break … into» — accoppiava «breaks
+% down» alla particella «into» e scriveva `break(amylase, starch)`. Superficie e
+% particella ora vengono dalla stessa riga.)
 % RI-016 (23 settembre 2026) — UNA PARTICELLA AVVERBIALE E' PARTE DEL VERBO.
 % «into» introduce l'oggetto e il predicato e' la radice (flow into -> flow),
 % ma «down» e «up» cambiano che cosa si fa: «A transformer steps down the
 % voltage.» diventava `step(transformer, voltage)`, e «What steps up the
 % voltage?» rispondeva «Transformer» — un falso. Con una particella avverbiale
 % (`adverbial_particle/1`, lessico: «down is an adverbial particle») il
-% predicato e' `radice_particella`, e i due verbi restano due relazioni.
+% predicato unisce radice e particella (`step_up`, `step_down`), e i due verbi restano due relazioni.
 extract_frame($Pat, $Pred) :-
     verb_particle($Root, $Particle), adverbial_particle($Particle),
     verb_finite_form($Root, $Form),
@@ -1982,6 +1988,9 @@ machinery(adverbial_particle).
 machinery(verb_particle_agent_relation).
 adverbial_particle(together).
 adverbial_particle(apart).
+class_surface(adverbial_particle, adverbial particle).
+adverbial_particle(down).
+adverbial_particle(up).
 verb_particle_agent_relation($Pred, $Surface) :-
     adverbial_particle($Particle), particle_passive_relation($Root, $Particle, $Bare, $BareSurface),
     passive_agent_marker($By),
@@ -2060,7 +2069,18 @@ extract_frame($Pat, $Pred) :-
 % E la stessa superficie deve INTERROGARE la relazione, non solo leggerla:
 % «what does coral belong to?» e «Coral belongs to X» sono la stessa relazione
 % vista dai due lati. Senza questa riga il fatto entrava e restava muto.
-answer_frame($Surface, $Root) :- verb_particle_surface($Root, $Surface).
+answer_frame($Surface, $Root) :-
+    verb_particle($Root, $Particle), naf(adverbial_particle($Particle)),
+    verb_finite_form($Root, $Form),
+    concat_atoms($Form, " ", $F1), concat_atoms($F1, $Particle, $Surface).
+% RI-016: con una particella avverbiale la domanda interroga il predicato composto (`step_up`),
+% come la lettura (qui sopra) e la IR (input-structure.p0). «Does a flyback
+% transformer step up the voltage?» chiedeva `step` e non trovava niente.
+answer_frame($Surface, $Pred) :-
+    verb_particle($Root, $Particle), adverbial_particle($Particle),
+    verb_finite_form($Root, $Form),
+    concat_atoms($Form, " ", $F1), concat_atoms($F1, $Particle, $Surface),
+    concat_atoms($Root, "_", $R1), concat_atoms($R1, $Particle, $Pred).
 
 % ── gen507 — IL COMPARATIVO E' UNA FORMA, NON UN VERBO NUOVO ────────────────
 %
