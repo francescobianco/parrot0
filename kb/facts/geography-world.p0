@@ -1090,3 +1090,9 @@ city(turin).
 city(rome).
 largest_city_of(turkey, istanbul).
 largest_city_of(germany, berlin).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+class_surface(sea, sea).
+class_surface(city, city).

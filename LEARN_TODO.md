@@ -6667,7 +6667,7 @@ lettura**.
 
 **Domini nuovi:** geology, politics, economics, law, music — che il §P2 qui sotto
 segnava come *«muro totale nella sonda»*. Le **fonti** si conservano
-(`kb/learning/sources.tsv`), le pagine no: il vincolo del gen436 resta intatto.
+(`kb/learning/sources.tsv`), le pagine no: il vincolo del gen436 resta intatto. [23 settembre 2026: anche `sources.tsv` e `scripts/learn.py` ritirati.]
 
 ### ⛔ Il prossimo passo, con precisione
 

@@ -42,7 +42,10 @@
 % geography-world, history-people. Il file torna vuoto.
 %
 % ⚠ Le REGOLE e le negazioni il `/save` le scrive sempre qui (kb_save_routed non
-% le instrada): se ne compaiono, vanno spostate a mano in taught-rules.p0.
+% le instrada): se ne compaiono, vanno spostate a mano accanto ai loro simili
+% (una negazione vicino al suo positivo, una regola vicino ai fatti che usa).
+% I file taught-*.p0 nominati sotto non esistono piu' (23 settembre 2026): il
+% loro contenuto sta nei file dei suoi simili, vedi la nota in fondo.
 %
 % E una quarta volta, il 23 settembre 2026 (F.: «sparpaglia la conoscenza in file
 % opportuni; il motivo e' nei documenti, se no scrivilo qui»). Il motivo e'
@@ -61,3 +64,13 @@
 % e i parenti: geography-world (flow, sea, city, largest_city_of),
 % history-people (teach), science-nature (react), taught-relations
 % (symmetric_relation), taught-rules (la negazione). Il file torna vuoto.
+%
+% Il 23 settembre 2026, piu' tardi: kb/learning/ ha smesso di essere una casa
+% per canale di provenienza (constructions, procedures, taught-rules,
+% taught-lexicon, taught-relations). F.: «questa distinzione della provenienza
+% non e' fondamentale, rischia di settarizzare la KB e di rendere la sua
+% struttura un limite alla crescita della stessa». Ogni riga e' andata dove
+% stanno i suoi simili — verbi in english-grammar/verbs.p0, radici e passati in
+% morphology.p0, particelle in predication.p0, costruzioni in
+% english-grammar/constructions.p0, relazioni e procedure in core/procedures.p0,
+% nomi di classe accanto ai membri. Qui resta solo questa ricaduta.

@@ -2835,3 +2835,9 @@ world_superlative_cue("university oldest", oldest, university).
 world_superlative_cue("oldest university", oldest, university).
 world_superlative_cue("stadium largest", largest, stadium).
 world_superlative_cue("largest stadium", largest, stadium).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+scientist($V1) :- physicist($V1).
+researcher($V1) :- scientist($V1).

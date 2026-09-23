@@ -291,3 +291,11 @@ intracellular_pathogen(legionella_species).
 
 % 23 settembre 2026, dalla ricaduta di learned.p0: le reazioni chimiche insegnate.
 react(sodium, water).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+class_surface(ordine, ordine).
+class_surface(uncontrolled_positive_feedback, uncontrolled positive feedback).
+class_surface(intracellular_pathogen, intracellular pathogen).
+class_surface(genus, genus).

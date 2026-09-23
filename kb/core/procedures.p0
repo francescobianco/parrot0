@@ -2249,3 +2249,36 @@ machinery(relation_family).
 relation_note($V, $Note) :-
     relation_family($V, $Fam), concat_atoms("a ", $Fam, $Half),
     concat_atoms($Half, " relation", $Note).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+proc_step(devowel, 1, "drop vowel").
+proc_step(shout, 1, "upper").
+proc_step(squash, 1, "repeat replace aa with a until stable").
+proc_step(quiet, 1, "apply devowel").
+proc_step(quiet, 2, "lower").
+class_surface(whole_part_relation, whole part relation).
+class_surface(relation, relation).
+transitive_relation(precedes).
+transitive_relation(flow).
+inverse_relation(precedes, follows).
+relation_role(battle, winner).
+relation_role(battle, loser).
+relation_role(battle, year).
+required_role(battle, winner).
+relation_projection(defeated, battle, winner, loser).
+relation_or(parent, mother).
+relation_or(parent, father).
+relation_twice(grandparent, parent).
+relation_reverse(child, parent).
+relation_reverse(grandchild, grandparent).
+relation_chain(great-grandparent, grandparent, parent).
+% gen514 — insegnate parlando: «"made of" is a whole-part relation» (il tutto
+% viene prima, e il verso della domanda non si inverte). Vedi grammar.p0,
+% `directed_surface/1`.
+whole_part_relation("made of").
+whole_part_relation("built from").
+whole_part_relation("formed of").
+% 23 settembre 2026, dalla ricaduta di learned.p0: le proprieta' delle relazioni.
+symmetric_relation(react).

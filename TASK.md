@@ -248,7 +248,9 @@ cat.18 Biologia animale (KB class-membership), cat.19 Versi animali (KB content)
 F. asks.) Goal: close the next link of F.'s dynamic-knowledge loop. `mod_research`
 (gen170) records gaps and, with `$PARROT0_RESEARCH_QUEUE` set, appends
 `key<TAB>display`. Make `scripts/learn.py` read that queue: fetch the requested
-topics from static Wikipedia FIRST (then the curated `sources.tsv` round-robin),
+topics from static Wikipedia FIRST (then the curated source list round-robin),
+[⚠ 23 September 2026: `scripts/learn.py` and `kb/learning/sources.tsv` were
+removed — the reader now goes through `read: …`, see LEARN_TODO],
 write `kb/learning`,
 clear served entries, and commit — so a flagged gap is actually filled.
 

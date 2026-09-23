@@ -348,7 +348,7 @@ autolearn: build
 	@$(BENCH_PY) ./tests/tools/autolearn.py --rounds $(or $(ROUNDS),5) \
 		--workers $(or $(WORKERS),5) --multiply $(or $(MULTIPLY),20) \
 		--retries $(or $(RETRIES),2) --model $(or $(MODEL),minimax-m2.5) \
-		--kb $(or $(KB),kb/learning/autolearn-unrouted.p0) \
+		--kb $(or $(KB),kb/learning/learned.p0) \
 		--ledger $(or $(LEDGER),kb/learning/autolearn-ledger.jsonl) \
 		--skip-list $(or $(SKIP_LIST),kb/learning/autolearn-skip.txt) \
 		$(if $(PROBES),--probes $(PROBES),)

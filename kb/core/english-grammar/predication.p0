@@ -567,3 +567,79 @@ collective_relation(trade).
 collective_relation(alternate).
 collective_relation(intersect).
 collective_relation(overlap).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+% ── gen513 — LE PARTICELLE DEI VERBI DI RELAZIONE ───────────────────────────
+% Scoperte leggendo la scala della prosa: sono le forme con cui un lead di
+% enciclopedia lega un soggetto al suo oggetto. Una riga per verbo, e la
+% regola in kb/core/grammar.p0 ne genera le superfici (nuda, flessa,
+% irregolare). Sono fatti veri dell'inglese, non scorciatoie per un banco.
+verb_particle(belong, to).
+verb_particle(consist, of).
+verb_particle(derive, from).
+verb_particle(result, from).
+verb_particle(refer, to).
+verb_particle(relate, to).
+verb_particle(grow, in).
+verb_particle(live, in).
+verb_particle(occur, in).
+verb_particle(appear, in).
+verb_particle(depend, on).
+verb_particle(feed, on).
+verb_particle(react, with).
+verb_particle(combine, with).
+verb_particle(evolve, from).
+% gen513 — le particelle delle relazioni che la prosa dice al passivo.
+verb_particle(build, from).
+% gen514 — «Coral reefs deliver ecosystem services FOR tourism»: il beneficiario.
+verb_particle(deliver, for).
+% «Fungi … further break UP the organic material».
+verb_particle(break, up).
+% «a mixture of ingredients used AS plant fertilizer».
+verb_particle(use, as).
+verb_particle(make, of).
+verb_particle(form, of).
+verb_particle(compose, of).
+verb_particle(accompany, by).
+verb_particle(hold, together).
+verb_particle(divide, into).
+verb_particle(convert, into).
+verb_particle(break, into).
+verb_particle(transform, into).
+verb_particle(coat, in).
+verb_particle(cover, in).
+verb_particle(fill, with).
+verb_particle(mix, with).
+verb_particle(replace, by).
+verb_particle(surround, by).
+verb_particle(embed, in).
+verb_particle(base, on).
+verb_particle(depend, upon).
+verb_particle(consist, in).
+verb_particle(originate, from).
+verb_particle(descend, from).
+verb_particle(separate, from).
+verb_particle(extract, from).
+verb_particle(obtain, from).
+verb_particle(produce, from).
+verb_particle(release, into).
+verb_particle(absorb, into).
+verb_particle(attach, to).
+verb_particle(connect, to).
+verb_particle(bind, to).
+verb_particle(expose, to).
+verb_particle(subject, to).
+verb_particle(classify, as).
+verb_particle(know, as).
+% gen513 — le particelle dei verbi del piolo 300 (lead Coral reef).
+verb_particle(characterize, by).
+verb_particle(flourish, in).
+verb_particle(cluster, in).
+verb_particle(decline, by).
+verb_particle(estimate, at).
+verb_particle(thrive, in).
+verb_particle(protect, from).
+verb_particle(inhabit, in).
+verb_particle(decline, since).

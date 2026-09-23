@@ -2365,18 +2365,10 @@ construction_reading($Pattern, $Predicate) :-
 machinery(construction_claims).
 construction_claims($Pattern) :- construction_variant($Pattern, $Predicate, $Said, $Other).
 
-% E le costruzioni gia' imparate hanno una casa nell'albero curato, cosi' una
-% lezione data oggi vale ancora domani senza che nessuno la ricopi.
-:- include(../learning/constructions.p0).
-% gen507/68: e le procedure insegnate parlando, che prima finivano in learned.p0
-:- include(../learning/procedures.p0).
-% E le regole dette a voce, che `/save` non instrada.
-:- include(../learning/taught-rules.p0).
-% E il gradino piu' basso della stessa scala: non una costruzione e non una
-% regola, ma la classe grammaticale di una parola — «measures is a relation
-% verb» — che e' la mossa che il muro qui sopra propone da se'.
-:- include(../learning/taught-lexicon.p0).
-:- include(../learning/taught-relations.p0).
+% Le costruzioni, le procedure, le regole, le classi di parola e le relazioni
+% insegnate parlando stanno accanto ai loro simili (english-grammar/, procedures.p0,
+% i file dei fatti), non in una cartella per canale di provenienza (23 settembre
+% 2026, F.: «per similarita' piu' che per storia»).
 
 % Nel solo caso in cui la costruzione esponga una cue interrogabile senza
 % perdere i ruoli, il teacher registra anche questa vista. Il pattern sorgente

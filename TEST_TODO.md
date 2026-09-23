@@ -1114,6 +1114,9 @@ ledger e skip-list, anch'essi rimossi.
 
 Quei due flussi sono **rotti**. Vanno rifatti o ritirati; il contenuto è
 recuperabile da `git log --all`.
+**23 settembre 2026:** `scripts/learn.py` e `kb/learning/sources.tsv` ritirati
+(F.). `autolearn.py` e `make autolearn` scrivono ora nella ricaduta
+`kb/learning/learned.p0` (era `autolearn-unrouted.p0`, vuoto e rimosso).
 
 ### 1.4 Le suite convertite ma ROSSE non entrano in `make test`
 

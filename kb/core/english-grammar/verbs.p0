@@ -3877,3 +3877,340 @@ verb_valency(prove, copular).
 verb_valency(turn, copular).
 verb_valency(grow, copular).
 verb_valency(get, copular).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+relation_verb(measures).
+relation_verb(organizes).
+relation_verb(precedes).
+relation_verb(tests).
+relation_verb(maps).
+relation_verb(surveys).
+relation_verb(weakens).
+relation_verb(refutes).
+relation_verb(encodes).
+relation_verb(applies).
+relation_verb(discovers).
+relation_verb(represents).
+relation_verb(penalizes).
+relation_verb(harms).
+relation_verb(splits).
+relation_verb(predicts).
+relation_verb(computes).
+relation_verb(minimizes).
+relation_verb(prevents).
+relation_verb(digests).
+relation_verb(carries).
+relation_verb(pumps).
+relation_verb(filter).
+relation_verb(secretes).
+relation_verb(produces).
+relation_verb(eradicated).
+relation_verb(detected).
+relation_verb(improved).
+relation_verb(shortened).
+relation_verb(shortens).
+relation_verb(eradicate).
+relation_verb(detect).
+relation_verb(biases).
+relation_verb(modulates).
+relation_verb(modified).
+% ── gen490/491 — I VERBI CHE ACCENDONO LA LETTURA ──────────────────────────
+%
+% Dal gen490 `relation_verb/1` non serve piu' solo a rispondere: e' anche cio' da
+% cui il lettore strutturale DERIVA il proprio operatore binario
+% (`frame_operator_concept/2`, kb/core/grammar.p0). Ogni riga qui accende quindi
+% la lettura di una FAMIGLIA di frasi — «X rilascia Y», «X contiene Y» — non di
+% una singola frase, ed e' il posto con il rapporto piu' alto fra riga scritta e
+% prosa leggibile: da 35 a 85 verbi la resa su prosa vera di Wikipedia e' passata
+% da 0,26 a 0,37 fatti per frase.
+%
+% ⚠ E QUESTE RIGHE SONO STATE SCRITTE DUE VOLTE. Al gen490 aggiungerle mandava in
+% timeout meta' della suite, e vennero tolte con la misura scritta accanto: il
+% costo non era il numero di verbi ma il fatto che `extract_frame` — che da ogni
+% verbo genera due schemi — veniva RIDERIVATO decine di volte per turno, 890 ms
+% su 1075. Al gen491 quel processo si congela una volta per cambio di conoscenza
+% (`materialized_view/2`), il turno scende a 259 ms, e la stessa lista che prima
+% rompeva tutto ora passa senza toccare un gate.
+%
+% E' la lezione generale del §L in forma pulita: **quando una classe di
+% conoscenza non si puo' allargare, il difetto non e' quasi mai nella classe.**
+% Prima si guarda che cosa la RILEGGE, e quante volte.
+%
+% Restano verbi, non conoscenza del mondo: dicono che una parola PUO' reggere una
+% relazione fra due cose, non quale relazione valga fra quali cose. E si
+% insegnano parlando — «zorbles is a relation verb» — esattamente come questi.
+relation_verb(releases).
+relation_verb(contains).
+relation_verb(includes).
+% 19 settembre 2026: e la sua radice. Senza, la IR leggeva «includes» come verbo
+% a se' e la domanda «what does the phylum cnidaria INCLUDE?» non trovava il
+% legame; con la radice, la forma flessa si legge come `include`
+% (`word_has_other_verb_root/1`, grammar.p0).
+relation_verb(include).
+relation_verb(causes).
+relation_verb(uses).
+relation_verb(forms).
+relation_verb(creates).
+relation_verb(connects).
+relation_verb(absorbs).
+relation_verb(emits).
+relation_verb(converts).
+relation_verb(stores).
+relation_verb(transports).
+relation_verb(controls).
+relation_verb(regulates).
+relation_verb(protects).
+relation_verb(surrounds).
+relation_verb(supports).
+relation_verb(covers).
+relation_verb(replaces).
+relation_verb(describes).
+relation_verb(defines).
+relation_verb(determines).
+relation_verb(affects).
+relation_verb(influences).
+relation_verb(reduces).
+relation_verb(increases).
+relation_verb(generates).
+relation_verb(provides).
+relation_verb(supplies).
+relation_verb(consumes).
+relation_verb(transmits).
+relation_verb(reflects).
+relation_verb(attracts).
+relation_verb(repels).
+relation_verb(binds).
+relation_verb(breaks).
+relation_verb(combines).
+relation_verb(divides).
+relation_verb(governs).
+relation_verb(serves).
+relation_verb(occupies).
+relation_verb(borders).
+relation_verb(crosses).
+relation_verb(joins).
+relation_verb(follows).
+relation_verb(enables).
+relation_verb(limits).
+relation_verb(expands).
+relation_verb(contracts).
+relation_verb(owner).
+relation_verb(great-grandparent).
+relation_verb(grandchild).
+relation_verb(child).
+relation_verb(grandparent).
+relation_verb(parent).
+relation_verb(defeated).
+relation_verb(operates).
+relation_verb(allows).
+relation_verb(removes).
+relation_verb(grows).
+relation_verb(indicates).
+relation_verb(tells).
+relation_verb(shows).
+relation_verb(casts).
+relation_verb(belongs).
+relation_verb(secrete).
+relation_verb(endanger).
+relation_verb(destroy).
+relation_verb(damage).
+relation_verb(restore).
+relation_verb(mitigate).
+relation_verb(trigger).
+relation_verb(amplify).
+relation_verb(scatter).
+relation_verb(refract).
+relation_verb(reflect).
+relation_verb(illuminate).
+relation_verb(rotate).
+relation_verb(stretch).
+relation_verb(compress).
+relation_verb(deposit).
+relation_verb(erode).
+relation_verb(shape).
+relation_verb(dominate).
+relation_verb(inhabit).
+relation_verb(spread).
+relation_verb(trap).
+relation_verb(capture).
+relation_verb(receive).
+relation_verb(transmit).
+relation_verb(consume).
+relation_verb(nourish).
+relation_verb(feed).
+relation_verb(shelter).
+relation_verb(host).
+relation_verb(maintain).
+relation_verb(sustain).
+relation_verb(operate).
+relation_verb(power).
+relation_verb(drive).
+relation_verb(attach).
+relation_verb(bind).
+relation_verb(combine).
+relation_verb(separate).
+relation_verb(absorb).
+relation_verb(dissolve).
+relation_verb(repel).
+relation_verb(attract).
+relation_verb(exceed).
+relation_verb(resemble).
+relation_verb(influence).
+relation_verb(affect).
+relation_verb(determine).
+relation_verb(record).
+relation_verb(measure).
+relation_verb(replace).
+relation_verb(increase).
+relation_verb(reduce).
+relation_verb(enable).
+relation_verb(allow).
+relation_verb(require).
+relation_verb(supply).
+relation_verb(threaten).
+relation_verb(provide).
+relation_verb(occupy).
+relation_verb(deliver).
+relation_verb(evolve).
+relation_verb(react).
+relation_verb(depend).
+relation_verb(appear).
+relation_verb(occur).
+relation_verb(grow).
+relation_verb(relate).
+relation_verb(refer).
+relation_verb(result).
+relation_verb(derive).
+relation_verb(consist).
+relation_verb(belong).
+relation_verb(moult).
+relation_verb(shed).
+relation_verb(hatch).
+relation_verb(nest).
+relation_verb(burrow).
+relation_verb(graze).
+relation_verb(sprout).
+relation_verb(pollinate).
+relation_verb(germinate).
+relation_verb(ferment).
+relation_verb(distill).
+relation_verb(refine).
+relation_verb(smelt).
+relation_verb(tan).
+relation_verb(dye).
+relation_verb(spin).
+relation_verb(weave).
+relation_verb(mould).
+relation_verb(cast).
+relation_verb(forge).
+relation_verb(weld).
+relation_verb(polish).
+relation_verb(grind).
+relation_verb(lubricate).
+relation_verb(insulate).
+relation_verb(conduct).
+relation_verb(radiate).
+relation_verb(emit).
+relation_verb(withstand).
+relation_verb(resist).
+relation_verb(shred).
+relation_verb(aid).
+relation_verb(monitor).
+relation_verb(gather).
+relation_verb(convert).
+relation_verb(suppress).
+relation_verb(manage).
+relation_verb(offer).
+relation_verb(improve).
+relation_verb(line).
+relation_verb(enclose).
+relation_verb(fasten).
+relation_verb(anchor).
+relation_verb(support).
+relation_verb(balance).
+relation_verb(weaken).
+relation_verb(strengthen).
+relation_verb(stiffen).
+relation_verb(soften).
+relation_verb(harden).
+relation_verb(corrode).
+relation_verb(oxidize).
+relation_verb(crystallize).
+relation_verb(precipitate).
+relation_verb(suspend).
+relation_verb(propel).
+relation_verb(inject).
+relation_verb(extract).
+relation_verb(expel).
+relation_verb(release).
+relation_verb(retain).
+relation_verb(exhibit).
+relation_verb(denote).
+relation_verb(constitute).
+relation_verb(comprise).
+relation_verb(prevail).
+relation_verb(transition).
+relation_verb(yield).
+relation_verb(tend).
+relation_verb(ignite).
+relation_verb(stack).
+relation_verb(span).
+relation_verb(lead).
+relation_verb(contribute).
+relation_verb(involve).
+relation_verb(fill).
+relation_verb(surround).
+relation_verb(embed).
+relation_verb(coat).
+relation_verb(mix).
+relation_verb(break).
+relation_verb(transform).
+relation_verb(divide).
+relation_verb(hold).
+relation_verb(accompany).
+relation_verb(compose).
+relation_verb(form).
+relation_verb(build).
+relation_verb(base).
+relation_verb(cover).
+relation_verb(classify).
+relation_verb(subject).
+relation_verb(expose).
+relation_verb(obtain).
+relation_verb(descend).
+relation_verb(originate).
+relation_verb(harbour).
+relation_verb(thrive).
+relation_verb(find).
+relation_verb(estimate).
+relation_verb(decline).
+relation_verb(flourish).
+relation_verb(cluster).
+relation_verb(protect).
+relation_verb(characterize).
+relation_verb(sense).
+class_surface(relation_verb, relation verb).
+% ── 18 settembre 2026, notte — i verbi che i muri dei pioli 300/320/340 hanno
+% nominato («Hmm, I don't know about displace yet»). Insegnati parlando e
+% verificati «Learned»: displace, introduce, heat, prepare, reclaim, utilize.
+% Promossi qui direttamente perche' la lezione proposta dal muro stesso NON
+% passa per queste parole (cadono nel fallback: «threaten», «endanger»,
+% «supply», «remove», «contain», «manage», «ignite» — piano
+% lettura-della-prosa.md §4-sexies, il difetto del canale #1): sono il banco
+% su cui il canale si ripara. Verbi veri della prosa, non fatti del brano.
+relation_verb(displace).
+relation_verb(introduce).
+relation_verb(heat).
+relation_verb(prepare).
+relation_verb(reclaim).
+relation_verb(utilize).
+relation_verb(remove).
+relation_verb(contain).
+% 18 settembre 2026, notte (secondo turno): i verbi della seconda frase del piolo
+% 320 («prepared by decomposing plant and food waste, recycling organic
+% materials»), insegnati parlando e verificati; il loro gerundio e' un confine.
+relation_verb(decompose).
+relation_verb(recycle).
+relation_verb(flow).

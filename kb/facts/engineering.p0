@@ -18,3 +18,12 @@ process(shielded_metal_arc_welding).
 move(pumps, fluid).
 part(plate).
 carry(plates, load).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+% 23 settembre 2026, dalla ricaduta di learned.p0: le negazioni, che /save scrive sempre
+% nella ricaduta (kb_save_routed non le instrada; vedi learned.p0).
+not(magnetic(austenitic_stainless_steel)).
+class_surface(process, process).
+class_surface(part, part).

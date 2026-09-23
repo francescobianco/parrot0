@@ -31,7 +31,7 @@ external, costs a little — NOT part of `make test`. Report appended to
 AUTOLEARN.md at the repo root.
 
 Usage: .venv/bin/python tests/tools/autolearn.py [--rounds 5] [--probes FILE]
-         [--model minimax-m2.5] [--kb kb/learning/autolearn-unrouted.p0]
+         [--model minimax-m2.5] [--kb kb/learning/learned.p0]
          [--retries 2] [--skip-list kb/learning/autolearn-skip.txt]
 """
 from __future__ import annotations
@@ -1274,7 +1274,7 @@ def main():
                                      "(controlled mode; default: autonomous interviewer)")
     ap.add_argument("--model", default="minimax-m2.5",
                     help="opencode-GO slug for interviewer/judge/teacher")
-    ap.add_argument("--kb", default="kb/learning/autolearn-unrouted.p0",
+    ap.add_argument("--kb", default="kb/learning/learned.p0",
                     help="repo-relative fallback spill for unrouted facts")
     ap.add_argument("--retries", type=int, default=2,
                     help="extra teach attempts while the decline names new gaps")

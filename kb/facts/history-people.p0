@@ -190,3 +190,8 @@ operates(printer, printing_press).
 teach(plato, aristotle).
 teach(aristotle, alexander_the_great).
 teach(socrates, plato).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+class_surface(battle, battle).

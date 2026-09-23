@@ -18,3 +18,8 @@ cup_grams(milk, 227).
 safe_internal_temp(chicken, 74).
 safe_internal_temp("ground beef", 71).
 safe_internal_temp("pork chops", 63).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+class_surface(perishable, perishable).

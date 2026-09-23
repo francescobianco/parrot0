@@ -1549,3 +1549,106 @@ third_person_es_ending("o").
 ing_keeps_e_ending("ee").
 ing_keeps_e_ending("oe").
 ing_keeps_e_ending("ye").
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+% Sessione SC2-C, 2026-08-29: i participi irregolari. Il passivo di una
+% relazione si costruisce sul participio, e la regola generale in inglese e' il
+% suffisso `-ed` (kb/core/grammar.p0, `past_participle/1`). Le eccezioni non
+% sono una lista nel motore: sono membri di una classe, e si insegnano dicendo
+% «shown is an irregular participle». Da quel turno «X was shown by Y» ha una
+% lettura, senza ricompilare.
+% Report: docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2c.md
+irregular_participle(shown).
+irregular_participle(found).
+irregular_participle(given).
+irregular_participle(seen).
+irregular_participle(written).
+irregular_participle(known).
+% ── dalla ricaduta di learned.p0 (14 settembre 2026) ─────────────────────────
+verb_stem(measures, measure).
+verb_stem(organizes, organize).
+verb_stem(precedes, precede).
+verb_stem(tests, test).
+verb_stem(maps, map).
+verb_stem(surveys, survey).
+verb_stem(weakens, weaken).
+verb_stem(refutes, refute).
+verb_stem(encodes, encode).
+verb_stem(discovers, discover).
+verb_stem(represents, represent).
+verb_stem(penalizes, penalize).
+verb_stem(harms, harm).
+verb_stem(splits, split).
+verb_stem(predicts, predict).
+verb_stem(computes, compute).
+verb_stem(minimizes, minimize).
+verb_stem(prevents, prevent).
+verb_stem(digests, digest).
+verb_stem(pumps, pump).
+verb_stem(secretes, secrete).
+verb_stem(produces, produce).
+verb_stem(shortens, shorten).
+verb_stem(biases, biase).
+verb_stem(modulates, modulate).
+verb_stem(releases, release).
+verb_stem(contains, contain).
+verb_stem(includes, include).
+verb_stem(causes, cause).
+verb_stem(uses, use).
+verb_stem(forms, form).
+verb_stem(creates, create).
+verb_stem(connects, connect).
+verb_stem(absorbs, absorb).
+verb_stem(emits, emit).
+verb_stem(converts, convert).
+verb_stem(stores, store).
+verb_stem(transports, transport).
+verb_stem(controls, control).
+verb_stem(regulates, regulate).
+verb_stem(protects, protect).
+verb_stem(surrounds, surround).
+verb_stem(supports, support).
+verb_stem(covers, cover).
+verb_stem(replaces, replace).
+verb_stem(describes, describe).
+verb_stem(defines, define).
+verb_stem(determines, determine).
+verb_stem(affects, affect).
+verb_stem(influences, influence).
+verb_stem(reduces, reduce).
+verb_stem(increases, increase).
+verb_stem(generates, generate).
+verb_stem(provides, provide).
+verb_stem(consumes, consume).
+verb_stem(transmits, transmit).
+verb_stem(reflects, reflect).
+verb_stem(attracts, attract).
+verb_stem(repels, repel).
+verb_stem(binds, bind).
+verb_stem(breaks, break).
+verb_stem(combines, combine).
+verb_stem(divides, divide).
+verb_stem(governs, govern).
+verb_stem(serves, serve).
+verb_stem(borders, border).
+verb_stem(crosses, crosse).
+verb_stem(joins, join).
+verb_stem(follows, follow).
+verb_stem(enables, enable).
+verb_stem(limits, limit).
+verb_stem(expands, expand).
+verb_stem(contracts, contract).
+past(used, uses).
+past(operated, operates).
+past(made, makes).
+past(held, holds).
+past(contained, contains).
+past(formed, forms).
+past(appeared, appears).
+past(consisted, consists).
+past(allow, allows).
+past(replaced, replaces).
+past(showed, shows).
+past(cast, casts).

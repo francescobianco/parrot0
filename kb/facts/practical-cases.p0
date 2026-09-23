@@ -30,3 +30,11 @@ device(pump).
 sense(smoke_detector, smoke).
 detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas).
 consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+class_surface(device, device).
+class_surface(pressure_surge, pressure surge).
+class_surface(acid, acid).
+class_surface(safety_device, safety device).

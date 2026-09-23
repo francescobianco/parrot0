@@ -197,7 +197,9 @@ fatti.
 
 1. **Il problema è la casa, non il filtro.** La conoscenza di secondo ordine non
    va scartata: va messa dove sta con i suoi simili, come è appena successo per
-   `construction_frame/3` con `kb/learning/constructions.p0`. `learned.p0` lo
+   `construction_frame/3` (oggi in `kb/core/english-grammar/constructions.p0`,
+   accanto alle altre costruzioni: le case sono per somiglianza, non per
+   canale di provenienza — 23 settembre 2026). `learned.p0` lo
    dice già: se la ricaduta cresce, si crea la categoria mancante. La ricaduta è
    quindi un **indicatore di categorie assenti**, e leggerla come sporcizia
    spreca il segnale.

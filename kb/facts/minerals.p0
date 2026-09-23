@@ -20,3 +20,13 @@ copper_carbonate_mineral(azurite).
 copper_carbonate_mineral(malachite).
 copper_mineral($X) :- copper_sulfide_mineral($X).
 copper_mineral($X) :- copper_carbonate_mineral($X).
+
+% 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
+% per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
+% piu' che per storia»). La provenienza resta nei fatti di provenienza.
+class_surface(copper_mineral, copper mineral).
+class_surface(carbonate_mineral, carbonate mineral).
+class_surface(iron_ore_mineral, iron ore mineral).
+class_surface(iron_oxide_mineral, iron oxide mineral).
+class_surface(copper_sulfide_mineral, copper sulfide mineral).
+class_surface(copper_carbonate_mineral, copper carbonate mineral).
