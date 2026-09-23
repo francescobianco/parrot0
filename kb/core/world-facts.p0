@@ -2386,6 +2386,9 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 :- include(../machinery/fact-provenance.p0).
 :- include(../machinery/gap-registry.p0).
 :- include(../machinery/transcripts.p0).
+% 23 settembre 2026 — e le proposizioni della IR tenute dalle letture: la
+% lettura che ha prodotto un fatto, correggibile (L2). Era nella ricaduta.
+:- include(../machinery/read-propositions.p0).
 % Le unita' di misura e la grandezza che misurano: una relazione sola, comune a
 % piu' domini, imparata parlando e non scritta a mano.
 :- include(../facts/units.p0).
@@ -2408,6 +2411,9 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 :- include(../facts/minerals.p0).
 :- include(../facts/practical-cases.p0).
 :- include(../facts/food-kitchen.p0).
+% 23 settembre 2026 — la tecnica, dalla stessa ricaduta: elettronica,
+% materiali, meccanica, produzione.
+:- include(../facts/engineering.p0).
 
 % gen347 — ONE generic curated-answer motor (mod_qa) reads these: a request whose
 % answer is fixed KNOWLEDGE is a pair of facts, NOT a C module. qa_cue(Id, "word")

@@ -288,3 +288,6 @@ deciduous(maple).
 ordine(scorpioni).
 genus(legionella).
 intracellular_pathogen(legionella_species).
+
+% 23 settembre 2026, dalla ricaduta di learned.p0: le reazioni chimiche insegnate.
+react(sodium, water).

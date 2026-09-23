@@ -1,0 +1,20 @@
+% engineering.p0 — LA TECNICA: elettronica, materiali, meccanica, produzione.
+%
+% Nata il 23 settembre 2026 dalla ricaduta di learned.p0: fatti insegnati
+% parlando nelle iterazioni di riferimento (docs/labs/reference-iterations/,
+% RI-012..RI-014 — «Capacitors block direct current.», «Austenitic stainless
+% steel is a steel.», «Pumps move fluid.») e nella lettura della prosa tecnica,
+% che nessun parente nell'albero sapeva ospitare. L'asse e' la materia, come per
+% minerals.p0 e units.p0.
+
+block(capacitors, direct_current).
+pass(capacitors, alternating_current).
+produce(rectifiers, direct_current).
+supply(batteries, direct_current).
+limits(kanban, work_in_progress).
+steel(austenitic_stainless_steel).
+magnetic(ferritic_stainless_steel).
+process(shielded_metal_arc_welding).
+move(pumps, fluid).
+part(plate).
+carry(plates, load).

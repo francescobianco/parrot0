@@ -185,3 +185,8 @@ loser_of(hastings, harold_godwinson).
 year_of(hastings, 1066).
 uses(merchants, abacus).
 operates(printer, printing_press).
+
+% 23 settembre 2026, dalla ricaduta di learned.p0: chi fu maestro di chi.
+teach(plato, aristotle).
+teach(aristotle, alexander_the_great).
+teach(socrates, plato).

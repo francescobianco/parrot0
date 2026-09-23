@@ -10,3 +10,7 @@
 % Sessione 02 — tassonomia detta in due passi, e la catena che ne segue.
 scientist($V1) :- physicist($V1).
 researcher($V1) :- scientist($V1).
+
+% 23 settembre 2026, dalla ricaduta di learned.p0: le negazioni, che /save scrive sempre
+% nella ricaduta (kb_save_routed non le instrada; vedi learned.p0).
+not(magnetic(austenitic_stainless_steel)).

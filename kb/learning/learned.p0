@@ -43,68 +43,21 @@
 %
 % ⚠ Le REGOLE e le negazioni il `/save` le scrive sempre qui (kb_save_routed non
 % le instrada): se ne compaiono, vanno spostate a mano in taught-rules.p0.
-flow(aare, rhine).
-flow(rhine, north_sea).
-sea(north_sea).
-flow(moselle, rhine).
-flow(salzach, inn).
-flow(inn, danube).
-flow(danube, black_sea).
-flow(po, adriatic_sea).
-flow(thames, north_sea).
-flow(nile, mediterranean_sea).
-flow(rhone, mediterranean_sea).
-sea(adriatic_sea).
-sea(mediterranean_sea).
-sea(black_sea).
-semantic_proposition(proposition(binary(teach), roles(subject(plato), object(aristotle)))).
-semantic_binding(binary(teach), plato, object(aristotle)).
-proposition_source_record(proposition(binary(teach), roles(subject(plato), object(aristotle))), source(inline, "plato taught aristotle."), provenance(language(en), range(0, 23))).
-teach(plato, aristotle).
-semantic_proposition(proposition(binary(teach), roles(subject(aristotle), object(alexander)))).
-semantic_binding(binary(teach), aristotle, object(alexander)).
-proposition_source_record(proposition(binary(teach), roles(subject(aristotle), object(alexander))), source(inline, "aristotle taught alexander the great."), provenance(language(en), range(0, 37))).
-teach(aristotle, alexander_the_great).
-semantic_proposition(proposition(binary(teach), roles(subject(socrates), object(plato)))).
-semantic_proposition(proposition(binary(limit), roles(subject(kanban), object(work)))).
-semantic_binding(binary(limit), kanban, object(work)).
-proposition_source_record(proposition(binary(limit), roles(subject(kanban), object(work))), source(inline, "kanban limits work in progress."), provenance(language(en), range(0, 31))).
-semantic_proposition(proposition(binary(pass), roles(subject(capacitors), object(alternating_current)))).
-semantic_proposition(proposition(binary(measure), roles(subject(nanometre), object(length)))).
-semantic_proposition(proposition(binary(measure), roles(subject(hertz), object(frequency)))).
-semantic_proposition(proposition(binary(measure), roles(subject(byte), object(information)))).
-semantic_proposition(proposition(binary(move), roles(subject(pump), object(fluid)))).
-semantic_binding(binary(measure), nanometre, object(length)).
-proposition_source_record(proposition(binary(measure), roles(subject(nanometre), object(length))), source(inline, "the nanometre measures length."), provenance(language(en), range(0, 30))).
-semantic_binding(binary(pass), capacitors, object(alternating_current)).
-semantic_binding(binary(measure), hertz, object(frequency)).
-proposition_source_record(proposition(binary(measure), roles(subject(hertz), object(frequency))), source(inline, "the hertz measures frequency."), provenance(language(en), range(0, 29))).
-proposition_source_record(proposition(binary(pass), roles(subject(capacitors), object(alternating_current))), source(inline, "capacitors pass alternating current."), provenance(language(en), range(0, 36))).
-semantic_binding(binary(measure), byte, object(information)).
-proposition_source_record(proposition(binary(measure), roles(subject(byte), object(information))), source(inline, "the byte measures information."), provenance(language(en), range(0, 30))).
-semantic_binding(binary(move), pump, object(fluid)).
-proposition_source_record(proposition(binary(move), roles(subject(pump), object(fluid))), source(inline, "pumps move fluid."), provenance(language(en), range(0, 17))).
-semantic_binding(binary(teach), socrates, object(plato)).
-proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
-teach(socrates, plato).
-react(sodium, water).
-symmetric_relation(react).
-city(milan).
-city(naples).
-city(turin).
-city(rome).
-largest_city_of(turkey, istanbul).
-largest_city_of(germany, berlin).
-block(capacitors, direct_current).
-pass(capacitors, alternating_current).
-produce(rectifiers, direct_current).
-supply(batteries, direct_current).
-semantic_complement(binding(limit, kanban, work), in, progress).
-limits(kanban, work_in_progress).
-steel(austenitic_stainless_steel).
-magnetic(ferritic_stainless_steel).
-process(shielded_metal_arc_welding).
-not(magnetic(austenitic_stainless_steel)).
-move(pumps, fluid).
-part(plate).
-carry(plates, load).
+%
+% E una quarta volta, il 23 settembre 2026 (F.: «sparpaglia la conoscenza in file
+% opportuni; il motivo e' nei documenti, se no scrivilo qui»). Il motivo e'
+% questo stesso commento, e in docs/session-and-provenance.md: questo file e'
+% `PARROT0_SESSION_FALLBACK`, «dove finiscono i fatti che il save-map non
+% colloca». 65 righe di sette specie, dalle iterazioni di riferimento e dalle
+% lezioni di L2. Le case nuove:
+%
+%   kb/facts/engineering.p0          la tecnica: condensatori, acciai, saldatura,
+%                                    pompe, kanban (asse: la materia)
+%   kb/machinery/read-propositions.p0  le proposizioni della IR lasciate dalle
+%                                    letture (proposizione, legame, provenienza,
+%                                    complemento): la LETTURA di un fatto, non il
+%                                    fatto
+%
+% e i parenti: geography-world (flow, sea, city, largest_city_of),
+% history-people (teach), science-nature (react), taught-relations
+% (symmetric_relation), taught-rules (la negazione). Il file torna vuoto.

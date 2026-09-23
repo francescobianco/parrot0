@@ -1067,3 +1067,26 @@ currency_of(ghana, cedi).
 currency_of(vietnam, dong).
 currency_of(poland, zloty).
 currency_of(peru, sol).
+
+% 23 settembre 2026, dalla ricaduta di learned.p0: la rete dei fiumi e dei mari insegnata
+% parlando (flow/2 e' «sfocia in»), e le citta'.
+flow(aare, rhine).
+flow(rhine, north_sea).
+sea(north_sea).
+flow(moselle, rhine).
+flow(salzach, inn).
+flow(inn, danube).
+flow(danube, black_sea).
+flow(po, adriatic_sea).
+flow(thames, north_sea).
+flow(nile, mediterranean_sea).
+flow(rhone, mediterranean_sea).
+sea(adriatic_sea).
+sea(mediterranean_sea).
+sea(black_sea).
+city(milan).
+city(naples).
+city(turin).
+city(rome).
+largest_city_of(turkey, istanbul).
+largest_city_of(germany, berlin).
