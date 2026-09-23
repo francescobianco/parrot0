@@ -949,7 +949,27 @@ static void debug_predicate(KB *kb, const char *pred) {
     fprintf(stderr, "\n");
 }
 
-static void debug_inspect(Brain *brain, const char *last_line) {
+/* Il profilo di UN turno, dopo che e' passato: la chat e il test engine
+ * (`!debug`) lo stampano con la stessa funzione. */
+void p0_debug_turn_profile(Brain *brain, double ms) {
+    KB *kb = brain_kb(brain);
+    KbProfileRow top[8];
+    size_t n = kb_profile_top(kb, top, 8);
+    fprintf(stderr, "\n[debug] %.1f ms turno · %.1f ms nel solver · %zu query · %lu passi\n",
+            ms, kb_profile_ms(kb), kb_profile_calls(kb), kb_profile_steps(kb));
+    fprintf(stderr, "[debug] %zu fatti · %zu regole · fuori dal solver: %.1f ms · %zu ricostruzioni indice\n",
+            kb_size(kb), kb_rule_count(kb), ms - kb_profile_ms(kb),
+            kb_profile_rebuilds(kb));
+    fprintf(stderr, "[debug] fatti visitati: %lu · scansioni senza indice: %zu\n",
+            kb_profile_visits(kb), kb_profile_scans(kb));
+    fprintf(stderr, "[debug] modulo: %s\n", brain_last_module(brain));
+    for (size_t i = 0; i < n && top[i].calls > 0; i++)
+        fprintf(stderr, "[debug]   %7.1f ms  %8lu passi  %5zu call  %s\n",
+                top[i].ms, top[i].steps, top[i].calls, top[i].pred);
+    fflush(stderr);
+}
+
+void p0_debug_inspect(Brain *brain, const char *last_line) {
     KB *kb = brain_kb(brain);
     fprintf(stderr, "\n");
     /* (1) la nota, che si legge PRIMA di qualunque numero */
@@ -1018,7 +1038,7 @@ static void debug_inspect(Brain *brain, const char *last_line) {
          * era 32 e le sonde erano gia' 37: le ultime sparivano in silenzio, e
          * una sonda che non si vede e' peggio di una che manca — si crede di
          * aver guardato. */
-        brain_publish_dispatch_path(brain);
+        brain_publish_dispatch_path(brain, last_line);
         char ord[96][KB_TERM_LEN];
         const char *q[4] = { NULL, NULL, NULL, NULL };
         size_t n = kb_match(kb, "debug_probe", q, 4, ord,
@@ -1512,7 +1532,7 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "parrot0: debug OFF\n");
                 continue;
             }
-            debug_inspect(brain, last_line);
+            p0_debug_inspect(brain, last_line);
             if (!kb_profile_on(kb)) {
                 kb_profile_set(kb, 1);
                 fprintf(stderr, "  (profilo acceso: i turni successivi riportano anche"
@@ -1545,21 +1565,7 @@ int main(int argc, char **argv) {
             timespec_get(&t1, TIME_UTC);
             double ms = (t1.tv_sec - t0.tv_sec) * 1000.0
                       + (t1.tv_nsec - t0.tv_nsec) / 1000000.0;
-            KB *kb = brain_kb(brain);
-            KbProfileRow top[8];
-            size_t n = kb_profile_top(kb, top, 8);
-            fprintf(stderr, "\n[debug] %.1f ms turno · %.1f ms nel solver · %zu query · %lu passi\n",
-                    ms, kb_profile_ms(kb), kb_profile_calls(kb), kb_profile_steps(kb));
-            fprintf(stderr, "[debug] %zu fatti · %zu regole · fuori dal solver: %.1f ms · %zu ricostruzioni indice\n",
-                    kb_size(kb), kb_rule_count(kb), ms - kb_profile_ms(kb),
-                    kb_profile_rebuilds(kb));
-            fprintf(stderr, "[debug] fatti visitati: %lu · scansioni senza indice: %zu\n",
-                    kb_profile_visits(kb), kb_profile_scans(kb));
-            fprintf(stderr, "[debug] modulo: %s\n", brain_last_module(brain));
-            for (size_t i = 0; i < n && top[i].calls > 0; i++)
-                fprintf(stderr, "[debug]   %7.1f ms  %8lu passi  %5zu call  %s\n",
-                        top[i].ms, top[i].steps, top[i].calls, top[i].pred);
-            fflush(stderr);
+            p0_debug_turn_profile(brain, ms);
         }
         /* gen382g: il dump della sessione si riscrive a ogni turno, cosi' un
          * `cat` mostra sempre cio' che parrot0 ha in memoria ADESSO. Si scrive e

@@ -160,6 +160,7 @@ typedef struct {
     char section[TE_NAME];   /* current [section] name, for the report */
 
     char reply[TE_REPLY];    /* reply from the most recent `>` turn, o payload !mcp */
+    char last_turn[TE_REPLY];/* the most recent `>` turn, for `!debug` */
     int  have_reply;
     int output_source;       /* TE_OUTPUT_*: where the latest result came from */
 
@@ -506,6 +507,9 @@ static void te_turn(TeState *t, const char *text) {
              "COUNT %d %d\nEXIT 3\n",
              t->section[0] ? t->section : "-", t->line_no, hard, shown,
              t->passed, t->failed + 1);
+    snprintf(t->last_turn, sizeof t->last_turn, "%s", text);
+    int profiling = kb_profile_on(brain_kb(t->b));
+    if (profiling) kb_profile_reset(brain_kb(t->b));
     signal(SIGALRM, te_hang_handler);
     alarm(hard);
     if (brain_policy_on(t->b, "thinking"))
@@ -514,6 +518,11 @@ static void te_turn(TeState *t, const char *text) {
         brain_respond(t->b, text, t->reply, sizeof t->reply);
     alarm(0);
     clock_gettime(CLOCK_MONOTONIC, &tb);
+    if (profiling) {
+        fprintf(stderr, "\n[!debug] turn at line %d: %s\n", t->line_no, text);
+        p0_debug_turn_profile(t->b, (tb.tv_sec - ta.tv_sec) * 1000.0 +
+                                    (tb.tv_nsec - ta.tv_nsec) / 1e6);
+    }
     size_t n = strlen(t->reply);
     while (n > 0 && (t->reply[n - 1] == '\n' || t->reply[n - 1] == '\r'))
         t->reply[--n] = '\0';
@@ -725,6 +734,21 @@ static int te_process_stream(TeState *t, FILE *in) {
         }
         if (p[0] == '<') { te_expect(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (strncmp(p, "!shutdown", 9) == 0) { te_flush(t); t->shutdown = 1; continue; }
+        /* `!debug` — l'ispettore di `/debug` nello stato ESATTO in cui il test
+         * sbaglia, stampato nel log del demone; accende il profilo per i turni
+         * seguenti (strada per nome, tempi, cessioni). `!debug off` lo spegne.
+         * F., 23 settembre 2026: «perche' non possiamo evolvere /debug per
+         * scovare questi problemi? e' sempre la caccia al filo d'Arianna». */
+        if (strncmp(p, "!debug", 6) == 0 && (!p[6] || p[6] == ' ' || p[6] == '\t')) {
+            te_flush(t);
+            const char *q = p + 6; while (*q == ' ' || *q == '\t') q++;
+            if (strcmp(q, "off") == 0) { kb_profile_set(brain_kb(t->b), 0); continue; }
+            fprintf(stderr, "\n[!debug] line %d  [%s]\n",
+                    t->line_no, t->section[0] ? t->section : "-");
+            p0_debug_inspect(t->b, t->last_turn);
+            kb_profile_set(brain_kb(t->b), 1);
+            continue;
+        }
         if (strncmp(p, "!reload", 7) == 0) { te_flush(t); te_apply_config(t); continue; }
         if (strncmp(p, "!timeout", 8) == 0 && (p[8] == ' ' || p[8] == '\t')) {
             const char *q = p + 8; while (*q == ' ' || *q == '\t') q++;

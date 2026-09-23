@@ -5765,13 +5765,23 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
  * il dispatch registra chi cede (`!yield`), chi declina e chi risponde, ma lo
  * leggeva solo /why. Qui diventa conoscenza interrogabile, a pezzi ordinati
  * che stanno in un termine: la sonda che lo mostra e' una riga di debug.p0. */
-void brain_publish_dispatch_path(Brain *b) {
+void brain_publish_dispatch_path(Brain *b, const char *turn) {
     if (!b || !b->kb || !b->has_trace) return;
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
     kb_retract_match(b->kb, "turn_faculty_path",
                      (const char *[]){ "current_turn", NULL }, 2);
     char chunk[400]; size_t off = 0; chunk[0] = '\0';
+    /* La traccia la scrive solo il dispatch principale: se il turno l'ha
+     * risolto un pre-dispatch, quella che c'e' e' di un turno precedente, e
+     * mostrarla senza dirlo manderebbe a cercare nel posto sbagliato. */
+    if (turn && *turn) {
+        char canon[512]; brain_canonical(b, turn, canon, sizeof canon);
+        if (strcmp(canon, b->last_input_canon) != 0)
+            off = (size_t)snprintf(chunk, sizeof chunk,
+                "(not this turn: the main dispatch did not run; last ran on «%.120s»)",
+                b->last_input_canon);
+    }
     for (size_t i = 0; i <= b->trace_declined_n; i++) {
         const char *name = i < b->trace_declined_n ? b->trace_declined[i] : NULL;
         char piece[64];

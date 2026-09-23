@@ -50,4 +50,8 @@ int bench_engine_send_path(const char *sockpath, const char *path);
  * (no socket), printing the report to stdout. Same exit codes as the CLI. */
 int test_engine_run(Brain *b, FILE *in);
 
+/* L'ispettore di `/debug` (main.c): il test engine lo espone come `!debug`. */
+void p0_debug_inspect(Brain *brain, const char *last_line);
+void p0_debug_turn_profile(Brain *brain, double ms);
+
 #endif /* PARROT0_TESTENG_H */

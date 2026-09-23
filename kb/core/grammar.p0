@@ -1930,7 +1930,11 @@ extract_frame($Pat, $Pred) :-
     concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
     concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat).
 answer_frame($Surface, $Pred) :- adjective_relation_pred($Surface, $Pred).
-np_closer($Adj) :- adjective_relation($Surface), atom_words($Surface, cons($Adj, $More)).
+np_closer($Adj) :- adjective_relation_head($Adj).
+% (23 settembre 2026: la testa di ogni superficie si spezzava a ogni domanda,
+% 221 `atom_words` per token letto; ora e' una vista, vedi `finite_reading_verb_form`.)
+machinery(adjective_relation_head).
+adjective_relation_head($Adj) :- adjective_relation($Surface), atom_words($Surface, cons($Adj, $More)).
 answer_frame_turn_arg($Surface, $Pred, $Arg) :-
     adjective_relation_pred($Surface, $Pred), turn_surface_side_arg($Surface, $Arg).
 
@@ -3884,6 +3888,8 @@ materialized_view(particle_finite_surface, 2).
 % Le superfici che una lezione di costruzione rivendica (vedi `construction_claims/1`):
 % la guardia del passivo generico le chiede una per schema, quindi si congelano.
 materialized_view(construction_claims, 1).
+materialized_view(finite_reading_verb_form, 1).
+materialized_view(adjective_relation_head, 1).
 % gen510 — le COPPIE di una vista binaria in una sola enumerazione. Il motore
 % (`kb_view_ensure`) la usa per congelare una vista senza rienumerarla una volta
 % per ogni primo argomento: con `extract_frame` era un costo quadratico nel
@@ -4175,8 +4181,16 @@ np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_t
 % «The zorvan beetle threatens …» correva fino a fine clausola. Participi e
 % gerundi restano fuori: dentro un sintagma sono modificatori legittimi.
 machinery(finite_present_of).
-np_closer($Form) :- naf(reading_continuer_exists(any)), verb_reading_form($Root, $Form), finite_present_of($Root, $Form).
-np_closer($Form) :- reading_continuer_exists(any), verb_reading_form($Root, $Form), finite_present_of($Root, $Form), naf(reading_continuer($Form)).
+np_closer($Form) :- naf(reading_continuer_exists(any)), finite_reading_verb_form($Form).
+np_closer($Form) :- reading_continuer_exists(any), finite_reading_verb_form($Form), naf(reading_continuer($Form)).
+% 23 settembre 2026 — LA STESSA CONOSCENZA, INDICIZZATA DALLA PAROLA LETTA.
+% Il lettore chiede `np_closer(Parola)` una volta per token, con la parola
+% legata, e per ognuna la regola rifaceva la morfologia su migliaia di forme:
+% 0,9 s su 2 del turno che legge una pagina (deep_memory.p0t, misurato con
+% `!debug` spegnendo le regole una per una). La vista la calcola una volta,
+% indicizzata sulla forma; enumerata da libera da' le stesse parole.
+machinery(finite_reading_verb_form).
+finite_reading_verb_form($Form) :- verb_reading_form($Root, $Form), finite_present_of($Root, $Form).
 finite_present_of($Root, $Form) :- concat_atoms($Root, "s", $Form).
 finite_present_of($Root, $Form) :- concat_atoms($Root, "es", $Form).
 finite_present_of($Root, $Form) :- y_to_ies($Root, $Form).

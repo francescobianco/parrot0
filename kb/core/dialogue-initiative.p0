@@ -155,10 +155,21 @@ dialogue_candidate($T, $S, $K, review_outcome) :-
 dialogue_candidate($T, $S, closed, respect_stop) :-
     dialogue_now($T, $A, $P), dialogue_uptake($A, stop), dialogue_previous($S, $K).
 dialogue_candidate($T, $N, closed, respect_stop) :-
-    dialogue_now($T, $A, $P), dialogue_uptake($A, stop), naf(dialogue_any_previous), turn_counter($N).
+    dialogue_now($T, $A, $P), dialogue_uptake($A, stop), naf(dialogue_any_previous),
+    naf(dialogue_offer_elsewhere(any)), turn_counter($N).
 dialogue_any_previous :- dialogue_previous($S, $K).
 dialogue_candidate($T, $N, closed, ask_anchor) :-
-    dialogue_now($T, $A, $P), dialogue_uptake($A, advance), naf(dialogue_has_previous), turn_counter($N).
+    dialogue_now($T, $A, $P), dialogue_uptake($A, advance), naf(dialogue_has_previous),
+    naf(dialogue_offer_elsewhere(any)), turn_counter($N).
+% 23 settembre 2026 — UN'OFFERTA APERTA DI UN'ALTRA FACOLTA' E' UN'ANCORA.
+% «tell me about zorbium» -> «Want me to look it up?» -> «yes» riceveva «I do
+% not have an active proposal to continue»: senza una proposta PROPRIA, questo
+% strato rivendicava il «si'» e il «no» dovuti a un'altra questione
+% (deep_memory.p0t). Se il tabellone ha una questione che l'utente deve
+% (`issue_owed_by/2`, issues.p0), il seguito appartiene a lei: qui non si
+% risponde a vuoto. Trovato con `!debug`: `max_qud = gap_offer_zorbium`.
+machinery(dialogue_offer_elsewhere).
+dialogue_offer_elsewhere(any) :- issue_owed_by($Issue, user).
 dialogue_candidate($T, $S, $K, explain_move) :-
     dialogue_now($T, explain, $P), dialogue_previous_open($S, $K).
 dialogue_candidate($T, $N, closed, ask_anchor) :-
