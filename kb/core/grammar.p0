@@ -2623,6 +2623,15 @@ metalinguistic_head(closer).   metalinguistic_head(greeting).
 % of denim?»). Dichiarare la relazione una volta deve aprirle entrambe, altrimenti
 % si torna al cassetto senza maniglia — imparabile e non interrogabile.
 relation_noun($Pred, $Noun) :- relation($Noun), concat_atoms($Noun, "_of", $Pred).
+% RI-019 (23 settembre 2026) — una frase che una relazione dichiarata legge per
+% intero («The boiling point of water is 100 degrees Celsius.», dopo «boiling
+% point is a relation») appartiene a quella lettura, non al lettore generico
+% delle quantita', che la trasformava in «the_boiling_point_of_water has 100
+% degrees celsius». La lettura e' quella pubblicata dalla fase pura
+% (`turn_reading/3`); la cessione si ritira parlando come ogni condotta.
+machinery(turn_relation_noun_reading).
+turn_relation_noun_reading($T, $P) :- turn_reading($T, declarative, $P), relation_noun($P, $N).
+faculty_yield_when(quantity, open, turn_relation_noun_reading).
 % ── RI-010 — UN NOME DI RELAZIONE PUO' ESSERE DI PIU' PAROLE ──────────────
 %
 % «largest city is a relation» entrava, e «The largest city of Turkey is

@@ -177,7 +177,22 @@ response_template(event_subject_verb_forgotten,
 % sta nel piano, §4.5-bis.
 machinery(lesson_fixed_text).
 machinery(lesson_near_miss).
-lesson_fixed_text($Form, $Text) :- turn_form($Form, $N, text($Text)).
+lesson_fixed_text($Form, $Text) :-
+    turn_form($Form, $N, text($Text)),
+    naf(turn_form_mood($Form, question)), naf(form_only_reads($Form)).
+% RI-019 (23 settembre 2026) — UNA LEZIONE SCRIVE, UNA DOMANDA LEGGE. Il testo
+% fisso di una forma che soltanto interroga («what is the» di
+% `decision_value_question`) non e' una lezione mancata: «What is the melting
+% point of tin?» risultava «quasi una lezione» e `knowledge` cedeva la domanda.
+% Che cosa un atto faccia lo dice il suo testo: `op(match…)` e `op(count…)`
+% leggono; ogni altro atto scrive, ritira o dimentica.
+machinery(form_act_reads).
+machinery(form_writes).
+machinery(form_only_reads).
+form_act_reads($A) :- concat_atoms("op(match", $R, $A).
+form_act_reads($A) :- concat_atoms("op(count", $R, $A).
+form_writes($F) :- turn_form_act($F, $A), naf(form_act_reads($A)).
+form_only_reads($F) :- turn_form_act($F, $A), form_act_reads($A), naf(form_writes($F)).
 % 23 settembre 2026 — il testo fisso di una forma e' una SEQUENZA: il pezzo
 % `text(…)` combacia solo contiguo. `words_in_turn/2` chiedeva soltanto che le
 % parole comparissero, in qualunque ordine: «sent is a ternary relation verb»

@@ -1,0 +1,2 @@
+b30cad2cca2502cef3a48cd46fbf5e6c8bd81f520106523d058b05881e8b754a  bin/parrot0
+c2c35b11 learn(reference): RI-018 — un valore nominale si chiede alla lettura, non al frasario («operating voltage is a relation»)

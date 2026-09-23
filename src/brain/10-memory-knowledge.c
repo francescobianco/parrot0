@@ -4816,7 +4816,12 @@ static int p0_lead_det(Brain *b, const char *t) {
  * from mistaking a question ("what is your sister's name") or a greeting ("how is
  * your day going") or a predicate-adjective clause for a membership statement. */
 static size_t p0_quantity_bound_len(Brain *b, char **w, size_t n, size_t i); /* gen514 fwd */
-static int p0_bad_subject(Brain *b, const char *t) {
+static int p0_bad_subject_ex(Brain *b, const char *t, int before_copula);
+static int p0_bad_subject(Brain *b, const char *t) { return p0_bad_subject_ex(b, t, 0); }
+/* `before_copula`: il soggetto e' seguito subito dalla copula, che e' il verbo
+ * finito della frase — allora la guardia RI-012 («un nome che finisce con un
+ * verbo nudo non e' un nome») non si applica: «boiling point is a relation». */
+static int p0_bad_subject_ex(Brain *b, const char *t, int before_copula) {
     if (!b || !b->kb || !t) return 0;
     const char *q[] = { t };
     if (kb_query(b->kb, "subject_guard", q, 1)) return 1;
@@ -4859,7 +4864,7 @@ static int p0_bad_subject(Brain *b, const char *t) {
          * seguito da un verbo nudo non e' un nome. L'eccezione e' il
          * determinante davanti («the block»), dove il verbo E' il nome. Quali
          * parole siano verbi di relazione e determinanti lo dice la KB. */
-        if (pn >= 2) {
+        if (pn >= 2 && !before_copula) {
             const char *lastq[1] = { ptoks[pn - 1] };
             if (kb_query(b->kb, "relation_verb", lastq, 1) &&
                 !p0_lead_det(b, ptoks[pn - 2]) &&
@@ -6831,7 +6836,12 @@ static int p0_atom_within_cap(Brain *b, const char *atom) {
 }
 
 /* Il test pieno: per i nomi RITAGLIATI dalla prosa. */
-static int p0_atom_is_concept(Brain *b, const char *atom) {
+static int p0_atom_is_concept_ex(Brain *b, const char *atom, int before_copula);
+static int p0_atom_is_concept(Brain *b, const char *atom) { return p0_atom_is_concept_ex(b, atom, 0); }
+/* `before_copula` (RI-019): l'atomo e' un soggetto seguito subito dalla copula,
+ * che e' il verbo finito — la sua ULTIMA parola non chiude il sintagma come
+ * verbo («boiling_point» in «boiling point is a relation»). */
+static int p0_atom_is_concept_ex(Brain *b, const char *atom, int before_copula) {
     if (!p0_atom_within_cap(b, atom)) return 0;
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", atom);
@@ -6842,6 +6852,7 @@ static int p0_atom_is_concept(Brain *b, const char *atom) {
     size_t bound = nt ? p0_quantity_bound_len(b, toks, nt, 0) : 0;
     for (size_t k = bound; k < nt; k++) {
         if (!p0_np_closer(b, toks[k])) continue;
+        if (before_copula && k + 1 == nt && k > 0) continue;
         /* dopo un articolo viene un nome, anche se e' la forma di un verbo */
         if (k > 0 && p0_lead_det(b, toks[k - 1])) continue;
         /* RI-014 — e una parola di cui il MAESTRO ha gia' detto qualcosa e' una
@@ -7340,7 +7351,7 @@ static int p0_parse_multiword_unary_membership(
         if (!*one || (p0_bad_subject(b, one) &&
             !kb_query(b->kb, "turn_mentions_word", (const char *[]){ "current_turn" }, 1)))
             return 0;   /* RI-016: «forget that up is an adverbial particle» menziona «up» */
-    } else if (p0_bad_subject(b, subject_atom)) return 0;
+    } else if (p0_bad_subject_ex(b, subject_atom, 1)) return 0;   /* RI-019: segue la copula */
     if (!p0_join(w, c + 2, n, cls, cls_size) || !p0_atom_within_cap(b, cls))
         return 0;
     if (!p0_words_label(w, c + 2, n, label, label_size)) return 0;
@@ -7762,7 +7773,11 @@ static int extract_class_statement(Brain *b, const char *norm,
     int mention_subject = sstart + 1 == cop &&
         kb_query(b->kb, "turn_mentions_word", (const char *[]){ "current_turn" }, 1);
     if (mention_subject) send = cop;
-    else while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
+    /* RI-019 — la frase ha UN verbo finito (RI-012), e qui e' la copula: la
+     * parola subito prima di lei non chiude il soggetto come verbo. «boiling
+     * point is a relation» tagliava a «boiling» perche' «point» e' anche un
+     * verbo, e il turno finiva al lettore della prosa come `point(boiling, …)`. */
+    else while (send < cop && !(send + 1 != cop && p0_np_closer(b, strip_edge_punct(w[send])))) send++;
     if (send == sstart) {                                /* comincia con un confine */
         char note[160]; snprintf(note, sizeof note, "gate: subject starts at a boundary (%s)", strip_edge_punct(w[sstart]));
         p0_class_read_note(b, note);
@@ -7816,7 +7831,7 @@ static int extract_class_statement(Brain *b, const char *norm,
     if (!mentions_word && p0_bad_subject(b, strip_edge_punct(w[sstart]))) { p0_class_gate(b, "gate: first subject word is not a subject (subject_guard)"); return 0; }   /* not a real subject */
     char subj[KB_TERM_LEN];
     if (!p0_join(w, sstart, send, subj, sizeof subj)) { p0_class_gate(b, "gate: subject does not join"); return 0; }
-    if (!mentions_word && p0_bad_subject(b, subj)) { p0_class_gate(b, "gate: a subject word is not a subject (subject_guard)"); return 0; }              /* la guardia vale per parola */
+    if (!mentions_word && p0_bad_subject_ex(b, subj, send == cop)) { p0_class_gate(b, "gate: a subject word is not a subject (subject_guard)"); return 0; }              /* la guardia vale per parola */
     int subj_multi = strchr(subj, '_') != NULL;
 
     size_t p = cop + 1;
@@ -8047,7 +8062,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         p0_class_read_note(b, note);
     }
     /* RI-018: una parola menzionata non e' un concetto, e' la parola stessa. */
-    if (!mention_subject && !p0_atom_is_concept(b, subj)) {
+    if (!mention_subject && !p0_atom_is_concept_ex(b, subj, send == cop)) {
         snprintf(out, out_size, "Scartato: \"%s\" non e' un concetto.", subj);
         return 2;
     }

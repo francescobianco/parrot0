@@ -1,0 +1,28 @@
+> flash point is a relation
+Learned: flash point is a relation.
+> The flash point of Jet A fuel is 38 degrees Celsius.
+Learned: the flash point of jet a fuel is 38 degrees celsius.
+> What is the flash point of Jet A fuel?
+38 degrees celsius.
+> melting point is a relation
+Learned: melting point is a relation.
+> The melting point of tin is 232 degrees Celsius.
+Learned: the melting point of tin is 232 degrees celsius.
+> What is the melting point of tin?
+232 degrees celsius.
+> working load is a relation
+Learned: working load is a relation.
+> The working load of an M10 eye bolt is 230 kilograms.
+Learned: the working load of m10 eye bolt is 230 kilograms.
+> What is the working load of an M10 eye bolt?
+230 kilograms.
+> The needle points north.
+Learned: needle point north.
+> The crane loads containers onto the ship.
+Learned: crane load containers onto the ship.
+> Capacitors block direct current.
+Learned: capacitors block direct current.
+> forget that flash point is a relation
+I no longer treat «flash point» as a relation.
+> What is the flash point of Jet A fuel?
+I don't know: nothing I hold says flash point of jet a fuel, and nothing says it isn't so. Tell me either way and I will hold it.

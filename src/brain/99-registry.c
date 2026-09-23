@@ -8638,6 +8638,12 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     size_t ngov_both = 0;
     char (*governed_force)[KB_TERM_LEN] = NULL;
     size_t ngov_force = 0;
+    /* RI-019 (23 settembre 2026) — e la quarta famiglia, `faculty_yield_when/3`
+     * (cedi a una LETTURA del turno): era letta solo dalle facolta' che la
+     * chiedevano da se' (knowledge, answerframe). Una cessione dichiarata per
+     * `quantity` restava una riga morta. */
+    char (*governed_when)[KB_TERM_LEN] = NULL;
+    size_t ngov_when = 0;
     if (b && b->kb) {
         const char *gq[3] = { NULL, NULL, NULL };
         if (!kb_match_all(b->kb, "faculty_yield", gq, 3, &governed, &ngov))
@@ -8649,6 +8655,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         if (!kb_match_all(b->kb, "faculty_yield_force", gq, 3,
                           &governed_force, &ngov_force))
             ngov_force = 0;
+        const char *wq[3] = { NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, "faculty_yield_when", wq, 3, &governed_when, &ngov_when))
+            ngov_when = 0;
     }
 
     /* ⛔ gen502 — MANTRA #21: RIVENDICARE UN TURNO E' UN TITOLO.
@@ -8723,6 +8732,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             if (strcmp(governed_both[g], registry[i].name) == 0) is_governed = 1;
         for (size_t g = 0; g < ngov_force && !is_governed; g++)
             if (strcmp(governed_force[g], registry[i].name) == 0) is_governed = 1;
+        for (size_t g = 0; g < ngov_when && !is_governed; g++)
+            if (strcmp(governed_when[g], registry[i].name) == 0) is_governed = 1;
         if (is_governed &&
             p0_faculty_yields(b, registry[i].name, "open", canon, input)) {
             if (ndecl < BRAIN_TRACE_MAX)
@@ -8784,6 +8795,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     free(governed);
     free(governed_both);
     free(governed_force);
+    free(governed_when);
     free(demoted);
 
     /* Commit the trace for "why did you answer that way?" and the verbatim input

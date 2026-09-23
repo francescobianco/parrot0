@@ -1,0 +1,6 @@
+> flash point is a relation
+Learned: flash point relation.
+> The flash point of Jet A fuel is 38 degrees Celsius.
+Hmm, I don't know about degrees yet. Want me to learn about it?
+> What is the flash point of Jet A fuel?
+I don't know: nothing I hold says flash point of jet a fuel, and nothing says it isn't so. Tell me either way and I will hold it.
