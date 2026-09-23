@@ -124,6 +124,13 @@ debug_probe(29, debug_frame_candidate, now, "i frame candidati del turno (tutti,
 machinery(turn_said_by).
 turn_scratch(turn_said_by).
 debug_probe(35, turn_said_by, now, "chi ha prodotto la risposta: la forma di turno e il template di frase").
+% 23 settembre 2026 (F.: «e' sempre la caccia al filo d'Arianna») — LA STRADA
+% DEL DISPATCH: le facolta' provate in ordine, `nome!yield` = ha ceduto per una
+% condotta KB, `nome` = ha declinato, `=> nome` = chi ha risposto. Dice in un
+% colpo quale facolta' avrebbe dovuto prendere il turno e che cosa le e' successo.
+machinery(turn_faculty_path).
+turn_scratch(turn_faculty_path).
+debug_probe(36, turn_faculty_path, now, "la STRADA del dispatch: chi ha ceduto (!yield), chi ha declinato, => chi ha risposto").
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").
 

@@ -1018,6 +1018,7 @@ static void debug_inspect(Brain *brain, const char *last_line) {
          * era 32 e le sonde erano gia' 37: le ultime sparivano in silenzio, e
          * una sonda che non si vede e' peggio di una che manca — si crede di
          * aver guardato. */
+        brain_publish_dispatch_path(brain);
         char ord[96][KB_TERM_LEN];
         const char *q[4] = { NULL, NULL, NULL, NULL };
         size_t n = kb_match(kb, "debug_probe", q, 4, ord,

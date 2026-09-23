@@ -178,10 +178,23 @@ response_template(event_subject_verb_forgotten,
 machinery(lesson_fixed_text).
 machinery(lesson_near_miss).
 lesson_fixed_text($Form, $Text) :- turn_form($Form, $N, text($Text)).
+% 23 settembre 2026 — il testo fisso di una forma e' una SEQUENZA: il pezzo
+% `text(…)` combacia solo contiguo. `words_in_turn/2` chiedeva soltanto che le
+% parole comparissero, in qualunque ordine: «sent is a ternary relation verb»
+% risultava «quasi" la forma col testo «is a relation verb», e `knowledge`
+% cedeva una lezione completa. Qui la sequenza, parola o suo lemma.
 lesson_near_miss($T, $Form) :-
     lesson_fixed_text($Form, $Text),
-    atom_words($Text, $Words), count_list($Words, $N), gt($N, 2),
-    words_in_turn($T, $Words).
+    atom_words($Text, cons($First, $More)), count_list($More, $N), gt($N, 1),
+    turn_word_or_lemma($T, $I, $First),
+    is($J, add($I, 1)), turn_words_run($T, $J, $More).
+machinery(turn_word_or_lemma).
+machinery(turn_words_run).
+turn_word_or_lemma($T, $I, $W) :- turn_word($T, $I, $W).
+turn_word_or_lemma($T, $I, $W) :- turn_word($T, $I, $Said), lemma_candidate($Said, $W).
+turn_words_run($T, $I, nil).
+turn_words_run($T, $I, cons($W, $R)) :-
+    turn_word_or_lemma($T, $I, $W), is($J, add($I, 1)), turn_words_run($T, $J, $R).
 
 % `turn_form_concluded(Turno, Forma)` — scritto dal motore quando una forma
 % dichiarata conclude davvero. E' il fatto che mancava: senza, «quasi una
@@ -217,7 +230,31 @@ lesson_concluded(yes) :- turn_counter($N), turn_form_concluded($N, $Form).
 machinery(lesson_almost).
 lesson_almost($T, $Form, $Text) :-
     lesson_near_miss($T, $Form), lesson_fixed_text($Form, $Text),
-    naf(lesson_concluded(yes)).
+    naf(lesson_concluded(yes)),
+    naf(lesson_by_class_surface($T)).
+
+% ─── 23 settembre 2026 — LE LEZIONI HANNO DUE CANALI DICHIARATI ────────────
+% Il rilevatore conosceva solo le forme di turno. Ma una classe con un nome
+% pronunciato (`class_surface/2`) E' anch'essa una lezione dichiarata, letta
+% dal lettore «X is a C»: «glimmers is a relation verb» conteneva il testo
+% fisso della forma col verbo e la particella («is a relation verb»), nessuna
+% forma concludeva, e `knowledge` cedeva — cosi' la lezione L1 piu' usata del
+% progetto non si insegnava piu' (reference_binding.p0t rosso). Trovato in una
+% riga di /debug: `knowledge by faculty_yield_when(knowledge, open,
+% lesson_almost_turn)`. Un turno che FINISCE con «copula, determinante, nome
+% di una classe» e' una lezione completa dell'altro canale, non una mancata.
+machinery(lesson_by_class_surface).
+machinery(turn_words_from).
+machinery(turn_has_word_at).
+turn_has_word_at($T, $I) :- turn_word($T, $I, $W).
+turn_words_from($T, $J, nil) :- naf(turn_has_word_at($T, $J)).
+turn_words_from($T, $J, cons($W, $R)) :-
+    turn_word($T, $J, $W), is($J1, add($J, 1)), turn_words_from($T, $J1, $R).
+lesson_by_class_surface($T) :-
+    turn_word($T, $I, $Cop), clause_copula($Cop),
+    is($D, add($I, 1)), turn_word($T, $D, $Det), np_opener($Det),
+    is($J, add($D, 1)), turn_words_from($T, $J, $Ws),
+    class_surface($C, $S), atom_words($S, $Ws).
 
 % ─── LA PORTA, RICOLLEGATA DOPO IL CAMBIO D'ORDINE ─────────────────────────
 % Ora la cessione si decide dopo che le forme dichiarate hanno avuto il turno,

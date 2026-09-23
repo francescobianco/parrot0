@@ -5760,6 +5760,37 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
  * parlato. Quali predicati siano «la lettura del turno» e' conoscenza
  * (`turn_reading_predicate/1`, kb/core/debug.p0): aggiungerne uno domani e'
  * una riga, e il dump lo mostra senza ricompilare. */
+/* F., 23 settembre 2026: «perche' non possiamo evolvere /debug per scovare
+ * questi problemi? e' sempre la caccia al filo d'Arianna». Il filo c'era gia':
+ * il dispatch registra chi cede (`!yield`), chi declina e chi risponde, ma lo
+ * leggeva solo /why. Qui diventa conoscenza interrogabile, a pezzi ordinati
+ * che stanno in un termine: la sonda che lo mostra e' una riga di debug.p0. */
+void brain_publish_dispatch_path(Brain *b) {
+    if (!b || !b->kb || !b->has_trace) return;
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_retract_match(b->kb, "turn_faculty_path",
+                     (const char *[]){ "current_turn", NULL }, 2);
+    char chunk[400]; size_t off = 0; chunk[0] = '\0';
+    for (size_t i = 0; i <= b->trace_declined_n; i++) {
+        const char *name = i < b->trace_declined_n ? b->trace_declined[i] : NULL;
+        char piece[64];
+        if (name) snprintf(piece, sizeof piece, "%s", name);
+        else snprintf(piece, sizeof piece, "=> %s", b->trace_winner);
+        if (off && off + strlen(piece) + 2 >= sizeof chunk) {
+            char q[KB_TERM_LEN]; snprintf(q, sizeof q, "\"%s\"", chunk);
+            kb_assert(b->kb, "turn_faculty_path", (const char *[]){ "current_turn", q }, 2);
+            off = 0; chunk[0] = '\0';
+        }
+        off += (size_t)snprintf(chunk + off, sizeof chunk - off, "%s%s", off ? " " : "", piece);
+    }
+    if (off) {
+        char q[KB_TERM_LEN]; snprintf(q, sizeof q, "\"%s\"", chunk);
+        kb_assert(b->kb, "turn_faculty_path", (const char *[]){ "current_turn", q }, 2);
+    }
+    kb_set_origin(b->kb, prev);
+}
+
 void brain_turn_dump(Brain *b) {
     if (!b || !b->kb) return;
     char preds[64][KB_TERM_LEN];

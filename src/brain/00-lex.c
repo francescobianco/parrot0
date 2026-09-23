@@ -1333,6 +1333,9 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
                              const char *norm, const char *raw) {
     if (!b || !b->kb || !faculty || !stage) return 0;
     int yield = 0;
+    /* l'esito nomina la REGOLA che ha fatto cedere, non solo la facolta':
+     * e' la riga da ritirare o correggere parlando */
+    char why[KB_TERM_LEN]; snprintf(why, sizeof why, "%s", faculty);
     p0_yield_note_views(b, faculty, stage, norm, raw);
 
     char (*classes)[KB_TERM_LEN] = NULL;
@@ -1342,11 +1345,14 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
         for (size_t i = 0; i < n && !yield; i++) {
             char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", classes[i]);
             const char *cls = kb_dequote(cb);
-            if (p0_yield_cue_holds(b, cls, norm, raw)) yield = 1;
+            if (p0_yield_cue_holds(b, cls, norm, raw)) {
+                yield = 1;
+                snprintf(why, sizeof why, "%s by faculty_yield(%s, %s, %s)", faculty, faculty, stage, cls);
+            }
         }
     }
     free(classes);
-    if (yield) { p0_yield_note(b, "turn_yield_outcome", faculty); return 1; }
+    if (yield) { p0_yield_note(b, "turn_yield_outcome", why); return 1; }
 
     /* 20 settembre 2026 — LA CESSIONE PUO' DIPENDERE DA UNA LETTURA, NON SOLO
      * DA UNA CUE.
@@ -1371,7 +1377,10 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
                 const char *pred = kb_dequote(pb);
                 const char *tq[2] = { "current_turn", NULL };
                 char row[1][KB_TERM_LEN];
-                if (kb_match(b->kb, pred, tq, 2, row, 1) > 0) yield = 1;
+                if (kb_match(b->kb, pred, tq, 2, row, 1) > 0) {
+                    yield = 1;
+                    snprintf(why, sizeof why, "%s by faculty_yield_when(%s, %s, %s)", faculty, faculty, stage, pred);
+                }
                 if (b->kb && kb_profile_on(b->kb)) {
                     char line[KB_TERM_LEN];
                     snprintf(line, sizeof line, "%s reading=%s", pred,
@@ -1381,7 +1390,7 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
             }
         }
         free(preds);
-        if (yield) { p0_yield_note(b, "turn_yield_outcome", faculty); return 1; }
+        if (yield) { p0_yield_note(b, "turn_yield_outcome", why); return 1; }
     }
 
     /* ⛔ gen502 — LA CESSIONE CONGIUNTA LEGGEVA MEZZO TURNO.
@@ -1413,12 +1422,15 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
             for (size_t j = 0; j < ns && !yield; j++) {
                 char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", seconds[j]);
                 const char *second = kb_dequote(sb);
-                if (p0_yield_cue_holds(b, second, norm, raw)) yield = 1;
+                if (p0_yield_cue_holds(b, second, norm, raw)) {
+                    yield = 1;
+                    snprintf(why, sizeof why, "%s by faculty_yield_both(%s, %s, %s, %s)", faculty, faculty, stage, first, second);
+                }
             }
         }
     }
     free(firsts);
-    if (yield) { p0_yield_note(b, "turn_yield_outcome", faculty); return 1; }
+    if (yield) { p0_yield_note(b, "turn_yield_outcome", why); return 1; }
 
     /* La cessione per FORZA del turno, gemella di quella per cue. Serve dove il
      * motivo per tacere non e' una parola ma la LETTURA: «He reviewed the draft»
@@ -1434,11 +1446,14 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
             const char *force = kb_dequote(fb);
             if (*force && ((norm && p0_turn_is(b, force, norm)) ||
                        (b->active_turn_norm &&
-                        p0_turn_is(b, force, b->active_turn_norm)))) yield = 1;
+                        p0_turn_is(b, force, b->active_turn_norm)))) {
+                yield = 1;
+                snprintf(why, sizeof why, "%s by faculty_yield_force(%s, %s, %s)", faculty, faculty, stage, force);
+            }
         }
     }
     free(forces);
-    if (yield) p0_yield_note(b, "turn_yield_outcome", faculty);
+    if (yield) p0_yield_note(b, "turn_yield_outcome", why);
     return yield;
 }
 

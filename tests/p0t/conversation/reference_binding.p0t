@@ -22,26 +22,31 @@
 > reviewed is a relation verb
 > Vantel sent the dossier to Orsolo.
 <~ sent(vantel, dossier, orsolo)
+# Il predicato e' la RADICE del verbo (review), come per ogni relazione letta:
+# le attese su «reviewed» erano di prima della lemmatizzazione.
 > Orsolo reviewed the dossier
-<~ reviewed dossier
-!query reviewed(orsolo, dossier)
+<~ orsolo review dossier
+!query review(orsolo, dossier)
 # --- pronome nel PRIMO ruolo: il parallelismo di ruolo preferisce, per il ruolo
 # --- dell'agente, chi ha gia' fatto l'agente — non il dossier, che ha sempre
 # --- occupato il secondo. Nessun genere, nessuna animatezza: solo la struttura.
 > He reviewed the dossier
-<~ reviewed dossier
+<~ orsolo review dossier
 # --- pronome nel SECONDO ruolo
 > Orsolo reviewed it
-<~ reviewed dossier
-# --- composizione dei due riferimenti nello stesso turno: la frase del corpus
+<~ orsolo review dossier
+# --- composizione dei due riferimenti nello stesso turno: la frase del corpus.
+# --- Un pronome e' da solo un sintagma (np_stands_alone/1): «after lunch» e'
+# --- circostanza, e non si incolla al pronome in un'entita' `it_after_lunch`.
 > He reviewed it after lunch
-<~ reviewed dossier
+<~ orsolo review dossier
 # --- ⛔ NESSUN PRONOME E' MAI DIVENTATO UN'ENTITA'
-!query! reviewed(orsolo, it)
-!query! reviewed(he, dossier)
-!query! reviewed(orsolo, he)
+!query! review(orsolo, it)
+!query! review(orsolo, it_after_lunch)
+!query! review(he, dossier)
+!query! review(orsolo, he)
 # --- un'asserzione non riceve una risposta: `answer_frame` cede alla forza
-!query turn_reading(current_turn, declarative, reviewed)
+!query turn_reading(current_turn, declarative, review)
 !query turn_illocution(current_turn, assertion)
 # --- e la domanda formata con le stesse parole trova cio' che il turno ha detto
 > Who reviewed the dossier?

@@ -805,6 +805,14 @@ machinery(indefinite_article).
 % un'altra lingua — e' un fatto.
 machinery(np_closer).
 
+% 23 settembre 2026 — UN PRONOME E' DA SOLO UN SINTAGMA INTERO. Nulla lo
+% continua: «He reviewed it after lunch» legava l'oggetto a «it after lunch»,
+% il pronome non si riconosceva piu' dentro lo span e `it_after_lunch` entrava
+% in KB come entita' (reference_binding.p0t). Chi lega uno slot chiede qui se
+% la prima parola chiude gia' il sintagma; il resto e' circostanza.
+machinery(np_stands_alone).
+np_stands_alone($W) :- entity_pronoun($W).
+
 % Preposizioni: aprono un complemento, quindi il nome e' finito.
 % gen506: un participio chiude il sintagma della classe. «an island country
 % located in the Nivoran Sea» dava la classe `island_country_located`, cioe'

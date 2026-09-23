@@ -5316,6 +5316,12 @@ static size_t p0_quantity_bound_len(Brain *b, char **w, size_t n, size_t i) {
 
 static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
                        const char *next_literal) {
+    /* Una parola che e' da sola un sintagma intero (`np_stands_alone/1`,
+     * grammar.p0: oggi i pronomi) chiude lo slot ultimo appena letta. */
+    if (!next_literal && from < n) {
+        const char *aq[1] = { strip_edge_punct(w[from]) };
+        if (kb_query(b->kb, "np_stands_alone", aq, 1)) return (int)from + 1;
+    }
     for (size_t i = from; i < n; i++) {
         if (!next_literal && i == from) {
             size_t bl = p0_quantity_bound_len(b, w, n, i);
@@ -7419,6 +7425,16 @@ static void p0_class_read_note(Brain *b, const char *text) {
     kb_set_origin(b->kb, prev);
 }
 
+/* 23 settembre 2026 — I CANCELLI MUTI PARLANO A /debug. Le uscite anticipate
+ * del lettore non lasciavano nota: `turn_class_read` diceva «niente» sia se il
+ * lettore non era stato raggiunto sia se aveva ceduto al primo controllo, e la
+ * diagnosi ricominciava ogni volta da tracce temporanee (F.: «e' sempre la
+ * caccia al filo d'Arianna»). Solo col profilo di /debug acceso: spento non
+ * costa niente. */
+static void p0_class_gate(Brain *b, const char *text) {
+    if (b && b->kb && kb_profile_on(b->kb)) p0_class_read_note(b, text);
+}
+
 /* «{arg} is {art} {cls}» dalla KB (`class_fact_phrase`), con gli underscore
  * resi spazi; 0 se la KB non ha articolo o resa. Usata dal ramo «Learned» e dal
  * ramo «I already know» dello stesso lettore. */
@@ -7441,9 +7457,15 @@ static int extract_class_statement(Brain *b, const char *norm,
     if (!b || !b->kb) return 0;
     /* 15 settembre 2026: la cessione e' KB (`faculty_yield(statement_extract, …)`):
      * «tomorrow I have a meeting at 9» veniva imparato come «located in 9». */
-    if (p0_faculty_yields(b, "statement_extract", "open", norm, norm)) return 0;
+    if (p0_faculty_yields(b, "statement_extract", "open", norm, norm)) {
+        p0_class_gate(b, "gate: statement_extract yields (faculty_yield*)");
+        return 0;
+    }
     size_t L = strlen(norm);
-    if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
+    if (L < 5 || L >= 400 || norm[L - 1] == '?') {
+        p0_class_gate(b, "gate: length or question mark");
+        return 0;
+    }
 
     char s[400]; memcpy(s, norm, L + 1);
     char *w[32]; size_t n = split_words(s, w, 32);
@@ -7476,7 +7498,10 @@ static int extract_class_statement(Brain *b, const char *norm,
         char head[KB_TERM_LEN];
         snprintf(head, sizeof head, "%s", w[0]);
         const char *qw[] = { strip_edge_punct(head) };
-        if (b && b->kb && kb_query(b->kb, "question_word", qw, 1)) return 0;
+        if (b && b->kb && kb_query(b->kb, "question_word", qw, 1)) {
+            p0_class_gate(b, "gate: opens with a question word");
+            return 0;
+        }
     }
 
     /* gen382: i frame DICHIARATI in KB corrono prima di quelli cablati, cosi'
@@ -7572,6 +7597,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
     }
     { int r = p0_try_extract_frames(b, w, n, norm, out, out_size); if (r) return r; }
+    p0_class_gate(b, "reached: no declared frame read it, trying copula forms");
 
     /* past copula -> present (tenseless fact), same rule as the class section */
     for (size_t i = 0; i < n; i++) {
@@ -7664,10 +7690,13 @@ static int extract_class_statement(Brain *b, const char *norm,
     size_t cop = n;
     for (size_t i = 1; i < n; i++)
         if (lex_class_member(b, "clause_copula", w[i]) || lex_class_member(b, "clause_copula", w[i])) { cop = i; break; }
-    if (cop >= n || cop < 1 || cop + 1 >= n) return 0;
+    if (cop >= n || cop < 1 || cop + 1 >= n) {
+        p0_class_gate(b, "gate: no clause copula in position");
+        return 0;
+    }
 
     size_t sstart = p0_lead_det(b, w[0]) ? 1 : 0;
-    if (sstart >= cop) return 0;
+    if (sstart >= cop) { p0_class_gate(b, "gate: empty subject"); return 0; }
 
     /* gen382 — il soggetto ha DUE confini, e finora non ne aveva nessuno.
      *
@@ -18154,7 +18183,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * finalmente guardare un fatto vero: che cosa questo turno NON e' riuscito
      * a essere. La guardia di pertinenza non cambia comportamento — le sue
      * situazioni non passano dalle forme. */
-    if (p0_faculty_yields(b, "knowledge", "open", norm, raw)) return 0;
+    if (p0_faculty_yields(b, "knowledge", "open", norm, raw)) {
+        p0_class_gate(b, "gate: knowledge yields (faculty_yield*)");
+        return 0;
+    }
+    p0_class_gate(b, "reached: knowledge, after the declared forms");
     /* gen507 — L'ANNUNCIO DI UNA CORREZIONE VIENE PRIMA DEL SUO BERSAGLIO.
      *
      * «actually zelnik is green» arriva ai lettori gia' sbucciato: «actually»
@@ -24547,6 +24580,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
     if (interrogative && p0_try_frame_question(b, w, nw, norm, out, out_size)) return 1;
+    if (asking) p0_class_gate(b, "gate: knowledge reads the turn as a question or directive");
+    else p0_class_gate(b, "reached: knowledge offers the turn to the class reader");
     if (!asking && extract_class_statement(b, norm, out, out_size, 0)) return 1;
 
     /* IL PERCORSO RIGIDO A QUATTRO PAROLE VEDEVA SOLO CLASSI DI UNA PAROLA (gen452).

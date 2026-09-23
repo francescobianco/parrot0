@@ -37,6 +37,11 @@ const char *brain_last_module(Brain *b);
  * (`turn_reading_predicate/1` dice che cosa ne fa parte). */
 void brain_turn_dump(Brain *b);
 
+/* Pubblica come fatti riflessivi del turno la STRADA del dispatch: quali
+ * facolta' hanno ceduto, declinato o risposto, in ordine
+ * (`turn_faculty_path/2`). La chiama l'ispettore, non il turno: costo zero. */
+void brain_publish_dispatch_path(Brain *b);
+
 /* Atomically change one typed agent record's state. The in-memory P0AStore and
  * its live rec(Id,Kind,Parent,State) projection either both move or both remain
  * at the old state. Returns 1 on success, 0 for an unknown id/invalid input or
