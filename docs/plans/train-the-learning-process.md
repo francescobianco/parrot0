@@ -1,5 +1,87 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## ⏸ HANDOFF — lotto `2026-09-23` (notte del 23→24 settembre): ripartire qui
+
+**Richiesta:** 5 iterazioni. **Chiuse 3** (RI-016, RI-017, RI-018), **1 parziale**
+(RI-019, manca solo R6/R7), **0 diagnostiche**. Non contare RI-019 finché non ha
+save e processo nuovo. Registro e schede: `docs/labs/reference-iterations/2026-09-23/`.
+
+| ID | capacità | stato | W / L | commit |
+|---|---|---|---:|---|
+| RI-016 | una particella **avverbiale** fa parte del verbo: `step_up` ≠ `step_down` (flyback CRT, buck, amilasi) | completa | 3 / 6 | `a7ca0b1a` |
+| RI-017 | che il trattino unisca una parola **si insegna** (`"-" is a word joiner`): «step-down transformer», «heat-resistant glove» | completa | 3 / 1 | `afcb4ed8` |
+| RI-018 | un valore nominale si chiede alla **lettura**, non al frasario (USB 5 V, batteria 12 V, fusibile 13 A) | completa | 3 / 2 | `c2c35b11` |
+| RI-019 | un nome di relazione che **finisce con un verbo** si insegna (flash point, melting point, working load) | **partial** | — | `5f58c676` |
+
+### Prima cosa da fare domani
+**Chiudere RI-019** (scheda: «Che cosa manca»): in sessione pulita
+`flash point is a relation`, `The flash point of Jet A fuel is 38 degrees
+Celsius.`, `melting point is a relation`, `The melting point of tin is 232
+degrees Celsius.`, `working load is a relation`, `The working load of an M10 eye
+bolt is 230 kilograms.`, poi `/save`; i valori sono predicati nuovi e finiscono
+nella ricaduta `kb/learning/learned.p0` → spostarli accanto ai simili
+(engineering.p0, science-nature.p0) — **per similarità, non per storia**. Poi
+processo nuovo, replay RI-016..018, banco L2, commit. Poi RI-020 da un candidato
+qui sotto.
+
+### Lo strumento che ha trovato tutti i siti: il TRACE UNICO del turno
+`9f2bf5c6`. Chiesto da F. sette volte in un mese. **Si parte da qui, non dal
+grep e mai da una `fprintf` temporanea**:
+- `/debug` (chat) e `!debug` (in un `.p0t`, nel log del demone) stampano la
+  TRACCIA DEL TURNO: canone, forza, ogni facoltà del dispatch (`nome!yield` con la
+  **regola** che fa cedere, declina, `=> risponde`), cancelli del lettore di
+  classe (ora tutti con un nome), schemi legati (`frame bind`), ricevute
+  (`refer`), token della IR (`ir current_turn a|step-down|…`), viste
+  (`view … invalidata da …`, `… ms`), dipendenze della risposta del piano di turno
+  (`plan depends on …`, da `kb_derivation`).
+- `/debug trace <parola>` filtra; `PARROT0_TURN_LOG=file` salva ogni turno;
+  `PARROT0_TRACE_ECHO=1` ripete su stderr.
+- Se un sito tace nel trace, **gli si dà voce lì** (`p0_trace`, una riga) e resta.
+
+### Scoperte che valgono per ogni iterazione
+1. **Il turno annidato del «prima»**: misurare il limite in un processo SEPARATO
+   dalle lezioni — la lettura sbagliata pre-lezione scrive fatti che sporcano il
+   seguito (RI-017).
+2. **La ricaduta si svuota a ogni /save**: predicati nuovi (valori, `step_up`…)
+   finiscono in `learned.p0`; si spostano accanto ai simili prima del commit.
+3. **Il rilevatore «quasi una lezione»** (conduct-lessons.p0) ora chiede testo
+   fisso contiguo, riconosce il secondo canale (`class_surface`) e conta solo le
+   forme che SCRIVONO. Se una domanda o una lezione completa viene «ceduta» da
+   `knowledge`, guardare prima lì (`yield … lesson_almost_turn` nel trace).
+4. **`faculty_yield_when/3` ora governa anche le facoltà del registro** (prima
+   era letto solo da chi lo chiedeva): una condotta dichiarata per una facoltà
+   qualsiasi ora vale.
+5. **Una frase ha un verbo finito**: se il soggetto è seguito dalla copula, il
+   verbo è la copula (RI-019) — la stessa regola vale ovunque si tagli un
+   soggetto; non ancora applicata al lettore della prosa/IR.
+6. **Costo**: ogni verbo insegnato rifà tutta la vista `extract_frame` (~2–2,8 s,
+   visibile nel trace come `view extract_frame`). Cura giusta: manutenzione
+   incrementale delle viste (non fatta). `soft-test` è al bordo del budget
+   (15–16 s); la sera del 23 anche la base `015ce009` falliva nella stessa ora
+   (turni oltre 1 s): rimisurare a macchina scarica prima di attribuire.
+
+### Candidati per RI-020, con il sito già nominato (dal trace)
+1. «What does a band filter block?» → muro, mentre «What do capacitors block?»
+   risponde: domanda sull'oggetto con soggetto di più parole preceduto
+   dall'articolo.
+2. La cue `pass` combacia **dentro** «high-pass» (mantra #8): le cue delle domande
+   vanno confrontate a parola intera (`read.aframe cue=pass` nel trace).
+3. «What is the boiling point of water?» → definizione dell'acqua: la KB ha
+   `boils_at(water, …)` ma nessun ponte da «boiling point».
+4. «Kanban limits work in progress.» → «Work.»: la coda preposizionale si perde.
+5. La particella preposizionale mai vista («onto is a verb particle») ancora non
+   si insegna.
+6. «I no longer treat «up» as a adverbial particle» (articolo); «Scartato: … non
+   e' un concetto» è un messaggio italiano scritto nel C (mantra #16).
+7. «Is a step-down transformer a transformer?»: inferenza sulla testa del sintagma.
+
+### Stato del repository
+`main`, working tree pulito dopo il commit dell'handoff. Il lotto è in
+`docs/labs/reference-iterations/2026-09-23/`. Nessuna modifica dell'utente
+toccata.
+
+---
+
 ## ⏸ HANDOFF — due lotti chiusi (21 settembre 2026)
 
 ### ⚠ Aggiornamento 22 settembre — che cosa cambia per i lotti dopo L2
