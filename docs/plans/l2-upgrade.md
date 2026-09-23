@@ -749,3 +749,46 @@ presupposizione («why does the relief valve open above its set pressure?»
 presuppone un fatto). Metodo: censire gli altri punti dove la forza del turno
 decide in C che cosa si impara, poi una sola politica KB che li governi tutti,
 non un'eccezione per sito.
+
+## 14.8 Registro del 23 settembre — e dove si riprende
+
+**§14.6.1 chiuso per il binder.** `p0_resolve_reference` chiede prima
+`reading_antecedent/2` e lascia la ricevuta (`role_parallel` / `most_recent` /
+`last_entity`) con lo stesso helper di `coref_resolve`
+(`p0_antecedent_receipt`); un antecedente di questa frase e' `known_referent/1`
+(la guardia RI-012 sul taglio non vale per cio' che non e' un taglio). La
+sequenza della pompa centrifuga e' nel banco: **60/60**. Restano da portare
+sulla stessa ricevuta `resolve_entity` e `reader_focus_rewrite`. Debito: il
+binder e' la fase pura e scrive la ricevuta anche per schemi poi scartati
+(vince l'ultima); e il turno di correzione («it refers to …») viene esso stesso
+legato da uno schema «@S refers to @O», lasciando una ricevuta inutile.
+
+**Lo strumento, su richiesta di F.** («perche' non evolvere /debug? e' sempre la
+caccia al filo d'Arianna»): `turn_faculty_path` (la strada del dispatch),
+`turn_yield_outcome` che nomina la REGOLA che fa cedere, le note dei cancelli
+muti del lettore di classe, la riga «canone», e `!debug` nel test engine con il
+profilo per turno. Ogni rosso di questa giornata e' stato trovato cosi', senza
+tracce temporanee.
+
+**Rossi chiusi con quello strumento** (tutti difetti di specie, non istanze):
+il rilevatore «quasi una lezione» (testo fisso non contiguo, e cieco al secondo
+canale di lezione, `class_surface`) spegneva «X is a relation verb»; un
+pronome incollato al complemento («it after lunch») entrava in KB
+(`np_stands_alone/1`); lo strato d'iniziativa rubava il «si'»/«no» di
+un'offerta altrui (`issue_owed_by/2` come ancora); `np_closer` rifaceva la
+morfologia a ogni token (viste `finite_reading_verb_form/1`,
+`adjective_relation_head/1`); «conosci xdebug» (un conteggio di parole sul
+testo sbagliato in `mod_self`, e le parafrasi insegnate che non arrivavano alle
+teste: `knowledge_head/2` e' ora una vista su `knowledge_head_surface/2` +
+`phrase_canon/2`).
+
+**Aperti, misurati:** la vista `extract_frame` rifatta per intero a ogni verbo
+insegnato (~1,9 s: serve la manutenzione incrementale delle viste); una
+parafrasi insegnata non si puo' ritirare parlando; la lezione di parafrasi
+indovina la famiglia della cue per copertura e puo' sbagliarla
+(`intent_cue(casual, "do you know")`, tolta a mano); `/save` instrada
+`phrase_canon` nel primo file che ne contiene (spelling.p0).
+
+**Ripresa:** §14.6 punti 1 (gli altri due risolutori), 2–5 come prima; e, per
+il costo, la manutenzione incrementale delle viste prima di ogni altra
+ottimizzazione.

@@ -579,6 +579,18 @@ e' sempre «ogni file che si tocca».
 Ogni voce ha la sonda con cui si riproduce; nessuna e' stata «chiusa» cambiando
 l'attesa. Dove il file resta rosso, il rosso e' la misura.
 
+0. **(23 settembre 2026) `reference_binding.p0t` e `deep_memory.p0t`: solo
+   rossi di TEMPO.** La semantica e' verde (12/14, 47/53); le cause dei rossi di
+   sostanza erano del motore e sono chiuse (`l2-upgrade.md` §14.8). Restano:
+   - ogni verbo insegnato rifa' per intero la vista `extract_frame` (27.084
+     righe, ~1,9 s): «X is a relation verb» e il turno dopo sforano. Cura:
+     manutenzione INCREMENTALE delle viste (delta di un'asserzione monotona,
+     propagato lungo la catena di viste) — lavoro di motore, non di KB;
+   - il turno che legge una pagina fixture costa ~1,35 s (era 2,0) contro 1 s:
+     `np_closer` 159k passi e `answer_frame` 102k. Sonda: `!debug` prima del
+     «yes» in `deep_memory.p0t`, il profilo per turno esce nel log del demone.
+   - ⚠ `!timeout` in testa al file non vale nelle `[test]` (ripartono da 1 s).
+
 1. **Il glossario italiano** (LEARN_TODO punto 3, e ora ha sette file dietro).
    `rederive.it`/`compose.it`: «ogni uomo e' mortale» → `mortale(X) :- man(X)`,
    `amico(X) :- bear(X), happy(X)` — predicati mezzo tradotti. `agent*.it`
