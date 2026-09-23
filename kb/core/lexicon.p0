@@ -278,6 +278,14 @@ phrase_canon("tell me everything you know about", "what do you know about").
 phrase_canon("tell me all you know about", "what do you know about").
 phrase_canon("dimmi tutto quello che sai su", "what do you know about").
 phrase_canon("dimmi tutto su", "what do you know about").
+% 23 settembre 2026 — «conosci xdebug» murava in make chat (F.). Insegnata
+% parlando («"conosci" is another way to say "cosa sai di"») e salvata con
+% /save; spostata qui dalla casa in cui /save l'aveva messa (spelling.p0, il
+% primo file con `phrase_canon`). L'ancora e' la forma canonica che la lezione
+% registra. ⚠ La sorella inglese «do you know» -> «what do you know about» e'
+% stata provata e RITIRATA: «do you know where the Danube flows» diventava
+% «what do you know about where…» — in inglese apre una domanda incassata.
+phrase_canon("conosci", "what know of").
 phrase_canon("un esempio di", "an example of").
 
 % ══ gen507/30 — I SUPERLATIVI ITALIANI ════════════════════════════════════

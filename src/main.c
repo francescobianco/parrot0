@@ -992,6 +992,12 @@ void p0_debug_inspect(Brain *brain, const char *last_line) {
     }
     /* (2) l'anatomia del turno */
     fprintf(stderr, "\n  TURNO   %s\n", last_line);
+    {   /* la forma che i lettori hanno visto davvero: dopo lingua, parafrasi
+         * insegnate e normalizzazioni — la prima cosa che diverge */
+        char canon[512];
+        brain_canonical(brain, last_line, canon, sizeof canon);
+        fprintf(stderr, "  canone  %s\n", canon);
+    }
     fprintf(stderr, "  modulo  %s\n", brain_last_module(brain));
     fprintf(stderr, "  firma   %08lx  (%zu predicati distinti)\n",
             kb_footprint(kb) & 0xfffffffful, kb_footprint_width(kb));

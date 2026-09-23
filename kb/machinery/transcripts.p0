@@ -2630,6 +2630,8 @@ utterance(2, self, "Learned: capacitors block direct current.").
 utterance(2, self, "Learned: austenitic stainless steel is steel.").
 utterance(2, self, "Learned: byte measures information.").
 utterance(2, self, "Learned: pump is a device.").
+utterance(2, self, "Got it - «conosci» asks for the same thing as «cosa sai di».").
+utterance(2, self, "Got it - «do you know» asks for the same thing as «what do you know about».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2753,6 +2755,8 @@ utterance(1, user, "Capacitors block direct current.").
 utterance(1, user, "Austenitic stainless steel is a steel.").
 utterance(1, user, "The byte measures information.").
 utterance(1, user, "A pump is a device.").
+utterance(1, user, "'conosci' is another way to say 'cosa sai di'").
+utterance(1, user, "'do you know' is another way to say 'what do you know about'").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

@@ -2042,8 +2042,12 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
      * know about X?") fall through to mod_knowledge unchanged. */
 
     /* Quick word-count helper (buf is stripped of trailing punctuation). */
-    size_t wn = 0, inw = 0;
-    for (size_t i = 0; i < len; i++) {
+    /* 23 settembre 2026: su `buf`, con la SUA lunghezza. `len` a questo punto
+     * e' quella del testo grezzo (ribuf, piu' sopra): «conosci xdebug», dopo la
+     * parafrasi insegnata, contava le parole di «what do you kn» — quattro — e
+     * riceveva la panoramica «I know N facts» invece di parlare di xdebug. */
+    size_t wn = 0, inw = 0, blen = strlen(buf);
+    for (size_t i = 0; i < blen; i++) {
         if (buf[i] == ' ') inw = 0;
         else if (!inw) { wn++; inw = 1; }
     }
