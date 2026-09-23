@@ -42,3 +42,9 @@ step_down(step-down_transformer, voltage).
 disconnect(double-pole_switch, both_conductors).
 protects(heat-resistant_glove, hand).
 
+% RI-018 (23 settembre 2026) — valori nominali, insegnati con la forma «the R of
+% X is V» dopo «operating voltage / rated current is a relation»: la porta USB
+% (5 V), la batteria d'auto (12 V), il fusibile di una spina britannica (13 A).
+operating_voltage_of(usb_port, 5_volts).
+operating_voltage_of(car_battery, 12_volts).
+rated_current_of(plug_fuse, 13_amperes).

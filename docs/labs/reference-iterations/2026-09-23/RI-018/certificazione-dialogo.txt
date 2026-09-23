@@ -1,0 +1,24 @@
+> operating voltage is a relation
+Learned: operating voltage is a relation.
+> The operating voltage of a USB port is 5 volts.
+Learned: the operating voltage of usb port is 5 volts.
+> What is the operating voltage of a USB port?
+5 volts.
+> The operating voltage of a car battery is 12 volts.
+Learned: the operating voltage of car battery is 12 volts.
+> What is the operating voltage of a car battery?
+12 volts.
+> rated current is a relation
+Learned: rated current is a relation.
+> The rated current of a plug fuse is 13 amperes.
+Learned: the rated current of plug fuse is 13 amperes.
+> What is the rated current of a plug fuse?
+13 amperes.
+> What is the capital of France?
+Paris.
+> what is a dog
+I don't know much about dog yet, and the network is off, so I can't read about it now.
+> forget that operating voltage is a relation
+I no longer treat «operating voltage» as a relation.
+> What is the operating voltage of a USB port?
+An operating system manages hardware resources and supplies common services for programs, including processes, memory, files, devices and access control.

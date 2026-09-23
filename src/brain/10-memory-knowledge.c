@@ -7317,23 +7317,33 @@ static int p0_parse_multiword_unary_membership(
     if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
     char s[400]; memcpy(s, norm, L + 1);
     char *w[32]; size_t n = split_words(s, w, 32);
-    if (n < 5) return 0; /* subject + copula + article + >=2 class tokens */
-
-    char sb[KB_TERM_LEN], cb[KB_TERM_LEN];
-    snprintf(sb, sizeof sb, "%s", w[0]);
-    snprintf(cb, sizeof cb, "%s", w[1]);
-    const char *subject_atom = strip_edge_punct(sb);
-    if (!*subject_atom || strchr(subject_atom, ' ') ||
-        (p0_bad_subject(b, subject_atom) &&
-         !kb_query(b->kb, "turn_mentions_word", (const char *[]){ "current_turn" }, 1)))
-        return 0;   /* RI-016: «forget that up is an adverbial particle» menziona «up» */
-    const char *copula_q[] = { strip_edge_punct(cb) };
-    if (!copula_q[0][0] || !kb_query(b->kb, "clause_copula", copula_q, 1))
+    if (n < 4) return 0;
+    /* RI-018 (23 settembre 2026) — il soggetto e' TUTTO cio' che precede la
+     * copula, non la prima parola: «forget that operating voltage is a
+     * relation» ritira `relation(operating_voltage)`, insegnato con le stesse
+     * parole. Quale parola sia copula lo dice la KB. Il caso 1+1 («X is a Y»)
+     * resta al percorso storico: qui serve almeno un lato di piu' parole. */
+    size_t c = 0;
+    for (size_t i = 1; i + 2 < n && !c; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", w[i]);
+        const char *cq[1] = { strip_edge_punct(cb) };
+        if (cq[0][0] && kb_query(b->kb, "clause_copula", cq, 1)) c = i;
+    }
+    if (!c) return 0;
+    if (!p0_any_determiner(b, w[c + 1])) return 0;
+    if (c == 1 && n - (c + 2) < 2) return 0;   /* 1+1: il percorso storico */
+    char subject_atom[KB_TERM_LEN];
+    if (!p0_join(w, 0, c, subject_atom, sizeof subject_atom)) return 0;
+    if (c == 1) {
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", w[0]);
+        const char *one = strip_edge_punct(sb);
+        if (!*one || (p0_bad_subject(b, one) &&
+            !kb_query(b->kb, "turn_mentions_word", (const char *[]){ "current_turn" }, 1)))
+            return 0;   /* RI-016: «forget that up is an adverbial particle» menziona «up» */
+    } else if (p0_bad_subject(b, subject_atom)) return 0;
+    if (!p0_join(w, c + 2, n, cls, cls_size) || !p0_atom_within_cap(b, cls))
         return 0;
-    if (!p0_any_determiner(b, w[2])) return 0;
-    if (!p0_join(w, 3, n, cls, cls_size) || !p0_atom_within_cap(b, cls))
-        return 0;
-    if (!p0_words_label(w, 3, n, label, label_size)) return 0;
+    if (!p0_words_label(w, c + 2, n, label, label_size)) return 0;
     snprintf(subject, subject_size, "%s", subject_atom);
     return subject[0] != '\0';
 }
@@ -7441,6 +7451,7 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
  * parte della funzione /debug»). Il registro lo ritira a fine turno. */
 static void p0_class_read_note(Brain *b, const char *text) {
     if (!b || !b->kb || !text || !*text) return;
+    p0_trace(b, "class", "%s", text);
     char q[KB_TERM_LEN]; snprintf(q, sizeof q, "\"%s\"", text);
     const char *a[2] = { "current_turn", q };
     int prev = kb_origin(b->kb);
@@ -7456,8 +7467,8 @@ static void p0_class_read_note(Brain *b, const char *text) {
  * caccia al filo d'Arianna»). Solo col profilo di /debug acceso: spento non
  * costa niente. */
 static void p0_class_gate(Brain *b, const char *text) {
-    p0_trace(b, "class", "%s", text);
     if (b && b->kb && kb_profile_on(b->kb)) p0_class_read_note(b, text);
+    else p0_trace(b, "class", "%s", text);
 }
 
 /* «{arg} is {art} {cls}» dalla KB (`class_fact_phrase`), con gli underscore
@@ -7745,7 +7756,13 @@ static int extract_class_statement(Brain *b, const char *norm,
     if (sstart >= cop) { p0_class_gate(b, "gate: subject is only a determiner"); return 0; }
 
     size_t send = sstart;
-    while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
+    /* RI-018: la parola MENZIONATA subito prima della copula e' il soggetto anche
+     * se e' un chiusore di sintagma («up is an adverbial particle», dopo che
+     * «up» e' diventata una particella avverbiale). */
+    int mention_subject = sstart + 1 == cop &&
+        kb_query(b->kb, "turn_mentions_word", (const char *[]){ "current_turn" }, 1);
+    if (mention_subject) send = cop;
+    else while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
     if (send == sstart) {                                /* comincia con un confine */
         char note[160]; snprintf(note, sizeof note, "gate: subject starts at a boundary (%s)", strip_edge_punct(w[sstart]));
         p0_class_read_note(b, note);
@@ -7827,7 +7844,7 @@ static int extract_class_statement(Brain *b, const char *norm,
    put(msg, out, out_size); } return 1;
             }
         }
-        { p0_class_gate(b, "gate: 7821"); return 0; }
+        { p0_class_gate(b, "gate: located-in reading did not hold"); return 0; }
     }
     /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
      * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
@@ -7853,7 +7870,7 @@ static int extract_class_statement(Brain *b, const char *norm,
    put(msg, out, out_size); } return 1;
             }
         }
-        { p0_class_gate(b, "gate: 7847"); return 0; }
+        { p0_class_gate(b, "gate: part-of reading did not hold"); return 0; }
     }
     if (p0_is_loc_prep(b, w[p])) {                 /* "X is in Y" */
         size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
@@ -7876,7 +7893,7 @@ static int extract_class_statement(Brain *b, const char *norm,
    put(msg, out, out_size); } return 1;
             }
         }
-        { p0_class_gate(b, "gate: 7870"); return 0; }
+        { p0_class_gate(b, "gate: located-in (second form) did not hold"); return 0; }
     }
 
     /* --- class frame (3/4/5): REQUIRE an article ("is a/an <cls>"), then one or more
@@ -8015,8 +8032,11 @@ static int extract_class_statement(Brain *b, const char *norm,
      * l'unico che lo sa e' questo, che l'ha appena calcolata (`p`). Quindi
      * tiene il turno, asserisce la classe, e la coda la rilegge come seconda
      * proposizione sullo stesso soggetto (in fondo a questa funzione). */
-    if (!subj_multi && !cls_multi && !loc && !extract_only && !prefixed && p >= n)
-        { p0_class_gate(b, "gate: 8010"); return 0; }
+    if (!subj_multi && !cls_multi && !loc && !extract_only && !prefixed && p >= n) {
+        p0_trace(b, "class", "gate: plain «%s is a %s» deferred to the interactive class intake", subj, classes[0]);
+        if (b && b->kb && kb_profile_on(b->kb)) p0_class_read_note(b, "gate: plain X is a Y deferred to the interactive class intake");
+        return 0;
+    }
 
     kb_set_origin(b->kb, KB_SESSION);
     {
@@ -8026,7 +8046,8 @@ static int extract_class_statement(Brain *b, const char *norm,
             no += (size_t)snprintf(note + no, sizeof note - no, "%s %s", i ? "," : "", classes[i]);
         p0_class_read_note(b, note);
     }
-    if (!p0_atom_is_concept(b, subj)) {
+    /* RI-018: una parola menzionata non e' un concetto, e' la parola stessa. */
+    if (!mention_subject && !p0_atom_is_concept(b, subj)) {
         snprintf(out, out_size, "Scartato: \"%s\" non e' un concetto.", subj);
         return 2;
     }
@@ -8152,7 +8173,7 @@ static int extract_class_statement(Brain *b, const char *norm,
               kb_term_say(b, "scartato_x_classe_i_non_fatte_di_concetti", _rs, 1, out, out_size); }
             return 2;
         }
-        { p0_class_gate(b, "gate: 8146"); return 0; }
+        { p0_class_gate(b, "gate: no class was written"); return 0; }
     }
     { const KbResponseSlot _rs[] = { { "facts", learned } };
       kb_term_say(b, "learned_facts", _rs, 1, msg, sizeof msg); }
@@ -13494,8 +13515,11 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                     const char *args[] = { subject };
                     if (retract_neg ? kb_retract_neg(b->kb, cls, args, 1)
                                     : kb_retract(b->kb, cls, args, 1)) {
+                        /* la conferma nomina il soggetto come l'ha detto il maestro */
+                        char spoken[KB_TERM_LEN]; snprintf(spoken, sizeof spoken, "%s", subject);
+                        for (char *c = spoken; *c; c++) if (*c == '_') *c = ' ';
                         const KbResponseSlot slots[] = {
-                            { "word", subject }, { "class", label }
+                            { "word", spoken }, { "class", label }
                         };
                         if (kb_response_slots(b, forgotten_say,
                                               slots, 2, out, out_size)) return 1;

@@ -1236,6 +1236,8 @@ turn_form_act(similar_asked, answer_relation).
 relation(ability).
 relation(river).
 relation(largest_city).
+relation(rated_current).
+relation(operating_voltage).
 response_template(learned_ability, "Held: {subject} can {object}.").
 response_template(learned_ability, it, "Tengo: {subject} può {object}.").
 turn_form(ability_stated, 1, slot(subject)).

@@ -1,0 +1,8 @@
+> The operating voltage of a USB port is 5 volts.
+Hmm, I don't know about operating voltage yet. Want me to learn about it?
+> What is the operating voltage of a USB port?
+An operating system manages hardware resources and supplies common services for programs, including processes, memory, files, devices and access control.
+> The rated current of a plug fuse is 13 amperes.
+Hmm, I don't know about plug fuse yet. Want me to learn about it?
+> What is the rated current of a plug fuse?
+I can't show that.

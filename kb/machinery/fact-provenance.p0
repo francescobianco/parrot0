@@ -532,6 +532,11 @@ fact_source(protects(heat-resistant_glove, hand), heat-resistant_glove, "a heat-
 fact_source(disconnect(double-pole_switch, both_conductors), double-pole_switch, "a double-pole switch disconnects both conductors.").
 fact_source(step_down(step-down_transformer, voltage), step-down_transformer, "a step-down transformer steps down the voltage.").
 fact_source(word_joiner(-), -, ""-" is a word joiner").
+fact_source(rated_current_of(plug_fuse, 13_amperes), plug_fuse, "the rated current of a plug fuse is 13 amperes.").
+fact_source(relation(rated_current), rated_current, "rated current is a relation").
+fact_source(operating_voltage_of(car_battery, 12_volts), car_battery, "the operating voltage of a car battery is 12 volts.").
+fact_source(operating_voltage_of(usb_port, 5_volts), usb_port, "the operating voltage of a usb port is 5 volts.").
+fact_source(relation(operating_voltage), operating_voltage, "operating voltage is a relation").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -957,10 +962,15 @@ reading_fact(proposition(binary(protect), roles(subject(heat-resistant_glove), o
 reading_fact(disconnect(double-pole_switch, both_conductors), "a double-pole switch disconnects both conductors.").
 reading_fact(device(pump), "a pump is a device.").
 reading_fact(proposition(binary(disconnect), roles(subject(double-pole_switch), object(both_conductors))), "a double-pole switch disconnects both conductors.").
+reading_fact(rated_current_of(plug_fuse, 13_amperes), "the rated current of a plug fuse is 13 amperes.").
 reading_fact(step_down(step-down_transformer, voltage), "a step-down transformer steps down the voltage.").
+reading_fact(relation(rated_current), "rated current is a relation").
 reading_fact(adverbial_particle(up), "up is an adverbial particle").
+reading_fact(operating_voltage_of(car_battery, 12_volts), "the operating voltage of a car battery is 12 volts.").
 reading_fact(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage))), "a step-down transformer steps down the voltage.").
+reading_fact(operating_voltage_of(usb_port, 5_volts), "the operating voltage of a usb port is 5 volts.").
 reading_fact(word_joiner(-), ""-" is a word joiner").
+reading_fact(relation(operating_voltage), "operating voltage is a relation").
 reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -1109,12 +1119,18 @@ fact_mention(capacitors, "capacitors block direct current.").
 fact_mention(fluid, "pumps move fluid.").
 fact_mention(both_conductors, "a double-pole switch disconnects both conductors.").
 fact_mention(double-pole_switch, "a double-pole switch disconnects both conductors.").
+fact_mention(13_amperes, "the rated current of a plug fuse is 13 amperes.").
+fact_mention(plug_fuse, "the rated current of a plug fuse is 13 amperes.").
 fact_mention(voltage, "a flyback transformer steps up the voltage.").
 fact_mention(flyback_transformer, "a flyback transformer steps up the voltage.").
 fact_mention(pumps, "pumps move fluid.").
 fact_mention(information, "the byte measures information.").
+fact_mention(12_volts, "the operating voltage of a car battery is 12 volts.").
+fact_mention(car_battery, "the operating voltage of a car battery is 12 volts.").
 fact_mention(step-down_transformer, "a step-down transformer steps down the voltage.").
 fact_mention(byte, "the byte measures information.").
+fact_mention(5_volts, "the operating voltage of a usb port is 5 volts.").
+fact_mention(usb_port, "the operating voltage of a usb port is 5 volts.").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 fact_mention(pump, "a pump is a device.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").

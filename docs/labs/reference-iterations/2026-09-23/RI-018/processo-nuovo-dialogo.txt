@@ -1,0 +1,14 @@
+> What is the operating voltage of a USB port?
+5 volts.
+> What is the rated current of a plug fuse?
+13 amperes.
+> What is the operating voltage of a car battery?
+12 volts.
+> What steps up the voltage?
+Flyback transformer.
+> What protects the hand?
+Heat-resistant glove.
+> What is the capital of France?
+Paris.
+> conosci xdebug
+Su xdebug non so ancora molto, e la rete è spenta: adesso non posso leggerne.

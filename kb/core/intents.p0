@@ -6424,3 +6424,13 @@ faculty_force(arith, directive).
 % 12 frasi su 16 del piolo r300 non producono nessun frame. Far cedere il
 % frasario prima che la lettura copra il testo toglierebbe risposte senza
 % darne. La porta resta pronta per quando la copertura sale.
+% RI-018 (23 settembre 2026) — la porta si apre dove la lettura COPRE: se il
+% lettore dei frame ha legato la domanda E la KB ha il valore (la prova a secco
+% in 99-registry.c pubblica `turn_reading(T, answerable_question, frame)`), il
+% frasario cede. Non toglie risposte: cede solo quando ce n'e' una che legge.
+% «What is the operating voltage of a USB port?» riceveva la definizione del
+% sistema operativo.
+machinery(turn_frame_answer).
+turn_frame_answer($T, frame) :- turn_reading($T, answerable_question, frame).
+faculty_yield_when(answerframe, open, turn_frame_answer).
+faculty_yield_when(answer_frame, open, turn_frame_answer).

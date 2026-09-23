@@ -1,0 +1,2 @@
+3169ee61a1ad598c74dfab92ced442e6808dca3179550f2becfc26c47cd9e8d7  bin/parrot0
+afcb4ed8 learn(reference): RI-017 — che il trattino unisca una parola si insegna («"-" is a word joiner»)
