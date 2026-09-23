@@ -912,6 +912,10 @@ static void kb_trace(const KB *kb, const char *stage, const char *fmt, ...) {
     if (hook) kb->trace_fn(kb->trace_ctx, stage, line);
     else fprintf(stderr, "[%s] %s\n", stage, line);
 }
+/* Per chi non ha il Brain (src/code.c): una riga nel trace unico del turno. */
+void kb_trace_emit(const KB *kb, const char *stage, const char *label, const char *text) {
+    kb_trace(kb, stage, "%s %s", label ? label : "", text ? text : "");
+}
 /* Vale la pena misurare il tempo solo per il trace? */
 static int kb_trace_timing(const KB *kb) {
     return (kb && kb->trace_fn) || kb_trace_env_on("view");

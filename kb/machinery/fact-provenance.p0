@@ -528,6 +528,10 @@ fact_source(step_down(buck_converter, voltage), buck_converter, "a buck converte
 fact_source(step_up(flyback_transformer, voltage), flyback_transformer, "a flyback transformer steps up the voltage.").
 fact_source(adverbial_particle(down), down, "down is an adverbial particle").
 fact_source(adverbial_particle(up), up, "up is an adverbial particle").
+fact_source(protects(heat-resistant_glove, hand), heat-resistant_glove, "a heat-resistant glove protects the hand.").
+fact_source(disconnect(double-pole_switch, both_conductors), double-pole_switch, "a double-pole switch disconnects both conductors.").
+fact_source(step_down(step-down_transformer, voltage), step-down_transformer, "a step-down transformer steps down the voltage.").
+fact_source(word_joiner(-), -, ""-" is a word joiner").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -947,9 +951,16 @@ reading_fact(proposition(binary(step_down), roles(subject(buck_converter), objec
 reading_fact(step_up(flyback_transformer, voltage), "a flyback transformer steps up the voltage.").
 reading_fact(proposition(binary(move), roles(subject(pump), object(fluid))), "pumps move fluid.").
 reading_fact(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage))), "a flyback transformer steps up the voltage.").
+reading_fact(protects(heat-resistant_glove, hand), "a heat-resistant glove protects the hand.").
 reading_fact(adverbial_particle(down), "down is an adverbial particle").
+reading_fact(proposition(binary(protect), roles(subject(heat-resistant_glove), object(hand))), "a heat-resistant glove protects the hand.").
+reading_fact(disconnect(double-pole_switch, both_conductors), "a double-pole switch disconnects both conductors.").
 reading_fact(device(pump), "a pump is a device.").
+reading_fact(proposition(binary(disconnect), roles(subject(double-pole_switch), object(both_conductors))), "a double-pole switch disconnects both conductors.").
+reading_fact(step_down(step-down_transformer, voltage), "a step-down transformer steps down the voltage.").
 reading_fact(adverbial_particle(up), "up is an adverbial particle").
+reading_fact(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage))), "a step-down transformer steps down the voltage.").
+reading_fact(word_joiner(-), ""-" is a word joiner").
 reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -1089,14 +1100,20 @@ fact_mention(hertz, "the hertz measures frequency.").
 fact_mention(brandenburg_gate, "the brandenburg gate is in berlin.").
 fact_mention(plate, "a plate is a part.").
 fact_mention(voltage, "a buck converter steps down the voltage.").
+fact_mention(voltage, "a step-down transformer steps down the voltage.").
 fact_mention(buck_converter, "a buck converter steps down the voltage.").
+fact_mention(hand, "a heat-resistant glove protects the hand.").
+fact_mention(heat-resistant_glove, "a heat-resistant glove protects the hand.").
 fact_mention(direct_current, "capacitors block direct current.").
 fact_mention(capacitors, "capacitors block direct current.").
 fact_mention(fluid, "pumps move fluid.").
+fact_mention(both_conductors, "a double-pole switch disconnects both conductors.").
+fact_mention(double-pole_switch, "a double-pole switch disconnects both conductors.").
 fact_mention(voltage, "a flyback transformer steps up the voltage.").
 fact_mention(flyback_transformer, "a flyback transformer steps up the voltage.").
 fact_mention(pumps, "pumps move fluid.").
 fact_mention(information, "the byte measures information.").
+fact_mention(step-down_transformer, "a step-down transformer steps down the voltage.").
 fact_mention(byte, "the byte measures information.").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 fact_mention(pump, "a pump is a device.").

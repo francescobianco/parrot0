@@ -1,0 +1,15 @@
+Learned: step-down transformer step down voltage.
+Buck converter and transformer.
+Learned: - is a word joiner.
+Learned: step-down transformer step down voltage.
+Buck converter, transformer and step-down transformer.
+Learned: high-pass filter blocks low frequencies.
+Hmm, I don't know about blocks yet. Want me to learn about it?
+Learned: double-pole switch disconnect both conductors.
+Double-pole switch.
+I don't know: nothing I hold says step-down transformer is transformer, and nothing says it isn't.
+Hmm, I don't know about metres yet. Want me to learn about it?
+3.41.
+I no longer treat «-» as a word joiner.
+Learned: low-pass filter blocks high frequencies.
+Hmm, I don't know about blocks yet.

@@ -1,0 +1,12 @@
+"-" is a word joiner
+A step-down transformer steps down the voltage.
+What steps down the voltage?
+A double-pole switch disconnects both conductors.
+What disconnects both conductors?
+A heat-resistant glove protects the hand.
+What protects the hand?
+The interval is 30-375 and the fan is well-known.
+Which is greater, 3.14 or 3.41?
+forget that "-" is a word joiner
+A step-down regulator steps down the voltage.
+What steps down the voltage?

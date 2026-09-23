@@ -1,0 +1,4 @@
+> A step-down transformer steps down the voltage.
+Learned: step-down transformer step down voltage.
+> What steps down the voltage?
+Buck converter and transformer.

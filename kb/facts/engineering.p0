@@ -34,3 +34,11 @@ class_surface(part, part).
 % «a transformer steps down the voltage» come verita' generale e' falsa.)
 step_up(flyback_transformer, voltage).
 step_down(buck_converter, voltage).
+step_down(step-down_transformer, voltage).
+
+% RI-017 (23 settembre 2026) — termini tecnici col trattino, letti interi dopo
+% la lezione «"-" is a word joiner». Un interruttore bipolare apre entrambi i
+% conduttori; un guanto resistente al calore protegge la mano.
+disconnect(double-pole_switch, both_conductors).
+protects(heat-resistant_glove, hand).
+

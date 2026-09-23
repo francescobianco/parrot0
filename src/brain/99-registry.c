@@ -4055,6 +4055,18 @@ static void turn_publish_tokens(Brain *b, const char *surface,
             if (sc && *sc && !memchr(seps, sc[0], nsep)) seps[nsep++] = sc[0];
         }
     }
+    char joiners[16]; size_t njoin = 0;
+    {
+        char jr[16][KB_TERM_LEN];
+        const char *jq[1] = { NULL };
+        size_t nj = kb_match(b->kb, "word_joiner", jq, 1, jr, 16);
+        for (size_t i = 0; i < nj && njoin < sizeof joiners; i++) {
+            const char *jc = jr[i];
+            size_t jl = strlen(jc);
+            if (jl >= 3 && jc[0] == '"' && jc[jl - 1] == '"') { jc++; jl -= 2; }
+            if (jl == 1) joiners[njoin++] = jc[0];
+        }
+    }
     size_t k = 0;
     /* gen512 — UNA LETTERA ACCENTATA E' UNA LETTERA. I byte >= 0x80 sono
      * sempre parte di un carattere UTF-8, cioe' di una lettera come «é» o
@@ -4078,7 +4090,12 @@ static void turn_publish_tokens(Brain *b, const char *surface,
                            ((surface[p] == '.' || memchr(seps, surface[p], nsep)) &&
                             p > t && p + 1 < end &&
                             isdigit((unsigned char)surface[p - 1]) &&
-                            isdigit((unsigned char)surface[p + 1])))) p++;
+                            isdigit((unsigned char)surface[p + 1])) ||
+                           /* RI-017: `word_joiner/1` fra due lettere (code.c) */
+                           (njoin && memchr(joiners, surface[p], njoin) &&
+                            p > t && p + 1 < end &&
+                            isalpha((unsigned char)surface[p - 1]) &&
+                            isalpha((unsigned char)surface[p + 1])))) p++;
         if (p == t) { p++; continue; }   /* un token vuoto non esiste: si avanza */
         char tok[KB_TERM_LEN];
         if (!turn_quote(surface, t, p - t, tok, sizeof tok)) continue;

@@ -1,0 +1,24 @@
+> "-" is a word joiner
+Learned: - is a word joiner.
+> A step-down transformer steps down the voltage.
+Learned: step-down transformer step down voltage.
+> What steps down the voltage?
+Buck converter and step-down transformer.
+> A double-pole switch disconnects both conductors.
+Learned: double-pole switch disconnect both conductors.
+> What disconnects both conductors?
+Double-pole switch.
+> A heat-resistant glove protects the hand.
+Learned: heat-resistant glove protects hand.
+> What protects the hand?
+Heat-resistant glove.
+> The interval is 30-375 and the fan is well-known.
+Hmm, I don't know about well-known yet. Want me to learn about it?
+> Which is greater, 3.14 or 3.41?
+3.41.
+> forget that "-" is a word joiner
+I no longer treat «-» as a word joiner.
+> A step-down regulator steps down the voltage.
+Learned: step-down regulator step down voltage.
+> What steps down the voltage?
+Buck converter, step-down transformer and regulator.

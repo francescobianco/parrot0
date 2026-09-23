@@ -436,6 +436,7 @@ size_t kb_view_stamp(const KB *kb, const char *pred);
 /* Il gancio del trace unico del turno (brain.c): le righe del motore — viste
  * invalidate, ricostruite, rifiutate; il salvataggio instradato — ci passano. */
 void kb_set_trace_hook(KB *kb, void (*fn)(void *ctx, const char *stage, const char *text), void *ctx);
+void kb_trace_emit(const KB *kb, const char *stage, const char *label, const char *text);
 
 /* Costruisce subito ogni vista dichiarata: si chiama a fine boot, cosi' il
  * costo del congelamento e' avvio e non un turno. */

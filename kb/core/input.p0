@@ -431,3 +431,17 @@ machinery(turn_cue).
 machinery(turn_cue_registry).
 machinery(span_state_model).
 machinery(machinery).
+
+% ── RI-017 (23 settembre 2026) — I CARATTERI CHE UNISCONO UNA PAROLA ──────
+% Un carattere di `word_joiner/1`, fra due lettere, tiene insieme la parola per
+% i tokenizzatori del turno e della IR (src/code.c, 99-registry.c): «step-down»,
+% «well-known», «high-pass» restano una parola, e il sintagma che le contiene
+% («a step-down transformer») arriva intero. Nessun membro e' scritto qui: si
+% insegna dicendolo («"-" is a word joiner»), si ritira allo stesso modo, e una
+% lingua con un altro segno ne aggiunge uno. Fra due cifre il trattino resta un
+% confine («30-375» sono due numeri): la regola chiede lettere.
+machinery(word_joiner).
+class_surface(word_joiner, word joiner).
+% Insegnato parlando (RI-017): «"-" is a word joiner».
+word_joiner(-).
+

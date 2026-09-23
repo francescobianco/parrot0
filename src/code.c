@@ -94,11 +94,34 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
 #define P0_IR_NUMGLUE(r, p, lo, hi) \
     (((r)[(p)] == '.' || (r)[(p)] == ',') && (p) > (lo) && (p) + 1 < (hi) && \
      isdigit((unsigned char)(r)[(p) - 1]) && isdigit((unsigned char)(r)[(p) + 1]))
+    /* RI-017 (23 settembre 2026) — CHI UNISCE DUE LETTERE IN UNA PAROLA LO DICE
+     * LA KB. «a step-down transformer» arrivava alla IR come «step», «down»,
+     * «transformer», e il sintagma finiva prima di «step» (un verbo): la IR
+     * leggeva «transformer» e rispondeva di un trasformatore qualsiasi.
+     * `word_joiner/1` e' la classe dei caratteri che, fra due lettere, tengono
+     * insieme la parola — il trattino dell'inglese si insegna dicendolo; qui
+     * non se ne nomina nessuno. */
+    char joiners[16]; size_t njoin = 0;
+    {
+        char jr[16][KB_TERM_LEN];
+        const char *jq[1] = { NULL };
+        size_t nj = kb_match(kb, "word_joiner", jq, 1, jr, 16);
+        for (size_t i = 0; i < nj && njoin < sizeof joiners; i++) {
+            const char *jc = jr[i];
+            size_t jl = strlen(jc);
+            if (jl >= 3 && jc[0] == '"' && jc[jl - 1] == '"') { jc++; jl -= 2; }
+            if (jl == 1) joiners[njoin++] = jc[0];
+        }
+    }
+#define P0_IR_JOIN(r, p, lo, hi) \
+    (njoin && memchr(joiners, (r)[(p)], njoin) && (p) > (lo) && (p) + 1 < (hi) && \
+     isalpha((unsigned char)(r)[(p) - 1]) && isalpha((unsigned char)(r)[(p) + 1]))
     for (size_t p = begin; p < end && nw < 64; ) {
         while (p < end && !P0_IR_WORDCH(raw[p])) p++;
         if (p >= end) break;
         size_t s = p++;
-        while (p < end && (P0_IR_WORDCH(raw[p]) || P0_IR_NUMGLUE(raw, p, s, end))) p++;
+        while (p < end && (P0_IR_WORDCH(raw[p]) || P0_IR_NUMGLUE(raw, p, s, end) ||
+                           P0_IR_JOIN(raw, p, s, end))) p++;
         size_t len = p - s;
         if (len >= sizeof words[nw].word) len = sizeof words[nw].word - 1;
         memcpy(words[nw].word, raw + s, len);
@@ -165,6 +188,14 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
     int ambiguous = 0;
     size_t nn = input_structure(kb, raw, span, nodes, 128, &ambiguous);
     if (ambiguous) return 0;
+    {   /* il trace unico del turno: i token come li vede la IR (RI-017) —
+         * «step-down» e' una parola o due? Si legge senza ricalcolare. */
+        char tl[320]; size_t to = 0; tl[0] = '\0';
+        for (size_t i = 0; i < nn && to + 4 < sizeof tl; i++)
+            if (!strcmp(nodes[i].level, "token"))
+                to += (size_t)snprintf(tl + to, sizeof tl - to, "%s|", nodes[i].surface);
+        kb_trace_emit(kb, "ir", scope, tl);
+    }
     kb_set_origin(kb, KB_REFLECTIVE);
     for (size_t i = 0; i < nn; i++) {
         char id[24], parent[24], node[KB_TERM_LEN], range[KB_TERM_LEN];

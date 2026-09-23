@@ -7413,19 +7413,22 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     kb_set_origin(b->kb, prev);
 
     char msg[256];
+    /* La conferma usa il NOME DETTO dal maestro («word joiner»), non la chiave
+     * interna (`word_joiner`): e' la stessa classe, detta nella sua lingua. */
+    const char *spoken = label[0] ? label : cls;
     char art[16];
-    p0_indef_article(b, cls, art, sizeof art);
+    p0_indef_article(b, spoken, art, sizeof art);
     if (fresh && *art) {
         /* Qui il predicato unario E' una classe — la variabile si chiama `cls`
          * e ci arriva dalla scansione delle classi — quindi dirla in lingua non
          * e' un'ipotesi sul significato. */
         kb_term_say(b, "learned_class_fact", (const KbResponseSlot[]){
-                        { "arg", mentioned }, { "art", art }, { "cls", cls } }, 3,
+                        { "arg", mentioned }, { "art", art }, { "cls", spoken } }, 3,
                     msg, sizeof msg);
     } else
     kb_term_say(b, fresh ? "learned_unary_fact" : "known_unary_fact",
                 (const KbResponseSlot[]){
-                    { "pred", cls }, { "arg", mentioned } }, 2,
+                    { "pred", spoken }, { "arg", mentioned } }, 2,
                 msg, sizeof msg);
     put(msg, out, out_size);
     return 1;

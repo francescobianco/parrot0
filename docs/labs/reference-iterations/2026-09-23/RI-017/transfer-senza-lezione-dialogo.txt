@@ -1,0 +1,8 @@
+> A double-pole switch disconnects both conductors.
+Learned: double-pole switch disconnect both conductors.
+> What disconnects both conductors?
+Double pole switch.
+> A heat-resistant glove protects the hand.
+Learned: heat-resistant glove protects hand.
+> What protects the hand?
+Resistant glove.

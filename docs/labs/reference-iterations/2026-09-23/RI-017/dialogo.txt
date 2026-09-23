@@ -1,0 +1,30 @@
+> A step-down transformer steps down the voltage.
+Learned: step-down transformer step down voltage.
+> What steps down the voltage?
+Buck converter and transformer.
+> "-" is a word joiner
+Learned: - is a word joiner.
+> A step-down transformer steps down the voltage.
+Learned: step-down transformer step down voltage.
+> What steps down the voltage?
+Buck converter, transformer and step-down transformer.
+> A high-pass filter blocks low frequencies.
+Learned: high-pass filter blocks low frequencies.
+> What blocks low frequencies?
+Hmm, I don't know about blocks yet. Want me to learn about it?
+> A double-pole switch disconnects both conductors.
+Learned: double-pole switch disconnect both conductors.
+> What disconnects both conductors?
+Double-pole switch.
+> Is a step-down transformer a transformer?
+I don't know: nothing I hold says step-down transformer is transformer, and nothing says it isn't.
+> The range of the drone is 30-375 metres.
+Hmm, I don't know about metres yet. Want me to learn about it?
+> Which is greater, 3.14 or 3.41?
+3.41.
+> forget that "-" is a word joiner
+I no longer treat «-» as a word joiner.
+> A low-pass filter blocks high frequencies.
+Learned: low-pass filter blocks high frequencies.
+> What blocks high frequencies?
+Hmm, I don't know about blocks yet.

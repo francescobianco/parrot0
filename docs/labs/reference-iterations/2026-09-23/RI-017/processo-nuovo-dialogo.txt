@@ -1,0 +1,22 @@
+> What steps down the voltage?
+Step-down transformer and buck converter.
+> What protects the hand?
+Heat-resistant glove.
+> is - a word joiner?
+I don't know: nothing I hold says - is a word joiner, and nothing says it isn't. Knowing some word joiners does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.
+> A well-known protocol secures the link.
+Learned: well-known protocol secure link.
+> What secures the link?
+Well-known protocol.
+> What steps up the voltage?
+Flyback transformer.
+> Does a flyback transformer step up the voltage?
+Yes.
+> Capacitors block direct current.
+Learned: capacitors block direct current.
+> What do capacitors block?
+Direct current.
+> Which is greater, 3.14 or 3.41?
+3.41.
+> conosci xdebug
+Su xdebug non so ancora molto, e la rete è spenta: adesso non posso leggerne.

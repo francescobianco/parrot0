@@ -1,0 +1,2 @@
+f857462f2837b74a880767f3cdfe42a19f038e0d501a37ef8575d85da0fa4289  bin/parrot0
+a7ca0b1a learn(reference): RI-016 — una particella che cambia il significato del verbo si insegna (step up / step down / break down)
