@@ -1117,7 +1117,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                            char *out, size_t out_size) {
     (void)norm;
     char q[256]; normalize(raw, q, sizeof q);          /* intact, un-canonicalized */
-    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] ENTER «%s»\n", q);
+    p0_trace(b, "wp", "ENTER «%s»\n", q);
 
     /* gen251: recipe scaling. The recipe facts are read from the turn as
      * quantity/unit/ingredient triples, then multiplied by the requested scale. */
@@ -2910,7 +2910,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
 
     /* question guard: only attempt on an explicit "how many / how much / quanti…"
      * or a count phrasing ("maximum number of", "number of", "arrangements"). */
-    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] guard reached, match=%d\n", kb_cue_match(b, "25_wordmath_reasoning_chain2472", q));
+    p0_trace(b, "wp", "guard reached, match=%d\n", kb_cue_match(b, "25_wordmath_reasoning_chain2472", q));
     if (!(kb_cue_match(b, "25_wordmath_reasoning_chain2472", q)))
         return 0;
 
@@ -3414,7 +3414,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     char *w[64]; size_t nw = split_words(buf, w, 64);
     double nums[16];
     size_t nn = collect_numbers(w, nw, nums, 16);
-    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] nums nn=%zu\n", nn);
+    p0_trace(b, "wp", "nums nn=%zu\n", nn);
 
     if (b && b->kb && kb_cue_match(b, "two_party_exchange", q)) {
         double user = -1, assistant = -1, ua = 0, au = 0;
@@ -3685,7 +3685,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     double a = nums[0], c = nums[1];
     /* gen512: la sonda che ha trovato il §4.2 — «quali numeri ho letto, e quale
      * operazione la KB mi fa scegliere». P0_WP_TRACE=1. */
-    if (getenv("P0_WP_TRACE")) fprintf(stderr, "[wp] q=«%s» nn=%zu a=%g c=%g", q, nn, a, c);
+    p0_trace(b, "wp", "q=«%s» nn=%zu a=%g c=%g", q, nn, a, c);
 
     /* choose the operation by cue, in a priority that resolves overlaps:
      * division, then comparison-difference / removal (both '-'), then
@@ -3728,7 +3728,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (kb_query(b->kb, "acquisition_verb", aq, 1)) op = '+';
         }
     }
-    if (getenv("P0_WP_TRACE")) fprintf(stderr, " op=%c\n", op ? op : '-');
+    p0_trace(b, "wp", " op=%c\n", op ? op : '-');
     if (!op) return 0;
 
     double r;

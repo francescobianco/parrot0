@@ -969,6 +969,23 @@ void p0_debug_turn_profile(Brain *brain, double ms) {
     fflush(stderr);
 }
 
+/* IL TRACE UNICO DEL TURNO, in ordine: canone e forza, ogni facolta' provata
+ * (chi cede e per quale regola, chi declina, chi risponde), i cancelli dei
+ * lettori, gli schemi legati, le ricevute, le viste, la prova della risposta.
+ * Con `filter` si tengono solo le righe che lo contengono (`/debug trace X`). */
+void p0_debug_trace(Brain *brain, const char *filter) {
+    size_t n = brain_trace_count(brain);
+    fprintf(stderr, "\n  TRACCIA DEL TURNO (%zu righe%s%s%s)\n", n,
+            filter ? ", filtro «" : "", filter ? filter : "", filter ? "»" : "");
+    for (size_t i = 0; i < n; i++) {
+        const char *l = brain_trace_line(brain, i);
+        if (!l || (filter && *filter && !strstr(l, filter))) continue;
+        fprintf(stderr, "    %s\n", l);
+    }
+    if (brain_trace_dropped(brain))
+        fprintf(stderr, "    (… %zu righe oltre il tetto)\n", brain_trace_dropped(brain));
+}
+
 void p0_debug_inspect(Brain *brain, const char *last_line) {
     KB *kb = brain_kb(brain);
     fprintf(stderr, "\n");
@@ -1145,6 +1162,7 @@ void p0_debug_inspect(Brain *brain, const char *last_line) {
             fprintf(stderr, "    %-11s %s\n", kb_dequote_pub(kbf), kb_dequote_pub(tbf));
         }
     }
+    p0_debug_trace(brain, NULL);
     fprintf(stderr, "\n");
     fflush(stderr);
 }
@@ -1524,6 +1542,10 @@ int main(int argc, char **argv) {
          * l'autore immaginava, non cio' che poi rallenta. */
         if (strcmp(line, "/debug dump") == 0) {
             brain_turn_dump(brain);
+            continue;
+        }
+        if (strcmp(line, "/debug trace") == 0 || strncmp(line, "/debug trace ", 13) == 0) {
+            p0_debug_trace(brain, line[12] ? line + 13 : NULL);
             continue;
         }
         if (strncmp(line, "/debug ", 7) == 0 &&

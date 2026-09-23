@@ -21,6 +21,11 @@ ricompilare?"** Se no, quella conoscenza è nel posto sbagliato.
   ciclo di modifica. Se sfora il budget si tolgono casi, non si alza il budget.
 - `make test` — la suite intera (~1619 assert). Deve restare verde.
 - `parrot0 --test FILE.p0t` — manda un singolo file al demone (`make test-engine`).
+- **Il filo di un turno**: `/debug` (in chat) o `!debug` (in un `.p0t`) stampa
+  la TRACCIA DEL TURNO — dispatch, cessioni con la regola, lettori, schemi,
+  ricevute, viste, prova della risposta — attraverso C e KB, in ordine;
+  `/debug trace <parola>` la filtra, `PARROT0_TURN_LOG=file` la salva per turno.
+  Si parte da qui, non dal grep e non da una `fprintf` temporanea.
 - `tests/comprehension-probe/probe.py smoke` — il banco piccolo di comprensione
   (~1 minuto, risposte verbatim da leggere).
 

@@ -254,6 +254,11 @@ typedef struct {
 } KbView;
 
 struct KB {
+    /* Il trace unico del turno (brain.c, `p0_trace`): il motore non conosce il
+     * Brain, quindi le sue righe passano da un gancio. Senza gancio, l'eco su
+     * stderr segue le vecchie variabili d'ambiente. */
+    void (*trace_fn)(void *ctx, const char *stage, const char *text);
+    void *trace_ctx;
     Fact  *facts;
     size_t n;
     size_t cap;
@@ -886,6 +891,32 @@ static void pred_stats_note_rule(KB *kb, size_t ri) {
  * than patch the buckets per path we mark the census stale and recount once,
  * lazily, at the next read. Retraction is rare next to lookup; this keeps the
  * hot path free of bookkeeping. */
+void kb_set_trace_hook(KB *kb, void (*fn)(void *, const char *, const char *), void *ctx) {
+    if (!kb) return;
+    kb->trace_fn = fn; kb->trace_ctx = ctx;
+}
+static int kb_trace_env_on(const char *stage) {
+    const char *all = getenv("PARROT0_TRACE_ECHO");
+    if (all && *all && strcmp(all, "0")) return 1;
+    const char *env = !strcmp(stage, "save") ? "P0_SAVE_TRACE" : "PARROT0_BOOT_TRACE";
+    const char *v = getenv(env);
+    return v && *v && strcmp(v, "0");
+}
+static void kb_trace(const KB *kb, const char *stage, const char *fmt, ...)
+    __attribute__((format(printf, 3, 4)));
+static void kb_trace(const KB *kb, const char *stage, const char *fmt, ...) {
+    int hook = kb && kb->trace_fn;
+    if (!hook && !kb_trace_env_on(stage)) return;
+    char line[320];
+    va_list ap; va_start(ap, fmt); vsnprintf(line, sizeof line, fmt, ap); va_end(ap);
+    if (hook) kb->trace_fn(kb->trace_ctx, stage, line);
+    else fprintf(stderr, "[%s] %s\n", stage, line);
+}
+/* Vale la pena misurare il tempo solo per il trace? */
+static int kb_trace_timing(const KB *kb) {
+    return (kb && kb->trace_fn) || kb_trace_env_on("view");
+}
+
 static void pred_stats_invalidate(KB *kb) { if (kb) kb->pred_stats_dirty = 1; }
 
 static void pred_stats_rebuild(KB *kb) {
@@ -1123,12 +1154,9 @@ static void kb_views_changed_ex(KB *kb, const char *pred, const KbView *self) {
         /* Chi invalida che cosa: un turno che ricostruisce una vista cara lo fa
          * SEMPRE per una asserzione, e con `PARROT0_BOOT_TRACE=1` si legge quale
          * invece di indovinarla (19 settembre 2026). */
-        if (v->live) {
-            const char *ite = getenv("PARROT0_BOOT_TRACE");
-            if (ite && strcmp(ite, "1") == 0)
-                fprintf(stderr, "[view] %-28s  invalidata da %s%s\n",
-                        v->pred, pred, v->broad ? " (broad)" : "");
-        }
+        if (v->live)
+            kb_trace(kb, "view", "%-28s invalidata da %s%s",
+                     v->pred, pred, v->broad ? " (broad)" : "");
         v->live = 0;
         v->dirty = 1;
         v->attempted = 0;
@@ -4358,9 +4386,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
         /* Una vista il cui grafo non si chiude resta `broad`: la invalida OGNI
          * asserzione, quindi si ricostruisce dentro i turni. Chi la rifiuta si
          * vede con `PARROT0_BOOT_TRACE=1`, invece di dedurlo dai tempi. */
-        const char *dte = getenv("PARROT0_BOOT_TRACE");
-        if (dte && strcmp(dte, "1") == 0)
-            fprintf(stderr, "[view] %-28s  rifiutata: il grafo delle dipendenze non si chiude\n", pred);
+        kb_trace(kb, "view", "%-28s rifiutata: il grafo delle dipendenze non si chiude", pred);
         kb->views_preparing = 0;
         return 0;
     }
@@ -4373,8 +4399,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
      * accanto alle fasi del boot. Una KB che cresce moltiplica una vista
      * lontana da dove e' cresciuta (19 settembre 2026: 844 verbi di relazione
      * portavano il primo turno da 0,4 a 2,7 s): si guarda qui, non si indovina. */
-    const char *vte = getenv("PARROT0_BOOT_TRACE");
-    int vtrace = vte && strcmp(vte, "1") == 0;
+    int vtrace = kb_trace_timing(kb);
     struct timespec vt0; if (vtrace) timespec_get(&vt0, TIME_UTC);
     /* gen510 — UNA VISTA BINARIA SI ENUMERA UNA VOLTA, NON UNA PER RIGA.
      *
@@ -4445,7 +4470,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
     v->building = 0;
     if (vtrace) {
         struct timespec vt1; timespec_get(&vt1, TIME_UTC);
-        fprintf(stderr, "[view] %-28s %8.1f ms%s\n", pred,
+        kb_trace(kb, "view", "%-28s %8.1f ms%s", pred,
                 (double)(vt1.tv_sec - vt0.tv_sec) * 1000.0 +
                 (double)(vt1.tv_nsec - vt0.tv_nsec) / 1e6,
                 complete ? "" : " (incompleta)");
@@ -7490,18 +7515,18 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
         const Fact *fa = &kb->facts[i];
         if (!(fa->origin & KB_SESSION) || fa->argc == 0) continue;   /* gen505c */
         if (sm_is_turn_scratch(kb, fa->pred)) { routed[i] = 1;
-            if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s/%zu: turn_scratch\n", fa->pred, fa->argc);
+            kb_trace(kb, "save", "%s/%zu: turn_scratch", fa->pred, fa->argc);
             continue; }
         const char *file = NULL; int line = 0;
         if (!smap_home(kb, fa->pred, fa->args[0], &file, &line)) {
-            if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s(%s): nessuna casa\n", fa->pred, fa->args[0]);
+            kb_trace(kb, "save", "%s(%s): nessuna casa", fa->pred, fa->args[0]);
             continue; }
         char text[2048];
         sm_fact_text(fa, text, sizeof text);
         if (!sm_insert(file, line, text)) {
-            if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s(%s): casa %s:%d, insert FALLITA\n", fa->pred, fa->args[0], file, line);
+            kb_trace(kb, "save", "%s(%s): casa %s:%d, insert FALLITA", fa->pred, fa->args[0], file, line);
             continue; }
-        if (getenv("P0_SAVE_TRACE")) fprintf(stderr, "[save] %s(%s) -> %s:%d\n", fa->pred, fa->args[0], file, line);
+        kb_trace(kb, "save", "%s(%s) -> %s:%d", fa->pred, fa->args[0], file, line);
         routed[i] = 1; count++;
         if (!sm_same_file(file, default_path)) sml_push(&homed, text);
     }
@@ -7575,8 +7600,7 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
                 if (pred[0] && a0[0] && smap_home(kb, pred, a0, &file, &line_no))
                     removed = sm_delete(file, line);
                 if (!removed) removed = sm_delete(default_path, line);
-                if (removed && getenv("P0_SAVE_TRACE"))
-                    fprintf(stderr, "[save] ritirato: %s\n", line);
+                if (removed) kb_trace(kb, "save", "ritirato: %s", line);
             }
         }
         free(gone);

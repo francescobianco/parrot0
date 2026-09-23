@@ -77,9 +77,9 @@ acquisition_move(acquire) :-
     gap_remedy_action(knowledge, read_topic), reading_available,
     naf(acquisition_policy(act)), naf(acquisition_policy(never)),
     turn_read_request, naf(reading_now).
-knowledge_head_surface("definisci ", strong).
-knowledge_head_surface("search wikipedia for ", strong).
-knowledge_head_surface("look up on wikipedia ", strong).
+knowledge_head("definisci ", strong).
+knowledge_head("search wikipedia for ", strong).
+knowledge_head("look up on wikipedia ", strong).
 read_request_head("definisci ").
 read_request_head("search wikipedia for ").
 read_request_head("look up on wikipedia ").

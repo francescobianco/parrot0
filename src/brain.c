@@ -25,6 +25,7 @@
 #include "json.h"   /* string escaping for record payloads */
 
 #include <ctype.h>
+#include <stdarg.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -41,6 +42,8 @@
  * (see 99-registry.c): the trace is parrot0's own account of how it decided, so
  * truncating it is a correctness bug, not a display detail. */
 #define BRAIN_TRACE_MAX 128
+#define P0_TRACE_W   320     /* una riga del trace unico del turno */
+#define P0_TRACE_CAP 4000    /* righe per turno; oltre si contano e si dice */
 
 struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
@@ -232,6 +235,13 @@ struct Brain {
      * riproposta) legge la PROPRIA lingua ma non sposta quella della
      * conversazione. Vedi `canonicalize_fragment`. */
     int respond_depth;
+    /* IL TRACE UNICO DEL TURNO (23 settembre 2026, F.: «connettere tutto in un
+     * unico trace log»). Ogni stadio — dispatch, cessioni, lettori, schemi,
+     * ricevute, prove, viste — scrive qui, in ordine, attraverso `p0_trace`.
+     * Si azzera all'ingresso del turno piu' esterno; lo leggono /debug, !debug
+     * nei test e il file di PARROT0_TURN_LOG. */
+    char  (*turn_trace)[P0_TRACE_W];
+    size_t n_turn_trace, cap_turn_trace, dropped_turn_trace;
     /* gen511: vale 1 soltanto mentre si canonicalizza il turno stesso (non un
      * frammento, non un'ispezione): e' allora che la lettura registra che cosa
      * ha tradotto per ipotesi e che cosa ha lasciato intatto. */
@@ -492,6 +502,79 @@ static void note_contradiction(Brain *b, const char *pred, const char *arg,
         snprintf(b->conflict_arg, sizeof b->conflict_arg, "%s", arg);
         b->has_conflict = 1;
     }
+}
+
+/* ── IL TRACE UNICO DEL TURNO ──────────────────────────────────────────────
+ *
+ * F. l'ha chiesto sette volte in un mese, in parole diverse: lo strumento di
+ * debug deve crescere, le tracce temporanee devono diventarne parte, e la
+ * caccia al filo d'Arianna fra C e KB deve finire. Prima c'erano sei variabili
+ * d'ambiente (P0_READ/FORM/FRAME/SAVE/WP_TRACE, PARROT0_BOOT_TRACE) con 97
+ * `fprintf` su stderr, le sonde di /debug e le note dei lettori: tre sistemi,
+ * nessuno in ordine, nessuno dopo il turno.
+ *
+ * Adesso c'e' un posto solo. `p0_trace(b, stadio, fmt, ...)` accoda una riga al
+ * trace del turno — sempre, perche' il turno che sbaglia e' quello che non si
+ * sapeva di dover guardare — e la ripete su stderr se l'utente ha chiesto
+ * quello stadio con la sua vecchia variabile (o tutti con PARROT0_TRACE_ECHO=1).
+ * Il costo e' una snprintf per evento; cio' che costa davvero (una prova, una
+ * enumerazione in piu') si chiede con `p0_trace_deep`, vero solo col profilo di
+ * /debug acceso o con un'eco richiesta. */
+static const char *p0_trace_env(const char *stage) {
+    if (!stage) return NULL;
+    if (!strcmp(stage, "read") || !strcmp(stage, "lang") || !strcmp(stage, "turn")) return "P0_READ_TRACE";
+    if (!strcmp(stage, "form")) return "P0_FORM_TRACE";
+    if (!strcmp(stage, "frame")) return "P0_FRAME_TRACE";
+    if (!strcmp(stage, "save")) return "P0_SAVE_TRACE";
+    if (!strcmp(stage, "wp")) return "P0_WP_TRACE";
+    if (!strcmp(stage, "view") || !strcmp(stage, "boot")) return "PARROT0_BOOT_TRACE";
+    return NULL;
+}
+static int p0_trace_echo(const char *stage) {
+    const char *all = getenv("PARROT0_TRACE_ECHO");
+    if (all && *all && strcmp(all, "0")) return 1;
+    const char *env = p0_trace_env(stage);
+    const char *v = env ? getenv(env) : NULL;
+    return v && *v && strcmp(v, "0");
+}
+/* Vale la pena calcolare qualcosa IN PIU' solo per il trace? */
+static int p0_trace_deep(Brain *b) {
+    if (b && b->kb && kb_profile_on(b->kb)) return 1;
+    const char *all = getenv("PARROT0_TRACE_ECHO");
+    if (all && *all && strcmp(all, "0")) return 1;
+    return getenv("PARROT0_TURN_LOG") != NULL;
+}
+static void p0_trace_line(Brain *b, const char *stage, const char *text) {
+    if (!text) return;
+    if (p0_trace_echo(stage)) fprintf(stderr, "[%s] %s\n", stage ? stage : "-", text);
+    if (!b) return;
+    if (b->n_turn_trace >= P0_TRACE_CAP) { b->dropped_turn_trace++; return; }
+    if (b->n_turn_trace == b->cap_turn_trace) {
+        size_t nc = b->cap_turn_trace ? b->cap_turn_trace * 2 : 256;
+        if (nc > P0_TRACE_CAP) nc = P0_TRACE_CAP;
+        void *g = realloc(b->turn_trace, nc * sizeof *b->turn_trace);
+        if (!g) { b->dropped_turn_trace++; return; }
+        b->turn_trace = g; b->cap_turn_trace = nc;
+    }
+    int depth = b->respond_depth > 1 ? b->respond_depth - 1 : 0;
+    snprintf(b->turn_trace[b->n_turn_trace++], P0_TRACE_W, "%*s%-6s %s",
+             depth * 2, "", stage ? stage : "-", text);
+}
+static void p0_trace(Brain *b, const char *stage, const char *fmt, ...)
+    __attribute__((format(printf, 3, 4)));
+static void p0_trace(Brain *b, const char *stage, const char *fmt, ...) {
+    char line[P0_TRACE_W];
+    va_list ap; va_start(ap, fmt);
+    vsnprintf(line, sizeof line, fmt, ap);
+    va_end(ap);
+    size_t l = strlen(line);
+    while (l && (line[l - 1] == '\n' || line[l - 1] == ' ')) line[--l] = '\0';
+    p0_trace_line(b, stage, line);
+}
+/* Il motore della KB non conosce il Brain: le sue righe (viste invalidate e
+ * ricostruite) arrivano da un gancio. */
+static void p0_trace_kb_hook(void *ctx, const char *stage, const char *text) {
+    p0_trace_line((Brain *)ctx, stage, text);
 }
 
 /* ---------------------------------------------------------------------------

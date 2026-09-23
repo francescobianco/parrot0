@@ -1694,6 +1694,9 @@ machinery(verb_reading_form).
 % PARTICELLA: cfr. docs/labs/reference-iterations/2026-09-20/RI-001/scheda.md.
 machinery(verb_particle_word).
 verb_particle_word($P) :- verb_particle($Root, $P).
+% e una particella avverbiale e' una particella di verbo, anche prima che un
+% verbo la porti (RI-016: «down» non si poteva insegnare prima del suo verbo)
+verb_particle_word($P) :- adverbial_particle($P).
 class_surface(verb_particle_word, verb particle).
 % E il nome della particella e' la particella stessa: serve al pezzo `named`
 % della forma di turno, che lega un valore solo dove la KB lo riconosce.
@@ -1760,6 +1763,21 @@ verb_particle_surface($Root, $Surface) :-
 extract_frame($Pat, $Root) :-
     verb_particle_surface($Root, $Surface),
     verb_particle($Root, $Particle), naf(converse_particle_pair($Root, $Particle)),
+    naf(adverbial_particle($Particle)),
+    concat_atoms("@S ", $Surface, $A),
+    concat_atoms($A, " @O", $Pat).
+% RI-016 (23 settembre 2026) — UNA PARTICELLA AVVERBIALE E' PARTE DEL VERBO.
+% «into» introduce l'oggetto e il predicato e' la radice (flow into -> flow),
+% ma «down» e «up» cambiano che cosa si fa: «A transformer steps down the
+% voltage.» diventava `step(transformer, voltage)`, e «What steps up the
+% voltage?» rispondeva «Transformer» — un falso. Con una particella avverbiale
+% (`adverbial_particle/1`, lessico: «down is an adverbial particle») il
+% predicato e' `radice_particella`, e i due verbi restano due relazioni.
+extract_frame($Pat, $Pred) :-
+    verb_particle($Root, $Particle), adverbial_particle($Particle),
+    verb_finite_form($Root, $Form),
+    concat_atoms($Form, " ", $F1), concat_atoms($F1, $Particle, $Surface),
+    concat_atoms($Root, "_", $R1), concat_atoms($R1, $Particle, $Pred),
     concat_atoms("@S ", $Surface, $A),
     concat_atoms($A, " @O", $Pat).
 

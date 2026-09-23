@@ -3179,7 +3179,7 @@ static int extract_clause(Brain *b, char *clause, const char *source_base,
                  bundles, 1) == 1) {
         char receipts[1][KB_TERM_LEN];
         const char *commit[] = { "current_prose", bundles[0], NULL };
-        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] clause=«%s» bundle=%s\n", c, bundles[0]);
+        p0_trace(b, "read", "clause=«%s» bundle=%s\n", c, bundles[0]);
         if (kb_match(b->kb, "input_frame_commit", commit, 3,
                      receipts, 1) != 1)
             return 0;
@@ -3199,15 +3199,15 @@ static int extract_clause(Brain *b, char *clause, const char *source_base,
     canonicalize_lang(b, norm, canon, sizeof canon);
 
     char resp[256];
-    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] clause=«%s» canon=«%s» no bundle\n", c, canon);
+    p0_trace(b, "read", "clause=«%s» canon=«%s» no bundle\n", c, canon);
     if (mod_quantity(b, canon, c, resp, sizeof resp) ||
         mod_cause(b, canon, c, resp, sizeof resp) ||
         mod_same(b, canon, c, resp, sizeof resp) ||
         mod_knowledge(b, canon, c, resp, sizeof resp)) {
-        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] resp=«%s»\n", resp);
+        p0_trace(b, "read", "resp=«%s»\n", resp);
         return!lex_prefix_member(b, "30_generation_reading_lex1736", resp) == 0; /* an assertion, not a query */
     }
-    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] no module claimed\n");
+    p0_trace(b, "read", "no module claimed\n");
     return 0;
 }
 
@@ -3468,7 +3468,7 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
         char *clause = p;
         if (reader_focus_rewrite(b, p, focus, sizeof focus, rewritten, sizeof rewritten))
             clause = rewritten;
-        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] focus=«%s» clause=«%s»\n", focus, clause);
+        p0_trace(b, "read", "focus=«%s» clause=«%s»\n", focus, clause);
         int extracted = extract_clause(b, clause, buf, document, unit_order);
         if (has_content) unit_order++;
         if (extracted > 0) {

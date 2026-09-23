@@ -2469,8 +2469,7 @@ static void detect_set_language(Brain *b, const char *norm) {
     current_lang(b, sticky, sizeof sticky);
     int found = observe_language(b, "current_turn", norm, sticky,
                                  selected, sizeof selected);
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[lang] «%s» sticky=%s selected=%s\n", norm, sticky,
+    p0_trace(b, "read.lang", "«%s» sticky=%s selected=%s\n", norm, sticky,
                 found ? selected : "-");
     if (found && selected[0] && strcmp(sticky, selected) != 0)
         language_set(b, selected);
@@ -2590,6 +2589,7 @@ static int p0_taught_antecedent(Brain *b, const char *pron, char *out, size_t ou
 static void p0_antecedent_receipt(Brain *b, const char *pron, const char *ent,
                                   const char *reason) {
     if (!b || !b->kb || !pron || !*pron || !ent || !*ent) return;
+    p0_trace(b, "refer", "«%s» -> %s (%s)", pron, ent, reason);
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
     char choice[KB_TERM_LEN];
@@ -5564,8 +5564,7 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                     if (!*tok) continue;
                     if (lex_class_member(b, "clause_copula", tok) ||
                         lex_class_member(b, "auxiliary", tok)) {
-                        if (getenv("P0_FRAME_TRACE"))
-                            fprintf(stderr, "[frame] rifiutato: lo slot «%s» porta un verbo finito\n", dst);
+                        p0_trace(b, "frame", "rifiutato: lo slot «%s» porta un verbo finito\n", dst);
                         return 0;
                     }
                 }
@@ -5597,13 +5596,11 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
     if (r->nslots < 2) return 0;
     for (size_t si = 0; si < r->nslots; si++)
         if (!r->slot[si][0]) return 0;
-    if (getenv("P0_FRAME_TRACE")) {
-        fprintf(stderr, "[frame] pat=«%s» toks=", r->pattern);
-        for (size_t k = 0; k < n && k < 20; k++)
-            fprintf(stderr, "%s%s", w[k], comma_at[k] ? "<," : "|");
-        fprintf(stderr, " slots=");
-        for (size_t si = 0; si < r->nslots; si++) fprintf(stderr, "[%s]", r->slot[si]);
-        fprintf(stderr, "\n");
+    {   /* ogni schema legato, con i suoi slot: il trace unico del turno */
+        char tl[P0_TRACE_W]; size_t to = 0;
+        for (size_t si = 0; si < r->nslots && to + 4 < sizeof tl; si++)
+            to += (size_t)snprintf(tl + to, sizeof tl - to, "[%s]", r->slot[si]);
+        p0_trace(b, "frame", "bind «%s» slots=%s", r->pattern, tl);
     }
     r->consumed = wi;
     r->total = n;
@@ -7052,6 +7049,28 @@ static int extract_enumeration(Brain *b, const char *norm,
  * una cosa che gia' conosco», e non contiene nessun nome di predicato: la
  * risposta viene dai fatti, quindi vale anche per una macchineria aggiunta
  * domani (gen412). */
+/* RI-016 (23 settembre 2026) — IL NOME DETTO DI UNA CLASSE E' CONOSCENZA.
+ * Il nome di classe si formava unendo le parole: «verb particle» diventava
+ * `verb_particle`, che esiste con due argomenti, e «down is a verb particle» era
+ * respinta — mentre la KB dichiara quale classe porta quel nome
+ * (`class_surface(verb_particle_word, verb particle)`). Qui si chiede: se una
+ * sola classe ha quel nome pronunciato, e' lei. Il C non nomina nessuna classe. */
+static void p0_class_by_surface(Brain *b, char *cls, size_t cls_size) {
+    if (!b || !b->kb || !cls || !*cls) return;
+    char spoken[KB_TERM_LEN]; snprintf(spoken, sizeof spoken, "%s", cls);
+    for (char *c = spoken; *c; c++) if (*c == '_') *c = ' ';
+    char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", spoken);
+    const char *forms[2] = { spoken, quoted };
+    for (int f = 0; f < 2; f++) {
+        const char *q[2] = { NULL, forms[f] };
+        char rows[2][KB_TERM_LEN];
+        if (kb_match(b->kb, "class_surface", q, 2, rows, 2) == 1) {
+            if (strcmp(rows[0], cls) != 0) snprintf(cls, cls_size, "%s", rows[0]);
+            return;
+        }
+    }
+}
+
 static size_t class_known_arity(Brain *b, const char *cls) {
     if (!b || !b->kb || !cls || !*cls) return 0;
     if (kb_pred_fact_count(b->kb, cls) == 0) return 0;
@@ -7274,6 +7293,7 @@ static int p0_parse_mention_membership(Brain *b, const char *norm,
      * `whole-part_relation` accanto a `whole_part_relation`. I nomi delle cose
      * («reef-building corals») non passano di qui. */
     for (char *q = cls; *q; q++) if (*q == '-') *q = '_';
+    p0_class_by_surface(b, cls, cls_size);
     if (!p0_atom_within_cap(b, cls)) return 0;
 
     if (label && !p0_words_label(w, class_begin, n, label, label_size)) return 0;
@@ -7360,8 +7380,7 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     if (!p0_parse_mention_membership(
             b, norm, mentioned, sizeof mentioned, cls, sizeof cls,
             label, sizeof label, &asking)) return 0;
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[mention] mentioned=«%s» cls=«%s» label=«%s» asking=%d\n", mentioned, cls, label, asking);
+    p0_trace(b, "read.mention", "mentioned=«%s» cls=«%s» label=«%s» asking=%d\n", mentioned, cls, label, asking);
 
     /* La domanda non asserisce: interroga la stessa classe che l'asserzione
      * avrebbe scritto, e non registra nulla. */
@@ -7432,6 +7451,7 @@ static void p0_class_read_note(Brain *b, const char *text) {
  * caccia al filo d'Arianna»). Solo col profilo di /debug acceso: spento non
  * costa niente. */
 static void p0_class_gate(Brain *b, const char *text) {
+    p0_trace(b, "class", "%s", text);
     if (b && b->kb && kb_profile_on(b->kb)) p0_class_read_note(b, text);
 }
 
@@ -7715,9 +7735,9 @@ static int extract_class_statement(Brain *b, const char *norm,
         size_t l = strlen(w[i]);
         if (l && w[i][l - 1] == ',') sstart = i + 1;      /* cornice iniziale */
     }
-    if (sstart >= cop) return 0;
+    if (sstart >= cop) { p0_class_gate(b, "gate: subject is only an opening frame"); return 0; }
     if (p0_lead_det(b, strip_edge_punct(w[sstart]))) sstart++;   /* "..., AN algorithm" */
-    if (sstart >= cop) return 0;
+    if (sstart >= cop) { p0_class_gate(b, "gate: subject is only a determiner"); return 0; }
 
     size_t send = sstart;
     while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
@@ -7751,7 +7771,7 @@ static int extract_class_statement(Brain *b, const char *norm,
     size_t prefix_from = sstart;
     for (size_t k = sstart + 1; k < send; k++)
         if (p0_lead_det(b, strip_edge_punct(w[k]))) { sstart = k + 1; prefixed = 1; }
-    if (sstart >= send) return 0;
+    if (sstart >= send) { p0_class_gate(b, "gate: empty subject span"); return 0; }
     /* Il prefisso non e' muto: puo' MODALIZZARE. «maybe a norb is a florp»,
      * «forse un torbo e' un florp», «boh, a glimp is a florp» non affermano
      * il fatto, e scriverlo e' il mantra #7. Quali parole coprano
@@ -7760,14 +7780,19 @@ static int extract_class_statement(Brain *b, const char *norm,
         for (size_t k = prefix_from; k + 1 < sstart; k++) {
             char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", strip_edge_punct(w[k]));
             const char *hq[1] = { hb };
-            if (hb[0] && kb_query(b->kb, "hedge_word", hq, 1)) return 0;
+            if (hb[0] && kb_query(b->kb, "hedge_word", hq, 1)) { p0_class_gate(b, "gate: subject is a hedge"); return 0; }
         }
     }
 
-    if (p0_bad_subject(b, strip_edge_punct(w[sstart]))) return 0;   /* not a real subject */
+    /* RI-016 — quando il turno parla di una PAROLA («down is a verb particle»:
+     * la classe e' una classe di parole, `turn_mentions_word/1`), il soggetto e'
+     * la parola menzionata, e che sia una parola funzionale non la esclude. */
+    const char *mq[1] = { "current_turn" };
+    int mentions_word = kb_query(b->kb, "turn_mentions_word", mq, 1);
+    if (!mentions_word && p0_bad_subject(b, strip_edge_punct(w[sstart]))) { p0_class_gate(b, "gate: first subject word is not a subject (subject_guard)"); return 0; }   /* not a real subject */
     char subj[KB_TERM_LEN];
-    if (!p0_join(w, sstart, send, subj, sizeof subj)) return 0;
-    if (p0_bad_subject(b, subj)) return 0;              /* la guardia vale per parola */
+    if (!p0_join(w, sstart, send, subj, sizeof subj)) { p0_class_gate(b, "gate: subject does not join"); return 0; }
+    if (!mentions_word && p0_bad_subject(b, subj)) { p0_class_gate(b, "gate: a subject word is not a subject (subject_guard)"); return 0; }              /* la guardia vale per parola */
     int subj_multi = strchr(subj, '_') != NULL;
 
     size_t p = cop + 1;
@@ -7795,7 +7820,7 @@ static int extract_class_statement(Brain *b, const char *norm,
    put(msg, out, out_size); } return 1;
             }
         }
-        return 0;
+        { p0_class_gate(b, "gate: 7821"); return 0; }
     }
     /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
      * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
@@ -7821,7 +7846,7 @@ static int extract_class_statement(Brain *b, const char *norm,
    put(msg, out, out_size); } return 1;
             }
         }
-        return 0;
+        { p0_class_gate(b, "gate: 7847"); return 0; }
     }
     if (p0_is_loc_prep(b, w[p])) {                 /* "X is in Y" */
         size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
@@ -7844,7 +7869,7 @@ static int extract_class_statement(Brain *b, const char *norm,
    put(msg, out, out_size); } return 1;
             }
         }
-        return 0;
+        { p0_class_gate(b, "gate: 7870"); return 0; }
     }
 
     /* --- class frame (3/4/5): REQUIRE an article ("is a/an <cls>"), then one or more
@@ -7871,12 +7896,12 @@ static int extract_class_statement(Brain *b, const char *norm,
     int plural_copula = lex_class_member(b, "10_memory_knowledge_lex4643", w[cop]);
     int bare_plural = 0;
     if (!p0_lead_det(b, w[p])) {
-        if (!plural_copula) return 0;
+        if (!plural_copula) { p0_class_gate(b, "gate: not a plural copula"); return 0; }
         size_t last = p;
         while (last + 1 < n && !p0_np_closer(b, strip_edge_punct(w[last + 1]))) last++;
         const char *tail = strip_edge_punct(w[last]);
         size_t tl = strlen(tail);
-        if (tl < 4 || tail[tl - 1] != 's') return 0;   /* aggettivo, non classe */
+        if (tl < 4 || tail[tl - 1] != 's') { p0_class_gate(b, "gate: tail is an adjective, not a class"); return 0; }   /* aggettivo, non classe */
         bare_plural = 1;
     } else {
         p++;
@@ -7904,7 +7929,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
         break;                                   /* prep, bare "and", or end */
     }
-    if (ncls == 0) return 0;
+    if (ncls == 0) { p0_class_gate(b, "gate: no class after the copula"); return 0; }
     /* gen513 — UN CLASSIFICATORE ANNUNCIA LA CLASSE, non la e'. «An amphora is
      * a TYPE OF storage jar» dava `type(amphora)`: la vera classe, quella su cui
      * si ragiona, andava perduta e al suo posto restava una parola che vale per
@@ -7934,6 +7959,8 @@ static int extract_class_statement(Brain *b, const char *norm,
             if (cl > 3 && classes[i][cl - 1] == 's') classes[i][cl - 1] = '\0';
         }
     }
+    for (size_t i = 0; i < ncls; i++)
+        p0_class_by_surface(b, classes[i], sizeof classes[i]);
 
     int loc = 0;
     /* gen506: «an island country LOCATED in the Nivoran Sea» — il participio
@@ -7982,7 +8009,7 @@ static int extract_class_statement(Brain *b, const char *norm,
      * tiene il turno, asserisce la classe, e la coda la rilegge come seconda
      * proposizione sullo stesso soggetto (in fondo a questa funzione). */
     if (!subj_multi && !cls_multi && !loc && !extract_only && !prefixed && p >= n)
-        return 0;
+        { p0_class_gate(b, "gate: 8010"); return 0; }
 
     kb_set_origin(b->kb, KB_SESSION);
     {
@@ -8118,7 +8145,7 @@ static int extract_class_statement(Brain *b, const char *norm,
               kb_term_say(b, "scartato_x_classe_i_non_fatte_di_concetti", _rs, 1, out, out_size); }
             return 2;
         }
-        return 0;
+        { p0_class_gate(b, "gate: 8146"); return 0; }
     }
     { const KbResponseSlot _rs[] = { { "facts", learned } };
       kb_term_say(b, "learned_facts", _rs, 1, msg, sizeof msg); }
@@ -8172,8 +8199,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             snprintf(again, sizeof again, "%s %s", subj, tail);
             char more[1024]; more[0] = '\0';
             brain_respond(b, again, more, sizeof more);
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[relative] «%s» -> «%s»\n", again, more);
+            p0_trace(b, "read.relative", "«%s» -> «%s»\n", again, more);
             if (more[0] && !reply_is_wall(b, more)) {
                 size_t ml = strlen(msg);
                 snprintf(msg + ml, sizeof msg - ml, " %s", more);
@@ -8709,11 +8735,11 @@ static int p0_current_question_focus(Brain *b, const char *norm,
 }
 
 static void p0_record_focus_rejection(Brain *b, const char *subject) {
-    if (getenv("P0_READ_TRACE")) {
+    {
         char fz[512] = "";
         const char *fq[] = { "current_turn", NULL }; char hit[1][KB_TERM_LEN];
         if (kb_match(b->kb, "turn_focus", fq, 2, hit, 1) == 1) snprintf(fz, sizeof fz, "%s", hit[0]);
-        fprintf(stderr, "[aframe] focus %s rejects «%s»\n", fz, subject);
+        p0_trace(b, "read.aframe", "focus %s rejects «%s»", fz, subject);
     }
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
@@ -9264,8 +9290,7 @@ static int question_shape_generalize(Brain *b, const char *norm) {
             char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", surf);
             const char *already[2] = { quoted, relname };
             if (!kb_query(b->kb, "answer_frame", already, 2)) {
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[qshape] induced answer_frame(%s, %s)\n", quoted, relname);
+                p0_trace(b, "read.qshape", "induced answer_frame(%s, %s)\n", quoted, relname);
                 int prev = kb_origin(b->kb);
                 kb_set_origin(b->kb, KB_INDUCED);
                 kb_assert(b->kb, "answer_frame", already, 2);
@@ -9736,8 +9761,7 @@ static int p0_qualifier_gate(Brain *b, const char *cue, const char *subject,
     char vq[KB_TERM_LEN]; snprintf(vq, sizeof vq, "\"%s\"", kb_dequote(vb));
     const char *q[4] = { cueq, vq, "lacks", NULL };
     if (kb_match(b->kb, "qualifier_verdict", q, 4, said, 1) != 1) return 0;
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[aframe] qualifier «%s» unmet by %zu value(s)\n", kb_dequote(said[0]), na);
+    p0_trace(b, "read.aframe", "qualifier «%s» unmet by %zu value(s)\n", kb_dequote(said[0]), na);
     p0_say_unqualified(b, kb_dequote(said[0]), subject, pred, kb_dequote(vb), out, out_size);
     return 1;
 }
@@ -9759,7 +9783,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
     (void)raw;
     if (!b || !b->kb) return 0;
     if (p0_faculty_yields(b, "answer_frame", "open", norm, NULL)) {
-        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[aframe] yields\n");
+        p0_trace(b, "read.aframe", "yields\n");
         return 0;
     }
     {
@@ -9768,8 +9792,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         size_t ng = kb_match(b->kb, "compound_guard", gq, 2, guards, 32);
         for (size_t gi = 0; gi < ng; gi++) {
             if (kb_cue_match(b, kb_dequote(guards[gi]), norm)) {
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[aframe] guarded by %s\n", guards[gi]);
+                p0_trace(b, "read.aframe", "guarded by %s\n", guards[gi]);
                 return 0;
             }
         }
@@ -9846,8 +9869,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         char pred[KB_TERM_LEN];
         snprintf(pred, sizeof pred, "%s", kb_dequote(preds[p]));
         if (!*pred) continue;
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[aframe] cue=%s pred=%s%s\n", cues[i], pred, *cues[i] ? "" : " (inherited)");
+        p0_trace(b, "read.aframe", "cue=%s pred=%s%s\n", cues[i], pred, *cues[i] ? "" : " (inherited)");
         /* gen510 — la KB puo' dire che una relazione si interroga altrove
          * (`answer_frame_defers/1`): la cornice generica la cede. */
         {
@@ -9878,8 +9900,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
              * un turno bloccato). Il consumatore storico la legge da qui. */
             if (ni == 0 && *cues[i])
                 ni = kb_match(b->kb, "answer_frame_turn_arg", iq, 3, input_args, 4);
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[aframe] input_arg cue=%s pred=%s -> %zu (%s)\n", cues[i], preds[p], ni, ni ? input_args[0] : "-");
+            p0_trace(b, "read.aframe", "input_arg cue=%s pred=%s -> %zu (%s)\n", cues[i], preds[p], ni, ni ? input_args[0] : "-");
             if (ni > 0) {
                 allow_arg1 = allow_arg2 = 0;
                 for (size_t ai = 0; ai < ni; ai++) {
@@ -10200,8 +10221,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 }
                 na = p0_answer_type_filter(b, ans, na);
                 if (na > 0 && p0_answer_subject_in_focus(b, norm, key)) {
-                    if (getenv("P0_READ_TRACE"))
-                        fprintf(stderr, "[aframe] phrase «%s» %s -> %s\n", key, pred, ans[0]);
+                    p0_trace(b, "read.aframe", "phrase «%s» %s -> %s\n", key, pred, ans[0]);
                     size_t pick = p0_pick_in_force(b, pred, key, pfwd, ans, na);
                     /* gen515 — il resto della domanda restringe il valore */
                     if (p0_qualifier_gate(b, cues[i], key, pred, ans, na,
@@ -10301,8 +10321,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             }
             na = p0_answer_type_filter(b, ans, na);
             if (na == 0 || !p0_answer_subject_in_focus(b, norm, v)) continue;
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[aframe] token «%s» %s -> %s\n", v, pred, ans[0]);
+            p0_trace(b, "read.aframe", "token «%s» %s -> %s\n", v, pred, ans[0]);
             {   /* gen515 — il resto della domanda restringe il valore */
                 size_t qp = 0;
                 if (p0_qualifier_gate(b, cues[i], v, pred, ans, na,
@@ -15341,8 +15360,7 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
                            kb_match(b->kb, rel, sq3, 2, rows, 1) == 1 ||
                            (strcmp(acc, acc2) &&
                             kb_match(b->kb, rel, sq4, 2, rows, 1) == 1);
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[named] %s acc=«%s» %s\n", rel, acc, nhit ? "HIT" : "-");
+                p0_trace(b, "read.named", "%s acc=«%s» %s\n", rel, acc, nhit ? "HIT" : "-");
                 if (nhit) {
                     char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[0]);
                     snprintf(bestname, sizeof bestname, "%s", kb_dequote(rb));
@@ -15586,8 +15604,7 @@ static void p0_forget_companions(Brain *b, const char *fact_text) {
         for (size_t r = 0; r < nr; r++)
             if (strstr(rows[r], fact_text)) {
                 int okr = p0_forget_clause(b, rows[r]);
-                if (getenv("P0_SAVE_TRACE"))
-                    fprintf(stderr, "[forget] %s -> %s\n", rows[r], okr ? "tolto" : "NO");
+                p0_trace(b, "save.forget", "%s -> %s\n", rows[r], okr ? "tolto" : "NO");
             }
         free(rows);
     }
@@ -16003,11 +16020,11 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
 
             char result[500]; result[0] = '\0'; size_t nres = 0;
             int done2 = 0;
-            if (getenv("P0_FORM_TRACE")) {
-                fprintf(stderr, "[form] op %s %s/%zu <%s", opname, pred, argc2, formname);
-                for (size_t y = 0; y < argc2; y++)
-                    fprintf(stderr, " %s", argv2[y] ? argv2[y] : "_");
-                fprintf(stderr, ">\n");
+            {
+                char tl[P0_TRACE_W]; size_t to = 0; tl[0] = '\0';
+                for (size_t y = 0; y < argc2 && to + 4 < sizeof tl; y++)
+                    to += (size_t)snprintf(tl + to, sizeof tl - to, " %s", argv2[y] ? argv2[y] : "_");
+                p0_trace(b, "form", "op %s %s/%zu <%s%s>", opname, pred, argc2, formname, tl);
             }
             if (!strcmp(opname, "assert"))       done2 = kb_assert(b->kb, pred, argv2, argc2);
             else if (!strcmp(opname, "assert_neg")) done2 = kb_assert_neg(b->kb, pred, argv2, argc2);
@@ -16025,8 +16042,7 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                 for (size_t y = 0; y < argc2; y++) if (!argv2[y]) frees++;
                 if (frees > 1) {
                     size_t gone = kb_retract_match(b->kb, pred, argv2, argc2);
-                    if (getenv("P0_FORM_TRACE"))
-                        fprintf(stderr, "[form] retract_all %s(%s, …) removed %zu\n", pred,
+                    p0_trace(b, "form", "retract_all %s(%s, …) removed %zu\n", pred,
                                 argv2[0] ? argv2[0] : "_", gone);
                     done2 = gone > 0; nres = gone;
                 }
@@ -16209,8 +16225,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
     char *w[48]; size_t nw = split_words(buf, w, 48);
     if (nw < 2) return 0;
 
-    if (getenv("P0_FORM_TRACE"))
-        fprintf(stderr, "[form] reader depth=%d early=%d said=%d «%s»\n",
+    p0_trace(b, "form", "reader depth=%d early=%d said=%d «%s»\n",
                 b->respond_depth, p0_forms_early_only, p0_forms_said_only, norm);
     char (*forms)[KB_TERM_LEN] = NULL; size_t nf = 0;
     const char *fq[2] = { NULL, NULL };
@@ -16265,12 +16280,11 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                  * nessuno gliela chiedeva. */
                 if (!strcmp(want, "statement") && !isq &&
                     p0_turn_is(b, "directive", norm)) {
-                    if (getenv("P0_FORM_TRACE"))
-                        fprintf(stderr, "[form] %s skipped: mood statement, turn read as directive\n", form);
+                    p0_trace(b, "form", "%s skipped: mood statement, turn read as directive\n", form);
                     continue;
                 }
                 if (!strcmp(want, "statement") && isq) {
-                    if (getenv("P0_FORM_TRACE"))
+                    if (p0_trace_deep(b) || getenv("P0_FORM_TRACE"))
                     {
                         /* which published reading makes it a question */
                         static const char *const qsrc[][2] = {
@@ -16298,7 +16312,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                             if (kb_match(b->kb, "input_node_first", iq, 2, row, 1) == 1)
                                 so += (size_t)snprintf(seen + so, sizeof seen - so, " first=%s", row[0]);
                         }
-                        fprintf(stderr, "[form] %s skipped: mood statement, turn read as question:%s\n", form, seen);
+                        p0_trace(b, "form", "%s skipped: mood statement, turn read as question:%s", form, seen);
                     }
                     continue;
                 }
@@ -16308,8 +16322,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         char work[300]; memcpy(work, norm, L + 1);
         char *ww[48]; size_t nww = split_words(work, ww, 48);
         if (!p0_form_match(b, form, ww, nww, slots, &ns)) {
-            if (getenv("P0_FORM_TRACE"))
-                fprintf(stderr, "[form] %s does not match «%s»\n", form, norm);
+            p0_trace(b, "form", "%s does not match «%s»\n", form, norm);
             continue;
         }
         /* 14 settembre 2026 — UNA FORMA PUO' CEDERE A CIO' CHE LA KB RICONOSCE
@@ -16367,8 +16380,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             }
             free(yr);
             if (yield) {
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[form] %s yields: the turn is already recognized\n", form);
+                p0_trace(b, "read.form", "%s yields: the turn is already recognized\n", form);
                 continue;
             }
         }
@@ -16437,13 +16449,11 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             }
             free(sc);
             if (!typed_ok) {
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[form] %s: a typed slot does not hold\n", form);
+                p0_trace(b, "read.form", "%s: a typed slot does not hold\n", form);
                 continue;
             }
         }
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[form] matched %s (%zu slots)\n", form, ns);
+        p0_trace(b, "read.form", "matched %s (%zu slots)\n", form, ns);
 
         /* gen507/66 — UNA FORMA PUO' DICHIARARE PIU' OPERAZIONI, IN ORDINE.
          *
@@ -16588,8 +16598,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 }
             }
             if (slot_has_verb) {
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[form] %s: rilettura rifiutata, uno slot porta un verbo finito\n", form);
+                p0_trace(b, "read.form", "%s: rilettura rifiutata, uno slot porta un verbo finito\n", form);
                 continue;
             }
             for (size_t k = 0; k < ns && k < P0_FORM_SLOTS; k++) {
@@ -16606,8 +16615,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 }
                 continue;
             }
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[form] %s: reread «%s»\n", form, said);
+            p0_trace(b, "read.form", "%s: reread «%s»\n", form, said);
             int saved_early = p0_forms_early_only;
             p0_forms_early_only = 0;
             reread_depth++;
@@ -16647,8 +16655,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 free(forms);
                 return 1;
             }
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[form] %s: op failed: %s\n", form, act);
+            p0_trace(b, "read.form", "%s: op failed: %s\n", form, act);
             continue;
         }
 
@@ -16656,8 +16663,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         const char *rel = p0_form_slot(slots, ns, "relation");
         const char *obj = p0_form_slot(slots, ns, "object");
         int ok = 0;
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[form] %s act=%s sub=%s rel=%s obj=%s\n", forms[f], act,
+        p0_trace(b, "read.form", "%s act=%s sub=%s rel=%s obj=%s\n", forms[f], act,
                     sub ? sub : "-", rel ? rel : "-", obj ? obj : "-");
         if (!strcmp(act, "assert_negative") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
@@ -16675,8 +16681,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * chi insegna deve poter verificare che la lezione sia arrivata
              * senza aprire uno strumento. */
             const char *sit10 = p0_form_slot(slots, ns, "situation");
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[form] %s recite_plan situation=%s out_before=«%.50s»\n",
+            p0_trace(b, "read.form", "%s recite_plan situation=%s out_before=«%.50s»\n",
                         forms[f], sit10 ? sit10 : "(none)", out);
             if (!sit10) continue;
             char list11[500]; size_t l11 = 0, n11 = 0;
@@ -16703,14 +16708,12 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const KbResponseSlot ps12[] = { { "situation", sit10 },
                                             { "list", list11 } };
             if (kb_response_slots(b, "plan_recited", ps12, 2, msg12, sizeof msg12)) {
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[form] %s recited: «%.60s»\n", forms[f], msg12);
+                p0_trace(b, "read.form", "%s recited: «%.60s»\n", forms[f], msg12);
                 put(msg12, out, out_size);
                 free(forms);
                 return 1;
             }
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[form] %s plan_recited template failed (n=%zu)\n", forms[f], n11);
+            p0_trace(b, "read.form", "%s plan_recited template failed (n=%zu)\n", forms[f], n11);
         } else if (!strcmp(act, "list_keys")) {
             /* gen507/59 (forma #83) — CHE COSA SO FARE.
              * Una procedura insegnata e' conoscenza come un fatto, e come un
@@ -17697,8 +17700,7 @@ static int p0_rewrite_target_read(Brain *b, const char *rhs) {
             char *ww[48]; size_t nww = split_words(wb, ww, 48);
             if (nww && p0_form_match(b, kb_dequote(fb), ww, nww, sl, &nsl)) {
                 readable = 1;
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[form] rewrite target read by %s\n", kb_dequote(fb));
+                p0_trace(b, "read.form", "rewrite target read by %s\n", kb_dequote(fb));
             }
         }
     }
@@ -17746,8 +17748,7 @@ static int p0_try_reading(Brain *b, const char *text) {
     close(fd[0]);
     int st = 0;
     waitpid(pid, &st, 0);
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[form] try reading «%s»: %s\n", text, ok == '1' ? "reads" : "walls");
+    p0_trace(b, "read.form", "try reading «%s»: %s\n", text, ok == '1' ? "reads" : "walls");
     return ok == '1';
 }
 
@@ -17886,8 +17887,7 @@ static int p0_negation_lead(Brain *b, const char *canon, const char *input,
 
     char journal[65536];
     if (!p0_dry_read_journal(b, positive, journal, sizeof journal)) return 0;
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[negation] marker=«%s» positive=«%s» journal=%zu bytes\n", marker, positive, strlen(journal));
+    p0_trace(b, "read.negation", "marker=«%s» positive=«%s» journal=%zu bytes\n", marker, positive, strlen(journal));
 
     int negated = 0, retracted = 0;
     int prev = kb_origin(b->kb);
@@ -17973,7 +17973,7 @@ static int p0_negation_lead(Brain *b, const char *canon, const char *input,
             }
             kb_set_origin(b->kb, po);
         }
-        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[negation] %s %s\n", line[0] == '=' ? "retracted" : "denied", ft);
+        p0_trace(b, "read.negation", "%s %s\n", line[0] == '=' ? "retracted" : "denied", ft);
     }
     kb_set_origin(b->kb, prev);
     if (!negated) return 0;
@@ -18027,8 +18027,7 @@ static int p0_teach_rewrite(Brain *b, const P0ConstructionLesson *lesson,
     char have[1][KB_TERM_LEN];
     int known = kb_match(b->kb, "taught_form_source", sq, 2, have, 1) == 1;
     const KbResponseSlot rs[] = { { "source", lhs }, { "target", rhs } };
-    if (forget && getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[form] forget taught form «%s»: %s\n", lhs, known ? "known" : "no key");
+    if (forget) p0_trace(b, "read.form", "forget taught form «%s»: %s\n", lhs, known ? "known" : "no key");
     if (forget) {
         if (!known) return 0;
         char nb[KB_TERM_LEN]; snprintf(nb, sizeof nb, "%s", have[0]);
@@ -24620,6 +24619,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     } else {
         snprintf(cls_buf, sizeof cls_buf, "%s", w[3]);
     }
+    p0_class_by_surface(b, cls_buf, sizeof cls_buf);
     const char *cls = cls_buf;
     int plural_enum = 0;   /* gen505: la forma plurale della stessa domanda */
 

@@ -86,3 +86,11 @@ supported_from_premises($Goal) :-
 % sostenuta dal mondo, dalle premesse, o da entrambi — sono tre cose diverse.
 supported_from_world($Goal) :-
     kb_derivation($D, $Goal, 0, $N), naf(derivation_only_from_premises($D)).
+
+% 23 settembre 2026 — da CHE COSA dipende la risposta del piano di turno: la
+% legge il trace unico del turno (p0_trace, «plan because …») quando risponde
+% `turn_response/2`, cosi' una risposta sbagliata nomina la regola e i fatti che
+% l'hanno prodotta invece di lasciarli indovinare.
+machinery(turn_response_support).
+turn_response_support($Reply, $Dip) :-
+    kb_derivation($D, turn_response(current_turn, $Reply), $I, $Dip), dif($I, 0).

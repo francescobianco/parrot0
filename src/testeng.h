@@ -53,5 +53,6 @@ int test_engine_run(Brain *b, FILE *in);
 /* L'ispettore di `/debug` (main.c): il test engine lo espone come `!debug`. */
 void p0_debug_inspect(Brain *brain, const char *last_line);
 void p0_debug_turn_profile(Brain *brain, double ms);
+void p0_debug_trace(Brain *brain, const char *filter);
 
 #endif /* PARROT0_TESTENG_H */

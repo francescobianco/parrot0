@@ -339,6 +339,11 @@ faculty_yield_force(analysis_family, open, lesson_turn).
 % E il lettore delle procedure: «show me how to implement X in Python» non chiede
 % i passi per fabbricare «python».
 faculty_yield_force(process_steps, open, production_request).
+% RI-016 (23 settembre 2026) — e chi AFFERMA non chiede i passi. «A transformer
+% steps down the voltage.» riceveva «I don't have the steps for voltage»: la cue
+% `steps` della richiesta di procedura scattava sul verbo. La forza del turno lo
+% sa gia' (assertion): la cessione e' la stessa conoscenza, e si ritira parlando.
+faculty_yield_force(process_steps, open, assertion).
 % E la cortesia: una richiesta che finisce con «Thanks!» riceveva «You're
 % welcome!» invece del codice.
 faculty_yield_force(social, open, production_request).

@@ -744,8 +744,7 @@ static int adjunct_peel(Brain *b, const char *canon, const char *raw,
      * che si apre cosi' e' il VINCOLO di cio' che lo precede, e il turno deve
      * restare intero perche' chi sceglie il membro possa leggerlo. */
     if (p0_text_has_exclusion(b, rest)) {
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[adjunct] «%s» e' un'esclusione: il turno resta intero\n", rest);
+        p0_trace(b, "read.adjunct", "«%s» e' un'esclusione: il turno resta intero\n", rest);
         return 0;
     }
     /* Il residuo dev'essere una proposizione, non un secondo pezzo di elenco:
@@ -758,8 +757,7 @@ static int adjunct_peel(Brain *b, const char *canon, const char *raw,
     const char *use = cres[0] ? cres : resid;
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, use, resid, out, out_size)) {
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[adjunct] «%s» -> %s\n", resid, registry[i].name);
+            p0_trace(b, "read.adjunct", "«%s» -> %s\n", resid, registry[i].name);
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
             snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
             return 1;
@@ -820,7 +818,7 @@ static int wrapper_peel(Brain *b, const char *canon, const char *raw,
             snprintf(said, sizeof said, "%s %s", repb, low + wl + 1);
             size_t sl2 = strlen(said);
             while (sl2 && (said[sl2 - 1] == '?' || said[sl2 - 1] == ' ')) said[--sl2] = '\0';
-            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[wrapper] request «%s»\n", said);
+            p0_trace(b, "read.wrapper", "request «%s»\n", said);
             char sub[1024]; sub[0] = '\0';
             char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
             brain_respond(b, said, sub, sizeof sub);
@@ -872,7 +870,7 @@ static int wrapper_peel(Brain *b, const char *canon, const char *raw,
             off += (size_t)snprintf(polar + off, sizeof polar - off, "%s%s", i ? " " : "", w[i]);
     }
     if (off + 2 < sizeof polar) { polar[off++] = '?'; polar[off] = '\0'; }
-    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[wrapper] residue=«%s» polar=«%s»\n", residue, polar);
+    p0_trace(b, "read.wrapper", "residue=«%s» polar=«%s»\n", residue, polar);
 
     char sub[1024]; sub[0] = '\0';
     char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;  /* vista propria */
@@ -1347,6 +1345,7 @@ int brain_session_dump(Brain *b) {
 }
 
 void brain_destroy(Brain *b) {
+    if (b) { free(b->turn_trace); b->turn_trace = NULL; }
     if (b) { free(b->frame_pats); b->frame_pats = NULL; b->frame_pats_live = 0;
              free(b->np_closers); b->np_closers = NULL; b->np_closers_live = 0; }
     if (!b) return;
@@ -2342,7 +2341,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
      * forma canonica per l'occorrenza isolata. Qui resta solo la MECCANICA —
      * non ripetere l'ultima risposta. */
     enum { WALL_TRIES = 8 };
-    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[wall] enter canon=«%.50s» out=«%.60s» last=«%.40s»\n", canon ? canon : "", out, b ? b->last_reply : "");
+    p0_trace(b, "read.wall", "enter canon=«%.50s» out=«%.60s» last=«%.40s»\n", canon ? canon : "", out, b ? b->last_reply : "");
     /* gen506b — IL TURNO COMPOSTO HA UN MURO SUO, CHE DICE COSA HA VISTO.
      *
      * Un turno con piu' clausole e una domanda alla fine (turn-frames.p0,
@@ -5050,8 +5049,7 @@ static void turn_freeze_forces(Brain *b) {
             if (!*f) continue;
             const char *fa[2] = { "current_turn", f };
             kb_assert(b->kb, "turn_illocution", fa, 2);
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[turn] force %s\n", f);
+            p0_trace(b, "read.turn", "force %s\n", f);
         }
         kb_set_origin(b->kb, prev);
     }
@@ -5382,7 +5380,7 @@ static int turn_assume_premises(Brain *b, TurnPremise **scope) {
     }
     free(rows);
     kb_set_origin(b->kb, prev);
-    if (getenv("P0_READ_TRACE") && added) fprintf(stderr, "[turn] assumed %d premise(s)\n", added);
+    if (added) p0_trace(b, "read.turn", "assumed %d premise(s)", added);
     return added;
 }
 
@@ -5441,11 +5439,25 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
     }
     size_t nr = kb_match(b->kb, "turn_priority_response", q, 2, replies, 1);
     if (nr == 1) {
+        p0_trace(b, "plan", "turn_priority_response answers «%.160s»", kb_dequote(replies[0]));
         put(kb_dequote(replies[0]), out, out_size);
         return 1;
     }
     nr = kb_match(b->kb, "turn_response", q, 2, replies, 1);
     if (nr != 1) return 0;
+    /* 23 settembre 2026 — col profilo di /debug acceso, PERCHE' questa
+     * risposta: la prova in una riga (`kb_explain`), come fatto del turno. Senza,
+     * una risposta sbagliata del piano di turno non diceva quale delle sue
+     * ottanta regole l'aveva prodotta (RI-016). */
+    p0_trace(b, "plan", "turn_response answers «%.160s»", kb_dequote(replies[0]));
+    {   /* una sola prova per risposta: sempre, perche' il turno che sbaglia
+         * e' quello che non si sapeva di dover guardare */
+        char deps[24][KB_TERM_LEN];
+        const char *dq[2] = { replies[0], NULL };
+        size_t nd = kb_match(b->kb, "turn_response_support", dq, 2, deps, 24);
+        if (nd == 0) p0_trace(b, "plan", "(no derivation recorded for this answer)");
+        for (size_t i = 0; i < nd; i++) p0_trace(b, "plan", "depends on %s", deps[i]);
+    }
     put(kb_dequote(replies[0]), out, out_size);
     return 1;
 }
@@ -5456,8 +5468,7 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
 static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !surface || !*surface) return 0;
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[turn] publish «%s»\n", surface);
+    p0_trace(b, "read.turn", "publish «%s»\n", surface);
     /* gen513 — SESSANTAQUATTRO SPAN BASTANO A UNA RIGA, NON A UN PARAGRAFO.
      * Un lead di enciclopedia ne produce di piu', e oltre il tetto il turno
      * restava senza token e senza forza: nessuna regola KB poteva leggerlo, e
@@ -5465,13 +5476,11 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     InputSpan spans[256];
     int ambiguous = 0;
     size_t ns = input_segment(b->kb, surface, spans, 256, &ambiguous);
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[turn] spans=%zu ambiguous=%d\n", ns, ambiguous);
+    p0_trace(b, "read.turn", "spans=%zu ambiguous=%d\n", ns, ambiguous);
     if (ambiguous || ns == 0) {
         /* gen512: senza segmentazione il turno resta senza token e senza
          * forza, e ogni regola KB sui token tace. Si dice perche'. */
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[turn] not published: %s\n", ambiguous ? "ambiguous segmentation" : "no span");
+        p0_trace(b, "read.turn", "not published: %s\n", ambiguous ? "ambiguous segmentation" : "no span");
         return 0;
     }
 
@@ -5582,8 +5591,7 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
                 if (*pat && p0_turn_pattern_holds(b, pat, judged, &seen) && seen) {
                     const char *ma[2] = { "current_turn", pat };
                     kb_assert(b->kb, "turn_pattern_match", ma, 2);
-                    if (getenv("P0_READ_TRACE"))
-                        fprintf(stderr, "[turn] taught form %s holds\n", pat);
+                    p0_trace(b, "read.turn", "taught form %s holds\n", pat);
                 }
             }
             kb_set_origin(b->kb, prev);
@@ -5616,7 +5624,7 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         retain_text = kb_query(b->kb, "turn_is_text", tq, 1);
         if (retain_text) {
             input_structure_clear(b->kb, "last_text");
-            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[text] trattenuto\n");
+            p0_trace(b, "read.text", "trattenuto\n");
         }
     }
     size_t ir_base = 0, text_base = 0;   /* gen513: gli id dell'IR sono dello scope */
@@ -5933,7 +5941,37 @@ static int turn_size_violated(Brain *b, const char *norm, const char *reply) {
     return violated;
 }
 
+/* Il trace del turno si SCRIVE nel file di PARROT0_TURN_LOG a turno chiuso: una
+ * sezione per turno, in append, leggibile con un editor. */
+static void p0_trace_flush(Brain *b, const char *input) {
+    const char *path = getenv("PARROT0_TURN_LOG");
+    if (!b || !path || !*path) return;
+    FILE *f = fopen(path, "a");
+    if (!f) return;
+    fprintf(f, "=== turn %lu: %s\n", (unsigned long)b->turns, input ? input : "");
+    for (size_t i = 0; i < b->n_turn_trace; i++) fprintf(f, "%s\n", b->turn_trace[i]);
+    if (b->dropped_turn_trace)
+        fprintf(f, "(… %zu righe oltre il tetto di %d)\n", b->dropped_turn_trace, P0_TRACE_CAP);
+    fclose(f);
+}
+
+size_t brain_trace_count(Brain *b) { return b ? b->n_turn_trace : 0; }
+const char *brain_trace_line(Brain *b, size_t i) {
+    return (b && i < b->n_turn_trace) ? b->turn_trace[i] : NULL;
+}
+size_t brain_trace_dropped(Brain *b) { return b ? b->dropped_turn_trace : 0; }
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
+    /* Il trace unico si azzera solo all'ingresso del turno PIU' ESTERNO: una
+     * rilettura, una clausola, un ridispatch sono pezzi dello stesso turno e
+     * vi si accodano indentati. */
+    if (b && b->respond_depth == 0) {
+        b->n_turn_trace = 0; b->dropped_turn_trace = 0;
+        if (b->kb) kb_set_trace_hook(b->kb, p0_trace_kb_hook, b);
+        p0_trace(b, "turn", "«%s»", input ? input : "");
+    } else if (b) {
+        p0_trace(b, "turn", "nested (depth %d) «%s»", b->respond_depth, input ? input : "");
+    }
     /* gen422: la firma si azzera A OGNI TURNO. E' l'impronta di QUESTO
      * ragionamento, non della vita del processo — sommarli darebbe un numero che
      * cambia sempre e non dice niente. */
@@ -6063,6 +6101,11 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         if (b->has_last_entity && b->last_entity[0])
             kb_assert(b->kb, "turn_entity", (const char *[]){ "current_turn", b->last_entity }, 2);
         kb_set_origin(b->kb, prev);
+    }
+    if (b) {
+        p0_trace(b, "reply", "by %s: %.200s", b->last_module[0] ? b->last_module : "-",
+                 out ? out : "");
+        if (b->respond_depth == 0) p0_trace_flush(b, input);
     }
     return n;
 }
@@ -6250,8 +6293,7 @@ static int relative_rewrite(Brain *b, const char *sentence,
                 if (!*rest || hl + 2 >= left_size) continue;
                 memcpy(left, sentence, hl); left[hl] = '.'; left[hl + 1] = '\0';
                 if ((size_t)snprintf(right, right_size, "%s", rest) >= right_size) continue;
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+                p0_trace(b, "read.relativa", "«%s» + «%s»\n", left, right);
                 return 1;
             }
         }
@@ -6304,8 +6346,7 @@ static int relative_rewrite(Brain *b, const char *sentence,
                             so += (size_t)snprintf(subj + so, sizeof subj - so, "%s%s", j ? " " : "", mw[j]);
                         if ((size_t)snprintf(left, left_size, "%s", main) < left_size &&
                             (size_t)snprintf(right, right_size, "%s %s.", subj, head) < right_size) {
-                            if (getenv("P0_READ_TRACE"))
-                                fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+                            p0_trace(b, "read.relativa", "«%s» + «%s»\n", left, right);
                             return 1;
                         }
                     }
@@ -6549,8 +6590,7 @@ static int relative_rewrite(Brain *b, const char *sentence,
                                  (int)(sp - rest), rest, kb_dequote(lk),
                                  antecedent, sp) >= right_size)
                 return 0;
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+            p0_trace(b, "read.relativa", "«%s» + «%s»\n", left, right);
             return 1;
         }
     }
@@ -6594,20 +6634,17 @@ static int relative_rewrite(Brain *b, const char *sentence,
                 if (!cl) break;
                 memmove(o, cl + 1, strlen(cl + 1) + 1);
             }
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+            p0_trace(b, "read.relativa", "«%s» + «%s»\n", left, right);
             return 1;
         }
         if ((size_t)snprintf(right, right_size, "%s %s %s", antecedent, opener_verb, rest) >= right_size)
             return 0;
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+        p0_trace(b, "read.relativa", "«%s» + «%s»\n", left, right);
         return 1;
     }
     if ((size_t)snprintf(right, right_size, "%s %s", antecedent, rest) >= right_size)
         return 0;
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[relativa] «%s» + «%s»\n", left, right);
+    p0_trace(b, "read.relativa", "«%s» + «%s»\n", left, right);
     return 1;
 }
 
@@ -6649,8 +6686,7 @@ static int predicate_coordination_split(Brain *b, const char *s,
             co += (size_t)snprintf(c + co, csz > co ? csz - co : 0, " %s", w[k]);
         }
         if (ao >= asz || co >= csz) return 0;
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[coordinati] «%s» + «%s»\n", a, c);
+        p0_trace(b, "read.coordinati", "«%s» + «%s»\n", a, c);
         return 1;
     }
     return 0;
@@ -6700,8 +6736,7 @@ static int particle_adjunct_split(Brain *b, const char *s,
             for (size_t k = j + 1; k < n && co < csz; k++)
                 co += (size_t)snprintf(c + co, csz - co, " %s", w[k]);
             if (ao >= asz || co >= csz) return 0;
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[complementi] «%s» + «%s»\n", a, c);
+            p0_trace(b, "read.complementi", "«%s» + «%s»\n", a, c);
             return 1;
         }
     }
@@ -6726,8 +6761,7 @@ static int particle_adjunct_split(Brain *b, const char *s,
             for (size_t k = j; k < n && co < csz; k++)
                 co += (size_t)snprintf(c + co, csz - co, " %s", w[k]);
             if (ao >= asz || co >= csz) return 0;
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[complementi] «%s» + «%s»\n", a, c);
+            p0_trace(b, "read.complementi", "«%s» + «%s»\n", a, c);
             return 1;
         }
     }
@@ -6810,8 +6844,7 @@ static int nested_rank_split(Brain *b, const char *s,
         for (size_t k = j + 1; k < end2 && co < csz; k++)
             co += (size_t)snprintf(c + co, csz - co, " %s", w[k]);
         if (ao >= asz || co >= csz) return 0;
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[ranghi] «%s» + «%s»\n", a, c);
+        p0_trace(b, "read.ranghi", "«%s» + «%s»\n", a, c);
         return 1;
     }
     return 0;
@@ -6869,8 +6902,7 @@ static int subject_coordination_split(Brain *b, const char *s,
     for (size_t k = skip; k < n && co < csz; k++)
         co += (size_t)snprintf(c + co, csz - co, "%s%s", co ? " " : "", w[k]);
     if (ao >= asz || co >= csz) return 0;
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[soggetti] «%s» + «%s»\n", a, c);
+    p0_trace(b, "read.soggetti", "«%s» + «%s»\n", a, c);
     return 1;
 }
 
@@ -6912,8 +6944,7 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
         int stm = inq ? 0 : kb_query(b->kb, "turn_illocution", cs, 2);
         /* gen513: la sonda che ha trovato perche' un PARAGRAFO non si divideva
          * mentre la stessa prosa piu' corta si' (P0_READ_TRACE=1). */
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[compound?] len=%zu inquiry=%d statement=%d\n",
+        p0_trace(b, "read", "[compound?] len=%zu inquiry=%d statement=%d\n",
                     strlen(input), inq, stm);
         if (!inq) {
             if (!stm) return 0;
@@ -7009,16 +7040,14 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
              * (pubblicava una frase sola, e tutte con lo stesso id). Gli offset
              * sono gli stessi — si sovrascrive un byte, non si sposta niente. */
             size_t got = input_structure_publish(b->kb, input, &cs, "last_text", base);
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[text] frase %zu: id %zu, range(%zu,%zu), %zu nodi «%.40s»\n",
+            p0_trace(b, "read.text", "frase %zu: id %zu, range(%zu,%zu), %zu nodi «%.40s»\n",
                         i, base, cs.start, cs.len, got, c);
             base += got;
         }
         kb_set_origin(b->kb, KB_REFLECTIVE);
         /* `input` qui e' gia' il turno come l'ha scritto l'interlocutore. */
         size_t nwords = turn_publish_words(b, input, "last_text", base);
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[text] %zu frasi e %zu parole nella IR (last_text)\n",
+        p0_trace(b, "read.text", "%zu frasi e %zu parole nella IR (last_text)\n",
                     ncl, nwords);
     }
 
@@ -7043,8 +7072,7 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     for (size_t i = 0; i < ncl; i++) {
         char *c = trim_mut(clauses[i]);
         if (!*c) continue;
-        if (strip_annotation_parentheticals(c) && getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[annotazione] «%s»\n", c);
+        if (strip_annotation_parentheticals(c)) p0_trace(b, "read.annotazione", "«%s»\n", c);
         char sub[1024]; sub[0] = '\0';
         /* La clausola e' un turno intero: ha la SUA vista globale, non quella
          * del genitore — altrimenti una cue del turno composto («can you»)
@@ -7193,8 +7221,7 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             snprintf(piece, sizeof piece, "%s", sub);
             read++;
         }
-        if (getenv("P0_READ_TRACE"))
-            fprintf(stderr, "[compound] clause=«%s» module=%s resp=«%s»\n", c, b->last_module, sub);
+        p0_trace(b, "read.compound", "clause=«%s» module=%s resp=«%s»\n", c, b->last_module, sub);
         if (off + strlen(piece) + 2 >= sizeof composed) break;
         /* 15 settembre 2026: «thanks a lot... you have been so helpful» dava
          * «You're welcome! You're welcome!»: la stessa risposta si dice una volta. */
@@ -7207,7 +7234,7 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
      * (che sapra' murare a modo suo, o compensare). Rivendica solo chi ha
      * letto qualcosa. */
     if (!read) {
-        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[compound] no clause read: declining (out=«%.60s»)\n", out);
+        p0_trace(b, "read.compound", "no clause read: declining (out=«%.60s»)\n", out);
         { char (*now)[KB_TERM_LEN] = NULL; size_t nn = 0;
           const char *oq[2] = { NULL, "gap_offer" };
           if (kb_match_all(b->kb, "open_issue", oq, 2, &now, &nn))
@@ -7340,8 +7367,7 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
             for (size_t ci = 0; ci < nc && !got; ci++) {
                 char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", kb_dequote(cands[ci]));
                 if (!cb[0] || !strcmp(cb, topic)) continue;
-                if (getenv("P0_READ_TRACE"))
-                    fprintf(stderr, "[acquire] candidate «%s»\n", cb);
+                p0_trace(b, "read.acquire", "candidate «%s»\n", cb);
                 def[0] = '\0'; nf_prose = 0;
                 int g2 = acquire_knowledge(b, cb, def, sizeof def);
                 if (g2 != 2) {
@@ -7875,7 +7901,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         canonicalize_lang(b, norm, canon, sizeof canon);
         b->canon_turn = 0;
     }
-    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[canon] «%s» -> «%s»\n", norm, canon);
+    p0_trace(b, "turn", "canon «%s»", canon);
+    p0_trace(b, "read.canon", "«%s» -> «%s»\n", norm, canon);
     p0_publish_question_focus(b, canon);
 
     /* gen431 — UNA RICHIESTA INCOMPLETA SI DICE SUBITO, PRIMA DI OGNI FACOLTA'.
@@ -8346,8 +8373,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             int confirm = (!refused_kb && kb_query(b->kb, "offer_resolution", acc, 2)) ||
                           p0_is_confirmation(b, clow) ||
                           p0_is_confirmation(b, rlow);
-            if (getenv("P0_READ_TRACE"))
-                fprintf(stderr, "[offer] open topic=«%s» confirm=%d refused=%d raw=«%s» canon=«%s»\n",
+            p0_trace(b, "read.offer", "open topic=«%s» confirm=%d refused=%d raw=«%s» canon=«%s»\n",
                         topic, confirm, refused_kb, rlow, clow);
 
             /* ── gen505x — ACCETTARE E' UNA FAMIGLIA, NON UN ELENCO ──────────
@@ -8502,6 +8528,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         registry[eager_idx].handle(b, canon, input, out, out_size)) {
         handled = 1;
         winner = registry[eager_idx].name;
+        p0_trace(b, "faculty", "=> %s answers", winner);
         if (strcmp(winner, "discourse") == 0) handled_by_discourse = 1;
         if (b) {
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -8509,7 +8536,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         }
     } else if (eager_idx < registry_len && ndecl < BRAIN_TRACE_MAX) {
         snprintf(declined[ndecl++], sizeof declined[0], "%s",
-                 registry[eager_idx].name);
+                 registry[eager_idx].name), p0_trace(b, "faculty", "%s", declined[ndecl - 1]);
     }
     /* ── OGNI MODULO DEL REGISTRO E' ADDESTRABILE, SENZA UNA RIGA PER CIASCUNO ─
      *
@@ -8627,7 +8654,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             handled = 1;
             winner = stage;
             if (ndecl < BRAIN_TRACE_MAX)
-                snprintf(declined[ndecl++], sizeof declined[0], "%s?fallback", stage);
+                snprintf(declined[ndecl++], sizeof declined[0], "%s?fallback", stage), p0_trace(b, "faculty", "%s", declined[ndecl - 1]);
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
             snprintf(b->last_module, sizeof b->last_module, "%s", stage);
             break;
@@ -8651,7 +8678,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             p0_faculty_yields(b, registry[i].name, "open", canon, input)) {
             if (ndecl < BRAIN_TRACE_MAX)
                 snprintf(declined[ndecl++], sizeof declined[0], "%s!yield",
-                         registry[i].name);
+                         registry[i].name), p0_trace(b, "faculty", "%s", declined[ndecl - 1]);
             continue;
         }
         if (registry[i].handle(b, canon, input, out, out_size)) {
@@ -8680,19 +8707,20 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             if (b && turn_size_violated(b, canon, out)) {
                 if (ndecl < BRAIN_TRACE_MAX)
                     snprintf(declined[ndecl++], sizeof declined[0], "%s!size",
-                             registry[i].name);
+                             registry[i].name), p0_trace(b, "faculty", "%s", declined[ndecl - 1]);
                 out[0] = '\0';
                 continue;
             }
             handled = 1;
             winner = registry[i].name;
+            p0_trace(b, "faculty", "=> %s answers", winner);
             /* Una risposta arrivata in seconda passata e' un'ULTIMA RISORSA, e
              * il fatto che nessuno con titolo abbia risposto e' informazione
              * diagnostica: dice dove manca una facolta' matura, non solo chi ha
              * parlato. */
             if (is_demoted && ndecl < BRAIN_TRACE_MAX)
                 snprintf(declined[ndecl++], sizeof declined[0], "%s?fallback",
-                         registry[i].name);
+                         registry[i].name), p0_trace(b, "faculty", "%s", declined[ndecl - 1]);
             if (strcmp(registry[i].name, "discourse") == 0) handled_by_discourse = 1;
             if (b) {
                 snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -8701,7 +8729,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             break;
         }
         if (ndecl < BRAIN_TRACE_MAX) snprintf(declined[ndecl++], sizeof declined[0], "%s",
-                                 registry[i].name);
+                                 registry[i].name), p0_trace(b, "faculty", "%s", declined[ndecl - 1]);
     }
     }
     free(governed);

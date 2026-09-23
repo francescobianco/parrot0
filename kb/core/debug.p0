@@ -13,6 +13,21 @@
 % di debug vanno migliorati di continuo, in relazione a necessita' che oggi non
 % conosciamo, quindi devono essere fatti per crescere senza ricompilare.
 
+% ── IL TRACE UNICO DEL TURNO (23 settembre 2026) ──────────────────────────
+% Le sonde qui sotto mostrano lo STATO del turno. Il PERCORSO — canone e forza,
+% ogni facolta' provata (cede per quale regola, declina, risponde), i cancelli
+% dei lettori, gli schemi legati, le ricevute, le viste invalidate, le
+% dipendenze della risposta del piano di turno — sta nel trace unico
+% (`p0_trace`, src/brain.c), in ordine, sempre registrato:
+%   /debug                 l'ispettore, con la TRACCIA DEL TURNO in fondo
+%   /debug trace [parola]  solo la traccia, filtrata
+%   !debug                 lo stesso dentro un .p0t (nel log del demone)
+%   PARROT0_TURN_LOG=file  ogni turno in append nel file
+%   PARROT0_TRACE_ECHO=1   ogni riga anche su stderr mentre accade
+% Le vecchie variabili (P0_READ/FORM/FRAME/SAVE/WP_TRACE, PARROT0_BOOT_TRACE)
+% restano come eco del loro stadio. ⛔ Mai piu' una fprintf temporanea: una
+% traccia che serve va nel trace unico, e ci resta (F., sette richieste).
+
 :- file_attribute(machinery).
 
 % ── LA NOTA, che si legge PRIMA di qualunque numero ────────────────────────

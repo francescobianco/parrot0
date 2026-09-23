@@ -42,6 +42,11 @@ void brain_turn_dump(Brain *b);
  * (`turn_faculty_path/2`). La chiama l'ispettore, non il turno: costo zero. */
 void brain_publish_dispatch_path(Brain *b, const char *turn);
 
+/* Il trace unico dell'ultimo turno, riga per riga, in ordine (p0_trace). */
+size_t      brain_trace_count(Brain *b);
+const char *brain_trace_line(Brain *b, size_t i);
+size_t      brain_trace_dropped(Brain *b);
+
 /* Atomically change one typed agent record's state. The in-memory P0AStore and
  * its live rec(Id,Kind,Parent,State) projection either both move or both remain
  * at the old state. Returns 1 on success, 0 for an unknown id/invalid input or

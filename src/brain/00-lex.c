@@ -1246,6 +1246,7 @@ static int p0_move_allowed(Brain *b, const char *faculty, const char *turn) {
  *
  * Costa solo a profilo acceso: a `/debug` spento non si asserisce niente. */
 static void p0_yield_note(Brain *b, const char *pred, const char *text) {
+    if (b && text) p0_trace(b, "yield", "%s %s", pred, text);
     if (!b || !b->kb || !kb_profile_on(b->kb) || !text) return;
     char quoted[KB_TERM_LEN];
     snprintf(quoted, sizeof quoted, "\"%s\"", text);

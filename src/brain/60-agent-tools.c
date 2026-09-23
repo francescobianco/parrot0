@@ -2820,8 +2820,7 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
      * l'oggetto allora e' il turno intero. */
     int verbless = 0;
     if (vi == (size_t)-1 && p0_turn_is(b, "production_request", norm)) verbless = 1;
-    if (getenv("P0_READ_TRACE"))
-        fprintf(stderr, "[reqgen] verb=%s force=%s\n",
+    p0_trace(b, "read.reqgen", "verb=%s force=%s\n",
                 vi == (size_t)-1 ? "-" : w[vi],
                 p0_turn_is(b, "production_request", norm) ? "production_request" : "-");
     if (!verbless && (vi == (size_t)-1 || vi + 1 >= nw)) return 0;

@@ -611,7 +611,7 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
                 if (reader_focus_rewrite(b, canon, focus, sizeof focus, rw, sizeof rw))
                     snprintf(canon, sizeof canon, "%s", rw);
             }
-            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[prose] focus=«%s» norm=«%s» canon=«%s»\n", focus, nrm, canon);
+            p0_trace(b, "read.prose", "focus=«%s» norm=«%s» canon=«%s»\n", focus, nrm, canon);
             msg[0] = '\0';
             /* gen382: NIENTE `continue` qui — il ciclo sulle frasi avanza `p` in
              * fondo al corpo, quindi saltare il fondo e' un loop infinito (lo
@@ -867,7 +867,7 @@ static int network_fetch_page(Brain *b, const char *topic, char *prose, size_t p
                 if (kb_match(b->kb, "tr", tq, 2, nv, 1) == 1)
                     snprintf(native, sizeof native, "%s", kb_dequote(nv[0]));
             }
-            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[acquire] topic=«%s» edition=%s native=«%s»\n", topic, lang, native);
+            p0_trace(b, "read.acquire", "topic=«%s» edition=%s native=«%s»\n", topic, lang, native);
             int fetched = (native[0] && wiki_fetch_topic_lang_prose(native, lang, prose, prose_sz)) ||
                           wiki_fetch_topic_lang_prose(topic, lang, prose, prose_sz);
             if (!fetched) {
@@ -2878,7 +2878,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
       if (!kb_query(b->kb, "acquisition_move", aq, 1)) return 0;
       if (kb_match(b->kb, "guided_asked_type", gq, 3, r1, 1) < 1) return 0;
       if (!kb_query(b->kb, "turn_guided_bridge", tq, 1)) return 0; }
-    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] inquiry recognized\n");
+    p0_trace(b, "read.guided", "inquiry recognized\n");
     (void)norm;
 
     /* i tipi chiesti, nell'ordine del turno */
@@ -2893,7 +2893,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
             if (first_type_pos < 0) first_type_pos = idx;
         }
     }
-    if (getenv("P0_READ_TRACE")) for (size_t i = 0; i < ntypes; i++) fprintf(stderr, "[guided] asked type %s\n", types[i]);
+    for (size_t i = 0; i < ntypes; i++) p0_trace(b, "read.guided", "asked type %s", types[i]);
     if (!ntypes) return 0;
     /* le descrizioni di entita' intermedie sono sotto-domande, e si risolvono dalla piu'
      * interna: «the capital of [the country where [the highest mountain in Africa] stands]» */
@@ -3024,7 +3024,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
               }
           }
       }
-      if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] start %s\n", started ? page.topic : "(none)");
+      p0_trace(b, "read.guided", "start %s\n", started ? page.topic : "(none)");
       if (!started) { free(cues); free(ev); return 0; }
       /* le parole del nome da cui si parte non sono indizi: ogni frase della sua pagina
        * le contiene */
@@ -3273,7 +3273,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
             }
         }
         if (t >= ntypes) break;
-        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] page %s: %zu sentences, type %s not found\n", page.topic, page.nsent, types[t]);
+        p0_trace(b, "read.guided", "page %s: %zu sentences, type %s not found\n", page.topic, page.nsent, types[t]);
         if (type_desc[t] >= 0) {
             /* una descrizione che la pagina d'appoggio non risolve si cerca, non si insegue:
              * «the highest mountain in Europe» */
@@ -3318,7 +3318,7 @@ static int guided_reading_lead(Brain *b, const char *norm, const char *raw, char
                     }
                     if (skip) continue;
                     int sc = cue * 10 + gr_local_evidence(b, s, &mm[k], ev, nev) - (int)k;
-                    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[guided] bridge candidate «%s» key=%s sc=%d\n", mm[k].surface, mm[k].key, sc);
+                    p0_trace(b, "read.guided", "bridge candidate «%s» key=%s sc=%d\n", mm[k].surface, mm[k].key, sc);
                     if (have && sc + 20 <= bestc) continue;
                     if (!gr_fetch_mention(b, &mm[k], &cand)) continue;
                     if (t < ntypes && gr_lookahead(b, &cand, types[t])) sc += 20;
