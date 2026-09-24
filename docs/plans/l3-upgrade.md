@@ -2190,3 +2190,43 @@ nessuno su cui misurarlo.
 **Che cosa resta del §25:** la voce (`response_template` per spiegare un
 cortocircuito o un ciclo), e un solo registro in KB per `loops_cut`,
 `view_short_circuit` e `view_cycle`.
+
+### 25.3 Il registro unico (fatto, 25 settembre 2026)
+
+Quattro eventi della stessa specie avevano tre nomi e un contatore del C:
+il ciclo tagliato nella prova (`loops_cut`, gen382, letto solo dal modulo di
+`undetermined_cycle`), il budget esaurito, il cortocircuito di una vista, il
+ciclo di una vista. Ora sono **un fatto solo**:
+
+```text
+paradox_event(Livello, Specie,                    Dove,       Dettaglio)
+              proof    loop_cut | budget           Predicato   seen(Turno)
+              view     short_circuit(Costrutto)    Vista       Catena
+              view     cycle                       Vista       Catena
+```
+
+- **Livello della prova:** il motore lo scrive appena una query di primo livello
+  finisce (`kb_note_inference`), fuori da ogni prova in corso, una volta per
+  predicato e turno. «Dove» è il predicato del goal **tagliato**
+  (`S->cut_pred`, un puntatore alla testa della regola: la struttura del solver,
+  che sta sulla pila, non cresce). Il turno lo passa il registro delle facoltà
+  (`kb_set_paradox_turn`, lo stesso orologio di `turn_counter/1`).
+- **Livello delle viste:** `view_short_circuit/3` e `view_cycle/2` restano come
+  facce del registro (viste KB); il motore scrive solo `paradox_event/4`.
+- **Sonda:** `/debug` 44 mostra il registro intero; la 45 è assorbita.
+- **Primo consumatore: il gate C1 di [inferenza-compositiva.md](inferenza-compositiva.md).**
+  `inference_incomplete(current_turn, cycle | budget)` e
+  `inference_cycle(current_turn, Membri)` ora si **derivano** dal registro
+  (composition.p0). Prima il piano diceva che il C non li depositava, e il test li
+  metteva a mano. Misurato con il ciclo insegnato di `inference_guard.p0t`
+  («every zorp is a blim» … «is vex a blim»): il registro ha l'evento, i sensori
+  sono veri nello stesso turno e falsi al turno dopo. `composed_answer.p0t`
+  resta 18/18.
+
+**Che cosa non è ancora unico:** il modulo che dice `undetermined_cycle` legge
+ancora il contatore della *singola* query (`kb_inference_report`), non il
+registro del *turno*. Le due cose non sono equivalenti: un taglio in un'altra
+query dello stesso turno non deve far dire «la ricerca si chiude su se stessa»
+a una domanda che non l'ha incontrato. Il passo giusto è che la composizione
+(C2, già scritta e inerte) prenda la parola al posto del template, e che il
+registro porti la query (o il goal di turno) che ha tagliato.

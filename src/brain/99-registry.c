@@ -7893,6 +7893,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_set_origin(b->kb, KB_REFLECTIVE);
             kb_retract_pred(b->kb, "turn_counter");
             kb_assert(b->kb, "turn_counter", (const char *[]){ n }, 1);
+            kb_set_paradox_turn(b->kb, b->turns);   /* §25.3: data del registro */
             kb_set_origin(b->kb, prev);
         }
         /* gen506h: il turno finito resta, sotto turn_N; gen506j: chi cade lo

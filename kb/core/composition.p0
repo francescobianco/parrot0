@@ -20,6 +20,25 @@
 
 :- file_attribute(machinery).
 
+% §25.3 di l3-upgrade.md (25 settembre 2026) — I SENSORI ORA SI DEPOSITANO.
+% Il gate C1 chiedeva che il ciclo tagliato entrasse in KB: ci entra, nel
+% registro unico dei paradossi (`paradox_event/4`, debug.p0), scritto dal motore
+% appena la query finisce. Qui lo si legge per il turno in corso. I membri del
+% ciclo sono i predicati i cui goal sono stati tagliati in questo turno.
+% (La nota sopra, «oggi NON sono depositati», vale per `turn_goal/3`.)
+machinery(inference_incomplete).
+machinery(inference_cycle).
+machinery(turn_paradox_members).
+inference_incomplete(current_turn, cycle) :-
+    turn_counter($K), paradox_event(proof, loop_cut, $W, seen($K)).
+inference_incomplete(current_turn, budget) :-
+    turn_counter($K), paradox_event(proof, budget, $W, seen($K)).
+inference_cycle(current_turn, cons($A, $R)) :-
+    turn_counter($K), turn_paradox_members($K, $L), eq_cons($L, $A, $R).
+turn_paradox_members($K, $L) :- findall($W, paradox_event(proof, loop_cut, $W, seen($K)), $L).
+machinery(eq_cons).
+eq_cons(cons($A, $R), $A, $R).
+
 % ── 1. IL MOTORE — sei clausole, nessuna parola ────────────────────────────
 %
 % Nessun vocabolario, nessun nome di stadio, nessuna lingua: si puo' insegnare

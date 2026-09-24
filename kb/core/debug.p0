@@ -262,14 +262,26 @@ debug_probe(43, debug_contact, any, "le ipotesi nate per contatto: nome, relazio
 % L3 §25 (25 settembre 2026) — I CORTOCIRCUITI DELLE VISTE: quale vista non si
 % e' potuta congelare, per quale costrutto riflessivo, e la catena di predicati
 % dalla vista alla regola che lo usa. Prima lo diceva solo PARROT0_BOOT_TRACE.
+% §25.3 — oggi e' una faccia del registro unico (`paradox_event/4`, sotto).
 machinery(view_short_circuit).
-machinery(debug_short_circuit).
-debug_short_circuit(short_circuit($V, $B, $Chain)) :- view_short_circuit($V, $B, $Chain).
-debug_probe(44, debug_short_circuit, any, "le viste che non si congelano: costrutto riflessivo e catena").
+view_short_circuit($V, $B, $Chain) :- paradox_event(view, short_circuit($B), $V, $Chain).
 
 % §25.2 — i CICLI delle viste: una vista che raggiunge se stessa per regole
 % (dentro la sua definizione, o attraverso un'altra vista).
 machinery(view_cycle).
-machinery(debug_view_cycle).
-debug_view_cycle(cycle($V, $Chain)) :- view_cycle($V, $Chain).
-debug_probe(45, debug_view_cycle, any, "le viste che raggiungono se stesse: la catena del ciclo").
+view_cycle($V, $Chain) :- paradox_event(view, cycle, $V, $Chain).
+
+% §25.3 (25 settembre 2026) — IL REGISTRO UNICO DEI PARADOSSI. Il taglio
+% anti-isteresi nella prova (gen382), il budget esaurito, il cortocircuito di
+% una vista e il ciclo di una vista sono la STESSA specie: una definizione che
+% per chiudersi deve consultare cio' che sta definendo, o non finisce. Erano
+% tre nomi e un contatore del C; ora sono un fatto solo:
+%   paradox_event(Livello, Specie, Dove, Dettaglio)
+%     proof  loop_cut | budget         Predicato   seen(Turno, Quante)
+%     view   short_circuit(Costrutto)  Vista       Catena
+%     view   cycle                     Vista       Catena
+% Il motore lo scrive e la KB lo legge; la sonda lo mostra per intero.
+machinery(paradox_event).
+machinery(debug_paradox).
+debug_paradox(paradox($L, $K, $W, $D)) :- paradox_event($L, $K, $W, $D).
+debug_probe(44, debug_paradox, any, "il registro unico dei paradossi: cicli tagliati, budget, cortocircuiti e cicli delle viste").

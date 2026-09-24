@@ -503,6 +503,8 @@ typedef struct {
 } KbInferenceReport;
 
 void kb_inference_report(const KB *kb, KbInferenceReport *out);
+/* §25.3 — il turno corrente, per datare `paradox_event/4` (registro unico). */
+void kb_set_paradox_turn(KB *kb, unsigned long turn);
 
 /* ── gen422: LA FIRMA DEL FLUSSO DI INFERENZA ─────────────────────────────────
  *

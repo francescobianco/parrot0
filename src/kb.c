@@ -290,6 +290,9 @@ struct KB {
     unsigned long infer_steps;
     int           infer_budget_hit;
     int           infer_loops_cut;
+    /* §25.3 — il REGISTRO UNICO: il turno corrente (lo da' il registro delle
+     * facolta', `kb_set_paradox_turn`), per datare `paradox_event/4`. */
+    unsigned long paradox_turn;
     char          infer_goal[KB_TERM_LEN];
 
     PredStat *pred_stats;      /* the census; NULL = unavailable, scan instead */
@@ -1958,6 +1961,7 @@ typedef struct {
      * sul cammino: dentro, un richiamo ricorsivo della vista risponde dai soli
      * fatti (le righe delle passate precedenti) — il punto fisso. */
     size_t   in_vrule;
+    const char *cut_pred;  /* §25.3: il predicato dell'ultimo goal tagliato */
 
 } Solver;
 
@@ -4040,7 +4044,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             uint64_t h = goal_hash(&rg);
             int seen = 0;
             for (size_t a = 0; a < S->nanc && !seen; a++) if (S->anc[a] == h) seen = 1;
-            if (seen) { S->loops_cut++; continue; }
+            if (seen) { S->loops_cut++; S->cut_pred = R->head.pred; continue; }
             if (S->nanc < sizeof S->anc / sizeof S->anc[0]) {
                 S->anc[S->nanc++] = h;
                 pushed = 1;
@@ -4417,10 +4421,12 @@ static void view_short_circuit_publish(KB *kb, KbView *v, KbView *acc, size_t at
     for (size_t k = 0; k < nc && off + 2 < sizeof list; k++) list[off++] = ')';
     list[off] = '\0';
     kb_trace(kb, "view", "%-28s cortocircuito: %s via %s", v->pred, builtin, list);
-    const char *a[3] = { v->pred, builtin, list };
-    if (kb_query(kb, "view_short_circuit", a, 3)) return;
+    /* §25.3 — nel registro unico, `paradox_event(Livello, Specie, Dove, Dettaglio)` */
+    char kind[KB_TERM_LEN]; snprintf(kind, sizeof kind, "short_circuit(%s)", builtin);
+    const char *a[4] = { "view", kind, v->pred, list };
+    if (kb_query(kb, "paradox_event", a, 4)) return;
     int origin = kb->origin; kb->origin = KB_REFLECTIVE;
-    kb_assert(kb, "view_short_circuit", a, 3);
+    kb_assert(kb, "paradox_event", a, 4);
     kb->origin = origin;
 }
 
@@ -4431,10 +4437,10 @@ static void view_short_circuit_publish(KB *kb, KbView *v, KbView *acc, size_t at
  * grafo e `building`); ora e' un fatto, `view_cycle(Vista, Catena)`. */
 static void view_cycle_publish_chain(KB *kb, const char *view, const char *list) {
     kb_trace(kb, "view", "%-28s ciclo: %s", view, list);
-    const char *a[2] = { view, list };
-    if (kb_query(kb, "view_cycle", a, 2)) return;
+    const char *a[4] = { "view", "cycle", view, list };
+    if (kb_query(kb, "paradox_event", a, 4)) return;
     int origin = kb->origin; kb->origin = KB_REFLECTIVE;
-    kb_assert(kb, "view_cycle", a, 2);
+    kb_assert(kb, "paradox_event", a, 4);
     kb->origin = origin;
 }
 static void view_cycle_publish(KB *kb, KbView *v, KbView *acc, size_t at) {
@@ -5052,6 +5058,28 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
     kb->infer_budget_hit = S->budget_hit;
     kb->infer_loops_cut  = S->loops_cut;
     snprintf(kb->infer_goal, sizeof kb->infer_goal, "%s", goalpred ? goalpred : "");
+    /* §25.3 — IL REGISTRO UNICO DEI PARADOSSI, livello della prova. Il taglio
+     * anti-isteresi (gen382) e il budget esaurito erano un contatore letto da un
+     * solo modulo; ora sono lo stesso fatto dei cortocircuiti e dei cicli delle
+     * viste: `paradox_event(proof, loop_cut | budget, Predicato, seen(Turno))`.
+     * Il predicato e' quello del goal TAGLIATO (per il budget, quello della
+     * query). Si scrive solo fuori da ogni prova in corso, una volta per
+     * predicato e turno; la composizione della risposta lo legge nello stesso
+     * turno (composition.p0, gate C1 di inferenza-compositiva.md). */
+    if ((S->loops_cut > 0 || S->budget_hit) && kb->paradox_turn &&
+        !census_readers_live()) {
+        char det[48]; snprintf(det, sizeof det, "seen(%lu)", kb->paradox_turn);
+        for (int k = 0; k < 2; k++) {
+            if (k == 0 && !(S->loops_cut > 0 && S->cut_pred)) continue;
+            if (k == 1 && !(S->budget_hit && goalpred && *goalpred)) continue;
+            const char *a[4] = { "proof", k ? "budget" : "loop_cut",
+                                 k ? goalpred : S->cut_pred, det };
+            if (kb_query(kb, "paradox_event", a, 4)) continue;
+            int origin = kb->origin; kb->origin = KB_REFLECTIVE;
+            kb_assert(kb, "paradox_event", a, 4);
+            kb->origin = origin;
+        }
+    }
     /* gen400: accumulo per TURNO. La domanda vera non e' quanto costa un goal —
      * quella la dice gia' `infer_steps` — ma dove siano finiti i passi di un
      * turno intero, che di goal ne apre decine. */
@@ -9081,6 +9109,9 @@ size_t kb_size(const KB *kb) {
 size_t kb_rule_count(const KB *kb) {
     return kb ? kb->nr : 0;
 }
+
+/* §25.3 — il turno corrente, per datare il registro unico dei paradossi. */
+void kb_set_paradox_turn(KB *kb, unsigned long turn) { if (kb) kb->paradox_turn = turn; }
 
 void kb_inference_report(const KB *kb, KbInferenceReport *out) {
     if (!out) return;
