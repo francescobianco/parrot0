@@ -2147,3 +2147,46 @@ zz_bad("@S zzhails from @O", $K, born_in) :- kb_fact(extract_frame, cons($K, con
 e avviare con `PARROT0_BOOT_TRACE=1`: le righe `ibrida: 1 clausole spente, 1
 catene vive` e `cortocircuito: kb_fact via cons(extract_frame, …)`. Senza la
 vista ibrida il boot non finiva.
+
+### 25.2 Il ciclo logico puro (fatto, 25 settembre 2026)
+
+**Che cosa c'era.** Una vista che raggiunge sé stessa per regole, senza
+costrutti riflessivi, era coperta da due guardie mute:
+
+- **dentro la vista**, una regola a valle che la nomina: la chiusura del grafo
+  la deduplicava senza vederla;
+- **fra viste**, una dipendenza che è una vista già in costruzione:
+  `kb_view_ensure` la saltava.
+
+Nessuna delle due diceva niente. Il danno misurato non è nel significato: il
+solver, col suo taglio sui goal ground, risponde giusto anche derivando. È nel
+**costo**. Una vista ricorsiva a sinistra su un grafo con un ciclo (`zz_loop` su
+p→q→r→p) si congelava **incompleta** (144 ms buttati al boot), restava non viva,
+e ogni lettura rideriva dalle regole (12 352 passi per chiamata nel caso minimo).
+
+**Che cosa c'è ora.**
+
+1. **Consapevolezza:** tutti e due i casi pubblicano `view_cycle(Vista, Catena)`,
+   con la stessa forma di `view_short_circuit`, e il trace di boot lo dice.
+2. **Rimedio senza halt, il punto fisso:** una vista che si nomina (`recursive`)
+   si congela **a passate**. Dentro le sue stesse regole il richiamo ricorsivo
+   risponde solo dalle righe già congelate (`in_vrule`, con il marcatore
+   `__end_view_rule`, lo stesso schema di `__end_delta_step`), e si ripete finché
+   una passata non aggiunge righe. È la valutazione per strati di un programma
+   Datalog: stesse soluzioni, costruzione finita. Oltre 64 passate la vista si
+   dichiara incompleta, non vuota.
+
+**Misurato:** `zz_loop` si congela in 4 passate, in 0,1 ms invece di 144 ms
+incompleta. La chiusura transitiva `zz_reach` su un grafo aciclico, e le
+enumerazioni («tutti gli Y raggiungibili da p» = 3, tutte le coppie = 9), danno
+le stesse risposte di prima. Nella KB viva **non ci sono cicli**: nessuna riga
+`ciclo`, fatti e tempi identici. Il meccanismo è pronto per il primo che una
+lezione o un contatto ne introdurrà.
+
+**Il ciclo fra viste** oggi si pubblica soltanto. Il rimedio (costruire le due
+viste insieme fino al punto fisso comune) non c'è, perché nella KB non ne esiste
+nessuno su cui misurarlo.
+
+**Che cosa resta del §25:** la voce (`response_template` per spiegare un
+cortocircuito o un ciclo), e un solo registro in KB per `loops_cut`,
+`view_short_circuit` e `view_cycle`.

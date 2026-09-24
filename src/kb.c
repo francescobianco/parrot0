@@ -254,6 +254,7 @@ typedef struct {
     /* le catene dalla vista al predicato le cui regole usano il costrutto:
      * alla lettura la differenza si cerca solo lungo di esse */
     char (*chain)[KB_TERM_LEN]; size_t *chain_len; size_t nchain, chain_cap;
+    int recursive;         /* §25.2: una regola a valle nomina la vista */
     size_t stamp;          /* kb->view_clock at the last invalidation */
     uint64_t content;      /* impronta delle righe dell'ultima costruzione */
     int has_content;
@@ -1953,6 +1954,10 @@ typedef struct {
      * gradino della catena a cui si e' arrivati. */
     const KbView *dview;
     size_t   dchain, dlevel;
+    /* §25.2 — quante regole della vista che si sta congelando sono aperte
+     * sul cammino: dentro, un richiamo ricorsivo della vista risponde dai soli
+     * fatti (le righe delle passate precedenti) — il punto fisso. */
+    size_t   in_vrule;
 
 } Solver;
 
@@ -3150,6 +3155,13 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
 
     /* L3 §25 — fine del corpo di un gradino della catena: si torna al gradino
      * di prima per il resto del risolvente, e lo si rimette al ritorno. */
+    if (strcmp(g->pred, "__end_view_rule") == 0 && g->argc == 0) {
+        if (S->in_vrule == 0) return 0;
+        S->in_vrule--;
+        int ok = solve(S, goals, ngoals, idx + 1, s, depth);
+        S->in_vrule++;
+        return ok;
+    }
     if (strcmp(g->pred, "__end_delta_step") == 0 && g->argc == 0) {
         if (S->dlevel == 0) return 0;
         S->dlevel--;
@@ -3978,6 +3990,11 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         }
     }
 
+    /* §25.2 — il punto fisso: dentro una regola della vista ricorsiva che si
+     * sta congelando, la vista risponde solo dalle righe gia' congelate. */
+    int vrule = bv && bv->recursive && !strcmp(g->pred, bv->pred);
+    if (vrule && S->in_vrule > 0) return 0;
+
     PredBucket rbk = rule_bucket(S->kb, g->pred);
     int rule_copy_done = 0;
     for (size_t vi = 0; vi < PRED_VISITS(rbk, S->kb); vi++) { /* expand rules */
@@ -4054,6 +4071,14 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                 m++;
             }
         }
+        if (vrule && !overflow) {
+            if (m >= KB_MAX_GOALS) overflow = 1;
+            else {
+                memset(&ng[m], 0, sizeof ng[m]);
+                snprintf(ng[m].pred, sizeof ng[m].pred, "%s", "__end_view_rule");
+                m++;
+            }
+        }
         for (size_t k = idx + 1; k < ngoals && !overflow; k++) {
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }
             term_copy(&ng[m++], &goals[k]);
@@ -4077,7 +4102,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             proof_push(S, cid);
         }
         if (dcarrier) S->dlevel++;
+        if (vrule) S->in_vrule++;
         int ok = solve(S, ng, m, 0, s2, depth + 1);
+        if (vrule) S->in_vrule--;
         if (dcarrier) S->dlevel--;
         if (rec) S->nproof--;
         if (pushed) S->nanc--;
@@ -4397,6 +4424,37 @@ static void view_short_circuit_publish(KB *kb, KbView *v, KbView *acc, size_t at
     kb->origin = origin;
 }
 
+/* L3 §25.2 — IL CICLO LOGICO PURO. Una vista che raggiunge se stessa per
+ * regole, senza costrutti riflessivi: dentro la sua definizione (una regola
+ * a valle nomina la vista) o fra viste (una dipendenza e' una vista gia' in
+ * costruzione). Prima lo sapevano solo due guardie mute (la deduplica del
+ * grafo e `building`); ora e' un fatto, `view_cycle(Vista, Catena)`. */
+static void view_cycle_publish_chain(KB *kb, const char *view, const char *list) {
+    kb_trace(kb, "view", "%-28s ciclo: %s", view, list);
+    const char *a[2] = { view, list };
+    if (kb_query(kb, "view_cycle", a, 2)) return;
+    int origin = kb->origin; kb->origin = KB_REFLECTIVE;
+    kb_assert(kb, "view_cycle", a, 2);
+    kb->origin = origin;
+}
+static void view_cycle_publish(KB *kb, KbView *v, KbView *acc, size_t at) {
+    size_t chain[32]; size_t nc = 0;
+    for (size_t i = at; i != (size_t)-1 && nc < 32; ) {
+        chain[nc++] = i;
+        if (i == 0 || i >= view_dep_parent_cap) break;
+        size_t p = view_dep_parent[i];
+        if (p == i) break;
+        i = p;
+    }
+    char list[KB_TERM_LEN * 2]; size_t off = 0;
+    for (size_t k = nc; k-- > 0 && off + 8 < sizeof list; )
+        off += (size_t)snprintf(list + off, sizeof list - off, "cons(%s, ", acc->deps[chain[k]]);
+    off += (size_t)snprintf(list + off, sizeof list - off, "cons(%s, nil", v->pred);
+    for (size_t k = 0; k <= nc && off + 2 < sizeof list; k++) list[off++] = ')';
+    list[off] = '\0';
+    view_cycle_publish_chain(kb, v->pred, list);
+}
+
 static int view_live_rule_add(KbView *v, size_t ri);
 /* Registra una catena ibrida: dal predicato colpevole (il genitore del
  * costrutto) risale alla vista; le regole del colpevole che usano il costrutto
@@ -4491,6 +4549,10 @@ static int view_close(KB *kb, KbView *v, KbView *acc, size_t from) {
                 if (apply_resolved && (!strcmp(r->body[b].pred, "apply") ||
                                        !strcmp(r->body[b].pred, "call")))
                     continue;
+                if (!strcmp(r->body[b].pred, v->pred)) {
+                    view_cycle_publish(kb, v, acc, i);
+                    v->recursive = 1;
+                }
                 size_t before = acc->ndeps;
                 if (!kb_view_dep_add(acc, r->body[b].pred)) return 0;
                 if (acc->ndeps > before) view_dep_note_parent(acc->ndeps - 1, i);
@@ -4529,7 +4591,7 @@ static int view_rule_is_live(const KbView *v, size_t ri) {
 
 static int kb_view_dependencies(KB *kb, KbView *v) {
     v->ndeps = 0;
-    v->nlive = 0; v->nchain = 0;
+    v->nlive = 0; v->nchain = 0; v->recursive = 0;
     v->broad = 1;                 /* OOM/unsupported => conservative fallback */
     view_dep_note_parent(0, (size_t)-1);
     if (!kb_view_dep_add(v, v->pred) ||
@@ -4606,6 +4668,11 @@ int kb_view_ensure(KB *kb, const char *pred) {
             size_t dk = kb_view_slot(kb, v->deps[i]);
             if (dk == (size_t)-1) continue;
             const KbView *dv = &kb->views[dk];
+            if (dv->building) {
+                char l[KB_TERM_LEN * 2];
+                snprintf(l, sizeof l, "cons(%s, cons(%s, cons(%s, nil)))", pred, dv->pred, pred);
+                view_cycle_publish_chain(kb, pred, l);
+            }
             if (dv->live || dv->building) continue;
             kb_view_ensure(kb, v->deps[i]);
         }
@@ -4641,6 +4708,11 @@ int kb_view_ensure(KB *kb, const char *pred) {
                 size_t dk = kb_view_slot(kb, deps[i]);
                 if (dk == (size_t)-1) continue;
                 const KbView *dv = &kb->views[dk];
+                if (dv->building) {
+                    char l[KB_TERM_LEN * 2];
+                    snprintf(l, sizeof l, "cons(%s, cons(%s, cons(%s, nil)))", pred, dv->pred, pred);
+                    view_cycle_publish_chain(kb, pred, l);
+                }
                 if (dv->live || dv->attempted || dv->building) continue;
                 kb_view_ensure(kb, deps[i]);
             }
@@ -4687,6 +4759,15 @@ int kb_view_ensure(KB *kb, const char *pred) {
      * `view_pair/2` (grammar.p0) restituisce le COPPIE in una sola
      * enumerazione; qui si separano i due argomenti. Se la KB non la dichiara,
      * resta la strada di prima. */
+    /* §25.2 — una vista RICORSIVA si congela a passate: ogni passata vede le
+     * righe delle precedenti (i richiami ricorsivi rispondono dai fatti), e ci
+     * si ferma quando una passata non ne aggiunge. Il tetto non e' un halt
+     * muto: una vista che non converge si dichiara incompleta. */
+    int vpass = 0;
+    size_t vpass_n0 = kb->n;
+again_pass:
+    vpass_n0 = kb->n;
+    vcontent = 0; vrows = 0;
     int pairs_done = 0;
     if (v->argc == 2 && kb_knows_pred(kb, "view_pair")) {
         char (*pairs)[KB_TERM_LEN] = NULL; size_t npairs = 0;
@@ -4740,6 +4821,14 @@ int kb_view_ensure(KB *kb, const char *pred) {
         }
     }
     free(firsts);
+    v = &kb->views[k];
+    if (v->recursive && complete && kb->n > vpass_n0) {
+        if (++vpass < 64) goto again_pass;
+        complete = 0;
+        kb_trace(kb, "view", "%-28s punto fisso non raggiunto in %d passate", pred, vpass);
+    }
+    if (v->recursive && vtrace)
+        kb_trace(kb, "view", "%-28s punto fisso in %d passate", pred, vpass + 1);
     v->building = 0;
     kb->building_view_plus1 = prev_building_view;
     if (vtrace) {

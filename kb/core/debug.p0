@@ -266,3 +266,10 @@ machinery(view_short_circuit).
 machinery(debug_short_circuit).
 debug_short_circuit(short_circuit($V, $B, $Chain)) :- view_short_circuit($V, $B, $Chain).
 debug_probe(44, debug_short_circuit, any, "le viste che non si congelano: costrutto riflessivo e catena").
+
+% §25.2 — i CICLI delle viste: una vista che raggiunge se stessa per regole
+% (dentro la sua definizione, o attraverso un'altra vista).
+machinery(view_cycle).
+machinery(debug_view_cycle).
+debug_view_cycle(cycle($V, $Chain)) :- view_cycle($V, $Chain).
+debug_probe(45, debug_view_cycle, any, "le viste che raggiungono se stesse: la catena del ciclo").
