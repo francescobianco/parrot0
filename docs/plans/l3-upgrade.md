@@ -22,6 +22,11 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 > così. Il principio che la regge lo chiamiamo, provvisoriamente,
 > **adatto-linguistico**.
 
+> **L2 E L3 CONVIVONO (F., 24 settembre 2026, §18).** Ciò che L2 dimostra di
+> saper fare oggi resta: è una capacità di basso livello su cui L3 si appoggia.
+> L3 nasce **accanto** a L2, non al suo posto: non si butta via niente che
+> funzioni, e le cure lungo la strada sono guardie conservative, non smontaggi.
+
 > ⛔ **PRIMA DI LAVORARE A L3, LEGGERE IL §1-bis.** Il rischio principale di
 > questo piano è che L3 diventi **una collezione di forme di ordine superiore**:
 > schemi dall'aria più naturale che lasciano dietro di sé un **residuo
@@ -75,6 +80,12 @@ unica. Non sono l'esecutore da moltiplicare per L3 (mantra #25). Inoltre LED,
 la sua espansione e il fatto che emette luce sono già salvati nella KB viva:
 un verde su LED nel §7 non misura nuovo apprendimento. Serve il controllo
 prima/dopo, con ablazione mirata della lezione o un caso realmente non appreso.
+
+**Checkpoint 6 — gradino prima di I1 chiuso (§17.5).** I tre furti sono curati
+con guardie conservative (§18: L2 convive), e il contatto arriva alla IR. Nuovi
+aperti: R5 «its» legato all'entità sbagliata, R6 proposta che prende il turno
+dopo. **Prossimo passo: I1**, osservazione (R1 nodi fra le proposizioni, R2
+quantità, R3 «its boiling point», R5 coreferenza).
 
 **Checkpoint 5 — I0 chiuso (§17).** Baseline misurata sulla KB completa con
 ritiro mirato in memoria. Il contatto oggi **non arriva** al lettore: tre furti
@@ -1398,4 +1409,74 @@ Criterio: dopo il gradino, i due contatti (acqua, Einstein) devono arrivare alla
 IR **senza** essere letti in modo sbagliato e senza scrivere niente: l'esito
 atteso è un'osservazione non capita o parzialmente capita, cioè il punto di
 partenza di I1. Un contatto che «impara» già a questo gradino sarebbe sospetto.
+
+### 17.5 Il gradino prima di I1, fatto: il contatto arriva al lettore
+
+Curati i tre furti, con guardie conservative (§18) e senza toccare ciò che L2 fa:
+
+| furto | cura | verifica |
+|---|---|---|
+| **T1** ramo gen241 | vale solo se la forza **pubblicata** del turno è una domanda (`p0_turn_is(b, "question", …)`, come i rami vicini); riga di trace `read.gen241` (**D1**) | il contatto sull'acqua non riceve più la risposta memorizzata; «At what temperature does water boil?» risponde come prima |
+| **T2** `year_stated` | classe dello slot `year_said/1` in KB: l'oggetto dev'essere un numero | «Einstein was born in Ulm, so his birthplace is Ulm.» → vince il frame `born_in` (fatto vero); «zelnik was built in 1990» identico alla base |
+| **T3** punto e virgola → codice | tre difetti, trovati in fila col trace: (a) `faculty_yield_force(symbolic, open, compound_statement)` in KB; (b) il lettore composto **restituisce al turno esterno la sua forza** dopo le clausole annidate, che la sovrascrivevano; (c) il **rilancio della coreferenza** (`coref_resolve`) scorreva tutto il registro senza nessuna cessione: ora rispetta `p0_faculty_yields` e il trace dice chi cede e chi risponde nel rilancio | il contatto sull'acetone arriva come osservazione non capita; il codice vero resta riconosciuto |
+
+Trace nuovo: `read.gen241`, `symbolic looks_code claims …`, `read.compound outer
+force restored`, `faculty … (coref retry …)`.
+
+Banchi puntuali, lavoro contro base `c7474e77`: `compound_inquiry` 29/31 contro
+28/31 (uno in più), `coref` 6/8 = , `coref_possessive` 2/2 = , `coref_resolve`
+2/2 = , `compose_coref` 3/6 = , `symbolic.it` 2/3 = , `mcp/compound` 5/5 = (i
+rossi sono preesistenti). Profilo per turno dei 16 turni del soft-test alla
+pari (42 532 contro 42 527 query; 8,5–9,1 s contro 8,8 s). `make soft-test`:
+test verdi, **19–20 s sotto carico** — sopra il budget come la base in queste ore;
+da rimisurare a macchina scarica.
+
+**Reperti nuovi, lasciati aperti:**
+
+- **R5 — coreferenza sbagliata**: nel contatto sull'acetone «its» viene legato a
+  `celsius` (`refer «its» -> celsius (most_recent)`), non ad `acetone`. È il
+  punto 6 di l2-upgrade.md («its contamina»), e per L3 è centrale: il ponte si
+  aggancia a *di chi* è il punto di ebollizione.
+- **R6 — la proposta aperta prende il turno dopo**: dopo «I don't know about
+  acetone yet. Want me to learn about it?», il turno seguente (anche codice) si
+  apre con «Looking up acetone…». Meccanica preesistente delle proposte, resa
+  visibile ora che il contatto produce un'offerta invece di un falso «codice».
+
+**Stato:** i contatti del §15 ora arrivano alla IR **senza** essere letti in modo
+sbagliato e senza scrivere niente di falso. È il punto di partenza richiesto da
+I1 (osservazione): R1–R3 e R5 sono il suo lavoro.
+
+## 18. L2 e L3 convivono (F., 24 settembre 2026)
+
+> *«Vorrei che tu considerassi l'esistente, che è basato su L2, come una
+> capacità di basso livello che potrà continuare a vivere. Concentriamoci sul
+> far nascere L3 affianco a L2. Non voglio che dobbiamo buttare via quello che
+> oggi L2 dimostra di saper fare: facciamo convivere.»*
+
+**Che cosa vuol dire, operativamente.**
+
+1. **Gli schemi di L1/L2 restano** come riflessi rapidi e provati: le forme di
+   lezione, le ricevute di lettura, le correzioni con portata dichiarata. Nessun
+   incremento di L3 li rimuove o li riscrive per farli sembrare contatto.
+2. **L3 si appoggia su L2.** Le ricevute (`reading_choice/4`), la rilettura e la
+   portata dichiarata sono ciò che dà a un'ipotesi di contatto un *questo* a cui
+   attaccarsi (§6-bis, §14.1). Senza L2 il contatto sarebbe indovinare.
+3. **L3 lavora dove L2 lascia residui**: letture non capite, conflitti fra
+   lettori, decisioni che un contatto contraddice. Col tempo può *rivedere* una
+   decisione di L2, sempre nella stessa mente, con provenienza e ritiro, senza
+   smontare lo schema che l'aveva presa.
+4. **Le cure lungo la strada sono guardie conservative.** Quando uno schema di L2
+   ruba un contatto (§17, T2), gli si toglie il furto e basta: la forma
+   `year_stated` continua a leggere «zelnik was built in 1990» esattamente come
+   prima, verificato contro la base.
+5. **Il §1-bis resta in vigore.** Convivere non significa che L3 si costruisca
+   *come* altri schemi di L2: L3 è un circuito diverso che usa L2 come strato
+   basso. Una forma nuova per uno strumento del contatto resta L2+, anche se
+   convive benissimo con il resto.
+
+**Il parere dell'agente.** È la scelta giusta anche tecnicamente, non solo per
+prudenza: il contratto del §14 presuppone già le ricevute di L2, e il §17 mostra
+che i furti che oggi impediscono il contatto stanno quasi tutti *fuori* da L2
+(un ramo compilato, un rilevatore, un rilancio senza cessioni). L2 non è
+l'ostacolo; è il terreno.
 

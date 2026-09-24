@@ -1069,6 +1069,14 @@ turn_form(year_stated, 6, bind(relation, year_of)).
 turn_form_mood(year_stated, statement).
 turn_form_act(year_stated, assert_relation).
 turn_form_reply(year_stated, learned_year).
+% L3/I0 (24 settembre 2026) — la forma parla di ANNI: l'oggetto dev'essere un
+% numero. «Einstein was born in Ulm, so his birthplace is Ulm.» diventava
+% `year_of(einstein, ulm_so_his_birthplace_is_ulm)` e vinceva sul frame
+% `born_in`, che aveva letto giusto (l3-upgrade.md §17, T2). La forma resta: e'
+% L2 che funziona per «zelnik was built in 1990»; si toglie solo il furto.
+turn_form_slot_class(year_stated, object, year_said).
+machinery(year_said).
+year_said($V) :- is($N, $V).
 
 machinery(past_copula).
 past_copula(was).  past_copula(were).  past_copula(era).  past_copula(fu).

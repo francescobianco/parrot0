@@ -3325,9 +3325,21 @@ static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size
         kb_set_origin(b->kb, prev);
     }
 
+    /* L3/I0 (24 settembre 2026) — IL RILANCIO RISPETTA LE STESSE CESSIONI.
+     * Rilanciare il turno riscritto su tutto il registro, senza chiedere a
+     * nessuna facolta' se deve cedere, scavalcava ogni condotta dichiarata in
+     * KB: «Acetone boils at 56 degrees Celsius; its boiling point is …»
+     * tornava al lettore di codice dopo che, nel dispatch normale, quello aveva
+     * ceduto (l3-upgrade.md §17, T3). Le cessioni sono le stesse della porta
+     * condivisa; il trace dice chi cede e chi risponde nel rilancio. */
     for (size_t i = 0; i < registry_len; i++) {
         if (strcmp(registry[i].name, "coref") == 0) continue;     /* no re-entry */
+        if (p0_faculty_yields(b, registry[i].name, "open", rw, rw)) {
+            p0_trace(b, "faculty", "%s!yield (coref retry)", registry[i].name);
+            continue;
+        }
         if (registry[i].handle(b, rw, rw, out, out_size)) {
+            p0_trace(b, "faculty", "=> %s answers (coref retry «%.80s»)", registry[i].name, rw);
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
             snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
             return 1;
@@ -7093,6 +7105,19 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     unsigned long saved_fallbacks = b->fallbacks;
     snprintf(saved_reply, sizeof saved_reply, "%s", b->last_reply);
     snprintf(saved_module, sizeof saved_module, "%s", b->last_module);
+    /* L3/I0 (24 settembre 2026) — LA FORZA DEL TURNO ESTERNO SI RESTITUISCE.
+     * Ogni clausola e' riletta come un turno annidato, che ripubblica
+     * `turn_illocution(current_turn, …)` per se'. Uscendo, il turno intero
+     * restava con la forza dell'ULTIMA clausola: `compound_statement` spariva,
+     * e ogni condotta dichiarata su quella forza leggeva uno stato sporco —
+     * «Acetone boils at 56 degrees Celsius; its boiling point is …» finiva al
+     * lettore di codice nonostante `faculty_yield_force(symbolic, open,
+     * compound_statement)` (l3-upgrade.md §17, T3). Si fotografa prima e si
+     * rimette dopo; il trace lo dice. */
+    char (*outer_force)[KB_TERM_LEN] = NULL; size_t n_outer_force = 0;
+    { const char *fq[2] = { "current_turn", NULL };
+      if (!kb_match_all(b->kb, "turn_illocution", fq, 2, &outer_force, &n_outer_force))
+          n_outer_force = 0; }
     b->compound_depth++;
     for (size_t i = 0; i < ncl; i++) {
         char *c = trim_mut(clauses[i]);
@@ -7254,6 +7279,19 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
         off += (size_t)snprintf(composed + off, sizeof composed - off, "%s%s", off ? " " : "", piece);
     }
     b->compound_depth--;
+    {   const char *rq[2] = { "current_turn", NULL };
+        kb_retract_match(b->kb, "turn_illocution", rq, 2);
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        for (size_t i = 0; i < n_outer_force; i++) {
+            char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", outer_force[i]);
+            const char *fa[2] = { "current_turn", kb_dequote(fb) };
+            kb_assert(b->kb, "turn_illocution", fa, 2);
+            p0_trace(b, "read.compound", "outer force restored: %s\n", fa[1]);
+        }
+        kb_set_origin(b->kb, prev);
+        free(outer_force);
+    }
     /* Se nessuna clausola e' stata letta, la lettura per clausole non ha
      * aggiunto niente: si lascia la parola alla risposta del turno intero
      * (che sapra' murare a modo suo, o compensare). Rivendica solo chi ha

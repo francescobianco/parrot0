@@ -2147,9 +2147,13 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
         return name_register(b, "That looks like leetspeak.",
                              "Letters as numbers — that's leetspeak.", out, out_size);
 
-    if (!kb_cue_match(b, "80_code_lex1968", lc) && looks_code(b, lc, w, nw))
+    if (!kb_cue_match(b, "80_code_lex1968", lc) && looks_code(b, lc, w, nw)) {
+        /* L3/I0: chi rivendica un turno come codice lo dice nel trace. */
+        p0_trace(b, "symbolic", "looks_code claims «%.120s» (depth %d, compound %d)\n",
+                 raw, b ? b->respond_depth : 0, b ? b->compound_depth : 0);
         return name_register(b, "That looks like a snippet of code.",
                              "Looks like a fragment of code.", out, out_size);
+    }
 
     return 0;
 }

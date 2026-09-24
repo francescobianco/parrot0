@@ -22576,9 +22576,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
      * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
      * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-    if ((kb_cue_match(b, "10_memory_knowledge_chain11449", buf)) && kb_cue_match(b, "10_memory_knowledge_cue11418", buf)) {
+    /* L3/I0 (24 settembre 2026) — UNA DICHIARAZIONE NON E' UNA DOMANDA.
+     * «Water boils at 100 degrees Celsius, so its boiling point is 100 degrees
+     * Celsius.» riceveva «It boils at 100 degrees Celsius…»: il contatto di un
+     * maestro veniva risposto come una domanda e non arrivava mai al lettore
+     * (docs/plans/l3-upgrade.md §17, T1). Come i rami vicini, questo vale solo
+     * se la forza PUBBLICATA del turno e' una domanda; e dice nel trace che
+     * ha parlato. */
+    if ((kb_cue_match(b, "10_memory_knowledge_chain11449", buf)) && kb_cue_match(b, "10_memory_knowledge_cue11418", buf) &&
+        p0_turn_is(b, "question", norm)) {
         const char *q[] = { "water", NULL };
         char hit[1][KB_TERM_LEN];
+        p0_trace(b, "read.gen241", "boil+water on a question: answering boils_at(water, …)\n");
         if (kb_match(b->kb, "boils_at", q, 2, hit, 1) > 0) {
             char *p = hit[0]; size_t l = strlen(p);
             if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }

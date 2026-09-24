@@ -6214,6 +6214,11 @@ faculty_yield_force(chitchat, open, compound_inquiry).
 faculty_yield_force(pragma, open, compound_inquiry).
 faculty_yield_force(answerframe, open, compound_inquiry).
 faculty_yield_force(answer_frame, open, compound_inquiry).
+% L3/I0 (24 settembre 2026) — e un'AFFERMAZIONE composta non e' codice: «Acetone
+% boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.» riceveva
+% «That looks like a snippet of code.» per il punto e virgola, dopo che il
+% lettore delle clausole aveva onestamente declinato (l3-upgrade.md §17, T3).
+faculty_yield_force(symbolic, open, compound_statement).
 % assistente utile U1 — UNA RICHIESTA CHE NOMINA UN PARENTE NON E' UNA CONFIDENZA.
 % «Give me some ideas for a birthday present for my dad» riceveva «Thanks for
 % telling me about your family -- I'll keep that in mind.»: il lettore della
