@@ -36,14 +36,21 @@ machinery(turn_paradox_members).
 machinery(turn_goal_query).
 turn_goal_query($C, $C).
 turn_goal_query($C, holds1).
+turn_goal_query($C, holds).
+% §25.5 — la DOMANDA DI RELAZIONE (`turn_relation_goal(T, R, S, O)`) e' la
+% gemella della domanda di classe: stessa cipolla, altro nucleo.
+machinery(turn_relation_goal).
+machinery(turn_goal_head).
+turn_goal_head($T, $C) :- turn_goal($T, $S, $C).
+turn_goal_head($T, $R) :- turn_relation_goal($T, $R, $S, $O).
 inference_incomplete(current_turn, cycle) :-
-    turn_counter($K), turn_goal(current_turn, $S, $C), turn_goal_query($C, $Q),
+    turn_counter($K), turn_goal_head(current_turn, $C), turn_goal_query($C, $Q),
     paradox_event(proof, loop_cut, $W, seen($K, $Q)).
 inference_incomplete(current_turn, budget) :-
-    turn_counter($K), turn_goal(current_turn, $S, $C), turn_goal_query($C, $Q),
+    turn_counter($K), turn_goal_head(current_turn, $C), turn_goal_query($C, $Q),
     paradox_event(proof, budget, $W, seen($K, $Q)).
 inference_cycle(current_turn, cons($A, $R)) :-
-    turn_counter($K), turn_goal(current_turn, $S, $C),
+    turn_counter($K), turn_goal_head(current_turn, $C),
     turn_paradox_members(pair($K, $C), $L), eq_cons($L, $A, $R).
 turn_paradox_members(pair($K, $C), $L) :-
     findall($W, turn_paradox_member($K, $C, $W), $L).
@@ -138,6 +145,39 @@ class_copula(it, " è ").
 % stessa cipolla osservata in due stati.
 
 % NUCLEO — la proposizione sotto esame. E' gia' essa stessa una composizione.
+% il nucleo di una domanda di RELAZIONE e' la sua proposizione detta in lingua,
+% con le stesse cornici con cui parrot0 la legge (`say_frame/2`, grammar.p0)
+stage_text(goal_proposition, en, $T) :-
+    turn_relation_goal(current_turn, $R, $S, $O), relation_said($R, $S, $O, $T).
+stage_text(goal_proposition, it, $T) :-
+    turn_relation_goal(current_turn, $R, $S, $O), relation_said_words($R, $S, $O, $T).
+
+% ── §25.5 — DIRE UNA RELAZIONE IN LINGUA, IN KB ────────────────────────────
+% La cornice PREFERITA della relazione, se la KB ne dichiara una («tom is the
+% parent of bob»); altrimenti le parole lette, cosi' come sono. Provata e
+% scartata (misurato): scegliere fra le altre cornici di `say_frame/2` — la
+% prima corta, o quella che nomina la relazione — diceva «cat ate grass» e «cat
+% is eat grass», perche' il lettore polare consegna il LEMMA della domanda
+% («eat», non `eats`) e l'oggetto con la preposizione («in pisa»). Il nucleo non
+% puo' dire meglio di cio' che e' stato letto, e indovinare qui nasconderebbe il
+% difetto dove sta: nel lettore (§25.5, aperto).
+machinery(relation_said).
+machinery(relation_said_known).
+machinery(relation_said_words).
+machinery(frame_fill).
+machinery(say_frame_preferred_known).
+relation_said($R, $S, $O, $T) :- say_frame_preferred($R, $P), frame_fill($P, $S, $O, $T).
+relation_said($R, $S, $O, $T) :- naf(say_frame_preferred_known($R)), relation_said_words($R, $S, $O, $T).
+say_frame_preferred_known($R) :- say_frame_preferred($R, $P).
+frame_fill($P, $S, $O, $T) :-
+    concat_atoms("@S ", $Rest, $P), concat_atoms($Mid, " @O", $Rest),
+    words_of($S, $SW), words_of($O, $OW),
+    concat_atoms($SW, " ", $A), concat_atoms($A, $Mid, $B), concat_atoms($B, " ", $C),
+    concat_atoms($C, $OW, $T).
+relation_said_words($R, $S, $O, $T) :-
+    words_of($S, $SW), words_of($R, $RW), words_of($O, $OW),
+    concat_atoms($SW, " ", $A), concat_atoms($A, $RW, $B), concat_atoms($B, " ", $C),
+    concat_atoms($C, $OW, $T).
 stage_text(goal_proposition, $L, $T) :-
     turn_goal(current_turn, $S0, $K), words_of($S0, $S),
     class_copula($L, $Cop), class_phrase($L, $K, $Cls),
@@ -151,6 +191,8 @@ stage_side(no_anchor, before).
 stage_text(no_anchor, en, "no fact I hold decides whether").
 stage_text(no_anchor, it, "nessun fatto che ho decide se").
 turn_goal_unanchored($T) :- turn_goal($T, $S, $K), naf(kb_fact($K, cons($S, nil))).
+turn_goal_unanchored($T) :-
+    turn_relation_goal($T, $R, $S, $O), naf(kb_fact($R, cons($S, cons($O, nil)))).
 
 % 2. IL CICLO, CON I SUOI MEMBRI (elaborazione, dopo).
 %    Nessun segnaposto: i membri sono un ELENCO, e l'elenco si realizza col fold
@@ -225,6 +267,7 @@ stage_side(verdict, before).
 stage_text(verdict, en, "I cannot settle that").
 stage_text(verdict, it, "Non posso stabilirlo").
 turn_unsettled($T) :- turn_goal($T, $S, $K), naf(kb_fact($K, cons($S, nil))).
+turn_unsettled($T) :- turn_relation_goal($T, $R, $S, $O), turn_goal_unanchored($T).
 
 % 5. LA MASSIMA (qualificazione, dopo) — UNA volta per lingua, non quattro.
 stage_wraps(maxim, verdict).
@@ -238,6 +281,10 @@ unearned_negation_risk($T) :- turn_goal($T, $S, $K), naf(closed_world_answer($K,
 % e' guadagnato per definizione: la prova che chiuderebbe il mondo passa dallo
 % stesso ciclo, e li' `naf` declina invece di concludere (§25.3).
 unearned_negation_risk($T) :- inference_incomplete($T, cycle).
+% per una RELAZIONE il modulo ha gia' provato ogni «no» guadagnato (negazione
+% detta, valore unico occupato, esclusione): se la domanda arriva qui, il «no»
+% non e' guadagnato.
+unearned_negation_risk($T) :- turn_relation_goal($T, $R, $S, $O).
 
 % 6. L'OFFERTA (dopo) — oggi vive SOLO in `no_support_either_way`: sfogliata,
 %    diventa disponibile anche al turno indeterminato, che non la aveva.

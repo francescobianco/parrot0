@@ -1193,6 +1193,7 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
     {   const char *tg[] = { "current_turn", subj, cls };
         int saved_origin = kb_origin(b->kb);
         kb_retract_pred(b->kb, "turn_goal");
+        kb_retract_pred(b->kb, "turn_relation_goal");   /* §25.5: una domanda sola */
         kb_set_origin(b->kb, KB_REFLECTIVE);
         kb_assert(b->kb, "turn_goal", tg, 3);
         kb_set_origin(b->kb, saved_origin); }
@@ -14937,6 +14938,38 @@ static int p0_relation_verdict(Brain *b, const char *rel, const char *said,
     const KbResponseSlot rs[] = { { "subject", ss }, { "rel", rr }, { "object", os } };
     p0_trace(b, "read.polar", "%s(%s, %s) said «%s»: no support either way\n",
              rel, subj, obj, said);
+    /* §25.5 (l3-upgrade.md) — LA FAMIGLIA DELLE RELAZIONI NELLA STESSA CIPOLLA.
+     * La domanda diventa un sensore del turno (`turn_relation_goal/4`); la
+     * proposizione la dice la KB con le cornici di lettura (`relation_said/4`,
+     * composition.p0), e la risposta la compone con gli stessi stadi della
+     * domanda di classe:
+     * cambia il nucleo, non la cipolla. Prima: «nothing I hold says france
+     * border spain» — il nome del predicato al posto della lingua. Il template
+     * resta come ripiego. */
+    {
+        int so = kb_origin(b->kb);
+        kb_retract_pred(b->kb, "turn_goal");
+        kb_retract_pred(b->kb, "turn_relation_goal");
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        const char *rg[4] = { "current_turn", rel, subj, obj };
+        kb_assert(b->kb, "turn_relation_goal", rg, 4);
+        kb_set_origin(b->kb, so);
+        char lang[1][KB_TERM_LEN]; const char *lq[1] = { NULL };
+        const char *L = "en"; char lb[KB_TERM_LEN];
+        if (kb_match(b->kb, "current_language", lq, 1, lang, 1) == 1) {
+            snprintf(lb, sizeof lb, "%s", kb_dequote(lang[0])); L = lb; }
+        char text[1][KB_TERM_LEN]; const char *cq[3] = { "offer", L, NULL };
+        if (kb_match(b->kb, "composed", cq, 3, text, 1) == 1) {
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", text[0]);
+            const char *t = kb_dequote(tb);
+            if (*t) {
+                p0_trace(b, "compose", "relation offer composed: «%.160s»", t);
+                put(t, out, out_size);
+                return 1;
+            }
+        }
+        p0_trace(b, "compose", "relation offer not composed: template fallback");
+    }
     return kb_response_slots(b, "no_support_relation", rs, 3, out, out_size);
 }
 

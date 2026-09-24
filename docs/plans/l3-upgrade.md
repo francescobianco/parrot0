@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato (25 settembre): primo circuito di contatto in funzione (§21.6), con residuo dichiarato.**
+Stato (25 settembre, notte): contatto → lingua, ritiro per contatto, cortocircuiti e composizione; **soft-test rosso** dall'ultimo commit (handoff).**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -39,7 +39,107 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 
 ---
 
-## ⏸ HANDOFF — 25 settembre 2026: ripartire dal §21.7
+## ⏸ HANDOFF — 25 settembre 2026, notte: RIPARTIRE QUI
+
+**⛔ Primo compito di domani: il soft-test è ROSSO.** Con l'ultimo commit (la
+famiglia delle relazioni nella cipolla, §25.5) `make soft-test` misura **16, 16,
+17, 19 s** contro **15 s** della base `8991707e`, in misure alternate sulla
+stessa macchina. La causa **non è trovata**:
+- il boot è pari (~6,0 s);
+- i 9 turni di `knowledge/facts.p0t` costano uguale uno per uno;
+- `facts.p0t` cronometrato da solo tre volte alternato è pari (lavoro 12,0 /
+  11,5 / 11,5 s, base 11,8 / 12,0 / 11,9 s).
+
+Quindi il secondo in più sta in qualcosa che `make soft-test` fa e il file da
+solo no. Da guardare: `health.p0t` e `conversation/basics.p0t` con lo stesso
+metodo (turno per turno, `!timeout 0.01` dopo ogni `[test]` fa stampare la
+durata); la catena di `!reset` fra i file; la cipolla consultata a ogni turno da
+`p0_composed_say` (`induction_question`, `negative_because`, 10-memory-knowledge.c
+~2893), che ora attraversa tesi con clausole in più (`turn_goal_head/2`,
+`turn_goal_unanchored/1` per le relazioni). Se il costo non si trova in fretta,
+la regola del progetto dice di togliere, non di alzare il budget: il ripiego è
+tornare a `8991707e` per il solo modulo delle relazioni.
+
+**Dove siamo, in una riga per filo.**
+
+| filo | stato | dove |
+|---|---|---|
+| L3, contatto | il meccanismo impara per contatto e **scrive lingua**: `relation_noun/2` per un nome, cornice + `answer_frame/2` per un verbo; nessun lettore sa del contatto | §21, §24 |
+| L3, ritiro | per contatto (una correzione con negazione aggiunge un controesempio), ed è uno strato | §19, §22.1 |
+| L3, generalizzazione | come tecnica: lessico straniero, domanda polare, prosa senza maestro; banchi `tecnica` 13/13, `banco` 14/14, `generalizzazione` 19/19 | §22, §23 |
+| cortocircuiti | vista ibrida (spegne la sola clausola colpevole), ciclo logico puro al punto fisso, registro unico `paradox_event/4` | §25.1–§25.3 |
+| composizione | prende la parola per le domande di classe (§25.4) e di relazione (§25.5, **commit con soft-test rosso**) | §25.4, §25.5 |
+
+**Commit della giornata** (tutti su `origin/main`): `5791da90` I1 · `8288f6d7`
+I2 · `cec3d1fa` handoff · `1dc443b7` ritiro e generalizzazione · `77a69b60`
+tecnica · `81be5955` il contatto scrive lingua · `80b06ad9` vista ibrida ·
+`65a9f575` ciclo puro · `4968127c` registro unico · `8991707e` composizione ·
+l'ultimo, relazioni + questo handoff.
+
+**Principi che valgono per chi riprende** (aggiunti oggi, in ordine):
+
+1. **Ciò che il contatto conclude è lingua, non una nota sulla lingua (§24, F.).**
+   Se per usare una cosa appresa bisogna toccare un consumatore, è di nuovo L2+.
+2. **Dimenticare è uno strato (§19, F.).** Mai `retract` del sapere.
+3. **Un cortocircuito si conosce, non si tace (§25, F.).** Consapevolezza, rimedio
+   senza halt, un solo registro, una voce.
+4. **Un verde su ciò che la KB sapeva già non misura niente (§21.5).** La KB viva
+   collega quasi ogni nome di relazione naturale: si ritira in memoria il ponte
+   specifico, dichiarandolo in testa al banco.
+5. **Una guardia di assenza (`<!`) che smette di poter fallire va rivalidata**
+   (§25.5): cambiare la frase di un muro rende verdi per costruzione i test che
+   ne vietavano la vecchia forma.
+
+**Prossimi passi, dopo il soft-test.**
+
+1. **Il lettore polare delle relazioni** (§25.5): consegna il lemma della domanda
+   invece del predicato («eat» per `eats`, «border» per `borders`) e l'oggetto
+   con la preposizione («in pisa»). È la causa della resa brutta del nucleo e
+   della **strada rotta** «does france border spain?» → «I don't know» con
+   `borders(france, spain)` in KB.
+2. **L3:** residuo di più parole (con R3, «boiling point»); soglia e condizione di
+   osservazione come conoscenza che si può correggere parlando (§21.7, §22.3);
+   una verifica attiva prima di usare un'ipotesi (§22.3).
+3. **Composizione:** i membri del ciclo sono solo i predicati tagliati, non
+   l'anello (§25.4); C3, togliere `no_support_either_way` (oggi ripiego).
+4. **Ciclo fra viste:** oggi solo pubblicato; il rimedio (punto fisso comune)
+   quando ne esisterà uno da misurare (§25.2).
+
+**Come riprodurre in un minuto.**
+
+```sh
+make build && make test-engine
+./bin/parrot0 --test docs/labs/l3/I2/tecnica.p0t          # 13/13: contatto → lingua
+./bin/parrot0 --test docs/labs/l3/I2/composizione.p0t     # 7/7: la cipolla parla
+make soft-test                                             # oggi ROSSO: 16-19 s
+# il contatto dal vivo, con il registro dei paradossi e le ipotesi:
+printf '%s\n' 'Einstein was born in Ulm, so his Geburtsort is Ulm.' \
+  'What is the Geburtsort of Napoleon?' '/debug' '/quit' \
+  | PARROT0_SESSION= PARROT0_LANG=en PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+# sonde: debug_contact (43), debug_paradox (44)
+```
+
+**Rossi preesistenti, controllati contro la base** (non inseguirli come
+regressioni): `engine/anon.p0t`, `reasoning/inference_guard.p0t` (solo tempi),
+`crossing/mix_function_from_reading.p0t` riga «heat pump», `expert/grammar.p0t`,
+`reasoning/conj.p0t`, `reasoning/taught_rules.p0t`, `reasoning/hypothesis.p0t`,
+`meta/retract.p0t`.
+
+**Trappole pagate oggi:**
+
+- `naf` con variabili libere fallisce sempre: si passa da un ausiliario ground
+  (`contact_contraction_part/2`);
+- una lista di ~400 atomi nella sostituzione esaurisce i legami e la composizione
+  «non trova niente» con i pezzi verdi uno a uno: si enumera, non si raccoglie;
+- un argomento legato non combacia con un fatto fra virgolette
+  (`function_word("isn't", …)`): si enumera e si confronta il testo;
+- una regola che legge una vista mentre la definisce blocca il boot: oggi lo
+  dice `paradox_event(view, …)`, prima non lo diceva niente;
+- `eq/2` è numerico, non unifica atomi;
+- il motore azzera `current_turn` a inizio turno solo per una lista C: un fatto
+  di turno nuovo va legato a `turn_counter/1`.
+
+## ⏸ HANDOFF precedente — 25 settembre 2026, pomeriggio
 
 **Dove siamo.** Il primo circuito L3 funziona (§21.6, `8288f6d7`): dal contatto
 «Einstein was born in Ulm, so his birthplace is Ulm.» nasce un'ipotesi inerte
@@ -2280,3 +2380,50 @@ incompleto). La relazione gemella (`multigoal.p0t`, «I don't know: nothing I
 hold says tom grandparent bob») è un altro modulo con il suo template: seconda
 famiglia da sfogliare. Con questo il §25 è chiuso nei quattro punti che F. aveva
 aperto: consapevolezza, rimedio senza halt, registro unico, voce.
+
+### 25.5 La famiglia delle relazioni nella stessa cipolla (25 settembre 2026)
+
+`p0_relation_verdict` prova ogni via al «sì» e ogni «no» guadagnato
+(negazione detta, valore unico occupato, esclusione, simmetria, implicazione,
+`holds`, inversa, transitiva, ereditata). Quando nessuna regge, ora non dice più
+il template `no_support_relation`: deposita la domanda come sensore del turno,
+`turn_relation_goal(current_turn, R, S, O)`, e dice `composed(offer, …)`.
+
+**Non una seconda cipolla, la stessa.** Verdetto, «nessun fatto decide»,
+ciclo con i membri, budget, massima e offerta sono gli stadi della domanda di
+classe. Cambia solo il **nucleo** (la proposizione in esame), e le tesi guadagnano
+una clausola per la relazione: `turn_goal_unanchored/1`, `turn_unsettled/1`,
+`unearned_negation_risk/1`, e i sensori della prova, attraverso
+`turn_goal_head/2`. I due sensori di domanda si escludono: ogni modulo ritira
+quello dell'altro. Il template resta come ripiego.
+
+«is tom the grandparent of bob?» → «I cannot settle that: no fact I hold decides
+whether tom grandparent bob. Not proved is not the same as false. Tell me either
+way and I will hold it.» Prima: «I don't know: nothing I hold says tom
+grandparent bob, and nothing says it isn't so. …»
+
+**Il nucleo, e il difetto che mostra.** La proposizione si dice con la cornice
+preferita della relazione (`say_frame_preferred`), altrimenti con le parole
+lette (`relation_said/4`, in KB; prima era `p0_say_fact` nel C). Ho provato a
+scegliere fra le altre cornici di `say_frame`: diceva «cat ate grass», poi «cat is
+eat grass». Il motivo non è nella scelta: **il lettore polare consegna letture
+sbagliate**. La relazione arriva come lemma della domanda («eat», «locate»,
+«border»), non come predicato (`eats`, `located_in`, `borders`), e l'oggetto
+porta la preposizione («einstein born in **in pisa**»). È la stessa causa per cui
+«does france border spain?» risponde «I don't know» con `borders(france, spain)`
+in KB: una **strada rotta**, non una lacuna. Il nucleo dice fedelmente che cosa è
+stato letto, e così il difetto si vede. Indovinare una forma migliore qui lo
+avrebbe nascosto. **Prossimo lavoro: il lettore polare delle relazioni.**
+
+**Test rivalidati nel significato:** `multigoal.p0t` (onestà al posto di un «No.»
+senza licenza: ora `<~ no fact I hold decides whether tom grandparent bob`,
+`<~ Not proved…`, `<! No.`); le due guardie di assenza di `mix_causal_chain.p0t`
+e `mix_function_from_reading.p0t` (una domanda di funzione non deve essere letta
+come polare di relazione) vietano ora anche la frase composta, altrimenti
+sarebbero diventate verdi per costruzione.
+
+**Controllato contro la base prima della composizione (`4968127c`):**
+`expert/grammar`, `conj`, `taught_rules`, `hypothesis` e `meta/retract` hanno
+gli stessi rossi, sulle stesse righe. In `retract.p0t` il vecchio template diceva
+«Knowing some **mans**», la composizione dice «knowing some **men**» (il plurale
+che la KB conosce).

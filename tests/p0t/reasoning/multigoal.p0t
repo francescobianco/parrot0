@@ -28,6 +28,11 @@
 # che non ne sia anche nonno. La risposta onesta viene dalla stessa scala del
 # verdetto della domanda polare (`p0_relation_verdict`).
 > is tom the grandparent of bob?
-<~ I don't know: nothing I hold says tom grandparent bob
+# §25.5 (l3-upgrade.md, 25 settembre 2026): il «non so» per una relazione non e'
+# piu' un template, lo compone la stessa cipolla della domanda di classe. Il
+# senso dell'asserzione resta: onesta' al posto di un «No.» senza licenza.
+<~ no fact I hold decides whether tom grandparent bob
+<~ Not proved is not the same as false.
+<! No.
 > who is the grandparent of ann?
 < tom.
