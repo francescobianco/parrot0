@@ -76,6 +76,17 @@ la sua espansione e il fatto che emette luce sono già salvati nella KB viva:
 un verde su LED nel §7 non misura nuovo apprendimento. Serve il controllo
 prima/dopo, con ablazione mirata della lezione o un caso realmente non appreso.
 
+**Checkpoint 5 — I0 chiuso (§17).** Baseline misurata sulla KB completa con
+ritiro mirato in memoria. Il contatto oggi **non arriva** al lettore: tre furti
+(il ramo compilato gen241 risponde a una dichiarazione; la forma `year_stated`
+batte il frame `born_in` corretto e scrive «einstein dates from ulm so his
+birthplace is ulm»; il punto e virgola va al rilevatore di codice). Residui IR:
+nessun nodo fra le proposizioni attorno a «so», nessuna quantità per «100
+degrees Celsius», nessun sintagma «its boiling point». Relazione di controllo
+fissata prima della cura: `born_in` ↔ «birthplace». **Prossimo passo:** il
+gradino prima di I1 (§17.4), cioè togliere i tre furti retrocedendo i lettori
+immaturi, e dare voce al ramo muto nel trace.
+
 **Checkpoint 4 — contratto concettuale e sonda.** Scritti §12 (circuito,
 ambiguità, bootstrap) e §13 (audit con simboli del codice); corrette le garanzie
 premature del §6-bis. Nel binario disponibile tutte e tre le domande di
@@ -1301,3 +1312,90 @@ Il progetto del circuito è smentito o da rivedere se:
 
 In questi casi si conserva la diagnosi e si aggiorna il piano: non si rinomina
 il risultato L3. L2+ rimane un ripiego dichiarabile, con costo e residuo espliciti.
+
+## 17. I0 — la baseline, misurata (24 settembre 2026, sera)
+
+**Stato: I0 chiuso. Nessuna modifica al motore o alla KB.** Binario e KB di
+`783f59dd`, profilo `agi` completo, `PARROT0_SESSION` vuoto. Transcript e trace
+in `docs/labs/l3/I0/` (`stato.txt`, `*-dialogo.txt`, `*-trace.txt`).
+Setup dichiarato (§15.1): ritiro **in memoria** della sola lezione «the boiling
+point of x is y means x boils at y», con la sua forma parlata; nessun'altra
+conoscenza toccata.
+
+### 17.1 Che cosa succede, passo per passo (§15.2)
+
+| passo | ingresso | risposta | che cosa dice il trace |
+|---|---|---|---|
+| 0 | «What is the boiling point of water?» (ponte ritirato) | la definizione dell'acqua | `read.project … semantic_topic_cue(water) … speaks`: la proiezione risponde di X invece di «R of X» (la lacuna di RI-020, riemersa) |
+| 0 | «What is the boiling point of ethanol?» | «I don't know» | onesto |
+| controllo | «What is the freezing point of mercury?» | −39 °C | l'altra costruzione salvata resta: l'ablazione è mirata |
+| 1 | «Water boils at 100 degrees Celsius, so its boiling point is 100 degrees Celsius.» | **«It boils at 100 degrees Celsius (212 °F) at sea level…»** | nessuna lettura. Il ramo compilato gen241 (`10-memory-knowledge.c`, catena `…chain11449`, template `it_boils_at_x`, solo acqua) risponde a una **dichiarazione** come se fosse una domanda. Il trace dice solo «knowledge answers»: sito muto |
+| 1, dopo | ancora acqua / etanolo / acetone | definizione / «I don't know» / «I don't know» | il contatto non ha lasciato niente |
+| 4 | «Acetone boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.» | **«That looks like a snippet of code.»** | il punto e virgola fa rivendicare il turno al rilevatore di codice |
+| 6 | `read: Liquid nitrogen boils at minus 196 degrees Celsius. Its boiling point is far below room temperature.` | «Learned 0 fact(s), skipped 1» | la frase con «its» non si legge; «At what temperature does nitrogen boil?» → «I don't understand» (l'unico lettore di `boils_at` conosce solo l'acqua) |
+
+### 17.2 La relazione di controllo, fissata prima della cura
+
+Dal censimento (§15.1): **`born_in` ↔ «birthplace»**. È vera, è già in KB
+(`born_in(einstein, ulm)`, `marie_curie`→`warsaw`, `napoleon`→`ajaccio`,
+`galileo_galilei`→`pisa`, `christopher_columbus`→`genoa`) e il verbo risponde
+(«Where was Marie Curie born?» → warsaw). Il nome non è mai stato collegato
+(«What is the birthplace of Marie Curie?» → «I don't know about birthplace»:
+onesto). Scartati per ora `discoverer`/`painter`: sono nomi di **agente**, una
+forma di relazione diversa dal nome di proprietà del §15.
+
+Il contatto analogo oggi **scrive il falso**:
+
+```text
+> Einstein was born in Ulm, so his birthplace is Ulm.
+Held: einstein dates from ulm so his birthplace is ulm.
+> Napoleon was born in Ajaccio; Ajaccio is his birthplace.
+Held: napoleon dates from ajaccio. I couldn't read «Ajaccio is his birthplace.».
+```
+
+Trace (`controllo-trace.txt`): il lettore dei frame legge **giusto**
+(`frame bind «@S was born in @O» slots=[einstein][ulm]`, `extract_frame(…, born_in)`),
+ma vince la forma di lezione `year_stated` (`rel=year_of
+obj=ulm_so_his_birthplace_is_ulm`): uno schema L1 per «X was born in ANNO» che
+non verifica che l'oggetto sia un anno e attraversa il confine della
+proposizione. Il D33 in una riga: due letture, una giusta e tipata, una
+sbagliata, e vince la seconda.
+
+### 17.3 Classificazione dei reperti (uscita di I0)
+
+| # | reperto | specie | incremento che lo incontra |
+|---|---|---|---|
+| B1 | ponte «boiling point», ethanol, freezing, LED, contrazione: già in KB | **già saputo** — un verde su questi non misura contatto | setup §15.1, sempre |
+| R1 | la IR riconosce «so» come `discourse, consequence` e «its» come possessivo, ma **nessun nodo lega le due proposizioni** e il confine non ferma gli slot | **residuo IR** | I1 |
+| R2 | «100 degrees Celsius» non è una quantità: `measured_value/1` vuole numero+unità di due parole e «degree Celsius» non è un'unità in `measures/2`; le entità sono `water_boils`, `degrees_celsius`, il numero sparisce | **residuo IR / KB** | I1 (prima di I2: senza ancora quantitativa l'allineamento del §14.2 non parte) |
+| R3 | «its boiling point» → candidato `its boiling`; nessun frame legge «its R is V» | **residuo IR** | I1 |
+| R4 | i valori `boils_at` storici sono frasi, non quantità (previsto al §15.2) | **dato KB** | I2 (confronto fra quantità, non fra testi) |
+| T1 | il ramo gen241 risponde a una dichiarazione | **furto di turno** (mantra #21) da un ramo `TODO(kb-first, gen489)` | prima di I1: il contatto non arriva al lettore |
+| T2 | `year_stated` vince sul frame `born_in` e scrive il falso | **furto di lettura** (D33), X>0 se salvato | prima di I1 |
+| T3 | il punto e virgola → rilevatore di codice | **furto di turno** | prima di I1 |
+| L1 | nessun meccanismo propone il ponte dal contatto | **lacuna del learner**: è il lavoro di I2 | I2 |
+| D1 | la risposta di T1 non ha riga nel trace | **trace muto** | subito |
+
+### 17.4 Che cosa ne segue per l'ordine di lavoro
+
+Il §16.1 mette I1 (osservazione) dopo I0. La baseline aggiunge un gradino
+**prima**: finché T1–T3 rubano il contatto, nessuna osservazione arriva alla IR
+e nessun candidato può nascere. Non sono lavoro di L3, ma sono la sua
+precondizione, e vanno curati nella forma del mantra #21: **retrocedere il
+lettore immaturo**, non insegnargli una cessione.
+
+- **T1**: il ramo gen241 è una catena compilata, immatura per definizione. La
+  cura è retrocederlo a ultima risorsa per le sole *domande* (la sua forma di
+  pertinenza), o sostituirlo con un consumatore KB di `boils_at`/`freezes_at`.
+- **T2**: la forma `year_stated` deve chiedere che l'oggetto sia un anno
+  (classe KB esistente?) e fermarsi al confine della proposizione. È anche un
+  caso per il §2.3: la condizione «è un anno» è una **decisione** da rendere
+  raggiungibile, non da compilare nella forma.
+- **T3**: da tracciare prima di decidere (quale cue del rilevatore di codice).
+- **D1**: dare voce al ramo gen241 nel trace, nella stessa passata.
+
+Criterio: dopo il gradino, i due contatti (acqua, Einstein) devono arrivare alla
+IR **senza** essere letti in modo sbagliato e senza scrivere niente: l'esito
+atteso è un'osservazione non capita o parzialmente capita, cioè il punto di
+partenza di I1. Un contatto che «impara» già a questo gradino sarebbe sospetto.
+

@@ -1,0 +1,12 @@
+> forget that the boiling point of x is y means x boils at y
+The construction the boiling point of @S is @O -> @S boils at @O is no longer active; I kept its lesson trace.
+> Acetone boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.
+That looks like a snippet of code.
+> What is the boiling point of acetone?
+I don't know: nothing I hold says boiling point of acetone, and nothing says it isn't so. Tell me either way and I will hold it.
+> read: Liquid nitrogen boils at minus 196 degrees Celsius. Its boiling point is far below room temperature.
+Learned 0 fact(s), skipped 1. I couldn't read «Its boiling point is far below room temperature.».
+> What is the boiling point of nitrogen?
+I don't know: nothing I hold says boiling point of nitrogen, and nothing says it isn't so. Tell me either way and I will hold it.
+> At what temperature does nitrogen boil?
+I don't understand that yet.

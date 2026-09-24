@@ -1,0 +1,18 @@
+> forget that the boiling point of x is y means x boils at y
+The construction the boiling point of @S is @O -> @S boils at @O is no longer active; I kept its lesson trace.
+> What is the boiling point of water?
+A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.
+> What is the boiling point of ethanol?
+I don't know: nothing I hold says boiling point of ethanol, and nothing says it isn't so. Tell me either way and I will hold it.
+> What is the freezing point of mercury?
+about -39 degrees Celsius, so it stays liquid at room temperature.
+> At what temperature does water boil?
+It boils at 100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour).
+> Water boils at 100 degrees Celsius, so its boiling point is 100 degrees Celsius.
+It boils at 100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour).
+> What is the boiling point of water?
+A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.
+> What is the boiling point of ethanol?
+I don't know: nothing I hold says boiling point of ethanol, and nothing says it isn't so. Tell me either way and I will hold it.
+> What is the boiling point of acetone?
+I don't know: nothing I hold says boiling point of acetone, and nothing says it isn't so. Tell me either way and I will hold it.

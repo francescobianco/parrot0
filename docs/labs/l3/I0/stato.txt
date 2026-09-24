@@ -1,0 +1,4 @@
+HEAD: 783f59dd docs(plan): l3-upgrade — ipotesi operativa, audit del codice, contratto del circuito, primo esperimento e incrementi I0-I5
+binario: 85714d0240ed1f4ce7e085605e16da72b79aaba8a24d3f60aa811eb9761d1f72  bin/parrot0
+profilo: kb/profiles/agi.p0, KB completa, PARROT0_SESSION vuoto
+setup (dichiarato, §15.1): ritiro in memoria della sola lezione «the boiling point of x is y means x boils at y»

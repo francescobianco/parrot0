@@ -1,0 +1,14 @@
+> What is the birthplace of Marie Curie?
+I don't know about birthplace.
+> Einstein was born in Ulm, so his birthplace is Ulm.
+Held: einstein dates from ulm so his birthplace is ulm.
+> What is the birthplace of Einstein?
+I don't know about birthplace.
+> What is the birthplace of Marie Curie?
+I don't know about birthplace.
+> Napoleon was born in Ajaccio; Ajaccio is his birthplace.
+Held: napoleon dates from ajaccio. I couldn't read «Ajaccio is his birthplace.».
+> What is the birthplace of Galileo Galilei?
+I don't know about birthplace.
+> Where was Marie Curie born?
+warsaw.

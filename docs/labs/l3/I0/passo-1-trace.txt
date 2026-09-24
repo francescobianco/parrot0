@@ -1,0 +1,1122 @@
+  TRACCIA DEL TURNO (1118 righe)
+    turn   «Water boils at 100 degrees Celsius, so its boiling point is 100 degrees Celsius.»
+    read.lang «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.» sticky=en selected=en
+    view   construction_claims              28.9 ms
+    view   extract_frame                  2839.0 ms
+    read.turn publish «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.turn spans=1 ambiguous=0
+    read.turn force prose_carried
+    read.turn force unasked
+    read.text trattenuto
+    ir     current_turn water|boils|at|100|degrees|celsius|so|its|boiling|point|is|100|degrees|celsius|
+    ir     last_text water|boils|at|100|degrees|celsius|so|its|boiling|point|is|100|degrees|celsius|
+    read.turn force prose_carried
+    read.turn force unasked
+    yield  turn_yield_view turn_plan/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_outcome turn_plan by faculty_yield_force(turn_plan, open, prose_carried)
+    turn   canon «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.canon «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.» -> «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reader depth=1 early=1 said=0 «so its boiling point is 100 degrees celsius.»
+    form   teach_contraction_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_contraction_en does not match «so its boiling point is 100 degrees celsius.»
+    form   expression_reading_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   expression_reading_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   expression_reading_question does not match «so its boiling point is 100 degrees celsius.»
+    form   verb_family_question does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_qualifier_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_qualifier_en does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_tr_phrase does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_if does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_it does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_question_cue does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_situation_cue does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_plan does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_plan_it does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_2 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_1 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_3 does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_plan does not match «so its boiling point is 100 degrees celsius.»
+    form   fix_move does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_abbrev does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning_of does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_word_define does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_plan does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_10 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_9 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_8 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_7 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_6 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_5 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_4 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_11 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_plan_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_kind_excludes does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_14 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_12 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_13 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_exists_restriction does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_15 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_mixture does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_mixture_class does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_time_out does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_time_out_hot does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_on does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_sign does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_sleep_need does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_cup_weight does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_safe_temp does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_range does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_in does not match «so its boiling point is 100 degrees celsius.»
+    form   reminder_request_en does not match «so its boiling point is 100 degrees celsius.»
+    form   reminder_request_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson_unit does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_formula_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_preference_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_preference_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_question_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_preference_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_question does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_polar does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_en does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_status_question does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_bound_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_datum_bound_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_time_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_time_question_it does not match «so its boiling point is 100 degrees celsius.»
+    form   event_place_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_place_question_my does not match «so its boiling point is 100 degrees celsius.»
+    form   event_origin_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_en does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_not_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_force_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_force_it does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_force_en does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_force_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_unforce_en does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_number_en does not match «so its boiling point is 100 degrees celsius.»
+    read.named outcome_name acc=«so» -
+    read.named outcome_name acc=«so its» -
+    read.named outcome_name acc=«so its boiling» -
+    read.named outcome_name acc=«so its boiling point» -
+    read.named outcome_name acc=«so its boiling point is» -
+    read.named outcome_name acc=«so its boiling point is 100» -
+    read.named outcome_name acc=«so its boiling point is 100 degrees» -
+    read.named outcome_name acc=«so its boiling point is 100 degrees celsius» -
+    form   episode_outcome does not match «so its boiling point is 100 degrees celsius.»
+    form   episode_outcome_forget does not match «so its boiling point is 100 degrees celsius.»
+    read.named origo_cue acc=«so» -
+    read.named origo_cue acc=«so its» -
+    read.named origo_cue acc=«so its boiling» -
+    read.named origo_cue acc=«so its boiling point» -
+    read.named origo_cue acc=«so its boiling point is» -
+    read.named origo_cue acc=«so its boiling point is 100» -
+    read.named origo_cue acc=«so its boiling point is 100 degrees» -
+    read.named origo_cue acc=«so its boiling point is 100 degrees celsius» -
+    form   origo_question does not match «so its boiling point is 100 degrees celsius.»
+    form   event_when_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_when_question_it does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_en does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_it does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_en does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_spelling does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_spelling does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_event_subject_verb does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_event_subject_verb does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_kind_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_kind_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_inspect does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_correct does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_phrase_extend does not match «so its boiling point is 100 degrees celsius.»
+    read.named reading_pronoun_surface acc=«so» -
+    read.named reading_pronoun_surface acc=«so its» -
+    read.named reading_pronoun_surface acc=«so its boiling» -
+    read.named reading_pronoun_surface acc=«so its boiling point» -
+    read.named reading_pronoun_surface acc=«so its boiling point is» -
+    read.named reading_pronoun_surface acc=«so its boiling point is 100» -
+    read.named reading_pronoun_surface acc=«so its boiling point is 100 degrees» -
+    read.named reading_pronoun_surface acc=«so its boiling point is 100 degrees celsius» -
+    form   reading_antecedent_correct does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_inspect does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_reading_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_classes does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_reading_class_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_class_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_undo does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_16 does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_between does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between_it does not match «so its boiling point is 100 degrees celsius.»
+    yield  turn_yield_view gen/open viste: local 44B | raw 44B | source 80B
+    yield  turn_yield_probe word_rhyme local=miss raw=miss source=miss
+    yield  turn_yield_probe opinion_request local=miss raw=miss source=miss
+    yield  turn_yield_probe design_request local=miss raw=miss source=miss
+    yield  turn_yield_probe probability_draw local=miss raw=miss source=miss
+    yield  turn_yield_probe codebase_referent local=miss raw=miss source=miss
+    yield  turn_yield_outcome gen by faculty_yield_force(gen, open, prose_carried)
+    yield  turn_yield_view wordquery/open viste: local 44B | raw 0B | source 80B
+    yield  turn_yield_probe positional_rhyme_sentence local=miss raw=miss source=miss
+    yield  turn_yield_view role/open viste: local 44B | raw 44B | source 80B
+    yield  turn_yield_probe self_identity_question local=miss raw=miss source=miss
+    yield  turn_yield_probe physical_affordance_prediction local=miss raw=miss source=miss
+    yield  turn_yield_probe correction_claim local=miss raw=miss source=miss
+    wp     ENTER «so its boiling point is 100 degrees celsius.»
+    wp     guard reached, match=0
+    yield  turn_yield_view answer_frame/open viste: local 44B | raw 0B | source 80B
+    yield  turn_yield_probe border_intersection local=miss raw=miss source=miss
+    yield  turn_yield_probe turn_frame_answer reading=miss
+    yield  turn_yield_outcome answer_frame by faculty_yield_force(answer_frame, open, unasked)
+    read.aframe yields
+    form   reader depth=1 early=0 said=0 «so its boiling point is 100 degrees celsius.»
+    form   teach_contraction_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_contraction_en does not match «so its boiling point is 100 degrees celsius.»
+    form   expression_reading_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   expression_reading_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   expression_reading_question does not match «so its boiling point is 100 degrees celsius.»
+    form   verb_family_question does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_qualifier_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_qualifier_en does not match «so its boiling point is 100 degrees celsius.»
+    form   negate_relation does not match «so its boiling point is 100 degrees celsius.»
+    form   year_stated does not match «so its boiling point is 100 degrees celsius.»
+    form   price_stated does not match «so its boiling point is 100 degrees celsius.»
+    form   origin_stated does not match «so its boiling point is 100 degrees celsius.»
+    form   weight_stated does not match «so its boiling point is 100 degrees celsius.»
+    form   purpose_stated does not match «so its boiling point is 100 degrees celsius.»
+    form   similar_stated does not match «so its boiling point is 100 degrees celsius.»
+    form   similar_stated2 does not match «so its boiling point is 100 degrees celsius.»
+    form   ability_stated does not match «so its boiling point is 100 degrees celsius.»
+    form   transitive_taught does not match «so its boiling point is 100 degrees celsius.»
+    form   transitive_taught2 does not match «so its boiling point is 100 degrees celsius.»
+    form   untransitive_taught does not match «so its boiling point is 100 degrees celsius.»
+    form   untransitive_taught2 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_step does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_step2 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_tr does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_tr_phrase does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_tr_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_inverse does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_inverse2 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_symmetric does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_symmetric_it does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_symmetric does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_symmetric_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_superlative does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_proc does not match «so its boiling point is 100 degrees celsius.»
+    form   run_proc does not match «so its boiling point is 100 degrees celsius.»
+    form   run_proc_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_closed does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_functional does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_implies does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_excludes does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_reflexive does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_irreflexive does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_irreflexive does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_if does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_question_cue does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_situation_cue does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_plural does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_verbform does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_verbform2 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_charclass does not match «so its boiling point is 100 degrees celsius.»
+    form   list_procs does not match «so its boiling point is 100 degrees celsius.»
+    form   list_procs_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_proc does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_plan does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_plan_it does not match «so its boiling point is 100 degrees celsius.»
+    form   list_situations does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_fact does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_said does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_identity does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_meaning does not match «so its boiling point is 100 degrees celsius.»
+    form   fix_step does not match «so its boiling point is 100 degrees celsius.»
+    form   drop_step does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_magnitude does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_cmp_max does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_cmp_min does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_opposite does not match «so its boiling point is 100 degrees celsius.»
+    form   fix_move does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_plan does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_class_prop does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_member does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_abbrev does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_abbrev does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_before does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_contains does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_caused does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_kind does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_wrote does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_borders does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_currency does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_symbol does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_capital does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_sound does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_continent does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_purpose2 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_chain_pair does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_ctx_alias does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_scoped does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_like does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_class_rule does not match «so its boiling point is 100 degrees celsius.»
+    read.named particle_named acc=«its» -
+    read.named particle_named acc=«its boiling» -
+    read.named particle_named acc=«its boiling point» -
+    read.named particle_named acc=«its boiling point is» -
+    read.named particle_named acc=«its boiling point is 100» -
+    read.named particle_named acc=«its boiling point is 100 degrees» -
+    read.named particle_named acc=«its boiling point is 100 degrees celsius» -
+    form   teach_verb_particle does not match «so its boiling point is 100 degrees celsius.»
+    read.named turn_entity_named acc=«so» -
+    read.named turn_entity_named acc=«so its» -
+    read.named turn_entity_named acc=«so its boiling» -
+    read.named turn_entity_named acc=«so its boiling point» -
+    read.named turn_entity_named acc=«so its boiling point is» -
+    read.named turn_entity_named acc=«so its boiling point is 100» -
+    read.named turn_entity_named acc=«so its boiling point is 100 degrees» -
+    read.named turn_entity_named acc=«so its boiling point is 100 degrees celsius» -
+    form   teach_property_phrase does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_rel_and does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_rel_or does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_rel_chain does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_rel_unless does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_rel_card does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_rel_list does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_ctx_fact does not match «so its boiling point is 100 degrees celsius.»
+    form   enter_ctx does not match «so its boiling point is 100 degrees celsius.»
+    form   leave_ctx does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_about does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_between does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_signature does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_twice does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_ctx_name does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_reverse does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_family does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_like does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_def_use does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_def_as does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_rel_def does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_rel_def2 does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning_of does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_word_define does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_and does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_or does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_chain does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_unless does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_reverse does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_twice does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_def_use does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_role does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_required_role does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_projection does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_projection_where does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_schema_view does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_role_alias does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_occurrence does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_missing does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_schema does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_role does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_projection does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_projection_where does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_plan does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_2 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_10 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_9 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_8 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_7 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_6 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_5 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_1 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_3 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_4 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_11 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_plan_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_kind_excludes does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_12 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_14 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_13 does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_exists_restriction does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_mixture does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_mixture_class does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_time_out does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_time_out_hot does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_on does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_sign does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_sleep_need does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_cup_weight does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_safe_temp does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_range does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_in does not match «so its boiling point is 100 degrees celsius.»
+    form   reminder_request_en does not match «so its boiling point is 100 degrees celsius.»
+    form   reminder_request_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson_unit does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_formula_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_preference_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_preference_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_question_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_preference_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_question does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_value_polar does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_en does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_it does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_status_question does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_bound_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   decision_datum_bound_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_time_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_time_question_it does not match «so its boiling point is 100 degrees celsius.»
+    form   event_place_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_place_question_my does not match «so its boiling point is 100 degrees celsius.»
+    form   event_origin_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_en does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_not_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_force_en does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_force_it does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_force_en does not match «so its boiling point is 100 degrees celsius.»
+    form   unteach_force_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_unforce_en does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_force_number_en does not match «so its boiling point is 100 degrees celsius.»
+    read.named outcome_name acc=«so» -
+    read.named outcome_name acc=«so its» -
+    read.named outcome_name acc=«so its boiling» -
+    read.named outcome_name acc=«so its boiling point» -
+    read.named outcome_name acc=«so its boiling point is» -
+    read.named outcome_name acc=«so its boiling point is 100» -
+    read.named outcome_name acc=«so its boiling point is 100 degrees» -
+    read.named outcome_name acc=«so its boiling point is 100 degrees celsius» -
+    form   episode_outcome does not match «so its boiling point is 100 degrees celsius.»
+    form   episode_outcome_forget does not match «so its boiling point is 100 degrees celsius.»
+    read.named origo_cue acc=«so» -
+    read.named origo_cue acc=«so its» -
+    read.named origo_cue acc=«so its boiling» -
+    read.named origo_cue acc=«so its boiling point» -
+    read.named origo_cue acc=«so its boiling point is» -
+    read.named origo_cue acc=«so its boiling point is 100» -
+    read.named origo_cue acc=«so its boiling point is 100 degrees» -
+    read.named origo_cue acc=«so its boiling point is 100 degrees celsius» -
+    form   origo_question does not match «so its boiling point is 100 degrees celsius.»
+    form   event_when_question_en does not match «so its boiling point is 100 degrees celsius.»
+    form   event_when_question_it does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_en does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_it does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_en does not match «so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_spelling does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_spelling does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield_it does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield_it does not match «so its boiling point is 100 degrees celsius.»
+    form   teach_event_subject_verb does not match «so its boiling point is 100 degrees celsius.»
+    form   forget_event_subject_verb does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_kind_lesson does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_kind_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_inspect does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_correct does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_phrase_extend does not match «so its boiling point is 100 degrees celsius.»
+    read.named reading_pronoun_surface acc=«so» -
+    read.named reading_pronoun_surface acc=«so its» -
+    read.named reading_pronoun_surface acc=«so its boiling» -
+    read.named reading_pronoun_surface acc=«so its boiling point» -
+    read.named reading_pronoun_surface acc=«so its boiling point is» -
+    read.named reading_pronoun_surface acc=«so its boiling point is 100» -
+    read.named reading_pronoun_surface acc=«so its boiling point is 100 degrees» -
+    read.named reading_pronoun_surface acc=«so its boiling point is 100 degrees celsius» -
+    form   reading_antecedent_correct does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_inspect does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_reading_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_classes does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_reading_class_promote does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_class_forget does not match «so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_undo does not match «so its boiling point is 100 degrees celsius.»
+    form   state_self_report does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_15 does not match «so its boiling point is 100 degrees celsius.»
+    form   taught_form_16 does not match «so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between_it does not match «so its boiling point is 100 degrees celsius.»
+    yield  turn_yield_view knowledge/open viste: local 44B | raw 44B | source 80B
+    yield  turn_yield_probe lesson_almost_turn reading=miss
+    class  reached: knowledge, after the declared forms
+    class  reached: knowledge offers the turn to the class reader
+    yield  turn_yield_view statement_extract/open viste: local 44B | raw 44B | source 80B
+    frame  rifiutato: lo slot «is_100_degrees_celsius» porta un verbo finito
+    class  reached: no declared frame read it, trying copula forms
+    class  gate: not a plural copula
+    yield  turn_yield_view discourse/open viste: local 44B | raw 44B | source 80B
+    yield  turn_yield_probe text_summary_request local=miss raw=miss source=miss
+    yield  turn_yield_view family/open viste: local 44B | raw 44B | source 80B
+    yield  turn_yield_probe reminder_request local=miss raw=miss source=miss
+    read.reqgen verb=- force=-
+    yield  turn_yield_view smalltalk/open viste: local 44B | raw 44B | source 80B
+    yield  turn_yield_probe self_ability_question local=miss raw=miss source=miss
+    faculty initiative
+    faculty toolplan
+    faculty piact
+    form   reader depth=1 early=1 said=0 «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_contraction_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_contraction_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   expression_reading_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   expression_reading_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   expression_reading_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   verb_family_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_qualifier_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_qualifier_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_tr_phrase does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_if does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_question_cue does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_situation_cue does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_plan does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_plan_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_1 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_3 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_plan does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   fix_move does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_abbrev does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning_of does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_word_define does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_plan does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_10 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_9 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_8 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_7 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_6 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_5 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_4 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_11 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_plan_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_kind_excludes does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_14 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_12 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_13 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_exists_restriction does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_15 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_mixture does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_mixture_class does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_time_out does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_time_out_hot does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_on does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_sign does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_sleep_need does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_cup_weight does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_safe_temp does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_range does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_in does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reminder_request_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reminder_request_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson_unit does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_formula_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_preference_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_preference_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_question_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_preference_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_polar does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_status_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_bound_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_datum_bound_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_time_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_time_question_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_place_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_place_question_my does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_origin_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_not_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_force_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_force_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_force_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_force_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_unforce_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_number_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named outcome_name acc=«water» -
+    read.named outcome_name acc=«water boils» -
+    read.named outcome_name acc=«water boils at» -
+    read.named outcome_name acc=«water boils at 100» -
+    read.named outcome_name acc=«water boils at 100 degrees» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so its» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so its boiling» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so its boiling point» -
+    form   episode_outcome does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   episode_outcome_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named origo_cue acc=«water» -
+    read.named origo_cue acc=«water boils» -
+    read.named origo_cue acc=«water boils at» -
+    read.named origo_cue acc=«water boils at 100» -
+    read.named origo_cue acc=«water boils at 100 degrees» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so its» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so its boiling» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so its boiling point» -
+    form   origo_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_when_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_when_question_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_spelling does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_spelling does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_event_subject_verb does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_event_subject_verb does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_kind_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_kind_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_inspect does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_correct does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_phrase_extend does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named reading_pronoun_surface acc=«water» -
+    read.named reading_pronoun_surface acc=«water boils» -
+    read.named reading_pronoun_surface acc=«water boils at» -
+    read.named reading_pronoun_surface acc=«water boils at 100» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so its» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so its boiling» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so its boiling point» -
+    form   reading_antecedent_correct does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_inspect does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_reading_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_classes does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_reading_class_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_class_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_undo does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_16 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_between does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    faculty lessonform
+    faculty repair
+    faculty mention
+    faculty input
+    faculty forget
+    faculty teachconstruction
+    faculty taughtframe
+    faculty teachrule
+    faculty teachreply
+    faculty claimq
+    faculty qa
+    yield  turn_yield_view gen/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_probe word_rhyme local=miss raw=miss source=miss
+    yield  turn_yield_probe opinion_request local=miss raw=miss source=miss
+    yield  turn_yield_probe design_request local=miss raw=miss source=miss
+    yield  turn_yield_probe probability_draw local=miss raw=miss source=miss
+    yield  turn_yield_probe codebase_referent local=miss raw=miss source=miss
+    yield  turn_yield_outcome gen by faculty_yield_force(gen, open, prose_carried)
+    faculty gen!yield
+    faculty deepreason
+    faculty count
+    faculty namestart
+    yield  turn_yield_view wordquery/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_probe positional_rhyme_sentence local=miss raw=miss source=miss
+    yield  turn_yield_view wordquery/open viste: local 80B | raw 0B | source 80B
+    yield  turn_yield_probe positional_rhyme_sentence local=miss raw=miss source=miss
+    faculty wordquery
+    faculty sequence
+    yield  turn_yield_view spell/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_probe word_from_letters local=miss raw=miss source=miss
+    faculty spell
+    faculty world
+    faculty translate
+    faculty synth
+    faculty induce
+    faculty verify
+    faculty memory
+    faculty loop
+    faculty meta
+    faculty strategy
+    faculty counterfactual
+    faculty whatifnot
+    faculty calibrate
+    yield  turn_yield_view abduce/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_probe process_request local=miss raw=miss source=miss
+    yield  turn_yield_probe purpose_of local=miss raw=miss source=miss
+    faculty abduce
+    faculty self
+    faculty archetype
+    faculty fewshot
+    faculty compare
+    faculty rulespec
+    faculty algebra
+    faculty claim
+    faculty operator
+    yield  turn_yield_view arith/open viste: local 80B | raw 80B | source 80B
+    faculty arith
+    faculty plan
+    wp     ENTER «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    wp     guard reached, match=0
+    faculty wordproblem
+    faculty agent
+    faculty search
+    faculty tool
+    yield  turn_yield_view quantity/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_probe turn_relation_noun_reading reading=miss
+    faculty quantity
+    faculty cause
+    faculty same
+    faculty analogy
+    faculty conj
+    faculty bench
+    faculty reader
+    faculty shell
+    faculty codeast
+    yield  turn_yield_view answerframe/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_probe arithmetic_on_number local=miss raw=miss source=miss
+    yield  turn_yield_probe arithmetic_on_count local=miss raw=miss source=miss
+    yield  turn_yield_probe cube_on_number local=miss raw=miss source=miss
+    yield  turn_yield_probe cube_on_count local=miss raw=miss source=miss
+    yield  turn_yield_probe turn_frame_answer reading=miss
+    yield  turn_yield_outcome answerframe by faculty_yield_force(answerframe, open, unasked)
+    faculty answerframe!yield
+    faculty aggregate
+    faculty code
+    yield  knowledge decides its own cession after its forms
+    form   reader depth=1 early=0 said=0 «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_contraction_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_contraction_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   expression_reading_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   expression_reading_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   verb_lemma_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   expression_reading_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   verb_family_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_qualifier_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_qualifier_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   negate_relation does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   year_stated does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   price_stated does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   origin_stated does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   weight_stated does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   purpose_stated does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   similar_stated does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   similar_stated2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ability_stated does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   transitive_taught does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   transitive_taught2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   untransitive_taught does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   untransitive_taught2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_step does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_step2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_tr does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_tr_phrase does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_tr_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_inverse does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_inverse2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_symmetric does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_symmetric_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_symmetric does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_symmetric_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_superlative does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_proc does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   run_proc does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   run_proc_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_closed does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_functional does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_implies does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_excludes does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_reflexive does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_irreflexive does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_irreflexive does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_if does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_question_cue does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_question_cue_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_situation_cue does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_plural does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_verbform does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_verbform2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_charclass does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   list_procs does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   list_procs_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_proc does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_plan does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_plan_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   list_situations does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_fact does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_said does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_identity does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_meaning does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   fix_step does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   drop_step does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_magnitude does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_cmp_max does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_cmp_min does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_opposite does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   fix_move does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_plan does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_class_prop does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_member does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_abbrev does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_abbrev does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_before does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_contains does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_caused does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_kind does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_wrote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_borders does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_currency does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_symbol does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_capital does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_sound does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_continent does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_purpose2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_chain_pair does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_ctx_alias does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_scoped does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_like does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_class_rule does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named particle_named acc=«boils» -
+    read.named particle_named acc=«boils at» -
+    read.named particle_named acc=«boils at 100» -
+    read.named particle_named acc=«boils at 100 degrees» -
+    read.named particle_named acc=«boils at 100 degrees celsius» -
+    read.named particle_named acc=«boils at 100 degrees celsius so» -
+    read.named particle_named acc=«boils at 100 degrees celsius so its» -
+    read.named particle_named acc=«boils at 100 degrees celsius so its boiling» -
+    read.named particle_named acc=«boils at 100 degrees celsius so its boiling point» -
+    read.named particle_named acc=«boils at 100 degrees celsius so its boiling point is» -
+    form   teach_verb_particle does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named turn_entity_named acc=«water» -
+    read.named turn_entity_named acc=«water boils» HIT
+    read.named turn_entity_named acc=«water boils at» -
+    read.named turn_entity_named acc=«water boils at 100» -
+    read.named turn_entity_named acc=«water boils at 100 degrees» -
+    read.named turn_entity_named acc=«water boils at 100 degrees celsius» -
+    read.named turn_entity_named acc=«water boils at 100 degrees celsius so» -
+    read.named turn_entity_named acc=«water boils at 100 degrees celsius so its» -
+    read.named turn_entity_named acc=«water boils at 100 degrees celsius so its boiling» -
+    read.named turn_entity_named acc=«water boils at 100 degrees celsius so its boiling point» -
+    form   teach_property_phrase does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_rel_and does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_rel_or does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_rel_chain does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_rel_unless does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_rel_card does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_rel_list does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_ctx_fact does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   enter_ctx does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   leave_ctx does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_about does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_between does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_signature does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_twice does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_ctx_name does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_reverse does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_family does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_like does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_def_use does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_def_as does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_rel_def does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_rel_def2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_word_meaning_of does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_word_define does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_and does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_or does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_chain does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_rel_unless does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_reverse does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_twice does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_def_use does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_role does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_required_role does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_projection does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_projection_where does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_schema_view does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_role_alias does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_occurrence does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_missing does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_schema does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_role does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_projection does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_projection_where does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_plan does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_2 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_10 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_9 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_8 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_7 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_6 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_5 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_1 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_3 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_4 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_11 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_plan_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_kind_excludes does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_12 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_14 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_13 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_exists_restriction does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_mixture does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_mixture_class does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_time_out does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_time_out_hot does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_on does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_sign does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_sleep_need does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_cup_weight does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_safe_temp does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_range does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_avoid_in does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reminder_request_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reminder_request_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_lesson_unit does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_formula_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_minimum_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_maximum_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_requirement_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_preference_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_preference_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_question_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_preference_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_value_polar does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_datum_answer_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_status_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_bound_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   decision_datum_bound_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_time_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_time_question_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_place_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_place_question_my does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_origin_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_datum_place_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_not_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_force_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_force_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_force_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   unteach_force_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_unforce_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_force_number_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named outcome_name acc=«water» -
+    read.named outcome_name acc=«water boils» -
+    read.named outcome_name acc=«water boils at» -
+    read.named outcome_name acc=«water boils at 100» -
+    read.named outcome_name acc=«water boils at 100 degrees» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so its» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so its boiling» -
+    read.named outcome_name acc=«water boils at 100 degrees celsius so its boiling point» -
+    form   episode_outcome does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   episode_outcome_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named origo_cue acc=«water» -
+    read.named origo_cue acc=«water boils» -
+    read.named origo_cue acc=«water boils at» -
+    read.named origo_cue acc=«water boils at 100» -
+    read.named origo_cue acc=«water boils at 100 degrees» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so its» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so its boiling» -
+    read.named origo_cue acc=«water boils at 100 degrees celsius so its boiling point» -
+    form   origo_question does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_when_question_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   event_when_question_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_lesson_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_en does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reply_word_forget_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_spelling does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_spelling does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_opening_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_opening_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_first_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_first_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_need_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_need_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_dialogue_words_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_dialogue_words_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_conduct_yield_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_conduct_yield_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   teach_event_subject_verb does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   forget_event_subject_verb does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_kind_lesson does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_kind_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_inspect does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_correct does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_phrase_extend does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    read.named reading_pronoun_surface acc=«water» -
+    read.named reading_pronoun_surface acc=«water boils» -
+    read.named reading_pronoun_surface acc=«water boils at» -
+    read.named reading_pronoun_surface acc=«water boils at 100» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so its» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so its boiling» -
+    read.named reading_pronoun_surface acc=«water boils at 100 degrees celsius so its boiling point» -
+    form   reading_antecedent_correct does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_inspect does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_antecedent_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_reading_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_classes does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_reading_class_promote does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_class_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_continuer_class_forget does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   reading_boundary_undo does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   state_self_report does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_15 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   taught_form_16 does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    form   ask_relation_between_it does not match «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.»
+    yield  turn_yield_view knowledge/open viste: local 80B | raw 80B | source 80B
+    yield  turn_yield_probe lesson_almost_turn reading=miss
+    class  reached: knowledge, after the declared forms
+    faculty => knowledge answers
+    read.lang «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.» sticky=en selected=en
+    reply  by knowledge: It boils at 100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour).
+    read.lang «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.» sticky=en selected=en
+    read.lang «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.» sticky=en selected=en
+    read.lang «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.» sticky=en selected=en
+    read.lang «water boils at 100 degrees celsius, so its boiling point is 100 degrees celsius.» sticky=en selected=en
+
+>>> 
+parrot0: bye
