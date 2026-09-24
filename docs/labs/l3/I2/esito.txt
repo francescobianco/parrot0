@@ -1,0 +1,1 @@
+ok    banco.p0t — 14 passed

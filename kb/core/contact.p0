@@ -1,0 +1,130 @@
+% contact.p0 — L3: imparare una lettura per contatto (docs/plans/l3-upgrade.md §21).
+%
+% Nessuna forma, nessun marcatore. Dopo la risposta la KB guarda il turno e
+% chiede: c'e' una relazione R(S, O) che la KB gia' tiene, i cui due ruoli il
+% turno nomina, e che cosa resta NON SPIEGATO una volta tolti i ruoli, le parole
+% funzionali e le parole con cui la KB gia' legge R? Se entrambi i ruoli
+% ricompaiono (O ripetuto, S ripreso da un riferimento) e resta una parola piena
+% sola, N, nasce un EPISODIO: «N potrebbe nominare R». Il connettivo («so», «;»,
+% «and»), l'ordine delle porzioni e la forma della seconda non contano.
+%
+% Un episodio e' un'ipotesi, non un fatto: la lettura che ne viene e' qualificata
+% finche' i sostegni indipendenti sono uno; il ritiro e' uno strato che si
+% aggiunge (§19), non una cancellazione.
+
+:- file_attribute(machinery).
+
+machinery(contact_episode).
+machinery(contact_episode_here).
+machinery(contact_residual).
+machinery(contact_unexplained).
+machinery(contact_relation_word).
+machinery(contact_refers_here).
+machinery(contact_bridge).
+machinery(contact_bridge_withdrawn).
+machinery(contact_support).
+machinery(contact_bridge_used).
+machinery(contact_gloss).
+turn_scratch(contact_bridge_used).
+
+after_reply_bookkeeper(contact).
+
+% ── L'OSSERVAZIONE, dopo la risposta ───────────────────────────────────────
+turn_after_reply($T, contact) :-
+    contact_episode_here($T, $N, $R, $E),
+    naf(contact_episode($N, $R, $E)),
+    assert(contact_episode, $N, $R, $E).
+
+% I ruoli: due entita' della IR del turno per cui la KB tiene gia' R(S, O).
+% Le relazioni candidate sono quelle che la KB sa leggere (`extract_frame/2`):
+% una relazione senza lettura non ha niente da allineare.
+contact_episode_here($T, $N, $R, ep($S, $O, $Of)) :-
+    contact_refers_here($T), contact_repeated_word($T, $W),
+    input_scope_language($T, $L),
+    findall($E, input_entity_node($T, $L, $I, $E), $Es),
+    contact_role_pair($Es, $W, pair($S, $O), $Of), contact_readable_relation($R),
+    kb_fact($R, cons($S, cons($O, nil))),
+    contact_residual($T, rel($R, $S, $O), $Ws), eq_list_one($Ws, $N).
+% Le relazioni che la KB sa leggere. Cambiano solo quando cambiano i lettori,
+% quindi si congelano come `extract_frame/2` (grammar.p0): raccolte a ogni turno
+% costavano 200 ms, ricalcolate per ogni coppia di ruoli 1 s (misurato). Si
+% enumerano, non si raccolgono: una lista di ~400 nomi dentro la sostituzione
+% esauriva i legami, e la composizione «non trovava niente» (pezzi verdi uno a uno).
+% ⚠ Si chiede il FATTO (`kb_fact/2`, il solo bucket della relazione), non la
+% prova: `apply/2` su ~400 relazioni, alcune definite da regole profonde, costava
+% 5 s su «Marie Curie was born in Warsaw; …» (misurato). Limite dichiarato: una
+% relazione che la KB DERIVA e non tiene come fatto non fa ancora da ancora.
+machinery(contact_readable_relation).
+contact_readable_relation($R) :- extract_frame($P, $R).
+materialized_view(contact_readable_relation, 1).
+view_depends(contact_readable_relation, extract_frame).
+machinery(eq_list_one).
+eq_list_one(cons($N, nil), $N).
+
+% ENTRAMBI i ruoli ricompaiono: un ruolo nominato due volte (la parola ripetuta
+% e' la sua ultima), l'altro nominato e ripreso da una parola che riferisce. Il
+% possessore del nome e' quello ripreso. Una sola menzione per ruolo («Einstein,
+% a physicist, was born in Ulm») non e' un contatto: l'inciso non ripete la
+% relazione. Le entita' si raccolgono UNA volta: `input_entity_node/4` e' cara, e
+% rivalutata dentro un doppio ciclo costava 45 s a turno (misurato).
+machinery(contact_role_pair).
+machinery(contact_entity_ends).
+contact_role_pair($Es, $W, pair($S, $O), s) :-
+    member($O, $Es), contact_entity_ends($O, $W), member($S, $Es), dif($S, $O).
+contact_role_pair($Es, $W, pair($S, $O), o) :-
+    member($S, $Es), contact_entity_ends($S, $W), member($O, $Es), dif($S, $O).
+contact_entity_ends($E, $W) :- atom_words($E, $Ws), contact_last_word($Ws, $W).
+machinery(contact_token).
+contact_token($T, $I, $W) :- input_node($T, $I, node(token, token, $P), $R), input_node_atom($T, $I, $W).
+machinery(contact_last_word).
+contact_last_word(cons($W, nil), $W).
+contact_last_word(cons($A, cons($B, $R)), $W) :- contact_last_word(cons($B, $R), $W).
+% il cancello economico, prima di enumerare le relazioni: una parola piena che
+% il turno dice due volte
+machinery(contact_repeated_word).
+contact_repeated_word($T, $W) :-
+    contact_token($T, $I, $W), contact_token($T, $J, $W), lt($I, $J),
+    naf(word_is_function_word($W)).
+contact_refers_here($T) :- contact_token($T, $I, $W), referring_possessive($W).
+contact_refers_here($T) :- contact_token($T, $I, $W), entity_pronoun($W).
+
+% Il residuo: le parole piene del turno che niente spiega.
+contact_residual($T, rel($R, $S, $O), $Ws) :-
+    findall($W, contact_unexplained($T, rel($R, $S, $O), $W), $Ws).
+contact_unexplained($T, rel($R, $S, $O), $W) :-
+    contact_token($T, $I, $W),
+    naf(word_is_function_word($W)), naf(word_is_number($W)),
+    naf(referring_possessive($W)), naf(entity_pronoun($W)),
+    atom_words($S, $SW), naf(member($W, $SW)),
+    atom_words($O, $OW), naf(member($W, $OW)),
+    naf(contact_relation_word($R, $W)).
+% Le parole con cui la KB legge gia' R: se il nome e' fra queste, il ponte c'e'
+% gia' e il contatto non insegna niente.
+contact_relation_word($R, $W) :- extract_frame($P, $R), atom_words($P, $Ws), member($W, $Ws).
+
+% ── L'IPOTESI E IL SUO USO ─────────────────────────────────────────────────
+contact_bridge($N, $R) :-
+    contact_episode($N, $R, $E), naf(contact_bridge_withdrawn($N, $R)).
+contact_support($N, $R, $K) :-
+    findall($E, contact_episode($N, $R, $E), $Es), list_len($Es, $K).
+
+% «X is the N of Y»: Y e' il possessore osservato nel contatto.
+holds($N, $X, $Y) :-
+    contact_bridge($N, $R), contact_episode($N, $R, ep($S, $O, s)),
+    apply($R, cons($Y, cons($X, nil))),
+    assert(contact_bridge_used, current_turn, $N, $R).
+holds($N, $X, $Y) :-
+    contact_bridge($N, $R), contact_episode($N, $R, ep($S, $O, o)),
+    apply($R, cons($X, cons($Y, nil))),
+    assert(contact_bridge_used, current_turn, $N, $R).
+
+% Un solo sostegno: la risposta dice come ha letto il nome. La frase e' quella
+% di ogni lettura per ipotesi (`translation_preface`).
+turn_reply_qualifies($T, $N, $G) :-
+    contact_bridge_used($T, $N, $R), contact_support($N, $R, 1), contact_gloss($R, $G).
+contact_gloss($R, $G) :-
+    extract_frame($P, $R), atom_words($P, cons($A, $Ws)), contact_drop_last($Ws, $Mid),
+    words_joined($Mid, $G).
+machinery(contact_drop_last).
+contact_drop_last(cons($W, nil), nil).
+contact_drop_last(cons($A, cons($B, $R)), cons($A, $T)) :- contact_drop_last(cons($B, $R), $T).

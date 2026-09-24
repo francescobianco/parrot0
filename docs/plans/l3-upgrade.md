@@ -1688,3 +1688,158 @@ R1 (il nodo che lega le due proposizioni attorno a «so»/«;»), poi R3 come
 candidati alternativi. Con R1–R3 la IR avrà le due porzioni, la quantità e il
 possessore: è il materiale su cui I2 prova ad allineare
 `boils_at(acetone, 56 °C)` con «boiling point of acetone = 56 °C».
+
+## 21. I2 parte dal controllo: `born_in` ↔ «birthplace» (F., 25 settembre 2026)
+
+> *F.: «vorrei capire perché non stiamo iniziando con le parti salienti di L3,
+> mi sembra che siamo ancora a fixare bug su L2».*
+
+Aveva ragione. L'ordine I0 → I1 → I2 del §16.1 era diventato un **cancello**:
+ogni residuo della IR sembrava un prerequisito, e ogni prerequisito ne scopriva
+un altro. È la deriva del §1-bis in un'altra forma: non schemi più naturali,
+ma L2 lucidato all'infinito. **Correzione d'ordine:** I1 non è più un cancello;
+si fa il pezzo di osservazione che un caso di I2 chiede, quando lo chiede.
+
+### 21.1 Perché il controllo può partire subito
+
+«Einstein was born in Ulm, so his birthplace is Ulm.» ha già tutto ciò che
+serve (misurato il 25 settembre, dopo `5791da90`):
+
+- la prima porzione è letta dal frame tipato: `born_in(einstein, ulm)`;
+- la seconda, «so his birthplace is ulm.», **resta un residuo non letto** (il
+  trace la mostra passata alle forme, nessuna la prende);
+- «his» ha un antecedente unico (`einstein`), «birthplace» è una parola sola
+  (niente R3), il valore è un'entità (niente R2);
+- la KB ha fatti veri indipendenti per il trasferimento (Curie → Warsaw,
+  Napoleon → Ajaccio, Galileo → Pisa, Columbus → Genoa);
+- baseline: «What is the birthplace of Marie Curie?» → «I don't know about
+  birthplace.» (onesto).
+
+### 21.2 La proposta: allineamento del residuo, nessuna forma
+
+Il meccanismo non guarda il connettivo né la forma della seconda porzione.
+Guarda **che cosa resta non spiegato** dopo la lettura:
+
+1. la lettura del turno ha legato una relazione `R(S, O)` a certi token (il
+   soggetto, l'oggetto, le parole del frame);
+2. nel resto del turno ricompaiono **entrambi i ruoli** (per nome o tramite un
+   riferimento risolto a quel ruolo), e tolte le parole funzionali che la KB
+   già classifica resta **una sola parola piena non spiegata**, N;
+3. allora nasce un'ipotesi **inerte**: *N potrebbe nominare R*, con i ruoli
+   nell'ordine osservato (possessore → S, valore → O), e un sostegno: l'episodio.
+   L'alternativa *coincidenza* resta implicita finché il sostegno è uno solo.
+
+Il «so», il «;», l'ordine delle porzioni non compaiono da nessuna parte:
+cambiarli non deve cambiare la proposta (§15.3). E nemmeno «his»: un riferimento
+risolto a S vale quanto il nome.
+
+### 21.3 Uso rivedibile
+
+- **Un solo episodio → lettura qualificata.** Alla domanda «What is the
+  birthplace of Napoleon?» parrot0 non dice «I don't know» e non afferma: dice
+  che cosa ha supposto e da dove («If by birthplace you mean where he was born
+  — as in what you told me about Einstein — Ajaccio.»). Il testo è un template.
+- **Due episodi indipendenti** (soggetti e valori diversi, stessa N e stessa R)
+  → la lettura si usa senza riserva, sempre con provenienza.
+- **Un contrasto** (N con S e un valore diverso da R(S, ·)) → l'ipotesi cade
+  per quel sostegno: il ritiro è uno strato (§19), non una cancellazione.
+- **Ritiro** («forget that…» o una correzione ordinaria) → cade la via appresa,
+  restano i fatti `born_in`.
+
+### 21.4 Banco, fissato prima della cura
+
+| passo | ingresso | atteso |
+|---|---|---|
+| 0 | «What is the birthplace of Marie Curie?» | «I don't know about birthplace.» (base) |
+| 1 | «Einstein was born in Ulm, so his birthplace is Ulm.» | legge `born_in`; nasce l'ipotesi, visibile in `/debug` |
+| 2 | «What is the birthplace of Napoleon?» | Ajaccio, **qualificata** |
+| 3 | «Marie Curie was born in Warsaw; Warsaw is her birthplace.» (ordine inverso, altro connettivo) | secondo sostegno |
+| 4 | «What is the birthplace of Galileo Galilei?» | Pisa, senza riserva |
+| 5 | contrasto: «Columbus was born in Genoa, and he loved Ulm.» | nessun sostegno per «loved» ↔ `born_in` (O diverso) |
+| 6 | ritiro dell'ipotesi, poi passo 4 | torna «I don't know about birthplace.»; `born_in(galileo_galilei, pisa)` resta |
+
+Falsificatori del §16.2 da tenere accesi: stesso episodio ripetuto non conta come
+secondo sostegno; la risposta al passo 2 non conferma l'ipotesi (auto-conferma).
+
+### 21.5 Il controllo era contaminato (trovato il 25 settembre)
+
+Il censimento del §17.2 diceva «il nome non è mai stato collegato». Falso: la
+KB viva ha `construction_frame("@O is the birthplace of @S", "@S was born in @O",
+born_in)` (constructions.p0:586) e `extract_frame("@O is the birthplace of @S",
+born_in)` (grammar.p0:2782). «What is the birthplace of X?» risponde «I don't
+know» per un'altra ragione: il ramo «the R of X» di `mod_knowledge`
+(10-memory-knowledge.c, `idk` dopo `holds/3`) risponde prima che
+`p0_try_frame_question` possa leggere la costruzione, per i nomi di una parola.
+È una **strada rotta** (R8), non una lacuna: non la riparo qui, perché riparata
+farebbe rispondere «birthplace» senza contatto e il banco non misurerebbe niente.
+Anche `inventor` (`answer_frame(inventor, invented_by)`) e `habitat` (il
+predicato stesso) sono già collegati: la KB viva collega quasi ogni nome di
+relazione naturale. Il banco usa quindi il setup del §15.1: ritiro **in memoria**
+dei soli due ponti, dichiarato in testa al file.
+
+### 21.6 Fatto: il primo circuito di contatto (I2 + I3 parziale)
+
+**Che cosa c'è** (`kb/core/contact.p0`, nuovo; due porte C generiche):
+
+- **porta C 1, `after_reply_bookkeeper/1` + `turn_after_reply/2`**
+  (`turn_done`, livello esterno): il gemello post-risposta di `bookkeeper/1`,
+  che corre prima del dispatch e non vede ciò che le facoltà leggono. La porta
+  non sa niente di contatti;
+- **porta C 2, la struttura del turno esterno**: il lettore composto ora
+  restituisce la IR del turno intero dopo le clausole, come già la forza.
+  `scope_copy`/`scope_clear` sono stati estratti da `session_archive_turn` (che
+  ora li usa); quali predicati siano «struttura» lo dice `outer_turn_structure/2`;
+- **l'osservazione** (`contact_episode_here/4`): c'è un riferimento, una parola
+  piena ripetuta, un ruolo che finisce con quella parola e l'altro fra le
+  entità della IR, una relazione leggibile di cui la KB tiene il **fatto**
+  R(S, O), e tolte parole funzionali, ruoli, riferimenti e le parole con cui la
+  KB già legge R resta **una parola sola**. Allora si scrive
+  `contact_episode(N, R, ep(S, O, Possessore))`;
+- **l'uso**: `holds/3` (già interrogato dal ramo «the R of X») ha una clausola
+  per le ipotesi non ritirate; con un solo sostegno la risposta porta la
+  premessa di ogni lettura per ipotesi, «Reading «birthplace» as «was born
+  in».» (`translation_preface`, riusata); con due, senza riserva;
+- **il ritiro è uno strato** (§19): `contact_bridge_withdrawn/2` si aggiunge,
+  l'episodio resta;
+- **sonda** `debug_contact` (43).
+
+**Banco** `docs/labs/l3/I2/banco.p0t`: **14/14** (esito in `esito.txt`).
+Sulla KB viva senza setup il contatto non crea nessuna ipotesi: il ponte c'è già,
+«birthplace» è una parola con cui la KB legge `born_in`, quindi è spiegata.
+
+**Prova del §1-bis.** Il diff non aggiunge `turn_form` né lettori per uno
+strumento del contatto; «so» e «;» danno lo stesso episodio; l'ordine nella
+seconda porzione («his birthplace is Ulm» / «Warsaw is her birthplace») non
+conta. È **L3**, con il residuo qui sotto.
+
+**Residuo metalinguistico, elencato (non taciuto):**
+
+1. la **condizione di osservazione** (un ruolo ripetuto, l'altro ripreso, un
+   residuo di una parola) è scritta dall'ingegnere in `contact.p0`: nessuno può
+   ancora dire a parrot0, parlando, che un'apposizione o una parafrasi valgono
+   come contatto. È la politica di accettazione del §16.3, ancora G1;
+2. la **soglia** (uno = qualificata, due = piena) è un letterale nelle regole;
+3. il residuo deve essere **una parola**: «boiling point» (R3) non entra, quindi
+   l'acetone del §15 aspetta i candidati alternativi;
+4. l'ancora è un **fatto** della relazione (`kb_fact/2`), non una prova: le
+   relazioni derivate non fanno da ancora (limite scelto per il costo, sotto);
+5. il **ritiro** non ha ancora una maniglia parlata ordinaria: oggi è un fatto
+   del banco. Il passo L3 è il ritiro per contatto (una correzione ordinaria che
+   contraddice l'ipotesi), non una forma «forget that…».
+
+**Costo, misurato contro la base `5791da90`, stesso setup:** primo turno dopo il
+setup 8,2 s contro 7,3 s (la vista `contact_readable_relation` si ricostruisce
+dopo il `!forget` di un frame); contatto 2,66 s contro 2,45 s; composto 3,79 s
+contro 3,44 s. Le prime versioni costavano 45 s, poi 1 s, poi 5 s: il doppio
+ciclo su `input_entity_node`, la lista di ~400 relazioni nella sostituzione (che
+esauriva i legami e faceva «non trovare niente» alla composizione, con i pezzi
+verdi uno a uno), e `apply/2` su relazioni definite da regole. **Debito
+preesistente, non mio:** i turni di base su questa KB costano 2,4–7,3 s.
+
+### 21.7 Prossimo passo
+
+In ordine: (a) il **ritiro per contatto**: una correzione ordinaria che
+contraddice un'ipotesi aggiunge lo strato che la ritira; (b) il residuo di **più
+parole**, che chiede R3 (sintagmi candidati alternativi) e riapre l'acetone;
+(c) la **soglia e la condizione di osservazione come conoscenza**: che parrot0
+possa sentirsi dire, in lingua ordinaria, che un contatto era una coincidenza.

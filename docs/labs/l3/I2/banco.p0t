@@ -1,0 +1,71 @@
+# L3/I2 — il banco del §21.4 di docs/plans/l3-upgrade.md, scritto prima della cura.
+#
+# Si lancia a mano sul demone (`make test-engine`, poi
+# `./bin/parrot0 --test docs/labs/l3/I2/banco.p0t`); NON sta in soft-test.
+# I tempi non sono un cancello qui (`!timeout 0`): i turni di base costano gia'
+# 2,4–7,3 s su questa KB (misurato il 25 settembre, esito in esito.txt), e il
+# banco misura il circuito, non la lentezza preesistente — che resta un debito
+# scritto nel piano (§21.6), non un budget alzato.
+#
+# SETUP DICHIARATO (§15.1): la KB viva sa gia' che «birthplace» nomina
+# `born_in` (una costruzione e un frame). Si ritirano IN MEMORIA quei due soli
+# ponti; nessun'altra conoscenza e' toccata. I fatti `born_in` sono veri e
+# preesistenti: Einstein→Ulm, Curie→Warsaw, Napoleon→Ajaccio, Galileo→Pisa.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test setup]
+!timeout 0
+!forget construction_frame("@O is the birthplace of @S", "@S was born in @O", born_in)
+!forget extract_frame("@O is the birthplace of @S", born_in)
+
+[test p0 base: il nome non e' collegato]
+!timeout 0
+> What is the birthplace of Marie Curie?
+< I don't know about birthplace.
+
+[test p1 contatto: nasce l'ipotesi, senza forma]
+!timeout 0
+> Einstein was born in Ulm, so his birthplace is Ulm.
+!query contact_episode(birthplace, born_in, ep(einstein, ulm, s))
+
+[test p1b lo stesso episodio ripetuto non e' un secondo sostegno]
+!timeout 0
+> Einstein was born in Ulm, so his birthplace is Ulm.
+!query contact_support(birthplace, born_in, 1)
+
+[test p2 trasferimento qualificato, soggetto tenuto fuori]
+!timeout 0
+> What is the birthplace of Napoleon?
+<~ Reading «birthplace» as «was born in».
+<~ ajaccio
+!query contact_support(birthplace, born_in, 1)
+
+[test p3 secondo episodio: altro connettivo, ordine inverso nella seconda porzione]
+!timeout 0
+> Marie Curie was born in Warsaw; Warsaw is her birthplace.
+!query contact_episode(birthplace, born_in, ep(marie_curie, warsaw, s))
+!query contact_support(birthplace, born_in, 2)
+
+[test p4 due sostegni: senza riserva]
+!timeout 0
+> What is the birthplace of Galileo Galilei?
+<~ pisa
+<! Reading
+
+[test p5 contrasto: il valore non ricompare, nessun episodio]
+!timeout 0
+> Columbus was born in Genoa, and he loved Ulm.
+!query! contact_episode(loved, $R, $E)
+
+[test p6 ritiro come strato (§19): cade la via appresa, restano i fatti]
+!timeout 0
+!assert contact_bridge_withdrawn(birthplace, born_in)
+> What is the birthplace of Galileo Galilei?
+< I don't know about birthplace.
+!query born_in(galileo_galilei, pisa)
+!query contact_episode(birthplace, born_in, ep(einstein, ulm, s))

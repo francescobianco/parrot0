@@ -1328,3 +1328,14 @@ entity_name_extends($Scope, $Language, $Id, $X) :-
     input_entity_node($Scope, $Language, $Id, $Y), dif($X, $Y),
     atom_words($X, $WX), count_list($WX, $NX),
     atom_words($Y, $WY), count_list($WY, $NY), lt($NX, $NY).
+
+% L3/I2 (25 settembre 2026) — LA STRUTTURA DEL TURNO ESTERNO. Il lettore
+% composto rilegge ogni clausola come un turno annidato, e ciascuno ripubblica
+% la IR di `current_turn`; uscendo, il motore rimette quella del turno intero,
+% cosi' chi guarda il turno dopo la risposta vede cio' che e' stato scritto,
+% non l'ultima clausola. Quali predicati siano la struttura e' questa lista.
+machinery(outer_turn_structure).
+outer_turn_structure(input_node, 4).
+outer_turn_structure(input_node_surface, 3).
+outer_turn_structure(input_node_role, 3).
+outer_turn_structure(input_node_next, 3).

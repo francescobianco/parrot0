@@ -3908,6 +3908,25 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
             }
         }
     }
+    /* L3/I2 (25 settembre 2026, l3-upgrade.md §21) — I CONTABILI DOPO LA
+     * RISPOSTA. `bookkeeper/1` corre prima del dispatch e non vede cio' che le
+     * facolta' leggono nel turno; un'osservazione che confronta la lettura con
+     * cio' che e' rimasto non letto deve venire dopo. Stessa forma: la KB
+     * dichiara i contabili (`after_reply_bookkeeper/1`) e che cosa fanno
+     * (`turn_after_reply/2`); qui si enumerano, una volta, al livello esterno. */
+    if (b && b->kb && b->respond_depth == 1) {
+        char keepers[16][KB_TERM_LEN];
+        const char *any[1] = { NULL };
+        size_t nk = kb_match(b->kb, "after_reply_bookkeeper", any, 1, keepers, 16);
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_SESSION);
+        for (size_t i = 0; i < nk; i++) {
+            const char *one[] = { "current_turn", keepers[i] };
+            if (kb_query(b->kb, "turn_after_reply", one, 2))
+                p0_trace(b, "after_reply", "%s observed", keepers[i]);
+        }
+        kb_set_origin(b->kb, prev);
+    }
     conv_log(b, input, out);
     return strlen(out);
 }
@@ -6974,6 +6993,8 @@ static int compound_boundary_is_abbreviation(Brain *b, const char *text, const c
     return 0;
 }
 
+static void scope_copy(Brain *b, const char *from, const char *to, const char *list_pred);
+static void scope_clear(Brain *b, const char *scope, const char *list_pred);
 static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb || !input || !*input || out_size == 0) return 0;
     if (b->compound_depth > 0) return 0;
@@ -7126,6 +7147,16 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     { const char *fq[2] = { "current_turn", NULL };
       if (!kb_match_all(b->kb, "turn_illocution", fq, 2, &outer_force, &n_outer_force))
           n_outer_force = 0; }
+    /* L3/I2 (25 settembre 2026) — E LA SUA STRUTTURA. Dopo le clausole la IR
+     * di `current_turn` era quella dell'ultima: chi guarda il turno intero dopo
+     * la risposta (il contatto, contact.p0) vedeva «Warsaw is her birthplace»
+     * senza «Marie Curie was born in Warsaw». Quali predicati siano la struttura
+     * del turno lo dice la KB (`outer_turn_structure/2`). */
+    scope_clear(b, "compound_outer", "outer_turn_structure");
+    {   int po = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        scope_copy(b, "current_turn", "compound_outer", "outer_turn_structure");
+        kb_set_origin(b->kb, po); }
     b->compound_depth++;
     for (size_t i = 0; i < ncl; i++) {
         char *c = trim_mut(clauses[i]);
@@ -7297,6 +7328,10 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             kb_assert(b->kb, "turn_illocution", fa, 2);
             p0_trace(b, "read.compound", "outer force restored: %s\n", fa[1]);
         }
+        scope_clear(b, "current_turn", "outer_turn_structure");
+        scope_copy(b, "compound_outer", "current_turn", "outer_turn_structure");
+        scope_clear(b, "compound_outer", "outer_turn_structure");
+        p0_trace(b, "read.compound", "outer structure restored\n");
         kb_set_origin(b->kb, prev);
         free(outer_force);
     }
@@ -7625,6 +7660,72 @@ static int pending_offer_fallthrough(Brain *b, const char *input, char *out, siz
     return acquire_and_report(b, topic, stored_q[0] ? stored_q : input, input, out, out_size);
 }
 
+/* L3/I2 — COPIARE UNO SCOPE, seguendo una lista di predicati dichiarata in KB
+ * (`List(Predicato, Arita')`). Nata da `session_archive_turn` (la lista e'
+ * `turn_scoped/2`); la usa anche il lettore composto per restituire al turno
+ * esterno la sua struttura (`outer_turn_structure/2`, input-structure.p0). */
+static void scope_copy(Brain *b, const char *from, const char *to, const char *list_pred) {
+    char (*preds)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *pq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, list_pred, pq, 2, &preds, &np)) { free(preds); return; }
+    for (size_t i = 0; i < np; i++) {
+        char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(preds[i]));
+        char ar[1][KB_TERM_LEN]; const char *aq[2] = { preds[i], NULL };
+        if (kb_match(b->kb, list_pred, aq, 2, ar, 1) != 1) continue;
+        long arity = strtol(kb_dequote(ar[0]), NULL, 10);
+        if (arity < 2 || arity > 4) continue;
+        /* le righe di current_turn: si enumerano per slot, dal secondo in poi */
+        char (*a1)[KB_TERM_LEN] = NULL; size_t n1 = 0;
+        const char *q1[4] = { from, NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, pred, q1, (size_t)arity, &a1, &n1)) { free(a1); continue; }
+        for (size_t k = 0; k < n1 && k < 512; k++) {
+            if (arity == 2) {
+                const char *row[2] = { to, a1[k] };
+                kb_assert(b->kb, pred, row, 2);
+                continue;
+            }
+            char (*a2)[KB_TERM_LEN] = NULL; size_t n2 = 0;
+            const char *q2[4] = { from, a1[k], NULL, NULL };
+            if (!kb_match_all(b->kb, pred, q2, (size_t)arity, &a2, &n2)) { free(a2); continue; }
+            for (size_t m = 0; m < n2 && m < 64; m++) {
+                if (arity == 3) {
+                    const char *row[3] = { to, a1[k], a2[m] };
+                    kb_assert(b->kb, pred, row, 3);
+                    continue;
+                }
+                char (*a3)[KB_TERM_LEN] = NULL; size_t n3 = 0;
+                const char *q3[4] = { from, a1[k], a2[m], NULL };
+                if (!kb_match_all(b->kb, pred, q3, 4, &a3, &n3)) { free(a3); continue; }
+                for (size_t r = 0; r < n3 && r < 16; r++) {
+                    const char *row[4] = { to, a1[k], a2[m], a3[r] };
+                    kb_assert(b->kb, pred, row, 4);
+                }
+                free(a3);
+            }
+            free(a2);
+        }
+        free(a1);
+    }
+    free(preds);
+}
+
+/* e ritirare le righe di uno scope per gli stessi predicati */
+static void scope_clear(Brain *b, const char *scope, const char *list_pred) {
+    char (*preds)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *pq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, list_pred, pq, 2, &preds, &np)) { free(preds); return; }
+    for (size_t i = 0; i < np; i++) {
+        char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(preds[i]));
+        char ar[1][KB_TERM_LEN]; const char *aq[2] = { preds[i], NULL };
+        if (kb_match(b->kb, list_pred, aq, 2, ar, 1) != 1) continue;
+        long arity = strtol(kb_dequote(ar[0]), NULL, 10);
+        if (arity < 2 || arity > 4) continue;
+        const char *q[4] = { scope, NULL, NULL, NULL };
+        kb_retract_match(b->kb, pred, q, (size_t)arity);
+    }
+    free(preds);
+}
+
 /* gen506h — LA SESSIONE E' IL PROMPT (discourse.p0 §6).
  *
  * A inizio turno, prima che i fatti di `current_turn` vengano azzerati, si
@@ -7636,49 +7737,9 @@ static void session_archive_turn(Brain *b) {
     if (!b || !b->kb || b->turns < 2) return;
     unsigned long done = b->turns - 1;
     char scope[32]; snprintf(scope, sizeof scope, "turn_%lu", done);
-    char (*preds)[KB_TERM_LEN] = NULL; size_t np = 0;
-    const char *pq[2] = { NULL, NULL };
-    if (!kb_match_all(b->kb, "turn_scoped", pq, 2, &preds, &np)) { free(preds); return; }
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
-    for (size_t i = 0; i < np; i++) {
-        char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(preds[i]));
-        char ar[1][KB_TERM_LEN]; const char *aq[2] = { preds[i], NULL };
-        if (kb_match(b->kb, "turn_scoped", aq, 2, ar, 1) != 1) continue;
-        long arity = strtol(kb_dequote(ar[0]), NULL, 10);
-        if (arity < 2 || arity > 4) continue;
-        /* le righe di current_turn: si enumerano per slot, dal secondo in poi */
-        char (*a1)[KB_TERM_LEN] = NULL; size_t n1 = 0;
-        const char *q1[4] = { "current_turn", NULL, NULL, NULL };
-        if (!kb_match_all(b->kb, pred, q1, (size_t)arity, &a1, &n1)) { free(a1); continue; }
-        for (size_t k = 0; k < n1 && k < 512; k++) {
-            if (arity == 2) {
-                const char *row[2] = { scope, a1[k] };
-                kb_assert(b->kb, pred, row, 2);
-                continue;
-            }
-            char (*a2)[KB_TERM_LEN] = NULL; size_t n2 = 0;
-            const char *q2[4] = { "current_turn", a1[k], NULL, NULL };
-            if (!kb_match_all(b->kb, pred, q2, (size_t)arity, &a2, &n2)) { free(a2); continue; }
-            for (size_t m = 0; m < n2 && m < 64; m++) {
-                if (arity == 3) {
-                    const char *row[3] = { scope, a1[k], a2[m] };
-                    kb_assert(b->kb, pred, row, 3);
-                    continue;
-                }
-                char (*a3)[KB_TERM_LEN] = NULL; size_t n3 = 0;
-                const char *q3[4] = { "current_turn", a1[k], a2[m], NULL };
-                if (!kb_match_all(b->kb, pred, q3, 4, &a3, &n3)) { free(a3); continue; }
-                for (size_t r = 0; r < n3 && r < 16; r++) {
-                    const char *row[4] = { scope, a1[k], a2[m], a3[r] };
-                    kb_assert(b->kb, pred, row, 4);
-                }
-                free(a3);
-            }
-            free(a2);
-        }
-        free(a1);
-    }
+    scope_copy(b, "current_turn", scope, "turn_scoped");
     /* gen506j — CHI CADE LO DICE LA KB (discourse.p0 §6). Il motore pubblica
      * che cosa ha archiviato (`turn_archived(turn_N, N)`) e ritira cio' che la
      * conoscenza dichiara scaduto (`turn_expired/1`): un turno resta finche'
@@ -7691,19 +7752,11 @@ static void session_archive_turn(Brain *b) {
       const char *xq[1] = { NULL };
       if (kb_match_all(b->kb, "turn_expired", xq, 1, &ex, &nx))
           for (size_t x = 0; x < nx; x++) {
-              for (size_t i = 0; i < np; i++) {
-                  char ar[1][KB_TERM_LEN]; const char *aq[2] = { preds[i], NULL };
-                  if (kb_match(b->kb, "turn_scoped", aq, 2, ar, 1) != 1) continue;
-                  long arity = strtol(kb_dequote(ar[0]), NULL, 10);
-                  if (arity < 2 || arity > 4) continue;
-                  const char *dq[4] = { ex[x], NULL, NULL, NULL };
-                  kb_retract_match(b->kb, kb_dequote(preds[i]), dq, (size_t)arity);
-              }
+              scope_clear(b, ex[x], "turn_scoped");
               kb_retract_match(b->kb, "turn_archived", (const char *[]){ ex[x], NULL }, 2);
           }
       free(ex); }
     kb_set_origin(b->kb, prev);
-    free(preds);
 }
 
 /* gen507 — QUELLO CHE UN'APERTURA DICE NON DEVE PERDERSI CON L'APERTURA.

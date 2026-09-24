@@ -250,3 +250,10 @@ debug_probe(37, debug_ir_node, now, "i nodi grezzi della IR del turno, con il li
 machinery(debug_quantity).
 debug_quantity($T, $Q) :- input_quantity_node($T, $I, $Q, $L).
 debug_probe(39, debug_quantity, now, "le quantita' della IR del turno: numero e unita'").
+
+% L3/I2 (25 settembre 2026) — LE IPOTESI NATE PER CONTATTO: quale nome potrebbe
+% nominare quale relazione, con quanti sostegni, e se sono ritirate.
+machinery(debug_contact).
+debug_contact(hypothesis($N, $R, support($K))) :- contact_bridge($N, $R), contact_support($N, $R, $K).
+debug_contact(withdrawn($N, $R)) :- contact_bridge_withdrawn($N, $R).
+debug_probe(43, debug_contact, any, "le ipotesi nate per contatto: nome, relazione, sostegni").
