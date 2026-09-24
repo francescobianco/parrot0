@@ -1,0 +1,8 @@
+flash point is a relation
+The flash point of Jet A fuel is 38 degrees Celsius.
+melting point is a relation
+The melting point of tin is 232 degrees Celsius.
+working load is a relation
+The working load of an M10 eye bolt is 230 kilograms.
+What is the flash point of Jet A fuel?
+/save

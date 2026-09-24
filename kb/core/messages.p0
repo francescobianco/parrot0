@@ -1238,6 +1238,9 @@ relation(river).
 relation(largest_city).
 relation(rated_current).
 relation(operating_voltage).
+relation(working_load).
+relation(melting_point).
+relation(flash_point).
 response_template(learned_ability, "Held: {subject} can {object}.").
 response_template(learned_ability, it, "Tengo: {subject} può {object}.").
 turn_form(ability_stated, 1, slot(subject)).

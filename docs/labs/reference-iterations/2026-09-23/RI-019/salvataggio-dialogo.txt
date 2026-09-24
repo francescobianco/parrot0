@@ -1,0 +1,4 @@
+(Le risposte di questa sessione non sono state catturate: il driver leggeva solo
+stdout mentre il prompt «>>>» va su stderr. Non vengono ricostruite a memoria.
+L'effetto del salvataggio è il diff di kb/ del commit; la sessione pulita
+eseguiva, nell'ordine, le righe di salvataggio.txt, chiuse da /save.)

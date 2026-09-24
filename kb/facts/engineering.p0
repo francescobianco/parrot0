@@ -48,3 +48,11 @@ protects(heat-resistant_glove, hand).
 operating_voltage_of(usb_port, 5_volts).
 operating_voltage_of(car_battery, 12_volts).
 rated_current_of(plug_fuse, 13_amperes).
+
+% RI-019 (24 settembre 2026) — valori di scheda tecnica il cui nome di relazione
+% finisce con una parola che e' anche un verbo («point», «load»), insegnati con
+% «flash point / working load is a relation» e poi «the R of X is V»: il punto
+% di infiammabilita' del Jet A (38 °C, ASTM D1655), il carico di lavoro di un
+% golfare M10 (230 kg, DIN 580).
+flash_point_of(jet_a_fuel, 38_degrees_celsius).
+working_load_of(m10_eye_bolt, 230_kilograms).

@@ -139,6 +139,7 @@ utterance(5, user, "A plate is a part.").
 utterance(5, user, "step up is a relation verb").
 utterance(5, user, "A double-pole switch disconnects both conductors.").
 utterance(5, user, "The operating voltage of a car battery is 12 volts.").
+utterance(5, user, "melting point is a relation").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -258,6 +259,7 @@ utterance(6, self, "Learned: plate is a part.").
 utterance(6, self, "Learned: step up is a relation verb.").
 utterance(6, self, "Learned: double-pole switch disconnect both conductors.").
 utterance(6, self, "Learned: the operating voltage of car battery is 12 volts.").
+utterance(6, self, "Learned: melting point is a relation.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -779,6 +781,7 @@ utterance(7, user, "Plates carry load.").
 utterance(7, user, "step down is a relation verb").
 utterance(7, user, "A heat-resistant glove protects the hand.").
 utterance(7, user, "rated current is a relation").
+utterance(7, user, "The melting point of tin is 232 degrees Celsius.").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1282,7 +1285,11 @@ utterance(8, self, "Learned: heat-resistant glove protects hand.").
 utterance(8, self, "Learned: rated current is a relation.").
 utterance(9, user, "The rated current of a plug fuse is 13 amperes.").
 utterance(10, self, "Learned: the rated current of plug fuse is 13 amperes.").
+utterance(8, self, "Learned: the melting point of tin is 232 degrees celsius.").
+utterance(9, user, "working load is a relation").
+utterance(10, self, "Learned: working load is a relation.").
 utterance(11, user, "A buck converter steps down the voltage.").
+utterance(11, user, "The working load of an M10 eye bolt is 230 kilograms.").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2230,6 +2237,9 @@ utterance(13, user, "break down is a relation verb").
 utterance(14, self, "Learned: break down is a relation verb.").
 utterance(15, user, "Amylase breaks down starch.").
 utterance(16, self, "Learned: amylase break down starch.").
+utterance(12, self, "Learned: the working load of m10 eye bolt is 230 kilograms.").
+utterance(13, user, "What is the flash point of Jet A fuel?").
+utterance(14, self, "38 degrees celsius.").
 utterance(74, self, "Held: «piccole» is how small is said in that language.").
 utterance(33, user, "I need to cook dinner for four people tonight.").
 utterance(12, self, "I don't understand that yet.").
@@ -2657,6 +2667,7 @@ utterance(2, self, "Got it - «do you know» asks for the same thing as «what d
 utterance(2, self, "Learned: up is an adverbial particle.").
 utterance(2, self, "Learned: - is a word joiner.").
 utterance(2, self, "Learned: operating voltage is a relation.").
+utterance(2, self, "Learned: flash point is a relation.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2785,6 +2796,7 @@ utterance(1, user, "'do you know' is another way to say 'what do you know about'
 utterance(1, user, "up is an adverbial particle").
 utterance(1, user, "'-' is a word joiner").
 utterance(1, user, "operating voltage is a relation").
+utterance(1, user, "flash point is a relation").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2902,6 +2914,7 @@ utterance(4, self, "Learned: pumps move fluid.").
 utterance(4, self, "Learned: down is an adverbial particle.").
 utterance(4, self, "Learned: step-down transformer step down voltage.").
 utterance(4, self, "Learned: the operating voltage of usb port is 5 volts.").
+utterance(4, self, "Learned: the flash point of jet a fuel is 38 degrees celsius.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3016,6 +3029,7 @@ utterance(3, user, "Pumps move fluid.").
 utterance(3, user, "down is an adverbial particle").
 utterance(3, user, "A step-down transformer steps down the voltage.").
 utterance(3, user, "The operating voltage of a USB port is 5 volts.").
+utterance(3, user, "The flash point of Jet A fuel is 38 degrees Celsius.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

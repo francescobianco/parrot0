@@ -1,7 +1,7 @@
 # RI-019 — un nome di relazione che finisce con un verbo si insegna (PARZIALE)
 
-**Lotto:** `2026-09-23` · **Stato:** partial · **Classificazione:** partial
-(manca R6: salvataggio e processo nuovo; il meccanismo è certificato.)
+**Lotto:** `2026-09-23` · **Stato:** completa (chiusa il 24 settembre) ·
+**Classificazione:** trained
 
 ## Famiglia e contesto umano
 Dati di schede tecniche: *flash point*, *melting point*, *working load* — nomi di
@@ -40,10 +40,21 @@ loads containers…» leggono ancora il verbo; capacitors invariato · ablazione
 `forget that flash point is a relation` → la domanda non trova più il valore
 (prima della correzione del ritiro scriveva un fatto falso: corretto).
 
-## Che cosa manca per chiuderla
-- R6: reimpartire le tre lezioni e i tre valori in una sessione pulita, `/save`,
-  spostare dalla ricaduta i valori (predicati nuovi) in engineering.p0 /
-  science-nature.p0, processo nuovo.
-- R7: replay di RI-016/017/018; banco L2.
-- Limite noto: «What is the boiling point of water?» → definizione dell'acqua;
+## Salvataggio e processo nuovo (24 settembre) — `salvataggio.txt`, `processo-nuovo-dialogo.txt`
+Sessione pulita sullo stesso binario del commit `5f58c676` (nessuna modifica fra
+certificazione e salvataggio): le tre lezioni e i tre valori, poi `/save`.
+Diff classificato: `relation(flash_point)`, `relation(melting_point)`,
+`relation(working_load)` in messages.p0 accanto alle sorelle (**L=3**);
+`flash_point_of(jet_a_fuel, 38_degrees_celsius)`, `working_load_of(m10_eye_bolt,
+230_kilograms)` spostati dalla ricaduta a engineering.p0 e
+`melting_point_of(tin, 232_degrees_celsius)` a science-nature.p0, accanto a
+`boils_at/freezes_at` (**W=3**); provenienza e transcript (P). **C=0, X=0.**
+Processo nuovo: i tre valori rispondono; replay RI-016 (step up/down), RI-017
+(heat-resistant glove), RI-018 (5 V, 13 A) e controlli (capacitors, Paris) verdi.
+
+## Limiti e prossimo problema
+- «What is the boiling point of water?» → definizione dell'acqua;
   la KB ha `boils_at(water, …)` ma nessun ponte da «boiling point».
+- La regola «il verbo finito è la copula» non è ancora applicata al lettore
+  della prosa/IR.
+Banco L2 60/60 (128 s) sullo stesso albero.
