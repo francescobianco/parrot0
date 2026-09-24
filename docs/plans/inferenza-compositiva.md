@@ -603,9 +603,9 @@ Poi, in ordine di dipendenza — un passo per generazione:
 
 | passo | cosa | gate |
 |---|---|---|
-| **C1** | `inference_cycle/2` riflessivo: il ciclo tagliato entra in KB con i suoi membri | il gate sopra passa; `/debug` mostra il ciclo |
-| **C2** | il motore `composed/3` in `kb/core/composition.p0` + `undetermined_cycle` sfogliato negli stadi del §4c | i 3 stati del §4d, tre assert; `inference_guard.p0t` resta verde parola per parola |
-| **C3** | `no_support_either_way` **eliminato** come template e ottenuto dallo stato C | il gate del gen504 resta verde senza il suo template |
+| **C1** ✅ 25 set | `inference_cycle/2` riflessivo: il ciclo tagliato entra in KB con i suoi membri | fatto via il registro unico `paradox_event/4` (l3-upgrade.md §25.3); `/debug` 44 |
+| **C2** ✅ 25 set | il motore `composed/3` in `kb/core/composition.p0` + `undetermined_cycle` sfogliato negli stadi del §4c | la composizione prende la parola nel modulo di classe (l3-upgrade.md §25.4); `inference_guard.p0t` identico alla base nei contenuti |
+| **C3** ◐ 25 set | `no_support_either_way` **eliminato** come template e ottenuto dallo stato C | ottenuto dallo stato C + stadio `open_extension`; il template resta solo come ripiego, non ancora eliminato |
 | **C4** | `composition_truncated/2` (la saturazione della cipolla è un fatto, non un silenzio) | una cipolla oltre 512 char risponde corto e **dice** che ha tagliato |
 | **C5** *(solo su pressione)* | seconda famiglia sfogliata, scelta fra i 264 template lunghi con connettivo | due strati candidati alla stessa posizione **gareggiano** e la prova dice perché uno ha vinto (§7.1); nessuna resa combinatoria sgrammaticata (§7.3) |
 

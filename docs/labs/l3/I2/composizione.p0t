@@ -1,0 +1,46 @@
+# §25.3/C2 — LA COMPOSIZIONE PRENDE LA PAROLA. Un «no» non guadagnato non sceglie
+# piu' fra due template: la KB compone la risposta dagli stadi che reggono
+# (kb/core/composition.p0), leggendo il registro unico dei paradossi per QUESTA
+# domanda. Entita' nuove (vex, zorp, blim, krant, zelnik) per la sola meccanica
+# del ciclo; la classe «iron oxide mineral» e l'ematite sono conoscenza vera.
+# Si lancia a mano; i tempi non sono un cancello (i turni di base costano ~1,5 s,
+# vedi inference_guard.p0t, rosso di tempo anche sulla base).
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test il ciclo: verdetto, nucleo, ciclo con i membri, conseguenza, massima, offerta]
+!timeout 0
+> every zorp is a blim
+> every krant is a blim
+> every blim is a zorp
+> every blim is a krant
+> is vex a blim
+< I cannot settle that: no fact I hold decides whether vex is a blim, and the rules for blim lead back into each other, so the search closes on itself instead of reaching an answer. Not proved is not the same as false. Tell me either way and I will hold it.
+!query paradox_event(proof, loop_cut, blim, $D)
+
+[test l'estensione aperta: il perche' il no non e' guadagnato]
+!timeout 0
+> is zelnik a iron oxide mineral
+< I cannot settle that: no fact I hold decides whether zelnik is an iron oxide mineral, and knowing some iron oxide minerals does not tell me they are all of them. Not proved is not the same as false. Tell me either way and I will hold it.
+<! lead back into each other
+
+[test una risposta guadagnata non cambia]
+!timeout 0
+> is hematite a iron oxide mineral
+< Yes.
+> vex is a zorp
+> is vex a blim
+< Yes.
+
+[test la stessa cipolla in italiano, senza una riga di C]
+!timeout 0
+!set PARROT0_LANG=it
+!reset
+> ogni zorp è un blim
+> ogni blim è uno zorp
+> vex è un blim?
+< Non posso stabilirlo: nessun fatto che ho decide se vex è un blim, e le regole di blim si rimandano a vicenda, quindi la ricerca si chiude su se stessa invece di arrivare a una risposta. Non dimostrato non vuol dire falso. Dimmelo in un verso o nell'altro e lo terrò.

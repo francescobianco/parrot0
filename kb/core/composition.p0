@@ -29,13 +29,27 @@
 machinery(inference_incomplete).
 machinery(inference_cycle).
 machinery(turn_paradox_members).
+% Solo gli eventi della DOMANDA del turno (`turn_goal/3`): un taglio in
+% un'altra query dello stesso turno non deve far dire a questa che la sua
+% ricerca si chiude su se stessa. Quali query appartengano alla domanda e'
+% `turn_goal_query/2`: la classe stessa, e la sua gemella per regole `holds1`.
+machinery(turn_goal_query).
+turn_goal_query($C, $C).
+turn_goal_query($C, holds1).
 inference_incomplete(current_turn, cycle) :-
-    turn_counter($K), paradox_event(proof, loop_cut, $W, seen($K)).
+    turn_counter($K), turn_goal(current_turn, $S, $C), turn_goal_query($C, $Q),
+    paradox_event(proof, loop_cut, $W, seen($K, $Q)).
 inference_incomplete(current_turn, budget) :-
-    turn_counter($K), paradox_event(proof, budget, $W, seen($K)).
+    turn_counter($K), turn_goal(current_turn, $S, $C), turn_goal_query($C, $Q),
+    paradox_event(proof, budget, $W, seen($K, $Q)).
 inference_cycle(current_turn, cons($A, $R)) :-
-    turn_counter($K), turn_paradox_members($K, $L), eq_cons($L, $A, $R).
-turn_paradox_members($K, $L) :- findall($W, paradox_event(proof, loop_cut, $W, seen($K)), $L).
+    turn_counter($K), turn_goal(current_turn, $S, $C),
+    turn_paradox_members(pair($K, $C), $L), eq_cons($L, $A, $R).
+turn_paradox_members(pair($K, $C), $L) :-
+    findall($W, turn_paradox_member($K, $C, $W), $L).
+machinery(turn_paradox_member).
+turn_paradox_member($K, $C, $Name) :-
+    turn_goal_query($C, $Q), paradox_event(proof, loop_cut, $W, seen($K, $Q)), words_of($W, $Name).
 machinery(eq_cons).
 eq_cons(cons($A, $R), $A, $R).
 
@@ -107,8 +121,8 @@ class_article_special($L, $K) :- chars($K, cons($First, $Rest)), indefinite_arti
 class_article($L, $K, $Art) :- chars($K, cons($First, $Rest)), indefinite_article_before($L, $First, $Art).
 class_article($L, $K, $Art) :- naf(class_article_special($L, $K)), indefinite_article_default($L, $Art).
 class_phrase($L, $K, $Phrase) :-
-    naf(class_has_surface($K)),
-    class_article($L, $K, $Art), concat_atoms($Art, " ", $A), concat_atoms($A, $K, $Phrase).
+    naf(class_has_surface($K)), words_of($K, $KW),
+    class_article($L, $K, $Art), concat_atoms($Art, " ", $A), concat_atoms($A, $KW, $Phrase).
 class_has_surface($K) :- class_surface($K, $Named).
 
 % La copula di APPARTENENZA non e' `state_copula/2`, che dice che una
@@ -125,7 +139,8 @@ class_copula(it, " è ").
 
 % NUCLEO — la proposizione sotto esame. E' gia' essa stessa una composizione.
 stage_text(goal_proposition, $L, $T) :-
-    turn_goal(current_turn, $S, $K), class_copula($L, $Cop), class_phrase($L, $K, $Cls),
+    turn_goal(current_turn, $S0, $K), words_of($S0, $S),
+    class_copula($L, $Cop), class_phrase($L, $K, $Cls),
     concat_atoms($S, $Cop, $A), concat_atoms($A, $Cls, $T).
 
 % 1. NESSUN FATTO ANCORA IL SOGGETTO ALLA CLASSE (cornice, prima).
@@ -140,7 +155,32 @@ turn_goal_unanchored($T) :- turn_goal($T, $S, $K), naf(kb_fact($K, cons($S, nil)
 % 2. IL CICLO, CON I SUOI MEMBRI (elaborazione, dopo).
 %    Nessun segnaposto: i membri sono un ELENCO, e l'elenco si realizza col fold
 %    che esiste gia' (`list_text/3`, discourse.p0).
-stage_wraps(cycle_named, no_anchor).
+% 1bis. L'ESTENSIONE APERTA (elaborazione, dopo) — veniva solo dal template
+%    `no_support_either_way`: perche' il «no» non e' guadagnato. E' una tesi, e
+%    si prova: la classe ha almeno un membro noto e nessuna regola la chiude.
+stage_wraps(open_extension, no_anchor).
+stage_claim(open_extension, turn_class_open(current_turn)).
+stage_relation(open_extension, elaborates).
+stage_side(open_extension, after).
+machinery(turn_class_open).
+machinery(class_has_member).
+machinery(class_plural).
+machinery(class_plural_known).
+turn_class_open($T) :-
+    turn_goal_unanchored($T), turn_goal($T, $S, $K), class_has_member($K),
+    naf(closed_world_answer($K, $S)).
+class_has_member($K) :- kb_fact($K, cons($M, nil)).
+class_plural($K, $P) :- plural_of($P0, $K), words_of($P0, $P).
+class_plural($K, $P) :- naf(class_plural_known($K)), words_of($K, $KW), concat_atoms($KW, "s", $P).
+class_plural_known($K) :- plural_of($P0, $K).
+stage_text(open_extension, en, $T) :-
+    turn_goal(current_turn, $S, $K), class_plural($K, $P),
+    concat_atoms("knowing some ", $P, $A), concat_atoms($A, " does not tell me they are all of them", $T).
+stage_text(open_extension, it, $T) :-
+    turn_goal(current_turn, $S, $K), words_of($K, $KW),
+    concat_atoms("conoscere qualche ", $KW, $A), concat_atoms($A, " non mi dice che siano tutti", $T).
+
+stage_wraps(cycle_named, open_extension).
 stage_claim(cycle_named, turn_cycle_known(current_turn)).
 stage_relation(cycle_named, elaborates).
 stage_side(cycle_named, after).
@@ -165,7 +205,13 @@ stage_text(search_closed, it, "la ricerca si chiude su se stessa invece di arriv
 
 % 3bis. L'ALTRA CAUSA DI ARRESTO, che oggi indossa le parole della prima.
 stage_wraps(budget_spent, search_closed).
-stage_claim(budget_spent, inference_incomplete(current_turn, budget)).
+stage_claim(budget_spent, turn_budget_only(current_turn)).
+% Il budget e' una causa SOLO se non c'e' un ciclo: dentro un ciclo tagliato,
+% esaurire i passi e' la sua conseguenza, e dirle tutte e due («…, so the search
+% closes on itself…, so the search ran past its budget») era una seconda causa
+% inventata (misurato con il ciclo di inference_guard.p0t, §25.3).
+machinery(turn_budget_only).
+turn_budget_only($T) :- inference_incomplete($T, budget), naf(inference_incomplete($T, cycle)).
 stage_relation(budget_spent, concludes).
 stage_side(budget_spent, after).
 stage_text(budget_spent, en, "the search ran past its budget before finishing").
@@ -188,6 +234,10 @@ stage_side(maxim, after).
 stage_text(maxim, en, "Not proved is not the same as false.").
 stage_text(maxim, it, "Non dimostrato non vuol dire falso.").
 unearned_negation_risk($T) :- turn_goal($T, $S, $K), naf(closed_world_answer($K, $S)).
+% …e se la ricerca su questa domanda si e' chiusa su se stessa, il «no» non si
+% e' guadagnato per definizione: la prova che chiuderebbe il mondo passa dallo
+% stesso ciclo, e li' `naf` declina invece di concludere (§25.3).
+unearned_negation_risk($T) :- inference_incomplete($T, cycle).
 
 % 6. L'OFFERTA (dopo) — oggi vive SOLO in `no_support_either_way`: sfogliata,
 %    diventa disponibile anche al turno indeterminato, che non la aveva.

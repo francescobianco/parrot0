@@ -5068,7 +5068,9 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
      * turno (composition.p0, gate C1 di inferenza-compositiva.md). */
     if ((S->loops_cut > 0 || S->budget_hit) && kb->paradox_turn &&
         !census_readers_live()) {
-        char det[48]; snprintf(det, sizeof det, "seen(%lu)", kb->paradox_turn);
+        char det[KB_TERM_LEN];
+        snprintf(det, sizeof det, "seen(%lu, %s)", kb->paradox_turn,
+                 goalpred && *goalpred ? goalpred : "none");
         for (int k = 0; k < 2; k++) {
             if (k == 0 && !(S->loops_cut > 0 && S->cut_pred)) continue;
             if (k == 1 && !(S->budget_hit && goalpred && *goalpred)) continue;

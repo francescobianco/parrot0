@@ -1186,6 +1186,43 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
     KbInferenceReport rep;
     kb_inference_report(b->kb, &rep);
     int settled = 1;
+    /* §25.3/C2 (l3-upgrade.md, inferenza-compositiva.md) — LA DOMANDA E' UN
+     * FATTO PRIMA DELLA RISPOSTA. `turn_goal/3` si depositava dopo aver
+     * risposto, quindi la composizione non poteva parlare di questa domanda.
+     * Origine riflessiva: e' un sensore del turno, non conoscenza del mondo. */
+    {   const char *tg[] = { "current_turn", subj, cls };
+        int saved_origin = kb_origin(b->kb);
+        kb_retract_pred(b->kb, "turn_goal");
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_assert(b->kb, "turn_goal", tg, 3);
+        kb_set_origin(b->kb, saved_origin); }
+    /* §25.3/C2 — LA COMPOSIZIONE PRENDE LA PAROLA. Un «no» non guadagnato non
+     * sceglie piu' fra due template monolitici: la KB compone la risposta dagli
+     * stadi che reggono (composition.p0) — la proposizione, nessun fatto che la
+     * decide, l'estensione aperta, il ciclo con i suoi membri e la sua
+     * conseguenza, oppure il budget, la massima, l'offerta — leggendo il
+     * registro unico dei paradossi per QUESTA domanda. I due template restano
+     * come ripiego se la composizione non produce niente. */
+    if (!yes && (rep.loops_cut > 0 || rep.budget_hit ||
+                 !negation_supported(b, cls, subj))) {
+        char lang[1][KB_TERM_LEN]; const char *lq[1] = { NULL };
+        const char *L = "en";
+        char lb[KB_TERM_LEN];
+        if (kb_match(b->kb, "current_language", lq, 1, lang, 1) == 1) {
+            snprintf(lb, sizeof lb, "%s", kb_dequote(lang[0])); L = lb; }
+        char text[1][KB_TERM_LEN]; const char *cq[3] = { "offer", L, NULL };
+        if (kb_match(b->kb, "composed", cq, 3, text, 1) == 1) {
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", text[0]);
+            const char *t = kb_dequote(tb);
+            if (*t) {
+                put(t, out, out_size);
+                p0_trace(b, "compose", "offer composed: «%.160s»", t);
+                settled = 0;
+                goto composed_done;
+            }
+        }
+        p0_trace(b, "compose", "offer not composed: template fallback");
+    }
     if (!yes && (rep.loops_cut > 0 || rep.budget_hit)) {
         const KbResponseSlot cs[] = { { "subject", subj }, { "klass", cls } };
         if (kb_response_slots(b, "undetermined_cycle", cs, 2, out, out_size))
@@ -1209,6 +1246,7 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
         if (kb_response_slots(b, "no_support_either_way", ns, 3, out, out_size))
             settled = 0;
     }
+composed_done:
     if (settled) {
         put(yes ? "Yes." : "No.", out, out_size);
         if (yes) {
@@ -1227,21 +1265,9 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
      * leggerli. Depositato come `turn_goal/3`, il turno diventa interrogabile —
      * ed e' cio' che permette alla KB di COMPORRE la spiegazione di un «no»
      * guadagnato senza che il motore sappia niente di esclusioni. */
-    {   /* gen505c — UN SENSORE DEL TURNO NON E' CONOSCENZA DEL MONDO.
-         *
-         * Asserito con l'origine corrente (di sessione), `turn_goal/3` veniva
-         * instradato da `/save` e finiva in `kb/learning/learned.p0` accanto ai
-         * fatti veri: «turn_goal(current_turn, hematite, copper_sulfide_mineral)»
-         * — cioe' una domanda passata conservata come se fosse un fatto sul
-         * mondo. E' la stessa specie che l'handoff segnala per `auto_induce`.
-         * KB_REFLECTIVE e' l'origine dei sensori (`kb_saturation_commit`,
-         * `capabilities.p0`): vive nel turno e non viene persistita. */
-        const char *tg[] = { "current_turn", subj, cls };
-        int saved_origin = kb_origin(b->kb);
-        kb_retract_pred(b->kb, "turn_goal");
-        kb_set_origin(b->kb, KB_REFLECTIVE);
-        kb_assert(b->kb, "turn_goal", tg, 3);
-        kb_set_origin(b->kb, saved_origin); }
+    /* gen505c — `turn_goal/3` e' un sensore del turno, non conoscenza del
+     * mondo (origine riflessiva, mai persistito): ora si deposita PRIMA della
+     * risposta, sopra, perche' la composizione ne parli. */
     b->has_last_goal = 1;
 }
 

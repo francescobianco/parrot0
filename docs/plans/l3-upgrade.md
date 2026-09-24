@@ -2230,3 +2230,53 @@ query dello stesso turno non deve far dire «la ricerca si chiude su se stessa»
 a una domanda che non l'ha incontrato. Il passo giusto è che la composizione
 (C2, già scritta e inerte) prenda la parola al posto del template, e che il
 registro porti la query (o il goal di turno) che ha tagliato.
+
+### 25.4 La composizione prende la parola (fatto, 25 settembre 2026)
+
+La cipolla di `composition.p0` (gen505, inerte fino a oggi) ora **risponde** al
+posto dei due template monolitici della domanda di classe non guadagnata
+(`undetermined_cycle`, `no_support_either_way`). Il modulo C:
+
+1. deposita `turn_goal/3` **prima** di decidere (prima lo faceva dopo aver
+   risposto, e nessuna regola poteva parlare di questa domanda);
+2. se il «no» non è guadagnato (ciclo, budget, o nessuna autorizzazione a
+   chiudere il mondo) chiede `composed(offer, Lingua, Testo)` e dice quello; i due
+   template restano come ripiego se la composizione non produce niente.
+
+Il registro unico ora porta la **domanda** che ha tagliato
+(`seen(Turno, PredicatoDellaQuery)`), e i sensori leggono solo gli eventi di
+questa domanda (`turn_goal_query/2`: la classe e la sua gemella `holds1`).
+
+Tre correzioni di conoscenza, trovate guardando le risposte vere:
+
+- **lo stadio `open_extension`** porta il perché che solo
+  `no_support_either_way` diceva («knowing some iron oxide minerals does not tell
+  me they are all of them»). È una tesi: la domanda è non ancorata, la classe ha un
+  membro noto e nessuna regola la chiude;
+- **il budget dentro un ciclo** non è una seconda causa: lo stadio del budget vale
+  solo senza ciclo (`turn_budget_only/1`);
+- **la massima dentro un ciclo**: la prova che chiuderebbe il mondo passa dallo
+  stesso ciclo e `naf` declina, quindi massima e offerta sparivano. Un ciclo
+  tagliato su questa domanda rende il «no» non guadagnato per definizione.
+
+Risposte vere (`docs/labs/l3/I2/composizione.p0t`):
+
+- ciclo: «I cannot settle that: no fact I hold decides whether vex is a blim, and
+  the rules for blim lead back into each other, so the search closes on itself
+  instead of reaching an answer. Not proved is not the same as false. Tell me
+  either way and I will hold it.»
+- estensione aperta: «I cannot settle that: no fact I hold decides whether zelnik
+  is an iron oxide mineral, and knowing some iron oxide minerals does not tell me
+  they are all of them. Not proved is not the same as false. Tell me either way
+  and I will hold it.»
+- italiano, nessuna riga di C: «Non posso stabilirlo: nessun fatto che ho decide
+  se vex è un blim, e le regole di blim si rimandano a vicenda, quindi la ricerca
+  si chiude su se stessa…»
+- una risposta guadagnata resta «Yes.».
+
+**Residui.** I membri del ciclo sono i predicati dei goal *tagliati*, non
+l'intero anello: «is vex a zorp» dice «the rules for blim» (è vero, ma
+incompleto). La relazione gemella (`multigoal.p0t`, «I don't know: nothing I
+hold says tom grandparent bob») è un altro modulo con il suo template: seconda
+famiglia da sfogliare. Con questo il §25 è chiuso nei quattro punti che F. aveva
+aperto: consapevolezza, rimedio senza halt, registro unico, voce.
