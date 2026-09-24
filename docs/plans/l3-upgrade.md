@@ -39,7 +39,102 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 
 ---
 
-## Handoff vivo — leggere prima di riprendere
+## ⏸ HANDOFF — 24 settembre 2026, sera: ripartire qui
+
+**Dove siamo.** L3 non è implementato. Sono chiusi **I0** (la baseline, §17) e il
+**gradino prima di I1** (§17.5): i contatti del §15 ora arrivano alla IR senza
+essere letti in modo sbagliato e senza scrivere niente di falso. Il prossimo
+incremento è **I1 — osservazione** (§16.1).
+
+**Commit della giornata** (tutti su `origin/main`):
+
+| commit | che cosa |
+|---|---|
+| `2a8ac69e` | il piano: principio adatto-linguistico, finto spostamento, G0–G3, §1-bis |
+| `783f59dd` | aggiornamenti di F.: ipotesi operativa (§12), audit (§13), contratto (§14), esperimento (§15), incrementi I0–I5 (§16) |
+| `c7474e77` | **I0**: baseline misurata, `docs/labs/l3/I0/` (transcript e trace), §17 |
+| `08d121d7` | **gradino prima di I1**: tolti i furti T1–T3 con guardie conservative, trace ampliato, §17.5 e §18 |
+
+**Principi che valgono per chi riprende** (in ordine di importanza):
+
+1. **L2 e L3 convivono (§18).** Niente di ciò che L2 fa oggi si butta via; le
+   cure lungo la strada sono guardie conservative, verificate contro la base.
+2. **Il primo passo falso (§1-bis).** Non costruire L3 come un lettore di schemi
+   più naturali: niente `turn_form` o lettore dedicato per l'apposizione, il
+   «so», «I mean». Prima si esplorano le possibilità evolutive; il ripiego si
+   registra come L2+.
+3. **Non lasciare KB muta (§2).** Per ogni regola di macchinario nuova, la prova
+   del §2.4 nella scheda: motore o decisione? Se è una decisione, la sua
+   maniglia parlata.
+4. **Un verde su ciò che la KB sapeva già non misura contatto (§15.1).** LED, il
+   ponte «boiling point», «freezing point» e la contrazione sono già salvati: si
+   usa il setup di ritiro in memoria e la relazione di controllo `born_in` ↔
+   «birthplace» (§17.2).
+
+**Prossimo passo: I1 — osservazione.** Il contatto arriva, ma la IR non ne
+conserva ancora i pezzi su cui un'ipotesi può attaccarsi. In ordine:
+
+| # | che cosa manca | che cosa si vede oggi nel trace | dove guardare |
+|---|---|---|---|
+| R1 | un **nodo che leghi le due proposizioni** attorno a «so»/«;» | `evidence(span(7,7), discourse, consequence)` c'è; nessun legame fra le proposizioni; il lettore composto le rilegge come turni separati | `compound_turn_lead` e `turn_publish_*` in `99-registry.c`; `kb/core/input-structure.p0` |
+| R2 | «100 degrees Celsius» come **quantità** | entità `water_boils`, `degrees_celsius`; il numero sparisce. `measured_value/1` vuole numero+unità di due parole, e «degree Celsius» non è in `measures/2` | `kb/core/decisions.p0` (`measured_value`, `unit_word_kb`); `measured_value_max_words` in grammar.p0 |
+| R3 | «its boiling point» come **sintagma** | candidato `its boiling`; nessun frame legge «its R is V» | lettore dei sintagmi, `np_closer/1` |
+| R5 | la **coreferenza** di «its» | `refer «its» -> celsius (most_recent)` invece di `acetone` | `coref_resolve` (99-registry.c), `p0_antecedent_receipt` (10-memory-knowledge.c); l2-upgrade.md punto 6 |
+
+Condizione di uscita di I1 (§16.1): rileggere non riscrive il passato; due
+occorrenze della stessa parola e due candidati restano distinguibili; e, per il
+§15, le due porzioni del contatto sono nella IR con i loro nodi, la quantità e il
+referente di «its» (o la sua ambiguità dichiarata). **I1 non impara niente**: se a
+questo gradino qualcosa «impara», è sospetto.
+
+Aperto a margine, non bloccante per I1: **R6**, la proposta «Want me to learn
+about X?» che prende anche il turno seguente (§17.5).
+
+**Come riprodurre in un minuto.**
+
+```sh
+make build
+S=docs/labs/l3/I0
+# i contatti del §15 e del controllo, sessione pulita, KB agi completa
+printf '%s\n' 'forget that the boiling point of x is y means x boils at y' \
+  '/debug' 'Water boils at 100 degrees Celsius, so its boiling point is 100 degrees Celsius.' \
+  '/debug' '/quit' | PARROT0_SESSION= PARROT0_LANG=en PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+# sonde utili nel /debug: debug_grammatical_cue, debug_np_candidate,
+# debug_turn_entity, debug_ir_node; filtri: /debug trace refer | read.compound | symbolic
+```
+
+I file d'ingresso delle sonde sono in `docs/labs/l3/I0/*.txt`; gli esiti di
+riferimento in `*-dialogo.txt`.
+
+**Verifiche da rifare a ogni passo:**
+
+- banchi puntuali delle parti toccate, **confrontati con la base in un worktree
+  separato** (`git worktree add <dir> <commit>`, `make build` dentro): per il
+  gradino chiuso erano `conversation/compound_inquiry`, `language/coref*`,
+  `language/compose_coref`, `reasoning/symbolic.it`, `mcp/compound`, e i loro
+  rossi sono **preesistenti** (29/31, 6/8, 3/6, 2/3 contro 28/31, 6/8, 3/6, 2/3
+  della base);
+- `make soft-test`: nella sera del 24 era **fuori budget, 19–20 s con i test
+  verdi**, sotto carico. Per attribuire un costo si usa il **profilo per turno**
+  di `/debug` (tempo e numero di query per turno, base contro modifica); al
+  gradino chiuso le query erano alla pari (42 532 contro 42 527). **Da rimisurare
+  a macchina scarica** prima di concludere che il bordo sia solo il carico;
+- la suite intera no: va approvata da F.
+
+**Trappole pagate oggi:**
+
+- il **rilancio della coreferenza** scorreva tutto il registro senza cessioni: se
+  una condotta dichiarata in KB «non ha effetto», guardare se il turno è stato
+  rilanciato (`faculty … (coref retry …)` nel trace);
+- i **turni annidati** del lettore composto sovrascrivono la forza del turno
+  esterno: ora viene restituita (`read.compound outer force restored`), ma ogni
+  nuovo punto che rilancia un turno deve fare lo stesso;
+- una **guardia dentro una regola enumerata a ogni turno** costa (lotto del 24:
+  +270 ms per turno dentro `phrase_canon/2`): chiederla al momento dell'uso.
+
+---
+
+## Handoff vivo — storia dei checkpoint
 
 **Mandato:** trasformare l'ipotesi L3 in un piano di meccanismi implementabili,
 verificato contro il repository. Questa sessione modifica il piano; non dichiara
