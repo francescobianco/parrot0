@@ -258,3 +258,11 @@ debug_contact(hypothesis($N, $R, support($K))) :- contact_bridge($N, $R), contac
 debug_contact(withdrawn($N, $R)) :- contact_bridge_withdrawn($N, $R).
 debug_contact(countered($N, $R, $E)) :- contact_counter($N, $R, $E).
 debug_probe(43, debug_contact, any, "le ipotesi nate per contatto: nome, relazione, sostegni").
+
+% L3 §25 (25 settembre 2026) — I CORTOCIRCUITI DELLE VISTE: quale vista non si
+% e' potuta congelare, per quale costrutto riflessivo, e la catena di predicati
+% dalla vista alla regola che lo usa. Prima lo diceva solo PARROT0_BOOT_TRACE.
+machinery(view_short_circuit).
+machinery(debug_short_circuit).
+debug_short_circuit(short_circuit($V, $B, $Chain)) :- view_short_circuit($V, $B, $Chain).
+debug_probe(44, debug_short_circuit, any, "le viste che non si congelano: costrutto riflessivo e catena").

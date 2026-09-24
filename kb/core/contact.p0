@@ -23,13 +23,7 @@ machinery(contact_refers_here).
 machinery(contact_bridge).
 machinery(contact_bridge_withdrawn).
 machinery(contact_support).
-machinery(contact_bridge_used).
 machinery(contact_gloss).
-% L'uso si lega al NUMERO del turno (`turn_counter/1`), non a `current_turn`:
-% il motore azzera a inizio turno solo i predicati di una lista sua, e una
-% premessa di ieri precedeva la risposta di oggi (misurato: tre premesse su
-% «What is the material of glass?»).
-
 after_reply_bookkeeper(contact).
 
 % ── L'OSSERVAZIONE, dopo la risposta ───────────────────────────────────────
@@ -39,7 +33,47 @@ machinery(contact_store).
 contact_store($T, $N, $R, $E) :-
     naf(contact_negated($T)),
     naf(contact_episode($N, $R, $E)),
-    assert(contact_episode, $N, $R, $E).
+    assert(contact_episode, $N, $R, $E),
+    contact_store_shape($T, $N, $R, $E).
+% LA FORMA in cui la parola e' comparsa decide in quale conoscenza della lingua
+% entra (§24): dopo un possessivo che riferisce e' un NOME di relazione («his
+% Geburtsort is Ulm»); dopo un soggetto che riferisce e' un VERBO, con le parole
+% fino al valore («he hails from Ulm» → «@S hails from @O»). Una forma che non si
+% riconosce lascia l'episodio senza lessico: un'ipotesi che non parla, dichiarata.
+machinery(contact_shape).
+machinery(contact_store_shape).
+machinery(contact_shape_here).
+machinery(contact_span_to).
+contact_store_shape($T, $N, $R, ep($S, $O, $Of)) :-
+    contact_shape_here($T, $N, $O, $Shape0), contact_shape_known($R, $Shape0, $Shape),
+    naf(contact_shape($N, $R, $Shape)),
+    assert(contact_shape, $N, $R, $Shape).
+contact_store_shape($T, $N, $R, ep($S, $O, $Of)) :-
+    contact_shape_here($T, $N, $O, $Shape0), contact_shape_known($R, $Shape0, $Shape),
+    contact_shape($N, $R, $Shape).
+% La lettura nota di R si prende QUI, all'osservazione, e si conserva dentro la
+% forma del verbo. Chiesta dentro `construction_frame/3` faceva leggere a
+% `extract_frame` se stessa mentre si definiva: un cortocircuito che rifiutava
+% cinque viste e bloccava il boot (§25). Chi osserva sta fuori da ogni vista.
+machinery(contact_shape_known).
+contact_shape_known($R, noun, noun).
+contact_shape_known($R, verb($Mid), verb($Mid, $K)) :- contact_known_frame($R, $K).
+contact_store_shape($T, $N, $R, ep($S, $O, $Of)) :-
+    naf(contact_some_shape_here($T, $N, $O)).
+machinery(contact_some_shape_here).
+contact_some_shape_here($T, $N, $O) :- contact_shape_here($T, $N, $O, $Shape).
+contact_shape_here($T, $N, $O, noun) :-
+    contact_token($T, $I, $N), input_node_next($T, $P, $I),
+    contact_token($T, $P, $Ref), referring_possessive($Ref).
+contact_shape_here($T, $N, $O, verb($Mid)) :-
+    contact_token($T, $I, $N), input_node_next($T, $P, $I),
+    contact_token($T, $P, $Ref), entity_pronoun($Ref), naf(referring_possessive($Ref)),
+    atom_words($O, $OWs), contact_last_word($OWs, $OW),
+    contact_span_to($T, $I, $OW, $Mid).
+contact_span_to($T, $I, $OW, nil) :- contact_token($T, $I, $OW).
+contact_span_to($T, $I, $OW, cons($W, $Rest)) :-
+    contact_token($T, $I, $W), dif($W, $OW),
+    input_node_next($T, $I, $J), contact_span_to($T, $J, $OW, $Rest).
 % LA POLARITA' (ritiro per contatto, §21.7a). Lo stesso allineamento in un turno
 % che NEGA non e' un sostegno: e' un controesempio. «Milan is in Italy, but Milan
 % is not its capital» dice che la coppia per cui R vale NON e' N: l'ipotesi «N
@@ -132,7 +166,16 @@ contact_unexplained($T, rel($R, $S, $O), $W) :-
     naf(referring_possessive($W)), naf(entity_pronoun($W)),
     atom_words($S, $SW), naf(member($W, $SW)),
     atom_words($O, $OW), naf(member($W, $OW)),
-    naf(contact_relation_word($R, $W)).
+    naf(contact_explained_before($R, $W)).
+% Una parola che la KB legge come R SOLO perche' un contatto l'ha proposta non e'
+% «gia' saputa»: ritrovarla in un contatto nuovo e' una CONFERMA, non una
+% spiegazione. Senza questa distinzione, dopo il §24 (l'ipotesi entra nel
+% lessico) il secondo episodio non nasceva e l'ipotesi restava qualificata per
+% sempre.
+machinery(contact_explained_before).
+machinery(contact_proposed_word).
+contact_explained_before($R, $W) :- contact_relation_word($R, $W), naf(contact_proposed_word($W, $R)).
+contact_proposed_word($W, $R) :- contact_episode($W, $R, $E).
 % Le parole con cui la KB legge gia' R: se il nome e' fra queste, il ponte c'e'
 % gia' e il contatto non insegna niente.
 contact_relation_word($R, $W) :- extract_frame($P, $R), atom_words($P, $Ws), member($W, $Ws).
@@ -148,20 +191,52 @@ contact_countered($N, $R) :- contact_counter($N, $R, $E).
 contact_support($N, $R, $K) :-
     findall($E, contact_episode($N, $R, $E), $Es), list_len($Es, $K).
 
-% «X is the N of Y»: Y e' il possessore osservato nel contatto.
-holds($N, $X, $Y) :-
-    contact_bridge($N, $R), contact_episode($N, $R, ep($S, $O, s)),
-    apply($R, cons($Y, cons($X, nil))),
-    turn_counter($K), assert(contact_bridge_used, $K, $N, $R).
-holds($N, $X, $Y) :-
-    contact_bridge($N, $R), contact_episode($N, $R, ep($S, $O, o)),
-    apply($R, cons($X, cons($Y, nil))),
-    turn_counter($K), assert(contact_bridge_used, $K, $N, $R).
+% ⛔ §24 (critica di F.) — CIO' CHE IL CONTATTO CONCLUDE E' LINGUA, NON UNA NOTA
+% SULLA LINGUA. La prima versione aveva un consumatore suo (una clausola di
+% `holds/3`): la parola appresa rispondeva a «what is the N of X» e a nient'altro
+% — non leggeva un'affermazione, non entrava in una polare nuova. Ora il contatto
+% conclude la STESSA conoscenza che una lezione avrebbe scritto,
+% `relation_noun(Relazione, Nome)`, e ogni lettore che gia' la consulta (domanda,
+% polare, affermazione, stipulazione) la usa senza sapere del contatto. Lo stato
+% di ipotesi sta nella condizione: sostegni, controesempi e ritiro (§19).
+% Il verso di `relation_noun/2` e' «X is the N of Y» = R(Y, X): vale quando il
+% possessore osservato e' il soggetto di R. Il verso inverso (possessore = oggetto,
+% «Rome is its capital») non ha ancora una forma della lingua in cui entrare
+% senza cambiare il verso di tutti i nomi di R: resta episodio, non lessico.
+relation_noun($R, $N) :-
+    contact_bridge($N, $R), contact_shape($N, $R, noun), contact_episode($N, $R, ep($S, $O, s)).
+% E un VERBO entra dove entrano i verbi: la cornice che legge le affermazioni
+% (`construction_frame/3`, la stessa di una lezione «X means Y») e la parola che
+% sceglie la relazione nelle domande (`answer_frame/2`), alla radice e com'e' detta.
+construction_frame($Obs, $Known, $R) :-
+    contact_shape($N, $R, verb($Mid, $Known)), contact_bridge($N, $R),
+    words_joined($Mid, $MidText), concat_atoms("@S ", $MidText, $A), concat_atoms($A, " @O", $Obs).
+answer_frame($N, $R) :- contact_bridge($N, $R), contact_shape($N, $R, verb($Mid, $K)).
+answer_frame($Root, $R) :-
+    contact_bridge($N, $R), contact_shape($N, $R, verb($Mid, $K)), finite_present_of($Root, $N),
+    dif($Root, $N).
+% la lettura nota di R da cui la cornice nuova prende il significato: la prima
+% che comincia dal soggetto e finisce sull'oggetto
+machinery(contact_known_frame).
+contact_known_frame($R, $K) :-
+    kb_fact(extract_frame, cons($K, cons($R, nil))),
+    concat_atoms("@S ", $Rest, $K), concat_atoms($Mid, " @O", $Rest).
+% Le viste congelate che derivano da questa conoscenza si rifanno quando cambia.
+view_depends(extract_frame, contact_episode).
+view_depends(extract_frame, contact_shape).
+view_depends(extract_frame, contact_counter).
+view_depends(extract_frame, contact_bridge_withdrawn).
+view_depends(construction_claims, contact_shape).
 
-% Un solo sostegno: la risposta dice come ha letto il nome. La frase e' quella
-% di ogni lettura per ipotesi (`translation_preface`).
-turn_reply_qualifies($T, $N, $G) :-
-    turn_counter($K), contact_bridge_used($K, $N, $R), contact_support($N, $R, 1), contact_gloss($R, $G).
+% Un solo sostegno: la risposta dice come ha letto il nome, in OGNI turno che
+% lo nomina — domanda o affermazione — perche' ogni lettore ora lo usa.
+turn_reply_qualifies($T, $W, $G) :-
+    contact_bridge($N, $R), contact_support($N, $R, 1),
+    input_node_atom($T, $I, $W), contact_word_form($N, $W), contact_gloss($R, $G).
+% la parola nel turno e' quella appresa, o la sua radice («hail» per «hails»)
+machinery(contact_word_form).
+contact_word_form($N, $N).
+contact_word_form($N, $W) :- finite_present_of($W, $N), dif($W, $N).
 contact_gloss($R, $G) :-
     extract_frame($P, $R), atom_words($P, cons($A, $Ws)), contact_drop_last($Ws, $Mid),
     words_joined($Mid, $G).

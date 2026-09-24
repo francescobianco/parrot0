@@ -31,14 +31,24 @@
 > What is the Heimatstadt of Christopher Columbus?
 <~ genoa
 
-[test f1 frontiera: un verbo si impara ma nessun lettore di domande lo consuma]
+[test e4 un VERBO appreso per contatto e' un verbo di parrot0 (§24)]
 !timeout 0
 > Einstein was born in Ulm, so he hails from Ulm.
-!query contact_bridge(hails, born_in)
+!query contact_shape(hails, born_in, $S)
 > Where does Napoleon hail from?
-<! ajaccio
+<~ Reading «hail» as «was born in».
+<~ Ajaccio
 
-[test f2 frontiera: la parola appresa non legge ancora un'asserzione]
+[test e5 la parola appresa LEGGE un'affermazione e scrive un fatto vero (§24)]
 !timeout 0
 > The Geburtsort of Kant is Konigsberg.
-!query! born_in(kant, konigsberg)
+<~ Reading «geburtsort» as «was born in».
+!query born_in(kant, konigsberg)
+> Hegel hails from Stuttgart.
+<~ Learned
+!query born_in(hegel, stuttgart)
+
+[test e6 e la domanda sul fatto appena letto usa la lingua di prima]
+!timeout 0
+> Where was Kant born?
+<~ konigsberg

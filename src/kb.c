@@ -4218,9 +4218,61 @@ static int kb_view_dep_add(KbView *v, const char *pred) {
  * Meta-calls/reflection and side effects need a dynamic dependency contract.
  * Until that exists, decline materialization and use ordinary inference.
  * These are engine opcodes, not linguistic recognizers. */
+/* L3 §25 (25 settembre 2026) — UN CORTOCIRCUITO SI CONOSCE, NON SI TACE.
+ *
+ * Una vista il cui grafo raggiunge un costrutto riflessivo (`kb_fact`,
+ * `findall`, `apply`…) non si puo' congelare: prima era rifiutata con un
+ * `return 0` muto, visibile solo con PARROT0_BOOT_TRACE. Una regola nuova in
+ * contact.p0 (una cornice che leggeva `extract_frame` per definire
+ * `extract_frame`) ha rifiutato cosi' cinque viste e il boot non finiva, senza
+ * che niente dicesse perche'. E' la stessa specie del ciclo che la guardia
+ * anti-isteresi gia' intercetta nella prova (`loops_cut`): una definizione che
+ * per chiudersi deve consultare cio' che sta definendo. Stesso trattamento:
+ * l'evento si CONTA e si PUBBLICA — `view_short_circuit(Vista, Costrutto,
+ * Catena)`, la catena dei predicati dalla vista alla regola colpevole — cosi'
+ * `/debug` lo mostra e la KB puo' ragionarci. La condotta (rifiutare) non
+ * cambia: e' consapevolezza, non ancora rimedio. */
+static size_t *view_dep_parent = NULL;
+static size_t view_dep_parent_cap = 0;
+static void view_dep_note_parent(size_t idx, size_t parent) {
+    if (idx >= view_dep_parent_cap) {
+        size_t cap = view_dep_parent_cap ? view_dep_parent_cap * 2 : 64;
+        while (cap <= idx) cap *= 2;
+        size_t *g = realloc(view_dep_parent, cap * sizeof *g);
+        if (!g) return;
+        for (size_t i = view_dep_parent_cap; i < cap; i++) g[i] = (size_t)-1;
+        view_dep_parent = g; view_dep_parent_cap = cap;
+    }
+    view_dep_parent[idx] = parent;
+}
+static void view_short_circuit_publish(KB *kb, KbView *v, size_t at, const char *builtin) {
+    /* la catena, dalla vista al predicato la cui regola usa il costrutto */
+    size_t chain[32]; size_t nc = 0;
+    for (size_t i = at; i != (size_t)-1 && nc < 32; ) {
+        chain[nc++] = i;
+        if (i == 0 || i >= view_dep_parent_cap) break;
+        size_t p = view_dep_parent[i];
+        if (p == i) break;
+        i = p;
+    }
+    char list[KB_TERM_LEN * 2]; size_t off = 0;
+    for (size_t k = nc; k-- > 0 && off + 8 < sizeof list; )
+        off += (size_t)snprintf(list + off, sizeof list - off, "cons(%s, ", v->deps[chain[k]]);
+    off += (size_t)snprintf(list + off, sizeof list - off, "nil");
+    for (size_t k = 0; k < nc && off + 2 < sizeof list; k++) list[off++] = ')';
+    list[off] = '\0';
+    kb_trace(kb, "view", "%-28s cortocircuito: %s via %s", v->pred, builtin, list);
+    const char *a[3] = { v->pred, builtin, list };
+    if (kb_query(kb, "view_short_circuit", a, 3)) return;
+    int origin = kb->origin; kb->origin = KB_REFLECTIVE;
+    kb_assert(kb, "view_short_circuit", a, 3);
+    kb->origin = origin;
+}
+
 static int kb_view_dependencies(KB *kb, KbView *v) {
     v->ndeps = 0;
     v->broad = 1;                 /* OOM/unsupported => conservative fallback */
+    view_dep_note_parent(0, (size_t)-1);
     if (!kb_view_dep_add(v, v->pred) ||
         !kb_view_dep_add(v, "view_depends")) return 0;
     /* 20 settembre 2026 — UNA VISTA CONGELATA E' UN CONFINE DEL GRAFO.
@@ -4254,7 +4306,10 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
             !strcmp(pred, "kb_act") ||
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
-            !strcmp(pred, "prob")) return 0;
+            !strcmp(pred, "prob")) {
+            view_short_circuit_publish(kb, v, i, pred);
+            return 0;
+        }
         /* E0, 19 settembre 2026 — an `apply` whose reach the KB has declared.
          * `view_apply_resolved(P)` says: the meta-call in P's rules only reaches
          * the predicates named by `view_depends(P, …)` (which may themselves
@@ -4271,16 +4326,20 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
                 if (apply_resolved && (!strcmp(r->body[b].pred, "apply") ||
                                        !strcmp(r->body[b].pred, "call")))
                     continue;
+                size_t before = v->ndeps;
                 if (!kb_view_dep_add(v, r->body[b].pred)) return 0;
+                if (v->ndeps > before) view_dep_note_parent(v->ndeps - 1, i);
             }
         }
         const char *q[2] = { pred, NULL };
         char (*deps)[KB_TERM_LEN] = NULL; size_t nd = 0;
         if (!kb_match_all(kb, "view_depends", q, 2, &deps, &nd)) return 0;
         for (size_t j = 0; j < nd; j++) {
+            size_t before = v->ndeps;
             if (term_contains_var(deps[j], 0) || !kb_view_dep_add(v, deps[j])) {
                 free(deps); return 0;
             }
+            if (v->ndeps > before) view_dep_note_parent(v->ndeps - 1, i);
         }
         free(deps);
     }

@@ -1967,3 +1967,122 @@ rispondere con riserva? La proposta è che scriva solo da consolidata (≥ 2
 sostegni) e con la provenienza dell'ipotesi. Il costo noto: ogni
 nuovo lettore di asserzioni passa dalla vista `extract_frame`, che si ricostruisce
 a ogni cambiamento (~6 s, debito preesistente).
+
+## 24. ⛔ Critica di F.: i limiti del §23 sono un tradimento (25 settembre 2026)
+
+> *F.: «questi limiti mi sembrano un tradimento, ed è come se i verbi così
+> fossero metalinguistici: non va bene. Come possiamo ricondurli?»* — riferito a:
+>
+> *«Dove si ferma: un verbo si impara, ma nessuno lo usa. «… so he hails from
+> Ulm» crea l'ipotesi, ma «Where does Napoleon hail from?» non trova una strada
+> per arrivarci. La parola appresa non legge ancora le affermazioni. «The
+> Geburtsort of Kant is Konigsberg.» non scrive born_in(kant, konigsberg).
+> Quindi il limite adesso non è imparare, ma collegare ciò che si impara a chi
+> lo usa.»*
+
+**Che cosa ha visto, detto nei termini del progetto.** Il contatto non ha
+prodotto *conoscenza della lingua*: ha prodotto una **nota su una parola**,
+`contact_episode(hails, born_in, …)`, che solo un consumatore scritto apposta
+(la clausola `holds/3` in `contact.p0`) sa aprire. Il verbo appreso non è
+diventato un verbo di parrot0: è rimasto una cosa detta *sulla* lingua, un fatto
+metalinguistico con una maniglia sola. È il cassetto senza maniglia del gen505e
+(grammar.p0) ricostruito da L3, e il §2 (KB muta) sotto un altro nome. Chiamarlo
+«il limite è collegare ciò che si impara a chi lo usa» era ribaltare la colpa:
+**non è il consumatore che manca, è l'apprendimento che ha scritto nel posto
+sbagliato.** Una persona che capisce che «hails from» vuol dire «was born in»
+lo usa subito in una domanda, in un'affermazione, in una negazione, senza che
+qualcuno colleghi niente.
+
+**La regola che se ne ricava.** Ciò che il contatto conclude deve entrare nelle
+**stesse rappresentazioni che la lingua già usa**: quelle che una lezione L1/L2
+avrebbe scritto (`relation_noun/2` per un nome di relazione, la cornice di
+lettura per un verbo), e che *tutti* i lettori già consultano. Lo stato di
+ipotesi (sostegni, controesempi, ritiro come strato) resta, ma sta **sopra**
+quella conoscenza, come condizione della regola che la deriva; non in un canale
+parallelo che i lettori dovrebbero imparare a interrogare. Criterio operativo:
+**nessun lettore deve sapere che esiste il contatto.** Se per usare una cosa
+appresa per contatto bisogna toccare un consumatore, è di nuovo L2+ al
+contrario.
+
+### 24.1 Ricondotti (25 settembre 2026): il contatto scrive lingua
+
+Tolta la clausola privata di `holds/3`. All'osservazione si registra anche la
+**forma** in cui la parola è comparsa (`contact_shape/3`), e da episodio + forma
++ stato dell'ipotesi si derivano le **stesse conoscenze che una lezione avrebbe
+scritto**, che i lettori già consultano:
+
+| forma osservata | conoscenza derivata | chi la usa, senza essere toccato |
+|---|---|---|
+| nome dopo un possessivo che riferisce («his Geburtsort is Ulm») | `relation_noun(born_in, geburtsort)` | domanda «what is the N of X», polare, lettore delle affermazioni «The N of X is Y», stipulazioni |
+| verbo dopo un soggetto che riferisce («he hails from Ulm») | `construction_frame("@S hails from @O", "@S was born in @O", born_in)` + `answer_frame(hails/hail, born_in)` | lettore delle affermazioni, domanda «Where does X hail from?» |
+
+Misurato (`tecnica.p0t`, 13/13, KB viva senza ritiri):
+
+- «Where does Napoleon hail from?» → «Reading «hail» as «was born in». Ajaccio.»
+- «Hegel hails from Stuttgart.» → scrive `born_in(hegel, stuttgart)`
+- «The Geburtsort of Kant is Konigsberg.» → «Reading «geburtsort» as «was born
+  in». Learned: kant was born in konigsberg.», e poi «Where was Kant born?» →
+  konigsberg, cioè la lingua di prima ritrova il fatto letto con la parola nuova.
+
+La riserva («Reading «N» as …») sta in ogni turno che nomina la parola finché i
+sostegni sono uno, non più nella risposta di un solo consumatore.
+
+**Una conseguenza trovata e curata:** entrata nel lessico, la parola risultava
+«già spiegata» al contatto successivo e l'ipotesi non si consolidava più. Una
+parola che la KB legge come R *solo* perché un contatto l'ha proposta è ora una
+conferma, non una spiegazione (`contact_explained_before/2`).
+
+**Residui dichiarati:** il possessore sull'oggetto («Rome is its capital»)
+resta episodio senza lessico: `relation_noun/2` ha un verso per relazione.
+Il soggetto ripreso per **nome** («…, so Einstein hails from Ulm») non dà ancora
+una forma verbale, solo quello ripreso da un pronome. La polare con particella
+(«Does Galileo hail from Pisa?» → «… born in from pisa …») sbaglia anche con la
+cornice scritta a mano: è un difetto generale del lettore polare. Le risposte del ramo
+`relation_noun` presentano gli atomi grezzi («wood_pulp.»), anche per i nomi
+nativi. **Costo:** un episodio nuovo sporca la vista `extract_frame`, e il turno
+dopo paga la ricostruzione (5–6 s contro 1–2 s), come per una costruzione
+insegnata con una lezione. È il debito della vista, non del contatto.
+
+## 25. I cortocircuiti si conoscono, come i paradossi (F., 25 settembre 2026)
+
+> *F.: «non puoi fare un meccanismo che intercetta i cortocircuiti? Ne dovremmo
+> avere uno per intercettare i paradossi logici, perché non lo possiamo
+> riusare?»*
+
+**Il caso.** La prima versione della cornice verbale prendeva la lettura nota di R
+da `extract_frame` *dentro* la regola di `construction_frame`, da cui la vista
+di `extract_frame` si costruisce: una definizione che per chiudersi consulta ciò
+che sta definendo. Il motore delle viste lo ha trattato come nel vecchio mondo:
+cinque viste **rifiutate in silenzio** (solo `PARROT0_BOOT_TRACE` lo mostrava),
+`extract_frame` rideriva centinaia di regole a ogni lettura, il boot non finiva.
+Nessun fatto, nessuna risposta, nessun colpevole nominato.
+
+**Che cosa si riusa.** La guardia anti-isteresi nella prova (`loops_cut`, gen382)
+ha già la forma giusta, per la regola di F. «consapevolezza, non halt»: conta
+l'evento, lo espone, e una risposta lo dice (`undetermined_cycle`). Il rifiuto di
+una vista è la stessa specie a un altro livello, e ora ha lo stesso trattamento:
+`kb_view_dependencies` ricorda da quale predicato è arrivata ogni dipendenza, e
+quando incontra un costrutto riflessivo pubblica
+`view_short_circuit(Vista, Costrutto, Catena)`, la catena dalla vista alla
+regola colpevole. `/debug` lo mostra (sonda 44). Provato su una vista finta:
+`short_circuit(zz_probe_view, kb_fact, cons(zz_probe_view, cons(zz_mid,
+cons(kb_fact, nil))))`.
+
+**La cura del caso** è stata spostare la lettura nota di R al momento
+dell'osservazione (`contact_shape_known/3`), fuori da ogni vista.
+
+**Che cosa manca, in ordine:**
+
+1. **dalla consapevolezza al rimedio senza halt**: oggi la vista resta rifiutata.
+   La forma coerente con `loops_cut`, che taglia il ramo ripetuto e lascia
+   completo il resto, è una vista **ibrida**: si congelano le clausole che
+   chiudono, e la sola clausola colpevole resta viva sopra. Una regola nuova non
+   deve poter far cadere la vista intera;
+2. **il ciclo logico vero** (una vista che raggiunge se stessa passando per regole,
+   senza costrutti riflessivi) oggi è coperto solo dalla guardia `building`, muta:
+   va pubblicato con lo stesso fatto;
+3. **la voce**: un `response_template` per spiegare perché un turno è lento o una
+   lettura manca, come `undetermined_cycle` per i paradossi della prova;
+4. **un solo registro**: `loops_cut` e `view_short_circuit` sono la stessa
+   specie. Il passo successivo è nominarla una volta sola in KB, come
+   `paradox_event(Livello, …)`, invece di tenere due contatori paralleli.
