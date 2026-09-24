@@ -1928,3 +1928,42 @@ Non sono L3, ma i contatti le mostrano, e alcune **scrivono il falso**:
   attraversa il confine della proposizione;
 - «Rome is in Italy, and Rome is its capital.» → «Scartato: located_in(rome,
   italy_and_rome_is_its_capital) …», in italiano in una sessione inglese.
+
+## 23. La tecnica generalizza? Addestrabilità non prevista (25 settembre 2026)
+
+> *F.: «hai interpretato il generalizza alla lettera… io intendevo generalizza
+> come tecnica, cioè produce addestrabilità non prevista dalle ipotesi di L3».*
+
+L'ipotesi di L3 (§12, §15, §21) era stretta: un **nome inglese di proprietà**
+che nomina una relazione, detto da un **maestro**, consumato da una **domanda
+«what is the N of X»**. Il meccanismo di `contact.p0` non sa niente di nomi, di
+inglese, di maestri né di domande: guarda che cosa resta non spiegato attorno a
+una relazione che la KB tiene. Quindi si è provato che cosa impara **fuori**
+da quell'ipotesi, sulla KB viva completa e **senza ritiri** (ogni verde è un
+vuoto vero). Banco `docs/labs/l3/I2/tecnica.p0t`, 8/8.
+
+| | che cosa | esito |
+|---|---|---|
+| **e1** | **lessico di un'altra lingua**: «Einstein was born in Ulm, so his Geburtsort is Ulm.» | «What is the Geburtsort of Napoleon?» passa da «I don't know about geburtsort.» a «Reading «geburtsort» as «was born in». ajaccio.»; «Nachbar» → «austria, france, slovenia, switzerland» per l'Italia |
+| **e2** | **un altro consumatore**, non toccato: la domanda polare | «Is Pisa the Geburtsort of Galileo Galilei?» → «… Yes.» (passa da `holds/3`) |
+| **e3** | **dalla prosa, senza maestro**: una frase di un paragrafo letto | «read: Marie Curie was born in Warsaw, so her Heimatstadt is Warsaw. She won two Nobel prizes.» → «What is the Heimatstadt of Christopher Columbus?» → genoa |
+| **f1** | **frontiera**: un verbo | «… so he hails from Ulm.» fa nascere `hails` ≈ `born_in`, ma nessun lettore di domande consuma un verbo appreso: «Where does Napoleon hail from?» non risponde. Il limite è la **strada**, non l'apprendimento |
+| **f2** | **frontiera**: leggere un'asserzione | «The Geburtsort of Kant is Konigsberg.» non scrive `born_in(kant, konigsberg)`: l'ipotesi arriva alle domande, non al lettore delle asserzioni |
+
+**e3 ha chiesto un solo cambio, generico:** i contabili post-risposta ora girano a
+ogni livello (`turn_done`), non solo al turno esterno. Una frase di prosa e una
+clausola rilette come turni annidati sono unità di osservazione quanto il turno
+intero. Prima un paragrafo non insegnava niente: il residuo era calcolato sul
+turno intero, e la frase successiva ci aggiungeva parole.
+
+**Che cosa se ne ricava.** La tecnica apre tre addestrabilità che nessuna delle
+ipotesi di L3 conteneva: il vocabolario di un'altra lingua, l'uso da parte di
+consumatori mai toccati, l'apprendimento dalla lettura senza maestro. Le due
+frontiere dicono dove va il lavoro dopo. Non si tratta di imparare di più: si
+tratta di **collegare ciò che si impara a chi lo usa** (lettori di verbi,
+lettore delle asserzioni). Per f2 c'è una scelta di principio da fare prima del
+codice: un'ipotesi con un solo sostegno può *scrivere* un fatto, o solo
+rispondere con riserva? La proposta è che scriva solo da consolidata (≥ 2
+sostegni) e con la provenienza dell'ipotesi. Il costo noto: ogni
+nuovo lettore di asserzioni passa dalla vista `extract_frame`, che si ricostruisce
+a ogni cambiamento (~6 s, debito preesistente).

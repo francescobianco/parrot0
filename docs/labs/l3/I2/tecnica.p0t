@@ -1,0 +1,44 @@
+# L3 — la TECNICA generalizza? Addestrabilita' che le ipotesi di L3 non
+# prevedevano (§23). KB viva COMPLETA, NESSUN ritiro: i nomi qui sotto non sono
+# collegati a niente, quindi ogni verde e' un vuoto vero che si riempie.
+# Si lancia a mano; i tempi non sono un cancello (vedi banco.p0t).
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test e1 lessico di un'altra lingua, per contatto]
+!timeout 0
+> What is the Geburtsort of Napoleon?
+< I don't know about geburtsort.
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> What is the Geburtsort of Napoleon?
+<~ ajaccio
+> France borders Spain, so Spain is its Nachbar.
+> What is the Nachbar of Italy?
+<~ slovenia
+
+[test e2 un altro consumatore lo usa senza essere toccato: la domanda polare]
+!timeout 0
+> Is Pisa the Geburtsort of Galileo Galilei?
+<~ Yes
+
+[test e3 dalla prosa, senza maestro: una frase di un paragrafo e' un contatto]
+!timeout 0
+> read: Marie Curie was born in Warsaw, so her Heimatstadt is Warsaw. She won two Nobel prizes.
+> What is the Heimatstadt of Christopher Columbus?
+<~ genoa
+
+[test f1 frontiera: un verbo si impara ma nessun lettore di domande lo consuma]
+!timeout 0
+> Einstein was born in Ulm, so he hails from Ulm.
+!query contact_bridge(hails, born_in)
+> Where does Napoleon hail from?
+<! ajaccio
+
+[test f2 frontiera: la parola appresa non legge ancora un'asserzione]
+!timeout 0
+> The Geburtsort of Kant is Konigsberg.
+!query! born_in(kant, konigsberg)

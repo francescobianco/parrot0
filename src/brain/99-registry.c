@@ -3913,8 +3913,10 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
      * facolta' leggono nel turno; un'osservazione che confronta la lettura con
      * cio' che e' rimasto non letto deve venire dopo. Stessa forma: la KB
      * dichiara i contabili (`after_reply_bookkeeper/1`) e che cosa fanno
-     * (`turn_after_reply/2`); qui si enumerano, una volta, al livello esterno. */
-    if (b && b->kb && b->respond_depth == 1) {
+     * (`turn_after_reply/2`); qui si enumerano a ogni livello: una frase di
+     * prosa o una clausola rilette come turni annidati sono unita' di
+     * osservazione quanto il turno intero (l3-upgrade.md §23). */
+    if (b && b->kb && b->respond_depth >= 1) {
         char keepers[16][KB_TERM_LEN];
         const char *any[1] = { NULL };
         size_t nk = kb_match(b->kb, "after_reply_bookkeeper", any, 1, keepers, 16);
