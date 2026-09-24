@@ -244,3 +244,9 @@ debug_probe(36, debug_ir_token, now, "i token della IR del turno, con l'indice")
 machinery(debug_ir_node).
 debug_ir_node($T, n($Id, $Node)) :- input_node($T, $Id, $Node, $R).
 debug_probe(37, debug_ir_node, now, "i nodi grezzi della IR del turno, con il livello").
+
+% L3/I1 (25 settembre 2026) — LE QUANTITA' CHE LA IR HA VISTO: numero e unita'.
+% Senza questa riga «il numero sparisce» si poteva solo dedurre dalle entita'.
+machinery(debug_quantity).
+debug_quantity($T, $Q) :- input_quantity_node($T, $I, $Q, $L).
+debug_probe(39, debug_quantity, now, "le quantita' della IR del turno: numero e unita'").

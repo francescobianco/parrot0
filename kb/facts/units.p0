@@ -31,3 +31,5 @@ measures(kelvin, temperature).
 measures(nanometre, length).
 measures(hertz, frequency).
 measures(byte, information).
+measures(degree_fahrenheit, temperature).
+measures(degree_celsius, temperature).

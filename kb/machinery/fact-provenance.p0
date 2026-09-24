@@ -548,6 +548,8 @@ fact_source(construction_frame("the freezing point of @S is @O", "@S freezes at 
 fact_source(construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at), "the boiling point of @S is @O", "the boiling point of x is y means x boils at y").
 fact_source(taught_form_source(taught_form_16, "tell me the x"), taught_form_16, "tell me the x means what is the x?").
 fact_source(emits(light-emitting_diode, light), light-emitting_diode, "a light-emitting diode emits light.").
+fact_source(measures(degree_fahrenheit, temperature), degree_fahrenheit, "the degree fahrenheit measures temperature.").
+fact_source(measures(degree_celsius, temperature), degree_celsius, "the degree celsius measures temperature.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -993,8 +995,12 @@ reading_fact(relation(flash_point), "flash point is a relation").
 reading_fact(construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at), "the boiling point of x is y means x boils at y").
 reading_fact(taught_form_source(taught_form_16, "tell me the x"), "tell me the x means what is the x?").
 reading_fact(emits(light-emitting_diode, light), "a light-emitting diode emits light.").
+reading_fact(measures(degree_fahrenheit, temperature), "the degree fahrenheit measures temperature.").
 reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
+reading_fact(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature))), "the degree fahrenheit measures temperature.").
+reading_fact(measures(degree_celsius, temperature), "the degree celsius measures temperature.").
 reading_fact(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), "a light-emitting diode emits light.").
+reading_fact(proposition(binary(measure), roles(subject(degree_celsius), object(temperature))), "the degree celsius measures temperature.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
 % nega la provenienza di un fatto, la ritira insieme al fatto.
@@ -1165,9 +1171,13 @@ fact_mention(jet_a_fuel, "the flash point of jet a fuel is 38 degrees celsius.")
 fact_mention(freezes_at, "the freezing point of x is y means x freezes at y").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 fact_mention(pump, "a pump is a device.").
+fact_mention(temperature, "the degree fahrenheit measures temperature.").
+fact_mention(degree_fahrenheit, "the degree fahrenheit measures temperature.").
 fact_mention(boils_at, "the boiling point of x is y means x boils at y").
 fact_mention(light, "a light-emitting diode emits light.").
 fact_mention(light-emitting_diode, "a light-emitting diode emits light.").
+fact_mention(temperature, "the degree celsius measures temperature.").
+fact_mention(degree_celsius, "the degree celsius measures temperature.").
 fact_mention(taught_form_16, "tell me the x means what is the x?").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").

@@ -349,6 +349,15 @@ demonstrative_reference(it, "l'altra").
 %                          scritti da ogni frame legato.
 machinery(reference_binding).
 machinery(entity_role).
+% L3/I1 (25 settembre 2026, l3-upgrade.md R5) — CHE COSA NON ENTRA NELLA STORIA
+% DEL DISCORSO. I candidati si raccolgono ancora per maiuscola; la maiuscola di
+% un'UNITA' non e' un nome: in «Acetone boils at 56 degrees Celsius; its boiling
+% point is …» `celsius` diventava la menzione piu' recente, e «its» si legava a
+% lei. Il motore chiede qui, parola per parola, se la superficie non riferisce;
+% una ragione nuova e' una clausola in piu'.
+machinery(not_a_referent_here).
+not_a_referent_here($W) :-
+    input_node_atom(current_turn, $Id, $W), input_quantity_token(current_turn, $Id).
 reference_binding(most_recent).
 reference_binding(distinct_in_frame).
 reference_binding(role_parallel).

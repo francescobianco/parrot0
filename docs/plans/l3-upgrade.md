@@ -1575,3 +1575,116 @@ che i furti che oggi impediscono il contatto stanno quasi tutti *fuori* da L2
 (un ramo compilato, un rilevatore, un rilancio senza cessioni). L2 non è
 l'ostacolo; è il terreno.
 
+
+## 19. Dimenticare è uno strato, non una cancellazione (F., 25 settembre 2026)
+
+> *«In L3 il forget è una stratificazione sopra la conoscenza precedente, e
+> anche questo semplifica il set di primitive, di cui una era la retract. In L3
+> per contatto si apprende che una cosa va dimenticata: vuol dire che sopra lo
+> strato che la conosce si sovrappone quello che indica di ignorarla, o di
+> considerarla conosciuta. Quando a un umano diciamo "dimenticati questa cosa
+> perché…", non la rimuove dalla mente: aggiunge, assieme alla vecchia
+> conoscenza ritirata, la conoscenza che la rende ritirata.»*
+
+**Che cosa cambia.**
+
+1. **Il ritiro è un'aggiunta.** «Forget that …», una correzione, un contatto che
+   contraddice: ognuno *aggiunge* un fatto sopra la conoscenza toccata («questa
+   è ritirata, da questo turno, per questa ragione»). Il contenuto vecchio resta
+   leggibile con la sua storia; ciò che cambia è quale strato *vale* nell'uso.
+2. **Una primitiva in meno.** Il circuito L3 non ha bisogno di `retract` per
+   imparare a dimenticare: gli basta asserire, più una regola di precedenza fra
+   strati (lo strato che ritira batte quello che afferma, finché un terzo non
+   ritira il ritiro). `retract` resta al motore per la pulizia meccanica
+   (scratch di turno, cache), non per il sapere.
+3. **Dimenticare è conoscenza, quindi si può chiedere e disfare.** «Perché non
+   lo sai più?» ha una risposta (il fatto che ritira, con la sua ragione); «ricordati
+   di nuovo …» è un altro strato, non una ricostruzione. È anche la forma giusta
+   per il §14.6: togliere una fonte non cancella l'altra, perché nessuna delle
+   due è stata cancellata.
+4. **«Considerarla conosciuta»** è lo stesso gesto nell'altro verso: uno strato
+   che dice che una cosa è già posseduta, senza riscriverla.
+
+**Dove c'è già, e dove no.** La lezione di costruzione ritirata del setup §15.1
+già funziona così («is no longer active; I kept its lesson trace»). Il ritiro
+dei fatti letti di L2 (`reading_stale_clause`) invece cancella. Da censire in I3/I4
+(§16.1): ogni sito che oggi ritira *sapere* con `kb_retract` è un candidato a
+diventare uno strato. Il banco del §16.2 («ritiro di H con due fonti di C»,
+«salva → processo nuovo → ritiro → processo nuovo») si legge con questa regola:
+il ritiro sopravvive al riavvio perché è un fatto salvato, non un'assenza.
+
+## 20. I1 — primo passo: la quantità e il referente di «its» (25 settembre 2026)
+
+**Stato: R2 e R5 chiusi; R3 diagnosticato e lasciato aperto; R1 da fare.**
+
+### 20.1 R2 — «56 degrees Celsius» è una quantità
+
+`input_quantity_node(Scope, Id, quantity(Valore, Unità), Ultimo)` in
+`input-structure.p0`: un numero seguito, su token contigui, dalle parole di
+un'unità di `measures/2`, ciascuna nuda o al plurale («degrees Celsius»). I
+token della quantità non sono più nomi nudi (`bare_token`, il nome isolato), e
+`debug_quantity` (sonda 39) la mostra. Prima della regola la IR vedeva le entità
+`degrees_celsius` e `celsius` e il numero spariva; ora vede
+`quantity(56, degree_celsius)`.
+
+- **Motore o decisione (§2.4)?** Quali parole siano unità è una **decisione** e
+  ha già la sua maniglia parlata: «The degree Celsius measures temperature.»
+  (verificato a runtime, poi salvato con `/save`: il save-map l'ha instradato in
+  `kb/facts/units.p0` con la provenienza, insieme a «degree Fahrenheit»).
+  Riconoscere numero+unità è **motore**.
+- **Trovato strada facendo:** `input_unit_node/4` chiedeva `measurement_unit/1`,
+  che non esiste in nessun file: il frame `measure` della IR era **KB muta** (§2).
+  Non l'ho toccato; è il consumer naturale della quantità in I2.
+
+### 20.2 R5 — «its» si lega ad `acetone`
+
+Due difetti, trovati col trace (`refer mentioned X (seq N)` è una riga nuova):
+
+1. la **maiuscola dell'unità**: «Celsius» entrava nella storia del discorso come
+   un nome. Ora il motore chiede `not_a_referent_here/1` (discourse.p0) prima di
+   registrare una menzione; la clausola di oggi dice che un token di quantità
+   non riferisce. Una ragione nuova è una clausola in più;
+2. un **campo C che non si azzera mai**: `last_entity` veniva ri-registrato come
+   menzione più recente a fine di *ogni* turno, anche annidato, anche se nessun
+   modulo l'aveva risolto in quel turno. Dopo «The degree Celsius measures
+   temperature.», «its» del turno seguente andava a `degree_celsius`. Ora si
+   registra solo se è cambiato durante il turno (`brain_respond_dispatch`).
+
+Esito, processo nuovo, KB viva (ritiro in memoria del ponte, §15.1):
+
+| contatto | quantità | «its»/«his» | risposta |
+|---|---|---|---|
+| Acetone … ; its boiling point is 56 degrees Celsius. | `quantity(56, degree_celsius)` | `acetone` | «I don't know about acetone yet…» (come prima) |
+| Water … , so its boiling point is 100 degrees Celsius. | `quantity(100, degree_celsius)` | `water` | «I don't know about degrees yet…» (**identica alla base**, R7) |
+| Einstein was born in Ulm, so his birthplace is Ulm. | — | — | «Learned: einstein was born in ulm.» (come §17.5) |
+
+La scelta di «its» è ancora per **recenza** con un solo candidato rimasto, non
+un sostegno: basta al criterio di I1 (referente o ambiguità dichiarata), non a I2.
+
+### 20.3 R3 — «its boiling point», diagnosi
+
+Il sintagma si chiude su «point» perché `relation_verb(point)` («point at»,
+verbs.p0) lo rende `np_closer`. È un'**ambiguità lessicale** (nome/verbo) che il
+produttore dei sintagmi (`src/code.c`, una fermata per parola, senza contesto)
+risolve sempre come verbo. Le cure brevi sono entrambe sbagliate: una guardia
+sulla forza del turno non funziona (la IR si costruisce prima che la forza sia
+pubblicata), e «un verbo non è seguito da una copula» è una regola di superficie
+che nasconde il problema. La forma coerente con I1 è quella del criterio di
+uscita: **due candidati restano distinguibili** («its boiling» chiuso dal verbo,
+«its boiling point» chiuso dalla copula) e sarà il contatto — la costruzione
+nominale che L2 già conosce — a sceglierli. Tocca tutti i consumatori di
+`np_candidate` (vince lo span massimo): va fatto come passo a sé, misurato.
+
+### 20.4 Reperti nuovi
+
+- **R7** — nel contatto sull'acqua l'offerta nomina «degrees» come parola opaca:
+  la prima parola sconosciuta del turno (`99-registry.c`, `sw` prima di
+  `fallback_gap_offer`) non consulta la quantità. Preesistente.
+- **KB muta**: `measurement_unit/1` (sopra).
+
+### 20.5 Prossimo passo
+
+R1 (il nodo che lega le due proposizioni attorno a «so»/«;»), poi R3 come
+candidati alternativi. Con R1–R3 la IR avrà le due porzioni, la quantità e il
+possessore: è il materiale su cui I2 prova ad allineare
+`boils_at(acetone, 56 °C)` con «boiling point of acetone = 56 °C».

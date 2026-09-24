@@ -163,7 +163,7 @@ input_entity_node($Scope, $Language, $Id, $Entity) :-
 input_entity_node($Scope, $Language, $Id, $Word) :-
     input_node_atom($Scope, $Id, $Word),
     naf(input_token_in_phrase($Scope, $Id)),
-    bare_noun_candidate($Word),
+    bare_noun_candidate($Word), naf(input_quantity_token($Scope, $Id)),
     naf(bare_noun_neighbour_before($Scope, $Id)), naf(bare_noun_neighbour_after($Scope, $Id)).
 % E la SEQUENZA senza articolo: parole piene consecutive, fuori da ogni
 % sintagma con articolo, sono UN'entita' con il nome di tutte («coral polyps»,
@@ -174,7 +174,8 @@ machinery(bare_run).
 machinery(bare_run_start).
 bare_token($Scope, $Id, $W) :-
     input_node_atom($Scope, $Id, $W),
-    naf(input_token_in_phrase($Scope, $Id)), bare_noun_candidate($W).
+    naf(input_token_in_phrase($Scope, $Id)), bare_noun_candidate($W),
+    naf(input_quantity_token($Scope, $Id)).
 bare_run_start($Scope, $Id) :-
     bare_token($Scope, $Id, $W), naf(bare_noun_neighbour_before($Scope, $Id)).
 bare_noun_neighbour_before($Scope, $Id) :-
@@ -411,6 +412,46 @@ gap_after_preposition($Scope, $Id) :-
 input_number_node($Scope, $Id, $Number) :-
     input_node_atom($Scope, $Id, $Surface),
     is($Number, add($Surface, 0)).
+
+% L3/I1 (25 settembre 2026, l3-upgrade.md R2) — UNA QUANTITA' E' UN NUMERO
+% SEGUITO DA UN'UNITA' CHE LA KB CONOSCE. «Acetone boils at 56 degrees Celsius»
+% dava le entita' `degrees_celsius` e `celsius`, e il numero spariva: nessuna
+% ipotesi poteva confrontare due valori, e «its» si legava a `celsius`. Le unita'
+% sono quelle di `measures/2`, che si insegna parlando («The degree Celsius
+% measures temperature.»): un'unita' nuova vale qui senza toccare la regola.
+% Un'unita' di piu' parole si riconosce parola per parola, ciascuna nuda o al
+% plurale («degrees Celsius», «kilowatt hours»), sui token contigui.
+machinery(input_quantity_node).
+machinery(quantity_unit_tokens).
+machinery(unit_word_surface).
+machinery(input_quantity_token).
+machinery(unit_surface_word).
+input_quantity_node($Scope, $Id, quantity($Value, $Unit), $Last) :-
+    input_number_node($Scope, $Id, $Value),
+    measures($Unit, $Quantity), atom_words($Unit, $Ws),
+    quantity_unit_tokens($Scope, $Id, $Ws, $Last).
+quantity_unit_tokens($Scope, $Prev, cons($W, nil), $Id) :-
+    input_node_next($Scope, $Prev, $Id), tokens_contiguous($Scope, $Prev, $Id),
+    input_node_atom($Scope, $Id, $S), unit_word_surface($W, $S).
+quantity_unit_tokens($Scope, $Prev, cons($W, cons($V, $R)), $Last) :-
+    input_node_next($Scope, $Prev, $Id), tokens_contiguous($Scope, $Prev, $Id),
+    input_node_atom($Scope, $Id, $S), unit_word_surface($W, $S),
+    quantity_unit_tokens($Scope, $Id, cons($V, $R), $Last).
+unit_word_surface($W, $W).
+unit_word_surface($W, $S) :- plural_of($S, $W).
+unit_word_surface($W, $S) :- concat_atoms($W, "s", $S).
+% Un token che appartiene a una quantita' non e' un nome: ne' un nome nudo per
+% i frame, ne' un referente per la storia del discorso. Si chiede prima se la
+% parola puo' far parte di un'unita' (poche righe di `measures/2`), e solo
+% allora dove sta.
+unit_surface_word($S) :-
+    measures($Unit, $Q), atom_words($Unit, $Ws), member($W, $Ws), unit_word_surface($W, $S).
+input_quantity_token($Scope, $Id) :-
+    input_node_atom($Scope, $Id, $S), unit_surface_word($S),
+    input_node_range($Scope, $Id, $TS, $TL),
+    input_quantity_node($Scope, $NId, $Q, $Last),
+    input_node_range($Scope, $NId, $NS, $NL), input_node_range($Scope, $Last, $LS, $LL),
+    lt($NS, $TS), naf(lt($LS, $TS)).
 
 node_order3($A, $B, $C) :- lt($A, $B), lt($B, $C).
 node_order4($A, $B, $C, $D) :-

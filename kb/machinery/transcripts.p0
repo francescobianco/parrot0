@@ -2689,6 +2689,7 @@ utterance(2, self, "I learned a candidate construction: the boiling point of @S 
 utterance(2, self, "From now on I'll read «tell me the x» as «what is the x?».").
 utterance(2, self, "Held: «i'd like» is short for «i would like».").
 utterance(2, self, "Held: «led» is short for «light-emitting diode».").
+utterance(2, self, "Learned: degree celsius measures temperature.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2822,6 +2823,7 @@ utterance(1, user, "the boiling point of x is y means x boils at y").
 utterance(1, user, "tell me the x means what is the x?").
 utterance(1, user, "'i'd like' is a contraction of 'i would like'").
 utterance(1, user, "LED is short for light-emitting diode").
+utterance(1, user, "The degree Celsius measures temperature.").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2944,6 +2946,7 @@ utterance(4, self, "I learned a candidate construction: the freezing point of @S
 utterance(4, self, "Got it - «i would like to know» asks for the same thing as «tell me».").
 utterance(4, self, "232 degrees celsius.").
 utterance(4, self, "Learned: light-emitting diode emits light.").
+utterance(4, self, "Learned: degree fahrenheit measures temperature.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3063,6 +3066,7 @@ utterance(3, user, "the freezing point of x is y means x freezes at y").
 utterance(3, user, "'i would like to know' is another way to say 'tell me'").
 utterance(3, user, "what is the melting point of tin").
 utterance(3, user, "A light-emitting diode emits light.").
+utterance(3, user, "The degree Fahrenheit measures temperature.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

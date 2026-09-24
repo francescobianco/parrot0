@@ -3235,6 +3235,13 @@ static void note_entity_seq(Brain *b, const char *raw_name) {
     }
     low[j] = '\0';
     if (j < 2) return;
+    /* L3/I1 — e quali parole, qui, non riferiscano lo dice la KB
+     * (`not_a_referent_here/1`, discourse.p0): l'unita' di una quantita' ha la
+     * maiuscola di un nome e non lo e'. */
+    { const char *nq[1] = { low };
+      if (kb_query(b->kb, "not_a_referent_here", nq, 1)) {
+          p0_trace(b, "refer", "«%s» is not a referent here", low);
+          return; } }
     const char *sq[1] = { NULL }; char sv[1][KB_TERM_LEN]; long top = 0;
     if (kb_match(b->kb, "entity_seq_max", sq, 1, sv, 1) == 1) top = strtol(sv[0], NULL, 10);
     if (entity_max_seq(b, low) == top && top > 0) return;    /* already most recent */
@@ -3242,6 +3249,7 @@ static void note_entity_seq(Brain *b, const char *raw_name) {
     kb_set_origin(b->kb, KB_REFLECTIVE);
     char sb[24]; snprintf(sb, sizeof sb, "%ld", s);
     const char *a[2] = { low, sb }; kb_assert(b->kb, "entity_mentioned", a, 2);
+    p0_trace(b, "refer", "mentioned %s (seq %ld)", low, s);
 }
 
 static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size) {
@@ -7790,6 +7798,10 @@ static void p0_publish_frame_answer(Brain *b, const char *text) {
 
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
+    /* L3/I1 — il referente che un modulo risolve IN QUESTO turno (vedi in coda) */
+    char last_entity_at_start[sizeof b->last_entity];
+    snprintf(last_entity_at_start, sizeof last_entity_at_start, "%s",
+             b && b->has_last_entity ? b->last_entity : "");
     if (b) {
         /* gen505y — IL TURNO PRECEDENTE E' UN FATTO DI OGNI USCITA. `last_input_raw`
          * veniva scritto solo in coda al ciclo del registro: un turno risposto dal
@@ -8934,8 +8946,14 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     /* gen335 (R2): the salient topic entity a module just resolved (e.g. "heart",
      * lowercase — not a capitalized proper noun) also enters the accumulating KB
      * history, so a later pronoun can reach it. Bridges the old last_entity C field
-     * into the KB-first entity_mentioned/2 record. */
-    if (b && b->has_last_entity) note_entity_seq(b, b->last_entity);
+     * into the KB-first entity_mentioned/2 record.
+     * L3/I1 (25 settembre 2026, l3-upgrade.md R5) — SOLO SE L'HA RISOLTO QUESTO
+     * TURNO. Il campo non si azzera mai: a fine di ogni turno, anche annidato,
+     * ri-registrava come menzione piu' recente l'entita' di un turno vecchio, e
+     * in «Acetone boils at 56 degrees Celsius; its boiling point is …» «its» si
+     * legava a `degree_celsius`, nominata il turno prima, e non ad `acetone`. */
+    if (b && b->has_last_entity && strcmp(b->last_entity, last_entity_at_start) != 0)
+        note_entity_seq(b, b->last_entity);
 
     /* If no module claimed the turn, fall back to the honest not-understood reply
      * (gen15 retired the gen0 parrot-echo; gen55 made it non-repeating).
