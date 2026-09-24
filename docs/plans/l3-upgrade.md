@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato: analisi in corso; L3 non implementato.**
+Stato (25 settembre): primo circuito di contatto in funzione (§21.6), con residuo dichiarato.**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -39,7 +39,19 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 
 ---
 
-## ⏸ HANDOFF — 24 settembre 2026, sera: ripartire qui
+## ⏸ HANDOFF — 25 settembre 2026: ripartire dal §21.7
+
+**Dove siamo.** Il primo circuito L3 funziona (§21.6, `8288f6d7`): dal contatto
+«Einstein was born in Ulm, so his birthplace is Ulm.» nasce un'ipotesi inerte
+(«birthplace» potrebbe nominare `born_in`), usata qualificata con un sostegno e
+piena con due, ritirata come strato (§19). Banco `docs/labs/l3/I2/banco.p0t`
+14/14 con setup dichiarato (§21.5). I1 non è più un cancello (§21): R2 e R5
+chiusi (§20), R3 diagnosticato. **Prossimo passo, in ordine (§21.7):** ritiro
+per contatto, residuo di più parole (con R3), soglia e condizione di
+osservazione come conoscenza. Il residuo metalinguistico da non dimenticare è
+elencato nel §21.6.
+
+## ⏸ HANDOFF precedente — 24 settembre 2026, sera
 
 **Dove siamo.** L3 non è implementato. Sono chiusi **I0** (la baseline, §17) e il
 **gradino prima di I1** (§17.5): i contatti del §15 ora arrivano alla IR senza
