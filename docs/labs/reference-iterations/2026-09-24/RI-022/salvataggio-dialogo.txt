@@ -1,0 +1,6 @@
+> "i'd like" is a contraction of "i would like"
+Held: «i'd like» is short for «i would like».
+> I'd like to know the melting point of tin.
+232 degrees celsius.
+> /save
+parrot0: routed 8 clause(s) into the KB tree

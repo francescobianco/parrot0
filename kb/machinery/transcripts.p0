@@ -142,6 +142,7 @@ utterance(5, user, "The operating voltage of a car battery is 12 volts.").
 utterance(5, user, "melting point is a relation").
 utterance(5, user, "The boiling point of acetone is 56 degrees Celsius.").
 utterance(5, user, "a turn that contains 'i would like to know' is a question").
+utterance(5, user, "I'd like to know the melting point of tin.").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -264,6 +265,7 @@ utterance(6, self, "Learned: the operating voltage of car battery is 12 volts.")
 utterance(6, self, "Learned: melting point is a relation.").
 utterance(6, self, "Learned: the boiling point of acetone is 56 degrees celsius.").
 utterance(6, self, "From now on a turn that contains «i would like to know» counts as a question.").
+utterance(6, self, "232 degrees celsius.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -2680,6 +2682,7 @@ utterance(2, self, "Learned: operating voltage is a relation.").
 utterance(2, self, "Learned: flash point is a relation.").
 utterance(2, self, "I learned a candidate construction: the boiling point of @S is @O maps to @S boils at @O. Test me with new names before we call it understood.").
 utterance(2, self, "From now on I'll read «tell me the x» as «what is the x?».").
+utterance(2, self, "Held: «i'd like» is short for «i would like».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2811,6 +2814,7 @@ utterance(1, user, "operating voltage is a relation").
 utterance(1, user, "flash point is a relation").
 utterance(1, user, "the boiling point of x is y means x boils at y").
 utterance(1, user, "tell me the x means what is the x?").
+utterance(1, user, "'i'd like' is a contraction of 'i would like'").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -2931,6 +2935,7 @@ utterance(4, self, "Learned: the operating voltage of usb port is 5 volts.").
 utterance(4, self, "Learned: the flash point of jet a fuel is 38 degrees celsius.").
 utterance(4, self, "I learned a candidate construction: the freezing point of @S is @O maps to @S freezes at @O. Test me with new names before we call it understood.").
 utterance(4, self, "Got it - «i would like to know» asks for the same thing as «tell me».").
+utterance(4, self, "232 degrees celsius.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3048,6 +3053,7 @@ utterance(3, user, "The operating voltage of a USB port is 5 volts.").
 utterance(3, user, "The flash point of Jet A fuel is 38 degrees Celsius.").
 utterance(3, user, "the freezing point of x is y means x freezes at y").
 utterance(3, user, "'i would like to know' is another way to say 'tell me'").
+utterance(3, user, "what is the melting point of tin").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

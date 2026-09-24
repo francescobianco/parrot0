@@ -7971,6 +7971,22 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         }
         b->canon_turn = 1;
         canonicalize_lang(b, norm, canon, sizeof canon);
+        /* RI-022 (24 settembre 2026) — LE RISCRITTURE VANNO AL PUNTO FISSO.
+         * Una lezione puo' produrre la superficie che un'altra lezione riscrive:
+         * «"i'd like" is a contraction of "i would like"» e, da RI-021, «"i
+         * would like to know" is another way to say "tell me"». Con un passo
+         * solo «I'd like to know the melting point of tin» si fermava a «i
+         * would like to know …», e la seconda lezione non valeva mai sulla
+         * forma contratta. Tre passi al massimo; un testo che torna uguale
+         * chiude, e il trace dice ogni passo in piu'. */
+        /* se il primo passo non ha cambiato niente, il punto fisso c'e' gia' */
+        for (int pass = 0; pass < 3 && strcmp(canon, norm); pass++) {
+            char again[P0_TURN_MAX];
+            canonicalize_lang(b, canon, again, sizeof again);
+            if (!strcmp(again, canon)) break;
+            p0_trace(b, "read.canon", "again «%s» -> «%s»\n", canon, again);
+            snprintf(canon, sizeof canon, "%s", again);
+        }
         b->canon_turn = 0;
     }
     p0_trace(b, "turn", "canon «%s»", canon);

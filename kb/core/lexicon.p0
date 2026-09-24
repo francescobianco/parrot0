@@ -3783,6 +3783,48 @@ function_word(cant, "can not").
 function_word(isnt, "is not").
 function_word("isn't", "is not").
 function_word(pls, "please").
+% RI-022 (24 settembre 2026) — insegnata: «"i'd like" is a contraction of "i would like"».
+phrase_canon("i'd like", "i would like").
+
+% RI-022 (24 settembre 2026) — CHE UNA CONTRAZIONE STIA PER LA FORMA PIENA SI
+% INSEGNA. Le righe qui sopra erano l'unica via: «I'd like to know the melting
+% point of tin.» diventava il fatto falso `know(i'd_like_to, …)`, e le due
+% lezioni che una persona darebbe — «"i'd like" is a contraction of "i would
+% like"», «… is short for …» — scrivevano altri due fatti falsi. La classe e'
+% quella della canonizzazione (`phrase_canon/2`, la riscrittura di superficie a
+% piu' parole), quindi la contrazione insegnata vale per ogni lettore a valle,
+% come «what's». Si insegna la contrazione con il suo contesto quando da sola
+% e' ambigua: «'d» e' «would» in «i'd like» e «had» in «i'd seen».
+response_template(learned_contraction, "Held: «{contraction}» is short for «{expansion}».").
+response_template(learned_contraction, it, "Tengo: «{contraction}» sta per «{expansion}».").
+response_template(forgotten_contraction, "I no longer read «{contraction}» as «{expansion}».").
+response_template(forgotten_contraction, it, "Non leggo più «{contraction}» come «{expansion}».").
+turn_form(teach_contraction_en, 1, span(contraction)).
+turn_form(teach_contraction_en, 2, text("is a contraction of")).
+turn_form(teach_contraction_en, 3, span(expansion)).
+turn_form_slot_form(teach_contraction_en, contraction, mention).
+turn_form_slot_form(teach_contraction_en, expansion, mention).
+% ⚠ una forma che comincia con uno span prende anche «forget that X is a
+% contraction of Y» (la trappola del piano, §6.4): lo span della lezione non
+% comincia con l'apertura del ritiro.
+turn_form_slot_class(teach_contraction_en, contraction, contraction_said_plain).
+contraction_said_plain($P) :- atom_words($P, $Ws), naf(contraction_said_retract($Ws)).
+contraction_said_retract(cons(forget, cons(that, $R))).
+turn_form_mood(teach_contraction_en, statement).
+turn_form_priority(teach_contraction_en, early).
+turn_form_view(teach_contraction_en, said).
+turn_form_act(teach_contraction_en, "op(assert, phrase_canon, [contraction, expansion])").
+turn_form_reply(teach_contraction_en, learned_contraction).
+turn_form(forget_contraction_en, 1, text("forget that")).
+turn_form(forget_contraction_en, 2, span(contraction)).
+turn_form(forget_contraction_en, 3, text("is a contraction of")).
+turn_form(forget_contraction_en, 4, span(expansion)).
+turn_form_slot_form(forget_contraction_en, contraction, mention).
+turn_form_slot_form(forget_contraction_en, expansion, mention).
+turn_form_priority(forget_contraction_en, early).
+turn_form_view(forget_contraction_en, said).
+turn_form_act(forget_contraction_en, "op(retract, phrase_canon, [contraction, expansion])").
+turn_form_reply(forget_contraction_en, forgotten_contraction).
 
 % ══ gen512 — LE SUPERFICI DI UNA RELAZIONE E DI UNO STATO, IN UNA TABELLA SOLA ══
 % «was stung by», «è stato punto da» sono la relazione `stung_by`; «in danger»,

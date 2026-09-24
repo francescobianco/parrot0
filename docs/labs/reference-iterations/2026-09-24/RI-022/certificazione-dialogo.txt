@@ -1,0 +1,24 @@
+> I'd like to know the melting point of tin.
+Learned: i'd like to know the melting point of tin.
+> "i'd like" is a contraction of "i would like"
+Held: «i'd like» is short for «i would like».
+> I'd like to know the melting point of tin.
+232 degrees celsius.
+> I'd like to know the flash point of Jet A fuel.
+38 degrees celsius.
+> I'd like to know the boiling point of ethanol.
+78 degrees Celsius, lower than water.
+> I'd like to know the capital of France.
+Paris.
+> I'd seen the report before the meeting.
+I didn't keep that: «i'd» and «report_before_the_meeting» don't read as things I can hold a fact about.
+> I'd like to learn welding.
+Hmm, I don't know about welding yet. Want me to learn about it?
+> What is the working load of an M10 eye bolt?
+230 kilograms.
+> forget that "i'd like" is a contraction of "i would like"
+I no longer read «i'd like» as «i would like».
+> I'd like to know the melting point of tin.
+Learned: i'd like to know the melting point of tin.
+> I would like to know the melting point of tin.
+232 degrees celsius.
