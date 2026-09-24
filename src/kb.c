@@ -248,6 +248,12 @@ typedef struct {
     char (*deps)[KB_TERM_LEN];
     size_t ndeps, dep_cap;
     int live, building, dirty, attempted, broad;
+    /* L3 §25 — VISTA IBRIDA: le clausole della vista il cui grafo raggiunge un
+     * costrutto riflessivo non si congelano; restano vive sopra i fatti. */
+    size_t *live_rules; size_t nlive, live_cap;
+    /* le catene dalla vista al predicato le cui regole usano il costrutto:
+     * alla lettura la differenza si cerca solo lungo di esse */
+    char (*chain)[KB_TERM_LEN]; size_t *chain_len; size_t nchain, chain_cap;
     size_t stamp;          /* kb->view_clock at the last invalidation */
     uint64_t content;      /* impronta delle righe dell'ultima costruzione */
     int has_content;
@@ -308,6 +314,7 @@ struct KB {
     KbView *views;
     size_t nviews, view_cap;
     int views_loaded, views_reload, views_pending, views_preparing;
+    size_t building_view_plus1;   /* L3 §25: la vista che si sta congelando (0 = nessuna) */
     size_t view_clock;     /* grows on every view invalidation, never resets */
     /* ── 20 settembre 2026 — LA LETTURA CON SCOPE (one-kb.md §4, mantra #25) ──
      * La meta' che mancava: `kb_save` sapeva restringersi a uno strato, la
@@ -630,6 +637,9 @@ static int fact_eq(const Fact *a, const Fact *b) {
 
 static int kb_view_live(const KB *kb, const char *pred);   /* gen491 */
 static int kb_view_covers(const KB *kb, const char *pred, size_t argc);
+static int kb_view_hybrid(const KB *kb, const char *pred);
+static size_t kb_view_slot(const KB *kb, const char *pred);
+static int view_rule_is_live(const KbView *v, size_t ri);
 static int kb_view_fact_visible(const KB *kb, const Fact *f);
 
 static uint64_t fact_hash_strings(const Fact *f);
@@ -1938,6 +1948,11 @@ typedef struct {
     DepRef  *proof;
     size_t   nproof;      /* puo' superare KB_DERIV_DEPS: i passi persi rendono la derivazione incompleta */
     int      recording;
+    /* L3 §25 — il modo DIFFERENZA di una vista ibrida: si cercano solo le
+     * soluzioni lungo la catena `dchain` della vista `dview`; `dlevel` e' il
+     * gradino della catena a cui si e' arrivati. */
+    const KbView *dview;
+    size_t   dchain, dlevel;
 
 } Solver;
 
@@ -2959,6 +2974,70 @@ static void frame_give(SolveFrame *scratch) {
     if (!frame_depth && census_grave_n) census_grave_release();
 }
 
+/* ── L3 §25: la DIFFERENZA di una vista ibrida ─────────────────────────────
+ * Un goal e' un GRADINO della catena se il suo predicato e' quello del gradino
+ * corrente. A un gradino si scende solo per le clausole il cui corpo contiene il
+ * gradino dopo; all'ultimo, solo per le clausole spente alla costruzione. */
+static int delta_carrier(const Solver *S, const char *pred) {
+    if (!S->dview || S->dchain >= S->dview->nchain) return 0;
+    size_t len = S->dview->chain_len[S->dchain];
+    if (S->dlevel >= len) return 0;
+    return !strcmp(pred, S->dview->chain[S->dchain * 16 + S->dlevel]);
+}
+static int delta_rule_leads(const Solver *S, const Rule *R, size_t ri) {
+    size_t len = S->dview->chain_len[S->dchain];
+    if (S->dlevel + 1 >= len) return view_rule_is_live(S->dview, ri);
+    const char *next = S->dview->chain[S->dchain * 16 + S->dlevel + 1];
+    for (size_t b = 0; b < R->nbody; b++)
+        if (!strcmp(R->body[b].pred, next)) return 1;
+    return 0;
+}
+static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                 const Subst *s, int depth);
+/* I fatti congelati li ha gia' visti il ciclo dei fatti; qui un sotto-
+ * risolutore, sullo schema di `findall/3`, raccoglie le sole soluzioni che
+ * passano per una catena, e ciascuna si prova come un fatto. */
+static int view_delta(Solver *S, const KbView *v, const Term *g,
+                      const Term *goals, size_t ngoals, size_t idx,
+                      const Subst *s, int depth, SolveFrame *scratch) {
+    Term rg; resolve_goal(g, s, &rg);
+    char gtext[KB_TERM_LEN * 2]; size_t go = 0;
+    go += (size_t)snprintf(gtext + go, sizeof gtext - go, "%s(", g->pred);
+    for (size_t a = 0; a < g->argc && go < sizeof gtext; a++)
+        go += (size_t)snprintf(gtext + go, sizeof gtext - go, "%s%s", a ? ", " : "", g->args[a]);
+    if (go + 2 >= sizeof gtext) return 0;
+    snprintf(gtext + go, sizeof gtext - go, ")");
+    size_t max_sol = 1024;
+    char (*sol)[KB_TERM_LEN] = calloc(max_sol, KB_TERM_LEN);
+    if (!sol) return 0;
+    size_t nsol = 0;
+    for (size_t c = 0; c < v->nchain; c++) {
+        Solver F; memset(&F, 0, sizeof F);
+        F.kb = S->kb; F.kb_mut = S->kb_mut;
+        F.qvar = gtext;
+        F.out = sol + nsol; F.max = max_sol - nsol;
+        F.frame = S->frame; F.budget = S->budget;
+        F.dview = v; F.dchain = c; F.dlevel = 0;
+        Subst *fs = &scratch->subst;
+        subst_copy(fs, s);
+        solve(&F, &rg, 1, 0, fs, depth + 1);
+        S->frame = F.frame;
+        if (F.budget_hit) S->budget_hit = 1;
+        nsol += F.count;
+        if (nsol >= max_sol) { S->budget_hit = 1; break; }
+    }
+    for (size_t i = 0; i < nsol; i++) {
+        Term t;
+        if (!parse_to_term(sol[i], &t)) continue;
+        Subst *s2 = &scratch->subst;
+        subst_copy(s2, s);
+        if (!unify_term_term(s2, g, &t)) continue;
+        if (solve(S, goals, ngoals, idx + 1, s2, depth)) { free(sol); return 1; }
+    }
+    free(sol);
+    return 0;
+}
+
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
     if (idx == ngoals) {                       /* a complete solution */
@@ -3069,6 +3148,15 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     if (strcmp(g->pred, "__derivation_close") == 0 && g->argc == 4)
         return derivation_close(S, goals, ngoals, idx, s, depth, scratch);
 
+    /* L3 §25 — fine del corpo di un gradino della catena: si torna al gradino
+     * di prima per il resto del risolvente, e lo si rimette al ritorno. */
+    if (strcmp(g->pred, "__end_delta_step") == 0 && g->argc == 0) {
+        if (S->dlevel == 0) return 0;
+        S->dlevel--;
+        int ok = solve(S, goals, ngoals, idx + 1, s, depth);
+        S->dlevel++;
+        return ok;
+    }
     if (strcmp(g->pred, "__end_inference_scope") == 0 && g->argc == 0) {
         if (S->nanc == 0) return 0;            /* malformed internal resolvent */
         uint64_t closed = S->anc[--S->nanc];
@@ -3792,6 +3880,10 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * predicate, so the census bucket visits exactly the candidates instead of
      * the whole KB at every resolution step. */
     PredBucket gbk = pred_bucket(S->kb, g->pred);
+    /* L3 §25 — nel modo differenza il gradino della catena non risponde dai
+     * fatti: quelle soluzioni sono gia' nella vista congelata. */
+    int dcarrier = delta_carrier(S, g->pred);
+    if (dcarrier) { gbk.live = 1; gbk.n = 0; }
     /* E0: the first ground ATOM among the first two arguments selects the
      * slice (see pred_bucket_a0); anything else keeps the whole bucket. */
     for (int k = 0; gbk.live && ground_fact_mode == 0 && k < 2 &&
@@ -3869,16 +3961,35 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         s2->ndif = undo_ndif;
     }
 
-    /* A sibling/nested goal must not overwrite this goal's cache decision. */
-    if (kb_view_covers(S->kb, g->pred, g->argc)) return 0;
+    /* A sibling/nested goal must not overwrite this goal's cache decision.
+     * L3 §25 — una vista IBRIDA viva risponde dai fatti congelati PIU' le sole
+     * clausole vive; mentre si congela, quelle clausole si saltano (restano
+     * fuori dai fatti, e si aggiungono a ogni lettura). */
+    const KbView *bv = S->kb->building_view_plus1
+                       ? &S->kb->views[S->kb->building_view_plus1 - 1] : NULL;
+    if (!dcarrier) {
+        size_t hk = kb_view_slot(S->kb, g->pred);
+        if (hk != (size_t)-1) {
+            const KbView *hv = &S->kb->views[hk];
+            if (hv->live && hv->argc == g->argc) {
+                if (!hv->nlive) return 0;
+                return view_delta(S, hv, g, goals, ngoals, idx, s, depth, scratch);
+            }
+        }
+    }
 
     PredBucket rbk = rule_bucket(S->kb, g->pred);
     int rule_copy_done = 0;
     for (size_t vi = 0; vi < PRED_VISITS(rbk, S->kb); vi++) { /* expand rules */
         if (PRED_AT(rbk, vi) >= S->kb->nr) continue;
+        /* mentre una vista ibrida si congela, le sue clausole spente tacciono */
+        if (bv && bv->nlive && view_rule_is_live(bv, PRED_AT(rbk, vi))) continue;
         const Rule *R = &S->kb->rules[PRED_AT(rbk, vi)];
         if (R->head.argc != g->argc || strcmp(R->head.pred, g->pred) != 0)
             continue;
+        /* nel modo differenza, al gradino della catena si scende solo per le
+         * clausole che portano al gradino dopo (all'ultimo: le spente) */
+        if (dcarrier && !delta_rule_leads(S, R, PRED_AT(rbk, vi))) continue;
 
         int fr = ++S->frame;
         int anon = 0; /* fresh-anonymous counter, shared across this clause */
@@ -3935,6 +4046,14 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                 m++;
             }
         }
+        if (dcarrier && !overflow) {
+            if (m >= KB_MAX_GOALS) overflow = 1;
+            else {
+                memset(&ng[m], 0, sizeof ng[m]);
+                snprintf(ng[m].pred, sizeof ng[m].pred, "%s", "__end_delta_step");
+                m++;
+            }
+        }
         for (size_t k = idx + 1; k < ngoals && !overflow; k++) {
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }
             term_copy(&ng[m++], &goals[k]);
@@ -3957,7 +4076,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                             0, R->body, R->nbody);
             proof_push(S, cid);
         }
+        if (dcarrier) S->dlevel++;
         int ok = solve(S, ng, m, 0, s2, depth + 1);
+        if (dcarrier) S->dlevel--;
         if (rec) S->nproof--;
         if (pushed) S->nanc--;
         if (ok) return 1;
@@ -4101,6 +4222,11 @@ static int kb_view_live(const KB *kb, const char *pred) {
     return k != (size_t)-1 && kb->views[k].live;
 }
 
+static int kb_view_hybrid(const KB *kb, const char *pred) {
+    size_t k = kb_view_slot(kb, pred);
+    return k != (size_t)-1 && kb->views[k].live && kb->views[k].nlive > 0;
+}
+
 static int kb_view_covers(const KB *kb, const char *pred, size_t argc) {
     size_t k = kb_view_slot(kb, pred);
     return k != (size_t)-1 && kb->views[k].live && kb->views[k].argc == argc;
@@ -4165,6 +4291,8 @@ static void kb_views_load(KB *kb) {
     for (size_t i = 0; i < kb->nviews; i++) {
         kb_view_clear(kb, kb->views[i].pred);
         free(kb->views[i].deps);
+        free(kb->views[i].live_rules);
+        free(kb->views[i].chain); free(kb->views[i].chain_len);
     }
     kb->nviews = 0;
     kb->views_loaded = 1;
@@ -4245,7 +4373,7 @@ static void view_dep_note_parent(size_t idx, size_t parent) {
     }
     view_dep_parent[idx] = parent;
 }
-static void view_short_circuit_publish(KB *kb, KbView *v, size_t at, const char *builtin) {
+static void view_short_circuit_publish(KB *kb, KbView *v, KbView *acc, size_t at, const char *builtin) {
     /* la catena, dalla vista al predicato la cui regola usa il costrutto */
     size_t chain[32]; size_t nc = 0;
     for (size_t i = at; i != (size_t)-1 && nc < 32; ) {
@@ -4257,7 +4385,7 @@ static void view_short_circuit_publish(KB *kb, KbView *v, size_t at, const char 
     }
     char list[KB_TERM_LEN * 2]; size_t off = 0;
     for (size_t k = nc; k-- > 0 && off + 8 < sizeof list; )
-        off += (size_t)snprintf(list + off, sizeof list - off, "cons(%s, ", v->deps[chain[k]]);
+        off += (size_t)snprintf(list + off, sizeof list - off, "cons(%s, ", acc->deps[chain[k]]);
     off += (size_t)snprintf(list + off, sizeof list - off, "nil");
     for (size_t k = 0; k < nc && off + 2 < sizeof list; k++) list[off++] = ')';
     list[off] = '\0';
@@ -4269,28 +4397,61 @@ static void view_short_circuit_publish(KB *kb, KbView *v, size_t at, const char 
     kb->origin = origin;
 }
 
-static int kb_view_dependencies(KB *kb, KbView *v) {
-    v->ndeps = 0;
-    v->broad = 1;                 /* OOM/unsupported => conservative fallback */
-    view_dep_note_parent(0, (size_t)-1);
-    if (!kb_view_dep_add(v, v->pred) ||
-        !kb_view_dep_add(v, "view_depends")) return 0;
-    /* 20 settembre 2026 — UNA VISTA CONGELATA E' UN CONFINE DEL GRAFO.
-     *
-     * Camminare dentro le regole di un'altra vista porta qui i predicati di
-     * partenza — insegnare un lemma verbale arrivava fino a `extract_frame`,
-     * tre salti piu' in la', e ricostruiva 27.000 cornici per quattro forme
-     * nuove. Ma una vista viva E' gia' le sue soluzioni: da lei dipendiamo, e
-     * cio' da cui dipende lei e' affar suo. Chi la consuma viene avvisato
-     * quando il suo CONTENUTO cambia (l'impronta, sotto), non quando cambia
-     * qualcosa a monte che potrebbe non cambiarne una riga.
-     * `PARROT0_NO_VIEW_BARRIER` toglie il confine e riporta il grafo di prima:
-     * il confine e' un acceleratore, mai parte del significato. */
+static int view_live_rule_add(KbView *v, size_t ri);
+/* Registra una catena ibrida: dal predicato colpevole (il genitore del
+ * costrutto) risale alla vista; le regole del colpevole che usano il costrutto
+ * diventano le clausole da spegnere alla costruzione. */
+static int view_hybrid_record(KB *kb, KbView *v, size_t at, const char *builtin) {
+    if (at >= view_dep_parent_cap) return 0;
+    size_t culprit = view_dep_parent[at];
+    if (culprit == (size_t)-1 || culprit >= v->ndeps) return 0;
+    size_t idx[16]; size_t n = 0;
+    for (size_t i = culprit; n < 16; ) {
+        idx[n++] = i;
+        if (i == 0) break;
+        if (i >= view_dep_parent_cap || view_dep_parent[i] == (size_t)-1) return 0;
+        i = view_dep_parent[i];
+    }
+    if (idx[n - 1] != 0) return 0;               /* la catena non arriva alla vista */
+    if (v->nchain == v->chain_cap) {
+        size_t cap = v->chain_cap ? v->chain_cap * 2 : 2;
+        char (*gc)[KB_TERM_LEN] = realloc(v->chain, cap * 16 * sizeof *gc);
+        if (!gc) return 0;
+        v->chain = gc;
+        size_t *gl = realloc(v->chain_len, cap * sizeof *gl);
+        if (!gl) return 0;
+        v->chain_len = gl; v->chain_cap = cap;
+    }
+    for (size_t k = 0; k < n; k++)
+        snprintf(v->chain[v->nchain * 16 + k], KB_TERM_LEN, "%s", v->deps[idx[n - 1 - k]]);
+    v->chain_len[v->nchain++] = n;
+    const char *cp = v->deps[culprit];
+    PredBucket rb = rule_bucket(kb, cp);
+    int any = 0;
+    for (size_t j = 0; j < PRED_VISITS(rb, kb); j++) {
+        size_t ri = PRED_AT(rb, j);
+        if (ri >= kb->nr) continue;
+        const Rule *r = &kb->rules[ri];
+        if (strcmp(r->head.pred, cp) != 0) continue;
+        for (size_t bb = 0; bb < r->nbody; bb++)
+            if (!strcmp(r->body[bb].pred, builtin)) {
+                if (!view_live_rule_add(v, ri)) return 0;
+                any = 1; break;
+            }
+    }
+    return any;
+}
+
+/* La chiusura del grafo da `acc->deps[from]` in poi: ogni predicato porta le
+ * premesse delle sue regole e le sue dipendenze dichiarate. Restituisce 0 su un
+ * costrutto riflessivo (pubblicato come cortocircuito della vista `v`). Le
+ * regole della vista stessa non si espandono qui: si chiudono una per una. */
+static int view_close(KB *kb, KbView *v, KbView *acc, size_t from) {
     static int nobar = -1;
     if (nobar < 0) nobar = getenv("PARROT0_NO_VIEW_BARRIER") != NULL;
-    for (size_t i = 0; i < v->ndeps; i++) {
+    for (size_t i = from; i < acc->ndeps; i++) {
         char pred[KB_TERM_LEN];
-        snprintf(pred, sizeof pred, "%s", v->deps[i]);
+        snprintf(pred, sizeof pred, "%s", acc->deps[i]);
         if (!nobar && strcmp(pred, v->pred) != 0) {
             size_t bk = kb_view_slot(kb, pred);
             /* solo una vista VIVA fa da confine: una rifiutata o non ancora
@@ -4307,8 +4468,12 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
             !strcmp(pred, "prob")) {
-            view_short_circuit_publish(kb, v, i, pred);
-            return 0;
+            /* L3 §25 — non si rifiuta la vista: si registra la catena e si
+             * spengono, alla costruzione, le sole clausole che usano il
+             * costrutto; alla lettura la differenza si cerca lungo la catena. */
+            view_short_circuit_publish(kb, v, acc, i, pred);
+            if (acc != v || !view_hybrid_record(kb, v, i, pred)) return 0;
+            continue;
         }
         /* E0, 19 settembre 2026 — an `apply` whose reach the KB has declared.
          * `view_apply_resolved(P)` says: the meta-call in P's rules only reaches
@@ -4326,23 +4491,66 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
                 if (apply_resolved && (!strcmp(r->body[b].pred, "apply") ||
                                        !strcmp(r->body[b].pred, "call")))
                     continue;
-                size_t before = v->ndeps;
-                if (!kb_view_dep_add(v, r->body[b].pred)) return 0;
-                if (v->ndeps > before) view_dep_note_parent(v->ndeps - 1, i);
+                size_t before = acc->ndeps;
+                if (!kb_view_dep_add(acc, r->body[b].pred)) return 0;
+                if (acc->ndeps > before) view_dep_note_parent(acc->ndeps - 1, i);
             }
         }
         const char *q[2] = { pred, NULL };
         char (*deps)[KB_TERM_LEN] = NULL; size_t nd = 0;
         if (!kb_match_all(kb, "view_depends", q, 2, &deps, &nd)) return 0;
         for (size_t j = 0; j < nd; j++) {
-            size_t before = v->ndeps;
-            if (term_contains_var(deps[j], 0) || !kb_view_dep_add(v, deps[j])) {
+            size_t before = acc->ndeps;
+            if (term_contains_var(deps[j], 0) || !kb_view_dep_add(acc, deps[j])) {
                 free(deps); return 0;
             }
-            if (v->ndeps > before) view_dep_note_parent(v->ndeps - 1, i);
+            if (acc->ndeps > before) view_dep_note_parent(acc->ndeps - 1, i);
         }
         free(deps);
     }
+    return 1;
+}
+
+static int view_live_rule_add(KbView *v, size_t ri) {
+    if (v->nlive == v->live_cap) {
+        size_t cap = v->live_cap ? v->live_cap * 2 : 4;
+        size_t *g = realloc(v->live_rules, cap * sizeof *g);
+        if (!g) return 0;
+        v->live_rules = g; v->live_cap = cap;
+    }
+    v->live_rules[v->nlive++] = ri;
+    return 1;
+}
+
+static int view_rule_is_live(const KbView *v, size_t ri) {
+    for (size_t i = 0; i < v->nlive; i++) if (v->live_rules[i] == ri) return 1;
+    return 0;
+}
+
+static int kb_view_dependencies(KB *kb, KbView *v) {
+    v->ndeps = 0;
+    v->nlive = 0; v->nchain = 0;
+    v->broad = 1;                 /* OOM/unsupported => conservative fallback */
+    view_dep_note_parent(0, (size_t)-1);
+    if (!kb_view_dep_add(v, v->pred) ||
+        !kb_view_dep_add(v, "view_depends")) return 0;
+    view_dep_note_parent(1, 0);
+    /* 20 settembre 2026 — UNA VISTA CONGELATA E' UN CONFINE DEL GRAFO
+     * (`view_close`: una vista viva altrui ferma la discesa).
+     *
+     * L3 §25 (25 settembre 2026) — LA VISTA IBRIDA. Prima un costrutto
+     * riflessivo in qualunque punto del grafo faceva rifiutare la vista intera,
+     * e con lei tutte quelle che ne dipendono: una regola nuova in contact.p0
+     * ha fatto cadere cosi' `extract_frame`, e il boot non finiva. Come
+     * `loops_cut` nella prova — che taglia il ramo ripetuto e lascia completo il
+     * resto — qui si spengono, alla costruzione, le SOLE clausole che usano il
+     * costrutto (`live_rules`), e si ricorda la catena che dalla vista porta a
+     * loro. Alla lettura: i fatti congelati PIU' la differenza, cercata solo
+     * lungo quella catena. Le soluzioni sono le stesse; cambia che cosa costa. */
+    if (!view_close(kb, v, v, 0)) { v->nlive = 0; v->nchain = 0; return 0; }
+    if (v->nlive)
+        kb_trace(kb, "view", "%-28s ibrida: %zu clausole spente, %zu catene vive",
+                 v->pred, v->nlive, v->nchain);
     v->broad = 0;
     {   /* `PARROT0_VIEW_DEPS=<vista>` stampa da CHE COSA dipende: e' l'elenco
          * che decide chi la invalida, e un arco dichiarato di troppo si paga
@@ -4454,6 +4662,8 @@ int kb_view_ensure(KB *kb, const char *pred) {
         return 0;
     }
     v->building = 1;
+    size_t prev_building_view = kb->building_view_plus1;
+    kb->building_view_plus1 = k + 1;
     int complete = 1;
     /* L'impronta del CONTENUTO: commutativa, perche' conta l'insieme delle
      * righe e non l'ordine in cui l'enumerazione le ha trovate. */
@@ -4531,6 +4741,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
     }
     free(firsts);
     v->building = 0;
+    kb->building_view_plus1 = prev_building_view;
     if (vtrace) {
         struct timespec vt1; timespec_get(&vt1, TIME_UTC);
         kb_trace(kb, "view", "%-28s %8.1f ms%s", pred,
@@ -4950,7 +5161,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * 60 clausole generative e 15.000 cornici congelate, e ogni lookup con lo
      * schema legato costava 116 ms di unificazioni invece di una ricerca.
      * Misurato: «is however a contrastive connector?» da 5,4 s a 0,6 s. */
-    if (simple && !kb_view_covers(kb, pred, argc)) {
+    if (simple && (!kb_view_covers(kb, pred, argc) || kb_view_hybrid(kb, pred))) {
         PredBucket rbk = rule_bucket(kb, pred);
         for (size_t vi = 0; vi < PRED_VISITS(rbk, kb); vi++) {
             const Rule *r = &kb->rules[PRED_AT(rbk, vi)];

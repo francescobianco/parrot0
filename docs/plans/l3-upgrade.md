@@ -2086,3 +2086,64 @@ dell'osservazione (`contact_shape_known/3`), fuori da ogni vista.
 4. **un solo registro**: `loops_cut` e `view_short_circuit` sono la stessa
    specie. Il passo successivo è nominarla una volta sola in KB, come
    `paradox_event(Livello, …)`, invece di tenere due contatori paralleli.
+
+### 25.1 La vista ibrida (fatta, 25 settembre 2026)
+
+**Prima:** un costrutto riflessivo (`kb_fact`, `findall`, `apply`…) in un punto
+qualunque del grafo di una vista la faceva rifiutare intera, e con lei ogni
+vista che ne dipende. **Ora** si spengono solo le clausole colpevoli, e si
+ricorda la strada per arrivarci:
+
+1. **chiusura** (`view_close`, estratta da `kb_view_dependencies`): quando
+   incontra il costrutto, il motore pubblica il cortocircuito, registra la
+   **catena** dalla vista al predicato colpevole (`view_hybrid_record`) e spegne
+   le sole regole di quel predicato che usano il costrutto (`live_rules`). Il
+   resto del grafo si chiude come prima;
+2. **costruzione**: mentre la vista si congela (`building_view_plus1`), le
+   clausole spente tacciono; tutto il resto si congela;
+3. **lettura**: a vista viva, i fatti congelati **più la differenza**
+   (`view_delta`): un sotto-risolutore sullo schema di `findall/3` percorre solo
+   la catena. A ogni gradino scende per le sole clausole che portano al gradino
+   dopo (`delta_rule_leads`), non risponde dai fatti (già congelati), e
+   all'ultimo usa solo le clausole spente. Il gradino si chiude con un goal
+   marcatore (`__end_delta_step`), come `__end_inference_scope` chiude l'ambito
+   della guardia anti-isteresi. Una vista senza catene si comporta come prima.
+
+**Misurato** su una regola vera: `construction_frame` che legge `extract_frame`
+con `kb_fact/2`, cioè il caso che prima non faceva finire il boot.
+
+| | prima | ora |
+|---|---|---|
+| boot | > 60 s, cinque viste rifiutate | 13,5 s con trace (≈ 11 s), quattro viste **ibride** con una clausola spente ciascuna |
+| «Kant zzhails from Konigsberg.» | — | «Learned: kant was born in konigsberg.» (la regola viva legge) |
+| «Where was Kant born?» | — | «konigsberg.» |
+| turni | — | 0,9–1,3 s |
+| KB normale (nessuna catena) | boot 6,6 s | boot 4,9 s, nessuna vista ibrida |
+
+Vista di prova mista (una clausola pulita, una riflessiva): la pulita si
+congela, la riflessiva risponde viva, e un fatto asserito a runtime si vede subito
+attraverso la parte viva.
+
+**Approssimazioni dichiarate.** (a) Il gradino si riconosce dal *nome* del
+predicato: un secondo goal con lo stesso predicato nello stesso corpo verrebbe
+ristretto anche lui, quindi la differenza può mancare soluzioni, mai inventarne.
+(b) Le catene sono al massimo 16 gradini, e la differenza al massimo 1024
+soluzioni per lettura; oltre, la ricerca si marca incompleta (`budget_hit`), non
+vuota. (c) La differenza non è memorizzata: si ricalcola a ogni lettura della
+vista. Costa poco perché scende solo lungo la catena, ma una catena sotto una
+vista molto consultata va misurata.
+
+**Che cosa resta del §25:** il ciclo logico puro (una vista che raggiunge se
+stessa senza costrutti riflessivi) è ancora coperto solo da `building`; la voce
+(`response_template` per spiegarlo); un solo registro con `loops_cut`.
+
+**Riproduzione.** Aggiungere in fondo a un file KB caricato:
+
+```prolog
+construction_frame($O, $K, $R) :- zz_bad($O, $K, $R).
+zz_bad("@S zzhails from @O", $K, born_in) :- kb_fact(extract_frame, cons($K, cons(born_in, nil))).
+```
+
+e avviare con `PARROT0_BOOT_TRACE=1`: le righe `ibrida: 1 clausole spente, 1
+catene vive` e `cortocircuito: kb_fact via cons(extract_frame, …)`. Senza la
+vista ibrida il boot non finiva.
