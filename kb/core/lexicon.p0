@@ -640,6 +640,10 @@ phrase_canon("fammi un esempio di", "an example of").
 % Un nome composto identifica un concetto PRIMA della traduzione delle sue
 % parole. Gli alias si insegnano con i normali frame «X is also called Y»;
 % non sono risposte preconfezionate e non richiedono un dizionario nel C.
+% RI-023: una sigla che e' anche una forma di parola (`alias_needs_capitals/1`,
+% messages.p0) si riscrive solo se nel turno e' scritta in maiuscolo — lo guarda
+% la canonizzazione sulla parola che ha combaciato, non questa regola (che si
+% enumera 105 volte per turno: dentro, costava 270 ms).
 phrase_canon($Surface, $Concept) :- entity_alias($Surface, $Concept).
 % A taught compound translation is one surface, not unrelated token glosses.
 % Use the existing word-list projection so underscores in tr/2 are storage,

@@ -1,5 +1,70 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## ⏸ HANDOFF — lotto `2026-09-24`: ripartire qui
+
+**Richiesta:** 5 iterazioni (F.: «usiamo gli strumenti di debug e trace unificati;
+se non sono sufficienti miglioriamoli e ampliamoli»). **Chiuse 5**: la chiusura di
+RI-019 (parziale del lotto precedente) e quattro nuove, RI-020…RI-023. Registro e
+schede: `docs/labs/reference-iterations/2026-09-24/` (RI-019 in `2026-09-23/`).
+
+| ID | capacità | classificazione | W / L / C | commit |
+|---|---|---|---:|---|
+| RI-019 | chiusura: save + processo nuovo di «flash point / melting point / working load is a relation» | trained | 3 / 3 / 0 | `729153c6` |
+| RI-020 | un **nome di relazione** si lega a una relazione che la KB tiene già: «the boiling point of x is y means x boils at y» | trained | 1 / 0 / 2 | `f4d2a132` |
+| RI-021 | una **domanda indiretta** si insegna, e l'iniziativa di dialogo ascolta la forza insegnata («I would like to know …») | meta-capability-only | 0 / 3 / 0 | `ea18201a` |
+| RI-022 | una **contrazione** si insegna («"i'd like" is a contraction of "i would like"»), le riscritture vanno al punto fisso | meta-capability-only | 0 / 1 / 0 | `b73cea1c` |
+| RI-023 | una **sigla** tecnica si insegna, si salva, si ritira e non si mangia le parole comuni («LED», «DC») | trained | 1 / 2 / 0 | vedi `git log` |
+
+### Il trace unico, ampliato dove taceva (richiesta di F.)
+Ogni diagnosi del lotto è partita da `/debug` e `/debug trace <parola>`; dove una
+riga mancava, gliel'ho data lì e resta:
+- `read.project` — la proiezione della risposta (topic, prova, fuoco, sorgente): era
+  il sito muto dietro «answerframe answers» (la definizione dell'acqua per «the
+  boiling point of water»).
+- `read.polar` — che cosa ha interrogato il verdetto «I don't know: nothing I hold…».
+- `read.form … asking the frame reader`, `lesson.anchor`, `lesson.forget`, e la prova
+  a secco dice su **quale testo** gira (detto o canonizzato).
+- `plan depends on …` anche per `turn_priority_response` (`turn_priority_support/2`,
+  solo col trace profondo: costava un secondo di soft-test).
+- `read.canon again …` — ogni passo di canonizzazione in più; `read.canon alias «x»
+  needs capitals …`.
+- `turn_yield_probe … because …` — il **testimone** di una vista di cessione
+  (`yield_witness/2`, KB): «quasi una lezione» ora dice quale forma.
+- `form op … reader-origin=…` — lo **strato** in cui scriverebbe una forma.
+
+### Scoperte che valgono per ogni iterazione
+1. **Le forme tarde scrivevano nello strato riflessivo** (dipendeva da dove girava il
+   lettore): nessuna sigla insegnata arrivava su disco. Ora l'atto `assert` di una
+   forma scrive in sessione, salvo `turn_form_effect_origin(F, reflective)`.
+   ⚠ Riverificare le lezioni salvate prima del 24 settembre fatte con forme tarde.
+2. **Il dispatcher anticipava la cessione di `knowledge`** (effetto del punto 4 di
+   RI-019): «quasi una lezione» scattava prima delle sue forme. Ora
+   `faculty_yields_after_forms/1`.
+3. **Una guardia dentro una regola enumerata a ogni turno costa**: `naf(…)` dentro
+   `phrase_canon/2` era +270 ms per turno (mantra #20). Le guardie si chiedono al
+   momento dell'uso.
+4. **L'ancora per nome di RI-020 si prendeva «x is a y»** (regressione trovata e
+   curata in RI-023 con `surface_has_content_word/1`): prima di chiudere, lanciare
+   i banchi puntuali delle forme toccate e confrontarli con la base in un worktree.
+5. **soft-test al bordo sotto carico**: 14–18 s con la stessa base (Chrome, load
+   2–2,7). Per attribuire un costo si usa il profilo per turno di `/debug` (tempo e
+   query per turno, base contro modifica), non il cronometro del soft-test.
+
+### Candidati per RI-024, con il sito già nominato dal trace
+1. «I'd like to learn welding.» non apre l'attività: l'iniziativa legge i token grezzi
+   della IR (`i|d|like`), non il canone — la IR si costruisce prima della
+   canonizzazione (D33).
+2. «What does the LED on the charger emit?», «Kanban limits work in progress» → la
+   coda preposizionale di un sintagma.
+3. Senza lezione «what is the R of X» con R ignoto riceve il riassunto di X: il fuoco
+   della domanda non esiste per «of» (una regola `asked_head_misses` per «R of X»).
+4. «Tell me the boiling point of ethanol» senza la lezione di RI-021; e la parafrasi
+   non trasferisce la forza della sua àncora (servono tre lezioni dove ne basterebbe una).
+5. `alias_needs_capitals/1` conosce solo le forme verbali (non «CAT», «SUN»).
+6. La lezione di sigla con virgolette o apostrofo scrive ancora un fatto falso.
+
+---
+
 ## ⏸ HANDOFF — lotto `2026-09-23` (notte del 23→24 settembre): ripartire qui
 
 **Richiesta:** 5 iterazioni. **Chiuse 3** (RI-016, RI-017, RI-018), **1 parziale**

@@ -1,0 +1,10 @@
+> forget that the boiling point of x is y means x boils at y
+The construction the boiling point of @S is @O -> @S boils at @O is no longer active; I kept its lesson trace.
+> What is the boiling point of water?
+A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.
+> the boiling point of x is y means x boils at y
+I learned a candidate construction: the boiling point of @S is @O maps to @S boils at @O. Test me with new names before we call it understood.
+> What is the boiling point of water?
+100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour).
+> What's the boiling point of nitrogen?
+-196 degrees Celsius, so it is a gas at everyday temperatures.

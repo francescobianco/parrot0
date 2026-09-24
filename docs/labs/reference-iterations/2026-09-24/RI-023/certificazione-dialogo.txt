@@ -1,0 +1,30 @@
+> What does LED stand for?
+I don't know: nothing I hold says led stood for, and nothing says it isn't so. Tell me either way and I will hold it.
+> What does an LED emit?
+I don't understand that yet.
+> LED is short for light-emitting diode
+Held: «led» is short for «light-emitting diode».
+> What does LED stand for?
+«led» stands for light-emitting diode.
+> A light-emitting diode emits light.
+Learned: light-emitting diode emits light.
+> What does an LED emit?
+light.
+> What does the LED on the charger emit?
+Hmm, I don't know about light-emitting yet. Want me to learn about it?
+> The guide led the climbers to the summit.
+I didn't keep that: «guide» and «climbers_to_the_summit» don't read as things I can hold a fact about.
+> DC is short for direct current
+Held: «dc» is short for «direct current».
+> Do capacitors block DC?
+Yes.
+> What do capacitors block?
+Direct current.
+> PWM is short for
+I don't understand that yet.
+> forget that DC is short for direct current
+I no longer read «dc» as «direct current».
+> Do capacitors block DC?
+I don't know: nothing I hold says capacitors block dc, and nothing says it isn't so. Tell me either way and I will hold it.
+> What does an LED emit?
+light.

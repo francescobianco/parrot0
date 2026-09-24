@@ -1520,6 +1520,7 @@ eats_category(tiger, meat).
 egg_laying(platypus).
 emits(storm, lightning).
 emits(storm, rain).
+emits(light-emitting_diode, light).
 enables(education, better_jobs).
 enables(electricity, modern_life).
 enables(internet, global_communication).

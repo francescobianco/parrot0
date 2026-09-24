@@ -1664,6 +1664,35 @@ static const char *canonical_token(const char *w) {
  * (keep-secondary-structures) come rete sotto: la conoscenza viene consultata
  * per prima, quindi cio' che i fatti coprono non la raggiunge, e una parola
  * funzione nuova — in qualunque lingua — costa una riga di .p0. */
+/* RI-023 (24 settembre 2026) — UNA SIGLA CHE E' ANCHE UNA PAROLA SI RICONOSCE
+ * SOLO SCRITTA IN MAIUSCOLO. «LED is short for light-emitting diode» riscriveva
+ * anche «The guide led the climbers…», il passato di «lead». Quali sigle
+ * chiedano la maiuscola lo dice la KB (`alias_needs_capitals/1`); qui si guarda
+ * soltanto come la parola e' stata scritta nel turno (`canon_raw`). Si chiede
+ * al momento dell'uso, per la parola che ha combaciato — mai dentro la regola
+ * che la canonizzazione enumera (misurato: +270 ms per turno). Restituisce 1 se
+ * la riscrittura va TRATTENUTA. */
+static int p0_alias_kept_lowercase(Brain *b, const char *w) {
+    if (!b || !b->kb || !w || !*w) return 0;
+    const char *cq[1] = { w };
+    if (!kb_query(b->kb, "alias_needs_capitals", cq, 1)) return 0;
+    int capital = 0;
+    size_t wl = strlen(w);
+    const char *r = b->canon_raw;
+    for (const char *p = r; p && *p && !capital; p++) {
+        if (strncasecmp(p, w, wl)) continue;
+        if (p > r && isalnum((unsigned char)p[-1])) continue;
+        if (isalnum((unsigned char)p[wl])) continue;
+        int upper = 1;
+        for (size_t k = 0; k < wl; k++)
+            if (isalpha((unsigned char)p[k]) && !isupper((unsigned char)p[k])) upper = 0;
+        capital = upper;
+    }
+    p0_trace(b, "read.canon", "alias «%s» needs capitals: %s\n", w,
+             capital ? "written in capitals" : "not in capitals, kept");
+    return !capital;
+}
+
 static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
                                       size_t bufsz) {
     if (b && b->kb && w && *w) {
@@ -1714,9 +1743,11 @@ static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
         const char *aq[] = { quoted, NULL };
         if (kb_match(b->kb, "entity_alias", q, 2, hit, 1) == 1 ||
             kb_match(b->kb, "entity_alias", aq, 2, hit, 1) == 1) {
+            if (p0_alias_kept_lowercase(b, w)) goto no_alias;
             snprintf(buf, bufsz, "%s", kb_dequote(hit[0]));
             return buf;
         }
+        no_alias:;
         /* gen514 — e la tabella di ripiego non traduce una parola della lingua
          * del turno (`keeps_own_word/2`): «due to» in un turno inglese. */
         {
@@ -1920,6 +1951,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
                         if (strcmp(c, pw[m]) != 0) break;
                     }
                     if (m != npw) continue;
+                    if (npw == 1 && p0_alias_kept_lowercase(b, pw[0])) continue;
                     const char *cq[2] = { key, NULL };
                     char cv[1][KB_TERM_LEN];
                     if (kb_match(b->kb, "phrase_canon", cq, 2, cv, 1) != 1) continue;
@@ -16211,10 +16243,37 @@ static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
                 char tl[P0_TRACE_W]; size_t to = 0; tl[0] = '\0';
                 for (size_t y = 0; y < argc2 && to + 4 < sizeof tl; y++)
                     to += (size_t)snprintf(tl + to, sizeof tl - to, " %s", argv2[y] ? argv2[y] : "_");
-                p0_trace(b, "form", "op %s %s/%zu <%s%s>", opname, pred, argc2, formname, tl);
+                /* RI-023: e IN QUALE STRATO scrive (la domanda di RI-004): una
+                 * sigla insegnata in uno strato che non si salva spariva al
+                 * boot senza che il trace lo dicesse. */
+                {   int o = kb_origin(b->kb);
+                    p0_trace(b, "form", "op %s %s/%zu <%s%s> reader-origin=%s%s%s%s%s", opname, pred, argc2, formname, tl,
+                             (o & KB_BASE) ? "base " : "", (o & KB_SESSION) ? "session " : "",
+                             (o & KB_INDUCED) ? "induced " : "", (o & KB_REFLECTIVE) ? "reflective " : "",
+                             (o & KB_HYPOTHETICAL) ? "hypothetical" : "");
+                }
             }
-            if (!strcmp(opname, "assert"))       done2 = kb_assert(b->kb, pred, argv2, argc2);
-            else if (!strcmp(opname, "assert_neg")) done2 = kb_assert_neg(b->kb, pred, argv2, argc2);
+            /* RI-023 (24 settembre 2026) — UNA LEZIONE NASCE NELLO STRATO CHE SI
+             * SALVA (RI-004, detto per ogni forma). Lo strato dipendeva da DOVE
+             * girava il lettore: le forme tarde, dentro `knowledge`, ereditavano
+             * lo strato riflessivo della contabilita' del turno, e «LED is short
+             * for light-emitting diode» spariva al boot — nessuna sigla insegnata
+             * dal gen507/74 era mai arrivata su disco. Una forma che vuole un
+             * effetto transitorio lo dichiara (`turn_form_effect_origin/2`). */
+            int op_origin = kb_origin(b->kb);
+            if (!strcmp(opname, "assert") || !strcmp(opname, "assert_neg")) {
+                const char *eo[] = { formname, "reflective" };
+                kb_set_origin(b->kb, kb_query(b->kb, "turn_form_effect_origin", eo, 2)
+                                         ? KB_REFLECTIVE : KB_SESSION);
+            }
+            if (!strcmp(opname, "assert")) {
+                done2 = kb_assert(b->kb, pred, argv2, argc2);
+                kb_set_origin(b->kb, op_origin);
+            }
+            else if (!strcmp(opname, "assert_neg")) {
+                done2 = kb_assert_neg(b->kb, pred, argv2, argc2);
+                kb_set_origin(b->kb, op_origin);
+            }
             else if (!strcmp(opname, "retract")) {
                 done2 = kb_retract(b->kb, pred, argv2, argc2);
                 if (done2) p0_leave_tombstone(b, pred, argv2, argc2);

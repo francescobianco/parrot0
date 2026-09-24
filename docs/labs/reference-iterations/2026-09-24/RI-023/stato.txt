@@ -1,0 +1,2 @@
+base: b73cea1c
+certificazione: 748780d3a01f81a345340592f7e19f4fccea4ec1b43427ef97a214bf59a18244  bin/parrot0 + supporti RI-023 non committati

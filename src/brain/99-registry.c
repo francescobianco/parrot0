@@ -7970,6 +7970,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_match(b->kb, "turn_kept", tq, 2);
         }
         b->canon_turn = 1;
+        b->canon_raw = input;
         canonicalize_lang(b, norm, canon, sizeof canon);
         /* RI-022 (24 settembre 2026) — LE RISCRITTURE VANNO AL PUNTO FISSO.
          * Una lezione puo' produrre la superficie che un'altra lezione riscrive:
@@ -7988,6 +7989,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             snprintf(canon, sizeof canon, "%s", again);
         }
         b->canon_turn = 0;
+        b->canon_raw = NULL;
     }
     p0_trace(b, "turn", "canon «%s»", canon);
     p0_trace(b, "read.canon", "«%s» -> «%s»\n", norm, canon);
@@ -8777,8 +8779,23 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             if (strcmp(governed_both[g], registry[i].name) == 0) is_governed = 1;
         for (size_t g = 0; g < ngov_force && !is_governed; g++)
             if (strcmp(governed_force[g], registry[i].name) == 0) is_governed = 1;
-        for (size_t g = 0; g < ngov_when && !is_governed; g++)
-            if (strcmp(governed_when[g], registry[i].name) == 0) is_governed = 1;
+        /* RI-023 (24 settembre 2026) — ma non per chi decide la cessione DOPO
+         * le proprie forme dichiarate (`faculty_yields_after_forms/1`): per
+         * `knowledge` la vista «quasi una lezione» anticipata qui scattava prima
+         * che `teach_abbrev` fosse tentata, e «LED is short for light-emitting
+         * diode» — una lezione completa — veniva ceduta come mancata. E' il
+         * difetto che il riordino del 21 settembre aveva curato, reintrodotto
+         * dal rigo qui sotto (RI-019). */
+        {
+            const char *aq[1] = { registry[i].name };
+            int after_forms = b && b->kb &&
+                              kb_query(b->kb, "faculty_yields_after_forms", aq, 1);
+            for (size_t g = 0; g < ngov_when && !is_governed && !after_forms; g++)
+                if (strcmp(governed_when[g], registry[i].name) == 0) is_governed = 1;
+            if (after_forms)
+                p0_trace(b, "yield", "%s decides its own cession after its forms",
+                         registry[i].name);
+        }
         if (is_governed &&
             p0_faculty_yields(b, registry[i].name, "open", canon, input)) {
             if (ndecl < BRAIN_TRACE_MAX)

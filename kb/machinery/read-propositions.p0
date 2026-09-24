@@ -32,6 +32,7 @@ semantic_proposition(proposition(binary(step_up), roles(subject(flyback_transfor
 semantic_proposition(proposition(binary(protect), roles(subject(heat-resistant_glove), object(hand)))).
 semantic_proposition(proposition(binary(disconnect), roles(subject(double-pole_switch), object(both_conductors)))).
 semantic_proposition(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage)))).
+semantic_proposition(proposition(binary(emit), roles(subject(light-emitting_diode), object(light)))).
 semantic_binding(binary(measure), nanometre, object(length)).
 proposition_source_record(proposition(binary(measure), roles(subject(nanometre), object(length))), source(inline, "the nanometre measures length."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(pass), capacitors, object(alternating_current)).
@@ -54,6 +55,8 @@ proposition_source_record(proposition(binary(disconnect), roles(subject(double-p
 semantic_binding(binary(step_up), flyback_transformer, object(voltage)).
 proposition_source_record(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage))), source(inline, "a flyback transformer steps up the voltage."), provenance(language(en), range(0, 43))).
 proposition_source_record(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage))), source(inline, "a step-down transformer steps down the voltage."), provenance(language(en), range(0, 47))).
+semantic_binding(binary(emit), light-emitting_diode, object(light)).
+proposition_source_record(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), source(inline, "a light-emitting diode emits light."), provenance(language(en), range(0, 35))).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

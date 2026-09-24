@@ -2305,6 +2305,27 @@ turn_form(teach_abbrev, 3, rest(concept)).
 turn_form_mood(teach_abbrev, statement).
 turn_form_act(teach_abbrev, "op(assert, entity_alias, [surface, concept])").
 turn_form_reply(teach_abbrev, learned_abbrev).
+% RI-023 (24 settembre 2026) — e si disdice con le parole con cui si e' insegnata
+% (RI-006). Sulla vista `said`: nel testo canonizzato la sigla e' gia' riscritta
+% nel suo nome esteso, e la lezione non si ritroverebbe.
+response_template(forgotten_abbrev, "I no longer read «{surface}» as «{concept}».").
+response_template(forgotten_abbrev, it, "Non leggo più «{surface}» come «{concept}».").
+turn_form(forget_abbrev, 1, text("forget that")).
+turn_form(forget_abbrev, 2, slot(surface)).
+turn_form(forget_abbrev, 3, text("is short for")).
+turn_form(forget_abbrev, 4, rest(concept)).
+turn_form_view(forget_abbrev, said).
+turn_form_priority(forget_abbrev, early).
+turn_form_act(forget_abbrev, "op(retract, entity_alias, [surface, concept])").
+turn_form_reply(forget_abbrev, forgotten_abbrev).
+
+% RI-023 (24 settembre 2026) — una sigla che e' anche una FORMA DI PAROLA
+% («led», passato di «lead») si riconosce solo scritta in maiuscolo: la
+% canonizzazione non riscrive «The guide led the climbers» in «light-emitting
+% diode». Chi e' una forma di parola lo dice la KB che lo sa gia'.
+machinery(alias_needs_capitals).
+alias_needs_capitals($S) :- entity_alias($S, $C), irregular_verb_form($L, $S).
+alias_needs_capitals($S) :- entity_alias($S, $C), verb_form($R, $S, $K).
 
 % gen510 — e la domanda che la USA. «nasa is short for …» entrava, e «what does
 % nasa stand for?» cercava la parola «national» (report gen509, NA6): la sigla

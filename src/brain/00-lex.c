@@ -1387,6 +1387,21 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
                     snprintf(line, sizeof line, "%s reading=%s", pred,
                              yield ? "HIT" : "miss");
                     p0_yield_note(b, "turn_yield_probe", line);
+                    /* RI-023 (24 settembre 2026) — PERCHE' la vista ha visto.
+                     * «knowledge cede per lesson_almost_turn» non diceva QUALE
+                     * forma fosse «quasi»: la vista risponde `yes`, il suo
+                     * testimone e' altrove. Quale testimone valga per una vista
+                     * lo dice la KB (`yield_witness/2`); il trace lo stampa. */
+                    if (yield) {
+                        char wit[4][KB_TERM_LEN];
+                        const char *yq[2] = { pred, NULL };
+                        size_t nw = kb_match(b->kb, "yield_witness", yq, 2, wit, 4);
+                        for (size_t k = 0; k < nw; k++) {
+                            snprintf(line, sizeof line, "%s because %s", pred,
+                                     kb_dequote(wit[k]));
+                            p0_yield_note(b, "turn_yield_probe", line);
+                        }
+                    }
                 }
             }
         }

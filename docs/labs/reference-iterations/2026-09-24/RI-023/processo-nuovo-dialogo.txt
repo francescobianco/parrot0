@@ -1,0 +1,22 @@
+> What does LED stand for?
+«led» stands for light-emitting diode.
+> What does an LED emit?
+light.
+> Do capacitors block DC?
+Yes.
+> The guide led the climbers to the summit.
+I didn't keep that: «guide» and «climbers_to_the_summit» don't read as things I can hold a fact about.
+> I'd like to know the melting point of tin.
+232 degrees celsius.
+> I would like to know the working load of an M10 eye bolt.
+230 kilograms.
+> What is the boiling point of water?
+100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour).
+> What is the flash point of Jet A fuel?
+38 degrees celsius.
+> What steps down the voltage?
+Step-down transformer and buck converter.
+> What protects the hand?
+Heat-resistant glove.
+> What is the capital of France?
+Paris.

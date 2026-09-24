@@ -277,3 +277,15 @@ lesson_by_class_surface($T) :-
 machinery(lesson_almost_turn).
 lesson_almost_turn($T, yes) :- lesson_almost($T, $Form, $Text).
 faculty_yield_when(knowledge, open, lesson_almost_turn).
+% RI-023 (24 settembre 2026) — `knowledge` decide la propria cessione DOPO aver
+% provato le forme dichiarate (10-memory-knowledge.c, «la cessione si decide dopo
+% aver provato le forme»): il dispatcher non la anticipa. Senza questa riga la
+% vista qui sopra scattava prima di `teach_abbrev` e cedeva una lezione completa.
+machinery(faculty_yields_after_forms).
+faculty_yields_after_forms(knowledge).
+% RI-023 (24 settembre 2026) — il TESTIMONE della cessione, per il trace unico:
+% quale forma era «quasi» e con quale testo. Senza, il trace diceva soltanto
+% `lesson_almost_turn reading=HIT`.
+machinery(yield_witness).
+yield_witness(lesson_almost_turn, $W) :-
+    lesson_almost(current_turn, $Form, $Text), concat_atoms($Form, " on ", $A), concat_atoms($A, $Text, $W).

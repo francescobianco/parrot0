@@ -1,0 +1,12 @@
+> LED is short for light-emitting diode
+Held: «led» is short for «light-emitting diode».
+> A light-emitting diode emits light.
+Learned: light-emitting diode emits light.
+> DC is short for direct current
+Held: «dc» is short for «direct current».
+> What does an LED emit?
+light.
+> Do capacitors block DC?
+Yes.
+> /save
+parrot0: routed 22 clause(s) into the KB tree

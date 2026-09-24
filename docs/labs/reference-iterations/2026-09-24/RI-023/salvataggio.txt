@@ -1,0 +1,6 @@
+LED is short for light-emitting diode
+A light-emitting diode emits light.
+DC is short for direct current
+What does an LED emit?
+Do capacitors block DC?
+/save

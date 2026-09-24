@@ -246,6 +246,9 @@ struct Brain {
      * frammento, non un'ispezione): e' allora che la lettura registra che cosa
      * ha tradotto per ipotesi e che cosa ha lasciato intatto. */
     int canon_turn;
+    /* RI-023: il turno COME E' STATO SCRITTO, mentre si canonicalizza — la
+     * maiuscola che distingue la sigla «LED» dal verbo «led» c'e' solo qui. */
+    const char *canon_raw;
     /* gen506c: la prova per testimone di un soggetto generico (mod_knowledge)
      * rientra in mod_knowledge una volta sola. */
     int generic_witness_depth;

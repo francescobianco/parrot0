@@ -2370,12 +2370,19 @@ machinery(construction_answer_cue).
 % convenzione con cui la KB scrive i nomi di piu' parole (`words_underscored/2`);
 % dirlo qui permette all'allineatore della lezione di chiederlo invece di
 % declinare. Una superficie che nomina ALTRO si insegna come costruzione.
+% RI-023: e la superficie deve avere una parola PIENA. «is a» non nomina la
+% relazione `is_a`: e' copula piu' articolo, grammatica che le forme di lezione
+% leggono («x belongs to the kind y means x is a y» crea una forma, non una
+% costruzione — misurato su taught_lesson_form.p0t).
 machinery(relation_named_by).
+machinery(surface_has_content_word).
+surface_has_content_word($Ws) :- member($W, $Ws), naf(stopword($W)), naf(clause_copula($W)), naf(english_determiner($W)).
 relation_named_by($Surface, $Pred) :-
-    atom_words($Surface, cons($W, cons($V, $R))), words_underscored(cons($W, cons($V, $R)), $Pred),
+    atom_words($Surface, cons($W, cons($V, $R))), surface_has_content_word(cons($W, cons($V, $R))),
+    words_underscored(cons($W, cons($V, $R)), $Pred),
     kb_fact($Pred, cons($A, cons($B, nil))), naf(machinery($Pred)).
 relation_named_by($Surface, $Surface) :-
-    atom_words($Surface, cons($W, nil)),
+    atom_words($Surface, cons($W, nil)), surface_has_content_word(cons($W, nil)),
     kb_fact($Surface, cons($A, cons($B, nil))), naf(machinery($Surface)).
 machinery(construction_reading).
 extract_frame($Source, $Predicate) :- construction_reading($Source, $Predicate).
