@@ -108,6 +108,15 @@ dialogue_excluded($T) :- inner_turn.
 dialogue_direct_plan($T) :- direct_situation($T, $S), plan_move($S, 1, $M).
 dialogue_excluded($T) :- dialogue_direct_plan($T).
 dialogue_excluded($T) :- turn_cue($T, sentence_boundary_cue, $C).
+% RI-021 (24 settembre 2026) — UNA DOMANDA DICHIARATA NON APRE UN'ATTIVITA'.
+% «I would like to know the working load of an M10 eye bolt.» comincia con
+% un'apertura d'obiettivo («i would like to», planning) e riceveva un consiglio
+% di progetto: e' una domanda indiretta. Il maestro lo diceva — «a turn that
+% contains "i would like to know" is a question» — e la condotta non lo
+% ascoltava (mantra #17). Vale solo la forza INSEGNATA come forma
+% (`turn_pattern_force/2`), non ogni indizio di domanda: «I want to learn to
+% paint?» resta un obiettivo finche' nessuno dice il contrario.
+dialogue_excluded($T) :- turn_pattern_force($F, question), turn_pattern_match($T, $F).
 dialogue_excluded($T) :- turn_cue($T, dialogue_quotation_cue, $C).
 turn_cue_registry(dialogue_quotation_cue, 1).
 dialogue_quotation_cue("\"").

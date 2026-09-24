@@ -1,0 +1,18 @@
+> I would like to know the working load of an M10 eye bolt.
+230 kilograms.
+> I would like to know the flash point of Jet A fuel.
+38 degrees celsius.
+> Tell me the operating voltage of a USB port.
+5 volts.
+> I would like to learn welding.
+On welding: Let us use one concrete example to find your starting point. Show what you can already do or explain; we will choose the next exercise from the missing part.
+> What is the boiling point of water?
+100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour).
+> What steps up the voltage?
+Flyback transformer.
+> What protects the hand?
+Heat-resistant glove.
+> What do capacitors block?
+Direct current.
+> What is the capital of France?
+Paris.

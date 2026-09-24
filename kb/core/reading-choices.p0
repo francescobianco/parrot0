@@ -564,6 +564,7 @@ turn_form_empty_reply(reading_continuer_class_forget, reading_no_class_lesson).
 turn_form(reading_boundary_undo, 1, text("undo the local boundary correction for")).
 turn_form(reading_boundary_undo, 2, slot(word)).
 turn_form_priority(reading_boundary_undo, early).
+turn_form_priority(taught_form_16, early).
 turn_form_view(reading_boundary_undo, said).
 turn_form_act(reading_boundary_undo, "op(match, reading_undo_boundary, [word, free])").
 turn_form_effect_origin(reading_boundary_undo, reflective).

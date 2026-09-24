@@ -4960,6 +4960,7 @@ intent_cue(30_generation_reading_chain1104, "without teeth").
 intent_cue(30_generation_reading_chain1108, "short").
 intent_cue(30_generation_reading_chain1108, "tell me").
 intent_cue(30_generation_reading_chain1108, "make me laugh").
+intent_cue(30_generation_reading_chain1108, "i would like to know").
 intent_cue(30_generation_reading_chain1121, "four").
 intent_cue(30_generation_reading_chain1121, "4").
 intent_cue(30_generation_reading_chain1162, "poem").
@@ -6276,6 +6277,10 @@ machinery(turn_pattern).
 machinery(turn_pattern_intent).
 turn_pattern(treni_che_si_incontrano, cue, 25_wordmath_reasoning_cue1550).
 turn_pattern(treni_che_si_incontrano, cue, 25_wordmath_reasoning_cue1550_2).
+% RI-021 (24 settembre 2026) — insegnato: «a turn that contains "i would like to
+% know" is a question» (una domanda indiretta non apre un'attività).
+turn_pattern(taught_force_i_would_like_to_know, text, "i would like to know").
+turn_pattern_force(taught_force_i_would_like_to_know, question).
 turn_pattern(treni_che_si_incontrano, cue, 25_wordmath_reasoning_chain1554).
 turn_pattern_intent(treni_che_si_incontrano, meet_time_frame).
 

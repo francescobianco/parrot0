@@ -94,3 +94,10 @@ supported_from_world($Goal) :-
 machinery(turn_response_support).
 turn_response_support($Reply, $Dip) :-
     kb_derivation($D, turn_response(current_turn, $Reply), $I, $Dip), dif($I, 0).
+% RI-021 (24 settembre 2026) — e la risposta PRIORITARIA del piano, che parla
+% prima di ogni facolta' e prima della canonizzazione: «I would like to know the
+% working load …» riceveva un consiglio di progetto e il trace diceva soltanto
+% «turn_priority_response answers», senza quale delle sue regole.
+machinery(turn_priority_support).
+turn_priority_support($Reply, $Dip) :-
+    kb_derivation($D, turn_priority_response(current_turn, $Reply), $I, $Dip), dif($I, 0).

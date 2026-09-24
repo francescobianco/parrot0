@@ -759,6 +759,7 @@ classe intera invece di un membro.*
 | `la parola X è un …` | la stessa cosa, senza virgolette |
 | `X è un altro modo per dire Y` | `intent_cue`: una formulazione in più per un intento |
 | `X è un modo per chiedere Y` | `answer_frame`: una FORMA DI DOMANDA in più |
+| `a turn that contains "X" is a question` insieme a `"X" is another way to say "tell me"` e `tell me the x means what is the x?` | **RI-021** — una **domanda indiretta**: dopo le tre lezioni «I would like to know the working load of an M10 eye bolt.» risponde (230 kg) invece di ricevere un piano d'obiettivo, e «Tell me the rated current of a plug fuse.» → 13 A. La forza insegnata esclude il turno dall'iniziativa di dialogo (`dialogue_excluded/1`): la condotta ascolta la lezione. Ritiro provato (`forget that a turn that contains …`): torna l'obiettivo. ⚠ la contrazione «I'd like to know» è un'altra superficie e non si insegna ancora |
 | `X è un altro modo per introdurre Y` | `segment_role`: un introduttore di span |
 | `X è un marcatore di condizione` | la classe grammaticale di una parola |
 | `the plural of X is Y` | `plural_of/2` — un plurale irregolare, e da lì l'enumerazione e il conteggio lo riconoscono (gen507/49, forma #24) |

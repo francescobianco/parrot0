@@ -5457,6 +5457,14 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
     size_t nr = kb_match(b->kb, "turn_priority_response", q, 2, replies, 1);
     if (nr == 1) {
         p0_trace(b, "plan", "turn_priority_response answers «%.160s»", kb_dequote(replies[0]));
+        /* solo col trace profondo: la prova costa una ricerca in piu' */
+        if (p0_trace_deep(b)) {
+            char deps[24][KB_TERM_LEN];
+            const char *dq[2] = { replies[0], NULL };
+            size_t nd = kb_match(b->kb, "turn_priority_support", dq, 2, deps, 24);
+            if (nd == 0) p0_trace(b, "plan", "(no derivation recorded for this answer)");
+            for (size_t i = 0; i < nd; i++) p0_trace(b, "plan", "depends on %s", deps[i]);
+        }
         put(kb_dequote(replies[0]), out, out_size);
         return 1;
     }

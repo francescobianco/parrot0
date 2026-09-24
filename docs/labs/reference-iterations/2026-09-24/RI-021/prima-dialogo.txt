@@ -1,0 +1,6 @@
+> I would like to know the working load of an M10 eye bolt.
+On know the working load of an m10 eye bolt: Let us start with one observable result. Describe what would be different if this worked; we can use that to choose a first step.
+> Tell me the operating voltage of a USB port.
+Hmm, I don't know about operating voltage yet. Want me to learn about it?
+> I would like to know the melting point of tin.
+On know the melting point of tin: Let us start with one observable result. Describe what would be different if this worked; we can use that to choose a first step.

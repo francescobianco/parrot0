@@ -3767,3 +3767,4 @@ taught_form_source(taught_form_12, "x fashioned from y").
 taught_form_source(taught_form_14, "x consists of y").
 taught_form_source(taught_form_13, "x consisting of y").
 taught_form_source(taught_form_15, "x has written y").
+taught_form_source(taught_form_16, "tell me the x").

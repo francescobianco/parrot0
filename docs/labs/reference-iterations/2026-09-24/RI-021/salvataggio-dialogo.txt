@@ -1,0 +1,10 @@
+> tell me the x means what is the x?
+From now on I'll read «tell me the x» as «what is the x?».
+> "i would like to know" is another way to say "tell me"
+Got it - «i would like to know» asks for the same thing as «tell me».
+> a turn that contains "i would like to know" is a question
+From now on a turn that contains «i would like to know» counts as a question.
+> I would like to know the working load of an M10 eye bolt.
+230 kilograms.
+> /save
+parrot0: routed 23 clause(s) into the KB tree

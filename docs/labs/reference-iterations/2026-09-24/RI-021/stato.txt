@@ -1,0 +1,3 @@
+d6a2b9be6bbf97d645c67144357696ec79dada665d8c0b415a1d47f063d8abbc  bin/parrot0
+f4d2a132 learn(reference): RI-020 — un nome di relazione si lega a una relazione che la KB tiene gia' («the boiling point of x is y means x boils at y»)
++ supporti RI-021 non committati: kb/core/dialogue-initiative.p0, kb/core/derivation.p0, src/brain/99-registry.c (trace)
