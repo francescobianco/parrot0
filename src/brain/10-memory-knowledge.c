@@ -6527,6 +6527,56 @@ static int p0_align_explicit_lesson(
     return found && !ambiguous;
 }
 
+/* RI-020 (24 settembre 2026) — UN BERSAGLIO CHE NOMINA UNA RELAZIONE CHE LA KB
+ * TIENE GIA'.
+ *
+ * «the boiling point of x is y means x boils at y»: il lato destro non ha uno
+ * schema di lettura, ma la KB tiene gia' `boils_at(water, …)`, `boils_at(ethanol,
+ * …)`. La lezione declinava («non ho una lettura univoca per x boils at y») e la
+ * conoscenza restava irraggiungibile dalla domanda che la chiede per nome
+ * («what is the boiling point of water?» riceveva la definizione dell'acqua).
+ *
+ * QUALE relazione nomini una superficie lo dice la KB (`relation_named_by/2`,
+ * grammar.p0): il motore chiede soltanto, per la forma «x <parole> y», e accetta
+ * una risposta UNICA. Nessuna parola, relazione o lingua qui. */
+static void p0_quote_pattern(const char *pattern, char *out, size_t outsz);
+static int p0_align_named_relation(
+        Brain *b, const char *lhs, const char *rhs,
+        char vars[P0_MAX_SLOTS][KB_TERM_LEN], size_t nvars,
+        char *source, size_t source_size, char *target, size_t target_size,
+        char *pred, size_t pred_size) {
+    if (!b || !b->kb || nvars != 2) return 0;
+    char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rhs);
+    char *w[32]; size_t nw = split_words(rb, w, 32);
+    if (nw < 3) return 0;
+    char *first = strip_edge_punct(w[0]), *last = strip_edge_punct(w[nw - 1]);
+    size_t vf = 0, vl = 0;
+    while (vf < nvars && strcmp(vars[vf], first)) vf++;
+    while (vl < nvars && strcmp(vars[vl], last)) vl++;
+    if (vf == nvars || vl == nvars || vf == vl) return 0;
+    char surface[KB_TERM_LEN] = {0}; size_t off = 0;
+    for (size_t i = 1; i + 1 < nw; i++) {
+        char *m = strip_edge_punct(w[i]);
+        for (size_t vi = 0; vi < nvars; vi++) if (!strcmp(vars[vi], m)) return 0;
+        if (!*m || !p0_pattern_add(surface, sizeof surface, &off, m)) return 0;
+    }
+    char qsurf[KB_TERM_LEN]; p0_quote_pattern(surface, qsurf, sizeof qsurf);
+    const char *nq[2] = { qsurf, NULL };
+    char hits[4][KB_TERM_LEN];
+    size_t nh = kb_match(b->kb, "relation_named_by", nq, 2, hits, 4);
+    p0_trace(b, "lesson.anchor", "«%s» names %zu relation(s)%s%s\n", surface, nh,
+             nh ? ": " : "", nh ? kb_dequote(hits[0]) : "");
+    if (nh != 1) return 0;
+    char roles[P0_MAX_SLOTS] = {0};
+    roles[vf] = 's'; roles[vl] = 'o';
+    char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", lhs);
+    if (!p0_lesson_source_pattern(b, lb, vars, roles, nvars, source, source_size))
+        return 0;
+    snprintf(target, target_size, "@S %s @O", surface);
+    snprintf(pred, pred_size, "%s", kb_dequote(hits[0]));
+    return 1;
+}
+
 /* Solo per la forma SVO canonica: la parte letterale fra @S e @O puo' aprire
  * anche la porta di risposta. Pattern con prefissi, slot interni o ordine
  * diverso restano estrattori; A2 insegnera' le loro domande esplicitamente. */
@@ -6656,8 +6706,17 @@ static int p0_parse_construction_lesson(Brain *b, const char *text,
         if (!p0_align_explicit_lesson(
                 b, lhs, rhs, vars, nv,
                 lesson->source, sizeof lesson->source,
-                lesson->target, sizeof lesson->target))
-            return P0_CONSTRUCTION_UNKNOWN_TARGET;
+                lesson->target, sizeof lesson->target)) {
+            if (!p0_align_named_relation(
+                    b, lhs, rhs, vars, nv,
+                    lesson->source, sizeof lesson->source,
+                    lesson->target, sizeof lesson->target,
+                    lesson->predicate, sizeof lesson->predicate))
+                return P0_CONSTRUCTION_UNKNOWN_TARGET;
+            lesson->has_answer_cue = p0_construction_answer_cue(
+                lesson->source, lesson->answer_cue, sizeof lesson->answer_cue);
+            return P0_CONSTRUCTION_OK;
+        }
     }
 
     if (!p0_construction_target(b, lesson->source, lesson->target,
@@ -9165,9 +9224,17 @@ static int answer_projection_resolve(Brain *b, const char *relation,
         free(candidates);
         if (best != 1)
             topic[0] = '\0';
+        /* Il trace unico: QUALE topic ha vinto l'evidenza, con che prova. Era
+         * il sito muto dietro «answerframe answers» — una definizione
+         * dell'acqua per «the freezing point of mercury» senza una riga che
+         * dicesse da dove veniva. */
+        p0_trace(b, "read.project", "%s via %s -> %s (score %d) %s\n",
+                 relation, evidence_relation, topic[0] ? topic : "-", score,
+                 topic[0] ? proof : "");
     }
     if (!topic[0]) return -1;
     if (p0_asked_head_missed(b, norm, topic)) {
+        p0_trace(b, "read.project", "%s: asked head misses %s\n", relation, topic);
         p0_record_focus_rejection(b, topic);
         return -1;
     }
@@ -9205,10 +9272,15 @@ static int answer_projection_resolve(Brain *b, const char *relation,
                                        &fscore, fproof, sizeof fproof) == 1)
                     held = 1;
             }
+            p0_trace(b, "read.project", "%s: focus «%s» %s %s\n", relation,
+                     focus, held ? "holds" : "rejects", topic);
             if (!held) {
                 p0_record_focus_rejection(b, topic);
                 return -1;
             }
+        } else {
+            p0_trace(b, "read.project", "%s: no question focus, %s unchecked\n",
+                     relation, topic);
         }
     }
 
@@ -9274,6 +9346,8 @@ static int answer_projection_resolve(Brain *b, const char *relation,
                 msg[len++] = '.';
                 msg[len] = '\0';
             }
+            p0_trace(b, "read.project", "%s: %s(%s) speaks\n", relation,
+                     kb_dequote(sources[i]), topic);
             put(msg, out, out_size);
             store_proof(b, "Resolved one KB-indexed answer projection.");
             return 1;
@@ -13444,10 +13518,26 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
              * KB (`taught_form_source/2`) — senza chiave non succede niente. */
             for (const char *p = said_whole; p && p < content; ) {
                 P0ConstructionLesson whole;
-                if (p0_parse_construction_lesson(b, p, &whole) ==
-                        P0_CONSTRUCTION_UNKNOWN_TARGET &&
+                int wp = p0_parse_construction_lesson(b, p, &whole);
+                if (wp == P0_CONSTRUCTION_UNKNOWN_TARGET &&
                     p0_teach_rewrite(b, &whole, NULL, 1, out, out_size))
                     return 1;
+                /* RI-020 — e una costruzione ANCORATA che comincia con una di
+                 * quelle parole («forget that THE boiling point of x is y means
+                 * x boils at y»): la sorgente e' quella detta, non quella
+                 * scorciata. Si ritira soltanto se esiste cosi' com'e'. */
+                if (wp == P0_CONSTRUCTION_OK) {
+                    char ws[KB_TERM_LEN], wt[KB_TERM_LEN];
+                    p0_quote_pattern(whole.source, ws, sizeof ws);
+                    p0_quote_pattern(whole.target, wt, sizeof wt);
+                    const char *wa[3] = { ws, wt, whole.predicate };
+                    if (kb_retract(b->kb, "construction_frame", wa, 3)) {
+                        p0_trace(b, "lesson.forget", "construction «%s» -> %s retracted\n",
+                                 whole.source, whole.predicate);
+                        return p0_construction_say(b, "construction_forgotten",
+                                                   &whole, out, out_size);
+                    }
+                }
                 while (*p && !isspace((unsigned char)*p)) p++;
                 while (*p && isspace((unsigned char)*p)) p++;
             }
@@ -14787,6 +14877,8 @@ static int p0_relation_verdict(Brain *b, const char *rel, const char *said,
     present_atom(b, obj, os, sizeof os);
     present_atom(b, rel, rr, sizeof rr);
     const KbResponseSlot rs[] = { { "subject", ss }, { "rel", rr }, { "object", os } };
+    p0_trace(b, "read.polar", "%s(%s, %s) said «%s»: no support either way\n",
+             rel, subj, obj, said);
     return kb_response_slots(b, "no_support_relation", rs, 3, out, out_size);
 }
 
@@ -17417,7 +17509,23 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             char preds3[4][KB_TERM_LEN];
             const char *nq3[2] = { NULL, surface };
             size_t npr3 = kb_match(b->kb, "relation_noun", nq3, 2, preds3, 4);
-            if (npr3 == 0) continue;
+            if (npr3 == 0) {
+                /* RI-020 — la forma ha riconosciuto «the R of X», ma R puo'
+                 * essere letto da uno schema che non passa da `relation_noun/2`:
+                 * una costruzione insegnata («the boiling point of x is y means
+                 * x boils at y») porta la domanda a una relazione che la KB tiene
+                 * gia'. Si chiede allo STESSO lettore dei frame che risponde alle
+                 * altre domande, non a una seconda lettura. */
+                char qb[400]; snprintf(qb, sizeof qb, "%s", norm);
+                char *qw[32]; size_t qn = split_words(qb, qw, 32);
+                p0_trace(b, "read.form", "%s: «%s» is no relation noun, asking the frame reader\n",
+                         forms[f], surface);
+                if (qn >= 3 && p0_try_frame_question(b, qw, qn, norm, out, out_size)) {
+                    p0_said_by(b, "form", forms[f]);
+                    free(forms); return 1;
+                }
+                continue;
+            }
             char ent_key[KB_TERM_LEN];
             snprintf(ent_key, sizeof ent_key, "%s", ent2);
             for (char *c = ent_key; *c; c++) if (*c == ' ') *c = '_';

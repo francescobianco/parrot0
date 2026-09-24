@@ -1,0 +1,34 @@
+> What is the boiling point of water?
+A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.
+> the boiling point of x is y means x boils at y
+I learned a candidate construction: the boiling point of @S is @O maps to @S boils at @O. Test me with new names before we call it understood.
+> What is the boiling point of water?
+100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour).
+> What's the boiling point of ethanol?
+78 degrees Celsius, lower than water.
+> The boiling point of acetone is 56 degrees Celsius.
+Learned: the boiling point of acetone is 56 degrees celsius.
+> What is the boiling point of acetone?
+56 degrees celsius.
+> the freezing point of x is y means x freezes at y
+I learned a candidate construction: the freezing point of @S is @O maps to @S freezes at @O. Test me with new names before we call it understood.
+> What's the freezing point of mercury?
+about -39 degrees Celsius, so it stays liquid at room temperature.
+> What is the freezing point of water?
+0 degrees Celsius (32 degrees Fahrenheit) -- it turns into ice.
+> What is the boiling point of mercury?
+I don't know: nothing I hold says boiling point of mercury, and nothing says it isn't so. Tell me either way and I will hold it.
+> What is water?
+A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.
+> What is the capital of France?
+Paris.
+> What is the operating voltage of a USB port?
+5 volts.
+> forget that the boiling point of x is y means x boils at y
+The construction the boiling point of @S is @O -> @S boils at @O is no longer active; I kept its lesson trace.
+> What is the boiling point of water?
+A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.
+> What is the freezing point of mercury?
+about -39 degrees Celsius, so it stays liquid at room temperature.
+> Tell me the boiling point of ethanol.
+Hmm, I don't know about boiling yet. Want me to learn about it?

@@ -2362,6 +2362,21 @@ extract_frame($Pat, located_in) :-
 machinery(construction_frame).
 machinery(construction_answer_cue).
 
+% ── RI-020 (24 settembre 2026) — UNA RELAZIONE E' NOMINATA DALLE SUE PAROLE ──
+% «the boiling point of x is y means x boils at y» chiede di ancorare «x boils at
+% y», che nessuno schema legge — mentre la KB tiene gia' `boils_at(water, …)`.
+% Una relazione binaria del mondo (non della macchina) e' nominata dalle proprie
+% parole: «boils at» nomina `boils_at`, «freezes at» `freezes_at`. E' la stessa
+% convenzione con cui la KB scrive i nomi di piu' parole (`words_underscored/2`);
+% dirlo qui permette all'allineatore della lezione di chiederlo invece di
+% declinare. Una superficie che nomina ALTRO si insegna come costruzione.
+machinery(relation_named_by).
+relation_named_by($Surface, $Pred) :-
+    atom_words($Surface, cons($W, cons($V, $R))), words_underscored(cons($W, cons($V, $R)), $Pred),
+    kb_fact($Pred, cons($A, cons($B, nil))), naf(machinery($Pred)).
+relation_named_by($Surface, $Surface) :-
+    atom_words($Surface, cons($W, nil)),
+    kb_fact($Surface, cons($A, cons($B, nil))), naf(machinery($Surface)).
 machinery(construction_reading).
 extract_frame($Source, $Predicate) :- construction_reading($Source, $Predicate).
 construction_reading($Source, $Predicate) :-
@@ -2390,6 +2405,18 @@ construction_variant($Pattern, $Predicate, $Said, $Other) :-
     copular_head($Other, $OtherHead), concat_atoms($OtherHead, $Rest, $Pattern).
 construction_reading($Pattern, $Predicate) :-
     construction_variant($Pattern, $Predicate, $Said, $Other), dif($Other, $Said).
+
+% RI-020 (24 settembre 2026) — UNA COPULA DI SPECIFICAZIONE SI LEGGE NEI DUE
+% VERSI. «the boiling point of x is y» e «y is the boiling point of x» dicono la
+% stessa cosa, ed e' sul secondo verso che si legge la DOMANDA («what is the
+% boiling point of water?» lega @O a «what»): e' lo stesso doppio schema che
+% `relation_noun/2` da' alle relazioni dichiarate. Vale per ogni costruzione il
+% cui lato insegnato finisce con copula + valore, e per ogni `frame_copula/1`.
+construction_reading($Pattern, $Predicate) :-
+    construction_frame($Source, $Target, $Predicate),
+    frame_copula($Cop), concat_atoms(" ", $Cop, $A), concat_atoms($A, " @O", $Tail),
+    concat_atoms($Body, $Tail, $Source), dif($Body, ""),
+    concat_atoms("@O ", $Cop, $B), concat_atoms($B, " ", $C), concat_atoms($C, $Body, $Pattern).
 
 % Una lezione che dice che cosa SIGNIFICA una superficie la toglie ai lettori
 % generici della stessa superficie: «x is formed of y means x is made of y»

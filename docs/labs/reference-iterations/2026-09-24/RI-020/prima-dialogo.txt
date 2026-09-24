@@ -1,0 +1,8 @@
+> What is the boiling point of water?
+A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.
+> What is the freezing point of mercury?
+Water is unusual in expanding and growing less dense when it freezes, so ice floats and forms an insulating lid that keeps lakes liquid below through winter. If instead it contracted and grew denser as ice, ice would sink and freshwater bodies would freeze solid from the bottom up. Fish and aquatic life would lose their liquid refuge and mostly die, spring thawing would be far slower, and freshwater ecosystems would become far more hostile to life.
+> Tell me the boiling point of ethanol.
+Hmm, I don't know about boiling yet. Want me to learn about it?
+> the boiling point of x is y means x boils at y
+I learned a candidate construction: the boiling point of @S is @O maps to @S boils at @O. Test me with new names before we call it understood.

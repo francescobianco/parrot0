@@ -1,0 +1,4 @@
+What is the boiling point of water?
+What is the freezing point of mercury?
+Tell me the boiling point of ethanol.
+the boiling point of x is y means x boils at y

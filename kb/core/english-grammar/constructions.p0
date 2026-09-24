@@ -615,6 +615,8 @@ construction_frame("@S is found at @O", "@S is located in @O", located_in).
 construction_frame("@S are found at @O", "@S is located in @O", located_in).
 construction_frame("@O provides a home for @S", "@S lives in @O", habitat).
 construction_frame("@O provide a home for @S", "@S lives in @O", habitat).
+construction_frame("the freezing point of @S is @O", "@S freezes at @O", freezes_at).
+construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at).
 % E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
 construction_answer_cue("@S goes by the name of @O", "goes by the name of", also_known_as).
 construction_answer_cue("@S called @O", called, also_known_as).

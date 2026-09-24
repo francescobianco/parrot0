@@ -7698,6 +7698,50 @@ static void turn_note_correction(Brain *b, const char *input) {
     kb_set_origin(b->kb, prev);
 }
 
+/* RI-018 (23 settembre 2026) — E UNA DOMANDA A CUI LA LETTURA SA RISPONDERE E'
+ * UN FATTO DEL TURNO. «What is the operating voltage of a USB port?» legava
+ * «@O is the operating voltage of @S» e il valore c'era, ma il frasario
+ * prendeva il turno prima e rispondeva con la definizione del sistema
+ * operativo. La prova e' la STESSA via che risponderebbe (a secco, in un
+ * buffer); chi cede a questa lettura lo dice la KB (`turn_frame_answer/2`).
+ * Solo se il turno ha la faccia di una domanda — una parola interrogativa in
+ * testa (`question_word/1`) o il «?» — perche' la prova costa una lettura
+ * intera.
+ *
+ * RI-020 (24 settembre 2026): una funzione sola, perche' si chiede due volte —
+ * sul testo detto e, se differisce, sul testo CANONIZZATO. «What's the freezing
+ * point of mercury?» non si legge prima della canonizzazione («what's» diventa
+ * «what is» dopo), e la risposta pubblicata era quella di un testo che nessuna
+ * facolta' vedeva: il frasario non cedeva e rispondeva sull'acqua. */
+static void p0_publish_frame_answer(Brain *b, const char *text) {
+    if (!b || !b->kb || !text) return;
+    const char *aq[3] = { "current_turn", "answerable_question", "frame" };
+    if (kb_query(b->kb, "turn_reading", aq, 3)) return;
+    size_t rl = strlen(text);
+    char qbuf[400];
+    if (rl == 0 || rl >= sizeof qbuf) return;
+    memcpy(qbuf, text, rl + 1);
+    char *qw[64]; size_t qn = split_words(qbuf, qw, 64);
+    int looks_question = text[rl - 1] == '?';
+    if (!looks_question && qn > 0) {
+        char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", qw[0]);
+        const char *fq[1] = { strip_edge_punct(fb) };
+        looks_question = kb_query(b->kb, "question_word", fq, 1);
+    }
+    if (qn < 3 || !looks_question) return;
+    char dry[512]; dry[0] = '\0';
+    int dr = p0_try_extract_frames_only(b, qw, qn, text, dry, sizeof dry, 0, 1);
+    if (dr != 1) {
+        p0_trace(b, "read.turn", "the frame reader cannot answer «%s» (%d)", text, dr);
+        return;
+    }
+    p0_trace(b, "read.turn", "the frame reader can answer «%s»: %.120s", text, dry);
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "turn_reading", aq, 3);
+    kb_set_origin(b->kb, prev);
+}
+
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
@@ -7841,37 +7885,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 kb_assert(b->kb, "turn_reading", ra, 3);
                 kb_set_origin(b->kb, prev);
             }
-            /* RI-018 (23 settembre 2026) — E UNA DOMANDA A CUI LA LETTURA SA
-             * RISPONDERE E' UN FATTO DEL TURNO. «What is the operating voltage of
-             * a USB port?» legava «@O is the operating voltage of @S» e il valore
-             * c'era, ma il frasario prendeva il turno prima e rispondeva con la
-             * definizione del sistema operativo. La prova e' la STESSA via che
-             * risponderebbe (a secco, in un buffer); chi cede a questa lettura lo
-             * dice la KB (`turn_frame_answer/2`, intents.p0). */
-            /* Solo se il turno ha la faccia di una domanda — una parola
-             * interrogativa in testa (`question_word/1`) o il «?» — perche' la
-             * prova a secco costa una lettura intera. (La forza del turno qui
-             * non e' ancora congelata.) */
-            int looks_question = rl > 0 && norm[rl - 1] == '?';
-            if (!looks_question && rn > 0) {
-                const char *fq[1] = { strip_edge_punct(rw[0]) };
-                looks_question = kb_query(b->kb, "question_word", fq, 1);
-            }
-            if (wanted && rn >= 3 && looks_question) {
-                char dry[512]; dry[0] = '\0';
-                char qbuf[400]; memcpy(qbuf, norm, rl + 1);
-                char *qw[64]; size_t qn = split_words(qbuf, qw, 64);
-                int dr = p0_try_extract_frames_only(b, qw, qn, norm, dry, sizeof dry, 0, 1);
-                if (dr != 1) p0_trace(b, "read.turn", "the frame reader cannot answer (%d)", dr);
-                if (dr == 1) {
-                    p0_trace(b, "read.turn", "the frame reader can answer: %.120s", dry);
-                    int prev = kb_origin(b->kb);
-                    kb_set_origin(b->kb, KB_REFLECTIVE);
-                    const char *ra[3] = { "current_turn", "answerable_question", "frame" };
-                    kb_assert(b->kb, "turn_reading", ra, 3);
-                    kb_set_origin(b->kb, prev);
-                }
-            }
+            /* la domanda a cui la lettura sa rispondere: p0_publish_frame_answer */
+            if (wanted) p0_publish_frame_answer(b, norm);
         }
     }
 
@@ -7953,6 +7968,12 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     p0_trace(b, "turn", "canon «%s»", canon);
     p0_trace(b, "read.canon", "«%s» -> «%s»\n", norm, canon);
     p0_publish_question_focus(b, canon);
+    if (b->kb && b->respond_depth <= 1 && strcmp(canon, norm)) {
+        const char *cq2[1] = { NULL };
+        char consumer2[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "declarative_reading_wanted", cq2, 1, consumer2, 1) > 0)
+            p0_publish_frame_answer(b, canon);
+    }
 
     /* gen431 — UNA RICHIESTA INCOMPLETA SI DICE SUBITO, PRIMA DI OGNI FACOLTA'.
      *

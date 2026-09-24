@@ -160,6 +160,9 @@ freezes_at(water, "0 degrees Celsius (32 degrees Fahrenheit) -- it turns into ic
 boils_at(ethanol, "78 degrees Celsius, lower than water").
 freezes_at(mercury, "about -39 degrees Celsius, so it stays liquid at room temperature").
 boils_at(nitrogen, "-196 degrees Celsius, so it is a gas at everyday temperatures").
+% RI-020 (24 settembre 2026) — letto dalla forma insegnata «the boiling point of
+% x is y means x boils at y»: acetone, 56 °C (56,05 °C, CRC Handbook).
+boils_at(acetone, 56_degrees_celsius).
 % RI-019 (24 settembre 2026) — insegnato con «melting point is a relation» e
 % «the melting point of tin is 232 degrees Celsius» (stagno, 231,9 °C).
 melting_point_of(tin, 232_degrees_celsius).

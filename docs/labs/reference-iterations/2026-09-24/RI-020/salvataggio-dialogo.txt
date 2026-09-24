@@ -1,0 +1,10 @@
+> the boiling point of x is y means x boils at y
+I learned a candidate construction: the boiling point of @S is @O maps to @S boils at @O. Test me with new names before we call it understood.
+> the freezing point of x is y means x freezes at y
+I learned a candidate construction: the freezing point of @S is @O maps to @S freezes at @O. Test me with new names before we call it understood.
+> The boiling point of acetone is 56 degrees Celsius.
+Learned: the boiling point of acetone is 56 degrees celsius.
+> What is the boiling point of acetone?
+56 degrees celsius.
+> /save
+parrot0: routed 22 clause(s) into the KB tree

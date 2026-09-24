@@ -1,0 +1,3 @@
+fa0e8ea90d0ae0726d54c3eb88ac9411273f761e871f106710bd285b861437fb  bin/parrot0
+729153c6 learn(reference): RI-019 — un nome di relazione che finisce con un verbo si insegna (chiusura: save + processo nuovo)
++ supporti RI-020 non committati: src/brain/10-memory-knowledge.c, src/brain/99-registry.c, kb/core/grammar.p0
