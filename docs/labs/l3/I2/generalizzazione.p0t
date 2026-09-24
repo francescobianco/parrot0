@@ -1,0 +1,97 @@
+# L3 — generalizza? Un solo meccanismo (kb/core/contact.p0), tre relazioni vere,
+# un contatto ciascuna, domande su soggetti TENUTI FUORI dal contatto, e le
+# trappole che misurano le false generalizzazioni e il ritiro per contatto.
+# Si lancia a mano; i tempi non sono un cancello qui (vedi banco.p0t).
+#
+# SETUP DICHIARATO (§15.1): la KB viva collega gia' questi nomi alle loro
+# relazioni. Si ritirano IN MEMORIA solo quei ponti, uno per nome:
+#   birthplace -> born_in   (costruzione + frame)
+#   material   -> made_of   (relation(material) e il suo relation_noun)
+#   neighbour  -> borders   (il cue della catena compilata gen-chain10070)
+# «food» -> eats NON e' nel banco: lo risponde un ramo compilato
+# (animal_eats_answer) che nessun fatto ritira.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test setup]
+!timeout 0
+!forget construction_frame("@O is the birthplace of @S", "@S was born in @O", born_in)
+!forget extract_frame("@O is the birthplace of @S", born_in)
+!forget relation(material)
+!forget relation_noun(made_of, material)
+!forget intent_cue(10_memory_knowledge_chain10070, "neighbour")
+
+[test base: i tre nomi non rispondono]
+!timeout 0
+> What is the birthplace of Galileo Galilei?
+<! pisa
+> What is the material of glass?
+<! sand
+> What is the neighbour of Germany?
+<! Austria
+
+# ── RELAZIONE 1: born_in ────────────────────────────────────────────────
+[test r1 contatto]
+!timeout 0
+> Einstein was born in Ulm, so his birthplace is Ulm.
+!query contact_bridge(birthplace, born_in)
+[test r1 trasferimento]
+!timeout 0
+> What is the birthplace of Galileo Galilei?
+<~ pisa
+> What is the birthplace of Christopher Columbus?
+<~ genoa
+
+# ── RELAZIONE 2: made_of ────────────────────────────────────────────────
+[test r2 contatto]
+!timeout 0
+> Steel is made of iron, so iron is its material.
+!query contact_bridge(material, made_of)
+[test r2 trasferimento]
+!timeout 0
+> What is the material of glass?
+<~ sand
+> What is the material of paper?
+<~ wood pulp
+
+# ── RELAZIONE 3: borders ────────────────────────────────────────────────
+[test r3 contatto]
+!timeout 0
+> France borders Spain, so Spain is its neighbour.
+!query contact_bridge(neighbour, borders)
+[test r3 trasferimento]
+!timeout 0
+> What is the neighbour of Germany?
+<~ austria
+
+# ── TRAPPOLE ────────────────────────────────────────────────────────────
+[test t1 inciso: un ruolo solo, nessun episodio]
+!timeout 0
+> Galileo Galilei, an astronomer, was born in Pisa.
+!query! contact_episode(astronomer, $R, $E)
+
+[test t2 coincidenza: nasce un'ipotesi SBAGLIATA]
+!timeout 0
+> Rome is in Italy, and Rome is its capital.
+!query contact_bridge(capital, located_in)
+
+[test t3 ritiro per contatto: una correzione ordinaria la fa cadere]
+!timeout 0
+> Milan is in Italy, but Milan isn't its capital.
+!query contact_counter(capital, located_in, ep(milan, italy, o))
+!query! contact_bridge(capital, located_in)
+
+[test t4 le ipotesi giuste non cadono con quella sbagliata]
+!timeout 0
+!query contact_bridge(birthplace, born_in)
+!query contact_bridge(material, made_of)
+!query contact_bridge(neighbour, borders)
+
+[test t5 la premessa e' del turno che ha usato l'ipotesi, non dei seguenti]
+!timeout 0
+> What is the material of glass?
+<! birthplace

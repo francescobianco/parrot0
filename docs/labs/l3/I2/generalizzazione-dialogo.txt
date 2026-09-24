@@ -1,0 +1,8 @@
+        got:      I don't know about birthplace.	        got:      I don't know about material.
+        got:      I don't know about neighbour.	        got:      Learned: einstein was born in ulm.
+        got:      Reading «birthplace» as «was born in». pisa.	        got:      Reading «birthplace» as «was born in». genoa.
+        got:      Learned: steel made of iron.	        got:      Reading «material» as «is made of». sand.
+        got:      Reading «material» as «is made of». wood pulp.	        got:      Held: france and spain so spain is its neighbour share a border.
+        got:      Reading «neighbour» as «borders». austria, belgium, czechia, denmark, france, luxembourg, netherlands, poland, switzerland.	        got:      Learned: astronomer was born in pisa.
+        got:      Scartato: located_in(rome, italy_and_rome_is_its_capital) non e' fatto di concetti.	        got:      Fair enough — tell me where I went wrong, and we can take it from there.
+        got:      Reading «material» as «is made of». sand.	

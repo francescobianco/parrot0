@@ -25,15 +25,49 @@ machinery(contact_bridge_withdrawn).
 machinery(contact_support).
 machinery(contact_bridge_used).
 machinery(contact_gloss).
-turn_scratch(contact_bridge_used).
+% L'uso si lega al NUMERO del turno (`turn_counter/1`), non a `current_turn`:
+% il motore azzera a inizio turno solo i predicati di una lista sua, e una
+% premessa di ieri precedeva la risposta di oggi (misurato: tre premesse su
+% «What is the material of glass?»).
 
 after_reply_bookkeeper(contact).
 
 % ── L'OSSERVAZIONE, dopo la risposta ───────────────────────────────────────
 turn_after_reply($T, contact) :-
-    contact_episode_here($T, $N, $R, $E),
+    contact_episode_here($T, $N, $R, $E), contact_store($T, $N, $R, $E).
+machinery(contact_store).
+contact_store($T, $N, $R, $E) :-
+    naf(contact_negated($T)),
     naf(contact_episode($N, $R, $E)),
     assert(contact_episode, $N, $R, $E).
+% LA POLARITA' (ritiro per contatto, §21.7a). Lo stesso allineamento in un turno
+% che NEGA non e' un sostegno: e' un controesempio. «Milan is in Italy, but Milan
+% is not its capital» dice che la coppia per cui R vale NON e' N: l'ipotesi «N
+% nomina R» cade. Non c'e' una forma per «no» o per «but»: la negazione e' la
+% classe che la KB gia' conosce (`negation_marker/1`), o una contrazione che la
+% KB sa espandere in una negazione (`function_word("isn't", "is not")`).
+% Il controesempio si AGGIUNGE (§19): gli episodi restano, e restano leggibili.
+% (si chiede DOPO l'allineamento: provata a ogni turno, prima del cancello,
+% costava 2 s sul soft-test — misurato)
+contact_store($T, $N, $R, $E) :-
+    contact_negated($T),
+    naf(contact_counter($N, $R, $E)),
+    assert(contact_counter, $N, $R, $E).
+machinery(contact_negated).
+machinery(contact_counter).
+machinery(contact_contraction).
+machinery(contact_contraction_part).
+contact_contraction_part($T, $I) :- contact_contraction($T, $I, $J, $E).
+contact_contraction_part($T, $J) :- contact_contraction($T, $I, $J, $E).
+contact_negated($T) :- contact_token($T, $I, $W), negation_marker($W).
+contact_negated($T) :- contact_contraction($T, $I, $J, $E), atom_words($E, $Ws), member($M, $Ws), negation_marker($M).
+% «isn't» arriva alla IR come due token, `isn` e `t`: sono una contrazione se la
+% KB ne conosce l'espansione.
+contact_contraction($T, $I, $J, $E) :-
+    contact_token($T, $J, t), input_node_next($T, $I, $J), input_node_atom($T, $I, $W),
+    concat_atoms($W, "'t", $F), function_word($F0, $E), concat_atoms($F0, "", $F).
+% (si enumera e si confronta il testo: un argomento legato non combacia con un
+% fatto scritto fra virgolette, `function_word("isn't", …)`)
 
 % I ruoli: due entita' della IR del turno per cui la KB tiene gia' R(S, O).
 % Le relazioni candidate sono quelle che la KB sa leggere (`extract_frame/2`):
@@ -93,6 +127,7 @@ contact_residual($T, rel($R, $S, $O), $Ws) :-
     findall($W, contact_unexplained($T, rel($R, $S, $O), $W), $Ws).
 contact_unexplained($T, rel($R, $S, $O), $W) :-
     contact_token($T, $I, $W),
+    naf(contact_contraction_part($T, $I)),
     naf(word_is_function_word($W)), naf(word_is_number($W)),
     naf(referring_possessive($W)), naf(entity_pronoun($W)),
     atom_words($S, $SW), naf(member($W, $SW)),
@@ -104,7 +139,12 @@ contact_relation_word($R, $W) :- extract_frame($P, $R), atom_words($P, $Ws), mem
 
 % ── L'IPOTESI E IL SUO USO ─────────────────────────────────────────────────
 contact_bridge($N, $R) :-
-    contact_episode($N, $R, $E), naf(contact_bridge_withdrawn($N, $R)).
+    contact_episode($N, $R, $E), naf(contact_bridge_withdrawn($N, $R)),
+    naf(contact_countered($N, $R)).
+% Un controesempio basta a sospendere l'ipotesi, qualunque sia il numero dei
+% sostegni: una coincidenza ripetuta resta una coincidenza (§16.2).
+machinery(contact_countered).
+contact_countered($N, $R) :- contact_counter($N, $R, $E).
 contact_support($N, $R, $K) :-
     findall($E, contact_episode($N, $R, $E), $Es), list_len($Es, $K).
 
@@ -112,16 +152,16 @@ contact_support($N, $R, $K) :-
 holds($N, $X, $Y) :-
     contact_bridge($N, $R), contact_episode($N, $R, ep($S, $O, s)),
     apply($R, cons($Y, cons($X, nil))),
-    assert(contact_bridge_used, current_turn, $N, $R).
+    turn_counter($K), assert(contact_bridge_used, $K, $N, $R).
 holds($N, $X, $Y) :-
     contact_bridge($N, $R), contact_episode($N, $R, ep($S, $O, o)),
     apply($R, cons($X, cons($Y, nil))),
-    assert(contact_bridge_used, current_turn, $N, $R).
+    turn_counter($K), assert(contact_bridge_used, $K, $N, $R).
 
 % Un solo sostegno: la risposta dice come ha letto il nome. La frase e' quella
 % di ogni lettura per ipotesi (`translation_preface`).
 turn_reply_qualifies($T, $N, $G) :-
-    contact_bridge_used($T, $N, $R), contact_support($N, $R, 1), contact_gloss($R, $G).
+    turn_counter($K), contact_bridge_used($K, $N, $R), contact_support($N, $R, 1), contact_gloss($R, $G).
 contact_gloss($R, $G) :-
     extract_frame($P, $R), atom_words($P, cons($A, $Ws)), contact_drop_last($Ws, $Mid),
     words_joined($Mid, $G).

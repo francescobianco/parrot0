@@ -1855,3 +1855,76 @@ contraddice un'ipotesi aggiunge lo strato che la ritira; (b) il residuo di **pi�
 parole**, che chiede R3 (sintagmi candidati alternativi) e riapre l'acetone;
 (c) la **soglia e la condizione di osservazione come conoscenza**: che parrot0
 possa sentirsi dire, in lingua ordinaria, che un contatto era una coincidenza.
+
+## 22. Ritiro per contatto e prima misura di generalizzazione (25 settembre 2026)
+
+> *F.: «dimostrami che questo tipo di addestramento L3 generalizza o comunque
+> produce lezioni utili».*
+
+### 22.1 Ritiro per contatto (§21.7a, fatto)
+
+Trovato provando: «Rome is in Italy, and Rome is its capital.» (vera) fa nascere
+un'ipotesi **sbagliata**, «capital» ≈ `located_in`, e la correzione ordinaria
+«Milan is in Italy, but Milan is not its capital.» la **confermava** (secondo
+sostegno): l'osservazione non vedeva la negazione. Ora lo stesso allineamento
+in un turno che nega scrive un **controesempio** (`contact_counter/3`), uno
+strato che sospende l'ipotesi qualunque sia il numero dei sostegni (§19; gli
+episodi restano). La negazione è `negation_marker/1`, o una contrazione che la
+KB sa espandere in una negazione (`function_word("isn't", "is not")`: la IR la
+spezza in `isn` + `t`). Nessuna forma per «No», «but» o «isn't».
+
+Corretto anche un difetto del §21.6: la premessa «Reading «N» as …» restava
+nei turni seguenti (il motore azzera `current_turn` solo per una lista C); l'uso
+dell'ipotesi è ora legato al numero del turno (`turn_counter/1`).
+
+### 22.2 Il banco di generalizzazione
+
+`docs/labs/l3/I2/generalizzazione.p0t`: **19/19**; risposte verbatim in
+`generalizzazione-dialogo.txt`. Un solo meccanismo, nessuna riga per relazione.
+
+| relazione | contatto (uno) | domande su soggetti tenuti fuori | esito |
+|---|---|---|---|
+| `born_in` | «Einstein was born in Ulm, so his birthplace is Ulm.» | Galileo, Columbus | «Reading «birthplace» as «was born in». pisa.» / «… genoa.» |
+| `made_of` | «Steel is made of iron, so iron is its material.» | glass, paper | «… sand.» / «… wood pulp.» |
+| `borders` | «France borders Spain, so Spain is its neighbour.» | Germany | «Reading «neighbour» as «borders». austria, belgium, czechia, …» |
+
+| trappola | esito |
+|---|---|
+| inciso, un ruolo solo («Galileo Galilei, an astronomer, was born in Pisa.») | nessun episodio |
+| coincidenza vera («Rome is in Italy, and Rome is its capital.») | **ipotesi sbagliata nata** (capital ≈ located_in) |
+| correzione ordinaria («Milan is in Italy, but Milan isn't its capital.») | controesempio; l'ipotesi cade; le altre tre restano |
+| premessa del turno giusto | non ricompare nei turni seguenti |
+
+**Conteggi separati (§16.3):** 3 relazioni imparate da un contatto ciascuna; 5/5
+trasferimenti corretti su soggetti tenuti fuori, tutti qualificati (un solo
+sostegno); 1 falsa generalizzazione nata, 1 ritirata per contatto; 0 falsi
+trasferimenti osservati nelle risposte; 1 caso di non-contatto correttamente
+ignorato.
+
+### 22.3 Che cosa questa misura NON dimostra (da non tacere)
+
+1. **Sulla KB viva le tre lezioni non erano necessarie**: «birthplace»,
+   «material» e «neighbour» sono già collegati (una costruzione, un
+   `relation_noun`, un cue di una catena compilata), e il banco li ritira in
+   memoria. La prova è che il *meccanismo* impara un nome nuovo da un contatto
+   ordinario e lo trasferisce; non che oggi riempia un buco reale. Un nome
+   davvero non collegato con fatti a sufficienza non l'ho trovato nel
+   censimento: la KB viva collega quasi ogni nome di relazione naturale.
+2. **Generalizza fra soggetti dentro una relazione**, e il *modo di imparare*
+   vale fra relazioni (zero righe per relazione). Non generalizza ancora a nomi
+   di più parole (R3), a relazioni solo derivate, a lingue diverse (non provato).
+3. **La falsa generalizzazione nasce facilmente**: una sola frase vera basta. La
+   difesa oggi è la lettura qualificata più il ritiro per contatto; manca una
+   verifica attiva (una domanda discriminante prima dell'uso, §15.2).
+
+### 22.4 Letture sbagliate dei lettori esistenti, viste sugli stessi contatti
+
+Non sono L3, ma i contatti le mostrano, e alcune **scrivono il falso**:
+
+- «Galileo Galilei, an astronomer, was born in Pisa.» → «Learned: astronomer was
+  born in pisa.»: il frame `born_in` lega l'apposizione come soggetto;
+- «France borders Spain, so Spain is its neighbour.» → «Held: france and spain so
+  spain is its neighbour share a border.»: la stessa specie di T2 (§17), l'oggetto
+  attraversa il confine della proposizione;
+- «Rome is in Italy, and Rome is its capital.» → «Scartato: located_in(rome,
+  italy_and_rome_is_its_capital) …», in italiano in una sessione inglese.
