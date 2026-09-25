@@ -39,7 +39,8 @@ contact_store($T, $N, $R, $E) :-
     naf(contact_episode($N, $R, $E)),
     contact_independent_here($T, $N, $R),
     assert(contact_episode, $N, $R, $E),
-    contact_store_shape($T, $N, $R, $E).
+    contact_store_shape($T, $N, $R, $E),
+    contact_note_via($T, $N, $R, $E).
 % ⛔ §14.4 — L'USO NON E' CONFERMA. Un episodio sostiene «N nomina R» solo se
 % R(S, O) nel turno non puo' essere il prodotto di quella stessa ipotesi.
 % «The Geburtsort of Kant is Konigsberg, so his Geburtsort is Konigsberg» e'
@@ -134,13 +135,19 @@ contact_contraction($T, $I, $J, $E) :-
 % I ruoli: due entita' della IR del turno per cui la KB tiene gia' R(S, O).
 % Le relazioni candidate sono quelle che la KB sa leggere (`extract_frame/2`):
 % una relazione senza lettura non ha niente da allineare.
-contact_episode_here($T, $N, $R, ep($S, $O, $Of)) :-
+contact_episode_here($T, $N, $R, $E) :-
+    contact_alignment_here($T, $R, $E, $Ws), eq_list_one($Ws, $N).
+% L'allineamento (ruoli, relazione tenuta, residuo) e' separato dalla scelta del
+% residuo: con una parola e' un episodio; con piu' parole e' un contatto QUASI
+% riuscito, che si conserva (I5, piu' sotto).
+machinery(contact_alignment_here).
+contact_alignment_here($T, $R, ep($S, $O, $Of), $Ws) :-
     contact_refers_here($T), contact_repeated_word($T, $W),
     input_scope_language($T, $L),
     findall($E, input_entity_node($T, $L, $I, $E), $Es),
     contact_role_pair($Es, $W, pair($S, $O), $Of), contact_readable_relation($R),
     kb_fact($R, cons($S, cons($O, nil))),
-    contact_residual($T, rel($R, $S, $O), $Ws), eq_list_one($Ws, $N).
+    contact_residual($T, rel($R, $S, $O), $Ws).
 % Le relazioni che la KB sa leggere. Cambiano solo quando cambiano i lettori,
 % quindi si congelano come `extract_frame/2` (grammar.p0): raccolte a ogni turno
 % costavano 200 ms, ricalcolate per ogni coppia di ruoli 1 s (misurato). Si
@@ -194,7 +201,8 @@ contact_unexplained($T, rel($R, $S, $O), $W) :-
     naf(referring_possessive($W)), naf(entity_pronoun($W)),
     atom_words($S, $SW), naf(member($W, $SW)),
     atom_words($O, $OW), naf(member($W, $OW)),
-    naf(contact_explained_before($R, $W)).
+    naf(contact_explained_before($R, $W)),
+    naf(contact_instrument_word($W)).
 % Una parola che la KB legge come R SOLO perche' un contatto l'ha proposta non e'
 % «gia' saputa»: ritrovarla in un contatto nuovo e' una CONFERMA, non una
 % spiegazione. Senza questa distinzione, dopo il §24 (l'ipotesi entra nel
@@ -462,8 +470,15 @@ contact_word_live($N) :- contact_bridge($N, $R).
 turn_has_withheld($T) :- turn_contact_withheld($T, $F, $N).
 turn_contact_dropped($T, $N, $R) :-
     contact_episode($N, $R, $E), naf(contact_word_live($N)), naf(contact_competing($N, $R)),
+    naf(contact_word_native($N)),
     turn_illocution($T, question), contact_token($T, $I, $W), contact_word_form($N, $W),
     naf(turn_has_withheld($T)).
+% una parola che la lingua gia' legge per un'altra via («capital») non e' caduta:
+% e' caduta solo la lettura che il contatto le aveva proposto
+machinery(contact_word_native).
+contact_word_native($N) :- contact_explained_before($R, $N).
+contact_word_native($N) :- answer_frame($N, $R).
+contact_word_native($N) :- relation_noun($R, $N).
 turn_plan_candidate($T) :- turn_contact_dropped($T, $N, $R).
 turn_priority_response($T, $Text) :-
     turn_contact_dropped($T, $N, $R), current_language($L), contact_why_reason($L, $N, $R, $Why),
@@ -478,3 +493,137 @@ contact_why_phrase(en, dropped, "I no longer read «").
 contact_why_phrase(en, dropped_handle, " You can still ask me with «").
 contact_why_phrase(it, dropped, "Non leggo piu' «").
 contact_why_phrase(it, dropped_handle, " Puoi ancora chiedermelo con «").
+
+% ── I5 — GLI STRUMENTI DEL CONTATTO SI IMPARANO PER CONTATTO (§1-bis n. 4) ──
+% «Einstein was born in Ulm; in other words, his Geburtsort is Ulm.» non
+% insegnava niente: «other» e «words» restavano nel residuo accanto al nome, e
+% la condizione vuole una parola sola. Nessuna riga dice che cosa sia «in other
+% words» (sarebbe L2+, §1-bis): il contatto quasi riuscito si CONSERVA, e quando
+% due contatti su relazioni DIVERSE lasciano le stesse parole in piu', quelle
+% parole compaiono qualunque sia la relazione, quindi non ne nominano nessuna:
+% nasce l'ipotesi che siano uno strumento del contatto. Il resto di ciascun
+% residuo e' il nome; i due contatti in sospeso si rileggono ed entrano come
+% episodi. Da li' le parole dello strumento non contano nel residuo, anche per
+% una relazione mai vista.
+% La CONDIZIONE APPRESA si corregge con lo stesso circuito: uno strumento vale
+% finche' almeno un episodio nato attraverso di lui regge. Se i controesempi
+% ordinari li smentiscono tutti, lo strumento cade (uno strato: resta leggibile).
+% Residuo dichiarato (G1): la regola d'induzione (intersezione fra relazioni
+% diverse, fino a quattro parole) e la politica di credito sono scritte qui.
+after_reply_bookkeeper(contact_near).
+machinery(contact_near).
+machinery(contact_near_here).
+machinery(contact_near_size).
+machinery(contact_stored_now).
+machinery(contact_near_store_all).
+machinery(contact_near_store_one).
+machinery(contact_near_shape).
+machinery(contact_near_shape_any).
+machinery(contact_near_shapes).
+machinery(contact_near_shape_one).
+machinery(contact_near_shape_possible).
+machinery(contact_instrument).
+machinery(contact_instrument_pair).
+machinery(contact_instrument_store_all).
+machinery(contact_instrument_store_one).
+machinery(contact_instrument_word).
+machinery(contact_instrument_in_force).
+machinery(contact_instrument_credited).
+machinery(contact_instrument_discredited).
+machinery(contact_episode_via).
+machinery(contact_note_via).
+machinery(contact_note_via_one).
+machinery(contact_instrument_here).
+machinery(contact_common).
+machinery(contact_common_member).
+machinery(contact_minus).
+machinery(contact_minus_member).
+machinery(contact_reread).
+machinery(contact_reread_shape).
+machinery(contact_tokens_all_words).
+turn_after_reply($T, contact_near) :-
+    naf(contact_negated($T)), naf(contact_stored_now($T)),
+    findall($A, contact_near_here($T, $A), $L), contact_near_store_all($T, $L).
+% il contabile dell'episodio ha gia' scritto in questo turno: niente da conservare
+contact_stored_now($T) :- kb_turn_act(contact_episode, $A, pos, new).
+contact_stored_now($T) :- kb_turn_act(contact_counter, $A, pos, new).
+contact_stored_now($T) :- kb_turn_act(contact_use, $A, pos, new).
+contact_near_here($T, near($R, $E, $Ws)) :-
+    contact_alignment_here($T, $R, $E, $Ws), contact_near_size($Ws).
+contact_near_size(cons($A, cons($B, nil))).
+contact_near_size(cons($A, cons($B, cons($C, nil)))).
+contact_near_size(cons($A, cons($B, cons($C, cons($D, nil))))).
+contact_near_store_all($T, nil).
+contact_near_store_all($T, cons(near($R, $E, $Ws), $L)) :-
+    contact_near_store_one($T, $R, $E, $Ws), contact_near_store_all($T, $L).
+contact_near_store_one($T, $R, $E, $Ws) :- contact_near($R, $E, $Ws).
+contact_near_store_one($T, $R, $E, $Ws) :-
+    naf(contact_near($R, $E, $Ws)), assert(contact_near, $R, $E, $Ws),
+    contact_near_shapes($T, $R, $E, $Ws),
+    findall($P, contact_instrument_pair($R, $E, $Ws, $P), $Ps), contact_instrument_store_all($Ps).
+% la forma di ciascuna parola candidata si prende ora: dopo, la IR del turno non c'e' piu'
+contact_near_shapes($T, $R, $E, nil).
+contact_near_shapes($T, $R, $E, cons($W, $Rest)) :-
+    contact_near_shape_one($T, $W, $R, $E), contact_near_shapes($T, $R, $E, $Rest).
+contact_near_shape_any($W, $R, $E) :- contact_near_shape($W, $R, sh($E, $Sh)).
+contact_near_shape_possible($T, $W, $R, ep($S, $O, $Of)) :-
+    contact_shape_here($T, $W, $O, $Sh0), contact_shape_known($R, $Sh0, $Sh).
+contact_near_shape_one($T, $W, $R, $E) :- contact_near_shape_any($W, $R, $E).
+contact_near_shape_one($T, $W, $R, ep($S, $O, $Of)) :-
+    naf(contact_near_shape_any($W, $R, ep($S, $O, $Of))),
+    contact_shape_here($T, $W, $O, $Sh0), contact_shape_known($R, $Sh0, $Sh),
+    assert(contact_near_shape, $W, $R, sh(ep($S, $O, $Of), $Sh)).
+contact_near_shape_one($T, $W, $R, $E) :-
+    naf(contact_near_shape_any($W, $R, $E)), naf(contact_near_shape_possible($T, $W, $R, $E)).
+% L'INDUZIONE: stesse parole in piu' su relazioni diverse, e un nome solo per parte.
+contact_instrument_pair($R1, $E1, $Ws1, pair($C, a($N1, $R1, $E1), a($N2, $R2, $E2))) :-
+    contact_near($R2, $E2, $Ws2), dif($R1, $R2),
+    contact_common($Ws1, $Ws2, $C), dif($C, nil),
+    contact_minus($Ws1, $C, $D1), eq_list_one($D1, $N1),
+    contact_minus($Ws2, $C, $D2), eq_list_one($D2, $N2).
+contact_common($Ws1, $Ws2, $C) :- findall($W, contact_common_member($Ws1, $Ws2, $W), $C).
+contact_common_member($Ws1, $Ws2, $W) :- member($W, $Ws1), member($W, $Ws2).
+contact_minus($Ws, $C, $D) :- findall($W, contact_minus_member($Ws, $C, $W), $D).
+contact_minus_member($Ws, $C, $W) :- member($W, $Ws), naf(member($W, $C)).
+contact_instrument_store_all(nil).
+contact_instrument_store_all(cons($P, $L)) :-
+    contact_instrument_store_one($P), contact_instrument_store_all($L).
+contact_instrument_store_one(pair($C, a($N1, $R1, $E1), a($N2, $R2, $E2))) :-
+    naf(contact_instrument_known_bad($C)), contact_instrument($C, from($E1, $E2)),
+    contact_reread($N1, $R1, $E1, $C), contact_reread($N2, $R2, $E2, $C).
+contact_instrument_store_one(pair($C, a($N1, $R1, $E1), a($N2, $R2, $E2))) :-
+    naf(contact_instrument_known_bad($C)),
+    naf(contact_instrument($C, from($E1, $E2))), assert(contact_instrument, $C, from($E1, $E2)),
+    contact_reread($N1, $R1, $E1, $C), contact_reread($N2, $R2, $E2, $C).
+% uno strumento gia' smentito non rinasce da una coppia nuova di contatti in
+% sospeso: la correzione vale per lo strumento, non per la coppia che l'aveva indotto
+contact_instrument_store_one(pair($C, $A1, $A2)) :- contact_instrument_known_bad($C).
+machinery(contact_instrument_known_bad).
+contact_instrument_known_bad($C) :- contact_instrument($C, $F), contact_instrument_discredited($C).
+% rileggere un contatto in sospeso con lo strumento: l'episodio, la sua forma,
+% e attraverso quale strumento e' nato
+contact_reread($N, $R, $E, $C) :-
+    naf(contact_episode($N, $R, $E)), assert(contact_episode, $N, $R, $E),
+    contact_reread_shape($N, $R, $E), assert(contact_episode_via, $N, $R, via($E, $C)).
+contact_reread($N, $R, $E, $C) :- contact_episode($N, $R, $E).
+contact_reread_shape($N, $R, $E) :-
+    contact_near_shape($N, $R, sh($E, $Sh)), naf(contact_shape($N, $R, $Sh)),
+    assert(contact_shape, $N, $R, $Sh).
+contact_reread_shape($N, $R, $E) :- contact_near_shape($N, $R, sh($E, $Sh)), contact_shape($N, $R, $Sh).
+contact_reread_shape($N, $R, $E) :- naf(contact_near_shape_any($N, $R, $E)).
+% un episodio nato mentre le parole di uno strumento in forza stavano nel turno
+% gli da' credito (o glielo toglie, se poi viene smentito)
+contact_note_via($T, $N, $R, $E) :-
+    findall($C, contact_instrument_here($T, $C), $Cs), contact_note_via_one($N, $R, $E, $Cs).
+contact_instrument_here($T, $C) :-
+    contact_instrument($C, $F), contact_instrument_in_force($C), contact_tokens_all($T, $C).
+contact_note_via_one($N, $R, $E, nil).
+contact_note_via_one($N, $R, $E, cons($C, $Cs)) :-
+    assert(contact_episode_via, $N, $R, via($E, $C)), contact_note_via_one($N, $R, $E, $Cs).
+% la trasparenza: le parole di uno strumento in forza non spiegano ne' nominano
+contact_instrument_word($W) :-
+    contact_instrument($C, $F), member($W, $C), contact_instrument_in_force($C).
+contact_instrument_in_force($C) :- contact_instrument($C, $F), naf(contact_instrument_discredited($C)).
+contact_instrument_discredited($C) :- naf(contact_instrument_credited($C)).
+contact_instrument_credited($C) :- contact_episode_via($N, $R, via($E, $C)), naf(contact_countered($N, $R)).
+view_depends(extract_frame, contact_episode_via).

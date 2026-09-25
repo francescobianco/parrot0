@@ -91,6 +91,29 @@ invece **non** riattiva un'ipotesi smentita (§16.2), quindi parrot0 non lo
 promette. Le frasi italiane sono scritte ma non verificate: «Dove è nato Kant?»
 oggi si ferma prima, sulla traduzione di «nato».
 
+### Insegnare uno strumento del contatto nuovo — per contatto (I5, 25 settembre)
+
+«in other words», «namely», «in short» oggi non sono nella KB: un contatto che li
+usa resta **in sospeso** (lo mostra `/debug`: `near(…)`). Non si insegnano con
+una frase sullo strumento. Basta usarli in **due** contatti su relazioni
+**diverse**: le parole che ricorrono qualunque sia la relazione diventano uno
+strumento, e i due contatti in sospeso si rileggono.
+
+```text
+Einstein was born in Ulm; in other words, his Geburtsort is Ulm.     (in sospeso)
+Steel is made of iron; in other words, its Werkstoff is iron.        (nasce lo strumento)
+France borders Spain; in other words, its Nachbar is Spain.          (relazione nuova: subito)
+```
+
+Uno strumento **sbagliato** si corregge con i controesempi ordinari delle
+ipotesi che ha portato: smentite tutte, cade, e un nuovo contatto con quelle
+parole non insegna più (`instrument(…, discredited)` in `/debug`). Esempio con
+fatti veri: «Rome is in Italy; moreover, Rome is its capital.» e «Galileo Galilei
+was born in Pisa; moreover, Pisa is his university.», poi «Milan is in Italy, but
+Milan is not its capital.» e «Einstein was born in Ulm, but Ulm is not his
+university.». Banco: `docs/labs/l3/I5/strumenti.p0t`; durata:
+`sh docs/labs/l3/I5/persistenza.sh`. Limiti: piano §26.4.
+
 ### Ciclo di una lezione per contatto
 
 È il §6 applicato al contatto; i gate di verità (§4) e il checkpoint (§6.8)

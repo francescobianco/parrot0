@@ -1,0 +1,85 @@
+# L3/I5 — gli strumenti del contatto si imparano per contatto (§1-bis n. 4, §16.1).
+# KB agi completa, nessun ponte seminato, nessuno strumento scritto in KB: il
+# maestro parla in lingua naturale con fatti veri. Le query diagnosticano.
+# Fissato il 25 settembre 2026, scritto insieme alla cura (dichiarato).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test prima: lo strumento nuovo blocca il contatto, e non e scritto da nessuna parte]
+!timeout 0
+!query! contact_instrument($C, $F)
+> Einstein was born in Ulm; in other words, his Geburtsort is Ulm.
+!query! contact_episode(geburtsort, born_in, $E)
+!query contact_near(born_in, ep(einstein, ulm, s), $Ws)
+> What is the Geburtsort of Napoleon?
+<~ I don't know about geburtsort
+<! ajaccio
+
+[test una relazione sola non basta a indurre lo strumento]
+!timeout 0
+> Galileo Galilei was born in Pisa; in other words, his Heimatstadt is Pisa.
+!query! contact_instrument($C, $F)
+!query! contact_episode(heimatstadt, born_in, $E)
+
+[test una seconda relazione con le stesse parole in piu: lo strumento nasce, i contatti in sospeso si rileggono]
+!timeout 0
+> Steel is made of iron; in other words, its Werkstoff is iron.
+!query contact_instrument(cons(words, nil), $F)
+!query contact_instrument_in_force(cons(words, nil))
+!query contact_episode(geburtsort, born_in, ep(einstein, ulm, s))
+!query contact_episode(werkstoff, made_of, ep(steel, iron, s))
+> What is the Geburtsort of Napoleon?
+<~ ajaccio
+> What is the Werkstoff of glass?
+<~ sand
+
+[test caso tenuto fuori: relazione nuova, lo strumento appreso basta]
+!timeout 0
+> France borders Spain; in other words, its Nachbar is Spain.
+!query contact_episode(nachbar, borders, $E)
+!query! contact_near(borders, $E, $Ws)
+> What is the Nachbar of Italy?
+<~ austria
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test uno strumento sbagliato si induce da due coincidenze vere]
+!timeout 0
+> Rome is in Italy; moreover, Rome is its capital.
+> Galileo Galilei was born in Pisa; moreover, Pisa is his university.
+!query contact_instrument_in_force(cons(moreover, nil))
+!query contact_episode(capital, located_in, $E)
+!query contact_episode(university, born_in, $E)
+
+[test la condizione appresa si corregge con lo stesso circuito: controesempi ordinari]
+!timeout 0
+> Milan is in Italy, but Milan is not its capital.
+!query contact_instrument_in_force(cons(moreover, nil))
+> Einstein was born in Ulm, but Ulm is not his university.
+!query! contact_instrument_in_force(cons(moreover, nil))
+!query contact_instrument(cons(moreover, nil), $F)
+!query born_in(einstein, ulm)
+> Where was Einstein born?
+<~ ulm
+
+[test caso tenuto fuori dopo la correzione: lo strumento screditato non insegna, uno buono si]
+!timeout 0
+> Napoleon was born in Ajaccio; moreover, his Geburtsort is Ajaccio.
+!query! contact_episode(geburtsort, born_in, $E)
+> What is the Geburtsort of Galileo Galilei?
+<! pisa
+> Einstein was born in Ulm; in other words, his Geburtsort is Ulm.
+> Steel is made of iron; in other words, its Werkstoff is iron.
+!query contact_instrument_in_force(cons(words, nil))
+!query! contact_instrument_in_force(cons(moreover, nil))
+> What is the Geburtsort of Galileo Galilei?
+<~ pisa
+> What is the capital of Germany?
+<~ Berlin

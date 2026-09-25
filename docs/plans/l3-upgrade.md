@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato (25 settembre, notte): contatto → lingua, ritiro per contatto, cortocircuiti e composizione; **soft-test rosso** dall'ultimo commit (handoff).**
+Stato (25 settembre, sera tardi): I0–I4 chiusi; **I5 primo circuito** (gli strumenti del contatto si imparano e si correggono per contatto, §26); aperti R3/§15 (acetone), parte del banco §16.2, domanda discriminante prima dell'uso. Soft-test verde (14 s).**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -39,7 +39,26 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 
 ---
 
-## HANDOFF vivo — audit di crescita, 25 settembre 2026 (in corso)
+## HANDOFF vivo — I5, 25 settembre 2026, sera tardi: RIPARTIRE QUI
+
+**Fatto:** I5, primo circuito (§26): uno strumento del contatto mai visto
+(«in other words») si induce da due contatti quasi riusciti su relazioni
+diverse, si usa su una relazione tenuta fuori, e uno strumento sbagliato
+(«moreover») cade con i controesempi ordinari degli episodi nati attraverso di
+lui. Banco `docs/labs/l3/I5/strumenti.p0t` **30/30**; durata provata con
+`docs/labs/l3/I5/persistenza.sh` (solo `make chat`). Zero C, zero forme.
+
+**Che cosa NON chiude L3** (§16.1, §16.3): R3 e l'esperimento dell'acetone
+(§15); il banco §16.2 per Paris/the capital, LED, citazione, `absent`/aggregati,
+limiti di ricerca, ablazione del consumer; la domanda discriminante prima
+dell'uso; la condizione strutturale (ruoli ripetuti, riferimento) non è ancora
+correggibile per contatto, solo il vocabolario degli strumenti (residuo §26.4).
+
+**Prossimo passo proposto:** R3 (residuo di più parole come candidati
+alternativi), che riapre l'acetone e mette alla prova l'induzione del §26 sui
+nomi composti; poi il banco §16.2 mancante.
+
+## HANDOFF vivo — audit di crescita, 25 settembre 2026 (chiuso)
 
 **Richiesta:** verificare l'implementazione rispetto all'ambizione di crescita
 per contatto con agenti maestri, migliorarla dove necessario e conservare qui
@@ -2592,3 +2611,92 @@ sarebbero diventate verdi per costruzione.
 gli stessi rossi, sulle stesse righe. In `retract.p0t` il vecchio template diceva
 «Knowing some **mans**», la composizione dice «knowing some **men**» (il plurale
 che la KB conosce).
+
+
+## 26. I5 — gli strumenti del contatto si imparano per contatto (25 settembre 2026)
+
+> *F.: «procedi con I5».* Condizione d'uscita del §16.1: «nuova relazione, nuovo
+> strumento di contatto e correzione della condizione appresa; nessun nuovo
+> teach-handler o schema di contatto; uso della condizione corretta su un caso
+> tenuto fuori dal dialogo».
+
+### 26.1 Il rosso, misurato prima
+
+La condizione di osservazione vuole un residuo di **una** parola. Misurato sulla
+KB viva con «Einstein was born in Ulm⟨X⟩ Geburtsort is Ulm.»: passa solo
+«; that is, his» (parole funzionali); **bloccano** «in other words», «namely»,
+«put differently», «which means», «in short», «and hence», «incidentally»,
+«moreover», «besides». Uno strumento del contatto nuovo era invisibile, e
+renderlo visibile chiedeva una riga dell'ingegnere: il passo falso del §1-bis.
+
+### 26.2 Il circuito (kb/core/contact.p0, zero C)
+
+1. **Il contatto quasi riuscito si conserva.** L'allineamento
+   (`contact_alignment_here/4`) è separato dalla scelta del residuo: una parola →
+   episodio, come prima; da due a quattro parole → `contact_near(R, E, Ws)`, con
+   la forma di ogni parola candidata presa subito (`contact_near_shape/3`),
+   perché dopo la IR del turno non c'è più.
+2. **L'induzione.** Due contatti in sospeso su relazioni **diverse** con parole in
+   più **comuni** (C), e un nome solo per parte: C compare qualunque sia la
+   relazione, quindi non ne nomina nessuna → `contact_instrument(C, from(E1, E2))`.
+   I due contatti si **rileggono** ed entrano come episodi, con la forma e con
+   `contact_episode_via(N, R, via(E, C))`.
+3. **L'uso.** Le parole di uno strumento in forza non contano nel residuo
+   (`contact_instrument_word/1` in `contact_unexplained`): un contatto successivo
+   con lo stesso strumento dà un episodio subito, per qualunque relazione.
+4. **La correzione con lo stesso circuito.** Uno strumento vale finché almeno un
+   episodio nato attraverso di lui non è smentito
+   (`contact_instrument_credited/1`). I controesempi sono quelli ordinari del
+   §22.1: smentite tutte le ipotesi che aveva portato, lo strumento cade (uno
+   strato: resta leggibile, `/debug` lo mostra `discredited`) e **non rinasce**
+   da una coppia nuova di contatti in sospeso (`contact_instrument_known_bad/1`,
+   trovato provando: la prima stesura lo re-induceva e gli ridava credito).
+
+### 26.3 Misure
+
+`docs/labs/l3/I5/strumenti.p0t` **30/30** (1 min 48 s, fuori dal soft-test):
+
+| prova | esito |
+|---|---|
+| prima: «…; in other words, his Geburtsort is Ulm.» | nessun episodio, contatto in sospeso; «I don't know about geburtsort» |
+| stessa relazione due volte («Heimatstadt») | nessuno strumento: una relazione sola non distingue strumento e nome |
+| seconda relazione («Steel is made of iron; in other words, its Werkstoff is iron.») | strumento `[words]` («other» è funzionale); Geburtsort → ajaccio, Werkstoff → sand |
+| **tenuto fuori, relazione nuova** («France borders Spain; in other words, its Nachbar is Spain.») | episodio subito; Nachbar of Italy → austria, … |
+| strumento sbagliato da due coincidenze vere («Rome … moreover, Rome is its capital.», «Galileo … moreover, Pisa is his university.») | `[moreover]` in forza, due ipotesi sbagliate nate |
+| controesempi ordinari («Milan … isn't its capital.», «Einstein … Ulm is not his university.») | dopo il primo lo strumento regge, dopo il secondo cade; `born_in(einstein, ulm)` resta (strato §14.6) |
+| **tenuto fuori dopo la correzione** («Napoleon … moreover, his Geburtsort is Ajaccio.») | nessun episodio; nella stessa sessione «in other words» insegna ancora |
+
+Regressioni: I2 `audit-crescita` 35, `ambiguita` 40, `banco` 16, `tecnica` 13,
+`generalizzazione` 19, `composizione` 7; `make soft-test` verde in 14 s.
+Durata (`docs/labs/l3/I5/persistenza.sh`, solo `make chat`, copia completa): nel
+processo nuovo «in other words» insegna Nachbar, «moreover» resta screditato.
+
+**Trovato e curato lungo la strada:** la risposta «parola caduta» del §19.3
+intercettava le parole con una lettura nativa: «What is the capital of Germany?»
+diceva «I no longer read «capital» as «is located in»…». Ora vale solo per una
+parola che la lingua non legge per nessun'altra via (`contact_word_native/1`).
+
+### 26.4 Prova del §1-bis e residuo, elencato
+
+- Nessuna `turn_form`, nessun lettore per uno strumento, nessuna parola di
+  strumento scritta in KB: «in other words» e «moreover» sono **risultati** di
+  contatti, con provenienza. Uno strumento mai visto si apprende senza patch.
+- Il **significato** dello strumento si corregge parlando, con lo stesso
+  controesempio ordinario che corregge un'ipotesi: nessun «no, qui è un
+  inciso» da riconoscere.
+
+**Residuo metalinguistico (G1), da non tacere:**
+
+1. la **regola d'induzione** (intersezione fra relazioni diverse, da due a
+   quattro parole, un nome per parte) e la **politica di credito** (vale finché
+   un episodio regge) sono scritte dall'ingegnere; non si correggono parlando;
+2. lo strumento è un **insieme di parole**, non una posizione: le sue parole sono
+   trasparenti ovunque nel residuo di un contatto;
+3. si apprende il **vocabolario** degli strumenti, non la **struttura** della
+   condizione: un soggetto ripreso per nome, un possessore sull'oggetto, un
+   residuo di più parole che È il nome (R3) restano fuori;
+4. un solo riempitivo non spiegato diventa ancora un **nome**: «…; moreover,
+   Spain is its neighbour» proporrebbe «moreover» ≈ `borders` (non provato,
+   dedotto dalla condizione): la cura naturale è che uno strumento noto non
+   possa essere un nome, oggi vale solo per quelli già indotti;
+5. le frasi italiane del §19.3 restano non verificate.
