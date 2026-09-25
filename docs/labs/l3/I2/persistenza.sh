@@ -18,11 +18,19 @@ chat() {
 }
 chat learn \
     'Einstein was born in Ulm, so his Geburtsort is Ulm.' \
-    'What is the Geburtsort of Napoleon?' '/save'
+    'What is the Geburtsort of Napoleon?' \
+    'The Geburtsort of Kant is Konigsberg.' \
+    'Where was Kant born?' '/save'
 chat withdraw \
     'What is the Geburtsort of Napoleon?' \
+    'Where was Kant born?' \
     'Marie Curie was born in Warsaw, but Warsaw is not her Geburtsort.' \
-    'What is the Geburtsort of Napoleon?' '/save'
-chat reopened 'What is the Geburtsort of Napoleon?'
+    'What is the Geburtsort of Napoleon?' \
+    'Where was Kant born?' \
+    'Where was Marie Curie born?' '/save'
+chat reopened \
+    'What is the Geburtsort of Napoleon?' \
+    'Where was Kant born?' \
+    'Where was Marie Curie born?'
 echo "--- diff della KB nella copia ---"
-diff -r "$ROOT/kb" "$WORK/kb" | grep -i 'contact\|geburtsort' || true
+diff "$ROOT/kb/learning/learned.p0" "$WORK/kb/learning/learned.p0" || true

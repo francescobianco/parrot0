@@ -124,6 +124,12 @@ typedef struct {
      * retract and recomputed both for every fact (20% of a profiled turn). */
     unsigned char nonground;
     uint64_t      phash;
+    /* L3 §14.6 — IN QUALE TURNO QUESTO CONTENUTO E' STATO DETTO L'ULTIMA VOLTA.
+     * Lo scrive ogni atto di sessione (nuovo o ripetuto), con l'orologio del
+     * turno (`paradox_turn`). Non si salva: e' la risposta a «che cosa ha
+     * scritto questo turno?» (`kb_turn_act/3`), non un fatto sul mondo. */
+    unsigned long stamp;
+    unsigned long born;    /* il turno in cui il contenuto e' ENTRATO (0 = base) */
 } Fact;
 
 /* A definite rule  head :- body[0], body[1], ...  (nbody >= 1). */
@@ -293,6 +299,13 @@ struct KB {
     /* §25.3 — il REGISTRO UNICO: il turno corrente (lo da' il registro delle
      * facolta', `kb_set_paradox_turn`), per datare `paradox_event/4`. */
     unsigned long paradox_turn;
+    /* L3 §14.6 — LO STRATO SOPRA I FATTI LETTI. I predicati di cui qualche
+     * fatto ha un sostegno di lettura registrato (`read_support/2`): solo quei
+     * fatti pagano la domanda `fact_withheld/1`. Sovrastima voluta (un ritiro
+     * non toglie il nome): costa una domanda in piu', mai una risposta. */
+    char          rs_preds[32][KB_TERM_LEN];
+    size_t        rs_npreds;
+    int           rs_busy;
     char          infer_goal[KB_TERM_LEN];
 
     PredStat *pred_stats;      /* the census; NULL = unavailable, scan instead */
@@ -645,6 +658,8 @@ static int kb_view_hybrid(const KB *kb, const char *pred);
 static size_t kb_view_slot(const KB *kb, const char *pred);
 static int view_rule_is_live(const KbView *v, size_t ri);
 static int kb_view_fact_visible(const KB *kb, const Fact *f);
+static void rs_note(KB *kb, const Fact *f);
+static int kb_fact_withheld(const KB *kb, const Fact *f, int neg);
 
 static uint64_t fact_hash_strings(const Fact *f);
 static uint64_t fact_hash(const Fact *f) {
@@ -1214,6 +1229,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
          * ora non perche' la sostituisce, ma perche' e' un atto in piu'. */
         int before = known->origin;
         known->origin |= kb->origin;
+        if (kb->origin & KB_SESSION) known->stamp = kb->paradox_turn;
         /* ⚠ L'INVALIDAZIONE E' PER LA CACHE, NON PER L'ATTO. Invalidando a ogni
          * cambio di origine, un fatto gia' noto che il turno ri-asserisce
          * buttava le viste materializzate (`extract_frame` fra le altre): i
@@ -1227,6 +1243,8 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
         return 1; /* contenuto gia' noto — l'atto si e' aggiunto */
     }
     f.origin = kb->origin;
+    if (kb->origin & KB_SESSION) f.stamp = f.born = kb->paradox_turn;
+    rs_note(kb, &f);
     if (!fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
                              &kb->fact_index, &kb->fact_index_cap, &f)) return 0;
     pred_stats_note(kb, kb->n - 1);
@@ -1498,8 +1516,12 @@ int kb_assert_neg_only(KB *kb, const char *pred, const char *const *args,
     if (!kb || argc > KB_MAX_ARGS) return 0;
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
-    if (kb_find_neg(kb, &f)) return 1; /* already known false */
+    { Fact *kn = (Fact *)kb_find_neg(kb, &f);
+      if (kn) {                         /* already known false */
+          if (kb->origin & KB_SESSION) kn->stamp = kb->paradox_turn;
+          return 1; } }
     f.origin = kb->origin;
+    if (kb->origin & KB_SESSION) f.stamp = f.born = kb->paradox_turn;
     int added = fact_append_indexed(&kb->neg, &kb->nn, &kb->ncap,
                                     &kb->neg_index, &kb->neg_index_cap, &f);
     if (added) kb_views_changed(kb, pred);
@@ -1530,7 +1552,8 @@ int kb_is_negated(const KB *kb, const char *pred, const char *const *args,
     if (!kb || argc > KB_MAX_ARGS) return 0;
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
-    return kb_find_neg(kb, &f) != NULL;
+    const Fact *n = kb_find_neg(kb, &f);
+    return n != NULL && !kb_fact_withheld(kb, n, 1);
 }
 
 int kb_is_conflicted(const KB *kb, const char *pred,
@@ -1538,7 +1561,8 @@ int kb_is_conflicted(const KB *kb, const char *pred,
     if (!kb || argc > KB_MAX_ARGS) return 0;
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
-    return kb_view_fact_visible(kb, kb_find(kb, &f)) && kb_find_neg(kb, &f) != NULL;
+    const Fact *n = kb_find_neg(kb, &f);
+    return kb_view_fact_visible(kb, kb_find(kb, &f)) && n != NULL && !kb_fact_withheld(kb, n, 1);
 }
 
 /* ----------------------------------------------------------------------------
@@ -2621,6 +2645,7 @@ static int clause_scan(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     for (size_t i = 0; i < kb->nn && !hit; i++) {
         const Fact *F = &kb->neg[i];
         if (bound && strcmp(F->pred, want) != 0) continue;
+        if (kb_fact_withheld(kb, F, 1)) continue;
         hit = visit(S, goals, ngoals, idx, s, depth, scratch,
                     F->pred, F->argc, F->args, 1, NULL, 0, F->origin);
     }
@@ -3234,6 +3259,37 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                 !unify(s2, g->args[1], list))
                 continue;
             if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+        }
+        return 0;
+    }
+
+    /* L3 §14.6 — CHE COSA HA DETTO QUESTO TURNO. `kb_turn_act(P, Args, Pol, K)`:
+     * i fatti (Pol = pos) e le negazioni esplicite (Pol = neg) che un atto di
+     * sessione ha scritto nel turno corrente; K = new se il contenuto e' entrato
+     * adesso, again se era gia' noto ed e' stato soltanto riaffermato. E' la domanda che la
+     * KB non poteva porre: quali conclusioni vengono da QUESTA lettura, per
+     * legarle a cio' che la lettura ha usato. Il C non sa perche' si chiede. */
+    if (strcmp(g->pred, "kb_turn_act") == 0 && g->argc == 4) {
+        unsigned long now = S->kb->paradox_turn;
+        if (!now) return 0;
+        for (int pass = 0; pass < 2; pass++) {
+            const Fact *tab = pass ? S->kb->neg : S->kb->facts;
+            size_t n = pass ? S->kb->nn : S->kb->n;
+            for (size_t i = 0; i < n; i++) {
+                if (i >= (pass ? S->kb->nn : S->kb->n)) break;
+                const Fact *f = &tab[i];
+                if (f->stamp != now) continue;
+                char list[KB_TERM_LEN];
+                if (!args_to_list(f->args, f->argc, list, sizeof list)) continue;
+                Subst *s2 = &scratch->subst;
+                subst_copy(s2, s);
+                if (!unify(s2, g->args[0], f->pred) ||
+                    !unify(s2, g->args[1], list) ||
+                    !unify(s2, g->args[2], pass ? "neg" : "pos") ||
+                    !unify(s2, g->args[3], f->born == now ? "new" : "again"))
+                    continue;
+                if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+            }
         }
         return 0;
     }
@@ -4292,8 +4348,55 @@ static int kb_fact_in_read_scope(const KB *kb, const Fact *f) {
     return pred_is_machinery_scoped(kb, f->pred);
 }
 
+/* L3 §14.6 / §19 — UNO STRATO, NON UNA CANCELLAZIONE. Un fatto a cui una
+ * lettura ha registrato dei sostegni (`read_support(fact(P, A.., Pol), Via)`)
+ * resta dimostrabile finche' la KB non dice `fact_withheld/1` di lui. Il C non
+ * sa che cosa sia un sostegno valido, un'ipotesi o un contatto: chiede. Ogni
+ * lettore lo eredita senza saperlo (§24). I fatti senza sostegni registrati —
+ * quasi tutti — non pagano niente oltre al confronto del predicato. */
+static int kb_fact_withheld(const KB *kb, const Fact *f, int neg) {
+    if (!kb || !f || kb->rs_npreds == 0 || kb->rs_busy) return 0;
+    int hit = 0;
+    for (size_t i = 0; i < kb->rs_npreds && !hit; i++)
+        hit = strcmp(kb->rs_preds[i], f->pred) == 0;
+    if (!hit) return 0;
+    char key[KB_TERM_LEN];
+    int o = snprintf(key, sizeof key, "fact(%s", f->pred);
+    for (size_t a = 0; a < f->argc && o > 0 && (size_t)o < sizeof key; a++)
+        o += snprintf(key + o, sizeof key - (size_t)o, ", %s", f->args[a]);
+    if (o <= 0 || (size_t)o >= sizeof key) return 0;
+    o += snprintf(key + o, sizeof key - (size_t)o, ", %s)", neg ? "neg" : "pos");
+    if ((size_t)o >= sizeof key) return 0;
+    KB *m = (KB *)kb;
+    int saved = m->read_mask;
+    m->read_mask = 0;
+    m->rs_busy = 1;
+    const char *q[1] = { key };
+    int w = kb_query(m, "fact_withheld", q, 1) ? 1 : 0;
+    m->rs_busy = 0;
+    m->read_mask = saved;
+    return w;
+}
+
+/* il predicato del fatto sostenuto: `read_support(fact(P, …), Via)` */
+static void rs_note(KB *kb, const Fact *f) {
+    if (!kb || !f || f->argc != 2 || strcmp(f->pred, "read_support") != 0) return;
+    const char *a = f->args[0];
+    if (strncmp(a, "fact(", 5) != 0) return;
+    a += 5;
+    char p[KB_TERM_LEN]; size_t n = 0;
+    while (a[n] && a[n] != ',' && a[n] != ')' && n + 1 < sizeof p) { p[n] = a[n]; n++; }
+    p[n] = '\0';
+    while (n && p[n - 1] == ' ') p[--n] = '\0';
+    if (!n) return;
+    for (size_t i = 0; i < kb->rs_npreds; i++) if (!strcmp(kb->rs_preds[i], p)) return;
+    if (kb->rs_npreds < sizeof kb->rs_preds / sizeof kb->rs_preds[0])
+        snprintf(kb->rs_preds[kb->rs_npreds++], KB_TERM_LEN, "%s", p);
+}
+
 static int kb_view_fact_visible(const KB *kb, const Fact *f) {
     if (f && !kb_fact_in_read_scope(kb, f)) return 0;
+    if (f && f->origin != KB_DERIVED && kb_fact_withheld(kb, f, 0)) return 0;
     if (!f || f->origin != KB_DERIVED) return f != NULL;
     size_t k = kb_view_slot(kb, f->pred);
     return k != (size_t)-1 &&
@@ -4526,6 +4629,7 @@ static int view_close(KB *kb, KbView *v, KbView *acc, size_t from) {
         }
         if (!strcmp(pred, "call") || !strcmp(pred, "apply") ||
             !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
+            !strcmp(pred, "kb_turn_act") ||
             !strcmp(pred, "kb_rule_body") || !strcmp(pred, "kb_clause") ||
             !strcmp(pred, "kb_clause_arg") || !strcmp(pred, "kb_derivation") ||
             !strcmp(pred, "kb_act") ||
@@ -5129,6 +5233,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
     int has_rule = (argc == 3 && strcmp(pred, "kb_act") == 0) ||         /* gli atti */
+                   (argc == 4 && strcmp(pred, "kb_turn_act") == 0) ||    /* cio' che il turno ha scritto */
                    (argc == 4 && (strcmp(pred, "kb_clause") == 0 ||      /* la clausola integra */
                                   strcmp(pred, "kb_clause_arg") == 0 ||    /* i suoi archi */
                                   strcmp(pred, "kb_derivation") == 0)) ||  /* e la sua prova */
@@ -5260,6 +5365,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0 &&
                     strcmp(pred, "atom_words") != 0 &&
                     strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
+                    strcmp(pred, "kb_turn_act") != 0 &&
                     strcmp(pred, "kb_rule_body") != 0 &&
                     strcmp(pred, "kb_clause") != 0 && strcmp(pred, "kb_derivation") != 0 &&
                     strcmp(pred, "kb_clause_arg") != 0 && strcmp(pred, "kb_act") != 0 &&
@@ -6090,7 +6196,14 @@ static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
     if (parse_neg_term(s, neg_pred, neg_args, &neg_argc)) {
         const char *argp[KB_MAX_ARGS];
         for (size_t i = 0; i < neg_argc; i++) argp[i] = neg_args[i];
-        return kb_assert_neg(kb, neg_pred, argp, neg_argc) ? 1 : 0;
+        /* L3 §14.6 — CARICARE NON E' CORREGGERE. Una riga `not(F)` e' una
+         * testimonianza, come la riga `F` di un altro file: `kb_assert_neg`
+         * (la mossa di chi corregge) toglieva il positivo della stessa origine,
+         * cioe' al boot cancellava `born_in(marie_curie, warsaw)` di
+         * world-facts.p0 per una negazione letta con un'ipotesi poi smentita e
+         * sospesa come strato. Il conflitto resta uno stato (gen512); chi ha
+         * corretto davvero ha gia' tolto la riga positiva dal file (RI-006). */
+        return kb_assert_neg_only(kb, neg_pred, argp, neg_argc) ? 1 : 0;
     }
 
     /* gen405: l'implicazione va cercata FUORI dalle stringhe. `intent_cue(playful,
@@ -8903,7 +9016,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
     static const char *const builtins[] = {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
-        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body",
+        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body","kb_turn_act",
         "kb_clause", "kb_clause_arg", "kb_act", "kb_derivation",
         "apply", "atom_words", "map_words", NULL };
     for (size_t i = 0; builtins[i]; i++)

@@ -136,6 +136,48 @@ ripetere il ciclo usando **MCP senza parametro path**, come farebbe un agente.
   (`make chat`, niente MCP), ciclo, conteggi, controlli e limiti aperti.
 - `make soft-test`: **verde in 15 s** (budget 15 s), al limite: nessun margine; la causa del secondo in più del §25.5 non è trovata.
 
+**La provenienza dell'ipotesi nei fatti letti (§14.6, fatto — stesso giorno).**
+Chiusi entrambi i rossi di questa radice, con due primitive generali nel motore
+e le decisioni in KB:
+
+- **motore, `src/kb.c`** — (1) ogni fatto (e ogni negazione) di sessione porta
+  il turno dell'ultimo atto e quello in cui è entrato; il builtin
+  `kb_turn_act(P, Args, Pol, new|again)` dice alla KB che cosa ha scritto il
+  turno. (2) **Lo strato**: `kb_view_fact_visible` (e le vie delle negazioni)
+  chiede `fact_withheld(fact(P, A, B, Pol))` per i soli fatti che hanno un
+  `read_support/2`; se vale, il fatto è invisibile a ogni lettore, non
+  cancellato. Il C non sa che cosa sia un'ipotesi o un contatto.
+- **KB, `kb/core/contact.p0`** — il contabile `contact_reading` (prima di
+  `contact`) lega ai fatti del turno il sostegno `hypothesis(N, R)` quando
+  vengono dalla parola di contatto (nessuna lettura indipendente di R nel turno;
+  o una negazione di un R(S, O) che vale), e `direct` quando un atto
+  indipendente riafferma un fatto già sostenuto da un'ipotesi. Un fatto già
+  noto riaffermato con la sola parola nuova (`again` senza sostegni) non riceve
+  niente: `born_in(napoleon, ajaccio)` non dipende dal ponte.
+  `fact_withheld(F)` vale se nessun sostegno è in forza (`direct`, o l'ipotesi
+  è ancora un ponte).
+- **loader** — una riga `not(F)` si carica con `kb_assert_neg_only`: caricare
+  non è correggere. Prima al boot cancellava `born_in(marie_curie, warsaw)` di
+  world-facts.p0 (trovato con `persistenza.sh`). Nella KB c'è un solo
+  `not(…)` (`magnetic(austenitic_stainless_steel)`) e nessun positivo gemello.
+
+**Misure.** `audit-crescita.p0t` **19/19** (i 5 contratti nuovi, aggiunti durante
+la cura e dichiarati tali, controllano anche il meccanismo: sostegno `neg`
+d'ipotesi, nessun sostegno su Napoleon, sostegno `direct` su Kant);
+`ambiguita` 40/40, `banco` 14/14, `tecnica` 13/13, `generalizzazione` 19/19,
+`composizione` 7/7; `make soft-test` verde in 15 s (invariato).
+`persistenza.sh` (solo `make chat`): nel terzo processo Napoleon → «I don't know
+about geburtsort», Kant → nessuna risposta (sospeso), Marie Curie → «warsaw».
+
+**Residui dichiarati.** Le viste congelate che contengono un fatto sospeso non
+si rifanno da sole (nessuna oggi misurata). Il loader dei positivi toglie
+ancora una negazione della stessa origine (asimmetria, nessun caso nella KB).
+Sospeso, Kant risponde «I don't understand that yet.»: la risposta non dice
+*perché* non lo sa più (§19.3: «Perché non lo sai più?» dovrebbe avere una
+risposta). La risposta «Learned: marie Curie was born in Warsaw, but Warsaw is
+not her Geburtsort.» del turno di controesempio è una resa sbagliata del lettore
+L2, non toccata.
+
 ## ⏸ HANDOFF precedente — 25 settembre 2026, notte
 
 **⛔ Primo compito di domani: il soft-test è ROSSO.** Con l'ultimo commit (la

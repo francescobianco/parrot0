@@ -25,6 +25,9 @@ machinery(contact_bridge).
 machinery(contact_bridge_withdrawn).
 machinery(contact_support).
 machinery(contact_gloss).
+% (prima il contabile della provenienza: l'osservazione di un episodio puo'
+% cosi' vedere quali fatti del turno sono stati letti con un'ipotesi)
+after_reply_bookkeeper(contact_reading).
 after_reply_bookkeeper(contact).
 
 % ── L'OSSERVAZIONE, dopo la risposta ───────────────────────────────────────
@@ -293,3 +296,65 @@ contact_gloss($R, $G) :-
 machinery(contact_drop_last).
 contact_drop_last(cons($W, nil), nil).
 contact_drop_last(cons($A, cons($B, $R)), cons($A, $T)) :- contact_drop_last(cons($B, $R), $T).
+
+% ── LA PROVENIENZA DELL'IPOTESI NEI FATTI LETTI (§14.6, §19) ───────────────
+% Una lettura fatta CON un'ipotesi porta l'ipotesi come dipendenza. Prima
+% «The Geburtsort of Kant is Konigsberg» scriveva born_in(kant, konigsberg) e,
+% ritirato il ponte, il fatto restava dimostrabile senza fonte (conseguenza
+% orfana); e «Marie Curie was born in Warsaw, but Warsaw is not her Geburtsort»
+% salvava not(born_in(marie_curie, warsaw)): la seconda porzione era letta con
+% l'ipotesi che stava smentendo. Ora dopo la risposta ogni fatto che il turno ha
+% scritto (`kb_turn_act/4`) e che viene dalla parola di contatto riceve un
+% sostegno `read_support(fact(R, S, O, Pol), hypothesis(N, R))`; un atto diretto
+% sullo stesso contenuto aggiunge `direct`. Il motore rende invisibile un fatto
+% di cui la KB dice `fact_withheld/1` — uno STRATO, niente si cancella: il fatto,
+% i suoi sostegni e la loro storia restano leggibili e si salvano.
+% Un fatto che la KB sapeva gia' (base o letto per altra via), riaffermato con la
+% sola parola nuova, NON riceve il sostegno d'ipotesi: non viene da lei.
+machinery(read_support).
+machinery(fact_withheld).
+machinery(read_support_in_force).
+machinery(contact_reading_support).
+machinery(contact_word_here).
+machinery(contact_through).
+machinery(contact_through_now).
+machinery(contact_independent_reading).
+machinery(contact_support_store_all).
+machinery(contact_support_store_one).
+turn_after_reply($T, contact_reading) :-
+    findall($P, contact_reading_pair($T, $P), $L), contact_support_store_all($L).
+% (il template di findall dev'essere una variabile: il termine nasce qui)
+machinery(contact_reading_pair).
+contact_reading_pair($T, sup($F, $V)) :- contact_reading_support($T, $F, $V).
+contact_reading_support($T, fact($R, $S, $O, $Pol), hypothesis($N, $R)) :-
+    contact_word_here($T, $N, $R),
+    kb_turn_act($R, cons($S, cons($O, nil)), $Pol, $K),
+    contact_through($T, fact($R, $S, $O, $Pol), $K).
+contact_reading_support($T, fact($R, $S, $O, $Pol), direct) :-
+    read_support(fact($R, $S, $O, $Pol), hypothesis($N, $R)),
+    kb_turn_act($R, cons($S, cons($O, nil)), $Pol, $K),
+    naf(contact_through_now($T, fact($R, $S, $O, $Pol))).
+contact_word_here($T, $N, $R) :-
+    contact_episode($N, $R, $E), contact_token($T, $I, $W), contact_word_form($N, $W).
+contact_through_now($T, fact($R, $S, $O, $Pol)) :-
+    contact_word_here($T, $N, $R), kb_turn_act($R, cons($S, cons($O, nil)), $Pol, $K),
+    contact_through($T, fact($R, $S, $O, $Pol), $K).
+% Il turno non dice R per nessun'altra via: il fatto nuovo viene dalla parola.
+contact_through($T, fact($R, $S, $O, $Pol), new) :- naf(contact_independent_reading($T, $R)).
+% Gia' letto con l'ipotesi, riletto con lei: lo stesso sostegno, non uno nuovo.
+contact_through($T, fact($R, $S, $O, $Pol), again) :-
+    read_support(fact($R, $S, $O, $Pol), hypothesis($N, $R)), naf(contact_independent_reading($T, $R)).
+% Un turno che NEGA R(S, O) mentre R(S, O) vale: la negazione non puo' venire
+% dalla lettura indipendente di R (che lo afferma); viene dalla parola.
+contact_through($T, fact($R, $S, $O, neg), $K) :-
+    contact_negated($T), kb_fact($R, cons($S, cons($O, nil))).
+contact_independent_reading($T, $R) :- contact_independent_word($T, $R, $W).
+contact_support_store_all(nil).
+contact_support_store_all(cons(sup($F, $V), $L)) :-
+    contact_support_store_one($F, $V), contact_support_store_all($L).
+contact_support_store_one($F, $V) :- read_support($F, $V).
+contact_support_store_one($F, $V) :- naf(read_support($F, $V)), assert(read_support, $F, $V).
+% Lo strato: un fatto con sostegni di lettura vale finche' uno e' in forza.
+fact_withheld($F) :- read_support($F, $V), naf(read_support_in_force($F)).
+read_support_in_force($F) :- read_support($F, direct).
+read_support_in_force($F) :- read_support($F, hypothesis($N, $R)), contact_bridge($N, $R).

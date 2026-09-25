@@ -85,7 +85,8 @@ restano identici.
    lettura deve cadere. Poi un secondo contatto indipendente la può riproporre.
 6. **`/debug`**, sonda `debug_contact` (43): `hypothesis(N, R, observations(K))`,
    `suspended(…, competing_reading)`, `used_not_confirmed`, `withdrawn`,
-   `countered`. È il modo di sapere che cosa è nato, senza grep.
+   `countered`, `read_through(fact, via)` (quali fatti sono stati letti con
+   l'ipotesi) e `withheld(fact)` (quali sono sospesi adesso). È il modo di sapere che cosa è nato, senza grep.
 7. **`/save`**, diff semantico (§9.2), e **processo `make chat` nuovo**: la
    domanda deve rispondere con la stessa riserva, il controesempio deve restare.
 
@@ -99,24 +100,23 @@ usano «Geburtsort» ↔ `born_in` come relazione di **controllo**: quel ponte n
 va salvato nella KB curata, o i banchi smettono di misurare. La persistenza del
 controllo si prova su una **copia completa** del repo con tre processi
 `make chat` (`sh docs/labs/l3/I2/persistenza.sh`, 25 settembre: lezione,
-controesempio e sospensione sopravvivono al riavvio, ricaduta
-`kb/learning/learned.p0`). Una lezione di contatto **vera e utile** su una
+controesempio, sospensione, fatti letti col ponte e loro sostegni sopravvivono
+al riavvio, ricaduta `kb/learning/learned.p0`). Una lezione di contatto **vera e utile** su una
 parola non di controllo segue invece la regola del segno d'uso reale («⛔ Ogni superficie
 scoperta lascia un segno d'uso reale nella KB», più sotto): si salva, si committa, si pusha.
 
 ### Limiti aperti — non spacciarli per capacità
 
-- **Conseguenze orfane**: un fatto letto *attraverso* il ponte
-  (`born_in(kant, konigsberg)`) resta dimostrabile dopo il ritiro del ponte
-  (`docs/labs/l3/I2/audit-crescita.p0t`, rosso). La provenienza per frase esiste
-  già (`fact_source/3`, `reading_fact/2` in `kb/machinery/fact-provenance.p0`)
-  ed è la strada del piano §14.6.
-- **Il controesempio letto col ponte scrive il falso**: `Marie Curie was born in
-  Warsaw, but Warsaw is not her Geburtsort.` salva anche
-  `not(born_in(marie_curie, warsaw))`, cioè nega un fatto vero perché legge la
-  seconda porzione con l'ipotesi che sta smentendo (25 settembre, prova di
-  persistenza). Finché non è chiuso, **leggere il diff dopo ogni correzione per
-  contatto** e non salvare un `not(…)` che contraddice il mondo.
+- ✅ **Chiuso il 25 settembre: conseguenze orfane e falso negativo.** Un fatto
+  letto *attraverso* un'ipotesi porta l'ipotesi come sostegno
+  (`read_support`); ritirata o smentita l'ipotesi, il fatto diventa invisibile
+  a ogni lettore **senza essere cancellato**, e torna se un atto diretto lo
+  sostiene («Kant was born in Konigsberg.»). Il controesempio «…, but Warsaw is
+  not her Geburtsort.» scrive ancora `not(born_in(marie_curie, warsaw))`, ma
+  quella negazione è sospesa con l'ipotesi che l'ha letta: «Where was Marie
+  Curie born?» resta «warsaw», anche dopo `/save` e un processo nuovo.
+  Nel diff dopo `/save` si vedono righe `read_support(fact(…), …)`: sono la
+  provenienza, e **si committano insieme al fatto** che sostengono.
 - Il residuo deve essere **una parola** («boiling point» non entra, R3); il
   possessore sull'oggetto («Rome is its capital») resta episodio senza lessico;
   un verbo si impara solo con il soggetto ripreso da un **pronome**.

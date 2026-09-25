@@ -31,3 +31,42 @@
 !query! born_in(kant, konigsberg)
 !query born_in(einstein, ulm)
 
+
+# Aggiunti il 25 settembre, DURANTE la cura della provenienza (§14.6): non
+# fissati prima. Il primo era rosso nella prova di persistenza (make chat).
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test il controesempio letto col ponte non nega il fatto vero]
+!timeout 0
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> Marie Curie was born in Warsaw, but Warsaw is not her Geburtsort.
+!query contact_counter(geburtsort, born_in, $E)
+!query read_support(fact(born_in, marie_curie, warsaw, neg), hypothesis(geburtsort, born_in))
+!query! read_support(fact(born_in, marie_curie, warsaw, pos), $V)
+!query born_in(marie_curie, warsaw)
+> Where was Marie Curie born?
+<~ arsaw
+
+[test un fatto gia noto ripetuto con la parola nuova non dipende da lei]
+!timeout 0
+!reset
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> The Geburtsort of Napoleon is Ajaccio.
+!query! read_support(fact(born_in, napoleon, ajaccio, pos), $V)
+!assert contact_bridge_withdrawn(geburtsort, born_in)
+!query born_in(napoleon, ajaccio)
+
+[test un atto diretto tiene in vita il fatto letto col ponte]
+!timeout 0
+!reset
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> The Geburtsort of Kant is Konigsberg.
+> Kant was born in Konigsberg.
+!query read_support(fact(born_in, kant, konigsberg, pos), hypothesis(geburtsort, born_in))
+!query read_support(fact(born_in, kant, konigsberg, pos), direct)
+!assert contact_bridge_withdrawn(geburtsort, born_in)
+!query born_in(kant, konigsberg)
