@@ -65,6 +65,32 @@ indipendenti (piano, handoff vivo).
 Dimenticare è uno **strato**, non una cancellazione (piano §19): il ritiro si
 salva come fatto e sopravvive al riavvio.
 
+**Chiedere perché non lo sa più** (piano §19.3, 25 settembre). Dopo un ritiro o
+un controesempio parrot0 non risponde con un muro: dice che cosa non tiene più,
+attraverso quale parola l'aveva letto e perché quella lettura è caduta, e che
+cosa si può fare. Si verifica così, sempre in `make chat`:
+
+```text
+Einstein was born in Ulm, so his Geburtsort is Ulm.
+The Geburtsort of Kant is Konigsberg.
+Marie Curie was born in Warsaw, but Warsaw is not her Geburtsort.
+Where was Kant born?
+  → I no longer hold «kant was born in konigsberg»: I had read it only through
+    «geburtsort», and I no longer read «geburtsort» as «was born in». You gave
+    me a counterexample: «marie curie was born in warsaw», and that is not
+    «geburtsort». If it is true, tell me in other words and I will hold it again.
+What is the Geburtsort of Napoleon?
+  → I no longer read «geburtsort» as «was born in». You gave me a
+    counterexample: … You can still ask me with «was born in».
+Kant was born in Konigsberg.        (atto diretto: il fatto torna in forza)
+```
+
+Le ragioni sono tre: controesempio, ritiro, letture concorrenti. Le maniglie
+sono **vere**: un atto diretto rimette in forza il fatto; un nuovo esempio
+invece **non** riattiva un'ipotesi smentita (§16.2), quindi parrot0 non lo
+promette. Le frasi italiane sono scritte ma non verificate: «Dove è nato Kant?»
+oggi si ferma prima, sulla traduzione di «nato».
+
 ### Ciclo di una lezione per contatto
 
 È il §6 applicato al contatto; i gate di verità (§4) e il checkpoint (§6.8)

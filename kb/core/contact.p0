@@ -358,3 +358,123 @@ contact_support_store_one($F, $V) :- naf(read_support($F, $V)), assert(read_supp
 fact_withheld($F) :- read_support($F, $V), naf(read_support_in_force($F)).
 read_support_in_force($F) :- read_support($F, direct).
 read_support_in_force($F) :- read_support($F, hypothesis($N, $R)), contact_bridge($N, $R).
+
+% ── «PERCHE' NON LO SAI PIU'?» (§19.3) ─────────────────────────────────────
+% Un fatto sospeso non e' un vuoto: la KB sa da quale lettura veniva e che cosa
+% l'ha fatta cadere. Prima «Where was Kant born?» cadeva nel fallback («I don't
+% understand that yet.»), come se Kant non fosse mai stato nominato. Ora una
+% domanda che nomina il soggetto e la relazione di un fatto sospeso riceve il
+% perche': la parola attraverso cui l'aveva letto, la lettura caduta e la sua
+% ragione (controesempio, ritiro, letture concorrenti) — e la maniglia per
+% ridarglielo: un atto diretto e' un sostegno che lo rimette in forza.
+% Le parole stanno qui, per lingua: nessuna frase nel C.
+machinery(turn_contact_withheld).
+machinery(contact_names_all).
+machinery(contact_tokens_all).
+machinery(contact_asks_relation).
+machinery(contact_spoken).
+machinery(contact_why_text).
+machinery(contact_why_reason).
+machinery(contact_why_phrase).
+turn_contact_withheld($T, fact($R, $S, $O, pos), $N) :-
+    read_support(fact($R, $S, $O, pos), hypothesis($N, $R)),
+    fact_withheld(fact($R, $S, $O, pos)),
+    turn_illocution($T, question), contact_names_all($T, $S), contact_asks_relation($T, $R).
+contact_names_all($T, $S) :- atom_words($S, $Ws), contact_tokens_all($T, $Ws).
+contact_tokens_all($T, nil).
+contact_tokens_all($T, cons($W, $Rest)) :- contact_token($T, $I, $W), contact_tokens_all($T, $Rest).
+% la domanda nomina R: con una parola che sceglie R nelle domande, con una
+% parola piena di una sua lettura, o con la parola di contatto stessa
+contact_asks_relation($T, $R) :- contact_token($T, $I, $W), answer_frame($W, $R).
+contact_asks_relation($T, $R) :-
+    contact_token($T, $I, $W), naf(word_is_function_word($W)), contact_relation_word($R, $W).
+contact_asks_relation($T, $R) :-
+    contact_token($T, $I, $W), contact_word_form($N, $W), contact_episode($N, $R, $E).
+turn_plan_candidate($T) :- turn_contact_withheld($T, $F, $N).
+turn_priority_response($T, $Text) :-
+    turn_contact_withheld($T, $F, $N), current_language($L), contact_why_text($L, $F, $N, $Text).
+contact_spoken($A, $Text) :- atom_words($A, $Ws), words_joined($Ws, $Text).
+contact_why_text($L, fact($R, $S, $O, pos), $N, $Text) :-
+    contact_prop_text($R, $S, $O, $Prop), contact_gloss($R, $G),
+    contact_why_reason($L, $N, $R, $Why),
+    contact_why_phrase($L, lead, $P1), contact_why_phrase($L, through, $P2),
+    contact_why_phrase($L, no_longer, $P3), contact_why_phrase($L, as, $P4),
+    contact_why_phrase($L, close, $P5), contact_why_phrase($L, handle, $P6),
+    concat_atoms($P1, $Prop, $A1), concat_atoms($A1, $P2, $A2), concat_atoms($A2, $N, $A3),
+    concat_atoms($A3, $P3, $A4), concat_atoms($A4, $N, $A5), concat_atoms($A5, $P4, $A6),
+    contact_why_tail($A6, parts($G, $P5, $Why, $P6), $Text).
+machinery(contact_why_tail).
+machinery(contact_prop_text).
+contact_why_tail($Head, parts($G, $Close, $Why, $Handle), $Text) :-
+    concat_atoms($Head, $G, $A1), concat_atoms($A1, $Close, $A2),
+    concat_atoms($A2, $Why, $A3), concat_atoms($A3, $Handle, $Text).
+% «S G O» con le parole della lettura nota di R («kant was born in konigsberg»)
+contact_prop_text($R, $S, $O, $Text) :-
+    contact_gloss($R, $G), contact_spoken($S, $SS), contact_spoken($O, $OS),
+    concat_atoms($SS, " ", $A1), concat_atoms($A1, $G, $A2), concat_atoms($A2, " ", $A3),
+    concat_atoms($A3, $OS, $Text).
+% la ragione per cui la lettura e' caduta, dalla piu' informativa
+contact_why_reason($L, $N, $R, $Why) :-
+    contact_counter($N, $R, ep($S2, $O2, $Of)), contact_prop_text($R, $S2, $O2, $Prop),
+    contact_why_phrase($L, countered, $C1), contact_why_phrase($L, countered_not, $C2),
+    contact_why_phrase($L, close, $C3),
+    concat_atoms($C1, $Prop, $B1), concat_atoms($B1, $C2, $B2),
+    concat_atoms($B2, $N, $B3), concat_atoms($B3, $C3, $Why).
+contact_why_reason($L, $N, $R, $Why) :-
+    naf(contact_countered($N, $R)), contact_bridge_withdrawn($N, $R),
+    contact_why_phrase($L, withdrawn, $Why).
+contact_why_reason($L, $N, $R, $Why) :-
+    naf(contact_countered($N, $R)), naf(contact_bridge_withdrawn($N, $R)),
+    contact_competing($N, $R), contact_why_phrase($L, competing, $C1),
+    contact_why_phrase($L, competing_tail, $C2),
+    concat_atoms($C1, $N, $B1), concat_atoms($B1, $C2, $Why).
+contact_why_phrase(en, lead, "I no longer hold «").
+contact_why_phrase(en, through, "»: I had read it only through «").
+contact_why_phrase(en, no_longer, "», and I no longer read «").
+contact_why_phrase(en, as, "» as «").
+contact_why_phrase(en, close, "».").
+contact_why_phrase(en, countered, " You gave me a counterexample: «").
+contact_why_phrase(en, countered_not, "», and that is not «").
+contact_why_phrase(en, withdrawn, " That reading was withdrawn.").
+contact_why_phrase(en, competing, " «").
+contact_why_phrase(en, competing_tail, "» now has competing readings.").
+contact_why_phrase(en, handle, " If it is true, tell me in other words and I will hold it again.").
+contact_why_phrase(it, lead, "Non tengo piu' «").
+contact_why_phrase(it, through, "»: l'avevo letto solo attraverso «").
+contact_why_phrase(it, no_longer, "», e non leggo piu' «").
+contact_why_phrase(it, as, "» come «").
+contact_why_phrase(it, close, "».").
+contact_why_phrase(it, countered, " Mi hai dato un controesempio: «").
+contact_why_phrase(it, countered_not, "», e quello non e' «").
+contact_why_phrase(it, withdrawn, " Quella lettura e' stata ritirata.").
+contact_why_phrase(it, competing, " «").
+contact_why_phrase(it, competing_tail, "» ha ora letture concorrenti.").
+contact_why_phrase(it, handle, " Se e' vero, dimmelo con altre parole e lo terro' di nuovo.").
+% E la PAROLA che non legge piu': «What is the Geburtsort of Napoleon?» dopo il
+% controesempio diceva «I don't know about geburtsort», come se la parola non
+% fosse mai stata incontrata. Ora dice quale lettura aveva e perche' e' caduta.
+% (Un fatto sospeso nominato nella stessa domanda ha la precedenza: dice di piu'.
+% Le letture concorrenti hanno gia' la loro risposta, `turn_contact_ambiguous`.)
+machinery(turn_contact_dropped).
+machinery(contact_word_live).
+machinery(turn_has_withheld).
+contact_word_live($N) :- contact_bridge($N, $R).
+turn_has_withheld($T) :- turn_contact_withheld($T, $F, $N).
+turn_contact_dropped($T, $N, $R) :-
+    contact_episode($N, $R, $E), naf(contact_word_live($N)), naf(contact_competing($N, $R)),
+    turn_illocution($T, question), contact_token($T, $I, $W), contact_word_form($N, $W),
+    naf(turn_has_withheld($T)).
+turn_plan_candidate($T) :- turn_contact_dropped($T, $N, $R).
+turn_priority_response($T, $Text) :-
+    turn_contact_dropped($T, $N, $R), current_language($L), contact_why_reason($L, $N, $R, $Why),
+    contact_gloss($R, $G), contact_why_phrase($L, dropped, $P1), contact_why_phrase($L, as, $P2),
+    contact_why_phrase($L, close, $P3), contact_why_phrase($L, dropped_handle, $P4),
+    concat_atoms($P1, $N, $A1), concat_atoms($A1, $P2, $A2), concat_atoms($A2, $G, $A3),
+    concat_atoms($A3, $P3, $A4), concat_atoms($A4, $Why, $A5), concat_atoms($A5, $P4, $A6),
+    concat_atoms($A6, $G, $A7), concat_atoms($A7, $P3, $Text).
+contact_why_phrase(en, dropped, "I no longer read «").
+% (la maniglia deve essere vera: un nuovo esempio NON riattiva un'ipotesi smentita,
+% §16.2; la relazione invece resta chiedibile con le sue parole)
+contact_why_phrase(en, dropped_handle, " You can still ask me with «").
+contact_why_phrase(it, dropped, "Non leggo piu' «").
+contact_why_phrase(it, dropped_handle, " Puoi ancora chiedermelo con «").

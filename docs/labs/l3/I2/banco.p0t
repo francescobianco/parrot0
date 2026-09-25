@@ -66,6 +66,10 @@
 !timeout 0
 !assert contact_bridge_withdrawn(birthplace, born_in)
 > What is the birthplace of Galileo Galilei?
-< I don't know about birthplace.
+# (25 settembre, §19.3: il muro «I don't know about birthplace.» e' diventato il
+# perche' — la via appresa cade lo stesso, e il valore non ricompare)
+<~ I no longer read «birthplace»
+<~ withdrawn
+<! pisa
 !query born_in(galileo_galilei, pisa)
 !query contact_episode(birthplace, born_in, ep(einstein, ulm, s))

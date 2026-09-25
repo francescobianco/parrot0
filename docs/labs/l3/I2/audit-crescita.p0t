@@ -70,3 +70,48 @@
 !query read_support(fact(born_in, kant, konigsberg, pos), direct)
 !assert contact_bridge_withdrawn(geburtsort, born_in)
 !query born_in(kant, konigsberg)
+
+# §19.3 — «perche' non lo sai piu'?» (25 settembre, scritti con la cura)
+[test il fatto sospeso dice perche: controesempio, e la maniglia lo ridà]
+!timeout 0
+!reset
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> The Geburtsort of Kant is Konigsberg.
+> Marie Curie was born in Warsaw, but Warsaw is not her Geburtsort.
+> Where was Kant born?
+<~ I no longer hold «kant was born in konigsberg»
+<~ only through «geburtsort»
+<~ counterexample: «marie curie was born in warsaw»
+<! I don't understand
+> What is the Geburtsort of Kant?
+<~ I no longer hold
+> Where was Einstein born?
+<~ ulm
+<! no longer
+> Kant was born in Konigsberg.
+> Where was Kant born?
+<~ konigsberg
+<! no longer
+
+[test il fatto sospeso dice perche: letture concorrenti]
+!timeout 0
+!reset
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> The Geburtsort of Kant is Konigsberg.
+> Steel is made of iron, so iron is its Geburtsort.
+> Where was Kant born?
+<~ competing readings
+<~ tell me in other words
+
+[test la parola che non legge piu dice perche, e come chiedere]
+!timeout 0
+!reset
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> Marie Curie was born in Warsaw, but Warsaw is not her Geburtsort.
+> What is the Geburtsort of Napoleon?
+<~ I no longer read «geburtsort» as «was born in»
+<~ counterexample
+<~ ask me with «was born in»
+<! ajaccio
+> Where was Napoleon born?
+<~ jaccio

@@ -178,6 +178,32 @@ risposta). La risposta «Learned: marie Curie was born in Warsaw, but Warsaw is
 not her Geburtsort.» del turno di controesempio è una resa sbagliata del lettore
 L2, non toccata.
 
+**«Perché non lo sai più?» (§19.3, fatto — stesso giorno).** Tutto in KB
+(`kb/core/contact.p0`, frasi per lingua in `contact_why_phrase/3`), nessun C:
+
+- una **domanda** che nomina soggetto e relazione di un fatto sospeso
+  (`turn_contact_withheld/3`) riceve il perché: la proposizione, la parola
+  attraverso cui era stata letta, la lettura caduta, la ragione
+  (`contact_why_reason/4`: controesempio con la sua coppia, ritiro, letture
+  concorrenti) e la maniglia vera («tell me in other words»: un atto diretto è
+  un sostegno `direct`);
+- una domanda che usa la **parola** caduta (`turn_contact_dropped/3`) dice quale
+  lettura aveva, perché è caduta e che la relazione resta chiedibile con le sue
+  parole. Prima diceva «I don't know about geburtsort», come se la parola non
+  fosse mai stata incontrata. La prima stesura prometteva «show me an example
+  and I can learn it again»: **falso** (un controesempio sospende qualunque sia
+  il numero dei sostegni, §16.2), provato in chat e tolto.
+
+Misure: `audit-crescita` **35/35**, `banco` 16/16 (rivalidata p6: il muro «I
+don't know about birthplace.» è diventato il perché, il valore resta assente),
+`ambiguita` 40, `tecnica` 13, `generalizzazione` 19, `composizione` 7;
+`make soft-test` verde in 14 s; `persistenza.sh`: la spiegazione si ricostruisce
+nel processo nuovo dai sostegni e dal controesempio salvati.
+**Aperto:** la frase italiana non è verificata («Dove è nato Kant?» si ferma
+sulla traduzione di «nato», lacuna del lettore italiano); il «perché» di un
+ritiro dice «That reading was withdrawn» senza chi o quando, perché oggi il
+ritiro (`contact_bridge_withdrawn/2`) non porta una ragione.
+
 ## ⏸ HANDOFF precedente — 25 settembre 2026, notte
 
 **⛔ Primo compito di domani: il soft-test è ROSSO.** Con l'ultimo commit (la
