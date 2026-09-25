@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27). **§28 H1 fatto** (una condizione del contatto si impara per contatto). **Il piano NON è chiuso:** manca il criterio d'esito del §7 e la prova ricorsiva sulle politiche (§16.3). L'elenco completo di ciò che manca, e la direzione ricavata dai commit, sta nell'handoff «che cosa manca per chiudere». Soft-test verde (15 s, al limite).**
+Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27). **§28 H1–H2 fatti** (una condizione del contatto si impara per contatto; la categoria che il contatto conclude entra nel chunker). **Il piano NON è chiuso:** manca il criterio d'esito del §7 e la prova ricorsiva sulle politiche (§16.3). L'elenco completo di ciò che manca, e la direzione ricavata dai commit, sta nell'handoff «che cosa manca per chiudere». Soft-test verde (15 s, al limite).**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -176,9 +176,10 @@ punto aperto si può dichiarare residuo solo con la sua misura.
 l'apprendimento di ordine superiore»).** Il lavoro è ripartito dal punto 2, non
 dal 5. §28: le condizioni dell'osservatore diventano luoghi di ordine superiore.
 **H1 fatto** (§28.5): il modo di riferirsi «per nome» si impara per contatto e si
-corregge con i controesempi (26/26, regressioni L3 verdi, zero C). Il prossimo
-passo è la condizione «ruoli = entità della lettura» (§28.3), cioè il difetto
-del chunker affrontato come lezione di ordine superiore. La proposta qui sotto
+corregge con i controesempi (26/26, regressioni L3 verdi, zero C). **H2 fatto**
+(§28.6): il difetto del chunker (`hegel_hails`, `acetone_boils`) si cura con la
+lezione del contatto, perché la regola di classe esisteva già. Il prossimo passo
+è in fondo al §28.6. La proposta qui sotto
 resta come alternativa.
 
 **Prossimo passo proposto (prima del §28):** il punto 5, a partire dal «No.» falso. Prima si
@@ -3107,3 +3108,72 @@ soft-test (Makefile, motivato): verde in 3 s.
 superiore è un confine di sintagma nella rappresentazione di L2
 (`reading_boundary_lesson`). Così il difetto `acetone_boils` si cura con una
 lezione e non con una patch.
+
+### 28.6 H2 — la categoria che il contatto conclude entra nella lettura (25 settembre 2026)
+
+> *F.: «procedi con il prossimo passo del §28.3».*
+
+**Che cosa è cambiato rispetto all'ipotesi del §28.3.** La riga 3 prevedeva
+un'induzione: discrepanze ricorrenti fra i ruoli del contatto e le entità del
+chunker su relazioni diverse → una lezione di classe (`reading_boundary_class`).
+Misurando si è visto che non ce n'era bisogno:
+
+- La regola di classe «un verbo chiude il sintagma» **c'è già**:
+  `bare_noun_candidate` esclude `word_is_verb_form/1`. Mancava soltanto che il
+  contatto, quando conclude «N è un verbo di R» (forma `verb`, §24.1), ne
+  scrivesse il membro. Il difetto del chunker era la stessa KB muta del §24, un
+  piano più giù: la conclusione del contatto non raggiungeva la categoria che il
+  chunker consulta.
+- L'induzione del §28.3 non si poteva nemmeno esercitare con conoscenza vera: le
+  discrepanze reali (`acetone_boils`, `ethanol_boils`, `nitrogen_boils`,
+  `mercury_freezes`) hanno quasi tutte valori in prosa (etanolo, azoto,
+  mercurio) che il contatto non allinea. Il mercurio perde anche il segno meno
+  già nei token della IR («-39» non è un token).
+
+**La cura (kb/core/contact.p0, zero C):**
+
+- `word_is_verb_form(W) :- contact_verb_word(W)`: un membro della classe è la
+  parola (o la sua radice) di un'ipotesi in forza con forma `verb`;
+- la **testa di una relazione nominata dalle sue parole**, usata subito dopo il
+  soggetto nel turno che ha dato un episodio («acetone BOILS AT 56 …»), si
+  registra come `contact_named_verb(boils_at, boils)` (nuovo contabile) ed entra
+  nella classe finché la relazione ha un ponte in forza;
+- ritirata l'ipotesi, il verbo esce dalla classe: è uno strato, nulla si cancella.
+
+**Misure.** `docs/labs/l3/H2/categoria.p0t` **13/13** (1 min):
+
+| prova | esito |
+|---|---|
+| prima: «Hegel hails from Stuttgart.» | entità `hegel_hails` |
+| dopo «Einstein was born in Ulm, so he hails from Ulm.» | `hegel`, non `hegel_hails`; `born_in(hegel, stuttgart)`; «Where does Hegel hail from?» → stuttgart |
+| ritirata l'ipotesi (ablazione dichiarata) | «Kant hails from Konigsberg.» → di nuovo `kant_hails` |
+| acetone, setup §15.1: base | «Nitrogen boils at -196 …» → `nitrogen_boils` |
+| dopo il contatto sull'acetone | `contact_named_verb(boils_at, boils)`; nitrogen non incollato; «Methanol boils at 65 …» → `methanol` |
+
+**Che cosa se ne ricava per l'ipotesi di F.** Il difetto si è curato con una
+**lezione**, non con una patch del chunker: la stessa frase ordinaria che
+insegna la relazione insegna anche la categoria, e la regola generale della
+lingua fa il resto. Combinato con H1, un verbo imparato con il soggetto ripreso
+per nome chiude anch'esso il sintagma (stesso predicato, non provato a parte).
+L'induzione di classe del §28.3 resta disponibile per i casi in cui una regola
+di classe **non** esiste già.
+
+**Residuo, da non tacere:**
+
+1. La testa nominata entra nella classe con **un solo** contatto, legata al
+   ponte della relazione e non a un proprio credito: non ha controesempio suo.
+2. «Acetone boils at 56 degrees Celsius.» resta illeggibile come affermazione:
+   la categoria è entrata, la cornice «@S boils at @O» no (§27.5).
+3. I valori in prosa di `boils_at`/`freezes_at` e il segno meno perso nei token
+   restano fuori: sono la condizione per esercitare davvero l'induzione del §28.3.
+4. `word_is_verb_form/1` è nel percorso caldo del chunker: la nuova clausola
+   costa una ricerca per parola solo quando esistono episodi.
+
+**Regressioni:** I2 35/40/16/13/19/7, I5 30, R3 23, H1 26 — tutte verdi;
+`make soft-test` verde in 3 s.
+
+**Prossimo passo proposto.** La cornice dell'affermazione per la relazione
+nominata («Acetone boils at 56 degrees Celsius.» → `boils_at`), presa dallo
+stesso contatto che ha dato la testa verbale e **con la provenienza
+dell'ipotesi**, così che un ritiro la sospenda. Poi la percezione dei valori in
+prosa, che apre l'induzione di classe del §28.3 su casi veri.

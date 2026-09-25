@@ -1,0 +1,55 @@
+# L3/§28 H2 — la categoria che il contatto conclude entra nella lettura.
+# KB agi completa, fatti veri. Rosso misurato prima della cura (25 settembre 2026):
+# dopo aver imparato «hails» come verbo di born_in, «Hegel hails from Stuttgart.»
+# si leggeva con l'entita' hegel_hails e senza hegel.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test prima: senza contatto il chunker incolla il verbo al soggetto]
+!timeout 0
+> Hegel hails from Stuttgart.
+!query input_entity_node(current_turn, en, $I, hegel_hails)
+
+[test il verbo appreso per contatto chiude il sintagma, per ogni lettore]
+!timeout 0
+> Einstein was born in Ulm, so he hails from Ulm.
+!query contact_bridge(hails, born_in)
+> Hegel hails from Stuttgart.
+!query input_entity_node(current_turn, en, $I, hegel)
+!query! input_entity_node(current_turn, en, $I, hegel_hails)
+!query born_in(hegel, stuttgart)
+> Where does Hegel hail from?
+<~ stuttgart
+
+[test ritirata l'ipotesi, il verbo esce dalla classe (ablazione dichiarata)]
+!timeout 0
+!assert contact_bridge_withdrawn(hails, born_in)
+> Kant hails from Konigsberg.
+!query input_entity_node(current_turn, en, $I, kant_hails)
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test acetone: setup dichiarato (§15.1) e base del chunker]
+!timeout 0
+!forget construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at)
+!forget extract_frame("the boiling point of @S is @O", boils_at)
+> Nitrogen boils at -196 degrees Celsius.
+!query input_entity_node(current_turn, en, $I, nitrogen_boils)
+
+[test acetone: la testa della relazione nominata diventa verbo]
+!timeout 0
+> Acetone boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.
+!query contact_episode(boiling_point, boils_at, $E)
+!query contact_named_verb(boils_at, boils)
+> Nitrogen boils at -196 degrees Celsius.
+!query! input_entity_node(current_turn, en, $I, nitrogen_boils)
+> Methanol boils at 65 degrees Celsius.
+!query input_entity_node(current_turn, en, $I, methanol)
+!query! input_entity_node(current_turn, en, $I, methanol_boils)

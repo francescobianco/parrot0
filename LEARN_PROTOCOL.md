@@ -154,6 +154,14 @@ but Milan is not the capital of Italy.», «Glass is made of sand, but glass is
 not harder than sand.»), non rinasce, e il pronome continua a insegnare. Banco:
 `docs/labs/l3/H1/riferimento.p0t`. Limiti: piano §28.5.
 
+**Effetto sulla lettura (H2).** Un verbo imparato per contatto («so he hails
+from Ulm»), o la testa di una relazione nominata dalle sue parole («Acetone
+boils at …» in un contatto riuscito), entra nella classe dei verbi che chiudono
+un sintagma. Dopo, «Hegel hails from Stuttgart.» si legge con `hegel`, non
+`hegel_hails`. Il controllo si fa con `/debug`, la sonda delle entità del turno
+(`debug_turn_entity`). Ritirata l'ipotesi, il verbo esce dalla classe. Banco:
+`docs/labs/l3/H2/categoria.p0t`; limiti: piano §28.6.
+
 ### Ciclo di una lezione per contatto
 
 È il §6 applicato al contatto; i gate di verità (§4) e il checkpoint (§6.8)

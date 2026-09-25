@@ -872,3 +872,39 @@ contact_instrument_here($T, way($Way)) :-
     contact_way_in_force($Way), contact_refers_by($T, $Way), naf(contact_seed_refers($T)).
 contact_seed_refers($T) :- contact_reference_seed($W), contact_refers_by($T, $W).
 view_depends(extract_frame, contact_reference_learned).
+
+% ── §28 H2 — LA CATEGORIA CHE IL CONTATTO CONCLUDE ENTRA NELLA LETTURA ──────
+% Dopo «Einstein was born in Ulm, so he hails from Ulm.» parrot0 sa che «hails»
+% e' un verbo di born_in (§24.1), eppure «Hegel hails from Stuttgart.» si leggeva
+% con l'entita' `hegel_hails` e senza `hegel` (misurato): il chunker chiude un
+% sintagma davanti a un verbo (`word_is_verb_form/1` in `bare_noun_candidate`),
+% ma la classe non sapeva della conclusione del contatto. Lo stesso per la testa
+% di una relazione nominata dalle sue parole («Acetone boils at …»: `acetone_boils`).
+% La regola di classe «un verbo chiude il sintagma» c'era gia': mancava che il
+% contatto ne scrivesse i membri. Vale finche' vale l'ipotesi: ritirata lei, il
+% verbo esce dalla classe (uno strato, §19).
+machinery(contact_verb_word).
+machinery(contact_named_verb).
+machinery(contact_named_head).
+word_is_verb_form($W) :- contact_verb_word($W).
+contact_verb_word($W) :-
+    contact_word_form($N, $W), contact_shape($N, $R, verb($Mid, $K)), contact_bridge($N, $R).
+contact_verb_word($W) :- contact_named_verb($R, $W), contact_bridge($N, $R).
+% La testa: nel turno che ha dato un episodio nuovo, le parole che nominano la
+% relazione R seguono subito il soggetto («acetone BOILS AT 56 …»): la prima e'
+% usata come verbo di R.
+after_reply_bookkeeper(contact_named_verb).
+turn_after_reply($T, contact_named_verb) :-
+    findall($P, contact_named_head($T, $P), $L), contact_named_verb_store_all($L).
+contact_named_head($T, h($R, $A)) :-
+    contact_new_episode(e($N, $R, ep($S, $O, $Of))),
+    atom_words($S, $SWs), contact_last_word($SWs, $SW), contact_token($T, $P, $SW),
+    input_node_next($T, $P, $I), contact_token($T, $I, $A), input_node_next($T, $I, $J),
+    contact_token($T, $J, $B), words_underscored(cons($A, cons($B, nil)), $R).
+machinery(contact_named_verb_store_all).
+contact_named_verb_store_all(nil).
+contact_named_verb_store_all(cons(h($R, $A), $L)) :-
+    contact_named_verb_store_one($R, $A), contact_named_verb_store_all($L).
+machinery(contact_named_verb_store_one).
+contact_named_verb_store_one($R, $A) :- contact_named_verb($R, $A).
+contact_named_verb_store_one($R, $A) :- naf(contact_named_verb($R, $A)), assert(contact_named_verb, $R, $A).
