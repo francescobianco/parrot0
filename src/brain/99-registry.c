@@ -8124,6 +8124,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         b->canon_turn = 0;
         b->canon_raw = NULL;
     }
+    p0_split_clitics(b, canon, sizeof canon);
     p0_trace(b, "turn", "canon «%s»", canon);
     p0_trace(b, "read.canon", "«%s» -> «%s»\n", norm, canon);
     p0_publish_question_focus(b, canon);

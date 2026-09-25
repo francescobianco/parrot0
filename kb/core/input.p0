@@ -455,3 +455,13 @@ word_joiner(-).
 machinery(number_sign).
 class_surface(number_sign, number sign).
 number_sign(-).
+% L3 §29 (25 settembre 2026) — UN CLITICO E' UNA PAROLA A SE'. Un membro di
+% `word_clitic/1` in coda a una parola, dopo una lettera, si stacca e diventa una
+% parola del turno canonico (99-registry.c, dopo le contrazioni): «france's» →
+% «france 's». Prima nessuna lezione poteva nominare la struttura del genitivo:
+% «what is x's y means what is the y of x» veniva rifiutata perche' «x's» era
+% una parola sola e la variabile x non c'era. Le contrazioni note («what's»,
+% «it's») si sciolgono prima e non arrivano qui. Nessun membro e' scritto: si
+% insegna dicendolo («"'s" is a clitic») e si ritira allo stesso modo.
+machinery(word_clitic).
+class_surface(word_clitic, clitic).

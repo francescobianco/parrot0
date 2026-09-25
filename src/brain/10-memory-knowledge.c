@@ -2508,6 +2508,54 @@ static void language_set(Brain *b, const char *lang) {
  * nella lingua che la politica sceglie, e la lingua della conversazione
  * torna com'era. E' anche la cura di «non hai i passi» canonicalizzato in
  * inglese dentro una lezione inglese (TEST_TODO, terzo giro). */
+/* L3 §29 — UN CLITICO E' UNA PAROLA A SE'. I clitici sono conoscenza
+ * (`word_clitic/1`, insegnata con «"'s" is a clitic»); qui soltanto la
+ * meccanica: un membro in coda a una parola, dopo una lettera o una cifra, si
+ * stacca («france's» → «france 's»), la punteggiatura finale resta attaccata.
+ * Si fa dopo le contrazioni, che hanno gia' sciolto «what's», «it's». */
+static void p0_split_clitics(Brain *b, char *text, size_t size) {
+    if (!b || !b->kb || !text || !*text) return;
+    char cl[8][KB_TERM_LEN]; size_t ncl = 0;
+    {
+        char rows[8][KB_TERM_LEN];
+        const char *q[1] = { NULL };
+        size_t n = kb_match(b->kb, "word_clitic", q, 1, rows, 8);
+        for (size_t i = 0; i < n; i++) {
+            char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+            const char *c = kb_dequote(rb);
+            if (c && *c) snprintf(cl[ncl++], KB_TERM_LEN, "%s", c);
+        }
+    }
+    if (!ncl) return;
+    char out[4096]; size_t o = 0;
+    const char *p = text;
+    while (*p && o + 1 < sizeof out) {
+        if (*p == ' ') { out[o++] = *p++; continue; }
+        const char *e = p; while (*e && *e != ' ') e++;
+        size_t wl = (size_t)(e - p), core = wl;
+        while (core > 0 && strchr("?.,!;:", p[core - 1])) core--;
+        size_t cut = 0;
+        for (size_t k = 0; k < ncl && !cut; k++) {
+            size_t cln = strlen(cl[k]);
+            if (core > cln && !strncasecmp(p + core - cln, cl[k], cln) &&
+                isalnum((unsigned char)p[core - cln - 1])) cut = core - cln;
+        }
+        if (cut && o + wl + 2 < sizeof out) {
+            memcpy(out + o, p, cut); o += cut;
+            out[o++] = ' ';
+            memcpy(out + o, p + cut, wl - cut); o += wl - cut;
+        } else if (o + wl < sizeof out) {
+            memcpy(out + o, p, wl); o += wl;
+        }
+        p = e;
+    }
+    out[o] = '\0';
+    if (strcmp(out, text)) {
+        p0_trace(b, "read.canon", "clitic «%s» -> «%s»\n", text, out);
+        snprintf(text, size, "%s", out);
+    }
+}
+
 static void canonicalize_fragment(Brain *b, const char *norm, char *out, size_t out_size) {
     if (!b || !b->kb) { canonicalize_lang(b, norm, out, out_size); return; }
     char conv[KB_TERM_LEN], sel[KB_TERM_LEN];
@@ -2517,9 +2565,11 @@ static void canonicalize_fragment(Brain *b, const char *norm, char *out, size_t 
         language_set(b, sel);
         canonicalize_lang(b, norm, out, out_size);
         language_set(b, conv);
+        p0_split_clitics(b, out, out_size);
         return;
     }
     canonicalize_lang(b, norm, out, out_size);
+    p0_split_clitics(b, out, out_size);
 }
 
 static void detect_set_language(Brain *b, const char *norm) {

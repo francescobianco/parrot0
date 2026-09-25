@@ -1,0 +1,50 @@
+# Il genitivo sassone si insegna con due lezioni L2 in lingua naturale (§29).
+# KB agi completa, fatti veri. Rosso misurato prima: «What is France's capital?»
+# e' un muro, e la lezione di forma «what is x's y means …» veniva rifiutata
+# perche' «x's» era una parola sola. `word_clitic/1` parte vuoto: lo stacco del
+# clitico non cambia niente finche' nessuno lo insegna.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test prima: il genitivo e un muro, la forma non si insegna]
+!timeout 0
+> What is France's capital?
+<! Paris
+> what is x's y means what is the y of x
+<~ I cannot align the same variables
+!query! word_clitic($C)
+
+[test la lezione del clitico, poi la forma con le variabili]
+!timeout 0
+> "'s" is a clitic
+<~ clitic
+> What is ethanol's boiling point?
+<! 78
+> what is x's y means what is the y of x
+<~ From now on I'll read
+
+[test il caso insegnato e due relazioni tenute fuori]
+!timeout 0
+> What is France's capital?
+<~ Paris
+> What is ethanol's boiling point?
+<~ 78 degrees Celsius
+> What is Hamlet's author?
+<~ shakespeare
+
+[test contrasti: la contrazione e la polare non cambiano]
+!timeout 0
+> What's the capital of Italy?
+<~ Rome
+> Is Paris the capital of France?
+<~ Yes
+
+[test ritiro del clitico: la forma resta, ma il genitivo torna muro]
+!timeout 0
+> forget that "'s" is a clitic
+<~ no longer
+> What is Germany's capital?
+<! Berlin

@@ -3352,3 +3352,53 @@ perdesse una prova. Ecco che cosa è mancato, in ordine di costo:
 Il lavoro dell'agente riprende da qui: gli strumenti, non il circuito. Il
 circuito resta in albero **non committato** (segno meno in C e KB, valore in
 prosa, uso verificato alla seconda stesura), con lo stato scritto nel §28.8.
+
+## 29. L'esperimento a passi: il genitivo sassone, e che cosa lo bloccava (25 settembre 2026)
+
+> *F.: «trova un prompt che sai che parrot0 non gestisce e mostrami le lezioni»*,
+> poi *«questi prompt non funzionano perché L3 non è finito o per altro?»*,
+> *«prova se una lezione L2 insegna la classe del genitivo»*, *«procedi con la
+> lezione del clitico»*.
+
+**Il prompt.** «What is France's capital?» è una **classe**: per ogni nome di
+relazione la forma «the N of X» risponde (Paris, 78 °C, william_shakespeare),
+«X's N» no. I fatti ci sono, manca la strada.
+
+**Perché non funzionava.** Non per L3: nella lingua di parrot0 manca la
+costruzione. E nemmeno la si poteva insegnare con L2. La lezione di forma con
+variabili `what is x's y means what is the y of x` veniva rifiutata («I cannot
+align the same variables…») perché `p0_lesson_variables` cerca le variabili
+come parole intere, e «x's» è una parola sola. Provato scrivendo «x 's» (solo
+diagnosi, non una lezione valida): la forma si impara e vale per tutta la classe,
+anche per «ethanol 's boiling point», mai nominato. Il muro era un **confine di
+parola**, non la macchina delle forme. È un muro di insegnabilità: «manca la
+possibilità di insegnarlo», non «manca un insegnamento».
+
+**La cura.** `word_clitic/1` (kb/core/input.p0), **vuoto**, insegnabile con
+«"'s" is a clitic», simmetrico a `word_joiner/1`. Il C (`p0_split_clitics`,
+10-memory-knowledge.c) stacca un clitico dichiarato in coda a una parola, dopo
+una lettera. Lo fa nel turno canonico dopo il punto fisso delle contrazioni, e
+in `canonicalize_fragment`, perché la lezione di forma ricostruisce la sua
+sorgente da lì (la prima stesura la saltava e la lezione diceva «I cannot anchor
+that lesson yet»). C +51, nessuna migrazione: una primitiva di confine di
+parola, con i membri in KB. Finché nessuno insegna un clitico, non cambia niente.
+
+**Misure.** `docs/labs/l3/clitico/genitivo.p0t` **13/13**: prima muro e lezione
+rifiutata; il clitico si insegna; la forma si impara; France → Paris, ethanol →
+78 °C, Hamlet → shakespeare (due relazioni tenute fuori); «What's the capital of
+Italy?» → Rome e la polare intatta; ritiro del clitico → «What is Germany's
+capital?» torna muro. `make soft-test` verde in 4 s.
+
+**Che cosa resta:**
+
+1. «Who is Hamlet's author?» vuole la stessa forma con «who»: il pronome
+   interrogativo non è una variabile della forma.
+2. L'affermazione «France's capital is Paris.» scrive `france s capital`,
+   un'entità spazzatura (la forma copre solo la domanda). Prima del clitico
+   scriveva comunque un'entità col genitivo attaccato: da verificare se sia
+   peggiorata.
+3. «'s» è anche «is» e «has»: le contrazioni note si sciolgono prima dello
+   stacco; una sconosciuta («Tom's here») diventa «tom 's here», e il
+   significato resta alla lettura.
+4. Ancora una volta la causa l'ha trovata la lettura del C, non il trace (che
+   diceva solo «faculty lessonform»): è una voce per il §28.9.
