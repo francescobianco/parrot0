@@ -1,0 +1,43 @@
+# sessione: fisiologia, secondo turno — dal muro alla catena — 2026-09-26 00:25 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@1c1db336]
+# mode: conversational (tools off, network off) - 165565 facts, 5433 rules (3.28%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Ripresa dopo due strade chiuse in KB (what does X do, what do you know about X). Indirizzo di F.: chiuso un muro, SALIRE, non scendere a domande più piccole. Primo: la lezione di confine su «from» va promossa (ieri era rimasta locale), poi i fatti che formano una catena vera: aria → polmoni → sangue → cuore → tessuti. Poi le domande che la attraversano.
+> What does the heart do?
+< Heart pumps blood.
+> What do you know about the liver?
+< Liver: filters blood, produces bile and metabolizes nutrients and toxins. Liver is an organ. Liver produces bile.
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> end the previous noun phrase before from
+< Learned: lungs absorb oxygen from the air.
+> which classes could share the boundary for from
+< I have no named class backed by a corrected occurrence of «from» to propose.
+> Do the lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+! La correzione locale non cambia il fatto: vale per quella frase soltanto. La promuovo per le frasi future, poi rileggo la frase vera e chiedo la polare.
+> use that boundary for from in future sentences
+< I need one unambiguous corrected reading of «from» before extending it.
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> Do the lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> end the previous noun phrase before from
+< I cannot identify one uncorrected noun phrase containing «from» in the sentence we are discussing. I have not changed its reading.
+> /debug
+# /debug: 248 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> What do you know about lungs?
+< Lungs: paired organs that exchange oxygen and carbon dioxide. Lungs is an organ. Lungs absorb oxygen from the air.
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> /debug trace frame
+# /debug: 7 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+! Trovato perché il confine su «from» non teneva: «from» è già un chiusore in KB (np_closer :- preposition), ma un filtro in C (RI-012, «il secondo verbo è un modificatore») toglie dalla vista del turno OGNI chiusore dopo il primo, preposizioni comprese. La lezione non poteva funzionare. Il filtro va portato in KB, ristretto ai verbi. Serve il motore: chiudo senza /save (l'unico fatto nuovo è quello incollato) e riapro dopo.
+# chiusa senza /save 00:27: serve il motore (RI-012 in KB)

@@ -69,3 +69,29 @@ riga `#`.
 Lezione di conduzione: una domanda di ispezione tra la frase e la sua
 correzione sposta «la frase di cui stiamo parlando». La correzione va detta
 subito dopo la frase.
+
+## Seguito, stessa notte: i reperti chiusi, e un reperto corretto
+
+Indirizzi di F.: chiuso un muro con la conoscenza, **salire** da lì
+(articolazioni più ampie), non scendere a domande più piccole; quando un
+reperto è C, **fermarsi e portarlo in KB**.
+
+- (1) chiuso in KB: `function-questions.p0`, «What does the heart do?» →
+  «Heart pumps blood.» La testa del sintagma sta subito prima di «do» («fire
+  blanket» resta alla sua definizione).
+- (3) chiuso in KB: `belief_report/2` sulle cue «what do you know about» e «tell
+  me about». Descrizione (`description_relation/1`, dichiarata), classi, fatti
+  con un verbo di relazione detti in lingua. Il ramo C resta come riserva.
+  Aperto: le relazioni dicibili via `extract_frame` («copper is part of bronze»)
+  costavano 2,4–40 s per turno; l'accordo «Kidneys is an organ»; il numero
+  atomico e il simbolo di copper, che il ramo C stampava grezzi e qui mancano.
+- (2) **il reperto era sbagliato.** Non è «un lettore C che ignora la IR».
+  «from» è già un chiusore in KB (`np_closer($W) :- preposition($W)`), ma il
+  filtro RI-012 in `p0_np_closer` toglieva dalla vista del turno OGNI chiusore
+  dopo il primo, preposizioni comprese. Dopo «absorb», «from» non chiudeva più,
+  e nessuna lezione di confine poteva cambiarlo. RI-012 è ora in KB
+  (`turn_verb_before/1`, grammar.p0) e vale solo per i verbi; il filtro C è
+  tolto. Transcript: [live/2026-09-26-fisiologia-2.log](live/2026-09-26-fisiologia-2.log).
+- Linguaggio: `append/3` come regola in procedures.p0; in parrot-p0-syntax.md
+  due trappole misurate (`kb_fact` con il predicato libero scandisce tutta la
+  KB; le viste di `answer_frame` arrivano anche con l'argomento libero).

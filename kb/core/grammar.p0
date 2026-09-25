@@ -4263,14 +4263,28 @@ measured_value_max_words(9).
 % QUI — «trap belongs to the noun phrase» — non lo chiude, anche se e' un verbo.
 % La guardia si chiede UNA volta (`reading_continuer_exists(any)`, ground): senza
 % lezioni la regola e' quella di prima, e non paga ~290 prove per enumerazione.
-np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V).
-np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)).
+% RI-012, portata dal C il 26 settembre 2026: dentro un turno il primo verbo e'
+% il verbo della frase, e un verbo che viene DOPO un altro verbo e' un
+% modificatore («Capacitors block DIRECT current»). Il filtro in
+% `p0_np_closer` toglieva dalla vista OGNI chiusore dopo il primo, anche le
+% preposizioni: «the lungs absorb oxygen FROM the air» si leggeva
+% `absorb(lungs, oxygen_from_the_air)`, e nessuna lezione di confine poteva
+% curarlo (sessione live, docs/sessions/2026-09-26-live-fisiologia.md). Qui
+% la condizione vale solo per i verbi, e chi e' un verbo lo dice la KB.
+machinery(turn_verb_closer).
+turn_verb_closer($U) :- relation_verb($U).
+turn_verb_closer($U) :- finite_reading_verb_form($U).
+machinery(turn_verb_before).
+turn_verb_before($V) :-
+    turn_word(current_turn, $J, $V), turn_word(current_turn, $I, $U), lt($I, $J), dif($U, $V), turn_verb_closer($U).
+np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(turn_verb_before($V)).
+np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)), naf(turn_verb_before($V)).
 % E2a, 19 settembre 2026 — e la sua forma finita al presente (-s, -es, -ies):
 % «The zorvan beetle threatens …» correva fino a fine clausola. Participi e
 % gerundi restano fuori: dentro un sintagma sono modificatori legittimi.
 machinery(finite_present_of).
-np_closer($Form) :- naf(reading_continuer_exists(any)), finite_reading_verb_form($Form).
-np_closer($Form) :- reading_continuer_exists(any), finite_reading_verb_form($Form), naf(reading_continuer($Form)).
+np_closer($Form) :- naf(reading_continuer_exists(any)), finite_reading_verb_form($Form), naf(turn_verb_before($Form)).
+np_closer($Form) :- reading_continuer_exists(any), finite_reading_verb_form($Form), naf(reading_continuer($Form)), naf(turn_verb_before($Form)).
 % 23 settembre 2026 — LA STESSA CONOSCENZA, INDICIZZATA DALLA PAROLA LETTA.
 % Il lettore chiede `np_closer(Parola)` una volta per token, con la parola
 % legata, e per ognuna la regola rifaceva la morfologia su migliaia di forme:

@@ -4862,47 +4862,10 @@ static int p0_np_closer(Brain *b, const char *t) {
         b->np_closers_turn_filtered = 0;
         b->np_closers_live = 1;
     }
-    /* ── RI-012 — UNA FRASE HA UN VERBO FINITO, E IL SECONDO NON LO E' ─────
-     *
-     * «Capacitors block direct current.» non si leggeva: «direct» e' un verbo
-     * di relazione (dirigere), quindi chiudeva il sintagma e l'oggetto di
-     * «block» restava vuoto. Con «alternating current» — stessa forma, una
-     * parola che non e' un verbo — la frase entra: e' la misura che isola la
-     * causa, ed e' una classe intera di termini tecnici («direct current»,
-     * «check valve», «lead time», «pressure drop»).
-     *
-     * Dentro UN turno, il primo verbo e' il verbo della frase; quelli che
-     * vengono dopo, senza congiunzione, sono modificatori. La vista dei
-     * chiusori si ricostruisce gia' a ogni turno (vedi sopra), quindi la
-     * condizione si paga una volta: si toglie dal set chi nel turno compare
-     * solo DOPO un altro chiusore. Nessuna parola nel C. */
-    if (b->active_turn_norm && !b->np_closers_turn_filtered) {
-        b->np_closers_turn_filtered = 1;
-        char tb[512];
-        size_t tl = strlen(b->active_turn_norm);
-        if (tl && tl < sizeof tb) {
-            memcpy(tb, b->active_turn_norm, tl + 1);
-            char *tw[64]; size_t tn = split_words(tb, tw, 64);
-            size_t first_closer = tn;
-            for (size_t k = 0; k < tn && first_closer == tn; k++) {
-                const char *bare = strip_edge_punct(tw[k]);
-                for (size_t i = 0; i < b->n_np_closers; i++) {
-                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", b->np_closers[i]);
-                    if (!strcmp(kb_dequote(rb2), bare)) { first_closer = k; break; }
-                }
-            }
-            for (size_t k = first_closer + 1; k < tn; k++) {
-                const char *bare = strip_edge_punct(tw[k]);
-                for (size_t i = 0; i < b->n_np_closers; i++) {
-                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", b->np_closers[i]);
-                    if (strcmp(kb_dequote(rb2), bare)) continue;
-                    /* si toglie dalla vista di QUESTO turno */
-                    b->np_closers[i][0] = '\0';
-                    break;
-                }
-            }
-        }
-    }
+    /* RI-012 («il secondo verbo di una frase e' un modificatore») e' in KB
+     * dal 26 settembre 2026: `turn_verb_before/1`, grammar.p0. Il filtro che
+     * stava qui toglieva dalla vista del turno OGNI chiusore dopo il primo,
+     * anche le preposizioni. */
     for (size_t i = 0; i < b->n_np_closers; i++) {
         char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", b->np_closers[i]);
         if (!strcmp(kb_dequote(rb), t)) return 1;
