@@ -27,8 +27,11 @@ STEER=$LIVE/steer.txt          # le note di F. non ancora lette dall'insegnante
 SESSION=parrot0-live
 WAIT=${LIVE_TEACH_WAIT:-180}   # secondi massimi per una risposta
 
-stamp() { date +%H:%M:%S; }
-note() { printf '%s %s\n' "$(stamp)" "$*" >> "$LOG"; }
+# il formato del transcript (F., 25 settembre 2026):
+#   "> " il prompt dell'insegnante   "< " la risposta di parrot0
+#   "! " il ragionamento che guida il prompt successivo
+#   "F: " un indirizzo di F.         "# " la sessione e il sistema
+note() { printf '%s\n' "$*" >> "$LOG"; }
 
 # la risposta e' completa quando parrot0 torna al prompt: il file finisce con ">>> "
 wait_reply() {
@@ -37,7 +40,7 @@ wait_reply() {
         local size; size=$(stat -c %s "$RAW")
         if [ "$size" -gt "$before" ] && [ "$(tail -c 4 "$RAW")" = ">>> " ]; then return 0; fi
         sleep 0.3; t=$((t + 1))
-        if [ $t -gt $((WAIT * 3)) ]; then note "[sistema] nessuna risposta entro ${WAIT}s"; return 1; fi
+        if [ $t -gt $((WAIT * 3)) ]; then note "# nessuna risposta entro ${WAIT}s"; return 1; fi
     done
 }
 
@@ -47,27 +50,27 @@ start)
     mkdir -p "$LIVE"
     tmux has-session -t "$SESSION" 2>/dev/null && { echo "gia' attiva: tmux attach -r -t $SESSION"; exit 1; }
     : > "$IN"; : > "$RAW"; : > "$LOG"; : > "$STEER"
-    note "[sessione] $title — $(date '+%Y-%m-%d') — KB viva, profilo agi, un solo processo"
+    note "# sessione: $title — $(date '+%Y-%m-%d %H:%M') — KB viva, profilo agi, un solo processo"
     # parrot0: legge le righe che l'insegnante aggiunge, risponde riga per riga
     tmux new-session -d -s "$SESSION" -n parrot0 \
         "tail -n +1 -f $IN | PARROT0_PROFILE=kb/profiles/agi.p0 PARROT0_LANG=\${PARROT0_LANG:-en} stdbuf -oL ./bin/parrot0 > $RAW 2>&1"
     # le risposte entrano nel transcript con la loro etichetta
     tmux new-window -d -t "$SESSION" -n tag \
-        "tail -n +1 -f $RAW | stdbuf -oL sed -u -e 's/^\\(>>> \\)*//' -e '/^\$/d' -e 's/^/[parrot0] /' >> $LOG"
+        "tail -n +1 -f $RAW | stdbuf -oL sed -u -e 's/^\\(>>> \\)*//' -e '/^\$/d' -e 's/^/< /' >> $LOG"
     # il canale per chi guarda: ogni connessione riceve il transcript dall'inizio e poi dal vivo
     rm -f "$SOCK"
     tmux new-window -d -t "$SESSION" -n watch \
         "socat UNIX-LISTEN:$SOCK,fork SYSTEM:'tail -n +1 -f $LOG'"
     tmux new-window -d -t "$SESSION" -n transcript "tail -n +1 -f $LOG"
     printf 'avvio (il boot della KB completa richiede ~20 s)...\n'
-    wait_reply 0 && note "[sistema] parrot0 pronto"
+    wait_reply 0 && note "# parrot0 pronto"
     echo "pronto. F.: scripts/live-teach.sh watch  |  socat - UNIX-CONNECT:$SOCK  |  tmux attach -r -t $SESSION"
     ;;
 say)
     shift; line="$*"
     [ -n "$line" ] || { echo "say: frase vuota"; exit 1; }
     before=$(stat -c %s "$RAW")
-    note "[insegnante] $line"
+    note "> $line"
     printf '%s\n' "$line" >> "$IN"
     wait_reply "$before" || true
     # la risposta, per l'insegnante: cio' che parrot0 ha scritto dopo la domanda
@@ -78,10 +81,10 @@ say)
     fi
     ;;
 steer)
-    shift; note "[F.] $*"; printf '%s\n' "$*" >> "$STEER"
+    shift; note "F: $*"; printf '%s\n' "$*" >> "$STEER"
     ;;
 think)
-    shift; note "[ragionamento] $*"
+    shift; note "! $*"
     ;;
 watch)
     exec tail -n +1 -f "$LOG"
@@ -89,11 +92,11 @@ watch)
 stop)
     if tmux has-session -t "$SESSION" 2>/dev/null; then
         before=$(stat -c %s "$RAW")
-        note "[insegnante] /save"
+        note "> /save"
         printf '/save\n' >> "$IN"
         wait_reply "$before" || true
         sleep 1
-        note "[sessione] chiusa"
+        note "# sessione chiusa $(date +%H:%M)"
         mkdir -p docs/sessions/live
         out=docs/sessions/live/$(date +%Y-%m-%d-%H%M).log
         cp "$LOG" "$out"

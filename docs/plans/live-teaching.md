@@ -66,13 +66,15 @@ tmux attach -r -t parrot0-live                   # le finestre della sessione, i
 ```
 
 **Il transcript** (`var/live/transcript.log`, archiviato alla chiusura) mescola in
-ordine quattro voci, ognuna con la sua etichetta:
+ordine le voci, ognuna con il suo prefisso (formato chiesto da F.): `> ` il prompt
+dell'insegnante, `< ` la risposta di parrot0, `! ` il ragionamento che guida il
+prompt successivo, `F: ` un indirizzo di F., `# ` la sessione e il sistema:
 
 ```text
-23:53:16 [ragionamento] provo che il canale funzioni: una domanda di cui conosco la risposta
-23:53:16 [F.] prova: questa nota viene da F.
-23:53:16 [insegnante] Does water contain hydrogen?
-[parrot0] Yes.
+! provo che il canale funzioni: una domanda di cui conosco la risposta
+F: prova: questa nota viene da F.
+> Does water contain hydrogen?
+< Yes.
 ```
 
 Provato il 25 settembre: domanda, risposta, ragionamento e nota di F. escono
