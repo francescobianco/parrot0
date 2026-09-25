@@ -445,3 +445,13 @@ class_surface(word_joiner, word joiner).
 % Insegnato parlando (RI-017): «"-" is a word joiner».
 word_joiner(-).
 
+% L3 §28.8 (25 settembre 2026) — IL SEGNO DI UN NUMERO E' PARTE DEL NUMERO. Un
+% carattere di `number_sign/1` a inizio parola, subito davanti a una cifra,
+% appartiene al numero per i due tokenizzatori (src/code.c, 99-registry.c).
+% «Mercury freezes at -39 degrees Celsius» arrivava come «39»: il fatto letto
+% diceva «freeze at 39 degrees celsius», e nessun confronto poteva combaciare con
+% «-39» nei valori della KB. Dopo una cifra o una lettera il trattino resta un
+% confine («30-375», «step-down»). Si insegna dicendolo («"-" is a number sign»).
+machinery(number_sign).
+class_surface(number_sign, number sign).
+number_sign(-).

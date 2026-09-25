@@ -73,7 +73,7 @@
 !query extract_frame("@S boils at @O", boils_at)
 > Methanol boils at 65 degrees Celsius.
 !query boils_at(methanol, 65_degrees_celsius)
-!query read_support(fact(boils_at, methanol, 65_degrees_celsius, pos), hypothesis(boiling_point, boils_at))
+!query read_support(fact(boils_at, methanol, 65_degrees_celsius, pos), named(boils_at, boils))
 > What is the boiling point of methanol?
 <~ 65
 

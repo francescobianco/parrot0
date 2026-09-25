@@ -4115,6 +4115,22 @@ static void turn_publish_tokens(Brain *b, const char *surface,
             if (jl == 1) joiners[njoin++] = jc[0];
         }
     }
+    /* §28.8 — `number_sign/1` (code.c): un segno a inizio parola, davanti a
+     * una cifra, appartiene al numero («-39»). */
+    char signs[8]; size_t nsign = 0;
+    {
+        char sr[8][KB_TERM_LEN];
+        const char *sq[1] = { NULL };
+        size_t ns = kb_match(b->kb, "number_sign", sq, 1, sr, 8);
+        for (size_t i = 0; i < ns && nsign < sizeof signs; i++) {
+            const char *sc = sr[i];
+            size_t sl = strlen(sc);
+            if (sl >= 3 && sc[0] == '"' && sc[sl - 1] == '"') { sc++; sl -= 2; }
+            if (sl == 1) signs[nsign++] = sc[0];
+        }
+        memcpy(p0_number_signs, signs, nsign);   /* per strip_edge_punct */
+        p0_number_nsigns = nsign;
+    }
     size_t k = 0;
     /* gen512 — UNA LETTERA ACCENTATA E' UNA LETTERA. I byte >= 0x80 sono
      * sempre parte di un carattere UTF-8, cioe' di una lettera come «é» o
@@ -4123,8 +4139,12 @@ static void turn_publish_tokens(Brain *b, const char *surface,
      * li poteva vedere (vale per l'italiano: «è», «perché», «città»). */
 #define P0_WORDCH(c) (isalnum((unsigned char)(c)) || (c) == '_' || (unsigned char)(c) >= 0x80)
     for (size_t p = start; p < end && k < token_limit; ) {
-        if (!P0_WORDCH(surface[p])) { p++; continue; }
+        int signed_num = nsign && memchr(signs, surface[p], nsign) && p + 1 < end &&
+                         isdigit((unsigned char)surface[p + 1]) &&
+                         (p == start || !P0_WORDCH(surface[p - 1]));
+        if (!P0_WORDCH(surface[p]) && !signed_num) { p++; continue; }
         size_t t = p;
+        if (signed_num) p++;
         /* gen399: un punto FRA DUE CIFRE appartiene al numero. Spezzando «3.14»
          * in «3» e «14» la memoria di lavoro non registrava piu' cio' che il
          * turno aveva detto — e «which is greater, 3.14 or 3.41?» rispondeva

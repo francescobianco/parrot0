@@ -1,0 +1,84 @@
+# L3/§28.8 — valori in prosa, segno meno, conferma indipendente della testa.
+# KB agi completa, fatti veri. Rossi misurati prima: «-39» non era un token
+# (turn_word e IR davano 39); i valori in prosa di boils_at/freezes_at non si
+# allineavano (§27.5, §28.6); la testa «boils» reggeva solo sul ponte del nome.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test il segno appartiene al numero, il trattino fra cifre resta un confine]
+!timeout 0
+> Mercury freezes at -39 degrees Celsius.
+!query turn_word(current_turn, $I, -39)
+!query input_quantity_node(current_turn, $I, quantity(-39, $U), $L)
+> The range is 30-375 metres.
+!query contact_token(current_turn, $I, 375)
+!query! contact_token(current_turn, $I, -375)
+
+[test prima: senza contatti «X freezes at V» non scrive freezes_at]
+!timeout 0
+> Ethanol freezes at -114 degrees Celsius.
+!query! freezes_at(ethanol, $V)
+
+[test usi verificati su valori in prosa, senza nomi nuovi: la testa vale da due soggetti]
+!timeout 0
+> Mercury freezes at -39 degrees Celsius; its freezing point is -39 degrees Celsius.
+!query contact_named_use(freezes_at, freezes, mercury)
+!query! contact_named_in_force(freezes_at, freezes)
+> Water freezes at 0 degrees Celsius; its freezing point is 0 degrees Celsius.
+!query contact_named_use(freezes_at, freezes, water)
+!query contact_named_in_force(freezes_at, freezes)
+
+[test tenuto fuori: la cornice legge un soggetto nuovo, con la provenienza]
+!timeout 0
+# (un atomo che comincia con «-» non si scrive in una query del .p0t: il segno si
+# controlla sulla risposta; l'allineamento dell'azoto sotto lo richiede comunque)
+> Ethanol freezes at -114 degrees Celsius.
+<~ -114 degrees
+!query freezes_at(ethanol, $V)
+!query read_support(fact(freezes_at, ethanol, $V, pos), named(freezes_at, freezes))
+> Gallium freezes at 30 degrees Celsius.
+!query input_entity_node(current_turn, en, $I, gallium)
+!query! input_entity_node(current_turn, en, $I, gallium_freezes)
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test boils: setup dichiarato (§15.1), tre contatti veri, due in prosa e uno col segno]
+!timeout 0
+!forget construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at)
+!forget extract_frame("the boiling point of @S is @O", boils_at)
+> Acetone boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.
+> Ethanol boils at 78 degrees Celsius; its boiling point is 78 degrees Celsius.
+!query contact_episode(boiling_point, boils_at, ep(ethanol, 78_degrees_celsius, s))
+> Nitrogen boils at -196 degrees Celsius; its boiling point is -196 degrees Celsius.
+!query contact_episode(boiling_point, boils_at, ep(nitrogen, $V, s))
+!query contact_named_in_force(boils_at, boils)
+
+[test ritirato il nome, il verbo regge sui suoi usi verificati]
+!timeout 0
+!assert contact_bridge_withdrawn(boiling_point, boils_at)
+!query extract_frame("@S boils at @O", boils_at)
+> Propanol boils at 97 degrees Celsius.
+!query boils_at(propanol, 97_degrees_celsius)
+!query read_support(fact(boils_at, propanol, 97_degrees_celsius, pos), named(boils_at, boils))
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test il segno si ritira e si insegna parlando]
+!timeout 0
+> forget that "-" is a number sign
+> Mercury freezes at -39 degrees Celsius.
+!query! turn_word(current_turn, $I, -39)
+> "-" is a number sign
+> Mercury freezes at -39 degrees Celsius.
+!query turn_word(current_turn, $I, -39)

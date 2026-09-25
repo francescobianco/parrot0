@@ -2191,6 +2191,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
  * Real prose carries commas and quotes the `learn sequence:` path never sees;
  * trimming them keeps the induced continuation model keyed on words, not
  * "word," vs "word". Word-internal characters (apostrophes) are preserved. */
+/* §28.8 — un segno di numero davanti a una cifra non e' punteggiatura
+ * (`p0_number_signs`, 00-lex.c): «-114» restava «114» in ogni slot. */
 static char *strip_edge_punct(char *t) {
     /* gen196: keep '_' at the edges — it is part of identifiers (Python `_cstack`,
      * `__init__`; C `_foo`) and never the edge of a natural word, so preserving it
@@ -2201,7 +2203,10 @@ static char *strip_edge_punct(char *t) {
      * poteva combaciare: l'italiano arrivava all'interlingua senza il suo
      * verbo composto. */
     #define P0_WORD_BYTE(c) (isalnum((unsigned char)(c)) || (unsigned char)(c) >= 0x80 || (c) == '_')
-    while (*t && !P0_WORD_BYTE(*t)) t++;
+    while (*t && !P0_WORD_BYTE(*t)) {
+        if (p0_is_number_sign_at(t)) break;
+        t++;
+    }
     size_t n = strlen(t);
     while (n > 0 && !P0_WORD_BYTE(t[n - 1])) t[--n] = '\0';
     #undef P0_WORD_BYTE

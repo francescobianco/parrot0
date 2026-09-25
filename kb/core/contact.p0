@@ -248,6 +248,21 @@ contact_fact_pair($T, $R, $X, p($S, $X, s)) :-
     kb_fact($R, cons($S, cons($X, nil))), dif($S, $X), contact_names_all($T, $S).
 contact_fact_pair($T, $R, $X, p($X, $O, o)) :-
     kb_fact($R, cons($X, cons($O, nil))), dif($O, $X), contact_names_all($T, $O).
+% §28.8 — UN VALORE IN PROSA CHE DICE LA QUANTITA'. `boils_at(ethanol, "78
+% degrees Celsius, lower than water")`: il valore e' una frase, e la quantita'
+% del turno (78_degrees_celsius) non lo eguagliava mai (l'ostacolo del §15.2).
+% La frase la DICE se ne contiene il numero seguito dalla prima parola
+% dell'unita'. L'episodio tiene la quantita' detta nel turno, non la frase: una
+% virgola dentro un testo raccolto spezza le liste di `findall`.
+machinery(contact_value_states).
+machinery(contact_adjacent).
+contact_fact_pair($T, $R, $X, p($S, $X, s)) :-
+    atom_words($X, cons($Num, cons($U, $Rest))), word_is_number($Num),
+    kb_fact($R, cons($S, cons($V, nil))), dif($V, $X), contact_value_states($V, $Num, $U),
+    contact_names_all($T, $S).
+contact_value_states($V, $Num, $U) :- atom_words($V, $Ws), contact_adjacent($Ws, $Num, $U).
+contact_adjacent(cons($A, cons($B, $R)), $A, $B).
+contact_adjacent(cons($A, cons($B, $R)), $X, $Y) :- contact_adjacent(cons($B, $R), $X, $Y).
 % Le relazioni candidate: quelle con una lettura, e quelle NOMINATE dalle proprie
 % parole che il turno dice in fila («boils at» → boils_at, RI-020): una
 % relazione del mondo e' nominata dalle sue parole anche dove nessuna cornice la
@@ -889,41 +904,71 @@ machinery(contact_named_head).
 word_is_verb_form($W) :- contact_verb_word($W).
 contact_verb_word($W) :-
     contact_word_form($N, $W), contact_shape($N, $R, verb($Mid, $K)), contact_bridge($N, $R).
-contact_verb_word($W) :- contact_named_verb($R, $W), contact_bridge($N, $R).
-% La testa: nel turno che ha dato un episodio nuovo, le parole che nominano la
-% relazione R seguono subito il soggetto («acetone BOILS AT 56 …»): la prima e'
-% usata come verbo di R.
+contact_verb_word($W) :- contact_named_in_force($R, $W).
+% La testa: le parole che nominano la relazione R seguono subito il soggetto
+% («acetone BOILS AT 56 …»): la prima e' usata come verbo di R. Si osserva nel
+% turno che ha dato un episodio nuovo, e in ogni USO VERIFICATO: un contatto che
+% allinea un fatto che la KB gia' tiene leggendo R con le parole del suo nome
+% («Mercury freezes at -39 …; its freezing point is …», con `freezes_at(mercury,
+% "about -39 degrees Celsius, …")`), anche quando non insegna nessun nome.
 after_reply_bookkeeper(contact_named_verb).
+machinery(contact_named_use).
+machinery(contact_head_after).
+machinery(contact_named_in_force).
 turn_after_reply($T, contact_named_verb) :-
     findall($P, contact_named_head($T, $P), $L), contact_named_verb_store_all($L).
-contact_named_head($T, h($R, $A)) :-
-    contact_new_episode(e($N, $R, ep($S, $O, $Of))),
+contact_named_head($T, h($R, $A, $S)) :-
+    contact_new_episode(e($N, $R, ep($S, $O, $Of))), contact_head_after($T, $S, $R, $A).
+% (senza l'allineamento intero: le entita' del turno sono la parte cara, e
+% ricalcolate qui portavano un turno di contatto oltre i 60 s — misurato. Basta
+% il valore detto, la relazione nominata e un fatto che li lega a un soggetto
+% che il turno nomina; vale anche per un'affermazione semplice e vera.)
+contact_named_head($T, h($R, $A, $S)) :-
+    naf(contact_negated($T)), contact_named_relation($T, $R),
+    contact_quantity_value($T, $X), contact_fact_pair($T, $R, $X, p($S, $X, s)),
+    contact_head_after($T, $S, $R, $A).
+contact_head_after($T, $S, $R, $A) :-
     atom_words($S, $SWs), contact_last_word($SWs, $SW), contact_token($T, $P, $SW),
     input_node_next($T, $P, $I), contact_token($T, $I, $A), input_node_next($T, $I, $J),
     contact_token($T, $J, $B), words_underscored(cons($A, cons($B, nil)), $R).
 machinery(contact_named_verb_store_all).
 contact_named_verb_store_all(nil).
-contact_named_verb_store_all(cons(h($R, $A), $L)) :-
-    contact_named_verb_store_one($R, $A), contact_named_verb_store_all($L).
+contact_named_verb_store_all(cons(h($R, $A, $S), $L)) :-
+    contact_named_verb_store_one($R, $A), contact_named_use_store_one($R, $A, $S),
+    contact_named_verb_store_all($L).
 machinery(contact_named_verb_store_one).
+machinery(contact_named_use_store_one).
 contact_named_verb_store_one($R, $A) :- contact_named_verb($R, $A).
 contact_named_verb_store_one($R, $A) :- naf(contact_named_verb($R, $A)), assert(contact_named_verb, $R, $A).
+contact_named_use_store_one($R, $A, $S) :- contact_named_use($R, $A, $S).
+contact_named_use_store_one($R, $A, $S) :- naf(contact_named_use($R, $A, $S)), assert(contact_named_use, $R, $A, $S).
+% §28.8 — QUANDO LA TESTA VALE (§14.4). Sul ponte di un nome appreso della stessa
+% relazione (com'era), oppure su DUE usi verificati con soggetti diversi: ogni uso
+% e' confrontato con un fatto che la KB tiene gia', quindi non dipende da
+% nessuna ipotesi di contatto. Prima reggeva solo sul ponte di «boiling point», e
+% ritirato quel nome cadeva anche la cornice del verbo.
+contact_named_in_force($R, $W) :- contact_named_verb($R, $W), contact_bridge($N, $R).
+contact_named_in_force($R, $W) :-
+    contact_named_use($R, $W, $S1), contact_named_use($R, $W, $S2), dif($S1, $S2).
 % ── §28.6 — E LA TESTA PORTA LA SUA CORNICE ─────────────────────────────────
 % Lo stesso contatto che ha mostrato «boils» usato come verbo di boils_at subito
 % dopo il soggetto («Acetone boils at 56 …») ha mostrato anche come si DICE
 % quella relazione: «@S boils at @O», le parole del suo nome. Prima «Methanol
 % boils at 65 degrees Celsius.» restava illeggibile (§27.5): la relazione
 % nominata valeva solo nell'osservazione. La cornice entra dove entrano le
-% cornici (`construction_frame/3`), finche' vale il ponte della relazione.
+% cornici (`construction_frame/3`), finche' la testa e' in forza.
 construction_frame($Src, $Src, $R) :-
-    contact_named_verb($R, $W), contact_bridge($N, $R),
+    contact_named_in_force($R, $W),
     atom_words($R, $Ws), words_joined($Ws, $Mid),
     concat_atoms("@S ", $Mid, $A), concat_atoms($A, " @O", $Src).
 view_depends(extract_frame, contact_named_verb).
+view_depends(extract_frame, contact_named_use).
 view_depends(construction_claims, contact_named_verb).
+view_depends(construction_claims, contact_named_use).
 % Un fatto NUOVO di R scritto in un turno che dice la testa appresa viene da
-% quella cornice: porta il sostegno dell'ipotesi che la regge, e un ritiro lo
-% sospende (§14.6).
-contact_reading_support($T, fact($R, $S, $O, pos), hypothesis($N, $R)) :-
-    contact_named_verb($R, $W), contact_token($T, $I, $W), contact_bridge($N, $R),
+% quella cornice: porta il sostegno `named(R, W)`, e se la testa cade il fatto e'
+% sospeso (§14.6).
+contact_reading_support($T, fact($R, $S, $O, pos), named($R, $W)) :-
+    contact_named_in_force($R, $W), contact_token($T, $I, $W),
     kb_turn_act($R, cons($S, cons($O, nil)), pos, new).
+read_support_in_force($F) :- read_support($F, named($R, $W)), contact_named_in_force($R, $W).

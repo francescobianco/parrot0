@@ -113,11 +113,29 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
             if (jl == 1) joiners[njoin++] = jc[0];
         }
     }
+    /* §28.8 — `number_sign/1`: un segno a inizio parola, davanti a una cifra,
+     * appartiene al numero («-39»). Quali caratteri lo siano lo dice la KB. */
+    char signs[8]; size_t nsign = 0;
+    {
+        char sr[8][KB_TERM_LEN];
+        const char *sq[1] = { NULL };
+        size_t ns = kb_match(kb, "number_sign", sq, 1, sr, 8);
+        for (size_t i = 0; i < ns && nsign < sizeof signs; i++) {
+            const char *sc = sr[i];
+            size_t sl = strlen(sc);
+            if (sl >= 3 && sc[0] == '"' && sc[sl - 1] == '"') { sc++; sl -= 2; }
+            if (sl == 1) signs[nsign++] = sc[0];
+        }
+    }
+#define P0_IR_SIGN(r, p, lo, hi) \
+    (nsign && memchr(signs, (r)[(p)], nsign) && (p) + 1 < (hi) && \
+     isdigit((unsigned char)(r)[(p) + 1]) && \
+     ((p) == (lo) || !P0_IR_WORDCH((r)[(p) - 1])))
 #define P0_IR_JOIN(r, p, lo, hi) \
     (njoin && memchr(joiners, (r)[(p)], njoin) && (p) > (lo) && (p) + 1 < (hi) && \
      isalpha((unsigned char)(r)[(p) - 1]) && isalpha((unsigned char)(r)[(p) + 1]))
     for (size_t p = begin; p < end && nw < 64; ) {
-        while (p < end && !P0_IR_WORDCH(raw[p])) p++;
+        while (p < end && !P0_IR_WORDCH(raw[p]) && !P0_IR_SIGN(raw, p, begin, end)) p++;
         if (p >= end) break;
         size_t s = p++;
         while (p < end && (P0_IR_WORDCH(raw[p]) || P0_IR_NUMGLUE(raw, p, s, end) ||
@@ -135,6 +153,7 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
         nw++;
     }
 #undef P0_IR_NUMGLUE
+#undef P0_IR_SIGN
 #undef P0_IR_WORDCH
 
     /* Candidate noun phrases are delimited by KB knowledge.  A verb POS fact

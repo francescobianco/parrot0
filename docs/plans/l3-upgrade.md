@@ -3228,3 +3228,127 @@ scritte prima della cura):
 nei token della IR. Aprono i casi veri (etanolo, azoto, mercurio) su cui
 esercitare l'induzione di classe del §28.3, e danno la conferma indipendente
 (§14.4) che oggi manca alla testa e alla cornice.
+
+### 28.8 Valori in prosa, segno meno, conferma indipendente della testa (25 settembre 2026)
+
+> *F.: «procedi con il prossimo passo del §28.7».*
+
+**Rossi misurati prima:**
+
+- «-39» non era un token: `turn_word` e la IR davano `39`, e la quantità della
+  IR `quantity(39, …)`;
+- i valori in prosa (`boils_at(ethanol, "78 degrees Celsius, lower than
+  water")`) non si allineavano con la quantità del turno (§15.2, §27.5);
+- la testa «boils» e la sua cornice reggevano **solo** sul ponte del nome
+  «boiling point» (§28.7, residuo 1).
+
+Trovato per strada: il segno si perdeva in **tre** punti, non due. Anche il
+lettore delle cornici toglieva il «-» (`strip_edge_punct`), e la guardia del
+«numero» di `p0_join` rifiutava «-114» come «misto». Prima della cura
+«Ethanol freezes at -114 degrees Celsius.» diceva «Learned: … 114 degrees
+celsius.», un valore **falso**.
+
+**La cura.**
+
+1. **Il segno è conoscenza** (`number_sign/1` in `kb/core/input.p0`, accanto a
+   `word_joiner/1`, insegnabile con «"-" is a number sign»). Il C riceve solo la
+   meccanica «un segno a inizio parola, davanti a una cifra, appartiene al
+   numero», in quattro siti: i due tokenizzatori (`src/code.c`,
+   `turn_publish_tokens`), `strip_edge_punct` e la guardia di `p0_join`. I
+   caratteri sono letti dalla KB a ogni turno (`p0_number_signs`, 00-lex.c).
+   «30-375» resta diviso nella IR (dopo una cifra il trattino è un confine).
+2. **Un valore in prosa dice una quantità** se ne contiene il numero seguito
+   dalla prima parola dell'unità (`contact_value_states/3`). L'episodio tiene la
+   quantità detta nel turno, non la frase: una virgola in un testo raccolto
+   spezza `findall`.
+3. **Uso verificato.** Un contatto che allinea un fatto che la KB già tiene,
+   leggendo R con le parole del suo nome dopo il soggetto, registra
+   `contact_named_use(R, Testa, Soggetto)`. Lo fa anche quando non insegna
+   nessun nome (mercurio, acqua: «freezing point» è già nella lingua). La testa
+   vale sul ponte del nome (com'era) **oppure su due usi verificati con soggetti
+   diversi** (`contact_named_in_force/2`). Ogni uso è confrontato con il mondo,
+   quindi non dipende da un'ipotesi (§14.4). La cornice e il sostegno dei fatti
+   letti (`named(R, W)`, in forza finché la testa è in forza) seguono la testa.
+
+**⚠ STATO REALE (fermato da F., non committato).** Il 20/20 qui sotto valeva
+con la prima stesura dell'uso verificato, che ricalcolava l'allineamento
+intero. Da demone fresco quella stesura portava un turno di contatto oltre i
+60 s (riprodotto in chat; gdb dentro al processo mostra solo `solve_frame`
+ricorsivo, senza nomi di goal). La seconda stesura (senza allineamento) finisce
+il dialogo in 64 s contro 52 s a contabile spento, ma **non registra più gli
+usi**: `prosa-segno.p0t` 17/22. Ogni pezzo della congiunzione è dimostrabile da
+solo, compreso `contact_head_after(current_turn, water, freezes_at, $A)`, eppure
+`contact_named_head/2` fallisce. Causa **non trovata**. F.: «stiamo brancolando
+nel buio», e il lavoro passa agli strumenti di introspezione (sotto).
+
+**Misure della prima stesura.** `docs/labs/l3/H2/prosa-segno.p0t` **20/20**; `categoria.p0t` 22/22
+(sostegno rinominato da `hypothesis(boiling_point, boils_at)` a
+`named(boils_at, boils)`, stessa prova).
+
+| prova | esito |
+|---|---|
+| «Mercury freezes at -39 …» | token `-39`, `quantity(-39, …)`; «30-375» resta 30 e 375 |
+| prima: «Ethanol freezes at -114 …» | nessun `freezes_at` |
+| mercurio (prosa, segno), poi acqua (prosa): nessun nome nuovo | due usi verificati → la testa «freezes» è in forza |
+| **tenuto fuori:** «Ethanol freezes at -114 degrees Celsius.» | «Learned: ethanol freezes at -114 degrees celsius.», sostegno `named(freezes_at, freezes)`; «Gallium freezes …» → `gallium`, non `gallium_freezes` |
+| boils, setup §15.1: acetone, etanolo (prosa), azoto (prosa, -196) | episodi per tutti e tre; testa in forza |
+| **ritirato il nome «boiling point»** | la cornice regge sui suoi usi: «Propanol boils at 97 …» → `boils_at(propanol, 97_degrees_celsius)` |
+
+**Aritmetica, controllata per il segno** (ablazione della sola lezione
+`number_sign(-)`): `arith` 8/8 e `arith_guard` 3/3 verdi; `arith_nl` 19 rossi,
+`arith_flex` 2 rossi e `memref_arith` 1 rosso, **identici** con e senza la
+lezione, quindi preesistenti.
+
+**Bilancio (mantra #18a).** C +73/−9 in cinque file: nessuna migrazione, una
+primitiva nuova (il segno come parte del numero), con i caratteri in KB. È il
+costo di una capacità del motore, non conoscenza compilata, ma va detto.
+
+**Residuo, da non tacere:**
+
+1. Il lettore nativo scrive ancora `freeze(mercury, …)`: «Learned: mercury freeze
+   at -39 degrees celsius.» nel turno del contatto. È una lettura concorrente
+   preesistente (relazione `freeze`), non toccata.
+2. Due usi bastano: soglia dell'ingegnere, non appresa. Una testa non ha ancora
+   un controesempio suo («Mercury does not freeze at 0 …»).
+3. In una query di un `.p0t` un atomo che comincia con «-» non si scrive: il
+   segno nel banco si verifica sulla risposta.
+4. La cornice ricavata da una testa **con il segno** legge valori negativi; un
+   valore in prosa con «about» o intervalli («-39 to -38») si allinea solo sul
+   numero seguito dall'unità.
+
+**Prossimo passo proposto.** Con i casi veri ora aperti, l'induzione di classe
+del §28.3 si può esercitare: `boils` e `freezes` sono due teste diverse su due
+relazioni diverse, entrate nella classe dei verbi ciascuna dai propri usi.
+Resta da provare se una terza testa, **mai vista in un contatto**, si possa
+prevedere, e con quale conoscenza. Oppure il controesempio di una testa.
+
+### 28.9 ⛔ Fermata: prima gli strumenti per vedere le inferenze (F., 25 settembre 2026)
+
+> *F.: «fermiamoci, stiamo brancolando nel buio: dobbiamo concentrarci sul
+> migliorare gli strumenti di introspezione e tracking delle inferenze».*
+
+Nel §28.8 buona parte del tempo è andata a **indovinare** dove fallisse o si
+perdesse una prova. Ecco che cosa è mancato, in ordine di costo:
+
+1. **Perché una congiunzione fallisce.** `!query` dice solo «non dimostrabile».
+   Non dice quale goal del corpo è fallito per primo, con quali legami, né se è
+   fallito o se è scattata una guardia (§5 della sintassi: una guardia fa
+   fallire la prova **senza dirlo**). Per vederlo ho scritto a mano predicati
+   `zzdbg1..3` che spezzavano la congiunzione: lavoro da strumento, fatto a mano.
+2. **Un turno che non torna.** Il budget del turno lo ferma a 60 s, ma non dice
+   **quale query**, né quale goal ripete, né quanti passi. gdb senza simboli
+   mostra `solve_frame` ricorsivo e basta. Serve un registro «il goal più
+   profondo / più ripetuto quando il turno è stato fermato», pubblicato come
+   `paradox_event`.
+3. **Quale contabile costa.** `/debug` dà i tempi per predicato chiamato dal C,
+   non per `turn_after_reply(T, K)` contabile per contabile. Qui ne girano sette
+   dopo ogni risposta.
+4. **Il banco non sa scrivere certi termini.** Un atomo che comincia con «-»
+   (`-196_degrees_celsius`) non si scrive in una `!query`, e una `!query` non
+   accetta congiunzioni: si prova solo un predicato alla volta.
+5. **La vista che si rifà.** «invalidata da contact_named_use» si vede nel trace,
+   ma non quanto costa la ricostruzione al turno dopo, né chi l'ha chiesta.
+
+Il lavoro dell'agente riprende da qui: gli strumenti, non il circuito. Il
+circuito resta in albero **non committato** (segno meno in C e KB, valore in
+prosa, uso verificato alla seconda stesura), con lo stato scritto nel §28.8.

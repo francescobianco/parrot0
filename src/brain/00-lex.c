@@ -855,6 +855,15 @@ int p0_turn_opens_as_question(Brain *b, const char *first_word);  /* definito in
 static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
+/* §28.8 — i segni di numero (`number_sign/1`, KB), pubblicati a ogni turno dal
+ * tokenizzatore (99-registry.c, `turn_publish_tokens`): chi toglie la
+ * punteggiatura o riconosce un numero li consulta, senza nominarne nessuno. */
+static char p0_number_signs[8];
+static size_t p0_number_nsigns;
+static int p0_is_number_sign_at(const char *t) {
+    return p0_number_nsigns && t[0] && memchr(p0_number_signs, t[0], p0_number_nsigns) &&
+           isdigit((unsigned char)t[1]);
+}
 /* gen515 — il qualificatore della domanda (10-memory-knowledge.c) */
 static void p0_say_unqualified(Brain *b, const char *qual, const char *subject,
                                const char *pred, const char *value,

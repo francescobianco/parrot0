@@ -5017,12 +5017,14 @@ static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
          * resta escluso e' il vero misto («abc123», «12a»), che non e' un
          * numero in nessuna notazione. */
         if (!isalpha((unsigned char)t[0])) {
-            int numeric = isdigit((unsigned char)t[0]);
-            for (size_t d = 0; t[d] && numeric; d++) {
-                if (isdigit((unsigned char)t[d])) continue;
-                if (d == 0 || !t[d + 1] ||
-                    !isdigit((unsigned char)t[d - 1]) ||
-                    !isdigit((unsigned char)t[d + 1])) numeric = 0;
+            /* §28.8: un segno di numero in testa («-114») e' parte del numero */
+            const char *u = p0_is_number_sign_at(t) ? t + 1 : t;
+            int numeric = isdigit((unsigned char)u[0]);
+            for (size_t d = 0; u[d] && numeric; d++) {
+                if (isdigit((unsigned char)u[d])) continue;
+                if (d == 0 || !u[d + 1] ||
+                    !isdigit((unsigned char)u[d - 1]) ||
+                    !isdigit((unsigned char)u[d + 1])) numeric = 0;
             }
             if (!numeric) return 0;
         }
