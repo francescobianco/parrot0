@@ -1,0 +1,33 @@
+# §30 — la polare con il «do» di supporto sui verbi di relazione. KB agi completa,
+# fatti veri. Rosso misurato prima (25 settembre 2026): tutte le polari sotto
+# rispondevano «no fact I hold decides whether …», falso.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test polari vere su relazioni diverse]
+!timeout 0
+> Does water contain hydrogen?
+< Yes.
+> Does France border Spain?
+< Yes.
+> Does a cow eat grass?
+< Yes.
+> Does the liver produce bile?
+< Yes.
+
+[test il non dimostrato resta non so, mai un si]
+!timeout 0
+> Does water contain carbon?
+<! Yes
+> Does France border Japan?
+<! Yes
+
+[test la domanda sull'oggetto e le modali non cambiano]
+!timeout 0
+> What does water contain?
+<~ ydrogen
+> Can a penguin fly?
+<! Yes.

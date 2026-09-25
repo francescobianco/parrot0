@@ -3402,3 +3402,19 @@ capital?» torna muro. `make soft-test` verde in 4 s.
    significato resta alla lettura.
 4. Ancora una volta la causa l'ha trovata la lettura del C, non il trace (che
    diceva solo «faculty lessonform»): è una voce per il §28.9.
+
+## 30. La polare con il «do» di supporto (25 settembre 2026, sessione pratica)
+
+«Does water contain hydrogen?», «Does France border Spain?», «Does a cow eat
+grass?», «Does the liver produce bile?» rispondevano tutte «no fact I hold decides
+whether …»: un'affermazione **falsa** sulla propria conoscenza, con i fatti in KB e
+la domanda aperta («What does water contain?») che rispondeva. Mancava il ponte
+radice → forma flessa per la polare (c'era solo per la domanda sull'oggetto).
+Cura in KB (`polar_question_verb/2`, grammar.p0), zero C. La prima stesura
+falliva in silenzio: `naf(modal_force($Aux, $F))` con `$F` libera **fallisce
+sempre** (la trappola dichiarata nella sintassi, §4). Probabilmente è la stessa
+specie del rosso non spiegato del §28.8: un rilevatore di `naf` su variabili
+libere, al caricamento, è la prima voce da aggiungere agli strumenti del §28.9.
+Banco `docs/labs/l3/pratica/polare-do.p0t` 8/8; soft-test 4 s. Sui file di test
+con domande «Does …» il demone muore su `self_language_ability.p0t` **con e senza**
+la regola: il crash è preesistente, da indagare a parte.

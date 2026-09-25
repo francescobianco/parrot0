@@ -1549,6 +1549,21 @@ turn_question_verb($Root, $Root, 1) :-
 % `verb_stem/2` sa gia' che «include» e' la radice di «includes».
 turn_question_verb($Stem, $Verb, 1) :-
     object_question_verb(current_turn, $Stem), verb_stem($Verb, $Stem).
+% L3 §30 (25 settembre 2026) — E LA POLARE CON IL «DO» DI SUPPORTO. «Does water
+% contain hydrogen?» rispondeva «no fact I hold decides whether water contain
+% hydrogen» — falso: `contains(water, hydrogen)` e' in KB, e «What does water
+% contain?» rispondeva. La domanda sull'oggetto aveva il ponte radice → forma
+% (qui sopra), la polare no. Stessa classe: l'ausiliare del «do» apre il turno,
+% un sintagma, poi il verbo nudo. Vale per ogni verbo di relazione.
+machinery(polar_question_verb).
+machinery(modal_auxiliary).
+modal_auxiliary($Aux) :- modal_force($Aux, $F).
+% (`naf` con una variabile libera fallisce in silenzio: l'ausiliare e' ground)
+polar_question_verb($T, $Verb) :-
+    turn_word($T, 0, $Aux), bare_verb_auxiliary($Aux), naf(modal_auxiliary($Aux)),
+    turn_word($T, $V, $Verb), lt(1, $V), naf(stopword($Verb)).
+turn_question_verb($Stem, $Verb, 1) :-
+    polar_question_verb(current_turn, $Stem), verb_stem($Verb, $Stem).
 answer_frame($Form, $Root) :- turn_question_verb($Form, $Root, $Arg).
 answer_frame_turn_arg($Form, $Root, $Arg) :- turn_question_verb($Form, $Root, $Arg).
 
