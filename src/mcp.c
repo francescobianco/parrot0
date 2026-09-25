@@ -291,7 +291,7 @@ static const McpTool TOOLS[] = {
  "{\"type\":\"object\",\"properties\":{\"min_support\":{\"type\":\"number\"}}}"},
 {"kb.stats", "Report how many facts the KB holds.",
  "{\"type\":\"object\",\"properties\":{}}"},
-{"kb.save", "Persist the session delta (session+induced clauses) to a file.",
+{"kb.save", "Route session knowledge into the KB tree, using path as the fallback for new predicates (same default as CLI /save).",
  "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"}}}"},
 {"kb.restore", "Forget the unsaved session and reload every KB file from disk "
  "in place (the /restore of gen276) — makes file edits go live.",
@@ -643,7 +643,7 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
     }
     if (strcmp(name, "kb.save") == 0) {
         const char *path = jstr(a, "path");
-        if (!path) path = "kb/core/session.p0";
+        if (!path) path = brain_save_fallback_path();
         if (!path_ok(path)) { snprintf(out, outsz, "{\"error\":\"unsafe path\"}"); return 0; }
         int n = brain_save_session(b, path);
         if (n < 0) { snprintf(out, outsz, "{\"error\":\"save failed\"}"); return 0; }

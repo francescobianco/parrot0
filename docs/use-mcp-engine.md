@@ -66,7 +66,7 @@ JSON-RPC arbitraria). La cartella di stato è `$PARROT0_MCP_DIR`
 | `kb.dump` `{}` | tutti i fatti, leggibili | `kb_dump_all` |
 | `kb.induce` `{min_support}` | induce regole dai fatti | `kb_induce` |
 | `kb.stats` `{}` | quanti fatti | `kb_size` |
-| `kb.save` `{path}` | persiste il delta di sessione su file | `brain_save_session` |
+| `kb.save` `{path?}` | instrada la conoscenza di sessione; `path` è la ricaduta | `brain_save_session` |
 | `kb.restore` `{}` | dimentica il non salvato, ricarica i file da disco | `brain_reload` (gen276) |
 | `input.segment` `{text}` | span con offset, ruolo aperto, registro, score, proof e faculty; pareggi espliciti | `input_segment` (gen332) |
 | `input.classify` `{relation,text,candidates?}` | confronta ipotesi KB → winner/gap/ambiguous con gli stessi supporti di intenti e registri | `kb_hypothesis_best` (gen332) |
@@ -85,28 +85,26 @@ subito. Per farlo diventare persistente (e per raccogliere modifiche fatte al
 file da fuori), c'è il loop che la missione descrive:
 
 1. aggiungi conoscenza (`kb.assert`, `text.extract`, o edita un `.p0` a mano);
-2. `kb.save {path}` la scrive su un file `.p0`;
+2. `kb.save {}` la instrada nell'albero KB;
 3. `kb.restore` ricarica **tutti** i file da disco, in place, senza riavviare;
 4. interroghi la conoscenza nuova.
 
-> **gen382g** — quanto segue descrive il modello precedente, in cui la sessione
-> era un file caricato al boot. Oggi ciò che si impara si **instrada** nell'albero
-> curato (`kb.save` + save-map) e viene riletto da lì; il file di sessione è solo
-> un dump di runtime. Vedi `docs/session-and-provenance.md`.
+La ricaduta predefinita è `PARROT0_SESSION_FALLBACK`, oppure
+`kb/learning/learned.p0` se la variabile manca o è vuota, come nella CLI `/save`.
+Un `path` esplicito prevale: se scegli un altro file, deve essere incluso nel
+profilo per riapparire al boot. `PARROT0_SESSION` non è più un input.
+Corretto il 25 settembre 2026: MCP usava ancora `kb/core/session.p0`, ignorato
+al riavvio; un contatto L3 salvato con il default spariva.
 
-Perché il passo 3 la ripeschi, avvia il motore con `PARROT0_SESSION` puntato al
-file che `kb.save` scrive (così `brain_reload` lo ricarica).
-
-> **`kb.save` è un ROUTER, non un dump (il "save-map").** Con `PARROT0_KB_ROOT`
-> impostato, `brain_save_session` instrada ogni **fatto ground** nel file curato
+> **`kb.save` è un ROUTER, non un dump (il "save-map").**
+> `brain_save_session` instrada ogni **fatto ground** nel file curato
 > dei suoi *parenti* — coordinata `(predicato, primo-arg)`, tier
 > coppia-esatta → stesso-predicato → default. **Le regole (`:-`), i negativi e le
 > direttive non si instradano mai**: vanno nel file `default`/`session` (lo spill
-> del non-instradato). Il router ricostruisce oggi l'indice in memoria a ogni
-> save. `<root>/savemap.tsv` e' soltanto un dump ispettivo mai riletto, deprecato
-> e destinato alla rimozione: non e' una cache ne' una fonte. Senza
-> `PARROT0_KB_ROOT` è il save legacy a file singolo.
-> Codice: `kb_save_routed` (`src/kb.c:2092`). Uso in una mesh di addestramento e
+> del non-instradato). `<root>/savemap.tsv` è un dump ispettivo, non una fonte.
+> La radice predefinita è `kb`. Le ipotesi indotte non verificate non vengono
+> promosse dal salvataggio.
+> Codice: `kb_save_routed` (`src/kb.c`). Uso in una mesh di addestramento e
 > insidie correlate: [docs/plans/learning-mesh.md](plans/learning-mesh.md) §3.1.
 
 ## Limiti noti dei tool (gen335, misurati dal vivo)
@@ -155,7 +153,7 @@ lettura da estendere.
 | `PARROT0_SESSION=<file>` | **Obsoleta da gen382g**: la sessione non è più un input e il boot non la carica. Vedi `docs/session-and-provenance.md`. |
 | `PARROT0_SESSION_DUMP=<file>` | Dove leggere lo stato di runtime (dump Prolog, riscritto a ogni turno, mai riletto). Default: `<runtime-dir>/parrot0-session-<pid>.p0`. |
 | `PARROT0_KB_ROOT=<dir>` | Radice dell'albero curato in cui `kb.save` instrada i fatti nuovi. Default `kb`. |
-| `PARROT0_KB_ROOT=<dir>` | Attiva il **fact router** (save-map). Senza, `kb.save` fa un dump legacy a file singolo. Con, instrada ogni fatto ground nel file curato dei suoi parenti (coordinata `(predicato, primo-arg)`). **Le regole (`:-`) non si instradano mai** — finiscono nello spill. |
+| `PARROT0_SESSION_FALLBACK=<file>` | Ricaduta di CLI `/save` e MCP `kb.save` senza `path`. Default `kb/learning/learned.p0`; un file diverso deve far parte dei caricamenti del profilo. |
 
 ## Sicurezza
 

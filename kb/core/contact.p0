@@ -8,9 +8,10 @@
 % sola, N, nasce un EPISODIO: «N potrebbe nominare R». Il connettivo («so», «;»,
 % «and»), l'ordine delle porzioni e la forma della seconda non contano.
 %
-% Un episodio e' un'ipotesi, non un fatto: la lettura che ne viene e' qualificata
-% finche' i sostegni indipendenti sono uno; il ritiro e' uno strato che si
-% aggiunge (§19), non una cancellazione.
+% Un episodio e' un'ipotesi, non un fatto: la lettura resta qualificata.
+% Il conteggio distingue episodi, NON certifica indipendenza (§26 del piano).
+% Letture concorrenti restano visibili ma sospese; il ritiro e' uno strato
+% che si aggiunge (§19), non una cancellazione.
 
 :- file_attribute(machinery).
 
@@ -181,9 +182,30 @@ contact_proposed_word($W, $R) :- contact_episode($W, $R, $E).
 contact_relation_word($R, $W) :- extract_frame($P, $R), atom_words($P, $Ws), member($W, $Ws).
 
 % ── L'IPOTESI E IL SUO USO ─────────────────────────────────────────────────
-contact_bridge($N, $R) :-
+% Proporre non e' scegliere. Due significati della stessa superficie possono
+% essere polisemia o un allineamento sbagliato: senza contesto discriminante
+% nessuno dei due autorizza un ponte GLOBALE. Prima, il lettore sceglieva per
+% ordine e la premessa poteva dire «was born in» davanti a «wood pulp».
+% Le alternative non si cancellano: un controesempio pertinente sospende una
+% candidata e rende di nuovo usabile l'altra, nello stesso lessico condiviso.
+machinery(contact_candidate).
+machinery(contact_competing).
+contact_candidate($N, $R) :-
     contact_episode($N, $R, $E), naf(contact_bridge_withdrawn($N, $R)),
     naf(contact_countered($N, $R)).
+contact_competing($N, $R) :- contact_candidate($N, $Other), dif($Other, $R).
+contact_bridge($N, $R) :- contact_candidate($N, $R), naf(contact_competing($N, $R)).
+% Una domanda sulla parola sospesa deve nominare l'incertezza, non fingere
+% che gli episodi siano spariti. Le affermazioni restano osservabili: possono
+% proprio portare il controesempio che distingue le letture.
+machinery(turn_contact_ambiguous).
+turn_contact_ambiguous($T) :-
+    contact_candidate($N, $R), contact_competing($N, $R),
+    turn_illocution($T, question), input_node_atom($T, $I, $W), contact_word_form($N, $W).
+turn_priority_response($T, $Text) :-
+    turn_contact_ambiguous($T), current_language($L), response_template(contact_ambiguous, $L, $Text).
+response_template(contact_ambiguous, en, "I have competing readings for that word. Can you give an example that distinguishes them?").
+response_template(contact_ambiguous, it, "Ho letture concorrenti per quella parola. Puoi dare un esempio che le distingua?").
 % Un controesempio basta a sospendere l'ipotesi, qualunque sia il numero dei
 % sostegni: una coincidenza ripetuta resta una coincidenza (§16.2).
 machinery(contact_countered).
@@ -228,10 +250,13 @@ view_depends(extract_frame, contact_counter).
 view_depends(extract_frame, contact_bridge_withdrawn).
 view_depends(construction_claims, contact_shape).
 
-% Un solo sostegno: la risposta dice come ha letto il nome, in OGNI turno che
-% lo nomina — domanda o affermazione — perche' ogni lettore ora lo usa.
+% La risposta dice come ha letto il nome in OGNI turno che lo nomina.
+% Due tuple diverse non sono due prove indipendenti: una puo' essere stata
+% letta grazie all'ipotesi stessa (audit-crescita.p0t). Finche' non esiste una
+% verifica delle dipendenze, nessun conteggio toglie questa riserva. La lettura
+% e il trasferimento restano disponibili; non si spaccia l'uso per conferma.
 turn_reply_qualifies($T, $W, $G) :-
-    contact_bridge($N, $R), contact_support($N, $R, 1),
+    contact_bridge($N, $R),
     input_node_atom($T, $I, $W), contact_word_form($N, $W), contact_gloss($R, $G).
 % la parola nel turno e' quella appresa, o la sua radice («hail» per «hails»)
 machinery(contact_word_form).

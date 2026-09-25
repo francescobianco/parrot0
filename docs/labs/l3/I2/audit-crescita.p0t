@@ -1,0 +1,33 @@
+# Audit 25 settembre: contratti avversari del §14, fissati PRIMA della cura.
+# KB agi completa; nessun ponte preesistente rimosso. Le query diagnosticano;
+# il maestro comunica solo in lingua naturale. Tempi non certificati qui.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test contatto e trasferimento reale]
+!timeout 0
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+!query contact_support(geburtsort, born_in, 1)
+> What is the Geburtsort of Napoleon?
+<~ Reading
+<~ ajaccio
+
+[test uso della stessa ipotesi non e conferma indipendente]
+!timeout 0
+> The Geburtsort of Kant is Konigsberg, so his Geburtsort is Konigsberg.
+!query contact_support(geburtsort, born_in, 1)
+> What is the Geburtsort of Galileo Galilei?
+<~ Reading
+<~ pisa
+
+[test il ritiro deve sospendere anche la conseguenza senza fonte indipendente]
+!timeout 0
+!assert contact_bridge_withdrawn(geburtsort, born_in)
+!query! relation_noun(born_in, geburtsort)
+!query! born_in(kant, konigsberg)
+!query born_in(einstein, ulm)
+

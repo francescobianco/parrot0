@@ -144,8 +144,11 @@ const char *brain_version(void);
  * empty/NULL path or missing file is a no-op. Returns clauses loaded. */
 int brain_load(Brain *b, const char *path, int as_base);
 
-/* Persist the session delta (session + induced clauses, never the reflective
- * self-model) to `path`. Returns clauses written, or -1 on error. */
+/* Shared CLI/MCP fallback for session knowledge with no existing KB home. */
+const char *brain_save_fallback_path(void);
+
+/* Persist session clauses (not unverified induced clauses).
+ * Returns clauses written, or -1 on error. */
 /* Salva cio' che si e' imparato INSTRADANDOLO nell'albero curato (save-map).
  * `path` e' la sola ricaduta per i fatti che il routing non colloca, e non e'
  * mai un file di sessione. */

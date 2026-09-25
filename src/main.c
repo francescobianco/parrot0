@@ -476,9 +476,7 @@ static Brain *setup_brain(const char **out_sess) {
         /* gen382g: nessun DEFAULT di sessione. Il file di sessione non e' piu' ne'
          * un input (il boot non lo carica) ne' il bersaglio di /save (che
          * instrada): resta solo la ricaduta esplicita, se qualcuno la chiede. */
-        const char *sess = p0env("PARROT0_SESSION_FALLBACK");
-        if (!sess || !*sess) sess = "kb/learning/learned.p0";
-        *out_sess = sess;
+        *out_sess = brain_save_fallback_path();
     }
     return brain;
 }

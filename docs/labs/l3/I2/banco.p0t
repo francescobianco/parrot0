@@ -51,11 +51,11 @@
 !query contact_episode(birthplace, born_in, ep(marie_curie, warsaw, s))
 !query contact_support(birthplace, born_in, 2)
 
-[test p4 due sostegni: senza riserva]
+[test p4 due episodi non certificano indipendenza: resta la riserva]
 !timeout 0
 > What is the birthplace of Galileo Galilei?
 <~ pisa
-<! Reading
+<~ Reading
 
 [test p5 contrasto: il valore non ricompare, nessun episodio]
 !timeout 0

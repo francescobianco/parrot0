@@ -1304,6 +1304,13 @@ int brain_load(Brain *b, const char *path, int as_base) {
     return n;
 }
 
+/* CLI and agent transports must save new predicates to the same loaded
+ * fallback. The historical session.p0 is no longer an input to brain_boot. */
+const char *brain_save_fallback_path(void) {
+    const char *path = p0env("PARROT0_SESSION_FALLBACK");
+    return path && *path ? path : "kb/learning/learned.p0";
+}
+
 int brain_save_session(Brain *b, const char *path) {
     if (!b || !b->kb) return -1;
     /* gen382g: salvare significa INSTRADARE. Ogni fatto nuovo va accanto ai suoi

@@ -1,0 +1,88 @@
+# Due letture della stessa parola devono restare visibili senza scegliere
+# per ordine. I contatti e la correzione sono ordinari; nessun ponte seminato.
+# Contratto fissato prima della cura, 25 settembre 2026.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test una lettura utile nasce dal contatto]
+!timeout 0
+> Einstein was born in Ulm, so his Geburtsort is Ulm.
+> What is the Geburtsort of Napoleon?
+<~ ajaccio
+
+[test un uso incompatibile non autorizza due significati globali]
+!timeout 0
+> Steel is made of iron, so iron is its Geburtsort.
+!query contact_episode(geburtsort, born_in, $E)
+!query contact_episode(geburtsort, made_of, $E)
+!query! contact_bridge(geburtsort, born_in)
+!query! contact_bridge(geburtsort, made_of)
+> What is the Geburtsort of paper?
+<~ competing readings
+<! wood
+> What is the Geburtsort of Napoleon?
+<~ competing readings
+<! ajaccio
+
+[test un controesempio distingue e riattiva la lettura restante]
+!timeout 0
+> Glass is made of sand, but sand is not its Geburtsort.
+!query contact_counter(geburtsort, made_of, $E)
+!query contact_bridge(geburtsort, born_in)
+!query! contact_bridge(geburtsort, made_of)
+> What is the Geburtsort of Napoleon?
+<~ Reading
+<~ ajaccio
+!query made_of(glass, sand)
+!query born_in(einstein, ulm)
+
+[test il ritiro dell'ultimo ponte toglie di nuovo la lettura]
+!timeout 0
+!assert contact_bridge_withdrawn(geburtsort, born_in)
+> What is the Geburtsort of Napoleon?
+<! ajaccio
+!query contact_episode(geburtsort, born_in, $E)
+!query contact_episode(geburtsort, made_of, $E)
+
+[test ordine opposto e parola diversa: non vince la prima ipotesi]
+!timeout 0
+> Steel is made of iron, so iron is its Herkunft.
+> Einstein was born in Ulm, so his Herkunft is Ulm.
+!query contact_episode(herkunft, made_of, $E)
+!query contact_episode(herkunft, born_in, $E)
+!query! contact_bridge(herkunft, made_of)
+!query! contact_bridge(herkunft, born_in)
+> What is the Herkunft of paper?
+<~ competing readings
+<! wood
+> What is the Herkunft of Napoleon?
+<~ competing readings
+<! ajaccio
+> Glass is made of sand, but sand is not its Herkunft.
+> What is the Herkunft of Napoleon?
+<~ Reading
+<~ ajaccio
+
+[test stessa revisione per i verbi e le viste del lettore condiviso]
+!timeout 0
+> Einstein was born in Ulm, so he hails from Ulm.
+> Where does Napoleon hail from?
+<~ Ajaccio
+> Steel is made of iron, so it hails from iron.
+!query contact_episode(hails, born_in, $E)
+!query contact_episode(hails, made_of, $E)
+!query! answer_frame(hails, born_in)
+!query! answer_frame(hail, born_in)
+!query! construction_frame("@S hails from @O", $K, born_in)
+> Where does Napoleon hail from?
+<~ competing readings
+<! Ajaccio
+# Ablazione tecnica dichiarata: il ritiro naturale e' provato sopra sui nomi.
+!assert contact_bridge_withdrawn(hails, made_of)
+!query answer_frame(hail, born_in)
+> Where does Napoleon hail from?
+<~ Reading
+<~ Ajaccio

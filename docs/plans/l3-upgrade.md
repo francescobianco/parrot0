@@ -39,7 +39,71 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 
 ---
 
-## ⏸ HANDOFF — 25 settembre 2026, notte: RIPARTIRE QUI
+## HANDOFF vivo — audit di crescita, 25 settembre 2026 (in corso)
+
+**Richiesta:** verificare l'implementazione rispetto all'ambizione di crescita
+per contatto con agenti maestri, migliorarla dove necessario e conservare qui
+diagnosi e stato ad ogni passaggio significativo. Working tree iniziale pulito.
+
+**Prima lettura, non ancora una misura:** `kb/core/contact.p0` collega davvero
+le ipotesi al lessico condiviso (`relation_noun`, `construction_frame`,
+`answer_frame`), ma `contact_support` conta tuple di episodi, non prove
+indipendenti; l'osservazione avviene dopo la risposta e legge fatti che quella
+stessa risposta può aver appena scritto. Due tuple bastano a togliere la
+riserva. Il contratto del §14.4 richiede di escludere l'autoconferma, quindi
+questo è il primo punto da falsificare. Il §14.6 (conseguenze e sostegni) e I4
+(persistenza verificata) non risultano certificati dai banchi attuali.
+
+**Misurato prima della cura:** `audit-crescita.p0t`, 6 verifiche passate e 3
+fallite. Dopo «Einstein was born in Ulm, so his Geburtsort is Ulm.», il turno
+«The Geburtsort of Kant is Konigsberg, so his Geburtsort is Konigsberg.»
+produce un secondo sostegno e la domanda su Galileo risponde `pisa.` senza
+riserva. Ritirato il ponte, `born_in(kant, konigsberg)` resta dimostrabile.
+È autoconferma, poi una conseguenza orfana: §§14.4 e 14.6 violati in un
+dialogo naturale, non soltanto incompleti sulla carta. `make soft-test`:
+16/16 verifiche verdi, **16 s > 15 s**, prima di modifiche funzionali.
+
+**Banco aggiunto prima della cura:** `docs/labs/l3/I2/ambiguita.p0t`, due
+contatti che propongono la stessa parola per relazioni diverse, poi un
+controesempio che distingue. Da eseguire dopo i tre banchi storici in corso.
+La prima cura resta nel circuito del giudizio sulle ipotesi: non promuovere
+un conteggio a certezza, conservare i concorrenti, sospenderne l'uso globale
+finché non si distinguono. La manutenzione delle conseguenze richiede invece
+sostegni per ogni atto di lettura, compresi due atti nello stesso strato: non
+si cura cancellando il fatto comune e rischiando di perdere l'altra fonte.
+**Seconda falsificazione:** `ambiguita.p0t` prima della cura: 10 verifiche
+passate, 4 fallite. «Steel is made of iron, so iron is its Geburtsort.» dopo
+il contatto su Einstein lascia due ponti globali attivi. Alla domanda su paper
+la risposta è **«Reading «geburtsort» as «was born in». wood pulp.»**: il
+significato dichiarato e quello usato non coincidono.
+
+**Modifica in verifica:** separati candidati e ponti usabili in `contact.p0`;
+un concorrente non ritirato sospende l'uso globale, senza perdere episodi o
+forme. Un controesempio può distinguerli e riattivare il superstite. La riserva
+resta anche con più episodi, perché non sono prove indipendenti. `/debug`
+mostra anche i candidati sospesi e chiama il conteggio `observations`.
+Zero modifiche C, zero forme di lezione nuove. Aggiornata l'attesa di `banco`
+che prima pretendeva una promozione ingiustificata. Autoconferma nel conteggio
+e conseguenze orfane restano rossi da chiudere, non dichiarati risolti.
+
+**Primo esito dopo la cura:** `ambiguita.p0t` **25/25**, compresi ordine
+opposto, parola diversa, correzione per contatto e ritiro dell'ultimo ponte.
+Baseline storica prima delle modifiche: `tecnica` 13/13, `banco` 14/14,
+`generalizzazione` 19/19.
+
+**Persistenza, prova separata su copie COMPLETE in `/tmp`:**
+`persistenza.py` riproduce apprendimento → salvataggio → processo nuovo →
+controesempio → salvataggio → processo nuovo. Individuata una divergenza reale:
+la CLI usa `kb/learning/learned.p0` come ricaduta, il default di MCP `kb.save`
+usa ancora `kb/core/session.p0`, che il boot non carica. Nel secondo caso
+la lezione sparisce al primo riavvio; con la ricaduta CLI sopravvive e il
+controesempio la sospende. Terzo avvio ancora in verifica. Log preliminari:
+`/tmp/parrot0-l3-persistenza.txt` e `/tmp/parrot0-l3-persistenza-cli.txt`.
+Prossima modifica: condividere la scelta della ricaduta fra CLI e MCP, poi
+ripetere il ciclo usando **MCP senza parametro path**, come farebbe un agente.
+È una correzione del trasporto, nessun secondo meccanismo cognitivo.
+
+## ⏸ HANDOFF precedente — 25 settembre 2026, notte
 
 **⛔ Primo compito di domani: il soft-test è ROSSO.** Con l'ultimo commit (la
 famiglia delle relazioni nella cipolla, §25.5) `make soft-test` misura **16, 16,
