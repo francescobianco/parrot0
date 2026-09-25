@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27). **§28 H1–H2 fatti** (una condizione del contatto si impara per contatto; la categoria che il contatto conclude entra nel chunker). **Il piano NON è chiuso:** manca il criterio d'esito del §7 e la prova ricorsiva sulle politiche (§16.3). L'elenco completo di ciò che manca, e la direzione ricavata dai commit, sta nell'handoff «che cosa manca per chiudere». Soft-test verde (15 s, al limite).**
+Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27). **§28 H1–H2 e la cornice della relazione nominata (§28.7) fatti** (una condizione del contatto si impara per contatto; la categoria che il contatto conclude entra nel chunker). **Il piano NON è chiuso:** manca il criterio d'esito del §7 e la prova ricorsiva sulle politiche (§16.3). L'elenco completo di ciò che manca, e la direzione ricavata dai commit, sta nell'handoff «che cosa manca per chiudere». Soft-test verde (15 s, al limite).**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -178,8 +178,9 @@ dal 5. §28: le condizioni dell'osservatore diventano luoghi di ordine superiore
 **H1 fatto** (§28.5): il modo di riferirsi «per nome» si impara per contatto e si
 corregge con i controesempi (26/26, regressioni L3 verdi, zero C). **H2 fatto**
 (§28.6): il difetto del chunker (`hegel_hails`, `acetone_boils`) si cura con la
-lezione del contatto, perché la regola di classe esisteva già. Il prossimo passo
-è in fondo al §28.6. La proposta qui sotto
+lezione del contatto, perché la regola di classe esisteva già. **§28.7 fatto:**
+«Methanol boils at 65 degrees Celsius.» si legge con la cornice del contatto, e
+un ritiro la sospende. Il prossimo passo è in fondo al §28.7. La proposta qui sotto
 resta come alternativa.
 
 **Prossimo passo proposto (prima del §28):** il punto 5, a partire dal «No.» falso. Prima si
@@ -3177,3 +3178,53 @@ nominata («Acetone boils at 56 degrees Celsius.» → `boils_at`), presa dallo
 stesso contatto che ha dato la testa verbale e **con la provenienza
 dell'ipotesi**, così che un ritiro la sospenda. Poi la percezione dei valori in
 prosa, che apre l'induzione di classe del §28.3 su casi veri.
+
+### 28.7 La cornice della relazione nominata, dallo stesso contatto (25 settembre 2026)
+
+> *F.: «procedi con il prossimo passo del §28.6».*
+
+**Rosso, misurato prima** (setup §15.1): dopo il contatto sull'acetone,
+«Methanol boils at 65 degrees Celsius.» non scriveva niente, e «What is the
+boiling point of methanol?» → «I don't know: nothing I hold gives methanol a
+boiling point there.».
+
+**La cura (kb/core/contact.p0, zero C).** Il contatto che ha mostrato la testa
+«boils» subito dopo il soggetto ha mostrato anche **come si dice** la relazione:
+le parole del suo nome. Due clausole:
+
+- `construction_frame("@S boils at @O", "@S boils at @O", boils_at)`, derivata da
+  `contact_named_verb/2` e dal ponte in forza della relazione: la cornice entra
+  dove entrano le cornici, e la vista `extract_frame` si rifà;
+- un fatto **nuovo** di R, scritto in un turno che dice la testa appresa, riceve
+  il sostegno dell'ipotesi che regge il ponte
+  (`read_support(…, hypothesis(boiling_point, boils_at))`), così un ritiro lo
+  sospende (§14.6).
+
+**Misure.** `docs/labs/l3/H2/categoria.p0t` **22/22** (9 verifiche nuove,
+scritte prima della cura):
+
+| prova | esito |
+|---|---|
+| prima del contatto: «Methanol boils at 65 degrees Celsius.» | nessun fatto |
+| dopo il contatto | `extract_frame("@S boils at @O", boils_at)`; `boils_at(methanol, 65_degrees_celsius)` con il sostegno d'ipotesi; «What is the boiling point of methanol?» → 65 |
+| ritiro (ablazione dichiarata) | la cornice cade; il fatto del metanolo è sospeso; quello dell'acetone (base) resta; «Propanol boils at 97 …» non scrive niente |
+
+**Residuo:**
+
+1. Come per la testa (§28.6): la cornice nasce da **un** contatto e dipende dal
+   ponte di un nome («boiling point»), non da un credito suo. Se la relazione si
+   leggesse per altre vie e il nome cadesse, cadrebbe anche la cornice.
+2. Il sostegno si attribuisce a **ogni** fatto nuovo di R in un turno che dice
+   la testa, anche se una lettura nativa di R lo avesse scritto nello stesso
+   turno. Oggi per `boils_at` non ce ne sono (setup), in generale sì.
+3. La domanda con il verbo («At what temperature does methanol boil?») non è
+   stata toccata né misurata.
+
+**Regressioni:** I2 35/40/16/13/19/7, I5 30, R3 23, H1 26 — tutte verdi;
+`make soft-test` verde in 3 s.
+
+**Prossimo passo proposto:** la percezione dei valori in prosa
+(`boils_at(ethanol, "78 degrees Celsius, lower than water")`) e il segno meno
+nei token della IR. Aprono i casi veri (etanolo, azoto, mercurio) su cui
+esercitare l'induzione di classe del §28.3, e danno la conferma indipendente
+(§14.4) che oggi manca alla testa e alla cornice.

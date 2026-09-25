@@ -908,3 +908,22 @@ contact_named_verb_store_all(cons(h($R, $A), $L)) :-
 machinery(contact_named_verb_store_one).
 contact_named_verb_store_one($R, $A) :- contact_named_verb($R, $A).
 contact_named_verb_store_one($R, $A) :- naf(contact_named_verb($R, $A)), assert(contact_named_verb, $R, $A).
+% ── §28.6 — E LA TESTA PORTA LA SUA CORNICE ─────────────────────────────────
+% Lo stesso contatto che ha mostrato «boils» usato come verbo di boils_at subito
+% dopo il soggetto («Acetone boils at 56 …») ha mostrato anche come si DICE
+% quella relazione: «@S boils at @O», le parole del suo nome. Prima «Methanol
+% boils at 65 degrees Celsius.» restava illeggibile (§27.5): la relazione
+% nominata valeva solo nell'osservazione. La cornice entra dove entrano le
+% cornici (`construction_frame/3`), finche' vale il ponte della relazione.
+construction_frame($Src, $Src, $R) :-
+    contact_named_verb($R, $W), contact_bridge($N, $R),
+    atom_words($R, $Ws), words_joined($Ws, $Mid),
+    concat_atoms("@S ", $Mid, $A), concat_atoms($A, " @O", $Src).
+view_depends(extract_frame, contact_named_verb).
+view_depends(construction_claims, contact_named_verb).
+% Un fatto NUOVO di R scritto in un turno che dice la testa appresa viene da
+% quella cornice: porta il sostegno dell'ipotesi che la regge, e un ritiro lo
+% sospende (§14.6).
+contact_reading_support($T, fact($R, $S, $O, pos), hypothesis($N, $R)) :-
+    contact_named_verb($R, $W), contact_token($T, $I, $W), contact_bridge($N, $R),
+    kb_turn_act($R, cons($S, cons($O, nil)), pos, new).

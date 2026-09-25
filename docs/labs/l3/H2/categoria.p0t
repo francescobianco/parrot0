@@ -53,3 +53,35 @@
 > Methanol boils at 65 degrees Celsius.
 !query input_entity_node(current_turn, en, $I, methanol)
 !query! input_entity_node(current_turn, en, $I, methanol_boils)
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test cornice: setup dichiarato (§15.1); prima del contatto l'affermazione non si legge]
+!timeout 0
+!forget construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at)
+!forget extract_frame("the boiling point of @S is @O", boils_at)
+> Methanol boils at 65 degrees Celsius.
+!query! boils_at(methanol, $V)
+
+[test cornice: dopo il contatto «X boils at V» si legge, con la provenienza dell'ipotesi]
+!timeout 0
+> Acetone boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.
+!query extract_frame("@S boils at @O", boils_at)
+> Methanol boils at 65 degrees Celsius.
+!query boils_at(methanol, 65_degrees_celsius)
+!query read_support(fact(boils_at, methanol, 65_degrees_celsius, pos), hypothesis(boiling_point, boils_at))
+> What is the boiling point of methanol?
+<~ 65
+
+[test cornice: ritiro (ablazione dichiarata): la cornice cade, il fatto letto con lei e' sospeso]
+!timeout 0
+!assert contact_bridge_withdrawn(boiling_point, boils_at)
+!query! extract_frame("@S boils at @O", boils_at)
+!query! boils_at(methanol, 65_degrees_celsius)
+!query boils_at(acetone, 56_degrees_celsius)
+> Propanol boils at 97 degrees Celsius.
+!query! boils_at(propanol, $V)
