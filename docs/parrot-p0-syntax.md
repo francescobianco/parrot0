@@ -493,6 +493,10 @@ max_qud(I) :- issue_open(I, K), naf(issue_superseded_by_later(I)).
 | una lezione che prima diceva «Held: …» ora dice «Learned: …» e `who answered?` dice `negation` | fatti nuovi non dichiarati `machinery`/`turn_scratch` nel giornale recente |
 | un turno resta appeso oltre il budget dopo l'aggiunta di FATTI di base | un predicato omonimo di un altro file (`role_name`, `role/3`) ora enumerabile: rinomina con prefisso di famiglia; bisezione a varianti del file |
 | un test rosso solo per `turn took 1.2s (timeout 1.00s)` | costo del turno base (`TEST_TODO.md`), non del cambiamento; non si alza il budget |
+| «Held: for K, N is «…»» ma `apply K to …` declina o dà un risultato parziale | un passo che il motore non sa (§17.1): `rule for` non valida, l'esecuzione salta in silenzio; `/debug` mostra i `turn_plan_step` eseguiti |
+| un'istruzione «start at N. if it is even … repeat until …» risponde «I couldn't read …» e impara un fatto strano | il turno è stato spezzato in frasi prima del registro (§17.2); una frase sola, o niente `. ` fra le clausole |
+| una lezione «if … then …» dice «Learned rule» ma la polare non cambia | premesse diventate `holds(atomo)` (§17.4): variabili fuori da `rule_variable`, o premessa «the R of x is h» / confronto |
+| un fatto appreso contiene un'entità dei turni precedenti al posto di «it» | `coref_resolve` post-dispatch ha riscritto il pronome e rilanciato il registro (§17.2) |
 
 ## 15. Come si verifica
 
@@ -620,3 +624,140 @@ derivazioni, e un contenuto può avere più atti. Il caso Zelvo resta aperto:
 M3 (ammissibilità KB) e M4 (producer IR e migrazione di un lettore). Ogni
 costrutto diventato eseguibile va spostato dalla descrizione progettata alla
 sezione operativa pertinente, con un test e un esempio realmente verificati.
+
+## 17. Le procedure — tre motori che non si parlano (letto nel C il 26 settembre 2026)
+
+Nato dalla sessione live sulle procedure per nome
+([sessions/live/2026-09-26-procedure.log](sessions/live/2026-09-26-procedure.log)):
+«conosci Collatz? no → te lo spiego → dimmi il valore» **non si può fare oggi**,
+e il motivo è che le procedure vivono in tre meccanismi separati, nessuno dei
+quali chiama l'altro. Chi scrive KB per le procedure deve sapere in quale dei
+tre sta scrivendo.
+
+### 17.1 La procedura nominata su testo — `proc_step/3`
+
+| fatto / forma | dove | che cosa |
+|---|---|---|
+| `proc_step(Nome, N, "passo")` | `procedures.p0` (`machinery`), dichiarato in `messages.p0` | il passo N della procedura Nome, **come testo** |
+| `char_class(Classe, c)` | `messages.p0` (`vowel`, `consonant`, `digit`) | le classi di caratteri: l'**unica** parte del toolkit che è KB |
+| `teach_proc` = `text("rule for") slot(key) text("is") rest(text)` → `assert_ordered` | `messages.p0` | accoda il passo al primo indice libero (1..64) |
+| `run_proc` / `run_proc_it` = `apply K to …` / `applica K a …` → `run_procedure` | idem | esegue i passi 1..32 in ordine, profondità di chiamata 6 |
+| `list_procs` (`what procedures do you know`) → `list_keys`; `forget_proc` → `retract_ordered`; `fix_step` (`step N of K is now …`), `drop_step` (`remove step N of K`) → `op(retract_all, proc_step, [key, order, free])` (+ `assert`) | idem | manutenzione |
+| `teach_charclass` = `the K letters are …` → `assert_many` in `char_class` | idem | una classe nuova, parlando |
+
+**Gli operatori e le condizioni sono compilati** (`p0_apply_op`,
+`p0_cond_holds` in `10-memory-knowledge.c`), `strcmp` sulla prima parola del
+passo: `keep C` · `drop C` · `reverse` · `count` · `upper` · `lower` · `first [N]`
+· `last [N]` · `sort` · `unique` · `split on c` · `join with c` · `replace a with
+b` · `apply P` · `if <cond> then <passo>` · `repeat <passo> until stable|<cond>`
+(tetto 64 giri); condizioni `empty` · `any` · `has C` · `length N` · `shorter N`
+· `longer N` · `starts T` · `is T`. **Nessuna aritmetica**: gli unici numeri sono
+lunghezze e conteggi di `first`/`last`. È la lista di parole nel C che il mantra
+#2 vieta, ed è nel `C_TODO`: un operatore nuovo oggi è una ricompilazione.
+
+Trappole misurate:
+
+- **`rule for` non valida.** Qualunque `rest(text)` diventa un passo («Held: for
+  collatz, 1 is «start at the number»»). All'esecuzione un passo che il motore
+  non sa viene **saltato in silenzio** (`return 0` → `continue`): se un altro
+  passo è girato la procedura risponde con un risultato parziale, se nessuno è
+  girato la forma declina e il turno cade altrove («I don't know about collatz
+  yet»). Chi insegna non viene avvisato in nessuno dei due casi.
+- **Le classi si confrontano byte per byte**, in minuscolo: una vocale accentata
+  (`à`, due byte) o un membro di due caratteri (`sh`) non combaciano mai, anche
+  se stanno in `char_class`.
+- **`why?` dopo `apply`** dice solo «N applied step(s) of K gave V»: la traccia
+  passo per passo va in `turn_plan_step` ed è visibile solo con `/debug`.
+- Il lettore delle forme rinuncia sopra i **300 caratteri** o le **48 parole**.
+- Le forme di procedura non hanno `turn_form_priority(_, early)`: le legge
+  `mod_knowledge`, tardi nel registro, **dopo** `teachrule`, `arith`, `agent`.
+  Un turno che somiglia a un'altra cosa viene preso prima da un'altra facoltà.
+- Solo `apply`/`applica` ha la forma italiana: `rule for`, `step … is now`,
+  `remove step`, `forget the procedure` sono solo inglesi; e «forget the
+  procedure» si sovrappone alla cue `procedure_forget_cue("forget the procedure
+  from")` di `assisted-learning.p0`.
+
+### 17.2 Il ciclo numerico a rami — `mod_agent`, anonimo
+
+`60-agent-tools.c` (gen116/117) esegue a parole un ciclo con rami di parità: il
+vocabolario è KB — `agent_branch_step(Superficie, Op, Fattore)` (`double ×2`,
+`triple ×3`, `halve /2`, `add`/`plus`/`subtract`/`minus`/`multiply`/`times`/
+`divide` + numero, e gli italiani) e `agent_parity_marker(even|odd, Superficie)`
+in `procedures.p0` — ma la procedura **non ha nome, non si salva e non si
+richiama**: la funzione non contiene alcun `kb_assert`; l'unico effetto è
+`store_proof`. Il prompt che funziona nei banchi (`tests/p0t/agent/agent_branch.p0t`):
+
+```text
+> start at 27. if it is even, halve it. if it is odd, triple it and add 1. repeat until it reaches 1.
+< Reached 1 after 111 steps…
+```
+
+Condizioni della superficie: meno di **256 caratteri**; una cue di partenza
+(`start`, `begin`, `parti`, `inizia`, `comincia` — `intents.p0`); una frontiera
+trovata con `strstr`: `until`, `finch`, `fino a`; i due marcatori di parità
+(substring). Il valore iniziale è il primo numero prima del primo marcatore, il
+bersaglio il primo numero dopo `until`; arresto sull'uguaglianza, tetto 10⁶.
+
+**Trappola del turno spezzato.** Prima del registro, `compound_turn_lead`
+spezza un turno con `sentence_boundary_cue` (`". "`, `"! "`, `"; "`) e senza
+`?` e manda **ogni frase da sola** in `brain_respond`; il turno intero torna al
+registro (dove sta `mod_agent`) **solo se nessuna frase è stata letta**. Nel
+profilo `base` dei test tutte murano e il ciclo parte; nel profilo `agi` una
+frase viene letta e il ciclo non gira mai: «I couldn't read «start at 6» … Learned:
+repeat until shout reach 1». I prompt a una frase di `agent.p0t` («start at 3
+and double until you reach 50») aggirano il problema. Qui «shout» non è una
+lacuna pendente: è `coref_resolve` (post-dispatch) che sostituisce il primo
+`entity_pronoun` («it») con l'ultima `entity_mentioned` e **rilancia il registro**
+sulla frase riscritta, che un lettore salva come fatto senza chiedersi se ha
+senso; al turno dopo lo stesso meccanismo produce «repeat until repeat until…».
+
+### 17.3 Le procedure numeriche scritte a mano — senza consumatori
+
+`factorial/2`, `fib/2` (solo i casi base), `gcd/3`, `lcm/3`, `is_prime/1`,
+`power/3` stanno in `procedures.p0` (§ MATH PROCEDURES) ma **nessuno le
+chiama**: «What is the factorial of 6?» → 720 lo calcola `20-math.c`
+(`find_token "factorial"/"fattoriale"`, n ≤ 20), i primi `arith_is_prime`.
+L'unica consumata è `choose/3` (`hypergeom_term`). La via KB verso i numeri è
+`numeric_cue(Frase, Op)` → `apply_numeric(Op, Lista, R)` (`numeric-questions.p0`:
+greatest, least, ascending, median, remainder, gcd, lcm) e `infix_operator/2` +
+`apply_operator(Op, A, B, R)` (`gcd_op`, `avg_op`, plus/minus/times/divide) —
+nessuna delle quali ha una `turn_form`: una procedura numerica nuova **non si
+insegna parlando**. La terza via, `procedure_teach_cue("to convert")` in
+`assisted-learning.p0` (`learning_candidate(procedure(Da, A), …)` → `apply_operator`),
+è lineare — niente cicli, niente rami, nome legato alla coppia di unità — e il
+suo protocollo di risposta `turn_learning_response/2` non ha consumatore nel C.
+«Do you know the factorial?» non ha forma (`knowledge_head` copre solo «do you
+know about / anything about»): finisce nello smalltalk.
+
+### 17.4 Il lettore delle regole «if … then» — che cosa può essere una premessa
+
+`mod_teach_rule` (`10-memory-knowledge.c`): `w[0]` ∈ `rule_antecedent_marker`,
+un `rule_consequent_marker` dopo; l'antecedente si spezza sulle congiunzioni.
+Ogni clausola tenta tre letture, in ordine:
+
+1. **tipizzata** — `V is the R of V2` (arità 2) o `V is a C` (arità 1, la classe è
+   l'ultima parola); il soggetto deve essere un termine di regola;
+2. **frame** — almeno due `rule_variable`/`rule_anaphor` e un frame a due slot:
+   «x contains y» → `contains($V1, $V2)`;
+3. **atomo opaco** (attivo per `propositional_conditionals(on)`): ≤ 8 parole
+   alfabetiche, articoli tolti → `holds(slug)`.
+
+Le variabili sono **solo** `someone/anyone/something/qualcuno/chiunque/qualcosa/
+x/y/z` (`grammar.p0`): `h`, `n` sono costanti. Perciò «if the minimum height of x
+is h and n is greater than h then x is required at n» diventa
+`holds(x_is_required_at_n) :- holds(minimum_height_of_x_is_h), holds(n_is_greater_than_h)`
+e viene annunciata «Learned rule»: il controllo di sicurezza guarda solo le
+variabili `$`, e una regola di soli atomi passa. Limiti duri: arità ≤ 2 per
+goal, nessuna negazione, **nessun confronto, `is/2` o aritmetica**, ≤ 8 variabili.
+Una soglia («serve la protezione a 3 metri?») non è esprimibile come regola detta.
+
+### 17.5 Che cosa manca per «te lo spiego e mi dici il valore»
+
+Il ponte è uno: dare al ciclo numerico un **nome** (`rule for collatz is …` con
+passi che riusano `agent_branch_step` e `agent_parity_marker`, così il
+vocabolario resta KB) e far sì che `run_procedure` sappia eseguire un passo
+numerico — cioè un interprete generico che consulta `apply_operator/4` invece
+della `switch` di `strcmp`. La rotta è in
+[plans/teachable-procedures.md](plans/teachable-procedures.md) §2.3 (lo strato I,
+«l'unico C che cresce»), che però oggi non nomina nessuno dei tre motori qui
+sopra: la sezione va riallineata prima di costruire.

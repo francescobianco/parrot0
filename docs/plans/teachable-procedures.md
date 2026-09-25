@@ -17,6 +17,17 @@
 
 ---
 
+> **Stato misurato, 26 settembre 2026.** Le procedure vivono oggi in TRE motori
+> che non si parlano — passi su testo nominati (`proc_step/3`, operatori
+> compilati), ciclo numerico a rami anonimo (`mod_agent`, vocabolario KB),
+> procedure numeriche scritte a mano senza consumatori — e nessuno è
+> l'interprete di riscrittura di §2.3. La lettura del C è in
+> [parrot-p0-syntax.md §17](../parrot-p0-syntax.md); le forme da aprire per
+> «conosci Collatz? no → te lo spiego → dimmi il valore» in `LEARN_PROTOCOL.md`
+> §6-ter Q (48a–48g); la sessione in
+> [sessions/2026-09-26-live-procedure.md](../sessions/2026-09-26-live-procedure.md).
+> Questo documento va riallineato a quei tre motori prima di costruire il ponte.
+
 ## 0. La tesi, portata al massimo
 
 Fin qui KB-first ha voluto dire: **le FORME sono dati** (lessico, idiomi, cue,

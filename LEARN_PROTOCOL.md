@@ -1642,7 +1642,7 @@ semplici**, ed è la catena che si insegna.*
 | `step N of X is now <passo>` | **corregge** un passo invece di accodarne uno (gen507/66, forma #84) |
 | `remove step N of X` | **toglie** un passo (gen507/66, forma #86) |
 | `forget the procedure X` | **disfa** la procedura, tutta: una lezione che non si può ritrattare non è una lezione, è un vincolo (gen507/60, forma #87) |
-| `why?` dopo un `apply` | la **traccia**: ogni passo applicato e il valore che ne è uscito, in `/debug` e a parole (gen507/58, forma #88) |
+| `why?` dopo un `apply` | a parole **solo il conto**: «N applied step(s) of X gave V» (gen507/58, forma #88); la traccia passo per passo sta in `turn_plan_step` e si legge con `/debug` (misurato 26 settembre 2026) |
 
 **Operatori disponibili** (il motore li esegue; le *classi di caratteri* sono KB):
 
@@ -1686,6 +1686,54 @@ operatore in più da comporre.
 quadrata a mano manca ancora altro: gli operatori sono **su testo**, non su
 numeri, e una procedura ha **un solo registro** — l'iterazione di Newton
 (`x ← (x + n/x)/2`) ne vuole due. Sono due primitive del motore, non due forme.
+
+⚠ **Misurato dal vivo il 26 settembre 2026** (sessione
+[docs/sessions/live/2026-09-26-procedure.log](docs/sessions/live/2026-09-26-procedure.log);
+lettura del C in [docs/parrot-p0-syntax.md §17](docs/parrot-p0-syntax.md)) — le
+trappole di questa famiglia, da conoscere prima di insegnare:
+
+- **`rule for X is …` accetta qualunque testo** come passo e risponde «Held»
+  anche se il motore non sa eseguirlo; all'`apply` il passo ignoto viene
+  **saltato in silenzio** (risultato parziale se un altro passo gira, declino
+  «I don't know about X yet» se nessuno gira). Dopo ogni `rule for` si verifica
+  con un `apply` su un input noto, subito.
+- **Gli operatori sono su testo e compilati.** Niente somma, prodotto, parità:
+  una procedura numerica (Collatz, fattoriale, somma delle cifre) **non è
+  insegnabile** con questa famiglia. Le classi di caratteri (`vowel`, `consonant`,
+  `digit`, e quelle insegnate) sono l'unica parte KB, e si confrontano byte per
+  byte: una vocale accentata o un membro di due caratteri (`sh`) non combaciano.
+- **Il ciclo numerico a rami esiste, ma è anonimo.** «start at 27. if it is
+  even, halve it. if it is odd, triple it and add 1. repeat until it reaches 1.»
+  → «Reached 1 after 111 steps» (banco `tests/p0t/agent/agent_branch.p0t`), con
+  il vocabolario in KB (`agent_branch_step/3`, `agent_parity_marker/2`). Ma non si
+  può dargli un nome né richiamarlo: `rule for collatz is start at the number.
+  if it is even, halve. …` salva passi illeggibili e `apply collatz to 6`
+  declina. E nella chat con la KB viva l'istruzione a più frasi viene **spezzata
+  in frasi** prima che il ciclo la veda («I couldn't read «start at 6»»): si
+  scrive in una frase sola, senza `. ` fra le clausole.
+- **La spiegazione in prosa non ha lettore**: «The Collatz sequence of a number
+  is computed like this: if the number is even, divide it by two; …» cade allo
+  smalltalk; «To shout a word, keep only its consonants and write them in
+  capital letters» produce il fatto spazzatura «shout keep only».
+- **«Do you know the factorial?» non ha forma** e va allo smalltalk, anche se
+  «What is the factorial of 6?» risponde 720 (lo calcola il C, non `factorial/2`
+  di `procedures.p0`, che nessuno chiama). Per sapere che cosa sa fare si usa
+  `what procedures do you know?`.
+- **Una domanda su una procedura ignota può ricevere un numero.** «How many
+  Collatz steps does 6 take to reach 1?» → «5» (6 − 1, da `wordproblem`): un
+  nome di procedura sconosciuto non ferma chi calcola. È un misclaim, e vale più
+  di un muro nel report.
+- **«if … then …» non è una procedura.** Il lettore delle regole accetta solo
+  premesse «x V y» con variabili `x/y/z/someone/something…`; «the R of x is h» e
+  ogni confronto («n is greater than h») diventano atomi opachi `holds(…)` e la
+  regola, annunciata «Learned rule», non prova nulla. Una soglia non si insegna
+  come regola detta.
+- **Un pronome in una frase non letta viene riscritto** con l'ultima entità
+  nominata e la frase rilanciata: da «repeat until it reaches 1» è nato «Learned:
+  repeat until shout reach 1». Dopo una lezione fallita, controllare che cosa è
+  stato appreso (`what do you know about …`) prima di proseguire.
+- Solo `apply`/`applica` è bilingue: `rule for`, `step … is now`, `remove step`,
+  `forget the procedure` sono inglesi.
 
 ⚠ **Non `step for X is …`** per le procedure: quella superficie è dei passi di una
 *ricetta* (`process_step`, gen507/38). La distinzione è anche giusta nel merito —
@@ -1878,7 +1926,7 @@ mano resta inesprimibile.*
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 41 | `rule for X is repeat <op> until stable` | il **ciclo**, con la condizione del punto fisso | ✅ gen507/54 · restano le condizioni diverse da `stable` |
+| 41 | `rule for X is repeat <op> until stable` · `until <cond>` | il **ciclo**, con la condizione del punto fisso o dichiarata | ✅ gen507/54-55 (le condizioni sono quelle di `if`: `empty`, `has`, `length`, `starts`, `is`…) |
 | 42 | `rule for X is if <cond> then <op>` | la **condizione** | ✅ gen507/55 |
 | 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | ✅ gen507/51 |
 | 44 | `<classe> contains <caratteri>` — reso `the <nome> letters are …` | insegnare una classe di caratteri parlando | ✅ gen507/53 |
@@ -1886,6 +1934,22 @@ mano resta inesprimibile.*
 | 46 | `rule for X is replace <a> with <b>` | sostituzione | ✅ gen507/52 |
 | 47 | `rule for X is sort` · `unique` | operatori su liste | ✅ gen507/56 |
 | 48 | `rule for X takes <n> inputs` | procedure con più di un ingresso | 🔴 |
+
+*Aggiunto il 26 settembre 2026, dalla sessione live sulle procedure per nome
+(F.: «le procedure siano insegnate e siano in KB»). Il bersaglio è «conosci
+Collatz? no → te lo spiego → dimmi il valore»; oggi i tre motori (passi su
+testo, ciclo numerico anonimo, procedure scritte a mano) non si parlano — vedi
+[docs/parrot-p0-syntax.md §17](docs/parrot-p0-syntax.md).*
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 48a | `rule for X is halve` · `triple and add 1` · `add N` · `divide by N` | **passi numerici** nella stessa catena dei passi su testo, con il vocabolario che l'act-loop ha già in KB (`agent_branch_step/3`) e l'esecuzione via `apply_operator/4`, non una `switch` nuova | 🔴 |
+| 48b | `rule for X is if even then halve` · `if odd then triple and add 1` | le **condizioni di parità** (`agent_parity_marker/2`) accanto a `empty`/`has`/`length` | 🔴 |
+| 48c | `rule for X is repeat … until it reaches 1` · `until below N` | l'arresto **numerico** del ciclo (uguaglianza, sotto, sopra), oggi solo nell'act-loop anonimo | 🔴 |
+| 48d | `the collatz procedure is: start at the number. if it is even, halve. if it is odd, triple and add 1. repeat until it reaches 1.` | **dare un nome** al ciclo numerico che già gira: la spiegazione in prosa diventa i passi 48a-c; poi `what is the collatz of 6?` / `how many collatz steps does 6 take?` | 🔴 — il bersaglio della sessione |
+| 48e | `do you know <procedura>?` · `conosci <procedura>?` | risposta da `proc_step` e dalle procedure del C, mai smalltalk; «no» apre la lezione | 🔴 |
+| 48f | `rule for X is <passo ignoto>` | **rifiuto alla lezione**, non silenzio all'`apply`: «I cannot execute «…»: I know keep, drop, …» | 🔴 |
+| 48g | `regola per X è …` · `passo N di X ora è …` · `togli il passo N di X` · `dimentica la procedura X` | le forme italiane che mancano | 🔴 |
 
 ### R. Verifica — insegnare come si controlla
 

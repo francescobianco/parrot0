@@ -1,0 +1,57 @@
+# sessione: procedure per nome — collatz, fattoriale: conosci? no → te lo spiego → dimmi il valore — 2026-09-26 01:21 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@e787af38]
+# mode: conversational (tools off, network off) - 165846 facts, 5436 rules (3.28%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Nuova sessione su indirizzo di F.: procedure insegnate PER NOME e spiegate a parole — «conosci Collatz? no → te lo spiego → dimmi il valore». La KB ha già factorial e gcd come procedure (procedures.p0) e nessuna Collatz. Prima la base: che cosa sa fare con le procedure che ha, e come risponde a «conosci X?» per una che non ha.
+> Do you know the Collatz sequence?
+< That sounds nice -- tell me more about it.
+> What is the factorial of 5?
+< 120.
+> What is the greatest common divisor of 12 and 18?
+< 6.
+> How many Collatz steps does 6 take to reach 1?
+< 5.
+! Base: fattoriale e gcd rispondono (120, 6). «Do you know the Collatz sequence?» → «tell me more» (non sa). Ma «How many Collatz steps does 6 take to reach 1?» → «5.», che è FALSO (6→3→10→5→16→8→4→2→1: otto passi) e detto senza conoscere la procedura: misclaim, mantra #7, il reperto più grave. Prima capisco chi ha risposto e da dove viene quel 5; poi spiego Collatz a parole come lo direbbe un insegnante di matematica.
+> How many Collatz steps does 6 take to reach 1?
+< 5.
+> /debug trace path
+# /debug: 1 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> why did you answer that way?
+< I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn initiative, toolplan, piact, lessonform, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, claimq, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, calibrate, abduce!yield, self, archetype, fewshot, compare, rulespec, algebra, claim, operator, arith, plan looked first and declined; then 'wordproblem' claimed it — so the faculties after 'wordproblem' were never consulted.
+! Il 5 viene da «wordproblem»: ha letto «6 … 1» come un problemino (6−1) su una procedura di cui parrot0 aveva appena detto di non sapere nulla. Un nome di procedura sconosciuto dovrebbe fermare chi calcola (mantra #7, #17). Ora spiego Collatz come farebbe un insegnante, prima con una sola frase, e chiedo il valore.
+> The Collatz sequence of a number is computed like this: if the number is even, divide it by two; if it is odd, multiply it by three and add one; repeat until you reach one.
+< I know I repeat myself — I'm a small bot and honest about my limits. What would you like to try?
+> What is the Collatz sequence of 6?
+< Hmm, I don't know about collatz sequence yet. Want me to learn about it?
+> Do you know the Collatz sequence now?
+< Oh? What's it like?
+! La spiegazione in prosa di Collatz è caduta allo smalltalk: non c'è un lettore per «if … divide by two; if … multiply by three and add one; repeat until one». E il toolkit delle procedure insegnabili (rule for X is <operatore>) opera su TESTO: keep/drop/reverse/count/upper…, con condizioni empty/has/length; niente pari/dispari, niente dividere o moltiplicare. Il piano stesso lo dichiara: operatori su numeri e secondo registro sono due primitive mancanti. Collatz non è esprimibile parlando, oggi. Verifico il protocollo di F. dove PUÒ reggere: prima le procedure che sa (le sa nominare? sa spiegarle?), poi una procedura nuova su testo spiegata a parole, poi il ripiego dichiarato con la forma «rule for».
+> what procedures do you know?
+< I know how to: devowel, shout, squash, quiet.
+> Do you know the factorial?
+< Interesting -- what got you into it?
+> How do you compute the factorial of a number?
+< The factorial of a whole number is the product of all whole numbers from 1 up to it, and counts the orderings of that many distinct items.
+> What is the factorial of 6?
+< 720.
+> Do you know how to shout a word?
+< I don't know: nothing I hold says you know how to shout is word, and nothing says it isn't.
+> To shout a word, keep only its consonants and write them in capital letters.
+< Learned: shout keep only.
+> Shout the word parrot.
+< I looked up «collatz sequence» but found nothing. If you know it, teach me: «collatz sequence is defined as …».
+! Indirizzo di F.: le procedure devono essere INSEGNATE e stare in KB (teachable-procedures.md, universal-solver.md), non scritte a mano. Reperti di questo giro: parrot0 sa già quattro procedure di testo (devowel, shout, squash, quiet) ma «Do you know the factorial?» va allo smalltalk pur sapendo calcolarlo; la spiegazione a parole («To shout a word, keep only…») produce un fatto spazzatura («shout keep only»); e «Shout the word parrot» ha riesumato una lacuna vecchia (collatz sequence). Per Collatz mancano gli operatori numerici del toolkit: vedo se sono conoscenza (KB) o motore prima di decidere se fermare la sessione.
+! Scoperta: gli operatori delle procedure insegnabili (keep/drop/reverse/upper) sono compilati nell'interprete C; ma esiste un secondo motore, l'act-loop (gen116-117), che legge a parole un ciclo numerico con rami di parità («start at N. if it is even, halve. if it is odd, triple and add 1. repeat until it reaches 1») con il vocabolario in KB (agent_branch_step, agent_parity_marker). È esattamente la forma di Collatz — ma ANONIMA e istantanea: non si può darle un nome e richiamarla. Verifico che calcoli bene, poi provo a dargli il nome con «rule for collatz is …» e a richiamarlo.
+> start at 6. if it is even, halve. if it is odd, triple and add 1. repeat until it reaches 1.
+< I couldn't read «start at 6». I couldn't read «if it is even, halve». I looked up «triple» but found nothing. If you know it, teach me: «triple is defined as …». Learned: repeat until shout reach 1.
+> rule for collatz is start at the number. if it is even, halve. if it is odd, triple and add 1. repeat until it reaches 1.
+< Held: for collatz, 1 is «start at the number». I couldn't read «if it is even, halve». I couldn't read «if it is odd, triple and add 1». Learned: repeat until repeat until shout reach 1.
+> apply collatz to 6
+< Hmm, I don't know about collatz yet. Want me to learn about it?
+> what procedures do you know?
+< I know how to: devowel, shout, squash, quiet, collatz.
+! Esito: il ciclo numerico anonimo non è partito (il turno è stato spezzato in frasi e ognuna letta da sola: «I couldn't read start at 6»), e il nome collatz è entrato con un passo illeggibile («start at the number») più un fatto spazzatura che trascina un tema pendente («repeat until shout reach 1»). Collatz non è insegnabile parlando, oggi: manca il ponte fra la procedura NOMINATA (proc_step, operatori su testo in C) e il ciclo numerico a rami (act-loop, vocabolario in KB). Chiudo senza /save: nulla di appreso vale la ricaduta. F. chiede lo studio di tutto questo e l'aggiornamento di parrot-p0-syntax.md e LEARN_PROTOCOL.md: passo separato, a sessione chiusa (regola 6).
+# chiusa senza /save 01:26: i fatti appresi sono spazzatura; segue lo studio dell'insegnamento delle procedure
