@@ -103,6 +103,39 @@ Prossima modifica: condividere la scelta della ricaduta fra CLI e MCP, poi
 ripetere il ciclo usando **MCP senza parametro path**, come farebbe un agente.
 È una correzione del trasporto, nessun secondo meccanismo cognitivo.
 
+**Ripreso il 25 settembre, giro successivo (commit `c7bbee9a` + questo).**
+
+- ⛔ **F.: MCP è vietato per l'addestramento**; si usano i prompt in `make chat`
+  (LEARN_PROTOCOL.md). `persistenza.py` (MCP) è stato **tolto** e sostituito da
+  `persistenza.sh`: copia completa del repo, tre processi `make chat`, `/save`.
+  Esito: lezione, controesempio e sospensione **sopravvivono** al riavvio,
+  ricaduta `kb/learning/learned.p0`. La ricaduta condivisa `brain_save_fallback_path()`
+  resta nel C (serve alla CLI); il ramo `kb.save` di `mcp.c` non è più usato dai banchi.
+- **`ambiguita.p0t` 35/40 → 40/40**: la risposta «competing readings» non
+  scattava perché mancava `turn_plan_candidate/1` per il turno ambiguo (il
+  motore interroga `turn_priority_response/2` solo per i candidati).
+- **Autoconferma chiusa** (`contact_independent_here/3`): un episodio conta
+  solo se l'ipotesi non esisteva ancora, o se il turno dice R anche con una
+  parola piena che la KB legge come R per altra via. Altrimenti è
+  `contact_use/3`, visibile in `/debug` come `used_not_confirmed`, mai
+  contato. `audit-crescita.p0t` 7/9 → 8/9; `ambiguita` 40/40, `banco` 14/14,
+  `tecnica` 13/13, `generalizzazione` 19/19, `composizione` 7/7. Limite
+  dichiarato: un fatto già noto ripetuto col solo N non conta (manca la
+  provenienza per fatto nel test di indipendenza).
+- **Rosso nuovo, trovato con `persistenza.sh`**: il controesempio «Marie Curie
+  was born in Warsaw, but Warsaw is not her Geburtsort.» salva anche
+  `not(born_in(marie_curie, warsaw))`, un **falso**: la seconda porzione è letta
+  attraverso l'ipotesi che sta smentendo. Stessa radice delle conseguenze
+  orfane: una lettura fatta con un ponte non porta il ponte come dipendenza.
+- **Strada per entrambi** (§14.6): la provenienza per frase esiste già
+  (`fact_source/3`, `reading_fact/2`, `kb/machinery/fact-provenance.p0`).
+  Manca che una lettura fatta con una parola di contatto registri **quale
+  ipotesi** ha usato, e che il ritiro/controesempio sospenda come strato i fatti
+  che non hanno altra fonte; e che un turno che nega N non scriva R negato.
+- `LEARN_PROTOCOL.md`: L3 in testa come **primo meccanismo guida**, con canale
+  (`make chat`, niente MCP), ciclo, conteggi, controlli e limiti aperti.
+- `make soft-test`: **verde in 15 s** (budget 15 s), al limite: nessun margine; la causa del secondo in più del §25.5 non è trovata.
+
 ## ⏸ HANDOFF precedente — 25 settembre 2026, notte
 
 **⛔ Primo compito di domani: il soft-test è ROSSO.** Con l'ultimo commit (la

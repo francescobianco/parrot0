@@ -34,8 +34,32 @@ machinery(contact_store).
 contact_store($T, $N, $R, $E) :-
     naf(contact_negated($T)),
     naf(contact_episode($N, $R, $E)),
+    contact_independent_here($T, $N, $R),
     assert(contact_episode, $N, $R, $E),
     contact_store_shape($T, $N, $R, $E).
+% ⛔ §14.4 — L'USO NON E' CONFERMA. Un episodio sostiene «N nomina R» solo se
+% R(S, O) nel turno non puo' essere il prodotto di quella stessa ipotesi.
+% «The Geburtsort of Kant is Konigsberg, so his Geburtsort is Konigsberg» e'
+% letto attraverso il ponte, scrive born_in(kant, konigsberg), e poi lo
+% ritrovava come ancora: un secondo sostegno fabbricato da se' (audit-crescita).
+% L'ancora e' indipendente se l'ipotesi non esisteva ancora (allora il fatto
+% non poteva venire da lei), o se il turno dice R anche con una parola piena
+% che la KB leggeva come R per altra via («born» in «was born in»).
+% Limite dichiarato: senza la provenienza per fatto, un fatto che la KB aveva
+% gia' prima del turno, ripetuto col solo N, non conta (prudenza, non verita').
+% L'uso resta visibile come tale: `contact_use/3`, mai contato.
+machinery(contact_independent_here).
+machinery(contact_independent_word).
+machinery(contact_use).
+contact_independent_here($T, $N, $R) :- naf(contact_proposed_word($N, $R)).
+contact_independent_here($T, $N, $R) :- contact_independent_word($T, $R, $W).
+contact_independent_word($T, $R, $W) :-
+    contact_token($T, $I, $W), naf(word_is_function_word($W)), contact_explained_before($R, $W).
+contact_store($T, $N, $R, $E) :-
+    naf(contact_negated($T)),
+    naf(contact_independent_here($T, $N, $R)),
+    naf(contact_use($N, $R, $E)),
+    assert(contact_use, $N, $R, $E).
 % LA FORMA in cui la parola e' comparsa decide in quale conoscenza della lingua
 % entra (§24): dopo un possessivo che riferisce e' un NOME di relazione («his
 % Geburtsort is Ulm»); dopo un soggetto che riferisce e' un VERBO, con le parole
@@ -202,6 +226,7 @@ machinery(turn_contact_ambiguous).
 turn_contact_ambiguous($T) :-
     contact_candidate($N, $R), contact_competing($N, $R),
     turn_illocution($T, question), input_node_atom($T, $I, $W), contact_word_form($N, $W).
+turn_plan_candidate($T) :- turn_contact_ambiguous($T).
 turn_priority_response($T, $Text) :-
     turn_contact_ambiguous($T), current_language($L), response_template(contact_ambiguous, $L, $Text).
 response_template(contact_ambiguous, en, "I have competing readings for that word. Can you give an example that distinguishes them?").

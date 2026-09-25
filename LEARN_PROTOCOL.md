@@ -6,6 +6,132 @@
 > [docs/plans/train-the-learning-process.md](docs/plans/train-the-learning-process.md),
 > con l'indicatore `learning-capability` (0–100).
 
+## ⭐ L3 — l'addestramento per CONTATTO: il primo meccanismo guida (25 settembre 2026)
+
+> **Da qui si parte.** Prima di scegliere una forma di lezione dal catalogo
+> (§6-bis), si prova a insegnare **per contatto**: con l'uso ordinario della
+> lingua, la correzione e l'apposizione, come si farebbe con una persona. Solo
+> se il contatto non raggiunge la classe si scende a una lezione L2 (uno
+> schema: «X is a relation verb», «the R of X is Y»…), e il ripiego si
+> **dichiara** nel report come L2+. Piano, prove e stato vivo:
+> [`docs/plans/l3-upgrade.md`](docs/plans/l3-upgrade.md) (handoff in testa).
+
+**Perché è il primo.** Ogni lezione L2 passa da uno schema: una frase di un
+registro speciale che il maestro deve conoscere. È il limite di L2, e lascia un
+residuo metalinguistico: il maestro deve sapere *come* parrot0 impara. Il
+contatto no: il maestro parla del mondo, e parrot0 ricava da che cosa resta
+**non spiegato** attorno a una relazione che già conosce. L2 e L3 convivono
+(piano §18): gli schemi restano, ma sono il livello di sotto, non l'ingresso.
+
+**⛔ Vincoli del canale, oltre al §1.** Si insegna **solo con prompt in
+`make chat`**, in un processo vero. **Niente MCP** (`kb.assert`, `kb.save`,
+`kb.query` o altro), niente `!assert`, niente nomi di predicati nel prompt: è
+scrivere nella KB per un altro trasporto e vale zero. `/debug` è ammesso per
+**leggere** che cosa è successo, mai per scrivere. Le prove meccaniche nei
+`.p0t` di `docs/labs/l3/` restano prove della meccanica, non training.
+
+### Che cosa si può insegnare per contatto, oggi
+
+Il contatto funziona quando in **una** frase ordinaria (o in una frase di prosa
+letta, `read: …`) la KB riconosce una relazione R(S, O) che già tiene, **entrambi
+i ruoli ricompaiono** (uno ripetuto, l'altro ripreso da un possessivo o da un
+pronome) e, tolti ruoli, parole funzionali e parole con cui la KB già legge R,
+resta **una sola parola piena** N. Il connettivo («so», «;», «and») e l'ordine
+non contano.
+
+| il maestro dice | parrot0 conclude | chi lo usa, senza essere toccato |
+|---|---|---|
+| `Einstein was born in Ulm, so his Geburtsort is Ulm.` | «Geburtsort» è un **nome** di `born_in` (`relation_noun`) | `What is the Geburtsort of Napoleon?`, la polare `Is Pisa the Geburtsort of Galileo Galilei?`, l'affermazione `The Geburtsort of Kant is Konigsberg.` |
+| `Einstein was born in Ulm, so he hails from Ulm.` | «hails from» è un **verbo** di `born_in` (cornice + `answer_frame`) | `Where does Napoleon hail from?`, `Hegel hails from Stuttgart.` |
+| `Steel is made of iron, so iron is its material.` · `France borders Spain, so Spain is its neighbour.` | lo stesso meccanismo su `made_of`, `borders`: **zero righe per relazione** | come sopra |
+| `read: Marie Curie was born in Warsaw, so her Heimatstadt is Warsaw. She won two Nobel prizes.` | lo stesso, **dalla prosa, senza maestro** | come sopra |
+
+Il contatto scrive **lingua**, non una nota sulla lingua (piano §24): la
+conclusione entra nelle stesse rappresentazioni che una lezione avrebbe scritto,
+e nessun lettore sa che esiste il contatto. Finché l'ipotesi è viva, **ogni**
+turno che usa la parola lo dichiara: «Reading «geburtsort» as «was born in».».
+La riserva **non si toglie per conteggio**: più episodi non sono prove
+indipendenti (piano, handoff vivo).
+
+### Correggere, disambiguare, ritirare — sempre per contatto
+
+| situazione | che cosa si dice | che cosa succede |
+|---|---|---|
+| un'ipotesi sbagliata è nata da una coincidenza vera («Rome is in Italy, and Rome is its capital.») | una correzione ordinaria: `Milan is in Italy, but Milan isn't its capital.` | nasce un **controesempio**, uno strato che sospende l'ipotesi (§19: niente si cancella, gli episodi restano leggibili) |
+| la stessa parola è stata proposta per due relazioni (`… so iron is its Geburtsort.` dopo Einstein) | niente: è parrot0 che chiede | le due letture restano visibili ma **sospese**; alla domanda risponde «I have competing readings for that word. Can you give an example that distinguishes them?» invece di sceglierne una a caso |
+| per distinguere | un esempio che ne nega una: `Glass is made of sand, but sand is not its Geburtsort.` | la lettura negata cade, **l'altra torna usabile** |
+| un turno che si legge *grazie* all'ipotesi (`The Geburtsort of Kant is Konigsberg, so his Geburtsort is Konigsberg.`) | — | è **uso, non conferma** (piano §14.4): resta visibile come `used_not_confirmed` in `/debug`, non conta come sostegno |
+
+Dimenticare è uno **strato**, non una cancellazione (piano §19): il ritiro si
+salva come fatto e sopravvive al riavvio.
+
+### Ciclo di una lezione per contatto
+
+È il §6 applicato al contatto; i gate di verità (§4) e il checkpoint (§6.8)
+restano identici.
+
+1. **Scegliere una parola che la KB viva non collega ancora.** La KB viva collega
+   quasi ogni nome di relazione naturale in inglese («birthplace», «material»,
+   «neighbour» sono già noti): un verde su ciò che sapeva già non misura niente.
+   Si verifica **prima** con la baseline: `What is the N of X?` deve rispondere
+   «I don't know about N». Lessico di un'altra lingua e sinonimi rari sono il
+   terreno più onesto.
+2. **Baseline** su soggetti reali tenuti fuori (domanda, polare, affermazione).
+3. **Un contatto**, una frase **vera** detta come la direbbe un parlante.
+4. **Replay e transfer** su soggetti tenuti fuori e su consumatori diversi
+   (domanda, polare, affermazione che scrive un fatto): la risposta deve portare
+   la riserva «Reading «N» as …».
+5. **Contrasto**: una correzione ordinaria che nega su un'altra coppia vera; la
+   lettura deve cadere. Poi un secondo contatto indipendente la può riproporre.
+6. **`/debug`**, sonda `debug_contact` (43): `hypothesis(N, R, observations(K))`,
+   `suspended(…, competing_reading)`, `used_not_confirmed`, `withdrawn`,
+   `countered`. È il modo di sapere che cosa è nato, senza grep.
+7. **`/save`**, diff semantico (§9.2), e **processo `make chat` nuovo**: la
+   domanda deve rispondere con la stessa riserva, il controesempio deve restare.
+
+**Conteggi separati** (piano §16.3), mai sommati in un punteggio: ipotesi nate;
+trasferimenti corretti su soggetti tenuti fuori; false generalizzazioni nate e
+ritirate per contatto; letture sospese per concorrenza; usi scambiati per
+conferme (deve essere zero); falsi scritti in KB (deve essere zero).
+
+**⛔ Controlli di relazione e persistenza.** I banchi di `docs/labs/l3/I2/`
+usano «Geburtsort» ↔ `born_in` come relazione di **controllo**: quel ponte non
+va salvato nella KB curata, o i banchi smettono di misurare. La persistenza del
+controllo si prova su una **copia completa** del repo con tre processi
+`make chat` (`sh docs/labs/l3/I2/persistenza.sh`, 25 settembre: lezione,
+controesempio e sospensione sopravvivono al riavvio, ricaduta
+`kb/learning/learned.p0`). Una lezione di contatto **vera e utile** su una
+parola non di controllo segue invece la regola del segno d'uso reale («⛔ Ogni superficie
+scoperta lascia un segno d'uso reale nella KB», più sotto): si salva, si committa, si pusha.
+
+### Limiti aperti — non spacciarli per capacità
+
+- **Conseguenze orfane**: un fatto letto *attraverso* il ponte
+  (`born_in(kant, konigsberg)`) resta dimostrabile dopo il ritiro del ponte
+  (`docs/labs/l3/I2/audit-crescita.p0t`, rosso). La provenienza per frase esiste
+  già (`fact_source/3`, `reading_fact/2` in `kb/machinery/fact-provenance.p0`)
+  ed è la strada del piano §14.6.
+- **Il controesempio letto col ponte scrive il falso**: `Marie Curie was born in
+  Warsaw, but Warsaw is not her Geburtsort.` salva anche
+  `not(born_in(marie_curie, warsaw))`, cioè nega un fatto vero perché legge la
+  seconda porzione con l'ipotesi che sta smentendo (25 settembre, prova di
+  persistenza). Finché non è chiuso, **leggere il diff dopo ogni correzione per
+  contatto** e non salvare un `not(…)` che contraddice il mondo.
+- Il residuo deve essere **una parola** («boiling point» non entra, R3); il
+  possessore sull'oggetto («Rome is its capital») resta episodio senza lessico;
+  un verbo si impara solo con il soggetto ripreso da un **pronome**.
+- L'ancora è un **fatto** tenuto dalla KB: le relazioni solo derivate non fanno
+  da ancora. Un fatto che la KB sapeva già, ripetuto con la sola parola nuova
+  dopo che l'ipotesi esiste, per prudenza non conta come sostegno.
+- La **condizione di osservazione** e la **politica di accettazione** sono
+  scritte dall'ingegnere in `kb/core/contact.p0`: non si possono ancora
+  correggere parlando (residuo G1 dichiarato, piano §21.6).
+- Nessuna **verifica attiva**: parrot0 non propone ancora una domanda
+  discriminante prima di usare un'ipotesi, salvo il caso delle letture
+  concorrenti.
+- **Costo**: ogni episodio nuovo fa ricostruire la vista `extract_frame` al turno
+  dopo (3–6 s).
+
 ## Aggiornamento 20 settembre 2026 — insegnare aperture, mosse e iniziativa
 
 **Stato: primo circuito operativo, con limiti noti.** Il passaggio di consegne
@@ -121,6 +247,7 @@ parlandogli in lingua naturale.
 >
 > | | |
 > |---|---|
+> | [**⭐ L3 — per contatto**](#-l3--laddestramento-per-contatto-il-primo-meccanismo-guida-25-settembre-2026) | `X was born in Ulm, so his N is Ulm` · `… so he V Ulm` · `…, but Y is not its N` — **si prova per primo: nessuno schema, uso ordinario della lingua** |
 > | [A. Classi e appartenenza](#a-classi-e-appartenenza) | `X è un Y` · `ogni Y è P` · `nessun A è un B` |
 > | [B. Relazioni](#b-relazioni) | `V is a relation verb` · `V chains` · `V is the inverse of W` · `V goes both ways` |
 > | [C. Attributi e valori](#c-attributi-e-valori) | `X è rosso` · `correction: X è Y` · `X pesa N` |
@@ -2227,6 +2354,8 @@ nuovo.
 ### Durante
 
 - [ ] `make chat` parte senza parse error.
+- [ ] Ho provato prima il **contatto** (L3); se sono sceso a uno schema L2, l'ho dichiarato L2+.
+- [ ] Nessun MCP, `!assert` o nome di predicato nei prompt: solo `make chat`.
 - [ ] Ho registrato `B0/R0`.
 - [ ] Ho misurato la baseline prima di insegnare.
 - [ ] Ho parlato soltanto in lingua naturale.

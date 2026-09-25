@@ -257,6 +257,7 @@ machinery(debug_contact).
 debug_contact(hypothesis($N, $R, observations($K))) :- contact_candidate($N, $R), contact_support($N, $R, $K).
 debug_contact(suspended($N, $R, competing_reading)) :- contact_candidate($N, $R), contact_competing($N, $R).
 debug_contact(withdrawn($N, $R)) :- contact_bridge_withdrawn($N, $R).
+debug_contact(used_not_confirmed($N, $R, $E)) :- contact_use($N, $R, $E).
 debug_contact(countered($N, $R, $E)) :- contact_counter($N, $R, $E).
 debug_probe(43, debug_contact, any, "le ipotesi nate per contatto: nome, relazione, sostegni").
 
