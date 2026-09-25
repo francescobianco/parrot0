@@ -132,6 +132,28 @@ Milan is not its capital.» e «Einstein was born in Ulm, but Ulm is not his
 university.». Banco: `docs/labs/l3/I5/strumenti.p0t`; durata:
 `sh docs/labs/l3/I5/persistenza.sh`. Limiti: piano §26.4.
 
+### Una condizione del contatto si impara per contatto (§28 H1, 25 settembre)
+
+È lo stesso motore di I5, ma impara una **condizione**, non delle parole. Oggi
+un contatto insegna solo se un ruolo torna con un pronome o un possessivo. Un
+contatto in cui il soggetto torna **per nome** resta in sospeso (`/debug`:
+`near_way(repeated_name, …)`). Due contatti così su relazioni **diverse**
+fanno nascere il modo di riferirsi (`reference_way(repeated_name, in_force)`),
+e i due contatti si rileggono.
+
+```text
+Einstein was born in Ulm, so Einstein hails from Ulm.       (in sospeso)
+Steel is made of iron, so steel derives from iron.          (nasce il modo)
+France borders Spain, so France touches Spain.              (relazione nuova: subito)
+```
+
+Il modo si corregge come uno strumento. Se nasce da coincidenze vere («Rome is
+in Italy, and Rome is the capital of Italy.», «Steel is made of iron, and steel
+is harder than iron.»), cade con i controesempi ordinari («Milan is in Italy,
+but Milan is not the capital of Italy.», «Glass is made of sand, but glass is
+not harder than sand.»), non rinasce, e il pronome continua a insegnare. Banco:
+`docs/labs/l3/H1/riferimento.p0t`. Limiti: piano §28.5.
+
 ### Ciclo di una lezione per contatto
 
 È il §6 applicato al contatto; i gate di verità (§4) e il checkpoint (§6.8)

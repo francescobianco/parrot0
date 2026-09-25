@@ -263,6 +263,9 @@ debug_contact(near($R, $E, $Ws)) :- contact_near($R, $E, $Ws).
 debug_contact(instrument($C, in_force)) :- contact_instrument($C, $F), contact_instrument_in_force($C).
 debug_contact(instrument($C, discredited)) :- contact_instrument($C, $F), contact_instrument_discredited($C).
 debug_contact(withheld($F)) :- read_support($F, $V), fact_withheld($F).
+debug_contact(near_way($Way, $R, $E, $N)) :- contact_near_way($Way, $R, e($E, $N)).
+debug_contact(reference_way($Way, in_force)) :- contact_way_in_force($Way).
+debug_contact(reference_way($Way, discredited)) :- contact_way_known_bad($Way).
 debug_contact(countered($N, $R, $E)) :- contact_counter($N, $R, $E).
 debug_probe(43, debug_contact, any, "le ipotesi nate per contatto: nome, relazione, sostegni").
 

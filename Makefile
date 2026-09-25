@@ -518,10 +518,12 @@ SOFT_BUDGET := 15
 # facolta' (`tests/p0t/knowledge/deep_memory.p0t`, ~26s da solo per i muri con
 # timeout) si lancia a mano dopo ogni modifica del ramo; la suite intera con
 # `scripts/suite-run.sh`.
+# 25 settembre 2026 (F.): ESCE anche `knowledge/facts.p0t` — da solo 12–14 s su
+# 15, con una varianza di ±2 s fra due giri identici (misurata): il budget
+# fluttuava fra 15 e 18 s senza che niente cambiasse. Resta nella suite intera.
 SOFT_TESTS := \
   tests/p0t/health.p0t \
-  tests/p0t/conversation/basics.p0t \
-  tests/p0t/knowledge/facts.p0t
+  tests/p0t/conversation/basics.p0t
 
 soft-test: test-engine
 	@start=$$(date +%s); \

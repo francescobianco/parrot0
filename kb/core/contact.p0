@@ -104,6 +104,12 @@ contact_shape_here($T, $N, $O, verb($Mid)) :-
     contact_token($T, $P, $Ref), entity_pronoun($Ref), naf(referring_possessive($Ref)),
     atom_words($O, $OWs), contact_last_word($OWs, $OW),
     contact_span_to($T, $I, $OW, $Mid).
+% (§28) e dopo il soggetto detto di nuovo per nome: «…, so Einstein hails from Ulm»
+contact_shape_here($T, $N, $O, verb($Mid)) :-
+    contact_token($T, $I, $N), input_node_next($T, $P, $I),
+    contact_token($T, $P, $Ref), contact_repeated_word($T, $Ref),
+    atom_words($O, $OWs), naf(member($Ref, $OWs)), contact_last_word($OWs, $OW),
+    contact_span_to($T, $I, $OW, $Mid).
 contact_span_to($T, $I, $OW, nil) :- contact_token($T, $I, $OW).
 contact_span_to($T, $I, $OW, cons($W, $Rest)) :-
     contact_token($T, $I, $W), dif($W, $OW),
@@ -212,15 +218,20 @@ machinery(contact_alignment_here).
 % il sintagma, §20.3): nessuna coppia di entita' tiene boils_at. Il valore con la
 % parola ripetuta c'e' (la quantita'); i soggetti che la KB lega a quel valore si
 % chiedono ai FATTI, e si accettano se il turno li nomina parola per parola.
-contact_alignment_here($T, $R, ep($S, $O, $Of), $Ws) :-
-    contact_refers_here($T), contact_repeated_word($T, $W),
+% (il cancello del RIFERIMENTO sta fuori dall'allineamento: un contatto che
+% manca solo per quello si conserva come quasi riuscito, §28)
+machinery(contact_alignment_core).
+contact_alignment_here($T, $R, $E, $Ws) :-
+    contact_refers_here($T), contact_alignment_core($T, $R, $E, $Ws).
+contact_alignment_core($T, $R, ep($S, $O, $Of), $Ws) :-
+    contact_repeated_word($T, $W),
     input_scope_language($T, $L),
     findall($E, contact_role_candidate($T, $L, $E), $Es),
     contact_named_relation($T, $R),
     member($X, $Es), contact_entity_ends($X, $W), contact_fact_pair($T, $R, $X, p($S, $O, $Of)),
     contact_residual($T, rel($R, $S, $O), $Ws).
-contact_alignment_here($T, $R, ep($S, $O, $Of), $Ws) :-
-    contact_refers_here($T), contact_repeated_word($T, $W),
+contact_alignment_core($T, $R, ep($S, $O, $Of), $Ws) :-
+    contact_repeated_word($T, $W),
     input_scope_language($T, $L),
     findall($E, contact_role_candidate($T, $L, $E), $Es),
     contact_role_pair($Es, $W, pair($S, $O), $Of), contact_readable_relation($R),
@@ -287,8 +298,24 @@ machinery(contact_repeated_word).
 contact_repeated_word($T, $W) :-
     contact_token($T, $I, $W), contact_token($T, $J, $W), lt($I, $J),
     naf(word_is_function_word($W)).
-contact_refers_here($T) :- contact_token($T, $I, $W), referring_possessive($W).
-contact_refers_here($T) :- contact_token($T, $I, $W), entity_pronoun($W).
+% §28 — IL RIFERIMENTO E' UNA CONDIZIONE, E LE CONDIZIONI SI IMPARANO. Che
+% cosa il turno PERCEPISCE (un possessivo, un pronome, un nome detto due volte)
+% sono primitive date; QUALI percezioni contano come «il ruolo torna» e' dato:
+% il possessivo e il pronome seminati, gli altri modi appresi per contatto
+% (`contact_reference_learned/2`, piu' sotto) e correggibili come gli strumenti.
+machinery(contact_refers_by).
+machinery(contact_reference_way).
+machinery(contact_reference_seed).
+contact_refers_here($T) :- contact_reference_way($Way), contact_refers_by($T, $Way).
+contact_reference_seed(possessive).
+contact_reference_seed(pronoun).
+contact_reference_way($Way) :- contact_reference_seed($Way).
+contact_reference_way($Way) :- contact_way_in_force($Way).
+contact_refers_by($T, possessive) :- contact_token($T, $I, $W), referring_possessive($W).
+contact_refers_by($T, pronoun) :- contact_token($T, $I, $W), entity_pronoun($W).
+% due parole piene diverse dette due volte: entrambi i ruoli tornano per nome
+contact_refers_by($T, repeated_name) :-
+    contact_repeated_word($T, $A), contact_repeated_word($T, $B), dif($A, $B).
 
 % Il residuo: le parole piene del turno che niente spiega.
 contact_residual($T, rel($R, $S, $O), $Ws) :-
@@ -772,3 +799,76 @@ contact_settle_via($T, $N, $R, $E) :-
     naf(contact_episode_via_any($N, $R, $E)), contact_note_via($T, $N, $R, $E).
 machinery(contact_episode_via_any).
 contact_episode_via_any($N, $R, $E) :- contact_episode_via($N, $R, via($E, $C)).
+
+% ── §28 H1 — UNA CONDIZIONE DELL'OSSERVATORE SI IMPARA PER CONTATTO ─────────
+% Il motore di I5 (quasi riuscito → induzione fra relazioni diverse → rilettura →
+% credito finche' un episodio regge) era cablato su UNA condizione, il residuo, e
+% imparava un vocabolario. Qui la stessa forma vale per il RIFERIMENTO: «Einstein
+% was born in Ulm, so Einstein hails from Ulm.» manca solo perche' il soggetto
+% torna per nome e non per pronome. Il contatto si conserva tipizzato con la
+% percezione che l'avrebbe fatto riuscire (`contact_near_way/3`); quando due
+% contatti su relazioni DIVERSE mancano per la stessa percezione, la percezione
+% non appartiene a nessuna relazione: nasce l'ipotesi che sia un modo di
+% riferirsi (`contact_reference_learned/2`). Nessuna parola, nessuna forma.
+% Residuo dichiarato (G1): l'elenco di cio' che si PUO' percepire
+% (`contact_refers_by/2`) e la regola d'induzione restano dell'ingegnere.
+after_reply_bookkeeper(contact_near_way).
+machinery(contact_near_way).
+machinery(contact_way_near_here).
+machinery(contact_way_near_store_all).
+machinery(contact_way_near_store_one).
+machinery(contact_way_pair).
+machinery(contact_way_learn_all).
+machinery(contact_way_learn_one).
+machinery(contact_way_note).
+machinery(contact_reference_learned).
+machinery(contact_way_in_force).
+machinery(contact_way_known_bad).
+machinery(contact_seed_refers).
+turn_after_reply($T, contact_near_way) :-
+    contact_short_turn($T), naf(contact_negated($T)), naf(contact_refers_here($T)),
+    findall($A, contact_way_near_here($T, $A), $L), contact_way_near_store_all($T, $L).
+% (il cancello economico: un contatto e' una frase corta. Senza, un paragrafo
+% intero — dove ogni parola piena torna — pagava l'allineamento su ~400
+% relazioni: +3 s sul soft-test, misurato. Soglia dell'ingegnere, residuo G1.)
+machinery(contact_short_turn).
+machinery(contact_any_token).
+contact_short_turn($T) :- findall($I, contact_any_token($T, $I), $Is), list_len($Is, $K), lt($K, 17).
+contact_any_token($T, $I) :- input_node($T, $I, node(token, token, $P), $R).
+contact_way_near_here($T, nw($Way, $R, $E, $N)) :-
+    contact_refers_by($T, $Way), naf(contact_reference_way($Way)),
+    contact_alignment_core($T, $R, $E, cons($N, nil)).
+contact_way_near_store_all($T, nil).
+contact_way_near_store_all($T, cons($A, $L)) :-
+    contact_way_near_store_one($T, $A), contact_way_near_store_all($T, $L).
+contact_way_near_store_one($T, nw($Way, $R, $E, $N)) :- contact_near_way($Way, $R, e($E, $N)).
+contact_way_near_store_one($T, nw($Way, $R, $E, $N)) :-
+    naf(contact_near_way($Way, $R, e($E, $N))), assert(contact_near_way, $Way, $R, e($E, $N)),
+    contact_near_shape_one($T, $N, $R, $E),
+    findall($P, contact_way_pair(nw($Way, $R, $E, $N), $P), $Ps), contact_way_learn_all($Ps).
+% L'INDUZIONE: la stessa percezione manca su due relazioni diverse
+contact_way_pair(nw($Way, $R1, $E1, $N1), pair($Way, a($N1, $R1, $E1), a($N2, $R2, $E2))) :-
+    contact_near_way($Way, $R2, e($E2, $N2)), dif($R1, $R2).
+contact_way_learn_all(nil).
+contact_way_learn_all(cons($P, $L)) :- contact_way_learn_one($P), contact_way_learn_all($L).
+contact_way_learn_one(pair($Way, a($N1, $R1, $E1), a($N2, $R2, $E2))) :-
+    naf(contact_way_known_bad($Way)), contact_way_note($Way, $E1, $E2),
+    contact_reread($N1, $R1, $E1, way($Way)), contact_reread($N2, $R2, $E2, way($Way)).
+% un modo gia' smentito non rinasce da una coppia nuova (come gli strumenti, §26.2)
+contact_way_learn_one(pair($Way, $A1, $A2)) :- contact_way_known_bad($Way).
+contact_way_note($Way, $E1, $E2) :- contact_reference_learned($Way, from($E1, $E2)).
+contact_way_note($Way, $E1, $E2) :-
+    naf(contact_reference_learned($Way, from($E1, $E2))),
+    assert(contact_reference_learned, $Way, from($E1, $E2)).
+% Il credito e' quello degli strumenti: il modo vale finche' un episodio nato
+% attraverso di lui non e' smentito (`contact_instrument_credited/1` su way(W)).
+contact_way_in_force($Way) :-
+    contact_reference_learned($Way, $F), naf(contact_instrument_discredited(way($Way))).
+contact_way_known_bad($Way) :-
+    contact_reference_learned($Way, $F), contact_instrument_discredited(way($Way)).
+% un episodio nato SOLO grazie a un modo appreso (nessun modo seminato nel turno)
+% gli da' credito, o glielo toglie se poi viene smentito
+contact_instrument_here($T, way($Way)) :-
+    contact_way_in_force($Way), contact_refers_by($T, $Way), naf(contact_seed_refers($T)).
+contact_seed_refers($T) :- contact_reference_seed($W), contact_refers_by($T, $W).
+view_depends(extract_frame, contact_reference_learned).

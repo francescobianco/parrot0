@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27). **Il piano NON è chiuso:** manca il criterio d'esito del §7 e la prova ricorsiva sulle politiche (§16.3). L'elenco completo di ciò che manca, e la direzione ricavata dai commit, sta nell'handoff «che cosa manca per chiudere». Soft-test verde (15 s, al limite).**
+Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27). **§28 H1 fatto** (una condizione del contatto si impara per contatto). **Il piano NON è chiuso:** manca il criterio d'esito del §7 e la prova ricorsiva sulle politiche (§16.3). L'elenco completo di ciò che manca, e la direzione ricavata dai commit, sta nell'handoff «che cosa manca per chiudere». Soft-test verde (15 s, al limite).**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -172,7 +172,16 @@ sulla KB viva, senza ritiri che la amputino e senza schemi nuovi (§1-bis), con 
 banco §16.2 completo (punto 3). I punti 4–6 sono condizioni del contratto: un
 punto aperto si può dichiarare residuo solo con la sua misura.
 
-**Prossimo passo proposto:** il punto 5, a partire dal «No.» falso. Prima si
+**Aggiornamento, stesso giorno (F.: «parti dalle cose che abilitano
+l'apprendimento di ordine superiore»).** Il lavoro è ripartito dal punto 2, non
+dal 5. §28: le condizioni dell'osservatore diventano luoghi di ordine superiore.
+**H1 fatto** (§28.5): il modo di riferirsi «per nome» si impara per contatto e si
+corregge con i controesempi (26/26, regressioni L3 verdi, zero C). Il prossimo
+passo è la condizione «ruoli = entità della lettura» (§28.3), cioè il difetto
+del chunker affrontato come lezione di ordine superiore. La proposta qui sotto
+resta come alternativa.
+
+**Prossimo passo proposto (prima del §28):** il punto 5, a partire dal «No.» falso. Prima si
 chiarisce se la vista su `turn_surface_token` si invalida a metà turno; poi si
 porta `relation_named_here` nella grammatica condivisa a un costo ≤ +10 % sul
 turno e si toglie `contact_named_relation` da `contact.p0`.
@@ -2960,3 +2969,141 @@ interrogando i pezzi uno per uno:
   giustamente: è già saputo (§21.5).
 - Costo: un turno di contatto a forma nuova costa 7–13 s; la ricostruzione di
   `extract_frame` dopo un episodio pesa sul turno dopo (5–6 s), debito della vista.
+
+## 28. L'ordine superiore prima dei difetti: le condizioni dell'apprendimento si imparano (25 settembre 2026)
+
+> *F.: «inizia il piano ma non partire dai difetti: parti dalle cose che
+> abilitano l'apprendimento di ordine superiore. Potrebbe essere che gli stessi
+> difetti possano essere indirizzati da lezioni di ordine superiore».*
+
+### 28.1 Che cosa c'è già, e dove è chiuso
+
+Il primo ordine è «N nomina R». L'ordine superiore c'è già in un punto solo,
+I5 (§26), con un motore di quattro pezzi:
+
+1. il contatto **quasi riuscito** si conserva, invece di sparire;
+2. quando due contatti quasi riusciti su relazioni **diverse** mancano per la
+   stessa ragione, quella ragione non appartiene a nessuna relazione: nasce
+   un'ipotesi **sulla condizione**, non su una parola;
+3. i due contatti si rileggono ed entrano come episodi «nati attraverso» di lei;
+4. la condizione appresa vale finché regge almeno uno di quegli episodi, e i
+   controesempi ordinari la fanno cadere.
+
+Però il motore è cablato su **una** condizione, la dimensione del residuo, e
+impara soltanto un **vocabolario** (le parole di uno strumento). Le altre
+condizioni dell'osservatore sono scritte dall'ingegnere e non si imparano
+(§26.4, residuo 1–3): come un ruolo torna nella frase, dove sta il nome, in
+quale verso sta il possessore, se ruoli e fatti devono combaciare con le entità
+del chunker.
+
+### 28.2 La mossa: ogni condizione dell'osservatore diventa un luogo di ordine superiore
+
+Una condizione del contatto si divide in due parti:
+
+- **che cosa si può percepire.** Primitive date dall'ingegnere, per esempio «il
+  turno dice due volte la stessa parola piena», «un pronome», «un possessivo».
+  Sono il residuo G1 dichiarato, come l'intersezione fra relazioni del §26;
+- **quali percezioni contano** per quella condizione. Sono **dati**: alcuni
+  seminati come bootstrap (il pronome e il possessivo riprendono un ruolo),
+  altri **appresi** dal motore del §28.1 e correggibili nello stesso modo.
+
+Quando un contatto sarebbe riuscito tranne che per una condizione, e una
+percezione non ancora ammessa la soddisfa, il contatto si conserva **tipizzato
+con la percezione che lo avrebbe fatto riuscire**. Il resto è il motore di I5,
+generalizzato dal vocabolario alle condizioni.
+
+### 28.3 Perché questo tocca anche i difetti
+
+La domanda di F. è se i difetti dell'handoff siano indirizzabili da lezioni di
+ordine superiore. Ipotesi, da verificare una per una:
+
+| difetto (handoff, punto 5) | condizione dell'osservatore | lezione di ordine superiore possibile |
+|---|---|---|
+| verbo appreso solo con il soggetto ripreso da un pronome | **riferimento** | «un ruolo ripetuto per nome torna nella frase» (H1, qui sotto) |
+| «Rome is its capital» resta episodio senza lingua | **verso del possessore** | un verso nuovo del nome, appreso da due contatti a verso rovesciato |
+| il chunker legge `acetone_boils`; i ruoli si prendono ai fatti | **ruoli = entità della lettura** | i ruoli dai fatti che contraddicono il chunker sono un confine di sintagma: se ricorre, la lezione è `reading_boundary` (la rappresentazione di L2), non una patch |
+| «boils at» letto solo dall'osservatore; il «No.» falso | **relazione nominata dalle sue parole** | dopo episodi in cui la relazione era detta con le sue parole, la lingua impara che quelle parole la leggono, per tutti i lettori |
+
+Nessuna di queste righe è ancora provata. H1 prova la prima.
+
+### 28.4 H1 — il ruolo ripreso per nome
+
+**Rosso, misurato prima della cura** (`make test-engine`, KB agi completa):
+«Einstein was born in Ulm, so Einstein hails from Ulm.» non lascia niente, né
+episodio né contatto in sospeso. «Where does Napoleon hail from?» non risponde
+ajaccio. Con «he» la stessa frase insegna (§24.1).
+
+**Condizione di uscita, fissata prima:**
+
+- un contatto solo, o due sulla stessa relazione, non insegna niente: il nome
+  ripetuto non basta a distinguere un modo di riferirsi da una coincidenza;
+- con una seconda relazione nasce `contact_reference_learned(repeated_name, …)`;
+  i due contatti si rileggono ed entrano nella lingua («Where does Napoleon
+  hail from?» → ajaccio);
+- **caso tenuto fuori:** una terza relazione, ripresa per nome, dà subito un
+  episodio;
+- i banchi I2, I5 e R3 restano verdi; nessuna forma, nessuna parola nuova
+  scritta in KB, zero C.
+
+### 28.5 H1 — fatto (kb/core/contact.p0, zero C)
+
+- **Il riferimento è dato.** `contact_refers_here/1` non elenca più il pronome e
+  il possessivo: chiede i modi ammessi (`contact_reference_way/1`), cioè quelli
+  seminati (`contact_reference_seed/1`: possessive, pronoun) più quelli appresi
+  e in forza. Che cosa si percepisce resta in `contact_refers_by/2`: possessive,
+  pronoun, repeated_name (due parole piene diverse dette due volte).
+- **L'allineamento è separato dal cancello** (`contact_alignment_core/4`): un
+  contatto che manca solo per il riferimento si conserva come
+  `contact_near_way(Way, R, e(Ep, N))`, con la forma della parola presa subito.
+- **L'induzione, la rilettura e il credito sono quelli di I5.** Due contatti in
+  sospeso con la stessa percezione su relazioni diverse →
+  `contact_reference_learned(Way, from(E1, E2))`; i due contatti si rileggono
+  con `via(E, way(Way))`. Il modo vale finché un episodio nato attraverso di lui
+  regge (`contact_instrument_credited/1`, lo stesso predicato degli strumenti),
+  e un modo screditato non rinasce.
+- **La forma del verbo** vale anche dopo il soggetto detto di nuovo per nome
+  («…, so Einstein hails from Ulm» → «@S hails from @O»).
+
+**Misure.** `docs/labs/l3/H1/riferimento.p0t` **26/26** (1 min 20 s):
+
+| prova | esito |
+|---|---|
+| prima: «Einstein was born in Ulm, so Einstein hails from Ulm.» | nessun episodio; `near_way(repeated_name, born_in, …, hails)`; «Where does Napoleon hail from?» senza ajaccio |
+| stessa relazione due volte (Galileo, Pisa) | nessun modo appreso |
+| seconda relazione («Steel is made of iron, so steel derives from iron.») | nasce `repeated_name`; «Where does Napoleon hail from?» → ajaccio; «What does glass derive from?» → sand |
+| **tenuto fuori** («France borders Spain, so France touches Spain.») | episodio subito, con credito `via(…, way(repeated_name))` |
+| modo appreso da due coincidenze vere (capital ≈ located_in, harder ≈ made_of) | in forza, con due ipotesi sbagliate |
+| controesempi ordinari (Milan non capitale; il vetro non è più duro della sabbia) | dopo il primo il modo regge, dopo il secondo cade |
+| **tenuto fuori dopo la correzione** (Einstein/hails, France/touches) | nessun episodio, il modo non rinasce; il pronome («so he hails from Ajaccio») insegna ancora |
+
+**Regressioni:** I2 `audit-crescita` 35, `ambiguita` 40, `banco` 16, `tecnica`
+13, `generalizzazione` 19, `composizione` 7; I5 `strumenti` 30; R3
+`nomi-composti` 23 — tutte verdi.
+
+**Soft-test.** Al primo giro 17–18 s su 15. Misurato file per file, a
+contabile acceso e spento: `facts.p0t` da solo oscilla fra 12 e 14,3 s e il
+contabile non ne spiega la differenza (acceso è stato anche più veloce); anche
+spento il soft-test dava 16–17 s. Su indicazione di F. `facts.p0t` esce dal
+soft-test (Makefile, motivato): verde in 3 s.
+
+**Residuo (G1), da non tacere:**
+
+1. **Che cosa si può percepire** (`contact_refers_by/2`) è scritto
+   dall'ingegnere; si impara soltanto **quale percezione conta**. Una
+   percezione nuova (per esempio un epiteto, «the physicist») resta fuori.
+2. La regola d'induzione (due relazioni diverse) e la politica di credito sono
+   le stesse di I5, sempre scritte in KB, non apprese. È il terzo ordine: una
+   politica di credito che si corregge per contatto.
+3. Il cancello economico «al massimo 16 token» è una soglia dell'ingegnere.
+4. Il terzo campo dell'episodio (`s`/`o`, quale ruolo porta la parola ripetuta)
+   è ambiguo quando entrambi tornano per nome: l'enumerazione dà `o`.
+5. La durata (salva → processo nuovo) non è provata per H1.
+6. Nella seconda metà del banco il modo si impara da coincidenze: prova che è
+   correggibile, non che le coincidenze siano rare.
+
+**Prossimo passo proposto (§28.3).** Lo stesso motore sulla condizione **ruoli
+= entità della lettura**: un contatto riuscito solo prendendo i ruoli dai fatti
+(acetone, §27) contraddice il chunker. Se ricorre, la lezione di ordine
+superiore è un confine di sintagma nella rappresentazione di L2
+(`reading_boundary_lesson`). Così il difetto `acetone_boils` si cura con una
+lezione e non con una patch.

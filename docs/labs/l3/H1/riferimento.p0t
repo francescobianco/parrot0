@@ -1,0 +1,78 @@
+# L3/§28 H1 — un modo di riferirsi si impara per contatto (condizione, non parola).
+# KB agi completa, fatti veri, nessun ponte seminato. Rosso misurato prima della
+# cura (25 settembre 2026); le query diagnosticano, il maestro parla e basta.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test prima: il soggetto ripreso per nome non insegna]
+!timeout 0
+> Einstein was born in Ulm, so Einstein hails from Ulm.
+!query! contact_episode(hails, born_in, $E)
+!query contact_near_way(repeated_name, born_in, e(ep(einstein, ulm, $Of), hails))
+!query! contact_reference_learned($W, $F)
+> Where does Napoleon hail from?
+<! ajaccio
+
+[test la stessa relazione due volte non basta]
+!timeout 0
+> Galileo Galilei was born in Pisa, so Galileo Galilei hails from Pisa.
+!query! contact_reference_learned($W, $F)
+!query! contact_episode(hails, born_in, $E)
+
+[test una seconda relazione: il modo nasce, i contatti si rileggono]
+!timeout 0
+> Steel is made of iron, so steel derives from iron.
+!query contact_reference_learned(repeated_name, $F)
+!query contact_way_in_force(repeated_name)
+!query contact_episode(hails, born_in, ep(einstein, ulm, s))
+!query contact_episode(derives, made_of, ep(steel, iron, $Of))
+> Where does Napoleon hail from?
+<~ ajaccio
+> What does glass derive from?
+<~ sand
+
+[test caso tenuto fuori: terza relazione, ripresa per nome, episodio subito]
+!timeout 0
+> France borders Spain, so France touches Spain.
+!query contact_episode(touches, borders, $E)
+!query contact_episode_via(touches, borders, via($E, way(repeated_name)))
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test il modo si impara anche da due coincidenze vere]
+!timeout 0
+> Rome is in Italy, and Rome is the capital of Italy.
+> Steel is made of iron, and steel is harder than iron.
+!query contact_way_in_force(repeated_name)
+!query contact_episode(capital, located_in, $E)
+!query contact_episode(harder, made_of, $E)
+
+[test controesempi ordinari: dopo il primo regge, dopo il secondo cade]
+!timeout 0
+> Milan is in Italy, but Milan is not the capital of Italy.
+!query contact_counter(capital, located_in, $E)
+!query contact_way_in_force(repeated_name)
+> Glass is made of sand, but glass is not harder than sand.
+!query contact_counter(harder, made_of, $E)
+!query! contact_way_in_force(repeated_name)
+!query contact_way_known_bad(repeated_name)
+
+[test tenuto fuori dopo la correzione: il ruolo per nome non insegna, e il modo non rinasce]
+!timeout 0
+> Einstein was born in Ulm, so Einstein hails from Ulm.
+> France borders Spain, so France touches Spain.
+!query! contact_episode(hails, born_in, $E)
+!query! contact_episode(touches, borders, $E)
+!query! contact_way_in_force(repeated_name)
+
+[test il pronome, seminato, insegna ancora]
+!timeout 0
+> Napoleon was born in Ajaccio, so he hails from Ajaccio.
+!query contact_episode(hails, born_in, $E)
