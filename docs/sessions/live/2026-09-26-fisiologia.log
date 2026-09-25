@@ -1,0 +1,142 @@
+# sessione: fisiologia — che cosa fanno gli organi — 2026-09-26 00:02 — KB viva, profilo agi, un solo processo
+< parrot0 [gen510-riparazioni@1c1db336]
+< mode: conversational (tools off, network off) - 165529 facts, 5412 rules (3.27%)
+< say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Campo: fisiologia. La KB ha otto fatti veri su che cosa fanno gli organi (il fegato produce la bile, i reni filtrano il sangue, il cuore pompa il sangue...). Apro con domande che farebbe una persona: prima quelle i cui fatti esistono, per separare i muri di strada dai fatti mancanti.
+> What does the heart do?
+< I don't understand that yet.
+> What does the liver produce?
+< Bile.
+> What do the kidneys filter?
+< Blood.
+! «What does the heart do?» mura alla cieca, mentre le domande con il verbo giusto rispondono. Il fatto c'è (pumps(heart, blood)): manca la strada da «do» generico a un verbo qualunque di cui il cuore è soggetto. È una classe (ogni organo, ogni agente), non un caso. Verifico prima che la domanda col verbo risponda, e se il muro vale anche per gli altri organi.
+> What does the heart pump?
+< Blood.
+> What does the stomach do?
+< I don't understand that yet.
+> What does the pancreas secrete?
+< Insulin.
+> Tell me about the heart.
+< heart is muscular pump circulating blood through the body.
+! Confermato come classe: «What does X do?» mura per ogni organo, mentre il verbo specifico risponde e la definizione del cuore c'è. Prima di insegnare chiedo a parrot0 come ha letto la domanda: è un muro cieco («I don't understand»), e la comprensione universale dice che non dovrebbe esserlo.
+> What does the stomach do?
+< I don't understand that yet.
+> Why did you answer that way?
+< I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn initiative, toolplan, piact, lessonform, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, claimq, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, calibrate, abduce, self, archetype, fewshot, compare, rulespec, algebra, claim, operator, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, bench, reader, shell, codeast, answerframe, aggregate, code, knowledge, summary, discourse, pragma, family, personal, lone, social, chitchat, reqgen, learn, gapreport, toolpolicy, smalltalk, compose, robust, role, coref, symbolic each looked and declined, and nothing else claimed it, so I fell back to an honest «I don't understand.»
+> /debug
+# /debug: 281 righe lette dall'insegnante, fuori dal transcript
+> What does the heart pump?
+< [debug] 596.5 ms turno · 519.6 ms nel solver · 2081 query · 165614 passi
+< [debug] 166142 fatti · 5412 regole · fuori dal solver: 76.9 ms · 1 ricostruzioni indice
+< [debug] fatti visitati: 5335020 · scansioni senza indice: 0
+< [debug] modulo: answerframe
+< [debug]     298.5 ms    100149 passi     31 call  answer_frame
+< [debug]      90.5 ms     19946 passi     10 call  np_closer
+< [debug]      28.7 ms     22315 passi      4 call  answer_frame_turn_arg
+< [debug]      15.8 ms      5411 passi     39 call  attribute_question_cue
+< [debug]      13.0 ms         8 passi      1 call  input_frame_observe
+< [debug]      12.1 ms       123 passi      6 call  turn_after_reply
+< [debug]      11.8 ms       280 passi     70 call  phrase_canon
+< [debug]      11.8 ms       252 passi      1 call  input_entity_item
+< Blood.
+> /debug off
+# /debug spento
+! «What does the heart pump?» risponde answerframe: il verbo della domanda porta alla relazione pumps. In «What does X do?» il verbo è «do», un verbo che sta per un altro verbo: la risposta è qualunque relazione di cui X è soggetto. È una conoscenza sulla parola «do», quindi va insegnata come classe e non organo per organo. Primo tentativo per contatto (L3): una frase che direbbe una persona.
+> What the heart does is pump blood.
+< I don't understand that yet.
+> What does the stomach do?
+< I'm not sure I followed. Can you say it another way?
+! Reperto: il sapere c'è (about(X,V,Y) raccoglie ogni verbo di relazione di cui X è soggetto; pumps è un verbo di relazione) e c'è anche una forma per «what does X do?» (function-questions.p0), ma quella forma raggiunge solo una definizione letta, non i fatti. Strada rotta, non lacuna. Cerco la domanda con cui parrot0 arriva già a about/3.
+> What do you know about the heart?
+< I don't know anything about the heart.
+> What does the heart do to blood?
+< I cannot settle that: no fact I hold decides whether heart did to blood. Not proved is not the same as false. Tell me either way and I will hold it.
+! MURO FALSO, pesa più di un non so: «I don't know anything about the heart» mentre sa che il cuore pompa il sangue e sa dire che cos'è il cuore. Due strade rotte della stessa specie: la domanda generica su un soggetto (do / know about) non raccoglie i fatti di cui è soggetto. Non si cura parlando: è una regola di strada in KB (function_question → about/3), e la KB caricata non si cambia a sessione aperta. La annoto per dopo e cerco muri che si insegnano parlando: fatti veri che mancano, sugli organi che la KB non copre.
+> What do the lungs do?
+< I don't understand that yet.
+> What do the lungs absorb?
+< Hmm, I don't know about absorb yet. Want me to learn about it?
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> What do the lungs absorb?
+< Oxygen.
+! Imparato con una frase dichiarativa. Ora il trasferimento: la polare, la domanda inversa (chi assorbe l'ossigeno?), il complemento «from the air». Poi il contrasto: una polare dove la risposta deve essere no o non so.
+> Do the lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> What absorbs oxygen?
+< Lungs.
+> Where do the lungs absorb oxygen from?
+< Air.
+> Do the lungs absorb blood?
+< I cannot settle that: no fact I hold decides whether lungs absorb blood. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does the heart absorb oxygen?
+< I cannot settle that: no fact I hold decides whether heart absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+! MURO FALSO sulla polare di un fatto appena imparato. Il §30 aveva aperto la polare con «does». Isolo: plurale «do» contro singolare «does», fatto di base contro fatto appreso.
+> Does the heart pump blood?
+< Yes.
+> Do the kidneys filter blood?
+< Yes.
+> Does the liver produce bile?
+< Yes.
+> Do lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> Do the lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> /debug trace absorb
+# /debug: 331 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+! La polare cerca absorb(lungs, oxygen) e non la trova, ma chi-assorbe e da-dove rispondono: il fatto è tenuto in un'altra forma, col complemento «from the air». Chiedo a parrot0 che cosa ha registrato.
+> What do you know about lungs?
+< lungs is paired organs that exchange oxygen and carbon dioxide; absorb(lungs, oxygen_from_the_air).
+> What did you learn about the lungs?
+< I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear about yours.
+! Diagnosi: parrot0 ha tenuto absorb(lungs, oxygen_from_the_air). Il sintagma oggetto non si è chiuso davanti a «from»: difetto della IR (confine), non fatto mancante. Il contatto non insegna confini, quindi uso lo schema L2 dichiarato: prima il confine su «from», poi chiedo quali classi lo condividono, per estenderlo a tutte le preposizioni e non a una sola parola.
+> end the previous noun phrase before from
+< I cannot identify one uncorrected noun phrase containing «from» in the sentence we are discussing. I have not changed its reading.
+> Do the lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+! La lezione di confine agisce sulla frase «di cui stiamo parlando», cioè sul turno precedente. Ripeto la frase vera e la correggo subito: la lezione è fatta per rileggerla e ritirare la clausola vecchia.
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> how did you read the noun phrase oxygen
+< Not something I do myself, honestly -- but tell me, what about you?
+> end the previous noun phrase before from
+< I cannot identify one uncorrected noun phrase containing «from» in the sentence we are discussing. I have not changed its reading.
+> Do the lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+! Errore mio: la domanda di ispezione in mezzo ha spostato il turno di riferimento (e senza virgolette è andata allo smalltalk: reperto a parte). Rifaccio frase e correzione una dopo l'altra.
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> end the previous noun phrase before from
+< Learned: lungs absorb oxygen from the air.
+> Do the lungs absorb oxygen?
+< I cannot settle that: no fact I hold decides whether lungs absorb oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> What do you know about lungs?
+< lungs is paired organs that exchange oxygen and carbon dioxide; absorb(lungs, oxygen_from_the_air).
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen from the air.
+> end the previous noun phrase before from
+< I cannot identify one uncorrected noun phrase containing «from» in the sentence we are discussing. I have not changed its reading.
+> /debug
+# /debug: 249 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+! La correzione di confine è riuscita nella IR (la seconda volta parrot0 dice che non c'è più un sintagma non corretto), ma chi registra il fatto è un lettore in C che non consulta la IR: la lezione dice di aver fatto e non cambia il fatto. Stessa specie del reperto «a cup» di ieri: lezione accettata, effetto nullo, perché il consumatore legge le parole grezze. Serve il motore. Prima di chiudere isolo il muro falso su «about the heart»: «about lungs» rispondeva.
+> What do you know about heart?
+< pumps(heart, blood); heart is muscular pump circulating blood through the body.
+> What do you know about the lungs?
+< I don't know anything about the lungs.
+> What do you know about the liver?
+< I don't know anything about the liver.
+> What do you know about kidneys?
+< filter(kidneys, blood); kidneys is paired organs that filter blood and produce urine.
+> What do you know about the liver?
+< I don't know anything about the liver.
+> /debug
+# /debug: 557 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+! Isolato: la facoltà knowledge nomina l'entità «the_liver» con l'articolo incollato, quindi non trova niente e dice il falso («I don't know anything»). Anche questo è C (il lettore di «know about» nel percorso knowledge), non una lezione. Tre reperti su tre portano al motore: chiudo la sessione per la regola 6. Niente /save: l'unico fatto imparato è registrato incollato (absorb(lungs, oxygen_from_the_air)) e non deve entrare nella KB.
+# chiusa senza /save 00:07: l'unico fatto imparato è registrato male; tre reperti per il motore

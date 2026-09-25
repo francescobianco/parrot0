@@ -249,7 +249,7 @@ che la sessione ha già mostrato e che non deve regredire.
 
 ## 8. Limiti del dispositivo, oggi
 
-1. Le righe di parrot0 nel transcript non hanno orario (le etichetta `sed`).
+1. Le righe di parrot0 nel transcript non hanno orario. Le scrive `say`, che lascia fuori i dump di `/debug` (una riga `#` al loro posto) e, con il profilo acceso, le righe rientrate e le `[debug]`: chi guarda non li legge (F., 26 settembre).
 2. `say` riconosce la fine della risposta dal ritorno al prompt («>>> »). Una
    risposta che non torna al prompt blocca `say` fino a `LIVE_TEACH_WAIT`.
 3. `/save` scrive nell'albero curato (`kb/learning/learned.p0`). Una sessione

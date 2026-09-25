@@ -1,0 +1,1115 @@
+# cucina e sicurezza alimentare — prima sessione dal vivo — 2026-09-25 — KB viva, profilo agi, un solo processo
+< parrot0 [gen510-riparazioni@1c1db336]
+< mode: conversational (tools off, network off) - 165529 facts, 5412 rules (3.27%)
+< say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Campo: cucina e sicurezza alimentare. La KB ha fatti veri (temperature interne sicure, ore fuori dal frigo, grammi per tazza). Comincio esplorando con domande che farebbe una persona in cucina, per vedere che cosa regge e che cosa mura.
+> How long can cooked rice stay out of the fridge?
+< Hmm, I don't know about cooked yet. Want me to learn about it?
+! Muro su «cooked»: l'aggettivo davanti a rice blocca la lettura. Provo la stessa domanda senza aggettivo, per separare il muro della parola dal muro della domanda.
+> How long can rice stay out of the fridge?
+< Hmm, I don't know about fridge yet. Want me to learn about it?
+> How long can chicken stay out?
+< I don't understand that yet.
+> Is chicken safe at 70 degrees?
+< Hmm, I don't know about degrees yet. Want me to learn about it?
+! Dal file food-time.p0: parrot0 sa giudicare «left X out for N hours», ma non ha una strada per la domanda sul limite. Verifico la forma nota, con il riso (perishable) e le ore.
+> I left cooked rice out for 3 hours, is it safe?
+< No: rice is a perishable, and a perishable should not be left out for more than 2 hours; 3 hours is past that, so it is safer to throw it away.
+> I left rice on the counter for 1 hour, is it safe?
+< It is within the limit: rice is a perishable, and a perishable should not be left out for more than 2 hours. Put it in the fridge now.
+! Il giudizio con le ore regge. Cerco se esiste una formulazione della domanda sul limite che raggiunge max_hours_out: se nessuna, la lezione deve aprire la strada, non aggiungere il fatto.
+> How many hours can perishables be left out?
+< I don't understand that yet.
+> How long can rice be left out?
+< I'm not sure I followed. Can you say it another way?
+> What is the maximum time rice can be left out?
+< rice is a perishable.
+! Il limite fuori frigo ha l'ereditarieta' di classe chiusa in un lettore privato: e' un difetto di struttura, non si cura con una lezione senza toccare quel lettore. Guardo le altre due conoscenze del campo prima di scegliere.
+> What temperature should chicken reach inside?
+< Hmm, I don't know about inside yet. Want me to learn about it?
+> What is the safe internal temperature of chicken?
+< Temperature measures the average energy of the random motion of a substance's particles, and it decides which way heat flows when two bodies touch.
+> How many grams is a cup of flour?
+< I don't understand that yet.
+> How many grams are in 2 cups of sugar?
+< 396 grams: a cup of sugar weighs 198 grams.
+! Due muri utili: (1) «a cup of flour» mura mentre «2 cups of sugar» risponde; (2) la temperatura interna del pollo risponde con la definizione di temperatura: risposta a un'altra domanda, piu' grave. Isolo (1): e' l'articolo «a» al posto del numero, o «is» al posto di «are in»?
+> How many grams are in a cup of flour?
+< I don't understand that yet.
+> How many grams are in one cup of flour?
+< 120 grams: a cup of flour weighs 120 grams.
+> How many grams is 1 cup of flour?
+< 120 grams: a cup of flour weighs 120 grams.
+! Isolato: «one cup» e «1 cup» rispondono, «a cup» no. Il contatto (L3) non impara corrispondenze fra forme, quindi uso uno schema L2, dichiarato: una forma con variabili che vale per ogni misura e ogni ingrediente. Poi caso tenuto fuori (zucchero, avena) e contrasto.
+> how many grams are in a x of y means how many grams are in one x of y
+< I cannot anchor that lesson yet: I do not have one unambiguous reading for how many grams are in one x of y.
+> How many grams are in a cup of flour?
+< I don't understand that yet.
+> How many grams are in a cup of oats?
+< I didn't quite catch that. What would you like to know?
+> How many grams are in a cup of sugar?
+< I don't understand that yet.
+! La forma a variabili non si ancora: il bersaglio lo legge una regola KB (cup_grams_answer), non una forma di turno, e il lettore delle lezioni non lo riconosce come lettura. Reperto per gli strumenti. Ripiego sulla parafrasi letterale della misura: vale per tutti gli ingredienti, non per tutte le misure.
+> "a cup" is another way to say "one cup"
+< Got it - «a cup» asks for the same thing as «one cup».
+> How many grams are in a cup of flour?
+< I don't understand that yet.
+> How many grams is a cup of oats?
+< Hmm, that's a bit beyond me right now.
+> How many grams are in a cup of milk?
+< I don't understand that yet.
+> I drank a cup of tea.
+< I'm not sure I followed. Can you say it another way?
+! REPERTO: «"a cup" is another way to say "one cup"» e' accettata («Got it») ma non raggiunge cup_count, che legge le parole grezze del turno (turn_word), non il testo canonico. Una lezione che dice di aver imparato e non cambia niente: da segnalare. Serve il motore: non lo tocco a sessione aperta (regola 6). Passo alla temperatura interna del pollo.
+> Chicken is safe to eat when its inside reaches 74 degrees Celsius, so its safe internal temperature is 74 degrees Celsius.
+< I looked up «inside» but found nothing. If you know it, teach me: «inside is defined as …».
+> What is the safe internal temperature of pork chops?
+< Temperature measures the average energy of the random motion of a substance's particles, and it decides which way heat flows when two bodies touch.
+! Il contatto sul pollo non ha insegnato niente. Invece di indovinare chiedo a parrot0 che cosa ha visto: /debug subito dopo il contatto, sonda dei contatti.
+> Chicken is safe to eat at 74 degrees Celsius, so its safe internal temperature is 74 degrees Celsius.
+< I looked up «degrees» but found nothing. If you know it, teach me: «degrees is defined as …».
+> /debug
+<   NOTA — a che cosa serve addestrare parrot0 parlandogli.
+<   L'addestramento via prompt serve a STRUTTURARE le sue abilita' di
+<   autoapprendimento e automiglioramento: dargli il modo di accorgersi di una
+<   lacuna, di porsi la domanda giusta e di colmarla da solo la prossima volta.
+<   NON serve a spingergli dentro fatti e regole secche.
+<   Un fatto che nessuna forma sa raggiungere non risponde e non genera domande:
+<   e' peso morto due volte, e non si lamenta. Prima di insegnare un valore,
+<   chiediti se manca il valore o se manca la STRADA che ci arriva — e se
+<   quello che stai per dire varra' anche per il caso che non hai davanti.
+<   La domanda di controllo e' sempre la stessa: parrot0 potra' impararne un
+<   membro nuovo domani, da solo, senza che nessuno riscriva questa riga?
+<   TURNO   Chicken is safe to eat at 74 degrees Celsius, so its safe internal temperature is 74 degrees Celsius.
+<   canone  chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.
+<   modulo  acquisition
+<   firma   2676a20e  (128 predicati distinti)
+<   strada  (i nomi si raccolgono solo col debug gia' acceso: riponi il turno)
+<   SONDE
+<     debug_grammatical_cue  gli indizi grammaticali e pragmatici con gli span della IR — evidence(span(2, 2), verb_chain, progressive) evidence(span(2, 2), verb_chain, passive) evidence(span(4, 4), quantity, range_end) evidence(span(4, 4), space, goal) evidence(span(4, 4), space, extent) evidence(span(4, 4), adjunct, recipient) …
+<     debug_token_morphology lemma e forma: passato, participio, gerundio, plurale — morphology(2, be, present_third) morphology(5, eat, base) morphology(15, be, present_third)
+<     debug_auxiliary_chain  le catene ausiliare-verbo provate sui nodi contigui — niente
+<     debug_scope_requirement gli operatori che richiedono un ambito prima di asserire — scope(span(4, 4), quantity, range_end) scope(span(11, 11), presupposition_trigger, existence)
+<     debug_pragmatic_candidate le inferenze pragmatiche candidate con le condizioni ancora da provare — niente
+<     topic_read             la MEMORIA PROFONDA: che cosa ho letto, e dove — niente
+<     acquisition_policy     la politica di lettura (ask / act / never) — ask
+<     debug_token_streams    DOVE i due flussi di token dicono cose diverse sullo stesso turno — niente
+<     turn_gap_kind          SPECIE della lacuna (derivata) — niente
+<     turn_outcome           esito del turno — answered
+<     turn_topic             parola nominata — niente
+<     turn_module            facolta' che ha risposto — acquisition
+<     turn_gap_remedy        IL RIMEDIO che quella specie chiede — niente
+<     turn_focus             DI CHE COSA chiede il turno (ambito escluso) — niente
+<     turn_focus_input       su quale testo il fuoco e' stato letto — niente
+<     turn_focus_rejected    risposte ritirate: fuori dal fuoco — niente
+<     turn_illocution        la FORZA del turno: question / directive / assertion / expressive — prose_carried unasked expressive
+<     turn_class_read        il lettore X-is-a-Y: che cosa ha letto, o a quale cancello si e' fermato — niente
+<     machinery_gap          lacuna registrata per questo turno — niente
+<     gap_kind               specie della lacuna — niente
+<     pending_gap            parole opache in attesa — cooked fridge
+<     open_issue             il TABELLONE (issues.p0): le questioni aperte, per genere — niente
+<     max_qud                la questione MASSIMA: quella su cui il turno si legge per primo — gap_offer_fridge
+<     gap_register           registro riconosciuto — niente
+<     plan_move              i PIANI che so: situazione, ordine, mossa — niente
+<     turn_plan_step         il PIANO INTERNO: i passi fatti dentro questo turno, in ordine — niente
+<     debug_np_candidate     i sintagmi candidati della IR del turno — niente
+<     debug_turn_entity      le entita' che i frame del turno possono legare — temperature chicken safe safe_internal_temperature
+<     debug_frame_record     la lettura registrata del turno (frame e ruoli) — frame(frame(assertion, membership(is)), roles(subject(chicken), class(temperature)))
+<     debug_binding          i legami impegnati dalla lettura — binding(binary(teach), plato, object(aristotle)) binding(binary(teach), aristotle, object(alexander)) binding(binary(limit), kanban, object(work)) binding(binary(measure), nanometre, object(length)) binding(binary(pass), capacitors, object(alternating_current)) binding(binary(measure), hertz, object(frequency)) …
+<     debug_complement       i complementi registrati accanto ai legami — complement(binding(limit, kanban, work), in, progress)
+<     debug_frame_candidate  i frame candidati del turno (tutti, prima dell'unicita') — frame(assertion, membership(is), roles(subject(chicken), class(temperature)))
+<     turn_said_by           chi ha prodotto la risposta: la forma di turno e il template di frase — template(wall_classic) template(fallback_gap_offer_plain) template(wall_generic) template(construction_target_unknown) template(cue_taught_like) template(gap_looking_up) …
+<     turn_faculty_path      la STRADA del dispatch: chi ha ceduto (!yield), chi ha declinato, => chi ha risposto — initiative toolplan piact lessonform repair mention input forget teachconstruction taughtframe teachrule teachreply claimq qa gen!yield deepreason count namestart wordquery sequence spell world translate synth induce verify memory loop meta strategy counterfactual whatifnot calibrate abduce self archetype fewshot compare rulespec algebra claim operator arith plan wordproblem agent search tool quantity cause same analogy conj bench reader shell codeast answerframe!yield aggregate code knowledge summary discourse pragma family personal lone social chitchat reqgen learn!yield gapreport toolpolicy smalltalk compose robust role coref symbolic => fallback
+<     learned_bridge         ponti che il ciclo si e' insegnato — niente
+<     dead_rule              regole che non possono dedurre niente — niente
+<     turn_yield_view        cessione: quanto e' lunga OGNI vista consultata — niente
+<     turn_yield_probe       cessione: quale vista ha visto la classe — niente
+<     turn_yield_outcome     cessione: chi ha ceduto il turno — niente
+<     debug_ir_node          i nodi grezzi della IR del turno, con il livello — n(0, node(clause, clause, root)) n(1, node(token, token, 0)) n(2, node(token, token, 0)) n(3, node(token, token, 0)) n(4, node(token, token, 0)) n(5, node(token, token, 0)) …
+<     debug_quantity         le quantita' della IR del turno: numero e unita' — quantity(74, degree_celsius)
+<     debug_contact          le ipotesi nate per contatto: nome, relazione, sostegni — niente
+<     debug_paradox          il registro unico dei paradossi: cicli tagliati, budget, cortocircuiti e cicli delle viste — niente
+<   PERCHE' L'AUTOCORREZIONE POTREBBE NON ESSERSI INNESCATA
+<     NO   il turno e' fallito in modo VISIBILE (muro o declino registrato)
+<     NO   nessuna parola era opaca (se lo era, il rimedio e' leggere, non proporre)
+<     OK   il ponte mancante e' di una forma PROPONIBILE (oggi: solo le cue)
+<     NO   la verifica accetta il rimedio (oggi l'interruttore e' spento apposta)
+<     ! nessuna lacuna registrata: il motore ha considerato il turno GESTITO.
+<     ! Se la risposta non risponde, questa e' la classe `wrong` — un turno
+<     ! riuscito per il motore e fallito per te. Non lascia traccia, quindi
+<     ! l'autocorrezione non sa nemmeno che esiste: il seme qui non e' un fatto,
+<     ! e' una GUARDIA DI PERTINENZA — dire a parrot0 quando quella facolta' NON
+<     ! deve prendere il turno. Vedi docs/autocorrezione.md §4b e la forma G di
+<     ! docs/plans/fix-patterns.md.
+<   SEMI CHE PUOI PIANTARE, dal piu' generale al piu' stretto
+<     superficie  insegna la FORMA con cui te l'ho chiesto — e' la classe piu' numerosa: «X is a relation verb», «the R of X is Y», «the notation of N is S»
+<     classe      insegna la CLASSE a cui la parola appartiene — «X is a condition marker», «X is a greeting» — cosi' vale per tutti i membri futuri
+<     procedura   insegna la PROCEDURA come regola sui pezzi, non il risultato: una riga che vale per ogni caso della stessa forma
+<     fatto       solo se manca davvero il VALORE, e dopo esserti chiesto se una forma lo raggiungera': un fatto senza strada e' peso morto
+<   TRACCIA DEL TURNO (962 righe)
+<     turn   «Chicken is safe to eat at 74 degrees Celsius, so its safe internal temperature is 74 degrees Celsius.»
+<     read.lang «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» sticky=en selected=en
+<     frame  rifiutato: lo slot «chicken_is_safe_to» porta un verbo finito
+<     read.turn publish «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.turn spans=1 ambiguous=0
+<     read.turn force prose_carried
+<     read.turn force unasked
+<     read.text trattenuto
+<     ir     current_turn chicken|is|safe|to|eat|at|74|degrees|celsius|so|its|safe|internal|temperature|is|74|degrees|celsius|
+<     ir     last_text chicken|is|safe|to|eat|at|74|degrees|celsius|so|its|safe|internal|temperature|is|74|degrees|celsius|
+<     read.turn force prose_carried
+<     read.turn force unasked
+<     yield  turn_yield_outcome turn_plan by faculty_yield_force(turn_plan, open, prose_carried)
+<     turn   canon «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.canon «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» -> «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.offer open topic=«degrees» confirm=0 refused=0 raw=«chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» canon=«chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     refer  mentioned chicken (seq 10)
+<     refer  «celsius» is not a referent here
+<     faculty initiative
+<     faculty toolplan
+<     faculty piact
+<     form   reader depth=1 early=1 said=0 «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_contraction_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_contraction_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   expression_reading_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   expression_reading_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   verb_lemma_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   verb_lemma_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   expression_reading_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   verb_family_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_qualifier_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_qualifier_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_tr_phrase does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_question_cue does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_question_cue_if does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_question_cue_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_question_cue does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_situation_cue does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_plan does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_plan_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_1 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_3 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_plan does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   fix_move does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_abbrev does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_word_meaning does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_word_meaning_of does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_word_define does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_plan does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_10 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_9 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_8 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_7 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_6 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_5 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_4 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_11 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_plan_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_kind_excludes does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_14 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_12 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_13 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_exists_restriction does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_15 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_mixture does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_mixture_class does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_time_out does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_time_out_hot does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_avoid_on does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_sign does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_sleep_need does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_cup_weight does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_safe_temp does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_range does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_avoid_in does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reminder_request_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reminder_request_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_lesson_unit does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_formula_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_minimum_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_maximum_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_minimum_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_maximum_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_requirement_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_requirement_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_preference_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_preference_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_question_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_preference_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_polar does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_datum_answer_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_datum_answer_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_status_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_bound_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_datum_bound_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_time_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_time_question_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_place_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_place_question_my does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_origin_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_datum_place_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_datum_place_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_not_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_force_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_force_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_force_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_force_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_unforce_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_number_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named outcome_name acc=«chicken» -
+<     read.named outcome_name acc=«chicken is» -
+<     read.named outcome_name acc=«chicken is safe» -
+<     read.named outcome_name acc=«chicken is safe to» -
+<     read.named outcome_name acc=«chicken is safe to eat» -
+<     read.named outcome_name acc=«chicken is safe to eat at» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74 degrees» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74 degrees celsius» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74 degrees celsius so» -
+<     form   episode_outcome does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   episode_outcome_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named origo_cue acc=«chicken» -
+<     read.named origo_cue acc=«chicken is» -
+<     read.named origo_cue acc=«chicken is safe» -
+<     read.named origo_cue acc=«chicken is safe to» -
+<     read.named origo_cue acc=«chicken is safe to eat» -
+<     read.named origo_cue acc=«chicken is safe to eat at» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74 degrees» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74 degrees celsius» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74 degrees celsius so» -
+<     form   origo_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_when_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_when_question_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_lesson_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_lesson_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_forget_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_forget_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_spelling does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_spelling does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_opening does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_opening does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_opening_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_opening_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_first does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_first does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_first_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_first_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_need does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_need does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_need_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_need_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_words does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_words does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_words_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_words_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_conduct_yield does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_conduct_yield does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_conduct_yield_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_conduct_yield_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_event_subject_verb does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_event_subject_verb does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_kind_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_kind_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_inspect does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_correct does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_phrase_extend does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named reading_pronoun_surface acc=«chicken» -
+<     read.named reading_pronoun_surface acc=«chicken is» -
+<     read.named reading_pronoun_surface acc=«chicken is safe» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74 degrees» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74 degrees celsius» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74 degrees celsius so» -
+<     form   reading_antecedent_correct does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_antecedent_inspect does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_antecedent_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_reading_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_continuer_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_classes does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_class_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_reading_class_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_class_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_continuer_class_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_undo does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_16 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_between does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_relation_between does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_relation_between_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     faculty lessonform
+<     faculty repair
+<     faculty mention
+<     faculty input
+<     faculty forget
+<     faculty teachconstruction
+<     faculty taughtframe
+<     faculty teachrule
+<     faculty teachreply
+<     faculty claimq
+<     faculty qa
+<     yield  turn_yield_outcome gen by faculty_yield_force(gen, open, prose_carried)
+<     faculty gen!yield
+<     faculty deepreason
+<     faculty count
+<     faculty namestart
+<     faculty wordquery
+<     faculty sequence
+<     faculty spell
+<     faculty world
+<     faculty translate
+<     faculty synth
+<     faculty induce
+<     faculty verify
+<     faculty memory
+<     faculty loop
+<     faculty meta
+<     faculty strategy
+<     faculty counterfactual
+<     faculty whatifnot
+<     faculty calibrate
+<     faculty abduce
+<     faculty self
+<     faculty archetype
+<     faculty fewshot
+<     faculty compare
+<     faculty rulespec
+<     faculty algebra
+<     faculty claim
+<     faculty operator
+<     faculty arith
+<     faculty plan
+<     wp     ENTER «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     wp     guard reached, match=0
+<     faculty wordproblem
+<     faculty agent
+<     faculty search
+<     faculty tool
+<     faculty quantity
+<     faculty cause
+<     faculty same
+<     faculty analogy
+<     faculty conj
+<     faculty bench
+<     faculty reader
+<     faculty shell
+<     faculty codeast
+<     yield  turn_yield_outcome answerframe by faculty_yield_force(answerframe, open, unasked)
+<     faculty answerframe!yield
+<     faculty aggregate
+<     faculty code
+<     yield  knowledge decides its own cession after its forms
+<     form   reader depth=1 early=0 said=0 «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_contraction_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_contraction_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   expression_reading_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   expression_reading_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   verb_lemma_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   verb_lemma_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   expression_reading_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   verb_family_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_qualifier_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_qualifier_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   negate_relation does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   year_stated does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   price_stated does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   origin_stated does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   weight_stated does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   purpose_stated does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   similar_stated does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   similar_stated2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ability_stated does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   transitive_taught does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   transitive_taught2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   untransitive_taught does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   untransitive_taught2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_step does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_step2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_tr does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_tr_phrase does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_tr_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_inverse does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_inverse2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_symmetric does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_symmetric_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_symmetric does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_symmetric_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_superlative does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_proc does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   run_proc does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   run_proc_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_closed does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_functional does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_implies does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_excludes does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_reflexive does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_irreflexive does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_irreflexive does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_question_cue does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_question_cue_if does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_question_cue does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_question_cue_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_situation_cue does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_plural does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_verbform does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_verbform2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_charclass does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   list_procs does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   list_procs_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_proc does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_plan does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_plan_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   list_situations does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_fact does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_said does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_identity does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_meaning does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   fix_step does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   drop_step does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_magnitude does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_cmp_max does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_cmp_min does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_opposite does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   fix_move does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_plan does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_class_prop does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_member does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_abbrev does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_abbrev does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_before does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_contains does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_caused does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_kind does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_wrote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_borders does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_currency does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_symbol does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_capital does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_sound does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_continent does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_purpose2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_chain_pair does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_ctx_alias does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_scoped does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_like does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_class_rule does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named particle_named acc=«is» -
+<     read.named particle_named acc=«is safe» -
+<     read.named particle_named acc=«is safe to» -
+<     read.named particle_named acc=«is safe to eat» -
+<     read.named particle_named acc=«is safe to eat at» -
+<     read.named particle_named acc=«is safe to eat at 74» -
+<     read.named particle_named acc=«is safe to eat at 74 degrees» -
+<     read.named particle_named acc=«is safe to eat at 74 degrees celsius» -
+<     read.named particle_named acc=«is safe to eat at 74 degrees celsius so» -
+<     read.named particle_named acc=«is safe to eat at 74 degrees celsius so its» -
+<     form   teach_verb_particle does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named turn_entity_named acc=«chicken» -
+<     read.named turn_entity_named acc=«chicken is» -
+<     read.named turn_entity_named acc=«chicken is safe» -
+<     read.named turn_entity_named acc=«chicken is safe to» -
+<     read.named turn_entity_named acc=«chicken is safe to eat» -
+<     read.named turn_entity_named acc=«chicken is safe to eat at» -
+<     read.named turn_entity_named acc=«chicken is safe to eat at 74» -
+<     read.named turn_entity_named acc=«chicken is safe to eat at 74 degrees» -
+<     read.named turn_entity_named acc=«chicken is safe to eat at 74 degrees celsius» -
+<     read.named turn_entity_named acc=«chicken is safe to eat at 74 degrees celsius so» -
+<     form   teach_property_phrase does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_rel_and does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_rel_or does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_rel_chain does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_rel_unless does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_rel_card does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_rel_list does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_ctx_fact does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   enter_ctx does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   leave_ctx does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_about does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_between does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_signature does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_twice does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_ctx_name does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_reverse does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_family does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_like does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_def_use does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_def_as does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_rel_def does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_rel_def2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_word_meaning does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_word_meaning_of does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_word_define does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_rel_and does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_rel_or does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_rel_chain does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_rel_unless does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_reverse does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_twice does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_def_use does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_role does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_required_role does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_projection does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_projection_where does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_schema_view does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_role_alias does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_occurrence does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_missing does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_schema does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_role does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_projection does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_projection_where does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_plan does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_2 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_10 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_9 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_8 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_7 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_6 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_5 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_1 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_3 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_4 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_11 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_plan_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_kind_excludes does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_12 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_14 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_13 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_exists_restriction does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_mixture does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_mixture_class does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_time_out does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_time_out_hot does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_avoid_on does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_sign does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_sleep_need does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_cup_weight does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_safe_temp does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_range does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_avoid_in does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reminder_request_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reminder_request_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_lesson_unit does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_formula_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_minimum_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_maximum_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_minimum_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_maximum_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_requirement_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_requirement_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_preference_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_preference_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_question_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_preference_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_value_polar does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_datum_answer_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_datum_answer_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_status_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_bound_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   decision_datum_bound_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_time_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_time_question_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_place_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_place_question_my does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_origin_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_datum_place_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_datum_place_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_not_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_force_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_force_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_force_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   unteach_force_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_unforce_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_force_number_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named outcome_name acc=«chicken» -
+<     read.named outcome_name acc=«chicken is» -
+<     read.named outcome_name acc=«chicken is safe» -
+<     read.named outcome_name acc=«chicken is safe to» -
+<     read.named outcome_name acc=«chicken is safe to eat» -
+<     read.named outcome_name acc=«chicken is safe to eat at» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74 degrees» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74 degrees celsius» -
+<     read.named outcome_name acc=«chicken is safe to eat at 74 degrees celsius so» -
+<     form   episode_outcome does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   episode_outcome_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named origo_cue acc=«chicken» -
+<     read.named origo_cue acc=«chicken is» -
+<     read.named origo_cue acc=«chicken is safe» -
+<     read.named origo_cue acc=«chicken is safe to» -
+<     read.named origo_cue acc=«chicken is safe to eat» -
+<     read.named origo_cue acc=«chicken is safe to eat at» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74 degrees» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74 degrees celsius» -
+<     read.named origo_cue acc=«chicken is safe to eat at 74 degrees celsius so» -
+<     form   origo_question does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_when_question_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   event_when_question_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_lesson_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_lesson_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_forget_en does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reply_word_forget_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_spelling does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_spelling does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_opening does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_opening does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_opening_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_opening_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_first does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_first does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_first_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_first_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_need does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_need does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_need_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_need_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_words does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_words does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_dialogue_words_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_dialogue_words_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_conduct_yield does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_conduct_yield does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_conduct_yield_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_conduct_yield_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   teach_event_subject_verb does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   forget_event_subject_verb does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_kind_lesson does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_kind_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_inspect does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_correct does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_phrase_extend does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     read.named reading_pronoun_surface acc=«chicken» -
+<     read.named reading_pronoun_surface acc=«chicken is» -
+<     read.named reading_pronoun_surface acc=«chicken is safe» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74 degrees» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74 degrees celsius» -
+<     read.named reading_pronoun_surface acc=«chicken is safe to eat at 74 degrees celsius so» -
+<     form   reading_antecedent_correct does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_antecedent_inspect does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_antecedent_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_reading_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_continuer_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_classes does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_class_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_reading_class_promote does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_class_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_continuer_class_forget does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   reading_boundary_undo does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   state_self_report does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_relation_between does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_15 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   taught_form_16 does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     form   ask_relation_between_it does not match «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.»
+<     class  reached: knowledge, after the declared forms
+<     class  reached: knowledge offers the turn to the class reader
+<     frame  rifiutato: lo slot «chicken_is_safe_to» porta un verbo finito
+<     class  reached: no declared frame read it, trying copula forms
+<     class  gate: not a plural copula
+<     faculty knowledge
+<     faculty summary
+<     faculty discourse
+<     faculty pragma
+<     faculty family
+<     faculty personal
+<     faculty lone
+<     faculty social
+<     faculty chitchat
+<     read.reqgen verb=- force=-
+<     faculty reqgen
+<     yield  turn_yield_outcome learn by faculty_yield_force(learn, open, prose_carried)
+<     faculty learn!yield
+<     faculty gapreport
+<     faculty toolpolicy
+<     faculty smalltalk
+<     faculty compose
+<     faculty robust
+<     faculty role
+<     faculty coref
+<     faculty symbolic
+<     read.acquire candidate «degree»
+<     form   reader depth=1 early=1 said=0 «is chicken safe at 70 degrees?»
+<     form   forget_contraction_en does not match «is chicken safe at 70 degrees?»
+<     form   expression_reading_lesson does not match «is chicken safe at 70 degrees?»
+<     form   expression_reading_forget does not match «is chicken safe at 70 degrees?»
+<     form   verb_lemma_lesson does not match «is chicken safe at 70 degrees?»
+<     form   verb_lemma_forget does not match «is chicken safe at 70 degrees?»
+<     form   expression_reading_question does not match «is chicken safe at 70 degrees?»
+<     form   verb_family_question does not match «is chicken safe at 70 degrees?»
+<     form   teach_qualifier_en does not match «is chicken safe at 70 degrees?»
+<     form   forget_qualifier_en does not match «is chicken safe at 70 degrees?»
+<     form   ability_polar does not match «is chicken safe at 70 degrees?»
+<     form   teach_question_cue_if does not match «is chicken safe at 70 degrees?»
+<     form   teach_question_cue_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_situation_cue does not match «is chicken safe at 70 degrees?»
+<     form   ask_plan does not match «is chicken safe at 70 degrees?»
+<     form   ask_plan_it does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_2 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_1 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_3 does not match «is chicken safe at 70 degrees?»
+<     form   forget_abbrev does not match «is chicken safe at 70 degrees?»
+<     form   ask_word_meaning does not match «is chicken safe at 70 degrees?»
+<     form   ask_word_meaning_of does not match «is chicken safe at 70 degrees?»
+<     form   ask_word_define does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_10 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_9 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_8 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_7 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_6 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_5 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_4 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_11 does not match «is chicken safe at 70 degrees?»
+<     form   teach_kind_excludes does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_14 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_12 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_13 does not match «is chicken safe at 70 degrees?»
+<     form   teach_exists_restriction does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_15 does not match «is chicken safe at 70 degrees?»
+<     form   reminder_request_en does not match «is chicken safe at 70 degrees?»
+<     form   reminder_request_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_lesson_unit does not match «is chicken safe at 70 degrees?»
+<     form   decision_formula_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_minimum_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_maximum_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_minimum_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_maximum_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_requirement_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_requirement_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_preference_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_preference_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_question_en does not match «is chicken safe at 70 degrees?»
+<     form   decision_question_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_preference_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_question does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_polar does not match «is chicken safe at 70 degrees?»
+<     form   decision_datum_answer_en does not match «is chicken safe at 70 degrees?»
+<     form   decision_datum_answer_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_status_question does not match «is chicken safe at 70 degrees?»
+<     form   decision_bound_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_datum_bound_en does not match «is chicken safe at 70 degrees?»
+<     form   event_time_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_time_question_it does not match «is chicken safe at 70 degrees?»
+<     form   event_place_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_place_question_my does not match «is chicken safe at 70 degrees?»
+<     form   event_origin_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_datum_place_en does not match «is chicken safe at 70 degrees?»
+<     form   event_datum_place_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_en does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_not_en does not match «is chicken safe at 70 degrees?»
+<     form   forget_force_en does not match «is chicken safe at 70 degrees?»
+<     form   forget_force_it does not match «is chicken safe at 70 degrees?»
+<     form   unteach_force_en does not match «is chicken safe at 70 degrees?»
+<     form   unteach_force_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_unforce_en does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_number_en does not match «is chicken safe at 70 degrees?»
+<     read.named outcome_name acc=«is» -
+<     read.named outcome_name acc=«is chicken» -
+<     read.named outcome_name acc=«is chicken safe» -
+<     read.named outcome_name acc=«is chicken safe at» -
+<     read.named outcome_name acc=«is chicken safe at 70» -
+<     read.named outcome_name acc=«is chicken safe at 70 degrees» -
+<     form   episode_outcome does not match «is chicken safe at 70 degrees?»
+<     form   episode_outcome_forget does not match «is chicken safe at 70 degrees?»
+<     read.named origo_cue acc=«is» -
+<     read.named origo_cue acc=«is chicken» -
+<     read.named origo_cue acc=«is chicken safe» -
+<     read.named origo_cue acc=«is chicken safe at» -
+<     read.named origo_cue acc=«is chicken safe at 70» -
+<     read.named origo_cue acc=«is chicken safe at 70 degrees» -
+<     form   origo_question does not match «is chicken safe at 70 degrees?»
+<     form   event_when_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_when_question_it does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_lesson_en does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_lesson_it does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_forget_en does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_forget_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_spelling does not match «is chicken safe at 70 degrees?»
+<     form   forget_spelling does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_opening does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_opening does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_opening_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_opening_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_first does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_first does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_first_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_first_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_need does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_need does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_need_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_need_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_words does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_words does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_words_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_words_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_conduct_yield does not match «is chicken safe at 70 degrees?»
+<     form   forget_conduct_yield does not match «is chicken safe at 70 degrees?»
+<     form   teach_conduct_yield_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_conduct_yield_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_event_subject_verb does not match «is chicken safe at 70 degrees?»
+<     form   forget_event_subject_verb does not match «is chicken safe at 70 degrees?»
+<     form   reading_kind_lesson does not match «is chicken safe at 70 degrees?»
+<     form   reading_kind_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_inspect does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_correct does not match «is chicken safe at 70 degrees?»
+<     form   reading_phrase_extend does not match «is chicken safe at 70 degrees?»
+<     read.named reading_pronoun_surface acc=«is» -
+<     read.named reading_pronoun_surface acc=«is chicken» -
+<     read.named reading_pronoun_surface acc=«is chicken safe» -
+<     read.named reading_pronoun_surface acc=«is chicken safe at» -
+<     read.named reading_pronoun_surface acc=«is chicken safe at 70» -
+<     read.named reading_pronoun_surface acc=«is chicken safe at 70 degrees» -
+<     form   reading_antecedent_correct does not match «is chicken safe at 70 degrees?»
+<     form   reading_antecedent_inspect does not match «is chicken safe at 70 degrees?»
+<     form   reading_antecedent_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_reading_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_continuer_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_classes does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_class_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_reading_class_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_class_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_continuer_class_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_undo does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_16 does not match «is chicken safe at 70 degrees?»
+<     form   ask_between does not match «is chicken safe at 70 degrees?»
+<     form   ask_relation_between does not match «is chicken safe at 70 degrees?»
+<     form   ask_relation_between_it does not match «is chicken safe at 70 degrees?»
+<     yield  turn_yield_outcome gen by faculty_yield_force(gen, open, prose_carried)
+<     wp     ENTER «is chicken safe at 70 degrees?»
+<     wp     guard reached, match=0
+<     yield  turn_yield_outcome answerframe by faculty_yield_force(answerframe, open, unasked)
+<     form   reader depth=1 early=0 said=0 «is chicken safe at 70 degrees?»
+<     form   forget_contraction_en does not match «is chicken safe at 70 degrees?»
+<     form   expression_reading_lesson does not match «is chicken safe at 70 degrees?»
+<     form   expression_reading_forget does not match «is chicken safe at 70 degrees?»
+<     form   verb_lemma_lesson does not match «is chicken safe at 70 degrees?»
+<     form   verb_lemma_forget does not match «is chicken safe at 70 degrees?»
+<     form   expression_reading_question does not match «is chicken safe at 70 degrees?»
+<     form   verb_family_question does not match «is chicken safe at 70 degrees?»
+<     form   teach_qualifier_en does not match «is chicken safe at 70 degrees?»
+<     form   forget_qualifier_en does not match «is chicken safe at 70 degrees?»
+<     form   year_asked does not match «is chicken safe at 70 degrees?»
+<     form   year_asked_it does not match «is chicken safe at 70 degrees?»
+<     form   price_asked does not match «is chicken safe at 70 degrees?»
+<     form   origin_asked does not match «is chicken safe at 70 degrees?»
+<     form   origin_asked_of does not match «is chicken safe at 70 degrees?»
+<     form   weight_asked does not match «is chicken safe at 70 degrees?»
+<     form   weight_asked_it does not match «is chicken safe at 70 degrees?»
+<     form   purpose_asked does not match «is chicken safe at 70 degrees?»
+<     form   purpose_asked2 does not match «is chicken safe at 70 degrees?»
+<     form   similar_asked does not match «is chicken safe at 70 degrees?»
+<     form   ability_polar does not match «is chicken safe at 70 degrees?»
+<     form   ability_asked does not match «is chicken safe at 70 degrees?»
+<     form   choice_asked does not match «is chicken safe at 70 degrees?»
+<     form   choice_asked_it does not match «is chicken safe at 70 degrees?»
+<     form   run_proc does not match «is chicken safe at 70 degrees?»
+<     form   run_proc_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_question_cue_if does not match «is chicken safe at 70 degrees?»
+<     form   teach_question_cue_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_situation_cue does not match «is chicken safe at 70 degrees?»
+<     form   list_procs does not match «is chicken safe at 70 degrees?»
+<     form   list_procs_it does not match «is chicken safe at 70 degrees?»
+<     form   ask_plan does not match «is chicken safe at 70 degrees?»
+<     form   ask_plan_it does not match «is chicken safe at 70 degrees?»
+<     form   list_situations does not match «is chicken safe at 70 degrees?»
+<     form   list_relation does not match «is chicken safe at 70 degrees?»
+<     form   ask_inherit does not match «is chicken safe at 70 degrees?»
+<     form   forget_abbrev does not match «is chicken safe at 70 degrees?»
+<     form   ask_abbrev does not match «is chicken safe at 70 degrees?»
+<     form   ask_abbrev_expanded does not match «is chicken safe at 70 degrees?»
+<     form   which_kind_relation does not match «is chicken safe at 70 degrees?»
+<     form   which_kind_relation_particle does not match «is chicken safe at 70 degrees?»
+<     read.named turn_entity_named acc=«chicken» -
+<     read.named turn_entity_named acc=«chicken safe» -
+<     read.named turn_entity_named acc=«chicken safe at» -
+<     read.named turn_entity_named acc=«chicken safe at 70» -
+<     read.named turn_entity_named acc=«chicken safe at 70 degrees» -
+<     form   ask_property_polar does not match «is chicken safe at 70 degrees?»
+<     form   ask_class_polar does not match «is chicken safe at 70 degrees?»
+<     form   ask_class_polar_an does not match «is chicken safe at 70 degrees?»
+<     form   ask_noun_of does not match «is chicken safe at 70 degrees?»
+<     form   which_kind_of_relation does not match «is chicken safe at 70 degrees?»
+<     form   which_kind_of_relation_particle does not match «is chicken safe at 70 degrees?»
+<     form   ask_rel_card does not match «is chicken safe at 70 degrees?»
+<     form   ask_rel_list does not match «is chicken safe at 70 degrees?»
+<     form   ask_about does not match «is chicken safe at 70 degrees?»
+<     form   ask_between does not match «is chicken safe at 70 degrees?»
+<     form   ask_rel_def does not match «is chicken safe at 70 degrees?»
+<     form   ask_rel_def2 does not match «is chicken safe at 70 degrees?»
+<     form   ask_word_meaning does not match «is chicken safe at 70 degrees?»
+<     form   ask_word_meaning_of does not match «is chicken safe at 70 degrees?»
+<     form   ask_word_define does not match «is chicken safe at 70 degrees?»
+<     form   ask_occurrence does not match «is chicken safe at 70 degrees?»
+<     form   ask_missing does not match «is chicken safe at 70 degrees?»
+<     form   ask_schema does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_2 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_10 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_9 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_8 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_7 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_6 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_5 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_1 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_3 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_4 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_11 does not match «is chicken safe at 70 degrees?»
+<     form   teach_kind_excludes does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_12 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_14 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_13 does not match «is chicken safe at 70 degrees?»
+<     form   teach_exists_restriction does not match «is chicken safe at 70 degrees?»
+<     form   reminder_request_en does not match «is chicken safe at 70 degrees?»
+<     form   reminder_request_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_lesson_unit does not match «is chicken safe at 70 degrees?»
+<     form   decision_formula_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_minimum_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_maximum_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_minimum_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_maximum_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_requirement_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_requirement_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_preference_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_preference_forget does not match «is chicken safe at 70 degrees?»
+<     form   decision_question_en does not match «is chicken safe at 70 degrees?»
+<     form   decision_question_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_preference_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_question does not match «is chicken safe at 70 degrees?»
+<     form   decision_value_polar does not match «is chicken safe at 70 degrees?»
+<     form   decision_datum_answer_en does not match «is chicken safe at 70 degrees?»
+<     form   decision_datum_answer_it does not match «is chicken safe at 70 degrees?»
+<     form   decision_status_question does not match «is chicken safe at 70 degrees?»
+<     form   decision_bound_lesson does not match «is chicken safe at 70 degrees?»
+<     form   decision_datum_bound_en does not match «is chicken safe at 70 degrees?»
+<     form   event_time_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_time_question_it does not match «is chicken safe at 70 degrees?»
+<     form   event_place_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_place_question_my does not match «is chicken safe at 70 degrees?»
+<     form   event_origin_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_datum_place_en does not match «is chicken safe at 70 degrees?»
+<     form   event_datum_place_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_en does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_not_en does not match «is chicken safe at 70 degrees?»
+<     form   forget_force_en does not match «is chicken safe at 70 degrees?»
+<     form   forget_force_it does not match «is chicken safe at 70 degrees?»
+<     form   unteach_force_en does not match «is chicken safe at 70 degrees?»
+<     form   unteach_force_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_unforce_en does not match «is chicken safe at 70 degrees?»
+<     form   teach_force_number_en does not match «is chicken safe at 70 degrees?»
+<     read.named outcome_name acc=«is» -
+<     read.named outcome_name acc=«is chicken» -
+<     read.named outcome_name acc=«is chicken safe» -
+<     read.named outcome_name acc=«is chicken safe at» -
+<     read.named outcome_name acc=«is chicken safe at 70» -
+<     read.named outcome_name acc=«is chicken safe at 70 degrees» -
+<     form   episode_outcome does not match «is chicken safe at 70 degrees?»
+<     form   episode_outcome_forget does not match «is chicken safe at 70 degrees?»
+<     read.named origo_cue acc=«is» -
+<     read.named origo_cue acc=«is chicken» -
+<     read.named origo_cue acc=«is chicken safe» -
+<     read.named origo_cue acc=«is chicken safe at» -
+<     read.named origo_cue acc=«is chicken safe at 70» -
+<     read.named origo_cue acc=«is chicken safe at 70 degrees» -
+<     form   origo_question does not match «is chicken safe at 70 degrees?»
+<     form   event_when_question_en does not match «is chicken safe at 70 degrees?»
+<     form   event_when_question_it does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_lesson_en does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_lesson_it does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_forget_en does not match «is chicken safe at 70 degrees?»
+<     form   reply_word_forget_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_spelling does not match «is chicken safe at 70 degrees?»
+<     form   forget_spelling does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_opening does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_opening does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_opening_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_opening_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_first does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_first does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_first_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_first_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_need does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_need does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_need_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_need_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_words does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_words does not match «is chicken safe at 70 degrees?»
+<     form   teach_dialogue_words_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_dialogue_words_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_conduct_yield does not match «is chicken safe at 70 degrees?»
+<     form   forget_conduct_yield does not match «is chicken safe at 70 degrees?»
+<     form   teach_conduct_yield_it does not match «is chicken safe at 70 degrees?»
+<     form   forget_conduct_yield_it does not match «is chicken safe at 70 degrees?»
+<     form   teach_event_subject_verb does not match «is chicken safe at 70 degrees?»
+<     form   forget_event_subject_verb does not match «is chicken safe at 70 degrees?»
+<     form   reading_kind_lesson does not match «is chicken safe at 70 degrees?»
+<     form   reading_kind_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_inspect does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_correct does not match «is chicken safe at 70 degrees?»
+<     form   reading_phrase_extend does not match «is chicken safe at 70 degrees?»
+<     read.named reading_pronoun_surface acc=«is» -
+<     read.named reading_pronoun_surface acc=«is chicken» -
+<     read.named reading_pronoun_surface acc=«is chicken safe» -
+<     read.named reading_pronoun_surface acc=«is chicken safe at» -
+<     read.named reading_pronoun_surface acc=«is chicken safe at 70» -
+<     read.named reading_pronoun_surface acc=«is chicken safe at 70 degrees» -
+<     form   reading_antecedent_correct does not match «is chicken safe at 70 degrees?»
+<     form   reading_antecedent_inspect does not match «is chicken safe at 70 degrees?»
+<     form   reading_antecedent_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_reading_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_continuer_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_classes does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_class_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_reading_class_promote does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_class_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_continuer_class_forget does not match «is chicken safe at 70 degrees?»
+<     form   reading_boundary_undo does not match «is chicken safe at 70 degrees?»
+<     form   ask_relation_between does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_15 does not match «is chicken safe at 70 degrees?»
+<     form   taught_form_16 does not match «is chicken safe at 70 degrees?»
+<     form   ask_relation_between_it does not match «is chicken safe at 70 degrees?»
+<     class  reached: knowledge, after the declared forms
+<     class  gate: knowledge reads the turn as a question or directive
+<     read.reqgen verb=- force=-
+<     yield  turn_yield_outcome learn by faculty_yield_force(learn, open, prose_carried)
+<     after_reply contact_reading observed
+<     after_reply contact_settle observed
+<     after_reply contact_near observed
+<     after_reply contact_named_verb observed
+<     refer  «celsius» is not a referent here
+<     read.lang «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» sticky=en selected=en
+<     reply  by acquisition: I looked up «degrees» but found nothing. If you know it, teach me: «degrees is defined as …».
+<     read.lang «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» sticky=en selected=en
+<     read.lang «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» sticky=en selected=en
+<     read.lang «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» sticky=en selected=en
+<     read.lang «chicken is safe to eat at 74 degrees celsius, so its safe internal temperature is 74 degrees celsius.» sticky=en selected=en
+<   (profilo acceso: i turni successivi riportano anche tempi, passi e la strada per nome — /debug off per spegnerlo)
+! Dal /debug: il contatto sul pollo non arriva al contatto; il turno cede ad acquisition, che cerca «degrees» come parola sconosciuta («I looked up «degrees» but found nothing»). L'unità di misura non è letta come parte della quantità: è un difetto della IR, non una lezione mancata.
+# chiusa senza /save il 2026-09-26: le lezioni (a cup / one cup) non hanno retto al trasferimento; restano come diagnosi. Due reperti per il motore: cup_count legge turn_word e non il testo canonico; «74 degrees Celsius» cede ad acquisition su «degrees».
