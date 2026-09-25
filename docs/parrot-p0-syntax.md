@@ -110,7 +110,7 @@ quel nome, quindi non si ridefiniscono.
 | `findall($T, $G, $L)` | raccoglie in `$L` le soluzioni di `$T` — **è un INSIEME** (dedup) | (1) il template è **solo una variabile**: `findall(cand($M,$R), …)` dà `nil` in silenzio → costruisci il termine nella testa di un ausiliario; (2) il terzo argomento deve essere **una variabile libera**: `findall($T, G, cons($T, $Ts))` non riesce mai; (3) le soluzioni vengono **ristampate e rilette**: una **virgola** dentro un testo raccolto spezza la lista (`cons(a, b, nil)` a tre argomenti) e il consumatore fallisce in silenzio |
 | `findall_bag/3` | come `findall` ma conserva i duplicati | stesse trappole |
 | `assert(Pred, A1, …)` / `retract(Pred, A1, …)` | scrive/toglie un fatto; il predicato è il **primo argomento** (fino a 4 argomenti dopo) | `assert` dentro una prova che sta rispondendo è tollerato (idempotente); **`retract` dentro una prova che sta rispondendo può uccidere il processo** (lo stato cambia mentre il solver lo enumera): i retract si fanno nei contabili (§12) |
-| `member($X, $L)`, `list_len($L, $N)` | **non** builtin: regole in `kb/core/procedures.p0` | `naf(member($R, $Seen))` è il modo standard di tagliare i cicli |
+| `member($X, $L)`, `list_len($L, $N)`, `append($A, $B, $AB)` | **non** builtin: regole in `kb/core/procedures.p0` (`append/3` dal 26 settembre 2026) | `naf(member($R, $Seen))` è il modo standard di tagliare i cicli; `append` si chiama con la prima lista legata (due `findall` e poi `append`, così l'ordine dei pezzi lo decide chi scrive) |
 | `concat_atoms($A, $B, $C)` | concatena testi | il pezzo di resa più usato; 16 goal per corpo si esauriscono presto |
 | `atom_words($A, $Ws)` | atomo ↔ lista di parole, spezza su `_` **e spazi**, bidirezionale | serve a leggere «at most 1» come parole |
 | `map_words($Testo, $Pred, $Uscita)` | riscrive ogni parola intera del testo secondo le righe di `$Pred/2` (nucleo confrontato senza maiuscole, punteggiatura conservata, sostituto letterale) | la condotta sull'espressione (`reply-conduct.p0`): `reply_conduct($In, $Out)` è chiesta da `turn_done` al livello esterno di ogni turno |
@@ -118,7 +118,7 @@ quel nome, quindi non si ridefiniscono.
 | `upcase_first($A, $B)` | iniziale maiuscola | |
 | `chars($A, $L)` | atomo ↔ lista di caratteri | |
 | `apply($Op, cons($A, cons($B, nil)))` | applica un confronto o un'operazione nominata da un atomo | `apply(le, …)`, `apply(gt, …)`, `apply(dif, …)`: il verso di un confronto diventa un **dato** |
-| `kb_fact/2`, `kb_rule/2`, `kb_rule_body/2` | introspezione: fatti, regole, nomi dei predicati del corpo | `kb_rule_body` dà solo nomi, non argomenti |
+| `kb_fact/2`, `kb_rule/2`, `kb_rule_body/2` | introspezione: fatti, regole, nomi dei predicati del corpo | `kb_rule_body` dà solo nomi, non argomenti; **`kb_fact($P, …)` con il predicato libero scandisce TUTTA la KB** anche con gli argomenti legati (misurato il 26 settembre: 136 M fatti visitati, 3.5 s per turno). Si lega prima il predicato da una classe dichiarata (`description_relation($P), kb_fact($P, …)`) |
 | `kb_clause/4`, `kb_clause_arg/4` | la clausola INTERA come dato (M1, 20 settembre 2026): `kb_clause(Id, Testa, 0, N)` la clausola con N premesse, `kb_clause(Id, Testa, I, Premessa)` la I-esima; `kb_clause_arg(Id, Dove, Cammino, Nodo)` la stessa per nodi e archi. Forma canonica taggata a ogni livello — `var(N)` variabile, `atom(A)` costante, `app(F, cons(…, nil))` applicazione — così un dato scritto `var(0)` è `app(var, cons(atom(0), nil))` e non si confonde con la variabile. Fatti negativi `not(E)`, `naf(G)` conservato. Identità `content(Pred, impronta)` | l'impronta copre la struttura intera, non un testo che un buffer può tagliare; con l'Id o la testa legata costa un bucket; un pezzo che non entra in un termine vale `overflow(Pred)`, resta ritrovabile legandone testa e Id, e si legge per archi; facce nominabili in `kb/core/clause-content.p0` |
 | `kb_act/3` | gli ATTI di un contenuto (M2): `kb_act(Id, Testa, Bit)`, un atto per livello di provenienza che lo ha fatto entrare. Lo stesso contenuto entrato per due vie ha due atti, e ritirarne uno lascia vivo l'altro | il motore dà il BIT, il NOME del livello è un fatto KB (`act_layer/2`): un livello si nomina senza ricompilare |
 | `kb_derivation/4` | la PROVA prodotta dalla ricerca che decide (M2): `kb_derivation(D, Goal, 0, N)` una derivazione con N dipendenze, `kb_derivation(D, Goal, I, Dip)` la I-esima. Dipendenze congiunte (AND), derivazioni alternative sul backtracking (OR). Tre specie: `content(P, impronta)` una clausola usata, `absent(G)` una negazione per fallimento, `aggregate(G)` un findall | con D libera e Goal legato non si apre una seconda ricerca; `aggregate_incomplete(G)` se l'enumerazione è stata tagliata, `incomplete(N)` se i passi hanno superato la pila; `derivation_<n>` vale nella sessione e non si salva; facce in `kb/core/derivation.p0` |
@@ -444,6 +444,12 @@ max_qud(I) :- issue_open(I, K), naf(issue_superseded_by_later(I)).
 6. **Le liste costose si calcolano una volta**; negazioni e rese lavorano su
    `member`. Mai `naf` su una vista ricorsiva.
 7. **`findall` con template variabile, risultato libero, testi senza virgole.**
+7-bis. **Una vista data a `answer_frame/2` viene chiamata anche con l'argomento
+   LIBERO** (il consumatore in C prova la relazione in più modi). Il `.p0` non
+   ha un test di variabile legata, quindi il primo goal lega l'argomento a ciò
+   che il turno nomina (`belief_named/1`, `function_subject/2` in
+   `function-questions.p0`). Senza quel goal, la vista enumera ogni entità della
+   KB (26 settembre: 25 s e timeout).
 8. **Corpi ≤ 16 goal**: le rese si spezzano in `..._head` / `..._tail`.
 9. **Mai `retract` in una prova che risponde**; `assert` idempotente sì;
    i retract nei contabili.

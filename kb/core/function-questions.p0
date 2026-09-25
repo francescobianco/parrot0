@@ -45,7 +45,117 @@ machinery(function_answer).
 function_answer(en, $Def, $Text) :- concat_atoms("From what I read: ", $Def, $Text).
 function_answer(it, $Def, $Text) :- concat_atoms("Da quello che ho letto: ", $Def, $Text).
 
+% Che cosa FA un soggetto lo dicono anche i FATTI di cui e' soggetto con un
+% verbo di relazione: «what does the heart do?» → «Heart pumps blood.» Il sapere
+% c'era (`pumps(heart, blood)`, `relation_verb(pumps)`), mancava la strada: la
+% domanda raggiungeva solo una definizione letta, e per ogni organo murava
+% (sessione live 26 settembre, docs/sessions/2026-09-26-live-fisiologia.md).
+% Un verbo nuovo, insegnato domani come verbo di relazione, risponde qui senza
+% toccare questa riga. Il soggetto e' una parola del turno, o due («salivary
+% gland»), che e' soggetto di almeno un fatto: l'articolo non lo e' mai.
+machinery(function_fact).
+function_fact($X, $T) :-
+    relation_verb($V), naf(machinery($V)), kb_fact($V, cons($X, cons($Y, nil))),
+    relation_said($V, $X, $Y, $T).
+machinery(function_does).
+function_does($X) :- function_fact($X, $T).
+machinery(function_subject).
+function_subject($Turn, $X) :- function_head($Turn, $I, $X), function_does($X).
+function_subject($Turn, $X) :-
+    function_head($Turn, $I, $B), turn_word($Turn, $J, $A), gt($J, 1), gt($I, $J), naf(turn_word_between($Turn, $J, $I)),
+    concat_atoms($A, "_", $A1), concat_atoms($A1, $B, $X), function_does($X).
+% la testa del sintagma e' la parola subito prima del verbo generico: «fire
+% blanket» non e' «fire», anche se il fuoco fa qualcosa
+machinery(function_head).
+function_head($Turn, $I, $W) :-
+    turn_word($Turn, $K, $V), function_question_verb($V), turn_word($Turn, $I, $W), gt($I, 1), gt($K, $I),
+    naf(turn_word_between($Turn, $I, $K)).
+machinery(turn_word_between).
+turn_word_between($Turn, $I, $K) :- turn_word($Turn, $J, $W), gt($J, $I), gt($K, $J).
+machinery(function_facts_answer).
+function_facts_answer($L, $X, $Text) :-
+    findall($T, function_fact($X, $T), $Ts), dif($Ts, nil),
+    list_text($L, $Ts, $B), upcase_first($B, $C), sentence_terminator($L, $End), concat_atoms($C, $End, $Text).
+
+turn_plan_candidate($Turn) :- turn_function_question($Turn), function_subject($Turn, $X).
+turn_priority_response($Turn, $Text) :-
+    turn_function_question($Turn), function_subject($Turn, $X),
+    source_language($L), function_facts_answer($L, $X, $Text).
+
 turn_plan_candidate($Turn) :- turn_function_question($Turn), function_topic($Turn, $T).
 turn_priority_response($Turn, $Text) :-
     turn_function_question($Turn), function_topic($Turn, $T), topic_definition($T, $Def),
     source_language($L), function_answer($L, $Def, $Text).
+
+% ── CHE COSA SAI DI X — il resoconto delle credenze, in KB ─────────────────
+%
+% «what do you know about the liver?» rispondeva «I don't know anything about
+% the liver» sapendo che il fegato produce la bile: il ramo C
+% (10-memory-knowledge.c, «direct belief report») fondeva la coda del turno
+% con l'articolo (`the_liver`), e quando trovava l'entita' stampava i fatti
+% grezzi («pumps(heart, blood)»). Qui il resoconto e' una vista: la
+% descrizione che un fatto porta, i fatti di relazione in cui X e' soggetto o
+% oggetto detti in lingua (`relation_said/4`), le classi di X. La cue la porta
+% `answer_frame/2`, che estrae l'argomento dalla struttura del turno.
+answer_frame("what do you know about", belief_report).
+answer_frame("tell me about", belief_report).
+answer_frame("cosa sai di", belief_report).
+% Sessione live del 26 settembre (docs/sessions/2026-09-26-live-fisiologia.md).
+machinery(belief_report).
+machinery(belief_description).
+machinery(belief_relation).
+machinery(belief_class).
+machinery(belief_sentences).
+machinery(belief_join).
+% la descrizione: le relazioni che portano la prosa che descrive il loro primo
+% argomento sono conoscenza (una nuova e' una riga). Indovinarle dagli spazi del
+% secondo argomento costava una scansione di tutta la KB per turno (3.5 s).
+machinery(description_relation).
+description_relation(organ).
+description_relation(bone).
+description_relation(body_system).
+description_relation(drug_class).
+description_relation(pharma_concept).
+description_relation(admin_route).
+description_relation(chem_concept).
+description_relation(atom_concept).
+description_relation(element_group).
+description_relation(reaction_type).
+description_relation(mechanics_concept).
+description_relation(em_concept).
+description_relation(circuit_element).
+description_relation(motion_type).
+description_relation(energy_type).
+belief_description($X, $T) :-
+    description_relation($P), kb_fact($P, cons($X, cons($D, nil))),
+    words_of($X, $XW), upcase_first($XW, $XU), concat_atoms($XU, ": ", $A), concat_atoms($A, $D, $T).
+belief_relation($X, $T) :- function_fact($X, $T0), upcase_first($T0, $T).
+belief_relation($X, $T) :-
+    relation_verb($V), naf(machinery($V)), kb_fact($V, cons($S, cons($X, nil))), relation_said($V, $S, $X, $T0),
+    upcase_first($T0, $T).
+% APERTO: le altre relazioni DICIBILI (quelle con un `extract_frame`, «copper is
+% part of bronze») non entrano ancora. Enumerarle per ogni parola del turno costava
+% 2.4-40 s (26 settembre): `kb_fact` con la relazione legata scorre tutto il
+% gruppo, e il secondo argomento non e' indicizzato. Serve un indice o una vista
+% congelata delle relazioni dicibili, non un'altra scorciatoia.
+belief_class($X, $T) :-
+    is_a($X, $K), words_of($X, $XW), upcase_first($XW, $XU), words_of($K, $KW),
+    class_article(en, $KW, $Art), concat_atoms($XU, " is ", $A), concat_atoms($A, $Art, $B), concat_atoms($B, " ", $B1), concat_atoms($B1, $KW, $T).
+machinery(belief_has_description).
+belief_sentences($X, $Ss) :-
+    findall($T, belief_class($X, $T), $Cs), findall($T, belief_relation($X, $T), $Rs), append($Cs, $Rs, $Ss).
+belief_has_description($X) :- belief_description($X, $D).
+belief_join(cons($S, nil), $S).
+belief_join(cons($S, cons($S2, $R)), $T) :- belief_join(cons($S2, $R), $Rest), concat_atoms($S, ". ", $A), concat_atoms($A, $Rest, $T).
+% il soggetto e' NOMINATO dal turno: una parola, o due contigue. Chi consuma
+% `answer_frame` interroga la vista anche con l'argomento libero, e senza questo
+% legame il resoconto enumerava ogni entita' della KB (25 s, misurato).
+machinery(belief_named).
+belief_named($X) :- turn_word(current_turn, $I, $X), content_word($X).
+belief_named($X) :-
+    turn_word(current_turn, $I, $A), turn_word(current_turn, $J, $B), gt($J, $I),
+    naf(turn_word_between(current_turn, $I, $J)), concat_atoms($A, "_", $A1), concat_atoms($A1, $B, $X).
+belief_report($X, $Text) :-
+    belief_named($X), belief_description($X, $D), belief_sentences($X, $Ss), belief_join(cons($D, $Ss), $Text).
+belief_report($X, $Text) :-
+    belief_named($X), naf(belief_has_description($X)), belief_sentences($X, $Ss), dif($Ss, nil), belief_join($Ss, $Text).

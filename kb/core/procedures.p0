@@ -191,6 +191,11 @@ is_odd($N) :- eq(mod($N, 2), 1).
 % ── LIST OPERATIONS ──
 member($X, cons($X, $T)).
 member($X, cons($H, $T)) :- member($X, $T).
+% append/3 come regola, accanto a member/2: la concatenazione di due liste non
+% e' un builtin del solver, e chi ne ha bisogno non deve inventarsi una
+% scorciatoia (F., 26 settembre 2026). Si usa con la PRIMA lista legata.
+append(nil, $L, $L).
+append(cons($H, $T), $L, cons($H, $R)) :- append($T, $L, $R).
 append_list(nil, $L, $L).
 append_list(cons($H, $T), $L, cons($H, $R)) :- append_list($T, $L, $R).
 
@@ -1342,6 +1347,7 @@ machinery(fib).
 machinery(gcd).
 machinery(power).
 machinery(member).
+machinery(append).
 machinery(append_list).
 machinery(concat_atoms).
 machinery(sentence_terminator).
