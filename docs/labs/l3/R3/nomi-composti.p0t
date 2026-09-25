@@ -1,0 +1,82 @@
+# L3/R3 — un nome di relazione di piu' parole si impara per contatto (§15, §20.3).
+# KB agi completa; fatti veri. Scritto insieme alla cura, 25 settembre 2026 (dichiarato).
+# SETUP DICHIARATO (§15.1) solo per l'acetone: la KB viva sa gia' «the boiling
+# point of @S is @O»; si ritirano IN MEMORIA quella costruzione e la sua cornice.
+# «home town» e «raw material» non sono collegati nella KB viva: nessun ritiro.
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test prima: il nome composto non e collegato]
+!timeout 0
+> What is the home town of Napoleon?
+<! ajaccio
+
+[test un contatto, e il nome composto e lingua]
+!timeout 0
+> Einstein was born in Ulm, so his home town is Ulm.
+!query contact_episode(home_town, born_in, ep(einstein, ulm, s))
+!query relation_noun(born_in, "home town")
+> What is the home town of Napoleon?
+<~ Reading «home town» as «was born in»
+<~ ajaccio
+> What is the home town of Galileo Galilei?
+<~ pisa
+
+[test il nome e lo span, anche con una parola gia nota: non «raw»]
+!timeout 0
+> Steel is made of iron, so its raw material is iron.
+!query contact_episode(raw_material, made_of, $E)
+!query! contact_episode(raw, made_of, $E)
+> What is the raw material of glass?
+<~ Reading «raw material» as «is made of»
+<~ sand
+
+[test le parole di uno strumento non sono uno span: il contatto resta in sospeso]
+!timeout 0
+> Einstein was born in Ulm; in other words, his Geburtsort is Ulm.
+!query! contact_episode(words_geburtsort, born_in, $E)
+!query contact_near(born_in, ep(einstein, ulm, s), $Ws)
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test acetone: setup dichiarato e base]
+!timeout 0
+!forget construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at)
+!forget extract_frame("the boiling point of @S is @O", boils_at)
+> What is the boiling point of ethanol?
+<! 78
+
+[test acetone: contatto con quantita, nessuna cornice legge «boils at»]
+!timeout 0
+> Acetone boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.
+!query contact_episode(boiling_point, boils_at, ep(acetone, 56_degrees_celsius, s))
+!query relation_noun(boils_at, "boiling point")
+
+[test acetone: trasferimento su soggetti tenuti fuori]
+!timeout 0
+> What is the boiling point of ethanol?
+<~ Reading «boiling point» as «boils at»
+<~ 78 degrees Celsius
+> What is the boiling point of nitrogen?
+<~ -196
+
+[test acetone: il nome nuovo legge un'affermazione, con la provenienza]
+!timeout 0
+> The boiling point of methanol is 65 degrees Celsius.
+!query boils_at(methanol, 65_degrees_celsius)
+!query read_support(fact(boils_at, methanol, 65_degrees_celsius, pos), hypothesis(boiling_point, boils_at))
+
+[test acetone: ritiro (ablazione tecnica dichiarata): cade la via, restano i fatti con fonte propria]
+!timeout 0
+!assert contact_bridge_withdrawn(boiling_point, boils_at)
+> What is the boiling point of ethanol?
+<! 78
+!query! boils_at(methanol, 65_degrees_celsius)
+!query boils_at(acetone, 56_degrees_celsius)

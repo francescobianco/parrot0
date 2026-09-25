@@ -29,6 +29,7 @@ machinery(contact_gloss).
 % cosi' vedere quali fatti del turno sono stati letti con un'ipotesi)
 after_reply_bookkeeper(contact_reading).
 after_reply_bookkeeper(contact).
+after_reply_bookkeeper(contact_settle).
 
 % ── L'OSSERVAZIONE, dopo la risposta ───────────────────────────────────────
 turn_after_reply($T, contact) :-
@@ -38,9 +39,11 @@ contact_store($T, $N, $R, $E) :-
     naf(contact_negated($T)),
     naf(contact_episode($N, $R, $E)),
     contact_independent_here($T, $N, $R),
-    assert(contact_episode, $N, $R, $E),
-    contact_store_shape($T, $N, $R, $E),
-    contact_note_via($T, $N, $R, $E).
+    assert(contact_episode, $N, $R, $E).
+% (forma e strumento li da' `contact_settle`, con una query sua: chiesti qui,
+% dopo l'asserzione che sporca `extract_frame`, potevano fallire, e il fallimento
+% faceva tornare indietro a cercare altri allineamenti, ricalcolando le viste
+% dalle regole: turno senza fine dopo il ritiro di una costruzione — misurato)
 % ⛔ §14.4 — L'USO NON E' CONFERMA. Un episodio sostiene «N nomina R» solo se
 % R(S, O) nel turno non puo' essere il prodotto di quella stessa ipotesi.
 % «The Geburtsort of Kant is Konigsberg, so his Geburtsort is Konigsberg» e'
@@ -92,6 +95,8 @@ contact_store_shape($T, $N, $R, ep($S, $O, $Of)) :-
 machinery(contact_some_shape_here).
 contact_some_shape_here($T, $N, $O) :- contact_shape_here($T, $N, $O, $Shape).
 contact_shape_here($T, $N, $O, noun) :-
+    atom_words($N, cons($A, cons($B, $R))), contact_span_after_ref($T, cons($A, cons($B, $R))).
+contact_shape_here($T, $N, $O, noun) :-
     contact_token($T, $I, $N), input_node_next($T, $P, $I),
     contact_token($T, $P, $Ref), referring_possessive($Ref).
 contact_shape_here($T, $N, $O, verb($Mid)) :-
@@ -136,18 +141,112 @@ contact_contraction($T, $I, $J, $E) :-
 % Le relazioni candidate sono quelle che la KB sa leggere (`extract_frame/2`):
 % una relazione senza lettura non ha niente da allineare.
 contact_episode_here($T, $N, $R, $E) :-
-    contact_alignment_here($T, $R, $E, $Ws), eq_list_one($Ws, $N).
+    contact_alignment_here($T, $R, $E, $Ws), contact_name_of($T, $Ws, $N).
+% R3 — IL NOME E' LO SPAN, NON IL RESIDUO. Dopo la parola che riferisce, le parole
+% piene in fila («its boiling point is …», «its raw material is …») stanno dove
+% sta un nome di relazione: se il residuo cade tutto li' dentro, il nome e' lo
+% span intero, anche con parole che la KB legge gia' («material»). Col residuo
+% soltanto, «Steel is made of iron, so its raw material is iron.» proponeva
+% «raw» ≈ made_of. Le parole in piu' di uno strumento (I5) stanno fuori dallo
+% span («in other words, his Geburtsort»): quel contatto resta in sospeso.
+% La posizione decide, non un elenco.
+machinery(contact_name_of).
+machinery(contact_ref_span).
+machinery(contact_run).
+machinery(contact_next_content).
+machinery(contact_content).
+machinery(contact_all_in).
+machinery(contact_long_span_with).
+contact_name_of($T, $Ws, $N) :-
+    contact_ref_span($T, cons($A, cons($B, $Rest))), dif($Ws, nil),
+    contact_all_in($Ws, cons($A, cons($B, $Rest))), words_underscored(cons($A, cons($B, $Rest)), $N).
+contact_name_of($T, cons($N, nil), $N) :- naf(contact_long_span_with($T, $N)).
+contact_long_span_with($T, $W) :- contact_ref_span($T, cons($A, cons($B, $Rest))), member($W, cons($A, cons($B, $Rest))).
+contact_all_in(nil, $Span).
+contact_all_in(cons($W, $Rest), $Span) :- member($W, $Span), contact_all_in($Rest, $Span).
+contact_ref_span($T, cons($A, $Rest)) :-
+    contact_token($T, $P, $Ref), referring_possessive($Ref), input_node_next($T, $P, $I),
+    contact_token($T, $I, $A), contact_content($A), contact_run($T, $I, $Rest).
+contact_run($T, $I, cons($B, $Rest)) :-
+    input_node_next($T, $I, $J), contact_token($T, $J, $B), contact_content($B), contact_run($T, $J, $Rest).
+contact_run($T, $I, nil) :- naf(contact_next_content($T, $I)).
+contact_next_content($T, $I) :- input_node_next($T, $I, $J), contact_token($T, $J, $B), contact_content($B).
+contact_content($W) :- naf(word_is_function_word($W)), naf(word_is_number($W)).
+machinery(contact_span_after_ref).
+machinery(contact_span_follows).
+machinery(contact_span_in).
+machinery(contact_says).
+machinery(contact_role_candidate).
+machinery(contact_quantity_value).
+contact_span_after_ref($T, cons($A, $Rest)) :-
+    contact_token($T, $P, $Ref), referring_possessive($Ref), input_node_next($T, $P, $I),
+    contact_token($T, $I, $A), contact_span_follows($T, $I, $Rest).
+contact_span_follows($T, $I, nil).
+contact_span_follows($T, $I, cons($B, $Rest)) :-
+    input_node_next($T, $I, $J), contact_token($T, $J, $B), contact_span_follows($T, $J, $Rest).
+contact_span_in($T, cons($A, $Rest)) :- contact_token($T, $I, $A), contact_span_follows($T, $I, $Rest).
+% il turno dice N: la parola (o la sua radice), o tutte le parole di un nome
+% composto, in fila
+contact_says($T, $N) :- contact_token($T, $I, $W), contact_word_form($N, $W).
+contact_says($T, $N) :- atom_words($N, cons($A, cons($B, $R))), contact_span_in($T, cons($A, cons($B, $R))).
+% I ruoli: le entita' della IR e i VALORI quantita' (R2), con la superficie con
+% cui la KB li tiene («56 degrees Celsius» → 56_degrees_celsius).
+contact_role_candidate($T, $L, $E) :- input_entity_node($T, $L, $I, $E).
+contact_role_candidate($T, $L, $V) :- contact_quantity_value($T, $V).
+contact_quantity_value($T, $V) :-
+    input_quantity_node($T, $I, $Q, $Last), contact_token($T, $Last, $LastW),
+    contact_span_to($T, $I, $LastW, $Ws0),
+    contact_span_words($Ws0, $LastW, $Ws), words_underscored($Ws, $V).
+machinery(contact_span_words).
+contact_span_words(nil, $LastW, cons($LastW, nil)).
+contact_span_words(cons($W, $Rest), $LastW, cons($W, $Out)) :- contact_span_words($Rest, $LastW, $Out).
 % L'allineamento (ruoli, relazione tenuta, residuo) e' separato dalla scelta del
 % residuo: con una parola e' un episodio; con piu' parole e' un contatto QUASI
 % riuscito, che si conserva (I5, piu' sotto).
 machinery(contact_alignment_here).
+% (prima: e' la via piu' economica e la piu' precisa; l'altra consumava il
+% budget della query prima che l'episodio arrivasse alla sua forma, misurato)
+% R3 — I RUOLI DAI FATTI, NON SOLO DAL CHUNKER (§14.2 passo 1). «Acetone boils at
+% 56 degrees Celsius; its boiling point is …» arriva alla IR come le entita'
+% `acetone_boils` e `boiling` («boils» non e' riconosciuto verbo, «point» chiude
+% il sintagma, §20.3): nessuna coppia di entita' tiene boils_at. Il valore con la
+% parola ripetuta c'e' (la quantita'); i soggetti che la KB lega a quel valore si
+% chiedono ai FATTI, e si accettano se il turno li nomina parola per parola.
 contact_alignment_here($T, $R, ep($S, $O, $Of), $Ws) :-
     contact_refers_here($T), contact_repeated_word($T, $W),
     input_scope_language($T, $L),
-    findall($E, input_entity_node($T, $L, $I, $E), $Es),
+    findall($E, contact_role_candidate($T, $L, $E), $Es),
+    contact_named_relation($T, $R),
+    member($X, $Es), contact_entity_ends($X, $W), contact_fact_pair($T, $R, $X, p($S, $O, $Of)),
+    contact_residual($T, rel($R, $S, $O), $Ws).
+contact_alignment_here($T, $R, ep($S, $O, $Of), $Ws) :-
+    contact_refers_here($T), contact_repeated_word($T, $W),
+    input_scope_language($T, $L),
+    findall($E, contact_role_candidate($T, $L, $E), $Es),
     contact_role_pair($Es, $W, pair($S, $O), $Of), contact_readable_relation($R),
     kb_fact($R, cons($S, cons($O, nil))),
     contact_residual($T, rel($R, $S, $O), $Ws).
+machinery(contact_fact_pair).
+machinery(contact_candidate_relation).
+machinery(contact_named_relation).
+% (solo per le relazioni che il turno NOMINA: un secchio per relazione. Tutte le
+% ~400 relazioni leggibili esaurivano il budget; una scansione dei fatti con la
+% relazione libera costava minuti — misurato. Le altre restano alla via delle
+% entita', qui sopra.)
+contact_fact_pair($T, $R, $X, p($S, $X, s)) :-
+    kb_fact($R, cons($S, cons($X, nil))), dif($S, $X), contact_names_all($T, $S).
+contact_fact_pair($T, $R, $X, p($X, $O, o)) :-
+    kb_fact($R, cons($X, cons($O, nil))), dif($O, $X), contact_names_all($T, $O).
+% Le relazioni candidate: quelle con una lettura, e quelle NOMINATE dalle proprie
+% parole che il turno dice in fila («boils at» → boils_at, RI-020): una
+% relazione del mondo e' nominata dalle sue parole anche dove nessuna cornice la
+% legge ancora. Vale qui, nell'osservazione, non come lettore globale.
+contact_candidate_relation($T, $R) :- contact_readable_relation($R).
+contact_candidate_relation($T, $R) :- contact_named_relation($T, $R).
+contact_named_relation($T, $P) :-
+    contact_token($T, $I, $A), naf(word_is_function_word($A)), input_node_next($T, $I, $J),
+    contact_token($T, $J, $B), words_underscored(cons($A, cons($B, nil)), $P),
+    kb_fact($P, cons($X, cons($Y, nil))), naf(machinery($P)).
 % Le relazioni che la KB sa leggere. Cambiano solo quando cambiano i lettori,
 % quindi si congelano come `extract_frame/2` (grammar.p0): raccolte a ogni turno
 % costavano 200 ms, ricalcolate per ogni coppia di ruoli 1 s (misurato). Si
@@ -212,9 +311,13 @@ machinery(contact_explained_before).
 machinery(contact_proposed_word).
 contact_explained_before($R, $W) :- contact_relation_word($R, $W), naf(contact_proposed_word($W, $R)).
 contact_proposed_word($W, $R) :- contact_episode($W, $R, $E).
+contact_proposed_word($W, $R) :-
+    contact_episode($N, $R, $E), atom_words($N, cons($A, cons($B, $Rest))), member($W, cons($A, cons($B, $Rest))).
 % Le parole con cui la KB legge gia' R: se il nome e' fra queste, il ponte c'e'
 % gia' e il contatto non insegna niente.
 contact_relation_word($R, $W) :- extract_frame($P, $R), atom_words($P, $Ws), member($W, $Ws).
+% e le parole del proprio nome (RI-020): «boils» e «at» leggono boils_at
+contact_relation_word($R, $W) :- atom_words($R, $Ws), member($W, $Ws).
 
 % ── L'IPOTESI E IL SUO USO ─────────────────────────────────────────────────
 % Proporre non e' scegliere. Due significati della stessa superficie possono
@@ -236,7 +339,7 @@ contact_bridge($N, $R) :- contact_candidate($N, $R), naf(contact_competing($N, $
 machinery(turn_contact_ambiguous).
 turn_contact_ambiguous($T) :-
     contact_candidate($N, $R), contact_competing($N, $R),
-    turn_illocution($T, question), input_node_atom($T, $I, $W), contact_word_form($N, $W).
+    turn_illocution($T, question), contact_says($T, $N).
 turn_plan_candidate($T) :- turn_contact_ambiguous($T).
 turn_priority_response($T, $Text) :-
     turn_contact_ambiguous($T), current_language($L), response_template(contact_ambiguous, $L, $Text).
@@ -263,6 +366,11 @@ contact_support($N, $R, $K) :-
 % senza cambiare il verso di tutti i nomi di R: resta episodio, non lessico.
 relation_noun($R, $N) :-
     contact_bridge($N, $R), contact_shape($N, $R, noun), contact_episode($N, $R, ep($S, $O, s)).
+% un nome composto entra con la SUPERFICIE a spazi, come i nomi di piu' parole
+% insegnati (RI-010, grammar.p0): e' con quella che si scrivono frase e domanda
+relation_noun($R, $Surface) :-
+    contact_bridge($N, $R), contact_shape($N, $R, noun), contact_episode($N, $R, ep($S, $O, s)),
+    atom_words($N, cons($A, cons($B, $Rest))), words_joined(cons($A, cons($B, $Rest)), $Surface).
 % E un VERBO entra dove entrano i verbi: la cornice che legge le affermazioni
 % (`construction_frame/3`, la stessa di una lezione «X means Y») e la parola che
 % sceglie la relazione nelle domande (`answer_frame/2`), alla radice e com'e' detta.
@@ -294,13 +402,29 @@ view_depends(construction_claims, contact_shape).
 turn_reply_qualifies($T, $W, $G) :-
     contact_bridge($N, $R),
     input_node_atom($T, $I, $W), contact_word_form($N, $W), contact_gloss($R, $G).
+turn_reply_qualifies($T, $W, $G) :-
+    contact_bridge($N, $R), atom_words($N, cons($A, cons($B, $Rest))),
+    contact_span_in($T, cons($A, cons($B, $Rest))), words_joined(cons($A, cons($B, $Rest)), $W),
+    contact_gloss($R, $G).
 % la parola nel turno e' quella appresa, o la sua radice («hail» per «hails»)
 machinery(contact_word_form).
 contact_word_form($N, $N).
 contact_word_form($N, $W) :- finite_present_of($W, $N), dif($W, $N).
+% la glossa viene da una lettura NOTA di R, «@S … @O», che non contenga una
+% parola proposta dal contatto: dopo l'apprendimento esiste anche la cornice
+% «the boiling point of @S is @O», e rendere R con quella diceva «Reading
+% «boiling point» as «boiling point of @S is»» (misurato)
 contact_gloss($R, $G) :-
-    extract_frame($P, $R), atom_words($P, cons($A, $Ws)), contact_drop_last($Ws, $Mid),
-    words_joined($Mid, $G).
+    extract_frame($P, $R), concat_atoms("@S ", $Rest, $P), concat_atoms($G, " @O", $Rest),
+    naf(contact_frame_proposed($P, $R)).
+% una relazione senza lettura nota si dice con le parole del proprio nome (RI-020)
+machinery(contact_has_frame).
+machinery(contact_frame_proposed).
+contact_frame_proposed($P, $R) :- atom_words($P, $Ws), member($W, $Ws), contact_proposed_word($W, $R).
+contact_has_frame($R) :-
+    extract_frame($P, $R), concat_atoms("@S ", $Rest, $P), concat_atoms($G, " @O", $Rest),
+    naf(contact_frame_proposed($P, $R)).
+contact_gloss($R, $G) :- naf(contact_has_frame($R)), atom_words($R, $Ws), words_joined($Ws, $G).
 machinery(contact_drop_last).
 contact_drop_last(cons($W, nil), nil).
 contact_drop_last(cons($A, cons($B, $R)), cons($A, $T)) :- contact_drop_last(cons($B, $R), $T).
@@ -342,8 +466,7 @@ contact_reading_support($T, fact($R, $S, $O, $Pol), direct) :-
     read_support(fact($R, $S, $O, $Pol), hypothesis($N, $R)),
     kb_turn_act($R, cons($S, cons($O, nil)), $Pol, $K),
     naf(contact_through_now($T, fact($R, $S, $O, $Pol))).
-contact_word_here($T, $N, $R) :-
-    contact_episode($N, $R, $E), contact_token($T, $I, $W), contact_word_form($N, $W).
+contact_word_here($T, $N, $R) :- contact_episode($N, $R, $E), contact_says($T, $N).
 contact_through_now($T, fact($R, $S, $O, $Pol)) :-
     contact_word_here($T, $N, $R), kb_turn_act($R, cons($S, cons($O, nil)), $Pol, $K),
     contact_through($T, fact($R, $S, $O, $Pol), $K).
@@ -396,8 +519,7 @@ contact_tokens_all($T, cons($W, $Rest)) :- contact_token($T, $I, $W), contact_to
 contact_asks_relation($T, $R) :- contact_token($T, $I, $W), answer_frame($W, $R).
 contact_asks_relation($T, $R) :-
     contact_token($T, $I, $W), naf(word_is_function_word($W)), contact_relation_word($R, $W).
-contact_asks_relation($T, $R) :-
-    contact_token($T, $I, $W), contact_word_form($N, $W), contact_episode($N, $R, $E).
+contact_asks_relation($T, $R) :- contact_episode($N, $R, $E), contact_says($T, $N).
 turn_plan_candidate($T) :- turn_contact_withheld($T, $F, $N).
 turn_priority_response($T, $Text) :-
     turn_contact_withheld($T, $F, $N), current_language($L), contact_why_text($L, $F, $N, $Text).
@@ -471,7 +593,7 @@ turn_has_withheld($T) :- turn_contact_withheld($T, $F, $N).
 turn_contact_dropped($T, $N, $R) :-
     contact_episode($N, $R, $E), naf(contact_word_live($N)), naf(contact_competing($N, $R)),
     naf(contact_word_native($N)),
-    turn_illocution($T, question), contact_token($T, $I, $W), contact_word_form($N, $W),
+    turn_illocution($T, question), contact_says($T, $N),
     naf(turn_has_withheld($T)).
 % una parola che la lingua gia' legge per un'altra via («capital») non e' caduta:
 % e' caduta solo la lettura che il contatto le aveva proposto
@@ -627,3 +749,26 @@ contact_instrument_in_force($C) :- contact_instrument($C, $F), naf(contact_instr
 contact_instrument_discredited($C) :- naf(contact_instrument_credited($C)).
 contact_instrument_credited($C) :- contact_episode_via($N, $R, via($E, $C)), naf(contact_countered($N, $R)).
 view_depends(extract_frame, contact_episode_via).
+
+% ── IL SEGUITO DI UN EPISODIO NUOVO, CON UN BUDGET SUO ─────────────────────
+% `turn_after_reply(T, contact)` e' una query sola: l'allineamento puo' consumarne
+% il budget, e la forma chiesta dopo l'asserzione falliva in silenzio (misurato
+% su «its boiling point»: episodio scritto, forma no, `relation_noun` muto).
+% Qui, in un contabile a se', gli episodi scritti in questo turno ricevono la
+% forma e lo strumento attraverso cui sono nati, se ancora non li hanno.
+machinery(contact_new_episode).
+machinery(contact_settle_all).
+machinery(contact_settle_via).
+turn_after_reply($T, contact_settle) :-
+    findall($P, contact_new_episode($P), $L), contact_settle_all($T, $L).
+contact_new_episode(e($N, $R, $E)) :-
+    kb_turn_act(contact_episode, cons($N, cons($R, cons($E, nil))), pos, new).
+contact_settle_all($T, nil).
+contact_settle_all($T, cons(e($N, $R, $E), $L)) :-
+    contact_store_shape($T, $N, $R, $E), contact_settle_via($T, $N, $R, $E),
+    contact_settle_all($T, $L).
+contact_settle_via($T, $N, $R, $E) :- contact_episode_via($N, $R, via($E, $C)).
+contact_settle_via($T, $N, $R, $E) :-
+    naf(contact_episode_via_any($N, $R, $E)), contact_note_via($T, $N, $R, $E).
+machinery(contact_episode_via_any).
+contact_episode_via_any($N, $R, $E) :- contact_episode_via($N, $R, via($E, $C)).

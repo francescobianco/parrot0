@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato (25 settembre, sera tardi): I0–I4 chiusi; **I5 primo circuito** (gli strumenti del contatto si imparano e si correggono per contatto, §26); aperti R3/§15 (acetone), parte del banco §16.2, domanda discriminante prima dell'uso. Soft-test verde (14 s).**
+Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27); aperti: il banco §16.2 mancante, la domanda discriminante prima dell'uso, R3 nel chunker per gli altri lettori. Soft-test verde (15 s, al limite).**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -39,7 +39,31 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 
 ---
 
-## HANDOFF vivo — I5, 25 settembre 2026, sera tardi: RIPARTIRE QUI
+## HANDOFF vivo — R3, 25 settembre 2026, notte fonda: RIPARTIRE QUI
+
+**Fatto:** R3 per contatto e l'esperimento dell'acetone (§27). Un nome di più
+parole («home town», «raw material», «boiling point») si impara da un contatto
+ordinario ed entra nella lingua come `relation_noun`; l'acetone passa con
+quantità e senza cornice per «boils at», trasferisce a etanolo e azoto, legge
+un'affermazione in prosa (metanolo) con la provenienza, e il ritiro sospende.
+Banco `docs/labs/l3/R3/nomi-composti.p0t` **23/23**; durata
+`docs/labs/l3/R3/persistenza.sh` (solo `make chat`). Regressioni L3 tutte verdi
+(I2 35/40/16/13/19/7, I5 30). Zero C.
+
+**Trovato e curato:** un turno **senza fine** dopo il ritiro di una costruzione
+(anche parlato), per ritorno indietro nella via delle entità con viste sporche
+(§27.3, trovato con gdb sui goal di `solve_frame`); il budget di una query sola
+che faceva fallire in silenzio la forma (`contact_settle`).
+
+**⚠ Soft-test verde a 15 s su 15:** senza margine. Se sfora, prima cosa da
+guardare: i tre contabili dopo la risposta (`contact_reading`, `contact_settle`,
+`contact_near`) scandiscono i fatti del turno (`kb_turn_act/4`) a ogni livello.
+
+**Prossimo passo proposto:** il banco §16.2 mancante (Paris/the capital, LED,
+citazione altrui, `absent`/aggregati, limiti di ricerca, ablazione del
+consumer), poi la domanda discriminante prima dell'uso.
+
+## HANDOFF precedente — I5, 25 settembre 2026, sera tardi
 
 **Fatto:** I5, primo circuito (§26): uno strumento del contatto mai visto
 («in other words») si induce da due contatti quasi riusciti su relazioni
@@ -2700,3 +2724,101 @@ parola che la lingua non legge per nessun'altra via (`contact_word_native/1`).
    dedotto dalla condizione): la cura naturale è che uno strumento noto non
    possa essere un nome, oggi vale solo per quelli già indotti;
 5. le frasi italiane del §19.3 restano non verificate.
+
+## 27. R3 — un nome di relazione di più parole si impara per contatto; l'acetone del §15 (25 settembre 2026)
+
+> *F.: «procedi con R3».*
+
+### 27.1 Il rosso, misurato prima
+
+Con il ponte nativo ritirato in memoria (setup del §15.1), «Acetone boils at 56
+degrees Celsius; its boiling point is 56 degrees Celsius.» non insegnava niente,
+e «What is the boiling point of ethanol?» non aveva risposta. Tre lacune, trovate
+interrogando i pezzi uno per uno:
+
+1. il **valore** è una quantità (R2, `quantity(56, degree_celsius)`), ma i ruoli
+   candidati erano solo le entità del chunker;
+2. le **entità** del chunker erano sbagliate: `acetone_boils` («boils» non è
+   riconosciuto verbo) e `boiling` («point» chiude il sintagma, §20.3);
+3. **nessuna cornice legge «boils at»**: senza la costruzione del «boiling point»
+   `boils_at` non ha `extract_frame`, quindi per il circuito non era leggibile.
+   RI-020 dice già che una relazione del mondo è nominata dalle sue parole, ma
+   solo per allineare le lezioni.
+
+### 27.2 La cura (kb/core/contact.p0, zero C)
+
+- **I ruoli dai fatti** (§14.2 passo 1): dal valore con la parola ripetuta si
+  chiedono alla KB i soggetti che hanno quella relazione con quel valore, e si
+  accettano se il turno li nomina parola per parola. Solo per le relazioni che il
+  turno **nomina con le sue parole** in fila («boils at» → `boils_at`): tutte le
+  ~400 relazioni leggibili esaurivano il budget, e una scansione dei fatti con la
+  relazione libera costava minuti (misurato). La via delle entità resta per le
+  altre, com'era.
+- **I valori quantità** sono ruoli, con la superficie con cui la KB li tiene
+  (`56_degrees_celsius`).
+- **Il nome è lo span, non il residuo.** Dopo la parola che riferisce, le parole
+  piene in fila stanno dove sta un nome di relazione: se il residuo cade tutto lì
+  dentro, il nome è lo span intero — anche con parole già note. Col solo residuo
+  «Steel is made of iron, so its raw material is iron.» proponeva «raw» ≈
+  `made_of`. Le parole di uno strumento (I5) stanno fuori dallo span e il
+  contatto resta in sospeso: la posizione decide, non un elenco.
+- Il nome composto entra nella lingua come i nomi di più parole insegnati
+  (RI-010): `relation_noun(boils_at, "boiling point")`. Il turno «dice» N anche
+  quando N è uno span (`contact_says/2`), per la riserva, la provenienza, le
+  domande sul perché e le letture concorrenti.
+- **Glossa**: da una lettura nota «@S … @O» senza parole proposte dal contatto,
+  o dalle parole del nome della relazione («boils at»). Prima, dopo
+  l'apprendimento, la glossa veniva dalla cornice nata dal nome stesso: «Reading
+  «boiling point» as «boiling point of @S is»».
+
+### 27.3 Due difetti del circuito, trovati per strada
+
+- **Il budget di una query sola.** `turn_after_reply(T, contact)` scriveva
+  l'episodio e poi chiedeva forma e strumento nella stessa query: il budget era
+  già consumato dall'allineamento, la forma falliva in silenzio (episodio sì,
+  `relation_noun` no). Il registro lo diceva: `paradox(proof, budget,
+  turn_after_reply)`. Ora un contabile a sé, `contact_settle`, dà forma e
+  strumento agli episodi scritti nel turno (`kb_turn_act/4`).
+- **Il turno senza fine dopo il ritiro di una costruzione** — riprodotto anche
+  parlando («forget that the boiling point of x is y means x boils at y», poi un
+  contatto): il fallimento dopo l'asserzione faceva tornare indietro a cercare
+  altri allineamenti, e ogni `extract_frame` della via delle entità si
+  ricalcolava dalle regole (la vista, sporcata dall'asserzione, non si ricostruisce
+  a metà query). Trovato con gdb sui goal di `solve_frame`: `contact_role_pair` →
+  `contact_readable_relation` → `extract_frame` → `construction_claims` →
+  `construction_variant`. Tolta la causa: dopo l'asserzione `contact_store` non
+  chiede più niente. Lo stesso turno col setup: da 20 s (prima di I5) e poi
+  blocco, a 13 s.
+
+### 27.4 Misure
+
+`docs/labs/l3/R3/nomi-composti.p0t` **23/23** (1 min 15 s, fuori dal soft-test):
+
+| prova | esito |
+|---|---|
+| base («What is the home town of Napoleon?») | nessuna risposta |
+| «Einstein was born in Ulm, so his home town is Ulm.» | `relation_noun(born_in, "home town")`; Napoleon → «Reading «home town» as «was born in». ajaccio.», Galileo → pisa |
+| «Steel is made of iron, so its raw material is iron.» | nome `raw_material`, **non** `raw`; glass → sand |
+| «…; in other words, his Geburtsort is Ulm.» | nessuno span: resta contatto in sospeso (I5 intatto) |
+| acetone, setup §15.1: base | «What is the boiling point of ethanol?» senza 78 |
+| contatto con quantità, «boils at» senza cornice | episodio `boiling_point` ≈ `boils_at`, lingua |
+| trasferimento tenuto fuori | ethanol → «Reading «boiling point» as «boils at». 78 degrees Celsius, lower than water.»; nitrogen → -196 |
+| prosa: «The boiling point of methanol is 65 degrees Celsius.» | `boils_at(methanol, 65_degrees_celsius)` con sostegno d'ipotesi (§14.6) |
+| ritiro (ablazione dichiarata) | ethanol senza 78; il fatto del metanolo sospeso; quello dell'acetone resta |
+
+### 27.5 Che cosa resta (non tacere)
+
+- Il chunker continua a leggere `acetone_boils` e `its boiling`: R3 nel senso del
+  §20.3 (candidati alternativi dei sintagmi per tutti i consumatori) **non** è
+  fatto; il contatto lo aggira chiedendo i ruoli ai fatti. Ogni altro lettore che
+  usa `np_candidate` ha ancora il difetto.
+- «boils at» resta illeggibile come affermazione («Acetone boils at 56 degrees
+  Celsius.» → «I don't know about acetone yet»): la relazione nominata dalle sue
+  parole vale nell'osservazione, non come lettore globale. Aprirla a tutti i
+  lettori è una decisione (furti di turno, §17.5), da misurare a parte.
+- L'acqua del §15.2 resta fuori: `boils_at(water, …)` è una frase, non una
+  quantità, e l'ancora non combacia (ostacolo già dichiarato nel §15.2).
+- Il contatto sul «boiling point» nella KB viva senza setup non insegna niente,
+  giustamente: è già saputo (§21.5).
+- Costo: un turno di contatto a forma nuova costa 7–13 s; la ricostruzione di
+  `extract_frame` dopo un episodio pesa sul turno dopo (5–6 s), debito della vista.

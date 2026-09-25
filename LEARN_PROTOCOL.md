@@ -91,6 +91,24 @@ invece **non** riattiva un'ipotesi smentita (§16.2), quindi parrot0 non lo
 promette. Le frasi italiane sono scritte ma non verificate: «Dove è nato Kant?»
 oggi si ferma prima, sulla traduzione di «nato».
 
+### Nomi di più parole — per contatto (R3, 25 settembre)
+
+Un nome composto si insegna come uno semplice: le parole piene in fila dopo il
+possessivo sono **il nome intero**, anche se una di loro è già nota.
+
+```text
+Einstein was born in Ulm, so his home town is Ulm.        → «home town» nomina born_in
+Steel is made of iron, so its raw material is iron.       → «raw material», non «raw»
+Acetone boils at 56 degrees Celsius; its boiling point is 56 degrees Celsius.
+                                                          → con la quantità come valore
+```
+
+Il valore può essere una quantità con unità, e la relazione può essere nominata
+dalle sue parole («boils at») anche dove nessuna cornice la legge. Limiti nel
+piano §27.5: «Acetone boils at 56 degrees Celsius.» da sola resta illeggibile;
+l'acqua non ancora (il suo valore è una frase). Banco
+`docs/labs/l3/R3/nomi-composti.p0t`; durata `sh docs/labs/l3/R3/persistenza.sh`.
+
 ### Insegnare uno strumento del contatto nuovo — per contatto (I5, 25 settembre)
 
 «in other words», «namely», «in short» oggi non sono nella KB: un contatto che li
