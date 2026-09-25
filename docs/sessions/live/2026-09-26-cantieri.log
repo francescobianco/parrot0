@@ -1,0 +1,169 @@
+# sessione: sicurezza sui cantieri — dispositivi di protezione, soglie, cause — 2026-09-26 01:11 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@e787af38]
+# mode: conversational (tools off, network off) - 165567 facts, 5436 rules (3.28%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Campo: sicurezza sui cantieri. La KB ha pochi semi veri: protects(heat-resistant glove, hand), working_load_of(m10 eye bolt, 230 kg), cause(slippery surfaces, falls), safety_device(fire blanket). Domanda di partenza: parrot0 sa dire che cosa protegge un DPI, che cosa causa gli incidenti, e ragionare su una SOGLIA (altezza, rumore) che in cantiere decide un obbligo? Esploro prima quel che dovrebbe già reggere.
+> What does a heat-resistant glove protect?
+< Hand.
+> What protects the hand?
+< Heat-resistant glove.
+> What causes falls?
+< Slippery surfaces.
+> What is the working load of an M10 eye bolt?
+< 230 kilograms.
+> Can an M10 eye bolt lift 300 kilograms?
+< I don't know whether m10 can eye bolt lift 300 kilograms: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.
+! Esplorazione: i quattro fatti-seme reggono nei due versi (protects, cause, working_load_of), tutti sotto 1,3 s. Il muro: «Can an M10 eye bolt lift 300 kilograms?» — la lettura spezza l'entità: «m10» diventa il soggetto e «eye bolt lift» il verbo. È un reperto di IR (entità di più parole con un codice davanti), non di conoscenza. Provo una variante senza il codice e una con il nome intero fra virgolette per isolare la causa.
+> Can an eye bolt lift 300 kilograms?
+< I don't know whether eye can bolt lift 300 kilograms: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.
+> Is 300 kilograms more than the working load of an M10 eye bolt?
+< I don't know: nothing I hold says 300 kilograms more than the working load of is m10 eye bolt, and nothing says it isn't.
+> Is 200 kilograms below the working load of an M10 eye bolt?
+< I don't know: nothing I hold says 200 kilograms below the working load of is m10 eye bolt, and nothing says it isn't.
+! Due reperti distinti. (a) «eye bolt» non è letto come un nome composto: «eye» soggetto, «bolt» verbo. Il codice M10 non c'entra. (b) il confronto con un valore in KB: la polare si spezza sulla copula e la lettura perde la struttura «V più di R di X». Prima guardo la lettura di (a) con /debug, poi provo se il confronto numerico puro regge, per separare il problema della lettura da quello dell'inferenza.
+> Can an eye bolt lift 300 kilograms?
+< I don't know whether eye can bolt lift 300 kilograms: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.
+> /debug
+# /debug: 119 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> Is 300 kilograms more than 230 kilograms?
+< Hmm, I don't know about kilograms yet. Want me to learn about it?
+> Is 70 degrees Celsius enough for chicken to be safe?
+< No.
+! Diagnosi (a): la IR legge bene «an eye bolt» come sintagma ed entità eye_bolt, ma la forma «can X …» (ability_polar, messages.p0) ha uno slot soggetto di UNA parola, quindi prende «eye» e lascia «bolt» al resto. Il consumatore ignora il confine della IR: specie già vista in fisiologia. È motore/forma, non lezione: lo annoto e non lo tocco a sessione aperta. (b): il confronto numerico puro fra due quantità non è una strada («I don't know about kilograms yet»), mentre la soglia del cibo regge perché ha un suo lettore dedicato (food-time.p0). Provo se una SOGLIA di cantiere si insegna parlando: prima il DPI con complemento (regge grazie a RI-012?), poi la soglia dell'altezza.
+> A hard hat protects the head from falling objects.
+< Learned: hard hat protects head.
+> What protects the head?
+< Hard hat.
+> What does a hard hat protect the head from?
+< Falling objects.
+> Fall protection is required when working above 2 meters.
+< Hmm, I don't know about protection yet. Want me to learn about it?
+> Is fall protection required at 3 meters?
+< I cannot settle that: no fact I hold decides whether fall protection require at 3 meters. Not proved is not the same as false. Tell me either way and I will hold it.
+> Is fall protection required at 1 meter?
+< I cannot settle that: no fact I hold decides whether fall protection require at 1 meter. Not proved is not the same as false. Tell me either way and I will hold it.
+! Il DPI con complemento regge: «from falling objects» resta leggibile (RI-012 in KB ha pagato). Il muro scelto è la SOGLIA: «X è obbligatorio sopra N unità» e la domanda «serve a M unità?». È una classe (altezza, rumore, profondità di scavo, carico) e in cantiere è la domanda vera. La frase con «when working» è andata allo smalltalk: provo formulazioni più piatte, poi la forma «il minimo di R per X è V» che per i valori nominali (RI-018) ha già funzionato.
+> Fall protection is required above 2 meters.
+< I looked up «protection» but found nothing. If you know it, teach me: «protection is defined as …».
+> Workers need fall protection above 2 meters.
+< Learned: workers need fall protection.
+> minimum height is a relation
+< Learned: minimum height is relation.
+> The minimum height for fall protection is 2 meters.
+< Hmm, I don't know about minimum height yet. Want me to learn about it?
+> What is the minimum height for fall protection?
+< I cannot settle that: no fact I hold decides whether minimum height of for fall protection. Not proved is not the same as false. Tell me either way and I will hold it.
+> Is fall protection required at 3 meters?
+< I cannot settle that: no fact I hold decides whether fall protection require at 3 meters. Not proved is not the same as false. Tell me either way and I will hold it.
+! «Workers need fall protection above 2 meters» ha perso in silenzio «above 2 meters» (above è una preposizione in KB: perché qui non tiene il complemento come «from» nel cappello?). E «minimum height is a relation» è stato letto come classificazione («is relation»), non come lezione di relazione, mentre «largest city is a relation» (RI-010) passava. Guardo la traccia della lezione e provo la forma del valore con «of».
+> minimum height is a relation
+< Learned: minimum height is relation.
+> /debug trace form
+# /debug: 249 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> The minimum height of fall protection is 2 meters.
+< Learned: the minimum height of fall protection is 2 meters.
+> What is the minimum height of fall protection?
+< 2 meters.
+> Above what height do workers need fall protection?
+< Hmm, I don't know about protection yet.
+! Reperti: «X is a relation» con un nome di due parole viene letto come proprietà unaria (teach_property_phrase) — mentre RI-010 «largest city is a relation» passava; da capire a freddo. La forma «the R of X is V» regge, «for» no: il valore c'è (minimum height of fall protection = 2 meters). Ora il salto: la domanda «serve a 3 metri?» richiede un confronto fra la quantità del turno e quella in KB. Provo a insegnare la regola con variabili come la direbbe un formatore; se non si accende, provo la domanda di confronto diretta.
+> if the minimum height of x is h and n is greater than h then x is required at n
+< Learned rule: holds(x_is_required_at_n) :- holds(minimum_height_of_x_is_h), holds(n_is_greater_than_h).
+> Is fall protection required at 3 meters?
+< I cannot settle that: no fact I hold decides whether fall protection require at 3 meters. Not proved is not the same as false. Tell me either way and I will hold it.
+> Is 3 meters greater than the minimum height of fall protection?
+< I cannot settle that: no fact I hold decides whether 3 meters greater than the minimum height of of fall protection. Not proved is not the same as false. Tell me either way and I will hold it.
+> Is 3 meters greater than 2 meters?
+< Hmm, I don't know about meters yet. Want me to learn about it?
+! La regola è entrata degenere: holds(x_is_required_at_n) :- holds(minimum_height_of_x_is_h), … — il lettore delle regole capisce solo triple «x V y», non «the R of x is h» né un confronto. Non serve a nulla e va ritirata prima di ogni /save. E il confronto puro fra due quantità («Is 3 meters greater than 2 meters?») non è una strada: senza quello nessuna soglia di cantiere è interrogabile. Sondo se esiste QUALCHE via di confronto numerico, poi ritiro la regola.
+> Is 3 greater than 2?
+< Yes.
+> Which is heavier, 300 kilograms or 230 kilograms?
+< Hmm, I don't know about heavier yet. Want me to learn about it?
+> Is 300 kilograms heavier than 230 kilograms?
+< Hmm, I don't know about kilograms yet.
+> forget the rule about minimum height
+< Hmm, I don't know about forget yet. Want me to learn about it?
+! Bilancio sulla soglia: il confronto fra numeri nudi c'è («Is 3 greater than 2?» → Yes), ma con l'unità la stessa domanda cade allo smalltalk: il comparatore legge le parole grezze e non i nodi quantità della IR. Con «the R of X is V» + un comparatore che veda le quantità, la soglia si insegnerebbe con due frasi. È motore: lo porto nel resoconto. In sessione salgo dove regge: i DPI come classe (protects X from Y), con trasferimento, contrasto, accumulo delle cause e il perché.
+> forget the last rule
+< I looked up «forget» but found nothing. If you know it, teach me: «forget is defined as …».
+> Safety boots protect the feet from falling objects.
+< Learned: safety boots protect feet.
+> What protects the feet?
+< Safety boots.
+> Hearing protection protects the ears from noise.
+< Learned: hearing protection protects ears.
+> What does hearing protection protect the ears from?
+< Noise.
+> What protects the knees?
+< I don't understand that yet.
+> Unguarded edges cause falls.
+< Slippery surfaces.
+> What causes falls?
+< Unguarded edges.
+> Why do workers wear a hard hat?
+< I don't know: nothing I hold says workers wear is hard hat, and nothing says it isn't.
+! La classe dei DPI regge: trasferimento (piedi, orecchie) e contrasto (ginocchia → declina, non inventa). Due reperti nuovi: (i) «Unguarded edges cause falls.» — una DICHIARATIVA — è stata trattata come domanda e ha risposto «Slippery surfaces»: il modulo delle cause rivendica il turno sul verbo, senza guardare il modo (mantra #17). (ii) «What causes falls?» ora dice solo «Unguarded edges»: o il vecchio fatto è coperto o la risposta prende una sola soluzione. Verifico con due polari e guardo la strada del dispatch; poi provo il perché con «because».
+> Do slippery surfaces cause falls?
+< Yes: slippery surfaces causes falls.
+> Do unguarded edges cause falls?
+< I cannot settle that: no fact I hold decides whether unguarded edges cause falls. Not proved is not the same as false. Tell me either way and I will hold it.
+> Unguarded edges cause falls.
+< Slippery surfaces.
+> /debug trace faculty
+# /debug: 59 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> Workers wear a hard hat because it protects the head from falling objects.
+< Learned: workers wear hard hat.
+> Why do workers wear a hard hat?
+< I don't know: nothing I hold says workers wear is hard hat, and nothing says it isn't.
+> Guardrails protect workers from falls.
+< Learned: guardrails protect workers.
+> What protects workers from falls?
+< Guardrails.
+! Confermato e peggio del previsto: «unguarded edges cause falls» NON è stato appreso (la polare non trova il fatto), eppure «What causes falls?» aveva risposto «Unguarded edges»: un'affermazione presa dal contesto del turno prima, non da un fatto tenuto. Mantra #7: peggio di un muro. Cerco chi ha preso il turno della dichiarativa e chiedo conto a parrot0; poi provo la causa con altre formulazioni.
+> Unguarded edges cause falls.
+< Slippery surfaces.
+> /debug trace path
+# /debug: 1 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> why did you answer that way?
+< I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn initiative, toolplan, piact, lessonform, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, claimq, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, calibrate, abduce, self, archetype, fewshot, compare, rulespec, algebra, claim, operator, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, bench, reader, shell, codeast looked first and declined; then 'answerframe' claimed it — so the faculties after 'answerframe' were never consulted.
+> Falls are caused by unguarded edges.
+< I didn't keep that: «unguarded_edges» and «falls» don't read as things I can hold a fact about.
+> Do unguarded edges cause falls?
+< I cannot settle that: no fact I hold decides whether unguarded edges cause falls. Not proved is not the same as false. Tell me either way and I will hold it.
+> What causes falls?
+< Unguarded edges.
+! Chi ha preso la dichiarativa è answerframe: il modo (affermazione, non domanda) non lo ferma. E «What causes falls?» risponde «Unguarded edges» mentre la polare non trova il fatto: la wh e la polare leggono due depositi diversi — la wh vede qualcosa lasciato dalla lettura del turno, la polare no. Chiedo a parrot0 da dove viene la risposta e guardo la traccia. Poi un ultimo tentativo di dire la causa in una forma che passi da un lettore di fatti.
+> What causes falls?
+< Unguarded edges.
+> /debug trace cause
+# /debug: 7 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> An unguarded edge causes a fall.
+< Learned: unguarded edge causes fall.
+> Do unguarded edges cause falls?
+< Yes: unguarded edge causes fall.
+> Unguarded edges are a cause of falls.
+< Hmm, I don't know about unguarded yet. Want me to learn about it?
+> What are the causes of falls?
+< Unguarded edge.
+! Al singolare la causa entra («An unguarded edge causes a fall.» → polare Yes, anche al plurale: la morfologia regge). Ma «What are the causes of falls?» ne dice UNA sola: due fatti tenuti, una risposta. Verifico l'enumerazione con una formulazione diversa e chiudo: i muri rimasti sono tutti di motore (slot di una parola nelle forme, quantità con unità nel comparatore, answerframe che rivendica una dichiarativa plurale, il lettore delle regole, because) e la regola 6 dice di fermarsi. Le lezioni riuscite: quattro DPI con complemento, un'altezza minima, una causa.
+> What causes falls?
+< Unguarded edges.
+> Name everything that causes falls.
+< Unguarded edge.
+> What protects the head, the feet and the ears?
+< hard hat.
+! Chiusura con /save: nella ricaduta andranno anche la regola degenere e la proprietà «minimum height» — le tolgo a freddo, con il transcript come prova, prima del commit.
+> /save
+# sessione chiusa 01:18

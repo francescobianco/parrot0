@@ -42,6 +42,17 @@ step_down(step-down_transformer, voltage).
 disconnect(double-pole_switch, both_conductors).
 protects(heat-resistant_glove, hand).
 
+% 26 settembre 2026 — live teaching, sicurezza sui cantieri
+% (docs/sessions/live/2026-09-26-cantieri.log): i dispositivi di protezione
+% detti con il loro complemento («a hard hat protects the head from falling
+% objects»); il complemento resta leggibile («What does a hard hat protect the
+% head from?» → Falling objects). «safety boots protect» e «guardrails protect»
+% erano usciti dal /save come protect/2: qui una sola relazione (mantra #3).
+protects(hard_hat, head).
+protects(hearing_protection, ears).
+protects(safety_boots, feet).
+protects(guardrails, workers).
+
 % RI-018 (23 settembre 2026) — valori nominali, insegnati con la forma «the R of
 % X is V» dopo «operating voltage / rated current is a relation»: la porta USB
 % (5 V), la batteria d'auto (12 V), il fusibile di una spina britannica (13 A).
@@ -56,3 +67,14 @@ rated_current_of(plug_fuse, 13_amperes).
 % golfare M10 (230 kg, DIN 580).
 flash_point_of(jet_a_fuel, 38_degrees_celsius).
 working_load_of(m10_eye_bolt, 230_kilograms).
+
+% 26 settembre 2026 — live teaching, sicurezza sui cantieri: l'altezza minima
+% sopra cui serve la protezione anticaduta (2 m: D.Lgs. 81/2008 art. 107, lavoro
+% in quota), insegnata con «the minimum height of fall protection is 2 meters»
+% (con «for» la forma non legge). «Workers need fall protection above 2 meters»
+% ha perso il complemento: resta il fatto nudo. Interrogabile («What is the
+% minimum height of fall protection?» → 2 meters); NON ancora confrontabile
+% («Is fall protection required at 3 meters?»): il comparatore non vede le
+% quantita' con unita' — vedi docs/sessions/2026-09-26-live-cantieri.md.
+minimum_height_of(fall_protection, 2_meters).
+need(workers, fall_protection).

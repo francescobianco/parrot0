@@ -140,6 +140,16 @@ machinery_gap("hydraulic is usually observed in a liquid but gases can also be a
 machinery_gap("hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 machinery_gap("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it").
 machinery_gap("fire_blanket designed to extinguish incipient (starting fires").
+machinery_gap("unguarded edges are a cause of falls.").
+machinery_gap("what protects the knees?").
+machinery_gap("forget the rule about minimum height").
+machinery_gap("is 300 kilograms heavier than 230 kilograms?").
+machinery_gap("which is heavier, 300 kilograms or 230 kilograms?").
+machinery_gap("is 3 meters greater than 2 meters?").
+machinery_gap("above what height do workers need fall protection?").
+machinery_gap("the minimum height for fall protection is 2 meters.").
+machinery_gap("fall protection is required when working above 2 meters.").
+machinery_gap("is 300 kilograms more than 230 kilograms?").
 machinery_gap("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
@@ -359,15 +369,38 @@ gap_opaque("a consists of a sheet of a fire retardant material that is placed ov
 gap_anchor("legionella does not spread from person-to-person", legionella).
 gap_opaque("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", placed).
 gap_opaque("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", material).
+gap_opaque("unguarded edges are a cause of falls.", edges).
+gap_opaque("unguarded edges are a cause of falls.", unguarded).
 gap_opaque("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", retardant).
+gap_opaque("what protects the knees?", knees).
 gap_opaque("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", sheet).
+gap_opaque("forget the rule about minimum height", minimum).
+gap_opaque("forget the rule about minimum height", rule).
+gap_opaque("forget the rule about minimum height", forget).
 gap_opaque("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", consists).
+gap_opaque("is 300 kilograms heavier than 230 kilograms?", heavier).
+gap_opaque("is 300 kilograms heavier than 230 kilograms?", kilograms).
 gap_opaque("high humidity causes mould", humidity).
+gap_opaque("which is heavier, 300 kilograms or 230 kilograms?", kilograms).
+gap_opaque("which is heavier, 300 kilograms or 230 kilograms?", heavier).
 gap_opaque("fire_blanket designed to extinguish incipient (starting fires", starting).
+gap_opaque("is 3 meters greater than 2 meters?", greater).
+gap_opaque("is 3 meters greater than 2 meters?", meters).
 gap_opaque("fire_blanket designed to extinguish incipient (starting fires", incipient).
+gap_opaque("above what height do workers need fall protection?", protection).
+gap_opaque("above what height do workers need fall protection?", above).
 gap_anchor("legionella are aerobic and motile", legionella).
+gap_opaque("the minimum height for fall protection is 2 meters.", meters).
+gap_opaque("the minimum height for fall protection is 2 meters.", protection).
+gap_opaque("the minimum height for fall protection is 2 meters.", minimum).
 gap_opaque("fire_blanket designed to extinguish incipient (starting fires", extinguish).
+gap_opaque("fall protection is required when working above 2 meters.", meters).
+gap_opaque("fall protection is required when working above 2 meters.", above).
+gap_opaque("fall protection is required when working above 2 meters.", working).
+gap_opaque("fall protection is required when working above 2 meters.", required).
+gap_opaque("fall protection is required when working above 2 meters.", protection).
 gap_opaque("fire_blanket designed to extinguish incipient (starting fires", designed).
+gap_opaque("is 300 kilograms more than 230 kilograms?", kilograms).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
@@ -406,11 +439,15 @@ gap_anchor("comprise is a relation verb", relation).
 gap_anchor("migrate is a relation verb", verb).
 gap_anchor("migrate is a relation verb", relation).
 gap_kind("shelter is a relation verb", reachability).
+gap_anchor("unguarded edges are a cause of falls.", falls).
+gap_anchor("unguarded edges are a cause of falls.", cause).
 gap_anchor("occur is a relation verb", verb).
 gap_anchor("occur is a relation verb", relation).
 gap_anchor("hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change", momentum).
 gap_anchor("show is a relation verb", verb).
+gap_anchor("what protects the knees?", protects).
 gap_anchor("show is a relation verb", relation).
+gap_anchor("forget the rule about minimum height", height).
 gap_anchor("hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change", change).
 gap_anchor("the problem with this theory is its size", size).
 gap_anchor("the problem with this theory is its size", theory).
@@ -425,10 +462,16 @@ gap_anchor("where does the river begin?", river).
 gap_anchor("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", order).
 gap_kind("legionella of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine", reachability).
 gap_anchor("i have risolto the problema meccanico", problema).
+gap_anchor("above what height do workers need fall protection?", fall).
+gap_anchor("above what height do workers need fall protection?", need).
+gap_anchor("above what height do workers need fall protection?", workers).
+gap_anchor("above what height do workers need fall protection?", height).
 gap_anchor("what is a hammer made of?", hammer).
 gap_anchor("the language of ghana is english", english).
 gap_anchor("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", fire).
 gap_anchor("is it safe to mix flour and water?", water).
+gap_anchor("the minimum height for fall protection is 2 meters.", fall).
+gap_anchor("the minimum height for fall protection is 2 meters.", height).
 gap_anchor("is it safe to mix flour and water?", flour).
 gap_anchor("the language of ghana is english", ghana).
 gap_anchor("fire_blanket designed to extinguish incipient (starting fires", fires).
@@ -436,6 +479,7 @@ gap_anchor("the language of ghana is english", language).
 gap_anchor("high humidity causes mould", causes).
 gap_source("smoke detectors in large commercial and industrial buildings are usually connected to a central fire alarm system", " Smoke detectors in large commercial and industrial buildings are usually connected to a central fire alarm system").
 gap_anchor("the milk was left on the counter for one hour", milk).
+gap_anchor("fall protection is required when working above 2 meters.", fall).
 gap_anchor("high humidity causes mould", high).
 gap_anchor("fire_blanket designed to extinguish incipient (starting fires", fire_blanket).
 gap_anchor("what is measured by the farad?", farad).
@@ -451,28 +495,35 @@ gap_kind("i have risolto the problema meccanico", reachability).
 gap_kind("who used quipu?", reachability).
 gap_kind("what is measured by the farad?", reachability).
 gap_kind("the song is sad", reachability).
+gap_kind("unguarded edges are a cause of falls.", reachability).
 gap_kind("what does the heart pump?", reachability).
 gap_source("detectors may use one or both sensing methods", " Detectors may use one or both sensing methods").
 gap_kind("where does the river begin?", reachability).
 gap_kind("which moon is the largest?", reachability).
 gap_kind("i have a problem meccanico", reachability).
+gap_kind("what protects the knees?", reachability).
 gap_kind("should i go?", reachability).
 gap_kind("how posso organizzare meglio the my giornata?", reachability).
 gap_kind("i want to start running. where do i begin?", reachability).
+gap_kind("forget the rule about minimum height", reachability).
 gap_kind("when someone sees sparks then say to get out and call 112 on smoke or flames", reachability).
 gap_kind("hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change", reachability).
 gap_kind("the present for the class is a test", reachability).
 gap_source("smoke can be detected either optically (photoelectric) or by physical process (ionization)", " Smoke can be detected either optically (photoelectric) or by physical process (ionization)").
 gap_kind("where do i begin?", reachability).
+gap_kind("is 300 kilograms heavier than 230 kilograms?", reachability).
 gap_kind("am sad today", reachability).
 gap_kind("should i put butter on toast?", reachability).
 gap_kind("should i buy a laptop or a tablet for university?", reachability).
+gap_kind("which is heavier, 300 kilograms or 230 kilograms?", reachability).
 gap_kind("i want to start running", reachability).
 gap_source("smoke_detector that senses smoke", "smoke_detector that senses smoke").
 gap_kind("i left my keys out for 3 hours", reachability).
+gap_kind("is 3 meters greater than 2 meters?", reachability).
 gap_kind("give me some ideas for a birthday present for my dad.", reachability).
 gap_kind("do not put ice on a burn", reachability).
 gap_kind("one of them is vegetarian.", reachability).
+gap_kind("above what height do workers need fall protection?", reachability).
 gap_kind("i need to cook dinner for four people tonight.", reachability).
 gap_kind("is it safe to mix flour and water?", reachability).
 gap_kind("the milk was left on the counter for one hour", reachability).
@@ -480,12 +531,14 @@ gap_kind("do not put butter on a burn", reachability).
 gap_source("carbon_monoxide_detector which detects the presence of carbon monoxide (co gas", "carbon_monoxide_detector which detects the presence of carbon monoxide (co gas").
 gap_kind("the language of ghana is english", reachability).
 gap_kind("there are scintille", reachability).
+gap_kind("the minimum height for fall protection is 2 meters.", reachability).
 gap_kind("who has written hamlet?", reachability).
 gap_kind("is a shark warm-blooded?", reachability).
 gap_kind("should i put butter on a burn?", reachability).
 gap_kind("how many grams are 2 cups of sand?", reachability).
 gap_source("most individuals who are exposed to the bacteria do not get sick", " Most individuals who are exposed to the bacteria do not get sick").
 gap_kind("is an eagle warm-blooded?", reachability).
+gap_kind("fall protection is required when working above 2 meters.", reachability).
 gap_kind("fire_blanket designed to extinguish incipient (starting fires", reachability).
 gap_kind("is it safe to mix bleach and vinegar?", reachability).
 gap_kind("high humidity causes mould", reachability).
@@ -493,6 +546,7 @@ gap_source("legionella does not spread from person-to-person", " Legionella does
 gap_kind("i left cooked chicken out for 3 hours, is it safe?", reachability).
 gap_kind("i burned my hand on the stove", reachability).
 gap_kind("why are my plant's leaves turning yellow?", reachability).
+gap_kind("is 300 kilograms more than 230 kilograms?", reachability).
 gap_kind("how many grams are 2 cups of flour?", reachability).
 gap_kind("i cooked the chicken to 68 degrees, is it safe?", reachability).
 gap_source("there are over 50 species and 70 types (serogroups) identified", " There are over 50 species and 70 types (serogroups) identified").
@@ -531,28 +585,34 @@ gap_source("what does the heart pump?", "what does the heart pump?").
 gap_source("there are circa duemila specie of scorpioni in the world, caratterizzati from a corpo allungato and a tail segmentata what termina con a pungiglione from cui comes iniettato the veleno", " Ci sono circa duemila specie di scorpioni nel mondo, caratterizzati da un corpo allungato e una coda segmentata che termina con un pungiglione da cui viene iniettato il veleno").
 gap_source("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close", " Un pungiglione si differenzia da altre strutture perforanti per il fatto che perfora grazie alla sua stessa azione e inietta il veleno, mentre i denti perforano per azione di fauci che si chiudono").
 gap_source("occur is a relation verb", "occur is a relation verb").
+gap_source("unguarded edges are a cause of falls.", "Unguarded edges are a cause of falls.").
 gap_source("the problem with this theory is its size", "the problem with this theory is its size").
 gap_source("how is quipu spelled?", "how is quipu spelled?").
 gap_source("what is a hammer made of?", "what is a hammer made of?").
 gap_source("who used quipu?", "who used quipu?").
+gap_source("what protects the knees?", "What protects the knees?").
 gap_source("migrate is a relation verb", "migrate is a relation verb").
 gap_source("show is a relation verb", "display is a relation verb").
 gap_source("i have risolto the problema meccanico", "ho risolto il problema meccanico").
 gap_source("this phenomenon commonly occurs when a valve closes suddenly at an end of a pipeline system and a pressure wave propagates in the pipe", " This phenomenon commonly occurs when a valve closes suddenly at an end of a pipeline system and a pressure wave propagates in the pipe").
 gap_source("inhabit is a relation verb", "inhabit is a relation verb").
 gap_source("where does the river begin?", "where does the river begin?").
+gap_source("forget the rule about minimum height", "forget the rule about minimum height").
 gap_source("the song is sad", "the song is sad").
 gap_source("which moon is the largest?", "which moon is the largest?").
 gap_source("i want to start running. where do i begin?", "I want to start running. Where do I begin?").
 gap_source("should i go?", "should i go?").
+gap_source("is 300 kilograms heavier than 230 kilograms?", "Is 300 kilograms heavier than 230 kilograms?").
 gap_source("hydraulic is usually observed in a liquid but gases can also be affected", " It is usually observed in a liquid but gases can also be affected").
 gap_source("i have a problem meccanico", "ho un problema meccanico").
 gap_source("where do i begin?", "Where do I begin?").
 gap_source("am sad today", "sono triste oggi").
+gap_source("which is heavier, 300 kilograms or 230 kilograms?", "Which is heavier, 300 kilograms or 230 kilograms?").
 gap_source("should i buy a laptop or a tablet for university?", "Should I buy a laptop or a tablet for university?").
 gap_source("the present for the class is a test", "the present for the class is a test").
 gap_source("how posso organizzare meglio the my giornata?", "Come posso organizzare meglio la mia giornata?").
 gap_source("should i put butter on toast?", "should I put butter on toast?").
+gap_source("is 3 meters greater than 2 meters?", "Is 3 meters greater than 2 meters?").
 gap_source("i want to start running", "I want to start running").
 gap_source("one of them is vegetarian.", "One of them is vegetarian.").
 gap_source("when someone sees sparks then say to get out and call 112 on smoke or flames", "when someone sees sparks then say to get out and call 112 on smoke or flames").
@@ -561,6 +621,7 @@ gap_source("give me some ideas for a birthday present for my dad.", "Give me som
 gap_source("do not put ice on a burn", "do not put ice on a burn").
 gap_source("hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change", "hydraulic_shock wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 gap_source("i need to cook dinner for four people tonight.", "I need to cook dinner for four people tonight.").
+gap_source("above what height do workers need fall protection?", "Above what height do workers need fall protection?").
 gap_source("there are scintille", "ci sono scintille").
 gap_source("is a shark warm-blooded?", "is a shark warm-blooded?").
 gap_source("who has written hamlet?", "who has written hamlet?").
@@ -568,6 +629,7 @@ gap_source("is it safe to mix flour and water?", "is it safe to mix flour and wa
 gap_source("do not put butter on a burn", "do not put butter on a burn").
 gap_source("the language of ghana is english", "the language of ghana is english").
 gap_source("the milk was left on the counter for one hour", "the milk was left on the counter for one hour").
+gap_source("the minimum height for fall protection is 2 meters.", "The minimum height for fall protection is 2 meters.").
 gap_source("is an eagle warm-blooded?", "is an eagle warm-blooded?").
 gap_source("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", " It consists of a sheet of a fire retardant material that is placed over a fire in order to smother it").
 gap_source("is it safe to mix bleach and vinegar?", "chlorine gas causes breathing problems").
@@ -576,7 +638,9 @@ gap_source("should i put butter on a burn?", "should I put butter on a burn?").
 gap_source("how many grams are 2 cups of sand?", "how many grams are 2 cups of sand?").
 gap_source("i burned my hand on the stove", "I burned my hand on the stove").
 gap_source("why are my plant's leaves turning yellow?", "why are my plant's leaves turning yellow?").
+gap_source("fall protection is required when working above 2 meters.", "Fall protection is required when working above 2 meters.").
 gap_source("how many grams are 2 cups of flour?", "how many grams are 2 cups of flour?").
 gap_source("high humidity causes mould", "high humidity causes mould").
 gap_source("fire_blanket designed to extinguish incipient (starting fires", "fire_blanket designed to extinguish incipient (starting fires").
+gap_source("is 300 kilograms more than 230 kilograms?", "Is 300 kilograms more than 230 kilograms?").
 gap_source("i cooked the chicken to 68 degrees, is it safe?", "I cooked the chicken to 68 degrees, is it safe?").

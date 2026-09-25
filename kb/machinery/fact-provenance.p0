@@ -460,7 +460,7 @@ fact_source(causes(low_light, yellow_leaves), low_light, "low light causes yello
 fact_source(causes(underwatering, yellow_leaves), underwatering, "underwatering causes yellow leaves").
 fact_source(causes(overwatering, yellow_leaves), overwatering, "overwatering causes yellow leaves").
 fact_source(causes(high_humidity, mold), high_humidity, "high humidity causes mold").
-fact_source(cause(lithium_batteries, fires), lithium_batteries, "lithium batteries cause fires").
+fact_source(causes(lithium_batteries, fires), lithium_batteries, "lithium batteries cause fires").
 fact_source(device(smoke_detector), smoke_detector, "a smoke detector is a device that senses smoke, typically as an indicator of fire").
 fact_source(device(smoke_detector), smoke_detector, "a smoke detector is a device").
 fact_source(use(co_detectors, sensor), co_detectors, "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
@@ -475,8 +475,8 @@ fact_source(sense(smoke_detector, smoke), smoke_detector, "a smoke detector sens
 fact_source(causes(poorly_maintained_cooling_towers, legionella_outbreaks), poorly_maintained_cooling_towers, "most legionella outbreaks result from poorly maintained cooling towers").
 fact_source(relation_verb(sense), sense, "sense is a relation verb").
 fact_source(consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel), fire_extinguisher, "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
-fact_source(cause(slippery_surfaces, falls), slippery_surfaces, "slippery surfaces cause falls").
-fact_source(cause(legionella_outbreaks, legionnaires_disease), legionella_outbreaks, "legionella outbreaks cause legionnaires disease").
+fact_source(causes(slippery_surfaces, falls), slippery_surfaces, "slippery surfaces cause falls").
+fact_source(causes(legionella_outbreaks, legionnaires_disease), legionella_outbreaks, "legionella outbreaks cause legionnaires disease").
 fact_source(carbonate_mineral(calcite), calcite, "calcite is a carbonate mineral").
 fact_source(sea(black_sea), black_sea, "the black sea is a sea.").
 fact_source(flow(danube, black_sea), danube, "the danube flows into the black sea.").
@@ -550,6 +550,14 @@ fact_source(taught_form_source(taught_form_16, "tell me the x"), taught_form_16,
 fact_source(emits(light-emitting_diode, light), light-emitting_diode, "a light-emitting diode emits light.").
 fact_source(measures(degree_fahrenheit, temperature), degree_fahrenheit, "the degree fahrenheit measures temperature.").
 fact_source(measures(degree_celsius, temperature), degree_celsius, "the degree celsius measures temperature.").
+fact_source(causes(unguarded_edge, fall), unguarded_edge, "an unguarded edge causes a fall.").
+fact_source(protect(guardrails, workers), guardrails, "guardrails protect workers from falls.").
+fact_source(wore(workers, hard_hat), workers, "workers wear a hard hat because it protects the head from falling objects.").
+fact_source(protects(hearing_protection, ears), hearing_protection, "hearing protection protects the ears from noise.").
+fact_source(protect(safety_boots, feet), safety_boots, "safety boots protect the feet from falling objects.").
+fact_source(minimum_height_of(fall_protection, 2_meters), fall_protection, "the minimum height of fall protection is 2 meters.").
+fact_source(need(workers, fall_protection), workers, "workers need fall protection above 2 meters.").
+fact_source(protects(hard_hat, head), hard_hat, "a hard hat protects the head from falling objects.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -902,7 +910,7 @@ reading_fact(genus(legionella), "legionella is a genus of gram-negative bacteria
 reading_fact(causes(high_humidity, mold), "high humidity causes mold").
 reading_fact(pressure_surge(hydraulic_shock), "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 reading_fact(sense(smoke_detector, smoke), "a smoke detector senses smoke").
-reading_fact(cause(lithium_batteries, fires), "lithium batteries cause fires").
+reading_fact(causes(lithium_batteries, fires), "lithium batteries cause fires").
 reading_fact(sea(black_sea), "the black sea is a sea.").
 reading_fact(safety_device(fire_blanket), "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
 reading_fact(flow(danube, black_sea), "the danube flows into the black sea.").
@@ -912,9 +920,9 @@ reading_fact(relation_verb(sense), "sense is a relation verb").
 reading_fact(flow(salzach, inn), "the salzach flows into the inn.").
 reading_fact(consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel), "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
 reading_fact(flow(moselle, rhine), "the moselle flows into the rhine.").
-reading_fact(cause(slippery_surfaces, falls), "slippery surfaces cause falls").
+reading_fact(causes(slippery_surfaces, falls), "slippery surfaces cause falls").
 reading_fact(sea(north_sea), "the north sea is a sea.").
-reading_fact(cause(legionella_outbreaks, legionnaires_disease), "legionella outbreaks cause legionnaires disease").
+reading_fact(causes(legionella_outbreaks, legionnaires_disease), "legionella outbreaks cause legionnaires disease").
 reading_fact(react(sodium, water), "sodium reacts with water.").
 reading_fact(flow(rhine, north_sea), "the rhine flows into the north sea.").
 reading_fact(teach(socrates, plato), "socrates taught plato.").
@@ -993,14 +1001,29 @@ reading_fact(relation(operating_voltage), "operating voltage is a relation").
 reading_fact(construction_frame("the freezing point of @S is @O", "@S freezes at @O", freezes_at), "the freezing point of x is y means x freezes at y").
 reading_fact(relation(flash_point), "flash point is a relation").
 reading_fact(construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at), "the boiling point of x is y means x boils at y").
+reading_fact(causes(unguarded_edge, fall), "an unguarded edge causes a fall.").
 reading_fact(taught_form_source(taught_form_16, "tell me the x"), "tell me the x means what is the x?").
+reading_fact(proposition(binary(cause), roles(subject(unguarded_edge), object(fall))), "an unguarded edge causes a fall.").
+reading_fact(protect(guardrails, workers), "guardrails protect workers from falls.").
 reading_fact(emits(light-emitting_diode, light), "a light-emitting diode emits light.").
+reading_fact(proposition(binary(protect), roles(subject(guardrails), object(workers))), "guardrails protect workers from falls.").
+reading_fact(wore(workers, hard_hat), "workers wear a hard hat because it protects the head from falling objects.").
 reading_fact(measures(degree_fahrenheit, temperature), "the degree fahrenheit measures temperature.").
+reading_fact(proposition(binary(cause), roles(subject(unguarded_edges), object(falls))), "unguarded edges cause falls.").
+reading_fact(protects(hearing_protection, ears), "hearing protection protects the ears from noise.").
 reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
+reading_fact(proposition(binary(protect), roles(subject(protection), object(ears))), "hearing protection protects the ears from noise.").
+reading_fact(protect(safety_boots, feet), "safety boots protect the feet from falling objects.").
 reading_fact(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature))), "the degree fahrenheit measures temperature.").
+reading_fact(proposition(binary(protect), roles(subject(safety_boots), object(feet))), "safety boots protect the feet from falling objects.").
+reading_fact(minimum_height_of(fall_protection, 2_meters), "the minimum height of fall protection is 2 meters.").
 reading_fact(measures(degree_celsius, temperature), "the degree celsius measures temperature.").
+reading_fact(need(workers, fall_protection), "workers need fall protection above 2 meters.").
 reading_fact(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), "a light-emitting diode emits light.").
+reading_fact(proposition(binary(need), roles(subject(workers), object(fall_protection))), "workers need fall protection above 2 meters.").
+reading_fact(protects(hard_hat, head), "a hard hat protects the head from falling objects.").
 reading_fact(proposition(binary(measure), roles(subject(degree_celsius), object(temperature))), "the degree celsius measures temperature.").
+reading_fact(proposition(binary(protect), roles(subject(hard_hat), object(head))), "a hard hat protects the head from falling objects.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
 % nega la provenienza di un fatto, la ritira insieme al fatto.
@@ -1158,26 +1181,42 @@ fact_mention(pumps, "pumps move fluid.").
 fact_mention(information, "the byte measures information.").
 fact_mention(12_volts, "the operating voltage of a car battery is 12 volts.").
 fact_mention(car_battery, "the operating voltage of a car battery is 12 volts.").
+fact_mention(fall, "an unguarded edge causes a fall.").
+fact_mention(unguarded_edge, "an unguarded edge causes a fall.").
 fact_mention(232_degrees_celsius, "the melting point of tin is 232 degrees celsius.").
 fact_mention(tin, "the melting point of tin is 232 degrees celsius.").
 fact_mention(step-down_transformer, "a step-down transformer steps down the voltage.").
+fact_mention(workers, "guardrails protect workers from falls.").
+fact_mention(guardrails, "guardrails protect workers from falls.").
 fact_mention(byte, "the byte measures information.").
 fact_mention(5_volts, "the operating voltage of a usb port is 5 volts.").
 fact_mention(usb_port, "the operating voltage of a usb port is 5 volts.").
+fact_mention(hard_hat, "workers wear a hard hat because it protects the head from falling objects.").
+fact_mention(workers, "workers wear a hard hat because it protects the head from falling objects.").
 fact_mention(56_degrees_celsius, "the boiling point of acetone is 56 degrees celsius.").
 fact_mention(acetone, "the boiling point of acetone is 56 degrees celsius.").
 fact_mention(38_degrees_celsius, "the flash point of jet a fuel is 38 degrees celsius.").
+fact_mention(ears, "hearing protection protects the ears from noise.").
+fact_mention(hearing_protection, "hearing protection protects the ears from noise.").
 fact_mention(jet_a_fuel, "the flash point of jet a fuel is 38 degrees celsius.").
 fact_mention(freezes_at, "the freezing point of x is y means x freezes at y").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
+fact_mention(feet, "safety boots protect the feet from falling objects.").
+fact_mention(safety_boots, "safety boots protect the feet from falling objects.").
 fact_mention(pump, "a pump is a device.").
 fact_mention(temperature, "the degree fahrenheit measures temperature.").
 fact_mention(degree_fahrenheit, "the degree fahrenheit measures temperature.").
+fact_mention(2_meters, "the minimum height of fall protection is 2 meters.").
+fact_mention(fall_protection, "the minimum height of fall protection is 2 meters.").
 fact_mention(boils_at, "the boiling point of x is y means x boils at y").
 fact_mention(light, "a light-emitting diode emits light.").
+fact_mention(fall_protection, "workers need fall protection above 2 meters.").
+fact_mention(workers, "workers need fall protection above 2 meters.").
 fact_mention(light-emitting_diode, "a light-emitting diode emits light.").
 fact_mention(temperature, "the degree celsius measures temperature.").
 fact_mention(degree_celsius, "the degree celsius measures temperature.").
+fact_mention(head, "a hard hat protects the head from falling objects.").
+fact_mention(hard_hat, "a hard hat protects the head from falling objects.").
 fact_mention(taught_form_16, "tell me the x means what is the x?").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").

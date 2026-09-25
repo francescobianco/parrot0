@@ -35,6 +35,13 @@ semantic_proposition(proposition(binary(step_down), roles(subject(step-down_tran
 semantic_proposition(proposition(binary(emit), roles(subject(light-emitting_diode), object(light)))).
 semantic_proposition(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature)))).
 semantic_proposition(proposition(binary(measure), roles(subject(degree_celsius), object(temperature)))).
+semantic_proposition(proposition(binary(cause), roles(subject(unguarded_edge), object(fall)))).
+semantic_proposition(proposition(binary(protect), roles(subject(guardrails), object(workers)))).
+semantic_proposition(proposition(binary(cause), roles(subject(unguarded_edges), object(falls)))).
+semantic_proposition(proposition(binary(protect), roles(subject(protection), object(ears)))).
+semantic_proposition(proposition(binary(protect), roles(subject(safety_boots), object(feet)))).
+semantic_proposition(proposition(binary(need), roles(subject(workers), object(fall_protection)))).
+semantic_proposition(proposition(binary(protect), roles(subject(hard_hat), object(head)))).
 semantic_binding(binary(measure), nanometre, object(length)).
 proposition_source_record(proposition(binary(measure), roles(subject(nanometre), object(length))), source(inline, "the nanometre measures length."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(pass), capacitors, object(alternating_current)).
@@ -46,23 +53,41 @@ semantic_binding(binary(measure), degree_celsius, object(temperature)).
 semantic_binding(binary(measure), byte, object(information)).
 proposition_source_record(proposition(binary(measure), roles(subject(byte), object(information))), source(inline, "the byte measures information."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(break_down), amylase, object(starch)).
+semantic_binding(binary(protect), guardrails, object(workers)).
 proposition_source_record(proposition(binary(break_down), roles(subject(amylase), object(starch))), source(inline, "amylase breaks down starch."), provenance(language(en), range(0, 27))).
 semantic_binding(binary(move), pump, object(fluid)).
+semantic_binding(binary(protect), protection, object(ears)).
 semantic_binding(binary(step_down), step-down_transformer, object(voltage)).
+semantic_binding(binary(protect), safety_boots, object(feet)).
 semantic_binding(binary(step_down), buck_converter, object(voltage)).
 proposition_source_record(proposition(binary(step_down), roles(subject(buck_converter), object(voltage))), source(inline, "a buck converter steps down the voltage."), provenance(language(en), range(0, 40))).
+semantic_binding(binary(protect), hard_hat, object(head)).
 semantic_binding(binary(protect), heat-resistant_glove, object(hand)).
 proposition_source_record(proposition(binary(protect), roles(subject(heat-resistant_glove), object(hand))), source(inline, "a heat-resistant glove protects the hand."), provenance(language(en), range(0, 41))).
+semantic_binding(binary(cause), unguarded_edge, object(fall)).
+proposition_source_record(proposition(binary(cause), roles(subject(unguarded_edge), object(fall))), source(inline, "an unguarded edge causes a fall."), provenance(language(en), range(0, 32))).
 proposition_source_record(proposition(binary(move), roles(subject(pump), object(fluid))), source(inline, "pumps move fluid."), provenance(language(en), range(0, 17))).
 semantic_binding(binary(disconnect), double-pole_switch, object(both_conductors)).
+proposition_source_record(proposition(binary(protect), roles(subject(guardrails), object(workers))), source(inline, "guardrails protect workers from falls."), provenance(language(en), range(0, 38))).
+semantic_complement(binding(protect, guardrails, workers), from, falls).
 proposition_source_record(proposition(binary(disconnect), roles(subject(double-pole_switch), object(both_conductors))), source(inline, "a double-pole switch disconnects both conductors."), provenance(language(en), range(0, 49))).
+semantic_binding(binary(cause), unguarded_edges, object(falls)).
+proposition_source_record(proposition(binary(cause), roles(subject(unguarded_edges), object(falls))), source(inline, "unguarded edges cause falls."), provenance(language(en), range(0, 28))).
 semantic_binding(binary(step_up), flyback_transformer, object(voltage)).
 proposition_source_record(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage))), source(inline, "a flyback transformer steps up the voltage."), provenance(language(en), range(0, 43))).
+proposition_source_record(proposition(binary(protect), roles(subject(protection), object(ears))), source(inline, "hearing protection protects the ears from noise."), provenance(language(en), range(0, 48))).
+semantic_complement(binding(protect, protection, ears), from, noise).
 proposition_source_record(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage))), source(inline, "a step-down transformer steps down the voltage."), provenance(language(en), range(0, 47))).
 proposition_source_record(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature))), source(inline, "the degree fahrenheit measures temperature."), provenance(language(en), range(0, 43))).
+proposition_source_record(proposition(binary(protect), roles(subject(safety_boots), object(feet))), source(inline, "safety boots protect the feet from falling objects."), provenance(language(en), range(0, 51))).
+semantic_complement(binding(protect, safety_boots, feet), from, falling_objects).
 semantic_binding(binary(emit), light-emitting_diode, object(light)).
+semantic_binding(binary(need), workers, object(fall_protection)).
+proposition_source_record(proposition(binary(need), roles(subject(workers), object(fall_protection))), source(inline, "workers need fall protection above 2 meters."), provenance(language(en), range(0, 44))).
 proposition_source_record(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), source(inline, "a light-emitting diode emits light."), provenance(language(en), range(0, 35))).
 proposition_source_record(proposition(binary(measure), roles(subject(degree_celsius), object(temperature))), source(inline, "the degree celsius measures temperature."), provenance(language(en), range(0, 40))).
+proposition_source_record(proposition(binary(protect), roles(subject(hard_hat), object(head))), source(inline, "a hard hat protects the head from falling objects."), provenance(language(en), range(0, 50))).
+semantic_complement(binding(protect, hard_hat, head), from, falling_objects).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

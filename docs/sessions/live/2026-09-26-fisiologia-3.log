@@ -1,0 +1,75 @@
+# sessione: fisiologia, terzo turno — dalla catena al perché — 2026-09-26 00:47 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@d9bd8bf1]
+# mode: conversational (tools off, network off) - 165567 facts, 5436 rules (3.28%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Terzo turno. Il confine su «from» ora regge (RI-012 portato in KB). Indirizzo di F.: salire. Costruisco la catena vera del trasporto dell'ossigeno, un fatto per frase, poi le domande che la attraversano. Parto da ciò che la KB sa già: l'emoglobina trasporta l'ossigeno, il cuore pompa il sangue.
+> The lungs absorb oxygen from the air.
+< Learned: lungs absorb oxygen.
+> Red blood cells contain hemoglobin.
+< Learned: red blood cells contain hemoglobin.
+> Blood contains red blood cells.
+< Held: red blood cells is part of blood.
+> Arteries carry blood from the heart to the tissues.
+< Learned: arteries carry blood.
+> Cells use oxygen to produce energy.
+< Learned: cells use oxygen.
+> Do the lungs absorb oxygen?
+< Yes.
+> What carries oxygen?
+< hemoglobin.
+> What contains hemoglobin?
+< Blood.
+! Catena in KB. Note: i complementi (from the heart to the tissues, to produce energy) cadono in silenzio; «What contains hemoglobin?» dice Blood invece di red blood cells. Ora la domanda che richiede tre salti: il sangue trasporta l'ossigeno? Serve la regola del contenitore: ciò che contiene un portatore porta ciò che il portatore porta.
+> Does blood carry oxygen?
+< I cannot settle that: no fact I hold decides whether blood carry oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> What does blood carry?
+< I don't understand that yet.
+> Why does blood carry oxygen?
+< I cannot settle that: no fact I hold decides whether blood carry oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+! Insegno la regola del contenitore con la forma a variabili, come la direbbe chi spiega: ciò che contiene un portatore porta ciò che il portatore porta. È ricorsiva: vale per i globuli rossi (contengono emoglobina) e poi per il sangue (contiene globuli rossi). Il contrasto dopo: il sangue non deve portare ciò che nessuno dei suoi componenti porta.
+> if x contains y and y carries z then x carries z
+< Learned rule: carries($V1, $V3) :- contains($V1, $V2), carries($V2, $V3).
+> Do red blood cells carry oxygen?
+< I cannot settle that: no fact I hold decides whether red blood cells carry oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does blood carry oxygen?
+< I cannot settle that: no fact I hold decides whether blood carry oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> Why does blood carry oxygen?
+< I cannot settle that: no fact I hold decides whether blood carry oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does blood carry bile?
+< I cannot settle that: no fact I hold decides whether blood carry bile. Not proved is not the same as false. Tell me either way and I will hold it.
+> What do you know about red blood cells?
+< I don't actually see or experience things, but I can describe it: a warm, intense colour -- the shade of fire, of ripe strawberries, and of blood.
+> Do red blood cells carry oxygen?
+< I cannot settle that: no fact I hold decides whether red blood cells carry oxygen. Not proved is not the same as false. Tell me either way and I will hold it.
+> /debug
+# /debug: 514 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> What does hemoglobin carry?
+< Oxygen.
+> Does hemoglobin carry oxygen?
+< Yes.
+> Does the heart pump blood?
+< Yes.
+> What do red blood cells contain?
+< Hemoglobin and red blood cells.
+> What do red blood cells contain?
+< Hemoglobin and red blood cells.
+> /debug
+# /debug: 120 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+! Ipotesi: la regola chiede contains, ma «red blood cells contain hemoglobin» (plurale) è registrato come contain, e «blood contains red blood cells» è diventato part_of. Tre rappresentazioni della stessa relazione. Verifico con il singolare, dove il fatto nasce contains.
+> A red blood cell contains hemoglobin.
+< Learned: red blood cell contains hemoglobin.
+> Does a red blood cell carry oxygen?
+< Yes.
+> Does the red blood cell carry oxygen?
+< Yes.
+! Diagnosi confermata: al plurale il verbo diventa un'altra relazione (contain e contains), e «blood contains red blood cells» è diventato part_of. Sto portando il ponte in holds/3 (forme dello stesso verbo; inversa insegnata), con le premesse delle regole che passano da holds. Intanto salgo dove la catena regge: il perché.
+> Why does a red blood cell carry oxygen?
+< A cell is the smallest unit that is alive on its own, enclosed by a membrane and able to take in energy, respond to its surroundings and reproduce.
+> How do you know that a red blood cell carries oxygen?
+< A cell is the smallest unit that is alive on its own, enclosed by a membrane and able to take in energy, respond to its surroundings and reproduce.
+# chiusa senza /save 01:11 dall'insegnante della sessione successiva: rimasta aperta; la diagnosi finale (contain/contains, part_of) e' lavoro di motore, i fatti registrati in parte male

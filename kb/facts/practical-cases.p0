@@ -18,9 +18,13 @@ sign_of(underwatering, "dry soil").
 sign_of("low light", "leggy stems").
 recommended_percent_range("indoor humidity", 30, 50).
 avoid_in("lithium batteries", bin).
-cause(lithium_batteries, fires).
-cause(slippery_surfaces, falls).
-cause(legionella_outbreaks, legionnaires_disease).
+% 26 settembre 2026 — erano cause/2, un duplicato di causes/2 (world-facts.p0)
+% che causal_link, le catene e la diagnosi non vedevano: «What causes falls?»
+% enumerava una causa sola. Una relazione (mantra #3); ora le torri di
+% raffreddamento → legionella → legionellosi sono una catena.
+causes(lithium_batteries, fires).
+causes(slippery_surfaces, falls).
+causes(legionella_outbreaks, legionnaires_disease).
 safety_device(fire_blanket).
 pressure_surge(hydraulic_shock).
 device(carbon_monoxide_detector).

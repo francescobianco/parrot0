@@ -74,3 +74,4 @@
 % morphology.p0, particelle in predication.p0, costruzioni in
 % english-grammar/constructions.p0, relazioni e procedure in core/procedures.p0,
 % nomi di classe accanto ai membri. Qui resta solo questa ricaduta.
+pending_gap_failed(forget).
