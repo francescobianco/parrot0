@@ -1,7 +1,7 @@
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
-Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27); aperti: il banco §16.2 mancante, la domanda discriminante prima dell'uso, R3 nel chunker per gli altri lettori. Soft-test verde (15 s, al limite).**
+Stato (25 settembre, notte fonda): I0–I4 chiusi; I5 primo circuito (§26); **R3 per contatto e l'acetone del §15 fatti** (§27). **Il piano NON è chiuso:** manca il criterio d'esito del §7 e la prova ricorsiva sulle politiche (§16.3). L'elenco completo di ciò che manca, e la direzione ricavata dai commit, sta nell'handoff «che cosa manca per chiudere». Soft-test verde (15 s, al limite).**
 Nasce da una conversazione fra F. e l'agente alla fine del lotto di iterazioni
 di riferimento `2026-09-24` ([train-the-learning-process.md](train-the-learning-process.md),
 RI-019…RI-023). Prosegue [l2-upgrade.md](l2-upgrade.md), di cui prende il limite
@@ -39,7 +39,145 @@ appoggia sui quattro elementi del piano di training: la KB viva, la
 
 ---
 
-## HANDOFF vivo — R3, 25 settembre 2026, notte fonda: RIPARTIRE QUI
+## HANDOFF vivo — che cosa manca per chiudere L3, 25 settembre 2026: RIPARTIRE QUI
+
+> *F.: «non credo che si riparta da dove indicato… dai commit dovresti derivare
+> una direzione differente»*, poi *«cosa manca per poter considerare questo
+> piano completato»*. L'handoff R3 qui sotto proponeva il banco §16.2; F. l'ha
+> respinto come punto di ripartenza.
+
+### La direzione ricavata dai commit: percezione → lingua
+
+I cinque commit da `c7bbee9a` a `9f3143a0` hanno fatto crescere **solo
+`kb/core/contact.p0`** (~+560 righe, 774 in tutto). Ogni passo ha dato
+all'**osservatore** occhi suoi: lo span del nome dopo il possessivo
+(`contact_ref_span`), la relazione nominata dalle sue parole
+(`contact_named_relation`), i ruoli presi dai fatti (`contact_fact_pair`), i
+valori quantità con la superficie della KB (`contact_quantity_value`), la
+negazione e le contrazioni (`contact_negated`, `contact_contraction`). Intanto la
+lettura condivisa è rimasta indietro: il §27.5 lo ammette (il chunker legge
+ancora `acetone_boils` e `its boiling`; «boils at» vale solo
+nell'osservazione).
+
+È la critica del §24 allo specchio. Il §24 ha stabilito che le **conclusioni**
+del contatto devono essere lingua («nessun lettore deve sapere che esiste il
+contatto»). Vale lo stesso per la sua **percezione**: il contatto non deve
+vedere con occhi suoi (§14.2: niente parser privato; CLAUDE.md: una proposta è
+giusta se aumenta ciò che *parrot0* vede, non ciò che vede un suo pezzo). Ciò
+che l'osservatore ha dovuto scoprire da sé per allinearsi è una correzione della
+lettura condivisa. Va concluso **nella stessa rappresentazione** che scriverebbe
+una lezione L2 (`reading_boundary_lesson`, `reading_continuer_lesson`, forme di
+frase, `answer_frame`), con lo stato d'ipotesi sopra. `contact.p0` deve
+**accorciarsi**, come vuole il test del bilancio (mantra #18a).
+
+**Misurato sulla KB viva (make chat, profilo agi, sessione vuota):**
+
+| turno | risposta | che cosa dice |
+|---|---|---|
+| «Does ethanol boil at 78 degrees Celsius?» | **«No.»** — falso | `read.aframe cue="celsius" pred=celsius_to_fahrenheit`: la relazione la sceglie l'unità dentro il valore; la procedura è chiusa per definizione, quindi `closed_world_answer` autorizza il «No» |
+| «Acetone boils at 56 degrees Celsius.» | «56 degrees celsius.» | nessuna lettura dell'affermazione |
+| «At what temperature does ethanol boil?» | muro | il verbo non sceglie `boils_at` |
+| «Mercury freezes at -39 degrees Celsius.» | «Learned: mercury freeze at 39 degrees celsius.» | il segno meno è perso |
+
+**Tentativo interrotto (non committato, bozza fuori dall'albero).** La regola
+condivisa `relation_named_here(T, Surface, R)` (in grammar.p0, accanto a RI-020:
+due parole in fila del turno nominano una relazione del mondo, anche con il verbo
+alla radice via `finite_present_of/2`), più
+`answer_frame(Surface, R) :- relation_named_here(current_turn, Surface, R)` e
+`answer_frame_turn_arg(Cue, Pred, 0)` per le altre cue.
+
+- Sulla IR il «No.» falso **sparisce** e diventa un muro onesto, ma il turno
+  passa da 0,8 a **2,5 s**.
+- La versione come vista materializzata su `turn_surface_token`, durante il
+  turno, è **vuota**: la stessa query dopo il turno risponde. Non è confermato
+  se sia la vista a non invalidarsi a metà turno. Se lo è, il difetto tocca
+  anche `scenario_claim` (situation.p0), che dichiara la stessa dipendenza. Da
+  verificare prima di riprendere.
+- Anche con la relazione giusta la polare non può dire «Yes»: `boils_at(ethanol,
+  "78 degrees Celsius, lower than water")` ha per valore della prosa, non una
+  quantità (l'ostacolo del §15.2).
+
+### Che cosa manca per chiudere il piano
+
+**1. Il criterio di successo del §7 — il test d'esito del piano.** Tre lezioni
+rifatte **solo per contatto**, più un quarto strumento mai usato, con un
+transcript che superi la prova G3 (§5):
+
+- punto di ebollizione: fatto (§27), ma con il setup di ritiro e con una doppia
+  menzione costruita dal maestro;
+- «An LED, a light-emitting diode, emits light» (apposizione → sigla):
+  **non fatto**; il circuito impara solo relazioni con il ruolo ripreso da un
+  possessivo o da un pronome;
+- «I'd like to know — I mean, I would like to know —» (riparazione,
+  contrazione): **non fatto**;
+- PWM tra parentesi, il quarto strumento: **non fatto** («in other words» del
+  §26 vale per le relazioni, non per l'apposizione);
+- la prova G3 del transcript: mai eseguita.
+
+**2. La prova ricorsiva (§12.4, §15.3, §16.3).** Con lo stesso ciclo oggi si
+corregge solo il **vocabolario** degli strumenti. Restano scritte
+dall'ingegnere, e non correggibili parlando, la condizione strutturale (ruolo
+ripetuto, coreferenza, verso del possessore), la regola d'induzione, la politica
+di credito e il cancello di consolidamento (§26.4 residuo 1–3). Il §16.3 dice
+che il progetto è smentito se «una politica appresa non può essere corretta
+dallo stesso ciclo»: finché è così, si ha un primo apprendimento per contatto,
+non la chiusura di L3.
+
+**3. Le righe mancanti del banco §16.2.** Sondate il 25 settembre sulla KB viva:
+
+- «Paris, the capital, is large.» → «I don't understand that yet»: nessun alias
+  falso, ma nessuna lettura;
+- «An LED, a kind of lamp, emits light.» → «light-emitting diode.»; poi «Is an
+  LED a lamp?» → non lo sa: la classe non è letta (niente identità falsa);
+- «John says that Einstein was born in Paris.» → **«Parisian.»**; «Where was
+  Einstein born?» → ulm, quindi il fatto non è tenuto, ma la citazione non è
+  attribuita a John; «Was Einstein born in Paris?» → «cannot settle … einstein
+  born in in paris» (un «no» guadagnabile da `born_in` noto non è dato, e la resa
+  duplica «in»).
+
+Non scritte: correzione senza «No» e «No» senza correzione; manutenzione di
+`absent` e degli aggregati quando si **aggiunge** un fatto; limite di ricerca e
+overflow → `incomplete`, non falso; effetto tentato durante la prova; ablazione
+del consumer (togli il contatto / togli il candidato / riattiva il consumer).
+
+**4. Il contratto del §14 ancora aperto.**
+
+- §14.3: nessuna prova in un contesto d'ipotesi senza effetti; il contatto
+  scrive episodi globali dopo la risposta.
+- §14.4: nessuna domanda discriminante **prima** dell'uso (esiste solo «competing
+  readings» su domanda). Non esiste nemmeno la verifica indipendente che toglie
+  la riserva: oggi la riserva non si toglie mai.
+- §14.6: i cicli di sostegno H1→H2→H1 e le viste congelate che contengono un
+  fatto sospeso.
+- §14.7: `incomplete` riprendibile; mediana e coda dei turni rispetto al binario
+  di base.
+
+**5. Percezione → lingua (§27.5 e la direzione qui sopra).** Il chunker
+(`acetone_boils`, `its boiling`); «boils at» come lettore delle affermazioni; il
+«No.» falso della polare; il possessore sull'oggetto («Rome is its capital»,
+§24.1); il verbo con il soggetto ripreso per nome; i valori di
+`boils_at`/`freezes_at` come prosa invece che come quantità; il segno meno perso
+nell'affermazione di `freezes_at`.
+
+**6. Costo e lingua.** `make soft-test` è a 15 s su 15, senza margine; un turno
+di contatto costa 7–13 s, più 5–6 s di ricostruzione di `extract_frame` al turno
+dopo. Le frasi italiane del §19.3 non sono verificate. Il «perché» di un ritiro
+non dice chi l'ha ritirato né quando.
+
+Le domande aperte del §10 non sono criteri di chiusura, ma restano senza
+risposta.
+
+**Criterio di chiusura, dichiarato:** L3 è chiuso quando i punti 1 e 2 passano
+sulla KB viva, senza ritiri che la amputino e senza schemi nuovi (§1-bis), con il
+banco §16.2 completo (punto 3). I punti 4–6 sono condizioni del contratto: un
+punto aperto si può dichiarare residuo solo con la sua misura.
+
+**Prossimo passo proposto:** il punto 5, a partire dal «No.» falso. Prima si
+chiarisce se la vista su `turn_surface_token` si invalida a metà turno; poi si
+porta `relation_named_here` nella grammatica condivisa a un costo ≤ +10 % sul
+turno e si toglie `contact_named_relation` da `contact.p0`.
+
+## HANDOFF precedente — R3, 25 settembre 2026, notte fonda
 
 **Fatto:** R3 per contatto e l'esperimento dell'acetone (§27). Un nome di più
 parole («home town», «raw material», «boiling point») si impara da un contatto
