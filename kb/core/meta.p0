@@ -309,6 +309,15 @@ wall_marker("not sure which function").
 wall_marker("but i don't have").
 wall_marker("i don't have process_step").
 wall_marker("facts for that topic yet").
+% PR1 (26 settembre 2026): i muri italiani. Senza, la prova a secco di una
+% lezione («mi dai una mano» dopo «è un altro modo per dire») scambiava «Non
+% capisco ancora.» per una lettura riuscita, e la lezione confermava senza effetto.
+wall_marker("non capisco ancora").
+wall_marker("non sono sicuro di aver seguito").
+wall_marker("va un po' oltre").
+wall_marker("non so ancora").
+wall_marker("vuoi che lo impari").
+wall_marker("non ho capito bene").
 
 % ── gen363: che COSA è un frame di resa ─────────────────────────────────────
 % gen362 provava a riconoscere le rese di parrot0 dal testo (`wall_marker/1`).

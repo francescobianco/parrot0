@@ -757,6 +757,9 @@ response_template(i_read_x_into_structure_it_defines, "I read {file} into struct
 response_template(i_read_x_into_structure_it_declares, "I read {file} into structure: it declares ").
 response_template(plan_build_obligation, "I ran the build and read what it says: {detail}.").
 response_template(cue_taught_like, "Got it - «{form}» asks for the same thing as «{anchor}».").
+response_template(cue_taught_like, it, "Fatto: «{form}» chiede la stessa cosa di «{anchor}».").
+response_template(cue_taught_no_effect, "I tried to read «{form}» like «{anchor}», but it still reaches nothing I can do, so I am not keeping it.").
+response_template(cue_taught_no_effect, it, "Ho provato a leggere «{form}» come «{anchor}», ma non arriva ancora a niente che so fare, quindi non lo tengo.").
 response_template(cue_anchor_not_understood, "I do not understand «{anchor}» well enough to copy it: teach me with a phrasing I already handle.").
 response_template(x_functionx_now_in_the_kb, ". ({k} function{s} now in the KB.)").
 

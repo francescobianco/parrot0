@@ -44,6 +44,9 @@ static void normalize(const char *in, char *out, size_t out_size) {
  * words to multi-word idioms). The stored atom keeps its surrounding quotes (kb.c
  * parse_term), so we strip them before comparing. */
 static char *kb_dequote(char *s);   /* definito piu' avanti */
+static int p0_try_reading(Brain *b, const char *text);                 /* 10-memory-knowledge.c */
+static int p0_teach_alias_rewrite(Brain *b, const char *src, const char *target,
+                                  char *out, size_t out_size);       /* 10-memory-knowledge.c */
 
 /* ── SC32/D27 — UNA CUE NON GUARDA DENTRO UNA MENZIONE ────────────────────
  *
@@ -1976,11 +1979,11 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                  * replay usera' sul turno: scrivere qui la forma non
                  * canonicalizzata creerebbe una chiave che il lettore non
                  * produrra' mai (il controesempio misurato di UC1). */
+                char pk[KB_TERM_LEN], pv[KB_TERM_LEN];
                 {
                     char acanon[KB_TERM_LEN];
                     brain_canonical(b, anchor, acanon, sizeof acanon);
                     const char *target = *acanon ? acanon : anchor;
-                    char pk[KB_TERM_LEN], pv[KB_TERM_LEN];
                     snprintf(pk, sizeof pk, "\"%.*s\"",
                              (int)(rq2 - rq1 - 1), rq1 + 1);
                     snprintf(pv, sizeof pv, "\"%s\"", target);
@@ -1990,6 +1993,37 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                 char msg[256];
                 char shown[KB_TERM_LEN];
                 snprintf(shown, sizeof shown, "%.*s", (int)(rq2 - rq1 - 1), rq1 + 1);
+                /* ⛔ PR1 (26 settembre 2026) — LA CONFERMA SI GUADAGNA CON LA
+                 * CONSEGUENZA. «"mi dai una mano" is another way to say "in cosa
+                 * puoi aiutarmi"» rispondeva «Got it», e «Mi dai una mano?»
+                 * restava un muro: la classe copiata non era quella che legge
+                 * l'ancora (la legge la situazione, sulla vista detta). Prima di
+                 * confermare si prova la superficie nuova come un turno
+                 * (`p0_try_reading`, in un figlio, senza effetti). Se mura, la
+                 * copia si ritira e la lezione si fa rilettura (X si legge come
+                 * Y); se mura anche cosi', lo si dice invece di confermare. */
+                if (!p0_try_reading(b, shown)) {
+                    if (best_tool[0]) {
+                        const char *ta[2] = { best_tool, nq };
+                        kb_retract_match(b->kb, "tool_anchor", ta, 2);
+                    } else {
+                        const char *ca[2] = { best_fam, nq };
+                        kb_retract_match(b->kb, "intent_cue", ca, 2);
+                    }
+                    const char *pa[2] = { pk, pv };
+                    kb_retract_match(b->kb, "phrase_canon", pa, 2);
+                    char rw[512]; rw[0] = '\0';
+                    int taught = p0_teach_alias_rewrite(b, shown, anchor, rw, sizeof rw);
+                    if (!taught || !p0_try_reading(b, shown)) {
+                        const KbResponseSlot sl0[] = { { "form", shown }, { "anchor", anchor } };
+                        if (!kb_term_say(b, "cue_taught_no_effect", sl0, 2, msg, sizeof msg))
+                            snprintf(msg, sizeof msg,
+                                     "I tried to read «%s» like «%s», but it still reaches nothing I can do, so I am not keeping it.",
+                                     shown, anchor);
+                        put(msg, out, outsz);
+                        return 1;
+                    }
+                }
                 const KbResponseSlot sl[] = { { "form", shown }, { "anchor", anchor } };
                 if (!kb_term_say(b, "cue_taught_like", sl, 2, msg, sizeof msg))
                     snprintf(msg, sizeof msg,

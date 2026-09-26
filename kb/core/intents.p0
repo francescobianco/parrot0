@@ -1080,6 +1080,11 @@ intent_cue(name_marker, "chiamata").
 intent_cue(name_marker, "nome").
 intent_cue(00_lex_chain332, " is another way to say ").
 intent_cue(00_lex_chain332, " is the same as ").
+% PR6 (26 settembre 2026): la lezione in italiano ha la sua etichetta
+% (`learnable("un altro modo per dire", …)`) ma non passava il cancello, e
+% «"mi aiuti" è un altro modo per dire "…"» finiva ai lettori generici.
+intent_cue(00_lex_chain332, " un altro modo per dire ").
+intent_cue(00_lex_chain332, " un altro modo di dire ").
 intent_cue(00_lex_chain332, "learn ").
 intent_cue(00_lex_chain332, "teach ").
 intent_cue(00_lex_chain332, "treat ").

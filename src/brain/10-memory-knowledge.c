@@ -18073,18 +18073,37 @@ static int p0_try_reading(Brain *b, const char *text) {
         int devnull = open("/dev/null", O_WRONLY);
         if (devnull >= 0) { dup2(devnull, STDOUT_FILENO); close(devnull); }
         char reply[2048]; reply[0] = '\0';
+        /* PR1 (26 settembre 2026): la prova e' un turno NUOVO, non un turno
+         * annidato nella lezione. Ereditando la vista del turno esterno, «mi dai
+         * una mano» veniva riconosciuta sulle parole della LEZIONE (che contiene
+         * l'ancora «in cosa puoi aiutarmi»): la prova diceva «legge» e il turno
+         * vero murava. Nel figlio si toglie l'eredita': il primo frame che trova
+         * la vista vuota la possiede. */
+        b->active_turn_norm = NULL;
+        b->active_turn_raw = NULL;
+        b->respond_depth = 0;
         size_t n = brain_respond(b, text, reply, sizeof reply);
-        char ok = (n && reply[0] && !reply_is_wall(b, reply)) ? '1' : '0';
+        /* PR1: il muro si riconosce anche dall'ESITO del turno, non solo dalle
+         * sue parole: `wall_marker/1` e' inglese, e «Non capisco ancora.»
+         * passava per una lettura. Quale esito sia un muro lo dice la KB
+         * (`self_not_understood_now`, `unsatisfying_outcome/2`). */
+        int walled = b->kb && kb_query(b->kb, "self_not_understood_now", NULL, 0);
+        char ok = (n && reply[0] && !reply_is_wall(b, reply) && !walled) ? '1' : '0';
         if (write(fd[1], &ok, 1) != 1) { /* il padre legge '0' */ }
+        /* e la risposta, perche' il trace dica CHE COSA ha letto (PR1) */
+        size_t rl = strlen(reply); if (rl > 200) rl = 200;
+        if (rl && write(fd[1], reply, rl) < 0) { /* il trace resta senza */ }
         _exit(0);
     }
     close(fd[1]);
     char ok = '0';
     if (read(fd[0], &ok, 1) != 1) ok = '0';
+    char seen[201]; ssize_t sr = read(fd[0], seen, 200);
+    seen[sr > 0 ? sr : 0] = '\0';
     close(fd[0]);
     int st = 0;
     waitpid(pid, &st, 0);
-    p0_trace(b, "read.form", "try reading «%s»: %s\n", text, ok == '1' ? "reads" : "walls");
+    p0_trace(b, "read.form", "try reading «%s»: %s («%.120s»)\n", text, ok == '1' ? "reads" : "walls", seen);
     return ok == '1';
 }
 
@@ -18431,6 +18450,25 @@ static int p0_teach_rewrite(Brain *b, const P0ConstructionLesson *lesson,
     p0_learn_source(b, "taught_form_source", sa, 2, raw && *raw ? raw : lhs);
     kb_set_origin(b->kb, prev);
     return kb_response_slots(b, "rewrite_learned", rs, 2, out, out_size);
+}
+
+/* PR1 (26 settembre 2026) — «"X" is another way to say "Y"» come RILETTURA.
+ * La lezione delle superfici (`cue_like`, 00-lex.c) copia una classe
+ * dell'ancora; quando quella copia non raggiunge niente, la stessa lezione si
+ * fa rilettura: X si legge come Y, e vale dovunque Y vale. Il bersaglio si
+ * prova prima di scrivere (`p0_teach_rewrite`). */
+static int p0_teach_alias_rewrite(Brain *b, const char *src, const char *target,
+                                  char *out, size_t out_size) {
+    if (!b || !src || !*src || !target || !*target) return 0;
+    P0ConstructionLesson l;
+    memset(&l, 0, sizeof l);
+    /* la sorgente come la vedra' il turno che la usa: canonicalizzata come un
+     * frammento (gen511), nella propria lingua */
+    char own[KB_TERM_LEN]; own[0] = '\0';
+    canonicalize_fragment(b, src, own, sizeof own);
+    snprintf(l.said_source, sizeof l.said_source, "%s", own[0] ? own : src);
+    snprintf(l.said_target, sizeof l.said_target, "%s", target);
+    return p0_teach_rewrite(b, &l, NULL, 0, out, out_size);
 }
 
 /* gen510 — UNA LEZIONE DEVE RAGGIUNGERE IL PROPRIO LETTORE.
