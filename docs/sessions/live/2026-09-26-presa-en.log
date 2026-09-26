@@ -1,0 +1,39 @@
+# sessione: reattivita' e presa sull'interlocutore (condotta conversazionale) — 2026-09-26 18:11 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@7c85f90d]
+# mode: conversational (tools off, network off) - 169052 facts, 5628 rules (3.33%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! esploro la condotta: che cosa fa parrot0 quando non sa, quando la domanda e' vaga, quando l'interlocutore ha un problema. Cerco i punti in cui molla la presa (muro secco, nessuna proposta, nessuna domanda di ritorno).
+> Hi, I need some help with my lathe.
+< I don't understand that yet.
+> The spindle makes a grinding noise.
+< Learned: spindle make grinding noise.
+> What should I do?
+< I understood you're asking for a recommendation, but I don't have a grounded plan for that situation yet.
+> I don't know what a bearing is.
+< Hmm, I don't know about bearing yet. Want me to learn about it?
+> ok
+< I looked up «bearing» but found nothing. If you know it, teach me: «bearing is defined as …».
+> thanks
+< You're welcome!
+! canale della condotta (LEARN_PROTOCOL E: 'when <situazione> then <mossa>'). Primo muro: la richiesta d'aiuto. Lezione come la direbbe un tutor umano, poi verifica su una frase diversa (trasferimento).
+> When someone asks for help, ask them what the problem is.
+< Hmm, I don't know about problem yet. Want me to learn about it?
+> your plan when someone asks for help?
+< I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear about yours.
+> Hi, I need some help with my lathe.
+< I don't understand that yet.
+> Can you help me with my drill press?
+< From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.
+! la virgola al posto di 'then' non e' letta: FALLIMENTO di forma (una persona la direbbe cosi'). Provo la superficie documentata con 'then'.
+> when someone asks for help then ask what the problem is
+< I looked up «problem» but found nothing. If you know it, teach me: «problem is defined as …».
+> your plan when someone asks for help?
+< Not something I do myself, honestly -- but tell me, what about you?
+> Hi, I need some help with my lathe.
+< I don't understand that yet.
+> I need help.
+< I'm not sure I followed. Can you say it another way?
+> Can you help me?
+< From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.
+# chiusa senza /save su richiesta di F. (sessione da rifare in italiano); l'unico fatto entrato era spazzatura

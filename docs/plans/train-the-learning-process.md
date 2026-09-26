@@ -3,9 +3,65 @@
 ## ⛔ PRIORITARIO — gli insegnamenti che falliscono (F., 26 settembre 2026)
 
 *F.: «tutti gli insegnamenti che falliscono mettili come prioritari in testa a
-questo file». Tre blocchi, dal piu' recente: la grammatica inglese insegnata come
-regole (qui sotto, per intero), la meccanica di precisione (100 lezioni, sezione
-successiva), il debug PHP (P1–P14, piu' sotto). Da qui si riparte.*
+questo file». Quattro blocchi, dal piu' recente: la presa sull'interlocutore
+(qui sotto, §0), la grammatica inglese insegnata come regole (§1), la meccanica
+di precisione (100 lezioni, sezione successiva), il debug PHP (P1–P14, piu'
+sotto). Da qui si riparte.*
+
+### 0. Reattività e presa sull'interlocutore — sessione live in italiano (26 settembre 2026, sera)
+
+Richiesta di F.: *«addestrare parrot0 a essere più reattivo e utile e a non
+abbandonare mai la presa con il suo interlocutore»*. Protocollo di
+[live-teaching.md](live-teaching.md): un processo, KB `agi` completa, solo
+lingua naturale. Transcript `docs/sessions/live/2026-09-26-presa-it.log`; un
+primo giro in inglese, chiuso su richiesta di F. per rifarlo in italiano, è in
+`docs/sessions/live/2026-09-26-presa-en.log`. **Chiusa senza `/save`:** ciò che
+è entrato era spazzatura (frasi intere archiviate come fatti) o senza effetto.
+
+**Che cosa ha retto** (la presa esiste, ma su poche superfici):
+- «Il mandrino **del mio** tornio fa un rumore strano.» → «Vediamolo insieme. Di
+  che cosa si tratta, e che cosa succede esattamente?». Il piano di
+  `user_problem` era già salvato; con il possessivo la situazione scatta.
+- La risposta dell'interlocutore riceve un primo seguito: «Grazie, questo aiuta.
+  Da quando succede, ed è cambiato qualcosa appena prima?».
+- «In cosa puoi aiutarmi?» → l'elenco delle capacità chiuso da «Di che cosa hai
+  bisogno adesso?».
+- «Ho bisogno di aiuto con la fresa.» → «Partiamo da un risultato osservabile…».
+
+**Le lezioni e i turni che falliscono, per specie (dalla più pesante):**
+
+| # | specie | turno o lezione | risposta | che cosa manca |
+|---|---|---|---|---|
+| PR1 | **⛔ conferma falsa, lezione senza effetto** | «"mi dai una mano" is another way to say "in cosa puoi aiutarmi"» | «Got it - «mi dai una mano» asks for the same thing as …», poi «Mi dai una mano?» → «Non capisco ancora.» | l'alias `intent_cue` punta a una frase che non è un intento (la risposta sulle capacità è la situazione `user_help_scope`): la lezione dovrebbe accorgersi che il bersaglio non porta a niente, invece di confermare |
+| PR2 | **⛔ conferma falsa, fatto spazzatura** | «quando non capisci allora chiedi che cosa succede» · «quando non capisci una domanda allora chiedi di dirla in un altro modo» | «Imparato: quando non capisci allora chiedi che cosa succede.» | la situazione «non capisci» non esiste; la frase intera diventa un fatto. La condotta davanti al proprio muro, cioè il cuore del «non mollare la presa», **non è insegnabile** (catalogo P39 «if you are not sure, …» rosso: «if you are not sure, ask what they mean» → «Fair enough — tell me where I went wrong…») |
+| PR3 | **la presa si perde dopo un solo seguito** | dopo «Da quando succede…?»: «È un rumore metallico, si sente quando il mandrino gira veloce.» → «Non capisco ancora.»; «Cosa potrebbe essere?» → muro; «E adesso cosa faccio?» → muro | tre muri di fila mentre l'interlocutore chiede aiuto concreto | `situation_followup/2` ha un solo anello (`user_problem` → `user_problem_detail`) e nessuna forma lo allunga parlando; «che cosa potrebbe essere?» e «che faccio?» dentro una situazione aperta non hanno lettore |
+| PR4 | **la situazione nuova non si insegna** | «"mi serve una mano" significa la stessa situazione di qualcuno ha un problema» · la stessa con «means the same situation as» | «Ho trovato il separatore didattico, ma non riesco ad allineare…» / «I found the teaching pivot…» | `teach_situation_cue` non arriva mai: il lettore delle costruzioni (L2) prende prima ogni turno con «means»/«significa». Nessuna superficie italiana |
+| PR5 | **lezione in italiano non letta** | «quando qualcuno chiede aiuto allora chiedi qual è il problema» | «Leggo «chiedi» come «chiede». Ehilà! Sono qui…» (chiacchiera) | la forma dei piani vuole una situazione già nota; se non la trova non lo dice, e la prende lo smalltalk. Con la virgola al posto di «then»/«allora» (come parla una persona) non entra nemmeno la forma inglese |
+| PR6 | **alias italiano con effetto sbagliato** | «"mi aiuti" è un altro modo per dire "in cosa puoi aiutarmi"» (senza virgolette: «va un po' oltre le mie capacita'») | la lezione risponde «Non capisco ancora», eppure dopo «Mi aiuti?» passa da muro a «Non ho afferrato bene. Cosa vorresti sapere?» | la lezione cambia qualcosa senza dirlo, e non ciò che è stato insegnato |
+| PR7 | **un guasto riferito diventa un fatto** | «Il mandrino fa un rumore strano.» (senza possessivo) · «Ciao, mi serve una mano con il mio tornio.» | «Imparato: fa(mandrino, noise_strano).» (sintassi interna esposta) · «Learned 6 prerequisites for mi.» | una segnalazione non è una lezione; il lettore dei prerequisiti impara da un saluto |
+| PR8 | **risposta nella lingua sbagliata** | «Ciao, mi serve una mano con il tornio.» dopo due lezioni in inglese | «Thanks, that helps. Since when has it been happening…» | la lingua della risposta segue la lingua appiccicosa dei turni precedenti, non quella del turno |
+| PR9 | **affermazione più domanda rifiutata** | «Il mio tornio fa un rumore metallico. Cosa potrebbe essere?» | «Quel turno unisce piu' affermazioni e una domanda… Dimmi le affermazioni una per turno» | un interlocutore reale parla così; il lettore composto non regge dichiarativa + domanda |
+| PR10 | **domanda che non raggiunge un fatto vero** | «What is the safe internal temperature of chicken?» (KB: `safe_internal_temp(chicken, 74)`) · «Qual è la temperatura interna sicura del pollo?» | la definizione di temperatura (**risposta sbagliata**, mantra #7) | nessun lettore lega «safe internal temperature» alla relazione; nessuna lezione parlata sa farlo senza il nome interno |
+| PR11 | **muri sul campo con fatti veri** | «Per quanto tempo il riso cotto può stare fuori dal frigo?» · «E il pollo?» · «A che temperatura va cotto il pollo?» · «How long can cooked rice stay out?» | «va un po' oltre…», «Non capisco ancora», «don't know about cooked» | `max_hours_out`, `safe_internal_temp` non raggiunti; le ellissi («E il pollo?») non ereditano la domanda precedente |
+| PR12 | **muri su richieste d'aiuto comuni** | «Mi aiuti?» · «Mi dai una mano?» · «Non so cosa sia un cuscinetto.» · «Cosa devo fare?» | «Non capisco ancora.» · «Non so ancora tradurre «devo»…» | nessuna mossa di ripiego che tenga il filo: un muro che non chiede niente lascia cadere l'interlocutore |
+| PR13 | **«qual è il tuo piano quando …?» in italiano** | «qual è il tuo piano quando qualcuno ha un problema?» | «Non è una cosa che faccio io, ma dimmi -- e tu?» | esiste solo la forma inglese «your plan when …?»: lo smalltalk prende la domanda |
+| PR14 | **residuo di resa** | «ok» (senza proposta aperta) · «Perché?» | «"Non ho una proposta attiva da continuare…» | una virgoletta spuria in testa alla frase |
+
+**La lettura d'insieme.** La presa esiste solo dove qualcuno l'ha scritta prima
+(la situazione `user_problem` con le sue mosse e un seguito). La condotta che
+serve a **non mollare mai**, cioè che cosa fare davanti al proprio muro, dopo
+il primo seguito, davanti a una richiesta d'aiuto nuova, non si può ancora
+insegnare parlando: le tre porte che dovrebbero aprirla (situazione nuova,
+piano su una situazione nuova, condotta sull'incertezza) sono chiuse o rubate.
+Peggio, due lezioni su tre **dicono di aver capito** e non cambiano niente
+(PR1, PR2): per un apprendimento coerente (L4 §2.5, C3) è la rottura più grave,
+perché chi insegna crede di aver finito.
+
+**Da dove ripartire** (in ordine): PR2 e PR1, cioè una lezione non deve
+confermare ciò che non produce effetto (è lo stesso principio del «already» del
+§0 di L4); poi la porta delle situazioni nuove (PR4, PR5), senza la quale
+nessuna condotta nuova entra; poi la catena dei seguiti (PR3) come conoscenza
+insegnabile; poi la mossa di ripiego sul muro (PR12).
 
 ### 1. Grammatica inglese INSEGNATA come regole — studio differenziale
 

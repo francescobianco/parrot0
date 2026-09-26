@@ -1,0 +1,118 @@
+# sessione: reattivita' e presa sull'interlocutore — in italiano — 2026-09-26 18:12 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@7c85f90d]
+# mode: conversational (tools off, network off) - 169052 facts, 5628 rules (3.33%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! sessione in italiano (F.). Rifaccio l'esplorazione con le stesse situazioni: richiesta d'aiuto, guasto riferito, 'che faccio?', ignoranza dell'utente, conferme brevi.
+> Ciao, mi serve una mano con il mio tornio.
+< Learned 6 prerequisites for mi.
+> Il mandrino fa un rumore strano.
+< Imparato: fa(mandrino, noise_strano).
+> Cosa devo fare?
+< Non so ancora tradurre «devo». Se mi dici «the italian for … is devo», la prossima volta capisco.
+> Non so cosa sia un cuscinetto.
+< Non capisco ancora.
+> ok
+< "Non ho una proposta attiva da continuare. Indicami il tema o il punto da cui vuoi riprendere.
+> grazie
+< Prego!
+! canale della condotta in italiano: 'quando <situazione> allora <mossa>'. Verifico con la domanda sul piano e con due richieste d'aiuto diverse (trasferimento).
+> quando qualcuno chiede aiuto allora chiedi qual è il problema
+< Leggo «chiedi» come «chiede». Ehilà! Sono qui. Chiedimi qualcosa, o raccontami della tua giornata.
+> qual è il tuo piano quando qualcuno chiede aiuto?
+< Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.
+> Ciao, mi serve una mano con il mio tornio.
+< Learned 6 prerequisites for mi.
+> Mi aiuti?
+< Non capisco ancora.
+> Ho bisogno di aiuto con la fresa.
+< Su aiuto con la fresa: Partiamo da un risultato osservabile. Descrivi che cosa sarebbe diverso se funzionasse: da lì scegliamo un primo passo.
+! la situazione 'qualcuno ha un problema' e le mosse esistono (user-situations.p0), manca il piano: lo insegno in italiano con le mosse note, poi verifico su un guasto riferito in modo naturale e su uno diverso (trasferimento).
+> quando qualcuno ha un problema allora di' che lo guardiamo insieme
+< È già nel piano: la mossa 1 è «Vediamolo insieme.».
+> quando qualcuno ha un problema allora chiedi che cosa succede
+< Leggo «chiedi» come «chiede». È già nel piano: la mossa 3 è «Di che cosa si tratta, e che cosa succede esattamente?».
+> qual è il tuo piano quando qualcuno ha un problema?
+< Non è una cosa che faccio io, ma dimmi -- e tu?
+> Il mandrino del mio tornio fa un rumore strano.
+< Vediamolo insieme. Di che cosa si tratta, e che cosa succede esattamente?
+> Ho un problema con la fresa: vibra tanto.
+< Vediamolo insieme. Di che cosa si tratta, e che cosa succede esattamente?
+! la presa si misura nel turno DOPO: l'interlocutore risponde alla domanda di parrot0. Deve restare sul problema (tornio, rumore), non ripartire da zero ne' imparare fatti spazzatura.
+> Il mio tornio fa un rumore metallico quando accelero.
+< Grazie, questo aiuta. Da quando succede, ed è cambiato qualcosa appena prima?
+> È un rumore metallico, si sente quando il mandrino gira veloce.
+< Non capisco ancora.
+> Cosa potrebbe essere?
+< Non so ancora tradurre «potrebbe». Se mi dici «the italian for … is potrebbe», la prossima volta capisco.
+> E adesso cosa faccio?
+< Non capisco ancora.
+! parrot0 chiede la glossa di 'potrebbe': gliela do come la chiede, poi rifaccio la domanda. Poi provo a insegnare che 'mi serve una mano' e' la stessa situazione di 'qualcuno ha un problema', prima con un connettivo italiano, poi con quello documentato.
+> the italian for could is potrebbe
+< Held: «potrebbe» is how could is said in that language.
+> Il mio tornio fa un rumore metallico. Cosa potrebbe essere?
+< Quel turno unisce piu' affermazioni e una domanda, e non so ancora leggerle insieme. Dimmi le affermazioni una per turno, poi fai la domanda.
+> "mi serve una mano" significa la stessa situazione di qualcuno ha un problema
+< Ho trovato il separatore didattico, ma non riesco ad allineare le stesse variabili, una volta per lato, a ruoli che conosco. Non ho appreso la costruzione.
+> "mi serve una mano" means the same situation as qualcuno ha un problema
+< I found the teaching pivot, but I cannot align the same variables exactly once on both sides to roles I know. I have not learned the construction.
+> Ciao, mi serve una mano con il tornio.
+< Thanks, that helps. Since when has it been happening, and did anything change just before?
+> Mi aiuti?
+< I don't understand that yet.
+! la domanda da sola, dopo la glossa di 'potrebbe'. E 'Mi aiuti?' e' un muro secco ripetuto: provo se una situazione esistente la copre ('qualcuno chiede in cosa puoi aiutarlo').
+> Cosa potrebbe essere?
+< Non capisco ancora.
+> Puoi aiutarmi?
+< Non ho afferrato bene. Cosa vorresti sapere?
+> In cosa puoi aiutarmi?
+< Posso aiutarti a ragionare su qualcosa che non funziona, a pesare una scelta fra due opzioni, a parlare di una preoccupazione, darti i passi dei procedimenti che conosco (come cambiare una gomma o fare il tè), fare conti e piccoli problemi, e leggere un breve testo che mi dai e rispondere a domande su quello. Di che cosa hai bisogno adesso?
+> Mi aiuti?
+< Non capisco ancora.
+! 'Mi aiuti?' e' la stessa richiesta di 'In cosa puoi aiutarmi?' che ha una risposta ottima. Forma D del catalogo: 'X è un altro modo per dire Y'. Poi verifico, e provo una variante non insegnata ('Mi dai una mano?') come trasferimento.
+> mi aiuti è un altro modo per dire in cosa puoi aiutarmi
+< Mmh, questo per ora va un po' oltre le mie capacita'.
+> Mi aiuti?
+< Non capisco ancora.
+> Mi dai una mano?
+< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+> "mi aiuti" è un altro modo per dire "in cosa puoi aiutarmi"
+< Non capisco ancora.
+> Mi aiuti?
+< Non ho afferrato bene. Cosa vorresti sapere?
+> Mi dai una mano?
+< Non capisco ancora.
+! lezione italiana: risposta muro ma effetto parziale (da muro a domanda di chiarimento), non quello insegnato. Separo forma e meccanismo con la superficie inglese documentata.
+> "mi dai una mano" is another way to say "in cosa puoi aiutarmi"
+< Got it - «mi dai una mano» asks for the same thing as «in cosa puoi aiutarmi».
+> Mi dai una mano?
+< Non capisco ancora.
+! FALLIMENTO grave: la lezione inglese conferma ('Got it') ma non ha effetto — conferma falsa. Ora la presa sul filo del discorso: ellissi e seguiti in un campo con fatti veri (food-kitchen.p0).
+> Per quanto tempo il riso cotto può stare fuori dal frigo?
+< Mmh, questo per ora va un po' oltre le mie capacita'.
+> E il pollo?
+< Non capisco ancora.
+> Dimmi di più.
+< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+> Perché?
+< "Non ho una proposta attiva da continuare. Indicami il tema o il punto da cui vuoi riprendere.
+> A che temperatura va cotto il pollo?
+< Non capisco ancora.
+> How long can cooked rice stay out?
+< Hmm, I don't know about cooked yet. Want me to learn about it?
+> And chicken?
+< I don't understand that yet.
+> What is the safe internal temperature of chicken?
+< Temperature measures the average energy of the random motion of a substance's particles, and it decides which way heat flows when two bodies touch.
+> Qual è la temperatura interna sicura del pollo?
+< Leggo «temperatura» come «temperatura». La temperatura misura l'energia media del moto disordinato delle particelle di una sostanza, e decide in che verso fluisce il calore quando due corpi si toccano.
+! il cuore della richiesta di F.: la condotta davanti al proprio muro. Provo a insegnarla con il canale dei piani (situazione 'non capisci' non esiste tra quelle note) e con 'if you are not sure' (catalogo P39, rosso). Documento l'esito.
+> quando non capisci allora chiedi che cosa succede
+< Leggo «chiedi» come «chiede». Imparato: quando non capisci allora chiedi che cosa succede.
+> quando non capisci una domanda allora chiedi di dirla in un altro modo
+< Leggo «chiedi» come «chiede». Imparato: quando non capisci una domanda allora chiedi di dirla in un altro modo.
+> if you are not sure, ask what they mean
+< Fair enough — tell me where I went wrong, and we can take it from there.
+> Mi aiuti?
+< I don't understand that yet.
+# chiusa senza /save: le lezioni entrate erano spazzatura (frasi intere archiviate come fatti) o senza effetto; l'unica utile (the italian for could is potrebbe) non basta a giustificare il salvataggio
