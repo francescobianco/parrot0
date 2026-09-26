@@ -2580,3 +2580,68 @@ proc_test_text(test($P, $In, $Exp), $Text) :-
     concat_atoms($F, $Exp, $G), concat_atoms($G, ".", $Text).
 turn_plan_candidate($T) :- proc_test_turn($T, $X).
 turn_response($T, $Text) :- proc_test_turn($T, $X), proc_test_text($X, $Text).
+
+% ══ Meccanica (26 settembre 2026) — LA PROCEDURA LETTA ALL'INDIETRO ═════════
+% 38 verifiche inverse rosse: «What number gives 50.8 when inchmm is applied?» —
+% nessuna forma per l'inversa, e il generatore dei «resoconti causali» prendeva
+% la domanda (una risposta senza senso). L'inversa non si scrive: si DERIVA
+% dalla procedura insegnata, con i passi dall'ultimo al primo e ogni operazione
+% sostituita da quella che la disfa. Quale disfi quale e' conoscenza
+% (`operator_inverse/2`: una riga per operatore). Un passo che non ha inversa
+% (un ramo, un ciclo, un'operazione sul testo) ferma la derivazione, e la
+% risposta lo dice. Ogni risposta si verifica rieseguendo la procedura in avanti.
+machinery(operator_inverse).
+operator_inverse(plus, minus).   operator_inverse(minus, plus).
+operator_inverse(times, divide). operator_inverse(divide, times).
+machinery(proc_inverse). machinery(proc_back). machinery(inv_run_step). machinery(proc_last_step).
+proc_last_step($P, $N) :- proc_step($P, $N, $T), is($M, add($N, 1)), naf(proc_has_step($P, $M)).
+proc_inverse($P, $Out, $In) :- proc_last_step($P, $N), proc_value($Out, $V), proc_back($P, $N, $V, $In).
+proc_back($P, 0, $V, $V).
+proc_back($P, $N, $V, $Out) :-
+    gt($N, 0), proc_step($P, $N, $T), step_term($T, $S), inv_run_step($P, $S, $V, $V1),
+    is($M, sub($N, 1)), proc_back($P, $M, $V1, $Out).
+inv_run_step($P, num($Op, $N), $V, $Out) :- operator_inverse($Op, $Inv), apply_operator($Inv, $V, $N, $Out).
+inv_run_step($P, seq($A, $B), $V, $Out) :- inv_run_step($P, $B, $V, $M), inv_run_step($P, $A, $M, $Out).
+inv_run_step($P, op(apply, $Rest), $V, $Out) :- atom_words($Q, $Rest), dif($Q, $P), proc_inverse($Q, $V, $Out).
+
+% La domanda: «What number gives M when P is applied?» / «Which number gives M
+% when P is applied?» (anche «... when you apply P?»).
+machinery(proc_inverse_turn).
+proc_inverse_turn($T, inv($P, $Out)) :-
+    turn_word($T, $I, gives), is($J, add($I, 1)), turn_word($T, $J, $Out),
+    is($K, add($J, 1)), turn_word($T, $K, when), is($L, add($K, 1)), turn_word($T, $L, $P),
+    proc_step($P, 1, $S).
+proc_inverse_turn($T, inv($P, $Out)) :-
+    turn_word($T, $I, gives), is($J, add($I, 1)), turn_word($T, $J, $Out),
+    is($K, add($J, 1)), turn_word($T, $K, when), is($L, add($K, 3)), turn_word($T, $L, $P),
+    proc_step($P, 1, $S).
+machinery(proc_inverse_text).
+proc_inverse_text(inv($P, $Out), $Text) :-
+    proc_inverse($P, $Out, $In), proc_inverse_say($P, $Out, $In, $Text).
+% Si deriva UNA volta e si decide dal risultato. (Misurato: con un passo «apply»
+% annidato, inversa e poi andata nella stessa derivazione falliscono — il taglio
+% anti-isteresi, globale nel turno, ferma la seconda discesa sugli stessi passi;
+% vedi docs/plans/train-the-learning-process.md. Derivare l'inversa due volte
+% incontra lo stesso taglio.)
+machinery(proc_inverse_say). machinery(proc_forward_ok).
+proc_forward_ok($P, $In, $Out) :- proc_run($P, $In, $Back), eq($Back, $Out).
+proc_inverse_say($P, $Out, $In, $Text) :-
+    proc_forward_ok($P, $In, $Out),
+    concat_atoms($P, " applied to ", $A), concat_atoms($A, $In, $B),
+    concat_atoms($B, " gives ", $C), concat_atoms($C, $Out, $D),
+    concat_atoms($D, ": I ran the steps backwards and checked it forwards.", $E),
+    upcase_first($E, $Text).
+proc_inverse_say($P, $Out, $In, $Text) :-
+    naf(proc_forward_ok($P, $In, $Out)),
+    concat_atoms($P, " applied to ", $A), concat_atoms($A, $In, $B),
+    concat_atoms($B, " gives ", $C), concat_atoms($C, $Out, $D),
+    concat_atoms($D, ": I ran the steps backwards (I could not re-check it forwards here).", $E),
+    upcase_first($E, $Text).
+proc_inverse_text(inv($P, $Out), $Text) :-
+    naf(proc_invertible_value($P, $Out)),
+    concat_atoms("I can't run ", $P, $A),
+    concat_atoms($A, " backwards: one of its steps has no inverse I know (a branch, a loop or a text step).", $Text).
+machinery(proc_invertible_value).
+proc_invertible_value($P, $Out) :- proc_inverse($P, $Out, $In).
+turn_plan_candidate($T) :- proc_inverse_turn($T, $X).
+turn_response($T, $Text) :- proc_inverse_turn($T, $X), proc_inverse_text($X, $Text).
