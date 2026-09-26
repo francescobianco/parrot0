@@ -4513,6 +4513,33 @@ static char *kb_dequote(char *s) {
     return s;
 }
 
+/* PHP P6 (26 settembre 2026): la domanda sul SOGGETTO («What triggers a parse
+ * error?», letta per contatto come `causes`) ha tanti valori quanti fatti; se ne
+ * diceva uno solo, mentre «What causes …?» li elencava. All'indietro, e senza un
+ * contesto che scelga, si dicono tutti, senza ripetizioni («A and B»). */
+static void p0_answer_all(char ans[][KB_TERM_LEN], size_t na, char *out, size_t outsz) {
+    char list[KB_TERM_LEN]; size_t lo = 0; list[0] = '\0';
+    size_t shown = 0, uniq = 0;
+    for (size_t k = 0; k < na; k++) {
+        int dup = 0;
+        for (size_t j = 0; j < k && !dup; j++) if (!strcmp(ans[j], ans[k])) dup = 1;
+        if (!dup) uniq++;
+    }
+    for (size_t k = 0; k < na && lo + 1 < sizeof list; k++) {
+        int dup = 0;
+        for (size_t j = 0; j < k && !dup; j++) if (!strcmp(ans[j], ans[k])) dup = 1;
+        if (dup) continue;
+        char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", ans[k]);
+        size_t vl = strlen(vb);
+        if (vl >= 2 && vb[0] == '"' && vb[vl - 1] == '"') { memmove(vb, vb + 1, vl - 2); vb[vl - 2] = '\0'; }
+        for (char *c = vb; *c; c++) if (*c == '_') *c = ' ';
+        shown++;
+        const char *sep = shown == 1 ? "" : (shown == uniq ? " and " : ", ");
+        lo += (size_t)snprintf(list + lo, sizeof list - lo, "%s%s", sep, vb);
+    }
+    if (list[0]) snprintf(out, outsz, "%s", list);
+}
+
 static int difference_lookup(Brain *b, const char *a, const char *c,
                              char *out, size_t out_sz) {
     const char *q[] = { a, c, NULL };
@@ -10350,6 +10377,13 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                         char pretty[KB_TERM_LEN];
                         snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[pick]));
                         for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+                        /* PHP P6 (26 settembre 2026): la domanda sul SOGGETTO
+                         * («What triggers a parse error?», letta per contatto
+                         * come `causes`) ha tanti valori quanti fatti: se ne
+                         * diceva uno solo, mentre «What causes …?» li elencava.
+                         * All'indietro, e senza un contesto che scelga, si dicono
+                         * tutti (come il piano di turno: «A and B»). */
+                        if (!ofwd && na > 1 && pick == 0) p0_answer_all(ans, na, pretty, sizeof pretty);
                         kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                         { "value", pretty } }, 1, out, out_size);
                         p0_observe_answer(b, keyrow[0], pred, ans[pick]);
@@ -10570,6 +10604,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     char pretty[KB_TERM_LEN];
                     snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[pick]));
                     for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+                    if (!pfwd && na > 1 && pick == 0) p0_answer_all(ans, na, pretty, sizeof pretty);
                     kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                     { "value", pretty } }, 1, out, out_size);
                     p0_observe_answer(b, key, pred, ans[pick]);
