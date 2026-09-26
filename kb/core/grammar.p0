@@ -4753,3 +4753,24 @@ qualifier_verdict($Cue, $Value, carries, $Said) :-
     turn_qualifier($Cue, $Opener, q($C, $Said)), value_carries($Value, $C).
 qualifier_verdict($Cue, $Value, lacks, $Said) :-
     turn_qualifier($Cue, $Opener, q($C, $Said)), naf(value_carries($Value, $C)).
+
+% DE11 / G15 (26 settembre 2026) — IL GENITIVO SASSONE SI LEGGE COME «the N of X».
+% Con il clitico insegnato («"'s" is a clitic», L3 §29) «Germany's capital is
+% Berlin.» arriva come «germany s capital is berlin» e diventava testo; la
+% domanda «What is Germany's capital?» rispondeva «germany_s_capital is a berlin».
+% Il genitivo e' la stessa relazione della forma con «of»: si rilegge cosi', e
+% la leggono i lettori che ci sono gia'.
+turn_form(genitive_statement, 1, slot(owner)).
+turn_form(genitive_statement, 2, text("s")).
+turn_form(genitive_statement, 3, slot(noun)).
+turn_form(genitive_statement, 4, text("is")).
+turn_form(genitive_statement, 5, rest(value)).
+turn_form_mood(genitive_statement, statement).
+turn_form_act(genitive_statement, reread(the {noun} of {owner} is {value})).
+turn_form_priority(genitive_statement, early).
+turn_form(genitive_question, 1, text("what is")).
+turn_form(genitive_question, 2, slot(owner)).
+turn_form(genitive_question, 3, text("s")).
+turn_form(genitive_question, 4, slot(noun)).
+turn_form_act(genitive_question, reread(what is the {noun} of {owner})).
+turn_form_priority(genitive_question, early).
