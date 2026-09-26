@@ -178,6 +178,18 @@ help_scope_cue("what can you do for me").
 help_scope_cue("in cosa puoi aiutarmi").
 help_scope_cue("come puoi aiutarmi").
 help_scope_cue("cosa puoi fare per me").
+% PR12 (26 settembre 2026): le richieste d'aiuto piu' comuni muravano («Mi
+% aiuti?», «Mi dai una mano?»: «Non capisco ancora.»). Sono lo stesso fatto che la
+% lezione del PR1 scrive («"mi dai una mano" is another way to say "in cosa puoi
+% aiutarmi"»), qui come conoscenza curata.
+help_scope_cue("mi aiuti").
+help_scope_cue("mi dai una mano").
+help_scope_cue("mi puoi aiutare").
+help_scope_cue("puoi aiutarmi").
+help_scope_cue("mi serve aiuto").
+help_scope_cue("can you help me").
+help_scope_cue("could you help me").
+help_scope_cue("i need help").
 turn_cue_registry(help_scope_cue, 1).
 direct_situation($Turn, user_help_scope) :- turn_cue_form($Turn, help_scope_cue, $Cue).
 
@@ -1082,3 +1094,29 @@ turn_bookkeeping($Turn, inquiry_followup) :-
     issue_id(inquiry, $Next, $I), turn_counter($N),
     assert(open_issue, $I, inquiry), assert(issue_topic, $I, $Next),
     assert(issue_turn, $I, $N), assert(inquiry_deferred, $I, $N).
+
+% PR12 — «Non so cosa sia un cuscinetto.» non e' un fatto su chi parla da imparare:
+% e' la domanda «che cos'è un cuscinetto?» detta dicendo che cosa manca. Si
+% rilegge come la domanda (una rilettura, come le lezioni «X means Y»).
+turn_form(unknown_thing_it, 1, text("non so cosa sia")).
+turn_form(unknown_thing_it, 2, span(x)).
+turn_form_act(unknown_thing_it, reread(che cosa è {x})).
+turn_form_priority(unknown_thing_it, early).
+turn_form_view(unknown_thing_it, said).
+turn_form(unknown_thing_it2, 1, text("non so che cosa sia")).
+turn_form(unknown_thing_it2, 2, span(x)).
+turn_form_act(unknown_thing_it2, reread(che cosa è {x})).
+turn_form_priority(unknown_thing_it2, early).
+turn_form_view(unknown_thing_it2, said).
+turn_form(unknown_thing_en, 1, text("i don't know what")).
+turn_form(unknown_thing_en, 2, span(x)).
+turn_form(unknown_thing_en, 3, text("is")).
+turn_form_act(unknown_thing_en, reread(what is {x})).
+turn_form_priority(unknown_thing_en, early).
+% Se la domanda riletta prende un declino («Su cuscinetto non so ancora molto…»),
+% quel declino e' la risposta giusta alla domanda fatta: si dice quello, non il
+% muro sulla parola «sia» della frase originale.
+response_template(reread_wall_said, "{reread}").
+turn_form_wall_reply(unknown_thing_it, reread_wall_said).
+turn_form_wall_reply(unknown_thing_it2, reread_wall_said).
+turn_form_wall_reply(unknown_thing_en, reread_wall_said).
