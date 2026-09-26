@@ -448,6 +448,11 @@ subject_guard($T) :- auxiliary($T).
 subject_guard($T) :- stopword($T).
 subject_guard($T) :- open_quantifier($T).
 subject_guard($T) :- social_marker($Kind, $T).
+% DE1 (26 settembre 2026): una parola di giorno non e' l'agente di un verbo.
+% «Heute frisst der Hund Fleisch» (tedesco, verbo in seconda posizione) diventava
+% il fatto falso «today eats dog meat»: il lettore dei frame prendeva come
+% soggetto cio' che precede il verbo. Meglio un muro che un fatto falso.
+subject_guard($T) :- day_word($T).
 
 % ── gen505r — DUE DOMANDE DIVERSE CHE ERANO UNA SOLA ────────────────────────
 %

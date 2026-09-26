@@ -1367,3 +1367,44 @@ untranslated_candidate($W) :-
 machinery(known_topic_word).
 known_topic_word($W) :- topic_definition($W, $D).
 known_topic_word($W) :- topic_read($W, $A).
+
+% ══ DE4 (26 settembre 2026) — «frisst means eats»: UNA LETTURA DI PAROLA ════
+%
+% Sessione del tedesco: «Hund means dog.» rispondeva «From now on I'll read «hund»
+% as «dog.»» e creava una forma di turno intero (si applicava solo al turno
+% «hund» da solo, con il punto dentro); «frisst means eats» cadeva al maestro
+% delle costruzioni («I cannot anchor that lesson…»). Una parola SCONOSCIUTA che
+% «significa» una parola che parrot0 conosce e' una lettura di parola: la stessa
+% cosa che la lezione «un altro modo di dire» scrive (`phrase_canon/2`), e che la
+% canonicalizzazione applica dentro le frasi. La guardia e' che la parola nuova
+% non sia una parola che parrot0 ha gia' (`lexeme/1`): «freedom means
+% responsibility» e' un'affermazione, non una glossa.
+machinery(unknown_surface_word).
+unknown_surface_word($W) :- naf(lexeme($W)).
+machinery(known_surface_word).
+known_surface_word($W) :- lexeme($W).
+% le parole funzione e i marcatori di negazione sono parole note anche se
+% `lexeme/1` non le elenca («kein means no», «der means the»)
+known_surface_word($W) :- negation_marker($W).
+known_surface_word($W) :- stopword($W).
+turn_form(teach_word_reading, 1, slot(surface)).
+turn_form(teach_word_reading, 2, text("means")).
+turn_form(teach_word_reading, 3, slot(target)).
+turn_form_slot_class(teach_word_reading, surface, unknown_surface_word).
+turn_form_slot_class(teach_word_reading, target, known_surface_word).
+turn_form_mood(teach_word_reading, statement).
+turn_form_act(teach_word_reading, "op(assert, phrase_canon, [surface, target])").
+turn_form_reply(teach_word_reading, learned_word_reading).
+turn_form_priority(teach_word_reading, early).
+turn_form(teach_word_reading_it, 1, slot(surface)).
+turn_form(teach_word_reading_it, 2, text("significa")).
+turn_form(teach_word_reading_it, 3, slot(target)).
+turn_form_slot_class(teach_word_reading_it, surface, unknown_surface_word).
+turn_form_slot_class(teach_word_reading_it, target, known_surface_word).
+turn_form_mood(teach_word_reading_it, statement).
+turn_form_act(teach_word_reading_it, "op(assert, phrase_canon, [surface, target])").
+turn_form_reply(teach_word_reading_it, learned_word_reading).
+turn_form_priority(teach_word_reading_it, early).
+turn_form_view(teach_word_reading_it, said).
+response_template(learned_word_reading, "From now on I'll read «{surface}» as «{target}».").
+response_template(learned_word_reading, it, "D'ora in poi leggo «{surface}» come «{target}».").

@@ -14922,6 +14922,22 @@ static int p0_relation_verdict(Brain *b, const char *rel, const char *said,
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
     /* Un «no» detto e' un «no» guadagnato, esattamente come per le classi. */
     if (kb_is_negated(b->kb, rel, args, 2)) { put("No.", out, out_size); return 1; }
+    /* DE2 (26 settembre 2026) — la negazione detta si guarda in TUTTE le forme
+     * del verbo, come l'affermazione. «The dog eats no grass» (e «Der Hund
+     * frisst kein Gras» dopo «kein means no») nega `eats(dog, grass)`, la forma
+     * detta; «Does a dog eat grass?» chiede `eat` e non la trovava: «I cannot
+     * settle that». Quali forme abbia un verbo lo dice la KB (`verb_form/3`). */
+    {
+        char forms9[16][KB_TERM_LEN];
+        const char *vq[3] = { rel, NULL, NULL };
+        size_t nf9 = kb_match(b->kb, "verb_form", vq, 3, forms9, 16);
+        for (size_t k = 0; k < nf9; k++) {
+            char fb9[KB_TERM_LEN]; snprintf(fb9, sizeof fb9, "%s", forms9[k]);
+            const char *f9 = kb_dequote(fb9);
+            if (!*f9 || !strcmp(f9, rel)) continue;
+            if (kb_is_negated(b->kb, f9, args, 2)) { put("No.", out, out_size); return 1; }
+        }
+    }
     /* gen507/45 (forma #2) — UNA RELAZIONE CHE HA UN VALORE SOLO.
      * Se `V` ne ammette uno e per questo soggetto ne tengo un altro, il «no» e'
      * guadagnato: non serve elencare il mondo, basta sapere che il posto e'
