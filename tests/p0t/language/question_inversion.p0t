@@ -1,0 +1,42 @@
+# L4, censimento 1 (26 settembre 2026) — LA DOMANDA E' L'AFFERMAZIONE CON
+# L'AUSILIARE DAVANTI AL SOGGETTO (docs/plans/l4-upgrade.md).
+#
+# «can» aveva due forme scritte a mano e indipendenti, `ability_stated` e
+# `ability_polar`: che la seconda fosse la prima con il modale spostato non era
+# scritto da nessuna parte. Ora la domanda si deriva (`question_inversion/4`,
+# grammar.p0), e questo file e' la prova MECCANICA che la derivazione opera:
+# la domanda si legge come prima, la stessa regola apre una domanda che nessuno
+# aveva scritto, e un membro nuovo della classe dell'affermazione apre la
+# domanda nello stesso processo (la vista congelata si rifa'). Non prova
+# l'apprendimento parlando: quello e' il passo 5 del circuito.
+
+[test la domanda di abilita' e' derivata dall'affermazione]
+!timeout 8
+> A lathe can cut steel.
+<~ Held
+> Can a lathe cut steel?
+<~ Yes
+
+[test la stessa regola apre la domanda di year_stated]
+!timeout 8
+> Hamlet was written in 1600.
+<~ 1600
+> Was Hamlet written in 1600?
+<~ Yes
+# il vincolo del pezzo (l'oggetto e' un anno) viaggia con il pezzo
+> Was Hamlet written in English?
+<! Yes
+
+[test un membro nuovo dell'affermazione apre la domanda]
+!timeout 8
+> A lathe can cut steel.
+<~ Held
+> Could a lathe cut steel?
+<! Yes
+!assert ability_marker("could")
+> Could a lathe cut steel?
+<~ Yes
+# ablazione: tolto il membro, la domanda torna muta
+!forget ability_marker("could")
+> Could a lathe cut steel?
+<! Yes

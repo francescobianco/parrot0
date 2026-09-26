@@ -142,7 +142,7 @@ turn_plan_candidate($T) :- self_language_query($T, $Code).
 turn_plan_candidate($T) :- self_language_list_query($T).
 
 % «puoi parlare inglese?»: in italiano il soggetto sta nella desinenza, e la
-% forma «can X Y» (`ability_polar`, messages.p0) metteva il VERBO nello slot del
+% forma «can X Y» (la domanda derivata da `ability_stated`) metteva il VERBO nello slot del
 % soggetto («Non so se parla può inglese»). Come per il deittico «you», la forma
 % cede quando il suo soggetto e' un verbo del parlare.
 speak_surface("speak", speak).
@@ -150,7 +150,7 @@ speak_surface("talk", speak).
 speak_surface("parlare", speak).
 speak_surface("parla", speak).
 speak_surface("parli", speak).
-turn_form_yield(ability_polar, speak_surface, 1, subject).
+turn_form_yield($Q, speak_surface, 1, subject) :- inverted_form($Q, from(ability_stated, $W)).
 
 % ── 5. LA STESSA CAPACITA' PER OGNI ABILITA' (19 settembre 2026) ─────────────
 % «sai parlare italiano» era un caso di una classe: «can you swim?», «can you

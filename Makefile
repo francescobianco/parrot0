@@ -603,6 +603,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/language/prefix_before_assertion.p0t
 	@./$(BIN) --test tests/p0t/language/mention.p0t
 	@./$(BIN) --test tests/p0t/language/taught_turn_form.p0t
+	@./$(BIN) --test tests/p0t/language/question_inversion.p0t
 	@./$(BIN) --test tests/p0t/language/taught_lesson_form.p0t
 	@./$(BIN) --test tests/p0t/language/behavior_gen512.p0t
 	@./$(BIN) --test tests/p0t/language/law_code.p0t

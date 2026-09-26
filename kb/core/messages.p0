@@ -1279,21 +1279,19 @@ ability_marker("can").  ability_marker("is able to").  ability_marker("knows how
 % esplicito: «fish cannot fly»), o non so, senza inventare un «no» dall'assenza.
 % (Nome proprio: `ability_asked` e' gia' la forma «what can X do?», e due forme
 % con lo stesso nome fondono i pezzi e gli atti.)
-turn_form(ability_polar, 1, text("can")).
-turn_form(ability_polar, 2, slot(subject)).
-turn_form(ability_polar, 3, rest(object)).
-turn_form(ability_polar, 4, bind(relation, ability_of)).
-turn_form_mood(ability_polar, question).
-turn_form_act(ability_polar, answer_polar).
-turn_form_empty_reply(ability_polar, ability_unknown).
-turn_form_priority(ability_polar, early).
+% L4 (26 settembre 2026): la domanda non e' piu' una forma scritta a mano.
+% E' `ability_stated` con l'ausiliare davanti al soggetto, derivata da
+% `question_inversion/4` (grammar.p0) per ogni membro di `ability_marker` che e'
+% un ausiliare. Qui resta cio' che e' proprio della domanda: che cosa dire se
+% non si sa, e quando cedere.
+turn_form_empty_reply($Q, ability_unknown) :- inverted_form($Q, from(ability_stated, $W)).
 % 15 settembre 2026: «can you play chess?» rispondeva «I don't know whether YOU
 % can play chess»: il deittico di seconda persona e' parrot0, non un'entita' su
 % cui si tengono abilita'; la forma cede e il turno va alle facolta' di se'.
 machinery(second_person_deictic).
 second_person_deictic("you", parrot0).
 second_person_deictic("tu", parrot0).
-turn_form_yield(ability_polar, second_person_deictic, 1, subject).
+turn_form_yield($Q, second_person_deictic, 1, subject) :- inverted_form($Q, from(ability_stated, $W)).
 % Il vuoto di un'enumerazione si dice nella lingua dell'interrogativo: «who»
 % -> nessuno, altrimenti «I don't know any X yet» (M10: «what's the population
 % of France» -> «Nobody that I know of.»).

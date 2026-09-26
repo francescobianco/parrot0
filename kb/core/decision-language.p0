@@ -36,7 +36,7 @@ response_template(decision_value_learned, it, "Annotato: {role} di {subject} val
 % Il lettore polare generico non deve inglobare la richiesta di verifica.
 % La cessione consulta le ancore della forma, quindi segue la loro crescita.
 decision_question_surface($Cue, decision_question_en) :- turn_form(decision_question_en, 1, text($Cue)).
-turn_form_yield(ability_polar, decision_question_surface, 1, subject).
+turn_form_yield($Q, decision_question_surface, 1, subject) :- inverted_form($Q, from(ability_stated, $W)).
 
 turn_form(decision_formula_lesson, 1, text("calculate")).
 turn_form(decision_formula_lesson, 2, slot(role)).

@@ -179,11 +179,58 @@ ricerca a coppie di `p0_polar_reply` (se la polare generica deve passare per
 la regola derivata); le tre rappresentazioni della capacità (`can_fly/1`).
 Non sono lavoro preliminare.
 
-**Prossima decisione (di F.).** Il primo incremento proposto è il punto 2
-sulla sola coppia di «can»: derivare `ability_polar` da `ability_stated`,
-togliere la forma scritta a mano, provare che «Can a lathe cut steel?» si
-legge come prima, e che la regola si può interrogare. Poi il punto 3, la
-lezione confrontata per conseguenze.
+### Incremento 1 — fatto (26 settembre): l'inversione è una regola KB
+
+`ability_polar` non esiste più. In [grammar.p0](../../kb/core/grammar.p0),
+accanto a `polar_opener`:
+
+- `question_inversion(Dichiarativa, Classe, Ausiliare, Domanda)` è **la
+  regola**. Prende una forma dichiarativa il cui primo pezzo porta il soggetto
+  (`inversion_subject_piece/1`) e il secondo è `class(M)`. Per ogni membro di
+  M che è un ausiliare (`auxiliary/1`), deriva la domanda: l'ausiliare in
+  testa, il soggetto dopo, il resto invariato. L'atto viene da
+  `inversion_question_act/2` (`assert_relation` → `answer_polar`).
+- `inverted_form/2` è la proiezione che i lettori consumano,
+  `materialized_view` ricorsiva (mantra #20). `turn_form`, `turn_form_mood`,
+  `turn_form_act`, `turn_form_priority` e i vincoli dei pezzi
+  (`turn_form_slot_class`, `turn_form_slot_form`) delle forme derivate si
+  deducono da lì.
+- Ciò che è proprio della domanda resta dichiarato: la risposta vuota
+  (`ability_unknown`) e le tre cessioni (deittico «you», verbi del parlare,
+  domanda di decisione), ora agganciate a `inverted_form(Q, from(ability_stated, W))`.
+- Il C non è stato toccato. Il lettore delle forme vede le forme derivate
+  perché chiede forme e pezzi al solver.
+
+**Misure.**
+- Comportamento identico su 15 turni di confronto, con una sola differenza:
+  «Was Hamlet written in 1600?» passa da «I cannot settle that» a «Yes.».
+  È una conseguenza **non scritta da nessuno**: la stessa regola ha derivato
+  la domanda anche da `year_stated` («was»/«were»). «Was Hamlet written in
+  English?» resta com'era, perché il vincolo sull'anno viaggia con il pezzo.
+- Tempo: senza vista 6–17 s per turno; con la vista `turn_form` costa 13 ms
+  e il turno 0,58 s.
+- `make soft-test` verde in 3 s. `turn_thefts`, `living_capabilities` e
+  `selflimits` hanno gli stessi fallimenti con e senza la modifica: sono
+  preesistenti.
+- Cricchetto meccanico
+  [question_inversion.p0t](../../tests/p0t/language/question_inversion.p0t),
+  in `make test`, 9/9: la domanda si legge; `year_stated` apre la sua domanda
+  con il vincolo; `!assert ability_marker("could")` apre «Could…?» nello
+  stesso processo e l'ablazione la richiude.
+
+**Due trappole del motore pagate qui, valgono per la prossima vista.**
+1. Il congelamento enumera solo arità **1 e 2**: una vista a 4 argomenti
+   resta sempre derivata, in silenzio.
+2. `kb_fact` e `apply` nel corpo **spengono** la clausola durante il
+   congelamento. Si chiede `turn_form` direttamente, lasciando al motore la
+   ricorsione, e `apply` si dichiara con `view_apply_resolved/1` più
+   `view_depends/2` sulle classi raggiunte.
+
+**Prossimo passo: il punto 3.** La lezione del §0 («To make a question with
+can, put can before the subject») va confrontata con `question_inversion`
+attraverso le conseguenze. Su «can» deve arrivare a «questa è la regola che
+uso»; su «must» deve nominare il residuo (nessuna forma dichiarativa porta
+«must»), non dire «già lo faccio».
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 

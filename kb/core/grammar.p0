@@ -317,6 +317,67 @@ related_to($Subject, $Value) :- kb_fact($Pred, cons($Subject, cons($Value, nil))
 machinery(polar_opener).
 polar_opener($W) :- auxiliary($W).
 
+% ── L4, censimento 1 (26 settembre 2026) — LA DOMANDA E' L'AFFERMAZIONE CON
+% L'AUSILIARE DAVANTI AL SOGGETTO ────────────────────────────────────────────
+%
+% Prima «can» aveva due forme scritte a mano e indipendenti: `ability_stated`
+% («S can V») e `ability_polar` («can S V»). Che la seconda fosse la prima con
+% il modale spostato non stava scritto da nessuna parte, quindi una lezione
+% sull'inversione non aveva niente con cui confrontarsi, e un marcatore nuovo
+% insegnato all'affermazione non apriva la domanda (docs/plans/l4-upgrade.md,
+% Censimento 1). Ora la forma interrogativa si DERIVA: da una forma dichiarativa
+% il cui primo pezzo e' il soggetto e il secondo una classe di operatori, per
+% ogni membro della classe che e' un ausiliare. L'ausiliare va in testa, il
+% soggetto dopo, il resto resta com'era. Le condizioni sono conoscenza: quali
+% parole sono ausiliari (`auxiliary/1`), quali pezzi portano il soggetto
+% (`inversion_subject_piece/1`), quale atto chiede cio' che l'affermazione
+% scriveva (`inversion_question_act/2`).
+%
+% `question_inversion(Dichiarativa, Classe, Ausiliare, Domanda)` si interroga:
+% e' la regola, non una sua copia. `inverted_form/2` ne e' la proiezione che i
+% lettori consumano, congelata (mantra #20).
+machinery(question_inversion).
+machinery(inverted_form).
+machinery(inversion_subject_piece).
+machinery(inversion_question_act).
+question_inversion($D, $M, $W, $Q) :-
+    turn_form($D, 2, class($M)), turn_form_mood($D, statement),
+    turn_form($D, 1, $S), inversion_subject_piece($S),
+    turn_form_act($D, $A), inversion_question_act($A, $QA),
+    apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), auxiliary($W),
+    concat_atoms($D, "_inverted_", $Q0), concat_atoms($Q0, $W, $Q).
+inversion_subject_piece(slot(subject)).
+inversion_subject_piece(span(subject)).
+inversion_question_act(assert_relation, answer_polar).
+inverted_form($Q, from($D, $W)) :- question_inversion($D, $M, $W, $Q).
+turn_form($Q, 1, text($W)) :- inverted_form($Q, from($D, $W)).
+turn_form($Q, 2, $S) :- inverted_form($Q, from($D, $W)), turn_form($D, 1, $S).
+turn_form($Q, $N, $P) :- inverted_form($Q, from($D, $W)), turn_form($D, $N, $P), lt(2, $N).
+turn_form_mood($Q, question) :- inverted_form($Q, from($D, $W)).
+turn_form_act($Q, $QA) :-
+    inverted_form($Q, from($D, $W)), turn_form_act($D, $A), inversion_question_act($A, $QA).
+% Una domanda che si apre con l'ausiliare si legge prima delle facolta' di
+% contenuto: e' la politica che `ability_polar` dichiarava a mano.
+turn_form_priority($Q, early) :- inverted_form($Q, from($D, $W)).
+% I pezzi sono gli stessi, quindi portano con se' i propri vincoli: senza,
+% «Was Hamlet written in English?» sarebbe letta dalla domanda derivata da
+% `year_stated` come una domanda sull'anno.
+turn_form_slot_class($Q, $Slot, $C) :-
+    inverted_form($Q, from($D, $W)), turn_form_slot_class($D, $Slot, $C).
+turn_form_slot_form($Q, $Slot, $F) :-
+    inverted_form($Q, from($D, $W)), turn_form_slot_form($D, $Slot, $F).
+% (mantra #20) ogni lettura di una forma chiede i suoi pezzi, e ogni pezzo
+% rientrava nella derivazione: da 0,3 a 6-17 s per turno, misurato. La vista
+% e' binaria (il congelamento enumera coppie) e ricorsiva (le forme derivate
+% sono forme: il motore la congela a punto fisso). `apply` raggiunge soltanto
+% le classi di operatori che le forme dichiarative portano: dichiarate, un
+% membro insegnato rifa' la vista.
+materialized_view(inverted_form, 2).
+view_apply_resolved(question_inversion).
+view_depends(question_inversion, $M) :-
+    kb_fact(turn_form, cons($D, cons(2, cons(class($M), nil)))),
+    kb_fact(turn_form_mood, cons($D, cons(statement, nil))).
+
 machinery(subject_guard).
 subject_guard($T) :- question_word($T).
 subject_guard($T) :- auxiliary($T).
