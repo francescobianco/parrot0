@@ -5630,6 +5630,17 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     whole.len = strlen(surface);
     turn_publish_tokens(b, surface, &whole, "0", "turn_surface_token", whole.len);
     turn_publish_cues(b, surface);
+    /* 26 settembre 2026 — le viste che dipendono dai token del turno (quali lo
+     * dice `view_depends(V, turn_surface_token)`, non questo ramo: oggi
+     * `turn_word_at`) si rifanno QUI, all'ingresso, una volta: dentro una
+     * risoluzione una vista spenta si ricalcola a ogni domanda (span_atom
+     * 166 000 volte in un turno, misurato). Non tutte le viste sporche: rifarle
+     * tutte a ogni turno portava un turno da 0,5 a 6 s (misurato). */
+    {   char (*vs)[KB_TERM_LEN] = NULL; size_t nv = 0;
+        const char *vq[2] = { NULL, "turn_surface_token" };
+        if (kb_match_all(b->kb, "view_depends", vq, 2, &vs, &nv))
+            for (size_t i = 0; i < nv; i++) kb_view_ensure(b->kb, vs[i]);
+        free(vs); }
     /* ── gen513 — LA FORZA DEL TURNO SI CALCOLA UNA VOLTA, E SI PUBBLICA ──────
      *
      * `turn_illocution/2` e' gia' una RIPUBBLICAZIONE («il livello in piu' non

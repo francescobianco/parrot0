@@ -834,3 +834,24 @@ goal (`relation_verb`). La cura era un cancello di conoscenza, non un'ottimizzaz
 il contatto insegna solo con un'affermazione, e il turno era una domanda. Il
 turno è sceso a 1,2 s. Il costo base che resta, `relation_verb ← verb_finite_form`
 con circa 2 000 cammini dell'intera classe per turno, è il prossimo bersaglio.
+
+**Lavorato, seguito: `turn_entity_named` da 1 s a 70 ms.** `/debug on` stampa ora
+anche il **tempo proprio** per «goal ← regola» (il tempo fra due ingressi nel
+risolutore va al goal che si stava lavorando, builtin compresi) e le **chiamate
+a regole** per «goal ← regola». Hanno nominato tre cause, tutte di ordine o di
+indice, nessuna di conoscenza mancante:
+- `contact_verb_word` chiedeva la forma con la sola parola legata, e
+  `finite_present_of` camminava tutta la vista per superficie (161 volte per
+  turno): prima si legano le forme del contatto, poche;
+- `gerund_root` arriva con la superficie ma chiedeva la vista per radice: ora
+  passa da `verb_form_analysis` (indicizzata per superficie);
+- `turn_word/3` rifaceva `span_atom` (due `chars`) a ogni domanda, 166 000 volte in
+  un turno di contatto: ora legge la vista binaria `turn_word_at(pair(T, I), W)`.
+Due trappole pagate: **il motore congela solo viste unarie e binarie** (una
+`materialized_view(turn_word, 3)` resta lettera morta, in silenzio); e **una
+vista spenta dentro una risoluzione si ricalcola a ogni domanda**, perché si
+ricostruisce solo all'ingresso di una query che la nomina. Le viste che
+dipendono dai token del turno (`view_depends(V, turn_surface_token)`) si
+ricostruiscono quindi subito dopo la pubblicazione dei token. Rifare lì **tutte**
+le viste sporche (`kb_views_warm`) portava un turno da 0,5 a 6 s: misurato, e
+scartato.

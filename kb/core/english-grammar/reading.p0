@@ -99,7 +99,11 @@ extract_frame($Pattern, $R) :-
     concat_atoms("@S ", $F, $Prefix), concat_atoms($Prefix, " @O", $Pattern).
 verb_stem($F, $R) :- verb_form($R, $F, $K), reading_verb_form_kind($K).
 participle_of($R, $F) :- relation_verb_form($R, form($F, past_participle)).
-gerund_root($F, $R) :- relation_verb_form($R, form($F, present_participle)).
+% (26 settembre 2026: chi chiede `gerund_root` ha la SUPERFICIE — «is this word a
+% gerund?» — e la vista per radice la cercava camminandola tutta, 114 volte per
+% turno: 162 ms. La vista per superficie e' `verb_form_analysis`; il filtro
+% «verbo di relazione» e' lo stesso di `relation_verb_form`.)
+gerund_root($F, $R) :- verb_form_analysis($F, form($R, present_participle)), relation_verb($R).
 gerund_of($R, $F) :- relation_verb_form($R, form($F, present_participle)).
 finite_present_of($R, $F) :- verb_form($R, $F, present_third).
 materialized_view(verb_form_analysis, 2).

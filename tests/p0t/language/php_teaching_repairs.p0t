@@ -110,6 +110,11 @@
 <! Compiled bytecode
 > Does OPcache store compiled bytecode?
 <~ Yes
+# e l'interrogativo davanti chiede ancora un VALORE (regressione della prima
+# correzione di P13, trovata da docs/labs/l3/I5/strumenti.p0t)
+> Einstein was born in Ulm.
+> Where was Einstein born?
+<~ ulm
 
 [test is its N names a relation not a class]
 !reset

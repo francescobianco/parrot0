@@ -582,6 +582,8 @@ size_t        kb_profile_visit_top(const KB *kb, KbProfileRow *out, size_t max);
 /* e quante volte un goal definito da REGOLE e' stato espanso, per goal <- regola:
  * dice chi chiama un predicato caro, anche quando il costo sta piu' sotto. */
 size_t        kb_profile_call_top(const KB *kb, KbProfileRow *out, size_t max);
+/* e il TEMPO PROPRIO per goal <- regola (ms), builtin compresi */
+size_t        kb_profile_self_top(KB *kb, KbProfileRow *out, size_t max);
 
 /* Count direct stored facts for a predicate (no rule resolution). gen77. */
 size_t kb_pred_fact_count(const KB *kb, const char *pred);

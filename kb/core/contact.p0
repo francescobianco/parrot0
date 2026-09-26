@@ -907,8 +907,12 @@ machinery(contact_verb_word).
 machinery(contact_named_verb).
 machinery(contact_named_head).
 word_is_verb_form($W) :- contact_verb_word($W).
+% (26 settembre 2026: prima le forme del contatto — poche — legano $N, poi la
+% parola; con la parola sola davanti `finite_present_of` riceveva la radice e
+% camminava tutta la vista delle forme, 161 volte per turno: 229 ms, misurato
+% con il tempo proprio di /debug on.)
 contact_verb_word($W) :-
-    contact_word_form($N, $W), contact_shape($N, $R, verb($Mid, $K)), contact_bridge($N, $R).
+    contact_shape($N, $R, verb($Mid, $K)), contact_word_form($N, $W), contact_bridge($N, $R).
 contact_verb_word($W) :- contact_named_in_force($R, $W).
 % La testa: le parole che nominano la relazione R seguono subito il soggetto
 % («acetone BOILS AT 56 …»): la prima e' usata come verbo di R. Si osserva nel

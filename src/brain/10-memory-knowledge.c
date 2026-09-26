@@ -15063,13 +15063,15 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * La differenza e' di un token e le due classi sono gia' in KB. */
     size_t base = 0;
     if (lex_class_member(b, "polar_fronted", w[0])) base = 0;
-    /* 26 settembre 2026 (P13) — solo «why» davanti alla polare chiede il
-     * verdetto con la sua ragione; «where / when / how does X V Y?» chiede un
-     * complemento, e rispondere «Yes.» era una risposta sbagliata (mantra #7).
-     * Quali parole chiedano la ragione lo dice la KB (`why_cue`). */
-    else if (lex_class_member(b, "why_cue", w[0]) && nw >= 4 &&
+    else if (lex_class_member(b, "question_word", w[0]) && nw >= 4 &&
              lex_class_member(b, "polar_fronted", w[1])) base = 1;
     else return 0;
+    /* 26 settembre 2026 (P13) — con l'interrogativo davanti la domanda chiede un
+     * VALORE («Where was Einstein born?», oggetto mancante: si enumera, sotto);
+     * un VERDETTO «Yes./No.» lo chiede solo «why» (`why_cue`, KB). «Where does
+     * OPcache store compiled bytecode?» riceveva «Yes.»: l'oggetto c'e', il
+     * complemento chiesto no (mantra #7). */
+    int wh_value_only = base == 1 && !lex_class_member(b, "why_cue", w[0]);
 
     size_t vi = 0;
     char rel[KB_TERM_LEN]; rel[0] = '\0';
@@ -15209,6 +15211,7 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
     if (!*obj) return 0;
 
+    if (wh_value_only) return 0;
     return p0_relation_verdict(b, rel, said, subj, obj, out, out_size);
 }
 

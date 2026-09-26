@@ -334,6 +334,10 @@ struct KB {
     size_t        prof_nvtop;
     KbProfileRow  prof_calltop[512]; /* chiamate a regole per goal <- regola */
     size_t        prof_ncalls;
+    KbProfileRow  prof_selftop[512]; /* tempo proprio per goal <- regola */
+    size_t        prof_nself;
+    char          prof_self_key[KB_TERM_LEN];
+    struct timespec prof_self_t;
 
     /* Materialized predicates and their structural dependency graphs.
      * Mutations expire affected views; rebuilding waits for a safe entry.
@@ -448,6 +452,8 @@ void kb_profile_reset(KB *kb) {
     kb->prof_ntop = 0;
     kb->prof_nvtop = 0;
     kb->prof_ncalls = 0;
+    kb->prof_nself = 0;
+    kb->prof_self_key[0] = '\0';
 }
 
 /* la chiave del profilo: «goal <- regola che l'ha posto» (Term.from), o il goal solo */
@@ -482,6 +488,51 @@ size_t kb_profile_call_top(const KB *kb, KbProfileRow *out, size_t max) {
             if (!used[i] && (best == 512 || kb->prof_calltop[i].calls > kb->prof_calltop[best].calls)) best = i;
         if (best == 512) break;
         used[best] = 1; out[n++] = kb->prof_calltop[best];
+    }
+    return n;
+}
+/* 26 settembre 2026 — IL TEMPO PROPRIO. Il tempo fra due ingressi consecutivi
+ * nel risolutore va al goal che si stava lavorando: i builtin (atom_words,
+ * concat_atoms, chars, map_words …) e i cammini sui fatti restano con chi li ha
+ * chiesti. Approssimato (lo srotolamento va all'ultimo goal entrato), ma dice
+ * dove va il tempo che i PASSI non vedono: `turn_entity_named` costava 1 s con
+ * 3 560 passi. */
+static void kb_profile_self_close(KB *kb, const struct timespec *now) {
+    if (!kb->prof_self_key[0]) return;
+    double ms = (double)(now->tv_sec - kb->prof_self_t.tv_sec) * 1000.0 +
+                (double)(now->tv_nsec - kb->prof_self_t.tv_nsec) / 1e6;
+    for (size_t i = 0; i < kb->prof_nself; i++)
+        if (!strcmp(kb->prof_selftop[i].pred, kb->prof_self_key)) {
+            kb->prof_selftop[i].ms += ms; kb->prof_selftop[i].calls++; return; }
+    size_t at = kb->prof_nself;
+    if (at >= 512) {
+        at = 0;
+        for (size_t i = 1; i < 512; i++)
+            if (kb->prof_selftop[i].ms < kb->prof_selftop[at].ms) at = i;
+        if (kb->prof_selftop[at].ms >= ms) return;
+    } else kb->prof_nself++;
+    snprintf(kb->prof_selftop[at].pred, sizeof kb->prof_selftop[at].pred, "%s", kb->prof_self_key);
+    kb->prof_selftop[at].ms = ms; kb->prof_selftop[at].calls = 1; kb->prof_selftop[at].steps = 0;
+}
+static void kb_profile_self_enter(KB *kb, const Term *g) {
+    struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
+    kb_profile_self_close(kb, &now);
+    if (g) kb_profile_goal_key(g->pred, g->from, sizeof g->from, kb->prof_self_key, sizeof kb->prof_self_key);
+    else snprintf(kb->prof_self_key, sizeof kb->prof_self_key, "(soluzione)");
+    kb->prof_self_t = now;
+}
+size_t kb_profile_self_top(KB *kb, KbProfileRow *out, size_t max) {
+    if (!kb || !out || max == 0) return 0;
+    struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
+    kb_profile_self_close(kb, &now); kb->prof_self_key[0] = '\0';
+    size_t n = 0; static int used[512];
+    memset(used, 0, sizeof used);
+    while (n < max) {
+        size_t best = 512;
+        for (size_t i = 0; i < kb->prof_nself; i++)
+            if (!used[i] && (best == 512 || kb->prof_selftop[i].ms > kb->prof_selftop[best].ms)) best = i;
+        if (best == 512) break;
+        used[best] = 1; out[n++] = kb->prof_selftop[best];
     }
     return n;
 }
@@ -3159,6 +3210,7 @@ static int view_delta(Solver *S, const KbView *v, const Term *g,
 
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
+    if (S->kb->prof_on) kb_profile_self_enter((KB *)S->kb, idx < ngoals ? &goals[idx] : NULL);
     if (idx == ngoals) {                       /* a complete solution */
         if (S->qvar == NULL) { S->found = 1; return 1; }
         char v[KB_TERM_LEN];

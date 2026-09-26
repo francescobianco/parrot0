@@ -983,6 +983,10 @@ void p0_debug_turn_profile(Brain *brain, double ms) {
     for (size_t i = 0; i < nv; i++)
         fprintf(stderr, "[debug]   visite %10lu  %6zu cammini  goal %s\n",
                 vt[i].steps, vt[i].calls, vt[i].pred);
+    KbProfileRow st[64];
+    size_t ns = kb_profile_self_top(kb, st, (size_t)rows);
+    for (size_t i = 0; i < ns; i++)
+        fprintf(stderr, "[debug]   proprio %8.1f ms  %6zu ingressi  goal %s\n", st[i].ms, st[i].calls, st[i].pred);
     KbProfileRow ct[64];
     size_t nc = kb_profile_call_top(kb, ct, (size_t)rows);
     for (size_t i = 0; i < nc; i++)

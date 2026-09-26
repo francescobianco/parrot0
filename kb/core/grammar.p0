@@ -4387,7 +4387,16 @@ type_noun(kind).
 type_noun(type).
 type_noun(sort).
 auxiliary(did).
-turn_word($T, $I, $W) :- turn_surface_token($T, 0, $I, $Tok), span_atom($Tok, $W).
+% 26 settembre 2026 — UNA VISTA, non un calcolo a ogni domanda: `span_atom` (due
+% `chars`) si rifaceva per ogni parola a ogni `turn_word`, 166 000 volte in un
+% turno di contatto (tempo proprio di /debug on: 455 ms solo in `chars`). I
+% token cambiano una volta per turno, e la vista si rifa' quando cambiano. Il
+% motore congela viste unarie e binarie: la chiave e' la coppia turno-indice.
+turn_word($T, $I, $W) :- turn_word_at(pair($T, $I), $W).
+machinery(turn_word_at).
+turn_word_at(pair($T, $I), $W) :- turn_surface_token($T, 0, $I, $Tok), span_atom($Tok, $W).
+materialized_view(turn_word_at, 2).
+view_depends(turn_word_at, turn_surface_token).
 
 % Una preposizione senza complemento in coda chiede una relazione, non una
 % definizione («what is calcium carbonate for?»). Si verifica la risposta
