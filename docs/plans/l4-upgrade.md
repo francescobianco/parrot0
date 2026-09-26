@@ -1,8 +1,10 @@
 # L4 — la coerenza dell'apprendimento con la comprensione
 
-**Piano di indirizzo e progettazione operativa, 26 settembre 2026. Stato: aperto,
-niente implementato.** Nasce dalla «domanda delle domande» di F. alla fine del
-giro di grammatica:
+**Piano di indirizzo e progettazione operativa, 26 settembre 2026. Stato:
+parziale; audit sul commit `af2076c4`.** L4-0 ha un banco esplorativo e L4-1
+una prima protezione delle lezioni; i rispettivi gate non sono ancora chiusi.
+Questa revisione corregge il percorso di lavoro, non implementa le fasi.
+Nasce dalla «domanda delle domande» di F. alla fine del giro di grammatica:
 
 > *«il meccanismo di apprendimento di parrot0 è consistente con la sua crescita,
 > cioè ciò che impara dalla grammatica si innesta nel set di regole che parrot0
@@ -44,14 +46,88 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
-Primo passo: **§6, L4-0 — il banco di coerenza**, perché senza la misura ogni
-passo successivo si giudica a occhio. Poi L4-1 (riconoscere la sovrapposizione)
-sulle otto regole grammaticali che parrot0 applica già e che la lezione non
-riconosce (G2, G3, G4, G19, G21, G22, G23, G1-parziale). Il banco è già scritto
-in forma di prova nelle tre sessioni del 26 settembre: vanno promossi da
-scratchpad a strumento. La contraddizione (§5-bis, L4-8) corre in parallelo:
-il suo primo passo, depositare la specie nel registro dei paradossi, è piccolo e
-non dipende dal banco.
+**Il centro del lavoro è il §2: dare continuità alla rete fra osservazione,
+interpretazione, regola, contesto e revisione.** La priorità cognitiva è
+L4-3 insieme al nucleo semantico di L4-4: una lettura appresa deve valere per
+l'occorrenza giustificata e restare la stessa lettura per tutti i consumatori.
+L4-1 esercita lo stesso problema sul rapporto fra lezione ed esempio.
+
+1. Leggere [MANTRA](../../MANTRA.md), [PRINCIPLES](../../PRINCIPLES.md) e la
+   mappa dei contratti qui sotto. Le rotture del §1 sono osservazioni storiche,
+   non diagnosi già dimostrate sul checkout corrente.
+2. Partire da «gauge»: seguire il nodo IR e la lettura candidata fino al fatto,
+   alla domanda e alla spiegazione. Individuare **dove si perde il vincolo**,
+   non dove aggiungere un divieto. I simboli d'ingresso sono nel §2.3.
+3. Chiudere un solo circuito per iterazione: lettura condizionata, uso da due
+   consumatori, revisione dei sostegni. Il §6 scompone la crescita; il banco
+   osserva il risultato e non decide quale architettura costruire.
+4. Fermare la promozione della capacità se manca una prova: consegnare il gap
+   riproducibile e il prossimo punto d'innesto. Non aggiungere la risposta
+   attesa a mano e non cambiare la sonda solo per ottenere verde.
+
+Il primo incremento di L4-8 può essere progettato separatamente, ma richiede
+identità delle proposizioni, fonti e ciclo di vita verificati. Aggiungere una
+riga `paradox_event` da sola **non** implementa il processo dialettico.
+
+**Non costruire un supervisore L4 sopra lettori incoerenti.** Se l'apprendimento
+usa una rete per approvare una lezione e la comprensione ne usa un'altra per
+rispondere, il controllo può diventare più sofisticato senza che parrot0 diventi
+più coerente. La modifica deve raggiungere le relazioni che i lettori usano.
+
+## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
+
+I simboli nella tabella esistono a `af2076c4`; cercarli con `rg -n` nei file
+indicati, perché i numeri di riga cambiano. Le sezioni successive descrivono
+contratti da raggiungere, salvo dove compare una verifica esplicita.
+
+| punto d'ingresso verificato | contratto effettivo e conseguenza per L4 |
+|---|---|
+| [coherence-bench.py](../../scripts/coherence-bench.py), `main`, `verdict`, `service` | Un processo per batteria, lezioni cumulative, riconoscimento di `already` per sottostringa, confronto della prima frase per diversi contrasti. È un indicatore esplorativo, non ancora una prova causale. |
+| [grammar.json](../../tests/coherence/grammar.json) | 22 casi, non 25: mancano G6, G8, G16. Il gate delle 100 lezioni meccaniche e P1–P14 non è automatizzato qui. |
+| [language-lessons.p0](../../kb/core/language-lessons.p0), `turn_is_language_lesson`, `language_example_read` | Riconosce termini metalinguistici su `turn_surface_token/4`, con il requisito `turn_prose_long`; conserva il numero del turno e una finestra di 3 turni. **Non conserva un legame semantico lezione→esempio**: una domanda risposta, escluso `wrong_suspect`, basta alla conferma. |
+| [turn-frames.p0](../../kb/core/turn-frames.p0), `turn_prose_long`, `prose_min_words` | La soglia è 9. Abbassarla globalmente per G18/G22 allargherebbe anche altre rivendicazioni. La brevità di una lezione va risolta nel suo riconoscimento, provando i contrasti. |
+| [kb.c](../../src/kb.c), `derivation_door`; [derivation.p0](../../kb/core/derivation.p0) | `kb_derivation(D, Goal, 0, N)` descrive una **prova riuscita**, con le dipendenze a indice 1…N. Non restituisce il primo sottogoal fallito né suggerisce una riparazione. Gli ID `derivation_<n>` sono temporanei, in un anello, e non sono riferimenti persistenti. |
+| [input-structure.p0](../../kb/core/input-structure.p0), `input_assertion_store`, `input_frame_reading` | Scrive `semantic_proposition/1`, `semantic_binding/3` e provenance; le domande IR consumano davvero questi legami. Non sono tutti «metadati innocui», anche se il banco li conta in `service`. |
+| [document-claims.p0](../../kb/core/document-claims.p0), `normalization_origin`, `claim_current_reading`, `reading_depends_on`, `reading_current` | Esiste già la separazione fra osservazione, interpretazione versionata e impegno sul mondo. È un precedente da riusare e collegare al turno, non la prova che tutte le letture siano già revisionabili. |
+| [contact.p0](../../kb/core/contact.p0), `contact_candidate`, `contact_bridge`, `construction_frame`, `answer_frame` | Le ipotesi alimentano i lettori condivisi, con sostegni/ritiro/controesempio. Il ponte per nome e relazione non è ancora una prova di applicabilità a **questa occorrenza**. Qui cercare R3, prima di inventare un lessico parallelo. |
+| [procedures.p0](../../kb/core/procedures.p0), `proc_run`, `proc_from`, `step_term`, `run_step` | L'interprete KB e il passo `op(apply, …)` esistono già. Un passo apparentemente saltato può non essere stato imparato; non è prova che manchi la composizione. |
+| [10-memory-knowledge.c](../../src/brain/10-memory-knowledge.c), `p0_indef_article` | La KB sceglie l'articolo, ma riceve **solo la prima lettera**. Il collo di bottiglia è l'informazione passata alla decisione: una nuova eccezione fonetica non può distinguere due parole con la stessa iniziale. |
+| [main.c](../../src/main.c), ramo `/restore`; [kb.c](../../src/kb.c), `kb_save_routed` | Il banco ricarica la KB **nello stesso processo**, senza un nuovo avvio. Il salvataggio instradato seleziona `KB_SESSION`; non basta che il delta sia visibile come ipotesi o riflessione perché persista. |
+| [10-memory-knowledge.c](../../src/brain/10-memory-knowledge.c), `note_class_conflict`; [kb.h](../../src/kb.h), `kb_is_conflicted`, `kb_assert_neg_only` | Il conflitto di classe viene già segnalato durante alcuni apprendimenti; esistono negazione esplicita e conflitti ground. L4-8 deve unificare/estendere questi percorsi, non dichiararli assenti. |
+| [debug.p0](../../kb/core/debug.p0), `debug_paradox`, sonda 44; [kb.c](../../src/kb.c), `kb_note_inference` | Il registro dei paradossi esiste; gli eventi di inferenza vengono pubblicati fuori dalla prova attiva. Nessuna promessa implicita di conservazione delle due prove, revisione, persistenza o dialogo sui conflitti. |
+
+### 0.1 Evidenza riprodotta durante questa revisione
+
+Sul binario con SHA-256
+`2585bac9c4f66c9d97186cac39aa3595ffd8e250b2d4f19cc6a5c318dffdbac3`,
+profilo `agi`, lingua `en`, copie complete in `/tmp`, nessun errore di parsing
+nel boot della sonda dialogica:
+
+- Il sottoinsieme **G2,G9**, in quest'ordine, dà **1/2** nel contatore attuale:
+  G2 «sovrapposizione riconosciuta», G9 «non innestata, niente scritto».
+  Questo non rivalida il vecchio 3/22 e non certifica la coerenza di G2.
+- In un processo nuovo, senza salvare il banco precedente, si riproduce:
+
+```text
+> To make a question with can, put can before the subject.
+< I read that as a rule about how the language works, not as a fact about the world, so I keep nothing from it yet. Can you show me an example?
+> What is the capital of France?
+< Paris. That was your example, and I already read it that way, so what you described is something I already do, at least here.
+```
+
+La risposta geografica è corretta; **la conclusione sulla lezione non è
+giustificata**. È il primo rosso di L4-1. Non si cura aggiungendo «capital»
+alle esclusioni: serve una relazione fra la lezione e l'esempio.
+
+### 0.2 Numeri da non confondere
+
+`131/100 = 1,31` è il rapporto storico «imparate / con problemi» della meccanica,
+non una quota di successo. Le **otto** sovrapposizioni del resoconto comprendono
+G1 parziale; quelle complete elencate nel banco sono **sette**. `0/22` e `3/22`
+sono risultati storici del vecchio giudice (§6), non traguardi certificati.
+Per un confronto valido occorrono anche la revisione della **batteria e della
+KB**, l'ordine dei turni e lo stesso criterio di giudizio: lo stesso eseguibile
+da solo non basta.
 
 ---
 
@@ -90,10 +166,11 @@ Da qui segue il principio operativo di L4, il seguito diretto del circuito di L3
 > **Il punto d'innesto si trova per conseguenza.** Una lezione produce delle
 > conseguenze osservabili (un esempio, una domanda che dovrebbe cambiare
 > risposta, una lettura che dovrebbe cambiare). Chi impara fa girare la propria
-> comprensione su quelle conseguenze **prima** di scrivere: se la comprensione le
-> produce già, la lezione è una conferma; se le produce in parte, il punto dove il
-> percorso si interrompe è il punto d'innesto; se non le produce e non c'è un
-> punto riconoscibile, la lezione resta un'ipotesi e si chiede un esempio.
+> comprensione su quelle conseguenze **prima** di impegnarsi: se le produce già
+> per una ragione pertinente, può confermare il caso nella portata provata;
+> se la lettura è parziale, il residuo orienta la ricerca di un innesto, senza
+> identificarlo automaticamente; se mancano le ancore, la lezione resta
+> un'ipotesi e si chiede un esempio o una distinzione.
 
 Nessun nome è richiesto: il punto d'innesto è **un percorso** della rete (una
 derivazione, una lettura della IR, un passo di procedura), trovato dalla
@@ -101,13 +178,243 @@ comprensione stessa. È il «contesto a rete» di F. applicato all'apprendimento
 imparare non è aggiungere un valore a un insieme, è modificare un percorso in un
 punto e con le condizioni del punto.
 
+### 2.1 L'invariante fondazionale: conservare il significato lungo i percorsi
+
+**KB unica non significa interpretazione unica imposta.** Significa che lettura,
+apprendimento, inferenza, risposta e spiegazione possono discutere gli stessi
+oggetti e le stesse giustificazioni. Interpretazioni concorrenti sono parte
+della conoscenza; due copie indipendenti della stessa interpretazione sono
+debito. Una diversa formulazione o un indice accelerato sono leciti se non
+possono cambiare autonomamente ruoli, portata e sostegni.
+
+Il criterio strutturale di L4 è questo: **due percorsi riferiti allo stesso
+contenuto, nello stesso rispetto, devono conservare lo stesso impegno
+semantico, oppure rendere interrogabile il punto del loro disaccordo.**
+Non basta che diano la stessa stringa. Una risposta ottenuta da un'ipotesi e
+una ottenuta da una fonte indipendente possono coincidere e avere forza diversa.
+Viceversa, due risposte diverse possono essere entrambe corrette se cambia il
+tempo o il referente. L'identità del predicato da sola non decide nessuno dei
+due casi.
+
+```mermaid
+flowchart LR
+    O["Osservazioni e occorrenze IR"] --> I["Interpretazioni concorrenti"]
+    K["Regole e conoscenza del mondo"] --> I
+    C["Vincoli di ruolo, ambito e attribuzione"] --> I
+    I --> J["Giudizio di uso con sostegni"]
+    J --> U["Inferenza, risposta e spiegazione"]
+    U --> E["Nuove osservazioni e correzioni"]
+    E --> K
+    E --> C
+    E --> J
+```
+
+È una rete di dipendenze nella stessa KB, **non** una proposta di sei nuovi
+moduli o di una pipeline irreversibile. Il contesto contribuisce alla lettura,
+la lettura può chiarire il contesto, una correzione riapre entrambi.
+
+### 2.2 Distinzioni che le regole devono poter esprimere
+
+Prima di introdurre predicati nuovi, cercare il posto di queste distinzioni
+nelle rappresentazioni esistenti. La tabella è un contratto semantico, non uno
+schema di storage obbligatorio.
+
+| oggetto | identità e funzione | punto di partenza reale |
+|---|---|---|
+| **osservazione** | chi ha detto quali byte, in quale episodio; rivedere il significato non riscrive ciò che è stato detto | `input_node`, `input_node_surface`, `proposition_source_record`, `claim_source_record` |
+| **occorrenza** | un nodo dentro uno scope, non la parola in tutti i turni; lo stesso «gauge» può avere due ruoli nella stessa frase | `input_node(Scope, Id, …)`, `input_node_parent`, `input_node_range` |
+| **interpretazione** | un allineamento fra nodi, referenti, relazione e ruoli, con operatori e ambiti; candidata, non automaticamente vera | `input_binary_assertion`, `input_semantic_frame`, `reading_choice`; per i documenti `claim_reading_record` |
+| **contenuto** | ciò che viene affermato o ipotizzato, oppure la clausola con i suoi legami di variabili | `semantic_proposition`, `kb_clause/4`, `kb_clause_arg/4`, [clause-content.p0](../../kb/core/clause-content.p0) |
+| **atto e sostegno** | una fonte o una prova che autorizza un uso del contenuto; due fonti non diventano un solo atto perché il contenuto coincide | `kb_act/3`, `content_act/2`, `read_support`, `kb_derivation/4`; la provenienza per bit da sola non identifica interlocutore ed episodio |
+| **giudizio corrente** | quale lettura è utilizzabile per quale richiesta e perché; si può rivedere senza cancellare osservazioni o sostegni indipendenti | `contact_bridge_withdrawn`, `supersedes_in`, `reading_current`, `reading_is_stale` |
+
+Tre limiti devono restare visibili. `content(Pred, impronta)` identifica una
+clausola canonicalizzata, **non dimostra equivalenza semantica** fra regole.
+`kb_derivation` conserva prove riuscite, non tutte le possibilità cognitive.
+La IR attuale non rappresenta già ogni quantificatore, citazione o ambito:
+`scope_requirement/4` e `commitment_at/4` in
+[english-grammar/reading.p0](../../kb/core/english-grammar/reading.p0) sono
+richieste di interpretazione, non una licenza a ignorare un operatore irrisolto.
+
+**Punto critico verificabile:** `input_binary_assertion/4` conserva gli ID del
+soggetto, dell'operatore e dell'oggetto; `input_semantic_frame/4` ne proietta i
+valori semantici. Questa proiezione è utile, ma i consumatori L4 devono poter
+risalire all'allineamento che l'ha autorizzata. Non aggiungere a ciascun
+consumatore un nuovo parser per ricostruire ciò che il percorso aveva già.
+
+### 2.3 Il contesto è una prova di applicabilità, non un'etichetta
+
+Il §19 di [frontier-kb-natural-dialogue](frontier-kb-natural-dialogue.md)
+individua il punto preciso: in alcune regole del contatto il nodo `$I` è legato
+e poi ignorato. La conclusione torna a dipendere solo dalla parola. Aggiungere
+`Context` come argomento, per poi confrontarlo con `mechanics` o `grammar`,
+conserverebbe lo stesso errore a una scala diversa.
+
+Per L4 una lettura è applicabile quando **esiste un percorso sostenuto** che
+lega questa occorrenza ai ruoli e alle condizioni della costruzione appresa.
+Vi possono contribuire struttura locale, referenti, predicazione, attributi
+della relazione, impegni del discorso, ipotesi del parlante e conoscenza del
+mondo. Le dimensioni pertinenti dipendono dalle regole; non sono una lista
+chiusa di campi decisa da L4.
+
+Sul caso «gauge» il percorso da correggere è:
+
+1. `contact_shape/3` conserva una forma osservata. Questa autorizza una
+   **candidatura**, non l'equivalenza globale `gauge = measures`.
+2. `contact_verb_word/1` alimenta `word_is_verb_form/1`: è conoscenza lessicale
+   possibile. Non deve bastare a decidere che una specifica occorrenza chiude
+   un sintagma o occupa il ruolo del verbo.
+3. `input_token_in_phrase/2`, `nominal_position/2`, contiguità, legame con
+   soggetto e oggetto e forma della costruzione danno evidenze locali.
+   `construction_frame/3`, `answer_frame/2` e i consumatori della IR devono
+   conservare la distinzione fra «può essere» e «qui è stato letto come».
+4. Fatto, risposta e `turn_reply_qualifies` devono dipendere dall'uso scelto
+   della lettura. La sola menzione della parola non giustifica «Reading X as Y».
+
+**Non trasformare questo percorso in una congiunzione rigida di esclusioni.**
+«Non ho provato che sia un nome» non prova che sia un verbo; «il nome completo
+è noto» non esclude un verbo omonimo. Anche le guardie KB possono impoverire la
+cognizione se cancellano alternative prima di leggerle. Partire dalle evidenze
+positive di ruolo, mantenere il residuo sconosciuto, far dichiarare alla KB
+quali incompatibilità eliminano una candidata e quali lasciano ambiguità.
+
+Attenzione anche alla circolarità: se il verbo appreso decide il confine del
+sintagma, e quel confine diventa l'unica prova che il verbo appreso è corretto,
+il sistema si è confermato da solo. Distinguere osservazioni e conoscenza
+preesistente dalle conseguenze della candidata in esame. Il fatto che una
+guardia del solver tagli il ciclo non fornisce l'evidenza mancante.
+
+**Trasferire significa conservare la relazione fra ruoli, variando i membri.**
+L'episodio d'origine è una fonte; non è una condizione da copiare integralmente.
+Vincolare l'uso allo stesso soggetto impedisce di imparare; cancellare ogni
+condizione produce la contaminazione. La generalizzazione deve dichiarare
+quali corrispondenze astrae e quali distinzioni mantiene, restando rivedibile.
+
+### 2.4 La regola deve essere sia operante sia discutibile
+
+Una regola KB non è coerente solo perché si trova in un `.p0`. Deve poter essere
+usata dai lettori, interrogata per i suoi ruoli e sostegni e modificata da una
+lezione. L4 deve aprire la composizione delle **condizioni**, non soltanto
+l'aggiunta di membri a classi già fissate (mantra #19 e #26).
+
+Prima di proporre un nuovo schema, esplicitare: che cosa conclude, quali
+variabili condividono i ruoli, che cosa lo rende applicabile qui, che cosa
+costituirebbe un controesempio, e quali consumatori ne usano la conclusione.
+Queste informazioni possono essere derivabili dalla clausola e da relazioni
+di caratterizzazione; non vanno duplicate in una «scheda L4» che diverge dal
+corpo effettivamente eseguito.
+
+La caratterizzazione è cognitiva quando ha conseguenze: verso di una
+relazione, attributo richiesto dal ruolo, valore unico **a parità di tempo e
+rispetto**, portata di un quantificatore. Riusare
+[the-magic-of-apply.md, Parte VII](the-magic-of-apply.md), ma non inferire tutte
+le proprietà da un'etichetta generica: «tutto-parte» non autorizza ogni
+transitività immaginabile e «causale» non autorizza qualsiasi catena. Le leggi
+di composizione sono anch'esse conoscenza con condizioni.
+
+Il caso a/an esemplifica il principio: passare alla KB solo `u` impedisce di
+ragionare su «universal» e «umbrella». Il miglioramento è farle raggiungere la
+forma e le sue proprietà fonetiche, non aggiungere un'eccezione nel chiamante.
+Lettura, generazione e giudizio possono usare la stessa relazione da ingressi
+diversi; ciò **non** implica che qualunque procedura sia invertibile.
+
+**Una conseguenza non identifica da sola una regola.** Più regole possono
+spiegare lo stesso esempio. L'innesto è quindi una ricerca vincolata fra
+interpretazioni ammesse, non la deduzione automatica della «regola mancante».
+Il delta minimo è quello semanticamente sufficiente con la portata giustificata,
+non quello con meno caratteri. «Memorizza questa risposta» sarebbe spesso più
+corto, ma non conserva la relazione che si sta imparando.
+
+### 2.5 Distinguere capire, credere, usare e confermare
+
+Non comprimere tutto in uno stato `learned`. Servono giudizi distinti:
+
+- **lettura:** quale proposizione o modifica sta proponendo l'interlocutore;
+- **sostegno:** da quali fonti/prove dipende, con quali alternative o urti;
+- **applicabilità:** in quali occorrenze e richieste quel contenuto può operare;
+- **impegno:** asserito, riportato, ipotetico, ritirato o ancora sospeso.
+
+Una lezione capita può essere falsa; una frase vera può essere capita male.
+Un controesempio alla lettura non è automaticamente la negazione del fatto
+letto. Un fatto riportato resta interrogabile senza diventare una credenza di
+parrot0. Questa separazione ha già un precedente concreto in
+`normalization_origin/2`, `claim_proposition` e `claim_commitment` di
+[document-claims.p0](../../kb/core/document-claims.p0): estendere quel principio,
+senza presumere che il collegamento al turno sia completo.
+
+Per la sovrapposizione servono **allineamento lezione→esempio** e sostegno della
+conseguenza pertinente. La recenza è un indizio per cercare il referente del
+dialogo, non la prova di quel rapporto. Il falso «Paris, quindi so già la tua
+regola» del §0 manca precisamente di questo arco. Un esempio pertinente prova
+al massimo «so leggere questo caso»; confermare la regola intera richiede la
+portata e i contrasti che la distinguono dalle alternative.
+
+Il sistema deve poter imparare anche quando la KB corrente sbaglia: la verità
+pregressa è un sostegno da confrontare, non un veto assoluto. Una proposta
+senza evidenza sufficiente resta disponibile alla discussione senza diventare
+una premessa ordinaria. Non la si perde, né la si promuove per anzianità.
+
+### 2.6 Dinamica della rete: rivedere i giudizi, conservare le fonti
+
+La crescita non deve congelare le interpretazioni prodotte prima della
+lezione. Il modello già visibile in `claim_current_reading`,
+`claim_reading_record`, `reading_depends_on`, `reading_is_stale` distingue il
+testo conservato dalla lettura rivedibile. È il punto d'inizio più concreto
+per evitare un secondo sistema L4 di versioni e dipendenze.
+
+La revisione deve seguire i **sostegni effettivi**: se cade H e una conclusione
+C dipende solo da H, C perde quell'autorizzazione; se una prova indipendente
+continua a sostenere C, C resta utilizzabile per quella prova. La dipendenza
+da `absent(G)` o dall'insieme di un `aggregate(G)` può cambiare anche per
+**aggiunta** di conoscenza. Non basta invalidare quando si ritira un fatto.
+
+Un uso derivato da H non è una nuova conferma indipendente di H. Il contatto
+già distingue `contact_use` da `contact_episode`; i suoi controlli non sono
+ancora una prova generale di indipendenza transitiva. La provenienza deve
+attraversare anche viste e letture intermedie. Una copia materializzata non è
+una fonte nuova e una risposta generata da parrot0 non è un secondo testimone.
+
+Non si richiede una chiusura globale della KB dopo ogni turno: aggiornare il
+vicinato delle dipendenze pertinenti e dichiarare ciò che non è stato ancora
+rivalutato. Le cache (`materialized_view`, `view_depends`) accelerano la rete;
+la loro validità non può decidere il significato. La modifica della lettura,
+la sua spiegazione e i risultati che ne dipendono non devono esporre versioni
+incompatibili come se fossero contemporaneamente correnti.
+
+Il ritiro cognitivo aggiunge una ragione di non usare più quel sostegno;
+la pulizia di scratch/cache è un'altra operazione. `reading_stale_clause`
+oggi cancella alcuni fatti: è un residuo da migrare, non la semantica finale
+del ritiro L3. Anche `/save` deve conservare i legami che rendono la conoscenza
+usabile e revisionabile, non solo la conclusione positiva.
+
+### 2.7 Riflessività senza un secondo cervello
+
+L'apprendimento usa le regole di comprensione per interpretare lezioni che
+possono cambiare quelle stesse regole. Non occorre eliminare questa
+riflessività; occorre renderne esplicite dipendenze e temporalità. Una lettura
+ottenuta sotto una candidata H non può essere l'unica autorizzazione a rendere
+H vera. Il confronto deve includere la lettura corrente e «nessun cambiamento».
+
+La valutazione interna interroga gli stessi oggetti sulla KB completa, con
+ipotesi distinguibili dagli impegni effettivi. Non chiamare ricorsivamente
+`brain_respond` su frasi sintetiche come se fosse una funzione pura: può
+avanzare il dialogo, imparare, produrre contatti e cambiare i referenti.
+Prima riusare la separazione analisi/impegno già presente; se manca una
+primitiva, dichiararne il contratto senza costruire un `Brain` vuoto.
+
+**La prova di apertura della rete:** dopo una prima capacità, una nuova lezione
+deve poter cambiare una sua condizione d'uso o una relazione fra ruoli, e
+modificare lettura e spiegazione insieme. Se si può insegnare solo un altro
+membro ma non discutere la condizione che lo governa, L4 ha reso estensibile
+il vocabolario, non ancora coerente l'apprendimento della regola.
+
 ## 3. Le sette proprietà di coerenza (C1–C7)
 
 | | proprietà | si verifica con | rompe se |
 |---|---|---|---|
 | **C1** | **un solo substrato** — ciò che si impara sta dove la comprensione legge | la stessa lezione è usata da un lettore diverso da quello che l'ha scritta | esistono due depositi (R5) o la lezione finisce in un deposito che nessun lettore consulta come regola (R1) |
-| **C2** | **innesto per conseguenza** — la lezione trova il suo punto facendo girare la comprensione | il punto d'innesto è il percorso che la lezione cambia; si mostra con la traccia (`/debug trace`) e con `kb_derivation/4` | la lezione si scrive senza aver provato le sue conseguenze (R1, R8) |
-| **C3** | **sovrapposizione riconosciuta** — se la comprensione già lo fa, la lezione conferma | la risposta alla lezione dice «già lo faccio» e mostra l'esempio che lo prova | duplicazione, fatto spazzatura, silenzio (R2) |
+| **C2** | **innesto per conseguenza** — la lezione cerca il punto pertinente attraverso la comprensione | conseguenza discriminante e cambiamento del percorso; la traccia e le derivazioni riuscite aiutano la diagnosi, non sostituiscono la prova d'uso | la lezione si scrive senza aver distinto ciò che giustifica da ciò che lascia aperto (R1, R8) |
+| **C3** | **sovrapposizione riconosciuta** — se la comprensione già lo fa per la ragione pertinente, lo riconosce nella portata provata | l'esempio è collegato alla lezione e la conferma non eccede ciò che il percorso dimostra | duplicazione, conferma estranea, fatto spazzatura (R2) |
 | **C4** | **condizioni ereditate** — il membro imparato porta le condizioni del percorso in cui è entrato | la stessa parola in un altro ruolo non viene letta con la lezione | innesto per identità (R3) |
 | **C5** | **raggiungibilità** — ogni decisione della comprensione è conoscenza che una lezione può toccare | la lezione cambia la decisione, senza ricompilare | la decisione è nel C (R4) |
 | **C6** | **persistenza e confine** — l'effetto resta dopo il riavvio e non tocca ciò che la lezione non giustifica | stessa risposta dopo `/save` e riavvio; il contrasto resta com'era | l'effetto svanisce (R6) o contamina (R1, R3, R8) |
@@ -132,384 +439,466 @@ lo chiede.
   con conoscenza vera; non si inventano entità, non si amputa la KB, non si alzano
   i tempi.
 - **Non è un secondo deposito per ciò che si impara.** Ciò che si impara entra
-  dove la comprensione legge; se oggi ci sono due depositi, L4 li riduce a uno.
+  dove la comprensione legge. Proiezioni e indici restano possibili; devono
+  dipendere da una sorgente semantica identificabile, senza verità autonome.
 
-## 5. Il circuito di L4, passo per passo
+## 5. Il circuito di L4 come trasformazione della rete
 
-Riprende i sette passi di L3 §12.3 e ne aggiunge due, prima di scrivere e dopo
-avere scritto.
+**Contratto da costruire, non descrizione del comportamento attuale.** I passi
+seguenti sono dipendenze logiche; non impongono nove nuovi stadi nel dispatch.
 
-1. **Osservare la lezione come turno ordinario.** Nessun registro speciale: la
-   lezione è un'affermazione, una correzione, un esempio, una descrizione.
-2. **Ricavarne le conseguenze.** Che cosa dovrebbe cambiare se la lezione fosse
-   vera? Un'affermazione ha per conseguenza le domande che dovrebbero rispondere;
-   una correzione, la lettura che dovrebbe cambiare; un esempio, se stesso; una
-   descrizione di regola, gli esempi che la descrizione genera — e se parrot0 non
-   sa generarne, **chiede un esempio** («For example?»), in lingua ordinaria.
-3. **Far girare la comprensione sulle conseguenze, PRIMA di scrivere.** È il
-   passo che oggi manca e da cui dipendono R1, R2, R8. Tre esiti:
-   - **già prodotte** → sovrapposizione: si conferma («I already read it that way:
-     …» con l'esempio), si registra l'episodio come sostegno, niente di nuovo si
-     scrive (C3);
-   - **prodotte in parte** → il percorso si interrompe in un punto: quello è il
-     punto d'innesto, e la lezione diventa un delta su quel punto (C2);
-   - **non prodotte, nessun punto** → la lezione resta un'ipotesi inerte con la
-     sua richiesta di esempio; **niente entra fra i fatti** (R8).
-4. **Proporre il delta minimo nel punto trovato** (L3 §12.3 passo 4): un membro in
-   una classe che il percorso consulta, una condizione in più, una clausola in più
-   del predicato che si è interrotto, un passo di procedura.
-5. **Portare con il delta le condizioni del punto** (C4): il ruolo del nodo, la
-   forma di nascita, il contesto in cui la lezione è nata (`holds_in`), come in
-   [frontier §19](frontier-kb-natural-dialogue.md).
-6. **Rifare girare le conseguenze e un contrasto.** Il delta è accettato solo se
-   le conseguenze ora riescono e il contrasto (un caso vicino dove la lezione non
-   deve valere) resta com'era.
-7. **Usare, chiedere o sospendere** (L3 §12.3 passo 6).
-8. **Consolidare dove la comprensione legge** (C1, C6): lo stesso deposito, lo
-   stesso file accanto ai suoi simili, riletto dopo il riavvio.
-9. **Revisionare nel tempo** (L3 §19): uno strato che ritira, non una cancellazione.
+1. **Osservare e mantenere alternative.** La lezione arriva dalla IR ordinaria;
+   si conservano parole, nodi, referenti, fonte e quanto non è stato letto.
+   «Sta insegnando una regola» è già un'interpretazione motivabile, non un
+   registro obbligatorio aperto da una formula fissa.
+2. **Allineare la proposta a ciò che si comprende.** Individuare quale lettura,
+   ruolo o relazione l'interlocutore sta esemplificando o correggendo. Un esempio
+   può fornire le ancore; se mancano, chiedere la distinzione mancante. Non
+   richiedere il nome interno del predicato e non inventare l'intenzione.
+3. **Formare conseguenze discriminanti.** Chiedere che cosa cambierebbe fra
+   le interpretazioni candidate, inclusa quella corrente. Un esempio compatibile
+   con tutte non le distingue; una domanda estranea non è una conseguenza.
+4. **Interrogare gli stessi percorsi usati nella comprensione.** Confrontare
+   sostegni, ruoli e portata. Distinguere riuscita, lettura mancante, conoscenza
+   mancante, conflitto e ricerca incompleta. `kb_derivation/4` documenta il ramo
+   riuscito; un residuo di fallimento richiede una rappresentazione ulteriore,
+   o un residuo strutturale già esposto dalla IR. Non chiamarlo prova parziale
+   se nessuno lo produce.
+5. **Proporre una modifica pertinente.** Un membro, un allineamento di ruoli,
+   una condizione o una composizione di regole, con sostegno e portata. La
+   proposta è discutibile nella KB, ma non è per questo una premessa del mondo.
+   Se più modifiche spiegano l'esempio, tenerle concorrenti o chiedere ciò che
+   le distingue; non scegliere la prima clausola enumerata.
+6. **Valutare l'uso e i contrasti.** Lo stesso contenuto candidato deve essere
+   consumabile dal lettore e dalla domanda senza due traduzioni indipendenti.
+   L'effetto deve seguire le condizioni della proposta, non l'identità dei nomi
+   dell'esempio. La verifica non fabbrica nuovi sostegni per se stessa.
+7. **Confermare localmente, usare, chiedere o sospendere.** Si dichiara che cosa
+   è stato capito e con quale limite. La conferma di un caso non proclama
+   l'equivalenza di due regole; una contraddizione entra nel processo del §5-bis.
+8. **Consolidare i legami, non solo il risultato.** Contenuto, condizioni,
+   provenienza e giudizio d'uso devono restare raggiungibili dagli stessi
+   percorsi, anche dopo il salvataggio. Un indice derivato resta ricostruibile.
+9. **Rivedere alla luce della conoscenza nuova.** Invalidare i sostegni toccati,
+   riconsiderare le alternative pertinenti e conservare le prove indipendenti.
+   Una lezione può così far comprendere meglio anche un testo già osservato.
 
-## 5-bis. La contraddizione entra nel registro dei paradossi (F., 26 settembre 2026)
+### 5.1 Dove cercare l'innesto prima di inventarlo
+
+| ciò che manca | prima domanda cognitiva | aggancio verificabile |
+|---|---|---|
+| la forma non è riconosciuta | manca una superficie per un ruolo noto o manca la distinzione di ruolo? | `input_node_form`, `grammatical_cue`, `expression_reading` |
+| la forma è nota ma viene usata male | quale condizione dell'occorrenza è stata persa? | `input_operator_node`, `input_token_in_phrase`, `reading_choice`, `contact_shape` |
+| fatto corretto, domanda sbagliata | la relazione sa descrivere verso, ruoli, tipo e ambito dei suoi argomenti? | `input_frame_reading`, `directed_question_arg` in `grammar.p0`, Parte VII di `the-magic-of-apply.md` |
+| stessa lezione, due risultati | sono interpretazioni alternative o copie incoerenti? Quale fonte sostiene ciascuna? | `input_assertion_store`, `semantic_binding`, `reading_fact`, `proposition_source_record` |
+| una correzione non cambia la risposta | il consumatore legge ancora una copia o una lettura obsoleta? | `reading_current`, `reading_is_stale`, `view_depends`, `reading_stale_clause` |
+| l'ipotesi sembra confermarsi da sola | il nuovo sostegno discende già dall'ipotesi? | `contact_independent_here`, `contact_use`, `read_support`, `derivation_depends_on` |
+
+La domanda comune è quella del mantra #23: **quale conoscenza sulla relazione
+renderebbe coerenti entrambi i percorsi?** La risposta può essere un arco o
+una condizione mancante, senza richiedere un nuovo lettore o un nuovo motore.
+
+## 5-bis. La contraddizione come stato cognitivo della rete
+
+F., 26 settembre 2026:
 
 > *«nel caso di contraddizione il predicato di contraddizione deve essere messo
 > in campo come per i paradossi, per i loop, per i cap di soglia: anche per le
 > contraddizioni ci sarà un processo che rende quello stato, ingestibile con la
 > coerenza logica, uno stato dialettico gestibile.»*
 
-**Il precedente.** Il motore ha già un registro unico dei paradossi,
-`paradox_event(Livello, Specie, Dove, Dettaglio)` (debug.p0, §25.3 di L3). Il
-ciclo tagliato, il budget, il tetto di profondità, il cortocircuito e il ciclo di
-una vista sono **specie** di quel registro. La KB le legge
-(`inference_incomplete/2`, `inference_cycle/2` in composition.p0), e parrot0 ne
-parla invece di fermarsi. Il tetto di profondità ci è entrato il 26 settembre con
-la stessa richiesta di F.: *«quando li raggiunge fa inferenza con essi e te ne
-parla»*. La contraddizione è la specie che manca.
+**Il registro è una porta riflessiva, non la soluzione logica.** Un taglio per
+budget riguarda una ricerca; una contraddizione riguarda contenuti e ambiti;
+una lettura ambigua riguarda l'interpretazione. Possono condividere un registro
+senza avere la stessa semantica. Il solver attuale non va descritto come se
+«P e non-P» lo costringessero a derivare tutto: dispone già di negazioni
+esplicite e controlli di conflitto. Non si introduce un nuovo calcolo logico
+soltanto per registrare questa specie.
 
-**Perché è la stessa famiglia.** Un ciclo è una definizione che per chiudersi
-consulta se stessa. Un tetto è una ricerca che non finisce nel suo bilancio. Una
-contraddizione è una conclusione che, con i suoi soli mezzi, la logica non può
-tenere: sia P che non-P, o due membri di classi incompatibili, o una regola e il
-suo controesempio. In tutti i casi la logica classica ha due sole uscite
-sbagliate: fermarsi, oppure derivare qualsiasi cosa (*ex falso*). Il registro dà
-la terza uscita, la stessa per tutte: **lo stato si deposita, diventa
-conoscenza, e la conoscenza si maneggia.**
+### Distinguere prima di dichiarare un urto
 
-**Che cosa c'è già, sparso.** Oggi i pezzi esistono ma non si parlano:
-
-| dove | che cosa rileva | che cosa manca |
-|---|---|---|
-| `contradiction/1` (procedures.p0, L12) | un'entità in due classi `incompatible/2` | nessuno lo consulta durante l'apprendimento |
-| `incompatible_propositions/2`, `contradicts_across/4` (context-scope.p0) | una proposizione e la sua negazione in due contesti | vale fra contesti, non fra la lezione e la KB |
-| `episode_contradicted`, `precedent_contradicted` (episodes.p0) | un episodio smentito | nessun esito dialettico |
-| `precondition_contradicted` (situation.p0) | una precondizione smentita | idem |
-| `own_method(contradiction)` e `own_method(non_contradiction)` (own-methods.p0) | parrot0 **dice** già il metodo giusto: non sovrascrivere, tenere le due viste in contesti separati; due affermazioni vere che sembrano contraddirsi riguardano sensi, tempi o rispetti diversi, e nominare quale è tutto il lavoro | il metodo è **detto**, non **eseguito** |
-
-L4 chiede di chiudere quest'ultima distanza. Il metodo che parrot0 descrive
-diventa il processo che fa.
-
-**Il processo, dall'urto allo stato dialettico.**
-
-1. **Rilevare.** Al passo 3 del circuito (§5), quando le conseguenze della
-   lezione si fanno girare, una conseguenza può urtare ciò che la comprensione
-   sostiene. Le regole che rilevano sono le relazioni di incompatibilità già in
-   KB, più le nuove che si insegnano. Nessuna lista nel C. Il motore dà solo la
-   primitiva che tiene insieme le due derivazioni.
-2. **Registrare.** L'urto diventa un fatto nel registro:
-   `paradox_event(belief, contradiction, Dove, pair(Tesi, Antitesi))`. `Dove` è
-   il punto della rete in cui le due derivazioni si incontrano, e ciascuna parte
-   porta la sua derivazione (`kb_derivation/4`) e la sua fonte (lezione,
-   contatto, KB di base, turno). `/debug` lo mostra con la sonda 44, come le altre
-   specie.
-3. **Tenere, non scegliere in silenzio.** Nessuna delle due parti viene
-   cancellata. Nessuna vince per ordine di arrivo. Lo stato vale finché non ha un
-   esito (L3 §19: il ritiro è uno strato, mai una `retract`).
-4. **Cercare la distinzione.** Il metodo già detto da `own_method(non_contradiction)`
-   diventa una ricerca. Le due parti differiscono per **senso** (due letture della
-   stessa parola), **tempo** (`holds_in`, il qualificatore di tempo), **rispetto**
-   o **contesto** (il contesto a rete di frontier §19, `context_effective_belief`),
-   o **portata** (una regola generale e il suo caso particolare, come l'articolo
-   per lettera e «universal»)? Ogni dimensione è una relazione in KB, e se ne può
-   insegnare una nuova.
-5. **Dare un esito dichiarato**, uno fra cinque:
-   - **distinzione trovata:** le due parti convivono, ciascuna con la sua
-     condizione; è l'esito più forte, perché la condizione diventa conoscenza;
-   - **eccezione:** la parte particolare restringe la generale (è anche lo
-     schema di R4: la lezione giusta sull'articolo è un'eccezione alla regola per
-     lettera, finché l'esempio non mostra che la regola va riscritta per suono);
-   - **revisione:** una parte si ritira con uno strato (L3 §19), con la ragione e
-     la fonte;
-   - **domanda:** manca ciò che decide; parrot0 lo chiede in una sola domanda
-     che nomina le due parti («You told me X, but I hold Y because Z. Which holds
-     here, or in what sense are both true?»);
-   - **sospensione:** lo stato resta aperto e dichiarato; le risposte che ne
-     dipendono lo dicono, invece di fingere una certezza.
-6. **Parlarne e inferire con esso.** Lo stato dialettico è conoscenza come le
-   altre. Si interroga («Is there a contradiction in what you know about X?»,
-   «Why do you doubt X?»). Entra nelle risposte che toccano le due parti. E può
-   essere a sua volta premessa: «due fonti si contraddicono su X» è un fatto da
-   cui si ragiona sulla fiducia nelle fonti.
-
-**Che cosa non è.** Non è una guardia che rifiuta la lezione. Non è un halt. Non
-è un contatore nel C, e non è una lista di coppie incompatibili nel C. È la
-consapevolezza di un paradosso dentro l'inferenza, come per
-la guardia anti-isteresi: il motore offre la primitiva e il registro, la KB
-decide che cosa è incompatibile, quali distinzioni cercare, e come dirlo.
-
-**Dove tocca le rotture del §1.** R5 (due depositi, due verità) è una
-contraddizione che oggi nessuno vede: con C7 diventa uno stato dichiarato. R8 (il
-controesempio letto come negazione di un fatto vero) è una contraddizione
-creata dall'apprendimento: il registro la rende visibile prima che entri. R4 (la
-regola per lettera contro la lezione per suono) è il caso di scuola
-dell'eccezione. R3 (la contaminazione) è una contraddizione di lettura: «gauge»
-verbo contro «gauge» nome nello stesso nodo, e il pareggio vero diventa una
-domanda.
-
-## 6. Le fasi
-
-Ogni fase è tirata da fallimenti misurati del 26 settembre; nessuna scrive C che
-contenga lingua (mantra #2, #16, #17). Il C resta IR, unificazione, enumerazione,
-derivazione e le primitive che servono a eseguire.
-
-### L4-0 — Il banco di coerenza
-
-**Tirato da:** tutto il §1. **Che cosa:** lo strumento che per ogni lezione misura
-le cinque cose della definizione del §2, sulla KB viva, dentro una sessione di
-[live-teaching](live-teaching.md):
-
-| misura | come |
+| situazione | trattamento richiesto |
 |---|---|
-| **prima** | la conseguenza della lezione, chiesta prima di dirla (sovrapposizione?) |
-| **dopo** | la stessa conseguenza con una frase nuova della stessa regola |
-| **trasferimento** | un caso tenuto fuori, mai nominato nella lezione |
-| **contrasto** | un caso vicino dove la lezione NON deve cambiare niente |
-| **riavvio** | la conseguenza dopo `/save` e un processo nuovo |
+| P e negazione esplicita dello stesso P, nello stesso rispetto | conflitto fra sostegni; conservarli e dichiararne le conseguenze |
+| due classi incompatibili per la stessa entità | conflitto se l'incompatibilità e l'appartenenza sono sostenute nelle condizioni pertinenti |
+| «gauge» nome in un nodo e verbo in un altro | polisemia/ruoli diversi, nessuna contraddizione da risolvere |
+| due letture incompatibili della stessa occorrenza | concorrenza interpretativa; non promuovere entrambe a fatti per poi correggerle |
+| due rappresentazioni discordi prodotte dalla stessa lettura | incoerenza di proiezione (R5); una sola fonte non è diventata due testimoni |
+| affermazioni diverse per tempo, fonte attribuita o modalità | cercare una distinzione sostenuta; la diversità da sola non prova contraddizione né compatibilità |
+| un goal non provato, o una ricerca interrotta | mancanza/incompletezza, mai prova di non-P |
 
-Esce un **coefficiente di coerenza** per lezione e per forma, accanto a quello
-«imparate / con problemi» già usato. Il banco nasce dai tre piloti della sessione
-del 26 settembre (sessione, procedure, differenziale di grammatica), promossi da
-scratchpad a `scripts/` con le batterie vere: G1–G25, le 100 della meccanica,
-P1–P14. **Gate:** il banco riproduce i numeri del 26 settembre sullo stesso
-binario (131/100; 0/25 regole lette; 8 sovrapposizioni non riconosciute).
+### Pezzi già esistenti e collegamenti mancanti
 
-**Stato (26 settembre 2026): costruito.** `make coherence` (script
-`scripts/coherence-bench.py`, batteria `tests/coherence/grammar.json`, 22 regole
-di G1–G25). Tre scelte che la prima misura ha imposto:
+- `contradiction/1` in [procedures.p0](../../kb/core/procedures.p0) usa
+  `is_a/2` e `incompatible/2`. `note_class_conflict` usa già l'incompatibilità
+  per segnalare certi apprendimenti. Il difetto è la mancata continuità fra
+  rilevazione, identità, sostegni e dialogo, non l'assenza di ogni rilevatore.
+- [context-scope.p0](../../kb/core/context-scope.p0) offre
+  `context_effective_belief`, `incompatible_propositions` e `contradicts_across`.
+  Quest'ultimo dipende da `proposition_signature/4`: nell'audit la sua
+  alimentazione esplicita compare nel test `context_scope.p0t`, non è stato
+  trovato un produttore generale in `src/` o `kb/`. Non assumere che ogni fatto
+  appreso entri già in questo circuito. La firma deve distinguere anche gli
+  argomenti e gli operatori pertinenti: stesso soggetto e stesso verbo non
+  rendono «misura lunghezza» opposto a «non misura temperatura».
+- `episode_contradicted`, `precedent_contradicted`, `precondition_contradicted`
+  sono possibili consumatori/produttori di evidenza; non diventano equivalenti
+  solo perché contengono «contradicted» nel nome.
+- `own_method(contradiction)` e `own_method(non_contradiction)` descrivono una
+  condotta. Non sono già il procedimento eseguibile che ricerca una distinzione.
 
-- **Il contrasto si chiede subito prima e subito dopo la lezione**, e si confronta
-  la prima frase: fra le due domande c'è solo la lezione. Chiesto dopo gli
-  esempi, attribuiva alla lezione ciò che un esempio aveva appena detto
-  («What did Palmer invent?»).
-- **Le regole di giudizio hanno il caso giusto e lo sbagliato a ogni stadio**:
-  parrot0 risponde «No.» a qualsiasi «Is "…" correct?», e un «No.» a tutto
-  sembrava una regola operante (G5, G7, G24).
-- **Ciò che la lezione scrive si legge dal disco della sandbox**: `/save` conta
-  tutte le clausole della sessione, non le nuove (`kb_save_routed`). Il banco
-  confronta i file toccati e separa i fatti del mondo dal registro di servizio
-  (`kb/machinery/`, l'indice del save-map).
+### Il processo da raggiungere
 
-**La linea di base (binario di `b93b15c7`):**
+1. Confrontare le proposizioni candidate con i sostegni pertinenti, preservando
+   ruoli, polarità, ambito e attribuzione. Non fare un prodotto cartesiano di
+   tutta la KB a ogni lezione.
+2. Collegare l'urto alle parti e alle prove effettive. La forma
+   `paradox_event(belief, contradiction, Dove, pair(Tesi, Antitesi))` è
+   **proposta**, non un'API completa: occorrono identità delle parti, legame
+   all'episodio, stato corrente e storia. Riutilizzare la rappresentazione dei
+   contenuti; non serializzare prove intere in un argomento né salvare gli ID
+   temporanei di `kb_derivation` come se fossero durevoli.
+3. Cercare una distinzione motivata nella rete: tempo, senso, ruolo, condizione,
+   portata o altra dimensione insegnata. **Mai inventare un contesto per
+   salvare entrambe le tesi.** «Bonn» contro «Berlin» non autorizza da solo a
+   inventare l'intervallo storico mancante; un'eccezione non nasce soltanto
+   perché un esempio è più recente.
+4. Derivare e dire l'esito: **distinzione**, **eccezione condizionata**,
+   **revisione motivata**, **domanda discriminante**, **sospensione**. La
+   domanda deve chiedere la distinzione che manca, senza esigere nomi interni.
+5. Far dipendere gli usi successivi dall'esito: una certezza non può restare
+   identica se il suo unico sostegno è sospeso. Un contenuto con un'altra prova
+   valida resta disponibile, con quella giustificazione. Il registro deve
+   restare interrogabile dopo la fine del turno e, per il sapere consolidato,
+   dopo il riavvio.
 
-| esito | regole |
-|---|---|
-| sovrapposizione non riconosciuta | G2, G3, G4, G19, G21, G22, G23 (7) |
-| fatto spazzatura scritto | G3 `did(put, does)`, G7 `context_fact(present, add, simple, …)`, G13 `make(short_adjectives, comparative)`, G23 `sentence(english, puts_the_subject_first)` |
-| non innestata, niente scritto | le altre 14 |
-| **coerenti** | **0/22** |
+**Rischio meccanico reale:** `kb_assert` rimuove il negativo della stessa
+provenienza; `kb_assert_neg` rimuove il positivo della stessa provenienza;
+`kb_assert_neg_only` è additivo. Registrare il conflitto *dopo* una scrittura
+che ne ha cancellato una parte è troppo tardi. Il contratto cognitivo distingue
+negazione, correzione e ritiro; l'adattatore deve preservare questa distinzione,
+senza cambiare indiscriminatamente tutti i chiamanti. Pubblicare gli eventi
+fuori dalla risoluzione attiva, come fa `kb_note_inference`.
 
-Il giro intero dura ~190 s (≈ 0,85 s a turno, ~220 turni): è una misura, non il
-ciclo di lavoro. Il ciclo usa `make coherence ONLY=…`.
+## 6. Crescita per circuiti cognitivi
 
-### L4-1 — Riconoscere la sovrapposizione (C3)
+Le sigle originali L4-0…L4-8 restano per i riferimenti, ma non sono una sequenza
+obbligatoria né otto nuovi sottosistemi. **Prima chiudere il caso di continuità
+semantica, poi estendere la stessa distinzione.**
 
-**Tirato da:** R2 (G2, G3, G4, G19, G21, G22, G23), R1 (i fatti spazzatura che
-quelle lezioni producono). **Che cosa:** il passo 3 del circuito per le lezioni
-che descrivono qualcosa che la comprensione fa già. La descrizione genera un
-esempio (o lo chiede); l'esempio si fa leggere; se la lettura riesce, la risposta
-è una conferma con l'esempio e l'episodio diventa un sostegno. **Gate:** sulle
-otto regole, la lezione risponde confermando e mostrando l'esempio; nessun fatto
-nuovo nella KB (`kb_turn_act` vuoto per i predicati del mondo); nessuna risposta
-estranea contaminata («What needs grease?» non risponde più «short adjectives»).
+### L4-3 + L4-4a — Primo circuito: la lettura dell'occorrenza resta la stessa
 
-**Stato (26 settembre 2026, commit intermedio): primo passo in main.**
-`kb/core/language-lessons.p0`: una frase che parla della lingua (due termini di
-`language_term/2`, o uno forte in un ordine; non una domanda, non una richiesta)
-non si impara come fatto. Il piano di turno la prende come le premesse di un
-problema, parrot0 dice che non ne tiene niente e chiede un esempio. La domanda
-dell'esempio, entro tre turni, riceve «I already read it that way» se ha avuto
-risposta, «I can't read it yet» se ha preso un muro. Due correzioni del motore,
-che riportano soltanto che cosa è successo: `idk()` registra
-`turn_outcome(informed_decline)` invece del «answered» di default, e il lettore
-delle menzioni non dice più «No.» su una classe di cui non sa niente
-(«Is "these gears" correct?» → «I don't know whether …»).
+**Obiettivo:** conservare le condizioni del contatto dalla candidatura al
+fatto, alla domanda e alla spiegazione. È il primo incremento raccomandato.
 
-| | prima | dopo |
+Partire da `contact_shape` → `contact_verb_word` / `construction_frame` /
+`answer_frame` → nodi e ruoli di `input-structure.p0` → `read_support`.
+Individuare i consumatori che chiedono una proprietà della parola quando
+serve un giudizio sull'occorrenza; non rendere contestuali alla cieca tutte le
+classi lessicali. Conservare le osservazioni e collegare la lettura scelta
+alla proiezione semantica. L4-4a non cancella `semantic_binding`: ne chiarisce
+la sorgente e impedisce che il contenuto diverga da altre proiezioni.
+
+**Chiusura del circuito:** la lezione su «gauges» permette l'uso verbale in una
+frase nuova; «gauge blocks», «bore gauge» e «lead screw» mantengono i ruoli
+nominali; due occorrenze della stessa forma nello stesso turno possono avere
+ruoli diversi. Domanda e spiegazione seguono la lettura usata. Se manca il
+fatto necessario a una domanda, si dichiara quel gap: riconoscere il verbo non
+prova la verità della risposta. Un'ambiguità pertinente resta discutibile.
+
+**Crescita successiva:** insegnare una condizione diversa e applicare la stessa
+rete, senza aggiungere un ramo per quella parola o un'altra famiglia privata
+di letture. La correzione deve poter cambiare l'interpretazione di un testo
+conservato, non solo del prossimo prompt.
+
+### L4-1 — La lezione e l'esempio diventano oggetti in relazione
+
+`language-lessons.p0` è il punto di ingresso, non la soluzione cognitiva:
+conserva attualmente una finestra temporale. Collegare la proposta letta
+all'esempio attraverso ruoli, referenti, costruzione o distinzione discussa;
+riusare la storia IR e i meccanismi di riferimento, non un riconoscitore di
+frasi «di esempio» per ogni lezione.
+
+**Primo incremento:** distinguere esempio pertinente, domanda estranea,
+correzione dell'esempio e lezione concorrente. La domanda su Parigi del §0
+non deve confermare la regola né consumarne arbitrariamente la richiesta.
+Un successo sul caso pertinente può essere descritto come successo locale.
+**Secondo incremento:** riconoscere la sovrapposizione della regola nella
+portata sostenuta, senza duplicare fatti e senza assumere che un'etichetta
+`answered` significhi comprensione. La lezione errata ma compatibile con un
+solo esempio deve restare distinguibile da quella giusta.
+
+### L4-2 + L4-5 — Rendere modificabile una decisione, poi una forma di regola
+
+La prima consegna non è «imparare qualunque regola descritta». Scegliere una
+relazione già usata da due percorsi e renderne raggiungibile la distinzione
+che manca. L'articolo è un caso piccolo: `p0_indef_article` deve consentire
+alla KB di ragionare sulla forma, non solo sulla lettera; la proprietà appresa
+sul suono deve governare la resa, conservando il contrasto con «umbrella».
+Una singola lezione su «universal» prova un membro, **non** insegna da sola
+l'intera fonologia di «unique», «useful» o di parole mai osservate.
+
+Poi cercare una **condizione/composizione nuova** che un esempio e una
+correzione possano rendere operante attraverso i ruoli condivisi. Prima
+verificare se manca il riconoscimento della domanda, la trasformazione o il
+collegamento fra i due: `plural_suffix/2`, `count_plural/2` e `verb_form/3`
+non sono lo stesso compito. Far riuscire «What is the plural…?» può aprire
+l'accesso a una regola preesistente senza averne insegnata una nuova.
+
+Se manca un residuo interrogabile, esporre quello specifico nella IR o nella
+ricerca. Il primo ramo SLD fallito non identifica necessariamente la causa:
+possono esistere altre prove, una lettura concorrente o un limite di ricerca.
+Un inventore generale di clausole non è il requisito del primo incremento.
+
+**Chiusura estesa:** una nuova condizione insegnata cambia più di un membro,
+si compone con conoscenza preesistente, si può discutere e ritirare. Solo dopo
+allargare a una famiglia morfologica, una sintattica e una di accordo. Queste
+sono tre estensioni da dimostrare, non un unico salto architetturale promesso.
+
+### L4-4b — La rete conserva capacità di revisione dopo il salvataggio
+
+Separare due problemi: coerenza delle proiezioni (L4-4a) e collocazione dei
+contenuti salvati. Per il primo, riusare la distinzione osservazione/lettura e
+le dipendenze di `document-claims.p0`; per il secondo leggere
+`kb_save_routed` e la politica delle case. Nessuna migrazione massiva dei file
+è giustificata finché non si conoscono sorgente e consumatori.
+
+**Chiusura:** una lezione resta usabile dopo un processo nuovo, e resta anche
+correggibile: condizioni, fonti, ritiri e sostegni alternativi non spariscono.
+Sul caso «print_r» due percorsi non possono tornare uno a `readable_view` e
+l'altro a `readable` senza rendere esplicita una lettura alternativa. La materia
+del file organizza la conoscenza; non determina in quali contesti essa è vera.
+
+### L4-6 — Le procedure sono un caso della stessa composizione di ruoli
+
+Riusare `proc_run`, `proc_from`, `step_term`, `run_step` in `procedures.p0`.
+Prima distinguere un passo mai imparato da uno non eseguibile: l'operatore
+`apply` esiste. Non ricostruire l'interprete in un modulo L4.
+
+La questione cognitiva è quali ingressi, uscite, condizioni e unità rendono
+componibili due procedure, e come una domanda naturale raggiunge quei ruoli.
+L'inversione è una relazione soggetta a condizioni: cominciare dalle
+trasformazioni numeriche con inverso definito e dominio dichiarato; moltiplicare
+per zero, perdere caratteri o eseguire un ciclo non garantisce un inverso
+unico. `is/2` calcola espressioni risolte, non è un risolutore relazionale
+universale. Distinguere inverso numerico e relazione inversa ottenuta scambiando
+due argomenti.
+
+**Chiusura incrementale:** composizione di due procedure insegnate; poi inverso
+ammissibile con controllo in avanti; poi domanda naturale con ruoli e unità.
+Una domanda ambigua o una procedura non invertibile resta tale. Le 71 verifiche
+storiche fallite sono un repertorio diagnostico, non un'unica capacità omogenea.
+
+### L4-7 — L'impegno semantico segue la comprensione, dall'inizio
+
+È un vincolo trasversale ai circuiti, non una protezione da aggiungere per
+ultima. La lezione non letta conserva osservazione e ipotesi, ma non produce
+una proposizione ordinaria per default. Anche una lezione capita può restare
+riportata o ipotetica. Partire da `input_frame_commit` e `normalization_origin`,
+verificando anche gli altri ingressi che scrivono conoscenza.
+
+**Chiusura:** una correzione della lettura rivede la lettura, una negazione
+nega il contenuto pertinente, una descrizione di regola non diventa un fatto
+sul mondo. Rifiutare tutte le lezioni eliminerebbe la spazzatura ma anche la
+crescita: non è un successo L4.
+
+### L4-8 — Dal conflitto locale alla revisione motivata
+
+Il primo incremento collega un conflitto ground già rilevabile al contenuto,
+alle fonti e al registro (§5-bis). Una domanda sul contenuto mostra la tensione;
+un contenuto non coinvolto mantiene le proprie prove. La nuova incompatibilità
+deve essere insegnabile, non cablata nel rilevatore.
+
+Il secondo incremento cerca **una** distinzione già rappresentabile, per
+esempio attribuzione o tempo, e fa dipendere gli usi dal suo esito. Il terzo
+estende alla regola e al controesempio. Non anticipare un sistema universale di
+fiducia nelle fonti: quando non c'è evidenza che separi le alternative, la
+sospensione dichiarata è corretta. La ripetizione non crea indipendenza.
+
+### L4-0 — Il banco è un osservatorio della rete
+
+**Esistente, parziale:** commit `1eb86011`; il contatore è passato storicamente
+da 0/22 a 3/22 con `6a423a89`, poi `af2076c4` ha escluso lo smalltalk dalla
+conferma. Questi numeri non provano ancora gli invarianti dei §§2–5.
+
+Prima di usarli come gate, correggere i limiti di misura:
+
+- `/restore` non è un nuovo processo; oggi il ramo di sovrapposizione non
+  richiede nemmeno il successo del tenuto-fuori. Un controllo omesso è **non
+  misurato**, non vero perché `all([])` restituisce vero.
+- Lezioni, esempi e sonde possono imparare e influenzarsi. Separare l'effetto
+  della lezione dall'effetto delle premesse degli esempi; mantenere anche la
+  prova cumulativa, perché la contaminazione fra lezioni è parte del problema.
+- Il contrasto è oggi eseguito **dopo** `example`, benché il commento prometta
+  di metterlo subito dopo la sola lezione. Registrare entrambe le differenze,
+  senza attribuire alla regola ciò che ha appena insegnato l'esempio.
+- Non escludere dall'audit semantico `semantic_binding` e `semantic_proposition`
+  perché sono classificati `service`. `KbWatch.added` osserva aggiunte sul
+  disco, non tutte le rimozioni e revisioni, né tutto lo stato in memoria.
+- Una sottostringa `already`, una risposta non vuota o un «No» costante non
+  provano l'allineamento. G9 contiene nomi artificiali: può sondare una
+  meccanica, non certificare collegamenti fra conoscenze reali. Non modificare
+  il caso originale senza versionarlo e motivare quale confondente si rimuove.
+
+Mantenere i transcript originali della grammatica, della meccanica e del PHP
+come repertorio dei fallimenti. Le 100 voci meccaniche e P1–P14 richiedono ancora
+sonde riproducibili con i loro prerequisiti; G6/G8/G16 restano fuori dai 22 casi
+correnti. Il banco non deve indurre il progetto a costruire tre insegnanti
+specializzati: sono tre osservazioni della stessa capacità.
+
+## 7. Quando si può chiamare coerente l'incremento
+
+L4 non si chiude dicendo che ogni lezione immaginabile è appresa. Per un
+incremento dichiarare la classe e i limiti; dimostrare insieme:
+
+1. **Continuità:** la lezione cambia la conoscenza che lettura e risposta
+   consultano, con ruoli e condizioni preservati; la spiegazione usa i sostegni
+   del risultato effettivo.
+2. **Contesto dinamico:** una stessa forma può avere usi diversi; una nuova
+   condizione insegnata modifica l'applicabilità senza una modifica C.
+3. **Trasferimento giustificato:** un caso nuovo usa la relazione appresa;
+   un caso vicino fuori portata conserva la propria lettura.
+4. **Revisione:** ritiro o correzione cambia gli usi dipendenti, conserva le
+   fonti indipendenti e permette di rileggere un'osservazione precedente.
+5. **Riflessività:** parrot0 può discutere ciò che ha letto, il motivo della
+   scelta e il residuo aperto; incertezza e conflitto non diventano certezza.
+6. **Persistenza semantica:** un processo nuovo conserva non solo l'esito, ma
+   i legami necessari a usarlo e rivederlo.
+
+I risultati vanno distinti: **sovrapposizione locale riconosciuta**, **nuovo
+membro**, **nuova condizione**, **nuova composizione di regola**, **ipotesi aperta**,
+**errore di lettura**, **ricerca incompleta**. Una domanda onesta è un progresso
+rispetto a un fatto falso, ma non si conta come regola imparata. Il denominatore
+non deve escludere le lezioni fallite: riportare copertura ed esiti sul repertorio
+fissato, e separatamente le prove di crescita. Una media unica può nascondere
+che si impara più vocabolario senza poter cambiare una sola condizione.
+
+La prova meccanica assert/retract aiuta a localizzare il difetto; la prova
+cognitiva richiede lezione naturale, uso e correzione senza conoscere lo schema.
+I casi artificiali non dimostrano connessioni nella KB reale. Quando una nuova
+porta di insegnamento diventa operativa, documentarla in
+[LEARN_PROTOCOL.md](../../LEARN_PROTOCOL.md), distinguendola dalle proposte.
+
+## 8. False piste architetturali da evitare
+
+| scorciatoia plausibile | perché impoverisce L4 | direzione corretta |
 |---|---|---|
-| coerenti | 0/22 | 3/22 (G2, G3, G4) |
-| fatti spazzatura scritti dalle regole | 4 | 0 |
+| aggiungere `Context` a ogni predicato | un'etichetta in più non ricostruisce il percorso che autorizza l'uso | condizioni derivabili da ruoli, sostegni e impegni pertinenti |
+| un predicato universale enorme per ogni lettura | rende opache le distinzioni e costringe tutti i consumatori a smontarlo | oggetti collegati, viste specifiche sullo stesso contenuto e sulla stessa interpretazione |
+| un supervisore che approva le lezioni | lascia separati apprendimento e comprensione | modificare i punti comuni che i consumatori percorrono |
+| trasferire nel `.p0` una lista di divieti | rende configurabile il comportamento, non giustifica la scelta | evidenze positive, alternative e condizioni discutibili |
+| privilegiare sempre la regola più specifica | una regola più specifica può essere falsa, priva di sostegno o riferita a un'altra lettura | specificità pertinente più prova di applicabilità e politica KB |
+| usare `naf(P)` come negazione di P | confonde ignoranza, ambito e falsità; con variabili libere non lega | distinguere assenza finita, negativo esplicito, residuo e ricerca incompleta |
+| cancellare tutti i derivati di un'ipotesi ritirata | distrugge conclusioni con altre prove | ritirare il sostegno, rivalutare le derivazioni alternative |
+| conservare soltanto il fatto finale | perde il modo di rivederlo e di spiegarne la portata | persistere le relazioni semantiche e le fonti necessarie |
+| contare ogni uso come conferma | produce auto-rinforzo senza evidenza nuova | genealogia dei sostegni e distinzione uso/conferma |
+| risolvere tutti i conflitti separando contesti | rende la KB artificialmente coerente e immunizza l'errore | richiedere evidenza della distinzione; altrimenti dichiarare il conflitto |
 
-**Chiuso dopo il commit intermedio:** l'esempio risposto dallo smalltalk («That sounds nice…», G9) valeva
-come «already»; ora il sospetto di `gap-kinds.p0` (smalltalk in `template_family`) lo esclude. **Aperto:**
-G18, G22 non si riconoscono (sotto le nove
-parole), G10/G12 li prende un altro lettore prima (G12: «a snippet of code»),
-G14/G17/G20 hanno un termine o nessuno. G19/G21/G23: la regola regge, ma gli
-esempi usano verbi che parrot0 non conosce (*standardised*, *drilled*,
-*grips*): le sonde vanno riscritte con parole note.
+Anche il criterio del C che si accorcia va letto semanticamente: una migrazione
+di decisione deve rimuovere la decisione compilata, non spostarla in un altro
+file. Le primitive nuove vanno motivate separatamente; il numero di righe da
+solo non dimostra una crescita cognitiva (mantra #18).
 
-### L4-2 — Il punto d'innesto per conseguenza (C2)
+## 9. Questioni aperte che richiedono una scelta esplicita
 
-**Tirato da:** R1, G10–G14, G24–G25 (regole che mancano), R7 (procedure). **Che
-cosa:** quando la conseguenza fallisce, trovare **dove** il percorso si
-interrompe: la derivazione parziale (`kb_derivation/4`), la lettura della IR, il
-passo di procedura che non si applica. Il delta minimo si propone lì. Per le
-regole descritte senza esempio, chiedere l'esempio; con l'esempio, il punto
-d'innesto è il primo passo della lettura che non lo regge (un plurale in -ies che
-nessuna regola genera, un comparativo senza clausola). **Gate:** almeno tre regole
-grammaticali mancanti (una morfologica, una sintattica, una di accordo) diventano
-operative dopo una lezione in lingua ordinaria con un esempio, trasferiscono su un
-caso tenuto fuori e lasciano intatto il contrasto; nessuna riga di C che nomini
-una parola o una regola.
+1. **Come rappresentare il legame fra interpretazione e clausola senza
+   duplicare entrambe?** Partire da identità di contenuto, ruoli IR e versioni
+   delle letture documentali; verificare sul caso R5 quali archi mancano.
+2. **Come rendere il contesto compositivo senza auto-conferma?** Le evidenze
+   sulla candidata devono poter dipendere da ipotesi, ma l'autorizzazione a
+   consolidarla non può poggiare soltanto sulle sue conseguenze. È un problema
+   di ammissibilità dei sostegni, non soltanto di ordinamento delle regole.
+3. **Quali trasformazioni di regole sono già esprimibili e insegnabili?**
+   Enumerare quelle richieste dal primo caso, riusando clausole e operatori;
+   mantenere esplicito il limite oltre il quale si chiede invece di inventare.
+4. **Come propaga la revisione attraverso i lettori storici?** Un indice di
+   dipendenze perfetto nel nuovo percorso non basta se un altro legge ancora
+   una copia non condizionata. La migrazione riguarda i consumatori reali.
+5. **Quale politica autorizza una distinzione o un'eccezione?** Deve essere
+   conoscenza rivedibile con ragioni e portata. Non presumere affidabilità
+   assoluta della base, del maestro, della recenza o della maggioranza.
 
-### L4-3 — Le condizioni viaggiano con il membro (C4)
+Non occorre risolverle tutte prima del primo circuito. Occorre non nasconderle
+in un default C o in una regola KB che sceglie silenziosamente.
 
-**Tirato da:** R3. **Che cosa:** la lettura per occorrenza proposta in
-[frontier §19](frontier-kb-natural-dialogue.md): un'ipotesi (del contatto, di una
-lezione di classe) si applica a un nodo solo se il percorso di ruolo che l'ha fatta
-nascere regge per quel nodo; altrimenti le letture restano concorrenti, con il
-candidato «nessun cambiamento». **Gate:** quello del §19 — «gauges» verbo dove ha
-la forma di nascita, nome in «gauge blocks», «bore gauge», «lead screw»; un
-pareggio vero diventa una domanda.
+## 10. Riferimenti e riproduzione minima
 
-### L4-4 — Un solo substrato, persistente (C1, C6)
+Per la struttura cognitiva, leggere insieme:
 
-**Tirato da:** R5, R6. **Che cosa:** (a) il deposito semantico parallelo
-(`semantic_binding`, `semantic_proposition`) non può divergere dai fatti: è una
-vista dei fatti o ne è la sorgente, non un secondo archivio; (b) `/save` mette ciò
-che si impara accanto ai suoi simili per materia (la regola di F., «per
-similarità, non per provenienza»), e ciò che è stato salvato si raggiunge dopo il
-riavvio per gli stessi percorsi. **Gate:** una batteria di lezioni della sessione
-meccanica risponde uguale prima e dopo il riavvio; nessun fatto finisce in un
-file di un'altra materia.
+- [L3 §12 e §19](l3-upgrade.md): conseguenze, sostegni indipendenti, ritiro;
+- [frontier §19](frontier-kb-natural-dialogue.md): il nodo ignorato e il contesto
+  come rete, non valore di una variabile;
+- [the-magic-of-apply, Parti V e VII](the-magic-of-apply.md): natura delle
+  relazioni, contratti, residui e revisione;
+- [document-claims.p0](../../kb/core/document-claims.p0),
+  [reading-choices.p0](../../kb/core/reading-choices.p0),
+  [clause-content.p0](../../kb/core/clause-content.p0),
+  [derivation.p0](../../kb/core/derivation.p0): i mattoni già esistenti e i loro
+  limiti, da collegare prima di duplicare;
+- [train-the-learning-process.md](train-the-learning-process.md), sezione
+  PRIORITARIO, e i transcript lì collegati: repertorio storico, non specifica
+  infallibile del comportamento corrente.
 
-### L4-5 — Le decisioni della comprensione diventano raggiungibili (C5)
+Ricerca iniziale, dal root del repository:
 
-**Tirato da:** R4. **Che cosa:** l'inventario delle decisioni della comprensione
-ancora compilate che una lezione ordinaria dovrebbe poter cambiare, ordinate per
-danno misurato: l'articolo per lettera (G9), le guardie di confine del sintagma e
-del soggetto, il cancello dei concetti, il riconoscimento delle forme di lezione.
-Ognuna passa in KB solo quando una lezione la reclama (mantra #18: il C deve
-accorciarsi). **Gate:** «universal starts with a consonant sound», detto con un
-esempio, cambia «an universal» in «a universal» e non tocca «an umbrella».
+```sh
+rg -n 'contact_verb_word|contact_shape|turn_reply_qualifies|read_support' kb/core/contact.p0
+rg -n 'input_binary_assertion|input_semantic_frame|input_assertion_store|input_frame_reading' kb/core/input-structure.p0
+rg -n 'claim_current_reading|reading_depends_on|reading_is_stale|normalization_origin' kb/core/document-claims.p0
+rg -n 'derivation_door|kb_note_inference|kb_save_routed' src/kb.c
+```
 
-### L4-6 — La procedura imparata è attraversabile (C1+C2 sulle procedure)
+Il controesempio del §0 richiede soltanto i due turni riportati, in una sessione
+`agi` completa. Per usare il banco senza sovrascrivere `logs/coherence-grammar.jsonl`
+né riutilizzare la sua sandbox predefinita, questa ricetta esegue lo strumento
+esistente su una **copia integrale**; non crea un secondo cervello interno al
+ragionamento. Gli artefatti restano nella directory temporanea stampata.
 
-**Tirato da:** R7 (33 verifiche indirette e 38 inverse fallite nella sessione
-meccanica). **Che cosa:** una procedura imparata entra nelle vie da cui la
-comprensione attraversa le procedure: (a) dentro un'altra procedura (il passo
-`apply` che oggi si salta); (b) all'inverso, quando l'inverso dei suoi passi è
-conoscenza («divide is the inverse of multiply» come fatto, da cui la procedura
-inversa si deriva, non si scrive); (c) in lingua («How many millimeters are 3
-inches?» raggiunge la procedura o la misura detta). **Gate:** sulle procedure
-della sessione meccanica, le tre verifiche passano senza procedure nuove scritte a
-mano.
+```sh
+make
+python3 -B - <<'PY'
+import importlib.util, os, pathlib, shutil, sys, tempfile
+repo = pathlib.Path.cwd()
+root = pathlib.Path(tempfile.mkdtemp(prefix="parrot0-l4-review-"))
+shutil.copytree(repo / "kb", root / "kb")
+(root / "bin").symlink_to(repo / "bin", target_is_directory=True)
+if (repo / "world.p0").exists():
+    shutil.copy2(repo / "world.p0", root / "world.p0")
+for key in list(os.environ):
+    if key.startswith("PARROT0_"):
+        del os.environ[key]
+os.environ.update(PARROT0_LANG="en", PARROT0_SESSION="")
+spec = importlib.util.spec_from_file_location("coherence", repo / "scripts/coherence-bench.py")
+bench = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bench)
+bench.REPO = str(root)
+print("Artefatti:", root, flush=True)
+sys.argv = ["coherence-bench.py", str(repo / "tests/coherence/grammar.json"),
+            "--only", "G2,G9", "--sandbox", str(root / "sandbox")]
+bench.main()
+parrot = bench.Parrot(str(root), 10)
+try:
+    errors = [line for line in parrot.boot[0].splitlines() if "PARSE ERROR" in line]
+    print("Errori parsing:", errors)
+    for line in ["To make a question with can, put can before the subject.",
+                 "What is the capital of France?"]:
+        print(">", line, "\n<", parrot.say(line)[0], flush=True)
+finally:
+    parrot.close()
+PY
+```
 
-### L4-7 — Ciò che non si è capito non si innesta (C2, C6)
+È una sonda diagnostica del difetto, non un nuovo gate. Il giudice mantiene i
+limiti di L4-0. Non copiare i suoi verdi in un resoconto di capacità senza
+controllare cosa provano. Per il futuro incremento usare anche ritrattazione,
+rilettura e un vero nuovo processo; non aumentare i budget per mascherare la
+crescita del costo.
 
-**Tirato da:** R8, R1. **Che cosa:** il passo 3 del circuito come cancello: una
-lezione le cui conseguenze non si possono formare non diventa un fatto, resta
-un'ipotesi con una domanda. Vale per le lezioni in forma di regola, per i
-controesempi letti come negazioni di un fatto vero, per le frasi dirottate da un
-altro lettore. **Gate:** sulle 25 lezioni di grammatica e sulle 100 della
-meccanica, nessun fatto spazzatura entra; il numero di «lezioni non lette» si
-trasforma in domande di esempio, non in fatti.
-
-### L4-8 — La contraddizione come specie del registro (C7)
-
-**Tirato da:** la richiesta di F. del 26 settembre, e da R3, R4, R5, R8 letti
-come contraddizioni. **Che cosa:** il processo del §5-bis. Il motore deposita
-`paradox_event(belief, contradiction, …)` quando due derivazioni incompatibili si
-incontrano, e aggiunge solo quella primitiva. La KB rileva l'incompatibilità con
-le relazioni che ha già, cerca la distinzione e sceglie l'esito, poi dice lo
-stato. I pezzi sparsi (`contradiction/1`, `contradicts_across/4`,
-`episode_contradicted`, `precondition_contradicted`) diventano facce dello
-stesso registro, come è successo al ciclo, al budget e al tetto. Non si
-cancellano: restano come strutture secondarie finché la selezione non decide.
-**Gate:**
-- una lezione che urta un fatto di base («A whale is a fish») produce lo stato
-  con le due parti e la loro fonte, non sovrascrive e non tace;
-- una lezione che si distingue per tempo o per senso («The capital of Germany
-  was Bonn») trova la distinzione, e le due parti rispondono ciascuna nella sua
-  condizione;
-- «an universal» contro la lezione per suono dà un'eccezione dichiarata, e poi
-  la revisione quando l'esempio lo mostra;
-- la contraddizione si chiede in lingua e si vede con `/debug`;
-- nessuna parola e nessuna coppia incompatibile nel C.
-
-## 7. Il criterio d'esito
-
-L4 è chiuso quando, sul banco L4-0 e sulle tre batterie del 26 settembre:
-
-1. **ogni lezione ha un esito dichiarato** fra conferma, innesto, ipotesi aperta
-   o rifiuto motivato — nessuna diventa un fatto che la comprensione non usa;
-2. **il coefficiente di coerenza** (lezioni che passano prima-dopo-trasferimento-
-   contrasto-riavvio sul totale delle lezioni che cambiano qualcosa) è riportato
-   per forma, e cresce di giro in giro;
-3. **le sovrapposizioni sono riconosciute**: le regole che parrot0 già applica
-   vengono confermate, non duplicate;
-4. **nessun membro imparato si applica fuori dal suo percorso** (contaminazione
-   zero sulle batterie di contrasto);
-5. **ogni contraddizione incontrata ha uno stato dichiarato** nel registro dei
-   paradossi e un esito fra i cinque del §5-bis — nessuna sovrascrittura
-   silenziosa, nessuna verità doppia invisibile;
-6. **il C si è accorciato** per ogni decisione della comprensione resa
-   raggiungibile (mantra #18).
-
-## 8. Rischi
-
-- **Il passo falso di L3, un piano più su.** Costruire L4 come un catalogo di
-  forme che «leggono regole descritte». Antidoto: la descrizione conta solo per
-  le conseguenze che genera; il punto d'innesto lo trova la comprensione.
-- **Costo.** Far girare la comprensione sulle conseguenze prima di scrivere
-  moltiplica i turni interni. Il bilancio di tempo resta quello dei mantra (mai
-  alzare un budget): le conseguenze si provano con le stesse viste e gli stessi
-  percorsi del turno, e il costo si misura con `/debug on` (tempo proprio,
-  chiamate, visite).
-- **Falsa conferma.** Una conseguenza già prodotta per una ragione diversa da
-  quella della lezione sembra una sovrapposizione. Antidoto: la conferma porta la
-  derivazione, e un contrasto che la lezione distinguerebbe.
-- **Chiedere troppo.** Una domanda di esempio per ogni lezione è un interlocutore
-  pesante. Antidoto: si chiede solo quando le conseguenze non si possono formare,
-  e la domanda è una sola.
-
-## 9. Domande aperte
-
-1. Come si ricava una conseguenza da una **descrizione** senza un lettore di
-   descrizioni? Ipotesi: dagli esempi che la descrizione stessa contiene o che la
-   sessione ha appena mostrato, e altrimenti chiedendone uno.
-2. Il punto d'innesto è sempre unico? Una lezione può toccare due percorsi (il
-   plurale in lettura e in generazione): va innestata in entrambi o in una
-   sorgente comune da cui entrambi derivano?
-3. ~~Che cosa fa L4 quando la lezione contraddice la comprensione corrente?~~
-   Risposta di F. (26 settembre): la contraddizione entra nel registro dei
-   paradossi come specie, e un processo la porta a uno stato dialettico
-   gestibile (§5-bis, L4-8). Resta aperto: **quale fonte pesa di più** quando
-   nessuna distinzione si trova e l'utente non risponde? La fiducia nelle fonti
-   deve essere conoscenza (chi l'ha detto, quante volte, con quale esito), non un
-   ordine fisso.
-4. Come si misura la coerenza di una lezione che non ha conseguenze osservabili
-   subito (una regola che serve solo in frasi future)?
-
-## 10. Da dove si parte, in concreto
-
-Le batterie esistono già e sono vere:
-
-- G1–G25 della grammatica ([train-the-learning-process.md](train-the-learning-process.md),
-  PRIORITARIO §1): le otto sovrapposizioni sono il primo banco di L4-1;
-- le 100 della meccanica, con le 71 verifiche indirette e inverse fallite delle
-  procedure: il banco di L4-6;
-- la contaminazione «gauge» / «lead»: il banco di L4-3;
-- «print_r» e «Is a lathe a machine tool?» dopo il riavvio: il banco di L4-4;
-- «an universal»: il banco di L4-5.
-
-Si comincia da L4-0, poi L4-1 sulle otto sovrapposizioni, perché è il caso più
-semplice del passo 3 — la comprensione produce già la conseguenza — e perché
-chiude subito la sorgente dei fatti spazzatura.
+Prima di scrivere regole, leggere [la sintassi `.p0`](../parrot-p0-syntax.md).
+Sul checkout verificato `src/kb.h` dichiara **arità 4, corpo 16**: il vecchio
+limite 8 in alcuni commenti è superato. Con `assert(Pred, …)` anche il nome del
+predicato occupa un argomento della chiamata. `naf` non lega variabili libere;
+`eq/2` è numerico; canonicalizzare una lezione può cambiare maiuscole e forma
+citata. Verificare stderr al boot prima di interpretare «nessuna soluzione»
+come un difetto cognitivo. Nessuno schema proposto qui è automaticamente una
+nuova API implementata.
