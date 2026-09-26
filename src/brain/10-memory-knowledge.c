@@ -1378,7 +1378,39 @@ static int p0_rule_clause_typed(Brain *b, P0RuleVars *v, char **w, size_t n,
          * rivendica per prima. Qui la classe dev'essere l'ULTIMO termine; se
          * resta del testo, la clausola e' di qualcun altro (il legatore dei
          * frame, che sa leggerla come relazione). */
-        if (ci + 1 != n) return 0;
+        if (ci + 1 != n) {
+            /* Meccanica (26 settembre 2026): ...salvo che le parole restanti siano
+             * una CLASSE che la KB conosce, con la chiave del lettore delle
+             * classi («machine tool» → `machine_tool`). «if x is a machine tool
+             * then x is a machine» non si ancorava; «x is a friend of y» resta al
+             * legatore dei frame, perche' `friend_of` non e' una classe nota. */
+            if (n - ci > 4) return 0;
+            char joined_cls[KB_TERM_LEN]; size_t jo = 0; joined_cls[0] = '\0';
+            for (size_t k = ci; k < n; k++) {
+                jo += (size_t)snprintf(joined_cls + jo, sizeof joined_cls - jo, "%s%s",
+                                       jo ? "_" : "", w[k]);
+                if (jo >= sizeof joined_cls) return 0;
+            }
+            const char *cq[1] = { joined_cls };
+            int known_cls = kb_knows_pred(b->kb, joined_cls) ||
+                            kb_query(b->kb, "class_constrained", cq, 1);
+            /* una classe NUOVA («x is a sharp object») e' un sintagma nominale:
+             * nessuna variabile di regola e nessuna preposizione di relazione
+             * fra le parole («x is a friend of y» resta al legatore dei frame) */
+            int plain_np = 1;
+            for (size_t k = ci; k < n && plain_np; k++) {
+                const char *tq[1] = { w[k] };
+                if (kb_query(b->kb, "rule_variable", tq, 1) ||
+                    kb_query(b->kb, "rule_anaphor", tq, 1) ||
+                    is_relation_prep(b, w[k])) plain_np = 0;
+            }
+            if (!known_cls && !plain_np) return 0;
+            snprintf(store[0], KB_TERM_LEN, "%s", joined_cls);
+            snprintf(store[1], KB_TERM_LEN, "%s", subj);
+            g->pred = store[0];
+            g->argc = 1;
+            return 1;
+        }
         snprintf(store[0], KB_TERM_LEN, "%s", w[ci]);
         snprintf(store[1], KB_TERM_LEN, "%s", subj);
         g->pred = store[0];
