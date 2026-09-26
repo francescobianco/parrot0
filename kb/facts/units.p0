@@ -34,3 +34,25 @@ measures(byte, information).
 measures(degree_fahrenheit, temperature).
 measures(degree_celsius, temperature).
 measures(megabyte, information).
+
+% 26 settembre 2026 — CHE COSA E' UN'UNITA'. `measures/2` e' la relazione di
+% un'unita' con la sua grandezza, ma anche di uno strumento con la sua
+% («a micrometer measures thickness», kb/facts/precision-mechanics.p0): il lettore
+% delle quantita' (input-structure.p0, `unit_surface_word`) prendeva per unita'
+% ogni parola di ogni strumento, e una frase lunga costava decine di secondi
+% (misurato: 11,9 s in `turn_entity_named` per una frase di Wikipedia). Le unita'
+% sono una classe; se ne insegna una nuova con «X is a unit of measure».
+unit_of_measure(ohm).
+unit_of_measure(farad).
+unit_of_measure(henry).
+unit_of_measure(volt).
+unit_of_measure(watt).
+unit_of_measure(ampere).
+unit_of_measure(kelvin).
+unit_of_measure(nanometre).
+unit_of_measure(hertz).
+unit_of_measure(byte).
+unit_of_measure(degree_fahrenheit).
+unit_of_measure(degree_celsius).
+unit_of_measure(megabyte).
+class_surface(unit_of_measure, unit of measure).

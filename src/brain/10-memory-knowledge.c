@@ -17689,6 +17689,10 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *who = p0_form_slot(slots, ns, "subject");
             const char *cls2 = p0_form_slot(slots, ns, "class");
             if (!who || !*who) continue;
+            /* Una richiesta di produrre («can you please write a small python
+             * program …») non e' una domanda di classe: la forza la dichiara la
+             * KB (`production_request`), qui la si rispetta. */
+            if (p0_turn_is(b, "production_request", norm)) continue;
             char subj2[KB_TERM_LEN]; snprintf(subj2, sizeof subj2, "%s", who);
             /* L'ARTICOLO NON FA PARTE DEL NOME. `span` prende le parole fino
              * all'ancora e non salta il determinante come fa `slot`: «is a
@@ -17756,6 +17760,15 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                             kind2[kl - 1] == ' ')) kind2[--kl] = '\0'; }
             for (char *c = kind2; *c; c++) if (*c == ' ') *c = '_';
             if (!kind2[0]) continue;
+            /* ...ma con un soggetto di una parola la classe composta deve essere
+             * una classe che la KB conosce: «can you please write a small python
+             * program …» non chiede se qualcuno sia «a small python program»
+             * (rosso di law_code.p0t, misurato). */
+            if (!strchr(who, '_')) {
+                const char *kq[1] = { kind2 };
+                if (!kb_knows_pred(b->kb, kind2) &&
+                    !kb_query(b->kb, "class_constrained", kq, 1)) continue;
+            }
             const char *ua2[1] = { who };
             if (kb_query(b->kb, kind2, ua2, 1)) {
                 kb_say(b, "yes", "Yes.", out, out_size);

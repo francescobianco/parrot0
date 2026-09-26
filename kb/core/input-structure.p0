@@ -445,7 +445,7 @@ unit_word_surface($W, $S) :- concat_atoms($W, "s", $S).
 % parola puo' far parte di un'unita' (poche righe di `measures/2`), e solo
 % allora dove sta.
 unit_surface_word($S) :-
-    measures($Unit, $Q), atom_words($Unit, $Ws), member($W, $Ws), unit_word_surface($W, $S).
+    unit_of_measure($Unit), atom_words($Unit, $Ws), member($W, $Ws), unit_word_surface($W, $S).
 input_quantity_token($Scope, $Id) :-
     input_node_atom($Scope, $Id, $S), unit_surface_word($S),
     input_node_range($Scope, $Id, $TS, $TL),
