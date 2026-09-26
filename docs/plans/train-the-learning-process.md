@@ -64,7 +64,11 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 | domanda che non raggiunge un fatto (31) | 🟡 | la polare sceglie il verbo con fatti («Does a spring store energy?»). 🔴 «What measures height?» (con «thickness» risponde; con «height», nome anche di attributo, il piano non risponde — non trovato in tempo); «Angular.»: la lettura IR prende come oggetto il token piu' vicino quando «angular position» non e' un'entita' nota, e la risposta dal deposito semantico vince sul fatto (R5 di L4) |
 | conversione (3) | ✅ | la lezione assistita «to convert A to B multiply by N» di nuovo intera: quattro rotture in KB (`naf` con variabili libere due volte, il protocollo senza lettore, `is/2` su un atomo). Lezione → «convert 3 inches to millimeters» = 76.2 → provenienza → ritiro |
 | ordine transitivo (2) | ✅ | «Does X come before/after Y?» (anche per catena), «What comes after/before Y?» |
-| regole con classe composta, contaminazione (L4-3), contatto su relazione non dichiarata, controesempio, calcolo in lingua, relazioni di piu' parole | 🔴 | non toccati in questa passata |
+| regola profonda con classe di piu' parole (5) | ✅ | «if x is a machine tool then x is a machine» → `machine(X) :- machine_tool(X)` (classe nota), e nella conclusione una classe nuova di piu' parole («a sharp object»); «x is a friend of y» resta relazione |
+| calcolo in lingua (2) | ✅ | «One inch is 25.4 millimeters.» e' la lezione di conversione detta come la dice una persona; «How many millimeters are in 3 inches?» → 76.2 millimeters |
+| controesempio letto come negazione (2) | ✅ | una negazione appartiene alla sua clausola: davanti a «, but …» il lettore delle negazioni cede, e il fatto vero della prima clausola resta |
+| valore con relazione di piu' parole (5) | 🔴 | «largest city is a relation» funziona; un nome con «of» dentro («modulus of elasticity») si spezza al «of» e collide con la forma «the R of X»; l'unita' composta («grams per cubic centimeter») si tronca a «per» |
+| contaminazione (L4-3), contatto su relazione non dichiarata | 🔴 | lavoro di L4 (contesto a rete, frontier §19), non toccato |
 
 **PHP:** P6 ✅ (la domanda sul soggetto elenca tutti i valori: «missing semicolon
 and unclosed string»); P1 ✅ («Is Xdebug an extension?», testa della classe
