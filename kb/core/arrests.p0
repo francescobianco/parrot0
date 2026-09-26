@@ -360,9 +360,11 @@ turn_compensation_obligation($Turn, $Languages, $Goal) :-
 % separate dal concetto canonico: la realizzazione puo' cambiare lingua senza
 % cambiare passi, prerequisiti o costi. Il piano e' ammissibile solo se ogni
 % passo dichiarato esiste e ogni dipendenza punta a un passo dello stesso turno.
-compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, $Support))) :-
-    compensation_step($Turn, $Index, step($Action, $Pre, $Effect, $Cost)),
-    eq($Support, local).
+compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, local))) :-
+    compensation_step($Turn, $Index, step($Action, $Pre, $Effect, $Cost)).
+% (26 settembre 2026: era `eq($Support, local)`, ma `eq/2` e' un confronto
+% NUMERICO e con un atomo fallisce sempre: il supporto locale non valeva mai.
+% L'identita' si scrive nella testa.)
 compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, $Support))) :-
     compensation_step($Turn, $Index, step($Action, $Pre, $Effect, $Cost)),
     source_support($Turn, $Index, $Support).
