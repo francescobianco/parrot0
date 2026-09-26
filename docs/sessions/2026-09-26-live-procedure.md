@@ -46,3 +46,13 @@ know the Collatz sequence?».
 `make soft-test` sfora su «what is the capital of france» (1,14–1,20 s):
 `np_closer` 502 ms su 20 chiamate, da `turn_verb_before/1` (grammar.p0, commit
 RI-012 delle 00:47). Non è di questa sessione; va curato prima di ogni altra.
+
+## Seguito, stessa notte
+
+F.: *«grave rottura del principio KB-first, dobbiamo sistemarle»* e *«il limite
+di profondità va gestito come i paradossi: quando lo raggiunge ne parla»*. Fatto
+il passo di motore (vedi l'handoff in `docs/plans/live-teaching.md` e
+`docs/parrot-p0-syntax.md` §17.4-bis): interprete in KB, `iterate/4`, tetto di
+profondità nel registro dei paradossi, rifiuto del passo illeggibile. Collatz
+step si insegna e calcola (`if even then halve else triple and add 1`); il ciclo
+nominato resta bloccato da chi ruba il turno alla lezione col «repeat».

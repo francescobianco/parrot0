@@ -499,6 +499,7 @@ typedef struct {
     unsigned long steps;       /* resolution steps spent                     */
     int           budget_hit;  /* the work ceiling stopped the search        */
     int           loops_cut;   /* repeated ground goals pruned on some path  */
+    int           depth_hit;   /* the depth ceiling (KB_MAX_DEPTH) was reached; 26 set 2026: a species of its own, not a budget */
     char          goal[KB_TERM_LEN]; /* predicate the search started from    */
 } KbInferenceReport;
 

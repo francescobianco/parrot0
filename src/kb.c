@@ -296,6 +296,7 @@ struct KB {
     unsigned long infer_steps;
     int           infer_budget_hit;
     int           infer_loops_cut;
+    int           infer_depth_hit;
     /* §25.3 — il REGISTRO UNICO: il turno corrente (lo da' il registro delle
      * facolta', `kb_set_paradox_turn`), per datare `paradox_event/4`. */
     unsigned long paradox_turn;
@@ -1986,6 +1987,12 @@ typedef struct {
      * fatti (le righe delle passate precedenti) — il punto fisso. */
     size_t   in_vrule;
     const char *cut_pred;  /* §25.3: il predicato dell'ultimo goal tagliato */
+    /* 26 settembre 2026 (F.): il tetto di profondita' non e' un budget. Quando
+     * scatta si conta a parte e si ricorda il predicato del goal che lo ha
+     * toccato, cosi' il registro dei paradossi riceve `depth` e parrot0 puo'
+     * dirlo. Un buffer piccolo: il Solver finisce sulla pila C (gen514). */
+    int depth_hit;
+    char depth_pred[64];
 
 } Solver;
 
@@ -3057,6 +3064,7 @@ static int view_delta(Solver *S, const KbView *v, const Term *g,
         solve(&F, &rg, 1, 0, fs, depth + 1);
         S->frame = F.frame;
         if (F.budget_hit) S->budget_hit = 1;
+        if (F.depth_hit) { S->depth_hit = 1; if (!S->depth_pred[0]) snprintf(S->depth_pred, sizeof S->depth_pred, "%s", F.depth_pred); }
         nsol += F.count;
         if (nsol >= max_sol) { S->budget_hit = 1; break; }
     }
@@ -3107,7 +3115,14 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * Marking it makes goal_provable() return GOAL_INCOMPLETE, so negation
      * declines instead of concluding, and kb_inference_report() tells the caller
      * the search was cut. */
-    if (depth > KB_MAX_DEPTH) { S->budget_hit = 1; return 0; }
+    if (depth > KB_MAX_DEPTH) {
+        /* budget_hit resta acceso: la negazione deve continuare a declinare
+         * (GOAL_INCOMPLETE). depth_hit dice QUALE tetto, e dove. */
+        S->budget_hit = 1; S->depth_hit = 1;
+        if (!S->depth_pred[0] && idx < ngoals)
+            snprintf(S->depth_pred, sizeof S->depth_pred, "%s", goals[idx].pred);
+        return 0;
+    }
     /* gen382: the work ceiling. Once hit, every pending branch unwinds without
      * doing more work, and the caller is told the search was cut short. */
     if (S->budget && S->steps >= S->budget) { S->budget_hit = 1; return 0; }
@@ -3791,6 +3806,60 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return solve(S, goals, ngoals, idx + 1, s2, depth);
     }
 
+    /* 26 settembre 2026 — `iterate(Passo, Arresto, In, Out)`: IL CICLO COME
+     * PRIMITIVA. Rifa' `Passo(V, V1)` (un predicato binario, per nome, come
+     * `map_words/3` prende il suo) finche' `Arresto(V)` (unario) regge, e lega
+     * Out all'ultimo valore. Serve alle procedure insegnate (procedures.p0,
+     * `run_step(_, repeat(...), ...)`): un ciclo scritto come ricorsione KB
+     * sfonda KB_MAX_DEPTH dopo poche decine di giri (Collatz da 27 ne vuole
+     * 111), e questa primitiva tiene la profondita' costante. Il motore non sa
+     * che cosa sia un passo: lo dicono le clausole di `Passo` e `Arresto`.
+     * Ogni giro consuma il budget del chiamante; un ciclo che non si arresta
+     * e' un budget esaurito, contato e detto, mai un giro infinito. */
+    if (strcmp(g->pred, "iterate") == 0 && g->argc == 4) {
+        char stepp[KB_TERM_LEN], stopp[KB_TERM_LEN], cur[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], stepp, sizeof stepp, 0);
+        deep_resolve(s, g->args[1], stopp, sizeof stopp, 0);
+        deep_resolve(s, g->args[2], cur, sizeof cur, 0);
+        if (is_var(stepp) || is_var(stopp) || term_contains_var(cur, 0)) return 0;
+        char (*sol)[KB_TERM_LEN] = calloc(1, KB_TERM_LEN);
+        if (!sol) return 0;
+        int ok = 0;
+        for (;;) {
+            char gs[KB_TERM_LEN * 2];
+            snprintf(gs, sizeof gs, "%s(%s)", stopp, cur);
+            Term stopg;
+            if (!parse_to_term(gs, &stopg)) break;
+            int done = goal_provable(S->kb, &stopg, depth + 1);
+            if (done == GOAL_INCOMPLETE) { S->budget_hit = 1; break; }
+            if (done == 1) { ok = 1; break; }
+            snprintf(gs, sizeof gs, "%s(%s, $Q)", stepp, cur);
+            Term stepg;
+            if (!parse_to_term(gs, &stepg)) break;
+            Solver F; memset(&F, 0, sizeof F);
+            F.kb = S->kb; F.kb_mut = S->kb_mut;
+            F.qvar = "$Q"; F.out = sol; F.max = 1;
+            F.frame = S->frame; F.budget = S->budget;
+            Subst *fs = &scratch->subst;
+            subst_copy(fs, s);
+            solve(&F, &stepg, 1, 0, fs, 0);
+            S->frame = F.frame;
+            S->steps += F.steps + 1;
+            if (F.budget_hit) S->budget_hit = 1;
+            if (F.depth_hit) { S->depth_hit = 1; if (!S->depth_pred[0]) snprintf(S->depth_pred, sizeof S->depth_pred, "%s", F.depth_pred); }
+            if (F.count == 0 || F.budget_hit) break;           /* il passo non si applica: il ciclo si ferma qui */
+            snprintf(cur, sizeof cur, "%s", sol[0]);
+            if (S->budget && S->steps >= S->budget) { S->budget_hit = 1; break; }
+        }
+        free(sol);
+        if (!ok) return 0;
+        Subst *s2 = &scratch->subst;
+        subst_copy(s2, s);
+        if (unify(s2, g->args[3], cur))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
+        return 0;
+    }
+
     if ((strcmp(g->pred, "findall") == 0 ||
          strcmp(g->pred, "findall_bag") == 0) && g->argc == 3) {
         char gs[KB_TERM_LEN], tv[KB_TERM_LEN];
@@ -3830,6 +3899,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         solve(&F, &goal, 1, 0, fs, 0);
         S->frame = F.frame;
         if (F.budget_hit) S->budget_hit = 1;
+        if (F.depth_hit) { S->depth_hit = 1; if (!S->depth_pred[0]) snprintf(S->depth_pred, sizeof S->depth_pred, "%s", F.depth_pred); }
         char list_buf[KB_CHARLIST_MAX];
         snprintf(list_buf, sizeof list_buf, "nil");
         for (size_t i = F.count; i > 0; i--) {
@@ -4634,6 +4704,7 @@ static int view_close(KB *kb, KbView *v, KbView *acc, size_t from) {
             !strcmp(pred, "kb_clause_arg") || !strcmp(pred, "kb_derivation") ||
             !strcmp(pred, "kb_act") ||
             !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
+            !strcmp(pred, "iterate") ||
             !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
             !strcmp(pred, "prob")) {
             /* L3 §25 — non si rifiuta la vista: si registra la catena e si
@@ -5161,6 +5232,7 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
     kb->infer_steps      = S->steps;
     kb->infer_budget_hit = S->budget_hit;
     kb->infer_loops_cut  = S->loops_cut;
+    kb->infer_depth_hit  = S->depth_hit;
     snprintf(kb->infer_goal, sizeof kb->infer_goal, "%s", goalpred ? goalpred : "");
     /* §25.3 — IL REGISTRO UNICO DEI PARADOSSI, livello della prova. Il taglio
      * anti-isteresi (gen382) e il budget esaurito erano un contatore letto da un
@@ -5175,11 +5247,14 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
         char det[KB_TERM_LEN];
         snprintf(det, sizeof det, "seen(%lu, %s)", kb->paradox_turn,
                  goalpred && *goalpred ? goalpred : "none");
-        for (int k = 0; k < 2; k++) {
+        for (int k = 0; k < 3; k++) {
             if (k == 0 && !(S->loops_cut > 0 && S->cut_pred)) continue;
             if (k == 1 && !(S->budget_hit && goalpred && *goalpred)) continue;
-            const char *a[4] = { "proof", k ? "budget" : "loop_cut",
-                                 k ? goalpred : S->cut_pred, det };
+            /* 26 settembre 2026: il tetto di profondita' e' la terza specie, con
+             * il predicato del goal che lo ha toccato (composition.p0 lo legge). */
+            if (k == 2 && !(S->depth_hit && S->depth_pred[0])) continue;
+            const char *a[4] = { "proof", k == 2 ? "depth" : k ? "budget" : "loop_cut",
+                                 k == 2 ? S->depth_pred : k ? goalpred : S->cut_pred, det };
             if (kb_query(kb, "paradox_event", a, 4)) continue;
             int origin = kb->origin; kb->origin = KB_REFLECTIVE;
             kb_assert(kb, "paradox_event", a, 4);
@@ -5216,7 +5291,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
      * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
     kb_view_ensure((KB *)kb, pred);
-    if (kb) kb->infer_budget_hit = 0;
+    if (kb) { kb->infer_budget_hit = 0; kb->infer_depth_hit = 0; }
     /* gen422b: la firma si raccoglie QUI e in kb_match, non solo alla fine di
      * una ricerca del solver. La prima stesura annotava solo `kb_note_inference`
      * — cioe' le sole risoluzioni con regole — e la firma veniva identica per
@@ -5249,6 +5324,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
         strcmp(pred,"ne")==0 || strcmp(pred,"call")==0 ||
         strcmp(pred,"assert")==0 || strcmp(pred,"retract")==0 ||
         strcmp(pred,"dif")==0 ||         strcmp(pred,"findall")==0 ||
+        strcmp(pred,"iterate")==0 ||
         strcmp(pred,"findall_bag")==0 || strcmp(pred,"prob")==0 ||
         strcmp(pred,"ranges_over")==0));
     if (!has_rule) {
@@ -5350,7 +5426,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
      * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
     kb_view_ensure((KB *)kb, pred);
-    if (kb) ((KB *)kb)->infer_budget_hit = 0;
+    if (kb) { ((KB *)kb)->infer_budget_hit = 0; ((KB *)kb)->infer_depth_hit = 0; }
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args) ||
         (max && !out)) return 0;
     /* vedi kb_query: la firma e' scritta anche da qui. `kb` e' const per
@@ -5369,7 +5445,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                     strcmp(pred, "kb_rule_body") != 0 &&
                     strcmp(pred, "kb_clause") != 0 && strcmp(pred, "kb_derivation") != 0 &&
                     strcmp(pred, "kb_clause_arg") != 0 && strcmp(pred, "kb_act") != 0 &&
-                    strcmp(pred, "apply") != 0;
+                    strcmp(pred, "apply") != 0 && strcmp(pred, "iterate") != 0;
     for (size_t i = 0; i < argc; i++) {
         if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
         if (term_contains_var(args[i], 0))
@@ -9015,7 +9091,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
     if (!kb || !pred || !*pred) return 1;
     static const char *const builtins[] = {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
-        "findall","findall_bag","prob","ranges_over","assert","retract",
+        "findall","findall_bag","iterate","prob","ranges_over","assert","retract",
         "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body","kb_turn_act",
         "kb_clause", "kb_clause_arg", "kb_act", "kb_derivation",
         "apply", "atom_words", "map_words", NULL };
@@ -9235,6 +9311,7 @@ void kb_inference_report(const KB *kb, KbInferenceReport *out) {
     out->steps      = kb->infer_steps;
     out->budget_hit = kb->infer_budget_hit;
     out->loops_cut  = kb->infer_loops_cut;
+    out->depth_hit  = kb->infer_depth_hit;
     snprintf(out->goal, sizeof out->goal, "%s", kb->infer_goal);
 }
 

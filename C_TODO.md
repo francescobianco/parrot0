@@ -1,6 +1,32 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
 
+
+## 2026-09-26 — le procedure insegnate: l'interprete era una `switch`, ora è KB; i residui della famiglia
+
+F.: *«tutto questo legato all'insegnamento e fatto in C è una grave rottura del
+principio KB-first»*. Lo studio è in `docs/parrot-p0-syntax.md` §17; il passo
+fatto stanotte in §17.4-bis e nell'handoff di `docs/plans/live-teaching.md`.
+Tolte 259 righe (`p0_cond_holds`, `p0_apply_op`, `p0_run_proc`); entrata la
+primitiva `iterate/4` e il tetto di profondità come specie del registro dei
+paradossi. **Restano compilati, stessa famiglia:**
+
+- `60-agent-tools.c` `mod_agent` (gen116/117): il ciclo numerico a rami e lineare
+  è un secondo interprete in C, anonimo. Deve diventare un consumatore di
+  `proc_run/3` (una procedura senza nome, i passi letti da `step_term/2`), e
+  sparire.
+- `20-math.c` ~1707: «factorial»/«fattoriale» calcolato in C (n ≤ 20) mentre
+  `factorial/2`, `fib/2`, `gcd/3`, `is_prime/1`, `power/3` in `procedures.p0`
+  non hanno consumatori. La via è `numeric_cue/2` → `apply_numeric/3`.
+- `10-memory-knowledge.c` `mod_teach_rule`: premesse solo «x V y» con variabili
+  fisse (`rule_variable/1`), niente confronti né `is/2`; una regola di soli
+  atomi passa come «Learned rule» (universal-solver invariante 6).
+- Precedenza: «rule for X is repeat …» va allo smalltalk prima di ogni forma;
+  «do you know <procedura>?» non ha forma (mantra #17: cessioni KB).
+- `kb_match` risolve con KB a sola lettura: un `assert` dentro la prova fallisce
+  (la traccia dei passi non si scrive), e il `budget_hit` di `iterate` non
+  arriva al report del turno.
+
 ## 🔴 TODO PRIORITARIO (F., 12 settembre 2026) — `p0_join` NON PUO' CHIEDERE ALLA KB
 
 `p0_join(char **w, size_t a, size_t b, char *out, size_t sz)` è la funzione che

@@ -1,0 +1,49 @@
+# 26 settembre 2026 — SCRATCH DELLA NOTTE, NON ANCORA VERDE (handoff in docs/plans/live-teaching.md):
+# le lezioni con «repeat …» vengono rubate dallo smalltalk, il budget di iterate non arriva al report.
+# Non e' nella suite: si lancia a mano con ./bin/parrot0 --test dopo make test-engine.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test vecchie procedure di testo]
+!timeout 5
+> apply devowel to parrot
+< devowel(«prrt») — that is what the steps give.
+> apply shout to parrot
+< shout(«PARROT») — that is what the steps give.
+> apply squash to baaad
+< squash(«bad») — that is what the steps give.
+
+[test lezione e calcolo]
+!timeout 5
+> rule for vowels is keep vowel
+< Held: for vowels, 1 is «keep vowel».
+> apply vowels to parrot
+< vowels(«ao») — that is what the steps give.
+> rule for howmany is apply vowels
+< Held: for howmany, 1 is «apply vowels».
+!query proc_run(vowels, parrot, ao)
+!query proc_run(howmany, parrot, ao)
+> rule for howmany is count
+> apply howmany to parrot
+< howmany(«2») — that is what the steps give.
+> rule for collatz_step is if even then halve else triple and add 1
+< Held: for collatz_step, 1 is «if even then halve else triple and add 1».
+> apply collatz_step to 6
+< collatz_step(«3») — that is what the steps give.
+> apply collatz_step to 3
+< collatz_step(«10») — that is what the steps give.
+> rule for collatz is repeat apply collatz_step until it reaches 1
+< Held: for collatz, 1 is «repeat apply collatz_step until it reaches 1».
+> apply collatz to 6
+< collatz(«1») — that is what the steps give.
+> apply collatz to 27
+< collatz(«1») — that is what the steps give.
+> rule for forever is repeat add 1 until below 0
+< Held: for forever, 1 is «repeat add 1 until below 0».
+> apply forever to 5
+<~ did not finish
+> rule for bogus is frobnicate the value
+<~ I cannot run «frobnicate the value» as a step of bogus

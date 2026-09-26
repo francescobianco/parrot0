@@ -15936,265 +15936,15 @@ static int p0_assert_taught(Brain *b, const char *pred,
  *
  * Gli operatori restano pochi e le CLASSI DI CARATTERI restano conoscenza: il
  * motore non sa che cosa sia una vocale. */
-/* gen507/55 (forma #42) — UNA CONDIZIONE SUL VALORE CORRENTE.
- *
- * Serve a due cose che sembrano diverse e sono la stessa: il RAMO («if … then
- * …») e l'ARRESTO del ciclo («until …»). Averla una volta sola vuol dire che
- * ogni condizione nuova vale subito per tutti e due.
- *
- * Le condizioni sono poche e sul valore, non sul mondo: e' il valore che una
- * procedura ha in mano. Quali CARATTERI stiano in una classe resta conoscenza,
- * quindi `has <classe>` cresce con la KB e non con il C. */
-static int p0_cond_holds(Brain *b, const char *cond, const char *cur) {
-    if (!b || !cond || !cur) return 0;
-    char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cond);
-    char *cw[8]; size_t cn = split_words(cb, cw, 8);
-    if (cn == 0) return 0;
-    const char *op = cw[0], *arg = cn > 1 ? cw[1] : NULL;
-    if (!strcmp(op, "empty")) return cur[0] == '\0';
-    if (!strcmp(op, "any"))   return cur[0] != '\0';
-    if (!strcmp(op, "has") && arg) {
-        for (const char *c = cur; *c; c++) {
-            char ch[2] = { (char)tolower((unsigned char)*c), 0 };
-            const char *q[2] = { arg, ch };
-            if (kb_query(b->kb, "char_class", q, 2)) return 1;
-        }
-        return 0;
-    }
-    if (!strcmp(op, "length") && arg) return strlen(cur) == (size_t)strtol(arg, NULL, 10);
-    if (!strcmp(op, "shorter") && arg) return strlen(cur) < (size_t)strtol(arg, NULL, 10);
-    if (!strcmp(op, "longer") && arg)  return strlen(cur) > (size_t)strtol(arg, NULL, 10);
-    if (!strcmp(op, "starts") && arg)  return !strncasecmp(cur, arg, strlen(arg));
-    if (!strcmp(op, "is") && arg)      return !strcasecmp(cur, arg);
-    return 0;
-}
-
-/* Un passo, applicato. Estratto dal ciclo perche' il CICLO deve poterlo
- * rieseguire: `repeat <passo> until stable` non e' un operatore in piu', e' lo
- * stesso operatore chiamato finche' il valore smette di cambiare. */
-static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
-                       int depth, int *trace_no);
-
-/* gen507/58 (forma #88) — LA TRACCIA DI UN'ESECUZIONE.
- *
- * `procedure_apply_steps` in assisted-learning.p0 produce gia' una traccia e
- * nessuno la rende. Qui ogni passo APPLICATO si posa come passo del piano
- * interno (giro /35), quindi «why?» e `/debug` raccontano l'esecuzione con lo
- * stesso strumento con cui raccontano ogni altro ragionamento — non con un
- * secondo meccanismo scritto per le procedure.
- *
- * Si posa il passo DOPO averlo applicato, con il valore che ne e' uscito: un
- * passo che non ha fatto niente non compare, e la traccia non racconta lavoro
- * che non e' avvenuto. */
-static void p0_trace_step(Brain *b, int *trace_no, const char *opstr,
-                          const char *result) {
-    if (!b || !trace_no) return;
-    char said[KB_TERM_LEN];
-    snprintf(said, sizeof said, "%s -> «%s»", opstr, result);
-    (*trace_no)++;
-    char ob[24]; snprintf(ob, sizeof ob, "%d", *trace_no);
-    char q[KB_TERM_LEN]; snprintf(q, sizeof q, "\"%d) %s\"", *trace_no, said);
-    const char *a[2] = { "current_turn", q };
-    int prev = kb_origin(b->kb);
-    kb_set_origin(b->kb, KB_REFLECTIVE);
-    if (*trace_no == 1) kb_retract_pred(b->kb, "turn_plan_step");
-    kb_assert(b->kb, "turn_plan_step", a, 2);
-    kb_set_origin(b->kb, prev);
-}
-
-static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
-                       const char *pname, int depth, int *trace_no) {
-    char stepbuf[KB_TERM_LEN];
-    snprintf(stepbuf, sizeof stepbuf, "%s", stepbuf0);
-    /* gen507/54 (forma #41) — IL CICLO. «repeat <passo> until stable» rifa' il
-     * passo finche' il valore smette di cambiare. E' la condizione di arresto
-     * piu' onesta che si possa dare a una riscrittura: non un numero di giri
-     * deciso a caso, ma il punto fisso — quando non c'e' piu' niente da fare.
-     * Il tetto sui giri non e' la condizione, e' la rete: se lo si tocca la
-     * procedura non risponde, invece di rispondere a meta'. */
-    {
-        char probe[KB_TERM_LEN]; snprintf(probe, sizeof probe, "%s", stepbuf);
-        char *pw[16]; size_t pn = split_words(probe, pw, 16);
-        if (pn >= 4 && !strcmp(pw[0], "if")) {
-            /* `if <condizione> then <passo>`: il ramo. Se la condizione non
-             * regge il passo non si fa, e non e' un fallimento — e' la
-             * procedura che ha deciso. */
-            size_t ti = pn;
-            for (size_t k = 1; k < pn; k++) if (!strcmp(pw[k], "then")) { ti = k; break; }
-            if (ti < pn && ti > 1) {
-                char cond2[KB_TERM_LEN]; size_t c2 = 0; cond2[0] = '\0';
-                for (size_t k = 1; k < ti && c2 + 1 < sizeof cond2; k++)
-                    c2 += (size_t)snprintf(cond2 + c2, sizeof cond2 - c2,
-                                           "%s%s", c2 ? " " : "", pw[k]);
-                char then2[KB_TERM_LEN]; size_t t2 = 0; then2[0] = '\0';
-                for (size_t k = ti + 1; k < pn && t2 + 1 < sizeof then2; k++)
-                    t2 += (size_t)snprintf(then2 + t2, sizeof then2 - t2,
-                                           "%s%s", t2 ? " " : "", pw[k]);
-                if (!p0_cond_holds(b, cond2, cur)) return 1;   /* deciso: non fare */
-                return p0_apply_op(b, then2, cur, cursz, pname, depth, trace_no);
-            }
-        }
-        if (pn >= 3 && !strcmp(pw[0], "repeat")) {
-            size_t ui = pn;
-            for (size_t k = 1; k < pn; k++) if (!strcmp(pw[k], "until")) { ui = k; break; }
-            if (ui < pn && ui > 1) {
-                char inner[KB_TERM_LEN]; size_t io = 0; inner[0] = '\0';
-                for (size_t k = 1; k < ui && io + 1 < sizeof inner; k++)
-                    io += (size_t)snprintf(inner + io, sizeof inner - io,
-                                           "%s%s", io ? " " : "", pw[k]);
-                char cond[KB_TERM_LEN]; size_t co = 0; cond[0] = '\0';
-                for (size_t k = ui + 1; k < pn && co + 1 < sizeof cond; k++)
-                    co += (size_t)snprintf(cond + co, sizeof cond - co,
-                                           "%s%s", co ? " " : "", pw[k]);
-                int fixpoint = !strcmp(cond, "stable");
-                int did = 0;
-                for (int turn = 0; turn < 64; turn++) {
-                    if (!fixpoint && p0_cond_holds(b, cond, cur)) break;
-                    char before[KB_TERM_LEN];
-                    snprintf(before, sizeof before, "%s", cur);
-                    if (!p0_apply_op(b, inner, cur, cursz, pname, depth, trace_no)) break;
-                    did = 1;
-                    if (fixpoint && !strcmp(before, cur)) break;   /* punto fisso */
-                    if (!fixpoint && !strcmp(before, cur)) break;  /* non avanza */
-                }
-                return did;
-            }
-        }
-    }
-                char *sw[8]; size_t snw = split_words(stepbuf, sw, 8);
-                if (snw == 0) return 0;
-                const char *op = sw[0];
-                const char *oparg = snw > 1 ? sw[1] : NULL;
-                char next[KB_TERM_LEN]; size_t no = 0;
-                if (!strcmp(op, "keep") || !strcmp(op, "drop")) {
-                    if (!oparg) return 0;
-                    int keep = !strcmp(op, "keep");
-                    for (const char *c = cur; *c && no + 1 < sizeof next; c++) {
-                        char ch[2] = { (char)tolower((unsigned char)*c), 0 };
-                        const char *cq7[2] = { oparg, ch };
-                        int in_class = kb_query(b->kb, "char_class", cq7, 2);
-                        if (in_class == keep) next[no++] = *c;
-                    }
-                    next[no] = '\0';
-                } else if (!strcmp(op, "reverse")) {
-                    size_t l = strlen(cur);
-                    if (l >= sizeof next) return 0;
-                    for (size_t k = 0; k < l; k++) next[k] = cur[l - 1 - k];
-                    next[l] = '\0';
-                } else if (!strcmp(op, "count")) {
-                    snprintf(next, sizeof next, "%zu", strlen(cur));
-                } else if (!strcmp(op, "upper") || !strcmp(op, "lower")) {
-                    size_t l = strlen(cur);
-                    if (l >= sizeof next) return 0;
-                    for (size_t k = 0; k < l; k++)
-                        next[k] = !strcmp(op, "upper")
-                                    ? (char)toupper((unsigned char)cur[k])
-                                    : (char)tolower((unsigned char)cur[k]);
-                    next[l] = '\0';
-                } else if (!strcmp(op, "first") || !strcmp(op, "last")) {
-                    long take = oparg ? strtol(oparg, NULL, 10) : 1;
-                    size_t l = strlen(cur);
-                    if (take < 0) take = 0;
-                    if ((size_t)take > l) take = (long)l;
-                    if (!strcmp(op, "first"))
-                        snprintf(next, sizeof next, "%.*s", (int)take, cur);
-                    else
-                        snprintf(next, sizeof next, "%s", cur + (l - (size_t)take));
-                } else if (!strcmp(op, "sort") || !strcmp(op, "unique")) {
-                    /* gen507/56 (forma #47) — ORDINARE e TOGLIERE I DOPPIONI.
-                     * Su una stringa i «pezzi» sono le parole separate da spazio:
-                     * e' la lista che una procedura ha davvero in mano, senza
-                     * introdurre un tipo nuovo solo per averla. */
-                    char work2[KB_TERM_LEN];
-                    snprintf(work2, sizeof work2, "%s", cur);
-                    char *pw2[64]; size_t pn2 = split_words(work2, pw2, 64);
-                    if (!strcmp(op, "sort")) {
-                        for (size_t x = 1; x < pn2; x++) {
-                            char *v = pw2[x]; size_t y = x;
-                            while (y > 0 && strcasecmp(pw2[y - 1], v) > 0) {
-                                pw2[y] = pw2[y - 1]; y--;
-                            }
-                            pw2[y] = v;
-                        }
-                    }
-                    no = 0;
-                    for (size_t x = 0; x < pn2 && no + 1 < sizeof next; x++) {
-                        if (!strcmp(op, "unique")) {
-                            int seen2 = 0;
-                            for (size_t y = 0; y < x && !seen2; y++)
-                                if (!strcasecmp(pw2[y], pw2[x])) seen2 = 1;
-                            if (seen2) continue;
-                        }
-                        int n2 = snprintf(next + no, sizeof next - no, "%s%s",
-                                          no ? " " : "", pw2[x]);
-                        if (n2 < 0) break;
-                        no += (size_t)n2;
-                    }
-                    next[no] = '\0';
-                } else if (!strcmp(op, "split") || !strcmp(op, "join")) {
-                    /* gen507/57 (forma #45) — DA STRINGA A LISTA E RITORNO.
-                     * `split on <c>` mette uno spazio dove c'era il separatore,
-                     * `join with <c>` fa il contrario: la lista non e' un tipo
-                     * nuovo, e' la stessa stringa guardata a pezzi. Cosi' ogni
-                     * operatore che c'e' gia' lavora anche sulle liste. */
-                    const char *sep = snw > 2 ? sw[2] : NULL;
-                    if (!sep || !*sep) return 0;
-                    char from2 = !strcmp(op, "split") ? sep[0] : ' ';
-                    char to2   = !strcmp(op, "split") ? ' ' : sep[0];
-                    no = 0;
-                    for (const char *c = cur; *c && no + 1 < sizeof next; c++)
-                        next[no++] = (*c == from2) ? to2 : *c;
-                    next[no] = '\0';
-                } else if (!strcmp(op, "apply")) {
-                    /* gen507/51 — chiamare un'altra procedura: la composizione. */
-                    if (!oparg || !strcmp(oparg, pname)) return 0;
-                    char sub[KB_TERM_LEN];
-                    snprintf(sub, sizeof sub, "%s", cur);
-                    if (!p0_run_proc(b, oparg, sub, sizeof sub, depth - 1, trace_no)) return 0;
-                    snprintf(next, sizeof next, "%s", sub);
-                } else if (!strcmp(op, "replace")) {
-                    /* gen507/52 — «replace a with b»: la sostituzione, che e'
-                     * l'operatore piu' generale su testo dopo tenere e togliere. */
-                    const char *what = snw > 1 ? sw[1] : NULL;
-                    const char *with = snw > 3 ? sw[3] : (snw > 2 ? sw[2] : NULL);
-                    if (!what) return 0;
-                    size_t wl = strlen(what);
-                    no = 0;
-                    for (const char *c = cur; *c && no + 1 < sizeof next; ) {
-                        if (!strncasecmp(c, what, wl)) {
-                            if (with)
-                                for (const char *r = with; *r && no + 1 < sizeof next; r++)
-                                    next[no++] = *r;
-                            c += wl;
-                        } else next[no++] = *c++;
-                    }
-                    next[no] = '\0';
-                } else return 0;           /* operatore che il motore non sa */
-                snprintf(cur, cursz, "%s", next);
-                /* `stepbuf` e' stato spezzato in token: la traccia deve dire il
-                 * passo COME E' STATO INSEGNATO, non il suo primo pezzo. */
-                p0_trace_step(b, trace_no, stepbuf0, cur);
-                return 1;
-}
-
-static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
-                       int depth, int *trace_no) {
-    if (!b || !b->kb || !pname || !cur || depth <= 0) return 0;
-    int ran = 0;
-    for (long o = 1; o <= 32; o++) {
-                char ob5[24]; snprintf(ob5, sizeof ob5, "%ld", o);
-                char stepv[4][KB_TERM_LEN];
-                const char *sq6[3] = { pname, ob5, NULL };
-                if (kb_match(b->kb, "proc_step", sq6, 3, stepv, 4) < 1) continue;
-                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stepv[0]);
-                char stepbuf[KB_TERM_LEN];
-                snprintf(stepbuf, sizeof stepbuf, "%s", kb_dequote(sb));
-                if (p0_apply_op(b, stepbuf, cur, cursz, pname, depth, trace_no)) ran = 1;
-
-            }
-
-    return ran;
-}
+/* 26 settembre 2026 (F.: «le procedure siano insegnate e siano in KB») — qui
+ * stavano `p0_cond_holds`, `p0_apply_op`, `p0_run_proc`: 259 righe di `strcmp`
+ * su keep/drop/reverse/upper/first/last/sort/unique/split/join/replace/apply,
+ * `if … then`, `repeat … until`, e le condizioni empty/any/has/length/starts/is.
+ * Era la catena di `||` del mantra #19 e il consumatore in C della procedura
+ * che il #2 vieta: nessun operatore nuovo senza ricompilare. L'interprete e'
+ * ora conoscenza (kb/core/procedures.p0: `proc_run/3`, `step_term/2`,
+ * `run_step/4`, `cond_holds/2`) sopra tre primitive del solver — `chars/2`,
+ * `is/2` e `iterate/4` — e la forma «apply K to …» chiede `proc_run`. */
 
 /* gen507/66 — l'esecutore di UNA operazione dichiarata, estratto perche' una
  * forma possa dichiararne piu' d'una in sequenza. */
@@ -16534,6 +16284,24 @@ static int p0_forms_early_only = 0;
 /* gen512 — vedi `p0_turn_form_views`: sul turno detto solo le forme `said`. */
 static int p0_forms_said_only = 0;
 static int reply_is_wall(Brain *b, const char *reply);   /* 99-registry.c */
+
+/* Le parole con cui un passo di procedura puo' cominciare, dalla KB
+ * (`step_surface/1`, procedures.p0), unite con «, »: il C enumera una classe,
+ * non ne conosce i membri. */
+static void p0_step_surfaces(Brain *b, char *alts, size_t altsz) {
+    char (*ws)[KB_TERM_LEN] = NULL; size_t nw = 0;
+    const char *q[1] = { NULL };
+    alts[0] = '\0';
+    if (!kb_match_all(b->kb, "step_surface", q, 1, &ws, &nw)) return;
+    size_t o = 0;
+    for (size_t k = 0; k < nw && o + 2 < altsz; k++) {
+        char wb[KB_TERM_LEN]; snprintf(wb, sizeof wb, "%s", ws[k]);
+        int n = snprintf(alts + o, altsz - o, "%s%s", o ? ", " : "", kb_dequote(wb));
+        if (n < 0) break;
+        o += (size_t)n;
+    }
+    free(ws);
+}
 
 static int p0_turn_form_reader(Brain *b, const char *norm,
                                char *out, size_t out_size) {
@@ -17229,27 +16997,92 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *pname = p0_form_slot(slots, ns, "key");
             const char *input = p0_form_slot(slots, ns, "text");
             if (!pname || !input) continue;
-            char cur[KB_TERM_LEN];
-            snprintf(cur, sizeof cur, "%s", input);
-            for (char *c = cur; *c; c++) if (*c == '_') *c = ' ';
-            int trace_no = 0;
-            int ran = p0_run_proc(b, pname, cur, sizeof cur, 6, &trace_no);
-            if (ran) {
+            /* Il valore: nudo se e' una parola sola (l'aritmetica vuole numeri
+             * nudi), fra virgolette se ha spazi. */
+            char val[KB_TERM_LEN];
+            { char tmp[KB_TERM_LEN]; snprintf(tmp, sizeof tmp, "%s", input);
+              for (char *c = tmp; *c; c++) if (*c == '_') *c = ' ';
+              if (strchr(tmp, ' ')) snprintf(val, sizeof val, "\"%s\"", tmp);
+              else snprintf(val, sizeof val, "%s", tmp); }
+            /* La traccia dell'esecuzione la scrive la KB (`proc_trace`) come
+             * passi del piano del turno: qui si pulisce quella del turno prima. */
+            kb_retract_pred(b->kb, "turn_plan_step");
+            char outv[1][KB_TERM_LEN];
+            const char *rq[3] = { pname, val, NULL };
+            size_t got = kb_match(b->kb, "proc_run", rq, 3, outv, 1);
+            KbInferenceReport rep; kb_inference_report(b->kb, &rep);
+            /* quanti passi ha lasciato la traccia, e l'ultimo valore toccato */
+            char (*steps)[KB_TERM_LEN] = NULL; size_t nsteps = 0;
+            { const char *tq[2] = { "current_turn", NULL };
+              if (!kb_match_all(b->kb, "turn_plan_step", tq, 2, &steps, &nsteps)) { steps = NULL; nsteps = 0; } }
+            char last[KB_TERM_LEN] = "";
+            if (nsteps > 0) {
+                char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", steps[nsteps - 1]);
+                const char *t = kb_dequote(lb); const char *arrow = strstr(t, "-> ");
+                snprintf(last, sizeof last, "%s", arrow ? arrow + 3 : t);
+            }
+            free(steps);
+            if (got == 1) {
+                char cur[KB_TERM_LEN];
+                snprintf(cur, sizeof cur, "%s", kb_dequote(outv[0]));
+                for (char *c = cur; *c; c++) if (*c == '_') *c = ' ';
                 char why10[420];
                 snprintf(why10, sizeof why10,
-                         "%d applied step(s) of %s gave %s", trace_no, pname, cur);
+                         "%zu applied step(s) of %s gave %s", nsteps, pname, cur);
                 store_proof(b, why10);
+                char msg5[320];
+                const KbResponseSlot rs5[] = { { "subject", pname },
+                                               { "object", cur } };
+                if (kb_response_slots(b, "procedure_result", rs5, 2,
+                                      msg5, sizeof msg5)) {
+                    put(msg5, out, out_size);
+                    free(forms);
+                    return 1;
+                }
+                continue;
             }
-            if (!ran) continue;
-            char msg5[320];
-            const KbResponseSlot rs5[] = { { "subject", pname },
-                                           { "object", cur } };
-            if (kb_response_slots(b, "procedure_result", rs5, 2,
-                                  msg5, sizeof msg5)) {
-                put(msg5, out, out_size);
-                free(forms);
-                return 1;
+            /* Non e' arrivata in fondo. F. (26 settembre 2026): un tetto
+             * raggiunto e' un fatto da DIRE, non un silenzio. Il motore lo ha
+             * gia' scritto nel registro dei paradossi; qui la frase. */
+            if (rep.depth_hit || rep.budget_hit) {
+                char msg6[420];
+                const KbResponseSlot rs6[] = { { "subject", pname },
+                                               { "object", last[0] ? last : val } };
+                if (kb_response_slots(b, rep.depth_hit ? "procedure_stopped_depth"
+                                                       : "procedure_stopped_budget",
+                                      rs6, 2, msg6, sizeof msg6)) {
+                    put(msg6, out, out_size);
+                    free(forms);
+                    return 1;
+                }
+                continue;
             }
+            /* Oppure un passo non si legge: quale? Lo si dice, con le parole
+             * con cui un passo puo' cominciare (`step_surface/1`, KB). */
+            {   char (*ords)[KB_TERM_LEN] = NULL; size_t nords = 0;
+                const char *oq[3] = { pname, NULL, NULL };
+                if (kb_match_all(b->kb, "proc_step", oq, 3, &ords, &nords) && nords > 0) {
+                    for (size_t k = 0; k < nords; k++) {
+                        char txt[1][KB_TERM_LEN];
+                        const char *sq[3] = { pname, ords[k], NULL };
+                        if (kb_match(b->kb, "proc_step", sq, 3, txt, 1) != 1) continue;
+                        const char *rq2[1] = { txt[0] };
+                        if (kb_query(b->kb, "step_readable", rq2, 1)) continue;
+                        char shown[KB_TERM_LEN]; snprintf(shown, sizeof shown, "%s", txt[0]);
+                        const char *sh = kb_dequote(shown);
+                        char alts[KB_TERM_LEN] = "";
+                        p0_step_surfaces(b, alts, sizeof alts);
+                        char msg7[640];
+                        const KbResponseSlot rs7[] = { { "subject", pname }, { "object", sh }, { "alts", alts } };
+                        if (kb_response_slots(b, "procedure_step_unknown", rs7, 3, msg7, sizeof msg7)) {
+                            free(ords); put(msg7, out, out_size); free(forms); return 1;
+                        }
+                        break;
+                    }
+                }
+                free(ords);
+            }
+            continue;
         } else if (!strcmp(act, "assert_ternary")) {
             /* gen507/42 — un fatto a TRE posti, con la relazione dichiarata
              * dalla forma. Serve a tutto cio' che non e' soggetto-verbo-oggetto:
@@ -17312,6 +17145,29 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             { char tmp4[KB_TERM_LEN]; snprintf(tmp4, sizeof tmp4, "%s", txt);
               for (char *c = tmp4; *c; c++) if (*c == '_') *c = ' ';
               snprintf(qtxt, sizeof qtxt, "\"%s\"", tmp4); }
+            /* 26 settembre 2026 — un passo che la KB non sa leggere si RIFIUTA
+             * alla lezione, non si salta in silenzio all'esecuzione (forma 48f):
+             * chi insegna deve saperlo subito. Che cosa sia leggibile lo dice
+             * `step_readable/1` (procedures.p0), non questo ramo. */
+            if (!strcmp(rel, "proc_step")) {
+                const char *sq[1] = { qtxt };
+                if (!kb_query(b->kb, "step_readable", sq, 1)) {
+                    char shown0[KB_TERM_LEN];
+                    { char t0[KB_TERM_LEN]; snprintf(t0, sizeof t0, "%s", txt);
+                      for (char *c = t0; *c; c++) if (*c == '_') *c = ' ';
+                      snprintf(shown0, sizeof shown0, "%s", t0); }
+                    char alts[KB_TERM_LEN] = "";
+                    p0_step_surfaces(b, alts, sizeof alts);
+                    char msg8[640];
+                    const KbResponseSlot rs8[] = { { "subject", key }, { "object", shown0 }, { "alts", alts } };
+                    if (kb_response_slots(b, "procedure_step_unknown", rs8, 3, msg8, sizeof msg8)) {
+                        put(msg8, out, out_size);
+                        free(forms);
+                        return 1;
+                    }
+                    continue;
+                }
+            }
             const char *pa[3] = { key, ob3, qtxt };
             int prev2 = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_SESSION);

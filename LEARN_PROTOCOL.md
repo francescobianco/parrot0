@@ -1735,6 +1735,18 @@ trappole di questa famiglia, da conoscere prima di insegnare:
 - Solo `apply`/`applica` è bilingue: `rule for`, `step … is now`, `remove step`,
   `forget the procedure` sono inglesi.
 
+✅ **Stessa notte, dopo lo studio — l'interprete è passato in KB**
+(`kb/core/procedures.p0`, «LE PROCEDURE NOMINATE»; parrot-p0-syntax.md §17.4-bis):
+gli operatori qui sopra sono clausole, non più `strcmp`; in più `if <c> then <s>
+else <s>`; i passi numerici `halve` · `double` · `triple` · `add N` · `subtract
+N` · `multiply by N` · `divide by N`, le condizioni `even` · `odd` · `reaches N`
+· `below N` · `above N`; un passo illeggibile è **rifiutato alla lezione** con
+l'elenco dei passi ammessi. Verificato: `rule for collatz_step is if even then
+halve else triple and add 1` → `apply collatz_step to 6` → 3. Non ancora chiuso
+dal vivo: il ciclo nominato («rule for collatz is repeat apply collatz_step until
+it reaches 1» viene rubato dallo smalltalk) e la frase che dice il tetto
+raggiunto — vedi l'handoff in `docs/plans/live-teaching.md`.
+
 ⚠ **Non `step for X is …`** per le procedure: quella superficie è dei passi di una
 *ricetta* (`process_step`, gen507/38). La distinzione è anche giusta nel merito —
 un passo di ricetta è un'istruzione a una persona, un passo di procedura è una
@@ -1943,12 +1955,12 @@ testo, ciclo numerico anonimo, procedure scritte a mano) non si parlano — vedi
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 48a | `rule for X is halve` · `triple and add 1` · `add N` · `divide by N` | **passi numerici** nella stessa catena dei passi su testo, con il vocabolario che l'act-loop ha già in KB (`agent_branch_step/3`) e l'esecuzione via `apply_operator/4`, non una `switch` nuova | 🔴 |
-| 48b | `rule for X is if even then halve` · `if odd then triple and add 1` | le **condizioni di parità** (`agent_parity_marker/2`) accanto a `empty`/`has`/`length` | 🔴 |
-| 48c | `rule for X is repeat … until it reaches 1` · `until below N` | l'arresto **numerico** del ciclo (uguaglianza, sotto, sopra), oggi solo nell'act-loop anonimo | 🔴 |
+| 48a | `rule for X is halve` · `triple and add 1` · `add N` · `divide by N` | **passi numerici** nella stessa catena dei passi su testo, con il vocabolario che l'act-loop ha già in KB (`agent_branch_step/3`) e l'esecuzione via `apply_operator/4`, non una `switch` nuova | ✅ 26 set (KB) |
+| 48b | `rule for X is if even then halve else triple and add 1` | le **condizioni di parità** (`agent_parity_marker/2`) accanto a `empty`/`has`/`length`, e il ramo a due vie | ✅ 26 set (KB) |
+| 48c | `rule for X is repeat … until it reaches 1` · `until below N` | l'arresto **numerico** del ciclo (uguaglianza, sotto, sopra), via la primitiva `iterate/4` | 🟡 in KB, non ancora verde dal vivo (la lezione col «repeat» va allo smalltalk) |
 | 48d | `the collatz procedure is: start at the number. if it is even, halve. if it is odd, triple and add 1. repeat until it reaches 1.` | **dare un nome** al ciclo numerico che già gira: la spiegazione in prosa diventa i passi 48a-c; poi `what is the collatz of 6?` / `how many collatz steps does 6 take?` | 🔴 — il bersaglio della sessione |
 | 48e | `do you know <procedura>?` · `conosci <procedura>?` | risposta da `proc_step` e dalle procedure del C, mai smalltalk; «no» apre la lezione | 🔴 |
-| 48f | `rule for X is <passo ignoto>` | **rifiuto alla lezione**, non silenzio all'`apply`: «I cannot execute «…»: I know keep, drop, …» | 🔴 |
+| 48f | `rule for X is <passo ignoto>` | **rifiuto alla lezione**, non silenzio all'`apply`: «I cannot run «…» as a step of X … A step begins with one of: …» (`step_readable/1`, `step_surface/1`) | ✅ 26 set |
 | 48g | `regola per X è …` · `passo N di X ora è …` · `togli il passo N di X` · `dimentica la procedura X` | le forme italiane che mancano | 🔴 |
 
 ### R. Verifica — insegnare come si controlla

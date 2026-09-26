@@ -751,6 +751,40 @@ variabili `$`, e una regola di soli atomi passa. Limiti duri: arità ≤ 2 per
 goal, nessuna negazione, **nessun confronto, `is/2` o aritmetica**, ≤ 8 variabili.
 Una soglia («serve la protezione a 3 metri?») non è esprimibile come regola detta.
 
+### 17.4-bis Stato dopo la notte del 26 settembre — l'interprete è KB
+
+Scritto dopo lo studio qui sopra, nella stessa notte: `p0_cond_holds`,
+`p0_apply_op`, `p0_run_proc` **non esistono più**. L'interprete sta in
+`procedures.p0` («LE PROCEDURE NOMINATE»): `proc_run(Nome, In, Out)` →
+`proc_from/4` sui passi in ordine → `step_term(Testo, Termine)` →
+`run_step(Nome, Termine, V, V1)`. I termini di un passo: `op(Op, Args)` (testo),
+`num(Op, N)` (numerico, via `agent_branch_step/3` + `apply_operator/4`),
+`if(C, S)`, `ifelse(C, S, E)`, `seq(A, B)` («and»), `repeat(S, C)`; le
+condizioni: `parity(even|odd)`, `compare(eq|lt|gt, N)`, `text(empty|any)`,
+`has(C)`, `length(Cmp, N)`, `starts(T)`, `is(T)`, `stable`. Un passo nuovo è una
+clausola; una parola nuova per un passo è una riga (`proc_operator/2` o
+`agent_branch_step/3`); `step_surface/1` è l'elenco che parrot0 dice a chi
+insegna un passo illeggibile (rifiutato alla lezione: `step_readable/1`).
+
+Tre primitive del solver sotto: `chars/2`, `is/2` e la nuova **`iterate(Passo,
+Arresto, In, Out)`** — rifà `Passo/2` finché `Arresto/1` regge, a profondità
+costante e a carico del budget; il ciclo in KB usa `loop_step/2` e `loop_done/1`
+su un valore `loop(Nome, Passo, Cond, V)`. Il **tetto di profondità** (64) è ora
+una specie propria del registro dei paradossi, `paradox_event(proof, depth, Pred,
+seen(Turno, Goal))`, con `KbInferenceReport.depth_hit` e lo stadio
+`depth_reached` in `composition.p0`.
+
+Trappole nuove, misurate: (1) un numero **fra virgolette** non è un numero per
+`is/2` ed `eq/2` (`eq(mod("6", 2), 0)` fallisce): `proc_value/2` spoglia la
+parola sola all'ingresso; (2) `atom_words/2` spezza anche sugli underscore, quindi
+«apply collatz_step» arriva come due parole e il nome si ricompone con
+`atom_words($Q, $Rest)`; (3) `assert` dentro una prova lanciata da `kb_match`
+(KB a sola lettura) fallisce: la traccia è best-effort; (4) **il demone dei test
+tiene il binario vecchio**: dopo un rebuild si rilancia `make test-engine`, o
+ogni prova sul C è un falso. Aperto: chi rivendica il turno prima delle forme
+(«rule for … repeat …» va allo smalltalk), e il budget di `iterate` che non
+raggiunge il report — handoff in [plans/live-teaching.md](plans/live-teaching.md).
+
 ### 17.5 Che cosa manca per «te lo spiego e mi dici il valore»
 
 Il ponte è uno: dare al ciclo numerico un **nome** (`rule for collatz is …` con

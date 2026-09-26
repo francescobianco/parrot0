@@ -2260,6 +2260,236 @@ relation_note($V, $Note) :-
 % 23 settembre 2026 — lezioni dette parlando, prima in kb/learning/ (un file
 % per canale di provenienza); qui accanto ai loro simili (F.: «per similarita'
 % piu' che per storia»). La provenienza resta nei fatti di provenienza.
+
+% ═══════════════════════════════════════════════════════════════════════════
+% LE PROCEDURE NOMINATE: L'INTERPRETE E' CONOSCENZA (26 settembre 2026)
+%
+% Fino a oggi `proc_step(Nome, N, "passo")` era KB ma chi lo ESEGUIVA era una
+% `switch` di `strcmp` nel C (keep/drop/reverse/upper…, `if … then`, `repeat …
+% until`), con le condizioni accanto: la catena di `||` del mantra #19, e il
+% «consumatore in C della procedura» che il mantra #2 vieta. F. (26 settembre):
+% «le procedure siano insegnate e siano in KB». Qui sta l'interprete: come si
+% LEGGE un passo detto a parole (step_term), che cosa FA (run_step), quando una
+% condizione REGGE (cond_holds), e come si compongono (if, repeat, and, apply).
+% Il C conserva due cose sole: le primitive del solver (`chars/2`, `is/2`,
+% `iterate/4`) e la forma «apply K to …» che chiede `proc_run/3`.
+%
+% I passi numerici riusano il vocabolario che il ciclo a rami (gen116/117) aveva
+% gia' in KB (`agent_branch_step/3`, `agent_parity_marker/2`) e l'esecutore
+% `apply_operator/4`: nessuna seconda tabella. Cosi' «rule for collatz is if even
+% then halve», «rule for collatz is if odd then triple and add 1», «rule for
+% collatz is repeat apply collatz_step until it reaches 1» sono lezioni, e
+% «apply collatz to 6» un calcolo.
+%
+% Il ciclo NON e' ricorsione KB: il solver ha un tetto di profondita' (64) che
+% 111 passi di Collatz sfonderebbero; `iterate/4` (primitiva, sul modello di
+% `findall/3`) rifa' `loop_step/2` finche' `loop_done/1` regge, a profondita'
+% costante, e conta i passi nel budget. Quando un tetto scatta il motore lo
+% scrive nel registro dei paradossi (`paradox_event(proof, depth|budget, …)`) e
+% parrot0 lo DICE (composition.p0, `procedure_stopped_*`), come F. ha chiesto:
+% «quando li raggiunge fa inferenza con essi e te ne parla».
+
+machinery(proc_run). machinery(proc_from). machinery(proc_has_step). machinery(proc_trace).
+machinery(step_term). machinery(step_words). machinery(step_readable). machinery(step_surface).
+machinery(num_operand). machinery(last_word). machinery(branch_symbol_op). machinery(proc_operator).
+machinery(cond_term). machinery(cond_holds). machinery(cond_compare_word). machinery(eq_text). machinery(has_prefix).
+machinery(run_step). machinery(loop_step). machinery(loop_done). machinery(proc_trace_value).
+machinery(keep_chars). machinery(drop_chars). machinery(rev_list). machinery(take_n). machinery(take_count).
+machinery(map_upper). machinery(map_lower). machinery(to_lower). machinery(to_upper). machinery(is_upper). machinery(is_lower). machinery(upper_lower).
+machinery(swap_chars). machinery(replace_chars). machinery(sort_words). machinery(insert_word). machinery(word_le). machinery(chars_le). machinery(char_order). machinery(char_rank). machinery(unique_words).
+
+% ── 1. L'ESECUZIONE: i passi in ordine, ognuno lasciato in traccia ──────────
+% il valore entra NUDO: un numero fra virgolette non e' un numero per `is/2`
+% (misurato: eq(mod("6", 2), 0) fallisce), quindi una parola sola si spoglia
+proc_run($P, $In, $Out) :- proc_step($P, 1, $T), proc_value($In, $V), proc_from($P, 1, $V, $Out).
+machinery(proc_value). machinery(single_word).
+proc_value($In, $V) :- atom_words($In, cons($V, nil)).
+proc_value($In, $In) :- naf(single_word($In)).
+single_word($In) :- atom_words($In, cons($V, nil)).
+proc_from($P, $N, $V, $Out) :-
+    proc_step($P, $N, $T), step_term($T, $S), run_step($P, $S, $V, $V1),
+    proc_trace($T, $V1), is($N1, add($N, 1)), proc_from($P, $N1, $V1, $Out).
+proc_from($P, $N, $V, $V) :- naf(proc_has_step($P, $N)).
+proc_has_step($P, $N) :- proc_step($P, $N, $T).
+% la traccia e' il piano del turno (`turn_plan_step`): «why?» e /debug la leggono
+proc_trace($T, $V) :-
+    concat_atoms($T, " -> ", $H), concat_atoms($H, $V, $Said),
+    assert(turn_plan_step, current_turn, $Said).
+% la traccia e' un dono, non una condizione: in una lettura a sola lettura
+% (`assert` senza KB scrivibile) il calcolo procede comunque
+proc_trace($T, $V).
+
+% ── 2. LA LETTURA DI UN PASSO: parole → termine ─────────────────────────────
+step_readable($T) :- step_term($T, $S).
+step_term($T, $S) :- atom_words($T, $Ws), step_words($Ws, $S).
+% il ramo: «if <condizione> then <passo>»
+step_words(cons(if, $R), if($C, $S)) :-
+    naf(member(else, $R)),
+    append($Cw, cons(then, $Sw), $R), dif($Cw, nil), step_words($Sw, $S), cond_term($Cw, $C).
+% il ramo a due vie: «if <condizione> then <passo> else <passo>» — e' cosi' che un
+% insegnante dice il passo di Collatz in una frase sola («if even then halve else
+% triple and add 1»); due «if» in fila si applicherebbero entrambi allo stesso giro
+step_words(cons(if, $R), ifelse($C, $S, $E)) :-
+    append($Cw, cons(then, $Rest), $R), dif($Cw, nil),
+    append($Sw, cons(else, $Ew), $Rest), dif($Sw, nil), dif($Ew, nil),
+    step_words($Sw, $S), step_words($Ew, $E), cond_term($Cw, $C).
+% il ciclo: «repeat <passo> until <condizione>» (stable = punto fisso)
+step_words(cons(repeat, $R), repeat($S, $C)) :-
+    append($Sw, cons(until, $Cw), $R), dif($Sw, nil), step_words($Sw, $S), cond_term($Cw, $C).
+% la sequenza: «triple and add 1»
+step_words($Ws, seq($A, $B)) :-
+    append($Aw, cons(and, $Bw), $Ws), dif($Aw, nil), dif($Bw, nil),
+    step_words($Aw, $A), step_words($Bw, $B).
+% un operatore su testo, con i suoi argomenti cosi' come sono detti
+step_words(cons($W, $Args), op($Op, $Args)) :- proc_operator($W, $Op).
+% un passo numerico: la superficie e' quella del ciclo a rami (agent_branch_step)
+step_words(cons($W, $R), num($Op, $N)) :-
+    agent_branch_step($Q, $Sym, $F), atom_words($Q, cons($W, nil)),
+    branch_symbol_op($Sym, $Op), num_operand($F, $R, $N).
+num_operand($F, nil, $F) :- dif($F, 0).
+num_operand($F, cons(it, nil), $F) :- dif($F, 0).
+num_operand(0, $R, $N) :- last_word($R, $N).
+last_word(cons($N, nil), $N).
+last_word(cons($H, $T), $N) :- last_word($T, $N).
+branch_symbol_op("+", plus).
+branch_symbol_op("-", minus).
+branch_symbol_op("*", times).
+branch_symbol_op("/", divide).
+proc_operator(keep, keep).       proc_operator(drop, drop).
+proc_operator(reverse, reverse). proc_operator(count, count).
+proc_operator(upper, upper).     proc_operator(lower, lower).
+proc_operator(first, first).     proc_operator(last, last).
+proc_operator(sort, sort).       proc_operator(unique, unique).
+proc_operator(split, split).     proc_operator(join, join).
+proc_operator(apply, apply).     proc_operator(replace, replace).
+% le parole con cui si puo' cominciare un passo: cio' che parrot0 elenca a chi
+% gliene insegna uno che non sa eseguire
+step_surface($W) :- proc_operator($W, $Op).
+step_surface($W) :- agent_branch_step($Q, $S, $F), atom_words($Q, cons($W, nil)).
+
+% ── 3. LE CONDIZIONI: ramo e arresto sono la stessa cosa ────────────────────
+cond_term(cons(it, cons(is, $C)), $T) :- dif($C, nil), cond_term($C, $T).
+cond_term(cons(it, $C), $T) :- dif($C, nil), cond_term($C, $T).
+cond_term(cons(stable, nil), stable).
+cond_term(cons($W, nil), parity($P)) :- agent_parity_marker($P, $Q), atom_words($Q, cons($W, nil)).
+cond_term(cons($W, cons($N, nil)), compare($Cmp, $N)) :- cond_compare_word($W, $Cmp).
+cond_term(cons(empty, nil), text(empty)).
+cond_term(cons(any, nil), text(any)).
+cond_term(cons(has, cons($C, nil)), has($C)).
+cond_term(cons(length, cons($N, nil)), length(eq, $N)).
+cond_term(cons(shorter, cons($N, nil)), length(lt, $N)).
+cond_term(cons(longer, cons($N, nil)), length(gt, $N)).
+cond_term(cons(starts, cons($T, nil)), starts($T)).
+cond_term(cons(is, cons($T, nil)), is($T)).
+cond_compare_word(reaches, eq). cond_compare_word(reach, eq). cond_compare_word(equals, eq).
+cond_compare_word(is, eq).      cond_compare_word(below, lt).  cond_compare_word(under, lt).
+cond_compare_word(above, gt).   cond_compare_word(over, gt).   cond_compare_word(exceeds, gt).
+cond_holds(parity(even), $V) :- eq(mod($V, 2), 0).
+cond_holds(parity(odd), $V) :- eq(mod($V, 2), 1).
+cond_holds(compare($Cmp, $N), $V) :- apply($Cmp, cons($V, cons($N, nil))).
+cond_holds(text(empty), $V) :- chars($V, nil).
+cond_holds(text(any), $V) :- chars($V, cons($H, $T)).
+cond_holds(has($C), $V) :- chars($V, $L), member($Ch, $L), to_lower($Ch, $Lo), char_class($C, $Lo).
+cond_holds(length($Cmp, $N), $V) :- chars($V, $L), list_len($L, $K), apply($Cmp, cons($K, cons($N, nil))).
+cond_holds(starts($T), $V) :- chars($T, $Tl), chars($V, $Vl), has_prefix($Tl, $Vl).
+cond_holds(is($T), $V) :- eq_text($T, $V).
+eq_text($A, $A).
+has_prefix($P, $L) :- append($P, $Rest, $L).
+
+% ── 4. I PASSI: composizione, numeri, testo ────────────────────────────────
+run_step($P, if($C, $S), $V, $Out) :- cond_holds($C, $V), run_step($P, $S, $V, $Out).
+run_step($P, if($C, $S), $V, $V) :- naf(cond_holds($C, $V)).
+run_step($P, ifelse($C, $S, $E), $V, $Out) :- cond_holds($C, $V), run_step($P, $S, $V, $Out).
+run_step($P, ifelse($C, $S, $E), $V, $Out) :- naf(cond_holds($C, $V)), run_step($P, $E, $V, $Out).
+run_step($P, seq($A, $B), $V, $Out) :- run_step($P, $A, $V, $M), run_step($P, $B, $M, $Out).
+run_step($P, repeat($S, $C), $V, $Out) :-
+    iterate(loop_step, loop_done, loop($P, $S, $C, $V), loop($P, $S, $C, $Out)).
+loop_done(loop($P, $S, stable, $V)) :- run_step($P, $S, $V, $V).
+loop_done(loop($P, $S, $C, $V)) :- dif($C, stable), cond_holds($C, $V).
+loop_step(loop($P, $S, $C, $V), loop($P, $S, $C, $V1)) :- run_step($P, $S, $V, $V1), proc_trace_value($V1).
+proc_trace_value($V) :- concat_atoms("-> ", $V, $Said), assert(turn_plan_step, current_turn, $Said).
+proc_trace_value($V).
+run_step($P, num($Op, $N), $V, $Out) :- apply_operator($Op, $V, $N, $Out).
+% il nome della procedura chiamata si ricompone dalle parole (atom_words spezza
+% anche sugli underscore: «apply collatz_step» arriva come due parole)
+run_step($P, op(apply, $Rest), $V, $Out) :- atom_words($Q, $Rest), dif($Q, $P), proc_run($Q, $V, $Out).
+run_step($P, op(keep, cons($C, nil)), $V, $Out) :- chars($V, $L), keep_chars($L, $C, $K), chars($Out, $K).
+run_step($P, op(drop, cons($C, nil)), $V, $Out) :- chars($V, $L), drop_chars($L, $C, $K), chars($Out, $K).
+run_step($P, op(reverse, nil), $V, $Out) :- chars($V, $L), rev_list($L, nil, $R), chars($Out, $R).
+run_step($P, op(count, nil), $V, $Out) :- chars($V, $L), list_len($L, $Out).
+run_step($P, op(upper, nil), $V, $Out) :- chars($V, $L), map_upper($L, $U), chars($Out, $U).
+run_step($P, op(lower, nil), $V, $Out) :- chars($V, $L), map_lower($L, $U), chars($Out, $U).
+run_step($P, op(first, $A), $V, $Out) :-
+    take_count($A, $N), chars($V, $L), take_n($L, $N, $K), chars($Out, $K).
+run_step($P, op(last, $A), $V, $Out) :-
+    take_count($A, $N), chars($V, $L), rev_list($L, nil, $R), take_n($R, $N, $K),
+    rev_list($K, nil, $K2), chars($Out, $K2).
+run_step($P, op(sort, nil), $V, $Out) :- atom_words($V, $Ws), sort_words($Ws, $S), atom_words($Out, $S).
+run_step($P, op(unique, nil), $V, $Out) :- atom_words($V, $Ws), unique_words($Ws, nil, $U), atom_words($Out, $U).
+run_step($P, op(split, cons(on, cons($C, nil))), $V, $Out) :- chars($V, $L), swap_chars($L, $C, " ", $R), chars($Out, $R).
+run_step($P, op(join, cons(with, cons($C, nil))), $V, $Out) :- chars($V, $L), swap_chars($L, " ", $C, $R), chars($Out, $R).
+run_step($P, op(replace, cons($A, cons(with, cons($B, nil)))), $V, $Out) :-
+    chars($A, $Al), chars($B, $Bl), chars($V, $L), replace_chars($L, $Al, $Bl, $R), chars($Out, $R).
+take_count(nil, 1).
+take_count(cons($N, nil), $N).
+
+% ── 5. I MATTONI SUI CARATTERI E SULLE PAROLE ──────────────────────────────
+keep_chars(nil, $C, nil).
+keep_chars(cons($H, $T), $C, cons($H, $R)) :- to_lower($H, $Lo), char_class($C, $Lo), keep_chars($T, $C, $R).
+keep_chars(cons($H, $T), $C, $R) :- to_lower($H, $Lo), naf(char_class($C, $Lo)), keep_chars($T, $C, $R).
+drop_chars(nil, $C, nil).
+drop_chars(cons($H, $T), $C, $R) :- to_lower($H, $Lo), char_class($C, $Lo), drop_chars($T, $C, $R).
+drop_chars(cons($H, $T), $C, cons($H, $R)) :- to_lower($H, $Lo), naf(char_class($C, $Lo)), drop_chars($T, $C, $R).
+rev_list(nil, $A, $A).
+rev_list(cons($H, $T), $A, $R) :- rev_list($T, cons($H, $A), $R).
+take_n(nil, $N, nil).
+take_n(cons($H, $T), 0, nil).
+take_n(cons($H, $T), $N, cons($H, $R)) :- gt($N, 0), is($N1, sub($N, 1)), take_n($T, $N1, $R).
+map_upper(nil, nil).
+map_upper(cons($H, $T), cons($U, $R)) :- to_upper($H, $U), map_upper($T, $R).
+map_lower(nil, nil).
+map_lower(cons($H, $T), cons($U, $R)) :- to_lower($H, $U), map_lower($T, $R).
+to_lower($C, $L) :- upper_lower($C, $L).
+to_lower($C, $C) :- naf(is_upper($C)).
+to_upper($C, $U) :- upper_lower($U, $C).
+to_upper($C, $C) :- naf(is_lower($C)).
+is_upper($C) :- upper_lower($C, $L).
+is_lower($C) :- upper_lower($U, $C).
+upper_lower(A, a). upper_lower(B, b). upper_lower(C, c). upper_lower(D, d). upper_lower(E, e).
+upper_lower(F, f). upper_lower(G, g). upper_lower(H, h). upper_lower(I, i). upper_lower(J, j).
+upper_lower(K, k). upper_lower(L, l). upper_lower(M, m). upper_lower(N, n). upper_lower(O, o).
+upper_lower(P, p). upper_lower(Q, q). upper_lower(R, r). upper_lower(S, s). upper_lower(T, t).
+upper_lower(U, u). upper_lower(V, v). upper_lower(W, w). upper_lower(X, x). upper_lower(Y, y).
+upper_lower(Z, z).
+swap_chars(nil, $F, $T, nil).
+swap_chars(cons($F, $R), $F, $T, cons($T, $R2)) :- swap_chars($R, $F, $T, $R2).
+swap_chars(cons($H, $R), $F, $T, cons($H, $R2)) :- dif($H, $F), swap_chars($R, $F, $T, $R2).
+replace_chars(nil, $A, $B, nil).
+replace_chars($L, $A, $B, $Out) :-
+    dif($A, nil), append($A, $Rest, $L), replace_chars($Rest, $A, $B, $R), append($B, $R, $Out).
+replace_chars(cons($H, $T), $A, $B, cons($H, $R)) :-
+    naf(has_prefix($A, cons($H, $T))), replace_chars($T, $A, $B, $R).
+sort_words(nil, nil).
+sort_words(cons($H, $T), $S) :- sort_words($T, $St), insert_word($H, $St, $S).
+insert_word($W, nil, cons($W, nil)).
+insert_word($W, cons($H, $T), cons($W, cons($H, $T))) :- word_le($W, $H).
+insert_word($W, cons($H, $T), cons($H, $R)) :- naf(word_le($W, $H)), insert_word($W, $T, $R).
+word_le($A, $B) :- chars($A, $La), chars($B, $Lb), chars_le($La, $Lb).
+chars_le(nil, $L).
+chars_le(cons($H1, $T1), cons($H2, $T2)) :- char_order($H1, $R1), char_order($H2, $R2), lt($R1, $R2).
+chars_le(cons($H1, $T1), cons($H2, $T2)) :- char_order($H1, $R1), char_order($H2, $R1), chars_le($T1, $T2).
+char_order($C, $R) :- to_lower($C, $L), char_rank($L, $R).
+char_rank(a, 1). char_rank(b, 2). char_rank(c, 3). char_rank(d, 4). char_rank(e, 5). char_rank(f, 6).
+char_rank(g, 7). char_rank(h, 8). char_rank(i, 9). char_rank(j, 10). char_rank(k, 11). char_rank(l, 12).
+char_rank(m, 13). char_rank(n, 14). char_rank(o, 15). char_rank(p, 16). char_rank(q, 17). char_rank(r, 18).
+char_rank(s, 19). char_rank(t, 20). char_rank(u, 21). char_rank(v, 22). char_rank(w, 23). char_rank(x, 24).
+char_rank(y, 25). char_rank(z, 26).
+char_rank(0, 27). char_rank(1, 28). char_rank(2, 29). char_rank(3, 30). char_rank(4, 31).
+char_rank(5, 32). char_rank(6, 33). char_rank(7, 34). char_rank(8, 35). char_rank(9, 36).
+unique_words(nil, $Seen, nil).
+unique_words(cons($H, $T), $Seen, $R) :- member($H, $Seen), unique_words($T, $Seen, $R).
+unique_words(cons($H, $T), $Seen, cons($H, $R)) :- naf(member($H, $Seen)), unique_words($T, cons($H, $Seen), $R).
+
 proc_step(devowel, 1, "drop vowel").
 proc_step(shout, 1, "upper").
 proc_step(squash, 1, "repeat replace aa with a until stable").

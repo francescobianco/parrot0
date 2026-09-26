@@ -49,6 +49,12 @@ inference_incomplete(current_turn, cycle) :-
 inference_incomplete(current_turn, budget) :-
     turn_counter($K), turn_goal_head(current_turn, $C), turn_goal_query($C, $Q),
     paradox_event(proof, budget, $W, seen($K, $Q)).
+% 26 settembre 2026 (F.): il TETTO DI PROFONDITA' e' una specie sua, come il
+% ciclo e il budget — non piu' travestito da budget. Il motore lo registra
+% (`paradox_event(proof, depth, …)`) e parrot0 ne parla.
+inference_incomplete(current_turn, depth) :-
+    turn_counter($K), turn_goal_head(current_turn, $C), turn_goal_query($C, $Q),
+    paradox_event(proof, depth, $W, seen($K, $Q)).
 inference_cycle(current_turn, cons($A, $R)) :-
     turn_counter($K), turn_goal_head(current_turn, $C),
     turn_paradox_members(pair($K, $C), $L), eq_cons($L, $A, $R).
@@ -246,18 +252,32 @@ stage_text(search_closed, en, "the search closes on itself instead of reaching a
 stage_text(search_closed, it, "la ricerca si chiude su se stessa invece di arrivare a una risposta").
 
 % 3bis. L'ALTRA CAUSA DI ARRESTO, che oggi indossa le parole della prima.
-stage_wraps(budget_spent, search_closed).
+stage_wraps(budget_spent, depth_reached).
 stage_claim(budget_spent, turn_budget_only(current_turn)).
 % Il budget e' una causa SOLO se non c'e' un ciclo: dentro un ciclo tagliato,
 % esaurire i passi e' la sua conseguenza, e dirle tutte e due («…, so the search
 % closes on itself…, so the search ran past its budget») era una seconda causa
 % inventata (misurato con il ciclo di inference_guard.p0t, §25.3).
 machinery(turn_budget_only).
-turn_budget_only($T) :- inference_incomplete($T, budget), naf(inference_incomplete($T, cycle)).
+turn_budget_only($T) :-
+    inference_incomplete($T, budget), naf(inference_incomplete($T, cycle)),
+    naf(inference_incomplete($T, depth)).
 stage_relation(budget_spent, concludes).
 stage_side(budget_spent, after).
 stage_text(budget_spent, en, "the search ran past its budget before finishing").
 stage_text(budget_spent, it, "la ricerca ha superato il suo budget prima di finire").
+
+% 3ter. IL TETTO DI PROFONDITA' (26 settembre 2026): la derivazione e' scesa
+%       oltre i livelli che il solver segue. Un ciclo tagliato lo assorbe come
+%       il budget; da solo, e' la causa che si dice.
+stage_wraps(depth_reached, search_closed).
+stage_claim(depth_reached, turn_depth_only(current_turn)).
+machinery(turn_depth_only).
+turn_depth_only($T) :- inference_incomplete($T, depth), naf(inference_incomplete($T, cycle)).
+stage_relation(depth_reached, concludes).
+stage_side(depth_reached, after).
+stage_text(depth_reached, en, "the derivation nested deeper than I can follow, so I stopped without finishing").
+stage_text(depth_reached, it, "la derivazione e' scesa piu' a fondo di quanto io riesca a seguire, e mi sono fermato senza finire").
 
 % 4. IL VERDETTO EPISTEMICO (cornice, prima).
 stage_wraps(verdict, budget_spent).

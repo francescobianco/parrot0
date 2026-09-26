@@ -1666,6 +1666,14 @@ char_class(digit, 9).
 
 response_template(procedure_result, "{subject}(«{object}») — that is what the steps give.").
 response_template(procedure_result, it, "{subject}(«{object}») — è quello che danno i passi.").
+% 26 settembre 2026 — l'interprete e' in KB (procedures.p0): un passo che non si
+% legge si RIFIUTA alla lezione, e un ciclo fermato da un tetto lo si DICE.
+response_template(procedure_step_unknown, "I cannot run «{object}» as a step of {subject}, so I did not keep it. A step begins with one of: {alts}.").
+response_template(procedure_step_unknown, it, "Non so eseguire «{object}» come passo di {subject}, quindi non l'ho tenuto. Un passo comincia con: {alts}.").
+response_template(procedure_stopped_depth, "{subject} did not finish: after «{object}» the derivation nested deeper than I can follow, so I stopped there rather than guess.").
+response_template(procedure_stopped_depth, it, "{subject} non e' arrivata in fondo: dopo «{object}» la derivazione e' scesa piu' a fondo di quanto io riesca a seguire, e mi sono fermato li' invece di indovinare.").
+response_template(procedure_stopped_budget, "{subject} did not finish: after «{object}» the loop ran past my step budget, so I stopped there rather than guess.").
+response_template(procedure_stopped_budget, it, "{subject} non e' arrivata in fondo: dopo «{object}» il ciclo ha superato il mio budget di passi, e mi sono fermato li' invece di indovinare.").
 
 % Definire un passo della procedura: la stessa forma dei passi di una ricetta
 % (giro /38), con un'altra relazione. Un piano, una ricetta e una procedura sono

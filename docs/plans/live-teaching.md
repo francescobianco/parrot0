@@ -23,6 +23,95 @@ sessione §28–§30 di [l3-upgrade.md](l3-upgrade.md):
 > indirizzare in qualunque momento. La crescita si misura parlando con parrot0,
 > non con un banco.
 
+
+---
+
+## ⭐ HANDOFF — 26 settembre 2026, notte (ripresa di domani)
+
+**Dove siamo.** Tre sessioni live oggi: fisiologia (chiusa in
+[sessions/2026-09-26-live-fisiologia.md](../sessions/2026-09-26-live-fisiologia.md)),
+cantieri ([sessions/2026-09-26-live-cantieri.md](../sessions/2026-09-26-live-cantieri.md),
+committata con la KB curata), procedure per nome
+([sessions/2026-09-26-live-procedure.md](../sessions/2026-09-26-live-procedure.md),
+chiusa senza `/save`). La terza ha rivelato che **l'interprete delle procedure
+insegnate era una `switch` di `strcmp` nel C** — F.: *«grave rottura del
+principio KB-first, dobbiamo sistemarle»* — e la notte è finita in un passo di
+motore, non in una sessione. Lo studio completo è in
+[parrot-p0-syntax.md §17](../parrot-p0-syntax.md).
+
+**Che cosa è entrato (commit di stanotte, `make soft-test` verde).**
+
+- **L'interprete è KB** (`kb/core/procedures.p0`, sezione «LE PROCEDURE NOMINATE»):
+  `proc_run/3`, `step_term/2` (parole → termine), `run_step/4`, `cond_holds/2`,
+  i mattoni sui caratteri (`keep_chars`, `rev_list`, `upper_lower/2`, `char_rank/2`,
+  `replace_chars`, `sort_words`…). Operatori e condizioni sono clausole; i passi
+  numerici (`halve`, `triple`, `add 1`, `divide by 2`) riusano `agent_branch_step/3`
+  e `apply_operator/4`; le condizioni `even`/`odd` riusano `agent_parity_marker/2`;
+  `reaches N` / `below N` / `above N` confrontano. Nuovo il ramo a due vie
+  `if <c> then <s> else <s>`.
+- **Il C si è accorciato**: tolte 259 righe (`p0_cond_holds`, `p0_apply_op`,
+  `p0_run_proc`) da `10-memory-knowledge.c`; l'atto `run_procedure` chiede
+  `proc_run` con `kb_match`; `assert_ordered` **rifiuta alla lezione** un passo
+  che `step_readable/1` non legge (template `procedure_step_unknown`, con le
+  parole ammesse da `step_surface/1`). Bilancio C: −282 / +215.
+- **Una primitiva nuova nel solver**: `iterate(Passo, Arresto, In, Out)` (`kb.c`,
+  accanto a `findall`): rifà `Passo/2` finché `Arresto/1` regge, a profondità
+  costante, consumando il budget. Serve perché un ciclo come ricorsione KB
+  sfonda `KB_MAX_DEPTH` (64: misurato, `power(2,60)` passa, `power(2,70)` no).
+- **Il tetto di profondità è una specie sua** (F.: *«come i paradossi: quando li
+  raggiunge fa inferenza con essi e te ne parla»*): `Solver.depth_hit` +
+  `depth_pred`, `KbInferenceReport.depth_hit`, `paradox_event(proof, depth, Pred,
+  seen(...))`; in `composition.p0` lo stadio `depth_reached` e
+  `inference_incomplete(current_turn, depth)`; i template `procedure_stopped_depth`
+  / `procedure_stopped_budget`.
+
+**Verificato dal vivo** (scratch `proc.p0t`, profilo base): `apply devowel to
+parrot` → prrt; `apply squash to baaad` → bad (ciclo `until stable` via
+`iterate`); `rule for vowels is keep vowel` → `apply vowels to parrot` → ao;
+`rule for collatz_step is if even then halve else triple and add 1` →
+`apply collatz_step to 6` → 3, `to 3` → 10; `rule for bogus is frobnicate the
+value` → rifiutato con l'elenco dei passi ammessi.
+
+**Aperto — da qui si riparte (in ordine).**
+
+1. **Lo smalltalk ruba «rule for collatz is repeat apply collatz_step until it
+   reaches 1»** («I know I repeat myself…»): la lezione non entra, quindi il
+   ciclo nominato non è mai stato eseguito dal vivo. `turn_form_priority(teach_proc,
+   early)` NON basta (provato e tolto): chi rivendica sta prima delle forme
+   early. Diagnosi con `/debug trace path` sul turno; la cura è una cessione KB
+   (`faculty_yield` / `turn_declared_act`), mantra #17.
+2. **`apply howmany to parrot` dà 6 invece di 2** con `howmany` = «apply vowels»,
+   «count»: la traccia mostrava che la lezione «rule for howmany is apply
+   vowels» a volte non veniva salvata (stesso genere del punto 1: un altro
+   lettore prende il turno). Verificare con `!query proc_step(howmany, 1, …)`
+   subito dopo la lezione.
+3. **Il budget esaurito dentro `iterate` non arriva al report**: `rule for
+   forever is repeat add 1 until below 0` gira ~83 000 giri, si ferma per
+   budget, ma `kb_inference_report` dopo `kb_match(proc_run…)` dice
+   `budget_hit=0` e parrot0 cade allo smalltalk invece di dire
+   `procedure_stopped_budget`. Guardare `kb_match` → `kb_note_inference` e il
+   `Solver` che `iterate` riceve. La parte «depth» è scritta ma **non ancora
+   provata** dal vivo.
+4. **La traccia dei passi** (`turn_plan_step`) è scritta dalla KB con `assert`,
+   ma `kb_match` risolve con `kb_mut == NULL`: l'`assert` fallisce (reso
+   best-effort in `proc_trace`), quindi «how do you know?» conta 0 passi. Serve
+   un ingresso con KB scrivibile, o la traccia come valore di ritorno.
+5. **Ancora conoscenza compilata, stessa famiglia** (`C_TODO.md`, voce del 26
+   settembre): il ciclo anonimo `mod_agent` (`60-agent-tools.c`) deve diventare
+   un consumatore di `proc_run` (una procedura senza nome); «What is the
+   factorial of 6?» lo calcola `20-math.c` mentre `factorial/2` in KB non ha
+   consumatori; il lettore delle regole `if … then` (solo triple, niente
+   confronti); nessuna forma «do you know <procedura>?».
+6. **Poi la sessione**: riaprire con `scripts/live-teach.sh start` e rifare il
+   protocollo di F. — «Do you know the Collatz sequence?» → no → le tre lezioni
+   → «apply collatz to 6» → 1, «to 27» → 1 — e chiedere «how do you know?».
+   Il test scratch è in `tests/p0t/procedures/taught_numeric.p0t` (da scrivere
+   a partire dal `proc.p0t` di stanotte, dopo che 1–3 sono chiusi).
+
+Regressione nota, non di stanotte: «what is the capital of france» oscilla
+intorno a 1,1–1,2 s (`np_closer` ~500 ms, `turn_verb_before/1` del commit
+RI-012); stanotte il soft-test è passato, ma va curata.
+
 ---
 
 ## 1. Perché serve, e che cosa correggeva
