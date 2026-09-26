@@ -63,6 +63,12 @@ confermare ciò che non produce effetto (è lo stesso principio del «already» 
 nessuna condotta nuova entra; poi la catena dei seguiti (PR3) come conoscenza
 insegnabile; poi la mossa di ripiego sul muro (PR12).
 
+**Il divario italiano/inglese ha un piano suo** (F., stessa sera):
+[piano-b-traduzione.md](piano-b-traduzione.md). Quando un turno nella lingua
+della sessione non è capito, parrot0 si chiede se sa tradurre la frase intera;
+se sì la rilegge in inglese e risponde in italiano dicendo come; se no chiede
+ciò che manca. PR8, PR11 e PR12 sono il primo banco dello specchio (B0).
+
 ### 1. Grammatica inglese INSEGNATA come regole — studio differenziale
 
 Sessione live `docs/sessions/live/2026-09-26-grammatica.log` (chiusa **senza**
