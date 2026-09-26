@@ -347,9 +347,9 @@ delle menzioni non dice più «No.» su una classe di cui non sa niente
 | coerenti | 0/22 | 3/22 (G2, G3, G4) |
 | fatti spazzatura scritti dalle regole | 4 | 0 |
 
-**Aperto:** l'esempio risposto dallo smalltalk («That sounds nice…», G9) vale
-ancora come «already»: è un falso, da chiudere con il sospetto di
-`gap-kinds.p0` (`template_family`). G18, G22 non si riconoscono (sotto le nove
+**Chiuso dopo il commit intermedio:** l'esempio risposto dallo smalltalk («That sounds nice…», G9) valeva
+come «already»; ora il sospetto di `gap-kinds.p0` (smalltalk in `template_family`) lo esclude. **Aperto:**
+G18, G22 non si riconoscono (sotto le nove
 parole), G10/G12 li prende un altro lettore prima (G12: «a snippet of code»),
 G14/G17/G20 hanno un termine o nessuno. G19/G21/G23: la regola regge, ma gli
 esempi usano verbi che parrot0 non conosce (*standardised*, *drilled*,

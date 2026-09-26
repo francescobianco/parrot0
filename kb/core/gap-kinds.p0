@@ -143,6 +143,10 @@ machinery(template_family).
 template_family(analysis_plan).
 template_family(analysis_family).
 template_family(reqgen).
+% L4-1 (26 settembre 2026): «That sounds nice -- tell me more about it.» e' la
+% risposta dello smalltalk a una domanda che non ha capito, e risultava
+% «answered»: l'esempio di una lezione sulla lingua passava per capito.
+template_family(smalltalk).
 
 % ── IL RIMEDIO, per specie ─────────────────────────────────────────────────
 % E' la ragione per cui distinguere serve: quattro specie, quattro rimedi.

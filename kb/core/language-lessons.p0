@@ -127,7 +127,11 @@ language_lesson_waiting($N) :-
 machinery(language_example_read).
 language_example_read($N) :-
     language_lesson_waiting($N), turn_declared_act(current_turn, question),
-    turn_outcome(current_turn, answered).
+    turn_outcome(current_turn, answered),
+    naf(turn_gap_kind(current_turn, wrong_suspect)).
+% Una risposta generica (il sospetto di gap-kinds.p0: rispondeva una facolta'
+% che produce un testo che puo' non rispondere) non e' un esempio capito, e non
+% e' nemmeno un muro: la lezione resta aperta, e parrot0 non dice niente.
 machinery(language_example_unread).
 language_example_unread($N) :-
     language_lesson_waiting($N), turn_declared_act(current_turn, question),
