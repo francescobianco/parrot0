@@ -1,0 +1,269 @@
+# sessione: debug di applicazioni PHP — lezioni imparate vs lezioni con problemi — 2026-09-26 09:04 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@6f385bd7]
+# mode: conversational (tools off, network off) - 166020 facts, 5526 rules (3.33%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Campo: debug di applicazioni PHP. Indirizzo di F.: far crescere la KB con lezioni vere; ogni forma d'insegnamento che non funziona va annotata in train-the-learning-process.md e si passa oltre; alla fine un coefficiente lezioni imparate / lezioni con problemi. Conto una lezione come IMPARATA se, dopo la frase, una domanda diversa dalla lezione (wh o polare, o un caso tenuto fuori) risponde giusto; CON PROBLEMI se la frase non entra, entra storta, o la domanda non la trova. Prima la base: che cosa sa già.
+> What is Xdebug?
+< I don't know much about xdebug yet, and the network is off, so I can't read about it now.
+> What does var_dump do?
+< Hmm, I don't know about var dump yet. Want me to learn about it?
+> What causes a segfault?
+< I don't understand that yet.
+> How do I fix a null pointer?
+< I don't have the steps for pointer yet. But I know what one is made of, so you would need: variable. That is what it is, not how to do it.
+> What is a stack trace?
+< I don't know much about stack trace yet, and the network is off, so I can't read about it now.
+! L1 — classe e definizione: «Xdebug is a debugger extension for PHP.» Prova: la definizione, la polare sulla classe, e il complemento «for PHP».
+> Xdebug is a debugger extension for PHP.
+< Learned: xdebug is a debugger extension. I looked up «var dump» but found nothing. If you know it, teach me: «var dump is defined as …».
+> What is Xdebug?
+< Xdebug is classed as debugger extension.
+> Is Xdebug an extension?
+< I don't know about extension.
+> Is Xdebug a debugger?
+< I don't know about debugger.
+> What is Xdebug an extension for?
+< I don't know much about xdebug an extension yet, and the network is off, so I can't read about it now.
+! L1 con problemi: la classe composta «debugger extension» non dà «extension» (la testa del sintagma non è un iperonimo), «for PHP» cade in silenzio, e la risposta alla lezione si porta dietro una lacuna vecchia («I looked up var dump»). Provo a dirla come la direbbe un docente: una debugger extension è un'estensione. Se regge, la classe si insegna per contatto.
+> A debugger extension is an extension.
+< Learned: debugger extension is an extension.
+> Is Xdebug an extension?
+< Yes.
+> A PHP extension adds functions to the PHP interpreter.
+< Learned: php extension add functions.
+> What does a PHP extension add?
+< Functions.
+! L2 imparata: la classe si allunga per contatto (Xdebug → debugger extension → extension). L3 imparata: «What does a PHP extension add?» → Functions. Verifico il complemento di L3, poi passo alle CAUSE degli errori PHP, che è la domanda vera di chi fa debug.
+> What does a PHP extension add functions to?
+< Php interpreter.
+> A missing semicolon causes a parse error.
+< Learned: missing semicolon causes parse error.
+> What causes a parse error?
+< Missing semicolon.
+> Does a missing semicolon cause a parse error?
+< Yes: missing semicolon causes parse error.
+> Output before the header function causes a headers already sent warning.
+< Learned: output before the header function causes headers already sent warning.
+> What causes a headers already sent warning?
+< output before the header function.
+! L4 (punto e virgola → parse error) e L5 (output prima di header() → headers already sent) imparate nei due versi, con sintagmi lunghi. Ora le FUNZIONI di debug: nomi con underscore (var_dump, error_log) — il confine di parola è il rischio.
+> var_dump prints the type and value of a variable.
+< Learned: var dump print type.
+> What does var_dump print?
+< Type and value.
+> What prints the type and value of a variable?
+< Var dump.
+> The error_log function writes a message to the error log.
+< Learned: error log function write message.
+> What does error_log write?
+< Hmm, I don't know about error log yet. Want me to learn about it?
+> What writes a message to the error log?
+< Error log function.
+! L6 imparata (var_dump, nei due versi). L7 con problemi: «The error_log function writes…» salva il soggetto «error log function» — l'apposizione «the NOME function» resta incollata al nome, e «What does error_log write?» non lo trova. Verifico che la causa sia l'apposizione con la frase senza «function», e provo a insegnare l'apposizione stessa.
+> error_log writes a message to the error log.
+< Learned: error log write message.
+> What does error_log write?
+< Message.
+> In the error_log function, error_log is the name of the function.
+< Learned: error log is a name. Looking up error log... Message.
+> What does the error_log function write?
+< Message.
+! L7 con problemi: l'apposizione «the error_log function» non si separa, e la lezione esplicita «error_log is the name of the function» diventa la classe «error log is a name». Senza apposizione la stessa conoscenza entra. Passo alle IMPOSTAZIONI con un valore: il limite di tempo di uno script PHP (max_execution_time, 30 secondi di default).
+> default value is a relation
+< Learned: default value is relation.
+> The default value of max_execution_time is 30 seconds.
+< Learned: the default value of max execution time is 30 seconds.
+> What is the default value of max_execution_time?
+< 30 seconds.
+> The display_errors setting controls whether errors appear in the output.
+< I didn't keep that: «display_errors_setting_controls_whether_errors» and «output» don't read as things I can hold a fact about.
+> What controls whether errors appear in the output?
+< Hmm, I don't know about whether yet. Want me to learn about it?
+> What does display_errors control?
+< Hmm, I don't know about display errors yet. Want me to learn about it?
+! L8 imparata (valore di default con «default value is a relation», anche se il riscontro dice «is relation»). L9 con problemi: oggetto «whether …» e apposizione «the display_errors setting». Annotati P1–P3 in train-the-learning-process.md. Avanti: gli errori FATALI e i loro rimedi — la domanda «come lo risolvo?» che un programmatore fa davvero.
+> A script that exceeds memory_limit causes an allowed memory size exhausted error.
+< Learned: script exceed memory limit.
+> What causes an allowed memory size exhausted error?
+< Hmm, I don't know about allowed yet. Want me to learn about it?
+> Raising memory_limit fixes an allowed memory size exhausted error.
+< I looked up «allowed» but found nothing. If you know it, teach me: «allowed is defined as …».
+> What fixes an allowed memory size exhausted error?
+< Hmm, I don't know about allowed yet.
+> How do I fix an allowed memory size exhausted error?
+< I understood you're asking how to make error, but I don't have the steps for it yet.
+! L10 con problemi: soggetto con relativa («A script that exceeds memory_limit causes…») letto come «script exceed memory limit», e l'oggetto «an allowed memory size exhausted error» non è un'entità (cerca «allowed»). Indirizzo di F.: insegnare anche per CONTATTO (L3). Il contatto vuole una relazione già tenuta: ho due cause vere (punto e virgola → parse error, output prima di header() → headers already sent). Insegno un VERBO della causa («triggers») e un NOME («symptom»), e provo il trasferimento sull'altro fatto, mai nominato nella lezione.
+> A missing semicolon causes a parse error, so it triggers a parse error.
+< Learned: missing semicolon causes parse error.
+> Does output before the header function trigger a headers already sent warning?
+< Reading «trigger» as «causes». Yes: output before the header function causes headers already sent warning.
+> What triggers a parse error?
+< Reading «triggers» as «causes». missing semicolon.
+> A missing semicolon causes a parse error, so a parse error is its symptom.
+< Learned: missing semicolon causes parse error.
+> What is the symptom of output before the header function?
+< Reading «symptom» as «causes». A named block of code that performs a specific task and can return a value.
+! L11 imparata per contatto: «triggers» diventa un verbo della causa e vale sul fatto tenuto fuori (Yes su headers already sent). L12 a metà: «symptom» è letto come causa, ma «the symptom of output before the header function» risponde con la DEFINIZIONE di «function» — il sintagma lungo dopo «of» è ridotto alla testa: risposta sbagliata, peggio di un muro. Controllo il nome su un soggetto corto.
+> What is the symptom of a missing semicolon?
+< Reading «symptom» as «causes». I can't show that.
+> An unclosed string causes a parse error.
+< Learned: unclosed string causes parse error.
+> What is the symptom of an unclosed string?
+< Reading «symptom» as «causes». I can't show that.
+> What triggers a parse error?
+< Reading «triggers» as «causes». missing semicolon.
+! L12 con problemi: il NOME «symptom» si legge, ma «the symptom of X» non trova l'effetto («I can't show that») e con X lungo dà una risposta sbagliata. L13 (stringa non chiusa → parse error) entrata, ma «What triggers a parse error?» dice ancora una sola causa: l'enumerazione dà una soluzione (già visto nei cantieri). Nuovo contatto su un'altra relazione: print. Prima il fatto vero di print_r, poi il contatto su var_dump con «displays», poi il trasferimento su print_r.
+> Do unclosed strings cause parse errors?
+< Yes: unclosed string causes parse error.
+> print_r prints a readable view of a variable.
+< I didn't keep that: «print_r» and «readable_view» don't read as things I can hold a fact about.
+> What does print_r print?
+< Readable.
+> var_dump prints the type and value of a variable, so it displays the type and value of a variable.
+< Learned: var dump print type.
+> What does print_r display?
+< Hmm, I don't know about print r yet. Want me to learn about it?
+> Does var_dump display the type of a variable?
+< I don't know: nothing I hold says var dump show the type of is variable, and nothing says it isn't.
+! L13 imparata. L14 (print_r) e L15 (contatto «displays» con oggetto coordinato) con problemi: annotati P4–P8. Salgo su una relazione nominata che regge (default value, L8): un fatto vero in più e un NOME per contatto («its default»), con trasferimento sul fatto tenuto fuori.
+> The default value of memory_limit is 128 megabytes.
+< Hmm, I don't know about default value yet. Want me to learn about it?
+> What is the default value of memory_limit?
+< I don't know: nothing I hold gives memory limit a default value there.
+> The default value of max_execution_time is 30 seconds, so its default is 30 seconds.
+< Learned: so_its_default has 30 seconds.
+> What is the default of memory_limit?
+< I don't know about default.
+> The default value of memory_limit is 128 megabytes.
+< Hmm, I don't know about default_value yet.
+> /debug trace form
+# /debug: 417 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+! L16 con problemi: la stessa forma di L8 («the default value of X is V») non legge quando il valore è in megabyte. Ipotesi: l'unità. Controprova con un altro valore vero in secondi (default_socket_timeout = 60 s) e con un conteggio di megabyte.
+> The default value of default_socket_timeout is 60 seconds.
+< Learned: the default value of default socket timeout is 60 seconds.
+> What is the default value of default_socket_timeout?
+< 60 seconds.
+> Is a megabyte a unit?
+< I don't know about unit.
+> The default value of memory_limit is 128M.
+< Hmm, I don't know about default_value yet.
+> What is the default value of memory_limit?
+< I don't know: nothing I hold gives memory limit a default value there.
+! L17 imparata (default_socket_timeout, 60 s). L16: la causa è l'unità — un'unità per la KB è ciò che «misura» qualcosa (unit_word_kb :- measures). Insegno il megabyte con una frase vera, come si fece col byte, e rileggo la lezione di memory_limit.
+> The megabyte measures information.
+< Learned: megabyte measures information.
+> The default value of memory_limit is 128 megabytes.
+< Hmm, I don't know about default_value yet.
+> What is the default value of memory_limit?
+< I don't know: nothing I hold gives memory limit a default value there.
+> The default value of upload_max_filesize is 2 megabytes.
+< Learned: the default value of upload max filesize is 2 megabytes.
+> What is the default value of upload_max_filesize?
+< 2 megabytes.
+> The default value of memory_limit is 128 seconds.
+< Hmm, I don't know about default_value yet.
+! L18 imparata (upload_max_filesize, 2 MB) e il megabyte come unità è entrato; la forma cade solo con il soggetto memory_limit, anche in secondi: il blocco è il NOME, non l'unità. Ipotesi: il fatto storto di L10 («script exceed memory limit») ha fatto di «memory limit» qualcos'altro. Annoto e salgo: il comportamento degli errori — che cosa ferma lo script e che cosa no, con la negazione come contrasto.
+> A fatal error stops the script.
+< I didn't keep that: «fatal_error» and «script» don't read as things I can hold a fact about.
+> A warning does not stop the script.
+< Learned: a warning does not stop the script.
+> Does a fatal error stop the script?
+< I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does a warning stop the script?
+< No.
+> What stops the script?
+< Fatal error and warning does not.
+> Does a notice stop the script?
+< Hmm, I don't know about notice yet. Want me to learn about it?
+! L21 imparata (la negazione tiene: «Does a warning stop the script?» → No; una notice sconosciuta declina). L20 con problemi: «A fatal error stops the script.» non entra («fatal_error and script don't read as things»), mentre la negazione con lo stesso verbo e lo stesso oggetto sì; e «What stops the script?» risponde «Fatal error and warning does not.» — mescola il fatto rifiutato e una negazione in un elenco positivo. Controprova: il plurale, e un altro verbo.
+> Fatal errors stop scripts.
+< I didn't keep that: «fatal_errors» and «scripts» don't read as things I can hold a fact about.
+> Does a fatal error stop the script?
+< I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.
+> A fatal error halts the script.
+< I didn't keep that: «fatal_error» and «script» don't read as things I can hold a fact about.
+> Does a fatal error halt the script?
+< I cannot settle that: no fact I hold decides whether fatal error halt script. Not proved is not the same as false. Tell me either way and I will hold it.
+! Né il plurale né un altro verbo: il lettore rifiuta la coppia di nomi. Provo a far conoscere i due nomi con una classificazione vera («A script is a program.», «A fatal error is an error.») e ripeto la lezione.
+> A script is a program.
+< Learned: script is a program.
+> A fatal error is an error.
+< Hmm, I don't know about fatal error yet. Want me to learn about it?
+> A fatal error stops the script.
+< I didn't keep that: «fatal_error» and «script» don't read as things I can hold a fact about.
+> Does a fatal error stop the script?
+< I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.
+! Annotati P9 e P10. «A script is a program.» imparata. Avanti con strumenti di diagnosi: lo stack trace e il log degli errori, frasi SVO semplici, poi un contatto sul verbo «shows» → «lists».
+> A stack trace shows the sequence of function calls.
+< I didn't keep that: «stack» and «shows_the_sequence» don't read as things I can hold a fact about.
+> What does a stack trace show?
+< I don't have the trace you mean — paste it here and I'll work on it.
+> What shows the sequence of function calls?
+< I don't understand that yet.
+> A stack trace shows the sequence of function calls, so it lists the sequence of function calls.
+< I didn't keep that: «stack» and «shows_the_sequence» don't read as things I can hold a fact about.
+> Xdebug shows a stack trace.
+< Learned: xdebug show stack trace.
+> Does Xdebug list a stack trace?
+< I don't know: nothing I hold says xdebug list is stack trace, and nothing says it isn't.
+! L23 con problemi: in «A stack trace shows…» la parola «trace» è letta come VERBO («stack» soggetto, «shows the sequence» oggetto); e «What does a stack trace show?» la prende la facoltà degli strumenti («paste it here»). L24 (contatto «lists») non poteva nascere senza il fatto. L25 entrata. Provo a far diventare «stack trace» un nome con una classificazione vera, poi rileggo.
+> What shows a stack trace?
+< I don't have the trace you mean — paste it here and I'll work on it.
+> A stack trace is a report.
+< Hmm, I don't know about report yet. Want me to learn about it?
+> A stack trace shows the sequence of function calls.
+< I didn't keep that: «stack_trace» and «sequence» don't read as things I can hold a fact about.
+> What does a stack trace show?
+< I don't have the trace you mean — paste it here and I'll work on it.
+! L23–L24 con problemi (P11), L25 imparata a metà: «Xdebug shows a stack trace» entra ma «What shows a stack trace?» è rubata dagli strumenti — la conto con problemi. Il rifiuto ricorrente ha un sito solo, annotato. Avanti con strumenti dell'ecosistema: Composer, PHPUnit, OPcache, PHP-FPM, e un verbo per contatto con trasferimento.
+> Composer manages dependencies.
+< Learned: composer manage dependencies.
+> What manages dependencies?
+< Composer.
+> PHP-FPM manages worker processes.
+< Learned: php-fpm manage worker processes.
+> What does PHP-FPM manage?
+< Worker processes.
+> Composer manages dependencies, so it handles dependencies.
+< Learned: composer manage dependencies.
+> Does PHP-FPM handle worker processes?
+< Hmm, I don't know about handle yet. Want me to learn about it?
+> What handles dependencies?
+< Hmm, I don't know about handles yet. Want me to learn about it?
+! L26 (Composer) e L27 (PHP-FPM) imparate nei due versi. L28 con problemi: il contatto «so it handles» sul verbo appena imparato «manage» non nasce, mentre su «causes» (L11) sì — il contatto vede solo relazioni già dichiarate, non un verbo imparato un minuto prima. Avanti: test e cache.
+> PHPUnit runs unit tests.
+< Learned: phpunit run unit tests.
+> What runs unit tests?
+< phpunit.
+> PHPUnit is a testing framework.
+< Learned: phpunit is a testing framework.
+> What is PHPUnit?
+< Phpunit is classed as testing framework.
+> OPcache stores compiled bytecode in shared memory.
+< Learned: opcache stores compiled bytecode.
+> What does OPcache store?
+< Compiled bytecode.
+> Where does OPcache store compiled bytecode?
+< Compiled bytecode.
+! L29 (PHPUnit esegue i test) e L30 (PHPUnit è un framework di test) imparate. L31 con problemi: il fatto di OPcache entra, ma «Where does OPcache store compiled bytecode?» risponde «Compiled bytecode» — il complemento di luogo «in shared memory» è perso e la domanda «where» riceve l'oggetto: risposta sbagliata. Ultima lezione: la porta di Xdebug (xdebug.client_port, 9003 da Xdebug 3) con la forma del valore nominato.
+> default port is a relation
+< Learned: default port is relation.
+> The default port of Xdebug is 9003.
+< Learned: the default port of xdebug is 9003.
+> What is the default port of Xdebug?
+< 9003.
+> Is 9003 the default port of Xdebug?
+< Hmm, I don't know about default port yet. Want me to learn about it?
+! L32 imparata (la wh- sul valore), ma la polare «Is 9003 the default port of Xdebug?» va allo smalltalk: la forma «is V the R of X» non raggiunge la relazione nominata (P14, forma di domanda). Ritenzione in chiusura: tre domande su lezioni di inizio sessione, poi /save.
+> Is Xdebug an extension?
+< Yes.
+> What causes a headers already sent warning?
+< output before the header function.
+> What is the default value of max_execution_time?
+< 30 seconds.
+! Chiudo con /save; a freddo tolgo dalla ricaduta i fatti storti (P4, P2, P7) prima del commit.
+> /save
+# sessione chiusa 09:13

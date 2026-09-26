@@ -1250,6 +1250,8 @@ relation(working_load).
 relation(melting_point).
 relation(flash_point).
 relation(minimum_height).
+relation(default_port).
+relation(default_value).
 response_template(learned_ability, "Held: {subject} can {object}.").
 response_template(learned_ability, it, "Tengo: {subject} può {object}.").
 turn_form(ability_stated, 1, slot(subject)).

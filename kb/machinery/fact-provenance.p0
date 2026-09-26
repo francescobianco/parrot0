@@ -55,6 +55,7 @@ bridged("how many grams are 2 cups of flour?", dialogue).
 bridged("i cooked the chicken to 68 degrees, is it safe?", dialogue).
 bridged("what does a fire extinguisher do?", dialogue).
 bridged("what does a sump pump do?", dialogue).
+bridged("what does error_log write?", dialogue).
 fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
 reading_fact(measures(farad, capacitance), "the farad measures capacitance").
 fact_source(measures(henry, inductance), henry, "the henry measures inductance").
@@ -557,7 +558,33 @@ fact_source(protects(hearing_protection, ears), hearing_protection, "hearing pro
 fact_source(protect(safety_boots, feet), safety_boots, "safety boots protect the feet from falling objects.").
 fact_source(minimum_height_of(fall_protection, 2_meters), fall_protection, "the minimum height of fall protection is 2 meters.").
 fact_source(need(workers, fall_protection), workers, "workers need fall protection above 2 meters.").
+fact_source(default_port_of(xdebug, 9003), xdebug, "the default port of xdebug is 9003.").
+fact_source(stores(opcache, compiled_bytecode), opcache, "opcache stores compiled bytecode in shared memory.").
+fact_source(testing_framework(phpunit), phpunit, "phpunit is a testing framework.").
+fact_source(run(phpunit, unit_tests), phpunit, "phpunit runs unit tests.").
+fact_source(manage(composer, dependencies), composer, "composer manages dependencies, so it handles dependencies.").
+fact_source(manage(php-fpm, worker_processes), php-fpm, "php-fpm manages worker processes.").
+fact_source(manage(composer, dependencies), composer, "composer manages dependencies.").
+fact_source(show(xdebug, stack_trace), xdebug, "xdebug shows a stack trace.").
+fact_source(program(script), script, "a script is a program.").
+fact_source(default_value_of(upload_max_filesize, 2_megabytes), upload_max_filesize, "the default value of upload_max_filesize is 2 megabytes.").
+fact_source(measures(megabyte, information), megabyte, "the megabyte measures information.").
+fact_source(default_value_of(default_socket_timeout, 60_seconds), default_socket_timeout, "the default value of default_socket_timeout is 60 seconds.").
+fact_source(print(var_dump, type), var_dump, "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
+fact_source(causes(unclosed_string, parse_error), unclosed_string, "an unclosed string causes a parse error.").
+fact_source(causes(missing_semicolon, parse_error), missing_semicolon, "a missing semicolon causes a parse error, so a parse error is its symptom.").
+fact_source(causes(missing_semicolon, parse_error), missing_semicolon, "a missing semicolon causes a parse error, so it triggers a parse error.").
+fact_source(default_value_of(max_execution_time, 30_seconds), max_execution_time, "the default value of max_execution_time is 30 seconds.").
+fact_source(name(error_log), error_log, "error_log is the name of the function.").
 fact_source(protects(hard_hat, head), hard_hat, "a hard hat protects the head from falling objects.").
+fact_source(write(error_log, message), error_log, "error_log writes a message to the error log.").
+fact_source(write(error_log_function, message), error_log_function, "the error_log function writes a message to the error log.").
+fact_source(print(var_dump, type), var_dump, "var_dump prints the type and value of a variable.").
+fact_source(causes(output_before_the_header_function, headers_already_sent_warning), output_before_the_header_function, "output before the header function causes a headers already sent warning.").
+fact_source(causes(missing_semicolon, parse_error), missing_semicolon, "a missing semicolon causes a parse error.").
+fact_source(add(php_extension, functions), php_extension, "a php extension adds functions to the php interpreter.").
+fact_source(extension(debugger_extension), debugger_extension, "a debugger extension is an extension.").
+fact_source(debugger_extension(xdebug), xdebug, "xdebug is a debugger extension for php.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -997,32 +1024,75 @@ reading_fact(relation(melting_point), "melting point is a relation").
 reading_fact(word_joiner(-), ""-" is a word joiner").
 reading_fact(flash_point_of(jet_a_fuel, 38_degrees_celsius), "the flash point of jet a fuel is 38 degrees celsius.").
 reading_fact(boils_at(acetone, 56_degrees_celsius), "the boiling point of acetone is 56 degrees celsius.").
+reading_fact(default_port_of(xdebug, 9003), "the default port of xdebug is 9003.").
 reading_fact(relation(operating_voltage), "operating voltage is a relation").
+reading_fact(stores(opcache, compiled_bytecode), "opcache stores compiled bytecode in shared memory.").
 reading_fact(construction_frame("the freezing point of @S is @O", "@S freezes at @O", freezes_at), "the freezing point of x is y means x freezes at y").
+reading_fact(testing_framework(phpunit), "phpunit is a testing framework.").
 reading_fact(relation(flash_point), "flash point is a relation").
+reading_fact(run(phpunit, unit_tests), "phpunit runs unit tests.").
 reading_fact(construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at), "the boiling point of x is y means x boils at y").
+reading_fact(proposition(binary(run), roles(subject(phpunit), object(unit))), "phpunit runs unit tests.").
+reading_fact(manage(composer, dependencies), "composer manages dependencies, so it handles dependencies.").
 reading_fact(causes(unguarded_edge, fall), "an unguarded edge causes a fall.").
+reading_fact(proposition(binary(manage), roles(subject(composer), object(dependencies))), "composer manages dependencies, so it handles dependencies.").
+reading_fact(manage(php-fpm, worker_processes), "php-fpm manages worker processes.").
 reading_fact(taught_form_source(taught_form_16, "tell me the x"), "tell me the x means what is the x?").
+reading_fact(proposition(binary(manage), roles(subject(php-fpm), object(worker_processes))), "php-fpm manages worker processes.").
+reading_fact(manage(composer, dependencies), "composer manages dependencies.").
 reading_fact(proposition(binary(cause), roles(subject(unguarded_edge), object(fall))), "an unguarded edge causes a fall.").
+reading_fact(proposition(binary(manage), roles(subject(composer), object(dependencies))), "composer manages dependencies.").
+reading_fact(show(xdebug, stack_trace), "xdebug shows a stack trace.").
 reading_fact(protect(guardrails, workers), "guardrails protect workers from falls.").
+reading_fact(proposition(binary(show), roles(subject(xdebug), object(stack))), "xdebug shows a stack trace.").
+reading_fact(program(script), "a script is a program.").
 reading_fact(emits(light-emitting_diode, light), "a light-emitting diode emits light.").
+reading_fact(proposition(binary(halt), roles(subject(fatal_error), object(script))), "a fatal error halts the script.").
+reading_fact(proposition(binary(stop), roles(subject(fatal_errors), object(scripts))), "fatal errors stop scripts.").
+reading_fact(proposition(binary(stop), roles(subject(warning_does_not), object(script))), "a warning does not stop the script.").
+reading_fact(proposition(binary(stop), roles(subject(fatal_error), object(script))), "a fatal error stops the script.").
+reading_fact(default_value_of(upload_max_filesize, 2_megabytes), "the default value of upload_max_filesize is 2 megabytes.").
 reading_fact(proposition(binary(protect), roles(subject(guardrails), object(workers))), "guardrails protect workers from falls.").
+reading_fact(measures(megabyte, information), "the megabyte measures information.").
 reading_fact(wore(workers, hard_hat), "workers wear a hard hat because it protects the head from falling objects.").
+reading_fact(proposition(binary(measure), roles(subject(megabyte), object(information))), "the megabyte measures information.").
+reading_fact(default_value_of(default_socket_timeout, 60_seconds), "the default value of default_socket_timeout is 60 seconds.").
 reading_fact(measures(degree_fahrenheit, temperature), "the degree fahrenheit measures temperature.").
+reading_fact(print(var_dump, type), "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
 reading_fact(proposition(binary(cause), roles(subject(unguarded_edges), object(falls))), "unguarded edges cause falls.").
+reading_fact(proposition(binary(print), roles(subject(print_r), object(readable))), "print_r prints a readable view of a variable.").
+reading_fact(causes(unclosed_string, parse_error), "an unclosed string causes a parse error.").
 reading_fact(protects(hearing_protection, ears), "hearing protection protects the ears from noise.").
+reading_fact(proposition(binary(cause), roles(subject(unclosed_string), object(parse_error))), "an unclosed string causes a parse error.").
+reading_fact(causes(missing_semicolon, parse_error), "a missing semicolon causes a parse error, so a parse error is its symptom.").
 reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
+reading_fact(causes(missing_semicolon, parse_error), "a missing semicolon causes a parse error, so it triggers a parse error.").
 reading_fact(proposition(binary(protect), roles(subject(protection), object(ears))), "hearing protection protects the ears from noise.").
+reading_fact(default_value_of(max_execution_time, 30_seconds), "the default value of max_execution_time is 30 seconds.").
 reading_fact(protect(safety_boots, feet), "safety boots protect the feet from falling objects.").
+reading_fact(name(error_log), "error_log is the name of the function.").
 reading_fact(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature))), "the degree fahrenheit measures temperature.").
 reading_fact(proposition(binary(protect), roles(subject(safety_boots), object(feet))), "safety boots protect the feet from falling objects.").
+reading_fact(write(error_log, message), "error_log writes a message to the error log.").
 reading_fact(minimum_height_of(fall_protection, 2_meters), "the minimum height of fall protection is 2 meters.").
+reading_fact(proposition(binary(write), roles(subject(error_log), object(message))), "error_log writes a message to the error log.").
+reading_fact(write(error_log_function, message), "the error_log function writes a message to the error log.").
 reading_fact(measures(degree_celsius, temperature), "the degree celsius measures temperature.").
+reading_fact(print(var_dump, type), "var_dump prints the type and value of a variable.").
 reading_fact(need(workers, fall_protection), "workers need fall protection above 2 meters.").
+reading_fact(proposition(binary(print), roles(subject(var_dump), object(value))), "var_dump prints the type and value of a variable.").
+reading_fact(proposition(binary(print), roles(subject(var_dump), object(type))), "var_dump prints the type and value of a variable.").
+reading_fact(causes(output_before_the_header_function, headers_already_sent_warning), "output before the header function causes a headers already sent warning.").
 reading_fact(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), "a light-emitting diode emits light.").
+reading_fact(causes(missing_semicolon, parse_error), "a missing semicolon causes a parse error.").
 reading_fact(proposition(binary(need), roles(subject(workers), object(fall_protection))), "workers need fall protection above 2 meters.").
+reading_fact(proposition(binary(cause), roles(subject(missing_semicolon), object(parse_error))), "a missing semicolon causes a parse error.").
+reading_fact(add(php_extension, functions), "a php extension adds functions to the php interpreter.").
 reading_fact(protects(hard_hat, head), "a hard hat protects the head from falling objects.").
+reading_fact(proposition(binary(add), roles(subject(php_extension), object(functions))), "a php extension adds functions to the php interpreter.").
+reading_fact(extension(debugger_extension), "a debugger extension is an extension.").
 reading_fact(proposition(binary(measure), roles(subject(degree_celsius), object(temperature))), "the degree celsius measures temperature.").
+reading_fact(debugger_extension(xdebug), "xdebug is a debugger extension for php.").
 reading_fact(proposition(binary(protect), roles(subject(hard_hat), object(head))), "a hard hat protects the head from falling objects.").
 
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
@@ -1138,6 +1208,7 @@ fact_mention(work_in_progress, "kanban limits work in progress.").
 fact_mention(kanban, "kanban limits work in progress.").
 fact_mention(adriatic_sea, "the po flows into the adriatic sea.").
 fact_mention(berlin, "the reichstag is in berlin.").
+fact_mention(information, "the megabyte measures information.").
 fact_mention(reichstag, "the reichstag is in berlin.").
 fact_mention(direct_current, "batteries supply direct current.").
 fact_mention(batteries, "batteries supply direct current.").
@@ -1149,75 +1220,121 @@ fact_mention(rhone, "the rhone flows into the mediterranean sea.").
 fact_mention(istanbul, "the largest city of turkey is istanbul.").
 fact_mention(alternating_current, "capacitors pass alternating current.").
 fact_mention(length, "the nanometre measures length.").
+fact_mention(9003, "the default port of xdebug is 9003.").
+fact_mention(xdebug, "the default port of xdebug is 9003.").
 fact_mention(nanometre, "the nanometre measures length.").
 fact_mention(capacitors, "capacitors pass alternating current.").
+fact_mention(compiled_bytecode, "opcache stores compiled bytecode in shared memory.").
+fact_mention(opcache, "opcache stores compiled bytecode in shared memory.").
 fact_mention(turkey, "the largest city of turkey is istanbul.").
 fact_mention(berlin, "the brandenburg gate is in berlin.").
+fact_mention(phpunit, "phpunit is a testing framework.").
 fact_mention(frequency, "the hertz measures frequency.").
 fact_mention(load, "plates carry load.").
+fact_mention(unit_tests, "phpunit runs unit tests.").
+fact_mention(phpunit, "phpunit runs unit tests.").
 fact_mention(plates, "plates carry load.").
 fact_mention(starch, "amylase breaks down starch.").
 fact_mention(amylase, "amylase breaks down starch.").
+fact_mention(dependencies, "composer manages dependencies, so it handles dependencies.").
+fact_mention(composer, "composer manages dependencies, so it handles dependencies.").
 fact_mention(hertz, "the hertz measures frequency.").
 fact_mention(brandenburg_gate, "the brandenburg gate is in berlin.").
 fact_mention(plate, "a plate is a part.").
+fact_mention(worker_processes, "php-fpm manages worker processes.").
+fact_mention(php-fpm, "php-fpm manages worker processes.").
 fact_mention(voltage, "a buck converter steps down the voltage.").
 fact_mention(voltage, "a step-down transformer steps down the voltage.").
 fact_mention(buck_converter, "a buck converter steps down the voltage.").
+fact_mention(dependencies, "composer manages dependencies.").
+fact_mention(composer, "composer manages dependencies.").
 fact_mention(hand, "a heat-resistant glove protects the hand.").
 fact_mention(heat-resistant_glove, "a heat-resistant glove protects the hand.").
 fact_mention(direct_current, "capacitors block direct current.").
+fact_mention(stack_trace, "xdebug shows a stack trace.").
+fact_mention(xdebug, "xdebug shows a stack trace.").
 fact_mention(capacitors, "capacitors block direct current.").
 fact_mention(fluid, "pumps move fluid.").
 fact_mention(both_conductors, "a double-pole switch disconnects both conductors.").
+fact_mention(script, "a script is a program.").
 fact_mention(double-pole_switch, "a double-pole switch disconnects both conductors.").
 fact_mention(13_amperes, "the rated current of a plug fuse is 13 amperes.").
 fact_mention(plug_fuse, "the rated current of a plug fuse is 13 amperes.").
 fact_mention(voltage, "a flyback transformer steps up the voltage.").
 fact_mention(flyback_transformer, "a flyback transformer steps up the voltage.").
 fact_mention(230_kilograms, "the working load of an m10 eye bolt is 230 kilograms.").
+fact_mention(2_megabytes, "the default value of upload_max_filesize is 2 megabytes.").
+fact_mention(upload_max_filesize, "the default value of upload_max_filesize is 2 megabytes.").
 fact_mention(m10_eye_bolt, "the working load of an m10 eye bolt is 230 kilograms.").
 fact_mention(pumps, "pumps move fluid.").
 fact_mention(information, "the byte measures information.").
+fact_mention(megabyte, "the megabyte measures information.").
 fact_mention(12_volts, "the operating voltage of a car battery is 12 volts.").
 fact_mention(car_battery, "the operating voltage of a car battery is 12 volts.").
 fact_mention(fall, "an unguarded edge causes a fall.").
+fact_mention(60_seconds, "the default value of default_socket_timeout is 60 seconds.").
+fact_mention(default_socket_timeout, "the default value of default_socket_timeout is 60 seconds.").
 fact_mention(unguarded_edge, "an unguarded edge causes a fall.").
 fact_mention(232_degrees_celsius, "the melting point of tin is 232 degrees celsius.").
+fact_mention(type, "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
+fact_mention(var_dump, "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
 fact_mention(tin, "the melting point of tin is 232 degrees celsius.").
 fact_mention(step-down_transformer, "a step-down transformer steps down the voltage.").
 fact_mention(workers, "guardrails protect workers from falls.").
+fact_mention(parse_error, "an unclosed string causes a parse error.").
+fact_mention(unclosed_string, "an unclosed string causes a parse error.").
 fact_mention(guardrails, "guardrails protect workers from falls.").
 fact_mention(byte, "the byte measures information.").
 fact_mention(5_volts, "the operating voltage of a usb port is 5 volts.").
+fact_mention(parse_error, "a missing semicolon causes a parse error, so a parse error is its symptom.").
+fact_mention(missing_semicolon, "a missing semicolon causes a parse error, so a parse error is its symptom.").
 fact_mention(usb_port, "the operating voltage of a usb port is 5 volts.").
 fact_mention(hard_hat, "workers wear a hard hat because it protects the head from falling objects.").
+fact_mention(parse_error, "a missing semicolon causes a parse error, so it triggers a parse error.").
+fact_mention(missing_semicolon, "a missing semicolon causes a parse error, so it triggers a parse error.").
 fact_mention(workers, "workers wear a hard hat because it protects the head from falling objects.").
 fact_mention(56_degrees_celsius, "the boiling point of acetone is 56 degrees celsius.").
+fact_mention(30_seconds, "the default value of max_execution_time is 30 seconds.").
+fact_mention(max_execution_time, "the default value of max_execution_time is 30 seconds.").
 fact_mention(acetone, "the boiling point of acetone is 56 degrees celsius.").
 fact_mention(38_degrees_celsius, "the flash point of jet a fuel is 38 degrees celsius.").
+fact_mention(error_log, "error_log is the name of the function.").
 fact_mention(ears, "hearing protection protects the ears from noise.").
 fact_mention(hearing_protection, "hearing protection protects the ears from noise.").
 fact_mention(jet_a_fuel, "the flash point of jet a fuel is 38 degrees celsius.").
+fact_mention(message, "error_log writes a message to the error log.").
+fact_mention(error_log, "error_log writes a message to the error log.").
 fact_mention(freezes_at, "the freezing point of x is y means x freezes at y").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 fact_mention(feet, "safety boots protect the feet from falling objects.").
+fact_mention(message, "the error_log function writes a message to the error log.").
+fact_mention(error_log_function, "the error_log function writes a message to the error log.").
 fact_mention(safety_boots, "safety boots protect the feet from falling objects.").
 fact_mention(pump, "a pump is a device.").
+fact_mention(type, "var_dump prints the type and value of a variable.").
+fact_mention(var_dump, "var_dump prints the type and value of a variable.").
 fact_mention(temperature, "the degree fahrenheit measures temperature.").
 fact_mention(degree_fahrenheit, "the degree fahrenheit measures temperature.").
 fact_mention(2_meters, "the minimum height of fall protection is 2 meters.").
 fact_mention(fall_protection, "the minimum height of fall protection is 2 meters.").
+fact_mention(headers_already_sent_warning, "output before the header function causes a headers already sent warning.").
+fact_mention(output_before_the_header_function, "output before the header function causes a headers already sent warning.").
 fact_mention(boils_at, "the boiling point of x is y means x boils at y").
 fact_mention(light, "a light-emitting diode emits light.").
+fact_mention(parse_error, "a missing semicolon causes a parse error.").
+fact_mention(missing_semicolon, "a missing semicolon causes a parse error.").
 fact_mention(fall_protection, "workers need fall protection above 2 meters.").
 fact_mention(workers, "workers need fall protection above 2 meters.").
 fact_mention(light-emitting_diode, "a light-emitting diode emits light.").
+fact_mention(functions, "a php extension adds functions to the php interpreter.").
+fact_mention(php_extension, "a php extension adds functions to the php interpreter.").
 fact_mention(temperature, "the degree celsius measures temperature.").
 fact_mention(degree_celsius, "the degree celsius measures temperature.").
 fact_mention(head, "a hard hat protects the head from falling objects.").
+fact_mention(debugger_extension, "a debugger extension is an extension.").
 fact_mention(hard_hat, "a hard hat protects the head from falling objects.").
 fact_mention(taught_form_16, "tell me the x means what is the x?").
+fact_mention(xdebug, "xdebug is a debugger extension for php.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

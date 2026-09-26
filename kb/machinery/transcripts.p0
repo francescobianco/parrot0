@@ -145,6 +145,7 @@ utterance(5, user, "a turn that contains 'i would like to know' is a question").
 utterance(5, user, "I'd like to know the melting point of tin.").
 utterance(5, user, "DC is short for direct current").
 utterance(5, user, "What causes falls?").
+utterance(5, user, "What causes a segfault?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -797,6 +798,7 @@ utterance(7, user, "what is the working load of an m10 eye bolt").
 utterance(7, user, "What does an LED emit?").
 utterance(7, user, "What is the working load of an M10 eye bolt?").
 utterance(7, user, "what does a capacitor store?").
+utterance(7, user, "How do I fix a null pointer?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
 utterance(26, self, "No.").
@@ -1313,7 +1315,11 @@ utterance(11, user, "The working load of an M10 eye bolt is 230 kilograms.").
 utterance(9, user, "Can an M10 eye bolt lift 300 kilograms?").
 utterance(10, self, "I don't know whether m10 can eye bolt lift 300 kilograms: nothing I hold says so, and nothing says otherwise. Tell me either way and I will hold it.").
 utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under cool running water for 20 minutes, as soon as you can.").
+utterance(8, self, "I don't have the steps for pointer yet. But I know what one is made of, so you would need: variable. That is what it is, not how to do it.").
+utterance(9, user, "What is a stack trace?").
+utterance(10, self, "I don't know much about stack trace yet, and the network is off, so I can't read about it now.").
 utterance(11, user, "Can an eye bolt lift 300 kilograms?").
+utterance(11, user, "xdebug for php").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
 utterance(10, self, "Hmm, I don't know about passive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a passive»; if passive is a word you want to talk ABOUT, say «the word passive is a …».").
@@ -2328,8 +2334,71 @@ utterance(71, user, "forget the rule about minimum height").
 utterance(72, self, "Hmm, I don't know about forget yet. Want me to learn about it?").
 utterance(73, user, "forget the last rule").
 utterance(74, self, "I looked up «forget» but found nothing. If you know it, teach me: «forget is defined as …».").
+utterance(12, self, "I looked up «var dump» but found nothing. If you know it, teach me: «var dump is defined as …».").
+utterance(13, user, "xdebug for php").
+utterance(14, self, "I looked up «var dump» but found nothing. If you know it, teach me: «var dump is defined as …».").
+utterance(15, user, "Xdebug is a debugger extension for PHP.").
+utterance(16, self, "Learned: xdebug is a debugger extension. I looked up «var dump» but found nothing. If you know it, teach me: «var dump is defined as …».").
+utterance(17, user, "What is Xdebug?").
+utterance(18, self, "Xdebug is classed as debugger extension.").
+utterance(19, user, "Is Xdebug an extension?").
+utterance(20, self, "I don't know about extension.").
+utterance(21, user, "Is Xdebug a debugger?").
+utterance(22, self, "I don't know about debugger.").
+utterance(23, user, "What is Xdebug an extension for?").
+utterance(24, self, "I don't know much about xdebug an extension yet, and the network is off, so I can't read about it now.").
+utterance(25, user, "A debugger extension is an extension.").
+utterance(26, self, "Learned: debugger extension is an extension.").
+utterance(27, user, "Is Xdebug an extension?").
 utterance(75, user, "forget the last rule").
+utterance(29, user, "A PHP extension adds functions to the PHP interpreter.").
+utterance(30, self, "Learned: php extension add functions.").
+utterance(31, user, "What does a PHP extension add?").
+utterance(32, self, "Functions.").
+utterance(33, user, "What does a PHP extension add functions to?").
+utterance(34, self, "Php interpreter.").
+utterance(35, user, "A missing semicolon causes a parse error.").
+utterance(36, self, "Learned: missing semicolon causes parse error.").
+utterance(37, user, "What causes a parse error?").
+utterance(38, self, "Missing semicolon.").
+utterance(39, user, "Does a missing semicolon cause a parse error?").
+utterance(40, self, "Yes: missing semicolon causes parse error.").
+utterance(41, user, "Output before the header function causes a headers already sent warning.").
+utterance(42, self, "Learned: output before the header function causes headers already sent warning.").
+utterance(43, user, "What causes a headers already sent warning?").
 utterance(12, self, "I don't understand that yet.").
+utterance(44, self, "output before the header function.").
+utterance(45, user, "var_dump prints the type and value of a variable.").
+utterance(46, self, "Learned: var dump print type.").
+utterance(47, user, "What does var_dump print?").
+utterance(48, self, "Type and value.").
+utterance(49, user, "What prints the type and value of a variable?").
+utterance(50, self, "Var dump.").
+utterance(51, user, "The error_log function writes a message to the error log.").
+utterance(52, self, "Learned: error log function write message.").
+utterance(53, user, "What does error_log write?").
+utterance(54, self, "Hmm, I don't know about error log yet. Want me to learn about it?").
+utterance(55, user, "What writes a message to the error log?").
+utterance(56, self, "Error log function.").
+utterance(57, user, "error_log writes a message to the error log.").
+utterance(58, self, "Learned: error log write message.").
+utterance(59, user, "What does error_log write?").
+utterance(60, self, "Message.").
+utterance(61, user, "error_log of the function").
+utterance(62, self, "Looking up error log... Message.").
+utterance(63, user, "error_log of the function").
+utterance(64, self, "Looking up error log... Message.").
+utterance(65, user, "In the error_log function, error_log is the name of the function.").
+utterance(66, self, "Learned: error log is a name. Looking up error log... Message.").
+utterance(67, user, "What does the error_log function write?").
+utterance(68, self, "Message.").
+utterance(69, user, "default value is a relation").
+utterance(70, self, "Learned: default value is relation.").
+utterance(71, user, "The default value of max_execution_time is 30 seconds.").
+utterance(72, self, "Learned: the default value of max execution time is 30 seconds.").
+utterance(73, user, "What is the default value of max_execution_time?").
+utterance(74, self, "30 seconds.").
+utterance(75, user, "The display_errors setting controls whether errors appear in the output.").
 utterance(34, self, "Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready. Does anyone have dietary needs, and how much time do you have?").
 utterance(35, user, "One of them is vegan.").
 utterance(36, self, "Then choose a main dish everyone can eat, so nobody gets a separate plate: a vegetable lasagne, a mushroom risotto or a chickpea curry works for everyone.").
@@ -2482,15 +2551,19 @@ utterance(122, self, "Learned: endanger is a relation verb.").
 utterance(344, self, "Got it - I'll take «keep going» as a way to an encouragement now.").
 utterance(121, user, "endanger is a relation verb").
 utterance(343, user, "learn 'keep going' as an encouragement").
+utterance(76, self, "I didn't keep that: «display_errors_setting_controls_whether_errors» and «output» don't read as things I can hold a fact about.").
 utterance(120, self, "Learned: destroy is a relation verb.").
 utterance(342, self, "Got it - I'll take «you got this» as a way to an encouragement now.").
 utterance(119, user, "destroy is a relation verb").
+utterance(77, user, "What controls whether errors appear in the output?").
 utterance(341, user, "learn 'you got this' as an encouragement").
 utterance(118, self, "Learned: damage is a relation verb.").
 utterance(340, self, "Got it - I'll take «grande davvero» as a way to an encouragement now.").
+utterance(78, self, "Hmm, I don't know about whether yet. Want me to learn about it?").
 utterance(117, user, "damage is a relation verb").
 utterance(339, user, "learn 'grande davvero' as an encouragement").
 utterance(116, self, "Learned: restore is a relation verb.").
+utterance(79, user, "What does display_errors control?").
 utterance(338, self, "Got it - I'll take «continua così» as a way to an encouragement now.").
 utterance(115, user, "restore is a relation verb").
 utterance(337, user, "learn 'continua così' as an encouragement").
@@ -2498,28 +2571,35 @@ utterance(114, self, "Learned: mitigate is a relation verb.").
 utterance(336, self, "Got it - I'll take «sei quasi» as a way to an encouragement now.").
 utterance(113, user, "mitigate is a relation verb").
 utterance(335, user, "learn 'sei quasi' as an encouragement").
+utterance(166, self, "Hmm, I don't know about notice yet. Want me to learn about it?").
 utterance(112, self, "Learned: trigger is a relation verb.").
 utterance(334, self, "Got it - I'll take «bravo così» as a way to an encouragement now.").
 utterance(111, user, "trigger is a relation verb").
 utterance(333, user, "learn 'bravo così' as an encouragement").
+utterance(165, user, "Does a notice stop the script?").
 utterance(110, self, "Learned: amplify is a relation verb.").
 utterance(332, self, "Got it - I'll take «avanti così» as a way to an encouragement now.").
 utterance(109, user, "amplify is a relation verb").
 utterance(331, user, "learn 'avanti così' as an encouragement").
+utterance(164, self, "Fatal error and warning does not.").
 utterance(108, self, "Learned: scatter is a relation verb.").
 utterance(330, self, "Got it - I'll take «dai che ci sei» as a way to an encouragement now.").
 utterance(107, user, "scatter is a relation verb").
 utterance(132, self, "hard hat.").
+utterance(163, user, "What stops the script?").
 utterance(329, user, "learn 'dai che ci sei' as an encouragement").
 utterance(131, user, "What protects the head, the feet and the ears?").
 utterance(106, self, "Learned: refract is a relation verb.").
 utterance(130, self, "Unguarded edge.").
+utterance(162, self, "No.").
 utterance(328, self, "Got it - I'll take «non mollare» as a way to an encouragement now.").
 utterance(129, user, "Name everything that causes falls.").
 utterance(105, user, "refract is a relation verb").
 utterance(128, self, "Unguarded edges.").
+utterance(161, user, "Does a warning stop the script?").
 utterance(327, user, "learn 'non mollare' as an encouragement").
 utterance(127, user, "What causes falls?").
+utterance(160, self, "I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(104, self, "Learned: reflect is a relation verb.").
 utterance(126, self, "Unguarded edge.").
 utterance(326, self, "Got it - I'll take «tieni duro» as a way to an encouragement now.").
@@ -2528,83 +2608,158 @@ utterance(103, user, "reflect is a relation verb").
 utterance(124, self, "Hmm, I don't know about unguarded yet. Want me to learn about it?").
 utterance(325, user, "learn 'tieni duro' as an encouragement").
 utterance(123, user, "Unguarded edges are a cause of falls.").
+utterance(159, user, "Does a fatal error stop the script?").
 utterance(102, self, "Learned: illuminate is a relation verb.").
 utterance(122, self, "Yes: unguarded edge causes fall.").
 utterance(324, self, "Got it - I'll take «ce la fai» as a way to an encouragement now.").
 utterance(121, user, "Do unguarded edges cause falls?").
+utterance(158, self, "Learned: a warning does not stop the script.").
 utterance(101, user, "illuminate is a relation verb").
+utterance(157, user, "A warning does not stop the script.").
 utterance(120, self, "Learned: unguarded edge causes fall.").
+utterance(156, self, "I didn't keep that: «fatal_error» and «script» don't read as things I can hold a fact about.").
 utterance(323, user, "learn 'ce la fai' as an encouragement").
+utterance(155, user, "A fatal error stops the script.").
 utterance(119, user, "An unguarded edge causes a fall.").
+utterance(154, self, "Hmm, I don't know about default_value yet.").
 utterance(100, self, "Learned: rotate is a relation verb.").
+utterance(153, user, "The default value of memory_limit is 128 seconds.").
 utterance(118, self, "Unguarded edges.").
+utterance(152, self, "2 megabytes.").
 utterance(322, self, "Got it - I'll take «forza dai» as a way to an encouragement now.").
+utterance(151, user, "What is the default value of upload_max_filesize?").
 utterance(117, user, "What causes falls?").
+utterance(150, self, "Learned: the default value of upload max filesize is 2 megabytes.").
 utterance(99, user, "rotate is a relation verb").
+utterance(149, user, "The default value of upload_max_filesize is 2 megabytes.").
 utterance(116, self, "Unguarded edges.").
+utterance(148, self, "I don't know: nothing I hold gives memory limit a default value there.").
 utterance(321, user, "learn 'forza dai' as an encouragement").
+utterance(147, user, "What is the default value of memory_limit?").
 utterance(115, user, "What causes falls?").
+utterance(146, self, "Hmm, I don't know about default_value yet.").
 utterance(98, self, "Learned: stretch is a relation verb.").
+utterance(145, user, "The default value of memory_limit is 128 megabytes.").
 utterance(114, self, "I cannot settle that: no fact I hold decides whether unguarded edges cause falls. Not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(144, self, "Learned: megabyte measures information.").
 utterance(84, self, "Got it - I'll take «sono cotto» as a way to a sign of tiredness now.").
+utterance(143, user, "The megabyte measures information.").
 utterance(113, user, "Do unguarded edges cause falls?").
+utterance(142, self, "I don't know: nothing I hold gives memory limit a default value there.").
 utterance(97, user, "stretch is a relation verb").
+utterance(141, user, "What is the default value of memory_limit?").
 utterance(112, self, "I didn't keep that: «unguarded_edges» and «falls» don't read as things I can hold a fact about.").
+utterance(140, self, "Hmm, I don't know about default_value yet.").
 utterance(76, self, "Learned: is_unit(forget).").
+utterance(139, user, "The default value of memory_limit is 128M.").
 utterance(111, user, "Falls are caused by unguarded edges.").
+utterance(138, self, "I don't know about unit.").
 utterance(96, self, "Learned: compress is a relation verb.").
+utterance(137, user, "Is a megabyte a unit?").
 utterance(110, self, "I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn initiative, toolplan, piact, lessonform, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, claimq, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify").
+utterance(136, self, "60 seconds.").
 utterance(77, user, "the ohm measures what?").
+utterance(135, user, "What is the default value of default_socket_timeout?").
 utterance(109, user, "why did you answer that way?").
+utterance(134, self, "Learned: the default value of default socket timeout is 60 seconds.").
 utterance(95, user, "compress is a relation verb").
+utterance(133, user, "The default value of default_socket_timeout is 60 seconds.").
 utterance(108, self, "Slippery surfaces.").
+utterance(132, self, "Hmm, I don't know about default_value yet.").
 utterance(78, self, "Electrical resistance.").
+utterance(131, user, "The default value of memory_limit is 128 megabytes.").
 utterance(107, user, "Unguarded edges cause falls.").
+utterance(130, self, "I don't know about default.").
 utterance(94, self, "Learned: deposit is a relation verb.").
+utterance(129, user, "What is the default of memory_limit?").
 utterance(106, self, "Guardrails.").
+utterance(128, self, "Learned: so_its_default has 30 seconds.").
 utterance(79, user, "forget that ohm is a is_unit").
+utterance(127, user, "The default value of max_execution_time is 30 seconds, so its default is 30 seconds.").
 utterance(105, user, "What protects workers from falls?").
+utterance(126, self, "I don't know: nothing I hold gives memory limit a default value there.").
 utterance(93, user, "deposit is a relation verb").
+utterance(125, user, "What is the default value of memory_limit?").
 utterance(104, self, "Learned: guardrails protect workers.").
+utterance(124, self, "Hmm, I don't know about default value yet. Want me to learn about it?").
 utterance(83, user, "learn 'qual è il simbolo' as another way to ask chemical_symbol").
+utterance(123, user, "The default value of memory_limit is 128 megabytes.").
 utterance(103, user, "Guardrails protect workers from falls.").
+utterance(122, self, "I don't know: nothing I hold says var dump show the type of is variable, and nothing says it isn't.").
 utterance(92, self, "Learned: erode is a relation verb.").
+utterance(121, user, "Does var_dump display the type of a variable?").
 utterance(102, self, "I don't know: nothing I hold says workers wear is hard hat, and nothing says it isn't.").
+utterance(120, self, "Hmm, I don't know about print r yet. Want me to learn about it?").
 utterance(166, self, "Ricevuto — d'ora in poi prendo «su che cosa vale» come another way to ask predicate_domain.").
+utterance(119, user, "What does print_r display?").
 utterance(101, user, "Why do workers wear a hard hat?").
+utterance(118, self, "Learned: var dump print type.").
 utterance(91, user, "erode is a relation verb").
+utterance(117, user, "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
 utterance(100, self, "Learned: workers wear hard hat.").
+utterance(116, self, "Readable.").
 utterance(165, user, "learn 'su che cosa vale' as another way to ask predicate_domain").
+utterance(115, user, "What does print_r print?").
 utterance(99, user, "Workers wear a hard hat because it protects the head from falling objects.").
+utterance(114, self, "I didn't keep that: «print_r» and «readable_view» don't read as things I can hold a fact about.").
 utterance(90, self, "Learned: shape is a relation verb.").
+utterance(113, user, "print_r prints a readable view of a variable.").
 utterance(98, self, "Slippery surfaces.").
+utterance(112, self, "Yes: unclosed string causes parse error.").
 utterance(164, self, "Ricevuto — d'ora in poi prendo «a che cosa si applica» come another way to ask predicate_domain.").
+utterance(111, user, "Do unclosed strings cause parse errors?").
 utterance(97, user, "Unguarded edges cause falls.").
+utterance(110, self, "Reading «triggers» as «causes». missing semicolon.").
 utterance(89, user, "shape is a relation verb").
+utterance(109, user, "What triggers a parse error?").
 utterance(96, self, "I cannot settle that: no fact I hold decides whether unguarded edges cause falls. Not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(108, self, "Reading «symptom» as «causes». I can't show that.").
 utterance(163, user, "learn 'a che cosa si applica' as another way to ask predicate_domain").
+utterance(107, user, "What is the symptom of an unclosed string?").
 utterance(95, user, "Do unguarded edges cause falls?").
+utterance(106, self, "Learned: unclosed string causes parse error.").
 utterance(88, self, "Learned: dominate is a relation verb.").
+utterance(105, user, "An unclosed string causes a parse error.").
 utterance(94, self, "Yes: slippery surfaces causes falls.").
+utterance(104, self, "Reading «symptom» as «causes». I can't show that.").
 utterance(162, self, "Ricevuto — d'ora in poi prendo «di che tipo è la relazione» come another way to ask relation_type.").
+utterance(103, user, "What is the symptom of a missing semicolon?").
 utterance(93, user, "Do slippery surfaces cause falls?").
+utterance(102, self, "Reading «symptom» as «causes». A named block of code that performs a specific task and can return a value.").
 utterance(87, user, "dominate is a relation verb").
+utterance(101, user, "What is the symptom of output before the header function?").
 utterance(92, self, "I don't know: nothing I hold says workers wear is hard hat, and nothing says it isn't.").
+utterance(100, self, "Learned: missing semicolon causes parse error.").
 utterance(161, user, "learn 'di che tipo è la relazione' as another way to ask relation_type").
+utterance(99, user, "A missing semicolon causes a parse error, so a parse error is its symptom.").
 utterance(91, user, "Why do workers wear a hard hat?").
+utterance(98, self, "Reading «triggers» as «causes». missing semicolon.").
 utterance(160, self, "Ricevuto — d'ora in poi prendo «che tipo di relazione» come another way to ask relation_type.").
+utterance(97, user, "What triggers a parse error?").
 utterance(90, self, "Unguarded edges.").
+utterance(96, self, "Reading «trigger» as «causes». Yes: output before the header function causes headers already sent warning.").
 utterance(80, self, "Learned: capture is a relation verb.").
+utterance(95, user, "Does output before the header function trigger a headers already sent warning?").
 utterance(89, user, "What causes falls?").
+utterance(94, self, "Learned: missing semicolon causes parse error.").
 utterance(81, user, "trap is a relation verb").
+utterance(93, user, "A missing semicolon causes a parse error, so it triggers a parse error.").
 utterance(88, self, "Slippery surfaces.").
+utterance(92, self, "I understood you're asking how to make error, but I don't have the steps for it yet.").
 utterance(80, self, "Learned: moult is a relation verb.").
+utterance(91, user, "How do I fix an allowed memory size exhausted error?").
 utterance(87, user, "Unguarded edges cause falls.").
+utterance(90, self, "Hmm, I don't know about allowed yet.").
 utterance(159, user, "learn 'che tipo di relazione' as another way to ask relation_type").
+utterance(89, user, "What fixes an allowed memory size exhausted error?").
 utterance(80, self, "Learned: line is a relation verb.").
+utterance(88, self, "I looked up «allowed» but found nothing. If you know it, teach me: «allowed is defined as …».").
 utterance(80, self, "Safety boots.").
+utterance(87, user, "Raising memory_limit fixes an allowed memory size exhausted error.").
 utterance(81, user, "Hearing protection protects the ears from noise.").
 utterance(158, self, "Ricevuto — d'ora in poi prendo «si trasmette» come another way to ask transitive.").
+utterance(80, self, "Hmm, I don't know about display errors yet. Want me to learn about it?").
+utterance(81, user, "A script that exceeds memory_limit causes an allowed memory size exhausted error.").
 utterance(157, user, "learn 'si trasmette' as another way to ask transitive").
 utterance(156, self, "Ricevuto — d'ora in poi prendo «è transitiva» come another way to ask transitive.").
 utterance(155, user, "learn 'è transitiva' as another way to ask transitive").
@@ -2813,6 +2968,7 @@ utterance(2, self, "Held: «i'd like» is short for «i would like».").
 utterance(2, self, "Held: «led» is short for «light-emitting diode».").
 utterance(2, self, "Learned: degree celsius measures temperature.").
 utterance(2, self, "Hand.").
+utterance(2, self, "I don't know much about xdebug yet, and the network is off, so I can't read about it now.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -2876,6 +3032,7 @@ utterance(1, user, "x formed of y means x made of y").
 utterance(1, user, "x placed into y means x is located in y").
 utterance(1, user, "a probe placed into orbit").
 utterance(1, user, "x characterized by y means x has y").
+utterance(82, self, "Learned: script exceed memory limit.").
 utterance(1, user, "deliver is a relation verb").
 utterance(1, user, "belong is a relation verb").
 utterance(1, user, "improve is a relation verb").
@@ -2912,7 +3069,9 @@ utterance(86, self, "I don't understand that yet.").
 utterance(1, user, "the italian for bleach is candeggina").
 utterance(85, user, "What protects the knees?").
 utterance(1, user, "the italian for chlorine gas is cloro gassoso").
+utterance(86, self, "I looked up «allowed» but found nothing. If you know it, teach me: «allowed is defined as …».").
 utterance(1, user, "the italian for chloramine gas is clorammine").
+utterance(85, user, "Raising memory_limit fixes an allowed memory size exhausted error.").
 utterance(1, user, "my nose is bleeding").
 utterance(1, user, "the humidity in my bedroom is 70 percent, is that a problem?").
 utterance(1, user, "high humidity causes mold").
@@ -2951,6 +3110,7 @@ utterance(1, user, "'i'd like' is a contraction of 'i would like'").
 utterance(1, user, "LED is short for light-emitting diode").
 utterance(1, user, "The degree Celsius measures temperature.").
 utterance(1, user, "What does a heat-resistant glove protect?").
+utterance(1, user, "What is Xdebug?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -3042,6 +3202,84 @@ utterance(4, self, "Held: a cup of flour weighs 120 grams.").
 utterance(4, self, "Held: «aceto» is how vinegar is said in that language.").
 utterance(4, self, "Held: «gas_of_clorammina» is how chloramine_gas is said in that language.").
 utterance(4, self, "Held: in that situation, move 1 is «Sit down and lean forward with your mouth open.».").
+utterance(244, self, "30 seconds.").
+utterance(243, user, "What is the default value of max_execution_time?").
+utterance(242, self, "output before the header function.").
+utterance(241, user, "What causes a headers already sent warning?").
+utterance(240, self, "Yes.").
+utterance(239, user, "Is Xdebug an extension?").
+utterance(238, self, "Hmm, I don't know about default port yet. Want me to learn about it?").
+utterance(237, user, "Is 9003 the default port of Xdebug?").
+utterance(236, self, "9003.").
+utterance(235, user, "What is the default port of Xdebug?").
+utterance(234, self, "Learned: the default port of xdebug is 9003.").
+utterance(233, user, "The default port of Xdebug is 9003.").
+utterance(232, self, "Learned: default port is relation.").
+utterance(231, user, "default port is a relation").
+utterance(230, self, "Compiled bytecode.").
+utterance(229, user, "Where does OPcache store compiled bytecode?").
+utterance(228, self, "Compiled bytecode.").
+utterance(227, user, "What does OPcache store?").
+utterance(226, self, "Learned: opcache stores compiled bytecode.").
+utterance(225, user, "OPcache stores compiled bytecode in shared memory.").
+utterance(224, self, "Phpunit is classed as testing framework.").
+utterance(223, user, "What is PHPUnit?").
+utterance(222, self, "Learned: phpunit is a testing framework.").
+utterance(221, user, "PHPUnit is a testing framework.").
+utterance(220, self, "phpunit.").
+utterance(219, user, "What runs unit tests?").
+utterance(218, self, "Learned: phpunit run unit tests.").
+utterance(217, user, "PHPUnit runs unit tests.").
+utterance(216, self, "Hmm, I don't know about handles yet. Want me to learn about it?").
+utterance(215, user, "What handles dependencies?").
+utterance(214, self, "Hmm, I don't know about handle yet. Want me to learn about it?").
+utterance(213, user, "Does PHP-FPM handle worker processes?").
+utterance(212, self, "Learned: composer manage dependencies.").
+utterance(211, user, "Composer manages dependencies, so it handles dependencies.").
+utterance(210, self, "Worker processes.").
+utterance(209, user, "What does PHP-FPM manage?").
+utterance(208, self, "Learned: php-fpm manage worker processes.").
+utterance(207, user, "PHP-FPM manages worker processes.").
+utterance(206, self, "Composer.").
+utterance(205, user, "What manages dependencies?").
+utterance(204, self, "Learned: composer manage dependencies.").
+utterance(203, user, "Composer manages dependencies.").
+utterance(202, self, "I don't have the trace you mean — paste it here and I'll work on it.").
+utterance(201, user, "What does a stack trace show?").
+utterance(200, self, "I didn't keep that: «stack_trace» and «sequence» don't read as things I can hold a fact about.").
+utterance(199, user, "A stack trace shows the sequence of function calls.").
+utterance(198, self, "Hmm, I don't know about report yet. Want me to learn about it?").
+utterance(197, user, "A stack trace is a report.").
+utterance(196, self, "I don't have the trace you mean — paste it here and I'll work on it.").
+utterance(195, user, "What shows a stack trace?").
+utterance(194, self, "I don't know: nothing I hold says xdebug list is stack trace, and nothing says it isn't.").
+utterance(193, user, "Does Xdebug list a stack trace?").
+utterance(192, self, "Learned: xdebug show stack trace.").
+utterance(191, user, "Xdebug shows a stack trace.").
+utterance(190, self, "I didn't keep that: «stack» and «shows_the_sequence» don't read as things I can hold a fact about.").
+utterance(189, user, "A stack trace shows the sequence of function calls, so it lists the sequence of function calls.").
+utterance(188, self, "I don't understand that yet.").
+utterance(187, user, "What shows the sequence of function calls?").
+utterance(186, self, "I don't have the trace you mean — paste it here and I'll work on it.").
+utterance(185, user, "What does a stack trace show?").
+utterance(184, self, "I didn't keep that: «stack» and «shows_the_sequence» don't read as things I can hold a fact about.").
+utterance(183, user, "A stack trace shows the sequence of function calls.").
+utterance(182, self, "I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(181, user, "Does a fatal error stop the script?").
+utterance(180, self, "I didn't keep that: «fatal_error» and «script» don't read as things I can hold a fact about.").
+utterance(179, user, "A fatal error stops the script.").
+utterance(178, self, "Hmm, I don't know about fatal error yet. Want me to learn about it?").
+utterance(177, user, "A fatal error is an error.").
+utterance(176, self, "Learned: script is a program.").
+utterance(175, user, "A script is a program.").
+utterance(174, self, "I cannot settle that: no fact I hold decides whether fatal error halt script. Not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(173, user, "Does a fatal error halt the script?").
+utterance(172, self, "I didn't keep that: «fatal_error» and «script» don't read as things I can hold a fact about.").
+utterance(171, user, "A fatal error halts the script.").
+utterance(170, self, "I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(169, user, "Does a fatal error stop the script?").
+utterance(168, self, "I didn't keep that: «fatal_errors» and «scripts» don't read as things I can hold a fact about.").
+utterance(167, user, "Fatal errors stop scripts.").
 utterance(4, self, "Held: indoor humidity should stay between 30 and 50 percent.").
 utterance(4, self, "Held: never put lithium batteries in the bin.").
 utterance(4, self, "Hmm, I don't know about designed yet. Want me to learn about it?").
@@ -3075,6 +3313,7 @@ utterance(4, self, "232 degrees celsius.").
 utterance(4, self, "Learned: light-emitting diode emits light.").
 utterance(4, self, "Learned: degree fahrenheit measures temperature.").
 utterance(4, self, "Heat-resistant glove.").
+utterance(4, self, "Hmm, I don't know about var dump yet. Want me to learn about it?").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3122,6 +3361,8 @@ utterance(83, user, "What does hearing protection protect the ears from?").
 utterance(84, self, "Noise.").
 utterance(3, user, "'escriba' is another way to say 'write'").
 utterance(3, user, "cosa vuole dire x means what does x mean").
+utterance(83, user, "What causes an allowed memory size exhausted error?").
+utterance(84, self, "Hmm, I don't know about allowed yet. Want me to learn about it?").
 utterance(3, user, "what is the meaning of velenosi").
 utterance(3, user, "x fashioned from y means x made of y").
 utterance(3, user, "x consists of y means x made of y").
@@ -3198,6 +3439,7 @@ utterance(3, user, "what is the melting point of tin").
 utterance(3, user, "A light-emitting diode emits light.").
 utterance(3, user, "The degree Fahrenheit measures temperature.").
 utterance(3, user, "What protects the hand?").
+utterance(3, user, "What does var_dump do?").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

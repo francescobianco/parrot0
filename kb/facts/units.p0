@@ -33,3 +33,4 @@ measures(hertz, frequency).
 measures(byte, information).
 measures(degree_fahrenheit, temperature).
 measures(degree_celsius, temperature).
+measures(megabyte, information).

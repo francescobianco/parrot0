@@ -1,5 +1,59 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## 🟠 FORME D'INSEGNAMENTO CHE NON FUNZIONANO — sessione live «debug di applicazioni PHP» (26 settembre 2026)
+
+Annotate durante la sessione (transcript `docs/sessions/live/2026-09-26-php-debug.log`),
+su richiesta di F.: *«quando una forma di insegnamento non funziona annotala qui e
+vai avanti»*. Ogni riga: la frase detta, che cosa è entrato, la domanda che l'ha
+mostrato, la specie del difetto. Il coefficiente della sessione è in fondo.
+
+| # | lezione detta | che cosa è entrato | la domanda che lo mostra | specie |
+|---|---|---|---|---|
+| P1 | «Xdebug is a debugger extension for PHP.» | `xdebug is a debugger extension`; «for PHP» perso; la risposta si porta dietro una lacuna vecchia («I looked up «var dump» but found nothing…») | «Is Xdebug an extension?» → «I don't know about extension»; «Is Xdebug a debugger?» idem | la **testa del sintagma** di una classe composta non è un iperonimo; complemento della classe perso; lacuna pendente riaffiorata nella risposta sbagliata. *Si ripara per contatto*: «A debugger extension is an extension.» → Yes |
+| P2 | «The error_log function writes a message to the error log.» | soggetto `error log function` | «What does error_log write?» → «I don't know about error log» | **apposizione** «the NOME function / the NOME setting» incollata al nome. La lezione esplicita «error_log is the name of the function» diventa la classe `error log is a name`: l'apposizione non si insegna |
+| P3 | «The display_errors setting controls whether errors appear in the output.» | niente: «I didn't keep that: «display_errors_setting_controls_whether_errors» and «output» don't read as things…» | «What does display_errors control?» → lacuna | **oggetto frasale** («whether …») non leggibile, più l'apposizione di P2 che incolla il verbo nel soggetto |
+| P4 | «A script that exceeds memory_limit causes an allowed memory size exhausted error.» | `script exceed memory limit` | «What causes an allowed memory size exhausted error?» → «I don't know about allowed» | soggetto con **relativa** («that exceeds …») ridotto a una tripla; oggetto di cinque parole non riconosciuto come un nome (cerca «allowed») |
+| P5 | L3 per contatto: «A missing semicolon causes a parse error, so a parse error is its symptom.» | «Reading «symptom» as «causes»» (il nome è preso) | «What is the symptom of a missing semicolon?» → «I can't show that»; «What is the symptom of output before the header function?» → **la definizione di «function»** | il **nome di relazione** imparato per contatto si legge, ma la domanda «the N of X» non raggiunge l'effetto; con X lungo la testa del sintagma («function») prende il posto di X: **risposta sbagliata** (mantra #7) |
+| P6 | «An unclosed string causes a parse error.» dopo «A missing semicolon causes a parse error.» | due fatti veri | «What triggers a parse error?» → solo «missing semicolon» | l'**enumerazione** dà una soluzione sola (già nei cantieri, reperto 6) |
+| P7 | «print_r prints a readable view of a variable.» | niente: «print_r and readable_view don't read as things I can hold a fact about» | eppure «What does print_r print?» → «Readable.» | il lettore rifiuta il fatto ma **un'altra strada risponde** dalla lettura del turno: incoerenza (dice di non averlo tenuto e poi lo usa) |
+| P8 | L3 per contatto: «var_dump prints the type and value of a variable, so it displays the type and value of a variable.» | `var dump print type` e basta | «Does var_dump display the type of a variable?» → «I don't know» | il **verbo** per contatto non nasce quando l'oggetto è una **coordinazione** («type and value of a variable»); con un oggetto semplice («triggers», L11) funziona |
+| P9 | «The default value of memory_limit is 128 megabytes.» | niente («I don't know about default value»), anche con «128M» e perfino con «128 seconds» | «What is the default value of memory_limit?» → «nothing I hold gives memory limit a default value» | la stessa forma legge `max_execution_time`, `default_socket_timeout`, `upload_max_filesize` (anche in megabyte, dopo «The megabyte measures information.»): il blocco è il **soggetto** `memory_limit`. Ipotesi da verificare: il fatto storto di P4 («script exceed memory limit») ha dato a «memory limit» un altro ruolo |
+| P10 | «A fatal error stops the script.» (e «Fatal errors stop scripts.», «…halts…») | niente: «fatal_error and script don't read as things I can hold a fact about» | «Does a fatal error stop the script?» → non decide; «What stops the script?» → **«Fatal error and warning does not.»** | il nome «fatal error» non si può nemmeno classificare («A fatal error is an error.» → smalltalk); «script» si impara («A script is a program.») ma la lezione resta rifiutata. Ipotesi: collisione con il predicato `error/2` di `kb/experts/programming/debug.p0`. E la wh- **mescola** un fatto rifiutato e una negazione in un elenco positivo: risposta sbagliata |
+| P11 | «A stack trace shows the sequence of function calls.» (e il contatto «…, so it lists …») | niente: prima «stack» e «shows_the_sequence» (**«trace» letto come verbo**), dopo «A stack trace is a report.» «stack_trace» e «sequence» — rifiutati lo stesso | «What does a stack trace show?» / «What shows a stack trace?» → la facoltà degli strumenti: «paste it here and I'll work on it» | ambiguità nome/verbo della testa («trace»); la domanda è **rubata** dal lettore di tracce (mantra #17); e il rifiuto «don't read as things I can hold a fact about» è lo stesso di P3, P7, P10: un solo cancello, `p0_fact_is_clean` / `p0_atom_is_concept` (`10-memory-knowledge.c`, template `rejected_binary_fact`), che decide in C che cosa è un «concetto» |
+| P12 | L3 per contatto su un verbo appena imparato: «Composer manages dependencies, so it handles dependencies.» | solo `contact_episode(handles, manage, …)`, nessuna lettura | «Does PHP-FPM handle worker processes?» / «What handles dependencies?» → «I don't know about handle(s)» | il contatto nasce su relazioni **dichiarate** (`causes`, L11 «triggers» ✓), non su un verbo imparato un minuto prima (`manage/2`): l'episodio resta in attesa di un secondo |
+| P13 | «OPcache stores compiled bytecode in shared memory.» | `stores(opcache, compiled_bytecode)`; «in shared memory» perso | «Where does OPcache store compiled bytecode?» → **«Compiled bytecode.»** | il **complemento di luogo** con «in» cade (con «from» regge, fisiologia) e la domanda «where» riceve l'oggetto: **risposta sbagliata** (mantra #7) |
+| P14 | «The default port of Xdebug is 9003.» (imparata: la wh- risponde 9003) | `default_port_of(xdebug, 9003)` | «Is 9003 the default port of Xdebug?» → «I don't know about default port» | la **polare** «is V the R of X» non raggiunge una relazione nominata (limite già visto al gen509, «is-X-the-R») |
+
+### Il coefficiente della sessione (F.: «lezioni imparate e invece lezioni con problemi, vediamo quale sono di più»)
+
+Si conta **una lezione per frase d'insegnamento distinta** (le ripetizioni di
+diagnosi della stessa frase non contano). **Imparata** = dopo la frase, una
+domanda *diversa* dalla lezione (wh-, polare, o un caso tenuto fuori) risponde
+giusto; **con problemi** = la frase non entra, entra storta, o la domanda che la
+dovrebbe usare mura o sbaglia. Dieci delle imparate sono state riverificate in
+un processo nuovo dopo `/save` e reggono tutte.
+
+| | lezioni | quota |
+|---|---:|---:|
+| imparate | 19 | 53 % |
+| con problemi | 17 | 47 % |
+| **coefficiente imparate / con problemi** | **1,12** | |
+| di cui per contatto (L3) | 1 imparata su 5 | 20 % |
+
+Le imparate: classe per catena (Xdebug → debugger extension → extension),
+cause (punto e virgola e stringa non chiusa → parse error; output prima di
+`header()` → headers already sent), che cosa fanno var_dump, error_log (senza
+apposizione), Composer, PHP-FPM, PHPUnit, OPcache, i valori di default di tre
+impostazioni e la porta di Xdebug, la negazione «a warning does not stop the
+script», il megabyte come unità, lo script come programma, il verbo «triggers»
+per contatto. **Le specie dei problemi, dalla più frequente:** il cancello C
+che rifiuta i nomi (P3, P7, P10, P11: `p0_fact_is_clean`), il contatto che non
+nasce (P5, P8, P12), sintagmi e complementi persi (P1, P4, P13), apposizione
+(P2), una domanda rubata o dirottata (P11, P5), il soggetto `memory_limit` (P9).
+Quattro dei problemi producono una **risposta sbagliata**, non un muro: P5,
+P7, P10, P13 — sono i primi da chiudere.
+
+
 ## ⏸ HANDOFF — lotto `2026-09-24`: ripartire qui
 
 **Richiesta:** 5 iterazioni (F.: «usiamo gli strumenti di debug e trace unificati;

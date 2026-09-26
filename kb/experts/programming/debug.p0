@@ -38,3 +38,45 @@ fix(memory_leak, "add a free call for every malloc/calloc/realloc").
 fix(infinite_loop, "ensure the loop condition eventually becomes false").
 fix(off_by_one, "check the loop bounds -- arrays are 0-indexed, so valid indices are 0 to n-1").
 fix(uninitialized_variable, "initialize the variable before reading it").
+
+% ═══════════════════════════════════════════════════════════════════════════
+% IL DEBUG DI APPLICAZIONI PHP — insegnato parlando, 26 settembre 2026
+% (sessione live, docs/sessions/live/2026-09-26-php-debug.log; resoconto
+% docs/sessions/2026-09-26-live-php-debug.md). Fatti veri, detti in lingua
+% naturale e verificati con domande diverse dalla lezione; qui accanto agli
+% errori e ai rimedi generici, non in una cartella di provenienza. Le forme che
+% non hanno funzionato sono in docs/plans/train-the-learning-process.md (P1–P14).
+
+% gli strumenti: che cosa sono
+debugger_extension(xdebug).
+extension(debugger_extension).
+testing_framework(phpunit).
+program(script).
+add(php_extension, functions).
+class_surface(debugger_extension, debugger extension).
+class_surface(extension, extension).
+class_surface(testing_framework, testing framework).
+class_surface(program, program).
+
+% che cosa fanno
+print(var_dump, type).
+write(error_log, message).
+show(xdebug, stack_trace).
+manage(composer, dependencies).
+manage(php-fpm, worker_processes).
+run(phpunit, unit_tests).
+stores(opcache, compiled_bytecode).
+
+% le cause degli errori (una sola relazione, causes/2, con world-facts.p0)
+causes(missing_semicolon, parse_error).
+causes(unclosed_string, parse_error).
+causes(output_before_the_header_function, headers_already_sent_warning).
+% un avviso non ferma lo script (la lezione positiva sull'errore fatale non e'
+% entrata: P10)
+not(stop(warning, script)).
+
+% i valori di default delle impostazioni (php.ini) e della porta di Xdebug 3
+default_value_of(max_execution_time, 30_seconds).
+default_value_of(default_socket_timeout, 60_seconds).
+default_value_of(upload_max_filesize, 2_megabytes).
+default_port_of(xdebug, 9003).

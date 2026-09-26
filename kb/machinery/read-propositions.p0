@@ -42,7 +42,24 @@ semantic_proposition(proposition(binary(protect), roles(subject(protection), obj
 semantic_proposition(proposition(binary(protect), roles(subject(safety_boots), object(feet)))).
 semantic_proposition(proposition(binary(need), roles(subject(workers), object(fall_protection)))).
 semantic_proposition(proposition(binary(protect), roles(subject(hard_hat), object(head)))).
+semantic_proposition(proposition(binary(run), roles(subject(phpunit), object(unit)))).
+semantic_proposition(proposition(binary(manage), roles(subject(php-fpm), object(worker_processes)))).
+semantic_proposition(proposition(binary(manage), roles(subject(composer), object(dependencies)))).
+semantic_proposition(proposition(binary(show), roles(subject(xdebug), object(stack)))).
+semantic_proposition(proposition(binary(halt), roles(subject(fatal_error), object(script)))).
+semantic_proposition(proposition(binary(stop), roles(subject(fatal_errors), object(scripts)))).
+semantic_proposition(proposition(binary(stop), roles(subject(warning_does_not), object(script)))).
+semantic_proposition(proposition(binary(stop), roles(subject(fatal_error), object(script)))).
+semantic_proposition(proposition(binary(measure), roles(subject(megabyte), object(information)))).
+semantic_proposition(proposition(binary(print), roles(subject(print_r), object(readable)))).
+semantic_proposition(proposition(binary(cause), roles(subject(unclosed_string), object(parse_error)))).
+semantic_proposition(proposition(binary(write), roles(subject(error_log), object(message)))).
+semantic_proposition(proposition(binary(print), roles(subject(var_dump), object(value)))).
+semantic_proposition(proposition(binary(print), roles(subject(var_dump), object(type)))).
+semantic_proposition(proposition(binary(cause), roles(subject(missing_semicolon), object(parse_error)))).
+semantic_proposition(proposition(binary(add), roles(subject(php_extension), object(functions)))).
 semantic_binding(binary(measure), nanometre, object(length)).
+semantic_binding(binary(measure), megabyte, object(information)).
 proposition_source_record(proposition(binary(measure), roles(subject(nanometre), object(length))), source(inline, "the nanometre measures length."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(pass), capacitors, object(alternating_current)).
 semantic_binding(binary(measure), hertz, object(frequency)).
@@ -66,28 +83,64 @@ semantic_binding(binary(protect), heat-resistant_glove, object(hand)).
 proposition_source_record(proposition(binary(protect), roles(subject(heat-resistant_glove), object(hand))), source(inline, "a heat-resistant glove protects the hand."), provenance(language(en), range(0, 41))).
 semantic_binding(binary(cause), unguarded_edge, object(fall)).
 proposition_source_record(proposition(binary(cause), roles(subject(unguarded_edge), object(fall))), source(inline, "an unguarded edge causes a fall."), provenance(language(en), range(0, 32))).
+semantic_binding(binary(cause), unclosed_string, object(parse_error)).
 proposition_source_record(proposition(binary(move), roles(subject(pump), object(fluid))), source(inline, "pumps move fluid."), provenance(language(en), range(0, 17))).
 semantic_binding(binary(disconnect), double-pole_switch, object(both_conductors)).
 proposition_source_record(proposition(binary(protect), roles(subject(guardrails), object(workers))), source(inline, "guardrails protect workers from falls."), provenance(language(en), range(0, 38))).
 semantic_complement(binding(protect, guardrails, workers), from, falls).
+semantic_binding(binary(cause), missing_semicolon, object(parse_error)).
+semantic_binding(binary(run), phpunit, object(unit)).
+proposition_source_record(proposition(binary(run), roles(subject(phpunit), object(unit))), source(inline, "phpunit runs unit tests."), provenance(language(en), range(0, 24))).
 proposition_source_record(proposition(binary(disconnect), roles(subject(double-pole_switch), object(both_conductors))), source(inline, "a double-pole switch disconnects both conductors."), provenance(language(en), range(0, 49))).
+semantic_binding(binary(manage), php-fpm, object(worker_processes)).
+proposition_source_record(proposition(binary(manage), roles(subject(composer), object(dependencies))), source(inline, "composer manages dependencies, so it handles dependencies."), provenance(language(en), range(0, 58))).
+proposition_source_record(proposition(binary(manage), roles(subject(php-fpm), object(worker_processes))), source(inline, "php-fpm manages worker processes."), provenance(language(en), range(0, 33))).
 semantic_binding(binary(cause), unguarded_edges, object(falls)).
+semantic_binding(binary(manage), composer, object(dependencies)).
+proposition_source_record(proposition(binary(manage), roles(subject(composer), object(dependencies))), source(inline, "composer manages dependencies."), provenance(language(en), range(0, 30))).
 proposition_source_record(proposition(binary(cause), roles(subject(unguarded_edges), object(falls))), source(inline, "unguarded edges cause falls."), provenance(language(en), range(0, 28))).
+semantic_binding(binary(show), xdebug, object(stack)).
+proposition_source_record(proposition(binary(show), roles(subject(xdebug), object(stack))), source(inline, "xdebug shows a stack trace."), provenance(language(en), range(0, 27))).
 semantic_binding(binary(step_up), flyback_transformer, object(voltage)).
+semantic_binding(binary(halt), fatal_error, object(script)).
+proposition_source_record(proposition(binary(halt), roles(subject(fatal_error), object(script))), source(inline, "a fatal error halts the script."), provenance(language(en), range(0, 31))).
 proposition_source_record(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage))), source(inline, "a flyback transformer steps up the voltage."), provenance(language(en), range(0, 43))).
+semantic_binding(binary(stop), fatal_errors, object(scripts)).
+proposition_source_record(proposition(binary(stop), roles(subject(fatal_errors), object(scripts))), source(inline, "fatal errors stop scripts."), provenance(language(en), range(0, 26))).
 proposition_source_record(proposition(binary(protect), roles(subject(protection), object(ears))), source(inline, "hearing protection protects the ears from noise."), provenance(language(en), range(0, 48))).
+semantic_binding(binary(stop), warning_does_not, object(script)).
+proposition_source_record(proposition(binary(stop), roles(subject(warning_does_not), object(script))), source(inline, "a warning does not stop the script."), provenance(language(en), range(0, 35))).
 semantic_complement(binding(protect, protection, ears), from, noise).
+semantic_binding(binary(stop), fatal_error, object(script)).
+proposition_source_record(proposition(binary(stop), roles(subject(fatal_error), object(script))), source(inline, "a fatal error stops the script."), provenance(language(en), range(0, 31))).
 proposition_source_record(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage))), source(inline, "a step-down transformer steps down the voltage."), provenance(language(en), range(0, 47))).
 proposition_source_record(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature))), source(inline, "the degree fahrenheit measures temperature."), provenance(language(en), range(0, 43))).
+proposition_source_record(proposition(binary(measure), roles(subject(megabyte), object(information))), source(inline, "the megabyte measures information."), provenance(language(en), range(0, 34))).
 proposition_source_record(proposition(binary(protect), roles(subject(safety_boots), object(feet))), source(inline, "safety boots protect the feet from falling objects."), provenance(language(en), range(0, 51))).
+semantic_binding(binary(print), print_r, object(readable)).
+proposition_source_record(proposition(binary(print), roles(subject(print_r), object(readable))), source(inline, "print_r prints a readable view of a variable."), provenance(language(en), range(0, 45))).
+semantic_complement(binding(print, print_r, readable), of, variable).
 semantic_complement(binding(protect, safety_boots, feet), from, falling_objects).
 semantic_binding(binary(emit), light-emitting_diode, object(light)).
+proposition_source_record(proposition(binary(cause), roles(subject(unclosed_string), object(parse_error))), source(inline, "an unclosed string causes a parse error."), provenance(language(en), range(0, 40))).
 semantic_binding(binary(need), workers, object(fall_protection)).
+semantic_binding(binary(write), error_log, object(message)).
+proposition_source_record(proposition(binary(write), roles(subject(error_log), object(message))), source(inline, "error_log writes a message to the error log."), provenance(language(en), range(0, 44))).
+semantic_complement(binding(write, error_log, message), to, error_log).
 proposition_source_record(proposition(binary(need), roles(subject(workers), object(fall_protection))), source(inline, "workers need fall protection above 2 meters."), provenance(language(en), range(0, 44))).
+semantic_binding(binary(print), var_dump, object(value)).
+proposition_source_record(proposition(binary(print), roles(subject(var_dump), object(value))), source(inline, "var_dump prints the type and value of a variable."), provenance(language(en), range(0, 49))).
+semantic_complement(binding(print, var_dump, value), of, variable).
 proposition_source_record(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), source(inline, "a light-emitting diode emits light."), provenance(language(en), range(0, 35))).
+semantic_binding(binary(print), var_dump, object(type)).
+proposition_source_record(proposition(binary(print), roles(subject(var_dump), object(type))), source(inline, "var_dump prints the type and value of a variable."), provenance(language(en), range(0, 49))).
 proposition_source_record(proposition(binary(measure), roles(subject(degree_celsius), object(temperature))), source(inline, "the degree celsius measures temperature."), provenance(language(en), range(0, 40))).
 proposition_source_record(proposition(binary(protect), roles(subject(hard_hat), object(head))), source(inline, "a hard hat protects the head from falling objects."), provenance(language(en), range(0, 50))).
+proposition_source_record(proposition(binary(cause), roles(subject(missing_semicolon), object(parse_error))), source(inline, "a missing semicolon causes a parse error."), provenance(language(en), range(0, 41))).
 semantic_complement(binding(protect, hard_hat, head), from, falling_objects).
+semantic_binding(binary(add), php_extension, object(functions)).
+proposition_source_record(proposition(binary(add), roles(subject(php_extension), object(functions))), source(inline, "a php extension adds functions to the php interpreter."), provenance(language(en), range(0, 54))).
+semantic_complement(binding(add, php_extension, functions), to, php_interpreter).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

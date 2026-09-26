@@ -75,3 +75,10 @@
 % english-grammar/constructions.p0, relazioni e procedure in core/procedures.p0,
 % nomi di classe accanto ai membri. Qui resta solo questa ricaduta.
 pending_gap_failed(forget).
+contact_episode(triggers, causes, ep(missing_semicolon, parse_error, s)).
+contact_shape(triggers, causes, verb(cons(triggers, cons(a, cons(parse, nil))), @S causes @O)).
+contact_episode(symptom, causes, ep(missing_semicolon, parse_error, s)).
+contact_shape(symptom, causes, noun).
+contact_near(print, ep(var_dump, type, s), cons(var_dump, cons(value, cons(variable, cons(displays, nil))))).
+contact_near_shape(displays, print, sh(ep(var_dump, type, s), verb(cons(displays, cons(the, nil)), @S prints @O))).
+contact_episode(handles, manage, ep(composer, dependencies, s)).
