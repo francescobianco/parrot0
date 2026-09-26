@@ -17457,7 +17457,42 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             char hits[16][KB_TERM_LEN];
             const char *hq[2] = { sub, NULL };
             size_t nh = kb_match(b->kb, rel, hq, 2, hits, 16);
-            if (nh == 0) continue;
+            /* PR10: un soggetto di piu' parole puo' stare in KB come testo
+             * («"ground beef"»): stessa chiave, altra rappresentazione. */
+            char qsub[KB_TERM_LEN];
+            if (nh == 0 && strchr(sub, '_')) {
+                char spaced[KB_TERM_LEN]; snprintf(spaced, sizeof spaced, "%s", sub);
+                for (char *c = spaced; *c; c++) if (*c == '_') *c = ' ';
+                snprintf(qsub, sizeof qsub, "\"%s\"", spaced);
+                const char *hq2[2] = { qsub, NULL };
+                nh = kb_match(b->kb, rel, hq2, 2, hits, 16);
+            }
+            /* PR10 (26 settembre 2026): la forma ha riconosciuto la domanda e la
+             * relazione non ha il valore. Lasciare il turno agli altri lettori
+             * dava la definizione di «temperature» a «what is the safe internal
+             * temperature of tofu?» — una risposta sbagliata. Se la forma dichiara
+             * come si dice che il valore manca (`turn_form_unknown/2`), lo si dice. */
+            if (nh == 0) {
+                char utpl[1][KB_TERM_LEN];
+                const char *uq[2] = { forms[f], NULL };
+                if (kb_match(b->kb, "turn_form_unknown", uq, 2, utpl, 1) == 1) {
+                    char ub[KB_TERM_LEN]; snprintf(ub, sizeof ub, "%s", utpl[0]);
+                    char subj0[KB_TERM_LEN]; present_atom(b, sub, subj0, sizeof subj0);
+                    const KbResponseSlot us0[] = { { "subject", subj0 } };
+                    char um[460];
+                    if (kb_response_slots(b, kb_dequote(ub), us0, 1, um, sizeof um)) {
+                        put(um, out, out_size);
+                        int prev = kb_origin(b->kb);
+                        kb_set_origin(b->kb, KB_REFLECTIVE);
+                        const char *verdict[] = { "current_turn", "informed_decline" };
+                        kb_assert(b->kb, "turn_outcome", verdict, 2);
+                        kb_set_origin(b->kb, prev);
+                        free(forms);
+                        return 1;
+                    }
+                }
+                continue;
+            }
             char list[400]; size_t off = 0;
             for (size_t k = 0; k < nh && off + 1 < sizeof list; k++) {
                 char shown[KB_TERM_LEN];

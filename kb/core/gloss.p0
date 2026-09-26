@@ -1325,7 +1325,9 @@ turn_translation_guess($T, $W, $En) :- turn_translated($T, $W, $En).
 % arrivavano nemmeno in KB.)
 turn_reply_qualifies($T, $W, $En) :-
     translation_step(qualify_reading),
-    turn_translation_guess($T, $W, $En).
+    turn_translation_guess($T, $W, $En), dif($W, $En).
+% (PR10, 26 settembre 2026: «Leggo «temperatura» come «temperatura».» — una
+% parola letta come se stessa non e' un'ipotesi da dichiarare.)
 
 % Passo 5 — quando una parola resta senza traduzione, il muro la nomina e dice
 % come insegnarla: la lezione «the italian for X is Y» esiste gia'. E' il
