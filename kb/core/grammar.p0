@@ -1932,9 +1932,14 @@ particle_finite_surface($Form, $Pred) :-
     verb_particle($Root, $Particle), verb_finite_form($Root, $Form),
     particle_passive_relation($Root, $Particle, $Pred, $Surface).
 answer_frame($Form, $Pred) :- particle_finite_surface($Form, $Pred).
+% (26 settembre 2026: prima la particella del turno lega la radice, POI la
+% forma: con `verb_finite_form` davanti si enumeravano tutti i 1 140 verbi di
+% relazione a ogni domanda — il profilo delle visite per goal <- regola lo
+% nominava: `relation_verb <- verb_finite_form`, ~2 000 cammini per turno.)
 answer_frame_turn_arg($Form, $Pred, 1) :-
-    turn_last_word(current_turn, $Particle), verb_finite_form($Root, $Form),
+    turn_last_word(current_turn, $Particle),
     particle_passive_relation($Root, $Particle, $Pred, $Surface),
+    verb_finite_form($Root, $Form),
     object_question_verb(current_turn, $Form).
 answer_frame_turn_arg($Form, $Root, 0) :-
     turn_last_word(current_turn, $Particle), verb_particle($Root, $Particle),

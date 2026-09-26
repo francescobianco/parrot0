@@ -327,7 +327,11 @@ debug_help_line(3, "/debug off             spegne il profilo").
 debug_help_line(4, "/debug turn            ispeziona l'ultimo turno: la nota, l'anatomia (canone, modulo, strada) e le sonde dichiarate in KB").
 debug_help_line(5, "/debug trace [parola]  la TRACCIA DEL TURNO in ordine, fino alla profondita' corrente; con una parola tiene solo le righe che la contengono").
 debug_help_line(6, "/debug depth N         la profondita' della traccia: 1 = il filo del turno, 2 = il perche' dei cancelli e il costo dei contabili, 3 = i passi dei lettori, 4 = i giri dei cicli").
-debug_help_line(7, "/debug pred NOME       ispeziona un predicato: regole e fatti per arita', con i primi valori (NOME/ARITA' per una sola arita')").
-debug_help_line(8, "/debug dump            scrive lo stato completo dell'ultimo turno nel file di dump").
-debug_help_line(9, "/debug help            questa guida").
-debug_help_line(10, "In un .p0t: !debug (ispettore + profilo), !debug off, !debug depth N. Il trace di ogni turno si salva con PARROT0_TURN_LOG=file.").
+debug_help_line(7, "/debug rows N          quante righe per lista nel profilo (visite ai fatti e chiamate per goal <- regola); default 5").
+debug_help_line(8, "/debug pred NOME       ispeziona un predicato: regole e fatti per arita', con i primi valori (NOME/ARITA' per una sola arita')").
+debug_help_line(9, "/debug dump            scrive lo stato completo dell'ultimo turno nel file di dump").
+debug_help_line(10, "/debug help            questa guida").
+debug_help_line(11, "In un .p0t: !debug (ispettore + profilo), !debug off, !debug depth N. Il trace di ogni turno si salva con PARROT0_TURN_LOG=file.").
+% quante righe per lista stampa il profilo di /debug on (`/debug rows N`)
+machinery(debug_profile_rows).
+debug_profile_rows(5).

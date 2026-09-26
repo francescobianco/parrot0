@@ -95,7 +95,12 @@
 # entrato dalla parola inventata e' conoscenza normale, non un caso speciale.
 > who is the trigger of outage?
 # (la risposta comincia per maiuscola: e' una frase)
-< Leak.
+# 26 settembre 2026: la KB viva ha imparato per contatto che «trigger(s)» e' un
+# verbo di `causes` (sessione PHP, «A missing semicolon causes a parse error,
+# so it triggers a parse error.»), e parrot0 lo DICHIARA finche' l'ipotesi e'
+# viva: «Reading «trigger» as «causes».». E' la crescita della KB, non un
+# errore; l'attesa guarda la risposta, non l'esatta superficie intera.
+<~ Leak.
 
 # ── relation_preposition/1 (kb/core/grammar.p0) ──────────────────────────────
 # Stesso frame, l'altra parola funzionale: strcmp(w[4], "of").

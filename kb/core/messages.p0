@@ -2676,6 +2676,26 @@ response_template(learned_property_phrase, "Learned: {subject} is {class}.").
 response_template(unary_polar_unknown, "I don't know: nothing I hold says {subject} is {kind}, and nothing says it isn't.").
 response_template(unary_polar_unknown, it, "Non so: non tengo che {subject} sia {kind}, né il contrario.").
 response_template(learned_property_phrase, it, "Imparato: {subject} è {class}.").
+% 26 settembre 2026 — CON L'ARTICOLO E' UNA CLASSE, e la risposta lo dice:
+% «zib rex is a dog» rispondeva «Learned: zib rex is dog.» (taught_lexicon.p0t,
+% rosso anche prima). Le due varianti vengono PRIMA della forma generica e
+% portano l'articolo detto nella loro risposta; lo stesso atto.
+turn_form(teach_class_phrase_a, 1, named(turn_entity_named, subject)).
+turn_form(teach_class_phrase_a, 2, text("is a")).
+turn_form(teach_class_phrase_a, 3, slot(class)).
+turn_form_mood(teach_class_phrase_a, statement).
+turn_form_act(teach_class_phrase_a, assert_unary).
+turn_form_reply(teach_class_phrase_a, learned_class_phrase_a).
+response_template(learned_class_phrase_a, "Learned: {subject} is a {class}.").
+response_template(learned_class_phrase_a, it, "Imparato: {subject} è un {class}.").
+turn_form(teach_class_phrase_an, 1, named(turn_entity_named, subject)).
+turn_form(teach_class_phrase_an, 2, text("is an")).
+turn_form(teach_class_phrase_an, 3, slot(class)).
+turn_form_mood(teach_class_phrase_an, statement).
+turn_form_act(teach_class_phrase_an, assert_unary).
+turn_form_reply(teach_class_phrase_an, learned_class_phrase_an).
+response_template(learned_class_phrase_an, "Learned: {subject} is an {class}.").
+response_template(learned_class_phrase_an, it, "Imparato: {subject} è un {class}.").
 turn_form(teach_property_phrase, 1, named(turn_entity_named, subject)).
 turn_form(teach_property_phrase, 2, text("is")).
 turn_form(teach_property_phrase, 3, slot(class)).

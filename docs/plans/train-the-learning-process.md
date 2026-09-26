@@ -7,6 +7,28 @@ su richiesta di F.: *«quando una forma di insegnamento non funziona annotala qu
 vai avanti»*. Ogni riga: la frase detta, che cosa è entrato, la domanda che l'ha
 mostrato, la specie del difetto. Il coefficiente della sessione è in fondo.
 
+### Stato dopo la seconda passata (26 settembre 2026, mattina)
+
+Verificato rigiocando tutte le lezioni in un processo nuovo
+(`tests/p0t/language/php_teaching_repairs.p0t`, 31 casi verdi):
+
+| # | stato | come |
+|---|---|---|
+| P1 | 🟡 | «Is Xdebug an extension?» regge per catena; «for PHP» resta perso |
+| P2 | 🟡 | «What does error_log write?» risponde; l'apposizione «the NOME function» resta incollata nel fatto |
+| P3 | 🔴 | oggetto frasale «whether …» non leggibile |
+| P4 | 🔴 | soggetto con relativa |
+| P5 | ✅ | l'altra sessione: ask_noun_of early + verso della relazione; reso «cede se vuota» perche' la capitale tornasse |
+| P6 | 🔴 | l'enumerazione via contatto («What triggers …?») dà una causa sola |
+| P7 | ✅ | proposizioni malformate tolte dal deposito semantico; print_r ora si impara (identificatore unito). Residuo: il deposito semantico tronca l'oggetto a «readable» |
+| P8 | 🔴 | contatto con oggetto coordinato |
+| P9 | ✅ | `joined_identifier/1`: un token unito è un nome (memory_limit) |
+| P10 | ✅ | «fatal» chiude solo davanti a «to» (`adjective_relation_opens/1`) |
+| P11 | 🟡 | «A stack trace is a list.» + la frase entrano, «What shows …?» risponde; «What does a stack trace show?» mura ancora; «calls» cade senza «function call» dichiarato |
+| P12 | 🟡 | il contatto nasce («Reading handles as manages»), il trasferimento su PHP-FPM no |
+| P13 | ✅ | «where» non riceve piu' un verdetto (`why_cue`); risposta-eco rifiutata (`answer_type_ok`) |
+| P14 | ✅ | l'altra sessione: `named_relation_polar` |
+
 | # | lezione detta | che cosa è entrato | la domanda che lo mostra | specie |
 |---|---|---|---|---|
 | P1 | «Xdebug is a debugger extension for PHP.» | `xdebug is a debugger extension`; «for PHP» perso; la risposta si porta dietro una lacuna vecchia («I looked up «var dump» but found nothing…») | «Is Xdebug an extension?» → «I don't know about extension»; «Is Xdebug a debugger?» idem | la **testa del sintagma** di una classe composta non è un iperonimo; complemento della classe perso; lacuna pendente riaffiorata nella risposta sbagliata. *Si ripara per contatto*: «A debugger extension is an extension.» → Yes |

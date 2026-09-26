@@ -330,8 +330,10 @@ struct KB {
     struct timespec prof_t0;
     KbProfileRow  prof_top[64];
     size_t        prof_ntop;
-    KbProfileRow  prof_vtop[64];   /* visite ai fatti per predicato di goal */
+    KbProfileRow  prof_vtop[512];   /* visite ai fatti per predicato di goal */
     size_t        prof_nvtop;
+    KbProfileRow  prof_calltop[512]; /* chiamate a regole per goal <- regola */
+    size_t        prof_ncalls;
 
     /* Materialized predicates and their structural dependency graphs.
      * Mutations expire affected views; rebuilding waits for a safe entry.
@@ -445,17 +447,53 @@ void kb_profile_reset(KB *kb) {
     kb->prof_scans = 0;
     kb->prof_ntop = 0;
     kb->prof_nvtop = 0;
+    kb->prof_ncalls = 0;
 }
 
+/* la chiave del profilo: «goal <- regola che l'ha posto» (Term.from), o il goal solo */
+static void kb_profile_goal_key(const char *pred, const char *from, size_t fromsz,
+                                char *key, size_t keysz) {
+    int ok_from = from && memchr(from, '\0', fromsz) != NULL && from[0];
+    for (const char *c = from; ok_from && *c; c++)
+        if (!(islower((unsigned char)*c) || isdigit((unsigned char)*c) || *c == '_')) ok_from = 0;
+    if (ok_from) snprintf(key, keysz, "%s <- %s", pred, from);
+    else snprintf(key, keysz, "%s", pred);
+}
+static void kb_profile_call_note(KB *kb, const char *key) {
+    if (!kb || !key) return;
+    for (size_t i = 0; i < kb->prof_ncalls; i++)
+        if (!strcmp(kb->prof_calltop[i].pred, key)) { kb->prof_calltop[i].calls++; return; }
+    size_t at = kb->prof_ncalls;
+    if (at >= 512) {
+        at = 0;
+        for (size_t i = 1; i < 512; i++)
+            if (kb->prof_calltop[i].calls < kb->prof_calltop[at].calls) at = i;
+        if (kb->prof_calltop[at].calls > 1) return;
+    } else kb->prof_ncalls++;
+    snprintf(kb->prof_calltop[at].pred, sizeof kb->prof_calltop[at].pred, "%s", key);
+    kb->prof_calltop[at].calls = 1; kb->prof_calltop[at].steps = 0; kb->prof_calltop[at].ms = 0;
+}
+size_t kb_profile_call_top(const KB *kb, KbProfileRow *out, size_t max) {
+    if (!kb || !out || max == 0) return 0;
+    size_t n = 0; int used[512] = { 0 };
+    while (n < max) {
+        size_t best = 512;
+        for (size_t i = 0; i < kb->prof_ncalls; i++)
+            if (!used[i] && (best == 512 || kb->prof_calltop[i].calls > kb->prof_calltop[best].calls)) best = i;
+        if (best == 512) break;
+        used[best] = 1; out[n++] = kb->prof_calltop[best];
+    }
+    return n;
+}
 static void kb_profile_visit_note(KB *kb, const char *pred, unsigned long visits) {
     if (!kb || !pred || !visits) return;
     for (size_t i = 0; i < kb->prof_nvtop; i++)
         if (!strcmp(kb->prof_vtop[i].pred, pred)) {
             kb->prof_vtop[i].calls++; kb->prof_vtop[i].steps += visits; return; }
     size_t at = kb->prof_nvtop;
-    if (at >= 64) {                     /* pieno: si rimpiazza il piu' piccolo */
+    if (at >= 512) {                     /* pieno: si rimpiazza il piu' piccolo */
         at = 0;
-        for (size_t i = 1; i < 64; i++)
+        for (size_t i = 1; i < 512; i++)
             if (kb->prof_vtop[i].steps < kb->prof_vtop[at].steps) at = i;
         if (kb->prof_vtop[at].steps >= visits) return;
     } else kb->prof_nvtop++;
@@ -466,12 +504,12 @@ static void kb_profile_visit_note(KB *kb, const char *pred, unsigned long visits
 size_t kb_profile_visit_top(const KB *kb, KbProfileRow *out, size_t max) {
     if (!kb || !out || max == 0) return 0;
     size_t n = 0;
-    int used[64] = { 0 };
+    int used[512] = { 0 };
     while (n < max) {
-        size_t best = 64;
+        size_t best = 512;
         for (size_t i = 0; i < kb->prof_nvtop; i++)
-            if (!used[i] && (best == 64 || kb->prof_vtop[i].steps > kb->prof_vtop[best].steps)) best = i;
-        if (best == 64) break;
+            if (!used[i] && (best == 512 || kb->prof_vtop[i].steps > kb->prof_vtop[best].steps)) best = i;
+        if (best == 512) break;
         used[best] = 1; out[n++] = kb->prof_vtop[best];
     }
     return n;
@@ -4090,16 +4128,16 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (split_compound(grounded_goal.args[k], fa, aa, &na)) continue;
         if (pred_bucket_a0(S->kb, g->pred, k, grounded_goal.args[k], &gbk)) break;
     }
-    if (S->kb->prof_on) {
+    /* 26 settembre 2026: si contano solo le visite che AVVENGONO — con un goal
+     * ground e nessun fatto con variabili (`ground_fact_mode == 2`) il cammino
+     * sotto non parte, e contarlo attribuiva 1 140 visite fantasma a ogni
+     * `relation_verb(parola)`: il profilo mandava a cercare un costo che non c'era. */
+    if (S->kb->prof_on && ground_fact_mode != 2) {
         KB *pm = (KB *)S->kb;   /* il contatore e' diagnostica, non stato logico */
         pm->prof_visits += PRED_VISITS(gbk, S->kb);
         {   /* la chiave e' «goal ← regola che l'ha posto»: dice CHI cammina */
             char key[KB_TERM_LEN];
-            int ok_from = memchr(g->from, '\0', sizeof g->from) != NULL && g->from[0];
-            for (const char *c = g->from; ok_from && *c; c++)
-                if (!(islower((unsigned char)*c) || isdigit((unsigned char)*c) || *c == '_')) ok_from = 0;
-            if (ok_from) snprintf(key, sizeof key, "%s <- %s", g->pred, g->from);
-            else snprintf(key, sizeof key, "%s", g->pred);
+            kb_profile_goal_key(g->pred, g->from, sizeof g->from, key, sizeof key);
             kb_profile_visit_note(pm, key, PRED_VISITS(gbk, S->kb)); }
         if (!gbk.live) pm->prof_scans++;
     }
@@ -4189,6 +4227,11 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     if (vrule && S->in_vrule > 0) return 0;
 
     PredBucket rbk = rule_bucket(S->kb, g->pred);
+    if (S->kb->prof_on && PRED_VISITS(rbk, S->kb) > 0) {
+        char key[KB_TERM_LEN];
+        kb_profile_goal_key(g->pred, g->from, sizeof g->from, key, sizeof key);
+        kb_profile_call_note((KB *)S->kb, key);
+    }
     int rule_copy_done = 0;
     for (size_t vi = 0; vi < PRED_VISITS(rbk, S->kb); vi++) { /* expand rules */
         if (PRED_AT(rbk, vi) >= S->kb->nr) continue;

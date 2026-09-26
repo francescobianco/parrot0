@@ -971,11 +971,22 @@ void p0_debug_turn_profile(Brain *brain, double ms) {
         fprintf(stderr, "[debug]   %7.1f ms  %8lu passi  %5zu call  %s\n",
                 top[i].ms, top[i].steps, top[i].calls, top[i].pred);
     /* dove sono finite le visite ai fatti: il predicato del GOAL, non della query */
-    KbProfileRow vt[5];
-    size_t nv = kb_profile_visit_top(kb, vt, 5);
+    /* quante righe per lista: una proprieta' di /debug come la profondita'
+     * (`debug_profile_rows/1`, debug.p0; `/debug rows N`) */
+    long rows = 5;
+    {   char v[1][KB_TERM_LEN]; const char *q[1] = { NULL };
+        if (kb_match(kb, "debug_profile_rows", q, 1, v, 1) == 1) rows = strtol(v[0], NULL, 10);
+        if (rows < 1) rows = 1;
+        if (rows > 64) rows = 64; }
+    KbProfileRow vt[64];
+    size_t nv = kb_profile_visit_top(kb, vt, (size_t)rows);
     for (size_t i = 0; i < nv; i++)
         fprintf(stderr, "[debug]   visite %10lu  %6zu cammini  goal %s\n",
                 vt[i].steps, vt[i].calls, vt[i].pred);
+    KbProfileRow ct[64];
+    size_t nc = kb_profile_call_top(kb, ct, (size_t)rows);
+    for (size_t i = 0; i < nc; i++)
+        fprintf(stderr, "[debug]   chiamate %8zu  regole di %s\n", ct[i].calls, ct[i].pred);
     fflush(stderr);
 }
 
@@ -1040,8 +1051,11 @@ void p0_debug_trace(Brain *brain, const char *filter) {
  * un'ispezione a caso. */
 static void p0_debug_help(Brain *brain) {
     KB *kb = brain_kb(brain);
-    fprintf(stderr, "\n  /debug — lo stato adesso: profilo %s, profondita' della traccia %ld\n\n",
-            kb_profile_on(kb) ? "ACCESO" : "spento", p0_debug_depth(kb));
+    long prow = 5;
+    {   char v[1][KB_TERM_LEN]; const char *q0[1] = { NULL };
+        if (kb_match(kb, "debug_profile_rows", q0, 1, v, 1) == 1) prow = strtol(v[0], NULL, 10); }
+    fprintf(stderr, "\n  /debug — lo stato adesso: profilo %s, profondita' della traccia %ld, %ld righe per lista del profilo\n\n",
+            kb_profile_on(kb) ? "ACCESO" : "spento", p0_debug_depth(kb), prow);
     char idx[64][KB_TERM_LEN];
     const char *q[2] = { NULL, NULL };
     size_t n = kb_match(kb, "debug_help_line", q, 2, idx, 64);
@@ -1074,6 +1088,17 @@ void p0_debug_command(Brain *brain, const char *args, const char *last_line) {
     if (!strcmp(verb, "depth")) {
         if (!*rest) { fprintf(stderr, "parrot0: profondita' della traccia %ld (/debug depth N per cambiarla)\n", p0_debug_depth(kb)); return; }
         p0_debug_set_depth(brain, strtol(rest, NULL, 10)); return;
+    }
+    if (!strcmp(verb, "rows")) {
+        if (!*rest) { fprintf(stderr, "parrot0: /debug rows N\n"); return; }
+        long r = strtol(rest, NULL, 10); if (r < 1) r = 1; if (r > 64) r = 64;
+        char d[24]; snprintf(d, sizeof d, "%ld", r);
+        kb_retract_pred(kb, "debug_profile_rows");
+        int prev = kb_origin(kb); kb_set_origin(kb, KB_REFLECTIVE);
+        const char *a[1] = { d }; kb_assert(kb, "debug_profile_rows", a, 1);
+        kb_set_origin(kb, prev);
+        fprintf(stderr, "parrot0: %ld righe per lista nel profilo\n", r);
+        return;
     }
     if (!strcmp(verb, "pred")) {
         if (!*rest) { fprintf(stderr, "parrot0: /debug pred NOME (o NOME/ARITA')\n"); return; }
