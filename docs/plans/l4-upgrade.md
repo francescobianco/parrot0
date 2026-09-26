@@ -49,7 +49,9 @@ passo successivo si giudica a occhio. Poi L4-1 (riconoscere la sovrapposizione)
 sulle otto regole grammaticali che parrot0 applica già e che la lezione non
 riconosce (G2, G3, G4, G19, G21, G22, G23, G1-parziale). Il banco è già scritto
 in forma di prova nelle tre sessioni del 26 settembre: vanno promossi da
-scratchpad a strumento.
+scratchpad a strumento. La contraddizione (§5-bis, L4-8) corre in parallelo:
+il suo primo passo, depositare la specie nel registro dei paradossi, è piccolo e
+non dipende dal banco.
 
 ---
 
@@ -99,7 +101,7 @@ comprensione stessa. È il «contesto a rete» di F. applicato all'apprendimento
 imparare non è aggiungere un valore a un insieme, è modificare un percorso in un
 punto e con le condizioni del punto.
 
-## 3. Le sei proprietà di coerenza (C1–C6)
+## 3. Le sette proprietà di coerenza (C1–C7)
 
 | | proprietà | si verifica con | rompe se |
 |---|---|---|---|
@@ -109,6 +111,7 @@ punto e con le condizioni del punto.
 | **C4** | **condizioni ereditate** — il membro imparato porta le condizioni del percorso in cui è entrato | la stessa parola in un altro ruolo non viene letta con la lezione | innesto per identità (R3) |
 | **C5** | **raggiungibilità** — ogni decisione della comprensione è conoscenza che una lezione può toccare | la lezione cambia la decisione, senza ricompilare | la decisione è nel C (R4) |
 | **C6** | **persistenza e confine** — l'effetto resta dopo il riavvio e non tocca ciò che la lezione non giustifica | stessa risposta dopo `/save` e riavvio; il contrasto resta com'era | l'effetto svanisce (R6) o contamina (R1, R3, R8) |
+| **C7** | **la contraddizione è uno stato, non un guasto** — quando ciò che si impara urta ciò che la comprensione sostiene, l'urto entra nel registro dei paradossi e diventa uno stato dialettico che parrot0 maneggia nel discorso e nelle inferenze (§5-bis) | la contraddizione si chiede («what contradicts what?»), si dice con le due parti e la ragione, e ha un esito dichiarato | la lezione sovrascrive in silenzio, o viene scartata in silenzio, o le due verità convivono senza che nessuno lo sappia (R5, R8) |
 
 La procedura (R7) non è una settima proprietà: è C1+C2 applicate a ciò che si
 esegue. Una procedura imparata è coerente se la comprensione la attraversa da
@@ -165,6 +168,101 @@ avere scritto.
 8. **Consolidare dove la comprensione legge** (C1, C6): lo stesso deposito, lo
    stesso file accanto ai suoi simili, riletto dopo il riavvio.
 9. **Revisionare nel tempo** (L3 §19): uno strato che ritira, non una cancellazione.
+
+## 5-bis. La contraddizione entra nel registro dei paradossi (F., 26 settembre 2026)
+
+> *«nel caso di contraddizione il predicato di contraddizione deve essere messo
+> in campo come per i paradossi, per i loop, per i cap di soglia: anche per le
+> contraddizioni ci sarà un processo che rende quello stato, ingestibile con la
+> coerenza logica, uno stato dialettico gestibile.»*
+
+**Il precedente.** Il motore ha già un registro unico dei paradossi,
+`paradox_event(Livello, Specie, Dove, Dettaglio)` (debug.p0, §25.3 di L3). Il
+ciclo tagliato, il budget, il tetto di profondità, il cortocircuito e il ciclo di
+una vista sono **specie** di quel registro. La KB le legge
+(`inference_incomplete/2`, `inference_cycle/2` in composition.p0), e parrot0 ne
+parla invece di fermarsi. Il tetto di profondità ci è entrato il 26 settembre con
+la stessa richiesta di F.: *«quando li raggiunge fa inferenza con essi e te ne
+parla»*. La contraddizione è la specie che manca.
+
+**Perché è la stessa famiglia.** Un ciclo è una definizione che per chiudersi
+consulta se stessa. Un tetto è una ricerca che non finisce nel suo bilancio. Una
+contraddizione è una conclusione che, con i suoi soli mezzi, la logica non può
+tenere: sia P che non-P, o due membri di classi incompatibili, o una regola e il
+suo controesempio. In tutti i casi la logica classica ha due sole uscite
+sbagliate: fermarsi, oppure derivare qualsiasi cosa (*ex falso*). Il registro dà
+la terza uscita, la stessa per tutte: **lo stato si deposita, diventa
+conoscenza, e la conoscenza si maneggia.**
+
+**Che cosa c'è già, sparso.** Oggi i pezzi esistono ma non si parlano:
+
+| dove | che cosa rileva | che cosa manca |
+|---|---|---|
+| `contradiction/1` (procedures.p0, L12) | un'entità in due classi `incompatible/2` | nessuno lo consulta durante l'apprendimento |
+| `incompatible_propositions/2`, `contradicts_across/4` (context-scope.p0) | una proposizione e la sua negazione in due contesti | vale fra contesti, non fra la lezione e la KB |
+| `episode_contradicted`, `precedent_contradicted` (episodes.p0) | un episodio smentito | nessun esito dialettico |
+| `precondition_contradicted` (situation.p0) | una precondizione smentita | idem |
+| `own_method(contradiction)` e `own_method(non_contradiction)` (own-methods.p0) | parrot0 **dice** già il metodo giusto: non sovrascrivere, tenere le due viste in contesti separati; due affermazioni vere che sembrano contraddirsi riguardano sensi, tempi o rispetti diversi, e nominare quale è tutto il lavoro | il metodo è **detto**, non **eseguito** |
+
+L4 chiede di chiudere quest'ultima distanza. Il metodo che parrot0 descrive
+diventa il processo che fa.
+
+**Il processo, dall'urto allo stato dialettico.**
+
+1. **Rilevare.** Al passo 3 del circuito (§5), quando le conseguenze della
+   lezione si fanno girare, una conseguenza può urtare ciò che la comprensione
+   sostiene. Le regole che rilevano sono le relazioni di incompatibilità già in
+   KB, più le nuove che si insegnano. Nessuna lista nel C. Il motore dà solo la
+   primitiva che tiene insieme le due derivazioni.
+2. **Registrare.** L'urto diventa un fatto nel registro:
+   `paradox_event(belief, contradiction, Dove, pair(Tesi, Antitesi))`. `Dove` è
+   il punto della rete in cui le due derivazioni si incontrano, e ciascuna parte
+   porta la sua derivazione (`kb_derivation/4`) e la sua fonte (lezione,
+   contatto, KB di base, turno). `/debug` lo mostra con la sonda 44, come le altre
+   specie.
+3. **Tenere, non scegliere in silenzio.** Nessuna delle due parti viene
+   cancellata. Nessuna vince per ordine di arrivo. Lo stato vale finché non ha un
+   esito (L3 §19: il ritiro è uno strato, mai una `retract`).
+4. **Cercare la distinzione.** Il metodo già detto da `own_method(non_contradiction)`
+   diventa una ricerca. Le due parti differiscono per **senso** (due letture della
+   stessa parola), **tempo** (`holds_in`, il qualificatore di tempo), **rispetto**
+   o **contesto** (il contesto a rete di frontier §19, `context_effective_belief`),
+   o **portata** (una regola generale e il suo caso particolare, come l'articolo
+   per lettera e «universal»)? Ogni dimensione è una relazione in KB, e se ne può
+   insegnare una nuova.
+5. **Dare un esito dichiarato**, uno fra cinque:
+   - **distinzione trovata:** le due parti convivono, ciascuna con la sua
+     condizione; è l'esito più forte, perché la condizione diventa conoscenza;
+   - **eccezione:** la parte particolare restringe la generale (è anche lo
+     schema di R4: la lezione giusta sull'articolo è un'eccezione alla regola per
+     lettera, finché l'esempio non mostra che la regola va riscritta per suono);
+   - **revisione:** una parte si ritira con uno strato (L3 §19), con la ragione e
+     la fonte;
+   - **domanda:** manca ciò che decide; parrot0 lo chiede in una sola domanda
+     che nomina le due parti («You told me X, but I hold Y because Z. Which holds
+     here, or in what sense are both true?»);
+   - **sospensione:** lo stato resta aperto e dichiarato; le risposte che ne
+     dipendono lo dicono, invece di fingere una certezza.
+6. **Parlarne e inferire con esso.** Lo stato dialettico è conoscenza come le
+   altre. Si interroga («Is there a contradiction in what you know about X?»,
+   «Why do you doubt X?»). Entra nelle risposte che toccano le due parti. E può
+   essere a sua volta premessa: «due fonti si contraddicono su X» è un fatto da
+   cui si ragiona sulla fiducia nelle fonti.
+
+**Che cosa non è.** Non è una guardia che rifiuta la lezione. Non è un halt. Non
+è un contatore nel C, e non è una lista di coppie incompatibili nel C. È la
+consapevolezza di un paradosso dentro l'inferenza, come per
+la guardia anti-isteresi: il motore offre la primitiva e il registro, la KB
+decide che cosa è incompatibile, quali distinzioni cercare, e come dirlo.
+
+**Dove tocca le rotture del §1.** R5 (due depositi, due verità) è una
+contraddizione che oggi nessuno vede: con C7 diventa uno stato dichiarato. R8 (il
+controesempio letto come negazione di un fatto vero) è una contraddizione
+creata dall'apprendimento: il registro la rende visibile prima che entri. R4 (la
+regola per lettera contro la lezione per suono) è il caso di scuola
+dell'eccezione. R3 (la contaminazione) è una contraddizione di lettura: «gauge»
+verbo contro «gauge» nome nello stesso nodo, e il pareggio vero diventa una
+domanda.
 
 ## 6. Le fasi
 
@@ -271,6 +369,28 @@ altro lettore. **Gate:** sulle 25 lezioni di grammatica e sulle 100 della
 meccanica, nessun fatto spazzatura entra; il numero di «lezioni non lette» si
 trasforma in domande di esempio, non in fatti.
 
+### L4-8 — La contraddizione come specie del registro (C7)
+
+**Tirato da:** la richiesta di F. del 26 settembre, e da R3, R4, R5, R8 letti
+come contraddizioni. **Che cosa:** il processo del §5-bis. Il motore deposita
+`paradox_event(belief, contradiction, …)` quando due derivazioni incompatibili si
+incontrano, e aggiunge solo quella primitiva. La KB rileva l'incompatibilità con
+le relazioni che ha già, cerca la distinzione e sceglie l'esito, poi dice lo
+stato. I pezzi sparsi (`contradiction/1`, `contradicts_across/4`,
+`episode_contradicted`, `precondition_contradicted`) diventano facce dello
+stesso registro, come è successo al ciclo, al budget e al tetto. Non si
+cancellano: restano come strutture secondarie finché la selezione non decide.
+**Gate:**
+- una lezione che urta un fatto di base («A whale is a fish») produce lo stato
+  con le due parti e la loro fonte, non sovrascrive e non tace;
+- una lezione che si distingue per tempo o per senso («The capital of Germany
+  was Bonn») trova la distinzione, e le due parti rispondono ciascuna nella sua
+  condizione;
+- «an universal» contro la lezione per suono dà un'eccezione dichiarata, e poi
+  la revisione quando l'esempio lo mostra;
+- la contraddizione si chiede in lingua e si vede con `/debug`;
+- nessuna parola e nessuna coppia incompatibile nel C.
+
 ## 7. Il criterio d'esito
 
 L4 è chiuso quando, sul banco L4-0 e sulle tre batterie del 26 settembre:
@@ -284,7 +404,10 @@ L4 è chiuso quando, sul banco L4-0 e sulle tre batterie del 26 settembre:
    vengono confermate, non duplicate;
 4. **nessun membro imparato si applica fuori dal suo percorso** (contaminazione
    zero sulle batterie di contrasto);
-5. **il C si è accorciato** per ogni decisione della comprensione resa
+5. **ogni contraddizione incontrata ha uno stato dichiarato** nel registro dei
+   paradossi e un esito fra i cinque del §5-bis — nessuna sovrascrittura
+   silenziosa, nessuna verità doppia invisibile;
+6. **il C si è accorciato** per ogni decisione della comprensione resa
    raggiungibile (mantra #18).
 
 ## 8. Rischi
@@ -312,10 +435,13 @@ L4 è chiuso quando, sul banco L4-0 e sulle tre batterie del 26 settembre:
 2. Il punto d'innesto è sempre unico? Una lezione può toccare due percorsi (il
    plurale in lettura e in generazione): va innestata in entrambi o in una
    sorgente comune da cui entrambi derivano?
-3. Che cosa fa L4 quando la lezione **contraddice** la comprensione corrente (la
-   KB ha l'articolo per lettera, la lezione dice per suono)? Ipotesi: il circuito
-   di L3 §19 — la lezione è un controesempio della regola corrente, e l'esempio
-   decide.
+3. ~~Che cosa fa L4 quando la lezione contraddice la comprensione corrente?~~
+   Risposta di F. (26 settembre): la contraddizione entra nel registro dei
+   paradossi come specie, e un processo la porta a uno stato dialettico
+   gestibile (§5-bis, L4-8). Resta aperto: **quale fonte pesa di più** quando
+   nessuna distinzione si trova e l'utente non risponde? La fiducia nelle fonti
+   deve essere conoscenza (chi l'ha detto, quante volte, con quale esito), non un
+   ordine fisso.
 4. Come si misura la coerenza di una lezione che non ha conseguenze osservabili
    subito (una regola che serve solo in frasi future)?
 
