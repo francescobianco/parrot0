@@ -120,7 +120,14 @@ assisted_next_number($Scope, $After, $Id, $Value) :-
 % Una lista di passi non ha arita' cablata: domani tre o dieci operazioni usano
 % la stessa ricorsione. `apply_operator/4` resta l'unico esecutore.
 assisted_step_chain($Scope, $After, nil) :-
-    naf(assisted_operation_after($Scope, $After, $Id, $Operator)).
+    naf(assisted_has_operation_after($Scope, $After)).
+% Meccanica (26 settembre 2026): la chiusura della catena era
+% `naf(assisted_operation_after($Scope, $After, $Id, $Operator))`, con due
+% variabili libere sotto `naf`: la negazione fallisce sempre, la catena non si
+% chiudeva mai, e «to convert inches to millimeters multiply by 25.4» cadeva al
+% muro («I don't know about convert»). Si chiede senza argomenti liberi.
+machinery(assisted_has_operation_after).
+assisted_has_operation_after($Scope, $After) :- assisted_operation_after($Scope, $After, $Id, $Operator).
 assisted_step_chain($Scope, $After,
                     cons(step($Operator, $Value), $Tail)) :-
     assisted_next_operation($Scope, $After, $OpId, $Operator),
@@ -189,14 +196,20 @@ assisted_candidate_store($Id, $Steps) :-
     retract(learning_candidate, $Id, procedure, $Old),
     assert(learning_candidate, $Id, procedure, $Steps).
 assisted_candidate_store($Id, $Steps) :-
-    naf(learning_candidate($Id, procedure, $Old)),
+    naf(assisted_has_candidate($Id)),
     assert(learning_candidate, $Id, procedure, $Steps).
+% (Meccanica, 26 settembre 2026: `naf` con una variabile libera fallisce sempre, e
+% il primo candidato non si scriveva mai. Si chiede senza argomenti liberi.)
+machinery(assisted_has_candidate).
+assisted_has_candidate($Id) :- learning_candidate($Id, procedure, $Old).
+machinery(assisted_has_state).
+assisted_has_state($Id) :- learning_state($Id, $Old).
 
 assisted_state_store($Id, $State) :-
     learning_state($Id, $Old), retract(learning_state, $Id, $Old),
     assert(learning_state, $Id, $State).
 assisted_state_store($Id, $State) :-
-    naf(learning_state($Id, $Old)), assert(learning_state, $Id, $State).
+    naf(assisted_has_state($Id)), assert(learning_state, $Id, $State).
 
 assisted_lesson_commit($Id, $Steps, $Quoted) :-
     assisted_candidate_store($Id, $Steps), assisted_state_store($Id, candidate),
@@ -324,10 +337,10 @@ procedure_origin_opener(it, "Quella capacita' discende da una lezione parlata; s
 procedure_origin_steps(en, "; steps: ").
 procedure_origin_steps(it, "; passi: ").
 procedure_origin_text($Language, $Status, $Steps, $Text) :-
-    procedure_origin_opener($Language, $Opener), is($StatusText, $Status),
+    procedure_origin_opener($Language, $Opener),
     procedure_origin_steps($Language, $StepsLead),
     procedure_steps_text($Language, $Steps, $StepsText),
-    concat_atoms($Opener, $StatusText, $A), concat_atoms($A, $StepsLead, $B),
+    concat_atoms($Opener, $Status, $A), concat_atoms($A, $StepsLead, $B),
     concat_atoms($B, $StepsText, $C), concat_atoms($C, ".", $Text).
 
 % Le lezioni hanno un protocollo separato dalle risposte ordinarie: e' la
@@ -357,3 +370,21 @@ turn_response($Turn, $Text) :-
     assisted_procedure_origin($Turn, $Id), learning_candidate($Id, procedure, $Steps),
     learning_status($Id, $Status), current_language($Language),
     procedure_origin_text($Language, $Status, $Steps, $Text).
+
+% Meccanica (26 settembre 2026) — IL PROTOCOLLO NON AVEVA PIU' UN LETTORE.
+% Nessuna parte del motore interrogava `turn_learning_response/2` (misurato: nessun
+% riferimento nel C), quindi la lezione «to convert inches to millimeters multiply
+% by 25.4», anche quando si leggeva, non riceveva risposta e cadeva al muro. Il
+% motore legge `turn_priority_response/2` nel piano di turno: il protocollo passa
+% da li', e il turno di lezione e' un candidato del piano.
+turn_plan_candidate($Turn) :- assisted_procedure_lesson($Turn, $Id, $Steps, $Quoted).
+turn_plan_candidate($Turn) :- assisted_procedure_forget($Turn, $Id, $Quoted).
+turn_priority_response($Turn, $Text) :- turn_learning_response($Turn, $Text).
+% E il candidato si scrive DOPO la risposta: la contabilita' di prima corre quando
+% la IR del turno non esiste ancora, e il candidato non entrava mai (la risposta
+% diceva «Learned candidate…» e «convert 3 inches…» murava). La scrittura
+% sostituisce, quindi e' idempotente.
+after_reply_bookkeeper(assisted_lesson_commit).
+turn_after_reply($Turn, assisted_lesson_commit) :-
+    assisted_procedure_lesson($Turn, $Id, $Steps, $Quoted),
+    assisted_lesson_commit($Id, $Steps, $Quoted).
