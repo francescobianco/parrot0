@@ -1,0 +1,33 @@
+# L4, punto 3 (26 settembre 2026) — LA LEZIONE SI CONFRONTA CON LA REGOLA CHE
+# OPERA (docs/plans/l4-upgrade.md, Censimento 1).
+#
+# Prima «To make a question with can, put can before the subject» e poi
+# QUALUNQUE domanda risposta diceva «lo faccio gia'»: anche «What is the capital
+# of France?», anche «Must a welder wear a mask?» letta come «welder wear is
+# mask». La conferma poggiava sul «risposto», non su una regola.
+#
+# Ora la lezione si allinea alle forme che la comprensione esegue (le parti che
+# la lingua sa nominare: il modo, il soggetto, l'ancora, l'ordine), e l'esempio
+# conta solo se lo ha letto quella forma (`turn_form_read/2`). Le lezioni sono
+# dette come le direbbe un insegnante: nessun nome interno.
+
+[test la lezione su can trova la regola che opera, e l'esempio la conferma]
+!timeout 8
+> To make a question with can, put can before the subject.
+<~ It matches a rule I already use
+<~ «can» before the subject
+# una domanda che non dice «can» non e' un esempio di questa lezione
+> What is the capital of France?
+<~ Paris
+<! That was your example
+> Can a lathe cut steel?
+<~ I read it with that rule
+
+[test la lezione su must nomina il residuo, e l'esempio letto male non conferma]
+!timeout 8
+> To make a question with must, put must before the subject.
+<~ no statement I can read has «must»
+<! It matches a rule I already use
+> Must a welder wear a mask?
+<~ I didn't read it with «must»
+<! already do

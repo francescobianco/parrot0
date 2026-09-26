@@ -226,11 +226,67 @@ accanto a `polar_opener`:
    ricorsione, e `apply` si dichiara con `view_apply_resolved/1` più
    `view_depends/2` sulle classi raggiunte.
 
-**Prossimo passo: il punto 3.** La lezione del §0 («To make a question with
-can, put can before the subject») va confrontata con `question_inversion`
-attraverso le conseguenze. Su «can» deve arrivare a «questa è la regola che
-uso»; su «must» deve nominare il residuo (nessuna forma dichiarativa porta
-«must»), non dire «già lo faccio».
+### Incremento 2 — fatto (26 settembre): la lezione si confronta con la regola
+
+In [language-lessons.p0](../../kb/core/language-lessons.p0), §3-bis e §4.
+
+- **Allineamento per parti nominate.** Una forma ha parti che la lingua sa
+  nominare: il modo (`form_part_word(question, mood(question))`), i pezzi
+  (`subject`), le ancore, l'ordine (`form_order_word(before, before)`). La
+  lezione **colloca** qualcosa: `lesson_placement/4` prende ciò che sta prima
+  della parola d'ordine e il pezzo nominato dopo. `lesson_form_target/4`
+  trova le forme del modo nominato che hanno quell'ancora e quel pezzo
+  **nell'ordine detto**: è una conseguenza strutturale verificata sulla forma,
+  non una lettura della regola descritta. Le forme derivate da
+  `question_inversion/4` sono forme come le altre.
+- **Il residuo.** Se la lezione colloca un ausiliare e nessuna forma di quel
+  modo si apre con esso, `lesson_residue_operator/2` lo nomina: la regola c'è,
+  manca l'affermazione da cui derivarla.
+- **La ricevuta dell'esempio.** Unica riga di C:
+  `turn_form_read(current_turn, Forma)`, pubblicata dal lettore delle forme
+  quando una forma combacia e ripulita a inizio turno, come `turn_translated`.
+  È un'osservazione, non una decisione (mantra #18: una primitiva motivata, non
+  una migrazione).
+- **Il giudizio sull'esempio**:
+  - letto dalla forma bersaglio → «I read it with that rule…»;
+  - dice l'ausiliare ma letto per altra via → «I didn't read it with «X»…»;
+  - non dice l'ausiliare → non è un esempio di questa lezione: silenzio, la
+    lezione resta aperta;
+  - lezione non allineata e risposta data → «I can't tell yet whether I did
+    it the way you described». Il falso «already» del §0 non si produce più
+    su nessun ramo.
+
+**Misure** (KB `agi` completa, processo nuovo):
+
+| turno | prima | ora |
+|---|---|---|
+| lezione «can» | chiede un esempio | «It matches a rule I already use: I ask questions by putting «can» before the subject.» + chiede un esempio |
+| «What is the capital of France?» | «Paris. … I already do» | «Paris.» (non è un esempio: lezione aperta) |
+| «Can a lathe cut steel?» | — | «Yes. That was your example, and I read it with that rule…» |
+| lezione «must» | chiede un esempio | «…no statement I can read has «must» in that place, so I can't do it that way yet.» |
+| «Must a welder wear a mask?» (letta male) | «… I already do» | «… I didn't read it with «must» before the subject…» |
+| lezione do/does/did (G2) | chiede un esempio | residuo su «do», «does», «did»: il do-support non passa ancora da `question_inversion` |
+
+Cricchetto [lesson_meets_rule.p0t](../../tests/p0t/language/lesson_meets_rule.p0t),
+in `make test`, 9/9. `soft-test` verde; `question_inversion.p0t` 9/9.
+
+**Residui osservati, non curati (non bloccano il circuito):**
+- La lezione in italiano («Per fare una domanda con can, metti can prima del
+  soggetto») non è riconosciuta come lezione sulla lingua, perché
+  `language_term/2` è solo inglese, e diventa un fatto spazzatura (R1).
+- Il do-support è letto dalla ricerca a coppie di `p0_polar_reply`, non da una
+  forma: per portarlo nella regola serve una forma dichiarativa con la
+  morfologia del verbo alla forma base (punto 4).
+- La frase del riconoscimento dice il modale ma non ancora **da quali
+  affermazioni** deriva la domanda (`inverted_form(Q, from(D, W))` lo sa già).
+
+**Prossimo passo: il punto 4, estendere da fuori.** Con «must» la lezione
+arriva al residuo esatto. La lezione successiva deve poter **dare** ciò che
+manca, cioè un'affermazione con «must», in lingua naturale. La stessa
+`question_inversion` deve allora derivarne la domanda nello stesso processo,
+e la lezione su «must» deve passare dal residuo al riconoscimento. La prova
+meccanica esiste già (`!assert ability_marker("could")`, incremento 1); manca
+la via **parlata**.
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 

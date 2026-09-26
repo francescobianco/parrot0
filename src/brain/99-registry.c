@@ -8117,6 +8117,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             const char *tq[3] = { "current_turn", NULL, NULL };
             kb_retract_match(b->kb, "turn_translated", tq, 3);
             kb_retract_match(b->kb, "turn_kept", tq, 2);
+            kb_retract_match(b->kb, "turn_form_read", tq, 2);
         }
         b->canon_turn = 1;
         b->canon_raw = input;

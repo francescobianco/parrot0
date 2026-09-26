@@ -97,7 +97,19 @@ turn_is_language_lesson($T) :-
 % sulla lingua appartiene al piano di turno, come le premesse di un problema.
 turn_plan_candidate($T) :- turn_is_language_lesson($T).
 turn_response_part($T, 1, $Text) :-
-    turn_is_language_lesson($T), current_language($L), language_lesson_line($L, ask_example, $Text).
+    turn_is_language_lesson($T), current_language($L), language_lesson_line($L, not_a_fact, $Text).
+turn_response_part($T, 2, $Text) :-
+    turn_is_language_lesson($T), lesson_target_operators($T, $Ops), dif($Ops, nil),
+    current_language($L), lesson_quote_list($L, $Ops, $Q),
+    language_lesson_line($L, rule_in_use, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, rule_in_use_end, $C), concat_atoms($B, $C, $Text).
+turn_response_part($T, 3, $Text) :-
+    turn_is_language_lesson($T), lesson_residue_operators($T, $Ops), dif($Ops, nil),
+    current_language($L), lesson_quote_list($L, $Ops, $Q),
+    language_lesson_line($L, rule_residue, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, rule_residue_end, $C), concat_atoms($B, $C, $Text).
+turn_response_part($T, 4, $Text) :-
+    turn_is_language_lesson($T), current_language($L), language_lesson_line($L, ask_example_only, $Text).
 
 % ── 3. LA LEZIONE RESTA APERTA ─────────────────────────────────────────────
 % Il turno in cui e' stata detta; non si salva nell'albero (turn_scratch): e'
@@ -108,7 +120,10 @@ machinery(language_lesson_settled).
 turn_scratch(language_lesson_settled).
 bookkeeper(language_lesson_open).
 turn_bookkeeping($T, language_lesson_open) :-
-    turn_is_language_lesson($T), turn_counter($N), assert(language_lesson_opened, $N).
+    turn_is_language_lesson($T), turn_counter($N), assert(language_lesson_opened, $N),
+    findall($F, lesson_target_form($T, $F), $Fs), lesson_store_targets($N, $Fs),
+    lesson_target_operators($T, $Ts), lesson_store_operators($N, $Ts),
+    lesson_residue_operators($T, $Rs), lesson_store_operators($N, $Rs).
 
 % Per quanti turni una domanda e' l'esempio della lezione: l'insegnante che
 % risponde a «Can you show me an example?» dice la frase e poi la domanda.
@@ -120,13 +135,137 @@ language_lesson_waiting($N) :-
     is($D, sub($C, $N)), language_example_window($W), le($D, $W),
     naf(language_lesson_settled($N)).
 
+% ── 3-bis. LA LEZIONE SI CONFRONTA CON LE REGOLE CHE OPERANO (L4, punto 3) ──
+% Prima la lezione non si confrontava con niente: «To make a question with can,
+% put can before the subject» e poi QUALUNQUE domanda risposta — anche «What
+% is the capital of France?», anche «Must a welder wear a mask?» letta male —
+% diceva «lo faccio gia'» (l4-upgrade.md, §0 e Censimento 1). Ora la lezione si
+% allinea alle FORME di turno che la comprensione esegue, attraverso le parti
+% che una forma ha e che la lingua sa nominare: il suo modo (una domanda), i
+% suoi pezzi (il soggetto), le sue ancore (l'ausiliare in testa), e l'ordine
+% fra di essi. Non si legge la regola descritta per scriverne una: si chiede se
+% una regola che gia' opera ha le conseguenze che la lezione descrive. Le forme
+% derivate da `question_inversion/4` (grammar.p0) sono forme come le altre.
+%
+% Le parole che nominano le parti di una forma: conoscenza, una riga per
+% parola e per lingua.
+machinery(form_part_word).
+form_part_word(question, mood(question)).    form_part_word(questions, mood(question)).
+form_part_word(domanda, mood(question)).     form_part_word(domande, mood(question)).
+form_part_word(subject, slot(subject)).      form_part_word(soggetto, slot(subject)).
+form_part_word(object, slot(object)).        form_part_word(oggetto, slot(object)).
+machinery(form_order_word).
+form_order_word(before, before).  form_order_word(prima, before).
+form_order_word(after, after).    form_order_word(dopo, after).
+
+machinery(turn_lesson_word).
+machinery(turn_lesson_word_at).
+turn_lesson_word($T, $W) :- turn_surface_token($T, $S, $I, $Tok), span_atom($Tok, $W).
+turn_lesson_word_at($T, $I, $W) :- turn_surface_token($T, $S, $I, $Tok), span_atom($Tok, $W).
+% dove sta, in una forma, un'ancora detta e un pezzo nominato
+machinery(form_anchor_at).
+machinery(form_slot_at).
+form_anchor_at($F, $N, $W) :- turn_form($F, $N, text($W0)), concat_atoms($W0, "", $W).
+form_slot_at($F, $N, $S) :- turn_form($F, $N, slot($S)).
+form_slot_at($F, $N, $S) :- turn_form($F, $N, span($S)).
+form_slot_at($F, $N, $S) :- turn_form($F, $N, rest($S)).
+% La lezione COLLOCA qualcosa: «put X before the subject». Cio' che si colloca
+% sta prima della parola d'ordine, il pezzo rispetto a cui lo si colloca dopo:
+% senza le posizioni, il «the» di «the subject» passava per l'ausiliare.
+machinery(lesson_placement).
+lesson_placement($T, $X, $K, $S) :-
+    turn_lesson_word_at($T, $IO, $O), form_order_word($O, $K),
+    turn_lesson_word_at($T, $IX, $X), lt($IX, $IO),
+    turn_lesson_word_at($T, $IS, $WS), lt($IO, $IS), form_part_word($WS, slot($S)).
+machinery(lesson_order_holds).
+lesson_order_holds(before, $NX, $NS) :- lt($NX, $NS).
+lesson_order_holds(after, $NX, $NS) :- lt($NS, $NX).
+
+% LA CONSEGUENZA STRUTTURALE: una forma del modo che la lezione nomina, con
+% un'ancora che la lezione dice e un pezzo che la lezione nomina, nell'ordine
+% che la lezione dice. `lesson_form_target(Turno, Forma, Ancora, Pezzo)`.
+machinery(lesson_form_target).
+machinery(lesson_names_mood).
+lesson_names_mood($T, $M) :- turn_lesson_word($T, $W), form_part_word($W, mood($M)).
+lesson_form_target($T, $F, $X, $S) :-
+    lesson_names_mood($T, $M), lesson_placement($T, $X, $K, $S),
+    turn_form_mood($F, $M), form_anchor_at($F, $NX, $X), form_slot_at($F, $NS, $S),
+    lesson_order_holds($K, $NX, $NS).
+% (le forme e gli ausiliari si raccolgono a parte: una virgola dentro un
+% termine raccolto spezza la lista di `findall`)
+machinery(lesson_target_form).
+lesson_target_form($T, $F) :- lesson_form_target($T, $F, $X, $S).
+machinery(lesson_target_operators).
+machinery(lesson_target_operator).
+lesson_target_operator($T, $X) :- lesson_form_target($T, $F, $X, $S).
+lesson_target_operators($T, $Ops) :- findall($X, lesson_target_operator($T, $X), $Ops).
+% IL RESIDUO: la lezione nomina il modo, un pezzo e l'ordine, e dice un
+% ausiliare con cui nessuna forma di quel modo si apre. Non «lo faccio gia'», e
+% non un fatto: la regola c'e', manca la forma dichiarativa da cui derivarla.
+machinery(lesson_residue_operator).
+machinery(lesson_residue_operators).
+machinery(lesson_has_target_with).
+lesson_has_target_with($T, $X) :- lesson_form_target($T, $F, $X, $S).
+lesson_residue_operator($T, $X) :-
+    lesson_names_mood($T, $M), lesson_placement($T, $X, $K, $S),
+    auxiliary($X), naf(lesson_has_target_with($T, $X)).
+lesson_residue_operators($T, $Ops) :- findall($X, lesson_residue_operator($T, $X), $Ops).
+
+% Che cosa la lezione aperta ha trovato resta con lei (turn_scratch).
+machinery(language_lesson_target).
+turn_scratch(language_lesson_target).
+machinery(language_lesson_operator).
+turn_scratch(language_lesson_operator).
+machinery(lesson_store_targets).
+lesson_store_targets($N, nil).
+lesson_store_targets($N, cons($F, $R)) :-
+    assert(language_lesson_target, $N, $F), lesson_store_targets($N, $R).
+machinery(lesson_store_operators).
+machinery(lesson_store_operator).
+lesson_store_operators($N, nil).
+lesson_store_operators($N, cons($X, $R)) :- lesson_store_operator($N, $X), lesson_store_operators($N, $R).
+lesson_store_operator($N, $X) :- language_lesson_operator($N, $X).
+lesson_store_operator($N, $X) :- naf(language_lesson_operator($N, $X)), assert(language_lesson_operator, $N, $X).
+machinery(language_lesson_aligned).
+language_lesson_aligned($N) :- language_lesson_operator($N, $X).
+
+% «do», «does» e «did»: una lista detta con le virgolette della lingua
+machinery(lesson_quote_list).
+lesson_quote_list($L, cons($X, nil), $Q) :- lesson_quoted($X, $Q).
+lesson_quote_list($L, cons($X, cons($Y, $R)), $Q) :-
+    lesson_quoted($X, $QX), lesson_quote_list($L, cons($Y, $R), $QR),
+    language_lesson_line($L, list_sep, $Sep), concat_atoms($QX, $Sep, $A), concat_atoms($A, $QR, $Q).
+machinery(lesson_quoted).
+lesson_quoted($X, $Q) :- concat_atoms("«", $X, $A), concat_atoms($A, "»", $Q).
+
 % ── 4. L'ESEMPIO, LETTO DALLA COMPRENSIONE ─────────────────────────────────
-% La domanda dell'esempio ha avuto una risposta: la comprensione fa gia' cio'
-% che la lezione descrive, almeno qui. Nessun fatto nuovo: si dice, e la
-% lezione si chiude.
+% Per una lezione ALLINEATA l'esempio conta solo se lo ha letto la forma che la
+% lezione descrive (`turn_form_read/2`, la ricevuta del lettore delle forme).
+% Un esempio che dice l'ausiliare ma e' stato letto per altra via non conferma
+% niente: lo si dice. Un turno che non dice l'ausiliare non e' un esempio di
+% questa lezione: la lezione resta aperta, in silenzio («Paris» del §0).
+machinery(turn_form_read).
+turn_scratch(turn_form_read).
+machinery(language_example_by_rule).
+machinery(language_example_relevant).
+language_example_by_rule($N, $X) :-
+    language_lesson_waiting($N), turn_declared_act(current_turn, question),
+    turn_form_read(current_turn, $F), language_lesson_target($N, $F),
+    language_lesson_operator($N, $X), form_anchor_at($F, $NX, $X).
+machinery(language_example_by_rule_some).
+language_example_by_rule_some($N) :- language_example_by_rule($N, $X).
+language_example_relevant($N, $X) :-
+    language_lesson_waiting($N), turn_declared_act(current_turn, question),
+    language_lesson_operator($N, $X), turn_lesson_word(current_turn, $X).
+machinery(language_example_other_way).
+language_example_other_way($N, $X) :-
+    language_example_relevant($N, $X), naf(language_example_by_rule_some($N)).
+% Per una lezione che non si allinea a nessuna forma, una risposta non dice COME
+% e' stata data: non si proclama «lo faccio gia'» (era il falso del §0).
 machinery(language_example_read).
 language_example_read($N) :-
-    language_lesson_waiting($N), turn_declared_act(current_turn, question),
+    language_lesson_waiting($N), naf(language_lesson_aligned($N)),
+    turn_declared_act(current_turn, question),
     turn_outcome(current_turn, answered),
     naf(turn_gap_kind(current_turn, wrong_suspect)).
 % Una risposta generica (il sospetto di gap-kinds.p0: rispondeva una facolta'
@@ -134,23 +273,54 @@ language_example_read($N) :-
 % e' nemmeno un muro: la lezione resta aperta, e parrot0 non dice niente.
 machinery(language_example_unread).
 language_example_unread($N) :-
-    language_lesson_waiting($N), turn_declared_act(current_turn, question),
+    language_lesson_waiting($N), naf(language_lesson_aligned($N)),
+    turn_declared_act(current_turn, question),
     turn_outcome(current_turn, $O), unsatisfying_outcome($O, $K).
 
 % La condotta sulla risposta (reply-conduct.p0): il motore la consulta una
 % volta, prima che la risposta esca.
 reply_conduct($In, $Out) :-
+    language_example_by_rule($N, $X), assert(language_lesson_settled, $N),
+    current_language($L), lesson_quoted($X, $Q),
+    language_lesson_line($L, by_rule, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, by_rule_end, $C), concat_atoms($B, $C, $Note), concat_atoms($In, $Note, $Out).
+reply_conduct($In, $Out) :-
+    language_example_other_way($N, $X), assert(language_lesson_settled, $N),
+    current_language($L), lesson_quoted($X, $Q),
+    language_lesson_line($L, other_way, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, other_way_end, $C), concat_atoms($B, $C, $Note), concat_atoms($In, $Note, $Out).
+reply_conduct($In, $Out) :-
     language_example_read($N), assert(language_lesson_settled, $N),
-    current_language($L), language_lesson_line($L, already, $Note), concat_atoms($In, $Note, $Out).
+    current_language($L), language_lesson_line($L, answered_unknown_way, $Note), concat_atoms($In, $Note, $Out).
 reply_conduct($In, $Out) :-
     language_example_unread($N), assert(language_lesson_settled, $N),
     current_language($L), language_lesson_line($L, not_yet, $Note), concat_atoms($In, $Note, $Out).
 
 % ── 5. CHE COSA DIRE ────────────────────────────────────────────────────────
 machinery(language_lesson_line).
-language_lesson_line(en, ask_example, "I read that as a rule about how the language works, not as a fact about the world, so I keep nothing from it yet. Can you show me an example?").
-language_lesson_line(it, ask_example, "La leggo come una regola su come funziona la lingua, non come un fatto sul mondo, quindi per ora non ne tengo niente. Mi fai un esempio?").
-language_lesson_line(en, already, " That was your example, and I already read it that way, so what you described is something I already do, at least here.").
-language_lesson_line(it, already, " Era il tuo esempio, e lo leggo già così: quello che hai descritto lo faccio già, almeno qui.").
+language_lesson_line(en, not_a_fact, "I read that as a rule about how the language works, not as a fact about the world, so I keep nothing from it yet.").
+language_lesson_line(it, not_a_fact, "La leggo come una regola su come funziona la lingua, non come un fatto sul mondo, quindi per ora non ne tengo niente.").
+language_lesson_line(en, rule_in_use, "It matches a rule I already use: I ask questions by putting ").
+language_lesson_line(en, rule_in_use_end, " before the subject.").
+language_lesson_line(it, rule_in_use, "Corrisponde a una regola che uso già: faccio le domande mettendo ").
+language_lesson_line(it, rule_in_use_end, " prima del soggetto.").
+language_lesson_line(en, rule_residue, "I do put an auxiliary before the subject to ask, but no statement I can read has ").
+language_lesson_line(en, rule_residue_end, " in that place, so I can't do it that way yet.").
+language_lesson_line(it, rule_residue, "Metto sì l'ausiliare prima del soggetto per chiedere, ma nessuna affermazione che so leggere ha ").
+language_lesson_line(it, rule_residue_end, " in quel posto, quindi così non so ancora farlo.").
+language_lesson_line(en, list_sep, ", ").
+language_lesson_line(it, list_sep, ", ").
+language_lesson_line(en, ask_example_only, "Can you show me an example?").
+language_lesson_line(it, ask_example_only, "Mi fai un esempio?").
+language_lesson_line(en, by_rule, " That was your example, and I read it with that rule, ").
+language_lesson_line(en, by_rule_end, " before the subject: what you described is something I already do, at least here.").
+language_lesson_line(it, by_rule, " Era il tuo esempio, e l'ho letto con quella regola, ").
+language_lesson_line(it, by_rule_end, " prima del soggetto: quello che hai descritto lo faccio già, almeno qui.").
+language_lesson_line(en, other_way, " That was your example, but I didn't read it with ").
+language_lesson_line(en, other_way_end, " before the subject, so I can't claim to do what you described yet.").
+language_lesson_line(it, other_way, " Era il tuo esempio, ma non l'ho letto con ").
+language_lesson_line(it, other_way_end, " prima del soggetto, quindi non posso dire di fare già quello che hai descritto.").
+language_lesson_line(en, answered_unknown_way, " That was your example, and I answered it, but I can't tell yet whether I did it the way you described.").
+language_lesson_line(it, answered_unknown_way, " Era il tuo esempio, e ho risposto, ma non so ancora dire se l'ho fatto nel modo che hai descritto.").
 language_lesson_line(en, not_yet, " That was your example, and I can't read it yet, so what you described is something I don't do yet.").
 language_lesson_line(it, not_yet, " Era il tuo esempio, e non so ancora leggerlo: quello che hai descritto non lo faccio ancora.").

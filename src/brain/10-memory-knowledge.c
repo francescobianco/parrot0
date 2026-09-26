@@ -16646,6 +16646,19 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             }
         }
         p0_trace(b, "read.form", "matched %s (%zu slots)\n", form, ns);
+        /* L4 (26 settembre 2026) — LA RICEVUTA DELLA LETTURA. Quale forma ha
+         * letto il turno era solo una riga di traccia: una lezione sulla lingua
+         * non poteva chiedere se il suo esempio fosse stato letto dalla regola
+         * che descrive, e la conferma poggiava sul «risposto» (l4-upgrade.md,
+         * Censimento 1). Qui c'e' soltanto l'osservazione; che cosa conti come
+         * esempio lo decide la KB (language-lessons.p0). */
+        {
+            const char *ra[2] = { "current_turn", forms[f] };
+            int prev_origin = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            if (!kb_query(b->kb, "turn_form_read", ra, 2)) kb_assert(b->kb, "turn_form_read", ra, 2);
+            kb_set_origin(b->kb, prev_origin);
+        }
 
         /* gen507/66 — UNA FORMA PUO' DICHIARARE PIU' OPERAZIONI, IN ORDINE.
          *
