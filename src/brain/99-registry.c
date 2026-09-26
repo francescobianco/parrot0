@@ -7966,6 +7966,17 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "turn_class_read");
             kb_retract_pred(b->kb, "turn_asked_phrase");
             kb_retract_pred(b->kb, "saturated_read");
+            /* 26 settembre 2026 — e quelli che la KB dichiara di turno
+             * (`turn_reset/1`): l'elenco qui sopra resta, ma uno nuovo si
+             * aggiunge con una riga di .p0, senza ricompilare. */
+            { char (*tr)[KB_TERM_LEN] = NULL; size_t ntr = 0;
+              const char *trq[1] = { NULL };
+              if (kb_match_all(b->kb, "turn_reset", trq, 1, &tr, &ntr))
+                  for (size_t k = 0; k < ntr; k++) {
+                      char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tr[k]);
+                      kb_retract_pred(b->kb, kb_dequote(tb));
+                  }
+              free(tr); }
         }
     }
     /* …e si posa qui, sul turno INTERO, prima di qualunque lettura: le passate

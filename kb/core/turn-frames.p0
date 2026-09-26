@@ -1028,3 +1028,14 @@ turn_force_blocked($Turn, question) :-
 % prosa portata: il piano di turno cedeva, e la risposta finiva a un muro.
 machinery(turn_answers_open_inquiry).
 turn_answers_open_inquiry($Turn) :- turn_answers_inquiry_issue($Turn, $Issue).
+
+% Meccanica (26 settembre 2026), 33 verifiche indirette rosse: «rule for inchmm2
+% is apply inchmm» — il passo da insegnare e' un imperativo («apply …»), il turno
+% risultava un ORDINE, e la forma della lezione (mood `statement`) lo saltava; lo
+% prendeva il cancello dei concetti («I didn't keep that»). Chi apre una lezione
+% di procedura non sta dando un ordine: il passo e' il contenuto della lezione.
+machinery(procedure_lesson_opener).
+procedure_lesson_opener("rule for").
+procedure_lesson_opener("test:").
+turn_cue_registry(procedure_lesson_opener, 1).
+turn_force_blocked($Turn, directive) :- turn_cue_form($Turn, procedure_lesson_opener, $C).

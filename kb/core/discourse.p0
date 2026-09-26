@@ -421,6 +421,14 @@ turn_scoped(turn_register, 2).
 turn_scoped(turn_reply, 2).
 turn_scoped(turn_input, 2).
 turn_scoped(turn_entity, 2).
+% La traccia dell'esecuzione di una procedura e' del turno che l'ha eseguita:
+% sopravvissuta al turno dopo, un'altra regola del piano la leggeva come propria
+% e rispondeva «You can» (oracolo del catalogo #49, 26 settembre 2026).
+turn_scoped(turn_plan_step, 2).
+% e si azzera a inizio turno: `turn_reset/1` e' l'elenco dei fatti di turno che il
+% motore ritira all'ingresso, estendibile senza ricompilare.
+machinery(turn_reset).
+turn_reset(turn_plan_step).
 % l'ultima mossa, come vista sul turno precedente
 previous_turn($P) :- turn_counter($N), is($K, sub($N, 1)), concat_atoms(turn_, $K, $P).
 

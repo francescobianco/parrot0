@@ -17337,6 +17337,32 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                     continue;
                 }
             }
+            /* Meccanica (26 settembre 2026) — UN PASSO GIA' TENUTO SI RICONOSCE.
+             * «rule for inchmm is multiply by 25.4», ridetta dopo che la
+             * procedura era stata salvata, si accodava come passo 2: inchmm(1)
+             * dava 645.16. Una lezione identica a un passo che c'e' si
+             * riconosce (L4, C3) invece di duplicarlo; chi vuole davvero
+             * ripetere un passo lo dice («rule for X is again …», che lega lo
+             * slot `again`). */
+            if (!p0_form_slot(slots, ns, "again")) {
+                for (long o = 1; o < next; o++) {
+                    char ob5[24]; snprintf(ob5, sizeof ob5, "%ld", o);
+                    const char *hq5[3] = { key, ob5, qtxt };
+                    if (kb_query(b->kb, rel, hq5, 3)) {
+                        char shown5[KB_TERM_LEN];
+                        { char t5[KB_TERM_LEN]; snprintf(t5, sizeof t5, "%s", txt);
+                          for (char *c = t5; *c; c++) if (*c == '_') *c = ' ';
+                          snprintf(shown5, sizeof shown5, "%s", t5); }
+                        const KbResponseSlot as5[] = { { "subject", key }, { "order", ob5 }, { "object", shown5 } };
+                        char msg5[400];
+                        if (kb_response_slots(b, "ordered_item_already_held", as5, 3, msg5, sizeof msg5)) {
+                            put(msg5, out, out_size);
+                            free(forms);
+                            return 1;
+                        }
+                    }
+                }
+            }
             const char *pa[3] = { key, ob3, qtxt };
             int prev2 = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_SESSION);

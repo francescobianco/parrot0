@@ -2556,3 +2556,27 @@ induction_excluded(cmd).
 induction_excluded(flag).
 induction_excluded(cont).
 induction_excluded(cont2).
+
+% ══ Catalogo #49 (26 settembre 2026) — L'ORACOLO DI UNA PROCEDURA ═══════════
+% «test: apply inchmm to 2 gives 50.8» rispondeva «I didn't keep that…»: la forma
+% era nel catalogo e nessuno la leggeva. E' una domanda di verifica: si esegue la
+% procedura con l'interprete di sempre (`proc_run/3`) e si confronta con il valore
+% detto. Tutto qui, nessun atto nuovo nel motore.
+machinery(proc_test_turn).
+proc_test_turn($T, test($P, $In, $Exp)) :-
+    turn_cue_form($T, procedure_lesson_opener, "test:"),
+    turn_word($T, $I, apply), is($J, add($I, 1)), turn_word($T, $J, $P), proc_step($P, 1, $S),
+    is($K, add($J, 1)), turn_word($T, $K, to), is($L, add($K, 1)), turn_word($T, $L, $In),
+    is($M, add($L, 1)), turn_word($T, $M, gives), is($N, add($M, 1)), turn_word($T, $N, $Exp).
+machinery(proc_test_text).
+proc_test_text(test($P, $In, $Exp), $Text) :-
+    proc_run($P, $In, $Out), eq($Out, $Exp),
+    concat_atoms("Yes: ", $P, $A), concat_atoms($A, " applied to ", $B), concat_atoms($B, $In, $C),
+    concat_atoms($C, " gives ", $D), concat_atoms($D, $Out, $E), concat_atoms($E, ".", $Text).
+proc_test_text(test($P, $In, $Exp), $Text) :-
+    proc_run($P, $In, $Out), ne($Out, $Exp),
+    concat_atoms("No: ", $P, $A), concat_atoms($A, " applied to ", $B), concat_atoms($B, $In, $C),
+    concat_atoms($C, " gives ", $D), concat_atoms($D, $Out, $E), concat_atoms($E, ", not ", $F),
+    concat_atoms($F, $Exp, $G), concat_atoms($G, ".", $Text).
+turn_plan_candidate($T) :- proc_test_turn($T, $X).
+turn_response($T, $Text) :- proc_test_turn($T, $X), proc_test_text($X, $Text).

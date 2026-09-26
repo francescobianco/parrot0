@@ -1703,6 +1703,19 @@ turn_form(teach_proc, 4, rest(text)).
 turn_form(teach_proc, 5, bind(relation, proc_step)).
 turn_form_mood(teach_proc, statement).
 turn_form_act(teach_proc, assert_ordered).
+% Un passo ripetuto si dice («rule for quadruple is again double»): senza «again»
+% una lezione identica a un passo che c'e' si riconosce invece di accodarsi.
+turn_form(teach_proc_again, 1, text("rule for")).
+turn_form(teach_proc_again, 2, slot(key)).
+turn_form(teach_proc_again, 3, text("is again")).
+turn_form(teach_proc_again, 4, rest(text)).
+turn_form(teach_proc_again, 5, bind(relation, proc_step)).
+turn_form(teach_proc_again, 6, bind(again, yes)).
+turn_form_mood(teach_proc_again, statement).
+turn_form_act(teach_proc_again, assert_ordered).
+turn_form_priority(teach_proc_again, early).
+response_template(ordered_item_already_held, "Already held: for {subject}, {order} is «{object}». If you want it to happen again, say «rule for {subject} is again {object}».").
+response_template(ordered_item_already_held, it, "Lo tengo già: per {subject}, {order} è «{object}». Se vuoi che si ripeta, di' «rule for {subject} is again {object}».").
 
 turn_form(run_proc, 1, text("apply")).
 turn_form(run_proc, 2, slot(key)).
