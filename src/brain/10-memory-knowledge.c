@@ -15147,7 +15147,16 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * `verb_stem/2` puo' restituire una forma flessa, e la lezione che sa
      * tradurre la superficie in relazione e' indicizzata sulla superficie. */
     char said[KB_TERM_LEN]; said[0] = '\0';
-    for (size_t i = base + 2; i < nw && !vi; i++) {
+    /* Meccanica (26 settembre 2026): «Does a spring store energy?» prendeva
+     * come verbo il NOME «spring» (spring/sprang) e non arrivava mai a «store»:
+     * vinceva il primo candidato. Un candidato la cui relazione non ha nessun
+     * fatto cede a uno piu' avanti che ne ha; se nessuno ne ha, resta il primo. */
+    size_t scan_from = base + 2;
+    char keep_rel[KB_TERM_LEN] = "", keep_said[KB_TERM_LEN] = "", keep_part[KB_TERM_LEN] = "";
+    size_t keep_vi = 0;
+    for (int pass = 0; pass < 2; pass++) {
+    vi = 0;
+    for (size_t i = scan_from; i < nw && !vi; i++) {
         char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
         const char *bare = strip_edge_punct(vb);
         const char *cand[] = { bare };
@@ -15195,6 +15204,34 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
                                     form_particle, sizeof form_particle)) {
             snprintf(rel, sizeof rel, "%s", taught); vi = i; break;
         }
+    }
+    /* e fra le forme del verbo detto, quella che ha fatti: `verb_stem`
+     * puo' dare il passato («stored») quando i fatti stanno al presente
+     * («stores»). Le forme le dice la KB (`verb_form/3`). */
+    if (vi && !kb_knows_pred(b->kb, rel) && said[0]) {
+        char vf[16][KB_TERM_LEN];
+        const char *vq[3] = { said, NULL, NULL };
+        size_t nvf = kb_match(b->kb, "verb_form", vq, 3, vf, 16);
+        for (size_t k = 0; k < nvf; k++) {
+            char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", kb_dequote(vf[k]));
+            if (*fb && kb_knows_pred(b->kb, fb)) { snprintf(rel, sizeof rel, "%s", fb); break; }
+        }
+    }
+    if (pass == 0 && vi && !kb_knows_pred(b->kb, rel) && vi + 1 < nw) {
+        snprintf(keep_rel, sizeof keep_rel, "%s", rel);
+        snprintf(keep_said, sizeof keep_said, "%s", said);
+        snprintf(keep_part, sizeof keep_part, "%s", form_particle);
+        keep_vi = vi; scan_from = vi + 1;
+        rel[0] = '\0'; form_particle[0] = '\0';
+        continue;
+    }
+    if (pass == 1 && (!vi || !kb_knows_pred(b->kb, rel)) && keep_vi) {
+        snprintf(rel, sizeof rel, "%s", keep_rel);
+        snprintf(said, sizeof said, "%s", keep_said);
+        snprintf(form_particle, sizeof form_particle, "%s", keep_part);
+        vi = keep_vi;
+    }
+    break;
     }
     if (!vi) return 0;
     /* mix-04-05-003 — «what does a sump pump DO?»: il verbo generico in coda e'
