@@ -941,14 +941,14 @@ turn_form(teach_situation_cue_it, 1, span(surface)).
 turn_form(teach_situation_cue_it, 2, text("significa la stessa situazione di")).
 turn_form(teach_situation_cue_it, 3, named(situation_cue, situation)).
 turn_form_act(teach_situation_cue_it, "op(assert, situation_cue, [surface, situation])").
-turn_form_reply(teach_situation_cue_it, learned_situation_cue).
+turn_form_reply(teach_situation_cue_it, learned_situation_cue_label).
 turn_form_priority(teach_situation_cue_it, early).
 turn_form_view(teach_situation_cue_it, said).
 turn_form(teach_situation_cue_it2, 1, span(surface)).
 turn_form(teach_situation_cue_it2, 2, text("è la stessa situazione di")).
 turn_form(teach_situation_cue_it2, 3, named(situation_cue, situation)).
 turn_form_act(teach_situation_cue_it2, "op(assert, situation_cue, [surface, situation])").
-turn_form_reply(teach_situation_cue_it2, learned_situation_cue).
+turn_form_reply(teach_situation_cue_it2, learned_situation_cue_label).
 turn_form_priority(teach_situation_cue_it2, early).
 turn_form_view(teach_situation_cue_it2, said).
 
@@ -1130,3 +1130,13 @@ response_template(reread_wall_said, "{reread}").
 turn_form_wall_reply(unknown_thing_it, reread_wall_said).
 turn_form_wall_reply(unknown_thing_it2, reread_wall_said).
 turn_form_wall_reply(unknown_thing_en, reread_wall_said).
+
+% PR4 — la conferma nominava la situazione con il nome interno («user problem»):
+% la dice con la sua etichetta nella lingua del turno (`situation_label/3`).
+machinery(situation_label_now).
+situation_label_now($S, $Text) :- current_language($L), situation_label($S, $L, $Text).
+turn_form_act(teach_situation_cue_it, "op(match, situation_label_now, [situation, free])").
+turn_form_act(teach_situation_cue_it2, "op(match, situation_label_now, [situation, free])").
+turn_form_act(teach_situation_cue, "op(match, situation_label_now, [situation, free])").
+response_template(learned_situation_cue_label, "Held: «{surface}» names the same situation as «{result}».").
+response_template(learned_situation_cue_label, it, "Tengo: «{surface}» nomina la stessa situazione di «{result}».").

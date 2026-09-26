@@ -1896,7 +1896,7 @@ turn_form(teach_situation_cue, 1, span(surface)).
 turn_form(teach_situation_cue, 2, text("means the same situation as")).
 turn_form(teach_situation_cue, 3, named(situation_cue, situation)).
 turn_form_act(teach_situation_cue, "op(assert, situation_cue, [surface, situation])").
-turn_form_reply(teach_situation_cue, learned_situation_cue).
+turn_form_reply(teach_situation_cue, learned_situation_cue_label).
 turn_form_priority(teach_situation_cue, early).
 
 % Una domanda sulla PROPRIA condotta si legge prima dei lettori generici: altrimenti
