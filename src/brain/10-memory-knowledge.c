@@ -6317,9 +6317,25 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                             4, msg, sizeof msg);
             else {
                 char said[256];
+                /* PR7 (26 settembre 2026): senza una frase della relazione nella
+                 * lingua del turno la conferma era il termine interno
+                 * («Imparato: fa(mandrino, noise_strano).»). Se il turno e' una
+                 * frase sola, la conferma onesta e leggibile e' la frase detta
+                 * da chi parla, nella sua lingua. */
+                char own[256]; own[0] = '\0';
+                if (b->active_turn_norm && *b->active_turn_norm &&
+                    !strstr(b->active_turn_norm, ". ") && !strchr(b->active_turn_norm, '?')) {
+                    snprintf(own, sizeof own, "%s", b->active_turn_norm);
+                    size_t ol = strlen(own);
+                    while (ol > 0 && (own[ol - 1] == '.' || own[ol - 1] == '!' || own[ol - 1] == ' '))
+                        own[--ol] = '\0';
+                }
                 if (p0_say_fact(b, pred, subj, fa[1], said, sizeof said))
                     kb_term_say(b, "learned_facts", (const KbResponseSlot[]){
                                     { "facts", said } }, 1, msg, sizeof msg);
+                else if (own[0])
+                    kb_term_say(b, "learned_facts", (const KbResponseSlot[]){
+                                    { "facts", own } }, 1, msg, sizeof msg);
                 else
                     kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
                                     { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
