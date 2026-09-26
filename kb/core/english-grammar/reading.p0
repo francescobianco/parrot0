@@ -343,3 +343,10 @@ turn_form_priority(verb_lemma_forget, early).
 turn_form_view(verb_lemma_forget, said).
 turn_form_reply(verb_lemma_forget, verb_lemma_forgotten).
 response_template(verb_lemma_forgotten, "Forgotten «{lemma}» as an English verb lemma.").
+
+% DE5 (26 settembre 2026): la radice di una terza persona, per chi legge «does S
+% eats O?» (la domanda tedesca col verbo in testa, riletta; o l'errore comune di
+% chi impara l'inglese). Il lettore delle polari la chiede quando la superficie
+% detta non e' un verbo di relazione.
+machinery(third_person_root).
+third_person_root($F, $R) :- verb_form_analysis($F, form($R, present_third)).

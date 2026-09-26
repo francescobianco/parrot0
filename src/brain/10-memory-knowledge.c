@@ -15173,6 +15173,23 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
         if (kb_match(b->kb, "verb_stem", sq, 2, infl, 1) == 1) {
             snprintf(rel, sizeof rel, "%s", infl[0]); vi = i; break;
         }
+        /* DE5: una terza persona detta dopo «does» («does the dog eats meat?»)
+         * si legge dalla sua radice (`third_person_root/2`, reading.p0). */
+        {
+            char root3[1][KB_TERM_LEN];
+            const char *tq3[] = { bare, NULL };
+            if (kb_match(b->kb, "third_person_root", tq3, 2, root3, 1) == 1) {
+                char rb3[KB_TERM_LEN]; snprintf(rb3, sizeof rb3, "%s", kb_dequote(root3[0]));
+                /* come se fosse stata detta la radice: da li' le strade di
+                 * sempre (verbo di relazione, forme, ponti in KB) */
+                /* la relazione resta la forma detta (i fatti letti si tengono
+                 * sulla superficie: `eats(dog, meat)`); la radice e' cio' che si
+                 * dice e da cui le negazioni si cercano in tutte le forme */
+                snprintf(rel, sizeof rel, "%s", bare);
+                snprintf(said, sizeof said, "%s", rb3);
+                vi = i; break;
+            }
+        }
         char taught[KB_TERM_LEN];
         if (p0_relation_taught_as_p(b, bare, taught, sizeof taught,
                                     form_particle, sizeof form_particle)) {

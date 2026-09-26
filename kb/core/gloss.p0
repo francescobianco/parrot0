@@ -1408,3 +1408,22 @@ turn_form_priority(teach_word_reading_it, early).
 turn_form_view(teach_word_reading_it, said).
 response_template(learned_word_reading, "From now on I'll read «{surface}» as «{target}».").
 response_template(learned_word_reading, it, "D'ora in poi leggo «{surface}» come «{target}».").
+
+% ══ DE5 (26 settembre 2026) — LA DOMANDA CON IL VERBO PIENO IN TESTA ══════════
+% «Frisst der Hund Fleisch?» (tedesco: il verbo pieno apre la domanda polare), con
+% le letture di parola insegnate, diventa il canone «eats the dog meat?». In
+% inglese un verbo PIENO non apre mai una domanda (serve «does»), quindi un turno
+% che comincia con la terza persona di un verbo pieno e finisce con «?» e' la
+% stessa domanda con l'ausiliare mancante: si rilegge come «does S V O?». La
+% classe esclude copule, ausiliari e modali («Is the dog an animal?» resta com'e').
+machinery(lexical_third_person_verb).
+lexical_third_person_verb($W) :-
+    verb_form_analysis($W, form($R, present_third)),
+    naf(auxiliary($W)), naf(clause_copula($W)), naf(modal_auxiliary($W)).
+turn_form(verb_first_question, 1, slot(verb)).
+turn_form(verb_first_question, 2, slot(subject)).
+turn_form(verb_first_question, 3, rest(object)).
+turn_form_slot_class(verb_first_question, verb, lexical_third_person_verb).
+turn_form_mood(verb_first_question, question).
+turn_form_act(verb_first_question, reread(does {subject} {verb} {object})).
+turn_form_priority(verb_first_question, early).
