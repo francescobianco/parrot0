@@ -150,7 +150,7 @@ speak_surface("talk", speak).
 speak_surface("parlare", speak).
 speak_surface("parla", speak).
 speak_surface("parli", speak).
-turn_form_yield($Q, speak_surface, 1, subject) :- inverted_form($Q, from(ability_stated, $W)).
+turn_form_yield(inverted(ability_stated, $W), speak_surface, 1, subject) :- derived_question(inverted(ability_stated, $W)).
 
 % ── 5. LA STESSA CAPACITA' PER OGNI ABILITA' (19 settembre 2026) ─────────────
 % «sai parlare italiano» era un caso di una classe: «can you swim?», «can you

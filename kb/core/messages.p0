@@ -1284,14 +1284,14 @@ ability_marker("can").  ability_marker("is able to").  ability_marker("knows how
 % `question_inversion/4` (grammar.p0) per ogni membro di `ability_marker` che e'
 % un ausiliare. Qui resta cio' che e' proprio della domanda: che cosa dire se
 % non si sa, e quando cedere.
-turn_form_empty_reply($Q, ability_unknown) :- inverted_form($Q, from(ability_stated, $W)).
+turn_form_empty_reply(inverted(ability_stated, $W), ability_unknown) :- derived_question(inverted(ability_stated, $W)).
 % 15 settembre 2026: «can you play chess?» rispondeva «I don't know whether YOU
 % can play chess»: il deittico di seconda persona e' parrot0, non un'entita' su
 % cui si tengono abilita'; la forma cede e il turno va alle facolta' di se'.
 machinery(second_person_deictic).
 second_person_deictic("you", parrot0).
 second_person_deictic("tu", parrot0).
-turn_form_yield($Q, second_person_deictic, 1, subject) :- inverted_form($Q, from(ability_stated, $W)).
+turn_form_yield(inverted(ability_stated, $W), second_person_deictic, 1, subject) :- derived_question(inverted(ability_stated, $W)).
 % Il vuoto di un'enumerazione si dice nella lingua dell'interrogativo: «who»
 % -> nessuno, altrimenti «I don't know any X yet» (M10: «what's the population
 % of France» -> «Nobody that I know of.»).

@@ -17422,11 +17422,15 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *eq[2] = { forms[f], NULL };
             if (kb_match(b->kb, "turn_form_empty_reply", eq, 2, er, 4) == 1) {
                 char eb[KB_TERM_LEN]; snprintf(eb, sizeof eb, "%s", er[0]);
-                char ss[KB_TERM_LEN], os[KB_TERM_LEN];
+                char ss[KB_TERM_LEN], os[KB_TERM_LEN], rsh[KB_TERM_LEN];
                 present_atom(b, sub, ss, sizeof ss); present_atom(b, obj, os, sizeof os);
-                const KbResponseSlot rs[] = { { "subject", ss }, { "object", os } };
+                /* L4 (26 settembre 2026): anche la relazione che la forma ha
+                 * dichiarato raggiunge la frase — una forma nata per analogia
+                 * («must» come «can») la deve dire, e prima la perdeva qui. */
+                present_atom(b, rel, rsh, sizeof rsh);
+                const KbResponseSlot rs[] = { { "subject", ss }, { "object", os }, { "relation", rsh } };
                 char m2[400];
-                if (kb_response_slots(b, kb_dequote(eb), rs, 2, m2, sizeof m2)) {
+                if (kb_response_slots(b, kb_dequote(eb), rs, 3, m2, sizeof m2)) {
                     put(m2, out, out_size); free(forms); return 1;
                 }
             }

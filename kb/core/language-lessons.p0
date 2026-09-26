@@ -121,9 +121,11 @@ turn_scratch(language_lesson_settled).
 bookkeeper(language_lesson_open).
 turn_bookkeeping($T, language_lesson_open) :-
     turn_is_language_lesson($T), turn_counter($N), assert(language_lesson_opened, $N),
-    findall($F, lesson_target_form($T, $F), $Fs), lesson_store_targets($N, $Fs),
     lesson_target_operators($T, $Ts), lesson_store_operators($N, $Ts),
-    lesson_residue_operators($T, $Rs), lesson_store_operators($N, $Rs).
+    lesson_residue_operators($T, $Rs), lesson_store_operators($N, $Rs),
+    findall($M, lesson_names_mood($T, $M), $Ms), lesson_store_all($N, mood, $Ms),
+    findall($K, lesson_placement_order($T, $K), $Ks), lesson_store_all($N, order, $Ks),
+    findall($S, lesson_placement_slot($T, $S), $Ss), lesson_store_all($N, slot, $Ss).
 
 % Per quanti turni una domanda e' l'esempio della lezione: l'insegnante che
 % risponde a «Can you show me an example?» dice la frase e poi la domanda.
@@ -191,10 +193,12 @@ lesson_form_target($T, $F, $X, $S) :-
     lesson_names_mood($T, $M), lesson_placement($T, $X, $K, $S),
     turn_form_mood($F, $M), form_anchor_at($F, $NX, $X), form_slot_at($F, $NS, $S),
     lesson_order_holds($K, $NX, $NS).
-% (le forme e gli ausiliari si raccolgono a parte: una virgola dentro un
+% (le parti della collocazione si raccolgono a parte: una virgola dentro un
 % termine raccolto spezza la lista di `findall`)
-machinery(lesson_target_form).
-lesson_target_form($T, $F) :- lesson_form_target($T, $F, $X, $S).
+machinery(lesson_placement_order).
+machinery(lesson_placement_slot).
+lesson_placement_order($T, $K) :- lesson_placement($T, $X, $K, $S).
+lesson_placement_slot($T, $S) :- lesson_placement($T, $X, $K, $S).
 machinery(lesson_target_operators).
 machinery(lesson_target_operator).
 lesson_target_operator($T, $X) :- lesson_form_target($T, $F, $X, $S).
@@ -211,15 +215,22 @@ lesson_residue_operator($T, $X) :-
     auxiliary($X), naf(lesson_has_target_with($T, $X)).
 lesson_residue_operators($T, $Ops) :- findall($X, lesson_residue_operator($T, $X), $Ops).
 
-% Che cosa la lezione aperta ha trovato resta con lei (turn_scratch).
-machinery(language_lesson_target).
-turn_scratch(language_lesson_target).
+% Che cosa la lezione COLLOCA resta con lei (turn_scratch): l'ausiliare, il
+% modo, l'ordine, il pezzo. Non le forme trovate adesso: al turno dell'esempio
+% si chiede di nuovo alle forme di quel momento, cosi' una lezione rimasta al
+% residuo si risolve se nel frattempo un'altra lezione ha dato cio' che
+% mancava (§2.6: rivedere i giudizi con la conoscenza nuova).
 machinery(language_lesson_operator).
 turn_scratch(language_lesson_operator).
-machinery(lesson_store_targets).
-lesson_store_targets($N, nil).
-lesson_store_targets($N, cons($F, $R)) :-
-    assert(language_lesson_target, $N, $F), lesson_store_targets($N, $R).
+machinery(language_lesson_part).
+turn_scratch(language_lesson_part).
+machinery(lesson_store_all).
+lesson_store_all($N, $Kind, nil).
+lesson_store_all($N, $Kind, cons($V, $R)) :-
+    lesson_store_part($N, $Kind, $V), lesson_store_all($N, $Kind, $R).
+machinery(lesson_store_part).
+lesson_store_part($N, $Kind, $V) :- language_lesson_part($N, $Kind, $V).
+lesson_store_part($N, $Kind, $V) :- naf(language_lesson_part($N, $Kind, $V)), assert(language_lesson_part, $N, $Kind, $V).
 machinery(lesson_store_operators).
 machinery(lesson_store_operator).
 lesson_store_operators($N, nil).
@@ -250,8 +261,10 @@ machinery(language_example_by_rule).
 machinery(language_example_relevant).
 language_example_by_rule($N, $X) :-
     language_lesson_waiting($N), turn_declared_act(current_turn, question),
-    turn_form_read(current_turn, $F), language_lesson_target($N, $F),
-    language_lesson_operator($N, $X), form_anchor_at($F, $NX, $X).
+    turn_form_read(current_turn, $F), language_lesson_operator($N, $X),
+    language_lesson_part($N, mood, $M), turn_form_mood($F, $M),
+    language_lesson_part($N, order, $K), language_lesson_part($N, slot, $S),
+    form_anchor_at($F, $NX, $X), form_slot_at($F, $NS, $S), lesson_order_holds($K, $NX, $NS).
 machinery(language_example_by_rule_some).
 language_example_by_rule_some($N) :- language_example_by_rule($N, $X).
 language_example_relevant($N, $X) :-

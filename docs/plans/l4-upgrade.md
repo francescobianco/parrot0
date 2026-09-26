@@ -280,13 +280,95 @@ in `make test`, 9/9. `soft-test` verde; `question_inversion.p0t` 9/9.
 - La frase del riconoscimento dice il modale ma non ancora **da quali
   affermazioni** deriva la domanda (`inverted_form(Q, from(D, W))` lo sa già).
 
-**Prossimo passo: il punto 4, estendere da fuori.** Con «must» la lezione
-arriva al residuo esatto. La lezione successiva deve poter **dare** ciò che
-manca, cioè un'affermazione con «must», in lingua naturale. La stessa
-`question_inversion` deve allora derivarne la domanda nello stesso processo,
-e la lezione su «must» deve passare dal residuo al riconoscimento. La prova
-meccanica esiste già (`!assert ability_marker("could")`, incremento 1); manca
-la via **parlata**.
+### Incremento 3 — fatto (26 settembre): la regola si estende da fuori, per analogia
+
+**La lezione esisteva già.** «"must" behaves like "can"» è `teach_like`
+(`relation_like/2`), la lezione con cui una relazione prende la scheda di
+un'altra. Non si è inventata una superficie nuova: si è data alla **stessa
+lezione** la conseguenza che ha sulla grammatica. Ogni forma dichiarativa in
+cui la parola vecchia occupa il posto dell'operatore ha una sorella
+`like(Dichiarativa, Nuova)` con la parola nuova in quel posto. La relazione
+della sorella è quella nominata dalla parola nuova: la stessa lezione fa di
+«must» un verbo di relazione, quindi il lettore dei frame e la forma scrivono
+lo stesso fatto. Da quella sorella `question_inversion/4` deriva la domanda
+(clausola nuova: operatore letterale `text(W)` oltre a `class(M)`). Nessuna
+forma interrogativa scritta per «must».
+
+**La lezione rimasta al residuo si risolve da sola.** La lezione non conserva
+più le forme trovate al momento in cui è stata detta, ma ciò che **colloca**:
+ausiliare, modo, ordine, pezzo (`language_lesson_part/3`). All'esempio si
+chiede alle forme di quel momento (§2.6). La sequenza «lezione su must →
+residuo → analogia → esempio» arriva a «I read it with that rule» senza
+ripetere la lezione.
+
+**Nomi che sono derivazioni.** Le forme derivate si chiamano
+`inverted(Dichiarativa, Ausiliare)` e `like(Dichiarativa, Nuova)`: il nome si
+legge ed è la genealogia. Non è estetica. Con nomi atomici costruiti da
+`concat_atoms`, ogni domanda su una forma qualsiasi, per esempio
+`turn_form_mood(ability_stated, …)`, entrava nelle regole derivate e le
+riderivava prima di scoprire dal nome che non la riguardavano. Nel turno
+della lezione, con le viste sporche, il budget di 500 000 passi si esauriva
+dentro `turn_form_reply` (misurato con `/debug on`). Con le teste composte una
+forma scritta a mano non unifica nemmeno. L'enumerazione per turno legge due
+viste unarie congelate, `derived_question/1` e `derived_like/1`, ricorsive.
+Tempi: lezione 0,4–0,6 s. Il primo turno dopo la lezione costa ~3 s, ma è la
+ricostruzione preesistente di `extract_frame` per un verbo di relazione nuovo
+(`view_pair`, `extract_frame`, `finite_reading_verb_form` nel profilo), non
+queste viste.
+
+**Un secondo adattatore C, una riga.** La risposta vuota di `answer_polar`
+passava al template solo `subject` e `object`, e buttava la relazione
+dichiarata dalla forma: ora passa anche `{relation}` («I don't know whether
+lathe must cut steel…»).
+
+**Misure.**
+- Sequenza parlata: «To make a question with must…» → residuo; «"must"
+  behaves like "can".» → «Held»; «A welder must wear a mask.» → «Held: welder
+  must wear a mask.»; «Must a welder wear a mask?» → «Yes. … I read it with
+  that rule, «must» before the subject…»; la lezione ripetuta → «It matches a
+  rule I already use…».
+- Ritiro parlato, «forget that "must" behaves like "can"»: la lezione torna al
+  residuo.
+- Confronto dei 15 turni con la KB precedente agli incrementi: identico
+  all'incremento 1, cioè una sola differenza, «Was Hamlet written in 1600?» →
+  «Yes.».
+- Cessioni (`turn_thefts`, `living_capabilities`, `selflimits`): uscite
+  identiche prima e dopo.
+- `soft-test` verde; `question_inversion.p0t` 9/9;
+  [lesson_meets_rule.p0t](../../tests/p0t/language/lesson_meets_rule.p0t)
+  18/18, analogia e ritiro compresi.
+
+**Residui osservati, non curati:**
+- **La menzione si capisce dalle relazioni fra le parti (appunto di F., 26
+  settembre).** «Must behaves like can.», senza virgolette, oggi non arriva
+  alla lezione: `turn_opens_question` vede un ausiliare nel primo nodo e legge
+  il turno come domanda. Ma, come ha mostrato il lavoro su «all you need is a
+  comprehension», non serve magia né contesto esterno per capire che «must» qui
+  è **nominato**. Lo dicono i rapporti fra le parti: «behaves like» prende due
+  parole come argomenti, e un ausiliare non ha il suo verbo. Il ruolo di un
+  token viene dalle relazioni, non dalla sola posizione. Oggi la lezione passa
+  con la menzione esplicita («"must"»). La cura è una lettura del ruolo
+  (usato/menzionato) derivata dalla struttura della frase, da condividere fra
+  `turn_opens_question` e i lettori delle forme. Non si stravolge niente ora;
+  è un buon caso per il principio del §2.3 (il contesto è una prova di
+  applicabilità costruita dalle relazioni).
+- Il ritiro dell'analogia toglie `relation_like` ma non `relation_verb(must)`
+  (lo fa `unteach_like`, preesistente): l'affermazione resta leggibile dal
+  lettore dei frame, la domanda no.
+- «What must a welder wear?» (domanda wh su «must») non è coperta:
+  l'inversione deriva per ora la sola polare.
+
+**Prossimo passo (da decidere con F.).** Il circuito del primo caso è chiuso:
+regola che opera → censita → reinsegnata e riconosciuta per conseguenze →
+estesa da fuori, con ritiro. Le direzioni aperte, in ordine di valore per L4:
+1. la **prova di apertura della rete** del §2.7 su una *condizione*, non solo
+   su un membro o su un'analogia: una lezione che cambia *quando* la regola si
+   applica;
+2. il do-support dentro la stessa regola (morfologia del verbo alla forma
+   base), che toglierebbe il residuo di G2 e il ramo polare generico dal C;
+3. un secondo censimento su un'altra regola (a/an, R4), per vedere se il
+   modello «nome = derivazione, lezione = collocazione verificata» si
+   generalizza.
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 

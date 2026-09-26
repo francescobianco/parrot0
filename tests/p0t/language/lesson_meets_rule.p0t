@@ -31,3 +31,27 @@
 > Must a welder wear a mask?
 <~ I didn't read it with «must»
 <! already do
+
+# L4, punto 4 — ESTENDERE LA REGOLA DA FUORI. La lezione su «must» arriva al
+# residuo; un'analogia detta a parole («"must" behaves like "can"») da' alla
+# regola cio' che mancava: la forma dichiarativa sorella di quella di «can», e
+# da lei la domanda. La lezione rimasta al residuo si risolve all'esempio, senza
+# ripeterla. Il ritiro dell'analogia richiude la domanda.
+[test un'analogia detta a parole estende la regola, e il ritiro la richiude]
+!timeout 12
+> To make a question with must, put must before the subject.
+<~ no statement I can read has «must»
+> "must" behaves like "can".
+<~ behaves like
+> A welder must wear a mask.
+<~ welder must wear a mask
+> Must a welder wear a mask?
+<~ Yes
+<~ I read it with that rule, «must» before the subject
+> To make a question with must, put must before the subject.
+<~ It matches a rule I already use
+<! no statement I can read has «must»
+> forget that "must" behaves like "can"
+<~ no longer behaves like
+> To make a question with must, put must before the subject.
+<~ no statement I can read has «must»
