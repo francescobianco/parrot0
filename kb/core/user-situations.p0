@@ -792,3 +792,117 @@ turn_has_situation_plan($Turn) :- turn_situation_plan($Turn, $Situation).
 
 turn_plan_candidate($Turn) :- turn_situation_plan($Turn, $Situation).
 turn_response($Turn, $Text) :- turn_situation_plan($Turn, $Situation), current_language($Language), answer_text(situation_plan($Situation, $Language), $Text).
+
+% ══ PR2 (26 settembre 2026) — LA SITUAZIONE DI PARROT0: NON HA CAPITO ══════
+%
+% train-the-learning-process.md §0, PR2: «quando non capisci allora chiedi che
+% cosa succede» diventava «Imparato: quando non capisci allora chiedi che cosa
+% succede.» — una conferma falsa e un fatto spazzatura, perche' la situazione
+% «non capisci» non esisteva. La condotta davanti al PROPRIO muro e' il cuore del
+% «non mollare mai la presa», e non si poteva insegnare.
+%
+% La situazione e' un fatto del turno che la KB sa gia' leggere: l'esito del turno
+% e' insoddisfacente (`unsatisfying_outcome/2`, meta.p0: muro cieco, declino
+% informato, registro riconosciuto). Il piano si insegna con le forme di sempre
+% («when … then …», «quando … allora …», e qui sotto «if …, …» / «se …, …») e si
+% esegue DOPO il muro, attraverso la condotta sulla risposta (`reply_conduct/2`):
+% il muro resta detto, la mossa insegnata lo segue. Senza piano insegnato non
+% succede niente: la situazione riconosciuta da sola non produce frasi.
+machinery(self_not_understood_now).
+self_not_understood_now :- turn_outcome(current_turn, $O), unsatisfying_outcome($O, $K).
+
+situation_cue("you don't understand", self_not_understood).
+situation_cue("you do not understand", self_not_understood).
+situation_cue("you don't understand a question", self_not_understood).
+situation_cue("you do not understand a question", self_not_understood).
+situation_cue("you are not sure", self_not_understood).
+situation_cue("you're not sure", self_not_understood).
+situation_cue("you don't know what they mean", self_not_understood).
+situation_cue("non capisci", self_not_understood).
+situation_cue("non capisci una domanda", self_not_understood).
+situation_cue("non hai capito", self_not_understood).
+situation_cue("non sei sicuro", self_not_understood).
+situation_label(self_not_understood, en, "you don't understand").
+situation_label(self_not_understood, it, "non capisci").
+
+% Le mosse davanti al proprio muro. «ask what happens» (`ask_what_happens`) c'e'
+% gia'; queste due mancavano.
+machinery(move_asks).
+move_asks(ask_rephrase).
+move_asks(ask_meaning).
+move_cue("ask them to say it another way", ask_rephrase).
+move_cue("ask to say it another way", ask_rephrase).
+move_cue("ask them to rephrase", ask_rephrase).
+move_cue("chiedi di dirla in un altro modo", ask_rephrase).
+move_cue("chiedi di dirlo in un altro modo", ask_rephrase).
+move_cue("chiedi di riformulare", ask_rephrase).
+move_cue("ask what they mean", ask_meaning).
+move_cue("ask what they mean by it", ask_meaning).
+move_cue("chiedi che cosa intende", ask_meaning).
+move_cue("chiedi cosa intende", ask_meaning).
+plan_step_text_lang(ask_rephrase, en, "Can you say it another way?").
+plan_step_text_lang(ask_rephrase, it, "Me lo dici in un altro modo?").
+plan_step_text_lang(ask_meaning, en, "What do you mean by it?").
+plan_step_text_lang(ask_meaning, it, "Che cosa intendi?").
+
+% Le forme della lezione con la virgola al posto di «then»/«allora», come parla
+% una persona (PR5; catalogo P39 «if you are not sure, ask what they mean»).
+turn_form(teach_plan_if, 1, text("if")).
+turn_form(teach_plan_if, 2, named(situation_cue, situation)).
+turn_form(teach_plan_if, 3, named(move_cue, move)).
+turn_form_mood(teach_plan_if, statement).
+turn_form_act(teach_plan_if, assert_plan_move).
+turn_form_priority(teach_plan_if, early).
+turn_form(teach_plan_se, 1, text("se")).
+turn_form(teach_plan_se, 2, named(situation_cue, situation)).
+turn_form(teach_plan_se, 3, named(move_cue, move)).
+turn_form_mood(teach_plan_se, statement).
+turn_form_act(teach_plan_se, assert_plan_move).
+turn_form_priority(teach_plan_se, early).
+turn_form_view(teach_plan_se, said).
+turn_form(teach_plan_quando_comma, 1, text("quando")).
+turn_form(teach_plan_quando_comma, 2, named(situation_cue, situation)).
+turn_form(teach_plan_quando_comma, 3, named(move_cue, move)).
+turn_form_mood(teach_plan_quando_comma, statement).
+turn_form_act(teach_plan_quando_comma, assert_plan_move).
+turn_form_priority(teach_plan_quando_comma, early).
+turn_form_view(teach_plan_quando_comma, said).
+
+% L'esecuzione: dopo il muro, la prima mossa del piano (e la seconda, se c'e').
+machinery(self_wall_move_text).
+self_wall_move_text($Text) :-
+    self_not_understood_now, plan_move(self_not_understood, 1, $M),
+    current_language($L), plan_step_text_lang($M, $L, $Text).
+machinery(self_wall_second_text).
+self_wall_second_text($Text) :-
+    self_not_understood_now, plan_move(self_not_understood, 2, $M),
+    current_language($L), plan_step_text_lang($M, $L, $Text).
+machinery(self_wall_plan_text).
+self_wall_plan_text($Text) :-
+    self_wall_move_text($A), self_wall_second_text($B),
+    concat_atoms($A, " ", $AB), concat_atoms($AB, $B, $Text).
+self_wall_plan_text($Text) :-
+    self_wall_move_text($Text), naf(self_wall_has_second).
+% (`naf` con una variabile libera fallisce sempre: la seconda mossa si chiede
+% senza argomenti.)
+machinery(self_wall_has_second).
+self_wall_has_second :- self_wall_second_text($B).
+reply_conduct($In, $Out) :-
+    naf(language_example_waiting_now), self_wall_plan_text($Text),
+    concat_atoms($In, " ", $A), concat_atoms($A, $Text, $Out).
+
+% PR13 (26 settembre 2026) — «qual è il tuo piano quando qualcuno ha un
+% problema?» riceveva «Non ne ho di miei -- sono parrot0, un'IA…»: la forma
+% italiana cominciava da «il tuo piano quando», e una persona chiede con «qual
+% è». Due pezzi (un'apertura e una situazione nota): non prende altri turni, e
+% si legge presto, prima dello smalltalk.
+turn_form(ask_plan_it_q, 1, text("qual è il tuo piano quando")).
+turn_form(ask_plan_it_q, 2, named(situation_cue, situation)).
+turn_form_act(ask_plan_it_q, recite_plan).
+turn_form_view(ask_plan_it_q, said).
+turn_form_priority(ask_plan_it_q, early).
+turn_form(ask_plan_it_q2, 1, text("qual e' il tuo piano quando")).
+turn_form(ask_plan_it_q2, 2, named(situation_cue, situation)).
+turn_form_act(ask_plan_it_q2, recite_plan).
+turn_form_view(ask_plan_it_q2, said).
+turn_form_priority(ask_plan_it_q2, early).

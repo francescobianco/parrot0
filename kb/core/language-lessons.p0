@@ -136,6 +136,10 @@ language_lesson_waiting($N) :-
     turn_counter($C), language_lesson_opened($N), lt($N, $C),
     is($D, sub($C, $N)), language_example_window($W), le($D, $W),
     naf(language_lesson_settled($N)).
+% Senza argomenti, per chi deve chiederlo sotto `naf` (una variabile libera sotto
+% `naf` fa fallire sempre la negazione).
+machinery(language_example_waiting_now).
+language_example_waiting_now :- language_lesson_waiting($N).
 
 % ── 3-bis. LA LEZIONE SI CONFRONTA CON LE REGOLE CHE OPERANO (L4, punto 3) ──
 % Prima la lezione non si confrontava con niente: «To make a question with can,

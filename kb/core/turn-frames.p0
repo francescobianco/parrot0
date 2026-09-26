@@ -977,3 +977,45 @@ answer_shape_cue($Cue) :- word_count_cue($N, $Cue).
 % correggere parlando: e' il mantra #17 in forma numerica.
 machinery(faculty_min_turn_length).
 faculty_min_turn_length(analysis_family, 40).
+
+% ── PR2 (26 settembre 2026) — LA FORZA CONDIZIONALE ─────────────────────────
+% «quando non capisci allora chiedi che cosa succede» lo prendeva il lettore
+% delle negazioni (il «non» della condizione) e lo archiviava intero come fatto
+% negativo, prima che la forma della lezione di piano lo vedesse. Una frase che
+% si apre con una condizione non afferma ne' nega un fatto: pone una condizione.
+% Chi apre una condizione e' una classe; una parola nuova e' una riga.
+machinery(conditional_opener).
+conditional_opener(when).    conditional_opener(whenever).
+conditional_opener(if).      conditional_opener(quando).
+conditional_opener(se).      conditional_opener(qualora).
+turn_declared_act($Turn, conditional) :-
+    turn_surface_token($Turn, 0, 0, $Tok), span_atom($Tok, $W), conditional_opener($W).
+
+% Davanti a quali forze il lettore delle negazioni cede il turno: una domanda,
+% un ordine e una condizione non sono fatti negativi da imparare. (Le prime due
+% sono anche nel C, come struttura secondaria.)
+machinery(negation_lead_yields).
+negation_lead_yields(question).
+negation_lead_yields(directive).
+negation_lead_yields(conditional).
+machinery(negation_lead_declined).
+negation_lead_declined :- turn_illocution(current_turn, $F), negation_lead_yields($F).
+
+% PR2 — una CONDIZIONE che nomina una situazione nota («when you don't understand
+% then ask them to say it another way») e' una lezione di condotta, anche se la
+% conseguenza e' un imperativo: la forza di ordine si blocca, e la lezione di
+% piano (mood `statement`) puo' leggerla. Una condizione che non nomina una
+% situazione («if you can, tell me …») resta una richiesta.
+turn_cue_registry(situation_cue, 1).
+turn_force_blocked($Turn, directive) :-
+    turn_declared_act($Turn, conditional), turn_cue($Turn, situation_cue, $C).
+% E chi ripara la conversazione non prende una condizione: «if you are not sure,
+% ask what they mean» (catalogo P39) riceveva «Fair enough — tell me where I went
+% wrong…», letta come una critica a parrot0.
+faculty_yield_force(pragma, open, conditional).
+% E per la stessa ragione non e' una domanda: «if you are not sure, ask what they
+% mean» ha un «what» nella conseguenza. Col «?» resta una domanda («when you
+% don't understand, what do you do?»).
+turn_force_blocked($Turn, question) :-
+    turn_declared_act($Turn, conditional), turn_cue($Turn, situation_cue, $C),
+    naf(turn_has_question_mark($Turn)).

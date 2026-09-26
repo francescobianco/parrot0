@@ -18170,6 +18170,10 @@ static int p0_negation_lead(Brain *b, const char *canon, const char *input,
      * turno e' gia' pubblicata; mancava la seconda riga che la legge. */
     { const char *q[2] = { "current_turn", "directive" };
       if (kb_query(b->kb, "turn_illocution", q, 2)) return 0; }
+    /* PR2 (26 settembre 2026): quali forze fanno cedere questo lettore e'
+     * conoscenza (`negation_lead_yields/1`, turn-frames.p0): una condizione
+     * («quando non capisci allora …») non e' un fatto negativo. */
+    if (kb_query(b->kb, "negation_lead_declined", NULL, 0)) return 0;
     char (*ms)[KB_TERM_LEN] = NULL; size_t nm = 0;
     const char *mq[1] = { NULL };
     if (!kb_match_all(b->kb, "negation_marker", mq, 1, &ms, &nm) || !nm) { free(ms); return 0; }

@@ -1201,6 +1201,12 @@ static int p0_turn_is(Brain *b, const char *force, const char *turn) {
          * vedeva. */
         const char *q[2] = { "current_turn", force };
         if (kb_query(b->kb, "turn_illocution", q, 2)) return 1;
+        /* PR2 (26 settembre 2026): una forza che la KB BLOCCA per questo turno
+         * (`turn_force_blocked/2`: una forma insegnata, una condizione che
+         * nomina una situazione) resta bloccata anche qui. La ricerca delle cue
+         * qui sotto trovava «ask» dentro la conseguenza di «when you don't
+         * understand then ask …» e rifaceva un ordine che la KB aveva tolto. */
+        if (kb_query(b->kb, "turn_force_blocked", q, 2)) return 0;
     }
     char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
     const char *cq[2] = { force, NULL };
