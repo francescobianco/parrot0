@@ -350,3 +350,95 @@ response_template(verb_lemma_forgotten, "Forgotten «{lemma}» as an English ver
 % detta non e' un verbo di relazione.
 machinery(third_person_root).
 third_person_root($F, $R) :- verb_form_analysis($F, form($R, present_third)).
+
+% ══ Grammatica G10–G12 (26 settembre 2026) — IL PLURALE E IL PASSATO SI CHIEDONO
+% «What is the plural of foundry?» → «I don't know about plural»; «What is the
+% past of hone?» → «I don't know any past yet». Le regole c'erano gia': le stesse
+% dell'ortografia della terza persona (y → ies, -es dopo s/x/ch/sh, +s) valgono
+% per il plurale dei nomi, con le eccezioni dichiarate (`plural_of/2`); il
+% passato e' `verb_form/3`. Qui la domanda, non regole nuove.
+machinery(noun_plural_form). machinery(has_irregular_plural). machinery(verb_past_answer).
+has_irregular_plural($N) :- plural_of($P, $N).
+noun_plural_form($N, $P) :- plural_of($P, $N).
+noun_plural_form($N, $P) :-
+    naf(has_irregular_plural($N)), ends_with_consonant_y($N), y_to_ies($N, $P).
+noun_plural_form($N, $P) :-
+    naf(has_irregular_plural($N)), naf(ends_with_consonant_y($N)),
+    takes_third_person_es($N), concat_atoms($N, "es", $P).
+noun_plural_form($N, $P) :-
+    naf(has_irregular_plural($N)), naf(ends_with_consonant_y($N)),
+    naf(takes_third_person_es($N)), concat_atoms($N, "s", $P).
+verb_past_answer($V, $F) :- verb_form($V, $F, past).
+turn_form(ask_noun_plural, 1, text("what is the plural of")).
+turn_form(ask_noun_plural, 2, slot(word)).
+turn_form_mood(ask_noun_plural, question).
+turn_form_act(ask_noun_plural, "op(match, noun_plural_form, [word, free])").
+turn_form_reply(ask_noun_plural, plural_answer).
+turn_form_priority(ask_noun_plural, early).
+turn_form(ask_verb_past, 1, text("what is the past of")).
+turn_form(ask_verb_past, 2, slot(word)).
+turn_form_mood(ask_verb_past, question).
+turn_form_act(ask_verb_past, "op(match, verb_past_answer, [word, free])").
+turn_form_reply(ask_verb_past, past_answer).
+turn_form_priority(ask_verb_past, early).
+response_template(plural_answer, "The plural of {word} is {result}.").
+response_template(plural_answer, it, "Il plurale di {word} è {result}.").
+response_template(past_answer, "The past of {word} is {result}.").
+response_template(past_answer, it, "Il passato di {word} è {result}.").
+
+% ══ Grammatica G13 (26 settembre 2026) — IL COMPARATIVO SI DERIVA ══════════════
+% «What is the comparative of hard?» murava. La regola (Cambridge Grammar): una
+% sillaba → -er (e finale → -r; consonante-vocale-consonante → consonante doppia),
+% due sillabe in -y → -ier, altrimenti «more». Le sillabe si contano come gruppi
+% di vocali, senza la «e» muta finale; le forme irregolari sono fatti.
+machinery(comparative_irregular). machinery(adjective_comparative).
+machinery(syllable_count). machinery(vowel_groups). machinery(vowel_char).
+comparative_irregular(good, better).  comparative_irregular(bad, worse).
+comparative_irregular(far, farther).  comparative_irregular(little, less).
+vowel_char(a). vowel_char(e). vowel_char(i). vowel_char(o). vowel_char(u). vowel_char(y).
+% (la «y» conta come vocale nelle sillabe: «happy» ne ha due; `naf` con una
+% variabile libera fallisce sempre, quindi la «e» finale si chiede con `final_e/1`)
+machinery(final_e).
+final_e($W) :- concat_atoms($S, "e", $W).
+vowel_groups(nil, $P, $N, $N).
+vowel_groups(cons($C, $R), 0, $A, $N) :- vowel_char($C), is($A1, add($A, 1)), vowel_groups($R, 1, $A1, $N).
+vowel_groups(cons($C, $R), 1, $A, $N) :- vowel_char($C), vowel_groups($R, 1, $A, $N).
+vowel_groups(cons($C, $R), $P, $A, $N) :- naf(vowel_char($C)), vowel_groups($R, 0, $A, $N).
+syllable_count($W, $N) :- chars($W, $L), vowel_groups($L, 0, 0, $G), silent_e_adjust($W, $G, $N).
+machinery(silent_e_adjust).
+silent_e_adjust($W, $G, $N) :- concat_atoms($S, "e", $W), gt($G, 1), is($N, sub($G, 1)).
+silent_e_adjust($W, $G, $G) :- naf(final_e($W)).
+silent_e_adjust($W, 1, 1) :- concat_atoms($S3, "e", $W).
+machinery(cvc_final).
+cvc_final($W, $C2) :-
+    chars($W, $L), app($Pre, cons($C1, cons($V, cons($C2, nil))), $L),
+    naf(vowel_char($C1)), vowel_char($V), naf(vowel_char($C2)), naf(no_double_char($C2)).
+machinery(no_double_char).
+no_double_char(w). no_double_char(x). no_double_char(y).
+adjective_comparative($A, $C) :- comparative_irregular($A, $C).
+adjective_comparative($A, $C) :-
+    naf(has_irregular_comparative($A)), syllable_count($A, 1), concat_atoms($S, "e", $A), concat_atoms($A, "r", $C).
+adjective_comparative($A, $C) :-
+    naf(has_irregular_comparative($A)), syllable_count($A, 1), naf(final_e($A)),
+    cvc_final($A, $L), concat_atoms($A, $L, $D), concat_atoms($D, "er", $C).
+adjective_comparative($A, $C) :-
+    naf(has_irregular_comparative($A)), syllable_count($A, 1), naf(final_e($A)),
+    naf(cvc_final_any($A)), concat_atoms($A, "er", $C).
+adjective_comparative($A, $C) :-
+    naf(has_irregular_comparative($A)), syllable_count($A, 2), concat_atoms($S, "y", $A),
+    concat_atoms($S, "ier", $C).
+adjective_comparative($A, $C) :-
+    naf(has_irregular_comparative($A)), syllable_count($A, $N), gt($N, 1),
+    naf(two_syllable_y($A)), concat_atoms("more ", $A, $C).
+machinery(has_irregular_comparative). machinery(cvc_final_any). machinery(two_syllable_y).
+has_irregular_comparative($A) :- comparative_irregular($A, $C).
+cvc_final_any($A) :- cvc_final($A, $L).
+two_syllable_y($A) :- syllable_count($A, 2), concat_atoms($S, "y", $A).
+turn_form(ask_comparative, 1, text("what is the comparative of")).
+turn_form(ask_comparative, 2, slot(word)).
+turn_form_mood(ask_comparative, question).
+turn_form_act(ask_comparative, "op(match, adjective_comparative, [word, free])").
+turn_form_reply(ask_comparative, comparative_answer).
+turn_form_priority(ask_comparative, early).
+response_template(comparative_answer, "The comparative of {word} is {result}.").
+response_template(comparative_answer, it, "Il comparativo di {word} è {result}.").
