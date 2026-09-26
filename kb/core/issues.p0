@@ -161,7 +161,15 @@ issue_state($Issue, open) :- open_issue($Issue, question), naf(issue_answered($I
 % dovra' scadere, sara' una regola qui (dialogica L4, `issue_expiry`).
 issue_state($Issue, open) :- open_issue($Issue, gap_offer).
 issue_state($Issue, open) :- open_issue($Issue, choice).
-issue_state($Issue, open) :- open_issue($Issue, inquiry), naf(inquiry_closed($Issue)).
+issue_state($Issue, open) :- open_issue($Issue, inquiry), naf(inquiry_closed($Issue)), naf(inquiry_not_yet($Issue)).
+% PR3 (26 settembre 2026) — una questione aperta DAL SEGUITO vale dal turno dopo.
+% Nel turno che la apre c'e' ancora la questione a cui quel turno risponde, e la
+% nuova non deve superarla (era il motivo per cui «il seguito di un seguito»
+% non si tracciava, §1bis).
+machinery(inquiry_deferred).
+turn_scratch(inquiry_deferred).
+machinery(inquiry_not_yet).
+inquiry_not_yet($Issue) :- inquiry_deferred($Issue, $N), turn_counter($N).
 issue_state($Issue, resolved) :- open_issue($Issue, inquiry), inquiry_closed($Issue).
 issue_open($Issue, $Kind) :- open_issue($Issue, $Kind), issue_state($Issue, open).
 
@@ -170,6 +178,10 @@ issue_open($Issue, $Kind) :- open_issue($Issue, $Kind), issue_state($Issue, open
 % propria ragione d'essere.
 issue_owed_by($Issue, parrot0) :- open_issue($Issue, question), issue_state($Issue, open).
 issue_owed_by($Issue, user) :- open_issue($Issue, gap_offer).
+% PR3: anche la domanda di un piano («che cosa hai già provato?») la deve
+% l'utente. Senza, «Ho provato a stringere la cinghia.» la rivendicava lo strato
+% dell'iniziativa («Non ho una proposta attiva da continuare…»).
+issue_owed_by($Issue, user) :- open_issue($Issue, inquiry), issue_state($Issue, open).
 issue_owed_by($Issue, user) :- open_issue($Issue, choice).
 issue_owed_by($Issue, user) :- open_issue($Issue, inquiry), naf(inquiry_closed($Issue)).
 

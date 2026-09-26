@@ -393,6 +393,7 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),
     naf(turn_is_language_lesson($Turn)),
+    naf(turn_answers_open_inquiry($Turn)),
     naf(turn_guided_inquiry($Turn)),
     naf(turn_opens_request($Turn)),
     naf(turn_has_situation_plan($Turn)),
@@ -438,6 +439,7 @@ turn_declared_act($Turn, prose_carried) :-
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),
     naf(turn_is_language_lesson($Turn)),
+    naf(turn_answers_open_inquiry($Turn)),
     naf(turn_guided_inquiry($Turn)),
     naf(turn_opens_request($Turn)),
     naf(turn_opens_act($Turn)),
@@ -1019,3 +1021,10 @@ faculty_yield_force(pragma, open, conditional).
 turn_force_blocked($Turn, question) :-
     turn_declared_act($Turn, conditional), turn_cue($Turn, situation_cue, $C),
     naf(turn_has_question_mark($Turn)).
+
+% PR3 (26 settembre 2026) — chi RISPONDE alla domanda appena fatta non porta un
+% paragrafo da leggere. «È un rumore metallico, si sente quando il mandrino gira
+% veloce.», dopo «che cosa succede esattamente?», aveva dieci parole e diventava
+% prosa portata: il piano di turno cedeva, e la risposta finiva a un muro.
+machinery(turn_answers_open_inquiry).
+turn_answers_open_inquiry($Turn) :- turn_answers_inquiry_issue($Turn, $Issue).

@@ -393,7 +393,14 @@ turn_is_lesson_surface($Turn) :- turn_cue_form($Turn, lesson_surface_cue, $C).
 turn_answers_inquiry_issue($Turn, $Issue) :-
     open_issue($Issue, inquiry), naf(inquiry_closed($Issue)), max_qud($Issue),
     naf(turn_has_question_mark($Turn)), naf(turn_is_plan_lesson($Turn)), naf(turn_is_lesson_surface($Turn)),
-    naf(turn_has_direct_situation($Turn)).
+    naf(turn_has_direct_situation($Turn)), naf(turn_is_bare_affirmation($Turn)).
+% PR3: un «ok» da solo accoglie, non risponde a «che cosa succede esattamente?».
+machinery(turn_is_bare_affirmation).
+turn_is_bare_affirmation($Turn) :-
+    turn_surface_token($Turn, 0, 0, $Tok), span_atom($Tok, $W), affirmation_word($W),
+    naf(turn_has_second_token($Turn)).
+machinery(turn_has_second_token).
+turn_has_second_token($Turn) :- turn_surface_token($Turn, 0, 1, $Tok).
 turn_answers_inquiry($Turn, $Situation) :-
     turn_answers_inquiry_issue($Turn, $Issue), issue_topic($Issue, $Situation).
 user_situation($Turn, $Situation) :- direct_situation($Turn, $Situation).
@@ -906,3 +913,172 @@ turn_form(ask_plan_it_q2, 2, named(situation_cue, situation)).
 turn_form_act(ask_plan_it_q2, recite_plan).
 turn_form_view(ask_plan_it_q2, said).
 turn_form_priority(ask_plan_it_q2, early).
+
+% PR4 (26 settembre 2026) — la situazione nuova si insegna anche in italiano. La
+% forma inglese («"X" means the same situation as Y») c'era; la stessa lezione
+% detta in italiano finiva al lettore delle costruzioni («Ho trovato il
+% separatore didattico, ma non riesco ad allineare…»).
+turn_form(teach_situation_cue_it, 1, span(surface)).
+turn_form(teach_situation_cue_it, 2, text("significa la stessa situazione di")).
+turn_form(teach_situation_cue_it, 3, named(situation_cue, situation)).
+turn_form_act(teach_situation_cue_it, "op(assert, situation_cue, [surface, situation])").
+turn_form_reply(teach_situation_cue_it, learned_situation_cue).
+turn_form_priority(teach_situation_cue_it, early).
+turn_form_view(teach_situation_cue_it, said).
+turn_form(teach_situation_cue_it2, 1, span(surface)).
+turn_form(teach_situation_cue_it2, 2, text("è la stessa situazione di")).
+turn_form(teach_situation_cue_it2, 3, named(situation_cue, situation)).
+turn_form_act(teach_situation_cue_it2, "op(assert, situation_cue, [surface, situation])").
+turn_form_reply(teach_situation_cue_it2, learned_situation_cue).
+turn_form_priority(teach_situation_cue_it2, early).
+turn_form_view(teach_situation_cue_it2, said).
+
+% PR4 — E LA SUPERFICIE INSEGNATA RICONOSCE LA SITUAZIONE. «"mi serve una mano"
+% significa la stessa situazione di qualcuno ha un problema» rispondeva «Tengo»,
+% ma nessuna regola leggeva `situation_cue/2` in un turno dell'utente: i
+% riconoscitori erano `trouble_cue` e i suoi fratelli, e la lezione restava
+% senza effetto (conferma falsa, PR1/PR2). Ora una superficie insegnata apre la
+% situazione che nomina. Non le situazioni di parrot0 stesso (`own_situation/1`:
+% «non capisci», «non hai i passi» parlano di lui, non di chi scrive), e non un
+% turno che e' esso stesso una lezione sulle situazioni.
+turn_cue_canonical(situation_cue).
+machinery(own_situation).
+own_situation(self_not_understood).
+own_situation(steps_missing).
+plan_lesson_cue("the same situation as").
+plan_lesson_cue("la stessa situazione di").
+direct_situation($Turn, $Situation) :-
+    turn_cue_form($Turn, situation_cue, $Cue), situation_cue($Cue, $Situation),
+    naf(own_situation($Situation)),
+    naf(turn_is_plan_lesson($Turn)),
+    naf(turn_declared_act($Turn, conditional)),
+    naf(turn_situation_settled($Turn)).
+
+% ══ PR3 (26 settembre 2026) — LA PRESA NON SI PERDE DOPO UN SOLO SEGUITO ══════
+%
+% train-the-learning-process.md §0, PR3: dopo «Da quando succede…?», «È un rumore
+% metallico, si sente quando il mandrino gira veloce.» → «Non capisco ancora.»;
+% «Cosa potrebbe essere?» → muro; «E adesso cosa faccio?» → muro. Tre muri di fila
+% mentre l'interlocutore chiede aiuto. `situation_followup/2` aveva un anello solo
+% e nessuna forma lo allungava parlando.
+%
+% (1) La catena si allunga PARLANDO: «after X comes Y» / «dopo X viene Y», con X e
+%     Y situazioni note, scrive `situation_followup(X, Y)`.
+turn_form(teach_followup, 1, text("after")).
+turn_form(teach_followup, 2, named(situation_cue, from)).
+turn_form(teach_followup, 3, text("comes")).
+turn_form(teach_followup, 4, named(situation_cue, to)).
+turn_form_act(teach_followup, "op(assert, situation_followup, [from, to])").
+turn_form_reply(teach_followup, learned_followup).
+turn_form_priority(teach_followup, early).
+turn_form(teach_followup_it, 1, text("dopo")).
+turn_form(teach_followup_it, 2, named(situation_cue, from)).
+turn_form(teach_followup_it, 3, text("viene")).
+turn_form(teach_followup_it, 4, named(situation_cue, to)).
+turn_form_act(teach_followup_it, "op(assert, situation_followup, [from, to])").
+turn_form_reply(teach_followup_it, learned_followup).
+turn_form_priority(teach_followup_it, early).
+turn_form_view(teach_followup_it, said).
+response_template(learned_followup, "Held: after «{from}», the next answer is «{to}».").
+response_template(learned_followup, it, "Tengo: dopo «{from}», la risposta successiva è «{to}».").
+plan_lesson_cue("comes someone").
+plan_lesson_cue("viene qualcuno").
+
+% (2) L'anello dopo il dettaglio: chi aggiunge altri dettagli. E' lo stesso fatto
+%     che la lezione (1) scrive («after someone describes the problem comes
+%     someone adds details»); qui come conoscenza curata.
+situation_cue("someone adds details", user_problem_more).
+situation_cue("qualcuno aggiunge dettagli", user_problem_more).
+situation_label(user_problem_more, en, "someone adds details").
+situation_label(user_problem_more, it, "qualcuno aggiunge dettagli").
+situation_followup(user_problem_detail, user_problem_more).
+move_cue("ask what they have already tried", ask_what_tried).
+move_cue("ask what they tried", ask_what_tried).
+move_cue("chiedi che cosa ha già provato", ask_what_tried).
+move_cue("chiedi cosa ha provato", ask_what_tried).
+move_asks(ask_what_tried).
+move_cue("sum up what you know", sum_up_known).
+move_cue("riassumi quello che sai", sum_up_known).
+plan_step_text_lang(ask_what_tried, en, "What have you already tried, and what happened?").
+plan_step_text_lang(ask_what_tried, it, "Che cosa hai già provato, e che cosa è successo?").
+plan_step_text_lang(sum_up_known, en, "Good, now I have a clearer picture.").
+plan_step_text_lang(sum_up_known, it, "Bene, adesso il quadro è più chiaro.").
+plan_move(user_problem_more, 1, sum_up_known).
+plan_move(user_problem_more, 2, ask_what_tried).
+situation_followup(user_problem_more, user_problem_tried).
+
+% (3) Le domande di chi e' dentro un problema: «che cosa potrebbe essere?», «che
+%     faccio adesso?». Non sono domande sul mondo in generale: chiedono aiuto sul
+%     guasto di cui si sta parlando. Il piano dice che cosa manca per rispondere e
+%     fa la domanda che serve; si cambia parlando come ogni piano.
+machinery(cause_question_cue).
+cause_question_cue("what could it be").
+cause_question_cue("what might it be").
+cause_question_cue("what can it be").
+cause_question_cue("cosa potrebbe essere").
+cause_question_cue("che cosa potrebbe essere").
+cause_question_cue("cosa può essere").
+cause_question_cue("che cosa può essere").
+turn_cue_registry(cause_question_cue, 1).
+direct_situation($Turn, user_asks_cause) :- turn_cue_form($Turn, cause_question_cue, $C).
+situation_cue("someone asks what it could be", user_asks_cause).
+situation_cue("qualcuno chiede che cosa potrebbe essere", user_asks_cause).
+situation_label(user_asks_cause, en, "someone asks what it could be").
+situation_label(user_asks_cause, it, "qualcuno chiede che cosa potrebbe essere").
+move_cue("say what you would need to know", say_cause_needs).
+move_cue("di' che cosa ti servirebbe sapere", say_cause_needs).
+plan_step_text_lang(say_cause_needs, en, "I can't name the cause yet: it depends on when it happens and what changed. The sure first step is to stop and check it safely.").
+plan_step_text_lang(say_cause_needs, it, "Non so ancora dirti la causa: dipende da quando succede e da che cosa è cambiato. Il primo passo sicuro è fermarsi e controllare in sicurezza.").
+plan_move(user_asks_cause, 1, say_cause_needs).
+plan_move(user_asks_cause, 2, ask_what_tried).
+
+machinery(next_step_question_cue).
+next_step_question_cue("what should i do now").
+next_step_question_cue("what do i do now").
+next_step_question_cue("what should i do").
+next_step_question_cue("cosa faccio adesso").
+next_step_question_cue("e adesso cosa faccio").
+next_step_question_cue("cosa devo fare").
+next_step_question_cue("che cosa devo fare").
+next_step_question_cue("che faccio").
+turn_cue_registry(next_step_question_cue, 1).
+direct_situation($Turn, user_asks_next_step) :- turn_cue_form($Turn, next_step_question_cue, $C).
+situation_cue("someone asks what to do now", user_asks_next_step).
+situation_cue("qualcuno chiede che cosa fare adesso", user_asks_next_step).
+situation_label(user_asks_next_step, en, "someone asks what to do now").
+situation_label(user_asks_next_step, it, "qualcuno chiede che cosa fare adesso").
+plan_move(user_asks_next_step, 1, safety_first).
+plan_move(user_asks_next_step, 2, ask_what_tried).
+% E chi risponde a «che cosa hai già provato?» aggiunge dettagli.
+situation_followup(user_asks_cause, user_problem_tried).
+situation_followup(user_asks_next_step, user_problem_tried).
+% E chi ha detto che cosa ha provato non va richiesto di nuovo: si ringrazia e si
+% indica il passo sicuro successivo (la domanda ripetuta era un anello su se stesso).
+situation_cue("someone says what they tried", user_problem_tried).
+situation_cue("qualcuno dice che cosa ha provato", user_problem_tried).
+situation_label(user_problem_tried, en, "someone says what they tried").
+situation_label(user_problem_tried, it, "qualcuno dice che cosa ha provato").
+move_cue("suggest having it checked", suggest_expert).
+move_cue("suggerisci di farlo controllare", suggest_expert).
+plan_step_text_lang(suggest_expert, en, "If it goes on, have it checked by someone qualified before using it again: running it like this can make the fault worse.").
+plan_step_text_lang(suggest_expert, it, "Se continua, fallo controllare da un tecnico prima di usarlo ancora: continuare così può peggiorare il guasto.").
+plan_move(user_problem_tried, 1, thank_detail).
+plan_move(user_problem_tried, 2, suggest_expert).
+
+% PR3 — IL SEGUITO DI UN SEGUITO SI TRACCIA. Il turno che risponde alla domanda di
+% un piano diventa la situazione seguente (`situation_followup/2`); se il piano di
+% quella situazione chiede a sua volta, la sua questione si apre qui, differita al
+% turno dopo (`inquiry_deferred/2`, issues.p0). Prima si toglie la chiusura di una
+% volta precedente della stessa questione.
+bookkeeper(inquiry_followup_reset).
+turn_bookkeeping($Turn, inquiry_followup_reset) :-
+    turn_answers_inquiry($Turn, $S), situation_followup($S, $Next),
+    issue_id(inquiry, $Next, $I), inquiry_answered($I, $K),
+    retract(inquiry_answered, $I, $K).
+bookkeeper(inquiry_followup).
+turn_bookkeeping($Turn, inquiry_followup) :-
+    turn_answers_inquiry($Turn, $S), situation_followup($S, $Next),
+    move_asks($M), plan_move($Next, $O, $M),
+    issue_id(inquiry, $Next, $I), turn_counter($N),
+    assert(open_issue, $I, inquiry), assert(issue_topic, $I, $Next),
+    assert(issue_turn, $I, $N), assert(inquiry_deferred, $I, $N).

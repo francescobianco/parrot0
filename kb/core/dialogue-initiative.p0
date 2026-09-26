@@ -274,7 +274,8 @@ dialogue_candidate($T, $S, $K, $Move) :-
     dialogue_now($T, $A, $P), dialogue_uptake($A, update), dialogue_previous_open($S, $K),
     dialogue_update_move($A, $Move).
 dialogue_candidate($T, $N, closed, ask_anchor) :-
-    dialogue_now($T, $A, $P), dialogue_uptake($A, update), naf(dialogue_has_previous), turn_counter($N).
+    dialogue_now($T, $A, $P), dialogue_uptake($A, update), naf(dialogue_has_previous),
+    naf(dialogue_offer_elsewhere(any)), turn_counter($N).
 bookkeeper(dialogue_detail).
 turn_bookkeeping($T, dialogue_detail) :-
     dialogue_now($T, $A, $P), dialogue_detail_role($A, $Role), dialogue_previous_open($S, $K),
