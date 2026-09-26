@@ -68,7 +68,17 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 
 **PHP:** P6 ✅ (la domanda sul soggetto elenca tutti i valori: «missing semicolon
 and unclosed string»); P1 ✅ («Is Xdebug an extension?», testa della classe
-composta). P2, P3, P4, P8, P11, P12 restano come nella tabella piu' sotto. **§1 grammatica:** non ripresa in questa passata (vedi L4).
+composta). P2, P3, P4, P8, P11, P12 restano come nella tabella piu' sotto.
+
+**§1 grammatica** (oltre al lavoro L4 sulle lezioni descrittive):
+
+| # | stato | come |
+|---|---|---|
+| G10, G11 | ✅ | «What is the plural of foundry / torch / box / ox / key?» → foundries, torches, boxes, oxen, keys: le regole ortografiche della terza persona e le eccezioni dichiarate (`noun_plural_form/2`) |
+| G12 | 🟡 | «What is the past of grind?» → ground (`verb_form/3`); un verbo non noto («hone») resta un «non so» onesto finche' si insegna «hone is an english verb lemma» |
+| G13 | ✅ | «What is the comparative of hard / thin / happy / large / accurate / good?» → harder, thinner, happier, larger, more accurate, better (sillabe come gruppi di vocali, raddoppio CVC, -ier, «more», irregolari come fatti) |
+| G14 | 🟡 | per la via insegnabile: «harder is a relation verb», poi «Steel is harder than aluminium.» → «Is steel harder …?» Yes, «Which is harder, steel or aluminium?» steel. 🔴 che il comparativo di un aggettivo noto sia da solo una relazione (una regola su `relation_verb/1` rallenterebbe la vista dei chiusori, che la enumera: da fare con una vista dedicata) |
+| G5, G7, G24 | 🟡 | il «No.» a tutto e' tolto («I don't know whether …», sessione precedente); le regole di accordo restano da insegnare |
 
 **Scoperta di costo (misurata):** una frase lunga di Wikipedia costava 16–20 s
 (il paragrafo di `one_act_of_learning.p0t` supera i 60 s). Due cause: il lettore
