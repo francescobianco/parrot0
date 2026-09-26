@@ -92,9 +92,14 @@ composed($Stage, $Lang, $Text) :-
 % (2) LO STRATO CHE REGGE: avvolge il testo interno secondo la RELAZIONE che ha
 %     con esso. Il connettivo non e' scritto nello strato — e' la resa della
 %     relazione nella lingua del turno.
+% (26 settembre 2026: prima si chiede se lo strato regge, POI si compone
+% l'interno. Nell'ordine inverso, quando lo strato non reggeva, la clausola (3)
+% ricomponeva l'interno da capo: il lavoro raddoppiava a ogni livello — 14 000
+% `stage_around` e 4,3 s per un «non dimostrato», misurato con il tempo proprio
+% di /debug on. La tesi dello strato non dipende dall'interno.)
 composed($Stage, $Lang, $Text) :-
-    stage_wraps($Stage, $Inner), composed($Inner, $Lang, $In),
-    stage_holds($Stage), stage_around($Stage, $Lang, $In, $Text).
+    stage_wraps($Stage, $Inner), stage_holds($Stage),
+    composed($Inner, $Lang, $In), stage_around($Stage, $Lang, $In, $Text).
 
 % (3) LO STRATO CHE NON REGGE NON INTERROMPE: sparisce, e cio' che stava sotto
 %     di lui affiora intatto.

@@ -5630,17 +5630,14 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     whole.len = strlen(surface);
     turn_publish_tokens(b, surface, &whole, "0", "turn_surface_token", whole.len);
     turn_publish_cues(b, surface);
-    /* 26 settembre 2026 — le viste che dipendono dai token del turno (quali lo
-     * dice `view_depends(V, turn_surface_token)`, non questo ramo: oggi
-     * `turn_word_at`) si rifanno QUI, all'ingresso, una volta: dentro una
-     * risoluzione una vista spenta si ricalcola a ogni domanda (span_atom
-     * 166 000 volte in un turno, misurato). Non tutte le viste sporche: rifarle
-     * tutte a ogni turno portava un turno da 0,5 a 6 s (misurato). */
-    {   char (*vs)[KB_TERM_LEN] = NULL; size_t nv = 0;
-        const char *vq[2] = { NULL, "turn_surface_token" };
-        if (kb_match_all(b->kb, "view_depends", vq, 2, &vs, &nv))
-            for (size_t i = 0; i < nv; i++) kb_view_ensure(b->kb, vs[i]);
-        free(vs); }
+    /* 26 settembre 2026 — le viste invalidate (dai token del turno, come
+     * `turn_word_at`, o da una lezione del turno prima) si rifanno QUI,
+     * all'ingresso, una volta: dentro una risoluzione una vista spenta si
+     * ricalcola a ogni domanda (span_atom 166 000 volte in un turno;
+     * verb_reading_form 2,4 milioni di passi dopo una lezione, misurati).
+     * `kb_views_refresh`, non `kb_views_warm`: quello ricarica il registro e
+     * svuota tutte le viste (4-6 s a ogni turno, misurato). */
+    kb_views_refresh(b->kb);
     /* ── gen513 — LA FORZA DEL TURNO SI CALCOLA UNA VOLTA, E SI PUBBLICA ──────
      *
      * `turn_illocution/2` e' gia' una RIPUBBLICAZIONE («il livello in piu' non
@@ -8956,7 +8953,17 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                          registry[i].name), p0_trace(b, "faculty", "%s", declined[ndecl - 1]);
             continue;
         }
-        if (registry[i].handle(b, canon, input, out, out_size)) {
+        /* 26 settembre 2026 — quanto costa OGNI facolta', nel trace a livello 2:
+         * il profilo diceva «1,4 s fuori dal solver» senza dire di chi. */
+        struct timespec fac_t0; clock_gettime(CLOCK_MONOTONIC, &fac_t0);
+        int fac_ok = registry[i].handle(b, canon, input, out, out_size);
+        {   struct timespec fac_t1; clock_gettime(CLOCK_MONOTONIC, &fac_t1);
+            double fac_ms = (double)(fac_t1.tv_sec - fac_t0.tv_sec) * 1000.0 +
+                            (double)(fac_t1.tv_nsec - fac_t0.tv_nsec) / 1e6;
+            if (fac_ms >= 1.0)
+                p0_trace_at(b, 2, "faculty", "%s: %.1f ms%s", registry[i].name, fac_ms,
+                            fac_ok ? " (risponde)" : ""); }
+        if (fac_ok) {
             /* ⛔ UNA RISPOSTA CHE VIOLA UN VINCOLO ESPLICITO DEL TURNO NON E'
              * UNA RISPOSTA — lo strato post-dispatch che mancava.
              *

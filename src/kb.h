@@ -441,6 +441,8 @@ void kb_trace_emit(const KB *kb, const char *stage, const char *label, const cha
 /* Costruisce subito ogni vista dichiarata: si chiama a fine boot, cosi' il
  * costo del congelamento e' avvio e non un turno. */
 void kb_views_warm(KB *kb);
+/* all'ingresso di un turno: ricostruisce solo le viste invalidate (niente ricarica) */
+void kb_views_refresh(KB *kb);
 
 /* The unary classes that can hold FOR ONE entity: the predicates it already
  * appears under, plus every unary rule head (the only ones that can derive

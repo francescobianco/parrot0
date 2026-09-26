@@ -94,7 +94,13 @@ goal_word_property($Turn, $Property) :- goal_span_word($Turn, $Word), linguistic
 % lavoro pagato da tutte le conversazioni che non parlano di situazioni.
 goal_reading_key($Turn, goal($Property, $Direction)) :- goal_word_direction($Turn, $Direction), goal_word_property($Turn, $Property).
 goal_reading_set($Turn, $Readings) :- turn_goal_span($Turn), findall($Reading, goal_reading_key($Turn, $Reading), $Readings).
-turn_goal($Turn, $Property, $Direction) :- goal_reading_set($Turn, cons(goal($Property, $Direction), nil)).
+% 26 settembre 2026 — era `turn_goal/3`, OMONIMO del fatto che il C deposita per
+% la composizione («la domanda e' su S e sulla classe C»): ogni volta che la
+% composizione chiedeva la domanda del turno, il risolutore provava anche questa
+% regola, con un findall sui segmenti, 24 000 volte in un turno (4,5 s, misurato
+% con il tempo proprio di /debug on). Prefisso di famiglia.
+machinery(situation_goal).
+situation_goal($Turn, $Property, $Direction) :- goal_reading_set($Turn, cons(goal($Property, $Direction), nil)).
 turn_goal_ambiguous($Turn) :- goal_reading_set($Turn, cons($First, cons($Second, $Tail))).
 
 % ── 2. LA SITUAZIONE: lo stato come credenza visibile di un contesto ────────
@@ -109,7 +115,7 @@ situation_state($Situation, $Entity, $Property, $Value) :- context_visible_belie
 % implicita nel motore: e' quella in cui la proprieta' nominata dal goal ha
 % davvero uno stato. Se nessuna la possiede, non c'e' situazione — e questo e'
 % un residuo onesto, non un mondo da inventare.
-turn_task($Turn, $Situation, $Property, $Direction) :- turn_goal($Turn, $Property, $Direction), situation_state($Situation, $Entity, $Property, $Value).
+turn_task($Turn, $Situation, $Property, $Direction) :- situation_goal($Turn, $Property, $Direction), situation_state($Situation, $Entity, $Property, $Value).
 
 % ── 3. AZIONI: applicabilita' come insieme delle precondizioni non provate ──
 %

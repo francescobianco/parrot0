@@ -266,6 +266,15 @@ typedef struct {
      * alla lettura la differenza si cerca solo lungo di esse */
     char (*chain)[KB_TERM_LEN]; size_t *chain_len; size_t nchain, chain_cap;
     int recursive;         /* §25.2: una regola a valle nomina la vista */
+    /* 26 settembre 2026 — L'AGGIORNAMENTO PER DIFFERENZA. Una vista non ricorsiva
+     * che ha gia' righe non si svuota piu' quando una dipendenza cambia: le
+     * righe restano, nascoste, e la ricostruzione timbra con `gen_mark` quelle
+     * che ritrova e quelle nuove; alla fine si tolgono solo le non timbrate.
+     * Svuotarla voleva dire ricompattare l'intera tabella dei fatti e poi
+     * riasserire tutte le righe: 3,4 s per `extract_frame` dopo ogni lezione
+     * per contatto, anche quando le righe nuove erano una manciata. */
+    int diffing;
+    unsigned long gen_mark;
     size_t stamp;          /* kb->view_clock at the last invalidation */
     uint64_t content;      /* impronta delle righe dell'ultima costruzione */
     int has_content;
@@ -305,6 +314,8 @@ struct KB {
     /* §25.3 — il REGISTRO UNICO: il turno corrente (lo da' il registro delle
      * facolta', `kb_set_paradox_turn`), per datare `paradox_event/4`. */
     unsigned long paradox_turn;
+    unsigned long view_mark;   /* il timbro della vista in costruzione per differenza */
+    unsigned long view_gen;
     /* L3 §14.6 — LO STRATO SOPRA I FATTI LETTI. I predicati di cui qualche
      * fatto ha un sostegno di lettura registrato (`read_support/2`): solo quei
      * fatti pagano la domanda `fact_withheld/1`. Sovrastima voluta (un ritiro
@@ -786,6 +797,7 @@ static int kb_view_hybrid(const KB *kb, const char *pred);
 static size_t kb_view_slot(const KB *kb, const char *pred);
 static int view_rule_is_live(const KbView *v, size_t ri);
 static int kb_view_fact_visible(const KB *kb, const Fact *f);
+static void kb_view_clear(KB *kb, const char *pred);
 static void rs_note(KB *kb, const Fact *f);
 static int kb_fact_withheld(const KB *kb, const Fact *f, int neg);
 
@@ -1318,6 +1330,11 @@ static void kb_views_changed_ex(KB *kb, const char *pred, const KbView *self) {
         if (v->live)
             kb_trace(kb, "view", "%-28s invalidata da %s%s",
                      v->pred, pred, v->broad ? " (broad)" : "");
+        else   /* anche quando non e' viva: una vista che si sporca DURANTE una
+                * costruzione non resta mai viva, e il turno la riderivava a ogni
+                * domanda senza che la traccia lo dicesse (26 settembre 2026) */
+            kb_trace(kb, "view.inval", "%-28s sporcata da %s%s%s",
+                     v->pred, pred, v->broad ? " (broad)" : "", v->building ? " mentre si costruisce" : "");
         v->live = 0;
         v->dirty = 1;
         v->attempted = 0;
@@ -1358,6 +1375,9 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
         int before = known->origin;
         known->origin |= kb->origin;
         if (kb->origin & KB_SESSION) known->stamp = kb->paradox_turn;
+        /* una vista che si ricostruisce per differenza RITROVA questa riga */
+        if (kb->origin == KB_DERIVED && kb->view_mark && known->origin == KB_DERIVED)
+            known->stamp = kb->view_mark;
         /* ⚠ L'INVALIDAZIONE E' PER LA CACHE, NON PER L'ATTO. Invalidando a ogni
          * cambio di origine, un fatto gia' noto che il turno ri-asserisce
          * buttava le viste materializzate (`extract_frame` fra le altre): i
@@ -1372,6 +1392,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     }
     f.origin = kb->origin;
     if (kb->origin & KB_SESSION) f.stamp = f.born = kb->paradox_turn;
+    if (kb->origin == KB_DERIVED && kb->view_mark) f.stamp = kb->view_mark;
     rs_note(kb, &f);
     if (!fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
                              &kb->fact_index, &kb->fact_index_cap, &f)) return 0;
@@ -2115,6 +2136,11 @@ typedef struct {
      * fatti (le righe delle passate precedenti) — il punto fisso. */
     size_t   in_vrule;
     const char *cut_pred;  /* §25.3: il predicato dell'ultimo goal tagliato */
+    /* 26 settembre 2026 — la deduplica delle soluzioni raccolte era lineare
+     * (`push_unique`): con le 27 000 cornici di `extract_frame` erano centinaia
+     * di milioni di `strcmp`, ~2 s a ogni ricostruzione della vista. Oltre 64
+     * soluzioni la si fa con un indice hash; lo libera chi ha creato il solver. */
+    uint32_t *dedup; size_t dedup_cap;
     /* 26 settembre 2026 (F.): il tetto di profondita' non e' un budget. Quando
      * scatta si conta a parte e si ricorda il predicato del goal che lo ha
      * toccato, cosi' il registro dei paradossi riceve `depth` e parrot0 puo'
@@ -2155,6 +2181,8 @@ typedef struct {
 
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth);   /* fwd: naf helpers call solve */
+static void solver_push_unique_hashed(Solver *S, const char *v);
+static void solver_dedup_free(Solver *S);
 static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                        const Subst *s, int depth, SolveFrame *scratch);
 static int parse_to_term(const char *s, Term *t); /* fwd: call/1 builtin */
@@ -3190,6 +3218,7 @@ static int view_delta(Solver *S, const KbView *v, const Term *g,
         Subst *fs = &scratch->subst;
         subst_copy(fs, s);
         solve(&F, &rg, 1, 0, fs, depth + 1);
+        solver_dedup_free(&F);
         S->frame = F.frame;
         if (F.budget_hit) S->budget_hit = 1;
         if (F.depth_hit) { S->depth_hit = 1; if (!S->depth_pred[0]) snprintf(S->depth_pred, sizeof S->depth_pred, "%s", F.depth_pred); }
@@ -3208,6 +3237,40 @@ static int view_delta(Solver *S, const KbView *v, const Term *g,
     return 0;
 }
 
+static uint64_t dedup_hash(const char *v) {
+    uint64_t h = UINT64_C(1469598103934665603);
+    for (const unsigned char *c = (const unsigned char *)v; *c; c++) { h ^= *c; h *= UINT64_C(1099511628211); }
+    return h;
+}
+static int solver_dedup_grow(Solver *S, size_t need) {
+    size_t cap = S->dedup_cap ? S->dedup_cap : 256;
+    while (cap < need * 2) cap *= 2;
+    if (cap == S->dedup_cap && S->dedup) return 1;
+    uint32_t *t = calloc(cap, sizeof *t);
+    if (!t) return 0;
+    for (size_t i = 0; i < S->count; i++) {        /* reindicizza cio' che c'e' */
+        size_t at = (size_t)(dedup_hash(S->out[i]) & (cap - 1));
+        while (t[at]) at = (at + 1) & (cap - 1);
+        t[at] = (uint32_t)(i + 1);
+    }
+    free(S->dedup); S->dedup = t; S->dedup_cap = cap;
+    return 1;
+}
+static void solver_push_unique_hashed(Solver *S, const char *v) {
+    if (S->count >= S->max) return;
+    if (!S->dedup || S->count + 1 > S->dedup_cap / 2) {
+        if (!solver_dedup_grow(S, S->count + 1)) { push_unique(S->out, &S->count, S->max, v); return; }
+    }
+    size_t at = (size_t)(dedup_hash(v) & (S->dedup_cap - 1));
+    while (S->dedup[at]) {
+        if (!strcmp(S->out[S->dedup[at] - 1], v)) return;
+        at = (at + 1) & (S->dedup_cap - 1);
+    }
+    snprintf(S->out[S->count], KB_TERM_LEN, "%s", v);
+    S->dedup[at] = (uint32_t)(++S->count);
+}
+static void solver_dedup_free(Solver *S) { free(S->dedup); S->dedup = NULL; S->dedup_cap = 0; }
+
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
     if (S->kb->prof_on) kb_profile_self_enter((KB *)S->kb, idx < ngoals ? &goals[idx] : NULL);
@@ -3225,7 +3288,8 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (!is_var(v)) {
             if (S->bag) { if (S->count < S->max) snprintf(S->out[S->count++],
                                                           KB_TERM_LEN, "%s", v); }
-            else push_unique(S->out, &S->count, S->max, v);
+            else if (S->count < 64 && !S->dedup) push_unique(S->out, &S->count, S->max, v);
+            else solver_push_unique_hashed(S, v);
         }
         return S->count >= S->max;
     }
@@ -3987,6 +4051,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             Subst *fs = &scratch->subst;
             subst_copy(fs, s);
             solve(&F, &stepg, 1, 0, fs, 0);
+            solver_dedup_free(&F);
             S->frame = F.frame;
             S->steps += F.steps + 1;
             if (F.budget_hit) S->budget_hit = 1;
@@ -4042,6 +4107,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         Subst *fs = &scratch->subst;
         subst_copy(fs, s);
         solve(&F, &goal, 1, 0, fs, 0);
+        solver_dedup_free(&F);
         S->frame = F.frame;
         if (F.budget_hit) S->budget_hit = 1;
         if (F.depth_hit) { S->depth_hit = 1; if (!S->depth_pred[0]) snprintf(S->depth_pred, sizeof S->depth_pred, "%s", F.depth_pred); }
@@ -4629,8 +4695,38 @@ static int kb_view_fact_visible(const KB *kb, const Fact *f) {
     if (f && f->origin != KB_DERIVED && kb_fact_withheld(kb, f, 0)) return 0;
     if (!f || f->origin != KB_DERIVED) return f != NULL;
     size_t k = kb_view_slot(kb, f->pred);
+    if (k != (size_t)-1 && kb->views[k].diffing && f->stamp != kb->views[k].gen_mark)
+        return 0;                 /* una riga della generazione precedente */
     return k != (size_t)-1 &&
            (kb->views[k].live || kb->views[k].building) && !kb->views[k].dirty;
+}
+
+/* Svuotare o nascondere: una vista non ricorsiva con righe si aggiorna per
+ * differenza (vedi `diffing`); le altre si svuotano come prima. */
+static void kb_view_retire(KB *kb, KbView *v) {
+    if (!v->recursive && v->has_content) { v->diffing = 1; return; }
+    kb_view_clear(kb, v->pred);
+}
+/* Alla fine di una costruzione per differenza: via le righe non ritrovate. La
+ * compattazione si paga solo se ce n'e' qualcuna. */
+static void kb_view_drop_unmarked(KB *kb, KbView *v) {
+    size_t stale = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->origin == KB_DERIVED && f->stamp != v->gen_mark && !strcmp(f->pred, v->pred)) stale++;
+    }
+    if (!stale) return;
+    size_t w = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->origin == KB_DERIVED && f->stamp != v->gen_mark && !strcmp(f->pred, v->pred)) continue;
+        if (w != i) kb->facts[w] = kb->facts[i];
+        w++;
+    }
+    kb->n = w;
+    kb->n_derived -= stale;
+    kb->fact_index_stale = 1;
+    pred_stats_invalidate(kb);
 }
 
 static void kb_view_clear(KB *kb, const char *pred) {
@@ -4983,7 +5079,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
          * stale sibling without ever calling its public kb_match entry. */
         for (size_t i = 0; i < kb->nviews; i++)
             if (kb->views[i].dirty && !kb->views[i].building) {
-                kb_view_clear(kb, kb->views[i].pred);
+                kb_view_retire(kb, &kb->views[i]);
                 kb->views[i].dirty = 0;
             }
         kb->views_pending = 0;
@@ -5023,7 +5119,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
         v = &kb->views[k];
         v->building = 0;
         if (v->dirty) {           /* una dipendenza ha cambiato contenuto */
-            kb_view_clear(kb, pred);
+            kb_view_retire(kb, v);
             v->dirty = 0; v->live = 0; v->attempted = 0;
         }
     }
@@ -5077,6 +5173,11 @@ int kb_view_ensure(KB *kb, const char *pred) {
     v->building = 1;
     size_t prev_building_view = kb->building_view_plus1;
     kb->building_view_plus1 = k + 1;
+    unsigned long prev_mark = kb->view_mark;
+    if (v->diffing) {
+        v->gen_mark = (1UL << (sizeof(unsigned long) * 8 - 1)) | ++kb->view_gen;
+        kb->view_mark = v->gen_mark;
+    } else kb->view_mark = 0;
     int complete = 1;
     /* L'impronta del CONTENUTO: commutativa, perche' conta l'insieme delle
      * righe e non l'ordine in cui l'enumerazione le ha trovate. */
@@ -5179,10 +5280,16 @@ again_pass:
                 (double)(vt1.tv_nsec - vt0.tv_nsec) / 1e6,
                 complete ? "" : " (incompleta)");
     }
+    kb->view_mark = prev_mark;
+    v = &kb->views[k];
     if (!complete || v->dirty) {
+        v->diffing = 0;
         kb_view_clear(kb, pred);
         v->live = 0;
-    } else v->live = 1;
+    } else {
+        if (v->diffing) { kb_view_drop_unmarked(kb, v); v->diffing = 0; }
+        v->live = 1;
+    }
     if (v->live) {
         uint64_t fresh = vcontent ^ (uint64_t)vrows * UINT64_C(1099511628211);
         int changed = !v->has_content || v->content != fresh;
@@ -5231,6 +5338,28 @@ static int kb_view_deps_ready(KB *kb, const char *pred) {
     }
     free(deps);
     return ready;
+}
+
+/* 26 settembre 2026 — ricostruire all'INGRESSO del turno le viste che una
+ * lezione ha invalidato: dentro una risoluzione una vista spenta si riderivava a
+ * ogni domanda (`verb_reading_form` 2,4 milioni di passi per turno dopo «zorblax
+ * is a relation verb», per tutti i turni seguenti). Diverso da `kb_views_warm`:
+ * non ricarica il registro (quello svuota TUTTE le viste e le rende `broad`, e
+ * ogni ricostruzione sporcava le altre a cascata — 4-6 s a ogni turno,
+ * misurato), e tocca solo le viste invalidate da un cambiamento. */
+void kb_views_refresh(KB *kb) {
+    if (!kb || !kb->views_loaded || kb->views_reload ||
+        frame_depth || proof_depth || kb->views_preparing) return;
+    for (int progress = 1; progress; ) {
+        progress = 0;
+        for (size_t i = 0; i < kb->nviews; i++) {
+            KbView *v = &kb->views[i];
+            if (v->live || v->building || v->attempted) continue;
+            if (!kb_view_deps_ready(kb, v->pred)) continue;
+            kb_view_ensure(kb, v->pred);
+            progress = 1;
+        }
+    }
 }
 
 void kb_views_warm(KB *kb) {
@@ -5388,6 +5517,13 @@ void kb_footprint_mark(KB *kb, const char *tag) { kb_footprint_note(kb, tag); }
 
 static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
     if (!kb) return;
+    /* il tempo che segue una query e' del C, non dell'ultimo goal: conto suo */
+    if (kb->prof_on) {
+        struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
+        kb_profile_self_close(kb, &now);
+        snprintf(kb->prof_self_key, sizeof kb->prof_self_key, "(C fra le query)");
+        kb->prof_self_t = now;
+    }
     kb_footprint_note(kb, goalpred);
     kb->infer_steps      = S->steps;
     kb->infer_budget_hit = S->budget_hit;
@@ -5716,6 +5852,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     if (!s) return 0;
     s->n = 0; s->ndif = 0; s->overflow = &S.budget_hit;
     solve(&S, &g, 1, 0, s, 0);
+    solver_dedup_free(&S);
     kb_note_inference((KB *)kb, &S, pred);
     free(s);
     if (S.count == max) kb_note_saturated_read((KB *)kb, pred, argc, max);
@@ -6107,37 +6244,27 @@ size_t kb_induce(KB *kb, size_t min_support,
     char (*preds)[KB_TERM_LEN] = malloc(256 * sizeof *preds);
     if (!preds) { kb->origin = saved_origin; return 0; }
     size_t np = 0;
+    /* 26 settembre 2026 — un PREDICATO si esamina una volta, non un fatto alla
+     * volta: la domanda `machinery` era fatta per ognuno dei 168 000 fatti a ogni
+     * regola imparata (1,4 s, misurato con /debug on e le pile). E quali
+     * predicati l'induzione ignora e' conoscenza (`induction_excluded/1`,
+     * procedures.p0), non una catena di `strcmp` nel C (mantra #2). */
+    char (*seen)[KB_TERM_LEN] = malloc(1024 * sizeof *seen);
+    size_t nseen = 0;
+    if (!seen) { free(preds); kb->origin = saved_origin; return 0; }
     for (size_t i = 0; i < kb->n; i++) {
-        /* gen73: skip meta-knowledge predicates (lexicon, social, reflective).
-         * Induction should operate on domain facts, not on curated word lists. */
+        if (kb->facts[i].argc != 1) continue;
         const char *mp = kb->facts[i].pred;
-        if (strcmp(mp, "stopword") == 0 ||
-            strcmp(mp, "question_word") == 0 ||
-            strcmp(mp, "reaction_word") == 0 ||
-            strcmp(mp, "social_marker") == 0 ||
-            strcmp(mp, "social_pattern") == 0 ||
-            strcmp(mp, "i_am") == 0 ||
-            strcmp(mp, "module") == 0 ||
-            strcmp(mp, "cmd") == 0 ||
-            strcmp(mp, "flag") == 0 ||
-            strcmp(mp, "cont") == 0 ||
-            strcmp(mp, "cont2") == 0) continue;
-        /* gen432 — LA MECCANICA NON SI GENERALIZZA, e adesso conta davvero.
-         *
-         * L'elenco cablato qui sopra nomina undici predicati; il resto della
-         * meccanica si dichiara da se' con `machinery/1` dal gen344. Non
-         * filtrarla qui la faceva entrare nell'induzione e RIEMPIRE il buffer
-         * delle regole indotte — sedici posti — con cose come
-         * `content_kind(X) :- countable_opener(X)`, che il chiamante poi
-         * scartava una per una lasciando fuori la regola vera. Il sintomo era
-         * «Nothing new to generalize» su una KB che aveva appena imparato che
-         * ogni uomo e' mortale (misurato: induce.p0t). */
-        {
-            const char *mq[1] = { mp };
-            if (kb_query((KB *)kb, "machinery", mq, 1)) continue;
-        }
-        if (kb->facts[i].argc == 1) push_unique(preds, &np, 256, kb->facts[i].pred);
+        int known = 0;
+        for (size_t j = 0; j < nseen && !known; j++) if (!strcmp(seen[j], mp)) known = 1;
+        if (known) continue;
+        if (nseen < 1024) snprintf(seen[nseen++], KB_TERM_LEN, "%s", mp);
+        const char *mq[1] = { mp };
+        if (kb_query((KB *)kb, "induction_excluded", mq, 1)) continue;
+        if (kb_query((KB *)kb, "machinery", mq, 1)) continue;
+        push_unique(preds, &np, 256, mp);
     }
+    free(seen);
 
     size_t found = 0;
     for (size_t bi = 0; bi < np; bi++) {
@@ -6149,7 +6276,11 @@ size_t kb_induce(KB *kb, size_t min_support,
 
             size_t support = 0;
             int all_q = 1, fresh = 0;
-            for (size_t i = 0; i < kb->n && all_q; i++) {
+            /* i soli fatti di P (il bucket del censimento), non tutta la tabella */
+            PredBucket pbk = pred_bucket(kb, P);
+            for (size_t vi = 0; vi < PRED_VISITS(pbk, kb) && all_q; vi++) {
+                size_t i = PRED_AT(pbk, vi);
+                if (i >= kb->n) continue;
                 const Fact *f = &kb->facts[i];
                 if (f->argc != 1 || strcmp(f->pred, P) != 0) continue;
                 support++;

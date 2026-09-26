@@ -313,6 +313,8 @@ debug_trace_depth(1).
 trace_stage_depth("read.named", 3).
 % il ciclo `iterate/4` scrive un giro per riga: e' il dettaglio piu' fine
 trace_stage_depth("iterate", 4).
+% le invalidazioni di viste gia' spente o in costruzione: il perche' di una ricostruzione
+trace_stage_depth("view.inval", 3).
 
 % ── 26 settembre 2026 — LA GUIDA DI /debug (F.: «/debug da solo deve essere
 % come /debug help, che ti mostra come usarlo; il controllo di predicato deve

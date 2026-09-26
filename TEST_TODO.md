@@ -301,6 +301,15 @@ prossimo lavoro (report gen509 §7-bis).
 > Prevale sui due handoff qui sotto per lo **stato del codice**; il metodo del
 > gen506b (turno appeso = rosso con nome, budget duro che non si alza) resta.
 
+
+## 2026-09-26 — rossi ereditati, misurati sulla base (ec61b009)
+
+Fallivano già prima delle modifiche del 26 settembre pomeriggio (stesso binario
+di base, demone suo): `induce.p0t` 8/10, `syllogism.it.p0t` 0/3, `syllogism.p0t`
+6/9 in base e 7/9 dopo. Da ripensare semanticamente (F.: «le cose che
+incontriamo possono essere problemi legati alla crescita di parrot0 e che i test
+non verificano più come dovrebbero»), non da far tornare verdi a forza.
+
 ## 1. Lo stato in cinque righe
 
 - **gen508** (`faf665f`): le due strutture di `docs/plans/due-strutture-kb-viva.md`

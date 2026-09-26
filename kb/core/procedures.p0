@@ -2519,3 +2519,19 @@ whole_part_relation("built from").
 whole_part_relation("formed of").
 % 23 settembre 2026, dalla ricaduta di learned.p0: le proprieta' delle relazioni.
 symmetric_relation(react).
+
+% 26 settembre 2026 — i predicati che l'induzione di regole (`kb_induce`) non
+% considera: vocabolario e stato del sé, non classi del mondo. Erano una catena
+% di `strcmp` nel C; ora una riga ciascuno, e un escluso nuovo si aggiunge qui.
+machinery(induction_excluded).
+induction_excluded(stopword).
+induction_excluded(question_word).
+induction_excluded(reaction_word).
+induction_excluded(social_marker).
+induction_excluded(social_pattern).
+induction_excluded(i_am).
+induction_excluded(module).
+induction_excluded(cmd).
+induction_excluded(flag).
+induction_excluded(cont).
+induction_excluded(cont2).

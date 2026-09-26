@@ -2,6 +2,21 @@
 
 
 
+
+## 2026-09-26 (pomeriggio) — i due rossi di tempo di taught_lexicon, e perché restano
+
+`taught_lexicon.p0t` è a 38/40; i due rossi sono di tempo e il profilo di
+`/debug on` dice perché (docs/parrot-p0-syntax.md §18, «terzo giro»):
+- **riga 317, 2,2 s** — il turno dopo «zorblax is a relation verb» ricostruisce le
+  viste delle forme verbali e delle cornici (`extract_frame` ~0,6 s,
+  `finite_reading_verb_form` ~0,25 s, …): 456 000 `concat_atoms` per riderivare le
+  cornici di TUTTI i verbi perché ne è entrato uno. Serve una **ricostruzione
+  incrementale per chiave** (derivare solo le righe del membro nuovo): è motore.
+  Spostare la ricostruzione fuori dalla misura del turno sarebbe barare.
+- **riga 173, ~1,13 s** — sillogismo condizionale dopo la lezione del
+  quantificatore: 940 ms nella facoltà `knowledge`, di cui ~400 ms di C fra 8 265
+  piccole query; nessun predicato singolo domina.
+
 ## 2026-09-26 — le procedure insegnate: l'interprete era una `switch`, ora è KB; i residui della famiglia
 
 F.: *«tutto questo legato all'insegnamento e fatto in C è una grave rottura del

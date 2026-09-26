@@ -855,3 +855,28 @@ dipendono dai token del turno (`view_depends(V, turn_surface_token)`) si
 ricostruiscono quindi subito dopo la pubblicazione dei token. Rifare lì **tutte**
 le viste sporche (`kb_views_warm`) portava un turno da 0,5 a 6 s: misurato, e
 scartato.
+
+**Lavorato, terzo giro: i rossi di tempo di `taught_lexicon.p0t` da 7 a 2.** Con
+il profilo cresciuto ancora (`(C fra le query)` come conto a sé; ogni facoltà
+con i suoi ms a livello 2; le invalidazioni di viste spente o in costruzione,
+specie `view.inval` a livello 3) sono uscite cinque cause, nessuna di conoscenza:
+- **deduplica quadratica** delle soluzioni raccolte (`push_unique`): con le
+  27 000 cornici la ricostruzione di `extract_frame` costava 1,9 s; ora un indice
+  hash oltre 64 soluzioni (332 ms);
+- **ricostruzione per differenza** delle viste non ricorsive: le righe restano,
+  la ricostruzione timbra quelle ritrovate e toglie solo le altre — niente
+  ricompattazione dell'intera tabella dei fatti;
+- **viste spente dopo una lezione** riderivate a ogni domanda nei turni seguenti:
+  all'ingresso del turno `kb_views_refresh` rifà solo le viste invalidate
+  (`kb_views_warm` no: ricarica il registro, le rende tutte `broad` e ogni
+  ricostruzione sporca le altre a cascata — 4-6 s a ogni turno, misurato);
+- **omonimo** `turn_goal/3` (fatto del C per la composizione, regola di
+  `situation.p0` per altro): ora `situation_goal/3`;
+- **composizione esponenziale**: lo strato si controlla PRIMA di comporre
+  l'interno (4,3 s → 0,46 s);
+- **induzione su tutta la KB a ogni regola imparata** (`kb_induce`): un predicato
+  si esamina una volta, i fatti per bucket, e gli esclusi sono KB
+  (`induction_excluded/1`) invece di una catena di `strcmp` (2,55 → 0,87 s).
+Due tentativi misurati e scartati: una sottovista per le cornici delle forme
+verbali (nessun effetto) e `input_node_atom` come vista per turno (i nodi della
+IR si riscrivono dentro il turno: la vista resta spenta e aggiunge lavoro).
