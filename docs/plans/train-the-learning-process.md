@@ -72,7 +72,10 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 
 **PHP:** P6 ✅ (la domanda sul soggetto elenca tutti i valori: «missing semicolon
 and unclosed string»); P1 ✅ («Is Xdebug an extension?», testa della classe
-composta). P2, P3, P4, P8, P11, P12 restano come nella tabella piu' sotto.
+composta); P2 ✅ («What does error_log write?» → Message.); P11 🟡 (la facolta'
+che chiede di incollare l'oggetto cede quando il turno nomina un'entita' nota —
+niente piu' «paste it here» — ma «What does a stack trace show?» non raggiunge
+ancora il fatto `show`). P3, P4, P8, P12 restano come nella tabella piu' sotto.
 
 **§1 grammatica** (oltre al lavoro L4 sulle lezioni descrittive):
 

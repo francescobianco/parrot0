@@ -1047,3 +1047,11 @@ turn_force_blocked($Turn, directive) :- turn_cue_form($Turn, procedure_lesson_op
 % appartiene alla sua clausola: davanti a un confine di clausola il lettore delle
 % negazioni cede.
 negation_lead_declined :- turn_cue(current_turn, clause_boundary_cue, $C).
+% PHP P11 (26 settembre 2026): «What does a stack trace show?» riceveva «I don't
+% have the trace you mean — paste it here» dalla facolta' che chiede l'oggetto
+% mancante: ma «stack trace» qui NOMINA un'entita' di cui la KB tiene fatti («A
+% stack trace shows the sequence of function calls.»). Chi chiede di incollare un
+% oggetto cede quando il turno nomina qualcosa che parrot0 conosce.
+machinery(turn_names_known_entity).
+turn_names_known_entity($T, $K) :- turn_entity_named($S, $K), kb_fact($P, cons($K, $R)).
+faculty_yield_when(missing_referent, open, turn_names_known_entity).
