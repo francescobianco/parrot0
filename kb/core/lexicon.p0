@@ -1793,6 +1793,16 @@ language_marker(it, anzi).
 language_marker(it, infatti).
 % 14 settembre 2026 — gli imperativi delle richieste di lettura (network.p0).
 language_marker(it, definisci).
+% PR8 (26 settembre 2026): «Ciao, mi serve una mano con il tornio.» dopo due turni
+% in inglese riceveva la risposta in inglese — il turno non aveva NESSUN
+% marcatore, e senza evidenza vince la lingua di prima. Parole funzione italiane
+% che l'inglese non usa come parole (non «con», «per», «come», «no»).
+language_marker(it, ciao).    language_marker(it, mi).     language_marker(it, ti).
+language_marker(it, ci).      language_marker(it, il).     language_marker(it, lo).
+language_marker(it, una).     language_marker(it, uno).    language_marker(it, del).
+language_marker(it, ho).      language_marker(it, hai).    language_marker(it, non).
+language_marker(it, "è").     language_marker(it, "e'").   language_marker(it, questo).
+language_marker(it, questa).  language_marker(it, quello). language_marker(it, suo).
 % English-only markers (do not occur as Italian words).
 language_marker(en, the).
 language_marker(en, is).
