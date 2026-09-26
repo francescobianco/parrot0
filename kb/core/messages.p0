@@ -3969,3 +3969,11 @@ taught_form_source(taught_form_14, "x consists of y").
 taught_form_source(taught_form_13, "x consisting of y").
 taught_form_source(taught_form_15, "x has written y").
 taught_form_source(taught_form_16, "tell me the x").
+% 26 settembre 2026: «The bearings are dry.» combaciava con questa forma e
+% dichiarava chiusa la classe «bearing» con il solo membro «dry» (e «no» diventava
+% una risposta): un fatto falso. Una classe chiusa si dice ELENCANDO i membri, e un
+% elenco ha una congiunzione.
+machinery(member_list_text).
+member_list_text($T) :- atom_words($T, $Ws), member($C, $Ws), conjunction($C).
+member_list_text($T) :- chars($T, $Cs), chars(",", $Comma), app($A, $Comma, $B), app($B, $R, $Cs).
+turn_form_slot_class(teach_closed, text, member_list_text).
