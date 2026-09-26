@@ -17672,7 +17672,13 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * misurato sui rossi di `persist.p0t` (30/7 invece di 31/6) e di
              * `facts.p0t`. Questa forma esiste per il caso che quel lettore
              * non vede, e si ferma li'. */
-            if (!strchr(who, '_')) continue;
+            /* Meccanica (26 settembre 2026), 12 rossi: anche una CLASSE di piu'
+             * parole e' il caso che il lettore storico non vede. «A tap is a
+             * cutting tool.» rispondeva «I already know that tap is a cutting
+             * tool», e «Is a tap a cutting tool?» subito dopo «don't know about
+             * cutting tool»: il soggetto era di una parola, e la forma cedeva a
+             * chi non legge la classe composta. */
+            if (!strchr(who, '_') && !strchr(kind2, ' ') && !strchr(kind2, '_')) continue;
             { size_t kl = strlen(kind2);
               while (kl && (kind2[kl - 1] == '?' || kind2[kl - 1] == '.' ||
                             kind2[kl - 1] == ' ')) kind2[--kl] = '\0'; }
