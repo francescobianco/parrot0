@@ -3962,6 +3962,13 @@ relation_verb(transports).
 relation_verb(controls).
 relation_verb(regulates).
 relation_verb(protects).
+% Meccanica di precisione (26 settembre 2026): verbi veri del mestiere che la
+% sessione ha trovato muti («A tap cuts internal threads.» murava su «internal»,
+% perche' nessun frame leggeva «cuts»). La lezione «cuts is a relation verb»
+% funziona; qui come conoscenza curata.
+relation_verb(cuts).
+relation_verb(swaps).
+relation_verb(chamfers).
 relation_verb(surrounds).
 relation_verb(supports).
 relation_verb(covers).
