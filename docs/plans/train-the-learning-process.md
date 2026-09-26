@@ -9,6 +9,68 @@ insegnata come regole (§1), la meccanica
 di precisione (100 lezioni, sezione successiva), il debug PHP (P1–P14, piu'
 sotto). Da qui si riparte.*
 
+### ▶ Stato dopo la passata di correzione (26 settembre 2026, sera — goal di F.: «fixa tutti i problemi segnalati in questo file»)
+
+Ogni riga e' stata riprodotta nella KB viva completa (profilo `agi`, sandbox con
+copia della KB), corretta KB-first dove la conoscenza bastava, verificata con la
+stessa frase e con un caso vicino, e committata a parte. ✅ risolto · 🟡 risolto
+per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
+
+**§0 — la presa sull'interlocutore (italiano)**
+
+| # | stato | come |
+|---|---|---|
+| PR1 | ✅ | «X è un altro modo per dire Y» conferma solo se X adesso si legge: prova a secco come turno NUOVO (`p0_try_reading` senza l'eredita' della vista della lezione), se mura la lezione si fa rilettura verificata, altrimenti lo dice (`cue_taught_no_effect`) |
+| PR2 | ✅ | situazione `self_not_understood` (esito insoddisfacente del turno), mosse `ask_rephrase`/`ask_meaning`; il piano insegnato si esegue dopo il muro (`reply_conduct`). Forza `conditional`: la negazione e pragma cedono, una condizione che nomina una situazione non e' ne' ordine ne' domanda |
+| PR3 | ✅ | la catena dei seguiti si allunga parlando («after X comes Y» / «dopo X viene Y») e si traccia oltre il primo anello (`inquiry_deferred`); nuove situazioni: dettagli, «che cosa potrebbe essere?», «che faccio adesso?», «che cosa hai provato»; chi risponde non porta prosa; un «ok» non risponde |
+| PR4 | ✅ | la superficie insegnata RICONOSCE la situazione (prima nessuna regola leggeva `situation_cue` nel turno); forme italiane. Residuo: la conferma mostra la superficie canonica e il nome interno («user problem») |
+| PR5 | ✅ | «quando X allora Y» arriva (la negazione non lo prende piu'); forme con la virgola «se X, Y» / «quando X, Y» / «if X, Y» |
+| PR6 | ✅ | «"mi aiuti" è un altro modo per dire …»: il cancello delle lezioni ha le superfici italiane |
+| PR7 | ✅ | «mi serve una mano» non impara prerequisiti per «mi» (`requirement_goal_excluded`); la conferma senza frase nella lingua ripete la frase detta, non il termine interno |
+| PR8 | ✅ | marcatori di lingua per le parole funzione italiane |
+| PR9 | ✅ | le clausole si leggevano gia' una per una: «perde acqua» e' un guasto, «cosa faccio» una domanda di chi e' nel problema. Resta vero in generale che un composto regge quanto le sue clausole |
+| PR10 | ✅ | forme della domanda sulla relazione (`safe_internal_temp`), anche «a che temperatura va cotto»; valore mancante dichiarato (`turn_form_unknown`); niente «Leggo X come X» |
+| PR11 | 🟡 | «per quanto tempo … fuori dal frigo?» risponde (verdetto `limit`). 🔴 l'ellissi «E il pollo?» / «And Germany?»: `exchange/3` e' nutrito solo in parte |
+| PR12 | ✅ | richieste d'aiuto comuni come superfici di `user_help_scope`; «non so cosa sia X» si rilegge come la domanda |
+| PR13 | ✅ | «qual è il tuo piano quando …?» |
+| PR14 | ✅ | `kb_dequote` chiamato due volte sullo stesso buffer lasciava la virgoletta |
+
+**§T — il tedesco**
+
+| # | stato | come |
+|---|---|---|
+| DE1 | 🟡 | niente piu' fatto falso («today eats dog meat»): una parola di giorno non e' soggetto. 🔴 l'ordine V2 non si insegna ancora (L4) |
+| DE2 | ✅ | con «kein means no» la negazione entra, e si cerca in tutte le forme del verbo: «Does a dog eat grass?» → No (valeva anche per l'inglese) |
+| DE3 | ✅ | (corretto dall'altra sessione) |
+| DE4 | ✅ | «frisst means eats»: una parola ignota che significa una nota e' una lettura di parola (`phrase_canon`), applicata dentro le frasi |
+| DE5 | ✅ | «Frisst der Hund Fleisch?» → Yes / No: verbo pieno in testa riletto come «does S V O?», e la polare legge la terza persona dalla radice |
+| DE6 | 🟡 | «der means the» funziona. 🔴 «"der" is an article»: `article/4` occupa il nome della classe |
+| DE7 | 🔴 | il nome di relazione per contatto non raggiunge «the N of X» (non toccato) |
+| DE8 | 🔴 | morfologia tedesca (non toccato) |
+| DE9 | ✅ | con «der means the» l'articolo non entra nel soggetto |
+| DE10 | 🟡 | «Is frisst a German word?» → Yes dopo la lezione. 🔴 «What German words do you know?» → smalltalk |
+| DE11 | 🔴 | «'s» si stacca se insegnato, ma il genitivo non si legge («germany s capital is berlin» resta testo); insegnarlo di default staccherebbe anche «it's» |
+
+**Meccanica di precisione**
+
+| specie | stato | come |
+|---|---|---|
+| procedura non componibile (33) | ✅ | «rule for X is apply Y» era letto come un ORDINE: chi apre una lezione di procedura non ordina (`procedure_lesson_opener`) |
+| passo ripetuto (inchmm → 645.16) | ✅ | un passo identico si riconosce; «rule for X is again Y» ripete apposta |
+| procedura non invertibile (38) | 🟡 | inversa DERIVATA (passi al contrario, `operator_inverse/2`) e verificata in avanti. 🔴 con un passo «apply» annidato l'inversa con il valore libero non si deriva: `proc_inverse(fk2, 293.15, 68)` si dimostra, con la variabile no — sospetto il taglio anti-isteresi globale del turno |
+| forme rosse del catalogo | 🟡 | #49 l'oracolo «test: apply X to N gives M» → Yes/No. 🔴 #48 «takes 2 inputs» |
+| classe composta non risalita (12) | 🟡 | «Is a tap a cutting tool?» / «Is a lathe a machine tool?» → Yes (anche dopo il riavvio). 🔴 la testa come iperonimo («Is a tap a tool?») |
+| lezione non letta (24) | 🟡 | gerundi («Annealing is a heat treatment.»: una parola dopo un determinante non chiude il sintagma); `cuts`, `swaps`, `chamfers` verbi di relazione (e «X is a relation verb» funziona per gli altri) |
+| domanda che non raggiunge un fatto (31) | 🟡 | la polare sceglie il verbo con fatti («Does a spring store energy?»). 🔴 «What measures height?» (la cue di attributo «height» prende la domanda), «Angular.» (oggetto troncato) |
+| conversione, regole con classe composta, contaminazione (L4-3), contatto su relazione non dichiarata, controesempio, ordine transitivo, calcolo in lingua, relazioni di piu' parole | 🔴 | non toccati in questa passata |
+
+**PHP:** P6 ✅ (la domanda sul soggetto elenca tutti i valori: «missing semicolon
+and unclosed string»). P1, P2, P3, P4, P8, P11, P12 restano come nella tabella
+piu' sotto. **§1 grammatica:** non ripresa in questa passata (vedi L4).
+
+**Rossi dei cricchetti visti e non miei** (spot-check, nessuna bisezione): in
+`TEST_TODO.md`, sezione del 26 settembre sera.
+
 ### T. Una lingua sconosciuta: il tedesco insegnato dal vivo (26 settembre 2026, notte)
 
 Richiesta di F.: insegnare a parrot0 una lingua che non conosce, con una

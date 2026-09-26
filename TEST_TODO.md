@@ -302,6 +302,35 @@ prossimo lavoro (report gen509 §7-bis).
 > gen506b (turno appeso = rosso con nome, budget duro che non si alza) resta.
 
 
+## 2026-09-26 sera — rossi visti durante la passata di correzione (train-the-learning-process.md)
+
+Spot-check mirati, nessuna suite e nessuna bisezione (regole di F.). Per ognuno:
+che cosa e' stato fatto per capire se fosse mio.
+
+- `behavior_gen512.p0t` line 39: «what is bronze made of?» → «Copper.» invece di
+  «Copper and tin» — nessuna modifica tocca `made_of`/composizione; non attribuito.
+- `taught_lesson_form.p0t` line 114: «what about you don't have the steps» non si
+  rilegge — la guardia gen513 (uno slot con un ausiliare rifiuta la rilettura)
+  scatta su «don't»; preesistente alla guardia, non toccata.
+- `teachverb.p0t`: un turno a 1,21 s (timeout 1 s) e «im luca» → «Nice to see you
+  again, luca!» (luca e' gia' nella KB viva) — il rinomina di `teaching_lesson_cue`
+  funziona (il verbo insegnato entra nel cancello).
+- `dialogue_board.p0t` 23 rossi, `retention.p0t` 7: offerte, bivi e ricerche sulla
+  fixture wiki, e molti tempi appena sopra 1 s. Con e senza la cue canonica delle
+  situazioni i conteggi sono identici; le regole nuove (`inquiry_deferred`,
+  `issue_owed_by` per `inquiry`) toccano solo le questioni `inquiry`. Non attribuiti.
+- `negation.it.p0t`: «tweety è un uccello» → «tweety is an uccello» — identico
+  togliendo i marcatori di lingua nuovi (provato); non mio.
+- `earned_negation.p0t` 5 rossi: attesa «nothing says it isn't», risposta la frase
+  piu' recente «I cannot settle that …» — cambio di formulazione, percorso non
+  toccato.
+- `mix_food_time.p0t` line: «Reading «reads» as «measures»» davanti alla risposta —
+  contaminazione del contatto (L4-3), non toccata.
+- `taught_numeric.p0t` 2 rossi: (1) la conferma di «rule for collatz is repeat apply
+  collatz_step …» dice «collatz step» — `assert_ordered` trasforma ogni «_» in
+  spazio (l'esecuzione regge); (2) «apply forever to 5» mura — identico togliendo
+  le modifiche della passata (provato: 7 rossi senza, 2 con).
+
 ## 2026-09-26 — rossi ereditati, misurati sulla base (ec61b009)
 
 Fallivano già prima delle modifiche del 26 settembre pomeriggio (stesso binario
