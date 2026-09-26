@@ -1,9 +1,10 @@
 # L4 — la coerenza dell'apprendimento con la comprensione
 
 **Piano di indirizzo e progettazione operativa, 26 settembre 2026. Stato:
-parziale; audit sul commit `af2076c4`.** L4-0 ha un banco esplorativo e L4-1
-una prima protezione delle lezioni; i rispettivi gate non sono ancora chiusi.
-Questa revisione corregge il percorso di lavoro, non implementa le fasi.
+parziale; audit sul commit `af2076c4`; ⛔ RIORIENTATO da F. lo stesso giorno
+(vedi l'HANDOFF): si lavora sul cuore di L4, senza una fase di fix preliminari
+di L1–L3.** L4-0 ha un banco esplorativo e L4-1 una prima protezione delle
+lezioni; i rispettivi gate non sono chiusi e non sono il prossimo lavoro.
 Nasce dalla «domanda delle domande» di F. alla fine del giro di grammatica:
 
 > *«il meccanismo di apprendimento di parrot0 è consistente con la sua crescita,
@@ -46,33 +47,80 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
-**Il centro del lavoro è il §2: dare continuità alla rete fra osservazione,
-interpretazione, regola, contesto e revisione.** La priorità cognitiva è
-L4-3 insieme al nucleo semantico di L4-4: una lettura appresa deve valere per
-l'occorrenza giustificata e restare la stessa lettura per tutti i consumatori.
-L4-1 esercita lo stesso problema sul rapporto fra lezione ed esempio.
+### ⛔ La direzione (F., 26 settembre 2026) — prevale su tutto il resto del piano
 
-1. Leggere [MANTRA](../../MANTRA.md), [PRINCIPLES](../../PRINCIPLES.md) e la
-   mappa dei contratti qui sotto. Le rotture del §1 sono osservazioni storiche,
-   non diagnosi già dimostrate sul checkout corrente.
-2. Partire da «gauge»: seguire il nodo IR e la lettura candidata fino al fatto,
-   alla domanda e alla spiegazione. Individuare **dove si perde il vincolo**,
-   non dove aggiungere un divieto. I simboli d'ingresso sono nel §2.3.
-3. Chiudere un solo circuito per iterazione: lettura condizionata, uso da due
-   consumatori, revisione dei sostegni. Il §6 scompone la crescita; il banco
-   osserva il risultato e non decide quale architettura costruire.
-4. Fermare la promozione della capacità se manca una prova: consegnare il gap
-   riproducibile e il prossimo punto d'innesto. Non aggiungere la risposta
-   attesa a mano e non cambiare la sonda solo per ottenere verde.
+> *«se L4 funziona e lo traguardiamo sarà possibile correggere i difetti di L3
+> usando L4, perché proprio quelle lezioni ricadranno nella comprensione; e
+> quindi tutti i tentativi di affinare L1 L2 L3 prima di poter fare L4 sono
+> sbagliati. L'unica ragione per fixare problemi di quelle pratiche è
+> giustificata solo se nel tentativo di costruire L4 viene fuori che un bug ci
+> sta impedendo di completare. L4 si inizia su L3 non funzionante
+> correttamente, ma quel giusto che serve per avere l'adattabilità.»*
 
-Il primo incremento di L4-8 può essere progettato separatamente, ma richiede
-identità delle proposizioni, fonti e ciclo di vita verificati. Aggiungere una
-riga `paradox_event` da sola **non** implementa il processo dialettico.
+**Che cosa è L4.** Lo strato attraverso cui ciò che si insegna **cade nelle
+regole di comprensione**. Si cerca il punto in cui una regola grammaticale che
+parrot0 già usa, se reinsegnata da fuori, **appare per come è**: L4 la trova,
+la riconosce come *quella* regola e non la duplica. Da lì L4 **espande** le
+regole grammaticali come farebbe chi ragiona sulle regole dall'esterno: una
+condizione, un'eccezione, una composizione. La modifica entra nella stessa
+regola che la comprensione esegue. Il lavoro vero riguarda **come la KB è
+organizzata e costruita**: il suo essere viva è la garanzia che L4 si possa
+fare, e dove non lo è, va detto.
+
+**La conseguenza operativa.** I difetti di L1–L3 non si curano prima di L4:
+quando L4 funziona, le loro correzioni sono lezioni che ricadono nella
+comprensione, e si curano *attraverso* L4. Un fix a L1–L3 è ammesso solo come
+**blocco dichiarato**: si stava costruendo un passo di L4, un difetto preciso
+lo impedisce, e il resoconto nomina il passo bloccato. Il caso «gauge» (R3),
+la persistenza (R6), le procedure (R7) e la rifinitura del banco L4-0 restano
+nel repertorio dei §§1 e 6: **non sono lavoro preliminare**.
+
+### Il primo circuito: una regola che opera, reinsegnata ed estesa
+
+1. Leggere [MANTRA](../../MANTRA.md), [PRINCIPLES](../../PRINCIPLES.md), il
+   §2.4 («la regola deve essere sia operante sia discutibile») e il §2.7 («la
+   prova di apertura della rete»). Sono il cuore; il resto del §2 è contesto.
+2. **Scegliere una regola grammaticale che oggi opera nella comprensione.**
+   Candidata: l'inversione soggetto-ausiliare nelle domande (modali e
+   do-support), che è anche il controesempio del §0. In alternativa a/an (R4).
+3. **Censirla: dove vive davvero.** Clausole KB, classi, `turn_form`, e quanto
+   di essa sta ancora nel C. Poi chiedersi se la KB la espone come **regola
+   discutibile**: che cosa conclude, su quali ruoli, a quali condizioni. Punti
+   di partenza: `kb_clause/4`, `kb_clause_arg/4`,
+   [clause-content.p0](../../kb/core/clause-content.p0),
+   [english-grammar/](../../kb/core/english-grammar/). Se una parte non è
+   raggiungibile, quello è il primo lavoro sulla KB, e va nel C_TODO solo se
+   è davvero un residuo del motore.
+4. **Reinsegnarla a parole e farla riconoscere.** Una lezione naturale come
+   quella del §0 («To make a question with can, put can before the subject»)
+   deve essere confrontata con la regola che opera, attraverso le sue
+   **conseguenze**: un esempio pertinente, una domanda che la regola legge. Il
+   risultato atteso è «questa è una regola che già uso, qui», con la portata
+   provata. Non un fatto, non un falso «già lo faccio» su una domanda estranea
+   (la conferma su «Paris» del §0 è il primo rosso di questo passo).
+5. **Estenderla da fuori.** Una seconda lezione aggiunge una condizione o un
+   membro che la regola non ha, e **cambia la stessa regola** che la
+   comprensione esegue: la lettura cambia al turno dopo, senza ricompilare, e
+   la regola modificata si può interrogare e ritirare.
+6. **Il prodotto collaterale è un censimento**: per le regole grammaticali che
+   la comprensione usa oggi, quali sono vive (visibili, confrontabili,
+   modificabili) e quali no, e perché. È la garanzia, o la mancata garanzia,
+   che L4 si possa fare, e orienta il lavoro sulla KB.
+
+Fermarsi se manca una prova: consegnare il gap riproducibile e il prossimo
+punto d'innesto. Non aggiungere la risposta attesa a mano e non cambiare la
+sonda solo per ottenere verde.
 
 **Non costruire un supervisore L4 sopra lettori incoerenti.** Se l'apprendimento
 usa una rete per approvare una lezione e la comprensione ne usa un'altra per
 rispondere, il controllo può diventare più sofisticato senza che parrot0 diventi
-più coerente. La modifica deve raggiungere le relazioni che i lettori usano.
+più coerente. La modifica deve raggiungere le regole che i lettori usano.
+
+**Nota storica.** La revisione di audit metteva al primo posto L4-3 + L4-4a
+(«gauge»). Il 26 settembre è stata abbozzata una cura: legare la qualifica
+«Reading X as Y» all'uso provato dell'ipotesi invece che alla menzione.
+Nessuna modifica è stata fatta e il lavoro è sospeso per la direzione qui
+sopra. La diagnosi resta nel §6, sotto L4-3.
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 
@@ -583,13 +631,26 @@ fuori dalla risoluzione attiva, come fa `kb_note_inference`.
 ## 6. Crescita per circuiti cognitivi
 
 Le sigle originali L4-0…L4-8 restano per i riferimenti, ma non sono una sequenza
-obbligatoria né otto nuovi sottosistemi. **Prima chiudere il caso di continuità
-semantica, poi estendere la stessa distinzione.**
+obbligatoria né otto nuovi sottosistemi. **L'ordine lo dà l'HANDOFF:** prima il
+circuito regola-che-opera → reinsegnata → estesa, che attraversa L4-1, L4-2 e
+L4-5. Le altre sezioni sono repertorio: si toccano solo quando bloccano quel
+circuito.
 
-### L4-3 + L4-4a — Primo circuito: la lettura dell'occorrenza resta la stessa
+### L4-3 + L4-4a — La lettura dell'occorrenza resta la stessa (repertorio, non preliminare)
 
 **Obiettivo:** conservare le condizioni del contatto dalla candidatura al
-fatto, alla domanda e alla spiegazione. È il primo incremento raccomandato.
+fatto, alla domanda e alla spiegazione. Non è più il primo incremento (HANDOFF):
+è un difetto di L3 che si curerà *attraverso* L4.
+
+**Diagnosi del 26 settembre, sul checkout `4a118c23`.** Dopo «A micrometer
+measures thickness, so it gauges thickness.» il chunker **non** spezza più
+«height gauge», e i fatti scritti coincidono con quelli ottenuti senza la
+lezione. Il danno vivo è la qualifica «Reading «gauge» as «measures»» su ogni
+menzione: `turn_reply_qualifies` e `contact_word_here` in `contact.p0` usano
+`contact_says`, cioè la menzione vale come uso. L'ipotesi è usata davvero solo
+dal lettore a schemi (`«@S gauges @O»`) e da `answer_frame` (cue `gauge` →
+`measures`). `P0FrameReading.pattern` conserva lo schema scelto, ma per i turni
+non viene pubblicato: manca la ricevuta dell'uso.
 
 Partire da `contact_shape` → `contact_verb_word` / `construction_frame` /
 `answer_frame` → nodi e ruoli di `input-structure.p0` → `read_support`.
