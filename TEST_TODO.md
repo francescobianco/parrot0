@@ -326,6 +326,15 @@ che cosa e' stato fatto per capire se fosse mio.
   toccato.
 - `mix_food_time.p0t` line: «Reading «reads» as «measures»» davanti alla risposta —
   contaminazione del contatto (L4-3), non toccata.
+- `prose_forms.p0t` 7 rossi, identici con e senza la regola di «per» (A/B fatto
+  riscrivendo la riga): non miei.
+- `higher_order_lesson.p0t` 3 rossi: il fatto si scrive con il lemma
+  (`enclose(box, ring)`) e l'attesa vuole `encloses/2`; dal vivo la catena regge
+  («what is the ring part of» → Box). Cambio di attesa, percorso non toccato.
+- `one_act_of_learning.p0t` line 29: il paragrafo di Wikipedia supera i 60 s;
+  una frase sola costa 12–20 s, quasi tutti in `turn_entity_named` (9,5 s, 195
+  chiamate): preesistente; la parte dovuta alle unita' e' corretta
+  (`unit_of_measure/1`).
 - `taught_numeric.p0t` 2 rossi: (1) la conferma di «rule for collatz is repeat apply
   collatz_step …» dice «collatz step» — `assert_ordered` trasforma ogni «_» in
   spazio (l'esecuzione regge); (2) «apply forever to 5» mura — identico togliendo

@@ -30,7 +30,7 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 | PR8 | ✅ | marcatori di lingua per le parole funzione italiane |
 | PR9 | ✅ | le clausole si leggevano gia' una per una: «perde acqua» e' un guasto, «cosa faccio» una domanda di chi e' nel problema. Resta vero in generale che un composto regge quanto le sue clausole |
 | PR10 | ✅ | forme della domanda sulla relazione (`safe_internal_temp`), anche «a che temperatura va cotto»; valore mancante dichiarato (`turn_form_unknown`); niente «Leggo X come X» |
-| PR11 | 🟡 | «per quanto tempo … fuori dal frigo?» risponde (verdetto `limit`). 🔴 l'ellissi «E il pollo?» / «And Germany?»: `exchange/3` e' nutrito solo in parte |
+| PR11 | 🟡 | «per quanto tempo … fuori dal frigo?» risponde (verdetto `limit`). 🔴 l'ellissi «E il pollo?» / «And Germany?»: `turn_entity`/`turn_topic` non portano l'entita' della domanda precedente («France»); provata (e tolta, perche' rallentava i turni fino a 5 s senza riuscire) una rilettura con `map_words/3` sulla parola «dello stesso genere» (`kb_fact` condiviso): la sonda `map_words` con coppie asserite da `!assert` non unificava — da capire prima di riprovare |
 | PR12 | ✅ | richieste d'aiuto comuni come superfici di `user_help_scope`; «non so cosa sia X» si rilegge come la domanda |
 | PR13 | ✅ | «qual è il tuo piano quando …?» |
 | PR14 | ✅ | `kb_dequote` chiamato due volte sullo stesso buffer lasciava la virgoletta |
@@ -49,7 +49,7 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 | DE8 | 🔴 | morfologia tedesca (non toccato) |
 | DE9 | ✅ | con «der means the» l'articolo non entra nel soggetto |
 | DE10 | ✅ | «Is frisst a German word?» → Yes; «What German words do you know?» → «Hund, frisst and fleisch.» (classe di due parole ricomposta dal turno) |
-| DE11 | 🔴 | «'s» si stacca se insegnato, ma il genitivo non si legge («germany s capital is berlin» resta testo); insegnarlo di default staccherebbe anche «it's» |
+| DE11 | 🟡 | con il clitico insegnato («"'s" is a clitic») il genitivo si rilegge come «the N of X»: «Germany's capital is Berlin.» → berlin is the capital of germany, «What is France's capital?» → Paris. Insegnare il clitico di default e' una scelta di F. («What's the capital of France?» regge anche col clitico) |
 
 **Meccanica di precisione**
 
@@ -67,7 +67,7 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 | regola profonda con classe di piu' parole (5) | ✅ | «if x is a machine tool then x is a machine» → `machine(X) :- machine_tool(X)` (classe nota), e nella conclusione una classe nuova di piu' parole («a sharp object»); «x is a friend of y» resta relazione |
 | calcolo in lingua (2) | ✅ | «One inch is 25.4 millimeters.» e' la lezione di conversione detta come la dice una persona; «How many millimeters are in 3 inches?» → 76.2 millimeters |
 | controesempio letto come negazione (2) | ✅ | una negazione appartiene alla sua clausola: davanti a «, but …» il lettore delle negazioni cede, e il fatto vero della prima clausola resta |
-| valore con relazione di piu' parole (5) | 🔴 | «largest city is a relation» funziona; un nome con «of» dentro («modulus of elasticity») si spezza al «of» e collide con la forma «the R of X»; l'unita' composta («grams per cubic centimeter») si tronca a «per» |
+| valore con relazione di piu' parole (5) | 🟡 | l'unita' composta non si tronca piu' («per» non chiude il sintagma): «What is the density of steel?» → 7.85 grams per cubic centimeter. 🔴 un nome di relazione con «of» dentro («modulus of elasticity») si spezza al «of» e collide con la forma «the R of X» |
 | contaminazione (L4-3), contatto su relazione non dichiarata | 🔴 | lavoro di L4 (contesto a rete, frontier §19), non toccato |
 
 **PHP:** P6 ✅ (la domanda sul soggetto elenca tutti i valori: «missing semicolon
