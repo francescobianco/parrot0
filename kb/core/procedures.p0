@@ -2656,3 +2656,30 @@ machinery(proc_invertible_value).
 proc_invertible_value($P, $Out) :- proc_inverse($P, $Out, $In).
 turn_plan_candidate($T) :- proc_inverse_turn($T, $X).
 turn_response($T, $Text) :- proc_inverse_turn($T, $X), proc_inverse_text($X, $Text).
+
+% DE10 (26 settembre 2026) — «What German words do you know?» dopo «Hund is a German
+% word.» riceveva «That sounds nice -- tell me more about it.» (smalltalk: un
+% falso capito). La classe di due parole si ricompone dal turno (modificatore +
+% testa al plurale, riportata al singolare con la desinenza che la grammatica
+% conosce) e se ne dicono i membri. Solo se la classe ha membri.
+machinery(class_listing_turn). machinery(listed_class_members). machinery(plural_to_singular).
+plural_to_singular($P, $S) :- plural_of($P, $S).
+plural_to_singular($P, $S) :- plural_suffix($Suf, nil), chars($Suf, $SC), chars($P, $PC), app($SC0, $SC, $PC), chars($S, $SC0).
+class_listing_turn($T, $C) :-
+    turn_word($T, $I, what), is($J, add($I, 1)), turn_word($T, $J, $M),
+    is($K, add($J, 1)), turn_word($T, $K, $Ps), is($L, add($K, 1)), turn_word($T, $L, do),
+    is($N, add($L, 1)), turn_word($T, $N, you), is($O, add($N, 1)), turn_word($T, $O, know),
+    plural_to_singular($Ps, $H), concat_atoms($M, "_", $MA), concat_atoms($MA, $H, $C),
+    holds1($C, $X).
+listed_class_members($C, $L) :- findall($X, holds1($C, $X), $L).
+turn_plan_candidate($T) :- class_listing_turn($T, $C).
+turn_response($T, $Text) :-
+    class_listing_turn($T, $C), listed_class_members($C, $L), members_and_text($L, $W),
+    concat_atoms($W, ".", $Text0), upcase_first($Text0, $Text).
+machinery(members_and_text).
+members_and_text(cons($A, nil), $T) :- node_text($A, $T).
+members_and_text(cons($A, cons($B, nil)), $T) :-
+    node_text($A, $TA), node_text($B, $TB), concat_atoms($TA, " and ", $X), concat_atoms($X, $TB, $T).
+members_and_text(cons($A, cons($B, cons($C, $R))), $T) :-
+    node_text($A, $TA), members_and_text(cons($B, cons($C, $R)), $Rest),
+    concat_atoms($TA, ", ", $X), concat_atoms($X, $Rest, $T).
