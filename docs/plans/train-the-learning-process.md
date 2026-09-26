@@ -67,7 +67,10 @@ insegnabile; poi la mossa di ripiego sul muro (PR12).
 [piano-b-traduzione.md](piano-b-traduzione.md). Quando un turno nella lingua
 della sessione non è capito, parrot0 si chiede se sa tradurre la frase intera;
 se sì la rilegge in inglese e risponde in italiano dicendo come; se no chiede
-ciò che manca. PR8, PR11 e PR12 sono il primo banco dello specchio (B0).
+ciò che manca. È un **piano di situazione insegnabile** (situazione, mosse e
+ordine si insegnano, correggono e ritirano parlando; il motore offre solo
+`reread(…)`), non un comportamento del motore. PR8, PR11 e PR12 sono il primo
+banco dello specchio (B0).
 
 ### 1. Grammatica inglese INSEGNATA come regole — studio differenziale
 
