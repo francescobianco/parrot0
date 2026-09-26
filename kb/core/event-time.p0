@@ -100,7 +100,12 @@ event_reading($T, ev($Trip, duration, $V)) :- journey_subject($Trip), ev_tok($T,
 % 9?» non fissa l'orario); uno che si apre con una condizione e chiede alla
 % fine («se parto alle 7 e ci vogliono 3 ore, arrivo in tempo?») descrive E chiede.
 event_readings($T, $L) :- naf(turn_opens_request($T)), findall($X, event_reading($T, $X), $L).
-event_described($T) :- event_readings($T, $L), dif($L, nil).
+event_described($T) :- event_readings($T, $L), dif($L, nil), naf(turn_is_procedure_lesson($T)).
+% Catalogo #48 (26 settembre 2026): «rule for rpm takes 2 inputs» diventava «Noted:
+% The trip takes 2 hours.» — una risposta falsa: «takes 2» letto come la durata di
+% un viaggio. Una lezione di procedura non descrive un evento.
+machinery(turn_is_procedure_lesson).
+turn_is_procedure_lesson($T) :- turn_cue_form($T, procedure_lesson_opener, $C).
 
 % ── 3. IL CONTABILE: custodire TUTTE le letture, a confine di turno ────────
 % La lista si materializza prima di ogni commit (state-description.p0 §5: il
