@@ -59,7 +59,10 @@ token_stream_disagreement($T, $Pos, $Span, $Ir) :-
 % Un flusso finisce prima dell'altro: anche questo e' un disaccordo, e la
 % posizione dice dove le due letture si sono separate.
 token_stream_shorter($T, $Pos, $Span) :-
-    stream_token_span($T, $Pos, $Span), naf(stream_token_ir($T, $Pos, $Any)).
+    stream_token_span($T, $Pos, $Span), naf(stream_has_ir_token($T, $Pos)).
+% (26 settembre 2026: `naf` con una variabile libera fallisce sempre.)
+machinery(stream_has_ir_token).
+stream_has_ir_token($T, $Pos) :- stream_token_ir($T, $Pos, $Any).
 
 machinery(stream_token_ir).
 machinery(stream_token_span).

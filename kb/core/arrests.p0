@@ -394,8 +394,11 @@ compensation_stop($Turn, no_steps) :-
 compensation_stop($Turn, missing_dependency($Before, $After)) :-
     compensation_obligation($Turn, $Goal, language($InputLanguage, $OutputLanguage)),
     compensation_dependency($Turn, $Before, $After),
-    naf(compensation_step($Turn, $Before, $StepBefore)),
-    naf(compensation_step($Turn, $After, $StepAfter)).
+    naf(compensation_has_step($Turn, $Before)),
+    naf(compensation_has_step($Turn, $After)).
+% (26 settembre 2026: `naf` con una variabile libera fallisce sempre.)
+machinery(compensation_has_step).
+compensation_has_step($Turn, $N) :- compensation_step($Turn, $N, $Step).
 
 % Un piano alternativo è una seconda realizzazione dichiarata nella KB. Non è
 % una scelta codificata: è valido solo quando possiede almeno un passo completo

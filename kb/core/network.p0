@@ -215,7 +215,11 @@ machinery(last_acquisition).
 machinery(ordinal_choice).
 % lo stile: quello insegnato, altrimenti l'elenco.
 disambiguation_style_effective($S) :- disambiguation_style($S).
-disambiguation_style_effective(list) :- naf(disambiguation_style($X)).
+disambiguation_style_effective(list) :- naf(disambiguation_style_taught).
+% (26 settembre 2026: con `naf(disambiguation_style($X))` il default «list» non
+% valeva mai: una variabile libera sotto `naf` la fa fallire sempre.)
+machinery(disambiguation_style_taught).
+disambiguation_style_taught :- disambiguation_style($X).
 conduct_lesson1("mostrami le opzioni in una tabella", disambiguation_style, table).
 conduct_lesson1("le opzioni in una tabella", disambiguation_style, table).
 conduct_lesson1("show me the options in a table", disambiguation_style, table).

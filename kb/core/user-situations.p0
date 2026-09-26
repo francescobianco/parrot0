@@ -790,7 +790,11 @@ turn_has_cue_of($Turn, $Registry) :- turn_cue_form($Turn, $Registry, $Cue).
 
 situation_move_text($Move, $Language, "") :- move_silent($Move).
 situation_move_text($Move, $Language, $Text) :- naf(move_silent($Move)), plan_step_text_lang($Move, $Language, $Text).
-situation_move_text($Move, $Language, $Text) :- naf(move_silent($Move)), naf(plan_step_text_lang($Move, $Language, $Any)), plan_step_text_lang($Move, en, $Text).
+situation_move_text($Move, $Language, $Text) :- naf(move_silent($Move)), naf(move_has_text_in($Move, $Language)), plan_step_text_lang($Move, en, $Text).
+% (26 settembre 2026: `naf` con una variabile libera fallisce sempre, e il ripiego
+% inglese per una mossa senza testo nella lingua del turno non scattava mai.)
+machinery(move_has_text_in).
+move_has_text_in($Move, $Language) :- plan_step_text_lang($Move, $Language, $Any).
 
 answer_content(situation_plan($Situation, $Language), 0, move, $Piece) :-
     plan_move($Situation, 1, $Move), situation_move_text($Move, $Language, $Piece).

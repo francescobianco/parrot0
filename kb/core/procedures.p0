@@ -557,14 +557,19 @@ source_address($Concept,
 % non sono determinati.  La query resta leggibile e il chiamante puo' chiedere
 % esattamente il prerequisito mancante.
 address_stop($Surface, $Relation, $Shape) :-
-    naf(address_identity($Surface, $Concept)).
+    naf(address_has_identity($Surface)).
 address_stop($Surface, $Relation, $Shape) :-
     address_identity($Surface, $Concept),
     naf(address_relation($Concept, $Relation, $Shape)).
 address_stop($Surface, $Relation, $Shape) :-
     address_identity($Surface, $Concept),
     address_relation($Concept, $Relation, $Shape),
-    naf(address_external($Surface, $Relation, $Shape, $Address)).
+    naf(address_has_external($Surface, $Relation, $Shape)).
+% (26 settembre 2026: le due negazioni avevano una variabile libera e fallivano
+% sempre; si chiedono senza argomenti liberi.)
+machinery(address_has_identity). machinery(address_has_external).
+address_has_identity($Surface) :- address_identity($Surface, $Concept).
+address_has_external($Surface, $Relation, $Shape) :- address_external($Surface, $Relation, $Shape, $Address).
 
 machinery(address_identity).
 machinery(address_relation).
