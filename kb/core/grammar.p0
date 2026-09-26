@@ -4484,13 +4484,33 @@ turn_declared_compound_tail($W) :-
     concat_atoms($P, "_", $X), concat_atoms($X, $W, $A), fact_mention($A, $S).
 turn_verb_before($V) :-
     turn_word(current_turn, $J, $V), turn_word(current_turn, $I, $U), lt($I, $J), dif($U, $V), turn_verb_closer($U).
-np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)).
-np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)).
+np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)), naf(turn_word_after_determiner($V)).
+np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)), naf(turn_word_after_determiner($V)).
 % E2a, 19 settembre 2026 — e la sua forma finita al presente (-s, -es, -ies):
 % «The zorvan beetle threatens …» correva fino a fine clausola. Participi e
 % gerundi restano fuori: dentro un sintagma sono modificatori legittimi.
 machinery(finite_present_of).
-np_closer($Form) :- naf(reading_continuer_exists(any)), finite_reading_verb_form($Form), naf(turn_verb_before($Form)), naf(turn_declared_compound_tail($Form)).
+np_closer($Form) :- naf(reading_continuer_exists(any)), finite_reading_verb_form($Form), naf(turn_verb_before($Form)), naf(turn_declared_compound_tail($Form)), naf(turn_word_after_determiner($Form)).
+% Meccanica (26 settembre 2026): una parola subito dopo un determinante sta DENTRO
+% il sintagma e non puo' chiuderlo. «Annealing is a heat treatment.» murava:
+% «heat» e' un verbo di relazione, e la classe si fermava a «a», vuota.
+machinery(turn_word_after_determiner).
+% Si calcola UNA volta per turno (contabilita'), non una volta per verbo: la vista
+% dei chiusori si rifa' a ogni turno e interroga centinaia di verbi, e chiedere
+% qui le parole del turno per ciascuno costava 0,12 s a turno (misurato A/B).
+turn_word_after_determiner($W) :- det_follower_now($W).
+machinery(det_follower_now).
+turn_scratch(det_follower_now).
+turn_reset(det_follower_now).
+machinery(det_follower).
+det_follower($T, $W) :-
+    turn_word($T, $I, $D), np_opener($D), is($J, add($I, 1)), turn_word($T, $J, $W).
+bookkeeper(det_followers).
+turn_bookkeeping($T, det_followers) :-
+    findall($W, det_follower($T, $W), $L), assert_det_followers($L).
+machinery(assert_det_followers).
+assert_det_followers(nil).
+assert_det_followers(cons($W, $R)) :- assert(det_follower_now, $W), assert_det_followers($R).
 np_closer($Form) :- reading_continuer_exists(any), finite_reading_verb_form($Form), naf(reading_continuer($Form)), naf(turn_verb_before($Form)), naf(turn_declared_compound_tail($Form)).
 % 23 settembre 2026 — LA STESSA CONOSCENZA, INDICIZZATA DALLA PAROLA LETTA.
 % Il lettore chiede `np_closer(Parola)` una volta per token, con la parola
