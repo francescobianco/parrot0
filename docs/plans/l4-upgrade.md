@@ -3,8 +3,10 @@
 **Piano di indirizzo e progettazione operativa, 26 settembre 2026. Stato:
 parziale; audit sul commit `af2076c4`; ⛔ RIORIENTATO da F. lo stesso giorno
 (vedi l'HANDOFF): si lavora sul cuore di L4, senza una fase di fix preliminari
-di L1–L3.** L4-0 ha un banco esplorativo e L4-1 una prima protezione delle
-lezioni; i rispettivi gate non sono chiusi e non sono il prossimo lavoro.
+di L1–L3.** **Primo circuito CHIUSO il 26 settembre** (incrementi 1–3,
+commit `2579a482`, `7c85f90d`, `bc04190c`): l'inversione nelle domande è una
+regola KB, una lezione naturale la riconosce per conseguenze e un'analogia
+detta a parole la estende, con ritiro. L4-0 e L4-1 restano repertorio.
 Nasce dalla «domanda delle domande» di F. alla fine del giro di grammatica:
 
 > *«il meccanismo di apprendimento di parrot0 è consistente con la sua crescita,
@@ -46,6 +48,79 @@ PRIORITARIO).
 ---
 
 ## HANDOFF — da dove si comincia
+
+### ▶ Stato e ripartenza (fine sessione del 26 settembre 2026)
+
+**Dove siamo.** Il primo circuito dell'HANDOFF è chiuso, sulla regola
+dell'inversione soggetto-ausiliare:
+
+| passo | che cosa esiste adesso | dove |
+|---|---|---|
+| 3. censire | l'inversione non era un oggetto della KB: riconoscimento in KB, ricomposizione nel C, «can» in due forme scritte a mano | §«Censimento 1» qui sotto |
+| 2/3. renderla viva | `question_inversion(Dichiarativa, Classe, Ausiliare, inverted(D, W))`: la domanda si deriva dall'affermazione; conseguenza non scritta da nessuno: «Was Hamlet written in 1600?» → «Yes.» | [grammar.p0](../../kb/core/grammar.p0), accanto a `polar_opener` |
+| 4. reinsegnare | la lezione sulla lingua si allinea alle forme per parti nominate (modo, pezzo, ancora, ordine: `lesson_placement/4`) e l'esempio conta solo se lo legge quella forma (`turn_form_read/2`); con «must» nomina il residuo | [language-lessons.p0](../../kb/core/language-lessons.p0) §3-bis, §4 |
+| 5. estendere da fuori | «"must" behaves like "can"» (la lezione `teach_like` che c'era già) deriva `like(ability_stated, must)` e da lei la domanda; la lezione al residuo si risolve all'esempio; il ritiro la richiude | grammar.p0, §«punto 4» |
+
+**Cricchetti** (in `make test`):
+[question_inversion.p0t](../../tests/p0t/language/question_inversion.p0t) 9/9,
+[lesson_meets_rule.p0t](../../tests/p0t/language/lesson_meets_rule.p0t) 18/18.
+`make soft-test` verde in 3 s. La suite intera **non** è stata lanciata
+(politica dei test: la approva F.). I fallimenti preesistenti di
+`turn_thefts`, `living_capabilities` e `selflimits` sono identici prima e dopo.
+
+**C toccato (tutto adattatore, niente decisioni):** la ricevuta
+`turn_form_read(current_turn, Forma)` nel lettore delle forme (ripulita a
+inizio turno in `99-registry.c`) e `{relation}` passato alla risposta vuota di
+`answer_polar`. +24 righe di C, nessuna condizione nuova.
+
+**Il modello emerso, da riusare sulla prossima regola:**
+1. **Il nome di una forma derivata è la sua derivazione** (`inverted(D, W)`,
+   `like(D, N)`): si legge, e una forma scritta a mano non unifica con le teste
+   derivate. Con nomi atomici da `concat_atoms` ogni domanda su una forma
+   qualsiasi riderivava tutto (6–17 s per turno, budget esaurito).
+2. **L'enumerazione per turno legge viste unarie congelate**
+   (`derived_question/1`, `derived_like/1`); le viste sono ricorsive e `apply`
+   si dichiara con `view_apply_resolved/1` + `view_depends/2` sulle classi.
+3. **La lezione conserva ciò che colloca, non ciò che ha trovato**: il
+   giudizio si rifà sulle forme del momento dell'esempio (§2.6).
+4. **Una lezione esistente riceve la conseguenza nuova**, invece di nascere una
+   superficie parallela.
+
+**Trappole del motore pagate (valgono per ogni vista nuova):** il congelamento
+enumera solo arità 1 e 2; `kb_fact`/`apply` nel corpo spengono la clausola
+durante il congelamento; `findall` spezza la lista su una virgola dentro un
+termine raccolto (raccogliere atomi in liste separate); non esiste `var/1`,
+quindi per un nome legato si discrimina con la testa, non con un test.
+
+**Residui aperti annotati (non sono lavoro preliminare):**
+- **La menzione dalle relazioni fra le parti (appunto di F.).** «Must behaves
+  like can.» senza virgolette è letta come domanda (`turn_opens_question` guarda
+  la posizione del primo nodo). «behaves like» prende due parole come argomenti
+  e quel «must» non ha un verbo da reggere: il ruolo usato/menzionato si ricava
+  dalla struttura, senza contesto esterno (lavoro «all you need is a
+  comprehension»). Dettaglio nell'incremento 3.
+- La lezione in italiano non è riconosciuta come lezione sulla lingua
+  (`language_term/2` è solo inglese) e diventa un fatto spazzatura (R1).
+- Il do-support è ancora la ricerca a coppie di `p0_polar_reply` nel C: la
+  lezione su do/does/did resta al residuo.
+- Il ritiro dell'analogia lascia `relation_verb(must)`; «What must X wear?»
+  (wh con modale) non è derivata.
+
+**Da dove ripartire: una scelta di F. fra tre direzioni, in ordine di valore
+per L4.**
+1. **Una lezione che cambia una CONDIZIONE della regola**, cioè *quando* si
+   applica, non solo un membro o un'analogia: la prova di apertura della rete
+   del §2.7. È il test più duro che il modello del punto 4 regga.
+2. **Il do-support dentro `question_inversion`** (forma dichiarativa con il
+   verbo alla forma base, `verb_form/3`): chiude il residuo di G2 e toglie il
+   ramo polare generico dal C.
+3. **Censimento 2 su a/an (R4)**: `p0_indef_article` passa alla KB solo la
+   prima lettera. Verifica se «nome = derivazione, lezione = collocazione
+   verificata» si generalizza a una regola di resa.
+
+Per riprodurre: il driver con copia integrale della KB è la ricetta del §10;
+le sequenze parlate sono nei due `.p0t`. Dopo ogni modifica C: `make build` e
+`make test-engine` prima di misurare (il demone tiene il C con cui è partito).
 
 ### ⛔ La direzione (F., 26 settembre 2026) — prevale su tutto il resto del piano
 
