@@ -442,3 +442,30 @@ turn_form_reply(ask_comparative, comparative_answer).
 turn_form_priority(ask_comparative, early).
 response_template(comparative_answer, "The comparative of {word} is {result}.").
 response_template(comparative_answer, it, "Il comparativo di {word} è {result}.").
+
+% ══ Grammatica G20 (26 settembre 2026) — IL PRESENTE PROGRESSIVO ══════════════
+% «The machinist is turning a shaft.» murava, e «What is the machinist turning?»
+% cercava «machinist». Il progressivo e' la stessa relazione del presente: si
+% rilegge «X turns Y» / «what does X turn», con la radice e la terza persona che
+% la KB deriva gia' (`verb_form/3`). Solo con un vero participio presente.
+machinery(present_participle_word). machinery(participle_root). machinery(third_of_participle).
+present_participle_word($W) :- verb_form($R, $W, present_participle).
+participle_root($W, $R) :- verb_form($R, $W, present_participle).
+third_of_participle($W, $F) :- verb_form($R, $W, present_participle), verb_form($R, $F, present_third).
+turn_form(progressive_statement, 1, slot(subject)).
+turn_form(progressive_statement, 2, text("is")).
+turn_form(progressive_statement, 3, slot(verb)).
+turn_form(progressive_statement, 4, rest(object)).
+turn_form_slot_class(progressive_statement, verb, present_participle_word).
+turn_form_mood(progressive_statement, statement).
+turn_form_act(progressive_statement, "op(match, third_of_participle, [verb, free])").
+turn_form_act(progressive_statement, "reread({subject} {result} {object})").
+turn_form_priority(progressive_statement, early).
+turn_form(progressive_question, 1, text("what is")).
+turn_form(progressive_question, 2, slot(subject)).
+turn_form(progressive_question, 3, slot(verb)).
+turn_form_slot_class(progressive_question, verb, present_participle_word).
+turn_form_mood(progressive_question, question).
+turn_form_act(progressive_question, "op(match, participle_root, [verb, free])").
+turn_form_act(progressive_question, "reread(what does {subject} {result})").
+turn_form_priority(progressive_question, early).

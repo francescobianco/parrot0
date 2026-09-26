@@ -86,6 +86,7 @@ ancora il fatto `show`). P3, P4, P8, P12 restano come nella tabella piu' sotto.
 | G13 | ✅ | «What is the comparative of hard / thin / happy / large / accurate / good?» → harder, thinner, happier, larger, more accurate, better (sillabe come gruppi di vocali, raddoppio CVC, -ier, «more», irregolari come fatti) |
 | G14 | 🟡 | per la via insegnabile: «harder is a relation verb», poi «Steel is harder than aluminium.» → «Is steel harder …?» Yes, «Which is harder, steel or aluminium?» steel. 🔴 che il comparativo di un aggettivo noto sia da solo una relazione (una regola su `relation_verb/1` rallenterebbe la vista dei chiusori, che la enumera: da fare con una vista dedicata) |
 | G1 | 🔴 | «The spindle is worn.» non si impara: manca il vocabolario degli aggettivi (`adjective/1` ha quasi solo i colori); con «loose is an adjective» entra `has_property(the_door, loose)` (con l'articolo nella chiave e detto in sintassi interna) e la polare non la raggiunge. Provata una forma polare, tolta: lo `span` vuole un'ancora testuale dopo di se' |
+| G20 | ✅ | «The machinist is turning a shaft.» / «What is the machinist turning?» → Shaft.: il progressivo si rilegge al presente con la radice e la terza persona di `verb_form/3`; un verbo non noto («hone») resta un «non so» onesto finche' si insegna |
 | G5, G7, G24 | 🟡 | il «No.» a tutto e' tolto («I don't know whether …», sessione precedente); le regole di accordo restano da insegnare |
 
 **Scoperta di costo (misurata):** una frase lunga di Wikipedia costava 16–20 s
