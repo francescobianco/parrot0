@@ -388,3 +388,50 @@ after_reply_bookkeeper(assisted_lesson_commit).
 turn_after_reply($Turn, assisted_lesson_commit) :-
     assisted_procedure_lesson($Turn, $Id, $Steps, $Quoted),
     assisted_lesson_commit($Id, $Steps, $Quoted).
+
+% ══ Meccanica (26 settembre 2026), «calcolo in lingua» ═══════════════════════
+% «One inch is 25.4 millimeters.» diventava «Learned: one_inch has 25.4
+% millimeters» (una chiave spazzatura), e «How many millimeters are in 3
+% inches?» murava. E' la stessa lezione di «to convert inches to millimeters
+% multiply by 25.4», detta come la dice una persona: si scrive lo stesso
+% candidato (con il plurale dell'unita' di partenza, `noun_plural_form/2`), e la
+% domanda si rilegge come la richiesta di conversione che c'era gia'.
+machinery(unit_equivalence_teach).
+unit_equivalence_teach($From, $N, $To, $Text) :-
+    noun_plural_form($From, $FromP), is($V, add($N, 0)),
+    assisted_lesson_commit(procedure($FromP, $To), cons(step(times, $V), nil), "unit equivalence"),
+    current_language($L), procedure_lesson_text($L, procedure($FromP, $To), cons(step(times, $V), nil), $Text).
+turn_form(unit_equivalence, 1, text("one")).
+turn_form(unit_equivalence, 2, slot(from)).
+turn_form(unit_equivalence, 3, text("is")).
+turn_form(unit_equivalence, 4, slot(n)).
+turn_form(unit_equivalence, 5, slot(to)).
+turn_form_mood(unit_equivalence, statement).
+turn_form_act(unit_equivalence, "op(match, unit_equivalence_teach, [from, n, to, free])").
+turn_form_reply(unit_equivalence, unit_equivalence_ack).
+turn_form_priority(unit_equivalence, early).
+response_template(unit_equivalence_ack, "{result}").
+turn_form(ask_units_in, 1, text("how many")).
+turn_form(ask_units_in, 2, slot(to)).
+turn_form(ask_units_in, 3, text("are in")).
+turn_form(ask_units_in, 4, slot(n)).
+turn_form(ask_units_in, 5, slot(from)).
+turn_form_act(ask_units_in, reread(convert {n} {from} to {to})).
+turn_form_priority(ask_units_in, early).
+turn_form(ask_units_are, 1, text("how many")).
+turn_form(ask_units_are, 2, slot(to)).
+turn_form(ask_units_are, 3, text("are")).
+turn_form(ask_units_are, 4, slot(n)).
+turn_form(ask_units_are, 5, slot(from)).
+turn_form_act(ask_units_are, reread(convert {n} {from} to {to})).
+turn_form_priority(ask_units_are, early).
+% La quantita' e' un numero e l'unita' non e' una parola funzione: «One of them is
+% 3 years old» non e' una lezione di conversione.
+machinery(unit_amount). machinery(unit_name_word).
+unit_amount($V) :- is($N, add($V, 0)).
+unit_name_word($W) :- naf(stopword($W)).
+turn_form_slot_class(unit_equivalence, n, unit_amount).
+turn_form_slot_class(unit_equivalence, from, unit_name_word).
+turn_form_slot_class(unit_equivalence, to, unit_name_word).
+turn_form_slot_class(ask_units_in, n, unit_amount).
+turn_form_slot_class(ask_units_are, n, unit_amount).
