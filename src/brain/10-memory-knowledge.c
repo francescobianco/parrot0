@@ -18285,7 +18285,14 @@ static int p0_rewrite_target_read(Brain *b, const char *rhs) {
  * e senza toccare i descrittori del padre. E' una primitiva del motore — una
  * radice — e non contiene vocabolario. */
 static int reply_is_wall(Brain *b, const char *reply);
-static int p0_try_reading(Brain *b, const char *text) {
+static int p0_try_reading_mode(Brain *b, const char *text, int fresh);
+static int p0_try_reading(Brain *b, const char *text) { return p0_try_reading_mode(b, text, 0); }
+/* PR1: la prova della lezione «un altro modo per dire» deve essere un turno
+ * NUOVO (senza la vista della lezione); le altre prove (la rilettura delle
+ * costruzioni) restano com'erano: un bersaglio affermativo in un turno nuovo
+ * verrebbe semplicemente imparato, e passerebbe per «letto». */
+static int p0_try_reading_fresh(Brain *b, const char *text) { return p0_try_reading_mode(b, text, 1); }
+static int p0_try_reading_mode(Brain *b, const char *text, int fresh) {
     if (!b || !text || !*text) return 0;
     int fd[2];
     if (pipe(fd) != 0) return 0;
@@ -18304,9 +18311,11 @@ static int p0_try_reading(Brain *b, const char *text) {
          * l'ancora «in cosa puoi aiutarmi»): la prova diceva «legge» e il turno
          * vero murava. Nel figlio si toglie l'eredita': il primo frame che trova
          * la vista vuota la possiede. */
-        b->active_turn_norm = NULL;
-        b->active_turn_raw = NULL;
-        b->respond_depth = 0;
+        if (fresh) {
+            b->active_turn_norm = NULL;
+            b->active_turn_raw = NULL;
+            b->respond_depth = 0;
+        }
         size_t n = brain_respond(b, text, reply, sizeof reply);
         /* PR1: il muro si riconosce anche dall'ESITO del turno, non solo dalle
          * sue parole: `wall_marker/1` e' inglese, e «Non capisco ancora.»

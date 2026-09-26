@@ -44,7 +44,7 @@ static void normalize(const char *in, char *out, size_t out_size) {
  * words to multi-word idioms). The stored atom keeps its surrounding quotes (kb.c
  * parse_term), so we strip them before comparing. */
 static char *kb_dequote(char *s);   /* definito piu' avanti */
-static int p0_try_reading(Brain *b, const char *text);                 /* 10-memory-knowledge.c */
+static int p0_try_reading_fresh(Brain *b, const char *text);           /* 10-memory-knowledge.c */
 static int p0_teach_alias_rewrite(Brain *b, const char *src, const char *target,
                                   char *out, size_t out_size);       /* 10-memory-knowledge.c */
 
@@ -2002,7 +2002,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                  * (`p0_try_reading`, in un figlio, senza effetti). Se mura, la
                  * copia si ritira e la lezione si fa rilettura (X si legge come
                  * Y); se mura anche cosi', lo si dice invece di confermare. */
-                if (!p0_try_reading(b, shown)) {
+                if (!p0_try_reading_fresh(b, shown)) {
                     if (best_tool[0]) {
                         const char *ta[2] = { best_tool, nq };
                         kb_retract_match(b->kb, "tool_anchor", ta, 2);
@@ -2014,7 +2014,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                     kb_retract_match(b->kb, "phrase_canon", pa, 2);
                     char rw[512]; rw[0] = '\0';
                     int taught = p0_teach_alias_rewrite(b, shown, anchor, rw, sizeof rw);
-                    if (!taught || !p0_try_reading(b, shown)) {
+                    if (!taught || !p0_try_reading_fresh(b, shown)) {
                         const KbResponseSlot sl0[] = { { "form", shown }, { "anchor", anchor } };
                         if (!kb_term_say(b, "cue_taught_no_effect", sl0, 2, msg, sizeof msg))
                             snprintf(msg, sizeof msg,
