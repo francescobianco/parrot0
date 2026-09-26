@@ -6479,3 +6479,108 @@ giudicata**: un passo che riduce `next_action`, o che propone un'azione con un
 soltanto sul turno di ripresa. Se la guardia di A0 non deve mai intervenire
 perché non c'è niente da trattenere, D50 è sostenuta; se interviene con la
 stessa frequenza di oggi, il referente non era il problema e l'ipotesi cade.
+
+---
+
+## §19 — Il contesto a rete, misurato su un difetto vero: la contaminazione del contatto (26 settembre 2026)
+
+Richiesto da F. dopo la sessione «meccanica di precisione»
+([sessions/2026-09-26-live-meccanica.md](../sessions/2026-09-26-live-meccanica.md)):
+*«il contesto non è un valore di variabile a valori finiti numerabili e
+dinamicamente accrescibili, non solo almeno, ma una rete di inferenza che
+percorre strati, e le ramificazioni performano il contesto, che non è uno stato
+ma un mix di percorsi»*. Questo piano ha già la forma giusta (§2.1: il bersaglio è
+un **grafo di mediazione** fra forme, relazioni, entità, contesti e mosse; la
+sezione sugli archi connettivi: `conclusione :- ponte, <il contesto vale qui>`,
+con il contesto **conoscenza interrogabile**). Qui la si misura su un difetto.
+
+### Il difetto
+
+Dopo la lezione per contatto «A micrometer measures thickness, so it gauges
+thickness.» parrot0 conclude, giustamente, che *gauges* è un verbo di `measures`.
+Da lì in poi **ogni** «gauge» del turno è quel verbo: «Gauge blocks are made of
+hardened steel.» → «Reading «gauge» as «measures». I didn't keep that…»; «bore
+gauge», «go/no-go gauge» idem; dopo «so it leads to chatter», «lead screw» e
+«lead does not resist scratching» diventano *causes*. Una lezione **riuscita**
+peggiora le lezioni successive (log della sessione, righe 111, 157, 179, 475, 571).
+
+### Perché: la conclusione del contatto è uno STATO, non un percorso
+
+Le clausole che applicano un'ipotesi di contatto a un turno nuovo guardano solo
+l'**identità** della parola (`kb/core/contact.p0`):
+
+```prolog
+word_is_verb_form($W) :- contact_verb_word($W).
+contact_verb_word($W) :- contact_shape($N, $R, verb($Mid, $K)), contact_word_form($N, $W), contact_bridge($N, $R).
+turn_reply_qualifies($T, $W, $G) :-                 % il «Reading X as Y»
+    contact_bridge($N, $R), input_node_atom($T, $I, $W), contact_word_form($N, $W), contact_gloss($R, $G).
+```
+
+`$I` — il nodo della IR dove la parola sta — è legato e **mai usato**. La
+conclusione «gauge è un verbo di measures» vive come membro di una classe
+(`word_is_verb_form/1`), cioè esattamente come un valore in un insieme
+enumerabile e accrescibile: la forma di contesto che F. dice insufficiente. Il
+lato dell'APPRENDIMENTO è invece già un percorso: `contact_shape_here/4` registra
+la forma in cui la parola è nata (`verb(Mid)` dopo un soggetto ripreso, `noun` dopo
+un possessivo), ma quella forma **non viene mai confrontata** con l'occorrenza
+nuova. E il «Reading X as Y» non dice la lettura USATA (il principio di gen511,
+`gloss.p0`): ricalcola dalla parola, e si stampa anche su un fatto letto senza
+l'ipotesi.
+
+### Che cosa è il contesto qui, in termini di percorsi
+
+La domanda giusta non è «gauge è un verbo?» (uno stato) ma «**questo** gauge, in
+**questo** nodo, raggiunge un verbo di `measures` per un percorso che regge?». I
+percorsi esistono già quasi tutti come conoscenza:
+
+| strato | percorso | predicati che ci sono già |
+|---|---|---|
+| IR — ruolo del nodo | il nodo è dentro un sintagma nominale aperto da un determinante; è subito dopo un articolo o una preposizione; è seguito da un nome contiguo («gauge **blocks**», «lead **screw**»); è preceduto da un nome nella stessa corsa («**bore** gauge») | `input_token_in_phrase/2`, `nominal_position/2`, `bare_noun_neighbour_before/after`, `tokens_contiguous/3` (input-structure.p0) |
+| IR — la frase ha già il suo verbo | il primo verbo finito è quello della frase (RI-012) | `turn_verb_before/1` (grammar.p0) |
+| KB — il nome intero è una cosa | «gauge block», «lead screw» dichiarati o uniti | `known_referent/1`, `whole_name_thing/1` (grammar.p0) |
+| KB — la forma di nascita | l'occorrenza riproduce la forma in cui il contatto è nato («@S gauges @O», «@S leads to @O») | `contact_shape/3` (contact.p0) |
+| KB — letture concorrenti | verbo di R contro uso nominale, più il candidato «nessun cambiamento» | `contact_competing/2` (oggi solo fra due relazioni), K2 di questo piano, l3-upgrade §14.4 |
+| sessione — dove è nata l'ipotesi | l'ipotesi vale dove è nata finché l'uso non la allarga | `holds_in/2`, `context/2` (context-scope.p0), l3-upgrade tabella del «mondo allargato» |
+
+Il contesto, allora, non è un argomento in più su `word_is_verb_form`: è il fatto
+che la lettura di un'occorrenza sia **la conclusione di un percorso** che passa per
+questi strati, e che più percorsi possano portare a conclusioni diverse — verbo,
+parte di un nome, non deciso — con la scelta e la sua ragione interrogabili.
+
+### La forma che ne segue (proposta, non ancora scritta)
+
+1. **Dalla parola all'occorrenza.** `contact_reading_here(Turno, Nodo, N, R)`
+   sostituisce `contact_verb_word(W)` e l'identità in `turn_reply_qualifies`: vale
+   solo se un percorso di ruolo regge per il nodo.
+2. **Il percorso di ruolo** è una regola KB sopra i predicati della tabella: un
+   nodo è in posizione di verbo se non è in un sintagma nominale aperto, non è
+   seguito né preceduto da un nome contiguo della stessa corsa, la frase non ha
+   già il suo verbo, e il nome intero non è un referente noto.
+3. **La forma di nascita** si confronta: l'occorrenza deve riprodurre il cammino
+   `contact_shape(N, R, verb(Mid, K))` fino a un oggetto.
+4. **Letture concorrenti, non una scelta muta.** `candidate_reading(T, occ(I,
+   verb_of(R)))` contro `candidate_reading(T, occ(I, noun_part))`, con
+   `reading_evidence`/`reading_against` dai percorsi; un pareggio diventa la mossa
+   che esiste già («I have competing readings for that word…»).
+5. **Il «Reading X as Y» dall'uso, non dalla menzione:** solo se la lettura
+   dell'occorrenza è stata scelta, o se il fatto scritto nel turno porta il
+   sostegno dell'ipotesi (`contact_reading_support/3` lo sa già).
+
+### Il gate
+
+Sui fatti veri della sessione, e sulle due direzioni:
+
+- «A micrometer measures thickness, so it gauges thickness.» poi «Does a height
+  gauge gauge height?» → **Yes** (il verbo regge dove ha la forma di nascita);
+- «Gauge blocks are made of hardened steel.», «A bore gauge measures bore
+  diameter.», «A lead screw is a power screw.» → lette come nomi, **nessun**
+  «Reading gauge as measures»;
+- un pareggio vero (una frase in cui il nodo può essere l'uno o l'altro) → la
+  domanda di disambiguazione, non una scelta;
+- nessuna riga di C che nomini una parola o una classe: i percorsi sono KB, il C
+  resta la IR e l'unificazione (mantra #2, #17).
+
+È lo stesso debito di l2-upgrade §13.3 («un omonimo nominale non cambia» è la
+prova richiesta dallo scope contesto/forma) e §13.7 punto 4, e il residuo 1 di
+l3-upgrade §28.6 H2 («entra nella classe con un solo contatto»): tre documenti che
+lo avevano visto, un difetto che ora ha un caso misurato.

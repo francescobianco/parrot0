@@ -1,3 +1,11 @@
+> **26 settembre 2026 — il residuo 1 di §28.6 H2 si è manifestato.** Dopo
+> «…so it gauges thickness» ogni «gauge» diventa *measures*, anche in «gauge
+> blocks», «bore gauge»; dopo «…so it leads to chatter», «lead screw» diventa
+> *causes*. L'ipotesi entra nella classe `word_is_verb_form/1` per identità, senza
+> guardare il nodo. Lo studio e la forma proposta (la lettura come conclusione di
+> un percorso per occorrenza) sono in
+> [frontier-kb-natural-dialogue.md §19](frontier-kb-natural-dialogue.md).
+
 # L3 — insegnare a parrot0 per contatto, senza schemi di lezione
 
 **Piano di indirizzo e progettazione operativa, 24 settembre 2026.
