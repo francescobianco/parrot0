@@ -1,0 +1,152 @@
+% language-lessons.p0 — UNA LEZIONE SULLA LINGUA NON E' UN FATTO SUL MONDO.
+%
+% L4-1 (docs/plans/l4-upgrade.md, 26 settembre 2026). «To make a question with
+% other verbs, put do, does or did before the subject and use the bare verb.»
+% diventava `did(put, does)` («Learned: put do does.»): il lettore della
+% conoscenza legava `@S do @O` su un imperativo, e il verbo «put» finiva
+% soggetto di un fatto. «Short adjectives make the comparative with er…»
+% diventava `make(short_adjectives, comparative)`, e poi rispondeva a «What needs
+% grease?». Sette regole che parrot0 applicava gia' (G2, G3, G4, G19, G21, G22,
+% G23) non venivano riconosciute: nessuna lezione diceva «lo faccio gia'».
+%
+% Qui c'e' il passo 3 del circuito di L4 (§5) per le lezioni sulla lingua,
+% senza un lettore di regole descritte e senza nominare la regola:
+%
+%   1. una frase che parla della lingua (parole come verb, noun, plural,
+%      subject, question) non si impara come fatto: si legge come lezione, e
+%      parrot0 dice che non ne tiene niente e chiede un esempio;
+%   2. la lezione resta APERTA per qualche turno (`language_lesson_opened/1`);
+%   3. se la domanda dell'esempio riceve una risposta, parrot0 dice che la legge
+%      gia' cosi': la sovrapposizione si riconosce PER CONTATTO, facendo girare
+%      la comprensione sull'esempio;
+%   4. se l'esempio prende un muro, lo dice: la lezione resta un'ipotesi, e il
+%      punto dove la lettura si ferma e' il punto d'innesto (L4-2).
+%
+% Tutto e' conoscenza: quali parole parlano della lingua, per quanti turni la
+% lezione resta aperta, che cosa dire. Una parola nuova e' una riga.
+
+:- file_attribute(machinery).
+
+% ── 1. LE PAROLE CHE PARLANO DELLA LINGUA ───────────────────────────────────
+% `language_term(Parola, Forza)`. `strong`: una parola che, detta, parla quasi
+% sempre della grammatica. `weak`: parla della grammatica solo accanto a
+% un'altra («the subject of the painting», «a prison sentence»). Non si riusa
+% `metalinguistic_head/1`: contiene `name`, `word`, `greeting`, che una frase
+% qualsiasi dice senza fare lezione di grammatica.
+machinery(language_term).
+language_term(verb, strong).        language_term(noun, strong).
+language_term(adjective, strong).   language_term(adverb, strong).
+language_term(pronoun, strong).     language_term(preposition, strong).
+language_term(conjunction, strong). language_term(auxiliary, strong).
+language_term(participle, strong).  language_term(plural, strong).
+language_term(singular, strong).    language_term(comparative, strong).
+language_term(superlative, strong). language_term(suffix, strong).
+language_term(prefix, strong).      language_term(vowel, strong).
+language_term(consonant, strong).   language_term(apostrophe, strong).
+language_term(syllable, strong).    language_term(tense, strong).
+language_term(passive, strong).     language_term(article, weak).
+language_term(subject, weak).       language_term(object, weak).
+language_term(question, weak).      language_term(sentence, weak).
+language_term(clause, weak).        language_term(agent, weak).
+
+% La parola del turno e il termine che porta: la forma detta, o il plurale
+% regolare letto con la desinenza che la grammatica gia' conosce
+% (`plural_suffix(s, nil)`, grammar.p0) — «verbs», «sentences», «adjectives».
+machinery(language_term_form).
+% (⚠ `eq/2` e' un confronto NUMERICO: l'identita' si scrive nella testa.)
+language_term_form($W, $W, $F) :- language_term($W, $F).
+language_term_form($W, $H, $F) :-
+    language_term($H, $F), plural_suffix($Suf, nil),
+    chars($H, $HC), chars($Suf, $SC), app($HC, $SC, $WC), chars($W, $WC).
+
+% Si legge la SUPERFICIE del turno (`turn_surface_token/4`), non gli span: la
+% forza del turno si decide una prima volta prima che gli span esistano, e la
+% cessione del piano di turno si prende quella (misurato: la prima lettura
+% diceva ancora `prose_carried`, la seconda no, e rispondeva la conoscenza).
+machinery(turn_language_term).
+turn_language_term($T, $H, $F) :-
+    turn_surface_token($T, $S, $I, $Tok), span_atom($Tok, $W), language_term_form($W, $H, $F).
+
+% ── 2. QUANDO UN TURNO E' UNA LEZIONE SULLA LINGUA ──────────────────────────
+% Due termini diversi, o un termine forte in un turno che da' un ordine
+% («Add es to make the plural…», «Use this with a singular noun…»). Non una
+% domanda: «What is the plural of box?» chiede, non insegna. Non un turno di
+% piu' frasi: un paragrafo si legge una frase alla volta, e ogni frase decide
+% da se'.
+machinery(turn_is_language_lesson).
+machinery(turn_language_terms_two).
+turn_language_terms_two($T) :-
+    turn_language_term($T, $A, $F), turn_language_term($T, $B, $G), dif($A, $B).
+machinery(turn_language_lesson_evidence).
+turn_language_lesson_evidence($T) :- turn_language_terms_two($T).
+turn_language_lesson_evidence($T) :-
+    turn_language_term($T, $A, strong), turn_declared_act($T, directive).
+turn_is_language_lesson($T) :-
+    turn_prose_long($T),
+    naf(turn_has_question_mark($T)),
+    naf(turn_declared_act($T, compound_statement)),
+    naf(turn_opens_request($T)),
+    turn_language_lesson_evidence($T).
+% Una richiesta non e' una lezione: «Tell me about the subject of the painting
+% and the questions it raises» ha due termini deboli e chiede, non insegna.
+% ⚠ Limite noto: una frase affermativa con due termini deboli («The subject of
+% the lecture was the question of free will») si legge ancora come lezione, e
+% parrot0 chiede un esempio invece di imparare il fatto.
+
+% Chi porta prosa non la prende (turn-frames.p0, `prose_carried`): una lezione
+% sulla lingua appartiene al piano di turno, come le premesse di un problema.
+turn_plan_candidate($T) :- turn_is_language_lesson($T).
+turn_response_part($T, 1, $Text) :-
+    turn_is_language_lesson($T), current_language($L), language_lesson_line($L, ask_example, $Text).
+
+% ── 3. LA LEZIONE RESTA APERTA ─────────────────────────────────────────────
+% Il turno in cui e' stata detta; non si salva nell'albero (turn_scratch): e'
+% lo stato della conversazione, non conoscenza del mondo.
+machinery(language_lesson_opened).
+turn_scratch(language_lesson_opened).
+machinery(language_lesson_settled).
+turn_scratch(language_lesson_settled).
+bookkeeper(language_lesson_open).
+turn_bookkeeping($T, language_lesson_open) :-
+    turn_is_language_lesson($T), turn_counter($N), assert(language_lesson_opened, $N).
+
+% Per quanti turni una domanda e' l'esempio della lezione: l'insegnante che
+% risponde a «Can you show me an example?» dice la frase e poi la domanda.
+machinery(language_example_window).
+language_example_window(3).
+machinery(language_lesson_waiting).
+language_lesson_waiting($N) :-
+    turn_counter($C), language_lesson_opened($N), lt($N, $C),
+    is($D, sub($C, $N)), language_example_window($W), le($D, $W),
+    naf(language_lesson_settled($N)).
+
+% ── 4. L'ESEMPIO, LETTO DALLA COMPRENSIONE ─────────────────────────────────
+% La domanda dell'esempio ha avuto una risposta: la comprensione fa gia' cio'
+% che la lezione descrive, almeno qui. Nessun fatto nuovo: si dice, e la
+% lezione si chiude.
+machinery(language_example_read).
+language_example_read($N) :-
+    language_lesson_waiting($N), turn_declared_act(current_turn, question),
+    turn_outcome(current_turn, answered).
+machinery(language_example_unread).
+language_example_unread($N) :-
+    language_lesson_waiting($N), turn_declared_act(current_turn, question),
+    turn_outcome(current_turn, $O), unsatisfying_outcome($O, $K).
+
+% La condotta sulla risposta (reply-conduct.p0): il motore la consulta una
+% volta, prima che la risposta esca.
+reply_conduct($In, $Out) :-
+    language_example_read($N), assert(language_lesson_settled, $N),
+    current_language($L), language_lesson_line($L, already, $Note), concat_atoms($In, $Note, $Out).
+reply_conduct($In, $Out) :-
+    language_example_unread($N), assert(language_lesson_settled, $N),
+    current_language($L), language_lesson_line($L, not_yet, $Note), concat_atoms($In, $Note, $Out).
+
+% ── 5. CHE COSA DIRE ────────────────────────────────────────────────────────
+machinery(language_lesson_line).
+language_lesson_line(en, ask_example, "I read that as a rule about how the language works, not as a fact about the world, so I keep nothing from it yet. Can you show me an example?").
+language_lesson_line(it, ask_example, "La leggo come una regola su come funziona la lingua, non come un fatto sul mondo, quindi per ora non ne tengo niente. Mi fai un esempio?").
+language_lesson_line(en, already, " That was your example, and I already read it that way, so what you described is something I already do, at least here.").
+language_lesson_line(it, already, " Era il tuo esempio, e lo leggo già così: quello che hai descritto lo faccio già, almeno qui.").
+language_lesson_line(en, not_yet, " That was your example, and I can't read it yet, so what you described is something I don't do yet.").
+language_lesson_line(it, not_yet, " Era il tuo esempio, e non so ancora leggerlo: quello che hai descritto non lo faccio ancora.").

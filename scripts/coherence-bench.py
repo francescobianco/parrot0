@@ -236,6 +236,12 @@ def main():
         added = watch.added()
         facts = [(f, l) for f, l in added if not service(f, l)]
         wrote = len(facts)
+        # l'esempio: la risposta dell'insegnante a «Can you show me an example?».
+        # I suoi fatti sono detti dall'insegnante e non si contano alla regola.
+        for line in L.get("example", []):
+            lesson_replies.append(p.say(line)[0])
+        p.say("/save")
+        watch.added()
         contrast_after = [ask(c if isinstance(c, str) else c[0])[0] for c in L.get("contrast", [])]
         contrast_ok = all(
             (verdict(c[1], y) if not isinstance(c, str) else first(x) == first(y))

@@ -2792,6 +2792,7 @@ turn_form_priority(named_relation_inverse_polar, early).
 turn_form_act(named_relation_inverse_polar, answer_polar).
 turn_form_empty_reply(named_relation_inverse_polar, named_relation_unknown).
 response_template(named_relation_unknown, "I don't know whether that relation holds between {subject} and {object}.").
+response_template(class_membership_unknown, "I don't know whether {arg} is {cls}: nothing I hold says so either way.").
 
 % ── RI-007 — E AL POSTO DEL SOGGETTO PUO' STARE UNA DESCRIZIONE ───────────
 % «which sea does THE RIVER OF GERMANY flow into?»: il soggetto non e' un nome,

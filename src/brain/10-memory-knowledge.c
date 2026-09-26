@@ -2870,6 +2870,20 @@ static void idk(Brain *b, const char *pred, char *out, size_t out_size) {
     {   const KbResponseSlot _rs[] = { { "pred", shown } };
       kb_term_say(b, "i_don_t_know_about_x", _rs, 1, msg, sizeof msg); }
     put(msg, out, out_size);
+    /* L4-1 (26 settembre 2026) — IL MURO DICE DI ESSERE UN MURO. Questo declino
+     * lasciava l'esito di default, «answered» (99-registry.c): la classe
+     * silenziosa di gen414, proprio sul muro del lettore della conoscenza. Una
+     * lezione sulla lingua che chiedeva «la domanda dell'esempio ha avuto
+     * risposta?» si sentiva dire di si' da «I don't know about comparative.».
+     * Il motore riporta solo che cosa e' successo; che `informed_decline` sia un
+     * fallimento resta un fatto (`unsatisfying_outcome/2`, meta.p0). */
+    if (b && b->kb) {
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        const char *verdict[] = { "current_turn", "informed_decline" };
+        kb_assert(b->kb, "turn_outcome", verdict, 2);
+        kb_set_origin(b->kb, prev);
+    }
 }
 
 /* gen505 — vedi il commento ai due siti polari: una classe nominata da un
@@ -7580,6 +7594,27 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     if (asking) {
         const char *qa[] = { mentioned };
         int held = kb_query(b->kb, cls, qa, 1);
+        /* L4-1 (26 settembre 2026) — UN «NO» SI GUADAGNA. «Is "these gears"
+         * correct?» riceveva «No.», e cosi' ogni frase, giusta o sbagliata: la
+         * classe `correct` non ha un fatto ne' una regola, e l'assenza veniva
+         * letta come negazione. Il «no» per assenza vale solo per una classe di
+         * cui parrot0 sa qualcosa; di una classe vuota dice di non saperlo, e il
+         * turno risulta un declino (lo legge chi chiede se l'esempio di una
+         * lezione e' stato capito, language-lessons.p0). */
+        if (!held && kb_pred_fact_count(b->kb, cls) == 0 &&
+            kb_rules_for_head(b->kb, cls, 1) == 0) {
+            const char *spoken = label[0] ? label : cls;
+            char msg[256];
+            kb_term_say(b, "class_membership_unknown", (const KbResponseSlot[]){
+                            { "arg", mentioned }, { "cls", spoken } }, 2, msg, sizeof msg);
+            put(msg, out, out_size);
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            const char *verdict[] = { "current_turn", "informed_decline" };
+            kb_assert(b->kb, "turn_outcome", verdict, 2);
+            kb_set_origin(b->kb, prev);
+            return 1;
+        }
         kb_say(b, held ? "yes" : "no", held ? "Yes." : "No.", out, out_size);
         return 1;
     }

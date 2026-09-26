@@ -1290,6 +1290,7 @@ machinery(sides).
 :- include(order-determinacy.p0).
 :- include(guided-reading.p0).
 :- include(problem-texts.p0).
+:- include(language-lessons.p0).
 :- include(food-time.p0).
 :- include(remedy-questions.p0).
 :- include(diagnosis.p0).

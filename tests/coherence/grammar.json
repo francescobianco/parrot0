@@ -1,6 +1,6 @@
 {
  "battery": "grammar",
- "about": "Grammatica inglese INSEGNATA come regole dette (sessione del 26 settembre 2026, train-the-learning-process.md G1-G25). Niente sonde di nome: nominare la regola non e' un requisito (F.). Ogni voce: la lezione detta; 'before' e 'after' sono esempi DIVERSI della stessa regola; 'held' e' un caso tenuto fuori, mai nella lezione; 'contrast' e' una domanda vicina che la lezione NON deve cambiare (si confronta la risposta prima e dopo). Per le regole di giudizio ('is X correct?') il 'prima' ha un caso giusto e uno sbagliato: un 'No.' a tutto non e' una regola operante. Anche 'dopo' e 'tenuto fuori' hanno il caso giusto e lo sbagliato.",
+ "about": "Grammatica inglese INSEGNATA come regole dette (sessione del 26 settembre 2026, train-the-learning-process.md G1-G25). Niente sonde di nome: nominare la regola non e' un requisito (F.). Ogni voce: la lezione detta; 'before' e 'after' sono esempi DIVERSI della stessa regola; 'held' e' un caso tenuto fuori, mai nella lezione; 'contrast' e' una domanda vicina che la lezione NON deve cambiare (si confronta la risposta prima e dopo). Per le regole di giudizio ('is X correct?') il 'prima' ha un caso giusto e uno sbagliato: un 'No.' a tutto non e' una regola operante. Anche 'dopo' e 'tenuto fuori' hanno il caso giusto e lo sbagliato. 'example' e' la risposta dell'insegnante a «Can you show me an example?»: frasi nuove, e l'ultima e' la domanda che la comprensione deve reggere (L4-1: la sovrapposizione si riconosce per contatto, facendo girare la comprensione sull'esempio).",
  "lessons": [
   {
    "id": "G1",
@@ -28,6 +28,10 @@
    ],
    "contrast": [
     "Is a lathe a machine?"
+   ],
+   "example": [
+    "The spindle is hot.",
+    "Is the spindle hot?"
    ]
   },
   {
@@ -56,6 +60,10 @@
    ],
    "contrast": [
     "What can a lathe cut?"
+   ],
+   "example": [
+    "A saw can cut wood.",
+    "Can a saw cut wood?"
    ]
   },
   {
@@ -84,6 +92,10 @@
    ],
    "contrast": [
     "What did the machinist grind?"
+   ],
+   "example": [
+    "The welder cut the pipe.",
+    "Did the welder cut the pipe?"
    ]
   },
   {
@@ -112,6 +124,10 @@
    ],
    "contrast": [
     "What does a micrometer measure?"
+   ],
+   "example": [
+    "A ruler cannot measure mass.",
+    "Can a ruler measure mass?"
    ]
   },
   {
@@ -152,6 +168,9 @@
    ],
    "contrast": [
     "Is \"my name are Francesco\" correct?"
+   ],
+   "example": [
+    "Is \"these gears\" correct?"
    ]
   },
   {
@@ -192,6 +211,9 @@
    ],
    "contrast": [
     "What does a machinist do?"
+   ],
+   "example": [
+    "Is \"the grinder sharpens the chisel\" correct?"
    ]
   },
   {
@@ -223,6 +245,9 @@
      "plonk is an umbrella_stand",
      "an umbrella"
     ]
+   ],
+   "example": [
+    "What do you call a gauge that is universal?"
    ]
   },
   {
@@ -251,6 +276,9 @@
    ],
    "contrast": [
     "What is the plural of key?"
+   ],
+   "example": [
+    "What is the plural of quarry?"
    ]
   },
   {
@@ -279,6 +307,9 @@
    ],
    "contrast": [
     "What is the plural of gear?"
+   ],
+   "example": [
+    "What is the plural of wrench?"
    ]
   },
   {
@@ -307,6 +338,9 @@
    ],
    "contrast": [
     "What is the past of grind?"
+   ],
+   "example": [
+    "What is the past of weld?"
    ]
   },
   {
@@ -335,6 +369,9 @@
    ],
    "contrast": [
     "The bearings are dry. || They need grease. || What needs grease?"
+   ],
+   "example": [
+    "What is the comparative of thin?"
    ]
   },
   {
@@ -363,6 +400,10 @@
    ],
    "contrast": [
     "Is steel an alloy?"
+   ],
+   "example": [
+    "Copper is softer than iron.",
+    "Which is softer, copper or iron?"
    ]
   },
   {
@@ -391,6 +432,10 @@
    ],
    "contrast": [
     "What is the capital of France?"
+   ],
+   "example": [
+    "The engine's piston is cracked.",
+    "What is cracked?"
    ]
   },
   {
@@ -419,6 +464,11 @@
    ],
    "contrast": [
     "Who is Marie Curie?"
+   ],
+   "example": [
+    "The vise is rusty.",
+    "It needs cleaning.",
+    "What needs cleaning?"
    ]
   },
   {
@@ -447,6 +497,11 @@
    ],
    "contrast": [
     "Are gears machine parts?"
+   ],
+   "example": [
+    "The chains are slack.",
+    "They need tightening.",
+    "What needs tightening?"
    ]
   },
   {
@@ -475,6 +530,10 @@
    ],
    "contrast": [
     "What did Palmer invent?"
+   ],
+   "example": [
+    "Whitworth standardised screw threads.",
+    "Who standardised screw threads?"
    ]
   },
   {
@@ -503,6 +562,10 @@
    ],
    "contrast": [
     "What does a fitter do?"
+   ],
+   "example": [
+    "The turner is facing a disc.",
+    "What is the turner facing?"
    ]
   },
   {
@@ -531,6 +594,10 @@
    ],
    "contrast": [
     "What did the apprentice cut?"
+   ],
+   "example": [
+    "The plate was drilled by the fitter.",
+    "Who drilled the plate?"
    ]
   },
   {
@@ -559,6 +626,10 @@
    ],
    "contrast": [
     "What language do you speak?"
+   ],
+   "example": [
+    "A bent shaft causes vibration.",
+    "What causes vibration?"
    ]
   },
   {
@@ -587,6 +658,10 @@
    ],
    "contrast": [
     "What does the collet hold?"
+   ],
+   "example": [
+    "The clamp holds the plate.",
+    "What holds the plate?"
    ]
   },
   {
@@ -627,6 +702,9 @@
    ],
    "contrast": [
     "What is a bolt?"
+   ],
+   "example": [
+    "Is \"I have some washers\" correct?"
    ]
   },
   {
@@ -655,6 +733,9 @@
    ],
    "contrast": [
     "Is quick an adjective?"
+   ],
+   "example": [
+    "Is smoothly an adverb?"
    ]
   }
  ]

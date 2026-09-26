@@ -330,6 +330,31 @@ otto regole, la lezione risponde confermando e mostrando l'esempio; nessun fatto
 nuovo nella KB (`kb_turn_act` vuoto per i predicati del mondo); nessuna risposta
 estranea contaminata («What needs grease?» non risponde più «short adjectives»).
 
+**Stato (26 settembre 2026, commit intermedio): primo passo in main.**
+`kb/core/language-lessons.p0`: una frase che parla della lingua (due termini di
+`language_term/2`, o uno forte in un ordine; non una domanda, non una richiesta)
+non si impara come fatto. Il piano di turno la prende come le premesse di un
+problema, parrot0 dice che non ne tiene niente e chiede un esempio. La domanda
+dell'esempio, entro tre turni, riceve «I already read it that way» se ha avuto
+risposta, «I can't read it yet» se ha preso un muro. Due correzioni del motore,
+che riportano soltanto che cosa è successo: `idk()` registra
+`turn_outcome(informed_decline)` invece del «answered» di default, e il lettore
+delle menzioni non dice più «No.» su una classe di cui non sa niente
+(«Is "these gears" correct?» → «I don't know whether …»).
+
+| | prima | dopo |
+|---|---|---|
+| coerenti | 0/22 | 3/22 (G2, G3, G4) |
+| fatti spazzatura scritti dalle regole | 4 | 0 |
+
+**Aperto:** l'esempio risposto dallo smalltalk («That sounds nice…», G9) vale
+ancora come «already»: è un falso, da chiudere con il sospetto di
+`gap-kinds.p0` (`template_family`). G18, G22 non si riconoscono (sotto le nove
+parole), G10/G12 li prende un altro lettore prima (G12: «a snippet of code»),
+G14/G17/G20 hanno un termine o nessuno. G19/G21/G23: la regola regge, ma gli
+esempi usano verbi che parrot0 non conosce (*standardised*, *drilled*,
+*grips*): le sonde vanno riscritte con parole note.
+
 ### L4-2 — Il punto d'innesto per conseguenza (C2)
 
 **Tirato da:** R1, G10–G14, G24–G25 (regole che mancano), R7 (procedure). **Che
