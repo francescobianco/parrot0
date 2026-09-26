@@ -1008,7 +1008,12 @@ subordinator_stance(supposing, neither).
 subordinator_stance(assuming, neither).
 
 % Preposizioni nuove delimitano anche i sintagmi: un solo lessico.
-np_closer($W) :- preposition($W).
+np_closer($W) :- preposition($W), naf(unit_link_word($W)).
+% Meccanica (26 settembre 2026): «per» lega le parti di un'unita' composta
+% («7.85 grams per cubic centimeter», «km per hour») e non chiude il sintagma: il
+% valore della densita' si troncava a «7.85 grams».
+machinery(unit_link_word).
+unit_link_word(per).
 reading_feature(predicate_account_for, predicate, account_for).
 reading_name("account for predicate", predicate_account_for).
 reading_feature(predicate_amount_to, predicate, amount_to).
