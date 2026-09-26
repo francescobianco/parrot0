@@ -326,6 +326,13 @@ che cosa e' stato fatto per capire se fosse mio.
   toccato.
 - `mix_food_time.p0t` line: «Reading «reads» as «measures»» davanti alla risposta —
   contaminazione del contatto (L4-3), non toccata.
+- `lesson_meets_rule.p0t` line 69 (da decidere, F.): «put do, does or did before the
+  subject» ora riconosce «does» come regola gia' usata e lascia al residuo solo
+  «did», «do». E' VERO: la forma `verb_first_question` (gloss.p0, DE5) rilegge
+  una domanda col verbo pieno in testa come «does S V O?», quindi una forma che
+  opera mette «does» davanti al soggetto. L'attesa descrive lo stato di prima
+  (do-support solo nel C). Non cambiata per non far diventare verde una sonda a
+  mano (l4-upgrade.md).
 - `prose_forms.p0t` 7 rossi, identici con e senza la regola di «per» (A/B fatto
   riscrivendo la riga): non miei.
 - `higher_order_lesson.p0t` 3 rossi: il fatto si scrive con il lemma

@@ -4542,6 +4542,14 @@ static char *kb_dequote(char *s) {
         s[l - 1] = '\0';
         return s + 1;
     }
+    /* 26 settembre 2026 — IDEMPOTENTE. La funzione toglie la virgoletta finale
+     * SUL POSTO: una seconda chiamata sullo stesso buffer vedeva `"testo` (la
+     * iniziale senza la finale) e lo restituiva con la virgoletta davanti. Era la
+     * causa del «"Non ho una proposta attiva…» (PR14), e una scansione ha trovato
+     * diciotto siti che chiamano due volte sullo stesso buffer. Un termine che
+     * comincia con una virgoletta e non finisce con una e' un buffer gia' tolto
+     * dalle virgolette: si restituisce il testo dopo la virgoletta. */
+    if (l >= 1 && s[0] == '"' && (l == 1 || s[l - 1] != '"')) return s + 1;
     return s;
 }
 
