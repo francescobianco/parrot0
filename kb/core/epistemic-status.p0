@@ -111,6 +111,9 @@ class_constrained($Class) :- class_excludes($Class, $Other).
 % nominabile, e la domanda riceveva «non so di che parli» invece della risposta
 % che la regola sapeva gia' dare.
 class_constrained($Class) :- class_from_relation($Class, $Rel).
+% E la testa di una classe composta nota («tool» di «cutting tool», procedures.p0
+% `class_head_of/2`): si puo' chiedere di lei anche se nessun fatto la nomina.
+class_constrained($Head) :- class_head_of($C, $Head).
 
 % ── 2. ESCLUSIONE FRA CLASSI ──────────────────────────────────────────────
 % class_excludes(A, B): niente puo' essere insieme A e B. La relazione e'

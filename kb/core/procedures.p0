@@ -1783,6 +1783,17 @@ holds1($Q, $X) :- exists_restriction($Q, $R, $P), holds($R, $X, $Y), holds1($P, 
 holds1($Class, $X) :-
     class_from_relation($Class, $Rel),
     apply($Rel, cons($X, cons($Any, nil))).
+% Meccanica / PHP P1 (26 settembre 2026) — LA TESTA DI UNA CLASSE COMPOSTA E' LA
+% SUA CLASSE MADRE. «A tap is a cutting tool.» e poi «Is a tap a tool?» → «I don't
+% know about tool»; «Xdebug is a debugger extension» e «Is Xdebug an extension?»
+% idem. In inglese il nome composto e' un iponimo della sua testa (l'ultima
+% parola): un «cutting tool» e' un «tool». La superficie della classe e' gia'
+% conoscenza (`class_surface/2`); qui una regola sola, per ogni classe composta.
+machinery(class_head_of).
+class_head_of($C, $Head) :-
+    class_surface($C, $S), atom_words($S, cons($A, cons($B, $R))), last_word(cons($A, cons($B, $R)), $Head),
+    dif($C, $Head).
+holds1($Head, $X) :- class_head_of($C, $Head), apply($C, cons($X, nil)).
 
 % (f) UNA RELAZIONE DEFINITA DA DUE. Insegnare una REGOLA invece di un fatto:
 %     `relation_and(V, W, Z)` dice che V vale dove valgono entrambe. E'
