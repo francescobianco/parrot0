@@ -1039,3 +1039,11 @@ procedure_lesson_opener("rule for").
 procedure_lesson_opener("test:").
 turn_cue_registry(procedure_lesson_opener, 1).
 turn_force_blocked($Turn, directive) :- turn_cue_form($Turn, procedure_lesson_opener, $C).
+% Meccanica (26 settembre 2026), «controesempio letto come negazione»: «A spindle
+% rotates the cutting tool, but the cutting tool is not its product.» toglieva il
+% «not» dalla SECONDA clausola, rileggeva la frase intera e negava cio' che la
+% lettura trovava — il fatto vero della PRIMA (`rotate(spindle, cutting_tool)`
+% ritirato: «Does a spindle rotate the cutting tool?» → No). Una negazione
+% appartiene alla sua clausola: davanti a un confine di clausola il lettore delle
+% negazioni cede.
+negation_lead_declined :- turn_cue(current_turn, clause_boundary_cue, $C).
