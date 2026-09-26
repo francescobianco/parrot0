@@ -135,6 +135,13 @@ malfunction_cue("won't start").
 malfunction_cue("non funziona").
 malfunction_cue("non parte").
 malfunction_cue("keeps disconnecting").
+% PR9 (26 settembre 2026): «La pompa perde acqua. Cosa faccio?» — il lettore
+% composto divideva le clausole, e ognuna murava: la perdita non era un guasto noto.
+trouble_cue("perde acqua", user_problem).   malfunction_cue("perde acqua").
+trouble_cue("perde olio", user_problem).    malfunction_cue("perde olio").
+trouble_cue("is leaking", user_problem).    malfunction_cue("is leaking").
+trouble_cue("leaks water", user_problem).   malfunction_cue("leaks water").
+trouble_cue("leaks oil", user_problem).     malfunction_cue("leaks oil").
 direct_situation($Turn, user_problem) :-
     turn_cue_form($Turn, trouble_cue, $Cue),
     malfunction_cue($Cue),
@@ -1053,6 +1060,9 @@ next_step_question_cue("e adesso cosa faccio").
 next_step_question_cue("cosa devo fare").
 next_step_question_cue("che cosa devo fare").
 next_step_question_cue("che faccio").
+next_step_question_cue("cosa faccio").
+next_step_question_cue("che cosa faccio").
+next_step_question_cue("what do i do").
 turn_cue_registry(next_step_question_cue, 1).
 direct_situation($Turn, user_asks_next_step) :- turn_cue_form($Turn, next_step_question_cue, $C).
 situation_cue("someone asks what to do now", user_asks_next_step).
