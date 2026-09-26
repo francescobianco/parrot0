@@ -61,7 +61,7 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 | forme rosse del catalogo | ✅ | #49 l'oracolo «test: apply X to N gives M» → Yes/No; #48 «rule for rpm takes 2 inputs» non produce piu' «The trip takes 2 hours» (risposta falsa): una lezione di procedura non descrive un evento — ora un rifiuto onesto |
 | classe composta non risalita (12) | ✅ | «Is a tap a cutting tool?» / «Is a lathe a machine tool?» → Yes (anche dopo il riavvio); la testa di una classe composta e' la sua classe madre (`class_head_of/2`): «Is a tap a tool?», «Is Xdebug an extension?» (PHP P1) → Yes |
 | lezione non letta (24) | 🟡 | gerundi («Annealing is a heat treatment.»: una parola dopo un determinante non chiude il sintagma); `cuts`, `swaps`, `chamfers` verbi di relazione (e «X is a relation verb» funziona per gli altri) |
-| domanda che non raggiunge un fatto (31) | 🟡 | la polare sceglie il verbo con fatti («Does a spring store energy?»). 🔴 «What measures height?» (con «thickness» risponde; con «height», nome anche di attributo, il piano non risponde — non trovato in tempo); «Angular.»: la lettura IR prende come oggetto il token piu' vicino quando «angular position» non e' un'entita' nota, e la risposta dal deposito semantico vince sul fatto (R5 di L4) |
+| domanda che non raggiunge un fatto (31) | 🟡 | la polare sceglie il verbo con fatti («Does a spring store energy?»). 🔴 «What measures height?»: con «thickness» risponde `ir_reading_answer`, che vuole una lettura UNICA del turno (`input_frame_reading_unique`); con «height», nome anche di attributo (`height_of`), le letture sono piu' d'una e il piano non diventa candidato — da verificare contando `input_frame_reading_set`; «Angular.»: la lettura IR prende come oggetto il token piu' vicino quando «angular position» non e' un'entita' nota, e la risposta dal deposito semantico vince sul fatto (R5 di L4) |
 | conversione (3) | ✅ | la lezione assistita «to convert A to B multiply by N» di nuovo intera: quattro rotture in KB (`naf` con variabili libere due volte, il protocollo senza lettore, `is/2` su un atomo). Lezione → «convert 3 inches to millimeters» = 76.2 → provenienza → ritiro |
 | ordine transitivo (2) | ✅ | «Does X come before/after Y?» (anche per catena), «What comes after/before Y?» |
 | regola profonda con classe di piu' parole (5) | ✅ | «if x is a machine tool then x is a machine» → `machine(X) :- machine_tool(X)` (classe nota), e nella conclusione una classe nuova di piu' parole («a sharp object»); «x is a friend of y» resta relazione |
@@ -90,6 +90,23 @@ composta). P2, P3, P4, P8, P11, P12 restano come nella tabella piu' sotto.
 delle quantita' prendeva per unita' ogni parola degli strumenti di `measures/2`
 (corretto: `unit_of_measure/1`, 16,5 → 12 s) e `turn_entity_named` (9,5 s, 195
 chiamate, visite a `input_node_range`), preesistente e non toccato.
+
+**Scoperte trasversali (valgono per ogni lavoro sulla KB):**
+- `naf(...)` con una variabile che non compare altrove nella clausola fallisce
+  SEMPRE (il solver la rifiuta), e la regola muore in silenzio: e' stata la causa
+  di quattro rotture di stasera (lezione assistita, comparativo, piano sul proprio
+  muro) e di sette clausole latenti. `scripts/naf-free-var-scan.py` le trova: ora
+  zero.
+- `eq/2` e `ne/2` sono confronti numerici: con un atomo falliscono (trovato un
+  caso latente in arrests.p0); l'identita' si scrive nella testa o con `dif`.
+- `kb_dequote` toglieva la virgoletta finale sul posto e una seconda chiamata
+  lasciava quella iniziale (PR14): ora e' idempotente (18 siti la chiamavano due
+  volte sullo stesso buffer).
+- `turn_reset/1`: i fatti di turno che il motore ritira all'ingresso si
+  dichiarano in KB, senza ricompilare.
+- Asserire dentro una `turn_priority_response` fa fallire la risposta; la
+  scrittura va dopo (`after_reply_bookkeeper`), e la contabilita' di prima corre
+  quando la IR del turno non esiste ancora.
 
 **Rossi dei cricchetti visti e non miei** (spot-check, nessuna bisezione): in
 `TEST_TODO.md`, sezione del 26 settembre sera.
