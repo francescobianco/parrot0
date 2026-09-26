@@ -45,10 +45,10 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 | DE4 | ✅ | «frisst means eats»: una parola ignota che significa una nota e' una lettura di parola (`phrase_canon`), applicata dentro le frasi |
 | DE5 | ✅ | «Frisst der Hund Fleisch?» → Yes / No: verbo pieno in testa riletto come «does S V O?», e la polare legge la terza persona dalla radice |
 | DE6 | 🟡 | «der means the» funziona. 🔴 «"der" is an article»: `article/4` occupa il nome della classe |
-| DE7 | 🔴 | il nome di relazione per contatto non raggiunge «the N of X» (non toccato) |
+| DE7 | 🔴 | il contatto legge «Hauptstadt» come la CORNICE «is the capital of», non come il nome della relazione: la domanda «What is the Hauptstadt of France?» non ha un ponte dalla cornice al nome (P5 funziona perche' li' la glossa e' una relazione, «causes») |
 | DE8 | 🔴 | morfologia tedesca (non toccato) |
 | DE9 | ✅ | con «der means the» l'articolo non entra nel soggetto |
-| DE10 | 🟡 | «Is frisst a German word?» → Yes dopo la lezione. 🔴 «What German words do you know?» → smalltalk |
+| DE10 | ✅ | «Is frisst a German word?» → Yes; «What German words do you know?» → «Hund, frisst and fleisch.» (classe di due parole ricomposta dal turno) |
 | DE11 | 🔴 | «'s» si stacca se insegnato, ma il genitivo non si legge («germany s capital is berlin» resta testo); insegnarlo di default staccherebbe anche «it's» |
 
 **Meccanica di precisione**
@@ -58,15 +58,23 @@ per la via insegnabile o in parte · 🔴 aperto (con la diagnosi).
 | procedura non componibile (33) | ✅ | «rule for X is apply Y» era letto come un ORDINE: chi apre una lezione di procedura non ordina (`procedure_lesson_opener`) |
 | passo ripetuto (inchmm → 645.16) | ✅ | un passo identico si riconosce; «rule for X is again Y» ripete apposta |
 | procedura non invertibile (38) | 🟡 | inversa DERIVATA (passi al contrario, `operator_inverse/2`) e verificata in avanti. 🔴 con un passo «apply» annidato l'inversa con il valore libero non si deriva: `proc_inverse(fk2, 293.15, 68)` si dimostra, con la variabile no — sospetto il taglio anti-isteresi globale del turno |
-| forme rosse del catalogo | 🟡 | #49 l'oracolo «test: apply X to N gives M» → Yes/No. 🔴 #48 «takes 2 inputs» |
-| classe composta non risalita (12) | 🟡 | «Is a tap a cutting tool?» / «Is a lathe a machine tool?» → Yes (anche dopo il riavvio). 🔴 la testa come iperonimo («Is a tap a tool?») |
+| forme rosse del catalogo | ✅ | #49 l'oracolo «test: apply X to N gives M» → Yes/No; #48 «rule for rpm takes 2 inputs» non produce piu' «The trip takes 2 hours» (risposta falsa): una lezione di procedura non descrive un evento — ora un rifiuto onesto |
+| classe composta non risalita (12) | ✅ | «Is a tap a cutting tool?» / «Is a lathe a machine tool?» → Yes (anche dopo il riavvio); la testa di una classe composta e' la sua classe madre (`class_head_of/2`): «Is a tap a tool?», «Is Xdebug an extension?» (PHP P1) → Yes |
 | lezione non letta (24) | 🟡 | gerundi («Annealing is a heat treatment.»: una parola dopo un determinante non chiude il sintagma); `cuts`, `swaps`, `chamfers` verbi di relazione (e «X is a relation verb» funziona per gli altri) |
-| domanda che non raggiunge un fatto (31) | 🟡 | la polare sceglie il verbo con fatti («Does a spring store energy?»). 🔴 «What measures height?» (la cue di attributo «height» prende la domanda), «Angular.» (oggetto troncato) |
-| conversione, regole con classe composta, contaminazione (L4-3), contatto su relazione non dichiarata, controesempio, ordine transitivo, calcolo in lingua, relazioni di piu' parole | 🔴 | non toccati in questa passata |
+| domanda che non raggiunge un fatto (31) | 🟡 | la polare sceglie il verbo con fatti («Does a spring store energy?»). 🔴 «What measures height?» (con «thickness» risponde; con «height», nome anche di attributo, il piano non risponde — non trovato in tempo); «Angular.»: la lettura IR prende come oggetto il token piu' vicino quando «angular position» non e' un'entita' nota, e la risposta dal deposito semantico vince sul fatto (R5 di L4) |
+| conversione (3) | ✅ | la lezione assistita «to convert A to B multiply by N» di nuovo intera: quattro rotture in KB (`naf` con variabili libere due volte, il protocollo senza lettore, `is/2` su un atomo). Lezione → «convert 3 inches to millimeters» = 76.2 → provenienza → ritiro |
+| ordine transitivo (2) | ✅ | «Does X come before/after Y?» (anche per catena), «What comes after/before Y?» |
+| regole con classe composta, contaminazione (L4-3), contatto su relazione non dichiarata, controesempio, calcolo in lingua, relazioni di piu' parole | 🔴 | non toccati in questa passata |
 
 **PHP:** P6 ✅ (la domanda sul soggetto elenca tutti i valori: «missing semicolon
-and unclosed string»). P1, P2, P3, P4, P8, P11, P12 restano come nella tabella
-piu' sotto. **§1 grammatica:** non ripresa in questa passata (vedi L4).
+and unclosed string»); P1 ✅ («Is Xdebug an extension?», testa della classe
+composta). P2, P3, P4, P8, P11, P12 restano come nella tabella piu' sotto. **§1 grammatica:** non ripresa in questa passata (vedi L4).
+
+**Scoperta di costo (misurata):** una frase lunga di Wikipedia costava 16–20 s
+(il paragrafo di `one_act_of_learning.p0t` supera i 60 s). Due cause: il lettore
+delle quantita' prendeva per unita' ogni parola degli strumenti di `measures/2`
+(corretto: `unit_of_measure/1`, 16,5 → 12 s) e `turn_entity_named` (9,5 s, 195
+chiamate, visite a `input_node_range`), preesistente e non toccato.
 
 **Rossi dei cricchetti visti e non miei** (spot-check, nessuna bisezione): in
 `TEST_TODO.md`, sezione del 26 settembre sera.
