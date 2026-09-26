@@ -146,6 +146,7 @@ utterance(5, user, "I'd like to know the melting point of tin.").
 utterance(5, user, "DC is short for direct current").
 utterance(5, user, "What causes falls?").
 utterance(5, user, "What causes a segfault?").
+utterance(5, user, "Thermal expansion causes dimensional errors.").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -271,6 +272,7 @@ utterance(6, self, "From now on a turn that contains «i would like to know» co
 utterance(6, self, "232 degrees celsius.").
 utterance(6, self, "Held: «dc» is short for «direct current».").
 utterance(6, self, "Slippery surfaces.").
+utterance(6, self, "Learned: thermal expansion causes dimensional errors.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -798,6 +800,7 @@ utterance(7, user, "what is the working load of an m10 eye bolt").
 utterance(7, user, "What does an LED emit?").
 utterance(7, user, "What is the working load of an M10 eye bolt?").
 utterance(7, user, "what does a capacitor store?").
+utterance(7, user, "Does thermal expansion cause dimensional errors?").
 utterance(7, user, "How do I fix a null pointer?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1318,7 +1321,11 @@ utterance(10, self, "No: do not put ice on a burn. Instead: Hold the burn under 
 utterance(8, self, "I don't have the steps for pointer yet. But I know what one is made of, so you would need: variable. That is what it is, not how to do it.").
 utterance(9, user, "What is a stack trace?").
 utterance(10, self, "I don't know much about stack trace yet, and the network is off, so I can't read about it now.").
+utterance(8, self, "Yes: thermal expansion causes dimensional errors.").
+utterance(9, user, "Tool wear causes poor surface finish.").
+utterance(10, self, "Learned: tool wear causes poor surface finish.").
 utterance(11, user, "Can an eye bolt lift 300 kilograms?").
+utterance(11, user, "What causes poor surface finish?").
 utterance(11, user, "xdebug for php").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2396,18 +2403,93 @@ utterance(69, user, "default value is a relation").
 utterance(70, self, "Learned: default value is relation.").
 utterance(71, user, "The default value of max_execution_time is 30 seconds.").
 utterance(72, self, "Learned: the default value of max execution time is 30 seconds.").
+utterance(12, self, "Tool wear.").
+utterance(13, user, "Vibration causes chatter.").
+utterance(14, self, "Learned: causes(vibration, chatter.).").
+utterance(15, user, "What causes chatter?").
+utterance(16, self, "Vibration.").
+utterance(17, user, "Misalignment causes bearing wear.").
+utterance(18, self, "Learned: misalignment causes bearing wear.").
+utterance(19, user, "What causes bearing wear?").
+utterance(20, self, "Misalignment.").
+utterance(21, user, "Heat causes thermal expansion.").
+utterance(22, self, "I didn't keep that: «heat» and «thermal_expansion» don't read as things I can hold a fact about.").
+utterance(23, user, "What causes thermal expansion?").
+utterance(24, self, "Hmm, I don't know about expansion yet. Want me to learn about it?").
+utterance(25, user, "Overheating causes tool failure.").
+utterance(26, self, "Learned: overheating causes tool failure.").
+utterance(27, user, "What causes tool failure?").
+utterance(28, self, "Overheating.").
+utterance(29, user, "Parallax causes reading errors.").
+utterance(30, self, "Learned: parallax causes reading errors.").
+utterance(31, user, "What causes reading errors?").
+utterance(32, self, "parallax.").
+utterance(33, user, "Backlash causes positioning errors, so it produces positioning errors.").
+utterance(34, self, "Learned: backlash causes positioning errors.").
+utterance(35, user, "Does thermal expansion produce dimensional errors?").
+utterance(36, self, "Yes: thermal expansion causes dimensional errors.").
+utterance(37, user, "Vibration causes chatter, so it leads to chatter.").
+utterance(38, self, "Learned: vibration causes chatter.").
+utterance(39, user, "Does misalignment lead to bearing wear?").
+utterance(40, self, "Reading «lead» as «causes». Yes: misalignment causes bearing wear.").
+utterance(41, user, "Heat causes thermal expansion, so it brings about thermal expansion.").
+utterance(42, self, "I didn't keep that: «heat» and «thermal_expansion» don't read as things I can hold a fact about.").
+utterance(43, user, "Does overheating bring about tool failure?").
 utterance(73, user, "What is the default value of max_execution_time?").
+utterance(44, self, "Yes: overheating causes tool failure.").
+utterance(45, user, "Tool wear causes poor surface finish, so it results in poor surface finish.").
+utterance(46, self, "Learned: tool wear causes poor surface finish.").
+utterance(47, user, "What results in reading errors?").
+utterance(48, self, "Hmm, I don't know about results yet. Want me to learn about it?").
+utterance(49, user, "Backlash causes positioning errors, so positioning errors are its consequence.").
+utterance(50, self, "Learned: backlash causes positioning errors.").
+utterance(51, user, "What is the consequence of tool wear?").
+utterance(52, self, "I don't know about consequence.").
+utterance(53, user, "Vibration causes chatter, so chatter is its effect.").
+utterance(54, self, "Learned: vibration causes chatter.").
+utterance(55, user, "What is the effect of heat?").
+utterance(56, self, "Reading «effect» as «causes». I don't know the effect of heat.").
+utterance(57, user, "Misalignment causes bearing wear, so bearing wear is its typical outcome.").
+utterance(58, self, "Learned: misalignment causes bearing wear.").
+utterance(59, user, "What is the typical outcome of overheating?").
+utterance(60, self, "Reading «typical outcome» as «causes». tool failure.").
+utterance(61, user, "Parallax causes reading errors").
+utterance(62, self, "Learned: parallax causes reading errors.").
+utterance(63, user, "in other words, it spoils readings.").
+utterance(64, self, "Hmm, I don't know about spoils yet. Want me to learn about it?").
+utterance(65, user, "Parallax causes reading errors; in other words, it spoils readings.").
+utterance(66, self, "Learned: parallax causes reading errors. I couldn't read «in other words, it spoils readings.».").
+utterance(67, user, "Does parallax spoil readings?").
+utterance(68, self, "I cannot settle that: no fact I hold decides whether parallax spoilt readings. Not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(69, user, "Overheating causes tool failure").
+utterance(70, self, "Learned: overheating causes tool failure.").
+utterance(71, user, "in other words, tool failure is its aftermath.").
+utterance(72, self, "Learned: tool failure is aftermath.").
+utterance(73, user, "Overheating causes tool failure; in other words, tool failure is its aftermath.").
+utterance(74, self, "Learned: overheating causes tool failure. Learned: tool failure is aftermath.").
+utterance(75, user, "What is the aftermath of vibration?").
 utterance(74, self, "30 seconds.").
+utterance(400, self, "1085 degrees celsius.").
 utterance(75, user, "The display_errors setting controls whether errors appear in the output.").
+utterance(399, user, "What is the melting point of copper?").
 utterance(34, self, "Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready. Does anyone have dietary needs, and how much time do you have?").
+utterance(398, self, "Learned: the melting point of copper is 1085 degrees celsius.").
 utterance(35, user, "One of them is vegan.").
+utterance(397, user, "The melting point of copper is 1085 degrees Celsius.").
 utterance(36, self, "Then choose a main dish everyone can eat, so nobody gets a separate plate: a vegetable lasagne, a mushroom risotto or a chickpea curry works for everyone.").
+utterance(396, self, "8.5 grams.").
 utterance(12, self, "Learned: is_unit(ohm).").
+utterance(395, user, "What is the density of brass?").
 utterance(13, user, "what is the SI unit of electrical resistance?").
+utterance(394, self, "Learned: the density of brass is 8.5 grams.").
 utterance(14, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if «x of y» says what you already say another way, say «x of y means x <known verb> y»; if of is something one thing does to another, say «of is a relation verb».").
+utterance(393, user, "The density of brass is 8.5 grams per cubic centimeter.").
 utterance(15, user, "the ohm measures electrical resistance").
+utterance(392, self, "0.7 millimeters.").
 utterance(16, self, "Hmm, I don't know about measures yet. Want me to learn about it? Or teach me: if «x measures y» says what you already say another way, say «x measures y means x <known verb> y»; if measures is something one thing does to another, say «measures is a relation verb».").
+utterance(391, user, "What is the thread pitch of an M4 coarse thread?").
 utterance(17, user, "what does the ohm measure?").
+utterance(390, self, "Learned: the thread pitch of m4 coarse thread is 0.7 millimeters.").
 utterance(18, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
 utterance(19, user, "measures is a relation verb").
 utterance(20, self, "Learned: relation_verb(measures).").
@@ -2415,132 +2497,198 @@ utterance(21, user, "the ohm measures electrical resistance").
 utterance(22, self, "Learned: measures(ohm, electrical_resistance).").
 utterance(23, user, "what does the ohm measure?").
 utterance(24, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(389, user, "The thread pitch of an M4 coarse thread is 0.7 millimeters.").
 utterance(25, user, "what does the ohm measures?").
 utterance(26, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
 utterance(27, user, "what measures electrical resistance?").
 utterance(28, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a electrical»; if electrical is a word you want to talk ABOUT, say «the word electrical is a …».").
 utterance(29, user, "which unit measures electrical resistance?").
+utterance(388, self, "2 millimeters.").
 utterance(30, self, "I don't understand that yet.").
+utterance(387, user, "What is the thread pitch of an M16 coarse thread?").
 utterance(31, user, "the ohm measures resistance").
+utterance(386, self, "Learned: the thread pitch of m16 coarse thread is 2 millimeters.").
 utterance(32, self, "Electrical resistance.").
+utterance(385, user, "The thread pitch of an M16 coarse thread is 2 millimeters.").
 utterance(33, user, "what measures resistance?").
+utterance(384, self, "0.01 millimeters.").
 utterance(34, self, "I don't understand that yet.").
+utterance(383, user, "What is the resolution of a digital caliper?").
 utterance(35, user, "what does the ohm measures?").
+utterance(382, self, "Learned: the resolution of digital caliper is 0.01 millimeters.").
 utterance(36, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(381, user, "The resolution of a digital caliper is 0.01 millimeters.").
 utterance(37, user, "the ohm measures what?").
+utterance(380, self, "I don't know about coefficient.").
 utterance(38, self, "Electrical resistance.").
+utterance(379, user, "What is the coefficient of thermal expansion of steel?").
 utterance(39, user, "who measures electrical resistance?").
+utterance(378, self, "Hmm, I don't know about expansion yet.").
 utterance(40, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a electrical»; if electrical is a word you want to talk ABOUT, say «the word electrical is a …».").
+utterance(377, user, "The coefficient of thermal expansion of steel is 12 micrometers per meter per kelvin.").
 utterance(41, user, "why did you answer that way?").
+utterance(376, self, "I don't know about modulus.").
 utterance(42, self, "I try my modules in a fixed order and the first one that matches wins. Last turn initiative, piact, compose, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, claim, operator, arith, plan, wordproblem, agent, search, tool, quanti").
+utterance(375, user, "What is the modulus of elasticity of steel?").
 utterance(43, user, "the farad measures capacitance").
+utterance(374, self, "Hmm, I don't know about modulus yet.").
 utterance(82, self, "Got it - I'll take «sono a pezzi» as a way to a sign of tiredness now.").
+utterance(373, user, "The modulus of elasticity of steel is 210 gigapascals.").
 utterance(44, self, "Learned: measures(farad, capacitance).").
+utterance(372, self, "Reading «gauge» as «measures». I don't know about hardness.").
 utterance(45, user, "the farad measures what?").
+utterance(371, user, "What is the hardness of a gauge block?").
 utterance(46, self, "Capacitance.").
+utterance(370, self, "Hmm, I don't know about hardness yet. Want me to learn about it?").
 utterance(47, user, "the henry measures inductance").
+utterance(369, user, "The hardness of a gauge block is 63 HRC.").
 utterance(48, self, "Learned: measures(henry, inductance).").
+utterance(368, self, "660 degrees celsius.").
 utterance(49, user, "the henry measures what?").
+utterance(367, user, "What is the melting point of aluminium?").
 utterance(50, self, "Inductance.").
+utterance(366, self, "Learned: the melting point of aluminium is 660 degrees celsius.").
 utterance(51, user, "the volt measures voltage").
+utterance(365, user, "The melting point of aluminium is 660 degrees Celsius.").
 utterance(52, self, "Learned: measures(volt, voltage).").
+utterance(364, self, "2.7 grams.").
 utterance(53, user, "the volt measures what?").
+utterance(363, user, "What is the density of aluminium?").
 utterance(54, self, "Voltage.").
 utterance(55, user, "the ampere measures what?").
+utterance(362, self, "Learned: the density of aluminium is 2.7 grams.").
 utterance(56, self, "Hmm, I don't know about ampere yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a ampere»; if ampere is a word you want to talk ABOUT, say «the word ampere is a …».").
 utterance(57, user, "which quantity does the farad measures?").
+utterance(361, user, "The density of aluminium is 2.7 grams per cubic centimeter.").
 utterance(58, self, "Capacitance.").
 utterance(59, user, "what is measured by the farad?").
 utterance(60, self, "Hmm, I don't know about measured yet. Want me to learn about it? Or teach me: if «x by y» says what you already say another way, say «x by y means x <known verb> y»; if by is something one thing does to another, say «by is a relation verb».").
+utterance(360, self, "7.85 grams.").
 utterance(61, user, "tell me what the henry measures").
 utterance(62, self, "Inductance.").
 utterance(63, user, "does the ohm measures capacitance?").
 utterance(64, self, "Electrical resistance.").
 utterance(65, user, "what is a capacitor and what does the farad measures?").
 utterance(66, self, "stores energy in an electric field -- blocks DC. I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(359, user, "What is the density of steel?").
 utterance(67, user, "why did you answer that way?").
 utterance(68, self, "I try my modules in a fixed order and the first one that matches wins. Last turn initiative, piact, compose, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, claim, operator, arith, plan, wordproblem, agent, search, tool, quanti").
 utterance(69, user, "does the farad measures inductance?").
 utterance(70, self, "Capacitance.").
+utterance(358, self, "Learned: the density of steel is 7.85 grams.").
 utterance(71, user, "the ohm measures what?").
+utterance(357, user, "The density of steel is 7.85 grams per cubic centimeter.").
 utterance(72, self, "Electrical resistance.").
+utterance(356, self, "118 degrees.").
 utterance(73, user, "the volt measures what?").
+utterance(355, user, "What is the point angle of a standard twist drill?").
 utterance(74, self, "Voltage.").
+utterance(354, self, "Learned: the point angle of standard twist drill is 118 degrees.").
 utterance(75, user, "forget that the ohm is a is_unit").
+utterance(353, user, "The point angle of a standard twist drill is 118 degrees.").
 utterance(83, user, "learn 'sono cotto' as a sign of tiredness").
+utterance(352, self, "1.8 degrees.").
 utterance(400, self, "Got it - I'll take «classic» as a way to a playful remark now.").
+utterance(351, user, "What is the step angle of a typical stepper motor?").
 utterance(399, user, "learn 'classic' as a playful remark").
+utterance(350, self, "Learned: the step angle of typical stepper motor is 1.8 degrees.").
 utterance(398, self, "Got it - I'll take «get out of here» as a way to a playful remark now.").
 utterance(397, user, "learn 'get out of here' as a playful remark").
+utterance(349, user, "The step angle of a typical stepper motor is 1.8 degrees.").
 utterance(396, self, "Got it - I'll take «cheeky» as a way to a playful remark now.").
+utterance(348, self, "29 degrees.").
 utterance(395, user, "learn 'cheeky' as a playful remark").
+utterance(347, user, "What is the thread angle of an Acme thread?").
 utterance(394, self, "Got it - I'll take «that made me laugh» as a way to a playful remark now.").
+utterance(346, self, "Learned: the thread angle of acme thread is 29 degrees.").
 utterance(393, user, "learn 'that made me laugh' as a playful remark").
+utterance(345, user, "The thread angle of an Acme thread is 29 degrees.").
 utterance(392, self, "Got it - I'll take «lol» as a way to a playful remark now.").
 utterance(391, user, "learn 'lol' as a playful remark").
+utterance(344, self, "60 degrees.").
 utterance(390, self, "Got it - I'll take «just kidding» as a way to a playful remark now.").
 utterance(76, self, "Ricevuto — d'ora in poi prendo «quale lingua si parla» come another way to ask language_of_country.").
+utterance(343, user, "What is the thread angle of a metric thread?").
 utterance(77, user, "learn 'lingua di' as another way to ask language_of_country").
 utterance(78, self, "Ricevuto — d'ora in poi prendo «lingua di» come another way to ask language_of_country.").
 utterance(79, user, "learn 'che lingua parlano' as another way to ask language_of_country").
+utterance(342, self, "Learned: the thread angle of metric thread is 60 degrees.").
 utterance(80, self, "Ricevuto — d'ora in poi prendo «che lingua parlano» come another way to ask language_of_country.").
 utterance(81, user, "learn 'si parla che lingua' as another way to ask language_of_country").
 utterance(389, user, "learn 'just kidding' as a playful remark").
+utterance(341, user, "The thread angle of a metric thread is 60 degrees.").
 utterance(76, self, "Learned: transmit is a relation verb.").
 utterance(77, user, "receive is a relation verb").
+utterance(340, self, "20 degrees celsius.").
 utterance(78, self, "Learned: receive is a relation verb.").
 utterance(79, user, "capture is a relation verb").
 utterance(388, self, "Got it - I'll take «no way» as a way to a playful remark now.").
+utterance(339, user, "What is the reference temperature of dimensional metrology?").
 utterance(387, user, "learn 'no way' as a playful remark").
 utterance(386, self, "Got it - I'll take «you're a legend» as a way to a playful remark now.").
 utterance(385, user, "learn 'you're a legend' as a playful remark").
+utterance(338, self, "Learned: the reference temperature of dimensional metrology is 20 degrees celsius.").
 utterance(384, self, "Got it - I'll take «that's funny» as a way to a playful remark now.").
 utterance(383, user, "learn 'that's funny' as a playful remark").
+utterance(337, user, "The reference temperature of dimensional metrology is 20 degrees Celsius.").
 utterance(382, self, "Got it - I'll take «nice one» as a way to a playful remark now.").
 utterance(381, user, "learn 'nice one' as a playful remark").
+utterance(336, self, "Yes.").
 utterance(380, self, "Got it - I'll take «che scena» as a way to a playful remark now.").
 utterance(379, user, "learn 'che scena' as a playful remark").
+utterance(335, user, "Is 1.75 millimeters the thread pitch of an M12 coarse thread?").
 utterance(378, self, "Got it - I'll take «ahahah» as a way to a playful remark now.").
 utterance(377, user, "learn 'ahahah' as a playful remark").
 utterance(376, self, "Got it - I'll take «dai su» as a way to a playful remark now.").
+utterance(334, self, "Learned: the thread pitch of m12 coarse thread is 1.75 millimeters.").
 utterance(375, user, "learn 'dai su' as a playful remark").
 utterance(374, self, "Got it - I'll take «non ci credo» as a way to a playful remark now.").
+utterance(333, user, "The thread pitch of an M12 coarse thread is 1.75 millimeters.").
 utterance(373, user, "learn 'non ci credo' as a playful remark").
 utterance(372, self, "Got it - I'll take «troppo forte» as a way to a playful remark now.").
 utterance(371, user, "learn 'troppo forte' as a playful remark").
+utterance(332, self, "1.25 millimeters.").
 utterance(370, self, "Got it - I'll take «scherzavo» as a way to a playful remark now.").
 utterance(369, user, "learn 'scherzavo' as a playful remark").
+utterance(331, user, "What is the thread pitch of an M8 coarse thread?").
 utterance(368, self, "Got it - I'll take «ma va» as a way to a playful remark now.").
 utterance(367, user, "learn 'ma va' as a playful remark").
 utterance(366, self, "Got it - I'll take «sei un mito» as a way to a playful remark now.").
+utterance(330, self, "Learned: the thread pitch of m8 coarse thread is 1.25 millimeters.").
 utterance(365, user, "learn 'sei un mito' as a playful remark").
 utterance(364, self, "Got it - I'll take «che ridere» as a way to a playful remark now.").
 utterance(363, user, "learn 'che ridere' as a playful remark").
 utterance(76, self, "Learned: hatch is a relation verb.").
+utterance(329, user, "The thread pitch of an M8 coarse thread is 1.25 millimeters.").
 utterance(362, self, "Got it - I'll take «ma dai» as a way to a playful remark now.").
 utterance(77, user, "shed is a relation verb").
 utterance(361, user, "learn 'ma dai' as a playful remark").
 utterance(78, self, "Learned: shed is a relation verb.").
 utterance(76, self, "Learned: fasten is a relation verb.").
+utterance(328, self, "1 millimeter.").
 utterance(360, self, "Got it - I'll take «you're doing great» as a way to an encouragement now.").
 utterance(77, user, "enclose is a relation verb").
 utterance(79, user, "moult is a relation verb").
 utterance(76, self, "I looked up «forget» but found nothing. If you know it, teach me: «forget is defined as …».").
 utterance(78, self, "Learned: enclose is a relation verb.").
+utterance(327, user, "What is the thread pitch of an M6 coarse thread?").
 utterance(77, user, "Safety boots protect the feet from falling objects.").
 utterance(359, user, "learn 'you're doing great' as an encouragement").
 utterance(78, self, "Learned: safety boots protect feet.").
 utterance(79, user, "line is a relation verb").
 utterance(79, user, "What protects the feet?").
+utterance(326, self, "Learned: the thread pitch of m6 coarse thread is 1 millimeter.").
 utterance(358, self, "Got it - I'll take «proud of you» as a way to an encouragement now.").
 utterance(357, user, "learn 'proud of you' as an encouragement").
 utterance(356, self, "Got it - I'll take «well done you» as a way to an encouragement now.").
 utterance(355, user, "learn 'well done you' as an encouragement").
+utterance(325, user, "The thread pitch of an M6 coarse thread is 1 millimeter.").
 utterance(354, self, "Got it - I'll take «nice work» as a way to an encouragement now.").
 utterance(353, user, "learn 'nice work' as an encouragement").
 utterance(352, self, "Got it - I'll take «almost there» as a way to an encouragement now.").
 utterance(351, user, "learn 'almost there' as an encouragement").
 utterance(350, self, "Got it - I'll take «keep it up» as a way to an encouragement now.").
+utterance(324, self, "1.5 millimeters.").
 utterance(82, self, "Ricevuto — d'ora in poi prendo «si parla che lingua» come another way to ask language_of_country.").
 utterance(349, user, "learn 'keep it up' as an encouragement").
 utterance(348, self, "Got it - I'll take «don't give up» as a way to an encouragement now.").
@@ -2548,6 +2696,7 @@ utterance(347, user, "learn 'don't give up' as an encouragement").
 utterance(346, self, "Got it - I'll take «hang in there» as a way to an encouragement now.").
 utterance(345, user, "learn 'hang in there' as an encouragement").
 utterance(122, self, "Learned: endanger is a relation verb.").
+utterance(323, user, "What is the thread pitch of an M10 coarse thread?").
 utterance(344, self, "Got it - I'll take «keep going» as a way to an encouragement now.").
 utterance(121, user, "endanger is a relation verb").
 utterance(343, user, "learn 'keep going' as an encouragement").
@@ -2556,6 +2705,7 @@ utterance(120, self, "Learned: destroy is a relation verb.").
 utterance(342, self, "Got it - I'll take «you got this» as a way to an encouragement now.").
 utterance(119, user, "destroy is a relation verb").
 utterance(77, user, "What controls whether errors appear in the output?").
+utterance(322, self, "Learned: the thread pitch of m10 coarse thread is 1.5 millimeters.").
 utterance(341, user, "learn 'you got this' as an encouragement").
 utterance(118, self, "Learned: damage is a relation verb.").
 utterance(340, self, "Got it - I'll take «grande davvero» as a way to an encouragement now.").
@@ -2564,6 +2714,7 @@ utterance(117, user, "damage is a relation verb").
 utterance(339, user, "learn 'grande davvero' as an encouragement").
 utterance(116, self, "Learned: restore is a relation verb.").
 utterance(79, user, "What does display_errors control?").
+utterance(321, user, "The thread pitch of an M10 coarse thread is 1.5 millimeters.").
 utterance(338, self, "Got it - I'll take «continua così» as a way to an encouragement now.").
 utterance(115, user, "restore is a relation verb").
 utterance(337, user, "learn 'continua così' as an encouragement").
@@ -2580,6 +2731,7 @@ utterance(165, user, "Does a notice stop the script?").
 utterance(110, self, "Learned: amplify is a relation verb.").
 utterance(332, self, "Got it - I'll take «avanti così» as a way to an encouragement now.").
 utterance(109, user, "amplify is a relation verb").
+utterance(76, self, "I don't know any aftermath yet.").
 utterance(331, user, "learn 'avanti così' as an encouragement").
 utterance(164, self, "Fatal error and warning does not.").
 utterance(108, self, "Learned: scatter is a relation verb.").
@@ -2587,6 +2739,7 @@ utterance(330, self, "Got it - I'll take «dai che ci sei» as a way to an encou
 utterance(107, user, "scatter is a relation verb").
 utterance(132, self, "hard hat.").
 utterance(163, user, "What stops the script?").
+utterance(77, user, "A micrometer measures thickness.").
 utterance(329, user, "learn 'dai che ci sei' as an encouragement").
 utterance(131, user, "What protects the head, the feet and the ears?").
 utterance(106, self, "Learned: refract is a relation verb.").
@@ -2594,6 +2747,7 @@ utterance(130, self, "Unguarded edge.").
 utterance(162, self, "No.").
 utterance(328, self, "Got it - I'll take «non mollare» as a way to an encouragement now.").
 utterance(129, user, "Name everything that causes falls.").
+utterance(78, self, "Learned: micrometer measures thickness.").
 utterance(105, user, "refract is a relation verb").
 utterance(128, self, "Unguarded edges.").
 utterance(161, user, "Does a warning stop the script?").
@@ -2601,6 +2755,7 @@ utterance(327, user, "learn 'non mollare' as an encouragement").
 utterance(127, user, "What causes falls?").
 utterance(160, self, "I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(104, self, "Learned: reflect is a relation verb.").
+utterance(79, user, "What does a micrometer measure?").
 utterance(126, self, "Unguarded edge.").
 utterance(326, self, "Got it - I'll take «tieni duro» as a way to an encouragement now.").
 utterance(125, user, "What are the causes of falls?").
@@ -2616,6 +2771,7 @@ utterance(121, user, "Do unguarded edges cause falls?").
 utterance(158, self, "Learned: a warning does not stop the script.").
 utterance(101, user, "illuminate is a relation verb").
 utterance(157, user, "A warning does not stop the script.").
+utterance(166, self, "Reading «gauge» as «measures». I didn't keep that: «gauge_blocks» and «hardened_steel» don't read as things I can hold a fact about.").
 utterance(120, self, "Learned: unguarded edge causes fall.").
 utterance(156, self, "I didn't keep that: «fatal_error» and «script» don't read as things I can hold a fact about.").
 utterance(323, user, "learn 'ce la fai' as an encouragement").
@@ -2624,6 +2780,7 @@ utterance(119, user, "An unguarded edge causes a fall.").
 utterance(154, self, "Hmm, I don't know about default_value yet.").
 utterance(100, self, "Learned: rotate is a relation verb.").
 utterance(153, user, "The default value of memory_limit is 128 seconds.").
+utterance(165, user, "Gauge blocks are made of hardened steel, so hardened steel is their base material.").
 utterance(118, self, "Unguarded edges.").
 utterance(152, self, "2 megabytes.").
 utterance(322, self, "Got it - I'll take «forza dai» as a way to an encouragement now.").
@@ -2632,6 +2789,7 @@ utterance(117, user, "What causes falls?").
 utterance(150, self, "Learned: the default value of upload max filesize is 2 megabytes.").
 utterance(99, user, "rotate is a relation verb").
 utterance(149, user, "The default value of upload_max_filesize is 2 megabytes.").
+utterance(164, self, "I don't know any material yet.").
 utterance(116, self, "Unguarded edges.").
 utterance(148, self, "I don't know: nothing I hold gives memory limit a default value there.").
 utterance(321, user, "learn 'forza dai' as an encouragement").
@@ -2640,6 +2798,7 @@ utterance(115, user, "What causes falls?").
 utterance(146, self, "Hmm, I don't know about default_value yet.").
 utterance(98, self, "Learned: stretch is a relation verb.").
 utterance(145, user, "The default value of memory_limit is 128 megabytes.").
+utterance(163, user, "What is the material of a lapping plate?").
 utterance(114, self, "I cannot settle that: no fact I hold decides whether unguarded edges cause falls. Not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(144, self, "Learned: megabyte measures information.").
 utterance(84, self, "Got it - I'll take «sono cotto» as a way to a sign of tiredness now.").
@@ -2648,6 +2807,7 @@ utterance(113, user, "Do unguarded edges cause falls?").
 utterance(142, self, "I don't know: nothing I hold gives memory limit a default value there.").
 utterance(97, user, "stretch is a relation verb").
 utterance(141, user, "What is the default value of memory_limit?").
+utterance(162, self, "Learned: surface plate is.").
 utterance(112, self, "I didn't keep that: «unguarded_edges» and «falls» don't read as things I can hold a fact about.").
 utterance(140, self, "Hmm, I don't know about default_value yet.").
 utterance(76, self, "Learned: is_unit(forget).").
@@ -2656,10 +2816,12 @@ utterance(111, user, "Falls are caused by unguarded edges.").
 utterance(138, self, "I don't know about unit.").
 utterance(96, self, "Learned: compress is a relation verb.").
 utterance(137, user, "Is a megabyte a unit?").
+utterance(161, user, "A surface plate is made of granite, so granite is its material.").
 utterance(110, self, "I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn initiative, toolplan, piact, lessonform, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, claimq, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify").
 utterance(136, self, "60 seconds.").
 utterance(77, user, "the ohm measures what?").
 utterance(135, user, "What is the default value of default_socket_timeout?").
+utterance(160, self, "I don't understand that yet.").
 utterance(109, user, "why did you answer that way?").
 utterance(134, self, "Learned: the default value of default socket timeout is 60 seconds.").
 utterance(95, user, "compress is a relation verb").
@@ -2676,6 +2838,7 @@ utterance(106, self, "Guardrails.").
 utterance(128, self, "Learned: so_its_default has 30 seconds.").
 utterance(79, user, "forget that ohm is a is_unit").
 utterance(127, user, "The default value of max_execution_time is 30 seconds, so its default is 30 seconds.").
+utterance(159, user, "What is a carbide insert made of?").
 utterance(105, user, "What protects workers from falls?").
 utterance(126, self, "I don't know: nothing I hold gives memory limit a default value there.").
 utterance(93, user, "deposit is a relation verb").
@@ -2683,81 +2846,155 @@ utterance(125, user, "What is the default value of memory_limit?").
 utterance(104, self, "Learned: guardrails protect workers.").
 utterance(124, self, "Hmm, I don't know about default value yet. Want me to learn about it?").
 utterance(83, user, "learn 'qual è il simbolo' as another way to ask chemical_symbol").
+utterance(158, self, "Learned: carbide insert is.").
 utterance(123, user, "The default value of memory_limit is 128 megabytes.").
 utterance(103, user, "Guardrails protect workers from falls.").
 utterance(122, self, "I don't know: nothing I hold says var dump show the type of is variable, and nothing says it isn't.").
+utterance(157, user, "A carbide insert is made of tungsten carbide.").
 utterance(92, self, "Learned: erode is a relation verb.").
+utterance(156, self, "Steel.").
 utterance(121, user, "Does var_dump display the type of a variable?").
+utterance(155, user, "What is made of cast iron?").
 utterance(102, self, "I don't know: nothing I hold says workers wear is hard hat, and nothing says it isn't.").
+utterance(154, self, "Learned: lapping plate is.").
 utterance(120, self, "Hmm, I don't know about print r yet. Want me to learn about it?").
+utterance(153, user, "A lapping plate is made of cast iron.").
 utterance(166, self, "Ricevuto — d'ora in poi prendo «su che cosa vale» come another way to ask predicate_domain.").
+utterance(152, self, "I don't understand that yet.").
 utterance(119, user, "What does print_r display?").
+utterance(151, user, "What is a surface plate made of?").
 utterance(101, user, "Why do workers wear a hard hat?").
+utterance(150, self, "Learned: surface plate is.").
 utterance(118, self, "Learned: var dump print type.").
+utterance(149, user, "A surface plate is made of granite.").
 utterance(91, user, "erode is a relation verb").
+utterance(148, self, "Hmm, I don't know about blocks yet. Want me to learn about it?").
 utterance(117, user, "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
+utterance(147, user, "What are gauge blocks made of?").
 utterance(100, self, "Learned: workers wear hard hat.").
+utterance(146, self, "Reading «gauge» as «measures». I didn't keep that: «gauge_blocks» and «hardened_steel» don't read as things I can hold a fact about.").
 utterance(116, self, "Readable.").
+utterance(145, user, "Gauge blocks are made of hardened steel.").
 utterance(165, user, "learn 'su che cosa vale' as another way to ask predicate_domain").
+utterance(144, self, "Hmm, I don't know about clamps yet. Want me to learn about it?").
 utterance(115, user, "What does print_r print?").
+utterance(143, user, "What clamps the workpiece?").
 utterance(99, user, "Workers wear a hard hat because it protects the head from falling objects.").
+utterance(142, self, "Learned: collet hold cutting tool.").
 utterance(114, self, "I didn't keep that: «print_r» and «readable_view» don't read as things I can hold a fact about.").
+utterance(141, user, "A collet holds the cutting tool, so it clamps the cutting tool.").
 utterance(90, self, "Learned: shape is a relation verb.").
+utterance(140, self, "Reading «grip» as «held». I cannot settle that: no fact I hold decides whether vise grips workpiece. Not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(113, user, "print_r prints a readable view of a variable.").
+utterance(139, user, "Does a vise grip the workpiece?").
 utterance(98, self, "Slippery surfaces.").
+utterance(138, self, "Learned: chuck hold workpiece.").
 utterance(112, self, "Yes: unclosed string causes parse error.").
+utterance(137, user, "A chuck holds the workpiece, so it grips the workpiece.").
 utterance(164, self, "Ricevuto — d'ora in poi prendo «a che cosa si applica» come another way to ask predicate_domain.").
+utterance(136, self, "Yes.").
 utterance(111, user, "Do unclosed strings cause parse errors?").
+utterance(135, user, "Does a vise hold the workpiece?").
 utterance(97, user, "Unguarded edges cause falls.").
+utterance(134, self, "Learned: vise hold workpiece.").
 utterance(110, self, "Reading «triggers» as «causes». missing semicolon.").
+utterance(133, user, "A vise holds the workpiece.").
 utterance(89, user, "shape is a relation verb").
+utterance(132, self, "Cutting tool.").
 utterance(109, user, "What triggers a parse error?").
+utterance(131, user, "What does a collet hold?").
 utterance(96, self, "I cannot settle that: no fact I hold decides whether unguarded edges cause falls. Not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(130, self, "Learned: collet hold cutting tool.").
 utterance(108, self, "Reading «symptom» as «causes». I can't show that.").
+utterance(129, user, "A collet holds the cutting tool.").
 utterance(163, user, "learn 'a che cosa si applica' as another way to ask predicate_domain").
+utterance(128, self, "Chuck.").
 utterance(107, user, "What is the symptom of an unclosed string?").
+utterance(127, user, "What holds the workpiece?").
 utterance(95, user, "Do unguarded edges cause falls?").
+utterance(126, self, "Learned: chuck hold workpiece.").
 utterance(106, self, "Learned: unclosed string causes parse error.").
+utterance(125, user, "A chuck holds the workpiece.").
 utterance(88, self, "Learned: dominate is a relation verb.").
+utterance(124, self, "Reading «gauge» as «measures». Reading «measured quantity» as «measures». Measures gaps.").
 utterance(105, user, "An unclosed string causes a parse error.").
+utterance(123, user, "What is the measured quantity of a feeler gauge?").
 utterance(94, self, "Yes: slippery surfaces causes falls.").
+utterance(122, self, "Learned: dial indicator measures displacement.").
 utterance(104, self, "Reading «symptom» as «causes». I can't show that.").
+utterance(121, user, "A dial indicator measures displacement, so displacement is its measured quantity.").
 utterance(162, self, "Ricevuto — d'ora in poi prendo «di che tipo è la relazione» come another way to ask relation_type.").
+utterance(120, self, "Reading «measurand» as «measures». temperature.").
 utterance(103, user, "What is the symptom of a missing semicolon?").
+utterance(119, user, "What is the measurand of a thermocouple?").
 utterance(93, user, "Do slippery surfaces cause falls?").
+utterance(118, self, "Learned: micrometer measures thickness.").
 utterance(102, self, "Reading «symptom» as «causes». A named block of code that performs a specific task and can return a value.").
+utterance(117, user, "A micrometer measures thickness, so thickness is its measurand.").
 utterance(87, user, "dominate is a relation verb").
+utterance(116, self, "Reading «quantifies» as «measures». Dial indicator.").
 utterance(101, user, "What is the symptom of output before the header function?").
+utterance(115, user, "What quantifies displacement?").
 utterance(92, self, "I don't know: nothing I hold says workers wear is hard hat, and nothing says it isn't.").
+utterance(114, self, "Learned: profilometer measures surface roughness.").
 utterance(100, self, "Learned: missing semicolon causes parse error.").
+utterance(113, user, "A profilometer measures surface roughness, so it quantifies surface roughness.").
 utterance(161, user, "learn 'di che tipo è la relazione' as another way to ask relation_type").
+utterance(112, self, "Reading «read» as «measures». Yes.").
 utterance(99, user, "A missing semicolon causes a parse error, so a parse error is its symptom.").
+utterance(111, user, "Does a thermocouple read temperature?").
 utterance(91, user, "Why do workers wear a hard hat?").
+utterance(110, self, "Learned: tachometer measures rotational speed.").
 utterance(98, self, "Reading «triggers» as «causes». missing semicolon.").
+utterance(109, user, "A tachometer measures rotational speed, so it reads rotational speed.").
 utterance(160, self, "Ricevuto — d'ora in poi prendo «che tipo di relazione» come another way to ask relation_type.").
+utterance(108, self, "I don't understand that yet.").
 utterance(97, user, "What triggers a parse error?").
+utterance(107, user, "Does a height gauge gauge height?").
 utterance(90, self, "Unguarded edges.").
+utterance(106, self, "Learned: micrometer measures thickness.").
 utterance(96, self, "Reading «trigger» as «causes». Yes: output before the header function causes headers already sent warning.").
+utterance(105, user, "A micrometer measures thickness, so it gauges thickness.").
 utterance(80, self, "Learned: capture is a relation verb.").
+utterance(104, self, "Measures gaps.").
 utterance(95, user, "Does output before the header function trigger a headers already sent warning?").
+utterance(103, user, "What does a feeler gauge measure?").
 utterance(89, user, "What causes falls?").
+utterance(102, self, "Learned: feeler gauge measures gaps.").
 utterance(94, self, "Learned: missing semicolon causes parse error.").
+utterance(101, user, "A feeler gauge measures gaps.").
 utterance(81, user, "trap is a relation verb").
+utterance(100, self, "Degree fahrenheit, degree celsius and thermocouple.").
 utterance(93, user, "A missing semicolon causes a parse error, so it triggers a parse error.").
+utterance(99, user, "What measures temperature?").
 utterance(88, self, "Slippery surfaces.").
+utterance(98, self, "Learned: thermocouple measures temperature.").
 utterance(92, self, "I understood you're asking how to make error, but I don't have the steps for it yet.").
+utterance(97, user, "A thermocouple measures temperature.").
 utterance(80, self, "Learned: moult is a relation verb.").
+utterance(96, self, "Rotational speed.").
 utterance(91, user, "How do I fix an allowed memory size exhausted error?").
+utterance(95, user, "What does a tachometer measure?").
 utterance(87, user, "Unguarded edges cause falls.").
+utterance(94, self, "Learned: tachometer measures rotational speed.").
 utterance(90, self, "Hmm, I don't know about allowed yet.").
+utterance(93, user, "A tachometer measures rotational speed.").
 utterance(159, user, "learn 'che tipo di relazione' as another way to ask relation_type").
+utterance(92, self, "Profilometer.").
 utterance(89, user, "What fixes an allowed memory size exhausted error?").
+utterance(91, user, "What measures surface roughness?").
 utterance(80, self, "Learned: line is a relation verb.").
+utterance(90, self, "Learned: profilometer measures surface roughness.").
 utterance(88, self, "I looked up «allowed» but found nothing. If you know it, teach me: «allowed is defined as …».").
+utterance(89, user, "A profilometer measures surface roughness.").
 utterance(80, self, "Safety boots.").
+utterance(88, self, "Displacement.").
 utterance(87, user, "Raising memory_limit fixes an allowed memory size exhausted error.").
+utterance(87, user, "What does a dial indicator measure?").
 utterance(81, user, "Hearing protection protects the ears from noise.").
 utterance(158, self, "Ricevuto — d'ora in poi prendo «si trasmette» come another way to ask transitive.").
+utterance(80, self, "Thickness.").
+utterance(81, user, "A height gauge measures height.").
 utterance(80, self, "Hmm, I don't know about display errors yet. Want me to learn about it?").
 utterance(81, user, "A script that exceeds memory_limit causes an allowed memory size exhausted error.").
 utterance(157, user, "learn 'si trasmette' as another way to ask transitive").
@@ -2969,6 +3206,7 @@ utterance(2, self, "Held: «led» is short for «light-emitting diode».").
 utterance(2, self, "Learned: degree celsius measures temperature.").
 utterance(2, self, "Hand.").
 utterance(2, self, "I don't know much about xdebug yet, and the network is off, so I can't read about it now.").
+utterance(2, self, "Learned: backlash causes positioning errors.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3034,6 +3272,7 @@ utterance(1, user, "a probe placed into orbit").
 utterance(1, user, "x characterized by y means x has y").
 utterance(82, self, "Learned: script exceed memory limit.").
 utterance(1, user, "deliver is a relation verb").
+utterance(82, self, "Learned: height gauge measures height.").
 utterance(1, user, "belong is a relation verb").
 utterance(1, user, "improve is a relation verb").
 utterance(1, user, "contain is a relation verb").
@@ -3044,86 +3283,247 @@ utterance(1, user, "ciao").
 utterance(1, user, "I feel sad today").
 utterance(1, user, "Should I learn Python or JavaScript first?").
 utterance(1, user, "What can you help me with?").
+utterance(244, self, "Learned: milling machine has knee.").
 utterance(1, user, "Help me write an email.").
+utterance(243, user, "A milling machine has a knee.").
 utterance(1, user, "I want to start running").
+utterance(242, self, "Lathe.").
 utterance(1, user, "Come posso organizzare meglio la mia giornata?").
+utterance(241, user, "What has a headstock?").
 utterance(1, user, "Give me some ideas for a birthday present for my dad.").
+utterance(240, self, "Learned: lathe has headstock.").
 utterance(1, user, "I need to cook dinner for four people tonight.").
+utterance(239, user, "A lathe has a headstock.").
 utterance(1, user, "ho un problema elettrico").
+utterance(238, self, "Yes.").
 utterance(1, user, "move 4 for someone sees sparks is now say to leave and call 112 on fire").
+utterance(237, user, "Does a micrometer have a thimble?").
 utterance(1, user, "I want to teach you").
+utterance(236, self, "Learned: micrometer has thimble.").
 utterance(1, user, "is an eagle warm-blooded?").
+utterance(235, user, "A micrometer has a thimble.").
 utterance(1, user, "does burning fossil fuels cause rising seas?").
+utterance(234, self, "I cannot settle that: no fact I hold decides whether cam transform rotary motion into reciprocating motion. Not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(1, user, "the language of ghana is english").
+utterance(233, user, "Does a cam transform rotary motion into reciprocating motion?").
 utterance(1, user, "chloroform causes dizziness").
+utterance(232, self, "I looked up «converts» but found nothing. If you know it, teach me: «converts is defined as …».").
 utterance(1, user, "I left cooked chicken out for 3 hours, is it safe?").
+utterance(231, user, "A ball screw converts rotary motion into linear motion, so it transforms rotary motion into linear motion.").
 utterance(1, user, "above 32 degrees perishables should not be left out for more than 1 hour").
+utterance(230, self, "I looked up «converts» but found nothing. If you know it, teach me: «converts is defined as …».").
 utterance(1, user, "I burned my hand on the stove").
+utterance(229, user, "A ball screw converts rotary motion into linear motion, so it transforms rotary motion into linear motion.").
 utterance(1, user, "should I put butter on a burn?").
+utterance(228, self, "Rotary motion.").
 utterance(1, user, "why are my plant's leaves turning yellow?").
+utterance(227, user, "What does a cam convert?").
 utterance(1, user, "a sign of low light is leggy stems").
+utterance(226, self, "Learned: cam converts rotary motion.").
 utterance(1, user, "adults need 7 to 9 hours of sleep").
+utterance(225, user, "A cam converts rotary motion into reciprocating motion.").
 utterance(1, user, "how many grams are 2 cups of flour?").
+utterance(224, self, "Hmm, I don't know about converts yet.").
 utterance(1, user, "I cooked the chicken to 68 degrees, is it safe?").
+utterance(223, user, "What converts rotary motion into linear motion?").
 utterance(86, self, "I don't understand that yet.").
+utterance(222, self, "Hmm, I don't know about converts yet. Want me to learn about it?").
 utterance(1, user, "the italian for bleach is candeggina").
+utterance(221, user, "A ball screw converts rotary motion into linear motion.").
 utterance(85, user, "What protects the knees?").
+utterance(220, self, "Reading «decreases» as «reduces». Tempering.").
 utterance(1, user, "the italian for chlorine gas is cloro gassoso").
+utterance(219, user, "What decreases brittleness?").
 utterance(86, self, "I looked up «allowed» but found nothing. If you know it, teach me: «allowed is defined as …».").
+utterance(218, self, "Learned: gearbox reduces speed.").
+utterance(86, self, "Learned: dial indicator measures displacement.").
+utterance(217, user, "A gearbox reduces speed, so it decreases speed.").
 utterance(1, user, "the italian for chloramine gas is clorammine").
+utterance(216, self, "Reading «lower» as «reduces». Yes.").
+utterance(85, user, "A dial indicator measures displacement.").
+utterance(215, user, "Does a lubricant lower wear?").
 utterance(85, user, "Raising memory_limit fixes an allowed memory size exhausted error.").
+utterance(214, self, "Learned: ball bearing reduces friction.").
 utterance(1, user, "my nose is bleeding").
+utterance(213, user, "A ball bearing reduces friction, so it lowers friction.").
 utterance(1, user, "the humidity in my bedroom is 70 percent, is that a problem?").
+utterance(212, self, "Brittleness.").
 utterance(1, user, "high humidity causes mold").
+utterance(211, user, "What does tempering reduce?").
 utterance(1, user, "can I throw lithium batteries in the bin?").
+utterance(210, self, "Learned: tempering reduces brittleness.").
 utterance(1, user, "look things up yourself").
+utterance(209, user, "Tempering reduces brittleness.").
 utterance(1, user, "most legionella outbreaks result from poorly maintained cooling towers").
+utterance(208, self, "Gearbox.").
 utterance(1, user, "sense is a relation verb").
+utterance(207, user, "What reduces speed?").
 utterance(1, user, "what does a residual current device do?").
+utterance(206, self, "Learned: gearbox reduces speed.").
 utterance(1, user, "what does a fire extinguisher do?").
+utterance(205, user, "A gearbox reduces speed.").
 utterance(1, user, "slippery surfaces cause falls").
+utterance(204, self, "Wear.").
 utterance(1, user, "legionella outbreaks cause legionnaires disease").
+utterance(203, user, "What does a lubricant reduce?").
 utterance(1, user, "what does a sump pump do?").
+utterance(202, self, "Learned: lubricant reduces wear.").
 utterance(1, user, "the italian for coal is carbone").
+utterance(201, user, "A lubricant reduces wear.").
 utterance(1, user, "flow into is a relation verb").
+utterance(200, self, "Ball bearing.").
 utterance(1, user, "Plato taught Aristotle.").
+utterance(199, user, "What reduces friction?").
 utterance(1, user, "Milan is a city.").
+utterance(198, self, "Learned: ball bearing reduces friction.").
 utterance(1, user, "A week has 168 hours.").
+utterance(197, user, "A ball bearing reduces friction.").
 utterance(1, user, "The Po flows into the Adriatic Sea.").
+utterance(196, self, "Reading «alloying element» as «contains». chromium.").
 utterance(1, user, "river is a relation").
+utterance(195, user, "What is the alloying element of stainless steel?").
 utterance(1, user, "The Rhone flows into the Mediterranean Sea.").
+utterance(194, self, "Learned: high-speed steel contains tungsten.").
 utterance(1, user, "when someone is planning a trip then ask what they want to see").
+utterance(193, user, "High-speed steel contains tungsten, so tungsten is its alloying element.").
 utterance(1, user, "largest city is a relation").
+utterance(192, self, "I don't know about constituent.").
 utterance(1, user, "Capacitors block direct current.").
+utterance(191, user, "What is the constituent of tool steel?").
 utterance(1, user, "Austenitic stainless steel is a steel.").
+utterance(190, self, "I didn't keep that: «cast_iron» and «graphite» don't read as things I can hold a fact about.").
 utterance(1, user, "The byte measures information.").
+utterance(189, user, "Cast iron contains graphite, so graphite is its constituent.").
 utterance(1, user, "A pump is a device.").
+utterance(188, self, "Reading «include» as «contains». I cannot settle that: no fact I hold decides whether cast iron include graphite. Not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(1, user, "'conosci' is another way to say 'cosa sai di'").
+utterance(187, user, "Does cast iron include graphite?").
 utterance(1, user, "'do you know' is another way to say 'what do you know about'").
+utterance(186, self, "Learned: stainless steel contains chromium.").
 utterance(1, user, "up is an adverbial particle").
+utterance(185, user, "Stainless steel contains chromium, so it includes chromium.").
 utterance(1, user, "'-' is a word joiner").
+utterance(184, self, "Carbon.").
 utterance(1, user, "operating voltage is a relation").
+utterance(183, user, "What does tool steel contain?").
 utterance(1, user, "flash point is a relation").
+utterance(182, self, "Learned: tool steel contains carbon.").
 utterance(1, user, "the boiling point of x is y means x boils at y").
+utterance(181, user, "Tool steel contains carbon.").
 utterance(1, user, "tell me the x means what is the x?").
+utterance(180, self, "Hmm, I don't know about graphite yet. Want me to learn about it?").
 utterance(1, user, "'i'd like' is a contraction of 'i would like'").
+utterance(179, user, "What contains graphite?").
 utterance(1, user, "LED is short for light-emitting diode").
+utterance(178, self, "I didn't keep that: «cast_iron» and «graphite» don't read as things I can hold a fact about.").
 utterance(1, user, "The degree Celsius measures temperature.").
+utterance(177, user, "Cast iron contains graphite.").
 utterance(1, user, "What does a heat-resistant glove protect?").
+utterance(176, self, "Yes.").
 utterance(1, user, "What is Xdebug?").
+utterance(175, user, "Does high-speed steel contain tungsten?").
+utterance(1, user, "Backlash causes positioning errors.").
+utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
+utterance(173, user, "High-speed steel contains tungsten.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
+utterance(172, self, "Chromium.").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
+utterance(171, user, "What does stainless steel contain?").
 utterance(4, self, "Self attention.").
+utterance(170, self, "Learned: stainless steel contains chromium.").
 utterance(4, self, "Learned: produces(liver, bile).").
+utterance(169, user, "Stainless steel contains chromium.").
 utterance(4, self, "Bile.").
+utterance(168, self, "Hmm, I don't know about material yet. Want me to learn about it?").
 utterance(4, self, "Learned: meter has 1000 millimeters.").
+utterance(167, user, "What is the base material of a carbide insert?").
 utterance(4, self, "Learned: may has 31 days.").
 utterance(4, self, "Learned: hypothesis_report_marker('the researchers hypothesize that').").
 utterance(4, self, "Learned: relation_verb(shortened).").
 utterance(4, self, "Learned: irregular_participle(found).").
 utterance(4, self, "Learned: necessity_marker(required).").
 utterance(4, self, "Learned: consequence_connector(accordingly).").
+utterance(1204, self, "Hmm, I don't know about spindle 0.1 millimeters yet. Want me to learn about it?").
+utterance(1203, user, "How many divisions move the spindle 0.1 millimeters?").
+utterance(1202, self, "Hmm, I don't know about thimble yet. Want me to learn about it?").
+utterance(1201, user, "How far does the spindle move per thimble division?").
+utterance(1200, self, "50 divisions.").
+utterance(1199, user, "How many divisions does a micrometer thimble have?").
+utterance(1198, self, "Learned: one revolution of the thimble move spindle 0.5 millimeters.").
+utterance(1197, user, "One revolution of the thimble moves the spindle 0.5 millimeters.").
+utterance(1196, self, "Learned: micrometer thimble has 50 divisions.").
+utterance(1195, user, "A micrometer thimble has 50 divisions.").
+utterance(1194, self, "Hmm, I don't know about inches yet. Want me to learn about it?").
+utterance(1193, user, "How many inches are 76.2 millimeters?").
+utterance(1192, self, "Hmm, I don't know about millimeters yet.").
+utterance(1191, user, "How many millimeters are in 3 inches?").
+utterance(1190, self, "A one inch has 25.4 millimeters.").
+utterance(1189, user, "How many millimeters are in one inch?").
+utterance(1188, self, "Learned: one_inch has 25.4 millimeters.").
+utterance(1187, user, "One inch is 25.4 millimeters.").
+utterance(1186, self, "I didn't keep that: «test_apply_inchmm_to_2» and «51» don't read as things I can hold a fact about.").
+utterance(1185, user, "test: apply inchmm to 2 gives 51").
+utterance(1184, self, "I didn't keep that: «test_apply_inchmm_to_2» and «50.8» don't read as things I can hold a fact about.").
+utterance(1183, user, "test: apply inchmm to 2 gives 50.8").
+utterance(1182, self, "inchmm(«25.4») — that is what the steps give.").
+utterance(1181, user, "apply inchmm to 1").
+utterance(1180, self, "I didn't keep that: «test_apply_inchmm_to_1» and «25.4» don't read as things I can hold a fact about.").
+utterance(1179, user, "test: apply inchmm to 1 gives 25.4").
+utterance(1178, self, "Hmm, I don't know about 10 millimeter cutter yet. Want me to learn about it?").
+utterance(1177, user, "What cutting speed gives 3183 on a 10 millimeter cutter?").
+utterance(1176, self, "I don't know much about spindle speed yet, and the network is off, so I can't read about it now.").
+utterance(1175, user, "What is the spindle speed for 100 meters per minute and 10 millimeters?").
+utterance(1174, self, "I don't understand that yet.").
+utterance(1173, user, "apply rpm to 100 and 10").
+utterance(1172, self, "Noted: The trip takes 2 hours.").
+utterance(1171, user, "rule for rpm takes 2 inputs").
+utterance(1170, self, "On What number gives 3 when cstep is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The").
+utterance(1169, user, "What number gives 3 when cstep is applied?").
+utterance(1168, self, "Hmm, I don't know about collatzm yet. Want me to learn about it?").
+utterance(1167, user, "apply collatzm to 6").
+utterance(1166, self, "cstep(«3») — that is what the steps give.").
+utterance(1165, user, "apply cstep to 6").
+utterance(1164, self, "I know I repeat myself — I'm a small bot and honest about my limits. What would you like to try?").
+utterance(1163, user, "rule for collatzm is repeat apply cstep until it reaches 1").
+utterance(1162, self, "Held: for cstep, 1 is «if even then halve else triple and add 1».").
+utterance(1161, user, "rule for cstep is if even then halve else triple and add 1").
+utterance(1160, self, "On What number gives 192 when doubletill is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalen").
+utterance(1159, user, "What number gives 192 when doubletill is applied?").
+utterance(1158, self, "doubletillh(«1.5») — that is what the steps give.").
+utterance(1157, user, "apply doubletillh to 3").
+utterance(1156, self, "Held: for doubletillh, 1 is «halve».").
+utterance(1155, user, "rule for doubletillh is halve").
+utterance(1154, self, "I didn't keep that: «rule_for_doubletillh» and «doubletill» don't read as things I can hold a fact about.").
+utterance(1153, user, "rule for doubletillh is apply doubletill").
+utterance(1152, self, "doubletill(«192») — that is what the steps give.").
+utterance(1151, user, "apply doubletill to 3").
+utterance(1150, self, "Held: for doubletill, 1 is «repeat double until above 100».").
+utterance(1149, user, "rule for doubletill is repeat double until above 100").
+utterance(1148, self, "'I do not have an active proposal to continue. Give me the topic or the point you want to resume.").
+utterance(1147, user, "why?").
+utterance(1146, self, "I know how to: devowel, shout, squash, quiet, inchmm, inchmm2, mminch, thimble, vernier, vernierx, rpm10, rpm10half, growth100, growth200, stepsdeg, screwtravel, diameter, circum, gearout, fahrcel, fahrkel, tapm, degrad, halfturn, toleven, halvetill, halvetillx, mmcm, mmdm, offs, feedtooth.").
+utterance(1145, user, "what procedures do you know?").
+utterance(1144, self, "feedtooth(«0.05») — that is what the steps give.").
+utterance(1143, user, "apply feedtooth to 0.2").
+utterance(1142, self, "Held: for feedtooth, 1 is «divide by 4».").
+utterance(1141, user, "rule for feedtooth is divide by 4").
+utterance(1140, self, "On What number gives 15 when offs is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The").
+utterance(1139, user, "What number gives 15 when offs is applied?").
+utterance(1138, self, "I don't understand that yet.").
+utterance(1137, user, "apply offs2 to 10").
+utterance(1136, self, "I didn't keep that: «rule_for_offs2» and «offs» don't read as things I can hold a fact about.").
+utterance(1135, user, "rule for offs2 is apply offs").
+utterance(1134, self, "I didn't keep that: «rule_for_offs2» and «offs» don't read as things I can hold a fact about.").
+utterance(1133, user, "rule for offs2 is apply offs").
+utterance(1132, self, "offs(«15») — that is what the steps give.").
+utterance(1131, user, "apply offs to 10").
+utterance(1130, self, "Removed step 2 of offs.").
+utterance(1129, user, "remove step 2 of offs").
+utterance(1128, self, "Held: for offs, 2 is «double».").
+utterance(1127, user, "rule for offs is double").
+utterance(1126, self, "Held: for offs, 1 is «add 5».").
+utterance(1125, user, "rule for offs is add 5").
 utterance(4, self, "Learned: irregular_participle(known).").
 utterance(4, self, "Learned: relation_verb(modulates).").
 utterance(4, self, "Got it - I'll take «ehilà» as a way to a casual opener now.").
@@ -3314,6 +3714,7 @@ utterance(4, self, "Learned: light-emitting diode emits light.").
 utterance(4, self, "Learned: degree fahrenheit measures temperature.").
 utterance(4, self, "Heat-resistant glove.").
 utterance(4, self, "Hmm, I don't know about var dump yet. Want me to learn about it?").
+utterance(4, self, "backlash.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3362,6 +3763,8 @@ utterance(84, self, "Noise.").
 utterance(3, user, "'escriba' is another way to say 'write'").
 utterance(3, user, "cosa vuole dire x means what does x mean").
 utterance(83, user, "What causes an allowed memory size exhausted error?").
+utterance(83, user, "What measures height?").
+utterance(84, self, "I don't understand that yet.").
 utterance(84, self, "Hmm, I don't know about allowed yet. Want me to learn about it?").
 utterance(3, user, "what is the meaning of velenosi").
 utterance(3, user, "x fashioned from y means x made of y").
@@ -3440,6 +3843,7 @@ utterance(3, user, "A light-emitting diode emits light.").
 utterance(3, user, "The degree Fahrenheit measures temperature.").
 utterance(3, user, "What protects the hand?").
 utterance(3, user, "What does var_dump do?").
+utterance(3, user, "What causes positioning errors?").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

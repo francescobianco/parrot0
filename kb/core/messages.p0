@@ -1254,6 +1254,14 @@ relation(flash_point).
 relation(minimum_height).
 relation(default_port).
 relation(default_value).
+relation(hardness).
+relation(density).
+relation(point_angle).
+relation(step_angle).
+relation(thread_angle).
+relation(reference_temperature).
+relation(thread_pitch).
+relation(resolution).
 response_template(learned_ability, "Held: {subject} can {object}.").
 response_template(learned_ability, it, "Tengo: {subject} può {object}.").
 turn_form(ability_stated, 1, slot(subject)).

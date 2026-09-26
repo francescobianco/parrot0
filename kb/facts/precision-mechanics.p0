@@ -1,0 +1,155 @@
+% precision-mechanics.p0 — LA MECCANICA DI PRECISIONE: strumenti di misura,
+% macchine utensili, filettature, materiali e trattamenti, cause di errore.
+%
+% Nato il 26 settembre 2026 dalla sessione live «meccanica di precisione»
+% (docs/sessions/live/2026-09-26-meccanica.log; resoconto
+% docs/sessions/2026-09-26-live-meccanica.md). Tutto insegnato PARLANDO e
+% verificato con una domanda diversa dalla lezione; il /save lo aveva sparso per
+% predicato (una fresa in physiology.p0, una chiave dinamometrica in
+% machine-learning.p0): qui sta accanto ai suoi simili, per materia. Le forme che
+% non hanno funzionato sono in docs/plans/train-the-learning-process.md.
+
+% ── che cosa sono ──────────────────────────────────────────────────────────
+class_surface(trapezoidal_thread, trapezoidal thread).
+class_surface(power_screw, power screw).
+class_surface(machining_process, machining process).
+class_surface(finishing_process, finishing process).
+class_surface(work_holding_device, work holding device).
+class_surface(fastener, fastener).
+class_surface(sensor, sensor).
+class_surface(electric_motor, electric motor).
+class_surface(mechanical_linear_actuator, mechanical linear actuator).
+class_surface(alloy, alloy).
+class_surface(length_standard, length standard).
+class_surface(cutting_tool, cutting tool).
+class_surface(machine_tool, machine tool).
+class_surface(measuring_instrument, measuring instrument).
+measuring_instrument(micrometer).
+measuring_instrument(vernier_caliper).
+measuring_instrument(dial_indicator).
+machine_tool(lathe).
+machine_tool(milling_machine).
+machine_tool(surface_grinder).
+cutting_tool(reamer).
+cutting_tool(end_mill).
+cutting_tool(tap).
+length_standard(gauge_block).
+alloy(brass).
+alloy(bronze).
+ceramic(tungsten_carbide).
+mechanical_linear_actuator(ball_screw).
+electric_motor(stepper_motor).
+sensor(rotary_encoder).
+fastener(dowel_pin).
+work_holding_device(collet).
+work_holding_device(vise).
+finishing_process(lapping).
+finishing_process(honing).
+machining_process(knurling).
+measuring_instrument(coordinate_measuring_machine).
+cutting_tool(boring_bar).
+cutting_tool(countersink).
+cutting_tool(fly_cutter).
+machine_tool(shaper).
+machine_tool(jig_borer).
+measuring_instrument(sine_bar).
+measuring_instrument(profilometer).
+power_screw(lead_screw).
+trapezoidal_thread(acme_thread).
+alloy(invar).
+
+% ── che cosa fanno, di che cosa sono fatti, che cosa causano, i valori ─────
+contains(grinding_wheel, corundum).
+contains(tool_steel, carbon).
+contains(high-speed_steel, tungsten).
+contains(stainless_steel, chromium).
+made_of(wire_for_edm, brass).
+made_of(bronze, copper).
+made_of(brass, copper).
+has_part(milling_machine, knee).
+has_part(lathe, headstock).
+has_part(micrometer, thimble).
+precedes(drilling, reaming).
+precedes(centering, drilling).
+precedes(tempering, grinding).
+precedes(hardening, tempering).
+stores(flywheel, rotational_energy).
+stores(spring, energy).
+causes(vibration, chatter).
+causes(parallax, reading_errors).
+causes(overheating, tool_failure).
+causes(misalignment, bearing_wear).
+causes(tool_wear, poor_surface_finish).
+causes(thermal_expansion, dimensional_errors).
+causes(backlash, positioning_errors).
+move(ball_screw, table).
+applies(torque_wrench, specified_torque).
+produces(fly_cutter, flat_surfaces).
+produces(knurling, textured_grip).
+produces(surface_grinder, flat_surfaces).
+measures(probe, workpiece_position).
+measures(linear_encoder, linear_position).
+measures(coordinate_measuring_machine, geometry).
+measures(rockwell_tester, hardness).
+measures(rotary_encoder, angular_position).
+measures(autocollimator, small_angles).
+measures(thermocouple, temperature).
+measures(tachometer, rotational_speed).
+measures(profilometer, surface_roughness).
+measures(dial_indicator, displacement).
+measures(micrometer, thickness).
+hold(chuck, workpiece).
+hold(collet, cutting_tool).
+hold(vise, workpiece).
+reduces(ball_bearing, friction).
+reduces(lubricant, wear).
+reduces(gearbox, speed).
+reduces(tempering, brittleness).
+converts(cam, rotary_motion).
+rotate(spindle, cutting_tool).
+rotate(lathe, workpiece).
+transmits(key, torque).
+transmits(belt, power).
+resolution_of(standard_micrometer, 0.01_millimeters).
+resolution_of(vernier_caliper, 0.02_millimeters).
+resolution_of(dial_indicator, 0.01_millimeters).
+thread_pitch_of(m10_coarse_thread, 1.5_millimeters).
+thread_pitch_of(m6_coarse_thread, 1_millimeter).
+thread_pitch_of(m8_coarse_thread, 1.25_millimeters).
+thread_pitch_of(m12_coarse_thread, 1.75_millimeters).
+reference_temperature_of(dimensional_metrology, 20_degrees_celsius).
+thread_angle_of(metric_thread, 60_degrees).
+thread_angle_of(acme_thread, 29_degrees).
+step_angle_of(typical_stepper_motor, 1.8_degrees).
+point_angle_of(standard_twist_drill, 118_degrees).
+resolution_of(digital_caliper, 0.01_millimeters).
+thread_pitch_of(m16_coarse_thread, 2_millimeters).
+thread_pitch_of(m4_coarse_thread, 0.7_millimeters).
+hardness_of(tungsten_carbide, 90_hra).
+rotate(milling_machine, cutter).
+enlarge(reamer, holes).
+supports(tailstock, workpiece).
+supports(steady_rest, long_workpieces).
+connects(coupling, two_shafts).
+align(dowel_pin, parts).
+set(sine_bar, angles).
+divides(dividing_head, circle).
+remove(deburring, burrs).
+reduces(cutting_fluid, friction).
+remove(coolant, heat).
+harden(quenching, steel).
+improve(honing, bore_geometry).
+controls(g-code, cnc_machines).
+supports(bushing, rotating_shaft).
+rotate(rotary_table, workpiece).
+converts(lead_screw, rotary_motion).
+locate(edge_finder, edges).
+mark(center_punch, hole_centers).
+mark(scriber, lines).
+drive(servo_motor, axis).
+remove(chip_conveyor, chips).
+reduces(worm_gear, speed).
+drive(servo_motor, ball_screw).
+
+% ── negazioni dette ──────────────────────────────────────────────────────────
+not(resist(lead, scratching)).

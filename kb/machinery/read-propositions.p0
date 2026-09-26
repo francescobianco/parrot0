@@ -51,74 +51,316 @@ semantic_proposition(proposition(binary(print), roles(subject(var_dump), object(
 semantic_proposition(proposition(binary(print), roles(subject(var_dump), object(type)))).
 semantic_proposition(proposition(binary(cause), roles(subject(missing_semicolon), object(parse_error)))).
 semantic_proposition(proposition(binary(add), roles(subject(php_extension), object(functions)))).
+semantic_proposition(proposition(binary(move), roles(subject(thimble), object(spindle_0.5_millimeters)))).
+semantic_proposition(proposition(binary(apply), roles(subject(repeat), object(cstep)))).
+semantic_proposition(proposition(binary(move), roles(subject(ball), object(table)))).
+semantic_proposition(proposition(binary(contain), roles(subject(grinding_wheel), object(corundum)))).
+semantic_proposition(proposition(binary(drive), roles(subject(servo_motor), object(ball)))).
+semantic_proposition(proposition(binary(resist), roles(subject(hard), object(scratching)))).
+semantic_proposition(proposition(binary(need), roles(subject(wears), object(replacement)))).
+semantic_proposition(proposition(binary(need), roles(subject(machine), object(maintenance)))).
+semantic_proposition(proposition(binary(convert), roles(subject(pinion), object(rotary_motion)))).
+semantic_proposition(proposition(binary(reduce), roles(subject(worm_gear), object(speed)))).
+semantic_proposition(proposition(binary(measure), roles(subject(probe), object(workpiece)))).
+semantic_proposition(proposition(binary(remove), roles(subject(chip_conveyor), object(chips)))).
+semantic_proposition(proposition(binary(drive), roles(subject(servo_motor), object(axis)))).
+semantic_proposition(proposition(binary(mark), roles(subject(center_punch), object(hole_centers)))).
+semantic_proposition(proposition(binary(locate), roles(subject(edge_finder), object(edges)))).
+semantic_binding(binary(move), thimble, object(spindle_0.5_millimeters)).
+semantic_proposition(proposition(binary(produce), roles(subject(fly_cutter), object(flat_surfaces)))).
+semantic_proposition(proposition(binary(measure), roles(subject(linear_encoder), object(linear)))).
+semantic_binding(binary(move), ball, object(table)).
+semantic_proposition(proposition(binary(rotate), roles(subject(rotary_table), object(workpiece)))).
+semantic_proposition(proposition(binary(support), roles(subject(bushing), object(rotating_shaft)))).
+semantic_proposition(proposition(binary(measure), roles(subject(machine), object(geometry)))).
+semantic_binding(binary(measure), probe, object(workpiece)).
+semantic_proposition(proposition(binary(control), roles(subject(g-code), object(cnc_machines)))).
+semantic_proposition(proposition(binary(gauge), roles(subject(go_no-go), object(checks_tolerances)))).
+semantic_proposition(proposition(binary(gauge), roles(subject(thread), object(checks_threads)))).
+semantic_proposition(proposition(binary(measure), roles(subject(rockwell_tester), object(hardness)))).
+semantic_proposition(proposition(binary(produce), roles(subject(knurling), object(textured_grip)))).
+semantic_proposition(proposition(binary(improve), roles(subject(honing), object(bore_geometry)))).
+semantic_binding(binary(measure), linear_encoder, object(linear)).
+semantic_proposition(proposition(binary(remove), roles(subject(coolant), object(heat)))).
+semantic_proposition(proposition(binary(reduce), roles(subject(cutting_fluid), object(friction)))).
+semantic_proposition(proposition(binary(remove), roles(subject(deburring), object(burrs)))).
+semantic_binding(binary(measure), machine, object(geometry)).
+semantic_proposition(proposition(binary(divide), roles(subject(dividing_head), object(circle)))).
+semantic_proposition(proposition(binary(set), roles(subject(sine_bar), object(angles)))).
+semantic_proposition(proposition(binary(store), roles(subject(flywheel), object(rotational_energy)))).
+semantic_proposition(proposition(binary(store), roles(subject(spring), object(energy)))).
+semantic_binding(binary(measure), rockwell_tester, object(hardness)).
+semantic_proposition(proposition(binary(align), roles(subject(dowel_pin), object(parts)))).
+semantic_proposition(proposition(binary(connect), roles(subject(coupling), object(two_shafts)))).
+semantic_proposition(proposition(binary(measure), roles(subject(rotary_encoder), object(angular)))).
+semantic_proposition(proposition(binary(support), roles(subject(steady_rest), object(long_workpieces)))).
+semantic_proposition(proposition(binary(support), roles(subject(tailstock), object(workpiece)))).
+semantic_proposition(proposition(binary(produce), roles(subject(surface_grinder), object(flat_surfaces)))).
+semantic_proposition(proposition(binary(enlarge), roles(subject(reamer), object(holes)))).
+semantic_proposition(proposition(binary(rotate), roles(subject(milling_machine), object(cutter)))).
+semantic_proposition(proposition(binary(apply), roles(subject(torque_wrench), object(specified_torque)))).
+semantic_proposition(proposition(binary(measure), roles(subject(laser_interferometer), object(displacement)))).
+semantic_proposition(proposition(binary(measure), roles(subject(autocollimator), object(small_angles)))).
+semantic_proposition(proposition(binary(screw), roles(subject(ball), object(mechanical_linear_actuator)))).
+semantic_binding(binary(measure), rotary_encoder, object(angular)).
+semantic_proposition(proposition(binary(transmit), roles(subject(key), object(torque)))).
+semantic_proposition(proposition(binary(rotate), roles(subject(lathe), object(workpiece)))).
+semantic_proposition(proposition(binary(rotate), roles(subject(spindle), object(cutting_tool)))).
+semantic_proposition(proposition(binary(have), roles(subject(milling_machine), object(knee)))).
+semantic_proposition(proposition(binary(have), roles(subject(lathe), object(headstock)))).
+semantic_proposition(proposition(binary(have), roles(subject(micrometer), object(thimble)))).
+semantic_proposition(proposition(binary(transform), roles(subject(linear_motion), object(rotary_motion)))).
+semantic_binding(binary(need), wears, object(replacement)).
+semantic_binding(binary(measure), laser_interferometer, object(displacement)).
+semantic_binding(binary(need), machine, object(maintenance)).
+semantic_proposition(proposition(binary(convert), roles(subject(cam), object(rotary_motion)))).
+semantic_binding(binary(measure), autocollimator, object(small_angles)).
+semantic_proposition(proposition(binary(reduce), roles(subject(gearbox), object(speed)))).
+semantic_proposition(proposition(binary(reduce), roles(subject(lubricant), object(wear)))).
+semantic_proposition(proposition(binary(reduce), roles(subject(ball_bearing), object(friction)))).
+semantic_proposition(proposition(binary(contain), roles(subject(tool_steel), object(carbon)))).
+semantic_proposition(proposition(binary(contain), roles(subject(high-speed_steel), object(tungsten)))).
+semantic_proposition(proposition(binary(contain), roles(subject(stainless_steel), object(chromium)))).
+proposition_source_record(proposition(binary(move), roles(subject(thimble), object(spindle_0.5_millimeters))), source(inline, "one revolution of the thimble moves the spindle 0.5 millimeters."), provenance(language(en), range(0, 64))).
+semantic_proposition(proposition(binary(hold), roles(subject(vise), object(workpiece)))).
+semantic_binding(binary(apply), repeat, object(cstep)).
+proposition_source_record(proposition(binary(apply), roles(subject(repeat), object(cstep))), source(inline, "rule for collatzm is repeat apply cstep until it reaches 1"), provenance(language(en), range(0, 58))).
+semantic_proposition(proposition(binary(hold), roles(subject(collet), object(cutting_tool)))).
+semantic_proposition(proposition(binary(hold), roles(subject(chuck), object(workpiece)))).
+proposition_source_record(proposition(binary(move), roles(subject(ball), object(table))), source(inline, "the ball screw moves the table."), provenance(language(en), range(0, 31))).
+semantic_proposition(proposition(binary(measure), roles(subject(thermocouple), object(temperature)))).
+semantic_binding(binary(contain), grinding_wheel, object(corundum)).
+proposition_source_record(proposition(binary(contain), roles(subject(grinding_wheel), object(corundum))), source(inline, "a grinding wheel contains corundum."), provenance(language(en), range(0, 35))).
+semantic_proposition(proposition(binary(measure), roles(subject(tachometer), object(rotational_speed)))).
+semantic_binding(binary(drive), servo_motor, object(ball)).
+proposition_source_record(proposition(binary(need), roles(subject(machine), object(maintenance))), source(inline, " x is a machine"), provenance(language(en), range(2, 15))).
+proposition_source_record(proposition(binary(drive), roles(subject(servo_motor), object(ball))), source(inline, "a servo motor drives the ball screw."), provenance(language(en), range(0, 36))).
+semantic_proposition(proposition(binary(measure), roles(subject(profilometer), object(surface_roughness)))).
+semantic_binding(binary(resist), hard, object(scratching)).
+proposition_source_record(proposition(binary(resist), roles(subject(hard), object(scratching))), source(inline, " something is hard"), provenance(language(en), range(2, 18))).
+semantic_proposition(proposition(binary(measure), roles(subject(dial_indicator), object(displacement)))).
+semantic_proposition(proposition(binary(measure), roles(subject(micrometer), object(thickness)))).
+proposition_source_record(proposition(binary(need), roles(subject(wears), object(replacement))), source(inline, " something wears"), provenance(language(en), range(2, 16))).
+semantic_proposition(proposition(binary(read), roles(subject(words), object(spoils_readings)))).
+semantic_proposition(proposition(binary(read), roles(subject(parallax), object(errors)))).
+proposition_source_record(proposition(binary(need), roles(subject(machine), object(maintenance))), source(inline, " something is a machine"), provenance(language(en), range(2, 23))).
+semantic_proposition(proposition(binary(cause), roles(subject(overheating), object(tool_failure)))).
+semantic_binding(binary(convert), pinion, object(rotary_motion)).
+proposition_source_record(proposition(binary(convert), roles(subject(pinion), object(rotary_motion))), source(inline, "a rack and pinion converts rotary motion into linear motion."), provenance(language(en), range(0, 60))).
+semantic_proposition(proposition(binary(cause), roles(subject(misalignment), object(bearing_wear)))).
+semantic_binding(binary(reduce), worm_gear, object(speed)).
+proposition_source_record(proposition(binary(reduce), roles(subject(worm_gear), object(speed))), source(inline, "a worm gear reduces speed."), provenance(language(en), range(0, 26))).
+semantic_proposition(proposition(binary(cause), roles(subject(vibration), object(chatter)))).
+semantic_binding(binary(measure), thermocouple, object(temperature)).
+proposition_source_record(proposition(binary(measure), roles(subject(probe), object(workpiece))), source(inline, "a probe measures workpiece position."), provenance(language(en), range(0, 36))).
+semantic_proposition(proposition(binary(cause), roles(subject(tool_wear), object(poor_surface_finish)))).
+semantic_binding(binary(remove), chip_conveyor, object(chips)).
+proposition_source_record(proposition(binary(remove), roles(subject(chip_conveyor), object(chips))), source(inline, "a chip conveyor removes chips."), provenance(language(en), range(0, 30))).
+semantic_binding(binary(measure), tachometer, object(rotational_speed)).
+semantic_binding(binary(drive), servo_motor, object(axis)).
+proposition_source_record(proposition(binary(drive), roles(subject(servo_motor), object(axis))), source(inline, "a servo motor drives the axis."), provenance(language(en), range(0, 30))).
+semantic_proposition(proposition(binary(cause), roles(subject(thermal_expansion), object(dimensional_errors)))).
+semantic_binding(binary(mark), center_punch, object(hole_centers)).
+proposition_source_record(proposition(binary(mark), roles(subject(center_punch), object(hole_centers))), source(inline, "a center punch marks hole centers."), provenance(language(en), range(0, 34))).
+semantic_binding(binary(measure), profilometer, object(surface_roughness)).
+semantic_binding(binary(locate), edge_finder, object(edges)).
+proposition_source_record(proposition(binary(locate), roles(subject(edge_finder), object(edges))), source(inline, "an edge finder locates edges."), provenance(language(en), range(0, 29))).
+semantic_proposition(proposition(binary(position), roles(subject(backlash), object(errors)))).
+semantic_binding(binary(produce), fly_cutter, object(flat_surfaces)).
+proposition_source_record(proposition(binary(produce), roles(subject(fly_cutter), object(flat_surfaces))), source(inline, "a fly cutter produces flat surfaces."), provenance(language(en), range(0, 36))).
+semantic_binding(binary(measure), dial_indicator, object(displacement)).
 semantic_binding(binary(measure), nanometre, object(length)).
+proposition_source_record(proposition(binary(measure), roles(subject(linear_encoder), object(linear))), source(inline, "a linear encoder measures linear position."), provenance(language(en), range(0, 42))).
+semantic_binding(binary(measure), micrometer, object(thickness)).
+semantic_binding(binary(rotate), rotary_table, object(workpiece)).
+proposition_source_record(proposition(binary(rotate), roles(subject(rotary_table), object(workpiece))), source(inline, "a rotary table rotates the workpiece."), provenance(language(en), range(0, 37))).
 semantic_binding(binary(measure), megabyte, object(information)).
+semantic_binding(binary(support), bushing, object(rotating_shaft)).
+proposition_source_record(proposition(binary(support), roles(subject(bushing), object(rotating_shaft))), source(inline, "a bushing supports a rotating shaft."), provenance(language(en), range(0, 36))).
 proposition_source_record(proposition(binary(measure), roles(subject(nanometre), object(length))), source(inline, "the nanometre measures length."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(pass), capacitors, object(alternating_current)).
+proposition_source_record(proposition(binary(measure), roles(subject(machine), object(geometry))), source(inline, "a coordinate measuring machine measures geometry."), provenance(language(en), range(0, 49))).
 semantic_binding(binary(measure), hertz, object(frequency)).
+semantic_binding(binary(control), g-code, object(cnc_machines)).
+proposition_source_record(proposition(binary(control), roles(subject(g-code), object(cnc_machines))), source(inline, "g-code controls cnc machines."), provenance(language(en), range(0, 29))).
 proposition_source_record(proposition(binary(measure), roles(subject(hertz), object(frequency))), source(inline, "the hertz measures frequency."), provenance(language(en), range(0, 29))).
+semantic_binding(binary(gauge), go_no-go, object(checks_tolerances)).
+proposition_source_record(proposition(binary(gauge), roles(subject(go_no-go), object(checks_tolerances))), source(inline, "a go/no-go gauge checks tolerances."), provenance(language(en), range(0, 35))).
 semantic_binding(binary(measure), degree_fahrenheit, object(temperature)).
+semantic_binding(binary(gauge), thread, object(checks_threads)).
+proposition_source_record(proposition(binary(gauge), roles(subject(thread), object(checks_threads))), source(inline, "a thread gauge checks threads."), provenance(language(en), range(0, 30))).
 proposition_source_record(proposition(binary(pass), roles(subject(capacitors), object(alternating_current))), source(inline, "capacitors pass alternating current."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), degree_celsius, object(temperature)).
+proposition_source_record(proposition(binary(measure), roles(subject(rockwell_tester), object(hardness))), source(inline, "a rockwell tester measures hardness."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), byte, object(information)).
+semantic_binding(binary(produce), knurling, object(textured_grip)).
+proposition_source_record(proposition(binary(produce), roles(subject(knurling), object(textured_grip))), source(inline, "knurling produces a textured grip."), provenance(language(en), range(0, 34))).
 proposition_source_record(proposition(binary(measure), roles(subject(byte), object(information))), source(inline, "the byte measures information."), provenance(language(en), range(0, 30))).
+semantic_binding(binary(improve), honing, object(bore_geometry)).
+proposition_source_record(proposition(binary(improve), roles(subject(honing), object(bore_geometry))), source(inline, "honing improves bore geometry."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(break_down), amylase, object(starch)).
+semantic_binding(binary(remove), coolant, object(heat)).
+proposition_source_record(proposition(binary(remove), roles(subject(coolant), object(heat))), source(inline, "coolant removes heat."), provenance(language(en), range(0, 21))).
 semantic_binding(binary(protect), guardrails, object(workers)).
+semantic_binding(binary(reduce), cutting_fluid, object(friction)).
+proposition_source_record(proposition(binary(reduce), roles(subject(cutting_fluid), object(friction))), source(inline, "cutting fluid reduces friction."), provenance(language(en), range(0, 31))).
 proposition_source_record(proposition(binary(break_down), roles(subject(amylase), object(starch))), source(inline, "amylase breaks down starch."), provenance(language(en), range(0, 27))).
+semantic_binding(binary(remove), deburring, object(burrs)).
+proposition_source_record(proposition(binary(remove), roles(subject(deburring), object(burrs))), source(inline, "deburring removes burrs."), provenance(language(en), range(0, 24))).
 semantic_binding(binary(move), pump, object(fluid)).
+semantic_binding(binary(divide), dividing_head, object(circle)).
+proposition_source_record(proposition(binary(divide), roles(subject(dividing_head), object(circle))), source(inline, "a dividing head divides a circle into equal parts."), provenance(language(en), range(0, 50))).
+semantic_complement(binding(divide, dividing_head, circle), into, parts).
 semantic_binding(binary(protect), protection, object(ears)).
+semantic_binding(binary(set), sine_bar, object(angles)).
+proposition_source_record(proposition(binary(set), roles(subject(sine_bar), object(angles))), source(inline, "a sine bar sets angles."), provenance(language(en), range(0, 23))).
 semantic_binding(binary(step_down), step-down_transformer, object(voltage)).
+semantic_binding(binary(store), flywheel, object(rotational_energy)).
+proposition_source_record(proposition(binary(store), roles(subject(flywheel), object(rotational_energy))), source(inline, "a flywheel stores rotational energy."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(protect), safety_boots, object(feet)).
+semantic_binding(binary(store), spring, object(energy)).
+proposition_source_record(proposition(binary(store), roles(subject(spring), object(energy))), source(inline, "a spring stores energy."), provenance(language(en), range(0, 23))).
 semantic_binding(binary(step_down), buck_converter, object(voltage)).
+semantic_binding(binary(align), dowel_pin, object(parts)).
+proposition_source_record(proposition(binary(align), roles(subject(dowel_pin), object(parts))), source(inline, "a dowel pin aligns parts."), provenance(language(en), range(0, 25))).
 proposition_source_record(proposition(binary(step_down), roles(subject(buck_converter), object(voltage))), source(inline, "a buck converter steps down the voltage."), provenance(language(en), range(0, 40))).
+semantic_binding(binary(connect), coupling, object(two_shafts)).
+proposition_source_record(proposition(binary(connect), roles(subject(coupling), object(two_shafts))), source(inline, "a coupling connects two shafts."), provenance(language(en), range(0, 31))).
 semantic_binding(binary(protect), hard_hat, object(head)).
 semantic_binding(binary(protect), heat-resistant_glove, object(hand)).
+proposition_source_record(proposition(binary(measure), roles(subject(rotary_encoder), object(angular))), source(inline, "a rotary encoder measures angular position."), provenance(language(en), range(0, 43))).
 proposition_source_record(proposition(binary(protect), roles(subject(heat-resistant_glove), object(hand))), source(inline, "a heat-resistant glove protects the hand."), provenance(language(en), range(0, 41))).
+semantic_binding(binary(support), steady_rest, object(long_workpieces)).
+proposition_source_record(proposition(binary(support), roles(subject(steady_rest), object(long_workpieces))), source(inline, "a steady rest supports long workpieces."), provenance(language(en), range(0, 39))).
 semantic_binding(binary(cause), unguarded_edge, object(fall)).
+semantic_binding(binary(support), tailstock, object(workpiece)).
+proposition_source_record(proposition(binary(support), roles(subject(tailstock), object(workpiece))), source(inline, "a tailstock supports the workpiece."), provenance(language(en), range(0, 35))).
 proposition_source_record(proposition(binary(cause), roles(subject(unguarded_edge), object(fall))), source(inline, "an unguarded edge causes a fall."), provenance(language(en), range(0, 32))).
+semantic_binding(binary(produce), surface_grinder, object(flat_surfaces)).
+proposition_source_record(proposition(binary(produce), roles(subject(surface_grinder), object(flat_surfaces))), source(inline, "a surface grinder produces flat surfaces."), provenance(language(en), range(0, 41))).
 semantic_binding(binary(cause), unclosed_string, object(parse_error)).
+semantic_binding(binary(enlarge), reamer, object(holes)).
+proposition_source_record(proposition(binary(enlarge), roles(subject(reamer), object(holes))), source(inline, "a reamer enlarges holes."), provenance(language(en), range(0, 24))).
 proposition_source_record(proposition(binary(move), roles(subject(pump), object(fluid))), source(inline, "pumps move fluid."), provenance(language(en), range(0, 17))).
+semantic_binding(binary(rotate), milling_machine, object(cutter)).
+proposition_source_record(proposition(binary(rotate), roles(subject(milling_machine), object(cutter))), source(inline, "a milling machine rotates the cutter."), provenance(language(en), range(0, 37))).
 semantic_binding(binary(disconnect), double-pole_switch, object(both_conductors)).
+semantic_binding(binary(apply), torque_wrench, object(specified_torque)).
+proposition_source_record(proposition(binary(apply), roles(subject(torque_wrench), object(specified_torque))), source(inline, "a torque wrench applies a specified torque."), provenance(language(en), range(0, 43))).
 proposition_source_record(proposition(binary(protect), roles(subject(guardrails), object(workers))), source(inline, "guardrails protect workers from falls."), provenance(language(en), range(0, 38))).
 semantic_complement(binding(protect, guardrails, workers), from, falls).
+proposition_source_record(proposition(binary(measure), roles(subject(laser_interferometer), object(displacement))), source(inline, "a laser interferometer measures displacement."), provenance(language(en), range(0, 45))).
+semantic_binding(binary(cause), overheating, object(tool_failure)).
 semantic_binding(binary(cause), missing_semicolon, object(parse_error)).
+proposition_source_record(proposition(binary(measure), roles(subject(autocollimator), object(small_angles))), source(inline, "an autocollimator measures small angles."), provenance(language(en), range(0, 40))).
+semantic_binding(binary(cause), misalignment, object(bearing_wear)).
+semantic_binding(binary(screw), ball, object(mechanical_linear_actuator)).
+proposition_source_record(proposition(binary(screw), roles(subject(ball), object(mechanical_linear_actuator))), source(inline, "a ball screw is a mechanical linear actuator."), provenance(language(en), range(0, 45))).
 proposition_source_record(proposition(binary(disconnect), roles(subject(double-pole_switch), object(both_conductors))), source(inline, "a double-pole switch disconnects both conductors."), provenance(language(en), range(0, 49))).
+semantic_binding(binary(transmit), key, object(torque)).
+proposition_source_record(proposition(binary(rotate), roles(subject(lathe), object(workpiece))), source(inline, "a lathe rotates the workpiece"), provenance(language(en), range(0, 29))).
+proposition_source_record(proposition(binary(transmit), roles(subject(key), object(torque))), source(inline, "a key transmits torque."), provenance(language(en), range(0, 23))).
+semantic_binding(binary(cause), vibration, object(chatter)).
+semantic_binding(binary(rotate), lathe, object(workpiece)).
+proposition_source_record(proposition(binary(rotate), roles(subject(lathe), object(workpiece))), source(inline, "a lathe rotates the workpiece."), provenance(language(en), range(0, 30))).
 semantic_binding(binary(manage), php-fpm, object(worker_processes)).
+semantic_binding(binary(rotate), spindle, object(cutting_tool)).
+proposition_source_record(proposition(binary(rotate), roles(subject(spindle), object(cutting_tool))), source(inline, "a spindle rotates the cutting tool."), provenance(language(en), range(0, 35))).
+semantic_binding(binary(cause), tool_wear, object(poor_surface_finish)).
+semantic_binding(binary(have), milling_machine, object(knee)).
+proposition_source_record(proposition(binary(have), roles(subject(micrometer), object(thimble))), source(inline, "a micrometer has a thimble, so a thimble is its component."), provenance(language(en), range(0, 58))).
+proposition_source_record(proposition(binary(have), roles(subject(milling_machine), object(knee))), source(inline, "a milling machine has a knee."), provenance(language(en), range(0, 29))).
 proposition_source_record(proposition(binary(manage), roles(subject(composer), object(dependencies))), source(inline, "composer manages dependencies, so it handles dependencies."), provenance(language(en), range(0, 58))).
+semantic_binding(binary(have), lathe, object(headstock)).
+proposition_source_record(proposition(binary(have), roles(subject(lathe), object(headstock))), source(inline, "a lathe has a headstock."), provenance(language(en), range(0, 24))).
+semantic_binding(binary(cause), thermal_expansion, object(dimensional_errors)).
+semantic_binding(binary(have), micrometer, object(thimble)).
+proposition_source_record(proposition(binary(have), roles(subject(micrometer), object(thimble))), source(inline, "a micrometer has a thimble."), provenance(language(en), range(0, 27))).
 proposition_source_record(proposition(binary(manage), roles(subject(php-fpm), object(worker_processes))), source(inline, "php-fpm manages worker processes."), provenance(language(en), range(0, 33))).
+semantic_binding(binary(transform), linear_motion, object(rotary_motion)).
+proposition_source_record(proposition(binary(transform), roles(subject(linear_motion), object(rotary_motion))), source(inline, "a ball screw converts rotary motion into linear motion, so it transforms rotary motion into linear motion."), provenance(language(en), range(0, 106))).
 semantic_binding(binary(cause), unguarded_edges, object(falls)).
+semantic_binding(binary(convert), cam, object(rotary_motion)).
+proposition_source_record(proposition(binary(convert), roles(subject(cam), object(rotary_motion))), source(inline, "a cam converts rotary motion into reciprocating motion."), provenance(language(en), range(0, 55))).
 semantic_binding(binary(manage), composer, object(dependencies)).
+semantic_binding(binary(reduce), gearbox, object(speed)).
+proposition_source_record(proposition(binary(reduce), roles(subject(gearbox), object(speed))), source(inline, "a gearbox reduces speed."), provenance(language(en), range(0, 24))).
 proposition_source_record(proposition(binary(manage), roles(subject(composer), object(dependencies))), source(inline, "composer manages dependencies."), provenance(language(en), range(0, 30))).
+semantic_binding(binary(reduce), lubricant, object(wear)).
+proposition_source_record(proposition(binary(reduce), roles(subject(lubricant), object(wear))), source(inline, "a lubricant reduces wear."), provenance(language(en), range(0, 25))).
 proposition_source_record(proposition(binary(cause), roles(subject(unguarded_edges), object(falls))), source(inline, "unguarded edges cause falls."), provenance(language(en), range(0, 28))).
+semantic_binding(binary(reduce), ball_bearing, object(friction)).
+proposition_source_record(proposition(binary(reduce), roles(subject(ball_bearing), object(friction))), source(inline, "a ball bearing reduces friction."), provenance(language(en), range(0, 32))).
 semantic_binding(binary(step_up), flyback_transformer, object(voltage)).
+semantic_binding(binary(contain), tool_steel, object(carbon)).
+proposition_source_record(proposition(binary(contain), roles(subject(high-speed_steel), object(tungsten))), source(inline, "high-speed steel contains tungsten, so tungsten is its alloying element."), provenance(language(en), range(0, 72))).
+proposition_source_record(proposition(binary(contain), roles(subject(tool_steel), object(carbon))), source(inline, "tool steel contains carbon."), provenance(language(en), range(0, 27))).
 proposition_source_record(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage))), source(inline, "a flyback transformer steps up the voltage."), provenance(language(en), range(0, 43))).
+semantic_binding(binary(contain), high-speed_steel, object(tungsten)).
+proposition_source_record(proposition(binary(contain), roles(subject(high-speed_steel), object(tungsten))), source(inline, "high-speed steel contains tungsten."), provenance(language(en), range(0, 35))).
 proposition_source_record(proposition(binary(protect), roles(subject(protection), object(ears))), source(inline, "hearing protection protects the ears from noise."), provenance(language(en), range(0, 48))).
+semantic_binding(binary(contain), stainless_steel, object(chromium)).
+proposition_source_record(proposition(binary(contain), roles(subject(stainless_steel), object(chromium))), source(inline, "stainless steel contains chromium."), provenance(language(en), range(0, 34))).
 semantic_complement(binding(protect, protection, ears), from, noise).
+semantic_binding(binary(hold), vise, object(workpiece)).
+proposition_source_record(proposition(binary(hold), roles(subject(collet), object(cutting_tool))), source(inline, "a collet holds the cutting tool, so it clamps the cutting tool."), provenance(language(en), range(0, 63))).
+proposition_source_record(proposition(binary(hold), roles(subject(chuck), object(workpiece))), source(inline, "a chuck holds the workpiece, so it grips the workpiece."), provenance(language(en), range(0, 55))).
+proposition_source_record(proposition(binary(hold), roles(subject(vise), object(workpiece))), source(inline, "a vise holds the workpiece."), provenance(language(en), range(0, 27))).
 proposition_source_record(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage))), source(inline, "a step-down transformer steps down the voltage."), provenance(language(en), range(0, 47))).
+semantic_binding(binary(hold), collet, object(cutting_tool)).
+proposition_source_record(proposition(binary(hold), roles(subject(collet), object(cutting_tool))), source(inline, "a collet holds the cutting tool."), provenance(language(en), range(0, 32))).
 proposition_source_record(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature))), source(inline, "the degree fahrenheit measures temperature."), provenance(language(en), range(0, 43))).
+semantic_binding(binary(hold), chuck, object(workpiece)).
+proposition_source_record(proposition(binary(hold), roles(subject(chuck), object(workpiece))), source(inline, "a chuck holds the workpiece."), provenance(language(en), range(0, 28))).
 proposition_source_record(proposition(binary(measure), roles(subject(megabyte), object(information))), source(inline, "the megabyte measures information."), provenance(language(en), range(0, 34))).
 proposition_source_record(proposition(binary(protect), roles(subject(safety_boots), object(feet))), source(inline, "safety boots protect the feet from falling objects."), provenance(language(en), range(0, 51))).
+proposition_source_record(proposition(binary(measure), roles(subject(dial_indicator), object(displacement))), source(inline, "a dial indicator measures displacement, so displacement is its measured quantity."), provenance(language(en), range(0, 81))).
+proposition_source_record(proposition(binary(measure), roles(subject(micrometer), object(thickness))), source(inline, "a micrometer measures thickness, so thickness is its measurand."), provenance(language(en), range(0, 63))).
+proposition_source_record(proposition(binary(measure), roles(subject(thermocouple), object(temperature))), source(inline, "a thermocouple measures temperature."), provenance(language(en), range(0, 36))).
 semantic_complement(binding(protect, safety_boots, feet), from, falling_objects).
 semantic_binding(binary(emit), light-emitting_diode, object(light)).
+proposition_source_record(proposition(binary(measure), roles(subject(tachometer), object(rotational_speed))), source(inline, "a tachometer measures rotational speed."), provenance(language(en), range(0, 39))).
 proposition_source_record(proposition(binary(cause), roles(subject(unclosed_string), object(parse_error))), source(inline, "an unclosed string causes a parse error."), provenance(language(en), range(0, 40))).
 semantic_binding(binary(need), workers, object(fall_protection)).
+proposition_source_record(proposition(binary(measure), roles(subject(profilometer), object(surface_roughness))), source(inline, "a profilometer measures surface roughness."), provenance(language(en), range(0, 42))).
 semantic_binding(binary(write), error_log, object(message)).
 proposition_source_record(proposition(binary(write), roles(subject(error_log), object(message))), source(inline, "error_log writes a message to the error log."), provenance(language(en), range(0, 44))).
+proposition_source_record(proposition(binary(measure), roles(subject(dial_indicator), object(displacement))), source(inline, "a dial indicator measures displacement."), provenance(language(en), range(0, 39))).
 semantic_complement(binding(write, error_log, message), to, error_log).
 proposition_source_record(proposition(binary(need), roles(subject(workers), object(fall_protection))), source(inline, "workers need fall protection above 2 meters."), provenance(language(en), range(0, 44))).
+proposition_source_record(proposition(binary(measure), roles(subject(micrometer), object(thickness))), source(inline, "a micrometer measures thickness."), provenance(language(en), range(0, 32))).
 semantic_binding(binary(print), var_dump, object(value)).
+semantic_binding(binary(read), words, object(spoils_readings)).
+proposition_source_record(proposition(binary(cause), roles(subject(overheating), object(tool_failure))), source(inline, "overheating causes tool failure"), provenance(language(en), range(0, 31))).
+proposition_source_record(proposition(binary(read), roles(subject(words), object(spoils_readings))), source(inline, "parallax causes reading errors; in other words, it spoils readings."), provenance(language(en), range(0, 67))).
 proposition_source_record(proposition(binary(print), roles(subject(var_dump), object(value))), source(inline, "var_dump prints the type and value of a variable."), provenance(language(en), range(0, 49))).
+semantic_binding(binary(read), parallax, object(errors)).
+proposition_source_record(proposition(binary(read), roles(subject(parallax), object(errors))), source(inline, "parallax causes reading errors"), provenance(language(en), range(0, 30))).
+proposition_source_record(proposition(binary(cause), roles(subject(misalignment), object(bearing_wear))), source(inline, "misalignment causes bearing wear, so bearing wear is its typical outcome."), provenance(language(en), range(0, 73))).
+proposition_source_record(proposition(binary(cause), roles(subject(vibration), object(chatter))), source(inline, "vibration causes chatter, so chatter is its effect."), provenance(language(en), range(0, 51))).
+proposition_source_record(proposition(binary(position), roles(subject(backlash), object(errors))), source(inline, "backlash causes positioning errors, so positioning errors are its consequence."), provenance(language(en), range(0, 78))).
+proposition_source_record(proposition(binary(cause), roles(subject(tool_wear), object(poor_surface_finish))), source(inline, "tool wear causes poor surface finish, so it results in poor surface finish."), provenance(language(en), range(0, 75))).
+proposition_source_record(proposition(binary(cause), roles(subject(vibration), object(chatter))), source(inline, "vibration causes chatter, so it leads to chatter."), provenance(language(en), range(0, 49))).
+proposition_source_record(proposition(binary(position), roles(subject(backlash), object(errors))), source(inline, "backlash causes positioning errors, so it produces positioning errors."), provenance(language(en), range(0, 70))).
+proposition_source_record(proposition(binary(read), roles(subject(parallax), object(errors))), source(inline, "parallax causes reading errors."), provenance(language(en), range(0, 31))).
 semantic_complement(binding(print, var_dump, value), of, variable).
 proposition_source_record(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), source(inline, "a light-emitting diode emits light."), provenance(language(en), range(0, 35))).
+proposition_source_record(proposition(binary(cause), roles(subject(overheating), object(tool_failure))), source(inline, "overheating causes tool failure."), provenance(language(en), range(0, 32))).
 semantic_binding(binary(print), var_dump, object(type)).
 proposition_source_record(proposition(binary(print), roles(subject(var_dump), object(type))), source(inline, "var_dump prints the type and value of a variable."), provenance(language(en), range(0, 49))).
+proposition_source_record(proposition(binary(cause), roles(subject(misalignment), object(bearing_wear))), source(inline, "misalignment causes bearing wear."), provenance(language(en), range(0, 33))).
 proposition_source_record(proposition(binary(measure), roles(subject(degree_celsius), object(temperature))), source(inline, "the degree celsius measures temperature."), provenance(language(en), range(0, 40))).
 proposition_source_record(proposition(binary(protect), roles(subject(hard_hat), object(head))), source(inline, "a hard hat protects the head from falling objects."), provenance(language(en), range(0, 50))).
+proposition_source_record(proposition(binary(cause), roles(subject(vibration), object(chatter))), source(inline, "vibration causes chatter."), provenance(language(en), range(0, 25))).
 proposition_source_record(proposition(binary(cause), roles(subject(missing_semicolon), object(parse_error))), source(inline, "a missing semicolon causes a parse error."), provenance(language(en), range(0, 41))).
 semantic_complement(binding(protect, hard_hat, head), from, falling_objects).
+proposition_source_record(proposition(binary(cause), roles(subject(tool_wear), object(poor_surface_finish))), source(inline, "tool wear causes poor surface finish."), provenance(language(en), range(0, 37))).
 semantic_binding(binary(add), php_extension, object(functions)).
 proposition_source_record(proposition(binary(add), roles(subject(php_extension), object(functions))), source(inline, "a php extension adds functions to the php interpreter."), provenance(language(en), range(0, 54))).
+proposition_source_record(proposition(binary(cause), roles(subject(thermal_expansion), object(dimensional_errors))), source(inline, "thermal expansion causes dimensional errors."), provenance(language(en), range(0, 44))).
 semantic_complement(binding(add, php_extension, functions), to, php_interpreter).
+semantic_binding(binary(position), backlash, object(errors)).
+proposition_source_record(proposition(binary(position), roles(subject(backlash), object(errors))), source(inline, "backlash causes positioning errors."), provenance(language(en), range(0, 35))).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

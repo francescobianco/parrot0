@@ -2495,6 +2495,26 @@ proc_step(shout, 1, "upper").
 proc_step(squash, 1, "repeat replace aa with a until stable").
 proc_step(quiet, 1, "apply devowel").
 proc_step(quiet, 2, "lower").
+proc_step(cstep, 1, "if even then halve else triple and add 1").
+proc_step(feedtooth, 1, "divide by 4").
+proc_step(mmcm, 1, "divide by 10").
+proc_step(degrad, 2, "divide by 180").
+inverse_relation(drives, is_driven_by).
+proc_step(degrad, 1, "multiply by 3.14159").
+proc_step(tapm, 1, "subtract 1.5").
+proc_step(fahrcel, 3, "divide by 9").
+proc_step(fahrcel, 2, "multiply by 5").
+proc_step(fahrcel, 1, "subtract 32").
+proc_step(gearout, 1, "divide by 4").
+proc_step(diameter, 1, "double").
+proc_step(screwtravel, 1, "multiply by 5").
+proc_step(stepsdeg, 1, "divide by 1.8").
+proc_step(growth100, 1, "multiply by 0.0012").
+proc_step(rpm10, 1, "multiply by 31.83").
+proc_step(vernier, 1, "multiply by 0.02").
+proc_step(thimble, 1, "divide by 100").
+proc_step(mminch, 1, "divide by 25.4").
+proc_step(inchmm, 1, "multiply by 25.4").
 class_surface(whole_part_relation, whole part relation).
 class_surface(relation, relation).
 transitive_relation(precedes).

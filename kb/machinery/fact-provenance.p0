@@ -585,6 +585,167 @@ fact_source(causes(missing_semicolon, parse_error), missing_semicolon, "a missin
 fact_source(add(php_extension, functions), php_extension, "a php extension adds functions to the php interpreter.").
 fact_source(extension(debugger_extension), debugger_extension, "a debugger extension is an extension.").
 fact_source(debugger_extension(xdebug), xdebug, "xdebug is a debugger extension for php.").
+fact_source(move(one_revolution_of_the_thimble, spindle_0.5_millimeters), one_revolution_of_the_thimble, "one revolution of the thimble moves the spindle 0.5 millimeters.").
+fact_source(has_part(micrometer_thimble, 50_divisions), micrometer_thimble, "a micrometer thimble has 50 divisions.").
+fact_source(move(ball_screw, table), ball_screw, "the ball screw moves the table.").
+fact_source(contains(grinding_wheel, corundum), grinding_wheel, "a grinding wheel contains corundum.").
+fact_source(drive(servo_motor, ball_screw), servo_motor, "a servo motor drives the ball screw.").
+fact_source(made_of(wire_for_edm, brass), wire_for_edm, "wire for edm is made of brass.").
+fact_source(made_of(bronze, copper), bronze, "bronze is made of copper and tin.").
+fact_source(made_of(brass, copper), brass, "brass is made of copper and zinc.").
+fact_source(reduces(worm_gear, speed), worm_gear, "a worm gear reduces speed.").
+fact_source(measures(probe, workpiece_position), probe, "a probe measures workpiece position.").
+fact_source(remove(chip_conveyor, chips), chip_conveyor, "a chip conveyor removes chips.").
+fact_source(drive(servo_motor, axis), servo_motor, "a servo motor drives the axis.").
+fact_source(mark(scriber, lines), scriber, "a scriber marks lines.").
+fact_source(mark(center_punch, hole_centers), center_punch, "a center punch marks hole centers.").
+fact_source(locate(edge_finder, edges), edge_finder, "an edge finder locates edges.").
+fact_source(produces(fly_cutter, flat_surfaces), fly_cutter, "a fly cutter produces flat surfaces.").
+fact_source(measures(linear_encoder, linear_position), linear_encoder, "a linear encoder measures linear position.").
+fact_source(converts(lead_screw, rotary_motion), lead_screw, "a lead screw converts rotary motion into linear motion.").
+fact_source(rotate(rotary_table, workpiece), rotary_table, "a rotary table rotates the workpiece.").
+fact_source(supports(bushing, rotating_shaft), bushing, "a bushing supports a rotating shaft.").
+fact_source(measures(coordinate_measuring_machine, geometry), coordinate_measuring_machine, "a coordinate measuring machine measures geometry.").
+fact_source(controls(g-code, cnc_machines), g-code, "g-code controls cnc machines.").
+fact_source(gauge(go/no-go, checks_tolerances), go/no-go, "a go/no-go gauge checks tolerances.").
+fact_source(gauge(thread, checks_threads), thread, "a thread gauge checks threads.").
+fact_source(measures(rockwell_tester, hardness), rockwell_tester, "a rockwell tester measures hardness.").
+fact_source(produces(knurling, textured_grip), knurling, "knurling produces a textured grip.").
+fact_source(improve(honing, bore_geometry), honing, "honing improves bore geometry.").
+fact_source(harden(quenching, steel), quenching, "quenching hardens steel.").
+fact_source(remove(coolant, heat), coolant, "coolant removes heat.").
+fact_source(reduces(cutting_fluid, friction), cutting_fluid, "cutting fluid reduces friction.").
+fact_source(remove(deburring, burrs), deburring, "deburring removes burrs.").
+fact_source(divides(dividing_head, circle), dividing_head, "a dividing head divides a circle into equal parts.").
+fact_source(set(sine_bar, angles), sine_bar, "a sine bar sets angles.").
+fact_source(stores(flywheel, rotational_energy), flywheel, "a flywheel stores rotational energy.").
+fact_source(stores(spring, energy), spring, "a spring stores energy.").
+fact_source(align(dowel_pin, parts), dowel_pin, "a dowel pin aligns parts.").
+fact_source(connects(coupling, two_shafts), coupling, "a coupling connects two shafts.").
+fact_source(measures(rotary_encoder, angular_position), rotary_encoder, "a rotary encoder measures angular position.").
+fact_source(supports(steady_rest, long_workpieces), steady_rest, "a steady rest supports long workpieces.").
+fact_source(supports(tailstock, workpiece), tailstock, "a tailstock supports the workpiece.").
+fact_source(produces(surface_grinder, flat_surfaces), surface_grinder, "a surface grinder produces flat surfaces.").
+fact_source(enlarge(reamer, holes), reamer, "a reamer enlarges holes.").
+fact_source(rotate(milling_machine, cutter), milling_machine, "a milling machine rotates the cutter.").
+fact_source(applies(torque_wrench, specified_torque), torque_wrench, "a torque wrench applies a specified torque.").
+fact_source(measures(autocollimator, small_angles), autocollimator, "an autocollimator measures small angles.").
+fact_source(gauge(bore, measures_bore_diameter), bore, "a bore gauge measures bore diameter.").
+fact_source(alloy(invar), invar, "invar is an alloy.").
+fact_source(trapezoidal_thread(acme_thread), acme_thread, "an acme thread is a trapezoidal thread.").
+fact_source(power_screw(lead_screw), lead_screw, "a lead screw is a power screw.").
+fact_source(measuring_instrument(profilometer), profilometer, "a profilometer is a measuring instrument.").
+fact_source(measuring_instrument(sine_bar), sine_bar, "a sine bar is a measuring instrument.").
+fact_source(machine_tool(jig_borer), jig_borer, "a jig borer is a machine tool.").
+fact_source(machine_tool(shaper), shaper, "a shaper is a machine tool.").
+fact_source(cutting_tool(fly_cutter), fly_cutter, "a fly cutter is a cutting tool.").
+fact_source(cutting_tool(countersink), countersink, "a countersink is a cutting tool.").
+fact_source(cutting_tool(boring_bar), boring_bar, "a boring bar is a cutting tool.").
+fact_source(measuring_instrument(coordinate_measuring_machine), coordinate_measuring_machine, "a coordinate measuring machine is a measuring instrument.").
+fact_source(machining_process(knurling), knurling, "knurling is a machining process.").
+fact_source(finishing_process(honing), honing, "honing is a finishing process.").
+fact_source(finishing_process(lapping), lapping, "lapping is a finishing process.").
+fact_source(work_holding_device(vise), vise, "a vise is a work holding device.").
+fact_source(work_holding_device(collet), collet, "a collet is a work holding device.").
+fact_source(fastener(dowel_pin), dowel_pin, "a dowel pin is a fastener.").
+fact_source(sensor(rotary_encoder), rotary_encoder, "a rotary encoder is a sensor.").
+fact_source(electric_motor(stepper_motor), stepper_motor, "a stepper motor is an electric motor.").
+fact_source(mechanical_linear_actuator(ball_screw), ball_screw, "a ball screw is a mechanical linear actuator.").
+fact_source(alloy(bronze), bronze, "bronze is an alloy.").
+fact_source(alloy(brass), brass, "brass is an alloy.").
+fact_source(length_standard(gauge_block), gauge_block, "a gauge block is a length standard.").
+fact_source(cutting_tool(tap), tap, "a tap is a cutting tool.").
+fact_source(cutting_tool(end_mill), end_mill, "an end mill is a cutting tool.").
+fact_source(cutting_tool(reamer), reamer, "a reamer is a cutting tool.").
+fact_source(machine_tool(surface_grinder), surface_grinder, "a surface grinder is a machine tool.").
+fact_source(machine_tool(milling_machine), milling_machine, "a milling machine is a machine tool.").
+fact_source(machine_tool(lathe), lathe, "a lathe is a machine tool.").
+fact_source(measuring_instrument(dial_indicator), dial_indicator, "a dial indicator is a measuring instrument.").
+fact_source(measuring_instrument(vernier_caliper), vernier_caliper, "a vernier caliper is a measuring instrument.").
+fact_source(measuring_instrument(micrometer), micrometer, "a micrometer is a measuring instrument.").
+fact_source(hardness_of(tungsten_carbide, 90_hra), tungsten_carbide, "the hardness of tungsten carbide is 90 hra.").
+fact_source(melting_point_of(copper, 1085_degrees_celsius), copper, "the melting point of copper is 1085 degrees celsius.").
+fact_source(density_of(brass, 8.5_grams), brass, "the density of brass is 8.5 grams per cubic centimeter.").
+fact_source(thread_pitch_of(m4_coarse_thread, 0.7_millimeters), m4_coarse_thread, "the thread pitch of an m4 coarse thread is 0.7 millimeters.").
+fact_source(thread_pitch_of(m16_coarse_thread, 2_millimeters), m16_coarse_thread, "the thread pitch of an m16 coarse thread is 2 millimeters.").
+fact_source(resolution_of(digital_caliper, 0.01_millimeters), digital_caliper, "the resolution of a digital caliper is 0.01 millimeters.").
+fact_source(melting_point_of(aluminium, 660_degrees_celsius), aluminium, "the melting point of aluminium is 660 degrees celsius.").
+fact_source(density_of(aluminium, 2.7_grams), aluminium, "the density of aluminium is 2.7 grams per cubic centimeter.").
+fact_source(density_of(steel, 7.85_grams), steel, "the density of steel is 7.85 grams per cubic centimeter.").
+fact_source(point_angle_of(standard_twist_drill, 118_degrees), standard_twist_drill, "the point angle of a standard twist drill is 118 degrees.").
+fact_source(step_angle_of(typical_stepper_motor, 1.8_degrees), typical_stepper_motor, "the step angle of a typical stepper motor is 1.8 degrees.").
+fact_source(thread_angle_of(acme_thread, 29_degrees), acme_thread, "the thread angle of an acme thread is 29 degrees.").
+fact_source(thread_angle_of(metric_thread, 60_degrees), metric_thread, "the thread angle of a metric thread is 60 degrees.").
+fact_source(reference_temperature_of(dimensional_metrology, 20_degrees_celsius), dimensional_metrology, "the reference temperature of dimensional metrology is 20 degrees celsius.").
+fact_source(thread_pitch_of(m12_coarse_thread, 1.75_millimeters), m12_coarse_thread, "the thread pitch of an m12 coarse thread is 1.75 millimeters.").
+fact_source(thread_pitch_of(m8_coarse_thread, 1.25_millimeters), m8_coarse_thread, "the thread pitch of an m8 coarse thread is 1.25 millimeters.").
+fact_source(thread_pitch_of(m6_coarse_thread, 1_millimeter), m6_coarse_thread, "the thread pitch of an m6 coarse thread is 1 millimeter.").
+fact_source(thread_pitch_of(m10_coarse_thread, 1.5_millimeters), m10_coarse_thread, "the thread pitch of an m10 coarse thread is 1.5 millimeters.").
+fact_source(resolution_of(dial_indicator, 0.01_millimeters), dial_indicator, "the resolution of a dial indicator is 0.01 millimeters.").
+fact_source(resolution_of(vernier_caliper, 0.02_millimeters), vernier_caliper, "the resolution of a vernier caliper is 0.02 millimeters.").
+fact_source(resolution_of(standard_micrometer, 0.01_millimeters), standard_micrometer, "the resolution of a standard micrometer is 0.01 millimeters.").
+fact_source(relation(hardness), hardness, "hardness is a relation").
+fact_source(relation(density), density, "density is a relation").
+fact_source(relation(point_angle), point_angle, "point angle is a relation").
+fact_source(relation(step_angle), step_angle, "step angle is a relation").
+fact_source(relation(reference_temperature), reference_temperature, "reference temperature is a relation").
+fact_source(relation(resolution), resolution, "resolution is a relation").
+fact_source(rotate(lathe, workpiece), lathe, "a lathe rotates the workpiece").
+fact_source(transmits(belt, power), belt, "a belt transmits power, so it conveys power.").
+fact_source(transmits(key, torque), key, "a key transmits torque.").
+fact_source(rotate(spindle, cutting_tool), spindle, "a spindle rotates the cutting tool, so it turns the cutting tool.").
+fact_source(rotate(lathe, workpiece), lathe, "a lathe rotates the workpiece.").
+fact_source(rotate(spindle, cutting_tool), spindle, "a spindle rotates the cutting tool.").
+fact_source(has_part(milling_machine, knee), milling_machine, "a milling machine has a knee.").
+fact_source(has_part(lathe, headstock), lathe, "a lathe has a headstock.").
+fact_source(has_part(micrometer, thimble), micrometer, "a micrometer has a thimble.").
+fact_source(converts(cam, rotary_motion), cam, "a cam converts rotary motion into reciprocating motion.").
+fact_source(reduces(gearbox, speed), gearbox, "a gearbox reduces speed, so it decreases speed.").
+fact_source(reduces(ball_bearing, friction), ball_bearing, "a ball bearing reduces friction, so it lowers friction.").
+fact_source(reduces(tempering, brittleness), tempering, "tempering reduces brittleness.").
+fact_source(reduces(gearbox, speed), gearbox, "a gearbox reduces speed.").
+fact_source(reduces(lubricant, wear), lubricant, "a lubricant reduces wear.").
+fact_source(reduces(ball_bearing, friction), ball_bearing, "a ball bearing reduces friction.").
+fact_source(contains(high-speed_steel, tungsten), high-speed_steel, "high-speed steel contains tungsten, so tungsten is its alloying element.").
+fact_source(contains(stainless_steel, chromium), stainless_steel, "stainless steel contains chromium, so it includes chromium.").
+fact_source(contains(tool_steel, carbon), tool_steel, "tool steel contains carbon.").
+fact_source(contains(high-speed_steel, tungsten), high-speed_steel, "high-speed steel contains tungsten.").
+fact_source(contains(stainless_steel, chromium), stainless_steel, "stainless steel contains chromium.").
+fact_source(plate(surface, is), surface, "a surface plate is made of granite, so granite is its material.").
+fact_source(insert(carbide, is), carbide, "a carbide insert is made of tungsten carbide.").
+fact_source(plate(lapping, is), lapping, "a lapping plate is made of cast iron.").
+fact_source(plate(surface, is), surface, "a surface plate is made of granite.").
+fact_source(hold(collet, cutting_tool), collet, "a collet holds the cutting tool, so it clamps the cutting tool.").
+fact_source(hold(chuck, workpiece), chuck, "a chuck holds the workpiece, so it grips the workpiece.").
+fact_source(hold(vise, workpiece), vise, "a vise holds the workpiece.").
+fact_source(hold(collet, cutting_tool), collet, "a collet holds the cutting tool.").
+fact_source(hold(chuck, workpiece), chuck, "a chuck holds the workpiece.").
+fact_source(measures(dial_indicator, displacement), dial_indicator, "a dial indicator measures displacement, so displacement is its measured quantity.").
+fact_source(measures(micrometer, thickness), micrometer, "a micrometer measures thickness, so thickness is its measurand.").
+fact_source(measures(profilometer, surface_roughness), profilometer, "a profilometer measures surface roughness, so it quantifies surface roughness.").
+fact_source(measures(tachometer, rotational_speed), tachometer, "a tachometer measures rotational speed, so it reads rotational speed.").
+fact_source(measures(micrometer, thickness), micrometer, "a micrometer measures thickness, so it gauges thickness.").
+fact_source(gauge(feeler, measures_gaps), feeler, "a feeler gauge measures gaps.").
+fact_source(measures(thermocouple, temperature), thermocouple, "a thermocouple measures temperature.").
+fact_source(measures(tachometer, rotational_speed), tachometer, "a tachometer measures rotational speed.").
+fact_source(measures(profilometer, surface_roughness), profilometer, "a profilometer measures surface roughness.").
+fact_source(measures(dial_indicator, displacement), dial_indicator, "a dial indicator measures displacement.").
+fact_source(gauge(height, measures_height), height, "a height gauge measures height.").
+fact_source(measures(micrometer, thickness), micrometer, "a micrometer measures thickness.").
+fact_source(causes(overheating, tool_failure), overheating, "overheating causes tool failure").
+fact_source(causes(parallax, reading_errors), parallax, "parallax causes reading errors").
+fact_source(causes(misalignment, bearing_wear), misalignment, "misalignment causes bearing wear, so bearing wear is its typical outcome.").
+fact_source(causes(vibration, chatter), vibration, "vibration causes chatter, so chatter is its effect.").
+fact_source(causes(backlash, positioning_errors), backlash, "backlash causes positioning errors, so positioning errors are its consequence.").
+fact_source(causes(tool_wear, poor_surface_finish), tool_wear, "tool wear causes poor surface finish, so it results in poor surface finish.").
+fact_source(causes(vibration, chatter), vibration, "vibration causes chatter, so it leads to chatter.").
+fact_source(causes(backlash, positioning_errors), backlash, "backlash causes positioning errors, so it produces positioning errors.").
+fact_source(causes(parallax, reading_errors), parallax, "parallax causes reading errors.").
+fact_source(causes(overheating, tool_failure), overheating, "overheating causes tool failure.").
+fact_source(causes(misalignment, bearing_wear), misalignment, "misalignment causes bearing wear.").
+fact_source(causes(tool_wear, poor_surface_finish), tool_wear, "tool wear causes poor surface finish.").
+fact_source(causes(thermal_expansion, dimensional_errors), thermal_expansion, "thermal expansion causes dimensional errors.").
+fact_source(causes(backlash, positioning_errors), backlash, "backlash causes positioning errors.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -926,239 +1087,657 @@ reading_fact(device(carbon_monoxide_detector), "a carbon monoxide detector is a 
 reading_fact(perishable(rice), "rice is a perishable").
 reading_fact(causes(low_light, yellow_leaves), "low light causes yellow leaves").
 reading_fact(use(co_detectors, sensor), "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
+reading_fact(proposition(binary(move), roles(subject(thimble), object(spindle_0.5_millimeters))), "one revolution of the thimble moves the spindle 0.5 millimeters.").
+reading_fact(move(one_revolution_of_the_thimble, spindle_0.5_millimeters), "one revolution of the thimble moves the spindle 0.5 millimeters.").
 reading_fact(causes(chlorine_gas, breathing_problems), "chlorine gas causes breathing problems").
+reading_fact(has_part(micrometer_thimble, 50_divisions), "a micrometer thimble has 50 divisions.").
 reading_fact(device(carbon_monoxide_detector), "a carbon monoxide detector or co detector is a device which detects the presence of carbon monoxide (co) gas, and is used to prevent carbon monoxide poisoning").
+reading_fact(proposition(binary(apply), roles(subject(repeat), object(cstep))), "rule for collatzm is repeat apply cstep until it reaches 1").
+reading_fact(proposition(binary(move), roles(subject(ball), object(table))), "the ball screw moves the table.").
+reading_fact(move(ball_screw, table), "the ball screw moves the table.").
 reading_fact(causes(underwatering, yellow_leaves), "underwatering causes yellow leaves").
+reading_fact(proposition(binary(contain), roles(subject(grinding_wheel), object(corundum))), "a grinding wheel contains corundum.").
+reading_fact(contains(grinding_wheel, corundum), "a grinding wheel contains corundum.").
 reading_fact(perishable(chicken), "chicken is a perishable").
+reading_fact(proposition(binary(need), roles(subject(machine), object(maintenance))), " x is a machine").
+reading_fact(proposition(binary(drive), roles(subject(servo_motor), object(ball))), "a servo motor drives the ball screw.").
+reading_fact(drive(servo_motor, ball_screw), "a servo motor drives the ball screw.").
 reading_fact(intracellular_pathogen(legionella_species), "most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans").
+reading_fact(proposition(binary(resist), roles(subject(hard), object(scratching))), " something is hard").
+reading_fact(proposition(binary(need), roles(subject(wears), object(replacement))), " something wears").
+reading_fact(proposition(binary(need), roles(subject(machine), object(maintenance))), " something is a machine").
+reading_fact(made_of(wire_for_edm, brass), "wire for edm is made of brass.").
 reading_fact(causes(overwatering, yellow_leaves), "overwatering causes yellow leaves").
+reading_fact(made_of(bronze, copper), "bronze is made of copper and tin.").
 reading_fact(detect(carbon_monoxide_detector, presence_of_carbon_monoxide_gas), "a carbon monoxide detector detects the presence of carbon monoxide gas").
+reading_fact(made_of(brass, copper), "brass is made of copper and zinc.").
 reading_fact(genus(legionella), "legionella is a genus of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine, an amino acid").
+reading_fact(proposition(binary(convert), roles(subject(pinion), object(rotary_motion))), "a rack and pinion converts rotary motion into linear motion.").
+reading_fact(proposition(binary(reduce), roles(subject(worm_gear), object(speed))), "a worm gear reduces speed.").
+reading_fact(reduces(worm_gear, speed), "a worm gear reduces speed.").
 reading_fact(causes(high_humidity, mold), "high humidity causes mold").
+reading_fact(proposition(binary(measure), roles(subject(probe), object(workpiece))), "a probe measures workpiece position.").
+reading_fact(measures(probe, workpiece_position), "a probe measures workpiece position.").
 reading_fact(pressure_surge(hydraulic_shock), "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
+reading_fact(proposition(binary(remove), roles(subject(chip_conveyor), object(chips))), "a chip conveyor removes chips.").
+reading_fact(remove(chip_conveyor, chips), "a chip conveyor removes chips.").
 reading_fact(sense(smoke_detector, smoke), "a smoke detector senses smoke").
+reading_fact(proposition(binary(drive), roles(subject(servo_motor), object(axis))), "a servo motor drives the axis.").
+reading_fact(drive(servo_motor, axis), "a servo motor drives the axis.").
 reading_fact(causes(lithium_batteries, fires), "lithium batteries cause fires").
+reading_fact(mark(scriber, lines), "a scriber marks lines.").
 reading_fact(sea(black_sea), "the black sea is a sea.").
+reading_fact(proposition(binary(mark), roles(subject(center_punch), object(hole_centers))), "a center punch marks hole centers.").
+reading_fact(mark(center_punch, hole_centers), "a center punch marks hole centers.").
 reading_fact(safety_device(fire_blanket), "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+reading_fact(proposition(binary(locate), roles(subject(edge_finder), object(edges))), "an edge finder locates edges.").
+reading_fact(locate(edge_finder, edges), "an edge finder locates edges.").
 reading_fact(flow(danube, black_sea), "the danube flows into the black sea.").
+reading_fact(proposition(binary(produce), roles(subject(fly_cutter), object(flat_surfaces))), "a fly cutter produces flat surfaces.").
+reading_fact(produces(fly_cutter, flat_surfaces), "a fly cutter produces flat surfaces.").
 reading_fact(causes(poorly_maintained_cooling_towers, legionella_outbreaks), "most legionella outbreaks result from poorly maintained cooling towers").
+reading_fact(proposition(binary(measure), roles(subject(linear_encoder), object(linear))), "a linear encoder measures linear position.").
+reading_fact(measures(linear_encoder, linear_position), "a linear encoder measures linear position.").
 reading_fact(flow(inn, danube), "the inn flows into the danube.").
+reading_fact(converts(lead_screw, rotary_motion), "a lead screw converts rotary motion into linear motion.").
 reading_fact(relation_verb(sense), "sense is a relation verb").
+reading_fact(proposition(binary(rotate), roles(subject(rotary_table), object(workpiece))), "a rotary table rotates the workpiece.").
+reading_fact(rotate(rotary_table, workpiece), "a rotary table rotates the workpiece.").
 reading_fact(flow(salzach, inn), "the salzach flows into the inn.").
+reading_fact(proposition(binary(support), roles(subject(bushing), object(rotating_shaft))), "a bushing supports a rotating shaft.").
+reading_fact(supports(bushing, rotating_shaft), "a bushing supports a rotating shaft.").
 reading_fact(consist(fire_extinguisher, hand-held_cylindrical_pressure_vessel), "typically, a fire extinguisher consists of a hand-held cylindrical pressure vessel containing an agent that can be discharged to extinguish a fire").
+reading_fact(proposition(binary(measure), roles(subject(machine), object(geometry))), "a coordinate measuring machine measures geometry.").
+reading_fact(measures(coordinate_measuring_machine, geometry), "a coordinate measuring machine measures geometry.").
 reading_fact(flow(moselle, rhine), "the moselle flows into the rhine.").
+reading_fact(proposition(binary(control), roles(subject(g-code), object(cnc_machines))), "g-code controls cnc machines.").
+reading_fact(controls(g-code, cnc_machines), "g-code controls cnc machines.").
 reading_fact(causes(slippery_surfaces, falls), "slippery surfaces cause falls").
+reading_fact(proposition(binary(gauge), roles(subject(go_no-go), object(checks_tolerances))), "a go/no-go gauge checks tolerances.").
+reading_fact(gauge(go/no-go, checks_tolerances), "a go/no-go gauge checks tolerances.").
 reading_fact(sea(north_sea), "the north sea is a sea.").
+reading_fact(proposition(binary(gauge), roles(subject(thread), object(checks_threads))), "a thread gauge checks threads.").
+reading_fact(gauge(thread, checks_threads), "a thread gauge checks threads.").
 reading_fact(causes(legionella_outbreaks, legionnaires_disease), "legionella outbreaks cause legionnaires disease").
+reading_fact(proposition(binary(measure), roles(subject(rockwell_tester), object(hardness))), "a rockwell tester measures hardness.").
+reading_fact(measures(rockwell_tester, hardness), "a rockwell tester measures hardness.").
 reading_fact(react(sodium, water), "sodium reacts with water.").
+reading_fact(proposition(binary(produce), roles(subject(knurling), object(textured_grip))), "knurling produces a textured grip.").
+reading_fact(produces(knurling, textured_grip), "knurling produces a textured grip.").
 reading_fact(flow(rhine, north_sea), "the rhine flows into the north sea.").
+reading_fact(proposition(binary(improve), roles(subject(honing), object(bore_geometry))), "honing improves bore geometry.").
+reading_fact(improve(honing, bore_geometry), "honing improves bore geometry.").
 reading_fact(teach(socrates, plato), "socrates taught plato.").
+reading_fact(harden(quenching, steel), "quenching hardens steel.").
 reading_fact(located_in(rome, italy), "rome is in italy.").
+reading_fact(proposition(binary(remove), roles(subject(coolant), object(heat))), "coolant removes heat.").
+reading_fact(remove(coolant, heat), "coolant removes heat.").
 reading_fact(carbonate_mineral(calcite), "calcite is a carbonate mineral").
+reading_fact(proposition(binary(reduce), roles(subject(cutting_fluid), object(friction))), "cutting fluid reduces friction.").
+reading_fact(reduces(cutting_fluid, friction), "cutting fluid reduces friction.").
 reading_fact(city(rome), "rome is a city.").
+reading_fact(proposition(binary(remove), roles(subject(deburring), object(burrs))), "deburring removes burrs.").
+reading_fact(remove(deburring, burrs), "deburring removes burrs.").
 reading_fact(proposition(binary(teach), roles(subject(socrates), object(plato))), "socrates taught plato.").
+reading_fact(proposition(binary(divide), roles(subject(dividing_head), object(circle))), "a dividing head divides a circle into equal parts.").
+reading_fact(divides(dividing_head, circle), "a dividing head divides a circle into equal parts.").
 reading_fact(located_in(turin, italy), "turin is in italy.").
+reading_fact(proposition(binary(set), roles(subject(sine_bar), object(angles))), "a sine bar sets angles.").
+reading_fact(set(sine_bar, angles), "a sine bar sets angles.").
 reading_fact(teach(aristotle, alexander_the_great), "aristotle taught alexander the great.").
+reading_fact(proposition(binary(store), roles(subject(flywheel), object(rotational_energy))), "a flywheel stores rotational energy.").
+reading_fact(stores(flywheel, rotational_energy), "a flywheel stores rotational energy.").
 reading_fact(city(turin), "turin is a city.").
+reading_fact(proposition(binary(store), roles(subject(spring), object(energy))), "a spring stores energy.").
+reading_fact(stores(spring, energy), "a spring stores energy.").
 reading_fact(flow(aare, rhine), "the aare flows into the rhine.").
+reading_fact(proposition(binary(align), roles(subject(dowel_pin), object(parts))), "a dowel pin aligns parts.").
+reading_fact(align(dowel_pin, parts), "a dowel pin aligns parts.").
 reading_fact(located_in(naples, italy), "naples is in italy.").
+reading_fact(proposition(binary(connect), roles(subject(coupling), object(two_shafts))), "a coupling connects two shafts.").
+reading_fact(connects(coupling, two_shafts), "a coupling connects two shafts.").
 reading_fact(proposition(binary(teach), roles(subject(aristotle), object(alexander))), "aristotle taught alexander the great.").
+reading_fact(proposition(binary(measure), roles(subject(rotary_encoder), object(angular))), "a rotary encoder measures angular position.").
+reading_fact(measures(rotary_encoder, angular_position), "a rotary encoder measures angular position.").
 reading_fact(city(naples), "naples is a city.").
+reading_fact(proposition(binary(support), roles(subject(steady_rest), object(long_workpieces))), "a steady rest supports long workpieces.").
+reading_fact(supports(steady_rest, long_workpieces), "a steady rest supports long workpieces.").
 reading_fact(teach(plato, aristotle), "plato taught aristotle.").
+reading_fact(proposition(binary(support), roles(subject(tailstock), object(workpiece))), "a tailstock supports the workpiece.").
+reading_fact(supports(tailstock, workpiece), "a tailstock supports the workpiece.").
 reading_fact(located_in(milan, italy), "milan is in italy.").
+reading_fact(proposition(binary(produce), roles(subject(surface_grinder), object(flat_surfaces))), "a surface grinder produces flat surfaces.").
+reading_fact(produces(surface_grinder, flat_surfaces), "a surface grinder produces flat surfaces.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
+reading_fact(proposition(binary(enlarge), roles(subject(reamer), object(holes))), "a reamer enlarges holes.").
+reading_fact(enlarge(reamer, holes), "a reamer enlarges holes.").
 reading_fact(flow(thames, north_sea), "the thames flows into the north sea.").
+reading_fact(proposition(binary(rotate), roles(subject(milling_machine), object(cutter))), "a milling machine rotates the cutter.").
+reading_fact(rotate(milling_machine, cutter), "a milling machine rotates the cutter.").
 reading_fact(sea(adriatic_sea), "the adriatic sea is a sea.").
+reading_fact(proposition(binary(apply), roles(subject(torque_wrench), object(specified_torque))), "a torque wrench applies a specified torque.").
+reading_fact(applies(torque_wrench, specified_torque), "a torque wrench applies a specified torque.").
 reading_fact(sea(mediterranean_sea), "the mediterranean sea is a sea.").
+reading_fact(proposition(binary(measure), roles(subject(laser_interferometer), object(displacement))), "a laser interferometer measures displacement.").
+reading_fact(proposition(binary(measure), roles(subject(autocollimator), object(small_angles))), "an autocollimator measures small angles.").
+reading_fact(measures(autocollimator, small_angles), "an autocollimator measures small angles.").
 reading_fact(city(milan), "milan is a city.").
+reading_fact(gauge(bore, measures_bore_diameter), "a bore gauge measures bore diameter.").
 reading_fact(flow(nile, mediterranean_sea), "the nile flows into the mediterranean sea.").
+reading_fact(alloy(invar), "invar is an alloy.").
 reading_fact(flow(po, adriatic_sea), "the po flows into the adriatic sea.").
+reading_fact(trapezoidal_thread(acme_thread), "an acme thread is a trapezoidal thread.").
 reading_fact(relation(river), "river is a relation").
+reading_fact(power_screw(lead_screw), "a lead screw is a power screw.").
 reading_fact(located_in(reichstag, berlin), "the reichstag is in berlin.").
+reading_fact(measuring_instrument(profilometer), "a profilometer is a measuring instrument.").
 reading_fact(largest_city_of(germany, berlin), "the largest city of germany is berlin.").
+reading_fact(measuring_instrument(sine_bar), "a sine bar is a measuring instrument.").
 reading_fact(limits(kanban, work_in_progress), "kanban limits work in progress.").
+reading_fact(machine_tool(jig_borer), "a jig borer is a machine tool.").
 reading_fact(flow(rhone, mediterranean_sea), "the rhone flows into the mediterranean sea.").
+reading_fact(machine_tool(shaper), "a shaper is a machine tool.").
 reading_fact(proposition(binary(limit), roles(subject(kanban), object(work))), "kanban limits work in progress.").
+reading_fact(cutting_tool(fly_cutter), "a fly cutter is a cutting tool.").
 reading_fact(supply(batteries, direct_current), "batteries supply direct current.").
+reading_fact(cutting_tool(countersink), "a countersink is a cutting tool.").
 reading_fact(largest_city_of(turkey, istanbul), "the largest city of turkey is istanbul.").
+reading_fact(cutting_tool(boring_bar), "a boring bar is a cutting tool.").
 reading_fact(produce(rectifiers, direct_current), "rectifiers produce direct current.").
+reading_fact(measuring_instrument(coordinate_measuring_machine), "a coordinate measuring machine is a measuring instrument.").
 reading_fact(located_in(brandenburg_gate, berlin), "the brandenburg gate is in berlin.").
+reading_fact(machining_process(knurling), "knurling is a machining process.").
 reading_fact(pass(capacitors, alternating_current), "capacitors pass alternating current.").
+reading_fact(finishing_process(honing), "honing is a finishing process.").
 reading_fact(relation(largest_city), "largest city is a relation").
+reading_fact(finishing_process(lapping), "lapping is a finishing process.").
 reading_fact(proposition(binary(pass), roles(subject(capacitors), object(alternating_current))), "capacitors pass alternating current.").
+reading_fact(work_holding_device(vise), "a vise is a work holding device.").
 reading_fact(measures(nanometre, length), "the nanometre measures length.").
+reading_fact(work_holding_device(collet), "a collet is a work holding device.").
 reading_fact(block(capacitors, direct_current), "capacitors block direct current.").
+reading_fact(fastener(dowel_pin), "a dowel pin is a fastener.").
 reading_fact(proposition(binary(measure), roles(subject(nanometre), object(length))), "the nanometre measures length.").
+reading_fact(sensor(rotary_encoder), "a rotary encoder is a sensor.").
 reading_fact(measures(hertz, frequency), "the hertz measures frequency.").
+reading_fact(electric_motor(stepper_motor), "a stepper motor is an electric motor.").
 reading_fact(process(shielded_metal_arc_welding), "shielded metal arc welding is a process.").
+reading_fact(proposition(binary(screw), roles(subject(ball), object(mechanical_linear_actuator))), "a ball screw is a mechanical linear actuator.").
+reading_fact(mechanical_linear_actuator(ball_screw), "a ball screw is a mechanical linear actuator.").
 reading_fact(carry(plates, load), "plates carry load.").
+reading_fact(alloy(bronze), "bronze is an alloy.").
 reading_fact(proposition(binary(measure), roles(subject(hertz), object(frequency))), "the hertz measures frequency.").
+reading_fact(alloy(brass), "brass is an alloy.").
 reading_fact(part(plate), "a plate is a part.").
+reading_fact(length_standard(gauge_block), "a gauge block is a length standard.").
 reading_fact(measures(byte, information), "the byte measures information.").
+reading_fact(cutting_tool(tap), "a tap is a cutting tool.").
 reading_fact(break_down(amylase, starch), "amylase breaks down starch.").
+reading_fact(cutting_tool(end_mill), "an end mill is a cutting tool.").
 reading_fact(move(pumps, fluid), "pumps move fluid.").
+reading_fact(cutting_tool(reamer), "a reamer is a cutting tool.").
 reading_fact(proposition(binary(break_down), roles(subject(amylase), object(starch))), "amylase breaks down starch.").
+reading_fact(machine_tool(surface_grinder), "a surface grinder is a machine tool.").
 reading_fact(step_down(buck_converter, voltage), "a buck converter steps down the voltage.").
+reading_fact(machine_tool(milling_machine), "a milling machine is a machine tool.").
 reading_fact(proposition(binary(teach), roles(subject(plato), object(aristotle))), "plato taught aristotle.").
+reading_fact(machine_tool(lathe), "a lathe is a machine tool.").
 reading_fact(proposition(binary(step_down), roles(subject(buck_converter), object(voltage))), "a buck converter steps down the voltage.").
+reading_fact(measuring_instrument(dial_indicator), "a dial indicator is a measuring instrument.").
 reading_fact(step_up(flyback_transformer, voltage), "a flyback transformer steps up the voltage.").
+reading_fact(measuring_instrument(vernier_caliper), "a vernier caliper is a measuring instrument.").
 reading_fact(proposition(binary(move), roles(subject(pump), object(fluid))), "pumps move fluid.").
+reading_fact(measuring_instrument(micrometer), "a micrometer is a measuring instrument.").
 reading_fact(proposition(binary(step_up), roles(subject(flyback_transformer), object(voltage))), "a flyback transformer steps up the voltage.").
+reading_fact(hardness_of(tungsten_carbide, 90_hra), "the hardness of tungsten carbide is 90 hra.").
 reading_fact(protects(heat-resistant_glove, hand), "a heat-resistant glove protects the hand.").
+reading_fact(melting_point_of(copper, 1085_degrees_celsius), "the melting point of copper is 1085 degrees celsius.").
 reading_fact(adverbial_particle(down), "down is an adverbial particle").
+reading_fact(density_of(brass, 8.5_grams), "the density of brass is 8.5 grams per cubic centimeter.").
 reading_fact(proposition(binary(protect), roles(subject(heat-resistant_glove), object(hand))), "a heat-resistant glove protects the hand.").
+reading_fact(thread_pitch_of(m4_coarse_thread, 0.7_millimeters), "the thread pitch of an m4 coarse thread is 0.7 millimeters.").
 reading_fact(disconnect(double-pole_switch, both_conductors), "a double-pole switch disconnects both conductors.").
+reading_fact(thread_pitch_of(m16_coarse_thread, 2_millimeters), "the thread pitch of an m16 coarse thread is 2 millimeters.").
 reading_fact(device(pump), "a pump is a device.").
+reading_fact(resolution_of(digital_caliper, 0.01_millimeters), "the resolution of a digital caliper is 0.01 millimeters.").
 reading_fact(proposition(binary(disconnect), roles(subject(double-pole_switch), object(both_conductors))), "a double-pole switch disconnects both conductors.").
+reading_fact(melting_point_of(aluminium, 660_degrees_celsius), "the melting point of aluminium is 660 degrees celsius.").
 reading_fact(rated_current_of(plug_fuse, 13_amperes), "the rated current of a plug fuse is 13 amperes.").
+reading_fact(density_of(aluminium, 2.7_grams), "the density of aluminium is 2.7 grams per cubic centimeter.").
 reading_fact(step_down(step-down_transformer, voltage), "a step-down transformer steps down the voltage.").
+reading_fact(density_of(steel, 7.85_grams), "the density of steel is 7.85 grams per cubic centimeter.").
 reading_fact(relation(rated_current), "rated current is a relation").
+reading_fact(point_angle_of(standard_twist_drill, 118_degrees), "the point angle of a standard twist drill is 118 degrees.").
 reading_fact(adverbial_particle(up), "up is an adverbial particle").
+reading_fact(step_angle_of(typical_stepper_motor, 1.8_degrees), "the step angle of a typical stepper motor is 1.8 degrees.").
 reading_fact(working_load_of(m10_eye_bolt, 230_kilograms), "the working load of an m10 eye bolt is 230 kilograms.").
+reading_fact(thread_angle_of(acme_thread, 29_degrees), "the thread angle of an acme thread is 29 degrees.").
 reading_fact(operating_voltage_of(car_battery, 12_volts), "the operating voltage of a car battery is 12 volts.").
+reading_fact(thread_angle_of(metric_thread, 60_degrees), "the thread angle of a metric thread is 60 degrees.").
 reading_fact(relation(working_load), "working load is a relation").
+reading_fact(reference_temperature_of(dimensional_metrology, 20_degrees_celsius), "the reference temperature of dimensional metrology is 20 degrees celsius.").
 reading_fact(proposition(binary(step_down), roles(subject(step-down_transformer), object(voltage))), "a step-down transformer steps down the voltage.").
+reading_fact(thread_pitch_of(m12_coarse_thread, 1.75_millimeters), "the thread pitch of an m12 coarse thread is 1.75 millimeters.").
 reading_fact(melting_point_of(tin, 232_degrees_celsius), "the melting point of tin is 232 degrees celsius.").
+reading_fact(thread_pitch_of(m8_coarse_thread, 1.25_millimeters), "the thread pitch of an m8 coarse thread is 1.25 millimeters.").
 reading_fact(operating_voltage_of(usb_port, 5_volts), "the operating voltage of a usb port is 5 volts.").
+reading_fact(thread_pitch_of(m6_coarse_thread, 1_millimeter), "the thread pitch of an m6 coarse thread is 1 millimeter.").
 reading_fact(relation(melting_point), "melting point is a relation").
+reading_fact(thread_pitch_of(m10_coarse_thread, 1.5_millimeters), "the thread pitch of an m10 coarse thread is 1.5 millimeters.").
 reading_fact(word_joiner(-), ""-" is a word joiner").
+reading_fact(resolution_of(dial_indicator, 0.01_millimeters), "the resolution of a dial indicator is 0.01 millimeters.").
 reading_fact(flash_point_of(jet_a_fuel, 38_degrees_celsius), "the flash point of jet a fuel is 38 degrees celsius.").
+reading_fact(resolution_of(vernier_caliper, 0.02_millimeters), "the resolution of a vernier caliper is 0.02 millimeters.").
 reading_fact(boils_at(acetone, 56_degrees_celsius), "the boiling point of acetone is 56 degrees celsius.").
+reading_fact(resolution_of(standard_micrometer, 0.01_millimeters), "the resolution of a standard micrometer is 0.01 millimeters.").
 reading_fact(default_port_of(xdebug, 9003), "the default port of xdebug is 9003.").
+fact_mention(spindle_0.5_millimeters, "one revolution of the thimble moves the spindle 0.5 millimeters.").
+fact_mention(one_revolution_of_the_thimble, "one revolution of the thimble moves the spindle 0.5 millimeters.").
+reading_fact(relation(hardness), "hardness is a relation").
 reading_fact(relation(operating_voltage), "operating voltage is a relation").
+fact_mention(50_divisions, "a micrometer thimble has 50 divisions.").
+fact_mention(micrometer_thimble, "a micrometer thimble has 50 divisions.").
+reading_fact(relation(density), "density is a relation").
 reading_fact(stores(opcache, compiled_bytecode), "opcache stores compiled bytecode in shared memory.").
+reading_fact(relation(point_angle), "point angle is a relation").
 reading_fact(construction_frame("the freezing point of @S is @O", "@S freezes at @O", freezes_at), "the freezing point of x is y means x freezes at y").
+fact_mention(table, "the ball screw moves the table.").
+fact_mention(ball_screw, "the ball screw moves the table.").
+reading_fact(relation(step_angle), "step angle is a relation").
 reading_fact(testing_framework(phpunit), "phpunit is a testing framework.").
+reading_fact(relation(reference_temperature), "reference temperature is a relation").
+fact_mention(corundum, "a grinding wheel contains corundum.").
+fact_mention(grinding_wheel, "a grinding wheel contains corundum.").
 reading_fact(relation(flash_point), "flash point is a relation").
+reading_fact(relation(resolution), "resolution is a relation").
 reading_fact(run(phpunit, unit_tests), "phpunit runs unit tests.").
+reading_fact(proposition(binary(rotate), roles(subject(lathe), object(workpiece))), "a lathe rotates the workpiece").
+fact_mention(ball_screw, "a servo motor drives the ball screw.").
+fact_mention(servo_motor, "a servo motor drives the ball screw.").
+reading_fact(rotate(lathe, workpiece), "a lathe rotates the workpiece").
 reading_fact(construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at), "the boiling point of x is y means x boils at y").
+reading_fact(transmits(belt, power), "a belt transmits power, so it conveys power.").
 reading_fact(manage(composer, dependencies), "composer manages dependencies, so it handles dependencies.").
+reading_fact(proposition(binary(transmit), roles(subject(key), object(torque))), "a key transmits torque.").
+fact_mention(brass, "wire for edm is made of brass.").
+fact_mention(wire_for_edm, "wire for edm is made of brass.").
+reading_fact(transmits(key, torque), "a key transmits torque.").
 reading_fact(causes(unguarded_edge, fall), "an unguarded edge causes a fall.").
+fact_mention(copper, "bronze is made of copper and tin.").
+fact_mention(bronze, "bronze is made of copper and tin.").
+reading_fact(rotate(spindle, cutting_tool), "a spindle rotates the cutting tool, so it turns the cutting tool.").
 reading_fact(proposition(binary(manage), roles(subject(composer), object(dependencies))), "composer manages dependencies, so it handles dependencies.").
+fact_mention(copper, "brass is made of copper and zinc.").
+fact_mention(brass, "brass is made of copper and zinc.").
+reading_fact(proposition(binary(rotate), roles(subject(lathe), object(workpiece))), "a lathe rotates the workpiece.").
+reading_fact(rotate(lathe, workpiece), "a lathe rotates the workpiece.").
 reading_fact(manage(php-fpm, worker_processes), "php-fpm manages worker processes.").
+reading_fact(proposition(binary(rotate), roles(subject(spindle), object(cutting_tool))), "a spindle rotates the cutting tool.").
+fact_mention(speed, "a worm gear reduces speed.").
+fact_mention(worm_gear, "a worm gear reduces speed.").
+reading_fact(rotate(spindle, cutting_tool), "a spindle rotates the cutting tool.").
 reading_fact(taught_form_source(taught_form_16, "tell me the x"), "tell me the x means what is the x?").
+reading_fact(proposition(binary(have), roles(subject(micrometer), object(thimble))), "a micrometer has a thimble, so a thimble is its component.").
+fact_mention(workpiece_position, "a probe measures workpiece position.").
+fact_mention(probe, "a probe measures workpiece position.").
+reading_fact(proposition(binary(have), roles(subject(milling_machine), object(knee))), "a milling machine has a knee.").
+reading_fact(has_part(milling_machine, knee), "a milling machine has a knee.").
 reading_fact(proposition(binary(manage), roles(subject(php-fpm), object(worker_processes))), "php-fpm manages worker processes.").
+fact_mention(chips, "a chip conveyor removes chips.").
+fact_mention(chip_conveyor, "a chip conveyor removes chips.").
+reading_fact(proposition(binary(have), roles(subject(lathe), object(headstock))), "a lathe has a headstock.").
+reading_fact(has_part(lathe, headstock), "a lathe has a headstock.").
 reading_fact(manage(composer, dependencies), "composer manages dependencies.").
+fact_mention(axis, "a servo motor drives the axis.").
+fact_mention(servo_motor, "a servo motor drives the axis.").
+reading_fact(proposition(binary(have), roles(subject(micrometer), object(thimble))), "a micrometer has a thimble.").
+reading_fact(has_part(micrometer, thimble), "a micrometer has a thimble.").
+fact_mention(lines, "a scriber marks lines.").
+fact_mention(scriber, "a scriber marks lines.").
 reading_fact(proposition(binary(cause), roles(subject(unguarded_edge), object(fall))), "an unguarded edge causes a fall.").
+reading_fact(proposition(binary(transform), roles(subject(linear_motion), object(rotary_motion))), "a ball screw converts rotary motion into linear motion, so it transforms rotary motion into linear motion.").
+reading_fact(proposition(binary(convert), roles(subject(cam), object(rotary_motion))), "a cam converts rotary motion into reciprocating motion.").
+fact_mention(hole_centers, "a center punch marks hole centers.").
+fact_mention(center_punch, "a center punch marks hole centers.").
+reading_fact(converts(cam, rotary_motion), "a cam converts rotary motion into reciprocating motion.").
 reading_fact(proposition(binary(manage), roles(subject(composer), object(dependencies))), "composer manages dependencies.").
+reading_fact(reduces(gearbox, speed), "a gearbox reduces speed, so it decreases speed.").
+fact_mention(edges, "an edge finder locates edges.").
+fact_mention(edge_finder, "an edge finder locates edges.").
 reading_fact(show(xdebug, stack_trace), "xdebug shows a stack trace.").
+reading_fact(reduces(ball_bearing, friction), "a ball bearing reduces friction, so it lowers friction.").
 reading_fact(protect(guardrails, workers), "guardrails protect workers from falls.").
+fact_mention(flat_surfaces, "a fly cutter produces flat surfaces.").
+fact_mention(fly_cutter, "a fly cutter produces flat surfaces.").
+reading_fact(reduces(tempering, brittleness), "tempering reduces brittleness.").
 reading_fact(program(script), "a script is a program.").
+reading_fact(proposition(binary(reduce), roles(subject(gearbox), object(speed))), "a gearbox reduces speed.").
+fact_mention(linear_position, "a linear encoder measures linear position.").
+fact_mention(linear_encoder, "a linear encoder measures linear position.").
+reading_fact(reduces(gearbox, speed), "a gearbox reduces speed.").
 reading_fact(emits(light-emitting_diode, light), "a light-emitting diode emits light.").
+fact_mention(rotary_motion, "a lead screw converts rotary motion into linear motion.").
+fact_mention(lead_screw, "a lead screw converts rotary motion into linear motion.").
+reading_fact(proposition(binary(reduce), roles(subject(lubricant), object(wear))), "a lubricant reduces wear.").
+reading_fact(reduces(lubricant, wear), "a lubricant reduces wear.").
 reading_fact(default_value_of(upload_max_filesize, 2_megabytes), "the default value of upload_max_filesize is 2 megabytes.").
+fact_mention(workpiece, "a rotary table rotates the workpiece.").
+fact_mention(rotary_table, "a rotary table rotates the workpiece.").
+reading_fact(proposition(binary(reduce), roles(subject(ball_bearing), object(friction))), "a ball bearing reduces friction.").
+reading_fact(reduces(ball_bearing, friction), "a ball bearing reduces friction.").
 reading_fact(proposition(binary(protect), roles(subject(guardrails), object(workers))), "guardrails protect workers from falls.").
+fact_mention(rotating_shaft, "a bushing supports a rotating shaft.").
+fact_mention(bushing, "a bushing supports a rotating shaft.").
+reading_fact(proposition(binary(contain), roles(subject(high-speed_steel), object(tungsten))), "high-speed steel contains tungsten, so tungsten is its alloying element.").
+reading_fact(contains(high-speed_steel, tungsten), "high-speed steel contains tungsten, so tungsten is its alloying element.").
 reading_fact(measures(megabyte, information), "the megabyte measures information.").
+fact_mention(geometry, "a coordinate measuring machine measures geometry.").
+fact_mention(coordinate_measuring_machine, "a coordinate measuring machine measures geometry.").
+reading_fact(contains(stainless_steel, chromium), "stainless steel contains chromium, so it includes chromium.").
 reading_fact(wore(workers, hard_hat), "workers wear a hard hat because it protects the head from falling objects.").
+reading_fact(proposition(binary(contain), roles(subject(tool_steel), object(carbon))), "tool steel contains carbon.").
+fact_mention(cnc_machines, "g-code controls cnc machines.").
+fact_mention(g-code, "g-code controls cnc machines.").
+reading_fact(contains(tool_steel, carbon), "tool steel contains carbon.").
 reading_fact(proposition(binary(measure), roles(subject(megabyte), object(information))), "the megabyte measures information.").
+reading_fact(proposition(binary(contain), roles(subject(high-speed_steel), object(tungsten))), "high-speed steel contains tungsten.").
+fact_mention(checks_tolerances, "a go/no-go gauge checks tolerances.").
+fact_mention(go/no-go, "a go/no-go gauge checks tolerances.").
+reading_fact(contains(high-speed_steel, tungsten), "high-speed steel contains tungsten.").
 reading_fact(default_value_of(default_socket_timeout, 60_seconds), "the default value of default_socket_timeout is 60 seconds.").
+reading_fact(proposition(binary(contain), roles(subject(stainless_steel), object(chromium))), "stainless steel contains chromium.").
+fact_mention(checks_threads, "a thread gauge checks threads.").
+fact_mention(thread, "a thread gauge checks threads.").
+reading_fact(contains(stainless_steel, chromium), "stainless steel contains chromium.").
 reading_fact(measures(degree_fahrenheit, temperature), "the degree fahrenheit measures temperature.").
+reading_fact(plate(surface, is), "a surface plate is made of granite, so granite is its material.").
+fact_mention(hardness, "a rockwell tester measures hardness.").
+fact_mention(rockwell_tester, "a rockwell tester measures hardness.").
 reading_fact(print(var_dump, type), "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
+reading_fact(insert(carbide, is), "a carbide insert is made of tungsten carbide.").
 reading_fact(proposition(binary(cause), roles(subject(unguarded_edges), object(falls))), "unguarded edges cause falls.").
+fact_mention(textured_grip, "knurling produces a textured grip.").
+fact_mention(knurling, "knurling produces a textured grip.").
+reading_fact(plate(lapping, is), "a lapping plate is made of cast iron.").
 reading_fact(causes(unclosed_string, parse_error), "an unclosed string causes a parse error.").
+reading_fact(plate(surface, is), "a surface plate is made of granite.").
+fact_mention(bore_geometry, "honing improves bore geometry.").
+fact_mention(honing, "honing improves bore geometry.").
 reading_fact(protects(hearing_protection, ears), "hearing protection protects the ears from noise.").
+reading_fact(proposition(binary(hold), roles(subject(collet), object(cutting_tool))), "a collet holds the cutting tool, so it clamps the cutting tool.").
+fact_mention(steel, "quenching hardens steel.").
+fact_mention(quenching, "quenching hardens steel.").
+reading_fact(hold(collet, cutting_tool), "a collet holds the cutting tool, so it clamps the cutting tool.").
 reading_fact(proposition(binary(cause), roles(subject(unclosed_string), object(parse_error))), "an unclosed string causes a parse error.").
+reading_fact(proposition(binary(hold), roles(subject(chuck), object(workpiece))), "a chuck holds the workpiece, so it grips the workpiece.").
+fact_mention(heat, "coolant removes heat.").
+fact_mention(coolant, "coolant removes heat.").
+reading_fact(hold(chuck, workpiece), "a chuck holds the workpiece, so it grips the workpiece.").
 reading_fact(causes(missing_semicolon, parse_error), "a missing semicolon causes a parse error, so a parse error is its symptom.").
+reading_fact(proposition(binary(hold), roles(subject(vise), object(workpiece))), "a vise holds the workpiece.").
+fact_mention(friction, "cutting fluid reduces friction.").
+fact_mention(cutting_fluid, "cutting fluid reduces friction.").
+reading_fact(hold(vise, workpiece), "a vise holds the workpiece.").
 reading_fact(proposition(binary(measure), roles(subject(byte), object(information))), "the byte measures information.").
+reading_fact(proposition(binary(hold), roles(subject(collet), object(cutting_tool))), "a collet holds the cutting tool.").
+fact_mention(burrs, "deburring removes burrs.").
+fact_mention(deburring, "deburring removes burrs.").
+reading_fact(hold(collet, cutting_tool), "a collet holds the cutting tool.").
 reading_fact(causes(missing_semicolon, parse_error), "a missing semicolon causes a parse error, so it triggers a parse error.").
+reading_fact(proposition(binary(hold), roles(subject(chuck), object(workpiece))), "a chuck holds the workpiece.").
+fact_mention(circle, "a dividing head divides a circle into equal parts.").
+fact_mention(dividing_head, "a dividing head divides a circle into equal parts.").
+reading_fact(hold(chuck, workpiece), "a chuck holds the workpiece.").
 reading_fact(proposition(binary(protect), roles(subject(protection), object(ears))), "hearing protection protects the ears from noise.").
+reading_fact(proposition(binary(measure), roles(subject(dial_indicator), object(displacement))), "a dial indicator measures displacement, so displacement is its measured quantity.").
+fact_mention(angles, "a sine bar sets angles.").
+fact_mention(sine_bar, "a sine bar sets angles.").
+reading_fact(measures(dial_indicator, displacement), "a dial indicator measures displacement, so displacement is its measured quantity.").
 reading_fact(default_value_of(max_execution_time, 30_seconds), "the default value of max_execution_time is 30 seconds.").
+reading_fact(proposition(binary(measure), roles(subject(micrometer), object(thickness))), "a micrometer measures thickness, so thickness is its measurand.").
+fact_mention(rotational_energy, "a flywheel stores rotational energy.").
+fact_mention(flywheel, "a flywheel stores rotational energy.").
+reading_fact(measures(micrometer, thickness), "a micrometer measures thickness, so thickness is its measurand.").
 reading_fact(protect(safety_boots, feet), "safety boots protect the feet from falling objects.").
+reading_fact(measures(profilometer, surface_roughness), "a profilometer measures surface roughness, so it quantifies surface roughness.").
+fact_mention(energy, "a spring stores energy.").
+fact_mention(spring, "a spring stores energy.").
 reading_fact(name(error_log), "error_log is the name of the function.").
+reading_fact(measures(tachometer, rotational_speed), "a tachometer measures rotational speed, so it reads rotational speed.").
 reading_fact(proposition(binary(measure), roles(subject(degree_fahrenheit), object(temperature))), "the degree fahrenheit measures temperature.").
+fact_mention(parts, "a dowel pin aligns parts.").
+fact_mention(dowel_pin, "a dowel pin aligns parts.").
+reading_fact(measures(micrometer, thickness), "a micrometer measures thickness, so it gauges thickness.").
 reading_fact(proposition(binary(protect), roles(subject(safety_boots), object(feet))), "safety boots protect the feet from falling objects.").
+reading_fact(gauge(feeler, measures_gaps), "a feeler gauge measures gaps.").
+fact_mention(two_shafts, "a coupling connects two shafts.").
+fact_mention(coupling, "a coupling connects two shafts.").
 reading_fact(write(error_log, message), "error_log writes a message to the error log.").
+reading_fact(proposition(binary(measure), roles(subject(thermocouple), object(temperature))), "a thermocouple measures temperature.").
+reading_fact(measures(thermocouple, temperature), "a thermocouple measures temperature.").
+fact_mention(angular_position, "a rotary encoder measures angular position.").
+fact_mention(rotary_encoder, "a rotary encoder measures angular position.").
 reading_fact(minimum_height_of(fall_protection, 2_meters), "the minimum height of fall protection is 2 meters.").
+reading_fact(proposition(binary(measure), roles(subject(tachometer), object(rotational_speed))), "a tachometer measures rotational speed.").
+reading_fact(measures(tachometer, rotational_speed), "a tachometer measures rotational speed.").
+fact_mention(long_workpieces, "a steady rest supports long workpieces.").
+fact_mention(steady_rest, "a steady rest supports long workpieces.").
 reading_fact(proposition(binary(write), roles(subject(error_log), object(message))), "error_log writes a message to the error log.").
+reading_fact(proposition(binary(measure), roles(subject(profilometer), object(surface_roughness))), "a profilometer measures surface roughness.").
+reading_fact(measures(profilometer, surface_roughness), "a profilometer measures surface roughness.").
+fact_mention(workpiece, "a tailstock supports the workpiece.").
+fact_mention(tailstock, "a tailstock supports the workpiece.").
 reading_fact(write(error_log_function, message), "the error_log function writes a message to the error log.").
+reading_fact(proposition(binary(measure), roles(subject(dial_indicator), object(displacement))), "a dial indicator measures displacement.").
+reading_fact(measures(dial_indicator, displacement), "a dial indicator measures displacement.").
+fact_mention(flat_surfaces, "a surface grinder produces flat surfaces.").
+fact_mention(surface_grinder, "a surface grinder produces flat surfaces.").
 reading_fact(measures(degree_celsius, temperature), "the degree celsius measures temperature.").
+reading_fact(gauge(height, measures_height), "a height gauge measures height.").
 reading_fact(print(var_dump, type), "var_dump prints the type and value of a variable.").
+fact_mention(holes, "a reamer enlarges holes.").
+fact_mention(reamer, "a reamer enlarges holes.").
+reading_fact(proposition(binary(measure), roles(subject(micrometer), object(thickness))), "a micrometer measures thickness.").
+reading_fact(measures(micrometer, thickness), "a micrometer measures thickness.").
 reading_fact(need(workers, fall_protection), "workers need fall protection above 2 meters.").
+fact_mention(cutter, "a milling machine rotates the cutter.").
+fact_mention(milling_machine, "a milling machine rotates the cutter.").
+reading_fact(proposition(binary(cause), roles(subject(overheating), object(tool_failure))), "overheating causes tool failure").
+reading_fact(causes(overheating, tool_failure), "overheating causes tool failure").
 reading_fact(proposition(binary(print), roles(subject(var_dump), object(value))), "var_dump prints the type and value of a variable.").
+fact_mention(specified_torque, "a torque wrench applies a specified torque.").
+fact_mention(torque_wrench, "a torque wrench applies a specified torque.").
+reading_fact(proposition(binary(read), roles(subject(words), object(spoils_readings))), "parallax causes reading errors; in other words, it spoils readings.").
+reading_fact(proposition(binary(read), roles(subject(parallax), object(errors))), "parallax causes reading errors").
+reading_fact(causes(parallax, reading_errors), "parallax causes reading errors").
 reading_fact(proposition(binary(print), roles(subject(var_dump), object(type))), "var_dump prints the type and value of a variable.").
+fact_mention(small_angles, "an autocollimator measures small angles.").
+fact_mention(autocollimator, "an autocollimator measures small angles.").
+reading_fact(proposition(binary(cause), roles(subject(misalignment), object(bearing_wear))), "misalignment causes bearing wear, so bearing wear is its typical outcome.").
+reading_fact(causes(misalignment, bearing_wear), "misalignment causes bearing wear, so bearing wear is its typical outcome.").
+fact_mention(measures_bore_diameter, "a bore gauge measures bore diameter.").
+fact_mention(bore, "a bore gauge measures bore diameter.").
 reading_fact(causes(output_before_the_header_function, headers_already_sent_warning), "output before the header function causes a headers already sent warning.").
+reading_fact(proposition(binary(cause), roles(subject(vibration), object(chatter))), "vibration causes chatter, so chatter is its effect.").
+fact_mention(invar, "invar is an alloy.").
+reading_fact(causes(vibration, chatter), "vibration causes chatter, so chatter is its effect.").
 reading_fact(proposition(binary(emit), roles(subject(light-emitting_diode), object(light))), "a light-emitting diode emits light.").
+fact_mention(acme_thread, "an acme thread is a trapezoidal thread.").
+reading_fact(proposition(binary(position), roles(subject(backlash), object(errors))), "backlash causes positioning errors, so positioning errors are its consequence.").
+reading_fact(causes(backlash, positioning_errors), "backlash causes positioning errors, so positioning errors are its consequence.").
+fact_mention(lead_screw, "a lead screw is a power screw.").
 reading_fact(causes(missing_semicolon, parse_error), "a missing semicolon causes a parse error.").
+reading_fact(proposition(binary(cause), roles(subject(tool_wear), object(poor_surface_finish))), "tool wear causes poor surface finish, so it results in poor surface finish.").
+fact_mention(profilometer, "a profilometer is a measuring instrument.").
+reading_fact(causes(tool_wear, poor_surface_finish), "tool wear causes poor surface finish, so it results in poor surface finish.").
 reading_fact(proposition(binary(need), roles(subject(workers), object(fall_protection))), "workers need fall protection above 2 meters.").
+fact_mention(sine_bar, "a sine bar is a measuring instrument.").
+reading_fact(proposition(binary(cause), roles(subject(vibration), object(chatter))), "vibration causes chatter, so it leads to chatter.").
+reading_fact(causes(vibration, chatter), "vibration causes chatter, so it leads to chatter.").
+fact_mention(jig_borer, "a jig borer is a machine tool.").
 reading_fact(proposition(binary(cause), roles(subject(missing_semicolon), object(parse_error))), "a missing semicolon causes a parse error.").
+reading_fact(proposition(binary(position), roles(subject(backlash), object(errors))), "backlash causes positioning errors, so it produces positioning errors.").
+fact_mention(shaper, "a shaper is a machine tool.").
+reading_fact(causes(backlash, positioning_errors), "backlash causes positioning errors, so it produces positioning errors.").
 reading_fact(add(php_extension, functions), "a php extension adds functions to the php interpreter.").
+fact_mention(fly_cutter, "a fly cutter is a cutting tool.").
+reading_fact(proposition(binary(read), roles(subject(parallax), object(errors))), "parallax causes reading errors.").
+reading_fact(causes(parallax, reading_errors), "parallax causes reading errors.").
+fact_mention(countersink, "a countersink is a cutting tool.").
 reading_fact(protects(hard_hat, head), "a hard hat protects the head from falling objects.").
+reading_fact(proposition(binary(cause), roles(subject(overheating), object(tool_failure))), "overheating causes tool failure.").
+fact_mention(boring_bar, "a boring bar is a cutting tool.").
+reading_fact(causes(overheating, tool_failure), "overheating causes tool failure.").
 reading_fact(proposition(binary(add), roles(subject(php_extension), object(functions))), "a php extension adds functions to the php interpreter.").
+fact_mention(coordinate_measuring_machine, "a coordinate measuring machine is a measuring instrument.").
+reading_fact(proposition(binary(cause), roles(subject(misalignment), object(bearing_wear))), "misalignment causes bearing wear.").
+reading_fact(causes(misalignment, bearing_wear), "misalignment causes bearing wear.").
+fact_mention(knurling, "knurling is a machining process.").
 reading_fact(extension(debugger_extension), "a debugger extension is an extension.").
+reading_fact(proposition(binary(cause), roles(subject(vibration), object(chatter))), "vibration causes chatter.").
+fact_mention(honing, "honing is a finishing process.").
+reading_fact(proposition(binary(cause), roles(subject(tool_wear), object(poor_surface_finish))), "tool wear causes poor surface finish.").
+reading_fact(causes(tool_wear, poor_surface_finish), "tool wear causes poor surface finish.").
+fact_mention(lapping, "lapping is a finishing process.").
 reading_fact(proposition(binary(measure), roles(subject(degree_celsius), object(temperature))), "the degree celsius measures temperature.").
+reading_fact(proposition(binary(cause), roles(subject(thermal_expansion), object(dimensional_errors))), "thermal expansion causes dimensional errors.").
+fact_mention(vise, "a vise is a work holding device.").
+reading_fact(causes(thermal_expansion, dimensional_errors), "thermal expansion causes dimensional errors.").
 reading_fact(debugger_extension(xdebug), "xdebug is a debugger extension for php.").
+fact_mention(collet, "a collet is a work holding device.").
+reading_fact(proposition(binary(position), roles(subject(backlash), object(errors))), "backlash causes positioning errors.").
+reading_fact(causes(backlash, positioning_errors), "backlash causes positioning errors.").
+fact_mention(dowel_pin, "a dowel pin is a fastener.").
 reading_fact(proposition(binary(protect), roles(subject(hard_hat), object(head))), "a hard hat protects the head from falling objects.").
 
+fact_mention(rotary_encoder, "a rotary encoder is a sensor.").
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non
 % nega la provenienza di un fatto, la ritira insieme al fatto.
+fact_mention(stepper_motor, "a stepper motor is an electric motor.").
 provenance_predicate(fact_source).
 provenance_predicate(reading_fact).
 % E il REGISTRO della conversazione: ogni lettura lo scrive, anche quella a
+fact_mention(ball_screw, "a ball screw is a mechanical linear actuator.").
 % secco della negazione. Senza questa riga «i do not really agree with you»
 % riceveva «Held: …» — la negazione di due righe di log — invece della risposta
+fact_mention(bronze, "bronze is an alloy.").
 % pragmatica (pragma.p0t, misurato).
 provenance_predicate(utterance).
+fact_mention(brass, "brass is an alloy.").
 provenance_predicate(archived_exchange).
 
+fact_mention(gauge_block, "a gauge block is a length standard.").
 % ── dalla ricaduta di learned.p0 (14 settembre 2026) ─────────────────────────
 fact_mention(spark_plug, "a spark plug is part of an engine").
+fact_mention(tap, "a tap is a cutting tool.").
 fact_mention(taught_form_15, "x has written y means x wrote y").
 fact_mention(engine, "a spark plug is part of an engine").
+fact_mention(end_mill, "an end mill is a cutting tool.").
 fact_mention(soil_erosion, "deforestation causes soil erosion").
 fact_mention(deforestation, "deforestation causes soil erosion").
+fact_mention(reamer, "a reamer is a cutting tool.").
 fact_mention(pollution, "burning fossil fuels causes pollution").
 fact_mention(vinegar, "vinegar is an acid").
+fact_mention(surface_grinder, "a surface grinder is a machine tool.").
 fact_mention(burning_fossil_fuels, "burning fossil fuels causes pollution").
 fact_mention(breathing_problems, "chloramine gas causes breathing problems").
+fact_mention(milling_machine, "a milling machine is a machine tool.").
 fact_mention(chloramine_gas, "chloramine gas causes breathing problems").
 fact_mention(smoke_detector, "a smoke detector is a device that senses smoke, typically as an indicator of fire").
+fact_mention(lathe, "a lathe is a machine tool.").
 fact_mention(smoke_detector, "a smoke detector senses smoke").
 fact_mention(smoke_detector, "a smoke detector is a device").
+fact_mention(dial_indicator, "a dial indicator is a measuring instrument.").
 fact_mention(breathing_problems, "chlorine gas causes breathing problems").
 fact_mention(fish, "fish is a perishable").
+fact_mention(vernier_caliper, "a vernier caliper is a measuring instrument.").
 fact_mention(milk, "milk is a perishable").
 fact_mention(situations, "thermal runaway occurs in situations where an increase in temperature changes the conditions in a way that causes a further increase in temperature, often leading to a destructive result").
+fact_mention(micrometer, "a micrometer is a measuring instrument.").
 fact_mention(thermal_runaway, "thermal runaway occurs in situations where an increase in temperature changes the conditions in a way that causes a further increase in temperature, often leading to a destructive result").
 fact_mention(process, "thermal runaway describes a process that is accelerated by increased temperature, in turn releasing energy that further increases temperature").
+fact_mention(90_hra, "the hardness of tungsten carbide is 90 hra.").
+fact_mention(tungsten_carbide, "the hardness of tungsten carbide is 90 hra.").
 fact_mention(thermal_runaway, "thermal runaway describes a process that is accelerated by increased temperature, in turn releasing energy that further increases temperature").
 fact_mention(rice, "rice is a perishable").
+fact_mention(1085_degrees_celsius, "the melting point of copper is 1085 degrees celsius.").
+fact_mention(copper, "the melting point of copper is 1085 degrees celsius.").
 fact_mention(chicken, "chicken is a perishable").
 fact_mention(sensor, "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
+fact_mention(8.5_grams, "the density of brass is 8.5 grams per cubic centimeter.").
+fact_mention(brass, "the density of brass is 8.5 grams per cubic centimeter.").
 fact_mention(carbon_monoxide_detector, "a carbon monoxide detector detects the presence of carbon monoxide gas").
 fact_mention(carbon_monoxide_detector, "a carbon monoxide detector is a device").
+fact_mention(0.7_millimeters, "the thread pitch of an m4 coarse thread is 0.7 millimeters.").
+fact_mention(m4_coarse_thread, "the thread pitch of an m4 coarse thread is 0.7 millimeters.").
 fact_mention(co_detectors, "most co detectors use a sensor with a defined, limited lifespan, and will not work indefinitely").
 fact_mention(carbon_monoxide_detector, "a carbon monoxide detector or co detector is a device which detects the presence of carbon monoxide (co) gas, and is used to prevent carbon monoxide poisoning").
+fact_mention(2_millimeters, "the thread pitch of an m16 coarse thread is 2 millimeters.").
+fact_mention(m16_coarse_thread, "the thread pitch of an m16 coarse thread is 2 millimeters.").
 fact_mention(chlorine_gas, "chlorine gas causes breathing problems").
 fact_mention(yellow_leaves, "low light causes yellow leaves").
+fact_mention(0.01_millimeters, "the resolution of a digital caliper is 0.01 millimeters.").
+fact_mention(digital_caliper, "the resolution of a digital caliper is 0.01 millimeters.").
 fact_mention(low_light, "low light causes yellow leaves").
 fact_mention(poorly_maintained_cooling_towers, "most outbreaks result from poorly maintained cooling towers").
+fact_mention(660_degrees_celsius, "the melting point of aluminium is 660 degrees celsius.").
+fact_mention(aluminium, "the melting point of aluminium is 660 degrees celsius.").
 fact_mention(poorly_maintained_cooling_towers, "most legionella outbreaks result from poorly maintained cooling towers").
 fact_mention(outbreaks, "most outbreaks result from poorly maintained cooling towers").
+fact_mention(2.7_grams, "the density of aluminium is 2.7 grams per cubic centimeter.").
+fact_mention(aluminium, "the density of aluminium is 2.7 grams per cubic centimeter.").
 fact_mention(legionella_species, "most legionella species are intracellular pathogens whose primary hosts are amoebae, however many legionella are accidental pathogens of humans").
 fact_mention(yellow_leaves, "underwatering causes yellow leaves").
+fact_mention(7.85_grams, "the density of steel is 7.85 grams per cubic centimeter.").
+fact_mention(steel, "the density of steel is 7.85 grams per cubic centimeter.").
 fact_mention(legionella, "legionella is a genus of gram-negative bacteria that can be seen using a silver stain or grown in a special media that contains cysteine, an amino acid").
 fact_mention(underwatering, "underwatering causes yellow leaves").
+fact_mention(118_degrees, "the point angle of a standard twist drill is 118 degrees.").
+fact_mention(standard_twist_drill, "the point angle of a standard twist drill is 118 degrees.").
 fact_mention(yellow_leaves, "overwatering causes yellow leaves").
 fact_mention(overwatering, "overwatering causes yellow leaves").
+fact_mention(1.8_degrees, "the step angle of a typical stepper motor is 1.8 degrees.").
+fact_mention(typical_stepper_motor, "the step angle of a typical stepper motor is 1.8 degrees.").
 fact_mention(black_sea, "the po flows into the black sea.").
 fact_mention(black_sea, "the black sea is a sea.").
+fact_mention(29_degrees, "the thread angle of an acme thread is 29 degrees.").
+fact_mention(acme_thread, "the thread angle of an acme thread is 29 degrees.").
 fact_mention(hydraulic_shock, "hydraulic shock is a pressure surge or wave caused when a fluid in motion is forced to stop or change direction suddenly: a momentum change").
 fact_mention(mold, "high humidity causes mold").
+fact_mention(60_degrees, "the thread angle of a metric thread is 60 degrees.").
+fact_mention(metric_thread, "the thread angle of a metric thread is 60 degrees.").
 fact_mention(black_sea, "the danube flows into the black sea.").
 fact_mention(danube, "the danube flows into the black sea.").
+fact_mention(20_degrees_celsius, "the reference temperature of dimensional metrology is 20 degrees celsius.").
+fact_mention(dimensional_metrology, "the reference temperature of dimensional metrology is 20 degrees celsius.").
 fact_mention(high_humidity, "high humidity causes mold").
 fact_mention(presence_of_carbon_monoxide_gas, "a carbon monoxide detector detects the presence of carbon monoxide gas").
+fact_mention(1.75_millimeters, "the thread pitch of an m12 coarse thread is 1.75 millimeters.").
+fact_mention(m12_coarse_thread, "the thread pitch of an m12 coarse thread is 1.75 millimeters.").
 fact_mention(danube, "the inn flows into the danube.").
 fact_mention(inn, "the inn flows into the danube.").
+fact_mention(1.25_millimeters, "the thread pitch of an m8 coarse thread is 1.25 millimeters.").
+fact_mention(m8_coarse_thread, "the thread pitch of an m8 coarse thread is 1.25 millimeters.").
 fact_mention(fires, "lithium batteries cause fires").
 fact_mention(fire_blanket, "a fire blanket is a safety device designed to extinguish incipient (starting) fires").
+fact_mention(1_millimeter, "the thread pitch of an m6 coarse thread is 1 millimeter.").
+fact_mention(m6_coarse_thread, "the thread pitch of an m6 coarse thread is 1 millimeter.").
 fact_mention(inn, "the salzach flows into the inn.").
 fact_mention(salzach, "the salzach flows into the inn.").
+fact_mention(1.5_millimeters, "the thread pitch of an m10 coarse thread is 1.5 millimeters.").
+fact_mention(m10_coarse_thread, "the thread pitch of an m10 coarse thread is 1.5 millimeters.").
 fact_mention(smoke, "a smoke detector senses smoke").
 fact_mention(legionella_outbreaks, "most legionella outbreaks result from poorly maintained cooling towers").
+fact_mention(0.01_millimeters, "the resolution of a dial indicator is 0.01 millimeters.").
+fact_mention(dial_indicator, "the resolution of a dial indicator is 0.01 millimeters.").
 fact_mention(rhine, "the moselle flows into the rhine.").
 fact_mention(moselle, "the moselle flows into the rhine.").
+fact_mention(0.02_millimeters, "the resolution of a vernier caliper is 0.02 millimeters.").
+fact_mention(vernier_caliper, "the resolution of a vernier caliper is 0.02 millimeters.").
 fact_mention(legionella_outbreaks, "legionella outbreaks cause legionnaires disease").
 fact_mention(lithium_batteries, "lithium batteries cause fires").
+fact_mention(0.01_millimeters, "the resolution of a standard micrometer is 0.01 millimeters.").
+fact_mention(standard_micrometer, "the resolution of a standard micrometer is 0.01 millimeters.").
 fact_mention(water, "sodium reacts with water.").
 fact_mention(sodium, "sodium reacts with water.").
 fact_mention(north_sea, "the north sea is a sea.").
@@ -1174,160 +1753,272 @@ fact_mention(italy, "turin is in italy.").
 fact_mention(turin, "turin is in italy.").
 fact_mention(north_sea, "the rhine flows into the north sea.").
 fact_mention(rhine, "the rhine flows into the north sea.").
+fact_mention(workpiece, "a lathe rotates the workpiece").
+fact_mention(lathe, "a lathe rotates the workpiece").
 fact_mention(turin, "turin is a city.").
 fact_mention(alexander_the_great, "aristotle taught alexander the great.").
+fact_mention(power, "a belt transmits power, so it conveys power.").
+fact_mention(belt, "a belt transmits power, so it conveys power.").
 fact_mention(aristotle, "aristotle taught alexander the great.").
 fact_mention(italy, "naples is in italy.").
 fact_mention(naples, "naples is in italy.").
+fact_mention(torque, "a key transmits torque.").
+fact_mention(key, "a key transmits torque.").
 fact_mention(falls, "slippery surfaces cause falls").
 fact_mention(calcite, "calcite is a carbonate mineral").
+fact_mention(cutting_tool, "a spindle rotates the cutting tool, so it turns the cutting tool.").
+fact_mention(spindle, "a spindle rotates the cutting tool, so it turns the cutting tool.").
 fact_mention(naples, "naples is a city.").
 fact_mention(rhine, "the aare flows into the rhine.").
 fact_mention(aristotle, "plato taught aristotle.").
+fact_mention(workpiece, "a lathe rotates the workpiece.").
+fact_mention(lathe, "a lathe rotates the workpiece.").
 fact_mention(italy, "milan is in italy.").
 fact_mention(milan, "milan is in italy.").
 fact_mention(plato, "plato taught aristotle.").
+fact_mention(cutting_tool, "a spindle rotates the cutting tool.").
+fact_mention(spindle, "a spindle rotates the cutting tool.").
 fact_mention(thames, "the thames flows into the north sea.").
 fact_mention(po, "the po flows into the black sea.").
 fact_mention(adriatic_sea, "the adriatic sea is a sea.").
 fact_mention(mediterranean_sea, "the mediterranean sea is a sea.").
+fact_mention(knee, "a milling machine has a knee.").
+fact_mention(milling_machine, "a milling machine has a knee.").
 fact_mention(aare, "the aare flows into the rhine.").
 fact_mention(mediterranean_sea, "the rhone flows into the mediterranean sea.").
 fact_mention(milan, "milan is a city.").
+fact_mention(headstock, "a lathe has a headstock.").
+fact_mention(lathe, "a lathe has a headstock.").
 fact_mention(mediterranean_sea, "the nile flows into the mediterranean sea.").
 fact_mention(nile, "the nile flows into the mediterranean sea.").
 fact_mention(berlin, "the largest city of germany is berlin.").
+fact_mention(thimble, "a micrometer has a thimble.").
+fact_mention(micrometer, "a micrometer has a thimble.").
 fact_mention(work_in_progress, "kanban limits work in progress.").
 fact_mention(kanban, "kanban limits work in progress.").
 fact_mention(adriatic_sea, "the po flows into the adriatic sea.").
 fact_mention(berlin, "the reichstag is in berlin.").
+fact_mention(rotary_motion, "a cam converts rotary motion into reciprocating motion.").
+fact_mention(cam, "a cam converts rotary motion into reciprocating motion.").
 fact_mention(information, "the megabyte measures information.").
 fact_mention(reichstag, "the reichstag is in berlin.").
+fact_mention(speed, "a gearbox reduces speed, so it decreases speed.").
+fact_mention(gearbox, "a gearbox reduces speed, so it decreases speed.").
 fact_mention(direct_current, "batteries supply direct current.").
 fact_mention(batteries, "batteries supply direct current.").
+fact_mention(friction, "a ball bearing reduces friction, so it lowers friction.").
+fact_mention(ball_bearing, "a ball bearing reduces friction, so it lowers friction.").
 fact_mention(germany, "the largest city of germany is berlin.").
 fact_mention(po, "the po flows into the adriatic sea.").
+fact_mention(brittleness, "tempering reduces brittleness.").
+fact_mention(tempering, "tempering reduces brittleness.").
 fact_mention(direct_current, "rectifiers produce direct current.").
 fact_mention(rectifiers, "rectifiers produce direct current.").
 fact_mention(rhone, "the rhone flows into the mediterranean sea.").
+fact_mention(speed, "a gearbox reduces speed.").
+fact_mention(gearbox, "a gearbox reduces speed.").
 fact_mention(istanbul, "the largest city of turkey is istanbul.").
 fact_mention(alternating_current, "capacitors pass alternating current.").
 fact_mention(length, "the nanometre measures length.").
+fact_mention(wear, "a lubricant reduces wear.").
+fact_mention(lubricant, "a lubricant reduces wear.").
 fact_mention(9003, "the default port of xdebug is 9003.").
 fact_mention(xdebug, "the default port of xdebug is 9003.").
 fact_mention(nanometre, "the nanometre measures length.").
+fact_mention(friction, "a ball bearing reduces friction.").
+fact_mention(ball_bearing, "a ball bearing reduces friction.").
 fact_mention(capacitors, "capacitors pass alternating current.").
 fact_mention(compiled_bytecode, "opcache stores compiled bytecode in shared memory.").
 fact_mention(opcache, "opcache stores compiled bytecode in shared memory.").
+fact_mention(tungsten, "high-speed steel contains tungsten, so tungsten is its alloying element.").
+fact_mention(high-speed_steel, "high-speed steel contains tungsten, so tungsten is its alloying element.").
 fact_mention(turkey, "the largest city of turkey is istanbul.").
 fact_mention(berlin, "the brandenburg gate is in berlin.").
+fact_mention(chromium, "stainless steel contains chromium, so it includes chromium.").
+fact_mention(stainless_steel, "stainless steel contains chromium, so it includes chromium.").
 fact_mention(phpunit, "phpunit is a testing framework.").
 fact_mention(frequency, "the hertz measures frequency.").
 fact_mention(load, "plates carry load.").
+fact_mention(carbon, "tool steel contains carbon.").
+fact_mention(tool_steel, "tool steel contains carbon.").
 fact_mention(unit_tests, "phpunit runs unit tests.").
 fact_mention(phpunit, "phpunit runs unit tests.").
 fact_mention(plates, "plates carry load.").
+fact_mention(tungsten, "high-speed steel contains tungsten.").
+fact_mention(high-speed_steel, "high-speed steel contains tungsten.").
 fact_mention(starch, "amylase breaks down starch.").
 fact_mention(amylase, "amylase breaks down starch.").
 fact_mention(dependencies, "composer manages dependencies, so it handles dependencies.").
+fact_mention(chromium, "stainless steel contains chromium.").
+fact_mention(stainless_steel, "stainless steel contains chromium.").
 fact_mention(composer, "composer manages dependencies, so it handles dependencies.").
 fact_mention(hertz, "the hertz measures frequency.").
+fact_mention(is, "a surface plate is made of granite, so granite is its material.").
+fact_mention(surface, "a surface plate is made of granite, so granite is its material.").
 fact_mention(brandenburg_gate, "the brandenburg gate is in berlin.").
 fact_mention(plate, "a plate is a part.").
+fact_mention(is, "a carbide insert is made of tungsten carbide.").
+fact_mention(carbide, "a carbide insert is made of tungsten carbide.").
 fact_mention(worker_processes, "php-fpm manages worker processes.").
 fact_mention(php-fpm, "php-fpm manages worker processes.").
+fact_mention(is, "a lapping plate is made of cast iron.").
+fact_mention(lapping, "a lapping plate is made of cast iron.").
 fact_mention(voltage, "a buck converter steps down the voltage.").
 fact_mention(voltage, "a step-down transformer steps down the voltage.").
+fact_mention(is, "a surface plate is made of granite.").
+fact_mention(surface, "a surface plate is made of granite.").
 fact_mention(buck_converter, "a buck converter steps down the voltage.").
 fact_mention(dependencies, "composer manages dependencies.").
 fact_mention(composer, "composer manages dependencies.").
+fact_mention(cutting_tool, "a collet holds the cutting tool, so it clamps the cutting tool.").
+fact_mention(collet, "a collet holds the cutting tool, so it clamps the cutting tool.").
 fact_mention(hand, "a heat-resistant glove protects the hand.").
 fact_mention(heat-resistant_glove, "a heat-resistant glove protects the hand.").
 fact_mention(direct_current, "capacitors block direct current.").
+fact_mention(workpiece, "a chuck holds the workpiece, so it grips the workpiece.").
+fact_mention(chuck, "a chuck holds the workpiece, so it grips the workpiece.").
 fact_mention(stack_trace, "xdebug shows a stack trace.").
 fact_mention(xdebug, "xdebug shows a stack trace.").
 fact_mention(capacitors, "capacitors block direct current.").
+fact_mention(workpiece, "a vise holds the workpiece.").
+fact_mention(vise, "a vise holds the workpiece.").
 fact_mention(fluid, "pumps move fluid.").
 fact_mention(both_conductors, "a double-pole switch disconnects both conductors.").
 fact_mention(script, "a script is a program.").
+fact_mention(cutting_tool, "a collet holds the cutting tool.").
+fact_mention(collet, "a collet holds the cutting tool.").
 fact_mention(double-pole_switch, "a double-pole switch disconnects both conductors.").
 fact_mention(13_amperes, "the rated current of a plug fuse is 13 amperes.").
 fact_mention(plug_fuse, "the rated current of a plug fuse is 13 amperes.").
+fact_mention(workpiece, "a chuck holds the workpiece.").
+fact_mention(chuck, "a chuck holds the workpiece.").
 fact_mention(voltage, "a flyback transformer steps up the voltage.").
 fact_mention(flyback_transformer, "a flyback transformer steps up the voltage.").
 fact_mention(230_kilograms, "the working load of an m10 eye bolt is 230 kilograms.").
+fact_mention(displacement, "a dial indicator measures displacement, so displacement is its measured quantity.").
+fact_mention(dial_indicator, "a dial indicator measures displacement, so displacement is its measured quantity.").
 fact_mention(2_megabytes, "the default value of upload_max_filesize is 2 megabytes.").
 fact_mention(upload_max_filesize, "the default value of upload_max_filesize is 2 megabytes.").
 fact_mention(m10_eye_bolt, "the working load of an m10 eye bolt is 230 kilograms.").
+fact_mention(thickness, "a micrometer measures thickness, so thickness is its measurand.").
+fact_mention(micrometer, "a micrometer measures thickness, so thickness is its measurand.").
 fact_mention(pumps, "pumps move fluid.").
 fact_mention(information, "the byte measures information.").
+fact_mention(surface_roughness, "a profilometer measures surface roughness, so it quantifies surface roughness.").
+fact_mention(profilometer, "a profilometer measures surface roughness, so it quantifies surface roughness.").
 fact_mention(megabyte, "the megabyte measures information.").
+fact_mention(temperature, "a thermocouple measures temperature.").
+fact_mention(rotational_speed, "a tachometer measures rotational speed, so it reads rotational speed.").
+fact_mention(tachometer, "a tachometer measures rotational speed, so it reads rotational speed.").
 fact_mention(12_volts, "the operating voltage of a car battery is 12 volts.").
 fact_mention(car_battery, "the operating voltage of a car battery is 12 volts.").
+fact_mention(thickness, "a micrometer measures thickness, so it gauges thickness.").
+fact_mention(micrometer, "a micrometer measures thickness, so it gauges thickness.").
 fact_mention(fall, "an unguarded edge causes a fall.").
 fact_mention(60_seconds, "the default value of default_socket_timeout is 60 seconds.").
+fact_mention(measures_gaps, "a feeler gauge measures gaps.").
+fact_mention(feeler, "a feeler gauge measures gaps.").
 fact_mention(default_socket_timeout, "the default value of default_socket_timeout is 60 seconds.").
 fact_mention(unguarded_edge, "an unguarded edge causes a fall.").
 fact_mention(232_degrees_celsius, "the melting point of tin is 232 degrees celsius.").
 fact_mention(type, "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
+fact_mention(thermocouple, "a thermocouple measures temperature.").
 fact_mention(var_dump, "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
 fact_mention(tin, "the melting point of tin is 232 degrees celsius.").
 fact_mention(step-down_transformer, "a step-down transformer steps down the voltage.").
+fact_mention(rotational_speed, "a tachometer measures rotational speed.").
+fact_mention(tachometer, "a tachometer measures rotational speed.").
 fact_mention(workers, "guardrails protect workers from falls.").
 fact_mention(parse_error, "an unclosed string causes a parse error.").
 fact_mention(unclosed_string, "an unclosed string causes a parse error.").
+fact_mention(surface_roughness, "a profilometer measures surface roughness.").
+fact_mention(profilometer, "a profilometer measures surface roughness.").
 fact_mention(guardrails, "guardrails protect workers from falls.").
 fact_mention(byte, "the byte measures information.").
 fact_mention(5_volts, "the operating voltage of a usb port is 5 volts.").
+fact_mention(displacement, "a dial indicator measures displacement.").
+fact_mention(dial_indicator, "a dial indicator measures displacement.").
 fact_mention(parse_error, "a missing semicolon causes a parse error, so a parse error is its symptom.").
 fact_mention(missing_semicolon, "a missing semicolon causes a parse error, so a parse error is its symptom.").
+fact_mention(measures_height, "a height gauge measures height.").
+fact_mention(height, "a height gauge measures height.").
 fact_mention(usb_port, "the operating voltage of a usb port is 5 volts.").
 fact_mention(hard_hat, "workers wear a hard hat because it protects the head from falling objects.").
 fact_mention(parse_error, "a missing semicolon causes a parse error, so it triggers a parse error.").
+fact_mention(thickness, "a micrometer measures thickness.").
+fact_mention(micrometer, "a micrometer measures thickness.").
 fact_mention(missing_semicolon, "a missing semicolon causes a parse error, so it triggers a parse error.").
 fact_mention(workers, "workers wear a hard hat because it protects the head from falling objects.").
 fact_mention(56_degrees_celsius, "the boiling point of acetone is 56 degrees celsius.").
+fact_mention(tool_failure, "overheating causes tool failure").
+fact_mention(overheating, "overheating causes tool failure").
 fact_mention(30_seconds, "the default value of max_execution_time is 30 seconds.").
 fact_mention(max_execution_time, "the default value of max_execution_time is 30 seconds.").
 fact_mention(acetone, "the boiling point of acetone is 56 degrees celsius.").
 fact_mention(38_degrees_celsius, "the flash point of jet a fuel is 38 degrees celsius.").
+fact_mention(reading_errors, "parallax causes reading errors").
+fact_mention(parallax, "parallax causes reading errors").
 fact_mention(error_log, "error_log is the name of the function.").
 fact_mention(ears, "hearing protection protects the ears from noise.").
 fact_mention(hearing_protection, "hearing protection protects the ears from noise.").
+fact_mention(bearing_wear, "misalignment causes bearing wear, so bearing wear is its typical outcome.").
+fact_mention(misalignment, "misalignment causes bearing wear, so bearing wear is its typical outcome.").
 fact_mention(jet_a_fuel, "the flash point of jet a fuel is 38 degrees celsius.").
 fact_mention(message, "error_log writes a message to the error log.").
 fact_mention(error_log, "error_log writes a message to the error log.").
+fact_mention(chatter, "vibration causes chatter, so chatter is its effect.").
+fact_mention(vibration, "vibration causes chatter, so chatter is its effect.").
 fact_mention(freezes_at, "the freezing point of x is y means x freezes at y").
 fact_mention(shielded_metal_arc_welding, "shielded metal arc welding is a process.").
 fact_mention(feet, "safety boots protect the feet from falling objects.").
+fact_mention(positioning_errors, "backlash causes positioning errors, so positioning errors are its consequence.").
+fact_mention(backlash, "backlash causes positioning errors, so positioning errors are its consequence.").
 fact_mention(message, "the error_log function writes a message to the error log.").
 fact_mention(error_log_function, "the error_log function writes a message to the error log.").
 fact_mention(safety_boots, "safety boots protect the feet from falling objects.").
+fact_mention(poor_surface_finish, "tool wear causes poor surface finish, so it results in poor surface finish.").
+fact_mention(tool_wear, "tool wear causes poor surface finish, so it results in poor surface finish.").
 fact_mention(pump, "a pump is a device.").
 fact_mention(type, "var_dump prints the type and value of a variable.").
 fact_mention(var_dump, "var_dump prints the type and value of a variable.").
+fact_mention(chatter, "vibration causes chatter, so it leads to chatter.").
+fact_mention(vibration, "vibration causes chatter, so it leads to chatter.").
 fact_mention(temperature, "the degree fahrenheit measures temperature.").
 fact_mention(degree_fahrenheit, "the degree fahrenheit measures temperature.").
 fact_mention(2_meters, "the minimum height of fall protection is 2 meters.").
+fact_mention(positioning_errors, "backlash causes positioning errors, so it produces positioning errors.").
+fact_mention(backlash, "backlash causes positioning errors, so it produces positioning errors.").
 fact_mention(fall_protection, "the minimum height of fall protection is 2 meters.").
 fact_mention(headers_already_sent_warning, "output before the header function causes a headers already sent warning.").
 fact_mention(output_before_the_header_function, "output before the header function causes a headers already sent warning.").
+fact_mention(reading_errors, "parallax causes reading errors.").
+fact_mention(parallax, "parallax causes reading errors.").
 fact_mention(boils_at, "the boiling point of x is y means x boils at y").
 fact_mention(light, "a light-emitting diode emits light.").
 fact_mention(parse_error, "a missing semicolon causes a parse error.").
+fact_mention(tool_failure, "overheating causes tool failure.").
+fact_mention(overheating, "overheating causes tool failure.").
 fact_mention(missing_semicolon, "a missing semicolon causes a parse error.").
 fact_mention(fall_protection, "workers need fall protection above 2 meters.").
 fact_mention(workers, "workers need fall protection above 2 meters.").
+fact_mention(bearing_wear, "misalignment causes bearing wear.").
+fact_mention(misalignment, "misalignment causes bearing wear.").
 fact_mention(light-emitting_diode, "a light-emitting diode emits light.").
 fact_mention(functions, "a php extension adds functions to the php interpreter.").
 fact_mention(php_extension, "a php extension adds functions to the php interpreter.").
 fact_mention(temperature, "the degree celsius measures temperature.").
+fact_mention(poor_surface_finish, "tool wear causes poor surface finish.").
+fact_mention(tool_wear, "tool wear causes poor surface finish.").
 fact_mention(degree_celsius, "the degree celsius measures temperature.").
 fact_mention(head, "a hard hat protects the head from falling objects.").
 fact_mention(debugger_extension, "a debugger extension is an extension.").
+fact_mention(dimensional_errors, "thermal expansion causes dimensional errors.").
+fact_mention(thermal_expansion, "thermal expansion causes dimensional errors.").
 fact_mention(hard_hat, "a hard hat protects the head from falling objects.").
 fact_mention(taught_form_16, "tell me the x means what is the x?").
 fact_mention(xdebug, "xdebug is a debugger extension for php.").
+fact_mention(positioning_errors, "backlash causes positioning errors.").
+fact_mention(backlash, "backlash causes positioning errors.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

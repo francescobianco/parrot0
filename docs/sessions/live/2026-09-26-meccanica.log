@@ -1,0 +1,1237 @@
+# sessione: meccanica di precisione — lezioni imparate vs lezioni con problemi, fino a 100 problemi — 2026-09-26 13:01 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@dbe9bc5a]
+# mode: conversational (tools off, network off) - 166667 facts, 5544 rules (3.33%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Campo: meccanica di precisione (strumenti di misura, macchine utensili, filettature, materiali e trattamenti, cause di errore). La KB non ha fatti del campo. Indirizzo di F.: far crescere la KB con lezioni vere; ogni forma che non funziona va annotata in train-the-learning-process.md e si va avanti; coefficiente imparate / con problemi; fermarsi a 100 lezioni con problemi. Una lezione è IMPARATA se una domanda diversa dalla lezione risponde con il fatto.
+! Indirizzo di F.: insegnare di piu' con L3 (l3-upgrade.md), poi le altre forme a priorita' scendente. Il lotto e' riordinato: per ogni famiglia di relazione (causa, misura, tenere, materiale, contenere, ridurre, convertire, parti, ruotare, trasmettere) prima i fatti di base, poi i contatti — verbo, nome, nome di piu' parole, strumento, controesempio — verificati su un fatto tenuto fuori. Dopo: schemi L2 (valori nominati), classi, funzioni, e il resto.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 0 imparate, 0 con problemi.
+> Backlash causes positioning errors.
+< Learned: backlash causes positioning errors.
+> What causes positioning errors?
+< backlash.
+> Thermal expansion causes dimensional errors.
+< Learned: thermal expansion causes dimensional errors.
+> Does thermal expansion cause dimensional errors?
+< Yes: thermal expansion causes dimensional errors.
+> Tool wear causes poor surface finish.
+< Learned: tool wear causes poor surface finish.
+> What causes poor surface finish?
+< Tool wear.
+> Vibration causes chatter.
+< Learned: causes(vibration, chatter.).
+> What causes chatter?
+< Vibration.
+> Misalignment causes bearing wear.
+< Learned: misalignment causes bearing wear.
+> What causes bearing wear?
+< Misalignment.
+> Heat causes thermal expansion.
+< I didn't keep that: «heat» and «thermal_expansion» don't read as things I can hold a fact about.
+> What causes thermal expansion?
+< Hmm, I don't know about expansion yet. Want me to learn about it?
+> Overheating causes tool failure.
+< Learned: overheating causes tool failure.
+> What causes tool failure?
+< Overheating.
+> Parallax causes reading errors.
+< Learned: parallax causes reading errors.
+> What causes reading errors?
+< parallax.
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 7 imparate, 1 con problemi.
+> Backlash causes positioning errors, so it produces positioning errors.
+< Learned: backlash causes positioning errors.
+> Does thermal expansion produce dimensional errors?
+< Yes: thermal expansion causes dimensional errors.
+> Vibration causes chatter, so it leads to chatter.
+< Learned: vibration causes chatter.
+> Does misalignment lead to bearing wear?
+< Reading «lead» as «causes». Yes: misalignment causes bearing wear.
+> Heat causes thermal expansion, so it brings about thermal expansion.
+< I didn't keep that: «heat» and «thermal_expansion» don't read as things I can hold a fact about.
+> Does overheating bring about tool failure?
+< Yes: overheating causes tool failure.
+> Tool wear causes poor surface finish, so it results in poor surface finish.
+< Learned: tool wear causes poor surface finish.
+> What results in reading errors?
+< Hmm, I don't know about results yet. Want me to learn about it?
+! Forma «L3 contatto-nome»: lezione vera, poi una domanda diversa dalla lezione. Finora 10 imparate, 2 con problemi.
+> Backlash causes positioning errors, so positioning errors are its consequence.
+< Learned: backlash causes positioning errors.
+> What is the consequence of tool wear?
+< I don't know about consequence.
+> Vibration causes chatter, so chatter is its effect.
+< Learned: vibration causes chatter.
+> What is the effect of heat?
+< Reading «effect» as «causes». I don't know the effect of heat.
+! Forma «L3 nome di piu' parole»: lezione vera, poi una domanda diversa dalla lezione. Finora 10 imparate, 4 con problemi.
+> Misalignment causes bearing wear, so bearing wear is its typical outcome.
+< Learned: misalignment causes bearing wear.
+> What is the typical outcome of overheating?
+< Reading «typical outcome» as «causes». tool failure.
+! Forma «L3 strumento»: lezione vera, poi una domanda diversa dalla lezione. Finora 11 imparate, 4 con problemi.
+> Parallax causes reading errors; in other words, it spoils readings.
+< Learned: parallax causes reading errors. I couldn't read «in other words, it spoils readings.».
+> Does parallax spoil readings?
+< I cannot settle that: no fact I hold decides whether parallax spoilt readings. Not proved is not the same as false. Tell me either way and I will hold it.
+> Overheating causes tool failure; in other words, tool failure is its aftermath.
+< Learned: overheating causes tool failure. Learned: tool failure is aftermath.
+> What is the aftermath of vibration?
+< I don't know any aftermath yet.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 11 imparate, 6 con problemi.
+> A micrometer measures thickness.
+< Learned: micrometer measures thickness.
+> What does a micrometer measure?
+< Thickness.
+> A height gauge measures height.
+< Learned: height gauge measures height.
+> What measures height?
+< I don't understand that yet.
+> A dial indicator measures displacement.
+< Learned: dial indicator measures displacement.
+> What does a dial indicator measure?
+< Displacement.
+> A profilometer measures surface roughness.
+< Learned: profilometer measures surface roughness.
+> What measures surface roughness?
+< Profilometer.
+> A tachometer measures rotational speed.
+< Learned: tachometer measures rotational speed.
+> What does a tachometer measure?
+< Rotational speed.
+> A thermocouple measures temperature.
+< Learned: thermocouple measures temperature.
+> What measures temperature?
+< Degree fahrenheit, degree celsius and thermocouple.
+> A feeler gauge measures gaps.
+< Learned: feeler gauge measures gaps.
+> What does a feeler gauge measure?
+< Measures gaps.
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 17 imparate, 7 con problemi.
+> A micrometer measures thickness, so it gauges thickness.
+< Learned: micrometer measures thickness.
+> Does a height gauge gauge height?
+< I don't understand that yet.
+> A tachometer measures rotational speed, so it reads rotational speed.
+< Learned: tachometer measures rotational speed.
+> Does a thermocouple read temperature?
+< Reading «read» as «measures». Yes.
+> A profilometer measures surface roughness, so it quantifies surface roughness.
+< Learned: profilometer measures surface roughness.
+> What quantifies displacement?
+< Reading «quantifies» as «measures». Dial indicator.
+! Forma «L3 contatto-nome»: lezione vera, poi una domanda diversa dalla lezione. Finora 19 imparate, 8 con problemi.
+> A micrometer measures thickness, so thickness is its measurand.
+< Learned: micrometer measures thickness.
+> What is the measurand of a thermocouple?
+< Reading «measurand» as «measures». temperature.
+! Forma «L3 nome di piu' parole»: lezione vera, poi una domanda diversa dalla lezione. Finora 20 imparate, 8 con problemi.
+> A dial indicator measures displacement, so displacement is its measured quantity.
+< Learned: dial indicator measures displacement.
+> What is the measured quantity of a feeler gauge?
+< Reading «gauge» as «measures». Reading «measured quantity» as «measures». Measures gaps.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 21 imparate, 8 con problemi.
+> A chuck holds the workpiece.
+< Learned: chuck hold workpiece.
+> What holds the workpiece?
+< Chuck.
+> A collet holds the cutting tool.
+< Learned: collet hold cutting tool.
+> What does a collet hold?
+< Cutting tool.
+> A vise holds the workpiece.
+< Learned: vise hold workpiece.
+> Does a vise hold the workpiece?
+< Yes.
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 24 imparate, 8 con problemi.
+> A chuck holds the workpiece, so it grips the workpiece.
+< Learned: chuck hold workpiece.
+> Does a vise grip the workpiece?
+< Reading «grip» as «held». I cannot settle that: no fact I hold decides whether vise grips workpiece. Not proved is not the same as false. Tell me either way and I will hold it.
+> A collet holds the cutting tool, so it clamps the cutting tool.
+< Learned: collet hold cutting tool.
+> What clamps the workpiece?
+< Hmm, I don't know about clamps yet. Want me to learn about it?
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 24 imparate, 10 con problemi.
+> Gauge blocks are made of hardened steel.
+< Reading «gauge» as «measures». I didn't keep that: «gauge_blocks» and «hardened_steel» don't read as things I can hold a fact about.
+> What are gauge blocks made of?
+< Hmm, I don't know about blocks yet. Want me to learn about it?
+> A surface plate is made of granite.
+< Learned: surface plate is.
+> What is a surface plate made of?
+< I don't understand that yet.
+> A lapping plate is made of cast iron.
+< Learned: lapping plate is.
+> What is made of cast iron?
+< Steel.
+> A carbide insert is made of tungsten carbide.
+< Learned: carbide insert is.
+> What is a carbide insert made of?
+< I don't understand that yet.
+! Forma «L3 contatto-nome»: lezione vera, poi una domanda diversa dalla lezione. Finora 24 imparate, 14 con problemi.
+> A surface plate is made of granite, so granite is its material.
+< Learned: surface plate is.
+> What is the material of a lapping plate?
+< I don't know any material yet.
+! Forma «L3 nome di piu' parole»: lezione vera, poi una domanda diversa dalla lezione. Finora 24 imparate, 15 con problemi.
+> Gauge blocks are made of hardened steel, so hardened steel is their base material.
+< Reading «gauge» as «measures». I didn't keep that: «gauge_blocks» and «hardened_steel» don't read as things I can hold a fact about.
+> What is the base material of a carbide insert?
+< Hmm, I don't know about material yet. Want me to learn about it?
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 24 imparate, 16 con problemi.
+> Stainless steel contains chromium.
+< Learned: stainless steel contains chromium.
+> What does stainless steel contain?
+< Chromium.
+> High-speed steel contains tungsten.
+< Learned: high-speed steel contains tungsten.
+> Does high-speed steel contain tungsten?
+< Yes.
+> Cast iron contains graphite.
+< I didn't keep that: «cast_iron» and «graphite» don't read as things I can hold a fact about.
+> What contains graphite?
+< Hmm, I don't know about graphite yet. Want me to learn about it?
+> Tool steel contains carbon.
+< Learned: tool steel contains carbon.
+> What does tool steel contain?
+< Carbon.
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 27 imparate, 17 con problemi.
+> Stainless steel contains chromium, so it includes chromium.
+< Learned: stainless steel contains chromium.
+> Does cast iron include graphite?
+< Reading «include» as «contains». I cannot settle that: no fact I hold decides whether cast iron include graphite. Not proved is not the same as false. Tell me either way and I will hold it.
+! Forma «L3 contatto-nome»: lezione vera, poi una domanda diversa dalla lezione. Finora 27 imparate, 18 con problemi.
+> Cast iron contains graphite, so graphite is its constituent.
+< I didn't keep that: «cast_iron» and «graphite» don't read as things I can hold a fact about.
+> What is the constituent of tool steel?
+< I don't know about constituent.
+! Forma «L3 nome di piu' parole»: lezione vera, poi una domanda diversa dalla lezione. Finora 27 imparate, 19 con problemi.
+> High-speed steel contains tungsten, so tungsten is its alloying element.
+< Learned: high-speed steel contains tungsten.
+> What is the alloying element of stainless steel?
+< Reading «alloying element» as «contains». chromium.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 28 imparate, 19 con problemi.
+> A ball bearing reduces friction.
+< Learned: ball bearing reduces friction.
+> What reduces friction?
+< Ball bearing.
+> A lubricant reduces wear.
+< Learned: lubricant reduces wear.
+> What does a lubricant reduce?
+< Wear.
+> A gearbox reduces speed.
+< Learned: gearbox reduces speed.
+> What reduces speed?
+< Gearbox.
+> Tempering reduces brittleness.
+< Learned: tempering reduces brittleness.
+> What does tempering reduce?
+< Brittleness.
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 32 imparate, 19 con problemi.
+> A ball bearing reduces friction, so it lowers friction.
+< Learned: ball bearing reduces friction.
+> Does a lubricant lower wear?
+< Reading «lower» as «reduces». Yes.
+> A gearbox reduces speed, so it decreases speed.
+< Learned: gearbox reduces speed.
+> What decreases brittleness?
+< Reading «decreases» as «reduces». Tempering.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 34 imparate, 19 con problemi.
+> A ball screw converts rotary motion into linear motion.
+< Hmm, I don't know about converts yet. Want me to learn about it?
+> What converts rotary motion into linear motion?
+< Hmm, I don't know about converts yet.
+> A cam converts rotary motion into reciprocating motion.
+< Learned: cam converts rotary motion.
+> What does a cam convert?
+< Rotary motion.
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 35 imparate, 20 con problemi.
+> A ball screw converts rotary motion into linear motion, so it transforms rotary motion into linear motion.
+< I looked up «converts» but found nothing. If you know it, teach me: «converts is defined as …».
+> Does a cam transform rotary motion into reciprocating motion?
+< I cannot settle that: no fact I hold decides whether cam transform rotary motion into reciprocating motion. Not proved is not the same as false. Tell me either way and I will hold it.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 35 imparate, 21 con problemi.
+> A micrometer has a thimble.
+< Learned: micrometer has thimble.
+> Does a micrometer have a thimble?
+< Yes.
+> A lathe has a headstock.
+< Learned: lathe has headstock.
+> What has a headstock?
+< Lathe.
+> A milling machine has a knee.
+< Learned: milling machine has knee.
+> Does a milling machine have a knee?
+< Yes.
+! Forma «L3 contatto-nome»: lezione vera, poi una domanda diversa dalla lezione. Finora 38 imparate, 21 con problemi.
+> A micrometer has a thimble, so a thimble is its component.
+< Held: micrometer scores so a thimble is its component on thimble.
+> What is the component of a lathe?
+< Reading «component» as «has a». headstock.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 39 imparate, 21 con problemi.
+> A spindle rotates the cutting tool.
+< Learned: spindle rotate cutting tool.
+> What rotates the cutting tool?
+< Spindle.
+> A lathe rotates the workpiece.
+< Learned: lathe rotate workpiece.
+> What does a lathe rotate?
+< Workpiece.
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 41 imparate, 21 con problemi.
+> A spindle rotates the cutting tool, so it turns the cutting tool.
+< Learned: spindle rotate cutting tool.
+> Does a lathe turn the workpiece?
+< Reading «turn» as «rotates». I cannot settle that: no fact I hold decides whether lathe turn workpiece. Not proved is not the same as false. Tell me either way and I will hold it.
+! Forma «base per il contatto»: lezione vera, poi una domanda diversa dalla lezione. Finora 41 imparate, 22 con problemi.
+> A key transmits torque.
+< Learned: key transmits torque.
+> What transmits torque?
+< Key.
+> A belt transmits power.
+< I don't understand that yet.
+> What does a belt transmit?
+< I'm not sure I followed. Can you say it another way?
+! Forma «L3 contatto-verbo»: lezione vera, poi una domanda diversa dalla lezione. Finora 42 imparate, 23 con problemi.
+> A belt transmits power, so it conveys power.
+< Learned: belt transmits power.
+> Does a key convey torque?
+< I cannot settle that: no fact I hold decides whether key convey torque. Not proved is not the same as false. Tell me either way and I will hold it.
+! Forma «L3 controesempio»: lezione vera, poi una domanda diversa dalla lezione. Finora 42 imparate, 24 con problemi.
+> A lathe rotates the workpiece; moreover, the workpiece is its product.
+< Learned: lathe rotate workpiece. I couldn't read «moreover, the workpiece is its product.».
+> What is the product of a spindle?
+< I don't know any product yet.
+> A spindle rotates the cutting tool, but the cutting tool is not its product.
+< Learned: a spindle rotates the cutting tool, but the cutting tool is not its product.
+> What is the product of a lathe?
+< I don't know any product yet.
+! Forma «relazione-L2»: lezione vera, poi una domanda diversa dalla lezione. Finora 42 imparate, 26 con problemi.
+> resolution is a relation
+< Learned: resolution is a relation.
+> thread pitch is a relation
+< Learned: thread pitch is a relation.
+> reference temperature is a relation
+< Learned: reference temperature is a relation.
+> thread angle is a relation
+< Learned: thread angle is a relation.
+> step angle is a relation
+< Learned: step angle is a relation.
+> point angle is a relation
+< Learned: point angle is a relation.
+> density is a relation
+< Learned: density is a relation.
+> melting point is a relation
+< I already know that melting point is a relation.
+> hardness is a relation
+< Learned: hardness is a relation.
+> modulus of elasticity is a relation
+< Hmm, I don't know about modulus yet. Want me to learn about it?
+> coefficient of thermal expansion is a relation
+< Hmm, I don't know about expansion yet.
+! Forma «valore»: lezione vera, poi una domanda diversa dalla lezione. Finora 51 imparate, 28 con problemi.
+> The resolution of a standard micrometer is 0.01 millimeters.
+< Learned: the resolution of standard micrometer is 0.01 millimeters.
+> What is the resolution of a standard micrometer?
+< 0.01 millimeters.
+> The resolution of a vernier caliper is 0.02 millimeters.
+< Learned: the resolution of vernier caliper is 0.02 millimeters.
+> What is the resolution of a vernier caliper?
+< 0.02 millimeters.
+> The resolution of a dial indicator is 0.01 millimeters.
+< Learned: the resolution of dial indicator is 0.01 millimeters.
+> Is 0.01 millimeters the resolution of a dial indicator?
+< Yes.
+> The thread pitch of an M10 coarse thread is 1.5 millimeters.
+< Learned: the thread pitch of m10 coarse thread is 1.5 millimeters.
+> What is the thread pitch of an M10 coarse thread?
+< 1.5 millimeters.
+> The thread pitch of an M6 coarse thread is 1 millimeter.
+< Learned: the thread pitch of m6 coarse thread is 1 millimeter.
+> What is the thread pitch of an M6 coarse thread?
+< 1 millimeter.
+> The thread pitch of an M8 coarse thread is 1.25 millimeters.
+< Learned: the thread pitch of m8 coarse thread is 1.25 millimeters.
+> What is the thread pitch of an M8 coarse thread?
+< 1.25 millimeters.
+> The thread pitch of an M12 coarse thread is 1.75 millimeters.
+< Learned: the thread pitch of m12 coarse thread is 1.75 millimeters.
+> Is 1.75 millimeters the thread pitch of an M12 coarse thread?
+< Yes.
+> The reference temperature of dimensional metrology is 20 degrees Celsius.
+< Learned: the reference temperature of dimensional metrology is 20 degrees celsius.
+> What is the reference temperature of dimensional metrology?
+< 20 degrees celsius.
+> The thread angle of a metric thread is 60 degrees.
+< Learned: the thread angle of metric thread is 60 degrees.
+> What is the thread angle of a metric thread?
+< 60 degrees.
+> The thread angle of an Acme thread is 29 degrees.
+< Learned: the thread angle of acme thread is 29 degrees.
+> What is the thread angle of an Acme thread?
+< 29 degrees.
+> The step angle of a typical stepper motor is 1.8 degrees.
+< Learned: the step angle of typical stepper motor is 1.8 degrees.
+> What is the step angle of a typical stepper motor?
+< 1.8 degrees.
+> The point angle of a standard twist drill is 118 degrees.
+< Learned: the point angle of standard twist drill is 118 degrees.
+> What is the point angle of a standard twist drill?
+< 118 degrees.
+> The density of steel is 7.85 grams per cubic centimeter.
+< Learned: the density of steel is 7.85 grams.
+> What is the density of steel?
+< 7.85 grams.
+> The density of aluminium is 2.7 grams per cubic centimeter.
+< Learned: the density of aluminium is 2.7 grams.
+> What is the density of aluminium?
+< 2.7 grams.
+> The melting point of aluminium is 660 degrees Celsius.
+< Learned: the melting point of aluminium is 660 degrees celsius.
+> What is the melting point of aluminium?
+< 660 degrees celsius.
+> The hardness of a gauge block is 63 HRC.
+< Hmm, I don't know about hardness yet. Want me to learn about it?
+> What is the hardness of a gauge block?
+< Reading «gauge» as «measures». I don't know about hardness.
+> The modulus of elasticity of steel is 210 gigapascals.
+< Hmm, I don't know about modulus yet.
+> What is the modulus of elasticity of steel?
+< I don't know about modulus.
+> The coefficient of thermal expansion of steel is 12 micrometers per meter per kelvin.
+< Hmm, I don't know about expansion yet.
+> What is the coefficient of thermal expansion of steel?
+< I don't know about coefficient.
+> The resolution of a digital caliper is 0.01 millimeters.
+< Learned: the resolution of digital caliper is 0.01 millimeters.
+> What is the resolution of a digital caliper?
+< 0.01 millimeters.
+> The thread pitch of an M16 coarse thread is 2 millimeters.
+< Learned: the thread pitch of m16 coarse thread is 2 millimeters.
+> What is the thread pitch of an M16 coarse thread?
+< 2 millimeters.
+> The thread pitch of an M4 coarse thread is 0.7 millimeters.
+< Learned: the thread pitch of m4 coarse thread is 0.7 millimeters.
+> What is the thread pitch of an M4 coarse thread?
+< 0.7 millimeters.
+> The density of brass is 8.5 grams per cubic centimeter.
+< Learned: the density of brass is 8.5 grams.
+> What is the density of brass?
+< 8.5 grams.
+> The melting point of copper is 1085 degrees Celsius.
+< Learned: the melting point of copper is 1085 degrees celsius.
+> What is the melting point of copper?
+< 1085 degrees celsius.
+> The hardness of tungsten carbide is 90 HRA.
+< Learned: the hardness of tungsten carbide is 90 hra.
+> What is the hardness of tungsten carbide?
+< 90 hra.
+> The modulus of elasticity of aluminium is 69 gigapascals.
+< Hmm, I don't know about modulus yet.
+> What is the modulus of elasticity of aluminium?
+< I don't know about modulus.
+> The coefficient of thermal expansion of aluminium is 23 micrometers per meter per kelvin.
+< Hmm, I don't know about expansion yet.
+> What is the coefficient of thermal expansion of aluminium?
+< I don't know about coefficient.
+! Forma «classe»: lezione vera, poi una domanda diversa dalla lezione. Finora 72 imparate, 33 con problemi.
+> A micrometer is a measuring instrument.
+< Learned: micrometer is a measuring instrument.
+> Is a micrometer a measuring instrument?
+< Hmm, I don't know about measuring instrument yet. Want me to learn about it?
+> A vernier caliper is a measuring instrument.
+< Learned: vernier caliper is a measuring instrument.
+> What is a vernier caliper?
+< vernier caliper is classed as measuring instrument.
+> A dial indicator is a measuring instrument.
+< Learned: dial indicator is a measuring instrument.
+> Is a dial indicator an instrument?
+< I don't know: nothing I hold says dial indicator is instrument, and nothing says it isn't.
+> A lathe is a machine tool.
+< Learned: lathe is a machine tool.
+> What is a lathe?
+< Lathe is classed as machine tool.
+> A milling machine is a machine tool.
+< Learned: milling machine is a machine tool.
+> Is a milling machine a machine tool?
+< Yes.
+> A surface grinder is a machine tool.
+< Learned: surface grinder is a machine tool.
+> What is a surface grinder?
+< surface grinder is classed as machine tool.
+> A reamer is a cutting tool.
+< Learned: reamer is a cutting tool.
+> Is a reamer a cutting tool?
+< Hmm, I don't know about cutting tool yet. Want me to learn about it?
+> An end mill is a cutting tool.
+< Learned: end mill is a cutting tool.
+> What is an end mill?
+< end mill is classed as cutting tool.
+> A tap is a cutting tool.
+< Learned: tap is a cutting tool.
+> Is a tap a tool?
+< I don't know about tool.
+> A gauge block is a length standard.
+< Reading «gauge» as «measures». Learned: gauge block is a length standard.
+> What is a gauge block?
+< Reading «gauge» as «measures». gauge block is classed as length standard.
+> Brass is an alloy.
+< Learned: brass is an alloy.
+> Is brass an alloy?
+< Yes.
+> Bronze is an alloy.
+< Learned: bronze is an alloy.
+> What is bronze?
+< Bronze is classed as alloy.
+> Tungsten carbide is a ceramic.
+< Learned: tungsten carbide is a ceramic.
+> Is tungsten carbide a ceramic?
+< Yes.
+> A ball screw is a mechanical linear actuator.
+< Learned: ball screw is a mechanical linear actuator.
+> What is a ball screw?
+< ball screw is classed as mechanical linear actuator.
+> A stepper motor is an electric motor.
+< Learned: stepper motor is an electric motor.
+> Is a stepper motor a motor?
+< I don't know: nothing I hold says stepper motor is motor, and nothing says it isn't.
+> A rotary encoder is a sensor.
+< Learned: rotary encoder is a sensor.
+> What is a rotary encoder?
+< rotary encoder is classed as sensor.
+> A dowel pin is a fastener.
+< Learned: dowel pin is a fastener.
+> Is a dowel pin a fastener?
+< Yes.
+> A collet is a work holding device.
+< Learned: collet is a work holding device.
+> What is a collet?
+< Collet is classed as work holding device.
+> A vise is a work holding device.
+< Learned: vise is a work holding device.
+> Is a vise a work holding device?
+< Hmm, I don't know about work holding device yet. Want me to learn about it?
+> Annealing is a heat treatment.
+< Hmm, I don't know about annealing yet. Want me to learn about it?
+> Is annealing a heat treatment?
+< I don't know about heat treatment.
+> Quenching is a heat treatment.
+< Hmm, I don't know about quenching yet. Want me to learn about it?
+> What is quenching?
+< I looked up «quenching» but found nothing. If you know it, teach me: «quenching is defined as …».
+> Tempering is a heat treatment.
+< Hmm, I don't know about treatment yet. Want me to learn about it?
+> Is tempering a treatment?
+< I don't know about treatment.
+> Lapping is a finishing process.
+< Learned: lapping is a finishing process.
+> What is lapping?
+< Lapping is classed as finishing process.
+> Honing is a finishing process.
+< Learned: honing is a finishing process.
+> Is honing a process?
+< I cannot settle that: no fact I hold decides whether honing is a process, and knowing some processs does not tell me they are all of them. Not proved is not the same as false. Tell me either way and I will hold it.
+> Knurling is a machining process.
+< Learned: knurling is a machining process.
+> What is knurling?
+< Knurling is classed as machining process.
+> A coordinate measuring machine is a measuring instrument.
+< Learned: coordinate measuring machine is a measuring instrument.
+> Is a coordinate measuring machine a measuring instrument?
+< Yes.
+> A boring bar is a cutting tool.
+< Learned: boring bar is a cutting tool.
+> Is a boring bar a cutting tool?
+< Yes.
+> A countersink is a cutting tool.
+< Learned: countersink is a cutting tool.
+> What is a countersink?
+< Countersink is classed as cutting tool.
+> A fly cutter is a cutting tool.
+< Learned: fly cutter is a cutting tool.
+> Is a fly cutter a tool?
+< I don't know: nothing I hold says fly cutter is tool, and nothing says it isn't.
+> A shaper is a machine tool.
+< Learned: shaper is a machine tool.
+> What is a shaper?
+< Shaper is classed as machine tool.
+> A jig borer is a machine tool.
+< Learned: jig borer is a machine tool.
+> Is a jig borer a machine tool?
+< Yes.
+> A sine bar is a measuring instrument.
+< Learned: sine bar is a measuring instrument.
+> What is a sine bar?
+< sine bar is classed as measuring instrument.
+> A profilometer is a measuring instrument.
+< Learned: profilometer is a measuring instrument.
+> Is a profilometer an instrument?
+< I don't know about instrument.
+> A lead screw is a power screw.
+< Reading «lead» as «causes». Learned: lead screw is a power screw.
+> What is a lead screw?
+< Reading «lead» as «causes». lead screw is classed as power screw.
+> An Acme thread is a trapezoidal thread.
+< Learned: acme thread is a trapezoidal thread.
+> Is an Acme thread a trapezoidal thread?
+< Yes.
+> Invar is an alloy.
+< Learned: invar is an alloy.
+> What is invar?
+< Invar is classed as alloy.
+! Forma «funzione»: lezione vera, poi una domanda diversa dalla lezione. Finora 96 imparate, 45 con problemi.
+> A bore gauge measures bore diameter.
+< Reading «gauge» as «measures». Learned: bore gauge measures bore diameter.
+> What measures bore diameter?
+< Hmm, I don't know about diameter yet. Want me to learn about it?
+> An autocollimator measures small angles.
+< Learned: autocollimator measures small angles.
+> What does an autocollimator measure?
+< Small angles.
+> A laser interferometer measures displacement.
+< It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence.
+> Does a laser interferometer measure displacement?
+< Hmm, I don't know about laser interferometer yet. Want me to learn about it?
+> A torque wrench applies a specified torque.
+< Learned: torque wrench applies specified torque.
+> What does a torque wrench apply?
+< Specified torque.
+> A milling machine rotates the cutter.
+< Learned: milling machine rotate cutter.
+> What does a milling machine rotate?
+< Cutter.
+> A reamer enlarges holes.
+< Learned: reamer enlarge holes.
+> What enlarges holes?
+< Reamer.
+> A tap cuts internal threads.
+< Hmm, I don't know about internal yet. Want me to learn about it?
+> What does a tap cut?
+< I don't understand that yet.
+> A die cuts external threads.
+< Hmm, I don't know about external yet. Want me to learn about it?
+> What cuts external threads?
+< Hmm, I don't know about external yet.
+> A surface grinder produces flat surfaces.
+< Learned: surface grinder produces flat surfaces.
+> What does a surface grinder produce?
+< Flat surfaces.
+> A tailstock supports the workpiece.
+< Learned: tailstock supports workpiece.
+> Does a tailstock support the workpiece?
+< Yes.
+> A steady rest supports long workpieces.
+< Learned: steady rest supports long workpieces.
+> What supports long workpieces?
+< Steady rest.
+> A rotary encoder measures angular position.
+< Learned: rotary encoder measures angular position.
+> What does a rotary encoder measure?
+< Angular.
+> A coupling connects two shafts.
+< Learned: coupling connects two shafts.
+> What does a coupling connect?
+< Two shafts.
+> A dowel pin aligns parts.
+< Learned: dowel pin align parts.
+> What does a dowel pin align?
+< Parts.
+> A spring stores energy.
+< Learned: spring stores energy.
+> Does a spring store energy?
+< I don't understand that yet.
+> A flywheel stores rotational energy.
+< Learned: flywheel stores rotational energy.
+> What stores rotational energy?
+< Flywheel.
+> A sine bar sets angles.
+< Learned: sine bar set angles.
+> What does a sine bar set?
+< Angles.
+> A dividing head divides a circle into equal parts.
+< Learned: dividing head divides circle.
+> What divides a circle into equal parts?
+< Dividing head.
+> Deburring removes burrs.
+< Learned: deburring remove burrs.
+> What removes burrs?
+< Deburring.
+> Cutting fluid reduces friction.
+< Learned: cutting fluid reduces friction.
+> Does cutting fluid reduce friction?
+< Yes.
+> Coolant removes heat.
+< Learned: coolant remove heat.
+> What does coolant remove?
+< Heat.
+> Annealing softens steel.
+< I looked up «external» but found nothing. If you know it, teach me: «external is defined as …».
+> What softens steel?
+< Hmm, I don't know about softens yet. Want me to learn about it?
+> Quenching hardens steel.
+< Learned: quenching harden steel.
+> What does quenching harden?
+< Steel.
+> Honing improves bore geometry.
+< Learned: honing improve bore geometry.
+> What does honing improve?
+< Bore geometry.
+> Knurling produces a textured grip.
+< Reading «grip» as «held». Learned: knurling produces textured grip.
+> What produces a textured grip?
+< Reading «grip» as «held». Knurling.
+> A Rockwell tester measures hardness.
+< Learned: rockwell tester measures hardness.
+> What measures hardness?
+< Rockwell tester.
+> A thread gauge checks threads.
+< Reading «gauge» as «measures». Learned: thread gauge checks threads.
+> What does a thread gauge check?
+< Reading «gauge» as «measures». Checks threads.
+> A go/no-go gauge checks tolerances.
+< Reading «gauge» as «measures». Learned: go/no-go gauge checks tolerances.
+> What checks tolerances?
+< Hmm, I don't know about checks yet. Want me to learn about it?
+> Wire EDM cuts conductive materials.
+< Hmm, I don't know about conductive yet. Want me to learn about it?
+> What does wire EDM cut?
+< I don't understand that yet.
+> A granite surface plate provides a flat reference.
+< Hmm, I don't know about granite surface yet. Want me to learn about it?
+> What does a granite surface plate provide?
+< Hmm, I don't know about granite_surface yet.
+> A stepper motor moves in discrete steps.
+< I understood you're asking how to make steps, but I don't have the steps for it yet.
+> How does a stepper motor move?
+< Hmm, I don't know about stepper motor yet. Want me to learn about it?
+> G-code controls CNC machines.
+< Learned: g-code controls cnc machines.
+> What controls CNC machines?
+< G-code.
+> A coordinate measuring machine measures geometry.
+< Learned: coordinate measuring machine measures geometry.
+> What does a coordinate measuring machine measure?
+< Geometry.
+> A bushing supports a rotating shaft.
+< Learned: bushing supports rotating shaft.
+> What does a bushing support?
+< Rotating shaft.
+> A rotary table rotates the workpiece.
+< Learned: rotary table rotate workpiece.
+> Does a rotary table rotate the workpiece?
+< Yes.
+> An end mill cuts slots.
+< I don't understand that yet.
+> What does an end mill cut?
+< Hmm, I don't know about end mill yet. Want me to learn about it?
+> A lead screw converts rotary motion into linear motion.
+< Reading «lead» as «causes». Learned: lead screw converts rotary motion.
+> What does a lead screw convert?
+< Hmm, I don't know about convert yet. Want me to learn about it?
+> A linear encoder measures linear position.
+< Learned: linear encoder measures linear position.
+> What measures linear position?
+< linear encoder.
+> A fly cutter produces flat surfaces.
+< Learned: fly cutter produces flat surfaces.
+> What produces flat surfaces?
+< Surface grinder and fly cutter.
+> A countersink chamfers holes.
+< Hmm, I don't know about countersink chamfers holes yet. Want me to learn about it?
+> What chamfers holes?
+< Hmm, I don't know about chamfers yet. Want me to learn about it?
+> An edge finder locates edges.
+< Learned: edge finder locate edges.
+> What does an edge finder locate?
+< Edges.
+> A center punch marks hole centers.
+< Learned: center punch mark hole centers.
+> What marks hole centers?
+< Center punch.
+> A scriber marks lines.
+< Learned: scriber mark lines.
+> What does a scriber mark?
+< Lines.
+> A servo motor drives the axis.
+< Learned: servo motor drive axis.
+> What drives the axis?
+< Servo motor.
+> A way cover protects the guideways.
+< Hmm, I don't know about guideways yet. Want me to learn about it?
+> What does a way cover protect?
+< Hmm, I don't know about protect yet. Want me to learn about it?
+> A chip conveyor removes chips.
+< Learned: chip conveyor remove chips.
+> What removes chips?
+< Chip conveyor.
+> A tool changer swaps cutting tools.
+< Hmm, I don't know about changer yet. Want me to learn about it?
+> What does a tool changer swap?
+< Hmm, I don't know about tool changer yet. Want me to learn about it?
+> A probe measures workpiece position.
+< Learned: probe measures workpiece position.
+> What measures workpiece position?
+< probe.
+> A worm gear reduces speed.
+< Learned: worm gear reduces speed.
+> Does a worm gear reduce speed?
+< Yes.
+> A rack and pinion converts rotary motion into linear motion.
+< Hmm, I don't know about pinion yet. Want me to learn about it?
+> What does a rack and pinion convert?
+< Rotary motion.
+! Forma «materiale»: lezione vera, poi una domanda diversa dalla lezione. Finora 130 imparate, 61 con problemi.
+> Brass is made of copper and zinc.
+< Learned: brass made of copper.
+> What is brass made of?
+< Copper.
+> Bronze is made of copper and tin.
+< Learned: bronze made of copper.
+> Is bronze made of tin?
+< I cannot settle that: no fact I hold decides whether bronze makeed of of tin. Not proved is not the same as false. Tell me either way and I will hold it.
+> Wire for EDM is made of brass.
+! Indirizzo di F.: dalle conoscenze statiche alle PROCEDURE — calcoli di officina, regole profonde. Una procedura e' imparata solo se la esegue in modo diretto, indiretto (dentro un'altra procedura o una catena di regole) e inverso (dall'uscita all'ingresso). Il conteggio prosegue: 131 imparate, 62 con problemi.
+! Forma «procedura». Finora 131 imparate, 62 con problemi.
+> rule for inchmm is multiply by 25.4
+< Held: for inchmm, 1 is «multiply by 25.4».
+> apply inchmm to 2
+< inchmm(«50.8») — that is what the steps give.
+> rule for inchmm2 is apply inchmm
+< I didn't keep that: «rule_for_inchmm2» and «inchmm» don't read as things I can hold a fact about.
+> rule for inchmm2 is double
+< Held: for inchmm2, 1 is «double».
+> apply inchmm2 to 1
+< inchmm2(«2») — that is what the steps give.
+> What number gives 50.8 when inchmm is applied?
+< On What number gives 50.8 when inchmm is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for mminch is divide by 25.4
+< Held: for mminch, 1 is «divide by 25.4».
+> apply mminch to 127
+< mminch(«5») — that is what the steps give.
+> rule for roundtrip is apply inchmm
+< I didn't keep that: «rule_for_roundtrip» and «inchmm» don't read as things I can hold a fact about.
+> rule for roundtrip is apply mminch
+< I didn't keep that: «rule_for_roundtrip» and «mminch» don't read as things I can hold a fact about.
+> apply roundtrip to 3
+< Hmm, I don't know about roundtrip yet. Want me to learn about it?
+> What number gives 5 when mminch is applied?
+< On What number gives 5 when mminch is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for thimble is divide by 100
+< Held: for thimble, 1 is «divide by 100».
+> apply thimble to 37
+< thimble(«0.37») — that is what the steps give.
+> rule for thimbleinch is apply thimble
+< I didn't keep that: «rule_for_thimbleinch» and «thimble» don't read as things I can hold a fact about.
+> rule for thimbleinch is apply mminch
+< I didn't keep that: «rule_for_thimbleinch» and «mminch» don't read as things I can hold a fact about.
+> apply thimbleinch to 254
+< Hmm, I don't know about thimbleinch yet. Want me to learn about it?
+> What number gives 0.37 when thimble is applied?
+< On What number gives 0.37 when thimble is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for vernier is multiply by 0.02
+< Held: for vernier, 1 is «multiply by 0.02».
+> apply vernier to 13
+< vernier(«0.26») — that is what the steps give.
+> rule for vernierx is apply vernier
+< I didn't keep that: «rule_for_vernierx» and «vernier» don't read as things I can hold a fact about.
+> rule for vernierx is add 10
+< Held: for vernierx, 1 is «add 10».
+> apply vernierx to 13
+< vernierx(«23») — that is what the steps give.
+> What number gives 0.26 when vernier is applied?
+< On What number gives 0.26 when vernier is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for rpm10 is multiply by 31.83
+< Held: for rpm10, 1 is «multiply by 31.83».
+> apply rpm10 to 100
+< rpm10(«3183») — that is what the steps give.
+> rule for rpm10half is apply rpm10
+< I didn't keep that: «rule_for_rpm10half» and «rpm10» don't read as things I can hold a fact about.
+> rule for rpm10half is halve
+< Held: for rpm10half, 1 is «halve».
+> apply rpm10half to 100
+< rpm10half(«50») — that is what the steps give.
+> What number gives 3183 when rpm10 is applied?
+< On What number gives 3183 when rpm10 is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for growth100 is multiply by 0.0012
+< Held: for growth100, 1 is «multiply by 0.0012».
+> apply growth100 to 5
+< growth100(«0.006») — that is what the steps give.
+> rule for growth200 is apply growth100
+< I didn't keep that: «rule_for_growth200» and «growth100» don't read as things I can hold a fact about.
+> rule for growth200 is double
+< Held: for growth200, 1 is «double».
+> apply growth200 to 5
+< growth200(«10») — that is what the steps give.
+> What number gives 0.006 when growth100 is applied?
+< On What number gives 0.006 when growth100 is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for stepsdeg is divide by 1.8
+< Held: for stepsdeg, 1 is «divide by 1.8».
+> apply stepsdeg to 90
+< stepsdeg(«50») — that is what the steps give.
+> rule for stepsturn is apply stepsdeg
+< I didn't keep that: «rule_for_stepsturn» and «stepsdeg» don't read as things I can hold a fact about.
+> apply stepsturn to 360
+< Hmm, I don't know about stepsturn yet. Want me to learn about it?
+> What number gives 50 when stepsdeg is applied?
+< On What number gives 50 when stepsdeg is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for screwtravel is multiply by 5
+< Held: for screwtravel, 1 is «multiply by 5».
+> apply screwtravel to 12
+< screwtravel(«60») — that is what the steps give.
+> rule for screwtravelinch is apply screwtravel
+< I didn't keep that: «rule_for_screwtravelinch» and «screwtravel» don't read as things I can hold a fact about.
+> rule for screwtravelinch is apply mminch
+< I didn't keep that: «rule_for_screwtravelinch» and «mminch» don't read as things I can hold a fact about.
+> apply screwtravelinch to 127
+< Hmm, I don't know about screwtravelinch yet. Want me to learn about it?
+> What number gives 60 when screwtravel is applied?
+< On What number gives 60 when screwtravel is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for diameter is double
+< Held: for diameter, 1 is «double».
+> apply diameter to 12.5
+< diameter(«25») — that is what the steps give.
+> rule for circum is apply diameter
+< I didn't keep that: «rule_for_circum» and «diameter» don't read as things I can hold a fact about.
+> rule for circum is multiply by 3.14159
+< Held: for circum, 1 is «multiply by 3.14159».
+> apply circum to 10
+< circum(«31.4159») — that is what the steps give.
+> What number gives 25 when diameter is applied?
+< On What number gives 25 when diameter is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for gearout is divide by 4
+< Held: for gearout, 1 is «divide by 4».
+> apply gearout to 1440
+< gearout(«360») — that is what the steps give.
+> rule for gearout16 is apply gearout
+< I didn't keep that: «rule_for_gearout16» and «gearout» don't read as things I can hold a fact about.
+> rule for gearout16 is apply gearout
+< I didn't keep that: «rule_for_gearout16» and «gearout» don't read as things I can hold a fact about.
+> apply gearout16 to 1440
+< Hmm, I don't know about gearout16 yet. Want me to learn about it?
+> What number gives 360 when gearout is applied?
+< On What number gives 360 when gearout is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «procedura a piu' passi». Finora 131 imparate, 72 con problemi.
+> rule for fahrcel is subtract 32
+< Held: for fahrcel, 1 is «subtract 32».
+> rule for fahrcel is multiply by 5
+< Held: for fahrcel, 2 is «multiply by 5».
+> rule for fahrcel is divide by 9
+< Held: for fahrcel, 3 is «divide by 9».
+> apply fahrcel to 68
+< fahrcel(«20») — that is what the steps give.
+> rule for fahrkel is apply fahrcel
+< I didn't keep that: «rule_for_fahrkel» and «fahrcel» don't read as things I can hold a fact about.
+> rule for fahrkel is add 273.15
+< Held: for fahrkel, 1 is «add 273.15».
+> apply fahrkel to 68
+< fahrkel(«341.15») — that is what the steps give.
+> What number gives 20 when fahrcel is applied?
+< On What number gives 20 when fahrcel is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for tapm is subtract 1.5
+< Held: for tapm, 1 is «subtract 1.5».
+> apply tapm to 10
+< tapm(«8.5») — that is what the steps give.
+> rule for tapminch is apply tapm
+< I didn't keep that: «rule_for_tapminch» and «tapm» don't read as things I can hold a fact about.
+> rule for tapminch is apply mminch
+< I didn't keep that: «rule_for_tapminch» and «mminch» don't read as things I can hold a fact about.
+> apply tapminch to 27.4
+< Hmm, I don't know about tapminch yet. Want me to learn about it?
+> What number gives 8.5 when tapm is applied?
+< On What number gives 8.5 when tapm is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+> rule for degrad is multiply by 3.14159
+< Held: for degrad, 1 is «multiply by 3.14159».
+> rule for degrad is divide by 180
+< Held: for degrad, 2 is «divide by 180».
+> apply degrad to 180
+< degrad(«3.14159») — that is what the steps give.
+> rule for halfturn is apply degrad
+< I didn't keep that: «rule_for_halfturn» and «degrad» don't read as things I can hold a fact about.
+> rule for halfturn is halve
+< Held: for halfturn, 1 is «halve».
+> apply halfturn to 180
+< halfturn(«90») — that is what the steps give.
+> What number gives 3.14159 when degrad is applied?
+< On What number gives 3.14159 when degrad is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «procedura con ramo». Finora 131 imparate, 75 con problemi.
+> rule for toleven is if odd then add 1 else halve
+< Held: for toleven, 1 is «if odd then add 1 else halve».
+> apply toleven to 7
+< toleven(«8») — that is what the steps give.
+> apply toleven to 8
+< toleven(«4») — that is what the steps give.
+> What number gives 8 when toleven is applied?
+< On What number gives 8 when toleven is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «procedura con ciclo». Finora 131 imparate, 76 con problemi.
+> rule for halvetill is repeat halve until below 1
+< Held: for halvetill, 1 is «repeat halve until below 1».
+> apply halvetill to 10
+< halvetill(«0.625») — that is what the steps give.
+> rule for halvetillx is apply halvetill
+< I didn't keep that: «rule_for_halvetillx» and «halvetill» don't read as things I can hold a fact about.
+> rule for halvetillx is multiply by 8
+< Held: for halvetillx, 1 is «multiply by 8».
+> apply halvetillx to 10
+< halvetillx(«80») — that is what the steps give.
+> What number gives 0.625 when halvetill is applied?
+< On What number gives 0.625 when halvetill is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «conversione». Finora 131 imparate, 77 con problemi.
+> to convert inches to millimeters multiply by 25.4
+< Hmm, I don't know about convert yet.
+> convert 3 inches to millimeters
+< I didn't quite catch that. What would you like to know?
+> How many millimeters are 3 inches?
+< Hmm, I don't know about millimeters yet. Want me to learn about it?
+> convert 76.2 millimeters to inches
+< I looked up «millimeters» but found nothing. If you know it, teach me: «millimeters is defined as …».
+> to convert microns to millimeters divide by 1000
+< Hmm, I don't know about convert yet.
+> convert 250 microns to millimeters
+< Hmm, that's a bit beyond me right now.
+> How many millimeters are 250 microns?
+< Hmm, I don't know about millimeters yet.
+> convert 0.25 millimeters to microns
+< Hmm, I don't know about convert yet.
+> to convert newton meters to foot pounds multiply by 0.7376
+< I don't understand that yet.
+> convert 50 newton meters to foot pounds
+< Hmm, I don't know about convert yet.
+> How many foot pounds are 50 newton meters?
+< Hmm, I don't know about pounds yet. Want me to learn about it?
+> convert 36.88 foot pounds to newton meters
+< I looked up «pounds» but found nothing. If you know it, teach me: «pounds is defined as …».
+! Forma «regola profonda». Finora 131 imparate, 80 con problemi.
+> if something is a machine tool then it is a machine
+< I could not anchor that rule: the conclusion about machine talks about something the condition never mentions, so it could never conclude anything definite.
+> if something is a machine then it needs maintenance
+< Learned rule: holds(it_needs_maintenance) :- machine($V1).
+> A lathe is a machine tool.
+< I already know that lathe is a machine tool.
+> Is a lathe a machine?
+< I don't know about machine.
+> Does a lathe need maintenance?
+< I cannot settle that: no fact I hold decides whether lathe need maintenance. Not proved is not the same as false. Tell me either way and I will hold it.
+> A hammer does not need maintenance. Is a hammer a machine tool?
+< Learned: a hammer does not need maintenance. I couldn't read «Is a hammer a machine tool?».
+> if something is a cutting tool then it wears
+< Learned rule: holds(it_wears) :- holds(something_is_cutting_tool).
+> if something wears then it needs replacement
+< Learned rule: holds(it_needs_replacement) :- holds(something_wears).
+> An end mill is a cutting tool.
+< I already know that end mill is a cutting tool.
+> Does an end mill wear?
+< Hmm, I don't know about end_mill yet.
+> Does an end mill need replacement?
+< I cannot settle that: no fact I hold decides whether end mill need replacement. Not proved is not the same as false. Tell me either way and I will hold it.
+> A granite plate does not wear. Is a granite plate a cutting tool?
+< Learned: a granite plate does not wear. I don't know: nothing I hold says granite plate is cutting tool, and nothing says it isn't.
+> if something is hardened steel then it is hard
+< I could not anchor that rule: the conclusion about hard talks about something the condition never mentions, so it could never conclude anything definite.
+> if something is hard then it resists scratching
+< Learned rule: holds(it_resists_scratching) :- hard($V1).
+> A gauge block is hardened steel.
+< Hmm, I don't know about hardened yet. Want me to learn about it?
+> Is a gauge block hard?
+< I don't understand that yet.
+> Does a gauge block resist scratching?
+< Hmm, I don't know about resist yet. Want me to learn about it?
+> Lead does not resist scratching. Is lead hardened steel?
+< Reading «lead» as «causes». Held: lead does not resist scratching. Reading «lead» as «causes». I cannot settle that: no fact I hold decides whether lead harden steel. Not proved is not the same as false. Tell me either way and I will hold it.
+! Forma «ordine transitivo». Finora 131 imparate, 83 con problemi.
+> Hardening comes before tempering.
+< Held: hardening comes before tempering -- and the chain carries.
+> Tempering comes before grinding.
+< Held: tempering comes before grinding -- and the chain carries.
+> Does hardening come before tempering?
+< I cannot settle that: no fact I hold decides whether hardening came before tempering. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does hardening come before grinding?
+< I cannot settle that: no fact I hold decides whether hardening came before grinding. Not proved is not the same as false. Tell me either way and I will hold it.
+> What comes after tempering?
+< I don't understand that yet.
+> Centering comes before drilling.
+< Held: centering comes before drilling -- and the chain carries.
+> Drilling comes before reaming.
+< Held: drilling comes before reaming -- and the chain carries.
+> What comes before drilling?
+< I don't understand that yet.
+> Does centering come before reaming?
+< I cannot settle that: no fact I hold decides whether centering came before reaming. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does reaming come before centering?
+< I cannot settle that: no fact I hold decides whether reaming came before centering. Not proved is not the same as false. Tell me either way and I will hold it.
+! Forma «relazione inversa». Finora 131 imparate, 85 con problemi.
+> drives is the inverse of is driven by
+< Held: drives and is driven by are one fact seen from the two sides.
+> A servo motor drives the ball screw.
+< Learned: servo motor drive ball screw.
+> What does a servo motor drive?
+< Axis and ball.
+> What is the ball screw driven by?
+< Servo motor.
+> Is the ball screw driven by a servo motor?
+< I don't know: nothing I hold says ball screw driven by is servo motor, and nothing says it isn't.
+! Forma «relazione transitiva». Finora 131 imparate, 86 con problemi.
+> meshes with goes both ways
+< Hmm, I don't know about meshes yet. Want me to learn about it?
+> The pinion meshes with the rack.
+< I looked up «meshes» but found nothing. If you know it, teach me: «meshes is defined as …».
+> Does the pinion mesh with the rack?
+< Hmm, I don't know about pinion mesh yet. Want me to learn about it?
+> What meshes with the rack?
+< Hmm, I don't know about meshes yet.
+> Does the rack mesh with the pinion?
+< Hmm, I don't know about rack mesh yet. Want me to learn about it?
+! Indirizzo di F.: dalle conoscenze statiche alle PROCEDURE — calcoli di officina, regole profonde. Una procedura e' imparata solo se la esegue in modo diretto, indiretto (dentro un'altra procedura o una catena di regole) e inverso (dall'uscita all'ingresso). Il conteggio prosegue: 131 imparate, 87 con problemi.
+! Forma «regola profonda (x)». Finora 131 imparate, 87 con problemi.
+> if x is a machine tool then x is a machine
+< I could not anchor that rule: the conclusion about machine talks about something the condition never mentions, so it could never conclude anything definite.
+> if x is a machine then x needs maintenance
+< Learned rule: holds(x_needs_maintenance) :- machine($V1).
+> A shaper is a machine tool.
+< I already know that shaper is a machine tool.
+> Is a shaper a machine?
+< I don't know about machine.
+> Does a shaper need maintenance?
+< I cannot settle that: no fact I hold decides whether shaper need maintenance. Not proved is not the same as false. Tell me either way and I will hold it.
+> Is a shaper not a machine?
+< I don't know: nothing I hold says shaper not is machine, and nothing says it isn't.
+> if x is a cutting tool then x is a tool
+< I could not anchor that rule: the conclusion about tool talks about something the condition never mentions, so it could never conclude anything definite.
+> A countersink is a cutting tool.
+< I already know that countersink is a cutting tool.
+> Is a countersink a tool?
+< I don't know about tool.
+> Is a boring bar a tool?
+< I don't know: nothing I hold says boring bar is tool, and nothing says it isn't.
+> Is a countersink not a tool?
+< I don't know: nothing I hold says countersink not is tool, and nothing says it isn't.
+! Forma «regola profonda (x, due premesse)». Finora 131 imparate, 89 con problemi.
+> if x contains y and y is hard then x is abrasive
+< Learned rule: abrasive($V1) :- contains($V1, $V2), hard($V2).
+> A grinding wheel contains corundum.
+< Learned: grinding wheel contains corundum.
+> Corundum is hard.
+< Learned: corundum is a hard.
+> Is a grinding wheel abrasive?
+< Hmm, I don't know about grinding wheel abrasive yet. Want me to learn about it?
+> Why is a grinding wheel abrasive?
+< I don't know about grinding wheel abrasive.
+> Is a grinding wheel not abrasive?
+< Hmm, I don't know about grinding wheel yet. Want me to learn about it?
+! Forma «regola profonda (x, relazione)». Finora 131 imparate, 90 con problemi.
+> if x drives y and y moves z then x moves z
+< Learned rule: move($V1, $V3) :- drive($V1, $V2), move($V2, $V3).
+> A servo motor drives the ball screw.
+< Learned: servo motor drive ball screw.
+> The ball screw moves the table.
+< Learned: ball screw move table.
+> Does the ball screw move the table?
+< I cannot settle that: no fact I hold decides whether ball screw move the table. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does a servo motor move the table?
+< Yes.
+> What moves the table?
+< Ball.
+! Forma «procedura: correzione di un passo». Finora 131 imparate, 91 con problemi.
+> rule for mmcm is divide by 100
+< Held: for mmcm, 1 is «divide by 100».
+> step 1 of mmcm is now divide by 10
+< Held: step 1 of mmcm is now «divide by 10».
+> apply mmcm to 250
+< mmcm(«25») — that is what the steps give.
+> rule for mmdm is apply mmcm
+< I didn't keep that: «rule_for_mmdm» and «mmcm» don't read as things I can hold a fact about.
+> rule for mmdm is divide by 10
+< Held: for mmdm, 1 is «divide by 10».
+> apply mmdm to 250
+< mmdm(«25») — that is what the steps give.
+> What number gives 25 when mmcm is applied?
+< On What number gives 25 when mmcm is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «procedura: rimozione di un passo». Finora 131 imparate, 92 con problemi.
+> rule for offs is add 5
+< Held: for offs, 1 is «add 5».
+> rule for offs is double
+< Held: for offs, 2 is «double».
+> remove step 2 of offs
+< Removed step 2 of offs.
+> apply offs to 10
+< offs(«15») — that is what the steps give.
+> rule for offs2 is apply offs
+< I didn't keep that: «rule_for_offs2» and «offs» don't read as things I can hold a fact about.
+> rule for offs2 is apply offs
+< I didn't keep that: «rule_for_offs2» and «offs» don't read as things I can hold a fact about.
+> apply offs2 to 10
+< I don't understand that yet.
+> What number gives 15 when offs is applied?
+< On What number gives 15 when offs is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «procedura: elenco e spiegazione». Finora 131 imparate, 93 con problemi.
+> rule for feedtooth is divide by 4
+< Held: for feedtooth, 1 is «divide by 4».
+> apply feedtooth to 0.2
+< feedtooth(«0.05») — that is what the steps give.
+> what procedures do you know?
+< I know how to: devowel, shout, squash, quiet, inchmm, inchmm2, mminch, thimble, vernier, vernierx, rpm10, rpm10half, growth100, growth200, stepsdeg, screwtravel, diameter, circum, gearout, fahrcel, fahrkel, tapm, degrad, halfturn, toleven, halvetill, halvetillx, mmcm, mmdm, offs, feedtooth.
+> why?
+< "I do not have an active proposal to continue. Give me the topic or the point you want to resume.
+! Forma «procedura: ciclo con arresto numerico». Finora 131 imparate, 94 con problemi.
+> rule for doubletill is repeat double until above 100
+< Held: for doubletill, 1 is «repeat double until above 100».
+> apply doubletill to 3
+< doubletill(«192») — that is what the steps give.
+> rule for doubletillh is apply doubletill
+< I didn't keep that: «rule_for_doubletillh» and «doubletill» don't read as things I can hold a fact about.
+> rule for doubletillh is halve
+< Held: for doubletillh, 1 is «halve».
+> apply doubletillh to 3
+< doubletillh(«1.5») — that is what the steps give.
+> What number gives 192 when doubletill is applied?
+< On What number gives 192 when doubletill is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «procedura: ciclo nominato (Collatz)». Finora 131 imparate, 95 con problemi.
+> rule for cstep is if even then halve else triple and add 1
+< Held: for cstep, 1 is «if even then halve else triple and add 1».
+> rule for collatzm is repeat apply cstep until it reaches 1
+< I know I repeat myself — I'm a small bot and honest about my limits. What would you like to try?
+> apply cstep to 6
+< cstep(«3») — that is what the steps give.
+> apply collatzm to 6
+< Hmm, I don't know about collatzm yet. Want me to learn about it?
+> What number gives 3 when cstep is applied?
+< On What number gives 3 when cstep is, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions. Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence. The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures. Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger. Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.
+! Forma «procedura: piu' ingressi». Finora 131 imparate, 96 con problemi.
+> rule for rpm takes 2 inputs
+< Noted: The trip takes 2 hours.
+> apply rpm to 100 and 10
+< I don't understand that yet.
+> What is the spindle speed for 100 meters per minute and 10 millimeters?
+< I don't know much about spindle speed yet, and the network is off, so I can't read about it now.
+> What cutting speed gives 3183 on a 10 millimeter cutter?
+< Hmm, I don't know about 10 millimeter cutter yet. Want me to learn about it?
+! Forma «procedura: oracolo di test». Finora 131 imparate, 97 con problemi.
+> test: apply inchmm to 1 gives 25.4
+< I didn't keep that: «test_apply_inchmm_to_1» and «25.4» don't read as things I can hold a fact about.
+> apply inchmm to 1
+< inchmm(«25.4») — that is what the steps give.
+> test: apply inchmm to 2 gives 50.8
+< I didn't keep that: «test_apply_inchmm_to_2» and «50.8» don't read as things I can hold a fact about.
+> test: apply inchmm to 2 gives 51
+< I didn't keep that: «test_apply_inchmm_to_2» and «51» don't read as things I can hold a fact about.
+! Forma «calcolo in lingua». Finora 131 imparate, 98 con problemi.
+> One inch is 25.4 millimeters.
+< Learned: one_inch has 25.4 millimeters.
+> How many millimeters are in one inch?
+< A one inch has 25.4 millimeters.
+> How many millimeters are in 3 inches?
+< Hmm, I don't know about millimeters yet.
+> How many inches are 76.2 millimeters?
+< Hmm, I don't know about inches yet. Want me to learn about it?
+> A micrometer thimble has 50 divisions.
+< Learned: micrometer thimble has 50 divisions.
+> One revolution of the thimble moves the spindle 0.5 millimeters.
+< Learned: one revolution of the thimble move spindle 0.5 millimeters.
+> How many divisions does a micrometer thimble have?
+< 50 divisions.
+> How far does the spindle move per thimble division?
+< Hmm, I don't know about thimble yet. Want me to learn about it?
+> How many divisions move the spindle 0.1 millimeters?
+< Hmm, I don't know about spindle 0.1 millimeters yet. Want me to learn about it?
+! Fermata a 100 lezioni con problemi (131 imparate). Chiudo con /save: le lezioni imparate entrano nella KB; a freddo tolgo i fatti storti e le ipotesi di contatto che contaminano i nomi composti (gauge -> measures, lead -> causes), e annoto le forme fallite in train-the-learning-process.md.
+> /save
+# sessione chiusa 13:18

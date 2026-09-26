@@ -2416,6 +2416,7 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 % 23 settembre 2026 — la tecnica, dalla stessa ricaduta: elettronica,
 % materiali, meccanica, produzione.
 :- include(../facts/engineering.p0).
+:- include(../facts/precision-mechanics.p0).
 
 % gen347 — ONE generic curated-answer motor (mod_qa) reads these: a request whose
 % answer is fixed KNOWLEDGE is a pair of facts, NOT a C module. qa_cue(Id, "word")

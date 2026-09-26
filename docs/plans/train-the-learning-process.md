@@ -1,5 +1,41 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## 🟠 FORME D'INSEGNAMENTO CHE NON FUNZIONANO — sessione live «meccanica di precisione» (26 settembre 2026, pomeriggio)
+
+Sessione di 231 lezioni vere, fermata alla **centesima lezione con problemi** come
+chiesto da F. Lista completa (lezione, risposta, verifica, specie) in
+[docs/sessions/2026-09-26-live-meccanica.md](../sessions/2026-09-26-live-meccanica.md);
+transcript `docs/sessions/live/2026-09-26-meccanica.log`; KB curata in
+`kb/facts/precision-mechanics.p0`.
+
+**Coefficiente imparate / con problemi: 131 / 100 = 1,31** — conoscenza 131 / 62
+(2,11), procedure e regole profonde 0 / 38. Ordine d'insegnamento (F.): prima L3
+per contatto su famiglie di relazione, poi le altre forme a priorita' scendente,
+infine le procedure con verifica **diretta, indiretta e inversa**.
+
+### Le forme che non funzionano, per specie (dalla piu' pesante)
+
+| specie | quante | forme ed esempi | dove sta |
+|---|---:|---|---|
+| **procedura non componibile** | 33 indirette ✗ | «rule for X is apply Y» non entra o il passo `apply` viene saltato in silenzio: `fahrkel` = 68 + 273,15 senza la conversione | regressione dell'interprete KB (`run_step(op(apply, …))`, procedures.p0) o del lettore della lezione — da rifare dopo la sessione |
+| **procedura non invertibile** | 38 inverse ✗ | «What number gives 50.8 when inchmm is applied?» → il generatore di «resoconti causali» risponde una frase senza senso | nessuna forma per l'inversa; e una facolta' generativa prende la domanda (mantra #7, #17) |
+| **conversione «to convert A to B multiply by N»** | 3 | la lezione non si legge piu' («I don't know about convert») | assisted-learning.p0: forma documentata e rotta |
+| **regola profonda con classe di piu' parole** | 5 | «if x is a machine tool then x is a machine» → «could not anchor that rule»; con «something … it» regole di atomi (`holds(it_wears)`) | lettore delle regole: la clausola tipata vuole la classe in una parola; `something/it` non e' un'anafora del lettore |
+| **classe composta non risalita** | 12 | «A tap is a cutting tool.» → «Is a tap a tool?» non sa; «Is a reamer a cutting tool?» → «don't know about cutting tool» | la testa del sintagma non e' un iperonimo (come P1 PHP); e la domanda polare non trova la classe composta |
+| **lezione non letta** | 24 | gerundi di processo («Annealing is a heat treatment.», «Quenching …»), aggettivo+nome come oggetto («cuts internal threads», «cuts conductive materials»), verbi non noti («protects», «chamfers», «swaps», «converts»), «measures in discrete steps» | nessun lettore prende la frase: le parole sconosciute diventano muro invece di candidati |
+| **domanda che non raggiunge un fatto entrato** | 31 | «What measures height?» (entrato «height gauge measures height») → «I don't understand»; «Does a spring store energy?» → idem; «What does a rotary encoder measure?» → «Angular.» (oggetto troncato) | lettori della domanda (answer_frame) su soggetti/oggetti composti |
+| **⛔ contaminazione del contatto** | ≥6 | dopo «so it gauges thickness», «gauge» in **gauge blocks, bore gauge, go/no-go gauge** e' letto come *measures*; dopo «so it leads to chatter», **lead screw** e «lead does not resist scratching» diventano *causes* | l'ipotesi di contatto vale per OGNI occorrenza della parola, senza guardare il suo ruolo nel sintagma — vedi lo studio sul contesto qui sotto |
+| **contatto su relazione non dichiarata / strumento** | 8 | «so it clamps / turns / conveys» su `hold`, `rotate`, `transmits` imparati da poco; «in other words, it spoils readings» | il contatto nasce solo su relazioni dichiarate (come P12 PHP); lo strumento vuole due contatti |
+| **controesempio letto come negazione del fatto** | 2 | «A spindle rotates the cutting tool, but the cutting tool is not its product.» → `not(rotate(spindle, cutting_tool))`: un fatto vero negato | la frase di correzione nega la relazione sbagliata (risposta sbagliata, mantra #7) |
+| **ordine transitivo muto** | 2 | «Hardening comes before tempering.» → «Held … the chain carries» ma «Does hardening come before tempering?» non decide; «What comes after tempering?» non capito | lettura della polare con «come»/«came» e della domanda inversa |
+| **forme rosse del catalogo** | 2 | «rule for rpm takes 2 inputs» → **«Noted: The trip takes 2 hours.»** (dirottata); «test: apply X to N gives M» rifiutata dal cancello | #48 e #49 di §6-ter Q restano rosse; la prima produce una risposta falsa |
+| **calcolo in lingua** | 2 | «One inch is 25.4 millimeters.» → «How many millimeters are in 3 inches?» non calcola | nessun ponte dalla misura detta a una procedura |
+| **valore con relazione di piu' parole** | 5 | «modulus of elasticity is a relation», «coefficient of thermal expansion is a relation» non entrano; le densita' perdono l'unita' («7.85 grams») | nome di relazione con preposizione interna; valore con unita' composta troncato |
+| **dopo il riavvio** | 1 | «Is a lathe a machine tool?» risponde in sessione, non dopo `/save` e riavvio | accesso alla classe composta caricata da file |
+
+**Il reperto piu' grave** e' la contaminazione: una lezione **riuscita** peggiora le
+lezioni successive in un'altra forma. Ne segue lo studio chiesto da F. sul contesto.
+
 ## 🟠 FORME D'INSEGNAMENTO CHE NON FUNZIONANO — sessione live «debug di applicazioni PHP» (26 settembre 2026)
 
 Annotate durante la sessione (transcript `docs/sessions/live/2026-09-26-php-debug.log`),

@@ -78,7 +78,32 @@ pending_gap_failed(forget).
 contact_episode(triggers, causes, ep(missing_semicolon, parse_error, s)).
 contact_shape(triggers, causes, verb(cons(triggers, cons(a, cons(parse, nil))), @S causes @O)).
 contact_episode(symptom, causes, ep(missing_semicolon, parse_error, s)).
+contact_shape(component, has_part, noun).
 contact_shape(symptom, causes, noun).
+contact_shape(decreases, reduces, verb(cons(decreases, nil), @S reduces @O)).
+contact_episode(turns, rotate, ep(spindle, cutting_tool, s)).
+contact_shape(lowers, reduces, verb(cons(lowers, nil), @S reduces @O)).
+contact_episode(component, has_part, ep(micrometer, thimble, s)).
+contact_shape(alloying_element, contains, noun).
+contact_shape(includes, contains, verb(cons(includes, nil), "@S contains @O")).
+contact_episode(decreases, reduces, ep(gearbox, speed, s)).
+contact_shape(measured_quantity, measures, noun).
+contact_episode(lowers, reduces, ep(ball_bearing, friction, s)).
+contact_shape(measurand, measures, noun).
+contact_episode(alloying_element, contains, ep(high-speed_steel, tungsten, s)).
+contact_episode(includes, contains, ep(stainless_steel, chromium, s)).
+contact_episode(clamps, hold, ep(collet, cutting_tool, s)).
+contact_episode(grips, hold, ep(chuck, workpiece, s)).
+contact_episode(measured_quantity, measures, ep(dial_indicator, displacement, s)).
+contact_episode(measurand, measures, ep(micrometer, thickness, s)).
+contact_shape(typical_outcome, causes, noun).
+contact_episode(quantifies, measures, ep(profilometer, surface_roughness, s)).
+contact_episode(reads, measures, ep(tachometer, rotational_speed, s)).
+contact_shape(effect, causes, noun).
 contact_near(print, ep(var_dump, type, s), cons(var_dump, cons(value, cons(variable, cons(displays, nil))))).
+contact_episode(typical_outcome, causes, ep(misalignment, bearing_wear, s)).
 contact_near_shape(displays, print, sh(ep(var_dump, type, s), verb(cons(displays, cons(the, nil)), @S prints @O))).
+contact_episode(effect, causes, ep(vibration, chatter, s)).
 contact_episode(handles, manage, ep(composer, dependencies, s)).
+abrasive($V1) :- contains($V1, $V2), hard($V2).
+move($V1, $V3) :- drive($V1, $V2), move($V2, $V3).

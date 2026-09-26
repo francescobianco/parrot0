@@ -166,6 +166,8 @@ boils_at(acetone, 56_degrees_celsius).
 % RI-019 (24 settembre 2026) — insegnato con «melting point is a relation» e
 % «the melting point of tin is 232 degrees Celsius» (stagno, 231,9 °C).
 melting_point_of(tin, 232_degrees_celsius).
+melting_point_of(copper, 1085_degrees_celsius).
+melting_point_of(aluminium, 660_degrees_celsius).
 
 % ============================================================
 % PLANETS & ASTRONOMY — orbits, order, size.
