@@ -882,7 +882,7 @@ np_closer($Form) :-
 % `np_closer/1` si enumera intero una volta per revisione (`p0_np_closer`), quindi
 % si parte dai verbi e si toglie la desinenza.
 np_closer($Stem) :-
-    relation_verb($Form), concat_atoms($Stem, "s", $Form).
+    relation_verb($Form), concat_atoms($Stem, "s", $Form), naf(turn_declared_compound_tail($Stem)).
 % E una particella avverbiale chiude il sintagma quanto una preposizione:
 % «what holds colonies TOGETHER?» non nomina una cosa chiamata
 % «colonies together».
@@ -1532,7 +1532,16 @@ machinery(object_question_verb).
 object_question_verb($T, $Verb) :-
     turn_word($T, $W, $Wh), question_word($Wh),
     turn_word($T, $A, $Aux), bare_verb_auxiliary($Aux), lt($W, $A),
-    turn_word($T, $V, $Verb), is($N, add($A, 1)), lt($N, $V).
+    turn_word($T, $V, $Verb), is($N, add($A, 1)), lt($N, $V),
+    naf(turn_in_declared_compound($Verb)).
+% 26 settembre 2026 (P11) — una parola DENTRO un nome composto gia' tenuto come
+% cosa non e' il verbo della domanda: in «what does a stack trace show?» il verbo
+% e' «show», non «stack» ne' «trace». Stessa prova di `turn_declared_compound_tail`.
+machinery(turn_in_declared_compound).
+turn_in_declared_compound($W) :- turn_declared_compound_tail($W).
+turn_in_declared_compound($W) :-
+    turn_word(current_turn, $I, $W), is($J, add($I, 1)), turn_word(current_turn, $J, $N),
+    concat_atoms($W, "_", $X), concat_atoms($X, $N, $A), fact_mention($A, $S).
 
 % Il ponte e la direzione esistono solo per il turno che porta la forma in
 % quella posizione. E' il costo, misurato: ottocento superfici flesse sempre
@@ -1561,7 +1570,8 @@ modal_auxiliary($Aux) :- modal_force($Aux, $F).
 % (`naf` con una variabile libera fallisce in silenzio: l'ausiliare e' ground)
 polar_question_verb($T, $Verb) :-
     turn_word($T, 0, $Aux), bare_verb_auxiliary($Aux), naf(modal_auxiliary($Aux)),
-    turn_word($T, $V, $Verb), lt(1, $V), naf(stopword($Verb)).
+    turn_word($T, $V, $Verb), lt(1, $V), naf(stopword($Verb)),
+    naf(turn_in_declared_compound($Verb)).
 turn_question_verb($Stem, $Verb, 1) :-
     polar_question_verb(current_turn, $Stem), verb_stem($Verb, $Stem).
 answer_frame($Form, $Root) :- turn_question_verb($Form, $Root, $Arg).
@@ -1969,7 +1979,20 @@ extract_frame($Pat, $Pred) :-
     concat_atoms("@S ", $Cop, $C), concat_atoms($C, " ", $B),
     concat_atoms($B, $Surface, $A), concat_atoms($A, " @O", $Pat).
 answer_frame($Surface, $Pred) :- adjective_relation_pred($Surface, $Pred).
-np_closer($Adj) :- adjective_relation_head($Adj).
+% 26 settembre 2026 — LA TESTA AGGETTIVALE CHIUDE SOLO SE LA SEGUE LA SUA
+% PREPOSIZIONE. «fatal» chiude in «X is fatal TO Y», non in «a fatal error»:
+% prima chiudeva sempre, e il cancello dei concetti respingeva ogni nome con un
+% aggettivo di relazione davanti — «fatal error», «native speaker», «rich text»,
+% «sensitive data» (reperto P10, train-the-learning-process.md). Quale
+% preposizione apra la relazione lo dice la superficie stessa.
+np_closer($Adj) :- adjective_relation_head($Adj), adjective_relation_opens($Adj).
+machinery(adjective_relation_opens).
+machinery(adjective_relation_prep).
+adjective_relation_opens($Adj) :-
+    turn_word(current_turn, $I, $Adj), is($J, add($I, 1)),
+    turn_word(current_turn, $J, $P), adjective_relation_prep($Adj, $P).
+adjective_relation_prep($Adj, $P) :-
+    adjective_relation($S), atom_words($S, cons($Adj, cons($P, nil))).
 % (23 settembre 2026: la testa di ogni superficie si spezzava a ogni domanda,
 % 221 `atom_words` per token letto; ora e' una vista, vedi `finite_reading_verb_form`.)
 machinery(adjective_relation_head).
@@ -2585,6 +2608,25 @@ extract_frame($Pat, $Pred) :-
 % come valore di un ruolo o come riempitivo di un frame e' UN referente.
 machinery(known_referent).
 known_referent($A) :- proper_name($A).
+% 26 settembre 2026 (P11) — e un nome di cui il maestro ha detto CHE COS'E' (la
+% stessa conoscenza del cancello dei concetti, `declared_thing/1`, sotto): dopo
+% «A stack trace is a list.» «stack trace» e' un referente, e la guardia RI-012
+% («un nome che finisce con un verbo nudo») non lo respinge piu' come soggetto.
+known_referent($A) :- whole_name_thing($A).
+% QUANDO UN NOME COMPOSTO E' UNA COSA INTERA, anche se una sua parola e' un
+% verbo. Lo chiedono il cancello dei concetti (`p0_atom_is_concept_ex`) e la
+% guardia del soggetto (via `known_referent/1`): una sola conoscenza.
+%  - il maestro ha detto che cos'e' («A stack trace is a list.»): P11;
+%  - chi scrive l'ha UNITO in un token solo («memory_limit», «error_log»): un
+%    identificatore e' una parola, e dentro una parola non c'e' un confine di
+%    verbo, anche se un pezzo («limit», «log») e' un verbo. La prova e' la IR
+%    del turno: il token intero, con piu' parole (P9).
+machinery(whole_name_thing).
+machinery(joined_identifier).
+whole_name_thing($A) :- declared_thing($A).
+whole_name_thing($A) :- joined_identifier($A).
+joined_identifier($A) :-
+    turn_word(current_turn, $I, $A), atom_words($A, cons($H, cons($N, $R))).
 known_referent($A) :- entity_role($A, $I).
 known_referent($V) :-
     relation_role($R, $Role), concat_atoms($Role, "_of", $P),
@@ -4215,6 +4257,13 @@ state_noun(level).
 state_noun(levels).
 state_noun(concentration).
 state_noun(buildup).
+% 26 settembre 2026 (P11) — e un NOME DI RACCOLTA lega cio' che raccoglie: «a
+% stack trace shows THE SEQUENCE OF function calls». La classe nasce qui, VUOTA,
+% con il suo nome pronunciabile: i membri si insegnano parlando («sequence is a
+% collection noun»), non si scrivono.
+partitive_head_class(collection_noun).
+machinery(collection_noun).
+class_surface(collection_noun, collection noun).
 partitive_link($Head, $Prep) :-
     partitive_preposition($Prep), partitive_head_class($Class),
     apply($Class, cons($Head, nil)).
@@ -4275,16 +4324,27 @@ machinery(turn_verb_closer).
 turn_verb_closer($U) :- relation_verb($U).
 turn_verb_closer($U) :- finite_reading_verb_form($U).
 machinery(turn_verb_before).
+% 26 settembre 2026 (P11) — e un verbo che CHIUDE un nome composto che il maestro
+% ha gia' tenuto come COSA non chiude il sintagma: dopo «A stack trace is a
+% list.», in «A stack trace shows the sequence of function calls» «trace» e' la
+% testa del nome, non il verbo. La prova e' che il composto e' gia' argomento di
+% un fatto detto dal maestro (`fact_mention/2`, indicizzata per entita'):
+% `declared_thing/1` scorreva tutte le classi e raddoppiava il costo di
+% np_closer, che si paga a ogni token (misurato: 500 → 900–1200 ms).
+machinery(turn_declared_compound_tail).
+turn_declared_compound_tail($W) :-
+    turn_word(current_turn, $J, $W), is($I, sub($J, 1)), turn_word(current_turn, $I, $P),
+    concat_atoms($P, "_", $X), concat_atoms($X, $W, $A), fact_mention($A, $S).
 turn_verb_before($V) :-
     turn_word(current_turn, $J, $V), turn_word(current_turn, $I, $U), lt($I, $J), dif($U, $V), turn_verb_closer($U).
-np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(turn_verb_before($V)).
-np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)), naf(turn_verb_before($V)).
+np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)).
+np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)).
 % E2a, 19 settembre 2026 — e la sua forma finita al presente (-s, -es, -ies):
 % «The zorvan beetle threatens …» correva fino a fine clausola. Participi e
 % gerundi restano fuori: dentro un sintagma sono modificatori legittimi.
 machinery(finite_present_of).
-np_closer($Form) :- naf(reading_continuer_exists(any)), finite_reading_verb_form($Form), naf(turn_verb_before($Form)).
-np_closer($Form) :- reading_continuer_exists(any), finite_reading_verb_form($Form), naf(reading_continuer($Form)), naf(turn_verb_before($Form)).
+np_closer($Form) :- naf(reading_continuer_exists(any)), finite_reading_verb_form($Form), naf(turn_verb_before($Form)), naf(turn_declared_compound_tail($Form)).
+np_closer($Form) :- reading_continuer_exists(any), finite_reading_verb_form($Form), naf(reading_continuer($Form)), naf(turn_verb_before($Form)), naf(turn_declared_compound_tail($Form)).
 % 23 settembre 2026 — LA STESSA CONOSCENZA, INDICIZZATA DALLA PAROLA LETTA.
 % Il lettore chiede `np_closer(Parola)` una volta per token, con la parola
 % legata, e per ognuna la regola rifaceva la morfologia su migliaia di forme:
@@ -4375,8 +4435,18 @@ value_class(capital_of_country, city).
 value_class(language_of_country, language).
 answer_fits_type($Ans, $Type) :- value_class($Rel, $Type), apply($Rel, cons($Any, cons($Ans, nil))).
 has_asked_answer_type($T) :- asked_answer_type($T, $Type).
-answer_type_ok($T, $Ans) :- naf(has_asked_answer_type($T)).
-answer_type_ok($T, $Ans) :- asked_answer_type($T, $Type), answer_fits_type($Ans, $Type).
+answer_type_ok($T, $Ans) :- naf(has_asked_answer_type($T)), naf(answer_echoes_turn($T, $Ans)).
+answer_type_ok($T, $Ans) :- asked_answer_type($T, $Type), answer_fits_type($Ans, $Type), naf(answer_echoes_turn($T, $Ans)).
+% 26 settembre 2026 (P13, train-the-learning-process.md) — UNA RISPOSTA CHE
+% RIPETE SOLO LA DOMANDA NON RISPONDE. «Where does OPcache store compiled
+% bytecode?» riceveva «Compiled bytecode.»: il luogo era perso e la domanda
+% riceveva l'oggetto che lei stessa nomina. Meglio un muro (mantra #7).
+machinery(answer_echoes_turn).
+machinery(answer_word_new).
+machinery(turn_has_word).
+answer_echoes_turn($T, $Ans) :- atom_words($Ans, $Ws), dif($Ws, nil), naf(answer_word_new($T, $Ws)).
+answer_word_new($T, $Ws) :- member($W, $Ws), naf(turn_has_word($T, $W)).
+turn_has_word($T, $W) :- turn_word($T, $I, $W).
 
 % ── 12 settembre 2026 — CHE COSA APRE UNA RELATIVA RIDOTTA ─────────────────
 % Il participio di un verbo con particella, anche con il suo marcatore d'agente:

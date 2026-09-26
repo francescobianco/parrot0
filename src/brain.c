@@ -242,6 +242,13 @@ struct Brain {
      * nei test e il file di PARROT0_TURN_LOG. */
     char  (*turn_trace)[P0_TRACE_W];
     size_t n_turn_trace, cap_turn_trace, dropped_turn_trace;
+    /* 26 settembre 2026 (F.: «un concetto numerico di profondita': a profondita'
+     * 1 si vedono alcuni trace e chi vuole puo' aumentarla»). Ogni riga porta il
+     * suo LIVELLO e la sua SPECIE; si registrano tutte, e' la stampa a filtrare
+     * con la soglia che la KB tiene (`debug_trace_depth/1`, debug.p0). Una riga
+     * profonda non si toglie: si spegne. */
+    int   *turn_trace_level;
+    char  (*turn_trace_stage)[24];
     /* gen511: vale 1 soltanto mentre si canonicalizza il turno stesso (non un
      * frammento, non un'ispezione): e' allora che la lettura registra che cosa
      * ha tradotto per ipotesi e che cosa ha lasciato intatto. */
@@ -547,7 +554,7 @@ static int p0_trace_deep(Brain *b) {
     if (all && *all && strcmp(all, "0")) return 1;
     return getenv("PARROT0_TURN_LOG") != NULL;
 }
-static void p0_trace_line(Brain *b, const char *stage, const char *text) {
+static void p0_trace_line_at(Brain *b, int level, const char *stage, const char *text) {
     if (!text) return;
     if (p0_trace_echo(stage)) fprintf(stderr, "[%s] %s\n", stage ? stage : "-", text);
     if (!b) return;
@@ -557,11 +564,39 @@ static void p0_trace_line(Brain *b, const char *stage, const char *text) {
         if (nc > P0_TRACE_CAP) nc = P0_TRACE_CAP;
         void *g = realloc(b->turn_trace, nc * sizeof *b->turn_trace);
         if (!g) { b->dropped_turn_trace++; return; }
-        b->turn_trace = g; b->cap_turn_trace = nc;
+        b->turn_trace = g;
+        void *gl = realloc(b->turn_trace_level, nc * sizeof *b->turn_trace_level);
+        if (!gl) { b->dropped_turn_trace++; return; }
+        b->turn_trace_level = gl;
+        void *gs = realloc(b->turn_trace_stage, nc * sizeof *b->turn_trace_stage);
+        if (!gs) { b->dropped_turn_trace++; return; }
+        b->turn_trace_stage = gs;
+        b->cap_turn_trace = nc;
     }
     int depth = b->respond_depth > 1 ? b->respond_depth - 1 : 0;
-    snprintf(b->turn_trace[b->n_turn_trace++], P0_TRACE_W, "%*s%-6s %s",
+    size_t i = b->n_turn_trace++;
+    snprintf(b->turn_trace[i], P0_TRACE_W, "%*s%-6s %s",
              depth * 2, "", stage ? stage : "-", text);
+    b->turn_trace_level[i] = level < 1 ? 1 : level;
+    snprintf(b->turn_trace_stage[i], sizeof b->turn_trace_stage[i], "%s", stage ? stage : "-");
+}
+static void p0_trace_line(Brain *b, const char *stage, const char *text) {
+    p0_trace_line_at(b, 1, stage, text);
+}
+/* `p0_trace_at`: una riga con il suo LIVELLO. 1 = il filo del turno (chi ha
+ * risposto, quale lettore, quale cancello); 2 = il perche' di un cancello;
+ * 3 = i passi interni di un lettore; 4+ = il dettaglio di un ciclo. La soglia
+ * di stampa e il livello di una specie intera sono KB (debug.p0). */
+static void p0_trace_at(Brain *b, int level, const char *stage, const char *fmt, ...)
+    __attribute__((format(printf, 4, 5)));
+static void p0_trace_at(Brain *b, int level, const char *stage, const char *fmt, ...) {
+    char line[P0_TRACE_W];
+    va_list ap; va_start(ap, fmt);
+    vsnprintf(line, sizeof line, fmt, ap);
+    va_end(ap);
+    size_t l = strlen(line);
+    while (l && (line[l - 1] == '\n' || line[l - 1] == ' ')) line[--l] = '\0';
+    p0_trace_line_at(b, level, stage, line);
 }
 static void p0_trace(Brain *b, const char *stage, const char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
@@ -572,7 +607,7 @@ static void p0_trace(Brain *b, const char *stage, const char *fmt, ...) {
     va_end(ap);
     size_t l = strlen(line);
     while (l && (line[l - 1] == '\n' || line[l - 1] == ' ')) line[--l] = '\0';
-    p0_trace_line(b, stage, line);
+    p0_trace_line_at(b, 1, stage, line);
 }
 /* Il motore della KB non conosce il Brain: le sue righe (viste invalidate e
  * ricostruite) arrivano da un gancio. */

@@ -295,3 +295,21 @@ machinery(paradox_event).
 machinery(debug_paradox).
 debug_paradox(paradox($L, $K, $W, $D)) :- paradox_event($L, $K, $W, $D).
 debug_probe(44, debug_paradox, any, "il registro unico dei paradossi: cicli tagliati, budget, cortocircuiti e cicli delle viste").
+
+% ── 26 settembre 2026 — LA PROFONDITA' DEL TRACE DEL TURNO ──────────────────
+% F.: «introdurre un concetto numerico di profondita': a profondita' 1 si vedono
+% alcuni trace e chi vuole puo' aumentare la profondita' per andare oltre; le
+% righe profonde non vanno tolte, semplicemente spente su base profondita'».
+% Ogni riga di `p0_trace` ha un LIVELLO (1 = il filo del turno; 2 = il perche'
+% di un cancello; 3 = i passi interni di un lettore; 4+ = il dettaglio di un
+% ciclo). `/debug trace` stampa le righe fino alla soglia e conta le altre;
+% `/debug depth N` (in chat) o `!debug depth N` (in un .p0t) la cambia.
+machinery(debug_trace_depth).
+machinery(trace_stage_depth).
+debug_trace_depth(1).
+% Una SPECIE intera si porta a un altro livello con un fatto, senza ricompilare:
+% le prove di nome fatte parola per parola (`read.named`) riempivano ogni
+% traccia con decine di righe identiche; il loro posto e' il livello 3.
+trace_stage_depth("read.named", 3).
+% il ciclo `iterate/4` scrive un giro per riga: e' il dettaglio piu' fine
+trace_stage_depth("iterate", 4).

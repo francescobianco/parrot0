@@ -1,0 +1,120 @@
+# Regression probes on the complete living KB. New names test the mechanics
+# without relying on the malformed propositions saved by the original session.
+[test rejected assertions do not enter the parallel semantic store]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+# 26 settembre 2026: un identificatore unito («print_q») ora e' un nome e la
+# lezione entra (P9/P7); il rifiuto si prova con una frase che resta rifiutata
+# (oggetto frasale, P3).
+> The probeq setting controls whether probe errors appear in the probe output.
+<~ didn't keep
+!query! semantic_binding(binary(control), probeq_setting_controls_whether_probe_errors, object(probe_output))
+> What does probeq control?
+<! probe output
+
+[test negation is not a positive subject]
+!reset
+!timeout 30
+> A probewarning does not stop the probedaemon.
+!query! semantic_binding(binary(stop), probewarning_does_not, object(probedaemon))
+> What stops the probedaemon?
+<! Probewarning
+> A probeguard stops the probedaemon.
+> What stops the probedaemon?
+<~ probeguard
+<! does not
+
+[test contact noun preserves the whole entity and relation direction]
+!reset
+!timeout 30
+> A missing semicolon causes a parse error, so a parse error is its symptom.
+> What is the symptom of a missing semicolon?
+<~ parse error
+> What is the symptom of output before the header function?
+<! named block of code
+> What is the symptom of a parse error?
+<! missing semicolon
+
+[test a taught relation accepts a polar value and remains open world]
+!reset
+!timeout 30
+> probe port is a relation
+> The probe port of probeadapter is 9123.
+> What is the probe port of probeadapter?
+<~ 9123
+> Is 9123 the probe port of probeadapter?
+<~ Yes
+> Is 9124 the probe port of probeadapter?
+<~ don't know
+> forget that the probe port of probeadapter is 9123
+> Is 9123 the probe port of probeadapter?
+<! Yes
+
+[test inverse named relation keeps its declared direction]
+!reset
+!timeout 30
+> The capital of probeprovince is probecity.
+> Is probecity the capital of probeprovince?
+<~ Yes
+> Is probeprovince the capital of probecity?
+<! Yes
+
+[test proof questions still work]
+!reset
+!timeout 30
+> Why is Socrates a man?
+<~ man
+
+# 26 settembre 2026 — le riparazioni della seconda passata, con la conoscenza
+# vera della sessione PHP (docs/sessions/live/2026-09-26-php-debug.log).
+[test an identifier written as one token is a name]
+!reset
+!timeout 30
+> The default value of memory_limit is 128 megabytes.
+<~ Learned
+> What is the default value of memory_limit?
+<~ 128 megabytes
+
+[test an adjective of relation closes only before its preposition]
+!reset
+!timeout 30
+> A fatal error stops the script.
+<~ Learned
+> Does a fatal error stop the script?
+<~ Yes
+> Nicotine is fatal to insects.
+> What is nicotine fatal to?
+<~ Insects
+
+[test a declared compound name keeps its verb-like head]
+!reset
+!timeout 30
+> A stack trace is a list.
+<~ Learned
+> A stack trace shows the sequence of function calls.
+<~ Learned
+> What shows the sequence of function calls?
+<~ stack trace
+> Explain this stack trace.
+<~ paste it here
+
+[test a where question never receives a verdict]
+!reset
+!timeout 30
+> OPcache stores compiled bytecode in shared memory.
+> Where does OPcache store compiled bytecode?
+<! Yes
+<! Compiled bytecode
+> Does OPcache store compiled bytecode?
+<~ Yes
+
+[test is its N names a relation not a class]
+!reset
+!timeout 30
+> A missing semicolon causes a parse error, so a parse error is its symptom.
+<! is a symptom
+> What is the capital of France?
+<~ Paris

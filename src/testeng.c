@@ -743,6 +743,7 @@ static int te_process_stream(TeState *t, FILE *in) {
             te_flush(t);
             const char *q = p + 6; while (*q == ' ' || *q == '\t') q++;
             if (strcmp(q, "off") == 0) { kb_profile_set(brain_kb(t->b), 0); continue; }
+            if (strncmp(q, "depth ", 6) == 0) { p0_debug_set_depth(t->b, strtol(q + 6, NULL, 10)); continue; }
             fprintf(stderr, "\n[!debug] line %d  [%s]\n",
                     t->line_no, t->section[0] ? t->section : "-");
             p0_debug_inspect(t->b, t->last_turn);

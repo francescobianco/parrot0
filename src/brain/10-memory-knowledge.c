@@ -5669,6 +5669,17 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
         } else {
             if (wi >= n || strcmp(strip_edge_punct(w[wi]), pt[ti]) != 0)
                 return 0;
+            /* 26 settembre 2026 (P11) — una parola dello schema che nel turno
+             * chiude un nome composto gia' tenuto come cosa non e' il verbo dello
+             * schema: in «a stack trace shows …» «trace» e' la testa di «stack
+             * trace». La conoscenza e' `turn_declared_compound_tail/1` (grammar.p0). */
+            if (wi > 0) {
+                const char *tq[1] = { pt[ti] };
+                if (kb_query(b->kb, "turn_declared_compound_tail", tq, 1)) {
+                    p0_trace(b, "frame", "rifiutato: «%s» chiude il nome composto dichiarato", pt[ti]);
+                    return 0;
+                }
+            }
             wi++;
         }
     }
@@ -6122,6 +6133,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
          * rispondere, asserire, annunciare. */
         P0FrameReading r;
         if (!p0_frame_bind(b, w, n, raw, &r)) continue;
+        p0_trace_at(b, 3, "frame", "extract: «%s» legato (irrisolti %zu, interrogativi %zu, solo-domanda %d)", raw, r.nunresolved, r.nquestion, query_only);
         /* gen505r: qui si ARCHIVIA e si RISPONDE, quindi un riferimento
          * irrisolto vale come prima — un rifiuto. Il legatore non lo decide
          * piu' per conto di tutti: lo conta, e ogni consumatore sceglie. */
@@ -6201,7 +6213,10 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                 obj = slot[fsecond];
             }
         }
-        if (p0_bad_subject(b, subj)) continue;
+        if (p0_bad_subject(b, subj)) {
+            p0_trace_at(b, 2, "frame", "rifiutato: il soggetto «%s» non passa la guardia del soggetto", subj);
+            continue;
+        }
 
         char text_term[KB_TERM_LEN];
         const char *stored_obj = obj;
@@ -6227,6 +6242,12 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         int clean = text_value ? p0_fact_is_clean(b, pred, subject_only, 1) :
                                   p0_fact_is_clean(b, pred, fa, fact_nslots);
         if (!clean) {
+            int previous_origin = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            const char *verdict[] = { "current_turn", "rejected_assertion" };
+            kb_assert(b->kb, "turn_outcome", verdict, 2);
+            kb_set_origin(b->kb, previous_origin);
+            p0_trace(b, "read.commit", "rejected %s(%s, %s)", pred, subj, stored_obj);
             kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
                             { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                         3, out, out_size);
@@ -6976,6 +6997,13 @@ static int p0_atom_is_concept(Brain *b, const char *atom) { return p0_atom_is_co
  * verbo («boiling_point» in «boiling point is a relation»). */
 static int p0_atom_is_concept_ex(Brain *b, const char *atom, int before_copula) {
     if (!p0_atom_within_cap(b, atom)) return 0;
+    /* 26 settembre 2026 (P11, P7 di train-the-learning-process.md) — se il
+     * maestro ha detto CHE COS'E' il nome intero («A stack trace is a list.»,
+     * «print_r is a function.»), il nome e' una cosa anche se una sua parola e'
+     * un verbo. La KB lo sapeva gia' (`declared_thing/1`, grammar.p0); il
+     * cancello lo chiedeva solo parola per parola, mai per il nome composto. */
+    {   const char *dq[1] = { atom };
+        if (kb_query(brain_kb(b), "whole_name_thing", dq, 1)) return 1; }
     char buf[KB_TERM_LEN];
     snprintf(buf, sizeof buf, "%s", atom);
     char *toks[16]; size_t nt = 0;
@@ -6986,6 +7014,15 @@ static int p0_atom_is_concept_ex(Brain *b, const char *atom, int before_copula) 
     for (size_t k = bound; k < nt; k++) {
         if (!p0_np_closer(b, toks[k])) continue;
         if (before_copula && k + 1 == nt && k > 0) continue;
+        /* 26 settembre 2026 (P7, P11) — davanti alla copula il soggetto non ha un
+         * verbo suo: in «print_r is a function» e «a stack trace is a list» la
+         * parola che e' anche un verbo («print», «trace») sta DENTRO il nome. Un
+         * confine vero davanti alla copula e' una preposizione, e quale parola
+         * sia una preposizione lo dice la KB. */
+        if (before_copula) {
+            const char *pq[1] = { toks[k] };
+            if (!kb_query(brain_kb(b), "preposition", pq, 1)) continue;
+        }
         /* dopo un articolo viene un nome, anche se e' la forma di un verbo */
         if (k > 0 && p0_lead_det(b, toks[k - 1])) continue;
         /* RI-014 — e una parola di cui il MAESTRO ha gia' detto qualcosa e' una
@@ -7910,7 +7947,13 @@ static int extract_class_statement(Brain *b, const char *norm,
      * parola subito prima di lei non chiude il soggetto come verbo. «boiling
      * point is a relation» tagliava a «boiling» perche' «point» e' anche un
      * verbo, e il turno finiva al lettore della prosa come `point(boiling, …)`. */
-    else while (send < cop && !(send + 1 != cop && p0_np_closer(b, strip_edge_punct(w[send])))) send++;
+    /* 26 settembre 2026 (P11) — e non solo la parola subito prima: la copula e'
+     * l'unico verbo finito, quindi PRIMA di lei nessuna parola chiude il
+     * soggetto come verbo («a STACK trace is a list», «print_r is a function»).
+     * Il confine a destra del nome resta la preposizione («the derivative OF a
+     * function … is»), e quale parola lo sia lo dice la KB. */
+    else while (send < cop && !(send + 1 != cop && p0_np_closer(b, strip_edge_punct(w[send])) &&
+                                kb_query(b->kb, "preposition", (const char *[]){ strip_edge_punct(w[send]) }, 1))) send++;
     if (send == sstart) {                                /* comincia con un confine */
         char note[160]; snprintf(note, sizeof note, "gate: subject starts at a boundary (%s)", strip_edge_punct(w[sstart]));
         p0_class_read_note(b, note);
@@ -7926,6 +7969,19 @@ static int extract_class_statement(Brain *b, const char *norm,
      * dopo). Qui basta che non mangi il nome. */
     for (size_t k = sstart; k < send; k++)
         if (comma_at[k]) { send = k + 1; break; }
+
+    /* 26 settembre 2026 — «X is ITS symptom» non dice a quale CLASSE appartenga
+     * X: il possessivo lega il nome a qualcuno, quindi e' un nome di relazione
+     * (il contatto L3 lo legge). Quali parole siano possessive lo dice la KB
+     * (`possessive_pronoun/1`, `possessive_determiner/1`). */
+    if (cop + 1 < n) {
+        const char *pq[1] = { strip_edge_punct(w[cop + 1]) };
+        if (kb_query(b->kb, "possessive_pronoun", pq, 1) ||
+            kb_query(b->kb, "possessive_determiner", pq, 1)) {
+            p0_class_gate(b, "gate: a possessive after the copula names a relation, not a class");
+            return 0;
+        }
+    }
 
     /* gen505y — L'APERTURA DI DISCORSO NON E' LA TESTA DEL SINTAGMA. «boh, a
      * wombat is a marsupial» -> marsupial(boh_a_wombat): un fatto falso da
@@ -8196,7 +8252,12 @@ static int extract_class_statement(Brain *b, const char *norm,
     }
     /* RI-018: una parola menzionata non e' un concetto, e' la parola stessa. */
     if (!mention_subject && !p0_atom_is_concept_ex(b, subj, send == cop)) {
-        snprintf(out, out_size, "Scartato: \"%s\" non e' un concetto.", subj);
+        /* mantra #16: cio' che parrot0 dice e' KB (era un letterale italiano) */
+        char shown_subj[KB_TERM_LEN]; snprintf(shown_subj, sizeof shown_subj, "%s", subj);
+        for (char *c = shown_subj; *c; c++) if (*c == '_') *c = ' ';
+        const KbResponseSlot rs[] = { { "subject", shown_subj } };
+        if (!kb_response_slots(b, "rejected_class_subject", rs, 1, out, out_size))
+            out[0] = '\0';
         return 2;
     }
     const char *ca[] = { subj };
@@ -9122,6 +9183,7 @@ static int p0_polar_reply(Brain *b, const char *norm, char **w, size_t nw,
             const char *q[2] = { a, c };
             if (kb_query(b->kb, pred, q, 2)) {
                 p0_trace(b, "polar", "%s(%s, %s) holds", pred, a, c);
+                p0_trace_at(b, 3, "polar", "aperta da «%s» su «%s»", w[0], norm);
                 free(cand); free(cpos);
                 kb_say(b, "yes", "Yes.", out, out_size);
                 return 1;
@@ -15001,7 +15063,11 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * La differenza e' di un token e le due classi sono gia' in KB. */
     size_t base = 0;
     if (lex_class_member(b, "polar_fronted", w[0])) base = 0;
-    else if (lex_class_member(b, "question_word", w[0]) && nw >= 4 &&
+    /* 26 settembre 2026 (P13) — solo «why» davanti alla polare chiede il
+     * verdetto con la sua ragione; «where / when / how does X V Y?» chiede un
+     * complemento, e rispondere «Yes.» era una risposta sbagliata (mantra #7).
+     * Quali parole chiedano la ragione lo dice la KB (`why_cue`). */
+    else if (lex_class_member(b, "why_cue", w[0]) && nw >= 4 &&
              lex_class_member(b, "polar_fronted", w[1])) base = 1;
     else return 0;
 
@@ -16368,7 +16434,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                  * nessuno gliela chiedeva. */
                 if (!strcmp(want, "statement") && !isq &&
                     p0_turn_is(b, "directive", norm)) {
-                    p0_trace(b, "form", "%s skipped: mood statement, turn read as directive\n", form);
+                    p0_trace_at(b, 3, "form", "%s skipped: mood statement, turn read as directive\n", form);
                     continue;
                 }
                 if (!strcmp(want, "statement") && isq) {
@@ -16400,7 +16466,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                             if (kb_match(b->kb, "input_node_first", iq, 2, row, 1) == 1)
                                 so += (size_t)snprintf(seen + so, sizeof seen - so, " first=%s", row[0]);
                         }
-                        p0_trace(b, "form", "%s skipped: mood statement, turn read as question:%s", form, seen);
+                        p0_trace_at(b, 3, "form", "%s skipped: mood statement, turn read as question:%s", form, seen);
                     }
                     continue;
                 }
@@ -16410,7 +16476,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         char work[300]; memcpy(work, norm, L + 1);
         char *ww[48]; size_t nww = split_words(work, ww, 48);
         if (!p0_form_match(b, form, ww, nww, slots, &ns)) {
-            p0_trace(b, "form", "%s does not match «%s»\n", form, norm);
+            p0_trace_at(b, 3, "form", "%s does not match «%s»\n", form, norm);
             continue;
         }
         /* 14 settembre 2026 — UNA FORMA PUO' CEDERE A CIO' CHE LA KB RICONOSCE
@@ -17011,6 +17077,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *rq[3] = { pname, val, NULL };
             size_t got = kb_match(b->kb, "proc_run", rq, 3, outv, 1);
             KbInferenceReport rep; kb_inference_report(b->kb, &rep);
+            p0_trace_at(b, 2, "proc", "%s(%s): %zu risultati%s%s%s, budget %d, profondita' %d", pname, val, got, got ? " = " : "", got ? outv[0] : "", "", rep.budget_hit, rep.depth_hit);
             /* quanti passi ha lasciato la traccia, e l'ultimo valore toccato */
             char (*steps)[KB_TERM_LEN] = NULL; size_t nsteps = 0;
             { const char *tq[2] = { "current_turn", NULL };
@@ -17151,7 +17218,9 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * `step_readable/1` (procedures.p0), non questo ramo. */
             if (!strcmp(rel, "proc_step")) {
                 const char *sq[1] = { qtxt };
-                if (!kb_query(b->kb, "step_readable", sq, 1)) {
+                int readable = kb_query(b->kb, "step_readable", sq, 1);
+                p0_trace_at(b, 2, "proc", "passo %s di %s: leggibile %d", qtxt, key, readable);
+                if (!readable) {
                     char shown0[KB_TERM_LEN];
                     { char t0[KB_TERM_LEN]; snprintf(t0, sizeof t0, "%s", txt);
                       for (char *c = t0; *c; c++) if (*c == '_') *c = ' ';
@@ -17491,9 +17560,10 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             const char *n1 = p0_form_slot(slots, ns, "n1");
             const char *n2 = p0_form_slot(slots, ns, "n2");
             const char *ent2 = p0_form_slot(slots, ns, "entity");
-            if (!n1 || !n2 || !ent2) continue;
+            if (!n1 || !ent2) continue;
             char surface[KB_TERM_LEN];
-            if ((size_t)snprintf(surface, sizeof surface, "%s %s", n1, n2) >= sizeof surface)
+            if ((size_t)snprintf(surface, sizeof surface, "%s%s%s", n1,
+                                n2 ? " " : "", n2 ? n2 : "") >= sizeof surface)
                 continue;
             char preds3[4][KB_TERM_LEN];
             const char *nq3[2] = { NULL, surface };
@@ -17516,20 +17586,23 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 continue;
             }
             char ent_key[KB_TERM_LEN];
-            snprintf(ent_key, sizeof ent_key, "%s", ent2);
-            for (char *c = ent_key; *c; c++) if (*c == ' ') *c = '_';
+            char ent_buf[KB_TERM_LEN];
+            snprintf(ent_buf, sizeof ent_buf, "%s", ent2);
+            char *ent_words[64];
+            size_t ent_count = split_words(ent_buf, ent_words, 64), ent_start = 0;
+            while (ent_start < ent_count && p0_lead_det(b, ent_words[ent_start])) ent_start++;
+            if (!p0_join(ent_words, ent_start, ent_count, ent_key, sizeof ent_key)) continue;
             { size_t el = strlen(ent_key);
               while (el && (ent_key[el - 1] == '?' || ent_key[el - 1] == '.')) ent_key[--el] = '\0'; }
             for (size_t z = 0; z < npr3; z++) {
                 char pb3[KB_TERM_LEN]; snprintf(pb3, sizeof pb3, "%s", preds3[z]);
                 const char *pd3 = kb_dequote(pb3);
                 char vals3[8][KB_TERM_LEN];
-                const char *vq3[2] = { ent_key, NULL };
+                const char *direction[] = { pd3 };
+                int value_first = kb_query(b->kb, "relation_value_first", direction, 1);
+                const char *vq3[2] = { value_first ? NULL : ent_key,
+                                       value_first ? ent_key : NULL };
                 size_t nv3 = kb_match(b->kb, pd3, vq3, 2, vals3, 8);
-                if (nv3 == 0) {
-                    const char *vq4[2] = { NULL, ent_key };
-                    nv3 = kb_match(b->kb, pd3, vq4, 2, vals3, 8);
-                }
                 if (nv3 == 0) continue;
                 char shown3[KB_TERM_LEN];
                 present_atom(b, kb_dequote(vals3[0]), shown3, sizeof shown3);
@@ -23716,7 +23789,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * una posizione — la lezione entra gia' con la chiave giusta
      * (`compound(iron_oxide)`), mancava solo la strada per interrogarla. */
     size_t why_art = 0;
-    if (nw >= 5 && lex_class_member(b, "question_word", w[0]) &&
+    if (nw >= 5 && lex_class_member(b, "why_cue", w[0]) &&
         lex_class_member(b, "10_memory_knowledge_lex12193_2", w[1]))
         for (size_t i = 3; i + 1 < nw && !why_art; i++)
             if (is_article(b, w[i])) why_art = i;
@@ -23755,7 +23828,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * order-free, this gives the affirmative why-proof the same bilingual reach.
      * Transfers to any unseen x/y. */
     if (nw == 5 &&
-        (strcmp(w[0], "perché") == 0 || lex_class_member(b, "question_word", w[0])) &&
+        lex_class_member(b, "why_cue", w[0]) &&
         lex_class_member(b, "10_memory_knowledge_lex12212", w[2]) && is_article(b, w[3])) {
         const char *subj;
         if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
@@ -23777,7 +23850,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
      * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
      * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-    if (nw == 7 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12221_2", w[1]) &&
+    if (nw == 7 && lex_class_member(b, "why_cue", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12221_2", w[1]) &&
         lex_class_member(b, "english_determiner", w[3]) && lex_class_member(b, "10_memory_knowledge_lex12222_2", w[5])) {
         const char *args[] = {w[2], w[6]};
         explain_reply(b, w[4], args, 2, out, out_size);

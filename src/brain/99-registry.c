@@ -1352,7 +1352,9 @@ int brain_session_dump(Brain *b) {
 }
 
 void brain_destroy(Brain *b) {
-    if (b) { free(b->turn_trace); b->turn_trace = NULL; }
+    if (b) { free(b->turn_trace); b->turn_trace = NULL;
+             free(b->turn_trace_level); b->turn_trace_level = NULL;
+             free(b->turn_trace_stage); b->turn_trace_stage = NULL; }
     if (b) { free(b->frame_pats); b->frame_pats = NULL; b->frame_pats_live = 0;
              free(b->np_closers); b->np_closers = NULL; b->np_closers_live = 0; }
     if (!b) return;
@@ -5788,17 +5790,8 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         char observed[1][KB_TERM_LEN];
         const char *q[] = { "current_turn", NULL };
         kb_match(b->kb, "input_frame_observe", q, 2, observed, 1);
-        /* Specie A, 19 settembre 2026 — la prosa DETTA nel turno si impegna come
-         * quella data da leggere (`extract_clause`): la stessa coppia di domande,
-         * e la KB decide se c'e' un'asserzione unica da impegnare. Il C non
-         * nomina relazioni, ordini o lingue; una domanda non ha bundle. */
-        char bundles[1][KB_TERM_LEN];
-        const char *bq[] = { "current_turn", NULL };
-        if (kb_match(b->kb, "input_recorded_bundle", bq, 2, bundles, 1) == 1) {
-            char receipts[1][KB_TERM_LEN];
-            const char *cq[] = { "current_turn", bundles[0], NULL };
-            kb_match(b->kb, "input_frame_commit", cq, 3, receipts, 1);
-        }
+        /* Observation is pure with respect to world knowledge. The declared
+         * after-reply bookkeeper commits only after the reader's verdict. */
     }
     kb_set_origin(b->kb, KB_SESSION);
 
@@ -6042,7 +6035,8 @@ static void p0_trace_flush(Brain *b, const char *input) {
     FILE *f = fopen(path, "a");
     if (!f) return;
     fprintf(f, "=== turn %lu: %s\n", (unsigned long)b->turns, input ? input : "");
-    for (size_t i = 0; i < b->n_turn_trace; i++) fprintf(f, "%s\n", b->turn_trace[i]);
+    for (size_t i = 0; i < b->n_turn_trace; i++)
+        fprintf(f, "L%d %s\n", b->turn_trace_level ? b->turn_trace_level[i] : 1, b->turn_trace[i]);
     if (b->dropped_turn_trace)
         fprintf(f, "(… %zu righe oltre il tetto di %d)\n", b->dropped_turn_trace, P0_TRACE_CAP);
     fclose(f);
@@ -6053,6 +6047,12 @@ const char *brain_trace_line(Brain *b, size_t i) {
     return (b && i < b->n_turn_trace) ? b->turn_trace[i] : NULL;
 }
 size_t brain_trace_dropped(Brain *b) { return b ? b->dropped_turn_trace : 0; }
+int brain_trace_level(Brain *b, size_t i) {
+    return (b && b->turn_trace_level && i < b->n_turn_trace) ? b->turn_trace_level[i] : 1;
+}
+const char *brain_trace_stage(Brain *b, size_t i) {
+    return (b && b->turn_trace_stage && i < b->n_turn_trace) ? b->turn_trace_stage[i] : "-";
+}
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* Il trace unico si azzera solo all'ingresso del turno PIU' ESTERNO: una

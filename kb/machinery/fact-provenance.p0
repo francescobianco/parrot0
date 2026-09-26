@@ -1032,7 +1032,6 @@ reading_fact(testing_framework(phpunit), "phpunit is a testing framework.").
 reading_fact(relation(flash_point), "flash point is a relation").
 reading_fact(run(phpunit, unit_tests), "phpunit runs unit tests.").
 reading_fact(construction_frame("the boiling point of @S is @O", "@S boils at @O", boils_at), "the boiling point of x is y means x boils at y").
-reading_fact(proposition(binary(run), roles(subject(phpunit), object(unit))), "phpunit runs unit tests.").
 reading_fact(manage(composer, dependencies), "composer manages dependencies, so it handles dependencies.").
 reading_fact(causes(unguarded_edge, fall), "an unguarded edge causes a fall.").
 reading_fact(proposition(binary(manage), roles(subject(composer), object(dependencies))), "composer manages dependencies, so it handles dependencies.").
@@ -1044,13 +1043,8 @@ reading_fact(proposition(binary(cause), roles(subject(unguarded_edge), object(fa
 reading_fact(proposition(binary(manage), roles(subject(composer), object(dependencies))), "composer manages dependencies.").
 reading_fact(show(xdebug, stack_trace), "xdebug shows a stack trace.").
 reading_fact(protect(guardrails, workers), "guardrails protect workers from falls.").
-reading_fact(proposition(binary(show), roles(subject(xdebug), object(stack))), "xdebug shows a stack trace.").
 reading_fact(program(script), "a script is a program.").
 reading_fact(emits(light-emitting_diode, light), "a light-emitting diode emits light.").
-reading_fact(proposition(binary(halt), roles(subject(fatal_error), object(script))), "a fatal error halts the script.").
-reading_fact(proposition(binary(stop), roles(subject(fatal_errors), object(scripts))), "fatal errors stop scripts.").
-reading_fact(proposition(binary(stop), roles(subject(warning_does_not), object(script))), "a warning does not stop the script.").
-reading_fact(proposition(binary(stop), roles(subject(fatal_error), object(script))), "a fatal error stops the script.").
 reading_fact(default_value_of(upload_max_filesize, 2_megabytes), "the default value of upload_max_filesize is 2 megabytes.").
 reading_fact(proposition(binary(protect), roles(subject(guardrails), object(workers))), "guardrails protect workers from falls.").
 reading_fact(measures(megabyte, information), "the megabyte measures information.").
@@ -1060,7 +1054,6 @@ reading_fact(default_value_of(default_socket_timeout, 60_seconds), "the default 
 reading_fact(measures(degree_fahrenheit, temperature), "the degree fahrenheit measures temperature.").
 reading_fact(print(var_dump, type), "var_dump prints the type and value of a variable, so it displays the type and value of a variable.").
 reading_fact(proposition(binary(cause), roles(subject(unguarded_edges), object(falls))), "unguarded edges cause falls.").
-reading_fact(proposition(binary(print), roles(subject(print_r), object(readable))), "print_r prints a readable view of a variable.").
 reading_fact(causes(unclosed_string, parse_error), "an unclosed string causes a parse error.").
 reading_fact(protects(hearing_protection, ears), "hearing protection protects the ears from noise.").
 reading_fact(proposition(binary(cause), roles(subject(unclosed_string), object(parse_error))), "an unclosed string causes a parse error.").

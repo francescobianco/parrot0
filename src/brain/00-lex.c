@@ -2389,6 +2389,22 @@ static int p0_unattached_kind(Brain *b, const char *norm, const char *raw,
             const char *kq[1] = { h };
             if (domain_query(b, "content", kq, 1)) {
                 if (p0_clause_follows(b, w, nw, k)) return 0;
+                /* 26 settembre 2026 (P11) — se il sintagma e' un nome che la KB
+                 * gia' tiene come cosa («a stack trace», dopo «A stack trace is
+                 * a list.»), la domanda chiede del GENERE, non di un documento
+                 * da allegare: «What does a stack trace show?». Lo decide
+                 * `known_referent/1` (grammar.p0), non questo ramo. */
+                if (indefinite) {
+                    char np[256]; size_t o = 0; np[0] = '\0';
+                    for (size_t z = i + 1; z <= k && o + 2 < sizeof np; z++) {
+                        char zb[64]; snprintf(zb, sizeof zb, "%s", w[z]);
+                        int wr = snprintf(np + o, sizeof np - o, "%s%s", o ? "_" : "", strip_edge_punct(zb));
+                        if (wr < 0) break;
+                        o += (size_t)wr;
+                    }
+                    const char *rq[1] = { np };
+                    if (np[0] && kb_query(b->kb, "known_referent", rq, 1)) return 0;
+                }
                 snprintf(kind, ksz, "%s", h);
                 return 1;
             }

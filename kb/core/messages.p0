@@ -896,6 +896,8 @@ response_template(known_unary_fact, "{pred}({arg}) is a known fact.").
 % gen510 — il rifiuto si dice a parole e nella lingua della conversazione, senza
 % mostrare la notazione interna (mantra #16).
 response_template(rejected_binary_fact, "I didn't keep that: «{arg1}» and «{arg2}» don't read as things I can hold a fact about.").
+response_template(rejected_class_subject, "I didn't keep that: «{subject}» doesn't read as a thing I can put in a class.").
+response_template(rejected_class_subject, it, "Non l'ho tenuto: «{subject}» non si legge come una cosa da mettere in una classe.").
 response_template(rejected_binary_fact, it, "Non l'ho tenuto: «{arg1}» e «{arg2}» non si leggono come cose su cui tenere un fatto.").
 response_template(count_of_answer, "There are {count} {noun}s.").
 % gen507 — CONTARE CIO' CHE SI SA NON E' CONTARE CIO' CHE C'E'.
@@ -2720,13 +2722,48 @@ turn_form_empty_reply(ask_class_polar_an, unary_polar_unknown).
 turn_form(ask_noun_of, 1, class(question_word)).
 turn_form(ask_noun_of, 2, class(clause_copula)).
 turn_form(ask_noun_of, 3, text("the")).
-turn_form(ask_noun_of, 4, slot(n1)).
-turn_form(ask_noun_of, 5, slot(n2)).
-turn_form(ask_noun_of, 6, text("of")).
-turn_form(ask_noun_of, 7, rest(entity)).
+turn_form(ask_noun_of, 4, span(n1)).
+turn_form(ask_noun_of, 5, text("of")).
+turn_form(ask_noun_of, 6, rest(entity)).
 turn_form_mood(ask_noun_of, question).
+turn_form_priority(ask_noun_of, early).
 turn_form_act(ask_noun_of, answer_noun_of).
-turn_form_empty_reply(ask_noun_of, no_value_in_class).
+% 26 settembre 2026 — letta PRIMA (early) perche' «the symptom of <X lungo>» non
+% finisca alla definizione della testa di X (P5); ma se qui il valore non c'e' la
+% forma CEDE invece di murare: «What is the capital of France?» lo sa
+% `answerframe` (capital_of_country), e la risposta vuota early lo zittiva.
+
+% Named relation questions use the same orientation as their lessons.
+% The registries are derived, so a noun taught by contact is immediately usable.
+machinery(relation_subject_first_name).
+machinery(relation_value_first_name).
+relation_subject_first_name($Name, $R) :- relation_noun($R, $Name), naf(relation_value_first($R)).
+relation_value_first_name($Name, $R) :- relation_noun($R, $Name), relation_value_first($R).
+turn_form(named_relation_polar, 1, class(polar_opener)).
+turn_form(named_relation_polar, 2, span(object)).
+turn_form(named_relation_polar, 3, text("the")).
+turn_form(named_relation_polar, 4, named(relation_subject_first_name, relation)).
+turn_form(named_relation_polar, 5, text("of")).
+turn_form(named_relation_polar, 6, rest(subject)).
+turn_form_slot_form(named_relation_polar, object, atom).
+turn_form_slot_form(named_relation_polar, subject, atom).
+turn_form_mood(named_relation_polar, question).
+turn_form_priority(named_relation_polar, early).
+turn_form_act(named_relation_polar, answer_polar).
+turn_form_empty_reply(named_relation_polar, named_relation_unknown).
+turn_form(named_relation_inverse_polar, 1, class(polar_opener)).
+turn_form(named_relation_inverse_polar, 2, span(subject)).
+turn_form(named_relation_inverse_polar, 3, text("the")).
+turn_form(named_relation_inverse_polar, 4, named(relation_value_first_name, relation)).
+turn_form(named_relation_inverse_polar, 5, text("of")).
+turn_form(named_relation_inverse_polar, 6, rest(object)).
+turn_form_slot_form(named_relation_inverse_polar, object, atom).
+turn_form_slot_form(named_relation_inverse_polar, subject, atom).
+turn_form_mood(named_relation_inverse_polar, question).
+turn_form_priority(named_relation_inverse_polar, early).
+turn_form_act(named_relation_inverse_polar, answer_polar).
+turn_form_empty_reply(named_relation_inverse_polar, named_relation_unknown).
+response_template(named_relation_unknown, "I don't know whether that relation holds between {subject} and {object}.").
 
 % ── RI-007 — E AL POSTO DEL SOGGETTO PUO' STARE UNA DESCRIZIONE ───────────
 % «which sea does THE RIVER OF GERMANY flow into?»: il soggetto non e' un nome,

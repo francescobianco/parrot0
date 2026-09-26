@@ -971,15 +971,53 @@ void p0_debug_turn_profile(Brain *brain, double ms) {
  * (chi cede e per quale regola, chi declina, chi risponde), i cancelli dei
  * lettori, gli schemi legati, le ricevute, le viste, la prova della risposta.
  * Con `filter` si tengono solo le righe che lo contengono (`/debug trace X`). */
+/* 26 settembre 2026 — LA PROFONDITA' DEL TRACE (F.). La soglia e' un fatto,
+ * `debug_trace_depth(N)` (debug.p0, default 1); una specie intera si porta a un
+ * altro livello con `trace_stage_depth(Specie, N)`, senza ricompilare. Le righe
+ * sotto la soglia non sono perse: si contano, e alzarla le mostra. */
+static long p0_debug_depth(KB *kb) {
+    char v[1][KB_TERM_LEN]; const char *q[1] = { NULL };
+    if (kb_match(kb, "debug_trace_depth", q, 1, v, 1) == 1) return strtol(v[0], NULL, 10);
+    return 1;
+}
+static int p0_debug_line_level(KB *kb, Brain *brain, size_t i) {
+    const char *stage = brain_trace_stage(brain, i);
+    char v[1][KB_TERM_LEN];
+    char sq[64]; snprintf(sq, sizeof sq, "\"%s\"", stage);
+    const char *q[2] = { sq, NULL };
+    if (kb_match(kb, "trace_stage_depth", q, 2, v, 1) == 1) return (int)strtol(v[0], NULL, 10);
+    const char *q2[2] = { stage, NULL };
+    if (kb_match(kb, "trace_stage_depth", q2, 2, v, 1) == 1) return (int)strtol(v[0], NULL, 10);
+    return brain_trace_level(brain, i);
+}
+void p0_debug_set_depth(Brain *brain, long depth) {
+    KB *kb = brain_kb(brain);
+    if (depth < 1) depth = 1;
+    char d[24]; snprintf(d, sizeof d, "%ld", depth);
+    kb_retract_pred(kb, "debug_trace_depth");
+    int prev = kb_origin(kb); kb_set_origin(kb, KB_REFLECTIVE);
+    const char *a[1] = { d };
+    kb_assert(kb, "debug_trace_depth", a, 1);
+    kb_set_origin(kb, prev);
+    fprintf(stderr, "parrot0: trace depth %ld\n", depth);
+}
 void p0_debug_trace(Brain *brain, const char *filter) {
+    KB *kb = brain_kb(brain);
     size_t n = brain_trace_count(brain);
-    fprintf(stderr, "\n  TRACCIA DEL TURNO (%zu righe%s%s%s)\n", n,
+    long depth = p0_debug_depth(kb);
+    size_t hidden = 0; int deepest = 1;
+    fprintf(stderr, "\n  TRACCIA DEL TURNO (%zu righe, profondita' %ld%s%s%s)\n", n, depth,
             filter ? ", filtro «" : "", filter ? filter : "", filter ? "»" : "");
     for (size_t i = 0; i < n; i++) {
         const char *l = brain_trace_line(brain, i);
         if (!l || (filter && *filter && !strstr(l, filter))) continue;
+        int lv = p0_debug_line_level(kb, brain, i);
+        if (lv > depth) { hidden++; if (lv > deepest) deepest = lv; continue; }
         fprintf(stderr, "    %s\n", l);
     }
+    if (hidden)
+        fprintf(stderr, "    (%zu righe piu' profonde, fino al livello %d: /debug depth %d per vederle)\n",
+                hidden, deepest, deepest);
     if (brain_trace_dropped(brain))
         fprintf(stderr, "    (… %zu righe oltre il tetto)\n", brain_trace_dropped(brain));
 }
@@ -1540,6 +1578,10 @@ int main(int argc, char **argv) {
          * l'autore immaginava, non cio' che poi rallenta. */
         if (strcmp(line, "/debug dump") == 0) {
             brain_turn_dump(brain);
+            continue;
+        }
+        if (strncmp(line, "/debug depth ", 13) == 0) {
+            p0_debug_set_depth(brain, strtol(line + 13, NULL, 10));
             continue;
         }
         if (strcmp(line, "/debug trace") == 0 || strncmp(line, "/debug trace ", 13) == 0) {

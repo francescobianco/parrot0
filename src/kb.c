@@ -3831,6 +3831,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             Term stopg;
             if (!parse_to_term(gs, &stopg)) break;
             int done = goal_provable(S->kb, &stopg, depth + 1);
+            kb_trace(S->kb, "iterate", "arresto %s -> %d", gs, done);
             if (done == GOAL_INCOMPLETE) { S->budget_hit = 1; break; }
             if (done == 1) { ok = 1; break; }
             snprintf(gs, sizeof gs, "%s(%s, $Q)", stepp, cur);
@@ -3847,6 +3848,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             S->steps += F.steps + 1;
             if (F.budget_hit) S->budget_hit = 1;
             if (F.depth_hit) { S->depth_hit = 1; if (!S->depth_pred[0]) snprintf(S->depth_pred, sizeof S->depth_pred, "%s", F.depth_pred); }
+            kb_trace(S->kb, "iterate", "passo %s -> %s%s", gs, F.count ? sol[0] : "(nessuno)", F.budget_hit ? " [budget]" : "");
             if (F.count == 0 || F.budget_hit) break;           /* il passo non si applica: il ciclo si ferma qui */
             snprintf(cur, sizeof cur, "%s", sol[0]);
             if (S->budget && S->steps >= S->budget) { S->budget_hit = 1; break; }

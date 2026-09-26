@@ -1043,6 +1043,7 @@ input_assertion_store(cons($Proposition, $Tail), $Language, $Quoted,
 % dal producer. Evita di rieseguire l'intera catena forma -> frame mentre si
 % scrivono le proposizioni, senza spostare nel C alcuna scelta semantica.
 input_frame_commit($Scope, $Assertions, $Count) :-
+    naf(input_assertion_commit_blocked($Scope)),
     count_list($Assertions, $Count),
     input_clause_provenance($Scope,
                             provenance($Language, $Quoted,
@@ -1050,6 +1051,18 @@ input_frame_commit($Scope, $Assertions, $Count) :-
     input_assertion_store($Assertions, $Language, $Quoted,
                           range($Start, $Length)),
     input_complements_store($Scope, $Language, $Assertions).
+
+% Observation is not acceptance. A rejected lesson must not survive in the
+% parallel semantic store. Negated readings require their own polarity-aware
+% consumer; this positive projection cannot silently erase that polarity.
+machinery(input_assertion_commit_blocked).
+input_assertion_commit_blocked($Scope) :- turn_outcome($Scope, rejected_assertion).
+input_assertion_commit_blocked($Scope) :-
+    grammatical_cue(input($Scope), $Span, polarity, negated).
+after_reply_bookkeeper(input_assertion_commit).
+turn_after_reply($Scope, input_assertion_commit) :-
+    input_recorded_bundle($Scope, $Assertions),
+    input_frame_commit($Scope, $Assertions, $Count).
 
 % E3/E5, 19 settembre 2026 — IL COMPLEMENTO PREPOSIZIONALE COME RUOLO. «Compost
 % …, reducing dependency ON commercial chemical fertilizers»: dopo l'oggetto,

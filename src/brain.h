@@ -46,6 +46,10 @@ void brain_publish_dispatch_path(Brain *b, const char *turn);
 size_t      brain_trace_count(Brain *b);
 const char *brain_trace_line(Brain *b, size_t i);
 size_t      brain_trace_dropped(Brain *b);
+/* Il LIVELLO di una riga (1 = il filo del turno; piu' alto = piu' dettaglio) e la
+ * sua SPECIE: la stampa filtra con la soglia KB `debug_trace_depth/1`. */
+int         brain_trace_level(Brain *b, size_t i);
+const char *brain_trace_stage(Brain *b, size_t i);
 
 /* Atomically change one typed agent record's state. The in-memory P0AStore and
  * its live rec(Id,Kind,Parent,State) projection either both move or both remain
