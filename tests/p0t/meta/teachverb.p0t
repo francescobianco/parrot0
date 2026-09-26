@@ -11,7 +11,7 @@
 [test teachverb]
 # gen272 (Track 5.5, the runtime-growth demo — "il gioco dinamico con la
 # conoscenza"): gen271 moved the teach-verb vocabulary that GATES try_teach_form
-# into the KB (intent_cue(00_lex_chain332, …)), and a learnable/3 row makes that
+# into the KB (intent_cue(teaching_lesson_cue, …)), and a learnable/3 row makes that
 # class itself teachable. So: a verb parrot0 never heard is deaf; ONE teaching
 # turn asserts it into the gate's own vocabulary; the same branch then hooks
 # WITH NO REBUILD, and the new verb can teach anything else the registry knows.

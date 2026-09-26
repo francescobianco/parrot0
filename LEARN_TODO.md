@@ -5400,7 +5400,7 @@ Misurato: delle sei forme naturali con cui una persona insegna una parafrasi,
 
 **Tentativo fatto e RITIRATO oggi**, e va saputo perché: le quattro forme senza
 «means» sono state aggiunte come righe di KB (cue di guardia in
-`00_lex_chain332` + righe `learnable` con modo `cue_like`) e **funzionavano
+`teaching_lesson_cue` + righe `learnable` con modo `cue_like`) e **funzionavano
 tutte e quattro**. Ma `taught_cue_ladder.p0t` è passato da 23 a 15/8. Non ho
 avuto il tempo di isolare quale riga rompe cosa — il sospetto è `" i mean "`,
 che è una sottostringa frequentissima — e ho preferito ritirare tutto piuttosto
@@ -5411,10 +5411,10 @@ che lasciare un rosso.
 questo commit (`f8c5280`) nel messaggio, e le righe erano:
 
 ```prolog
-intent_cue(00_lex_chain332, " is another way to say ").
-intent_cue(00_lex_chain332, " is the same as ").
-intent_cue(00_lex_chain332, " is like saying ").
-intent_cue(00_lex_chain332, " i mean ").          % ← il sospetto
+intent_cue(teaching_lesson_cue, " is another way to say ").
+intent_cue(teaching_lesson_cue, " is the same as ").
+intent_cue(teaching_lesson_cue, " is like saying ").
+intent_cue(teaching_lesson_cue, " i mean ").          % ← il sospetto
 learnable("is another way to say", intent_cue, cue_like).
 learnable("is the same as",        intent_cue, cue_like).
 learnable("is like saying",        intent_cue, cue_like).
@@ -5518,8 +5518,8 @@ giusto invece che col sospetto.
 Restano da provare, sempre una alla volta:
 
 ```prolog
-intent_cue(00_lex_chain332, " i mean ").      learnable("i mean", intent_cue, cue_like).
-intent_cue(00_lex_chain332, " means ").       learnable("means",  intent_cue, cue_like).
+intent_cue(teaching_lesson_cue, " i mean ").      learnable("i mean", intent_cue, cue_like).
+intent_cue(teaching_lesson_cue, " means ").       learnable("means",  intent_cue, cue_like).
 ```
 
 Per `means` la nota che serve: ha già un proprietario legittimo — la lezione di

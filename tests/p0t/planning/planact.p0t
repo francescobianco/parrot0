@@ -59,7 +59,7 @@
 < Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `cue` in tests/fixtures/orchain/fragment.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: start, begin, avvia, quit, exit; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/fragment.c.cues.p0; 4) patch_chains replaced 1 chains with calls to `vocab_hit` in tests/fixtures/orchain/fragment.c.p0fix and skipped 1 sites where `ctx` is not in scope; the target is a fragment of a larger unit, so its own build must judge the copy; stopped at step 5 run test suite via verify_behavior: verify_behavior cannot run tests/fixtures/orchain/fragment.c standalone — it is a fragment of a larger unit; the codebase's own test suite must judge the patch.
 
 # gen271, the real thing: src/brain/00-lex.c's teach-verb guard was the FIRST
-# real cue chain migrated by this very plan (kb_cue_match(b, "00_lex_chain332",
+# real cue chain migrated by this very plan (kb_cue_match(b, "teaching_lesson_cue",
 # low); the 8 verbs now live in kb/core/intents.p0). This pins that the site
 # STAYS migrated: the scan of the real file finds nothing left to migrate.
 > execute the kb-first plan for chains of calls to cue in src/brain/00-lex.c

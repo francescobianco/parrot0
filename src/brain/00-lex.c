@@ -1600,8 +1600,8 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
     low[ln] = '\0';
     /* gen271: this guard's verb list was the first REAL cue chain migrated to
      * KB by parrot0's own derived plan (Track 5.4) — the vocabulary lives as
-     * intent_cue(00_lex_chain332, …) facts in kb/core/intents.p0, data not code. */
-    if (!(kb_cue_match(b, "00_lex_chain332", low)))
+     * intent_cue(teaching_lesson_cue, …) facts in kb/core/intents.p0, data not code. */
+    if (!(kb_cue_match(b, "teaching_lesson_cue", low)))
         return 0;
     const char *rq1 = strchr(raw, '"'), *rq2 = rq1 ? strchr(rq1 + 1, '"') : NULL;
     if (!rq2 || rq2 <= rq1 + 1) return 0;

@@ -132,7 +132,7 @@ intent_cue(role_name_cue, "your name is ").
 % (exact/substring store the normalized span; fill keeps the raw casing for {name}).
 % gen272 (Track 5.5, the runtime-growth demo): the teach-verb class ITSELF is
 % learnable. gen271 migrated the guard of try_teach_form to KB
-% (intent_cue(00_lex_chain332, …)), so "learn \"memorizza \" as a teaching
+% (intent_cue(teaching_lesson_cue, …)), so "learn \"memorizza \" as a teaching
 % verb" asserts a new verb into the very vocabulary that gates teaching — a
 % previously deaf branch hooks with no rebuild, and the new verb can then
 % teach anything else the registry knows. Reflexive growth as pure DATA.
@@ -204,7 +204,7 @@ intent_cue(role_name_cue, "your name is ").
 % migrated out of C by parrot0's own derived kbfirst_migration plan — these
 % eight facts were EMITTED by emit_facts from the OR-chain that guarded
 % try_teach_form (src/brain/00-lex.c, chain at the then-line 332), and the
-% chain is now ONE kb_cue_match(b, "00_lex_chain332", low) call. The teach-verb
+% chain is now ONE kb_cue_match(b, "teaching_lesson_cue", low) call. The teach-verb
 % vocabulary itself became taught knowledge: a new verb is a fact here (or a
 % runtime assert), never a recompile. Trailing spaces are content (the verbs
 % must end the word: "use " must not fire on "user").
@@ -711,8 +711,8 @@ learnable("chiedere che tipo di lacuna", gap_report_request, substring).
 learnable("una richiesta di opinione", opinion_request, substring).
 learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
-learnable("a teaching verb",      00_lex_chain332, substring).
-learnable("verbo di insegnamento", 00_lex_chain332, substring).
+learnable("a teaching verb",      teaching_lesson_cue, substring).
+learnable("verbo di insegnamento", teaching_lesson_cue, substring).
 % A1 apprendimento assistito: anche la parola che separa costruzione nuova e
 % costruzione nota e' lessico vivo. Il motore `mod_teach_construction` cerca
 % soltanto questa classe; "learn \"denotes\" as a construction teaching pivot"
@@ -1078,25 +1078,31 @@ intent_cue(name_marker, "called").
 intent_cue(name_marker, "chiamato").
 intent_cue(name_marker, "chiamata").
 intent_cue(name_marker, "nome").
-intent_cue(00_lex_chain332, " is another way to say ").
-intent_cue(00_lex_chain332, " is the same as ").
+% `teaching_lesson_cue` (26 settembre 2026, F.: «puoi dare un nome migliore a questo
+% predicato»): era `00_lex_chain332`, il nome del file e della riga C da cui la
+% catena era stata migrata. Sono le superfici che fanno di un turno una LEZIONE
+% («learn », «teach », «impara », «is another way to say» …): il cancello davanti
+% al lettore delle lezioni (`try_teach_form`, 00-lex.c). JOURNAL.md usa il nome
+% vecchio.
+intent_cue(teaching_lesson_cue, " is another way to say ").
+intent_cue(teaching_lesson_cue, " is the same as ").
 % PR6 (26 settembre 2026): la lezione in italiano ha la sua etichetta
 % (`learnable("un altro modo per dire", …)`) ma non passava il cancello, e
 % «"mi aiuti" è un altro modo per dire "…"» finiva ai lettori generici.
-intent_cue(00_lex_chain332, " un altro modo per dire ").
-intent_cue(00_lex_chain332, " un altro modo di dire ").
-intent_cue(00_lex_chain332, "learn ").
-intent_cue(00_lex_chain332, "teach ").
-intent_cue(00_lex_chain332, "treat ").
-intent_cue(00_lex_chain332, "use ").
-intent_cue(00_lex_chain332, "impara ").
-intent_cue(00_lex_chain332, "insegna ").
-intent_cue(00_lex_chain332, "insegnami ").
-intent_cue(00_lex_chain332, "tratta ").
-intent_cue(00_lex_chain332, "usa ").
-intent_cue(00_lex_chain332, "aggiungi ").
-intent_cue(00_lex_chain332, "non tradurre ").
-intent_cue(00_lex_chain332, "do not translate ").
+intent_cue(teaching_lesson_cue, " un altro modo per dire ").
+intent_cue(teaching_lesson_cue, " un altro modo di dire ").
+intent_cue(teaching_lesson_cue, "learn ").
+intent_cue(teaching_lesson_cue, "teach ").
+intent_cue(teaching_lesson_cue, "treat ").
+intent_cue(teaching_lesson_cue, "use ").
+intent_cue(teaching_lesson_cue, "impara ").
+intent_cue(teaching_lesson_cue, "insegna ").
+intent_cue(teaching_lesson_cue, "insegnami ").
+intent_cue(teaching_lesson_cue, "tratta ").
+intent_cue(teaching_lesson_cue, "usa ").
+intent_cue(teaching_lesson_cue, "aggiungi ").
+intent_cue(teaching_lesson_cue, "non tradurre ").
+intent_cue(teaching_lesson_cue, "do not translate ").
 intent_cue(85_translate_synth_world_chain494, "what else matched").
 intent_cue(85_translate_synth_world_chain494, "what else could have").
 intent_cue(85_translate_synth_world_chain494, "what else would have").
