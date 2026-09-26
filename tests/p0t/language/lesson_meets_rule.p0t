@@ -55,3 +55,15 @@
 <~ no longer behaves like
 > To make a question with must, put must before the subject.
 <~ no statement I can read has «must»
+
+# Sessione live sul tedesco (26 settembre, notte): cio' che si colloca e' la
+# fila subito prima della parola d'ordine, non una parola qualsiasi prima. Con
+# la regola vecchia «put the verb before the subject» si riconosceva come «metto
+# «the» prima del soggetto».
+[test cio' che la lezione colloca e' la fila prima della parola d'ordine]
+!timeout 8
+> To make a question in German, put the verb before the subject.
+<! It matches a rule I already use
+<! «the»
+> To make a question with other verbs, put do, does or did before the subject.
+<~ «did», «does», «do»

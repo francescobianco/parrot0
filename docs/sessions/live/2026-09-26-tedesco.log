@@ -1,0 +1,160 @@
+# sessione: insegnare il tedesco a parrot0 (lingua sconosciuta, grammatica complessa) — 2026-09-26 18:27 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@7c85f90d]
+# mode: conversational (tools off, network off) - 169052 facts, 5628 rules (3.33%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! linea di base: tedesco mai insegnato. Saluto, domanda semplice, frase dichiarativa vera, domanda su quella frase. Guardo se riconosce la lingua e come mura.
+> Guten Morgen!
+< Hmm, I don't know about morgen yet. Want me to learn about it?
+> Wie geht es dir?
+< I don't understand that yet.
+> Der Hund frisst Fleisch.
+< Hmm, I don't know about frisst yet. Want me to learn about it?
+> Was frisst der Hund?
+< Hmm, I don't know about frisst yet.
+> Do you speak German?
+< No, I don't speak German. I speak English and Italian.
+! lessico: 'the italian for X is Y' esiste solo per l'italiano. Provo 'the german for X is Y' e varianti naturali ('Hund is the German word for dog'). Poi riprovo la frase.
+> the german for dog is Hund
+< I don't understand that yet.
+> Hund is the German word for dog.
+< Learned: hund is a german word. I looked up «frisst» but found nothing. If you know it, teach me: «frisst is defined as …».
+> In German, dog is Hund.
+< Held, but only in german: dog vital for hund.
+> What is the German for dog?
+< I don't know much about german yet, and the network is off, so I can't read about it now.
+> Der Hund frisst Fleisch.
+< Hmm, I don't know about frisst yet.
+! provo 'means' e l'identita' fra nomi (catalogo E: 'X and Y name the same thing'), la piu' vicina a una glossa. Verifico con la frase tedesca e con una domanda inglese che usa la parola tedesca.
+> Hund means dog.
+< From now on I'll read «hund» as «dog.».
+> Hund and dog name the same thing.
+< Held: «hund» and «dog» name the same thing.
+> Fleisch and meat name the same thing.
+< Held: «fleisch» and «meat» name the same thing.
+> frisst means eats
+< From now on I'll read «frisst» as «eats».
+> Der Hund frisst Fleisch.
+< Hmm, I don't know about frisst yet.
+> Is a Hund an animal?
+< Yes.
+! la lettura 'frisst as eats' c'e' ma la frase mura su frisst: isolo. Con l'articolo inglese la frase e' solo parole tradotte; poi insegno 'der means the' e riprovo.
+> The Hund frisst Fleisch.
+< Hmm, I don't know about hund frisst fleisch yet. Want me to learn about it?
+> der means the
+< From now on I'll read «der» as «the».
+> Der Hund frisst Fleisch.
+< Hmm, I don't know about frisst yet.
+> What does the dog eat?
+< Meat.
+> Was frisst der Hund?
+< Hmm, I don't know about frisst yet.
+> /debug depth 1
+# /debug depth 1: 1 righe lette dall'insegnante, fuori dal transcript
+> Der Hund frisst Fleisch.
+< I'm not sure I followed. Can you say it another way?
+> /debug trace
+# /debug trace: 121 righe lette dall'insegnante, fuori dal transcript
+! F.: tecniche L3 per contatto, piano piano. FALLIMENTO annotato: le letture 'X means Y' (frisst, der) sono confermate ma non applicate nel canone ('der dog frisst meat'); le identita' 'name the same thing' si'. Contatto-verbo (L3 §24): relazione nota eats(dog, meat) in KB, ruoli ripresi (soggetto con 'it', oggetto ripetuto), una sola parola nuova: 'frisst'.
+> A dog eats meat, so it frisst meat.
+< Learned: dog eats meat.
+> Der Hund frisst Fleisch.
+< Reading «frisst» as «eats». Learned: der dog eats meat.
+> What frisst meat?
+< Reading «frisst» as «eats». dog.
+! contatto-verbo RIUSCITO al primo tentativo. Difetto: 'der' entra nel soggetto ('der dog'). Articolo = parola funzione: provo la classe per menzione ('"der" is an article') e poi rifaccio la frase e una domanda tedesca intera.
+> "der" is an article
+< I know article with 4 arguments, so I cannot use it as a class.
+> Der Hund frisst Fleisch.
+< Reading «frisst» as «eats». Learned: der dog eats meat.
+> Was frisst der Hund?
+< Hmm, I don't know about frisst yet.
+> Frisst der Hund Fleisch?
+< I didn't quite catch that. What would you like to know?
+! FALLIMENTI: 'der' non si insegna come articolo (article e' un predicato a 4 argomenti); 'Was' sconosciuto; la polare tedesca con il verbo pieno in testa non si legge (question_inversion vale solo per gli ausiliari). Passo per passo: 'was' con il canale che entra nel canone (identita'), poi la domanda wh.
+> Was and what name the same thing.
+< Hmm, I don't know about same thing yet. Want me to learn about it?
+> Was frisst der Hund?
+< Hmm, I don't know about frisst yet.
+> Der and the name the same thing.
+< Hmm, I don't know about same_thing yet.
+> Der Hund frisst Fleisch.
+< Reading «frisst» as «eats». Learned: der dog eats meat.
+! contatto su relazioni con fatti veri in KB: produces(liver, bile) → 'produziert'; pumps(heart, blood) → 'pumpt'; poi il nome di relazione 'Hauptstadt' da capital_of_country(germany, berlin) con il possessivo (L3 §21). Trasferimento su soggetti mai detti.
+> The liver produces bile, so it produziert bile.
+< Learned: liver produces bile.
+> The heart pumps blood, so it pumpt blood.
+< Learned: heart pumps blood.
+> What produziert bile?
+< Reading «produziert» as «produces». liver.
+> What pumpt blood?
+< Reading «pumpt» as «pumps». heart.
+> Germany's capital is Berlin, so Berlin is its Hauptstadt.
+< Hmm, I don't know about germany's yet. Want me to learn about it?
+> What is the Hauptstadt of France?
+< I don't know about hauptstadt.
+> Is Rome the Hauptstadt of Italy?
+< I don't know about hauptstadt.
+! il nome di relazione e' caduto sul genitivo 'Germany's' (clitico non insegnato, L3 §29). Stesso contatto con 'the capital of Germany'.
+> The capital of Germany is Berlin, so Berlin is its Hauptstadt.
+< Learned: berlin is the capital of germany.
+> What is the Hauptstadt of France?
+< Reading «hauptstadt» as «is the capital of». I don't know about hauptstadt.
+> Is Rome the Hauptstadt of Italy?
+< Reading «hauptstadt» as «is the capital of». I don't know about hauptstadt.
+> The capital of Austria is Vienna, so Vienna is its Hauptstadt.
+< Reading «hauptstadt» as «is the capital of». Learned: vienna is the capital of austria.
+> What is the Hauptstadt of France?
+< Reading «hauptstadt» as «is the capital of». I don't know about hauptstadt.
+> Is Rome the Hauptstadt of Italy?
+< Reading «hauptstadt» as «is the capital of». I don't know about hauptstadt.
+> Is Madrid the Hauptstadt of Portugal?
+< Reading «hauptstadt» as «is the capital of». I don't know about hauptstadt.
+! F.: 'potrebbe parlare il tedesco senza sapere che sta parlando il tedesco'. Lo verifico: le parole apprese sono letture di relazioni inglesi o parole di una lingua? Chiedo della lingua. FALLIMENTO annotato: il nome Hauptstadt forma l'episodio (anche due volte) ma nessuna domanda lo raggiunge.
+> Do you speak German?
+< No, I don't speak German. I speak English and Italian.
+> Is frisst a German word?
+< Reading «frisst» as «eats». I cannot settle that: no fact I hold decides whether frisst is a german word, and knowing some german words does not tell me they are all of them. Not proved is not the same as false. Tell me either way and I will hold it.
+> What language is Der Hund frisst Fleisch in?
+< Reading «frisst» as «eats». I don't know: I understood «what language», but I am missing the value for hund. Do you know it?
+> What does frisst mean?
+< Reading «frisst» as «eats». I don't know yet what «frisst» means. Shall I look it up?
+> What German words do you know?
+< That sounds nice -- tell me more about it.
+! CONFERMATO l'appunto di F.: sa usare 'frisst' ma non sa che e' tedesco; e 'What does frisst mean?' contraddice la lettura nella stessa risposta. Ora la grammatica tedesca sulle parole apprese: V2 dopo un avverbio, negazione con kein, plurale (Hunde, fressen), polare V1.
+> Heute frisst der Hund Fleisch.
+< Reading «frisst» as «eats». Learned: heute eats der dog meat.
+> Der Hund frisst kein Gras.
+< Reading «frisst» as «eats». Learned: der dog eats kein gras.
+> Die Hunde fressen Fleisch.
+< Hmm, I don't know about fressen yet. Want me to learn about it?
+> Frisst der Hund Fleisch?
+< I don't understand that yet.
+! FALLIMENTI GRAVI (fatti falsi): V2 -> soggetto 'heute'; 'kein' perso -> fatto positivo. Provo le lezioni: negazione per menzione ('"kein" is a negation marker'), forma verbale ('another form of frisst is fressen') e contatto al plurale ('they fressen'), avverbio per identita' ('Heute and today name the same thing').
+> "kein" is a negation marker
+< Learned: kein is a negation marker.
+> Der Hund frisst kein Gras.
+< Reading «frisst» as «eats». Learned: der Hund frisst kein Gras.
+> another form of frisst is fressen
+< Reading «frisst» as «eats». Held: «fressen» is another form of «frisst».
+> Dogs eat meat, so they fressen meat.
+< Learned: dogs eat meat.
+> Die Hunde fressen Fleisch.
+< Reading «fressen» as «ate». I looked up «fressen» but found nothing. If you know it, teach me: «fressen is defined as …».
+> Heute and today name the same thing.
+< Held: «heute» and «today» name the same thing.
+> Heute frisst der Hund Fleisch.
+< Reading «frisst» as «eats». Learned: today frisst der dog meat.
+! verifico la polarita' dopo 'kein'. Poi l'ordine V2 e la polare V1 dette come lezioni di grammatica (L4: la lezione sulla lingua si confronta con le forme che operano). Mi aspetto il residuo: nessuna forma tedesca da cui derivare.
+> Does a dog eat grass?
+< I cannot settle that: no fact I hold decides whether dog eat grass. Not proved is not the same as false. Tell me either way and I will hold it.
+> In German, the verb comes second in a statement.
+< Hmm, I don't know about verb comes second yet. Want me to learn about it?
+> To make a question in German, put the verb before the subject.
+< I read that as a rule about how the language works, not as a fact about the world, so I keep nothing from it yet.
+< It matches a rule I already use: I ask questions by putting «the» before the subject.
+< Can you show me an example?
+> Frisst der Hund Fleisch?
+< Hmm, I don't know about frisst yet.
+! FALLIMENTO e BUG MIO (L4 incremento 2): 'put the verb before the subject' riconosciuto come regola con «the». La cosa collocata dev'essere quella che precede la parola d'ordine, non una parola qualsiasi prima. Da curare fuori sessione (regola 6). Chiudo senza /save: fatti spazzatura (heute eats der dog meat, der dog eats kein gras, today frisst der dog meat).
+# chiusa senza /save: entrati fatti spazzatura dal V2 e dalla negazione; le letture per contatto (frisst, produziert, pumpt) funzionavano

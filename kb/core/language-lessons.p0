@@ -174,11 +174,42 @@ form_slot_at($F, $N, $S) :- turn_form($F, $N, rest($S)).
 % La lezione COLLOCA qualcosa: «put X before the subject». Cio' che si colloca
 % sta prima della parola d'ordine, il pezzo rispetto a cui lo si colloca dopo:
 % senza le posizioni, il «the» di «the subject» passava per l'ausiliare.
+% Cio' che si colloca e' la FILA di parole subito prima della parola d'ordine:
+% la parola adiacente, e piu' indietro altri ausiliari legati da una
+% congiunzione («put do, does or did before»). La fila si ferma a un articolo o
+% a qualunque altra parola. Prima bastava stare prima di «before», e «put the
+% verb before the subject», detto del tedesco, si riconosceva come «la regola
+% che uso: metto «the» prima del soggetto» (sessione live del 26 settembre).
 machinery(lesson_placement).
+machinery(lesson_placed).
+machinery(lesson_run_back).
 lesson_placement($T, $X, $K, $S) :-
     turn_lesson_word_at($T, $IO, $O), form_order_word($O, $K),
-    turn_lesson_word_at($T, $IX, $X), lt($IX, $IO),
+    lesson_placed($T, $IO, $X),
     turn_lesson_word_at($T, $IS, $WS), lt($IO, $IS), form_part_word($WS, slot($S)).
+lesson_placed($T, $IO, $X) :-
+    is($I, sub($IO, 1)), turn_lesson_word_at($T, $I, $X), naf(np_opener($X)).
+lesson_placed($T, $IO, $X) :-
+    is($I, sub($IO, 1)), turn_lesson_word_at($T, $I, $W), naf(np_opener($W)),
+    lesson_run_back($T, $I, $X).
+% un passo indietro attraverso una congiunzione (o una virgola), verso un altro
+% ausiliare
+machinery(lesson_list_joiner).
+lesson_list_joiner($W) :- conjunction($W).
+lesson_list_joiner(",").
+lesson_run_back($T, $J, $X) :-
+    is($C, sub($J, 1)), turn_lesson_word_at($T, $C, $Conj), lesson_list_joiner($Conj),
+    is($I, sub($C, 1)), turn_lesson_word_at($T, $I, $X), auxiliary($X).
+lesson_run_back($T, $J, $X) :-
+    is($I, sub($J, 1)), turn_lesson_word_at($T, $I, $X), auxiliary($X),
+    turn_lesson_word_at($T, $J, $Next), auxiliary($Next).
+lesson_run_back($T, $J, $X) :-
+    is($C, sub($J, 1)), turn_lesson_word_at($T, $C, $Conj), lesson_list_joiner($Conj),
+    is($I, sub($C, 1)), turn_lesson_word_at($T, $I, $W), auxiliary($W),
+    lesson_run_back($T, $I, $X).
+lesson_run_back($T, $J, $X) :-
+    is($I, sub($J, 1)), turn_lesson_word_at($T, $I, $W), auxiliary($W),
+    turn_lesson_word_at($T, $J, $Next), auxiliary($Next), lesson_run_back($T, $I, $X).
 machinery(lesson_order_holds).
 lesson_order_holds(before, $NX, $NS) :- lt($NX, $NS).
 lesson_order_holds(after, $NX, $NS) :- lt($NS, $NX).

@@ -3,10 +3,64 @@
 ## ⛔ PRIORITARIO — gli insegnamenti che falliscono (F., 26 settembre 2026)
 
 *F.: «tutti gli insegnamenti che falliscono mettili come prioritari in testa a
-questo file». Quattro blocchi, dal piu' recente: la presa sull'interlocutore
-(qui sotto, §0), la grammatica inglese insegnata come regole (§1), la meccanica
+questo file». Cinque blocchi, dal piu' recente: il tedesco insegnato dal vivo
+(qui sotto, §T), la presa sull'interlocutore (§0), la grammatica inglese
+insegnata come regole (§1), la meccanica
 di precisione (100 lezioni, sezione successiva), il debug PHP (P1–P14, piu'
 sotto). Da qui si riparte.*
+
+### T. Una lingua sconosciuta: il tedesco insegnato dal vivo (26 settembre 2026, notte)
+
+Richiesta di F.: insegnare a parrot0 una lingua che non conosce, con una
+grammatica complessa, e giudicare il potenziale. Protocollo di
+[live-teaching.md](live-teaching.md), inglese come lingua di servizio, tedesco
+come lingua messa alla prova, conoscenza vera della KB. Transcript
+`docs/sessions/live/2026-09-26-tedesco.log`. **Chiusa senza `/save`** (fatti
+spazzatura dal V2 e dalla negazione).
+
+**Che cosa ha imparato davvero:**
+- **Tre verbi per contatto (L3), ciascuno da una sola frase naturale** e al
+  primo colpo: «A dog eats meat, so it frisst meat.» → «Der Hund frisst
+  Fleisch.» si legge («Reading «frisst» as «eats»»), «What frisst meat?» →
+  dog; lo stesso per «produziert» (produces) e «pumpt» (pumps), con il
+  trasferimento a domande mai dette.
+- **Nomi per identità**: «Hund and dog name the same thing» (e Fleisch/meat,
+  Heute/today) entrano nel turno canonico; «Is a Hund an animal?» → Yes,
+  ereditando ciò che la KB sa del cane.
+- «"kein" is a negation marker» e «another form of frisst is fressen» vengono
+  accettate (con gli esiti sotto).
+
+**Appunto di F. durante la sessione:** *«stiamo capendo che lui potrebbe
+parlare il tedesco senza sapere che sta parlando il tedesco»*. Confermato: le
+parole entrano come **letture di relazioni inglesi**, non come parole di una
+lingua. «Do you speak German?» → «No», «What German words do you know?» →
+chiacchiera, e «What does frisst mean?» → «Reading «frisst» as «eats». I don't
+know yet what «frisst» means» (autocontraddizione nella stessa risposta).
+
+**Le lezioni e i turni che falliscono, per specie (dalla più pesante):**
+
+| # | specie | turno o lezione | risposta | che cosa manca |
+|---|---|---|---|---|
+| DE1 | **⛔ fatto falso dall'ordine V2** | «Heute frisst der Hund Fleisch.» (anche dopo «Heute and today name the same thing») | «Learned: heute eats der dog meat.» / «Learned: today frisst der dog meat.» | il verbo in seconda posizione con un complemento in testa: il lettore dei frame prende come soggetto ciò che precede il verbo. L'ordine è una regola di posizione e nessuna lezione la raggiunge («In German, the verb comes second in a statement.» → «don't know about verb comes second») |
+| DE2 | **⛔ negazione persa, fatto positivo** | «Der Hund frisst kein Gras.» | «Learned: der dog eats kein gras.» | «kein» non è una negazione; dopo «"kein" is a negation marker» la frase si archivia come testo («Learned: der Hund frisst kein Gras.»), non come negativo («Does a dog eat grass?» → non so) |
+| DE3 | **⛔ riconoscimento falso della regola (bug di L4, CORRETTO)** | «To make a question in German, put the verb before the subject.» | «It matches a rule I already use: I ask questions by putting «the» before the subject.» | l'allineamento prendeva qualunque parola prima di «before». Corretto dopo la sessione: ciò che si colloca è la fila subito prima della parola d'ordine (`lesson_placed/3`, language-lessons.p0); cricchetto in `lesson_meets_rule.p0t` |
+| DE4 | **le letture «X means Y» confermate e non applicate** | «frisst means eats» · «der means the» · «Hund means dog» | «From now on I'll read «frisst» as «eats»», poi la frase mura su «frisst»; il canone è «der dog frisst meat» | le identità «name the same thing» entrano nel turno canonico, le letture «means» no; e la lettura cattura il punto finale («dog.») |
+| DE5 | **la polare tedesca non si legge** | «Frisst der Hund Fleisch?» | muro | in tedesco il verbo pieno va in testa: `question_inversion` deriva solo da ausiliari e forme dichiarative; una lezione che lo dica non ha forme tedesche da cui derivare |
+| DE6 | **le parole funzione tedesche non entrano** | «Was and what name the same thing.» · «Der and the name the same thing.» · «"der" is an article» | «don't know about same thing» · «I know article with 4 arguments, so I cannot use it as a class.» | il glossario è solo italiano («the italian for X is Y»; «the german for dog is Hund» → muro); «Was»/«Der» si leggono come copula e articolo inglesi; «article» non è nominabile come classe |
+| DE7 | **il nome di relazione per contatto non raggiunge la domanda** | «The capital of Germany is Berlin, so Berlin is its Hauptstadt.» (due episodi, anche Vienna) | poi «What is the Hauptstadt of France?» → «Reading «hauptstadt» as «is the capital of». I don't know about hauptstadt.» | l'episodio nasce e la qualifica lo dice, ma la domanda «the N of X» non passa dal ponte; e la glossa detta è la cornice («is the capital of»), non il nome |
+| DE8 | **morfologia: la forma nuova sbaglia il tempo** | «another form of frisst is fressen» · «Dogs eat meat, so they fressen meat.» · «Die Hunde fressen Fleisch.» | «Reading «fressen» as «ate»» e muro | la forma entra come forma irregolare di una radice inglese e prende il passato; accordo di numero e plurale tedesco (Hund/Hunde) assenti |
+| DE9 | **l'articolo entra nel soggetto** | «Der Hund frisst Fleisch.» dopo il contatto | «Learned: der dog eats meat.» | nessuna via per dire che «der» è un articolo (DE6), quindi il sintagma lo ingloba |
+| DE10 | **nessuna nozione di lingua** | «Do you speak German?» · «What German words do you know?» · «Is frisst a German word?» | «No…» · chiacchiera · «I cannot settle that…» | le parole apprese non portano la lingua a cui appartengono; `language_word(de, german)` esiste ma nessuna lezione la collega |
+| DE11 | **genitivo non scomposto** | «Germany's capital is Berlin, so Berlin is its Hauptstadt.» | «Hmm, I don't know about germany's yet.» | il clitico «'s» si insegna (L3 §29) ma non è insegnato di default |
+
+**Lettura d'insieme.** Il contatto (L3) è un canale di apprendimento lessicale
+**reale e veloce**: una frase, un verbo, trasferito subito a domande nuove.
+Si ferma però al lessico mappato su relazioni che la KB tiene già in inglese.
+Tutto ciò che è **grammatica tedesca** (ordine V2, verbo in testa nella
+domanda, negazione con «kein», articoli e casi, accordo e plurale) o non si
+raggiunge, o produce fatti falsi. E manca la nozione stessa di «una lingua»
+cui le parole appartengono. È il confine di L4: le regole che la comprensione
+usa non si possono ancora modificare dall'esterno per una lingua nuova.
 
 ### 0. Reattività e presa sull'interlocutore — sessione live in italiano (26 settembre 2026, sera)
 
