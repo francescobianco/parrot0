@@ -968,7 +968,11 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
             }
             prose_shape = det && part;
         }
-        if (!prose_shape && plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
+        /* PR7: l'obiettivo non puo' essere chi parla (`requirement_goal_excluded/1`,
+         * grammar.p0): «mi serve una mano» e' una richiesta d'aiuto. */
+        const char *gq[1] = { strip_edge_punct(w[0]) };
+        int goal_excluded = kb_query(b->kb, "requirement_goal_excluded", gq, 1);
+        if (!prose_shape && !goal_excluded && plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
     }
     /* Italian intake: "per X serve/servono <list>" (to X you need ...). */
     if (nw >= 4 && lex_class_member(b, "25_wordmath_reasoning_lex929", w[0]) &&

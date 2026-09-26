@@ -486,6 +486,18 @@ participant_pronoun(i).    participant_pronoun(io).
 participant_pronoun(you).  participant_pronoun(tu).
 participant_pronoun(we).   participant_pronoun(noi).
 participant_pronoun(voi).
+% PR7 (26 settembre 2026): anche le forme clitiche e oggetto sono chi parla e chi
+% ascolta. «Ciao, mi serve una mano con il mio tornio» diventava «Learned 6
+% prerequisites for mi»: il pronome faceva da obiettivo di un piano.
+participant_pronoun(mi).   participant_pronoun(ti).
+participant_pronoun(me).   participant_pronoun(te).
+participant_pronoun(us).   participant_pronoun(ce).
+
+% Un obiettivo di prerequisiti («X requires / needs / serve …») e' una cosa da
+% fare o da ottenere; chi parla che dice di aver bisogno di qualcosa sta
+% chiedendo aiuto, non insegnando un piano. Il lettore delle liste chiede qui.
+machinery(requirement_goal_excluded).
+requirement_goal_excluded($W) :- participant_pronoun($W).
 
 machinery(predication_subject).
 predication_subject($T) :- naf(subject_guard($T)).
