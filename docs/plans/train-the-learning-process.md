@@ -1,5 +1,84 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## ⛔ PRIORITARIO — gli insegnamenti che falliscono (F., 26 settembre 2026)
+
+*F.: «tutti gli insegnamenti che falliscono mettili come prioritari in testa a
+questo file». Tre blocchi, dal piu' recente: la grammatica inglese insegnata come
+regole (qui sotto, per intero), la meccanica di precisione (100 lezioni, sezione
+successiva), il debug PHP (P1–P14, piu' sotto). Da qui si riparte.*
+
+### 1. Grammatica inglese INSEGNATA come regole — studio differenziale
+
+Sessione live `docs/sessions/live/2026-09-26-grammatica.log` (chiusa **senza**
+`/save`: i fatti entrati erano spazzatura). Ogni regola e' stata detta come la
+direbbe un insegnante («To make a yes-no question with the verb be, put the verb
+before the subject.»), con una sonda di comportamento prima e dopo (frasi diverse,
+stessa regola) e una domanda che chiede di DIRE la regola. Accanto, che cosa la KB
+viva implementa gia' (mappa verificata sul codice; `G` = kb/core/grammar.p0, `EG` =
+kb/core/english-grammar/, `MK` = src/brain/10-memory-knowledge.c).
+
+**Esito: 0 regole su 25 lette come regole.** La lezione in prosa di una regola
+grammaticale non ha nessun lettore: finisce in un muro («I don't know about
+singular noun»), in un'altra facolta' («I understood the request — produce …», «That
+looks like a snippet of code», «We can chat in either language»), o diventa un
+**fatto spazzatura** («put do does», «short adjectives make comparative», «english
+sentence puts the subject first») — e uno di questi ha gia' contaminato una domanda
+estranea: «What needs grease?» → **«short adjectives.»** (risposta sbagliata). Nessuna
+regola e' nominabile: «how do you make a question?» non ha risposta. Tutte le
+superfici insegnabili che esistono lavorano per **esempi** (un plurale, un passato,
+un lemma, una contrazione), mai per **descrizione** di una regola.
+
+| # | regola detta | la KB la ha gia'? | comportamento PRIMA | che cosa ha preso la lezione | DOPO | che cosa serve |
+|---|---|---|---|---|---|---|
+| G1 | domanda si/no con be: il verbo prima del soggetto | si': `polar_opener`, `polar_fronted` (G:318, G:3344) | **no** con aggettivo: «The spindle is worn. / Is the spindle worn?» → «don't know about spindle worn» | «I understood the request — produce …» (letta come richiesta di produzione) | no | la polare con predicato aggettivale; la regola non ha forma |
+| G2 | domanda con can: il modale prima del soggetto | parziale: `modal_auxiliary` (G:1569), ma `polar_question_verb` esclude i modali (G:1573) | si' («Can a lathe cut threads?» → Yes) | letta come richiesta di produzione | si' | la regola era gia' operante; la lezione non lo riconosce |
+| G3 | do/does/did prima del soggetto, verbo nudo | si': `bare_verb_auxiliary`, `polar_question_verb` (G:1527–1577) | si' (anche con «did» e il passato irregolare) | fatto spazzatura «put do does» | si' | sovrapposizione non riconosciuta; la lezione sporca la KB |
+| G4 | negazione: not dopo l'ausiliare | si': `negation_marker`, `inability_marker` (lexicon.p0) | si' («cannot measure weight» → No) | letta come richiesta di produzione | si' | idem G2 |
+| G5 | this con il singolare, these con il plurale | **no**: i dimostrativi hanno solo la distanza (`noun_feature(…, distance, …)`, EG/nominals.p0:468), non il numero | non verificabile: «Is "these lathe" correct?» → «No.» a tutto | muro «singular noun» | — | tratto di NUMERO sui dimostrativi e una regola di accordo determinante-nome |
+| G6 | that/those | come G5 | come G5 | muro | — | come G5 |
+| G7 | terza persona singolare: -s | si' nella GENERAZIONE delle forme (`EG/reading.p0:18–31`), non come controllo | non verificabile (il «No.» a tutto) | «Held, but only in present: simple add s …» (letta come fatto con un qualificatore di tempo!) | — | un giudizio di accordo verbo-soggetto oltre la copula (`grammar-judgement.p0` copre solo nome + is/are) |
+| G8 | soggetto plurale, verbo senza -s | solo per la copula (`agreement_error`, grammar-judgement.p0:48) | non verificabile | muro «plural» | — | come G7 |
+| G9 | a/an secondo il SUONO | **si', ma sbagliata**: `indefinite_article_before(en, u, "an")` (G:3887) e il C passa **una lettera** (`p0_indef_article`, MK:9635) | **sbaglia**: «puppo is an universal quantifier», «zork is an unique tool» | «I couldn't read …» | sbaglia | il C deve chiedere alla KB per parola (`article_for(Lang, Word, Art)`); poi la regola del suono si insegna |
+| G10 | plurale: consonante + y → -ies | analisi si' (`plural_suffix`, G:1109), **generazione no** (`count_plural` fa solo +s, G:4126) | «What is the plural of foundry?» → «don't know about plural» | muro «noun ends» | no | la domanda sul plurale e la generazione per regola |
+| G11 | plurale: -es dopo s, x, ch, sh | come G10 | come G10 | muro | no | come G10 |
+| G12 | passato regolare: -ed | si': `regular_past_form` con raddoppio (EG/reading.p0:33) | la lettura si', la domanda «What is the past of hone?» no | «That looks like a snippet of code.» | no | la domanda metalinguistica sulle forme verbali |
+| G13 | comparativo: -er / more | **no**: solo liste (`comparative_more`, lexicon.p0:3148) | «What is the comparative of hard?» → no | fatto spazzatura «short adjectives make comparative» | no | una regola di formazione del comparativo |
+| G14 | than introduce il termine di confronto | parziale: `comparative_frame("@S is ", " than @O")` (G:2147) | «Which is harder, steel or aluminium?» → «don't know about harder» | muro «introduces» | no | la domanda di scelta sul comparativo |
+| G15 | 's indica possesso | parziale: `word_clitic` vuoto di default; «'s is a clitic» si insegna (RI) | «The lathe's chuck is worn. / What is worn?» → no | muro «apostrophe» | no | l'asserzione con il genitivo (oggi «france s capital») |
+| G16 | much con i non numerabili, many con i numerabili | parziale: la numerabilita' c'e' (`noun_feature(…, countability, …)`), nessun controllo much/many | non verificabile | muro «countable» | — | la regola di accordo quantificatore-numerabilita' |
+| G17 | it per le cose (he, she) | parziale: `entity_pronoun`, **nessun genere/animatezza** (`resolve_entity` prende l'ultimo, MK:2663) | «The lathe is old. It needs oil. What needs oil?» → no | «I'm not sure I followed» | no | coreferenza con tratti; la lettura della seconda frase con «it» |
+| G18 | they per i plurali | come G17 | «What needs grease?» → **«short adjectives.»** (sbagliata, dal fatto spazzatura di G13) | muro «plural noun» | sbagliata | come G17; e il fatto spazzatura di G13 non doveva entrare |
+| G19 | who sul soggetto senza do | si': `subject_question_form` (G:1370) | no per «invented» sconosciuto, si' dopo (non per la lezione) | muro «question» | si' | la regola era gia' operante; la lezione non e' stata letta |
+| G20 | presente progressivo: be + -ing | si' nell'IR (`auxiliary_chain`, EG/reading.p0:217) | «What is the machinist turning?» → «I looked up «turning»» | muro «present continuous» | no | la domanda sul progressivo |
+| G21 | passivo: be + participio, agente dopo by | si' (G:2189–2260) | si' («Who turned the shaft?» → Machinist) | muro «agent comes» | si' | gia' operante; la lezione non lo riconosce |
+| G22 | aggettivo prima del nome | **no** come regola (i modificatori si assorbono nel sintagma) | si' nell'uso («What causes noise?» → Worn bearing) | «We can chat in either language» (dirottata) | si' | gia' operante per l'uso; la lezione e' dirottata dal lettore della lingua |
+| G23 | ordine soggetto-verbo-oggetto | implicito nei frame | si' | fatto spazzatura «english sentence puts the subject first» | no («grips» sconosciuto) | idem G3: sovrapposizione non riconosciuta |
+| G24 | some nelle affermative, any nelle domande | **no** | non verificabile | muro «positive» | — | la regola some/any |
+| G25 | avverbi in -ly dagli aggettivi | **no** (la classe avverbio non e' interrogabile) | «Is quickly an adverb?» → «don't know about adverb» | «I can't hold … I only keep what is true of every member of a kind» (il rifiuto piu' onesto del giro) | no | la classe `adverb` nominabile e una regola di formazione |
+
+**Il differenziale in tre righe.** (1) Otto regole sono **gia' operanti nell'uso**
+(G2, G3, G4, G19, G21, G22, G23 e G1 per il be+nome): la KB le implementa, ma la
+lezione non lo riconosce — nessuna dice «I already know» — e tre la sporcano con un
+fatto spazzatura. (2) Una regola e' **implementata male** (G9, l'articolo per
+lettera): la lezione giusta non puo' correggerla perche' il C passa una lettera sola.
+(3) Le altre sedici **mancano** come regola o come domanda: la crescita per
+apprendimento richiede prima una forma che legga una regola DESCRITTA — nessuna
+delle superfici attuali lo fa (lavorano per esempi) — e una faccia nominabile per
+chiederla («how do you make …?», «is X correct?» oltre la copula).
+
+**Il giudizio di correttezza** esiste solo per l'accordo nome-copula
+(`kb/core/grammar-judgement.p0`: «is this correct: my name are Francesco» → spiega
+l'errore); su tutto il resto «Is "…" correct?» risponde «No.» anche a una frase
+giusta («do you have some bolts»): e' un «no» che nessuna regola ha guadagnato.
+
+### Indice degli altri insegnamenti falliti, da riprendere
+
+- **Meccanica di precisione** — 100 lezioni con problemi, una per riga, nella
+  sezione subito sotto; le specie piu' pesanti: procedure non componibili (il passo
+  `apply` saltato), non invertibili, la contaminazione del contatto sui nomi composti.
+- **Debug PHP** — P1–P14, piu' sotto; aperti P3, P4, P6, P8, parziali P1, P2, P11, P12.
+
+
 ## 🟠 FORME D'INSEGNAMENTO CHE NON FUNZIONANO — sessione live «meccanica di precisione» (26 settembre 2026, pomeriggio)
 
 Sessione di 231 lezioni vere, fermata alla **centesima lezione con problemi** come

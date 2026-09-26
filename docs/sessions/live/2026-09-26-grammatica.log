@@ -1,0 +1,549 @@
+# sessione: grammatica inglese — studio differenziale: che cosa sa gia', che cosa impara — 2026-09-26 13:28 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@dbe9bc5a]
+# mode: conversational (tools off, network off) - 168891 facts, 5546 rules (3.28%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Giro di GRAMMATICA INGLESE, studio differenziale (F.): per ogni regola, prima si chiede a parrot0 di applicarla (una frase che usa la forma e una domanda che la collega), poi la si insegna a parole, poi si richiede con frasi nuove della stessa regola, e dove la lezione e' una classe si prova un caso tenuto fuori. Esiti: gia' posseduta, imparata, senza effetto, peggiorata; e se la lezione riconosce di sovrapporsi a cio' che sa gia'.
+! Regola: plurale irregolare (ox/oxen). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The oxen pull the plow.
+< Learned: oxen pull plow.
+> What does an ox pull?
+< I don't understand that yet.
+> the plural of ox is oxen
+< Held: «oxen» is the plural of «ox».
+> The oxen drag the log.
+< Learned: oxen drag log.
+> What does an ox drag?
+< I don't understand that yet.
+! Regola: plurale irregolare (goose/geese). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The geese cross the river.
+< Learned: geese cross river.
+> What does a goose cross?
+< I don't understand that yet.
+> the plural of goose is geese
+< Held: «geese» is the plural of «goose».
+> The geese eat the grass.
+< Learned: geese eat grass.
+> What does a goose eat?
+< I don't understand that yet.
+! Regola: plurale irregolare (criterion/criteria). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The criteria define the grade.
+< Learned: criteria define grade.
+> What does a criterion define?
+< tools_disabled: I understood that — it is a read request, and I can do it — but in conversational mode I may not touch the filesystem. Start me with `make chat-agent` and I will run it.
+> the plural of criterion is criteria
+< Held: «criteria» is the plural of «criterion».
+> The criteria limit the tolerance.
+< Learned: criteria limit tolerance.
+> What does a criterion limit?
+< I don't understand that yet.
+! Regola: plurale in -ies (regola). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The foundries cast iron.
+< Learned: foundries cast iron.
+> What does a foundry cast?
+< Hmm, I don't know about foundry yet. Want me to learn about it?
+> the plural of foundry is foundries
+< Held: «foundries» is the plural of «foundry».
+> The foundries pour bronze.
+< Hmm, I don't know about foundries pour bronze yet. Want me to learn about it?
+> What does a foundry pour?
+< Hmm, I don't know about foundry yet.
+> The refineries process crude oil.
+< Hmm, I don't know about refineries yet. Want me to learn about it?
+> What does a refinery process?
+< Hmm, I don't know about refinery yet. Want me to learn about it?
+! Regola: plurale in -es (regola). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The torches heat the joint.
+< Learned: torches heat joint.
+> What does a torch heat?
+< I don't understand that yet.
+> the plural of torch is torches
+< Held: «torches» is the plural of «torch».
+> The torches melt the solder.
+< Learned: torches melt solder.
+> What does a torch melt?
+< I don't understand that yet.
+> The benches hold the vises.
+< Learned: benches hold vises.
+> What does a bench hold?
+< I don't understand that yet.
+! Regola: sostantivo non numerabile. Prima la sonda, poi la lezione, poi la sonda nuova.
+> Is sand a mass noun?
+< Yes.
+> sand is a mass noun
+< I already know that sand is a mass noun.
+> Is sand a mass noun?
+< Yes.
+> Is swarf a mass noun?
+< I cannot settle that: no fact I hold decides whether swarf is a mass noun. Not proved is not the same as false. Tell me either way and I will hold it.
+! Regola: sostantivo non numerabile (swarf). Prima la sonda, poi la lezione, poi la sonda nuova.
+> Is swarf a mass noun?
+< I cannot settle that: no fact I hold decides whether swarf is a mass noun. Not proved is not the same as false. Tell me either way and I will hold it.
+> swarf is a mass noun
+< Learned: swarf is a mass noun.
+> Is swarf a mass noun?
+< Yes.
+! Regola: passato irregolare gia' in KB (grind/ground). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The machinist ground the shaft.
+< Learned: machinist grind shaft.
+> What did the machinist grind?
+< Shaft.
+> the past of grind is ground
+< Held: «ground» is another form of «grind».
+> The apprentice ground the chisel.
+< Learned: apprentice grind chisel.
+> What did the apprentice grind?
+< Chisel.
+! Regola: passato irregolare (weave/wove). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The weaver wove the cloth.
+< Learned: weaver weave cloth.
+> What did the weaver weave?
+< Cloth.
+> the past of weave is wove
+< Held: «wove» is another form of «weave».
+> The weaver wove the carpet.
+< Learned: weaver weave carpet.
+> What did the weaver weave?
+< Cloth and carpet.
+! Regola: passato irregolare (forsake/forsook). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The knight forsook the castle.
+< Hmm, I don't know about knight forsook yet. Want me to learn about it?
+> What did the knight forsake?
+< Hmm, I don't know about forsake yet. Want me to learn about it?
+> the past of forsake is forsook
+< Held: «forsook» is another form of «forsake».
+> The king forsook the throne.
+< Hmm, I don't know about king forsook yet. Want me to learn about it?
+> What did the king forsake?
+< Hmm, I don't know about forsake yet.
+! Regola: participio irregolare (stride/stridden). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The guard had stridden the wall.
+< Learned: guard have stridden the wall.
+> What had the guard stridden?
+< Hmm, I don't know about guard stridden yet. Want me to learn about it?
+> another form of stride is stridden
+< Held: «stridden» is another form of «stride».
+> The soldier had stridden the bridge.
+< Learned: soldier have stridden the bridge.
+> What had the soldier stridden?
+< Hmm, I don't know about soldier stridden yet. Want me to learn about it?
+! Regola: lemma verbale (tutte le forme da una lezione). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The machinist hones the bore.
+< Hmm, I don't know about machinist hones yet. Want me to learn about it?
+> What does the machinist hone?
+< I don't understand that yet.
+> hone is an english verb lemma
+< Learned «hone» as an English verb lemma.
+> The machinist honed the cylinder.
+< Hmm, I don't know about machinist honed yet. Want me to learn about it?
+> What did the machinist hone?
+< I don't understand that yet.
+> The fitter is honing the liner.
+< Hmm, I don't know about fitter yet. Want me to learn about it?
+> What is the fitter honing?
+< I looked up «fitter» but found nothing. If you know it, teach me: «fitter is defined as …».
+! Regola: lemma verbale (knurl). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The turner knurls the handle.
+< Hmm, I don't know about turner knurls yet. Want me to learn about it?
+> What does the turner knurl?
+< Hmm, I don't know about turner yet. Want me to learn about it?
+> knurl is an english verb lemma
+< Learned «knurl» as an English verb lemma.
+> The turner knurled the knob.
+< I looked up «turner» but found nothing. If you know it, teach me: «turner is defined as …».
+> What did the turner knurl?
+< Hmm, I don't know about turner yet.
+! Regola: verbo transitivo. Prima la sonda, poi la lezione, poi la sonda nuova.
+> Is polish a transitive verb?
+< I cannot settle that: no fact I hold decides whether polish is a transitive verb. Not proved is not the same as false. Tell me either way and I will hold it.
+> polish is a transitive verb
+< Learned: polish is a transitive verb.
+> Is polish a transitive verb?
+< Yes.
+> Is deburr a transitive verb?
+< I cannot settle that: no fact I hold decides whether deburr is a transitive verb, and knowing some transitive verbs does not tell me they are all of them. Not proved is not the same as false. Tell me either way and I will hold it.
+! Regola: verbo di relazione. Prima la sonda, poi la lezione, poi la sonda nuova.
+> A reamer finishes holes.
+< Hmm, I don't know about reamer finishes holes yet. Want me to learn about it?
+> What does a reamer finish?
+< Hmm, I don't know about finish yet. Want me to learn about it?
+> finishes is a relation verb
+< Learned: finishes is a relation verb.
+> A lap finishes surfaces.
+< Learned: lap finishes surfaces.
+> What does a lap finish?
+< Surfaces.
+! Regola: verbo di relazione (calibrates). Prima la sonda, poi la lezione, poi la sonda nuova.
+> A technician calibrates gauges.
+< Learned: technician calibrate gauges.
+> Who calibrates gauges?
+< technician.
+> calibrates is a relation verb
+< Learned: calibrates is a relation verb.
+> A metrologist calibrates micrometers.
+< Learned: metrologist calibrate micrometers.
+> Who calibrates micrometers?
+< Metrologist.
+! Regola: particella avverbiale (switch off). Prima la sonda, poi la lezione, poi la sonda nuova.
+> The operator switched off the lathe.
+< Hmm, I don't know about operator switched yet. Want me to learn about it?
+> What did the operator switch off?
+< Hmm, I don't know about operator switch yet. Want me to learn about it?
+> off is an adverbial particle
+< Learned: off is an adverbial particle.
+> The operator switched off the pump.
+< Hmm, I don't know about operator_switched yet.
+> What did the operator switch off?
+< Hmm, I don't know about operator_switch yet.
+! Regola: verbo con particella (wear out). Prima la sonda, poi la lezione, poi la sonda nuova.
+> Friction wears out the bearing.
+< Hmm, I don't know about bearing yet. Want me to learn about it?
+> What does friction wear out?
+< I don't understand that yet.
+> out is an adverbial particle
+< Learned: out is an adverbial particle.
+> Abrasion wears out the belt.
+< Hmm, I don't know about abrasion yet. Want me to learn about it?
+> What does abrasion wear out?
+< Hmm, I don't know about abrasion yet.
+! Regola: relazione aggettivale (resistant to). Prima la sonda, poi la lezione, poi la sonda nuova.
+> Stainless steel is resistant to corrosion.
+< Learned: stainless steel is resistant to corrosion.
+> What is stainless steel resistant to?
+< corrosion.
+> "resistant to" is an adjective relation
+< Learned: "resistant to" is an adjective relation.
+> Titanium is resistant to seawater.
+< Learned: titanium is resistant to seawater.
+> What is titanium resistant to?
+< Seawater.
+! Regola: relazione aggettivale (prone to). Prima la sonda, poi la lezione, poi la sonda nuova.
+> Cast iron is prone to cracking.
+< Hmm, I don't know about cracking yet. Want me to learn about it?
+> What is cast iron prone to?
+< I don't understand that yet.
+> "prone to" is an adjective relation
+< Learned: "prone to" is an adjective relation.
+> Aluminium is prone to galling.
+< Learned: aluminium is prone to galling.
+> What is aluminium prone to?
+< Galling.
+! Regola: contrazione negativa (won't). Prima la sonda, poi la lezione, poi la sonda nuova.
+> A dull tool won't cut steel.
+< Learned: dull tool won't cut steel.
+> Does a dull tool cut steel?
+< I cannot settle that: no fact I hold decides whether dull tool cut steel. Not proved is not the same as false. Tell me either way and I will hold it.
+> "won't" is a contraction of "will not"
+< Held: «won't» is short for «will not».
+> A worn tap won't cut threads.
+< Hmm, I don't know about worn tap yet. Want me to learn about it?
+> Does a worn tap cut threads?
+< I cannot settle that: no fact I hold decides whether worn taps cut threads. Not proved is not the same as false. Tell me either way and I will hold it.
+! Regola: contrazione negativa (doesn't). Prima la sonda, poi la lezione, poi la sonda nuova.
+> Granite doesn't rust.
+< Hmm, I don't know about granite yet. Want me to learn about it?
+> Does granite rust?
+< I looked up «granite» but found nothing. If you know it, teach me: «granite is defined as …».
+> "doesn't" is a contraction of "does not"
+< Held: «doesn't» is short for «does not».
+> Glass doesn't conduct electricity.
+< Learned: glass doesn't conduct electricity.
+> Does glass conduct electricity?
+< No.
+! Regola: contrazione (it's). Prima la sonda, poi la lezione, poi la sonda nuova.
+> It's a precise instrument.
+< Hmm, I don't know about precise instrument yet. Want me to learn about it?
+> What is it?
+< I have no definition of it, but I read: a surface plate is made of granite, so granite is its material., I have no definition of it, but I read: a carbide insert is made of tungsten carbide., I have no definition of it, but I read: a lapping plate is made of cast iron. and I have no definition of it, but I read: a surface plate is made of granite..
+> "it's" is a contraction of "it is"
+< Held: «it's» is short for «it is».
+> It's a hardened shaft.
+! F.: questo non e' insegnare la grammatica, e' farla praticare. Insegnare sono lezioni come le direbbe un insegnante: «per fare una domanda si inverte il soggetto con il verbo», «this con i singolari, these con i plurali». Fermo il giro e lo rifaccio con le REGOLE dette, confrontandole con cio' che la KB viva gia' implementa.
+! Giro di grammatica inglese INSEGNATA: ogni regola e' detta come la direbbe un insegnante. Prima una sonda di comportamento (la regola e' gia' operante?), poi la regola detta, poi una sonda nuova della stessa regola e una domanda che chiede di DIRE la regola. Confronto con cio' che la KB viva implementa gia'.
+! Regola: domanda sì/no con be: il verbo va prima del soggetto.
+> The spindle is worn.
+< I don't understand that yet.
+> Is the spindle worn?
+< Hmm, I don't know about spindle worn yet. Want me to learn about it?
+> To make a yes-no question with the verb be, put the verb before the subject.
+< I understood the request — produce «yes-no question with the verb be put the verb before the subject» — but I don't know that yet as something I can compute or build, so I have no code to show for it.
+> The collet is loose.
+< I don't understand that yet.
+> Is the collet loose?
+< Hmm, I don't know about collet loose yet. Want me to learn about it?
+> How do you make a yes-no question with the verb be?
+< I don't have the steps for verb yet. But I know what one is made of, so you would need: action. That is what it is, not how to do it.
+! Regola: domanda con i modali: il modale va prima del soggetto.
+> A lathe can cut threads.
+< Held: lathe can cut threads.
+> Can a lathe cut threads?
+< Yes.
+> To make a question with can, put can before the subject.
+< I understood the request — produce «question with can put can before the subject» — but I don't know that yet as something I can compute or build, so I have no code to show for it.
+> A mill can cut slots.
+< Held: mill can cut slots.
+> Can a mill cut slots?
+< Yes.
+> How do you make a question with can?
+< I understood you're asking how to make question, but I don't have the steps for it yet.
+! Regola: domanda con do/does/did e il verbo nudo.
+> The machinist ground the shaft.
+< Learned: machinist grind shaft.
+> Did the machinist grind the shaft?
+< Yes.
+> To make a question with other verbs, put do, does or did before the subject and use the bare verb.
+< Learned: put do does.
+> The apprentice cut the gear.
+< Learned: apprentice cut gear.
+> Did the apprentice cut the gear?
+< Yes.
+> How do you make a question with other verbs?
+< On you make a question with other verbs, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effect and secondary responses, which may amplify, compensate for, or redistribute the original change. A useful test varies the proposed cause while controlling alternatives and checks for the specific observations the mechanism predicts. The conclusion depends on scale, boundary conditions, time horizon, and behavior, so those assumptions should be stated instead of presenting one scenario as inevitable.
+! Regola: negazione: not dopo l'ausiliare.
+> A micrometer cannot measure weight.
+< Learned: a micrometer cannot measure weight.
+> Can a micrometer measure weight?
+< No.
+> To make a negative sentence, put not after the auxiliary verb.
+< I understood the request — produce «negative sentence put not after the auxiliary verb» — but I don't know that yet as something I can compute or build, so I have no code to show for it.
+> A caliper cannot measure temperature.
+< Learned: a caliper cannot measure temperature.
+> Can a caliper measure temperature?
+< No.
+> How do you make a negative sentence?
+< I don't have the sentence you mean — paste it here and I'll work on it.
+! Regola: this con il singolare, these con il plurale.
+> Is "these lathe" correct?
+< No.
+> Use this with a singular noun and these with a plural noun.
+< Hmm, I don't know about singular noun yet. Want me to learn about it?
+> Is "this lathes" correct?
+< No.
+> When do you use these?
+< Oh? What's it like?
+! Regola: that con il singolare, those con il plurale.
+> Is "those gear" correct?
+< No.
+> Use that with a singular noun and those with a plural noun.
+< Hmm, I don't know about singular_noun yet.
+> Is "that gears" correct?
+< No.
+> When do you use those?
+< Interesting -- what got you into it?
+! Regola: terza persona singolare: il verbo prende -s.
+> Is "the machinist hone the bore" correct?
+< No.
+> In the present simple, add s to the verb after he, she, it or a singular noun.
+< Held, but only in present: simple add s to the verb after he she it or a singular noun.
+> Is "the turner knurl the knob" correct?
+< No.
+> When does a verb take s?
+< I don't understand that yet.
+! Regola: accordo soggetto-verbo al plurale.
+> Is "the gears meshes" correct?
+< No.
+> A plural subject takes a verb without s.
+< Hmm, I don't know about plural yet. Want me to learn about it?
+> Is "the belts slips" correct?
+< No.
+> Does a plural subject take a verb with s?
+< I don't know: nothing I hold says plural subject take is verb with s, and nothing says it isn't.
+! Regola: a/an secondo il SUONO (il caso sbagliato della KB).
+> puppo is a universal_quantifier
+< Learned: puppo is an universal quantifier.
+> Use an before a vowel sound and a before a consonant sound; universal starts with a consonant sound, so say a universal.
+< I couldn't read «Use an before a vowel sound and a before a consonant sound». A word that starts with "a": abbr.
+> zork is a unique_tool
+< Learned: zork is an unique tool.
+> Do you say a universal or an universal?
+< No.
+! Regola: plurale: consonante + y diventa -ies.
+> What is the plural of foundry?
+< I don't know about plural.
+> When a noun ends in a consonant followed by y, change the y to i and add es to make the plural.
+< Hmm, I don't know about noun ends yet. Want me to learn about it?
+> What is the plural of refinery?
+< I don't know about plural.
+> How do you make the plural of a noun that ends in a consonant and y?
+< On you make the plural of a noun that ends in a consonant and y, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effect and secondary responses, which may amplify, compensate for, or redistribute the original change. A useful test varies the proposed cause while controlling alternatives and checks for the specific observations the mechanism predicts. The conclusion depends on scale, boundary conditions, time horizon, and behavior, so those assumptions should be stated instead of presenting one scenario as inevitable.
+! Regola: plurale: -es dopo s, x, ch, sh.
+> What is the plural of torch?
+< I don't know about plural.
+> Add es to make the plural of a noun that ends in s, x, ch or sh.
+< Hmm, I don't know about plural yet.
+> What is the plural of bench?
+< I don't know about plural.
+> How do you make the plural of a noun that ends in ch?
+< On you make the plural of a noun that ends in ch, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effect and secondary responses, which may amplify, compensate for, or redistribute the original change. A useful test varies the proposed cause while controlling alternatives and checks for the specific observations the mechanism predicts. The conclusion depends on scale, boundary conditions, time horizon, and behavior, so those assumptions should be stated instead of presenting one scenario as inevitable.
+! Regola: passato regolare: -ed.
+> What is the past of hone?
+< I don't know any past yet.
+> To make the past of a regular verb, add ed; if the verb ends in e, add only d.
+< That looks like a snippet of code.
+> What is the past of knurl?
+< I don't know any past yet.
+> How do you make the past of a regular verb?
+< On you make the past of a regular verb, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effect and secondary responses, which may amplify, compensate for, or redistribute the original change. A useful test varies the proposed cause while controlling alternatives and checks for the specific observations the mechanism predicts. The conclusion depends on scale, boundary conditions, time horizon, and behavior, so those assumptions should be stated instead of presenting one scenario as inevitable.
+! Regola: comparativo: -er per gli aggettivi brevi, more per i lunghi.
+> What is the comparative of hard?
+< I don't know about comparative.
+> Short adjectives make the comparative with er and long adjectives with more.
+< Learned: short adjectives make comparative.
+> What is the comparative of soft?
+< I don't know about comparative.
+> How do you make the comparative of a long adjective?
+< I don't have the steps for adjective yet. But I know what one is made of, so you would need: pronoun. That is what it is, not how to do it.
+! Regola: confronto con than.
+> Steel is harder than aluminium.
+< Hmm, I don't know about harder yet. Want me to learn about it?
+> Which is harder, steel or aluminium?
+< Hmm, I don't know about harder yet.
+> After a comparative, than introduces the thing being compared.
+< Hmm, I don't know about introduces yet. Want me to learn about it?
+> Diamond is harder than steel.
+< Hmm, I don't know about harder yet.
+> Which is harder, diamond or steel?
+< I don't understand that yet.
+> What does than introduce?
+< Hmm, I don't know about introduce yet. Want me to learn about it?
+! Regola: genitivo sassone: 's indica possesso.
+> The lathe's chuck is worn.
+< Hmm, I don't know about lathe s chuck yet. Want me to learn about it?
+> What is worn?
+< I don't know much about worn yet, and the network is off, so I can't read about it now.
+> Add apostrophe s to a noun to show that something belongs to it.
+< Hmm, I don't know about apostrophe yet. Want me to learn about it?
+> The mill's table is scratched.
+< Hmm, I don't know about mill s table yet. Want me to learn about it?
+> What is scratched?
+< I don't know much about scratched yet, and the network is off, so I can't read about it now.
+> What does apostrophe s show?
+< Hmm, I don't know about apostrophe yet.
+! Regola: much con i non numerabili, many con i numerabili.
+> Is "many sand" correct?
+< No.
+> Use many with countable nouns and much with uncountable nouns.
+< Hmm, I don't know about countable yet. Want me to learn about it?
+> Is "much bolts" correct?
+< No.
+> When do you use much?
+< Oh? What's it like?
+! Regola: pronomi: it per le cose.
+> The lathe is old.
+< I don't understand that yet.
+> It needs oil.
+< Learned: requires(it, oil).
+> What needs oil?
+< I don't understand that yet.
+> Use it for a thing, he for a man and she for a woman.
+< I'm not sure I followed. Can you say it another way?
+> The pump is noisy.
+< I don't understand that yet.
+> It needs a new seal.
+< Learned 3 prerequisites for it.
+> What needs a new seal?
+< Hmm, I don't know about new seal yet. Want me to learn about it?
+> What do you use it for?
+< Sounds good. What else has been on your mind?
+! Regola: they per i plurali.
+> The bearings are dry.
+< Held: those are all 1 bearings there are: dry. From now on «no» is an answer, not a shrug.
+> They need grease.
+< Learned: short adjectives need grease.
+> What needs grease?
+< short adjectives.
+> Use they for a plural noun.
+< Hmm, I don't know about plural noun yet. Want me to learn about it?
+> The belts are worn.
+< Held: those are all 1 belts there are: worn. From now on «no» is an answer, not a shrug.
+> They need replacing.
+< Learned: short adjectives need replacing.
+> What needs replacing?
+< short adjectives.
+> When do you use they?
+< Oh? What's it like?
+! Regola: domanda sul soggetto con who, senza do.
+> Johansson invented gauge blocks.
+< Learned: johansson invented gauge blocks.
+> Who invented gauge blocks?
+< Hmm, I don't know about invented yet. Want me to learn about it?
+> A question about the subject with who does not use do.
+< Hmm, I don't know about question yet. Want me to learn about it?
+> Palmer invented the micrometer.
+< Learned: palmer invent micrometer.
+> Who invented the micrometer?
+< Palmer.
+> Does a question about the subject with who use do?
+< Hmm, I don't know about question yet.
+! Regola: presente progressivo: be + -ing.
+> The machinist is turning a shaft.
+< Hmm, I don't know about turning yet. Want me to learn about it?
+> What is the machinist turning?
+< I looked up «turning» but found nothing. If you know it, teach me: «turning is defined as …».
+> The present continuous is am, is or are followed by the verb with ing.
+< Hmm, I don't know about present continuous yet. Want me to learn about it?
+> The fitter is honing a liner.
+< Hmm, I don't know about fitter yet.
+> What is the fitter honing?
+< I don't know much about fitter honing yet, and the network is off, so I can't read about it now.
+> How do you make the present continuous?
+< I understood you're asking how to make continuous, but I don't have the steps for it yet.
+! Regola: passivo: be + participio passato, l'agente dopo by.
+> The shaft was turned by the machinist.
+< Hmm, I don't know about turned yet. Want me to learn about it?
+> Who turned the shaft?
+< Machinist.
+> The passive is made with be and the past participle, and the agent comes after by.
+< Hmm, I don't know about agent comes yet. Want me to learn about it?
+> The gear was cut by the apprentice.
+< I don't understand that yet.
+> Who cut the gear?
+< apprentice.
+> How do you make the passive?
+< I understood you're asking how to make passive, but I don't have the steps for it yet.
+! Regola: aggettivo prima del nome.
+> A worn bearing causes noise.
+< Learned: worn bearing causes noise.
+> What causes noise?
+< Worn bearing.
+> In English the adjective comes before the noun.
+< We can chat in either language — I'll do my best.
+> A loose belt causes slipping.
+< Learned: loose belt causes slipping.
+> What causes slipping?
+< Loose belt.
+> Where does the adjective go in English?
+< We can chat in either language — I'll do my best.
+! Regola: ordine delle parole: soggetto, verbo, oggetto.
+> The collet holds the drill.
+< Learned: collet hold drill.
+> What holds the drill?
+< Collet.
+> An English sentence puts the subject first, then the verb, then the object.
+< Learned: english sentence puts the subject first.
+> The vise grips the block.
+< Hmm, I don't know about vise grips yet. Want me to learn about it?
+> What grips the block?
+< I don't understand that yet.
+> What comes after the verb in an English sentence?
+< I don't have the sentence you mean — paste it here and I'll work on it.
+! Regola: some nelle affermative, any nelle domande e negazioni.
+> Is "I have any bolts" correct?
+< No.
+> Use some in positive sentences and any in questions and negative sentences.
+< Hmm, I don't know about positive yet. Want me to learn about it?
+> Is "do you have some bolts" correct?
+< No.
+> When do you use any?
+< I can't say I've tried it myself, but I'm curious -- what do you like about it?
+! Regola: gli avverbi in -ly dagli aggettivi.
+> Is quickly an adverb?
+< I don't know about adverb.
+> Many adverbs are made by adding ly to an adjective.
+< I can't hold «many adverbs are made by adding ly to an adjective.» yet: I only keep what is true of every member of a kind, or of a named one.
+> Is slowly an adverb?
+< I don't know about adverb.
+> How do you make an adverb from an adjective?
+< I don't have the steps for adjective yet. But I know what one is made of, so you would need: pronoun. That is what it is, not how to do it.
+! Fine del giro di grammatica: nessuna delle 25 regole dette e' stata letta come regola; le poche 'lette' sono diventate fatti spazzatura («put do does», «short adjectives make comparative», «english sentence puts the subject first»), e uno contamina gia' una domanda estranea («What needs grease?» -> «short adjectives.»). Chiudo SENZA /save: niente di questo va nella KB.
+# chiusa senza /save 13:35: i fatti entrati sono spazzatura; lo studio differenziale e' in docs/plans/train-the-learning-process.md
