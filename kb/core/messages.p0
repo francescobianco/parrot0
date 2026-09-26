@@ -2416,6 +2416,41 @@ turn_form_act(teach_before, "op(assert, transitive_relation, [precedes])").
 turn_form_act(teach_before, "op(assert, inverse_relation, [precedes, follows])").
 turn_form_act(teach_before, "op(assert, precedes, [subject, object])").
 turn_form_reply(teach_before, learned_precedes).
+% Meccanica (26 settembre 2026), «ordine transitivo muto»: «Hardening comes before
+% tempering.» entrava con la catena, ma «Does hardening come before tempering?»
+% chiedeva «came before» e non decideva, e «What comes after/before tempering?»
+% non si capiva. Le domande della stessa relazione, accanto alla lezione; e
+% «follows» e' l'inverso detto come regola (la definizione della parola).
+follows($A, $B) :- precedes($B, $A).
+transitive_relation(follows).
+turn_form(ask_before_polar, 1, text("does")).
+turn_form(ask_before_polar, 2, slot(subject)).
+turn_form(ask_before_polar, 3, text("come before")).
+turn_form(ask_before_polar, 4, rest(object)).
+turn_form(ask_before_polar, 5, bind(relation, precedes)).
+turn_form_mood(ask_before_polar, question).
+turn_form_act(ask_before_polar, answer_polar).
+turn_form_priority(ask_before_polar, early).
+turn_form(ask_after_polar, 1, text("does")).
+turn_form(ask_after_polar, 2, slot(subject)).
+turn_form(ask_after_polar, 3, text("come after")).
+turn_form(ask_after_polar, 4, rest(object)).
+turn_form(ask_after_polar, 5, bind(relation, follows)).
+turn_form_mood(ask_after_polar, question).
+turn_form_act(ask_after_polar, answer_polar).
+turn_form_priority(ask_after_polar, early).
+turn_form(ask_what_after, 1, text("what comes after")).
+turn_form(ask_what_after, 2, rest(subject)).
+turn_form(ask_what_after, 3, bind(relation, precedes)).
+turn_form_mood(ask_what_after, question).
+turn_form_act(ask_what_after, answer_relation).
+turn_form_priority(ask_what_after, early).
+turn_form(ask_what_before, 1, text("what comes before")).
+turn_form(ask_what_before, 2, rest(subject)).
+turn_form(ask_what_before, 3, bind(relation, follows)).
+turn_form_mood(ask_what_before, question).
+turn_form_act(ask_what_before, answer_relation).
+turn_form_priority(ask_what_before, early).
 
 % ══ gen507/76 — TRE FATTI DETTI DAL VERSO IN CUI UNA PERSONA LI DIREBBE ════
 %
