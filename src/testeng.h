@@ -56,5 +56,7 @@ void p0_debug_turn_profile(Brain *brain, double ms);
 void p0_debug_trace(Brain *brain, const char *filter);
 /* `/debug depth N` · `!debug depth N`: la soglia di profondita' del trace (KB). */
 void p0_debug_set_depth(Brain *brain, long depth);
+/* `/debug <verbo> …` — il dispatcher unico dei comandi di /debug (guida da solo). */
+void p0_debug_command(Brain *brain, const char *args, const char *last_line);
 
 #endif /* PARROT0_TESTENG_H */

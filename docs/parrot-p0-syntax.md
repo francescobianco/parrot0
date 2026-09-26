@@ -795,3 +795,42 @@ della `switch` di `strcmp`. La rotta è in
 [plans/teachable-procedures.md](plans/teachable-procedures.md) §2.3 (lo strato I,
 «l'unico C che cresce»), che però oggi non nomina nessuno dei tre motori qui
 sopra: la sezione va riallineata prima di costruire.
+
+## 18. `/debug` e la profondità della traccia (26 settembre 2026)
+
+Richiesto da F.: `/debug` da solo è la **guida**; ogni azione ha un verbo;
+accendere il profilo è esplicito; le tracce di diagnosi **non si tolgono**, si
+spengono per profondità.
+
+| comando | che cosa fa |
+|---|---|
+| `/debug` · `/debug help` | la guida, con lo stato (profilo, profondità) in testa |
+| `/debug on` · `/debug off` | il profilo per turno: tempi, passi, strada, e le **visite ai fatti per goal ← regola** |
+| `/debug turn` | l'ispettore dell'ultimo turno: nota, anatomia, sonde KB |
+| `/debug trace [parola]` | la traccia del turno fino alla profondità corrente; le righe più profonde si contano |
+| `/debug depth N` | la soglia (default `debug_trace_depth(1)` in `debug.p0`) |
+| `/debug pred NOME[/ARITÀ]` | regole e fatti di un predicato, con i primi valori |
+| `/debug dump` | lo stato completo dell'ultimo turno su file |
+
+In un `.p0t` gli stessi verbi con `!debug` (`!debug` da solo resta l'ispettore
+con il profilo acceso).
+
+**La guida e la profondità sono KB** (`kb/core/debug.p0`): `debug_help_line/2`
+(un comando nuovo è una riga), `debug_trace_depth/1`, e `trace_stage_depth(Specie,
+N)` che porta una specie intera di righe a un altro livello senza ricompilare
+(`read.named` a 3, `iterate` a 4).
+
+**Chi scrive C** usa `p0_trace(b, specie, …)` per il filo del turno (livello 1)
+e `p0_trace_at(b, livello, specie, …)` per il dettaglio: 2 = il perché di un
+cancello e il costo di un contabile; 3 = i passi interni di un lettore; 4+ = i
+giri di un ciclo. Una traccia messa per capire un problema **resta**, al suo
+livello: la prossima volta serve di nuovo. Il motore della KB scrive con
+`kb_trace(kb, specie, …)` (livello 1, spostabile con `trace_stage_depth`).
+
+**Lavorato: il turno da 7,9 s.** Il profilo diceva `turn_after_reply 6,7 s, 274
+passi`. Con le nuove righe: la traccia a livello 2 ha nominato il contabile
+(`contact_near_way: 6703 ms, 9 100 608 visite`) e le visite per goal ← regola il
+goal (`relation_verb`). La cura era un cancello di conoscenza, non un'ottimizzazione:
+il contatto insegna solo con un'affermazione, e il turno era una domanda. Il
+turno è sceso a 1,2 s. Il costo base che resta, `relation_verb ← verb_finite_form`
+con circa 2 000 cammini dell'intera classe per turno, è il prossimo bersaglio.

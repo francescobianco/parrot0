@@ -3933,8 +3933,16 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
         kb_set_origin(b->kb, KB_SESSION);
         for (size_t i = 0; i < nk; i++) {
             const char *one[] = { "current_turn", keepers[i] };
-            if (kb_query(b->kb, "turn_after_reply", one, 2))
-                p0_trace(b, "after_reply", "%s observed", keepers[i]);
+            /* 26 settembre 2026 — quanto costa OGNI contabile, nel trace a
+             * livello 2: il profilo diceva solo «turn_after_reply 6,7 s». */
+            struct timespec t0, t1; clock_gettime(CLOCK_MONOTONIC, &t0);
+            unsigned long v0 = kb_profile_visits(b->kb);
+            int held = kb_query(b->kb, "turn_after_reply", one, 2);
+            clock_gettime(CLOCK_MONOTONIC, &t1);
+            double ms = (double)(t1.tv_sec - t0.tv_sec) * 1000.0 + (double)(t1.tv_nsec - t0.tv_nsec) / 1e6;
+            if (held) p0_trace(b, "after_reply", "%s observed", keepers[i]);
+            p0_trace_at(b, 2, "after_reply", "%s: %.1f ms, %lu visite ai fatti", keepers[i], ms,
+                        kb_profile_visits(b->kb) - v0);
         }
         kb_set_origin(b->kb, prev);
     }

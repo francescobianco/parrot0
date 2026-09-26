@@ -574,6 +574,11 @@ unsigned long kb_profile_visits(const KB *kb);
 size_t        kb_profile_scans(const KB *kb);
 /* Righe ordinate per passi decrescenti; ritorna quante ne ha scritte. */
 size_t        kb_profile_top(const KB *kb, KbProfileRow *out, size_t max);
+/* 26 settembre 2026 — DOVE VANNO LE VISITE AI FATTI. `fatti visitati` diceva
+ * QUANTE; questa dice di QUALE predicato di goal, in ordine decrescente: il
+ * turno da 17 milioni di visite non si leggeva senza un profilatore esterno.
+ * `calls` = quante volte il goal ha camminato un bucket, `steps` = visite. */
+size_t        kb_profile_visit_top(const KB *kb, KbProfileRow *out, size_t max);
 
 /* Count direct stored facts for a predicate (no rule resolution). gen77. */
 size_t kb_pred_fact_count(const KB *kb, const char *pred);

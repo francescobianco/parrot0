@@ -79,8 +79,8 @@ say)
     # con il profilo acceso restano fuori anche le righe rientrate che lo accompagnano
     case "$line" in
     "/debug off"*) : > "$DEBUG_ON"; note "# /debug spento" ;;
-    /debug*) echo on > "$DEBUG_ON"
-             note "# /debug: $(printf '%s\n' "$reply" | wc -l) righe lette dall'insegnante, fuori dal transcript" ;;
+    "/debug on"*) echo on > "$DEBUG_ON"; note "# /debug acceso" ;;
+    /debug*) note "# ${line%% *} ${line#/debug }: $(printf '%s\n' "$reply" | wc -l) righe lette dall'insegnante, fuori dal transcript" ;;
     *) if [ -s "$DEBUG_ON" ]; then printf '%s\n' "$reply" | grep -v -e '^[[:space:]]' -e '^\[debug\]' | sed 's/^/< /' >> "$LOG"
        else printf '%s\n' "$reply" | sed 's/^/< /' >> "$LOG"; fi ;;
     esac

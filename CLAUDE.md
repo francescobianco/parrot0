@@ -21,11 +21,18 @@ ricompilare?"** Se no, quella conoscenza è nel posto sbagliato.
   ciclo di modifica. Se sfora il budget si tolgono casi, non si alza il budget.
 - `make test` — la suite intera (~1619 assert). Deve restare verde.
 - `parrot0 --test FILE.p0t` — manda un singolo file al demone (`make test-engine`).
-- **Il filo di un turno**: `/debug` (in chat) o `!debug` (in un `.p0t`) stampa
-  la TRACCIA DEL TURNO — dispatch, cessioni con la regola, lettori, schemi,
-  ricevute, viste, prova della risposta — attraverso C e KB, in ordine;
-  `/debug trace <parola>` la filtra, `PARROT0_TURN_LOG=file` la salva per turno.
-  Si parte da qui, non dal grep e non da una `fprintf` temporanea.
+- **Il filo di un turno**: `/debug` da solo mostra la guida. `/debug trace
+  [parola]` stampa la TRACCIA DEL TURNO — dispatch, cessioni con la regola,
+  lettori, schemi, ricevute, viste, prova della risposta — attraverso C e KB, in
+  ordine, fino alla profondita' `/debug depth N` (1 = il filo; 2 = il perche'
+  dei cancelli e il costo dei contabili; 3+ = il dettaglio). `/debug on` accende
+  il profilo (tempi, passi, e **dove vanno le visite ai fatti**, per goal e
+  regola), `/debug turn` ispeziona l'ultimo turno, `/debug pred NOME[/ARITA']`
+  un predicato. In un `.p0t` gli stessi verbi con `!debug`;
+  `PARROT0_TURN_LOG=file` salva la traccia intera per turno.
+  Si parte da qui, non dal grep, non da `perf` e non da una `fprintf`
+  temporanea. **Una traccia di diagnosi non si toglie: le si da' una
+  profondita'** (`p0_trace_at(b, livello, …)`), F. 26 settembre 2026.
 - `tests/comprehension-probe/probe.py smoke` — il banco piccolo di comprensione
   (~1 minuto, risposte verbatim da leggere).
 

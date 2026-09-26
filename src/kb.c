@@ -75,6 +75,11 @@ typedef struct {
     char   args[KB_MAX_ARGS][KB_TERM_LEN];
     int    neg; /* U6: a BODY goal marked negation-as-failure (naf(G)). 0 for
                  * facts, heads, and ordinary positive goals. */
+    /* 26 settembre 2026 — DIAGNOSTICA: il predicato di testa della regola il cui
+     * corpo ha posto questo goal (una copia, non un puntatore: le regole si
+     * riallocano). Lo legge soltanto il profilo delle visite (/debug); vuoto per
+     * i goal di una query. Non entra mai nel significato. */
+    char   from[40];
 } Term;
 
 /* gen401: copiare un TERMINE costava 2,6 KB per un termine da cinquanta byte.
@@ -325,6 +330,8 @@ struct KB {
     struct timespec prof_t0;
     KbProfileRow  prof_top[64];
     size_t        prof_ntop;
+    KbProfileRow  prof_vtop[64];   /* visite ai fatti per predicato di goal */
+    size_t        prof_nvtop;
 
     /* Materialized predicates and their structural dependency graphs.
      * Mutations expire affected views; rebuilding waits for a safe entry.
@@ -437,6 +444,37 @@ void kb_profile_reset(KB *kb) {
     kb->prof_visits = 0;
     kb->prof_scans = 0;
     kb->prof_ntop = 0;
+    kb->prof_nvtop = 0;
+}
+
+static void kb_profile_visit_note(KB *kb, const char *pred, unsigned long visits) {
+    if (!kb || !pred || !visits) return;
+    for (size_t i = 0; i < kb->prof_nvtop; i++)
+        if (!strcmp(kb->prof_vtop[i].pred, pred)) {
+            kb->prof_vtop[i].calls++; kb->prof_vtop[i].steps += visits; return; }
+    size_t at = kb->prof_nvtop;
+    if (at >= 64) {                     /* pieno: si rimpiazza il piu' piccolo */
+        at = 0;
+        for (size_t i = 1; i < 64; i++)
+            if (kb->prof_vtop[i].steps < kb->prof_vtop[at].steps) at = i;
+        if (kb->prof_vtop[at].steps >= visits) return;
+    } else kb->prof_nvtop++;
+    snprintf(kb->prof_vtop[at].pred, sizeof kb->prof_vtop[at].pred, "%s", pred);
+    kb->prof_vtop[at].calls = 1; kb->prof_vtop[at].steps = visits; kb->prof_vtop[at].ms = 0;
+}
+
+size_t kb_profile_visit_top(const KB *kb, KbProfileRow *out, size_t max) {
+    if (!kb || !out || max == 0) return 0;
+    size_t n = 0;
+    int used[64] = { 0 };
+    while (n < max) {
+        size_t best = 64;
+        for (size_t i = 0; i < kb->prof_nvtop; i++)
+            if (!used[i] && (best == 64 || kb->prof_vtop[i].steps > kb->prof_vtop[best].steps)) best = i;
+        if (best == 64) break;
+        used[best] = 1; out[n++] = kb->prof_vtop[best];
+    }
+    return n;
 }
 
 size_t kb_profile_top(const KB *kb, KbProfileRow *out, size_t max) {
@@ -1914,6 +1952,7 @@ static void rename_term(const Term *src, int frame, int *anon, Term *dst) {
     for (size_t i = 0; i < src->argc; i++)
         rename_arg(src->args[i], frame, anon, dst->args[i], KB_TERM_LEN);
     dst->neg = src->neg;   /* U6: the naf flag travels with the renamed goal */
+    dst->from[0] = '\0';
 }
 
 static void push_unique(char out[][KB_TERM_LEN], size_t *count, size_t max,
@@ -3287,13 +3326,27 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     if (strcmp(g->pred, "kb_turn_act") == 0 && g->argc == 4) {
         unsigned long now = S->kb->paradox_turn;
         if (!now) return 0;
+        /* 26 settembre 2026 — con il PREDICATO LEGATO si guardano solo i suoi
+         * fatti (il bucket del censimento, come `kb_fact/2`): i contabili del
+         * contatto chiedono `kb_turn_act(contact_episode, …)` o con la relazione
+         * gia' legata, e scandire tutta la tabella a ogni domanda costava 6,8 s
+         * per turno (17 milioni di fatti visitati, taught_lexicon.p0t). Con il
+         * predicato libero si scorre tutto: e' la domanda posta. */
+        char tp[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], tp, sizeof tp, 0);
+        int tbound = !is_var(tp) && term_ok(tp) && !term_contains_var(tp, 0);
+        PredBucket tbk = { NULL, 0, 0, 0 };
+        if (tbound) tbk = pred_bucket(S->kb, tp);
         for (int pass = 0; pass < 2; pass++) {
             const Fact *tab = pass ? S->kb->neg : S->kb->facts;
-            size_t n = pass ? S->kb->nn : S->kb->n;
-            for (size_t i = 0; i < n; i++) {
-                if (i >= (pass ? S->kb->nn : S->kb->n)) break;
+            int use_bucket = !pass && tbound && tbk.live;
+            size_t n = use_bucket ? PRED_VISITS(tbk, S->kb) : (pass ? S->kb->nn : S->kb->n);
+            for (size_t vi = 0; vi < n; vi++) {
+                size_t i = use_bucket ? PRED_AT(tbk, vi) : vi;
+                if (i >= (pass ? S->kb->nn : S->kb->n)) { if (use_bucket) continue; break; }
                 const Fact *f = &tab[i];
                 if (f->stamp != now) continue;
+                if (tbound && strcmp(f->pred, tp) != 0) continue;
                 char list[KB_TERM_LEN];
                 if (!args_to_list(f->args, f->argc, list, sizeof list)) continue;
                 Subst *s2 = &scratch->subst;
@@ -4040,6 +4093,14 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     if (S->kb->prof_on) {
         KB *pm = (KB *)S->kb;   /* il contatore e' diagnostica, non stato logico */
         pm->prof_visits += PRED_VISITS(gbk, S->kb);
+        {   /* la chiave e' «goal ← regola che l'ha posto»: dice CHI cammina */
+            char key[KB_TERM_LEN];
+            int ok_from = memchr(g->from, '\0', sizeof g->from) != NULL && g->from[0];
+            for (const char *c = g->from; ok_from && *c; c++)
+                if (!(islower((unsigned char)*c) || isdigit((unsigned char)*c) || *c == '_')) ok_from = 0;
+            if (ok_from) snprintf(key, sizeof key, "%s <- %s", g->pred, g->from);
+            else snprintf(key, sizeof key, "%s", g->pred);
+            kb_profile_visit_note(pm, key, PRED_VISITS(gbk, S->kb)); }
         if (!gbk.live) pm->prof_scans++;
     }
     for (size_t vi = 0; ground_fact_mode != 2 &&
@@ -4184,7 +4245,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         int overflow = 0;
         for (size_t b = 0; b < R->nbody; b++) {
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }
-            rename_term(&R->body[b], fr, &anon, &ng[m++]);
+            rename_term(&R->body[b], fr, &anon, &ng[m]);
+            snprintf(ng[m].from, sizeof ng[m].from, "%s", R->head.pred);
+            m++;
         }
         if (pushed && !overflow) {
             if (m >= KB_MAX_GOALS) overflow = 1;

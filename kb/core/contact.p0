@@ -841,8 +841,13 @@ machinery(contact_way_in_force).
 machinery(contact_way_known_bad).
 machinery(contact_seed_refers).
 turn_after_reply($T, contact_near_way) :-
+    naf(turn_force($T, question)),
     contact_short_turn($T), naf(contact_negated($T)), naf(contact_refers_here($T)),
     findall($A, contact_way_near_here($T, $A), $L), contact_way_near_store_all($T, $L).
+% (26 settembre 2026: e un contatto e' un'AFFERMAZIONE — una domanda non insegna
+% un modo di riferirsi; senza questo cancello «if puppo cat is a mammal and tom is
+% a cat, is tom a mammal?» allineava ~400 relazioni: 6,7 s, 9 milioni di visite
+% ai fatti, misurato con la traccia di livello 2 dei contabili.)
 % (il cancello economico: un contatto e' una frase corta. Senza, un paragrafo
 % intero — dove ogni parola piena torna — pagava l'allineamento su ~400
 % relazioni: +3 s sul soft-test, misurato. Soglia dell'ingegnere, residuo G1.)

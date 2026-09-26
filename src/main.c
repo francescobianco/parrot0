@@ -906,7 +906,12 @@ static void debug_lines(KB *kb, const char *pred, size_t argc, const char *tag) 
  * Regola di crescita di questo strumento (F.): va migliorato ogni volta che un
  * problema e' stato scoperto in un altro modo. Se per capire qualcosa ho dovuto
  * fare un esperimento a mano, quell'esperimento appartiene a `/debug`. */
-static void debug_predicate(KB *kb, const char *pred) {
+static void debug_predicate(KB *kb, const char *spec) {
+    /* 26 settembre 2026: «NOME/ARITA'» restringe l'ispezione a quell'arita'. */
+    char pbuf[KB_TERM_LEN]; snprintf(pbuf, sizeof pbuf, "%s", spec);
+    long only = 0;
+    { char *sl = strchr(pbuf, '/'); if (sl) { *sl = '\0'; only = strtol(sl + 1, NULL, 10); } }
+    const char *pred = pbuf;
     long amax = 4;
     {
         const char *cq[1] = { NULL };
@@ -924,6 +929,7 @@ static void debug_predicate(KB *kb, const char *pred) {
     }
     fprintf(stderr, "  fatti ground            %zu\n", kb_pred_fact_count(kb, pred));
     for (long a = 1; a <= amax; a++) {
+        if (only > 0 && a != only) continue;
         size_t nr = kb_rules_for_head(kb, pred, (size_t)a);
         const char *q[8] = {0};
         enum { DBG_ROWS = 512 };
@@ -964,6 +970,12 @@ void p0_debug_turn_profile(Brain *brain, double ms) {
     for (size_t i = 0; i < n && top[i].calls > 0; i++)
         fprintf(stderr, "[debug]   %7.1f ms  %8lu passi  %5zu call  %s\n",
                 top[i].ms, top[i].steps, top[i].calls, top[i].pred);
+    /* dove sono finite le visite ai fatti: il predicato del GOAL, non della query */
+    KbProfileRow vt[5];
+    size_t nv = kb_profile_visit_top(kb, vt, 5);
+    for (size_t i = 0; i < nv; i++)
+        fprintf(stderr, "[debug]   visite %10lu  %6zu cammini  goal %s\n",
+                vt[i].steps, vt[i].calls, vt[i].pred);
     fflush(stderr);
 }
 
@@ -1020,6 +1032,56 @@ void p0_debug_trace(Brain *brain, const char *filter) {
                 hidden, deepest, deepest);
     if (brain_trace_dropped(brain))
         fprintf(stderr, "    (… %zu righe oltre il tetto)\n", brain_trace_dropped(brain));
+}
+
+/* 26 settembre 2026 — /debug CON I SUOI OPERATORI (F.). Da solo mostra la guida
+ * (KB: `debug_help_line/2`); ogni azione ha il suo verbo; accendere e spegnere
+ * il profilo sono espliciti. Un verbo sconosciuto riceve la guida, non
+ * un'ispezione a caso. */
+static void p0_debug_help(Brain *brain) {
+    KB *kb = brain_kb(brain);
+    fprintf(stderr, "\n  /debug — lo stato adesso: profilo %s, profondita' della traccia %ld\n\n",
+            kb_profile_on(kb) ? "ACCESO" : "spento", p0_debug_depth(kb));
+    char idx[64][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t n = kb_match(kb, "debug_help_line", q, 2, idx, 64);
+    for (long k = 1; k <= (long)n; k++) {
+        char key[16]; snprintf(key, sizeof key, "%ld", k);
+        const char *q2[2] = { key, NULL };
+        char row[1][KB_TERM_LEN];
+        if (kb_match(kb, "debug_help_line", q2, 2, row, 1) != 1) continue;
+        char b[KB_TERM_LEN]; snprintf(b, sizeof b, "%s", row[0]);
+        fprintf(stderr, "  %s\n", kb_dequote_pub(b));
+    }
+    fprintf(stderr, "\n");
+}
+void p0_debug_command(Brain *brain, const char *args, const char *last_line) {
+    KB *kb = brain_kb(brain);
+    while (*args == ' ') args++;
+    char verb[32] = ""; size_t vl = 0;
+    while (args[vl] && args[vl] != ' ' && vl + 1 < sizeof verb) { verb[vl] = args[vl]; vl++; }
+    verb[vl] = '\0';
+    const char *rest = args + vl; while (*rest == ' ') rest++;
+    if (!*verb || !strcmp(verb, "help")) { p0_debug_help(brain); return; }
+    if (!strcmp(verb, "on")) {
+        kb_profile_set(kb, 1);
+        fprintf(stderr, "parrot0: profilo ACCESO — dopo ogni turno tempi, passi, strada e visite (/debug off per spegnerlo)\n");
+        return;
+    }
+    if (!strcmp(verb, "off")) { kb_profile_set(kb, 0); fprintf(stderr, "parrot0: profilo spento\n"); return; }
+    if (!strcmp(verb, "turn")) { p0_debug_inspect(brain, last_line); return; }
+    if (!strcmp(verb, "trace")) { p0_debug_trace(brain, *rest ? rest : NULL); return; }
+    if (!strcmp(verb, "depth")) {
+        if (!*rest) { fprintf(stderr, "parrot0: profondita' della traccia %ld (/debug depth N per cambiarla)\n", p0_debug_depth(kb)); return; }
+        p0_debug_set_depth(brain, strtol(rest, NULL, 10)); return;
+    }
+    if (!strcmp(verb, "pred")) {
+        if (!*rest) { fprintf(stderr, "parrot0: /debug pred NOME (o NOME/ARITA')\n"); return; }
+        debug_predicate(kb, rest); return;
+    }
+    if (!strcmp(verb, "dump")) { brain_turn_dump(brain); return; }
+    fprintf(stderr, "parrot0: /debug %s non e' un comando.\n", verb);
+    p0_debug_help(brain);
 }
 
 void p0_debug_inspect(Brain *brain, const char *last_line) {
@@ -1576,37 +1638,8 @@ int main(int argc, char **argv) {
          * Deliberatamente piccolo. Cresce quando una domanda di ottimizzazione
          * lo chiede — un profiler scritto tutto in anticipo misura cio' che
          * l'autore immaginava, non cio' che poi rallenta. */
-        if (strcmp(line, "/debug dump") == 0) {
-            brain_turn_dump(brain);
-            continue;
-        }
-        if (strncmp(line, "/debug depth ", 13) == 0) {
-            p0_debug_set_depth(brain, strtol(line + 13, NULL, 10));
-            continue;
-        }
-        if (strcmp(line, "/debug trace") == 0 || strncmp(line, "/debug trace ", 13) == 0) {
-            p0_debug_trace(brain, line[12] ? line + 13 : NULL);
-            continue;
-        }
-        if (strncmp(line, "/debug ", 7) == 0 &&
-            strcmp(line, "/debug off") != 0) {
-            debug_predicate(brain_kb(brain), line + 7);
-            continue;
-        }
-        if (strcmp(line, "/debug") == 0 || strcmp(line, "/debug off") == 0) {
-            KB *kb = brain_kb(brain);
-            if (strcmp(line, "/debug off") == 0) {
-                kb_profile_set(kb, 0);
-                fprintf(stderr, "parrot0: debug OFF\n");
-                continue;
-            }
-            p0_debug_inspect(brain, last_line);
-            if (!kb_profile_on(kb)) {
-                kb_profile_set(kb, 1);
-                fprintf(stderr, "  (profilo acceso: i turni successivi riportano anche"
-                                " tempi, passi e la strada per nome — /debug off per"
-                                " spegnerlo)\n\n");
-            }
+        if (strcmp(line, "/debug") == 0 || strncmp(line, "/debug ", 7) == 0) {
+            p0_debug_command(brain, line[6] ? line + 7 : "", last_line);
             continue;
         }
         if (line[0] == '\0') {

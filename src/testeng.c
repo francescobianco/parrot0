@@ -744,6 +744,10 @@ static int te_process_stream(TeState *t, FILE *in) {
             const char *q = p + 6; while (*q == ' ' || *q == '\t') q++;
             if (strcmp(q, "off") == 0) { kb_profile_set(brain_kb(t->b), 0); continue; }
             if (strncmp(q, "depth ", 6) == 0) { p0_debug_set_depth(t->b, strtol(q + 6, NULL, 10)); continue; }
+            /* gli stessi verbi di /debug (on, trace, pred, turn, help): un .p0t
+             * e la chat parlano la stessa lingua; `!debug` da solo resta
+             * l'ispettore con il profilo acceso, come i file esistenti si aspettano */
+            if (*q) { p0_debug_command(t->b, q, t->last_turn); continue; }
             fprintf(stderr, "\n[!debug] line %d  [%s]\n",
                     t->line_no, t->section[0] ? t->section : "-");
             p0_debug_inspect(t->b, t->last_turn);

@@ -313,3 +313,21 @@ debug_trace_depth(1).
 trace_stage_depth("read.named", 3).
 % il ciclo `iterate/4` scrive un giro per riga: e' il dettaglio piu' fine
 trace_stage_depth("iterate", 4).
+
+% ── 26 settembre 2026 — LA GUIDA DI /debug (F.: «/debug da solo deve essere
+% come /debug help, che ti mostra come usarlo; il controllo di predicato deve
+% avere un operatore dopo /debug; il toggle deve essere esplicito»). La guida e'
+% conoscenza come la nota e le sonde: un comando nuovo e' una riga qui.
+% `debug_help_line(Ordine, Testo)`; il C la stampa in ordine, con lo stato
+% corrente in testa (profilo acceso o spento, profondita' del trace).
+machinery(debug_help_line).
+debug_help_line(1, "/debug                 questa guida (come /debug help)").
+debug_help_line(2, "/debug on              accende il profilo: dopo ogni turno tempi, passi, la strada per nome e dove vanno le visite ai fatti").
+debug_help_line(3, "/debug off             spegne il profilo").
+debug_help_line(4, "/debug turn            ispeziona l'ultimo turno: la nota, l'anatomia (canone, modulo, strada) e le sonde dichiarate in KB").
+debug_help_line(5, "/debug trace [parola]  la TRACCIA DEL TURNO in ordine, fino alla profondita' corrente; con una parola tiene solo le righe che la contengono").
+debug_help_line(6, "/debug depth N         la profondita' della traccia: 1 = il filo del turno, 2 = il perche' dei cancelli e il costo dei contabili, 3 = i passi dei lettori, 4 = i giri dei cicli").
+debug_help_line(7, "/debug pred NOME       ispeziona un predicato: regole e fatti per arita', con i primi valori (NOME/ARITA' per una sola arita')").
+debug_help_line(8, "/debug dump            scrive lo stato completo dell'ultimo turno nel file di dump").
+debug_help_line(9, "/debug help            questa guida").
+debug_help_line(10, "In un .p0t: !debug (ispettore + profilo), !debug off, !debug depth N. Il trace di ogni turno si salva con PARROT0_TURN_LOG=file.").
