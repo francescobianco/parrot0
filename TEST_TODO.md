@@ -326,6 +326,14 @@ che cosa e' stato fatto per capire se fosse mio.
   toccato.
 - `mix_food_time.p0t` line: «Reading «reads» as «measures»» davanti alla risposta —
   contaminazione del contatto (L4-3), non toccata.
+- ⚠ NUOVI rossi dopo la passata (da guardare per primi, probabilmente miei):
+  `taught_lesson_form.p0t` 38/4 (erano 40/2): line 71 e 136 — «x blorfs y means x
+  zindles y» e «x fixes y means correction: x is y» ora si IMPARANO invece di
+  declinare «I cannot anchor that lesson yet»: sospetto la prova a secco resa
+  «turno nuovo» in `p0_try_reading` (PR1), che ora legge il bersaglio.
+  `behavior_gen512.p0t` 19/3 (era 21/1): line 103-104 «ehi» → «Ehilà!…» invece
+  della lezione — sospetto i nuovi marcatori di lingua italiani (PR8) o la
+  forza `conditional`.
 - `lesson_meets_rule.p0t` line 69 (da decidere, F.): «put do, does or did before the
   subject» ora riconosce «does» come regola gia' usata e lascia al residuo solo
   «did», «do». E' VERO: la forma `verb_first_question` (gloss.p0, DE5) rilegge
