@@ -122,6 +122,69 @@ più coerente. La modifica deve raggiungere le regole che i lettori usano.
 Nessuna modifica è stata fatta e il lavoro è sospeso per la direzione qui
 sopra. La diagnosi resta nel §6, sotto L4-3.
 
+## Censimento 1 — l'inversione nelle domande (26 settembre, su `6ebbe0f1`)
+
+Passo 3 del primo circuito. Domanda: la regola «la domanda si fa mettendo
+l'ausiliare prima del soggetto» esiste nella KB come **oggetto** che una
+lezione può trovare, confrontare ed estendere?
+
+**Risposta: no.** La regola opera, ma è sparsa in pezzi che non si conoscono
+fra loro, e il pezzo che compone la proposta sta nel C.
+
+| pezzo | dove | che cosa fa | è una regola discutibile? |
+|---|---|---|---|
+| riconoscere la domanda | `turn_opens_question/1`, [grammar.p0](../../kb/core/grammar.p0) | il primo nodo è in `auxiliary/1` (o `question_word`, `clause_copula`, …) | KB, classe aperta; ma è un test di **posizione**, non dice che cosa si è spostato né da dove |
+| lo stesso, secondo consumatore | `polar_opener(W) :- auxiliary(W)`; C `p0_turn_is_polar` | chiede alla KB solo del primo token | come sopra |
+| ricomporre la proposta (polare generica) | C `p0_polar_reply`, `10-memory-knowledge.c` | prova **ogni coppia** di token ed entità del turno contro un predicato scelto altrove; unico gancio grammaticale `subject_before_verb_question/1` ← `aux_question/1` | **no**: «ausiliare, soggetto, verbo nudo, oggetto» non è scritto da nessuna parte; è una ricerca nel C (C5) |
+| «can» affermativo e interrogativo | `turn_form(ability_stated, …)` e `turn_form(ability_polar, …)`, [messages.p0](../../kb/core/messages.p0) | due forme **scritte a mano e indipendenti**: `slot(subject), class(ability_marker), rest(object)` e `text("can"), slot(subject), rest(object)`, stessa relazione `ability_of` | i pezzi sono KB e interrogabili, ma che la seconda sia la prima con il modale spostato **non è rappresentato**; la polare usa il letterale «can», non la classe |
+| altri modali | — | nessuna forma per «could», «will», «must», «should» | assenti |
+| do-support | `aux_question/1` e `do_support_verb/1` (stessi tre membri, due classi); `auxiliary_chain_shape(do_support, base, do_support)` in [reading.p0](../../kb/core/english-grammar/reading.p0); `gap_np_verb_trim` | l'affermazione «S stores O» è letta da `extract_frame`; la domanda «does S store O?» ha bisogno di una cue `answer_frame` | due conoscenze diverse per la stessa relazione, fra affermazione e domanda (R5 sulla grammatica) |
+| catalogo delle costruzioni | `construction_family`/`construction_role` in [constructions.p0](../../kb/core/english-grammar/constructions.p0) (modal, negative_inversion, conditional_inversion…) | consumato solo da `construction_role_required` e dalle viste di debug | **descrive, non opera** |
+| la modalità come contenuto | `ability_of(S, testo)`, `can_do/2`, `can_fly/1` | tre rappresentazioni della capacità | «Can a penguin fly?» non raggiunge `can_fly/1` |
+
+**Comportamento misurato** (KB `agi` completa, processo nuovo):
+
+- «A lathe can cut steel.» → «Held», e «Can a lathe cut steel?» → «Yes.». Invece «Could…?» e «Will…?» → muro.
+- «A spring stores energy.» → «Learned», ma «Does a spring store energy?» → «I don't understand that yet.». «Did…?» e «Must…?» → muro. La base aveva già `stores(spring, energy)`.
+- «Can a tern fly?», «Can a penguin fly?» → «I don't know whether…», con `can_fly/1` in KB.
+- «A welder must wear a mask.» → muro; «Must a welder wear a mask?» → letta come «welder wear is mask».
+- Lezione del §0 con «can» e poi «Can a lathe cut steel?» → «Yes. … something I already do». Con «must» l'esempio è **letto male** («welder wear is mask») e la risposta dice lo stesso «I already do». È il rosso del §0 in forma più netta: la conferma poggia sul fatto che l'esempio ha ricevuto una risposta, non su una regola.
+
+**Che cosa dice il censimento su L4.**
+
+1. Oggi una lezione che descrive l'inversione **non ha niente con cui
+   confrontarsi**: la regola che opera non è un oggetto. Nessun supervisore
+   posto sopra lo può cambiare; per primo va cambiato il modo in cui la
+   regola sta nella KB.
+2. Il punto vivo più vicino sono le `turn_form`: pezzi in KB, già letti da
+   altri processi (`conduct-lessons.p0` interroga `turn_form(F, N, text(T))`).
+   La coppia `ability_stated`/`ability_polar` mostra l'inversione come
+   **permutazione di pezzi**, con lo stesso atto e la stessa relazione. È lì
+   che l'inversione può diventare una regola: la forma interrogativa si
+   **deriva** dalla dichiarativa (il pezzo del modale va prima dello slot del
+   soggetto) invece di essere scritta a parte.
+3. Con l'inversione derivata, la lezione del §0 ha un bersaglio. La si
+   confronta con le **conseguenze** della regola: il suo esempio viene letto
+   dalla forma derivata, con il modale della lezione in testa? Allora «questa
+   è la regola che uso, per can». Con «must» la regola c'è ma nessuna forma
+   dichiarativa porta «must»: non «già lo faccio», ma il residuo esatto, cioè
+   quale forma o quale relazione manca.
+4. **Estendere da fuori** diventa allora cambiare una condizione della stessa
+   regola: quali marcatori, quali forme dichiarative, oppure il do-support
+   come caso con il verbo alla forma base (`verb_form/3`). Nessuna forma
+   interrogativa nuova scritta a mano.
+
+**Blocchi possibili, da dichiarare solo se il circuito li incontra:** la
+ricerca a coppie di `p0_polar_reply` (se la polare generica deve passare per
+la regola derivata); le tre rappresentazioni della capacità (`can_fly/1`).
+Non sono lavoro preliminare.
+
+**Prossima decisione (di F.).** Il primo incremento proposto è il punto 2
+sulla sola coppia di «can»: derivare `ability_polar` da `ability_stated`,
+togliere la forma scritta a mano, provare che «Can a lathe cut steel?» si
+legge come prima, e che la regola si può interrogare. Poi il punto 3, la
+lezione confrontata per conseguenze.
+
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 
 I simboli nella tabella esistono a `af2076c4`; cercarli con `rg -n` nei file
