@@ -291,6 +291,34 @@ scratchpad a `scripts/` con le batterie vere: G1–G25, le 100 della meccanica,
 P1–P14. **Gate:** il banco riproduce i numeri del 26 settembre sullo stesso
 binario (131/100; 0/25 regole lette; 8 sovrapposizioni non riconosciute).
 
+**Stato (26 settembre 2026): costruito.** `make coherence` (script
+`scripts/coherence-bench.py`, batteria `tests/coherence/grammar.json`, 22 regole
+di G1–G25). Tre scelte che la prima misura ha imposto:
+
+- **Il contrasto si chiede subito prima e subito dopo la lezione**, e si confronta
+  la prima frase: fra le due domande c'è solo la lezione. Chiesto dopo gli
+  esempi, attribuiva alla lezione ciò che un esempio aveva appena detto
+  («What did Palmer invent?»).
+- **Le regole di giudizio hanno il caso giusto e lo sbagliato a ogni stadio**:
+  parrot0 risponde «No.» a qualsiasi «Is "…" correct?», e un «No.» a tutto
+  sembrava una regola operante (G5, G7, G24).
+- **Ciò che la lezione scrive si legge dal disco della sandbox**: `/save` conta
+  tutte le clausole della sessione, non le nuove (`kb_save_routed`). Il banco
+  confronta i file toccati e separa i fatti del mondo dal registro di servizio
+  (`kb/machinery/`, l'indice del save-map).
+
+**La linea di base (binario di `b93b15c7`):**
+
+| esito | regole |
+|---|---|
+| sovrapposizione non riconosciuta | G2, G3, G4, G19, G21, G22, G23 (7) |
+| fatto spazzatura scritto | G3 `did(put, does)`, G7 `context_fact(present, add, simple, …)`, G13 `make(short_adjectives, comparative)`, G23 `sentence(english, puts_the_subject_first)` |
+| non innestata, niente scritto | le altre 14 |
+| **coerenti** | **0/22** |
+
+Il giro intero dura ~190 s (≈ 0,85 s a turno, ~220 turni): è una misura, non il
+ciclo di lavoro. Il ciclo usa `make coherence ONLY=…`.
+
 ### L4-1 — Riconoscere la sovrapposizione (C3)
 
 **Tirato da:** R2 (G2, G3, G4, G19, G21, G22, G23), R1 (i fatti spazzatura che

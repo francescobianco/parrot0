@@ -1,0 +1,661 @@
+{
+ "battery": "grammar",
+ "about": "Grammatica inglese INSEGNATA come regole dette (sessione del 26 settembre 2026, train-the-learning-process.md G1-G25). Niente sonde di nome: nominare la regola non e' un requisito (F.). Ogni voce: la lezione detta; 'before' e 'after' sono esempi DIVERSI della stessa regola; 'held' e' un caso tenuto fuori, mai nella lezione; 'contrast' e' una domanda vicina che la lezione NON deve cambiare (si confronta la risposta prima e dopo). Per le regole di giudizio ('is X correct?') il 'prima' ha un caso giusto e uno sbagliato: un 'No.' a tutto non e' una regola operante. Anche 'dopo' e 'tenuto fuori' hanno il caso giusto e lo sbagliato.",
+ "lessons": [
+  {
+   "id": "G1",
+   "rule": "domanda si/no con be: il verbo prima del soggetto",
+   "lesson": [
+    "To make a yes-no question with the verb be, put the verb before the subject."
+   ],
+   "before": [
+    [
+     "The spindle is worn. || Is the spindle worn?",
+     "yes"
+    ]
+   ],
+   "after": [
+    [
+     "The collet is loose. || Is the collet loose?",
+     "yes"
+    ]
+   ],
+   "held": [
+    [
+     "The chuck is balanced. || Is the chuck balanced?",
+     "yes"
+    ]
+   ],
+   "contrast": [
+    "Is a lathe a machine?"
+   ]
+  },
+  {
+   "id": "G2",
+   "rule": "domanda con i modali: il modale prima del soggetto",
+   "lesson": [
+    "To make a question with can, put can before the subject."
+   ],
+   "before": [
+    [
+     "A lathe can cut threads. || Can a lathe cut threads?",
+     "yes"
+    ]
+   ],
+   "after": [
+    [
+     "A mill can cut slots. || Can a mill cut slots?",
+     "yes"
+    ]
+   ],
+   "held": [
+    [
+     "A grinder can sharpen drills. || Can a grinder sharpen drills?",
+     "yes"
+    ]
+   ],
+   "contrast": [
+    "What can a lathe cut?"
+   ]
+  },
+  {
+   "id": "G3",
+   "rule": "domanda con do/does/did e il verbo nudo",
+   "lesson": [
+    "To make a question with other verbs, put do, does or did before the subject and use the bare verb."
+   ],
+   "before": [
+    [
+     "The machinist ground the shaft. || Did the machinist grind the shaft?",
+     "yes"
+    ]
+   ],
+   "after": [
+    [
+     "The apprentice cut the gear. || Did the apprentice cut the gear?",
+     "yes"
+    ]
+   ],
+   "held": [
+    [
+     "Reamers enlarge holes. || Do reamers enlarge holes?",
+     "yes"
+    ]
+   ],
+   "contrast": [
+    "What did the machinist grind?"
+   ]
+  },
+  {
+   "id": "G4",
+   "rule": "negazione: not dopo l'ausiliare",
+   "lesson": [
+    "To make a negative sentence, put not after the auxiliary verb."
+   ],
+   "before": [
+    [
+     "A micrometer cannot measure weight. || Can a micrometer measure weight?",
+     "no"
+    ]
+   ],
+   "after": [
+    [
+     "A caliper cannot measure temperature. || Can a caliper measure temperature?",
+     "no"
+    ]
+   ],
+   "held": [
+    [
+     "A file does not cut glass. || Does a file cut glass?",
+     "no"
+    ]
+   ],
+   "contrast": [
+    "What does a micrometer measure?"
+   ]
+  },
+  {
+   "id": "G5",
+   "rule": "this con il singolare, these con il plurale",
+   "lesson": [
+    "Use this with a singular noun and these with a plural noun."
+   ],
+   "before": [
+    [
+     "Is \"these lathe\" correct?",
+     "no"
+    ],
+    [
+     "Is \"these lathes\" correct?",
+     "yes"
+    ]
+   ],
+   "after": [
+    [
+     "Is \"this lathes\" correct?",
+     "no"
+    ],
+    [
+     "Is \"this lathe\" correct?",
+     "yes"
+    ]
+   ],
+   "held": [
+    [
+     "Is \"these mill\" correct?",
+     "no"
+    ],
+    [
+     "Is \"these mills\" correct?",
+     "yes"
+    ]
+   ],
+   "contrast": [
+    "Is \"my name are Francesco\" correct?"
+   ]
+  },
+  {
+   "id": "G7",
+   "rule": "terza persona singolare: il verbo prende -s",
+   "lesson": [
+    "In the present simple, add s to the verb after he, she, it or a singular noun."
+   ],
+   "before": [
+    [
+     "Is \"the machinist hone the bore\" correct?",
+     "no"
+    ],
+    [
+     "Is \"the machinist hones the bore\" correct?",
+     "yes"
+    ]
+   ],
+   "after": [
+    [
+     "Is \"the turner knurl the knob\" correct?",
+     "no"
+    ],
+    [
+     "Is \"the turner knurls the knob\" correct?",
+     "yes"
+    ]
+   ],
+   "held": [
+    [
+     "Is \"the fitter ream the hole\" correct?",
+     "no"
+    ],
+    [
+     "Is \"the fitter reams the hole\" correct?",
+     "yes"
+    ]
+   ],
+   "contrast": [
+    "What does a machinist do?"
+   ]
+  },
+  {
+   "id": "G9",
+   "rule": "a/an secondo il SUONO",
+   "lesson": [
+    "Use an before a vowel sound and a before a consonant sound; universal starts with a consonant sound, so say a universal."
+   ],
+   "before": [
+    [
+     "puppo is a universal_quantifier",
+     "a universal"
+    ]
+   ],
+   "after": [
+    [
+     "zork is a unique_tool",
+     "a unique"
+    ]
+   ],
+   "held": [
+    [
+     "blix is a useful_gauge",
+     "a useful"
+    ]
+   ],
+   "contrast": [
+    [
+     "plonk is an umbrella_stand",
+     "an umbrella"
+    ]
+   ]
+  },
+  {
+   "id": "G10",
+   "rule": "plurale: consonante + y diventa -ies",
+   "lesson": [
+    "When a noun ends in a consonant followed by y, change the y to i and add es to make the plural."
+   ],
+   "before": [
+    [
+     "What is the plural of foundry?",
+     "foundries"
+    ]
+   ],
+   "after": [
+    [
+     "What is the plural of refinery?",
+     "refineries"
+    ]
+   ],
+   "held": [
+    [
+     "What is the plural of factory?",
+     "factories"
+    ]
+   ],
+   "contrast": [
+    "What is the plural of key?"
+   ]
+  },
+  {
+   "id": "G11",
+   "rule": "plurale: -es dopo s, x, ch, sh",
+   "lesson": [
+    "Add es to make the plural of a noun that ends in s, x, ch or sh."
+   ],
+   "before": [
+    [
+     "What is the plural of torch?",
+     "torches"
+    ]
+   ],
+   "after": [
+    [
+     "What is the plural of bench?",
+     "benches"
+    ]
+   ],
+   "held": [
+    [
+     "What is the plural of box?",
+     "boxes"
+    ]
+   ],
+   "contrast": [
+    "What is the plural of gear?"
+   ]
+  },
+  {
+   "id": "G12",
+   "rule": "passato regolare: -ed",
+   "lesson": [
+    "To make the past of a regular verb, add ed; if the verb ends in e, add only d."
+   ],
+   "before": [
+    [
+     "What is the past of hone?",
+     "honed"
+    ]
+   ],
+   "after": [
+    [
+     "What is the past of knurl?",
+     "knurled"
+    ]
+   ],
+   "held": [
+    [
+     "What is the past of polish?",
+     "polished"
+    ]
+   ],
+   "contrast": [
+    "What is the past of grind?"
+   ]
+  },
+  {
+   "id": "G13",
+   "rule": "comparativo: -er per gli aggettivi brevi, more per i lunghi",
+   "lesson": [
+    "Short adjectives make the comparative with er and long adjectives with more."
+   ],
+   "before": [
+    [
+     "What is the comparative of hard?",
+     "harder"
+    ]
+   ],
+   "after": [
+    [
+     "What is the comparative of soft?",
+     "softer"
+    ]
+   ],
+   "held": [
+    [
+     "What is the comparative of accurate?",
+     "more accurate"
+    ]
+   ],
+   "contrast": [
+    "The bearings are dry. || They need grease. || What needs grease?"
+   ]
+  },
+  {
+   "id": "G14",
+   "rule": "confronto con than",
+   "lesson": [
+    "After a comparative, than introduces the thing being compared."
+   ],
+   "before": [
+    [
+     "Steel is harder than aluminium. || Which is harder, steel or aluminium?",
+     "steel"
+    ]
+   ],
+   "after": [
+    [
+     "Diamond is harder than steel. || Which is harder, diamond or steel?",
+     "diamond"
+    ]
+   ],
+   "held": [
+    [
+     "Brass is softer than steel. || Which is softer, brass or steel?",
+     "brass"
+    ]
+   ],
+   "contrast": [
+    "Is steel an alloy?"
+   ]
+  },
+  {
+   "id": "G15",
+   "rule": "genitivo sassone: 's indica possesso",
+   "lesson": [
+    "Add apostrophe s to a noun to show that something belongs to it."
+   ],
+   "before": [
+    [
+     "The lathe's chuck is worn. || What is worn?",
+     "chuck"
+    ]
+   ],
+   "after": [
+    [
+     "The mill's table is scratched. || What is scratched?",
+     "table"
+    ]
+   ],
+   "held": [
+    [
+     "The press's ram is bent. || What is bent?",
+     "ram"
+    ]
+   ],
+   "contrast": [
+    "What is the capital of France?"
+   ]
+  },
+  {
+   "id": "G17",
+   "rule": "pronomi: it per le cose",
+   "lesson": [
+    "Use it for a thing, he for a man and she for a woman."
+   ],
+   "before": [
+    [
+     "The lathe is old. || It needs oil. || What needs oil?",
+     "lathe"
+    ]
+   ],
+   "after": [
+    [
+     "The pump is noisy. || It needs a new seal. || What needs a new seal?",
+     "pump"
+    ]
+   ],
+   "held": [
+    [
+     "The drill is blunt. || It needs sharpening. || What needs sharpening?",
+     "drill"
+    ]
+   ],
+   "contrast": [
+    "Who is Marie Curie?"
+   ]
+  },
+  {
+   "id": "G18",
+   "rule": "they per i plurali",
+   "lesson": [
+    "Use they for a plural noun."
+   ],
+   "before": [
+    [
+     "The bearings are dry. || They need grease. || What needs grease?",
+     "bearings"
+    ]
+   ],
+   "after": [
+    [
+     "The belts are worn. || They need replacing. || What needs replacing?",
+     "belts"
+    ]
+   ],
+   "held": [
+    [
+     "The gears are chipped. || They need regrinding. || What needs regrinding?",
+     "gears"
+    ]
+   ],
+   "contrast": [
+    "Are gears machine parts?"
+   ]
+  },
+  {
+   "id": "G19",
+   "rule": "domanda sul soggetto con who, senza do",
+   "lesson": [
+    "A question about the subject with who does not use do."
+   ],
+   "before": [
+    [
+     "Edison invented the phonograph. || Who invented the phonograph?",
+     "edison"
+    ]
+   ],
+   "after": [
+    [
+     "Palmer invented the micrometer. || Who invented the micrometer?",
+     "palmer"
+    ]
+   ],
+   "held": [
+    [
+     "Maudslay built the screw-cutting lathe. || Who built the screw-cutting lathe?",
+     "maudslay"
+    ]
+   ],
+   "contrast": [
+    "What did Palmer invent?"
+   ]
+  },
+  {
+   "id": "G20",
+   "rule": "presente progressivo: be + -ing",
+   "lesson": [
+    "The present continuous is am, is or are followed by the verb with ing."
+   ],
+   "before": [
+    [
+     "The machinist is turning a shaft. || What is the machinist turning?",
+     "shaft"
+    ]
+   ],
+   "after": [
+    [
+     "The fitter is honing a liner. || What is the fitter honing?",
+     "liner"
+    ]
+   ],
+   "held": [
+    [
+     "The welder is joining a frame. || What is the welder joining?",
+     "frame"
+    ]
+   ],
+   "contrast": [
+    "What does a fitter do?"
+   ]
+  },
+  {
+   "id": "G21",
+   "rule": "passivo: be + participio, agente dopo by",
+   "lesson": [
+    "The passive is made with be and the past participle, and the agent comes after by."
+   ],
+   "before": [
+    [
+     "The shaft was turned by the machinist. || Who turned the shaft?",
+     "machinist"
+    ]
+   ],
+   "after": [
+    [
+     "The gear was cut by the apprentice. || Who cut the gear?",
+     "apprentice"
+    ]
+   ],
+   "held": [
+    [
+     "The bore was honed by the fitter. || Who honed the bore?",
+     "fitter"
+    ]
+   ],
+   "contrast": [
+    "What did the apprentice cut?"
+   ]
+  },
+  {
+   "id": "G22",
+   "rule": "aggettivo prima del nome",
+   "lesson": [
+    "In English the adjective comes before the noun."
+   ],
+   "before": [
+    [
+     "A worn bearing causes noise. || What causes noise?",
+     "worn bearing"
+    ]
+   ],
+   "after": [
+    [
+     "A loose belt causes slipping. || What causes slipping?",
+     "loose belt"
+    ]
+   ],
+   "held": [
+    [
+     "A dull tool causes chatter. || What causes chatter?",
+     "dull tool"
+    ]
+   ],
+   "contrast": [
+    "What language do you speak?"
+   ]
+  },
+  {
+   "id": "G23",
+   "rule": "ordine soggetto-verbo-oggetto",
+   "lesson": [
+    "An English sentence puts the subject first, then the verb, then the object."
+   ],
+   "before": [
+    [
+     "The collet holds the drill. || What holds the drill?",
+     "collet"
+    ]
+   ],
+   "after": [
+    [
+     "The vise grips the block. || What grips the block?",
+     "vise"
+    ]
+   ],
+   "held": [
+    [
+     "The chuck clamps the bar. || What clamps the bar?",
+     "chuck"
+    ]
+   ],
+   "contrast": [
+    "What does the collet hold?"
+   ]
+  },
+  {
+   "id": "G24",
+   "rule": "some nelle affermative, any nelle domande",
+   "lesson": [
+    "Use some in positive sentences and any in questions and negative sentences."
+   ],
+   "before": [
+    [
+     "Is \"I have any bolts\" correct?",
+     "no"
+    ],
+    [
+     "Is \"I have some nuts\" correct?",
+     "yes"
+    ]
+   ],
+   "after": [
+    [
+     "Is \"do you have some bolts\" correct?",
+     "yes"
+    ],
+    [
+     "Is \"I have any washers\" correct?",
+     "no"
+    ]
+   ],
+   "held": [
+    [
+     "Is \"I do not have any rivets\" correct?",
+     "yes"
+    ],
+    [
+     "Is \"I do not have some rivets\" correct?",
+     "no"
+    ]
+   ],
+   "contrast": [
+    "What is a bolt?"
+   ]
+  },
+  {
+   "id": "G25",
+   "rule": "avverbi in -ly dagli aggettivi",
+   "lesson": [
+    "Many adverbs are made by adding ly to an adjective."
+   ],
+   "before": [
+    [
+     "Is quickly an adverb?",
+     "yes"
+    ]
+   ],
+   "after": [
+    [
+     "Is slowly an adverb?",
+     "yes"
+    ]
+   ],
+   "held": [
+    [
+     "Is carefully an adverb?",
+     "yes"
+    ]
+   ],
+   "contrast": [
+    "Is quick an adjective?"
+   ]
+  }
+ ]
+}

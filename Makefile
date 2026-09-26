@@ -1056,3 +1056,13 @@ hundred-v:
 measure:
 	@$(MAKE) --no-print-directory build >/dev/null
 	@PARROT0_LANG=en ./$(BIN) --measure tests/measure/
+
+# L4-0 (docs/plans/l4-upgrade.md): il banco di coerenza dell'apprendimento.
+# Una batteria di lezioni in una KB-sandbox (var/coherence-sandbox): prima,
+# dopo, tenuto fuori, contrasto, riavvio, e i fatti che ogni lezione scrive.
+#   make coherence                      la grammatica intera (~3 min: misura, non ciclo)
+#   make coherence ONLY=G2,G3           un sottoinsieme, per il ciclo di lavoro
+BATTERY ?= grammar
+.PHONY: coherence
+coherence: $(BIN)
+	python3 scripts/coherence-bench.py tests/coherence/$(BATTERY).json $(if $(ONLY),--only $(ONLY))
