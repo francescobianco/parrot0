@@ -5534,7 +5534,14 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
     }
     size_t nr = kb_match(b->kb, "turn_priority_response", q, 2, replies, 1);
     if (nr == 1) {
-        p0_trace(b, "plan", "turn_priority_response answers «%.160s»", kb_dequote(replies[0]));
+        /* PR14 (26 settembre 2026): `kb_dequote` toglie la virgoletta finale sul
+         * posto, quindi una seconda chiamata sullo stesso buffer non riconosce
+         * piu' la stringa citata e lascia quella iniziale («"Non ho una
+         * proposta attiva…»). Si toglie una volta sola, su una copia. */
+        char unq[KB_TERM_LEN];
+        snprintf(unq, sizeof unq, "%s", replies[0]);
+        const char *said = kb_dequote(unq);
+        p0_trace(b, "plan", "turn_priority_response answers «%.160s»", said);
         /* solo col trace profondo: la prova costa una ricerca in piu' */
         if (p0_trace_deep(b)) {
             char deps[24][KB_TERM_LEN];
@@ -5543,7 +5550,7 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
             if (nd == 0) p0_trace(b, "plan", "(no derivation recorded for this answer)");
             for (size_t i = 0; i < nd; i++) p0_trace(b, "plan", "depends on %s", deps[i]);
         }
-        put(kb_dequote(replies[0]), out, out_size);
+        put(said, out, out_size);
         return 1;
     }
     nr = kb_match(b->kb, "turn_response", q, 2, replies, 1);
@@ -5552,7 +5559,12 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
      * risposta: la prova in una riga (`kb_explain`), come fatto del turno. Senza,
      * una risposta sbagliata del piano di turno non diceva quale delle sue
      * ottanta regole l'aveva prodotta (RI-016). */
-    p0_trace(b, "plan", "turn_response answers «%.160s»", kb_dequote(replies[0]));
+    /* PR14: una copia da togliere dalle virgolette, una volta sola; `replies[0]`
+     * resta citato per la ricerca della prova qui sotto. */
+    char unq_r[KB_TERM_LEN];
+    snprintf(unq_r, sizeof unq_r, "%s", replies[0]);
+    const char *said_r = kb_dequote(unq_r);
+    p0_trace(b, "plan", "turn_response answers «%.160s»", said_r);
     {   /* una sola prova per risposta: sempre, perche' il turno che sbaglia
          * e' quello che non si sapeva di dover guardare */
         char deps[24][KB_TERM_LEN];
@@ -5561,7 +5573,7 @@ static int turn_plan_answer(Brain *b, char *out, size_t out_size) {
         if (nd == 0) p0_trace(b, "plan", "(no derivation recorded for this answer)");
         for (size_t i = 0; i < nd; i++) p0_trace(b, "plan", "depends on %s", deps[i]);
     }
-    put(kb_dequote(replies[0]), out, out_size);
+    put(said_r, out, out_size);
     return 1;
 }
 
