@@ -1,0 +1,47 @@
+# sessione: Sessione B (train-the-smart-agent, 27 set): la KB salvata risolve i problemi di logica situazionale, senza reinsegnare — 2026-09-27 18:38 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@f90b71fe]
+# mode: conversational (tools off, network off) - 170494 facts, 5956 rules (3.49%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Sessione B, processo nuovo con la KB salvata dalla sessione A. Nessuna lezione: solo le situazioni come le racconta una persona. Problema 1 (F1.1): il differenziale.
+> The kettle, the fridge and the washing machine are appliances.
+< Learned: kettle is an appliance. Learned: fridge is an appliance. Learned: washing machine is an appliance.
+> The RCD keeps tripping.
+< Learned: residual current device keep tripping.
+> I can't work out which appliance is causing it.
+< I can't tell yet which appliance leaks current: it could be the kettle, the fridge or the washing machine. You could try unplugging them one at a time. Unplugging an appliance stops it from leaking current, so when the residual current device stops tripping, the last one you changed is the one.
+> I don't know what to try next.
+< I can't tell yet which appliance leaks current: it could be the kettle, the fridge or the washing machine. You could try unplugging them one at a time. Unplugging an appliance stops it from leaking current, so when the residual current device stops tripping, the last one you changed is the one.
+> Why does the RCD trip?
+< Hmm, I don't know about residual yet. Want me to learn about it?
+! F1.1 risolto dalla KB salvata al primo turno di blocco (livello 4-5). Il 'why' sull'effetto osservato con causa ignota non ha risposta: lacuna nuova, annotata. Problema 2 (F21.1): tornare a casa prima.
+> The departure time of the bus is 6:10 pm.
+< Learned: the departure time of bus is 6:10 pm.
+> The departure time of the train is 6:25 pm.
+< Learned: the departure time of train is 6:25 pm.
+> The travel time of the bus is 40 minutes.
+< Learned: the travel time of bus is 40 minutes.
+> The travel time of the train is 20 minutes.
+< Learned: the travel time of train is 20 minutes.
+> I want to get home as soon as possible.
+< Understood: you want to get home as soon as possible. Tell me the options and I will compare them on that.
+> Should I take the bus or the train?
+< The train: its arrival time is 6:45 pm, against 6:50 pm for the bus.
+> Which is faster, the bus or the train?
+< The train: its travel time is 20 minutes, against 40 minutes for the bus.
+! Contrasto decisivo per la domanda di F.: una situazione in cui arrivare prima e andare più veloce divergono. Tram: parte alle 6:00, 40 minuti (arriva 6:40). Taxi: parte alle 6:30, 15 minuti (arriva 6:45). Il più veloce è il taxi, ma per arrivare prima serve il tram. Se la direzione venisse da una casistica ('veloce' = minore durata) la scelta con l'obiettivo sbaglierebbe.
+> The departure time of the tram is 6:00 pm.
+< Learned: the departure time of tram is 6:00 pm.
+> The departure time of the taxi is 6:30 pm.
+< Learned: the departure time of taxi is 6:30 pm.
+> The travel time of the tram is 40 minutes.
+< Learned: the travel time of tram is 40 minutes.
+> The travel time of the taxi is 15 minutes.
+< Learned: the travel time of taxi is 15 minutes.
+> Should I take the tram or the taxi?
+< The tram: its arrival time is 6:40 pm, against 6:45 pm for the taxi.
+> Which is faster, the tram or the taxi?
+< The taxi: its travel time is 15 minutes, against 40 minutes for the tram.
+> Which is sooner, the tram or the taxi?
+< The tram: its arrival time is 6:40 pm, against 6:45 pm for the taxi.
+! Chiusura senza /save: tutto ciò che la sessione B ha detto sono dati di situazione. Esito: con la sola KB salvata dalla sessione A, F1.1 (livello 4-5) e F21.1 risolti al primo tentativo, e il contrasto tram/taxi separa 'prima' da 'più veloce'. Lacuna nuova: il 'why' su un effetto osservato con causa ignota.
