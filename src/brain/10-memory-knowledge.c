@@ -14202,6 +14202,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
                                              char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
+    p0_trace_at(b, 3, "coord", "entra con «%s»", norm);
     size_t L = strlen(norm);
     if (L < 9 || L >= 300 || norm[L - 1] == '?') return 0;
     char s[300]; memcpy(s, norm, L + 1);
@@ -14245,6 +14246,7 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
         if (is_conj) seen_conj = 1;
     }
     if (!seen_conj || nc < 2) return 0;
+    for (size_t k = 0; k < nc; k++) p0_trace_at(b, 3, "coord", "conjunct %zu «%s» (copula alla parola %zu di %zu)", k, conj[k], cop, n);
 
     /* La coda condivisa: dalla copula in poi, identica per ogni conjunct. */
     char tail[300]; size_t t = 0;
@@ -14274,7 +14276,12 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
             char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", gg[0]);
             const char *good = kb_dequote(cb);
             char head[KB_TERM_LEN];
-            snprintf(head, sizeof head, "%s", w[n - 1]);
+            /* 27 settembre 2026 (train-the-smart-agent G9): la frase finisce
+             * col punto, e «appliances.» non si singolarizza: il primo
+             * elemento, ridetto «the kettle is an appliances.», non si leggeva
+             * piu' e spariva dalla lista. */
+            { char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", w[n - 1]);
+              snprintf(head, sizeof head, "%s", strip_edge_punct(hb)); }
             char sg[1][KB_TERM_LEN];
             const char *pq[2] = { head, NULL };
             if (kb_match(b->kb, "plural_of", pq, 2, sg, 1) == 1) {
@@ -14300,7 +14307,9 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
         char one[600];
         if ((size_t)snprintf(one, sizeof one, "%s %s", conj[i], use_tail) >= sizeof one) continue;
         char reply[512]; reply[0] = '\0';
-        if (!mod_knowledge(b, one, one, reply, sizeof reply) || !reply[0]) continue;
+        int got = mod_knowledge(b, one, one, reply, sizeof reply) && reply[0];
+        p0_trace_at(b, 3, "coord", "conj %zu «%s» -> %s", i, one, got ? reply : "(nessuna lettura)");
+        if (!got) continue;
         o += (size_t)snprintf(joined + o, sizeof joined - o, "%s%s",
                               learned ? " " : "", reply);
         learned++;

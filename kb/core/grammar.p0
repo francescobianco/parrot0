@@ -1339,6 +1339,20 @@ word_separator(" ").
 % 99-registry.c): «In the narrowest sense of the word, it consists of…».
 machinery(adjunct_max_words).
 adjunct_max_words(8).
+% (27 settembre 2026, train-the-smart-agent G9) La virgola di un ELENCO non
+% chiude un inciso: in «kettle, fridge and oven are appliances» il residuo porta
+% una congiunzione prima della copula, cioe' continua la lista, e cio' che sta
+% prima della virgola ne e' il primo elemento. Sbucciarlo lo faceva sparire.
+machinery(residue_continues_list).
+machinery(words_list_before_copula).
+residue_continues_list($Text) :- atom_words($Text, $Ws), words_list_before_copula($Ws).
+words_list_before_copula(cons($W, $R)) :- conjunction($W).
+words_list_before_copula(cons($W, $R)) :-
+    naf(conjunction($W)), naf(clause_copula($W)), naf(word_is_verb_form($W)),
+    words_list_before_copula($R).
+% (la congiunzione di un elenco di SOGGETTI sta prima del primo verbo: in
+% «composting requires gathering … leaves, grass, and food scraps» la lista e'
+% dell'oggetto, dopo «requires», e l'inciso davanti si sbuccia ancora)
 
 machinery(classifier_head).
 classifier_head(type).

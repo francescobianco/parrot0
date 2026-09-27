@@ -747,6 +747,15 @@ static int adjunct_peel(Brain *b, const char *canon, const char *raw,
         p0_trace(b, "read.adjunct", "«%s» e' un'esclusione: il turno resta intero\n", rest);
         return 0;
     }
+    /* 27 settembre 2026 (train-the-smart-agent G9) — la virgola di un ELENCO
+     * non e' quella di un inciso: se il residuo continua una lista
+     * (`residue_continues_list/1`, KB), il turno resta intero. */
+    { char rq[520]; snprintf(rq, sizeof rq, "\"%s\"", rest);
+      const char *lq[1] = { rq };
+      if (kb_query(b->kb, "residue_continues_list", lq, 1)) {
+          p0_trace(b, "read.adjunct", "«%s» continua un elenco: il turno resta intero\n", rest);
+          return 0;
+      } }
     /* Il residuo dev'essere una proposizione, non un secondo pezzo di elenco:
      * almeno tre parole. */
     { int rw = 1; for (const char *p = rest; *p; p++) if (isspace((unsigned char)*p)) rw++;
