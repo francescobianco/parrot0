@@ -18858,15 +18858,32 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * riconoscerlo basta rimettere l'ausiliare al suo posto — quali parole
          * lo siano e' gia' conoscenza (`aux_question/1`). Senza questo, la
          * regola imparata risponderebbe solo a chi la sa gia'. */
+        /* 27 settembre 2026 (train-the-smart-agent G6) — il soggetto puo'
+         * essere di piu' parole («does the residual current device trip»), e
+         * con il portatore del tempo il verbo riprende la sua forma finita
+         * («does the kettle trip» -> «the kettle trips»: `polar_do_finite/3`,
+         * KB). Si prova ogni fine possibile del soggetto; decide
+         * `proposition_seen/1`, cioe' se una regola nomina quella proposizione. */
         if (pn >= 3 && lex_class_member(b, "polar_fronted", pw[0])) {
-            /* il soggetto e' il primo termine dopo l'ausiliare, articolo incluso */
-            size_t subj_end = 1;
-            if (is_definite_article(b, pw[1]) || is_article(b, pw[1])) subj_end = 2;
-            if (subj_end < pn) {
+            for (size_t subj_end = 1; subj_end + 1 < pn + 1 && subj_end < pn; subj_end++) {
+                if (subj_end == 1 && (is_definite_article(b, pw[1]) || is_article(b, pw[1])))
+                    continue;                                  /* l'articolo da solo non e' un soggetto */
                 char *qw[16]; size_t k = 0;
+                char fin[1][KB_TERM_LEN]; int finite = 0;
+                if (subj_end + 1 < pn) {
+                    char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", strip_edge_punct(pw[subj_end + 1]));
+                    char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", strip_edge_punct(pw[0]));
+                    const char *fq[3] = { db, vb, NULL };
+                    finite = kb_match(b->kb, "polar_do_finite", fq, 3, fin, 1) == 1;
+                }
                 for (size_t i = 1; i <= subj_end && k < 15; i++) qw[k++] = pw[i];
-                if (k < 15) qw[k++] = pw[0];                    /* l'ausiliare torna a posto */
-                for (size_t i = subj_end + 1; i < pn && k < 15; i++) qw[k++] = pw[i];
+                if (finite) {
+                    if (k < 15) qw[k++] = (char *)kb_dequote(fin[0]);  /* il tempo torna sul verbo */
+                    for (size_t i = subj_end + 2; i < pn && k < 15; i++) qw[k++] = pw[i];
+                } else {
+                    if (k < 15) qw[k++] = pw[0];                    /* l'ausiliare torna a posto */
+                    for (size_t i = subj_end + 1; i < pn && k < 15; i++) qw[k++] = pw[i];
+                }
                 char qslug[KB_TERM_LEN];
                 if (p0_proposition_atom(b, qw, k, qslug, sizeof qslug)) {
                     const char *qq[] = { qslug };

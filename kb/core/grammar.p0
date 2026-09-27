@@ -3746,6 +3746,15 @@ machinery(polar_fronted).
 polar_fronted(is).   polar_fronted(are).
 polar_fronted(was).  polar_fronted(were).
 polar_fronted(does). polar_fronted(do).  polar_fronted(did).
+% (27 settembre 2026, train-the-smart-agent G6) Con il portatore del tempo
+% («does», «did») l'affermazione non e' «the kettle does trip»: il tempo torna
+% sul verbo, «the kettle trips». Quale forma prende il verbo e' la stessa
+% composizione dei paradigmi del ramo `supported` (sopra): la forma del portatore
+% dice il tipo, il verbo prende la sua forma di quel tipo.
+machinery(polar_do_finite).
+polar_do_finite($Do, $R, $F) :-
+    tense_carrier($C), verb_root_form($C, form($Do, $K)), auxiliary($Do),
+    verb_root_form($R, form($R, base)), verb_root_form($R, form($F, $K)).
 
 % ── gen419: LE FORME TRANSCODIFICABILI ──────────────────────────────────────
 %
