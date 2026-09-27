@@ -217,6 +217,7 @@ typedef struct {
     size_t   *a0p[2];      /* positions in kb->facts, ascending in a hash    */
     size_t    a0n[2];      /* entries                                        */
     int       a0_state[2]; /* 0 = not built / stale, 1 = built, -1 = unusable*/
+    unsigned char a0_atoms[2]; /* built, and no fact has a compound there     */
     unsigned char remap_mark;  /* kb_compact: bucket already remapped      */
 } PredStat;
 
@@ -1174,11 +1175,19 @@ static int a0_pair_cmp(const void *x, const void *y) {
     if (a->h != b->h) return a->h < b->h ? -1 : 1;
     return a->p < b->p ? -1 : (a->p > b->p);
 }
+static int split_compound(const char *s, char *functor,
+                          char args[][KB_TERM_LEN], size_t *argc);
 static int a0_build(KB *kb, PredStat *e, int k) {
+    int atoms = 1;
     for (size_t i = 0; i < e->nfacts; i++) {
         const Fact *f = &kb->facts[e->idx[i]];
         if (f->argc <= (size_t)k || is_var(f->args[k])) { e->a0_state[k] = -1; return 0; }
+        if (atoms && strchr(f->args[k], '(')) {
+            char fa[KB_TERM_LEN], aa[KB_MAX_ARGS][KB_TERM_LEN]; size_t na = 0;
+            if (split_compound(f->args[k], fa, aa, &na)) atoms = 0;
+        }
     }
+    e->a0_atoms[k] = (unsigned char)atoms;
     A0Pair *pairs = malloc(e->nfacts * sizeof *pairs);
     uint64_t *h = malloc(e->nfacts * sizeof *h);
     size_t *p = malloc(e->nfacts * sizeof *p);
@@ -1213,6 +1222,29 @@ static int pred_bucket_a0(const KB *kb, const char *pred, int k, const char *arg
     while (end < e->a0n[k] && e->a0h[k][end] == key) end++;
     out->idx = e->a0p[k] + lo;
     out->n = end - lo;
+    out->live = 1;
+    out->nonground = e->nnonground > 0;
+    return 1;
+}
+/* L4, 27 settembre 2026 — the same slice for a ground COMPOUND in position k:
+ * when no fact of the predicate has a compound there (and none a variable,
+ * which a0_build already refuses), no fact can unify and the slice is empty.
+ * The forms derived by the grammar are named by their derivation
+ * (`inverted(D, W)`, `supported(D, W)`), and each question about one of them
+ * walked the whole `turn_form` bucket: 4.3 million fact visits in one lesson
+ * turn. Rules are untouched: they are not in the bucket. */
+static int pred_bucket_a0_compound(const KB *kb, const char *pred, int k,
+                                   PredBucket *out) {
+    static int off = -1;
+    if (off < 0) off = getenv("PARROT0_NO_ARG_INDEX") != NULL;
+    if (off) return 0;
+    int live = 0;
+    PredStat *e = (PredStat *)pred_stats_get((KB *)kb, pred, &live);
+    if (!live || !e || e->nfacts < A0_MIN_FACTS || e->a0_state[k] < 0) return 0;
+    if (e->a0_state[k] == 0 && !a0_build((KB *)kb, e, k)) return 0;
+    if (!e->a0_atoms[k]) return 0;
+    out->idx = e->a0p[k];
+    out->n = 0;
     out->live = 1;
     out->nonground = e->nnonground > 0;
     return 1;
@@ -4243,7 +4275,10 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                     (size_t)k < grounded_goal.argc; k++) {
         if (term_contains_var(grounded_goal.args[k], 0)) continue;
         char fa[KB_TERM_LEN], aa[KB_MAX_ARGS][KB_TERM_LEN]; size_t na = 0;
-        if (split_compound(grounded_goal.args[k], fa, aa, &na)) continue;
+        if (split_compound(grounded_goal.args[k], fa, aa, &na)) {
+            if (pred_bucket_a0_compound(S->kb, g->pred, k, &gbk)) break;
+            continue;
+        }
         if (pred_bucket_a0(S->kb, g->pred, k, grounded_goal.args[k], &gbk)) break;
     }
     /* 26 settembre 2026: si contano solo le visite che AVVENGONO — con un goal
@@ -5795,7 +5830,10 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
         for (int k = 0; bk.live && k < 2 && (size_t)k < argc; k++) {
             if (!args[k]) continue;
             char fa[KB_TERM_LEN], aa[KB_MAX_ARGS][KB_TERM_LEN]; size_t na = 0;
-            if (split_compound(args[k], fa, aa, &na)) continue;
+            if (split_compound(args[k], fa, aa, &na)) {
+                if (pred_bucket_a0_compound(kb, pred, k, &bk)) break;
+                continue;
+            }
             if (pred_bucket_a0(kb, pred, k, args[k], &bk)) break;
         }
         for (size_t vi = 0; vi < PRED_VISITS(bk, kb); vi++) {

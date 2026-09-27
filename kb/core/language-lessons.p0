@@ -55,9 +55,11 @@ language_term(clause, weak).        language_term(agent, weak).
 machinery(language_term_form).
 % (⚠ `eq/2` e' un confronto NUMERICO: l'identita' si scrive nella testa.)
 language_term_form($W, $W, $F) :- language_term($W, $F).
+% La desinenza si stacca dalla parola detta, non si attacca a ogni termine: con
+% le liste di caratteri costruite per ogni termine il turno di una lezione
+% passava 1,6 s dentro `app` (177 000 ingressi, misurato con /debug on).
 language_term_form($W, $H, $F) :-
-    language_term($H, $F), plural_suffix($Suf, nil),
-    chars($H, $HC), chars($Suf, $SC), app($HC, $SC, $WC), chars($W, $WC).
+    plural_suffix($Suf, nil), concat_atoms($H, $Suf, $W), language_term($H, $F).
 
 % Si legge la SUPERFICIE del turno (`turn_surface_token/4`), non gli span: la
 % forza del turno si decide una prima volta prima che gli span esistano, e la

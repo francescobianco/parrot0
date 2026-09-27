@@ -381,6 +381,69 @@ turn_form_slot_class(inverted($D, $W), $Slot, $C) :-
 turn_form_slot_form(inverted($D, $W), $Slot, $F) :-
     derived_question(inverted($D, $W)), turn_form_slot_form($D, $Slot, $F).
 
+% ── L4, incremento 4 (27 settembre 2026) — IL RAMO DEL FARE: LA STESSA REGOLA
+% SOTTO UN'ALTRA CONDIZIONE ──────────────────────────────────────────────────
+%
+% Quando l'operatore dell'affermazione NON e' un ausiliare ma un verbo
+% («A brick weighs two kilograms.», «Tom comes from Rome.»), l'inversione non
+% puo' spostarlo: il tempo passa a un portatore (`tense_carrier/1`, «do»), il
+% portatore va davanti al soggetto nella forma che il verbo aveva, e il verbo
+% resta alla radice. Non c'e' una tabella «does per la terza persona, did per
+% il passato»: e' la COMPOSIZIONE di due conoscenze gia' presenti, il
+% paradigma del verbo (`verb_form/3`: weighs = weigh + present_third) e quello
+% del portatore (does = do + present_third). La condizione del ramo e' leggibile
+% dalla clausola: l'operatore non e' un ausiliare, e' la forma di un verbo, e
+% il portatore in quella forma e' un ausiliare (cosi' «done» non apre niente).
+%
+% Prima il do-support era la ricerca a coppie di `p0_polar_reply` nel C: la
+% domanda «Does Tom come from Rome?» chiedeva `came_from` mentre l'affermazione
+% aveva scritto `origin_of` — due depositi per la stessa relazione (R5) — e una
+% lezione su do/does/did non trovava nessuna forma con cui confrontarsi.
+% Ora la domanda e' la forma dell'affermazione: stessa relazione, stessi pezzi.
+% Il nome e' la derivazione: `supported(Dichiarativa, Verbo)`.
+machinery(tense_carrier).
+machinery(supported_parts).
+tense_carrier(do).
+supported_parts($W, $Do, $R) :-
+    naf(auxiliary($W)), verb_form($R, $W, $K),
+    tense_carrier($C), verb_root_form($C, form($Do, $K)), auxiliary($Do).
+question_inversion($D, $M, $W, supported($D, $W)) :-
+    operator_form($D, $M),
+    turn_form($D, 1, $S), inversion_subject_piece($S),
+    turn_form_act($D, $A), inversion_question_act($A, $QA),
+    apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), supported_parts($W, $Do, $R).
+% Anche l'operatore letterale, come nel ramo dell'ausiliare: e' la forma che
+% nasce dall'analogia («"hails" behaves like "comes"»). La stessa lezione che
+% manda «must» davanti al soggetto manda qui «does»: decide la condizione della
+% regola, non un ramo per la parola.
+question_inversion($D, text, $W, supported($D, $W)) :-
+    turn_form($D, 2, text($W0)), concat_atoms($W0, "", $W), supported_parts($W, $Do, $R),
+    turn_form_mood($D, statement),
+    turn_form($D, 1, $S), inversion_subject_piece($S),
+    turn_form_act($D, $A), inversion_question_act($A, $QA).
+% Il portatore e la radice di ogni domanda derivata, congelati accanto al suo
+% nome: le forme si enumerano a ogni turno, e rifare il paradigma per ciascuna
+% costava 9 000 visite a `verb_root_form` nel turno di una lezione.
+machinery(supported_carry).
+supported_carry(supported($D, $W), carry($Do, $R)) :-
+    derived_question(supported($D, $W)), supported_parts($W, $Do, $R).
+materialized_view(supported_carry, 2).
+view_depends(supported_carry, derived_question).
+turn_form(supported($D, $W), 1, text($Do)) :- supported_carry(supported($D, $W), carry($Do, $R)).
+turn_form(supported($D, $W), 2, $S) :-
+    inversion_subject_piece($S), derived_question(supported($D, $W)), turn_form($D, 1, $S).
+turn_form(supported($D, $W), 3, text($R)) :- supported_carry(supported($D, $W), carry($Do, $R)).
+turn_form(supported($D, $W), $N1, $P) :-
+    derived_question(supported($D, $W)), turn_form($D, $N, $P), lt(2, $N), is($N1, add($N, 1)).
+turn_form_mood(supported($D, $W), question) :- derived_question(supported($D, $W)).
+turn_form_act(supported($D, $W), $QA) :-
+    derived_question(supported($D, $W)), turn_form_act($D, $A), inversion_question_act($A, $QA).
+turn_form_priority(supported($D, $W), early) :- derived_question(supported($D, $W)).
+turn_form_slot_class(supported($D, $W), $Slot, $C) :-
+    derived_question(supported($D, $W)), turn_form_slot_class($D, $Slot, $C).
+turn_form_slot_form(supported($D, $W), $Slot, $F) :-
+    derived_question(supported($D, $W)), turn_form_slot_form($D, $Slot, $F).
+
 % ── L4, punto 4 (26 settembre 2026) — ESTENDERE LA REGOLA DA FUORI, PER
 % ANALOGIA ───────────────────────────────────────────────────────────────────
 %
@@ -435,6 +498,8 @@ materialized_view(derived_like, 1).
 view_apply_resolved(question_inversion).
 view_apply_resolved(operator_like_form).
 view_depends(operator_like_form, relation_like).
+view_depends(question_inversion, verb_form_analysis).
+view_depends(question_inversion, tense_carrier).
 view_depends(question_inversion, $M) :-
     kb_fact(turn_form, cons($D, cons(2, cons(class($M), nil)))),
     kb_fact(turn_form_mood, cons($D, cons(statement, nil))).

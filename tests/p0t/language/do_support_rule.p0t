@@ -1,0 +1,88 @@
+# L4, incremento 4 (27 settembre 2026) — IL RAMO DEL FARE: LA STESSA REGOLA
+# SOTTO UN'ALTRA CONDIZIONE (docs/plans/l4-upgrade.md).
+#
+# Il do-support era la ricerca a coppie di `p0_polar_reply` nel C: «Does Tom
+# come from Rome?» chiedeva `came_from` mentre «Tom comes from Rome.» aveva
+# scritto `origin_of` (due depositi, R5), e la lezione «put do, does or did
+# before the subject» restava al residuo. Ora `question_inversion/4` ha un
+# secondo ramo: quando l'operatore dell'affermazione non e' un ausiliare, il
+# tempo passa al portatore («do», nella forma che il verbo aveva) e il verbo
+# resta alla radice. Nessuna tabella: e' la composizione di due paradigmi che
+# la KB gia' conosce.
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+
+[test la domanda col fare e' l'affermazione, con la stessa relazione]
+!timeout 2
+> A brick weighs two kilograms.
+<~ Held
+> Does a brick weigh two kilograms?
+<~ Yes
+> Galileo comes from Pisa.
+<~ Held
+> Did Galileo come from Pisa?
+<~ Yes
+# non provato non e' falso: nessun «No» inventato
+> Does Galileo come from Rome?
+<! Yes
+<! No.
+!query derived_question(supported(weight_stated, weighs))
+!query turn_form(supported(origin_stated, came), 1, text(did))
+!query turn_form(supported(origin_stated, comes), 3, text(come))
+# l'ausiliare non passa per il ramo del fare
+!query! derived_question(supported(ability_stated, $W))
+
+[test la lezione sul fare trova il ramo, e l'esempio lo conferma]
+!timeout 2
+> To make a question with other verbs, put do, does or did before the subject and use the bare verb.
+<~ It matches a rule I already use
+<~ «did», «does», «do»
+<! can't do it that way yet
+> A brick weighs two kilograms.
+<~ Held
+> Does a brick weigh two kilograms?
+<~ I read it with that rule, «does» before the subject
+
+# La condizione del ramo e' conoscenza: tolto il portatore, «do» e «did»
+# tornano al residuo. «does» resta riconosciuto, e onestamente: le due domande
+# scritte a mano su «come before/after» (messages.p0) lo mettono davvero davanti
+# al soggetto (ablazione meccanica, come nel cricchetto dell'inversione).
+[test senza portatore il ramo tace]
+!timeout 2
+!forget tense_carrier(do)
+> To make a question with other verbs, put do, does or did before the subject.
+<~ no statement I can read has «did», «do»
+!query! derived_question(supported(weight_stated, weighs))
+!assert tense_carrier(do)
+!query derived_question(supported(weight_stated, weighs))
+
+# C4, LE CONDIZIONI EREDITATE, e due strati d'insegnamento che si compongono.
+# La STESSA lezione per analogia manda «must» davanti al soggetto
+# (lesson_meets_rule.p0t) e un verbo nel ramo del fare: nessun ramo scritto per
+# la parola, decide la condizione della regola. Qui la condizione non e'
+# soddisfatta finche' parrot0 non sa che «hails» e' la forma di un verbo: la
+# domanda non si deriva (risponde, se risponde, la ricerca a coppie del C, non
+# la regola). Una seconda lezione parlata, sulla morfologia, soddisfa la
+# condizione e la domanda si deriva. Le lezioni che toccano la morfologia
+# ricostruiscono `extract_frame` (~3 s, preesistente, LEARN_PROTOCOL §6-bis):
+# da qui il !timeout piu' largo.
+[test l'analogia su un verbo cade nel ramo del fare quando la morfologia lo permette]
+!timeout 4
+> "hails" behaves like "comes".
+<~ behaves like
+> Galileo hails from Pisa.
+<~ Held
+> Does Galileo hail from Pisa?
+!query! turn_form_read(current_turn, supported(like(origin_stated, hails), hails))
+!query! derived_question(supported(like(origin_stated, hails), hails))
+> Hail is an English verb lemma.
+<~ Learned «hail»
+> Does Galileo hail from Pisa?
+<~ Yes
+!query turn_form_read(current_turn, supported(like(origin_stated, hails), hails))
+!query! derived_question(inverted(like(origin_stated, hails), $W))
+> forget that "hails" behaves like "comes"
+<~ no longer behaves like
+!query! derived_question(supported(like(origin_stated, hails), hails))
+> forget that hail is an English verb lemma

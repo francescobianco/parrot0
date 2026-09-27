@@ -61,6 +61,13 @@ dell'inversione soggetto-ausiliare:
 | 4. reinsegnare | la lezione sulla lingua si allinea alle forme per parti nominate (modo, pezzo, ancora, ordine: `lesson_placement/4`) e l'esempio conta solo se lo legge quella forma (`turn_form_read/2`); con «must» nomina il residuo | [language-lessons.p0](../../kb/core/language-lessons.p0) §3-bis, §4 |
 | 5. estendere da fuori | «"must" behaves like "can"» (la lezione `teach_like` che c'era già) deriva `like(ability_stated, must)` e da lei la domanda; la lezione al residuo si risolve all'esempio; il ritiro la richiude | grammar.p0, §«punto 4» |
 
+**27 settembre — incremento 4 (direzione 2 di sotto):** il do-support è un
+secondo ramo della stessa `question_inversion`, con la condizione leggibile
+(operatore non ausiliare, verbo con paradigma noto); la lezione G2 lo
+riconosce, un'analogia su un verbo cade nel ramo del fare per condizione, e
+la condizione si soddisfa con una lezione parlata di morfologia. Dettaglio,
+misure e residui nell'«Incremento 4» sotto il Censimento 1.
+
 **Cricchetti** (in `make test`):
 [question_inversion.p0t](../../tests/p0t/language/question_inversion.p0t) 9/9,
 [lesson_meets_rule.p0t](../../tests/p0t/language/lesson_meets_rule.p0t) 18/18.
@@ -444,6 +451,90 @@ estesa da fuori, con ritiro. Le direzioni aperte, in ordine di valore per L4:
 3. un secondo censimento su un'altra regola (a/an, R4), per vedere se il
    modello «nome = derivazione, lezione = collocazione verificata» si
    generalizza.
+
+### Incremento 4 — fatto (27 settembre): il ramo del fare, la stessa regola sotto un'altra condizione
+
+Direzione 2 dell'HANDOFF, scelta perché è anche la prova più vicina della
+direzione 1: la lezione G2 («with other verbs, put do, does or did…») nomina
+una **condizione** della regola, non un membro.
+
+**Il ramo.** In [grammar.p0](../../kb/core/grammar.p0) `question_inversion/4`
+ha una seconda clausola: quando l'operatore dell'affermazione **non è un
+ausiliare** ma la forma di un verbo, il tempo passa a un portatore
+(`tense_carrier(do)`), che va davanti al soggetto nella forma che il verbo
+aveva, e il verbo resta alla radice. Non c'è una tabella «does per la terza
+persona, did per il passato»: è la **composizione di due paradigmi** già in
+KB (`verb_form(weigh, weighs, present_third)` + `verb_root_form(do,
+form(does, present_third))`), filtrata da `auxiliary/1` (così «done» non apre
+niente). Nome = derivazione: `supported(Dichiarativa, Verbo)`. Il portatore e
+la radice si congelano in `supported_carry/2` (vista binaria).
+
+**Superfici di coerenza chiuse.**
+- **R5 su statement/domanda.** «Tom comes from Rome.» scriveva `origin_of`, e
+  «Does Tom come from Rome?» (ricerca a coppie del C) chiedeva `came_from`:
+  «I cannot settle that». Ora la domanda è la forma dell'affermazione, stessa
+  relazione, stessi pezzi e vincoli → «Yes.». Idem «Did Galileo come from
+  Pisa?», «Does a brick weigh two kilograms?».
+- **C3, sovrapposizione.** La lezione G2 passa dal residuo su «did», «do» a
+  «It matches a rule I already use: … «did», «does», «do» before the subject»;
+  l'esempio «Does a brick weigh two kilograms?» → «I read it with that rule,
+  «does» before the subject». Prima «does» si allineava solo alle due domande
+  scritte a mano su «come before/after» (`ask_before_polar`/`ask_after_polar`),
+  che restano: sono istanze del ramo scritte prima di lui (struttura secondaria,
+  non si pota).
+- **C4, condizioni ereditate — e due strati d'insegnamento che si
+  compongono.** La *stessa* lezione per analogia che manda «must» davanti al
+  soggetto (incremento 3) manda un verbo nel ramo del fare, perché decide la
+  condizione della regola, non un ramo per la parola (clausola `text` gemella
+  di quella dell'ausiliare). Con «"hails" behaves like "comes"» la domanda
+  **non** si deriva finché parrot0 non sa che «hails» è la forma di un verbo:
+  la condizione non è soddisfatta (se risponde, risponde la ricerca a coppie
+  del C, e `turn_form_read` lo mostra). La lezione parlata «Hail is an English
+  verb lemma.» soddisfa la condizione e la domanda si deriva. Ritirata
+  l'analogia, la domanda derivata sparisce.
+
+**Ablazione.** `!forget tense_carrier(do)`: «do» e «did» tornano al residuo;
+«does» resta riconosciuto, e onestamente (le due forme scritte a mano).
+
+**Costo, e due cure trovate con `/debug on` sul turno della lezione** (misura
+sullo stesso turno: 4,0 s prima di toccare niente, 7,0 s col ramo nuovo e
+senza cure, **1,3 s** dopo):
+1. [kb.c](../../src/kb.c), `pred_bucket_a0_compound`: l'indice sul primo
+   argomento valeva solo per gli atomi, e le forme derivate si chiamano con
+   termini composti. Ogni domanda su `inverted(…)`/`like(…)`/`supported(…)`
+   scandiva tutti i fatti `turn_form` (4,3 M visite in un turno). Se nessun
+   fatto del predicato ha un composto in quella posizione, un goal composto
+   ground non può unificare: fetta vuota. Acceleratore neutro
+   (`PARROT0_NO_ARG_INDEX` lo spegne per l'A/B), +40 righe di C motivate,
+   nessuna decisione.
+2. `language_term_form` ([language-lessons.p0](../../kb/core/language-lessons.p0))
+   attaccava la desinenza del plurale a ogni termine con liste di caratteri
+   (1,6 s dentro `app`, preesistente): ora la stacca dalla parola detta con
+   `concat_atoms`, la stessa conoscenza.
+
+Cricchetto [do_support_rule.p0t](../../tests/p0t/language/do_support_rule.p0t)
+28/28; `question_inversion.p0t` 9/9, `lesson_meets_rule.p0t` 21/21,
+`soft-test` verde in 3 s. Suite intera non lanciata (politica dei test).
+
+**Residui osservati, non curati:**
+- «Marco Polo came from Venice.» non è letta: `origin_stated` ha il soggetto a
+  un token (`slot`); la domanda derivata eredita lo stesso limite.
+- «Do bricks weigh two kilograms?» non raggiunge il fatto al singolare.
+- «Galileo hails from Pisa.» risponde «Held: galileo hails pisa.»: il template
+  della sorella per analogia perde «from».
+- Il turno dopo una lezione che tocca la morfologia costa 2,5–3 s
+  (ricostruzione di `extract_frame`, preesistente). Un `!reset` costa ~12 s
+  anche su HEAD: la «boot 0,40 s» delle note è superata.
+- Il ramo polare generico del C (`p0_polar_reply`) resta per le affermazioni
+  lette da `extract_frame` («A spring stores energy.»), che non sono forme di
+  turno: portarle nella regola vuol dire dare a quelle letture una forma
+  dichiarativa interrogabile, lavoro distinto.
+
+**Prossimo passo.** La direzione 1 in forma piena: una lezione parlata che
+cambi la condizione stessa (oggi la condizione si soddisfa parlando, via
+morfologia, ma `naf(auxiliary(W))` e `tense_carrier/1` non si discutono
+ancora a parole). Candidato naturale: i semi-modali («need», «dare») che in
+inglese passano dal ramo del fare a quello dell'ausiliare.
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 
