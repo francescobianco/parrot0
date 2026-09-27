@@ -468,5 +468,6 @@ decision_polar_answer($O, $R, $V, $Text) :- naf(decision_known($O, $R)), decisio
 
 :- include(decision-language.p0).
 :- include(scales.p0).
+:- include(isolation.p0).
 
 

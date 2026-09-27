@@ -1,0 +1,231 @@
+% isolation.p0 — ISOLARE PER ESCLUSIONE: la mossa come conseguenza, non come
+% piano con condizioni d'ingresso (docs/plans/train-the-smart-agent.md, §1, F1).
+%
+% F., 27 settembre 2026: «immagina che io devo trovare un problema, a un certo
+% punto non so piu' cosa fare e ho l'idea di spegnere sezione per sezione delle
+% cose e cosi' isolo quella corrotta. Questo piano deve essere spiegato come
+% opportunita', non come piano con condizioni d'ingresso precise: la scoperta
+% del piano come una valida soluzione deve essere l'inferenza».
+%
+% Qui non c'e' nessun differenziale, nessun bollitore, nessuna lampadina. C'e'
+% l'operatore di K9 (frontier-kb-natural-dialogue.md) sopra la situazione di
+% K11, e si propone SOLO quando la KB, per inferenza, trova insieme:
+%
+%   1. una LEGGE d'effetto: una proposizione che vale quando QUALCOSA sta in una
+%      relazione («if x leaks y then the RCD trips»: `holds(E) :- leaks($X, $Y)`),
+%      letta dalla clausola stessa (`kb_clause/4`), non da un elenco;
+%   2. dei CANDIDATI: i membri di una classe detti in questa conversazione;
+%   3. un'AZIONE che toglie a un membro quella relazione («Unplugging an
+%      appliance stops it from leaking current.»), insegnata a parole;
+%   4. nessun membro gia' noto come colpevole.
+%
+% Allora l'azione ha esiti diversi secondo quale candidato e' il colpevole: e'
+% INFORMATIVA, e proporla a chi e' bloccato e' la mossa. La stessa inferenza
+% vale per le luci dell'albero, le estensioni del browser, i dispositivi della
+% rete: cambia la conoscenza, non il meccanismo.
+:- file_attribute(machinery).
+
+% ── 1. L'AZIONE CHE TOGLIE UNA RELAZIONE A UN MEMBRO DI UNA CLASSE ─────────
+% `action_blocks(Azione, Classe, Attivita', Oggetto)`, con le parole dette:
+% «Unplugging an appliance stops it from leaking current.»
+machinery(action_blocks).
+turn_form(teach_action_blocks, 1, slot(action)).
+turn_form(teach_action_blocks, 2, text("an")).
+turn_form(teach_action_blocks, 3, slot(class)).
+turn_form(teach_action_blocks, 4, text("stops it from")).
+turn_form(teach_action_blocks, 5, slot(activity)).
+turn_form(teach_action_blocks, 6, rest(object)).
+turn_form_mood(teach_action_blocks, statement).
+turn_form_priority(teach_action_blocks, early).
+turn_form_act(teach_action_blocks, "op(assert, action_blocks, [action, class, activity, object])").
+turn_form_reply(teach_action_blocks, action_blocks_learned_an).
+turn_form(teach_action_blocks_a, 1, slot(action)).
+turn_form(teach_action_blocks_a, 2, text("a")).
+turn_form(teach_action_blocks_a, 3, slot(class)).
+turn_form(teach_action_blocks_a, 4, text("stops it from")).
+turn_form(teach_action_blocks_a, 5, slot(activity)).
+turn_form(teach_action_blocks_a, 6, rest(object)).
+turn_form_mood(teach_action_blocks_a, statement).
+turn_form_priority(teach_action_blocks_a, early).
+turn_form_act(teach_action_blocks_a, "op(assert, action_blocks, [action, class, activity, object])").
+turn_form_reply(teach_action_blocks_a, action_blocks_learned).
+response_template(action_blocks_learned, "Held: {action} a {class} stops it from {activity} {object}.").
+response_template(action_blocks_learned_an, "Held: {action} an {class} stops it from {activity} {object}.").
+response_template(action_blocks_learned_an, it, "Tengo: {action} un {class} gli impedisce di {activity} {object}.").
+response_template(action_blocks_learned, it, "Tengo: {action} un {class} gli impedisce di {activity} {object}.").
+
+% ── 2. DAL GERUNDIO AL VERBO DI RELAZIONE ──────────────────────────────────
+% «leaking» e' la relazione `leaks`: senza bisogno che il lemma sia noto, per
+% le tre forme regolari, e solo se il risultato e' davvero un verbo di relazione.
+machinery(gerund_relation).
+gerund_relation($G, $P) :- concat_atoms($R, "ing", $G), concat_atoms($R, "s", $P), relation_verb($P).
+gerund_relation($G, $P) :- concat_atoms($R, "ing", $G), concat_atoms($R, "es", $P), relation_verb($P).
+gerund_relation($G, $P) :-
+    concat_atoms($R, "ing", $G), concat_atoms($R, "e", $R2), concat_atoms($R2, "s", $P), relation_verb($P).
+
+% ── 3. LA LEGGE D'EFFETTO, letta dalla clausola ────────────────────────────
+% Una regola `holds(E) :- P($X, …)` dice che l'effetto vale quando QUALCOSA sta
+% nella relazione P. La si legge nella sua forma canonica.
+machinery(effect_law).
+effect_law($E, $P) :-
+    kb_clause($Id, app(holds, cons(atom($E), nil)), 1, app($P, cons(var($V), $Rest))).
+
+% ── 4. I CANDIDATI: i membri della classe detti in questa conversazione ─────
+% Non ogni bollitore del mondo: quelli di cui parla chi e' nella situazione.
+machinery(situation_member).
+situation_member($Class, $X) :-
+    apply($Class, cons($X, nil)),
+    kb_clause($Id, app($Class, cons(atom($X), nil)), 0, 0), content_act($Id, session).
+machinery(known_culprit).
+known_culprit($Class, $P, $Obj) :- situation_member($Class, $X), apply($P, cons($X, cons($Obj, nil))).
+
+% ── 5. L'OPPORTUNITA' ───────────────────────────────────────────────────────
+% `isolation_opportunity(Classe, Relazione, Oggetto, isolate(Azione, Attivita', Effetto))`
+machinery(isolation_opportunity).
+isolation_opportunity($Class, $P, $Obj, isolate($Act, $Ger, $E)) :-
+    action_blocks($Act, $Class, $Ger, $Obj0), same_words($Obj0, $Obj),
+    gerund_relation($Ger, $P), effect_law($E, $P),
+    findall($X, situation_member($Class, $X), cons($A, cons($B, $More))),
+    naf(known_culprit($Class, $P, $Obj)).
+
+% ── 6. LA RISPOSTA A «Which appliance leaks current?» ──────────────────────
+% Se un membro e' gia' noto, lo si dice (e perche'); se no, e l'opportunita'
+% c'e', la mossa; se no, niente: la forma cede.
+machinery(culprit_or_isolation).
+culprit_or_isolation($ClassSaid, $Verb, $Obj, $Text) :-
+    class_said($ClassSaid, $Class), relation_verb($Verb),
+    situation_member($Class, $X), apply($Verb, cons($X, cons($Obj, nil))),
+    words_of($X, $WX), current_language($L), isolation_line($L, culprit_head, $H),
+    concat_atoms($H, $WX, $A), isolation_line($L, culprit_tail, $T), concat_atoms($A, $T, $Text).
+culprit_or_isolation($ClassSaid, $Verb, $Obj, $Text) :-
+    class_said($ClassSaid, $Class), relation_verb($Verb),
+    isolation_opportunity($Class, $Verb, $Obj, isolate($Act, $Ger, $E)),
+    isolation_text(case($Class, $Verb, $Obj), isolate($Act, $Ger, $E), $Text).
+% Senza colpevole e senza una mossa: si dice che non si sa, e di chi. Cedere
+% lasciava il turno a un lettore che elencava TUTTA la classe ignorando la
+% relazione («kettle, fridge, washing machine.»: un falso, peggio di un muro).
+culprit_or_isolation($ClassSaid, $Verb, $Obj, $Text) :-
+    class_said($ClassSaid, $Class), relation_verb($Verb),
+    findall($X, situation_member($Class, $X), cons($A, $More)),
+    naf(known_culprit($Class, $Verb, $Obj)), naf(has_isolation($Class, $Verb, $Obj)),
+    members_said($Class, $Ms), case_said(case($Class, $Verb, $Obj), $CS), current_language($L),
+    isolation_line($L, dont_know, $D0), concat_atoms($D0, $CS, $D5),
+    isolation_line($L, nothing_says, $N0), concat_atoms($D5, $N0, $D6), concat_atoms($D6, $Ms, $D7),
+    concat_atoms($D7, ".", $Text).
+% «appliance leaks current»
+machinery(case_said).
+case_said(case($Class, $Verb, $Obj), $T) :-
+    words_of($Verb, $WV), concat_atoms($Class, " ", $A), concat_atoms($A, $WV, $B),
+    concat_atoms($B, " ", $C), concat_atoms($C, $Obj, $T).
+machinery(has_isolation).
+has_isolation($Class, $Verb, $Obj) :- isolation_opportunity($Class, $Verb, $Obj, $I).
+% l'articolo dalla conoscenza della lingua (grammar.p0, per iniziale: il limite
+% R4 di l4-upgrade vale anche qui)
+machinery(word_article).
+machinery(article_initial).
+article_initial($L, $C) :- indefinite_article_before($L, $C, $A).
+word_article($L, $W, $A) :- chars($W, cons($C, $R)), indefinite_article_before($L, $C, $A).
+word_article($L, $W, $A) :- chars($W, cons($C, $R)), naf(article_initial($L, $C)), indefinite_article_default($L, $A).
+% la fine dell'effetto detta con la morfologia: «trips» -> «stops tripping»
+machinery(effect_stop_said).
+effect_stop_said($L, $E, $Text) :-
+    atom_words($E, $Ws), list_without_last($Ws, $Subj), app($Subj, cons($V, nil), $Ws),
+    verb_form($R, $V, present_third), verb_root_form($R, form($G, present_participle)),
+    words_joined($Subj, $S), isolation_line($L, when_the, $A), concat_atoms($A, $S, $B),
+    isolation_line($L, stops, $C), concat_atoms($B, $C, $D), concat_atoms($D, $G, $Text).
+effect_stop_said($L, $E, $Text) :-
+    naf(effect_has_verb_end($E)), words_of($E, $WE),
+    isolation_line($L, when_stops, $A), concat_atoms($A, $WE, $Text).
+machinery(effect_has_verb_end).
+effect_has_verb_end($E) :-
+    atom_words($E, $Ws), list_without_last($Ws, $Subj), app($Subj, cons($V, nil), $Ws),
+    verb_form($R, $V, present_third).
+% la classe detta al singolare o al plurale
+machinery(class_said).
+class_said($C, $C).
+class_said($P, $C) :- concat_atoms($C, "s", $P).
+% i candidati detti: «the kettle, the fridge or the washing machine»
+machinery(members_said).
+members_said($Class, $Text) :-
+    findall($X, situation_member($Class, $X), $Ms), current_language($L), members_join($L, $Ms, $Text).
+machinery(members_join).
+members_join($L, cons($X, nil), $T) :- words_of($X, $W), concat_atoms("the ", $W, $T).
+members_join($L, cons($X, cons($Y, nil)), $T) :-
+    words_of($X, $WX), words_of($Y, $WY), isolation_line($L, or, $O),
+    concat_atoms("the ", $WX, $A), concat_atoms($A, $O, $B), concat_atoms($B, "the ", $C), concat_atoms($C, $WY, $T).
+members_join($L, cons($X, cons($Y, cons($Z, $R))), $T) :-
+    words_of($X, $WX), members_join($L, cons($Y, cons($Z, $R)), $Rest),
+    concat_atoms("the ", $WX, $A), concat_atoms($A, ", ", $B), concat_atoms($B, $Rest, $T).
+machinery(isolation_text).
+isolation_text(case($Class, $Verb, $Obj), isolate($Act, $Ger, $E), $Text) :-
+    current_language($L), members_said($Class, $Ms), words_of($Verb, $WV),
+    isolation_line($L, cant_tell, $A0), concat_atoms($A0, $Class, $A1), concat_atoms($A1, " ", $A2),
+    concat_atoms($A2, $WV, $A3), concat_atoms($A3, " ", $A4), concat_atoms($A4, $Obj, $A5),
+    isolation_line($L, could, $C0), concat_atoms($A5, $C0, $A6), concat_atoms($A6, $Ms, $A7),
+    isolation_move_text($L, move($Act, $Class, $Ger, $Obj), $E, $M), concat_atoms($A7, $M, $Text).
+machinery(isolation_move_text).
+isolation_move_text($L, move($Act, $Class, $Ger, $Obj), $E, $Text) :-
+    isolation_line($L, try, $T0), concat_atoms($T0, $Act, $T1),
+    isolation_line($L, one_at_a_time, $T2), concat_atoms($T1, $T2, $T3),
+    action_law_said($L, move($Act, $Class, $Ger, $Obj), $Law), concat_atoms($T3, $Law, $T11),
+    isolation_why($L, $E, $W), concat_atoms($T11, $W, $Text).
+% «Unplugging an appliance stops it from leaking current»
+machinery(action_law_said).
+action_law_said($L, move($Act, $Class, $Ger, $Obj), $Text) :-
+    upcase_first($Act, $UA), word_article($L, $Class, $Art),
+    concat_atoms($UA, " ", $T4a), concat_atoms($T4a, $Art, $T4b), concat_atoms($T4b, " ", $T5),
+    concat_atoms($T5, $Class, $T6), isolation_line($L, stops_it_from, $T7), concat_atoms($T6, $T7, $T8),
+    concat_atoms($T8, $Ger, $T9), concat_atoms($T9, " ", $T10), concat_atoms($T10, $Obj, $Text).
+machinery(isolation_why).
+isolation_why($L, $E, $Text) :-
+    effect_stop_said($L, $E, $B),
+    isolation_line($L, last_one, $C), concat_atoms($B, $C, $Text).
+machinery(isolation_line).
+isolation_line(en, culprit_head, "The ").
+isolation_line(en, culprit_tail, ": you told me so.").
+isolation_line(en, cant_tell, "I can't tell yet which ").
+isolation_line(en, could, ": it could be ").
+isolation_line(en, or, " or ").
+isolation_line(en, try, ". You could try ").
+isolation_line(en, one_at_a_time, " them one at a time. ").
+isolation_line(en, stops_it_from, " stops it from ").
+isolation_line(en, when_stops, ", so when it is no longer true that ").
+isolation_line(en, last_one, ", the last one you changed is the one.").
+isolation_line(en, when_the, ", so when the ").
+isolation_line(en, stops, " stops ").
+isolation_line(en, dont_know, "I don't know yet which ").
+isolation_line(en, nothing_says, ": nothing I hold says it of ").
+isolation_line(it, culprit_head, "").
+isolation_line(it, culprit_tail, ": me l'hai detto tu.").
+isolation_line(it, cant_tell, "Non so ancora dire quale ").
+isolation_line(it, could, ": potrebbe essere ").
+isolation_line(it, or, " o ").
+isolation_line(it, try, ". Puoi provare a ").
+isolation_line(it, one_at_a_time, " uno alla volta. ").
+isolation_line(it, stops_it_from, " gli impedisce di ").
+isolation_line(it, when_stops, ": quando non è più vero che ").
+isolation_line(it, last_one, ", l'ultimo che hai cambiato è quello.").
+isolation_line(it, when_the, ": quando ").
+isolation_line(it, stops, " smette di ").
+isolation_line(it, dont_know, "Non so ancora quale ").
+isolation_line(it, nothing_says, ": niente di ciò che so lo dice di ").
+
+% ── 7. LE DOMANDE ───────────────────────────────────────────────────────────
+turn_form(ask_which_member_does, 1, text("which")).
+turn_form(ask_which_member_does, 2, slot(class)).
+turn_form(ask_which_member_does, 3, slot(verb)).
+turn_form(ask_which_member_does, 4, rest(object)).
+turn_form_mood(ask_which_member_does, question).
+turn_form_priority(ask_which_member_does, early).
+turn_form_act(ask_which_member_does, "op(match, culprit_or_isolation, [class, verb, object, free])").
+turn_form_reply(ask_which_member_does, isolation_reply).
+turn_form(ask_find_which_member_does, 1, text("how can i find out which")).
+turn_form(ask_find_which_member_does, 2, slot(class)).
+turn_form(ask_find_which_member_does, 3, slot(verb)).
+turn_form(ask_find_which_member_does, 4, rest(object)).
+turn_form_mood(ask_find_which_member_does, question).
+turn_form_priority(ask_find_which_member_does, early).
+turn_form_act(ask_find_which_member_does, "op(match, culprit_or_isolation, [class, verb, object, free])").
+turn_form_reply(ask_find_which_member_does, isolation_reply).
+response_template(isolation_reply, "{result}").
+response_template(isolation_reply, it, "{result}").
