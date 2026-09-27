@@ -46,14 +46,14 @@
 [test la lezione con la condizione cambia la regola, e solo li']
 !timeout 2
 > To make a question with need, you can also put need before the subject when a bare verb follows.
-<~ From now on I put «need» before the subject, but only when a bare verb follows
-!query inverts_when(need, bare_verb_follows)
+<~ From now on I put «need» before the subject, but only when a bare verb follows in the present
+!query inverts_when(need, all(cons(bare_verb_follows, cons(in_the_present, nil))))
 !query derived_question(modal(necessity_stated, needs))
 # non e' diventato un ausiliare
 !query! auxiliary(need)
 # la domanda sulla regola NOMINA «need», non lo usa: non e' l'esempio
 > When does need go before the subject?
-<~ «need» goes before the subject only when a bare verb follows (you taught me that)
+<~ «need» goes before the subject only when a bare verb follows in the present (you taught me that)
 <! That was your example
 > Need a welder wear a mask?
 <~ Yes
@@ -84,11 +84,48 @@
 <~ Yes
 > Dare a firefighter enter a burning building?
 <~ Yes
-!query inverts_when(dare, bare_verb_follows)
+!query inverts_when(dare, all(cons(bare_verb_follows, cons(in_the_present, nil))))
 !query! inverts_when_taught(dare, $C)
 # detta con il suo sostegno: l'analogia, non una lezione
 > When does dare go before the subject?
-<~ only when a bare verb follows, because it behaves like «need»
+<~ only when a bare verb follows in the present (because it behaves like «need»)
+
+# INCREMENTO 7 — UNA SECONDA CONDIZIONE, CON LA SUA PROVA COMPOSTA PARLANDO.
+# Il «dare» modale ammette il passato («Dared he go?»), il «need» modale no.
+# La condizione della lezione di sopra era gia' una composizione di parti
+# (complemento: un verbo nudo; tempo: il presente, per default). Una lezione che
+# nomina un'altra parte di tempo crea una condizione che prima non esisteva, e
+# la sua prova si compone dall'alfabeto delle parti: nessuna clausola scritta
+# per lei. «need» non la riceve: «Needed a welder wear a mask?» resta muta.
+[test la seconda condizione nasce da una lezione, e vale solo per chi la riceve]
+# ⚠ il turno dopo la seconda analogia costa ~7 s (misurato: ricostruzione di
+# `extract_frame` per i verbi nuovi, ~3 s preesistente, piu' la ricostruzione
+# delle forme derivate; era 20 s prima di `operator_form` sui soli fatti,
+# docs/kb-growth-dynamics.md §4). Residuo aperto, non un budget accettato.
+!timeout 8
+> A welder needed to wear a mask.
+<~ Held
+> "dared" behaves like "needed".
+<~ behaves like
+> A firefighter dared to enter a burning building.
+<~ Held
+> Did a firefighter dare to enter a burning building?
+<~ Yes
+> Dared a firefighter enter a burning building?
+<! Yes
+> To make a question with dare, you can also put dare before the subject in the past when a bare verb follows.
+<~ From now on I also put «dare» before the subject when a bare verb follows in the past
+<! It matches a rule I already use
+!query inverts_when_taught(dare, all(cons(bare_verb_follows, cons(in_the_past, nil))))
+> Dared a firefighter enter a burning building?
+<~ Yes
+> Needed a welder wear a mask?
+<! Yes
+> Need a welder wear a mask?
+<~ Yes
+> When does dare go before the subject?
+<~ when a bare verb follows in the present (because it behaves like «need»)
+<~ when a bare verb follows in the past (you taught me that)
 
 # La revisione segue i sostegni (§2.6): ritirata la condizione di «need», cade
 # anche quella che «dare» ne ereditava; il ramo del fare resta.
@@ -97,10 +134,13 @@
 > Forget that you can put need before the subject in a question.
 <~ I no longer put «need» before the subject
 <! It matches a rule I already use
-!query! inverts_when(need, bare_verb_follows)
-!query! inverts_when(dare, bare_verb_follows)
+!query! inverts_when(need, $C)
+!query! inverts_when(dare, all(cons(bare_verb_follows, cons(in_the_present, nil))))
 > When does dare go before the subject?
-<~ «dare» never goes before the subject
+<~ «dare» goes before the subject only when a bare verb follows in the past (you taught me that)
+<! because it behaves like
+> Dared a firefighter enter a burning building?
+<~ Yes
 > When do you put need before the subject?
 <~ «need» never goes before the subject
 > Need a welder wear a mask?
@@ -109,4 +149,7 @@
 <~ Yes
 > forget that "dares" behaves like "needs"
 <~ no longer behaves like
+> forget that "dared" behaves like "needed"
+> Forget that you can put dare before the subject in a question.
+<~ I no longer put «dare» before the subject
 > forget that dare is an English verb lemma

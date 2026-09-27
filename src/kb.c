@@ -5018,8 +5018,16 @@ static int view_close(KB *kb, KbView *v, KbView *acc, size_t from) {
             const Rule *r = &kb->rules[PRED_AT(rb, j)];
             if (strcmp(r->head.pred, pred) != 0) continue;
             for (size_t b = 0; b < r->nbody; b++) {
+                /* L4 incremento 7 (27 settembre 2026): anche `kb_fact`. Chi
+                 * dichiara la propria portata legge i FATTI di un predicato
+                 * che nomina, non le sue regole: `operator_form` chiede le
+                 * forme dichiarative scritte, e attraverso `turn_form` entrava
+                 * nelle forme derivate, chiudendo un ciclo spurio fra
+                 * `derived_question` e `derived_like` (20 s nel turno dopo
+                 * un'analogia, misurato). */
                 if (apply_resolved && (!strcmp(r->body[b].pred, "apply") ||
-                                       !strcmp(r->body[b].pred, "call")))
+                                       !strcmp(r->body[b].pred, "call") ||
+                                       !strcmp(r->body[b].pred, "kb_fact")))
                     continue;
                 if (!strcmp(r->body[b].pred, v->pred)) {
                     view_cycle_publish(kb, v, acc, i);

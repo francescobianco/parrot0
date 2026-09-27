@@ -1283,7 +1283,7 @@ ability_marker("can").  ability_marker("is able to").  ability_marker("knows how
 % yet»): nessuna affermazione aveva un verbo seguito da «to» e da un verbo
 % nudo. E' la sorella di `ability_stated` con il complemento all'infinito, ed
 % e' il posto in cui la condizione dei semi-modali si puo' provare
-% (grammar.p0, `inversion_condition_holds/2`): da qui la regola deriva sia
+% (grammar.p0, `condition_holds/3`): da qui la regola deriva sia
 % «Does a welder need to wear a mask?» (ramo del fare) sia, se una lezione lo
 % dice, «Need a welder wear a mask?». La relazione e' una sola, `needs_to`.
 relation(necessity).
@@ -1298,7 +1298,7 @@ turn_form_mood(necessity_stated, statement).
 turn_form_act(necessity_stated, assert_relation).
 turn_form_reply(necessity_stated, learned_necessity).
 machinery(necessity_verb).
-necessity_verb(needs).  necessity_verb(need).
+necessity_verb(needs).  necessity_verb(need).  necessity_verb(needed).
 % «I need to leave at seven», «You need to rest», «We need to talk» non sono
 % conoscenza del mondo: sono resoconti, richieste, consigli. La forma cede
 % quando il soggetto e' un pronome personale (e cosi' le domande che ne

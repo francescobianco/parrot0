@@ -6,6 +6,12 @@ aumentare le abilita' di comprensione) e come accelerare questo processo».*
 
 I numeri stanno in coda, al §7, come prova. Qui c'e' il metodo.
 
+> **Complemento (27 settembre 2026).** Questo documento è il *metodo*. Il
+> comportamento strutturale della KB che cresce (viste congelate, cicli fra
+> viste, modi di chiamata, il costo che si paga nel turno dopo una lezione) sta
+> in [../kb-growth-dynamics.md](../kb-growth-dynamics.md), una specie per
+> sezione, con la misura.
+
 ---
 
 ## 1. La scoperta che riorienta tutto: non stiamo accumulando, stiamo distinguendo

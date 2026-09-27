@@ -73,7 +73,11 @@ misure e residui nell'«Incremento 4» sotto il Censimento 1.
 («…when a bare verb follows»), la chiede se non è detta, «dare» la eredita per
 analogia e il ritiro parlato la toglie a entrambi. Dettaglio nell'«Incremento 5».
 **Incremento 6:** la condizione si chiede a parole («When does need go before
-the subject?»), con il suo sostegno (lezione o analogia).
+the subject?»), con il suo sostegno (lezione o analogia). **Incremento 7:** una
+condizione è una composizione di parti (complemento, tempo); una lezione
+parlata ne crea una nuova per «dare» al passato, e «need» non la riceve. Il
+costo misurato lungo la strada è diventato teoria in
+[docs/kb-growth-dynamics.md](../kb-growth-dynamics.md).
 
 **Cricchetti** (in `make test`):
 [question_inversion.p0t](../../tests/p0t/language/question_inversion.p0t) 9/9,
@@ -682,6 +686,76 @@ la domanda inversa, non ancora aperta.
 
 **Prossimo passo.** La seconda condizione con la sua prova insegnata parlando:
 se la condizione stessa, e non solo la sua appartenenza, cresce parlando.
+
+### Incremento 7 — fatto (27 settembre): una seconda condizione, con la prova composta parlando
+
+Fino all'incremento 6 la condizione era un nome con la sua prova scritta a
+mano (`bare_verb_follows`), e il presente era cablato per tutti
+(`modal_use_form/1`). Il caso vero che li separa: il «need» modale è solo
+presente («Needed he go?» è sbagliato), il «dare» modale ammette il passato
+(«Dared he go?», inglese formale).
+
+**Una condizione è una composizione di parti** ([grammar.p0](../../kb/core/grammar.p0)):
+`all(Parti)`, che vale quando valgono tutte le parti. Le parti sono l'alfabeto,
+una prova ciascuna scritta una volta: di complemento (`bare_verb_follows`) e di
+tempo (`in_the_present`, `in_the_past`). Quali tipi compongono una condizione
+(`condition_kinds/1`) e quale parte vale se la lezione tace
+(`default_condition_part(tense, in_the_present)`) è conoscenza. La lezione
+([language-lessons.p0](../../kb/core/language-lessons.p0)) raccoglie le parti
+che nomina: «…when a bare verb follows» dà `all([bare_verb_follows,
+in_the_present])` e lo dice («…only when a bare verb follows in the present»);
+«To make a question with dare, you can also put dare before the subject in the
+past when a bare verb follows.» crea `all([bare_verb_follows, in_the_past])`,
+una condizione che prima non esisteva e la cui prova è la composizione.
+Nessuna clausola scritta per lei. La domanda modale al passato tiene la forma
+del passato (`modal_question_form/2`: «Dared …?», «Need …?»).
+
+**Misure** (sequenza parlata, KB `agi`):
+- «Dared a firefighter enter a burning building?» non si legge prima della
+  lezione; dopo → «Yes.». «Needed a welder wear a mask?» resta illeggibile:
+  la condizione vale solo per chi la riceve.
+- La lezione su «dare», che già andava davanti al soggetto al presente (per
+  analogia), dice «From now on I also put «dare» before the subject when a bare
+  verb follows in the past, as well as where I already did.» e non più «It
+  matches a rule I already use» (conferma a metà).
+- «When does dare go before the subject?» → «…only when a bare verb follows in
+  the present (because it behaves like «need») or when a bare verb follows in
+  the past (you taught me that)…». Ritirata la condizione di «need», resta
+  quella insegnata a «dare», con il suo sostegno.
+- Cricchetto [semi_modal_condition.p0t](../../tests/p0t/language/semi_modal_condition.p0t)
+  58/58; `question_inversion` 9/9, `lesson_meets_rule` 21/21,
+  `do_support_rule` 28/28, `user_situations` 56/56, `gen_weight` 6/6.
+
+**Il costo, e la teoria che ne è uscita.** La sequenza ha aperto una serie di
+difetti di costo, tutti della stessa famiglia (le viste nel turno di
+ricostruzione): un aiutante con `apply` non dichiarato che bloccava il turno,
+un ciclo spurio `derived_question` ↔ `derived_like` attraverso `operator_form`
+(20 s), una relazione ricorsiva fissa (3 s), l'ordine dei goal che dipende dal
+modo di chiamata. Su richiesta di F. sono diventati teoria:
+[docs/kb-growth-dynamics.md](../kb-growth-dynamics.md), dieci specie con
+misura e cura. Cure adottate qui:
+- `operator_form` legge i **fatti scritti** (`kb_fact`), perché nessuna forma
+  derivata ha una classe al secondo posto; il motore ammette `kb_fact` fra le
+  meta-chiamate con portata dichiarata (`view_apply_resolved`, una riga in
+  [kb.c](../../src/kb.c)). Unico predicato interessato: `operator_form`
+  (verificato).
+- Gli spostamenti di posizione delle forme derivate sono una grammatica in KB
+  (`position_step/2`, `position_beyond/2` congelata), in coda al corpo.
+- `operator_member/2` con `view_apply_resolved`.
+
+**Residui:**
+- **L'analogia per paradigma non è adottata**: moltiplicava le forme sorelle e
+  il turno di ricostruzione passava da 5 a 27 s (dynamics §S7). Il passato si
+  insegna con la sua analogia («"dared" behaves like "needed"»), che è una
+  lezione in più di quanto un insegnante direbbe.
+- Il turno dopo la seconda analogia costa ~7 s nella sequenza vera (di cui ~3 s
+  la ricostruzione di `extract_frame`, preesistente); il cricchetto ha
+  `!timeout 8` su quella sezione, dichiarato come residuo.
+- Il «need» al passato si può insegnare, ed è grammatica falsa: parrot0 lo
+  accetta dall'insegnante (è ritirabile). Verificare una lezione di grammatica
+  contro l'uso è un altro gradino.
+- Le parti restano un alfabeto scritto a mano: una parte nuova (per esempio
+  «in a negative sentence») è una riga di tipo, una di parole e una prova.
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 

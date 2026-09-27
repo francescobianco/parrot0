@@ -341,12 +341,45 @@ polar_opener($W) :- auxiliary($W).
 % rientrava in queste regole e le riderivava fino in fondo prima di scoprire
 % dal nome che non la riguardavano: da 0,3 a 6-17 s per turno, e il budget di
 % 500 000 passi esaurito nel turno di una lezione (misurato).
+% ── LA GRAMMATICA DELLE POSIZIONI (incremento 7, 27 settembre 2026) ────────
+% Le forme derivate spostano i pezzi della dichiarativa: +1 nel ramo del fare,
+% -1 nel ramo modale, invariati oltre il secondo nell'inversione e nella
+% sorella per analogia. Lo spostamento e' una relazione fra posizioni scritta
+% come conoscenza (`position_step/2`, `position_beyond/2`), non aritmetica
+% (`lt`, `is`) che vale in un solo verso. ⚠ Misurato: messa IN TESTA al corpo
+% taglia i rami impossibili quando la posizione e' legata (5,0 -> 3,9 s nel turno
+% che ricostruisce le viste) ma moltiplica per 12 l'enumerazione quando la forma
+% e' legata e la posizione libera, che e' il caso di ogni turno (una lezione da
+% 1,6 a 5,3 s). Sta in coda: vince il caso frequente, con le viste congelate.
+machinery(position_step).
+machinery(position_beyond).
+position_step(1, 2).  position_step(2, 3).  position_step(3, 4).  position_step(4, 5).  
+position_step(5, 6).  position_step(6, 7).  position_step(7, 8).  position_step(8, 9).  
+position_step(9, 10).  position_step(10, 11).  position_step(11, 12).  position_step(12, 13).  
+position_step(13, 14).  
+position_beyond($B, $N) :- position_step($B, $N).
+position_beyond($B, $N) :- position_step($B, $M), position_beyond($M, $N).
+% congelata: ricorsiva, costava 3 s in un turno di lezione (13 700 chiamate che
+% scendevano ogni volta lungo tutta la catena, misurato)
+materialized_view(position_beyond, 2).
+view_depends(position_beyond, position_step).
+
 machinery(question_inversion).
 machinery(operator_form).
 machinery(inversion_subject_piece).
 machinery(inversion_question_act).
 % Le forme dichiarative scritte con una classe di operatori al secondo posto.
-operator_form($D, $M) :- turn_form($D, 2, class($M)), turn_form_mood($D, statement).
+% (incremento 7) Le forme con una classe di operatori al secondo posto sono
+% solo quelle SCRITTE: nessuna forma derivata ne ha una (le derivate hanno il
+% soggetto, un portatore o un testo in quel posto). Si leggono i fatti, non le
+% regole: attraverso `turn_form` la domanda entrava nelle forme derivate e
+% chiudeva un ciclo spurio fra `derived_question` e `derived_like` (7,7 milioni
+% di visite, 20 s nel turno dopo un'analogia, misurato). La portata della
+% lettura e' dichiarata (`view_apply_resolved`), cosi' le viste che passano di
+% qui restano congelabili.
+operator_form($D, $M) :-
+    kb_fact(turn_form, cons($D, cons(2, cons(class($M), nil)))), turn_form_mood($D, statement).
+view_apply_resolved(operator_form).
 question_inversion($D, $M, $W, inverted($D, $W)) :-
     operator_form($D, $M),
     turn_form($D, 1, $S), inversion_subject_piece($S),
@@ -366,7 +399,7 @@ turn_form(inverted($D, $W), 1, text($W)) :- derived_question(inverted($D, $W)).
 turn_form(inverted($D, $W), 2, $S) :-
     inversion_subject_piece($S), derived_question(inverted($D, $W)), turn_form($D, 1, $S).
 turn_form(inverted($D, $W), $N, $P) :-
-    derived_question(inverted($D, $W)), turn_form($D, $N, $P), lt(2, $N).
+    derived_question(inverted($D, $W)), turn_form($D, $N, $P), position_beyond(2, $N).
 turn_form_mood(inverted($D, $W), question) :- derived_question(inverted($D, $W)).
 turn_form_act(inverted($D, $W), $QA) :-
     derived_question(inverted($D, $W)), turn_form_act($D, $A), inversion_question_act($A, $QA).
@@ -434,7 +467,8 @@ turn_form(supported($D, $W), 2, $S) :-
     inversion_subject_piece($S), derived_question(supported($D, $W)), turn_form($D, 1, $S).
 turn_form(supported($D, $W), 3, text($R)) :- supported_carry(supported($D, $W), carry($Do, $R)).
 turn_form(supported($D, $W), $N1, $P) :-
-    derived_question(supported($D, $W)), turn_form($D, $N, $P), lt(2, $N), is($N1, add($N, 1)).
+    derived_question(supported($D, $W)), turn_form($D, $N, $P),
+    position_beyond(2, $N), position_step($N, $N1).
 turn_form_mood(supported($D, $W), question) :- derived_question(supported($D, $W)).
 turn_form_act(supported($D, $W), $QA) :-
     derived_question(supported($D, $W)), turn_form_act($D, $A), inversion_question_act($A, $QA).
@@ -457,8 +491,8 @@ turn_form_slot_form(supported($D, $W), $Slot, $F) :-
 %
 % `inverts_when(Radice, Condizione)`: quando un verbo va davanti al soggetto.
 % La condizione e' un termine con un nome, una prova sull'affermazione
-% (`inversion_condition_holds/2`) e le parole per dirla
-% (`inversion_condition_word/2`, `inversion_condition_said/3`): si insegna, si
+% (`condition_holds/3`, incremento 7) e le parole per dirla
+% (`inversion_condition_word/2`, `condition_said/3`): si insegna, si
 % dice, si ritira (language-lessons.p0, §3-ter). Nessun verbo e' semi-modale
 % per nascita: lo diventa una lezione.
 %
@@ -467,39 +501,72 @@ turn_form_slot_form(supported($D, $W), $Slot, $F) :-
 % marcatore e mette la radice davanti al soggetto. L'uso modale non ha passato
 % (`modal_use_form/1`): da «needed to» non si chiede «Need …?».
 machinery(inverts_when).
-machinery(inversion_condition_holds).
-machinery(inversion_condition).
 machinery(infinitive_marker).
 machinery(modal_use_form).
 machinery(semi_modal_root).
-inversion_condition(bare_verb_follows).
 infinitive_marker(to).
-inversion_condition_holds(bare_verb_follows, $D) :-
-    turn_form($D, 3, text($T0)), concat_atoms($T0, "", $T), infinitive_marker($T).
 modal_use_form(present_third).
 modal_use_form(base).
-% Anche la condizione dei due rami di sopra ha un nome, per poterla dire.
+% ── incremento 7 — UNA CONDIZIONE E' UNA COMPOSIZIONE DI PARTI ─────────────
+% Una condizione non e' piu' un nome con la sua prova scritta a mano: e'
+% `all(Parti)`, e vale su un'affermazione quando valgono tutte le parti. Le
+% parti sono l'alfabeto (una prova ciascuna, scritta una volta):
+%   - di complemento: `bare_verb_follows` (il verbo e' seguito dal marcatore
+%     dell'infinito: «needs to wear»);
+%   - di tempo: `in_the_present`, `in_the_past` (la forma del verbo
+%     nell'affermazione).
+% Una lezione che nomina parti diverse crea una condizione che prima non c'era,
+% e la sua prova e' la composizione: nessuna clausola per la condizione nuova.
+% Quali tipi di parte compongono una condizione, e quale parte vale se la
+% lezione tace (`default_condition_part/2`: l'uso modale e' al presente, a meno
+% che una lezione non dica altro) e' conoscenza.
+machinery(condition_part_kind).
+machinery(condition_part_holds).
+machinery(condition_holds).
+machinery(condition_kinds).
+machinery(default_condition_part).
+condition_kinds(cons(complement, cons(tense, nil))).
+condition_part_kind(bare_verb_follows, complement).
+condition_part_kind(in_the_present, tense).
+condition_part_kind(in_the_past, tense).
+default_condition_part(tense, in_the_present).
+condition_part_holds(bare_verb_follows, $D, $K) :-
+    turn_form($D, 3, text($T0)), concat_atoms($T0, "", $T), infinitive_marker($T).
+condition_part_holds(in_the_present, $D, $K) :- modal_use_form($K).
+condition_part_holds(in_the_past, $D, past).
+condition_holds(all(nil), $D, $K).
+condition_holds(all(cons($P, $Ps)), $D, $K) :-
+    condition_part_holds($P, $D, $K), condition_holds(all($Ps), $D, $K).
+% Nella domanda modale la forma del verbo segue il tempo: al presente la radice
+% («Need …?», non «Needs …?»), al passato il passato («Dared …?»).
+machinery(modal_question_form).
+machinery(modal_question_word).
+modal_question_form(present_third, base).
+modal_question_form(base, base).
+modal_question_form(past, past).
+modal_question_word($W, $Q) :-
+    semi_modal_root($W, $R, $K), modal_question_form($K, $K2), verb_root_form($R, form($Q, $K2)).
 inverts_when($W, always) :- auxiliary($W).
-semi_modal_root($W, $R) :-
-    naf(auxiliary($W)), verb_form($R, $W, $K), modal_use_form($K).
+semi_modal_root($W, $R, $K) :- naf(auxiliary($W)), verb_form($R, $W, $K).
 question_inversion($D, $M, $W, modal($D, $W)) :-
     operator_form($D, $M),
     turn_form($D, 1, $S), inversion_subject_piece($S),
     turn_form_act($D, $A), inversion_question_act($A, $QA),
-    apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), semi_modal_root($W, $R),
-    inverts_when($R, $C), dif($C, always), inversion_condition_holds($C, $D).
+    apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), semi_modal_root($W, $R, $K),
+    inverts_when($R, $C), dif($C, always), condition_holds($C, $D, $K).
 question_inversion($D, text, $W, modal($D, $W)) :-
-    turn_form($D, 2, text($W0)), concat_atoms($W0, "", $W), semi_modal_root($W, $R),
-    inverts_when($R, $C), dif($C, always), inversion_condition_holds($C, $D),
+    turn_form($D, 2, text($W0)), concat_atoms($W0, "", $W), semi_modal_root($W, $R, $K),
+    inverts_when($R, $C), dif($C, always), condition_holds($C, $D, $K),
     turn_form_mood($D, statement),
     turn_form($D, 1, $S), inversion_subject_piece($S),
     turn_form_act($D, $A), inversion_question_act($A, $QA).
-turn_form(modal($D, $W), 1, text($R)) :-
-    derived_question(modal($D, $W)), semi_modal_root($W, $R).
+turn_form(modal($D, $W), 1, text($Q)) :-
+    derived_question(modal($D, $W)), modal_question_word($W, $Q).
 turn_form(modal($D, $W), 2, $S) :-
     inversion_subject_piece($S), derived_question(modal($D, $W)), turn_form($D, 1, $S).
 turn_form(modal($D, $W), $N1, $P) :-
-    derived_question(modal($D, $W)), turn_form($D, $N, $P), lt(3, $N), is($N1, sub($N, 1)).
+    derived_question(modal($D, $W)), turn_form($D, $N, $P),
+    position_beyond(3, $N), position_step($N1, $N).
 turn_form_mood(modal($D, $W), question) :- derived_question(modal($D, $W)).
 turn_form_act(modal($D, $W), $QA) :-
     derived_question(modal($D, $W)), turn_form_act($D, $A), inversion_question_act($A, $QA).
@@ -517,7 +584,7 @@ turn_form_slot_form(modal($D, $W), $Slot, $F) :-
 machinery(inverts_when_via).
 inverts_when_via($R2, $C, like($R1)) :-
     relation_like($N0, $O0), concat_atoms($N0, "", $N), concat_atoms($O0, "", $O),
-    verb_form($R2, $N, $K), modal_use_form($K), verb_form($R1, $O, $K2),
+    verb_form($R2, $N, $K), verb_form($R1, $O, $K2), dif($R1, $R2),
     inverts_when_taught($R1, $C).
 inverts_when_via($R, $C, taught) :- inverts_when_taught($R, $C).
 inverts_when($R, $C) :- inverts_when_via($R, $C, $S).
@@ -540,6 +607,18 @@ machinery(inverts_when_taught).
 % ogni forma: nessuna forma interrogativa scritta per «must».
 machinery(operator_like_form).
 machinery(relation_bind_piece).
+% Quali parole occupano il posto dell'operatore, e in quali forme
+% (incremento 7). Chi parte dalla parola la dice per prima: la seconda clausola
+% qui sotto scandiva tutte le forme dichiarative per ogni coppia di analogie
+% prima di sapere se erano verbi (6 milioni di visite, 30 s in un turno,
+% misurato). ⚠ Congelata come vista binaria allungava il boot oltre i 15 s
+% del demone di test: resta una regola, e i chiamanti filtrano prima.
+machinery(operator_member).
+operator_member($W, $D) :- operator_form($D, $M), apply($M, cons($W0, nil)), concat_atoms($W0, "", $W).
+% ⚠ `apply` nel corpo spegne la clausola durante il congelamento delle viste
+% che la attraversano (`derived_like`), a meno che il predicato non lo dichiari
+% risolto: senza questa riga il turno dopo un'analogia non tornava piu'.
+view_apply_resolved(operator_member).
 operator_like_form($D, $New, $Old) :-
     relation_like($New0, $Old0), concat_atoms($New0, "", $New), concat_atoms($Old0, "", $Old),
     operator_form($D, $M), apply($M, cons($W0, nil)), concat_atoms($W0, "", $Old).
@@ -547,9 +626,9 @@ relation_bind_piece(bind(relation, $R)).
 turn_form(like($D, $N), 1, $P) :- derived_like(like($D, $N)), turn_form($D, 1, $P).
 turn_form(like($D, $N), 2, text($N)) :- derived_like(like($D, $N)).
 turn_form(like($D, $N), $K, $P) :-
-    derived_like(like($D, $N)), turn_form($D, $K, $P), lt(2, $K), naf(relation_bind_piece($P)).
+    derived_like(like($D, $N)), turn_form($D, $K, $P), position_beyond(2, $K), naf(relation_bind_piece($P)).
 turn_form(like($D, $N), $K, bind(relation, $N)) :-
-    derived_like(like($D, $N)), turn_form($D, $K, bind(relation, $R)).
+    derived_like(like($D, $N)), turn_form($D, $K, bind(relation, $R)), position_beyond(2, $K).
 turn_form_mood(like($D, $N), statement) :- derived_like(like($D, $N)).
 turn_form_act(like($D, $N), $A) :- derived_like(like($D, $N)), turn_form_act($D, $A).
 turn_form_reply(like($D, $N), learned_operator_like) :- derived_like(like($D, $N)).

@@ -101,7 +101,7 @@ turn_plan_candidate($T) :- turn_is_language_lesson($T).
 turn_response_part($T, 1, $Text) :-
     turn_is_language_lesson($T), current_language($L), language_lesson_line($L, not_a_fact, $Text).
 turn_response_part($T, 2, $Text) :-
-    turn_is_language_lesson($T), naf(lesson_withdraws($T)),
+    turn_is_language_lesson($T), naf(lesson_withdraws($T)), naf(lesson_brings_condition($T)),
     lesson_target_operators($T, $Ops), dif($Ops, nil),
     current_language($L), lesson_quote_list($L, $Ops, $Q),
     language_lesson_line($L, rule_in_use, $A), concat_atoms($A, $Q, $B),
@@ -274,19 +274,51 @@ lesson_residue_operators($T, $Ops) :- findall($X, lesson_residue_operator($T, $X
 % ausiliare per sempre e' una delle due letture, e la lezione non le distingue.
 % parrot0 chiede quale (§5 del piano: tenere le alternative, chiedere la
 % distinzione). «forget» davanti alla stessa lezione la ritira.
+%
+% (incremento 7) La lezione nomina PARTI di una condizione (grammar.p0,
+% `condition_part_kind/2`): le parole che le nominano, e come si dicono. La
+% condizione e' `all(Parti)` nell'ordine dei tipi (`condition_kinds/1`); un tipo
+% che la lezione non nomina prende la parte di default, se c'e': «when a bare
+% verb follows» vale al presente, «in the past when a bare verb follows» e' una
+% condizione nuova. Senza la parte di complemento la condizione non e' detta.
 machinery(inversion_condition_word).
 inversion_condition_word(bare, bare_verb_follows).
 inversion_condition_word(nudo, bare_verb_follows).
 inversion_condition_word(infinitive, bare_verb_follows).
-machinery(inversion_condition_said).
-inversion_condition_said(en, bare_verb_follows, "when a bare verb follows").
-inversion_condition_said(it, bare_verb_follows, "quando segue un verbo nudo").
+inversion_condition_word(past, in_the_past).
+inversion_condition_word(passato, in_the_past).
+inversion_condition_word(present, in_the_present).
+inversion_condition_word(presente, in_the_present).
+machinery(condition_part_said).
+condition_part_said(en, bare_verb_follows, "when a bare verb follows").
+condition_part_said(it, bare_verb_follows, "quando segue un verbo nudo").
+condition_part_said(en, in_the_present, "in the present").
+condition_part_said(it, in_the_present, "al presente").
+condition_part_said(en, in_the_past, "in the past").
+condition_part_said(it, in_the_past, "al passato").
+machinery(condition_said).
+condition_said($L, all(cons($P, nil)), $T) :- condition_part_said($L, $P, $T).
+condition_said($L, all(cons($P, cons($Q, $R))), $T) :-
+    condition_part_said($L, $P, $A), condition_said($L, all(cons($Q, $R)), $B),
+    concat_atoms($A, " ", $A1), concat_atoms($A1, $B, $T).
 machinery(lesson_withdraw_word).
 lesson_withdraw_word(forget).  lesson_withdraw_word(dimentica).
 machinery(lesson_withdraws).
 lesson_withdraws($T) :- turn_lesson_word($T, $W), lesson_withdraw_word($W).
 machinery(lesson_condition).
-lesson_condition($T, $C) :- turn_lesson_word($T, $W), inversion_condition_word($W, $C).
+lesson_condition($T, all($Ps)) :- condition_kinds($Ks), lesson_condition_parts($T, $Ks, $Ps).
+machinery(lesson_condition_parts).
+machinery(lesson_condition_part).
+machinery(lesson_names_part_kind).
+lesson_condition_parts($T, nil, nil).
+lesson_condition_parts($T, cons($K, $Ks), cons($P, $Ps)) :-
+    lesson_condition_part($T, $K, $P), lesson_condition_parts($T, $Ks, $Ps).
+lesson_condition_part($T, $K, $P) :-
+    turn_lesson_word($T, $W), inversion_condition_word($W, $P), condition_part_kind($P, $K).
+lesson_condition_part($T, $K, $P) :-
+    naf(lesson_names_part_kind($T, $K)), default_condition_part($K, $P).
+lesson_names_part_kind($T, $K) :-
+    turn_lesson_word($T, $W), inversion_condition_word($W, $P), condition_part_kind($P, $K).
 machinery(lesson_places_verb).
 lesson_places_verb($T, $X, $R) :-
     lesson_names_mood($T, question), lesson_placement($T, $X, before, subject),
@@ -299,6 +331,10 @@ lesson_condition_change($T, $X, $R, $C) :-
 machinery(lesson_condition_new).
 lesson_condition_new($T, $X, $R, $C) :-
     lesson_condition_change($T, $X, $R, $C), naf(inverts_when($R, $C)).
+% una lezione che porta una condizione nuova non «combacia» con la regola:
+% la cambia (si dice la parte nuova, non una conferma a meta')
+machinery(lesson_brings_condition).
+lesson_brings_condition($T) :- lesson_condition_new($T, $X, $R, $C).
 machinery(lesson_condition_unsaid).
 machinery(lesson_names_some_condition).
 lesson_names_some_condition($T) :- lesson_condition($T, $C).
@@ -313,8 +349,8 @@ lesson_condition_withdrawn($T, $X, $R, $C) :-
 % lezione.
 machinery(lesson_condition_opens).
 lesson_condition_opens($R, $C) :-
-    operator_form($D, $M), apply($M, cons($W0, nil)), concat_atoms($W0, "", $W),
-    semi_modal_root($W, $R), inversion_condition_holds($C, $D).
+    verb_root_form($R, form($W, $K)), operator_member($W, $D),
+    semi_modal_root($W, $R, $K), condition_holds($C, $D, $K).
 view_apply_resolved(lesson_condition_opens).
 
 % La scrittura e il ritiro si fanno DOPO la risposta: la risposta si calcola
@@ -336,13 +372,23 @@ turn_bookkeeping($T, language_lesson_no_example) :-
 
 turn_response_part($T, 5, $Text) :-
     turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
-    current_language($L), lesson_quoted($R, $Q), inversion_condition_said($L, $C, $Cw),
+    naf(inverts_under_condition($R)),
+    current_language($L), lesson_quoted($R, $Q), condition_said($L, $C, $Cw),
     language_lesson_line($L, condition_taught, $A), concat_atoms($A, $Q, $B),
     language_lesson_line($L, condition_taught_mid, $D), concat_atoms($B, $D, $E),
     concat_atoms($E, $Cw, $F),
     language_lesson_line($L, condition_taught_end, $G), concat_atoms($F, $G, $H),
     concat_atoms($H, $Q, $I),
     language_lesson_line($L, condition_taught_tail, $J), concat_atoms($I, $J, $Text).
+% un verbo che una condizione l'aveva gia': questa si aggiunge, non la sostituisce
+turn_response_part($T, 5, $Text) :-
+    turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
+    inverts_under_condition($R),
+    current_language($L), lesson_quoted($R, $Q), condition_said($L, $C, $Cw),
+    language_lesson_line($L, condition_taught_also, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, condition_taught_also_mid, $D), concat_atoms($B, $D, $E),
+    concat_atoms($E, $Cw, $F),
+    language_lesson_line($L, condition_taught_also_end, $G), concat_atoms($F, $G, $Text).
 turn_response_part($T, 6, $Text) :-
     turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
     naf(lesson_condition_opens($R, $C)),
@@ -399,14 +445,23 @@ inverts_under_condition($R) :- inverts_when($R, $C), dif($C, always).
 % un ausiliare: sempre
 inversion_condition_answer($W, $Text) :-
     auxiliary($W), current_language($L), language_lesson_line($L, condition_always, $Text).
-% un verbo con una condizione: quale, e da dove viene
+% un verbo con condizioni: quali, e da dove viene ciascuna, in una frase
+% (le frasi raccolte non hanno virgole: `findall` le spezzerebbe)
 inversion_condition_answer($W, $Text) :-
-    naf(auxiliary($W)), inversion_condition_root($W, $R),
+    naf(auxiliary($W)), inversion_condition_root($W, $R), inverts_under_condition($R),
+    current_language($L), findall($P, inversion_condition_phrase($L, $R, $P), $Ps),
+    inversion_phrase_join($L, $Ps, $J),
+    language_lesson_line($L, condition_only, $A), concat_atoms($A, $J, $B),
+    language_lesson_line($L, condition_only_end, $E), concat_atoms($B, $E, $Text).
+machinery(inversion_condition_phrase).
+inversion_condition_phrase($L, $R, $P) :-
     inverts_when_via($R, $C, $S), dif($C, always),
-    current_language($L), inversion_condition_said($L, $C, $Cw),
-    language_lesson_line($L, condition_only, $A), concat_atoms($A, $Cw, $B),
-    inversion_support_said($L, $S, $Sw), concat_atoms($B, $Sw, $D),
-    language_lesson_line($L, condition_only_end, $E), concat_atoms($D, $E, $Text).
+    condition_said($L, $C, $Cw), inversion_support_said($L, $S, $Sw), concat_atoms($Cw, $Sw, $P).
+machinery(inversion_phrase_join).
+inversion_phrase_join($L, cons($P, nil), $P).
+inversion_phrase_join($L, cons($P, cons($Q, $R)), $T) :-
+    inversion_phrase_join($L, cons($Q, $R), $B), language_lesson_line($L, condition_or, $O),
+    concat_atoms($P, $O, $A), concat_atoms($A, $B, $T).
 % un verbo senza condizione: mai, e chiede con «do»
 inversion_condition_answer($W, $Text) :-
     naf(auxiliary($W)), inversion_condition_root($W, $R), naf(inverts_under_condition($R)),
@@ -562,10 +617,18 @@ language_lesson_line(en, condition_only_end, "; everywhere else it stays a verb 
 language_lesson_line(it, condition_only_end, "; altrove resta un verbo e chiede con «do».").
 language_lesson_line(en, support_taught, " (you taught me that)").
 language_lesson_line(it, support_taught, " (me l'hai insegnato tu)").
-language_lesson_line(en, support_like, ", because it behaves like ").
-language_lesson_line(en, support_like_end, "").
-language_lesson_line(it, support_like, ", perché si comporta come ").
-language_lesson_line(it, support_like_end, "").
+language_lesson_line(en, support_like, " (because it behaves like ").
+language_lesson_line(en, support_like_end, ")").
+language_lesson_line(it, support_like, " (perché si comporta come ").
+language_lesson_line(it, support_like_end, ")").
+language_lesson_line(en, condition_or, " or ").
+language_lesson_line(it, condition_or, " oppure ").
+language_lesson_line(en, condition_taught_also, "From now on I also put ").
+language_lesson_line(en, condition_taught_also_mid, " before the subject ").
+language_lesson_line(en, condition_taught_also_end, ", as well as where I already did.").
+language_lesson_line(it, condition_taught_also, "D'ora in poi metto ").
+language_lesson_line(it, condition_taught_also_mid, " prima del soggetto anche ").
+language_lesson_line(it, condition_taught_also_end, ", oltre a dove lo facevo già.").
 language_lesson_line(en, condition_never, "never goes before the subject: it is a verb, and it asks with «do».").
 language_lesson_line(it, condition_never, "non va mai prima del soggetto: è un verbo, e chiede con «do».").
 language_lesson_line(en, list_sep, ", ").

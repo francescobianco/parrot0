@@ -127,6 +127,13 @@ quel nome, quindi non si ridefiniscono.
 | `present_term/2` | resa di un termine secondo le `present_rule` | |
 | `prob/2`, `ranges_over/3` | probabilità KB-backed, intervalli temporali | usi rari |
 
+> **Viste e costo della crescita.** `apply`/`call`/`kb_fact` nel corpo spengono
+> la clausola durante il congelamento se il predicato che li contiene non
+> dichiara `view_apply_resolved/1` (e spostarli in un aiutante toglie la
+> dichiarazione); un `assert` dentro la prova sporca le viste che ne dipendono;
+> una vista è confine solo se è viva. Le specie misurate e le cure:
+> [kb-growth-dynamics.md](kb-growth-dynamics.md).
+
 ## 5. Guardie del solver
 
 `KB_MAX_DEPTH` = 64 di profondità, `KB_MAX_GOALS` sul resolvent, un budget di
