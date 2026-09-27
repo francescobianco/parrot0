@@ -6091,6 +6091,21 @@ static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]) {
  * Le variabili restano quelle della lezione: ogni ruolo del frame deve essere un
  * `rule_variable`, altrimenti la clausola parla di individui e non e' una regola
  * — e in quel caso si tace, invece di generalizzare per conto proprio. */
+/* Un argomento costante di una clausola di regola, scritto come le entita'
+ * della KB: minuscolo, parole unite da underscore. */
+static void p0_rule_constant(const char *slot, char *out, size_t out_size) {
+    size_t o = 0;
+    out[0] = '\0';
+    if (!slot) return;
+    for (const char *c = slot; *c && o + 1 < out_size; c++) {
+        if (*c == ' ') { if (o && out[o - 1] != '_') out[o++] = '_'; continue; }
+        if (!isalnum((unsigned char)*c) && *c != '_' && *c != '-') { out[0] = '\0'; return; }
+        out[o++] = (char)tolower((unsigned char)*c);
+    }
+    while (o && out[o - 1] == '_') o--;
+    out[o] = '\0';
+}
+
 static int p0_rule_clause_frame(Brain *b, P0RuleVars *v, char **w, size_t n,
                                 char store[3][KB_TERM_LEN], KbGoal *g) {
     if (!b || !b->kb || !v || !w || n < 3) return 0;
@@ -6111,14 +6126,24 @@ static int p0_rule_clause_frame(Brain *b, P0RuleVars *v, char **w, size_t n,
         if (kb_query(b->kb, "rule_variable", q, 1) ||
             kb_query(b->kb, "rule_anaphor", q, 1)) rule_terms++;
     }
-    if (rule_terms < 2) return 0;
+    /* 27 settembre 2026 (train-the-smart-agent, SA7/G5) — BASTA UNA VARIABILE.
+     * «if x leaks current then the RCD trips» e' la forma piu' comune di una
+     * legge: un argomento qualunque, l'altro fissato. Pretendere due variabili
+     * rendeva la clausola un atomo opaco, e la legge non si legava ai fatti
+     * (`leaks(washing_machine, current)`); il ripiego «x leaks y» era troppo
+     * largo (anche un tubo che perde acqua avrebbe fatto scattare il
+     * differenziale). L'argomento che non e' una variabile resta una costante,
+     * scritta come le entita' della KB. */
+    if (rule_terms < 1) return 0;
     P0FrameReading r;
     if (!p0_frame_reading(b, w, n, &r)) return 0;
     if (r.nslots != 2 || r.nquestion != 0) return 0;
+    char c0[KB_TERM_LEN], c1[KB_TERM_LEN];
     const char *a0 = p0_rule_term(b, v, r.slot[0]);
-    if (!a0) return 0;
     const char *a1 = p0_rule_term(b, v, r.slot[1]);
-    if (!a1) return 0;
+    if (!a0 && !a1) return 0;
+    if (!a0) { p0_rule_constant(r.slot[0], c0, sizeof c0); if (!c0[0]) return 0; a0 = c0; }
+    if (!a1) { p0_rule_constant(r.slot[1], c1, sizeof c1); if (!c1[0]) return 0; a1 = c1; }
     snprintf(store[0], KB_TERM_LEN, "%s", r.pred);
     snprintf(store[1], KB_TERM_LEN, "%s", a0);
     snprintf(store[2], KB_TERM_LEN, "%s", a1);
