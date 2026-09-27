@@ -75,6 +75,17 @@ typedef struct {
     char   args[KB_MAX_ARGS][KB_TERM_LEN];
     int    neg; /* U6: a BODY goal marked negation-as-failure (naf(G)). 0 for
                  * facts, heads, and ordinary positive goals. */
+    /* 27 settembre 2026 — LA PROFONDITA' DELL'ALBERO, NON DELLA CATENA.
+     * Il risolutore procede a continuazioni: il corpo di una regola e il resto
+     * della congiunzione del genitore stanno nella stessa lista, e la
+     * profondita' passata a quella lista (`depth + 1`) valeva anche per i
+     * goal FRATELLI che seguono. Cosi' KB_MAX_DEPTH limitava la LUNGHEZZA di
+     * una prova (circa 64 espansioni in tutto), non la sua profondita': una
+     * composizione KB-first di pezzi corti falliva in silenzio (misurato su
+     * scales.p0 e isolation.p0, train-the-smart-agent §10). Ogni goal di un
+     * corpo porta la profondita' del nodo che l'ha posto; 0 = non nota (goal
+     * di una query, marcatori interni): vale quella passata. */
+    int    depth;
     /* 26 settembre 2026 — DIAGNOSTICA: il predicato di testa della regola il cui
      * corpo ha posto questo goal (una copia, non un puntatore: le regole si
      * riallocano). Lo legge soltanto il profilo delle visite (/debug); vuoto per
@@ -97,6 +108,7 @@ typedef struct {
 static void term_copy(Term *dst, const Term *src) {
     dst->argc = src->argc;
     dst->neg  = src->neg;
+    dst->depth = src->depth;
     memcpy(dst->pred, src->pred, strlen(src->pred) + 1);
     for (size_t i = 0; i < src->argc && i < KB_MAX_ARGS; i++)
         memcpy(dst->args[i], src->args[i], strlen(src->args[i]) + 1);
@@ -2095,6 +2107,7 @@ static void rename_term(const Term *src, int frame, int *anon, Term *dst) {
         rename_arg(src->args[i], frame, anon, dst->args[i], KB_TERM_LEN);
     dst->neg = src->neg;   /* U6: the naf flag travels with the renamed goal */
     dst->from[0] = '\0';
+    dst->depth = 0;        /* chi espande una regola la imposta */
 }
 
 static void push_unique(char out[][KB_TERM_LEN], size_t *count, size_t max,
@@ -3306,6 +3319,7 @@ static void solver_dedup_free(Solver *S) { free(S->dedup); S->dedup = NULL; S->d
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
     if (S->kb->prof_on) kb_profile_self_enter((KB *)S->kb, idx < ngoals ? &goals[idx] : NULL);
+    if (idx < ngoals && goals[idx].depth > 0) depth = goals[idx].depth;   /* l'albero */
     if (idx == ngoals) {                       /* a complete solution */
         if (S->qvar == NULL) { S->found = 1; return 1; }
         char v[KB_TERM_LEN];
@@ -4463,6 +4477,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }
             rename_term(&R->body[b], fr, &anon, &ng[m]);
             snprintf(ng[m].from, sizeof ng[m].from, "%s", R->head.pred);
+            ng[m].depth = depth + 1;      /* un livello sotto il goal espanso */
             m++;
         }
         if (pushed && !overflow) {
@@ -6512,6 +6527,7 @@ static int parse_term(const char *s, char *pred,
  * the single point that builds one, and never left to memory. */
 static int parse_to_term(const char *s, Term *t) {
     t->neg = 0;
+    t->depth = 0;
     return parse_term(s, t->pred, t->args, &t->argc);
 }
 

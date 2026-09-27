@@ -204,6 +204,36 @@ Risultato: `derived_like` → `derived_question` (una volta, 195 ms) →
 grafo delle dipendenze onesto vale più di un motore che indovina l'ordine. Chi
 dichiara una dipendenza la dichiara sulla VISTA, non su un predicato interno.
 
+### S12 — Il tetto di profondità che limitava la lunghezza della prova
+
+**Caso** (27 settembre, sessione di cinque ore, train-the-smart-agent §10):
+tre composizioni KB-first corte, ciascuna vera pezzo per pezzo, fallivano
+**in silenzio** quando si mettevano in fila: la scelta con una relazione
+calcolata (`ordered_pair` seguito da `choice_reason`), il verdetto con un
+soggetto di più parole (`comparative_verdict_clause`), la ragione dopo la
+coppia ordinata. Ogni sonda isolata reggeva; la catena no.
+**Causa:** il risolutore procede a continuazioni. Il corpo di una regola e il
+resto della congiunzione del genitore stanno nella stessa lista, e la
+profondità passata a quella lista (`depth + 1`) valeva anche per i goal
+**fratelli** che seguono. `KB_MAX_DEPTH` (64) limitava così la **lunghezza** di
+una prova, circa 64 espansioni in tutto, non la profondità dell'albero che il
+suo commento promette.
+**Segnale:** ogni pezzo regge da solo e la congiunzione no; una sonda con un
+goal in più fa fallire ciò che prima riusciva; nessun muro, nessun budget
+esaurito nel profilo.
+**Cura** ([kb.c](../src/kb.c), campo `depth` di `Term`): ogni goal di un corpo
+porta la profondità del nodo che l'ha posto (quella del goal espanso + 1); i
+goal della continuazione conservano la propria; `solve` usa quella del goal
+quando c'è. 64 torna a essere la profondità dell'albero. Due false piste
+pagate prima di trovarla: il «ciclo tagliato globalmente» (il marcatore
+`__end_inference_scope` chiude già correttamente l'ambito degli antenati) e
+il ricalcolo (portare i valori calcolati nella coppia ordinata aiutava solo
+perché accorciava la prova).
+**Legge:** in una KB che cresce per composizione, la lunghezza delle prove
+cresce con lei. Un tetto che conta la lunghezza fa fallire proprio le
+composizioni più corrette, e in silenzio. Un limite si misura su ciò che dice
+di misurare.
+
 ## 4. Il metodo che ha funzionato, e l'errore da non ripetere
 
 1. **Misura, poi ipotesi.** Ogni volta che ho indovinato la causa senza profilo
@@ -217,7 +247,11 @@ dichiara una dipendenza la dichiara sulla VISTA, non su un predicato interno.
    `git diff --stat` contro ciò che ci si aspetta.
 4. **Il turno giusto è quello nella sequenza vera**, con le lezioni precedenti
    (S7: 7 s nel contesto contro 4 s da solo).
-5. **A/B contro HEAD** per ogni rosso di tempo prima di attribuirselo (il
+5. **Le sonde `!query` mentono sulle forme**: una costante `"travel time"`
+   in un `!query` perde le virgolette, dentro una regola no; `$T = ok` non
+   esiste (niente `=/2`). Una sonda di diagnosi si scrive come **regola** nel
+   file, con la stessa forma del flusso vero, e si toglie dopo.
+6. **A/B contro HEAD** per ogni rosso di tempo prima di attribuirselo (il
    turno «capital of france» di `basics.p0t` sta a 1,0 s con e senza le
    modifiche di oggi: non era mio).
 

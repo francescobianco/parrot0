@@ -367,13 +367,25 @@ turn_form_priority(ask_comparative_pick, early).
 turn_form_act(ask_comparative_pick, "op(match, comparative_pick, [word, first, second, free])").
 turn_form_reply(ask_comparative_pick, comparative_pick_reply).
 turn_form(ask_comparative_verdict, 1, text("is")).
-turn_form(ask_comparative_verdict, 2, span(first)).
-turn_form(ask_comparative_verdict, 3, slot(word)).
-turn_form(ask_comparative_verdict, 4, text("than")).
-turn_form(ask_comparative_verdict, 5, rest(second)).
+turn_form(ask_comparative_verdict, 2, rest(clause)).
 turn_form_mood(ask_comparative_verdict, question).
 turn_form_priority(ask_comparative_verdict, early).
-turn_form_act(ask_comparative_verdict, "op(match, comparative_verdict, [first, word, second, free])").
+turn_form_act(ask_comparative_verdict, "op(match, comparative_verdict_clause, [clause, free])").
+% La coda «the night flight cheaper than the morning flight» la legge la KB: la
+% parola prima di «than» e' il comparativo, prima c'e' il primo termine, dopo il
+% secondo. (Uno span seguito da uno slot non ha un confine per il lettore delle
+% forme: con un soggetto di tre parole la forma non combaciava, misurato.)
+machinery(comparative_verdict_clause).
+comparative_verdict_clause($Clause, $Text) :-
+    atom_words($Clause, $Ws), comparison_marker($M), app($Front, cons($W, cons($M, $Back)), $Ws),
+    comparative_word_form($W), words_joined($Front, $A), words_joined($Back, $B),
+    comparative_verdict($A, $W, $B, $Text).
+machinery(comparison_marker).
+comparison_marker(than).
+% la parola del confronto e' un comparativo derivabile
+machinery(comparative_word_form).
+comparative_word_form($W) :- adjective_degree($W, $A, comparative).
+comparative_word_form($W) :- comparative_pole($W, $P).
 turn_form_reply(ask_comparative_verdict, comparative_verdict_reply).
 response_template(comparative_pick_reply, "{result}.").
 response_template(comparative_pick_reply, it, "{result}.").
