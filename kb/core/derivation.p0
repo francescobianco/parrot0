@@ -112,7 +112,11 @@ turn_priority_support($Reply, $Dip) :-
 % partenza. `clause_fact_said/2` legge la forma canonica di `kb_clause/4`.
 machinery(proposition_because).
 machinery(clause_fact_said).
+% un effetto osservato si spiega con la sua legge (isolation.p0, §10), non con
+% la frase che lo riporta
+proposition_because($P, $T) :- effect_reason($P, $T).
 proposition_because($P, $T) :-
+    naf(effect_reason_some($P)),
     derivation_of(holds($P), $D), derivation_uses_fact($D, $Id),
     kb_clause($Id, $H, 0, 0), clause_fact_said($H, $T).
 clause_fact_said(app($R, cons(atom($A), cons(atom($B), nil))), $T) :-

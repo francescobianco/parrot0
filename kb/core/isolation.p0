@@ -239,12 +239,16 @@ machinery(continuative_verb).
 continuative_verb(keep).
 machinery(observed_effect).
 machinery(effect_subject_verb).
-observed_effect($E) :-
-    kb_clause($Id, app(holds, cons(atom($E), nil)), 0, 0), content_act($Id, session).
-observed_effect($E) :-
-    effect_law($E, $P), effect_subject_verb($E, $Subj, $V),
-    verb_form($R, $V, present_third), verb_root_form($R, form($G, present_participle)),
-    continuative_verb($K), apply($K, cons($Subj, cons($G, nil))).
+% ⚠ indicizzato per predicato: `holds/1` e' interrogato a ogni turno, e una
+% scansione di `kb_clause/4` costava 64 ms a chiamata (misurato).
+observed_effect($E) :- kb_fact(holds, cons($E, nil)).
+observed_effect($E) :- observed_continuative($E).
+machinery(observed_continuative).
+% si parte dai fatti continuativi (pochi o nessuno), e se ne ricava l'effetto
+observed_continuative($E) :-
+    continuative_verb($K), kb_fact($K, cons($Subj, cons($G, nil))),
+    verb_form($R, $G, present_participle), verb_root_form($R, form($V, present_third)),
+    atom_words($Subj, $SW), app($SW, cons($V, nil), $EW), words_underscored($EW, $E).
 effect_subject_verb($E, $Subj, $V) :-
     atom_words($E, $Ws), list_without_last($Ws, $SWs), app($SWs, cons($V, nil), $Ws),
     words_underscored($SWs, $Subj).
@@ -422,3 +426,46 @@ turn_form_mood(report_effect_stopped, statement).
 turn_form_priority(report_effect_stopped, early).
 turn_form_act(report_effect_stopped, "op(match, isolation_stopped, [verb, free])").
 turn_form_reply(report_effect_stopped, isolation_reply).
+
+% ── 10. PERCHE' L'EFFETTO: la ragione abduttiva ────────────────────────────
+% Un effetto riportato da chi parla VALE: e' osservato («The RCD keeps
+% tripping.»). Il suo perche', finche' nessun candidato e' noto come colpevole,
+% e' la condizione della legge detta con «something»: «Because something leaks
+% current, and I don't know yet which one.» Quando il colpevole e' noto, e' lui.
+% L'osservazione continuativa diventa un FATTO (un'osservazione e' un fatto
+% riportato), scritto dal contabile del turno: non una regola `holds($E) :- …`,
+% che con la testa variabile renderebbe «vista» ogni proposizione (§11).
+bookkeeper(continuative_observation).
+turn_bookkeeping($T, continuative_observation) :-
+    observed_continuative($E), naf(kb_fact(holds, cons($E, nil))), assert(holds, $E).
+machinery(effect_law_object).
+effect_law_object($E, $P, $Obj) :-
+    kb_clause($Id, app(holds, cons(atom($E), nil)), 1,
+              app($P, cons(var($V), cons(atom($Obj), nil)))).
+machinery(effect_reason).
+machinery(effect_reason_some).
+effect_reason_some($E) :- effect_reason($E, $T).
+effect_reason($E, $T) :-
+    observed_effect($E), effect_law_object($E, $P, $Obj),
+    apply($P, cons($X, cons($Obj, nil))), words_of($X, $WX), words_of($P, $WP),
+    concat_atoms("the ", $WX, $A), concat_atoms($A, " ", $B), concat_atoms($B, $WP, $C),
+    concat_atoms($C, " ", $D), concat_atoms($D, $Obj, $T).
+effect_reason($E, $T) :-
+    observed_effect($E), effect_law_object($E, $P, $Obj),
+    naf(effect_instance_known($P, $Obj)), words_of($P, $WP), current_language($L),
+    isolation_line($L, something, $S), concat_atoms($S, $WP, $A), concat_atoms($A, " ", $B),
+    concat_atoms($B, $Obj, $C), isolation_line($L, dont_know_which, $Z), concat_atoms($C, $Z, $T).
+machinery(effect_instance_known).
+effect_instance_known($P, $Obj) :- apply($P, cons($X, cons($Obj, nil))).
+isolation_line(en, something, "something ").
+isolation_line(en, dont_know_which, ", and I don't know yet which one").
+isolation_line(it, something, "qualcosa ").
+isolation_line(it, dont_know_which, ", e non so ancora che cosa").
+
+% ── 11. LA PROPOSIZIONE «VISTA» SI DERIVA DALLE REGOLE CHE LA NOMINANO ─────
+% `proposition_seen/1` nasceva solo leggendo la regola nella sessione (C,
+% gen413): con la regola caricata dalla KB salvata il registro era vuoto, e
+% «Does the RCD trip?» non si leggeva piu' (C6 di l4-upgrade: l'effetto non
+% sopravviveva al riavvio). Una proposizione e' vista se una clausola la nomina,
+% come testa o come premessa.
+proposition_seen($P) :- kb_rule(holds, cons($P, nil)).
