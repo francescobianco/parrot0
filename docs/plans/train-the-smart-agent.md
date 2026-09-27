@@ -755,7 +755,19 @@ visto** (per esempio «Quiet means a low noise level.»), e la scelta fra due
 opzioni rumorose deve riuscire senza altre righe. Se per farla riuscire serve
 una riga in più di quel fatto, ci stiamo illudendo, e il registro lo deve dire.
 
-**I tre mattoni, in ordine**, sono lavoro di motore/KB fuori dalla sessione
+**Fatto il 27 settembre (iterazione 4, §10): la prova di scalabilità è
+passata.** Con i livelli di rumore di tre elettrodomestici e **un aggettivo mai
+visto**, prima della lezione «Which is quieter, …?» non ha risposta; dopo la
+sola lezione «Quiet means a low noise level.» reggono insieme «Which is
+quieter, the fridge or the dishwasher?» → «The fridge: its noise level is 40
+decibels, against 45 decibels for the dishwasher.», «Is the dishwasher quieter
+than the fan?» → «No, the fan: …», «Which is the quietest?» → la ventola,
+«Which has the highest noise level?» → la lavastoviglie. Nessuna riga oltre
+quel fatto. Resta aperta la **scelta per un obiettivo** detto in un altro turno
+(«I want to get home as soon as possible. Should I take the bus or the
+train?», G14) e l'arrivo **calcolato** (partenza + durata, G13).
+
+**I tre mattoni, in ordine** (storico: G16 e G17 chiusi nell'iterazione 4), sono lavoro di motore/KB fuori dalla sessione
 (live-teaching §3, regola 6): G16 → G17 → la rappresentazione dei poli con la
 derivazione dei comparativi (sostituendo `comparative_word/3` con i poli, per
 l'età compresa) → G14. Poi si riapre F21.1 e si prova con un aggettivo nuovo.
@@ -772,6 +784,7 @@ ogni incremento valido si committa e si pusha subito.
 | 1 | G7/SA1: «Is it true that the kettle trips?» dopo una regola che nomina la proposizione → `Learned: holds(kettle_trips)` | qualunque domanda su una proposizione vista in una regola veniva asserita, non solo «is it true that» | il ramo proposizionale di `knowledge` legge `turn_declared_act(current_turn, question)` e risponde; A/B su `higher_order_lesson`, `taught_rules`, `scenario_inference`, `conditional_plan`: rossi identici a HEAD | mondo allargato (atto vs impegno), L4 §2.5 |
 | 2 | G6: «Does the RCD trip?» → «I don't know about residual» con `holds(residual_current_device_trips) :- leaks($V1,$V2)` e `leaks(washing_machine, current)` in KB | il ramo polare proposizionale reggeva solo l'ausiliare davanti a un soggetto di una parola (+ articolo): niente do-support, niente soggetti di più parole (una sigla espansa ne ha tre) | si prova ogni fine del soggetto; con il portatore del tempo il verbo riprende la forma finita dalla composizione dei paradigmi (`polar_do_finite/3`, grammar.p0, accanto a `polar_fronted`). «Does the RCD trip?» → «Not necessarily.» / «Yes.» dopo il fatto; «Is the ground wet?» regge. A/B come sopra: identico; `conditional_plan` riga 92 («Scartato: located_in(se_milan, …)», piano condizionale italiano) è un rosso di contenuto preesistente, visibile solo quando la riga 91 sta sotto 1 s | IR (soggetto come sintagma), L4 (la stessa composizione dei paradigmi del ramo `supported`) |
 | 3 | «Why does the RCD trip?» → «Yes.»; «Why is the ground wet?» → «Yes.»; «How do you know?» → «I haven't answered a knowledge-based question yet» | (a) un «why» senza prova restituiva la risposta interna, cioè la risposta a **un'altra domanda**: valeva per ogni «why» (anche «Why is the sky blue?» → «Yes.», che nascondeva la spiegazione vera già in KB); (b) il ramo proposizionale non lasciava la sua prova | (a) una risposta polare nuda (`bare_polar_reply/1`, KB) non è una ragione: la via del «why» si ritira; (b) la ragione la compone la KB dalla **stessa derivazione** che ha deciso il «Yes» (`proposition_because/2`, `clause_fact_said/2` in derivation.p0, forma canonica di `kb_clause/4`) e il C la conserva. «Why does the RCD trip?» → «Because washing machine leaks current.»; «Why is the ground wet?» (dopo «it rains») → «Because it rains.»; «Why is the sky blue?» → la spiegazione enciclopedica. A/B su 12 file con domande «why»: identico | mondo allargato (la ragione come sostegno), L4 §2.4 (la regola discutibile), derivation.p0 |
+| 4 | F21.1: con le durate lette, «Which is faster, the bus or the train?» → muro; «Is 20 minutes less than 40 minutes?» → muro; la direzione era una casistica per parola (`comparative_word/3`) e il confronto un `mod_compare` C di cinque parole | il verso di un confronto viene dal **polo** di una grandezza; il resto si deriva. G15, G16, G17 insieme | nuovo [kb/core/scales.p0](../../kb/core/scales.p0) (incluso da `decisions.p0`): unità di tempo con la base comune; valore di una quantità (stessa unità non convertibile: si confronta con se stessa); valore di una relazione come operando (`operand_amount/4` via `relation_noun/2`); poli (`magnitude_adjective/2`, i `comparative_less/more` già in lexicon.p0); **una** tabella di verso (`pole_direction/2`); comparativo e superlativo derivati dalla morfologia; scelta fra due con la ragione, verdetto, superlativo su tutto l'insieme; la lezione parlata «<aggettivo> means a <grandezza> <relazione>». Le forme di confronto **cedono** quando non trovano niente (A/B su 7 domande di confronto già note e su `compare`, `numeric_questions`, `magnitude_compare`: identico) | L4 (il precedente della condizione insegnata), IR (il sintagma detto → l'entità: `said_entity/2` con `np_opener/1`), comprensione universale |
 
 ## 8. Da dove si riparte
 

@@ -467,5 +467,6 @@ decision_polar_answer($O, $R, $V, $Text) :- decision_number($O, $R, $W), dif($W,
 decision_polar_answer($O, $R, $V, $Text) :- naf(decision_known($O, $R)), decision_value_answer($O, $R, $Text).
 
 :- include(decision-language.p0).
+:- include(scales.p0).
 
 

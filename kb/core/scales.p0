@@ -1,0 +1,283 @@
+% scales.p0 — LE SCALE E I LORO POLI: il verso di un confronto viene dalle
+% condizioni, non da una casistica (docs/plans/train-the-smart-agent.md §9, F21).
+%
+% F., 27 settembre 2026: «scegliere quello che ti fa andare a casa prima
+% sembrerebbe operazionale, ma derivare l'azione da compiere, cioe' minore o
+% maggiore, viene dalle condizioni, non da casistiche». Prima il verso stava in
+% una riga per parola (`comparative_word(younger, age, lt)`, problem-texts.p0) e
+% in un modulo C che accettava solo «is <numero> less/more than <numero>»
+% (`mod_compare`, TODO kb-first). Qui:
+%
+%   - un aggettivo nomina un POLO di una grandezza: il piccolo insieme chiuso
+%     delle parole di grandezza (short/long, low/high, small/big, few/many, e i
+%     comparativi gia' in lexicon.p0: `comparative_less/1`, `comparative_more/1`),
+%     e quello che una lezione insegna parlando («Fast means a short travel
+%     time.» -> `adjective_measure(fast, short, "travel time")`);
+%   - l'unica tabella di verso e' `pole_direction/2`: il polo basso vuole il
+%     minore, l'alto il maggiore;
+%   - comparativo e superlativo si DERIVANO dalla morfologia (-er, -r, -ier,
+%     consonante doppia, e i pochi irregolari);
+%   - la migliore fra due opzioni e' quella piu' vicina al polo sulla grandezza
+%     che l'aggettivo nomina, e la risposta dice perche' (i due valori).
+%
+% Un aggettivo nuovo costa UNA lezione («Quiet means a low noise level.»):
+% nessuna riga per il comparativo, il superlativo o la scelta.
+:- file_attribute(machinery).
+
+% ── 1. LE UNITA' DI TEMPO (conoscenza vera: SI, e i multipli d'uso comune) ──
+% Una quantita' con l'unita' si confronta sulla base comune della sua grandezza.
+unit_base(second, time, 1).
+unit_base(minute, time, 60).
+unit_base(hour, time, 3600).
+unit_base(day, time, 86400).
+unit_base(week, time, 604800).
+machinery(unit_surface_base).
+unit_surface_base($U, $S, $F) :- unit_base($U, $S, $F).
+unit_surface_base($U, $S, $F) :- concat_atoms($B, "s", $U), unit_base($B, $S, $F).
+% la stessa conoscenza per chi legge i valori misurati (decisions.p0, RI-013)
+measures($U, $S) :- unit_base($U, $S, $F).
+
+% ── 2. IL VALORE DI UNA QUANTITA', E DI UNA RELAZIONE ───────────────────────
+% `quantity_amount(Valore, Scala, Numero)`: un numero nudo, o «40 minutes»
+% (salvato `40_minutes`) portato alla base della sua scala.
+machinery(quantity_amount).
+quantity_amount($V, number, $N) :- is($N, $V).
+quantity_amount($V, $S, $N) :-
+    atom_words($V, cons($N0, cons($U, nil))), is($X, $N0),
+    unit_surface_base($U, $S, $F), is($N, mul($X, $F)).
+% un'unita' che non si sa convertire si confronta solo con se stessa: la scala
+% e' l'unita' (40 decibels con 45 decibels, mai con 45 watts)
+quantity_amount($V, unit($U), $N) :-
+    atom_words($V, cons($N0, cons($U, nil))), is($N, $N0), naf(convertible_unit($U)).
+machinery(convertible_unit).
+convertible_unit($U) :- unit_surface_base($U, $S, $F).
+% `operand_amount(Cosa, Relazione detta, Scala, Numero)`: «the travel time of
+% the bus» e' il valore di `travel_time_of(bus, …)`; la relazione si nomina
+% come la si dice (`relation_noun/2`, grammar.p0).
+% ⚠ La grandezza arriva come l'ha detta chi parla: dalla lezione («travel time»,
+% una stringa) o dal nome della relazione (un atomo). Si passa dalle PAROLE,
+% non dalla forma, e si controlla che sia davvero un nome di relazione.
+machinery(measure_pred).
+measure_pred($Surface, $P) :-
+    atom_words($Surface, $Ws), words_underscored($Ws, $J), concat_atoms($J, "_of", $P),
+    relation_noun($P, $S2).
+machinery(operand_amount).
+operand_amount($E, $Surface, $S, $N) :-
+    measure_pred($Surface, $P), apply($P, cons($E, cons($V, nil))),
+    quantity_amount($V, $S, $N).
+
+% ── 3. I POLI ────────────────────────────────────────────────────────────────
+% Le parole di grandezza: un insieme chiuso di lessico generale, non di dominio.
+machinery(magnitude_adjective).
+magnitude_adjective(short, low).   magnitude_adjective(long, high).
+magnitude_adjective(small, low).   magnitude_adjective(big, high).
+magnitude_adjective(little, low).  magnitude_adjective(large, high).
+magnitude_adjective(low, low).     magnitude_adjective(high, high).
+magnitude_adjective(few, low).     magnitude_adjective(many, high).
+magnitude_adjective(much, high).   magnitude_adjective(great, high).
+% i comparativi di grandezza che lexicon.p0 conosceva gia'
+machinery(comparative_pole).
+comparative_pole($W, low) :- comparative_less($W).
+comparative_pole($W, high) :- comparative_more($W).
+% l'UNICA tabella di verso
+machinery(pole_direction).
+pole_direction(low, lt).
+pole_direction(high, gt).
+% un aggettivo che una lezione ha legato a una grandezza e a un suo polo
+machinery(adjective_measure).
+machinery(adjective_criterion).
+adjective_criterion($A, $Surface, $Pole) :-
+    adjective_measure($A, $PoleWord, $Surface), magnitude_adjective($PoleWord, $Pole).
+
+% ── 4. LA MORFOLOGIA: comparativo e superlativo si derivano ─────────────────
+machinery(degree_irregular).
+degree_irregular(better, good, comparative).  degree_irregular(best, good, superlative).
+degree_irregular(worse, bad, comparative).    degree_irregular(worst, bad, superlative).
+degree_irregular(less, little, comparative).  degree_irregular(least, little, superlative).
+degree_irregular(more, much, comparative).    degree_irregular(most, much, superlative).
+degree_irregular(fewer, few, comparative).    degree_irregular(fewest, few, superlative).
+machinery(degree_suffix).
+degree_suffix(comparative, "er", "r", "ier").
+degree_suffix(superlative, "est", "st", "iest").
+machinery(adjective_degree).
+% `adjective_degree(Forma, Aggettivo, Grado)`: la forma detta, l'aggettivo, il grado
+adjective_degree($F, $A, $G) :- degree_irregular($F, $A, $G).
+adjective_degree($F, $A, $G) :-
+    degree_suffix($G, $S1, $S2, $S3), concat_atoms($A, $S1, $F), adjective_known($A).
+adjective_degree($F, $A, $G) :-
+    degree_suffix($G, $S1, $S2, $S3), concat_atoms($A, $S2, $F),
+    concat_atoms($St, "e", $A), adjective_known($A).
+adjective_degree($F, $A, $G) :-
+    degree_suffix($G, $S1, $S2, $S3), concat_atoms($St, $S3, $F),
+    concat_atoms($St, "y", $A), adjective_known($A).
+adjective_degree($F, $A, $G) :-
+    degree_suffix($G, $S1, $S2, $S3), concat_atoms($Dbl, $S1, $F),
+    chars($Dbl, $Cs), app($Front, cons($X, cons($X, nil)), $Cs),
+    app($Front, cons($X, nil), $As), chars($A, $As), adjective_known($A).
+% un aggettivo e' noto se una grandezza lo nomina o se una lezione lo ha legato
+machinery(adjective_known).
+adjective_known($A) :- magnitude_adjective($A, $P).
+adjective_known($A) :- adjective_measure($A, $W, $S).
+
+% ── 5. IL CRITERIO DI UNA PAROLA, E IL CONFRONTO ────────────────────────────
+% `word_criterion(Parola, Relazione detta, Polo)`: con la relazione nominata
+% dalla lezione dell'aggettivo («faster»), o data dalla domanda («the shorter
+% travel time»: allora la relazione arriva legata).
+machinery(word_criterion).
+word_criterion($W, $Surface, $Pole) :- adjective_degree($W, $A, $G), adjective_criterion($A, $Surface, $Pole).
+word_criterion($W, $Surface, $Pole) :- adjective_criterion($W, $Surface, $Pole).
+machinery(word_magnitude_pole).
+word_magnitude_pole($W, $Pole) :- comparative_pole($W, $Pole).
+word_magnitude_pole($W, $Pole) :- adjective_degree($W, $A, $G), magnitude_adjective($A, $Pole).
+word_magnitude_pole($W, $Pole) :- magnitude_adjective($W, $Pole).
+machinery(nearer_pole).
+nearer_pole($Pole, $N1, $N2) :- pole_direction($Pole, $Op), apply($Op, cons($N1, cons($N2, nil))).
+% A batte B sulla relazione, verso il polo
+machinery(beats_on).
+beats_on($Surface, $Pole, $A, $B) :-
+    operand_amount($A, $Surface, $S, $NA), operand_amount($B, $Surface, $S, $NB),
+    nearer_pole($Pole, $NA, $NB).
+
+% ── 6. LA SCELTA FRA DUE, CON LA SUA RAGIONE ───────────────────────────────
+% Il sintagma detto («the bus», «the washing machine») e' l'entita' senza chi
+% apre il sintagma (`np_opener/1`) e con le parole unite come ogni entita' di
+% piu' parole (`words_underscored/2`, grammar.p0).
+machinery(said_entity).
+machinery(drop_openers).
+said_entity($S, $E) :- atom_words($S, $Ws), drop_openers($Ws, $Rest), words_underscored($Rest, $E).
+drop_openers(cons($W, $R), $Out) :- np_opener($W), drop_openers($R, $Out).
+drop_openers(cons($W, $R), cons($W, $R)) :- naf(np_opener($W)).
+
+% «Which is faster, the bus or the train?» — la scelta e la ragione in una frase.
+machinery(comparative_pick).
+comparative_pick($W, $SA, $SB, $Text) :-
+    said_entity($SA, $A), said_entity($SB, $B),
+    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $A, $B),
+    choice_reason($A, $B, $Surface, $R), upcase_first($R, $Text).
+comparative_pick($W, $SA, $SB, $Text) :-
+    said_entity($SA, $A), said_entity($SB, $B),
+    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $B, $A),
+    choice_reason($B, $A, $Surface, $R), upcase_first($R, $Text).
+% «Is the train faster than the bus?»
+machinery(comparative_verdict).
+comparative_verdict($SA, $W, $SB, $Text) :-
+    said_entity($SA, $A), said_entity($SB, $B),
+    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $A, $B),
+    current_language($L), scale_line($L, verdict_yes, $Y),
+    choice_reason($A, $B, $Surface, $R), concat_atoms($Y, $R, $Text).
+comparative_verdict($SA, $W, $SB, $Text) :-
+    said_entity($SA, $A), said_entity($SB, $B),
+    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $B, $A),
+    current_language($L), scale_line($L, verdict_no, $Y),
+    choice_reason($B, $A, $Surface, $R), concat_atoms($Y, $R, $Text).
+% «the bus: its travel time is 20 minutes, against 40 minutes for the train»
+machinery(choice_reason).
+machinery(choice_values).
+choice_values($Win, $Lose, $Surface, vals($TW, $TL)) :-
+    measure_pred($Surface, $P),
+    apply($P, cons($Win, cons($VW, nil))), apply($P, cons($Lose, cons($VL, nil))),
+    words_of($VW, $TW), words_of($VL, $TL).
+choice_reason($Win, $Lose, $Surface, $Text) :-
+    choice_values($Win, $Lose, $Surface, vals($TW, $TL)),
+    words_of($Win, $WW), words_of($Lose, $WL), current_language($L),
+    scale_line($L, reason_head, $H), concat_atoms($H, $WW, $A1),
+    scale_line($L, reason_its, $I), concat_atoms($A1, $I, $A2), concat_atoms($A2, $Surface, $A3),
+    scale_line($L, reason_is, $Is), concat_atoms($A3, $Is, $A4), concat_atoms($A4, $TW, $A5),
+    choice_reason_tail($L, $A5, pair($TL, $WL), $Text).
+machinery(choice_reason_tail).
+choice_reason_tail($L, $Head, pair($TL, $WL), $Text) :-
+    scale_line($L, reason_against, $Ag), concat_atoms($Head, $Ag, $A6), concat_atoms($A6, $TL, $A7),
+    scale_line($L, reason_for, $Fo), concat_atoms($A7, $Fo, $A8), concat_atoms($A8, $WL, $Text).
+machinery(scale_line).
+scale_line(en, reason_head, "the ").          scale_line(it, reason_head, "").
+scale_line(en, reason_its, ": its ").         scale_line(it, reason_its, ": ").
+scale_line(en, reason_is, " is ").            scale_line(it, reason_is, " è ").
+scale_line(en, reason_against, ", against "). scale_line(it, reason_against, ", contro ").
+scale_line(en, reason_for, " for the ").      scale_line(it, reason_for, " per ").
+scale_line(en, verdict_yes, "Yes, ").         scale_line(it, verdict_yes, "Sì, ").
+scale_line(en, verdict_no, "No, ").           scale_line(it, verdict_no, "No, ").
+
+% ── 6-bis. IL SUPERLATIVO: la migliore che nessun'altra batte ──────────────
+% «Which has the shortest travel time?» (la grandezza detta, il polo dalla parola
+% di grandezza) e «Which is the fastest?» (grandezza e polo dalla lezione
+% dell'aggettivo). La negazione e' ground: si chiede se QUESTA e' battuta.
+machinery(superlative_criterion).
+superlative_criterion($W, $Said, $Said, $Pole) :-
+    adjective_degree($W, $A, superlative), magnitude_adjective($A, $Pole).
+superlative_criterion($W, $Said, $Surface, $Pole) :-
+    adjective_degree($W, $A, superlative), adjective_criterion($A, $Surface, $Pole).
+machinery(beaten_on).
+beaten_on($Surface, $Pole, $E) :- operand_amount($O, $Surface, $S, $N), beats_on($Surface, $Pole, $O, $E).
+machinery(superlative_pick).
+superlative_pick($W, $Said, $Text) :-
+    superlative_criterion($W, $Said, $Surface, $Pole),
+    operand_amount($E, $Surface, $S, $N), naf(beaten_on($Surface, $Pole, $E)),
+    best_reason($E, $Surface, $R), upcase_first($R, $Text).
+machinery(superlative_pick_adjective).
+superlative_pick_adjective($W, $Text) :-
+    adjective_degree($W, $A, superlative), adjective_criterion($A, $Surface, $Pole),
+    operand_amount($E, $Surface, $S, $N), naf(beaten_on($Surface, $Pole, $E)),
+    best_reason($E, $Surface, $R), upcase_first($R, $Text).
+machinery(best_reason).
+best_reason($E, $Surface, $Text) :-
+    measure_pred($Surface, $P), apply($P, cons($E, cons($V, nil))),
+    words_of($E, $WE), words_of($V, $TV), current_language($L),
+    scale_line($L, reason_head, $H), concat_atoms($H, $WE, $A1),
+    scale_line($L, reason_its, $I), concat_atoms($A1, $I, $A2), concat_atoms($A2, $Surface, $A3),
+    scale_line($L, reason_is, $Is), concat_atoms($A3, $Is, $A4), concat_atoms($A4, $TV, $Text).
+
+% ── 7. LE FORME: la domanda, e la lezione ───────────────────────────────────
+turn_form(ask_comparative_pick, 1, text("which is")).
+turn_form(ask_comparative_pick, 2, slot(word)).
+turn_form(ask_comparative_pick, 3, span(first)).
+turn_form(ask_comparative_pick, 4, text("or")).
+turn_form(ask_comparative_pick, 5, rest(second)).
+turn_form_mood(ask_comparative_pick, question).
+turn_form_priority(ask_comparative_pick, early).
+turn_form_act(ask_comparative_pick, "op(match, comparative_pick, [word, first, second, free])").
+turn_form_reply(ask_comparative_pick, comparative_pick_reply).
+turn_form(ask_comparative_verdict, 1, text("is")).
+turn_form(ask_comparative_verdict, 2, span(first)).
+turn_form(ask_comparative_verdict, 3, slot(word)).
+turn_form(ask_comparative_verdict, 4, text("than")).
+turn_form(ask_comparative_verdict, 5, rest(second)).
+turn_form_mood(ask_comparative_verdict, question).
+turn_form_priority(ask_comparative_verdict, early).
+turn_form_act(ask_comparative_verdict, "op(match, comparative_verdict, [first, word, second, free])").
+turn_form_reply(ask_comparative_verdict, comparative_verdict_reply).
+response_template(comparative_pick_reply, "{result}.").
+response_template(comparative_pick_reply, it, "{result}.").
+response_template(comparative_verdict_reply, "{result}.").
+% Le forme di confronto CEDONO quando non trovano niente (nessuna risposta per il
+% vuoto): altri lettori sanno confrontare grandezze che questa KB non ha come
+% relazioni («Which is bigger, the sun or the moon?» -> «Sun.»). Il template resta
+% per chi vuole dire che cosa manca.
+response_template(comparative_unknown, "I can't compare them on that yet: I need to know what «{word}» measures, and the value for both.").
+response_template(comparative_unknown, it, "Non so ancora confrontarli così: mi serve sapere che cosa misura «{word}», e il valore per entrambi.").
+turn_form(ask_superlative_measure, 1, text("which has the")).
+turn_form(ask_superlative_measure, 2, slot(word)).
+turn_form(ask_superlative_measure, 3, rest(measure)).
+turn_form_mood(ask_superlative_measure, question).
+turn_form_priority(ask_superlative_measure, early).
+turn_form_act(ask_superlative_measure, "op(match, superlative_pick, [word, measure, free])").
+turn_form_reply(ask_superlative_measure, comparative_pick_reply).
+turn_form(ask_superlative_adjective, 1, text("which is the")).
+turn_form(ask_superlative_adjective, 2, rest(word)).
+turn_form_mood(ask_superlative_adjective, question).
+turn_form_priority(ask_superlative_adjective, early).
+turn_form_act(ask_superlative_adjective, "op(match, superlative_pick_adjective, [word, free])").
+turn_form_reply(ask_superlative_adjective, comparative_pick_reply).
+% «Fast means a short travel time.» — un aggettivo nomina un polo di una grandezza
+turn_form(teach_adjective_measure, 1, slot(adjective)).
+turn_form(teach_adjective_measure, 2, text("means a")).
+turn_form(teach_adjective_measure, 3, slot(pole)).
+turn_form(teach_adjective_measure, 4, rest(measure)).
+turn_form_mood(teach_adjective_measure, statement).
+turn_form_priority(teach_adjective_measure, early).
+turn_form_slot_class(teach_adjective_measure, pole, magnitude_adjective_word).
+turn_form_act(teach_adjective_measure, "op(assert, adjective_measure, [adjective, pole, measure])").
+turn_form_reply(teach_adjective_measure, adjective_measure_learned).
+response_template(adjective_measure_learned, "Held: «{adjective}» means a {pole} {measure}.").
+response_template(adjective_measure_learned, it, "Tengo: «{adjective}» vuol dire {measure} {pole}.").
+machinery(magnitude_adjective_word).
+magnitude_adjective_word($W) :- magnitude_adjective($W, $P).
