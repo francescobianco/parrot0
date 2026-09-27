@@ -3232,6 +3232,7 @@ utterance(2, self, "Hand.").
 utterance(2, self, "I don't know much about xdebug yet, and the network is off, so I can't read about it now.").
 utterance(2, self, "Learned: backlash causes positioning errors.").
 utterance(2, self, "Held: «rcd» is short for «residual current device».").
+utterance(2, self, "I learned a candidate construction: @S leaves at @O maps to the departure time of @S is @O. Test me with new names before we call it understood.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3449,6 +3450,7 @@ utterance(1, user, "What is Xdebug?").
 utterance(175, user, "Does high-speed steel contain tungsten?").
 utterance(1, user, "Backlash causes positioning errors.").
 utterance(1, user, "RCD is short for residual current device.").
+utterance(1, user, "x leaves at y means the departure time of x is y").
 utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
 utterance(173, user, "High-speed steel contains tungsten.").
@@ -3742,6 +3744,7 @@ utterance(4, self, "Heat-resistant glove.").
 utterance(4, self, "Hmm, I don't know about var dump yet. Want me to learn about it?").
 utterance(4, self, "backlash.").
 utterance(4, self, "Learned: leaks is a relation verb.").
+utterance(4, self, "From now on I'll read «x takes y minutes» as «the travel time of x is y minutes».").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3872,6 +3875,7 @@ utterance(3, user, "What protects the hand?").
 utterance(3, user, "What does var_dump do?").
 utterance(3, user, "What causes positioning errors?").
 utterance(3, user, "leaks is a relation verb").
+utterance(3, user, "x takes y minutes means the travel time of x is y minutes").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

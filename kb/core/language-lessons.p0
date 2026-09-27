@@ -427,6 +427,7 @@ turn_form(ask_inversion_condition_put, 2, slot(word)).
 turn_form(ask_inversion_condition_put, 3, text("before the subject")).
 turn_form_mood(ask_inversion_condition_put, question).
 turn_form_priority(ask_inversion_condition_put, early).
+turn_form_priority(taught_form_17, early).
 turn_form_act(ask_inversion_condition_put, "op(match, inversion_condition_answer, [word, free])").
 turn_form_reply(ask_inversion_condition_put, inversion_condition_reply).
 turn_form_empty_reply(ask_inversion_condition_put, inversion_condition_unknown).

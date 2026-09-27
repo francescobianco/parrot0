@@ -1,0 +1,11 @@
+# sessione: Sessione A2 bis: le due costruzioni generali, sole, da salvare — 2026-09-27 19:13 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@c364256d]
+# mode: conversational (tools off, network off) - 170568 facts, 5977 rules (3.50%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+> x leaves at y means the departure time of x is y
+< I learned a candidate construction: @S leaves at @O maps to the departure time of @S is @O. Test me with new names before we call it understood.
+> x takes y minutes means the travel time of x is y minutes
+< From now on I'll read «x takes y minutes» as «the travel time of x is y minutes».
+> /save
+# sessione chiusa 19:13

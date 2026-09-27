@@ -748,6 +748,8 @@ fact_source(causes(thermal_expansion, dimensional_errors), thermal_expansion, "t
 fact_source(causes(backlash, positioning_errors), backlash, "backlash causes positioning errors.").
 fact_source(relation(price), price, "price is a relation").
 fact_source(relation_verb(leaks), leaks, "leaks is a relation verb").
+fact_source(taught_form_source(taught_form_17, "x takes y minutes"), taught_form_17, "x takes y minutes means the travel time of x is y minutes").
+fact_source(construction_frame("@S leaves at @O", "the departure time of @S is @O", departure_time_of), "@S leaves at @O", "x leaves at y means the departure time of x is y").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -1615,7 +1617,10 @@ reading_fact(proposition(binary(mean), roles(subject(soon), object(early_arrival
 reading_fact(proposition(binary(mean), roles(subject(fast), object(short_travel_time))), "fast means a short travel time.").
 reading_fact(relation(price), "price is a relation").
 fact_mention(dowel_pin, "a dowel pin is a fastener.").
+reading_fact(proposition(binary(mean), roles(subject(minutes), object(travel_time))), "x takes y minutes means the travel time of x is y minutes").
+reading_fact(taught_form_source(taught_form_17, "x takes y minutes"), "x takes y minutes means the travel time of x is y minutes").
 reading_fact(relation_verb(leaks), "leaks is a relation verb").
+reading_fact(construction_frame("@S leaves at @O", "the departure time of @S is @O", departure_time_of), "x leaves at y means the departure time of x is y").
 reading_fact(proposition(binary(protect), roles(subject(hard_hat), object(head))), "a hard hat protects the head from falling objects.").
 
 fact_mention(rotary_encoder, "a rotary encoder is a sensor.").
@@ -2025,8 +2030,10 @@ fact_mention(thermal_expansion, "thermal expansion causes dimensional errors.").
 fact_mention(hard_hat, "a hard hat protects the head from falling objects.").
 fact_mention(taught_form_16, "tell me the x means what is the x?").
 fact_mention(xdebug, "xdebug is a debugger extension for php.").
+fact_mention(taught_form_17, "x takes y minutes means the travel time of x is y minutes").
 fact_mention(positioning_errors, "backlash causes positioning errors.").
 fact_mention(backlash, "backlash causes positioning errors.").
+fact_mention(departure_time_of, "x leaves at y means the departure time of x is y").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

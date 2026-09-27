@@ -170,6 +170,7 @@ semantic_proposition(proposition(binary(mean), roles(subject(quiet), object(low_
 semantic_proposition(proposition(binary(mean), roles(subject(cheap), object(low_price)))).
 semantic_proposition(proposition(binary(mean), roles(subject(soon), object(early_arrival_time)))).
 semantic_proposition(proposition(binary(mean), roles(subject(fast), object(short_travel_time)))).
+semantic_proposition(proposition(binary(mean), roles(subject(minutes), object(travel_time)))).
 semantic_binding(binary(produce), fly_cutter, object(flat_surfaces)).
 proposition_source_record(proposition(binary(produce), roles(subject(fly_cutter), object(flat_surfaces))), source(inline, "a fly cutter produces flat surfaces."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), dial_indicator, object(displacement)).
@@ -371,8 +372,11 @@ semantic_binding(binary(position), backlash, object(errors)).
 semantic_binding(binary(mean), soon, object(early_arrival_time)).
 proposition_source_record(proposition(binary(mean), roles(subject(soon), object(early_arrival_time))), source(inline, "soon means an early arrival time."), provenance(language(en), range(0, 33))).
 proposition_source_record(proposition(binary(position), roles(subject(backlash), object(errors))), source(inline, "backlash causes positioning errors."), provenance(language(en), range(0, 35))).
+semantic_binding(binary(mean), minutes, object(travel_time)).
 semantic_binding(binary(mean), fast, object(short_travel_time)).
 proposition_source_record(proposition(binary(mean), roles(subject(fast), object(short_travel_time))), source(inline, "fast means a short travel time."), provenance(language(en), range(0, 31))).
+proposition_source_record(proposition(binary(mean), roles(subject(minutes), object(travel_time))), source(inline, "x takes y minutes means the travel time of x is y minutes"), provenance(language(en), range(0, 57))).
+semantic_complement(binding(mean, minutes, travel_time), of, minutes).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).
