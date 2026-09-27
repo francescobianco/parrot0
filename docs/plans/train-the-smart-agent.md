@@ -800,25 +800,45 @@ ogni incremento valido si committa e si pusha subito.
 | 13 | G13: la scena detta con i verbi («The bus leaves at 6:10 pm.», «The bus takes 40 minutes.») | (a) le costruzioni si insegnano **parlando** (L2): «x leaves at y means the departure time of x is y», «x takes y minutes means the travel time of x is y minutes»; (b) ma la durata la rubava il lettore del viaggio in prima persona (`event-time.p0`), che scattava su qualunque soggetto e lo chiamava «trip»: la causa di SA10 | la durata è del viaggio solo se il soggetto del verbo è il viaggio (`journey_word/1`: trip, journey, it, viaggio, l'impersonale «ci»). «The bus takes 40 minutes.» → «Learned: the travel time of bus is 40 minutes.»; «The trip takes 3 hours.» resta al viaggio. A/B sui file del viaggio e delle durate: identico | IR (il soggetto del verbo, non la posizione), gerarchia di crescita #1 (le costruzioni insegnate a parole) |
 | 14 | sessione C (dimostrazione in frasi naturali sulla KB salvata): dopo «It stopped tripping.» → «Then the fridge is the one…», ma «Why does the RCD trip?» → «…I don't know yet which one» | la conclusione di una prova non entrava nella rete (C1): va registrata come **giudizio**, distinto dai fatti riportati, con la sua fonte e la sua ipotesi | `isolation_concluded/3` (dopo la risposta, dal turno letto da «It stopped …»); la ragione dell'effetto lo usa: «Because the fridge leaks current, as your tests showed (if only one is at fault).» | L4 C1 (coerenza), mondo allargato (giudizio vs fatto, con la fonte) |
 | 15 | le **formulazioni originali** della prova: «How do I find out which appliance is making the residual current device trip?» (G3 del primo giro) → prima «how to make trip»; «Which should I take, the bus or the train?», «Is it better to take …?» → il modello «Both can be the right choice» | (a) l'effetto può essere **nominato nella domanda** stessa, non solo osservato prima: dalle parole si ricava la proposizione (la radice riportata alla terza persona) e si controlla su una legge; (b) la cessione di `turn_plan` dipende dalle parole della scelta e della causa (KB), non dalla posizione | `effect_from_said/2`, `isolation_for_named_effect/3` e le forme «how do I find out which … is making/causing …» (isolation.p0 §12); varianti della scelta e `choice_cue/1` (scales.p0). Tutte e quattro danno la mossa o la scelta giusta. A/B su situazioni e pianificazione: identico | IR (l'effetto come nodo della domanda), mantra #17 (condotta come KB) |
-
+| 16 | F21.1, livello 7 (spiegare la scelta): dopo «Should I take the bus or the train?» → «The train…», il «Why?» ellittico → «I don't understand that yet.» | (a) una domanda nuda si risolve sul **turno precedente**: la scelta fatta è uno stato del dialogo (K3), non un'eco; (b) il lettore delle forme scartava ogni turno di una parola | `last_choice/2` scritta **dopo** la risposta da un contabile KB (`after_reply_bookkeeper(last_choice_note)`, dalle fasce lette che il lettore ora pubblica: `turn_form_slot/3`); `choice_why/1` ricompone la ragione dall'obiettivo e dal confronto; il lettore legge un monosillabo solo se la KB dichiara che quella parola apre una forma (`turn_form_word_alone/1`, niente giro delle forme a ogni «ok»). «Why?» → «Because you want it as soon as possible. The train: its arrival time is 6:45 pm, against 6:50 pm for the bus.»; «Why?» senza scelta: come prima. `soft-test` verde in 3 s | K3 (la questione chiusa resta interrogabile), IR (l'ellissi si lega al nodo dell'ultima scelta) |
 ## 8. Da dove si riparte
 
+**Stato a fine della sessione di 5 ore (27 settembre 2026, 20:30).** I due
+problemi presentati si risolvono **dalla KB salvata, in frasi naturali**:
+
+- **F1.1 (il differenziale)**: livello 6 della scala §3, cioè la mossa di
+  isolamento per inferenza (§10 iter. 7–8, 15), l'adattamento all'esito
+  (iter. 11), la conclusione registrata come giudizio (iter. 14) e il perché
+  abduttivo (iter. 12). Trasferito ai plugin di una build (F1.3), contrastato
+  con un solo candidato.
+- **F21.1 (bus o treno)**: livello 7, cioè la scelta per un obiettivo con una
+  relazione calcolata insegnata a parole (iter. 4–5), le costruzioni della
+  scena insegnate a parole (iter. 13) e la scelta spiegata con il «Why?»
+  (iter. 16). Trasferito ai voli (F21.2: euro, «cheap»), contrastato con tram
+  (più presto) contro taxi (più veloce).
+
+Residui, in ordine di resa:
+
 0. **Addestramento prima della verifica.** Ogni sessione colma con L4/L3/L2
-   ciò che si può colmare (§2-bis) e salva ciò che ha retto; gli errori di
-   addestramento SA1–SA7 sono in testa a
-   [train-the-learning-process.md](train-the-learning-process.md).
-1. **G7** (la domanda «is it true that…» scritta come fatto): diagnosi con
-   `/debug trace` sul turno, poi la cura (una cessione o una forma di domanda di
-   verità), in una sessione pulita.
-2. **G1 + G2 + G9 + G10**: la scena del differenziale riletta finché parrot0 la
-   ridice come situazione aperta (livello 1).
-3. **G4, G5, G6, G11**: le leggi del campo lette e usate nelle domande, anche
-   sotto un'ipotesi.
-4. **G12**, la facoltà: il contratto del §4, quando 1–3 lo rendono raggiungibile.
-   Primo principio da insegnare (F1): *«If a fault is in only one part, removing
-   that part makes the fault stop, and removing another part does not.»*, detto
-   in un campo, provato su F1.1, trasferito a F1.2 e F1.4, contrastato con il
-   guasto intermittente (C1).
+   ciò che si può colmare (§2-bis) e salva solo le **lezioni**, mai i dati di
+   situazione (l'errore di A → A2 è in
+   [train-the-learning-process.md](train-the-learning-process.md), §SA).
+1. **G13-bis**: i predicati coordinati («The bus leaves at 6:10 pm and takes
+   40 minutes.») si leggono a metà; la costruzione insegnata va applicata a
+   ciascun congiunto (IR: il soggetto condiviso).
+2. **I candidati come classe salvata**: `situation_member` si appoggia agli
+   atti della sessione; «The kettle is an appliance» è vero e va salvato come
+   conoscenza di classe, separato dalla scena.
+3. **F21.6 (la puntualità)**: un obiettivo con una soglia («I must be there by
+   7») è un vincolo, non un polo; va letto come condizione che scarta, prima
+   della scelta.
+4. **La doppia lettura** di «X means a low Y», che nasce anche come
+   proposizione `mean`: la lezione deve consumare il turno (C1).
+5. **Le famiglie non ancora provate** (F2–F20): la prossima con resa alta è
+   **F5** (cambiare una variabile alla volta), che riusa l'operatore di
+   isolamento con l'azione «cambiare» al posto di «togliere». Poi F4 (catena di
+   precondizioni: una legge con più condizioni, provate dalla più semplice).
+6. La replica sociale a «That sounds nice» dopo una scelta.
 
 Le sessioni seguono il §4; ogni sessione aggiorna §2, §6 e, se nasce uno
 scenario nuovo, §5.
