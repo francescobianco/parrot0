@@ -18881,6 +18881,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         if (pn >= 2 && p0_proposition_atom(b, pw, pn, slug, sizeof slug)) {
             const char *sq[] = { slug };
+            /* 27 settembre 2026 (train-the-smart-agent G7, train-the-learning-
+             * process SA1) — UNA DOMANDA NON E' UN'ASSERZIONE. «Is it true that
+             * the RCD trips?» arrivava qui gia' spogliato del prefisso, e la
+             * proposizione vista in una regola veniva ASSERITA: una domanda
+             * diventava una credenza senza prova. La forza del turno e' gia'
+             * conoscenza (`turn_declared_act/2`): se il turno chiede, si
+             * risponde come il ramo polare qui sopra, e non si scrive niente. */
+            const char *tq[] = { "current_turn", "question" };
+            if (kb_query(b->kb, "proposition_seen", sq, 1) &&
+                kb_query(b->kb, "turn_declared_act", tq, 2)) {
+                int yes = kb_query(b->kb, "holds", sq, 1);
+                kb_say(b, yes ? "polar_yes" : "not_necessarily",
+                       yes ? "Yes." : "Not necessarily.", out, out_size);
+                return 1;
+            }
             if (kb_query(b->kb, "proposition_seen", sq, 1)) {
                 int prev = kb_origin(b->kb);
                 kb_set_origin(b->kb, KB_SESSION);

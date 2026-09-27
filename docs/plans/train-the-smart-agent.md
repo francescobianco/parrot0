@@ -760,6 +760,17 @@ una riga in più di quel fatto, ci stiamo illudendo, e il registro lo deve dire.
 derivazione dei comparativi (sostituendo `comparative_word/3` con i poli, per
 l'età compresa) → G14. Poi si riapre F21.1 e si prova con un aggettivo nuovo.
 
+## 10. Registro delle iterazioni — sessione di 5 ore (27 settembre 2026, 15:30–20:30)
+
+Obiettivo di F. (`/goal`): una KB che dopo la sessione risolva problemi di
+logica situazionale come quelli del §5; le lacune si lavorano quando
+emergono come difetti di una prova di soluzione, generalizzate dove si può;
+ogni incremento valido si committa e si pusha subito.
+
+| iter. | difetto (prova) | generalizzazione | cura | quadro (§0-bis) |
+|---|---|---|---|---|
+| 1 | G7/SA1: «Is it true that the kettle trips?» dopo una regola che nomina la proposizione → `Learned: holds(kettle_trips)` | qualunque domanda su una proposizione vista in una regola veniva asserita, non solo «is it true that» | il ramo proposizionale di `knowledge` legge `turn_declared_act(current_turn, question)` e risponde; A/B su `higher_order_lesson`, `taught_rules`, `scenario_inference`, `conditional_plan`: rossi identici a HEAD | mondo allargato (atto vs impegno), L4 §2.5 |
+
 ## 8. Da dove si riparte
 
 0. **Addestramento prima della verifica.** Ogni sessione colma con L4/L3/L2
