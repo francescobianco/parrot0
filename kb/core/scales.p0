@@ -384,6 +384,19 @@ comparative_verdict_clause($Clause, $Text) :-
     atom_words($Clause, $Ws), comparison_marker($M), app($Front, cons($W, cons($M, $Back)), $Ws),
     comparative_word_form($W), words_joined($Front, $A), words_joined($Back, $B),
     comparative_verdict($A, $W, $B, $Text).
+% Due QUANTITA' dette, non due entita': «Is 20 minutes less than 40 minutes?»,
+% «Is 1 hour more than 40 minutes?». La stessa scala per entrambe (l'unita'
+% portata alla base), il verso dal polo della parola: niente valori memorizzati.
+comparative_verdict_clause($Clause, $Text) :-
+    atom_words($Clause, $Ws), comparison_marker($M), app($Front, cons($W, cons($M, $Back)), $Ws),
+    comparative_pole($W, $Pole), words_joined($Front, $A), words_joined($Back, $B),
+    quantity_amount($A, $S, $NA), quantity_amount($B, $S, $NB),
+    quantity_verdict($Pole, $NA, $NB, $V), current_language($L), scale_line($L, $V, $Text).
+machinery(quantity_verdict).
+quantity_verdict($Pole, $NA, $NB, quantity_yes) :- nearer_pole($Pole, $NA, $NB).
+quantity_verdict($Pole, $NA, $NB, quantity_no) :- naf(nearer_pole($Pole, $NA, $NB)).
+scale_line(en, quantity_yes, "Yes").          scale_line(it, quantity_yes, "Sì").
+scale_line(en, quantity_no, "No").            scale_line(it, quantity_no, "No").
 machinery(comparison_marker).
 comparison_marker(than).
 % la parola del confronto e' un comparativo derivabile
