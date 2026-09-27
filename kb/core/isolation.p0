@@ -490,3 +490,43 @@ isolation_line(it, dont_know_which, ", e non so ancora che cosa").
 % sopravviveva al riavvio). Una proposizione e' vista se una clausola la nomina,
 % come testa o come premessa.
 proposition_seen($P) :- kb_rule(holds, cons($P, nil)).
+
+% ── 12. L'EFFETTO NOMINATO NELLA DOMANDA ────────────────────────────────────
+% «How do I find out which appliance is making the RCD trip?» (la domanda con
+% cui e' cominciato il primo giro, G3): l'effetto non e' stato osservato in un
+% turno prima, lo dice la domanda stessa. Dalle parole («the residual current
+% device trip») si ricava la proposizione (il verbo alla radice riportato alla
+% terza persona con il paradigma) e si controlla che una legge la nomini.
+machinery(effect_from_said).
+effect_from_said($Said, $E) :-
+    atom_words($Said, $Ws), drop_openers($Ws, $W2), list_without_last($W2, $Subj),
+    app($Subj, cons($V, nil), $W2), verb_root_form($V, form($F, present_third)),
+    app($Subj, cons($F, nil), $EW), words_underscored($EW, $E), effect_law($E, $P).
+machinery(isolation_for_named_effect).
+isolation_for_named_effect($ClassSaid, $EffectSaid, $Text) :-
+    class_said($ClassSaid, $Class), effect_from_said($EffectSaid, $E), effect_law($E, $P),
+    isolation_opportunity($Class, $P, $Obj, isolate($Act, $Ger, $E)),
+    isolation_text(case($Class, $P, $Obj), isolate($Act, $Ger, $E), $Text).
+turn_form(ask_find_which_making, 1, text("how do i find out which")).
+turn_form(ask_find_which_making, 2, span(class)).
+turn_form(ask_find_which_making, 3, text("is making")).
+turn_form(ask_find_which_making, 4, rest(effect)).
+turn_form_mood(ask_find_which_making, question).
+turn_form_priority(ask_find_which_making, early).
+turn_form_act(ask_find_which_making, "op(match, isolation_for_named_effect, [class, effect, free])").
+turn_form_reply(ask_find_which_making, isolation_reply).
+turn_form(ask_find_which_causing, 1, text("how do i find out which")).
+turn_form(ask_find_which_causing, 2, span(class)).
+turn_form(ask_find_which_causing, 3, text("is causing it")).
+turn_form_mood(ask_find_which_causing, question).
+turn_form_priority(ask_find_which_causing, early).
+turn_form_act(ask_find_which_causing, "op(match, isolation_for_effect, [class, free])").
+turn_form_reply(ask_find_which_causing, isolation_reply).
+% (il piano di turno apre «how do I …» come un obiettivo: cede quando la
+% domanda chiede quale membro di una classe causa un effetto che una legge nomina)
+machinery(turn_asks_which_causes).
+turn_asks_which_causes($T, $W) :-
+    turn_word($T, 0, how), turn_word($T, $I, which), turn_word($T, $J, $W), cause_word($W).
+machinery(cause_word).
+cause_word(making).  cause_word(causing).
+faculty_yield_when(turn_plan, open, turn_asks_which_causes).

@@ -352,7 +352,11 @@ turn_states_pursued_quality($T, $Q) :-
     turn_word($T, $I, as), is($J, add($I, 1)), turn_word($T, $J, $Q), adjective_known($Q),
     is($K, add($J, 1)), turn_word($T, $K, as), is($M, add($K, 1)), turn_word($T, $M, possible).
 machinery(turn_asks_goal_pick).
-turn_asks_goal_pick($T, $Q) :- pursued_quality($Q), turn_word($T, 0, should), turn_word($T, $I, or).
+turn_asks_goal_pick($T, $Q) :-
+    pursued_quality($Q), choice_cue($W), turn_word($T, $K, $W), turn_word($T, $I, or).
+% le parole con cui si chiede una scelta (una riga per parola)
+machinery(choice_cue).
+choice_cue(should).  choice_cue(better).
 faculty_yield_when(turn_plan, open, turn_states_pursued_quality).
 faculty_yield_when(turn_plan, open, turn_asks_goal_pick).
 
@@ -447,6 +451,23 @@ turn_form_act(state_pursued_quality, "op(assert, pursued_quality, [quality])").
 turn_form_reply(state_pursued_quality, pursued_quality_noted).
 response_template(pursued_quality_noted, "Understood: you want to {activity} as {quality} as possible. Tell me the options and I will compare them on that.").
 response_template(pursued_quality_noted, it, "Capito: vuoi {activity} il più {quality} possibile. Dimmi le alternative e le confronto su questo.").
+% le altre maniere di chiedere la stessa scelta
+turn_form(ask_goal_pick_which, 1, text("which should i take")).
+turn_form(ask_goal_pick_which, 2, span(first)).
+turn_form(ask_goal_pick_which, 3, text("or")).
+turn_form(ask_goal_pick_which, 4, rest(second)).
+turn_form_mood(ask_goal_pick_which, question).
+turn_form_priority(ask_goal_pick_which, early).
+turn_form_act(ask_goal_pick_which, "op(match, goal_pick, [first, second, free])").
+turn_form_reply(ask_goal_pick_which, comparative_pick_reply).
+turn_form(ask_goal_pick_better, 1, text("is it better to take")).
+turn_form(ask_goal_pick_better, 2, span(first)).
+turn_form(ask_goal_pick_better, 3, text("or")).
+turn_form(ask_goal_pick_better, 4, rest(second)).
+turn_form_mood(ask_goal_pick_better, question).
+turn_form_priority(ask_goal_pick_better, early).
+turn_form_act(ask_goal_pick_better, "op(match, goal_pick, [first, second, free])").
+turn_form_reply(ask_goal_pick_better, comparative_pick_reply).
 % «Should I take the bus or the train?»
 turn_form(ask_goal_pick, 1, text("should i take")).
 turn_form(ask_goal_pick, 2, span(first)).
