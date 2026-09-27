@@ -3635,6 +3635,11 @@ plan_move(user_trip, 1, ask_trip_goal).
 % non veniva mai eseguita, perche' lui rispondeva sempre. Un piano che finisce
 % con una mossa che non fallisce mai non e' piu' insegnabile.
 
+% Una risposta polare NUDA non e' una ragione: a un «why» non si risponde «Yes.»
+% (train-the-smart-agent, iterazione 3). Le frasi, minuscole e senza punto.
+machinery(bare_polar_reply).
+bare_polar_reply("yes").  bare_polar_reply("no").  bare_polar_reply("not necessarily").
+bare_polar_reply("sì").   bare_polar_reply("non necessariamente").
 machinery(why_cue).
 why_cue("why").
 why_cue("how come").

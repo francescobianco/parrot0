@@ -1438,6 +1438,19 @@ static int p0_rule_clause_typed(Brain *b, P0RuleVars *v, char **w, size_t n,
  *
  * E' dietro un fatto (`propositional_conditionals/1`) perche' allarga di molto
  * cio' che il lettore di regole accetta, e chi non lo vuole lo spegne. */
+/* 27 settembre 2026 (train-the-smart-agent, iterazione 3) — la ragione di un
+ * «Yes.» proposizionale, per il «why» e per «how do you know?»: la compone la
+ * KB (`proposition_because/2`, derivation.p0) dalla derivazione che ha deciso;
+ * qui la si conserva e basta. */
+static void store_proof(Brain *b, const char *proof);
+static void p0_store_proposition_reason(Brain *b, const char *slug) {
+    if (!b || !b->kb || !slug || !*slug) return;
+    char r[1][KB_TERM_LEN];
+    const char *q[2] = { slug, NULL };
+    if (kb_match(b->kb, "proposition_because", q, 2, r, 1) == 1)
+        store_proof(b, kb_dequote(r[0]));
+}
+
 static int p0_proposition_atom(Brain *b, char **w, size_t n, char *out, size_t osz) {
     if (!b || n == 0 || n > 8) return 0;
     /* UN RAMO ALTERNATIVO VUOL DIRE PIANO, NON IMPLICAZIONE. «se nivra brilla
@@ -15556,6 +15569,21 @@ static int p0_why_question(Brain *b, const char *norm, char *out, size_t out_siz
             return 1;
         }
     }
+    /* 27 settembre 2026 (train-the-smart-agent, iterazione 3): senza una prova
+     * la risposta interna risponde a un'ALTRA domanda — «Why is the ground
+     * wet?» riceveva «Yes.». Una risposta polare nuda non e' una ragione: la
+     * via si ritira, e il turno scende a chi sa dire che cosa manca. */
+    {
+        const char *pq[1] = { reply };
+        char rb[512]; snprintf(rb, sizeof rb, "%s", reply);
+        size_t rl = strlen(rb);
+        while (rl && (rb[rl - 1] == '.' || rb[rl - 1] == ' ')) rb[--rl] = '\0';
+        for (char *c = rb; *c; c++) *c = (char)tolower((unsigned char)*c);
+        char rq[520]; snprintf(rq, sizeof rq, "\"%s\"", rb);
+        const char *bq[1] = { rq };
+        (void)pq;
+        if (kb_query(b->kb, "bare_polar_reply", bq, 1)) return 0;
+    }
     put(reply, out, out_size);
     return 1;
 }
@@ -18889,6 +18917,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     const char *qq[] = { qslug };
                     if (kb_query(b->kb, "proposition_seen", qq, 1)) {
                         int yes = kb_query(b->kb, "holds", qq, 1);
+                        if (yes) p0_store_proposition_reason(b, qslug);
                         kb_say(b, yes ? "polar_yes" : "not_necessarily",
                                yes ? "Yes." : "Not necessarily.", out, out_size);
                         return 1;
@@ -18909,6 +18938,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (kb_query(b->kb, "proposition_seen", sq, 1) &&
                 kb_query(b->kb, "turn_declared_act", tq, 2)) {
                 int yes = kb_query(b->kb, "holds", sq, 1);
+                if (yes) p0_store_proposition_reason(b, slug);
                 kb_say(b, yes ? "polar_yes" : "not_necessarily",
                        yes ? "Yes." : "Not necessarily.", out, out_size);
                 return 1;

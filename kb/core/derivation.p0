@@ -101,3 +101,22 @@ turn_response_support($Reply, $Dip) :-
 machinery(turn_priority_support).
 turn_priority_support($Reply, $Dip) :-
     kb_derivation($D, turn_priority_response(current_turn, $Reply), $I, $Dip), dif($I, 0).
+
+% ─── La RAGIONE dicibile di una proposizione (27 settembre 2026) ─────────────
+%
+% docs/plans/train-the-smart-agent.md, iterazione 3: «Why does the RCD trip?»
+% riceveva «Yes.», la risposta a un'altra domanda. La proposizione vale per una
+% regola, e la regola per un fatto: la ragione e' il fatto su cui poggia la
+% STESSA derivazione che ha deciso il «Yes» (non una seconda ricerca), detto in
+% lingua. Una catena («it rains» -> «the ground is wet») dice il suo anello di
+% partenza. `clause_fact_said/2` legge la forma canonica di `kb_clause/4`.
+machinery(proposition_because).
+machinery(clause_fact_said).
+proposition_because($P, $T) :-
+    derivation_of(holds($P), $D), derivation_uses_fact($D, $Id),
+    kb_clause($Id, $H, 0, 0), clause_fact_said($H, $T).
+clause_fact_said(app($R, cons(atom($A), cons(atom($B), nil))), $T) :-
+    words_of($A, $WA), words_of($R, $WR), words_of($B, $WB),
+    concat_atoms($WA, " ", $T1), concat_atoms($T1, $WR, $T2),
+    concat_atoms($T2, " ", $T3), concat_atoms($T3, $WB, $T).
+clause_fact_said(app(holds, cons(atom($P), nil)), $T) :- words_of($P, $T).
