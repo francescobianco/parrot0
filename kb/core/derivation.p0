@@ -124,3 +124,26 @@ clause_fact_said(app($R, cons(atom($A), cons(atom($B), nil))), $T) :-
     concat_atoms($WA, " ", $T1), concat_atoms($T1, $WR, $T2),
     concat_atoms($T2, " ", $T3), concat_atoms($T3, $WB, $T).
 clause_fact_said(app(holds, cons(atom($P), nil)), $T) :- words_of($P, $T).
+
+% ─── DIMENTICARE UNA PROPOSIZIONE E' UNO STRATO (28 settembre 2026) ─────────
+%
+% train-the-learning-process.md SA2: «forget that the RCD trips» non ritirava
+% `holds(residual_current_device_trips)`. Il ritiro non cancella (l3-upgrade.md
+% §19): si aggiunge sopra il fatto un sostegno che lo ritira, con lo strato del
+% motore (`read_support/2` + `fact_withheld/1`, contact.p0): il fatto resta in
+% KB e diventa invisibile a OGNI lettore (regole, isolamento, domande). Chi lo
+% riafferma aggiunge un sostegno piu' recente; vale lo strato piu' recente,
+% numerato dal turno (`turn_counter/1`).
+machinery(proposition_forget).
+machinery(proposition_reaffirm).
+machinery(proposition_withdrawn).
+machinery(support_forgotten_after).
+proposition_forget($P) :-
+    holds($P), turn_counter($N),
+    assert(read_support, fact(holds, $P, pos), forgotten($N)).
+proposition_withdrawn($P) :- read_support(fact(holds, $P, pos), forgotten($N)), fact_withheld(fact(holds, $P, pos)).
+proposition_reaffirm($P) :-
+    proposition_withdrawn($P), turn_counter($N),
+    assert(read_support, fact(holds, $P, pos), said($N)).
+read_support_in_force($F) :- read_support($F, said($N)), naf(support_forgotten_after($F, $N)).
+support_forgotten_after($F, $N) :- read_support($F, forgotten($M)), gt($M, $N).

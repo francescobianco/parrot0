@@ -194,6 +194,8 @@ response_template(that_doesn_t_look_like_words_to_me_did_a_key, "That doesn't lo
 
 %% Seconda tranche: la stessa frase, scritta prima in un buffer e poi emessa.
 response_template(i_didn_t_know_that_anyway, "I didn't know that anyway.").
+response_template(proposition_forgotten, "Done: I no longer hold that {said}.").
+response_template(proposition_forgotten, it, "Fatto: non ritengo più che {said}.").
 response_template(the_earlier_train_arrives_first_before_the_o, "The earlier train arrives first, before the other departs.").
 response_template(yes_i_am_parrot0, "Yes, I am parrot0.").
 response_template(i_am_in_character, "I am in character.").
@@ -253,7 +255,7 @@ response_template(learned_located_in_x_x, "Learned: {subj} is located in {obj}."
 response_template(learned_part_of_x_x, "Learned: {subj} is part of {obj}.").
 response_template(you_haven_t_told_me_your_x_yet, "You haven't told me your {disp} yet.").
 response_template(done_i_ve_let_go_of_your_x, "Done — I've let go of your {slotname}.").
-response_template(learned_holds_x, "Learned: holds({slug}).").
+response_template(learned_holds_x, "Learned: {said}.").
 response_template(you_re_asking_for_a_distinction_between_x_an, "You're asking for a distinction between {da} and {dc}, but I don't have that contrast fact yet.").
 response_template(i_don_t_actually_taste_things_but_it_is_ofte, "I don't actually taste things, but it is often described as {r}.").
 response_template(x_has_no_land_bordering_countries, "{ctry} has no land-bordering countries.").

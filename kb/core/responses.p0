@@ -1170,7 +1170,7 @@ response_template(known_facts, it, "So già che {facts}.").
 response_template(learned_properties, it, "Imparato: {facts}.").
 response_template(learned_located_in_x_x, it, "Imparato: {subj} si trova in {obj}.").
 response_template(learned_part_of_x_x, it, "Imparato: {subj} fa parte di {obj}.").
-response_template(learned_holds_x, it, "Imparato: vale {x}.").
+response_template(learned_holds_x, it, "Imparato: {said}.").
 response_template(learned_causal_relation, it, "Imparato: {cause} causa {effect}.").
 response_template(learned_created_by_x_x_x, it, "Imparato: {obj2} e' opera di {subj2} ({canon}).").
 response_template(goal_noted, it, "Annotato l'obiettivo.").

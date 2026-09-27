@@ -13934,6 +13934,31 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                     return 1;
                 }
             }
+            /* SA2 (train-the-learning-process.md, 28 settembre 2026) — UNA
+             * PROPOSIZIONE si dimentica come si e' imparata: lo stesso atomo del
+             * ramo proposizionale (`p0_proposition_atom`), e il ritiro e' uno
+             * strato che la KB aggiunge sopra il fatto (`proposition_forget/1`,
+             * derivation.p0), non una cancellazione. Solo per proposizioni che
+             * una regola nomina: una frase qualunque non diventa un atomo. */
+            if (p0_propositional_on(b)) {
+                char pb[400]; snprintf(pb, sizeof pb, "%s", prop);
+                char *pw[16]; size_t pn = split_words(pb, pw, 16);
+                char slug[KB_TERM_LEN];
+                if (pn >= 2 && p0_proposition_atom(b, pw, pn, slug, sizeof slug)) {
+                    const char *pq[1] = { slug };
+                    if (kb_query(b->kb, "proposition_seen", pq, 1)) {
+                        if (kb_query(b->kb, "proposition_forget", pq, 1)) {
+                            char said[KB_TERM_LEN]; snprintf(said, sizeof said, "%s", slug);
+                            for (char *c = said; *c; c++) if (*c == '_') *c = ' ';
+                            const KbResponseSlot fs[] = { { "said", said } };
+                            if (kb_response_slots(b, "proposition_forgotten", fs, 1, out, out_size))
+                                return 1;
+                        }
+                        kb_term_say(b, "i_didn_t_know_that_anyway", NULL, 0, out, out_size);
+                        return 1;
+                    }
+                }
+            }
             char sl[8][KB_TERM_LEN];
             const char *sq2[2] = { NULL, NULL };
             size_t nsl = kb_match(b->kb, "user_slot_cue", sq2, 2, sl, 8);
@@ -18999,12 +19024,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (kb_query(b->kb, "proposition_seen", sq, 1)) {
                 int prev = kb_origin(b->kb);
                 kb_set_origin(b->kb, KB_SESSION);
-                int ok = kb_assert(b->kb, "holds", sq, 1);
+                /* SA2 — ridetta dopo un ritiro, la proposizione torna in forza
+                 * con uno strato piu' recente (`proposition_reaffirm/1`, KB):
+                 * il fatto c'e' gia' (nascosto), l'asserzione sola non la
+                 * riaccende. */
+                int ok = kb_query(b->kb, "proposition_reaffirm", sq, 1) ||
+                         kb_assert(b->kb, "holds", sq, 1);
                 kb_set_origin(b->kb, prev);
                 if (ok) {
                     char msg[256];
-                    { const KbResponseSlot _rs[] = { { "slug", slug } };
-                      kb_term_say(b, "learned_holds_x", _rs, 1, msg, sizeof msg);
+                    /* la proposizione si ridice a parole, non nella sintassi
+                     * interna: «Learned: residual current device trips.» */
+                    char said[KB_TERM_LEN]; snprintf(said, sizeof said, "%s", slug);
+                    for (char *c = said; *c; c++) if (*c == '_') *c = ' ';
+                    { const KbResponseSlot _rs[] = { { "slug", slug }, { "said", said } };
+                      kb_term_say(b, "learned_holds_x", _rs, 2, msg, sizeof msg);
                       put(msg, out, out_size); }
                     return 1;
                 }
