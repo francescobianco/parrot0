@@ -846,8 +846,15 @@ Residui, in ordine di resa:
 3. **F21.6 (la puntualità)**: un obiettivo con una soglia («I must be there by
    7») è un vincolo, non un polo; va letto come condizione che scarta, prima
    della scelta.
-4. **La doppia lettura** di «X means a low Y», che nasce anche come
-   proposizione `mean`: la lezione deve consumare il turno (C1).
+4. **La doppia lettura** di «X means a low Y» (proposizione `mean` accanto
+   alla lezione): **non si riproduce** nel test engine a fine sessione
+   («Heavy means a high weight.» → nessun `mean/2`, nessun `holds/1`); da
+   ricontrollare solo se ricompare in una sessione live. Osservazione nuova:
+   dopo `!reset` la lingua appiccicosa del demone è `it` (`read.lang
+   sticky=it selected=it`), e una prima lezione inglese riceve la risposta in
+   italiano («Tengo: «pesante» vuol dire weight alto.»): la lezione entra, la
+   lingua della replica no. Una frase inglese intera dovrebbe bastare a
+   cambiare lingua.
 5. **Le famiglie non ancora provate** (F2–F20): la prossima con resa alta è
    **F5** (cambiare una variabile alla volta), che riusa l'operatore di
    isolamento con l'azione «cambiare» al posto di «togliere». Poi F4 (catena di
