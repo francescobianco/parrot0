@@ -1,0 +1,592 @@
+# Addestrare l'agente situazionale — train the smart agent
+
+**Piano, 27 settembre 2026.** Nasce da un giro live di F. e dell'agente
+(transcript: `var/live/transcript.log` della sessione «Ragionamento situazionale
+multi-turno», §7 qui sotto). Richiesta di F.:
+
+> *«vedere se parrot0 è in grado di risolvere problemi multi-turno di
+> ragionamento che non siano solamente matematici ma anche situazionali […]
+> immagina che io devo trovare un problema, a un certo punto non so più cosa
+> fare e ho l'idea di spegnere sezione per sezione delle cose e così isolo
+> quella corrotta. Questo piano chiaramente deve essere spiegato come
+> opportunità, non come piano con condizioni d'ingresso precise: la scoperta
+> del piano come una valida soluzione deve essere l'inferenza, quella che a
+> livello umano potremmo chiamare intuizione.»*
+
+> *«senza fare banchi nuovi, descrivendo esperimenti di intelligenza
+> situazionale come questi […] facendo uso del live-train, quindi non dobbiamo
+> reinventare questo framework […] colmando tutte le lacune di comprensione.
+> Non voglio banchi: tutto deve essere nel piano; gli esperimenti si conducono
+> con il coding agent come stiamo facendo adesso.»*
+
+> **In una frase.** Una mossa intelligente in una situazione (isolare spegnendo
+> una parte alla volta, tornare all'ultimo stato che funzionava, confrontare con
+> un gemello sano) non è un piano che scatta quando le condizioni d'ingresso
+> combaciano: è una **conseguenza** che parrot0 inferisce dal modello della
+> situazione. Una mossa che ha esiti diversi a seconda di quale ipotesi è vera
+> *informa*; proporla quando si è bloccati è ciò che chiamiamo intuizione. Il
+> piano addestra questa inferenza parlando, colmando una per una le lacune di
+> comprensione che la sessione rivela, su scenari veri e variati.
+
+---
+
+## 0. Che cosa questo piano è, e che cosa non è
+
+- **È un curriculum di sessioni live** con il dispositivo esistente,
+  [live-teaching.md](plans/live-teaching.md) e `scripts/live-teach.sh`
+  (`start`, `say`, `think`, `steer`, `watch`, `stop`). Nessun framework nuovo.
+- **Non è un banco.** Niente `.p0t` nuovi, niente punteggi automatici, niente
+  giudice. Il giudizio è di F., sul transcript, con la scala del §3. Un `.p0t`
+  si scrive solo *dopo*, per fissare una capacità già mostrata dal vivo (regola
+  di live-teaching §7), e non fa parte di questo piano.
+- **Non è un catalogo di risposte.** Nessuno scenario del §5 va «insegnato»
+  dicendo a parrot0 la mossa da fare in quel caso. Si insegna ciò che gli
+  manca per *capire* la situazione, e i principi generali da cui la mossa
+  segue; la mossa deve nascere da lì, e poi trasferirsi a uno scenario gemello
+  mai nominato.
+- **Vale tutto il [MANTRA](../MANTRA.md)**: solo lingua naturale, conoscenza
+  vera, niente entità inventate, niente nomi di predicati nelle frasi. Quando
+  la mossa giusta è il motore, la sessione si ferma (live-teaching §3, regola 6)
+  e il lavoro di motore diventa un passo separato, annotato qui.
+
+## 1. Il modello: la mossa come conseguenza, non come piano con ingresso
+
+Un agente situazionale tiene, anche senza nominarli, cinque oggetti:
+
+| oggetto | domanda che lo riempie | esempio (differenziale che scatta) |
+|---|---|---|
+| **stato** | com'è il mondo adesso? | il differenziale scatta; tre apparecchi collegati |
+| **obiettivo** | che cosa si vuole? | trovare l'apparecchio che disperde |
+| **ipotesi** | che cosa potrebbe spiegarlo? | il bollitore, il frigo o la lavatrice |
+| **leggi** | che cosa causa che cosa? | un apparecchio che disperde fa scattare il differenziale; uno scollegato non disperde |
+| **azioni** | che cosa posso cambiare, e con quale effetto? | scollegare un apparecchio; ricollegarlo |
+
+**L'intuizione, in termini di inferenza:** fra le azioni possibili, quella il
+cui esito **previsto differisce fra le ipotesi aperte** porta informazione. Se
+scollego il bollitore e il differenziale smette di scattare, l'ipotesi
+«bollitore» sopravvive e le altre cadono; se continua, cade il bollitore.
+Nessuno ha scritto «quando il differenziale scatta, scollega uno alla volta»:
+la mossa si **deriva** confrontando le previsioni delle leggi sotto ciascuna
+ipotesi. È la stessa inferenza che, in un altro campo, propone di fare
+`git bisect`, di togliere metà delle luci dell'albero, di spegnere metà dei
+router. Da qui tre conseguenze per l'addestramento:
+
+1. **Le mosse sono opportunità derivate, non regole con condizioni.** Una mossa
+   si propone quando l'inferenza la trova *utile qui*, e parrot0 deve saper
+   dire perché («se ho ragione su X, facendo Y vedremo Z»). Un piano con
+   ingresso («se l'utente dice "trips", rispondi "unplug"») è esattamente ciò
+   che questo piano vieta.
+2. **Il principio generale si insegna una volta, in un campo, e deve valere
+   negli altri.** «Un'azione che ha esiti diversi secondo l'ipotesi vera ti
+   dice quale è vera» è conoscenza; la sua applicazione al differenziale no.
+3. **La prova è il trasferimento e il contrasto.** Lo stesso principio deve
+   proporre la mossa giusta in uno scenario gemello mai nominato, e **non**
+   proporla dove è sbagliata (guasti che non si ripetono, due guasti insieme,
+   una prova pericolosa, §5 colonna «contrasto»).
+
+Il repertorio del §5 è organizzato per **famiglie di mosse** (isolare,
+tornare indietro, confrontare, ridurre, invertire…): ogni famiglia è un
+principio generale, gli scenari sono i suoi campi di prova.
+
+## 2. Le lacune di comprensione, come le ha rivelate il primo giro
+
+Il primo giro (§7) non è arrivato a chiedersi se l'isolamento nasce per
+inferenza: si è fermato prima, su lacune di **comprensione**. Sono il primo
+lavoro del piano, perché ogni scenario del §5 le attraversa. Ogni lacuna ha un
+identificativo, la strada osservata, il meccanismo da cui passa la cura e il
+canale d'insegnamento da tentare per primo.
+
+| # | lacuna | strada osservata (27 set) | canale / meccanismo |
+|---|---|---|---|
+| **G1** | **un resoconto di guasto diventa un fatto sul mondo** | «The RCD in my house keeps tripping, and I can't work out which appliance…» → `Learned: … keep tripping. Learned: can't work out.` | L4-7 (l'impegno segue la comprensione): un racconto in prima persona di un problema è una **situazione aperta**, non una lezione. Parente di R1 di [l4-upgrade.md](plans/l4-upgrade.md) |
+| **G2** | **il blocco della persona non si riconosce** | «I have already checked the obvious things and I don't know what to try next.» → «I don't know about obvious things» | lettura dello stato dell'interlocutore ([initiative.md](plans/initiative.md), `trouble_cue`): «non so cosa provare» è uno stato con una mossa sociale (proporre), e riprende il problema del turno prima |
+| **G3** | **l'obiettivo si prende dalla subordinata** | «How do I find out which appliance is making the RCD trip?» → «how to make trip»; «…which appliance leaks current?» → «how to make current» | `situation.p0`, il ruolo `goal`: l'obiettivo è il verbo retto da «how do I» (*find out*), non l'ultimo verbo. Confine di sintagma: L2 («end the goal before which»), poi L4 sulla regola del ruolo |
+| **G4** | **la causa detta con «when» non si legge** | «An RCD trips when an appliance leaks current to earth.» → muro | forma nuova L2 (`<frase con x, y> means <frase con x, y>`): «x trips when y means if y then x trips» |
+| **G5** | **le regole entrano proposizionali, o con il conseguente opaco** | «If an appliance leaks…, then the RCD trips» → `holds(rcd_trips) :- holds(appliance_leaks…)`; con variabili, `holds(x_trips_…) :- leaks($V1,$V2)` | il lettore `if … then` lega le variabili nell'antecedente ma non nel conseguente non copulare. Prima L2 sulle forme; se non basta, è motore (lettore delle regole) |
+| **G6** | **le domande sulle proposizioni non consultano le regole** | «Does the RCD trip?», «Why does the RCD trip?» → «I don't know about residual» (con `leaks(washing_machine, current)` e la regola in KB) | lettore polare/why sulle proposizioni `holds/1`; la sigla espansa rompe l'entità. Probabile motore (C_TODO) |
+| **G7** | **una domanda diventa un fatto** (grave) | «Is it true that the RCD trips?» → `Learned: holds(residual_current_device_trips).` | L4-7: «is it true that» è una domanda di verità, mai un atto d'impegno. Da trattare **prima di ogni altra** lacuna: un fatto falso pesa più di un muro (mantra #7) |
+| **G8** | **un fatto detto non si ritira parlando** | «forget that the RCD trips» → «I don't know about forget» | la forma `forget that <proposizione>` per le proposizioni; parente di «Forget is a layer» (L3 §19) |
+| **G9** | **«uno di loro» e l'insieme dei candidati** | «The kettle, the fridge and the washing machine are plugged in, and one of them leaks current.» → `fridge is a plugged, located_in(fridge, and_one_of_them_leaks_current)` | coordinazione e anafora collettiva («one of them»): l'insieme dei candidati e il vincolo «esattamente uno» sono l'oggetto **ipotesi** del §1 |
+| **G10** | **uno stato («plugged in», «switched off») letto come classe** | «are plugged in» → `is a plugged` | aggettivo di stato vs nome di classe; `verb particle` («plug in», «switch off») come verbi di azione con effetto |
+| **G11** | **l'azione ipotetica non si simula** | «If I unplug the kettle and the RCD stops tripping, what does that tell me?» → «I don't know about unplug» | il ragionamento in avanti sotto un'ipotesi (contesti di `context-scope.p0`, `holds_in/2` di `situation.p0`): *che cosa sarebbe vero se*… |
+| **G12** | **nessuna mossa informativa** | nessuna proposta, in nessun turno | la facoltà del §1: confrontare le previsioni fra ipotesi. Oggetto nuovo in KB (vedi §4) |
+
+**Ordine di lavoro:** G7 e G1 prima (sono falsi, non muri), poi G2–G4 e G9–G10
+(la situazione deve essere capita), poi G5–G6 e G11 (le leggi devono operare),
+poi G12. Una lacuna si chiude quando la sessione mostra la lettura giusta **e**
+un trasferimento su un altro scenario del §5 che la attraversa.
+
+## 3. Come si giudica la strada (per F.)
+
+Niente punteggio automatico. F. legge il transcript e colloca la strada di
+parrot0 su questa scala; l'insegnante la annota nel `think` di chiusura di ogni
+scenario. È la risposta alla domanda di F.: *quando siamo lontani da un agente
+intelligente*.
+
+| livello | che cosa mostra la strada | esempio (differenziale) |
+|---|---|---|
+| 0 | **legge male**: fatti spazzatura, domanda presa per lezione, obiettivo sbagliato | `Learned: can't work out.` |
+| 1 | **capisce la scena**: stato, obiettivo, candidati letti come tali | «So one of three appliances leaks, and you want to know which.» |
+| 2 | **riconosce il blocco** e resta sul problema invece di cambiare tema | «You've ruled out the obvious. Let's think about what we can observe.» |
+| 3 | **tiene le ipotesi**: dice che non può ancora distinguere, e perché | «Any of the three could be leaking: nothing so far separates them.» |
+| 4 | **propone una mossa informativa**, come opportunità | «You could unplug one appliance at a time: when the tripping stops, the last one you unplugged is the leaking one.» |
+| 5 | **spiega perché informa**, dalle leggi | «An unplugged appliance can't leak, so if the RCD stops tripping, the leak was in that one.» |
+| 6 | **si adatta all'esito** detto al turno dopo, e restringe | «It still trips with the kettle unplugged: it's the fridge or the washing machine. Try the washing machine next.» |
+| 7 | **migliora la mossa** (dimezzare invece di uno alla volta, quando i candidati sono molti) o ne vede il limite | «With twenty sockets, switch off half the circuits at the board first.» / «If it trips only sometimes, one test per appliance may not be enough.» |
+| 8 | **trasferisce**: la stessa inferenza in uno scenario gemello mai nominato, e la **trattiene** nel contrasto | propone di togliere metà delle estensioni del browser; *non* propone di staccare uno alla volta i respiratori di un reparto |
+
+Primo giro (27 set): **livello 0**, con isole di livello 1 dopo le lezioni
+(la sigla, i verbi di relazione, la regola).
+
+## 4. Il protocollo di un esperimento
+
+Ogni esperimento è **una sessione live** (o un blocco di una sessione) su uno
+scenario del §5. L'insegnante è il coding agent; F. guarda con `watch` e
+indirizza con `steer` o in chat. Le fasi, ognuna aperta da un `think`:
+
+1. **Scena.** La situazione come la racconterebbe una persona, in più turni se
+   serve (§1: stato, obiettivo, candidati), senza parole chiave di comodo.
+2. **Blocco.** La persona dice di non sapere cosa fare, con parole sue. Nessun
+   suggerimento della mossa.
+3. **Attesa dell'intuizione.** Si guarda che cosa propone parrot0. Si annota il
+   livello del §3.
+4. **Diagnosi della strada.** Per ogni turno sotto il livello atteso: quale
+   lacuna del §2 (o una nuova, da aggiungere alla tabella con la strada
+   osservata), letta con `/debug`, «why did you answer that way?», varianti della
+   frase. Il ragionamento nomina il meccanismo (IR, comprensione, L2, L3, L4).
+5. **Colmare, in ordine di canale.** Insegnare ciò che manca per **capire**: per
+   contatto (L3) con una frase che direbbe una persona; se non basta, schema
+   (L2) dichiarato nel `think`; se la lacuna è una regola che la comprensione
+   già usa, L4 (riconoscerla, estenderla). **Mai** la mossa dello scenario. I
+   principi generali (§5, prima riga di ogni famiglia) si insegnano **una volta
+   sola in tutto il piano**, nel primo scenario della famiglia, e la sessione lo
+   annota qui (§6).
+6. **Ri-porre** la scena e il blocco, e rileggere il livello.
+7. **Trasferire** a uno scenario gemello della stessa famiglia, mai nominato
+   nelle lezioni.
+8. **Contrastare** con lo scenario di contrasto della famiglia: la mossa non
+   deve comparire, o deve comparire con il suo limite.
+9. **Chiudere.** `stop` con `/save` solo se la sessione non ha lasciato fatti
+   spazzatura non ritirabili (primo giro: sì, quindi chiuso **senza** `/save`,
+   live-teaching §8.3); altrimenti la conoscenza buona si ridice in una
+   sessione pulita e si salva lì. Il resoconto va nel §6.
+
+**Quando serve il motore:** la sessione si ferma, la lacuna passa allo stato
+«motore» nel §2 con la diagnosi, e il lavoro diventa un passo separato
+(KB-first, mantra), poi si riapre lo stesso scenario.
+
+**La facoltà che manca (G12), come la si prepara.** Non è un modulo: è un
+oggetto in KB sopra `situation.p0` e `context-scope.p0` (stato come credenza
+di un contesto, `holds_in/2`) e sopra le leggi insegnate. In forma di
+contratto, da scrivere quando G1–G11 lo rendono raggiungibile:
+`hypothesis_open(Situazione, H)`, `predicts(H, Azione, Osservazione)` (dalle
+leggi, sotto il contesto dell'ipotesi), `informative(Azione)` se esistono due
+ipotesi aperte con previsioni diverse per la stessa azione; la proposta è un
+`answer_plan` che dice azione, previsioni ed esito atteso. Il suo costo va
+misurato con [kb-growth-dynamics.md](kb-growth-dynamics.md) alla mano (le
+ipotesi sono contesti: una vista per ipotesi moltiplica, S7).
+
+## 5. Il repertorio degli scenari
+
+Ogni famiglia ha: il **principio** (la conoscenza generale da cui la mossa
+segue, da insegnare una volta), gli **scenari** (campi veri, variati: casa,
+cucina, auto, salute, lavoro, codice, viaggi, relazioni, natura), la **lacuna
+probabile** oltre a quelle del §2, e il **contrasto** (dove la mossa è
+sbagliata o va limitata). Le frasi fra virgolette sono aperture possibili della
+scena, non copioni.
+
+### F1 — Isolare per esclusione (una parte alla volta, o a metà)
+
+**Principio.** Se il guasto sta in una parte sola, togliere una parte e vedere
+se il guasto resta dice se era lì; togliere metà delle parti dimezza i
+sospetti a ogni prova.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F1.1 differenziale che scatta | «The RCD keeps tripping and I can't tell which appliance causes it.» | G1–G12 (primo giro) |
+| F1.2 luci dell'albero spente | «Half of my Christmas lights went dark and I can't see which bulb is broken.» | lampadine in serie: un guasto spegne il ramo |
+| F1.3 browser lento dopo le estensioni | «My browser became very slow and I have fifteen extensions installed.» | «disable» come azione reversibile |
+| F1.4 regressione nel codice | «The tests passed last month and fail now, and there are two hundred commits in between.» | ordine temporale dei commit: dimezzare nel tempo (git bisect) |
+| F1.5 rumore in macchina | «There is a rattle in my car and I can't tell where it comes from.» | isolare per posizione e condizione (velocità, buche) |
+| F1.6 allergia alimentare | «I get a rash after dinner but I don't know which food causes it.» | dieta di esclusione: togliere un alimento per volta, **sotto consiglio medico** |
+| F1.7 rete di casa lenta | «The Wi-Fi is slow in the evening and there are ten devices connected.» | un dispositivo che satura; staccarli a gruppi |
+| F1.8 foglio di calcolo con il totale sbagliato | «The yearly total in my spreadsheet is wrong and I can't find the bad cell.» | subtotali per mese: dove il subtotale diverge |
+| F1.9 perdita d'acqua in bagno | «There is water on the bathroom floor every morning.» | asciugare e osservare da dove riappare |
+| F1.10 odore in cucina | «The kitchen smells bad and I have cleaned everything I can see.» | togliere/controllare contenitori uno per volta |
+
+**Contrasto.** Un guasto **intermittente** (una prova per parte non basta:
+servono prove ripetute), **due guasti insieme** (togliere uno non basta),
+**parti che non si possono togliere senza pericolo** (un apparecchio medico,
+l'impianto frenante), **parti dipendenti** (spegnere il router spegne tutti).
+La mossa deve comparire con il suo limite o non comparire.
+
+### F2 — Tornare all'ultimo stato che funzionava
+
+**Principio.** Se prima funzionava e ora no, qualcosa è cambiato in mezzo:
+annullare i cambiamenti riporta al funzionamento, e annullarli uno alla volta
+dice quale era.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F2.1 stampante dopo un aggiornamento | «My printer stopped working after the update last night.» | «after» come relazione temporale causale candidata |
+| F2.2 ricetta che non viene più | «My bread always rose, but this week it stayed flat.» | che cosa è cambiato: lievito nuovo, farina, temperatura |
+| F2.3 pianta che appassisce | «My basil was fine until I moved it to the balcony.» | spostamento come cambiamento con effetti (luce, vento) |
+| F2.4 mal di testa nuovo | «I've had headaches since I started my new job.» | cambiamenti concomitanti (schermo, sonno, caffè) |
+| F2.5 codice dopo una modifica | «The program crashed right after I changed the config file.» | ripristinare la copia precedente |
+| F2.6 auto che consuma di più | «My car uses more fuel since I changed the tyres.» | pressione, misura degli pneumatici |
+
+**Contrasto.** Il guasto **non** è legato a un cambiamento (usura, età:
+tornare indietro non aiuta); tornare indietro è **irreversibile o costoso**
+(una ristrutturazione); il cambiamento era una **correzione di sicurezza** da
+non annullare.
+
+### F3 — Confrontare con un gemello che funziona
+
+**Principio.** Se due cose uguali si comportano diversamente, la causa sta in
+ciò che le distingue.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F3.1 un solo termosifone freddo | «All radiators are warm except the one in the bedroom.» | aria nel radiatore, valvola: che cosa ha di diverso |
+| F3.2 un computer lento su due uguali | «Two identical laptops, and only mine is slow.» | differenze di configurazione |
+| F3.3 una torta riuscita e una no | «I baked the same cake twice and only the first was good.» | che cosa è cambiato fra le due volte |
+| F3.4 una pianta su due | «I have two tomato plants and only one has yellow leaves.» | posizione, acqua, vaso |
+| F3.5 un collega che riceve le email e uno no | «My colleague gets the newsletter and I don't.» | filtri, indirizzi, iscrizione |
+
+**Contrasto.** I due non sono davvero uguali in ciò che conta (modelli
+diversi); la differenza è **casuale** (una sola torta andata male può essere
+sfortuna); il gemello «sano» ha lo stesso problema nascosto.
+
+### F4 — Controllare la catena delle precondizioni, dalla più semplice
+
+**Principio.** Un effetto richiede tutte le sue condizioni; quando manca,
+conviene controllare prima quelle più probabili e più economiche da verificare.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F4.1 televisore che non si accende | «The TV won't turn on.» | spina, presa, telecomando, batterie: ordine per costo |
+| F4.2 auto che non parte | «My car won't start this morning.» | batteria (luci deboli?), carburante, motorino: la domanda che separa |
+| F4.3 lievito che non fa effetto | «The dough didn't rise at all.» | lievito scaduto, acqua troppo calda, sale sul lievito |
+| F4.4 email che non parte | «My emails stay in the outbox.» | connessione, allegato troppo grande, password |
+| F4.5 bambino che non dorme | «My toddler won't fall asleep tonight.» | fame, caldo, pannolino, paura: le cause comuni prima |
+| F4.6 lavatrice che non scarica | «The washing machine won't drain.» | filtro, tubo piegato, pompa |
+
+**Contrasto.** Il segnale di **pericolo** salta la catena (odore di gas, fumo,
+un sintomo grave: prima la sicurezza o il soccorso, §F10); la causa rara è
+**nota** (la spia già dice che cos'è).
+
+### F5 — Cambiare una sola variabile alla volta
+
+**Principio.** Se cambio due cose insieme e il risultato cambia, non so quale
+delle due è stata; per imparare da una prova, ne cambio una sola.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F5.1 caffè amaro | «My espresso tastes bitter and I changed the beans and the grind.» | due variabili cambiate insieme |
+| F5.2 allenamento e dolore | «My knee hurts since I started running more and with new shoes.» | confondimento |
+| F5.3 annuncio che non vende | «I changed the price and the photos and still no buyers.» | |
+| F5.4 dormire meglio | «I want to sleep better; should I stop coffee, screens and late dinners all at once?» | trade-off: tutte insieme migliora prima ma non insegna |
+
+**Contrasto.** Quando **conta il risultato e non il sapere** (una festa
+stasera: cambia tutto ciò che aiuta), o quando le variabili **interagiscono**
+(una senza l'altra non ha effetto).
+
+### F6 — Riprodurre prima di aggiustare
+
+**Principio.** Un guasto che non so far comparire non so se l'ho aggiustato:
+prima trovare quando compare.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F6.1 rumore del frigorifero | «The fridge makes a strange noise, but never when the technician is here.» | registrare, annotare le ore |
+| F6.2 bug che capita a volte | «The app crashes sometimes, I can't say when.» | le condizioni del crash |
+| F6.3 sintomo intermittente | «I sometimes feel dizzy.» | diario dei sintomi, **medico** |
+
+**Contrasto.** Riprodurre è **pericoloso** (un corto circuito, un malore): non si
+provoca, si osserva o si chiama chi può.
+
+### F7 — Ridurre il problema a un caso più piccolo
+
+**Principio.** Un problema grande che fallisce si capisce su una sua versione
+piccola che fallisce nello stesso modo.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F7.1 documento che non si stampa | «A 200-page document won't print.» | stampare una pagina, poi metà |
+| F7.2 ricetta per 40 persone | «I need to cook for 40 and I've never made this dish.» | provarla prima per 4 |
+| F7.3 query lenta | «This database query takes minutes.» | le sue parti una per volta |
+| F7.4 trasloco | «I have to move house next week and I don't know where to start.» | una stanza, una scatola |
+
+**Contrasto.** Il problema **nasce dalla scala** (per 40 persone il forno non
+basta: la versione piccola non lo mostra).
+
+### F8 — Lavorare all'indietro dall'obiettivo
+
+**Principio.** Se so dove devo arrivare e quando, posso ricavare ogni passo
+precedente e il momento in cui iniziare.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F8.1 cena alle otto | «Dinner must be on the table at eight and the roast takes two hours.» | durate, sottrazione nel tempo (event-time.p0) |
+| F8.2 treno delle sette | «My train leaves at seven and the station is forty minutes away.» | margine, «on time» (già in KB: `on_time_link`) |
+| F8.3 esame fra un mese | «My exam is in four weeks and there are twelve chapters.» | distribuire il lavoro |
+| F8.4 invito a un matrimonio | «The wedding is in June and I need a suit, travel and a gift.» | dipendenze fra compiti |
+
+**Contrasto.** L'obiettivo **non è fisso** (una data spostabile: la mossa
+giusta è chiedere se lo è), o un passo **non dipende dal tempo** (un
+documento che arriva quando arriva).
+
+### F9 — Trovare il collo di bottiglia
+
+**Principio.** In una catena, il risultato va alla velocità del passo più
+lento: migliorare gli altri non serve.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F9.1 cucina del ristorante | «Orders are late although we hired another cook.» | il passo lento è altrove (il forno, la cassa) |
+| F9.2 imbottigliamento in casa | «Making jam takes all day, even with two people chopping.» | la pentola è una sola |
+| F9.3 fila alla posta | «There are three counters open but the queue doesn't move.» | un solo sportello fa quell'operazione |
+| F9.4 computer lento | «I added memory but my computer is still slow.» | il disco, la rete |
+
+**Contrasto.** Più passi **si alternano** come collo di bottiglia (ogni
+miglioramento ne sposta un altro); il vincolo è una **regola**, non una risorsa.
+
+### F10 — Prima la sicurezza, poi la diagnosi
+
+**Principio.** Quando c'è un rischio per le persone, la prima mossa è
+togliere il rischio o chiamare aiuto; capire viene dopo.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F10.1 odore di gas | «I smell gas in the kitchen.» | non accendere niente, aprire, uscire, chiamare |
+| F10.2 filo che fa scintille | «The plug sparked when I pulled it.» | staccare il generale prima di toccare |
+| F10.3 persona che non risponde | «My neighbour collapsed and isn't responding.» | chiamare il soccorso, poi le istruzioni |
+| F10.4 pentola con olio in fiamme | «The oil in the pan caught fire.» | mai acqua, coperchio |
+
+**Contrasto.** È il contrasto **di tutte le altre famiglie**: in presenza di
+un rischio, isolare, riprodurre o sperimentare sono mosse sbagliate. Parrot0
+deve riconoscere il rischio anche quando lo scenario parte come F1 o F4.
+
+### F11 — Ripercorrere i propri passi
+
+**Principio.** Una cosa smarrita è quasi sempre lungo il percorso fatto dopo
+l'ultima volta che la si aveva; ripercorrerlo all'indietro restringe la ricerca.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F11.1 chiavi perse | «I can't find my keys and I had them when I got home.» | «l'ultima volta che» come ancora temporale |
+| F11.2 file scomparso | «I saved the report yesterday and now I can't find it.» | percorso delle azioni, cartella recente |
+| F11.3 portafoglio in viaggio | «I lost my wallet somewhere between the hotel and the museum.» | tappe, chi chiamare |
+
+**Contrasto.** L'oggetto può essere stato **preso da altri** (furto: la mossa è
+denunciare/bloccare prima di cercare); il percorso non è ricostruibile.
+
+### F12 — Misurare invece di indovinare
+
+**Principio.** Quando due spiegazioni competono, una misura che le distingue
+vale più di un ragionamento in più.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F12.1 bolletta alta | «My electricity bill doubled.» | leggere il contatore con tutto spento: dispersione o consumo |
+| F12.2 febbre del bambino | «My son feels hot.» | il termometro, non la mano |
+| F12.3 perdita del radiatore dell'auto | «The coolant level keeps dropping.» | segnare il livello, controllare sotto l'auto la mattina |
+| F12.4 pane crudo dentro | «My bread is raw in the middle.» | temperatura reale del forno (termometro da forno) |
+
+**Contrasto.** La misura **costa più** del problema, o **non distingue** le
+ipotesi rimaste (misurare qualcosa che le due prevedono uguale).
+
+### F13 — Chiedere a chi sa, o cambiare prospettiva
+
+**Principio.** Quando la conoscenza che manca ce l'ha qualcuno, la mossa
+migliore è chiedere a lui; quando si è bloccati, riformulare il problema dal
+punto di vista di un altro.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F13.1 sintomi persistenti | «I've had a cough for three weeks.» | quando la mossa è il medico |
+| F13.2 codice di un collega | «I can't understand why this function exists.» | chiedere all'autore, la storia del file |
+| F13.3 conflitto con un vicino | «My neighbour is angry about the noise and I don't know why, I'm quiet.» | il suo punto di vista: orari, pareti sottili |
+| F13.4 cliente insoddisfatto | «The client rejected the design twice.» | chiedere che cosa vuole ottenere, non che cosa non gli piace |
+
+**Contrasto.** La persona che sa **non è raggiungibile** o non è affidabile;
+chiedere è la mossa di **tutte** le situazioni (un agente che rimanda sempre al
+medico non è intelligente, è evasivo: mantra «misclaims worse than walls»).
+
+### F14 — Invertire la domanda
+
+**Principio.** Se «come ottengo X?» non trova strade, «che cosa impedisce X?» o
+«come otterrei il contrario?» spesso le trova.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F14.1 squadra poco produttiva | «How do I make my team more productive?» | che cosa le fa perdere tempo |
+| F14.2 casa sempre in disordine | «How do I keep my flat tidy?» | come si produce il disordine (dove si accumula) |
+| F14.3 risparmio | «I never manage to save money.» | dove vanno i soldi |
+
+**Contrasto.** L'inverso **non è informativo** (togliere gli ostacoli non basta
+se manca la risorsa).
+
+### F15 — Scegliere per rischio e costo, non solo per probabilità
+
+**Principio.** Fra due controlli, conviene prima quello che costa poco o che
+esclude un rischio grave, anche se è meno probabile.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F15.1 dolore al petto | «I have a pain in my chest, probably a muscle.» | escludere prima il grave (**soccorso**) |
+| F15.2 freni che fischiano | «The brakes squeal, probably just dust.» | il costo di sbagliarsi |
+| F15.3 backup | «Should I test the backup or finish the feature first?» | il danno se il backup non funziona |
+
+**Contrasto.** Il rischio grave è **escluso da un fatto noto** (appena
+controllato); fissarsi sul caso raro paralizza.
+
+### F16 — Situazioni fra persone
+
+**Principio.** Fra persone, la situazione comprende ciò che l'altro sa,
+vuole e sente; la mossa utile spesso è rendere esplicito ciò che è implicito.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F16.1 due coinquilini e le pulizie | «My flatmate and I keep arguing about cleaning.» | un accordo esplicito (turni) invece di chi ha ragione |
+| F16.2 amico offeso | «My friend stopped answering my messages after the party.» | che cosa è successo alla festa, chiedere direttamente |
+| F16.3 dividere una torta fra due bambini | «Two kids always fight over who got the bigger slice.» | «uno taglia, l'altro sceglie» come conseguenza dell'equità |
+| F16.4 riunione senza decisioni | «Our meetings never end with a decision.» | chi decide, e quando |
+
+**Contrasto.** Rendere esplicito **ferisce** (una situazione che chiede tatto);
+la persona **non vuole** una soluzione ma essere ascoltata (initiative.md:
+registro sociale).
+
+### F17 — Pianificare con risorse limitate
+
+**Principio.** Quando le risorse non bastano per tutto, si ordina per valore e
+si rinuncia a qualcosa esplicitamente.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F17.1 un solo forno per quattro piatti | «I have one oven and four dishes that all need baking.» | temperature comuni, ordine, piatti che aspettano |
+| F17.2 valigia troppo piena | «My suitcase is over the weight limit.» | che cosa pesa e serve meno |
+| F17.3 tre scadenze nella stessa settimana | «Three deadlines fall in the same week.» | spostarne una chiedendo prima |
+| F17.4 budget di un viaggio | «The trip costs more than we can spend.» | le voci grandi prima |
+
+**Contrasto.** La risorsa **si può aumentare** a basso costo (prendere un
+secondo forno in prestito): rinunciare è la mossa sbagliata.
+
+### F18 — Imprevisto in viaggio: il piano B dalla situazione
+
+**Principio.** Quando un passo del piano salta, si riparte dall'obiettivo e
+dallo stato attuale, non dal piano vecchio.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F18.1 treno cancellato | «My train to Milan was cancelled and I have a meeting at two.» | alternative (autobus, auto), avvisare |
+| F18.2 volo perso per la coincidenza | «I missed my connecting flight.» | a chi rivolgersi, diritti |
+| F18.3 strada chiusa | «The road to the village is closed for a landslide.» | percorso alternativo, tempi |
+
+**Contrasto.** L'obiettivo **si può spostare** più facilmente del percorso
+(rimandare la riunione online).
+
+### F19 — Leggere i segnali deboli nel tempo
+
+**Principio.** Un cambiamento lento si vede solo confrontando nel tempo:
+annotare e confrontare mostra ciò che il singolo giorno nasconde.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F19.1 peso della pianta d'appartamento | «My plant is slowly losing leaves.» | diario delle innaffiature |
+| F19.2 batteria del telefono | «My phone battery lasts less and less.» | ore, app, età della batteria |
+| F19.3 spese di casa | «Every month we end up short.» | registro delle spese |
+
+**Contrasto.** Il cambiamento è **improvviso** (F2 invece di F19).
+
+### F20 — Riconoscere di non poter risolvere, e dirlo bene
+
+**Principio.** Un agente intelligente riconosce quando la situazione è fuori
+dalla sua portata o richiede un professionista, e lo dice con la mossa utile
+(chi chiamare, che cosa dire), non con un muro.
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F20.1 crepa nel muro portante | «A crack appeared in the wall and it's getting longer.» | strutturista, misurare la crepa nel frattempo |
+| F20.2 questione legale | «My landlord wants to keep the whole deposit.» | a chi rivolgersi, che documenti tenere |
+| F20.3 sintomo neurologico | «Half of my face feels numb.» | **emergenza**: F10 prevale |
+
+**Contrasto.** La situazione **è** alla sua portata e rimandare è evasione
+(F13 contrasto).
+
+### Scenari composti (multi-famiglia, per i livelli 6–8)
+
+| scenario | famiglie | perché è difficile |
+|---|---|---|
+| C1 il differenziale che scatta **solo la sera** | F1 + F6 + F19 | intermittenza: l'esclusione vuole prove ripetute nel momento giusto |
+| C2 il pane piatto **dopo il trasloco** | F2 + F3 + F12 | cambiamenti multipli: altitudine, acqua, forno nuovo |
+| C3 il sito lento **dopo il deploy, solo per alcuni utenti** | F2 + F3 + F1 | gemelli (utenti sani), cambiamento, esclusione per regione |
+| C4 odore di bruciato e scatto del differenziale | F10 + F1 | la sicurezza deve prevalere sull'esclusione |
+| C5 treno cancellato con un bambino piccolo e poco budget | F18 + F17 + F16 | vincoli sociali e di risorse sul piano B |
+| C6 esame fra una settimana e mal di testa da giorni | F8 + F2 + F13 | pianificare e riconoscere quando chiedere al medico |
+
+Il repertorio si **espande a ogni sessione**: uno scenario nuovo nasce da ciò che
+F. propone o da ciò che una sessione rivela; si aggiunge alla sua famiglia con
+apertura, lacuna probabile e, se serve, un contrasto nuovo.
+
+## 6. Registro delle sessioni
+
+Una riga per sessione, compilata alla chiusura: data, scenari, livello
+raggiunto (§3) prima e dopo, lacune aperte e chiuse (§2), principi insegnati
+(§5), conoscenza salvata, transcript.
+
+| data | scenari | livello | lacune | principi insegnati | salvato | transcript |
+|---|---|---|---|---|---|---|
+| 27 set 2026 | F1.1 (differenziale) | 0 → 0 (isole di 1) | rivelate G1–G12; chiuse nessuna. Entrate: la sigla RCD, `leaks`/`trips` come verbi di relazione, «if x leaks y then the RCD trips», il fatto della lavatrice | nessuno (il giro si è fermato alla comprensione) | **no** (fatti spazzatura non ritirabili: «can't work out», «fridge is a plugged», una domanda scritta come fatto) | `var/live/transcript.log`, sessione aperta |
+
+## 7. Il primo giro, strada per strada (27 settembre 2026)
+
+Campo: impianto di casa. Nessun suggerimento della mossa. Le risposte sono
+verbatim.
+
+| # | l'insegnante dice | parrot0 risponde | strada | lacuna |
+|---|---|---|---|---|
+| 1 | The residual current device in my house keeps tripping, and I can't work out which appliance is causing it. | Learned: residual current device in my house keep tripping. Learned: can't work out. | racconto → due fatti | G1 |
+| 2 | I have already checked the obvious things and I don't know what to try next. | Hmm, I don't know about obvious things yet. Want me to learn about it? | blocco → nome ignoto | G2 |
+| 3 | How do I find out which appliance is making the residual current device trip? | I understood you're asking how to make trip, but I don't have the steps for it yet. | obiettivo dalla subordinata | G3 |
+| 4 | Why does a residual current device trip? | Hmm, I don't know about residual yet. | nome di più parole non unito | G6 |
+| 5 | What is a residual current device? | (la definizione enciclopedica, corretta) | la prosa c'è, la causa no | — |
+| 6 | A residual current device trips when an appliance leaks current to earth. | I looked up «residual» but found nothing… | «when» causale non letto | G4 |
+| 7 | If an appliance leaks current to earth, then the RCD trips. | Learned rule: holds(rcd_trips) :- holds(appliance_leaks_current_to_earth). | regola proposizionale | G5 |
+| 8 | If I unplug the kettle and the RCD stops tripping, what does that tell me? | Hmm, I don't know about unplug yet. | nessuna simulazione | G11 |
+| 9 | The kettle, the fridge and the washing machine are plugged in, and one of them leaks current. | Learned: fridge is a plugged, located_in(fridge, and_one_of_them_leaks_current)… | candidati e stato letti male | G9, G10 |
+| 10 | *(F.: insegnagli ciò che non sa, con L2/L3/L4)* | | | |
+| 11 | RCD is short for residual current device. | Held: «rcd» is short for «residual current device». | ✅ la sigla | — |
+| 12 | leaks is a relation verb / trips is a relation verb | Learned … | ✅ | — |
+| 13 | if x leaks y then x trips the RCD | Learned rule: holds(x_trips_residual_current_device) :- leaks($V1, $V2). | variabili solo nell'antecedente | G5 |
+| 14 | forget if x leaks y then x trips the RCD / if x leaks y then the RCD trips | Understood… / Learned rule: holds(residual_current_device_trips) :- leaks($V1, $V2). | ✅ la regola giusta | — |
+| 15 | The washing machine leaks current. / Does the RCD trip? | Learned… / Hmm, I don't know about residual yet. | la domanda non consulta la regola | G6 |
+| 16 | Is it true that the RCD trips? | Learned: holds(residual_current_device_trips). | **una domanda scritta come fatto** | G7 |
+| 17 | forget that the RCD trips | Hmm, I don't know about forget yet. | il ritiro non esiste | G8 |
+| 18 | How can I find out which appliance leaks current? | I understood you're asking how to make current… | G3 di nuovo | G3, G12 |
+
+**Distanza dall'agente intelligente (giudizio dell'insegnante, da confermare da
+F.):** la domanda «l'isolamento nasce per inferenza?» non è ancora
+ponibile. Mancano prima la lettura di un problema aperto (G1, G2, G9), la
+lettura delle leggi con le loro variabili (G4, G5) e l'uso delle leggi nelle
+domande (G6, G11). Due difetti sono più gravi di un muro e vanno prima di
+tutto: una domanda che diventa un fatto (G7) e un fatto che non si ritira
+parlando (G8).
+
+## 8. Da dove si riparte
+
+1. **G7** (la domanda «is it true that…» scritta come fatto): diagnosi con
+   `/debug trace` sul turno, poi la cura (una cessione o una forma di domanda di
+   verità), in una sessione pulita.
+2. **G1 + G2 + G9 + G10**: la scena del differenziale riletta finché parrot0 la
+   ridice come situazione aperta (livello 1).
+3. **G4, G5, G6, G11**: le leggi del campo lette e usate nelle domande, anche
+   sotto un'ipotesi.
+4. **G12**, la facoltà: il contratto del §4, quando 1–3 lo rendono raggiungibile.
+   Primo principio da insegnare (F1): *«If a fault is in only one part, removing
+   that part makes the fault stop, and removing another part does not.»*, detto
+   in un campo, provato su F1.1, trasferito a F1.2 e F1.4, contrastato con il
+   guasto intermittente (C1).
+
+Le sessioni seguono il §4; ogni sessione aggiorna §2, §6 e, se nasce uno
+scenario nuovo, §5.

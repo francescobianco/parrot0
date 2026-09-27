@@ -49,7 +49,7 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
-### ▶▶ RIPARTENZA (28 settembre 2026) — l'ordine di ricostruzione: fatto
+### ▶▶ RIPARTENZA (27 settembre 2026, notte) — l'ordine di ricostruzione: fatto
 
 **Stato:** incrementi 4–7 in `main`, e il lavoro sull'ordine di ricostruzione
 delle viste chiuso (dettaglio e misure in

@@ -24,6 +24,13 @@ sessione §28–§30 di [l3-upgrade.md](l3-upgrade.md):
 > non con un banco.
 
 
+> **Curriculum situazionale (27 settembre 2026).** Le sessioni sul
+> ragionamento situazionale multi-turno (isolare un guasto, tornare all'ultimo
+> stato buono, confrontare con un gemello, prima la sicurezza…) seguono
+> [../train-the-smart-agent.md](../train-the-smart-agent.md): stesso
+> dispositivo, nessun banco, un repertorio di famiglie di mosse e le lacune di
+> comprensione rivelate dal primo giro.
+
 ---
 
 ## ⭐ HANDOFF — 26 settembre 2026, notte (ripresa di domani)
