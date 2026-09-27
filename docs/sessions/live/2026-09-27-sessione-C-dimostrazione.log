@@ -1,0 +1,37 @@
+# sessione: Sessione C (train-the-smart-agent, 27 set): dimostrazione finale in frasi naturali sulla KB salvata — 2026-09-27 19:13 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@c364256d]
+# mode: conversational (tools off, network off) - 170593 facts, 5977 rules (3.50%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Sessione C: processo nuovo, KB salvata dalle sessioni A e A2, nessuna lezione. Le scene dette con i verbi, come le direbbe una persona.
+> The bus leaves at 6:10 pm.
+< Learned: the departure time of bus is 6:10 pm.
+> The bus takes 40 minutes.
+< Learned: the travel time of bus is 40 minutes.
+> The train leaves at 6:25 pm.
+< Learned: the departure time of train is 6:25 pm.
+> The train takes 20 minutes.
+< Learned: the travel time of train is 20 minutes.
+> I want to get home as soon as possible.
+< Understood: you want to get home as soon as possible. Tell me the options and I will compare them on that.
+> Should I take the bus or the train?
+< The train: its arrival time is 6:45 pm, against 6:50 pm for the bus.
+> Why?
+< I do not have an active proposal to continue. Give me the topic or the point you want to resume.
+> The RCD keeps tripping.
+< Learned: residual current device keep tripping.
+> The kettle, the fridge and the washing machine are appliances.
+< Learned: kettle is an appliance. Learned: fridge is an appliance. Learned: washing machine is an appliance.
+> I can't work out which appliance is causing it.
+< I can't tell yet which appliance leaks current: it could be the kettle, the fridge or the washing machine. You could try unplugging them one at a time. Unplugging an appliance stops it from leaking current, so when the residual current device stops tripping, the last one you changed is the one.
+> I unplugged the kettle.
+< Noted: you unplugged the kettle. Does it still happen?
+> It still trips.
+< Then it isn't the kettle: it could still be the fridge or the washing machine. Try unplugging the fridge next.
+> I unplugged the fridge.
+< Noted: you unplugged the fridge. Does it still happen?
+> It stopped tripping.
+< Then the fridge is the one that leaks current: once it was out of the way, the effect stopped.
+> Why does the RCD trip?
+< Because something leaks current, and I don't know yet which one.
+! Chiusura senza /save (dati di situazione). Esito: con la KB salvata e frasi naturali, F21.1 e F1.1 risolti fino al livello 6. Incoerenza trovata (conclusione della prova non registrata) e curata fuori sessione: la conclusione è un giudizio con la sua fonte. Residui: 'Why?' ellittico; coordinazione dei predicati.

@@ -442,6 +442,18 @@ machinery(effect_law_object).
 effect_law_object($E, $P, $Obj) :-
     kb_clause($Id, app(holds, cons(atom($E), nil)), 1,
               app($P, cons(var($V), cons(atom($Obj), nil)))).
+% La conclusione di una prova («It stopped …» dopo aver tolto il frigo) e' un
+% GIUDIZIO, non un fatto riportato: si registra a parte, dopo la risposta, e
+% la ragione dell'effetto la usa dicendo da dove viene. Senza, parrot0 diceva
+% «the fridge is the one» e al turno dopo «I don't know yet which one» (C1).
+machinery(isolation_concluded).
+turn_scratch(isolation_concluded).
+after_reply_bookkeeper(isolation_conclusion).
+turn_after_reply($T, isolation_conclusion) :-
+    turn_form_read(current_turn, report_effect_stopped),
+    open_isolation(case($Class, $P, $Obj), $I),
+    findall($X, done_member($X), $Ds), last_of($Ds, $L),
+    naf(isolation_concluded($P, $L, $Obj)), assert(isolation_concluded, $P, $L, $Obj).
 machinery(effect_reason).
 machinery(effect_reason_some).
 effect_reason_some($E) :- effect_reason($E, $T).
@@ -452,12 +464,21 @@ effect_reason($E, $T) :-
     concat_atoms($C, " ", $D), concat_atoms($D, $Obj, $T).
 effect_reason($E, $T) :-
     observed_effect($E), effect_law_object($E, $P, $Obj),
+    isolation_concluded($P, $X, $Obj), words_of($X, $WX), words_of($P, $WP), current_language($L),
+    concat_atoms("the ", $WX, $A), concat_atoms($A, " ", $B), concat_atoms($B, $WP, $C),
+    concat_atoms($C, " ", $D), concat_atoms($D, $Obj, $D2),
+    isolation_line($L, as_tests_showed, $Z), concat_atoms($D2, $Z, $T).
+effect_reason($E, $T) :-
+    observed_effect($E), effect_law_object($E, $P, $Obj),
     naf(effect_instance_known($P, $Obj)), words_of($P, $WP), current_language($L),
     isolation_line($L, something, $S), concat_atoms($S, $WP, $A), concat_atoms($A, " ", $B),
     concat_atoms($B, $Obj, $C), isolation_line($L, dont_know_which, $Z), concat_atoms($C, $Z, $T).
 machinery(effect_instance_known).
 effect_instance_known($P, $Obj) :- apply($P, cons($X, cons($Obj, nil))).
+effect_instance_known($P, $Obj) :- isolation_concluded($P, $X, $Obj).
 isolation_line(en, something, "something ").
+isolation_line(en, as_tests_showed, ", as your tests showed (if only one is at fault)").
+isolation_line(it, as_tests_showed, ", come hanno mostrato le tue prove (se il guasto è in uno solo)").
 isolation_line(en, dont_know_which, ", and I don't know yet which one").
 isolation_line(it, something, "qualcosa ").
 isolation_line(it, dont_know_which, ", e non so ancora che cosa").
