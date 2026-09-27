@@ -1287,6 +1287,11 @@ ability_marker("can").  ability_marker("is able to").  ability_marker("knows how
 % «Does a welder need to wear a mask?» (ramo del fare) sia, se una lezione lo
 % dice, «Need a welder wear a mask?». La relazione e' una sola, `needs_to`.
 relation(necessity).
+relation(noise_level).
+relation(price).
+relation(arrival_time).
+relation(travel_time).
+relation(departure_time).
 response_template(learned_necessity, "Held: {subject} needs to {object}.").
 response_template(learned_necessity, it, "Tengo: {subject} deve {object}.").
 turn_form(necessity_stated, 1, slot(subject)).

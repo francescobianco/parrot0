@@ -166,6 +166,10 @@ semantic_binding(binary(measure), profilometer, object(surface_roughness)).
 semantic_binding(binary(locate), edge_finder, object(edges)).
 proposition_source_record(proposition(binary(locate), roles(subject(edge_finder), object(edges))), source(inline, "an edge finder locates edges."), provenance(language(en), range(0, 29))).
 semantic_proposition(proposition(binary(position), roles(subject(backlash), object(errors)))).
+semantic_proposition(proposition(binary(mean), roles(subject(quiet), object(low_noise_level)))).
+semantic_proposition(proposition(binary(mean), roles(subject(cheap), object(low_price)))).
+semantic_proposition(proposition(binary(mean), roles(subject(soon), object(early_arrival_time)))).
+semantic_proposition(proposition(binary(mean), roles(subject(fast), object(short_travel_time)))).
 semantic_binding(binary(produce), fly_cutter, object(flat_surfaces)).
 proposition_source_record(proposition(binary(produce), roles(subject(fly_cutter), object(flat_surfaces))), source(inline, "a fly cutter produces flat surfaces."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), dial_indicator, object(displacement)).
@@ -358,9 +362,17 @@ proposition_source_record(proposition(binary(cause), roles(subject(tool_wear), o
 semantic_binding(binary(add), php_extension, object(functions)).
 proposition_source_record(proposition(binary(add), roles(subject(php_extension), object(functions))), source(inline, "a php extension adds functions to the php interpreter."), provenance(language(en), range(0, 54))).
 proposition_source_record(proposition(binary(cause), roles(subject(thermal_expansion), object(dimensional_errors))), source(inline, "thermal expansion causes dimensional errors."), provenance(language(en), range(0, 44))).
+semantic_binding(binary(mean), quiet, object(low_noise_level)).
+proposition_source_record(proposition(binary(mean), roles(subject(quiet), object(low_noise_level))), source(inline, "quiet means a low noise level."), provenance(language(en), range(0, 30))).
 semantic_complement(binding(add, php_extension, functions), to, php_interpreter).
+semantic_binding(binary(mean), cheap, object(low_price)).
+proposition_source_record(proposition(binary(mean), roles(subject(cheap), object(low_price))), source(inline, "cheap means a low price."), provenance(language(en), range(0, 24))).
 semantic_binding(binary(position), backlash, object(errors)).
+semantic_binding(binary(mean), soon, object(early_arrival_time)).
+proposition_source_record(proposition(binary(mean), roles(subject(soon), object(early_arrival_time))), source(inline, "soon means an early arrival time."), provenance(language(en), range(0, 33))).
 proposition_source_record(proposition(binary(position), roles(subject(backlash), object(errors))), source(inline, "backlash causes positioning errors."), provenance(language(en), range(0, 35))).
+semantic_binding(binary(mean), fast, object(short_travel_time)).
+proposition_source_record(proposition(binary(mean), roles(subject(fast), object(short_travel_time))), source(inline, "fast means a short travel time."), provenance(language(en), range(0, 31))).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

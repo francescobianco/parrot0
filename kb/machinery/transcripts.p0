@@ -147,6 +147,7 @@ utterance(5, user, "DC is short for direct current").
 utterance(5, user, "What causes falls?").
 utterance(5, user, "What causes a segfault?").
 utterance(5, user, "Thermal expansion causes dimensional errors.").
+utterance(5, user, "if x leaks current then the RCD trips").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -273,6 +274,7 @@ utterance(6, self, "232 degrees celsius.").
 utterance(6, self, "Held: «dc» is short for «direct current».").
 utterance(6, self, "Slippery surfaces.").
 utterance(6, self, "Learned: thermal expansion causes dimensional errors.").
+utterance(6, self, "Learned rule: holds(residual_current_device_trips) :- leaks($V1, current).").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -801,6 +803,7 @@ utterance(7, user, "What does an LED emit?").
 utterance(7, user, "What is the working load of an M10 eye bolt?").
 utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "Does thermal expansion cause dimensional errors?").
+utterance(7, user, "Unplugging an appliance stops it from leaking current.").
 utterance(7, user, "How do I fix a null pointer?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1325,7 +1328,11 @@ utterance(8, self, "Yes: thermal expansion causes dimensional errors.").
 utterance(9, user, "Tool wear causes poor surface finish.").
 utterance(10, self, "Learned: tool wear causes poor surface finish.").
 utterance(11, user, "Can an eye bolt lift 300 kilograms?").
+utterance(8, self, "Held: unplugging an appliance stops it from leaking current.").
+utterance(9, user, "departure time is a relation").
+utterance(10, self, "Learned: departure time is a relation.").
 utterance(11, user, "What causes poor surface finish?").
+utterance(11, user, "travel time is a relation").
 utterance(11, user, "xdebug for php").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2472,13 +2479,30 @@ utterance(74, self, "30 seconds.").
 utterance(400, self, "1085 degrees celsius.").
 utterance(75, user, "The display_errors setting controls whether errors appear in the output.").
 utterance(399, user, "What is the melting point of copper?").
+utterance(12, self, "Learned: travel time is a relation.").
 utterance(34, self, "Keep it simple: one main dish you already know well, one side you can prepare ahead, and a dessert you can buy ready. Does anyone have dietary needs, and how much time do you have?").
+utterance(13, user, "arrival time is a relation").
 utterance(398, self, "Learned: the melting point of copper is 1085 degrees celsius.").
+utterance(14, self, "Learned: arrival time is a relation.").
 utterance(35, user, "One of them is vegan.").
+utterance(15, user, "price is a relation").
 utterance(397, user, "The melting point of copper is 1085 degrees Celsius.").
+utterance(16, self, "Learned: price is a relation.").
 utterance(36, self, "Then choose a main dish everyone can eat, so nobody gets a separate plate: a vegetable lasagne, a mushroom risotto or a chickpea curry works for everyone.").
+utterance(17, user, "noise level is a relation").
 utterance(396, self, "8.5 grams.").
+utterance(18, self, "Learned: noise level is a relation.").
+utterance(19, user, "The arrival time is the departure time plus the travel time.").
+utterance(20, self, "Held: the arrival time is the departure time plus the travel time.").
+utterance(21, user, "Fast means a short travel time.").
+utterance(22, self, "Held: «fast» means a short travel time.").
+utterance(23, user, "Soon means an early arrival time.").
+utterance(24, self, "Held: «soon» means an early arrival time.").
 utterance(12, self, "Learned: is_unit(ohm).").
+utterance(25, user, "Cheap means a low price.").
+utterance(26, self, "Held: «cheap» means a low price.").
+utterance(27, user, "Quiet means a low noise level.").
+utterance(28, self, "Held: «quiet» means a low noise level.").
 utterance(395, user, "What is the density of brass?").
 utterance(13, user, "what is the SI unit of electrical resistance?").
 utterance(394, self, "Learned: the density of brass is 8.5 grams.").
@@ -3207,6 +3231,7 @@ utterance(2, self, "Learned: degree celsius measures temperature.").
 utterance(2, self, "Hand.").
 utterance(2, self, "I don't know much about xdebug yet, and the network is off, so I can't read about it now.").
 utterance(2, self, "Learned: backlash causes positioning errors.").
+utterance(2, self, "Held: «rcd» is short for «residual current device».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3423,6 +3448,7 @@ utterance(176, self, "Yes.").
 utterance(1, user, "What is Xdebug?").
 utterance(175, user, "Does high-speed steel contain tungsten?").
 utterance(1, user, "Backlash causes positioning errors.").
+utterance(1, user, "RCD is short for residual current device.").
 utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
 utterance(173, user, "High-speed steel contains tungsten.").
@@ -3715,6 +3741,7 @@ utterance(4, self, "Learned: degree fahrenheit measures temperature.").
 utterance(4, self, "Heat-resistant glove.").
 utterance(4, self, "Hmm, I don't know about var dump yet. Want me to learn about it?").
 utterance(4, self, "backlash.").
+utterance(4, self, "Learned: leaks is a relation verb.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3844,6 +3871,7 @@ utterance(3, user, "The degree Fahrenheit measures temperature.").
 utterance(3, user, "What protects the hand?").
 utterance(3, user, "What does var_dump do?").
 utterance(3, user, "What causes positioning errors?").
+utterance(3, user, "leaks is a relation verb").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

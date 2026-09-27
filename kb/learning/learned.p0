@@ -107,3 +107,10 @@ contact_episode(effect, causes, ep(vibration, chatter, s)).
 contact_episode(handles, manage, ep(composer, dependencies, s)).
 abrasive($V1) :- contains($V1, $V2), hard($V2).
 move($V1, $V3) :- drive($V1, $V2), move($V2, $V3).
+action_blocks(unplugging, appliance, leaking, current).
+relation_sum("arrival time", "departure time", "travel time").
+adjective_measure(fast, short, "travel time").
+adjective_measure(soon, early, "arrival time").
+adjective_measure(cheap, low, price).
+adjective_measure(quiet, low, "noise level").
+holds(residual_current_device_trips) :- leaks($V1, current).

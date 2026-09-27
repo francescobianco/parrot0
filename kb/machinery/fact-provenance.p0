@@ -746,6 +746,8 @@ fact_source(causes(misalignment, bearing_wear), misalignment, "misalignment caus
 fact_source(causes(tool_wear, poor_surface_finish), tool_wear, "tool wear causes poor surface finish.").
 fact_source(causes(thermal_expansion, dimensional_errors), thermal_expansion, "thermal expansion causes dimensional errors.").
 fact_source(causes(backlash, positioning_errors), backlash, "backlash causes positioning errors.").
+fact_source(relation(price), price, "price is a relation").
+fact_source(relation_verb(leaks), leaks, "leaks is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -1607,7 +1609,13 @@ reading_fact(debugger_extension(xdebug), "xdebug is a debugger extension for php
 fact_mention(collet, "a collet is a work holding device.").
 reading_fact(proposition(binary(position), roles(subject(backlash), object(errors))), "backlash causes positioning errors.").
 reading_fact(causes(backlash, positioning_errors), "backlash causes positioning errors.").
+reading_fact(proposition(binary(mean), roles(subject(quiet), object(low_noise_level))), "quiet means a low noise level.").
+reading_fact(proposition(binary(mean), roles(subject(cheap), object(low_price))), "cheap means a low price.").
+reading_fact(proposition(binary(mean), roles(subject(soon), object(early_arrival_time))), "soon means an early arrival time.").
+reading_fact(proposition(binary(mean), roles(subject(fast), object(short_travel_time))), "fast means a short travel time.").
+reading_fact(relation(price), "price is a relation").
 fact_mention(dowel_pin, "a dowel pin is a fastener.").
+reading_fact(relation_verb(leaks), "leaks is a relation verb").
 reading_fact(proposition(binary(protect), roles(subject(hard_hat), object(head))), "a hard hat protects the head from falling objects.").
 
 fact_mention(rotary_encoder, "a rotary encoder is a sensor.").

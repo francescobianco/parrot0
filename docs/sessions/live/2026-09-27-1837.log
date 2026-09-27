@@ -1,0 +1,36 @@
+# sessione: Sessione A (train-the-smart-agent, 27 set): conoscenza generale e vera per il ragionamento situazionale, da salvare — 2026-09-27 18:37 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@f90b71fe]
+# mode: conversational (tools off, network off) - 170363 facts, 5955 rules (3.50%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Sessione A: solo conoscenza vera e generale, che serve a risolvere i problemi di logica situazionale del piano (F1, F21). Nessun dato di una situazione particolare. Si chiude con /save e si controlla il diff.
+> RCD is short for residual current device.
+< Held: «rcd» is short for «residual current device».
+> leaks is a relation verb
+< Learned: leaks is a relation verb.
+> if x leaks current then the RCD trips
+< Learned rule: holds(residual_current_device_trips) :- leaks($V1, current).
+> Unplugging an appliance stops it from leaking current.
+< Held: unplugging an appliance stops it from leaking current.
+> departure time is a relation
+< Learned: departure time is a relation.
+> travel time is a relation
+< Learned: travel time is a relation.
+> arrival time is a relation
+< Learned: arrival time is a relation.
+> price is a relation
+< Learned: price is a relation.
+> noise level is a relation
+< Learned: noise level is a relation.
+> The arrival time is the departure time plus the travel time.
+< Held: the arrival time is the departure time plus the travel time.
+> Fast means a short travel time.
+< Held: «fast» means a short travel time.
+> Soon means an early arrival time.
+< Held: «soon» means an early arrival time.
+> Cheap means a low price.
+< Held: «cheap» means a low price.
+> Quiet means a low noise level.
+< Held: «quiet» means a low noise level.
+> /save
+# sessione chiusa 18:37

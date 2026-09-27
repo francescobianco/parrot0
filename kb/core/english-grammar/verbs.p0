@@ -4222,3 +4222,4 @@ relation_verb(decompose).
 relation_verb(recycle).
 relation_verb(flow).
 relation_verb(step).
+relation_verb(leaks).
