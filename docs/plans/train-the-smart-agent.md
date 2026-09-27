@@ -825,9 +825,21 @@ Residui, in ordine di resa:
    ciò che si può colmare (§2-bis) e salva solo le **lezioni**, mai i dati di
    situazione (l'errore di A → A2 è in
    [train-the-learning-process.md](train-the-learning-process.md), §SA).
-1. **G13-bis**: i predicati coordinati («The bus leaves at 6:10 pm and takes
-   40 minutes.») si leggono a metà; la costruzione insegnata va applicata a
-   ciascun congiunto (IR: il soggetto condiviso).
+1. **G13-bis / SA8**: la coordinazione dopo una costruzione insegnata si
+   legge a metà, sia con il soggetto condiviso («The bus leaves at 6:10 pm
+   and takes 40 minutes.» → lo slot @S prende «bus leaves at 6:10 pm and»)
+   sia con due soggetti («The bus gets me home at 6:50 pm and the train gets
+   me home at 6:45 pm.», dopo la costruzione «x gets me home at y means the
+   arrival time of x is y» → solo il bus). **Diagnosi (fine sessione)**:
+   `p0_frame_reading` (10-memory-knowledge.c, `frame bind` nella traccia) lega
+   lo schema fino a «and» e sa quanto ha coperto (`consumed` < `total`, già
+   esposto come `covered(N), of(M)` alla policy KB
+   `normalization_extent_policy/4`); il resto non viene riletto. La cura:
+   quando il resto comincia con una `conjunction/1`, rileggerlo come clausola,
+   con il soggetto della prima se il resto comincia con un verbo (lo stesso
+   gesto di `predicate_coordination_split` in 99-registry.c, che copre solo
+   «V1 and V2 O» nelle relative). La decisione di rileggere è KB (una policy
+   sull'estensione), il C taglia.
 2. **I candidati come classe salvata**: `situation_member` si appoggia agli
    atti della sessione; «The kettle is an appliance» è vero e va salvato come
    conoscenza di classe, separato dalla scena.
