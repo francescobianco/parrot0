@@ -28,6 +28,14 @@
 > Need a welder wear a mask?
 <! Yes
 !query! derived_question(modal(necessity_stated, needs))
+# incremento 6: la condizione si chiede a parole, dalla stessa relazione
+# che la regola esegue (`inverts_when_via/3`)
+> When does need go before the subject?
+<~ «need» never goes before the subject
+> When does can go before the subject?
+<~ «can» always goes before the subject
+> When does blorf go before the subject?
+<~ I don't know «blorf» as a verb yet
 # senza condizione la lezione non si applica alla cieca: chiede quale
 > To make a question with need, put need before the subject.
 <~ Is that always, or only in some cases?
@@ -43,6 +51,10 @@
 !query derived_question(modal(necessity_stated, needs))
 # non e' diventato un ausiliare
 !query! auxiliary(need)
+# la domanda sulla regola NOMINA «need», non lo usa: non e' l'esempio
+> When does need go before the subject?
+<~ «need» goes before the subject only when a bare verb follows (you taught me that)
+<! That was your example
 > Need a welder wear a mask?
 <~ Yes
 <~ I read it with that rule, «need» before the subject
@@ -74,6 +86,9 @@
 <~ Yes
 !query inverts_when(dare, bare_verb_follows)
 !query! inverts_when_taught(dare, $C)
+# detta con il suo sostegno: l'analogia, non una lezione
+> When does dare go before the subject?
+<~ only when a bare verb follows, because it behaves like «need»
 
 # La revisione segue i sostegni (§2.6): ritirata la condizione di «need», cade
 # anche quella che «dare» ne ereditava; il ramo del fare resta.
@@ -84,6 +99,10 @@
 <! It matches a rule I already use
 !query! inverts_when(need, bare_verb_follows)
 !query! inverts_when(dare, bare_verb_follows)
+> When does dare go before the subject?
+<~ «dare» never goes before the subject
+> When do you put need before the subject?
+<~ «need» never goes before the subject
 > Need a welder wear a mask?
 <! Yes
 > Does a firefighter dare to enter a burning building?

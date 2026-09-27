@@ -362,6 +362,61 @@ turn_response_part($T, 5, $Text) :-
     language_lesson_line($L, condition_withdrawn, $A), concat_atoms($A, $Q, $B),
     language_lesson_line($L, condition_withdrawn_end, $D), concat_atoms($B, $D, $Text).
 
+% ── 3-quater. LA CONDIZIONE SI CHIEDE A PAROLE (L4, incremento 6) ──────────
+% «When does need go before the subject?» risponde dalla STESSA
+% `inverts_when_via/3` che la regola esegue: la condizione, e il suo sostegno
+% (una lezione, o un'analogia con un altro verbo). Un ausiliare ci va sempre,
+% un verbo senza condizione mai, e prende «do». La risposta cambia al turno
+% dopo una lezione o un ritiro, senza una seconda copia della regola.
+turn_form(ask_inversion_condition, 1, text("when does")).
+turn_form(ask_inversion_condition, 2, slot(word)).
+turn_form(ask_inversion_condition, 3, text("go before the subject")).
+turn_form_mood(ask_inversion_condition, question).
+turn_form_priority(ask_inversion_condition, early).
+turn_form_act(ask_inversion_condition, "op(match, inversion_condition_answer, [word, free])").
+turn_form_reply(ask_inversion_condition, inversion_condition_reply).
+turn_form_empty_reply(ask_inversion_condition, inversion_condition_unknown).
+turn_form(ask_inversion_condition_put, 1, text("when do you put")).
+turn_form(ask_inversion_condition_put, 2, slot(word)).
+turn_form(ask_inversion_condition_put, 3, text("before the subject")).
+turn_form_mood(ask_inversion_condition_put, question).
+turn_form_priority(ask_inversion_condition_put, early).
+turn_form_act(ask_inversion_condition_put, "op(match, inversion_condition_answer, [word, free])").
+turn_form_reply(ask_inversion_condition_put, inversion_condition_reply).
+turn_form_empty_reply(ask_inversion_condition_put, inversion_condition_unknown).
+response_template(inversion_condition_reply, "«{word}» {result}").
+response_template(inversion_condition_reply, it, "«{word}» {result}").
+response_template(inversion_condition_unknown, "I don't know «{word}» as a verb yet, so I can't say where it goes in a question.").
+response_template(inversion_condition_unknown, it, "Non conosco ancora «{word}» come verbo, quindi non so dire dove va in una domanda.").
+
+machinery(inversion_condition_answer).
+machinery(inversion_condition_root).
+machinery(inverts_under_condition).
+% la parola detta, o la sua radice («needs» -> need)
+inversion_condition_root($W, $W) :- verb_form($W, $W, base).
+inversion_condition_root($W, $R) :- naf(verb_form($W, $W, base)), verb_form($R, $W, $K).
+inverts_under_condition($R) :- inverts_when($R, $C), dif($C, always).
+% un ausiliare: sempre
+inversion_condition_answer($W, $Text) :-
+    auxiliary($W), current_language($L), language_lesson_line($L, condition_always, $Text).
+% un verbo con una condizione: quale, e da dove viene
+inversion_condition_answer($W, $Text) :-
+    naf(auxiliary($W)), inversion_condition_root($W, $R),
+    inverts_when_via($R, $C, $S), dif($C, always),
+    current_language($L), inversion_condition_said($L, $C, $Cw),
+    language_lesson_line($L, condition_only, $A), concat_atoms($A, $Cw, $B),
+    inversion_support_said($L, $S, $Sw), concat_atoms($B, $Sw, $D),
+    language_lesson_line($L, condition_only_end, $E), concat_atoms($D, $E, $Text).
+% un verbo senza condizione: mai, e chiede con «do»
+inversion_condition_answer($W, $Text) :-
+    naf(auxiliary($W)), inversion_condition_root($W, $R), naf(inverts_under_condition($R)),
+    current_language($L), language_lesson_line($L, condition_never, $Text).
+machinery(inversion_support_said).
+inversion_support_said($L, taught, $T) :- language_lesson_line($L, support_taught, $T).
+inversion_support_said($L, like($R), $T) :-
+    lesson_quoted($R, $Q), language_lesson_line($L, support_like, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, support_like_end, $C), concat_atoms($B, $C, $T).
+
 % Che cosa la lezione COLLOCA resta con lei (turn_scratch): l'ausiliare, il
 % modo, l'ordine, il pezzo. Non le forme trovate adesso: al turno dell'esempio
 % si chiede di nuovo alle forme di quel momento, cosi' una lezione rimasta al
@@ -416,7 +471,16 @@ machinery(language_example_by_rule_some).
 language_example_by_rule_some($N) :- language_example_by_rule($N, $X).
 language_example_relevant($N, $X) :-
     language_lesson_waiting($N), turn_declared_act(current_turn, question),
-    language_lesson_operator($N, $X), turn_lesson_word(current_turn, $X).
+    language_lesson_operator($N, $X), turn_lesson_word(current_turn, $X),
+    naf(turn_mentions_words(current_turn)).
+% Una domanda che NOMINA la parola («When does need go before the subject?») non
+% la USA: parla della regola, non ne e' un esempio. Il ruolo lo dichiara la
+% forma che l'ha letta (`mention_form/1`), non la posizione della parola.
+machinery(mention_form).
+machinery(turn_mentions_words).
+turn_mentions_words($T) :- turn_form_read($T, $F), mention_form($F).
+mention_form(ask_inversion_condition).
+mention_form(ask_inversion_condition_put).
 machinery(language_example_other_way).
 language_example_other_way($N, $X) :-
     language_example_relevant($N, $X), naf(language_example_by_rule_some($N)).
@@ -490,6 +554,20 @@ language_lesson_line(en, condition_withdrawn, "Done: I no longer put ").
 language_lesson_line(en, condition_withdrawn_end, " before the subject; it asks with «do» again.").
 language_lesson_line(it, condition_withdrawn, "Fatto: non metto più ").
 language_lesson_line(it, condition_withdrawn_end, " prima del soggetto; torna a chiedere con «do».").
+language_lesson_line(en, condition_always, "always goes before the subject to ask: it is an auxiliary.").
+language_lesson_line(it, condition_always, "va sempre prima del soggetto per chiedere: è un ausiliare.").
+language_lesson_line(en, condition_only, "goes before the subject only ").
+language_lesson_line(it, condition_only, "va prima del soggetto solo ").
+language_lesson_line(en, condition_only_end, "; everywhere else it stays a verb and asks with «do».").
+language_lesson_line(it, condition_only_end, "; altrove resta un verbo e chiede con «do».").
+language_lesson_line(en, support_taught, " (you taught me that)").
+language_lesson_line(it, support_taught, " (me l'hai insegnato tu)").
+language_lesson_line(en, support_like, ", because it behaves like ").
+language_lesson_line(en, support_like_end, "").
+language_lesson_line(it, support_like, ", perché si comporta come ").
+language_lesson_line(it, support_like_end, "").
+language_lesson_line(en, condition_never, "never goes before the subject: it is a verb, and it asks with «do».").
+language_lesson_line(it, condition_never, "non va mai prima del soggetto: è un verbo, e chiede con «do».").
 language_lesson_line(en, list_sep, ", ").
 language_lesson_line(it, list_sep, ", ").
 language_lesson_line(en, ask_example_only, "Can you show me an example?").

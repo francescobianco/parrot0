@@ -72,6 +72,8 @@ misure e residui nell'«Incremento 4» sotto il Censimento 1.
 è un oggetto (`inverts_when/2`); una lezione parlata la cambia per «need»
 («…when a bare verb follows»), la chiede se non è detta, «dare» la eredita per
 analogia e il ritiro parlato la toglie a entrambi. Dettaglio nell'«Incremento 5».
+**Incremento 6:** la condizione si chiede a parole («When does need go before
+the subject?»), con il suo sostegno (lezione o analogia).
 
 **Cricchetti** (in `make test`):
 [question_inversion.p0t](../../tests/p0t/language/question_inversion.p0t) 9/9,
@@ -634,6 +636,52 @@ incremento (A/B), quindi è un turno al limite, da curare a parte (np_closer
 «when does X go before the subject?» risponde dalla stessa `inverts_when/2`),
 poi una seconda condizione con la sua prova insegnata, per vedere se la
 condizione stessa, e non solo la sua appartenenza, cresce parlando.
+
+### Incremento 6 — fatto (27 settembre): la condizione si chiede a parole
+
+Residuo dell'incremento 5: la condizione si ritirava parlando ma si
+interrogava solo con la KB. Ora «When does need go before the subject?» (e
+«When do you put X before the subject?») risponde dalla **stessa**
+`inverts_when_via/3` che la regola esegue, non da una copia:
+
+| stato | risposta |
+|---|---|
+| prima della lezione | «need» never goes before the subject: it is a verb, and it asks with «do». |
+| un ausiliare | «can» always goes before the subject to ask: it is an auxiliary. |
+| dopo la lezione | «need» goes before the subject only when a bare verb follows (you taught me that); everywhere else it stays a verb and asks with «do». |
+| per analogia | «dare» goes before the subject only when a bare verb follows, because it behaves like «need»; … |
+| dopo il ritiro | «dare» never goes before the subject … (cade con il suo sostegno) |
+| parola ignota | I don't know «blorf» as a verb yet, so I can't say where it goes in a question. |
+
+**Che cosa è cambiato.**
+- Il **sostegno è parte dell'oggetto** ([grammar.p0](../../kb/core/grammar.p0)):
+  `inverts_when_via(Radice, Condizione, Sostegno)` con `taught` o `like(R)`;
+  `inverts_when/2` ne è la proiezione. La risposta dice il perché con lo stesso
+  termine che fa cadere la condizione al ritiro (§2.6).
+- Due forme di domanda con `op(match, inversion_condition_answer, [word,
+  free])`, una risposta per il vuoto, le frasi in `language_lesson_line`
+  ([language-lessons.p0](../../kb/core/language-lessons.p0) §3-quater). Nessun
+  C toccato.
+- **Uso e menzione** (l'appunto di F. dell'incremento 3, su un caso piccolo):
+  la domanda sulla condizione, detta mentre la lezione aspetta un esempio,
+  veniva presa per l'esempio («That was your example, but I didn't read it…»):
+  nomina «need» senza usarlo. Il ruolo lo dichiara la forma che l'ha letta
+  (`mention_form/1`), e `language_example_relevant` esclude i turni letti da
+  una forma di menzione. Non è ancora la lettura del ruolo dalla struttura
+  che l'appunto chiede: è la stessa distinzione, dichiarata dalla forma.
+
+**Misure.** Turni-domanda 0,3–0,66 s. Cricchetto
+[semi_modal_condition.p0t](../../tests/p0t/language/semi_modal_condition.p0t)
+42/42; `question_inversion` 9/9, `lesson_meets_rule` 21/21,
+`do_support_rule` 28/28, `soft-test` verde in 4 s.
+
+**Residui.** La domanda in italiano non ha forma (le frasi italiane ci sono).
+La risposta parla di un verbo alla volta; «Which verbs go before the subject
+only when a bare verb follows?» (la condizione come chiave, non la parola) è
+la domanda inversa, non ancora aperta.
+
+**Prossimo passo.** La seconda condizione con la sua prova insegnata parlando:
+se la condizione stessa, e non solo la sua appartenenza, cresce parlando.
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 

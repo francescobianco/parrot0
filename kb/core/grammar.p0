@@ -510,11 +510,17 @@ turn_form_slot_form(modal($D, $W), $Slot, $F) :-
     derived_question(modal($D, $W)), turn_form_slot_form($D, $Slot, $F).
 % L'analogia porta la condizione (C4): «dare» che si comporta come «need»
 % prende la condizione di «need», non la classe degli ausiliari.
-inverts_when($R2, $C) :-
+% Il SOSTEGNO fa parte dell'oggetto (§2.6): `inverts_when_via(Radice,
+% Condizione, Sostegno)`, con `taught` (una lezione) o `like(Radice)` (un'analogia
+% con un verbo che ce l'ha). Cosi' la condizione si puo' dire con il suo perche',
+% e cade con il suo sostegno.
+machinery(inverts_when_via).
+inverts_when_via($R2, $C, like($R1)) :-
     relation_like($N0, $O0), concat_atoms($N0, "", $N), concat_atoms($O0, "", $O),
     verb_form($R2, $N, $K), modal_use_form($K), verb_form($R1, $O, $K2),
     inverts_when_taught($R1, $C).
-inverts_when($R, $C) :- inverts_when_taught($R, $C).
+inverts_when_via($R, $C, taught) :- inverts_when_taught($R, $C).
+inverts_when($R, $C) :- inverts_when_via($R, $C, $S).
 machinery(inverts_when_taught).
 
 % ── L4, punto 4 (26 settembre 2026) — ESTENDERE LA REGOLA DA FUORI, PER
