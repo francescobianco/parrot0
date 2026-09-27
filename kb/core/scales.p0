@@ -491,3 +491,43 @@ response_template(adjective_measure_learned, "Held: «{adjective}» means a {pol
 response_template(adjective_measure_learned, it, "Tengo: «{adjective}» vuol dire {measure} {pole}.").
 machinery(magnitude_adjective_word).
 magnitude_adjective_word($W) :- magnitude_adjective($W, $P).
+
+% ── 8. «WHY?» DOPO UNA SCELTA ──────────────────────────────────────────────
+% La scelta appena fatta si ricorda (dopo la risposta, dagli slot che il
+% lettore delle forme pubblica), e «Why?» la motiva con l'obiettivo detto e i
+% due valori: «Because you want to get home as soon as possible: the train's
+% arrival time is 6:45 pm, against 6:50 pm for the bus.»
+machinery(last_choice).
+turn_scratch(last_choice).
+machinery(goal_pick_form).
+goal_pick_form(ask_goal_pick).  goal_pick_form(ask_goal_pick_which).  goal_pick_form(ask_goal_pick_better).
+after_reply_bookkeeper(last_choice_note).
+turn_after_reply($T, last_choice_note) :-
+    turn_form_read(current_turn, $F), goal_pick_form($F),
+    turn_form_slot(current_turn, first, $A), turn_form_slot(current_turn, second, $B),
+    assert(last_choice, $A, $B).
+machinery(choice_why).
+choice_why($Text) :-
+    last_choice($SA, $SB), goal_pick($SA, $SB, $R), pursued_quality($Q),
+    current_language($L), scale_line($L, because_you_want, $A), concat_atoms($A, $Q, $B),
+    scale_line($L, as_possible, $C), concat_atoms($B, $C, $D), concat_atoms($D, $R, $Text).
+scale_line(en, because_you_want, "Because you want it as ").
+scale_line(en, as_possible, " as possible. ").
+scale_line(it, because_you_want, "Perché lo vuoi il più ").
+scale_line(it, as_possible, " possibile. ").
+% Una parola da sola apre questa forma: il lettore la legge anche se il turno e' un monosillabo.
+turn_form_word_alone(why).
+turn_form(ask_why_bare, 1, text("why")).
+turn_form_mood(ask_why_bare, question).
+turn_form_priority(ask_why_bare, early).
+turn_form_act(ask_why_bare, "op(match, choice_why, [free])").
+turn_form_reply(ask_why_bare, comparative_pick_reply).
+% il piano di turno legge il «Why?» nudo come una ripresa: cede quando c'e' una
+% scelta recente da motivare e il turno e' la sola parola
+machinery(turn_asks_why_of_choice).
+machinery(turn_has_second_word).
+turn_has_second_word($T) :- turn_word($T, 1, $W).
+turn_asks_why_of_choice($T, $A) :-
+    last_choice($A, $B), turn_word($T, 0, why), naf(turn_has_second_word($T)).
+faculty_yield_when(turn_plan, open, turn_asks_why_of_choice).
+faculty_yield_when(lone, open, turn_asks_why_of_choice).

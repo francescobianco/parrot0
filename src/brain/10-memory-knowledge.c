@@ -16638,7 +16638,16 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
     if (L == 0 || L >= 300) return 0;
     char buf[300]; memcpy(buf, norm, L + 1);
     char *w[48]; size_t nw = split_words(buf, w, 48);
-    if (nw < 2) return 0;
+    /* Un turno di una sola parola si legge solo se la KB dichiara che quella
+     * parola da sola apre una forma (`turn_form_word_alone/1`, es. «Why?» dopo
+     * una scelta): percorrere tutte le forme a ogni monosillabo costerebbe. */
+    if (nw == 1) {
+        char wa[KB_TERM_LEN]; snprintf(wa, sizeof wa, "%s", w[0]);
+        size_t wl = strlen(wa);
+        while (wl && (wa[wl-1] == '?' || wa[wl-1] == '.' || wa[wl-1] == '!')) wa[--wl] = '\0';
+        const char *aq[1] = { wa };
+        if (!wl || !kb_query(b->kb, "turn_form_word_alone", aq, 1)) return 0;
+    } else if (nw < 2) return 0;
 
     p0_trace(b, "form", "reader depth=%d early=%d said=%d «%s»\n",
                 b->respond_depth, p0_forms_early_only, p0_forms_said_only, norm);
@@ -16880,6 +16889,16 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             int prev_origin = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_REFLECTIVE);
             if (!kb_query(b->kb, "turn_form_read", ra, 2)) kb_assert(b->kb, "turn_form_read", ra, 2);
+            /* 27 settembre 2026 (train-the-smart-agent) — e i VALORI letti: chi
+             * deve ricordare la scelta appena fatta («Why?» al turno dopo) li
+             * chiede alla KB. Un'osservazione, come la ricevuta della forma. */
+            for (size_t k = 0; k < ns; k++) {
+                if (!slots[k].name[0] || !slots[k].value[0]) continue;
+                char qv[KB_TERM_LEN];
+                snprintf(qv, sizeof qv, "\"%s\"", slots[k].value);
+                const char *sa[3] = { "current_turn", slots[k].name, qv };
+                kb_assert(b->kb, "turn_form_slot", sa, 3);
+            }
             kb_set_origin(b->kb, prev_origin);
         }
 
