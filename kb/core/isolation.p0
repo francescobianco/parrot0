@@ -229,3 +229,94 @@ turn_form_act(ask_find_which_member_does, "op(match, culprit_or_isolation, [clas
 turn_form_reply(ask_find_which_member_does, isolation_reply).
 response_template(isolation_reply, "{result}").
 response_template(isolation_reply, it, "{result}").
+
+% ── 8. L'EFFETTO OSSERVATO, e chi e' bloccato (G1, G2) ─────────────────────
+% Un effetto e' OSSERVATO se chi parla l'ha detto in questa conversazione: come
+% proposizione («The RCD trips.»), o con l'aspetto continuativo («The RCD keeps
+% tripping.», che un altro lettore salva come `keep(rcd, tripping)`). L'aspetto
+% si legge con la morfologia: una regola per ogni verbo, nessuna frase.
+machinery(continuative_verb).
+continuative_verb(keep).
+machinery(observed_effect).
+machinery(effect_subject_verb).
+observed_effect($E) :-
+    kb_clause($Id, app(holds, cons(atom($E), nil)), 0, 0), content_act($Id, session).
+observed_effect($E) :-
+    effect_law($E, $P), effect_subject_verb($E, $Subj, $V),
+    verb_form($R, $V, present_third), verb_root_form($R, form($G, present_participle)),
+    continuative_verb($K), apply($K, cons($Subj, cons($G, nil))).
+effect_subject_verb($E, $Subj, $V) :-
+    atom_words($E, $Ws), list_without_last($Ws, $SWs), app($SWs, cons($V, nil), $Ws),
+    words_underscored($SWs, $Subj).
+
+% La mossa per l'effetto osservato: «I can't work out which appliance is
+% causing it.» — la classe detta, l'effetto dalla conversazione.
+machinery(isolation_for_effect).
+isolation_for_effect($ClassSaid, $Text) :-
+    class_said($ClassSaid, $Class), observed_effect($E), effect_law($E, $P),
+    isolation_opportunity($Class, $P, $Obj, isolate($Act, $Ger, $E)),
+    isolation_text(case($Class, $P, $Obj), isolate($Act, $Ger, $E), $Text).
+% Manca l'azione: si dice che cosa servirebbe sapere (una domanda, non un muro).
+isolation_for_effect($ClassSaid, $Text) :-
+    class_said($ClassSaid, $Class), observed_effect($E), effect_law($E, $P),
+    findall($X, situation_member($Class, $X), cons($A, cons($B, $More))),
+    naf(class_has_blocking_action($Class, $P)),
+    relation_gerund($P, $G), members_said($Class, $Ms), current_language($L),
+    isolation_line($L, cant_tell_cause, $T0), concat_atoms($T0, $Class, $T1),
+    isolation_line($L, causing_it, $T2), concat_atoms($T1, $T2, $T3), concat_atoms($T3, $Ms, $T4),
+    need_action_said($L, need($Class, $G), $N), concat_atoms($T4, $N, $Text).
+machinery(class_has_blocking_action).
+class_has_blocking_action($Class, $P) :- action_blocks($Act, $Class, $Ger, $O), gerund_relation($Ger, $P).
+machinery(relation_gerund).
+relation_gerund($P, $G) :- concat_atoms($R, "s", $P), concat_atoms($R, "ing", $G).
+machinery(need_action_said).
+need_action_said($L, need($Class, $G), $Text) :-
+    word_article($L, $Class, $Art), isolation_line($L, need_action, $A),
+    concat_atoms($A, $Art, $B), concat_atoms($B, " ", $C), concat_atoms($C, $Class, $D),
+    isolation_line($L, from, $F), concat_atoms($D, $F, $E), concat_atoms($E, $G, $G1),
+    isolation_line($L, need_action_end, $Z), concat_atoms($G1, $Z, $Text).
+% «I don't know what to try next.» — con un effetto osservato e una mossa, la mossa.
+machinery(isolation_any).
+isolation_any($Text) :-
+    observed_effect($E), effect_law($E, $P),
+    isolation_opportunity($Class, $P, $Obj, isolate($Act, $Ger, $E)),
+    isolation_text(case($Class, $P, $Obj), isolate($Act, $Ger, $E), $Text).
+isolation_line(en, cant_tell_cause, "I can't tell yet which ").
+isolation_line(en, causing_it, " is causing it: it could be ").
+isolation_line(en, need_action, ". To find out, I need to know what stops ").
+isolation_line(en, from, " from ").
+isolation_line(en, need_action_end, ": can you tell me?").
+isolation_line(it, cant_tell_cause, "Non so ancora dire quale ").
+isolation_line(it, causing_it, " lo sta causando: potrebbe essere ").
+isolation_line(it, need_action, ". Per scoprirlo mi serve sapere che cosa impedisce a ").
+isolation_line(it, from, " di ").
+isolation_line(it, need_action_end, ": me lo dici?").
+
+turn_form(state_stuck_which, 1, text("i can't work out which")).
+turn_form(state_stuck_which, 2, span(class)).
+turn_form(state_stuck_which, 3, text("is causing it")).
+turn_form_mood(state_stuck_which, statement).
+turn_form_priority(state_stuck_which, early).
+turn_form_act(state_stuck_which, "op(match, isolation_for_effect, [class, free])").
+turn_form_reply(state_stuck_which, isolation_reply).
+turn_form(state_stuck_which_dont, 1, text("i don't know which")).
+turn_form(state_stuck_which_dont, 2, span(class)).
+turn_form(state_stuck_which_dont, 3, text("is causing it")).
+turn_form_mood(state_stuck_which_dont, statement).
+turn_form_priority(state_stuck_which_dont, early).
+turn_form_act(state_stuck_which_dont, "op(match, isolation_for_effect, [class, free])").
+turn_form_reply(state_stuck_which_dont, isolation_reply).
+turn_form(state_stuck_next, 1, text("i don't know what to try next")).
+turn_form_mood(state_stuck_next, statement).
+turn_form_priority(state_stuck_next, early).
+turn_form_act(state_stuck_next, "op(match, isolation_any, [free])").
+turn_form_reply(state_stuck_next, isolation_reply).
+% Il piano di turno risponde a chi e' bloccato con un modello da coach: cede
+% quando c'e' un effetto osservato e il turno dice il blocco (mantra #17).
+machinery(stuck_cue_pair).
+stuck_cue_pair(which, causing).
+stuck_cue_pair(try, next).
+machinery(turn_stuck_on_effect).
+turn_stuck_on_effect($T, $E) :-
+    observed_effect($E), stuck_cue_pair($A, $B), turn_word($T, $I, $A), turn_word($T, $J, $B).
+faculty_yield_when(turn_plan, open, turn_stuck_on_effect).
