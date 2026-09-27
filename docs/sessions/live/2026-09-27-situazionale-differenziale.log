@@ -1,0 +1,91 @@
+# sessione: Ragionamento situazionale multi-turno: isolare il guasto spegnendo una parte alla volta (inferenza, non piano con ingresso) — 2026-09-27 15:04 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@20c61bc4]
+# mode: conversational (tools off, network off) - 170014 facts, 5841 rules (3.44%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Scopo (F.): vedere se parrot0 arriva per INFERENZA alla strategia 'spegni una parte alla volta e isola quella guasta', presentata come opportunità e non come piano con condizioni d'ingresso. Campo: impianto di casa, differenziale che salta. Primo passo: esplorare senza suggerire nulla. Presento il problema come lo direbbe una persona, e guardo che strada prende.
+> The residual current device in my house keeps tripping, and I can't work out which appliance is causing it.
+< Learned: residual current device in my house keep tripping. Learned: can't work out.
+! Prima strada presa: il racconto di un guasto letto come DUE FATTI sul mondo ('residual current device in my house keep tripping', e un fatto spazzatura 'can't work out'). Nessun riconoscimento di un problema né di una persona bloccata. È la specie R1 di L4 in un altro registro: un resoconto di situazione diventa deposito. Ora dico che sono bloccato, senza suggerire la strada.
+> I have already checked the obvious things and I don't know what to try next.
+< Hmm, I don't know about obvious things yet. Want me to learn about it?
+! Seconda strada: 'I don't know what to try next' non è letto come richiesta d'aiuto; prende 'obvious things' come nome ignoto e offre di impararlo. Il contesto del turno precedente (il differenziale) non è ripreso. Ora la domanda esplicita, la forma 'how do I' che apre situation.p0.
+> How do I find out which appliance is making the residual current device trip?
+< I understood you're asking how to make trip, but I don't have the steps for it yet.
+! Terza strada: il pianificatore situazionale si apre ('how do I'), ma l'obiettivo estratto è 'make trip' (ha preso il verbo della subordinata), e non ha passi. L'obiettivo vero era 'find out which appliance'. Prima di insegnare qualcosa guardo che cosa sa del dominio: se sa perché un differenziale scatta, la strada dell'isolamento ha un appiglio causale.
+> Why does a residual current device trip?
+< Hmm, I don't know about residual yet. Want me to learn about it?
+> What is a residual current device?
+< A residual-current device (RCD), residual-current circuit breaker (RCCB) or ground fault circuit interrupter (GFCI) is an electrical safety device, more specifically a form of earth-leakage circuit breaker, that interrupts an electrical circuit when the current passing through line and neutral conductors of a circuit is not equal, therefore indicating current leaking to ground, or to an unintended path that bypasses the protective device.
+! Sa la definizione come prosa enciclopedica ma non la causa ('I don't know about residual' su 'why'). Non do la strategia: do due fatti causali veri e guardo se li compone. Se l'isolamento nasce, nasce da qui: la causa del guasto è UNO fra molti candidati, e togliere un candidato toglie la sua possibilità di causare.
+> A residual current device trips when an appliance leaks current to earth.
+< I looked up «residual» but found nothing. If you know it, teach me: «residual is defined as …».
+> An unplugged appliance cannot leak current.
+< Hmm, I don't know about unplugged yet. Want me to learn about it?
+> Why does the residual current device trip?
+< Hmm, I don't know about residual yet.
+! Nessuno dei due fatti causali entra: 'trips when' non è una forma letta, e 'residual current device' non è un'entità (eppure 'What is a residual current device?' trova la definizione: due lettori, due identità, R5). Stesso contenuto, forme che il motore legge meglio: la sigla e il condizionale.
+> If an appliance leaks current to earth, then the RCD trips.
+< Learned rule: holds(rcd_trips) :- holds(appliance_leaks_current_to_earth).
+> If an appliance is unplugged, then it cannot leak current.
+< Learned rule: holds(it_cannot_leak_current) :- holds(appliance_is_unplugged).
+> Why does the RCD trip?
+< I don't understand that yet.
+! Il condizionale entra, ma come regola PROPOSIZIONALE: holds(rcd_trips) :- holds(appliance_leaks_current_to_earth). Nessuna variabile sull'apparecchio, 'it' non è risolto, e le due regole non si toccano (nessun legame fra 'cannot leak' e 'leaks'). Il 'why' non consulta le regole. Provo comunque la domanda di prima e una domanda ipotetica, per vedere se il ragionamento in avanti usa le regole.
+> How can I find out which appliance is making the RCD trip?
+< I understood you're asking how to make trip, but I don't have the steps for it yet.
+> If I unplug the kettle and the RCD stops tripping, what does that tell me?
+< Hmm, I don't know about unplug yet. Want me to learn about it?
+! Il precedente investigativo (investigation_access) percorre un grafo all'indietro: non progetta un'osservazione che separi i sospetti. È una facoltà diversa. Mappo la frontiera: do la scena come un giallo (i candidati, uno solo colpevole) e chiedo chi è. Una risposta intelligente qui è 'non posso ancora dirlo', seguita da come si potrebbe distinguere.
+> The kettle, the fridge and the washing machine are plugged in, and one of them leaks current.
+< Learned: fridge is a plugged, located_in(fridge, and_one_of_them_leaks_current). Learned: washing machine is a plugged, located_in(washing_machine, and_one_of_them_leaks_current).
+> Which one leaks current?
+< I don't understand that yet.
+! [F.] usando L4, L3 o L2 insegnagli le cose che non sa, così ti capisce; conserva la conoscenza necessaria per comprenderti. -> Cambio mossa: non più solo mappare, ma insegnare ciò che manca alla comprensione (non la strategia). Mancanze viste: (1) 'residual current device' non è un'entità, ma la sigla RCD sì; (2) 'X trips when Y' non si legge; (3) i condizionali entrano come proposizioni senza variabile sull'apparecchio; (4) 'plugged in' letto come classe, 'and one of them…' come luogo.
+! Passo 1 (L3/lessico, forma nota #27): la sigla. Oggi RCD e 'residual current device' sono due identità: la definizione si trova col nome lungo, le regole sono entrate con la sigla. Il ponte le unisce. Verifica: la domanda col nome lungo deve raggiungere ciò che è stato detto con la sigla.
+> RCD is short for residual current device.
+< Held: «rcd» is short for «residual current device».
+> What does RCD stand for?
+< «rcd» stands for residual current device.
+! Passo 2 (L2, regola con variabile): il legame causale deve valere per QUALUNQUE apparecchio, non per la proposizione 'appliance_leaks'. Servono 'leak' e 'trip' come verbi di relazione, poi 'if x leaks current then x trips the RCD'. Verifica con un fatto vero-ipotetico e una domanda: la regola deve operare.
+> leak is a relation verb
+< Learned: leak is a relation verb.
+> trip is a relation verb
+< Learned: trip is a relation verb.
+> If x leaks current, then x trips the RCD.
+< Learned rule: holds(x_trips_residual_current_device) :- holds(x_leaks_current).
+! La variabile non è stata presa: la forma che il lettore accetta (higher_order_lesson) è 'encloses is a relation verb' col verbo FLESSO e 'if x encloses y then …' senza virgola. Stessa lezione nella sua forma; il conseguente ha una costante (the RCD): vediamo se la regge.
+> leaks is a relation verb
+< Learned: leaks is a relation verb.
+> trips is a relation verb
+< Learned: trips is a relation verb.
+> if x leaks y then x trips the RCD
+< Learned rule: holds(x_trips_residual_current_device) :- leaks($V1, $V2).
+! L'antecedente è relazionale (leaks(V1,V2)) ma il conseguente 'x trips the RCD' resta opaco con la x dentro: il lettore lega le variabili nel conseguente solo nelle forme copulari. In questo campo la forma vera non ha bisogno di x: se QUALCOSA disperde, il differenziale scatta. Ritiro la regola storta (forma del test: 'forget if …') e la ridico così.
+> forget if x leaks y then x trips the RCD
+< Understood: I will no longer conclude holds that way.
+> if x leaks y then the RCD trips
+< Learned rule: holds(residual_current_device_trips) :- leaks($V1, $V2).
+> The washing machine leaks current.
+< Learned: washing machine leaks current.
+> Does the RCD trip?
+< Hmm, I don't know about residual yet.
+! Regola corretta e fatto dentro, ma la domanda polare non consulta le proposizioni holds(...): la sigla si espande e il lettore cerca un'entità 'residual'. Provo le forme proposizionali ('is it true that', 'why').
+> Is it true that the RCD trips?
+< Learned: holds(residual_current_device_trips).
+> Why does the RCD trip?
+< Hmm, I don't know about residual yet.
+! ERRORE GRAVE: 'Is it true that the RCD trips?' letto come lezione -> holds(residual_current_device_trips) scritto come FATTO. Una domanda è diventata una credenza senza prova (il contenuto è vero per coincidenza: la lavatrice disperde e la regola lo darebbe, ma il percorso è falso). Specie R8/L4-7: l'impegno semantico non segue la comprensione. Lo ritiro e verifico; è un difetto da portare al piano, non da coprire.
+> forget that the RCD trips
+< Hmm, I don't know about forget yet.
+> Why does the RCD trip?
+< Hmm, I don't know about residual yet.
+> forget that residual current device trips
+< Hmm, I don't know about forget yet.
+! Il ritiro parlato del fatto spurio fallisce ('forget' preso come nome): resta in sessione. Non insisto oltre. Ultima sonda: il problema intero, con la conoscenza causale ora presente (sigla, leaks/trips, la regola). Se l'isolamento dovesse nascere per inferenza, questo è il turno.
+> Which appliance leaks current?
+< Hmm, I don't know about appliance yet. Want me to learn about it?
+> How can I find out which appliance leaks current?
+< I understood you're asking how to make current, but I don't have the steps for it yet.
+! RIEPILOGO DEL GIRO. Strade prese: (1) racconto del guasto -> fatti sul mondo; (2) 'non so cosa provare' -> nome ignoto, nessun contesto ripreso; (3) 'how do I find out which…' -> obiettivo sbagliato ('make trip'/'make current': prende il verbo della subordinata); (4) causa detta con 'when' -> non letta; con 'if…then' -> regola proposizionale; con la forma a variabili -> regola relazionale nell'antecedente; (5) la domanda polare/why non consulta le proposizioni holds(...); (6) 'Is it true that…' -> scritto come FATTO (grave); (7) il ritiro parlato di quel fatto non esiste. Conoscenza buona entrata: RCD short for residual current device; leaks/trips relation verbs; holds(rcd trips) :- leaks(V1,V2); washing machine leaks current. Distanza dall'agente intelligente: non siamo al punto di chiedersi se l'isolamento nasce per inferenza: mancano prima il riconoscimento di un PROBLEMA APERTO (candidati, un colpevole ignoto, una persona bloccata) e la lettura delle domande sulle proposizioni. La facoltà cercata (scegliere un'azione il cui esito differisce fra le ipotesi) non ha oggi nessun oggetto su cui operare. Sessione lasciata aperta, senza /save: contiene fatti spazzatura non ritirabili parlando.
+! Chiusura del giro sul differenziale SENZA /save (fatti spazzatura SA1, SA3, SA4 non ritirabili parlando). Nuova sessione pulita per la prova di scelta.

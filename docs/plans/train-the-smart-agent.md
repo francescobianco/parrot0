@@ -1,8 +1,7 @@
 # Addestrare l'agente situazionale — train the smart agent
 
 **Piano, 27 settembre 2026.** Nasce da un giro live di F. e dell'agente
-(transcript: `var/live/transcript.log` della sessione «Ragionamento situazionale
-multi-turno», §7 qui sotto). Richiesta di F.:
+(transcript: [2026-09-27-situazionale-differenziale.log](../sessions/live/2026-09-27-situazionale-differenziale.log), §7 qui sotto; il giro di scelta in [2026-09-27-situazionale-scelta.log](../sessions/live/2026-09-27-situazionale-scelta.log), §7-bis). Richiesta di F.:
 
 > *«vedere se parrot0 è in grado di risolvere problemi multi-turno di
 > ragionamento che non siano solamente matematici ma anche situazionali […]
@@ -662,8 +661,8 @@ raggiunto (§3) prima e dopo, lacune aperte e chiuse (§2), principi insegnati
 
 | data | scenari | livello | lacune | principi insegnati | salvato | transcript |
 |---|---|---|---|---|---|---|
-| 27 set 2026 | F21.1 (bus o treno, scelta) — SA8–SA10 | 0 → 1 sui dati, 0 sulla scelta | rivelate G13–G17 | nessuno (fermo sui mattoni del §9) | **no** (i dati sono della situazione dell'utente, non del mondo; «bus get me home» spazzatura) | `var/live/transcript.log`, sessione aperta |
-| 27 set 2026 | F1.1 (differenziale) — errori di addestramento in train-the-learning-process.md, SA1–SA7 | 0 → 0 (isole di 1) | rivelate G1–G12; chiuse nessuna. Entrate: la sigla RCD, `leaks`/`trips` come verbi di relazione, «if x leaks y then the RCD trips», il fatto della lavatrice | nessuno (il giro si è fermato alla comprensione) | **no** (fatti spazzatura non ritirabili: «can't work out», «fridge is a plugged», una domanda scritta come fatto) | `var/live/transcript.log`, sessione aperta |
+| 27 set 2026 | F21.1 (bus o treno, scelta) — SA8–SA10 | 0 → 1 sui dati, 0 sulla scelta | rivelate G13–G17 | nessuno (fermo sui mattoni del §9) | **no** (i dati sono della situazione dell'utente, non del mondo; «bus get me home» spazzatura) | [2026-09-27-situazionale-scelta.log](../sessions/live/2026-09-27-situazionale-scelta.log), chiusa senza `/save` |
+| 27 set 2026 | F1.1 (differenziale) — errori di addestramento in train-the-learning-process.md, SA1–SA7 | 0 → 0 (isole di 1) | rivelate G1–G12; chiuse nessuna. Entrate: la sigla RCD, `leaks`/`trips` come verbi di relazione, «if x leaks y then the RCD trips», il fatto della lavatrice | nessuno (il giro si è fermato alla comprensione) | **no** (fatti spazzatura non ritirabili: «can't work out», «fridge is a plugged», una domanda scritta come fatto) | [2026-09-27-situazionale-differenziale.log](../sessions/live/2026-09-27-situazionale-differenziale.log), chiusa senza `/save` |
 
 ## 7. Il primo giro, strada per strada (27 settembre 2026)
 

@@ -15,7 +15,8 @@ sotto). Da qui si riparte.*
 Dal curriculum [train-the-smart-agent.md](train-the-smart-agent.md) (§2-bis:
 gli insegnamenti che falliscono durante il piano vengono qui). Sessione live
 sul differenziale che scatta (scenario F1.1), KB `agi` completa, transcript
-`var/live/transcript.log`. Le frasi sono verbatim; la lacuna di comprensione
+[2026-09-27-situazionale-differenziale.log](../sessions/live/2026-09-27-situazionale-differenziale.log)
+(SA8–SA10: [2026-09-27-situazionale-scelta.log](../sessions/live/2026-09-27-situazionale-scelta.log)). Entrambe chiuse **senza** `/save`: nessun fatto sbagliato è entrato nella KB. Le frasi sono verbatim; la lacuna di comprensione
 corrispondente è nella colonna G del piano.
 
 | # | stato | detto a parrot0 | che cosa è successo | diagnosi / dove guardare | G |

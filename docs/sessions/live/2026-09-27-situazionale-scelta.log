@@ -1,0 +1,49 @@
+# sessione: Scelta situazionale: tornare a casa prima. La direzione (minore/maggiore) deve nascere dalle condizioni, non da casistiche — 2026-09-27 15:20 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@20c61bc4]
+# mode: conversational (tools off, network off) - 170014 facts, 5841 rules (3.44%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Ipotesi di F.: scegliere 'quello che ti fa andare a casa prima' sembra operazionale, ma la direzione (il minore o il maggiore) deve venire dalle CONDIZIONI (il significato di 'prima', la natura della grandezza), non da una casistica 'sooner -> min'. Se servisse una riga per ogni aggettivo, il piano non scala. Prima mossa: la scena, con i dati della persona, e la domanda. Nessun suggerimento.
+> I'm at the office. The bus leaves at 6:10 pm and takes 40 minutes. The train leaves at 6:25 pm and takes 20 minutes.
+< That sounds nice -- tell me more about it. Noted: The trip takes 0.666667 hours. Noted: The trip takes 0.333333 hours.
+> I want to get home as soon as possible. Should I take the bus or the train?
+< Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know. What do you want to do with it first?
+! Scena: risposta sociale ('That sounds nice') + due durate su un unico 'trip' (0.67 h, 0.33 h): gli orari di partenza sono persi e i due mezzi fusi in una sola entità. Scelta: modello generico 'dipende' che ignora l'obiettivo detto. Prima di insegnare verifico che cosa è stato letto: domande sui singoli mezzi.
+> When does the train leave?
+< I don't understand that yet.
+> How long does the bus take?
+< I'm not sure I followed. Can you say it another way?
+! Scoperta nella KB: la direzione dei comparativi oggi è una CASISTICA per parola: comparative_word(younger, age, lt), (older, age, gt)… una riga per forma e per lingua. È il rischio che teme F.: non scala. La via che scala è un fatto per POLO di scala ('early' polo basso del tempo) da cui si derivano comparativo, superlativo, 'as … as possible' e la scelta. Prova del nucleo: do gli orari d'arrivo già fatti, così la scelta dipende solo dalla direzione.
+> The bus gets me home at 6:50 pm and the train gets me home at 6:45 pm.
+< Learned: bus get me home.
+> I want to get home as early as possible. Which one should I take?
+< On get home as early as possible: Let us start with one observable result. Describe what would be different if this worked; we can use that to choose a first step. I couldn't read «Which one should I take?».
+! Scena di nuovo letta male ('Learned: bus get me home', orari persi): 'gets me home at' non è una forma. La scelta prende un modello da coach e 'Which one should I take?' non si legge. Riformulo nella forma che il motore legge ('the R of X is V'), con durate in minuti: se la lettura c'è, resta da vedere solo la direzione.
+> travel time is a relation
+< Learned: travel time is a relation.
+> The travel time of the bus is 40 minutes.
+< Learned: the travel time of bus is 40 minutes.
+> The travel time of the train is 20 minutes.
+< Learned: the travel time of train is 20 minutes.
+> What is the travel time of the train?
+< 20 minutes.
+! Con 'the R of X is V' la lettura regge: le due durate sono fatti interrogabili. Ora il nucleo: l'obiettivo detto in lingua ('as soon as possible') e la scelta fra due opzioni. Tre varianti per vedere quale strada prende: la scelta secca, il comparativo, il superlativo.
+> I want to get home as soon as possible. Should I take the bus or the train?
+< Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know. What do you want to do with it first?
+> Which is faster, the bus or the train?
+< Hmm, I don't know about faster yet. Want me to learn about it?
+> Which has the shortest travel time?
+< Hmm, I don't know about shortest travel time yet. Want me to learn about it?
+! Nessuna strada verso la scelta anche con i fatti letti: 'faster' e 'shortest' muri, la scelta resta il modello 'dipende'. Si passa a insegnare (§2-bis). Prima il mattone: sa confrontare due quantità con unità? Tutto il resto (comparativo, superlativo, scelta) poggerebbe lì.
+> Is 20 minutes less than 40 minutes?
+< Hmm, I don't know about minutes yet. Want me to learn about it?
+> Is the travel time of the train less than the travel time of the bus?
+< Hmm, I don't know about travel time yet. Want me to learn about it?
+> Is 20 less than 40?
+< Yes.
+> minute measures time
+< Learned: minute measures time.
+> Is 20 minutes less than 40 minutes?
+< Hmm, I don't know about minutes yet.
+! VERDETTO del giro di scelta. Strade: scena -> chiacchiera + durate fuse in un 'trip' (partenze perse); 'gets me home at' -> fatto spazzatura; obiettivo 'as soon as possible' -> modello da coach 'dipende'; con la forma 'the R of X is V' i dati si leggono e si interrogano, ma: 'faster'/'shortest' muri; nessun oggetto 'scelta fra opzioni per un obiettivo'; confronto numerico sì, con unità no (anche dopo 'minute measures time', lezione accettata senza effetto); il valore di una relazione non entra in un confronto. La direzione minore/maggiore oggi, dove esiste, è una CASISTICA per parola (comparative_word(younger, age, lt)). Scala se si rappresenta un fatto per POLO di scala ('fast means a short travel time'), e comparativo/superlativo/'as … as possible'/scelta si DERIVANO; non scala se si insegna caso per caso. Parlando oggi non si arriva a provarlo: mancano tre mattoni di motore/KB (confronto di quantità con unità, valore di relazione come operando, l'oggetto scelta). Regola 6: la sessione qui si ferma sul motore.
+! Chiusura SENZA /save: i dati del bus e del treno sono della situazione dell'utente, non conoscenza del mondo, e 'bus get me home' è spazzatura. Il transcript resta come provenienza.
