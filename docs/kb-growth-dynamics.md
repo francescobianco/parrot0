@@ -177,6 +177,33 @@ detta con `concat_atoms` in modo divisione costa quasi niente.
 **Legge:** dal dato verso la conoscenza, non dalla conoscenza verso il dato,
 quando il dato è uno e la conoscenza è tanta.
 
+### S11 — L'ordine di ricostruzione deciso dalle righe del file, e il grafo falso
+
+**Caso** (27 settembre, sera): nel turno dopo la seconda analogia
+`derived_question` si ricostruiva **tre volte**: la prima (2 223 ms) con
+`derived_like` ancora spenta, poi invalidata da `derived_like` (262 ms), poi
+invalidata da `supported_carry` (226 ms). Il motore ricostruisce le viste
+sporche in ordine di dipendenza (`kb_views_refresh`, `kb_view_ensure`), ma
+legge solo le dipendenze **dichiarate dalla vista stessa**. Quelle vere erano
+dichiarate su `question_inversion`, che non è una vista, e così decideva
+l'ordine delle righe del file. E il grafo calcolato era falso: la derivazione
+chiedeva `turn_form`, quindi conteneva le regole di tutte le forme derivate
+(cicli e invalidazioni mai percorsi a runtime).
+**Segnale:** nella traccia (`!debug depth 3` + `!debug turn`, righe `view`) la
+stessa vista compare più volte, con `invalidata da` fra una e l'altra, e righe
+`ciclo:`.
+**Cura:** (1) la derivazione legge le forme SCRITTE (`written_piece`,
+`written_act`, `written_statement` su `kb_fact`, portata dichiarata) e le
+sorelle per analogia da una sola definizione (`like_piece/4`): il grafo
+diventa un DAG vero; (2) `view_depends(derived_question, derived_like)`: l'ordine
+è conoscenza; (3) `kb_fact` con il primo elemento della lista legato usa la
+fetta dell'indice invece del predicato intero (0,7 ms a chiamata prima).
+Risultato: `derived_like` → `derived_question` (una volta, 195 ms) →
+`supported_carry`; il turno da 7,0 a **3,7 s** (era 20,7 s prima di S4).
+**Legge:** l'ordine di ricostruzione è parte della conoscenza della vista, e un
+grafo delle dipendenze onesto vale più di un motore che indovina l'ordine. Chi
+dichiara una dipendenza la dichiara sulla VISTA, non su un predicato interno.
+
 ## 4. Il metodo che ha funzionato, e l'errore da non ripetere
 
 1. **Misura, poi ipotesi.** Ogni volta che ho indovinato la causa senza profilo
@@ -213,9 +240,12 @@ quando il dato è uno e la conoscenza è tanta.
 
 ## 6. Questioni aperte (motore)
 
-- **L'ordine di ricostruzione.** Le viste sporche si ricostruiscono alla prima
-  domanda, non in ordine di dipendenza. Costruire prima `derived_like` e poi
-  `derived_question` le renderebbe confini l'una per l'altra.
+- **L'ordine di ricostruzione dal grafo calcolato.** Oggi l'ordine segue le
+  dipendenze dichiarate dalla vista (S11). Seguire anche il grafo calcolato
+  (`v->deps`) lo renderebbe automatico, ma solo dove il grafo è onesto: molte
+  viste hanno ancora cicli spuri (`cortocircuito`, `ibrida` nella traccia), e
+  farle attendere le lascerebbe spente a inizio turno. Prima i grafi, poi il
+  motore.
 - **Il costo di un verbo nuovo.** Ogni lezione che tocca i verbi ricostruisce
   `extract_frame` (~3 s): è il pavimento di tutti i turni di ricostruzione
   misurati qui.

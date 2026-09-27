@@ -378,20 +378,57 @@ machinery(inversion_question_act).
 % lettura e' dichiarata (`view_apply_resolved`), cosi' le viste che passano di
 % qui restano congelabili.
 operator_form($D, $M) :-
-    kb_fact(turn_form, cons($D, cons(2, cons(class($M), nil)))), turn_form_mood($D, statement).
+    kb_fact(turn_form, cons($D, cons(2, cons(class($M), nil)))), written_statement($D).
 view_apply_resolved(operator_form).
+% ── (27 settembre, sera) LA DERIVAZIONE LEGGE LE FORME SCRITTE ─────────────
+% Le domande derivate nascono dalle affermazioni SCRITTE e dalle loro sorelle
+% per analogia, mai da altre forme derivate. Chiedendo `turn_form` la
+% derivazione aveva nel proprio grafo tutte le regole delle forme derivate
+% (anche quelle che leggono `supported_carry` e `derived_like`): cicli mai
+% percorsi a runtime, che pero' decidevano l'ordine di ricostruzione e le
+% invalidazioni. Misurato: `derived_question` ricostruita tre volte in un turno,
+% 2,2 s la prima con `derived_like` spenta (docs/kb-growth-dynamics.md, S11).
+% Qui si leggono i fatti scritti (portata dichiarata), e i pezzi di una sorella
+% hanno UNA definizione, `like_piece/4`, letta anche da `turn_form(like(…))`.
+% (Le forme asserite a runtime sono le riletture insegnate, `taught_form_N`:
+% senza modo `statement`, non alimentano mai questa derivazione.)
+machinery(written_piece).
+machinery(written_statement).
+machinery(written_act).
+machinery(like_piece).
+machinery(statement_piece).
+machinery(statement_act).
+machinery(statement_is).
+written_piece($D, $K, $P) :- kb_fact(turn_form, cons($D, cons($K, cons($P, nil)))).
+written_statement($D) :- kb_fact(turn_form_mood, cons($D, cons(statement, nil))).
+written_act($D, $A) :- kb_fact(turn_form_act, cons($D, cons($A, nil))).
+view_apply_resolved(written_piece).
+view_apply_resolved(written_statement).
+view_apply_resolved(written_act).
+like_piece($D, $N, 1, $P) :- written_piece($D, 1, $P).
+like_piece($D, $N, 2, text($N)).
+like_piece($D, $N, $K, $P) :-
+    written_piece($D, $K, $P), position_beyond(2, $K), naf(relation_bind_piece($P)).
+like_piece($D, $N, $K, bind(relation, $N)) :-
+    written_piece($D, $K, bind(relation, $R)), position_beyond(2, $K).
+statement_piece(like($D, $N), $K, $P) :- derived_like(like($D, $N)), like_piece($D, $N, $K, $P).
+statement_piece($D, $K, $P) :- written_piece($D, $K, $P).
+statement_act(like($D, $N), $A) :- derived_like(like($D, $N)), written_act($D, $A).
+statement_act($D, $A) :- written_act($D, $A).
+statement_is(like($D, $N)) :- derived_like(like($D, $N)).
+statement_is($D) :- written_statement($D).
 question_inversion($D, $M, $W, inverted($D, $W)) :-
     operator_form($D, $M),
-    turn_form($D, 1, $S), inversion_subject_piece($S),
-    turn_form_act($D, $A), inversion_question_act($A, $QA),
+    written_piece($D, 1, $S), inversion_subject_piece($S),
+    written_act($D, $A), inversion_question_act($A, $QA),
     apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), auxiliary($W).
 % L'operatore puo' essere anche un'ancora letterale, se e' un ausiliare: e' la
 % forma che nasce dall'analogia qui sotto («must» al posto di «can»).
 question_inversion($D, text, $W, inverted($D, $W)) :-
-    turn_form($D, 2, text($W0)), concat_atoms($W0, "", $W), auxiliary($W),
-    turn_form_mood($D, statement),
-    turn_form($D, 1, $S), inversion_subject_piece($S),
-    turn_form_act($D, $A), inversion_question_act($A, $QA).
+    statement_piece($D, 2, text($W0)), concat_atoms($W0, "", $W), auxiliary($W),
+    statement_is($D),
+    statement_piece($D, 1, $S), inversion_subject_piece($S),
+    statement_act($D, $A), inversion_question_act($A, $QA).
 inversion_subject_piece(slot(subject)).
 inversion_subject_piece(span(subject)).
 inversion_question_act(assert_relation, answer_polar).
@@ -442,18 +479,18 @@ supported_parts($W, $Do, $R) :-
     tense_carrier($C), verb_root_form($C, form($Do, $K)), auxiliary($Do).
 question_inversion($D, $M, $W, supported($D, $W)) :-
     operator_form($D, $M),
-    turn_form($D, 1, $S), inversion_subject_piece($S),
-    turn_form_act($D, $A), inversion_question_act($A, $QA),
+    written_piece($D, 1, $S), inversion_subject_piece($S),
+    written_act($D, $A), inversion_question_act($A, $QA),
     apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), supported_parts($W, $Do, $R).
 % Anche l'operatore letterale, come nel ramo dell'ausiliare: e' la forma che
 % nasce dall'analogia («"hails" behaves like "comes"»). La stessa lezione che
 % manda «must» davanti al soggetto manda qui «does»: decide la condizione della
 % regola, non un ramo per la parola.
 question_inversion($D, text, $W, supported($D, $W)) :-
-    turn_form($D, 2, text($W0)), concat_atoms($W0, "", $W), supported_parts($W, $Do, $R),
-    turn_form_mood($D, statement),
-    turn_form($D, 1, $S), inversion_subject_piece($S),
-    turn_form_act($D, $A), inversion_question_act($A, $QA).
+    statement_piece($D, 2, text($W0)), concat_atoms($W0, "", $W), supported_parts($W, $Do, $R),
+    statement_is($D),
+    statement_piece($D, 1, $S), inversion_subject_piece($S),
+    statement_act($D, $A), inversion_question_act($A, $QA).
 % Il portatore e la radice di ogni domanda derivata, congelati accanto al suo
 % nome: le forme si enumerano a ogni turno, e rifare il paradigma per ciascuna
 % costava 9 000 visite a `verb_root_form` nel turno di una lezione.
@@ -531,7 +568,7 @@ condition_part_kind(in_the_present, tense).
 condition_part_kind(in_the_past, tense).
 default_condition_part(tense, in_the_present).
 condition_part_holds(bare_verb_follows, $D, $K) :-
-    turn_form($D, 3, text($T0)), concat_atoms($T0, "", $T), infinitive_marker($T).
+    statement_piece($D, 3, text($T0)), concat_atoms($T0, "", $T), infinitive_marker($T).
 condition_part_holds(in_the_present, $D, $K) :- modal_use_form($K).
 condition_part_holds(in_the_past, $D, past).
 condition_holds(all(nil), $D, $K).
@@ -550,16 +587,16 @@ inverts_when($W, always) :- auxiliary($W).
 semi_modal_root($W, $R, $K) :- naf(auxiliary($W)), verb_form($R, $W, $K).
 question_inversion($D, $M, $W, modal($D, $W)) :-
     operator_form($D, $M),
-    turn_form($D, 1, $S), inversion_subject_piece($S),
-    turn_form_act($D, $A), inversion_question_act($A, $QA),
+    written_piece($D, 1, $S), inversion_subject_piece($S),
+    written_act($D, $A), inversion_question_act($A, $QA),
     apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), semi_modal_root($W, $R, $K),
     inverts_when($R, $C), dif($C, always), condition_holds($C, $D, $K).
 question_inversion($D, text, $W, modal($D, $W)) :-
-    turn_form($D, 2, text($W0)), concat_atoms($W0, "", $W), semi_modal_root($W, $R, $K),
+    statement_piece($D, 2, text($W0)), concat_atoms($W0, "", $W), semi_modal_root($W, $R, $K),
     inverts_when($R, $C), dif($C, always), condition_holds($C, $D, $K),
-    turn_form_mood($D, statement),
-    turn_form($D, 1, $S), inversion_subject_piece($S),
-    turn_form_act($D, $A), inversion_question_act($A, $QA).
+    statement_is($D),
+    statement_piece($D, 1, $S), inversion_subject_piece($S),
+    statement_act($D, $A), inversion_question_act($A, $QA).
 turn_form(modal($D, $W), 1, text($Q)) :-
     derived_question(modal($D, $W)), modal_question_word($W, $Q).
 turn_form(modal($D, $W), 2, $S) :-
@@ -623,12 +660,7 @@ operator_like_form($D, $New, $Old) :-
     relation_like($New0, $Old0), concat_atoms($New0, "", $New), concat_atoms($Old0, "", $Old),
     operator_form($D, $M), apply($M, cons($W0, nil)), concat_atoms($W0, "", $Old).
 relation_bind_piece(bind(relation, $R)).
-turn_form(like($D, $N), 1, $P) :- derived_like(like($D, $N)), turn_form($D, 1, $P).
-turn_form(like($D, $N), 2, text($N)) :- derived_like(like($D, $N)).
-turn_form(like($D, $N), $K, $P) :-
-    derived_like(like($D, $N)), turn_form($D, $K, $P), position_beyond(2, $K), naf(relation_bind_piece($P)).
-turn_form(like($D, $N), $K, bind(relation, $N)) :-
-    derived_like(like($D, $N)), turn_form($D, $K, bind(relation, $R)), position_beyond(2, $K).
+turn_form(like($D, $N), $K, $P) :- derived_like(like($D, $N)), like_piece($D, $N, $K, $P).
 turn_form_mood(like($D, $N), statement) :- derived_like(like($D, $N)).
 turn_form_act(like($D, $N), $A) :- derived_like(like($D, $N)), turn_form_act($D, $A).
 turn_form_reply(like($D, $N), learned_operator_like) :- derived_like(like($D, $N)).
@@ -653,6 +685,9 @@ derived_question($Q) :- question_inversion($D, $M, $W, $Q).
 derived_like(like($D, $N)) :- operator_like_form($D, $N, $Old).
 materialized_view(derived_question, 1).
 materialized_view(derived_like, 1).
+% l'ordine di ricostruzione: le sorelle per analogia prima delle domande che ne
+% derivano (senza, decideva l'ordine delle righe del file)
+view_depends(derived_question, derived_like).
 view_apply_resolved(question_inversion).
 view_apply_resolved(operator_like_form).
 view_depends(operator_like_form, relation_like).

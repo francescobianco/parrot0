@@ -49,82 +49,55 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
-### ▶▶ RIPARTENZA (27 settembre 2026, sera) — l'ordine di ricostruzione delle viste
+### ▶▶ RIPARTENZA (28 settembre 2026) — l'ordine di ricostruzione: fatto
 
-**Stato:** incrementi 4–7 committati (`12a450ca`, `4417a4e9`, `cffe9e63`,
-`9b0e6f37`), dettaglio nelle sezioni «Incremento N» sotto il Censimento 1.
-Teoria dei costi in [docs/kb-growth-dynamics.md](../kb-growth-dynamics.md).
-Il lavoro in corso, scelto da F., è **l'ordine di ricostruzione delle viste**
-(questione aperta §6 di quel documento). Diagnosi fatta e misurata; **nessuna
-modifica ancora scritta**: si riparte dal progetto qui sotto.
+**Stato:** incrementi 4–7 in `main`, e il lavoro sull'ordine di ricostruzione
+delle viste chiuso (dettaglio e misure in
+[docs/kb-growth-dynamics.md](../kb-growth-dynamics.md), specie S11). Nel turno
+dopo la seconda analogia di
+[semi_modal_condition.p0t](../../tests/p0t/language/semi_modal_condition.p0t):
 
-**Diagnosi** (nella sequenza vera di
-[semi_modal_condition.p0t](../../tests/p0t/language/semi_modal_condition.p0t),
-turno «A firefighter dared to enter a burning building.» dopo la seconda
-analogia, ~7 s). Si legge con `!debug depth 3` prima del turno e `!debug turn`
-dopo, righe `view` della traccia:
+| | prima | dopo |
+|---|---|---|
+| ricostruzioni di `derived_question` | 3 (2 223 + 262 + 226 ms), fra invalidazioni | 1 (195 ms), dopo `derived_like` |
+| turno | 7,0 s (20,7 s prima di S4) | 3,7 s, quasi tutto `extract_frame` (preesistente) |
+| `!timeout` della sezione | 8 | 4 |
 
-| ordine effettivo | costo |
-|---|---|
-| `derived_question` (con `derived_like` spenta: la rideriva dal vivo) | 2 223 ms |
-| `derived_like` → *invalida* `derived_question` | 4 ms |
-| `derived_question` di nuovo | 262 ms |
-| `supported_carry` → *invalida ancora* `derived_question` | 1 ms |
-| `derived_question` una terza volta | 226 ms |
+**Che cosa è cambiato.**
+- [grammar.p0](../../kb/core/grammar.p0): la derivazione delle domande legge le
+  forme scritte (`written_piece/3`, `written_act/2`, `written_statement/1` su
+  `kb_fact`, portata dichiarata) e le sorelle per analogia da una sola
+  definizione, `like_piece/4`, letta anche dall'unica regola
+  `turn_form(like(…))`; `statement_piece/3`, `statement_act/2`,
+  `statement_is/1` sono le due facce insieme. Il grafo di `derived_question` non
+  contiene più `turn_form`: niente cicli, niente invalidazioni a cascata.
+  `view_depends(derived_question, derived_like)`: l'ordine è dichiarato sulla
+  vista.
+- [kb.c](../../src/kb.c): `kb_fact(P, cons(X, …))` con X legato usa la fetta
+  dell'indice sul primo argomento (anche per X composto) invece di tutto il
+  predicato.
+- Le forme asserite a runtime sono solo le riletture insegnate (`taught_form_N`,
+  senza modo `statement`): non alimentano la derivazione, quindi togliere
+  `turn_form` dal grafo non perde invalidazioni (verificato nel C).
 
-L'ordine giusto (`derived_like` → `derived_question` → `supported_carry`)
-costerebbe ~270 ms: si recuperano ~2,4 s su quel turno, e la stessa cascata
-colpisce ogni turno dopo una lezione che tocca analogie o verbi.
+**Verifiche:** `semi_modal_condition` 58/58, `question_inversion` 9/9,
+`lesson_meets_rule` 21/21, `do_support_rule` 28/28, `user_situations` 56/56,
+`gen_weight` 6/6, `taught_turn_form` 4/4; `soft-test` verde in 3 s (il turno
+«capital of france» di `basics.p0t` resta a ~1,0 s e a volte sfora, come
+prima). `taught_lexicon.p0t`: 9–12 rossi di tempo (turni a 1,0–1,2 s, uno a
+2,75 s alla riga 317) **identici su HEAD** (A/B): preesistenti.
 
-**Due cause.**
-1. **L'ordine viene solo dalle dichiarazioni.** `kb_views_refresh` e
-   `kb_view_ensure` ([kb.c](../../src/kb.c), ~r. 5114–5420; `kb_view_deps_ready`)
-   ricostruiscono una vista dopo quelle che essa DICHIARA con
-   `view_depends(Vista, …)`. `derived_question` non dichiara `derived_like` (le
-   dichiarazioni stanno su `question_inversion`/`operator_like_form`, che non
-   sono viste), quindi decide l'ordine delle righe nel file: la forma che il
-   commento gen505s dice di non accettare.
-2. **Il grafo calcolato è falso.** `question_inversion` chiede `turn_form`
-   (`turn_form($D, 1, $S)`, `turn_form($D, 2, text($W0))`, `turn_form_act`,
-   `turn_form_mood`; e `condition_part_holds` chiede `turn_form($D, 3, …)`), e
-   così il grafo di `derived_question` contiene TUTTE le regole di `turn_form`,
-   comprese quelle delle forme derivate che leggono `supported_carry` e
-   `derived_like`: cicli (`ciclo:` nella traccia) che a runtime non si
-   percorrono mai, e invalidazioni a cascata (`supported_carry` invalida
-   `derived_question`).
-
-**Il progetto della cura (da scrivere).**
-- **KB, grafo onesto** ([grammar.p0](../../kb/core/grammar.p0)): la derivazione
-  delle domande legge solo le forme SCRITTE e, per le sorelle per analogia,
-  l'originale scritto. Aiutanti con portata dichiarata
-  (`view_apply_resolved`, come `operator_form`):
-  `written_piece(D, K, P) :- kb_fact(turn_form, cons(D, cons(K, cons(P, nil))))`,
-  `written_statement/1`, `written_act/2`. Una sola definizione dei pezzi della
-  sorella, `like_piece(D, N, K, P)` (pos. 1 e oltre la 2 dall'originale scritto,
-  pos. 2 `text(N)`, la relazione rinominata), letta sia dalle quattro regole
-  `turn_form(like(…))` (che si riducono a una) sia da
-  `statement_piece(like(D,N), K, P)` / `statement_piece(D, K, P) :-
-  written_piece(…)`, `statement_act/2`, `statement_is/1`. Le sei clausole di
-  `question_inversion` e `condition_part_holds` usano `statement_*` al posto di
-  `turn_form*`; `operator_form` usa `written_statement`. Attenzione: senza
-  `turn_form` nel grafo, un `turn_form` asserito a runtime non invalida più
-  `derived_question` (oggi nessuno lo fa: verificarlo prima).
-- **KB, ordine dichiarato:** `view_depends(derived_question, derived_like).`
-- **Motore (opzionale, dopo la KB):** `kb_view_deps_ready` attende anche le
-  viste del grafo CALCOLATO (`v->deps`) che non formano un ciclo con la vista,
-  così l'ordine segue le dipendenze vere anche quando nessuno le dichiara; i
-  cicli restano all'ordine dichiarato.
-- **Misura di chiusura:** la traccia `view` del turno deve mostrare
-  `derived_like` → `derived_question` (una volta) → `supported_carry`, senza
-  `invalidata`; il turno sotto 5 s, e la sezione del cricchetto torna a
-  `!timeout 4`. Poi `question_inversion`, `lesson_meets_rule`,
-  `do_support_rule`, `semi_modal_condition`, `soft-test`. Aggiungere la specie
-  a kb-growth-dynamics.md (l'ordine di ricostruzione e il grafo falso).
-
-**Note di contesto:** il boot del demone è 12–14 s contro un limite di 15 s
-(una vista nuova congelata al boot può sforarlo); `basics.p0t` «what is the
-capital of france» sta a ~1,0 s contro `!timeout 1` e a volte sfora, identico
-prima di questi incrementi.
+**Da dove ripartire, in ordine di valore:**
+1. **L'ordine dal grafo calcolato nel motore** (`kb_view_deps_ready` che
+   attende anche le viste di `v->deps` non in ciclo): solo dopo aver reso
+   onesti i grafi delle altre viste (le righe `cortocircuito`/`ibrida` della
+   traccia). Fatto prima, lascerebbe viste spente a inizio turno.
+2. **Il costo di un verbo nuovo** (`extract_frame` ~0,5 s + `view_pair`
+   ~1,3 s + `finite_reading_verb_form` ~0,3 s nel turno dopo): è ora il
+   pavimento dei turni di ricostruzione.
+3. Riprendere L4: l'analogia per paradigma (dynamics S7), che era esclusa per
+   costo e ora ha i confini che le servono; oppure la domanda inversa sulle
+   condizioni («Which verbs go before the subject only when…?»).
 
 ### ▶ Stato e ripartenza (fine sessione del 26 settembre 2026)
 

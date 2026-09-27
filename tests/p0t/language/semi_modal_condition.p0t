@@ -98,11 +98,11 @@
 # la sua prova si compone dall'alfabeto delle parti: nessuna clausola scritta
 # per lei. «need» non la riceve: «Needed a welder wear a mask?» resta muta.
 [test la seconda condizione nasce da una lezione, e vale solo per chi la riceve]
-# ⚠ il turno dopo la seconda analogia costa ~7 s (misurato: ricostruzione di
-# `extract_frame` per i verbi nuovi, ~3 s preesistente, piu' la ricostruzione
-# delle forme derivate; era 20 s prima di `operator_form` sui soli fatti,
-# docs/kb-growth-dynamics.md §4). Residuo aperto, non un budget accettato.
-!timeout 8
+# Il turno dopo la seconda analogia costava 20 s, poi 7 s; con la derivazione
+# che legge le forme scritte e l'ordine di ricostruzione dichiarato costa ~3,7 s,
+# quasi tutto la ricostruzione di `extract_frame` per i verbi nuovi
+# (docs/kb-growth-dynamics.md, S4 e S11).
+!timeout 4
 > A welder needed to wear a mask.
 <~ Held
 > "dared" behaves like "needed".

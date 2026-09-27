@@ -3483,6 +3483,26 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (bound) {
             fbk = pred_bucket(S->kb, rp);
             if (fbk.live && fbk.n == 0) return 0;   /* predicate unknown here */
+            /* 27 settembre 2026 — anche il PRIMO ARGOMENTO, se la lista lo
+             * porta legato: `kb_fact(turn_form, cons(D, …))` con D gia' noto e'
+             * la forma con cui la derivazione delle domande legge le forme
+             * scritte, e scorrere tutto il predicato per ogni D costava 0,7 ms
+             * a chiamata, 3,4 s nella ricostruzione di `derived_question`. La
+             * fetta e' quella dei goal ordinari (pred_bucket_a0, e per un
+             * composto la fetta vuota se nessun fatto ne ha uno li'). */
+            char ra[KB_TERM_LEN];
+            deep_resolve(s, g->args[1], ra, sizeof ra, 0);
+            char fun[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN]; size_t np = 0;
+            if (fbk.live && split_compound(ra, fun, parts, &np) && np == 2 &&
+                !strcmp(fun, "cons") && !is_var(parts[0]) && term_ok(parts[0]) &&
+                !term_contains_var(parts[0], 0)) {
+                char f2[KB_TERM_LEN], p2[KB_MAX_ARGS][KB_TERM_LEN]; size_t n2 = 0;
+                PredBucket sl = fbk;
+                int got = split_compound(parts[0], f2, p2, &n2)
+                        ? pred_bucket_a0_compound(S->kb, rp, 0, &sl)
+                        : pred_bucket_a0(S->kb, rp, 0, parts[0], &sl);
+                if (got) fbk = sl;
+            }
         }
         size_t visits = bound ? PRED_VISITS(fbk, S->kb) : S->kb->n;
         for (size_t vi = 0; vi < visits; vi++) {
