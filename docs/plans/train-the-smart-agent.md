@@ -125,6 +125,11 @@ canale d'insegnamento da tentare per primo.
 | **G9** | **«uno di loro» e l'insieme dei candidati** | «The kettle, the fridge and the washing machine are plugged in, and one of them leaks current.» → `fridge is a plugged, located_in(fridge, and_one_of_them_leaks_current)` | coordinazione e anafora collettiva («one of them»): l'insieme dei candidati e il vincolo «esattamente uno» sono l'oggetto **ipotesi** del §1 |
 | **G10** | **uno stato («plugged in», «switched off») letto come classe** | «are plugged in» → `is a plugged` | aggettivo di stato vs nome di classe; `verb particle` («plug in», «switch off») come verbi di azione con effetto |
 | **G11** | **l'azione ipotetica non si simula** | «If I unplug the kettle and the RCD stops tripping, what does that tell me?» → «I don't know about unplug» | il ragionamento in avanti sotto un'ipotesi (contesti di `context-scope.p0`, `holds_in/2` di `situation.p0`): *che cosa sarebbe vero se*… |
+| **G13** | **la scena con più opzioni si fonde in un solo viaggio** | «The bus leaves at 6:10 pm and takes 40 minutes. The train leaves at 6:25 pm and takes 20 minutes.» → «That sounds nice…» + `The trip takes 0.666667 hours`, `…0.333333 hours`: partenze perse, bus e treno fusi | `event-time.p0` modella UN viaggio in prima persona (`journey_subject(trip)`); `departure_verb(leave)` solo alla radice. Servono opzioni come soggetti distinti, ciascuno con partenza, durata e arrivo (la legge arrivo = partenza + durata c'è già) |
+| **G14** | **l'obiettivo detto non entra nella scelta** | «I want to get home as soon as possible. Should I take the bus or the train?» → «Both can be the right choice: it depends on…» (anche con le durate lette) | manca l'oggetto **scelta fra opzioni per un obiettivo**: `decisions.p0` verifica requisiti (soglie, formule), non sceglie la migliore |
+| **G15** | **la direzione (minore/maggiore) è una casistica per parola** | «Which is faster…?», «Which has the shortest travel time?» → muro | oggi il verso sta in `comparative_word(younger, age, lt)`, una riga per forma e per lingua, e solo per l'età. Vedi §9: un fatto per polo di scala, il resto derivato |
+| **G16** | **il confronto fra quantità con unità non c'è** | «Is 20 less than 40?» → Yes; «Is 20 minutes less than 40 minutes?» → muro, anche dopo «minute measures time» (lezione accettata senza effetto) | il confronto numerico non usa `measured_value/1`; motore o KB del lettore dei confronti |
+| **G17** | **il valore di una relazione non è un operando** | «Is the travel time of the train less than the travel time of the bus?» → «I don't know about travel time» (con i due fatti in KB) | la composizione «the R of X» dentro un confronto |
 | **G12** | **nessuna mossa informativa** | nessuna proposta, in nessun turno | la facoltà del §1: confrontare le previsioni fra ipotesi. Oggetto nuovo in KB (vedi §4) |
 
 ### 2-bis. Colmare durante il piano, e dove vanno gli errori
@@ -560,6 +565,30 @@ dalla sua portata o richiede un professionista, e lo dice con la mossa utile
 **Contrasto.** La situazione **è** alla sua portata e rimandare è evasione
 (F13 contrasto).
 
+### F21 — Scegliere per un obiettivo: la direzione viene dalle condizioni
+
+**Principio.** La migliore fra le opzioni, per un obiettivo, è quella che
+nessun'altra batte sulla grandezza che l'obiettivo nomina; **da che parte**
+batte (più o meno) lo dice il significato della parola dell'obiettivo, cioè
+quale polo della scala nomina («soon», «early», «fast»: poco tempo; «cheap»:
+poco prezzo; «spacious»: tanto spazio). Nessuna riga «sooner → minimo»: un fatto
+per polo, e comparativo, superlativo, «as … as possible» e scelta ne derivano
+(§9).
+
+| scenario | apertura | lacuna probabile |
+|---|---|---|
+| F21.1 bus o treno per tornare prima | «The bus leaves at 6:10 pm and takes 40 minutes; the train leaves at 6:25 pm and takes 20. I want to get home as soon as possible.» | G13–G17 (giro del 27 set, §7-bis): l'arrivo si **calcola** (partenza + durata), e prima non è «il più veloce» |
+| F21.2 il volo più economico | «Three flights: 120, 95 and 140 euros. I want to spend as little as possible.» | polo basso del prezzo |
+| F21.3 l'appartamento più grande entro il budget | «Two flats in my budget: 60 and 75 square metres.» | polo alto, con un vincolo (requisito di `decisions.p0`) |
+| F21.4 la strada più sicura, non la più corta | «The motorway is shorter but it's snowing; the valley road is longer.» | due grandezze in conflitto: l'obiettivo sceglie quale conta |
+| F21.5 il supermercato più vicino che è aperto | «The nearest shop closes at 8, it's 7:50 and it's 15 minutes away.» | un'opzione esclusa da un vincolo prima del confronto |
+| F21.6 arrivare **puntuale**, non **presto** | «The meeting is at 9 and I don't want to wait outside.» | il polo non è un estremo: il migliore è il più vicino a un valore |
+
+**Contrasto.** L'obiettivo nomina un **valore giusto** e non un estremo
+(F21.6: il più presto non è il migliore); l'opzione migliore sulla grandezza
+**viola un vincolo** (il treno più veloce è pieno); due grandezze e
+l'obiettivo non dice quale pesa di più (la mossa è chiedere).
+
 ### Scenari composti (multi-famiglia, per i livelli 6–8)
 
 | scenario | famiglie | perché è difficile |
@@ -583,6 +612,7 @@ raggiunto (§3) prima e dopo, lacune aperte e chiuse (§2), principi insegnati
 
 | data | scenari | livello | lacune | principi insegnati | salvato | transcript |
 |---|---|---|---|---|---|---|
+| 27 set 2026 | F21.1 (bus o treno, scelta) — SA8–SA10 | 0 → 1 sui dati, 0 sulla scelta | rivelate G13–G17 | nessuno (fermo sui mattoni del §9) | **no** (i dati sono della situazione dell'utente, non del mondo; «bus get me home» spazzatura) | `var/live/transcript.log`, sessione aperta |
 | 27 set 2026 | F1.1 (differenziale) — errori di addestramento in train-the-learning-process.md, SA1–SA7 | 0 → 0 (isole di 1) | rivelate G1–G12; chiuse nessuna. Entrate: la sigla RCD, `leaks`/`trips` come verbi di relazione, «if x leaks y then the RCD trips», il fatto della lavatrice | nessuno (il giro si è fermato alla comprensione) | **no** (fatti spazzatura non ritirabili: «can't work out», «fridge is a plugged», una domanda scritta come fatto) | `var/live/transcript.log`, sessione aperta |
 
 ## 7. Il primo giro, strada per strada (27 settembre 2026)
@@ -618,6 +648,68 @@ lettura delle leggi con le loro variabili (G4, G5) e l'uso delle leggi nelle
 domande (G6, G11). Due difetti sono più gravi di un muro e vanno prima di
 tutto: una domanda che diventa un fatto (G7) e un fatto che non si ritira
 parlando (G8).
+
+## 7-bis. Il giro di scelta (27 settembre 2026, sessione pulita)
+
+Scopo di F.: *«scegliere quello che ti fa andare a casa prima sembrerebbe
+operazionale, ma secondo me derivare l'azione da compiere, cioè minore o
+maggiore, viene dalle condizioni, non da casistiche. Facciamo la prova: ci
+serve per capire se effettivamente questo piano potrà scalare o ci
+illudiamo.»* Scenario F21.1. Risposte verbatim.
+
+| # | l'insegnante dice | parrot0 risponde | lacuna |
+|---|---|---|---|
+| 1 | I'm at the office. The bus leaves at 6:10 pm and takes 40 minutes. The train leaves at 6:25 pm and takes 20 minutes. | That sounds nice -- tell me more about it. Noted: The trip takes 0.666667 hours. Noted: The trip takes 0.333333 hours. | G13 |
+| 2 | I want to get home as soon as possible. Should I take the bus or the train? | Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know. … | G14 |
+| 3 | When does the train leave? / How long does the bus take? | I don't understand that yet. / I'm not sure I followed. … | G13 |
+| 4 | The bus gets me home at 6:50 pm and the train gets me home at 6:45 pm. | Learned: bus get me home. | G13 (SA8) |
+| 5 | I want to get home as early as possible. Which one should I take? | On get home as early as possible: Let us start with one observable result. … I couldn't read «Which one should I take?». | G14 |
+| 6 | travel time is a relation / The travel time of the bus is 40 minutes. / … of the train is 20 minutes. / What is the travel time of the train? | Learned … / 20 minutes. | ✅ la lettura |
+| 7 | I want to get home as soon as possible. Should I take the bus or the train? | Both can be the right choice: … | G14 |
+| 8 | Which is faster, the bus or the train? / Which has the shortest travel time? | Hmm, I don't know about faster yet. / … about shortest travel time yet. | G15 |
+| 9 | Is 20 less than 40? / minute measures time / Is 20 minutes less than 40 minutes? | Yes. / Learned. / Hmm, I don't know about minutes yet. | G16 (SA9) |
+| 10 | Is the travel time of the train less than the travel time of the bus? | Hmm, I don't know about travel time yet. | G17 |
+
+Livello (§3): **0 → 1** sui dati (letti e interrogabili dopo la forma giusta),
+**0** sulla scelta.
+
+## 9. Scala o ci illudiamo? (la risposta del giro di scelta)
+
+**Oggi, parlando, la domanda non si può ancora provare**: prima della
+direzione mancano tre mattoni (G16 il confronto fra quantità con unità, G17 il
+valore di una relazione come operando, G14 l'oggetto scelta). Ma il giro ha
+mostrato **dove sta il rischio d'illusione**, ed è già nella KB:
+`comparative_word(younger, age, lt)`, `comparative_word(older, age, gt)`… una
+riga per parola, per forma e per lingua, con il verso scritto a mano. Se il
+piano crescesse così («sooner → minimo», «cheaper → minimo», «bigger →
+massimo», «as soon as possible → minimo»), ogni scenario vorrebbe le sue righe
+e l'intelligenza sarebbe un elenco: **non scalerebbe**.
+
+**Scala se la conoscenza sta nei poli delle scale, non nelle parole.** Un
+fatto per concetto, insegnabile parlando in una frase che direbbe una persona
+(«Fast means a short travel time.», «Cheap means a low price.», «Early means a
+small time.»), dove *short/long, low/high, small/big* sono il piccolo insieme
+chiuso delle parole di grandezza, con il loro verso (è l'unico elenco, ed è
+lessico generale, non di dominio). Da quel fatto si **derivano**, con la
+morfologia già in KB (`verb_form/3` fa lo stesso per i verbi):
+
+- il comparativo («faster», «sooner», «earlier», «cheaper»): quale delle due ha
+  la grandezza più vicina al polo;
+- il superlativo («the fastest», «the shortest»): quella che nessuna batte;
+- «as … as possible»: l'obiettivo di andare verso il polo;
+- la **scelta**: fra le opzioni che rispettano i vincoli (`decisions.p0`), la
+  migliore verso il polo che l'obiettivo nomina; e, se l'obiettivo nomina un
+  valore giusto e non un polo («puntuale»), la più vicina al valore (F21.6).
+
+La prova che scala è quella del §1: **una lezione nuova, un aggettivo mai
+visto** (per esempio «Quiet means a low noise level.»), e la scelta fra due
+opzioni rumorose deve riuscire senza altre righe. Se per farla riuscire serve
+una riga in più di quel fatto, ci stiamo illudendo, e il registro lo deve dire.
+
+**I tre mattoni, in ordine**, sono lavoro di motore/KB fuori dalla sessione
+(live-teaching §3, regola 6): G16 → G17 → la rappresentazione dei poli con la
+derivazione dei comparativi (sostituendo `comparative_word/3` con i poli, per
+l'età compresa) → G14. Poi si riapre F21.1 e si prova con un aggettivo nuovo.
 
 ## 8. Da dove si riparte
 
