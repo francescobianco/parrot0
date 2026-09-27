@@ -19,6 +19,16 @@ multi-turno», §7 qui sotto). Richiesta di F.:
 > Non voglio banchi: tutto deve essere nel piano; gli esperimenti si conducono
 > con il coding agent come stiamo facendo adesso.»*
 
+> **Due scopi, sempre insieme (F., 27 settembre 2026).** Il piano **mostra** la
+> crescita dell'intelligenza situazionale di parrot0, ed è **l'occasione per far
+> crescere la KB**: ogni sessione è addestramento, non solo verifica. La
+> conoscenza vera dei campi attraversati (leggi causali, stati, azioni e
+> effetti), i principi delle famiglie di mosse e le forme di comprensione che
+> mancavano restano in KB per il futuro. Una lacuna che si può colmare con
+> L4, L3 o L2 **si colma durante la sessione**; un insegnamento che fallisce
+> va in testa a [train-the-learning-process.md](train-the-learning-process.md)
+> (§2-bis).
+
 > **In una frase.** Una mossa intelligente in una situazione (isolare spegnendo
 > una parte alla volta, tornare all'ultimo stato che funzionava, confrontare con
 > un gemello sano) non è un piano che scatta quando le condizioni d'ingresso
@@ -33,18 +43,24 @@ multi-turno», §7 qui sotto). Richiesta di F.:
 ## 0. Che cosa questo piano è, e che cosa non è
 
 - **È un curriculum di sessioni live** con il dispositivo esistente,
-  [live-teaching.md](plans/live-teaching.md) e `scripts/live-teach.sh`
+  [live-teaching.md](live-teaching.md) e `scripts/live-teach.sh`
   (`start`, `say`, `think`, `steer`, `watch`, `stop`). Nessun framework nuovo.
 - **Non è un banco.** Niente `.p0t` nuovi, niente punteggi automatici, niente
   giudice. Il giudizio è di F., sul transcript, con la scala del §3. Un `.p0t`
   si scrive solo *dopo*, per fissare una capacità già mostrata dal vivo (regola
   di live-teaching §7), e non fa parte di questo piano.
+- **È addestramento, non solo verifica.** Ogni scenario lascia KB: le leggi
+  vere del campo («an unplugged appliance cannot leak current»), gli stati e le
+  azioni con i loro effetti, i principi generali delle famiglie (§5), le forme
+  di comprensione insegnate per chiudere una lacuna (§2). Si salva ciò che ha
+  retto al trasferimento e al contrasto (§4, fase 9); il resto resta nel
+  transcript come diagnosi.
 - **Non è un catalogo di risposte.** Nessuno scenario del §5 va «insegnato»
   dicendo a parrot0 la mossa da fare in quel caso. Si insegna ciò che gli
   manca per *capire* la situazione, e i principi generali da cui la mossa
   segue; la mossa deve nascere da lì, e poi trasferirsi a uno scenario gemello
   mai nominato.
-- **Vale tutto il [MANTRA](../MANTRA.md)**: solo lingua naturale, conoscenza
+- **Vale tutto il [MANTRA](../../MANTRA.md)**: solo lingua naturale, conoscenza
   vera, niente entità inventate, niente nomi di predicati nelle frasi. Quando
   la mossa giusta è il motore, la sessione si ferma (live-teaching §3, regola 6)
   e il lavoro di motore diventa un passo separato, annotato qui.
@@ -98,8 +114,8 @@ canale d'insegnamento da tentare per primo.
 
 | # | lacuna | strada osservata (27 set) | canale / meccanismo |
 |---|---|---|---|
-| **G1** | **un resoconto di guasto diventa un fatto sul mondo** | «The RCD in my house keeps tripping, and I can't work out which appliance…» → `Learned: … keep tripping. Learned: can't work out.` | L4-7 (l'impegno segue la comprensione): un racconto in prima persona di un problema è una **situazione aperta**, non una lezione. Parente di R1 di [l4-upgrade.md](plans/l4-upgrade.md) |
-| **G2** | **il blocco della persona non si riconosce** | «I have already checked the obvious things and I don't know what to try next.» → «I don't know about obvious things» | lettura dello stato dell'interlocutore ([initiative.md](plans/initiative.md), `trouble_cue`): «non so cosa provare» è uno stato con una mossa sociale (proporre), e riprende il problema del turno prima |
+| **G1** | **un resoconto di guasto diventa un fatto sul mondo** | «The RCD in my house keeps tripping, and I can't work out which appliance…» → `Learned: … keep tripping. Learned: can't work out.` | L4-7 (l'impegno segue la comprensione): un racconto in prima persona di un problema è una **situazione aperta**, non una lezione. Parente di R1 di [l4-upgrade.md](l4-upgrade.md) |
+| **G2** | **il blocco della persona non si riconosce** | «I have already checked the obvious things and I don't know what to try next.» → «I don't know about obvious things» | lettura dello stato dell'interlocutore ([initiative.md](initiative.md), `trouble_cue`): «non so cosa provare» è uno stato con una mossa sociale (proporre), e riprende il problema del turno prima |
 | **G3** | **l'obiettivo si prende dalla subordinata** | «How do I find out which appliance is making the RCD trip?» → «how to make trip»; «…which appliance leaks current?» → «how to make current» | `situation.p0`, il ruolo `goal`: l'obiettivo è il verbo retto da «how do I» (*find out*), non l'ultimo verbo. Confine di sintagma: L2 («end the goal before which»), poi L4 sulla regola del ruolo |
 | **G4** | **la causa detta con «when» non si legge** | «An RCD trips when an appliance leaks current to earth.» → muro | forma nuova L2 (`<frase con x, y> means <frase con x, y>`): «x trips when y means if y then x trips» |
 | **G5** | **le regole entrano proposizionali, o con il conseguente opaco** | «If an appliance leaks…, then the RCD trips» → `holds(rcd_trips) :- holds(appliance_leaks…)`; con variabili, `holds(x_trips_…) :- leaks($V1,$V2)` | il lettore `if … then` lega le variabili nell'antecedente ma non nel conseguente non copulare. Prima L2 sulle forme; se non basta, è motore (lettore delle regole) |
@@ -110,6 +126,34 @@ canale d'insegnamento da tentare per primo.
 | **G10** | **uno stato («plugged in», «switched off») letto come classe** | «are plugged in» → `is a plugged` | aggettivo di stato vs nome di classe; `verb particle` («plug in», «switch off») come verbi di azione con effetto |
 | **G11** | **l'azione ipotetica non si simula** | «If I unplug the kettle and the RCD stops tripping, what does that tell me?» → «I don't know about unplug» | il ragionamento in avanti sotto un'ipotesi (contesti di `context-scope.p0`, `holds_in/2` di `situation.p0`): *che cosa sarebbe vero se*… |
 | **G12** | **nessuna mossa informativa** | nessuna proposta, in nessun turno | la facoltà del §1: confrontare le previsioni fra ipotesi. Oggetto nuovo in KB (vedi §4) |
+
+### 2-bis. Colmare durante il piano, e dove vanno gli errori
+
+**Regola (F.).** Durante una sessione, ogni lacuna di comprensione che si può
+colmare **insegnando** si colma subito, nel canale più alto che la regge:
+
+1. **L4** se la lacuna è una regola che la comprensione già usa e che la
+   lezione deve raggiungere, confermare, estendere o condizionare
+   ([l4-upgrade.md](l4-upgrade.md): riconoscimento per conseguenze, analogia,
+   condizione insegnata);
+2. **L3** se basta il contatto: la parola, la relazione o la cornice nuova si
+   allineano a ciò che parrot0 legge nello stesso turno
+   ([l3-upgrade.md](l3-upgrade.md));
+3. **L2** se serve uno schema dichiarato: una forma nuova, un confine, una
+   regola con variabili ([l2-upgrade.md](l2-upgrade.md)), scritto nel `think`
+   come ripiego.
+
+La lezione si verifica subito (la frase che mancava, un caso vicino, un
+contrasto) e **resta**: è conoscenza per il futuro, non un'impalcatura della
+sessione.
+
+**Quando l'insegnamento fallisce** (la lezione non entra, entra storta, scrive
+un fatto falso, non si ritira, non trasferisce), l'errore va **in testa a
+[train-the-learning-process.md](train-the-learning-process.md)**, nella
+sezione PRIORITARIO, con la frase verbatim, la risposta, la diagnosi e lo stato
+(🔴/🟡/✅), prefisso **SA** (situational agent). È lì che si curano le
+capacità di addestramento; qui resta il rimando alla riga SA. La lacuna del §2
+che dipende da quell'errore resta aperta finché l'errore è 🔴.
 
 **Ordine di lavoro:** G7 e G1 prima (sono falsi, non muri), poi G2–G4 e G9–G10
 (la situazione deve essere capita), poi G5–G6 e G11 (le leggi devono operare),
@@ -166,7 +210,9 @@ indirizza con `steer` o in chat. Le fasi, ognuna aperta da un `think`:
    nelle lezioni.
 8. **Contrastare** con lo scenario di contrasto della famiglia: la mossa non
    deve comparire, o deve comparire con il suo limite.
-9. **Chiudere.** `stop` con `/save` solo se la sessione non ha lasciato fatti
+9. **Salvare e chiudere.** Lo scopo è anche far crescere la KB: la
+   conoscenza che ha retto (leggi, stati, azioni, principi, forme) si salva.
+   `stop` con `/save` solo se la sessione non ha lasciato fatti
    spazzatura non ritirabili (primo giro: sì, quindi chiuso **senza** `/save`,
    live-teaching §8.3); altrimenti la conoscenza buona si ridice in una
    sessione pulita e si salva lì. Il resoconto va nel §6.
@@ -183,7 +229,7 @@ contratto, da scrivere quando G1–G11 lo rendono raggiungibile:
 leggi, sotto il contesto dell'ipotesi), `informative(Azione)` se esistono due
 ipotesi aperte con previsioni diverse per la stessa azione; la proposta è un
 `answer_plan` che dice azione, previsioni ed esito atteso. Il suo costo va
-misurato con [kb-growth-dynamics.md](kb-growth-dynamics.md) alla mano (le
+misurato con [kb-growth-dynamics.md](../kb-growth-dynamics.md) alla mano (le
 ipotesi sono contesti: una vista per ipotesi moltiplica, S7).
 
 ## 5. Il repertorio degli scenari
@@ -537,7 +583,7 @@ raggiunto (§3) prima e dopo, lacune aperte e chiuse (§2), principi insegnati
 
 | data | scenari | livello | lacune | principi insegnati | salvato | transcript |
 |---|---|---|---|---|---|---|
-| 27 set 2026 | F1.1 (differenziale) | 0 → 0 (isole di 1) | rivelate G1–G12; chiuse nessuna. Entrate: la sigla RCD, `leaks`/`trips` come verbi di relazione, «if x leaks y then the RCD trips», il fatto della lavatrice | nessuno (il giro si è fermato alla comprensione) | **no** (fatti spazzatura non ritirabili: «can't work out», «fridge is a plugged», una domanda scritta come fatto) | `var/live/transcript.log`, sessione aperta |
+| 27 set 2026 | F1.1 (differenziale) — errori di addestramento in train-the-learning-process.md, SA1–SA7 | 0 → 0 (isole di 1) | rivelate G1–G12; chiuse nessuna. Entrate: la sigla RCD, `leaks`/`trips` come verbi di relazione, «if x leaks y then the RCD trips», il fatto della lavatrice | nessuno (il giro si è fermato alla comprensione) | **no** (fatti spazzatura non ritirabili: «can't work out», «fridge is a plugged», una domanda scritta come fatto) | `var/live/transcript.log`, sessione aperta |
 
 ## 7. Il primo giro, strada per strada (27 settembre 2026)
 
@@ -575,6 +621,10 @@ parlando (G8).
 
 ## 8. Da dove si riparte
 
+0. **Addestramento prima della verifica.** Ogni sessione colma con L4/L3/L2
+   ciò che si può colmare (§2-bis) e salva ciò che ha retto; gli errori di
+   addestramento SA1–SA7 sono in testa a
+   [train-the-learning-process.md](train-the-learning-process.md).
 1. **G7** (la domanda «is it true that…» scritta come fatto): diagnosi con
    `/debug trace` sul turno, poi la cura (una cessione o una forma di domanda di
    verità), in una sessione pulita.

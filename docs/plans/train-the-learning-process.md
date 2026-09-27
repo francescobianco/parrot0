@@ -3,11 +3,36 @@
 ## ⛔ PRIORITARIO — gli insegnamenti che falliscono (F., 26 settembre 2026)
 
 *F.: «tutti gli insegnamenti che falliscono mettili come prioritari in testa a
-questo file». Cinque blocchi, dal piu' recente: il tedesco insegnato dal vivo
+questo file». Il blocco piu' recente e' §SA (l'agente situazionale, 27
+settembre, qui sotto). Prima, cinque blocchi, dal piu' recente: il tedesco insegnato dal vivo
 (qui sotto, §T), la presa sull'interlocutore (§0), la grammatica inglese
 insegnata come regole (§1), la meccanica
 di precisione (100 lezioni, sezione successiva), il debug PHP (P1–P14, piu'
 sotto). Da qui si riparte.*
+
+### §SA — l'agente situazionale, primo giro (27 settembre 2026) — 🔴 aperti
+
+Dal curriculum [train-the-smart-agent.md](train-the-smart-agent.md) (§2-bis:
+gli insegnamenti che falliscono durante il piano vengono qui). Sessione live
+sul differenziale che scatta (scenario F1.1), KB `agi` completa, transcript
+`var/live/transcript.log`. Le frasi sono verbatim; la lacuna di comprensione
+corrispondente è nella colonna G del piano.
+
+| # | stato | detto a parrot0 | che cosa è successo | diagnosi / dove guardare | G |
+|---|---|---|---|---|---|
+| SA1 | 🔴 **grave** | «Is it true that the RCD trips?» | `Learned: holds(residual_current_device_trips).` — una **domanda** scritta come **fatto** | «is it true that» dovrebbe essere una domanda di verità; il lettore delle regole/proposizioni la impegna. L4-7: l'impegno segue la comprensione. Prima di tutto il resto (mantra #7) | G7 |
+| SA2 | 🔴 | «forget that the RCD trips», «forget that residual current device trips» | «Hmm, I don't know about forget yet.» — il fatto di SA1 non si ritira parlando | manca `forget that <proposizione>` per le proposizioni `holds/1`; esiste solo per le regole (`forget if … then …`) e per i fatti binari | G8 |
+| SA3 | 🔴 | «The residual current device in my house keeps tripping, and I can't work out which appliance is causing it.» | `Learned: residual current device in my house keep tripping. Learned: can't work out.` — un resoconto in prima persona diventa due fatti, uno spazzatura | la clausola «I can't work out…» è uno stato della persona, non una lezione; il racconto di un guasto è una situazione aperta (`trouble_cue`, initiative) | G1 |
+| SA4 | 🔴 | «The kettle, the fridge and the washing machine are plugged in, and one of them leaks current.» | `Learned: fridge is a plugged, located_in(fridge, and_one_of_them_leaks_current). Learned: washing machine is a plugged, …` — fatti falsi | «plugged in» è uno stato (verbo + particella), non una classe; «and one of them …» è una seconda clausola con anafora collettiva, non un luogo | G9, G10 |
+| SA5 | 🔴 | «A residual current device trips when an appliance leaks current to earth.» | «I looked up «residual» but found nothing…» | la causa con «when» non ha forma; e il nome di più parole non si unisce (la definizione si trova con «What is a residual current device?»: due lettori, due identità) | G4 |
+| SA6 | 🟡 | «If an appliance leaks current to earth, then the RCD trips.» | `Learned rule: holds(rcd_trips) :- holds(appliance_leaks_current_to_earth).` | entra, ma **proposizionale**: «an appliance» non diventa una variabile, e la regola non si lega a nessun fatto sugli apparecchi | G5 |
+| SA7 | 🟡 | «leak is a relation verb» e «If x leaks current, then x trips the RCD.» → poi «leaks is a relation verb» e «if x leaks y then x trips the RCD» | la prima coppia: `Learned` due volte, ma la regola resta `holds(x_trips_…) :- holds(x_leaks_current)`; la seconda: `holds(x_trips_residual_current_device) :- leaks($V1, $V2)` | (a) una lezione **accettata senza effetto**: il verbo alla radice («leak») non apre il lettore delle regole, serve la forma flessa, e nessuno lo dice; (b) la virgola e «then» dopo la virgola spengono le variabili; (c) il conseguente non copulare («x trips the RCD») resta opaco anche con le variabili. Ripiego usato: «if x leaks y then the RCD trips» (giusto in questo campo) | G5 |
+
+**Che cosa ha retto** (entrato e verificato): «RCD is short for residual
+current device» (→ «What does RCD stand for?»), «leaks is a relation verb»,
+«trips is a relation verb», «if x leaks y then the RCD trips», «The washing
+machine leaks current.». Non salvato: la sessione contiene i fatti di SA1, SA3
+e SA4, che non si ritirano parlando (SA2).
 
 ### ▶ Stato dopo la passata di correzione (26 settembre 2026, sera — goal di F.: «fixa tutti i problemi segnalati in questo file»)
 

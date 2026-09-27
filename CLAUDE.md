@@ -51,7 +51,7 @@ l'apprendimento — soprattutto verso una KB viva — i test non si fanno.
 |---|---|
 | `MANTRA.md` | le 15 regole operative — **il punto di partenza** |
 | `docs/parrot-p0-syntax.md` | **la sintassi `.p0` esaustiva** e le trappole del motore — da leggere prima di scrivere KB |
-| `docs/train-the-smart-agent.md` | il curriculum live del **ragionamento situazionale** (mosse come inferenza, non piani con ingresso): lacune di comprensione, scala di giudizio, repertorio di scenari |
+| `docs/plans/train-the-smart-agent.md` | il curriculum live del **ragionamento situazionale** (mosse come inferenza, non piani con ingresso): lacune di comprensione, scala di giudizio, repertorio di scenari |
 | `docs/kb-growth-dynamics.md` | **come si comporta la KB mentre cresce**: viste, cicli, modi di chiamata, costo dei turni di ricostruzione — le specie misurate e le cure |
 | `PRINCIPLES.md` | il *perché* dell'esperimento, e la regola anti-inganno |
 | `AGENTS.md` | regole operative per chi modifica il codice |
