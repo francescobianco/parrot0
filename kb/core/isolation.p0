@@ -320,3 +320,105 @@ machinery(turn_stuck_on_effect).
 turn_stuck_on_effect($T, $E) :-
     observed_effect($E), stuck_cue_pair($A, $B), turn_word($T, $I, $A), turn_word($T, $J, $B).
 faculty_yield_when(turn_plan, open, turn_stuck_on_effect).
+
+% ── 9. L'ESITO DI UNA PROVA (livello 6 della scala: adattarsi) ─────────────
+% «I unplugged the kettle.» e poi «It still trips.»: il bollitore, scollegato,
+% non puo' essere lui; restano gli altri, e si propone il prossimo. «It stopped
+% tripping.»: l'ultimo scollegato e' quello (se il guasto sta in uno solo). Il
+% passato dell'azione si ricava dal gerundio della lezione («unplugging» ->
+% «unplugged», la consonante doppia viaggia con la radice): nessun elenco.
+machinery(action_done_said).
+turn_scratch(action_done_said).
+machinery(blocking_action_past).
+blocking_action_past($P) :-
+    action_blocks($G, $C, $A, $O), concat_atoms($S, "ing", $G), concat_atoms($S, "ed", $P).
+turn_form(report_action_done, 1, text("i")).
+turn_form(report_action_done, 2, slot(past)).
+turn_form(report_action_done, 3, rest(member)).
+turn_form_mood(report_action_done, statement).
+turn_form_priority(report_action_done, early).
+turn_form_slot_class(report_action_done, past, blocking_action_past).
+turn_form_act(report_action_done, "op(assert, action_done_said, [past, member])").
+turn_form_reply(report_action_done, action_done_noted).
+response_template(action_done_noted, "Noted: you {past} the {member}. Does it still happen?").
+response_template(action_done_noted, it, "Annotato: hai fatto «{past}» su {member}. Succede ancora?").
+machinery(done_member).
+done_member($X) :- action_done_said($P, $S), said_entity($S, $X).
+machinery(class_of_member).
+class_of_member($X, $Class) :- open_isolation(case($Class, $P, $Obj), $I), situation_member($Class, $X).
+machinery(remaining_member).
+remaining_member($Class, $X) :- situation_member($Class, $X), naf(done_member($X)).
+% il caso aperto: l'effetto osservato, la sua legge, la classe e l'azione
+machinery(open_isolation).
+open_isolation(case($Class, $P, $Obj), isolate($Act, $Ger, $E)) :-
+    observed_effect($E), effect_law($E, $P),
+    action_blocks($Act, $Class, $Ger, $Obj0), gerund_relation($Ger, $P), same_words($Obj0, $Obj).
+% «It still trips.»: chi e' stato scollegato non e' lui
+machinery(isolation_still).
+isolation_still($Verb, $Text) :-
+    open_isolation(case($Class, $P, $Obj), isolate($Act, $Ger, $E)),
+    findall($X, done_member($X), cons($D, $Ds)),
+    findall($Y, remaining_member($Class, $Y), $Rs),
+    current_language($L), members_join($L, cons($D, $Ds), $DoneT),
+    isolation_line($L, then_not, $A), concat_atoms($A, $DoneT, $B),
+    isolation_next($L, next($Rs, $Act, $P, $Obj), $N), concat_atoms($B, $N, $Text).
+machinery(isolation_next).
+isolation_next($L, next(cons($R, nil), $Act, $P, $Obj), $Text) :-
+    words_of($R, $WR), words_of($P, $WP), isolation_line($L, leaves_one, $A),
+    concat_atoms($A, $WR, $B), isolation_line($L, must_be, $C), concat_atoms($B, $C, $D),
+    concat_atoms($D, $WP, $E), concat_atoms($E, " ", $F), concat_atoms($F, $Obj, $G),
+    isolation_line($L, single_fault, $H), concat_atoms($G, $H, $G2), class_of_member($R, $Class),
+    concat_atoms($G2, $Class, $G3), isolation_line($L, single_fault_end, $Z), concat_atoms($G3, $Z, $Text).
+isolation_next($L, next(cons($R, cons($R2, $Rs)), $Act, $P, $Obj), $Text) :-
+    members_join($L, cons($R, cons($R2, $Rs)), $M), words_of($R, $WR),
+    isolation_line($L, could_still, $A), concat_atoms($A, $M, $B),
+    isolation_line($L, try_next, $C), concat_atoms($B, $C, $D), concat_atoms($D, $Act, $E),
+    concat_atoms($E, " the ", $F), concat_atoms($F, $WR, $G), isolation_line($L, next_end, $H),
+    concat_atoms($G, $H, $Text).
+% «It stopped tripping.»: l'ultimo scollegato e' quello
+machinery(isolation_stopped).
+isolation_stopped($Verb, $Text) :-
+    open_isolation(case($Class, $P, $Obj), isolate($Act, $Ger, $E)),
+    findall($X, done_member($X), $Ds), last_of($Ds, $Last),
+    words_of($Last, $WL), words_of($P, $WP), current_language($L),
+    isolation_line($L, then_it_is, $A), concat_atoms($A, $WL, $B),
+    isolation_line($L, is_the_one, $C), concat_atoms($B, $C, $D), concat_atoms($D, $WP, $F),
+    concat_atoms($F, " ", $G), concat_atoms($G, $Obj, $H),
+    isolation_line($L, stopped_because, $I), concat_atoms($H, $I, $Text).
+machinery(last_of).
+last_of(cons($X, nil), $X).
+last_of(cons($X, cons($Y, $R)), $L) :- last_of(cons($Y, $R), $L).
+isolation_line(en, then_not, "Then it isn't ").
+isolation_line(en, leaves_one, ": that leaves the ").
+isolation_line(en, must_be, ", so it must be the one that ").
+isolation_line(en, single_fault, " (if only one ").
+isolation_line(en, single_fault_end, " is at fault).").
+isolation_line(en, could_still, ": it could still be ").
+isolation_line(en, try_next, ". Try ").
+isolation_line(en, next_end, " next.").
+isolation_line(en, then_it_is, "Then the ").
+isolation_line(en, is_the_one, " is the one that ").
+isolation_line(en, stopped_because, ": once it was out of the way, the effect stopped.").
+isolation_line(it, then_not, "Allora non è ").
+isolation_line(it, leaves_one, ": resta ").
+isolation_line(it, must_be, ", quindi deve essere quello che ").
+isolation_line(it, single_fault, " (se il guasto è in un solo ").
+isolation_line(it, single_fault_end, ").").
+isolation_line(it, could_still, ": potrebbe ancora essere ").
+isolation_line(it, try_next, ". Prova a ").
+isolation_line(it, next_end, " adesso.").
+isolation_line(it, then_it_is, "Allora ").
+isolation_line(it, is_the_one, " è quello che ").
+isolation_line(it, stopped_because, ": senza di lui l'effetto si è fermato.").
+turn_form(report_effect_still, 1, text("it still")).
+turn_form(report_effect_still, 2, rest(verb)).
+turn_form_mood(report_effect_still, statement).
+turn_form_priority(report_effect_still, early).
+turn_form_act(report_effect_still, "op(match, isolation_still, [verb, free])").
+turn_form_reply(report_effect_still, isolation_reply).
+turn_form(report_effect_stopped, 1, text("it stopped")).
+turn_form(report_effect_stopped, 2, rest(verb)).
+turn_form_mood(report_effect_stopped, statement).
+turn_form_priority(report_effect_stopped, early).
+turn_form_act(report_effect_stopped, "op(match, isolation_stopped, [verb, free])").
+turn_form_reply(report_effect_stopped, isolation_reply).
