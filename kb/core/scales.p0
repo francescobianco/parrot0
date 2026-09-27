@@ -37,11 +37,28 @@ unit_surface_base($U, $S, $F) :- concat_atoms($B, "s", $U), unit_base($B, $S, $F
 % la stessa conoscenza per chi legge i valori misurati (decisions.p0, RI-013)
 measures($U, $S) :- unit_base($U, $S, $F).
 
+% ── 1-bis. L'ORA DEL GIORNO: la scala «clock», in secondi dalla mezzanotte ──
+% «6:10 pm» (salvato `6:10_pm`): ore e minuti, e la meta' del giorno. Le 12
+% del mattino sono la mezzanotte, le 12 del pomeriggio il mezzogiorno.
+machinery(clock_half).
+clock_half(am, 0).
+clock_half(pm, 43200).
+machinery(clock_seconds).
+clock_seconds($HM, $Half, $N) :-
+    chars($HM, $Cs), app($HCs, cons(":", $MCs), $Cs), chars($H0, $HCs), chars($M0, $MCs),
+    is($H, $H0), is($M, $M0), clock_half($Half, $Off), clock_hour_base($H, $HB),
+    is($N, add($Off, add(mul($HB, 3600), mul($M, 60)))).
+machinery(clock_hour_base).
+clock_hour_base(12, 0).
+clock_hour_base($H, $H) :- lt($H, 12).
+
 % ── 2. IL VALORE DI UNA QUANTITA', E DI UNA RELAZIONE ───────────────────────
 % `quantity_amount(Valore, Scala, Numero)`: un numero nudo, o «40 minutes»
 % (salvato `40_minutes`) portato alla base della sua scala.
 machinery(quantity_amount).
 quantity_amount($V, number, $N) :- is($N, $V).
+quantity_amount($V, clock, $N) :-
+    atom_words($V, cons($HM, cons($Half, nil))), clock_half($Half, $O), clock_seconds($HM, $Half, $N).
 quantity_amount($V, $S, $N) :-
     atom_words($V, cons($N0, cons($U, nil))), is($X, $N0),
     unit_surface_base($U, $S, $F), is($N, mul($X, $F)).
@@ -60,11 +77,60 @@ convertible_unit($U) :- unit_surface_base($U, $S, $F).
 machinery(measure_pred).
 measure_pred($Surface, $P) :-
     atom_words($Surface, $Ws), words_underscored($Ws, $J), concat_atoms($J, "_of", $P),
-    relation_noun($P, $S2).
+    relation_named($Ws, $J).
+% ⚠ non `relation_noun/2` con il predicato legato: per i nomi di piu' parole
+% ricostruisce il nome di OGNI relazione (72 000 chiamate, il budget di un
+% milione di passi esaurito in una scelta, misurato). Si cerca il nome come lo
+% scrivono le due lezioni possibili, con l'indice.
+machinery(relation_named).
+relation_named($Ws, $J) :- relation($J).
+relation_named($Ws, $J) :- naf(relation($J)), words_joined($Ws, $Sp), relation($Sp).
 machinery(operand_amount).
-operand_amount($E, $Surface, $S, $N) :-
+machinery(stored_amount).
+operand_amount($E, $Surface, $S, $N) :- stored_amount($E, $Surface, $S, $N).
+stored_amount($E, $Surface, $S, $N) :-
     measure_pred($Surface, $P), apply($P, cons($E, cons($V, nil))),
     quantity_amount($V, $S, $N).
+
+% ── 2-bis. UNA RELAZIONE CALCOLATA, detta a parole ─────────────────────────
+% «The arrival time is the departure time plus the travel time.» Il valore non
+% sta in un fatto: si somma, e la somma ha una scala (un'ora del giorno piu' una
+% durata e' un'ora del giorno; due durate sono una durata). Le parole della
+% lezione si confrontano come parole, non come forma (vedi `measure_pred/2`).
+machinery(relation_sum).
+machinery(same_words).
+machinery(scale_sum).
+same_words($A, $B) :- atom_words($A, $W), atom_words($B, $W).
+scale_sum(clock, time, clock).
+scale_sum(time, clock, clock).
+scale_sum(time, time, time).
+scale_sum(number, number, number).
+% ⚠ la somma legge i valori MEMORIZZATI (`stored_amount/4`), non se stessa: con
+% la ricorsione su `operand_amount/4` il secondo confronto dello stesso turno
+% veniva tagliato come un ciclo (il taglio dei cicli e' globale al turno,
+% misurato: `beats_on` falliva con i due valori calcolabili uno per uno). Un
+% livello di somma: una somma di somme e' un limite dichiarato.
+operand_amount($E, $Surface, $S, $N) :-
+    relation_sum($R0, $L, $R), same_words($R0, $Surface),
+    stored_amount($E, $L, $S1, $N1), stored_amount($E, $R, $S2, $N2),
+    scale_sum($S1, $S2, $S), is($N, add($N1, $N2)).
+% Una quantita' calcolata si dice nella sua scala.
+machinery(amount_said).
+amount_said(clock, $N, $T) :-
+    is($Mt, div($N, 60)), is($Mm, mod($Mt, 60)), is($H24, div(sub($Mt, $Mm), 60)),
+    clock_face($H24, $H12, $Half), two_digits($Mm, $MM),
+    concat_atoms($H12, ":", $A), concat_atoms($A, $MM, $B), concat_atoms($B, " ", $C),
+    concat_atoms($C, $Half, $T).
+amount_said(time, $N, $T) :-
+    is($M, div($N, 60)), concat_atoms($M, " minutes", $T).
+machinery(clock_face).
+clock_face(0, 12, am).
+clock_face(12, 12, pm).
+clock_face($H, $H, am) :- lt(0, $H), lt($H, 12).
+clock_face($H, $H12, pm) :- lt(12, $H), is($H12, sub($H, 12)).
+machinery(two_digits).
+two_digits($M, $T) :- lt($M, 10), concat_atoms("0", $M, $T).
+two_digits($M, $M) :- lt(9, $M).
 
 % ── 3. I POLI ────────────────────────────────────────────────────────────────
 % Le parole di grandezza: un insieme chiuso di lessico generale, non di dominio.
@@ -75,6 +141,8 @@ magnitude_adjective(little, low).  magnitude_adjective(large, high).
 magnitude_adjective(low, low).     magnitude_adjective(high, high).
 magnitude_adjective(few, low).     magnitude_adjective(many, high).
 magnitude_adjective(much, high).   magnitude_adjective(great, high).
+% i poli del tempo: presto e' poco tempo, tardi e' tanto
+magnitude_adjective(early, low).   magnitude_adjective(late, high).
 % i comparativi di grandezza che lexicon.p0 conosceva gia'
 machinery(comparative_pole).
 comparative_pole($W, low) :- comparative_less($W).
@@ -132,6 +200,24 @@ word_magnitude_pole($W, $Pole) :- adjective_degree($W, $A, $G), magnitude_adject
 word_magnitude_pole($W, $Pole) :- magnitude_adjective($W, $Pole).
 machinery(nearer_pole).
 nearer_pole($Pole, $N1, $N2) :- pole_direction($Pole, $Op), apply($Op, cons($N1, cons($N2, nil))).
+% La coppia ORDINATA: i due valori si calcolano una volta, poi si dice chi sta
+% piu' vicino al polo. Chiedere «A batte B?» e poi «B batte A?» ricalcolava gli
+% stessi valori, e con una relazione calcolata la seconda discesa veniva tagliata
+% come un ciclo (misurato; train-the-smart-agent §10, iterazione 5).
+machinery(ordered_pair).
+% L'ordine porta con se' i valori gia' calcolati (`ordered(Vince, Perde,
+% amounts(Scala, NV, NP))`): chi dice la ragione non li ricalcola. Ricalcolarli
+% allungava la prova oltre la profondita' massima del risolutore, che procede a
+% continuazioni (ogni goal fratello si risolve alla profondita' raggiunta dal
+% corpo precedente), e la scelta falliva in silenzio (misurato, iterazione 5).
+ordered_pair($Surface, $Pole, pair($A, $B), $Order) :-
+    operand_amount($A, $Surface, $S, $NA), operand_amount($B, $Surface, $S, $NB),
+    pair_by_pole($Pole, amounts($S, $NA, $NB), pair($A, $B), $Order).
+machinery(pair_by_pole).
+pair_by_pole($Pole, amounts($S, $NA, $NB), pair($A, $B), ordered($A, $B, amounts($S, $NA, $NB))) :-
+    nearer_pole($Pole, $NA, $NB).
+pair_by_pole($Pole, amounts($S, $NA, $NB), pair($A, $B), ordered($B, $A, amounts($S, $NB, $NA))) :-
+    nearer_pole($Pole, $NB, $NA).
 % A batte B sulla relazione, verso il polo
 machinery(beats_on).
 beats_on($Surface, $Pole, $A, $B) :-
@@ -151,28 +237,44 @@ drop_openers(cons($W, $R), cons($W, $R)) :- naf(np_opener($W)).
 % «Which is faster, the bus or the train?» — la scelta e la ragione in una frase.
 machinery(comparative_pick).
 comparative_pick($W, $SA, $SB, $Text) :-
-    said_entity($SA, $A), said_entity($SB, $B),
-    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $A, $B),
-    choice_reason($A, $B, $Surface, $R), upcase_first($R, $Text).
-comparative_pick($W, $SA, $SB, $Text) :-
-    said_entity($SA, $A), said_entity($SB, $B),
-    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $B, $A),
-    choice_reason($B, $A, $Surface, $R), upcase_first($R, $Text).
+    said_entity($SA, $A), said_entity($SB, $B), word_criterion($W, $Surface, $Pole),
+    ordered_pair($Surface, $Pole, pair($A, $B), ordered($Win, $Lose, $Am)),
+    reason_from(pair($Win, $Lose), $Surface, $Am, $R), upcase_first($R, $Text).
 % «Is the train faster than the bus?»
 machinery(comparative_verdict).
 comparative_verdict($SA, $W, $SB, $Text) :-
-    said_entity($SA, $A), said_entity($SB, $B),
-    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $A, $B),
-    current_language($L), scale_line($L, verdict_yes, $Y),
-    choice_reason($A, $B, $Surface, $R), concat_atoms($Y, $R, $Text).
-comparative_verdict($SA, $W, $SB, $Text) :-
-    said_entity($SA, $A), said_entity($SB, $B),
-    word_criterion($W, $Surface, $Pole), beats_on($Surface, $Pole, $B, $A),
-    current_language($L), scale_line($L, verdict_no, $Y),
-    choice_reason($B, $A, $Surface, $R), concat_atoms($Y, $R, $Text).
+    said_entity($SA, $A), said_entity($SB, $B), word_criterion($W, $Surface, $Pole),
+    ordered_pair($Surface, $Pole, pair($A, $B), ordered($Win, $Lose, $Am)),
+    verdict_word($A, $Win, $V), current_language($L), scale_line($L, $V, $Y),
+    reason_from(pair($Win, $Lose), $Surface, $Am, $R), concat_atoms($Y, $R, $Text).
+machinery(verdict_word).
+verdict_word($A, $A, verdict_yes).
+verdict_word($A, $W, verdict_no) :- dif($A, $W).
 % «the bus: its travel time is 20 minutes, against 40 minutes for the train»
+% La ragione dai valori gia' calcolati: il testo memorizzato se c'e' (dice
+% l'unita' come l'ha detta chi parla), altrimenti la quantita' detta nella sua
+% scala.
+machinery(reason_from).
+machinery(value_text).
+reason_from(pair($Win, $Lose), $Surface, amounts($S, $NW, $NL), $Text) :-
+    value_text($Win, $Surface, amount($S, $NW), $TW), value_text($Lose, $Surface, amount($S, $NL), $TL),
+    words_of($Win, $WW), words_of($Lose, $WL), current_language($L),
+    scale_line($L, reason_head, $H), concat_atoms($H, $WW, $A1),
+    scale_line($L, reason_its, $I), concat_atoms($A1, $I, $A2), concat_atoms($A2, $Surface, $A3),
+    scale_line($L, reason_is, $Is), concat_atoms($A3, $Is, $A4), concat_atoms($A4, $TW, $A5),
+    choice_reason_tail($L, $A5, pair($TL, $WL), $Text).
+value_text($E, $Surface, $Am, $T) :-
+    measure_pred($Surface, $P), apply($P, cons($E, cons($V, nil))), words_of($V, $T).
+value_text($E, $Surface, amount($S, $N), $T) :- naf(stored_value($E, $Surface)), amount_said($S, $N, $T).
 machinery(choice_reason).
 machinery(choice_values).
+machinery(stored_value).
+stored_value($E, $Surface) :- measure_pred($Surface, $P), apply($P, cons($E, cons($V, nil))).
+% un valore calcolato (una relazione somma) si dice dalla sua quantita'
+choice_values($Win, $Lose, $Surface, vals($TW, $TL)) :-
+    naf(stored_value($Win, $Surface)),
+    operand_amount($Win, $Surface, $S, $NW), operand_amount($Lose, $Surface, $S, $NL),
+    amount_said($S, $NW, $TW), amount_said($S, $NL, $TL).
 choice_values($Win, $Lose, $Surface, vals($TW, $TL)) :-
     measure_pred($Surface, $P),
     apply($P, cons($Win, cons($VW, nil))), apply($P, cons($Lose, cons($VL, nil))),
@@ -226,6 +328,34 @@ best_reason($E, $Surface, $Text) :-
     scale_line($L, reason_its, $I), concat_atoms($A1, $I, $A2), concat_atoms($A2, $Surface, $A3),
     scale_line($L, reason_is, $Is), concat_atoms($A3, $Is, $A4), concat_atoms($A4, $TV, $Text).
 
+% ── 6-ter. L'OBIETTIVO DETTO, E LA SCELTA CHE LO USA ───────────────────────
+% «I want to get home as soon as possible.» lascia un obiettivo: la qualita' che
+% chi parla cerca. «Should I take the bus or the train?» sceglie con quella
+% qualita', come «Which is sooner…?». Stato della conversazione, non del mondo.
+machinery(pursued_quality).
+turn_scratch(pursued_quality).
+machinery(goal_pick).
+goal_pick($SA, $SB, $Text) :-
+    pursued_quality($Q), said_entity($SA, $A), said_entity($SB, $B),
+    adjective_criterion($Q, $Surface, $Pole),
+    ordered_pair($Surface, $Pole, pair($A, $B), ordered($Win, $Lose, $Am)),
+    reason_from(pair($Win, $Lose), $Surface, $Am, $R), upcase_first($R, $Text).
+
+% Il piano di turno (`turn_plan`) rivendica prima delle forme: «I want to …» e
+% «Should I … or …?» sono sue aperture. Cede quando il turno dice «as <qualita'>
+% as possible» con una qualita' che una grandezza nomina, e quando chiede una
+% scelta fra due con un obiettivo attivo (mantra #17: la condotta e' KB). La
+% porta interroga `Predicato(current_turn, Testimone)`: il secondo argomento e'
+% cio' che ha fatto cedere (la qualita').
+machinery(turn_states_pursued_quality).
+turn_states_pursued_quality($T, $Q) :-
+    turn_word($T, $I, as), is($J, add($I, 1)), turn_word($T, $J, $Q), adjective_known($Q),
+    is($K, add($J, 1)), turn_word($T, $K, as), is($M, add($K, 1)), turn_word($T, $M, possible).
+machinery(turn_asks_goal_pick).
+turn_asks_goal_pick($T, $Q) :- pursued_quality($Q), turn_word($T, 0, should), turn_word($T, $I, or).
+faculty_yield_when(turn_plan, open, turn_states_pursued_quality).
+faculty_yield_when(turn_plan, open, turn_asks_goal_pick).
+
 % ── 7. LE FORME: la domanda, e la lezione ───────────────────────────────────
 turn_form(ask_comparative_pick, 1, text("which is")).
 turn_form(ask_comparative_pick, 2, slot(word)).
@@ -267,6 +397,53 @@ turn_form_mood(ask_superlative_adjective, question).
 turn_form_priority(ask_superlative_adjective, early).
 turn_form_act(ask_superlative_adjective, "op(match, superlative_pick_adjective, [word, free])").
 turn_form_reply(ask_superlative_adjective, comparative_pick_reply).
+% «The arrival time is the departure time plus the travel time.»
+turn_form(teach_relation_sum, 1, text("the")).
+turn_form(teach_relation_sum, 2, span(result)).
+turn_form(teach_relation_sum, 3, text("is the")).
+turn_form(teach_relation_sum, 4, span(left)).
+turn_form(teach_relation_sum, 5, text("plus the")).
+turn_form(teach_relation_sum, 6, rest(right)).
+turn_form_mood(teach_relation_sum, statement).
+turn_form_priority(teach_relation_sum, early).
+turn_form_act(teach_relation_sum, "op(assert, relation_sum, [result, left, right])").
+turn_form_reply(teach_relation_sum, relation_sum_learned).
+response_template(relation_sum_learned, "Held: the {result} is the {left} plus the {right}.").
+response_template(relation_sum_learned, it, "Tengo: {result} è {left} più {right}.").
+% «Soon means an early arrival time.» (la stessa lezione, con «an»)
+turn_form(teach_adjective_measure_an, 1, slot(adjective)).
+turn_form(teach_adjective_measure_an, 2, text("means an")).
+turn_form(teach_adjective_measure_an, 3, slot(pole)).
+turn_form(teach_adjective_measure_an, 4, rest(measure)).
+turn_form_mood(teach_adjective_measure_an, statement).
+turn_form_priority(teach_adjective_measure_an, early).
+turn_form_slot_class(teach_adjective_measure_an, pole, magnitude_adjective_word).
+turn_form_act(teach_adjective_measure_an, "op(assert, adjective_measure, [adjective, pole, measure])").
+turn_form_reply(teach_adjective_measure_an, adjective_measure_learned_an).
+response_template(adjective_measure_learned_an, "Held: «{adjective}» means an {pole} {measure}.").
+response_template(adjective_measure_learned_an, it, "Tengo: «{adjective}» vuol dire {measure} {pole}.").
+% «I want to get home as soon as possible.»
+turn_form(state_pursued_quality, 1, text("i want to")).
+turn_form(state_pursued_quality, 2, span(activity)).
+turn_form(state_pursued_quality, 3, text("as")).
+turn_form(state_pursued_quality, 4, slot(quality)).
+turn_form(state_pursued_quality, 5, text("as possible")).
+turn_form_mood(state_pursued_quality, statement).
+turn_form_priority(state_pursued_quality, early).
+turn_form_slot_class(state_pursued_quality, quality, adjective_known).
+turn_form_act(state_pursued_quality, "op(assert, pursued_quality, [quality])").
+turn_form_reply(state_pursued_quality, pursued_quality_noted).
+response_template(pursued_quality_noted, "Understood: you want to {activity} as {quality} as possible. Tell me the options and I will compare them on that.").
+response_template(pursued_quality_noted, it, "Capito: vuoi {activity} il più {quality} possibile. Dimmi le alternative e le confronto su questo.").
+% «Should I take the bus or the train?»
+turn_form(ask_goal_pick, 1, text("should i take")).
+turn_form(ask_goal_pick, 2, span(first)).
+turn_form(ask_goal_pick, 3, text("or")).
+turn_form(ask_goal_pick, 4, rest(second)).
+turn_form_mood(ask_goal_pick, question).
+turn_form_priority(ask_goal_pick, early).
+turn_form_act(ask_goal_pick, "op(match, goal_pick, [first, second, free])").
+turn_form_reply(ask_goal_pick, comparative_pick_reply).
 % «Fast means a short travel time.» — un aggettivo nomina un polo di una grandezza
 turn_form(teach_adjective_measure, 1, slot(adjective)).
 turn_form(teach_adjective_measure, 2, text("means a")).
