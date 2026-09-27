@@ -444,6 +444,79 @@ turn_form_slot_class(supported($D, $W), $Slot, $C) :-
 turn_form_slot_form(supported($D, $W), $Slot, $F) :-
     derived_question(supported($D, $W)), turn_form_slot_form($D, $Slot, $F).
 
+% ── L4, incremento 5 (27 settembre 2026) — LA CONDIZIONE E' UN OGGETTO: I
+% SEMI-MODALI ───────────────────────────────────────────────────────────────
+%
+% Nei due rami sopra la condizione e' la classe della parola: un ausiliare va
+% davanti al soggetto, un verbo prende «do». Una lezione poteva aggiungere un
+% MEMBRO (un ausiliare, un'analogia) ma non dire QUANDO. «need» e «dare» sono il
+% caso in cui la classe non basta: sono verbi («Does a welder need a mask?»),
+% ma davanti a un verbo nudo possono andare davanti al soggetto senza «do»
+% («Need a welder wear a mask?»). Farne ausiliari darebbe anche «Need a welder
+% a mask?»; lasciarli verbi non da' mai la seconda domanda.
+%
+% `inverts_when(Radice, Condizione)`: quando un verbo va davanti al soggetto.
+% La condizione e' un termine con un nome, una prova sull'affermazione
+% (`inversion_condition_holds/2`) e le parole per dirla
+% (`inversion_condition_word/2`, `inversion_condition_said/3`): si insegna, si
+% dice, si ritira (language-lessons.p0, §3-ter). Nessun verbo e' semi-modale
+% per nascita: lo diventa una lezione.
+%
+% `bare_verb_follows`: nell'affermazione il verbo e' seguito dal marcatore
+% dell'infinito e da un verbo nudo («needs to wear»); la domanda toglie il
+% marcatore e mette la radice davanti al soggetto. L'uso modale non ha passato
+% (`modal_use_form/1`): da «needed to» non si chiede «Need …?».
+machinery(inverts_when).
+machinery(inversion_condition_holds).
+machinery(inversion_condition).
+machinery(infinitive_marker).
+machinery(modal_use_form).
+machinery(semi_modal_root).
+inversion_condition(bare_verb_follows).
+infinitive_marker(to).
+inversion_condition_holds(bare_verb_follows, $D) :-
+    turn_form($D, 3, text($T0)), concat_atoms($T0, "", $T), infinitive_marker($T).
+modal_use_form(present_third).
+modal_use_form(base).
+% Anche la condizione dei due rami di sopra ha un nome, per poterla dire.
+inverts_when($W, always) :- auxiliary($W).
+semi_modal_root($W, $R) :-
+    naf(auxiliary($W)), verb_form($R, $W, $K), modal_use_form($K).
+question_inversion($D, $M, $W, modal($D, $W)) :-
+    operator_form($D, $M),
+    turn_form($D, 1, $S), inversion_subject_piece($S),
+    turn_form_act($D, $A), inversion_question_act($A, $QA),
+    apply($M, cons($W0, nil)), concat_atoms($W0, "", $W), semi_modal_root($W, $R),
+    inverts_when($R, $C), dif($C, always), inversion_condition_holds($C, $D).
+question_inversion($D, text, $W, modal($D, $W)) :-
+    turn_form($D, 2, text($W0)), concat_atoms($W0, "", $W), semi_modal_root($W, $R),
+    inverts_when($R, $C), dif($C, always), inversion_condition_holds($C, $D),
+    turn_form_mood($D, statement),
+    turn_form($D, 1, $S), inversion_subject_piece($S),
+    turn_form_act($D, $A), inversion_question_act($A, $QA).
+turn_form(modal($D, $W), 1, text($R)) :-
+    derived_question(modal($D, $W)), semi_modal_root($W, $R).
+turn_form(modal($D, $W), 2, $S) :-
+    inversion_subject_piece($S), derived_question(modal($D, $W)), turn_form($D, 1, $S).
+turn_form(modal($D, $W), $N1, $P) :-
+    derived_question(modal($D, $W)), turn_form($D, $N, $P), lt(3, $N), is($N1, sub($N, 1)).
+turn_form_mood(modal($D, $W), question) :- derived_question(modal($D, $W)).
+turn_form_act(modal($D, $W), $QA) :-
+    derived_question(modal($D, $W)), turn_form_act($D, $A), inversion_question_act($A, $QA).
+turn_form_priority(modal($D, $W), early) :- derived_question(modal($D, $W)).
+turn_form_slot_class(modal($D, $W), $Slot, $C) :-
+    derived_question(modal($D, $W)), turn_form_slot_class($D, $Slot, $C).
+turn_form_slot_form(modal($D, $W), $Slot, $F) :-
+    derived_question(modal($D, $W)), turn_form_slot_form($D, $Slot, $F).
+% L'analogia porta la condizione (C4): «dare» che si comporta come «need»
+% prende la condizione di «need», non la classe degli ausiliari.
+inverts_when($R2, $C) :-
+    relation_like($N0, $O0), concat_atoms($N0, "", $N), concat_atoms($O0, "", $O),
+    verb_form($R2, $N, $K), modal_use_form($K), verb_form($R1, $O, $K2),
+    inverts_when_taught($R1, $C).
+inverts_when($R, $C) :- inverts_when_taught($R, $C).
+machinery(inverts_when_taught).
+
 % ── L4, punto 4 (26 settembre 2026) — ESTENDERE LA REGOLA DA FUORI, PER
 % ANALOGIA ───────────────────────────────────────────────────────────────────
 %
@@ -500,6 +573,8 @@ view_apply_resolved(operator_like_form).
 view_depends(operator_like_form, relation_like).
 view_depends(question_inversion, verb_form_analysis).
 view_depends(question_inversion, tense_carrier).
+view_depends(question_inversion, inverts_when_taught).
+view_depends(question_inversion, relation_like).
 view_depends(question_inversion, $M) :-
     kb_fact(turn_form, cons($D, cons(2, cons(class($M), nil)))),
     kb_fact(turn_form_mood, cons($D, cons(statement, nil))).

@@ -101,17 +101,24 @@ turn_plan_candidate($T) :- turn_is_language_lesson($T).
 turn_response_part($T, 1, $Text) :-
     turn_is_language_lesson($T), current_language($L), language_lesson_line($L, not_a_fact, $Text).
 turn_response_part($T, 2, $Text) :-
-    turn_is_language_lesson($T), lesson_target_operators($T, $Ops), dif($Ops, nil),
+    turn_is_language_lesson($T), naf(lesson_withdraws($T)),
+    lesson_target_operators($T, $Ops), dif($Ops, nil),
     current_language($L), lesson_quote_list($L, $Ops, $Q),
     language_lesson_line($L, rule_in_use, $A), concat_atoms($A, $Q, $B),
     language_lesson_line($L, rule_in_use_end, $C), concat_atoms($B, $C, $Text).
 turn_response_part($T, 3, $Text) :-
-    turn_is_language_lesson($T), lesson_residue_operators($T, $Ops), dif($Ops, nil),
+    turn_is_language_lesson($T), naf(lesson_withdraws($T)),
+    lesson_residue_operators($T, $Ops), dif($Ops, nil),
     current_language($L), lesson_quote_list($L, $Ops, $Q),
     language_lesson_line($L, rule_residue, $A), concat_atoms($A, $Q, $B),
     language_lesson_line($L, rule_residue_end, $C), concat_atoms($B, $C, $Text).
-turn_response_part($T, 4, $Text) :-
-    turn_is_language_lesson($T), current_language($L), language_lesson_line($L, ask_example_only, $Text).
+turn_response_part($T, 9, $Text) :-
+    turn_is_language_lesson($T), naf(lesson_asks_no_example($T)),
+    current_language($L), language_lesson_line($L, ask_example_only, $Text).
+% (un ritiro non chiede esempi; una condizione non detta chiede la condizione)
+machinery(lesson_asks_no_example).
+lesson_asks_no_example($T) :- lesson_withdraws($T).
+lesson_asks_no_example($T) :- lesson_condition_unsaid($T, $X, $R).
 
 % ── 3. LA LEZIONE RESTA APERTA ─────────────────────────────────────────────
 % Il turno in cui e' stata detta; non si salva nell'albero (turn_scratch): e'
@@ -252,6 +259,109 @@ lesson_residue_operator($T, $X) :-
     auxiliary($X), naf(lesson_has_target_with($T, $X)).
 lesson_residue_operators($T, $Ops) :- findall($X, lesson_residue_operator($T, $X), $Ops).
 
+% ── 3-ter. UNA LEZIONE CHE CAMBIA QUANDO LA REGOLA SI APPLICA (L4, incr. 5) ──
+% Le lezioni di sopra si allineano a forme che esistono o nominano il residuo:
+% possono confermare una regola, non cambiarne la CONDIZIONE. Qui la lezione
+% colloca prima del soggetto un VERBO che non e' un ausiliare («need», «dare»)
+% e nomina la condizione sotto cui lo fa («when a bare verb follows»). La
+% condizione e' un oggetto della regola (`inverts_when/2`, grammar.p0): la
+% lezione la scrive per la radice del verbo, e da quel momento la stessa
+% `question_inversion/4` deriva la domanda senza «do» dove la condizione si
+% prova, e solo li'. Non e' un membro in piu' degli ausiliari: «Need a welder a
+% mask?» resta illeggibile, «Does a welder need a mask?» resta com'era.
+%
+% Senza condizione detta la lezione non si applica alla cieca: farne un
+% ausiliare per sempre e' una delle due letture, e la lezione non le distingue.
+% parrot0 chiede quale (§5 del piano: tenere le alternative, chiedere la
+% distinzione). «forget» davanti alla stessa lezione la ritira.
+machinery(inversion_condition_word).
+inversion_condition_word(bare, bare_verb_follows).
+inversion_condition_word(nudo, bare_verb_follows).
+inversion_condition_word(infinitive, bare_verb_follows).
+machinery(inversion_condition_said).
+inversion_condition_said(en, bare_verb_follows, "when a bare verb follows").
+inversion_condition_said(it, bare_verb_follows, "quando segue un verbo nudo").
+machinery(lesson_withdraw_word).
+lesson_withdraw_word(forget).  lesson_withdraw_word(dimentica).
+machinery(lesson_withdraws).
+lesson_withdraws($T) :- turn_lesson_word($T, $W), lesson_withdraw_word($W).
+machinery(lesson_condition).
+lesson_condition($T, $C) :- turn_lesson_word($T, $W), inversion_condition_word($W, $C).
+machinery(lesson_places_verb).
+lesson_places_verb($T, $X, $R) :-
+    lesson_names_mood($T, question), lesson_placement($T, $X, before, subject),
+    naf(auxiliary($X)), verb_form($R, $X, base).
+machinery(lesson_condition_change).
+lesson_condition_change($T, $X, $R, $C) :-
+    naf(lesson_withdraws($T)), lesson_places_verb($T, $X, $R), lesson_condition($T, $C).
+% nuova solo se la regola non la applica gia' (anche per analogia): altrimenti
+% la lezione si allinea alle forme come le altre (§3-bis, «It matches…»)
+machinery(lesson_condition_new).
+lesson_condition_new($T, $X, $R, $C) :-
+    lesson_condition_change($T, $X, $R, $C), naf(inverts_when($R, $C)).
+machinery(lesson_condition_unsaid).
+machinery(lesson_names_some_condition).
+lesson_names_some_condition($T) :- lesson_condition($T, $C).
+lesson_condition_unsaid($T, $X, $R) :-
+    naf(lesson_withdraws($T)), lesson_places_verb($T, $X, $R),
+    naf(lesson_names_some_condition($T)).
+machinery(lesson_condition_withdrawn).
+lesson_condition_withdrawn($T, $X, $R, $C) :-
+    lesson_withdraws($T), lesson_places_verb($T, $X, $R), inverts_when_taught($R, $C).
+% LA CONSEGUENZA: un'affermazione che la comprensione legge ha quel verbo al
+% posto dell'operatore e prova la condizione. Si chiede alle forme, non alla
+% lezione.
+machinery(lesson_condition_opens).
+lesson_condition_opens($R, $C) :-
+    operator_form($D, $M), apply($M, cons($W0, nil)), concat_atoms($W0, "", $W),
+    semi_modal_root($W, $R), inversion_condition_holds($C, $D).
+view_apply_resolved(lesson_condition_opens).
+
+% La scrittura e il ritiro si fanno DOPO la risposta: la risposta si calcola
+% dalla lezione, non dal fatto, e una vista sporcata a meta' prova (qui
+% `derived_question`) si rideriva dal vivo a ogni domanda (misurato: 35 s nel
+% turno della lezione, 42 000 cammini di `question_inversion`).
+after_reply_bookkeeper(language_lesson_condition).
+turn_after_reply($T, language_lesson_condition) :-
+    lesson_condition_new($T, $X, $R, $C),
+    assert(inverts_when_taught, $R, $C),
+    turn_counter($N), lesson_store_operator($N, $R).
+turn_after_reply($T, language_lesson_condition) :-
+    lesson_condition_withdrawn($T, $X, $R, $C), retract(inverts_when_taught, $R, $C).
+% una lezione che ritira, o che aspetta la condizione, non aspetta un esempio
+bookkeeper(language_lesson_no_example).
+turn_bookkeeping($T, language_lesson_no_example) :-
+    turn_is_language_lesson($T), lesson_asks_no_example($T),
+    turn_counter($N), assert(language_lesson_settled, $N).
+
+turn_response_part($T, 5, $Text) :-
+    turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
+    current_language($L), lesson_quoted($R, $Q), inversion_condition_said($L, $C, $Cw),
+    language_lesson_line($L, condition_taught, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, condition_taught_mid, $D), concat_atoms($B, $D, $E),
+    concat_atoms($E, $Cw, $F),
+    language_lesson_line($L, condition_taught_end, $G), concat_atoms($F, $G, $H),
+    concat_atoms($H, $Q, $I),
+    language_lesson_line($L, condition_taught_tail, $J), concat_atoms($I, $J, $Text).
+turn_response_part($T, 6, $Text) :-
+    turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
+    naf(lesson_condition_opens($R, $C)),
+    current_language($L), lesson_quoted($R, $Q),
+    language_lesson_line($L, condition_residue, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, condition_residue_end, $D), concat_atoms($B, $D, $Text).
+turn_response_part($T, 5, $Text) :-
+    turn_is_language_lesson($T), lesson_condition_unsaid($T, $X, $R),
+    current_language($L), lesson_quoted($R, $Q),
+    language_lesson_line($L, condition_ask, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, condition_ask_mid, $D), concat_atoms($B, $D, $E),
+    concat_atoms($E, $R, $F),
+    language_lesson_line($L, condition_ask_end, $G), concat_atoms($F, $G, $Text).
+turn_response_part($T, 5, $Text) :-
+    turn_is_language_lesson($T), lesson_condition_withdrawn($T, $X, $R, $C),
+    current_language($L), lesson_quoted($R, $Q),
+    language_lesson_line($L, condition_withdrawn, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, condition_withdrawn_end, $D), concat_atoms($B, $D, $Text).
+
 % Che cosa la lezione COLLOCA resta con lei (turn_scratch): l'ausiliare, il
 % modo, l'ordine, il pezzo. Non le forme trovate adesso: al turno dell'esempio
 % si chiede di nuovo alle forme di quel momento, cosi' una lezione rimasta al
@@ -358,6 +468,28 @@ language_lesson_line(en, rule_residue, "I do put an auxiliary before the subject
 language_lesson_line(en, rule_residue_end, " in that place, so I can't do it that way yet.").
 language_lesson_line(it, rule_residue, "Metto sì l'ausiliare prima del soggetto per chiedere, ma nessuna affermazione che so leggere ha ").
 language_lesson_line(it, rule_residue_end, " in quel posto, quindi così non so ancora farlo.").
+language_lesson_line(en, condition_taught, "From now on I put ").
+language_lesson_line(en, condition_taught_mid, " before the subject, but only ").
+language_lesson_line(en, condition_taught_end, "; everywhere else ").
+language_lesson_line(en, condition_taught_tail, " stays a verb and asks with «do».").
+language_lesson_line(it, condition_taught, "D'ora in poi metto ").
+language_lesson_line(it, condition_taught_mid, " prima del soggetto, ma solo ").
+language_lesson_line(it, condition_taught_end, "; altrove ").
+language_lesson_line(it, condition_taught_tail, " resta un verbo e chiede con «do».").
+language_lesson_line(en, condition_residue, "No statement I can read has ").
+language_lesson_line(en, condition_residue_end, " with a bare verb after it yet, so I have nothing to ask that way.").
+language_lesson_line(it, condition_residue, "Nessuna affermazione che so leggere ha ancora ").
+language_lesson_line(it, condition_residue_end, " seguito da un verbo nudo, quindi non ho niente da chiedere così.").
+language_lesson_line(en, condition_ask, "Is that always, or only in some cases? ").
+language_lesson_line(en, condition_ask_mid, " isn't an auxiliary: if it went before the subject every time, from «X needs a mask» I would ask «").
+language_lesson_line(en, condition_ask_end, " X a mask?». Tell me when it goes there, for instance only when a bare verb follows.").
+language_lesson_line(it, condition_ask, "Sempre, o solo in certi casi? ").
+language_lesson_line(it, condition_ask_mid, " non è un ausiliare: se andasse sempre prima del soggetto, da «X needs a mask» chiederei «").
+language_lesson_line(it, condition_ask_end, " X a mask?». Dimmi quando ci va, per esempio solo quando segue un verbo nudo.").
+language_lesson_line(en, condition_withdrawn, "Done: I no longer put ").
+language_lesson_line(en, condition_withdrawn_end, " before the subject; it asks with «do» again.").
+language_lesson_line(it, condition_withdrawn, "Fatto: non metto più ").
+language_lesson_line(it, condition_withdrawn_end, " prima del soggetto; torna a chiedere con «do».").
 language_lesson_line(en, list_sep, ", ").
 language_lesson_line(it, list_sep, ", ").
 language_lesson_line(en, ask_example_only, "Can you show me an example?").

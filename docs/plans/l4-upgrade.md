@@ -68,6 +68,11 @@ riconosce, un'analogia su un verbo cade nel ramo del fare per condizione, e
 la condizione si soddisfa con una lezione parlata di morfologia. Dettaglio,
 misure e residui nell'«Incremento 4» sotto il Censimento 1.
 
+**27 settembre — incremento 5 (direzione 1):** la condizione dell'inversione
+è un oggetto (`inverts_when/2`); una lezione parlata la cambia per «need»
+(«…when a bare verb follows»), la chiede se non è detta, «dare» la eredita per
+analogia e il ritiro parlato la toglie a entrambi. Dettaglio nell'«Incremento 5».
+
 **Cricchetti** (in `make test`):
 [question_inversion.p0t](../../tests/p0t/language/question_inversion.p0t) 9/9,
 [lesson_meets_rule.p0t](../../tests/p0t/language/lesson_meets_rule.p0t) 18/18.
@@ -535,6 +540,100 @@ cambi la condizione stessa (oggi la condizione si soddisfa parlando, via
 morfologia, ma `naf(auxiliary(W))` e `tense_carrier/1` non si discutono
 ancora a parole). Candidato naturale: i semi-modali («need», «dare») che in
 inglese passano dal ramo del fare a quello dell'ausiliare.
+
+### Incremento 5 — fatto (27 settembre): una lezione cambia QUANDO la regola si applica (direzione 1, i semi-modali)
+
+La prova di apertura della rete del §2.7, su una condizione e non su un membro.
+Fino all'incremento 4 la condizione dell'inversione era la **classe della
+parola**: un ausiliare va davanti al soggetto, un verbo prende «do». «need» e
+«dare» sono il caso in cui la classe non basta: sono verbi («Does a welder
+need to wear a mask?»), ma davanti a un verbo nudo vanno anche davanti al
+soggetto («Need a welder wear a mask?»). Aggiungerli agli ausiliari (un
+membro) darebbe anche «Need a welder a mask?».
+
+**Censimento prima del lavoro** (KB `agi`, processo nuovo): «A welder needs to
+wear a mask.» → «I don't understand that yet»; «Need a welder wear a mask?» →
+«I don't know about welder wear»; `verb_lemma(dare)` assente; nessuna nozione
+di semi-modale. La condizione non era un oggetto: stava in `auxiliary($W)`
+dentro una clausola e in `naf(auxiliary($W))` nell'altra.
+
+**Che cosa esiste adesso.**
+1. **L'affermazione** ([messages.p0](../../kb/core/messages.p0),
+   `necessity_stated`): «S needs to V O» → `needs_to(S, O)`, sorella di
+   `ability_stated` con il complemento all'infinito. È una riga scritta a mano
+   (gerarchia #4: mancava il lettore dell'infinito, e nessun canale parlato
+   insegna oggi una forma dichiarativa). Il ramo del fare ne deriva subito
+   «Does a welder need to wear a mask?» → «Yes.», che nessuno ha scritto.
+   Cede ai pronomi personali (`pronoun_surface/2`): «You need to rest.», «I need
+   to leave at seven.» non sono conoscenza del mondo.
+2. **La condizione come oggetto** ([grammar.p0](../../kb/core/grammar.p0)):
+   `inverts_when(Radice, Condizione)`, con la condizione che ha un nome
+   (`bare_verb_follows`), una prova sull'affermazione
+   (`inversion_condition_holds/2`: l'operatore è seguito dal marcatore
+   dell'infinito), le parole per dirla e la morfologia che l'uso modale
+   ammette (`modal_use_form/1`: niente «Need…?» da «needed to»). Anche la
+   condizione dei rami vecchi ha un nome (`inverts_when(W, always) :-
+   auxiliary(W)`). Il terzo ramo di `question_inversion/4` deriva
+   `modal(Dichiarativa, Verbo)`: la radice davanti al soggetto, il marcatore
+   tolto. **Nessun verbo è semi-modale per nascita.**
+3. **La lezione parlata** ([language-lessons.p0](../../kb/core/language-lessons.p0)
+   §3-ter): «To make a question with need, you can also put need before the
+   subject when a bare verb follows.» colloca un **verbo** prima del soggetto e
+   nomina la condizione (`inversion_condition_word/2`). Si scrive
+   `inverts_when_taught(need, bare_verb_follows)` **dopo** la risposta
+   (`after_reply_bookkeeper`), e parrot0 dice che cosa è cambiato: «From now on
+   I put «need» before the subject, but only when a bare verb follows;
+   everywhere else «need» stays a verb and asks with «do».» Se nessuna
+   affermazione leggibile prova la condizione, lo dice (residuo).
+4. **Senza condizione detta la lezione non si applica alla cieca.** «put need
+   before the subject» ha due letture (sempre, cioè un ausiliare; oppure sotto
+   una condizione) e la lezione non le distingue: parrot0 chiede quale,
+   mostrando la conseguenza della lettura larga («I would ask «need X a
+   mask?»»). È il passo 5 del §5: tenere le alternative, chiedere ciò che le
+   distingue.
+5. **L'analogia porta la condizione, non la classe (C4).** Dopo «Dare is an
+   English verb lemma.» e «"dares" behaves like "needs".», «A firefighter dares
+   to enter a burning building.» si legge, e «Dare a firefighter enter a
+   burning building?» → «Yes.»: `inverts_when(dare, …)` è **derivata**
+   dall'analogia, non scritta.
+6. **La revisione segue i sostegni (§2.6).** «Forget that you can put need
+   before the subject in a question.» ritira la condizione di «need», e con lei
+   cade quella che «dare» ne ereditava; il ramo del fare resta per entrambi.
+
+**Misure.** La lezione costa 0,7 s. Prima di spostare la scrittura dopo la
+risposta costava 35 s: l'`assert` del contabile sporcava `derived_question`
+prima che si calcolasse la risposta, e dentro la prova la vista si riderivava
+dal vivo a ogni domanda (42 000 cammini di `question_inversion`, visto con
+`/debug on`). **Trappola da ricordare:** chi scrive un fatto da cui dipende
+una vista enumerata a ogni turno lo fa dopo la risposta. L'analogia e il
+primo turno dopo costano 2,6–3 s (ricostruzione di `extract_frame`,
+preesistente). Cricchetto
+[semi_modal_condition.p0t](../../tests/p0t/language/semi_modal_condition.p0t)
+34/34; `question_inversion` 9/9, `lesson_meets_rule` 21/21,
+`do_support_rule` 28/28, `user_situations` 56/56. `soft-test`: verde in
+3–4 s, ma `basics.p0t` «what is the capital of france» sta a 0,97–1,09 s
+contro un `!timeout 1` e a volte sfora; è identico con e senza questo
+incremento (A/B), quindi è un turno al limite, da curare a parte (np_closer
+0,5–0,6 s, answer_frame 0,2–0,35 s).
+
+**Riga in LEARN_PROTOCOL §6-bis** per la forma nuova.
+
+**Residui osservati, non curati:**
+- «Firefighters need to…» → «Held: firefighters needs to…»: il template della
+  resa non accorda; la sorella per analogia rende «dares enter», senza «to».
+- La lezione ha una sola condizione nominabile (`bare_verb_follows`); una
+  seconda condizione è una riga di conoscenza (nome, prova, parole), ma la sua
+  prova sull'affermazione resta una clausola scritta a mano: una **prova di
+  condizione insegnata parlando** è il gradino dopo.
+- «Need I…?» / «Do I need to…?» cedono ai pronomi e cadono nei muri di prima;
+  le domande dette in prima persona sono di un altro lettore.
+- La condizione si ritira parlando, ma non si **interroga** ancora a parole
+  («When does need go before the subject?»); si interroga con la KB.
+
+**Prossimo passo.** Rendere interrogabile a parole la condizione (la domanda
+«when does X go before the subject?» risponde dalla stessa `inverts_when/2`),
+poi una seconda condizione con la sua prova insegnata, per vedere se la
+condizione stessa, e non solo la sua appartenenza, cresce parlando.
 
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 

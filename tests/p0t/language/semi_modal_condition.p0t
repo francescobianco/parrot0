@@ -1,0 +1,93 @@
+# L4, incremento 5 (27 settembre 2026) — UNA LEZIONE CAMBIA QUANDO LA REGOLA
+# SI APPLICA: I SEMI-MODALI (docs/plans/l4-upgrade.md, direzione 1).
+#
+# Fino all'incremento 4 la condizione dell'inversione era la classe della
+# parola: un ausiliare va davanti al soggetto, un verbo prende «do». Una
+# lezione poteva aggiungere un membro, non dire QUANDO. «need» e «dare» sono
+# verbi («Does a welder need to wear a mask?») che davanti a un verbo nudo
+# possono andare davanti al soggetto («Need a welder wear a mask?»). Farne
+# ausiliari darebbe anche «Need a welder a mask?». La condizione ora e' un
+# oggetto della regola (`inverts_when/2`, grammar.p0) e una lezione parlata la
+# scrive, la conferma, la fa ereditare per analogia e la ritira.
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+
+[test la domanda senza do non esiste finche' una lezione non dice quando]
+!timeout 2
+> A welder needs to wear a mask.
+<~ Held
+# dire di se' non e' conoscenza del mondo: la forma cede ai pronomi
+> You need to rest.
+<! Held
+> I need to leave at seven.
+<! Held
+# il ramo del fare la deriva gia' (incremento 4): nessuno l'ha scritta
+> Does a welder need to wear a mask?
+<~ Yes
+> Need a welder wear a mask?
+<! Yes
+!query! derived_question(modal(necessity_stated, needs))
+# senza condizione la lezione non si applica alla cieca: chiede quale
+> To make a question with need, put need before the subject.
+<~ Is that always, or only in some cases?
+<~ «need X a mask?»
+<! From now on
+!query! inverts_when(need, $C)
+
+[test la lezione con la condizione cambia la regola, e solo li']
+!timeout 2
+> To make a question with need, you can also put need before the subject when a bare verb follows.
+<~ From now on I put «need» before the subject, but only when a bare verb follows
+!query inverts_when(need, bare_verb_follows)
+!query derived_question(modal(necessity_stated, needs))
+# non e' diventato un ausiliare
+!query! auxiliary(need)
+> Need a welder wear a mask?
+<~ Yes
+<~ I read it with that rule, «need» before the subject
+# fuori dalla condizione resta un verbo
+> Need a welder a mask?
+<! Yes
+> Does a welder need to wear a mask?
+<~ Yes
+# detta di nuovo, la lezione trova la regola che ora opera
+> To make a question with need, you can also put need before the subject when a bare verb follows.
+<~ It matches a rule I already use
+<! From now on
+
+# C4: l'analogia porta la CONDIZIONE, non la classe. «dare» diventa verbo con
+# la lezione di morfologia, poi «si comporta come» «need». Le lezioni che
+# toccano i verbi ricostruiscono `extract_frame` (~3 s, preesistente,
+# LEARN_PROTOCOL §6-bis): da qui il !timeout piu' largo.
+[test dare eredita la condizione di need per analogia]
+!timeout 4
+> Dare is an English verb lemma.
+<~ Learned «dare»
+> "dares" behaves like "needs".
+<~ behaves like
+> A firefighter dares to enter a burning building.
+<~ Held
+> Does a firefighter dare to enter a burning building?
+<~ Yes
+> Dare a firefighter enter a burning building?
+<~ Yes
+!query inverts_when(dare, bare_verb_follows)
+!query! inverts_when_taught(dare, $C)
+
+# La revisione segue i sostegni (§2.6): ritirata la condizione di «need», cade
+# anche quella che «dare» ne ereditava; il ramo del fare resta.
+[test il ritiro parlato toglie la condizione e cio' che ne dipende]
+!timeout 4
+> Forget that you can put need before the subject in a question.
+<~ I no longer put «need» before the subject
+<! It matches a rule I already use
+!query! inverts_when(need, bare_verb_follows)
+!query! inverts_when(dare, bare_verb_follows)
+> Need a welder wear a mask?
+<! Yes
+> Does a firefighter dare to enter a burning building?
+<~ Yes
+> forget that "dares" behaves like "needs"
+<~ no longer behaves like
+> forget that dare is an English verb lemma
