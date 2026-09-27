@@ -95,7 +95,17 @@ ev_duration_value($T, $S, $I, $V) :- ev_next($T, $S, $I, $V), decision_numeric($
 ev_unit_at($T, $S, $K) :- ev_next($T, $S, $K, $U), time_unit_cue($Uw, $Unit), atom_words($Uw, cons($U, nil)).
 ev_hours(hours, $N, $N).
 ev_hours(minutes, $N, $V) :- is($V, div($N, 60)).
-event_reading($T, ev($Trip, duration, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), duration_verb($Vb), ev_duration_value($T, $S, $I, $V).
+% La durata e' del VIAGGIO solo se il soggetto del verbo e' il viaggio: un suo
+% nome, un pronome che lo riprende, l'impersonale («ci vogliono»). «The bus takes
+% 40 minutes.» diventava «The trip takes 0.666667 hours»: due mezzi fusi in un
+% solo viaggio (train-the-smart-agent G13, SA10).
+event_reading($T, ev($Trip, duration, $V)) :- journey_subject($Trip), ev_tok($T, $S, $I, $Vb), duration_verb($Vb), ev_journey_word_before($T, $S, $I), ev_duration_value($T, $S, $I, $V).
+machinery(journey_word).
+journey_word($W) :- journey_subject($W).
+journey_word(journey).  journey_word(it).  journey_word(viaggio).
+journey_word(ci).       journey_word(drive).
+machinery(ev_journey_word_before).
+ev_journey_word_before($T, $S, $I) :- is($J, sub($I, 1)), ev_tok($T, $S, $J, $W), journey_word($W).
 % Un turno che SI APRE come domanda o ordine non descrive («is the meeting at
 % 9?» non fissa l'orario); uno che si apre con una condizione e chiede alla
 % fine («se parto alle 7 e ci vogliono 3 ore, arrivo in tempo?») descrive E chiede.
