@@ -65,9 +65,56 @@ multi-turno», §7 qui sotto). Richiesta di F.:
   la mossa giusta è il motore, la sessione si ferma (live-teaching §3, regola 6)
   e il lavoro di motore diventa un passo separato, annotato qui.
 
+## 0-bis. ⛔ Le premesse: senza di loro il piano è sterile
+
+*F., 27 settembre 2026: «requisiti fondamentali per far crescere queste
+abilità sono quelli di riferirsi alla "comprensione universale", alla "IR", al
+concetto di "mondo allargato" e a tutti i lavori derivati da
+frontier-kb-natural-dialogue.md e da l4-upgrade.md: senza queste premesse e
+indirizzi di lavoro il piano è sterile e rischia di costruire male le
+soluzioni.»*
+
+L'agente situazionale **non è una facoltà nuova**: è ciò che diventano i
+meccanismi già costruiti quando li si porta su una situazione aperta. Ogni
+lacuna, ogni lezione e ogni cura di questo piano si colloca in uno di questi
+quadri, e si costruisce **dentro** di essi. Una cura che li scavalca (un
+lettore dedicato a una scena, una regola per uno scenario, una tabella di
+parole con il verso scritto a mano) costruisce male anche quando lo scenario
+diventa verde.
+
+| premessa | che cosa garantisce | che cosa impone a questo piano |
+|---|---|---|
+| **La IR** — [universal-input.md](universal-input.md) | l'input è **uno**: ogni turno diventa nodi (token, sintagmi, quantità, entità) che tutti i lettori consultano, con le categorie in KB | opzioni, candidati, quantità con unità, coordinazioni e anafore collettive («one of them») sono **nodi della IR**, non campi di un parser di scena. G9, G10, G13, G16 si curano nelle categorie della IR |
+| **La comprensione universale** — [universal-comprehension.md](universal-comprehension.md) | nessuna frase ben formata merita un muro cieco: la struttura si estrae sempre, e un muro dice **che cosa** manca | «Both can be the right choice: it depends…» e «That sounds nice» su una scena di dati sono **mimica**, peggio di un muro che nomina l'oggetto mancante (G2, G14). Ogni risposta sotto il livello 3 deve almeno dire che cosa non ha capito |
+| **Il mondo allargato** — [the-rational-philosopher.md](the-rational-philosopher.md) | ciò che parrot0 sente è un contenuto con un atto, una fonte e un giudizio; ipotesi e credenze sono distinte; parrot0 conversa nello spazio logico dell'interlocutore e prende iniziativa motivata | il racconto di un guasto è una **situazione riportata** dall'interlocutore, non una lezione sul mondo (G1); «is it true that…» è una domanda, mai un impegno (G7); un'ipotesi («if I unplug the kettle…») si ragiona senza diventare un fatto (G11); proporre una mossa a chi è bloccato è **iniziativa motivata** (G2, G12) |
+| **frontier-kb-natural-dialogue** — [frontier-kb-natural-dialogue.md](frontier-kb-natural-dialogue.md) | la scala delle astrazioni K0–K11 e lo schema `FRAME → SITUAZIONE → PIANO CAUSALE → PIANO DI RISPOSTA` (§17.3) | il modello del §1 è **K11** (situazione modificabile: stati, affordance, vincoli, leggi causali), non un modello nuovo. Il problema aperto è una **questione aperta** di K3 (con obblighi e mosse). Le ipotesi sono **contesti** di K4 (`context-scope.p0`: credenze concorrenti visibili insieme). Le famiglie di mosse del §5 sono **operatori trasferibili** di K9 («operatori, non altre risposte»). Le letture concorrenti di una scena sono K2. La scala di giudizio del §3 è parente del reticolo dei livelli nominabili (D19). Le «cose da non fare» del §12 valgono qui |
+| **L4** — [l4-upgrade.md](l4-upgrade.md) | ciò che si impara entra nella **stessa rete** che la comprensione percorre, riconosciuto per conseguenze, con le condizioni sotto cui vale (C1–C7) | ogni lezione del piano (una legge causale, un polo di scala, un principio di famiglia) deve essere **usata dagli stessi lettori** che la comprensione usa (C1), riconoscersi se già operante (C3), portare le sue condizioni (C4), restare dopo il riavvio (C6). Distinguere capire, credere, usare e confermare (§2.5: G7). La direzione minore/maggiore dal polo di una scala (§9) segue il precedente della **condizione insegnata** (`inverts_when/2`, incrementi 5–7). I costi si leggono con [kb-growth-dynamics.md](../kb-growth-dynamics.md) |
+
+**Le lacune del §2 nei loro quadri** (la colonna «canale» del §2 dice come si
+insegna; questa dice **dove** la cura deve vivere):
+
+| quadro | lacune |
+|---|---|
+| IR (nodi, categorie, coordinazione, quantità) | G3, G9, G10, G13, G16, G17 |
+| comprensione universale (muro che nomina, niente mimica) | G2, G14 |
+| mondo allargato (atto, impegno, ipotesi, iniziativa) | G1, G7, G8, G11, G12 |
+| K2/K3/K4/K9/K11 (letture, questione aperta, contesti, operatori, situazione) | G1, G2, G11, G12, G14 |
+| L4 (regole che operano, condizioni, coerenza) | G4, G5, G6, G15 |
+
+**Regola operativa.** Prima di curare una lacuna, il `think` della sessione ne
+**nomina il quadro** e il meccanismo esistente su cui la cura si appoggia
+(una categoria della IR, una forma di `situation.p0`, un contesto di
+`context-scope.p0`, una regola che L4 raggiunge). Se non se ne trova nessuno,
+la sessione si ferma e la domanda va al piano del quadro (frontier, L4,
+universal-input), non a questo: qui si addestra e si verifica, **non si
+inventano architetture parallele**.
+
 ## 1. Il modello: la mossa come conseguenza, non come piano con ingresso
 
-Un agente situazionale tiene, anche senza nominarli, cinque oggetti:
+Un agente situazionale tiene, anche senza nominarli, cinque oggetti. Sono
+quelli di **K11** di [frontier-kb-natural-dialogue.md](frontier-kb-natural-dialogue.md)
+(situazione modificabile) e di `situation.p0` / `context-scope.p0`: questo
+piano li usa, non li ridefinisce (§0-bis).
 
 | oggetto | domanda che lo riempie | esempio (differenziale che scatta) |
 |---|---|---|
@@ -200,7 +247,8 @@ indirizza con `steer` o in chat. Le fasi, ognuna aperta da un `think`:
 3. **Attesa dell'intuizione.** Si guarda che cosa propone parrot0. Si annota il
    livello del §3.
 4. **Diagnosi della strada.** Per ogni turno sotto il livello atteso: quale
-   lacuna del §2 (o una nuova, da aggiungere alla tabella con la strada
+   **quadro** del §0-bis (IR, comprensione universale, mondo allargato, K2–K11,
+   L4) e quale lacuna del §2 (o una nuova, da aggiungere alla tabella con la strada
    osservata), letta con `/debug`, «why did you answer that way?», varianti della
    frase. Il ragionamento nomina il meccanismo (IR, comprensione, L2, L3, L4).
 5. **Colmare, in ordine di canale.** Insegnare ciò che manca per **capire**: per
@@ -226,8 +274,10 @@ indirizza con `steer` o in chat. Le fasi, ognuna aperta da un `think`:
 «motore» nel §2 con la diagnosi, e il lavoro diventa un passo separato
 (KB-first, mantra), poi si riapre lo stesso scenario.
 
-**La facoltà che manca (G12), come la si prepara.** Non è un modulo: è un
-oggetto in KB sopra `situation.p0` e `context-scope.p0` (stato come credenza
+**La facoltà che manca (G12), come la si prepara.** Non è un modulo: è
+l'operatore di K9 applicato alla situazione di K11 con le ipotesi come
+contesti di K4 (§0-bis), cioè un oggetto in KB sopra `situation.p0` e
+`context-scope.p0` (stato come credenza
 di un contesto, `holds_in/2`) e sopra le leggi insegnate. In forma di
 contratto, da scrivere quando G1–G11 lo rendono raggiungibile:
 `hypothesis_open(Situazione, H)`, `predicts(H, Azione, Osservazione)` (dalle
