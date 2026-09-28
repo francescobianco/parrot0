@@ -603,6 +603,16 @@ make soft-test                                                     # avanzamento
 
 La suite intera si lancia solo con l'approvazione di F. (`CLAUDE.md`).
 
+⚠ **Il demone non rilegge i `.p0` modificati** (misurato il 28 settembre
+2026). `!reset` confronta due assi: la *configurazione* con cui il cervello è
+partito (`p0env_mem_signature`) e la *taglia* della KB dopo il caricamento
+pulito. Se la configurazione è la stessa, un reset tronca la KB appresa e **non
+rilegge il disco**: le clausole aggiunte a un file dopo l'avvio del demone
+possono non esserci, a pezzi (un blocco caricato da un reset che per caso ha
+riletto, il blocco dopo no), e il sintomo è «atteso dimostrabile» su fatti che
+nel file ci sono. Dopo ogni modifica alla KB: `make test-engine` (riavvia il
+demone), poi il `.p0t`. Stessa regola del C.
+
 ## 16. Contenuti, contesti e prove — contratto progettato (20 settembre 2026)
 
 **Stato: progetto, non implementazione.** Il piano autoritativo, la baseline

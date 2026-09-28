@@ -1,0 +1,42 @@
+# L4 incremento 8 (docs/plans/l4-upgrade.md) — la DOMANDA INVERSA: la condizione
+# come chiave. «Which verbs go before the subject when a bare verb follows?»
+# legge la condizione con lo stesso lettore delle parti della lezione e risponde
+# dalla stessa inverts_when_via/3 che la regola esegue, con il sostegno di
+# ciascun verbo; lezione, analogia e ritiro la cambiano al turno dopo.
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+
+[test la domanda inversa]
+!timeout 8
+> Which verbs go before the subject when a bare verb follows?
+<~ None that I know
+> A welder needs to wear a mask.
+> To make a question with need, you can also put need before the subject when a bare verb follows.
+> Which verbs go before the subject when a bare verb follows?
+<~ «need» (you taught me that)
+> Dare is an English verb lemma.
+> "dares" behaves like "needs".
+> A firefighter dares to enter a burning building.
+> Which verbs go before the subject when a bare verb follows?
+<~ «dare» (because it behaves like «need»)
+> A welder needed to wear a mask.
+> "dared" behaves like "needed".
+> A firefighter dared to enter a burning building.
+> To make a question with dare, you can also put dare before the subject in the past when a bare verb follows.
+> Which verbs go before the subject in the past when a bare verb follows?
+<~ «dare» (you taught me that)
+<! need
+> Which verbs go before the subject?
+<~ and «need» only when a bare verb follows in the present (you taught me that)
+> Forget that you can put need before the subject in a question.
+> Which verbs go before the subject when a bare verb follows?
+<~ None that I know
+
+[test il file lascia la KB com'era]
+!timeout 4
+> forget that "dares" behaves like "needs"
+> forget that "dared" behaves like "needed"
+> Forget that you can put dare before the subject in a question.
+> forget that dare is an English verb lemma
+!reset

@@ -918,6 +918,44 @@ misura e cura. Cure adottate qui:
 - Le parti restano un alfabeto scritto a mano: una parte nuova (per esempio
   «in a negative sentence») è una riga di tipo, una di parole e una prova.
 
+### Incremento 8 — fatto (28 settembre): la domanda inversa, la condizione come chiave
+
+Residuo dell'incremento 6: la regola si chiedeva da un lato solo («When does
+need go before the subject?», la parola come chiave). La prova di apertura
+del §2.7 vuole che la regola sia discutibile **come regola**, cioè anche dal
+lato della condizione: *chi* va davanti al soggetto, *a quale* condizione.
+
+| domanda | risposta (sequenza del cricchetto) |
+|---|---|
+| «Which verbs go before the subject when a bare verb follows?», prima di ogni lezione | None that I know: no verb goes before the subject only when a bare verb follows in the present; the auxiliaries go there always, and the other verbs ask with «do». |
+| dopo la lezione su «need» | When a bare verb follows in the present: «need» (you taught me that). |
+| dopo l'analogia di «dare» | … «dare» (because it behaves like «need») and «need» (you taught me that). |
+| «…in the past when a bare verb follows?», dopo la lezione al passato su «dare» | In the past when a bare verb follows: «dare» (you taught me that). — «need» no |
+| «Which verbs go before the subject?» | la regola intera: gli ausiliari sempre; «dare» solo … o …; «need» solo …; ogni altro verbo con «do» |
+| dopo il ritiro della condizione di «need» | di nuovo nessuno: «dare» cade con il suo sostegno |
+
+**Un solo lettore per la condizione (C1).** La domanda legge la condizione
+con `lesson_condition/2`, lo stesso lettore delle parti che legge la lezione
+(le parole, i tipi, la parte di default: «when a bare verb follows» vale al
+presente in entrambe). I verbi vengono da `inverts_when_via/3`, con il
+sostegno. Nessuna copia della regola, nessun C
+([language-lessons.p0](../../kb/core/language-lessons.p0) §3-quinquies).
+
+**Cricchetto** [inverse_condition_question.p0t](../../tests/p0t/language/inverse_condition_question.p0t)
+7/7, pulisce la KB alla fine; `semi_modal_condition` 58/58 prima e dopo di
+lui (senza pulizia lo rompeva: il file vecchio non ha `!reset` e ereditava la
+lezione su «dare»). `question_inversion` 9/9, `soft-test` verde.
+
+**Trappole pagate** (scritte dove servono): un fatto con la stringa vuota `""`
+non si carica; e il demone dei test **non rilegge i `.p0` modificati** finché
+non lo si riavvia (`!reset` confronta la configurazione, non i file:
+[parrot-p0-syntax.md §15](../parrot-p0-syntax.md)) — per mezz'ora il blocco
+nuovo sembrava rotto ed era solo assente.
+
+**Residui:** la domanda in italiano non ha forma (le frasi sì); l'ordine dei
+verbi nella risposta è quello dell'enumerazione; «Which verbs always go before
+the subject?» non elenca gli ausiliari (li nomina come classe).
+
 ## 0. Audit del punto di partenza: esistente, limite, lavoro nuovo
 
 I simboli nella tabella esistono a `af2076c4`; cercarli con `rg -n` nei file

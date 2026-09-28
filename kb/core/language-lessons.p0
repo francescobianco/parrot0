@@ -473,6 +473,87 @@ inversion_support_said($L, like($R), $T) :-
     lesson_quoted($R, $Q), language_lesson_line($L, support_like, $A), concat_atoms($A, $Q, $B),
     language_lesson_line($L, support_like_end, $C), concat_atoms($B, $C, $T).
 
+% ── 3-quinquies. LA DOMANDA INVERSA: la condizione come chiave (L4, incr. 8) ─
+% «Which verbs go before the subject when a bare verb follows?» chiede la
+% regola dall'altro lato: non «quando va need?», ma «chi ci va, a questa
+% condizione?». La condizione si legge con lo STESSO lettore delle parti che
+% legge la lezione (`lesson_condition/2`: le parole, i tipi, la parte di
+% default), e i verbi vengono dalla stessa `inverts_when_via/3` che la regola
+% esegue, ciascuno con il suo sostegno. Una lezione o un ritiro cambiano la
+% risposta al turno dopo; nessuna copia.
+turn_form(ask_verbs_under_condition, 1, text("which verbs go before the subject")).
+turn_form(ask_verbs_under_condition, 2, rest(condition)).
+turn_form_mood(ask_verbs_under_condition, question).
+turn_form_priority(ask_verbs_under_condition, early).
+turn_form_act(ask_verbs_under_condition, "op(match, verbs_under_condition_answer, [condition, free])").
+turn_form_reply(ask_verbs_under_condition, verbs_under_condition_reply).
+turn_form_empty_reply(ask_verbs_under_condition, verbs_under_condition_unread).
+response_template(verbs_under_condition_reply, "{result}").
+response_template(verbs_under_condition_reply, it, "{result}").
+response_template(verbs_under_condition_unread, "Tell me the condition in words, for example «when a bare verb follows» or «in the past when a bare verb follows».").
+response_template(verbs_under_condition_unread, it, "Dimmi la condizione a parole, per esempio «quando segue un verbo nudo» o «al passato quando segue un verbo nudo».").
+% Senza condizione: la regola intera, dai due lati — gli ausiliari sempre, i
+% verbi con una condizione ciascuno con la sua, e gli altri con «do».
+turn_form(ask_verbs_before_subject, 1, text("which verbs go before the subject")).
+turn_form_mood(ask_verbs_before_subject, question).
+turn_form_priority(ask_verbs_before_subject, early).
+turn_form_act(ask_verbs_before_subject, "op(match, verbs_before_subject_answer, [free])").
+turn_form_reply(ask_verbs_before_subject, verbs_under_condition_reply).
+machinery(verbs_before_subject_answer).
+machinery(conditioned_verb_phrase).
+verbs_before_subject_answer($Text) :-
+    current_language($L), language_lesson_line($L, rule_always, $A),
+    findall($P, conditioned_verb_phrase($L, $P), cons($P1, $Ps)), rule_conditioned_said($L, cons($P1, $Ps), $M),
+    concat_atoms($A, $M, $B), language_lesson_line($L, rule_else, $E), concat_atoms($B, $E, $Text).
+verbs_before_subject_answer($Text) :-
+    current_language($L), naf(any_conditioned_verb), language_lesson_line($L, rule_always, $A),
+    language_lesson_line($L, rule_else, $E), concat_atoms($A, $E, $Text).
+machinery(any_conditioned_verb).
+any_conditioned_verb :- inverts_under_condition($R).
+conditioned_verb_phrase($L, $P) :-
+    inverts_under_condition($R), findall($X, inversion_condition_phrase($L, $R, $X), $Xs),
+    inversion_phrase_join($L, $Xs, $J), lesson_quoted($R, $Q), language_lesson_line($L, only_when, $O),
+    concat_atoms($Q, $O, $A), concat_atoms($A, $J, $P).
+machinery(rule_conditioned_said).
+rule_conditioned_said($L, cons($P, $Ps), $T) :-
+    inversion_phrase_and($L, cons($P, $Ps), $J), language_lesson_line($L, rule_some, $A),
+    concat_atoms($A, $J, $T).
+language_lesson_line(en, rule_always, "The auxiliaries always go before the subject to ask").
+language_lesson_line(en, rule_some, "; some verbs only under a condition: ").
+language_lesson_line(en, only_when, " only ").
+language_lesson_line(en, rule_else, "; every other verb stays after the subject and asks with «do».").
+language_lesson_line(it, rule_always, "Gli ausiliari vanno sempre prima del soggetto per chiedere").
+language_lesson_line(it, rule_some, "; alcuni verbi solo a una condizione: ").
+language_lesson_line(it, only_when, " solo ").
+language_lesson_line(it, rule_else, "; ogni altro verbo resta dopo il soggetto e chiede con «do».").
+machinery(verbs_under_condition_answer).
+machinery(verb_under_condition_phrase).
+verbs_under_condition_answer($Said, $Text) :-
+    lesson_condition(current_turn, $C), current_language($L), condition_said($L, $C, $Cw),
+    findall($P, verb_under_condition_phrase($L, $C, $P), cons($P1, $Ps)),
+    inversion_phrase_and($L, cons($P1, $Ps), $J), upcase_first($Cw, $Cu),
+    concat_atoms($Cu, ": ", $A), concat_atoms($A, $J, $B), concat_atoms($B, ".", $Text).
+verbs_under_condition_answer($Said, $Text) :-
+    lesson_condition(current_turn, $C), naf(some_verb_under($C)), current_language($L),
+    condition_said($L, $C, $Cw), language_lesson_line($L, no_verb_under, $A),
+    concat_atoms($A, $Cw, $B), language_lesson_line($L, no_verb_under_end, $E), concat_atoms($B, $E, $Text).
+verb_under_condition_phrase($L, $C, $P) :-
+    inverts_when_via($R, $C, $S), lesson_quoted($R, $Q), inversion_support_said($L, $S, $Sw),
+    concat_atoms($Q, $Sw, $P).
+machinery(some_verb_under).
+some_verb_under($C) :- inverts_when_via($R, $C, $S).
+machinery(inversion_phrase_and).
+inversion_phrase_and($L, cons($P, nil), $P).
+inversion_phrase_and($L, cons($P, cons($Q, $R)), $T) :-
+    inversion_phrase_and($L, cons($Q, $R), $B), language_lesson_line($L, and_join, $O),
+    concat_atoms($P, $O, $A), concat_atoms($A, $B, $T).
+language_lesson_line(en, and_join, " and ").
+language_lesson_line(it, and_join, " e ").
+language_lesson_line(en, no_verb_under, "None that I know: no verb goes before the subject only ").
+language_lesson_line(en, no_verb_under_end, "; the auxiliaries go there always, and the other verbs ask with «do».").
+language_lesson_line(it, no_verb_under, "Nessuno che io sappia: nessun verbo va prima del soggetto solo ").
+language_lesson_line(it, no_verb_under_end, "; gli ausiliari ci vanno sempre, e gli altri verbi chiedono con «do».").
+
 % Che cosa la lezione COLLOCA resta con lei (turn_scratch): l'ausiliare, il
 % modo, l'ordine, il pezzo. Non le forme trovate adesso: al turno dell'esempio
 % si chiede di nuovo alle forme di quel momento, cosi' una lezione rimasta al
