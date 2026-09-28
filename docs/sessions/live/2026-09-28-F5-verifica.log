@@ -1,0 +1,18 @@
+# sessione: F5 giro 10 — verifica finale — 2026-09-28 21:23 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@2a422a73]
+# mode: conversational (tools off, network off) - 170914 facts, 6121 rules (3.58%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+> My car makes a noise since yesterday.
+< Learned: car make noise.
+> I changed the tyres yesterday.
+< Noted: you changed tyres yesterday.
+> I don't know what to try next.
+< The only change you told me about: you changed the tyres. You could undo it and see: undo the change to the tyres; if the car no longer makes noise, it was that change.
+> My espresso tastes bitter since yesterday.
+< Learned: espresso taste bitter.
+> Yesterday I changed the beans and the grind.
+< Noted: you changed beans and the grind.
+> Which change made my espresso bitter?
+< I can't tell yet which change made the espresso taste bitter: you changed the beans and the grind together, and one result can't tell two changes apart. You could undo one change at a time: undo the change to the beans but not the one to the grind; if the espresso no longer tastes bitter, it was the beans.
+# sessione chiusa 21:23 SENZA /save: dati di situazione; le lezioni di verbo («Moving/Updating/Replacing something is a change.») sono di prova e vanno ridette in una sessione pulita se si vogliono salvare

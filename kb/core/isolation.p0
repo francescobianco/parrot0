@@ -282,7 +282,7 @@ need_action_said($L, need($Class, $G), $Text) :-
 % «I don't know what to try next.» — con un effetto osservato e una mossa, la mossa.
 machinery(isolation_any).
 isolation_any($Text) :-
-    observed_effect($E), effect_law($E, $P),
+    observed_effect($E), effect_current($E), effect_law($E, $P),
     isolation_opportunity($Class, $P, $Obj, isolate($Act, $Ger, $E)),
     isolation_text(case($Class, $P, $Obj), isolate($Act, $Ger, $E), $Text).
 isolation_line(en, cant_tell_cause, "I can't tell yet which ").
@@ -322,7 +322,7 @@ stuck_cue_pair(which, causing).
 stuck_cue_pair(try, next).
 machinery(turn_stuck_on_effect).
 turn_stuck_on_effect($T, $E) :-
-    observed_effect($E), stuck_cue_pair($A, $B), turn_word($T, $I, $A), turn_word($T, $J, $B).
+    observed_effect($E), effect_current($E), stuck_cue_pair($A, $B), turn_word($T, $I, $A), turn_word($T, $J, $B).
 faculty_yield_when(turn_plan, open, turn_stuck_on_effect).
 
 % ── 9. L'ESITO DI UNA PROVA (livello 6 della scala: adattarsi) ─────────────
@@ -355,7 +355,7 @@ remaining_member($Class, $X) :- situation_member($Class, $X), naf(done_member($X
 % il caso aperto: l'effetto osservato, la sua legge, la classe e l'azione
 machinery(open_isolation).
 open_isolation(case($Class, $P, $Obj), isolate($Act, $Ger, $E)) :-
-    observed_effect($E), effect_law($E, $P),
+    observed_effect($E), effect_current($E), effect_law($E, $P),
     action_blocks($Act, $Class, $Ger, $Obj0), gerund_relation($Ger, $P), same_words($Obj0, $Obj).
 % «It still trips.»: chi e' stato scollegato non e' lui
 machinery(isolation_still).
@@ -417,12 +417,14 @@ isolation_line(it, stopped_because, ": senza di lui l'effetto si è fermato.").
 turn_form(report_effect_still, 1, text("it still")).
 turn_form(report_effect_still, 2, rest(verb)).
 turn_form_mood(report_effect_still, statement).
+turn_form_view(report_effect_still, said).
 turn_form_priority(report_effect_still, early).
 turn_form_act(report_effect_still, "op(match, isolation_still, [verb, free])").
 turn_form_reply(report_effect_still, isolation_reply).
 turn_form(report_effect_stopped, 1, text("it stopped")).
 turn_form(report_effect_stopped, 2, rest(verb)).
 turn_form_mood(report_effect_stopped, statement).
+turn_form_view(report_effect_stopped, said).
 turn_form_priority(report_effect_stopped, early).
 turn_form_act(report_effect_stopped, "op(match, isolation_stopped, [verb, free])").
 turn_form_reply(report_effect_stopped, isolation_reply).
@@ -530,3 +532,371 @@ turn_asks_which_causes($T, $W) :-
 machinery(cause_word).
 cause_word(making).  cause_word(causing).
 faculty_yield_when(turn_plan, open, turn_asks_which_causes).
+
+% ── 13. L'OSSERVAZIONE HA UN TURNO: il problema di cui si parla ORA ────────
+% train-the-smart-agent.md §10 iter. 18 (28 settembre 2026). Dopo il
+% differenziale, «My espresso tastes bitter since yesterday.» e poi «I don't
+% know what to try next.» ricevevano la mossa del DIFFERENZIALE: il blocco
+% prendeva qualunque effetto osservato nella conversazione, non quello del
+% problema in corso (peggio di un muro: una risposta a un'altra domanda).
+% Un'osservazione e' un fatto riportato con un segno di ACCADIMENTO: l'aspetto
+% continuativo («keeps tripping», §8) o un inizio nel tempo («since
+% yesterday»: l'indizio `time/onset` della IR, function-words.p0). Si annota
+% con il turno, DOPO la risposta, da cio' che il turno ha SCRITTO
+% (`kb_turn_act/4`: la lettura registrata porta la sigla detta, «rcd», il
+% fatto la forma espansa, e l'effetto non si ritroverebbe); il
+% problema corrente e' l'osservazione piu' recente.
+machinery(observation_at).
+turn_scratch(observation_at).
+after_reply_bookkeeper(onset_observation).
+turn_after_reply($T, onset_observation) :-
+    grammatical_cue(input(current_turn), $Span, time, onset),
+    kb_turn_act($P, cons($S, cons($O, nil)), pos, $K),
+    naf(continuative_verb($P)), naf(machinery($P)), turn_counter($N),
+    assert(observation_at, fact($P, $S, $O), $N).
+after_reply_bookkeeper(continuative_observation_at).
+turn_after_reply($T, continuative_observation_at) :-
+    continuative_verb($K), kb_turn_act($K, cons($Subj, cons($G, nil)), pos, $A),
+    verb_form($R, $G, present_participle), verb_root_form($R, form($V, present_third)),
+    atom_words($Subj, $SW), app($SW, cons($V, nil), $EW), words_underscored($EW, $E),
+    turn_counter($N), assert(observation_at, holds($E), $N).
+machinery(latest_observation).
+machinery(later_observation).
+latest_observation($F) :- observation_at($F, $N), naf(later_observation($N)).
+later_observation($N) :- observation_at($G, $M), gt($M, $N).
+% Un effetto e' ancora il problema corrente se nessuna osservazione di
+% un'ALTRA cosa e' venuta dopo la sua ultima. Senza osservazioni annotate (un
+% effetto detto come proposizione, «The RCD trips.») resta corrente.
+machinery(effect_current).
+machinery(newer_observation_than).
+machinery(observed_at_or_after).
+effect_current($E) :- naf(newer_observation_than($E)).
+newer_observation_than($E) :-
+    observation_at($F, $M), dif($F, holds($E)), naf(observed_at_or_after(holds($E), $M)).
+observed_at_or_after($F, $M) :- observation_at($F, $N), naf(gt($M, $N)).
+
+% ── 14. I CAMBIAMENTI RIPORTATI da chi e' nella situazione ──────────────────
+% «Yesterday I changed the beans and the grind.» Chi parla ha fatto delle
+% azioni che hanno CAMBIATO cose: sono candidati a spiegare un effetto che e'
+% cominciato dopo. Quali verbi siano cambiamenti e' conoscenza della lingua e si
+% insegna parlando («Moving something is a change.»); «change» lo e' per il
+% suo significato. Un verbo che guarda senza toccare («I checked the fuse»)
+% non lo e', e non entra. Stato della situazione di chi parla: `turn_scratch`,
+% mai salvato come lezione (§8 punto 0 del piano).
+machinery(change_action).
+machinery(change_gerund).
+change_action(change).
+change_action($R) :- change_gerund($G), verb_form($R, $G, present_participle).
+machinery(change_past).
+change_past($P) :- verb_form($R, $P, past), change_action($R).
+turn_form(teach_change_action, 1, slot(gerund)).
+turn_form(teach_change_action, 2, text("something is a change")).
+turn_form_mood(teach_change_action, statement).
+turn_form_priority(teach_change_action, early).
+turn_form_act(teach_change_action, "op(assert, change_gerund, [gerund])").
+turn_form_reply(teach_change_action, change_action_learned).
+response_template(change_action_learned, "Held: {gerund} something is a change.").
+response_template(change_action_learned, it, "Tengo: «{gerund}» qualcosa è un cambiamento.").
+machinery(change_said).
+turn_scratch(change_said).
+turn_form(report_changes, 1, text("i")).
+turn_form(report_changes, 2, slot(past)).
+turn_form(report_changes, 3, rest(things)).
+turn_form(report_changes, 4, bind(when, unsaid)).
+turn_form_mood(report_changes, statement).
+turn_form_priority(report_changes, early).
+turn_form_slot_class(report_changes, past, change_past).
+turn_form_act(report_changes, "op(assert, change_said, [past, things, when])").
+turn_form_reply(report_changes, changes_noted).
+turn_form(report_changes_when, 1, slot(when)).
+turn_form(report_changes_when, 2, text("i")).
+turn_form(report_changes_when, 3, slot(past)).
+turn_form(report_changes_when, 4, rest(things)).
+turn_form_mood(report_changes_when, statement).
+turn_form_priority(report_changes_when, early).
+turn_form_slot_class(report_changes_when, when, change_time_word).
+% il tempo di piu' parole in testa: «Last week I moved …»
+turn_form(report_changes_span, 1, span(when)).
+turn_form(report_changes_span, 2, text("i")).
+turn_form(report_changes_span, 3, slot(past)).
+turn_form(report_changes_span, 4, rest(things)).
+turn_form_mood(report_changes_span, statement).
+turn_form_priority(report_changes_span, early).
+turn_form_slot_class(report_changes_span, past, change_past).
+turn_form_act(report_changes_span, "op(assert, change_said, [past, things, when])").
+turn_form_reply(report_changes_span, changes_noted).
+turn_form_slot_class(report_changes_when, past, change_past).
+turn_form_act(report_changes_when, "op(assert, change_said, [past, things, when])").
+turn_form_reply(report_changes_when, changes_noted).
+machinery(change_time_word).
+change_time_word($W) :- day_word_offset($W, $O).
+response_template(changes_noted, "Noted: you {past} {things}.").
+response_template(changes_noted, it, "Annotato: hai fatto «{past}» su {things}.").
+% le cose dette, una per una: «the beans and the grind» -> beans, grind
+machinery(said_items).
+machinery(items_of).
+machinery(take_item).
+said_items($Text, $Items) :- atom_words($Text, $Ws), items_of($Ws, $Items).
+items_of(nil, nil).
+items_of(cons($W, $R), cons($E, $Es)) :-
+    take_item(cons($W, $R), $IW, $Rest), drop_item_verb($IW, $IW1), drop_openers($IW1, $IW2),
+    drop_time_words($IW2, $IW3), words_underscored($IW3, $E), items_of($Rest, $Es).
+% «I changed my password yesterday»: il tempo detto in coda non e' la cosa cambiata
+machinery(drop_time_words).
+drop_time_words(nil, nil).
+drop_time_words(cons($W, $R), $Out) :- change_time_word($W), drop_time_words($R, $Out).
+drop_time_words(cons($W, $R), cons($W, $Out)) :- naf(change_time_word($W)), drop_time_words($R, $Out).
+% «I moved the pot and CHANGED the soil»: ogni elemento puo' portare il suo verbo
+machinery(drop_item_verb).
+drop_item_verb(cons($V, $R), $R) :- change_past($V).
+drop_item_verb(cons($V, $R), cons($V, $R)) :- naf(change_past($V)).
+take_item(nil, nil, nil).
+take_item(cons($W, $R), nil, $R) :- coordination_word($W).
+take_item(cons($W, $R), cons($W, $I), $Rest) :- naf(coordination_word($W)), take_item($R, $I, $Rest).
+machinery(reported_change).
+reported_change($Past, $X) :-
+    change_said($Past, $Things, $When), change_for_current($Things), said_items($Things, $Xs), member($X, $Xs).
+% I cambiamenti appartengono al problema corrente: dopo di loro non e' stata
+% riportata nessuna ALTRA osservazione (l'espresso non presta i suoi chicchi
+% alla stampante). Il turno di un resoconto lo annota il contabile.
+machinery(change_turn).
+turn_scratch(change_turn).
+after_reply_bookkeeper(change_turn_note).
+turn_after_reply($T, change_turn_note) :-
+    change_said($Past, $Things, $When), naf(change_turn_known($Things)), turn_counter($N),
+    assert(change_turn, $Things, $N).
+% ⚠ `naf` vuole un goal ground: la variabile del turno sta nell'aiutante
+machinery(change_turn_known).
+change_turn_known($Things) :- change_turn($Things, $M).
+% Un resoconto di cambiamenti appartiene all'osservazione piu' vicina che lo
+% precede; se nessuna lo precede, alla prima che lo segue.
+machinery(change_for_current).
+machinery(change_problem).
+machinery(closer_observation_before).
+machinery(observation_before).
+machinery(earlier_observation_after).
+change_for_current($Things) :- latest_observation($F), change_problem($Things, $F).
+change_problem($Things, $F) :-
+    change_turn($Things, $C), observation_at($F, $N), naf(gt($N, $C)), naf(closer_observation_before($C, $N)).
+change_problem($Things, $F) :-
+    change_turn($Things, $C), naf(observation_before($C)), observation_at($F, $N), gt($N, $C),
+    naf(earlier_observation_after($C, $N)).
+closer_observation_before($C, $N) :- observation_at($G, $M), naf(gt($M, $C)), gt($M, $N).
+observation_before($C) :- observation_at($G, $M), naf(gt($M, $C)).
+earlier_observation_after($C, $N) :- observation_at($G, $M), gt($M, $C), gt($N, $M).
+
+% ── 15. PIU' CAMBIAMENTI INSIEME: una variabile alla volta (F5, F2) ────────
+% Il principio di F5: se cambio due cose insieme e il risultato cambia, il
+% risultato non dice quale delle due e' stata; per imparare da una prova se ne
+% annulla una sola. Si propone SOLO quando la KB trova insieme un'osservazione
+% corrente (§13) e almeno due cambiamenti riportati (§14). Nessun caffe', nessun
+% chicco: cambia la conoscenza, non il meccanismo.
+machinery(change_move).
+machinery(change_suspects).
+% i sospetti: i cambiamenti riportati, con il verbo detto e l'effetto corrente
+change_suspects(fact($P, $S, $O), $Past, $Xs) :-
+    latest_observation(fact($P, $S, $O)), latest_change_report($Past),
+    findall($X, reported_change($Any, $X), $Xs).
+% una riga sola anche con due resoconti per lo stesso problema
+machinery(latest_change_report).
+machinery(later_change_report).
+latest_change_report($Past) :-
+    change_said($Past, $Things, $W), change_for_current($Things), change_turn($Things, $C),
+    naf(later_change_report($C)).
+later_change_report($C) :-
+    change_said($P2, $T2, $W2), change_for_current($T2), change_turn($T2, $C2), gt($C2, $C).
+change_move($Text) :-
+    change_suspects($F, $Past, cons($A, cons($B, $More))), current_language($L),
+    effect_made_said($L, $F, $Made), effect_gone_said($L, $F, $Gone),
+    items_and_said($L, cons($A, cons($B, $More)), $Ms),
+    change_line($L, cant_tell, $T0), concat_atoms($T0, $Made, $T1),
+    change_line($L, you, $T2), concat_atoms($T1, $T2, $T3), change_line($L, changed, $T4a),
+    concat_atoms($T3, $T4a, $T5), concat_atoms($T5, $Ms, $T6),
+    change_undo_said($L, undo($A, $B, $Gone), $U), concat_atoms($T6, $U, $Text).
+% Un solo cambiamento: il ritorno allo stato di prima lo mette alla prova (F2).
+change_move($Text) :-
+    change_suspects($F, $Past, cons($A, nil)), current_language($L),
+    effect_gone_said($L, $F, $Gone), words_of($A, $WA),
+    change_line($L, one_change, $T0), concat_atoms($T0, $Past, $T1), concat_atoms($T1, " the ", $T2),
+    concat_atoms($T2, $WA, $T3), change_line($L, one_undo, $T4), concat_atoms($T3, $T4, $T5),
+    change_single_tail($L, $WA, $Gone, $Z), concat_atoms($T5, $Z, $Text).
+machinery(change_single_tail).
+change_single_tail($L, $WA, $Gone, $Text) :-
+    change_line($L, if, $T7), concat_atoms($WA, $T7, $T8),
+    concat_atoms($T8, $Gone, $T9), change_line($L, it_was_change, $T10), concat_atoms($T9, $T10, $Text).
+machinery(change_undo_said).
+change_undo_said($L, undo($A, $B, $Gone), $Text) :-
+    words_of($A, $WA), words_of($B, $WB),
+    change_line($L, undo_one, $U0), concat_atoms($U0, $WA, $U1),
+    change_line($L, not_the_one, $U2), concat_atoms($U1, $U2, $U3), concat_atoms($U3, $WB, $U4),
+    change_line($L, if, $U5), concat_atoms($U4, $U5, $U6), concat_atoms($U6, $Gone, $U7),
+    change_line($L, it_was, $U8), concat_atoms($U7, $U8, $U9), concat_atoms($U9, $WA, $U10),
+    concat_atoms($U10, ".", $Text).
+% «made the espresso taste bitter» (la radice dopo «made»), «the espresso no
+% longer tastes bitter» (la terza persona dal paradigma)
+machinery(effect_made_said).
+effect_made_said($L, fact($P, $S, $O), $Text) :-
+    words_of($S, $WS), words_of($P, $WP), words_of($O, $WO), change_line($L, made_the, $A),
+    concat_atoms($A, $WS, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WP, $D),
+    concat_atoms($D, " ", $E), concat_atoms($E, $WO, $Text).
+machinery(effect_gone_said).
+effect_gone_said($L, fact($P, $S, $O), $Text) :-
+    words_of($S, $WS), verb_form($P, $F, present_third), words_of($O, $WO),
+    change_line($L, the, $A), concat_atoms($A, $WS, $B), change_line($L, no_longer, $C),
+    concat_atoms($B, $C, $D), concat_atoms($D, $F, $E), concat_atoms($E, " ", $G), concat_atoms($G, $WO, $Text).
+machinery(change_line).
+change_line(en, cant_tell, "I can't tell yet which change ").
+change_line(en, made_the, "made the ").
+change_line(en, you, ": you ").
+change_line(en, undo_one, " together, and one result can't tell two changes apart. You could undo one change at a time: undo the change to the ").
+change_line(en, not_the_one, " but not the one to the ").
+change_line(en, if, "; if ").
+change_line(en, it_was, ", it was the ").
+change_line(en, the, "the ").
+change_line(en, no_longer, " no longer ").
+change_line(en, one_change, "The only change you told me about: you ").
+change_line(en, one_undo, ". You could undo it and see: undo the change to the ").
+change_line(en, it_was_change, ", it was that change.").
+change_line(it, cant_tell, "Non so ancora dire quale cambiamento ").
+change_line(it, made_the, "ha fatto sì che ").
+change_line(it, you, ": hai ").
+change_line(it, undo_one, " insieme, e un solo risultato non distingue due cambiamenti. Puoi annullarne uno alla volta: annulla il cambiamento a ").
+change_line(it, not_the_one, " ma non quello a ").
+change_line(it, if, "; se ").
+change_line(it, it_was, ", era ").
+change_line(it, the, "").
+change_line(it, no_longer, " non più ").
+change_line(it, one_change, "L'unico cambiamento di cui mi hai parlato: hai fatto «").
+change_line(it, one_undo, "» su ").
+change_line(it, it_was_change, ", era quel cambiamento.").
+% Il blocco («I don't know what to try next.») e la domanda («Which change
+% made my espresso bitter?») la chiedono per il problema corrente.
+isolation_any($Text) :- change_move($Text).
+turn_form(ask_which_change, 1, text("which change")).
+turn_form(ask_which_change, 2, rest(effect)).
+turn_form_mood(ask_which_change, question).
+turn_form_priority(ask_which_change, early).
+turn_form_act(ask_which_change, "op(match, change_move_asked, [effect, free])").
+turn_form_reply(ask_which_change, isolation_reply).
+machinery(change_move_asked).
+change_move_asked($Said, $Text) :-
+    latest_observation(fact($P, $S, $O)), atom_words($Said, $Ws), member($S, $Ws), change_move($Text).
+turn_stuck_on_effect($T, $F) :-
+    latest_observation($F), stuck_cue_pair($A, $B), turn_word($T, $I, $A), turn_word($T, $J, $B).
+
+% «the beans and the grind»: i cambiamenti fatti INSIEME si dicono con «and»
+machinery(items_and_said).
+items_and_said($L, cons($X, cons($Y, nil)), $T) :-
+    words_of($X, $WX), words_of($Y, $WY), change_line($L, and, $O),
+    concat_atoms("the ", $WX, $A), concat_atoms($A, $O, $B), concat_atoms($B, "the ", $C), concat_atoms($C, $WY, $T).
+items_and_said($L, cons($X, cons($Y, cons($Z, $R))), $T) :-
+    words_of($X, $WX), items_and_said($L, cons($Y, cons($Z, $R)), $Rest),
+    concat_atoms("the ", $WX, $A), concat_atoms($A, ", ", $B), concat_atoms($B, $Rest, $T).
+change_line(en, and, " and ").
+% l'iperonimo: «you updated the driver and the cartridge» sarebbe falso se la
+% cartuccia e' stata sostituita; ogni verbo di cambiamento e' un cambiamento
+change_line(en, changed, "changed ").
+change_line(it, changed, "cambiato ").
+change_line(it, and, " e ").
+
+% ── 16. L'ESITO DELLA PROVA: annullare un cambiamento, e che cosa succede ───
+% «I went back to the old beans.» e poi «It is still bitter.»: il cambiamento
+% annullato non era lui, restano gli altri; «It stopped …» / «It is no longer
+% …»: era lui (se il guasto sta in un cambiamento solo, detto). Il ritorno si
+% riconosce da una parola che dice ritorno («back», «undid», «reverted»:
+% `undo_word/1`, lessico della lingua, una riga per parola nuova) insieme a una
+% delle cose cambiate; il resto e' la stessa logica del §9.
+machinery(undo_word).
+undo_word(back).  undo_word(undid).  undo_word(undo).  undo_word(reverted).
+undo_word(indietro).  undo_word(annullato).
+machinery(change_undone).
+turn_scratch(change_undone).
+machinery(undo_said_item).
+undo_said_item($Said, $X) :-
+    atom_words($Said, $Ws), member($U, $Ws), undo_word($U),
+    reported_change($Past, $X), atom_words($X, $XW), app($Front, $Post, $Ws), app($Pre, $XW, $Front).
+machinery(change_undo_noted).
+change_undo_noted($Said, $Text) :-
+    undo_said_item($Said, $X), latest_observation($F), current_language($L),
+    words_of($X, $WX), change_line($L, noted_undo, $A), concat_atoms($A, $WX, $B),
+    change_still_question($L, $F, $Q), concat_atoms($B, $Q, $Text).
+machinery(change_still_question).
+change_still_question($L, fact($P, $S, $O), $Text) :-
+    verb_form($P, $F, present_third), words_of($O, $WO), change_line($L, does_it_still, $A),
+    concat_atoms($A, $P, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WO, $D), concat_atoms($D, "?", $Text).
+turn_form(report_undo, 1, text("i")).
+turn_form(report_undo, 2, rest(said)).
+turn_form_mood(report_undo, statement).
+turn_form_view(report_undo, said).
+turn_form_priority(report_undo, early).
+turn_form_act(report_undo, "op(match, change_undo_noted, [said, free])").
+turn_form_reply(report_undo, isolation_reply).
+after_reply_bookkeeper(change_undo_note).
+turn_after_reply($T, change_undo_note) :-
+    turn_form_read(current_turn, report_undo), turn_word(current_turn, $I, $U), undo_word($U),
+    reported_change($Past, $X), atom_words($X, $XW), words_in_turn($XW),
+    naf(change_undone($X)), assert(change_undone, $X).
+machinery(words_in_turn).
+words_in_turn(nil).
+words_in_turn(cons($W, $R)) :- turn_word(current_turn, $I, $W), words_in_turn($R).
+machinery(change_remaining).
+change_remaining($X) :- reported_change($Past, $X), naf(change_undone($X)).
+machinery(current_undone).
+current_undone($X) :- change_undone($X), reported_change($Past, $X).
+% «It is still bitter.» / «It still tastes bitter.»
+isolation_still($Verb, $Text) :-
+    latest_observation(fact($P, $S, $O)), findall($X, current_undone($X), cons($D, $Ds)),
+    findall($Y, change_remaining($Y), $Rs), current_language($L),
+    items_and_said($L, cons($D, $Ds), $DoneT), change_line($L, then_not, $A), concat_atoms($A, $DoneT, $B),
+    change_next($L, $Rs, $N), concat_atoms($B, $N, $Text).
+isolation_still($Verb, $Text) :-
+    latest_observation(fact($P, $S, $O)), findall($X, current_undone($X), cons($D, nil)),
+    findall($Y, change_remaining($Y), $Rs), current_language($L),
+    words_of($D, $WD), change_line($L, then_not, $A), concat_atoms($A, "the ", $A2), concat_atoms($A2, $WD, $B),
+    change_next($L, $Rs, $N), concat_atoms($B, $N, $Text).
+machinery(change_next).
+change_next($L, cons($R, nil), $Text) :-
+    words_of($R, $WR), change_line($L, leaves_change, $A), concat_atoms($A, $WR, $B),
+    change_line($L, single_change, $C), concat_atoms($B, $C, $Text).
+change_next($L, cons($R, cons($R2, $Rs)), $Text) :-
+    items_and_said($L, cons($R, cons($R2, $Rs)), $M), words_of($R, $WR),
+    change_line($L, still_could, $A), concat_atoms($A, $M, $B),
+    change_line($L, undo_next, $C), concat_atoms($B, $C, $D), concat_atoms($D, $WR, $E),
+    concat_atoms($E, " next.", $Text).
+% «It stopped tasting bitter.» / «It is no longer bitter.»
+isolation_stopped($Verb, $Text) :-
+    latest_observation(fact($P, $S, $O)), findall($X, current_undone($X), $Ds), last_of($Ds, $Last),
+    words_of($Last, $WL), current_language($L), change_line($L, then_it_was, $A),
+    concat_atoms($A, $WL, $B), change_line($L, once_undone, $C), concat_atoms($B, $C, $Text).
+turn_form(report_effect_still_is, 1, text("it is still")).
+turn_form(report_effect_still_is, 2, rest(verb)).
+turn_form_mood(report_effect_still_is, statement).
+turn_form_view(report_effect_still_is, said).
+turn_form_priority(report_effect_still_is, early).
+turn_form_act(report_effect_still_is, "op(match, isolation_still, [verb, free])").
+turn_form_reply(report_effect_still_is, isolation_reply).
+turn_form(report_effect_no_longer, 1, text("it is no longer")).
+turn_form(report_effect_no_longer, 2, rest(verb)).
+turn_form_mood(report_effect_no_longer, statement).
+turn_form_view(report_effect_no_longer, said).
+turn_form_priority(report_effect_no_longer, early).
+turn_form_act(report_effect_no_longer, "op(match, isolation_stopped, [verb, free])").
+turn_form_reply(report_effect_no_longer, isolation_reply).
+change_line(en, noted_undo, "Noted: you undid the change to the ").
+change_line(en, does_it_still, ". Does it still ").
+change_line(en, then_not, "Then it wasn't ").
+change_line(en, leaves_change, ": that leaves the change to the ").
+change_line(en, single_change, " (if only one of the changes is at fault).").
+change_line(en, still_could, ": it could still be ").
+change_line(en, undo_next, ". Undo the change to the ").
+change_line(en, then_it_was, "Then it was the change to the ").
+change_line(en, once_undone, ": once it was undone, the effect stopped.").
+change_line(it, noted_undo, "Annotato: hai annullato il cambiamento a ").
+change_line(it, does_it_still, ". Succede ancora che ").
+change_line(it, then_not, "Allora non era ").
+change_line(it, leaves_change, ": resta il cambiamento a ").
+change_line(it, single_change, " (se la colpa è di un solo cambiamento).").
+change_line(it, still_could, ": potrebbe ancora essere ").
+change_line(it, undo_next, ". Annulla adesso il cambiamento a ").
+change_line(it, then_it_was, "Allora era il cambiamento a ").
+change_line(it, once_undone, ": annullato quello, l'effetto si è fermato.").

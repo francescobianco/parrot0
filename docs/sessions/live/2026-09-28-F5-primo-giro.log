@@ -1,0 +1,91 @@
+# sessione: train-the-smart-agent — F5 (una variabile alla volta), ripresa del 28 set — 2026-09-28 21:00 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@2a422a73]
+# mode: conversational (tools off, network off) - 170739 facts, 6068 rules (3.55%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Ripresa dal §8 punto 5: famiglia F5 (una variabile alla volta), scenario F5.1 espresso amaro. Prima un controllo che la KB salvata regga ancora F1.1 (regressione dai ponti di oggi), poi la scena F5.1 senza suggerire la mossa.
+> The RCD keeps tripping.
+< Learned: residual current device keep tripping.
+> The kettle, the fridge and the washing machine are appliances.
+< Learned: kettle is an appliance. Learned: fridge is an appliance. Learned: washing machine is an appliance.
+> I can't work out which appliance is causing it.
+< I can't tell yet which appliance leaks current: it could be the kettle, the fridge or the washing machine. You could try unplugging them one at a time. Unplugging an appliance stops it from leaking current, so when the residual current device stops tripping, the last one you changed is the one.
+! F5.1 — scena e blocco, come li direbbe una persona. Atteso (livello 4): che non si può sapere quale dei due cambiamenti ha reso amaro il caffè, e la proposta di annullarne uno alla volta.
+> My espresso tastes bitter since yesterday.
+< Learned: espresso taste bitter.
+> Yesterday I changed the beans and the grind.
+< Hmm, I don't know about yesterday yet. Want me to learn about it?
+> I don't know what to try next.
+< I can't tell yet which appliance leaks current: it could be the kettle, the fridge or the washing machine. You could try unplugging them one at a time. Unplugging an appliance stops it from leaking current, so when the residual current device stops tripping, the last one you changed is the one.
+> Which change made my espresso bitter?
+< I don't understand that yet.
+> /debug pred taste/2
+# /debug pred taste/2: 4 righe lette dall'insegnante, fuori dal transcript
+> /debug pred holds/1
+# /debug pred holds/1: 4 righe lette dall'insegnante, fuori dal transcript
+> My bike is red.
+< Got it: the bike is red.
+> What color is my bike?
+< Red.
+> The espresso tastes bitter.
+< Learned: espresso taste bitter.
+> Why does my espresso taste bitter?
+< I don't understand that yet.
+> I changed the beans and the grind.
+< Hmm, I don't know about changed yet. Want me to learn about it?
+> I changed the beans.
+< I looked up «changed» but found nothing. If you know it, teach me: «changed is defined as …».
+> What did I change?
+< I don't understand that yet.
+> Since yesterday my espresso tastes bitter.
+< I didn't keep that: «since_yesterday_my_espresso» and «bitter» don't read as things I can hold a fact about.
+> When did my espresso start tasting bitter?
+< Hmm, I don't know about tasting yet. Want me to learn about it?
+> /debug pred change/2
+# /debug pred change/2: 2 righe lette dall'insegnante, fuori dal transcript
+> /debug pred changed/2
+# /debug pred changed/2: 2 righe lette dall'insegnante, fuori dal transcript
+! Lacuna nuova (G18): il cambiamento riportato in prima persona al passato («I changed the beans.») è un muro su «changed». Canale: L3/L2 — «change» come verbo di relazione, poi il passato.
+> changes is a relation verb
+< Learned: changes is a relation verb.
+> I changed the beans.
+< Hmm, I don't know about changed yet.
+> What did I change?
+< I don't understand that yet.
+> Did I change the grind?
+< I'm not sure I followed. Can you say it another way?
+> /debug pred changes/2
+# /debug pred changes/2: 2 righe lette dall'insegnante, fuori dal transcript
+> The barista changes the beans.
+< Learned: barista change beans.
+> The barista changed the grind.
+< Learned: barista change grind.
+> The kettle leaked current.
+< Hmm, I don't know about kettle leaked current yet. Want me to learn about it?
+> I change the filter.
+< I don't understand that yet.
+> I live in Turin.
+< Got it, I'll remember that.
+> Where do I live?
+< Turin.
+> I own a bike.
+< I don't understand that yet.
+> /debug depth 1
+# /debug depth 1: 1 righe lette dall'insegnante, fuori dal transcript
+> /debug trace
+# /debug trace: 125 righe lette dall'insegnante, fuori dal transcript
+> I own a bike.
+< I didn't quite catch that. What would you like to know?
+> /debug turn
+# /debug turn: 199 righe lette dall'insegnante, fuori dal transcript
+> /debug off
+# /debug spento
+> My espresso tastes bitter.
+< Learned: espresso taste bitter.
+> what are we on
+< We are on bike.
+> My espresso tastes bitter since yesterday.
+< Learned: espresso taste bitter.
+> /debug turn
+# /debug turn: 188 righe lette dall'insegnante, fuori dal transcript
+# sessione chiusa 21:09 SENZA /save (dati di situazione, lezioni di prova); ripresa dopo la cura KB §13–15 di isolation.p0

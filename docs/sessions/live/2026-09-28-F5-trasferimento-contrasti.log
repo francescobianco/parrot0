@@ -1,0 +1,53 @@
+# sessione: F5 giro 9 — trasferimento e contrasto — 2026-09-28 21:18 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@2a422a73]
+# mode: conversational (tools off, network off) - 170909 facts, 6119 rules (3.58%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+> My espresso tastes bitter since yesterday.
+< Learned: espresso taste bitter.
+> Yesterday I changed the beans and the grind.
+< Noted: you changed beans and the grind.
+> I went back to the old beans.
+< Noted: you undid the change to the beans. Does it still taste bitter?
+> It is no longer bitter.
+< Then it was the change to the beans: once it was undone, the effect stopped.
+> My printer prints blank pages since yesterday.
+< Learned: printer print blank pages.
+> Updating something is a change.
+< Held: updating something is a change.
+> Replacing something is a change.
+< Held: replacing something is a change.
+> Yesterday I updated the driver and replaced the cartridge.
+< Noted: you updated driver and replaced the cartridge.
+> I don't know what to try next.
+< I can't tell yet which change made the printer print blank pages: you changed the driver and the cartridge together, and one result can't tell two changes apart. You could undo one change at a time: undo the change to the driver but not the one to the cartridge; if the printer no longer prints blank pages, it was the driver.
+> I put the old cartridge back.
+< Noted: you undid the change to the cartridge. Does it still print blank pages?
+> It still prints blank pages.
+< Then it wasn't the cartridge: that leaves the change to the driver (if only one of the changes is at fault).
+! Contrasti: (a) un solo cambiamento → la mossa di F2, non quella di F5; (b) «checked» non è un cambiamento → nessun sospetto; (c) F1 in coda, regressione.
+> My car makes a noise since yesterday.
+< Learned: car make noise.
+> Yesterday I replaced the tyres.
+< Noted: you replaced tyres.
+> I don't know what to try next.
+< You replaced the tyres just before it started. You could undo the change to the tyres; if the car no longer makes noise, it was that change.
+> My kettle makes a noise since yesterday.
+< Learned: kettle make noise.
+> Yesterday I checked the plug and the cable.
+< Hmm, I don't know about yesterday yet. Want me to learn about it?
+> I don't know what to try next.
+< I don't understand that yet.
+> The RCD keeps tripping.
+< Learned: residual current device keep tripping.
+> The kettle, the fridge and the washing machine are appliances.
+< Learned: kettle is an appliance. Learned: fridge is an appliance. Learned: washing machine is an appliance.
+> I can't work out which appliance is causing it.
+< I can't tell yet which appliance leaks current: it could be the kettle, the fridge or the washing machine. You could try unplugging them one at a time. Unplugging an appliance stops it from leaking current, so when the residual current device stops tripping, the last one you changed is the one.
+> I don't know what to try next.
+< I can't tell yet which appliance leaks current: it could be the kettle, the fridge or the washing machine. You could try unplugging them one at a time. Unplugging an appliance stops it from leaking current, so when the residual current device stops tripping, the last one you changed is the one.
+> I changed my mind.
+< Noted: you changed mind.
+> I changed my password yesterday.
+< Noted: you changed password yesterday.
+# sessione chiusa 21:23 SENZA /save

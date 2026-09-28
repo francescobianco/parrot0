@@ -1,0 +1,16 @@
+# sessione: F5 giro 5 — livello 6 — 2026-09-28 21:14 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@2a422a73]
+# mode: conversational (tools off, network off) - 170885 facts, 6106 rules (3.57%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+> My espresso tastes bitter since yesterday.
+< Learned: espresso taste bitter.
+> Yesterday I changed the beans and the grind.
+< Noted: you changed beans and the grind.
+> I don't know what to try next.
+< I can't tell yet which change made the espresso taste bitter: you changed the beans and the grind together, and one result can't tell two changes apart. You could undo one change at a time: undo the change to the beans but not the one to the grind; if the espresso no longer tastes bitter, it was the beans.
+> I went back to the old beans.
+< Noted: you undid the change to the beans. Does it still taste bitter?
+> It still tastes bitter.
+< Then it wasn't the beans: that leaves the change to the grind (if only one of the changes is at fault).
+# sessione chiusa 21:15 SENZA /save

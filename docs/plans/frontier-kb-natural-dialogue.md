@@ -841,6 +841,39 @@ piani K6. Il contratto semantico, invece, e' gia' vincolante:
 6. l'output del livello e' un piano con proof, alternative e residui, mai testo
    naturale terminale.
 
+> ⭐ **F., 28 settembre 2026 — due allargamenti del mondo, non uno.** Dalla
+> sessione F5 di [train-the-smart-agent.md](train-the-smart-agent.md):
+>
+>     > My espresso tastes bitter since yesterday.
+>     < Learned: espresso taste bitter.
+>
+> *«parrot0 segna come Learned:, il che risulta inappropriato; sarebbe più
+> corretto una sorta di "ok, ti ho capito, mi dici che: …". Ma questo non è
+> un elemento di differenza stilistica nella risposta: è proprio un livello
+> diverso. Si dovrebbe considerare, nello strato della IR e nella creazione
+> del mondo allargato, che l'utente ha una macchinetta del caffè. Non è stata
+> spiegata una lezione: è una cosa che popola il mondo. Allo stesso modo il
+> semplice "Learned:" è anch'esso un allargamento del mondo, ma nel senso "ho
+> appreso una cosa sul mondo".»*
+>
+> Quindi l'atto di una frase affermativa si divide **prima** della scrittura,
+> non nel template:
+>
+> | allargamento | che cosa aggiunge | esempio | risposta giusta |
+> |---|---|---|---|
+> | **lezione sul mondo** | una conoscenza generale, vera oltre la conversazione | «Espresso is made with pressurised water.» | «Learned: …» |
+> | **popolamento del mondo dell'interlocutore** | entità e stati della SUA situazione (K11: `situation_entity`, `state_value`), con fonte e tempo | «My espresso tastes bitter since yesterday.» → l'utente ha un espresso (e una macchinetta che lo fa), che da ieri è amaro | «So your espresso has tasted bitter since yesterday.» (ho capito che cosa mi dici) |
+>
+> Gli indizi sono già nella IR del turno: il possessivo
+> (`evidence(span(1,1), determination, possessive)`), l'inizio nel tempo
+> (`evidence(span(5,5), time, onset)`), la prima persona. Un turno che li porta
+> popola la situazione di chi parla; non insegna una proprietà dell'espresso in
+> generale. Il difetto vale per ogni resoconto (il differenziale «keeps
+> tripping» → «Learned: … keep tripping», G1): la cura è nello strato che
+> decide l'atto (K1/K3 + mondo allargato di
+> [the-rational-philosopher.md](the-rational-philosopher.md)), non in una
+> parola del template. Registro: train-the-learning-process.md §SA, riga SA11.
+
 In questo livello «astuzia» significa una composizione verificabile di operatori:
 scoprire un'assunzione nascosta, riclassificare una risorsa, osservare una
 proprieta' laterale, scegliere un'azione informativa, confrontare mondi
