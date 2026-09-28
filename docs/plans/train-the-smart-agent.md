@@ -1,5 +1,18 @@
 # Addestrare l'agente situazionale — train the smart agent
 
+> **⛔ NOVITA' — 28 settembre 2026 (F.): i PONTI FRA PREDICATI e l'asse
+> strutturale.** Quando lo stesso concetto sta in due cassetti (`capital_of` e
+> `capital_of_country`, argomenti invertiti o arita' diverse) **non si unifica
+> riscrivendo la KB e non si scrive una regola per coppia**: si dichiara un
+> ponte insegnabile e ritirabile — `predicate_same_of(A, B)`,
+> `predicate_reverse_of(A, B)`, `predicate_args_of(A, B, Posti)` — consumato
+> in un punto solo, il solver, cosi' che ogni lettore lo veda. Contratto in
+> [parrot-p0-syntax.md §19](../parrot-p0-syntax.md); procedura, registro dei
+> sintomi strutturali e **test di rigidita'** (ogni cambio di struttura deve
+> poter essere contraddetto parlando, dal turno dopo) in
+> [train-the-learning-process.md, «▶ ASSE STRUTTURALE»](train-the-learning-process.md).
+> Prima di curare un «Learned, poi non so», chiedersi se e' un ponte che manca.
+
 **Piano, 27 settembre 2026.** Nasce da un giro live di F. e dell'agente
 (transcript: [2026-09-27-situazionale-differenziale.log](../sessions/live/2026-09-27-situazionale-differenziale.log), §7 qui sotto; il giro di scelta in [2026-09-27-situazionale-scelta.log](../sessions/live/2026-09-27-situazionale-scelta.log), §7-bis). Richiesta di F.:
 

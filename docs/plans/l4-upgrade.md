@@ -1,5 +1,18 @@
 # L4 — la coerenza dell'apprendimento con la comprensione
 
+> **⛔ NOVITA' — 28 settembre 2026 (F.): i PONTI FRA PREDICATI e l'asse
+> strutturale.** Quando lo stesso concetto sta in due cassetti (`capital_of` e
+> `capital_of_country`, argomenti invertiti o arita' diverse) **non si unifica
+> riscrivendo la KB e non si scrive una regola per coppia**: si dichiara un
+> ponte insegnabile e ritirabile — `predicate_same_of(A, B)`,
+> `predicate_reverse_of(A, B)`, `predicate_args_of(A, B, Posti)` — consumato
+> in un punto solo, il solver, cosi' che ogni lettore lo veda. Contratto in
+> [parrot-p0-syntax.md §19](../parrot-p0-syntax.md); procedura, registro dei
+> sintomi strutturali e **test di rigidita'** (ogni cambio di struttura deve
+> poter essere contraddetto parlando, dal turno dopo) in
+> [train-the-learning-process.md, «▶ ASSE STRUTTURALE»](train-the-learning-process.md).
+> Prima di curare un «Learned, poi non so», chiedersi se e' un ponte che manca.
+
 **Piano di indirizzo e progettazione operativa, 26 settembre 2026. Stato:
 parziale; audit sul commit `af2076c4`; ⛔ RIORIENTATO da F. lo stesso giorno
 (vedi l'HANDOFF): si lavora sul cuore di L4, senza una fase di fix preliminari

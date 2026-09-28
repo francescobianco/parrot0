@@ -1,5 +1,18 @@
 # L2 — insegnare a parrot0 che cosa è vero di QUESTA occorrenza
 
+> **⛔ NOVITA' — 28 settembre 2026 (F.): i PONTI FRA PREDICATI e l'asse
+> strutturale.** Quando lo stesso concetto sta in due cassetti (`capital_of` e
+> `capital_of_country`, argomenti invertiti o arita' diverse) **non si unifica
+> riscrivendo la KB e non si scrive una regola per coppia**: si dichiara un
+> ponte insegnabile e ritirabile — `predicate_same_of(A, B)`,
+> `predicate_reverse_of(A, B)`, `predicate_args_of(A, B, Posti)` — consumato
+> in un punto solo, il solver, cosi' che ogni lettore lo veda. Contratto in
+> [parrot-p0-syntax.md §19](../parrot-p0-syntax.md); procedura, registro dei
+> sintomi strutturali e **test di rigidita'** (ogni cambio di struttura deve
+> poter essere contraddetto parlando, dal turno dopo) in
+> [train-the-learning-process.md, «▶ ASSE STRUTTURALE»](train-the-learning-process.md).
+> Prima di curare un «Learned, poi non so», chiedersi se e' un ponte che manca.
+
 **Piano in revisione e prima implementazione, 21 settembre 2026.** Nasce da una sessione di iterazioni di riferimento
 ([train-the-learning-process.md](train-the-learning-process.md)) e da
 un'obiezione di F. che ne ha rovesciato il senso. Si appoggia al metodo delle
