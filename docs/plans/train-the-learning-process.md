@@ -1,5 +1,91 @@
 # Train the Learning Process — far crescere la capacità di essere addestrato
 
+## ▶ PROPOSTA — dalla diagnosi di frasi alla diagnosi di cause condivise (28 settembre 2026)
+
+*Analisi completa e manuale procedurale:
+[docs/labs/train-learning-process-differential/README.md](../labs/train-learning-process-differential/README.md);
+inventario di **174 segnalazioni** storiche, ciascuna con fonte e hash:
+[inventory.jsonl](../labs/train-learning-process-differential/inventory.jsonl)
+(rigenerabile con `extract_inventory.py`, senza avviare parrot0). Nessun replay
+comportamentale, nessuna modifica a motore o KB: e' un metodo, non una capacita'
+dichiarata.*
+
+### L'ipotesi
+
+Il costo si puo' cambiare passando dalla diagnosi delle singole frasi alla
+diagnosi delle **cause condivise**: se N episodi dipendono da K cause
+riusabili (K ≪ N), il lavoro di diagnosi/sviluppo passa da N investimenti a K.
+Quanto si risparmi va **misurato**; il materiale raccolto giustifica
+l'esperimento, non ne dimostra l'esito. Le 174 righe sono segnalazioni
+storiche (problemi corretti, residui, righe con piu' difetti), non 174 bug
+aperti ne' 174 cause.
+
+### La ricorrenza piu' forte
+
+**parrot0 acquisisce una distinzione in un punto, ma la distinzione non arriva
+a tutti i punti che devono usarla** — unita' di misura, morfologia, alias,
+relazioni, condotte, persistenza. Il sintomo «Learned, poi non so».
+
+| evidenza nella collezione | lezione generale |
+|---|---|
+| l'unita' viene insegnata, ma il confronto non la usa — SA9 | acquisizione e consumo devono condividere la stessa conoscenza |
+| «gauge» imparato come verbo contamina «gauge blocks» | una generalizzazione ha una portata: parola, ruolo nell'occorrenza, contesto |
+| la prima clausola viene letta e la seconda sparisce — SA8/SA10 | una lettura deve conservare anche cio' che resta da interpretare |
+| una domanda diventa un fatto — SA1 | comprendere una proposizione e impegnarsi sulla sua verita' sono operazioni distinte |
+| una lezione funziona ma scompare al riavvio — RI-023 | origine, durata e versione fanno parte del contratto dell'apprendimento |
+
+Sono **famiglie di ipotesi**, non la prova che 174 problemi si riducano a
+cinque correzioni. Ma ci sono gia' interventi che hanno attraversato domini:
+la testa della classe composta (meccanica e PHP/P1), la distinzione fra
+insegnare una procedura ed eseguirla (le 33 indirette della meccanica).
+
+### Tre traguardi distinti, da misurare separatamente
+
+1. **Agente piu' veloce** — il coding agent riusa diagnosi e procedure; prova:
+   meno tempo complessivo per capacita' certificata, a parita' di qualita'.
+2. **Piu' casi riparabili solo insegnando** — le cure ricorrenti diventano
+   distinzioni insegnabili, consumate da piu' facolta'; e' il ponte fra 1 e 3.
+3. **Autocorrezione di parrot0** — parrot0 osserva l'arresto, sceglie una mossa
+   e ne verifica l'effetto, senza che l'agente scelga la cura al suo posto.
+   Servono arresti interrogabili, mosse eseguibili, verifiche degli effetti;
+   da riusare `turn_arrest` (`kb/core/arrests.p0`), candidati/replay
+   (`assisted-learning.p0`), grafo dei supporti e delle opportunita'
+   ([apprendimento-assistito.md §§14.5–14.7](apprendimento-assistito.md)).
+
+Il solo prompt a volte non basta a decidere la cura (manca un antecedente,
+una conoscenza, un criterio del maestro): allora l'adattamento corretto e'
+**una domanda discriminante**, mai una premessa inventata.
+
+### Il grande prompt con tutti i dump
+
+Serve a cercare spiegazioni trasversali, non a sostituire le sonde: un indice
+compatto dell'intera collezione e confronti mirati fra tracce, con i dettagli
+integrali referenziati. Metadati per episodio:
+
+- preambolo e ordine delle lezioni;
+- ultima interpretazione corretta e prima discordanza osservata;
+- fatto effettivamente acquisito, origine e consumatore;
+- ragione della scelta o del rifiuto;
+- differenza prima/dopo l'intervento;
+- costi, budget esauriti, parti di traccia mancanti.
+
+**Limite pratico gia' emerso:** 17 righe della tabella meccanica (M073, M075,
+M081–M093, M096, M100) hanno colonne ambigue e diverse lezioni sono troncate:
+vanno recuperati i transcript prima di farne esperimenti automatici.
+
+### Il primo esperimento: SA8/SA10
+
+La diagnosi registrata (train-the-smart-agent §8) indica gia' il confine: il
+frame sa quanto ha coperto (`covered < of`) ma perde il resto. Si verifica se
+una meccanica generale di **lettura con residui espliciti** aiuta entrambi,
+tenendo P8/M062 (coordinazioni di oggetti) come **contrasti** che non devono
+cambiare. Prima di intervenire si dichiarano gli effetti previsti sugli altri
+episodi. Successo = meno tempo per capacita' certificata **e** piu' casi
+successivi risolvibili soltanto insegnando. Il prompt operativo e' nel §9 del
+README del laboratorio.
+
+---
+
 ## ⛔ PRIORITARIO — gli insegnamenti che falliscono (F., 26 settembre 2026)
 
 *F.: «tutti gli insegnamenti che falliscono mettili come prioritari in testa a
