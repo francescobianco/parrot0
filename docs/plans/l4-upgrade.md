@@ -101,6 +101,23 @@ rosso ed è curato; le due righe che volevano il muto «Conflicted.» ora
 vogliono le due parti); `entail`, `context_scope` identici a HEAD;
 `user_situations` 56/56; `soft-test` verde.
 
+**Poi, l'urto fra classi incompatibili** (la seconda riga del §5-bis). Il
+rilevatore c'era (`note_class_conflict`, gen375, su `incompatible/2`) e
+scattava alla lezione, ma non ne restava uno stato: «Is Nemo a bird?» →
+«Yes.». Ora l'incompatibilità **si insegna parlando** («Nothing is both a
+fish and a bird.» → `incompatible(fish, bird)`, e il rilevatore C la usa dal
+turno dopo: un fatto, due lettori), l'urto fra classi si annota con il suo
+turno (`class_clash/3`), la domanda polare dice le due parti («You told me
+that nemo is a fish and also that it is a bird, and nothing is both…»),
+«What contradicts what?» lo elenca, e la classe riaffermata **in un turno
+successivo** vale mentre l'altra riceve lo strato `settled(N)` (la prima
+versione lo faceva nello stesso turno dell'urto: la classe appena detta
+sembrava una riaffermazione). Cricchetto 25/25; `class_conflict`,
+`move_precedence` verdi; `compound_inquiry` identico a HEAD.
+⚠ «A fish cannot be a bird.» non arriva alla forma: un lettore C delle
+negazioni la prende prima e scrive `not ability_of(fish, be_a_bird)`
+(SA21 in train-the-learning-process.md).
+
 **Poi, lo stesso giorno:** la domanda sull'**entità** di un urto («What do
 you know about socrates?», rosso preesistente di `persist.p0t` riga 87)
 risponde con ciò che sa e porta la tensione in coda: «Socrates is a man. …

@@ -322,3 +322,102 @@ clash_line(it, both_end, " sia il contrario, quindi non posso rispondere sì o n
 clash_line(it, list, "Mi hai detto cose contraddittorie su ").
 clash_line(it, item, "se ").
 clash_line(it, none, "Niente che io sappia: nessun fatto che tengo è contraddetto da un altro.").
+
+% ── L4-8, secondo taglio — L'URTO FRA CLASSI INCOMPATIBILI (28 set 2026) ─────
+% §5-bis, seconda riga: «due classi incompatibili per la stessa entita'». Il C
+% lo vedeva gia' alla lezione (`note_class_conflict`, gen375: «That sits badly
+% with what I already hold…») ma non ne restava uno stato: subito dopo «Is
+% Tweety a mammal?» → «Yes.». E l'incompatibilita' non si insegnava parlando:
+% «A fish cannot be a bird.» scriveva `not ability_of(fish, be_a_bird)`.
+machinery(incompatible_classes).
+incompatible_classes($A, $B) :- incompatible($A, $B).
+incompatible_classes($A, $B) :- incompatible($B, $A).
+% (1) la lezione: «A fish cannot be a bird.», «Nothing is both a fish and a bird.»
+turn_form(teach_incompatible_a, 1, text("a")).
+turn_form(teach_incompatible_a, 2, slot(first)).
+turn_form(teach_incompatible_a, 3, text("cannot be a")).
+turn_form(teach_incompatible_a, 4, slot(second)).
+turn_form_mood(teach_incompatible_a, statement).
+turn_form_view(teach_incompatible_a, said).
+turn_form_priority(teach_incompatible_a, early).
+turn_form_act(teach_incompatible_a, "op(assert, incompatible, [first, second])").
+turn_form_reply(teach_incompatible_a, incompatible_learned).
+turn_form(teach_incompatible_an, 1, text("an")).
+turn_form(teach_incompatible_an, 2, slot(first)).
+turn_form(teach_incompatible_an, 3, text("cannot be a")).
+turn_form(teach_incompatible_an, 4, slot(second)).
+turn_form_mood(teach_incompatible_an, statement).
+turn_form_view(teach_incompatible_an, said).
+turn_form_priority(teach_incompatible_an, early).
+turn_form_act(teach_incompatible_an, "op(assert, incompatible, [first, second])").
+turn_form_reply(teach_incompatible_an, incompatible_learned).
+turn_form(teach_incompatible_both, 1, text("nothing is both a")).
+turn_form(teach_incompatible_both, 2, slot(first)).
+turn_form(teach_incompatible_both, 3, text("and a")).
+turn_form(teach_incompatible_both, 4, slot(second)).
+turn_form_mood(teach_incompatible_both, statement).
+turn_form_view(teach_incompatible_both, said).
+turn_form_priority(teach_incompatible_both, early).
+turn_form_act(teach_incompatible_both, "op(assert, incompatible, [first, second])").
+turn_form_reply(teach_incompatible_both, incompatible_learned).
+response_template(incompatible_learned, "Held: nothing is both a {first} and a {second}.").
+response_template(incompatible_learned, it, "Tengo: niente è insieme un {first} e un {second}.").
+% (2) l'urto si annota: il turno ha scritto una classe per X, e X sta gia' in
+% una classe incompatibile
+machinery(class_clash).
+turn_scratch(class_clash).
+machinery(class_clash_settled).
+turn_scratch(class_clash_settled).
+machinery(class_clash_known).
+class_clash_known($X, $C) :- class_clash($X, $C, $D).
+class_clash_known($X, $C) :- class_clash($X, $D, $C).
+after_reply_bookkeeper(class_clash_note).
+turn_after_reply($T, class_clash_note) :-
+    kb_turn_act($C, cons($X, nil), pos, $K), naf(machinery($C)), incompatible_classes($C, $D),
+    apply($D, cons($X, nil)), naf(class_clash_known($X, $C)), turn_counter($N),
+    assert(class_clash, $X, $D, $C), assert(class_clash_at, $X, $N).
+machinery(class_clash_at).
+turn_scratch(class_clash_at).
+machinery(open_class_clash).
+open_class_clash($X, $C, $D) :- class_clash($X, $C, $D), naf(class_clash_settled($X, $C, $D)).
+% (3) la domanda polare su una delle due classi
+machinery(class_clash_asked).
+class_clash_asked($X, $Held, $Claimed) :-
+    turn_declared_act(current_turn, question), turn_word(current_turn, 0, $W), naf(question_word($W)),
+    open_class_clash($X, $Held, $Claimed), content_words_in_turn(cons($X, nil)), class_named_in_turn($Held, $Claimed).
+machinery(class_named_in_turn).
+class_named_in_turn($A, $B) :- turn_word(current_turn, $I, $A).
+class_named_in_turn($A, $B) :- turn_word(current_turn, $I, $B).
+reply_conduct($In, $Out) :-
+    class_clash_asked($X, $Held, $Claimed), words_of($X, $WX), current_language($L),
+    clash_line($L, class_both, $A), concat_atoms($A, $WX, $B), clash_line($L, is_a, $C),
+    concat_atoms($B, $C, $D), concat_atoms($D, $Held, $E), clash_line($L, and_a, $F),
+    concat_atoms($E, $F, $G), concat_atoms($G, $Claimed, $H), clash_line($L, class_both_end, $Z),
+    concat_atoms($H, $Z, $Out).
+% (4) l'esito: la classe riaffermata vale, l'altra riceve lo strato
+after_reply_bookkeeper(class_clash_settle).
+turn_after_reply($T, class_clash_settle) :-
+    naf(turn_declared_act(current_turn, question)), kb_turn_act($C, cons($X, nil), pos, $K),
+    open_class_clash($X, $Held, $Claimed), other_class($C, $Held, $Claimed, $Other),
+    turn_counter($N), class_clash_at($X, $M), gt($N, $M),
+    assert(read_support, fact($Other, $X, pos), settled($N)),
+    assert(class_clash_settled, $X, $Held, $Claimed).
+machinery(other_class).
+other_class($C, $C, $B, $B).
+other_class($C, $A, $C, $A).
+% (5) nell'elenco degli urti
+open_clash_said($T) :-
+    open_class_clash($X, $C, $D), words_of($X, $WX), current_language($L), clash_line($L, item, $I),
+    concat_atoms($I, $WX, $A), clash_line($L, is_a, $B), concat_atoms($A, $B, $E), concat_atoms($E, $C, $F),
+    clash_line($L, or_a, $G), concat_atoms($F, $G, $H), concat_atoms($H, $D, $T).
+any_open_clash :- open_class_clash($X, $C, $D).
+clash_line(en, class_both, "You told me that ").
+clash_line(en, is_a, " is a ").
+clash_line(en, and_a, " and also that it is a ").
+clash_line(en, or_a, " or a ").
+clash_line(en, class_both_end, ", and nothing is both: I hold the two as a contradiction until you tell me which is right.").
+clash_line(it, class_both, "Mi hai detto che ").
+clash_line(it, is_a, " è un ").
+clash_line(it, and_a, " e anche che è un ").
+clash_line(it, or_a, " o un ").
+clash_line(it, class_both_end, ", e niente è entrambe le cose: tengo le due come una contraddizione finché non mi dici quale è giusta.").

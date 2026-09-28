@@ -41,4 +41,26 @@
 <~ No
 > What contradicts what?
 <~ Nothing that I know of
+
+[test l'urto fra classi]
+!timeout 4
+> Nothing is both a fish and a bird.
+<~ Held: nothing is both a fish and a bird.
+> Nemo is a fish.
+> Is Nemo a fish?
+<~ Yes
+> Nemo is a bird.
+<~ cannot both apply
+> Is Nemo a bird?
+<~ You told me that nemo is a fish and also that it is a bird
+> What contradicts what?
+<~ whether nemo is a fish or a bird
+> Nemo is a fish.
+> Is Nemo a bird?
+<! You told me
+<! Yes
+> Is Nemo a fish?
+<~ Yes
+> What contradicts what?
+<~ Nothing that I know of
 !reset
