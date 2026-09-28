@@ -488,6 +488,20 @@ turn_form_priority(ask_verbs_under_condition, early).
 turn_form_act(ask_verbs_under_condition, "op(match, verbs_under_condition_answer, [condition, free])").
 turn_form_reply(ask_verbs_under_condition, verbs_under_condition_reply).
 turn_form_empty_reply(ask_verbs_under_condition, verbs_under_condition_unread).
+turn_form(ask_verbs_under_condition_it, 1, text("quali verbi vanno prima del soggetto")).
+turn_form(ask_verbs_under_condition_it, 2, rest(condition)).
+turn_form_mood(ask_verbs_under_condition_it, question).
+turn_form_view(ask_verbs_under_condition_it, said).
+turn_form_priority(ask_verbs_under_condition_it, early).
+turn_form_act(ask_verbs_under_condition_it, "op(match, verbs_under_condition_answer, [condition, free])").
+turn_form_reply(ask_verbs_under_condition_it, verbs_under_condition_reply).
+turn_form_empty_reply(ask_verbs_under_condition_it, verbs_under_condition_unread).
+turn_form(ask_verbs_before_subject_it, 1, text("quali verbi vanno prima del soggetto")).
+turn_form_mood(ask_verbs_before_subject_it, question).
+turn_form_view(ask_verbs_before_subject_it, said).
+turn_form_priority(ask_verbs_before_subject_it, early).
+turn_form_act(ask_verbs_before_subject_it, "op(match, verbs_before_subject_answer, [free])").
+turn_form_reply(ask_verbs_before_subject_it, verbs_under_condition_reply).
 response_template(verbs_under_condition_reply, "{result}").
 response_template(verbs_under_condition_reply, it, "{result}").
 response_template(verbs_under_condition_unread, "Tell me the condition in words, for example «when a bare verb follows» or «in the past when a bare verb follows».").

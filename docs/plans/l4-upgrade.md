@@ -1080,7 +1080,12 @@ non lo si riavvia (`!reset` confronta la configurazione, non i file:
 [parrot-p0-syntax.md §15](../parrot-p0-syntax.md)) — per mezz'ora il blocco
 nuovo sembrava rotto ed era solo assente.
 
-**Residui:** la domanda in italiano non ha forma (le frasi sì); l'ordine dei
+**Poi:** la domanda in italiano («Quali verbi vanno prima del soggetto al
+passato quando segue un verbo nudo?» → «Al passato quando segue un verbo
+nudo: «dare» (me l'hai insegnato tu).»), con la superficie detta (il canone
+italiano riscriveva le parole prima delle forme). Cricchetto 8/8.
+
+**Residui:** l'ordine dei
 verbi nella risposta è quello dell'enumerazione; «Which verbs always go before
 the subject?» non elenca gli ausiliari (li nomina come classe).
 
