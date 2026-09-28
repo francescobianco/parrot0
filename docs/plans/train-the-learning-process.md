@@ -86,6 +86,129 @@ README del laboratorio.
 
 ---
 
+## ▶ ASSE STRUTTURALE — una KB che risolve i problemi perche' si adatta (F., 28 settembre 2026)
+
+*F.: alla proposta qui sopra «manca la direzione di migliorare la struttura
+della KB dal punto di vista delle dinamiche di crescita, per garantire che sia
+la struttura della KB ad essere piu' dinamica e flessibile e a risolvere
+problemi grazie alla sua migliore adattabilita'». E subito dopo: «la mia paura
+e' che questo approccio rischi di rendere la KB rigida».*
+
+La proposta sopra cura **cause**. Questo asse cura la **forma della KB** che
+rende possibili quelle cause. E' il **quarto traguardo**, e viene prima
+dell'autocorrezione perche' ne e' la condizione: parrot0 non puo' correggersi
+da solo in una KB dove ogni correzione va scritta in un posto diverso.
+
+Il criterio di successo cambia: la struttura migliora quando una classe di
+problemi **smette di ripresentarsi**, non quando la si ripara piu' in fretta.
+
+### S.0 Il rischio della rigidita' — c'e', e questo e' il suo antidoto
+
+Il rischio e' reale, e ha un nome preciso: **unificare per fusione**. Un solo
+predicato canonico, una sola convenzione imposta a tutti, i cassetti rifusi in
+uno. Quella KB e' piu' ordinata e meno adattabile: un'eccezione non ha piu'
+dove stare. Il repository ne ha gia' pagato due esempi: la tokenizzazione resa
+uniforme che ha rotto i lettori dipendenti (§6.5 del laboratorio) e
+`entity_pronoun` allargata che ha rubato mezza chat italiana (mantra #19).
+
+L'asse strutturale e' l'opposto della fusione. Cinque regole, e ogni
+intervento le passa tutte:
+
+| # | regola | che cosa impedisce |
+|---|---|---|
+| S1 | **Una proprieta' strutturale e' un fatto, non uno schema.** Verso di una relazione, portata di una generalizzazione, identita' fra due cassetti, strato di una conoscenza: si dichiarano con fatti insegnabili e ritirabili, mai con la forma dei predicati | una struttura che si cambia solo riscrivendo |
+| S2 | **Si unisce per ponte, non per fusione.** I cassetti restano; un ponte dice «sono lo stesso fatto visto da due lati» e ha portata, provenienza e ritiro | la perdita delle distinzioni che i cassetti portavano |
+| S3 | **La pluralita' resta visibile.** Letture concorrenti, polisemia, eccezioni restano nella KB come tali (`contact_competing`, i controesempi): chi vede di piu' distingue di piu' | la coerenza ottenuta cancellando |
+| S4 | **Nessuna copia privata di una proprieta' condivisa.** Se un lettore ha una sua convenzione per qualcosa che la KB gia' dichiara altrove, la copia si sostituisce con la lettura di quella dichiarazione | le correzioni che arrivano a un lettore si' e a uno no |
+| S5 | **Il contratto sta al confine dei consumatori**, e si migra un consumatore alla volta, verificando ciascuno | le migrazioni globali che rompono in silenzio |
+
+**Il test di rigidita'**, obbligatorio dopo ogni intervento: *si puo'
+insegnare, parlando, un caso che contraddice la nuova struttura (un'eccezione,
+un verso diverso, un ponte da ritirare), e vale dal turno dopo?* Se no,
+l'intervento ha reso la KB piu' rigida, anche con i test verdi, e si ritira.
+E' il mantra #2 applicato alla struttura invece che ai membri.
+
+### S.1 Le specie di sintomo strutturale
+
+Le cinque lezioni generali della proposta sono gia' sintomi di questo tipo.
+Catalogo di partenza, che si allarga per misura:
+
+| specie | come si riconosce | forma flessibile |
+|---|---|---|
+| **convenzione privata** | un lettore decide da se' una proprieta' che la KB dichiara altrove (verso, ruolo, lingua) | il lettore consulta la dichiarazione (S4) |
+| **cassetti paralleli senza ponte** | lo stesso concetto sta in due predicati; un lettore ne vede uno («Learned» e poi «non so») | un ponte dichiarato e insegnabile, consumato da tutti (S2) |
+| **consumatore cablato** | un ramo C legge un solo cassetto con parole compilate | la domanda passa per il lessico e i ponti della KB; il ramo C si accorcia (mantra #18a) |
+| **portata implicita** | una generalizzazione vale ovunque perche' nessuno ne ha scritto il confine («gauge») | la portata come dato (parola, ruolo, contesto, lingua) |
+| **strato non uniforme** | ritiro, versione e provenienza funzionano per una specie di conoscenza e non per un'altra | lo stesso strato per tutte le specie (SA2, `read_support`) |
+
+### S.2 La procedura strutturale, passo per passo
+
+Si applica a ogni episodio che la procedura differenziale (sezione sopra)
+porta a una causa. Non sostituisce quella: la prolunga di una domanda.
+
+1. **Dall'episodio al sintomo.** Riprodurre l'episodio sulla KB completa
+   (`/debug trace`) e chiedere: *quale proprieta' della struttura ha reso
+   possibile questo errore?* Classificarlo in una specie di S.1, o aprirne una
+   nuova con la misura.
+2. **Censire produttori e consumatori** della proprieta' coinvolta: chi la
+   scrive, chi la legge, chi ne tiene una copia propria, in KB e nel C (grep
+   del predicato, `/debug pred`). Il censimento va nel registro S.4. Senza
+   censimento non si interviene: e' la differenza fra curare il caso e curare
+   la struttura.
+3. **Scegliere la forma flessibile e scrivere la previsione prima di
+   toccare.** Quale regola di S.0 si applica; quali episodi devono cambiare,
+   anche di altri domini; quale contrasto deve restare fermo; **quale lezione
+   parlata contraddira' la struttura nuova** per il test di rigidita'.
+4. **Intervenire al confine piu' piccolo.** Per ordine di preferenza: una
+   lezione parlata; la sostituzione di una copia privata con la lettura della
+   dichiarazione condivisa; un ponte dichiarato; solo per ultimo una meccanica
+   generale nel motore (gerarchia di crescita dei MANTRA). Mai una regola
+   scritta a mano che lega due cassetti specifici: e' la versione rigida del
+   ponte.
+5. **Verificare in cinque direzioni.** (a) l'episodio; (b) il transfer agli
+   altri consumatori censiti; (c) il contrasto; (d) il test di rigidita' (S.0);
+   (e) il costo di crescita: quante viste sporca la lezione e quanto costa il
+   turno dopo ([kb-growth-dynamics.md](../kb-growth-dynamics.md)). Rossi di
+   tempo: A/B contro HEAD prima di attribuirseli.
+6. **Registrare** nel registro S.4: sintomo, censimento, intervento, esiti
+   delle cinque verifiche e il residuo che resta aperto. Se lo stesso sintomo
+   ricompare altrove, la riga del registro deve bastare a ripararlo senza
+   ridiagnosticarlo: e' qui che si misura l'ammortamento.
+
+### S.3 Le metriche strutturali
+
+Da affiancare ai costi dell'agente. Le prime due vanno ancora costruite come
+sonde (una regola di diagnosi, non uno strumento nuovo):
+
+| metrica | domanda | come |
+|---|---|---|
+| **portata di una lezione** | quanti consumatori vedono un fatto appena insegnato? | per il fatto insegnato, i lettori censiti (S.2 passo 2) che rispondono |
+| **duplicazione** | quanti predicati o convenzioni rappresentano lo stesso concetto? | censimento dei cassetti paralleli e delle copie private |
+| **localita'** | quante viste sporca una lezione, quanto costa il turno dopo? | `/debug on` sul turno di ricostruzione |
+| **chiusura parlando** | quale quota dei problemi nuovi si chiude con sole lezioni? | registro S.4 e registro della proposta |
+
+### S.4 Registro dei sintomi strutturali
+
+| # | episodio | specie | censimento | intervento | stato |
+|---|---|---|---|---|---|
+| ST1 | DE7 «Berlin is its Hauptstadt» | convenzione privata | il verso dei nomi di relazione e' dichiarato in `relation_value_first/1` (grammar.p0) e letto da grammatica e domande; il contatto (`contact.p0`, `relation_noun/2`) ne teneva una copia sua: solo possessore = soggetto | il contatto consulta `relation_value_first/1` (`contact_possessor_role/2`) — **esempio lavorato, nel working tree, non ancora approvato da F.** | 🟡 «The Hauptstadt of Nivora is Bezra.» → `capital_of(bezra, nivora)`, «What is the capital of Nivora?» → bezra. Test di rigidita' e costo di crescita ancora da fare |
+| ST2 | DE7 «What is the Hauptstadt of France?» → «I don't know any hauptstadt yet.» | cassetti paralleli + consumatore cablato | `capital_of/2` (insegnabile) e `capital_of_country/2` (il mondo) senza ponte; «capital of X» risponde da un ramo C che legge solo `capital_of_country` (`10-memory-knowledge.c`, gen235); `inverse_relation/2` esiste ed e' insegnabile, ma la consuma solo il ramo polare in C (`p0_relation_inverse`) | da fare. Forma flessibile: il ponte fra i due cassetti come `inverse_relation` insegnabile e consumata da tutti i lettori. Forma rigida da evitare: `capital_of(X, Y) :- capital_of_country(Y, X)` scritta a mano | 🔴 |
+| ST0 | SA9 (precedente) | convenzione privata | il confronto e l'unita' insegnata leggevano la quantita' ognuno a modo suo | una scala condivisa, `quantity_amount/3` (scales.p0) | ✅ esempio positivo gia' fatto |
+
+### S.5 Ordine di lavoro
+
+1. Chiudere ST1 con le cinque verifiche di S.2, test di rigidita' compreso
+   (per esempio: ritirare il ponte per contatto con un controesempio, e
+   insegnare parlando una relazione nuova con il verso opposto).
+2. ST2: censire tutti i consumatori di `inverse_relation/2` e dei cassetti
+   paralleli noti (`language_of`/`language_of_country` e' gia' documentato in
+   grammar.p0), prima di scegliere dove il ponte entra.
+3. Passare le famiglie della proposta, una per volta, per il passo 1 di S.2,
+   e riempire il registro. Il pilota SA8/SA10 della proposta si affianca, non
+   si sostituisce.
+
+---
+
 ## ⛔ PRIORITARIO — gli insegnamenti che falliscono (F., 26 settembre 2026)
 
 *F.: «tutti gli insegnamenti che falliscono mettili come prioritari in testa a
