@@ -20,7 +20,8 @@
 (`turn_form`) · 10 Le risposte: template, `answer_content`, stadi · 11 Cue, classi e condotta
 · 12 Il tabellone e i contabili · 13 Pratiche di buona scrittura · 14 Diagnosi
 rapida · 15 Come si verifica · 16 Contenuti, contesti e prove (contratto
-progettato, non nuova sintassi eseguibile).
+progettato, non nuova sintassi eseguibile) · 17 Le procedure · 18 `/debug` ·
+19 I ponti fra predicati (progetto).
 
 ---
 
@@ -887,3 +888,156 @@ specie `view.inval` a livello 3) sono uscite cinque cause, nessuna di conoscenza
 Due tentativi misurati e scartati: una sottovista per le cornici delle forme
 verbali (nessun effetto) e `input_node_atom` come vista per turno (i nodi della
 IR si riscrivono dentro il turno: la vista resta spenta e aggiunge lavoro).
+
+## 19. I ponti fra predicati — progetto (F., 28 settembre 2026)
+
+> **Stato: progettato, non ancora eseguibile.** Nessuno dei predicati di questa
+> sezione è ancora consumato dal solver. La sezione fissa il contratto prima
+> del codice: nome, significato, verso, dove si consuma, come si insegna e
+> come si ritira. Nasce da DE7 e dal registro strutturale
+> ([train-the-learning-process.md](plans/train-the-learning-process.md),
+> «▶ ASSE STRUTTURALE», ST2).
+
+### 19.1 Il problema: lo stesso concetto in due cassetti
+
+La KB cresce da più strade, e la stessa conoscenza finisce in predicati
+diversi. Il caso misurato:
+
+```prolog
+capital_of(berlin, germany).          % scritto da una lezione: «the capital of Germany is Berlin»
+capital_of_country(france, paris).    % la base del mondo (kb/facts/geography-world.p0)
+```
+
+Sono **la stessa relazione con gli argomenti invertiti**. Nessuno lo sa: la
+domanda «What is the capital of France?» risponde da un ramo C che legge solo
+`capital_of_country`; una parola insegnata per `capital_of` («Hauptstadt») non
+vede Parigi; un fatto insegnato non raggiunge chi legge l'altro cassetto. È
+il sintomo «Learned, poi non so», e la sua causa è **strutturale**: manca il
+modo di dire che due predicati sono lo stesso.
+
+Tre risposte sbagliate, già viste nel repository:
+
+| risposta | perché è sbagliata |
+|---|---|
+| **riscrivere la KB**: rinominare un cassetto nell'altro, migrare i fatti | fusione: cancella la storia e la provenienza dei fatti, rompe ogni lettore che dipendeva dal vecchio nome, e la prossima coppia scoperta chiede un'altra migrazione. Una KB che si unifica riscrivendosi diventa rigida |
+| **una regola scritta a mano per coppia**: `capital_of($X, $Y) :- capital_of_country($Y, $X).` | è un ponte, ma compilato in `.p0`: non si insegna parlando, non ha provenienza, non si ritira con un controesempio, e ogni coppia nuova è una riga da scrivere (MANTRA, gerarchia di crescita, gradino 4) |
+| **un ponte privato di un lettore**: `inverse_relation/2` consumato solo da `p0_relation_inverse` (il ramo polare in C), `answer_frame_input_arg/3` solo dalle domande | la conoscenza del ponte esiste, ma arriva a un lettore sì e agli altri no: è la specie «convenzione privata» |
+
+### 19.2 La forma: predicati che assimilano altri predicati
+
+Un ponte è un **fatto su due predicati**. Non tocca i fatti dei cassetti e non
+li copia: dice come leggere l'uno attraverso l'altro.
+
+```prolog
+predicate_same_of(A, B).            % A(X, Y) vale quando vale B(X, Y)
+predicate_reverse_of(A, B).         % A(X, Y) vale quando vale B(Y, X)
+predicate_args_of(A, B, Posti).     % A(X1..Xn) vale quando vale B con gli argomenti presi da Posti
+```
+
+Esempi:
+
+```prolog
+predicate_reverse_of(capital_of, capital_of_country).
+% capital_of(paris, france) vale perche' vale capital_of_country(france, paris)
+
+predicate_same_of(created_by, made_by).
+% stesso verso, due nomi
+
+predicate_args_of(capital_of, capital_since, cons(1, cons(2, nil))).
+% capital_since(City, Country, Year): capital_of(City, Country) prende i posti
+% 1 e 2 e ignora l'anno. Arita' diverse: il posto che A non nomina e' libero in B
+```
+
+Le regole del contratto:
+
+1. **`predicate_same_of` e `predicate_reverse_of` si leggono nei due sensi.**
+   Essere lo stesso, o l'inverso, è simmetrico: chi insegna non deve scegliere
+   l'ordine giusto (come `inverse_relation/2` oggi). `predicate_args_of` ha
+   invece un verso: A legge B.
+2. **Sono due nomi per casi di `predicate_args_of`**: `same_of` è
+   `cons(1, cons(2, nil))`, `reverse_of` è `cons(2, cons(1, nil))`. Esistono
+   come nomi propri perché sono i casi che si dicono in lingua («is the same
+   as», «is the inverse of») e che si scoprono da soli.
+3. **Un ponte legge, non scrive.** Una lezione scrive nel cassetto che nomina;
+   il ponte rende quel fatto visibile da tutti gli altri cassetti ponteggiati.
+   Nessun fatto viene copiato o spostato.
+4. **Un posto che A non nomina è libero in B; un posto che A ha e B non ha non
+   si inventa.** Se A ha più argomenti di B, il ponte non si applica: nessun
+   valore di default fabbricato (dottrina no-deception).
+5. **Il ponte si prova come un fatto qualsiasi**: sta in uno strato, porta
+   provenienza (`lesson`, `contact`, `base`), si ritira con `!forget` o con un
+   controesempio detto, e il ritiro vale dal turno dopo.
+
+### 19.3 Dove si consuma: in un punto solo, il solver
+
+Il ponte vale **solo se lo vede ogni lettore**. Per questo non si consuma in un
+modulo, ma dove passa ogni domanda alla KB: la risoluzione di un goal nel
+solver (`solve` in `src/kb.c`, raggiunta da `kb_query`, `kb_match` e dalle
+regole). Il comportamento da costruire:
+
+- risolto il goal `A(args)` con le clausole di A, il solver prova i ponti di A:
+  per `predicate_reverse_of(A, B)` risolve `B` con gli argomenti invertiti, e
+  così via;
+- **la via rapida di `kb_match`** («nessuna regola deriva questo predicato»)
+  deve contare anche i ponti: altrimenti un cassetto di soli fatti non vede
+  mai l'altro;
+- **cicli**: `same_of(a, b)` letto nei due sensi è già un ciclo. Il solver
+  attraversa ogni ponte al più una volta per goal (un insieme dei predicati
+  visitati, come una catena transitiva), non con un tetto di profondità;
+- **viste**: un ponte nuovo o ritirato invalida le viste che dipendono da A o
+  da B (`view_depends/2` sui predicati ponte);
+- **prova**: la derivazione registra il ponte usato, così «why?» può dire «ho
+  letto capital_of_country al rovescio» e il ritiro del ponte ritira la
+  conclusione.
+
+Il costo è un punto da misurare prima di tutto: dare un nome al cassetto
+`language_of_country` portava un turno da 0,3 a 37 s (grammar.p0, «mix
+01×08»), perché la vista delle menzioni si ricostruiva sull'intero cassetto.
+Un ponte deve essere **pigro**: si attraversa solo quando qualcuno chiede A,
+e non va mai materializzato come copia dei fatti di B.
+
+### 19.4 Come si insegna e come si scopre
+
+Il MANTRA anti-barare vale anche qui: il maestro non conosce i nomi interni
+`capital_of_country`. La lezione nomina le relazioni con le loro parole, e il
+lettore le porta ai predicati attraverso il lessico che la KB ha già
+(`relation_noun/2`, `extract_frame/2`):
+
+| detto | ponte |
+|---|---|
+| «the capital of a country is the same as its capital city» | `predicate_same_of` fra le due relazioni che quelle parole nominano |
+| «owner is the inverse of belongs» (esiste: `teach_inverse`) | `predicate_reverse_of(owner, belongs)` — oggi scrive `inverse_relation/2`, che diventa un nome di `predicate_reverse_of` |
+
+E si **scopre**, come il contatto scopre un nome (`contact.p0`): quando due
+cassetti tengono le stesse coppie, dritte o rovesciate («Berlin» e «Germany»
+in `capital_of`, «France» e «Paris» in `capital_of_country`, e la domanda che
+chiede l'uno quando c'è solo l'altro), nasce un **episodio di ponte**, che è
+un'ipotesi, non un fatto. Va con le regole del contatto: sostegni contati,
+un controesempio lo sospende, letture concorrenti restano visibili, e l'uso
+del ponte non conta come conferma (§14.4 di contact.p0).
+
+### 19.5 Che cosa diventano i pezzi esistenti
+
+| oggi | dopo |
+|---|---|
+| `inverse_relation/2` (messages.p0, procedures.p0), consumato solo da `p0_relation_inverse` in C | un nome di `predicate_reverse_of`; il ramo C si accorcia (MANTRA #18a) |
+| `same_relation/2` (procedures.p0): due **definizioni** con la stessa forma normale | resta: scopre che due definizioni coincidono, e può *proporre* un `predicate_same_of` |
+| `answer_frame_input_arg/3` per `language_of_country` | un ponte `predicate_args_of` fra `language_of` e `language_of_country`, se la misura del costo lo permette |
+| il ramo C gen235 che legge solo `capital_of_country` | la domanda «the capital of X» legge `capital_of`, e il ponte porta al cassetto del mondo; il ramo si toglie |
+
+### 19.6 Perché questo non irrigidisce la KB
+
+Ogni ponte è un fatto aggiunto accanto ai cassetti, che restano come sono.
+Il test di rigidità dell'asse strutturale si applica così:
+
+- un ponte sbagliato si **ritira parlando** e i due cassetti tornano separati,
+  senza migrazioni da disfare;
+- un'eccezione («la capitale amministrativa non è la capitale») si dice come
+  controesempio, o come un ponte più stretto (`predicate_args_of` con i posti
+  che servono), non riscrivendo i fatti;
+- una relazione nuova scoperta domani si collega con un fatto, senza
+  ricompilare e senza toccare i cassetti esistenti.
+
+Più ponti rendono la KB più **connessa**, non più uniforme: ogni cassetto
+conserva nome, provenienza e storia, e ciò che cambia è quanto lontano arriva
+ciò che si impara.
