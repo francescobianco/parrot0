@@ -410,13 +410,25 @@ machinery(class_clash_asked).
 class_clash_asked($X, $Held, $Claimed) :-
     turn_declared_act(current_turn, question), turn_word(current_turn, 0, $W), naf(question_word($W)),
     open_class_clash($X, $Held, $Claimed), content_words_in_turn(cons($X, nil)), class_named_in_turn($Held, $Claimed).
+% la classe tenuta, detta con la sua catena quando e' derivata: «a mammal (as
+% a cat)» — l'urto con una conseguenza, non solo fra due cose dette
+machinery(held_class_said).
+machinery(class_said_directly).
+held_class_said($L, $X, $C, $C) :- class_said_directly($X, $C).
+held_class_said($L, $X, $C, $T) :-
+    naf(class_said_directly($X, $C)), kb_fact($E, cons($X, nil)), is_a($E, $C),
+    clash_line($L, as_a, $A), concat_atoms($C, $A, $B), concat_atoms($B, $E, $B2), concat_atoms($B2, ")", $T).
+class_said_directly($X, $C) :- kb_fact($C, cons($X, nil)).
+clash_line(en, as_a, " (as a ").
+clash_line(it, as_a, " (in quanto ").
 machinery(class_named_in_turn).
 class_named_in_turn($A, $B) :- turn_word(current_turn, $I, $A).
 class_named_in_turn($A, $B) :- turn_word(current_turn, $I, $B).
 reply_conduct($In, $Out) :-
     class_clash_asked($X, $Held, $Claimed), words_of($X, $WX), current_language($L),
     clash_line($L, class_both, $A), concat_atoms($A, $WX, $B), clash_line($L, is_a, $C),
-    concat_atoms($B, $C, $D), concat_atoms($D, $Held, $E), clash_line($L, and_a, $F),
+    concat_atoms($B, $C, $D), held_class_said($L, $X, $Held, $HS), concat_atoms($D, $HS, $E),
+    clash_line($L, and_a, $F),
     concat_atoms($E, $F, $G), concat_atoms($G, $Claimed, $H), clash_line($L, class_both_end, $Z),
     concat_atoms($H, $Z, $Out).
 % (4) l'esito: la classe riaffermata vale, l'altra riceve lo strato

@@ -95,9 +95,12 @@ seconda copia di qualcosa dovrebbe fermarsi qui.
    `interlocutor_world_fact` si salvano. Decisione di F. collegata: il fatto
    del mondo di chi parla va in un **contesto** (K4, `holds_in/2`) o resta
    fatto con l'impegno accanto?
-2. **L'urto con una conseguenza derivata** (Tom gatto ⇒ mammifero, contro
-   pesce: già visibile, ma la frase dice «mammal» senza la catena). La
-   ragione dell'urto dovrebbe dire la derivazione (`proposition_because/2`).
+2. **L'urto con una conseguenza derivata** — primo passo fatto il 28 notte:
+   la frase dice la catena di un passo («You told me that tom is a mammal (as
+   a cat) and also that it is a fish…», `held_class_said/4`). Resta la
+   catena lunga (più passi di `is_a`) e l'urto fra una lezione e una
+   conseguenza di **regola** (non di tassonomia), che vuole
+   `proposition_because/2`.
 3. **Il resoconto senza possessivo** («I changed the beans», «The RCD keeps
    tripping») come impegno di mondo dell'interlocutore: comporre gli indizi
    (prima persona, aspetto, inizio nel tempo), non elencare casi.
