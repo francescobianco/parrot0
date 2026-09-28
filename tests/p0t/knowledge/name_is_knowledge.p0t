@@ -24,7 +24,8 @@
 
 # Dimenticare. Con un campo C non c'era niente da ritrattare: il valore vecchio
 # restava finche' un altro non lo sovrascriveva.
-!forget user_value(name, Francesco)
+# (L4 0-bis) il nome detto con «my» sta nel mondo di chi parla: si ritira li'
+!forget holds_in(world_of(user), fact(user_value, name, Francesco))
 > what is my name?
 < I don't know your name yet.
 

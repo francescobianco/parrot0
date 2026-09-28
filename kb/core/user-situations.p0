@@ -1177,6 +1177,32 @@ speaker_owned_fact($T, fact($P, $S, $O)) :-
 speaker_owned_fact($T, fact($P, $S, $O)) :-
     kb_turn_act($P, cons($S, cons($O, nil)), pos, $K), naf(machinery($P)),
     current_language($L), atom_words($S, $Ws), first_person_possessive($L, $M), member($M, $Ws).
+% ── L4 0-bis (29 settembre 2026, F.) — IL MONDO DI CHI PARLA E' UN CONTESTO ─
+% Non un fatto del mondo di parrot0 con un'etichetta accanto: un mondo a se',
+% figlio di `world` (context-scope.p0). Il turno che porta il possessivo di
+% prima persona ACCADE li': il motore legge e scrive nel contesto che questa
+% regola nomina, e un fatto scritto li' e' `holds_in(world_of(user), fact(…))`.
+machinery(speaker_context).
+speaker_context(world_of(user)).
+context(world_of(user), interlocutor_world).
+context_default_parent(interlocutor_world, world).
+commitment_policy(interlocutor_world, reported_by_speaker).
+machinery(turn_context).
+turn_context(current_turn, $C) :-
+    speaker_context($C), current_language($L), first_person_possessive($L, $M),
+    turn_word(current_turn, $I, $M).
+% una DOMANDA in prima persona («who am I?», «what do you remember about me?»)
+% chiede di chi parla: si legge nel suo mondo (che vede anche i genitori). Le
+% affermazioni con «I» restano nel mondo di parrot0 finche' non si decide dove
+% va una lezione (l4-upgrade, 0-bis).
+machinery(first_person_word).
+first_person_word(en, i).  first_person_word(en, me).  first_person_word(en, myself).
+turn_context(current_turn, $C) :-
+    speaker_context($C), turn_illocution(current_turn, question), current_language($L),
+    first_person_word($L, $M), turn_word(current_turn, $I, $M).
+% il fatto che il turno ha scritto NEL mondo di chi parla
+speaker_owned_fact($T, fact($P, $S, $O)) :-
+    speaker_context($C), kb_turn_act(holds_in, cons($C, cons(fact($P, $S, $O), nil)), pos, $K).
 % l'impegno del turno, nominabile in /debug
 machinery(turn_commitment).
 turn_commitment($T, interlocutor_world) :- speaker_owned_fact($T, $F).
@@ -1255,8 +1281,8 @@ ended_fact_here(fact($P, $S, $O)) :-
     atom_words($S, $SW), words_in_turn($SW), atom_words($O, $OW), words_in_turn($OW).
 after_reply_bookkeeper(interlocutor_state_end).
 turn_after_reply($T, interlocutor_state_end) :-
-    ended_fact_here(fact($P, $S, $O)), turn_counter($N),
-    assert(read_support, fact($P, $S, $O, pos), ended($N)),
+    ended_fact_here(fact($P, $S, $O)), turn_counter($N), speaker_context($Cx),
+    assert(read_support, fact(holds_in, $Cx, fact($P, $S, $O), pos), ended($N)),
     findall($G, superseded_negation_here($S, $G), $Gs), supersede_all($Gs, $N).
 % La lettura concorrente dello stesso turno — «My espresso is not bitter
 % anymore.» scriveva anche `not called(espresso, bitter anymore)` — e' una
@@ -1275,10 +1301,10 @@ supersede_one($P2, $O2, $N) :- kb_turn_act($P2, cons($S, cons($O2, nil)), neg, $
 after_reply_bookkeeper(interlocutor_state_again).
 turn_after_reply($T, interlocutor_state_again) :-
     naf(turn_negated(current_turn)), naf(turn_declared_act(current_turn, question)),
-    kb_turn_act($P2, cons($S, $Rest), pos, $K), read_support(fact($P, $S, $O, pos), ended($M)),
+    kb_turn_act($P2, $A2, pos, $K), speaker_context($Cx), read_support(fact(holds_in, $Cx, fact($P, $S, $O), pos), ended($M)),
     turn_counter($N), gt($N, $M), atom_words($S, $SW), words_in_turn($SW),
-    atom_words($O, $OW), words_in_turn($OW), naf(support_said_after(fact($P, $S, $O, pos), $M)),
-    assert(read_support, fact($P, $S, $O, pos), said($N)).
+    atom_words($O, $OW), words_in_turn($OW), naf(support_said_after(fact(holds_in, $Cx, fact($P, $S, $O), pos), $M)),
+    assert(read_support, fact(holds_in, $Cx, fact($P, $S, $O), pos), said($N)).
 % (lo si riconosce dalle parole del fatto finito, non dall'oggetto scritto:
 % «…tastes bitter again» scrive `taste(espresso, bitter_again)`, SA19)
 machinery(turn_negated).
@@ -1292,8 +1318,9 @@ reply_conduct($In, $Out) :-
 % La domanda su uno stato finito: non «non so», ma «non piu'», con la fonte.
 machinery(ended_fact_asked).
 ended_fact_asked(fact($P, $S, $O)) :-
-    turn_declared_act(current_turn, question), read_support(fact($P, $S, $O, pos), ended($M)),
-    fact_withheld(fact($P, $S, $O, pos)), atom_words($S, $SW), words_in_turn($SW),
+    turn_declared_act(current_turn, question), speaker_context($Cx),
+    read_support(fact(holds_in, $Cx, fact($P, $S, $O), pos), ended($M)), fact_withheld(fact(holds_in, $Cx, fact($P, $S, $O), pos)),
+    atom_words($S, $SW), words_in_turn($SW),
     atom_words($O, $OW), words_in_turn($OW), relation_in_turn($P).
 % la relazione del fatto dev'essere quella chiesta: la parola o una sua forma
 % («Is espresso called bitter …?» non chiede del sapore)
@@ -1331,7 +1358,7 @@ interlocutor_has_answer($Text) :-
     concat_atoms($A, $J, $B), concat_atoms($B, ".", $Text).
 interlocutor_thing_said($T) :-
     interlocutor_has($S), interlocutor_world_fact(fact($P, $S, $O), $N),
-    naf(fact_withheld(fact($P, $S, $O, pos))), content_said($P, cons($S, cons($O, nil)), $C),
+    speaker_context($Cx), naf(fact_withheld(fact(holds_in, $Cx, fact($P, $S, $O), pos))), content_said($P, cons($S, cons($O, nil)), $C),
     thing_owner_said($S, $C, $T).
 % «my espresso» -> «your espresso»; «the RCD in my house» -> «the residual
 % current device in your house» (il possessivo sta gia' dentro il soggetto)

@@ -7990,6 +7990,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "turn_counter");
             kb_assert(b->kb, "turn_counter", (const char *[]){ n }, 1);
             kb_set_paradox_turn(b->kb, b->turns);   /* §25.3: data del registro */
+            kb_set_context(b->kb, NULL);            /* L4 0-bis: ogni turno parte dal mondo */
             kb_set_origin(b->kb, prev);
         }
         /* gen506h: il turno finito resta, sotto turn_N; gen506j: chi cade lo
@@ -8444,6 +8445,15 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * ("anyway, is socrates a man" -> "Yes."). Only claims when the residue is
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
+    /* L4 0-bis (29 settembre 2026, F.) — IN QUALE MONDO ACCADE IL TURNO. Lo
+     * dice la KB (`turn_context/2`: il possessivo di prima persona apre il
+     * mondo di chi parla); da qui leggere e scrivere avvengono li'. Il C non sa
+     * che cosa sia un mondo: chiede quale, e lo passa alla KB. */
+    if (b && b->kb && b->respond_depth <= 1) {
+        char cx[1][KB_TERM_LEN];
+        const char *cq[2] = { "current_turn", NULL };
+        if (kb_match(b->kb, "turn_context", cq, 2, cx, 1) == 1) kb_set_context(b->kb, cx[0]);
+    }
     /* gen512: la negazione parlata — vedi p0_negation_lead. Prima dei lettori
      * di forme, che altrimenti leggono la negativa con un lettore proprio. */
     if (b && !getenv("P0_NO_NEG_LEAD") && p0_negation_lead(b, canon, input, out, out_size)) {

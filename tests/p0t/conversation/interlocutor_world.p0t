@@ -27,4 +27,19 @@
 > My espresso tastes bitter again.
 > Does my espresso taste bitter?
 <~ Yes
+
+[test il mondo di chi parla e' un contesto separato (L4 0-bis)]
+!timeout 4
+> My tea tastes sour.
+<~ I see: your tea tastes sour.
+!query holds_in(world_of(user), fact(taste, tea, sour))
+> Does my tea taste sour?
+<~ Yes
+> Does tea taste sour?
+<! Yes
+!query! taste(tea, sour)
+> Tea is a drink.
+<~ Learned
+> Is tea a drink?
+<~ Yes
 !reset

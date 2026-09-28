@@ -135,6 +135,116 @@ seconda copia di qualcosa dovrebbe fermarsi qui.
    l'impegno). Il ponte temporaneo è il pezzo nuovo del motore: oggi i ponti
    sono permanenti e ritirabili, non hanno una durata.
 
+0-bis. **⛔ DECISIONE DI F. (29 settembre 2026): OGNI fatto sta in un
+   contesto, anche quelli alla radice.** *«non solo il mondo di chi parla è
+   un contesto separato ma in generale anche le cose alla radice sono in una
+   sorta di holds_in(world, ….)»* — e, alla proposta: *«mi piace molto,
+   scrivi tutto e comincia a lavorarlo».*
+
+   **Che cosa vuol dire.** Nessun mondo è privilegiato per costruzione.
+   `world` non è «la verità»: è **ciò che parrot0 tiene per vero**, una
+   prospettiva fra le altre (il mondo allargato di
+   [the-rational-philosopher.md](the-rational-philosopher.md)); il mondo di
+   chi parla, un'ipotesi, una citazione, una storia, un documento sono mondi
+   dello stesso rango, con la loro politica d'impegno e i loro genitori
+   (`context-scope.p0` ha già `context(world, world)` come radice e
+   l'eredità, ma solo sulla carta: i fatti veri non ci passavano). Tre
+   conseguenze:
+   1. **impersonare è naturale**: un ponte temporaneo collega due prospettive
+      dello stesso rango, non «la verità» e «un'opinione»;
+   2. **le contraddizioni si ripartiscono da sole**: il tuo espresso amaro e
+      «l'espresso non è amaro» stanno in due mondi (`contradicts_across`
+      esiste); l'urto vero resta dentro un mondo, ed è quello di L4-8;
+   3. **gli strati diventano operazioni di contesto**: «finito», «superato»,
+      «risolto» sono `supersedes_in` dentro un mondo, e l'ordine è del
+      contesto, non del turno (la persistenza del punto 1 viene da qui).
+
+   **Come, senza riscrivere la KB.** I ~170 000 fatti **non** si riscrivono
+   in `holds_in(world, …)`: sarebbe la fusione che il §19 della sintassi vieta
+   (provenienza e lettori persi) e distruggerebbe gli indici per predicato su
+   cui si regge il costo dei turni. Invece **il fatto nudo è
+   `holds_in(world, …)` per lettura**:
+   - **il contesto è un parametro della domanda**: ogni domanda è posta *in*
+     un contesto (`world` se nessuno lo dice), e il solver attraversa il
+     contesto e i suoi genitori come oggi attraversa i ponti fra predicati
+     (un'alternativa in più su ogni goal, `solve_contexts` accanto a
+     `solve_bridges`);
+   - **un fatto di un contesto figlio porta la sua marca** e si scrive
+     reificato, `holds_in(Contesto, fact(P, A1, A2))` (la stessa forma delle
+     chiavi di `read_support`), così la KB lo scompone per unificazione;
+   - **il turno ha un contesto**, deciso dalla KB (`turn_context/2`: il
+     possessivo di prima persona apre il mondo di chi parla, lo stesso indizio
+     della IR che il 28 sceglieva l'impegno); leggere e **scrivere** in quel
+     turno avvengono lì: la frase «My espresso tastes bitter» accade nel mondo
+     di chi parla, e ci resta;
+   - la macchineria (i fatti del motore, i contabili) non sta in nessun mondo e
+     non si reindirizza.
+
+   **Due scelte che restano aperte** (da decidere con F. quando si arriva lì):
+   - ~~**dove va una lezione**~~ — **deciso da F. (29 settembre 2026)**:
+     > *«quando una lezione è data imperativa e di senso generale, va già nel
+     > mondo di parrot0 (ma senza /save chiaramente poi la perde); mentre delle
+     > lezioni possono essere date in due tempi: immagina che l'utente dica
+     > "il mio modo di trattare il need nella frase è questo"; se poi dice
+     > "adesso fallo tuo" lì avviene il trasferimento di mondo: i predicati
+     > potranno trasferirsi, e anche il trasferimento è un modo di addestrare
+     > parrot0 tramite linguaggio naturale.»*
+
+     Quindi due strade, entrambe parlate:
+     1. **la lezione imperativa e generale** («To make a question with need,
+        put need before the subject when a bare verb follows.») entra
+        **direttamente nel mondo di parrot0** (con la sua fonte; resta alla
+        sessione finché un `/save` non la consolida);
+     2. **la lezione in due tempi**: prima l'utente descrive il **suo** modo
+        («My way of handling need in a question is …», «il mio modo di …») e
+        questo sta nel **suo mondo** — parrot0 lo capisce, lo può usare per
+        leggere lui, non lo fa proprio; poi **«Now make it yours.» / «adesso
+        fallo tuo»** è un atto che **trasferisce** i predicati da quel mondo
+        al mondo di parrot0. Il trasferimento è esso stesso addestramento in
+        lingua naturale: una lezione sulla *proprietà* della conoscenza, non
+        sul suo contenuto. Si costruisce come un ponte non temporaneo fra due
+        mondi limitato a ciò che «it» nomina (l'ultimo contenuto detto nel
+        mondo di chi parla), con la provenienza del passaggio, ritirabile;
+   - **la conoscenza della lingua** (grammatica, lessico): proposta
+     dell'agente, sta *sotto* i mondi, perché è lo strumento con cui ogni
+     mondo si legge — impersonare qualcuno non ne cambia la grammatica.
+
+   **Fatto il 29 settembre (passi 1–2):**
+   - **motore** ([kb.c](../../src/kb.c)): il contesto attivo con la catena dei
+     genitori letta dalla KB (`kb_set_context`, `context_parent/2`);
+     `solve_contexts`, un'alternativa accanto a `solve_bridges`: il goal
+     `P(A, B)` si prova anche come `holds_in(Ctx, fact(P, A, B))` in ogni mondo
+     della catena; le vie rapide di `kb_query`/`kb_match` si spengono solo per
+     i predicati non-macchineria quando un contesto è attivo; una scrittura di
+     sessione non-macchineria va nel mondo attivo. Il cervello chiede
+     `turn_context/2` prima del dispatch e riparte da `world` a ogni turno;
+   - **KB** ([user-situations.p0](../../kb/core/user-situations.p0)):
+     `context(world_of(user), interlocutor_world)`, figlio di `world`;
+     `turn_context/2` dal possessivo di prima persona, e da una **domanda** in
+     prima persona («who am I?»); il lavoro di L4-7 riportato sopra (il fatto,
+     lo strato della fine, il lettore «What do I have?»), l'osservazione di F5
+     letta dal mondo di chi parla ([isolation.p0](../../kb/core/isolation.p0)).
+   - **Risultato:** «My tea tastes sour.» scrive `holds_in(world_of(user),
+     fact(taste, tea, sour))`; «Does my tea taste sour?» → Yes; «Does tea taste
+     sour?» → non Yes; «Tea is a drink.» resta una lezione nel mondo di
+     parrot0. F5 (l'espresso) e L4-7 invariati dal vivo. Cricchetto
+     `interlocutor_world` 16/16; `user_situations`, `contradiction_state`,
+     `origo` verdi; `name_is_knowledge` 9/1 come HEAD (una riga aggiornata:
+     il nome detto con «my» si ritira nel mondo di chi parla);
+     `user_model*`, `profiles` identici a HEAD; `soft-test` verde.
+   - **Visti e non ancora curati:** «My bike is red.» è scritto da un altro
+     cassetto (il modulo `memory`, lo stato descritto) e non passa dal mondo di
+     chi parla; le negazioni (`kb_assert_neg`) non si reindirizzano ancora; un
+     predicato coperto da una vista congelata potrebbe non raggiungere
+     `solve_contexts`.
+
+   **Ordine di costruzione:** (1) il contesto come parametro della domanda e
+   della scrittura, nel motore, con la catena dei genitori dalla KB; (2) il
+   mondo di chi parla come primo figlio, riportando sopra il lavoro di L4-7;
+   (3) l'ordine interno al contesto (`supersedes_in`) al posto degli strati
+   numerati dal turno; (4) il ponte temporaneo (un ponte con una durata);
+   (5) gli altri mondi (ipotesi, citazioni, documenti) sullo stesso binario.
+
 1. **La persistenza degli stati dialettici (C6).** L'urto e la fine di uno
    stato sono datati con il turno della sessione; salvati, dopo un ripristino
    i turni ripartono e l'ordine si rompe (misurato su `persist.p0t`). Serve un

@@ -343,6 +343,17 @@ struct KB {
      * predicato con uno strato `read_support` lo strato non scattava (un
      * oblio, la fine di uno stato, un urto risolto: tutti muti). */
     char        (*rs_preds)[KB_TERM_LEN];
+    /* L4 0-bis (29 settembre 2026, F.) — IL CONTESTO E' UN PARAMETRO DELLA
+     * DOMANDA. Ogni fatto sta in un mondo; il fatto nudo e' `holds_in(world,
+     * …)` per lettura, un fatto di un mondo figlio e' scritto reificato,
+     * `holds_in(Ctx, fact(P, A1, …))`. Quando un contesto e' attivo il solver
+     * prova anche quella forma per ogni mondo della catena (il contesto e i
+     * suoi genitori fino a `world`, esclusa), e una scrittura di sessione che
+     * non e' macchineria va nel mondo attivo. Quale contesto, e i genitori, li
+     * dice la KB (`turn_context/2`, `context_parent/2`). */
+    char          ctx[4][KB_TERM_LEN];
+    size_t        ctx_n;
+    int           ctx_busy;
     size_t        rs_npreds, rs_cap;
     int           rs_busy;
     char          infer_goal[KB_TERM_LEN];
@@ -1419,6 +1430,30 @@ static void kb_views_changed(KB *kb, const char *pred) {
 
 int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
+    /* L4 0-bis — una scrittura di sessione accade nel mondo attivo: «My
+     * espresso tastes bitter» scrive `holds_in(world_of(user), fact(taste,
+     * espresso, bitter))`, non un fatto del mondo di parrot0. La macchineria
+     * (i contabili, i fatti del motore) non sta in nessun mondo. */
+    if (kb->ctx_n && !kb->ctx_busy && kb->origin == KB_SESSION && argc >= 1 && argc <= 3 &&
+        pred && strcmp(pred, "holds_in") != 0) {
+        kb->ctx_busy = 1;
+        int mach = pred_is_machinery_scoped(kb, pred);
+        kb->ctx_busy = 0;
+        if (!mach) {
+            char reif[KB_TERM_LEN];
+            int o = snprintf(reif, sizeof reif, "fact(%s", pred);
+            for (size_t a = 0; a < argc && o > 0 && (size_t)o < sizeof reif; a++)
+                o += snprintf(reif + o, sizeof reif - (size_t)o, ", %s", args[a]);
+            if (o > 0 && (size_t)o + 2 < sizeof reif) {
+                snprintf(reif + o, sizeof reif - (size_t)o, ")");
+                const char *ha[2] = { kb->ctx[0], reif };
+                kb->ctx_busy = 1;
+                int r = kb_assert(kb, "holds_in", ha, 2);
+                kb->ctx_busy = 0;
+                return r;
+            }
+        }
+    }
 
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
@@ -3472,6 +3507,21 @@ static void kb_present_arg(const KB *kb, const char *in, char *out, size_t sz); 
  * scrive: nessun fatto viene copiato. */
 static const char *const BRIDGE_PREDS[2] = { "predicate_same_of", "predicate_reverse_of" };
 
+static int pred_is_machinery_scoped(const KB *kb, const char *pred);  /* fwd */
+/* Un goal passa per i contesti se un contesto e' attivo, se esistono fatti
+ * reificati in qualche mondo, e se il predicato non e' macchineria (la
+ * macchineria non sta in nessun mondo). */
+static int kb_pred_contexted(const KB *kb, const char *pred) {
+    if (!kb || !kb->ctx_n || kb->ctx_busy || !pred || !strcmp(pred, "holds_in")) return 0;
+    PredBucket hb = pred_bucket(kb, "holds_in");
+    if (hb.live && hb.n == 0) return 0;
+    KB *m = (KB *)kb;
+    m->ctx_busy = 1;
+    int mach = pred_is_machinery_scoped(kb, pred);
+    m->ctx_busy = 0;
+    return !mach;
+}
+
 static int kb_pred_bridged(const KB *kb, const char *pred) {
     for (int m = 0; m < 2; m++) {
         PredBucket bk = pred_bucket(kb, BRIDGE_PREDS[m]);
@@ -3550,6 +3600,40 @@ static int solve_bridges(Solver *S, const Term *goals, size_t ngoals, size_t idx
             if (rec) S->nproof--;
             if (ok) return 1;
         }
+    }
+    return 0;
+}
+
+/* L4 0-bis — il goal P(A1, …) nei mondi della catena attiva:
+ * `holds_in(Ctx, fact(P, A1, …))`. Nessun fatto copiato: e' un'altra via di
+ * prova, come un ponte, e il fatto reificato e' un fatto ordinario. */
+static int solve_contexts(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                          const Subst *s, int depth, SolveFrame *scratch) {
+    const Term *g = &goals[idx];
+    if (g->neg || g->argc == 0 || g->argc > 3 || !kb_pred_contexted(S->kb, g->pred)) return 0;
+    char reif[KB_TERM_LEN];
+    int o = snprintf(reif, sizeof reif, "fact(%s", g->pred);
+    for (size_t a = 0; a < g->argc && o > 0 && (size_t)o < sizeof reif; a++)
+        o += snprintf(reif + o, sizeof reif - (size_t)o, ", %s", g->args[a]);
+    if (o <= 0 || (size_t)o + 2 >= sizeof reif) return 0;
+    snprintf(reif + o, sizeof reif - (size_t)o, ")");
+    for (size_t c = 0; c < S->kb->ctx_n; c++) {
+        Term *ng = scratch->goals;
+        size_t mm = 0;
+        memset(&ng[mm], 0, sizeof ng[mm]);
+        snprintf(ng[mm].pred, sizeof ng[mm].pred, "%s", "holds_in");
+        ng[mm].argc = 2;
+        snprintf(ng[mm].args[0], sizeof ng[mm].args[0], "%s", S->kb->ctx[c]);
+        snprintf(ng[mm].args[1], sizeof ng[mm].args[1], "%s", reif);
+        ng[mm].depth = depth + 1;
+        mm++;
+        int overflow = 0;
+        for (size_t k = idx + 1; k < ngoals; k++) {
+            if (mm >= KB_MAX_GOALS) { overflow = 1; break; }
+            term_copy(&ng[mm++], &goals[k]);
+        }
+        if (overflow) { S->budget_hit = 1; continue; }
+        if (solve(S, ng, mm, 0, s, depth + 1)) return 1;
     }
     return 0;
 }
@@ -4745,8 +4829,10 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
          * pagato qui invece che ottantamila volte piu' in la'. */
         s2->n = rundo_n; s2->ndif = rundo_ndif;
     }
-    if (!dcarrier && !vrule)
-        return solve_bridges(S, goals, ngoals, idx, s, depth, scratch);
+    if (!dcarrier && !vrule) {
+        if (solve_bridges(S, goals, ngoals, idx, s, depth, scratch)) return 1;
+        return solve_contexts(S, goals, ngoals, idx, s, depth, scratch);
+    }
     return 0;
 }
 
@@ -6033,6 +6119,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     }
     /* §19 — un ponte e' una via di prova come una regola */
     if (!has_rule && kb_pred_bridged(kb, pred)) has_rule = 1;
+    if (!has_rule && kb_pred_contexted(kb, pred)) has_rule = 1;   /* L4 0-bis */
 
     /* gen382 — settle the common lookup from the census, without touching the
      * fact array. Two decisions become O(1) that used to cost a full scan each:
@@ -6172,6 +6259,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * the census names them without walking the KB. */
     /* §19 — un predicato con un ponte ha soluzioni anche fuori dai suoi fatti */
     if (simple && kb_pred_bridged(kb, pred)) simple = 0;
+    if (simple && kb_pred_contexted(kb, pred)) simple = 0;   /* L4 0-bis */
     PredBucket bk = pred_bucket(kb, pred);
     if (simple && bk.live && bk.n == 0) return 0;   /* predicate unknown here */
     /* E0: the census already counts this predicate's non-ground facts; with
@@ -10000,6 +10088,26 @@ size_t kb_rule_count(const KB *kb) {
 
 /* §25.3 — il turno corrente, per datare il registro unico dei paradossi. */
 void kb_set_paradox_turn(KB *kb, unsigned long turn) { if (kb) kb->paradox_turn = turn; }
+/* L4 0-bis — il contesto attivo e la sua catena di genitori, fino a `world`
+ * esclusa (il mondo di parrot0 e' quello dei fatti nudi). NULL o «world»
+ * spengono. La catena e' corta per costruzione; oltre quattro mondi si ferma. */
+void kb_set_context(KB *kb, const char *ctx) {
+    if (!kb) return;
+    kb->ctx_n = 0;
+    if (!ctx || !*ctx || !strcmp(ctx, "world")) return;
+    char cur[KB_TERM_LEN];
+    snprintf(cur, sizeof cur, "%s", ctx);
+    kb->ctx_busy = 1;
+    while (kb->ctx_n < sizeof kb->ctx / sizeof kb->ctx[0] && strcmp(cur, "world") != 0) {
+        snprintf(kb->ctx[kb->ctx_n++], KB_TERM_LEN, "%s", cur);
+        char par[1][KB_TERM_LEN];
+        const char *q[2] = { cur, NULL };
+        if (kb_match(kb, "context_parent", q, 2, par, 1) != 1) break;
+        snprintf(cur, sizeof cur, "%s", par[0]);
+    }
+    kb->ctx_busy = 0;
+}
+const char *kb_context(const KB *kb) { return kb && kb->ctx_n ? kb->ctx[0] : "world"; }
 
 void kb_inference_report(const KB *kb, KbInferenceReport *out) {
     if (!out) return;

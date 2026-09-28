@@ -554,6 +554,14 @@ turn_after_reply($T, onset_observation) :-
     kb_turn_act($P, cons($S, cons($O, nil)), pos, $K),
     naf(continuative_verb($P)), naf(machinery($P)), turn_counter($N),
     assert(observation_at, fact($P, $S, $O), $N).
+% (L4 0-bis) il resoconto scritto nel mondo di chi parla e' un'osservazione
+% di quel mondo: l'operatore ragiona su di lei come prima
+after_reply_bookkeeper(onset_observation_in_context).
+turn_after_reply($T, onset_observation_in_context) :-
+    grammatical_cue(input(current_turn), $Span, time, onset),
+    kb_turn_act(holds_in, cons($C, cons(fact($P, $S, $O), nil)), pos, $K),
+    naf(continuative_verb($P)), turn_counter($N),
+    assert(observation_at, fact($P, $S, $O), $N).
 after_reply_bookkeeper(continuative_observation_at).
 turn_after_reply($T, continuative_observation_at) :-
     continuative_verb($K), kb_turn_act($K, cons($Subj, cons($G, nil)), pos, $A),
