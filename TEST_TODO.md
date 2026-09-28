@@ -310,9 +310,9 @@ prossimo lavoro (report gen509 §7-bis).
   (A/B a file sostituiti). Da diagnosticare con `/debug trace` sul turno.
 - `reasoning/entail.p0t` 5/14 e `conversation/context_scope.p0t` 15/17:
   identici con la `derivation.p0` di HEAD (A/B, demone riavviato).
-- `save/persist.p0t`: righe 21, 40, 66, 87 rosse anche a HEAD; 85 e 106
+- `save/persist.p0t`: righe 21, 40, 66 rosse anche a HEAD; 85 e 106
   aggiornate (il «Conflicted.» muto e' il comportamento che C7 dichiara
-  sbagliato), 89 e 108 curate da L4-8.
+  sbagliato), 87, 89 e 108 curate da L4-8 (87 con un'attesa nuova).
 - `do_support_rule.p0t` dopo `assisted_construction_ternary.p0t` nello stesso
   demone: un turno a 2,01 s contro `!timeout 2`; da solo, su demone fresco,
   28/28. Dipendenza d'ordine, non regressione.

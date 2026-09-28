@@ -84,7 +84,7 @@
 > is socrates a man?
 <~ You told me both that socrates is a man and the opposite
 > what do you know about socrates?
-< socrates is conflicted about being a man.
+<~ But I hold a contradiction there: you told me both that socrates is a man and the opposite.
 > why is socrates a man?
 <~ I have conflicting evidence for that
 !filehas p0tmp_persist/correction-session.p0 not(man(socrates)).

@@ -267,6 +267,21 @@ clash_line(en, settled_end, ". I no longer hold the opposite, and I keep where i
 clash_line(it, settled_pos, "Deciso: ").
 clash_line(it, settled_neg, "Deciso: non è vero che ").
 clash_line(it, settled_end, ". Non tengo più il contrario, e conservo da dove veniva.").
+% (2-ter) una domanda sull'ENTITA' di un urto («What do you know about
+% socrates?») rispondeva «Socrates is a man.» come se niente fosse: la
+% risposta resta, e porta la tensione in coda.
+machinery(clash_mentioned).
+clash_mentioned($P, $A) :-
+    turn_declared_act(current_turn, question), open_clash($P, cons($S, $R)),
+    content_words_in_turn(cons($S, nil)), naf(relation_in_turn($P)), eq_cons($A, $S, $R).
+reply_conduct($In, $Out) :-
+    clash_mentioned($P, $A), content_said($P, $A, $C), current_language($L),
+    clash_line($L, mentioned, $X), concat_atoms($In, $X, $Y), concat_atoms($Y, $C, $Z),
+    clash_line($L, mentioned_end, $E), concat_atoms($Z, $E, $Out).
+clash_line(en, mentioned, " But I hold a contradiction there: you told me both that ").
+clash_line(en, mentioned_end, " and the opposite.").
+clash_line(it, mentioned, " Ma lì tengo una contraddizione: mi hai detto sia che ").
+clash_line(it, mentioned_end, " sia il contrario.").
 % (3) «What contradicts what?»
 turn_form(ask_contradictions, 1, text("what contradicts what")).
 turn_form_mood(ask_contradictions, question).

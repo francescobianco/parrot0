@@ -101,8 +101,14 @@ rosso ed è curato; le due righe che volevano il muto «Conflicted.» ora
 vogliono le due parti); `entail`, `context_scope` identici a HEAD;
 `user_situations` 56/56; `soft-test` verde.
 
-**Aperti:** «What do you know about socrates?» su un urto (atteso: «socrates
-is conflicted about being a man», rosso preesistente); un urto fra **classi
+**Poi, lo stesso giorno:** la domanda sull'**entità** di un urto («What do
+you know about socrates?», rosso preesistente di `persist.p0t` riga 87)
+risponde con ciò che sa e porta la tensione in coda: «Socrates is a man. …
+But I hold a contradiction there: you told me both that socrates is a man and
+the opposite.» `persist.p0t` 34/3 (HEAD 31/6).
+
+**Aperti:** la risposta sull'entità dice ancora «Socrates is a man.» prima
+della nota (la parte in urto andrebbe tolta dall'elenco, non corretta dopo); un urto fra **classi
 incompatibili** (`incompatible/2`, la seconda riga della tabella del §5-bis);
 l'urto fra una lezione e una conseguenza **derivata** (non solo fra due fatti
 detti); la persistenza con un ordine che sopravviva alla sessione.
