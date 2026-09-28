@@ -235,8 +235,7 @@ non più «the rcd».
 
 **Aperti:** «again» si incolla all'oggetto (`taste(espresso, bitter_again)`,
 SA19): la riaccensione lo aggira leggendo le parole del fatto finito, ma il
-fatto spazzatura entra; nell'elenco di «What do I have?» un soggetto con il
-possessivo dentro resta detto male («residual current device in my house»);
+fatto spazzatura entra;
 le domande al passato («Did my espresso taste bitter?») non vedono ancora gli
 stati finiti come veri nel passato.
 

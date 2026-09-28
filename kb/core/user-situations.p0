@@ -1332,6 +1332,15 @@ interlocutor_has_answer($Text) :-
 interlocutor_thing_said($T) :-
     interlocutor_has($S), interlocutor_world_fact(fact($P, $S, $O), $N),
     naf(fact_withheld(fact($P, $S, $O, pos))), content_said($P, cons($S, cons($O, nil)), $C),
-    concat_atoms("your ", $C, $T).
+    thing_owner_said($S, $C, $T).
+% «my espresso» -> «your espresso»; «the RCD in my house» -> «the residual
+% current device in your house» (il possessivo sta gia' dentro il soggetto)
+machinery(thing_owner_said).
+machinery(subject_has_possessive).
+thing_owner_said($S, $C, $T) :- naf(subject_has_possessive($S)), concat_atoms("your ", $C, $T).
+thing_owner_said($S, $C, $T) :-
+    subject_has_possessive($S), map_words($C, person_mirror_now, $M), concat_atoms("the ", $M, $T).
+subject_has_possessive($S) :-
+    atom_words($S, $Ws), current_language($L), first_person_possessive($L, $M), member($M, $Ws).
 commitment_line(en, you_told_me_of, "You told me that ").
 commitment_line(it, you_told_me_of, "Mi hai detto che ").
