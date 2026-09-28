@@ -87,6 +87,54 @@ rivede senza cancellare. Una sessione futura che si trovasse a scrivere una
 seconda copia di qualcosa dovrebbe fermarsi qui.
 
 **Ordine di ripresa, per valore:**
+0. **⛔ DECISIONE DI F. (29 settembre 2026): il mondo di chi parla è un
+   CONTESTO SEPARATO (B), non un fatto normale con l'impegno accanto (A).**
+
+   > *«chiaramente scegliamo il B, e ti aggiungo che grazie a ponti
+   > temporanei sarà possibile impersonare le cose facendo coincidere
+   > predicati — e hanno un mondo sotto di loro — o fonderli temporaneamente.
+   > La tua proposta di andare verso A non trova il mio gusto né il design:
+   > stai proponendo una specializzazione quasi meccanica.»*
+
+   **Perché A era sbagliata** (la proposta dell'agente, respinta): un solo
+   cassetto con un'etichetta accanto, e poi una regola che insegna ai lettori
+   generali a escludere i fatti etichettati. È una specializzazione: ogni
+   lettore deve imparare l'eccezione, e chi non la impara sbaglia in
+   silenzio. È il contrario del criterio del §2.7 e del MANTRA: la distinzione
+   deve stare nella **struttura** della KB, non in una guardia ripetuta.
+
+   **Il disegno B, da costruire** (sopra [context-scope.p0](../../kb/core/context-scope.p0),
+   che ha già `context/2`, `holds_in/2`, `context_parent/2`, `supersedes_in/3`,
+   `context_visible_belief/2`, `commitment_policy/2`):
+   - ogni interlocutore ha un **contesto** (`context(world_of(Persona),
+     interlocutor_world)`), con una politica d'impegno sua («riportato dalla
+     persona», non «creduto da parrot0»); il resoconto «My espresso tastes
+     bitter since yesterday.» scrive `holds_in(world_of(user), …)`, **non**
+     `taste(espresso, bitter)` nel mondo generale;
+   - il tempo e la fine di uno stato sono del contesto
+     (`supersedes_in/3` esiste già: «not bitter anymore» supera, non nega);
+     questo risolve anche la persistenza (punto 1 qui sotto), perché l'ordine
+     è quello del contesto e non un numero di turno;
+   - **i ponti temporanei** ([parrot-p0-syntax.md §19](../parrot-p0-syntax.md)):
+     un ponte fra predicati o fra contesti **con una durata** (un
+     ragionamento, un turno, un'impersonazione) fa coincidere per quel tempo
+     ciò che di solito è separato: l'operatore F5 ragiona *dentro* il mondo di
+     chi parla usando le leggi del mondo generale; «se fossi te…» impersona un
+     altro mondo; due mondi si fondono temporaneamente e poi si separano. La
+     separazione resta la regola, l'unione è un atto con un inizio e una fine;
+   - i lettori non imparano eccezioni: chiedono a un contesto. La domanda
+     «Does my espresso taste bitter?» si legge nel mondo di chi parla perché
+     lo dice il possessivo (lo stesso indizio della IR che oggi sceglie
+     l'impegno), «Is espresso bitter?» nel mondo generale.
+
+   **Che cosa del lavoro del 28 settembre si riusa e che cosa si rifà:**
+   restano l'indizio della IR (possessivo, inizio nel tempo), il riscontro con
+   la deissi, la fine dello stato come superamento, il lettore «What do I
+   have?»; si rifà la scrittura (nel contesto, non nel cassetto generale) e
+   `interlocutor_world_fact/2` diventa superfluo (il contesto *è*
+   l'impegno). Il ponte temporaneo è il pezzo nuovo del motore: oggi i ponti
+   sono permanenti e ritirabili, non hanno una durata.
+
 1. **La persistenza degli stati dialettici (C6).** L'urto e la fine di uno
    stato sono datati con il turno della sessione; salvati, dopo un ripristino
    i turni ripartono e l'ordine si rompe (misurato su `persist.p0t`). Serve un

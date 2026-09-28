@@ -873,6 +873,12 @@ piani K6. Il contratto semantico, invece, e' gia' vincolante:
 > decide l'atto (K1/K3 + mondo allargato di
 > [the-rational-philosopher.md](the-rational-philosopher.md)), non in una
 > parola del template. Registro: train-the-learning-process.md §SA, riga SA11.
+>
+> **Decisione di F. (29 settembre 2026): il mondo di chi parla è un contesto
+> separato** (K4, `holds_in/2`), non un fatto del mondo generale con
+> un'etichetta accanto; i **ponti temporanei** fanno coincidere predicati o
+> contesti per la durata di un ragionamento o di un'impersonazione, e poi li
+> separano. Disegno in l4-upgrade.md, RIPARTENZA, punto 0.
 
 In questo livello «astuzia» significa una composizione verificabile di operatori:
 scoprire un'assunzione nascosta, riclassificare una risorsa, osservare una
