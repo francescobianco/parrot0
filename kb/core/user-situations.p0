@@ -1219,14 +1219,16 @@ reply_conduct($In, $Out) :-
 machinery(mirrored_turn_words).
 machinery(mirror_word).
 machinery(turn_has_word_at).
+% le parole come DETTE (`turn_lesson_word_at/3`: «RCD» resta «RCD»), con la
+% deissi confrontata sulla forma minuscola
 mirrored_turn_words($I, $M) :-
-    turn_word(current_turn, $I, $W), mirror_word($W, $M), is($J, add($I, 1)),
+    turn_lesson_word_at(current_turn, $I, $W), mirror_word($W, $M), is($J, add($I, 1)),
     naf(turn_has_word_at($J)).
 mirrored_turn_words($I, $Text) :-
-    turn_word(current_turn, $I, $W), mirror_word($W, $M), is($J, add($I, 1)),
+    turn_lesson_word_at(current_turn, $I, $W), mirror_word($W, $M), is($J, add($I, 1)),
     turn_has_word_at($J), mirrored_turn_words($J, $Rest),
     concat_atoms($M, " ", $A), concat_atoms($A, $Rest, $Text).
-turn_has_word_at($J) :- turn_word(current_turn, $J, $W).
+turn_has_word_at($J) :- turn_lesson_word_at(current_turn, $J, $W).
 mirror_word($W, $M) :- person_mirror_now($W, $M).
 mirror_word($W, $W) :- naf(has_person_mirror($W)).
 machinery(has_person_mirror).

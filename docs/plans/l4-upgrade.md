@@ -229,9 +229,14 @@ Contrasti: «Coffee is not a fruit.» resta una lezione negata; «Is espresso a
 coffee?» → «Yes.». `soft-test` verde in 4 s; `user_situations` 56/56;
 `assisted_construction_ternary` 22/33 identico con la KB di HEAD.
 
+**Poi (28 notte):** il riscontro ridice la frase dalla superficie **detta**
+(`turn_lesson_word_at/3`): «I see: the RCD in your house keeps tripping.»,
+non più «the rcd».
+
 **Aperti:** «again» si incolla all'oggetto (`taste(espresso, bitter_again)`,
 SA19): la riaccensione lo aggira leggendo le parole del fatto finito, ma il
-fatto spazzatura entra; la sigla perde le maiuscole nel riscontro («the rcd»);
+fatto spazzatura entra; nell'elenco di «What do I have?» un soggetto con il
+possessivo dentro resta detto male («residual current device in my house»);
 le domande al passato («Did my espresso taste bitter?») non vedono ancora gli
 stati finiti come veri nel passato.
 

@@ -9,6 +9,8 @@
 !timeout 4
 > What do I have?
 <~ You haven't told me about anything of yours yet.
+> The RCD in my house keeps tripping.
+<~ I see: the RCD in your house keeps tripping.
 > My espresso tastes bitter.
 <~ I see: your espresso tastes bitter.
 > Espresso is a coffee.
