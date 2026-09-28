@@ -4955,10 +4955,19 @@ static int p0_np_closer(Brain *b, const char *t) {
      * Misurato: con la firma il turno saliva a 1,4 s, peggio della derivazione
      * che doveva curare. Con la revisione si enumera una volta per turno —
      * dieci volte meno di una volta per token, ed e' quello che serviva. */
-    size_t rev = kb_revision(b->kb);
+    /* 28 settembre 2026 — LA CHIAVE E' LA CONOSCENZA DA CUI LA CLASSE DIPENDE.
+     * `kb_revision` cambia a ogni fatto asserito, tracce del turno comprese: la
+     * classe si rienumerava 36 volte in un turno (MANTRA #20d, misurato su
+     * meta_reasoning.p0t). Se la KB dichiara `dependency_watch(np_closer, 1)`,
+     * la chiave e' il timbro della sorveglianza, che cambia solo quando cambia
+     * una premessa transitiva delle sue regole — le parole del turno comprese.
+     * Senza la dichiarazione si torna alla chiave di prima. */
+    size_t stamp = kb_watch_stamp(b->kb, "np_closer");
+    size_t rev = stamp ? stamp : kb_revision(b->kb);
     /* 18 set 2026: la regola `np_closer($V) :- relation_verb($V), naf(turn_mentions_word(…))`
      * dipende dal turno, quindi la vista si rifa' anche a ogni turno nuovo. */
-    if (!b->np_closers_live || b->np_closers_rev != rev || b->np_closers_turn != b->turns) {
+    if (!b->np_closers_live || b->np_closers_rev != rev ||
+        (!stamp && b->np_closers_turn != b->turns)) {
         char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
         const char *q[1] = { NULL };
         if (!kb_match_all(b->kb, "np_closer", q, 1, &rows, &n)) { free(rows); return 0; }
@@ -15902,6 +15911,42 @@ static size_t p0_expr_span_end(Brain *b, const char *form, long ord,
  * sopra `p0_relation_expr`, che la legge anche lei. */
 
 /* Prova UNA forma sul turno. Torna 1 se ogni pezzo combacia e il turno finisce. */
+/* 28 settembre 2026 — LE SUPERFICI DI UNA RELAZIONE SORVEGLIATA, UNA VOLTA PER
+ * TIMBRO. Il pezzo `named(Rel, Slot)` delle forme prova fino a dieci prefissi
+ * del turno, in tre grafie, per ogni forma che lo usa: con `turn_entity_named`
+ * ogni prova rienumerava tutte le entita' della IR (144 chiamate, 3,6 s su una
+ * lettura di sei frasi, comprehension.p0t). Se la KB dichiara
+ * `dependency_watch(Rel, 2)`, le superfici si enumerano una volta finche' il
+ * timbro della sorveglianza non cambia, e un prefisso che non e' fra loro si
+ * scarta senza interrogare. Senza la dichiarazione: 0, e chi chiama fa come
+ * prima. Restituisce 1 = «la superficie c'e', chiedi», -1 = «non c'e'». */
+static int p0_named_surface_known(Brain *b, const char *rel, const char *surface) {
+    static const KB *ckb = NULL;
+    static char crel[KB_TERM_LEN];
+    static size_t cstamp = 0;
+    static char (*csurf)[KB_TERM_LEN] = NULL;
+    static size_t nsurf = 0;
+    if (!b || !b->kb || !rel || !surface) return 0;
+    size_t stamp = kb_watch_stamp(b->kb, rel);
+    if (!stamp) return 0;
+    if (ckb != b->kb || cstamp != stamp || strcmp(crel, rel) != 0) {
+        free(csurf); csurf = NULL; nsurf = 0;
+        const char *q[2] = { NULL, NULL };
+        if (!kb_match_all(b->kb, rel, q, 2, &csurf, &nsurf)) { free(csurf); csurf = NULL; nsurf = 0; }
+        for (size_t i = 0; i < nsurf; i++) {        /* si confronta la forma nuda */
+            char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", csurf[i]);
+            snprintf(csurf[i], KB_TERM_LEN, "%s", kb_dequote(t));
+        }
+        ckb = b->kb; cstamp = stamp; snprintf(crel, sizeof crel, "%s", rel);
+        p0_trace_at(b, 3, "read.named", "%s: %zu superfici, timbro %zu", rel, nsurf, stamp);
+    }
+    char want[KB_TERM_LEN]; snprintf(want, sizeof want, "%s", surface);
+    const char *w = kb_dequote(want);
+    for (size_t i = 0; i < nsurf; i++)
+        if (!strcmp(csurf[i], w)) return 1;
+    return -1;
+}
+
 static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
                          P0FormSlot *slots, size_t *nslot) {
     char (*ords)[KB_TERM_LEN] = NULL; size_t nord = 0;
@@ -16030,10 +16075,15 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
                 const char *sq2[2] = { acc, NULL };
                 const char *sq3[2] = { q2, NULL };
                 const char *sq4[2] = { q4, NULL };
-                int nhit = kb_match(b->kb, rel, sq2, 2, rows, 1) == 1 ||
-                           kb_match(b->kb, rel, sq3, 2, rows, 1) == 1 ||
-                           (strcmp(acc, acc2) &&
-                            kb_match(b->kb, rel, sq4, 2, rows, 1) == 1);
+                /* (una relazione sorvegliata scarta subito il prefisso che non
+                 * e' fra le sue superfici: vedi p0_named_surface_known) */
+                int known = p0_named_surface_known(b, rel, acc);
+                if (known < 0 && strcmp(acc, acc2)) known = p0_named_surface_known(b, rel, acc2);
+                int nhit = known >= 0 &&
+                           (kb_match(b->kb, rel, sq2, 2, rows, 1) == 1 ||
+                            kb_match(b->kb, rel, sq3, 2, rows, 1) == 1 ||
+                            (strcmp(acc, acc2) &&
+                             kb_match(b->kb, rel, sq4, 2, rows, 1) == 1));
                 p0_trace(b, "read.named", "%s acc=«%s» %s\n", rel, acc, nhit ? "HIT" : "-");
                 if (nhit) {
                     char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[0]);

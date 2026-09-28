@@ -202,6 +202,38 @@ conoscenza; il meccanismo è uno. La chiave della cache dev'essere stretta e
 O(1) (MANTRA #20 d). Togliere la dichiarazione fa tornare la derivazione: una
 vista è un acceleratore, mai parte del significato.
 
+### 7.1 La sorveglianza: `dependency_watch/2` (28 settembre 2026)
+
+```prolog
+dependency_watch(np_closer, 1).            % la copia che il C tiene della classe
+dependency_watch(turn_entity_named, 2).    % le superfici del pezzo `named`
+```
+
+Una **sorveglianza** sta nello stesso registro delle viste, ma **non si costruisce
+mai**. Mantiene soltanto il grafo delle premesse transitive e un timbro, che
+cambia quando una di quelle premesse muta. Serve a chi tiene una copia delle
+soluzioni fuori dal solver (una cache nel C): la chiave onesta è la conoscenza
+da cui la classe dipende (MANTRA #20f), non ogni fatto asserito (`kb_revision`,
+che cambia anche per le tracce del turno). Il C la legge con
+`kb_watch_stamp(kb, P)`; se la sorveglianza non è dichiarata restituisce 0, e
+chi chiama ricalcola come prima.
+
+- **Il grafo attraversa anche le viste vive**: a differenza di una vista, una
+  sorveglianza non si ferma al loro confine, perché una copia che mente è peggio
+  di nessuna copia. Sono premesse anche i goal dentro `findall` e `naf`.
+- **Un costrutto opaco la rende larga** (`call`, `apply`, `kb_fact`, `kb_turn_act`,
+  …): il timbro cambia a ogni mutazione, cioè il comportamento di prima. Chi
+  dichiara la portata dei propri `apply` resta stretto: vale
+  `view_apply_resolved(P)` più gli archi `view_depends(P, …)`, anche derivati
+  (`view_depends(reading_continuer, C) :- reading_continuer_class(C, _)`).
+- **Diagnosi:** `/debug trace sorvegliata` dice se è stretta (e con quante
+  dipendenze) o larga (quale regola usa quale costrutto);
+  `PARROT0_VIEW_DEPS=P` stampa il grafo; `/debug trace P` dice chi la invalida.
+- Misurato: `np_closer` passa da 36 a 18 enumerazioni per turno (le restanti le
+  chiede la ripubblicazione delle parole del turno, che cambia davvero la
+  classe). `turn_entity_named` passa da 144 chiamate (3,6 s) a 6 (0,15 s) su una
+  lettura di sei frasi.
+
 ## 8. Provenienza e stato
 
 | dichiarazione | effetto |

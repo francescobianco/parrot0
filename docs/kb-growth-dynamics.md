@@ -234,6 +234,28 @@ cresce con lei. Un tetto che conta la lunghezza fa fallire proprio le
 composizioni più corrette, e in silenzio. Un limite si misura su ciò che dice
 di misurare.
 
+### S13 — La copia chiavata su tutta la KB (28 settembre 2026)
+
+**Caso.** `p0_np_closer` teneva nel C una copia della classe `np_closer`,
+chiavata su `kb_revision`. Ogni traccia asserita dal turno la invalidava:
+36 enumerazioni in «what kind of question is "where is paris"?», 1,2 s su 2,4.
+Accanto, il pezzo `named(turn_entity_named, …)` delle forme rienumerava tutte le
+entità della IR a ogni prefisso provato: 144 volte in una lettura di sei frasi,
+3,6 s.
+
+**Segnale.** In `/debug on`, un predicato con molte `call` e passi proporzionali;
+in `/debug trace P` le righe `view.inval P sporcata da …` elencano tracce del
+turno, non conoscenza.
+
+**Cura.** `dependency_watch/2` (sintassi §7.1): il timbro segue solo le premesse
+transitive, e il C chiava la copia su quel timbro. Il primo tentativo è venuto
+largo, e la traccia ha detto perché (`view_depends` espanso come regola, poi un
+`apply` non dichiarato in `reading_continuer`). Dichiarata la portata di
+`apply`, la sorveglianza è stretta (91 dipendenze). Due tentativi misurati e
+scartati: `relation_verb` come vista (nessun guadagno) e un indice per prima
+parola dei testi delle lezioni (`lesson_text_first`: −0,7 s a turno, **+5 s al
+boot**, oltre il limite del demone dei test).
+
 ## 4. Il metodo che ha funzionato, e l'errore da non ripetere
 
 1. **Misura, poi ipotesi.** Ogni volta che ho indovinato la causa senza profilo

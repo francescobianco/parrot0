@@ -433,6 +433,12 @@ int kb_view_ensure(KB *kb, const char *pred);
  * qui invece che su un proprio elenco di dipendenze. 0 = nessuna vista
  * dichiarata: la copia non ha una chiave onesta e non va tenuta. */
 size_t kb_view_stamp(const KB *kb, const char *pred);
+/* 28 settembre 2026 — la SORVEGLIANZA: il timbro di un predicato dichiarato
+ * `dependency_watch(P, N)`, che cambia quando cambia una qualunque delle sue
+ * premesse transitive. Non si costruisce niente. 0 = nessuna sorveglianza
+ * dichiarata, oppure chiamata da dentro una risoluzione: la copia non ha una
+ * chiave onesta, e chi la tiene deve ricalcolare. */
+size_t kb_watch_stamp(KB *kb, const char *pred);
 /* Il gancio del trace unico del turno (brain.c): le righe del motore — viste
  * invalidate, ricostruite, rifiutate; il salvataggio instradato — ci passano. */
 void kb_set_trace_hook(KB *kb, void (*fn)(void *ctx, const char *stage, const char *text), void *ctx);

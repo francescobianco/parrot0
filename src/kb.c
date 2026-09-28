@@ -291,6 +291,12 @@ typedef struct {
     size_t stamp;          /* kb->view_clock at the last invalidation */
     uint64_t content;      /* impronta delle righe dell'ultima costruzione */
     int has_content;
+    /* 28 settembre 2026 — LA SORVEGLIANZA (`dependency_watch/2`): una voce che
+     * tiene grafo e timbro come una vista e non si costruisce MAI. Serve alle
+     * copie che il C tiene di una classe (p0_np_closer): la chiave onesta e' la
+     * conoscenza da cui la classe dipende (MANTRA #20f), non ogni fatto
+     * asserito (`kb_revision`). `watch_ready` = grafo compilato e valido. */
+    int watch, watch_ready;
 } KbView;
 
 struct KB {
@@ -1380,9 +1386,12 @@ static void kb_views_changed_ex(KB *kb, const char *pred, const KbView *self) {
             kb_trace(kb, "view.inval", "%-28s sporcata da %s%s%s",
                      v->pred, pred, v->broad ? " (broad)" : "", v->building ? " mentre si costruisce" : "");
         v->live = 0;
-        v->dirty = 1;
         v->attempted = 0;
         v->stamp = ++kb->view_clock;
+        /* una sorveglianza stretta ricompila il grafo (una regola nuova puo'
+         * averlo cambiato); una larga cambia timbro a ogni mutazione comunque */
+        if (v->watch) { if (!v->broad) v->watch_ready = 0; continue; }
+        v->dirty = 1;
         kb->views_pending = 1;
     }
 }
@@ -5007,6 +5016,26 @@ static void kb_views_load(KB *kb) {
         v->broad = 1;             /* no dependency graph compiled yet */
         v->stamp = ++kb->view_clock;  /* a reloaded view is a new one */
     }
+    /* E le sorveglianze: stesso registro, mai costruite (vedi `watch`). */
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc != 2 || strcmp(f->pred, "dependency_watch") != 0) continue;
+        if (is_var(f->args[0]) || kb_view_slot(kb, f->args[0]) != (size_t)-1) continue;
+        if (kb->nviews == kb->view_cap) {
+            size_t cap = kb->view_cap ? kb->view_cap * 2 : 4;
+            KbView *grown = realloc(kb->views, cap * sizeof *grown);
+            if (!grown) break;
+            kb->views = grown;
+            kb->view_cap = cap;
+        }
+        KbView *v = &kb->views[kb->nviews++];
+        memset(v, 0, sizeof *v);
+        snprintf(v->pred, sizeof v->pred, "%s", f->args[0]);
+        v->argc = (size_t)strtol(f->args[1], NULL, 10);
+        v->watch = 1;
+        v->broad = 1;             /* finche' il grafo non e' compilato: tutto invalida */
+        v->stamp = ++kb->view_clock;
+    }
 }
 
 static int kb_view_dep_add(KbView *v, const char *pred) {
@@ -5321,6 +5350,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
     size_t k = kb_view_slot(kb, pred);
     if (k == (size_t)-1) { kb->views_preparing = 0; return 0; }
     KbView *v = &kb->views[k];
+    if (v->watch) { kb->views_preparing = 0; return 0; }   /* una sorveglianza non si costruisce */
     /* 20 settembre 2026 — PRIMA DI FIDARSI, GUARDA LE VISTE DA CUI DIPENDI.
      *
      * Con il confine (sopra) questa vista non si sporca piu' quando cambia un
@@ -5568,7 +5598,7 @@ static int kb_view_deps_ready(KB *kb, const char *pred) {
         if (!strcmp(deps[i], pred)) continue;          /* l'autoanello non conta */
         size_t k = kb_view_slot(kb, deps[i]);
         if (k == (size_t)-1) continue;                 /* non e' una vista: niente da attendere */
-        if (!kb->views[k].live) ready = 0;
+        if (!kb->views[k].live && !kb->views[k].watch) ready = 0;   /* una sorveglianza non si attende */
     }
     free(deps);
     return ready;
@@ -5588,7 +5618,7 @@ void kb_views_refresh(KB *kb) {
         progress = 0;
         for (size_t i = 0; i < kb->nviews; i++) {
             KbView *v = &kb->views[i];
-            if (v->live || v->building || v->attempted) continue;
+            if (v->watch || v->live || v->building || v->attempted) continue;
             if (!kb_view_deps_ready(kb, v->pred)) continue;
             kb_view_ensure(kb, v->pred);
             progress = 1;
@@ -5603,7 +5633,7 @@ void kb_views_warm(KB *kb) {
         progress = 0;
         for (size_t i = 0; i < kb->nviews; i++) {
             KbView *v = &kb->views[i];
-            if (v->live || v->attempted) continue;
+            if (v->watch || v->live || v->attempted) continue;
             if (!kb_view_deps_ready(kb, v->pred)) continue;
             kb_view_ensure(kb, v->pred);
             progress = 1;
@@ -5626,6 +5656,93 @@ size_t kb_view_stamp(const KB *kb, const char *pred) {
     if (!kb || !pred || !kb->views_loaded) return 0;
     size_t k = kb_view_slot(kb, pred);
     return k == (size_t)-1 ? 0 : kb->views[k].stamp;
+}
+
+/* La chiusura di una sorveglianza: TUTTE le premesse transitive, senza i confini
+ * delle viste vive (una vista viva puo' cambiare righe senza che la sua
+ * dipendenza a monte sia nel grafo di chi la legge, e una copia che mente e'
+ * peggio di nessuna copia). I goal dentro `findall` e `naf` sono premesse;
+ * un costrutto opaco (`call`, `apply`, `kb_fact`, …) rende la sorveglianza
+ * larga: ogni mutazione la invalida, come prima. */
+static char watch_culprit[2][KB_TERM_LEN];   /* chi l'ha resa larga: regola, costrutto */
+static int kb_watch_close(KB *kb, KbView *v) {
+    v->ndeps = 0;
+    watch_culprit[0][0] = watch_culprit[1][0] = '\0';
+    if (!kb_view_dep_add(v, v->pred) || !kb_view_dep_add(v, "view_depends") ||
+        !kb_view_dep_add(v, "dependency_watch")) return 0;
+    for (size_t i = 0; i < v->ndeps; i++) {
+        char pred[KB_TERM_LEN];
+        snprintf(pred, sizeof pred, "%s", v->deps[i]);
+        const char *q[2] = { pred, NULL };
+        char (*extra)[KB_TERM_LEN] = NULL; size_t ne = 0;
+        if (kb_match_all(kb, "view_depends", q, 2, &extra, &ne))
+            for (size_t j = 0; j < ne; j++)
+                if (!term_contains_var(extra[j], 0) && !kb_view_dep_add(v, extra[j])) { free(extra); return 0; }
+        free(extra);
+        /* i due registri sono foglie: i loro archi si leggono qui sopra, e le
+         * loro regole (che guardano la KB con `kb_fact`) non sono premesse */
+        if (!strcmp(pred, "view_depends") || !strcmp(pred, "dependency_watch")) continue;
+        /* come per le viste: chi dichiara la portata dei propri `apply`/`call`/
+         * `kb_fact` (`view_apply_resolved/1` + `view_depends/2`) resta stretto */
+        const char *aq[1] = { pred };
+        int apply_resolved = kb_query(kb, "view_apply_resolved", aq, 1);
+        PredBucket rb = rule_bucket(kb, pred);
+        for (size_t j = 0; j < PRED_VISITS(rb, kb); j++) {
+            if (PRED_AT(rb, j) >= kb->nr) continue;
+            const Rule *r = &kb->rules[PRED_AT(rb, j)];
+            if (strcmp(r->head.pred, pred) != 0) continue;
+            for (size_t b = 0; b < r->nbody; b++) {
+                const char *bp = r->body[b].pred;
+                if (apply_resolved && (!strcmp(bp, "apply") || !strcmp(bp, "call") ||
+                                       !strcmp(bp, "kb_fact")))
+                    continue;
+                if (!strcmp(bp, "call") || !strcmp(bp, "apply") || !strcmp(bp, "kb_fact") ||
+                    !strcmp(bp, "kb_rule") || !strcmp(bp, "kb_rule_body") || !strcmp(bp, "kb_clause") ||
+                    !strcmp(bp, "kb_clause_arg") || !strcmp(bp, "kb_derivation") ||
+                    !strcmp(bp, "kb_act") || !strcmp(bp, "kb_turn_act") ||
+                    !strcmp(bp, "iterate") || !strcmp(bp, "prob")) {
+                    snprintf(watch_culprit[0], KB_TERM_LEN, "%s", pred);
+                    snprintf(watch_culprit[1], KB_TERM_LEN, "%s", bp);
+                    return 0;                     /* opaco: resta larga */
+                }
+                if (!strcmp(bp, "findall") || !strcmp(bp, "findall_bag")) {
+                    char fun[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN]; size_t np = 0;
+                    if (r->body[b].argc < 2 || is_var(r->body[b].args[1])) return 0;
+                    const char *inner = r->body[b].args[1];
+                    if (split_compound(inner, fun, parts, &np)) inner = fun;
+                    if (!kb_view_dep_add(v, inner)) return 0;
+                    continue;
+                }
+                if (!strcmp(bp, "assert") || !strcmp(bp, "retract")) continue;   /* scritture */
+                if (!kb_view_dep_add(v, bp)) return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+size_t kb_watch_stamp(KB *kb, const char *pred) {
+    if (!kb || !pred || frame_depth || proof_depth || kb->views_preparing) return 0;
+    if (!kb->views_loaded || kb->views_reload) kb_views_load(kb);
+    size_t k = kb_view_slot(kb, pred);
+    if (k == (size_t)-1 || !kb->views[k].watch) return 0;
+    KbView *v = &kb->views[k];
+    if (!v->watch_ready) {
+        v->broad = !kb_watch_close(kb, v);
+        v->watch_ready = 1;
+        if (v->broad)
+            kb_trace(kb, "view", "%-28s sorvegliata LARGA: %s usa %s (%zu dipendenze viste)",
+                     v->pred, watch_culprit[0], watch_culprit[1], v->ndeps);
+        else
+            kb_trace(kb, "view", "%-28s sorvegliata: %zu dipendenze", v->pred, v->ndeps);
+        const char *lte = getenv("PARROT0_VIEW_DEPS");
+        if (lte && !strcmp(lte, v->pred)) {
+            fprintf(stderr, "[watch] %s <-", v->pred);
+            for (size_t i = 0; i < v->ndeps; i++) fprintf(stderr, " %s", v->deps[i]);
+            fprintf(stderr, "\n");
+        }
+    }
+    return v->stamp;
 }
 
 int kb_retract_clause(KB *kb, const KbGoal *head,

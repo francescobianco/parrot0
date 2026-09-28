@@ -189,6 +189,15 @@ reading_continuer($Word) :-
     reading_continuer_class($Class, $Example), apply($Class, cons($Word, nil)),
     naf(turn_mentions_word(current_turn)).
 bare_noun_candidate($Word) :- reading_continuer_exists(any), reading_continuer($Word).
+% 28 settembre 2026 — la PORTATA dei due `apply` qui sopra e' dichiarata: sono le
+% classi che le lezioni hanno nominato. Chi tiene una copia di `np_closer` (la
+% sorveglianza di src/kb.c) resta cosi' legato alla conoscenza da cui dipende,
+% invece di invalidarsi a ogni fatto asserito; una classe insegnata domani entra
+% nel grafo dalla sua stessa lezione.
+view_apply_resolved(reading_continuer).
+view_apply_resolved(reading_closer).
+view_depends(reading_continuer, $Class) :- reading_continuer_class($Class, $Example).
+view_depends(reading_closer, $Class) :- reading_boundary_class($Class, $Example).
 % Esiste almeno una continuazione o una chiusura insegnata? Una domanda ground,
 % cosi' chi enumera centinaia di parole non paga le prove quando non ce n'e'.
 machinery(reading_continuer_exists).

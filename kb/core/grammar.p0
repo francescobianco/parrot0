@@ -245,6 +245,10 @@ turn_entity_named($Surface, $Key) :-
     input_entity_node(current_turn, $L, $I, $Key),
     atom_words($Key, cons($W, cons($V, $R))),
     words_joined(cons($W, cons($V, $R)), $Surface).
+% 28 settembre 2026 — il pezzo `named` la prova per ogni prefisso di ogni forma:
+% la sorveglianza lascia al C enumerarne le superfici UNA volta per stato della
+% IR (p0_named_surface_known), invece di 144 volte in una lettura.
+dependency_watch(turn_entity_named, 2).
 
 machinery(member_satisfies).
 member_satisfies($Member, $Value) :- kb_fact($Pred, cons($Member, cons($Value, nil))).
@@ -4770,6 +4774,11 @@ machinery(turn_verb_before).
 % un fatto ground contato una volta dalla contabilita' (come `det_follower_now`).
 % Misurato su «what kind of question is "where is paris"?» (meta_reasoning.p0t):
 % `np_closer` 1207 ms, 45 720 ingressi in `turn_word_at`.
+% E la copia che il C tiene della classe (`p0_np_closer`) si chiava sulla
+% conoscenza da cui la classe dipende, non su ogni fatto asserito: la
+% sorveglianza (src/kb.c, `kb_watch_stamp`) ne segue le premesse transitive.
+dependency_watch(np_closer, 1).
+machinery(dependency_watch).
 machinery(turn_word_now).
 turn_scratch(turn_word_now).
 turn_reset(turn_word_now).
