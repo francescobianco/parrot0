@@ -360,6 +360,24 @@ turn_form_view(teach_incompatible_both, said).
 turn_form_priority(teach_incompatible_both, early).
 turn_form_act(teach_incompatible_both, "op(assert, incompatible, [first, second])").
 turn_form_reply(teach_incompatible_both, incompatible_learned).
+% SA21: la facolta' delle negazioni prendeva «A fish cannot be a bird.» prima
+% delle forme e scriveva `not ability_of(fish, be_a_bird)`. Il lettore delle
+% negazioni e' uno stadio «lead» prima del dispatch: la sua rinuncia si dichiara
+% con `negation_lead_declined/0` (turn-frames.p0), non con `faculty_yield_when`
+% (provato: la porta delle facolta' non lo raggiunge).
+machinery(turn_teaches_incompatibility).
+machinery(indefinite_word).
+indefinite_word(a).  indefinite_word(an).
+turn_teaches_incompatibility($T, $C) :-
+    turn_word($T, 0, $A), indefinite_word($A), turn_word($T, 1, $C), turn_word($T, 2, cannot),
+    turn_word($T, 3, be), turn_word($T, 4, $B), indefinite_word($B).
+negation_lead_declined :- turn_teaches_incompatibility(current_turn, $C).
+% l'incompatibilita' e' simmetrica, e il rilevatore C (gen375) la chiede in un
+% verso solo: la lezione scrive anche l'altro, dopo la risposta
+after_reply_bookkeeper(incompatible_symmetric).
+turn_after_reply($T, incompatible_symmetric) :-
+    kb_turn_act(incompatible, cons($A, cons($B, nil)), pos, $K), naf(incompatible($B, $A)),
+    assert(incompatible, $B, $A).
 response_template(incompatible_learned, "Held: nothing is both a {first} and a {second}.").
 response_template(incompatible_learned, it, "Tengo: niente è insieme un {first} e un {second}.").
 % (2) l'urto si annota: il turno ha scritto una classe per X, e X sta gia' in

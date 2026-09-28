@@ -63,4 +63,17 @@
 <~ Yes
 > What contradicts what?
 <~ Nothing that I know of
+
+[test la lezione «A X cannot be a Y» insegna l'incompatibilita', non una capacita' negata]
+!timeout 4
+> A cat cannot be a fish.
+<~ Held: nothing is both a cat and a fish.
+> Tom is a cat.
+> Tom is a fish.
+<~ cannot both apply
+> Is Tom a fish?
+<~ and nothing is both
+> A penguin cannot fly.
+> Can a penguin fly?
+<~ No
 !reset

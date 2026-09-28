@@ -114,9 +114,14 @@ successivo** vale mentre l'altra riceve lo strato `settled(N)` (la prima
 versione lo faceva nello stesso turno dell'urto: la classe appena detta
 sembrava una riaffermazione). Cricchetto 25/25; `class_conflict`,
 `move_precedence` verdi; `compound_inquiry` identico a HEAD.
-⚠ «A fish cannot be a bird.» non arriva alla forma: un lettore C delle
-negazioni la prende prima e scrive `not ability_of(fish, be_a_bird)`
-(SA21 in train-the-learning-process.md).
+Anche «A cat cannot be a fish.» ora insegna l'incompatibilità (SA21: il
+lettore C delle negazioni la prendeva prima delle forme e scriveva `not
+ability_of(cat, be_a_fish)`; rinuncia con `negation_lead_declined/0`, la porta
+KB di quello stadio), e la lezione scrive i due versi, perché il rilevatore C
+chiede `incompatible/2` in un verso solo. «A penguin cannot fly.» resta una
+capacità negata. Si vede anche un urto **derivato**: dopo «Tom is a cat.» /
+«Tom is a fish.» la domanda risponde «…tom is a mammal and also that it is a
+fish…» (mammifero per derivazione). Cricchetto 29/29.
 
 **Poi, lo stesso giorno:** la domanda sull'**entità** di un urto («What do
 you know about socrates?», rosso preesistente di `persist.p0t` riga 87)
