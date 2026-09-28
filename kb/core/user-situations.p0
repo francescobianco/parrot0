@@ -1371,3 +1371,65 @@ subject_has_possessive($S) :-
     atom_words($S, $Ws), current_language($L), first_person_possessive($L, $M), member($M, $Ws).
 commitment_line(en, you_told_me_of, "You told me that ").
 commitment_line(it, you_told_me_of, "Mi hai detto che ").
+
+% ── L4 0-bis — IL TRASFERIMENTO DI MONDO: «adesso fallo tuo» (29 set 2026) ──
+% F.: «delle lezioni possono essere date in due tempi: "il mio modo di … e'
+% questo"; se poi dice "adesso fallo tuo" li' avviene il trasferimento di
+% mondo: i predicati potranno trasferirsi, e anche il trasferimento e' un modo
+% di addestrare parrot0 tramite linguaggio naturale.»
+% «it» e' l'ultimo contenuto detto nel mondo di chi parla. Il passaggio non
+% sposta: il contenuto resta nel mondo dell'utente (e' ancora il suo) e ENTRA
+% nel mondo di parrot0 con la provenienza del trasferimento, ritirabile.
+machinery(last_speaker_content).
+machinery(later_speaker_content).
+last_speaker_content($F) :-
+    interlocutor_world_fact($F, $N), naf(later_speaker_content($N)).
+later_speaker_content($N) :- interlocutor_world_fact($G, $M), gt($M, $N).
+machinery(made_own).
+machinery(transfer_to_own).
+transfer_to_own($Text) :-
+    last_speaker_content(fact($P, $S, $O)), speaker_context($C), turn_counter($N),
+    assert($P, $S, $O), assert(made_own, fact($P, $S, $O), from($C, $N)),
+    content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
+    commitment_line($L, made_own, $A), concat_atoms($A, $Cs, $B),
+    commitment_line($L, made_own_end, $E), concat_atoms($B, $E, $Text).
+% (l'imperativo non ha il modo `statement`; «now» si sbuccia come apertura)
+turn_form(transfer_make_it_yours, 1, text("now make it yours")).
+turn_form(transfer_make_it_yours_bare, 1, text("make it yours")).
+turn_form(transfer_fallo_tuo, 1, text("adesso fallo tuo")).
+turn_form(transfer_fallo_tuo_bare, 1, text("fallo tuo")).
+turn_form_priority(transfer_make_it_yours, early).
+turn_form_priority(transfer_make_it_yours_bare, early).
+turn_form_priority(transfer_fallo_tuo, early).
+turn_form_priority(transfer_fallo_tuo_bare, early).
+turn_form_view(transfer_fallo_tuo, said).
+turn_form_view(transfer_make_it_yours, said).
+turn_form_view(transfer_make_it_yours_bare, said).
+turn_form_view(transfer_fallo_tuo_bare, said).
+turn_form_act(transfer_make_it_yours, "op(match, transfer_to_own, [free])").
+turn_form_act(transfer_make_it_yours_bare, "op(match, transfer_to_own, [free])").
+turn_form_act(transfer_fallo_tuo, "op(match, transfer_to_own, [free])").
+turn_form_act(transfer_fallo_tuo_bare, "op(match, transfer_to_own, [free])").
+turn_form_reply(transfer_make_it_yours, transfer_reply).
+turn_form_reply(transfer_make_it_yours_bare, transfer_reply).
+turn_form_reply(transfer_fallo_tuo, transfer_reply).
+turn_form_reply(transfer_fallo_tuo_bare, transfer_reply).
+turn_form_empty_reply(transfer_make_it_yours, transfer_nothing).
+turn_form_empty_reply(transfer_make_it_yours_bare, transfer_nothing).
+turn_form_empty_reply(transfer_fallo_tuo, transfer_nothing).
+turn_form_empty_reply(transfer_fallo_tuo_bare, transfer_nothing).
+response_template(transfer_reply, "{result}").
+response_template(transfer_reply, it, "{result}").
+response_template(transfer_nothing, "There is nothing of yours I could make mine: tell me first what your way or your view is.").
+response_template(transfer_nothing, it, "Non c'è niente di tuo che possa fare mio: dimmi prima qual è il tuo modo o la tua idea.").
+commitment_line(en, made_own, "Done: from now on I hold it too, not only as yours: ").
+commitment_line(en, made_own_end, ".").
+commitment_line(it, made_own, "Fatto: d'ora in poi lo tengo anch'io, non solo come tuo: ").
+commitment_line(it, made_own_end, ".").
+% «make it yours» non e' una richiesta di produrre qualcosa: la facolta' delle
+% richieste di generazione cede (mantra #17, la cessione e' KB)
+machinery(turn_transfers_world).
+% (senza «it»: la coreferenza lo riscrive nel canone, SA15)
+turn_transfers_world($T, yours) :- turn_word($T, $I, make), turn_word($T, $K, yours).
+turn_transfers_world($T, tuo) :- turn_word($T, $I, fallo), turn_word($T, $J, tuo).
+faculty_yield_when(reqgen, open, turn_transfers_world).

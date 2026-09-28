@@ -62,6 +62,52 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ⏸ HANDOFF (29 settembre 2026, notte) — riprendere da qui
+
+**Stato.** Decisioni di F. del 29 settembre scritte più sotto (punti 0 e
+0-bis della RIPARTENZA): ogni fatto sta in un mondo; il mondo di chi parla è
+un contesto separato; le lezioni imperative e generali vanno nel mondo di
+parrot0, quelle «il mio modo di …» nel mondo di chi parla, e «adesso fallo
+tuo» le trasferisce. **Fatto e in `main`:**
+- passi 1–2 di 0-bis (commit `15ac8880`): il contesto come parametro della
+  domanda e della scrittura nel motore (`kb_set_context`, `solve_contexts`),
+  `turn_context/2` in KB, `world_of(user)` primo figlio di `world`;
+- **il trasferimento di mondo**: «Now make it yours.» / «adesso fallo tuo»
+  prende l'ultimo contenuto detto nel mondo di chi parla, lo scrive nel mondo
+  di parrot0 con la provenienza (`made_own(fact(…), from(world_of(user), N))`)
+  e lo lascia anche nel mondo dell'utente. «My tea tastes sour.» → «Does tea
+  taste sour?» non Yes → «Now make it yours.» → «Done: from now on I hold it
+  too, not only as yours: tea tastes sour.» → Yes. Senza contenuto: «There is
+  nothing of yours I could make mine…». Trappole pagate: una forma
+  imperativa non va dichiarata `statement`; «now» si sbuccia come apertura;
+  la facoltà `reqgen` cede con `faculty_yield_when` (user-situations.p0).
+  Cricchetto `interlocutor_world` 22/22, `soft-test` verde.
+
+**Prossimi passi, in ordine:**
+1. **La lezione in due tempi su una REGOLA** (l'esempio di F.: «il mio modo di
+   trattare il need nella frase è questo»). Oggi il trasferimento vale per i
+   fatti; le lezioni di grammatica scrivono predicati di macchineria
+   (`inverts_when_taught/2`) che il contesto non reindirizza. Serve decidere
+   come una regola dell'utente vive nel suo mondo (una condizione con il
+   mondo come parte? `inverts_when_via(R, C, taught_in(world_of(user)))`?) e
+   come «fallo tuo» la sposta. È il cuore della richiesta di F.
+2. **Il trasferimento ritirabile** («forget that you made it yours») e la
+   domanda «whose is this?» / «di chi è questa idea?» (la provenienza c'è).
+3. Passo 3 di 0-bis: l'ordine interno al contesto (`supersedes_in`) al posto
+   degli strati numerati dal turno → la persistenza degli stati dialettici.
+4. Passo 4: il ponte **temporaneo** (una durata), per impersonare e fondere
+   mondi; F5 che ragiona nel mondo di chi parla ne è il primo utente.
+5. I residui visti: «My bike is red.» scritto dal modulo `memory` fuori dal
+   contesto; le negazioni non reindirizzate; le viste congelate e
+   `solve_contexts`; la prima persona nelle affermazioni («I live in Rome»)
+   resta nel mondo di parrot0 finché non si decide.
+
+**Per riprodurre:** `make test-engine` (il demone non rilegge i `.p0`
+modificati: riavviarlo dopo ogni modifica), poi
+`./bin/parrot0 --test tests/p0t/conversation/interlocutor_world.p0t`. Dopo
+`persist.p0t` fare `git checkout -- kb/experts kb/machinery` (scrive nei file
+veri della KB).
+
 ### ▶▶▶ RIPARTENZA (28 settembre 2026, notte) — da dove si riprende
 
 **Fatto in questa sessione** (dettagli nelle sezioni qui sotto, in ordine):

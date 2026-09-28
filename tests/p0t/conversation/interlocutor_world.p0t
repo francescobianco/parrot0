@@ -42,4 +42,17 @@
 <~ Learned
 > Is tea a drink?
 <~ Yes
+
+[test il trasferimento di mondo]
+!timeout 4
+> My coffee tastes sour.
+<~ I see: your coffee tastes sour.
+> Does coffee taste sour?
+<! Yes
+> Now make it yours.
+<~ Done: from now on I hold it too, not only as yours: coffee tastes sour.
+> Does coffee taste sour?
+<~ Yes
+!query holds_in(world_of(user), fact(taste, coffee, sour))
+!query made_own(fact(taste, coffee, sour), from(world_of(user), $N))
 !reset
