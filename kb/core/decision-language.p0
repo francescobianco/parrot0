@@ -30,6 +30,15 @@ turn_form_slot_class(decision_value_lesson_unit, value, decision_numeric).
 turn_form_act(decision_value_lesson_unit, "op(match, decision_store, [subject, role, value, free])").
 turn_form_priority(decision_value_lesson_unit, early).
 turn_form_reply(decision_value_lesson_unit, decision_value_learned).
+% 28 settembre 2026 — UN RUOLO CHE NOMINA UNA RELAZIONE DICHIARATA NON E' UNO
+% STATO. «the population of nivora is 40000» finiva qui («Noted: …») e scriveva
+% uno stato del circuito di scelta, mentre la KB dichiara `population_of` con il
+% suo nome (`relation_noun/2`): due cassetti per lo stesso fatto, e la relazione
+% restava vuota (literal_forms.p0t). La forma cede quando il ruolo e' il nome di
+% una relazione; i ruoli del circuito (departure, duration, cargo, …) non lo
+% sono, e restano suoi. Una relazione dichiarata domani cede da sola.
+turn_form_yield(decision_value_lesson, relation_noun, 2, role).
+turn_form_yield(decision_value_lesson_unit, relation_noun, 2, role).
 response_template(decision_value_learned, "Noted: the {role} of {subject} is {value}.").
 response_template(decision_value_learned, it, "Annotato: {role} di {subject} vale {value}.").
 

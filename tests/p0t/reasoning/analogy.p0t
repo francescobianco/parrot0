@@ -15,17 +15,23 @@
 
 # gen506: «X is the capital of Y» e «the capital of Y is X» finiscono nello
 # STESSO cassetto (`capital_of/2`, via `relation_noun/2`), e la ricevuta e' prosa.
+# 28 settembre 2026: con il ponte `predicate_reverse_of(capital_of,
+# capital_of_country)` (parrot-p0-syntax.md §19) le capitali del mondo sono gia'
+# `capital_of`: la lezione e' tenuta, non nuova, e la ricevuta lo dice.
 > rome is the capital of italy
-< Learned: rome is the capital of italy.
+<~ the capital of italy is rome
 > paris is the capital of france
-< Learned: paris is the capital of france.
+<~ the capital of france is paris
 
 # Forward: find capital(rome, italy), then resolve capital(paris, ?) -> france.
 > rome is to italy as paris is to what?
 < france.
 # The proof is real — it cites the two relations the analogy stands on.
 > how do you know?
-< Because capital_of(rome, italy) holds, and capital_of(paris, france) — so france.
+# La relazione scelta e' una di quelle che valgono per entrambe le coppie
+# (`capital_of` o `located_in`, dalla KB viva): la prova le cita davvero.
+<~ holds, and
+<~ so france.
 
 # Reverse direction: the SAME relation read the other way. italy:rome :: france:?
 # resolves capital(?, france) -> paris. Structural, not a memorized pair.
@@ -34,8 +40,12 @@
 
 # Honest miss: the analogy SHAPE is recognized, the relation is found, but the
 # fourth term is unknown — say exactly that instead of guessing or echoing.
+# 28 settembre 2026: Berlino ora e' nota (il ponte porta il cassetto del mondo),
+# «germany» e' la risposta vera; il mancato onesto si prova su un nome ignoto.
 > rome is to italy as berlin is to what?
+<~ germany
+> rome is to italy as zorbak is to what?
 # gen506: il ramo «relazione trovata, quarto termine ignoto» non metteva il
 # messaggio nella risposta e il turno usciva con l'eco del turno prima; ora
 # parla, e la resa presenta i nomi propri e la relazione senza underscore.
-< Rome and Italy are related by capital_of, but I don't know that relation for Berlin.
+<~ but I don't know that relation for Zorbak.

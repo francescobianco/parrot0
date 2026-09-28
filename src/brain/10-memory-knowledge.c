@@ -2384,10 +2384,24 @@ static int observe_language(Brain *b, const char *scope, const char *norm,
         char (*languages)[KB_TERM_LEN] = NULL;
         size_t nlanguages = 0;
         const char *q[] = { NULL, t };
+        /* 28 settembre 2026 — un marcatore scritto CITATO («language_marker(it,
+         * "è")», e «e'» con l'apostrofo, che solo citato si puo' scrivere) non
+         * combacia con la parola nuda del turno (parrot-p0-syntax.md §6): «è»,
+         * il marcatore piu' forte dell'italiano, non contava mai, e «tweety è
+         * un uccello» si leggeva inglese e scriveva `uccello(tweety)`
+         * (correction.p0t). Si prova nelle due forme: e' la stessa conoscenza
+         * detta due volte, non due conoscenze. */
         if (!kb_match_all(b->kb, "language_marker", q, 2,
-                          &languages, &nlanguages)) {
-            free(languages);
-            continue;
+                          &languages, &nlanguages) || nlanguages == 0) {
+            free(languages); languages = NULL; nlanguages = 0;
+            char quoted_t[KB_TERM_LEN];
+            snprintf(quoted_t, sizeof quoted_t, "\"%.*s\"", (int)(KB_TERM_LEN - 3), t);
+            const char *qq[] = { NULL, quoted_t };
+            if (!kb_match_all(b->kb, "language_marker", qq, 2,
+                              &languages, &nlanguages)) {
+                free(languages);
+                continue;
+            }
         }
         for (size_t j = 0; j < nlanguages; j++) {
             size_t k = 0;
@@ -10366,11 +10380,17 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
          * domanda. Una polare non chiede il valore: propone il proprio. */
         {
             int pol = p0_polar_reply(b, norm, w, nw, pred, out, out_size);
+            if (pol != 0)
+                p0_trace_at(b, 3, "read.aframe", "%s: polar reply %s", pred,
+                            pol > 0 ? "answers" : "declines the turn");
             if (pol == 1) { free(preds); free(cues); return 1; }
             if (pol < 0) { free(preds); free(cues); return 0; }
         }
         int projected = answer_projection_resolve(b, pred, norm,
                                                   out, out_size);
+        if (projected != 0)
+            p0_trace_at(b, 3, "read.aframe", "%s: projection %s", pred,
+                        projected > 0 ? "answers" : "skips this relation");
         if (projected > 0) {
             free(preds);
             free(cues);
@@ -10770,7 +10790,10 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     }
                 }
             }
+            size_t na_raw = na;
             na = p0_answer_type_filter(b, ans, na);
+            if (na_raw && !na)
+                p0_trace_at(b, 3, "read.aframe", "token «%s» %s: %zu value(s), none of the asked type", v, pred, na_raw);
             if (na == 0 || !p0_answer_subject_in_focus(b, norm, v)) continue;
             p0_trace(b, "read.aframe", "token «%s» %s -> %s\n", v, pred, ans[0]);
             {   /* gen515 — il resto della domanda restringe il valore */
@@ -14591,6 +14614,12 @@ static int p0_clause_inspect(Brain *b, const char *raw, char *out, size_t out_si
     char head[300];
     snprintf(head, sizeof head, "%.*s", neck ? (int)(neck - frag) : (int)strlen(frag), frag);
     char *op = strchr(head, '(');
+    /* 28 settembre 2026 — senza parentesi e senza marcatore di regola il resto
+     * non e' una clausola malformata: non e' una clausola. «what is this
+     * about?» portava la cue «what is this» e riceveva «I can't read that as a
+     * clause», rubando la domanda sul passaggio letto (comprehension.p0t). Il
+     * turno si cede; la risposta onesta resta per un tentativo di clausola. */
+    if (!op && !neck) return 0;
     if (!op) return kb_response_slots(b, "p0_says_unknown", NULL, 0, out, out_size);
     char pred[KB_TERM_LEN];
     snprintf(pred, sizeof pred, "%.*s", (int)(op - head), head);
@@ -25348,7 +25377,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             return 1;
         }
     }
-    if (interrogative && p0_try_frame_question(b, w, nw, norm, out, out_size)) return 1;
+    /* 28 settembre 2026 — e la DOMANDA si legge con la stessa forza pubblicata.
+     * Qui bastava la lettura privata «finisce con ?»: «who vurbles nivora», con
+     * la parola interrogativa in testa e senza il punto, non passava dal lettore
+     * dei frame, mentre la prova a secco che fa cedere il frasario
+     * (`p0_publish_frame_answer`, 99-registry.c) la riconosceva come domanda.
+     * Il frasario cedeva a una lettura che poi nessuno faceva, e il turno finiva
+     * al muro (literal_forms.p0t). */
+    if ((interrogative || p0_turn_is(b, "question", norm)) &&
+        p0_try_frame_question(b, w, nw, norm, out, out_size)) return 1;
     if (asking) p0_class_gate(b, "gate: knowledge reads the turn as a question or directive");
     else p0_class_gate(b, "reached: knowledge offers the turn to the class reader");
     if (!asking && extract_class_statement(b, norm, out, out_size, 0)) return 1;

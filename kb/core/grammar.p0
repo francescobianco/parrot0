@@ -4761,11 +4761,31 @@ machinery(turn_verb_before).
 % un fatto detto dal maestro (`fact_mention/2`, indicizzata per entita'):
 % `declared_thing/1` scorreva tutte le classi e raddoppiava il costo di
 % np_closer, che si paga a ogni token (misurato: 500 → 900–1200 ms).
+% 28 settembre 2026 — LE PAROLE DEL TURNO, UNA VOLTA PER TURNO. Le due condizioni
+% qui sotto si chiedono per ognuno dei ~290 verbi di relazione ogni volta che si
+% enumerano i chiusori, e cominciavano da `turn_word(current_turn, $J, V)` con la
+% posizione libera: la vista `turn_word_at` e' indicizzata sulla coppia
+% turno-posizione, quindi ogni prova scorreva il bucket. Per un verbo che il turno
+% non dice sono false comunque. Il primo goal ora e' «la parola e' nel turno?»,
+% un fatto ground contato una volta dalla contabilita' (come `det_follower_now`).
+% Misurato su «what kind of question is "where is paris"?» (meta_reasoning.p0t):
+% `np_closer` 1207 ms, 45 720 ingressi in `turn_word_at`.
+machinery(turn_word_now).
+turn_scratch(turn_word_now).
+turn_reset(turn_word_now).
+bookkeeper(turn_words_now).
+turn_bookkeeping($T, turn_words_now) :-
+    findall($W, turn_word($T, $I, $W), $L), assert_turn_words_now($L).
+machinery(assert_turn_words_now).
+assert_turn_words_now(nil).
+assert_turn_words_now(cons($W, $R)) :- assert(turn_word_now, $W), assert_turn_words_now($R).
 machinery(turn_declared_compound_tail).
 turn_declared_compound_tail($W) :-
+    turn_word_now($W),
     turn_word(current_turn, $J, $W), is($I, sub($J, 1)), turn_word(current_turn, $I, $P),
     concat_atoms($P, "_", $X), concat_atoms($X, $W, $A), fact_mention($A, $S).
 turn_verb_before($V) :-
+    turn_word_now($V),
     turn_word(current_turn, $J, $V), turn_word(current_turn, $I, $U), lt($I, $J), dif($U, $V), turn_verb_closer($U).
 np_closer($V) :- naf(reading_continuer_exists(any)), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)), naf(turn_word_after_determiner($V)).
 np_closer($V) :- reading_continuer_exists(any), naf(turn_mentions_word(current_turn)), relation_verb($V), naf(reading_continuer($V)), naf(turn_verb_before($V)), naf(turn_declared_compound_tail($V)), naf(turn_word_after_determiner($V)).
@@ -4893,6 +4913,17 @@ value_class(currency_of, currency).
 value_class(capital_of_country, city).
 value_class(language_of_country, language).
 answer_fits_type($Ans, $Type) :- value_class($Rel, $Type), apply($Rel, cons($Any, cons($Ans, nil))).
+% 28 settembre 2026 — e la CLASSE DEI SOGGETTI, il gemello del verso opposto.
+% «which relations are transitive?» chiede `relation_type(R, transitive)`: le
+% risposte (is_a, part_of, …) stanno nel primo posto, e sono relazioni perche'
+% hanno un tipo di relazione — non perche' qualcuno abbia detto «is_a is a
+% relation». La classe `relation/1` tiene invece i NOMI insegnati (part,
+% material, …): il filtro scartava le risposte giuste e il turno finiva a chi
+% elenca quella classe (meta_reasoning.p0t, tre rossi). Una riga per relazione.
+machinery(subject_class).
+subject_class(relation_type, relation).
+answer_fits_type($Ans, $Type) :- subject_class($Rel, $Type), apply($Rel, cons($Ans, cons($Any, nil))).
+answer_fits_type($Ans, $Type) :- lemma_candidate($Type, $L), subject_class($Rel, $L), apply($Rel, cons($Ans, cons($Any, nil))).
 has_asked_answer_type($T) :- asked_answer_type($T, $Type).
 answer_type_ok($T, $Ans) :- naf(has_asked_answer_type($T)), naf(answer_echoes_turn($T, $Ans)).
 answer_type_ok($T, $Ans) :- asked_answer_type($T, $Type), answer_fits_type($Ans, $Type), naf(answer_echoes_turn($T, $Ans)).

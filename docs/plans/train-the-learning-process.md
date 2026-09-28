@@ -209,6 +209,48 @@ sonde (una regola di diagnosi, non uno strumento nuovo):
 | ST3 | «what is the capital of france» → «paris.» dopo ST2 | convenzione privata | la maiuscola dei nomi di citta' la sapeva solo il ramo C delle capitali (`toupper`); `present_atom` chiede `proper_name/1`, che non la sapeva | `proper_name($C) :- capital_of_country($K, $C)` (presentation.p0) | ✅ `basics.p0t` verde. Portata dichiarata: solo le capitali — i nomi dei paesi comprendono parole comuni («turkey», «china») |
 | ST0 | SA9 (precedente) | convenzione privata | il confronto e l'unita' insegnata leggevano la quantita' ognuno a modo suo | una scala condivisa, `quantity_amount/3` (scales.p0) | ✅ esempio positivo gia' fatto |
 
+### S.4-bis I rossi dei test come sintomi strutturali (28 settembre 2026, sera)
+
+*F.: «quando trovi test rossi, quasi sempre preesistenti, devi sistemarli: il
+progetto evolve, e i rossi vengono dal fatto che i test non rispecchiano piu'
+la sua nuova natura. Vanno aggiustati in maniera puntuale, capendo che cosa e'
+cambiato e se va aggiornato il test o corretto il baco».*
+
+Un A/B su dieci `.p0t` contro HEAD ha mostrato che i rossi erano gli stessi
+prima e dopo i ponti. Quelli di **contenuto** sono stati curati uno per uno.
+Quasi tutti erano specie di S.1:
+
+| file | rosso | causa | cura | specie |
+|---|---|---|---|---|
+| meta_reasoning, answerframe | «which relations are transitive?» elencava tutti i nomi di relazione | il filtro del tipo chiesto («relations») scartava is_a, part_of…: la KB sapeva la classe dei VALORI di una relazione (`value_class/2`), non quella dei SOGGETTI | `subject_class(relation_type, relation)` e la regola gemella in `answer_fits_type` (grammar.p0) | convenzione a meta' |
+| meta_reasoning | l'elenco esatto delle transitive | la KB viva e' cresciuta (causes, east_of, kind_of, north_of, belong) | il test verifica membri e un contrasto, non l'elenco | test invecchiato |
+| literal_forms | «the population of nivora is 40000» → «Noted:», e `population_of` vuota | la forma del circuito di scelta (`decision_value_lesson`) scriveva uno stato anche quando il ruolo e' il nome di una relazione dichiarata | `turn_form_yield(…, relation_noun, 2, role)` (decision-language.p0) | cassetti paralleli |
+| literal_forms | «zorak was founded in 1820» → «Held: zorak dates from 1820.» | la forma `year_stated` (gen507/20) e' voluta; il test era piu' vecchio | test aggiornato, con la domanda che ritrova l'anno | test invecchiato |
+| literal_forms | «who vurbles nivora» (senza «?») → «I don't understand that yet.» | il frasario cedeva al lettore dei frame (la prova a secco riconosce la domanda dalla parola interrogativa), ma `knowledge` lo chiamava solo con la lettura privata «finisce con ?» | `knowledge` consulta anche la forza pubblicata del turno | convenzione privata |
+| analogy | «Held» invece di «Learned», `located_in` nella prova, «germany» invece del «non so» | effetto dei ponti: le capitali del mondo sono ora `capital_of` | test aggiornato; il mancato onesto si prova su un nome ignoto | test invecchiato (in meglio) |
+| correction | «tweety è un uccello» → «Learned: tweety is an uccello.», `bird(tweety)` falso | `language_marker(it, "è")` e' scritto citato e il conteggio chiedeva la parola nuda (§6 della sintassi): «è» non contava mai | il conteggio prova le due forme; il fatto entra canonico, la ricevuta in italiano | convenzione privata (del quoting) |
+| comprehension | «read: …» spezzato frase per frase, passaggio mai registrato | la forza `compound_statement` ignorava che «read:» apre un passaggio (`segment_role(prose_source, …)`) | la forza consulta quella conoscenza (turn-frames.p0) | convenzione privata |
+| comprehension | «what did you learn about earth?» → la risposta del turno prima | `mod_summary` costruiva il messaggio e non lo scriveva | `put` in entrambi i rami | baco |
+| comprehension | «what is this about?» → «I can't read that as a clause» | la cue «what is this» del lettore di clausole `.p0` prendeva anche turni senza nessun segno di clausola | senza parentesi ne' marcatore di regola il lettore cede | portata implicita |
+
+**Restano i rossi di TEMPO** (turni oltre 1 s in meta_reasoning, correction,
+literal_forms, taught_lexicon, comprehension). Sono una famiglia sola, misurata:
+
+- `np_closer` si enumerava **36 volte in un turno**: la cache in C
+  (`p0_np_closer`) e' chiavata su `kb_revision`, che cambia a ogni traccia
+  asserita — il difetto che MANTRA #20(d) descrive. Curato solo in parte: le
+  due condizioni per verbo ora partono da `turn_word_now/1`, calcolato una volta
+  per turno (1210 → 480 ms su «what kind of question is "where is paris"?»).
+  Dichiarare `np_closer` vista materializzata rende poco (→ 300 ms) perche'
+  dipende davvero da stato che cambia a meta' turno.
+- `turn_entity_named` costa 3,6 s su una lettura di sei frasi (144 chiamate, ogni
+  volta tutte le entita' della IR). Anche qui la vista rende poco (→ 2,0 s): la
+  IR cambia fra una chiamata e l'altra.
+- La cura vera e' **una chiave di cache stretta** — le revisioni di cio' da cui
+  la classe dipende, non della KB intera — e va progettata una volta per tutte
+  le cache del C che oggi usano `kb_revision`. E' il prossimo lavoro su questa
+  famiglia; nessun budget e' stato alzato.
+
 ### S.5 Ordine di lavoro
 
 1. Chiudere ST1 con le cinque verifiche di S.2, test di rigidita' compreso

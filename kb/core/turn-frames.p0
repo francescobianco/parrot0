@@ -207,8 +207,21 @@ sentence_boundary_exception("n.").
 % fallisce sempre — la lezione del gen511.)
 machinery(turn_has_question_mark).
 turn_has_question_mark($Turn) :- turn_cue($Turn, question_mark_cue, $Mark).
+% 28 settembre 2026 — UN ORDINE DI LEGGERE NON E' UN'ASSERZIONE COMPOSTA.
+% «read: Mercury is a planet. Venus is a planet. …» riceveva questa forza, il
+% lettore delle frasi composte lo spezzava in sei turni e il passaggio non si
+% registrava mai: «what is this about?» e «what did you learn about earth?»
+% non trovavano niente (comprehension.p0t). Le superfici che aprono un
+% passaggio sono gia' conoscenza, `segment_role(prose_source, …)` (input.p0):
+% qui si leggono, cosi' una forma nuova insegnata vale anche per questa scelta.
+machinery(prose_source_cue).
+prose_source_cue($Cue) :- segment_role(prose_source, $Cue).
+turn_cue_registry(prose_source_cue, 1).
+machinery(turn_carries_prose_source).
+turn_carries_prose_source($Turn) :- turn_cue($Turn, prose_source_cue, $Cue).
 turn_declared_act($Turn, compound_statement) :-
     turn_cue($Turn, sentence_boundary_cue, $Boundary),
+    naf(turn_carries_prose_source($Turn)),
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),
     naf(turn_guided_inquiry($Turn)),

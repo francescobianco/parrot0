@@ -27,8 +27,14 @@
 < A cause actively produces the effect; an enabling condition only makes it possible
 > what is the difference between deduction and induction?
 < Deduction derives what must follow from rules; induction generalizes a rule from examples
+# 28 settembre 2026 — la KB viva e' cresciuta (kb-self-description.p0, grammar.p0
+# aggiungono causes, east_of, kind_of, north_of, belong): l'elenco esatto si
+# rompeva a ogni crescita. Si verificano membri, e un contrasto che non deve
+# comparire (una relazione simmetrica).
 > which relations are transitive?
-< Is a, part of, located in, contains, larger than, heavier than, faster than, before in time and after in time.
+<~ is a, part of, located in, contains, larger than, heavier than, faster than, before in time
+<! sibling of
+<! material
 > which relations are symmetric?
 < Borders, sibling of, spouse of and incompatible.
 > which relations are asymmetric?

@@ -181,14 +181,19 @@
 # Un verbo transitivo E' gia' un pattern: «@S governs @O» e' la forma che ogni
 # verbo ha. Quindi non si insegna il pattern, si insegna che una parola e' un
 # verbo di relazione — e la regola costruisce il resto.
+# 28 settembre 2026, regola R2 (come il caso del muro piu' sotto): «governs» e'
+# in `relation_verb/1` dal gen490, e la lezione rispondeva «I already know».
+# E' invecchiato il campione, non l'intento: un verbo che nessuno puo' conoscere.
 [test un estrattore di prosa si insegna dicendo che cos'e' un verbo]
 !reset
-> zorak governs nivora
-<! Learned: governs
-> governs is a relation verb
-<~ Learned: governs is a relation verb.
-> zorak governs nivora
-<~ Learned: zorak governs nivora.
+> zorak skrells nivora
+<! Learned: skrells
+> skrells is a relation verb
+<~ Learned: skrells is a relation verb.
+!timeout 3
+> zorak skrells nivora
+<~ Learned: zorak skrells nivora.
+!timeout 1
 
 # E la meta' che di solito manca: un fatto imparato e non interrogabile e' un
 # fatto morto. Un verbo di relazione apre PER COSTRUZIONE anche la sua porta di
@@ -217,8 +222,14 @@
 !reset
 > the population of nivora is 40000
 <~ Learned: the population of nivora is 40000.
+# 28 settembre 2026: dal gen507/20 «X was founded/built/born in ANNO» e' la
+# forma `year_stated` (messages.p0), che scrive `year_of` e lo dice «dates from».
+# L'intento del caso resta: il numero entra come valore e si ritrova.
 > zorak was founded in 1820
-<~ Learned: zorak was founded in 1820.
+<~ Held: zorak dates from 1820.
+!query year_of(zorak, 1820)
+> when was zorak founded?
+<~ 1820
 
 # ── L'AUTOCORREZIONE FATTA IN DUE (F., gen430) ──────────────────────────────
 #

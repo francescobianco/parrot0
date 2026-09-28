@@ -656,10 +656,14 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
             o += (size_t)snprintf(msg + o, sizeof msg - o, " %s.", s);
             hits++;
         }
+        /* 28 settembre 2026 — la risposta si SCRIVE in entrambi i casi. Il
+         * messaggio con le frasi trovate si costruiva e non si metteva mai in
+         * `out`: la facolta' rispondeva con il testo del turno prima («Learned
+         * 6 fact(s)…» a «what did you learn about earth?», comprehension.p0t). */
         if (hits == 0)
             { const KbResponseSlot _rs[] = { { "focus", focus } };
-      kb_term_say(b, "the_passage_doesn_t_say_anything_about_x", _rs, 1, msg, sizeof msg);
-              put(msg, out, out_size); }
+      kb_term_say(b, "the_passage_doesn_t_say_anything_about_x", _rs, 1, msg, sizeof msg); }
+        put(msg, out, out_size);
         return 1;
     }
 

@@ -30,8 +30,13 @@
 > is socrates a man
 < No.
 # Italian: same marker, same flip (the negation parser is order-insensitive).
+# 28 settembre 2026: «è» (marcatore citato) ora conta come evidenza d'italiano,
+# quindi il turno si legge italiano: il fatto entra CANONICO (`bird(tweety)`,
+# condiviso con l'inglese) e la ricevuta parla la lingua del turno. Prima si
+# leggeva inglese e scriveva `uccello(tweety)`, che nessuna domanda ritrovava.
 > tweety è un uccello
-< Learned: tweety is a bird.
+< Imparato: tweety è un uccello.
+!query bird(tweety)
 > no, tweety non è un uccello
 < Learned: tweety is not a bird.
 > è tweety un uccello?
