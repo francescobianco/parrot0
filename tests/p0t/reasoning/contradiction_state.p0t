@@ -1,0 +1,42 @@
+# L4-8 / C7 (docs/plans/l4-upgrade.md §5-bis) — la contraddizione come STATO: un
+# fatto e la sua negazione esplicita, detti in conversazione, sono un urto
+# registrato; la lezione che lo crea lo dice, la domanda polare e il «why»
+# mostrano le due parti, «What contradicts what?» li elenca, e chi riafferma
+# una parte la fa valere (l'altra riceve lo strato settled, non si cancella).
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+[test l'urto come stato]
+!timeout 4
+> What contradicts what?
+<~ Nothing that I know of
+> Espresso is a coffee.
+<~ Learned
+> Espresso is not a coffee.
+<~ now I hold a contradiction: espresso is a coffee
+> Is espresso a coffee?
+<~ You told me both that espresso is a coffee
+> The kettle leaks current.
+> The kettle does not leak current.
+<~ contradiction: kettle leaks current
+> Does the kettle leak current?
+<~ You told me both that kettle leaks current and the opposite
+> What contradicts what?
+<~ whether espresso is a coffee and whether kettle leaks current
+> Espresso is a coffee.
+<~ Settled: espresso is a coffee. I no longer hold the opposite
+> Is espresso a coffee?
+<~ Yes
+> What contradicts what?
+<~ whether kettle leaks current
+<! espresso
+> Is water wet?
+<! You told me both
+> The kettle does not leak current.
+<~ Settled: it is not true that kettle leaks current
+> Does the kettle leak current?
+<~ No
+> What contradicts what?
+<~ Nothing that I know of
+!reset

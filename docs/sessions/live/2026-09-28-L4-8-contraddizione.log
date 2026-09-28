@@ -1,0 +1,26 @@
+# sessione: L4-8 — la contraddizione come stato — 2026-09-28 22:29 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@433f640a]
+# mode: conversational (tools off, network off) - 171051 facts, 6181 rules (3.61%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+> Espresso is a coffee.
+< Learned: espresso is a coffee.
+> Espresso is not a coffee.
+< Learned: espresso is not a coffee. But you told me before the opposite of this, so now I hold a contradiction: espresso is a coffee, and also not. I'll say so if you ask, until you tell me which is right.
+> Is espresso a coffee?
+< You told me both that espresso is a coffee and that it is not, so I can't answer yes or no: tell me which one holds.
+> The kettle leaks current.
+< Learned: kettle leaks current.
+> The kettle does not leak current.
+< Learned: the kettle does not leak current. But you told me before the opposite of this, so now I hold a contradiction: kettle leaks current, and also not. I'll say so if you ask, until you tell me which is right.
+> Does the kettle leak current?
+< You told me both that kettle leaks current and that it is not, so I can't answer yes or no: tell me which one holds.
+> What contradicts what?
+< You told me contradictory things about whether espresso is a coffee and whether kettle leaks current.
+> Espresso is a coffee.
+< Learned: espresso is a coffee.
+> Is espresso a coffee?
+< Yes.
+> What contradicts what?
+< You told me contradictory things about whether kettle leaks current.
+# chiusa SENZA /save

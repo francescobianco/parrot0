@@ -1298,6 +1298,12 @@ ended_fact_asked(fact($P, $S, $O)) :-
 machinery(relation_in_turn).
 relation_in_turn($P) :- turn_word(current_turn, $I, $P).
 relation_in_turn($P) :- verb_root_form($P, form($F, $K)), turn_word(current_turn, $I, $F).
+% la relazione tenuta alla terza persona («leaks»), la domanda con la radice («leak»)
+relation_in_turn($P) :- verb_form($R, $P, present_third), turn_word(current_turn, $I, $R).
+% (un verbo di relazione non sempre ha il paradigma: la radice togliendo -s/-es,
+% come `gerund_relation/2` di isolation.p0)
+relation_in_turn($P) :- concat_atoms($R, "s", $P), turn_word(current_turn, $I, $R).
+relation_in_turn($P) :- concat_atoms($R, "es", $P), turn_word(current_turn, $I, $R).
 reply_conduct($In, $Out) :-
     ended_fact_asked($F), current_language($L), commitment_line($L, not_anymore, $Out).
 commitment_line(en, not_anymore, "Not anymore: you told me that changed.").

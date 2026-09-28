@@ -62,6 +62,51 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶▶ L4-8, primo incremento (28 settembre 2026, sera): la contraddizione come stato (C7)
+
+Il §5-bis chiede che un urto fra ciò che si impara e ciò che si sostiene sia
+uno **stato dialettico** e non un guasto; L4-8 fissa il primo incremento: un
+conflitto ground già rilevabile, collegato al contenuto e al registro, e una
+domanda sul contenuto che mostra la tensione. Misurato prima:
+
+| turno | prima | dopo |
+|---|---|---|
+| «Espresso is not a coffee.» dopo «Espresso is a coffee.» | Learned: espresso is not a coffee. | … But you told me before the opposite of this, so now I hold a contradiction: espresso is a coffee, and also not. I'll say so if you ask, until you tell me which is right. |
+| «Is espresso a coffee?» | Conflicted. | You told me both that espresso is a coffee and the opposite, so I can't answer yes or no: tell me which one holds. |
+| «Does the kettle leak current?» dopo «leaks» e «does not leak» | **No.** (la negazione vinceva in silenzio) | You told me both that kettle leaks current and the opposite, … |
+| «Why is socrates a man?» su un urto | Because socrates is a man. (una ragione per una parte sola) | I have conflicting evidence for that: you told me both … |
+| «What contradicts what?» | muro | You told me contradictory things about whether espresso is a coffee and whether kettle leaks current. |
+| «Espresso is a coffee.» ridetto | Learned: … | Settled: espresso is a coffee. I no longer hold the opposite, and I keep where it came from. → «Is espresso a coffee?» → Yes. |
+
+**Come** ([derivation.p0](../../kb/core/derivation.p0), accanto allo strato
+dell'oblio): una primitiva di introspezione nuova, `kb_fact_neg/2` (la KB non
+poteva chiedere una negazione esplicita: `not/1` come goal è la negazione per
+fallimento); l'urto si annota dopo la risposta (`content_clash/3`, visibile
+in `/debug` come `paradox(content, contradiction, …)`); l'esito è uno strato
+`settled(N)` sulla parte abbandonata, non una cancellazione (§2.6). La
+domanda polare e il «why» riconoscono l'urto solo sulla **stessa relazione**
+(«What do you know about socrates?» non lo riceve: resta un residuo).
+
+**Due strade provate e ritirate** (scritte nel file): una regola sul
+predicato `paradox_event/4` stesso (sospettata di spegnere la via rapida dei
+fatti; non era la causa, ma la sonda di `/debug` basta); e l'urto
+**persistente**: salvato con il numero di turno della sessione, dopo un
+ripristino i turni ripartono e «riaffermato dopo l'urto» decide il falso. Un
+turno non è un tempo assoluto: la persistenza dell'urto (C6) resta aperta.
+
+**Verifiche:** cricchetto
+[contradiction_state.p0t](../../tests/p0t/reasoning/contradiction_state.p0t)
+15/15; `persist.p0t` **33/4 contro 31/6 di HEAD** (il «why» su un urto era
+rosso ed è curato; le due righe che volevano il muto «Conflicted.» ora
+vogliono le due parti); `entail`, `context_scope` identici a HEAD;
+`user_situations` 56/56; `soft-test` verde.
+
+**Aperti:** «What do you know about socrates?» su un urto (atteso: «socrates
+is conflicted about being a man», rosso preesistente); un urto fra **classi
+incompatibili** (`incompatible/2`, la seconda riga della tabella del §5-bis);
+l'urto fra una lezione e una conseguenza **derivata** (non solo fra due fatti
+detti); la persistenza con un ordine che sopravviva alla sessione.
+
 ### ▶▶ L4-7, secondo incremento (28 settembre 2026, sera): lo stato del mondo di chi parla finisce
 
 La chiusura di L4-7 chiede che *«una negazione neghi il contenuto

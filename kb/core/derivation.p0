@@ -151,3 +151,159 @@ support_forgotten_after($F, $N) :- read_support($F, forgotten($M)), gt($M, $N).
 % ritira come un oblio, ma dice un'altra cosa: non «non lo tengo piu'», bensi'
 % «non e' piu' cosi'». Ridetto dopo, `said` piu' recente lo riaccende.
 support_forgotten_after($F, $N) :- read_support($F, ended($M)), gt($M, $N).
+
+% ─── L4-8 / C7 — LA CONTRADDIZIONE COME STATO, NON COME GUASTO (28 set 2026) ─
+%
+% l4-upgrade.md §5-bis, F.: «anche per le contraddizioni ci sara' un processo
+% che rende quello stato, ingestibile con la coerenza logica, uno stato
+% dialettico gestibile». Misurato prima di questa sezione:
+%
+%   > Espresso is a coffee.          < Learned: espresso is a coffee.
+%   > Espresso is not a coffee.      < Learned: espresso is not a coffee.   (muto)
+%   > Is espresso a coffee?          < Conflicted.                          (una parola)
+%   > What contradicts what?         < (muro)
+%   > The kettle leaks current. / The kettle does not leak current.
+%   > Does the kettle leak current?  < No.                                  (vince in silenzio)
+%
+% Il primo incremento di L4-8: un conflitto GROUND (un fatto e la sua
+% negazione esplicita, nello stesso rispetto) si collega al contenuto e al
+% registro unico dei paradossi; la lezione che lo crea lo dice; la domanda sul
+% contenuto mostra le due parti; chi riafferma una parte la fa valere e
+% l'altra riceve uno strato (`settled(N)`), non una cancellazione. Il C sapeva
+% gia' vedere l'urto (`kb_is_conflicted`): la KB ora lo chiede con
+% `kb_fact_neg/2` e lo maneggia.
+% ⚠ `turn_scratch`, provato il contrario e ritirato: salvato con il NUMERO DI
+% TURNO della sessione, dopo un ripristino i turni ripartono e «riaffermato
+% dopo l'urto» decide il falso (persist.p0t). Un turno non e' un tempo
+% assoluto. La persistenza dell'urto (C6) resta aperta: serve un ordine che
+% sopravviva alla sessione, non un contatore.
+machinery(content_clash).
+turn_scratch(content_clash).
+machinery(content_clash_settled).
+turn_scratch(content_clash_settled).
+machinery(opposite_held).
+opposite_held($P, $A, neg) :- kb_fact($P, $A).
+opposite_held($P, $A, pos) :- kb_fact_neg($P, $A).
+machinery(clash_known).
+clash_known($P, $A) :- content_clash($P, $A, $N).
+machinery(clash_settled).
+clash_settled($P, $A) :- content_clash_settled($P, $A, $Pol).
+machinery(open_clash).
+open_clash($P, $A) :- content_clash($P, $A, $N), naf(clash_settled($P, $A)).
+% nel registro unico, accanto a budget, cicli, profondita' e tetti: lo dice
+% la sonda di /debug (una regola su `paradox_event/4` stesso spegne la via
+% rapida dei fatti che il C usa per il registro — misurato su persist.p0t)
+debug_paradox(paradox(content, contradiction, $P, clash($A, $N))) :- content_clash($P, $A, $N).
+% ⚠ una sola soluzione per contabile e per turno: basta per un urto alla volta
+after_reply_bookkeeper(content_clash_note).
+turn_after_reply($T, content_clash_note) :-
+    kb_turn_act($P, $A, $Pol, $K), naf(machinery($P)), opposite_held($P, $A, $Pol),
+    naf(clash_known($P, $A)), turn_counter($N), assert(content_clash, $P, $A, $N).
+% L'esito dichiarato: una parte riaffermata dopo l'urto vale, l'altra si ritira
+% con uno strato (derivation.p0 sopra: `read_support` + `fact_withheld`).
+after_reply_bookkeeper(content_clash_settle).
+turn_after_reply($T, content_clash_settle) :-
+    kb_turn_act($P, $A, $Pol, $K), content_clash($P, $A, $M), turn_counter($N), gt($N, $M),
+    naf(clash_settled($P, $A)), opposite_pol($Pol, $Opp), support_key($P, $A, $Opp, $Key),
+    assert(read_support, $Key, settled($N)), assert(content_clash_settled, $P, $A, $Pol).
+machinery(opposite_pol).
+opposite_pol(pos, neg).  opposite_pol(neg, pos).
+machinery(support_key).
+support_key($P, cons($S, nil), $Pol, fact($P, $S, $Pol)).
+support_key($P, cons($S, cons($O, nil)), $Pol, fact($P, $S, $O, $Pol)).
+% le parole di un contenuto: «espresso is a coffee», «kettle leaks current»
+machinery(content_said).
+content_said($P, cons($S, nil), $T) :-
+    words_of($S, $WS), words_of($P, $WP), current_language($L), word_article($L, $WP, $Art),
+    concat_atoms($WS, " is ", $A), concat_atoms($A, $Art, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WP, $T).
+content_said($P, cons($S, cons($O, nil)), $T) :-
+    words_of($S, $WS), words_of($P, $WP), words_of($O, $WO),
+    concat_atoms($WS, " ", $A), concat_atoms($A, $WP, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WO, $T).
+machinery(content_words_in_turn).
+content_words_in_turn(nil).
+content_words_in_turn(cons($X, $R)) :- atom_words($X, $W), words_in_turn($W), content_words_in_turn($R).
+% (1) la lezione che crea l'urto lo dice, invece di un «Learned» muto
+reply_conduct($In, $Out) :-
+    kb_turn_act($P, $A, $Pol, $K), naf(machinery($P)), opposite_held($P, $A, $Pol),
+    naf(clash_known($P, $A)), content_said($P, $A, $C), current_language($L),
+    clash_line($L, created, $X), concat_atoms($In, $X, $Y), concat_atoms($Y, $C, $Z),
+    clash_line($L, created_end, $E), concat_atoms($Z, $E, $Out).
+% (2) la domanda sul contenuto mostra la tensione con le due parti
+machinery(clash_asked).
+% Solo la domanda POLARE sulla stessa relazione («Is espresso a coffee?»):
+% «What do you know about socrates?» o «Why is socrates a man?» chiedono
+% altro, e hanno le loro risposte sulla tensione.
+clash_asked($P, $A) :-
+    turn_declared_act(current_turn, question), turn_word(current_turn, 0, $W), naf(question_word($W)),
+    open_clash($P, $A), content_words_in_turn($A), relation_in_turn($P).
+% «Why is socrates a man?» su un urto: non una ragione per una parte sola
+% (misurato a HEAD: «Because socrates is a man.»), ma la tensione.
+machinery(clash_why_asked).
+clash_why_asked($P, $A) :-
+    turn_declared_act(current_turn, question), turn_word(current_turn, 0, why),
+    open_clash($P, $A), content_words_in_turn($A), relation_in_turn($P).
+reply_conduct($In, $Out) :-
+    clash_why_asked($P, $A), content_said($P, $A, $C), current_language($L),
+    clash_line($L, why, $X), concat_atoms($X, $C, $Y), clash_line($L, why_end, $E), concat_atoms($Y, $E, $Out).
+clash_line(en, why, "I have conflicting evidence for that: you told me both that ").
+clash_line(en, why_end, " and the opposite, so I have no reason to give until you tell me which holds.").
+clash_line(it, why, "Ho prove in conflitto: mi hai detto sia che ").
+clash_line(it, why_end, " sia il contrario, quindi non ho una ragione da dare finché non mi dici quale vale.").
+reply_conduct($In, $Out) :-
+    clash_asked($P, $A), content_said($P, $A, $C), current_language($L),
+    clash_line($L, both, $X), concat_atoms($X, $C, $Y), clash_line($L, both_end, $E), concat_atoms($Y, $E, $Out).
+% (4) l'esito dichiarato: chi riafferma una parte sa che cosa ha deciso
+reply_conduct($In, $Out) :-
+    naf(turn_declared_act(current_turn, question)),
+    kb_turn_act($P, $A, $Pol, $K), open_clash($P, $A), content_said($P, $A, $C), current_language($L),
+    clash_settle_line($L, $Pol, $X), concat_atoms($X, $C, $Y), clash_line($L, settled_end, $E),
+    concat_atoms($Y, $E, $Out).
+machinery(clash_settle_line).
+clash_settle_line($L, pos, $X) :- clash_line($L, settled_pos, $X).
+clash_settle_line($L, neg, $X) :- clash_line($L, settled_neg, $X).
+clash_line(en, settled_pos, "Settled: ").
+clash_line(en, settled_neg, "Settled: it is not true that ").
+clash_line(en, settled_end, ". I no longer hold the opposite, and I keep where it came from.").
+clash_line(it, settled_pos, "Deciso: ").
+clash_line(it, settled_neg, "Deciso: non è vero che ").
+clash_line(it, settled_end, ". Non tengo più il contrario, e conservo da dove veniva.").
+% (3) «What contradicts what?»
+turn_form(ask_contradictions, 1, text("what contradicts what")).
+turn_form_mood(ask_contradictions, question).
+turn_form_priority(ask_contradictions, early).
+turn_form_act(ask_contradictions, "op(match, open_clashes_answer, [free])").
+turn_form_reply(ask_contradictions, open_clashes_reply).
+turn_form(ask_contradictions_hold, 1, text("what contradictions do you hold")).
+turn_form_mood(ask_contradictions_hold, question).
+turn_form_priority(ask_contradictions_hold, early).
+turn_form_act(ask_contradictions_hold, "op(match, open_clashes_answer, [free])").
+turn_form_reply(ask_contradictions_hold, open_clashes_reply).
+response_template(open_clashes_reply, "{result}").
+response_template(open_clashes_reply, it, "{result}").
+machinery(open_clashes_answer).
+machinery(open_clash_said).
+open_clashes_answer($Text) :-
+    findall($C, open_clash_said($C), cons($C1, $Cs)), current_language($L),
+    inversion_phrase_and($L, cons($C1, $Cs), $J), clash_line($L, list, $A),
+    concat_atoms($A, $J, $B), concat_atoms($B, ".", $Text).
+open_clashes_answer($Text) :-
+    naf(any_open_clash), current_language($L), clash_line($L, none, $Text).
+machinery(any_open_clash).
+any_open_clash :- open_clash($P, $A).
+open_clash_said($T) :- open_clash($P, $A), content_said($P, $A, $C), current_language($L),
+    clash_line($L, item, $X), concat_atoms($X, $C, $T).
+machinery(clash_line).
+clash_line(en, created, " But you told me before the opposite of this, so now I hold a contradiction: ").
+clash_line(en, created_end, ", and also not. I'll say so if you ask, until you tell me which is right.").
+clash_line(en, both, "You told me both that ").
+clash_line(en, both_end, " and the opposite, so I can't answer yes or no: tell me which one holds.").
+clash_line(en, list, "You told me contradictory things about ").
+clash_line(en, item, "whether ").
+clash_line(en, none, "Nothing that I know of: no fact I hold is contradicted by another.").
+clash_line(it, created, " Ma prima mi avevi detto il contrario, quindi ora tengo una contraddizione: ").
+clash_line(it, created_end, ", e anche no. Lo dirò se me lo chiedi, finché non mi dici quale è giusta.").
+clash_line(it, both, "Mi hai detto sia che ").
+clash_line(it, both_end, " sia il contrario, quindi non posso rispondere sì o no: dimmi quale vale.").
+clash_line(it, list, "Mi hai detto cose contraddittorie su ").
+clash_line(it, item, "se ").
+clash_line(it, none, "Niente che io sappia: nessun fatto che tengo è contraddetto da un altro.").

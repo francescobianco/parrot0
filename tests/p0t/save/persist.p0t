@@ -82,11 +82,11 @@
 !expect mcp "ok":true
 > socrates is not a man
 > is socrates a man?
-< Conflicted.
+<~ You told me both that socrates is a man and the opposite
 > what do you know about socrates?
 < socrates is conflicted about being a man.
 > why is socrates a man?
-< I have conflicting evidence for that.
+<~ I have conflicting evidence for that
 !filehas p0tmp_persist/correction-session.p0 not(man(socrates)).
 !filehas p0tmp_persist/correction-base.p0 man(socrates).
 
@@ -103,7 +103,7 @@
 !expect mcp "ok":true
 > ada is not the parent of bob
 > is ada the parent of bob?
-< Conflicted.
+<~ You told me both that ada parent bob and the opposite
 > why is ada the parent of bob?
-< I have conflicting evidence for that.
+<~ I have conflicting evidence for that
 !exec rm -rf p0tmp_persist

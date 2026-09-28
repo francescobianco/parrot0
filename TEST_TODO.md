@@ -308,6 +308,14 @@ prossimo lavoro (report gen509 §7-bis).
   turno **si appende** (60 s, motore fermato). Preesistente: identico con il C
   di HEAD e con `isolation.p0`/`user-situations.p0` di prima del 28 settembre
   (A/B a file sostituiti). Da diagnosticare con `/debug trace` sul turno.
+- `reasoning/entail.p0t` 5/14 e `conversation/context_scope.p0t` 15/17:
+  identici con la `derivation.p0` di HEAD (A/B, demone riavviato).
+- `save/persist.p0t`: righe 21, 40, 66, 87 rosse anche a HEAD; 85 e 106
+  aggiornate (il «Conflicted.» muto e' il comportamento che C7 dichiara
+  sbagliato), 89 e 108 curate da L4-8.
+- `do_support_rule.p0t` dopo `assisted_construction_ternary.p0t` nello stesso
+  demone: un turno a 2,01 s contro `!timeout 2`; da solo, su demone fresco,
+  28/28. Dipendenza d'ordine, non regressione.
 - `planning/plan.p0t` 13/14 e `planning/planact.p0t` 3/6: identici a HEAD
   (A/B con la sola `isolation.p0` di HEAD).
 

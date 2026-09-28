@@ -339,8 +339,11 @@ struct KB {
      * fatto ha un sostegno di lettura registrato (`read_support/2`): solo quei
      * fatti pagano la domanda `fact_withheld/1`. Sovrastima voluta (un ritiro
      * non toglie il nome): costa una domanda in piu', mai una risposta. */
-    char          rs_preds[32][KB_TERM_LEN];
-    size_t        rs_npreds;
+    /* 28 settembre 2026 — senza tetto: era [32], e dal trentatreesimo
+     * predicato con uno strato `read_support` lo strato non scattava (un
+     * oblio, la fine di uno stato, un urto risolto: tutti muti). */
+    char        (*rs_preds)[KB_TERM_LEN];
+    size_t        rs_npreds, rs_cap;
     int           rs_busy;
     char          infer_goal[KB_TERM_LEN];
 
@@ -730,6 +733,7 @@ void kb_destroy(KB *kb) {
     if (!kb) return;
     free(kb->journal);
     free(kb->facts);
+    free(kb->rs_preds);
     free(kb->fact_index);
     free(kb->neg);
     free(kb->neg_index);
@@ -3713,6 +3717,29 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return 0;
     }
 
+    /* L4-8 (28 settembre 2026) — LA NEGAZIONE ESPLICITA, INTERROGABILE.
+     * `kb_fact_neg(P, Args)`: esiste la negazione esplicita di P(Args), visibile
+     * (lo strato `read_support`/`fact_withheld` vale anche per le negazioni).
+     * Come goal `not/1` e' la negazione per fallimento: la KB non aveva modo di
+     * chiedere «mi e' stato detto che NON e' cosi'?», e un conflitto fra un
+     * fatto e la sua negazione lo vedeva solo il C (`kb_is_conflicted`). Solo
+     * con P e Args legati: e' una domanda di esistenza, non un'enumerazione. */
+    if (strcmp(g->pred, "kb_fact_neg") == 0 && g->argc == 2) {
+        char rp[KB_TERM_LEN], ra[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], rp, sizeof rp, 0);
+        deep_resolve(s, g->args[1], ra, sizeof ra, 0);
+        if (is_var(rp) || !term_ok(rp) || term_contains_var(ra, 0)) return 0;
+        char av[KB_MAX_ARGS][KB_TERM_LEN]; size_t ac = 0;
+        if (!list_to_args(ra, av, &ac)) return 0;
+        const char *ap[KB_MAX_ARGS];
+        for (size_t k = 0; k < ac; k++) ap[k] = av[k];
+        Fact nf;
+        if (!fact_make(&nf, rp, ap, ac)) return 0;
+        const Fact *n = kb_find_neg(S->kb, &nf);
+        if (!n || kb_fact_withheld(S->kb, n, 1)) return 0;
+        return solve(S, goals, ngoals, idx + 1, s, depth);
+    }
+
     /* L3 §14.6 — CHE COSA HA DETTO QUESTO TURNO. `kb_turn_act(P, Args, Pol, K)`:
      * i fatti (Pol = pos) e le negazioni esplicite (Pol = neg) che un atto di
      * sessione ha scritto nel turno corrente; K = new se il contenuto e' entrato
@@ -4934,8 +4961,13 @@ static void rs_note(KB *kb, const Fact *f) {
     while (n && p[n - 1] == ' ') p[--n] = '\0';
     if (!n) return;
     for (size_t i = 0; i < kb->rs_npreds; i++) if (!strcmp(kb->rs_preds[i], p)) return;
-    if (kb->rs_npreds < sizeof kb->rs_preds / sizeof kb->rs_preds[0])
-        snprintf(kb->rs_preds[kb->rs_npreds++], KB_TERM_LEN, "%s", p);
+    if (kb->rs_npreds == kb->rs_cap) {
+        size_t cap = kb->rs_cap ? kb->rs_cap * 2 : 32;
+        char (*g)[KB_TERM_LEN] = realloc(kb->rs_preds, cap * sizeof *g);
+        if (!g) return;
+        kb->rs_preds = g; kb->rs_cap = cap;
+    }
+    snprintf(kb->rs_preds[kb->rs_npreds++], KB_TERM_LEN, "%s", p);
 }
 
 static int kb_view_fact_visible(const KB *kb, const Fact *f) {
@@ -5223,7 +5255,7 @@ static int view_close(KB *kb, KbView *v, KbView *acc, size_t from) {
         }
         if (!strcmp(pred, "call") || !strcmp(pred, "apply") ||
             !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
-            !strcmp(pred, "kb_turn_act") ||
+            !strcmp(pred, "kb_turn_act") || !strcmp(pred, "kb_fact_neg") ||
             !strcmp(pred, "kb_rule_body") || !strcmp(pred, "kb_clause") ||
             !strcmp(pred, "kb_clause_arg") || !strcmp(pred, "kb_derivation") ||
             !strcmp(pred, "kb_act") ||
@@ -5713,6 +5745,7 @@ static int kb_watch_close(KB *kb, KbView *v) {
                     !strcmp(bp, "kb_rule") || !strcmp(bp, "kb_rule_body") || !strcmp(bp, "kb_clause") ||
                     !strcmp(bp, "kb_clause_arg") || !strcmp(bp, "kb_derivation") ||
                     !strcmp(bp, "kb_act") || !strcmp(bp, "kb_turn_act") ||
+                    !strcmp(bp, "kb_fact_neg") ||
                     !strcmp(bp, "iterate") || !strcmp(bp, "prob")) {
                     snprintf(watch_culprit[0], KB_TERM_LEN, "%s", pred);
                     snprintf(watch_culprit[1], KB_TERM_LEN, "%s", bp);
@@ -5969,6 +6002,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * at every evidence query; rule-bearing predicates keep the full solver. */
     int has_rule = (argc == 3 && strcmp(pred, "kb_act") == 0) ||         /* gli atti */
                    (argc == 4 && strcmp(pred, "kb_turn_act") == 0) ||    /* cio' che il turno ha scritto */
+                   (argc == 2 && strcmp(pred, "kb_fact_neg") == 0) ||    /* la negazione esplicita */
                    (argc == 4 && (strcmp(pred, "kb_clause") == 0 ||      /* la clausola integra */
                                   strcmp(pred, "kb_clause_arg") == 0 ||    /* i suoi archi */
                                   strcmp(pred, "kb_derivation") == 0)) ||  /* e la sua prova */
@@ -6103,7 +6137,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0 &&
                     strcmp(pred, "atom_words") != 0 &&
                     strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
-                    strcmp(pred, "kb_turn_act") != 0 &&
+                    strcmp(pred, "kb_turn_act") != 0 && strcmp(pred, "kb_fact_neg") != 0 &&
                     strcmp(pred, "kb_rule_body") != 0 &&
                     strcmp(pred, "kb_clause") != 0 && strcmp(pred, "kb_derivation") != 0 &&
                     strcmp(pred, "kb_clause_arg") != 0 && strcmp(pred, "kb_act") != 0 &&
@@ -9755,7 +9789,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
     static const char *const builtins[] = {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","iterate","prob","ranges_over","assert","retract",
-        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body","kb_turn_act",
+        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","kb_rule_body","kb_turn_act","kb_fact_neg",
         "kb_clause", "kb_clause_arg", "kb_act", "kb_derivation",
         "apply", "atom_words", "map_words", NULL };
     for (size_t i = 0; builtins[i]; i++)
