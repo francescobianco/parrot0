@@ -567,6 +567,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/anon.p0t
 	@./$(BIN) --test tests/p0t/engine/dollarvar.p0t
 	@./$(BIN) --test tests/p0t/engine/expect.p0t
+	@./$(BIN) --test tests/p0t/engine/predicate_bridges.p0t
 	@./$(BIN) --test tests/p0t/knowledge/booklearn.p0t
 	@./$(BIN) --test tests/p0t/knowledge/explain.p0t
 	@./$(BIN) --test tests/p0t/knowledge/earned_negation.p0t

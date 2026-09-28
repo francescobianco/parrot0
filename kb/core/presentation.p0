@@ -20,6 +20,15 @@ present_rule(strip_underscore).          % gli atomi multi-parola si mostrano co
 
 % Nomi propri "importanti" di default (la conoscenza di CHI si capitalizza).
 % È teachable a runtime come qualsiasi proper_name — la mesh la fa crescere.
+% 28 settembre 2026 — una capitale che la KB conosce e' un nome proprio. Prima lo
+% sapeva solo il ramo C delle capitali, con un `toupper` sul primo carattere (una
+% convenzione privata): quando la stessa risposta arrivava da un altro lettore,
+% attraverso il ponte fra `capital_of` e `capital_of_country` (parrot-p0-syntax.md
+% §19), usciva «paris.». Ora lo dice la KB, a ogni lettore che rende un atomo.
+% Solo le capitali: i nomi dei paesi comprendono parole comuni («turkey»,
+% «china»), e marcarli tutti cambierebbe la lettura delle parole — la portata di
+% questa regola e' una scelta da fare per conto suo (registro strutturale).
+proper_name($C) :- capital_of_country($K, $C).
 proper_name(marie_curie).
 proper_name(south_america).
 proper_name(north_america).

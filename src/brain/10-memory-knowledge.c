@@ -15006,7 +15006,7 @@ static int p0_relation_transitive(Brain *b, const char *rel,
  * «smith owner zelnik» e «zelnik belongs smith» sono un fatto solo detto da due
  * versi, e parrot0 ne teneva uno e non rispondeva sull'altro. Il ponte non e'
  * una regola per coppia: e' UNA proprieta' della coppia, e si insegna.
- * `inverse_relation(V, W)` si legge nei due sensi, perche' essere l'inverso e'
+ * `predicate_reverse_of(V, W)` si legge nei due sensi, perche' essere l'inverso e'
  * simmetrico — dirlo una volta basta. */
 static int p0_relation_inverse(Brain *b, const char *rel,
                                const char *from, const char *to) {
@@ -15014,7 +15014,7 @@ static int p0_relation_inverse(Brain *b, const char *rel,
     for (int side = 0; side < 2; side++) {
         char rows[8][KB_TERM_LEN];
         const char *q[2] = { side == 0 ? rel : NULL, side == 0 ? NULL : rel };
-        size_t n = kb_match(b->kb, "inverse_relation", q, 2, rows, 8);
+        size_t n = kb_match(b->kb, "predicate_reverse_of", q, 2, rows, 8);
         for (size_t i = 0; i < n; i++) {
             char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
             const char *other = kb_dequote(rb);
@@ -15424,7 +15424,7 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
                 char rows[8][KB_TERM_LEN];
                 const char *iq2[2] = { side == 0 ? rel : NULL,
                                        side == 0 ? NULL : rel };
-                size_t ni2 = kb_match(b->kb, "inverse_relation", iq2, 2, rows, 8);
+                size_t ni2 = kb_match(b->kb, "predicate_reverse_of", iq2, 2, rows, 8);
                 for (size_t i2 = 0; i2 < ni2 && k == 0; i2++) {
                     char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rows[i2]);
                     const char *other = kb_dequote(rb2);

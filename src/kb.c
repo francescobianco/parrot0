@@ -2192,6 +2192,13 @@ typedef struct {
      * dirlo. Un buffer piccolo: il Solver finisce sulla pila C (gen514). */
     int depth_hit;
     char depth_pred[64];
+    /* 28 settembre 2026 — I PONTI FRA PREDICATI (parrot-p0-syntax.md §19).
+     * I predicati attraversati da un ponte sul cammino aperto, come impronte:
+     * un ponte non si riattraversa verso un predicato gia' aperto (i ponti si
+     * leggono nei due sensi, quindi ogni ponte e' gia' un ciclo). Pochi byte:
+     * il Solver sta sulla pila C (gen514). */
+    uint64_t bridge_open[6];
+    unsigned char nbridge;
 
 } Solver;
 
@@ -3421,6 +3428,106 @@ static long long digit_count_value(long long n, int digit) {
 
 static void kb_present_arg(const KB *kb, const char *in, char *out, size_t sz); /* gen505z fwd */
 
+/* 28 settembre 2026 — I PONTI FRA PREDICATI (F.; parrot-p0-syntax.md §19).
+ *
+ * Lo stesso concetto sta spesso in due cassetti: `capital_of(Citta', Paese)`
+ * scritto dalle lezioni e `capital_of_country(Paese, Citta')` nella base del
+ * mondo. Non si unifica riscrivendo la KB e non si scrive una regola per
+ * coppia: si dichiara un PONTE, un fatto sui due predicati, e il solver lo
+ * attraversa qui, dove passa ogni domanda — cosi' ogni lettore lo vede.
+ *
+ *   predicate_same_of(A, B)      A(X..) vale quando vale B(X..)
+ *   predicate_reverse_of(A, B)   A(X, Y) vale quando vale B(Y, X)
+ *
+ * Entrambi si leggono nei due sensi (essere lo stesso, o l'inverso, e'
+ * simmetrico). Quali ponti esistono e' conoscenza: si insegnano, si ritirano,
+ * e il ponte usato entra nella prova come un passo, quindi ritirarlo ritira
+ * cio' che se ne concludeva. Qui c'e' solo l'interprete. Il ponte legge e non
+ * scrive: nessun fatto viene copiato. */
+static const char *const BRIDGE_PREDS[2] = { "predicate_same_of", "predicate_reverse_of" };
+
+static int kb_pred_bridged(const KB *kb, const char *pred) {
+    for (int m = 0; m < 2; m++) {
+        PredBucket bk = pred_bucket(kb, BRIDGE_PREDS[m]);
+        if (!bk.live) continue;              /* senza censimento: nessun ponte (vedi sotto) */
+        for (size_t vi = 0; vi < bk.n; vi++) {
+            const Fact *f = &kb->facts[bk.idx[vi]];
+            if (f->argc == 2 && (!strcmp(f->args[0], pred) || !strcmp(f->args[1], pred)))
+                return 1;
+        }
+    }
+    return 0;
+}
+
+static int solve_bridges(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                         const Subst *s, int depth, SolveFrame *scratch) {
+    const Term *g = &goals[idx];
+    if (g->argc == 0 || g->pred[0] == '_') return 0;
+    uint64_t hg = pred_hash(g->pred);
+    for (int m = 0; m < 2; m++) {
+        /* ⚠ si chiede il bucket, mai la KB intera: senza censimento vivo i
+         * ponti tacciono, perche' una scansione di tutti i fatti per ogni goal
+         * fallito costerebbe piu' di qualunque risposta che potrebbe dare */
+        PredBucket bk = pred_bucket(S->kb, BRIDGE_PREDS[m]);
+        if (!bk.live || bk.n == 0) continue;
+        if (m == 1 && g->argc != 2) continue;           /* il rovescio e' di due posti */
+        for (size_t vi = 0; vi < bk.n; vi++) {
+            if (bk.idx[vi] >= S->kb->n) continue;
+            const Fact *f = &S->kb->facts[bk.idx[vi]];
+            if (f->argc != 2 || !kb_view_fact_visible(S->kb, f)) continue;
+            const char *other = NULL;
+            if (!strcmp(f->args[0], g->pred)) other = f->args[1];
+            else if (!strcmp(f->args[1], g->pred)) other = f->args[0];
+            if (!other || !strcmp(other, g->pred) || is_var(other)) continue;
+            uint64_t ho = pred_hash(other);
+            int open = 0;
+            for (size_t k = 0; k < S->nbridge && !open; k++)
+                open = S->bridge_open[k] == ho;
+            if (open) continue;
+            if ((size_t)S->nbridge + 2 > sizeof S->bridge_open / sizeof S->bridge_open[0]) {
+                S->budget_hit = 1;          /* una catena troppo lunga: ricerca incompleta, detta */
+                continue;
+            }
+            Term *ng = scratch->goals;
+            size_t mm = 0;
+            term_copy(&ng[mm], g);
+            snprintf(ng[mm].pred, sizeof ng[mm].pred, "%s", other);
+            ng[mm].neg = 0;
+            if (m == 1) {
+                char tmp[KB_TERM_LEN];
+                snprintf(tmp, sizeof tmp, "%s", ng[mm].args[0]);
+                snprintf(ng[mm].args[0], sizeof ng[mm].args[0], "%s", ng[mm].args[1]);
+                snprintf(ng[mm].args[1], sizeof ng[mm].args[1], "%s", tmp);
+            }
+            snprintf(ng[mm].from, sizeof ng[mm].from, "%s", BRIDGE_PREDS[m]);
+            ng[mm].depth = depth + 1;
+            mm++;
+            memset(&ng[mm], 0, sizeof ng[mm]);
+            snprintf(ng[mm].pred, sizeof ng[mm].pred, "%s", "__end_bridge");
+            mm++;
+            int overflow = 0;
+            for (size_t k = idx + 1; k < ngoals; k++) {
+                if (mm >= KB_MAX_GOALS) { overflow = 1; break; }
+                term_copy(&ng[mm++], &goals[k]);
+            }
+            if (overflow) { S->budget_hit = 1; continue; }
+            int rec = S->recording;         /* il ponte e' un passo della prova */
+            if (rec) {
+                char cid[KB_TERM_LEN];
+                clause_identity(cid, f->pred, f->argc, f->args, 0, NULL, 0);
+                proof_push(S, cid);
+            }
+            S->bridge_open[S->nbridge++] = hg;
+            S->bridge_open[S->nbridge++] = ho;
+            int ok = solve(S, ng, mm, 0, s, depth + 1);
+            S->nbridge -= 2;
+            if (rec) S->nproof--;
+            if (ok) return 1;
+        }
+    }
+    return 0;
+}
+
 static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                        const Subst *s, int depth, SolveFrame *scratch) {
 
@@ -3443,6 +3550,17 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         S->in_vrule--;
         int ok = solve(S, goals, ngoals, idx + 1, s, depth);
         S->in_vrule++;
+        return ok;
+    }
+    /* §19 — fine del goal letto attraverso un ponte: i due predicati tornano
+     * attraversabili per il resto del risolvente, e si richiudono al ritorno. */
+    if (strcmp(g->pred, "__end_bridge") == 0 && g->argc == 0) {
+        if (S->nbridge < 2) return 0;
+        uint64_t b1 = S->bridge_open[--S->nbridge];
+        uint64_t b0 = S->bridge_open[--S->nbridge];
+        int ok = solve(S, goals, ngoals, idx + 1, s, depth);
+        S->bridge_open[S->nbridge++] = b0;
+        S->bridge_open[S->nbridge++] = b1;
         return ok;
     }
     if (strcmp(g->pred, "__end_delta_step") == 0 && g->argc == 0) {
@@ -4542,6 +4660,8 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
          * pagato qui invece che ottantamila volte piu' in la'. */
         s2->n = rundo_n; s2->ndif = rundo_ndif;
     }
+    if (!dcarrier && !vrule)
+        return solve_bridges(S, goals, ngoals, idx, s, depth, scratch);
     return 0;
 }
 
@@ -5711,6 +5831,8 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
             }
         }
     }
+    /* §19 — un ponte e' una via di prova come una regola */
+    if (!has_rule && kb_pred_bridged(kb, pred)) has_rule = 1;
 
     /* gen382 — settle the common lookup from the census, without touching the
      * fact array. Two decisions become O(1) that used to cost a full scan each:
@@ -5848,6 +5970,8 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     }
     /* gen382: only this predicate's own facts can disqualify the fast path, and
      * the census names them without walking the KB. */
+    /* §19 — un predicato con un ponte ha soluzioni anche fuori dai suoi fatti */
+    if (simple && kb_pred_bridged(kb, pred)) simple = 0;
     PredBucket bk = pred_bucket(kb, pred);
     if (simple && bk.live && bk.n == 0) return 0;   /* predicate unknown here */
     /* E0: the census already counts this predicate's non-ground facts; with

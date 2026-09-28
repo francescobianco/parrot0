@@ -402,16 +402,26 @@ contact_support($N, $R, $K) :-
 % `relation_noun(Relazione, Nome)`, e ogni lettore che gia' la consulta (domanda,
 % polare, affermazione, stipulazione) la usa senza sapere del contatto. Lo stato
 % di ipotesi sta nella condizione: sostegni, controesempi e ritiro (§19).
-% Il verso di `relation_noun/2` e' «X is the N of Y» = R(Y, X): vale quando il
-% possessore osservato e' il soggetto di R. Il verso inverso (possessore = oggetto,
-% «Rome is its capital») non ha ancora una forma della lingua in cui entrare
-% senza cambiare il verso di tutti i nomi di R: resta episodio, non lessico.
+% IL VERSO NON E' DEL CONTATTO, E' DELLA RELAZIONE (asse strutturale, 28
+% settembre 2026, DE7). Il possessore di un nome di relazione e' l'argomento che
+% la relazione dichiara come «di chi»: il soggetto per default («the N of Y is X»
+% = R(Y, X)), l'oggetto per le relazioni che mettono il valore primo
+% (`relation_value_first/1`, grammar.p0: «Berlin is its Hauptstadt» =
+% capital_of(berlin, germany)). Prima il contatto accettava solo il possessore
+% soggetto e lasciava l'altro verso a episodio senza lessico: una seconda
+% convenzione sul verso, privata, accanto a quella che grammatica e domande gia'
+% condividono. Ora e' una sola conoscenza, e chi la corregge la corregge per tutti.
+machinery(contact_possessor_role).
+contact_possessor_role($R, s) :- naf(relation_value_first($R)).
+contact_possessor_role($R, o) :- relation_value_first($R).
 relation_noun($R, $N) :-
-    contact_bridge($N, $R), contact_shape($N, $R, noun), contact_episode($N, $R, ep($S, $O, s)).
+    contact_bridge($N, $R), contact_shape($N, $R, noun),
+    contact_possessor_role($R, $Of), contact_episode($N, $R, ep($S, $O, $Of)).
 % un nome composto entra con la SUPERFICIE a spazi, come i nomi di piu' parole
 % insegnati (RI-010, grammar.p0): e' con quella che si scrivono frase e domanda
 relation_noun($R, $Surface) :-
-    contact_bridge($N, $R), contact_shape($N, $R, noun), contact_episode($N, $R, ep($S, $O, s)),
+    contact_bridge($N, $R), contact_shape($N, $R, noun),
+    contact_possessor_role($R, $Of), contact_episode($N, $R, ep($S, $O, $Of)),
     atom_words($N, cons($A, cons($B, $Rest))), words_joined(cons($A, cons($B, $Rest)), $Surface).
 % E un VERBO entra dove entrano i verbi: la cornice che legge le affermazioni
 % (`construction_frame/3`, la stessa di una lezione «X means Y») e la parola che

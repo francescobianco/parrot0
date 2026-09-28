@@ -891,10 +891,11 @@ IR si riscrivono dentro il turno: la vista resta spenta e aggiunge lavoro).
 
 ## 19. I ponti fra predicati — progetto (F., 28 settembre 2026)
 
-> **Stato: progettato, non ancora eseguibile.** Nessuno dei predicati di questa
-> sezione è ancora consumato dal solver. La sezione fissa il contratto prima
-> del codice: nome, significato, verso, dove si consuma, come si insegna e
-> come si ritira. Nasce da DE7 e dal registro strutturale
+> **Stato (28 settembre 2026, sera): `predicate_same_of/2` e
+> `predicate_reverse_of/2` sono ESEGUIBILI** — il solver li attraversa
+> (`solve_bridges` in `src/kb.c`), per ogni arità il primo, per due posti il
+> secondo. `predicate_args_of/3` (arità diverse) e la **scoperta** dei ponti
+> (§19.4) restano progetto. Nasce da DE7 e dal registro strutturale
 > ([train-the-learning-process.md](plans/train-the-learning-process.md),
 > «▶ ASSE STRUTTURALE», ST2).
 
@@ -934,7 +935,15 @@ predicate_reverse_of(A, B).         % A(X, Y) vale quando vale B(Y, X)
 predicate_args_of(A, B, Posti).     % A(X1..Xn) vale quando vale B con gli argomenti presi da Posti
 ```
 
-Esempi:
+**Vale per ogni arità, anche 1** (F.): le classi che si scopre essere la
+stessa cosa si collegano allo stesso modo, senza riscrivere nessuna delle due.
+
+```prolog
+predicate_same_of(four_legged, quadruped).
+% «A dog is a quadruped.» scrive quadruped(dog); four_legged(dog) si dimostra
+```
+
+Esempi a due posti:
 
 ```prolog
 predicate_reverse_of(capital_of, capital_of_country).
@@ -996,6 +1005,18 @@ Il costo è un punto da misurare prima di tutto: dare un nome al cassetto
 Un ponte deve essere **pigro**: si attraversa solo quando qualcuno chiede A,
 e non va mai materializzato come copia dei fatti di B.
 
+**Com'è fatto, oggi** (`src/kb.c`): dopo i fatti e le regole di un goal,
+`solve_bridges` legge i fatti `predicate_same_of/2` e `predicate_reverse_of/2`
+dal loro bucket (mai la KB intera: senza censimento vivo i ponti tacciono), e
+per ogni ponte che nomina il predicato del goal risolve l'altro, con gli
+argomenti scambiati se è un rovescio. Il ponte entra nella prova come un passo
+(`proof_push`). I predicati attraversati restano aperti fino al marcatore
+`__end_bridge`, così un ponte non si riattraversa all'indietro (`bridge_open`,
+sei posti: oltre, la ricerca si dichiara incompleta). La via rapida di
+`kb_match` e quella di `kb_query` contano un ponte come una regola. Un ponte è
+un **fatto**: una regola che deriva `predicate_same_of` non viene letta (S1:
+una proprietà strutturale è un fatto).
+
 ### 19.4 Come si insegna e come si scopre
 
 Il MANTRA anti-barare vale anche qui: il maestro non conosce i nomi interni
@@ -1020,10 +1041,11 @@ del ponte non conta come conferma (§14.4 di contact.p0).
 
 | oggi | dopo |
 |---|---|
-| `inverse_relation/2` (messages.p0, procedures.p0), consumato solo da `p0_relation_inverse` in C | un nome di `predicate_reverse_of`; il ramo C si accorcia (MANTRA #18a) |
+| `inverse_relation/2` (messages.p0, procedures.p0), consumato solo da `p0_relation_inverse` in C | ✅ **rinominato `predicate_reverse_of`** (28 settembre): «owner is the inverse of belongs», «X comes before Y» e «X chains with opposite Y» scrivono il ponte, e il solver lo fa valere per ogni lettore. Le due letture in C restano (la prima parte ora è ridondante, la composizione con la catena transitiva no): accorciarle è il passo dopo (MANTRA #18a) |
 | `same_relation/2` (procedures.p0): due **definizioni** con la stessa forma normale | resta: scopre che due definizioni coincidono, e può *proporre* un `predicate_same_of` |
 | `answer_frame_input_arg/3` per `language_of_country` | un ponte `predicate_args_of` fra `language_of` e `language_of_country`, se la misura del costo lo permette |
-| il ramo C gen235 che legge solo `capital_of_country` | la domanda «the capital of X» legge `capital_of`, e il ponte porta al cassetto del mondo; il ramo si toglie |
+| il ramo C gen235 che legge solo `capital_of_country` | 🟡 il ponte `predicate_reverse_of(capital_of, capital_of_country)` è nella base (geography-world.p0): la forma «the R of X» ora risponde da sola attraverso il ponte. Il ramo C si può togliere; non ancora fatto |
+| il `toupper` del ramo C delle capitali | ✅ `proper_name($C) :- capital_of_country($K, $C)` (presentation.p0): la maiuscola la sa la KB, per ogni lettore |
 
 ### 19.6 Perché questo non irrigidisce la KB
 

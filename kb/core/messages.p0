@@ -1582,16 +1582,21 @@ turn_form_reply(teach_tr_it, learned_translation).
 %     > smith owner zelnik
 %     > does zelnik belongs smith?   ->  Yes.
 %
-% `inverse_relation/2` si legge nei due sensi, perche' essere l'inverso e'
+% `predicate_reverse_of/2` si legge nei due sensi, perche' essere l'inverso e'
 % simmetrico: chi insegna non deve scegliere l'ordine giusto.
-machinery(inverse_relation).
+machinery(predicate_reverse_of).
+% 28 settembre 2026 — era `inverse_relation/2`, letto solo dal ramo polare in C
+% (una convenzione privata). Ora e' un PONTE FRA PREDICATI (parrot-p0-syntax.md
+% §19): il solver lo attraversa per ogni goal, quindi l'inverso insegnato qui
+% vale per ogni lettore — domande aperte, polari, regole, negazione.
+machinery(predicate_same_of).
 response_template(learned_inverse, "Held: {subject} and {object} are one fact seen from the two sides.").
 response_template(learned_inverse, it, "Tengo: {subject} e {object} sono un fatto solo visto dai due lati.").
 
 turn_form(teach_inverse, 1, slot(subject)).
 turn_form(teach_inverse, 2, text("is the inverse of")).
 turn_form(teach_inverse, 3, rest(object)).
-turn_form(teach_inverse, 4, bind(relation, inverse_relation)).
+turn_form(teach_inverse, 4, bind(relation, predicate_reverse_of)).
 turn_form_mood(teach_inverse, statement).
 turn_form_act(teach_inverse, assert_relation).
 turn_form_reply(teach_inverse, learned_inverse).
@@ -1599,7 +1604,7 @@ turn_form_reply(teach_inverse, learned_inverse).
 turn_form(teach_inverse2, 1, slot(subject)).
 turn_form(teach_inverse2, 2, text("is the other side of")).
 turn_form(teach_inverse2, 3, rest(object)).
-turn_form(teach_inverse2, 4, bind(relation, inverse_relation)).
+turn_form(teach_inverse2, 4, bind(relation, predicate_reverse_of)).
 turn_form_mood(teach_inverse2, statement).
 turn_form_act(teach_inverse2, assert_relation).
 turn_form_reply(teach_inverse2, learned_inverse).
@@ -2453,7 +2458,7 @@ turn_form_mood(teach_before, statement).
 turn_form_act(teach_before, "op(assert, relation_verb, [precedes])").
 turn_form_act(teach_before, "op(assert, relation_verb, [follows])").
 turn_form_act(teach_before, "op(assert, transitive_relation, [precedes])").
-turn_form_act(teach_before, "op(assert, inverse_relation, [precedes, follows])").
+turn_form_act(teach_before, "op(assert, predicate_reverse_of, [precedes, follows])").
 turn_form_act(teach_before, "op(assert, precedes, [subject, object])").
 turn_form_reply(teach_before, learned_precedes).
 % Meccanica (26 settembre 2026), «ordine transitivo muto»: «Hardening comes before
@@ -2638,7 +2643,7 @@ turn_form_act(teach_chain_pair, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_chain_pair, "op(assert, relation_verb, [object])").
 turn_form_act(teach_chain_pair, "op(assert, transitive_relation, [subject])").
 turn_form_act(teach_chain_pair, "op(assert, transitive_relation, [object])").
-turn_form_act(teach_chain_pair, "op(assert, inverse_relation, [subject, object])").
+turn_form_act(teach_chain_pair, "op(assert, predicate_reverse_of, [subject, object])").
 turn_form_reply(teach_chain_pair, learned_chain_pair).
 
 % ══ gen507/80 (superficie superiore #1) — UNA RELAZIONE E' UN'ALTRA, IN UN

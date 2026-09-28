@@ -6,6 +6,15 @@
 
 % ============================================================
 % CAPITALS — capital_of_country(Country, Capital)
+% 28 settembre 2026 — IL PONTE CON IL CASSETTO DELLE LEZIONI (parrot-p0-syntax.md
+% §19, registro strutturale ST2). Una lezione scrive `capital_of(Capitale, Paese)`
+% («the capital of Germany is Berlin»); il mondo sta qui, con gli argomenti
+% nell'altro verso. Non si riscrive nessuno dei due: un fatto dice che sono la
+% stessa relazione vista dai due lati, e il solver lo attraversa per ogni lettore
+% (una parola insegnata per contatto, «Hauptstadt», trova Parigi). Il maestro non
+% puo' nominare questo cassetto parlando: un ponte cosi' dovra' nascere dalla
+% scoperta (le stesse coppie, rovesciate, nei due cassetti) — e' il residuo di ST2.
+predicate_reverse_of(capital_of, capital_of_country).
 % ============================================================
 capital_of_country(afghanistan, kabul).
 capital_of_country(albania, tirana).

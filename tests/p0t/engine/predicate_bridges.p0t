@@ -1,0 +1,62 @@
+# I PONTI FRA PREDICATI (28 settembre 2026, F.; docs/parrot-p0-syntax.md §19,
+# registro strutturale ST1–ST3 in docs/plans/train-the-learning-process.md).
+#
+# Lo stesso concetto in due cassetti non si unifica riscrivendo la KB: un fatto
+# dice che due predicati sono lo stesso (`predicate_same_of/2`, ogni arita') o
+# lo stesso rovesciato (`predicate_reverse_of/2`), e il solver lo attraversa per
+# ogni lettore. Il ponte si ritira, e il ritiro vale dal turno dopo: e' il test
+# di rigidita' dell'asse strutturale.
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reload
+
+# DE7: il nome imparato per contatto («Hauptstadt») entra nel verso che la
+# relazione dichiara, e il ponte della base lo porta al cassetto del mondo.
+[test una parola imparata per contatto trova il cassetto del mondo]
+!timeout 30
+> The capital of Germany is Berlin, so Berlin is its Hauptstadt.
+<~ Learned
+> The capital of Austria is Vienna, so Vienna is its Hauptstadt.
+<~ Learned
+!query relation_noun(capital_of, hauptstadt)
+!query capital_of(paris, france)
+> What is the Hauptstadt of France?
+<~ Paris
+> Is Paris the Hauptstadt of France?
+<~ Yes
+> Is Rome the Hauptstadt of France?
+<! Yes
+> What is the capital of France?
+<~ Paris
+
+# Il ponte e' conoscenza: tolto, i due cassetti tornano separati.
+[test ritirato il ponte, il cassetto del mondo torna muto]
+!timeout 30
+!forget predicate_reverse_of(capital_of, capital_of_country)
+!query! capital_of(paris, france)
+!assert predicate_reverse_of(capital_of, capital_of_country)
+!query capital_of(paris, france)
+
+# L'inverso insegnato parlando e' un ponte: vale per ogni lettore, non solo
+# per la domanda polare che lo leggeva prima (era `inverse_relation/2`).
+[test l'inverso insegnato parlando vale nel solver]
+!timeout 30
+> owner is the inverse of belongs
+<~ Held
+> smith owner zelnik
+<~ Learned
+!query belongs(zelnik, smith)
+> does zelnik belongs smith?
+<~ Yes
+
+# Arita' 1 (F.): due classi che si scopre essere la stessa.
+[test due classi, un ponte]
+!timeout 30
+> A dog is a quadruped.
+<~ dog
+!query! four_legged(dog)
+!assert predicate_same_of(four_legged, quadruped)
+!query four_legged(dog)
+!forget predicate_same_of(four_legged, quadruped)
+!query! four_legged(dog)

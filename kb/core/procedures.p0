@@ -1836,8 +1836,8 @@ relation_note($V, "chains")              :- transitive_relation($V).
 relation_note($V, "goes both ways")      :- symmetric_relation($V).
 relation_note($V, "holds of itself")     :- reflexive_relation($V).
 relation_note($V, "has one value")       :- functional_relation($V).
-relation_note($V, $Note) :- inverse_relation($V, $W), concat_atoms("opposite of ", $W, $Note).
-relation_note($V, $Note) :- inverse_relation($W, $V), concat_atoms("opposite of ", $W, $Note).
+relation_note($V, $Note) :- predicate_reverse_of($V, $W), concat_atoms("opposite of ", $W, $Note).
+relation_note($V, $Note) :- predicate_reverse_of($W, $V), concat_atoms("opposite of ", $W, $Note).
 relation_note($V, $Note) :- implies_relation($V, $W), concat_atoms("implies ", $W, $Note).
 relation_note($V, $Note) :- excludes_relation($V, $W), concat_atoms("rules out ", $W, $Note).
 relation_note($V, $Note) :- relation_like($V, $W), concat_atoms("behaves like ", $W, $Note).
@@ -1912,7 +1912,7 @@ holds($V, $X, $Y) :-
     apply($V, cons($X, cons($Real, nil))).
 
 % (s) IL VERSO ROVESCIO, dentro `holds/3`: cosi' compone con i contesti, le
-%     catene e le eccezioni, cosa che `inverse_relation/2` da sola non fa perche'
+%     catene e le eccezioni, cosa che `predicate_reverse_of/2` da sola non fa perche'
 %     e' letta da un lettore solo. (gen508: e' la descrizione `flip(W)`.)
 machinery(relation_reverse).
 
@@ -2516,7 +2516,7 @@ proc_step(cstep, 1, "if even then halve else triple and add 1").
 proc_step(feedtooth, 1, "divide by 4").
 proc_step(mmcm, 1, "divide by 10").
 proc_step(degrad, 2, "divide by 180").
-inverse_relation(drives, is_driven_by).
+predicate_reverse_of(drives, is_driven_by).
 proc_step(degrad, 1, "multiply by 3.14159").
 proc_step(tapm, 1, "subtract 1.5").
 proc_step(fahrcel, 3, "divide by 9").
@@ -2536,7 +2536,7 @@ class_surface(whole_part_relation, whole part relation).
 class_surface(relation, relation).
 transitive_relation(precedes).
 transitive_relation(flow).
-inverse_relation(precedes, follows).
+predicate_reverse_of(precedes, follows).
 relation_role(battle, winner).
 relation_role(battle, loser).
 relation_role(battle, year).
