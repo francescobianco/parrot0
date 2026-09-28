@@ -121,6 +121,12 @@ debug_frame_record($T, frame($F, $R)) :- input_frame_record($T, $F, $R).
 % (la chiave `any` interroga il predicato con arita' 1)
 debug_binding(binding($Op, $S, $F)) :- semantic_binding($Op, $S, $F).
 debug_probe(26, debug_frame_record, now, "la lettura registrata del turno (frame e ruoli)").
+% 28 settembre 2026 (L4-7) — CHE COSA HA SCRITTO IL TURNO, con la polarita':
+% «Learned: …» dice una frase, non quale fatto e' entrato (ne' se e' una
+% negazione). Lo stesso `kb_turn_act/4` che leggono i ponti e l'impegno.
+machinery(debug_turn_wrote).
+debug_turn_wrote($T, wrote($P, $A, $Pol)) :- kb_turn_act($P, $A, $Pol, $K), naf(machinery($P)).
+debug_probe(71, debug_turn_wrote, now, "i fatti che il turno ha scritto (predicato, argomenti, polarita')").
 debug_probe(27, debug_binding, any, "i legami impegnati dalla lettura").
 machinery(debug_complement).
 debug_complement(complement($B, $P, $X)) :- semantic_complement($B, $P, $X).

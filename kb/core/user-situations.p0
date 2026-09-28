@@ -1173,6 +1173,10 @@ speaker_owned_fact($T, fact($P, $S, $O)) :-
     kb_turn_act($P, cons($S, cons($O, nil)), pos, $K), naf(machinery($P)),
     current_language($L), first_person_possessive($L, $M), turn_word($T, $I, $M),
     is($J, add($I, 1)), turn_word($T, $J, $W), atom_words($S, cons($W, $R)).
+% il possessivo DENTRO il soggetto: «The RCD in my house keeps tripping.»
+speaker_owned_fact($T, fact($P, $S, $O)) :-
+    kb_turn_act($P, cons($S, cons($O, nil)), pos, $K), naf(machinery($P)),
+    current_language($L), atom_words($S, $Ws), first_person_possessive($L, $M), member($M, $Ws).
 % l'impegno del turno, nominabile in /debug
 machinery(turn_commitment).
 turn_commitment($T, interlocutor_world) :- speaker_owned_fact($T, $F).
@@ -1228,3 +1232,73 @@ mirror_word($W, $W) :- naf(has_person_mirror($W)).
 machinery(has_person_mirror).
 has_person_mirror($W) :- person_mirror_now($W, $X).
 
+
+% ── L4-7, incremento 2 — LO STATO DELLA COSA DI CHI PARLA FINISCE ─────────
+% «My espresso is not bitter anymore.» scriveva una negazione su un'altra cosa
+% (`learned_negation`) e lasciava intatto il fatto riportato: «Does my espresso
+% taste bitter?» → «Yes.». Una lezione sul mondo non ha un tempo; il mondo
+% dell'interlocutore si': un suo stato puo' FINIRE. La fine e' uno strato sopra
+% il fatto (`read_support(…, ended(N))`, derivation.p0), non una cancellazione:
+% il fatto resta, invisibile ai lettori del presente, e ridetto si riaccende.
+% Il segno e' nella IR: un innesco di cambiamento di stato («no longer»,
+% «anymore») con la polarita' negata, sulle parole di un fatto del mondo di chi
+% parla.
+machinery(turn_states_end).
+turn_states_end($T) :-
+    grammatical_cue(input($T), $A, presupposition_trigger, change_of_state),
+    grammatical_cue(input($T), $B, polarity, negated).
+machinery(ended_fact_here).
+ended_fact_here(fact($P, $S, $O)) :-
+    turn_states_end(current_turn), interlocutor_world_fact(fact($P, $S, $O), $N),
+    atom_words($S, $SW), words_in_turn($SW), atom_words($O, $OW), words_in_turn($OW).
+after_reply_bookkeeper(interlocutor_state_end).
+turn_after_reply($T, interlocutor_state_end) :-
+    ended_fact_here(fact($P, $S, $O)), turn_counter($N),
+    assert(read_support, fact($P, $S, $O, pos), ended($N)),
+    findall($G, superseded_negation_here($S, $G), $Gs), supersede_all($Gs, $N).
+% La lettura concorrente dello stesso turno — «My espresso is not bitter
+% anymore.» scriveva anche `not called(espresso, bitter anymore)` — e' una
+% lettura RIVISTA dalla migliore (§2.6 di l4-upgrade): resta in KB con la sua
+% fonte e diventa invisibile (`reading_superseded(N)`, uno strato come l'oblio).
+machinery(superseded_negation_here).
+machinery(supersede_all).
+superseded_negation_here($S, neg($P2, $O2)) :-
+    kb_turn_act($P2, cons($S, cons($O2, nil)), neg, $K), naf(machinery($P2)).
+supersede_all(nil, $N).
+supersede_all(cons(neg($P2, $O2), $R), $N) :- supersede_one($P2, $O2, $N), supersede_all($R, $N).
+machinery(supersede_one).
+supersede_one($P2, $O2, $N) :- kb_turn_act($P2, cons($S, cons($O2, nil)), neg, $K),
+    assert(read_support, fact($P2, $S, $O2, neg), reading_superseded($N)).
+% ridetto dopo la fine, lo stato torna: un `said` piu' recente
+after_reply_bookkeeper(interlocutor_state_again).
+turn_after_reply($T, interlocutor_state_again) :-
+    naf(turn_negated(current_turn)), naf(turn_declared_act(current_turn, question)),
+    kb_turn_act($P2, cons($S, $Rest), pos, $K), read_support(fact($P, $S, $O, pos), ended($M)),
+    turn_counter($N), gt($N, $M), atom_words($S, $SW), words_in_turn($SW),
+    atom_words($O, $OW), words_in_turn($OW), naf(support_said_after(fact($P, $S, $O, pos), $M)),
+    assert(read_support, fact($P, $S, $O, pos), said($N)).
+% (lo si riconosce dalle parole del fatto finito, non dall'oggetto scritto:
+% «…tastes bitter again» scrive `taste(espresso, bitter_again)`, SA19)
+machinery(turn_negated).
+turn_negated($T) :- grammatical_cue(input($T), $B, polarity, negated).
+machinery(support_said_after).
+support_said_after($F, $M) :- read_support($F, said($K)), gt($K, $M).
+% il riscontro: la frase ridetta dal punto di vista di chi ascolta
+reply_conduct($In, $Out) :-
+    ended_fact_here($F), mirrored_turn_words(0, $Mirrored), current_language($L),
+    commitment_line($L, understood, $A), concat_atoms($A, $Mirrored, $B), concat_atoms($B, ".", $Out).
+% La domanda su uno stato finito: non «non so», ma «non piu'», con la fonte.
+machinery(ended_fact_asked).
+ended_fact_asked(fact($P, $S, $O)) :-
+    turn_declared_act(current_turn, question), read_support(fact($P, $S, $O, pos), ended($M)),
+    fact_withheld(fact($P, $S, $O, pos)), atom_words($S, $SW), words_in_turn($SW),
+    atom_words($O, $OW), words_in_turn($OW), relation_in_turn($P).
+% la relazione del fatto dev'essere quella chiesta: la parola o una sua forma
+% («Is espresso called bitter …?» non chiede del sapore)
+machinery(relation_in_turn).
+relation_in_turn($P) :- turn_word(current_turn, $I, $P).
+relation_in_turn($P) :- verb_root_form($P, form($F, $K)), turn_word(current_turn, $I, $F).
+reply_conduct($In, $Out) :-
+    ended_fact_asked($F), current_language($L), commitment_line($L, not_anymore, $Out).
+commitment_line(en, not_anymore, "Not anymore: you told me that changed.").
+commitment_line(it, not_anymore, "Non più: mi hai detto che è cambiato.").

@@ -1,0 +1,20 @@
+# sessione: L4-7 incremento 2, prova 4 — 2026-09-28 22:03 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@f3319a06]
+# mode: conversational (tools off, network off) - 170962 facts, 6153 rules (3.60%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+> My espresso tastes bitter.
+< I see: your espresso tastes bitter.
+> My espresso is not bitter anymore.
+< I see: your espresso is not bitter anymore.
+> Is espresso called bitter anymore?
+< I cannot settle that: no fact I hold decides whether espresso called for bitter anymore. Not proved is not the same as false. Tell me either way and I will hold it.
+> Does my espresso taste bitter?
+< Not anymore: you told me that changed.
+> Does my espresso still taste bitter?
+< Not anymore: you told me that changed.
+> My espresso tastes bitter again.
+< I see: your espresso tastes bitter again.
+> Does my espresso taste bitter?
+< Yes.
+# chiusa SENZA /save

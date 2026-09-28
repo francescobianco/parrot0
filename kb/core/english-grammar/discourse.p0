@@ -262,6 +262,11 @@ expression_reading("continue", presupposition_trigger_change_of_state).
 expression_reading("resume", presupposition_trigger_change_of_state).
 expression_reading("still", presupposition_trigger_change_of_state).
 expression_reading("no longer", presupposition_trigger_change_of_state).
+% 28 settembre 2026 (L4-7): la forma negata in coda dice lo stesso
+% cambiamento di stato («My espresso is not bitter anymore.»)
+expression_reading("anymore", presupposition_trigger_change_of_state).
+expression_reading("any more", presupposition_trigger_change_of_state).
+expression_reading("any longer", presupposition_trigger_change_of_state).
 expression_reading("begin", presupposition_trigger_change_of_state).
 expression_reading("start", presupposition_trigger_change_of_state).
 expression_reading("know", presupposition_trigger_factive).

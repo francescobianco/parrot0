@@ -62,6 +62,52 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶▶ L4-7, secondo incremento (28 settembre 2026, sera): lo stato del mondo di chi parla finisce
+
+La chiusura di L4-7 chiede che *«una negazione neghi il contenuto
+pertinente»*. Misurato prima della cura:
+
+    > My espresso tastes bitter.            < I see: your espresso tastes bitter.
+    > My espresso is not bitter anymore.    < Learned: my espresso is not bitter anymore.
+    > Does my espresso taste bitter?        < Yes.
+
+Il turno negato scriveva `not called(espresso, "bitter anymore")` (visto con la
+sonda nuova `debug_turn_wrote`, /debug n. 71) e lasciava il fatto riportato
+intatto. Una lezione sul mondo non ha un tempo; il mondo dell'interlocutore sì:
+**un suo stato può finire**, e finire non è né una negazione né un oblio.
+
+**Fatto, tutto KB:**
+- lessico: «anymore», «any more», «any longer» sono inneschi di cambiamento di
+  stato come «no longer» (`english-grammar/discourse.p0`);
+- **la fine è uno strato** (`read_support(fact(P, S, O, pos), ended(N))`), non
+  una cancellazione: il fatto resta, invisibile ai lettori del presente
+  (`fact_withheld`); `derivation.p0` tratta `ended` come l'oblio nell'ordine
+  degli strati, ma con un altro nome, perché dice un'altra cosa (non «non lo
+  tengo più» ma «non è più così»);
+- il segno è nella IR: innesco di cambiamento di stato + polarità negata, sulle
+  parole di un fatto già impegnato come mondo dell'interlocutore;
+- **la lettura concorrente è rivista, non cancellata**: la negazione spazzatura
+  dello stesso turno riceve `reading_superseded(N)` (§2.6: rivedere i giudizi,
+  conservare le fonti);
+- **la domanda su uno stato finito** risponde «Not anymore: you told me that
+  changed.» (solo se la relazione chiesta è quella del fatto: «Is espresso
+  called bitter anymore?» non la riceve);
+- **ridetto, lo stato torna** (`said(N)` più recente), ma solo da
+  un'asserzione: una domanda non riafferma niente (la lezione di SA1, pagata di
+  nuovo durante la prova: la domanda su «called» riaccendeva lo stato);
+- il possessivo **dentro** il soggetto: «The RCD in my house keeps tripping.» →
+  «I see: the rcd in your house keeps tripping.».
+
+Contrasti: «Coffee is not a fruit.» resta una lezione negata; «Is espresso a
+coffee?» → «Yes.». `soft-test` verde in 4 s; `user_situations` 56/56;
+`assisted_construction_ternary` 22/33 identico con la KB di HEAD.
+
+**Aperti:** «again» si incolla all'oggetto (`taste(espresso, bitter_again)`,
+SA19): la riaccensione lo aggira leggendo le parole del fatto finito, ma il
+fatto spazzatura entra; la sigla perde le maiuscole nel riscontro («the rcd»);
+le domande al passato («Did my espresso taste bitter?») non vedono ancora gli
+stati finiti come veri nel passato.
+
 ### ▶▶ L4-7, primo incremento (28 settembre 2026): due impegni, due allargamenti del mondo
 
 Dalla sessione F5 di [train-the-smart-agent.md](train-the-smart-agent.md) e

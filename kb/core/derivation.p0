@@ -147,3 +147,7 @@ proposition_reaffirm($P) :-
     assert(read_support, fact(holds, $P, pos), said($N)).
 read_support_in_force($F) :- read_support($F, said($N)), naf(support_forgotten_after($F, $N)).
 support_forgotten_after($F, $N) :- read_support($F, forgotten($M)), gt($M, $N).
+% (L4-7, 28 settembre) uno stato del mondo di chi parla che FINISCE (`ended`)
+% ritira come un oblio, ma dice un'altra cosa: non «non lo tengo piu'», bensi'
+% «non e' piu' cosi'». Ridetto dopo, `said` piu' recente lo riaccende.
+support_forgotten_after($F, $N) :- read_support($F, ended($M)), gt($M, $N).
