@@ -3636,11 +3636,47 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                 if (got) fbk = sl;
             }
         }
+        /* 28 settembre 2026 — CON IL PREDICATO LIBERO, UN FILTRO ESATTO PRIMA
+         * DEL LAVORO. La scoperta dei ponti (kb/core/bridges.p0) chiede
+         * `kb_fact($B, cons(Y, cons(X, nil)))`: quali cassetti tengono questa
+         * coppia. Per ognuno dei ~170 000 fatti si costruiva la lista degli
+         * argomenti come testo, si copiava la sostituzione e si unificava:
+         * ~120 ms a domanda. Se la lista chiesta porta atomi legati nei primi
+         * due posti, e si chiude con `nil` (l'arita' e' nota), quei campi si
+         * confrontano prima con `strcmp` — lo stesso confronto che unify fa
+         * fra due atomi — e il fatto che non puo' combaciare si salta. Il
+         * significato non cambia: e' un acceleratore. */
+        char want0[KB_TERM_LEN] = "", want1[KB_TERM_LEN] = "";
+        size_t want_argc = 0;              /* 0 = lista aperta, arita' ignota */
+        if (!bound) {
+            char la[KB_TERM_LEN];
+            deep_resolve(s, g->args[1], la, sizeof la, 0);
+            char fun[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN]; size_t np = 0;
+            char cur[KB_TERM_LEN]; snprintf(cur, sizeof cur, "%s", la);
+            size_t k = 0;
+            while (k <= KB_MAX_ARGS && split_compound(cur, fun, parts, &np) &&
+                   np == 2 && !strcmp(fun, "cons")) {
+                char fa[KB_TERM_LEN], pa[KB_MAX_ARGS][KB_TERM_LEN]; size_t na = 0;
+                int atom = !is_var(parts[0]) && !term_contains_var(parts[0], 0) &&
+                           !split_compound(parts[0], fa, pa, &na);
+                if (atom && k == 0) snprintf(want0, sizeof want0, "%s", parts[0]);
+                if (atom && k == 1) snprintf(want1, sizeof want1, "%s", parts[0]);
+                k++;
+                snprintf(cur, sizeof cur, "%s", parts[1]);
+            }
+            if (!strcmp(cur, "nil")) want_argc = k;
+        }
         size_t visits = bound ? PRED_VISITS(fbk, S->kb) : S->kb->n;
         for (size_t vi = 0; vi < visits; vi++) {
             size_t i = bound ? PRED_AT(fbk, vi) : vi;
             if (i >= S->kb->n) continue;      /* retracted under this walk */
             const Fact *f = &S->kb->facts[i];
+            if (want_argc && f->argc != want_argc) continue;
+            /* (un fatto con una variabile in quel posto combacia con tutto) */
+            if (want0[0] && (f->argc < 1 ||
+                (strcmp(f->args[0], want0) != 0 && !term_contains_var(f->args[0], 0)))) continue;
+            if (want1[0] && (f->argc < 2 ||
+                (strcmp(f->args[1], want1) != 0 && !term_contains_var(f->args[1], 0)))) continue;
             if (!kb_view_fact_visible(S->kb, f)) continue;
             if (bound && strcmp(f->pred, rp) != 0) continue;
             char list[KB_TERM_LEN];

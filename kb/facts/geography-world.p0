@@ -6,15 +6,10 @@
 
 % ============================================================
 % CAPITALS — capital_of_country(Country, Capital)
-% 28 settembre 2026 — IL PONTE CON IL CASSETTO DELLE LEZIONI (parrot-p0-syntax.md
-% §19, registro strutturale ST2). Una lezione scrive `capital_of(Capitale, Paese)`
-% («the capital of Germany is Berlin»); il mondo sta qui, con gli argomenti
-% nell'altro verso. Non si riscrive nessuno dei due: un fatto dice che sono la
-% stessa relazione vista dai due lati, e il solver lo attraversa per ogni lettore
-% (una parola insegnata per contatto, «Hauptstadt», trova Parigi). Il maestro non
-% puo' nominare questo cassetto parlando: un ponte cosi' dovra' nascere dalla
-% scoperta (le stesse coppie, rovesciate, nei due cassetti) — e' il residuo di ST2.
-predicate_reverse_of(capital_of, capital_of_country).
+% 28 settembre 2026 — `capital_of(Capitale, Paese)`, scritto dalle lezioni, e'
+% questa relazione vista dall'altro lato. Il ponte NON si scrive qui: parrot0 lo
+% scopre dalle coppie in comune e lo chiede al maestro (kb/core/bridges.p0,
+% parrot-p0-syntax.md §19.4).
 % ============================================================
 capital_of_country(afghanistan, kabul).
 capital_of_country(albania, tirana).
@@ -760,41 +755,22 @@ borders_country(spain, france).
 borders_country(spain, portugal).
 borders_country(united_states, canada).
 borders_country(united_states, mexico).
-capital_of_country(amsterdam, netherlands).
-capital_of_country(ankara, turkey).
 capital_of_country(argentina, buenos_aires).
-capital_of_country(athens, greece).
 capital_of_country(australia, canberra).
 capital_of_country(austria, vienna).
-capital_of_country(bangkok, thailand).
-capital_of_country(beijing, china).
 capital_of_country(belgium, brussels).
-capital_of_country(berlin, germany).
-capital_of_country(bern, switzerland).
-capital_of_country(brasilia, brazil).
-capital_of_country(bratislava, slovakia).
 capital_of_country(brazil, brasilia).
-capital_of_country(brussels, belgium).
-capital_of_country(bucharest, romania).
-capital_of_country(budapest, hungary).
-capital_of_country(buenos_aires, argentina).
-capital_of_country(cairo, egypt).
 capital_of_country(canada, ottawa).
-capital_of_country(canberra, australia).
 capital_of_country(chile, santiago).
 capital_of_country(china, beijing).
 capital_of_country(colombia, bogota).
-capital_of_country(copenhagen, denmark).
 capital_of_country(czechia, prague).
 capital_of_country(denmark, copenhagen).
-capital_of_country(dublin, ireland).
 capital_of_country(egypt, cairo).
 capital_of_country(finland, helsinki).
 capital_of_country(france, paris).
 capital_of_country(germany, berlin).
 capital_of_country(greece, athens).
-capital_of_country(hanoi, vietnam).
-capital_of_country(helsinki, finland).
 capital_of_country(india, new_delhi).
 capital_of_country(indonesia, jakarta).
 capital_of_country(iran, tehran).
@@ -802,60 +778,34 @@ capital_of_country(iraq, baghdad).
 capital_of_country(ireland, dublin).
 capital_of_country(israel, jerusalem).
 capital_of_country(italy, rome).
-capital_of_country(jakarta, indonesia).
 capital_of_country(japan, tokyo).
 capital_of_country(kenya, nairobi).
-capital_of_country(kiev, ukraine).
-capital_of_country(lima, peru).
-capital_of_country(lisbon, portugal).
-capital_of_country(london, united_kingdom).
-capital_of_country(madrid, spain).
 capital_of_country(mexico, mexico_city).
-capital_of_country(mexico_city, mexico).
-capital_of_country(minsk, belarus).
 capital_of_country(morocco, rabat).
-capital_of_country(moscow, russia).
-capital_of_country(nairobi, kenya).
 capital_of_country(netherlands, amsterdam).
-capital_of_country(new_delhi, india).
 capital_of_country(new_zealand, wellington).
 capital_of_country(nigeria, abuja).
 capital_of_country(norway, oslo).
-capital_of_country(oslo, norway).
-capital_of_country(ottawa, canada).
 capital_of_country(pakistan, islamabad).
-capital_of_country(paris, france).
 capital_of_country(peru, lima).
 capital_of_country(poland, warsaw).
 capital_of_country(portugal, lisbon).
-capital_of_country(prague, czechia).
-capital_of_country(pretoria, south_africa).
-capital_of_country(rejkjavik, iceland).
-capital_of_country(rome, italy).
+capital_of_country(iceland, rejkjavik).
 capital_of_country(russia, moscow).
-capital_of_country(santiago, chile).
 capital_of_country(saudi_arabia, riyadh).
-capital_of_country(seoul, south_korea).
 capital_of_country(south_africa, pretoria).
 capital_of_country(south_korea, seoul).
 capital_of_country(spain, madrid).
 capital_of_country(slovakia, bratislava).
-capital_of_country(stockholm, sweden).
 capital_of_country(sweden, stockholm).
 capital_of_country(switzerland, bern).
-capital_of_country(tehran, iran).
 capital_of_country(thailand, bangkok).
-capital_of_country(tokyo, japan).
 capital_of_country(turkey, ankara).
 capital_of_country(ukraine, kiev).
 capital_of_country(united_kingdom, london).
 capital_of_country(united_states, washington_dc).
 capital_of_country(venezuela, caracas).
-capital_of_country(vienna, austria).
 capital_of_country(vietnam, hanoi).
-capital_of_country(warsaw, poland).
-capital_of_country(washington_dc, united_states).
-capital_of_country(wellington, new_zealand).
 capital_on_river(belgrade, danube).
 capital_on_river(berlin, spree).
 capital_on_river(bratislava, danube).

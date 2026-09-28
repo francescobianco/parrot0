@@ -1,0 +1,275 @@
+% bridges.p0 — LA SCOPERTA DEI PONTI FRA PREDICATI (F., 28 settembre 2026).
+%
+% Il contratto dei ponti sta in docs/parrot-p0-syntax.md §19: `predicate_same_of/2`
+% e `predicate_reverse_of/2` sono fatti che il solver attraversa per ogni
+% lettore. Qui si impara QUANDO ne serve uno, senza che nessuno nomini i
+% cassetti — il maestro non conosce `capital_of_country`, e non deve.
+%
+% Il giro, in quattro mosse:
+%   1. OSSERVARE. Un turno scrive un fatto binario A(X, Y). Se un altro
+%      predicato B tiene gia' la stessa coppia (dritta o rovesciata), e'
+%      un EPISODIO: «A e B potrebbero essere la stessa relazione».
+%   2. PROPORRE. Con abbastanza coppie distinte, parrot0 lo DICE e CHIEDE, in
+%      coda alla risposta (`turn_reply_follows/2`, accodata dal C DOPO i
+%      contabili: la ricerca dei cassetti si fa una volta, e la domanda legge
+%      cio' che il contabile ha conservato). Non lo conclude da solo:
+%      `capital_of(berlin, germany)` e `located_in(berlin, germany)` tengono la
+%      stessa coppia, e un ponte fra loro renderebbe ogni citta' una capitale.
+%      Coppie in comune sono un indizio, non una prova (§16.2 del contatto).
+%   3. DECIDERE PARLANDO. «yes» scrive il ponte; «no» lo registra come
+%      respinto, e non lo si richiede.
+%   4. RITIRARE. Un fatto NEGATO dal maestro che l'altro cassetto afferma e' un
+%      controesempio: sospende la proposta, e ritira il ponte se era scoperto.
+%
+% Un ponte candidato e' il termine `b(Verso, A, B)` (il motore accetta al massimo
+% quattro argomenti per predicato). Tutto e' KB: quante coppie bastano, quanti fatti un turno puo' scrivere perche'
+% valga la pena guardare, e con quali parole chiedere. Il C accoda soltanto.
+
+machinery(bridge_written).
+machinery(bridge_written_key).
+machinery(bridge_turn_small).
+machinery(bridge_observe_max_facts).
+machinery(bridge_min_support).
+machinery(bridge_pair_here).
+machinery(bridge_counter_here).
+machinery(bridge_episode).
+machinery(bridge_counter).
+machinery(bridge_support_pair).
+machinery(bridge_support).
+machinery(bridge_in_force).
+machinery(bridge_proposal).
+machinery(bridge_denied).
+machinery(bridge_ask).
+machinery(bridge_first).
+machinery(bridge_question_open).
+machinery(bridge_question_is_open).
+machinery(bridge_asked).
+machinery(bridge_asked_either).
+machinery(bridge_refused).
+machinery(bridge_refused_either).
+machinery(bridge_countered_either).
+machinery(bridge_discovered).
+machinery(bridge_pending).
+machinery(bridge_new_episode).
+machinery(bridge_new_counter).
+machinery(bridge_store).
+machinery(bridge_settle_item).
+machinery(bridge_settle_all).
+machinery(bridge_settle_one).
+machinery(bridge_write).
+machinery(bridge_unwrite).
+machinery(bridge_withdraw_item).
+machinery(bridge_withdraw_all).
+machinery(turn_bridge_reply).
+machinery(turn_bridge_refuses).
+machinery(turn_bridge_replied).
+machinery(bridge_relation_words).
+machinery(bridge_pair_text).
+machinery(bridge_pairs_text).
+machinery(bridge_join).
+machinery(bridge_question_text).
+machinery(bridge_reply_text).
+machinery(bridge_text).
+machinery(turn_reply_follows).
+
+% ── LE POLITICHE (una riga ciascuna, e si possono cambiare) ─────────────────
+% Due coppie distinte, come due episodi del contatto: una sola coincidenza non
+% dice niente. E si guarda solo un turno che scrive pochi fatti: una pagina di
+% prosa ne scrive decine, e ognuno costerebbe una scansione dei cassetti.
+bridge_min_support(2).
+bridge_observe_max_facts(3).
+
+% ── 1. OSSERVARE ────────────────────────────────────────────────────────────
+% I fatti binari POSITIVI che questo turno ha scritto (`kb_turn_act/4`), sui
+% predicati del mondo (non la macchineria).
+bridge_written($P, $X, $Y) :-
+    kb_turn_act($P, cons($X, cons($Y, nil)), pos, $K), naf(machinery($P)).
+bridge_written_key(w($P, $X, $Y)) :- bridge_written($P, $X, $Y).
+bridge_turn_small :-
+    findall($F, bridge_written_key($F), $L), list_len($L, $N),
+    bridge_observe_max_facts($M), le($N, $M).
+% L'altro cassetto: un predicato del mondo che tiene gia' la coppia. ⚠ Il
+% predicato e' libero, quindi `kb_fact` scandisce la KB (~120 ms a scansione):
+% la si fa UNA volta per turno, qui, nel contabile — e solo in un turno che ha
+% scritto pochi fatti. Un fatto che lo stesso turno ha scritto in due cassetti
+% non e' un indizio indipendente.
+bridge_pair_here(b(reverse, $A, $B), pair($X, $Y)) :-
+    bridge_turn_small, bridge_written($A, $X, $Y),
+    kb_fact($B, cons($Y, cons($X, nil))), dif($B, $A), naf(machinery($B)),
+    naf(bridge_written($B, $Y, $X)), naf(bridge_in_force($A, $B)).
+bridge_pair_here(b(same, $A, $B), pair($X, $Y)) :-
+    bridge_turn_small, bridge_written($A, $X, $Y),
+    kb_fact($B, cons($X, cons($Y, nil))), dif($B, $A), naf(machinery($B)),
+    naf(bridge_written($B, $X, $Y)), naf(bridge_in_force($A, $B)).
+% Il controesempio: il maestro NEGA A(X, Y) e B afferma la stessa coppia.
+bridge_denied($A, $X, $Y) :- kb_turn_act($A, cons($X, cons($Y, nil)), neg, $K), naf(machinery($A)).
+bridge_counter_here(b(reverse, $A, $B), pair($X, $Y)) :-
+    bridge_denied($A, $X, $Y), kb_fact($B, cons($Y, cons($X, nil))), dif($B, $A), naf(machinery($B)).
+bridge_counter_here(b(same, $A, $B), pair($X, $Y)) :-
+    bridge_denied($A, $X, $Y), kb_fact($B, cons($X, cons($Y, nil))), dif($B, $A), naf(machinery($B)).
+
+% Un ponte si legge nei due sensi, quindi un episodio conta da entrambi i lati;
+% la coppia si riporta al verso di A, cosi' la stessa coppia non conta due volte.
+bridge_support_pair(b($K, $A, $B), $P) :- bridge_episode(b($K, $A, $B), $P).
+bridge_support_pair(b(same, $A, $B), $P) :- bridge_episode(b(same, $B, $A), $P).
+bridge_support_pair(b(reverse, $A, $B), pair($X, $Y)) :- bridge_episode(b(reverse, $B, $A), pair($Y, $X)).
+bridge_support($Q, $N) :- findall($P, bridge_support_pair($Q, $P), $L), list_len($L, $N).
+
+bridge_in_force($A, $B) :- predicate_same_of($A, $B).
+bridge_in_force($A, $B) :- predicate_same_of($B, $A).
+bridge_in_force($A, $B) :- predicate_reverse_of($A, $B).
+bridge_in_force($A, $B) :- predicate_reverse_of($B, $A).
+bridge_refused_either(b($K, $A, $B)) :- bridge_refused(b($K, $A, $B)).
+bridge_refused_either(b($K, $A, $B)) :- bridge_refused(b($K, $B, $A)).
+bridge_asked_either(b($K, $A, $B)) :- bridge_asked(b($K, $A, $B)).
+bridge_asked_either(b($K, $A, $B)) :- bridge_asked(b($K, $B, $A)).
+bridge_countered_either(b($K, $A, $B)) :- bridge_counter(b($K, $A, $B), $P).
+bridge_countered_either(b($K, $A, $B)) :- bridge_counter(b($K, $B, $A), $P).
+bridge_question_is_open(b($K, $A, $B)) :- bridge_question_open(b($K, $A, $B), $N).
+bridge_question_is_open(b($K, $A, $B)) :- bridge_question_open(b($K, $B, $A), $N).
+
+% ── 2. PROPORRE ─────────────────────────────────────────────────────────────
+% Solo dagli episodi CONSERVATI: la proposta non rifa' la ricerca.
+bridge_proposal(b($K, $A, $B)) :-
+    bridge_episode(b($K, $A, $B), $P),
+    naf(bridge_in_force($A, $B)),
+    naf(bridge_refused_either(b($K, $A, $B))),
+    naf(bridge_asked_either(b($K, $A, $B))),
+    naf(bridge_question_is_open(b($K, $A, $B))),
+    naf(bridge_countered_either(b($K, $A, $B))),
+    bridge_support(b($K, $A, $B), $N), bridge_min_support($M), ge($N, $M).
+% Una domanda per volta: la prima proposta.
+bridge_ask($Q) :- findall($P, bridge_proposal($P), $L), bridge_first($L, $Q).
+bridge_first(cons($H, $T), $H).
+
+% La domanda si dice nel turno che l'ha aperta.
+turn_reply_follows($T, $Text) :-
+    turn_counter($N), bridge_question_open($Q, $N), bridge_question_text($Q, $Text).
+
+% ── 3. DECIDERE PARLANDO ────────────────────────────────────────────────────
+% La domanda vale per il turno DOPO quello che l'ha fatta; l'assenso e il
+% dissenso sono le cue che la KB gia' conosce (network.p0), con lo stesso
+% posto nel turno che vale per un'offerta.
+bridge_pending($Q) :- bridge_question_open($Q, $N), turn_counter($C), gt($C, $N).
+turn_bridge_refuses($T) :- turn_cue($T, dissent_word, $W), turn_dissent_placed($T, $W).
+turn_bridge_reply($T, accept, $Q) :-
+    bridge_pending($Q), turn_cue($T, assent_word, $W), turn_assent_placed($T, $W),
+    naf(turn_bridge_refuses($T)).
+turn_bridge_reply($T, refuse, $Q) :- bridge_pending($Q), turn_bridge_refuses($T).
+turn_bridge_replied($T, $Q) :- turn_bridge_reply($T, $V, $Q).
+turn_plan_candidate($T) :- turn_bridge_reply($T, $V, $Q).
+turn_priority_response($T, $Text) :- turn_bridge_reply($T, $V, $Q), bridge_reply_text($V, $Q, $Text).
+
+% ── I CONTABILI DOPO LA RISPOSTA (le scritture e i ritiri stanno qui) ───────
+% L'ordine conta: prima si chiude la domanda del turno prima, poi si osserva,
+% poi si propone.
+after_reply_bookkeeper(bridge_settle).
+after_reply_bookkeeper(bridge_discovery).
+after_reply_bookkeeper(bridge_ask).
+
+turn_after_reply($T, bridge_discovery) :-
+    findall($E, bridge_new_episode($E), $Es), bridge_store($Es),
+    findall($C, bridge_new_counter($C), $Cs), bridge_store($Cs),
+    findall($W, bridge_withdraw_item($W), $Ws), bridge_withdraw_all($Ws).
+bridge_new_episode(ep($Q, $P)) :- bridge_pair_here($Q, $P), naf(bridge_episode($Q, $P)).
+bridge_new_counter(ce($Q, $P)) :- bridge_counter_here($Q, $P), naf(bridge_counter($Q, $P)).
+bridge_store(nil).
+bridge_store(cons(ep($Q, $P), $R)) :- assert(bridge_episode, $Q, $P), bridge_store($R).
+bridge_store(cons(ce($Q, $P), $R)) :- assert(bridge_counter, $Q, $P), bridge_store($R).
+% Un ponte SCOPERTO cade col primo controesempio; uno insegnato resta (la parola
+% del maestro si ritira con una sua lezione, non con un indizio).
+bridge_withdraw_item($Q) :- bridge_discovered($Q), bridge_countered_either($Q).
+bridge_withdraw_all(nil).
+bridge_withdraw_all(cons($Q, $R)) :-
+    bridge_unwrite($Q), retract(bridge_discovered, $Q), bridge_withdraw_all($R).
+
+% La domanda e' una QUESTIONE del tabellone unico (issues.p0, dialogica L1), di
+% genere `bridge_confirm`: l'utente la deve, quindi chi rivendica un «si'»
+% generico si ritira (`dialogue_offer_elsewhere`, dialogue-initiative.p0).
+machinery(bridge_issue_of).
+bridge_issue_of(b($K, $A, $B), $Issue) :- issue_id(bridge_confirm, $A, $Issue).
+issue_owed_by($Issue, user) :- open_issue($Issue, bridge_confirm).
+turn_after_reply($T, bridge_ask) :-
+    bridge_ask($Q), turn_counter($N), assert(bridge_question_open, $Q, $N),
+    bridge_issue_of($Q, $I), assert(open_issue, $I, bridge_confirm), assert(issue_turn, $I, $N).
+
+turn_after_reply($T, bridge_settle) :-
+    findall($S, bridge_settle_item($T, $S), $Ss), bridge_settle_all($Ss).
+bridge_settle_item($T, s($V, $Q)) :- turn_bridge_reply($T, $V, $Q).
+bridge_settle_item($T, s(none, $Q)) :- bridge_pending($Q), naf(turn_bridge_replied($T, $Q)).
+bridge_settle_all(nil).
+bridge_settle_all(cons(s($V, $Q), $R)) :-
+    bridge_settle_one($V, $Q),
+    bridge_question_open($Q, $N), retract(bridge_question_open, $Q, $N),
+    bridge_issue_of($Q, $I), retract(open_issue, $I, bridge_confirm), retract(issue_turn, $I, $N),
+    assert(bridge_asked, $Q),
+    bridge_settle_all($R).
+bridge_settle_one(accept, $Q) :- bridge_write($Q), assert(bridge_discovered, $Q).
+bridge_settle_one(refuse, $Q) :- assert(bridge_refused, $Q).
+bridge_settle_one(none, $Q).
+bridge_write(b(same, $A, $B)) :- assert(predicate_same_of, $A, $B).
+bridge_write(b(reverse, $A, $B)) :- assert(predicate_reverse_of, $A, $B).
+bridge_unwrite(b(same, $A, $B)) :- retract(predicate_same_of, $A, $B).
+bridge_unwrite(b(same, $A, $B)) :- retract(predicate_same_of, $B, $A).
+bridge_unwrite(b(reverse, $A, $B)) :- retract(predicate_reverse_of, $A, $B).
+bridge_unwrite(b(reverse, $A, $B)) :- retract(predicate_reverse_of, $B, $A).
+
+% ── LA RESA (cio' che parrot0 dice e' conoscenza, mantra #16) ──────────────
+bridge_relation_words($R, $W) :- atom_words($R, $Ws), words_joined($Ws, $W).
+bridge_pair_text($Q, $Text) :-
+    bridge_support_pair($Q, pair($X, $Y)),
+    bridge_relation_words($X, $XW), bridge_relation_words($Y, $YW),
+    current_language($L), bridge_text($L, pair_joiner, $J),
+    concat_atoms($XW, $J, $H), concat_atoms($H, $YW, $Text).
+bridge_pairs_text($Q, $Text) :- findall($P, bridge_pair_text($Q, $P), $Ps), bridge_join($Ps, $Text).
+bridge_join(cons($P, nil), $P).
+bridge_join(cons($P, cons($R1, $R)), $Text) :-
+    bridge_join(cons($R1, $R), $Rest), concat_atoms($P, "; ", $H), concat_atoms($H, $Rest, $Text).
+bridge_question_text(b($K, $A, $B), $Text) :-
+    current_language($L),
+    bridge_relation_words($A, $AW), bridge_relation_words($B, $BW),
+    bridge_pairs_text(b($K, $A, $B), $Pairs),
+    bridge_text($L, notice, $T0), bridge_text($L, and_rel, $T1), bridge_text($L, $K, $T2),
+    bridge_text($L, question($K), $T3),
+    concat_atoms($T0, $AW, $S1), concat_atoms($S1, $T1, $S2), concat_atoms($S2, $BW, $S3),
+    concat_atoms($S3, $T2, $S4), concat_atoms($S4, $Pairs, $S5), concat_atoms($S5, $T3, $Text).
+bridge_reply_text($V, b($K, $A, $B), $Text) :-
+    current_language($L),
+    bridge_relation_words($A, $AW), bridge_relation_words($B, $BW),
+    bridge_text($L, reply($V, $K, 0), $T0), bridge_text($L, reply($V, $K, 1), $T1),
+    bridge_text($L, reply($V, $K, 2), $T2),
+    concat_atoms($T0, $AW, $S1), concat_atoms($S1, $T1, $S2), concat_atoms($S2, $BW, $S3),
+    concat_atoms($S3, $T2, $Text).
+
+bridge_text(en, pair_joiner, " and ").
+bridge_text(en, notice, "I notice that «").
+bridge_text(en, and_rel, "» and «").
+bridge_text(en, reverse, "» hold the same pairs in the opposite order (").
+bridge_text(en, same, "» hold the same pairs (").
+bridge_text(en, question(reverse), "). Are they one relation seen from two sides?").
+bridge_text(en, question(same), "). Are they the same relation?").
+bridge_text(en, reply(accept, reverse, 0), "Held: «").
+bridge_text(en, reply(accept, reverse, 1), "» and «").
+bridge_text(en, reply(accept, reverse, 2), "» are one relation seen from two sides; each now answers for the other.").
+bridge_text(en, reply(accept, same, 0), "Held: «").
+bridge_text(en, reply(accept, same, 1), "» and «").
+bridge_text(en, reply(accept, same, 2), "» are the same relation; each now answers for the other.").
+bridge_text(en, reply(refuse, $K, 0), "Understood: I keep «").
+bridge_text(en, reply(refuse, $K, 1), "» and «").
+bridge_text(en, reply(refuse, $K, 2), "» apart.").
+bridge_text(it, pair_joiner, " e ").
+bridge_text(it, notice, "Noto che «").
+bridge_text(it, and_rel, "» e «").
+bridge_text(it, reverse, "» tengono le stesse coppie in ordine inverso (").
+bridge_text(it, same, "» tengono le stesse coppie (").
+bridge_text(it, question(reverse), "). Sono una relazione sola vista dai due lati?").
+bridge_text(it, question(same), "). Sono la stessa relazione?").
+bridge_text(it, reply(accept, reverse, 0), "Tengo: «").
+bridge_text(it, reply(accept, reverse, 1), "» e «").
+bridge_text(it, reply(accept, reverse, 2), "» sono una relazione sola vista dai due lati; ora l'una risponde per l'altra.").
+bridge_text(it, reply(accept, same, 0), "Tengo: «").
+bridge_text(it, reply(accept, same, 1), "» e «").
+bridge_text(it, reply(accept, same, 2), "» sono la stessa relazione; ora l'una risponde per l'altra.").
+bridge_text(it, reply(refuse, $K, 0), "Capito: tengo separate «").
+bridge_text(it, reply(refuse, $K, 1), "» e «").
+bridge_text(it, reply(refuse, $K, 2), "».").

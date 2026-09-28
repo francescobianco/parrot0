@@ -3955,6 +3955,32 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
         }
         kb_set_origin(b->kb, prev);
     }
+    /* 28 settembre 2026 — E UNA RISPOSTA PUO' AVERE UN SEGUITO. Il gemello in
+     * coda di `turn_reply_qualifies`: la KB puo' voler aggiungere qualcosa dopo
+     * cio' che ha risposto — una domanda che la risposta stessa ha fatto nascere
+     * (la scoperta di un ponte fra predicati, kb/core/bridges.p0). Che cosa
+     * aggiungere, quando e con quali parole e' `turn_reply_follows/2`; qui si
+     * accoda soltanto. Solo al livello esterno: una frase riletta come turno
+     * annidato non riceve domande. Viene DOPO i contabili: il seguito nasce da
+     * cio' che il turno ha scritto, e il contabile che lo osserva lo conserva
+     * una volta sola — la domanda legge la conservazione, non rifa' la ricerca. */
+    if (b && b->kb && out && *out && b->respond_depth == 1 &&
+        strcmp(b->last_module, "fallback") != 0) {
+        const char *fq[2] = { "current_turn", NULL };
+        char (*fs)[KB_TERM_LEN] = NULL; size_t nfs = 0;
+        if (kb_match_all(b->kb, "turn_reply_follows", fq, 2, &fs, &nfs)) {
+            char joined[4096];
+            size_t jl = (size_t)snprintf(joined, sizeof joined, "%s", out);
+            for (size_t k = 0; k < nfs && jl + 2 < sizeof joined; k++) {
+                char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", fs[k]);
+                const char *txt = kb_dequote(fb);
+                if (!*txt || strstr(joined, txt)) continue;
+                jl += (size_t)snprintf(joined + jl, sizeof joined - jl, " %s", txt);
+            }
+            if (strcmp(joined, out) != 0) put(joined, out, out_size);
+        }
+        free(fs);
+    }
     conv_log(b, input, out);
     return strlen(out);
 }

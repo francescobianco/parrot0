@@ -11,15 +11,25 @@
 !set PARROT0_LANG=en
 !reload
 
-# DE7: il nome imparato per contatto («Hauptstadt») entra nel verso che la
-# relazione dichiara, e il ponte della base lo porta al cassetto del mondo.
-[test una parola imparata per contatto trova il cassetto del mondo]
+# DE7 e LA SCOPERTA DEL PONTE (kb/core/bridges.p0, §19.4). Nessuno nomina il
+# cassetto del mondo: parrot0 nota che le lezioni scrivono coppie che
+# `capital_of_country` tiene gia' rovesciate, lo dice, e CHIEDE. Il «si'» scrive
+# il ponte; da li' la parola imparata per contatto («Hauptstadt») trova Parigi.
+[test due cassetti, due coppie, una domanda, un ponte]
+!reset
 !timeout 30
 > The capital of Germany is Berlin, so Berlin is its Hauptstadt.
 <~ Learned
+<! Are they
 > The capital of Austria is Vienna, so Vienna is its Hauptstadt.
 <~ Learned
+<~ «capital of» and «capital of country» hold the same pairs in the opposite order
+<~ Are they one relation seen from two sides?
 !query relation_noun(capital_of, hauptstadt)
+!query! capital_of(paris, france)
+> yes
+<~ Held: «capital of» and «capital of country» are one relation seen from two sides
+!query predicate_reverse_of(capital_of, capital_of_country)
 !query capital_of(paris, france)
 > What is the Hauptstadt of France?
 <~ Paris
@@ -37,6 +47,38 @@
 !query! capital_of(paris, france)
 !assert predicate_reverse_of(capital_of, capital_of_country)
 !query capital_of(paris, france)
+
+# Coppie in comune sono un indizio, non una prova: il «no» tiene i cassetti
+# separati, e la domanda non torna.
+[test il no respinge, e la domanda non si ripete]
+!reset
+!timeout 30
+> The capital of Germany is Berlin.
+<~ Learned
+> The capital of Austria is Vienna.
+<~ Are they one relation seen from two sides?
+> no
+<~ Understood: I keep «capital of» and «capital of country» apart.
+!query! capital_of(paris, france)
+> The capital of Italy is Rome.
+<~ Learned
+<! capital of country
+
+# Un ponte SCOPERTO cade col primo controesempio: il maestro nega una coppia
+# che l'altro cassetto afferma.
+[test il controesempio ritira il ponte scoperto]
+!reset
+!timeout 30
+> The capital of Germany is Berlin.
+<~ Learned
+> The capital of Austria is Vienna.
+<~ Are they one relation seen from two sides?
+> yes
+<~ Held
+!query capital_of(paris, france)
+> Berlin is not the capital of Germany.
+!query! predicate_reverse_of(capital_of, capital_of_country)
+!query! capital_of(paris, france)
 
 # L'inverso insegnato parlando e' un ponte: vale per ogni lettore, non solo
 # per la domanda polare che lo leggeva prima (era `inverse_relation/2`).

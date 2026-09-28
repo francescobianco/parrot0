@@ -1273,6 +1273,7 @@ machinery(sides).
 :- include(input-structure.p0).
 :- include(reading-choices.p0).
 :- include(contact.p0).
+:- include(bridges.p0).
 :- include(clause-content.p0).
 :- include(derivation.p0).
 :- include(fenomenologia.p0).

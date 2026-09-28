@@ -894,8 +894,9 @@ IR si riscrivono dentro il turno: la vista resta spenta e aggiunge lavoro).
 > **Stato (28 settembre 2026, sera): `predicate_same_of/2` e
 > `predicate_reverse_of/2` sono ESEGUIBILI** — il solver li attraversa
 > (`solve_bridges` in `src/kb.c`), per ogni arità il primo, per due posti il
-> secondo. `predicate_args_of/3` (arità diverse) e la **scoperta** dei ponti
-> (§19.4) restano progetto. Nasce da DE7 e dal registro strutturale
+> secondo — **e si SCOPRONO** (§19.4, `kb/core/bridges.p0`): parrot0 nota le
+> coppie in comune fra due cassetti, lo dice e chiede; il «sì» scrive il ponte.
+> `predicate_args_of/3` (arità diverse) resta progetto. Nasce da DE7 e dal registro strutturale
 > ([train-the-learning-process.md](plans/train-the-learning-process.md),
 > «▶ ASSE STRUTTURALE», ST2).
 
@@ -1029,13 +1030,41 @@ lettore le porta ai predicati attraverso il lessico che la KB ha già
 | «the capital of a country is the same as its capital city» | `predicate_same_of` fra le due relazioni che quelle parole nominano |
 | «owner is the inverse of belongs» (esiste: `teach_inverse`) | `predicate_reverse_of(owner, belongs)` — oggi scrive `inverse_relation/2`, che diventa un nome di `predicate_reverse_of` |
 
-E si **scopre**, come il contatto scopre un nome (`contact.p0`): quando due
-cassetti tengono le stesse coppie, dritte o rovesciate («Berlin» e «Germany»
-in `capital_of`, «France» e «Paris» in `capital_of_country`, e la domanda che
-chiede l'uno quando c'è solo l'altro), nasce un **episodio di ponte**, che è
-un'ipotesi, non un fatto. Va con le regole del contatto: sostegni contati,
-un controesempio lo sospende, letture concorrenti restano visibili, e l'uso
-del ponte non conta come conferma (§14.4 di contact.p0).
+E si **scopre** (`kb/core/bridges.p0`, eseguibile dal 28 settembre 2026).
+Quattro mosse:
+
+1. **Osservare.** Dopo la risposta, un contabile guarda i fatti binari che il
+   turno ha scritto (`kb_turn_act/4`). Se un altro predicato tiene già la
+   stessa coppia, dritta o rovesciata, nasce un **episodio**
+   (`bridge_episode(b(Verso, A, B), pair(X, Y))`). La ricerca ha il predicato
+   libero (`kb_fact`, circa 120 ms a scansione), quindi si fa **una volta**, nel
+   contabile, e solo nei turni che scrivono pochi fatti
+   (`bridge_observe_max_facts(3)`).
+2. **Proporre, chiedendo.** Con `bridge_min_support(2)` coppie distinte,
+   nessun controesempio, nessun ponte già in forza e nessuna domanda già fatta,
+   parrot0 lo dice in coda alla risposta con `turn_reply_follows/2`, il
+   gemello di `turn_reply_qualifies` che il C accoda dopo i contabili:
+   «I notice that «capital of» and «capital of country» hold the same pairs in
+   the opposite order (berlin and germany; vienna and austria). Are they one
+   relation seen from two sides?». **Non conclude da solo**: `capital_of` e
+   `located_in` tengono anche loro la coppia (berlin, germany), e un ponte fra
+   loro farebbe di ogni città una capitale. Coppie in comune sono un indizio.
+3. **Decidere parlando.** La domanda è una questione del tabellone
+   (`open_issue(bridge_confirm_A, bridge_confirm)`) che l'utente deve, quindi
+   un «sì» generico non la ruba. «yes» scrive il ponte e lo marca
+   `bridge_discovered`; «no» lo registra come respinto, e non si richiede.
+4. **Ritirare.** Un fatto **negato** dal maestro che l'altro cassetto afferma
+   è un controesempio: sospende la proposta, e ritira il ponte se era
+   scoperto. Un ponte insegnato resta, perché la parola del maestro si ritira
+   con una sua lezione.
+
+**Un difetto dei dati trovato così** (28 settembre): alla prima prova la
+scoperta proponeva anche `capital_of` **uguale** a `capital_of_country`, cioè
+non rovesciato. Il cassetto del mondo aveva 45 righe nel verso sbagliato
+(`capital_of_country(berlin, germany)` accanto a
+`capital_of_country(germany, berlin)`), arrivate con la migrazione del gen451.
+Sono state tolte, e raddrizzata una. Un cassetto con due convenzioni non può
+fare da ponte, e la scoperta lo rende visibile.
 
 ### 19.5 Che cosa diventano i pezzi esistenti
 
@@ -1044,7 +1073,7 @@ del ponte non conta come conferma (§14.4 di contact.p0).
 | `inverse_relation/2` (messages.p0, procedures.p0), consumato solo da `p0_relation_inverse` in C | ✅ **rinominato `predicate_reverse_of`** (28 settembre): «owner is the inverse of belongs», «X comes before Y» e «X chains with opposite Y» scrivono il ponte, e il solver lo fa valere per ogni lettore. Le due letture in C restano (la prima parte ora è ridondante, la composizione con la catena transitiva no): accorciarle è il passo dopo (MANTRA #18a) |
 | `same_relation/2` (procedures.p0): due **definizioni** con la stessa forma normale | resta: scopre che due definizioni coincidono, e può *proporre* un `predicate_same_of` |
 | `answer_frame_input_arg/3` per `language_of_country` | un ponte `predicate_args_of` fra `language_of` e `language_of_country`, se la misura del costo lo permette |
-| il ramo C gen235 che legge solo `capital_of_country` | 🟡 il ponte `predicate_reverse_of(capital_of, capital_of_country)` è nella base (geography-world.p0): la forma «the R of X» ora risponde da sola attraverso il ponte. Il ramo C si può togliere; non ancora fatto |
+| il ramo C gen235 che legge solo `capital_of_country` | 🟡 il ponte `predicate_reverse_of(capital_of, capital_of_country)` **non** sta nella base: nasce dalla scoperta, al primo «sì» del maestro. Il ramo C resta finché la scoperta non ha coperto i lettori che lo usano |
 | il `toupper` del ramo C delle capitali | ✅ `proper_name($C) :- capital_of_country($K, $C)` (presentation.p0): la maiuscola la sa la KB, per ogni lettore |
 
 ### 19.6 Perché questo non irrigidisce la KB
