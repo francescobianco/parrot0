@@ -1,0 +1,28 @@
+# L4-7 (docs/plans/l4-upgrade.md) — il resoconto popola il MONDO DI CHI PARLA:
+# impegno diverso da una lezione, riscontro con la deissi di persona, stato che
+# finisce (strato ended) e torna, e un lettore («What do I have?»).
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+[test il mondo di chi parla: resoconto, fine dello stato, lettore]
+!timeout 4
+> What do I have?
+<~ You haven't told me about anything of yours yet.
+> My espresso tastes bitter.
+<~ I see: your espresso tastes bitter.
+> Espresso is a coffee.
+<~ Learned
+> Our kettle makes a noise.
+> What do I have?
+<~ your espresso tastes bitter and your kettle makes noise
+> My espresso is not bitter anymore.
+<~ I see: your espresso is not bitter anymore.
+> Does my espresso taste bitter?
+<~ Not anymore: you told me that changed.
+> What do I have?
+<! espresso
+> My espresso tastes bitter again.
+> Does my espresso taste bitter?
+<~ Yes
+!reset

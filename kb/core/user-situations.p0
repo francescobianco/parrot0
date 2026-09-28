@@ -1308,3 +1308,28 @@ reply_conduct($In, $Out) :-
     ended_fact_asked($F), current_language($L), commitment_line($L, not_anymore, $Out).
 commitment_line(en, not_anymore, "Not anymore: you told me that changed.").
 commitment_line(it, not_anymore, "Non più: mi hai detto che è cambiato.").
+% Il mondo dell'interlocutore ha un lettore: «What do I have?» risponde da
+% `interlocutor_has/1`, con lo stato che ciascuna cosa ha adesso (gli stati
+% finiti restano fuori: lo strato li nasconde a ogni lettore del presente).
+turn_form(ask_interlocutor_has, 1, text("what do i have")).
+turn_form_mood(ask_interlocutor_has, question).
+turn_form_priority(ask_interlocutor_has, early).
+turn_form_act(ask_interlocutor_has, "op(match, interlocutor_has_answer, [free])").
+turn_form_reply(ask_interlocutor_has, interlocutor_has_reply).
+turn_form_empty_reply(ask_interlocutor_has, interlocutor_has_none).
+response_template(interlocutor_has_reply, "{result}").
+response_template(interlocutor_has_reply, it, "{result}").
+response_template(interlocutor_has_none, "You haven't told me about anything of yours yet.").
+response_template(interlocutor_has_none, it, "Non mi hai ancora parlato di niente di tuo.").
+machinery(interlocutor_has_answer).
+machinery(interlocutor_thing_said).
+interlocutor_has_answer($Text) :-
+    findall($T, interlocutor_thing_said($T), cons($T1, $Ts)), current_language($L),
+    inversion_phrase_and($L, cons($T1, $Ts), $J), commitment_line($L, you_told_me_of, $A),
+    concat_atoms($A, $J, $B), concat_atoms($B, ".", $Text).
+interlocutor_thing_said($T) :-
+    interlocutor_has($S), interlocutor_world_fact(fact($P, $S, $O), $N),
+    naf(fact_withheld(fact($P, $S, $O, pos))), content_said($P, cons($S, cons($O, nil)), $C),
+    concat_atoms("your ", $C, $T).
+commitment_line(en, you_told_me_of, "You told me that ").
+commitment_line(it, you_told_me_of, "Mi hai detto che ").

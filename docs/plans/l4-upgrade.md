@@ -62,6 +62,57 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶▶▶ RIPARTENZA (28 settembre 2026, notte) — da dove si riprende
+
+**Fatto in questa sessione** (dettagli nelle sezioni qui sotto, in ordine):
+L4-7 incrementi 1–2 (il resoconto popola il mondo di chi parla; lo stato
+finisce e torna; il mondo dell'interlocutore ha un lettore, «What do I
+have?»), incremento 8 (la domanda inversa: la condizione come chiave),
+L4-8 (la contraddizione come stato: urto ground e urto fra classi, lezione di
+incompatibilità parlata, esito dichiarato). Due tetti muti del motore curati
+(`keepers[16]`, `rs_preds[32]`) e il registro dei tetti
+([parrot-p0-syntax.md §5.1](../parrot-p0-syntax.md)). Cricchetti nuovi:
+[interlocutor_world](../../tests/p0t/conversation/interlocutor_world.p0t) 8/8,
+[inverse_condition_question](../../tests/p0t/language/inverse_condition_question.p0t) 7/7,
+[contradiction_state](../../tests/p0t/reasoning/contradiction_state.p0t) 29/29.
+
+**Il filo che lega i tre lavori** (da tenere quando si riprende): in tutti e
+tre la cura è stata **uno strato sopra un fatto** (`read_support` con `said`,
+`forgotten`, `ended`, `settled`, `reading_superseded`) e **un solo lettore per
+due usi** (la condizione letta per insegnare e per chiedere; l'incompatibilità
+usata dal rilevatore C e dalla KB; l'impegno registrato una volta e letto dal
+riscontro, dalla domanda, dalla fine dello stato). È la forma che L4 chiede:
+la conoscenza nuova entra dove la comprensione legge, e il giudizio si
+rivede senza cancellare. Una sessione futura che si trovasse a scrivere una
+seconda copia di qualcosa dovrebbe fermarsi qui.
+
+**Ordine di ripresa, per valore:**
+1. **La persistenza degli stati dialettici (C6).** L'urto e la fine di uno
+   stato sono datati con il turno della sessione; salvati, dopo un ripristino
+   i turni ripartono e l'ordine si rompe (misurato su `persist.p0t`). Serve un
+   ordine che sopravviva alla sessione (un orologio di sessione in KB, o
+   l'ordine degli atti di `kb_act/3`), poi `content_clash`, `class_clash`,
+   `interlocutor_world_fact` si salvano. Decisione di F. collegata: il fatto
+   del mondo di chi parla va in un **contesto** (K4, `holds_in/2`) o resta
+   fatto con l'impegno accanto?
+2. **L'urto con una conseguenza derivata** (Tom gatto ⇒ mammifero, contro
+   pesce: già visibile, ma la frase dice «mammal» senza la catena). La
+   ragione dell'urto dovrebbe dire la derivazione (`proposition_because/2`).
+3. **Il resoconto senza possessivo** («I changed the beans», «The RCD keeps
+   tripping») come impegno di mondo dell'interlocutore: comporre gli indizi
+   (prima persona, aspetto, inizio nel tempo), non elencare casi.
+4. **La lezione di grammatica verificata contro l'uso** (residuo
+   dell'incremento 7: «need» al passato è accettato ed è falso).
+5. I due punti di motore del 27 settembre (l'ordine dal grafo delle viste;
+   il costo di un verbo nuovo), invariati.
+
+**Trappole pagate oggi** (tutte scritte nei file dove servono): corpi oltre
+16 goal scartati in silenzio; `naf` con una variabile libera (tre volte); la
+stringa vuota `""` in un fatto; il demone dei test che non rilegge i `.p0`
+modificati; un contabile di risoluzione che scatta nello stesso turno
+dell'urto; un turno di sessione usato come tempo assoluto; `persist.p0t` che
+scrive nei file veri della KB (ripristinarli dopo averlo lanciato).
+
 ### ▶▶ L4-8, primo incremento (28 settembre 2026, sera): la contraddizione come stato (C7)
 
 Il §5-bis chiede che un urto fra ciò che si impara e ciò che si sostiene sia
@@ -228,8 +279,9 @@ Stato e debiti in [parrot-p0-syntax.md §5.1](../parrot-p0-syntax.md).
 3. **La conoscenza implicata** («ho un espresso» ⇒ «ho una macchinetta»,
    l'esempio di F.): una lezione di mondo sull'uso delle cose, non una riga
    per oggetto.
-4. Domande sul mondo dell'interlocutore («What do I have?»): `interlocutor_has`
-   non ha ancora un lettore.
+4. ~~Domande sul mondo dell'interlocutore («What do I have?»)~~ — fatto il 28
+   sera: «You told me that your espresso tastes bitter and your kettle makes
+   noise.»; uno stato finito esce dall'elenco.
 
 Transcript: [2026-09-28-L4-7-impegno.log](../sessions/live/2026-09-28-L4-7-impegno.log).
 
