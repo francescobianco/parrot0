@@ -55,6 +55,12 @@ inference_incomplete(current_turn, budget) :-
 inference_incomplete(current_turn, depth) :-
     turn_counter($K), turn_goal_head(current_turn, $C), turn_goal_query($C, $Q),
     paradox_event(proof, depth, $W, seen($K, $Q)).
+% 28 settembre 2026 (F.): un TETTO raggiunto da un'enumerazione (`kb_match`
+% con un massimo, nel C) e' la quarta specie: la vista letta puo' essere
+% amputata. Non e' legato al goal della domanda: qualunque lettura del turno
+% che si e' fermata al suo tetto rende il turno non verificato.
+inference_incomplete(current_turn, cap) :-
+    turn_counter($K), paradox_event(match, cap, $W, seen($K, $N)).
 inference_cycle(current_turn, cons($A, $R)) :-
     turn_counter($K), turn_goal_head(current_turn, $C),
     turn_paradox_members(pair($K, $C), $L), eq_cons($L, $A, $R).

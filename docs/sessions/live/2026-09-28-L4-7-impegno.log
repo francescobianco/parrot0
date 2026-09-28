@@ -1,0 +1,24 @@
+# sessione: L4-7 — l'impegno del resoconto, build senza tetto — 2026-09-28 21:32 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@f3319a06]
+# mode: conversational (tools off, network off) - 170940 facts, 6135 rules (3.59%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+> My espresso tastes bitter since yesterday.
+< I see: your espresso tastes bitter since yesterday.
+> Our kettle makes a noise since yesterday.
+< I see: your kettle makes a noise since yesterday.
+> Espresso is a coffee.
+< Learned: espresso is a coffee.
+> Does my espresso taste bitter?
+< Yes.
+> Yesterday I changed the beans and the grind.
+< Noted: you changed beans and the grind.
+> I don't know what to try next.
+< I can't tell yet which change made the kettle make noise: you changed the beans and the grind together, and one result can't tell two changes apart. You could undo one change at a time: undo the change to the beans but not the one to the grind; if the kettle no longer makes noise, it was the beans.
+> /debug pred interlocutor_world_fact/2
+# /debug pred interlocutor_world_fact/2: 5 righe lette dall'insegnante, fuori dal transcript
+> /debug pred interlocutor_has/1
+# /debug pred interlocutor_has/1: 5 righe lette dall'insegnante, fuori dal transcript
+> /debug pred saturated_read/3
+# /debug pred saturated_read/3: 4 righe lette dall'insegnante, fuori dal transcript
+# chiusa SENZA /save

@@ -302,6 +302,15 @@ prossimo lavoro (report gen509 §7-bis).
 > gen506b (turno appeso = rosso con nome, budget duro che non si alza) resta.
 
 
+## 2026-09-28 — rossi visti durante F5 e L4-7
+
+- `assisted_construction.p0t` riga 44 («x glints y means x glorphs y»): il
+  turno **si appende** (60 s, motore fermato). Preesistente: identico con il C
+  di HEAD e con `isolation.p0`/`user-situations.p0` di prima del 28 settembre
+  (A/B a file sostituiti). Da diagnosticare con `/debug trace` sul turno.
+- `planning/plan.p0t` 13/14 e `planning/planact.p0t` 3/6: identici a HEAD
+  (A/B con la sola `isolation.p0` di HEAD).
+
 ## 2026-09-26 sera — rossi visti durante la passata di correzione (train-the-learning-process.md)
 
 Spot-check mirati, nessuna suite e nessuna bisezione (regole di F.). Per ognuno:

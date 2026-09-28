@@ -652,6 +652,19 @@ void kb_saturation_commit(KB *kb) {
     int saved = kb->origin;
     kb->origin = KB_REFLECTIVE;
     kb_assert(kb, "saturated_read", args, 3);
+    /* 28 settembre 2026 (F.: «tutti i tetti dovrebbero essere gestiti con dei
+     * controlli che rendono l'inferenza non affidabile») — un tetto raggiunto
+     * e' la quarta specie del registro unico dei paradossi, accanto a budget,
+     * ciclo e profondita': `paradox_event(match, cap, Pred, seen(Turno,
+     * Tetto))`. La KB lo legge come `inference_incomplete(current_turn, cap)`
+     * (composition.p0); che cosa dire e quando murare resta KB
+     * (`saturation_guard/2`). */
+    if (kb->paradox_turn) {
+        char det[KB_TERM_LEN];
+        snprintf(det, sizeof det, "seen(%lu, %zu)", kb->paradox_turn, kb->saturation_cap);
+        const char *pa[4] = { "match", "cap", kb->saturation_pred, det };
+        if (!kb_query(kb, "paradox_event", pa, 4)) kb_assert(kb, "paradox_event", pa, 4);
+    }
     kb->origin = saved;
     kb->saturation_cap = 0;
     kb->saturation_argc = 0;

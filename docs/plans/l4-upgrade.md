@@ -62,6 +62,58 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶▶ L4-7, primo incremento (28 settembre 2026): due impegni, due allargamenti del mondo
+
+Dalla sessione F5 di [train-the-smart-agent.md](train-the-smart-agent.md) e
+dall'appunto di F. (SA11 in train-the-learning-process.md; frontier K11):
+*«My espresso tastes bitter since yesterday.» → «Learned: espresso taste
+bitter.» non è stile, è un livello diverso: non è una lezione, è una cosa che
+popola il mondo.* È L4-7 («l'impegno semantico segue la comprensione») e §2.5
+(capire, credere, usare, confermare) sul caso più comune: il resoconto.
+
+**Fatto, tutto KB** ([user-situations.p0](../../kb/core/user-situations.p0),
+sezione L4-7):
+- **l'impegno si decide dalla struttura**: il fatto che il turno ha scritto
+  (`kb_turn_act/4`) ha per soggetto una cosa introdotta da un possessivo di
+  prima persona («my espresso»): `turn_commitment(T, interlocutor_world)`.
+  Una parola nuova di quella specie è una riga (`first_person_possessive/2`);
+- **l'impegno viaggia con il fatto** e si salva con lui
+  (`interlocutor_world_fact(fact(P, S, O), Turno)`), e il mondo di chi parla si
+  popola (`interlocutor_has(espresso)`): C6, un fatto salvato senza il suo
+  impegno tornerebbe domani come lezione;
+- **il contenuto resta nella stessa rete** (C1): «Does my espresso taste
+  bitter?» → «Yes.», e l'operatore F5 di isolation.p0 lo legge come prima;
+- **il riscontro** passa per `reply_conduct/2`: la frase ridetta dal punto di
+  vista di chi ascolta (la deissi di persona, `person_mirror/3`, lessico) —
+  «I see: your espresso tastes bitter since yesterday.»; «Espresso is a
+  coffee.» resta «Learned: …».
+
+**Trovato strada facendo (motore, curato):** il C enumerava al massimo 16
+contabili dopo la risposta (`keepers[16]`) e spegneva in silenzio gli altri:
+con F5 erano 19. Ora `kb_match_all`. Da qui la richiesta di F. sui tetti: ogni
+tetto raggiunto rende l'inferenza non affidabile, e ora un tetto di
+enumerazione entra nel registro unico dei paradossi come quarta specie
+(`paradox_event(match, cap, …)` → `inference_incomplete(current_turn, cap)`).
+Stato e debiti in [parrot-p0-syntax.md §5.1](../parrot-p0-syntax.md).
+
+**Aperti, in ordine:**
+1. **Il resoconto senza possessivo** («The RCD in my house keeps tripping.»,
+   «I changed the beans.»): il possessivo non è l'unico segno; la prima
+   persona soggetto, l'inizio nel tempo e l'aspetto continuativo sono indizi
+   della stessa decisione, da comporre (non una lista di casi).
+2. **Il salvataggio**: `/save` salva `taste(espresso, bitter)` insieme al suo
+   impegno, ma un lettore che domani non consulta `interlocutor_world_fact`
+   lo userebbe come fatto sul mondo. Serve che il fatto della situazione di
+   chi parla viva in un contesto (K4, `holds_in/2`) o che i lettori generali
+   vedano l'impegno — la scelta è di F.
+3. **La conoscenza implicata** («ho un espresso» ⇒ «ho una macchinetta»,
+   l'esempio di F.): una lezione di mondo sull'uso delle cose, non una riga
+   per oggetto.
+4. Domande sul mondo dell'interlocutore («What do I have?»): `interlocutor_has`
+   non ha ancora un lettore.
+
+Transcript: [2026-09-28-L4-7-impegno.log](../sessions/live/2026-09-28-L4-7-impegno.log).
+
 ### ▶▶ RIPARTENZA (27 settembre 2026, notte) — l'ordine di ricostruzione: fatto
 
 **Stato:** incrementi 4–7 in `main`, e il lavoro sull'ordine di ricostruzione

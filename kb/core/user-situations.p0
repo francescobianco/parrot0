@@ -1144,3 +1144,87 @@ turn_form_act(teach_situation_cue_it2, "op(match, situation_label_now, [situatio
 turn_form_act(teach_situation_cue, "op(match, situation_label_now, [situation, free])").
 response_template(learned_situation_cue_label, "Held: «{surface}» names the same situation as «{result}».").
 response_template(learned_situation_cue_label, it, "Tengo: «{surface}» nomina la stessa situazione di «{result}».").
+
+% ── L4-7 — IL RESOCONTO POPOLA IL MONDO DI CHI PARLA (28 settembre 2026) ────
+% docs/plans/l4-upgrade.md, L4-7 («l'impegno semantico segue la
+% comprensione»); train-the-learning-process.md SA11; appunto di F. in
+% frontier-kb-natural-dialogue.md K11:
+%
+%     > My espresso tastes bitter since yesterday.
+%     < Learned: espresso taste bitter.
+%
+% F.: «non è una differenza stilistica, è un livello diverso: non è stata
+% spiegata una lezione, è una cosa che popola il mondo». Due allargamenti del
+% mondo, due impegni: la LEZIONE (conoscenza generale: «Learned: …») e il
+% POPOLAMENTO del mondo dell'interlocutore (le sue cose, i loro stati). Il
+% contenuto e' lo stesso fatto, che tutti i lettori continuano a usare (C1:
+% l'operatore di isolation.p0 lo legge come prima); cambiano l'IMPEGNO, che
+% viaggia con il fatto e si salva con lui (C6), e il riscontro, che dice che
+% cosa si e' capito invece di annunciare una lezione.
+%
+% Il segno e' grammaticale, gia' nella IR: il soggetto del fatto scritto dal
+% turno e' introdotto da un possessivo di prima persona («my espresso»). Una
+% parola nuova di questa specie e' una riga (`first_person_possessive/2`).
+machinery(first_person_possessive).
+first_person_possessive(en, my).
+first_person_possessive(en, our).
+machinery(speaker_owned_fact).
+speaker_owned_fact($T, fact($P, $S, $O)) :-
+    kb_turn_act($P, cons($S, cons($O, nil)), pos, $K), naf(machinery($P)),
+    current_language($L), first_person_possessive($L, $M), turn_word($T, $I, $M),
+    is($J, add($I, 1)), turn_word($T, $J, $W), atom_words($S, cons($W, $R)).
+% l'impegno del turno, nominabile in /debug
+machinery(turn_commitment).
+turn_commitment($T, interlocutor_world) :- speaker_owned_fact($T, $F).
+% La provenienza resta con il fatto (e si salva con lui: un fatto salvato
+% senza il suo impegno tornerebbe domani come una lezione sul mondo), e il
+% mondo di chi parla si popola: ha la cosa di cui parla.
+machinery(interlocutor_world_fact).
+machinery(interlocutor_has).
+after_reply_bookkeeper(interlocutor_world_note).
+turn_after_reply($T, interlocutor_world_note) :-
+    speaker_owned_fact(current_turn, fact($P, $S, $O)),
+    naf(interlocutor_world_fact_known(fact($P, $S, $O))), turn_counter($N),
+    assert(interlocutor_world_fact, fact($P, $S, $O), $N), interlocutor_has_note($S).
+machinery(interlocutor_world_fact_known).
+interlocutor_world_fact_known($F) :- interlocutor_world_fact($F, $N).
+machinery(interlocutor_has_note).
+interlocutor_has_note($S) :- interlocutor_has($S).
+interlocutor_has_note($S) :- naf(interlocutor_has($S)), assert(interlocutor_has, $S).
+% Il riscontro: si ridice la frase dal punto di vista di chi ascolta (la
+% deissi di persona, lessico della lingua) al posto di «Learned: …».
+machinery(person_mirror).
+person_mirror(en, my, your).    person_mirror(en, our, your).
+person_mirror(en, i, you).      person_mirror(en, me, you).
+person_mirror(en, mine, yours). person_mirror(en, we, you).
+person_mirror(en, am, are).     person_mirror(en, "i'm", "you're").
+person_mirror(en, myself, yourself).
+machinery(person_mirror_now).
+person_mirror_now($F, $T) :- current_language($L), person_mirror($L, $F, $T).
+machinery(commitment_line).
+commitment_line(en, understood, "I see: ").
+commitment_line(it, understood, "Capisco: ").
+reply_conduct($In, $Out) :-
+    turn_said_by(current_turn, template(learned_facts)),
+    turn_commitment(current_turn, interlocutor_world),
+    mirrored_turn_words(0, $Mirrored), current_language($L), commitment_line($L, understood, $A),
+    concat_atoms($A, $Mirrored, $B), concat_atoms($B, ".", $Out).
+% ⚠ a quel punto `turn_input(current_turn, …)` e' ancora la frase del turno
+% PRIMA (misurato: il bollitore riceveva il riscontro dell'espresso); le parole
+% del turno corrente sono `turn_word/3`, una per posizione.
+machinery(mirrored_turn_words).
+machinery(mirror_word).
+machinery(turn_has_word_at).
+mirrored_turn_words($I, $M) :-
+    turn_word(current_turn, $I, $W), mirror_word($W, $M), is($J, add($I, 1)),
+    naf(turn_has_word_at($J)).
+mirrored_turn_words($I, $Text) :-
+    turn_word(current_turn, $I, $W), mirror_word($W, $M), is($J, add($I, 1)),
+    turn_has_word_at($J), mirrored_turn_words($J, $Rest),
+    concat_atoms($M, " ", $A), concat_atoms($A, $Rest, $Text).
+turn_has_word_at($J) :- turn_word(current_turn, $J, $W).
+mirror_word($W, $M) :- person_mirror_now($W, $M).
+mirror_word($W, $W) :- naf(has_person_mirror($W)).
+machinery(has_person_mirror).
+has_person_mirror($W) :- person_mirror_now($W, $X).
+

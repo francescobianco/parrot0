@@ -154,6 +154,57 @@ Due conseguenze pratiche:
 Il profilo per predicato (`/debug`) dice **quale** predicato costa: si
 profila, non si indovina (MANTRA #20).
 
+### 5.1 I tetti raggiunti: l'inferenza diventa non affidabile (F., 28 settembre 2026)
+
+*F.: «tutti i tetti dovrebbero essere gestiti con dei controlli che rendono
+l'inferenza non affidabile»; «i cap che vengono raggiunti presentano
+l'inferenza come non affidabile o affetta da errore».*
+
+Un limite toccato non è un fallimento neutro: la prova, o la lista che una
+facoltà ha letto, può essere **amputata**, e una risposta costruita sopra è
+potenzialmente sbagliata. Ogni tetto raggiunto deve quindi lasciare un fatto
+che dice *«questa inferenza non è verificata»*. Il posto è **uno**, il registro
+unico dei paradossi `paradox_event(Livello, Specie, Dove, Dettaglio)` (src/kb.c
+§25.3, `/debug` sonda `debug_paradox`), letto dalla KB come
+`inference_incomplete(current_turn, Specie)` in `composition.p0`:
+
+| specie | tetto | scritto da | fatto |
+|---|---|---|---|
+| `budget` | passi del risolutore | `kb_query`/`kb_match` a fine query | `paradox_event(proof, budget, Goal, seen(Turno, Goal))` |
+| `loop_cut` | taglio anti-isteresi di un goal ripetuto | idem | `paradox_event(proof, loop_cut, Pred, seen(…))` |
+| `depth` | `KB_MAX_DEPTH` (64, profondità dell'albero) | idem | `paradox_event(proof, depth, Pred, seen(…))` |
+| **`cap`** | il massimo di un'enumerazione `kb_match(…, N)` chiesto dal C | `kb_note_saturated_read` → `kb_saturation_commit` a inizio di `turn_done` | `saturated_read(Pred, Arità, N)` e **dal 28 settembre** `paradox_event(match, cap, Pred, seen(Turno, N))` → `inference_incomplete(current_turn, cap)` |
+| `short_circuit`, `cycle` | viste: costrutti riflessivi, cicli fra viste | congelamento delle viste | `paradox_event(view, …)` |
+
+**Che cosa si dice quando un tetto è stato raggiunto** è KB: gli stadi di
+`composition.p0` leggono `inference_incomplete/2`; per i tetti di
+enumerazione il C ha anche un cancello in `turn_done` (99-registry.c) che
+sostituisce la risposta con `saturation_response/1`
+(`saturated_read_unavailable`: «I cannot settle that from the current view:
+the knowledge list reached its limit…») **se** la KB dichiara quel tetto
+consequenziale con `saturation_guard(Pred, Tetto)`.
+
+**Lo stato trovato il 28 settembre (da curare, non da dimenticare):**
+1. `saturation_guard/2` **non ha clausole**: il cancello non scatta mai, e ogni
+   saturazione era muta fino a questa data (ora almeno è nel registro).
+2. `kb_note_saturated_read` ignora i tetti sotto 4 (le sonde di esistenza a 1
+   o 2 risultati) e tiene **solo il tetto più grande** del turno.
+3. `count == max` non distingue «esattamente N» da «almeno N+1»: il tetto è
+   un *sospetto* di amputazione, non una prova. Chi chiede un tetto e vuole
+   sapere se ha perso qualcosa deve chiedere N+1.
+4. **Tetti fissi su liste che la KB fa crescere** sono un difetto a sé, peggio
+   di un tetto su una lettura: spengono in silenzio conoscenza dichiarata. Il
+   caso trovato: `after_reply_bookkeeper` letto con `keepers[16]`; al
+   diciassettesimo contabile il motore ne spegneva uno qualsiasi (curato con
+   `kb_match_all`, senza tetto). Restano da censire gli altri siti del C con
+   `kb_match(…, N)` su predicati **dichiarativi** della KB (`bookkeeper` a
+   64, `question_wrapper` a 32, …): per questi la cura è `kb_match_all`, non
+   un tetto più alto.
+5. Il misurato del 28 settembre: `answer_frame` satura il suo tetto in un
+   turno ordinario. Un `saturation_guard` di default su tutto murerebbe turni
+   buoni: la decisione di quali tetti contino va presa per predicato, con la
+   traccia (`/debug pred saturated_read/3`, `/debug turn` → `debug_paradox`).
+
 ## 6. Virgolette e corrispondenza (letto nel C il 15 settembre 2026)
 
 - Un argomento fra virgolette è un argomento come gli altri per l'unificazione

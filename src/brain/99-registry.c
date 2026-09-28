@@ -3934,10 +3934,15 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
      * (`turn_after_reply/2`); qui si enumerano a ogni livello: una frase di
      * prosa o una clausola rilette come turni annidati sono unita' di
      * osservazione quanto il turno intero (l3-upgrade.md §23). */
+    /* 28 settembre 2026 — NESSUN TETTO. Era `keepers[16]`: al diciassettesimo
+     * contabile dichiarato in KB il motore ne spegneva in silenzio uno
+     * qualsiasi (tre, con F5 e L4-7: `interlocutor_world_note` non girava e
+     * nessuna traccia lo diceva). La lista la fa crescere la KB. */
     if (b && b->kb && b->respond_depth >= 1) {
-        char keepers[16][KB_TERM_LEN];
+        char (*keepers)[KB_TERM_LEN] = NULL;
+        size_t nk = 0;
         const char *any[1] = { NULL };
-        size_t nk = kb_match(b->kb, "after_reply_bookkeeper", any, 1, keepers, 16);
+        if (!kb_match_all(b->kb, "after_reply_bookkeeper", any, 1, &keepers, &nk)) nk = 0;
         int prev = kb_origin(b->kb);
         kb_set_origin(b->kb, KB_SESSION);
         for (size_t i = 0; i < nk; i++) {
@@ -3954,6 +3959,7 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
                         kb_profile_visits(b->kb) - v0);
         }
         kb_set_origin(b->kb, prev);
+        free(keepers);
     }
     /* 28 settembre 2026 — E UNA RISPOSTA PUO' AVERE UN SEGUITO. Il gemello in
      * coda di `turn_reply_qualifies`: la KB puo' voler aggiungere qualcosa dopo
