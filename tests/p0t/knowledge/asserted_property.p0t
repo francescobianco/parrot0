@@ -21,8 +21,10 @@
 !timeout 8
 
 # 1. Con il possessivo — la forma che scriveva il fatto falso.
+#    (29 settembre 2026, L4 0-bis) il libro e' di chi parla: il fatto sta nel
+#    suo mondo e il riscontro lo ridice dal punto di vista di chi ascolta.
 > my book is red
-< Got it: the book is red.
+< I see: your book is red.
 > what color is the book?
 < Red.
 
@@ -50,6 +52,6 @@
 <! Got it: the lamp is yellow.
 !assert domain_relation(color, color_of)
 > my lamp is yellow
-< Got it: the lamp is yellow.
+< I see: your lamp is yellow.
 > what color is the lamp?
 < Yellow.

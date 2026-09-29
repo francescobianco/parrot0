@@ -236,6 +236,13 @@ content_said($P, cons($S, cons($O, nil)), $T) :-
 % una relazione che non si dice «soggetto verbo oggetto» (la condizione di una
 % regola di grammatica) ha le sue parole altrove: la dichiara chi le ha
 machinery(content_sayer).
+% una relazione d'ATTRIBUTO (`domain_relation/2`: il colore, la taglia) si dice
+% «soggetto e' valore»: «your bike is red», non «bike color of red»
+content_sayer($P) :- domain_relation($C, $P).
+content_said($P, cons($S, cons($O, nil)), $T) :-
+    domain_relation($C, $P), current_language($L), word_in_language($L, $S, $WS),
+    word_in_language($L, $O, $WO), content_copula($L, $Cop),
+    concat_atoms($WS, $Cop, $A), concat_atoms($A, $WO, $T).
 % la relazione detta alla terza persona quando il paradigma la conosce
 % («taste» -> «tastes»); una relazione gia' finita («leaks») resta com'e'
 machinery(relation_finite).

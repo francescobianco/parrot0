@@ -9162,6 +9162,17 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         /* 26 settembre 2026 — quanto costa OGNI facolta', nel trace a livello 2:
          * il profilo diceva «1,4 s fuori dal solver» senza dire di chi. */
         struct timespec fac_t0; clock_gettime(CLOCK_MONOTONIC, &fac_t0);
+        /* 29 settembre 2026 — UNA FACOLTA' CHE SCRIVE, SCRIVE NELLA SESSIONE.
+         * Le facolta' entravano con l'origine lasciata da un passo di
+         * pubblicazione (riflessiva, 8): «My bike is red.» si scriveva come
+         * modello di se' — fuori dal mondo di chi parla, e mai salvata. Se
+         * succede lo dice il filo del turno (profondita' 2), e si riparte da
+         * una scrittura di sessione. */
+        if (b->kb && kb_origin(b->kb) != KB_SESSION) {
+            p0_trace_at(b, 2, "faculty", "%s entered with origin %d: back to a session write",
+                        registry[i].name, kb_origin(b->kb));
+            kb_set_origin(b->kb, KB_SESSION);
+        }
         int fac_ok = registry[i].handle(b, canon, input, out, out_size);
         {   struct timespec fac_t1; clock_gettime(CLOCK_MONOTONIC, &fac_t1);
             double fac_ms = (double)(fac_t1.tv_sec - fac_t0.tv_sec) * 1000.0 +

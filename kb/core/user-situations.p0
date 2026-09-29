@@ -1209,6 +1209,20 @@ first_person_word(en, i).  first_person_word(en, me).  first_person_word(en, mys
 turn_context(current_turn, $C) :-
     speaker_context($C), turn_illocution(current_turn, question), current_language($L),
     first_person_word($L, $M), turn_word(current_turn, $I, $M).
+% una DOMANDA su una cosa che chi parla ha detto di avere («what color is the
+% book?» dopo «my book is red») si legge nel suo mondo: «the book» e' il suo.
+% Solo le domande: il mondo di chi parla vede anche quello di parrot0, e una
+% domanda non scrive; una lezione su «a book» resta una lezione.
+turn_context(current_turn, $C) :-
+    speaker_context($C), turn_illocution(current_turn, question),
+    turn_word(current_turn, $I, $W), interlocutor_has($W),
+    is($J, sub($I, 1)), turn_word(current_turn, $J, $D), definite_article($D).
+% il riferimento DEFINITO indica la cosa gia' nominata: «the book» e' il suo
+% libro, «tea» e' il te' in generale («Does tea taste sour?» resta nel mondo di
+% parrot0)
+machinery(definite_article).
+definite_article(the).
+definite_article(il).  definite_article(la).  definite_article(lo).
 % il fatto che il turno ha scritto NEL mondo di chi parla
 speaker_owned_fact($T, fact($P, $S, $O)) :-
     speaker_context($C), kb_turn_act(holds_in, cons($C, cons(fact($P, $S, $O), nil)), pos, $K).
@@ -1253,10 +1267,13 @@ person_mirror_now($F, $T) :- current_language($L), person_mirror($L, $F, $T).
 machinery(riscontro_template).
 riscontro_template(learned_facts).
 riscontro_template(learned_negation).
+riscontro_template(learned_attribute).
 machinery(turn_reply_mirrored).
 machinery(module_mirrors_reply).
 module_mirrors_reply(world_report).
 turn_reply_mirrored($T) :- turn_module($T, $M), module_mirrors_reply($M).
+% una risposta di trasferimento parla gia' di chi e' che cosa: non si riscrive
+turn_reply_mirrored($T) :- turn_said_by($T, template(transfer_reply)).
 machinery(commitment_line).
 commitment_line(en, understood, "I see: ").
 commitment_line(it, understood, "Capisco: ").

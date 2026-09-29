@@ -62,6 +62,99 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ⏸ HANDOFF (29 settembre 2026, giorno) — riprendere da qui
+
+**Stato.** In una sessione (le sezioni ▶ qui sotto, dalla più recente) i mondi
+sono passati da «il mondo di chi parla, un fatto alla volta» a **una rete di
+prospettive dello stesso rango, con atti parlati fra di loro**:
+
+| atto parlato | che cosa fa | dove |
+|---|---|---|
+| «My way of … is …» / «Il mio modo di …» | una lezione di grammatica (una REGOLA) nel mondo di chi parla; parrot0 la capisce, non la applica | `world_held/1`, language-lessons §3-ter-bis |
+| «Now make it yours.» / «Make my way with need yours.» / «Make what I said about coffee yours.» | il trasferimento nel mondo di parrot0, dell'ultimo contenuto o di quello nominato | `transfer_from/3`, `transfer_about/2` |
+| «Forget that you made it yours.» | la restituzione | `give_back_own/1` |
+| «Whose idea/way is that?» | la provenienza | `content_owner_answer/1` |
+| «Marco thinks that P.» / «I think that P.» / «Marco pensa che P.» | P letta nel mondo di Marco (o di chi parla), attribuita, non creduta | `world_report_peel` (C) + `turn_world_report/3` |
+| «What does Marco think?» / «Does Marco think that P?» | il lettore del mondo; la domanda legge P in un mondo di prova e confronta | `world_view_answer/2`, `asked/1` |
+| «Make Marco's view yours.» / «Agree with Marco.» / «I agree with Marco.» / «Forget what Marco thinks.» | trasferimenti fra mondi, con la destinazione detta dalla forma | `transfer_named/2`, `agree_speaker_with/2`, `forget_world_of/2` |
+| «Answer my way: Q» / «Answer as Marco would: Q» | il ponte temporaneo: i mondi si fondono per una domanda e si separano | `world_report_open/1`, `merged_for_now/1` |
+
+E nel motore: le viste congelate sono del mondo di parrot0; il mondo del turno
+si decide prima dei lettori e si chiude a fine turno; le negazioni si scrivono
+e si ritrovano nel mondo attivo; l'orologio continua fra le sessioni
+(`clock_carried/1`); le facoltà partono da una scrittura di sessione («My bike
+is red.» era scritto come modello di sé, fuori da ogni mondo e mai salvato).
+
+Cricchetti nuovi (tutti in `make test`): `world_transfer` 46/46,
+`other_worlds` 47/47, `world_clock` 12/12.
+
+**⚠ Stato del commit finale (consolidato in fretta, su richiesta di F.).** La
+cura «le facoltà partono da una scrittura di sessione» (sezione ▶ «My bike is
+red.» qui sotto) è **dentro** e cambia il comportamento di altri turni.
+Misurato subito prima del commit:
+- verdi: `interlocutor_world` 22/22, `asserted_property` 9/9 (due attese
+  rivalidate), `contradiction_state` 29/29, `semi_modal_condition` 58/58,
+  `soft-test`;
+- **rossi, da curare per primi**: `world_transfer` 44/46 (la sezione «fare
+  proprio ciò che si nomina»: «Make my way with need yours.» riceve il
+  riscontro di L4-7 «I see: make your way with need yours.» invece del
+  trasferimento) e `other_worlds` 46/47 («I agree with Marco.» → «I see: you
+  agree with marco.»). Stessa causa: quei turni, ora scritti come sessione nel
+  mondo di chi parla, attivano il riscontro, che riscrive la risposta del
+  trasferimento. Tentata una guardia (`turn_reply_mirrored` con
+  `turn_said_by(…, template(transfer_reply))`): non basta, forse perché
+  `turn_said_by` non registra la risposta di una forma. Da guardare con
+  `/debug trace` sul turno: chi risponde e quale template registra;
+- non misurati: `world_clock` e `user_situations`. Nell'ultimo giro il demone
+  non è partito (`cannot reach engine`), probabilmente per processi residui
+  dei banchi di confronto: `pkill -f "parrot0 --test-engine"` prima di
+  `make test-engine`;
+- il gruppo memoria/modello dell'utente (`user_model*`, `glue`,
+  `compose_social*`, `coref_prodrop.it`, …) era identico al punto di partenza
+  **prima** di questa cura; va rimisurato. `profiles.p0t` resta appeso anche
+  sul punto di partenza.
+
+**Prossimi passi, in ordine:**
+0. Chiudere i due rossi qui sopra e rimisurare il gruppo memoria.
+1. **Leggere con la regola di chi parla senza ponte esplicito**: una domanda
+   detta dall'utente con la *sua* grammatica («Need a welder wear a mask?»
+   dopo «my way …») potrebbe essere letta alla sua maniera e riconosciuta
+   come tale («I read it your way: …»), invece di cadere nel muro. È il ponte
+   temporaneo aperto dalla lettura invece che da una parola.
+2. Il passo 3 di 0-bis: l'ordine interno al contesto (`supersedes_in`), ora
+   che l'orologio continua.
+3. «Marco said that …» (il passato), titolari di più parole («Marco Polo»),
+   l'articolo perso nelle frasi italiane («cane è un animale»).
+4. Una domanda negativa nei mondi degli altri («Does Marco think that P?»
+   quando Marco tiene non-P: oggi «Not that I know», dovrebbe dire che Marco
+   pensa il contrario).
+5. `persist.p0t` 35/2: i due residui preesistenti (ordine di «who is a man?»,
+   la negazione che resta nel file dopo una positiva).
+
+### ▶ «My bike is red.»: le facoltà scrivono nella sessione, e il mondo di chi parla si interroga (29 settembre 2026, giorno)
+
+Residuo dell'handoff («My bike is red.» scritto dal modulo `memory` fuori dal
+contesto). La causa era più larga: **le facoltà entravano con l'origine
+riflessiva** (8) lasciata da un passo di pubblicazione del turno, quindi
+l'attributo si scriveva come modello di sé: fuori da ogni mondo (il motore
+reindirizza solo le scritture di sessione), e **mai salvato** da `/save`.
+«Is bike red?» rispondeva «Yes.» dal mondo di parrot0. Cure:
+- [99-registry.c](../../src/brain/99-registry.c): ogni facoltà parte da una
+  scrittura di sessione, e se non era così lo dice il filo del turno
+  (profondità 2). Il passo che la sporca non è ancora identificato: la riga
+  di traccia lo nominerà.
+- [kb.c](../../src/kb.c): due righe permanenti nel filo del turno (`world`):
+  il mondo aperto, la scrittura reindirizzata, e la scrittura di conoscenza
+  che **resta** nel mondo di parrot0 con la sua origine. È così che si è
+  trovata la causa.
+- KB: le relazioni d'attributo (`domain_relation/2`) si dicono «soggetto è
+  valore» («You told me that your bike is red.», non «bike color of red»); il
+  riscontro copre `learned_attribute`; **una domanda che nomina una cosa di chi
+  parla si legge nel suo mondo** («what color is the book?» dopo «my book is
+  red» → «Red.»; solo le domande, che non scrivono).
+- `asserted_property.p0t` 9/9, con due attese rivalidate (la frase è il
+  riscontro «I see: your book is red.»: il libro è di chi parla).
+
 ### ▶ Le negazioni accadono nel mondo che le dice (29 settembre 2026, giorno)
 
 Residuo dell'handoff («le negazioni non reindirizzate»), trovato come **fuga
@@ -246,7 +339,7 @@ parla** (le viste sono del suo mondo, per costruzione: leggere una domanda
 «alla tua maniera» è il ponte temporaneo del passo 4); «make it yours» prende
 l'ultimo contenuto, non quello nominato («make your way with need yours»).
 
-### ⏸ HANDOFF (29 settembre 2026, notte) — riprendere da qui
+### (superato) HANDOFF (29 settembre 2026, notte)
 
 **Stato.** Decisioni di F. del 29 settembre scritte più sotto (punti 0 e
 0-bis della RIPARTENZA): ogni fatto sta in un mondo; il mondo di chi parla è

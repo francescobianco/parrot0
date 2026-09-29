@@ -1436,6 +1436,15 @@ static void kb_views_changed(KB *kb, const char *pred) {
 
 int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
+    /* il filo del turno: una scrittura di conoscenza che resta nel mondo di
+     * parrot0 mentre un altro mondo e' attivo, e perche' (l'origine) */
+    if (kb->ctx_n && !kb->ctx_busy && kb->trace_fn && pred && strcmp(pred, "holds_in") != 0 &&
+        kb->origin != KB_SESSION && argc >= 1 && argc <= 3) {
+        kb->ctx_busy = 1;
+        int in = pred_in_worlds(kb, pred);
+        kb->ctx_busy = 0;
+        if (in) kb_trace(kb, "world", "stays %s(%s, …): origin %d, not a session write", pred, args[0], kb->origin);
+    }
     /* L4 0-bis — una scrittura di sessione accade nel mondo attivo: «My
      * espresso tastes bitter» scrive `holds_in(world_of(user), fact(taste,
      * espresso, bitter))`, non un fatto del mondo di parrot0. La macchineria
@@ -1456,6 +1465,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
                 kb->ctx_busy = 1;
                 int r = kb_assert(kb, "holds_in", ha, 2);
                 kb->ctx_busy = 0;
+                kb_trace(kb, "world", "write %s in %s", reif, kb->ctx[0]);
                 return r;
             }
         }
@@ -10201,6 +10211,8 @@ void kb_set_paradox_turn(KB *kb, unsigned long turn) { if (kb) kb->paradox_turn 
  * spengono. La catena e' corta per costruzione; oltre quattro mondi si ferma. */
 void kb_set_context(KB *kb, const char *ctx) {
     if (!kb) return;
+    if (kb->ctx_n || (ctx && *ctx && strcmp(ctx, "world")))
+        kb_trace(kb, "world", "context %s", ctx && *ctx ? ctx : "world");
     kb->ctx_n = 0;
     if (!ctx || !*ctx || !strcmp(ctx, "world")) return;
     char cur[KB_TERM_LEN];
