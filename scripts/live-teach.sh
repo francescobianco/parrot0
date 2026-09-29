@@ -7,7 +7,9 @@
 # processi paralleli, niente rebuild: si impara parlando.
 #
 #   scripts/live-teach.sh start [TITOLO]   avvia parrot0 in tmux e il canale per chi guarda
-#   scripts/live-teach.sh say "frase"      manda una riga a parrot0 e aspetta la risposta
+#   scripts/live-teach.sh say "frase"      manda una riga a parrot0, aspetta la risposta e la cronometra:
+#                                          oltre LIVE_TEACH_SLOW (10 s) e' LENTO, oltre LIVE_TEACH_WAIT (30 s)
+#                                          e' BLOCCATO (exit 2) e nessun turno si accoda finche' non risponde
 #   scripts/live-teach.sh think "nota"     il ragionamento dell'insegnante, nel transcript
 #   scripts/live-teach.sh watch            (per F.) segue il transcript dal vivo
 #   scripts/live-teach.sh steer "nota"     (per F.) un indirizzo per l'insegnante, dal vivo
@@ -26,7 +28,9 @@ SOCK=$LIVE/watch.sock
 STEER=$LIVE/steer.txt          # le note di F. non ancora lette dall'insegnante
 DEBUG_ON=$LIVE/debug_on        # non vuoto mentre il profilo di /debug e' acceso
 SESSION=parrot0-live
-WAIT=${LIVE_TEACH_WAIT:-180}   # secondi massimi per una risposta
+WAIT=${LIVE_TEACH_WAIT:-30}    # secondi dopo i quali un turno e' BLOCCATO e `say` ritorna
+SLOW=${LIVE_TEACH_SLOW:-10}    # secondi oltre i quali un turno e' LENTO: un difetto, non un'attesa
+PENDING=$LIVE/pending          # il turno mandato e non ancora risposto (offset dell'uscita, ora d'invio)
 
 # il formato del transcript (F., 25 settembre 2026):
 #   "> " il prompt dell'insegnante   "< " la risposta di parrot0
@@ -35,14 +39,19 @@ WAIT=${LIVE_TEACH_WAIT:-180}   # secondi massimi per una risposta
 note() { printf '%s\n' "$*" >> "$LOG"; }
 
 # la risposta e' completa quando parrot0 torna al prompt: il file finisce con ">>> "
+replied() { [ "$(stat -c %s "$RAW")" -gt "$1" ] && [ "$(tail -c 4 "$RAW")" = ">>> " ]; }
 wait_reply() {
     local before=$1 t=0
-    while :; do
-        local size; size=$(stat -c %s "$RAW")
-        if [ "$size" -gt "$before" ] && [ "$(tail -c 4 "$RAW")" = ">>> " ]; then return 0; fi
+    while ! replied "$before"; do
         sleep 0.3; t=$((t + 1))
-        if [ $t -gt $((WAIT * 3)) ]; then note "# nessuna risposta entro ${WAIT}s"; return 1; fi
+        if [ $t -gt $((WAIT * 3)) ]; then return 1; fi
     done
+}
+now_ms() { date +%s%3N; }
+# il processo parrot0 della sessione: per dire, di un turno bloccato, se sta calcolando o e' fermo
+parrot_cpu() {
+    local pid; pid=$(pgrep -f -n "^./bin/parrot0" -P "$(tmux list-panes -t "$SESSION:parrot0" -F '#{pane_pid}' 2>/dev/null | head -1)" 2>/dev/null || true)
+    [ -n "$pid" ] && ps -o etime=,time=,stat= -p "$pid" | awk '{print "pid '"$pid"' da " $1 ", CPU " $2 ", stato " $3}'
 }
 
 case "${1:-}" in
@@ -68,10 +77,31 @@ start)
 say)
     shift; line="$*"
     [ -n "$line" ] || { echo "say: frase vuota"; exit 1; }
+    # un turno ancora senza risposta: non se ne accoda un altro a un processo bloccato
+    if [ -s "$PENDING" ]; then
+        read -r pbefore pt0 pline < "$PENDING"
+        if ! replied "$pbefore"; then
+            echo "BLOCCATO: parrot0 non ha ancora risposto a «$pline» ($(( ($(now_ms) - pt0) / 1000 )) s; $(parrot_cpu))."
+            echo "Non accodo altri turni: annota il difetto e chiudi (stop, o tmux kill-session senza /save)."
+            exit 2
+        fi
+        : > "$PENDING"
+    fi
     before=$(stat -c %s "$RAW")
     note "> $line"
+    t0=$(now_ms)
+    printf '%s %s %s\n' "$before" "$t0" "$line" > "$PENDING"
     printf '%s\n' "$line" >> "$IN"
-    wait_reply "$before" || true
+    if ! wait_reply "$before"; then
+        msg="BLOCCATO: nessuna risposta a «$line» entro ${WAIT} s ($(parrot_cpu))"
+        note "# $msg"; echo "$msg"; exit 2
+    fi
+    : > "$PENDING"
+    ms=$(( $(now_ms) - t0 ))
+    secs=$(awk -v m="$ms" 'BEGIN{printf "%.1f", m/1000}')
+    # il tempo di ogni turno e' un dato (live-teaching.md §3 regola 7): nel transcript e per l'insegnante
+    if [ "$ms" -gt $((SLOW * 1000)) ]; then tmsg="LENTO: ${secs} s (soglia ${SLOW} s)"; else tmsg="${secs} s"; fi
+    echo "[$tmsg]"
     # la risposta, per l'insegnante: cio' che parrot0 ha scritto dopo la domanda
     reply=$(tail -c +$((before + 1)) "$RAW" | sed -e 's/^\(>>> \)*//' -e '/^$/d')
     printf '%s\n' "$reply"
@@ -84,6 +114,7 @@ say)
     *) if [ -s "$DEBUG_ON" ]; then printf '%s\n' "$reply" | grep -v -e '^[[:space:]]' -e '^\[debug\]' | sed 's/^/< /' >> "$LOG"
        else printf '%s\n' "$reply" | sed 's/^/< /' >> "$LOG"; fi ;;
     esac
+    case "$tmsg" in LENTO*) note "# $tmsg" ;; esac   # nel transcript solo i turni lenti (F.)
     # e le note di F. arrivate nel frattempo: l'insegnante le legge prima del prossimo passo
     if [ -s "$STEER" ]; then
         echo "--- indirizzo di F. ---"; cat "$STEER"; : > "$STEER"

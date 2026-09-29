@@ -147,7 +147,7 @@ condurrebbe una persona.
 | comando | chi | che cosa fa |
 |---|---|---|
 | `start [titolo]` | insegnante | apre la sessione tmux `parrot0-live`: parrot0 con la KB `agi` completa legge le righe dell'insegnante e risponde riga per riga; il transcript e il socket per chi guarda |
-| `say "frase"` | insegnante | manda una riga a parrot0, **aspetta la risposta** (il ritorno al prompt) e la restituisce all'insegnante, insieme alle note di F. arrivate nel frattempo |
+| `say "frase"` | insegnante | manda una riga a parrot0, **aspetta la risposta** (il ritorno al prompt), **la cronometra** e la restituisce all'insegnante con il tempo (`[0.6 s]`), insieme alle note di F. arrivate nel frattempo. Oltre `LIVE_TEACH_SLOW` (10 s) il turno è `LENTO`; oltre `LIVE_TEACH_WAIT` (30 s) è `BLOCCATO`: `say` esce con codice 2 e dice se il processo sta calcolando (CPU, stato), e finché quel turno non risponde **nessun altro turno si accoda** |
 | `think "nota"` | insegnante | scrive nel transcript il ragionamento che porta alla mossa successiva |
 | `steer "nota"` | **F.** | un indirizzo dal vivo: entra nel transcript come `[F.]` e l'insegnante lo riceve con la risposta successiva |
 | `watch` | **F.** | segue il transcript dal vivo (`tail -f`) |
@@ -208,9 +208,15 @@ prompt che la segue, così nel transcript si vede che è stata ascoltata.
    cambiare C (una primitiva mancante, un crash, una lentezza), l'insegnante lo
    dichiara nel transcript, chiude con `stop` e il lavoro di motore diventa un
    passo separato con i suoi controlli. Nessuna patch a sessione aperta.
-7. **Il tempo di una risposta è un dato.** Un turno oltre i 10–15 s si annota
-   nel transcript (`think`) come difetto; oltre `LIVE_TEACH_WAIT` (180 s) lo
-   script lo registra come mancata risposta. Non si aspetta in silenzio.
+7. **Il tempo di una risposta è un dato.** `say` scrive il tempo di ogni turno
+   all'insegnante (`[0.6 s]`) e, se è lento, anche nel transcript (`# LENTO: 12.3 s`; F.: il tempo dei turni normali non serve a chi guarda); un turno `LENTO` si annota
+   subito come difetto in [train-the-learning-process.md](train-the-learning-process.md);
+   un turno `BLOCCATO` chiude la sessione (regola 6). F. (29 settembre 2026):
+   *«lo vedi che non risponde subito, già questo è un segnale che non va
+   assecondato come se fosse un comportamento legittimo»*; e il cronometro
+   *«deve essere parte del live-teaching strutturale, così che se i turni tardano
+   ad arrivare per te è un segnale che puoi gestire tempestivamente»*. Non si
+   aspetta in silenzio, e non si mandano turni a lotti.
 8. **Quello che la sessione lascia è KB.** Alla chiusura `/save` scrive ciò che
    parrot0 ha imparato nella ricaduta di salvataggio (`kb/learning/learned.p0`,
    la stessa della CLI). Le lezioni riuscite si **committano** con il transcript
@@ -345,9 +351,10 @@ che la sessione ha già mostrato e che non deve regredire.
 
 ## 8. Limiti del dispositivo, oggi
 
-1. Le righe di parrot0 nel transcript non hanno orario. Le scrive `say`, che lascia fuori i dump di `/debug` (una riga `#` al loro posto) e, con il profilo acceso, le righe rientrate e le `[debug]`: chi guarda non li legge (F., 26 settembre).
+1. Le righe di parrot0 nel transcript non hanno orario (hanno la durata del turno, dal 29 settembre). Le scrive `say`, che lascia fuori i dump di `/debug` (una riga `#` al loro posto) e, con il profilo acceso, le righe rientrate e le `[debug]`: chi guarda non li legge (F., 26 settembre).
 2. `say` riconosce la fine della risposta dal ritorno al prompt («>>> »). Una
-   risposta che non torna al prompt blocca `say` fino a `LIVE_TEACH_WAIT`.
+   risposta che non torna al prompt tiene `say` fino a `LIVE_TEACH_WAIT` (30 s),
+   poi il turno è `BLOCCATO`.
 3. `/save` scrive nell'albero curato (`kb/learning/learned.p0`). Una sessione
    esplorativa che non vuole lasciare tracce si chiude senza `stop` (`tmux
    kill-session -t parrot0-live`), e lo si dice nel transcript.

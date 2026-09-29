@@ -269,12 +269,149 @@ literal_forms, taught_lexicon, comprehension). Sono una famiglia sola, misurata:
 ## ⛔ PRIORITARIO — gli insegnamenti che falliscono (F., 26 settembre 2026)
 
 *F.: «tutti gli insegnamenti che falliscono mettili come prioritari in testa a
-questo file». Il blocco piu' recente e' §SA (l'agente situazionale, 27
+questo file». Il blocco piu' recente e' §CV (la conversazione in italiano, 29 settembre), poi §SA (l'agente situazionale, 27
 settembre, qui sotto). Prima, cinque blocchi, dal piu' recente: il tedesco insegnato dal vivo
 (qui sotto, §T), la presa sull'interlocutore (§0), la grammatica inglese
 insegnata come regole (§1), la meccanica
 di precisione (100 lezioni, sezione successiva), il debug PHP (P1–P14, piu'
 sotto). Da qui si riparte.*
+
+### §CV — la conversazione del più e del meno, in italiano (29 settembre 2026) — 🔴 aperti
+
+Richiesta di F.: *«parli del più e del meno con parrot0, cerchiamo di capire
+come addestrarlo a fare conversazione»*; poi *«le conversazioni falle in
+italiano»*, *«addestrare quando possibile usando L4»*, *«insegniamogli a
+capire cosa significa "pensa"»*, e *«quando una cosa non va, annota e vai
+avanti»*. Sessione live (`scripts/live-teach.sh`, `PARROT0_LANG=it`, KB `agi`
+completa). Transcript:
+[2026-09-29-conversazione-it-1.log](../sessions/live/2026-09-29-conversazione-it-1.log)
+(CV1–CV18, finito nel blocco di CV18) e
+[2026-09-29-conversazione-it-2.log](../sessions/live/2026-09-29-conversazione-it-2.log)
+(CV19–CV37, processo nuovo, turni cronometrati: tutti sotto 2.5 s). Entrambi
+chiusi **senza** `/save`: sono entrati fatti falsi (CV2, CV24, CV26) e
+trasferimenti sbagliati nel mondo di parrot0 (CV19, CV30). Frasi verbatim.
+
+**Che cosa ha retto:** «Ciao! Come stai?» → «Sto bene, grazie. Come posso
+aiutarti?»; «Mi chiamo Francesco.» → «Piacere di conoscerti, Francesco!»;
+«Sono stanco.» → una mossa di sostegno; «Che tempo fa da te?» → un rifiuto
+motivato e onesto; «Marco pensa che il cane è un animale.» → «Capito: Marco la
+pensa così…»; in inglese «I like jazz.» → «Got it: you like jazz.» e «What do
+I like?» → «You like jazz.».
+
+| # | specie | detto a parrot0 | risposta | diagnosi / dove guardare |
+|---|---|---|---|---|
+| CV1 | **⛔ lezione chiesta da parrot0, data, senza effetto** | «Cosa pensa Marco?» → parrot0: «Se mi dici «the italian for … is pensa», la prossima volta capisco.» → «the italian for thinks is pensa» | «Held: «pensa» is how thinks is said in that language.», poi di nuovo la stessa richiesta | la traccia: «pensa» era **già** tradotto («cosa pensa marco?» → «what think marco?»). Manca l'**ordine** (soggetto dopo il verbo nella domanda italiana), non la parola: il muro accusa la prima parola italiana e manda chi insegna in un giro a vuoto. Stessa specie: «stavamo»/«parlando» (tradotti, poi di nuovo accusati), «piace». Il muro deve dire che cosa manca davvero (universal-comprehension); la lezione giusta è L4 (l'inversione nelle domande, oggi una regola KB per l'inglese) |
+| CV2 | **⛔ fuga di mondo** | «Marco pensa che il tè ha un sapore amaro.» | «Tengo: tè vale amaro su sapore.» — l'idea di Marco diventa di parrot0, con la sintassi interna esposta | il mondo di chi è nominato in italiano regge solo «X è un Y» (`other_worlds.p0t:114`); con un altro predicato il `world_report_peel` non scatta e il lettore dei fatti impegna P. In inglese «Marco thinks that tea tastes bitter.» va bene |
+| CV3 | mondo italiano non interrogabile | «Cosa pensa Marco?» · «Sono d'accordo con Marco.» (dopo la versione inglese) | CV1 · «Nessuno mi ha ancora detto che cosa pensa marco.» | la domanda sul mondo esiste solo inglese; «d'accordo» non trova il mondo scritto in inglese (e «marco» minuscolo nella resa) |
+| CV4 | **preferenze di chi parla, italiano** | «A me piace molto il jazz.» · «Mi piace il jazz.» · «Cosa mi piace?» | «Non capisco ancora.» ×2, CV1 su «piace» | «mi piace X» ha il soggetto grammaticale invertito (X piace a me); l'interlingua dà «me like the jazz» |
+| CV5 | **⛔ costruzione con variabile accettata, senza effetto** | «"mi piace X" significa "I like X"» · «mi piace X means I like X» · «"me like X" means "I like X"» | «D'ora in poi leggo «"mi piace x"» come «"i like x"».» · «…«me like x» come «the like x»» | (a) le virgolette e la X minuscola restano nella forma; (b) il lato inglese di una lezione detta in sessione italiana viene canonicalizzato come italiano («I» → «the»!); (c) con la terza, «Mi piace il jazz.» passa dal muro a «Bello -- raccontami di più.», ma **niente** entra nel mondo di chi parla («Do I like the mountain?» → «Nice -- how did that go?»). Chi insegna crede di aver finito |
+| CV6 | alias di frase senza variabili rifiutato | «"di cosa stavamo parlando" significa "what were we talking about"» | «I found the teaching pivot, but I cannot align the same variables…» | il lettore delle costruzioni vuole variabili; l'alias di una frase fissa (un intento) non ha forma italiana |
+| CV7 | traduzione parola per parola perde la grammatica | «Di cosa stavamo parlando?» (dopo le lezioni di «stavamo», «parlando») | CV1 su «parlando»; interlingua «what were talking?» | il soggetto nella desinenza («stavamo» = *we were*) e «di cosa» = *about what* si perdono |
+| CV8 | argomento della conversazione sbagliato | «What were we talking about?» | «We talked about ciao, bene, grazie and sì.» | la salienza raccoglie le parole dei saluti, non jazz / stanchezza / nome (stessa radice di SA14) |
+| CV9 | **racconto di chi parla non ricordato** | «Oggi sono andato in montagna con mia sorella.» · «È stato bellissimo, abbiamo camminato per sei ore.» · «Con chi sono andato in montagna?» · «Dove sono andato oggi?» (e lo stesso in inglese) | «Grazie per avermi parlato della tua famiglia -- lo terrò a mente.» · «Non capisco ancora.» · «Non so ancora tradurre «am».» | nessun episodio passato di chi parla entra nel suo mondo (K11); la domanda italiana chiede la traduzione di una parola **inglese** dell'interlingua («am»): l'interlingua trapela nel muro |
+| CV10 | **⛔ promessa falsa** | «Today I went to the mountains with my sister.» → «…I'll keep that in mind.» → «Do I have a sister?» | «I don't know: nothing I hold says i have is sister…» | la risposta sociale dice «lo terrò a mente» e non tiene niente (mantra #7: peggio di un muro) |
+| CV11 | lezione di verbo accettata senza effetto | «went is a relation verb» → «I went to the mountains.» → «Where did I go?» | «Learned…» · «I can't say I've tried it myself…» · «I don't understand that yet.» | come SA7(a)/SA12: la lezione alla radice non raggiunge il soggetto in prima persona né il passato |
+| CV12 | **condotta conversazionale non insegnabile** | «Quando qualcuno ti dice che è stanco, chiedigli cosa lo ha stancato.» · la stessa in inglese · in forma L4: «Il mio modo di rispondere quando qualcuno dice che è stanco è chiedergli cosa lo ha stancato.» → «Adesso fallo tuo.» | «Non so ancora tradurre «qualcuno».» · «I don't understand that yet.» · «Non capisco ancora.» → «Non c'è niente di tuo che possa fare mio…» | `teach_plan` vuole situazione e mossa **già** nel catalogo (`situation_cue`/`move_cue`); «il mio modo di …» (L4) regge solo le regole di grammatica, non una condotta. Il cuore della conversazione (come rispondere a…) resta scritto a mano (stessa specie di PR2/PR4) |
+| CV13 | l'offerta pendente ruba il turno dopo | «…Want me to learn about it?» (su «answering», «relaxing») e poi «Io penso che il jazz è rilassante.» | «Ho cercato «answering» ma non ho trovato niente…» | un turno non pertinente viene preso come «sì» all'offerta; e «Going somewhere is something that happens.» → «Learned: going somewhere is something.» più l'offerta su «walked» |
+| CV14 | domande su chi parla → risposte sociali | «What do I think?» · «Cosa penso io?» | «Sounds good. What else…» · «No pressure — we can take it slowly…» (in inglese in una sessione italiana) | lo smalltalk prende la domanda; la lingua della risposta non segue il turno (PR8); «I think that jazz is relaxing.» non entra nel mondo di chi parla (muro su «relaxing») |
+| CV15 | ringraziamento letto come rivolto a parrot0, seconda frase persa | «Bene anche io, grazie. Oggi è stata una giornata lunga.» | «Prego! Non ho saputo leggere «Oggi è stata una giornata lunga.».» | «grazie» dentro una risposta a «come stai?» non è un ringraziamento; la seconda frase non si legge |
+| CV16 | risposte fuori tema | «Ti piace la musica?» · «Qual è il tuo colore preferito?» · «Tu cosa hai fatto oggi?» | «…sceglierei leggere in tranquillità ascoltando la pioggia.» · «Non è una cosa che faccio io, ma dimmi -- e tu?» · «Non ne ho di miei…» | template sociali presi per somiglianza, non per ciò che chiede la domanda |
+| CV17 | lingua della risposta | «Come mi chiamo?» | «Your name is Francesco.» | stessa specie di PR8 |
+| CV18 | **⛔ la lezione blocca parrot0** | «"cosa pensa X" significa "che cosa pensa X"» (costruzione italiana con variabile, dopo le lezioni di CV1) | **nessuna risposta**: oltre 180 s, e il processo resta al 100% di CPU (più di 12 minuti di CPU quando la sessione è stata chiusa); i turni successivi restano in coda | un ciclo o un'esplosione combinatoria nel lettore delle costruzioni (forse la riscrittura «cosa pensa X» → «che cosa pensa X», che contiene di nuovo «cosa pensa X»: una lezione che si riapplica al proprio risultato). Da riprodurre sotto gdb (memoria *hang → KB goals via gdb*), in un passo di motore separato. F.: *«lo vedi che non risponde subito, già questo è un segnale che non va assecondato come se fosse un comportamento legittimo»* — un turno lento è un difetto da annotare subito, non un'attesa |
+
+*Secondo giro (processo nuovo, un turno alla volta, tempi misurati: tutti sotto 2.5 s).*
+
+| # | specie | detto a parrot0 | risposta | diagnosi / dove guardare |
+|---|---|---|---|---|
+| CV19 | **⛔ «fallo tuo» prende il contenuto sbagliato** | «Il mio modo di fare una domanda è mettere il soggetto dopo il verbo.» → «Mi fai un esempio?» → «Adesso fallo tuo.» | «Fatto: d'ora in poi lo tengo anch'io, non solo come tuo: cat called pepe.»; «Di chi è questa idea?» → «Era tuo: mi hai detto che cat called pepe…» | il trasferimento prende l'ultimo contenuto del mondo di chi parla (il gatto, CV21), non la regola appena detta; la regola italiana «di chi parla» è letta come modo, ma senza esempio non ha contenuto da trasferire e nessuno lo dice. Grave: un fatto personale di chi parla diventa di parrot0 |
+| CV20 | fatti di cucina in italiano | «Quanto tempo deve cuocere la pasta?» · «La pasta deve cuocere dieci minuti.» · «Il vino rosso è buono con la carne.» | «Non sono sicuro di aver seguito…» · «Non capisco ancora.» ×2 | modale + durata («deve cuocere dieci minuti») e l'abbinamento («buono con») non hanno lettore italiano |
+| CV21 | **l'eco non passa alla seconda persona; la domanda fallisce** | «Il mio lavoro è il programmatore.» · «Qual è il mio lavoro?» · «Il mio gatto si chiama Pepe.» · «Come si chiama il mio gatto?» | «Capisco: il mio lavoro è il programmatore.» · «Your lavoro is il programmatore.» · «Capisco: il mio gatto si chiama pepe.» · «Non so ancora tradurre «called».» | l'eco ripete «il mio» (deve dire «il tuo»); la risposta mescola inglese e italiano; il nome proprio perde la maiuscola; la domanda chiede di tradurre una parola **inglese** dell'interlingua (come «am» in CV9) |
+| CV22 | forme di vita quotidiana | «Faccio il programmatore.» · «Che lavoro faccio?» · «Ho un gatto che si chiama Pepe.» | «Non ho afferrato bene…» · CV1 su «lavoro» · «Non capisco ancora.» | «fare il + mestiere», la relativa «che si chiama» non si leggono |
+| CV24 | **⛔ la situazione di chi parla diventa una legge del mondo** | «Mio nonno è in ospedale.» → poi «Dove si trova il nonno di Marco?» | «Imparato: nonno si trova in ospedale.» → «Ospedale.» | il possessivo «mio» non apre il mondo di chi parla (in inglese sì, SA11/L4 0-bis): il nonno di chi parla diventa **ogni** nonno. Un falso servito a una domanda su un terzo. Stessa specie di SA11, in italiano e con un parente |
+| CV25 | **la correzione detta a parole non ritira** | «Non era una lezione, ti stavo raccontando di mio nonno.» | «Grazie per avermi parlato della tua famiglia -- lo terrò a mente.» (e CV24 resta) | nessuna lettura di «non era una lezione» come ritiro/riclassificazione dell'ultimo impegno (l'atto esiste per «dimentica che …», non per la correzione del genere dell'enunciato) |
+| CV26 | **l'interlingua entra nei fatti** | «Ti ho detto che mio nonno è in ospedale, sono preoccupato.» | «Imparato: nonno si trova in ospedale am preoccupato.» | la seconda clausola incollata all'oggetto, con la parola inglese «am» dell'interlingua; «ti ho detto che» (riferire un proprio detto) non si legge come ripresa |
+| CV27 | la riparazione non ha lettore | «Non hai capito quello che ho detto.» · «Quando ti dico che non hai capito, chiedimi di spiegarlo in un altro modo.» | «Non capisco ancora.» · CV1 su «dico» | parrot0 non riconosce che chi parla segnala un suo fraintendimento, e la condotta di riparazione non si insegna (CV12) |
+| CV28 | il filo dell'emozione regge un solo seguito | «Sono preoccupato per mio nonno.» → «…Che cosa ti preoccupa di più?» → «Che sta male e io sono lontano.» | CV1 su «sta» | la risposta a una propria domanda non si lega alla domanda (PR3); «Grazie, mi fa piacere parlarne con te.» → «Prego!» e il filo si chiude |
+| CV29 | richieste sociali comuni | «Mi racconti una barzelletta?» · «Non fa ridere.» | «Non capisco ancora.» · «…va un po' oltre le mie capacita'.» | nessuna superficie italiana per la richiesta di intrattenimento; la reazione non ha lettore |
+| CV30 | **⛔ L4 su «mi piace»: la regola non entra e «fallo tuo» fa suo un falso** | «Il mio modo di dire che una cosa mi piace è mettere mi piace prima della cosa.» → «Per esempio: mi piace il mare.» → «Adesso fallo tuo.» | «Non capisco ancora.» → «Leggo «prima» come «primo». Non ho una proposta attiva…» → «Fatto: d'ora in poi lo tengo anch'io…: nonno è hospital am preoccupato.» | (a) «il mio modo di dire che …» (una regola sul lessico/ordine, non su «need») non ha lettore; (b) l'esempio viene letto con i resti del turno precedente («prima»); (c) come CV19, il trasferimento prende l'ultimo contenuto qualsiasi del mondo di chi parla, qui il fatto spazzatura di CV26, e lo fa **di parrot0**. «Fallo tuo» deve prendere ciò che la conversazione ha appena messo sul tavolo, e rifiutare se non c'è |
+| CV31 | piani di chi parla | «Questo fine settimana vado al mare.» · «Cosa faccio questo fine settimana?» | «Non capisco ancora.» · « Che cosa hai già provato, e che cosa è successo?» | il futuro programmato di chi parla non entra; la domanda la prende la situazione `user_problem` (una mossa da guasto), con uno spazio spurio in testa |
+| CV32 | **la situazione vecchia ruba turni estranei** | «Ti ha creato Francesco Bianco.» | «Grazie, questo aiuta. Se continua, fallo controllare da un tecnico prima di usarlo ancora…» | un seguito di guasto risponde a un'informazione su parrot0: la situazione aperta (dal filo di CV28/CV31) non si chiude e non verifica la pertinenza del turno |
+| CV33 | **chi ha creato parrot0: né si sa né si impara** | «Chi ti ha creato?» (prima e dopo «Ti ha creato Francesco Bianco.») · «Who created you?» | «Non è una cosa che faccio io, ma dimmi -- e tu?» · «I can't claim any of my own, but I'm curious -- what about you?» | la domanda sul proprio creatore va allo smalltalk delle preferenze; la lezione (con il clitico «ti» e il soggetto posposto) non entra. «Chi sei?» invece regge |
+| CV34 | domande su parrot0 e «perché?» | «Tu sei mai stato al mare?» · «Perché no?» | «Non ne ho di miei…» · «Non capisco ancora.» | template sociale fuori tema (CV16); il «perché?» su una propria risposta sociale non ha lettore |
+| CV35 | **⛔ l'ellissi dà una risposta falsa** | «Qual è la capitale della Francia?» → «Paris.» → «E quella della Spagna?» | «Europe.» | «quella» non eredita la relazione della domanda precedente (capitale): parrot0 risponde con un'altra relazione della Spagna, senza dirlo. Mantra #7: peggio di un muro (PR11 aveva l'ellissi come muro, qui è un falso). E «Paris.» in inglese, non «Parigi» |
+| CV36 | la riparazione dell'ellissi | «Intendevo la capitale della Spagna.» | «Non ho una proposta attiva da continuare…» | «intendevo X» (correggere la propria domanda) non ha lettore |
+| CV37 | nomi propri italiani di luoghi | «Il mese prossimo vado a Parigi.» · «Quanti abitanti ha Parigi?» · «Parigi è in Francia?» | «Non capisco ancora.» ×3 | «Parigi» non si lega a `paris` (esonimo), anche se la risposta sopra dice «Paris»; il viaggio programmato non entra (CV31) |
+| CV23 | contrasto in inglese in una sessione italiana | «Il pomodoro è una verdura?» (dopo «Il pomodoro è un frutto.» → «Imparato…») | «I don't know about verdura.» | lingua sbagliata (PR8) e «verdura» senza lemma; e nessun uso della lezione appena data (frutto ≠ verdura non è noto: onesto) |
+
+#### §CV-bis — le risposte SENZA SENSO, come problema da risolvere (F., 29 settembre 2026)
+
+*F.: «annota tutte queste conversazioni senza senso come problema da
+risolvere».* Non sono muri: sono risposte che **sembrano** conversazione e non
+rispondono a niente. Per chi parla sono peggio di «Non capisco ancora», perché
+non dicono che il filo si è rotto. Tutti gli scambi dei due giri:
+
+| detto a parrot0 | risposta senza senso | che cosa avrebbe dovuto fare |
+|---|---|---|
+| «Bene anche io, grazie. Oggi è stata una giornata lunga.» | «Prego!…» | «grazie» risponde al «come stai?», non ringrazia parrot0 |
+| «Tu cosa hai fatto oggi?» | «Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.» | «dei tuoi» cosa? Il template risponde a una domanda sulle esperienze, non su «oggi» |
+| «Ti piace la musica?» | «…sceglierei leggere in tranquillità ascoltando la pioggia.» | risposta sulla musica, non su un passatempo qualsiasi |
+| «Qual è il tuo colore preferito?» | «Non è una cosa che faccio io, ma dimmi -- e tu?» | un colore non è una cosa che si fa |
+| «Chi ti ha creato?» / «Who created you?» | «Non è una cosa che faccio io, ma dimmi -- e tu?» / «I can't claim any of my own, but I'm curious -- what about you?» | una domanda sul proprio creatore presa per una preferenza |
+| «Tu sei mai stato al mare?» | «Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.» | «no, non ho un corpo; tu ci vai spesso?» |
+| «Mi piace il jazz.» (dopo la lezione di CV5) · «Mi piace la montagna.» | «Bello -- raccontami di più.» · «Interessante -- come ci sei arrivato?» | «ci sei arrivato» non ha senso per una preferenza; e niente è stato tenuto |
+| «Mi piace la montagna?» | «Non ho esperienze mie, ma mi piacerebbe saperne di più -- cosa ti ha colpito?» | è una domanda su chi parla: «non me l'hai detto» |
+| «Do I like the mountain?» | «Nice -- how did that go?» | una domanda sì/no a cui si risponde con un commento sociale |
+| «I went to the mountains.» | «I can't say I've tried it myself, but I'm curious -- what about you?» | chi parla ha appena raccontato: «what about you?» è a vuoto |
+| «What do I think?» · «Cosa penso io?» | «Sounds good. What else has been on your mind?» · «No pressure — we can take it slowly. What's on your mind?» | domanda su un mondo di chi parla (vuoto): «non mi hai detto che cosa pensi» |
+| «Today I went to the mountains with my sister.» · «Mio nonno è in ospedale» (corretto) | «Thanks for telling me about your family -- I'll keep that in mind.» | promessa falsa (CV10): non tiene niente |
+| «Cosa faccio questo fine settimana?» | « Che cosa hai già provato, e che cosa è successo?» | una mossa da guasto su una domanda sui propri piani |
+| «Ti ha creato Francesco Bianco.» | «Grazie, questo aiuta. Se continua, fallo controllare da un tecnico…» | un'informazione su parrot0 presa come dettaglio di un guasto (CV32) |
+| «Grazie, mi fa piacere parlarne con te.» (nel filo della preoccupazione) | «Prego!» | chiude il filo di un interlocutore preoccupato |
+| «Per esempio: mi piace il mare.» | «Leggo «prima» come «primo». Non ho una proposta attiva da continuare…» | l'esempio letto con i resti del turno prima |
+| «Intendevo la capitale della Spagna.» | «Non ho una proposta attiva da continuare…» | la correzione della propria domanda |
+| «Io penso che il jazz è rilassante.» | «Ho cercato «answering» ma non ho trovato niente…» | un'offerta vecchia ruba il turno (CV13) |
+
+**La radice comune (ipotesi da verificare).** Lo smalltalk sceglie il
+template per **somiglianza di superficie** (seconda persona, «piace»,
+«mai», «ho fatto»), senza verificare che la risposta **risponda** all'atto del
+turno: domanda sì/no, domanda su chi parla, racconto, correzione, domanda su
+parrot0. Manca il controllo che L4 chiede ovunque: che la mossa scelta sia
+coerente con la comprensione del turno. Cura da cercare KB-first, sul
+modello di `turn_declared_act` (SA1): ogni template sociale dichiara a quale
+atto risponde, e se l'atto del turno non è quello, il template non si può
+dire. Un muro onesto («non me l'hai detto», «non ho capito se mi chiedi…») è
+meglio di ciascuna di queste risposte.
+
+**Errore dell'insegnante (da non ripetere).** Il transcript non ha orari e
+l'insegnante mandava i turni a lotti: la lentezza e il blocco di CV18 sono stati
+visti solo da F. Da qui in avanti un turno alla volta, con il tempo misurato;
+oltre 10 s si annota come difetto, un blocco chiude la sessione (live-teaching
+§3 regole 6–7).
+
+**La lettura d'insieme.** Quattro lezioni su sei **confermano senza effetto**
+(CV1, CV5, CV11, e la L4 su una condotta che risponde con un muro): la più
+dannosa è CV1, perché è parrot0 stesso a chiedere la lezione sbagliata. La
+conversazione ha tre mondi da tenere (parrot0, chi parla, i terzi): in italiano
+nessuno dei tre si scrive né si interroga fuori da «X è un Y» e dal nome.
+
+**Da dove ripartire** (in ordine, dal più grave):
+1. **I falsi.** CV24 (il nonno di chi parla diventa ogni nonno), CV35
+   (l'ellissi risponde «Europe.»), CV2 (l'idea di Marco diventa di parrot0):
+   in italiano il mondo di chi parla e dei terzi non si apre, e tutto finisce
+   nel mondo di parrot0. È la stessa porta di SA11, in una seconda lingua.
+2. **«Fallo tuo» sul contenuto sbagliato** (CV19, CV30): il trasferimento deve
+   prendere ciò che è appena stato messo sul tavolo, e rifiutare se non c'è.
+3. **Il blocco di CV18**, sotto gdb, in un passo di motore separato.
+4. **Il muro che chiede la lezione sbagliata** (CV1, e CV9/CV21 dove chiede di
+   tradurre una parola inglese dell'interlingua): il muro deve nominare ciò che
+   manca davvero; qui manca quasi sempre l'ordine (soggetto posposto, «mi
+   piace», clitici) — grammatica italiana da insegnare con L4, che oggi regge
+   solo le regole su «need» (CV12, CV30).
+5. **Le lezioni accettate senza effetto** (CV5, CV11) e le **promesse false**
+   (CV10): nessuna conferma senza una conseguenza verificata.
+6. Il filo della conversazione: la situazione vecchia che ruba i turni (CV32),
+   un solo seguito (CV28), l'offerta pendente (CV13), la riparazione (CV27,
+   CV36), la lingua della risposta (CV14, CV17, CV23).
 
 ### §SA — l'agente situazionale, primo giro (27 settembre 2026) — 🔴 aperti
 

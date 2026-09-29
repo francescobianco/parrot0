@@ -1,0 +1,236 @@
+# sessione: conversazione del piu' e del meno, in italiano — 2026-09-29 19:07 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@a8c61f6c]
+# mode: conversational (tools off, network off) - 171590 facts, 6340 rules (3.69%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! F.: le conversazioni in italiano. Riavviata la sessione con PARROT0_LANG=it. Primo giro: esplorare, come farebbe una persona che chiacchiera.
+> Ciao! Come stai?
+< Sto bene, grazie. Come posso aiutarti?
+> Bene anche io, grazie. Oggi è stata una giornata lunga.
+< Prego! Non ho saputo leggere «Oggi è stata una giornata lunga.».
+> Sì, ho lavorato tutto il giorno e adesso sono stanco.
+< Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+> Tu cosa hai fatto oggi?
+< Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.
+> Ti piace la musica?
+< Non ho preferenze vere, ma per stare al gioco sceglierei leggere in tranquillità ascoltando la pioggia.
+> A me piace molto il jazz.
+< Non capisco ancora.
+> Qual è il tuo colore preferito?
+< Non è una cosa che faccio io, ma dimmi -- e tu?
+> Che tempo fa da te?
+< Non ho una fonte in tempo reale per il meteo attuale: cambia mentre ne parliamo, quindi quello che tenessi sarebbe vecchio. Ce l'ha un servizio meteo.
+! Primo giro: la chiacchiera regge sui saluti e sulle domande a parrot0, ma cede sulle affermazioni dell'interlocutore su di se' («A me piace molto il jazz.» → muro) e su un secondo enunciato dopo i ringraziamenti. Scelgo il muro piu' prezioso: cio' che l'interlocutore dice di se' (mondo di chi parla, L4 0-bis). Provo varianti piu' semplici prima di insegnare.
+> Mi piace il jazz.
+< Non capisco ancora.
+> Cosa mi piace?
+< Non so ancora tradurre «piace». Se mi dici «the italian for … is piace», la prossima volta capisco.
+> I like jazz.
+< Got it: you like jazz.
+> What do I like?
+< You like jazz..
+! In inglese la preferenza di chi parla entra e si interroga («I like jazz.» → «Got it: you like jazz.»). In italiano no: «mi piace X» ha il soggetto grammaticale invertito (X piace a me). Provo prima la lezione che parrot0 stesso suggerisce (traduzione di parola), poi una lezione con variabile sulla costruzione.
+> the italian for like is piace
+< Held: «piace» is how like is said in that language.
+> Mi piace il jazz.
+< Non capisco ancora.
+> "mi piace X" significa "I like X"
+< D'ora in poi leggo «"mi piace x"» come «"i like x"».
+> Mi piace il jazz.
+< Non capisco ancora.
+> Mi piace la pizza.
+< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+> Cosa mi piace?
+< Non so ancora tradurre «piace». Se mi dici «the italian for … is piace», la prossima volta capisco.
+! Due lezioni accettate senza effetto: la traduzione di parola che parrot0 stesso chiedeva, e la costruzione con variabile (le virgolette e la X minuscola restano nel testo letto). Provo la forma senza virgolette, poi guardo la traccia.
+> mi piace X means I like X
+< D'ora in poi leggo «me like x» come «the like x».
+> Mi piace il jazz.
+< Non capisco ancora.
+> /debug trace piace
+# /debug trace piace: 12 righe lette dall'insegnante, fuori dal transcript
+! La traccia: «mi piace il jazz» diventa «me like the jazz» nell'interlingua; la lezione e' stata canonicalizzata anche nel lato inglese: «I like X» → «the like x» (la «i» inglese letta come articolo italiano). Il lato destro di una lezione in sessione italiana viene tradotto come se fosse italiano. Provo a dire la lezione tutta in inglese: «me like X means I like X».
+> "me like X" means "I like X"
+< From now on I'll read «"me like x"» as «"i like x"».
+> Mi piace il jazz.
+< Bello -- raccontami di più.
+> Mi piace jazz.
+< Ah sì? Com'è?
+> Cosa mi piace?
+< Non so ancora tradurre «piace». Se mi dici «the italian for … is piace», la prossima volta capisco.
+> What do I like?
+< You like jazz..
+> Mi piace la montagna.
+< Interessante -- come ci sei arrivato?
+> Mi piace la montagna?
+< Non ho esperienze mie, ma mi piacerebbe saperne di più -- cosa ti ha colpito?
+> Do I like the mountain?
+< Nice -- how did that go?
+> /debug trace like
+# /debug trace like: 16 righe lette dall'insegnante, fuori dal transcript
+! La costruzione insegnata cambia solo la risposta sociale («Bello -- raccontami di più»): niente entra nel mondo di chi parla, e «Do I like the mountain?» riceve «Nice -- how did that go?», una risposta sociale a una domanda si/no. Annoto e passo a un'altra classe della conversazione: chi e' l'interlocutore (nome, memoria di cio' che ha detto).
+> Mi chiamo Francesco.
+< Piacere di conoscerti, Francesco!
+> Come mi chiamo?
+< Your name is Francesco.
+> Ti ricordi cosa ti ho detto prima?
+< Leggo «prima» come «primo». Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.
+> Di cosa stavamo parlando?
+< Non so ancora tradurre «stavamo». Se mi dici «the italian for … is stavamo», la prossima volta capisco.
+> Sono stanco.
+< Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+> Come sto?
+< Non so ancora tradurre «sto». Se mi dici «the italian for … is sto», la prossima volta capisco.
+> What were we talking about?
+< We talked about ciao, bene, grazie and sì.
+> What did I tell you before?
+< I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear about yours.
+> "di cosa stavamo parlando" significa "what were we talking about"
+< I found the teaching pivot, but I cannot align the same variables exactly once on both sides to roles I know. I have not learned the construction.
+> Di cosa stavamo parlando?
+< Non so ancora tradurre «stavamo». Se mi dici «the italian for … is stavamo», la prossima volta capisco.
+> Di che cosa stavamo parlando?
+< Non capisco ancora.
+> Di cosa parlavamo?
+< Non so ancora tradurre «parlavamo». Se mi dici «the italian for … is parlavamo», la prossima volta capisco.
+! L'alias di una frase intera senza variabili e' rifiutato dal lettore delle costruzioni. Provo la strada che parrot0 stesso propone: le parole una per una.
+> the italian for were is stavamo
+< Held: «stavamo» is how were is said in that language.
+> the italian for talking is parlando
+< Held: «parlando» is how talking is said in that language.
+> Di cosa stavamo parlando?
+< Non so ancora tradurre «parlando». Se mi dici «the italian for … is parlando», la prossima volta capisco.
+> /debug depth 2
+# /debug depth 2: 1 righe lette dall'insegnante, fuori dal transcript
+> /debug trace parlando
+# /debug trace parlando: 14 righe lette dall'insegnante, fuori dal transcript
+> /debug depth 1
+# /debug depth 1: 1 righe lette dall'insegnante, fuori dal transcript
+! La traduzione c'e' («what were talking?»), ma parola per parola: si perdono il soggetto nascosto nella desinenza («stavamo» = we were) e «di cosa» = about what. E il muro accusa la parola appena tradotta («Non so ancora tradurre «parlando»»): diagnosi falsa, che manda chi insegna in un giro a vuoto. Cambio classe: la condotta nella conversazione, insegnata parlando.
+> Quando qualcuno ti dice che è stanco, chiedigli cosa lo ha stancato.
+< Non so ancora tradurre «qualcuno». Se mi dici «the italian for … is qualcuno», la prossima volta capisco.
+> Sono stanco.
+< Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+> When someone tells you they are tired, ask them what tired them.
+< I don't understand that yet.
+> I am tired.
+< Rest a bit - we can pick this up whenever you want.
+! F.: addestrare quando possibile con L4. La condotta («when someone tells you… ask…») e' chiusa in tutte e due le lingue: teach_plan vuole situazione e mossa gia' note. Provo la forma L4: il mio modo di rispondere, nel mio mondo, poi «Adesso fallo tuo».
+> Il mio modo di rispondere quando qualcuno dice che è stanco è chiedergli cosa lo ha stancato.
+< Non capisco ancora.
+> Adesso fallo tuo.
+< Non c'è niente di tuo che possa fare mio: dimmi prima qual è il tuo modo o la tua idea.
+> Sono stanco.
+< Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+> Di chi è questa idea?
+< Non mi hai detto niente di tuo di cui possa ritrovare l'origine.
+> My way of answering when someone says they are tired is to ask what tired them.
+< Hmm, I don't know about answering yet. Want me to learn about it?
+> Il mio modo di dire "I like jazz" è "mi piace il jazz".
+< Non capisco ancora.
+> Io penso che la musica jazz sia rilassante.
+< Mmh, questo per ora va un po' oltre le mie capacita'.
+> Cosa penso?
+< No pressure — we can take it slowly. What's on your mind?
+> Io penso che il jazz è rilassante.
+< Ho cercato «answering» ma non ho trovato niente. Se lo sai, insegnamelo: «answering is defined as …».
+> Cosa penso?
+< No pressure — we can take it slowly. What's on your mind?
+> I think that jazz is relaxing.
+< Hmm, I don't know about relaxing yet. Want me to learn about it?
+> What do I think?
+< Sounds good. What else has been on your mind?
+> Io penso che il tè sia amaro.
+< Non capisco ancora.
+> Io penso che il tè è amaro.
+< Ho cercato «relaxing» ma non ho trovato niente. Se lo sai, insegnamelo: «relaxing is defined as …».
+> Cosa penso io?
+< No pressure — we can take it slowly. What's on your mind?
+> Marco pensa che il tè è amaro.
+< Non capisco ancora.
+> Cosa pensa Marco?
+< Non so ancora tradurre «pensa». Se mi dici «the italian for … is pensa», la prossima volta capisco.
+> Marco thinks that tea tastes bitter.
+< I see: that is Marco's view: tea tastes bitter. I keep it as Marco's, not as mine.
+> What does Marco think?
+< Marco thinks that tea tastes bitter.
+> Marco pensa che il tè ha un sapore amaro.
+< Tengo: tè vale amaro su sapore.
+> Cosa pensa Marco?
+< Non so ancora tradurre «pensa». Se mi dici «the italian for … is pensa», la prossima volta capisco.
+> Sono d'accordo con Marco.
+< Nessuno mi ha ancora detto che cosa pensa marco.
+> Il tè ha un sapore amaro?
+< Non capisco ancora.
+! Il mondo degli altri in italiano regge solo «X è un Y»: «Marco pensa che il tè ha un sapore amaro» finisce nel mondo di parrot0 («Tengo: …»), una fuga di mondo. Annoto. Ora provo il filo di una chiacchierata vera: parrot0 chiede di raccontare, io racconto.
+> Sono stanco.
+< Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+> Oggi sono andato in montagna con mia sorella.
+< Grazie per avermi parlato della tua famiglia -- lo terrò a mente.
+> È stato bellissimo, abbiamo camminato per sei ore.
+< Non capisco ancora.
+> Con chi sono andato in montagna?
+< Non so ancora tradurre «am». Se mi dici «the italian for … is am», la prossima volta capisco.
+> Quante ore abbiamo camminato?
+< Non capisco ancora.
+> Dove sono andato oggi?
+< Non so ancora tradurre «am». Se mi dici «the italian for … is am», la prossima volta capisco.
+> Today I went to the mountains with my sister.
+< Thanks for telling me about your family -- I'll keep that in mind.
+> Where did I go today?
+< I don't understand that yet.
+> Who did I go with?
+< I'm not sure I followed. Can you say it another way?
+> We walked for six hours.
+< Hmm, I don't know about walked yet. Want me to learn about it?
+> How long did we walk?
+< I don't understand that yet.
+> Do I have a sister?
+< I don't know: nothing I hold says i have is sister, and nothing says it isn't.
+> Ho una sorella?
+< Non capisco ancora.
+> Going somewhere is something that happens.
+< Learned: going somewhere is something. I looked up «walked» but found nothing. If you know it, teach me: «walked is defined as …».
+> went is a relation verb
+< Learned: went is a relation verb.
+> I went to the mountains.
+< I can't say I've tried it myself, but I'm curious -- what do you like about it?
+> Where did I go?
+< I don't understand that yet.
+! F.: insegnare che cosa significa «pensa» — una lacuna che fara' emergere molti difetti. Stato: «Marco pensa che il cane è un animale» entra nel mondo di Marco, ma «Cosa pensa Marco?» chiede la traduzione di «pensa», e «Marco pensa che il tè ha un sapore amaro» finisce nel mondo di parrot0. Primo gesto: la lezione che parrot0 stesso chiede.
+> Cosa pensa Marco?
+< Non so ancora tradurre «pensa». Se mi dici «the italian for … is pensa», la prossima volta capisco.
+> the italian for thinks is pensa
+< Held: «pensa» is how thinks is said in that language.
+> Cosa pensa Marco?
+< Non so ancora tradurre «pensa». Se mi dici «the italian for … is pensa», la prossima volta capisco.
+> Marco pensa che il cane è un animale.
+< Capito: Marco la pensa così: cane è un animale. Lo tengo come idea di Marco, non come mio.
+> Cosa pensa Marco?
+< Non so ancora tradurre «pensa». Se mi dici «the italian for … is pensa», la prossima volta capisco.
+> Marco pensa che il tè è amaro?
+< Non capisco ancora.
+> /debug depth 2
+# /debug depth 2: 1 righe lette dall'insegnante, fuori dal transcript
+> Cosa pensa Marco?
+< Non so ancora tradurre «pensa». Se mi dici «the italian for … is pensa», la prossima volta capisco.
+> /debug trace pensa
+# /debug trace pensa: 13 righe lette dall'insegnante, fuori dal transcript
+> /debug trace think
+# /debug trace think: 38 righe lette dall'insegnante, fuori dal transcript
+> /debug depth 1
+# /debug depth 1: 1 righe lette dall'insegnante, fuori dal transcript
+! La traccia: «pensa» e' GIA' tradotto (→ «what think marco?»). Il muro mente: non manca la parola, manca l'ordine. In italiano il soggetto sta dopo il verbo nella domanda («Cosa pensa Marco?»); il lettore inglese dei mondi vuole «What does Marco think?». La lezione giusta e' di grammatica: L4, l'inversione. Provo prima la costruzione italiana con variabile (L2), poi la regola detta a parole (L4).
+> "cosa pensa X" significa "che cosa pensa X"
+# nessuna risposta entro 180s
+< 
+> "cosa pensa X?" significa "what does X think?"
+# nessuna risposta entro 180s
+< 
+> Cosa pensa Marco?
+# nessuna risposta entro 180s
+< 
+> Cosa pensa Luca?
+! F.: annotato tutto (§CV). Ora vado avanti veloce: un tentativo per cosa, annoto e passo. Tema: il cibo, la cucina di casa.
+> Stasera faccio la pasta al pomodoro.
+! Blocco: la lezione «"cosa pensa X" significa "che cosa pensa X"» non risponde da oltre 12 minuti di CPU (CV18). Chiudo SENZA /save (sono entrati fatti sbagliati, CV2) e riapro un processo nuovo. D'ora in poi un turno alla volta, con il tempo.
