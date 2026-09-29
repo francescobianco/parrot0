@@ -13,6 +13,82 @@
 > [train-the-learning-process.md, «▶ ASSE STRUTTURALE»](train-the-learning-process.md).
 > Prima di curare un «Learned, poi non so», chiedersi se e' un ponte che manca.
 
+## ⛔⛔ SUPER PRIORITARIO — il turno che non torna (CV18) e il TETTO DI TEMPO dell'inferenza (29 settembre 2026)
+
+**La richiesta di F.** (29 settembre 2026, sera, durante la cura di §CV):
+
+> *«dentro parrot0, nella sua inferenza, quando viene raggiunto un cap
+> temporale e non si è risposto, l'inferenza deve andare in uno stato gestito
+> come i cap di limiti o i paradossi: in pratica lui deve capire che ha superato
+> il limite di inferenza, e ti gestisce la cosa.»*
+
+Cioè: **un turno non può bloccare parrot0.** Oltre un tempo dichiarato (in
+KB, non nel C), la ricerca si ferma come si ferma per budget, profondità,
+ciclo o tetto di enumerazione; l'evento entra nel **registro unico dei
+paradossi** (`paradox_event(proof, time, Predicato, seen(Turno, Ms))`,
+[parrot-p0-syntax.md §5.1](../parrot-p0-syntax.md)); la KB lo legge come
+`inference_incomplete(current_turn, time)` (composition.p0); e la risposta
+lo **dice** («mi sono fermato: la ricerca ha superato il tempo che mi do, e
+non ho una risposta verificata»), invece di tacere o rispondere a caso. È
+la stessa regola dei tetti del 28 settembre: un limite raggiunto rende
+l'inferenza non affidabile, e parrot0 lo sa.
+
+**Il difetto che lo mostra: CV18, RIPRODOTTO (29 settembre, 19:55).**
+- **Sintomo:** nella sessione italiana di F. il turno
+  `"cosa pensa X" significa "che cosa pensa X"` non torna: 100% di CPU, nessuna
+  risposta (oltre 180 s nella sessione di F.; oltre 30 s nella riproduzione,
+  con 1 min 58 s di CPU al momento della chiusura), i turni successivi in coda.
+- **Riproduzione:** l'intera prima sessione di F. rigiocata turno per turno su
+  un processo nuovo (`PARROT0_LANG=it`, profilo `agi`): i primi 94 turni
+  rispondono tutti sotto i 5 s, **il 95° si blocca**. L'ingresso è in
+  [docs/labs/cv18-hang/in95.txt](../labs/cv18-hang/in95.txt) (95 righe, estratte
+  dai «> » di
+  [2026-09-29-conversazione-it-1.log](../sessions/live/2026-09-29-conversazione-it-1.log)).
+  Comando: `PARROT0_PROFILE=kb/profiles/agi.p0 PARROT0_LANG=it ./bin/parrot0 <
+  docs/labs/cv18-hang/in95.txt` (si ferma dopo 94 risposte).
+- **Dipende dallo stato:** la stessa lezione detta dopo le sole lezioni di CV1
+  («Marco pensa che…», «Cosa pensa Marco?», «the italian for thinks is
+  pensa») risponde in 0,6 s («D'ora in poi leggo «"cosa pensa x"» come «"che
+  cosa pensa x"».»), e anche il turno dopo. Serve lo stato accumulato dai 94
+  turni: da bisezionare **sui turni dell'ingresso** (togliere metà dei turni
+  prima del 95° e vedere se si blocca ancora), non sulla storia di git.
+- **Ipotesi (non provata):** una lezione di costruzione la cui riscrittura
+  contiene la propria forma (`cosa pensa X` → `che cosa pensa X`) che si
+  riapplica al proprio risultato, oppure un'esplosione combinatoria del
+  lettore delle costruzioni con le molte lezioni della sessione (CV5, CV6, le
+  traduzioni di CV1/CV7).
+- **Dove gira: NON ANCORA SAPUTO.** `gdb -p` non si attacca (ptrace_scope);
+  lanciato sotto gdb (`gdb -batch -ex "run < in95.txt" -ex bt --args
+  ./bin/parrot0`), il blocco si riproduce, ma l'interruzione ha colpito gdb e
+  non il programma: nessuno stack. Prossimo tentativo: `kill -INT` al **figlio**
+  di gdb (il pid del processo `parrot0` nato da gdb), oppure
+  `PARROT0_TURN_LOG=file` con `/debug depth 3` acceso prima del 95° turno
+  (aggiungere `/debug on` e `/debug trace` come righe 94-bis dell'ingresso) per
+  vedere l'ultima riga della traccia prima del silenzio.
+
+**Che cosa fare, in quest'ordine:**
+1. **Il tetto di tempo, come chiede F.** Una scadenza per turno letta dalla KB
+   (`inference_time_limit/1`, per esempio 10 s), impostata dal cervello
+   all'ingresso del turno; il solver la controlla ogni N passi (come il
+   budget) e, superata, fa fallire in fretta **ogni** prova del turno
+   (non solo quella in corso), segnando `time_hit`; il registro dei
+   paradossi riceve `paradox_event(proof, time, …)`; `composition.p0` ha
+   `inference_incomplete(current_turn, time)`; la risposta la sceglie la KB.
+   ⚠ Se il ciclo di CV18 è **nel C** e non nel solver (un `while` nel lettore
+   delle costruzioni), il tetto nel solver non basta: lo stesso controllo va
+   nei cicli del C che non passano dal solver — va prima scoperto dove gira.
+2. **La causa di CV18**, trovata con il punto sopra (la traccia fino al
+   silenzio) e curata dove sta.
+3. Il cricchetto: l'ingresso ridotto al minimo che si blocca, come `.p0t`,
+   con `!timeout` basso: deve rispondere, e dire il tetto se lo tocca.
+
+**Stato della riproduzione quando si è interrotto il lavoro:** nessun
+processo lasciato attivo; il test-engine e i file della KB puliti; commit
+della prima parte delle cure di §CV già in `main` (`fbc73969`: CV24, CV21,
+CV17, CV9, CV2, CV19/CV30, «è a Roma»).
+
+---
+
 ## ▶ PROPOSTA — dalla diagnosi di frasi alla diagnosi di cause condivise (28 settembre 2026)
 
 *Analisi completa e manuale procedurale:
