@@ -775,6 +775,66 @@ static int adjunct_peel(Brain *b, const char *canon, const char *raw,
     return 0;
 }
 
+/* L4 0-bis (29 settembre 2026) — «MARCO THINKS THAT P»: P ACCADE IN UN ALTRO
+ * MONDO. Un verbo d'atteggiamento con il suo titolare apre il mondo di chi
+ * pensa, crede, dice; la clausola si rilegge come un turno annidato DENTRO quel
+ * mondo, e i lettori che esistono scrivono li' senza saperlo (il motore mette
+ * nel mondo attivo ogni scrittura di sessione). Quali parole aprano un mondo,
+ * quale mondo, quante parole togliere e che cosa dire dopo e' tutto KB:
+ * `turn_world_report(current_turn, Mondo, Salto)`, `world_report_reply(Mondo,
+ * Testo)`, `world_report_close(Mondo)`. Se la KB non ha una risposta, resta
+ * quella della clausola. */
+static int world_report_peel(Brain *b, const char *raw, char *out, size_t out_size) {
+    if (!b || !b->kb || !raw || !*raw || b->respond_depth > 1) return 0;
+    char row[2][KB_TERM_LEN];
+    const char *q[3] = { "current_turn", NULL, NULL };
+    if (kb_match(b->kb, "turn_world_report", q, 3, row, 1) != 1) return 0;
+    const char *q2[3] = { "current_turn", row[0], NULL };
+    if (kb_match(b->kb, "turn_world_report", q2, 3, row + 1, 1) != 1) return 0;
+    int skip = atoi(row[1]);
+    if (skip <= 0) return 0;
+    const char *p = raw; int s = 0;
+    while (*p && s < skip) {
+        while (*p && isspace((unsigned char)*p)) p++;
+        while (*p && !isspace((unsigned char)*p)) p++;
+        s++;
+    }
+    while (*p && (isspace((unsigned char)*p) || *p == ',')) p++;
+    if (!*p) return 0;
+    char clause[512]; snprintf(clause, sizeof clause, "%s", p);
+    /* una domanda sul mondo di un altro («does Marco think that P?») legge P
+     * come AFFERMAZIONE, in un mondo di prova: se la KB lo dice, il punto
+     * interrogativo cade */
+    {
+        const char *sq[1] = { row[0] };
+        if (kb_query(b->kb, "world_report_statement", sq, 1)) {
+            size_t cl = strlen(clause);
+            while (cl && (clause[cl - 1] == '?' || clause[cl - 1] == ' ')) clause[--cl] = '\0';
+            if (cl + 1 < sizeof clause) { clause[cl++] = '.'; clause[cl] = '\0'; }
+        }
+    }
+    p0_trace(b, "world.report", "%s «%s»\n", row[0], clause);
+    char outer[KB_TERM_LEN]; snprintf(outer, sizeof outer, "%s", kb_context(b->kb));
+    kb_set_context(b->kb, row[0]);
+    char sub[1024]; sub[0] = '\0';
+    char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
+    brain_respond(b, clause, sub, sizeof sub);
+    b->active_turn_norm = outer_view;
+    kb_set_context(b->kb, strcmp(outer, "world") ? outer : NULL);
+    char said[1][KB_TERM_LEN];
+    const char *rq[2] = { row[0], NULL };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    size_t got = kb_match(b->kb, "world_report_reply", rq, 2, said, 1);
+    const char *cq[1] = { row[0] };
+    kb_query(b->kb, "world_report_close", cq, 1);
+    kb_set_origin(b->kb, prev);
+    if (got == 1) put(kb_dequote(said[0]), out, out_size);
+    else if (sub[0]) put(sub, out, out_size);
+    else return 0;
+    return 1;
+}
+
 /* gen506c — «CAN YOU SAY WHETHER P?» E' LA DOMANDA «P?».
  *
  * Nel banco di comprensione la clausola finale e' spesso avvolta in una
@@ -8024,7 +8084,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "turn_counter");
             kb_assert(b->kb, "turn_counter", (const char *[]){ n }, 1);
             kb_set_paradox_turn(b->kb, b->turns);   /* §25.3: data del registro */
-            kb_set_context(b->kb, NULL);            /* L4 0-bis: ogni turno parte dal mondo */
+            /* L4 0-bis: ogni turno parte dal mondo — ma una frase riletta
+             * come turno annidato resta nel mondo di chi l'ha aperta (la
+             * clausola di «Marco thinks that …» accade nel mondo di Marco) */
+            if (b->respond_depth <= 1) kb_set_context(b->kb, NULL);
             kb_set_origin(b->kb, prev);
         }
         /* gen506h: il turno finito resta, sotto turn_N; gen506j: chi cade lo
@@ -8487,6 +8550,11 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return turn_done(b, canon, input, out, out_size);
     }
 
+    /* L4 0-bis — «Marco thinks that …»: la clausola nel mondo di Marco */
+    if (b && world_report_peel(b, input, out, out_size)) {
+        snprintf(b->last_module, sizeof b->last_module, "%s", "world_report");
+        return turn_done(b, canon, input, out, out_size);
+    }
     if (b && pragma_peel(b, canon, input, out, out_size))
         { return turn_done(b, canon, input, out, out_size); }
 

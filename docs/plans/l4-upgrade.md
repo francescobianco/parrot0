@@ -62,6 +62,51 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶ 0-bis, passo 5 aperto (29 settembre 2026, giorno): gli ALTRI mondi e il trasferimento da un mondo nominato
+
+Cricchetto [other_worlds.p0t](../../tests/p0t/conversation/other_worlds.p0t)
+26/26 (inglese e italiano). La sequenza, dalla KB viva:
+
+| turno | risposta |
+|---|---|
+| «What does Marco think?» | Nobody has told me what marco thinks yet. |
+| «Marco thinks that tea tastes sour.» | I see: that is Marco's view: tea tastes sour. I keep it as Marco's, not as mine. |
+| «Does tea taste sour?» | non Yes (è di Marco) |
+| «Does Marco think that tea tastes sour?» | Yes, that is Marco's view: tea tastes sour. |
+| «Does Marco think that milk tastes sour?» | Not that I know: nobody told me so. |
+| «Does Marco think that coffee tastes bitter?» (lo tengo io) | I don't know that it is theirs: nobody told me so. I do hold that coffee tastes bitter myself. |
+| «Make Marco's view yours.» | Done: from now on I hold it too, not only as Marco's: tea tastes sour. |
+| «Whose idea is that?» | Marco's view: tea tastes sour; you then made it mine too. |
+| «I think that milk tastes sour.» | I see: that is your view: milk tastes sour. I keep it as yours, not as mine. |
+| «Marco pensa che il cane è un animale.» / «Che cosa pensa Marco?» / «Fai tua l'idea di Marco.» | Capito: Marco la pensa così: cane è un animale. … |
+
+**Come.** Un **involucro di mondo** (`world_report_peel`, [99-registry.c](../../src/brain/99-registry.c)):
+la KB dice se il turno apre un mondo e quante parole togliere
+(`turn_world_report/3`: verbo d'atteggiamento, «that»/«che», titolare), il C
+apre quel mondo e rilegge la clausola come turno annidato **dentro** di lui;
+i lettori che esistono scrivono lì senza saperlo. La domanda «Does Marco
+think that P?» legge P come affermazione in un **mondo di prova**
+(`asked(world_of(marco))`, `world_report_statement/1`), lo confronta con il
+mondo di Marco e con il mio (`held_by_me/1`), e lo svuota
+(`world_report_close/1`). Il mondo di un altro diventa un contesto
+`reported_belief` di [context-scope.p0](../../kb/core/context-scope.p0)
+(politica `attributed_only`). Il trasferimento è lo stesso di prima, generale
+sul mondo (`transfer_from/3`, `last_world_content/2`), e i contenuti hanno
+qualunque arità (`fact_said`, `fact_assert`, `fact_retract`).
+
+**Curato di passaggio.** `content_said/3` diceva i fatti di classe con « is »
+scritto nella regola (mantra #16): ora la copula è della lingua
+(`content_copula/2`) e le entità, che stanno nel canone inglese, si dicono con
+la loro glossa (`word_in_language/3`, da `tr/2`). Il riscontro di L4-7 cede a
+un modulo che ridice già il turno (`module_mirrors_reply/1`): la frase
+annidata lasciava `learned_facts` nel turno e il riscontro riscriveva il
+resoconto.
+
+**Residui:** l'articolo si perde («cane è un animale»); i verbi al passato
+(«Marco said that …») non aprono ancora un mondo; «Does Marco think that P?»
+funziona solo se P si legge come affermazione; il titolare è una parola sola
+(«Marco Polo thinks …» no); i mondi degli altri non si salvano ancora (C6).
+
 ### ▶ 0-bis, passo 1 fatto (29 settembre 2026, giorno): la lezione in due tempi su una REGOLA
 
 Il primo dei «prossimi passi» qui sotto è chiuso. La sequenza (cricchetto

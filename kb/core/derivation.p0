@@ -214,8 +214,22 @@ support_key($P, cons($S, cons($O, nil)), $Pol, fact($P, $S, $O, $Pol)).
 % le parole di un contenuto: «espresso is a coffee», «kettle leaks current»
 machinery(content_said).
 content_said($P, cons($S, nil), $T) :-
-    words_of($S, $WS), words_of($P, $WP), current_language($L), word_article($L, $WP, $Art),
-    concat_atoms($WS, " is ", $A), concat_atoms($A, $Art, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WP, $T).
+    current_language($L), word_in_language($L, $S, $WS), word_in_language($L, $P, $WP),
+    word_article($L, $WP, $Art), content_copula($L, $Cop),
+    concat_atoms($WS, $Cop, $A), concat_atoms($A, $Art, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WP, $T).
+% la copula e' della lingua in cui si parla (era « is » scritto nella regola:
+% «Marco pensa che dog is un animal»)
+machinery(content_copula).
+content_copula(en, " is ").
+content_copula(it, " è ").
+% le entita' stanno nel canone inglese: in un'altra lingua si dicono con la sua
+% glossa, se c'e' (`tr/2`), altrimenti come sono
+machinery(word_in_language).
+machinery(has_gloss).
+word_in_language(en, $W, $T) :- words_of($W, $T).
+word_in_language(it, $W, $T) :- tr($W, $T0), concat_atoms($T0, "", $T).
+word_in_language(it, $W, $T) :- naf(has_gloss($W)), words_of($W, $T).
+has_gloss($W) :- tr($W, $X).
 content_said($P, cons($S, cons($O, nil)), $T) :-
     naf(content_sayer($P)), words_of($S, $WS), relation_finite($P, $WP), words_of($O, $WO),
     concat_atoms($WS, " ", $A), concat_atoms($A, $WP, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WO, $T).

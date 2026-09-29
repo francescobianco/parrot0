@@ -1,0 +1,74 @@
+# L4 0-bis, passo 5 (29 settembre 2026, docs/plans/l4-upgrade.md) — GLI ALTRI
+# MONDI. «Marco thinks that P» apre il mondo di Marco e P si rilegge DENTRO quel
+# mondo con i lettori che esistono: parrot0 lo attribuisce, non lo crede. Il
+# mondo di un altro si interroga («What does Marco think?», «Does Marco think
+# that P?»), si traccia («Whose idea is that?») e si trasferisce per nome
+# («Make Marco's view yours.»). «I think that P» e' il mondo di chi parla.
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test il pensiero di un altro sta nel suo mondo]
+!timeout 4
+> What does Marco think?
+<~ Nobody has told me what marco thinks yet.
+> Marco thinks that tea tastes sour.
+<~ I see: that is Marco's view: tea tastes sour. I keep it as Marco's, not as mine.
+!query holds_in(world_of(marco), fact(taste, tea, sour))
+!query! taste(tea, sour)
+!query context(world_of(marco), reported_belief)
+> Does tea taste sour?
+<! Yes
+> What does Marco think?
+<~ Marco thinks that tea tastes sour.
+> Whose idea is that?
+<~ Marco's view: tea tastes sour; I keep it as theirs, not as mine.
+
+[test la domanda su un altro mondo: suo, mio, di nessuno]
+!timeout 4
+> Does Marco think that tea tastes sour?
+<~ Yes, that is Marco's view: tea tastes sour.
+> Does Marco think that milk tastes sour?
+<~ Not that I know: nobody told me so.
+> Coffee tastes bitter.
+> Does Marco think that coffee tastes bitter?
+<~ I don't know that it is theirs: nobody told me so. I do hold that coffee tastes bitter myself.
+# il mondo di prova si svuota dopo la domanda
+!query! holds_in(asked(world_of(marco)), fact(taste, coffee, bitter))
+!query! holds_in(asked(world_of(marco)), fact(taste, tea, sour))
+!query! holds_in(world_of(marco), fact(taste, milk, sour))
+
+[test il trasferimento da un mondo nominato]
+!timeout 4
+> Make Marco's view yours.
+<~ Done: from now on I hold it too, not only as Marco's: tea tastes sour.
+> Does tea taste sour?
+<~ Yes
+> Whose idea is that?
+<~ you then made it mine too
+> Forget that you made it yours.
+<~ Done: I no longer hold it myself; it stays yours: tea tastes sour.
+!query! taste(tea, sour)
+!query holds_in(world_of(marco), fact(taste, tea, sour))
+
+[test io penso che: il mondo di chi parla]
+!timeout 4
+> I think that milk tastes sour.
+<~ I see: that is your view: milk tastes sour. I keep it as yours, not as mine.
+!query holds_in(world_of(user), fact(taste, milk, sour))
+> Now make it yours.
+<~ Done: from now on I hold it too, not only as yours: milk tastes sour.
+!reset
+
+[test in italiano]
+!set PARROT0_LANG=it
+!timeout 4
+> Marco pensa che il cane è un animale.
+<~ Capito: Marco la pensa così: cane è un animale. Lo tengo come idea di Marco
+> Che cosa pensa Marco?
+<~ Marco pensa che cane è un animale.
+> Fai tua l'idea di Marco.
+<~ Fatto: d'ora in poi lo tengo anch'io, non solo come idea di Marco: cane è un animale.
+!set PARROT0_LANG=en
+!reset

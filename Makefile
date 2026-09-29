@@ -608,6 +608,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/language/lesson_meets_rule.p0t
 	@./$(BIN) --test tests/p0t/conversation/interlocutor_world.p0t
 	@./$(BIN) --test tests/p0t/conversation/world_transfer.p0t
+	@./$(BIN) --test tests/p0t/conversation/other_worlds.p0t
 	@./$(BIN) --test tests/p0t/language/taught_lesson_form.p0t
 	@./$(BIN) --test tests/p0t/language/behavior_gen512.p0t
 	@./$(BIN) --test tests/p0t/language/law_code.p0t

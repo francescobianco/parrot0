@@ -1192,6 +1192,7 @@ speaker_context(world_of(user)).
 % scritti (`kb_fact`, che non attraversa i mondi).
 machinery(held_by_me).
 held_by_me(fact($P, $S, $O)) :- kb_fact($P, cons($S, cons($O, nil))).
+held_by_me(fact($P, $S)) :- kb_fact($P, cons($S, nil)).
 context(world_of(user), interlocutor_world).
 context_default_parent(interlocutor_world, world).
 commitment_policy(interlocutor_world, reported_by_speaker).
@@ -1242,12 +1243,19 @@ person_mirror(en, am, are).     person_mirror(en, "i'm", "you're").
 person_mirror(en, myself, yourself).
 machinery(person_mirror_now).
 person_mirror_now($F, $T) :- current_language($L), person_mirror($L, $F, $T).
+% un modulo che ridice gia' il turno dal punto di vista di chi ascolta (il
+% resoconto di un mondo: «I see: that is your view: …») non si riscrive: la
+% frase annidata ha lasciato `learned_facts` nel turno, ma non e' lei a parlare
+machinery(turn_reply_mirrored).
+machinery(module_mirrors_reply).
+module_mirrors_reply(world_report).
+turn_reply_mirrored($T) :- turn_module($T, $M), module_mirrors_reply($M).
 machinery(commitment_line).
 commitment_line(en, understood, "I see: ").
 commitment_line(it, understood, "Capisco: ").
 reply_conduct($In, $Out) :-
     turn_said_by(current_turn, template(learned_facts)),
-    turn_commitment(current_turn, interlocutor_world),
+    turn_commitment(current_turn, interlocutor_world), naf(turn_reply_mirrored(current_turn)),
     mirrored_turn_words(0, $Mirrored), current_language($L), commitment_line($L, understood, $A),
     concat_atoms($A, $Mirrored, $B), concat_atoms($B, ".", $Out).
 % ⚠ a quel punto `turn_input(current_turn, …)` e' ancora la frase del turno
@@ -1398,12 +1406,49 @@ last_speaker_content($F) :-
 later_speaker_content($N) :- interlocutor_world_fact($G, $M), gt($M, $N).
 machinery(made_own).
 machinery(transfer_to_own).
+% «it» e' l'ultimo contenuto detto in un ALTRO mondo: quello di chi parla, o
+% quello di una persona di cui chi parla ha riportato il pensiero («Marco thinks
+% that …»). Il passaggio e' lo stesso da qualunque mondo; cambia chi si nomina.
 transfer_to_own($Text) :-
-    last_speaker_content(fact($P, $S, $O)), speaker_context($C), turn_counter($N),
-    assert($P, $S, $O), assert(made_own, fact($P, $S, $O), from($C, $N)),
-    content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
-    commitment_line($L, made_own, $A), concat_atoms($A, $Cs, $B),
+    last_world_content($C, $F), transfer_from($C, $F, $Text).
+machinery(transfer_from).
+transfer_from($C, $F, $Text) :-
+    turn_counter($N), fact_assert($F), assert(made_own, $F, from($C, $N)),
+    fact_said($F, $Cs), current_language($L),
+    world_owner_said($L, $C, $Ow), commitment_line($L, made_own, $A), concat_atoms($A, $Ow, $A1),
+    commitment_line($L, made_own_mid, $M), concat_atoms($A1, $M, $A2), concat_atoms($A2, $Cs, $B),
     commitment_line($L, made_own_end, $E), concat_atoms($B, $E, $Text).
+% un contenuto di qualunque arita' (una classe, «cane e' un animale», o una
+% relazione): detto, scritto, ritirato
+machinery(fact_said).
+fact_said(fact($P, $S), $T) :- content_said($P, cons($S, nil), $T).
+fact_said(fact($P, $S, $O), $T) :- content_said($P, cons($S, cons($O, nil)), $T).
+machinery(fact_assert).
+fact_assert(fact($P, $S)) :- assert($P, $S).
+fact_assert(fact($P, $S, $O)) :- assert($P, $S, $O).
+machinery(fact_retract).
+fact_retract(fact($P, $S)) :- retract($P, $S).
+fact_retract(fact($P, $S, $O)) :- retract($P, $S, $O).
+% i contenuti detti nei mondi degli altri, e l'ultimo
+machinery(world_content).
+machinery(last_world_content).
+machinery(later_world_content).
+world_content($C, $F, $N) :- speaker_context($C), interlocutor_world_fact($F, $N).
+world_content($C, $F, $N) :- world_fact_said($C, $F, $N).
+last_world_content($C, $F) :- world_content($C, $F, $N), naf(later_world_content($N)).
+later_world_content($N) :- world_content($C, $G, $M), gt($M, $N).
+% chi tiene un mondo, detto: «yours», «Marco's»; «tuo», «di Marco»
+machinery(world_owner_said).
+world_owner_said($L, $C, $T) :- speaker_context($C), commitment_line($L, owner_you, $T).
+world_owner_said($L, world_of($H), $T) :-
+    dif($H, user), upcase_first($H, $Hu), commitment_line($L, owner_other, $A),
+    concat_atoms($A, $Hu, $B), commitment_line($L, owner_other_end, $E), concat_atoms($B, $E, $T).
+commitment_line(en, owner_you, "as yours").
+commitment_line(it, owner_you, "come tuo").
+commitment_line(en, owner_other, "as ").
+commitment_line(en, owner_other_end, "'s").
+commitment_line(it, owner_other, "come idea di ").
+commitment_line(it, owner_other_end, "").
 % (l'imperativo non ha il modo `statement`; «now» si sbuccia come apertura)
 turn_form(transfer_make_it_yours, 1, text("now make it yours")).
 turn_form(transfer_make_it_yours_bare, 1, text("make it yours")).
@@ -1433,9 +1478,11 @@ response_template(transfer_reply, "{result}").
 response_template(transfer_reply, it, "{result}").
 response_template(transfer_nothing, "There is nothing of yours I could make mine: tell me first what your way or your view is.").
 response_template(transfer_nothing, it, "Non c'è niente di tuo che possa fare mio: dimmi prima qual è il tuo modo o la tua idea.").
-commitment_line(en, made_own, "Done: from now on I hold it too, not only as yours: ").
+commitment_line(en, made_own, "Done: from now on I hold it too, not only ").
+commitment_line(en, made_own_mid, ": ").
 commitment_line(en, made_own_end, ".").
-commitment_line(it, made_own, "Fatto: d'ora in poi lo tengo anch'io, non solo come tuo: ").
+commitment_line(it, made_own, "Fatto: d'ora in poi lo tengo anch'io, non solo ").
+commitment_line(it, made_own_mid, ": ").
 commitment_line(it, made_own_end, ".").
 % «make it yours» non e' una richiesta di produrre qualcosa: la facolta' delle
 % richieste di generazione cede (mantra #17, la cessione e' KB)
@@ -1455,9 +1502,8 @@ last_made_own($F, from($C, $N)) :- made_own($F, from($C, $N)), naf(later_made_ow
 later_made_own($N) :- made_own($G, from($C, $M)), gt($M, $N).
 machinery(give_back_own).
 give_back_own($Text) :-
-    last_made_own(fact($P, $S, $O), $From),
-    retract($P, $S, $O), retract(made_own, fact($P, $S, $O), $From),
-    content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
+    last_made_own($F, $From), fact_retract($F), retract(made_own, $F, $From),
+    fact_said($F, $Cs), current_language($L),
     commitment_line($L, given_back, $A), concat_atoms($A, $Cs, $B),
     commitment_line($L, given_back_end, $E), concat_atoms($B, $E, $Text).
 turn_form(transfer_give_back, 1, text("forget that you made it yours")).
@@ -1487,15 +1533,30 @@ machinery(made_own_any).
 made_own_any($F) :- made_own($F, $From).
 machinery(content_owner_answer).
 content_owner_answer($Text) :-
-    last_speaker_content(fact($P, $S, $O)), made_own_any(fact($P, $S, $O)),
+    last_world_content($C, fact($P, $S, $O)), speaker_context($C), made_own_any(fact($P, $S, $O)),
     content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
     commitment_line($L, owner_both, $A), concat_atoms($A, $Cs, $B),
     commitment_line($L, owner_both_end, $E), concat_atoms($B, $E, $Text).
 content_owner_answer($Text) :-
-    last_speaker_content(fact($P, $S, $O)), naf(made_own_any(fact($P, $S, $O))),
+    last_world_content($C, fact($P, $S, $O)), speaker_context($C), naf(made_own_any(fact($P, $S, $O))),
     content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
     commitment_line($L, owner_yours, $A), concat_atoms($A, $Cs, $B),
     commitment_line($L, owner_yours_end, $E), concat_atoms($B, $E, $Text).
+% il mondo di un altro: di chi, e se l'ho fatto mio
+content_owner_answer($Text) :-
+    last_world_content(world_of($H), $F), dif($H, user),
+    fact_said($F, $Cs), current_language($L), upcase_first($H, $Hu),
+    commitment_line($L, owner_other_is, $A), concat_atoms($Hu, $A, $B), concat_atoms($B, $Cs, $D),
+    owner_other_tail($L, $F, $Tail), concat_atoms($D, $Tail, $Text).
+machinery(owner_other_tail).
+owner_other_tail($L, $F, $T) :- made_own_any($F), commitment_line($L, owner_other_both_end, $T).
+owner_other_tail($L, $F, $T) :- naf(made_own_any($F)), commitment_line($L, owner_other_end_view, $T).
+commitment_line(en, owner_other_is, "'s view: ").
+commitment_line(en, owner_other_end_view, "; I keep it as theirs, not as mine.").
+commitment_line(en, owner_other_both_end, "; you then made it mine too.").
+commitment_line(it, owner_other_is, " la pensa così: ").
+commitment_line(it, owner_other_end_view, "; lo tengo come idea sua, non mia.").
+commitment_line(it, owner_other_both_end, "; poi me l'hai fatto fare mio.").
 turn_form(ask_content_owner, 1, text("whose idea is that")).
 turn_form(ask_content_owner_way, 1, text("whose way is that")).
 turn_form(ask_content_owner_it, 1, text("di chi è questa idea")).
@@ -1527,3 +1588,179 @@ commitment_line(it, owner_yours, "Tuo: mi hai detto che ").
 commitment_line(it, owner_yours_end, ", e lo tengo come tuo, non come mio.").
 commitment_line(it, owner_both, "Era tuo: mi hai detto che ").
 commitment_line(it, owner_both_end, ", e poi me l'hai fatto fare mio.").
+
+% ── L4 0-bis, passo 5 — GLI ALTRI MONDI: «Marco thinks that P» ────────────────
+% Un verbo d'atteggiamento con il suo titolare apre il mondo di chi pensa: la
+% clausola si rilegge come turno annidato DENTRO quel mondo (99-registry.c,
+% `world_report_peel`) e i lettori che esistono scrivono li'. «I think that P»
+% apre il mondo di chi parla. Il mondo di un altro e' un `reported_belief`
+% (context-scope.p0): attribuito, non creduto. Nessun lettore nuovo della
+% clausola, nessuna copia della regola: il mondo e' un parametro.
+machinery(world_report_verb).
+world_report_verb(en, thinks).  world_report_verb(en, believes).
+world_report_verb(en, says).    world_report_verb(en, claims).
+world_report_verb(en, think).   world_report_verb(en, believe).
+world_report_verb(it, pensa).   world_report_verb(it, crede).
+world_report_verb(it, dice).    world_report_verb(it, sostiene).
+world_report_verb(it, penso).   world_report_verb(it, credo).
+machinery(world_report_that).
+world_report_that(en, that).  world_report_that(it, che).
+first_person_word(it, io).
+machinery(turn_world_report).
+% (le parole come DETTE: il canone italiano riscrive «pensa che»)
+turn_world_report(current_turn, $Ctx, 3) :-
+    turn_word(current_turn, 0, $H), turn_said_word(1, $V), current_language($L),
+    world_report_verb($L, $V), turn_said_word(2, $Th), world_report_that($L, $Th),
+    naf(turn_has_question_mark(current_turn)), world_report_holder($L, $H, $Ctx).
+machinery(world_report_holder).
+world_report_holder($L, $H, $C) :- first_person_word($L, $H), speaker_context($C).
+world_report_holder($L, $H, world_of($H)) :-
+    naf(first_person_word($L, $H)), naf(personal_pronoun($H)).
+% che cosa il turno annidato ha scritto in un mondo che non e' di chi parla
+% (quello di chi parla ha il suo osservatore, `interlocutor_world_note`)
+machinery(world_fact_said).
+after_reply_observer(world_content_note).
+turn_after_reply($T, world_content_note) :-
+    kb_turn_act(holds_in, cons(world_of($H), cons($F, nil)), pos, $K),
+    dif($H, user), naf(world_fact_known(world_of($H), $F)), turn_counter($N),
+    assert(world_fact_said, world_of($H), $F, $N).
+machinery(world_fact_known).
+world_fact_known($C, $F) :- world_fact_said($C, $F, $N).
+% la risposta: che cosa e' entrato nel mondo aperto, detto come suo
+machinery(world_report_reply).
+machinery(world_report_content).
+world_report_content($C, $Cs) :-
+    kb_turn_act(holds_in, cons($C, cons($F, nil)), pos, $K), fact_said($F, $Cs).
+world_report_reply($C, $Text) :-
+    world_report_content($C, $Cs), current_language($L), world_owner_view($L, $C, $V),
+    commitment_line($L, report_seen, $A), concat_atoms($A, $V, $B),
+    commitment_line($L, report_mid, $M), concat_atoms($B, $M, $B1), concat_atoms($B1, $Cs, $D),
+    world_owner_said($L, $C, $Ow), commitment_line($L, report_keep, $K), concat_atoms($D, $K, $D1),
+    concat_atoms($D1, $Ow, $D2), commitment_line($L, report_end, $E), concat_atoms($D2, $E, $Text).
+machinery(world_owner_view).
+world_owner_view($L, $C, $T) :- speaker_context($C), commitment_line($L, view_you, $T).
+world_owner_view($L, world_of($H), $T) :-
+    dif($H, user), upcase_first($H, $Hu), commitment_line($L, view_other, $A),
+    concat_atoms($Hu, $A, $T).
+commitment_line(en, report_seen, "I see: that is ").
+commitment_line(en, report_mid, ": ").
+commitment_line(en, report_keep, ". I keep it ").
+commitment_line(en, report_end, ", not as mine.").
+commitment_line(en, view_you, "your view").
+commitment_line(en, view_other, "'s view").
+commitment_line(it, report_seen, "Capito: ").
+commitment_line(it, report_mid, ": ").
+commitment_line(it, report_keep, ". Lo tengo ").
+commitment_line(it, report_end, ", non come mio.").
+commitment_line(it, view_you, "la pensi così").
+commitment_line(it, view_other, " la pensa così").
+% chiudere il resoconto: il mondo di un altro diventa un contesto noto
+machinery(world_report_close).
+machinery(context_known).
+context_known($C) :- context($C, $K).
+world_report_close(world_of($H)) :- context_known(world_of($H)).
+world_report_close(world_of($H)) :-
+    naf(context_known(world_of($H))), assert(context, world_of($H), reported_belief).
+% «What does Marco think?» — il mondo di un altro ha un lettore
+turn_form(ask_world_view, 1, text("what does")).
+turn_form(ask_world_view, 2, slot(word)).
+turn_form(ask_world_view, 3, text("think")).
+turn_form_mood(ask_world_view, question).
+turn_form_priority(ask_world_view, early).
+turn_form_act(ask_world_view, "op(match, world_view_answer, [word, free])").
+turn_form_reply(ask_world_view, transfer_reply).
+turn_form_empty_reply(ask_world_view, world_view_none).
+turn_form(ask_world_view_it, 1, text("che cosa pensa")).
+turn_form(ask_world_view_it, 2, slot(word)).
+turn_form_mood(ask_world_view_it, question).
+turn_form_priority(ask_world_view_it, early).
+turn_form_view(ask_world_view_it, said).
+turn_form_act(ask_world_view_it, "op(match, world_view_answer, [word, free])").
+turn_form_reply(ask_world_view_it, transfer_reply).
+turn_form_empty_reply(ask_world_view_it, world_view_none).
+response_template(world_view_none, "Nobody has told me what {word} thinks yet.").
+response_template(world_view_none, it, "Nessuno mi ha ancora detto che cosa pensa {word}.").
+machinery(world_view_answer).
+machinery(world_view_item).
+world_view_item($H, $Cs) :- world_fact_said(world_of($H), $F, $N), fact_said($F, $Cs).
+world_view_answer($W, $Text) :-
+    findall($Cs, world_view_item($W, $Cs), cons($C1, $Cr)), current_language($L),
+    inversion_phrase_and($L, cons($C1, $Cr), $J), upcase_first($W, $Wu),
+    commitment_line($L, view_list, $A), concat_atoms($Wu, $A, $B), concat_atoms($B, $J, $D),
+    concat_atoms($D, ".", $Text).
+commitment_line(en, view_list, " thinks that ").
+commitment_line(it, view_list, " pensa che ").
+% «Make Marco's view yours.» — il trasferimento da un mondo NOMINATO
+machinery(last_content_in).
+machinery(later_content_in).
+last_content_in($C, $F) :- world_content($C, $F, $N), naf(later_content_in($C, $N)).
+later_content_in($C, $N) :- world_content($C, $G, $M), gt($M, $N).
+machinery(transfer_named).
+transfer_named($W, $Text) :- last_content_in(world_of($W), $F), transfer_from(world_of($W), $F, $Text).
+% «Marco's» arriva nello slot con il genitivo attaccato
+transfer_named($W, $Text) :-
+    concat_atoms($H, "'s", $W), last_content_in(world_of($H), $F), transfer_from(world_of($H), $F, $Text).
+turn_form(transfer_named_view, 1, text("make")).
+turn_form(transfer_named_view, 2, slot(word)).
+turn_form(transfer_named_view, 3, text("view yours")).
+turn_form_priority(transfer_named_view, early).
+turn_form_act(transfer_named_view, "op(match, transfer_named, [word, free])").
+turn_form_reply(transfer_named_view, transfer_reply).
+turn_form_empty_reply(transfer_named_view, world_view_none).
+turn_form(transfer_named_it, 1, text("fai tua l'idea di")).
+turn_form(transfer_named_it, 2, slot(word)).
+turn_form_priority(transfer_named_it, early).
+turn_form_view(transfer_named_it, said).
+turn_form_act(transfer_named_it, "op(match, transfer_named, [word, free])").
+turn_form_reply(transfer_named_it, transfer_reply).
+turn_form_empty_reply(transfer_named_it, world_view_none).
+
+% «Does Marco think that P?» — P si legge come affermazione in un mondo DI PROVA
+% (`asked(Mondo)`), figlio di nessuno: cio' che la lettura vi scrive e' il
+% contenuto chiesto, letto dagli stessi lettori delle affermazioni. Poi lo si
+% confronta con il mondo di Marco e con il mio, e il mondo di prova si svuota.
+turn_world_report(current_turn, asked($Ctx), 4) :-
+    turn_word(current_turn, 0, $Aux), current_language($L), world_ask_aux($L, $Aux),
+    turn_word(current_turn, 1, $H), turn_said_word(2, $V), world_report_verb($L, $V),
+    turn_said_word(3, $Th), world_report_that($L, $Th), world_report_holder($L, $H, $Ctx).
+machinery(turn_said_word).
+turn_said_word($I, $W) :- turn_lesson_word_at(current_turn, $I, $W).
+machinery(world_ask_aux).
+world_ask_aux(en, does).  world_ask_aux(en, do).
+machinery(world_report_statement).
+world_report_statement(asked($C)).
+machinery(asked_written).
+asked_written($A, $F) :- kb_turn_act(holds_in, cons($A, cons($F, nil)), pos, $K).
+machinery(world_holds_said).
+world_holds_said($C, $F) :- holds_in($C, $F).
+% nel suo mondo: si'
+world_report_reply(asked($C), $Text) :-
+    asked_written(asked($C), $F), world_holds_said($C, $F),
+    fact_said($F, $Cs), current_language($L), world_owner_view($L, $C, $V),
+    commitment_line($L, asked_yes, $A), concat_atoms($A, $V, $B), commitment_line($L, report_mid, $M),
+    concat_atoms($B, $M, $B1), concat_atoms($B1, $Cs, $D), concat_atoms($D, ".", $Text).
+% non nel suo mondo, ma lo tengo io: non lo attribuisco
+world_report_reply(asked($C), $Text) :-
+    asked_written(asked($C), $F), naf(world_holds_said($C, $F)), held_by_me($F),
+    fact_said($F, $Cs), current_language($L),
+    commitment_line($L, asked_mine, $A), concat_atoms($A, $Cs, $B),
+    commitment_line($L, asked_mine_end, $E), concat_atoms($B, $E, $Text).
+% ne' suo ne' mio
+world_report_reply(asked($C), $Text) :-
+    asked_written(asked($C), $F), naf(world_holds_said($C, $F)),
+    naf(held_by_me($F)), current_language($L),
+    commitment_line($L, asked_unknown, $Text).
+commitment_line(en, asked_yes, "Yes, that is ").
+commitment_line(en, asked_mine, "I don't know that it is theirs: nobody told me so. I do hold that ").
+commitment_line(en, asked_mine_end, " myself.").
+commitment_line(en, asked_unknown, "Not that I know: nobody told me so.").
+commitment_line(it, asked_yes, "Sì, è ").
+commitment_line(it, asked_mine, "Non so se sia sua: nessuno me l'ha detto. Io però tengo che ").
+commitment_line(it, asked_mine_end, ".").
+commitment_line(it, asked_unknown, "Non che io sappia: nessuno me l'ha detto.").
+% il mondo di prova si svuota
+world_report_close(asked($C)) :-
+    findall($F, asked_written(asked($C), $F), $Fs), retract_all_in(asked($C), $Fs).
+machinery(retract_all_in).
+retract_all_in($C, nil).
+retract_all_in($C, cons($F, $R)) :- retract(holds_in, $C, $F), retract_all_in($C, $R).
