@@ -1435,3 +1435,54 @@ turn_form_slot_class(verb_first_question, verb, lexical_third_person_verb).
 turn_form_mood(verb_first_question, question).
 turn_form_act(verb_first_question, reread(does {subject} {verb} {object})).
 turn_form_priority(verb_first_question, early).
+
+% ── 29 settembre 2026 (CV33) — IL CLITICO OGGETTO: «Ti ha creato Francesco
+% Bianco.», «Chi ti ha creato?» ─────────────────────────────────────────────
+% La frase italiana mette l'oggetto (ti = parrot0) prima del verbo e il soggetto
+% dopo. Non una riga per verbo: il participio passato si riporta alla terza
+% persona con la morfologia («creato» -> «crea», «venduto» -> «vende»,
+% «costruito» -> «costruisce» no: -ito -> -e vale per «sentito» -> «sente»), e
+% la glossa da' il verbo inglese. La relazione e' quella della frase inglese
+% equivalente («Francesco Bianco created you.»), con l'oggetto «you».
+tr(create, crea).
+machinery(it_participle_third).
+it_participle_third($P, $T) :- concat_atoms($S, "ato", $P), concat_atoms($S, "a", $T).
+it_participle_third($P, $T) :- concat_atoms($S, "uto", $P), concat_atoms($S, "e", $T).
+it_participle_third($P, $T) :- concat_atoms($S, "ito", $P), concat_atoms($S, "e", $T).
+machinery(it_participle_verb).
+it_participle_verb($P, $V) :- it_participle_third($P, $T), tr($V, $T).
+machinery(clitic_object_statement).
+machinery(clitic_object_question).
+machinery(clitic_subject_atom).
+clitic_subject_atom($Said, $A) :- atom_words($Said, $Ws), drop_openers($Ws, $W2), words_underscored($W2, $A).
+clitic_object_statement($P, $Said, $Text) :-
+    it_participle_verb($P, $V), clitic_subject_atom($Said, $S), assert($V, $S, you),
+    concat_atoms("Tengo: ", $Said, $A), concat_atoms($A, " ti ha ", $B), concat_atoms($B, $P, $C),
+    concat_atoms($C, ".", $Text).
+clitic_object_question($P, $Text) :-
+    it_participle_verb($P, $V), apply($V, cons($X, cons(you, nil))), words_of($X, $W),
+    upcase_first($W, $Text).
+turn_form(clitic_object_told, 1, text("ti ha")).
+turn_form(clitic_object_told, 2, slot(participle)).
+turn_form(clitic_object_told, 3, rest(subject)).
+turn_form_mood(clitic_object_told, statement).
+turn_form_priority(clitic_object_told, early).
+turn_form_view(clitic_object_told, said).
+turn_form_slot_class(clitic_object_told, participle, it_participle_known).
+turn_form_act(clitic_object_told, "op(match, clitic_object_statement, [participle, subject, free])").
+turn_form_reply(clitic_object_told, clitic_object_reply).
+turn_form(clitic_object_asked, 1, text("chi ti ha")).
+turn_form(clitic_object_asked, 2, slot(participle)).
+turn_form_mood(clitic_object_asked, question).
+turn_form_priority(clitic_object_asked, early).
+turn_form_view(clitic_object_asked, said).
+turn_form_slot_class(clitic_object_asked, participle, it_participle_known).
+turn_form_act(clitic_object_asked, "op(match, clitic_object_question, [participle, free])").
+turn_form_reply(clitic_object_asked, clitic_object_reply).
+turn_form_empty_reply(clitic_object_asked, clitic_object_unknown).
+machinery(it_participle_known).
+it_participle_known($P) :- it_participle_verb($P, $V).
+response_template(clitic_object_reply, "{result}").
+response_template(clitic_object_reply, it, "{result}").
+response_template(clitic_object_unknown, "Nobody has told me yet.").
+response_template(clitic_object_unknown, it, "Nessuno me l'ha ancora detto.").

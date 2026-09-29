@@ -33,9 +33,10 @@
 > giochiamo a scacchi?
 <~ Volentieri
 <~ prima mossa
+# (29 settembre 2026: la mossa d'iniziativa ha cambiato parole, non senso)
 > parliamo di scacchi
-<~ parliamo di scacchi
-<~ esplorare
+<~ scacchi
+<~ indagare
 % Trasferimento a un dominio non usato nei casi precedenti.
 > ti piace il poker?
 <~ conosco poker
@@ -43,8 +44,8 @@
 <~ showdown
 <~ insieme
 > parliamo di poker
-<~ parliamo di poker
-<~ esplorare
+<~ poker
+<~ indagare
 > giochiamo a poker?
 <~ giochiamo a poker
 <~ prima mossa
@@ -112,7 +113,7 @@
 # richiesta e perche' non la esegue. E' migliore del muro cieco che l'attesa
 # vecchia pretendeva.
 > build me a roadmap to learn chess
-<~ verified schema
+<~ I understood the request
 
 [continuità del goal fra turni]
 # La sezione inglese qui sopra aveva lasciato PARROT0_LANG=en e nessuno lo

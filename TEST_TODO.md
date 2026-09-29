@@ -329,6 +329,20 @@ prossimo lavoro (report gen509 §7-bis).
   proiezione semantica, R5), e toglierne una non ribalta. Il turno costa ~19 s
   (avvio completo della copia) contro `!timeout 1`: l'attesa di tempo e'
   obsoleta per una copia avviata con la KB completa.
+- `engine/inference_time.p0t` riga 29: il primo turno dopo il ritiro del
+  limite di 1 ms costa 2,7 s contro `!timeout 2` (era sotto 2 s alle 20:40).
+  E' il turno che ricostruisce le viste lasciate in sospeso dai turni tagliati
+  (`finite_reading_verb_form`, `np_closer`, `view_pair`), e il costo e'
+  cresciuto con la KB aggiunta stasera (glosse, lessico). Costo da curare,
+  non da coprire alzando il `!timeout`.
+- `conversation/compound_inquiry.p0t`: i turni composti costavano gia' 9,5 s
+  stamattina (`396f2d82`) contro `!timeout 8`; ora il tetto di 10 s li chiude
+  con la risposta gestita. Costo dominante da sempre: `answer_frame` (~2 s su
+  ~200 chiamate) e `attribute_question_cue` (~1,4 s).
+- `conversation/chitchat.p0t`, `smalltalk.p0t`, `frontier_chat_audit.it.p0t`:
+  curati tutti i rossi di contenuto (la prima persona cede la domanda
+  d'abilita', «cosa sai degli …», attese obsolete aggiornate); restano turni fra
+  1,0 e 2,0 s contro `!timeout 1`.
 - `reasoning/other_worlds.p0t` riga 98 («My bike is not red.» → «Learned: my
   bike is not red.» invece del riscontro) e `knowledge/name_is_knowledge.p0t`
   riga 63: identici a HEAD.

@@ -35,6 +35,9 @@
 
 # Anti-impostor: a real world-knowledge question parrot0 wasn't taught still gets
 # the honest wall — small-talk patterns must not swallow genuine questions.
+# (29 settembre 2026: ora parrot0 lo sa — la risposta viene dalla conoscenza,
+# e lo small talk non la inghiotte, che e' cio' che il caso verifica)
 > is the sky blue?
-< I don't understand that yet.
+<~ Yes
+<! Hi there
 

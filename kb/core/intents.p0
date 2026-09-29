@@ -486,6 +486,7 @@ machinery(self_question_intent).
 self_question_intent(ai_not_llm).     self_question_intent(ai_no_params).
 self_question_intent(ai_what_model).  self_question_intent(ai_opensource).
 self_question_intent(self_embodiment). self_question_intent(self_preference).
+self_question_intent(self_likes_polar).
 self_question_intent(self_location).  self_question_intent(self_origin).
 % «di dove sei?» era un muro (report gen509): parrot0 non ha un luogo d'origine,
 % e lo dice con onesta' invece di non capire la domanda.
@@ -505,9 +506,14 @@ intent_cue(self_preference, "your favorite").
 intent_cue(self_preference, "your favourite").
 intent_cue(self_preference, "favorite thing").
 intent_cue(self_preference, "favourite thing").
-intent_cue(self_preference, "do you like").
-intent_cue(self_preference, "do you enjoy").
 intent_cue(self_preference, "do you prefer").
+% (29 settembre 2026, §CV-bis) «Ti piace la musica?» / «Do you like music?» e'
+% una domanda Si'/No sul gusto, non «qual e' il tuo passatempo preferito»: il
+% passatempo preferito le rispondeva fuori tema. Un intento suo, con una
+% risposta che risponde.
+intent_cue(self_likes_polar, "do you like").
+intent_cue(self_likes_polar, "do you enjoy").
+intent_cue(self_likes_polar, "ti piace").
 intent_cue(self_preference, "what do you enjoy").
 intent_cue(self_preference, "what's something you've been into").
 intent_cue(self_preference, "what is something you've been into").
@@ -520,7 +526,6 @@ intent_cue(self_preference, "have you been enjoying").
 intent_cue(self_preference, "il tuo preferito").
 intent_cue(self_preference, "la tua preferita").
 intent_cue(self_preference, "cosa ti piace").
-intent_cue(self_preference, "ti piace").
 % Distinguish a preference question about an external, known topic from a
 % question about the agent's own private tastes.  The topic consumer is generic:
 % only the surface and topic facts vary in the KB.

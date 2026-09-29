@@ -271,6 +271,11 @@ token_variation(joined_infix_rhs, "split_operator_prefix").
 % potesse agganciarla, e una capacita' che funzionava spariva — misurato subito
 % dopo averle omesse. La forma piu' lunga si dichiara per prima.
 phrase_canon("dove si trova", "where is").
+% (29 settembre 2026, CV33/CV37) le lingue che segnano i nomi propri con la
+% maiuscola: una parola scritta cosi' a meta' frase non si traduce
+% («Francesco Bianco» non diventa «francesco white»)
+capital_marks_name(it).
+capital_marks_name(en).
 % CV (29 settembre 2026): «Mia madre è a Roma.» diventava «my mother is a rome»
 % — la preposizione italiana «a» coincide con l'articolo inglese e passava
 % intatta, e il lettore del possesso ne faceva un nome («called(mother, a
@@ -285,6 +290,22 @@ phrase_canon("tell me everything you know about", "what do you know about").
 phrase_canon("tell me all you know about", "what do you know about").
 phrase_canon("dimmi tutto quello che sai su", "what do you know about").
 phrase_canon("dimmi tutto su", "what do you know about").
+% (29 settembre 2026, frontier_chat_audit.it riga 52) «cosa sai degli scacchi?»
+% murava: la domanda italiana con le preposizioni articolate. La forma piu'
+% lunga si dichiara per prima.
+phrase_canon("che cosa sai degli", "what do you know about").
+phrase_canon("che cosa sai della", "what do you know about").
+phrase_canon("che cosa sai dello", "what do you know about").
+phrase_canon("che cosa sai del", "what do you know about").
+phrase_canon("che cosa sai dei", "what do you know about").
+phrase_canon("che cosa sai di", "what do you know about").
+phrase_canon("cosa sai degli", "what do you know about").
+phrase_canon("cosa sai della", "what do you know about").
+phrase_canon("cosa sai dello", "what do you know about").
+phrase_canon("cosa sai delle", "what do you know about").
+phrase_canon("cosa sai del", "what do you know about").
+phrase_canon("cosa sai dei", "what do you know about").
+phrase_canon("cosa sai di", "what do you know about").
 % 23 settembre 2026 — «conosci xdebug» murava in make chat (F.). Insegnata
 % parlando («"conosci" is another way to say "cosa sai di"») e salvata con
 % /save; spostata qui dalla casa in cui /save l'aveva messa (spelling.p0, il

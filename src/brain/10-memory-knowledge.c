@@ -1749,6 +1749,31 @@ static const char *canonical_token(const char *w) {
  * al momento dell'uso, per la parola che ha combaciato — mai dentro la regola
  * che la canonizzazione enumera (misurato: +270 ms per turno). Restituisce 1 se
  * la riscrittura va TRATTENUTA. */
+/* 29 settembre 2026 (CV33, CV37) — UNA PAROLA SCRITTA COME NOME NON SI
+ * TRADUCE. «Ti ha creato Francesco Bianco.» diventava «… francesco white»: il
+ * canone traduceva il cognome come l'aggettivo. Se la lingua del turno segna i
+ * nomi con la maiuscola (`capital_marks_name/1`, KB) e la parola e' scritta con
+ * l'iniziale maiuscola non a inizio frase, e' un nome proprio. */
+static int p0_written_as_name(Brain *b, const char *w) {
+    if (!b || !b->kb || !w || !*w || !b->canon_raw) return 0;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    const char *lq[1] = { lang };
+    if (!kb_query(b->kb, "capital_marks_name", lq, 1)) return 0;
+    size_t wl = strlen(w);
+    const char *r = b->canon_raw;
+    for (const char *p = r; *p; p++) {
+        if (strncasecmp(p, w, wl)) continue;
+        if (p > r && isalnum((unsigned char)p[-1])) continue;
+        if (isalnum((unsigned char)p[wl])) continue;
+        if (!isupper((unsigned char)p[0])) continue;
+        const char *q = p;                 /* a inizio frase la maiuscola non dice niente */
+        while (q > r && (q[-1] == ' ' || q[-1] == '"' || q[-1] == '\'')) q--;
+        if (q == r || q[-1] == '.' || q[-1] == '!' || q[-1] == '?' || q[-1] == ':') continue;
+        return 1;
+    }
+    return 0;
+}
+
 static int p0_alias_kept_lowercase(Brain *b, const char *w) {
     if (!b || !b->kb || !w || !*w) return 0;
     const char *cq[1] = { w };
@@ -2259,7 +2284,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             int is_name = 0;
             {
                 const char *pnq[] = { tok };
-                is_name = kb_query(b->kb, "proper_name", pnq, 1);
+                is_name = kb_query(b->kb, "proper_name", pnq, 1) || p0_written_as_name(b, tok);
             }
             if (is_name) {
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",

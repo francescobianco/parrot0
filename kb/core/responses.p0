@@ -490,6 +490,10 @@ response_template(smalltalk_deflect, "Not something I do myself, honestly -- but
 response_template(smalltalk_deflect, "I can't claim any of my own, but I'm curious -- what about you?").
 response_template(smalltalk_deflect, it, "Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.").
 response_template(smalltalk_deflect, it, "Non è una cosa che faccio io, ma dimmi -- e tu?").
+response_template(self_question_unanswered, "I don't know how to answer that about myself yet: nobody has taught me.").
+response_template(self_question_unanswered, it, "Non so ancora rispondere a questa domanda su di me: nessuno me l'ha insegnato.").
+response_template(self_likes_polar, "I don't have tastes of my own, so I can't honestly say I like it. Do you?").
+response_template(self_likes_polar, it, "Non ho gusti miei, quindi non posso dirti sinceramente che mi piace. A te piace?").
 response_template(topic_preference_request, "I don't have personal preferences, but I know {topic}: {fact} Would you like to explore it together?").
 response_template(topic_preference_request, it, "Non ho preferenze personali, ma conosco {topic}: {fact} Ti va di esplorarlo insieme?").
 response_template(game_invitation, "I'd be glad to play {topic}. Shall we start with the first move?").

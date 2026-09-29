@@ -1389,6 +1389,13 @@ machinery(second_person_deictic).
 second_person_deictic("you", parrot0).
 second_person_deictic("tu", parrot0).
 turn_form_yield(inverted(ability_stated, $W), second_person_deictic, 1, subject) :- derived_question(inverted(ability_stated, $W)).
+% 29 settembre 2026 (chitchat righe 29 e 62): «can we talk in italian
+% instead», «can we just talk» sono PROPOSTE fra chi parla e parrot0, non una
+% domanda su che cosa un'entita' sa fare: la prima persona cede come la seconda.
+machinery(first_person_deictic).
+first_person_deictic("we", speaker_and_parrot0).
+first_person_deictic("i", speaker).
+turn_form_yield(inverted(ability_stated, $W), first_person_deictic, 1, subject) :- derived_question(inverted(ability_stated, $W)).
 % Il vuoto di un'enumerazione si dice nella lingua dell'interrogativo: «who»
 % -> nessuno, altrimenti «I don't know any X yet» (M10: «what's the population
 % of France» -> «Nobody that I know of.»).

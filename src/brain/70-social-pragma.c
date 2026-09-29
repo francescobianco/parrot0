@@ -687,8 +687,9 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
          * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
          * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
          * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-        if (!addressed && (kb_cue_match(b, "experiential_move", norm) ||
-                           kb_cue_match(b, "experiential_move", raw))) addressed = 1;
+        int experiential = kb_cue_match(b, "experiential_move", norm) ||
+                           kb_cue_match(b, "experiential_move", raw);
+        if (!addressed && experiential) addressed = 1;
         const char *o = w[0];
         int question = (strchr(norm, '?') != NULL) ||
             lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||
@@ -703,9 +704,19 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
          * plausibile e non pertinente — peggio di un muro (PRINCIPLES.md). Quali
          * frasi chiedano un attributo sta in `self_attribute_request`, quindi la
          * distinzione si insegna senza ricompilare. */
-        if (addressed && question &&
+        /* 29 settembre 2026 (§CV-bis, F.: «le risposte senza senso come problema
+         * da risolvere») — «raccontami dei tuoi» risponde a una domanda sulle
+         * ESPERIENZE (hobby, tempo libero: `experiential_move`), non a ogni
+         * domanda in seconda persona: «Qual è il tuo colore preferito?», «Tu sei
+         * mai stato al mare?», «Chi ti ha creato?» ricevevano «Non è una cosa che
+         * faccio io, ma dimmi -- e tu?». Le altre domande su di se' ricevono un
+         * muro che dice che cosa manca: meglio di una mossa che non risponde. */
+        if (addressed && question && experiential &&
             !kb_cue_match(b, "self_attribute_request", norm))
             return kb_response(b, "smalltalk_deflect", NULL, out, out_size);
+        if (addressed && question &&
+            !kb_cue_match(b, "self_attribute_request", norm))
+            return kb_response(b, "self_question_unanswered", NULL, out, out_size);
     }
     return 0;
 }
