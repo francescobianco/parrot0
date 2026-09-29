@@ -5301,6 +5301,8 @@ intent_cue(20_math_cue1898, "counting to").
 intent_cue(20_math_cue1898_2, "conta fino").
 intent_cue(20_math_cue1899, "conta da").
 intent_cue(20_math_cue1899_2, "conta fino a").
+% (29 settembre 2026) il canone rende «da» come «from»: «conta da 5 a 8»
+intent_cue(20_math_cue1899, "conta from").
 intent_cue(20_math_cue1903, "count down").
 intent_cue(20_math_cue1903_2, "backwards").
 intent_cue(20_math_cue1904, "backward").

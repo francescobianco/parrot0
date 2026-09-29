@@ -280,6 +280,11 @@ capital_marks_name(en).
 % — la preposizione italiana «a» coincide con l'articolo inglese e passava
 % intatta, e il lettore del possesso ne faceva un nome («called(mother, a
 % roma)»). «è a <luogo>» e' la copula locativa, come «si trova».
+% (29 settembre 2026, F.) il ruolo di un numero in un conteggio: la parola che
+% lo introduce dice se e' l'inizio o la fine («conta fino a 10 partendo da 3»)
+count_bound(from, start).     count_bound(da, start).     count_bound(dal, start).
+count_bound(to, end).         count_bound(until, end).    count_bound(fino, end).
+count_bound(al, end).        count_bound(a, end).
 phrase_canon("è a", "is in").
 phrase_canon("e' a", "is in").
 phrase_canon("sono a", "am in").

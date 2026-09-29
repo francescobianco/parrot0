@@ -487,3 +487,83 @@ turn_retained($T) :- retention_cite($Pred, 2), turn_archived($T, $K), apply($Pre
 turn_retained($T) :- retention_cite($Pred, 1), turn_archived($T, $K), apply($Pred, cons($K, cons($Any, nil))).
 turn_expired($T) :- turn_archived($T, $K), naf(turn_retained($T)).
 
+
+% ── 29 settembre 2026 (F.) — LA RIPARAZIONE DELL'ORDINE ─────────────────────
+% «conta fino a 10 partendo da 3» → «10, 9, …, 3.» → «hai invertito l'ordine»
+% → «Non capisco ancora.». Chi parla segnala un difetto della risposta di
+% prima (CV27, CV36: la riparazione non aveva lettore). Qui la specie piu'
+% semplice: l'ordine di un elenco dato dalla risposta precedente. La
+% riparazione rilegge QUELLA risposta, non ricalcola, e dice che corregge.
+machinery(repair_reverse_last).
+machinery(reply_items).
+machinery(item_bare).
+machinery(items_reversed).
+machinery(items_rev_acc).
+machinery(items_joined).
+% (per caratteri: `atom_words/2` non regge un testo con le virgole, il vincolo
+% noto del motore sulle virgole nei testi)
+reply_items($R, $Items) :- chars($R, $Cs), items_split($Cs, nil, $Items).
+machinery(items_split).
+machinery(item_close).
+machinery(item_sep).
+item_sep(",").  item_sep(".").  item_sep(";").
+items_split(nil, $Acc, $Out) :- item_close($Acc, nil, $Out).
+items_split(cons($C, $R), $Acc, $Out) :-
+    item_sep($C), items_split($R, nil, $Rest), item_close($Acc, $Rest, $Out).
+items_split(cons(" ", $R), $Acc, $Out) :- items_split($R, $Acc, $Out).
+items_split(cons($C, $R), $Acc, $Out) :-
+    dif($C, " "), naf(item_sep($C)), items_split($R, cons($C, $Acc), $Out).
+% un elemento raccolto al contrario diventa un atomo; uno vuoto non conta
+item_close(nil, $Rest, $Rest).
+item_close(cons($C, $Cs), $Rest, cons($A, $Rest)) :-
+    items_rev_acc(cons($C, $Cs), nil, $Fw), chars($A, $Fw).
+machinery(items_bare).
+items_bare(nil, nil).
+items_bare(cons($W, $R), cons($B, $Bs)) :- item_bare($W, $B), items_bare($R, $Bs).
+item_bare($W, $B) :- concat_atoms($B, ",", $W).
+item_bare($W, $B) :- concat_atoms($B, ".", $W).
+item_bare($W, $W) :- naf(item_has_edge($W)).
+machinery(item_has_edge).
+item_has_edge($W) :- concat_atoms($B, ",", $W).
+item_has_edge($W) :- concat_atoms($B, ".", $W).
+items_reversed($L, $R) :- items_rev_acc($L, nil, $R).
+items_rev_acc(nil, $A, $A).
+items_rev_acc(cons($X, $T), $A, $R) :- items_rev_acc($T, cons($X, $A), $R).
+items_joined(cons($X, nil), $X).
+items_joined(cons($X, cons($Y, $R)), $T) :-
+    items_joined(cons($Y, $R), $Rest), concat_atoms($X, ", ", $A), concat_atoms($A, $Rest, $T).
+repair_reverse_last($Text) :-
+    previous_turn($P), turn_reply($P, $R), reply_items($R, cons($A, cons($B, $More))),
+    items_reversed(cons($A, cons($B, $More)), $Rev), items_joined($Rev, $J),
+    current_language($L), repair_line($L, reversed, $H), concat_atoms($H, $J, $T0),
+    concat_atoms($T0, ".", $Text).
+machinery(repair_line).
+repair_line(en, reversed, "You're right, I had it backwards. In order: ").
+repair_line(it, reversed, "Hai ragione, l'avevo messo al contrario. Nell'ordine giusto: ").
+turn_form(repair_order_it, 1, text("hai invertito l'ordine")).
+turn_form(repair_order_it2, 1, text("è al contrario")).
+turn_form(repair_order_en, 1, text("you reversed the order")).
+turn_form(repair_order_en2, 1, text("that's backwards")).
+turn_form(repair_order_en3, 1, text("wrong order")).
+turn_form_view(repair_order_it, said).
+turn_form_view(repair_order_it2, said).
+turn_form_view(repair_order_en, said).
+turn_form_view(repair_order_en2, said).
+turn_form_view(repair_order_en3, said).
+turn_form_priority(repair_order_it, early).
+turn_form_priority(repair_order_it2, early).
+turn_form_priority(repair_order_en, early).
+turn_form_priority(repair_order_en2, early).
+turn_form_priority(repair_order_en3, early).
+turn_form_act(repair_order_it, "op(match, repair_reverse_last, [free])").
+turn_form_act(repair_order_it2, "op(match, repair_reverse_last, [free])").
+turn_form_act(repair_order_en, "op(match, repair_reverse_last, [free])").
+turn_form_act(repair_order_en2, "op(match, repair_reverse_last, [free])").
+turn_form_act(repair_order_en3, "op(match, repair_reverse_last, [free])").
+turn_form_reply(repair_order_it, repair_reply).
+turn_form_reply(repair_order_it2, repair_reply).
+turn_form_reply(repair_order_en, repair_reply).
+turn_form_reply(repair_order_en2, repair_reply).
+turn_form_reply(repair_order_en3, repair_reply).
+response_template(repair_reply, "{result}").
+response_template(repair_reply, it, "{result}").

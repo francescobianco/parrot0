@@ -1,0 +1,32 @@
+# F., 29 settembre 2026 (make chat):
+#   >>> conta fino a 10 partendo da 3      -> «10, 9, 8, 7, 6, 5, 4, 3.»
+#   >>> hai invertito l'ordine             -> «Non capisco ancora.»
+# Il ruolo di un numero lo dice la parola che lo introduce (count_bound/2, KB),
+# non la posizione; e la riparazione di chi parla rilegge la risposta di prima.
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+
+[test il dialogo di F.]
+!timeout 3
+> come stai
+> conta fino a 10 partendo da 3
+< 3, 4, 5, 6, 7, 8, 9, 10.
+> conta da 8 a 5
+< 8, 7, 6, 5.
+> hai invertito l'ordine
+<~ Nell'ordine giusto: 5, 6, 7, 8.
+
+[test in inglese]
+!timeout 3
+!set PARROT0_LANG=en
+!reset
+> count to 10 starting from 3
+< 3, 4, 5, 6, 7, 8, 9, 10.
+> count from 20 by 3s
+< 20, 23, 26, 29, 32, 35, 38, 41, 44, 47.
+> count down from 5 to 1
+< 5, 4, 3, 2, 1.
+> you reversed the order
+<~ In order: 1, 2, 3, 4, 5.
+!reset

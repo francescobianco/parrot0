@@ -2271,18 +2271,41 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             }
         }
     }
+    /* 29 settembre 2026 (F., «conta fino a 10 partendo da 3» -> «10, 9, …, 3»)
+     * — IL RUOLO DI UN NUMERO LO DICE LA PAROLA CHE LO INTRODUCE, non la sua
+     * posizione. Quali parole segnano l'inizio e quali la fine e' lessico
+     * (`count_bound(Parola, start|end)`, KB); qui si guarda la parola prima del
+     * numero e quella prima ancora («fino a 10»). */
+    long role_start = 0, role_end = 0; int has_rs = 0, has_re = 0;
+    char *prev1 = NULL, *prev2 = NULL;
     for (char *t = strtok_r(tmp, " \t,.;:!?", &save);
          t && nn < 8; t = strtok_r(NULL, " \t,.;:!?", &save)) {
         long v; if (word_to_int(b, t, &v)) {
             /* drop the step value itself when it appears as a standalone number */
-            if (stepmag && v == stepmag && nn >= 1) continue;
+            if (stepmag && v == stepmag && nn >= 1) { prev2 = prev1; prev1 = t; continue; }
             nums[nn++] = v;
+            for (int k = 0; k < 2; k++) {
+                const char *pw = k ? prev2 : prev1;
+                if (!pw) continue;
+                char rr[1][KB_TERM_LEN];
+                const char *rq[2] = { pw, NULL };
+                if (b && b->kb && kb_match(b->kb, "count_bound", rq, 2, rr, 1) == 1) {
+                    if (!strcmp(rr[0], "start") && !has_rs) { role_start = v; has_rs = 1; }
+                    else if (!strcmp(rr[0], "end") && !has_re) { role_end = v; has_re = 1; }
+                    break;
+                }
+            }
         }
+        prev2 = prev1; prev1 = t;
     }
     if (nn == 0) return 0;  /* a count cue with no number is not ours */
 
     long start, end;
-    if (nn >= 2)        { start = nums[0]; end = nums[1]; }
+    if (has_rs && has_re) { start = role_start; end = role_end; }
+    else if (nn >= 2 && has_re && !has_rs) { end = role_end; start = nums[0] == role_end ? nums[1] : nums[0]; }
+    else if (nn >= 2 && has_rs && !has_re) { start = role_start; end = nums[0] == role_start ? nums[1] : nums[0]; }
+    else if (nn >= 2)   { start = nums[0]; end = nums[1]; }
+    else if (has_rs && !descending) { start = role_start; end = start + (stepmag ? stepmag : 1) * 9; }
     else if (descending){ start = nums[0]; end = stepmag ? 0 : 1; } /* by-step -> toward 0 */
     else                { start = 1;       end = nums[0]; }
     if (stepmag && nn < 2 && !descending) end = start + stepmag * 9; /* ~10 terms */
