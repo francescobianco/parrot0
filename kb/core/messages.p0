@@ -1635,6 +1635,30 @@ turn_form_mood(teach_tr_it, statement).
 turn_form_act(teach_tr_it, assert_relation).
 turn_form_reply(teach_tr_it, learned_translation).
 
+% 29 settembre 2026 (giro live in italiano, cucina) — la lezione di glossa DETTA
+% IN ITALIANO. «"deperibile" in inglese si dice "perishable"» riceveva «Possiamo
+% parlare in entrambe le lingue»: esisteva solo la superficie inglese («the
+% italian for X is Y»). Le forme si leggono sulla superficie detta, perche' la
+% canonica traduce proprio le parole che la lezione sta insegnando.
+turn_form(teach_tr_it_said, 1, slot(object)).
+turn_form(teach_tr_it_said, 2, text("in inglese si dice")).
+turn_form(teach_tr_it_said, 3, rest(subject)).
+turn_form(teach_tr_it_said, 4, bind(relation, tr)).
+turn_form_mood(teach_tr_it_said, statement).
+turn_form_act(teach_tr_it_said, assert_relation).
+turn_form_reply(teach_tr_it_said, learned_translation).
+turn_form_priority(teach_tr_it_said, early).
+turn_form_view(teach_tr_it_said, said).
+turn_form(teach_tr_en_said, 1, slot(subject)).
+turn_form(teach_tr_en_said, 2, text("in italiano si dice")).
+turn_form(teach_tr_en_said, 3, rest(object)).
+turn_form(teach_tr_en_said, 4, bind(relation, tr)).
+turn_form_mood(teach_tr_en_said, statement).
+turn_form_act(teach_tr_en_said, assert_relation).
+turn_form_reply(teach_tr_en_said, learned_translation).
+turn_form_priority(teach_tr_en_said, early).
+turn_form_view(teach_tr_en_said, said).
+
 % ══ gen507/40 — INSEGNARE CHE DUE RELAZIONI SONO L'UNA L'INVERSA DELL'ALTRA ══
 %
 % «smith owner zelnik» e «zelnik belongs smith» sono UN FATTO SOLO detto dai due

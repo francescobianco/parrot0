@@ -13,6 +13,56 @@
 > [train-the-learning-process.md, «▶ ASSE STRUTTURALE»](train-the-learning-process.md).
 > Prima di curare un «Learned, poi non so», chiedersi se e' un ponte che manca.
 
+## ▶ HANDOFF — giro live in italiano (cucina), 29 settembre 2026, 23:13–23:40
+
+Transcript: [docs/sessions/live/2026-09-29-2316-cucina-it.log](../sessions/live/2026-09-29-2316-cucina-it.log)
+(chiuso **senza `/save`**: la costruzione insegnata era ibrida, vedi LT4).
+Il sapere del campo c'e' (in inglese risponde); **cadono le strade italiane**.
+
+**Curati dopo la sessione (in questo commit):**
+- **LT1 — nome italiano senza articolo** («Riso è deperibile», «No: pollo è…»).
+  `it_definite/2` in grammar.p0 dalla tabella `article/4` + `it_gender/2` +
+  `vowel_letter/1`; usata dalle risposte di food-time.p0. `mix_food_time.p0t`
+  aggiornato (attendeva la forma senza articolo: test obsoleto). Manca «lo»
+  davanti a s+consonante/z.
+- **LT2 — la lezione di glossa detta in italiano** («deperibile in inglese si
+  dice perishable», «perishable in italiano si dice deperibile»): forme
+  `teach_tr_it_said`/`teach_tr_en_said` in messages.p0, sulla vista `said`.
+  ⚠ Con le virgolette «» la lezione cade ancora nel lettore delle lingue
+  («Possiamo parlare in entrambe le lingue»): lo slot non toglie le virgolette.
+  ⚠ La risposta dice «è come si dice deperibile» (il soggetto viene gia'
+  realizzato in italiano dalla glossa appena appresa).
+
+**Aperti (in ordine di valore):**
+- **LT4 — una costruzione insegnata in italiano si registra sulla canonica
+  IBRIDA** («per quante ore posso lasciare fuori x significa quanto tempo può
+  stare fuori x» → «D'ora in poi leggo «per how many ore posso lasciare fuori
+  x» come «how much time può stare fuori x»»), e la glossa insegnata subito
+  dopo («fuori» = out) cambia la canonica: la lezione non combacia piu'. E' la
+  specie: **una lezione ancorata a una superficie che il lessico fa derivare**.
+  Cura: la costruzione vive sulla vista `said` (o si ricanonicalizza ad ogni
+  confronto). Motore: `p0_parse_construction_lesson` (10-memory-knowledge.c).
+  Con le virgolette «» la stessa lezione dice «non riesco ad allineare le stesse
+  variabili».
+- **LT3 — strade inglesi rotte sotto l'italiano**: «Is milk perishable?» → Yes,
+  ma «Is **the** milk perishable?» → «I don't know about milk perishable» (il
+  lettore `knowledge` non toglie l'articolo) e «The milk is perishable?»
+  (ordine d'affermazione) mura: quindi «Il latte è deperibile?» mura anche con
+  la glossa. «Which foods are perishable?» / «Quali alimenti sono deperibili?»
+  murano.
+- **LT5 — misclaim**: «What is perishable?» → «No.» (peggio di un muro).
+- **LT6 — la riserva «Reading «deperibili» as «perishable»» esce nel turno
+  inglese successivo** («How long can milk stay out?»): la lettura per contatto
+  di un turno precedente qualifica la risposta di un altro (guardia
+  `contact_reading_used` da rivedere).
+- **LT7 — «la temperatura interna sicura di pollo»**: preposizione articolata
+  (di+il = del) assente nella realizzazione italiana del template
+  `answer_safe_temp`; serve la regola generale, non una riga per template.
+- **LT8 — domande del limite non lette**: «A che temperatura è sicuro il
+  pollo?», «A quanti gradi va cotto il pollo?», «Per quante ore posso
+  lasciare fuori il latte?» (`food_limit_question_cue` e' un elenco chiuso di
+  superfici: dovrebbe poter crescere con la lezione di LT4).
+
 ## ▶ HANDOFF — 29 settembre 2026, notte (ripartire da qui)
 
 **Stato del lavoro nel commit di chiusura:**

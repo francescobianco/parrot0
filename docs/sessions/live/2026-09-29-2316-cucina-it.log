@@ -1,0 +1,91 @@
+# sessione: giro in italiano: cucina e sicurezza alimentare — 2026-09-29 23:13 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@6187f7fe]
+# mode: conversational (tools off, network off) - 171910 facts, 6431 rules (3.74%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! esploro il campo cucina/sicurezza alimentare in italiano: la KB ha safe_internal_temp, max_hours_out, perishable
+> Ciao!
+< Ciao!
+> Quanto tempo può stare fuori il riso cotto?
+< Riso è deperibile, e un alimento deperibile non deve stare fuori dal frigorifero più di 2 ore (meno quando fa caldo).
+> A che temperatura è sicuro il pollo?
+< Non capisco ancora.
+> Il latte è deperibile?
+< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+! due muri: la temperatura del pollo e 'il latte è deperibile?'. Provo la stessa domanda in inglese per separare 'manca il sapere' da 'manca la strada italiana'
+> Is milk perishable?
+< Yes.
+> What is the safe internal temperature of chicken?
+< The safe internal temperature of chicken is 74 °C.
+! il sapere c'è: è la strada italiana che è rotta. Guardo come legge 'Il latte è deperibile?'
+> Il latte è deperibile?
+< Non capisco ancora.
+> /debug turn
+# /debug turn: 199 righe lette dall'insegnante, fuori dal transcript
+! la canonica e' «the milk is deperibile?»: manca la glossa di 'deperibile'. E' una parola: la insegno come parola, non come fatto sul latte
+> «deperibile» in inglese si dice «perishable»
+< Possiamo parlare in entrambe le lingue — farò del mio meglio.
+> Il latte è deperibile?
+< Non capisco ancora.
+> Il miele è deperibile?
+< Non ho afferrato bene. Cosa vorresti sapere?
+! la lezione di glossa esiste solo in superficie inglese («the italian for X is Y»): lacuna di forma da annotare (va aggiunta la sorella italiana). Per ora la uso, per vedere se la strada dopo regge
+> the italian for perishable is deperibile
+< Held: «deperibile» is how perishable is said in that language.
+> Il latte è deperibile?
+< Non capisco ancora.
+> Il miele è deperibile?
+< Mmh, questo per ora va un po' oltre le mie capacita'.
+> Il riso cotto è deperibile?
+< Non capisco ancora.
+> Il latte è deperibile?
+< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+> /debug turn
+# /debug turn: 198 righe lette dall'insegnante, fuori dal transcript
+> The milk is perishable?
+< I don't understand that yet.
+> Is the milk perishable?
+< Hmm, I don't know about milk perishable yet. Want me to learn about it?
+! il ponte della glossa ora regge (canone «the milk is perishable?»). I muri veri sono inglesi: 'Is milk perishable?' → Yes, ma 'Is THE milk perishable?' e l'ordine d'affermazione murano. Guardo chi risponde al caso buono
+> Is milk perishable?
+< Yes.
+> /debug turn
+# /debug turn: 189 righe lette dall'insegnante, fuori dal transcript
+! il 'knowledge' legge 'is X Y?' senza togliere l'articolo: muro del motore, lo annoto. Continuo a esplorare prima di chiudere: temperatura del pollo in italiano, in varie forme
+> Qual è la temperatura interna sicura del pollo?
+< La temperatura interna sicura di pollo è 74 °C.
+> A quanti gradi va cotto il pollo?
+< Non capisco ancora.
+> Per quante ore posso lasciare fuori il latte?
+< Non ho afferrato bene. Cosa vorresti sapere?
+> Quali alimenti sono deperibili?
+< Non capisco ancora.
+> How long can milk stay out?
+< Reading «deperibili» as «perishable». Milk is a perishable, and a perishable should not stay out of the fridge for more than 2 hours (less when it is hot).
+> Which foods are perishable?
+< I don't understand that yet.
+> What is perishable?
+< No.
+> Quanto tempo può stare fuori il latte?
+< Latte è deperibile, e un alimento deperibile non deve stare fuori dal frigorifero più di 2 ore (meno quando fa caldo).
+! annoto: (A) «Reading deperibili as perishable» trascinato nel turno inglese successivo; (C) 'What is perishable?' → 'No.' è un misclaim; (D) 'Latte è'/'di pollo' senza articolo. Provo L2 per la parafrasi di domanda: 'per quante ore posso lasciare fuori x' = 'quanto tempo può stare fuori x'
+> «per quante ore posso lasciare fuori x» significa «quanto tempo può stare fuori x»
+< Ho trovato il separatore didattico, ma non riesco ad allineare le stesse variabili, una volta per lato, a ruoli che conosco. Non ho appreso la costruzione.
+> Per quante ore posso lasciare fuori il burro?
+< Non capisco ancora.
+> per quante ore posso lasciare fuori x significa quanto tempo può stare fuori x
+< D'ora in poi leggo «per how many ore posso lasciare fuori x» come «how much time può stare fuori x».
+> Per quante ore posso lasciare fuori il burro?
+< Non so ancora tradurre «fuori». Se mi dici «the italian for … is fuori», la prossima volta capisco.
+> Per quante ore posso lasciare fuori le uova?
+< Non so ancora tradurre «fuori». Se mi dici «the italian for … is fuori», la prossima volta capisco.
+! la costruzione è stata registrata sulla superficie mezza tradotta («per how many ore posso…» → «how much time può stare fuori x»): la lezione italiana dovrebbe vivere sulla vista 'said'. Seguo il suo suggerimento (manca 'fuori') per vedere se la strada si chiude comunque
+> the italian for out is fuori
+< Held: «fuori» is how out is said in that language.
+> Per quante ore posso lasciare fuori il burro?
+< Non capisco ancora.
+> Per quante ore posso lasciare fuori il pollo cotto?
+< Mmh, questo per ora va un po' oltre le mie capacita'.
+> /debug turn
+# /debug turn: 200 righe lette dall'insegnante, fuori dal transcript
+! CHIUSURA senza /save: la costruzione è stata salvata sulla canonica ibrida e l'ha rotta la glossa successiva — salvarla metterebbe in KB una forma che non combacia più. Le due glosse vere (deperibile, fuori) entrano a mano in gloss.p0 con questo transcript come provenienza. Il resto è motore: si chiude qui

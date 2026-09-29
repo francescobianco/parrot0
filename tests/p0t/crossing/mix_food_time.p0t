@@ -43,5 +43,5 @@
 !timeout 30
 !set PARROT0_LANG=it
 > ho lasciato il pollo fuori per 3 ore, è sicuro?
-< No: pollo è deperibile, e un alimento deperibile non deve stare fuori dal frigorifero più di 2 ore; 3 ore sono oltre, quindi è più sicuro buttarlo.
+< No: il pollo è deperibile, e un alimento deperibile non deve stare fuori dal frigorifero più di 2 ore; 3 ore sono oltre, quindi è più sicuro buttarlo.
 !set PARROT0_LANG=en

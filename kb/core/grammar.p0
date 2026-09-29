@@ -50,6 +50,24 @@ it_gender($W, f) :- naf(has_gender_it($W)), ends_in_a($W).
 it_gender($W, m) :- naf(has_gender_it($W)), naf(ends_in_a($W)).
 has_gender_it($W) :- gender_it($W, $G).
 ends_in_a($W) :- concat_atoms($R, "a", $W).
+% 29 settembre 2026 (giro live in italiano, cucina) — «Riso è deperibile»,
+% «Latte è deperibile»: il nome italiano veniva detto senza articolo. Il nome
+% con l'articolo determinativo e' la stessa tabella `article/4` qui sopra,
+% scelta dal genere (`it_gender/2`) e dall'iniziale (`vowel_letter/1`); l'articolo
+% eliso (l') si attacca senza spazio. («lo» davanti a s+consonante e z e' la
+% prossima riga: oggi nessun nome della KB alimentare lo chiede.)
+machinery(it_definite).
+machinery(it_initial_vowel).
+it_initial_vowel($W, yes) :- chars($W, cons($C, $R)), vowel_letter($C).
+it_initial_vowel($W, no) :- chars($W, cons($C, $R)), naf(vowel_letter($C)).
+it_definite($W, $Text) :-
+    it_gender($W, $G), it_initial_vowel($W, $V), article(def, $G, $V, $A),
+    it_article_join($A, $W, $Text).
+machinery(it_article_join).
+machinery(elided_article).
+elided_article($A) :- concat_atoms($P, "'", $A).
+it_article_join($A, $W, $Text) :- elided_article($A), concat_atoms($A, $W, $Text).
+it_article_join($A, $W, $Text) :- naf(elided_article($A)), concat_atoms($A, " ", $B), concat_atoms($B, $W, $Text).
 machinery(possessive_it).
 possessive_it(m, tuo).  possessive_it(f, tua).
 
