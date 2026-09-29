@@ -318,3 +318,18 @@ turn_priority_response($T, $Text) :- dialogue_reason_text($T, $Text).
 machinery(dialogue_reply_language).
 dialogue_reply_language($T, $L) :- dialogue_previous_open($S, $K), dialogue_language($S, $L).
 dialogue_reply_language($T, $L) :- naf(dialogue_has_previous), current_language($L).
+
+% 29 settembre 2026 (user_model righe 27-35, SA14) — la mossa d'iniziativa che
+% accoglie un tema («let's talk about cooking» → «On cooking: …») lo sa, ma non
+% lo fissava: «what's the topic?» → «I do not know the current topic yet». Il
+% tema riconosciuto diventa l'argomento corrente, lo stesso fatto che il vecchio
+% percorso scriveva (`user_value(current_topic, …)`), dopo la risposta.
+after_reply_bookkeeper(dialogue_topic_note).
+turn_after_reply($T, dialogue_topic_note) :-
+    dialogue_now(current_turn, $A, $P), dif($P, unspecified), words_of($P, $Topic),
+    naf(user_value(current_topic, $Topic)), topic_retract_old, assert(user_value, current_topic, $Topic).
+machinery(topic_retract_old).
+topic_retract_old :- user_value(current_topic, $Old), retract(user_value, current_topic, $Old).
+topic_retract_old :- naf(topic_known).
+machinery(topic_known).
+topic_known :- user_value(current_topic, $Old).

@@ -225,7 +225,13 @@ previous_topic($Entity) :- non_current_last($Entity, $Turn), naf(later_non_curre
 recall_cue("what are we on", topic).
 recall_cue("what is the current topic", topic).
 recall_cue("qual è l'argomento", topic).
-recall_kind_word(topic, $Entity) :- current_topic($Entity).
+% (29 settembre 2026, SA14) l'argomento accolto da una mossa («let's talk
+% about cooking») e' `user_value(current_topic, …)`: la domanda lo legge prima
+% della salienza degli scambi, che non segue cio' che si afferma
+recall_kind_word(topic, $Entity) :- user_value(current_topic, $Entity).
+recall_kind_word(topic, $Entity) :- current_topic($Entity), naf(user_topic_set).
+machinery(user_topic_set).
+user_topic_set :- user_value(current_topic, $E).
 recall_cue("what were we on before", earlier).
 recall_cue("prima di cosa parlavamo", earlier).
 recall_kind_word(earlier, $Entity) :- previous_topic($Entity).

@@ -2140,3 +2140,75 @@ turn_form_priority(ask_speaker_kin_it, early).
 turn_form_slot_class(ask_speaker_kin_it, kin, family_relation).
 turn_form_act(ask_speaker_kin_it, "op(match, speaker_kin_answer, [kin, free])").
 turn_form_reply(ask_speaker_kin_it, transfer_reply).
+
+% ── CV4 — LE PREFERENZE DI CHI PARLA SONO IL SUO MONDO (29 settembre 2026) ───
+% «I like jazz.» stava in un campo C (`user_preference_value`, un solo valore,
+% preso con un offset fisso sulla frase: «Mi piace la montagna» diventava «e la
+% montagna»), e «Mi piace il jazz.» murava. Una preferenza detta da chi parla e'
+% un fatto del SUO mondo: `holds_in(world_of(user), fact(likes, user, X))`, quante
+% se ne vogliono, e le domande lo leggono. Le superfici sono forme della lingua.
+machinery(speaker_likes_note).
+machinery(speaker_likes).
+machinery(like_thing_atom).
+like_thing_atom($Said, $A) :- atom_words($Said, $Ws), drop_openers($Ws, $W2), words_underscored($W2, $A).
+speaker_likes($X) :- speaker_context($C), holds_in($C, fact(likes, user, $X)).
+speaker_likes_note($Said, $Text) :-
+    like_thing_atom($Said, $X), speaker_context($C),
+    assert(holds_in, $C, fact(likes, user, $X)),
+    current_language($L), commitment_line($L, likes_noted, $A), concat_atoms($A, $Said, $B),
+    concat_atoms($B, ".", $Text).
+commitment_line(en, likes_noted, "Got it: you like ").
+commitment_line(it, likes_noted, "Capisco: ti piace ").
+machinery(speaker_likes_list).
+speaker_likes_list($Text) :-
+    findall($W, speaker_like_word($W), cons($W1, $Ws)), current_language($L),
+    inversion_phrase_and($L, cons($W1, $Ws), $J), commitment_line($L, likes_list, $A),
+    concat_atoms($A, $J, $B), concat_atoms($B, ".", $Text).
+machinery(speaker_like_word).
+speaker_like_word($W) :- speaker_likes($X), words_of($X, $W).
+commitment_line(en, likes_list, "You like ").
+commitment_line(it, likes_list, "Ti piace ").
+machinery(speaker_likes_polar).
+speaker_likes_polar($Said, $Text) :-
+    like_thing_atom($Said, $X), speaker_likes($X), current_language($L),
+    commitment_line($L, likes_yes, $Text).
+speaker_likes_polar($Said, $Text) :-
+    like_thing_atom($Said, $X), naf(speaker_likes($X)), current_language($L),
+    commitment_line($L, likes_unsaid, $Text).
+commitment_line(en, likes_yes, "Yes: you told me so.").
+commitment_line(it, likes_yes, "Sì: me l'hai detto tu.").
+commitment_line(en, likes_unsaid, "I don't know: you haven't told me.").
+commitment_line(it, likes_unsaid, "Non lo so: non me l'hai detto.").
+response_template(speaker_likes_reply, "{result}").
+response_template(speaker_likes_reply, it, "{result}").
+response_template(speaker_likes_none, "You haven't told me what you like yet.").
+response_template(speaker_likes_none, it, "Non mi hai ancora detto che cosa ti piace.").
+% le superfici (le affermazioni prima delle domande piu' corte dello stesso inizio)
+speaker_likes_form(likes_told_en, "i like", statement).
+speaker_likes_form(likes_told_it1, "a me piace molto", statement).
+speaker_likes_form(likes_told_it2, "a me piace", statement).
+speaker_likes_form(likes_told_it3, "mi piace molto", statement).
+speaker_likes_form(likes_told_it4, "mi piacciono", statement).
+speaker_likes_form(likes_told_it5, "mi piace", statement).
+speaker_likes_form(likes_asked_en, "do i like", question).
+speaker_likes_form(likes_asked_it, "mi piace", question).
+turn_form($F, 1, text($S)) :- speaker_likes_form($F, $S, $M).
+turn_form($F, 2, rest(thing)) :- speaker_likes_form($F, $S, $M).
+turn_form_mood($F, $M) :- speaker_likes_form($F, $S, $M).
+turn_form_priority($F, early) :- speaker_likes_form($F, $S, $M).
+turn_form_view($F, said) :- speaker_likes_form($F, $S, $M).
+turn_form_act($F, "op(match, speaker_likes_note, [thing, free])") :- speaker_likes_form($F, $S, statement).
+turn_form_act($F, "op(match, speaker_likes_polar, [thing, free])") :- speaker_likes_form($F, $S, question).
+turn_form_reply($F, speaker_likes_reply) :- speaker_likes_form($F, $S, $M).
+turn_form(likes_list_en, 1, text("what do i like")).
+turn_form(likes_list_it, 1, text("cosa mi piace")).
+turn_form(likes_list_it2, 1, text("che cosa mi piace")).
+turn_form_mood(likes_list_en, question).  turn_form_mood(likes_list_it, question).  turn_form_mood(likes_list_it2, question).
+turn_form_view(likes_list_en, said).  turn_form_view(likes_list_it, said).  turn_form_view(likes_list_it2, said).
+turn_form_priority(likes_list_en, early).  turn_form_priority(likes_list_it, early).  turn_form_priority(likes_list_it2, early).
+turn_form_act(likes_list_en, "op(match, speaker_likes_list, [free])").
+turn_form_act(likes_list_it, "op(match, speaker_likes_list, [free])").
+turn_form_act(likes_list_it2, "op(match, speaker_likes_list, [free])").
+turn_form_reply(likes_list_en, speaker_likes_reply).  turn_form_reply(likes_list_it, speaker_likes_reply).  turn_form_reply(likes_list_it2, speaker_likes_reply).
+turn_form_empty_reply(likes_list_en, speaker_likes_none).  turn_form_empty_reply(likes_list_it, speaker_likes_none).  turn_form_empty_reply(likes_list_it2, speaker_likes_none).
+machinery(speaker_likes_form).

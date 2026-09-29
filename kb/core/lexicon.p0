@@ -295,6 +295,13 @@ phrase_canon("tell me everything you know about", "what do you know about").
 phrase_canon("tell me all you know about", "what do you know about").
 phrase_canon("dimmi tutto quello che sai su", "what do you know about").
 phrase_canon("dimmi tutto su", "what do you know about").
+% (29 settembre 2026, user_model.it) la domanda sulla memoria di se' in italiano
+phrase_canon("che cosa ricordi di me", "what do you remember about me").
+phrase_canon("cosa ricordi di me", "what do you remember about me").
+phrase_canon("cosa sai di me", "what do you remember about me").
+phrase_canon("come mi sento", "how do i feel").
+phrase_canon("di cosa stiamo parlando", "what is the current topic").
+phrase_canon("di cosa parliamo", "what is the current topic").
 % (29 settembre 2026, frontier_chat_audit.it riga 52) «cosa sai degli scacchi?»
 % murava: la domanda italiana con le preposizioni articolate. La forma piu'
 % lunga si dichiara per prima.

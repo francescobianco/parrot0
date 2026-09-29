@@ -871,7 +871,27 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                                     "%s%s", any ? ";" : "", piece);
             any = 1;
         }
-        if (b->has_user_preference && off < sizeof msg) {
+        /* CV4 (29 settembre 2026): le preferenze di chi parla sono il suo mondo
+         * in KB (`speaker_like_word/1`, user-situations.p0), non un campo C. */
+        {
+            char (*lw)[KB_TERM_LEN] = NULL; size_t nlw = 0;
+            const char *lq[1] = { NULL };
+            if (b->kb && kb_match_all(b->kb, "speaker_like_word", lq, 1, &lw, &nlw))
+                for (size_t k = 0; k < nlw && off < sizeof msg; k++) {
+                    char piece[160];
+                    char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", lw[k]);
+                    kb_term_say(b, "memory_preference_fragment", (const KbResponseSlot[]){
+                                    { "verb", "like" }, { "value", kb_dequote(vb) } }, 2,
+                                piece, sizeof piece);
+                    off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                            "%s%s", any ? ";" : "", piece);
+                    any = 1;
+                }
+            free(lw);
+        }
+        /* (il ramo vecchio resta per «prefer», non ancora portato in KB: TODO) */
+        if (b->has_user_preference && off < sizeof msg &&
+            strcmp(b->user_preference_verb, "like") != 0) {
             char piece[160];
             kb_term_say(b, "memory_preference_fragment", (const KbResponseSlot[]){
                             { "verb", b->user_preference_verb },

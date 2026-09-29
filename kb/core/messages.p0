@@ -237,6 +237,7 @@ response_template(i_don_t_know_what_your_x_is_called, "I don't know what your {t
 response_template(i_don_t_know_what_your_x_is_called, it, "Non so ancora come si chiama il tuo {thing}.").
 response_template(got_it_you_x_x, "Got it: you {verb} {val}.").
 response_template(you_told_me_you_feel_x, "You told me you feel {mood}.").
+response_template(you_told_me_you_feel_x, it, "Mi hai detto che ti senti {mood}.").
 response_template(i_don_t_know_who_x_refers_to, "I don't know who {word} refers to.").
 response_template(i_don_t_know_who_x_refers_to, it, "Non so a chi si riferisce {word}.").
 % gen505b — `{ex}` non e' piu' un termine ma una FRASE («bornite is a copper
@@ -765,6 +766,7 @@ response_template(unsafe_path_x_is_not_a_directory_inside_my_w, "unsafe_path: `{
 response_template(i_remember_no_durable_personal_facts_yet, "I remember no durable personal facts yet.").
 response_template(i_remember_no_durable_personal_facts_yet, it, "Non ricordo ancora niente di stabile su di te.").
 response_template(session_context, " Session context:").
+response_template(session_context, it, " In questa conversazione:").
 response_template(memory_recall_header, "I remember:").
 response_template(memory_recall_header, it, "Ricordo:").
 response_template(memory_name_fragment, " your name is {name}").
@@ -772,7 +774,7 @@ response_template(memory_name_fragment, it, " ti chiami {name}").
 response_template(memory_possession_fragment, " your {thing} is {value}").
 response_template(memory_possession_fragment, it, " il tuo {thing} è {value}").
 response_template(memory_preference_fragment, " you {verb} {value}").
-response_template(memory_preference_fragment, it, " tu {verb} {value}").
+response_template(memory_preference_fragment, it, " ti piace {value}").
 response_template(memory_mood_fragment, " you feel {mood}").
 response_template(memory_mood_fragment, it, " ti senti {mood}").
 response_template(memory_topic_fragment, " current topic is {topic}").

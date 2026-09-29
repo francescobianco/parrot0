@@ -9,19 +9,24 @@
 
 [test user_model.it]
 # gen148 (E4): Italian probe through the same user-model state.
+# (29 settembre 2026) in una conversazione italiana la risposta e' italiana, e
+# «cosa mi piace?» ha una risposta che risponde (prima: «Bello -- raccontami di
+# più.», una delle risposte senza senso di §CV-bis)
 > mi chiamo Lia
-< Nice to meet you, Lia!
+< Piacere di conoscerti, Lia!
 > mi piace cinema
-< Got it: you like cinema.
+< Capisco: ti piace cinema.
 > cosa mi piace?
-< Bello -- raccontami di più.
+< Ti piace cinema.
 > sono stanca
 < Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+# (29 settembre 2026) le stesse domande che in inglese funzionavano, ora con la
+# loro superficie italiana; prima: tre muri e una risposta fuori tema
 > come mi sento?
-< Non capisco ancora.
+<~ Mi hai detto che ti senti
 > possiamo parlare di cucina
-< Non ho afferrato bene. Cosa vorresti sapere?
+<~ cucina
 > di cosa parliamo?
-< Non capisco ancora.
+< Stiamo parlando di cucina.
 > cosa ricordi di me?
-< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+<~ Ricordo: ti chiami Lia; ti piace cinema.

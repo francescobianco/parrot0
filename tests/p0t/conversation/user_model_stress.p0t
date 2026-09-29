@@ -31,8 +31,10 @@
 < Got it: your cat is Miso.
 > what do you know about me?
 < I remember: your cat is Miso; you prefer tea. Session context: you feel happy; current topic is gardens; constraint: avoid technical detail.
+# (29 settembre 2026) alla noia si risponde proponendo di cambiare: e' la mossa
+# giusta per «bored», non quella della stanchezza
 > I am bored
-< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+<~ tell me something you are curious about
 > what mood am I in?
 < You told me you feel bored.
 
