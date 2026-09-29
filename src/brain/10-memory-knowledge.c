@@ -601,8 +601,8 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         const char *n = find_possession_name(b, b->last_possession_thing);
                         if (n) {
                             char msg[160];
-                            snprintf(msg, sizeof msg, "Your %s is called %s.",
-                                     b->last_possession_thing, n);
+                            { const KbResponseSlot _rs[] = { { "thing", b->last_possession_thing }, { "name", n } };
+                              kb_term_say(b, "your_thing_is_called", _rs, 2, msg, sizeof msg); }
                             put(msg, out, out_size);
                             return 1;
                         }
@@ -641,8 +641,8 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 const char *n = find_possession_name(b, b->last_possession_thing);
                 if (n) {
                     char msg[160];
-                    snprintf(msg, sizeof msg, "Your %s is called %s.",
-                             b->last_possession_thing, n);
+                    { const KbResponseSlot _rs[] = { { "thing", b->last_possession_thing }, { "name", n } };
+                      kb_term_say(b, "your_thing_is_called", _rs, 2, msg, sizeof msg); }
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -676,7 +676,11 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                                 char disp[128]; snprintf(disp, sizeof disp, "%s", key);
                                 for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
                                 char msg[200];
-                                snprintf(msg, sizeof msg, "Your %s is %s.", disp, res[0]);
+                                /* CV21 — la frase era un letterale inglese nel C:
+                                 * «Your lavoro is il programmatore.» in una sessione
+                                 * italiana. Ora e' un template, con la sua lingua. */
+                                { const KbResponseSlot _rs[] = { { "slot", disp }, { "value", res[0] } };
+                                  kb_term_say(b, "your_slot_is_value", _rs, 2, msg, sizeof msg); }
                                 put(msg, out, out_size);
                                 return 1;
                             }
@@ -725,7 +729,8 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         if (has_called)
                             snprintf(msg, sizeof msg, "%s.", n);
                         else
-                            snprintf(msg, sizeof msg, "Your %s is %s.", thing, n);
+                        { const KbResponseSlot _rs[] = { { "slot", thing }, { "value", n } };
+                          kb_term_say(b, "your_slot_is_value", _rs, 2, msg, sizeof msg); }
                         put(msg, out, out_size);
                         return 1;
                     }

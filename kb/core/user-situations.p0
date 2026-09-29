@@ -1178,7 +1178,7 @@ speaker_owned_fact($T, fact($P, $S, $O)) :-
 % il possessivo DENTRO il soggetto: «The RCD in my house keeps tripping.»
 speaker_owned_fact($T, fact($P, $S, $O)) :-
     kb_turn_act($P, cons($S, cons($O, nil)), pos, $K), naf(machinery($P)),
-    current_language($L), atom_words($S, $Ws), first_person_possessive($L, $M), member($M, $Ws).
+    atom_words($S, $Ws), first_person_possessive($L, $M), member($M, $Ws).
 % ── L4 0-bis (29 settembre 2026, F.) — IL MONDO DI CHI PARLA E' UN CONTESTO ─
 % Non un fatto del mondo di parrot0 con un'etichetta accanto: un mondo a se',
 % figlio di `world` (context-scope.p0). Il turno che porta il possessivo di
@@ -1197,9 +1197,11 @@ context(world_of(user), interlocutor_world).
 context_default_parent(interlocutor_world, world).
 commitment_policy(interlocutor_world, reported_by_speaker).
 machinery(turn_context).
+% (in qualunque lingua: il canone di un turno italiano e' l'interlingua
+% inglese, «mio nonno» -> «my nonno», e la lingua della sessione non dice in
+% quale delle due si trovi la parola — CV24)
 turn_context(current_turn, $C) :-
-    speaker_context($C), current_language($L), first_person_possessive($L, $M),
-    turn_word(current_turn, $I, $M).
+    speaker_context($C), first_person_possessive($L, $M), turn_word(current_turn, $I, $M).
 % una DOMANDA in prima persona («who am I?», «what do you remember about me?»)
 % chiede di chi parla: si legge nel suo mondo (che vede anche i genitori). Le
 % affermazioni con «I» restano nel mondo di parrot0 finche' non si decide dove
@@ -1207,7 +1209,7 @@ turn_context(current_turn, $C) :-
 machinery(first_person_word).
 first_person_word(en, i).  first_person_word(en, me).  first_person_word(en, myself).
 turn_context(current_turn, $C) :-
-    speaker_context($C), turn_illocution(current_turn, question), current_language($L),
+    speaker_context($C), turn_illocution(current_turn, question),
     first_person_word($L, $M), turn_word(current_turn, $I, $M).
 % una DOMANDA su una cosa che chi parla ha detto di avere («what color is the
 % book?» dopo «my book is red») si legge nel suo mondo: «the book» e' il suo.
@@ -1216,7 +1218,15 @@ turn_context(current_turn, $C) :-
 turn_context(current_turn, $C) :-
     speaker_context($C), turn_illocution(current_turn, question),
     turn_word(current_turn, $I, $W), interlocutor_has($W),
-    is($J, sub($I, 1)), turn_word(current_turn, $J, $D), definite_article($D).
+    is($J, sub($I, 1)), turn_word(current_turn, $J, $D), definite_article($D),
+    naf(named_possessor_after($I)).
+% ma non se la cosa ha un possessore detto: «il cugino DI MARCO» non e' il
+% cugino di chi parla (CV24: rispondeva «Ufficio.» con il cugino dell'utente)
+machinery(named_possessor_after).
+machinery(possessor_preposition).
+possessor_preposition(of).  possessor_preposition(di).
+named_possessor_after($I) :-
+    is($J, add($I, 1)), turn_word(current_turn, $J, $P), possessor_preposition($P).
 % il riferimento DEFINITO indica la cosa gia' nominata: «the book» e' il suo
 % libro, «tea» e' il te' in generale («Does tea taste sour?» resta nel mondo di
 % parrot0)
@@ -1258,6 +1268,13 @@ person_mirror(en, i, you).      person_mirror(en, me, you).
 person_mirror(en, mine, yours). person_mirror(en, we, you).
 person_mirror(en, am, are).     person_mirror(en, "i'm", "you're").
 person_mirror(en, myself, yourself).
+% (CV21: «Capisco: il mio lavoro è il programmatore.» — l'eco ripeteva «mio»)
+person_mirror(it, mio, tuo).    person_mirror(it, mia, tua).
+person_mirror(it, miei, tuoi).  person_mirror(it, mie, tue).
+person_mirror(it, io, tu).      person_mirror(it, mi, ti).
+person_mirror(it, me, te).      person_mirror(it, sono, sei).
+person_mirror(it, ho, hai).     person_mirror(it, nostro, vostro).
+person_mirror(it, nostra, vostra).
 machinery(person_mirror_now).
 person_mirror_now($F, $T) :- current_language($L), person_mirror($L, $F, $T).
 % un modulo che ridice gia' il turno dal punto di vista di chi ascolta (il
@@ -1268,6 +1285,9 @@ machinery(riscontro_template).
 riscontro_template(learned_facts).
 riscontro_template(learned_negation).
 riscontro_template(learned_attribute).
+% ogni conferma di lezione ha il nome `learned_…` (anche l'italiana «Imparato:
+% nonno si trova in ospedale.», `learned_located_in_x_x`, CV24)
+riscontro_template($T) :- concat_atoms("learned_", $R, $T).
 machinery(turn_reply_mirrored).
 machinery(module_mirrors_reply).
 module_mirrors_reply(world_report).
@@ -1411,7 +1431,7 @@ thing_owner_said($S, $C, $T) :- naf(subject_has_possessive($S)), concat_atoms("y
 thing_owner_said($S, $C, $T) :-
     subject_has_possessive($S), map_words($C, person_mirror_now, $M), concat_atoms("the ", $M, $T).
 subject_has_possessive($S) :-
-    atom_words($S, $Ws), current_language($L), first_person_possessive($L, $M), member($M, $Ws).
+    atom_words($S, $Ws), first_person_possessive($L, $M), member($M, $Ws).
 commitment_line(en, you_told_me_of, "You told me that ").
 commitment_line(it, you_told_me_of, "Mi hai detto che ").
 
@@ -1434,7 +1454,18 @@ machinery(transfer_to_own).
 % quello di una persona di cui chi parla ha riportato il pensiero («Marco thinks
 % that …»). Il passaggio e' lo stesso da qualunque mondo; cambia chi si nomina.
 transfer_to_own($Text) :-
-    last_world_content($C, $F), transfer_from($C, $F, $Text).
+    last_world_content($C, $F), on_the_table($C, $F), transfer_from($C, $F, $Text).
+% CV19, CV30: «Adesso fallo tuo» prendeva l'ultimo contenuto di QUALUNQUE eta'
+% (il gatto detto molti turni prima, un fatto spazzatura) e lo faceva di
+% parrot0. «Fallo tuo» prende cio' che la conversazione ha appena messo sul
+% tavolo: un contenuto detto negli ultimi turni (`table_window/1`, quanto e'
+% «appena», conoscenza come `session_window/1`); se non c'e', rifiuta.
+machinery(table_window).
+table_window(2).
+machinery(on_the_table).
+on_the_table($C, $F) :-
+    world_content($C, $F, $N), turn_counter($Now), table_window($W),
+    is($K, sub($Now, add($W, 1))), gt($N, $K).
 machinery(transfer_from).
 transfer_from($C, $F, $Text) :-
     turn_counter($N), fact_assert($F), assert(made_own, $F, from($C, $N)),
@@ -1479,13 +1510,16 @@ machinery(world_owner_said).
 world_owner_said($L, $C, $T) :- speaker_context($C), commitment_line($L, owner_you, $T).
 world_owner_said($L, world_of($H), $T) :-
     dif($H, user), upcase_first($H, $Hu), commitment_line($L, owner_other, $A),
-    concat_atoms($A, $Hu, $B), commitment_line($L, owner_other_end, $E), concat_atoms($B, $E, $T).
+    concat_atoms($A, $Hu, $B), owner_other_tail($L, $B, $T).
+% (la coda vuota non si scrive come fatto: `""` non si carica)
+machinery(owner_other_tail).
+owner_other_tail(en, $B, $T) :- commitment_line(en, owner_other_end, $E), concat_atoms($B, $E, $T).
+owner_other_tail(it, $B, $B).
 commitment_line(en, owner_you, "as yours").
 commitment_line(it, owner_you, "come tuo").
 commitment_line(en, owner_other, "as ").
 commitment_line(en, owner_other_end, "'s").
 commitment_line(it, owner_other, "come idea di ").
-commitment_line(it, owner_other_end, "").
 % (l'imperativo non ha il modo `statement`; «now» si sbuccia come apertura)
 turn_form(transfer_make_it_yours, 1, text("now make it yours")).
 turn_form(transfer_make_it_yours_bare, 1, text("make it yours")).
@@ -1513,8 +1547,8 @@ turn_form_empty_reply(transfer_fallo_tuo, transfer_nothing).
 turn_form_empty_reply(transfer_fallo_tuo_bare, transfer_nothing).
 response_template(transfer_reply, "{result}").
 response_template(transfer_reply, it, "{result}").
-response_template(transfer_nothing, "There is nothing of yours I could make mine: tell me first what your way or your view is.").
-response_template(transfer_nothing, it, "Non c'è niente di tuo che possa fare mio: dimmi prima qual è il tuo modo o la tua idea.").
+response_template(transfer_nothing, "You haven't just told me anything of yours I could make mine: tell me first what your way or your view is, then ask me again.").
+response_template(transfer_nothing, it, "Non mi hai appena detto niente di tuo che possa fare mio: dimmi prima qual è il tuo modo o la tua idea, poi chiedimelo di nuovo.").
 commitment_line(en, made_own, "Done: from now on I hold it too, not only ").
 commitment_line(en, made_own_mid, ": ").
 commitment_line(en, made_own_end, ".").

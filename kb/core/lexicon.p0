@@ -271,6 +271,13 @@ token_variation(joined_infix_rhs, "split_operator_prefix").
 % potesse agganciarla, e una capacita' che funzionava spariva — misurato subito
 % dopo averle omesse. La forma piu' lunga si dichiara per prima.
 phrase_canon("dove si trova", "where is").
+% CV (29 settembre 2026): «Mia madre è a Roma.» diventava «my mother is a rome»
+% — la preposizione italiana «a» coincide con l'articolo inglese e passava
+% intatta, e il lettore del possesso ne faceva un nome («called(mother, a
+% roma)»). «è a <luogo>» e' la copula locativa, come «si trova».
+phrase_canon("è a", "is in").
+phrase_canon("e' a", "is in").
+phrase_canon("sono a", "am in").
 % gen507 — la stessa domanda detta piu' lunga. «what do you know about X»
 % rispondeva, «tell me everything you know about X» no: non era una capacita'
 % mancante, era una formulazione senza porta. Una in piu' costa una riga.

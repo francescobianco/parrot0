@@ -1358,7 +1358,10 @@ turn_untranslated($T, $W) :-
     translation_step(name_untranslated),
     turn_opens_question($T),
     turn_language_selected($T, $L), naf(lexicon_language($L)),
-    turn_kept($T, $W), untranslated_candidate($W).
+    turn_kept($T, $W), untranslated_candidate($W), turn_lesson_word($T, $W).
+% (CV9, CV21: «Come si chiama il mio gatto?» -> «Non so ancora tradurre
+% «called»»: il muro accusava una parola INGLESE dell'interlingua, che chi parla
+% non ha detto e non puo' insegnare. Si accusa solo una parola detta.)
 % (Le quattro esclusioni stanno in una regola a parte: il caricatore scarta un
 % corpo di piu' di otto goal, e con la quarta questa regola non si caricava.)
 machinery(untranslated_candidate).

@@ -52,6 +52,11 @@ response_template(i_do_not_know_your_preference_yet, "I do not know your prefere
 response_template(i_don_t_have_a_previous_turn_to_recons, "I don't have a previous turn to reconsider yet.").
 response_template(i_don_t_know_a_command_for_that_yet, "I don't know a command for that yet.").
 response_template(i_don_t_know_your_name_yet, "I don't know your name yet.").
+response_template(i_don_t_know_your_name_yet, it, "Non so ancora come ti chiami.").
+response_template(your_thing_is_called, "Your {thing} is called {name}.").
+response_template(your_thing_is_called, it, "Il tuo {thing} si chiama {name}.").
+response_template(your_slot_is_value, "Your {slot} is {value}.").
+response_template(your_slot_is_value, it, "Il tuo {slot} è {value}.").
 response_template(entailment_not_understood, "I don't understand that entailment yet.").
 response_template(i_don_t_understand_that_question_yet, "I don't understand that question yet.").
 response_template(i_don_t_watch_movies_or_have_recent_vi, "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.").
@@ -2245,7 +2250,14 @@ turn_form(teach_magnitude, 2, text("has")).
 turn_form(teach_magnitude, 3, slot(order)).
 turn_form(teach_magnitude, 4, rest(object)).
 turn_form_mood(teach_magnitude, statement).
-turn_form_act(teach_magnitude, "op(assert, magnitude, [order, subject, object])").
+% (CV2: «Marco pensa che il tè ha un sapore amaro.» → «Tengo: tè vale amaro
+% su sapore.» — una misura su una scala vuole un NUMERO; senza, la forma cede)
+turn_form_act(teach_magnitude, "op(match, magnitude_teach, [order, subject, object, free])").
+machinery(magnitude_teach).
+machinery(magnitude_amount).
+magnitude_teach($Order, $Subj, $Obj, held) :-
+    magnitude_amount($Obj), assert(magnitude, $Order, $Subj, $Obj).
+magnitude_amount($Obj) :- atom_words($Obj, cons($N, $Rest)), is($X, add($N, 0)).
 turn_form_reply(teach_magnitude, learned_magnitude).
 
 % E la PAROLA del confronto: `compare_cue(Parola, Dimensione, Verso)` mappa
