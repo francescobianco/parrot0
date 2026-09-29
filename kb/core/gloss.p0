@@ -712,6 +712,11 @@ tr(noise, rumore).
 tr(language, lingua).
 tr(word, parola).
 tr(question, domanda).
+% i termini con cui si insegna la grammatica (L4 0-bis: la lezione «il mio modo
+% di fare una domanda con need …» in italiano)
+tr(verb, verbo).
+tr(verb, verbi).
+tr(subject, soggetto).
 tr(answer, risposta).
 tr(idea, idea).
 tr(problem, problema).

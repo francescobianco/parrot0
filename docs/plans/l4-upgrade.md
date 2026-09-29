@@ -62,6 +62,71 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶ 0-bis, passo 1 fatto (29 settembre 2026, giorno): la lezione in due tempi su una REGOLA
+
+Il primo dei «prossimi passi» qui sotto è chiuso. La sequenza (cricchetto
+[world_transfer.p0t](../../tests/p0t/conversation/world_transfer.p0t) 34/34,
+inglese e italiano):
+
+| turno | risposta |
+|---|---|
+| «My way of making a question with need is to put need before the subject when a bare verb follows.» | I read that as your way of using the language, not as a fact about the world. I see: you put «need» before the subject only when a bare verb follows in the present. I keep it as your way and I still ask with «do» myself; if you want me to do it too, tell me to make it mine. |
+| «Need a welder wear a mask?» | non letta (la regola è sua, non mia) |
+| «When does need go before the subject?» | «need» never goes before the subject …. In your way, though, it goes before the subject when a bare verb follows in the present. |
+| «When do I put need before the subject?» | You put «need» … : that is your way, I don't do it myself. |
+| «Whose way is that?» | Yours: you told me that «need» goes …, and I keep it as yours, not as mine. |
+| «Now make it yours.» | Done: from now on I hold it too, not only as yours: «need» goes before the subject only when a bare verb follows in the present. |
+| «Need a welder wear a mask?» | Yes. |
+| «When does need go before the subject?» | … (it was your way, and you made it mine) … |
+| «Forget that you made it yours.» | Done: I no longer hold it myself; it stays yours: … — e la domanda torna illeggibile |
+| «Il mio modo di fare una domanda con need è mettere need prima del soggetto quando segue un verbo nudo.» / «Adesso fallo tuo.» / «Di chi è questa idea?» / «Dimentica di averlo fatto tuo.» | la stessa sequenza in italiano |
+
+**La decisione presa (il punto aperto dell'handoff: come vive una regola
+dell'utente nel suo mondo).** Non una condizione con il mondo dentro
+(`taught_in(world_of(user))`), che avrebbe chiesto a ogni lettore della regola
+di imparare un'eccezione: la condizione insegnata **è di una mente**, e il
+motore la tratta come un fatto di mondo pur essendo macchineria.
+`world_held(inverts_when_taught)` ([grammar.p0](../../kb/core/grammar.p0)) è la
+dichiarazione; `pred_in_worlds` ([kb.c](../../src/kb.c)) la chiede. Da lì la
+**stessa** lezione, la **stessa** scrittura dopo la risposta e la **stessa**
+`inverts_when_via/3` funzionano in un mondo o nell'altro senza una riga di
+lettura in più. Il trasferimento (`transfer_to_own/1`) è quello dei fatti,
+invariato: prende l'ultimo contenuto detto nel mondo di chi parla, e una
+condizione di regola lo è.
+
+**Pezzi nuovi, tutti generali:**
+- **motore** — (a) `world_held/1`; (b) il mondo del turno si decide appena le
+  parole del turno esistono (`universal_turn_lead`), prima di ogni lettore: la
+  lezione era letta prima che il dispatch chiedesse `turn_context/2`, e
+  scriveva nel mondo di parrot0; (c) il turno **finisce** nel suo mondo: a fine
+  turno esterno si torna a `world` (un `!query` del banco ereditava il mondo
+  dell'ultimo turno); (d) **una vista congelata è del mondo di parrot0**:
+  `kb_view_ensure` congela fuori da ogni contesto, altrimenti una vista
+  ricostruita durante un turno in prima persona avrebbe servito la regola
+  dell'utente a ogni turno; (e) `after_reply_observer/1`: chi osserva ciò che
+  il turno ha scritto gira dopo chi scrive (l'ordine era quello di caricamento
+  dei file, e `interlocutor_world_note` non vedeva la condizione);
+- **KB** — `held_by_me/1` (che cosa tengo io, con `kb_fact`, che non
+  attraversa i mondi: un turno nel mondo di chi parla vede anche i genitori);
+  le frasi del «tuo modo» e il lettore «When do I put X before the subject?»
+  ([language-lessons.p0](../../kb/core/language-lessons.p0) §3-ter-bis);
+  `content_sayer/1` (una relazione che non si dice «soggetto verbo oggetto» ha
+  le sue parole altrove) in [derivation.p0](../../kb/core/derivation.p0); il
+  sostegno `made_own` in `inverts_when_via/3`; il ritiro del trasferimento e
+  la domanda sulla provenienza in [user-situations.p0](../../kb/core/user-situations.p0);
+  i termini di grammatica in italiano come **glossa** (`tr(verb, verbo)`), non
+  come seconda tabella; `first_person_possessive(it, mio)`.
+
+**Trappola pagata di nuovo:** il diciassettesimo goal di un corpo si scarta in
+silenzio. Una guardia in più nelle risposte della lezione (già a 16) spegneva
+la frase «From now on …» in `semi_modal_condition`: la guardia sta in un
+aiutante (`lesson_condition_new_mine/4`).
+
+**Residui visti:** parrot0 non sa ancora **leggere con la regola di chi
+parla** (le viste sono del suo mondo, per costruzione: leggere una domanda
+«alla tua maniera» è il ponte temporaneo del passo 4); «make it yours» prende
+l'ultimo contenuto, non quello nominato («make your way with need yours»).
+
 ### ⏸ HANDOFF (29 settembre 2026, notte) — riprendere da qui
 
 **Stato.** Decisioni di F. del 29 settembre scritte più sotto (punti 0 e

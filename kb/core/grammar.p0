@@ -627,9 +627,21 @@ inverts_when_via($R2, $C, like($R1)) :-
     relation_like($N0, $O0), concat_atoms($N0, "", $N), concat_atoms($O0, "", $O),
     verb_form($R2, $N, $K), verb_form($R1, $O, $K2), dif($R1, $R2),
     inverts_when_taught($R1, $C).
-inverts_when_via($R, $C, taught) :- inverts_when_taught($R, $C).
+inverts_when_via($R, $C, taught) :- inverts_when_taught($R, $C), naf(condition_made_own($R, $C)).
+% (L4 0-bis) una condizione che era il modo di chi parla e che «adesso fallo
+% tuo» ha portato nel mio mondo: il sostegno e' il trasferimento
+inverts_when_via($R, $C, made_own) :- inverts_when_taught($R, $C), condition_made_own($R, $C).
+machinery(condition_made_own).
+condition_made_own($R, $C) :- made_own(fact(inverts_when_taught, $R, $C), $From).
 inverts_when($R, $C) :- inverts_when_via($R, $C, $S).
 machinery(inverts_when_taught).
+% L4 0-bis (29 settembre 2026) — LA CONDIZIONE INSEGNATA E' DI UNA MENTE. E'
+% macchineria (non si mostra come un fatto del mondo), ma sta in un mondo: data
+% come «il mio modo di …» si scrive nel mondo di chi parla, e parrot0 non la
+% applica finche' «adesso fallo tuo» non la porta nel suo. `world_held/1` e'
+% la dichiarazione che il motore chiede (kb.c, `pred_in_worlds`).
+machinery(world_held).
+world_held(inverts_when_taught).
 
 % ── L4, punto 4 (26 settembre 2026) — ESTENDERE LA REGOLA DA FUORI, PER
 % ANALOGIA ───────────────────────────────────────────────────────────────────

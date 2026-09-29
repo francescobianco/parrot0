@@ -60,6 +60,9 @@ language_term_form($W, $W, $F) :- language_term($W, $F).
 % passava 1,6 s dentro `app` (177 000 ingressi, misurato con /debug on).
 language_term_form($W, $H, $F) :-
     plural_suffix($Suf, nil), concat_atoms($H, $Suf, $W), language_term($H, $F).
+% un termine detto in un'altra lingua e' lo stesso termine: la glossa lo dice
+% («verbo», «soggetto», «domanda»); nessuna seconda tabella di termini
+language_term_form($W, $H, $F) :- tr($H, $W), language_term($H, $F).
 
 % Si legge la SUPERFICIE del turno (`turn_surface_token/4`), non gli span: la
 % forza del turno si decide una prima volta prima che gli span esistano, e la
@@ -99,7 +102,11 @@ turn_is_language_lesson($T) :-
 % sulla lingua appartiene al piano di turno, come le premesse di un problema.
 turn_plan_candidate($T) :- turn_is_language_lesson($T).
 turn_response_part($T, 1, $Text) :-
-    turn_is_language_lesson($T), current_language($L), language_lesson_line($L, not_a_fact, $Text).
+    turn_is_language_lesson($T), naf(lesson_in_speaker_world($T)),
+    current_language($L), language_lesson_line($L, not_a_fact, $Text).
+turn_response_part($T, 1, $Text) :-
+    turn_is_language_lesson($T), lesson_in_speaker_world($T),
+    current_language($L), language_lesson_line($L, not_a_fact_yours, $Text).
 turn_response_part($T, 2, $Text) :-
     turn_is_language_lesson($T), naf(lesson_withdraws($T)), naf(lesson_brings_condition($T)),
     lesson_target_operators($T, $Ops), dif($Ops, nil),
@@ -119,6 +126,8 @@ turn_response_part($T, 9, $Text) :-
 machinery(lesson_asks_no_example).
 lesson_asks_no_example($T) :- lesson_withdraws($T).
 lesson_asks_no_example($T) :- lesson_condition_unsaid($T, $X, $R).
+% il modo di chi parla non si prova con un esempio: non e' (ancora) il mio
+lesson_asks_no_example($T) :- lesson_in_speaker_world($T), lesson_brings_condition($T).
 
 % ── 3. LA LEZIONE RESTA APERTA ─────────────────────────────────────────────
 % Il turno in cui e' stata detta; non si salva nell'albero (turn_scratch): e'
@@ -371,7 +380,7 @@ turn_bookkeeping($T, language_lesson_no_example) :-
     turn_counter($N), assert(language_lesson_settled, $N).
 
 turn_response_part($T, 5, $Text) :-
-    turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
+    turn_is_language_lesson($T), lesson_condition_new_mine($T, $X, $R, $C),
     naf(inverts_under_condition($R)),
     current_language($L), lesson_quoted($R, $Q), condition_said($L, $C, $Cw),
     language_lesson_line($L, condition_taught, $A), concat_atoms($A, $Q, $B),
@@ -382,7 +391,7 @@ turn_response_part($T, 5, $Text) :-
     language_lesson_line($L, condition_taught_tail, $J), concat_atoms($I, $J, $Text).
 % un verbo che una condizione l'aveva gia': questa si aggiunge, non la sostituisce
 turn_response_part($T, 5, $Text) :-
-    turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
+    turn_is_language_lesson($T), lesson_condition_new_mine($T, $X, $R, $C),
     inverts_under_condition($R),
     current_language($L), lesson_quoted($R, $Q), condition_said($L, $C, $Cw),
     language_lesson_line($L, condition_taught_also, $A), concat_atoms($A, $Q, $B),
@@ -390,7 +399,7 @@ turn_response_part($T, 5, $Text) :-
     concat_atoms($E, $Cw, $F),
     language_lesson_line($L, condition_taught_also_end, $G), concat_atoms($F, $G, $Text).
 turn_response_part($T, 6, $Text) :-
-    turn_is_language_lesson($T), lesson_condition_new($T, $X, $R, $C),
+    turn_is_language_lesson($T), lesson_condition_new_mine($T, $X, $R, $C),
     naf(lesson_condition_opens($R, $C)),
     current_language($L), lesson_quoted($R, $Q),
     language_lesson_line($L, condition_residue, $A), concat_atoms($A, $Q, $B),
@@ -407,6 +416,106 @@ turn_response_part($T, 5, $Text) :-
     current_language($L), lesson_quoted($R, $Q),
     language_lesson_line($L, condition_withdrawn, $A), concat_atoms($A, $Q, $B),
     language_lesson_line($L, condition_withdrawn_end, $D), concat_atoms($B, $D, $Text).
+
+% ── 3-ter-bis. IL MODO DI CHI PARLA: la lezione in due tempi (L4 0-bis) ─────
+% F. (29 settembre 2026): «delle lezioni possono essere date in due tempi:
+% immagina che l'utente dica "il mio modo di trattare il need nella frase e'
+% questo"; se poi dice "adesso fallo tuo" li' avviene il trasferimento di
+% mondo». La lezione detta con il possessivo («My way of making a question with
+% need is to put need before the subject when a bare verb follows.») accade nel
+% mondo di chi parla (`turn_context/2`, user-situations.p0): la STESSA lettura
+% di sopra, la STESSA scrittura dopo la risposta, e il motore la mette in quel
+% mondo perche' la condizione insegnata e' di una mente (`world_held/1`,
+% grammar.p0). parrot0 la capisce e la dice come tua; non la applica, e lo
+% dice. «Now make it yours.» la porta nel suo mondo (user-situations.p0).
+machinery(lesson_in_speaker_world).
+lesson_in_speaker_world($T) :- speaker_context($C), turn_context($T, $C).
+% la lezione che cambia la MIA regola (non detta nel mondo di chi parla). Un
+% aiutante e non una guardia in piu' nei corpi delle risposte: quei corpi sono
+% gia' a 16 goal, e il diciassettesimo si scarta in silenzio.
+machinery(lesson_condition_new_mine).
+lesson_condition_new_mine($T, $X, $R, $C) :-
+    lesson_condition_new($T, $X, $R, $C), naf(lesson_in_speaker_world($T)).
+turn_response_part($T, 5, $Text) :-
+    turn_is_language_lesson($T), lesson_in_speaker_world($T), lesson_condition_new($T, $X, $R, $C),
+    current_language($L), lesson_quoted($R, $Q), condition_said($L, $C, $Cw),
+    language_lesson_line($L, condition_yours, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, condition_yours_mid, $D), concat_atoms($B, $D, $E),
+    concat_atoms($E, $Cw, $F),
+    language_lesson_line($L, condition_yours_end, $G), concat_atoms($F, $G, $Text).
+% Il modo di chi parla e' leggibile anche da fuori: la condizione che tiene lui
+% e che io non tengo (la leggo nel suo mondo, con la stessa relazione)
+machinery(speaker_way_condition).
+speaker_way_condition($R, $C) :-
+    speaker_context($Cx), holds_in($Cx, fact(inverts_when_taught, $R, $C)),
+    naf(held_by_me(fact(inverts_when_taught, $R, $C))).
+machinery(speaker_way_phrase).
+speaker_way_phrase($L, $R, $P) :- speaker_way_condition($R, $C), condition_said($L, $C, $P).
+machinery(speaker_way_note).
+speaker_way_note($L, $R, $N) :-
+    findall($P, speaker_way_phrase($L, $R, $P), cons($P1, $Ps)),
+    inversion_phrase_join($L, cons($P1, $Ps), $J),
+    language_lesson_line($L, yours_differs, $A), concat_atoms($A, $J, $B),
+    language_lesson_line($L, yours_differs_end, $E), concat_atoms($B, $E, $N).
+machinery(speaker_has_way).
+speaker_has_way($R) :- speaker_way_condition($R, $C).
+% «When do I put need before the subject?» — una domanda in prima persona si
+% legge nel mondo di chi parla: la risposta dice il SUO modo, e se e' anche il mio
+turn_form(ask_inversion_condition_mine, 1, text("when do i put")).
+turn_form(ask_inversion_condition_mine, 2, slot(word)).
+turn_form(ask_inversion_condition_mine, 3, text("before the subject")).
+turn_form_mood(ask_inversion_condition_mine, question).
+turn_form_priority(ask_inversion_condition_mine, early).
+turn_form_act(ask_inversion_condition_mine, "op(match, inversion_condition_yours, [word, free])").
+turn_form_reply(ask_inversion_condition_mine, inversion_condition_yours_reply).
+turn_form_empty_reply(ask_inversion_condition_mine, inversion_condition_yours_none).
+response_template(inversion_condition_yours_reply, "{result}").
+response_template(inversion_condition_yours_reply, it, "{result}").
+response_template(inversion_condition_yours_none, "You haven't told me your way with «{word}» yet.").
+response_template(inversion_condition_yours_none, it, "Non mi hai ancora detto il tuo modo con «{word}».").
+machinery(inversion_condition_yours).
+inversion_condition_yours($W, $Text) :-
+    inversion_condition_root($W, $R), speaker_has_way($R), current_language($L),
+    findall($P, speaker_way_phrase($L, $R, $P), $Ps), inversion_phrase_join($L, $Ps, $J),
+    lesson_quoted($R, $Q), language_lesson_line($L, yours_put, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, yours_put_mid, $D), concat_atoms($B, $D, $E), concat_atoms($E, $J, $F),
+    language_lesson_line($L, yours_not_mine, $G), concat_atoms($F, $G, $Text).
+% il modo che era suo e ora e' anche mio
+inversion_condition_yours($W, $Text) :-
+    inversion_condition_root($W, $R), naf(speaker_has_way($R)),
+    speaker_context($Cx), holds_in($Cx, fact(inverts_when_taught, $R, $C)), current_language($L),
+    condition_said($L, $C, $Cw), lesson_quoted($R, $Q),
+    language_lesson_line($L, yours_put, $A), concat_atoms($A, $Q, $B),
+    language_lesson_line($L, yours_put_mid, $D), concat_atoms($B, $D, $E), concat_atoms($E, $Cw, $F),
+    language_lesson_line($L, yours_and_mine, $G), concat_atoms($F, $G, $Text).
+language_lesson_line(en, not_a_fact_yours, "I read that as your way of using the language, not as a fact about the world.").
+language_lesson_line(it, not_a_fact_yours, "L'ho letto come il tuo modo di usare la lingua, non come un fatto sul mondo.").
+language_lesson_line(en, condition_yours, "I see: you put ").
+language_lesson_line(en, condition_yours_mid, " before the subject only ").
+language_lesson_line(en, condition_yours_end, ". I keep it as your way and I still ask with «do» myself; if you want me to do it too, tell me to make it mine.").
+language_lesson_line(it, condition_yours, "Capito: tu metti ").
+language_lesson_line(it, condition_yours_mid, " prima del soggetto solo ").
+language_lesson_line(it, condition_yours_end, ". Lo tengo come il tuo modo e io continuo a chiedere con «do»; se vuoi che lo faccia anch'io, dimmi di farlo mio.").
+language_lesson_line(en, yours_differs, " In your way, though, it goes before the subject ").
+language_lesson_line(en, yours_differs_end, ".").
+language_lesson_line(it, yours_differs, " Nel tuo modo, però, va prima del soggetto ").
+language_lesson_line(it, yours_differs_end, ".").
+language_lesson_line(en, yours_put, "You put ").
+language_lesson_line(en, yours_put_mid, " before the subject only ").
+language_lesson_line(en, yours_not_mine, ": that is your way, I don't do it myself.").
+language_lesson_line(en, yours_and_mine, ": that was your way, and you made it mine too.").
+language_lesson_line(it, yours_put, "Tu metti ").
+language_lesson_line(it, yours_put_mid, " prima del soggetto solo ").
+language_lesson_line(it, yours_not_mine, ": è il tuo modo, io non lo faccio.").
+language_lesson_line(it, yours_and_mine, ": era il tuo modo, e me l'hai fatto fare mio.").
+
+% Le parole di una condizione insegnata, per chi dice un contenuto (il
+% trasferimento: «Done: from now on I hold it too …: «need» goes before …»)
+content_sayer(inverts_when_taught).
+content_said(inverts_when_taught, cons($R, cons($C, nil)), $T) :-
+    current_language($L), lesson_quoted($R, $Q), condition_said($L, $C, $Cw),
+    language_lesson_line($L, condition_only, $A), concat_atoms($Q, " ", $Q1),
+    concat_atoms($Q1, $A, $B), concat_atoms($B, $Cw, $T).
 
 % ── 3-quater. LA CONDIZIONE SI CHIEDE A PAROLE (L4, incremento 6) ──────────
 % «When does need go before the subject?» risponde dalla STESSA
@@ -466,9 +575,15 @@ inversion_phrase_join($L, cons($P, cons($Q, $R)), $T) :-
 % un verbo senza condizione: mai, e chiede con «do»
 inversion_condition_answer($W, $Text) :-
     naf(auxiliary($W)), inversion_condition_root($W, $R), naf(inverts_under_condition($R)),
-    current_language($L), language_lesson_line($L, condition_never, $Text).
+    naf(speaker_has_way($R)), current_language($L), language_lesson_line($L, condition_never, $Text).
+% mai per me, ma chi parla ha un suo modo: lo dico accanto (L4 0-bis)
+inversion_condition_answer($W, $Text) :-
+    naf(auxiliary($W)), inversion_condition_root($W, $R), naf(inverts_under_condition($R)),
+    speaker_has_way($R), current_language($L), language_lesson_line($L, condition_never, $A),
+    speaker_way_note($L, $R, $N), concat_atoms($A, $N, $Text).
 machinery(inversion_support_said).
 inversion_support_said($L, taught, $T) :- language_lesson_line($L, support_taught, $T).
+inversion_support_said($L, made_own, $T) :- language_lesson_line($L, support_made_own, $T).
 inversion_support_said($L, like($R), $T) :-
     lesson_quoted($R, $Q), language_lesson_line($L, support_like, $A), concat_atoms($A, $Q, $B),
     language_lesson_line($L, support_like_end, $C), concat_atoms($B, $C, $T).
@@ -712,6 +827,8 @@ language_lesson_line(it, condition_only, "va prima del soggetto solo ").
 language_lesson_line(en, condition_only_end, "; everywhere else it stays a verb and asks with «do».").
 language_lesson_line(it, condition_only_end, "; altrove resta un verbo e chiede con «do».").
 language_lesson_line(en, support_taught, " (you taught me that)").
+language_lesson_line(en, support_made_own, " (it was your way, and you made it mine)").
+language_lesson_line(it, support_made_own, " (era il tuo modo, e me l'hai fatto fare mio)").
 language_lesson_line(it, support_taught, " (me l'hai insegnato tu)").
 language_lesson_line(en, support_like, " (because it behaves like ").
 language_lesson_line(en, support_like_end, ")").

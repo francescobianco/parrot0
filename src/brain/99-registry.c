@@ -3943,6 +3943,23 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
         size_t nk = 0;
         const char *any[1] = { NULL };
         if (!kb_match_all(b->kb, "after_reply_bookkeeper", any, 1, &keepers, &nk)) nk = 0;
+        /* 29 settembre 2026 — CHI OSSERVA CIO' CHE IL TURNO HA SCRITTO VIENE
+         * DOPO CHI SCRIVE. L'ordine dei contabili era quello di caricamento
+         * dei file: `interlocutor_world_note` (user-situations.p0) girava prima
+         * della lezione (language-lessons.p0) e non vedeva la condizione
+         * scritta nel mondo di chi parla. La KB dichiara gli osservatori
+         * (`after_reply_observer/1`); qui si accodano. */
+        {
+            char (*obs)[KB_TERM_LEN] = NULL; size_t no = 0;
+            if (kb_match_all(b->kb, "after_reply_observer", any, 1, &obs, &no) && no) {
+                char (*all)[KB_TERM_LEN] = realloc(keepers, (nk + no) * sizeof *all);
+                if (all) {
+                    memcpy(all + nk, obs, no * sizeof *all);
+                    keepers = all; nk += no;
+                }
+            }
+            free(obs);
+        }
         int prev = kb_origin(b->kb);
         kb_set_origin(b->kb, KB_SESSION);
         for (size_t i = 0; i < nk; i++) {
@@ -3987,6 +4004,11 @@ static size_t turn_done(Brain *b, const char *canon, const char *input,
         }
         free(fs);
     }
+    /* L4 0-bis — il turno ACCADE in un mondo, e finisce li': fuori da un turno
+     * (una domanda del banco, un salvataggio, il prossimo boot) si torna al
+     * mondo di parrot0. I contabili qui sopra hanno gia' scritto nel mondo del
+     * turno. */
+    if (b && b->kb && b->respond_depth == 1) kb_set_context(b->kb, NULL);
     conv_log(b, input, out);
     return strlen(out);
 }
@@ -5863,6 +5885,18 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
          * after-reply bookkeeper commits only after the reader's verdict. */
     }
     kb_set_origin(b->kb, KB_SESSION);
+    /* L4 0-bis (29 settembre 2026, F.) — IN QUALE MONDO ACCADE IL TURNO. Lo
+     * dice la KB (`turn_context/2`: il possessivo di prima persona apre il
+     * mondo di chi parla); da qui leggere e scrivere avvengono li'. Il C non sa
+     * che cosa sia un mondo: chiede quale, e lo passa alla KB. Si decide appena
+     * le parole del turno esistono, PRIMA di ogni lettore: una lezione letta
+     * qui sotto («my way of …») scriveva nel mondo di parrot0 perche' la
+     * domanda arrivava dopo, nel dispatch. */
+    if (b->kb && b->respond_depth <= 1) {
+        char cx[1][KB_TERM_LEN];
+        const char *cq[2] = { "current_turn", NULL };
+        if (kb_match(b->kb, "turn_context", cq, 2, cx, 1) == 1) kb_set_context(b->kb, cx[0]);
+    }
 
     /* gen394: la CONTABILITA' del turno, e non e' una terza domanda per caso.
      *
@@ -8445,15 +8479,6 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * ("anyway, is socrates a man" -> "Yes."). Only claims when the residue is
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
-    /* L4 0-bis (29 settembre 2026, F.) — IN QUALE MONDO ACCADE IL TURNO. Lo
-     * dice la KB (`turn_context/2`: il possessivo di prima persona apre il
-     * mondo di chi parla); da qui leggere e scrivere avvengono li'. Il C non sa
-     * che cosa sia un mondo: chiede quale, e lo passa alla KB. */
-    if (b && b->kb && b->respond_depth <= 1) {
-        char cx[1][KB_TERM_LEN];
-        const char *cq[2] = { "current_turn", NULL };
-        if (kb_match(b->kb, "turn_context", cq, 2, cx, 1) == 1) kb_set_context(b->kb, cx[0]);
-    }
     /* gen512: la negazione parlata — vedi p0_negation_lead. Prima dei lettori
      * di forme, che altrimenti leggono la negativa con un lettore proprio. */
     if (b && !getenv("P0_NO_NEG_LEAD") && p0_negation_lead(b, canon, input, out, out_size)) {

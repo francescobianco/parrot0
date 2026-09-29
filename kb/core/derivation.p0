@@ -217,8 +217,11 @@ content_said($P, cons($S, nil), $T) :-
     words_of($S, $WS), words_of($P, $WP), current_language($L), word_article($L, $WP, $Art),
     concat_atoms($WS, " is ", $A), concat_atoms($A, $Art, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WP, $T).
 content_said($P, cons($S, cons($O, nil)), $T) :-
-    words_of($S, $WS), relation_finite($P, $WP), words_of($O, $WO),
+    naf(content_sayer($P)), words_of($S, $WS), relation_finite($P, $WP), words_of($O, $WO),
     concat_atoms($WS, " ", $A), concat_atoms($A, $WP, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WO, $T).
+% una relazione che non si dice «soggetto verbo oggetto» (la condizione di una
+% regola di grammatica) ha le sue parole altrove: la dichiara chi le ha
+machinery(content_sayer).
 % la relazione detta alla terza persona quando il paradigma la conosce
 % («taste» -> «tastes»); una relazione gia' finita («leaks») resta com'e'
 machinery(relation_finite).

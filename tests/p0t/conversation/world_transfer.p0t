@@ -1,0 +1,84 @@
+# L4 0-bis (29 settembre 2026, docs/plans/l4-upgrade.md) — LA LEZIONE IN DUE
+# TEMPI E IL TRASFERIMENTO DI MONDO, SU UNA REGOLA.
+#
+# F.: «delle lezioni possono essere date in due tempi: "il mio modo di
+# trattare il need nella frase e' questo"; se poi dice "adesso fallo tuo" li'
+# avviene il trasferimento di mondo». La lezione di grammatica detta con il
+# possessivo accade nel mondo di chi parla: parrot0 la capisce, la dice come
+# tua, NON la applica; «Now make it yours.» la porta nel suo mondo, con la
+# provenienza; «Forget that you made it yours.» la restituisce. Nessun nome di
+# predicato nelle lezioni: solo lingua.
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test il modo di chi parla resta suo]
+!timeout 4
+> A welder needs to wear a mask.
+<~ Held
+> Need a welder wear a mask?
+<! Yes
+> My way of making a question with need is to put need before the subject when a bare verb follows.
+<~ I read that as your way of using the language
+<~ I see: you put «need» before the subject only when a bare verb follows in the present
+<~ tell me to make it mine
+<! From now on I put
+<! Can you show me an example?
+!query holds_in(world_of(user), fact(inverts_when_taught, need, all(cons(bare_verb_follows, cons(in_the_present, nil)))))
+!query! inverts_when(need, $C)
+# un turno nel mondo di chi parla non congela la sua regola nelle viste di parrot0
+> When do I put need before the subject?
+<~ You put «need» before the subject only when a bare verb follows in the present: that is your way, I don't do it myself.
+> Need a welder wear a mask?
+<! Yes
+> When does need go before the subject?
+<~ «need» never goes before the subject
+<~ In your way, though, it goes before the subject when a bare verb follows in the present.
+> Whose way is that?
+<~ Yours: you told me that «need» goes before the subject only when a bare verb follows in the present
+
+[test adesso fallo tuo: la regola passa nel mondo di parrot0]
+!timeout 4
+> Now make it yours.
+<~ Done: from now on I hold it too, not only as yours: «need» goes before the subject only when a bare verb follows in the present.
+!query inverts_when(need, $C)
+!query made_own(fact(inverts_when_taught, need, $C), from(world_of(user), $N))
+> Need a welder wear a mask?
+<~ Yes
+> When does need go before the subject?
+<~ (it was your way, and you made it mine)
+> When do I put need before the subject?
+<~ that was your way, and you made it mine too.
+> Whose way is that?
+<~ It was yours
+
+[test il trasferimento si ritira, e resta suo]
+!timeout 4
+> Forget that you made it yours.
+<~ Done: I no longer hold it myself; it stays yours: «need» goes before the subject
+!query! inverts_when(need, $C)
+!query holds_in(world_of(user), fact(inverts_when_taught, need, $C))
+> Need a welder wear a mask?
+<! Yes
+> Forget that you made it yours.
+<~ I haven't made anything of yours mine
+!reset
+
+[test in italiano]
+!set PARROT0_LANG=it
+!timeout 4
+> Il mio modo di fare una domanda con need è mettere need prima del soggetto quando segue un verbo nudo.
+<~ L'ho letto come il tuo modo di usare la lingua
+<~ Capito: tu metti «need» prima del soggetto solo quando segue un verbo nudo al presente
+!query! inverts_when(need, $C)
+> Adesso fallo tuo.
+<~ Fatto: d'ora in poi lo tengo anch'io, non solo come tuo: «need» va prima del soggetto solo quando segue un verbo nudo al presente.
+!query inverts_when(need, $C)
+> Di chi è questa idea?
+<~ Era tuo
+> Dimentica di averlo fatto tuo.
+<~ Fatto: non lo tengo più io; resta tuo
+!query! inverts_when(need, $C)
+!set PARROT0_LANG=en
+!reset

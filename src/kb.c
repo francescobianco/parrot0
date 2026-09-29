@@ -411,6 +411,11 @@ struct KB {
     char mach_cache[32][KB_TERM_LEN];
     signed char mach_flag[32];
     size_t mach_n;
+    /* L4 0-bis — la macchineria che una mente TIENE (`world_held/1`): la
+     * condizione di una regola insegnata e' di chi l'ha insegnata. */
+    char wh_cache[32][KB_TERM_LEN];
+    signed char wh_flag[32];
+    size_t wh_n;
     size_t n_derived;      /* fatti con origine KB_DERIVED, esclusi dalla revisione */
 
     /* Turn-local metadata; the fact-table mutation happens once at commit. */
@@ -793,6 +798,7 @@ static int is_var(const char *s) {
 static uint64_t fact_hash_strings(const Fact *f);   /* E0: fwd */
 static uint64_t pred_hash(const char *pred);         /* E0: fwd */
 static int pred_is_machinery_scoped(const KB *kb, const char *pred);  /* fwd */
+static int pred_in_worlds(const KB *kb, const char *pred);            /* fwd */
 static void kb_support_note(KB *kb, const Fact *f, const Rule *R);   /* fwd */
 static int term_contains_var(const char *s, int depth);   /* E0: fwd */
 static int fact_make(Fact *f, const char *pred, const char *const *args,
@@ -1437,7 +1443,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (kb->ctx_n && !kb->ctx_busy && kb->origin == KB_SESSION && argc >= 1 && argc <= 3 &&
         pred && strcmp(pred, "holds_in") != 0) {
         kb->ctx_busy = 1;
-        int mach = pred_is_machinery_scoped(kb, pred);
+        int mach = !pred_in_worlds(kb, pred);
         kb->ctx_busy = 0;
         if (!mach) {
             char reif[KB_TERM_LEN];
@@ -3517,9 +3523,9 @@ static int kb_pred_contexted(const KB *kb, const char *pred) {
     if (hb.live && hb.n == 0) return 0;
     KB *m = (KB *)kb;
     m->ctx_busy = 1;
-    int mach = pred_is_machinery_scoped(kb, pred);
+    int in = pred_in_worlds(kb, pred);
     m->ctx_busy = 0;
-    return !mach;
+    return in;
 }
 
 static int kb_pred_bridged(const KB *kb, const char *pred) {
@@ -4999,6 +5005,29 @@ static int pred_is_machinery_scoped(const KB *kb, const char *pred) {
     return is_m;
 }
 
+/* L4 0-bis — un predicato sta nei mondi se e' conoscenza, oppure se e'
+ * macchineria che una mente tiene (`world_held(P)`, KB): la condizione di una
+ * regola di grammatica insegnata come «il mio modo di …» e' di chi parla, e si
+ * scrive e si legge nel suo mondo come un fatto qualunque. Quali lo siano lo
+ * dice la KB; il C chiede soltanto. */
+static int pred_in_worlds(const KB *kb, const char *pred) {
+    if (!pred_is_machinery_scoped(kb, pred)) return 1;
+    KB *m = (KB *)kb;
+    for (size_t i = 0; i < m->wh_n; i++)
+        if (!strcmp(m->wh_cache[i], pred)) return m->wh_flag[i];
+    int saved = m->read_mask;
+    m->read_mask = 0;
+    const char *q[1] = { pred };
+    int held = kb_query(m, "world_held", q, 1) ? 1 : 0;
+    m->read_mask = saved;
+    if (m->wh_n < sizeof m->wh_cache / sizeof m->wh_cache[0]) {
+        snprintf(m->wh_cache[m->wh_n], KB_TERM_LEN, "%s", pred);
+        m->wh_flag[m->wh_n] = (signed char)held;
+        m->wh_n++;
+    }
+    return held;
+}
+
 static int kb_fact_in_read_scope(const KB *kb, const Fact *f) {
     if (!kb->read_mask || !f) return 1;
     if (f->origin & kb->read_mask) return 1;
@@ -5462,7 +5491,22 @@ static int kb_view_dependencies(KB *kb, KbView *v) {
 static size_t proof_depth;
 static int census_readers_live(void) { return frame_depth || proof_depth; }
 
+static int kb_view_ensure_world(KB *kb, const char *pred);
+/* L4 0-bis (29 settembre 2026) — UNA VISTA CONGELATA E' DEL MONDO DI PARROT0.
+ * Si congela fuori da ogni contesto: costruita durante un turno che accade nel
+ * mondo di chi parla, ne avrebbe preso i fatti (la condizione che l'utente
+ * tiene come «il mio modo di …») e li avrebbe serviti poi a ogni turno, come
+ * se fossero di parrot0. Il contesto torna com'era subito dopo. */
 int kb_view_ensure(KB *kb, const char *pred) {
+    if (!kb || !kb->ctx_n) return kb_view_ensure_world(kb, pred);
+    size_t saved = kb->ctx_n;
+    kb->ctx_n = 0;
+    int r = kb_view_ensure_world(kb, pred);
+    kb->ctx_n = saved;
+    return r;
+}
+
+static int kb_view_ensure_world(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return 0;
     if (frame_depth || proof_depth || kb->views_preparing)
         return kb_view_live(kb, pred);
@@ -10014,6 +10058,7 @@ void kb_read_scope(KB *kb, int origin_mask) {
     if (!kb) return;
     kb->read_mask = origin_mask;
     kb->mach_n = 0;          /* la cache vale dentro uno scope, non fra scope */
+    kb->wh_n = 0;
 }
 
 int kb_read_scope_get(const KB *kb) { return kb ? kb->read_mask : 0; }

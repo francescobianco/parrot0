@@ -1168,6 +1168,8 @@ response_template(learned_situation_cue_label, it, "Tengo: «{surface}» nomina 
 machinery(first_person_possessive).
 first_person_possessive(en, my).
 first_person_possessive(en, our).
+first_person_possessive(it, mio).  first_person_possessive(it, mia).
+first_person_possessive(it, miei). first_person_possessive(it, mie).
 machinery(speaker_owned_fact).
 speaker_owned_fact($T, fact($P, $S, $O)) :-
     kb_turn_act($P, cons($S, cons($O, nil)), pos, $K), naf(machinery($P)),
@@ -1184,6 +1186,12 @@ speaker_owned_fact($T, fact($P, $S, $O)) :-
 % regola nomina, e un fatto scritto li' e' `holds_in(world_of(user), fact(…))`.
 machinery(speaker_context).
 speaker_context(world_of(user)).
+% Che cosa tengo IO, in qualunque mondo accada il turno: il fatto nudo, cioe'
+% `holds_in(world, …)` per lettura. Un turno nel mondo di chi parla vede anche
+% i genitori, quindi «lo tengo?» non si chiede al goal: si chiede ai fatti
+% scritti (`kb_fact`, che non attraversa i mondi).
+machinery(held_by_me).
+held_by_me(fact($P, $S, $O)) :- kb_fact($P, cons($S, cons($O, nil))).
 context(world_of(user), interlocutor_world).
 context_default_parent(interlocutor_world, world).
 commitment_policy(interlocutor_world, reported_by_speaker).
@@ -1211,7 +1219,10 @@ turn_commitment($T, interlocutor_world) :- speaker_owned_fact($T, $F).
 % mondo di chi parla si popola: ha la cosa di cui parla.
 machinery(interlocutor_world_fact).
 machinery(interlocutor_has).
-after_reply_bookkeeper(interlocutor_world_note).
+% un OSSERVATORE: registra cio' che il turno ha scritto nel mondo di chi parla,
+% quindi dopo ogni contabile che scrive (una lezione «my way of …» scrive la
+% sua condizione dopo la risposta, language-lessons.p0)
+after_reply_observer(interlocutor_world_note).
 turn_after_reply($T, interlocutor_world_note) :-
     speaker_owned_fact(current_turn, fact($P, $S, $O)),
     naf(interlocutor_world_fact_known(fact($P, $S, $O))), turn_counter($N),
@@ -1433,3 +1444,86 @@ machinery(turn_transfers_world).
 turn_transfers_world($T, yours) :- turn_word($T, $I, make), turn_word($T, $K, yours).
 turn_transfers_world($T, tuo) :- turn_word($T, $I, fallo), turn_word($T, $J, tuo).
 faculty_yield_when(reqgen, open, turn_transfers_world).
+
+% ── L4 0-bis — IL TRASFERIMENTO SI RITIRA: «forget that you made it yours» ──
+% Il passaggio e' ritirabile come ogni lezione (§2.6): torna indietro l'ultimo
+% contenuto fatto mio. Esce dal mio mondo, con la sua provenienza; resta nel
+% mondo di chi parla, dove era prima (il trasferimento non lo aveva spostato).
+machinery(last_made_own).
+machinery(later_made_own).
+last_made_own($F, from($C, $N)) :- made_own($F, from($C, $N)), naf(later_made_own($N)).
+later_made_own($N) :- made_own($G, from($C, $M)), gt($M, $N).
+machinery(give_back_own).
+give_back_own($Text) :-
+    last_made_own(fact($P, $S, $O), $From),
+    retract($P, $S, $O), retract(made_own, fact($P, $S, $O), $From),
+    content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
+    commitment_line($L, given_back, $A), concat_atoms($A, $Cs, $B),
+    commitment_line($L, given_back_end, $E), concat_atoms($B, $E, $Text).
+turn_form(transfer_give_back, 1, text("forget that you made it yours")).
+turn_form(transfer_give_back_it, 1, text("dimentica di averlo fatto tuo")).
+turn_form_priority(transfer_give_back, early).
+turn_form_priority(transfer_give_back_it, early).
+turn_form_view(transfer_give_back, said).
+turn_form_view(transfer_give_back_it, said).
+turn_form_act(transfer_give_back, "op(match, give_back_own, [free])").
+turn_form_act(transfer_give_back_it, "op(match, give_back_own, [free])").
+turn_form_reply(transfer_give_back, transfer_reply).
+turn_form_reply(transfer_give_back_it, transfer_reply).
+turn_form_empty_reply(transfer_give_back, transfer_nothing_back).
+turn_form_empty_reply(transfer_give_back_it, transfer_nothing_back).
+response_template(transfer_nothing_back, "I haven't made anything of yours mine, so there is nothing to give back.").
+response_template(transfer_nothing_back, it, "Non ho fatto mio niente di tuo, quindi non c'è niente da restituire.").
+commitment_line(en, given_back, "Done: I no longer hold it myself; it stays yours: ").
+commitment_line(en, given_back_end, ".").
+commitment_line(it, given_back, "Fatto: non lo tengo più io; resta tuo: ").
+commitment_line(it, given_back_end, ".").
+
+% ── L4 0-bis — DI CHI E'? La provenienza di un contenuto si chiede a parole ──
+% «Whose idea is that?» chiede dell'ultimo contenuto detto nel mondo di chi
+% parla: suo e basta, oppure suo e fatto mio (`made_own/2`). Un solo lettore,
+% le stesse registrazioni del trasferimento.
+machinery(made_own_any).
+made_own_any($F) :- made_own($F, $From).
+machinery(content_owner_answer).
+content_owner_answer($Text) :-
+    last_speaker_content(fact($P, $S, $O)), made_own_any(fact($P, $S, $O)),
+    content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
+    commitment_line($L, owner_both, $A), concat_atoms($A, $Cs, $B),
+    commitment_line($L, owner_both_end, $E), concat_atoms($B, $E, $Text).
+content_owner_answer($Text) :-
+    last_speaker_content(fact($P, $S, $O)), naf(made_own_any(fact($P, $S, $O))),
+    content_said($P, cons($S, cons($O, nil)), $Cs), current_language($L),
+    commitment_line($L, owner_yours, $A), concat_atoms($A, $Cs, $B),
+    commitment_line($L, owner_yours_end, $E), concat_atoms($B, $E, $Text).
+turn_form(ask_content_owner, 1, text("whose idea is that")).
+turn_form(ask_content_owner_way, 1, text("whose way is that")).
+turn_form(ask_content_owner_it, 1, text("di chi è questa idea")).
+turn_form_mood(ask_content_owner, question).
+turn_form_mood(ask_content_owner_way, question).
+turn_form_mood(ask_content_owner_it, question).
+turn_form_priority(ask_content_owner, early).
+turn_form_priority(ask_content_owner_way, early).
+turn_form_priority(ask_content_owner_it, early).
+turn_form_view(ask_content_owner, said).
+turn_form_view(ask_content_owner_way, said).
+turn_form_view(ask_content_owner_it, said).
+turn_form_act(ask_content_owner, "op(match, content_owner_answer, [free])").
+turn_form_act(ask_content_owner_way, "op(match, content_owner_answer, [free])").
+turn_form_act(ask_content_owner_it, "op(match, content_owner_answer, [free])").
+turn_form_reply(ask_content_owner, transfer_reply).
+turn_form_reply(ask_content_owner_way, transfer_reply).
+turn_form_reply(ask_content_owner_it, transfer_reply).
+turn_form_empty_reply(ask_content_owner, content_owner_none).
+turn_form_empty_reply(ask_content_owner_way, content_owner_none).
+turn_form_empty_reply(ask_content_owner_it, content_owner_none).
+response_template(content_owner_none, "You haven't told me anything of yours that I could trace back.").
+response_template(content_owner_none, it, "Non mi hai detto niente di tuo di cui possa ritrovare l'origine.").
+commitment_line(en, owner_yours, "Yours: you told me that ").
+commitment_line(en, owner_yours_end, ", and I keep it as yours, not as mine.").
+commitment_line(en, owner_both, "It was yours: you told me that ").
+commitment_line(en, owner_both_end, ", and then you made it mine too.").
+commitment_line(it, owner_yours, "Tuo: mi hai detto che ").
+commitment_line(it, owner_yours_end, ", e lo tengo come tuo, non come mio.").
+commitment_line(it, owner_both, "Era tuo: mi hai detto che ").
+commitment_line(it, owner_both_end, ", e poi me l'hai fatto fare mio.").
