@@ -8087,6 +8087,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         }
         snprintf(b->cur_input_raw, sizeof b->cur_input_raw, "%s", input ? input : "");
         if (b->turns == 0) {
+            b->turn_base = 0;
+            if (b->kb) {
+                char top[1][KB_TERM_LEN];
+                const char *tq[1] = { NULL };
+                if (kb_match(b->kb, "clock_top", tq, 1, top, 1) == 1)
+                    b->turn_base = strtoul(top[0], NULL, 10);
+            }
             b->start_time = time(NULL);
             if (timespec_get(&b->start_ts, TIME_UTC) == TIME_UTC)
                 b->has_start_ts = 1;
@@ -8106,12 +8113,12 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * motore ha un solo contatore e lo pubblica all'ingresso del turno; la
          * KB lo legge (previous_turn, exchange_turn, issue_turn), non lo tiene. */
         if (b->kb) {
-            char n[24]; snprintf(n, sizeof n, "%lu", b->turns);
+            char n[24]; snprintf(n, sizeof n, "%lu", b->turns + b->turn_base);
             int prev = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_REFLECTIVE);
             kb_retract_pred(b->kb, "turn_counter");
             kb_assert(b->kb, "turn_counter", (const char *[]){ n }, 1);
-            kb_set_paradox_turn(b->kb, b->turns);   /* §25.3: data del registro */
+            kb_set_paradox_turn(b->kb, b->turns + b->turn_base);   /* §25.3: data del registro */
             /* L4 0-bis: ogni turno parte dal mondo — ma una frase riletta
              * come turno annidato resta nel mondo di chi l'ha aperta (la
              * clausola di «Marco thinks that …» accade nel mondo di Marco) */

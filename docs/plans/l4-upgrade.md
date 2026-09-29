@@ -62,6 +62,33 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶ C6, la persistenza: l'orologio continua (29 settembre 2026, giorno)
+
+Il punto 1 della RIPARTENZA del 28 notte («un orologio di sessione in KB, o
+l'ordine degli atti»), nella prima forma: **l'orologio di sessione**. Il turno
+che la KB vede è `turni della sessione + l'ultimo turno portato`
+(`clock_carried/1`, [discourse.p0](../../kb/core/discourse.p0), aggiornato da
+un contabile e salvato; il motore lo legge al primo turno con `clock_top/1`).
+Nessuna regola datata con il turno cambia: `interlocutor_world_fact`,
+`world_fact_said`, `made_own`, gli urti e la fine degli stati tengono l'ordine
+anche dopo un ripristino. Cricchetto
+[world_clock.p0t](../../tests/p0t/save/world_clock.p0t) 12/12: dopo il
+salvataggio e il ripristino «Now make it yours» prende il contenuto di oggi
+(senza la cura prendeva quello di ieri, più «recente» per numero), e il mondo
+di Marco torna.
+
+**Curato di passaggio: un banco di salvataggio non sporca più la KB.**
+`kb_save_routed` scriveva nelle case del save-map (`kb/…`) anche quando il
+banco dichiarava una radice sua (`PARROT0_KB_ROOT`): ogni `persist.p0t`
+lasciava righe in `kb/machinery` e `kb/experts`. Ora la casa si cerca sotto la
+radice, e se non c'è il fatto va nella ricaduta. `persist.p0t` passa da 34/3
+a 35/2 (i due residui c'erano già: l'ordine di «who is a man?» e la negazione
+che resta nel file) e l'albero resta pulito.
+
+**Resta aperto** (il passo 3 di 0-bis): l'ordine **interno al contesto**
+(`supersedes_in`) al posto degli strati datati per turno. L'orologio che
+continua lo rende meno urgente, non lo sostituisce.
+
 ### ▶ 0-bis, passo 4 fatto (29 settembre 2026, giorno): il PONTE TEMPORANEO — impersonare, fondere per una domanda
 
 La decisione di F. («grazie a ponti temporanei sarà possibile impersonare le

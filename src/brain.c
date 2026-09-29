@@ -47,6 +47,12 @@
 
 struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
+    /* L4 C6 (29 settembre 2026) — L'OROLOGIO CONTINUA. Il turno che la KB
+     * vede e' `turns + turn_base`: `turn_base` e' l'ultimo turno portato da
+     * una sessione salvata (`clock_top/1`, KB), letto al primo turno. Senza,
+     * dopo un ripristino i turni ripartivano da 1 e ogni ordine per turno
+     * (l'ultimo contenuto detto, un urto, la fine di uno stato) si rompeva. */
+    unsigned long turn_base;
     /* Identita' monotona dei documenti osservati. Il numero non interpreta il
      * testo: e' la stessa meccanica fissa del contatore dei turni e permette
      * alla KB di conservare unita' provenienti da letture successive senza

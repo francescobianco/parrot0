@@ -8932,6 +8932,17 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
         if (!smap_home(kb, fa->pred, fa->args[0], &file, &line)) {
             kb_trace(kb, "save", "%s(%s): nessuna casa", fa->pred, fa->args[0]);
             continue; }
+        /* 29 settembre 2026 — LA RADICE DICE DOVE VIVE L'ALBERO. Le case del
+         * save-map sono scritte sotto `kb/`; con una radice diversa (un banco
+         * che salva in una directory sua, PARROT0_KB_ROOT) la casa si cerca
+         * sotto quella radice. Prima si scriveva comunque nell'albero curato,
+         * e ogni banco di salvataggio sporcava i file veri della KB. Se sotto
+         * la radice la casa non c'e', il fatto va nella ricaduta. */
+        char rehomed[1024];
+        if (root && *root && strcmp(root, "kb") != 0 && !strncmp(file, "kb/", 3)) {
+            snprintf(rehomed, sizeof rehomed, "%s/%s", root, file + 3);
+            file = rehomed;
+        }
         char text[2048];
         sm_fact_text(fa, text, sizeof text);
         if (!sm_insert(file, line, text)) {

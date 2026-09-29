@@ -1,0 +1,38 @@
+# L4 C6 (29 settembre 2026, docs/plans/l4-upgrade.md) — L'OROLOGIO CONTINUA
+# FRA LE SESSIONI. I mondi (di chi parla, di Marco) e l'ordine dei loro
+# contenuti sono datati con il turno; dopo un ripristino i turni ripartivano da
+# 1 e il contenuto di ieri diventava «piu' recente» di quello di oggi.
+# `clock_carried/1` porta l'ultimo turno nel salvataggio e il motore riparte da
+# li'. Senza la cura, «Now make it yours» qui sotto prenderebbe il caffe' di
+# ieri invece del succo di oggi.
+[test l orologio e i mondi sopravvivono al salvataggio]
+!timeout 30
+!exec rm -rf p0tmp_clock
+!exec mkdir -p p0tmp_clock
+!set PARROT0_SESSION=
+!set PARROT0_KB_ROOT=p0tmp_clock
+!set PARROT0_LANG=en
+!reset
+> Marco thinks that tea tastes sour.
+> My coffee tastes sour.
+> Hello.
+!query clock_carried(4)
+!mcp kb.save {"path":"p0tmp_clock/session.p0"}
+!expect mcp "ok":true
+!filehas p0tmp_clock/session.p0 clock_carried(4).
+!filehas p0tmp_clock/session.p0 world_of(marco)
+!set PARROT0_BASE=p0tmp_clock/session.p0
+!reset
+!query clock_top(4)
+> My juice tastes sweet.
+!query turn_counter(5)
+> Now make it yours.
+<~ Done: from now on I hold it too, not only as yours: juice tastes sweet.
+> What does Marco think?
+<~ Marco thinks that tea tastes sour.
+> Make Marco's view yours.
+<~ tea tastes sour
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_KB_ROOT=
+!reset
+!exec rm -rf p0tmp_clock

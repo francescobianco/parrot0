@@ -135,6 +135,25 @@ machinery(turn_scratch).
 % conoscenza; il /save della conversazione degli scorpioni lo salvava.
 turn_scratch(last_acquisition).
 turn_scratch(turn_counter).
+% L4 C6 (29 settembre 2026) — MA L'OROLOGIO CONTINUA. `turn_counter` non si
+% salva (e' lo stato del turno), eppure l'ORDINE dei turni e' conoscenza: il
+% mondo di chi parla, un urto, la fine di uno stato, l'ultimo contenuto detto
+% sono datati con il turno, e dopo un ripristino i turni ripartivano da 1 — il
+% contenuto di ieri diventava «piu' recente» di quello di oggi (misurato su
+% persist.p0t). `clock_carried/1` porta l'ultimo turno e SI salva; il motore
+% lo legge al primo turno (`clock_top/1`) e riparte da li'.
+machinery(clock_carried).
+machinery(clock_top).
+machinery(clock_above).
+clock_top($N) :- clock_carried($N), naf(clock_above($N)).
+clock_above($N) :- clock_carried($M), gt($M, $N).
+after_reply_bookkeeper(clock_carry).
+turn_after_reply($T, clock_carry) :- turn_counter($N), naf(clock_carried($N)), clock_carry_to($N).
+machinery(clock_carry_to).
+machinery(clock_has_any).
+clock_has_any :- clock_carried($M).
+clock_carry_to($N) :- clock_top($M), retract(clock_carried, $M), assert(clock_carried, $N).
+clock_carry_to($N) :- naf(clock_has_any), assert(clock_carried, $N).
 % 14 settembre 2026 — la lettura strutturale del turno (`turn_scoped/2` qui
 % sotto) si ritira al turno dopo, ma quella dell'ultimo turno prima del `/save`
 % entrava in learned.p0: `input_frame_record(current_turn, …)`.
