@@ -74,6 +74,24 @@
 <~ I haven't made anything of yours mine
 !reset
 
+[test fare proprio cio' che si nomina, non solo l'ultimo]
+!timeout 4
+> A welder needs to wear a mask.
+> My way of making a question with need is to put need before the subject when a bare verb follows.
+> My coffee tastes sour.
+# l'ultimo contenuto e' il caffe': nominare «need» sceglie la regola
+> Make my way with need yours.
+<~ Done: from now on I hold it too, not only as yours: «need» goes before the subject only when a bare verb follows in the present.
+> Need a welder wear a mask?
+<~ Yes
+> Does coffee taste sour?
+<! Yes
+> Make what I said about coffee yours.
+<~ Done: from now on I hold it too, not only as yours: coffee tastes sour.
+> Make what I said about tea yours.
+<~ You haven't told me anything of yours about «tea» that I could make mine.
+!reset
+
 [test in italiano]
 !set PARROT0_LANG=it
 !timeout 4
@@ -92,5 +110,8 @@
 > Dimentica di averlo fatto tuo.
 <~ Fatto: non lo tengo più io; resta tuo
 !query! inverts_when(need, $C)
+> Fai tuo il mio modo con need.
+<~ Fatto: d'ora in poi lo tengo anch'io, non solo come tuo: «need» va prima del soggetto
+!query inverts_when(need, $C)
 !set PARROT0_LANG=en
 !reset

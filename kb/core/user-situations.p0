@@ -1942,3 +1942,56 @@ turn_form_view(forget_world_view_it, said).
 turn_form_act(forget_world_view_it, "op(match, forget_world_of, [word, free])").
 turn_form_reply(forget_world_view_it, transfer_reply).
 turn_form_empty_reply(forget_world_view_it, world_view_none).
+
+% ── L4 0-bis — FARE PROPRIO CIO' CHE SI NOMINA: «make my way with need yours» ─
+% «it» e' l'ultimo contenuto; ma chi insegna puo' nominare di che cosa parla:
+% il contenuto del suo mondo che NOMINA quella parola (soggetto, oggetto,
+% relazione, o una parola dentro un nome composto), il piu' recente.
+machinery(content_mentions).
+content_mentions(fact($P, $S, $O), $W) :- mention_in_term($S, $W).
+content_mentions(fact($P, $S, $O), $W) :- mention_in_term($O, $W).
+content_mentions(fact($P, $S, $O), $P).
+content_mentions(fact($P, $S), $W) :- mention_in_term($S, $W).
+content_mentions(fact($P, $S), $P).
+machinery(mention_in_term).
+mention_in_term($W, $W).
+mention_in_term($T, $W) :- atom_words($T, $Ws), member($W, $Ws).
+machinery(last_content_about).
+machinery(later_content_about).
+last_content_about($C, $W, $F) :-
+    world_content($C, $F, $N), content_mentions($F, $W), naf(later_content_about($C, $W, $N)).
+later_content_about($C, $W, $N) :-
+    world_content($C, $G, $M), content_mentions($G, $W), gt($M, $N).
+machinery(transfer_about).
+transfer_about($W, $Text) :-
+    speaker_context($C), last_content_about($C, $W, $F), transfer_from($C, $F, $Text).
+turn_form(transfer_way_with, 1, text("make my way with")).
+turn_form(transfer_way_with, 2, slot(word)).
+turn_form(transfer_way_with, 3, text("yours")).
+turn_form(transfer_said_about, 1, text("make what i said about")).
+turn_form(transfer_said_about, 2, slot(word)).
+turn_form(transfer_said_about, 3, text("yours")).
+turn_form(transfer_way_with_it, 1, text("fai tuo il mio modo con")).
+turn_form(transfer_way_with_it, 2, slot(word)).
+turn_form(transfer_said_about_it, 1, text("fai tuo quello che ho detto su")).
+turn_form(transfer_said_about_it, 2, slot(word)).
+turn_form_view(transfer_way_with_it, said).
+turn_form_view(transfer_said_about_it, said).
+turn_form_priority(transfer_way_with, early).
+turn_form_priority(transfer_said_about, early).
+turn_form_priority(transfer_way_with_it, early).
+turn_form_priority(transfer_said_about_it, early).
+turn_form_act(transfer_way_with, "op(match, transfer_about, [word, free])").
+turn_form_act(transfer_said_about, "op(match, transfer_about, [word, free])").
+turn_form_act(transfer_way_with_it, "op(match, transfer_about, [word, free])").
+turn_form_act(transfer_said_about_it, "op(match, transfer_about, [word, free])").
+turn_form_reply(transfer_way_with, transfer_reply).
+turn_form_reply(transfer_said_about, transfer_reply).
+turn_form_reply(transfer_way_with_it, transfer_reply).
+turn_form_reply(transfer_said_about_it, transfer_reply).
+turn_form_empty_reply(transfer_way_with, transfer_nothing_about).
+turn_form_empty_reply(transfer_said_about, transfer_nothing_about).
+turn_form_empty_reply(transfer_way_with_it, transfer_nothing_about).
+turn_form_empty_reply(transfer_said_about_it, transfer_nothing_about).
+response_template(transfer_nothing_about, "You haven't told me anything of yours about «{word}» that I could make mine.").
+response_template(transfer_nothing_about, it, "Non mi hai detto niente di tuo su «{word}» che possa fare mio.").
