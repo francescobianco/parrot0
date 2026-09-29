@@ -81,6 +81,24 @@
 # cio' che ho fatto mio resta mio, con la sua provenienza
 !query taste(soup, salty)
 
+[test anche una negazione accade nel mondo che la dice]
+!timeout 4
+# la negativa di Marco non diventa mia (prima: «Does tea taste sour?» -> «No.»)
+> Marco thinks that bread does not taste sour.
+<~ I see: that is Marco's view: bread does not taste sour. I keep it as Marco's, not as mine.
+!query holds_in(world_of(marco), not(fact(taste, bread, sour)))
+!query! kb_fact_neg(taste, cons(bread, cons(sour, nil)))
+> Does bread taste sour?
+<! No.
+<~ I cannot settle that
+> Marco thinks that a dolphin is not a fish.
+<~ that is Marco's view: dolphin is not a fish
+# la negazione nel mondo di chi parla si ridice e si ritrova
+> My bike is not red.
+<~ I see: your bike is not red.
+> Is my bike red?
+<~ No
+
 [test io penso che: il mondo di chi parla]
 !timeout 4
 > I think that milk tastes sour.

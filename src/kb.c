@@ -1771,9 +1771,42 @@ int kb_query_origin(const KB *kb, int origin_mask, const char *pred,
  * cancellare il positivo lo fa sparire insieme alla domanda. Questa e' la meta'
  * additiva: aggiunge il negativo e lascia stare il resto. Chi corregge chiama
  * la gemella qui sotto, che toglie e poi chiama questa. */
+static int kb_neg_in_context(KB *kb, const char *pred, const char *const *args, size_t argc, int *done) {
+    *done = 0;
+    /* L4 0-bis — ANCHE UNA NEGAZIONE ACCADE NEL MONDO ATTIVO. «Marco thinks
+     * that tea does not taste sour» scriveva la negativa nel mondo di parrot0
+     * (e toglieva la sua positiva): «Does tea taste sour?» -> «No.», la
+     * credenza di Marco diventata sua. Nel mondo attivo la negazione e'
+     * `holds_in(Ctx, not(fact(P, …)))`, e il mondo di parrot0 non si tocca. */
+    if (kb->ctx_n && !kb->ctx_busy && kb->origin == KB_SESSION && argc >= 1 && argc <= 3 &&
+        pred && strcmp(pred, "holds_in") != 0) {
+        kb->ctx_busy = 1;
+        int in = pred_in_worlds(kb, pred);
+        kb->ctx_busy = 0;
+        if (in) {
+            char reif[KB_TERM_LEN];
+            int o = snprintf(reif, sizeof reif, "not(fact(%s", pred);
+            for (size_t a = 0; a < argc && o > 0 && (size_t)o < sizeof reif; a++)
+                o += snprintf(reif + o, sizeof reif - (size_t)o, ", %s", args[a]);
+            if (o > 0 && (size_t)o + 3 < sizeof reif) {
+                snprintf(reif + o, sizeof reif - (size_t)o, "))");
+                const char *ha[2] = { kb->ctx[0], reif };
+                kb->ctx_busy = 1;
+                int r = kb_assert(kb, "holds_in", ha, 2);
+                kb->ctx_busy = 0;
+                *done = 1;
+                return r;
+            }
+        }
+    }
+
+    return 0;
+}
+
 int kb_assert_neg_only(KB *kb, const char *pred, const char *const *args,
                        size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
+    { int done; int r = kb_neg_in_context(kb, pred, args, argc, &done); if (done) return r; }
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
     { Fact *kn = (Fact *)kb_find_neg(kb, &f);
@@ -1791,6 +1824,7 @@ int kb_assert_neg_only(KB *kb, const char *pred, const char *const *args,
 int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                   size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
+    { int done; int r = kb_neg_in_context(kb, pred, args, argc, &done); if (done) return r; }
 
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
@@ -1813,7 +1847,25 @@ int kb_is_negated(const KB *kb, const char *pred, const char *const *args,
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
     const Fact *n = kb_find_neg(kb, &f);
-    return n != NULL && !kb_fact_withheld(kb, n, 1);
+    if (n != NULL && !kb_fact_withheld(kb, n, 1)) return 1;
+    /* L4 0-bis — una negazione tenuta nel mondo attivo (o in un suo genitore):
+     * `holds_in(Ctx, not(fact(P, …)))`, la forma che scrive kb_assert_neg */
+    if (kb->ctx_n && !kb->ctx_busy && argc >= 1 && argc <= 3) {
+        char reif[KB_TERM_LEN];
+        int o = snprintf(reif, sizeof reif, "not(fact(%s", pred);
+        for (size_t a = 0; a < argc && o > 0 && (size_t)o < sizeof reif; a++)
+            o += snprintf(reif + o, sizeof reif - (size_t)o, ", %s", args[a]);
+        if (o <= 0 || (size_t)o + 3 >= sizeof reif) return 0;
+        snprintf(reif + o, sizeof reif - (size_t)o, "))");
+        for (size_t c = 0; c < kb->ctx_n; c++) {
+            const char *ha[2] = { kb->ctx[c], reif };
+            Fact h;
+            if (!fact_make(&h, "holds_in", ha, 2)) continue;
+            const Fact *hf = kb_find(kb, &h);   /* il fatto scritto, nessuna prova */
+            if (hf && !kb_fact_withheld(kb, hf, 0)) return 1;
+        }
+    }
+    return 0;
 }
 
 int kb_is_conflicted(const KB *kb, const char *pred,

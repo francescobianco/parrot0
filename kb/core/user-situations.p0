@@ -1215,6 +1215,9 @@ speaker_owned_fact($T, fact($P, $S, $O)) :-
 % l'impegno del turno, nominabile in /debug
 machinery(turn_commitment).
 turn_commitment($T, interlocutor_world) :- speaker_owned_fact($T, $F).
+% anche una negazione detta nel mondo di chi parla («My bike is not red.»)
+turn_commitment($T, interlocutor_world) :-
+    speaker_context($C), kb_turn_act(holds_in, cons($C, cons(not($F), nil)), pos, $K).
 % La provenienza resta con il fatto (e si salva con lui: un fatto salvato
 % senza il suo impegno tornerebbe domani come una lezione sul mondo), e il
 % mondo di chi parla si popola: ha la cosa di cui parla.
@@ -1246,6 +1249,10 @@ person_mirror_now($F, $T) :- current_language($L), person_mirror($L, $F, $T).
 % un modulo che ridice gia' il turno dal punto di vista di chi ascolta (il
 % resoconto di un mondo: «I see: that is your view: …») non si riscrive: la
 % frase annidata ha lasciato `learned_facts` nel turno, ma non e' lei a parlare
+% le frasi che il riscontro sostituisce: «Learned: …», anche negativo
+machinery(riscontro_template).
+riscontro_template(learned_facts).
+riscontro_template(learned_negation).
 machinery(turn_reply_mirrored).
 machinery(module_mirrors_reply).
 module_mirrors_reply(world_report).
@@ -1254,7 +1261,7 @@ machinery(commitment_line).
 commitment_line(en, understood, "I see: ").
 commitment_line(it, understood, "Capisco: ").
 reply_conduct($In, $Out) :-
-    turn_said_by(current_turn, template(learned_facts)),
+    turn_said_by(current_turn, template($Tpl)), riscontro_template($Tpl),
     turn_commitment(current_turn, interlocutor_world), naf(turn_reply_mirrored(current_turn)),
     mirrored_turn_words(0, $Mirrored), current_language($L), commitment_line($L, understood, $A),
     concat_atoms($A, $Mirrored, $B), concat_atoms($B, ".", $Out).
@@ -1423,6 +1430,19 @@ transfer_from($C, $F, $Text) :-
 machinery(fact_said).
 fact_said(fact($P, $S), $T) :- content_said($P, cons($S, nil), $T).
 fact_said(fact($P, $S, $O), $T) :- content_said($P, cons($S, cons($O, nil)), $T).
+% una negazione tenuta in un mondo: «tea does not taste sour»
+fact_said(not(fact($P, $S, $O)), $T) :-
+    words_of($S, $WS), words_of($P, $WP), words_of($O, $WO), current_language($L),
+    commitment_line($L, said_not, $N), concat_atoms($WS, $N, $A), concat_atoms($A, $WP, $B),
+    concat_atoms($B, " ", $C), concat_atoms($C, $WO, $T).
+fact_said(not(fact($P, $S)), $T) :-
+    current_language($L), word_in_language($L, $S, $WS), word_in_language($L, $P, $WP),
+    word_article($L, $WP, $Art), commitment_line($L, said_is_not, $N),
+    concat_atoms($WS, $N, $A), concat_atoms($A, $Art, $B), concat_atoms($B, " ", $C), concat_atoms($C, $WP, $T).
+commitment_line(en, said_not, " does not ").
+commitment_line(it, said_not, " non ").
+commitment_line(en, said_is_not, " is not ").
+commitment_line(it, said_is_not, " non è ").
 machinery(fact_assert).
 fact_assert(fact($P, $S)) :- assert($P, $S).
 fact_assert(fact($P, $S, $O)) :- assert($P, $S, $O).

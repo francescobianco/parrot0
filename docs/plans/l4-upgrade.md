@@ -62,6 +62,23 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶ Le negazioni accadono nel mondo che le dice (29 settembre 2026, giorno)
+
+Residuo dell'handoff («le negazioni non reindirizzate»), trovato come **fuga
+di credenza**: «Marco thinks that tea does not taste sour.» scriveva la
+negativa nel mondo di parrot0, e «Does tea taste sour?» rispondeva «No.».
+Curato nel motore, nel punto solo in cui si scrive: `kb_assert_neg` e
+`kb_assert_neg_only` ([kb.c](../../src/kb.c), `kb_neg_in_context`) nel mondo
+attivo scrivono `holds_in(Ctx, not(fact(P, …)))` e non toccano il mondo di
+parrot0; `kb_is_negated` la ritrova nel mondo attivo e nei genitori («My bike
+is not red.» → «Is my bike red?» → «No.»). La lettura a secco della negazione
+(`p0_dry_read_journal`) si fa fuori da ogni contesto: dice *che cosa* la frase
+afferma, non in quale mondo. L'involucro di mondo viene prima della negazione
+parlata (prima «Marco thinks that a whale is not a fish» si leggeva come
+«Learned: marco thinks that a whale is not a fish»). Il riscontro di L4-7
+copre anche la negazione (`riscontro_template/1`), e `fact_said/2` dice una
+negazione tenuta in un mondo. Cricchetto `other_worlds` 47/47.
+
 ### ▶ C6, la persistenza: l'orologio continua (29 settembre 2026, giorno)
 
 Il punto 1 della RIPARTENZA del 28 notte («un orologio di sessione in KB, o

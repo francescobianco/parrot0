@@ -18544,6 +18544,11 @@ static size_t p0_dry_read_journal(Brain *b, const char *text, char *buf, size_t 
         alarm(10);
         int devnull = open("/dev/null", O_WRONLY);
         if (devnull >= 0) { dup2(devnull, STDOUT_FILENO); dup2(devnull, STDERR_FILENO); close(devnull); }
+        /* L4 0-bis — la lettura a secco dice CHE COSA la frase afferma, non
+         * in quale mondo: fuori da ogni contesto, cosi' il giornale riporta la
+         * proposizione e non la sua forma reificata nel mondo attivo. Chi
+         * scrive poi, nel padre, scrive nel mondo del turno. */
+        kb_set_context(b->kb, NULL);
         kb_journal_start(b->kb);
         char reply[2048]; reply[0] = '\0';
         brain_respond(b, text, reply, sizeof reply);

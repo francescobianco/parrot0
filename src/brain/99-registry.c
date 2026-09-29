@@ -8577,6 +8577,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * ("anyway, is socrates a man" -> "Yes."). Only claims when the residue is
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
+    /* L4 0-bis — «Marco thinks that …»: la clausola nel mondo di Marco.
+     * Prima della negazione parlata: il mondo si apre prima di leggere la
+     * clausola, anche quando la clausola nega. */
+    if (b && world_report_peel(b, input, out, out_size)) {
+        snprintf(b->last_module, sizeof b->last_module, "%s", "world_report");
+        return turn_done(b, canon, input, out, out_size);
+    }
     /* gen512: la negazione parlata — vedi p0_negation_lead. Prima dei lettori
      * di forme, che altrimenti leggono la negativa con un lettore proprio. */
     if (b && !getenv("P0_NO_NEG_LEAD") && p0_negation_lead(b, canon, input, out, out_size)) {
@@ -8585,11 +8592,6 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return turn_done(b, canon, input, out, out_size);
     }
 
-    /* L4 0-bis — «Marco thinks that …»: la clausola nel mondo di Marco */
-    if (b && world_report_peel(b, input, out, out_size)) {
-        snprintf(b->last_module, sizeof b->last_module, "%s", "world_report");
-        return turn_done(b, canon, input, out, out_size);
-    }
     if (b && pragma_peel(b, canon, input, out, out_size))
         { return turn_done(b, canon, input, out, out_size); }
 
