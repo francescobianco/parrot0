@@ -1392,6 +1392,28 @@ void kb_inference_commit(KB *kb) {
     kb->infer_time_committed = 1;
 }
 
+/* 29 settembre 2026 — il lavoro fatto DENTRO UN ALTRO CERVELLO (l'autoverifica
+ * su una copia fresca, 40-meta-reflection.c) non e' l'inferenza di questo
+ * turno: la copia ha il suo tetto per ogni suo turno, e il suo avvio non
+ * appartiene a nessun turno. Il cronometro del padre si ferma e riparte dal
+ * tempo che aveva gia' speso: la garanzia resta (ogni pezzo e' limitato). */
+void kb_inference_pause(KB *kb, double *spent) {
+    if (spent) *spent = -1;
+    if (!kb || !kb->infer_time_active || kb->infer_time_hit) return;
+    struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
+    if (spent) *spent = (now.tv_sec - kb->infer_time_start.tv_sec) * 1000.0 +
+                        (now.tv_nsec - kb->infer_time_start.tv_nsec) / 1e6;
+    kb->infer_time_active = 0;
+}
+void kb_inference_resume(KB *kb, double spent) {
+    if (!kb || spent < 0) return;
+    struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
+    long long ns = (long long)now.tv_sec * 1000000000LL + now.tv_nsec - (long long)(spent * 1e6);
+    kb->infer_time_start.tv_sec = (time_t)(ns / 1000000000LL);
+    kb->infer_time_start.tv_nsec = (long)(ns % 1000000000LL);
+    kb->infer_time_active = 1;
+}
+
 void kb_inference_end(KB *kb) {
     if (!kb) return;
     kb_inference_commit(kb);

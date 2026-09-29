@@ -180,8 +180,10 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                     if (!b->kb || !kb_query(b->kb, "module", a, 1)) available = 0;
                 }
                 const char *const *v = compose_vocab[t % COMPOSE_VOCAB_N];
+                double spent_ms; kb_inference_pause(b->kb, &spent_ms);
                 size_t fired = available
                     ? run_composition(keys, sigs, 3, v, NULL, 0) : 0;
+                kb_inference_resume(b->kb, spent_ms);
                 int ok = available && fired == 3;
                 if (ok) pass_count++;
                 ro += (size_t)snprintf(rep + ro, sizeof rep - ro, "%s%s+%s+%s %s",
@@ -233,8 +235,10 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                                        core[pick[k]].key);
             }
             char observed[512] = "";
+            double spent_ms; kb_inference_pause(b->kb, &spent_ms);
             size_t fired = run_composition(keys, sigs, picked, v,
                                            observed, sizeof observed);
+            kb_inference_resume(b->kb, spent_ms);
             if (fired == picked)
                 { 
                   char _v4[48]; snprintf(_v4, sizeof _v4, "%zu", fired);

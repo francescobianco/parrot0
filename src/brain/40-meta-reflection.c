@@ -2339,6 +2339,10 @@ static size_t run_composition(const char *const keys[], const char *const sigs[]
                               char *observed, size_t obs_size) {
     Brain *sub = brain_create();
     if (!sub) return 0;
+    /* 29 settembre 2026 — una copia FRESCA di parrot0 si avvia come parrot0
+     * (brain_create + brain_boot, come brain_reload): con il solo lessico
+     * nessuna parte aveva le regole per scattare («0 of 3 parts fired»). */
+    brain_boot(sub);
     size_t fired = 0;
     if (observed && obs_size) observed[0] = '\0';
     for (size_t k = 0; k < n; k++) {

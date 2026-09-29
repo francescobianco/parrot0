@@ -5697,6 +5697,18 @@ intent_cue(90_repair_robust_abduce_cue409_2, "rest on").
 intent_cue(90_repair_robust_abduce_cue410, "solida").
 intent_cue(90_repair_robust_abduce_cue410_2, "dipende").
 intent_cue(90_repair_robust_abduce_cue410_3, "si regge").
+% (29 settembre 2026, reflexive_selftest) «how robust is that conclusion?»
+% chiede della conclusione APPENA tratta, non di un fatto sul mondo:
+% `answerframe` prendeva «conclusion» e rispondeva «Socrates is mortal.». Cede
+% quando il turno porta una delle cue di robustezza — le stesse che legge la
+% facolta' della robustezza (mod_robust), non un elenco nuovo.
+machinery(robust_cue_id).
+robust_cue_id(90_repair_robust_abduce_cue406).   robust_cue_id(90_repair_robust_abduce_cue406_2).
+robust_cue_id(90_repair_robust_abduce_cue410).
+machinery(turn_asks_robustness).
+turn_asks_robustness($T, $W) :-
+    robust_cue_id($Id), intent_cue($Id, $S), atom_words($S, cons($W, nil)), turn_word($T, $I, $W).
+faculty_yield_when(answerframe, open, turn_asks_robustness).
 intent_cue(90_repair_robust_abduce_cue681, "why do you think").
 intent_cue(90_repair_robust_abduce_cue681_2, "why do you believe").
 intent_cue(90_repair_robust_abduce_cue682, "what makes you think").

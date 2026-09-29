@@ -522,6 +522,9 @@ void kb_inference_begin(KB *kb);
 int  kb_inference_expired(const KB *kb, const char *where);
 void kb_inference_commit(KB *kb);
 void kb_inference_end(KB *kb);
+/* il cronometro del turno fermo mentre lavora un ALTRO cervello (una copia fresca) */
+void kb_inference_pause(KB *kb, double *spent);
+void kb_inference_resume(KB *kb, double spent);
 /* Read one stored declaration, newest first, without proofs or materializing
  * views. NULL selects the returned column; other columns match exactly.
  * Used for deadline policy and recovery when inference itself has stopped. */

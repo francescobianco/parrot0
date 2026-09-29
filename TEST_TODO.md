@@ -318,6 +318,17 @@ prossimo lavoro (report gen509 §7-bis).
 - `language/assisted_construction.p0t`: non si blocca piu' alla riga 44 (CV18);
   23–24 rossi di tempo (1,1–2,3 s) e di maiuscole («mira.» contro «Mira.»),
   identici con il `kb.c` di prima e con la KB di prima delle cure di §CV.
+- `meta/reflexive_selftest_fresh.p0t` e `reflexive_selftest.it.p0t`: prima
+  «unsafe_command: … run `the`» in 19 s. Curati tre difetti: la copia fresca
+  non si avviava (solo il lessico: `brain_boot` mancava, 0 parti su 3); il
+  cronometro del turno contava il lavoro della copia (`kb_inference_pause/
+  resume`); `answerframe` rispondeva a «how robust is that conclusion?» con
+  «Socrates is mortal.» (cede sulle cue di robustezza). Ora 2 parti su 3: la
+  robustezza dice «no single fact … would overturn it», atteso «rests on 2
+  load-bearing facts». Ipotesi: ogni premessa ha due copie (il fatto e la sua
+  proiezione semantica, R5), e toglierne una non ribalta. Il turno costa ~19 s
+  (avvio completo della copia) contro `!timeout 1`: l'attesa di tempo e'
+  obsoleta per una copia avviata con la KB completa.
 - `reasoning/other_worlds.p0t` riga 98 («My bike is not red.» → «Learned: my
   bike is not red.» invece del riscontro) e `knowledge/name_is_knowledge.p0t`
   riga 63: identici a HEAD.
