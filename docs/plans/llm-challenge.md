@@ -19,6 +19,42 @@ chiacchierata fra parrot0 e un modello locale:
 
 ---
 
+## ▶ HANDOFF — 30 settembre 2026, notte (ripartire da qui)
+
+**Stato.** Giro 1 chiuso e committato (`af0346fa`): tre cure di classe
+(`choice_cue` unica, la porta degli incisi che legge le cessioni KB con la
+forza marcata `exclamation`, le varianti tipografiche dell'apostrofo).
+Replay +0,21 (baseline −0,04); conversazione nuova −0,21 (stato, non
+guadagno). `make soft-test` verde; `cause.p0t` 8/8, `cause.it.p0t` 4/4
+(allineato: test obsoleto), `user_situations.p0t` 56/56.
+
+**Per riprendere:**
+
+1. `~/.lmstudio/bin/lms server start` (lo script carica il modello da solo).
+2. Replay del giro 1, per partire dal punto fermo:
+   `scripts/live-talk.sh start 12 liquid/lfm2.5-1.2b en 0` e confronto con
+   [2026-09-30-giro1-replay.log](../sessions/talk/2026-09-30-giro1-replay.log).
+3. Trasferimento con la stessa apertura del giro 1:
+   `LIVE_TALK_OPENER="Hey there! I just got back from a walk in the park. Do
+   you like being outside?" scripts/live-talk.sh start 12`, confronto con
+   [2026-09-30-giro1-transfer.log](../sessions/talk/2026-09-30-giro1-transfer.log).
+4. **Giro 2, primo bersaglio:** il chiarimento su «first» che si ripete (5
+   turni su 12 del trasferimento). Diagnosi da fare con `/debug turn` sul turno
+   ripetuto: chi chiede (il piano di turno che risolve gli ordinali, gen513) e
+   perche' la domanda aperta non si chiude quando l'altro risponde. La cura
+   attesa e' KB: un chiarimento aperto e' un fatto della conversazione
+   (`open_issue`/tabellone), la risposta lo chiude, e la stessa domanda non si
+   rifa' sullo stesso referente.
+5. Poi, nell'ordine di §«Giro 1 → Ordine del giro 2».
+
+**Trappole note.** LM Studio ignora seme e temperatura con LFM2.5 (la
+conversazione e' sempre la stessa: usare l'apertura). `live-talk.sh stop`
+archivia con l'ora nel nome: rinominare in `AAAA-MM-GG-giroN-*.log`. Con Qwen3-8B
+caricato insieme a LFM la GPU (Intel Arc, Vulkan) si divide e i tempi del
+modello salgono: tenere caricato un modello solo. `intel_gpu_top` vuole `sudo`
+(`perf_event_paranoid` = 4); senza, la frequenza si legge in
+`/sys/class/drm/card1/gt_act_freq_mhz`.
+
 ## 0. Chi comanda
 
 **[LEARN_PROTOCOL.md](../../LEARN_PROTOCOL.md) comanda.** Questo piano non ne
