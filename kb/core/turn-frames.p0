@@ -472,6 +472,23 @@ turn_declared_act($Turn, prose_carried) :-
 % E chi PRODUCE prosa cede a chi la PORTA. E' condotta, e si corregge parlando
 % (mantra #17): la facolta' ha gia' un nome pubblico.
 faculty_yield_force(gen, open, prose_carried).
+% 30 settembre 2026 (llm-challenge, giro 1) — UN'ESCLAMAZIONE NON INSEGNA UNA
+% CAUSA. «Oh, that happens sometimes!» (un conduttore LLM che consola) riceveva
+% «Learned: causes(that, sometimes!).»: la forza del turno era gia' letta come
+% `expressive`, e chi impara le relazioni causali la ignorava. Chi reagisce non
+% sta affermando un fatto del mondo: le facolta' che imparano da un'asserzione
+% cedono il turno espressivo.
+%
+% ⚠ Primo tentativo ritirato lo stesso giorno: cedere la forza `expressive`
+% intera. Quella forza e' definita per RESIDUO (nessuna asserzione, domanda o
+% ordine letti), quindi ci cadeva anche «rain causes flood», che nessun lettore
+% dichiarativo copre: `cause.p0t` 5/8. Serve una forza MARCATA — il «!» di chi
+% esclama, gemello del «?» di chi chiede.
+turn_cue_registry(exclamation_mark_cue, 1).
+exclamation_mark_cue("!").
+turn_declared_act($Turn, exclamation) :-
+    turn_cue($Turn, exclamation_mark_cue, $Cue).
+faculty_yield_force(cause, open, exclamation).
 % E3 — una situazione descritta (event-time.p0) non e' prosa da leggere, ma
 % nemmeno un pretesto per un racconto: chi genera cede anche a lei.
 turn_declared_act($Turn, situation_described) :- event_described($Turn).

@@ -5,7 +5,11 @@
 # CONDUCE una chiacchierata e parrot0 risponde. Serve a vedere come regge una
 # conversazione che non ha scritto nessuno: dove si capiscono, dove si perdono.
 #
-#   scripts/live-talk.sh start [TURNI] [MODELLO] [LINGUA]   avvia (default: 12, liquid/lfm2.5-1.2b, en)
+#   scripts/live-talk.sh start [TURNI] [MODELLO] [LINGUA] [T] [SEME]
+#                              avvia (default: 12, liquid/lfm2.5-1.2b, en, 0.7, 7)
+#                              T=0 o seme fisso: riproducibile (il replay di llm-challenge);
+#                              una conversazione nuova (il trasferimento): LIVE_TALK_OPENER="prima battuta"
+#                              (LM Studio puo' ignorare seme e temperatura: l'apertura e' la leva sicura)
 #   scripts/live-talk.sh watch                              segue il transcript dal vivo
 #   scripts/live-talk.sh stop                               ferma e archivia in docs/sessions/talk/
 #
@@ -22,7 +26,7 @@ LMS=${LMS:-$HOME/.lmstudio/bin/lms}
 
 case "${1:-}" in
 start)
-    turns=${2:-12}; model=${3:-liquid/lfm2.5-1.2b}; lang=${4:-en}
+    turns=${2:-12}; model=${3:-liquid/lfm2.5-1.2b}; lang=${4:-en}; temp=${5:-0.7}; seed=${6:-7}
     mkdir -p "$TALK"
     if [ -s "$PID" ] && kill -0 "$(cat "$PID")" 2>/dev/null; then
         echo "gia' attiva (pid $(cat "$PID")): scripts/live-talk.sh watch | stop"; exit 1
@@ -33,7 +37,7 @@ start)
     fi
     : > "$LOG"
     printf '# live-talk — %s — %s vs parrot0, %s scambi, %s\n' "$(date '+%Y-%m-%d %H:%M')" "$model" "$turns" "$lang" >> "$LOG"
-    nohup .venv/bin/python scripts/live-talk.py --model "$model" --turns "$turns" --lang "$lang" \
+    nohup .venv/bin/python scripts/live-talk.py --model "$model" --turns "$turns" --lang "$lang" --temperature "$temp" --seed "$seed" ${LIVE_TALK_OPENER:+--opener "$LIVE_TALK_OPENER"} \
         --log "$LOG" > "$TALK/driver.err" 2>&1 &
     echo $! > "$PID"
     echo "avviata. Guarda: scripts/live-talk.sh watch"

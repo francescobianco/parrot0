@@ -158,6 +158,10 @@ machinery(alternative_cue).
 choice_cue("should i").
 choice_cue("which should i").
 choice_cue("is it better to").
+choice_cue("which is better").
+choice_cue("which one is better").
+choice_cue("quale è meglio").
+choice_cue("qual è meglio").
 choice_cue("dovrei").
 choice_cue("mi conviene").
 choice_cue("e' meglio").

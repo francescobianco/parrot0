@@ -31,6 +31,10 @@ def main():
     ap.add_argument("--opener", default=None, help="prima battuta del modello (default: la sceglie lui)")
     ap.add_argument("--endpoint", default="http://localhost:1234/v1/chat/completions")
     ap.add_argument("--log", required=True)
+    ap.add_argument("--temperature", type=float, default=0.7,
+                    help="0 = riproducibile: la stessa conversazione finche' parrot0 risponde uguale")
+    ap.add_argument("--seed", type=int, default=7,
+                    help="seme del campionamento: fisso per il replay, un altro per una conversazione nuova")
     ap.add_argument("--wait", type=float, default=30, help="secondi oltre i quali un turno di parrot0 e' BLOCCATO")
     a = ap.parse_args()
 
@@ -62,7 +66,7 @@ def main():
 
     note(f"# parrot0 in avvio (KB viva completa)…")
     reply(120)
-    note(f"# pronto — modello {a.model}, {a.turns} scambi, lingua {a.lang}")
+    note(f"# pronto — modello {a.model}, {a.turns} scambi, lingua {a.lang}, T={a.temperature}, seme {a.seed}")
 
     hist = [{"role": "system", "content": SYS[a.lang]}]
     hist.append({"role": "user", "content": "Ciao." if a.lang == "it" else "Hi."})
@@ -71,7 +75,7 @@ def main():
             if i == 0 and a.opener:
                 said = a.opener
             else:
-                body = json.dumps({"model": a.model, "temperature": 0.7, "max_tokens": 120,
+                body = json.dumps({"model": a.model, "temperature": a.temperature, "seed": a.seed, "max_tokens": 120,
                                    "messages": hist}).encode()
                 req = urllib.request.Request(a.endpoint, data=body,
                                              headers={"Content-Type": "application/json"})

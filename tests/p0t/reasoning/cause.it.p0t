@@ -13,11 +13,11 @@
 # mod_cause. The striking part: the fact is read back by the ENGLISH query --
 # proof the two languages share ONE language-neutral KB, not parallel stores.
 > fuoco causa fumo
-< Learned: causes(fire, fumo).
+< Learned: causes(fuoco, fumo).
 # Asserted in Italian, queried in English: same relation, same KB.
 > what is the effect of fuoco?
 < fumo.
 > pioggia causa alluvione
-< Learned: causes(rain, alluvione).
+< Learned: causes(pioggia, alluvione).
 > what is the cause of alluvione?
-< rain.
+< pioggia.

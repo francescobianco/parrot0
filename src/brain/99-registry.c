@@ -765,6 +765,17 @@ static int adjunct_peel(Brain *b, const char *canon, const char *raw,
     brain_canonical(b, resid, cres, sizeof cres);
     const char *use = cres[0] ? cres : resid;
     for (size_t i = 0; i < registry_len; i++) {
+        /* 30 settembre 2026 (llm-challenge, giro 1) — QUESTA E' UNA PORTA DI
+         * DISPATCH, E LEGGE L'ARBITRATO. «Oh, that happens sometimes!» riceveva
+         * «Learned: causes(that, sometimes!).»: la KB dice che chi impara le
+         * cause cede un turno espressivo (`faculty_yield_force(cause, open,
+         * expressive)`), ma qui le facolta' si chiamavano una per una senza
+         * chiedere alla condotta. Le cessioni sono della KB e valgono per ogni
+         * strada che consegna un turno. */
+        if (p0_faculty_yields(b, registry[i].name, "open", use, resid)) {
+            p0_trace(b, "read.adjunct", "%s cede il residuo «%s»\n", registry[i].name, resid);
+            continue;
+        }
         if (registry[i].handle(b, use, resid, out, out_size)) {
             p0_trace(b, "read.adjunct", "«%s» -> %s\n", resid, registry[i].name);
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -6273,7 +6284,51 @@ static void inference_time_reply(Brain *b, char *out, size_t out_size) {
     snprintf(b->last_module, sizeof b->last_module, "%s", "inference_time");
 }
 
+/* 30 settembre 2026 (llm-challenge, giro 1) — LA STESSA LETTERA SCRITTA IN UN
+ * ALTRO MODO. Un conduttore LLM scrive «That’s», «What’s» con l'apostrofo
+ * tipografico (U+2019), e lo stesso turno con «'» si leggeva diversamente:
+ * contrazioni, forme e cue sono scritte con l'apostrofo semplice. Quali segni
+ * siano varianti di quali altri e' conoscenza della scrittura
+ * (`typographic_variant/2`, kb/core/lexicon.p0); qui c'e' solo la sostituzione
+ * dei byte, all'ingresso del turno piu' esterno. */
+static const char *p0_typographic_plain(Brain *b, const char *input, char *buf, size_t size) {
+    if (!b || !b->kb || !input || size == 0) return input;
+    char pairs[16][2][KB_TERM_LEN];
+    char rows[16][KB_TERM_LEN];
+    const char *q1[2] = { NULL, NULL };
+    size_t n = kb_match(b->kb, "typographic_variant", q1, 2, rows, 16);
+    if (n == 0) return input;
+    size_t np = 0;
+    for (size_t i = 0; i < n && np < 16; i++) {
+        char from[KB_TERM_LEN]; snprintf(from, sizeof from, "%s", rows[i]);
+        const char *f = kb_dequote(from);
+        char to[1][KB_TERM_LEN];
+        const char *q[2] = { rows[i], NULL };
+        if (kb_match(b->kb, "typographic_variant", q, 2, to, 1) != 1) continue;
+        snprintf(pairs[np][0], KB_TERM_LEN, "%s", f);
+        snprintf(pairs[np][1], KB_TERM_LEN, "%s", kb_dequote(to[0]));
+        if (pairs[np][0][0]) np++;
+    }
+    int changed = 0; size_t o = 0;
+    for (const char *p = input; *p && o + 1 < size; ) {
+        size_t k;
+        for (k = 0; k < np; k++) {
+            size_t fl = strlen(pairs[k][0]);
+            if (strncmp(p, pairs[k][0], fl) == 0) {
+                for (const char *t = pairs[k][1]; *t && o + 1 < size; t++) buf[o++] = *t;
+                p += fl; changed = 1; break;
+            }
+        }
+        if (k == np) buf[o++] = *p++;
+    }
+    buf[o] = '\0';
+    return changed ? buf : input;
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
+    char typo_plain[P0_TURN_MAX];
+    if (b && b->respond_depth == 0)
+        input = p0_typographic_plain(b, input, typo_plain, sizeof typo_plain);
     int outermost = b && b->respond_depth == 0;
     if (outermost) kb_inference_begin(b->kb);
     else if (b && kb_inference_expired(b->kb, "brain_respond")) {

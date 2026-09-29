@@ -353,10 +353,14 @@ turn_states_pursued_quality($T, $Q) :-
     is($K, add($J, 1)), turn_word($T, $K, as), is($M, add($K, 1)), turn_word($T, $M, possible).
 machinery(turn_asks_goal_pick).
 turn_asks_goal_pick($T, $Q) :-
-    pursued_quality($Q), choice_cue($W), turn_word($T, $K, $W), turn_word($T, $I, or).
-% le parole con cui si chiede una scelta (una riga per parola)
-machinery(choice_cue).
-choice_cue(should).  choice_cue(better).
+    pursued_quality($Q), turn_cue_form($T, choice_cue, $C), turn_word($T, $I, or).
+% le superfici con cui si chiede una scelta sono UNA classe, `choice_cue/1` di
+% user-situations.p0. (30 settembre 2026, llm-challenge giro 1) Qui c'erano due
+% righe `choice_cue(should). choice_cue(better).` — parole sciolte nella stessa
+% classe delle superfici, e il lettore della scelta le cercava come superfici:
+% «let me help you understand BETTER. Are you curious about X OR Y?» riceveva
+% «Both can be the right choice…». Una parola comparativa non e' una richiesta
+% di consiglio; «which is better» si'.
 faculty_yield_when(turn_plan, open, turn_states_pursued_quality).
 faculty_yield_when(turn_plan, open, turn_asks_goal_pick).
 

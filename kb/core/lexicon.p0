@@ -1102,6 +1102,14 @@ request_opener("mi aiuti a").
 % «qzxvb» non e' niente, e la differenza e' nella forma, non nella posizione nel
 % discorso. Un alfabeto nuovo — un'altra lingua, un'altra scrittura — costa
 % righe qui e nessuna riga di C.
+% 30 settembre 2026 (llm-challenge, giro 1) — LE VARIANTI TIPOGRAFICHE di un
+% segno: chi scrive con un editor o un LLM mette «’» dove le forme della KB hanno
+% «'». La porta all'ingresso del turno (99-registry.c, `p0_typographic_plain`)
+% riscrive la variante nel segno semplice. Un segno nuovo e' una riga.
+machinery(typographic_variant).
+typographic_variant("’", "'").
+typographic_variant("‘", "'").
+typographic_variant("ʼ", "'").
 machinery(vowel_letter).
 vowel_letter(a).
 vowel_letter(e).

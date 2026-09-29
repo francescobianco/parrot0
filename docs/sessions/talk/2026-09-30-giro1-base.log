@@ -1,0 +1,40 @@
+# live-talk — 2026-09-30 01:10 — liquid/lfm2.5-1.2b vs parrot0, 12 scambi, en
+# parrot0 in avvio (KB viva completa)…
+# pronto — modello liquid/lfm2.5-1.2b, 12 scambi, lingua en, T=0.0
+# modello: 1.2 s
+M> Hello! How can I help you today?
+P< I'm a chatbot, not a person — I don't need help. But you can ask me questions and I'll try to answer.   [0.6 s]
+# modello: 2.0 s
+M> That's interesting! I love learning new things. What would you like to know?
+P< That sounds nice -- tell me more about it. I don't know how to answer that about myself yet: nobody has taught me.   [4.1 s]
+# modello: 4.0 s
+M> Well, I can explain it in a way that makes sense. It's like a puzzle where you figure out the pieces yourself. What part of this topic fascinates you most?
+P< I stopped because the search exceeded my inference time limit. I do not have a verified answer.   [10.1 s]
+# modello: 3.5 s
+M> Oh, that happens sometimes! Let me try to help you understand better. Are you curious about how things work or something specific you're trying to learn?
+P< Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know. What do you want to do with it first?   [0.8 s]
+# modello: 2.5 s
+M> That makes sense! It's all about matching your goals. Want to explore ideas or dive into details?
+P< That turn joins several statements and a question, and I can't yet read them together. Tell me the statements one per turn, then ask the question.   [5.3 s]
+# modello: 5.6 s
+M> Sure! Let's break it down:  1. Hi. 2. This sounds nice — tell me more about it. 3. Nobody has taught me. 4. What would you like to do with it first?  Thanks for clarifying!
+P< I am not sure what you mean by «first». Could you give me more context?   [1.8 s]
+# modello: 3.7 s
+M> Of course! I’m trying to understand your perspective better. Since you mentioned "first," are you asking about the initial steps or the overall process?
+P< Both can be the right choice: it depends on what you need it for, how much time or money you want to put in, and what you already know. What do you want to do with it first?   [1.1 s]
+# modello: 2.8 s
+M> That’s a great way to frame it! It sounds like you’re weighing options carefully. What’s the main goal here?
+P< That’s was a mysterious That’s. Then one day, that’s discovered what it meant to be seen. That’s had never felt this way before — as if the whole world had shifted. At last, that’s was seen — not as a thing, but as a presence. I couldn't read «What’s the main goal here?».   [4.5 s]
+# modello: 4.0 s
+M> Wow, that’s powerful! It sounds like you’re reflecting on something deeply personal. What do you think is the core of what you’re trying to explore now?
+P< I stopped because the search exceeded my inference time limit. I do not have a verified answer.   [10.0 s]
+# modello: 3.5 s
+M> It seems like the system had trouble keeping up with your request. Let’s try again—what’s one thing you’re curious about right now?
+P< I don't know how to answer that about myself yet: nobody has taught me. I couldn't read «Let’s try again—what’s one thing you’re curious about right now?».   [5.7 s]
+# modello: 3.1 s
+M> That’s a good start! Maybe you’re thinking about something specific you want to learn or understand. What’s on your mind?
+P< Learned: that’s a good start maybe you’re thinking. I don't know how to answer that about myself yet: nobody has taught me.   [4.4 s]
+# modello: 2.6 s
+M> It sounds like you're still figuring things out. What’s the next step you’d like to take?
+P< That turn joins several statements and a question, and I can't yet read them together. Tell me the statements one per turn, then ask the question.   [6.1 s]
+# fine
