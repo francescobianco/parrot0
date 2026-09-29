@@ -453,11 +453,20 @@ view_depends(construction_claims, contact_shape).
 % e il trasferimento restano disponibili; non si spaccia l'uso per conferma.
 turn_reply_qualifies($T, $W, $G) :-
     contact_bridge($N, $R),
-    input_node_atom($T, $I, $W), contact_word_form($N, $W), contact_gloss($R, $G).
+    input_node_atom($T, $I, $W), contact_word_form($N, $W), contact_reading_used($T, $R),
+    contact_gloss($R, $G).
 turn_reply_qualifies($T, $W, $G) :-
     contact_bridge($N, $R), atom_words($N, cons($A, cons($B, $Rest))),
     contact_span_in($T, cons($A, cons($B, $Rest))), words_joined(cons($A, cons($B, $Rest)), $W),
-    contact_gloss($R, $G).
+    contact_reading_used($T, $R), contact_gloss($R, $G).
+% (29 settembre 2026, self_language_ability riga 42) ... ma solo se la lettura
+% del turno HA USATO la relazione del ponte: «Can you read?» riceveva «Reading
+% «read» as «measures».» perche' «reads» ≈ measures era stato appreso per
+% contatto («the gauge reads 20»), e la domanda di capacita' nominava la parola
+% senza leggerla cosi' (C4: la lezione porta le condizioni in cui vale).
+machinery(contact_reading_used).
+contact_reading_used($T, $R) :- input_frame_record($T, frame($F, binary($R)), $Roles).
+contact_reading_used($T, $R) :- turn_relation($T, $R, $Cue).
 % la parola nel turno e' quella appresa, o la sua radice («hail» per «hails»)
 machinery(contact_word_form).
 contact_word_form($N, $N).
