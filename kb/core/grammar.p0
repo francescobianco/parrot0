@@ -38,6 +38,20 @@ article(indef, m, no,  uno).   % gen512: «uno scorpione», «uno zaino»
 article(indef, f, no,  una).
 article(indef, m, yes, un).
 article(indef, f, yes, un').
+% 29 settembre 2026 (CV10: «non mi hai parlato di un sorella») — il GENERE di
+% un nome italiano: un'eccezione detta (`gender_it/2`, come `gender_fr/2`)
+% prevale; altrimenti la desinenza, «-a» femminile e il resto maschile. E' la
+% regola di default della lingua, non un elenco: «il problema» si insegna.
+machinery(it_gender).
+machinery(has_gender_it).
+machinery(ends_in_a).
+it_gender($W, $G) :- gender_it($W, $G).
+it_gender($W, f) :- naf(has_gender_it($W)), ends_in_a($W).
+it_gender($W, m) :- naf(has_gender_it($W)), naf(ends_in_a($W)).
+has_gender_it($W) :- gender_it($W, $G).
+ends_in_a($W) :- concat_atoms($R, "a", $W).
+machinery(possessive_it).
+possessive_it(m, tuo).  possessive_it(f, tua).
 
 % U5, second glue rule (gen287): feminine adjective agreement as a COMPOSITIONAL
 % morphology RULE, not a per-adjective phrasebook. It reuses U3 (structural

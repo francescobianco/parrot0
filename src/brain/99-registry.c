@@ -8375,7 +8375,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         /* se il primo passo non ha cambiato niente, il punto fisso c'e' gia' */
         for (int pass = 0; pass < 3 && strcmp(canon, norm); pass++) {
             char again[P0_TURN_MAX];
+            b->canon_again = 1;
             canonicalize_lang(b, canon, again, sizeof again);
+            b->canon_again = 0;
             if (!strcmp(again, canon)) break;
             p0_trace(b, "read.canon", "again «%s» -> «%s»\n", canon, again);
             snprintf(canon, sizeof canon, "%s", again);

@@ -259,6 +259,7 @@ struct Brain {
      * frammento, non un'ispezione): e' allora che la lettura registra che cosa
      * ha tradotto per ipotesi e che cosa ha lasciato intatto. */
     int canon_turn;
+    int canon_again;   /* passaggi dopo il primo: il testo e' gia' interlingua */
     /* RI-023: il turno COME E' STATO SCRITTO, mentre si canonicalizza — la
      * maiuscola che distingue la sigla «LED» dal verbo «led» c'e' solo qui. */
     const char *canon_raw;

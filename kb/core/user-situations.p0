@@ -1217,9 +1217,15 @@ turn_context(current_turn, $C) :-
 % domanda non scrive; una lezione su «a book» resta una lezione.
 turn_context(current_turn, $C) :-
     speaker_context($C), turn_illocution(current_turn, question),
-    turn_word(current_turn, $I, $W), interlocutor_has($W),
+    turn_word(current_turn, $I, $W), interlocutor_has_word($W),
     is($J, sub($I, 1)), turn_word(current_turn, $J, $D), definite_article($D),
     naf(named_possessor_after($I)).
+% la cosa di chi parla nominata in un'altra lingua: il canone ha tenuto
+% «libro» nella frase e tradotto «book» nella domanda (accentless_copula)
+machinery(interlocutor_has_word).
+interlocutor_has_word($W) :- interlocutor_has($W).
+interlocutor_has_word($W) :- tr($W, $S), interlocutor_has($S).
+interlocutor_has_word($W) :- tr($S, $W), interlocutor_has($S).
 % ma non se la cosa ha un possessore detto: «il cugino DI MARCO» non e' il
 % cugino di chi parla (CV24: rispondeva «Ufficio.» con il cugino dell'utente)
 machinery(named_possessor_after).
@@ -1749,6 +1755,16 @@ turn_form_view(ask_world_view_it, said).
 turn_form_act(ask_world_view_it, "op(match, world_view_answer, [word, free])").
 turn_form_reply(ask_world_view_it, transfer_reply).
 turn_form_empty_reply(ask_world_view_it, world_view_none).
+% CV1/CV3: la forma piu' comune e' senza «che» («Cosa pensa Marco?»); prima
+% il muro accusava «marco» chiedendone la traduzione
+turn_form(ask_world_view_it2, 1, text("cosa pensa")).
+turn_form(ask_world_view_it2, 2, slot(word)).
+turn_form_mood(ask_world_view_it2, question).
+turn_form_priority(ask_world_view_it2, early).
+turn_form_view(ask_world_view_it2, said).
+turn_form_act(ask_world_view_it2, "op(match, world_view_answer, [word, free])").
+turn_form_reply(ask_world_view_it2, transfer_reply).
+turn_form_empty_reply(ask_world_view_it2, world_view_none).
 response_template(world_view_none, "Nobody has told me what {word} thinks yet.").
 response_template(world_view_none, it, "Nessuno mi ha ancora detto che cosa pensa {word}.").
 machinery(world_view_answer).
@@ -2046,3 +2062,81 @@ turn_form_empty_reply(transfer_way_with_it, transfer_nothing_about).
 turn_form_empty_reply(transfer_said_about_it, transfer_nothing_about).
 response_template(transfer_nothing_about, "You haven't told me anything of yours about «{word}» that I could make mine.").
 response_template(transfer_nothing_about, it, "Non mi hai detto niente di tuo su «{word}» che possa fare mio.").
+
+% ── CV10 — LA PROMESSA «lo terrò a mente» SI MANTIENE (29 settembre 2026) ───
+% «Today I went to the mountains with my sister.» → «…I'll keep that in mind.»,
+% e poi «Do I have a sister?» → «I don't know». Il riscontro della famiglia
+% prometteva senza tenere niente (mantra #7: peggio di un muro). Il parente che
+% chi parla nomina come SUO entra nel suo mondo; la domanda lo legge.
+machinery(speaker_kin_known).
+machinery(kin_word_root).
+machinery(first_person_in_turn).
+speaker_kin_known($C, $K) :- holds_in($C, fact(has_kin, user, $K)).
+kin_word_root($W, $K) :- kin_surface($W, $S), kin_canonical($S, $K).
+machinery(kin_surface).
+kin_surface($W, $W) :- family_relation($W).
+kin_surface($W, $K) :- concat_atoms($K, "s", $W), family_relation($K).
+% una sola forma per parente: la glossa porta «sorella» a «sister», cosi' la
+% domanda italiana trova cio' che la frase italiana ha scritto
+machinery(kin_canonical).
+machinery(kin_has_gloss).
+kin_canonical($S, $K) :- tr($K, $S), family_relation($K).
+kin_canonical($S, $S) :- naf(kin_has_gloss($S)).
+kin_has_gloss($S) :- tr($K, $S), family_relation($K).
+first_person_in_turn :- first_person_possessive($L, $M), turn_word(current_turn, $I, $M).
+first_person_in_turn :- turn_word(current_turn, $I, i), turn_word(current_turn, $J, have).
+after_reply_bookkeeper(speaker_kin_note).
+turn_after_reply($T, speaker_kin_note) :-
+    turn_module(current_turn, family), first_person_in_turn, speaker_context($C),
+    findall($K, new_kin_in_turn($C, $K), cons($K1, $Ks)), kin_store_all($C, cons($K1, $Ks)).
+% tutti i parenti nominati («mia sorella e mio fratello»), non solo il primo
+machinery(new_kin_in_turn).
+machinery(kin_store_all).
+new_kin_in_turn($C, $K) :- turn_word(current_turn, $I, $W), kin_word_root($W, $K), naf(speaker_kin_known($C, $K)).
+kin_store_all($C, nil).
+kin_store_all($C, cons($K, $R)) :- assert(holds_in, $C, fact(has_kin, user, $K)), kin_store_all($C, $R).
+% il lettore: «Do I have a sister?» / «Ho una sorella?» (canone «i have a sister?»)
+machinery(speaker_kin_answer).
+speaker_kin_answer($W, $Text) :-
+    kin_word_root($W, $K), speaker_context($C), speaker_kin_known($C, $K),
+    current_language($L), kin_said($L, $K, $KS), kin_owned_said($L, $KS, $KO),
+    commitment_line($L, kin_yes, $A), concat_atoms($A, $KO, $B), concat_atoms($B, ".", $Text).
+machinery(kin_said).
+kin_said(en, $K, $K).
+kin_said(it, $K, $T) :- tr($K, $T).
+kin_said(it, $K, $K) :- naf(has_tr($K)).
+machinery(has_tr).
+has_tr($K) :- tr($K, $T).
+speaker_kin_answer($W, $Text) :-
+    kin_word_root($W, $K), speaker_context($C), naf(speaker_kin_known($C, $K)),
+    current_language($L), kin_said($L, $K, $KS), kin_indefinite_said($L, $KS, $KI),
+    commitment_line($L, kin_unsaid, $A), concat_atoms($A, $KI, $B), concat_atoms($B, ".", $Text).
+% «your sister» / «tua sorella», «tuo fratello»; «a sister» / «una sorella»
+machinery(kin_owned_said).
+machinery(kin_indefinite_said).
+kin_owned_said(en, $K, $T) :- concat_atoms("your ", $K, $T).
+kin_owned_said(it, $K, $T) :-
+    it_gender($K, $G), possessive_it($G, $P), concat_atoms($P, " ", $A), concat_atoms($A, $K, $T).
+kin_indefinite_said(en, $K, $T) :- word_article(en, $K, $Ar), concat_atoms($Ar, " ", $A), concat_atoms($A, $K, $T).
+kin_indefinite_said(it, $K, $T) :-
+    it_gender($K, $G), kin_it_indefinite($G, $Ar), concat_atoms($Ar, " ", $A), concat_atoms($A, $K, $T).
+machinery(kin_it_indefinite).
+kin_it_indefinite(m, un).  kin_it_indefinite(f, una).
+commitment_line(en, kin_unsaid, "I don't know: you haven't told me about ").
+commitment_line(it, kin_unsaid, "Non lo so: non mi hai parlato di ").
+commitment_line(en, kin_yes, "Yes: you told me about ").
+commitment_line(it, kin_yes, "Sì: mi hai parlato di ").
+turn_form(ask_speaker_kin, 1, text("do i have a")).
+turn_form(ask_speaker_kin, 2, slot(kin)).
+turn_form_mood(ask_speaker_kin, question).
+turn_form_priority(ask_speaker_kin, early).
+turn_form_slot_class(ask_speaker_kin, kin, family_relation).
+turn_form_act(ask_speaker_kin, "op(match, speaker_kin_answer, [kin, free])").
+turn_form_reply(ask_speaker_kin, transfer_reply).
+turn_form(ask_speaker_kin_it, 1, text("i have a")).
+turn_form(ask_speaker_kin_it, 2, slot(kin)).
+turn_form_mood(ask_speaker_kin_it, question).
+turn_form_priority(ask_speaker_kin_it, early).
+turn_form_slot_class(ask_speaker_kin_it, kin, family_relation).
+turn_form_act(ask_speaker_kin_it, "op(match, speaker_kin_answer, [kin, free])").
+turn_form_reply(ask_speaker_kin_it, transfer_reply).

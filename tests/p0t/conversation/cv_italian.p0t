@@ -1,0 +1,58 @@
+# §CV (train-the-learning-process.md) — la conversazione del più e del meno in
+# italiano: i difetti curati il 29 settembre 2026, uno per sezione, con le
+# frasi di F. (o le loro sorelle). Nessuna entità inventata dove serve un fatto
+# del mondo; i fatti di chi parla stanno nel suo mondo.
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+
+[test CV24 il nonno di chi parla non e' il nonno di tutti]
+!timeout 3
+> Mio nonno è in ospedale.
+<~ Capisco: tuo nonno è in ospedale.
+> Dove si trova il nonno di Marco?
+<! Ospedale
+> Dove si trova mio nonno?
+<~ Ospedale
+
+[test CV21 l'eco passa alla seconda persona e la risposta resta in italiano]
+!timeout 3
+> Il mio lavoro è il programmatore.
+<~ il tuo lavoro
+> Qual è il mio lavoro?
+<! Your
+
+[test «è a Roma» e' un luogo, non un nome]
+!timeout 3
+> Mia madre è a Roma.
+<~ Capisco: tua madre
+> Dove si trova mia madre?
+<~ Roma
+
+[test CV10 cio' che si promette di ricordare si ricorda]
+!timeout 3
+> Ho una sorella?
+<~ Non lo so: non mi hai parlato di una sorella.
+> Oggi sono andato in montagna con mia sorella e mio fratello.
+> Ho una sorella?
+<~ Sì: mi hai parlato di tua sorella.
+> Ho un fratello?
+<~ Sì: mi hai parlato di tuo fratello.
+
+[test CV1 CV3 il mondo di un terzo si interroga in italiano]
+!timeout 3
+> Cosa pensa Marco?
+<~ Nessuno mi ha ancora detto che cosa pensa
+> Marco pensa che il cane è un animale.
+> Cosa pensa Marco?
+<~ Marco pensa che cane è un animale.
+> Sono d'accordo con Marco.
+<~ sei d'accordo con Marco
+
+[test CV19 fallo tuo prende solo cio' che e' appena sul tavolo]
+!timeout 3
+> Il mio modo di fare una domanda è mettere il soggetto dopo il verbo.
+> Mi fai un esempio?
+> Adesso fallo tuo.
+<~ Non mi hai appena detto niente di tuo
+!reset

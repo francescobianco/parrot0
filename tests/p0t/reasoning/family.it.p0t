@@ -15,10 +15,12 @@
 # (Prompts chosen with clear Italian markers so per-turn detection fires under the
 # suite's English default, like the other .it.chat cases.)
 
+# (29 settembre 2026, L4 0-bis) il parente di chi parla sta nel suo mondo, e
+# il riscontro dice che cosa si e' capito
 > mio padre lavora in banca
-< Grazie per avermi parlato della tua famiglia -- lo terrò a mente.
+<~ famiglia
 > mia zia vive a Parigi
-< Grazie per avermi parlato della tua famiglia -- lo terrò a mente.
+<~ tua zia vive a
 
 > come si chiama tuo fratello
 < Sono parrot0, un'IA: non ho una famiglia, quindi niente fratello da nominare.

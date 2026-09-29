@@ -177,6 +177,7 @@ response_template(physical_contrast_answer, "{explanation}.").
 response_template(default_pick_reason_answer, "I don't have real preferences, but if I had to choose, I'd pick {pick}; what I like most about it is {reason}.").
 response_template(two_party_exchange_answer, "You end up with {user_count} {item}, and I end up with {assistant_count} {item}.").
 response_template(count_answer, "{count}.").
+response_template(count_answer, it, "{count}.").
 response_template(capital_reason_compound_answer, "{capital}. {reason}.").
 response_template(capital_reason_reason_answer, "{reason}.").
 response_template(capital_since_compound_answer, "{capital}. It became the capital in {since}.").

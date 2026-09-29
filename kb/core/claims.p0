@@ -67,6 +67,7 @@ relation_name(at_least, "at least").
 relation_name(at_most, "at most").
 
 response_template(claim_right, "That's right — {left} is {value}.").
+response_template(claim_right, it, "Esatto: {left} è {value}.").
 response_template(claim_wrong, "That's not right — {left} is {value}, not {right}.").
 response_template(claim_true, "True — {value} is {relation} {right}.").
 response_template(claim_false, "Not true — {value} is not {relation} {right}.").

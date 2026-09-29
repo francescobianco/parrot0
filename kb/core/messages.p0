@@ -30,25 +30,36 @@
 
 response_template(between_the_two_i_don_t_have_a_real_pr, "Between the two? I don't have a real preference.").
 response_template(conflicted, "Conflicted.").
+response_template(conflicted, it, "Ho informazioni in conflitto.").
 response_template(entailed, "Entailed.").
+response_template(entailed, it, "Ne segue.").
 response_template(entailment, "Entailment.").
 response_template(entailment_3374, "entailment").
 response_template(glad_you_re_enjoying_the_conversation, ":) Glad you're enjoying the conversation.").
 response_template(got_it_i_will_avoid_technical_detail, "Got it: I will avoid technical detail.").
+response_template(got_it_i_will_avoid_technical_detail, it, "Va bene: eviterò i dettagli tecnici.").
 response_template(got_it_i_will_keep_it_short, "Got it: I will keep it short.").
+response_template(got_it_i_will_keep_it_short, it, "Va bene: sarò breve.").
 response_template(i_am_reading_this_conversation_turn_by, "I am reading this conversation turn by turn.").
 response_template(i_can_only_reconsider_a_simple_x_is_a_, "I can only reconsider a simple 'X is a Y' fact for now.").
 response_template(i_can_t_predict_the_output_of_that_yet, "I can't predict the output of that yet.").
 response_template(i_can_t_show_that, "I can't show that.").
+response_template(i_can_t_show_that, it, "Non posso mostrarlo.").
 response_template(i_couldn_t_run_the_shell_oracle, "I couldn't run the shell oracle.").
 response_template(i_couldn_t_store_that, "I couldn't store that.").
+response_template(i_couldn_t_store_that, it, "Non sono riuscito a tenerlo.").
 response_template(i_couldn_t_store_that_rule, "I couldn't store that rule.").
 response_template(i_did_not_catch_the_preference, "I did not catch the preference.").
 response_template(i_didn_t_catch_your_name, "I didn't catch your name.").
+response_template(i_didn_t_catch_your_name, it, "Non ho capito come ti chiami.").
 response_template(i_do_not_know_any_current_constraint_y, "I do not know any current constraint yet.").
+response_template(i_do_not_know_any_current_constraint_y, it, "Non conosco ancora nessun vincolo attuale.").
 response_template(i_do_not_know_the_current_topic_yet, "I do not know the current topic yet.").
+response_template(i_do_not_know_the_current_topic_yet, it, "Non so ancora di che cosa stiamo parlando.").
 response_template(i_do_not_know_your_current_mood_yet, "I do not know your current mood yet.").
+response_template(i_do_not_know_your_current_mood_yet, it, "Non so ancora come ti senti.").
 response_template(i_do_not_know_your_preference_yet, "I do not know your preference yet.").
+response_template(i_do_not_know_your_preference_yet, it, "Non conosco ancora la tua preferenza.").
 response_template(i_don_t_have_a_previous_turn_to_recons, "I don't have a previous turn to reconsider yet.").
 response_template(i_don_t_know_a_command_for_that_yet, "I don't know a command for that yet.").
 response_template(i_don_t_know_your_name_yet, "I don't know your name yet.").
@@ -59,16 +70,20 @@ response_template(your_slot_is_value, "Your {slot} is {value}.").
 response_template(your_slot_is_value, it, "Il tuo {slot} è {value}.").
 response_template(entailment_not_understood, "I don't understand that entailment yet.").
 response_template(i_don_t_understand_that_question_yet, "I don't understand that question yet.").
+response_template(i_don_t_understand_that_question_yet, it, "Non capisco ancora questa domanda.").
 response_template(i_don_t_watch_movies_or_have_recent_vi, "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.").
 response_template(i_found_the_rule_but_not_the_number_to, "I found the rule but not the number to apply it to.").
 response_template(evidence_conflicting, "I have conflicting evidence for that.").
+response_template(evidence_conflicting, it, "Ho prove in conflitto su questo.").
 response_template(i_haven_t_answered_anything_yet, "I haven't answered anything yet.").
+response_template(i_haven_t_answered_anything_yet, it, "Non ho ancora risposto a niente.").
 response_template(i_haven_t_created_any_files_this_sessi, "I haven't created any files this session.").
 response_template(i_ll_play_along_what_are_my_two_option, "I'll play along — what are my two options?").
 response_template(i_supposed_that_what_should_i_check, "I supposed that. What should I check?").
 response_template(i_understand_some_patterns_and_i_say_w, "I understand some patterns, and I say when I do not.").
 response_template(it_stretches_longer_while_you_pull_it_, "It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.").
 response_template(no_i_only_read_text_i_can_t_hear_audio, "No, I only read text. I can't hear audio.").
+response_template(no_i_only_read_text_i_can_t_hear_audio, it, "No, leggo solo testo. Non posso sentire l'audio.").
 response_template(no_the_statement_says_those_classes_do, "No -- the statement says those classes do not overlap.").
 response_template(role_cleared, "Okay, I'm myself again. I am parrot0.").
 response_template(role_identity_named_profession, "I am {name}, {profession}.").
@@ -110,6 +125,7 @@ response_template(this_world_is_full_i_can_t_assume_more, "This world is full; I
 response_template(understood, "Understood.").
 response_template(we_haven_t_talked_about_much_yet, "We haven't talked about much yet.").
 response_template(yes, "Yes.").
+response_template(yes, it, "Sì.").
 response_template(yes_i_m_here, "Yes, I'm here.").
 response_template(yes_i_read_each_message_in_this_conver, "Yes. I read each message in this conversation.").
 response_template(you_haven_t_mentioned_any_names_i_reco, "You haven't mentioned any names I recognized.").
@@ -124,11 +140,15 @@ response_template(you_haven_t_taught_me_any_facts_yet, "You haven't taught me an
 
 response_template(i_couldn_t_evaluate_that_entailment, "I couldn't evaluate that entailment.").
 response_template(personal_acknowledged, "Got it, I'll remember that.").
+response_template(personal_acknowledged, it, "Va bene, me lo ricorderò.").
 response_template(none_of_them, "None of them.").
+response_template(none_of_them, it, "Nessuno di loro.").
 response_template(i_can_only_do_a_limerick_on_a_theme_i_have_l, "I can only do a limerick on a theme I have lines for -- like a programmer, coffee, or a cat. Pick one of those?").
 response_template(both_as_far_as_i_know, "Both, as far as I know.").
+response_template(both_as_far_as_i_know, it, "Entrambi, per quanto ne so.").
 response_template(nothing_new_to_generalize, "Nothing new to generalize.").
 response_template(nobody_that_i_know_of, "Nobody that I know of.").
+response_template(nobody_that_i_know_of, it, "Nessuno che io sappia.").
 response_template(that_s_a_long_way_to_count_give_me_a_smaller, "That's a long way to count. Give me a smaller range and I'll list it.").
 response_template(neither_when_they_meet_they_are_at_the_same, "Neither — when they meet they are at the same place, so both are exactly the same distance from the destination.").
 response_template(neither_train_arrives_first_moving_toward_ea, "Neither train arrives first; moving toward each other means they meet at the same time, but I need the distance to say when.").
@@ -199,6 +219,7 @@ response_template(that_doesn_t_look_like_words_to_me_did_a_key, "That doesn't lo
 
 %% Seconda tranche: la stessa frase, scritta prima in un buffer e poi emessa.
 response_template(i_didn_t_know_that_anyway, "I didn't know that anyway.").
+response_template(i_didn_t_know_that_anyway, it, "Non lo sapevo comunque.").
 response_template(proposition_forgotten, "Done: I no longer hold that {said}.").
 response_template(proposition_forgotten, it, "Fatto: non ritengo più che {said}.").
 response_template(the_earlier_train_arrives_first_before_the_o, "The earlier train arrives first, before the other departs.").
@@ -213,9 +234,11 @@ response_template(got_it_what_would_you_like_to_do, "Got it — what would you l
 response_template(got_it_your_x_is_x, "Got it: your {thing} is {n}.").
 response_template(got_it_your_x_is_x_2, "Got it: your {disp} is {val}.").
 response_template(i_don_t_know_what_your_x_is_called, "I don't know what your {thing} is called.").
+response_template(i_don_t_know_what_your_x_is_called, it, "Non so ancora come si chiama il tuo {thing}.").
 response_template(got_it_you_x_x, "Got it: you {verb} {val}.").
 response_template(you_told_me_you_feel_x, "You told me you feel {mood}.").
 response_template(i_don_t_know_who_x_refers_to, "I don't know who {word} refers to.").
+response_template(i_don_t_know_who_x_refers_to, it, "Non so a chi si riferisce {word}.").
 % gen505b — `{ex}` non e' piu' un termine ma una FRASE («bornite is a copper
 % mineral»), da quando le prove si rendono nella lingua del dialogo: la vecchia
 % cornice produceva «bornite is a copper mineral is a known fact.».
@@ -260,6 +283,7 @@ response_template(learned_located_in_x_x, "Learned: {subj} is located in {obj}."
 response_template(learned_part_of_x_x, "Learned: {subj} is part of {obj}.").
 response_template(you_haven_t_told_me_your_x_yet, "You haven't told me your {disp} yet.").
 response_template(done_i_ve_let_go_of_your_x, "Done — I've let go of your {slotname}.").
+response_template(done_i_ve_let_go_of_your_x, it, "Fatto: ho dimenticato il tuo {slotname}.").
 response_template(learned_holds_x, "Learned: {said}.").
 response_template(you_re_asking_for_a_distinction_between_x_an, "You're asking for a distinction between {da} and {dc}, but I don't have that contrast fact yet.").
 response_template(i_don_t_actually_taste_things_but_it_is_ofte, "I don't actually taste things, but it is often described as {r}.").
@@ -276,20 +300,26 @@ response_template(no_i_have_no_evidence_that_x_is_part_of_x, "No, I have no evid
 response_template(x_is_part_of_x_x, "{x} is part of {ckey}: {cdesc}.").
 response_template(you_might_mean_x_x, "You might mean {ckey}: {cdesc}.").
 response_template(i_don_t_know_anything_about_x, "I don't know anything about {entity}.").
+response_template(i_don_t_know_anything_about_x, it, "Non so niente di {entity}.").
 response_template(because_x_x_and_x_gives_x_that_is_their_x, "Because {verb} {na} and {nb} gives {nr} — that is their {noun}.").
 response_template(the_steps_for_x_have_a_circular_prerequisite, "The steps for {goal} have a circular prerequisite — I can't order them.").
 response_template(x_arrives_first_by_about_x, "{who} arrives first, by about {dur}.").
 response_template(x_miles_per_gallon_a_x_mile_trip_would_need, "{mpgs} miles per gallon; a {trips}-mile trip would need {needs} gallons.").
 response_template(i_don_t_know_the_x_of_x, "I don't know the {w} of {x}.").
+response_template(i_don_t_know_the_x_of_x, it, "Non so {w} di {x}.").
 response_template(i_don_t_have_real_desires_but_for_the_prompt, "I don't have real desires, but for the prompt I'd invite {names}, {names2}, and {names3}: {reasons}; {reasons2}; and {reasons3}.").
 response_template(i_have_nothing_to_say_about_x, "I have nothing to say about {x}.").
+response_template(i_have_nothing_to_say_about_x, it, "Non ho niente da dire su {x}.").
 response_template(i_don_t_know_who_x_refers_to_2, "I don't know who {a} refers to.").
+response_template(i_don_t_know_who_x_refers_to_2, it, "Non so a chi si riferisce {a}.").
 response_template(i_rule_over_x, "I rule over {pl}.").
 response_template(my_title_is_x, "My title is {tt}.").
 response_template(i_am_x_years_old, "I am {age} years old.").
+response_template(i_am_x_years_old, it, "Ho {age} anni.").
 response_template(my_code_is_x, "My code is {code}.").
 response_template(i_work_for_an_x, "I work for an {org}.").
 response_template(my_favorite_color_is_x, "My favorite color is {c}.").
+response_template(my_favorite_color_is_x, it, "Il mio colore preferito è il {c}.").
 response_template(i_see_the_analogy_but_i_don_t_know_a_relatio, "I see the analogy, but I don't know a relation linking {A} and {B}.").
 response_template(x_same_relational_pattern_as_x_x_so_x_x, "{answer} — same relational pattern as {demo} ⇒ {dconcl}, so {qj} ⇒ {answer2}.").
 response_template(here_is_everything_i_know_x, "Here is everything I know: {dump}").
@@ -335,6 +365,7 @@ response_template(your_name_is_x, "Your name is {nm}.").
 % aveva una lingua sola (`name_recall` ne aveva gia' due).
 response_template(your_name_is_x, it, "Ti chiami {nm}.").
 response_template(nice_to_meet_you_x, "Nice to meet you, {nm}!").
+response_template(nice_to_meet_you_x, it, "Piacere di conoscerti, {nm}!").
 response_template(directly_x_is_a_known_fact, "Directly: {ex} — no reasoning needed.").
 response_template(compared_measure_x_x_x_x_with_measure_x_x_x, "Compared measure({dim},{ca},{mva},{mua}) with measure({dim2},{cc},{mvc},{muc}).").
 response_template(compared_magnitude_x_x_x_with_magnitude_x_x, "Compared magnitude({dim},{a},{ra}) with magnitude({dim2},{c},{rc}).").
@@ -381,6 +412,7 @@ response_template(i_don_t_have_real_desires_but_for_the_prompt_4, "I don't have 
 response_template(x_and_x_are_related_by_x_but_i_don_t_know_th, "{A} and {B} are related by {linking}, but I don't know that relation for {C}.").
 response_template(the_examples_x_x_and_x_x_share_the_rule_x_so, "the examples {in} -> {ot} and {in2} -> {ot2} share the rule «{rule}», so {probe_in} -> {result}.").
 response_template(not_much_yet, "Not much yet.").
+response_template(not_much_yet, it, "Ancora non molto.").
 response_template(from_my_capability_ledger_i_can_currently_x, "From my capability ledger, I can currently: {list}.").
 response_template(i_am_x_is_a_reflective_fact_in_my_knowledge, "i_am({id}) is a reflective fact in my knowledge base.").
 response_template(i_know_these_predicates_x, "I know these predicates: {list}.").
@@ -718,6 +750,7 @@ response_template(that_s_just_the_number_x_with_nothing_to_do, "That's just the 
 %% si puo' reinsegnare senza toccare il conteggio.
 
 response_template(i_don_t_know_about_x, "I don't know about {pred}.").
+response_template(i_don_t_know_about_x, it, "Non so niente di {pred}.").
 response_template(why_isn_t_x_a_x_x_is_x, "why isn't {name} a {cls}? > {name2} is {adj}").
 response_template(how_robust_is_that_conclusion, "how robust is that conclusion?").
 response_template(is_x_a_x_how_sure_are_you, "is {name} a {cls}? > how sure are you?").
@@ -730,14 +763,22 @@ response_template(unsafe_path_x_is_not_a_directory_inside_my_w, "unsafe_path: `{
 %% temporaneo e l'append resta identico: cambia da dove viene il testo.
 
 response_template(i_remember_no_durable_personal_facts_yet, "I remember no durable personal facts yet.").
+response_template(i_remember_no_durable_personal_facts_yet, it, "Non ricordo ancora niente di stabile su di te.").
 response_template(session_context, " Session context:").
 response_template(memory_recall_header, "I remember:").
+response_template(memory_recall_header, it, "Ricordo:").
 response_template(memory_name_fragment, " your name is {name}").
+response_template(memory_name_fragment, it, " ti chiami {name}").
 response_template(memory_possession_fragment, " your {thing} is {value}").
+response_template(memory_possession_fragment, it, " il tuo {thing} è {value}").
 response_template(memory_preference_fragment, " you {verb} {value}").
+response_template(memory_preference_fragment, it, " tu {verb} {value}").
 response_template(memory_mood_fragment, " you feel {mood}").
+response_template(memory_mood_fragment, it, " ti senti {mood}").
 response_template(memory_topic_fragment, " current topic is {topic}").
+response_template(memory_topic_fragment, it, " stiamo parlando di {topic}").
 response_template(memory_constraint_fragment, " constraint: {constraint}").
+response_template(memory_constraint_fragment, it, " vincolo: {constraint}").
 response_template(x_runs_through_it, " {p} runs through it.").
 response_template(it_borders_the_x, " It borders the {p}.").
 response_template(a_famous_landmark_there_is_x, " A famous landmark there is {p}.").
@@ -816,7 +857,9 @@ response_template(unknown_function_x_is_not_a_standard_c_libra, "Unknown functio
 response_template(entailed_x_is_a_known_fact, "Entailed: {ex}.").
 response_template(unknown_entailment, "Unknown.").
 response_template(neutral_entailment, "Neutral.").
+response_template(neutral_entailment, it, "Neutro.").
 response_template(contradicted_entailment, "Contradicted.").
+response_template(contradicted_entailment, it, "Contraddetto.").
 response_template(contradiction_entailment, "Contradiction.").
 response_template(entailed_explanation, "Entailed: {ex}.").
 % gen512 (glm-test §4.2, lato italiano) — LA PROVA PARLA LA LINGUA DEL TURNO.
@@ -839,6 +882,7 @@ response_template(learned_causal_relation, "Learned: causes({cause}, {effect})."
 % E la risposta a «what causes X?», che prima non esisteva: la forma esisteva
 % solo come ASSERZIONE, quindi la domanda diventava un fatto falso.
 response_template(cause_answer, "{causes}.").
+response_template(cause_answer, it, "{causes}.").
 response_template(learned_same_relation, "Learned: same({left}, {right}).").
 response_template(learned_requires, "Learned: requires({goal}, {step}).").
 response_template(because_proof, "Because {proof}.").
@@ -856,11 +900,15 @@ response_template(code_calls_answer, "I read it as code: {function} calls {calle
 response_template(self_trait_direct, "Yes, I {verb}.").
 response_template(self_trait_general, "Yes, I do — I {verb}.").
 response_template(color_answer, "It's {color}.").
+response_template(color_answer, it, "È {color}.").
 response_template(animal_sound_answer, "A {animal} goes \"{sound}\".").
 response_template(indefinite_entity_answer, "A {entity}.").
+response_template(indefinite_entity_answer, it, "Un {entity}.").
 response_template(animal_eats_answer, "A {animal} eats {food}").
 response_template(entity_kind_answer, "A {kind} is a {class}.").
+response_template(entity_kind_answer, it, "Un {kind} è un {class}.").
 response_template(part_of_answer, "Yes, {part} is part of {whole}.").
+response_template(part_of_answer, it, "Sì, {part} fa parte di {whole}.").
 response_template(forgotten_fact, "Forgotten: {pred}({arg}).").
 % SC32 — la meta' mancante dell'atto didattico. Una lezione che non si puo'
 % togliere non e' una lezione, e il contratto di AGENTS.md la vuole simmetrica.
@@ -910,6 +958,7 @@ response_template(rejected_class_subject, "I didn't keep that: «{subject}» doe
 response_template(rejected_class_subject, it, "Non l'ho tenuto: «{subject}» non si legge come una cosa da mettere in una classe.").
 response_template(rejected_binary_fact, it, "Non l'ho tenuto: «{arg1}» e «{arg2}» non si leggono come cose su cui tenere un fatto.").
 response_template(count_of_answer, "There are {count} {noun}s.").
+response_template(count_of_answer, it, "Ci sono {count} {noun}.").
 % gen507 — CONTARE CIO' CHE SI SA NON E' CONTARE CIO' CHE C'E'.
 % `count_of/2` e' un fatto detto: «i continenti sono sette» vale per il mondo.
 % Contare i membri che la KB tiene e' un'altra cosa, e dirla con le stesse
@@ -3698,6 +3747,7 @@ response_template(attribute_corrected, it, "Corretto: {thing} è {value}, non {o
 response_template(attribute_clash, "I already hold that {thing} is {old}, and a thing has one {prop}. Say «actually {thing} is {value}» and I will replace it.").
 response_template(attribute_clash, it, "Tengo già che {thing} è {old}, e una cosa ha un solo {prop}. Dimmi «anzi {thing} è {value}» e lo sostituisco.").
 response_template(enumeration_answer, "{list}.").
+response_template(enumeration_answer, it, "{list}.").
 response_template(enumeration_empty, "I do not know any {noun} yet.").
 response_template(enumeration_empty, it, "Non conosco ancora nessun {noun}.").
 response_template(learned_properties, "Learned: {facts}.").
@@ -3705,6 +3755,7 @@ response_template(reasoning_steps, "By {steps} step{s} of reasoning: {ex}.").
 response_template(induced_rules, "Induced: {rules}.").
 response_template(prose_read_page_could_not_open_x, "I could not open {target}.").
 response_template(i_couldn_t_store_that_2, "I couldn't store that.").
+response_template(i_couldn_t_store_that_2, it, "Non sono riuscito a tenerlo.").
 response_template(the_judge_ran_it_but_it_did_not_sort_every_ve, "The judge ran it, but it did not sort every vector.").
 response_template(no_contract_authorizing_x, "I have no contract authorizing «{tool}».").
 response_template(x_needs_one_of_its_authorized_subcommands, "«{tool}» needs one of its authorized subcommands.").

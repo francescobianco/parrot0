@@ -302,6 +302,26 @@ prossimo lavoro (report gen509 §7-bis).
 > gen506b (turno appeso = rosso con nome, budget duro che non si alza) resta.
 
 
+## 2026-09-29 — rossi visti durante §CV (train-the-learning-process.md)
+
+- `reasoning/family.p0t` e `family.it.p0t`: attese di contenuto aggiornate
+  (il parente di chi parla con un predicato ora ha il riscontro del mondo di
+  chi parla, «I see: your aunt lives in paris.»; il generico «Thanks for
+  telling me about your family» resta dove nessun fatto si scrive, e la
+  promessa ora e' mantenuta: il parente entra nel mondo di chi parla, CV10).
+  Restano **rossi di tempo**: «what is your sister's name» 1,5–2,5 s,
+  «I have two brothers and one sister» 2,5–2,8 s contro `!timeout 1`.
+  **Preesistenti**: il binario di `2a422a73` (28 settembre) impiega 2,36 s
+  sullo stesso turno (profilo: `answer_frame` 0,4 s su 37 chiamate,
+  `attribute_question_cue` 0,16 s, il resto sparso). Da curare come costo,
+  non alzando il `!timeout`.
+- `language/assisted_construction.p0t`: non si blocca piu' alla riga 44 (CV18);
+  23–24 rossi di tempo (1,1–2,3 s) e di maiuscole («mira.» contro «Mira.»),
+  identici con il `kb.c` di prima e con la KB di prima delle cure di §CV.
+- `reasoning/other_worlds.p0t` riga 98 («My bike is not red.» → «Learned: my
+  bike is not red.» invece del riscontro) e `knowledge/name_is_knowledge.p0t`
+  riga 63: identici a HEAD.
+
 ## 2026-09-28 — rossi visti durante F5 e L4-7
 
 - `assisted_construction.p0t` riga 44 («x glints y means x glorphs y»): il

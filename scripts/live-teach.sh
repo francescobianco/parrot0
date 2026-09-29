@@ -59,7 +59,7 @@ start)
     title=${2:-sessione}
     mkdir -p "$LIVE"
     tmux has-session -t "$SESSION" 2>/dev/null && { echo "gia' attiva: tmux attach -r -t $SESSION"; exit 1; }
-    : > "$IN"; : > "$RAW"; : > "$LOG"; : > "$STEER"; : > "$DEBUG_ON"
+    : > "$IN"; : > "$RAW"; : > "$LOG"; : > "$STEER"; : > "$DEBUG_ON"; : > "$PENDING"
     note "# sessione: $title — $(date '+%Y-%m-%d %H:%M') — KB viva, profilo agi, un solo processo"
     # parrot0: legge le righe che l'insegnante aggiunge, risponde riga per riga
     tmux new-session -d -s "$SESSION" -n parrot0 \

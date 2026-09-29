@@ -1781,7 +1781,12 @@ static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
          * in "the don't know what to say". La forma a tre argomenti si applica
          * solo quando la lingua del turno combacia; quella a due resta per cio'
          * che e' davvero agnostico (contrazioni, punteggiatura). */
-        {
+        /* 29 settembre 2026 (CV10, memoria «i put …»): dal secondo passaggio
+         * del punto fisso il testo e' gia' interlingua; riapplicare la tabella
+         * della lingua di partenza traduceva di nuovo cio' che era gia'
+         * tradotto — «ho una sorella?» -> «i have a sister?» -> «the have a
+         * sister?», perche' «i» e' anche l'articolo italiano. */
+        if (!b->canon_again) {
             char lang[8]; current_lang(b, lang, sizeof lang);
             const char *q3[3] = { lang, w, NULL };
             got = kb_match(b->kb, "function_word", q3, 3, hit, 1) == 1;
@@ -1800,7 +1805,7 @@ static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
             char lang[8]; current_lang(b, lang, sizeof lang);
             const char *q3q[3] = { lang, qw, NULL };
             const char *qq[2] = { qw, NULL };
-            got = kb_match(b->kb, "function_word", q3q, 3, hit, 1) == 1 ||
+            got = (!b->canon_again && kb_match(b->kb, "function_word", q3q, 3, hit, 1) == 1) ||
                   kb_match(b->kb, "function_word", qq, 2, hit, 1) == 1;
         }
         if (got) {

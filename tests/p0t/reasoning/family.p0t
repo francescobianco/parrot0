@@ -20,10 +20,12 @@
 # (A) the user's own family — acknowledged, never faked-understood.
 > I have two brothers and one sister
 < Thanks for telling me about your family -- I'll keep that in mind.
+# (29 settembre 2026, L4 0-bis) una frase su un parente di chi parla con un
+# predicato si scrive nel SUO mondo, e il riscontro dice che cosa si e' capito
 > my father works in a bank
-< Thanks for telling me about your family -- I'll keep that in mind.
+<~ your family
 > my aunt lives in Paris
-< Thanks for telling me about your family -- I'll keep that in mind.
+<~ your aunt lives in
 
 # (B) parrot0's own "family" — honest decline, names the relation asked about.
 > what is your sister's name
@@ -40,7 +42,7 @@
 > you have a brother
 < I'm parrot0, an AI, so I don't have a brother -- no family to name.
 > my brother knows you
-< Thanks for telling me about your family -- I'll keep that in mind.
+<~ your brother
 
 # NOT stolen: identity / name turns have no kinship term, so mod_family declines
 # and the real handlers answer.
