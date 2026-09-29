@@ -1682,7 +1682,9 @@ response_template(world_view_none, "Nobody has told me what {word} thinks yet.")
 response_template(world_view_none, it, "Nessuno mi ha ancora detto che cosa pensa {word}.").
 machinery(world_view_answer).
 machinery(world_view_item).
-world_view_item($H, $Cs) :- world_fact_said(world_of($H), $F, $N), fact_said($F, $Cs).
+% dal mondo stesso, non dal registro della sessione: un mondo salvato si
+% rilegge domani
+world_view_item($H, $Cs) :- holds_in(world_of($H), $F), fact_said($F, $Cs).
 world_view_answer($W, $Text) :-
     findall($Cs, world_view_item($W, $Cs), cons($C1, $Cr)), current_language($L),
     inversion_phrase_and($L, cons($C1, $Cr), $J), upcase_first($W, $Wu),
@@ -1843,3 +1845,80 @@ commitment_line(en, impersonate_unknown, "I can't answer as ").
 commitment_line(en, impersonate_unknown_end, " would: nobody has told me anything about how they see things.").
 commitment_line(it, impersonate_unknown, "Non so rispondere come farebbe ").
 commitment_line(it, impersonate_unknown_end, ": nessuno mi ha detto niente di come vede le cose.").
+
+% ── L4 0-bis — DARE RAGIONE: il trasferimento fra mondi, con la destinazione ──
+% Chi riceve lo dice la forma, come per le lezioni (F., 29 settembre): «I agree
+% with Marco.» e' chi parla che prende l'idea di Marco nel SUO mondo; «Agree
+% with Marco.» (imperativo) chiede a parrot0 di prenderla nel proprio, ed e' lo
+% stesso trasferimento di «Make Marco's view yours.». La provenienza resta.
+machinery(agreed_with).
+machinery(agree_speaker_with).
+agree_speaker_with($W, $Text) :-
+    last_content_in(world_of($W), $F), speaker_context($U), naf(holds_in($U, $F)),
+    turn_counter($N), assert(holds_in, $U, $F), assert(agreed_with, $U, $F, from(world_of($W), $N)),
+    fact_said($F, $Cs), current_language($L), upcase_first($W, $Wu),
+    commitment_line($L, agreed_you, $A), concat_atoms($A, $Wu, $B),
+    commitment_line($L, agreed_you_mid, $M), concat_atoms($B, $M, $B1), concat_atoms($B1, $Cs, $D),
+    commitment_line($L, agreed_you_end, $E), concat_atoms($D, $E, $Text).
+commitment_line(en, agreed_you, "I see: you agree with ").
+commitment_line(en, agreed_you_mid, ": ").
+commitment_line(en, agreed_you_end, ". I keep it as your view too, not as mine.").
+commitment_line(it, agreed_you, "Capito: sei d'accordo con ").
+commitment_line(it, agreed_you_mid, ": ").
+commitment_line(it, agreed_you_end, ". Lo tengo anche come tuo, non come mio.").
+turn_form(agree_speaker, 1, text("i agree with")).
+turn_form(agree_speaker, 2, slot(word)).
+turn_form_priority(agree_speaker, early).
+turn_form_act(agree_speaker, "op(match, agree_speaker_with, [word, free])").
+turn_form_reply(agree_speaker, transfer_reply).
+turn_form_empty_reply(agree_speaker, world_view_none).
+turn_form(agree_speaker_it, 1, text("sono d'accordo con")).
+turn_form(agree_speaker_it, 2, slot(word)).
+turn_form_priority(agree_speaker_it, early).
+turn_form_view(agree_speaker_it, said).
+turn_form_act(agree_speaker_it, "op(match, agree_speaker_with, [word, free])").
+turn_form_reply(agree_speaker_it, transfer_reply).
+turn_form_empty_reply(agree_speaker_it, world_view_none).
+turn_form(agree_parrot, 1, text("agree with")).
+turn_form(agree_parrot, 2, slot(word)).
+turn_form_priority(agree_parrot, early).
+turn_form_act(agree_parrot, "op(match, transfer_named, [word, free])").
+turn_form_reply(agree_parrot, transfer_reply).
+turn_form_empty_reply(agree_parrot, world_view_none).
+turn_form(agree_parrot_it, 1, text("dai ragione a")).
+turn_form(agree_parrot_it, 2, slot(word)).
+turn_form_priority(agree_parrot_it, early).
+turn_form_view(agree_parrot_it, said).
+turn_form_act(agree_parrot_it, "op(match, transfer_named, [word, free])").
+turn_form_reply(agree_parrot_it, transfer_reply).
+turn_form_empty_reply(agree_parrot_it, world_view_none).
+
+% «Forget what Marco thinks.» — un mondo riportato si chiude: i suoi fatti
+% escono (non quelli che ho fatto miei: quelli hanno gia' la loro provenienza)
+machinery(forget_world_of).
+machinery(forget_world_list).
+forget_world_of($W, $Text) :-
+    findall($F, holds_in(world_of($W), $F), cons($F1, $Fs)),
+    forget_world_list(world_of($W), cons($F1, $Fs)), current_language($L), upcase_first($W, $Wu),
+    commitment_line($L, world_forgotten, $A), concat_atoms($A, $Wu, $B),
+    commitment_line($L, world_forgotten_end, $E), concat_atoms($B, $E, $Text).
+forget_world_list($C, nil).
+forget_world_list($C, cons($F, $R)) :- retract(holds_in, $C, $F), forget_world_list($C, $R).
+commitment_line(en, world_forgotten, "Done: I no longer keep anything as ").
+commitment_line(en, world_forgotten_end, "'s view.").
+commitment_line(it, world_forgotten, "Fatto: non tengo più niente come idea di ").
+commitment_line(it, world_forgotten_end, ".").
+turn_form(forget_world_view, 1, text("forget what")).
+turn_form(forget_world_view, 2, slot(word)).
+turn_form(forget_world_view, 3, text("thinks")).
+turn_form_priority(forget_world_view, early).
+turn_form_act(forget_world_view, "op(match, forget_world_of, [word, free])").
+turn_form_reply(forget_world_view, transfer_reply).
+turn_form_empty_reply(forget_world_view, world_view_none).
+turn_form(forget_world_view_it, 1, text("dimentica che cosa pensa")).
+turn_form(forget_world_view_it, 2, slot(word)).
+turn_form_priority(forget_world_view_it, early).
+turn_form_view(forget_world_view_it, said).
+turn_form_act(forget_world_view_it, "op(match, forget_world_of, [word, free])").
+turn_form_reply(forget_world_view_it, transfer_reply).
+turn_form_empty_reply(forget_world_view_it, world_view_none).

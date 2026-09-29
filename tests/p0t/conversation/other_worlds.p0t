@@ -62,6 +62,25 @@
 > Answer as Anna would: Does tea taste sour?
 <~ I can't answer as Anna would: nobody has told me anything about how they see things.
 
+[test dare ragione: chi riceve lo dice la forma]
+!timeout 4
+> Marco thinks that soup tastes salty.
+> I agree with Marco.
+<~ I see: you agree with Marco: soup tastes salty. I keep it as your view too, not as mine.
+!query holds_in(world_of(user), fact(taste, soup, salty))
+!query agreed_with(world_of(user), fact(taste, soup, salty), from(world_of(marco), $N))
+!query! taste(soup, salty)
+> Agree with Marco.
+<~ Done: from now on I hold it too, not only as Marco's: soup tastes salty.
+!query taste(soup, salty)
+> Forget what Marco thinks.
+<~ Done: I no longer keep anything as Marco's view.
+!query! holds_in(world_of(marco), $F)
+> What does Marco think?
+<~ Nobody has told me what marco thinks yet.
+# cio' che ho fatto mio resta mio, con la sua provenienza
+!query taste(soup, salty)
+
 [test io penso che: il mondo di chi parla]
 !timeout 4
 > I think that milk tastes sour.
