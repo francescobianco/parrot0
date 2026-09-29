@@ -13,6 +13,57 @@
 > [train-the-learning-process.md, «▶ ASSE STRUTTURALE»](train-the-learning-process.md).
 > Prima di curare un «Learned, poi non so», chiedersi se e' un ponte che manca.
 
+## ▶ HANDOFF — 29 settembre 2026, notte (ripartire da qui)
+
+**Stato del lavoro nel commit di chiusura:**
+
+1. **Regressione dei tempi curata (mia, di `dcb25043`).** La cura CV18 qui
+   sotto misurava il progresso di `kb_views_refresh`/`kb_views_warm` sui campi
+   `live/attempted` della vista appena costruita: il ciclo si fermava troppo
+   presto (una costruzione ne sistema altre senza cambiare la propria riga) e
+   `finite_reading_verb_form` si ricostruiva al primo turno — turno agente
+   italiano da **805 ms a 1754 ms**, `agent.it`/`agent_verify.it` rossi per
+   tempo. Ora: `progress = 1` come prima, **piu'** il controllo
+   `kb_inference_expired` a ogni giro esterno, che da solo basta contro il
+   ciclo infinito a tempo scaduto. Verificato: turno di nuovo 805 ms,
+   `inference_time.p0t` 15/15, `cv18_construction_binder` verde,
+   `agent.it` 2/2, `agent_verify.it` 2/2. (Il punto «Cura in `kb.c`» qui sotto
+   e' quindi superato: vale il commento in `kb.c` sopra `kb_views_refresh`.)
+2. **Esonimi (CV italiano):** «Francia», «Parigi» scritti con la maiuscola
+   si traducono di nuovo; «Bianco» in «Francesco Bianco» resta un nome. KB
+   `gloss_names_entity/1` (lexicon.p0), porta in `canonicalize_lang`
+   (10-memory-knowledge.c). `cv_italian.p0t` 19/19.
+3. **Una procedura non e' un'asserzione composta** (turn-frames.p0,
+   `turn_sentence_directs/1`): un turno le cui frasi si aprono con un
+   imperativo (`imperative_opener/1`) non viene piu' letto frase per frase.
+   «parti da 6. se è pari, dimezza. … ripeti finché raggiunge 1.» passava ogni
+   frase per il dispatch intero (7,9 s) prima che la facolta' `agent` lo
+   prendesse; con la guardia il turno di induzione «… continue from 12.» ne
+   beneficia (continue e' gia' nella classe). ⚠ **Non aggiungere** `start`,
+   `parti`, `repeat` a `imperative_opener`: provato e ritirato — la classe
+   alimenta anche la forza `directive`, e `narrative_continuation` si prende
+   «start at 3 and double…» («Every face turned upward…»). Serve un'altra
+   classe (o una lettura della forza piu' fine: un ordine di CALCOLARE non e'
+   una richiesta di racconto) — e' il prossimo passo.
+
+**Rossi aperti, preesistenti al lavoro di stasera (misurati sul binario di
+`456e7df5` e `054eadba`, stessi tempi):** `agent_branch`/`agent_branch.it`
+(Collatz 6–9 s, poi 1,3–3 s), `agent_induce`/`agent_induce.it` (3–7 s),
+`agent_search`/`agent_search.it` (1,1 s contro 1 s). Il costo residuo del
+Collatz (1,5 s) e' `answer_frame` (291 ms, 30 chiamate) e
+`attribute_question_cue` (213 ms, 111 chiamate) su un turno che non e' una
+domanda: la cessione di answerframe alla forza `directive`/procedura e' la
+cura da provare. **`agent.p0t` (inglese) 3/6**: righe 30, 35, 39 («37.»,
+«Every face turned…», «300.») — non verificato se preesistente al punto 3;
+**primo controllo alla ripresa**: `git stash` del solo turn-frames.p0 non e'
+permesso, quindi confrontare con il binario del worktree `wt_456e7df5`.
+
+**Ancora aperti dal giro §CV/§SA:** CV5–CV8, CV9, CV11–CV16, CV20, CV22,
+CV25–CV29, CV31, CV32, CV34–CV36 (in parte), polari italiane in ordine di
+affermazione («Parigi è in Francia?»), il valore dell'umore in inglese nel
+ricordo italiano, `prefer` ancora campo C, `compound_inquiry` ≥ 9,5 s,
+selftest riflessivo 2/3.
+
 ## ⛔⛔ SUPER PRIORITARIO — il turno che non torna (CV18) e il TETTO DI TEMPO dell'inferenza (29 settembre 2026)
 
 ### ✅ CHIUSO (29 settembre 2026, sera) — il tetto di tempo regge, CV18 non si blocca piu'

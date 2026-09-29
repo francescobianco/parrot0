@@ -219,8 +219,20 @@ prose_source_cue($Cue) :- segment_role(prose_source, $Cue).
 turn_cue_registry(prose_source_cue, 1).
 machinery(turn_carries_prose_source).
 turn_carries_prose_source($Turn) :- turn_cue($Turn, prose_source_cue, $Cue).
+% 29 settembre 2026 — UNA PROCEDURA NON E' UN'ASSERZIONE COMPOSTA. «start at
+% 6. if it is even, halve it. … repeat until it reaches 1.» e «4 -> 2, 8 -> 4.
+% continue from 7.» hanno confini di frase e nessun «?», ma una frase si APRE
+% con un imperativo: chi parla da' un ordine, non racconta. Letti una frase
+% alla volta, ogni frase attraversava il dispatch intero (6-9 s, misurato)
+% prima che la facolta' dell'atto prendesse il turno. La classe e' la stessa
+% di `turn_opens_request` (`imperative_opener/1`), letta all'inizio di OGNI
+% frase: un imperativo insegnato domani vale anche qui.
+machinery(turn_sentence_directs).
+turn_sentence_directs($Turn) :-
+    turn_surface_token($Turn, $Span, 0, $Tok), span_atom($Tok, $W), imperative_opener($W).
 turn_declared_act($Turn, compound_statement) :-
     turn_cue($Turn, sentence_boundary_cue, $Boundary),
+    naf(turn_sentence_directs($Turn)),
     naf(turn_carries_prose_source($Turn)),
     naf(turn_has_question_mark($Turn)),
     naf(turn_is_problem_text($Turn)),

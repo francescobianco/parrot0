@@ -276,6 +276,13 @@ phrase_canon("dove si trova", "where is").
 % («Francesco Bianco» non diventa «francesco white»)
 capital_marks_name(it).
 capital_marks_name(en).
+% ... tranne quando la sua glossa NOMINA un'entita': «Francia» -> france,
+% «Parigi» -> paris sono esonimi, «Bianco» -> white e' un aggettivo
+machinery(gloss_names_entity).
+gloss_names_entity($E) :- category_member(country, $E).
+gloss_names_entity($E) :- capital_of_country($C, $E).
+gloss_names_entity($E) :- city($E).
+gloss_names_entity($E) :- proper_name($E).
 % CV (29 settembre 2026): «Mia madre è a Roma.» diventava «my mother is a rome»
 % — la preposizione italiana «a» coincide con l'articolo inglese e passava
 % intatta, e il lettore del possesso ne faceva un nome («called(mother, a

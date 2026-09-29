@@ -2304,7 +2304,14 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             int is_name = 0;
             {
                 const char *pnq[] = { tok };
-                is_name = kb_query(b->kb, "proper_name", pnq, 1) || p0_written_as_name(b, tok);
+                is_name = kb_query(b->kb, "proper_name", pnq, 1);
+                if (!is_name && p0_written_as_name(b, tok)) {
+                    /* un esonimo si traduce: la glossa nomina un'entita' */
+                    char gl[KB_TERM_LEN];
+                    const char *gq[1] = { gl };
+                    is_name = !(kb_tr_it_en(b, tok, gl, sizeof gl) &&
+                                kb_query(b->kb, "gloss_names_entity", gq, 1));
+                }
             }
             if (is_name) {
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",

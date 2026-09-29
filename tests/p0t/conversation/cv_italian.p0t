@@ -55,4 +55,16 @@
 > Mi fai un esempio?
 > Adesso fallo tuo.
 <~ Non mi hai appena detto niente di tuo
+
+[test i nomi scritti come nomi: un cognome resta, un esonimo si traduce]
+!timeout 3
+> Chi ti ha creato?
+<~ Nessuno me l'ha ancora detto.
+> Ti ha creato Francesco Bianco.
+<~ francesco bianco ti ha creato
+> Chi ti ha creato?
+<~ Francesco bianco
+<! white
+> Qual è la capitale della Francia?
+<~ Paris
 !reset
