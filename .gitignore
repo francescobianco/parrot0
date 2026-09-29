@@ -72,4 +72,5 @@ p0t_write_probe.c
 # gen503: le MISURE della sonda si rigenerano; il banco e i suoi item no
 tests/comprehension-probe/results/
 var/live/
+var/talk/
 var/coherence-sandbox/
