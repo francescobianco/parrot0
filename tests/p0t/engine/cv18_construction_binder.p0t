@@ -1,0 +1,16 @@
+# CV18 (train-the-learning-process.md, SUPER PRIORITARIO) — il minimo che
+# bloccava parrot0: una lezione di verbo di relazione e poi una lezione di
+# costruzione. Sul binario di prima il secondo turno superava i 10 s (il binder
+# interrogava extract_frame per schemi le cui parole letterali non erano nella
+# frase: moltiplicazione delle prove). Riduzione per complemento sulle 95 righe
+# della sessione di F.: bastano la 85 e la 95 (docs/labs/cv18-hang/).
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+
+[test la lezione di costruzione torna subito anche dopo un verbo di relazione]
+!timeout 3
+> went is a relation verb
+> "cosa pensa X" significa "che cosa pensa X"
+<~ D'ora in poi leggo
+!reset

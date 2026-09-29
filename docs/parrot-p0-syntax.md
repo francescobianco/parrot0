@@ -174,6 +174,7 @@ unico dei paradossi `paradox_event(Livello, Specie, Dove, Dettaglio)` (src/kb.c
 | `budget` | passi del risolutore | `kb_query`/`kb_match` a fine query | `paradox_event(proof, budget, Goal, seen(Turno, Goal))` |
 | `loop_cut` | taglio anti-isteresi di un goal ripetuto | idem | `paradox_event(proof, loop_cut, Pred, seen(…))` |
 | `depth` | `KB_MAX_DEPTH` (64, profondità dell'albero) | idem | `paradox_event(proof, depth, Pred, seen(…))` |
+| **`time`** (29 settembre 2026, CV18) | il tempo del turno esterno, `inference_time_limit/1` in ms (KB) | `kb_inference_begin/expired/commit/end`: scadenza monotona condivisa da ogni query del turno, pubblicata dopo la prova | `paradox_event(proof, time, Dove, seen(Turno, Ms))` → `inference_incomplete(current_turn, time)`; la resa e' KB (`inference_limit_response/2`). ⚠ ogni ciclo del C che ripete «finche' c'e' progresso» deve **misurare** il progresso: a tempo scaduto nessuna query ne fa (il blocco di `kb_views_refresh`) |
 | **`cap`** | il massimo di un'enumerazione `kb_match(…, N)` chiesto dal C | `kb_note_saturated_read` → `kb_saturation_commit` a inizio di `turn_done` | `saturated_read(Pred, Arità, N)` e **dal 28 settembre** `paradox_event(match, cap, Pred, seen(Turno, N))` → `inference_incomplete(current_turn, cap)` |
 | `short_circuit`, `cycle` | viste: costrutti riflessivi, cicli fra viste | congelamento delle viste | `paradox_event(view, …)` |
 

@@ -15,7 +15,30 @@
 
 ## ⛔⛔ SUPER PRIORITARIO — il turno che non torna (CV18) e il TETTO DI TEMPO dell'inferenza (29 settembre 2026)
 
-### Ricerca in corso — strategie, risultati e ripresa (29 settembre 2026)
+### ✅ CHIUSO (29 settembre 2026, sera) — il tetto di tempo regge, CV18 non si blocca piu'
+
+- **L'ultimo blocco** (un limite di 1 ms faceva appendere il turno) era un
+  **ciclo che presumeva il progresso**: `kb_views_refresh` (e `kb_views_warm`)
+  segnava `progress = 1` dopo ogni `kb_view_ensure`, e a tempo scaduto
+  `kb_view_ensure_world` esce subito senza toccare la vista → il ciclo girava
+  per sempre. Trovato con il metodo qui sotto (gdb che interrompe il **figlio**,
+  stack `universal_turn_lead → kb_views_refresh → kb_view_deps_ready →
+  kb_match_all`). Cura in `kb.c`: una vista ha fatto progresso solo se e'
+  diventata viva o tentata (`kb_view_progressed`), e a tempo scaduto il
+  rinfresco si ferma.
+- **Verifiche:** con `inference_time_limit(1)` il turno torna in 0,166 s con
+  «Mi sono fermato: la ricerca ha superato il tempo che mi do per l'inferenza e
+  non ho una risposta verificata.»; [inference_time.p0t](../../tests/p0t/engine/inference_time.p0t)
+  **15/15**; il replay intero di `in95.txt` risponde ai 95 turni (massimo
+  2,4 s, il 95° in 0,46 s); cricchetto minimo
+  [cv18_construction_binder.p0t](../../tests/p0t/engine/cv18_construction_binder.p0t)
+  (righe 85 + 95, `!timeout 3`) verde; `assisted_construction` non si blocca
+  piu' alla riga 44 (era il blocco del 28 settembre). I suoi rossi restanti
+  (turni di 1,1–2,3 s contro `!timeout 1`, e «mira.» contro «Mira.») sono
+  identici con il `kb.c` di prima e con la KB di prima delle cure di §CV:
+  preesistenti. `soft-test` verde.
+
+### Ricerca — strategie, risultati e ripresa (29 settembre 2026)
 
 **Salvataggio intermedio richiesto da F.: non e' ancora il verbale di chiusura.**
 Le modifiche sono nel working tree, non committate. Mantra e principi letti;

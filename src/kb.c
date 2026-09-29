@@ -5945,17 +5945,33 @@ static int kb_view_deps_ready(KB *kb, const char *pred) {
  * non ricarica il registro (quello svuota TUTTE le viste e le rende `broad`, e
  * ogni ricostruzione sporcava le altre a cascata — 4-6 s a ogni turno,
  * misurato), e tocca solo le viste invalidate da un cambiamento. */
+/* CV18, 29 settembre 2026 — IL PROGRESSO SI MISURA, NON SI PRESUME. Questi
+ * due cicli segnavano `progress = 1` dopo ogni `kb_view_ensure`, qualunque cosa
+ * fosse successo. Con il tetto di tempo scaduto `kb_view_ensure_world` esce
+ * subito senza toccare la vista, e il ciclo girava per sempre (campionato sotto
+ * gdb: universal_turn_lead -> kb_views_refresh -> kb_view_deps_ready ->
+ * kb_match_all, con un limite di 1 ms). Una vista ha fatto progresso solo se
+ * e' diventata viva o tentata; e a tempo scaduto il rinfresco non puo' farne. */
+static int kb_view_progressed(KB *kb, const char *pred, int was_live, int was_attempted) {
+    size_t k = kb_view_slot(kb, pred);
+    if (k == (size_t)-1) return 0;
+    return kb->views[k].live != was_live || kb->views[k].attempted != was_attempted;
+}
+
 void kb_views_refresh(KB *kb) {
     if (!kb || !kb->views_loaded || kb->views_reload ||
         frame_depth || proof_depth || kb->views_preparing) return;
     for (int progress = 1; progress; ) {
         progress = 0;
+        if (kb_inference_expired(kb, "views_refresh")) return;
         for (size_t i = 0; i < kb->nviews; i++) {
             KbView *v = &kb->views[i];
             if (v->watch || v->live || v->building || v->attempted) continue;
             if (!kb_view_deps_ready(kb, v->pred)) continue;
-            kb_view_ensure(kb, v->pred);
-            progress = 1;
+            char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", v->pred);
+            int wl = v->live, wa = v->attempted;
+            kb_view_ensure(kb, pred);
+            if (kb_view_progressed(kb, pred, wl, wa)) progress = 1;
         }
     }
 }
@@ -5965,12 +5981,15 @@ void kb_views_warm(KB *kb) {
     kb_views_load(kb);
     for (int progress = 1; progress; ) {
         progress = 0;
+        if (kb_inference_expired(kb, "views_warm")) break;
         for (size_t i = 0; i < kb->nviews; i++) {
             KbView *v = &kb->views[i];
             if (v->watch || v->live || v->attempted) continue;
             if (!kb_view_deps_ready(kb, v->pred)) continue;
-            kb_view_ensure(kb, v->pred);
-            progress = 1;
+            char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", v->pred);
+            int wl = v->live, wa = v->attempted;
+            kb_view_ensure(kb, pred);
+            if (kb_view_progressed(kb, pred, wl, wa)) progress = 1;
         }
     }
     for (size_t i = 0; i < kb->nviews; i++)
