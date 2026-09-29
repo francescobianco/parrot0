@@ -184,8 +184,13 @@ bodily_action(fly).   bodily_action(drive). bodily_action(cook).
 bodily_action(sing).  bodily_action(see).   bodily_action(touch).
 
 self_ability_query($T, $V) :-
-    self_ability_marker($T), self_turn_verb($T, $V), naf(speak_verb($V)),
-    self_known_ability($V).
+    self_ability_marker($T), naf(turn_opens_with_wh($T)), self_turn_verb($T, $V),
+    naf(speak_verb($V)), self_known_ability($V).
+% (29 settembre 2026, name_is_knowledge riga 63 e §CV-bis) una domanda di
+% capacita' e' POLARE: «what do you remember about me?» chiede che cosa, e
+% «Yes, I can remember.» non le risponde
+machinery(turn_opens_with_wh).
+turn_opens_with_wh($T) :- turn_word($T, 0, $W), question_word($W).
 self_known_ability($V) :- self_can($V).
 self_known_ability($V) :- bodily_action($V).
 
