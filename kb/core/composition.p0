@@ -29,6 +29,16 @@
 machinery(inference_incomplete).
 machinery(inference_cycle).
 machinery(turn_paradox_members).
+% 29 settembre 2026 — CV18: un solo tempo per il turno esterno, in ms.
+% Dichiarazioni lette senza inferenza: anche la resa deve restare disponibile
+% quando TUTTE le prove sono ferme. Una lezione piu' recente prevale; ritirarla
+% ripristina il valore precedente. Il boot non appartiene a un turno.
+inference_time_limit(10000).
+inference_limit_response(time, inference_time_exhausted).
+response_template(inference_time_exhausted, "I stopped because the search exceeded my inference time limit. I do not have a verified answer.").
+response_template(inference_time_exhausted, it, "Mi sono fermato: la ricerca ha superato il tempo che mi do per l'inferenza e non ho una risposta verificata.").
+inference_incomplete(current_turn, time) :-
+    turn_counter($K), paradox_event(proof, time, $W, seen($K, $Ms)).
 % Solo gli eventi della DOMANDA del turno (`turn_goal/3`): un taglio in
 % un'altra query dello stesso turno non deve far dire a questa che la sua
 % ricerca si chiude su se stessa. Quali query appartengano alla domanda e'

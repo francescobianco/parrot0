@@ -26,6 +26,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <limits.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -330,6 +331,10 @@ struct KB {
     int           infer_budget_hit;
     int           infer_loops_cut;
     int           infer_depth_hit;
+    int           infer_time_active, infer_time_hit, infer_time_committed;
+    struct timespec infer_time_start;
+    double        infer_time_limit_ms, infer_time_elapsed_ms;
+    char          infer_time_pred[KB_TERM_LEN];
     /* §25.3 — il REGISTRO UNICO: il turno corrente (lo da' il registro delle
      * facolta', `kb_set_paradox_turn`), per datare `paradox_event/4`. */
     unsigned long paradox_turn;
@@ -1317,6 +1322,81 @@ static PredBucket rule_bucket(const KB *kb, const char *pred) {
 /* Position of the `vi`-th fact to visit for this bucket. */
 #define PRED_AT(bk, vi) ((bk).live ? (bk).idx[(vi)] : (vi))
 #define PRED_VISITS(bk, kb) ((bk).live ? (bk).n : (kb)->n)
+
+int kb_match_fact(const KB *kb, const char *pred, const char *const *args,
+                  size_t argc, char out[KB_TERM_LEN]) {
+    if (!kb || !pred || !args || !out || argc > KB_MAX_ARGS) return 0;
+    PredBucket bk = pred_bucket(kb, pred);
+    for (size_t i = PRED_VISITS(bk, kb); i-- > 0;) {
+        const Fact *f = &kb->facts[PRED_AT(bk, i)];
+        if (f->argc != argc || strcmp(f->pred, pred)) continue;
+        size_t col = argc, a = 0;
+        for (; a < argc; a++) {
+            if (!args[a]) { if (col == argc) col = a; }
+            else if (strcmp(args[a], f->args[a])) break;
+        }
+        if (a == argc && col < argc) {
+            snprintf(out, KB_TERM_LEN, "%s", f->args[col]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void kb_inference_begin(KB *kb) {
+    if (!kb) return;
+    kb->infer_time_active = kb->infer_time_hit = kb->infer_time_committed = 0;
+    kb->infer_time_pred[0] = '\0';
+    kb->infer_time_elapsed_ms = kb->infer_time_limit_ms = 0;
+    /* A malformed lesson must not disable the last valid declaration. */
+    PredBucket bk = pred_bucket(kb, "inference_time_limit");
+    for (size_t i = PRED_VISITS(bk, kb); i-- > 0;) {
+        const Fact *f = &kb->facts[PRED_AT(bk, i)];
+        if (f->argc != 1 || strcmp(f->pred, "inference_time_limit")) continue;
+        char *end;
+        double ms = strtod(f->args[0], &end);
+        if (end == f->args[0] || *end || !isfinite(ms) || ms <= 0) continue;
+        kb->infer_time_limit_ms = ms;
+        break;
+    }
+    if (!kb->infer_time_limit_ms) return;
+    clock_gettime(CLOCK_MONOTONIC, &kb->infer_time_start);
+    kb->infer_time_active = 1;
+}
+
+int kb_inference_expired(const KB *kb, const char *where) {
+    if (!kb || !kb->infer_time_active) return 0;
+    KB *m = (KB *)kb;       /* observation, never a fact-table mutation here */
+    if (!m->infer_time_hit) {
+        struct timespec now;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        double ms = (now.tv_sec - m->infer_time_start.tv_sec) * 1000.0 +
+                    (now.tv_nsec - m->infer_time_start.tv_nsec) / 1e6;
+        if (ms < m->infer_time_limit_ms) return 0;
+        m->infer_time_hit = 1;
+        m->infer_time_elapsed_ms = ms;
+        snprintf(m->infer_time_pred, sizeof m->infer_time_pred, "%s", where ? where : "turn");
+    }
+    m->infer_budget_hit = 1;  /* all collectors must reject incomplete sets */
+    return 1;
+}
+
+void kb_inference_commit(KB *kb) {
+    if (!kb || !kb->infer_time_hit || kb->infer_time_committed || census_readers_live()) return;
+    char detail[KB_TERM_LEN];
+    snprintf(detail, sizeof detail, "seen(%lu, %.0f)", kb->paradox_turn, kb->infer_time_elapsed_ms);
+    int origin = kb->origin;
+    kb->origin = KB_REFLECTIVE;
+    kb_assert(kb, "paradox_event", (const char *[]){ "proof", "time", kb->infer_time_pred, detail }, 4);
+    kb->origin = origin;
+    kb->infer_time_committed = 1;
+}
+
+void kb_inference_end(KB *kb) {
+    if (!kb) return;
+    kb_inference_commit(kb);
+    kb->infer_time_active = 0;
+}
 
 static const Fact *kb_find(const KB *kb, const Fact *needle) {
     if (kb->fact_index_stale) {
@@ -2405,7 +2485,7 @@ static int goal_provable(const KB *kb, const Term *g, int depth) {
     solve(&S, g, 1, 0, s, depth);
     free(s);
     if (S.found) return 1;
-    return S.budget_hit ? GOAL_INCOMPLETE : 0;
+    return S.budget_hit || kb_inference_expired(kb, g->pred) ? GOAL_INCOMPLETE : 0;
 }
 
 /* U4 (teach-comprehension-via-mcp.md §5.3): string ⟷ char-list (de)serialization
@@ -3454,6 +3534,10 @@ static void solver_dedup_free(Solver *S) { free(S->dedup); S->dedup = NULL; S->d
 
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
+    if (kb_inference_expired(S->kb, idx < ngoals ? goals[idx].pred : "solve")) {
+        S->budget_hit = 1;
+        return 0;
+    }
     if (S->kb->prof_on) kb_profile_self_enter((KB *)S->kb, idx < ngoals ? &goals[idx] : NULL);
     if (idx < ngoals && goals[idx].depth > 0) depth = goals[idx].depth;   /* l'albero */
     if (idx == ngoals) {                       /* a complete solution */
@@ -4685,6 +4769,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     }
     for (size_t vi = 0; ground_fact_mode != 2 &&
                         vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
+        if (kb_inference_expired(S->kb, g->pred)) { S->budget_hit = 1; return 0; }
         /* A continuation may have retracted: the census positions this walk
          * holds can then run past the compacted fact table (see census_bury). */
         if (PRED_AT(gbk, vi) >= S->kb->n) continue;
@@ -4776,6 +4861,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     }
     int rule_copy_done = 0;
     for (size_t vi = 0; vi < PRED_VISITS(rbk, S->kb); vi++) { /* expand rules */
+        if (kb_inference_expired(S->kb, g->pred)) { S->budget_hit = 1; return 0; }
         if (PRED_AT(rbk, vi) >= S->kb->nr) continue;
         /* mentre una vista ibrida si congela, le sue clausole spente tacciono */
         if (bv && bv->nlive && view_rule_is_live(bv, PRED_AT(rbk, vi))) continue;
@@ -5570,6 +5656,7 @@ int kb_view_ensure(KB *kb, const char *pred) {
 
 static int kb_view_ensure_world(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return 0;
+    if (kb_inference_expired(kb, pred)) return 0;
     if (frame_depth || proof_depth || kb->views_preparing)
         return kb_view_live(kb, pred);
     kb->views_preparing = 1;
@@ -5718,6 +5805,7 @@ again_pass:
         if (kb_match_all(kb, "view_pair", pq, 2, &pairs, &npairs)) {
             pairs_done = 1;
             for (size_t i = 0; i < npairs && complete; i++) {
+                if (kb_inference_expired(kb, pred)) { complete = 0; break; }
                 char fun[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN];
                 size_t np = 0;
                 if (!split_compound(pairs[i], fun, parts, &np) || np != 2 ||
@@ -5739,6 +5827,7 @@ again_pass:
     const char *q[2] = { NULL, NULL };
     if (!pairs_done && !kb_match_all(kb, pred, q, v->argc, &firsts, &n1)) complete = 0;
     for (size_t i = 0; !pairs_done && i < n1 && complete; i++) {
+        if (kb_inference_expired(kb, pred)) { complete = 0; break; }
         if (term_contains_var(firsts[i], 0)) { complete = 0; break; }
         if (v->argc == 1) {
             const char *a[1] = { firsts[i] };
@@ -5752,6 +5841,7 @@ again_pass:
             const char *qi[2] = { firsts[i], NULL };
             if (!kb_match_all(kb, pred, qi, 2, &seconds, &n2)) complete = 0;
             for (size_t j = 0; j < n2 && complete; j++) {
+                if (kb_inference_expired(kb, pred)) { complete = 0; break; }
                 if (term_contains_var(seconds[j], 0)) { complete = 0; break; }
                 const char *a[2] = { firsts[i], seconds[j] };
                 int origin = kb->origin; kb->origin = KB_DERIVED;
@@ -5787,6 +5877,13 @@ again_pass:
         v->diffing = 0;
         kb_view_clear(kb, pred);
         v->live = 0;
+        /* A time-cut build is not an empty or permanently refused view.
+         * Retry from its declarations when the next turn has a fresh budget. */
+        if (kb->infer_time_hit && kb->infer_time_active) {
+            v->attempted = 0;
+            v->dirty = 1;
+            kb->views_pending = 1;
+        }
     } else {
         if (v->diffing) { kb_view_drop_unmarked(kb, v); v->diffing = 0; }
         v->live = 1;
@@ -6115,7 +6212,7 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
     }
     kb_footprint_note(kb, goalpred);
     kb->infer_steps      = S->steps;
-    kb->infer_budget_hit = S->budget_hit;
+    kb->infer_budget_hit = S->budget_hit || (kb->infer_time_active && kb->infer_time_hit);
     kb->infer_loops_cut  = S->loops_cut;
     kb->infer_depth_hit  = S->depth_hit;
     snprintf(kb->infer_goal, sizeof kb->infer_goal, "%s", goalpred ? goalpred : "");
@@ -6134,7 +6231,8 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
                  goalpred && *goalpred ? goalpred : "none");
         for (int k = 0; k < 3; k++) {
             if (k == 0 && !(S->loops_cut > 0 && S->cut_pred)) continue;
-            if (k == 1 && !(S->budget_hit && goalpred && *goalpred)) continue;
+            if (k == 1 && (!(S->budget_hit && goalpred && *goalpred) ||
+                           (kb->infer_time_active && kb->infer_time_hit))) continue;
             /* 26 settembre 2026: il tetto di profondita' e' la terza specie, con
              * il predicato del goal che lo ha toccato (composition.p0 lo legge). */
             if (k == 2 && !(S->depth_hit && S->depth_pred[0])) continue;
@@ -6172,10 +6270,12 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
 }
 
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
+    if (kb_inference_expired(kb, pred)) return 0;
     /* gen491 — l'ingresso e' il solo posto dove la vista si puo' costruire:
      * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
      * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
     kb_view_ensure((KB *)kb, pred);
+    if (kb_inference_expired(kb, pred)) return 0;
     if (kb) { kb->infer_budget_hit = 0; kb->infer_depth_hit = 0; }
     /* gen422b: la firma si raccoglie QUI e in kb_match, non solo alla fine di
      * una ricerca del solver. La prima stesura annotava solo `kb_note_inference`
@@ -6311,10 +6411,12 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
 
 size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                 size_t argc, char out[][KB_TERM_LEN], size_t max) {
+    if (kb_inference_expired(kb, pred)) return 0;
     /* gen491 — l'ingresso e' il solo posto dove la vista si puo' costruire:
      * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
      * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
     kb_view_ensure((KB *)kb, pred);
+    if (kb_inference_expired(kb, pred)) return 0;
     if (kb) { ((KB *)kb)->infer_budget_hit = 0; ((KB *)kb)->infer_depth_hit = 0; }
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args) ||
         (max && !out)) return 0;
@@ -10237,6 +10339,7 @@ void kb_inference_report(const KB *kb, KbInferenceReport *out) {
     out->budget_hit = kb->infer_budget_hit;
     out->loops_cut  = kb->infer_loops_cut;
     out->depth_hit  = kb->infer_depth_hit;
+    out->time_hit   = kb->infer_time_hit;
     snprintf(out->goal, sizeof out->goal, "%s", kb->infer_goal);
 }
 

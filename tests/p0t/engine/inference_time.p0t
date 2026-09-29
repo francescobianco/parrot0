@@ -1,0 +1,46 @@
+# CV18 — tempo del turno, osservazione interrogabile e resa insegnabile.
+# La KB agi resta completa; si aggiunge/ritira solo la politica sotto prova.
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+
+[test la scadenza risponde e lascia un evento nel registro unico]
+!timeout 2
+!assert inference_time_limit(1)
+> Qual è la capitale della Francia?
+<~ ricerca ha superato il tempo
+<~ non ho una risposta verificata
+<! Paris
+!query inference_incomplete(current_turn, time)
+!query paradox_event(proof, time, $Pred, seen($Turn, $Ms))
+
+[test la resa si cambia e si ritira senza ricompilare]
+!timeout 2
+!assert response_template(inference_time_exhausted, it, "Tempo terminato; questa risposta resta da verificare.")
+> Qual è la capitale della Francia?
+< Tempo terminato; questa risposta resta da verificare.
+!forget response_template(inference_time_exhausted, it, "Tempo terminato; questa risposta resta da verificare.")
+> Qual è la capitale della Francia?
+<~ ricerca ha superato il tempo
+
+[test ritirare il limite breve ripristina la risposta dal turno dopo]
+!timeout 2
+!forget inference_time_limit(1)
+> Qual è la capitale della Francia?
+<~ Paris
+<! ricerca ha superato
+!query! inference_incomplete(current_turn, time)
+
+[test anche in inglese il limite ha una spiegazione]
+!timeout 2
+!set PARROT0_LANG=en
+!reset
+!assert inference_time_limit(1)
+> What is the capital of France?
+<~ inference time limit
+<~ verified answer
+!query inference_incomplete(current_turn, time)
+!forget inference_time_limit(1)
+> What is the capital of France?
+<~ Paris
+!query! inference_incomplete(current_turn, time)

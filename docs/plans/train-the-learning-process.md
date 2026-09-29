@@ -15,6 +15,104 @@
 
 ## ⛔⛔ SUPER PRIORITARIO — il turno che non torna (CV18) e il TETTO DI TEMPO dell'inferenza (29 settembre 2026)
 
+### Ricerca in corso — strategie, risultati e ripresa (29 settembre 2026)
+
+**Salvataggio intermedio richiesto da F.: non e' ancora il verbale di chiusura.**
+Le modifiche sono nel working tree, non committate. Mantra e principi letti;
+la KB `agi` completa e' rimasta caricata in tutte le prove.
+
+**Risultato gia' misurato:** con il binder corretto, il replay integrale di
+`in95.txt` risponde a tutti i 95 turni. Il 95° torna in **0,495 s**, con
+«D'ora in poi leggo …». Transcript con tempi: `/tmp/cv18-full-after.jsonl`.
+Il binario precedente e' conservato in `/tmp/parrot0-cv18-before` per gli A/B.
+
+**Strategia di ricerca da riusare:**
+
+1. **Conservare il binario prima di cambiare il motore**, e riprodurre sul
+   transcript completo. Non togliere conoscenza di base per rendere veloce una
+   prova: si riduce la conversazione, non il soggetto.
+2. **Campionare il processo vivo con gdb, interrompendo il figlio parrot0,
+   non gdb.** Il sandbox impedisce `ptrace`; il replay sotto debugger e'
+   stato eseguito con autorizzazione fuori dal sandbox. Un driver Python
+   avvia `gdb -q -batch -ex 'run < docs/labs/cv18-hang/in95.txt' -ex 'bt 35'
+   --args BIN`, legge `/proc/PID_GDB/task/PID_GDB/children` e manda
+   `SIGINT` al figlio dopo 12–15 s senza nuovo output. Poi gdb stampa lo
+   stack e chiude il processo. Per i dettagli compilare **davvero** `kb.c`
+   con `-g` in un oggetto temporaneo: cambiare solo `CFLAGS` in `make` non
+   ricompila un oggetto gia' aggiornato.
+3. **Non scambiare uno stack per la causa.** Il primo campione era in
+   `resolve -> unify -> solve_frame -> kb_match -> p0_frame_bind ->
+   p0_parse_construction_lesson`. Sembrava un ciclo nei legami. Il secondo
+   era in `split_compound/unify`, con variabili di frame **32577** e uno
+   schema estraneo al turno («d'ora in poi the largest city of @S is @O»).
+   I legami ispezionati non erano ciclici: il lavoro avanzava. La diagnosi
+   corretta e' **moltiplicazione delle prove**, non riscrittura infinita.
+   Stack: `/tmp/cv18-gdb-before.log`, `/tmp/cv18-gdb-detail.log`.
+4. **Confrontare i consumatori dello stesso binder.** Il lettore ordinario
+   chiama `p0_frame_anchor_present` prima di `p0_frame_bind`; l'allineatore
+   `p0_align_explicit_lesson` non lo faceva. Il binder interrogava
+   `extract_frame(Pattern, ?)` prima di sapere se le parole letterali dello
+   schema fossero presenti nella frase. Con una vista ibrida e migliaia di
+   candidati, ripeteva derivazioni costose per candidati impossibili.
+   **Cura nel punto comune:** controllo delle ancore all'ingresso del binder,
+   prima della query. Nessun elenco di parole, nessun tetto agli schemi,
+   nessuna rinuncia a una lettura che avrebbe potuto combaciare.
+5. **Ridurre lo stato per complemento (delta debugging).** Delle 94 righe
+   precedenti, le sole lezioni alle righe
+   `13,15,19,21,37,41,42,52,85,89`, seguite dalla 95, riproducono il difetto
+   sul vecchio binario (>12 s). Gia' verificato anche
+   `41,42,52,85,89,95` (>10 s). Togliere gruppi di turni; conservare una
+   riduzione solo quando il timeout resta **sulla riga 95**, non su una
+   lezione precedente. Riduzione automatica ancora in corso al salvataggio:
+   `/tmp/cv18-reduction.jsonl`, risultato previsto
+   `/tmp/cv18-minimal-lines.json`.
+   **Riduzione terminata: bastano le righe 85 e 95** — `went is a relation
+   verb`, poi `"cosa pensa X" significa "che cosa pensa X"`. La 95 da sola
+   torna in 0,664 s; dopo la 85 supera 10 s. La crescita dei frame, non le
+   precedenti parafrasi, e' lo stato discriminante.
+6. **Usare un replay turno per turno con tempi e watchdog esterno.** Lo
+   strumento riusabile e' [replay.py](../labs/cv18-hang/replay.py):
+   `python3 docs/labs/cv18-hang/replay.py --binary /tmp/parrot0-cv18-before
+   --lines 41,42,52,85,89,95 --timeout 12`.
+   Attenzione: il prompt `>>> ` e' su **stderr**, la risposta su stdout;
+   un driver che aspetta il prompt solo su stdout simula un falso blocco
+   prima del primo turno. Il driver unisce i due flussi, segnala gli errori
+   di parsing e termina/raccoglie sempre il figlio, anche al timeout.
+
+**Protezione temporale implementata, verifica ancora aperta:**
+
+- `src/kb.c` / `src/kb.h`: scadenza monotona condivisa per il turno esterno,
+  `time_hit` persistente fra query, controlli negli ingressi e nel solver,
+  pubblicazione differita di `paradox_event(proof, time, Pred, seen(Turno, Ms))`.
+  Mai asserire l'evento dentro una prova: riallocherebbe la tabella sotto
+  puntatori vivi. Le viste interrotte devono essere ricostruibili dopo.
+- `kb/core/composition.p0`: `inference_time_limit(10000)` (millisecondi),
+  `inference_incomplete(current_turn, time)`, famiglia di risposta EN/IT.
+  Valore e testo si cambiano/ritirano a runtime. Dichiarazioni recenti
+  prevalgono; un valore non positivo o non numerico non deve spegnere il
+  precedente limite valido.
+- `src/brain/99-registry.c`: le chiamate annidate ereditano la scadenza;
+  l'uscita sostituisce una risposta non verificata con la spiegazione KB.
+  **La spiegazione legge fatti dichiarati senza riavviare il solver:**
+  dare altro tempo alla ricerca solo per spiegare che e' scaduta ricreerebbe
+  il difetto. `kb_match_fact` serve a questa lettura di recupero.
+- `tests/p0t/engine/inference_time.p0t`: limite breve, evento interrogabile,
+  resa insegnata/ritirata, recupero al turno dopo, entrambe le lingue.
+  **Non dichiarato verde al momento di questo salvataggio.**
+  Primo esito: con 1 ms la risposta **si blocca** (watchdog esterno a 60 s).
+  Dunque rendere tutte le query immediatamente false espone un percorso C
+  che va ancora diagnosticato: non considerare completata la protezione.
+
+**Da completare prima di chiudere:** terminare il minimo e farne un `.p0t`
+con tempo basso; verificare la crescita/ritrattazione delle costruzioni;
+provare nel solver che il tempo condiviso vale anche dentro `naf`/`findall`,
+che una lista parziale non venga certificata completa e che il turno dopo
+riparta; eseguire i controlli pertinenti e `make soft-test`; aggiornare
+`docs/parrot-p0-syntax.md` §5.1 e lasciare un resoconto duraturo nel laboratorio.
+Non confondere il watchdog esterno del test con il limite interno di parrot0.
+
+---
+
 **La richiesta di F.** (29 settembre 2026, sera, durante la cura di §CV):
 
 > *«dentro parrot0, nella sua inferenza, quando viene raggiunto un cap

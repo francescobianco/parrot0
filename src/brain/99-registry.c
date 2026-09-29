@@ -3885,6 +3885,7 @@ static int turn_size_violated(Brain *b, const char *norm, const char *reply);
 
 static size_t turn_done(Brain *b, const char *canon, const char *input,
                         char *out, size_t out_size) {
+    if (b && kb_inference_expired(b->kb, "turn_done")) return 0;
     if (b && b->kb) kb_saturation_commit(b->kb);
     /* ⛔ L'ULTIMO CANCELLO: cio' che il turno aveva escluso non esce.
      *
@@ -6245,7 +6246,40 @@ const char *brain_trace_stage(Brain *b, size_t i) {
     return (b && b->turn_trace_stage && i < b->n_turn_trace) ? b->turn_trace_stage[i] : "-";
 }
 
+/* Recovery reads declarations only: restarting the solver to explain why it
+ * stopped would grant the failed turn a new, unbounded search. Wording and
+ * choice of response family remain teachable KB facts. */
+static void inference_time_reply(Brain *b, char *out, size_t out_size) {
+    kb_inference_commit(b->kb);
+    char family[KB_TERM_LEN], lang[KB_TERM_LEN], tpl[KB_TERM_LEN];
+    const char *fq[] = { "time", NULL };
+    int rendered = 0;
+    if (kb_match_fact(b->kb, "inference_limit_response", fq, 2, family)) {
+        int has_language = kb_match_fact(b->kb, "current_language",
+                                         (const char *[]){ NULL }, 1, lang) ||
+            kb_match_fact(b->kb, "default_language", (const char *[]){ NULL }, 1, lang);
+        int localized = has_language &&
+            kb_match_fact(b->kb, "response_template",
+                           (const char *[]){ family, lang, NULL }, 3, tpl);
+        if (localized || kb_match_fact(b->kb, "response_template",
+                                        (const char *[]){ family, NULL }, 2, tpl))
+            rendered = kb_fill_slots(kb_dequote(tpl), NULL, 0, 0, out, out_size);
+        if (rendered) {
+            snprintf(b->turn_frame, sizeof b->turn_frame, "%s", family);
+            p0_said_by(b, "template", family);
+        }
+    }
+    if (!rendered) put("inference_incomplete(current_turn, time)", out, out_size);
+    snprintf(b->last_module, sizeof b->last_module, "%s", "inference_time");
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
+    int outermost = b && b->respond_depth == 0;
+    if (outermost) kb_inference_begin(b->kb);
+    else if (b && kb_inference_expired(b->kb, "brain_respond")) {
+        if (out_size) out[0] = '\0';
+        return 0;
+    }
     /* Il trace unico si azzera solo all'ingresso del turno PIU' ESTERNO: una
      * rilettura, una clausola, un ridispatch sono pezzi dello stesso turno e
      * vi si accodano indentati. */
@@ -6293,6 +6327,12 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     size_t n = brain_respond_dispatch(b, input, out, out_size);
     if (b) b->respond_depth--;
     if (b) b->active_turn_raw = outer_raw;
+    if (b && kb_inference_expired(b->kb, "brain_respond")) {
+        if (turn_view) b->active_turn_norm = outer_view;
+        free(turn_view);
+        document_revision_snapshot_free(&document_before);
+        goto finish_reply;
+    }
     /* gen512 (glm-test §3.2) — E ORA I NOMI CHE STAVANO DOPO IL PRONOME.
      *
      * La meta' differita della raccolta dei nomi propri (vedi il commento in
@@ -6362,6 +6402,9 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         }
     }
     apply_active_constraint(b, out, out_size);
+finish_reply:
+    if (outermost && kb_inference_expired(b->kb, "reply"))
+        inference_time_reply(b, out, out_size);
     n = strlen(out);
     if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
     /* gen506h — l'ultima mossa e' un fatto del turno, non un campo del C:
@@ -6391,6 +6434,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
                  out ? out : "");
         if (b->respond_depth == 0) p0_trace_flush(b, input);
     }
+    if (outermost) kb_inference_end(b->kb);
     return n;
 }
 
@@ -9122,6 +9166,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         }
     }
     for (size_t i = 0; !handled && i < registry_len; i++) {
+        if (kb_inference_expired(b->kb, registry[i].name)) break;
         if (i == eager_idx) continue;       /* already offered exactly once */
         int is_demoted = 0;
         for (size_t g = 0; g < ndemoted && !is_demoted; g++)

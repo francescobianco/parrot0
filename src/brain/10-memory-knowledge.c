@@ -5640,8 +5640,17 @@ static void p0_comma_map(Brain *b, char **w, size_t n, int *comma_at, size_t cap
 
 /* Lega UNO schema dichiarato al flusso di token. Pura: legge la KB, non la
  * scrive. Ritorna 1 se ogni ruolo dello schema ha trovato un riempimento. */
+static int p0_frame_anchor_present(const char *raw, char **w, size_t n);
+
 static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                          P0FrameReading *r) {
+    /* CV18: every caller, including lesson alignment, must reject impossible
+     * literal matches BEFORE asking for the predicate of a frame. A hybrid
+     * extract_frame can otherwise rederive thousands of rules for each of
+     * thousands of candidates. This is a necessary condition of the same
+     * match, not a vocabulary filter or a cap on learned constructions. */
+    if (!b || kb_inference_expired(b->kb, "extract_frame") ||
+        !raw_pattern || !r || !p0_frame_anchor_present(raw_pattern, w, n)) return 0;
     int comma_at[64] = { 0 };
     p0_comma_map(b, w, n, comma_at, 64);
     /* ── gen513 (prose-probe, malattia M1) — LA VIRGOLA SI CHIEDE AL TURNO ───
@@ -6740,6 +6749,7 @@ static int p0_align_explicit_lesson(
 
     int found = 0, ambiguous = 0;
     for (size_t i = 0; i < np && !ambiguous; i++) {
+        if (kb_inference_expired(b->kb, "extract_frame")) return 0;
         char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", synthetic);
         char *rw[32]; size_t rn = split_words(rb, rw, 32);
         P0FrameReading reading;

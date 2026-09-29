@@ -508,12 +508,25 @@ typedef struct {
     int           budget_hit;  /* the work ceiling stopped the search        */
     int           loops_cut;   /* repeated ground goals pruned on some path  */
     int           depth_hit;   /* the depth ceiling (KB_MAX_DEPTH) was reached; 26 set 2026: a species of its own, not a budget */
+    int           time_hit;    /* sticky across every query of the active turn */
     char          goal[KB_TERM_LEN]; /* predicate the search started from    */
 } KbInferenceReport;
 
 void kb_inference_report(const KB *kb, KbInferenceReport *out);
 /* §25.3 — il turno corrente, per datare `paradox_event/4` (registro unico). */
 void kb_set_paradox_turn(KB *kb, unsigned long turn);
+/* Cooperative, monotonic deadline for the OUTERMOST turn, milliseconds from
+ * inference_time_limit/1. Nested proofs share it. End only after unwinding;
+ * commit publishes the observation outside all live solver/census readers. */
+void kb_inference_begin(KB *kb);
+int  kb_inference_expired(const KB *kb, const char *where);
+void kb_inference_commit(KB *kb);
+void kb_inference_end(KB *kb);
+/* Read one stored declaration, newest first, without proofs or materializing
+ * views. NULL selects the returned column; other columns match exactly.
+ * Used for deadline policy and recovery when inference itself has stopped. */
+int kb_match_fact(const KB *kb, const char *pred, const char *const *args,
+                  size_t argc, char out[KB_TERM_LEN]);
 /* L4 0-bis: il contesto attivo della domanda e della scrittura (NULL = world) */
 void kb_set_context(KB *kb, const char *ctx);
 const char *kb_context(const KB *kb);
