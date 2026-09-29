@@ -38,6 +38,15 @@
 > Whose way is that?
 <~ Yours: you told me that «need» goes before the subject only when a bare verb follows in the present
 
+[test il ponte temporaneo: rispondere a modo suo, per una domanda]
+!timeout 4
+> Answer my way: Need a welder wear a mask?
+<~ Reading it your way: Yes.
+!query! merged_for_now($F)
+!query! kb_fact(inverts_when_taught, cons(need, cons($C, nil)))
+> Need a welder wear a mask?
+<! Yes
+
 [test adesso fallo tuo: la regola passa nel mondo di parrot0]
 !timeout 4
 > Now make it yours.
@@ -68,10 +77,13 @@
 [test in italiano]
 !set PARROT0_LANG=it
 !timeout 4
+> A welder needs to wear a mask.
 > Il mio modo di fare una domanda con need è mettere need prima del soggetto quando segue un verbo nudo.
 <~ L'ho letto come il tuo modo di usare la lingua
 <~ Capito: tu metti «need» prima del soggetto solo quando segue un verbo nudo al presente
 !query! inverts_when(need, $C)
+> Rispondi a modo mio: Need a welder wear a mask?
+<~ Letta a modo tuo: Yes.
 > Adesso fallo tuo.
 <~ Fatto: d'ora in poi lo tengo anch'io, non solo come tuo: «need» va prima del soggetto solo quando segue un verbo nudo al presente.
 !query inverts_when(need, $C)

@@ -1764,3 +1764,82 @@ world_report_close(asked($C)) :-
 machinery(retract_all_in).
 retract_all_in($C, nil).
 retract_all_in($C, cons($F, $R)) :- retract(holds_in, $C, $F), retract_all_in($C, $R).
+
+% ── L4 0-bis, passo 4 — IL PONTE TEMPORANEO: «Answer my way: Q» ─────────────
+% F. (29 settembre 2026): «grazie a ponti temporanei sara' possibile
+% impersonare … o fonderli temporaneamente». La separazione resta la regola;
+% l'unione e' un atto con un inizio e una fine. «Answer my way: Need a welder
+% wear a mask?» fonde il mondo di chi parla con il mio per la durata della
+% domanda: cio' che chi parla tiene come modo suo (la macchineria di una mente,
+% `world_held/1`: la condizione di una regola) entra nel mio mondo, marcato;
+% la domanda si legge nel mondo di chi parla (che vede anche i suoi fatti); poi
+% il ponte si richiude e il marcato esce. Nessun «fallo tuo»: niente resta.
+machinery(world_merge_opener).
+world_merge_opener(en, cons(answer, cons(my, cons(way, nil)))).
+world_merge_opener(en, cons(read, cons(it, cons(my, cons(way, nil))))).
+world_merge_opener(it, cons(rispondi, cons(a, cons(modo, cons(mio, nil))))).
+world_merge_opener(it, cons(leggila, cons(a, cons(modo, cons(mio, nil))))).
+turn_world_report(current_turn, merged($C), $K) :-
+    current_language($L), world_merge_opener($L, $Ws), said_words_from(0, $Ws, $K),
+    speaker_context($C).
+machinery(said_words_from).
+said_words_from($I, nil, $I).
+said_words_from($I, cons($W, $R), $K) :-
+    said_word_is($I, $W), is($J, add($I, 1)), said_words_from($J, $R, $K).
+machinery(said_word_is).
+said_word_is($I, $W) :- turn_said_word($I, $W).
+said_word_is($I, $W) :- upcase_first($W, $U), turn_said_word($I, $U).
+said_word_is($I, $W) :- concat_atoms($W, ":", $Wc), turn_said_word($I, $Wc).
+said_word_is($I, $W) :- concat_atoms($W, ",", $Wc), turn_said_word($I, $Wc).
+% impersonare un ALTRO: la stessa fusione, con il titolare dentro l'apertura
+% (`who` segna il posto: «answer as Marco would»)
+machinery(world_impersonation_opener).
+world_impersonation_opener(en, cons(answer, cons(as, cons(who, cons(would, nil))))).
+world_impersonation_opener(it, cons(rispondi, cons(come, cons(farebbe, cons(who, nil))))).
+turn_world_report(current_turn, merged(world_of($H)), $K) :-
+    current_language($L), world_impersonation_opener($L, $Ws), said_words_holder(0, $Ws, $K, $H),
+    dif($H, user).
+machinery(said_words_holder).
+said_words_holder($I, nil, $I, $H).
+said_words_holder($I, cons(who, $R), $K, $H) :-
+    turn_word(current_turn, $I, $H), is($J, add($I, 1)), said_words_holder($J, $R, $K, $H).
+said_words_holder($I, cons($W, $R), $K, $H) :-
+    dif($W, who), said_word_is($I, $W), is($J, add($I, 1)), said_words_holder($J, $R, $K, $H).
+world_report_reads_in(merged($C), $C).
+machinery(world_report_reads_in).
+machinery(world_report_open).
+machinery(merged_for_now).
+machinery(merge_candidate).
+merge_candidate($C, fact($P, $S, $O)) :-
+    holds_in($C, fact($P, $S, $O)), world_held($P), naf(held_by_me(fact($P, $S, $O))).
+world_report_open(merged($C)) :- findall($F, merge_candidate($C, $F), $Fs), merge_in($Fs).
+machinery(merge_in).
+merge_in(nil).
+merge_in(cons($F, $R)) :- fact_assert($F), assert(merged_for_now, $F), merge_in($R).
+world_report_close(merged($C)) :- findall($F, merged_for_now($F), $Fs), unmerge($Fs).
+machinery(unmerge).
+unmerge(nil).
+unmerge(cons($F, $R)) :- fact_retract($F), retract(merged_for_now, $F), unmerge($R).
+machinery(world_report_preface).
+world_report_preface(merged($C), $T) :-
+    speaker_context($C), current_language($L), commitment_line($L, merged_preface, $T).
+world_report_preface(merged(world_of($H)), $T) :-
+    dif($H, user), current_language($L), upcase_first($H, $Hu),
+    commitment_line($L, impersonated_preface, $A), concat_atoms($A, $Hu, $B),
+    commitment_line($L, impersonated_preface_end, $E), concat_atoms($B, $E, $T).
+commitment_line(en, impersonated_preface, "Reading it as ").
+commitment_line(en, impersonated_preface_end, " would: ").
+commitment_line(it, impersonated_preface, "Letta come farebbe ").
+commitment_line(it, impersonated_preface_end, ": ").
+commitment_line(en, merged_preface, "Reading it your way: ").
+commitment_line(it, merged_preface, "Letta a modo tuo: ").
+% un mondo di cui non so niente non si impersona: lo dico, invece di rispondere
+% con il mio facendolo passare per suo
+world_report_reply(merged(world_of($H)), $Text) :-
+    dif($H, user), naf(context_known(world_of($H))), current_language($L), upcase_first($H, $Hu),
+    commitment_line($L, impersonate_unknown, $A), concat_atoms($A, $Hu, $B),
+    commitment_line($L, impersonate_unknown_end, $E), concat_atoms($B, $E, $Text).
+commitment_line(en, impersonate_unknown, "I can't answer as ").
+commitment_line(en, impersonate_unknown_end, " would: nobody has told me anything about how they see things.").
+commitment_line(it, impersonate_unknown, "Non so rispondere come farebbe ").
+commitment_line(it, impersonate_unknown_end, ": nessuno mi ha detto niente di come vede le cose.").

@@ -62,6 +62,36 @@ PRIORITARIO).
 
 ## HANDOFF — da dove si comincia
 
+### ▶ 0-bis, passo 4 fatto (29 settembre 2026, giorno): il PONTE TEMPORANEO — impersonare, fondere per una domanda
+
+La decisione di F. («grazie a ponti temporanei sarà possibile impersonare le
+cose … o fonderli temporaneamente»), nella forma più piccola che la rende vera:
+**la fusione è un atto con un inizio e una fine, e dura una domanda.**
+
+| turno | risposta |
+|---|---|
+| (dopo «My way of making a question with need is …») «Answer my way: Need a welder wear a mask?» | Reading it your way: Yes. |
+| «Need a welder wear a mask?» (subito dopo) | non letta: il ponte si è richiuso |
+| «Rispondi a modo mio: Need a welder wear a mask?» | Letta a modo tuo: Yes. |
+| (dopo «Marco thinks that tea tastes sour.») «Answer as Marco would: Does tea taste sour?» | Reading it as Marco would: Yes. |
+| «Does tea taste sour?» | non Yes |
+| «Answer as Anna would: …» (mondo ignoto) | I can't answer as Anna would: nobody has told me anything about how they see things. |
+
+**Come.** Lo stesso involucro di mondo del passo 5, con due atti della KB
+intorno alla clausola: `world_report_open/1` porta nel mondo di parrot0,
+**marcato** (`merged_for_now/1`), ciò che il mondo di chi parla tiene come
+macchineria di una mente (`world_held/1`: la condizione di una regola, che
+le viste non vedrebbero altrimenti, perché sono del mondo di parrot0);
+`world_report_reads_in/2` fa leggere la clausola nel mondo fuso (che vede i
+fatti di chi parla); `world_report_close/1` toglie il marcato. Le aperture
+sono conoscenza (`world_merge_opener/2`, `world_impersonation_opener/2`
+con il posto del titolare), e la cornice della risposta anche
+(`world_report_preface/2`). Nessun «fallo tuo»: dopo il ponte non resta
+niente. Tempi: ogni turno sotto 1,5 s (la vista `derived_question` si
+ricostruisce due volte).
+
+Cricchetti: `world_transfer` 39/39, `other_worlds` 29/29.
+
 ### ▶ 0-bis, passo 5 aperto (29 settembre 2026, giorno): gli ALTRI mondi e il trasferimento da un mondo nominato
 
 Cricchetto [other_worlds.p0t](../../tests/p0t/conversation/other_worlds.p0t)

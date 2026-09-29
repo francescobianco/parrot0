@@ -52,6 +52,16 @@
 !query! taste(tea, sour)
 !query holds_in(world_of(marco), fact(taste, tea, sour))
 
+[test il ponte temporaneo: rispondere come farebbe un altro]
+!timeout 4
+> Answer as Marco would: Does tea taste sour?
+<~ Reading it as Marco would: Yes.
+# il ponte si richiude: il turno dopo parrot0 risponde con il suo mondo
+> Does tea taste sour?
+<! Yes
+> Answer as Anna would: Does tea taste sour?
+<~ I can't answer as Anna would: nobody has told me anything about how they see things.
+
 [test io penso che: il mondo di chi parla]
 !timeout 4
 > I think that milk tastes sour.

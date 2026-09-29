@@ -815,7 +815,26 @@ static int world_report_peel(Brain *b, const char *raw, char *out, size_t out_si
     }
     p0_trace(b, "world.report", "%s «%s»\n", row[0], clause);
     char outer[KB_TERM_LEN]; snprintf(outer, sizeof outer, "%s", kb_context(b->kb));
-    kb_set_context(b->kb, row[0]);
+    /* l'APERTURA e' un atto della KB (`world_report_open/1`): un ponte
+     * temporaneo porta per la durata della clausola cio' che un mondo tiene in
+     * quello di parrot0, e `world_report_close/1` lo richiude. Si apre nel
+     * mondo di parrot0, prima di entrare nel mondo della clausola. */
+    {
+        const char *oq[1] = { row[0] };
+        int po = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_SESSION);
+        kb_set_context(b->kb, NULL);
+        kb_query(b->kb, "world_report_open", oq, 1);
+        kb_set_origin(b->kb, po);
+    }
+    {
+        /* il mondo in cui la clausola si legge: lo stesso, o quello che la
+         * KB nomina per lui (`world_report_reads_in/2`) */
+        char rin[1][KB_TERM_LEN];
+        const char *iq[2] = { row[0], NULL };
+        if (kb_match(b->kb, "world_report_reads_in", iq, 2, rin, 1) == 1) kb_set_context(b->kb, rin[0]);
+        else kb_set_context(b->kb, row[0]);
+    }
     char sub[1024]; sub[0] = '\0';
     char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
     brain_respond(b, clause, sub, sizeof sub);
@@ -830,7 +849,16 @@ static int world_report_peel(Brain *b, const char *raw, char *out, size_t out_si
     kb_query(b->kb, "world_report_close", cq, 1);
     kb_set_origin(b->kb, prev);
     if (got == 1) put(kb_dequote(said[0]), out, out_size);
-    else if (sub[0]) put(sub, out, out_size);
+    else if (sub[0]) {
+        /* la risposta della clausola, con la cornice che la KB le mette
+         * davanti (`world_report_preface/2`: «Reading it your way: …») */
+        char pre[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "world_report_preface", rq, 2, pre, 1) == 1) {
+            char joined[1200];
+            snprintf(joined, sizeof joined, "%s%s", kb_dequote(pre[0]), sub);
+            put(joined, out, out_size);
+        } else put(sub, out, out_size);
+    }
     else return 0;
     return 1;
 }
