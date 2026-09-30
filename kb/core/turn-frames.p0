@@ -361,6 +361,23 @@ turn_declared_act($Turn, lesson_turn) :-
     turn_span_token($Turn, $S, $I, $Pivot), intent_cue(teach_construction, $Pivot),
     turn_span_token($Turn, $S2, $J, $Tok), span_atom($Tok, $Var), rule_variable($Var).
 faculty_yield_force(analysis_family, open, lesson_turn).
+% 30 settembre 2026 (llm-challenge, giro 4) — UN'ANALISI SI CHIEDE. «It's
+% fascinating how something so small can have a big impact on our daily lives.»
+% riceveva «On our daily lives, a consequence analysis turns on…», e «…helps
+% clarify the picture.» dentro un turno composto «On helps clarify the picture,
+% a risk assessment…». parrot0 stesso classificava il primo `wrong_suspect`, e
+% il rimedio di quella specie e' scritto (gap-kinds.p0): «serve una GUARDIA che
+% impedisca a quella facolta' di prendere questo turno». La guardia e' la forza:
+% chi afferma o porta prosa non sta chiedendo un'analisi.
+faculty_yield_force(analysis_family, open, assertion).
+faculty_yield_force(analysis_family, open, prose_carried).
+% (la clausola letta dal lettore per clausole non ha una lettura dichiarativa:
+% la sua forza e' `unasked`, il segno di superficie che non chiede niente)
+faculty_yield_force(analysis_family, open, unasked).
+% e lo stesso vale per il suo secondo stadio, l'ultima risorsa dopo il registro
+faculty_yield_force(analysis_last_resort, open, assertion).
+faculty_yield_force(analysis_last_resort, open, prose_carried).
+faculty_yield_force(analysis_last_resort, open, unasked).
 % E il lettore delle procedure: «show me how to implement X in Python» non chiede
 % i passi per fabbricare «python».
 faculty_yield_force(process_steps, open, production_request).
@@ -489,6 +506,28 @@ exclamation_mark_cue("!").
 turn_declared_act($Turn, exclamation) :-
     turn_cue($Turn, exclamation_mark_cue, $Cue).
 faculty_yield_force(cause, open, exclamation).
+
+% 30 settembre 2026 (llm-challenge, giro 4) — UN'IMPRESSIONE NON E' UN FATTO DEL
+% MONDO. «It SOUNDS LIKE you're focusing on both risks and safeguards» (un
+% conduttore LLM che rilancia) diventava «Learned: sound(risks),
+% sound(safeguards).», e parrot0 non se ne accorgeva (nessuna lacuna, esito
+% risposto). Chi dice «sembra che…» riferisce come gli appare la cosa — spesso
+% chi ascolta —, non la insegna. Le superfici sono una classe: una nuova
+% («it feels like», «pare che») e' una riga, e vale per ogni lettore.
+turn_cue_registry(impression_cue, 1).
+impression_cue("it sounds like").
+impression_cue("sounds like").
+impression_cue("it seems").
+impression_cue("it looks like").
+impression_cue("it feels like").
+impression_cue("sembra che").
+impression_cue("mi sembra").
+impression_cue("pare che").
+turn_declared_act($Turn, impression) :- turn_cue($Turn, impression_cue, $Cue).
+faculty_yield_force(knowledge, open, impression).
+faculty_yield_force(learn, open, impression).
+faculty_yield_force(cause, open, impression).
+faculty_yield_force(statement_extract, open, impression).
 % E3 — una situazione descritta (event-time.p0) non e' prosa da leggere, ma
 % nemmeno un pretesto per un racconto: chi genera cede anche a lei.
 turn_declared_act($Turn, situation_described) :- event_described($Turn).

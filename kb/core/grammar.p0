@@ -4301,6 +4301,14 @@ referring_possessive(suoi).
 referring_possessive(loro).
 
 clause_copula(is).
+% 30 settembre 2026 (llm-challenge, giro 4) — le copule CONTRATTE sono copule:
+% «It's fascinating how…» non risultava un'affermazione (`unasked`), perche' il
+% token di superficie e' «it's», e l'analisi si prendeva la frase.
+clause_copula(it's).
+clause_copula(that's).
+clause_copula(there's).
+clause_copula(he's).
+clause_copula(she's).
 clause_copula(are).
 clause_copula(was).
 clause_copula(were).

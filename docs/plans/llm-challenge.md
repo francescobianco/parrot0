@@ -368,3 +368,40 @@ parte, e si curano solo con la specie nominata e il rilevatore scritto prima.
 
 **Ordine del giro 4:** «plate.» (una lettura di relazione su una domanda che
 non la chiede), il soggetto d'analisi verbale, «Learned: sound(…)».
+
+### Giro 4 — 30 settembre 2026, sera: il metodo specie → rimedio
+
+Ogni difetto parte da `/debug turn` (`turn_gap_kind`, `turn_gap_remedy`,
+`turn_outcome`). Esito della lettura: **quasi tutti i misclaim del giro 3 erano
+invisibili a parrot0** (esito `answered`, nessuna specie), tranne uno, che la KB
+classificava `wrong_suspect` con il rimedio scritto — *«serve una GUARDIA che
+impedisca a quella facolta' di prendere questo turno»* — e quel rimedio e'
+stato applicato alla lettera.
+
+| turno | specie (parrot0 / giudice) | cura |
+|---|---|---|
+| «What part OF THIS TOPIC fascinates you most?» → «plate.» | invisibile / *l'enumerazione di classe ignora il complemento che la restringe* | rilevatore di forma: nome seguito da preposizione (classe KB) → niente elenco |
+| lo stesso turno → «sense is the mental concept…» (da «makes sense») | invisibile / *risposta a una clausola che non chiede* | `faculty_yield_force(knowledge, open, compound_inquiry)`, come le sorelle |
+| «It's fascinating how … on our daily lives.» → «On our daily lives, a consequence analysis…» | **`wrong_suspect`** → guardia | `analysis_family` e `analysis_last_resort` cedono `assertion`, `prose_carried`, `unasked`; le copule contratte («it's», «that's») entrano in `clause_copula` |
+| «…helps clarify the picture.» → «On helps clarify the picture, a risk assessment…» | invisibile / *soggetto d'analisi che comincia con un verbo finito* | test di forma su `verb_form(_, W, present_third)` |
+| «It sounds like you're focusing on both risks and safeguards» → «Learned: sound(risks), sound(safeguards).» | invisibile / *un'impressione letta come fatto del mondo* | forza `impression` (classe `impression_cue`: «it sounds like», «it seems», «sembra che»…); `knowledge`, `learn`, `cause`, `statement_extract` la cedono. ⚠ **Parziale**: la clausola ora mura, ma il turno composto intero rende ancora «Learned: sounds like re.» da un'altra strada del lettore per clausole — da trovare |
+
+**La lacuna vera del giro: il registro delle specie non vede i misclaim.**
+`turn_gap_kind` deriva `wrong_suspect` solo quando risponde una facolta' della
+famiglia dei template (`template_family/1`), e non guarda dentro i turni
+composti (il modulo registrato e' `compound`). Quattro misclaim su cinque sono
+passati come «risposto». E' il prossimo seme KB: una specie per ciascuno dei
+quattro rilevatori scritti qui (enumerazione ristretta, clausola che non chiede,
+soggetto verbale, impressione), cosi' che la prossima volta la specie e il
+rimedio li dica parrot0, non il giudice.
+
+**Preesistenti annotati** (identici sul build del giro 2): «What are the risks of
+nuclear power?» → «Reinforce, attack and fortify.»; «Describe the impact of
+social media on teenagers.» → soggetto «media on teenagers»; «I like tea. Do
+you like tea?» → «Got it: you like tea. Do you like tea?»; `knowledge.p0t`
+17/21, `compound_inquiry.p0t` 68/70/106, `ir_reading_answer.p0t` 79 (1,00 s).
+
+**Test** (spot): cause 8/8, user_situations 56/56, answerframe 25/25, compound
+5/5, mix_read_converse_cause 5/5, smalltalk 8/8, self_language_ability 16/16,
+mix_food_time 10/10; `make soft-test` verde. Replay del giro 4: da fare alla
+ripresa.

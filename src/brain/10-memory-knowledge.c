@@ -12712,6 +12712,15 @@ static int analysis_subject_extract(Brain *b, const char *norm, const char *raw,
         if (sn > 0 && lex_class_member(b, "preposition", sw[sn - 1])) {
             subject[0] = '\0'; return 0;
         }
+        /* ...ne' comincia con un VERBO FINITO: «Focusing on benefits and
+         * challenges helps clarify the picture» estraeva «helps clarify the
+         * picture» e rispondeva «On helps clarify the picture, a risk
+         * assessment…» (llm-challenge g4). La forma del verbo e' KB. */
+        if (sn > 0) {
+            const char *vq[3] = { NULL, sw[0], "present_third" };
+            char vr[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "verb_form", vq, 3, vr, 1) > 0) { subject[0] = '\0'; return 0; }
+        }
         /* ...e non attraversa la fine di una frase: «On something new. What if
          * we explore a simple idea together, a close reading turns on…» */
         for (size_t i = 0; i + 1 < sn; i++)
@@ -20977,6 +20986,26 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     noun[ni++] = *rest++;
                 noun[ni] = '\0';
                 if (!noun[0]) continue;
+                /* 30 settembre 2026 (llm-challenge, giro 4) — UN NOME RISTRETTO
+                 * NON CHIEDE LA CLASSE INTERA. «What part OF THIS TOPIC fascinates
+                 * you most?» riceveva «plate.»: il nome dopo la cue era «part», e
+                 * si elencavano i membri della classe, ignorando il complemento
+                 * che la restringe. Se al nome segue una preposizione (classe KB),
+                 * l'enumerazione non risponde a quella domanda. */
+                {
+                    const char *nx = rest;
+                    while (*nx == ' ') nx++;
+                    char nw[64]; size_t nwi = 0;
+                    while (*nx && *nx != ' ' && *nx != '?' && nwi + 1 < sizeof nw)
+                        nw[nwi++] = *nx++;
+                    nw[nwi] = '\0';
+                    const char *pq[1] = { nw };
+                    if (nw[0] && kb_query(b->kb, "preposition", pq, 1)) {
+                        p0_trace_at(b, 2, "enumerate", "«%s %s …»: nome ristretto, niente elenco",
+                                    noun, nw);
+                        continue;
+                    }
+                }
                 char members[64][KB_TERM_LEN];
                 const char *aq[1] = { NULL };
                 size_t nm = kb_match(b->kb, noun, aq, 1, members, 64);

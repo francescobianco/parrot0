@@ -283,6 +283,16 @@ faculty_yield_when(knowledge, open, lesson_almost_turn).
 % vista qui sopra scattava prima di `teach_abbrev` e cedeva una lezione completa.
 machinery(faculty_yields_after_forms).
 faculty_yields_after_forms(knowledge).
+% 30 settembre 2026 (llm-challenge, giro 4) — E CEDE IL TURNO DI PIU' CLAUSOLE
+% CON UNA DOMANDA, come answerframe, pragma e smalltalk. «Well, I can explain it
+% in a way that makes SENSE. It's like a puzzle… What part of this topic
+% fascinates you most?» riceveva «sense is the mental concept or way of
+% presenting a referent.»: la definizione di una parola di una frase che non era
+% la domanda. parrot0 si dava la risposta per buona (esito `answered`, nessuna
+% lacuna): la specie e' «risposta a una clausola che non chiede», e il lettore per
+% clausole la evita. Misurato: «Paris is in France. What is the capital of
+% Italy?» e «I like tea. Do you like tea?» rispondono come prima.
+faculty_yield_force(knowledge, open, compound_inquiry).
 % RI-023 (24 settembre 2026) — il TESTIMONE della cessione, per il trace unico:
 % quale forma era «quasi» e con quale testo. Senza, il trace diceva soltanto
 % `lesson_almost_turn reading=HIT`.
