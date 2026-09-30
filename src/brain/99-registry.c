@@ -6023,7 +6023,16 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     size_t nk = kb_match(b->kb, "bookkeeper", any, 1, keepers, 64);
     for (size_t i = 0; i < nk; i++) {
         const char *one[] = { "current_turn", keepers[i] };
+        /* 30 settembre 2026 (llm-challenge, giro 3) — quanto costa OGNI
+         * contabile, a profondita' 2: il profilo diceva «805 ms, 46 chiamate»
+         * senza dire di chi. */
+        struct timespec bk0; clock_gettime(CLOCK_MONOTONIC, &bk0);
         kb_query(b->kb, "turn_bookkeeping", one, 2);
+        struct timespec bk1; clock_gettime(CLOCK_MONOTONIC, &bk1);
+        double bk_ms = (double)(bk1.tv_sec - bk0.tv_sec) * 1000.0 +
+                       (double)(bk1.tv_nsec - bk0.tv_nsec) / 1e6;
+        if (bk_ms >= 5.0)
+            p0_trace_at(b, 2, "bookkeeping", "%s: %.1f ms", keepers[i], bk_ms);
     }
 
     /* gen512 — anche il piano di turno ha una condotta di cessione, e la

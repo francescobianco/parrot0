@@ -96,10 +96,18 @@ input_scope_language($Scope, $Language) :-
     turn_language_selected($Scope, $Language).
 scope_language_observed($Scope) :- turn_language_observed($Scope, $Language).
 
-input_node_atom($Scope, $Id, $Surface) :-
-    input_node($Scope, $Id, node(token, token, $Parent), $Range),
-    input_node_surface($Scope, $Id, $Quoted),
-    span_atom($Quoted, $Surface).
+% 30 settembre 2026 (llm-challenge, giro 3) — LA PAROLA DEL TOKEN E' UN FATTO.
+% Su un turno di un LLM («…What part of this topic fascinates you most?», 3,8 s
+% da solo, 10 s in conversazione) la superficie di ogni nodo si riconvertiva a
+% ogni chiamata: 16 700 chiamate, 54 000 `span_atom`, 118 000 `chars`, mezzo
+% secondo solo li'. Il produttore della IR (code.c) chiede `span_atom` una volta
+% per token e scrive `input_node_word(Id, Scope, Parola)` — l'id per primo,
+% perche' l'indice e' sul primo argomento. Una vista materializzata non bastava:
+% i nodi si scrivono a piu' riprese nel turno e la vista restava sporca.
+machinery(input_node_word).
+% (Il fatto esiste solo per i nodi `token`: rileggere `input_node` per
+% verificarlo era una seconda scansione dello scope a ogni chiamata.)
+input_node_atom($Scope, $Id, $Surface) :- input_node_word($Id, $Scope, $Surface).
 
 input_node_form($Scope, $Id, $Language, form($Surface, $Concept)) :-
     input_node_atom($Scope, $Id, $Surface),

@@ -193,6 +193,8 @@ void input_structure_clear(KB *kb, const char *scope) {
     const char *sidecar[] = { scope, NULL, NULL };
     kb_retract_match(kb, "input_node", node, 4);
     kb_retract_match(kb, "input_node_surface", sidecar, 3);
+    { const char *wordcar[] = { NULL, scope, NULL };
+      kb_retract_match(kb, "input_node_word", wordcar, 3); }
     kb_retract_match(kb, "input_node_role", sidecar, 3);
     kb_retract_match(kb, "input_frame_record", sidecar, 3);
     kb_retract_match(kb, "input_node_next", sidecar, 3);
@@ -237,6 +239,23 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
         kb_assert(kb, "input_node", args, 4);
         const char *surface[] = { scope, id, qs };
         kb_assert(kb, "input_node_surface", surface, 3);
+        /* 30 settembre 2026 (llm-challenge, giro 3) — la PAROLA del token, una
+         * volta sola. `input_node_atom/3` la ricavava con `span_atom` a ogni
+         * chiamata: su un turno lungo 16 700 chiamate, 118 000 `chars`, mezzo
+         * secondo. La conversione resta della KB (`span_atom/2`): qui la si
+         * chiede una volta e se ne scrive il risultato accanto alla superficie.
+         * I nodi si scrivono a piu' riprese nel turno, quindi una vista
+         * materializzata restava sempre sporca (misurato). */
+        if (!strcmp(nodes[i].level, "token")) {
+            char word[1][KB_TERM_LEN];
+            const char *wq[2] = { qs, NULL };
+            if (kb_match(kb, "span_atom", wq, 2, word, 1) == 1) {
+                /* l'id per primo: l'indice e' sul primo argomento, e chi
+                 * chiede la parola di un nodo conosce il nodo */
+                const char *wf[] = { id, scope, word[0] };
+                kb_assert(kb, "input_node_word", wf, 3);
+            }
+        }
         if (nodes[i].reading_reason[0]) {
             char choice[KB_TERM_LEN];
             int len = snprintf(choice, sizeof choice, "choice(%s, %s)",

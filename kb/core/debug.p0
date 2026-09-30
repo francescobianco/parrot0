@@ -115,6 +115,13 @@ debug_np_candidate($T, $Q) :-
 debug_turn_entity($T, $E) :- input_scope_language($T, $L), input_entity_node($T, $L, $I, $E).
 debug_probe(24, debug_np_candidate, now, "i sintagmi candidati della IR del turno").
 debug_probe(25, debug_turn_entity, now, "le entita' che i frame del turno possono legare").
+% 30 settembre 2026 (llm-challenge, giro 3) — LE RELAZIONI CHE IL TURNO
+% INTERROGA. Un turno di 10 s provava 12 000 valori candidati, e non si vedeva
+% per quali relazioni: con questa riga si vede quali cue hanno aperto quali
+% relazioni, cioe' quanto e' largo il ventaglio che il turno enumera.
+machinery(debug_turn_relation).
+debug_turn_relation($T, rel($R, $Cue)) :- turn_relation($T, $R, $Cue).
+debug_probe(26, debug_turn_relation, now, "le relazioni che il turno interroga, con la cue che le apre").
 machinery(debug_frame_record).
 machinery(debug_binding).
 debug_frame_record($T, frame($F, $R)) :- input_frame_record($T, $F, $R).

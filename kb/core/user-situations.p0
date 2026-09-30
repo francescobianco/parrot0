@@ -1349,9 +1349,12 @@ turn_states_end($T) :-
     grammatical_cue(input($T), $A, presupposition_trigger, change_of_state),
     grammatical_cue(input($T), $B, polarity, negated).
 machinery(ended_fact_here).
+% (llm-challenge giro 3: prima i fatti del mondo di chi parla e le loro
+% parole nel turno, poi la lettura grammaticale, che costa ~40 ms)
 ended_fact_here(fact($P, $S, $O)) :-
-    turn_states_end(current_turn), interlocutor_world_fact(fact($P, $S, $O), $N),
-    atom_words($S, $SW), words_in_turn($SW), atom_words($O, $OW), words_in_turn($OW).
+    interlocutor_world_fact(fact($P, $S, $O), $N),
+    atom_words($S, $SW), words_in_turn($SW), atom_words($O, $OW), words_in_turn($OW),
+    turn_states_end(current_turn).
 after_reply_bookkeeper(interlocutor_state_end).
 turn_after_reply($T, interlocutor_state_end) :-
     ended_fact_here(fact($P, $S, $O)), turn_counter($N), speaker_context($Cx),
@@ -1373,8 +1376,9 @@ supersede_one($P2, $O2, $N) :- kb_turn_act($P2, cons($S, cons($O2, nil)), neg, $
 % ridetto dopo la fine, lo stato torna: un `said` piu' recente
 after_reply_bookkeeper(interlocutor_state_again).
 turn_after_reply($T, interlocutor_state_again) :-
+    speaker_context($Cx), read_support(fact(holds_in, $Cx, fact($P, $S, $O), pos), ended($M)),
+    kb_turn_act($P2, $A2, pos, $K),
     naf(turn_negated(current_turn)), naf(turn_declared_act(current_turn, question)),
-    kb_turn_act($P2, $A2, pos, $K), speaker_context($Cx), read_support(fact(holds_in, $Cx, fact($P, $S, $O), pos), ended($M)),
     turn_counter($N), gt($N, $M), atom_words($S, $SW), words_in_turn($SW),
     atom_words($O, $OW), words_in_turn($OW), naf(support_said_after(fact(holds_in, $Cx, fact($P, $S, $O), pos), $M)),
     assert(read_support, fact(holds_in, $Cx, fact($P, $S, $O), pos), said($N)).

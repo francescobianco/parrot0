@@ -3217,6 +3217,18 @@ relation_noun($Pred, $Surface) :-
     words_underscored(cons($W, cons($V, $R)), $Joined),
     concat_atoms($Joined, "_of", $Pred),
     words_joined(cons($W, cons($V, $R)), $Surface).
+% 30 settembre 2026 (llm-challenge, giro 3) — UNA VISTA. Ogni domanda
+% ricostruiva il cassetto di OGNI relazione dichiarata: su un turno di un LLM
+% («…What part of this topic fascinates you most?», a processo caldo 10 s, il
+% tetto) 82 000 `words_underscored` e 146 000 `concat_atoms`, oltre due secondi
+% solo li'. I nomi delle relazioni cambiano quando si insegna una relazione o
+% un ponte per contatto, non a ogni turno: la vista si rifa' allora.
+materialized_view(relation_noun, 2).
+view_depends(relation_noun, relation).
+view_depends(relation_noun, contact_bridge).
+view_depends(relation_noun, contact_shape).
+view_depends(relation_noun, contact_episode).
+view_depends(relation_noun, contact_possessor_role).
 
 % gen506: i nomi qui sotto erano fra virgolette («"capital"») e quelli
 % insegnati parlando no (`relation(warp)` → `warp`). La domanda «what is the

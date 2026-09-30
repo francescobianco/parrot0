@@ -549,17 +549,20 @@ faculty_yield_when(turn_plan, open, turn_asks_which_causes).
 machinery(observation_at).
 turn_scratch(observation_at).
 after_reply_bookkeeper(onset_observation).
+% (30 settembre 2026, llm-challenge giro 3: il filtro raro e poco costoso
+% PRIMA. `grammatical_cue` costava ~40 ms su ogni turno, anche su quelli che non
+% scrivono niente; un turno senza fatti scritti esce al primo goal.)
 turn_after_reply($T, onset_observation) :-
-    grammatical_cue(input(current_turn), $Span, time, onset),
     kb_turn_act($P, cons($S, cons($O, nil)), pos, $K),
+    grammatical_cue(input(current_turn), $Span, time, onset),
     naf(continuative_verb($P)), naf(machinery($P)), turn_counter($N),
     assert(observation_at, fact($P, $S, $O), $N).
 % (L4 0-bis) il resoconto scritto nel mondo di chi parla e' un'osservazione
 % di quel mondo: l'operatore ragiona su di lei come prima
 after_reply_bookkeeper(onset_observation_in_context).
 turn_after_reply($T, onset_observation_in_context) :-
-    grammatical_cue(input(current_turn), $Span, time, onset),
     kb_turn_act(holds_in, cons($C, cons(fact($P, $S, $O), nil)), pos, $K),
+    grammatical_cue(input(current_turn), $Span, time, onset),
     naf(continuative_verb($P)), turn_counter($N),
     assert(observation_at, fact($P, $S, $O), $N).
 after_reply_bookkeeper(continuative_observation_at).

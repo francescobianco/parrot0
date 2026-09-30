@@ -853,14 +853,41 @@ frame_source($Turn, entity, $Entity) :- turn_entity($Turn, $Relation, $Entity).
 % «Class anthozoa.»: il filtro del tipo (`answer_type_ok/2`, grammar.p0) lo
 % applicava soltanto il percorso storico in C. Sta dove le letture nascono, cosi'
 % ogni consumatore del frame universale lo eredita.
-turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 1), apply($Relation, cons($Entity, cons($Value, nil))), answer_type_ok($Turn, $Value).
-turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 2), apply($Relation, cons($Value, cons($Entity, nil))), answer_type_ok($Turn, $Value).
+% 30 settembre 2026 (llm-challenge, giro 3) — IL TIPO CHIESTO SI LEGGE UNA
+% VOLTA PER LETTURA, non per valore. `answer_type_ok/2` rileggeva la domanda
+% (quale parola-wh, quale nome di tipo) per ogni valore candidato: «what part of
+% a car is the engine?» enumerava centinaia di parti e rileggeva il turno ogni
+% volta (340 000 `typed_wh_word`, 140 000 `turn_word`): il tetto dei 10 s. Una
+% vista non basta (i token cambiano piu' volte dentro il turno e la vista resta
+% ibrida, misurato): il modo si calcola prima di enumerare, e si passa.
+turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), relation_input_arg($Cue, $Relation, 1), turn_answer_type_mode($Turn, $Mode), turn_word($Turn, $Entity), apply($Relation, cons($Entity, cons($Value, nil))), answer_type_ok_mode($Mode, $Turn, $Value).
+turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), relation_input_arg($Cue, $Relation, 2), turn_answer_type_mode($Turn, $Mode), turn_word($Turn, $Entity), apply($Relation, cons($Value, cons($Entity, nil))), answer_type_ok_mode($Mode, $Turn, $Value).
+machinery(turn_answer_type_mode).
+machinery(answer_type_ok_mode).
+turn_answer_type_mode($T, untyped) :- naf(has_asked_answer_type($T)).
+turn_answer_type_mode($T, typed($Type)) :- asked_answer_type($T, $Type).
+answer_type_ok_mode(untyped, $T, $Ans) :- naf(answer_echoes_turn($T, $Ans)).
+answer_type_ok_mode(typed($Type), $T, $Ans) :- answer_fits_type($Ans, $Type), naf(answer_echoes_turn($T, $Ans)).
 
 turn_reading_key($Turn, reading($Relation, $Entity, $Value)) :- turn_reading($Turn, $Relation, $Entity, $Value).
 turn_reading_set($Turn, $Readings) :- turn_has_relation($Turn), findall($R, turn_reading_key($Turn, $R), $Readings).
-turn_reading_unique($Turn, $Relation, $Entity, $Value) :- turn_reading_set($Turn, cons(reading($Relation, $Entity, $Value), nil)).
-turn_reading_ambiguous($Turn) :- turn_reading_set($Turn, cons($First, cons($Second, $Tail))).
-turn_has_reading($Turn) :- turn_reading_set($Turn, cons($First, $Tail)).
+% 30 settembre 2026 (llm-challenge, giro 3) — UNA, UNA SOLA, DUE DIVERSE: TRE
+% DOMANDE DI ESISTENZA, NON UNA LISTA. «what part of a car is the engine?»
+% arrivava al tetto dei 10 s: `part_of` apriva decine di migliaia di letture
+% candidate, e `findall` le raccoglieva tutte in una lista che si copiava a ogni
+% passo (lo stack campionato sotto gdb: `subst_copy` dentro la ricorsione del
+% solver) solo per chiedere se ne avesse una o due. Le tre viste si fermano
+% appena sanno: la prima lettura, o la seconda lettura DIVERSA. (Due letture
+% identiche per due strade restano una sola: la lista le contava due volte.)
+% `turn_reading_set/2` resta per chi volesse l'elenco.
+turn_reading_unique($Turn, $Relation, $Entity, $Value) :-
+    turn_has_relation($Turn), turn_reading_key($Turn, reading($Relation, $Entity, $Value)),
+    naf(turn_reading_other($Turn, reading($Relation, $Entity, $Value))).
+turn_reading_ambiguous($Turn) :-
+    turn_has_relation($Turn), turn_reading_key($Turn, $First), turn_reading_other($Turn, $First).
+turn_has_reading($Turn) :- turn_has_relation($Turn), turn_reading_key($Turn, $First).
+machinery(turn_reading_other).
+turn_reading_other($Turn, $Known) :- turn_reading_key($Turn, $Other), dif($Known, $Other).
 
 % ── 6. LO STATO EPISTEMICO, per il consumo del gen394 ───────────────────────
 %

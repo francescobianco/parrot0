@@ -317,3 +317,54 @@ contabili), poi «Fair enough — tell me where I went wrong» su «It's okay if
 I'm not sure» (una rassicurazione letta come correzione), poi le risposte
 duplicate nei turni composti («I don't know how to answer that about myself
 yet» due volte).
+
+### Giro 3 — 30 settembre 2026, sera: i tetti di tempo
+
+**Cure della velocita'** (misurate a processo CALDO, dopo un turno di
+riscaldamento: su un processo fresco i costi una tantum confondono la misura):
+
+1. **La parola del token e' un fatto** (`input_node_word(Id, Scope, Parola)`,
+   scritto una volta dal produttore della IR in code.c chiedendo `span_atom`
+   alla KB): `input_node_atom` la legge invece di riconvertire la superficie a
+   ogni chiamata (16 700 chiamate, 118 000 `chars` per turno). L'id per primo,
+   perche' l'indice e' sul primo argomento. ⚠ Una vista materializzata qui
+   restava sempre sporca: i nodi si scrivono piu' volte nel turno.
+2. **Una, una sola, due diverse: tre domande di esistenza, non una lista**
+   (`turn_reading_unique/ambiguous`, `turn_has_reading` con `dif/2`).
+   `findall` costruiva liste di decine di migliaia di letture (`part_of`) solo per
+   contarle fino a due: «what part of a car is the engine?» 10 s → 3,4 s,
+   «what currency does ghana use?» 0,79 s → 0,28 s. Trovato con la bisezione
+   delle clausole di `turn_priority_response` e lo stack campionato sotto gdb
+   (`subst_copy` dentro la ricorsione del solver).
+3. **Il tipo chiesto si legge una volta per lettura**, prima di enumerare i
+   valori (`turn_answer_type_mode/2`).
+4. **`relation_noun/2` e' una vista** (dipende dalle relazioni, non dal turno).
+   ⚠ La stessa vista su `attribute_question_cue/2` e' stata RITIRATA: portava
+   «what currency does ghana use?» da 0,79 a 10 s.
+5. **I contabili dopo la risposta mettono prima il filtro raro** (un fatto
+   scritto nel turno, uno stato finito), poi `grammatical_cue` (~40 ms l'uno).
+6. **Strumenti:** `/debug trace` a profondita' 2 mostra il costo di ogni
+   contabile del piano di turno (`bookkeeping <nome>: N ms`); `/debug turn` ha
+   la sonda `debug_turn_relation` (le relazioni che il turno interroga).
+
+**Replay** (T=0, [2026-09-30-giro3-replay.log](../sessions/talk/2026-09-30-giro3-replay.log)):
+A = 4,5 · M = 5 · S = 0 · **punteggio −0,04** (giro 2: +0,21 con S = 3).
+**I tetti sono spariti, e al loro posto sono emersi misclaim**: dove prima la
+ricerca si fermava a 10 s, adesso arriva a una risposta, e la risposta e'
+sbagliata. Il turno 3 («What part of this topic fascinates you most?») riceve
+«plate.» (una lettura `part_of` unica su una domanda che non chiede una parte);
+poi la conversazione diverge e compaiono «On helps clarify the picture, a risk
+assessment turns on…» (soggetto d'analisi che e' un sintagma verbale) e
+«Learned: sound(risks), sound(safeguards).». Il tetto nascondeva i misclaim.
+
+**Il metodo corretto, dopo il richiamo di F.** (*«quando trovi una lacuna la
+risposta su cosa serve dovrebbe essere deterministica, invece ti vedo che fai
+molto smanettamento»*): dal giro 4 ogni turno giudicato parte da cio' che
+parrot0 dice di se' (`/debug turn`: `turn_gap_kind` → `turn_gap_remedy`).
+Rimedio presente e parlabile → la lezione, niente C. Rimedio assente o
+sbagliato → quella e' la lacuna: si aggiunge la specie e il suo rimedio al
+registro. I difetti del motore (misclaim, lentezza) stanno in una colonna a
+parte, e si curano solo con la specie nominata e il rilevatore scritto prima.
+
+**Ordine del giro 4:** «plate.» (una lettura di relazione su una domanda che
+non la chiede), il soggetto d'analisi verbale, «Learned: sound(…)».
