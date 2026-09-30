@@ -1,0 +1,38 @@
+# parrot0 in avvio (KB viva completa)…
+# pronto — modello liquid/lfm2.5-1.2b, 12 scambi, lingua en, T=0.0, seme 7
+M> Hey there! I just got back from a walk in the park. Do you like being outside?
+P< I don't have tastes of my own, so I can't honestly say I like it. Do you?   [0.8 s]
+# modello: 3.4 s
+M> That's interesting! I don't have feelings or tastes, but I'm always learning. What about you?
+P< Held: i does not have feelings or tastes. That sounds nice -- tell me more about it. Oh? What's it like?   [4.7 s]
+# modello: 5.0 s
+M> It's a bit different from what you might expect! I process information and respond based on patterns, not emotions. It's like having a super-fast library of knowledge. How does that sound?
+P< A bit is the smallest unit of information, one of two possible states usually written 0 and 1; eight bits make a byte, the usual unit for addressing memory.   [1.4 s]
+# modello: 3.4 s
+M> That's fascinating! Bits are the building blocks of all digital data. Do you think this helps explain how computers work?
+P< I couldn't read «Bits are the building blocks of all digital data.». On you think this helps, a causal account turns on the condition that starts it, the process that carries it and the effect one could actually measure. A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation. Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation. That mechanism predicts both a primary effect and secondary responses, which may amplify, compensate for, or redistribute the original change. A useful test varies the proposed cause while controlling alternatives and checks for the specific observations the mechanism predicts. The conclusion depends on scale, boundary conditions, time horizon, and behavior, so those assumptions should be stated instead of presenting one scenario as inevitable.   [4.1 s]
+# modello: 4.7 s
+M> That's a really deep explanation! It makes me think about how we actually design experiments to test ideas. Do you find it hard to visualize these abstract concepts?
+P< I couldn't read «It makes me think about how we actually design experiments to test ideas.». Interesting -- what got you into it?   [8.3 s]
+# modello: 4.2 s
+M> I guess I just started noticing patterns in how things work, and this one really clicked. What’s something you’ve learned that surprised you?
+P< You haven't told me that yet.   [1.4 s]
+# modello: 3.1 s
+M> Oh! Maybe I missed a chance to share. Let me know if you want to dive into more examples or questions!
+P< No pressure — we can take it slowly. What's on your mind?   [3.6 s]
+# modello: 3.1 s
+M> I’m here for whatever you’re curious about! Want to talk about something specific or explore a new idea?
+P< I don't have experiences of my own, but I'd like to hear more -- what stood out? I couldn't read «Want to talk about something specific or explore a new idea?».   [4.6 s]
+# modello: 4.7 s
+M> That’s a great question! It’s always cool to hear what sparks curiosity. What’s something you’re currently interested in learning more about?
+P< Don't touch the socket, the switch or the appliance. If you can do it without going near the sparks, switch the power off at the main switch or fuse box. Don't use it again until an electrician has checked it. If there is smoke or flames, get out and call 112. Is everyone safe right now?   [0.8 s]
+# modello: 5.1 s
+M> It sounds like someone is being careful! Always better to err on the side of caution. If you’re unsure, it’s safer to wait for a professional. What’s next?
+P< I couldn't read «Always better to err on the side of caution.». I couldn't read «If you're unsure, it's safer to wait for a professional.». I don't know much about next yet, and the network is off, so I can't read about it now.   [6.9 s]
+# modello: 4.0 s
+M> That’s smart! Safety first. If you’re stuck, just let me know when you’re ready—we’ll figure it out together. 😊
+P< I couldn't read «Safety first.». Learned: just let me. That's just punctuation, not words — what would you like to ask?   [3.3 s]
+# modello: 3.3 s
+M> Got it! Punctuation is cool, but I’m here for anything else. What’s on your mind now?
+P< Nice. Tell me what made it good, or give me a small thing to reason about. Nice -- how did that go? I don't know how to answer that about myself yet: nobody has taught me.   [7.2 s]
+# fine

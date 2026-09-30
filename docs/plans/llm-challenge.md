@@ -410,3 +410,39 @@ you like tea?» → «Got it: you like tea. Do you like tea?»; `knowledge.p0t`
 5/5, mix_read_converse_cause 5/5, smalltalk 8/8, self_language_ability 16/16,
 mix_food_time 10/10; `make soft-test` verde. Replay del giro 4: da fare alla
 ripresa.
+
+### Giro 5 — 30 settembre 2026, notte: L4 (impegno dalla IR, classe sulla IR)
+
+Log: `docs/sessions/talk/2026-09-30-l4-challenge5.log` e
+`…-challenge5-transfer.log` (T=0, 12 scambi, stesse aperture dei giri L4).
+Lavoro misurato: vedi §0 di [l4-growth-handoff.md](l4-growth-handoff.md) —
+impegno letto dalla IR e insegnabile («A request asserts nothing.»), confini
+del sintagma, «I» non e' l'articolo italiano, offerte mai dette chiuse, classe
+e riferimenti come costituenti della IR, la porta del lettore di classe.
+
+| conversazione | A | M | (A−M)/turni | mediana parrot0 | baseline L4 (mattina) |
+|---|---|---|---|---|---|
+| standard | 3,5 | 1 | **+0,21** | 2,9 s | +0,08 |
+| trasferimento | 1,5 | 2 | **−0,04** | 3,9 s | −0,13 |
+
+Criterio uguale ai giri L4: un turno con un misclaim vale M e non A; muro
+onesto sulla domanda 0,5; risposta fuori tema 0 (non M) se non afferma un
+falso. Spariti rispetto alle baseline: «don't has feelings», «just get back»,
+«let's explore…», «i'd say youre», «oh twist…», «oh is a clever».
+
+**Specie nuove, da nominare prima di curare** (tutte sono il giudizio
+sull'OCCORRENZA di L4, non liste da allungare):
+- **idioma letto come nome:** «Just share **a bit**» / «It's **a bit** different»
+  → la definizione del bit (due volte). Un'espressione fissa («a bit» =
+  «un po'») vince sulla parola;
+- **parola letta fuori dal suo ruolo:** «or **even** a problem» → «No, 1 is not
+  an even number.»; «what **sparks** curiosity» → istruzioni di sicurezza
+  elettrica con «Is everyone safe right now?» (M: presume un'emergenza);
+- **il nome interno che trapela:** «It's nice to connect! …» → «You might mean
+  current turn: nice_to_connect_i_am_here…» (M): `current turn` e' un atomo di
+  macchina che arriva alla disambiguazione;
+- **imperativo come fatto:** «just let me know…» → «Learned: just let me.» —
+  qui la porta nuova basta, parlando: «the expression let me marks suggestion
+  pragmatics» (la proposta non afferma); da provare dal vivo al prossimo giro;
+- **il riscontro sociale che salta la domanda** («Glad that lands. What would
+  you like to do next?» a una domanda) resta, come nei giri 1–4.

@@ -121,9 +121,23 @@ e' stata insegnata parlando. Prossimi passi utili, in ordine:
    il C. Crash trovato e corretto: `mod_knowledge` leggeva `w[2]` prima di
    controllare la lunghezza (latente, esposto dal frammento «--- ...» della
    lettura per clausole). Prossimo: il punto 3;
-3. il riferimento definito del discorso («the conclusion») come residuo, non
+   **3. fatto (30 settembre, notte, 97492d5a): la porta.**
+   `extract_class_statement` chiede soggetto e classe al frame registrato
+   (`ir_class_subject/2`, `ir_class_of/3`); declina sul dimostrativo
+   (`ir_class_blocked/1`) e su «X is the Y» (`ir_copula_identifies/1`);
+   lascia all'intake interattivo solo la forma diretta che chiude la clausola
+   (`ir_class_closes_clause/2`); il classificatore «a type of» e' nella IR. La
+   domanda ridetta dopo una ricerca ha la sua IR (`acquire_and_report`):
+   prima «sure» faceva scrivere «oh is a clever». Il lettore a stringa resta
+   come rete quando la IR non ha un frame — da ritirare classe per classe; il
+   C per ora NON si e' accorciato (mantra #18: il bilancio e' aperto). Residui:
+   «A pug is a kind of dog» (frame IR giusto, un'altra facolta' prende il
+   turno prima), «a clever twist» (nome/verbo sull'occorrenza).
+   **Challenge giro 5** (llm-challenge.md): standard +0,08 → +0,21,
+   trasferimento −0,13 → −0,04; specie nuove nominate li'.
+4. il riferimento definito del discorso («the conclusion») come residuo, non
    come generico;
-4. la lentezza di `!reset` con `PARROT0_BASE` (13 s contro 0,4 s attesi).
+5. la lentezza di `!reset` con `PARROT0_BASE` (13 s contro 0,4 s attesi).
 
 ## 1. Mandato da conservare
 
