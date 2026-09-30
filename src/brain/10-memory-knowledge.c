@@ -5072,7 +5072,8 @@ static int p0_np_closer(Brain *b, const char *t) {
  * a determiner in a new language is a fact — including the Italian articles that
  * used to be visible only from inside this function. */
 static int p0_lead_det(Brain *b, const char *t) {
-    return lex_class_member(b, "np_opener", t);
+    /* la vista con la guardia di lingua (input.p0): «I» inglese non e' «i» */
+    return lex_class_member(b, "np_opener_here", t);
 }
 /* A subject head that must NOT start a class fact: question words, pronouns,
  * copulas/determiners, and common conversational openers. Keeps the broad extractor
@@ -5841,8 +5842,7 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                 for (size_t t = 0; t < sn; t++) {
                     const char *tok = strip_edge_punct(sw[t]);
                     if (!*tok) continue;
-                    if (lex_class_member(b, "clause_copula", tok) ||
-                        lex_class_member(b, "auxiliary", tok)) {
+                    if (lex_class_member(b, "nominal_slot_breaker", tok)) {
                         p0_trace(b, "frame", "rifiutato: lo slot «%s» porta un verbo finito\n", dst);
                         return 0;
                     }

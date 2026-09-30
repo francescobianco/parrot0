@@ -383,6 +383,12 @@ machinery(entity_role).
 machinery(not_a_referent_here).
 not_a_referent_here($W) :-
     input_node_atom(current_turn, $Id, $W), input_quantity_token(current_turn, $Id).
+% 30 settembre 2026 (L4, challenge locale) — UNA PAROLA INTERROGATIVA CHIEDE UN
+% REFERENTE, NON NE INTRODUCE UNO. Dopo «What would you like to know?» la
+% menzione piu' recente era `what`, e «It's interactive and easy to
+% understand!» diventava «what is interactive understand!», con la risposta
+% «You might mean current turn: interactive_understand.».
+not_a_referent_here($W) :- question_word($W).
 reference_binding(most_recent).
 reference_binding(distinct_in_frame).
 reference_binding(role_parallel).

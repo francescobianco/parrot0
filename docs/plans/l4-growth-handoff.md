@@ -6,6 +6,83 @@ e' nel working tree. **Il miglioramento NON e' ancora dimostrato:** non sono
 stati eseguiti replay dopo la patch ne' una nuova conversazione dopo la patch.
 Build e caricamento della KB riusciti non cambiano questo stato.
 
+## 0. ESITO (30 settembre 2026, sera) — leggere prima del resto
+
+La consegna 2 ha ora un **dopo misurato**, su ingressi congelati. I paragrafi
+successivi sono la storia del handoff del pomeriggio: vanno letti alla luce di
+questo esito.
+
+**Strumento.** `scripts/talk-replay.py LOG [--root DIR] [--out FILE]` rimanda i
+turni `M>` di un log di live-talk a un parrot0 di una radice scelta (profilo
+agi, sessione vuota, KB viva completa). Prima/dopo sugli STESSI ingressi.
+Log in `docs/sessions/talk/2026-09-30-l4-growth-*-replay-{before,after}.log`;
+conversazioni libere dopo: `2026-09-30-l4-growth-after.log` e
+`2026-09-30-l4-growth-transfer-after.log`.
+
+**La patch del pomeriggio, da sola, peggiorava.** Leggere PRIMA per clausole
+anche la domanda composta esponeva ogni frase ai lettori che imparano:
+«I couldn't read «Great!»» a ogni esclamazione, e nuovi misclaim («Learned:
+let's explore something fun», «just get back», «don't has feelings», «Held:
+it is similar to puzzle…», «punctuation is a silent architect»). Con le cure
+sotto ma con la lettura anticipata il replay andava a (A−M)/turni = −0,13 su
+entrambe le conversazioni. Per questo l'ordine e' ora conoscenza:
+`clause_reading_first/1` (turn-frames.p0) — la dichiarativa composta si legge
+per clausole prima di ogni facolta', la domanda composta solo dopo la resa del
+turno intero (com'era dal gen506c). I confini unificati, le ricevute e la
+lacuna `partial` restano.
+
+**Cure di classe (tutte consultano conoscenza gia' esistente):**
+
+| specie | cura | dove |
+|---|---|---|
+| una proposta insegna un fatto («let's …») | la IR leggeva gia' `pragmatics, suggestion`: `commitment_policy(suggestion, proposal_only)` + `assertion_withheld/1` → forza `withheld_commitment`; i lettori che imparano cedono. **Primo consumatore reale di `commitment_at/4`** | english-grammar/discourse.p0, turn-frames.p0 |
+| ausiliare/negazione dentro il sintagma («i don't» soggetto) | `phrase_boundary(np, breaker, …)` da `auxiliary`, `negation_marker`, radice di contrazione negativa; radice e clitici (`t`, `s`, `re`…) sono classi di parole funzione, quindi non nomi nudi | input.p0 |
+| l'articolo italiano «i» apre il sintagma sul pronome inglese | `np_opener_foreign/1`: superficie che e' pronome personale e articolo di un'altra lingua. Il lettore a schema in C (`p0_lead_det`) interroga ora la vista guardata `np_opener_here/1`, e la sua guardia sugli slot interroga UNA vista KB (`nominal_slot_breaker/1`) invece di due classi cablate. **Chiude anche il rosso storico «I put the book on the table»** | input.p0, 10-memory-knowledge.c |
+| un'esclamazione non letta in un composto detta come muro | `clause_unread_voice(T, silent)`: la ricevuta resta `unread`, la voce tace | turn-frames.p0, 99-registry.c |
+| un'offerta mai detta accettata al turno dopo («I looked up «interesting»») | nel composto si chiudono le offerte nate da una clausola il cui muro non e' stato detto com'era | 99-registry.c |
+| «it» legato a «what» della domanda precedente | `not_a_referent_here(W) :- question_word(W)` | discourse.p0 |
+
+**Misura (replay congelato, 12+12 turni, rubrica del challenge; giudizio mio,
+criterio: un turno con un misclaim vale M e non A; un muro onesto sulla domanda
+0,5; filler o risposta fuori tema 0).**
+
+| | A | M | (A−M)/turni | mediana parrot0 |
+|---|---|---|---|---|
+| standard, prima | 3,0 | 2 | +0,08 | 3 s |
+| standard, dopo | 3,5 | 2 | +0,13 | 3 s |
+| trasferimento, prima | 1,5 | 3 | −0,13 | 4 s |
+| trasferimento, dopo | 2,0 | 2 | 0,00 | 5,5 s |
+
+Spariti: «don't has feelings», «just get back», «let's explore something fun»,
+«i'd say youre», «oh twist you're making me think», «core here let's break
+lets», «Subject and pronoun.». Nuovi o rimasti: «Learned: i'll share facts»,
+«Learned: conclusion depend definitions» (un NP definito del discorso preso
+come generico), «Learned: oh is a clever» (la regola della virgola del lettore
+di classe in C prende l'interiezione come soggetto; aggiungere «oh» a
+`discourse_opener` NON basta: il lettore di classe non usa lo sbucciatore, e
+cambiava «oh no»), «Learned: just share sentence» (imperativo). Il guadagno e'
+modesto e reale; il trasferimento e' piu' lento in mediana.
+
+**Test.** `make soft-test` verde (3 s). `compound_inquiry.p0t` NON si blocca:
+dura ~2 min perche' sette `!reset` con `!set PARROT0_BASE` costano ~13 s
+ciascuno (lentezza preesistente, stesso binario di prima). 27 passati, 4
+falliti, tutti anche sul binario di prima: la sezione universale («is every
+sailor a pilot?» → «I don't know»), il turno dell'ablazione a 10 s, il turno
+delle piume a 8,3 s (8,2 s prima). Allineati al posto nuovo della conoscenza:
+l'ablazione toglie anche `sentence_boundary_cue(". ")`; la citazione della
+clausola conserva il punto finale.
+
+**Fertilita': non ancora provata.** Le classi nuove crescono con una riga KB
+(una politica che sospende l'asserzione, un clitico, un ausiliare), ma nessuna
+e' stata insegnata parlando. Prossimi passi utili, in ordine:
+1. la porta parlata per «una proposta non afferma niente» / «“let's” propone»
+   (LEARN_PROTOCOL §6-bis), con ritiro;
+2. il lettore di classe in C: soggetto dall'IR invece della regola della
+   virgola (il caso «Oh, that's a clever twist!»);
+3. il riferimento definito del discorso («the conclusion») come residuo, non
+   come generico;
+4. la lentezza di `!reset` con `PARROT0_BASE` (13 s contro 0,4 s attesi).
+
 ## 1. Mandato da conservare
 
 F. ha chiesto, nell'ordine:

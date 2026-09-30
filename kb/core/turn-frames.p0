@@ -187,7 +187,21 @@ clause_reading(compound_statement, sentence_boundary_cue).
 clause_reading(compound_inquiry, clause_boundary_cue).
 turn_clause_boundary($T, $Class) :-
     turn_illocution($T, $Force), clause_reading($Force, $Class).
-faculty_yield_when(turn_plan, open, turn_clause_boundary).
+% QUANDO si legge per clausole. La frase dichiarativa composta si legge per
+% clausole prima di ogni facolta' (gen512: un lettore si mangiava le altre
+% frasi); la domanda composta solo dopo che il turno intero si e' arreso
+% (gen506c). Misurato il 30 settembre sul replay congelato del challenge
+% locale: leggere PRIMA anche la domanda composta esponeva ogni frase ai
+% lettori che imparano, e i misclaim crescevano (analogie con «it», metafore,
+% esempi citati). Una forza nuova da leggere prima e' una riga.
+machinery(clause_reading_first).
+machinery(turn_clause_first).
+clause_reading_first(compound_statement).
+turn_clause_first($T) :- turn_illocution($T, $Force), clause_reading_first($Force).
+faculty_yield_when(turn_plan, open, turn_clause_first_boundary).
+turn_clause_first_boundary($T, $Class) :-
+    turn_clause_first($T), turn_clause_boundary($T, $Class).
+machinery(turn_clause_first_boundary).
 
 % La ricevuta conserva l'identita' del nodo clausola nella IR last_text.
 % Lo stato e' quello della lettura locale, non il solo esito `compound`.
@@ -203,6 +217,14 @@ gap_remedy(partial, "riprendi la clausola non letta e il suo ruolo nel turno, se
 debug_clause_result($T, clause($Node, $Range, $Result)) :-
     turn_clause_source($T, $Node, $Range), turn_clause_result($T, $Node, $Result).
 debug_probe(74, debug_clause_result, now, "lettura e residuo di ciascuna clausola del turno composto").
+% Un'esclamazione che resta senza lettura dentro un turno composto e' presa
+% d'atto del turno precedente («Great!», «That's interesting!»): la ricevuta la
+% conserva come non letta (e la lacuna `partial` resta visibile a parrot0), ma
+% dirla ad alta voce come muro («I couldn't read «Great!»») non informa chi
+% parla. Quale clausola si tace e' condotta, quindi e' qui.
+machinery(clause_unread_voice).
+clause_unread_voice($T, silent) :-
+    turn_illocution($T, exclamation), naf(turn_illocution($T, question)).
 % 18 settembre 2026 — IL PUNTO DI UN'ABBREVIAZIONE NON CHIUDE LA FRASE. Nel
 % piolo 340 «…may contain many other additives, e.g. coal.» veniva spezzato
 % dopo «e.g.»: la clausola monca «…many other additives, e.g» finiva a un
@@ -556,6 +578,17 @@ faculty_yield_force(knowledge, open, impression).
 faculty_yield_force(learn, open, impression).
 faculty_yield_force(cause, open, impression).
 faculty_yield_force(statement_extract, open, impression).
+% 30 settembre 2026 (L4) — L'IMPEGNO SI LEGGE NELLA IR, NON IN UNA LISTA. La
+% forza nasce dall'evidenza grammaticale della clausola (`commitment_at/4`,
+% english-grammar/reading.p0) e dalle politiche che sospendono l'asserzione:
+% una superficie nuova di proposta e' una `expression_reading`, una politica
+% nuova e' un `assertion_withheld`, e ogni lettore che cede qui le vede.
+turn_declared_act($Turn, withheld_commitment) :-
+    commitment_at(input($Turn), $Span, $Value, $Policy), assertion_withheld($Policy).
+faculty_yield_force(knowledge, open, withheld_commitment).
+faculty_yield_force(learn, open, withheld_commitment).
+faculty_yield_force(cause, open, withheld_commitment).
+faculty_yield_force(statement_extract, open, withheld_commitment).
 % E3 — una situazione descritta (event-time.p0) non e' prosa da leggere, ma
 % nemmeno un pretesto per un racconto: chi genera cede anche a lei.
 turn_declared_act($Turn, situation_described) :- event_described($Turn).

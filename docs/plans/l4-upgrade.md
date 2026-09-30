@@ -1,5 +1,10 @@
 # L4 — la coerenza dell'apprendimento con la comprensione
 
+> **Ripresa del lavoro, 30 settembre 2026 (sera):** il dopo e' misurato su
+> ingressi congelati (`scripts/talk-replay.py`): (A−M)/turni −0,02 → +0,06,
+> misclaim 5 → 4, primo consumatore reale di `commitment_at/4`. Esito, cure e
+> prossimi passi nella §0 del [handoff](l4-growth-handoff.md).
+>
 > **Ripresa del lavoro, 30 settembre 2026:** leggere il
 > [handoff operativo con insight, baseline e patch aperta](l4-growth-handoff.md).
 > Dopo la revisione di questo piano F. ha autorizzato la concretizzazione:

@@ -36,7 +36,9 @@
 !timeout 8
 > No mechanic here is a pilot, but several pilots are sailors. Could a sailor who works here also be a mechanic, and can you say whether every sailor is a pilot?
 <~ nothing is both mechanic here and pilot
-<~ I can't hold «several pilots are sailors»
+# (la clausola conserva il suo segno finale, che ne porta la forza: la
+# citazione puo' includere il punto)
+<~ I can't hold «several pilots are sailors
 <! several pilots is a sailor
 <! I don't have any of my own
 <! Want me to learn about it
@@ -103,9 +105,14 @@
 !forget clause_boundary_cue(", and ")
 !forget clause_boundary_cue(", but ")
 !forget clause_boundary_cue(". ")
+# 30 settembre 2026 (L4): ogni confine di frase e' anche confine di clausola
+# (`clause_boundary_cue :- sentence_boundary_cue`, turn-frames.p0). L'ablazione
+# toglie la conoscenza dove ora sta, non solo la sua vecchia copia.
+!forget sentence_boundary_cue(". ")
 > No mechanic here is a pilot, but several pilots are sailors. Could a sailor who works here also be a mechanic, and can you say whether every sailor is a pilot?
 <! nothing is both mechanic here and pilot
 !query! turn_illocution(current_turn, compound_inquiry)
 !assert clause_boundary_cue(", and ")
 !assert clause_boundary_cue(", but ")
 !assert clause_boundary_cue(". ")
+!assert sentence_boundary_cue(". ")

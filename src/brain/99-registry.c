@@ -7432,11 +7432,11 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             cs.start = starts[i] + (size_t)(c - clauses[i]);
             cs.len = len;
             snprintf(cs.role, sizeof cs.role, "clause");
-            /* ⚠ La sorgente e' `input`, non `buf`: lo splitter ha messo un NUL
-             * al posto del confine, quindi `strlen(buf)` finisce alla prima
-             * frase e ogni span successivo veniva rifiutato come fuori testo
-             * (pubblicava una frase sola, e tutte con lo stesso id). Gli offset
-             * sono gli stessi — si sovrascrive un byte, non si sposta niente. */
+            /* ⚠ La sorgente e' `input`, non `buf`: `buf` tiene le clausole
+             * copiate una dopo l'altra (con il segno finale conservato e i
+             * connettivi tolti), quindi i suoi offset non sono quelli del
+             * turno. Lo span si calcola da `starts[i]`, l'offset della
+             * clausola nel testo originario. */
             node_ids[i] = base;
             size_t got = input_structure_publish(b->kb, input, &cs, "last_text", base);
             p0_trace(b, "read.text", "frase %zu: id %zu, range(%zu,%zu), %zu nodi «%.40s»\n",
@@ -7463,6 +7463,9 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     char (*pg)[KB_TERM_LEN] = NULL; size_t npg = 0;
     { const char *oq[2] = { NULL, "gap_offer" };
       if (!kb_match_all(b->kb, "open_issue", oq, 2, &pg, &npg)) npg = 0; }
+    char (*vo)[KB_TERM_LEN] = NULL; size_t nvo = 0;   /* offerte gia' dette */
+    { const char *oq[2] = { NULL, "gap_offer" };
+      if (!kb_match_all(b->kb, "open_issue", oq, 2, &vo, &nvo)) nvo = 0; }
     char saved_reply[256], saved_module[32];
     unsigned long saved_fallbacks = b->fallbacks;
     snprintf(saved_reply, sizeof saved_reply, "%s", b->last_reply);
@@ -7637,22 +7640,48 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
         char piece[1200];
         if (reply_is_wall(b, sub)) {
             snprintf(results[i], sizeof results[i], "result(%s, unread)", b->last_module);
+            /* Se il residuo si dice e' condotta (`clause_unread_voice/2`,
+             * turn-frames.p0), chiesta con la forza della clausola ancora in
+             * vigore: la ricevuta resta `unread` in ogni caso. */
+            const char *vq[2] = { "current_turn", "silent" };
             const KbResponseSlot sl[] = { { "clause", c } };
-            if (!kb_response_slots(b, "compound_clause_unread", sl, 1, piece, sizeof piece))
+            if (kb_query(b->kb, "clause_unread_voice", vq, 2)) piece[0] = '\0';
+            else if (!kb_response_slots(b, "compound_clause_unread", sl, 1, piece, sizeof piece))
                 snprintf(piece, sizeof piece, "%s", sub);
+            /* Un'offerta mai detta non e' aperta: chi parla non puo'
+             * accettarla. Se il muro della clausola non si dice com'era (si
+             * tace, o lo sostituisce il residuo), si chiudono le offerte nate
+             * qui — non quelle di prima del turno ne' di una clausola detta. */
+            if (strcmp(piece, sub)) {
+                char (*now)[KB_TERM_LEN] = NULL; size_t nn = 0;
+                const char *oq[2] = { NULL, "gap_offer" };
+                if (kb_match_all(b->kb, "open_issue", oq, 2, &now, &nn))
+                    for (size_t k = 0; k < nn; k++) {
+                        int had = 0;
+                        for (size_t h = 0; h < nvo && !had; h++) if (!strcmp(now[k], vo[h])) had = 1;
+                        if (!had) board_close_id(b, now[k]);
+                    }
+                free(now);
+            }
         } else {
             snprintf(results[i], sizeof results[i], "result(%s, answered)", b->last_module);
             snprintf(piece, sizeof piece, "%s", sub);
             read++;
         }
+        if (piece[0]) {   /* le offerte di una clausola detta restano aperte */
+            free(vo); vo = NULL; nvo = 0;
+            const char *oq[2] = { NULL, "gap_offer" };
+            if (!kb_match_all(b->kb, "open_issue", oq, 2, &vo, &nvo)) nvo = 0;
+        }
         p0_trace(b, "read.compound", "clause=«%s» module=%s resp=«%s»\n", c, b->last_module, sub);
         if (off + strlen(piece) + 2 >= sizeof composed) break;
         /* 15 settembre 2026: «thanks a lot... you have been so helpful» dava
          * «You're welcome! You're welcome!»: la stessa risposta si dice una volta. */
-        if (off && strstr(composed, piece)) continue;
+        if (!piece[0] || (off && strstr(composed, piece))) continue;
         off += (size_t)snprintf(composed + off, sizeof composed - off, "%s%s", off ? " " : "", piece);
     }
     b->compound_depth--;
+    free(vo);
     {   const char *rq[2] = { "current_turn", NULL };
         kb_retract_match(b->kb, "turn_illocution", rq, 2);
         int prev = kb_origin(b->kb);
@@ -8424,7 +8453,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * negativa leggeva «in_the_arctic_they_live_in_antarctica»). La forza e' KB
      * (turn-frames.p0, `compound_statement`); le cue del turno sono appena
      * state pubblicate dal lead universale. */
-    if (b && b->compound_depth == 0) {
+    /* Quali forze si leggano per clausole PRIMA di ogni facolta' (e quali solo
+     * dopo una resa del turno intero) e' conoscenza: `turn_clause_first/1`. */
+    if (b && b->compound_depth == 0 &&
+        kb_query(b->kb, "turn_clause_first", (const char *[]){ "current_turn" }, 1)) {
         if (compound_turn_lead(b, input, out, out_size)) {
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
             snprintf(b->last_module, sizeof b->last_module, "%s", "compound");

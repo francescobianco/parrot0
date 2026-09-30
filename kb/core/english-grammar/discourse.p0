@@ -421,6 +421,17 @@ commitment_policy(hypothesis, retain_hypothetical_scope).
 commitment_policy(simulation, retain_model_scope).
 commitment_policy(uncertainty, retain_uncertainty).
 commitment_policy(nonuniversal_negation, retain_quantifier_scope).
+% 30 settembre 2026 (L4, challenge locale) — UNA PROPOSTA NON AFFERMA NIENTE.
+% «Let's explore something fun!» diventava «Learned: let's explore something
+% fun.»: la IR leggeva gia' `pragmatics, suggestion` sullo span di «let's», e
+% nessuna decisione d'uso chiedeva che impegno portasse. Chi propone un'azione
+% non la dice avvenuta ne' vera: la politica e' conoscenza, e i lettori che
+% imparano la consultano attraverso la forza `withheld_commitment`
+% (turn-frames.p0), non attraverso una lista di superfici.
+commitment_policy(suggestion, proposal_only).
+% Quali politiche sospendono l'asserzione intera (non solo una sua parte, come
+% `do_not_assert_actual` per «can», che resta un'abilita' leggibile).
+assertion_withheld(proposal_only).
 sentence_boundary_exception("approx.").
 sentence_boundary_exception("ca.").
 sentence_boundary_exception("c.").

@@ -144,7 +144,15 @@ pos(orbits, verb).
 
 % Il kernel chiede solo la classe di confine; quali parole la compongano resta
 % grammatica KB. Le regole riusano il vocabolario storico senza esporlo al C.
-phrase_boundary(np, opener, $Word) :- np_opener($Word).
+% 30 settembre 2026 (L4) — «I don't have feelings» dava il sintagma «i don't»
+% e il fatto «Learned: don't has feelings»: l'articolo italiano «i» apriva il
+% sintagma sul pronome inglese, e ausiliari e negazioni non lo chiudevano. Una
+% superficie che e' articolo in un'altra lingua e pronome personale non apre
+% un sintagma nella lingua della conversazione.
+phrase_boundary(np, opener, $Word) :- np_opener($Word), naf(np_opener_foreign($Word)).
+np_opener_foreign($Word) :-
+    personal_pronoun($Word), function_word($Language, $Word, $Gloss),
+    current_language($Current), dif($Language, $Current).
 phrase_boundary(np, closer, $Word) :- np_closer($Word).
 phrase_boundary(np, breaker, $Word) :- pos($Word, verb).
 % 18 settembre 2026 — primo piolo italiano della scala della prosa: «Il carbone
@@ -154,6 +162,33 @@ phrase_boundary(np, breaker, $Word) :- pos($Word, verb).
 % e' `clause_copula/1` (grammar.p0: is, are, was, were, è, sono, era, …), e una
 % lingua nuova e' una riga li', non qui.
 phrase_boundary(np, breaker, $Word) :- clause_copula($Word).
+% Un ausiliare o una negazione non stanno dentro un sintagma nominale: la IR li
+% legge gia' come catena verbale e polarita' (`grammatical_cue`), e il
+% produttore del sintagma li ignorava. Classi, non parole: un ausiliare o un
+% negatore imparati domani chiudono il sintagma senza altro.
+phrase_boundary(np, breaker, $Word) :- auxiliary($Word).
+phrase_boundary(np, breaker, $Word) :- negation_marker($Word).
+% «don't» arriva alla IR come due token, `don` e `t`: il primo e' la radice di
+% una contrazione negativa che la KB conosce (come in contact.p0).
+phrase_boundary(np, breaker, $Word) :- negated_contraction_stem($Word).
+negated_contraction_stem($Word) :- concat_atoms($Word, "t", $Joined), negation_marker($Joined).
+% Radice e clitico di una contrazione sono parole funzione per ogni lettore,
+% non nomi nudi: senza questo «don» + «t» diventava l'entita' `don_t` e il
+% soggetto di «have». I clitici che il tokenizzatore stacca sono una classe
+% chiusa dell'inglese scritto; uno nuovo e' una riga.
+% Le stesse evidenze servono ai lettori a schema (10-memory-knowledge.c): lo
+% slot di un nome non si apre su un articolo straniero e non contiene una
+% parola che chiude sempre un sintagma nominale. Una vista, due consumatori.
+np_opener_here($Word) :- phrase_boundary(np, opener, $Word).
+nominal_slot_breaker($Word) :- clause_copula($Word).
+nominal_slot_breaker($Word) :- auxiliary($Word).
+nominal_slot_breaker($Word) :- negation_marker($Word).
+nominal_slot_breaker($Word) :- negated_contraction_stem($Word).
+function_word_class(negated_contraction_stem).
+function_word_class(contraction_clitic).
+contraction_clitic(t).  contraction_clitic(s).  contraction_clitic(re).
+contraction_clitic(ll). contraction_clitic(ve).  contraction_clitic(d).
+contraction_clitic(m).
 
 % The disjunction is knowledge; the observer keeps the evidence it used.
 % A word a lesson keeps INSIDE the phrase (reading-choices.p0) stops nothing.
