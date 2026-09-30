@@ -1,5 +1,91 @@
 # L4 — la coerenza dell'apprendimento con la comprensione
 
+## ⛔⛔ PREMESSA OPERATIVA FONDAMENTALE (F., 30 settembre 2026) — senza questa, l'apprendimento non puo' essere traguardato
+
+> *«non mi capacito della lentezza e non mi capacito del fatto che il
+> troubleshooting lo abbiamo dovuto indirizzare cosi' parlando, cioe' non si
+> riesce ad avere una crescita delle KB pilotata dall'evoluzione delle sue
+> abilita' di comprensione; inoltre ho visto passare interi pezzi di frase dentro
+> le risposte, segno che la comprensione universale non ha funzionato: nella IR
+> le cose si dovrebbero grammaticalizzare»* — F., dopo quattro giri di
+> [llm-challenge.md](llm-challenge.md).
+
+**Il sintomo.** Nelle conversazioni con un LLM piccolo (LFM2.5) le risposte
+sbagliate portano PEZZI DI FRASE non grammaticalizzati: «On helps clarify the
+picture, a risk assessment…», «Got it: your name is Anna What is my name»,
+«Learned: sounds like re.», «Learned: that's a great approach focusing»,
+«Learned: sound(risks), sound(safeguards).». E parrot0 non se ne accorge:
+quattro misclaim su cinque del giro 3 avevano esito `answered` e nessuna specie
+di lacuna (`turn_gap_kind` vede `wrong_suspect` solo per la famiglia dei
+template, e non guarda dentro i turni composti).
+
+**La causa, una sola.** I pezzi vengono da lettori che TAGLIANO STRINGHE invece
+di leggere COSTITUENTI: l'estrattore del soggetto d'analisi, il «my X is Y» di
+`memory`, lo slot di `personal`, i «Learned:» dei lettori di relazione —
+prendono «le parole dopo la cue» dalla superficie. La IR universale esiste, ma
+questi lettori la scavalcano. E la IR stessa grammaticalizza poco: nel giro in
+italiano `debug_np_candidate` dava come sintagma «il latte è deperibile»
+(il verbo dentro il sintagma nominale).
+
+**La stessa causa fa la lentezza.** Settanta e piu' facolta' nel percorso del
+turno, e molte rileggono il turno per conto proprio: misurato nel giro 3,
+`turn_word` 140 000 chiamate, `typed_wh_word` 340 000, la stessa lettura
+ricalcolata per ogni valore candidato. Una comprensione unica, fatta una volta e
+consultata, non avrebbe quei costi. Le cure di velocita' del giro 3 hanno
+scalato il sintomo.
+
+**E la stessa causa impedisce la crescita pilotata dalla comprensione.** Un
+sistema che non si accorge di non aver capito non puo' chiedere la lezione
+giusta: il giudice esterno (l'agente, F.) diventa indispensabile, e ogni giro
+scopre la variante successiva del difetto.
+
+**⚠ Autocritica dei giri 2–4.** Le guardie scritte allora — «un soggetto non
+finisce con una preposizione», «non comincia con un verbo finito», «un valore
+non attraversa la fine della frase», «un nome seguito da una preposizione non
+chiede la classe intera» — sono regole di GRAMMATICA scritte DENTRO i lettori
+che scavalcano la IR. Tolgono il sintomo e rendono piu' robusti proprio i
+lettori che andrebbero sostituiti. Sono debito da ritirare quando la IR copre
+quei casi.
+
+### La premessa: UN INVARIANTE, IL COSTITUENTE
+
+**Ogni valore che parrot0 scrive o dice — l'argomento di un fatto appreso, il
+soggetto di un'analisi, il valore di uno slot, la parola definita — deve essere
+un COSTITUENTE della IR del turno.**
+
+- Se lo e', si procede.
+- Se non lo e', parrot0 non usa quel pezzo e registra una lacuna con specie e
+  rimedio DETERMINISTICI: *«ho un pezzo di frase che non so grammaticalizzare:
+  insegnami dove finisce il sintagma»* — la lezione dei confini che esiste gia'
+  (L2, «end the previous noun phrase before X»; i confini di parola
+  «"-" is a word joiner»).
+
+Conseguenze, nell'ordine in cui contano:
+
+1. i misclaim diventano **lacune visibili a parrot0**, non al giudice;
+2. la KB **cresce dalle sue incomprensioni**: ogni confine insegnato migliora la
+   IR per tutti i lettori insieme, non per uno;
+3. le guardie grammaticali sparse (giri 2–4) si **tolgono**, e i lettori a
+   stringa si sostituiscono uno alla volta con lettori della IR, man mano che la
+   IR li copre;
+4. la lentezza cala perche' la lettura si fa **una volta**.
+
+### Regole operative che ne discendono
+
+1. **Prima misurare la IR, poi scrivere.** Per ogni risposta sbagliata di un
+   transcript: il pezzo usato era un costituente della IR? Se quasi mai, il
+   lavoro va sulla grammaticalizzazione della IR prima che su qualunque lettore.
+2. **Una risposta sbagliata senza specie e' la lacuna vera.** Si aggiunge al
+   registro la specie e il suo rimedio (`gap_kind`, `gap_remedy`) prima della cura.
+3. **Nessuna guardia grammaticale dentro un lettore a stringa.** Se serve, la
+   regola va nella IR (dove vale per tutti) o e' una lezione di confine.
+4. **Allineamento prima dell'applicazione** (F., 30 settembre): al primo
+   problema di comprensione da risolvere, l'agente presenta a F. la soluzione che
+   vuole applicare, e aspetta, per verificare che siano allineati.
+
+---
+
+
 > **⛔ NOVITA' — 28 settembre 2026 (F.): i PONTI FRA PREDICATI e l'asse
 > strutturale.** Quando lo stesso concetto sta in due cassetti (`capital_of` e
 > `capital_of_country`, argomenti invertiti o arita' diverse) **non si unifica
