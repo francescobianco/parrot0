@@ -7932,6 +7932,64 @@ static int p0_class_phrase(Brain *b, const char *subj, const char *cls,
                                      one, onesz) && *one;
 }
 
+/* L4, punto 3 (30 settembre 2026) — LA PORTA SULLA IR.
+ *
+ * Soggetto e classe si chiedono al frame che la IR ha registrato per il turno
+ * (`ir_class_subject/2`, `ir_class_of/3`, input-structure.p0), non si tagliano
+ * dalla stringa. Rende -1 se la IR non ha un'appartenenza (il lettore a
+ * stringa resta la rete, da ritirare), 0 se la IR la blocca o se il caso
+ * semplice va all'intake interattivo (coreferenza, contraddizioni), 1 se ha
+ * scritto o confermato, 2 se il cancello di qualita' ha respinto. */
+static int p0_ir_class_door(Brain *b, const char *norm, char *out, size_t out_size,
+                            int extract_only) {
+    const char *tq[1] = { "current_turn" };
+    if (kb_query(b->kb, "ir_class_blocked", tq, 1)) {
+        p0_class_gate(b, "gate: the IR subject is a demonstrative (refers to what was said)");
+        return 0;
+    }
+    char sv[1][KB_TERM_LEN], cv[1][KB_TERM_LEN];
+    const char *sq[2] = { "current_turn", NULL };
+    if (kb_match(b->kb, "ir_class_subject", sq, 2, sv, 1) != 1) {
+        if (kb_query(b->kb, "ir_copula_identifies", tq, 1)) {
+            p0_class_gate(b, "gate: the IR reads «X is the Y» (identification, not a class)");
+            return 0;
+        }
+        return -1;
+    }
+    const char *cq[3] = { "current_turn", sv[0], NULL };
+    if (kb_match(b->kb, "ir_class_of", cq, 3, cv, 1) != 1) return -1;
+    const char *subj = kb_dequote(sv[0]), *cls = kb_dequote(cv[0]);
+    const char *closeq[2] = { "current_turn", cls };
+    if (!extract_only && !strchr(subj, '_') && !strchr(cls, '_') &&
+        kb_query(b->kb, "ir_class_closes_clause", closeq, 2)) {
+        p0_trace(b, "class", "ir: plain «%s is a %s» left to the interactive class intake", subj, cls);
+        return 0;
+    }
+    p0_trace(b, "class", "ir: subject %s, class %s (from the recorded frame)", subj, cls);
+    if (!p0_atom_is_concept(b, cls) || !p0_atom_is_concept(b, subj) ||
+        class_known_arity(b, cls) > 1) return 2;
+    const char *ca[] = { subj };
+    char one[192];
+    if (kb_query(b->kb, cls, ca, 1)) {
+        if (!p0_class_phrase(b, subj, cls, one, sizeof one)) return -1;
+        const KbResponseSlot rs[] = { { "facts", one } };
+        kb_term_say(b, "known_facts", rs, 1, out, out_size);
+        return 1;
+    }
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    p0_note_class_surface(b, cls);
+    int fresh = kb_assert(b->kb, cls, ca, 1);
+    if (fresh) p0_learn_source(b, cls, ca, 1, norm);
+    kb_set_origin(b->kb, prev);
+    if (!fresh) return -1;
+    if (!p0_class_phrase(b, subj, cls, one, sizeof one))
+        snprintf(one, sizeof one, "%s(%s)", cls, subj);
+    const KbResponseSlot rs[] = { { "facts", one } };
+    kb_term_say(b, "learned_facts", rs, 1, out, out_size);
+    return 1;
+}
+
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;
@@ -7982,6 +8040,10 @@ static int extract_class_statement(Brain *b, const char *norm,
             p0_class_gate(b, "gate: opens with a question word");
             return 0;
         }
+    }
+
+    {   int ir = p0_ir_class_door(b, norm, out, out_size, extract_only);
+        if (ir >= 0) return ir;
     }
 
     /* gen382: i frame DICHIARATI in KB corrono prima di quelli cablati, cosi'

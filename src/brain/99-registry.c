@@ -7920,6 +7920,17 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
      * (NOT brain_respond — that would recurse and corrupt state).
      * dispatch_one normalizes+canonicalizes and walks the registry. */
     char re_ans[1024] = "";
+    /* L4 (30 settembre 2026) — LA DOMANDA RIDETTA HA LA SUA IR. Senza
+     * ripubblicarla, i lettori giudicavano il testo ridetto con la IR del turno
+     * «si'»: «Oh, that's a clever twist!» → «sure» → «Learned: oh is a clever.»
+     * (la porta della classe non vedeva il `ref(that)` che blocca). Si
+     * pubblica soltanto: la risposta del lead si scarta. */
+    if (stored_q && stored_q[0]) {
+        static char scratch[P0_TURN_MAX];
+        char qnorm[P0_TURN_MAX];
+        normalize(stored_q, qnorm, sizeof qnorm);
+        universal_turn_lead(b, qnorm, stored_q, scratch, sizeof scratch);
+    }
     int re_ok = stored_q && stored_q[0] ? dispatch_one(b, stored_q, re_ans, sizeof re_ans) : 0;
     /* gen512 (settimo giro): la domanda ridetta che ora risponde CON la
      * definizione trovata («cosa vuol dire velenosi» -> «velenosi» vuol dire:

@@ -373,7 +373,20 @@ input_class_node($Scope, $Language, $Id, $Class) :-
     input_node($Scope, $Id, node(phrase, np_candidate, $Parent), $Range),
     np_phrase_words($Scope, $Id, cons($Article, $Rest)),
     indefinite_article($Article),
-    np_words_entity(cons($Article, $Rest), $Class).
+    np_words_entity(cons($Article, $Rest), $Class),
+    naf(classifier_head($Class)).
+% Un classificatore annuncia la classe, non la e' (`classifier_head/1`, lo
+% stesso sapere del lettore a stringa, gen513): «an amphora is a TYPE OF storage
+% jar» ha per classe il sintagma dopo «of».
+input_class_node($Scope, $Language, $Id, $Class) :-
+    input_node($Scope, $Cl, node(phrase, np_candidate, $Parent), $Range),
+    np_phrase_words($Scope, $Cl, cons($Article, $Rest)),
+    indefinite_article($Article),
+    np_words_entity(cons($Article, $Rest), $Head), classifier_head($Head),
+    input_node_range($Scope, $Cl, $S, $N), is($End, add($S, $N)),
+    input_node($Scope, $Of, node(token, token, $P), range($OS, $OL)), lt($End, $OS),
+    input_node_atom($Scope, $Of, of),
+    input_nearest_entity_after($Scope, $Language, $Of, entity($Id, $Class)).
 
 % L4 — IL RIFERIMENTO E' UN COSTITUENTE. «Oh, that's a clever twist!»: il
 % soggetto e' «that», che rimanda a cio' che e' stato detto prima; la IR non
@@ -399,6 +412,45 @@ contiguous_token_before($Scope, $Id) :-
 input_entity_node($Scope, $Language, $Id, ref($W)) :-
     input_reference_node($Scope, $Id, $W).
 input_unresolved_reference($Scope, $W) :- input_reference_node($Scope, $Id, $W).
+% L4, punto 3 (30 settembre 2026) — LA PORTA DEL LETTORE DI CLASSE. Il C
+% chiede alla IR quale appartenenza il turno sostiene, invece di ricavarla dalla
+% stringa: soggetto e classe sono costituenti del frame registrato
+% all'osservazione. Un dimostrativo come soggetto («that's a clever twist»)
+% rimanda a cio' che e' stato DETTO, non a un'entita': nessuna classe si scrive
+% su di lui. Un pronome d'entita' («it») resta alla coreferenza dell'intake.
+machinery(ir_class_subject).
+machinery(ir_class_of).
+machinery(ir_class_blocked).
+ir_class_subject($T, $S) :-
+    input_frame_record($T, frame(assertion, membership($R)), roles(subject($S), class($C))),
+    naf(ir_subject_is_reference($S)).
+ir_class_of($T, $S, $C) :-
+    input_frame_record($T, frame(assertion, membership($R)), roles(subject($S), class($C))).
+ir_class_blocked($T) :-
+    input_frame_record($T, frame(assertion, membership($R)), roles(subject(ref($W)), class($C))),
+    demonstrative_word($W).
+machinery(ir_subject_is_reference).
+ir_subject_is_reference(ref($W)).
+% La classe CHIUDE la clausola: niente dopo il suo sintagma («a loom is a device
+% USED TO WEAVE CLOTH» ha una coda da rileggere). Solo allora il caso semplice
+% va all'intake interattivo, che legge «X is a Y» e basta.
+machinery(ir_class_closes_clause).
+machinery(ir_token_after).
+ir_class_closes_clause($T, $C) :-
+    input_class_node($T, $L, $Id, $C),
+    input_node($T, $Id, node(phrase, np_candidate, $Parent), $Range),
+    input_node_range($T, $Id, $S, $N),
+    is($End, add($S, $N)), naf(ir_token_after($T, $End)).
+ir_token_after($T, $End) :-
+    input_node($T, $Tok, node(token, token, $P), range($S, $N)), naf(lt($S, $End)).
+% «X is THE Y» identifica, non classifica: la IR vede la copula seguita da un
+% articolo determinativo e nessun frame di appartenenza. Il lettore di classe
+% non scrive una classe li' («Punctuation is the silent architect of clarity»
+% diventava «punctuation is a silent architect»).
+machinery(ir_copula_identifies).
+ir_copula_identifies($T) :-
+    input_operator_node($T, $L, operator(membership, $R), $Id),
+    input_node_next($T, $Id, $N), input_node_atom($T, $N, $W), definite_article($W).
 debug_reference_node($T, ref($Id, $W)) :- input_reference_node($T, $Id, $W).
 debug_class_node($T, class($Id, $C)) :- input_class_node($T, $L, $Id, $C).
 debug_probe(75, debug_reference_node, now, "i riferimenti della IR (pronomi, dimostrativi): un ruolo che li porta non si impegna finche' non sono risolti").
