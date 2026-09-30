@@ -309,6 +309,14 @@ prossimo lavoro (report gen509 §7-bis).
   anche sul binario di prima (sezione universale «is every sailor a pilot?» →
   «I don't know»; ablazione a 10 s; piume a 8,3 s). Allineate l'ablazione (toglie
   anche `sentence_boundary_cue(". ")`) e la citazione col punto finale.
+- `language/input.p0t` 7/8: «... --- ...» ora risponde anche «That's just
+  punctuation…» prima di «That looks like Morse code.» (la lettura per clausole
+  divide ai «. »). Prima del fix del limite in `mod_knowledge` il turno faceva
+  SEGFAULT (w[2] letto prima di nw).
+- `language/coref.p0t` 5/8 dopo i nodi `ref(…)` della IR: un turno a 2 s,
+  «I hold that dana is a teacher» → «Because dana is a teacher». Non separato
+  dal preesistente (F.: lasciato, si passa avanti). `language/prose_triage.p0t`
+  e `kb_first_round8.p0t` non finiscono in 150 s: verdetto non preso.
 - `language/assertion_withheld_lesson.p0t` (nuovo): 12/13; il rosso e' il turno
   che impara per la via vecchia dopo il ritiro, 1,06 s contro 1 s (1,1 s anche
   sul binario di prima). Costo della via d'apprendimento, non della porta.

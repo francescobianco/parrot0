@@ -88,8 +88,39 @@ e' stata insegnata parlando. Prossimi passi utili, in ordine:
    accanto al seme, e al riavvio vale. ⚠ «does not state a fact» non funziona:
    il lettore della negazione viene prima delle forme. Resta: la domanda
    inversa («does a request assert anything?») e l'italiano;
-2. il lettore di classe in C: soggetto dall'IR invece della regola della
-   virgola (il caso «Oh, that's a clever twist!»);
+2. **il lettore di classe: dalla stringa alla IR** (30 settembre, notte). ⚠
+   Lezione: il primo tentativo fu un'altra regola della virgola dentro
+   `extract_class_statement` (C, 788 righe, 22 cancelli), ritirata prima del
+   commit — la KB aveva GIA' il lettore della stessa costruzione sui
+   costituenti (`input_semantic_frame(…, membership(…))`), muto perche' la
+   classe doveva stare in un elenco chiuso (`semantic_class/1`). Prima di
+   toccare un lettore a stringa: cercare il frame IR della stessa costruzione.
+   Piano concordato con F.: (1) classe = costituente, (2) riferimenti come
+   costituenti, (3) il C diventa UNA porta che consuma il frame, (4) misura e
+   C che si accorcia. **Fatti 1 e 2** (input-structure.p0):
+   - la classe e' il sintagma aperto dall'indefinito; l'elenco chiuso non vale
+     per una parola dentro un sintagma («island» di «an island country»);
+   - `ref(W)`: pronome che riferisce o dimostrativo non preceduto da un nome;
+     il clitico `'s`/`'re`/`'m` dopo un pronome e' la copula
+     (`clitic_copula/2`); un riferimento non risolto BLOCCA l'impegno
+     (`input_unresolved_reference`);
+   - la relativa sulla classe vale per il membro (`frame_set_admitted/2`:
+     «Aspirin is a drug that reduces pain» → `membership(aspirin, drug)` +
+     `reduce(aspirin, pain)`);
+   - la coda del sintagma perde solo una forma verbale FLESSA
+     (`word_is_inflected_verb_form/1`);
+   - sonde `/debug turn` 75–76 (riferimenti, classi) e il frame osservato nella
+     traccia del turno («ir frame observed: …» / l'insieme se non unico).
+   Banco di 13 frasi, frame IR all'osservazione: 1 legato e sbagliato → 10
+   corretti; «the silent architect» declina (il C invece fa misclaim); «The
+   forest threatened by fires is a habitat» ambigua, non s'impegna. Residuo:
+   «a clever twist» → classe `clever` perche' il produttore del sintagma
+   chiude davanti a «twist» (anche `relation_verb`): e' il giudizio
+   nome/verbo SULL'OCCORRENZA, serve la posizione; innocuo qui perche'
+   `ref(that)` blocca. **Le risposte visibili non cambiano ancora**: risponde
+   il C. Crash trovato e corretto: `mod_knowledge` leggeva `w[2]` prima di
+   controllare la lunghezza (latente, esposto dal frammento «--- ...» della
+   lettura per clausole). Prossimo: il punto 3;
 3. il riferimento definito del discorso («the conclusion») come residuo, non
    come generico;
 4. la lentezza di `!reset` con `PARROT0_BASE` (13 s contro 0,4 s attesi).

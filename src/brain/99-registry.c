@@ -5982,7 +5982,15 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
         }
         char observed[1][KB_TERM_LEN];
         const char *q[] = { "current_turn", NULL };
-        kb_match(b->kb, "input_frame_observe", q, 2, observed, 1);
+        if (kb_match(b->kb, "input_frame_observe", q, 2, observed, 1) == 1)
+            p0_trace(b, "ir", "frame observed: %s", observed[0]);
+        else {
+            char set[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "input_frame_set", q, 2, set, 1) == 1)
+                p0_trace(b, "ir", "no single frame observed: %s", set[0]);
+            else
+                p0_trace(b, "ir", "no single frame observed");
+        }
         /* Observation is pure with respect to world knowledge. The declared
          * after-reply bookkeeper commits only after the reader's verdict. */
     }

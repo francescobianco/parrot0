@@ -25061,7 +25061,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * a sei parole: le frasi piu' lunghe le leggono le cornici «@S is the R of
      * @O» (grammar.p0). */
     size_t rart = 0;
-    if (is_definite_article(b, w[2]) && nw >= 6 && is_relation_prep(b, w[4])) rart = 2;
+    if (nw >= 6 && is_definite_article(b, w[2]) && is_relation_prep(b, w[4])) rart = 2;   /* la lunghezza prima: w[2] puo' non esistere */
     else if (nw > 6 && lex_class_member(b, "10_memory_knowledge_lex12427", w[0])) {
         for (size_t a = 3; a + 3 < nw && !rart; a++)
             if (is_definite_article(b, w[a]) && is_relation_prep(b, w[a + 2])) rart = a;
