@@ -184,8 +184,25 @@ bodily_action(fly).   bodily_action(drive). bodily_action(cook).
 bodily_action(sing).  bodily_action(see).   bodily_action(touch).
 
 self_ability_query($T, $V) :-
-    self_ability_marker($T), naf(turn_opens_with_wh($T)), self_turn_verb($T, $V),
+    self_ability_marker($T), naf(turn_opens_with_wh($T)), self_ability_verb($T, $V),
     naf(speak_verb($V)), self_known_ability($V).
+% 30 settembre 2026 (llm-challenge, giro 2) — IL VERBO DELLA CAPACITA' STA DOPO
+% IL SOGGETTO DELLA DOMANDA. «I see! … What do you think is the most important
+% thing…?» riceveva «No, I can't see: I have no body.»: «do» + «you» facevano da
+% marcatore e il verbo si cercava in tutto il turno, cosi' l'«I see» di
+% cortesia, tre frasi prima, diventava la capacita' chiesta. Il verbo e' la
+% parola che segue il soggetto a cui si chiede («can you SWIM», «sai NUOTARE»).
+machinery(self_ability_verb).
+machinery(ability_subject_word).
+ability_subject_word(you).
+ability_subject_word($S) :- second_person_ability($S).
+self_ability_verb($T, $V) :-
+    turn_span_token($T, $I, $P, $Tok), span_atom($Tok, $S), ability_subject_word($S),
+    is($Q, add($P, 1)), turn_span_token($T, $I, $Q, $Next), span_atom($Next, $W),
+    self_ability_verb_word($W, $V).
+machinery(self_ability_verb_word).
+self_ability_verb_word($W, $V) :- canonical_value($W, $V).
+self_ability_verb_word($W, $V) :- italian_infinitive($V, $W).
 % (29 settembre 2026, name_is_knowledge riga 63 e §CV-bis) una domanda di
 % capacita' e' POLARE: «what do you remember about me?» chiede che cosa, e
 % «Yes, I can remember.» non le risponde

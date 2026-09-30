@@ -3306,6 +3306,26 @@ intent_cue(word_starts_with, "start with").
 intent_cue(word_starts_with, "begins with").
 intent_cue(word_starts_with, "begin with").
 intent_cue(word_starts_with, "starting with").
+% 30 settembre 2026 (llm-challenge, giro 2) — «Let's START WITH a simple
+% question» riceveva «A word that starts with "a": abbr.»: la cue c'era, ma chi
+% chiede parole per iniziale nomina l'OGGETTO che vuole (una parola, un nome,
+% «parola»). Senza di lui, «start with» e' l'inizio di qualcos'altro. La classe
+% degli oggetti e' KB: un oggetto nuovo («a city that starts with m») e' una riga.
+machinery(word_query_object).
+word_query_object(word).  word_query_object(words).
+word_query_object(name).  word_query_object(names).
+word_query_object(parola). word_query_object(parole).
+word_query_object(nome).  word_query_object(nomi).
+word_query_object(city).  word_query_object(animal).  word_query_object(country).
+machinery(turn_names_word_object).
+turn_names_word_object($T) :- turn_word($T, $I, $W), word_query_object($W).
+machinery(turn_start_without_object).
+turn_start_without_object($T, $W) :-
+    turn_word($T, $I, $W), letter_start_verb($W), naf(turn_names_word_object($T)).
+machinery(letter_start_verb).
+letter_start_verb(start). letter_start_verb(starts). letter_start_verb(starting).
+letter_start_verb(begin). letter_start_verb(begins).
+faculty_yield_when(wordquery, open, turn_start_without_object).
 intent_cue(word_double_runs, "consecutive double letters").
 intent_cue(word_double_runs, "double letters in a row").
 intent_cue(word_double_runs, "adjacent double letters").

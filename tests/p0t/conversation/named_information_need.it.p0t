@@ -52,7 +52,7 @@
 
 [test an existing referent is answered and is not called missing]
 > il libro rosso è sul tavolo
-< Imparato: book_red si trova in tavolo.
+< Imparato: libro rosso si trova in tavolo.
 > dove si trova il primo?
 < tavolo.
 <! più contesto

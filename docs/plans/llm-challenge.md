@@ -252,3 +252,68 @@ turno dopo un'offerta preso come «si'»; (3) «I see» / «I just got back from
 walk» letti come domande sul corpo di parrot0 («I have no body»); (4) i tetti di
 tempo sulle domande aperte sulle preferenze; (5) le mosse sociali per le frasi di
 circostanza, insegnate parlando.
+
+### Giro 2 — 30 settembre 2026, sera
+
+**Cure** (ogni riga una specie; ⚠ = provato e ritirato nello stesso giro):
+
+1. **Un ordinale e' un riferimento solo quando fa da nome** (turn-frames.p0,
+   `turn_ordinal_not_referring/2`): «the first THING», «the first STEP»
+   hanno il nome dopo; «learn Python FIRST» non ha determinante. Il chiarimento
+   su «first» (5 turni su 12 del trasferimento del giro 1) resta per «where is
+   the first?», «dove si trova il primo?». Pro-forme e determinanti sono classi.
+2. **Le contrazioni della seconda persona** («you'd», «you're», «you've»,
+   «you'll», «yourself») entrano in `second_person_form/1`: «What's the first
+   thing you'd like to explore?» riceve il muro onesto su di se'. (Atomi nudi:
+   un membro fra virgolette non combacia con la parola nuda.)
+3. **Un sintagma nominale non finisce con una preposizione e non attraversa la
+   fine di una frase** (`analysis_subject_extract`): «On the first step to, a
+   sound investigation…» e «On something new. What if we…, a close reading…»
+   non escono piu'.
+4. **Una frase breve su di se' non risponde a un'offerta** (network.p0,
+   `turn_addresses_pending`): «I'm tired.» sotto «Want me to learn about great
+   way?» non fa piu' partire la ricerca; «ok» la accetta ancora.
+5. **Il verbo della capacita' sta dopo il soggetto della domanda**
+   (self-ability.p0, `self_ability_verb/2`): «I see! … What do you think…?» non
+   riceve piu' «No, I can't see: I have no body.».
+6. **«start with» senza l'oggetto che si cerca non e' una richiesta di parole**
+   (intents.p0, `faculty_yield_when(wordquery, open,
+   turn_start_without_object)`, classe `word_query_object/1`).
+7. **Un valore non attraversa la fine della frase** (`p0_word_ends_sentence`,
+   KB: `sentence_boundary_cue` + eccezioni): «My name is Anna. What is my
+   name?» teneva il nome «Anna What is my name». La punteggiatura e' solo nel
+   turno grezzo: il lettore la legge li'.
+8. **Lezione parlata** (live-teach, [2026-09-30-1904.log](../sessions/live/2026-09-30-1904.log)):
+   «"i'm" is a contraction of "i am"» — replay, trasferimento 3/3, contrasto,
+   ablazione causale, `/save`, rilettura in un processo nuovo. Quarantena del
+   `/save`: `like(don't, rain)` (falso) e lo stato delle sonde tolti; anche il
+   transcript salvato («I'm Francesco.») ricostruiva il nome dell'utente in
+   `memory.p0t`: ripristinato.
+   ⚠ «"you're" is a contraction of "you are"» insegnata e **ritirata**: la
+   forma piena manda «You're a program?» al lettore delle polari, che risponde
+   «…whether you is a program».
+   ⚠ `faculty_yield_force(personal, open, compound_inquiry)` provata e
+   ritirata: il lettore per clausole peggiora «My name is Anna. What is my
+   name?».
+
+**Replay** (T=0, [2026-09-30-giro2-replay.log](../sessions/talk/2026-09-30-giro2-replay.log)):
+A = 4,5 · M = 2 · S = 3 · **punteggio +0,21** (giro 1: +0,21; M 3 → 2, S 1 → 3).
+I misclaim calano; **i tetti di tempo sono ora la specie dominante**: il turno
+«…What part of this topic fascinates you most?» costa 3,8 s da solo e arriva
+a 10 s nella conversazione; il costo e' in `input_node_surface <-
+input_node_atom` (1,96 milioni di visite in 54 mila cammini: la superficie di un
+nodo si cerca per scansione dentro lo scope del turno) e in `turn_bookkeeping`
+(0,95 s per 12 mila passi, cioe' fuori dai passi del solver).
+
+**Preesistenti, trovati nel giro** (identici sul build `456e7df5`):
+`memory.p0t` riga 31 («my name is Bob» dopo Francesco saluta Bob ma non
+sostituisce il nome); «dove si trova il terzo?» 1,4–1,6 s
+(`particle_passive_relation`); «I don't like rain.» → «Learned: don't like
+rain.» (manca la preferenza negata); «Paris, that is the capital of France?»
+murato.
+
+**Ordine del giro 3:** i tetti di tempo (il costo di `input_node_atom` e dei
+contabili), poi «Fair enough — tell me where I went wrong» su «It's okay if
+I'm not sure» (una rassicurazione letta come correzione), poi le risposte
+duplicate nei turni composti («I don't know how to answer that about myself
+yet» due volte).

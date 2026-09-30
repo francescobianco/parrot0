@@ -3463,6 +3463,14 @@ second_person_form(tuoi).
 second_person_form(you).
 second_person_form(your).
 second_person_form(yours).
+% 30 settembre 2026 (llm-challenge, giro 2) — le CONTRAZIONI sono seconda
+% persona come il pronome: «What's the first thing you'd like to explore?»
+% cadeva al muro sull'argomento perche' «you'd» non era della classe.
+second_person_form(you'd).
+second_person_form(you're).
+second_person_form(you've).
+second_person_form(you'll).
+second_person_form(yourself).
 
 machinery(second_person_possessive).
 second_person_possessive(tua).
@@ -3854,6 +3862,15 @@ function_word("isn't", "is not").
 function_word(pls, "please").
 % RI-022 (24 settembre 2026) — insegnata: «"i'd like" is a contraction of "i would like"».
 phrase_canon("i'd like", "i would like").
+% 30 settembre 2026 — insegnata dal vivo (llm-challenge giro 2,
+% docs/sessions/live/2026-09-30-1904.log): «"i'm" is a contraction of "i am"».
+% Replay, trasferimento 3/3 («I'm in a great mood today», «I'm worn out.»,
+% «I'm Francesco.»), contrasto («im tired» invariato) e ablazione causale su
+% «I'm tired.». ⚠ La sorella «you're» → «you are» e' stata insegnata e RITIRATA
+% nella stessa sessione: la forma piena manda «You're a program?» al lettore
+% delle polari in ordine d'affermazione, che non sa che «you» e' parrot0
+% («…whether you is a program»). Il difetto e' a valle, non nella contrazione.
+phrase_canon(i'm, "i am").
 
 % RI-022 (24 settembre 2026) — CHE UNA CONTRAZIONE STIA PER LA FORMA PIENA SI
 % INSEGNA. Le righe qui sopra erano l'unica via: «I'd like to know the melting

@@ -1,0 +1,73 @@
+# sessione: llm-challenge giro 2: le contrazioni inglesi — 2026-09-30 19:02 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@0bc00b4b]
+# mode: conversational (tools off, network off) - 171955 facts, 6441 rules (3.75%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! baseline: «I'm tired.» muro, mentre «I am tired» ha la sua mossa (mood_tired). Il difetto è la contrazione non sciolta
+> I'm tired.
+< I don't understand that yet.
+> I am tired.
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+! lezione L2 (forma del catalogo §D): la contrazione con la sua forma piena
+> "i'm" is a contraction of "i am"
+< Held: «i'm» is short for «i am».
+> I'm tired.
+< Rest a bit - we can pick this up whenever you want.
+! trasferimento: altri usi della stessa contrazione, mai nominati nella lezione
+> I'm in a great mood today
+< Nice. Tell me what made it good, or give me a small thing to reason about.
+> I'm worn out.
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> I'm Francesco.
+< Nice to meet you, Francesco!
+! contrasto: «im» senza apostrofo era già noto, deve restare; poi ablazione della lezione e ripristino
+> im tired
+< Rest a bit - we can pick this up whenever you want.
+> forget that "i'm" is a contraction of "i am"
+< I no longer read «i'm» as «i am».
+> I'm worn out.
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> "i'm" is a contraction of "i am"
+< Held: «i'm» is short for «i am».
+> I'm worn out.
+< Rest a bit - we can pick this up whenever you want.
+! l'ablazione su «worn out» non era causale (ha una cue sua): la rifaccio su «I'm tired.»
+> forget that "i'm" is a contraction of "i am"
+< I no longer read «i'm» as «i am».
+> I'm tired.
+< I don't understand that yet.
+> "i'm" is a contraction of "i am"
+< Held: «i'm» is short for «i am».
+> I'm tired.
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+! baseline delle altre contrazioni che LFM usa: that's, don't, you're, let's
+> That's the capital of France?
+< Paris.
+> I don't like rain.
+< Learned: don't like rain.
+> Paris, that is the capital of France?
+< I don't understand that yet.
+> I do not like rain.
+< Don't.
+> What do I like?
+< You haven't told me what you like yet.
+! «I don't like rain» → «Learned: don't like rain»: manca la preferenza negata (non è la contrazione: anche «do not» sbaglia). Lo annoto. Ora you're / let's: baseline
+> You're a program?
+< I don't know how to answer that about myself yet: nobody has taught me.
+> Let's talk about volcanoes.
+< I don't know much about volcanoes yet, and the network is off, so I can't read about it now.
+> Are you a program?
+< I don't know how to answer that about myself yet: nobody has taught me.
+> "you're" is a contraction of "you are"
+< Held: «you're» is short for «you are».
+> You're a program?
+< I cannot settle that: no fact I hold decides whether you is a program, and knowing some programs does not tell me they are all of them. Not proved is not the same as false. Tell me either way and I will hold it.
+> You're funny.
+< I don't understand that yet.
+! la lezione «you're» rende peggio «You're a program?» («whether you is a program»): il lettore delle polari in ordine d'affermazione non sa che «you» è parrot0. Ritiro la lezione e annoto il difetto a valle
+> forget that "you're" is a contraction of "you are"
+< I no longer read «you're» as «you are».
+> You're a program?
+< I don't know how to answer that about myself yet: nobody has taught me.
+> /save
+# sessione chiusa 19:04

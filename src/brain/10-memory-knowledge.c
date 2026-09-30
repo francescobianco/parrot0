@@ -1,3 +1,4 @@
+static int p0_word_ends_sentence(Brain *b, const char *word);
 /* gen489 (IT-5) — dichiarate qui perche' servono al ramo possessivo, che sta
  * molto prima della loro definizione. Vedi il blocco sopra
  * `p0_attribute_relation`. */
@@ -485,7 +486,17 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                          * il valore comincia dopo. */
                         if (vs < nw && lex_class_member(b, "10_memory_knowledge_lex268", w[vs])) vs++;
                         ve = vs;
+                        /* il turno grezzo tiene la punteggiatura che `w` ha perso:
+                         * la fine della frase si legge li' (llm-challenge g2) */
+                        char pbuf[256]; char *pw[64]; size_t pn = 0;
+                        if (raw && strlen(raw) < sizeof pbuf) {
+                            snprintf(pbuf, sizeof pbuf, "%s", raw);
+                            pn = split_words(pbuf, pw, 64);
+                        }
                         while (ve < nw) {
+                            int last = pn == nw && ve + 1 < nw && p0_word_ends_sentence(b, pw[ve]);
+                            p0_trace_at(b, 3, "memory", "valore: «%s» fine frase=%d",
+                                        pn == nw ? pw[ve] : w[ve], last);
                             char t[KB_TERM_LEN];
                             snprintf(t, sizeof t, "%s", strip_edge_punct(w[ve]));
                             const char *q[1] = { t };
@@ -493,6 +504,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                                        kb_query(b->kb, "personal_pronoun", q, 1)))
                                 break;
                             ve++;
+                            if (last) break;   /* la frase finisce qui (llm-challenge g2) */
                         }
                         /* ⚠ Il confine si trova su `w` (normalizzato), ma il
                          * VALORE si prende dal grezzo: e' li' che «Luna» ha
@@ -12692,6 +12704,18 @@ static int analysis_subject_extract(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i + 1 < sn; i++)
             if (lex_class_member(b, "clause_copula", sw[i]) &&
                 is_article(b, sw[i + 1])) { subject[0] = '\0'; return 0; }
+        /* 30 settembre 2026 (llm-challenge, giro 2) — e un sintagma nominale
+         * non finisce con una PREPOSIZIONE. «What would be the first step to
+         * verify this?» estraeva «the first step to» e rispondeva «On the first
+         * step to, a sound investigation turns on…»: il resto del sintagma e'
+         * la richiesta stessa. Stessa disciplina di forma, stessa classe KB. */
+        if (sn > 0 && lex_class_member(b, "preposition", sw[sn - 1])) {
+            subject[0] = '\0'; return 0;
+        }
+        /* ...e non attraversa la fine di una frase: «On something new. What if
+         * we explore a simple idea together, a close reading turns on…» */
+        for (size_t i = 0; i + 1 < sn; i++)
+            if (p0_word_ends_sentence(b, sw[i])) { subject[0] = '\0'; return 0; }
     }
 
     /* Recover the writer's own capitalization when the untouched turn still
@@ -13481,6 +13505,38 @@ static int personal_selfref_word(Brain *b, const char *word) {
  * con K contato su `norm`. Vale finche' il valore sta in fondo, che e' la forma
  * di tutte le cue dichiarate; una cue con il valore in mezzo vorrebbe un
  * allineamento vero, e allora sara' quel giorno a chiederlo. */
+/* 30 settembre 2026 (llm-challenge, giro 2) — UN VALORE NON ATTRAVERSA LA FINE
+ * DELLA FRASE. «My name is Anna. What is my name?» teneva come nome «Anna What
+ * is my name»: i lettori di «my X is Y» prendevano la coda del turno oltre il
+ * punto. Quali segni chiudano una frase, e quali abbreviazioni no, e' la KB
+ * (`sentence_boundary_cue/1`, `sentence_boundary_exception/1`): qui solo il
+ * confronto della coda della parola. */
+static int p0_word_ends_sentence(Brain *b, const char *word) {
+    if (!b || !b->kb || !word || !*word) return 0;
+    /* la cue e' «. »: il segno seguito dallo spazio che separa la frase dopo;
+     * qui la parola e' gia' separata, quindi si confronta il segno senza spazi */
+    char bcs[16][KB_TERM_LEN]; const char *bq[1] = { NULL };
+    size_t nbc = kb_match(b->kb, "sentence_boundary_cue", bq, 1, bcs, 16);
+    int ends = 0;
+    size_t pl = strlen(word);
+    for (size_t c = 0; c < nbc && !ends; c++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", bcs[c]);
+        char *mark = kb_dequote(cb);
+        size_t ml = strlen(mark);
+        while (ml && isspace((unsigned char)mark[ml - 1])) mark[--ml] = '\0';
+        while (*mark && isspace((unsigned char)*mark)) { mark++; ml--; }
+        if (ml && pl > ml && !strcmp(word + pl - ml, mark)) ends = 1;
+    }
+    if (!ends) return 0;
+    char low[KB_TERM_LEN + 8]; size_t li = 0;
+    low[li++] = '"';
+    for (const char *c = word; *c && li + 2 < sizeof low; c++)
+        low[li++] = (char)tolower((unsigned char)*c);
+    low[li++] = '"'; low[li] = '\0';
+    const char *xq[1] = { low };
+    return !kb_query(b->kb, "sentence_boundary_exception", xq, 1);
+}
+
 static void personal_raw_tail(const char *raw, size_t k, char *out, size_t outsz) {
     if (!out || !outsz) return;
     out[0] = '\0';

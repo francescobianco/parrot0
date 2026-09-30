@@ -472,7 +472,13 @@ machinery(turn_addresses_pending).
 % mentre il C riprende l'offerta MASSIMA. Un turno risponde all'offerta
 % massima se ne nomina il tema; le altre non contendono (dialogica, QUD).
 turn_addresses_pending($T) :- max_qud_topic(gap_offer, $Topic), input_node_atom($T, $Id, $Topic).
-turn_addresses_pending($T) :- turn_short_reply($T).
+turn_addresses_pending($T) :- turn_short_reply($T), naf(turn_speaker_involved($T)).
+% 30 settembre 2026 (llm-challenge, giro 2) — UNA FRASE BREVE SU DI SE' NON
+% RISPONDE A UN'OFFERTA. «I'm tired.» sotto «Want me to learn about great way?»
+% partiva a cercare «great way»: tre parole bastavano per essere una «risposta
+% breve», e una risposta breve non rivendicata vale un si'. Ma chi dice come
+% sta sta dicendo un'altra cosa: l'assenso esplicito resta (`offer_resolution`,
+% che non passa di qui), l'ellissi («ok», «vai», «fallo») pure.
 % 14 settembre 2026 — ...e solo un turno che l'interlocutore ha DETTO: una
 % clausola che il lettore della prosa si rilegge non risponde a un'offerta
 % fatta all'utente (`inner_turn`, discourse.p0).

@@ -798,7 +798,38 @@ turn_reference_resolved($Turn, $Surface, $Order) :-
     referent_at($Order, $Entity).
 turn_reference_missing($Turn, $Surface, $Order) :-
     turn_ordinal_reference($Turn, $Surface, $Order),
+    naf(turn_ordinal_not_referring($Turn, $Surface)),
     naf(turn_reference_resolved($Turn, $Surface, $Order)).
+% 30 settembre 2026 (llm-challenge, giro 2) — UN ORDINALE E' UN RIFERIMENTO
+% SOLO QUANDO FA DA NOME. «What's the FIRST thing you'd like to explore?», «what
+% would be the FIRST step?» ricevevano «I am not sure what you mean by «first»»
+% — cinque volte in dodici turni di una conversazione con un LLM, anche dopo che
+% l'altro aveva risposto. «dove si trova il primo?» chiede un referente: il
+% nome manca e l'ordinale ne prende il posto. «the first THING» ha il nome, e
+% «learn Python FIRST» e' un avverbio, senza determinante. Il lettore guarda la
+% parola dopo l'ordinale (una parola che non e' una pro-forma: c'e' un nome) e
+% la parola prima (nessun determinante: e' un avverbio). Pro-forme e
+% determinanti sono classi della KB.
+machinery(turn_ordinal_not_referring).
+machinery(ordinal_head_at).
+machinery(ordinal_pro_form).
+ordinal_pro_form(one).
+ordinal_pro_form(ones).
+ordinal_pro_form(of).
+ordinal_pro_form(uno).
+ordinal_pro_form(una).
+ordinal_pro_form(di).
+ordinal_head_at($Turn, $Surface, $Span, $I) :-
+    atom_words($Surface, $Ws), last_of($Ws, $Head),
+    turn_surface_token($Turn, $Span, $I, $Tok), span_atom($Tok, $Head).
+turn_ordinal_not_referring($Turn, $Surface) :-
+    ordinal_head_at($Turn, $Surface, $Span, $I), is($J, add($I, 1)),
+    turn_surface_token($Turn, $Span, $J, $Tok), span_atom($Tok, $W),
+    naf(ordinal_pro_form($W)).
+turn_ordinal_not_referring($Turn, $Surface) :-
+    ordinal_head_at($Turn, $Surface, $Span, $I), is($K, sub($I, 1)),
+    turn_surface_token($Turn, $Span, $K, $Tok), span_atom($Tok, $W),
+    naf(determiner_word($W)).
 
 % ── 4. IL FRAME: le viste che il kernel gen393 gia' sa leggere ──────────────
 %
