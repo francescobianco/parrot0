@@ -1,5 +1,11 @@
 # L4 — la coerenza dell'apprendimento con la comprensione
 
+> **Ripresa del lavoro, 30 settembre 2026:** leggere il
+> [handoff operativo con insight, baseline e patch aperta](l4-growth-handoff.md).
+> Dopo la revisione di questo piano F. ha autorizzato la concretizzazione:
+> due challenge locali prima della modifica sono salvate; la patch e'
+> sperimentale e il miglioramento non e' ancora dimostrato.
+
 ## ⛔⛔ PREMESSA OPERATIVA FONDAMENTALE (F., 30 settembre 2026) — senza questa, l'apprendimento non puo' essere traguardato
 
 > *«non mi capacito della lentezza e non mi capacito del fatto che il
@@ -19,7 +25,7 @@ quattro misclaim su cinque del giro 3 avevano esito `answered` e nessuna specie
 di lacuna (`turn_gap_kind` vede `wrong_suspect` solo per la famiglia dei
 template, e non guarda dentro i turni composti).
 
-**La causa, una sola.** I pezzi vengono da lettori che TAGLIANO STRINGHE invece
+**Una frattura comune.** I pezzi vengono da lettori che TAGLIANO STRINGHE invece
 di leggere COSTITUENTI: l'estrattore del soggetto d'analisi, il «my X is Y» di
 `memory`, lo slot di `personal`, i «Learned:» dei lettori di relazione —
 prendono «le parole dopo la cue» dalla superficie. La IR universale esiste, ma
@@ -27,12 +33,13 @@ questi lettori la scavalcano. E la IR stessa grammaticalizza poco: nel giro in
 italiano `debug_np_candidate` dava come sintagma «il latte è deperibile»
 (il verbo dentro il sintagma nominale).
 
-**La stessa causa fa la lentezza.** Settanta e piu' facolta' nel percorso del
-turno, e molte rileggono il turno per conto proprio: misurato nel giro 3,
+**La frammentazione contribuisce anche alla lentezza.** Settanta e piu'
+facolta' nel percorso del turno, e molte rileggono il turno per conto proprio: misurato nel giro 3,
 `turn_word` 140 000 chiamate, `typed_wh_word` 340 000, la stessa lettura
 ricalcolata per ogni valore candidato. Una comprensione unica, fatta una volta e
-consultata, non avrebbe quei costi. Le cure di velocita' del giro 3 hanno
-scalato il sintomo.
+consultata, eviterebbe quelle ripetizioni. Non elimina da sola enumerazioni,
+ambiguita' e invalidazioni troppo larghe: il giro 3 ha trovato anche questi
+costi. Le cure di velocita' sono utili, ma non completano la comprensione.
 
 **E la stessa causa impedisce la crescita pilotata dalla comprensione.** Un
 sistema che non si accorge di non aver capito non puo' chiedere la lezione
@@ -49,16 +56,20 @@ quei casi.
 
 ### La premessa: UN INVARIANTE, IL COSTITUENTE
 
-**Ogni valore che parrot0 scrive o dice — l'argomento di un fatto appreso, il
-soggetto di un'analisi, il valore di uno slot, la parola definita — deve essere
-un COSTITUENTE della IR del turno.**
+**Ogni valore estratto dal turno deve essere riconducibile a un COSTITUENTE
+della IR, con evidenza del ruolo che occupa nella lettura usata.** L'argomento
+di un fatto, il soggetto di un'analisi e il valore di uno slot non possono
+essere giustificati solo da «le parole dopo la cue».
 
-- Se lo e', si procede.
-- Se non lo e', parrot0 non usa quel pezzo e registra una lacuna con specie e
-  rimedio DETERMINISTICI: *«ho un pezzo di frase che non so grammaticalizzare:
-  insegnami dove finisce il sintagma»* — la lezione dei confini che esiste gia'
-  (L2, «end the previous noun phrase before X»; i confini di parola
-  «"-" is a word joiner»).
+- Un nodo `np_candidate` e' una candidatura, non la prova di un sintagma
+  nominale. Anche un sintagma corretto non autorizza ogni ruolo o ogni atto.
+- Se mancano confine, ruolo, attacco o portata, si conserva il pezzo osservato
+  e si nomina **quella** mancanza. Una lezione di confine e' il rimedio solo
+  quando manca il confine; non risolve una domanda letta come asserzione.
+- Un valore inferito, recuperato dalla KB o calcolato non deve comparire
+  letteralmente nel turno: deve avere una derivazione collegata al ruolo
+  richiesto. Il vincolo riguarda il fondamento del valore, non la copia di
+  parole. Altrimenti impedirebbe proprio l'espansione della comprensione.
 
 Conseguenze, nell'ordine in cui contano:
 
@@ -68,13 +79,13 @@ Conseguenze, nell'ordine in cui contano:
 3. le guardie grammaticali sparse (giri 2–4) si **tolgono**, e i lettori a
    stringa si sostituiscono uno alla volta con lettori della IR, man mano che la
    IR li copre;
-4. la lentezza cala perche' la lettura si fa **una volta**.
+4. si riusa la lettura e si ricalcola **solo cio' che una lezione cambia**.
 
 ### Regole operative che ne discendono
 
-1. **Prima misurare la IR, poi scrivere.** Per ogni risposta sbagliata di un
-   transcript: il pezzo usato era un costituente della IR? Se quasi mai, il
-   lavoro va sulla grammaticalizzazione della IR prima che su qualunque lettore.
+1. **Prima capire il percorso, poi scrivere.** Sul pezzo del transcript:
+   quale nodo, quale ruolo, quale obbligo della conversazione ne autorizzano
+   l'uso? Seguire il collegamento mancante, senza una campagna di test preliminare.
 2. **Una risposta sbagliata senza specie e' la lacuna vera.** Si aggiunge al
    registro la specie e il suo rimedio (`gap_kind`, `gap_remedy`) prima della cura.
 3. **Nessuna guardia grammaticale dentro un lettore a stringa.** Se serve, la
@@ -82,6 +93,256 @@ Conseguenze, nell'ordine in cui contano:
 4. **Allineamento prima dell'applicazione** (F., 30 settembre): al primo
    problema di comprensione da risolvere, l'agente presenta a F. la soluzione che
    vuole applicare, e aspetta, per verificare che siano allineati.
+
+## Indirizzo attuale — anatomia e crescita della comprensione (30 settembre 2026)
+
+**Questo e' l'ordine di lavoro aggiornato.** Gli handoff del 26–29 settembre
+restano storia e repertorio; non impongono di ripartire dai loro rossi. Questa
+revisione legge le strutture sul checkout `7ffe7631` e i quattro giri di
+[llm-challenge](llm-challenge.md); non esegue un nuovo giro e non certifica
+capacita'. Le strutture proposte sotto sono lavoro da costruire, distinto
+dagli innesti gia' esistenti.
+
+La difficolta' del troubleshooting ha una ragione cognitiva: **parrot0 non
+conserva ancora dappertutto la relazione fra cio' che ha osservato, cio' che
+ha interpretato e cio' che quella interpretazione gli permette di fare.** Il
+giudice deve ricostruirla attraversando lettori diversi. Un catalogo piu'
+accurato degli errori migliorerebbe il resoconto, ma lascerebbe quel lavoro al
+giudice. La crescita rapida richiede che quella relazione diventi operante:
+la lezione cambia un punto condiviso e i suoi usi cambiano insieme.
+
+### A. Anatomia: dove la conoscenza cresce e dove perde effetto
+
+| struttura viva | che cosa rende possibile | discontinuita' da colmare |
+|---|---|---|
+| [input.p0](../../kb/core/input.p0), `phrase_boundary_stop`; [code.c](../../src/code.c), `input_structure`; `reading_choice` | nodi, offset, candidati nominali e ragione della chiusura | il produttore cerca aperture/chiusure per parola; `np_candidate` non porta ancora una prova compositiva di testa, modificatori e attacchi |
+| [input-structure.p0](../../kb/core/input-structure.p0), `bare_noun_candidate`, `bare_run`, `input_entity_node` | anche nomi mai incontrati possono diventare argomenti | il nome nudo nasce prevalentemente per esclusione delle classi note; parole non capite possono aggregarsi in una falsa entita'. Insegnare un verbo puo' quindi cambiare anche i confini dei nomi |
+| [english-grammar/reading.p0](../../kb/core/english-grammar/reading.p0), `token_morphology`, `token_verb_valency`, `construction_role_required`, `scope_requirement`, `commitment_at` | lessico, costruzioni e impegno sono osservabili sugli stessi nodi di turno e documento | nelle ricerche su `kb/` e `src/`, le ultime tre viste non risultano consumate da una decisione semantica generale; `scope_requirement` raggiunge l'ispettore. Dichiarare un ruolo richiesto non significa averlo legato |
+| `input_binary_assertion` → `input_semantic_frame` → `input_assertion_store` → `semantic_binding` | prosa e domanda condividono operatore e ruoli semantici | la prima relazione porta gli ID dei nodi; la proiezione porta i valori. Fonte e testo sono conservati, ma il percorso non espone una ricevuta uniforme dell'allineamento scelto ai consumatori |
+| [reading-choices.p0](../../kb/core/reading-choices.p0) | correggere un'occorrenza, estendere a parola/classe, rileggere | `reading_closer/1` e `reading_continuer/1` proiettano sulla parola: manca la condizione locale di costruzione per distinguere due usi della stessa parola nello stesso testo |
+| [language-lessons.p0](../../kb/core/language-lessons.p0), `inverts_when_via`, `condition_holds` in [grammar.p0](../../kb/core/grammar.p0) | una condizione composta viene insegnata, applicata, spiegata e ritirata | e' un circuito fertile concreto, ma ancora specializzato nell'inversione: non e' gia' un interprete universale di lezioni su ruoli e ambiti |
+| [document-claims.p0](../../kb/core/document-claims.p0), [contact.p0](../../kb/core/contact.p0), [derivation.p0](../../kb/core/derivation.p0) | letture correnti, sostegni, revisioni, alternative di prova | la revisione documentale e il sostegno del contatto non coprono automaticamente tutti i fatti e gli slot scritti dai lettori storici |
+| [gap-kinds.p0](../../kb/core/gap-kinds.p0), [arrests.p0](../../kb/core/arrests.p0), [issues.p0](../../kb/core/issues.p0) | specie, oggetto mancante, obbligo, questione aperta | molte specie partono da esito/topic/modulo. `wrong_suspect` prescrive una guardia; non distingue ancora un confine da un ruolo o da un impegno sbagliato |
+
+**La grammatica disponibile supera la grammatica collegata agli usi.** Per
+esempio `construction_role/3` descrive anche proposizioni incassate e
+restrittori; `construction_role_required/4` ne deriva le richieste. Il prossimo
+passo utile e' legare una richiesta ai nodi che la soddisfano, o al residuo
+che impedisce di soddisfarla. Aggiungere altre cento descrizioni di costruzioni
+senza quel collegamento aumenterebbe il catalogo, non la comprensione.
+
+La discontinuita' e' visibile anche dentro il lessico: il confine del
+produttore consulta `pos(..., verb)` e `clause_copula`; il nome nudo esclude
+`word_is_verb_form`, che passa anche dalle forme dei **verbi di relazione**;
+`token_morphology` vede invece il paradigma morfologico generale. Non sono
+tre viste equivalenti. Insegnare un lemma non garantisce che tutti e tre
+cambino insieme; allargarle indiscriminatamente spezzerebbe gli usi nominali
+di parole anche verbali. L'innesto comune deve essere il giudizio
+sull'occorrenza, alimentato da queste evidenze, non una lista lessicale piu'
+larga copiata nei tre punti.
+
+Le correzioni storiche restano indizi, non diagnosi attuali automatiche:
+`input.p0` collega gia' `clause_copula` al confine nominale. Il vecchio esempio
+«il latte e' deperibile» non autorizza ad aggiungere di nuovo quel ponte;
+se riappare, bisogna localizzare quale osservazione o consumatore lo perde.
+
+### B. L'unita' di crescita: una distinzione con i suoi usi
+
+La KB cresce efficacemente quando una lezione modifica **una distinzione
+riusata**: nominale/verbale nell'occorrenza, argomento/complemento del nome,
+domanda/asserzione nella clausola, contenuto riportato/contenuto assunto,
+risposta a un'offerta/nuova iniziativa. Ciascuna distinzione deve poter
+selezionare una lettura, motivarla, ricevere una correzione e riaprire gli usi
+che ne dipendono. Questo e' il prodotto dell'incremento, non il solo predicato.
+
+Tre strutture da completare, come relazioni sugli oggetti esistenti:
+
+1. **Allineamento della lettura.** Collegare scope e nodi della candidata a
+   costruzione, ruoli e condizioni provate. La testa nominale, il suo
+   complemento e il predicato della clausola restano distinguibili. Un
+   `grammatical_cue` propone; una relazione di ruolo sostenuta autorizza.
+   Conservare anche alternative e requisiti aperti: non battezzare come
+   costituente il frammento scelto dal vecchio lettore per farlo passare.
+2. **Uso della lettura.** Collegare il singolo fatto, slot o parte di risposta
+   all'allineamento che lo autorizza, alla clausola e all'obbligo servito.
+   Un composto ha piu' usi: il solo `turn_module(compound)` non li sostituisce.
+   Per valori dedotti, collegare la derivazione al ruolo richiesto; per una
+   citazione, conservare il suo status di citazione. Le proiezioni indicizzate
+   restano viste dello stesso contenuto, non depositi con verita' autonome.
+3. **Residuo di quell'uso.** Legare cio' che manca o confligge al requisito
+   preciso e alle alternative ancora possibili, riusando `turn_arrest` e
+   `information_need`. La sua identita' deve raggiungere la lettura e la
+   clausola anche dopo la fine del turno. Un esito globale `answered` non
+   chiude gli obblighi delle altre parti.
+
+Non occorre un predicato enorme o un secondo supervisore. Si estendono i
+collegamenti di `reading_choice`, dei frame, dei sostegni e del tabellone;
+le firme nuove si decidono sull'innesto concreto, preservando arita' e
+identita'. `kb_derivation` aiuta per le prove riuscite: non produce da solo
+il requisito semantico mancante e non deve essere presentato come se lo facesse.
+
+La lettura nominale deve restare aperta ai nomi sconosciuti: **evidenza
+positiva non significa presenza nel dizionario**. Puo' venire da una
+costruzione, da un determinante con modificatori, da un ruolo condiviso con
+un esempio noto. Se manca questa evidenza si conserva una candidatura aperta;
+non si trasforma ogni parola ignota in un nome ne' si vieta di impararla.
+
+### C. Che cosa insegnano davvero le lacune del challenge
+
+| reperto dei giri 1–4 | distinzione da far crescere | conseguenza riusabile |
+|---|---|---|
+| «Anna What is my name», «On helps clarify the picture…» | confine di clausola, costituente nominale e ruolo assegnato sono tre giudizi collegati | memoria, analisi e apprendimento ricevono valori dalla stessa lettura; una correzione grammaticale agisce sui tre |
+| «What part of this topic fascinates you most?» → «plate.» | il gruppo interrogativo con il suo restrittore e' argomento di «fascinates»; la parola «part» non basta a scegliere `part_of` | la domanda conserva predicato, ruolo interrogato e restrizione; non si elimina il complemento per arrivare a un fatto disponibile |
+| «It sounds like … risks and safeguards» → `sound(risks)` | una costruzione d'impressione prende un contenuto incassato, con impegno diverso dall'asserzione di quel contenuto | si puo' capire e discutere P sotto un'impressione senza imparare P come fatto; il sapere sui mondi diventa utile anche qui |
+| «I see!» / racconto di una passeggiata → risposta sul corpo di parrot0 | atto idiomatico, persona e ruolo nella clausola richiesta | la menzione di un verbo non e' una domanda sulla capacita' dell'interlocutore |
+| «I'm tired» accetta una ricerca; chiarimento su «first» reiterato | il nuovo atto deve soddisfare il contenuto atteso della questione aperta | `open_issue` governa attesa, risposta pertinente e chiusura; recenza e presenza di una parola non valgono come risposta |
+| risposte duplicate, misclaim sotto `compound` | ogni clausola porta atto, lettura e obblighi propri, collegati al turno | riscontro sociale, acquisizione e risposta possono coesistere senza duplicare o nascondere cio' che resta aperto |
+
+Queste sono **direzioni strutturali ricavate dai reperti**, non nuove diagnosi
+runtime gia' prodotte da parrot0. Il «plate» in particolare non si chiude
+solo impedendo un'enumerazione: deve diventare leggibile la domanda sulle
+preferenze. Se quel contenuto sul se' manca, l'esito corretto e' una lacuna
+su quella richiesta, non un'altra risposta pescata nella KB.
+
+### D. Dalla diagnosi alla lezione: il residuo deve indicare un innesto
+
+Il rimedio diventa determinato **rispetto a un requisito e alle evidenze**,
+non perche' ogni risposta sbagliata abbia una sola causa deducibile. La prima
+operazione e' distinguere queste situazioni sul percorso scelto:
+
+| stato osservabile | lavoro che deve diventare possibile |
+|---|---|
+| osservazione incompleta o ricerca interrotta | dichiarare il limite; non insegnare un fatto per compensare un timeout |
+| candidatura senza confine o ruolo sostenuto | chiedere/cercare la distinzione locale e conservarne il contrasto |
+| requisito noto, evidenza gia' presente ma non consumata | collegare la vista al lettore; non chiedere al maestro di ripetere conoscenza gia' disponibile |
+| due allineamenti ammissibili con conseguenze diverse | chiedere cio' che li distingue; non scegliere per ordine di enumerazione |
+| lettura completa, relazione o valore non raggiunti | distinguere fatto mancante, ponte fra rappresentazioni e argomento interrogato sbagliato |
+| uso incompatibile con atto, ambito o sostegni | rivedere quell'uso e le conseguenze dipendenti, conservando osservazione e letture alternative |
+
+**Procedura cognitiva da costruire:** dal residuo risalire al requisito;
+cercare nella KB una conoscenza che lo soddisfi; se c'e', rendere visibile la
+discontinuita' del percorso; se manca, allineare una lezione o un contrasto
+ai ruoli aperti. Dalla candidata ricavare una conseguenza che la distingua
+dalla lettura corrente. Se la distinzione resta indecidibile, aprire una
+questione su quella differenza. Una descrizione come «serve una guardia» non
+esegue nessuno di questi passi.
+
+Riusare il circuito di `lesson_form_target` e `lesson_condition_opens`: la
+lezione trova la regola attraverso cio' che colloca e cio' che rende possibile.
+Estendere questa operazione a **una** condizione di ruolo locale; non copiare
+`inversion_condition_word` in un insegnante diverso per ogni famiglia.
+`condition_holds(all(...))` offre gia' la composizione, ma i suoi argomenti
+attuali sono quelli dell'inversione: per il nuovo uso servono i nodi e le
+relazioni pertinenti, non soltanto un altro nome di condizione.
+
+Il contratto parlato da aprire, ad esempio, e': «Qui “gauge” fa parte del nome
+dello strumento; in “the instrument gauges thickness” indica che cosa fa».
+Poi: «La distinzione vale quando la parola occupa quei ruoli, non perche'
+parliamo di quello strumento». Sono **lezioni obiettivo**, non sintassi oggi
+garantite. Il ritiro deve poter riguardare l'estensione, conservando la
+correzione locale. La ragione dell'innesto deve essere mostrabile con le
+parole e gli esempi del maestro, senza nomi di predicati.
+
+### E. Come moltiplicare la crescita dopo il primo innesto
+
+**Generalizzare la relazione, variare i membri.** Partire da una correzione
+locale sostenuta; identificare quali ruoli e condizioni spiegano il contrasto;
+estenderla a occorrenze diverse della stessa costruzione. Solo dopo allargare
+la costruzione. Variare insieme parola, struttura, atto e dominio renderebbe
+impossibile capire quale distinzione e' stata appresa. Un esempio favorevole
+non basta a decidere la portata: una lezione esplicita o un contrasto pertinente
+deve sostenerla. L'applicazione della candidata non e' una conferma indipendente.
+
+**Riempire le aperture gia' operative.** Paradigmi → `verb_form_analysis`;
+espressioni → `grammatical_cue`; correzioni → `reading_choice`; condizioni
+dell'inversione → `inverts_when_via`: qui nuove lezioni hanno gia' consumatori.
+Nei punti ancora solo descrittivi, come i ruoli richiesti dalle costruzioni,
+aprire prima il collegamento. La priorita' non va al numero di fatti che si
+possono aggiungere, ma alla distinzione che rende usabili piu' conoscenze
+preesistenti in piu' percorsi.
+
+**Usare la prosa come riuso e sorgente di lacune.** Dopo una lezione, riprendere
+testi reali conservati che contengono quella struttura: ogni lettura nuova
+porta fonte, ruoli e impegno, ogni residuo indica il prossimo insegnamento.
+Conversazione e prosa devono usare gli adattatori `ir_token`/`ir_next` e la
+stessa evidenza grammaticale. Non basta estrarre una risposta dalla pagina:
+il contenuto acquisito deve diventare raggiungibile da una domanda diversa.
+
+**Connettere il sapere sul mondo senza confondere le relazioni.** Il circuito
+dei ponti in [bridges.p0](../../kb/core/bridges.p0) e' gia' un esempio di
+crescita guidata dalle conseguenze: coppie condivise suggeriscono un ponte,
+non lo provano. `capital_of` e `located_in` possono condividere una coppia
+senza essere equivalenti. Prima di duplicare un fatto per raggiungerlo,
+confrontare verso, ruoli e natura delle relazioni; usare i ponti del solver
+solo quando quella corrispondenza e' sostenuta. Una lacuna di accesso alla
+conoscenza non va curata inventando nuova conoscenza.
+
+**Far crescere anche le procedure attraverso i ruoli.** `proc_run`,
+`proc_from` e `run_step` eseguono gia' composizioni, incluso `apply`. Il lavoro
+L4 e' collegare gli ingressi di una domanda ai parametri e alle condizioni
+della procedura, e la sua uscita al ruolo richiesto. Riutilizzare lo stesso
+allineamento per dato, relazione e procedura evita un'altra isola di capacita'.
+Un inverso richiede le sue condizioni: l'esistenza del calcolo in avanti non
+le fornisce.
+
+**Riaprire soltanto gli usi toccati.** Una lezione nuova puo' invalidare anche
+una vecchia assenza: insegnare un verbo modifica un candidato nominale che
+dipendeva da `naf(word_is_verb_form(...))`. Collegare le dipendenze di lettura
+alle revisioni documentali e a `view_depends`, mantenendo distinti validita'
+semantica e cache. Una fonte indipendente resta viva dopo il ritiro dell'altra.
+Il costo deve seguire le occorrenze e i consumatori interessati, non il
+prodotto fra tutti i fatti e tutte le forme. I successi e i residui conservati
+diventano cosi' materiale di crescita, non transcript da riesaminare a mano.
+
+### F. Consegne, nell'ordine che apre la crescita
+
+1. **Primo circuito: valore nominale, ruolo e correzione locale.** Collegare
+   una lettura nominale alla clausola, al ruolo e all'uso che ne fa un lettore
+   di slot oggi a stringa, partendo da `mod_memory` in
+   [10-memory-knowledge.c](../../src/brain/10-memory-knowledge.c).
+   Usare lo stesso allineamento
+   nella proiezione semantica della lettura, senza un secondo estrattore.
+   Innesti: `input_structure`, `input_entity_node`, `reading_choice`,
+   `input_binary_assertion` e il consumatore dello slot. La prima consegna
+   comprende il residuo e la possibilita' di correggere quell'occorrenza;
+   non una fase preliminare che si limiti a registrare gli errori.
+   Il caso guida e' il valore in «My name is Anna. What is my name?»:
+   conservare il confine della prima clausola e collegare «Anna» al ruolo di
+   valore; la seconda clausola interroga quel ruolo. Il caso gia' corretto
+   dalla guardia di punteggiatura serve a sostituire il percorso, non a
+   rivendicare un nuovo verde. La lezione di estensione deve poter cambiare
+   la lettura di un valore nominale composto senza un nuovo ramo nel lettore.
+2. **Estensione della condizione e alimentazione.** Far esprimere per quali
+   ruoli/costruzioni la correzione vale, seguendo il circuito L4 delle
+   condizioni. Alimentarlo con lezioni su nomi, modificatori e usi verbali
+   incontrati nella prosa conservata. La stessa distinzione deve servire al
+   lettore, alla domanda e alla spiegazione prima di aprire un altro circuito.
+3. **Clausole e impegni composti.** Usare i legami del primo circuito per
+   assegnare il contenuto incassato e il suo ambito; collegare
+   `construction_role_required`, `scope_requirement` e `commitment_at` alle
+   decisioni di uso. Partire dall'impressione del challenge e riusare i mondi
+   e `normalization_origin`, senza una guardia privata su «sounds like».
+   Il risultato include il residuo della singola clausola nel turno composto.
+4. **Apprendimento che si riattiva.** Collegare residui, `open_issue`, lezioni
+   e dipendenze: una risposta pertinente modifica la lettura, riapre gli usi
+   interessati e chiude solo la questione soddisfatta. Persistono anche i
+   legami necessari alla revisione. Da qui massimizzare sulle altre famiglie
+   della tabella C, poi sugli allineamenti di relazioni e procedure.
+
+Questa sequenza non richiede una grammatica completa prima di imparare.
+Ogni circuito deve leggere abbastanza per ricevere la propria correzione e
+generalizzarla con condizioni; cio' che non legge resta un residuo preciso.
+Non si sostituiscono in blocco le facolta': si migra il loro accesso ai valori
+e si ritirano le guardie duplicate quando il percorso condiviso ne assume il
+lavoro. Le capacita' secondarie funzionanti restano disponibili.
+
+**Per iniziare l'implementazione:** la proposta da allineare con F. e' il
+punto 1, con una lezione locale e la sua estensione condizionata rese concrete
+sullo stesso oggetto. Questa revisione consegna il progetto; non applica
+ancora modifiche al motore o alla KB viva. Non serve aprire ora un altro giro
+LLM, una suite o un nuovo banco: all'implementazione bastano gli esempi reali
+del circuito, un trasferimento e il ritiro della lezione per osservarne
+l'effetto causale. I controlli servono a quel lavoro, non ne diventano il centro.
 
 ---
 
@@ -146,7 +407,11 @@ PRIORITARIO).
 
 ---
 
-## HANDOFF — da dove si comincia
+## HANDOFF storici — progressi e residui del 26–29 settembre
+
+Per l'ordine attuale prevale **Indirizzo attuale — anatomia e crescita della
+comprensione**, sopra. I seguenti stati e numeri si riferiscono alle sessioni
+indicate; restano consultabili senza trasformarsi in una coda obbligatoria.
 
 ### ⏸ HANDOFF (29 settembre 2026, giorno) — riprendere da qui
 
@@ -2169,10 +2434,10 @@ fuori dalla risoluzione attiva, come fa `kb_note_inference`.
 ## 6. Crescita per circuiti cognitivi
 
 Le sigle originali L4-0…L4-8 restano per i riferimenti, ma non sono una sequenza
-obbligatoria né otto nuovi sottosistemi. **L'ordine lo dà l'HANDOFF:** prima il
-circuito regola-che-opera → reinsegnata → estesa, che attraversa L4-1, L4-2 e
-L4-5. Le altre sezioni sono repertorio: si toccano solo quando bloccano quel
-circuito.
+obbligatoria né otto nuovi sottosistemi. **L'ordine attuale e' nella sezione
+iniziale di anatomia e crescita.** Il circuito regola-che-opera → reinsegnata
+→ estesa, sviluppato negli handoff, ne fornisce il precedente concreto. Le
+sezioni seguenti restano repertorio degli innesti e dei limiti.
 
 ### L4-3 + L4-4a — La lettura dell'occorrenza resta la stessa (repertorio, non preliminare)
 

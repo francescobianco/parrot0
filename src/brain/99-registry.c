@@ -5770,6 +5770,8 @@ static int universal_turn_lead(Brain *b, const char *surface, const char *raw,
     kb_retract_pred(b->kb, "turn_span_binding");
     kb_retract_pred(b->kb, "turn_cue");
     kb_retract_pred(b->kb, "turn_illocution");   /* gen513: la forza e' del turno */
+    kb_retract_match(b->kb, "turn_clause_result", (const char *[]){"current_turn", NULL, NULL}, 3);
+    kb_retract_match(b->kb, "turn_clause_source", (const char *[]){"current_turn", NULL, NULL}, 3);
     kb_retract_pred(b->kb, "turn_pattern_match"); /* 15 settembre 2026: le forme insegnate */
     /* 15 settembre 2026 — L'ORIGO (origo.p0): il motore pubblica l'orologio e
      * una finestra di calendario come FATTI, a ogni turno. Che cosa siano
@@ -7330,28 +7332,14 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
      * «A bear.»): anche un turno di piu' FRASI dichiarative si legge una frase
      * alla volta. La forza `compound_statement` e i suoi confini
      * (`sentence_boundary_cue`) sono in turn-frames.p0. */
-    int statement = 0;
-    {
-        const char *cq[2] = { "current_turn", "compound_inquiry" };
-        const char *cs[2] = { "current_turn", "compound_statement" };
-        int inq = kb_query(b->kb, "turn_illocution", cq, 2);
-        int stm = inq ? 0 : kb_query(b->kb, "turn_illocution", cs, 2);
-        /* gen513: la sonda che ha trovato perche' un PARAGRAFO non si divideva
-         * mentre la stessa prosa piu' corta si' (P0_READ_TRACE=1). */
-        p0_trace(b, "read", "[compound?] len=%zu inquiry=%d statement=%d\n",
-                    strlen(input), inq, stm);
-        if (!inq) {
-            if (!stm) return 0;
-            statement = 1;
-        }
-    }
+    char boundary[1][KB_TERM_LEN];
+    const char *bq[2] = { "current_turn", NULL };
+    if (kb_match(b->kb, "turn_clause_boundary", bq, 2, boundary, 1) != 1) return 0;
     char cues[32][KB_TERM_LEN];
     const char *q[1] = { NULL };
-    size_t nc = kb_match(b->kb, statement ? "sentence_boundary_cue" : "clause_boundary_cue", q, 1, cues, 32);
+    size_t nc = kb_match(b->kb, kb_dequote(boundary[0]), q, 1, cues, 32);
     if (nc == 0) return 0;
 
-    char buf[P0_TURN_MAX];
-    snprintf(buf, sizeof buf, "%s", input);
     /* ── gen513 — QUANTE FRASI SI LEGGONO LO DICE LA KB ──────────────────────
      *
      * Il tetto era `MAX_CLAUSES = 8`, e non era una soglia prudente: era una
@@ -7373,19 +7361,21 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             if (v > 0 && (size_t)v < clause_cap) clause_cap = (size_t)v;
         }
     }
+    char buf[P0_TURN_MAX + MAX_CLAUSES]; size_t used = 0;
     char *clauses[MAX_CLAUSES]; size_t ncl = 0;
-    char *p = buf;
+    size_t starts[MAX_CLAUSES], lengths[MAX_CLAUSES], node_ids[MAX_CLAUSES];
+    char results[MAX_CLAUSES][KB_TERM_LEN];
+    const char *p = input;
     while (*p && ncl < clause_cap) {
-        char *best = NULL; size_t bestlen = 0;
+        const char *best = NULL; size_t bestlen = 0, keep = 0;
         /* All'ultimo posto disponibile non si taglia piu': cio' che resta e'
          * una frase sola. Meglio un periodo lungo letto male che mezzo testo
          * mai visto — il taglio muto era la perdita peggiore. */
-        if (ncl + 1 == clause_cap) { clauses[ncl++] = p; break; }
-        for (size_t i = 0; i < nc; i++) {
+        for (size_t i = 0; ncl + 1 < clause_cap && i < nc; i++) {
             char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
             const char *cue = kb_dequote(cb);
             if (!*cue) continue;
-            char *h = strstr(p, cue);
+            const char *h = strstr(p, cue);
             /* 18 settembre 2026 — il punto di un'abbreviazione («e.g.», «etc.»,
              * «ecc.») non e' un confine: quali lo siano e' conoscenza
              * (`sentence_boundary_exception/1`, kb/core/turn-frames.p0). Qui
@@ -7393,11 +7383,25 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
              * quelle, e in tal caso si cerca il confine successivo. */
             while (h && compound_boundary_is_abbreviation(b, p, h, cue))
                 h = strstr(h + 1, cue);
-            if (h && (!best || h < best)) { best = h; bestlen = strlen(cue); }
+            if (h && (!best || h < best)) {
+                best = h; bestlen = strlen(cue); keep = 0;
+                /* Un confine di frase conserva la sua forza (?! ecc.). La
+                 * KB distingue questi confini dai connettivi rimossi. */
+                const char *sq[1] = { cues[i] };
+                if (kb_query(b->kb, "sentence_boundary_cue", sq, 1)) {
+                    keep = bestlen;
+                    while (keep && isspace((unsigned char)cue[keep - 1])) keep--;
+                }
+            }
         }
-        if (!best) { clauses[ncl++] = p; break; }
-        *best = '\0';
-        clauses[ncl++] = p;
+        size_t len = best ? (size_t)(best - p) + keep : strlen(p);
+        if (used + len + 1 > sizeof buf) return 0;
+        starts[ncl] = (size_t)(p - input); lengths[ncl] = len;
+        node_ids[ncl] = ncl;
+        snprintf(results[ncl], sizeof results[ncl], "%s", len ? "result(none, unread)" : "");
+        clauses[ncl++] = buf + used;
+        memcpy(buf + used, p, len); buf[used + len] = '\0'; used += len + 1;
+        if (!best) break;
         p = best + bestlen;
     }
     if (ncl < 2) return 0;
@@ -7425,7 +7429,7 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
             while (len && (c[len - 1] == ' ' || c[len - 1] == '\n')) len--;
             if (!len) continue;
             InputSpan cs; memset(&cs, 0, sizeof cs);
-            cs.start = (size_t)(c - buf);
+            cs.start = starts[i] + (size_t)(c - clauses[i]);
             cs.len = len;
             snprintf(cs.role, sizeof cs.role, "clause");
             /* ⚠ La sorgente e' `input`, non `buf`: lo splitter ha messo un NUL
@@ -7433,6 +7437,7 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
              * frase e ogni span successivo veniva rifiutato come fuori testo
              * (pubblicava una frase sola, e tutte con lo stesso id). Gli offset
              * sono gli stessi — si sovrascrive un byte, non si sposta niente. */
+            node_ids[i] = base;
             size_t got = input_structure_publish(b->kb, input, &cs, "last_text", base);
             p0_trace(b, "read.text", "frase %zu: id %zu, range(%zu,%zu), %zu nodi «%.40s»\n",
                         i, base, cs.start, cs.len, got, c);
@@ -7631,10 +7636,12 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
         b->active_turn_norm = outer_view;
         char piece[1200];
         if (reply_is_wall(b, sub)) {
+            snprintf(results[i], sizeof results[i], "result(%s, unread)", b->last_module);
             const KbResponseSlot sl[] = { { "clause", c } };
             if (!kb_response_slots(b, "compound_clause_unread", sl, 1, piece, sizeof piece))
                 snprintf(piece, sizeof piece, "%s", sub);
         } else {
+            snprintf(results[i], sizeof results[i], "result(%s, answered)", b->last_module);
             snprintf(piece, sizeof piece, "%s", sub);
             read++;
         }
@@ -7662,6 +7669,22 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
         p0_trace(b, "read.compound", "outer structure restored\n");
         kb_set_origin(b->kb, prev);
         free(outer_force);
+    }
+    /* La ricevuta si pubblica dopo aver ripristinato il turno esterno: i
+     * rientri non possono cancellarla e /debug puo' vedere il residuo locale. */
+    {
+        int prev = kb_origin(b->kb); kb_set_origin(b->kb, KB_REFLECTIVE);
+        const char *rq[3] = { "current_turn", NULL, NULL };
+        kb_retract_match(b->kb, "turn_clause_result", rq, 3);
+        kb_retract_match(b->kb, "turn_clause_source", rq, 3);
+        for (size_t i = 0; i < ncl; i++) if (results[i][0]) {
+            char id[24], range[64];
+            snprintf(id, sizeof id, "%zu", node_ids[i]);
+            snprintf(range, sizeof range, "range(%zu,%zu)", starts[i], lengths[i]);
+            kb_assert(b->kb, "turn_clause_result", (const char *[]){"current_turn", id, results[i]}, 3);
+            kb_assert(b->kb, "turn_clause_source", (const char *[]){"current_turn", id, range}, 3);
+        }
+        kb_set_origin(b->kb, prev);
     }
     /* Se nessuna clausola e' stata letta, la lettura per clausole non ha
      * aggiunto niente: si lascia la parola alla risposta del turno intero
@@ -8402,9 +8425,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * (turn-frames.p0, `compound_statement`); le cue del turno sono appena
      * state pubblicate dal lead universale. */
     if (b && b->compound_depth == 0) {
-        const char *cs[2] = { "current_turn", "compound_statement" };
-        if (kb_query(b->kb, "turn_illocution", cs, 2) &&
-            compound_turn_lead(b, input, out, out_size)) {
+        if (compound_turn_lead(b, input, out, out_size)) {
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
             snprintf(b->last_module, sizeof b->last_module, "%s", "compound");
             return turn_done(b, norm, input, out, out_size);

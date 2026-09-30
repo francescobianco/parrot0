@@ -1,5 +1,10 @@
 # LLM challenge — un modello piccolo conduce, parrot0 risponde, si ripara, si rigioca
 
+> **Handoff piu' recente, 30 settembre 2026:**
+> [anatomia KB, nuove baseline LFM e patch L4 aperta](l4-growth-handoff.md).
+> Ripartire da li': l'handoff del giro 1 sotto e' storico. Le nuove baseline
+> sono complete; il confronto dopo la patch resta da eseguire.
+
 **Piano, 30 settembre 2026.** Nasce da una richiesta di F. dopo la prima
 chiacchierata fra parrot0 e un modello locale:
 

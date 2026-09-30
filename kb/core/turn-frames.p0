@@ -175,6 +175,34 @@ turn_cue_registry(sentence_boundary_cue, 1).
 sentence_boundary_cue(". ").
 sentence_boundary_cue("! ").
 sentence_boundary_cue("; ").
+% L4: ogni confine di frase e' anche un confine di clausola. Prima le due
+% liste divergevano: un'esclamazione restava incollata alla domanda seguente.
+clause_boundary_cue($Cue) :- sentence_boundary_cue($Cue).
+class_surface(sentence_boundary_cue, sentence boundary).
+% La comprensione del composto sceglie il proprio lettore PRIMA di una
+% risposta a una sola delle sue parti. La scelta e i confini sono conoscenza.
+machinery(clause_reading).
+machinery(turn_clause_boundary).
+clause_reading(compound_statement, sentence_boundary_cue).
+clause_reading(compound_inquiry, clause_boundary_cue).
+turn_clause_boundary($T, $Class) :-
+    turn_illocution($T, $Force), clause_reading($Force, $Class).
+faculty_yield_when(turn_plan, open, turn_clause_boundary).
+
+% La ricevuta conserva l'identita' del nodo clausola nella IR last_text.
+% Lo stato e' quello della lettura locale, non il solo esito `compound`.
+machinery(turn_clause_result).
+machinery(turn_clause_source).
+machinery(turn_clause_unread).
+turn_scoped(turn_clause_result, 3).
+turn_scoped(turn_clause_source, 3).
+turn_clause_unread($T, $Node) :- turn_clause_result($T, $Node, result($Module, unread)).
+turn_gap_kind($T, partial) :- turn_clause_unread($T, $Node).
+gap_class(partial, "una clausola del turno resta senza lettura").
+gap_remedy(partial, "riprendi la clausola non letta e il suo ruolo nel turno, senza ripetere le parti gia' servite").
+debug_clause_result($T, clause($Node, $Range, $Result)) :-
+    turn_clause_source($T, $Node, $Range), turn_clause_result($T, $Node, $Result).
+debug_probe(74, debug_clause_result, now, "lettura e residuo di ciascuna clausola del turno composto").
 % 18 settembre 2026 — IL PUNTO DI UN'ABBREVIAZIONE NON CHIUDE LA FRASE. Nel
 % piolo 340 «…may contain many other additives, e.g. coal.» veniva spezzato
 % dopo «e.g.»: la clausola monca «…many other additives, e.g» finiva a un
