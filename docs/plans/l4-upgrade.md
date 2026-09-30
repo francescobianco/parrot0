@@ -2,8 +2,10 @@
 
 > **Ripresa del lavoro, 30 settembre 2026 (sera):** il dopo e' misurato su
 > ingressi congelati (`scripts/talk-replay.py`): (A−M)/turni −0,02 → +0,06,
-> misclaim 5 → 4, primo consumatore reale di `commitment_at/4`. Esito, cure e
-> prossimi passi nella §0 del [handoff](l4-growth-handoff.md).
+> misclaim 5 → 4. Poi la prima porta parlata di L4 sull'IMPEGNO: «A request
+> asserts nothing.» fa cedere chi impara su ogni clausola che la IR legge come
+> richiesta, con ritiro, persistenza e trasferimento. Esito, cure e prossimi
+> passi nella §0 del [handoff](l4-growth-handoff.md).
 >
 > **Ripresa del lavoro, 30 settembre 2026:** leggere il
 > [handoff operativo con insight, baseline e patch aperta](l4-growth-handoff.md).

@@ -302,6 +302,17 @@ prossimo lavoro (report gen509 §7-bis).
 > gen506b (turno appeso = rosso con nome, budget duro che non si alza) resta.
 
 
+## 2026-09-30 — rossi visti durante L4 (l4-growth-handoff.md §0)
+
+- `conversation/compound_inquiry.p0t`: non si blocca, dura ~2 min perche' sette
+  `!reset` con `!set PARROT0_BASE` costano ~13 s ciascuno. 27/31: i 4 rossi sono
+  anche sul binario di prima (sezione universale «is every sailor a pilot?» →
+  «I don't know»; ablazione a 10 s; piume a 8,3 s). Allineate l'ablazione (toglie
+  anche `sentence_boundary_cue(". ")`) e la citazione col punto finale.
+- `language/assertion_withheld_lesson.p0t` (nuovo): 12/13; il rosso e' il turno
+  che impara per la via vecchia dopo il ritiro, 1,06 s contro 1 s (1,1 s anche
+  sul binario di prima). Costo della via d'apprendimento, non della porta.
+
 ## 2026-09-29 — rossi visti durante §CV (train-the-learning-process.md)
 
 - `reasoning/family.p0t` e `family.it.p0t`: attese di contenuto aggiornate

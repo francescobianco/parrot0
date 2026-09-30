@@ -580,11 +580,12 @@ faculty_yield_force(cause, open, impression).
 faculty_yield_force(statement_extract, open, impression).
 % 30 settembre 2026 (L4) — L'IMPEGNO SI LEGGE NELLA IR, NON IN UNA LISTA. La
 % forza nasce dall'evidenza grammaticale della clausola (`commitment_at/4`,
-% english-grammar/reading.p0) e dalle politiche che sospendono l'asserzione:
-% una superficie nuova di proposta e' una `expression_reading`, una politica
-% nuova e' un `assertion_withheld`, e ogni lettore che cede qui le vede.
+% english-grammar/reading.p0) e dalle letture che sospendono l'asserzione
+% (`assertion_withheld_reading/1`, english-grammar/discourse.p0): una
+% superficie nuova e' una `expression_reading`, una lettura nuova si insegna
+% parlando («A request asserts nothing.»), e ogni lettore che cede qui le vede.
 turn_declared_act($Turn, withheld_commitment) :-
-    commitment_at(input($Turn), $Span, $Value, $Policy), assertion_withheld($Policy).
+    grammatical_cue(input($Turn), $Span, $Kind, $Value), assertion_withheld_reading($Value).
 faculty_yield_force(knowledge, open, withheld_commitment).
 faculty_yield_force(learn, open, withheld_commitment).
 faculty_yield_force(cause, open, withheld_commitment).

@@ -35,7 +35,7 @@ lacuna `partial` restano.
 
 | specie | cura | dove |
 |---|---|---|
-| una proposta insegna un fatto («let's …») | la IR leggeva gia' `pragmatics, suggestion`: `commitment_policy(suggestion, proposal_only)` + `assertion_withheld/1` → forza `withheld_commitment`; i lettori che imparano cedono. **Primo consumatore reale di `commitment_at/4`** | english-grammar/discourse.p0, turn-frames.p0 |
+| una proposta insegna un fatto («let's …») | la IR leggeva gia' `pragmatics, suggestion`: la classe `assertion_withheld_reading/1` (seme `suggestion`) → forza `withheld_commitment` dall'evidenza `grammatical_cue` della clausola; i lettori che imparano cedono. **Insegnabile parlando** (vedi sotto, passo 1). Nota: la prima versione passava da `commitment_at/4`; e' stata semplificata perche' una lezione nomina la lettura, non una politica | english-grammar/discourse.p0, turn-frames.p0 |
 | ausiliare/negazione dentro il sintagma («i don't» soggetto) | `phrase_boundary(np, breaker, …)` da `auxiliary`, `negation_marker`, radice di contrazione negativa; radice e clitici (`t`, `s`, `re`…) sono classi di parole funzione, quindi non nomi nudi | input.p0 |
 | l'articolo italiano «i» apre il sintagma sul pronome inglese | `np_opener_foreign/1`: superficie che e' pronome personale e articolo di un'altra lingua. Il lettore a schema in C (`p0_lead_det`) interroga ora la vista guardata `np_opener_here/1`, e la sua guardia sugli slot interroga UNA vista KB (`nominal_slot_breaker/1`) invece di due classi cablate. **Chiude anche il rosso storico «I put the book on the table»** | input.p0, 10-memory-knowledge.c |
 | un'esclamazione non letta in un composto detta come muro | `clause_unread_voice(T, silent)`: la ricevuta resta `unread`, la voce tace | turn-frames.p0, 99-registry.c |
@@ -75,8 +75,19 @@ clausola conserva il punto finale.
 **Fertilita': non ancora provata.** Le classi nuove crescono con una riga KB
 (una politica che sospende l'asserzione, un clitico, un ausiliare), ma nessuna
 e' stata insegnata parlando. Prossimi passi utili, in ordine:
-1. la porta parlata per «una proposta non afferma niente» / «“let's” propone»
-   (LEARN_PROTOCOL §6-bis), con ritiro;
+1. ✅ **fatto (30 settembre, notte):** la porta parlata. «A request asserts
+   nothing.» / «Forget that a request asserts nothing.» (e lo stesso per il
+   seme «suggestion»). Prova reale in `make chat` e in
+   `tests/p0t/language/assertion_withheld_lesson.p0t` (12/13; il rosso e' un
+   costo di 1,06 s della via d'apprendimento, 1,1 s anche prima):
+   prima «Please send the report to the manager.» → «Learned: please send
+   report.»; lezione → «Hmm, I don't know about please yet…» (nessun fatto);
+   trasferimento su «Could you please keep the answers short.»; ritiro → il
+   fatto torna; «A cat asserts nothing» rifiutata (la lettura deve essere
+   nota alla IR); `/save` in sandbox scrive `assertion_withheld_reading(request)`
+   accanto al seme, e al riavvio vale. ⚠ «does not state a fact» non funziona:
+   il lettore della negazione viene prima delle forme. Resta: la domanda
+   inversa («does a request assert anything?») e l'italiano;
 2. il lettore di classe in C: soggetto dall'IR invece della regola della
    virgola (il caso «Oh, that's a clever twist!»);
 3. il riferimento definito del discorso («the conclusion») come residuo, non

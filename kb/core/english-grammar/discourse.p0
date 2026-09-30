@@ -425,13 +425,47 @@ commitment_policy(nonuniversal_negation, retain_quantifier_scope).
 % «Let's explore something fun!» diventava «Learned: let's explore something
 % fun.»: la IR leggeva gia' `pragmatics, suggestion` sullo span di «let's», e
 % nessuna decisione d'uso chiedeva che impegno portasse. Chi propone un'azione
-% non la dice avvenuta ne' vera: la politica e' conoscenza, e i lettori che
-% imparano la consultano attraverso la forza `withheld_commitment`
-% (turn-frames.p0), non attraverso una lista di superfici.
+% non la dice avvenuta ne' vera. La politica e' descritta come le altre
+% (`commitment_policy`), e le letture che sospendono l'asserzione intera sono
+% una classe di fatti: i lettori che imparano la consultano attraverso la forza
+% `withheld_commitment` (turn-frames.p0), non attraverso una lista di superfici.
+% (Non vale per `do_not_assert_actual` di «can», che resta un'abilita' leggibile.)
 commitment_policy(suggestion, proposal_only).
-% Quali politiche sospendono l'asserzione intera (non solo una sua parte, come
-% `do_not_assert_actual` per «can», che resta un'abilita' leggibile).
-assertion_withheld(proposal_only).
+machinery(assertion_withheld_reading).
+assertion_withheld_reading(suggestion).
+
+% LA PORTA PARLATA (L4, 30 settembre 2026). Chi insegna dice la condotta con
+% le parole della lettura, senza nomi interni:
+%   «A request asserts nothing.»              → la lettura `request` sospende l'asserzione
+%   «Forget that a request asserts nothing.»  → la lezione si ritira (anche il seme)
+% (Non «does not state a fact»: il lettore della negazione, che viene prima
+% delle forme, la prende legittimamente come fatto negativo — misurato.)
+% Il valore deve essere una lettura che la IR conosce (`reading_value/1`):
+% «a cat asserts nothing» non entra. Una superficie nuova della stessa lettura
+% si insegna gia' con «the expression … marks request pragmatics». Il fatto
+% insegnato si salva qui, accanto al seme (kb.c, la casa per predicato).
+machinery(reading_value).
+reading_value($Value) :- reading_feature($Meaning, $Kind, $Value).
+turn_form(assertion_withheld_lesson, 1, text("a")).
+turn_form(assertion_withheld_lesson, 2, slot(value)).
+turn_form(assertion_withheld_lesson, 3, text("asserts nothing")).
+turn_form_slot_class(assertion_withheld_lesson, value, reading_value).
+turn_form_act(assertion_withheld_lesson, "op(assert, assertion_withheld_reading, [value])").
+turn_form_priority(assertion_withheld_lesson, early).
+turn_form_view(assertion_withheld_lesson, said).
+turn_form_reply(assertion_withheld_lesson, assertion_withheld_learned).
+turn_form(assertion_withheld_forget, 1, text("forget that a")).
+turn_form(assertion_withheld_forget, 2, slot(value)).
+turn_form(assertion_withheld_forget, 3, text("asserts nothing")).
+turn_form_slot_class(assertion_withheld_forget, value, reading_value).
+turn_form_act(assertion_withheld_forget, "op(retract, assertion_withheld_reading, [value])").
+turn_form_priority(assertion_withheld_forget, early).
+turn_form_view(assertion_withheld_forget, said).
+turn_form_reply(assertion_withheld_forget, assertion_withheld_forgotten).
+response_template(assertion_withheld_learned,
+    "Held: a {value} asserts nothing, so I won't learn facts from one.").
+response_template(assertion_withheld_forgotten,
+    "Dropped: I no longer treat a {value} as asserting nothing.").
 sentence_boundary_exception("approx.").
 sentence_boundary_exception("ca.").
 sentence_boundary_exception("c.").

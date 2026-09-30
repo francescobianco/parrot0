@@ -1,0 +1,49 @@
+# L4 (30 settembre 2026) — UNA LETTURA CHE NON AFFERMA SI INSEGNA PARLANDO.
+#
+# La IR legge gia' «please» come `pragmatics, request`; chi impara scriveva lo
+# stesso «Learned: please send report.» (la specie di «just share sentence» nel
+# challenge locale). La lezione dice la condotta con le parole della lettura,
+# senza nomi interni; lo stesso turno, prima e dopo, cambia solo per cio' che
+# parrot0 sa. Il ritiro toglie esattamente quell'effetto, e vale anche per il
+# seme (la proposta, «let's»). Vedi english-grammar/discourse.p0.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test una richiesta non afferma niente: lezione, uso, trasferimento, ritiro]
+> A request asserts nothing.
+<~ Held: a request asserts nothing
+!query assertion_withheld_reading(request)
+> Please send the report to the manager.
+<! Learned
+> Could you please keep the answers short.
+<! Learned
+> Forget that a request asserts nothing.
+<~ Dropped
+!query! assertion_withheld_reading(request)
+
+[test il valore deve essere una lettura che la IR conosce]
+!reset
+> A cat asserts nothing.
+<! Held: a cat asserts nothing
+!query! assertion_withheld_reading(cat)
+
+[test il seme si ritira e si reinsegna parlando]
+!reset
+> Let's go to the park together!
+<! Learned
+> Forget that a suggestion asserts nothing.
+<~ Dropped
+# ⚠ Questo turno impara per la via vecchia e costa ~1 s anche sul binario di
+# prima (1,1 s misurati il 30 settembre): rosso di tempo preesistente, non
+# della porta. Il limite resta 1 s (F.); vedi TEST_TODO.md.
+> Let's visit the museum tomorrow.
+<~ Learned
+> A suggestion asserts nothing.
+<~ Held: a suggestion asserts nothing
+> Let's cook dinner tonight.
+<! Learned
