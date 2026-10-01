@@ -173,6 +173,200 @@ La giunzione ha regole, e sono conoscenza:
 4. Le domande su di se' leggono S16 e S15 prima del frasario, e la giunzione
    con S9–S10 produce le risposte composte.
 
+## 2-ter. Il concetto espanso: anatomia degli strati e della giunzione
+
+### Che cosa rende uno strato indipendente
+
+Uno strato e' fondamentale quando **si puo' togliere, sostituire o coprire
+senza riscrivere gli altri**. Tre prove pratiche:
+
+1. **Prova della sostituzione.** Se cambio questo strato, gli altri restano
+   veri? La lingua si sostituisce (lo stesso mondo raccontato in italiano), la
+   geografia no se tolgo la storia (Kyoto resta in Giappone anche se cambio
+   epoca, ma non resta capitale): **luoghi** e **storia** sono strati
+   distinti.
+2. **Prova della copertura.** Un mondo puo' contraddire questo strato
+   restando comprensibile? Nella fiaba gli animali parlano (si copre *vita e
+   corpo*) ma le frasi restano grammaticali (la *lingua* non si copre): sono
+   strati diversi, con una resistenza diversa alla copertura.
+3. **Prova della domanda.** Esiste una domanda che si risponde con questo
+   strato solo? «What does "let me" mark?» (lingua), «What do people usually
+   do when hungry?» (senso comune), «What would you choose?» (immaginario di
+   parrot0). Se nessuna domanda lo isola, non e' uno strato: e' una parte di
+   un altro.
+
+Uno strato puo' avere **sottostrati** (la cultura del Giappone dentro
+*culture*; la famiglia dentro *la cerchia di chi parla*), e ogni sottostrato e'
+a sua volta un mondo interrogabile: «in Japan», «in my family». Lo strato non
+e' un file e non e' una cartella: e' un **ruolo dei fatti nella composizione**.
+La casa su disco segue la somiglianza (memoria *KB by similarity*); lo strato
+segue la funzione.
+
+### La resistenza alla copertura
+
+Gli strati non sono pari. Alcuni si coprono facilmente, altri quasi mai, e
+questa **resistenza** e' essa stessa conoscenza (si insegna, si interroga):
+
+| resistenza | strati | esempio di copertura |
+|---|---|---|
+| quasi nulla | immaginario, conversazione, persona di chi parla | «in my imagination I prefer the sea» |
+| bassa | senso comune, convenzioni, culture | «in this town people dine at midnight» |
+| media | luoghi, storia, norme, qui e ora | «in this story Kyoto is on the coast» |
+| alta | vita e corpo, natura fisica | «in the fable the fox speaks» (solo in finzione) |
+| quasi totale | lingua, logica e numero | «in this story 2 + 2 = 5» (si capisce solo come stranezza dichiarata) |
+
+La resistenza decide che cosa fa parrot0 davanti a una copertura: la accetta
+in silenzio, la accetta e la nomina («in your story, then, the fox speaks»),
+o la segnala come stranezza. E' la stessa cosa che fa una persona.
+
+### La composizione: come una pila diventa un mondo
+
+Un mondo e' **una pila ordinata di strati** piu' uno **strato proprio**.
+Leggere, scrivere e rispondere nel mondo sono operazioni sulla pila:
+
+- **leggere** = cercare dall'alto verso il basso; il primo strato che sa
+  rispondere risponde, e dice da dove («in my imagination», «typically», «in
+  Japan», «as Marco sees it»);
+- **coprire** = lo strato proprio vince su quelli di sotto, ma solo dentro il
+  mondo; fuori, la copertura non esiste;
+- **assenza** = se nessuno strato della pila sa, la risposta e' un'assenza
+  nominata («nobody told me what you prefer»), non un muro generico;
+- **mescolare** = due pile possono condividere un tratto (il ponte temporaneo
+  di L4, «Answer as Marco would»): la giunzione per una domanda.
+
+Una pila non si scrive a mano per ogni mondo: si **deduce dal tipo del mondo**
+(la storia porta finzione e lingua; il mondo di chi parla porta la sua persona
+e il mondo vero), e si corregge parlando («in this story there is no magic»).
+
+### La zona di giunzione: dove nasce la colla
+
+La giunzione e' **il punto in cui una risposta richiede due strati diversi**.
+Non e' un'eccezione: e' il caso normale della conversazione umana. Nei giri
+della llm-challenge le risposte che mancano sono quasi tutte di giunzione:
+
+| domanda (challenge) | strati che servono | risposta di giunzione |
+|---|---|---|
+| «What sights in Japan are you most interested in?» | immaginario (temples, quiet) + culture/luoghi (Kyoto ha templi) | «In my imagination I'd go for the old temples in Kyoto.» |
+| «Have you ever thought about traveling?» | se' (non viaggia) + immaginario (curiosita') + persona di chi parla (pianifica il Giappone) | «I can't travel, but I like imagining it — what drew you to Japan?» |
+| «Do you find it hard to visualize abstract concepts?» | se' (non vede) + capacita' (ragiona per regole) | «I don't visualize; I follow the rules step by step.» |
+| «So you're thinking about what to prioritize.» | conversazione (riformulazione) + immaginario | conferma o correzione della riformulazione |
+| «I just got back from a walk in the park.» | persona di chi parla + senso comune (le passeggiate rilassano) | «A walk in the park — did it help you relax?» |
+
+**I fenomeni della colla**, ciascuno un tipo di giunzione da rendere
+conoscenza (e da insegnare parlando):
+
+1. **Immaginare dal vero.** L'immaginario prende i suoi oggetti dal mondo vero
+   (Kyoto, i templi): la preferenza e' propria, l'oggetto e' condiviso.
+2. **Mettersi nei panni.** Il mondo di un altro e' il suo strato sopra il mondo
+   vero: per capire Marco basta il suo strato, il resto e' comune (L4: le
+   credenze di Marco non contraddette valgono per Marco).
+3. **Raccontare.** La storia eredita tutto cio' che non copre: «the fox walked
+   to the river» si capisce perche' fiumi e camminare vengono dagli strati
+   sotto la finzione.
+4. **La metafora** e' una giunzione fra due strati che si dichiara non
+   letterale: «punctuation is the silent architect» prende *architetto* dallo
+   strato del lavoro e lo applica alla lingua. Leggerla come classe e' perdere
+   la giunzione (giro 4: «Learned: punctuation is a silent architect»).
+5. **L'ironia e la battuta** sono una giunzione che si contraddice: lo strato
+   della conversazione dice l'opposto dello strato della persona («rain is my
+   favourite weather», detto da chi e' bagnato). Riconoscerla e' vedere lo
+   scarto.
+6. **Il senso comune come sfondo.** «I'm tired» chiama il senso comune (chi e'
+   stanco riposa): una risposta naturale viene dalla giunzione fra la persona
+   di chi parla e lo strato del tipico, non da un fatto su di lei.
+7. **L'analogia** e' una giunzione fra due sottostrati con la stessa forma (L3,
+   i ponti fra predicati): «Osaka is to food what Kyoto is to temples».
+
+### Come la lingua scrive negli strati
+
+La lingua dice gia' a quale strato va una frase; e' grammatica, e quindi sta
+nello strato S1 (e si insegna come ogni grammatica):
+
+| marca linguistica | strato |
+|---|---|
+| presente generico, «usually», «people», «typically» | senso comune |
+| «in Japan», «in Kyoto», «here» | luoghi, culture (sottostrato del luogo) |
+| «in 1868», «in the past», «yesterday» | storia, tempo |
+| «my», «I», «I'm planning», «I just» | la persona di chi parla |
+| «my sister», «my friend» | la cerchia di chi parla |
+| «you can», «you can't», «you were built» | il se' di parrot0 |
+| «in your imagination», «if you could», «you would» | l'immaginario di parrot0 |
+| «in this story», «once upon a time», «in the game» | finzione (il mondo raccontato) |
+| «suppose», «if», «imagine» | ipotesi |
+| «Marco thinks», «according to», «the book says» | fonti, altre menti |
+| «so you're saying», «that's a great idea», «let's» | la conversazione |
+| «means», «is called», «the word» | lessico e lingua |
+
+Una frase senza marca va nello strato che la sua forma e il suo contenuto
+indicano (un attributo di una cosa nominata dal possessivo va alla persona;
+una proprieta' di un tipo va al senso comune o alla scienza), e se resta
+incerta e' una **domanda di strato** da fare a chi parla, non un fatto
+scritto a caso. E' esattamente cio' che oggi manca: «Osaka is definitely a
+must» (detto da LFM) andava nella sua fonte, non nel mondo vero.
+
+### Come una lezione si propaga
+
+Una lezione scritta in uno strato vale per **ogni mondo che porta quello
+strato**, subito e senza copie. E' la forma operativa di cio' che L4 chiedeva
+(una lezione cambia un punto condiviso e i suoi usi cambiano insieme):
+
+- una lezione di **lingua** («the expression let me marks request pragmatics»)
+  vale nel mondo vero, nella storia, nel mondo di Marco;
+- una lezione di **senso comune** («people usually rest when they are tired»)
+  vale nel mondo di chi parla («I'm tired» → «take a rest?») e nella storia;
+- un tratto dell'**immaginario** («you like quiet places») vale in ogni
+  domanda su di se', e si compone con ogni luogo che il mondo vero conosce.
+
+Il ritiro e' simmetrico: togliere un fatto da uno strato lo toglie da tutti i
+mondi che lo portavano, e da nessun altro (memoria *forget is a layer*: il
+ritiro e' a sua volta uno strato che copre).
+
+### Gli strati nel tempo
+
+Ogni strato ha il suo orologio. La persona di chi parla cambia di turno in
+turno (L4-7, gli stati che finiscono); la conversazione cambia a ogni frase;
+la storia cambia per epoche; la lingua quasi mai. La giunzione rispetta i
+tempi: «I'm tired» di un'ora fa non e' «I'm tired» adesso, ma «Kyoto has
+temples» resta. La validita' temporale e' una proprieta' dello strato, non
+del singolo fatto.
+
+### Che cosa significa per la macchina che c'e'
+
+| oggi | domani |
+|---|---|
+| `context(world, world)`: un mondo monolitico | il mondo vero = la pila S1–S13 |
+| `context_default_parent(Kind, world)`: un genitore | una pila ordinata di strati per tipo di mondo |
+| `holds_in(Contesto, P)` | resta: lo strato proprio di un mondo e' un contesto |
+| `context_visible_belief` (eredita' a catena) | lettura dall'alto della pila |
+| `commitment_policy(Kind, …)` | politica per strato (vero, tipico, stipulato, attribuito, immaginato) |
+| la casa del save-map (per predicato) | resta per il disco; lo strato si deriva dalla famiglia del predicato |
+| il frasario sul se' (`self_preference`, …) | rete sotto la lettura di S15–S16 |
+| `context_fact(imagination, …)`, il mondo della storia, la stipulazione | convergono come strati propri dei loro mondi |
+
+**Costo.** Una domanda che scende una pila costa piu' di una che legge un
+mondo solo (memoria *il costo sono le enumerazioni*). La pila va letta in
+ordine e fermata al primo strato che risponde; gli strati grandi (lingua,
+lessico) non si enumerano: si interrogano con l'argomento legato. Ogni pila
+calcolata e' un fatto (la vista per tipo di mondo), non una ricostruzione per
+turno.
+
+### La prova che il concetto regge
+
+Una sola sessione, parlando, sulla KB viva:
+1. tre tratti nell'immaginario di parrot0 («you like quiet places», «you
+   prefer temples to museums», «you love reading in the rain»);
+2. un fatto vero nello strato dei luoghi («Kyoto is famous for its old
+   temples»);
+3. la domanda di giunzione, mai insegnata: «Which city in Japan would you
+   choose?» → una risposta che dichiara l'immaginario e cita il fatto vero;
+4. contrasto: «Is Kyoto famous for its temples?» risponde dal mondo vero
+   senza «in my imagination»; «Do you prefer temples?» risponde
+   dall'immaginario dichiarandolo;
+5. ritiro di «you prefer temples to museums»: la risposta di giunzione cambia,
+   il fatto su Kyoto resta.
+
+Se questa sessione riesce, la colla e' una struttura e non un frasario.
+
 ## 3. Il framework operativo: quattro domande su ogni turno
 
 Per ogni risposta della challenge che non regge, nell'ordine:
