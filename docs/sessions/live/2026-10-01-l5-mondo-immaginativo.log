@@ -1,0 +1,39 @@
+# sessione: l5-mondo-immaginativo — 2026-10-01 22:22 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@c2a7aab4]
+# mode: conversational (tools off, network off) - 172239 facts, 6501 rules (3.77%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! L5, mondo #2 (immaginativo di parrot0). Porta esistente: «In <mondo>, S rel O» (context_fact). Imprint coerente con il frasario attuale (pioggia, lettura, pane caldo). Poi domande non insegnate, contrasto col mondo vero, la porta «assume».
+> In your imagination, you prefer temples to museums.
+< Held, but only in imagination: you prefer temples to museums.
+> In your imagination, you like quiet places.
+< Held, but only in imagination: you like quiet places.
+> In your imagination, you love reading in the rain.
+< Held, but only in imagination: you love reading in the rain.
+> In your imagination, your favorite food is fresh warm bread.
+< I don't have real preferences, but if I had to choose, I'd pick fresh warm bread.
+> In your imagination, you would choose Kyoto.
+< I don't understand that yet.
+> Do you prefer temples or museums?
+< I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.
+> What is your favorite food?
+< I don't have real preferences, but if I had to choose, I'd pick fresh warm bread.
+> Which city would you choose?
+< I don't know how to answer that about myself yet: nobody has taught me.
+> Do you like quiet places?
+< I don't have tastes of my own, so I can't honestly say I like it. Do you?
+> Is Kyoto a city?
+< I cannot settle that: no fact I hold decides whether kyoto is a city, and knowing some citys does not tell me they are all of them. Not proved is not the same as false. Tell me either way and I will hold it.
+> assume your imagination
+< Now reasoning inside imagination.
+> Do you prefer temples or museums?
+< No genuine preferences here: I don't experience days or hobbies. What's your take?
+> What is your favorite food?
+< I don't have real preferences, but if I had to choose, I'd pick fresh warm bread.
+> stop assuming your imagination
+< Out of imagination.
+> What do you imagine?
+< That sounds nice -- tell me more about it.
+> /debug pred context_fact
+# /debug pred context_fact: 4 righe lette dall'insegnante, fuori dal transcript
+! Chiusa senza /save: i tre tratti stanno in context_fact(imagination, …) con soggetto «you» e oggetto in un atomo, in un sistema di mondi parallelo a L4 che nessuna risposta su di se' legge. Salvarli renderebbe permanente un imprint muto.
