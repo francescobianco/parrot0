@@ -2869,7 +2869,7 @@ turn_form_empty_reply(which_kind_relation_particle, no_value_in_class).
 % (`turn_entity_named/2`, grammar.p0): prende la superficie piu' lunga che la
 % IR ha gia' riconosciuto, quindi «austenitic stainless steel» resta intero.
 response_template(learned_property_phrase, "Learned: {subject} is {class}.").
-response_template(unary_polar_unknown, "I don't know: nothing I hold says {subject} is {kind}, and nothing says it isn't.").
+response_template(unary_polar_unknown, "I don't know: nothing I hold says {subject} is {kind}, and nothing says it isn't.") :- naf(self_asked_and_touched).
 response_template(unary_polar_unknown, it, "Non so: non tengo che {subject} sia {kind}, né il contrario.").
 response_template(learned_property_phrase, it, "Imparato: {subject} è {class}.").
 % 26 settembre 2026 — CON L'ARTICOLO E' UNA CLASSE, e la risposta lo dice:

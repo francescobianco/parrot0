@@ -747,6 +747,17 @@ static int adjunct_peel(Brain *b, const char *canon, const char *raw,
         p0_trace(b, "read.adjunct", "«%s» e' un'esclusione: il turno resta intero\n", rest);
         return 0;
     }
+    /* 1 ottobre 2026 (L5) — UN INCISO CHE APRE UN MONDO NON E' UNA CIRCOSTANZA.
+     * «In reality, you never travel.» veniva sbucciato e il residuo «you never
+     * travel» letto come un fatto del mondo vero («Held: you does not travel»):
+     * la porta del mondo spariva prima che una forma potesse leggerla. Quali
+     * parole aprano un mondo e' conoscenza (`turn_opens_world/1`): qui non
+     * c'e' nessuna parola, si chiede alla KB e il turno resta intero. */
+    { const char *wq[1] = { "current_turn" };
+      if (kb_query(b->kb, "turn_opens_world", wq, 1)) {
+          p0_trace(b, "read.adjunct", "l'inciso apre un mondo: il turno resta intero\n");
+          return 0;
+      } }
     /* 27 settembre 2026 (train-the-smart-agent G9) — la virgola di un ELENCO
      * non e' quella di un inciso: se il residuo continua una lista
      * (`residue_continues_list/1`, KB), il turno resta intero. */

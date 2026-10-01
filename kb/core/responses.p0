@@ -75,8 +75,8 @@ response_template(self_location, "There's no weather where I am: I'm a program w
 
 % --- gen231 (LLMSCORE): honest reply to opinion/preference probes. No lived
 % experience, so no genuine favorites - engages rather than walling. ---
-response_template(self_preference, "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.") :- naf(self_has_imagined_trait).
-response_template(self_preference, "No genuine preferences here: I don't experience days or hobbies. What's your take?") :- naf(self_has_imagined_trait).
+response_template(self_preference, "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.") :- naf(self_has_trait).
+response_template(self_preference, "No genuine preferences here: I don't experience days or hobbies. What's your take?") :- naf(self_has_trait).
 
 % --- gen333 (LLMSCORE): wording for computed range counts and the explicit
 % no-overlap relationship. Values are filled by the fixed named-slot renderer;
@@ -463,13 +463,13 @@ ability_opener(it, "Puoi ").
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.
 % Honest: they keep the conversation going (acknowledge + open question) and never
 % fabricate an experience or opinion. Rotated by kb_response (anti-repeat).
-response_template(smalltalk_continue, "That sounds nice -- tell me more about it.").
-response_template(smalltalk_continue, "Oh? What's it like?").
-response_template(smalltalk_continue, "Interesting -- what got you into it?").
-response_template(smalltalk_continue, "I don't have experiences of my own, but I'd like to hear more -- what stood out?").
-response_template(smalltalk_continue, "Nice -- how did that go?").
-response_template(smalltalk_continue, "Sounds good. What else has been on your mind?").
-response_template(smalltalk_continue, "I can't say I've tried it myself, but I'm curious -- what do you like about it?").
+response_template(smalltalk_continue, "That sounds nice -- tell me more about it.") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_continue, "Oh? What's it like?") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_continue, "Interesting -- what got you into it?") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_continue, "I don't have experiences of my own, but I'd like to hear more -- what stood out?") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_continue, "Nice -- how did that go?") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_continue, "Sounds good. What else has been on your mind?") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_continue, "I can't say I've tried it myself, but I'm curious -- what do you like about it?") :- naf(self_has_pertinent_trait).
 
 % gen240 (universal-comprehension): Italian localized variants (response_template/3,
 % selected by current_language; the /2 forms remain the English default). KB-first:
@@ -486,14 +486,14 @@ response_template(smalltalk_continue, it, "Non l'ho provato di persona, ma sono 
 % parrot0 ("do you...", "have you got...", "what are your plans...") that reached the
 % last resort -- deflect HONESTLY (no invented experiences) and hand the turn back with
 % an open question. KB-first: add a variant/language as a fact.
-response_template(smalltalk_deflect, "I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear about yours.").
-response_template(smalltalk_deflect, "Not something I do myself, honestly -- but tell me, what about you?").
-response_template(smalltalk_deflect, "I can't claim any of my own, but I'm curious -- what about you?").
+response_template(smalltalk_deflect, "I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear about yours.") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_deflect, "Not something I do myself, honestly -- but tell me, what about you?") :- naf(self_has_pertinent_trait).
+response_template(smalltalk_deflect, "I can't claim any of my own, but I'm curious -- what about you?") :- naf(self_has_pertinent_trait).
 response_template(smalltalk_deflect, it, "Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.").
 response_template(smalltalk_deflect, it, "Non è una cosa che faccio io, ma dimmi -- e tu?").
-response_template(self_question_unanswered, "I don't know how to answer that about myself yet: nobody has taught me.") :- naf(self_has_imagined_trait).
+response_template(self_question_unanswered, "I don't know how to answer that about myself yet: nobody has taught me.") :- naf(self_has_trait).
 response_template(self_question_unanswered, it, "Non so ancora rispondere a questa domanda su di me: nessuno me l'ha insegnato.").
-response_template(self_likes_polar, "I don't have tastes of my own, so I can't honestly say I like it. Do you?").
+response_template(self_likes_polar, "I don't have tastes of my own, so I can't honestly say I like it. Do you?") :- naf(self_has_pertinent_trait).
 response_template(self_likes_polar, it, "Non ho gusti miei, quindi non posso dirti sinceramente che mi piace. A te piace?").
 response_template(topic_preference_request, "I don't have personal preferences, but I know {topic}: {fact} Would you like to explore it together?").
 response_template(topic_preference_request, it, "Non ho preferenze personali, ma conosco {topic}: {fact} Ti va di esplorarlo insieme?").
@@ -902,7 +902,7 @@ response_template(undetermined_cycle, it, "Non posso stabilirlo: nessun fatto ch
 % «no»: la classe esiste, il soggetto esiste, e nessuno dei due versi ha un
 % sostegno. Dirlo per intero e' informazione — nomina la lacuna e la trasforma
 % nel prossimo bisogno utile — mentre un «No» inventato sarebbe una falsita'.
-response_template(no_support_either_way, "I don't know: nothing I hold says {subject} is {art} {klass}, and nothing says it isn't. Knowing some {klass}s does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.").
+response_template(no_support_either_way, "I don't know: nothing I hold says {subject} is {art} {klass}, and nothing says it isn't. Knowing some {klass}s does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.") :- naf(self_asked_and_touched).
 response_template(no_support_either_way, it, "Non lo so: niente di cio' che ho dice che {subject} sia {art} {klass}, e niente dice il contrario. Conoscere qualche {klass} non mi dice che siano tutti, quindi non dimostrato non vuol dire falso. Dimmelo in un verso o nell'altro e lo terro'.").
 response_template(saturated_read_unavailable, "I cannot settle that from the current view: the knowledge list reached its limit before I could verify the result.").
 response_template(saturated_read_unavailable, it, "Non posso stabilirlo dalla vista corrente: l'elenco della conoscenza ha raggiunto il limite prima che potessi verificare il risultato.").
@@ -926,11 +926,11 @@ response_template(class_members_known, "What I hold as {klass}: {members}.").
 response_template(class_members_known, it, "Quello che tengo come {klass}: {members}.").
 % gen505e — lo stato «non so» per una RELAZIONE, gemello di no_support_either_way
 % per le classi: una relazione non derivata non e' una relazione negata.
-response_template(no_support_relation, "I don't know: nothing I hold says {subject} {rel} {object}, and nothing says it isn't so. Tell me either way and I will hold it.").
+response_template(no_support_relation, "I don't know: nothing I hold says {subject} {rel} {object}, and nothing says it isn't so. Tell me either way and I will hold it.") :- naf(self_asked_and_touched).
 % gen507 — un ATTRIBUTO non si dice col nome della sua relazione: «nothing I
 % hold says grum color of red» e' vero e detto male, e la resa vale quanto il
 % contenuto. La proprieta' si nomina, il valore si nomina, la copula le lega.
-response_template(no_support_attribute, "I don't know: nothing I hold says {subject} is {object}, and nothing says it isn't so. Tell me either way and I will hold it.").
+response_template(no_support_attribute, "I don't know: nothing I hold says {subject} is {object}, and nothing says it isn't so. Tell me either way and I will hold it.") :- naf(self_asked_and_touched).
 % gen507 — un universale su una RELAZIONE e' un fatto sulla SPECIE, e da li'
 % l'ereditarieta' fa il resto.
 response_template(learned_universal_relation, "Got it: every {klass} has {object} -- so each one I meet does.").

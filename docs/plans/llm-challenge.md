@@ -8,6 +8,14 @@
 > il punteggio storico A/M resta una misura secondaria. Non «fixare tutto e
 > poi riprovare». Handoff corrente: [L5](l5-upgrade.md).
 
+> **Giro dell'imprint, 1 ottobre 2026, notte** (carattere di parrot0 come
+> contenuto di due mondi del se', scheda detta in chat): replay congelato
+> «Giappone» +0,42 → +0,79; replay congelato «parco» +0,21 → +0,21; talk
+> libero nuovo −0,13 contro +0,08 del talk libero precedente. **Il giro non e'
+> riuscito per la regola del §2** (replay su, conversazione nuova non giu'):
+> evidenza di miglioramento su una conversazione su tre. Tabella, cause e
+> specie aperte nell'handoff di [L5](l5-upgrade.md).
+
 > **Handoff piu' recente, 30 settembre 2026:**
 > [anatomia KB, nuove baseline LFM e patch L4 aperta](l4-growth-handoff.md).
 > Ripartire da li': l'handoff del giro 1 sotto e' storico. Le nuove baseline

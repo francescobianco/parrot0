@@ -266,6 +266,14 @@ machinery_gap("let me know if you want more examples.").
 machinery_gap("just let me know when you're ready.").
 machinery_gap("if you're stuck, just let me know when you're ready.").
 machinery_gap("forget that osaka feels peaceful.").
+machinery_gap("in your imagination, you would rather listen than talk.").
+machinery_gap("? context_fact imagination in").
+machinery_gap("in your imagination, you would choose kyoto.").
+machinery_gap("in your imagination, you like quiet places because they let you think.").
+machinery_gap("you have never travelled.").
+machinery_gap("what sounds appealing?").
+machinery_gap("what is your priority right now?").
+machinery_gap("in your imagination, you make understanding your first priority.").
 machinery_gap("a pungiglione is differenzia from altre strutture perforanti per the fatto what perfora grazie to the its yourself azione and inietta the veleno, mentre the teeth perforano per azione of fauci what is close").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
@@ -866,11 +874,29 @@ gap_opaque("i'm tired.", i'm).
 gap_opaque("if you're stuck, just let me know when you're ready.", ready).
 gap_opaque("if you're stuck, just let me know when you're ready.", know).
 gap_opaque("if you're stuck, just let me know when you're ready.", let).
+gap_opaque("in your imagination, you would rather listen than talk.", talk).
+gap_opaque("in your imagination, you would rather listen than talk.", listen).
+gap_opaque("in your imagination, you would rather listen than talk.", rather).
 gap_opaque("if you're stuck, just let me know when you're ready.", just).
 gap_opaque("forget that osaka feels peaceful.", peaceful).
+gap_opaque("in your imagination, you would choose kyoto.", kyoto).
 gap_opaque("forget that osaka feels peaceful.", feels).
+gap_opaque("in your imagination, you like quiet places because they let you think.", think).
+gap_opaque("in your imagination, you like quiet places because they let you think.", let).
+gap_opaque("in your imagination, you like quiet places because they let you think.", places).
+gap_opaque("in your imagination, you like quiet places because they let you think.", like).
 gap_opaque("forget that osaka feels peaceful.", osaka).
+gap_opaque("you have never travelled.", travelled).
 gap_opaque("forget that osaka feels peaceful.", forget).
+gap_opaque("what sounds appealing?", appealing).
+gap_opaque("what is your priority right now?", now).
+gap_opaque("what is your priority right now?", right).
+gap_opaque("what is your priority right now?", priority).
+gap_opaque("what sounds appealing?", sounds).
+gap_opaque("in your imagination, you make understanding your first priority.", priority).
+gap_opaque("in your imagination, you make understanding your first priority.", first).
+gap_opaque("in your imagination, you make understanding your first priority.", understanding).
+gap_opaque("in your imagination, you make understanding your first priority.", make).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("does a spring store energy?", energy).
 gap_kind("apply roundtrip to 3", reachability).
@@ -1100,19 +1126,27 @@ gap_anchor("fall protection is required when working above 2 meters.", fall).
 gap_kind("the coefficient of thermal expansion of steel is 12 micrometers per meter per kelvin.", reachability).
 gap_anchor("what causes a segfault?", segfault).
 gap_anchor("let me know if you want more examples.", examples).
+gap_anchor("in your imagination, you would rather listen than talk.", imagination).
 gap_anchor("what causes a segfault?", causes).
+gap_anchor("? context_fact imagination in", imagination).
+gap_anchor("? context_fact imagination in", context_fact).
 gap_anchor("what results in reading errors?", reading).
 gap_kind("what handles dependencies?", reachability).
+gap_anchor("in your imagination, you would choose kyoto.", choose).
+gap_anchor("in your imagination, you would choose kyoto.", imagination).
 gap_source("a granite surface plate provides a flat reference.", "A granite surface plate provides a flat reference.").
 gap_anchor("high humidity causes mould", high).
 gap_anchor("fire_blanket designed to extinguish incipient (starting fires", fire_blanket).
 gap_anchor("what causes thermal expansion?", thermal).
+gap_anchor("in your imagination, you like quiet places because they let you think.", quiet).
 gap_anchor("paris, that is the capital of france?", france).
+gap_anchor("in your imagination, you like quiet places because they let you think.", imagination).
 gap_anchor("paris, that is the capital of france?", capital).
 gap_anchor("paris, that is the capital of france?", paris).
 gap_anchor("what causes thermal expansion?", causes).
 gap_kind("the modulus of elasticity of steel is 210 gigapascals.", reachability).
 gap_source("what does wire edm cut?", "What does wire EDM cut?").
+gap_anchor("in your imagination, you make understanding your first priority.", imagination).
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("does php-fpm handle worker processes?", reachability).
 gap_kind("occur is a relation verb", reachability).
@@ -1217,27 +1251,35 @@ gap_kind("what measures height?", reachability).
 gap_kind("what controls whether errors appear in the output?", reachability).
 gap_kind("fall protection is required when working above 2 meters.", reachability).
 gap_kind("fire_blanket designed to extinguish incipient (starting fires", reachability).
+gap_kind("in your imagination, you would rather listen than talk.", reachability).
 gap_source("is a micrometer a measuring instrument?", "Is a micrometer a measuring instrument?").
 gap_kind("in other words, it spoils readings.", reachability).
 gap_kind("is it safe to mix bleach and vinegar?", reachability).
 gap_kind("high humidity causes mould", reachability).
 gap_source("legionella does not spread from person-to-person", " Legionella does not spread from person-to-person").
+gap_kind("? context_fact imagination in", reachability).
 gap_kind("let me know if you want more examples.", reachability).
 gap_kind("i left cooked chicken out for 3 hours, is it safe?", reachability).
 gap_kind("what results in reading errors?", reachability).
+gap_kind("in your imagination, you would choose kyoto.", reachability).
 gap_kind("what does error_log write?", reachability).
 gap_kind("you are funny.", reachability).
 gap_kind("what causes a segfault?", reachability).
 gap_kind("just let me know when you're ready.", reachability).
+gap_kind("in your imagination, you like quiet places because they let you think.", reachability).
 gap_kind("i burned my hand on the stove", reachability).
 gap_kind("paris, that is the capital of france?", reachability).
 gap_source("the coefficient of thermal expansion of aluminium is 23 micrometers per meter per kelvin.", "The coefficient of thermal expansion of aluminium is 23 micrometers per meter per kelvin.").
 gap_kind("why are my plant's leaves turning yellow?", reachability).
+gap_kind("what is your priority right now?", reachability).
 gap_kind("what causes thermal expansion?", reachability).
 gap_kind("if you're stuck, just let me know when you're ready.", reachability).
 gap_kind("forget that osaka feels peaceful.", reachability).
+gap_kind("you have never travelled.", reachability).
+gap_kind("in your imagination, you make understanding your first priority.", reachability).
 gap_kind("is 300 kilograms more than 230 kilograms?", reachability).
 gap_kind("i'm tired.", reachability).
+gap_kind("what sounds appealing?", reachability).
 gap_kind("what does var_dump do?", reachability).
 gap_kind("how many grams are 2 cups of flour?", reachability).
 gap_kind("i cooked the chicken to 68 degrees, is it safe?", reachability).
@@ -1360,15 +1402,18 @@ gap_source("is an eagle warm-blooded?", "is an eagle warm-blooded?").
 gap_source("a consists of a sheet of a fire retardant material that is placed over a fire in order to smother it", " It consists of a sheet of a fire retardant material that is placed over a fire in order to smother it").
 gap_source("what measures height?", "What measures height?").
 gap_source("is it safe to mix bleach and vinegar?", "chlorine gas causes breathing problems").
+gap_source("in your imagination, you would rather listen than talk.", "In your imagination, you would rather listen than talk.").
 gap_source("i left cooked chicken out for 3 hours, is it safe?", "I left cooked chicken out for 3 hours, is it safe?").
 gap_source("should i put butter on a burn?", "should I put butter on a burn?").
 gap_source("what controls whether errors appear in the output?", "What controls whether errors appear in the output?").
 gap_source("how many grams are 2 cups of sand?", "how many grams are 2 cups of sand?").
+gap_source("? context_fact imagination in", "? context_fact imagination _ _ _").
 gap_source("in other words, it spoils readings.", "in other words, it spoils readings.").
 gap_source("i burned my hand on the stove", "I burned my hand on the stove").
 gap_source("what does error_log write?", "What does error_log write?").
 gap_source("why are my plant's leaves turning yellow?", "why are my plant's leaves turning yellow?").
 gap_source("let me know if you want more examples.", "Let me know if you want more examples.").
+gap_source("in your imagination, you would choose kyoto.", "In your imagination, you would choose Kyoto.").
 gap_source("you are funny.", "You're funny.").
 gap_source("fall protection is required when working above 2 meters.", "Fall protection is required when working above 2 meters.").
 gap_source("how many grams are 2 cups of flour?", "how many grams are 2 cups of flour?").
@@ -1377,11 +1422,16 @@ gap_source("what causes a segfault?", "What causes a segfault?").
 gap_source("high humidity causes mould", "high humidity causes mould").
 gap_source("just let me know when you're ready.", "Just let me know when you're ready.").
 gap_source("paris, that is the capital of france?", "Paris, that is the capital of France?").
+gap_source("in your imagination, you like quiet places because they let you think.", "In your imagination, you like quiet places because they let you think.").
 gap_source("fire_blanket designed to extinguish incipient (starting fires", "fire_blanket designed to extinguish incipient (starting fires").
 gap_source("is 300 kilograms more than 230 kilograms?", "Is 300 kilograms more than 230 kilograms?").
+gap_source("what is your priority right now?", "What's your priority right now?").
 gap_source("what does var_dump do?", "What does var_dump do?").
+gap_source("you have never travelled.", "You have never travelled.").
 gap_source("what causes thermal expansion?", "What causes thermal expansion?").
 gap_source("i'm tired.", "I'm tired.").
 gap_source("if you're stuck, just let me know when you're ready.", "If you're stuck, just let me know when you're ready.").
 gap_source("forget that osaka feels peaceful.", "Forget that Osaka feels peaceful.").
+gap_source("what sounds appealing?", "What sounds appealing?").
+gap_source("in your imagination, you make understanding your first priority.", "In your imagination, you make understanding your first priority.").
 gap_source("i cooked the chicken to 68 degrees, is it safe?", "I cooked the chicken to 68 degrees, is it safe?").

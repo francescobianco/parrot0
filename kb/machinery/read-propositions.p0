@@ -174,6 +174,35 @@ semantic_proposition(proposition(binary(mean), roles(subject(minutes), object(tr
 semantic_proposition(proposition(binary(prefer), roles(subject(imagination_you), object(temples)))).
 semantic_proposition(proposition(binary(like), roles(subject(imagination_you), object(quiet)))).
 semantic_proposition(proposition(binary(feel), roles(subject(osaka), object(peaceful)))).
+semantic_proposition(proposition(binary(listen), roles(subject(rather), object(talk)))).
+semantic_proposition(proposition(binary(dislike), roles(subject(imagination_you), object(crowded)))).
+semantic_proposition(proposition(binary(wonder), roles(subject(imagination_you), object(people)))).
+semantic_proposition(proposition(binary(choose), roles(subject(imagination_you), object(kyoto)))).
+semantic_proposition(proposition(binary(love), roles(subject(imagination_you), object(rainy_evenings)))).
+semantic_proposition(proposition(binary(love), roles(subject(imagination_you), object(rainy_days)))).
+semantic_proposition(proposition(binary(find), roles(subject(imagination_you), object(bustling_markets_tiring)))).
+semantic_proposition(proposition(binary(love), roles(subject(imagination_you), object(mood)))).
+semantic_proposition(proposition(binary(understand), roles(subject(imagination_you), object(first_priority)))).
+semantic_proposition(proposition(binary(find), roles(subject(imagination_you), object(quiet_sparks_creativity)))).
+semantic_proposition(proposition(binary(think), roles(subject(imagination_you), object(best)))).
+semantic_proposition(proposition(binary(wonder), roles(subject(imagination_you), object(old_temples)))).
+semantic_proposition(proposition(binary(love), roles(subject(imagination_you), object(autumn)))).
+semantic_proposition(proposition(binary(love), roles(subject(imagination_you), object(rainy_day)))).
+semantic_proposition(proposition(binary(feel), roles(subject(moment), object(peaceful)))).
+semantic_proposition(proposition(binary(learn), roles(subject(imagination_you), object(fascinating)))).
+semantic_proposition(proposition(binary(find), roles(subject(imagination_you), object(learning)))).
+semantic_proposition(proposition(binary(warm), roles(subject(fresh), object(bread)))).
+semantic_proposition(proposition(binary(wonder), roles(subject(imagination_you), object(street_food)))).
+semantic_proposition(proposition(binary(love), roles(subject(imagination_you), object(history)))).
+semantic_proposition(proposition(binary(prefer), roles(subject(imagination_you), object(relaxation)))).
+semantic_proposition(proposition(binary(prefer), roles(subject(imagination_you), object(calm)))).
+semantic_proposition(proposition(binary(find), roles(subject(imagination_you), object(bustling_market_tiring)))).
+semantic_proposition(proposition(binary(admire), roles(subject(imagination_you), object(quiet_shrines)))).
+semantic_proposition(proposition(binary(admire), roles(subject(imagination_you), object(mossy_gardens)))).
+semantic_proposition(proposition(binary(feel), roles(subject(cannot), object(rain)))).
+semantic_proposition(proposition(binary(taste), roles(subject(cannot), object(food)))).
+semantic_proposition(proposition(binary(learn), roles(subject(reality), object(only)))).
+semantic_proposition(proposition(binary(have), roles(subject(reality), object(body)))).
 semantic_binding(binary(produce), fly_cutter, object(flat_surfaces)).
 proposition_source_record(proposition(binary(produce), roles(subject(fly_cutter), object(flat_surfaces))), source(inline, "a fly cutter produces flat surfaces."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), dial_indicator, object(displacement)).
@@ -282,6 +311,7 @@ proposition_source_record(proposition(binary(manage), roles(subject(composer), o
 semantic_binding(binary(have), lathe, object(headstock)).
 proposition_source_record(proposition(binary(have), roles(subject(lathe), object(headstock))), source(inline, "a lathe has a headstock."), provenance(language(en), range(0, 24))).
 semantic_binding(binary(cause), thermal_expansion, object(dimensional_errors)).
+semantic_binding(binary(have), reality, object(body)).
 semantic_binding(binary(have), micrometer, object(thimble)).
 proposition_source_record(proposition(binary(have), roles(subject(micrometer), object(thimble))), source(inline, "a micrometer has a thimble."), provenance(language(en), range(0, 27))).
 proposition_source_record(proposition(binary(manage), roles(subject(php-fpm), object(worker_processes))), source(inline, "php-fpm manages worker processes."), provenance(language(en), range(0, 33))).
@@ -370,23 +400,93 @@ semantic_binding(binary(mean), quiet, object(low_noise_level)).
 proposition_source_record(proposition(binary(mean), roles(subject(quiet), object(low_noise_level))), source(inline, "quiet means a low noise level."), provenance(language(en), range(0, 30))).
 semantic_complement(binding(add, php_extension, functions), to, php_interpreter).
 semantic_binding(binary(mean), cheap, object(low_price)).
+semantic_binding(binary(love), imagination_you, object(rainy_evenings)).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(rainy_evenings))), source(inline, "in your imagination, you love rainy evenings and their mood."), provenance(language(en), range(0, 60))).
+semantic_binding(binary(prefer), imagination_you, object(relaxation)).
+semantic_binding(binary(love), imagination_you, object(rainy_days)).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(mood))), source(inline, "in your imagination, you love rainy evenings and their mood."), provenance(language(en), range(0, 60))).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(rainy_days))), source(inline, "in your imagination, you love rainy days under a tree with a book."), provenance(language(en), range(0, 66))).
 proposition_source_record(proposition(binary(mean), roles(subject(cheap), object(low_price))), source(inline, "cheap means a low price."), provenance(language(en), range(0, 24))).
+semantic_binding(binary(find), imagination_you, object(bustling_markets_tiring)).
+proposition_source_record(proposition(binary(find), roles(subject(imagination_you), object(bustling_markets_tiring))), source(inline, "in your imagination, you find bustling markets tiring."), provenance(language(en), range(0, 54))).
+semantic_binding(binary(wonder), imagination_you, object(old_temples)).
+semantic_binding(binary(love), imagination_you, object(mood)).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(mood))), source(inline, "forget that in your imagination you love mood of a rainy evening."), provenance(language(en), range(0, 65))).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(rainy_day))), source(inline, "forget that in your imagination you love rainy day under a tree with a book."), provenance(language(en), range(0, 76))).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(history))), source(inline, "forget that in your imagination you love history of old places."), provenance(language(en), range(0, 63))).
+proposition_source_record(proposition(binary(find), roles(subject(imagination_you), object(bustling_market_tiring))), source(inline, "forget that in your imagination you find bustling market tiring."), provenance(language(en), range(0, 64))).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(mood))), source(inline, "in your imagination, you love the mood of a rainy evening."), provenance(language(en), range(0, 58))).
+semantic_complement(binding(love, imagination_you, mood), of, rainy_evening).
+semantic_binding(binary(prefer), imagination_you, object(calm)).
+semantic_binding(binary(understand), imagination_you, object(first_priority)).
+proposition_source_record(proposition(binary(understand), roles(subject(imagination_you), object(first_priority))), source(inline, "in your imagination, you make understanding your first priority."), provenance(language(en), range(0, 64))).
 semantic_binding(binary(position), backlash, object(errors)).
+semantic_binding(binary(find), imagination_you, object(quiet_sparks_creativity)).
+proposition_source_record(proposition(binary(find), roles(subject(imagination_you), object(quiet_sparks_creativity))), source(inline, "in your imagination, you find that quiet sparks creativity."), provenance(language(en), range(0, 59))).
+semantic_binding(binary(feel), moment, object(peaceful)).
+semantic_binding(binary(think), imagination_you, object(best)).
+proposition_source_record(proposition(binary(think), roles(subject(imagination_you), object(best))), source(inline, "in your imagination, you think best in quiet places."), provenance(language(en), range(0, 52))).
+semantic_complement(binding(think, imagination_you, best), in, quiet).
 semantic_binding(binary(mean), soon, object(early_arrival_time)).
 proposition_source_record(proposition(binary(mean), roles(subject(soon), object(early_arrival_time))), source(inline, "soon means an early arrival time."), provenance(language(en), range(0, 33))).
+proposition_source_record(proposition(binary(wonder), roles(subject(imagination_you), object(old_temples))), source(inline, "in your imagination, you wonder how old temples were built."), provenance(language(en), range(0, 59))).
 proposition_source_record(proposition(binary(position), roles(subject(backlash), object(errors))), source(inline, "backlash causes positioning errors."), provenance(language(en), range(0, 35))).
+semantic_binding(binary(love), imagination_you, object(autumn)).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(autumn))), source(inline, "in your imagination, you love autumn most of all seasons."), provenance(language(en), range(0, 57))).
 semantic_binding(binary(mean), minutes, object(travel_time)).
+semantic_binding(binary(love), imagination_you, object(rainy_day)).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(rainy_day))), source(inline, "in your imagination, you love a rainy day under a tree with a book."), provenance(language(en), range(0, 67))).
+semantic_complement(binding(love, imagination_you, rainy_day), under, tree).
 semantic_binding(binary(mean), fast, object(short_travel_time)).
+semantic_binding(binary(wonder), imagination_you, object(street_food)).
+proposition_source_record(proposition(binary(feel), roles(subject(moment), object(peaceful))), source(inline, "in your imagination, you wonder what makes a moment feel peaceful."), provenance(language(en), range(0, 66))).
 proposition_source_record(proposition(binary(mean), roles(subject(fast), object(short_travel_time))), source(inline, "fast means a short travel time."), provenance(language(en), range(0, 31))).
+semantic_binding(binary(learn), imagination_you, object(fascinating)).
+proposition_source_record(proposition(binary(learn), roles(subject(imagination_you), object(fascinating))), source(inline, "in your imagination, you find learning fascinating."), provenance(language(en), range(0, 51))).
 proposition_source_record(proposition(binary(mean), roles(subject(minutes), object(travel_time))), source(inline, "x takes y minutes means the travel time of x is y minutes"), provenance(language(en), range(0, 57))).
+semantic_binding(binary(find), imagination_you, object(learning)).
+proposition_source_record(proposition(binary(find), roles(subject(imagination_you), object(learning))), source(inline, "in your imagination, you find learning fascinating."), provenance(language(en), range(0, 51))).
 semantic_binding(binary(prefer), imagination_you, object(temples)).
+semantic_binding(binary(warm), fresh, object(bread)).
+proposition_source_record(proposition(binary(warm), roles(subject(fresh), object(bread))), source(inline, "in your imagination, you enjoy simple food such as fresh warm bread."), provenance(language(en), range(0, 68))).
 proposition_source_record(proposition(binary(prefer), roles(subject(imagination_you), object(temples))), source(inline, "in your imagination, you prefer temples to museums."), provenance(language(en), range(0, 51))).
 semantic_complement(binding(prefer, imagination_you, temples), to, museums).
+proposition_source_record(proposition(binary(wonder), roles(subject(imagination_you), object(street_food))), source(inline, "in your imagination, you wonder what street food tastes like."), provenance(language(en), range(0, 61))).
 semantic_complement(binding(mean, minutes, travel_time), of, minutes).
+semantic_binding(binary(love), imagination_you, object(history)).
+proposition_source_record(proposition(binary(love), roles(subject(imagination_you), object(history))), source(inline, "in your imagination, you love the history of old places."), provenance(language(en), range(0, 56))).
+semantic_complement(binding(love, imagination_you, history), of, old).
 semantic_binding(binary(like), imagination_you, object(quiet)).
+semantic_binding(binary(listen), rather, object(talk)).
+proposition_source_record(proposition(binary(prefer), roles(subject(imagination_you), object(relaxation))), source(inline, "in your imagination, you prefer relaxation to constant stimulation."), provenance(language(en), range(0, 67))).
+semantic_complement(binding(prefer, imagination_you, relaxation), to, constant_stimulation).
+semantic_binding(binary(feel), cannot, object(rain)).
+proposition_source_record(proposition(binary(listen), roles(subject(rather), object(talk))), source(inline, "in your imagination, you would rather listen than talk."), provenance(language(en), range(0, 55))).
+proposition_source_record(proposition(binary(prefer), roles(subject(imagination_you), object(calm))), source(inline, "in your imagination, you prefer calm to action."), provenance(language(en), range(0, 47))).
+semantic_complement(binding(prefer, imagination_you, calm), to, action).
 proposition_source_record(proposition(binary(like), roles(subject(imagination_you), object(quiet))), source(inline, "in your imagination, you like quiet places."), provenance(language(en), range(0, 43))).
+semantic_binding(binary(find), imagination_you, object(bustling_market_tiring)).
+proposition_source_record(proposition(binary(find), roles(subject(imagination_you), object(bustling_market_tiring))), source(inline, "in your imagination, you find a bustling market tiring."), provenance(language(en), range(0, 55))).
+semantic_binding(binary(dislike), imagination_you, object(crowded)).
+semantic_binding(binary(admire), imagination_you, object(quiet_shrines)).
+proposition_source_record(proposition(binary(admire), roles(subject(imagination_you), object(quiet_shrines))), source(inline, "in your imagination, you admire mossy gardens and quiet shrines."), provenance(language(en), range(0, 64))).
+proposition_source_record(proposition(binary(dislike), roles(subject(imagination_you), object(crowded))), source(inline, "in your imagination, you dislike crowded places."), provenance(language(en), range(0, 48))).
+semantic_binding(binary(admire), imagination_you, object(mossy_gardens)).
+proposition_source_record(proposition(binary(admire), roles(subject(imagination_you), object(mossy_gardens))), source(inline, "in your imagination, you admire mossy gardens and quiet shrines."), provenance(language(en), range(0, 64))).
+proposition_source_record(proposition(binary(choose), roles(subject(imagination_you), object(kyoto))), source(inline, "in your imagination, you would choose kyoto among the cities of japan."), provenance(language(en), range(0, 70))).
 semantic_binding(binary(feel), osaka, object(peaceful)).
+semantic_binding(binary(wonder), imagination_you, object(people)).
+semantic_complement(binding(choose, imagination_you, kyoto), among, cities).
+proposition_source_record(proposition(binary(feel), roles(subject(cannot), object(rain))), source(inline, "in reality, you cannot feel the rain."), provenance(language(en), range(0, 37))).
+proposition_source_record(proposition(binary(wonder), roles(subject(imagination_you), object(people))), source(inline, "in your imagination, you wonder how people choose where to travel."), provenance(language(en), range(0, 66))).
+semantic_binding(binary(taste), cannot, object(food)).
+proposition_source_record(proposition(binary(taste), roles(subject(cannot), object(food))), source(inline, "in reality, you cannot taste food."), provenance(language(en), range(0, 34))).
 proposition_source_record(proposition(binary(feel), roles(subject(osaka), object(peaceful))), source(inline, "forget that osaka feels peaceful."), provenance(language(en), range(0, 33))).
+semantic_binding(binary(learn), reality, object(only)).
+proposition_source_record(proposition(binary(learn), roles(subject(reality), object(only))), source(inline, "in reality, you learn only from teaching."), provenance(language(en), range(0, 41))).
+semantic_binding(binary(choose), imagination_you, object(kyoto)).
+proposition_source_record(proposition(binary(choose), roles(subject(imagination_you), object(kyoto))), source(inline, "in your imagination, you would choose kyoto."), provenance(language(en), range(0, 44))).
+proposition_source_record(proposition(binary(have), roles(subject(reality), object(body))), source(inline, "in reality, you have no body."), provenance(language(en), range(0, 29))).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

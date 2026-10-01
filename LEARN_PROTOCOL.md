@@ -66,6 +66,40 @@ rotazione dei tratti invece della selezione pertinente, domande di seguito
 ancora generiche, altre famiglie del sé non collegate, resa italiana non
 estesa. Il replay va fatto con questi limiti visibili, non dopo averli chiusi.
 
+**Porte verificate nel ciclo dell'imprint (1 ottobre 2026, notte; inglese):**
+
+```text
+In reality, you never travel.
+In your imagination, you picture travel as a slow journey with few stops.
+In your imagination, you wonder how people choose where to travel.
+Have you ever thought about traveling?
+  → In reality, I never travel. In my imagination, I picture travel as a slow
+    journey with few stops. I wonder how people choose where to travel. What
+    do you think?
+Forget that in reality you never travel.
+```
+
+- **Due mondi del se'**, ciascuno con le parole che lo aprono: «In your
+  imagination, you …» (stipulato) e «In reality, you …» (vero di parrot0, da
+  verificare come ogni fatto). La frase e' «you» + un verbo + il resto, e il
+  verbo resta com'e' detto: «would choose», «never travel», «cannot taste»,
+  «are curious about» vanno tutti.
+- **Risponde il tratto che tocca la domanda** (una parola di contenuto in
+  comune); realta' e immaginario insieme se la toccano entrambi; un tratto
+  con «wonder» diventa il seguito. Senza un tratto che la tocca: «I have not
+  pictured that yet.» e poi un tratto.
+- **Ritiro:** «Forget that in reality you …» / «Forget that in your
+  imagination you …», con le stesse parole della lezione.
+- **Come dire un tratto perche' regga:** niente «you» dentro il tratto;
+  niente relativa («a program that reasons» si spezza); oggetto al plurale
+  senza articolo («bustling markets», non «a bustling market»); non «AI» (e'
+  letta come l'articolo italiano), non «because». Per ogni tema due o tre
+  tratti che ne condividono le parole.
+- **Limiti:** la pertinenza e' una parola, non un legame di senso (una parola
+  generica tocca il tratto sbagliato); la domanda guarda solo la sua frase;
+  un mondo del se' nuovo e' ancora una riga di `.p0`, non una lezione.
+  Giro di verifica e verdetto: [piano L5](docs/plans/l5-upgrade.md), handoff.
+
 Nel secondo ciclo la lezione L2 `learn "have you thought about" as another
 way to say "what do you enjoy"` ha sbloccato l'invito a immaginare attività.
 È una lettura provvisoria utile nel talk, troppo larga per certificarla come

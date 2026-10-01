@@ -1,0 +1,60 @@
+# L5, imprint: il carattere e' contenuto di un mondo, e chi risponde sceglie
+# il tratto che tocca la domanda. Tratti di prova insegnati e ritirati qui;
+# la KB viva completa porta gia' il suo carattere, quindi le parole di prova
+# (lighthouses, zeppelins, slow trains) sono scelte fuori da quello.
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test the_trait_that_touches_the_question_answers]
+!timeout 5
+> In your imagination, you admire old lighthouses.
+<~ Held, but only in imagination
+!query holds_in(world_of(parrot0_imagination), fact(admire, parrot0, "old lighthouses"))
+!query! admire(parrot0, "old lighthouses")
+!query context_commitment(world_of(parrot0_imagination), imagined_only)
+> In your imagination, you enjoy steam trains.
+<~ Held, but only in imagination
+> Do you like lighthouses?
+<~ In my imagination, I admire old lighthouses
+> What do you think about a steam train?
+<~ In my imagination, I enjoy steam trains
+!query self_trait_pertinent(t(imagination, enjoy, "steam trains"))
+
+[test a_question_no_trait_touches_says_so]
+!timeout 5
+> Which zeppelins are you most drawn to?
+<~ I have not pictured that yet
+
+[test a_curiosity_becomes_the_follow_up]
+!timeout 5
+> In your imagination, you wonder who keeps the lighthouses lit.
+<~ Held, but only in imagination
+> Do you like lighthouses?
+<~ I wonder who keeps the lighthouses lit
+
+[test withdrawing_a_trait_removes_its_voice]
+!timeout 5
+> Forget your imagined interest in old lighthouses.
+<~ I no longer hold that imagined interest in old lighthouses.
+> Forget your imagined interest in who keeps the lighthouses lit.
+> Forget your imagined interest in steam trains.
+!query! self_trait(t(imagination, admire, "old lighthouses"))
+> Do you like lighthouses?
+<! lighthouses lit
+<! admire
+
+[test the_self_has_more_than_one_world]
+!timeout 5
+> In reality, you never ride zeppelins.
+<~ Held, but only in reality
+> Have you ever been on a zeppelin?
+<~ In reality, I never ride zeppelins
+> In your imagination, you would love a zeppelin ride at dawn.
+<~ Held, but only in imagination
+> Have you ever been on a zeppelin?
+<~ In reality, I never ride zeppelins. In my imagination, I would love a zeppelin ride at dawn
+> Forget that in your imagination you would love a zeppelin ride at dawn.
+> Forget that in reality you never ride zeppelins.
+<~ I no longer hold that in reality
+!query! self_trait(t(reality, never, "ride zeppelins"))

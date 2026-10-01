@@ -63,7 +63,7 @@ intent_cue(opinion_request, "what do you think").
 intent_cue(opinion_request, "what's your view").
 intent_cue(opinion_request, "che ne pensi").
 intent_cue(opinion_request, "cosa ne pensi").
-response_template(opinion_request, "I can help compare the reasons and trade-offs, but I do not have personal opinions. What should we weigh first?").
+response_template(opinion_request, "I can help compare the reasons and trade-offs, but I do not have personal opinions. What should we weigh first?") :- naf(self_has_pertinent_trait).
 response_template(opinion_request, it, "Posso confrontare ragioni e compromessi, ma non ho opinioni personali. Che cosa vuoi valutare per prima?").
 
 % Act 5: NEXT-STEP REQUEST — open planning prompt. Ask for the missing goal and

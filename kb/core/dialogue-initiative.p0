@@ -86,7 +86,10 @@ turn_scratch(dialogue_raw).
 bookkeeper(dialogue_parse).
 dialogue_record_form($T, $N, $End) :-
     dialogue_form_read($T, $A, $P, $End), assert(dialogue_raw, $N, $A, payload($P, $End)).
+% (1 ottobre 2026) Un turno escluso non si legge nemmeno: la coda del
+% complemento costava 7 s su un complemento lungo, e l'esclusione la buttava.
 turn_bookkeeping($T, dialogue_parse) :-
+    naf(dialogue_excluded($T)),
     turn_counter($N), findall($End, dialogue_record_form($T, $N, $End), $Ends).
 dialogue_current_raw($T, $A, $P, $End) :- turn_counter($N), dialogue_raw($N, $A, payload($P, $End)).
 dialogue_longer($T, $End) :- dialogue_current_raw($T, $A, $P, $Other), gt($Other, $End).
@@ -122,8 +125,14 @@ turn_cue_registry(dialogue_quotation_cue, 1).
 dialogue_quotation_cue("\"").
 dialogue_quotation_cue("«").
 dialogue_quotation_cue("»").
+% 1 ottobre 2026 — L'ESCLUSIONE SI CHIEDE PRIMA DELLA LETTURA. Era l'ultimo
+% goal: un turno escluso faceva prima cercare TUTTE le letture possibili per
+% poi scartarle, e il contabile (che si ferma alla prima soluzione solo quando
+% una soluzione c'e') pagava la ricerca intera — 6,9 s su «What do you think
+% about exploring a quiet shrine or a mossy garden?» (misurato con /debug on).
+% Il turno arriva legato dal contabile, quindi la negazione e' ground.
 dialogue_reading($T, $Act, $Text) :-
-    dialogue_best($T, $Act, $Text), naf(dialogue_ambiguous($T, $Act)), naf(dialogue_excluded($T)).
+    naf(dialogue_excluded($T)), dialogue_best($T, $Act, $Text), naf(dialogue_ambiguous($T, $Act)).
 
 % Stato di sessione, mai training del mondo o persistenza di una conversazione.
 machinery(dialogue_seen).

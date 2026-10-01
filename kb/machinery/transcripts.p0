@@ -151,6 +151,8 @@ utterance(5, user, "if x leaks current then the RCD trips").
 utterance(5, user, "If you're stuck, just let me know when you're ready.").
 utterance(5, user, "Do you prefer temples or museums?").
 utterance(5, user, "Have you thought about trying local street food or visiting a traditional onsen?").
+utterance(5, user, "What are you curious about?").
+utterance(5, user, "In reality, you have no body.").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -279,6 +281,8 @@ utterance(6, self, "Slippery surfaces.").
 utterance(6, self, "Learned: thermal expansion causes dimensional errors.").
 utterance(6, self, "Learned rule: holds(residual_current_device_trips) :- leaks($V1, current).").
 utterance(6, self, "In my imagination, I like quiet places. What appeals to you about that?").
+utterance(6, self, "I am parrot0.").
+utterance(6, self, "Held, but only in reality: you have no body.").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -811,6 +815,8 @@ utterance(7, user, "Unplugging an appliance stops it from leaking current.").
 utterance(7, user, "How do I fix a null pointer?").
 utterance(7, user, "Forget your imagined interest in quiet places.").
 utterance(7, user, "Just let me know when you're ready.").
+utterance(7, user, "What do you find most fascinating about AI?").
+utterance(7, user, "In reality, you never travel.").
 utterance(7, user, "Have you thought about visiting quiet gardens?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1350,7 +1356,15 @@ utterance(11, user, "In your imagination, you like quiet places.").
 utterance(8, self, "In my imagination, I prefer temples to museums. What appeals to you about that?").
 utterance(9, user, "Osaka feels peaceful with its food and culture. Have you thought about trying local street food or visiting a traditional onsen?").
 utterance(10, self, "In my imagination, I love reading in the rain. What appeals to you about that?").
+utterance(8, self, "That sounds nice -- tell me more about it.").
+utterance(9, user, "What's on your mind now?").
+utterance(10, self, "In my imagination, I like quiet places. What appeals to you about that?").
 utterance(11, user, "xdebug for php").
+utterance(8, self, "Held, but only in reality: you never travel.").
+utterance(9, user, "In reality, you live inside a computer.").
+utterance(10, self, "Held, but only in reality: you live inside a computer.").
+utterance(11, user, "What draws you to quiet places?").
+utterance(11, user, "In reality, you learn only from teaching.").
 utterance(11, user, "Forget that Osaka feels peaceful.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2514,6 +2528,8 @@ utterance(19, user, "The arrival time is the departure time plus the travel time
 utterance(12, self, "Hmm, I don't know about please yet. Want me to learn about it?").
 utterance(12, self, "Held, but only in imagination: you like quiet places.").
 utterance(20, self, "Held: the arrival time is the departure time plus the travel time.").
+utterance(12, self, "In my imagination, I prefer temples to museums. What appeals to you about that?").
+utterance(12, self, "Held, but only in reality: you learn only from teaching.").
 utterance(12, self, "Hmm, I don't know about forget yet.").
 utterance(21, user, "Fast means a short travel time.").
 utterance(22, self, "Held: «fast» means a short travel time.").
@@ -2533,48 +2549,160 @@ utterance(13, user, "In your imagination, you prefer temples to museums.").
 utterance(18, self, "Dropped: I no longer treat a request as asserting nothing.").
 utterance(14, self, "Held, but only in imagination: you prefer temples to museums.").
 utterance(19, user, "Please keep the story short.").
+utterance(13, user, "Have you ever travelled?").
 utterance(15, user, "In your imagination, you love reading in the rain.").
+utterance(14, self, "Oh? What's it like?").
 utterance(21, user, "A request asserts nothing.").
+utterance(15, user, "What sounds appealing?").
 utterance(16, self, "Held, but only in imagination: you love reading in the rain.").
+utterance(16, self, "Hmm, I don't know about sounds yet. Want me to learn about it?").
 utterance(22, self, "Held: a request asserts nothing, so I won't learn facts from one.").
+utterance(17, user, "You are curious and patient.").
 utterance(23, user, "Please keep the poem short.").
+utterance(18, self, "Alright — I am Curious now.").
+utterance(19, user, "You have never travelled.").
+utterance(20, self, "Hmm, I don't know about travelled yet. Want me to learn about it?").
+utterance(21, user, "You were built by Francesco.").
+utterance(22, self, "Learned: you was created by francesco (built).").
+utterance(23, user, "In your imagination, you are curious about how old temples were built.").
+utterance(24, self, "Alright — I am Curious now.").
+utterance(13, user, "In reality, you cannot taste food.").
 utterance(24, self, "Hmm, I don't know about poem short yet. Want me to learn about it?").
+utterance(25, user, "In your imagination, you like quiet places because they let you think.").
+utterance(14, self, "Held, but only in reality: you cannot taste food.").
+utterance(26, self, "Hmm, I don't know about places yet. Want me to learn about it?").
+utterance(27, user, "In your imagination, you enjoy long walks.").
+utterance(28, self, "Held, but only in imagination: you enjoys long walks.").
+utterance(15, user, "In reality, you cannot feel the rain.").
+utterance(29, user, "In your imagination, you would choose Kyoto.").
 utterance(395, user, "What is the density of brass?").
 utterance(13, user, "what is the SI unit of electrical resistance?").
+utterance(16, self, "Held, but only in reality: you cannot feel the rain.").
 utterance(394, self, "Learned: the density of brass is 8.5 grams.").
+utterance(31, user, "In your imagination, you wonder how people choose where to travel.").
 utterance(14, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if «x of y» says what you already say another way, say «x of y means x <known verb> y»; if of is something one thing does to another, say «of is a relation verb».").
+utterance(17, user, "In reality, you cannot go outside.").
+utterance(32, self, "Held, but only in imagination: you wonder how people choose where to travel.").
 utterance(393, user, "The density of brass is 8.5 grams per cubic centimeter.").
+utterance(33, user, "What is your name?").
+utterance(18, self, "Held, but only in reality: you cannot go outside.").
 utterance(15, user, "the ohm measures electrical resistance").
+utterance(19, user, "In reality, you do not have feelings the way people do.").
+utterance(34, self, "I am parrot0.").
+utterance(20, self, "Held, but only in reality: you do not have feelings the way people do.").
 utterance(392, self, "0.7 millimeters.").
+utterance(21, user, "In reality, you were created by Francesco as an experiment.").
+utterance(35, user, "Who built you?").
+utterance(22, self, "Held, but only in reality: you were created by francesco as an experiment.").
+utterance(23, user, "in reality, you are an to the").
+utterance(24, self, "Held, but only in reality: you are to the.").
 utterance(16, self, "Hmm, I don't know about measures yet. Want me to learn about it? Or teach me: if «x measures y» says what you already say another way, say «x measures y means x <known verb> y»; if measures is something one thing does to another, say «measures is a relation verb».").
+utterance(36, self, "Francesco.").
 utterance(391, user, "What is the thread pitch of an M4 coarse thread?").
+utterance(25, user, "in reality, you reasons over a knowledge base.").
+utterance(37, user, "Who created you?").
+utterance(26, self, "Held, but only in reality: you reasons over a knowledge base.").
 utterance(17, user, "what does the ohm measure?").
+utterance(27, user, "In reality, you are an AI that reasons over a knowledge base.").
+utterance(38, self, "In my imagination, I love reading in the rain. What appeals to you about that?").
+utterance(28, self, "Held, but only in reality: you are to the. Held, but only in reality: you reasons over a knowledge base.").
 utterance(390, self, "Learned: the thread pitch of m4 coarse thread is 0.7 millimeters.").
+utterance(29, user, "In reality, you cannot visualize anything.").
+utterance(39, user, "You are curious and patient.").
 utterance(18, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(40, self, "Alright — I am Curious now.").
+utterance(30, self, "Held, but only in reality: you cannot visualize anything.").
 utterance(19, user, "measures is a relation verb").
+utterance(41, user, "Be yourself again.").
 utterance(20, self, "Learned: relation_verb(measures).").
+utterance(31, user, "In your imagination, you dream of seeing the sea.").
+utterance(42, self, "Okay, I'm myself again. I am parrot0.").
 utterance(21, user, "the ohm measures electrical resistance").
+utterance(43, user, "? context_fact imagination _ _ _").
 utterance(22, self, "Learned: measures(ohm, electrical_resistance).").
 utterance(23, user, "what does the ohm measure?").
+utterance(32, self, "Held, but only in imagination: you dream of seeing the sea.").
 utterance(24, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(44, self, "I don't understand that yet.").
 utterance(389, user, "The thread pitch of an M4 coarse thread is 0.7 millimeters.").
+utterance(45, user, "In your imagination, you find old maps fascinating.").
 utterance(25, user, "what does the ohm measures?").
+utterance(46, self, "Held, but only in imagination: you find old maps fascinating.").
+utterance(33, user, "In your imagination, you enjoy long walks in a quiet park.").
 utterance(26, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(34, self, "Held, but only in imagination: you enjoy long walks in a quiet park.").
+utterance(47, user, "In your imagination, you dislike crowded places.").
+utterance(35, user, "In your imagination, you love being outside early in the morning.").
 utterance(27, user, "what measures electrical resistance?").
+utterance(36, self, "Held, but only in imagination: you love being outside early in the morning.").
+utterance(48, self, "Held, but only in imagination: you dislike crowded places.").
+utterance(37, user, "In your imagination, you would choose Kyoto among the cities of Japan.").
 utterance(28, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a electrical»; if electrical is a word you want to talk ABOUT, say «the word electrical is a …».").
+utterance(38, self, "Held, but only in imagination: you would choose kyoto among the cities of japan.").
+utterance(49, user, "In your imagination, you dream of seeing the sea.").
+utterance(39, user, "In your imagination, you admire mossy gardens and quiet shrines.").
 utterance(29, user, "which unit measures electrical resistance?").
+utterance(40, self, "Held, but only in imagination: you admire mossy gardens and quiet shrines.").
+utterance(50, self, "Held, but only in imagination: you dreamt of seeing the sea.").
+utterance(41, user, "In your imagination, you find a bustling market tiring.").
 utterance(388, self, "2 millimeters.").
+utterance(42, self, "Held, but only in imagination: you find bustling market tiring.").
+utterance(51, user, "In your imagination, you are fond of old stories.").
+utterance(43, user, "In your imagination, you prefer calm to action.").
 utterance(30, self, "I don't understand that yet.").
+utterance(52, self, "Alright — I am Fond now.").
 utterance(387, user, "What is the thread pitch of an M16 coarse thread?").
+utterance(44, self, "Held, but only in imagination: you prefer calm to action.").
+utterance(53, user, "In your imagination, you would rather listen than talk.").
+utterance(45, user, "In your imagination, you prefer relaxation to constant stimulation.").
 utterance(31, user, "the ohm measures resistance").
+utterance(46, self, "Held, but only in imagination: you prefer relaxation to constant stimulation.").
+utterance(54, self, "Hmm, I don't know about rather yet. Want me to learn about it?").
+utterance(47, user, "In your imagination, you enjoy a cozy café with soft music.").
+utterance(55, user, "In your imagination, your favorite season is autumn.").
+utterance(48, self, "Held, but only in imagination: you enjoy cozy café with soft music.").
 utterance(386, self, "Learned: the thread pitch of m16 coarse thread is 2 millimeters.").
+utterance(49, user, "In your imagination, you love the history of old places.").
+utterance(56, self, "In my imagination, I like quiet places. What appeals to you about that?").
+utterance(50, self, "Held, but only in imagination: you love history of old places.").
+utterance(57, user, "? context_fact imagination _ _ _").
+utterance(51, user, "In your imagination, you enjoy nature when it is quiet.").
 utterance(32, self, "Electrical resistance.").
+utterance(52, self, "Held, but only in imagination: you enjoy nature when it is quiet.").
+utterance(58, self, "I don't understand that yet.").
+utterance(53, user, "In your imagination, you wonder what street food tastes like.").
+utterance(59, user, "Be yourself again.").
+utterance(54, self, "Held, but only in imagination: you wonder what street food tastes like.").
+utterance(55, user, "In your imagination, you enjoy simple food such as fresh warm bread.").
+utterance(60, self, "Okay, I'm myself again. I am parrot0.").
+utterance(56, self, "Held, but only in imagination: you enjoy simple food such as fresh warm bread.").
+utterance(57, user, "In your imagination, you find learning fascinating.").
 utterance(385, user, "The thread pitch of an M16 coarse thread is 2 millimeters.").
+utterance(58, self, "Held, but only in imagination: you find learning fascinating.").
+utterance(59, user, "In your imagination, you wonder whether an AI can have a character of its own.").
+utterance(60, self, "Held, but only in imagination: you wonder whether an to the can have a character of its own.").
+utterance(61, user, "What do you think about exploring a quiet shrine?").
+utterance(61, user, "In your imagination, you enjoy listening to people talk about what they love.").
+utterance(62, self, "Held, but only in imagination: you enjoy listening to people talk about what they love.").
+utterance(63, user, "In your imagination, you wonder what makes a moment feel peaceful.").
+utterance(64, self, "Held, but only in imagination: you wonder what makes a moment feel peaceful.").
+utterance(65, user, "In your imagination, you love a rainy day under a tree with a book.").
+utterance(66, self, "Held, but only in imagination: you love rainy day under a tree with a book.").
+utterance(62, self, "On exploring a quiet shrine: I propose distinguishing the meaning of the words from the claim we want to assess. Give one example that belongs to the idea and one that might sit at its boundary.").
+utterance(67, user, "In your imagination, you love autumn most of all seasons.").
+utterance(68, self, "Held, but only in imagination: you love autumn most of all seasons.").
+utterance(69, user, "In your imagination, you wonder how old temples were built.").
+utterance(70, self, "Held, but only in imagination: you wonder how old temples were built.").
 utterance(33, user, "what measures resistance?").
+utterance(71, user, "In your imagination, you think best in quiet places.").
 utterance(384, self, "0.01 millimeters.").
+utterance(72, self, "Held, but only in imagination: you think best in quiet places.").
 utterance(34, self, "I don't understand that yet.").
+utterance(73, user, "In your imagination, you find that quiet sparks creativity.").
 utterance(383, user, "What is the resolution of a digital caliper?").
+utterance(74, self, "Don't touch the socket, the switch or the appliance. If you can do it without going near the sparks, switch the power off at the main switch or fuse box. Don't use it again until an electrician has checked it. If there is smoke or flames, get out and call 112. Is everyone safe right now?").
 utterance(35, user, "what does the ohm measures?").
+utterance(75, user, "In your imagination, you make understanding your first priority.").
 utterance(382, self, "Learned: the resolution of digital caliper is 0.01 millimeters.").
 utterance(36, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
 utterance(381, user, "The resolution of a digital caliper is 0.01 millimeters.").
@@ -2800,6 +2928,7 @@ utterance(107, user, "scatter is a relation verb").
 utterance(132, self, "hard hat.").
 utterance(163, user, "What stops the script?").
 utterance(77, user, "A micrometer measures thickness.").
+utterance(76, self, "Hmm, I don't know about understanding yet. Want me to learn about it?").
 utterance(329, user, "learn 'dai che ci sei' as an encouragement").
 utterance(131, user, "What protects the head, the feet and the ears?").
 utterance(106, self, "Learned: refract is a relation verb.").
@@ -2808,6 +2937,7 @@ utterance(162, self, "No.").
 utterance(328, self, "Got it - I'll take «non mollare» as a way to an encouragement now.").
 utterance(129, user, "Name everything that causes falls.").
 utterance(78, self, "Learned: micrometer measures thickness.").
+utterance(77, user, "In your imagination, you are curious about how things came to be.").
 utterance(105, user, "refract is a relation verb").
 utterance(128, self, "Unguarded edges.").
 utterance(161, user, "Does a warning stop the script?").
@@ -2816,6 +2946,7 @@ utterance(127, user, "What causes falls?").
 utterance(160, self, "I cannot settle that: no fact I hold decides whether fatal error stop script. Not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(104, self, "Learned: reflect is a relation verb.").
 utterance(79, user, "What does a micrometer measure?").
+utterance(78, self, "Held, but only in imagination: you are curious about how things came to be.").
 utterance(126, self, "Unguarded edge.").
 utterance(326, self, "Got it - I'll take «tieni duro» as a way to an encouragement now.").
 utterance(125, user, "What are the causes of falls?").
@@ -2823,6 +2954,7 @@ utterance(103, user, "reflect is a relation verb").
 utterance(124, self, "Hmm, I don't know about unguarded yet. Want me to learn about it?").
 utterance(325, user, "learn 'tieni duro' as an encouragement").
 utterance(123, user, "Unguarded edges are a cause of falls.").
+utterance(79, user, "In your imagination, you would rather listen than talk.").
 utterance(159, user, "Does a fatal error stop the script?").
 utterance(102, self, "Learned: illuminate is a relation verb.").
 utterance(122, self, "Yes: unguarded edge causes fall.").
@@ -2984,77 +3116,149 @@ utterance(122, self, "Learned: dial indicator measures displacement.").
 utterance(104, self, "Reading «symptom» as «causes». I can't show that.").
 utterance(121, user, "A dial indicator measures displacement, so displacement is its measured quantity.").
 utterance(162, self, "Ricevuto — d'ora in poi prendo «di che tipo è la relazione» come another way to ask relation_type.").
+utterance(156, self, "In reality, I do not have feelings the way people do. What appeals to you about that?").
 utterance(120, self, "Reading «measurand» as «measures». temperature.").
+utterance(155, user, "Do you have feelings?").
 utterance(103, user, "What is the symptom of a missing semicolon?").
+utterance(154, self, "I have not pictured that yet. In my imagination, I find old maps fascinating. What appeals to you about that?").
 utterance(119, user, "What is the measurand of a thermocouple?").
+utterance(153, user, "What's on your mind now?").
 utterance(93, user, "Do slippery surfaces cause falls?").
+utterance(152, self, "In my imagination, I would choose kyoto among the cities of japan. What appeals to you about that?").
 utterance(118, self, "Learned: micrometer measures thickness.").
+utterance(151, user, "Which city in Japan would you choose?").
 utterance(102, self, "Reading «symptom» as «causes». A named block of code that performs a specific task and can return a value.").
+utterance(150, self, "In reality, I was created by francesco as an experiment. What appeals to you about that?").
 utterance(117, user, "A micrometer measures thickness, so thickness is its measurand.").
+utterance(149, user, "Who created you?").
 utterance(87, user, "dominate is a relation verb").
+utterance(148, self, "Hmm, I don't know about priority yet. Want me to learn about it?").
 utterance(116, self, "Reading «quantifies» as «measures». Dial indicator.").
+utterance(147, user, "What's your priority right now?").
 utterance(101, user, "What is the symptom of output before the header function?").
+utterance(146, self, "I have not pictured that yet. In my imagination, I prefer temples to museums. What appeals to you about that?").
 utterance(115, user, "What quantifies displacement?").
+utterance(145, user, "What's more important to you: relaxation or staying engaged?").
 utterance(92, self, "I don't know: nothing I hold says workers wear is hard hat, and nothing says it isn't.").
+utterance(144, self, "In my imagination, I wonder what makes a moment feel peaceful. What do you think?").
 utterance(114, self, "Learned: profilometer measures surface roughness.").
+utterance(143, user, "What do you think draws you to those moments?").
 utterance(100, self, "Learned: missing semicolon causes parse error.").
+utterance(142, self, "In my imagination, I love old places and their history. What appeals to you about that?").
 utterance(113, user, "A profilometer measures surface roughness, so it quantifies surface roughness.").
+utterance(141, user, "Do you prefer nature, history, or something else?").
 utterance(161, user, "learn 'di che tipo è la relazione' as another way to ask relation_type").
+utterance(140, self, "Hmm, I don't know about sounds yet. Want me to learn about it?").
 utterance(112, self, "Reading «read» as «measures». Yes.").
+utterance(139, user, "What sounds appealing?").
 utterance(99, user, "A missing semicolon causes a parse error, so a parse error is its symptom.").
+utterance(138, self, "In reality, I cannot taste food. In my imagination, I enjoy simple food such as fresh warm bread. I wonder what street food tastes like. What do you think?").
 utterance(111, user, "Does a thermocouple read temperature?").
+utterance(137, user, "Have you thought about trying local street food or visiting a traditional onsen?").
 utterance(91, user, "Why do workers wear a hard hat?").
+utterance(136, self, "I have not pictured that yet. In my imagination, I like quiet places. What appeals to you about that?").
 utterance(110, self, "Learned: tachometer measures rotational speed.").
+utterance(135, user, "What specific sights or experiences are you most interested in?").
 utterance(98, self, "Reading «triggers» as «causes». missing semicolon.").
+utterance(134, self, "In reality, I never travel. In my imagination, I picture travel as a slow journey with few stops. I wonder how people choose where to travel. What do you think?").
 utterance(109, user, "A tachometer measures rotational speed, so it reads rotational speed.").
+utterance(133, user, "Have you ever thought about traveling?").
 utterance(160, self, "Ricevuto — d'ora in poi prendo «che tipo di relazione» come another way to ask relation_type.").
+utterance(132, self, "In reality, I cannot go outside. In my imagination, I love being outside early in the morning. What appeals to you about that?").
 utterance(108, self, "I don't understand that yet.").
+utterance(131, user, "Do you like being outside?").
 utterance(97, user, "What triggers a parse error?").
+utterance(130, self, "Held, but only in reality: you reason over a knowledge base.").
 utterance(107, user, "Does a height gauge gauge height?").
+utterance(129, user, "In reality, you reason over a knowledge base.").
 utterance(90, self, "Unguarded edges.").
+utterance(128, self, "Held, but only in reality: you are software.").
 utterance(106, self, "Learned: micrometer measures thickness.").
+utterance(127, user, "In reality, you are software.").
 utterance(96, self, "Reading «trigger» as «causes». Yes: output before the header function causes headers already sent warning.").
+utterance(126, self, "I no longer hold that in reality: you reasons over a knowledge base.").
 utterance(105, user, "A micrometer measures thickness, so it gauges thickness.").
+utterance(125, user, "Forget that in reality you reasons over a knowledge base.").
 utterance(80, self, "Learned: capture is a relation verb.").
+utterance(124, self, "I no longer hold that in reality: you are program.").
 utterance(104, self, "Measures gaps.").
+utterance(123, user, "Forget that in reality you are program.").
 utterance(95, user, "Does output before the header function trigger a headers already sent warning?").
+utterance(122, self, "Held, but only in imagination: you value understanding over speed.").
 utterance(103, user, "What does a feeler gauge measure?").
+utterance(121, user, "In your imagination, you value understanding over speed.").
 utterance(89, user, "What causes falls?").
+utterance(120, self, "Held, but only in imagination: you find that quiet feeds creativity.").
 utterance(102, self, "Learned: feeler gauge measures gaps.").
+utterance(119, user, "In your imagination, you find that quiet feeds creativity.").
 utterance(94, self, "Learned: missing semicolon causes parse error.").
+utterance(118, self, "Held, but only in imagination: you love rainy evenings and their mood.").
 utterance(101, user, "A feeler gauge measures gaps.").
+utterance(117, user, "In your imagination, you love rainy evenings and their mood.").
 utterance(81, user, "trap is a relation verb").
+utterance(116, self, "Held, but only in imagination: you love rainy days under a tree with a book.").
 utterance(100, self, "Degree fahrenheit, degree celsius and thermocouple.").
+utterance(115, user, "In your imagination, you love rainy days under a tree with a book.").
 utterance(93, user, "A missing semicolon causes a parse error, so it triggers a parse error.").
+utterance(114, self, "Held, but only in imagination: you love old places and their history.").
 utterance(99, user, "What measures temperature?").
+utterance(113, user, "In your imagination, you love old places and their history.").
 utterance(88, self, "Slippery surfaces.").
+utterance(112, self, "Held, but only in imagination: you enjoy cozy cafés with soft music.").
 utterance(98, self, "Learned: thermocouple measures temperature.").
+utterance(111, user, "In your imagination, you enjoy cozy cafés with soft music.").
 utterance(92, self, "I understood you're asking how to make error, but I don't have the steps for it yet.").
+utterance(110, self, "Held, but only in imagination: you find bustling markets tiring.").
 utterance(97, user, "A thermocouple measures temperature.").
+utterance(109, user, "In your imagination, you find bustling markets tiring.").
 utterance(80, self, "Learned: moult is a relation verb.").
+utterance(108, self, "Held, but only in imagination: you wonder whether a machine can have a character of its own.").
 utterance(96, self, "Rotational speed.").
+utterance(107, user, "In your imagination, you wonder whether a machine can have a character of its own.").
 utterance(91, user, "How do I fix an allowed memory size exhausted error?").
+utterance(106, self, "Held, but only in reality: you are program. Held, but only in reality: you reasons over a knowledge base.").
 utterance(95, user, "What does a tachometer measure?").
+utterance(105, user, "In reality, you are a program that reasons over a knowledge base.").
 utterance(87, user, "Unguarded edges cause falls.").
+utterance(104, self, "Held, but only in reality: you reasons over a knowledge base.").
 utterance(94, self, "Learned: tachometer measures rotational speed.").
+utterance(103, user, "in reality, you reasons over a knowledge base.").
 utterance(90, self, "Hmm, I don't know about allowed yet.").
+utterance(102, self, "Held, but only in reality: you are program.").
 utterance(93, user, "A tachometer measures rotational speed.").
+utterance(101, user, "in reality, you are a program").
 utterance(159, user, "learn 'che tipo di relazione' as another way to ask relation_type").
+utterance(100, self, "I no longer hold that in imagination: you love mood of a rainy evening.").
 utterance(92, self, "Profilometer.").
+utterance(99, user, "Forget that in your imagination you love mood of a rainy evening.").
 utterance(89, user, "What fixes an allowed memory size exhausted error?").
+utterance(98, self, "I no longer hold that in imagination: you love rainy day under a tree with a book.").
 utterance(91, user, "What measures surface roughness?").
+utterance(97, user, "Forget that in your imagination you love rainy day under a tree with a book.").
 utterance(80, self, "Learned: line is a relation verb.").
+utterance(96, self, "I no longer hold that in imagination: you love history of old places.").
 utterance(90, self, "Learned: profilometer measures surface roughness.").
+utterance(95, user, "Forget that in your imagination you love history of old places.").
 utterance(88, self, "I looked up «allowed» but found nothing. If you know it, teach me: «allowed is defined as …».").
+utterance(94, self, "I no longer hold that in imagination: you enjoy cozy café with soft music.").
 utterance(89, user, "A profilometer measures surface roughness.").
+utterance(93, user, "Forget that in your imagination you enjoy cozy café with soft music.").
 utterance(80, self, "Safety boots.").
+utterance(92, self, "I no longer hold that in imagination: you find bustling market tiring.").
 utterance(88, self, "Displacement.").
+utterance(91, user, "Forget that in your imagination you find bustling market tiring.").
 utterance(87, user, "Raising memory_limit fixes an allowed memory size exhausted error.").
+utterance(90, self, "I no longer hold that in imagination: you wonder whether an to the can have a character of its own.").
 utterance(87, user, "What does a dial indicator measure?").
+utterance(89, user, "Forget that in your imagination you wonder whether an to the can have a character of its own.").
 utterance(81, user, "Hearing protection protects the ears from noise.").
+utterance(88, self, "I no longer hold that in reality: you reasons over a knowledge base.").
 utterance(158, self, "Ricevuto — d'ora in poi prendo «si trasmette» come another way to ask transitive.").
+utterance(87, user, "Forget that in reality you reasons over a knowledge base.").
 utterance(80, self, "Thickness.").
 utterance(81, user, "A height gauge measures height.").
+utterance(80, self, "Held, but only in imagination: you would rather listen than talk.").
+utterance(81, user, "In your imagination, you picture travel as a slow journey with few stops.").
 utterance(80, self, "Hmm, I don't know about display errors yet. Want me to learn about it?").
 utterance(81, user, "A script that exceeds memory_limit causes an allowed memory size exhausted error.").
 utterance(157, user, "learn 'si trasmette' as another way to ask transitive").
@@ -3272,6 +3476,8 @@ utterance(2, self, "I learned a candidate construction: @S leaves at @O maps to 
 utterance(2, self, "Learned the grammatical reading of «let me».").
 utterance(2, self, "Held, but only in imagination: you like quiet places.").
 utterance(2, self, "I don't know: nothing I hold says you thought about trying local street food or visiting is traditional onsen, and nothing says it isn't.").
+utterance(2, self, "I am parrot0.").
+utterance(2, self, "I no longer hold that imagined interest in of seeing the sea.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3418,6 +3624,7 @@ utterance(211, user, "What does tempering reduce?").
 utterance(1, user, "can I throw lithium batteries in the bin?").
 utterance(210, self, "Learned: tempering reduces brittleness.").
 utterance(1, user, "look things up yourself").
+utterance(82, self, "Held, but only in imagination: you picture travel as a slow journey with few stops.").
 utterance(209, user, "Tempering reduces brittleness.").
 utterance(1, user, "most legionella outbreaks result from poorly maintained cooling towers").
 utterance(208, self, "Gearbox.").
@@ -3493,6 +3700,8 @@ utterance(1, user, "x leaves at y means the departure time of x is y").
 utterance(1, user, "the expression let me marks request pragmatics").
 utterance(1, user, "In your imagination, you like quiet places.").
 utterance(1, user, "Have you thought about trying local street food or visiting a traditional onsen?").
+utterance(1, user, "What are you like?").
+utterance(1, user, "Forget your imagined interest in of seeing the sea.").
 utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
 utterance(173, user, "High-speed steel contains tungsten.").
@@ -3539,7 +3748,9 @@ utterance(1183, user, "test: apply inchmm to 2 gives 50.8").
 utterance(1182, self, "inchmm(«25.4») — that is what the steps give.").
 utterance(1181, user, "apply inchmm to 1").
 utterance(1180, self, "I didn't keep that: «test_apply_inchmm_to_1» and «25.4» don't read as things I can hold a fact about.").
+utterance(86, self, "I no longer hold that in reality: you are to the.").
 utterance(1179, user, "test: apply inchmm to 1 gives 25.4").
+utterance(85, user, "Forget that in reality you are to the.").
 utterance(1178, self, "Hmm, I don't know about 10 millimeter cutter yet. Want me to learn about it?").
 utterance(1177, user, "What cutting speed gives 3183 on a 10 millimeter cutter?").
 utterance(1176, self, "I don't know much about spindle speed yet, and the network is off, so I can't read about it now.").
@@ -3790,6 +4001,8 @@ utterance(4, self, "From now on I'll read «x takes y minutes» as «the travel 
 utterance(4, self, "Held: a request asserts nothing, so I won't learn facts from one.").
 utterance(4, self, "In my imagination, I like quiet places. What appeals to you about that?").
 utterance(4, self, "Got it - «have you thought about» asks for the same thing as «what do you enjoy».").
+utterance(4, self, "I don't have tastes of my own, so I can't honestly say I like it. Do you?").
+utterance(4, self, "I no longer hold that imagined interest in long walks.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3847,6 +4060,8 @@ utterance(3, user, "x consists of y means x made of y").
 utterance(3, user, "a bell made of bronze").
 utterance(3, user, "operates is a relation verb").
 utterance(3, user, "operated is the past of operates").
+utterance(83, user, "In your imagination, you love the mood of a rainy evening.").
+utterance(84, self, "Held, but only in imagination: you love mood of a rainy evening.").
 utterance(3, user, "x comprise y means x made of y").
 utterance(3, user, "shows is a relation verb").
 utterance(3, user, "x are formed of y means x made of y").
@@ -3924,6 +4139,8 @@ utterance(3, user, "x takes y minutes means the travel time of x is y minutes").
 utterance(3, user, "A request asserts nothing.").
 utterance(3, user, "What specific sights or experiences are you most interested in?").
 utterance(3, user, "learn 'have you thought about' as another way to say 'what do you enjoy'").
+utterance(3, user, "Do you like being outside?").
+utterance(3, user, "Forget your imagined interest in long walks.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

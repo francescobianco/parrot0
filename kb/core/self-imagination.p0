@@ -1,36 +1,218 @@
-% L5, mondo #2 (un caso, non L5): un tratto insegnato diventa una presa di parola.
-% Ponte transitorio dalla porta context_fact esistente, senza un lettore NL.
-% Limiti: il tratto non e' ancora scelto in base al tema della domanda;
-% resa inglese soltanto. Non pretende esperienza o risposta fattuale.
+% L5, i mondi del se' (un caso della tassonomia dei mondi, non L5 intera): il
+% carattere di parrot0 e' contenuto di un mondo, non un frasario. Cio' che
+% l'istruttore dice con la porta «In your imagination, you …» o «In reality,
+% you …» diventa un tratto, e chi risponde alle domande su di se' lo legge.
+%
+% 1 ottobre 2026, notte — L'IMPRINT. Con tre tratti a rotazione parrot0
+% rispondeva «I like quiet places» anche a «Who created you?»: il mondo era
+% letto, ma non in base alla domanda. Che cosa cambia, tutto in questo file:
+%   0. il se' ha piu' mondi (immaginario, realta'), ciascuno con il nome che lo
+%      apre e l'apertura con cui parrot0 dichiara da dove parla;
+%   1. e' un tratto OGNI frase «you VERBO …» detta in uno di quei mondi, con
+%      il verbo com'e' stato detto (enjoy, wonder, would, never …): il
+%      carattere cresce parlando senza toccare questo file;
+%   2. risponde il tratto che TOCCA la domanda (una parola di contenuto in
+%      comune, anche flessa); se nessuno la tocca parrot0 lo dice;
+%   3. una curiosita' («you wonder …») che tocca la domanda diventa il seguito,
+%      al posto della domanda generica;
+%   4. le voci che gia' rispondevano alle domande rivolte a parrot0 leggono lo
+%      stesso mondo (§4).
+% Limiti: la pertinenza e' una parola in comune, non un legame di senso (la
+% giunzione con i fatti del mondo vero e' il passo dopo); resa inglese
+% soltanto. Non pretende esperienza: ogni risposta dichiara il suo mondo.
 :- file_attribute(machinery).
 
 context(world_of(parrot0_imagination), imagination).
 commitment_policy(imagination, imagined_only).
-self_imagination_owner(imagination, you).
-self_imagination_attitude(like).
-self_imagination_attitude(love).
-self_imagination_attitude(prefer).
+
+% ── 0. I MONDI DEL SE' E LA LORO PORTA ───────────────────────────────────
+% parrot0 ha piu' di un mondo suo: cio' che immagina e cio' che e' davvero
+% (non ha un corpo, impara da cio' che gli si insegna). Ogni mondo del se' ha
+% un nome con cui si apre («In your imagination, you …», «In reality, you …»)
+% e un'apertura con cui parrot0 dichiara da quale mondo parla. Un mondo nuovo
+% e' una riga di `self_world/1`; senza apertura sua, vale quella composta.
+% La porta tiene il verbo COME E' STATO DETTO («would», «never», «enjoy»):
+% il carattere e' stipulato dall'istruttore, non una relazione del mondo.
+self_world(imagination).
+self_world(reality).
+self_world_opener(imagination, "In my imagination, I ").
+self_world_opener(reality, "In reality, I ").
+% Le parole che aprono un mondo del se', e il mondo che aprono. Sono la porta
+% della forma qui sotto E il motivo per cui l'inciso iniziale non si sbuccia
+% (`turn_opens_world/1`, il gancio che 99-registry.c chiede prima di trattare
+% «In reality,» come una circostanza): una porta nuova e' una riga.
+self_world_door("in your imagination", imagination).
+self_world_door("in reality", reality).
+machinery(turn_opens_world).
+turn_opens_world($T) :-
+    self_world_door($Surface, $World), atom_words($Surface, $Words),
+    dialogue_prefix($T, 0, $Words, $End).
+turn_form(teach_self_world, 1, named(self_world_door, order)).
+turn_form(teach_self_world, 2, text("you")).
+turn_form(teach_self_world, 3, slot(relation)).
+turn_form(teach_self_world, 4, rest(object)).
+turn_form(teach_self_world, 5, bind(subject, you)).
+turn_form_priority(teach_self_world, early).
+turn_form_mood(teach_self_world, statement).
+turn_form_act(teach_self_world, "op(assert, context_fact, [order, relation, subject, object])").
+turn_form_reply(teach_self_world, learned_ctx_fact).
+
+% Un tratto: t(Mondo, Verbo, Oggetto). L'immaginario resta anche un contesto
+% di L4 (`holds_in`), con il suo impegno: non diventa mai un gusto reale.
+self_trait(t($W, $R, $O)) :- self_world($W), context_fact($W, $R, you, $O).
 holds_in(world_of(parrot0_imagination), fact($R, parrot0, $O)) :-
-    self_imagination_owner($C, $S), context_fact($C, $R, $S, $O),
-    self_imagination_attitude($R).
+    context_fact(imagination, $R, you, $O).
 self_imagined_trait($R, $O) :-
     holds_in(world_of(parrot0_imagination), fact($R, parrot0, $O)).
-self_has_imagined_trait :- self_imagined_trait($R, $O).
+self_has_trait :- self_trait($T).
 
-% Il renderer e la rotazione esistono gia'. Il contenuto viene dal mondo,
-% non da una citta' o un alimento compilati nella frase di risposta.
-response_template(imagined_trait_open, "In my imagination, I ").
+% ── 1. QUALE TRATTO TOCCA LA DOMANDA ─────────────────────────────────────
+% Una parola di contenuto del tratto compare nel turno: uguale, al plurale
+% (place/places), o con la stessa radice verbale (travel/traveling). La
+% curiosita' e' un tratto come gli altri, con un verbo che l'istruttore puo'
+% allargare: `self_curiosity_verb/1`.
+self_trait_word($O, $W) :- atom_words($O, $Ws), member($W, $Ws), content_word($W).
+self_word_match($A, $A).
+self_word_match($A, $B) :- finite_present_of($A, $B).
+self_word_match($A, $B) :- finite_present_of($B, $A).
+self_word_match($A, $B) :- verb_form_analysis($A, form($B, $K)).
+self_word_match($A, $B) :- verb_form_analysis($B, form($A, $K)).
+self_word_match($A, $B) :-
+    verb_form_analysis($A, form($R, $K)), verb_form_analysis($B, form($R, $J)).
+% La parola subito dopo «you» e' il verbo della domanda quando e' uno dei verbi
+% con cui il carattere stesso si dice («do you LIKE …», «what do you FIND …»):
+% non e' l'argomento, e non decide la pertinenza. «Do you travel?» resta una
+% domanda sul viaggiare; «to you: relaxation or …» una domanda sul riposo.
+self_trait_verb($V) :- self_trait(t($W, $V, $O)).
+self_asked_verb_at($I) :-
+    is($P, sub($I, 1)), turn_word(current_turn, $P, $Y), second_person_form($Y),
+    turn_word(current_turn, $I, $V), self_trait_verb($V).
+% Le due liste si calcolano UNA volta per turno (viste sui token del turno):
+% con quaranta tratti, chiederle a ogni guardia di ogni famiglia di risposta
+% portava un turno a 6 s e due al tetto di 10 (misurato l'1 ottobre 2026).
+self_turn_topic_word($T) :-
+    turn_word(current_turn, $I, $T), content_word($T), naf(self_asked_verb_at($I)).
+materialized_view(self_turn_topic_word, 1).
+view_depends(self_turn_topic_word, turn_surface_token).
+view_depends(self_turn_topic_word, context_fact).
+self_trait_touches($O) :-
+    self_trait_word($O, $W), self_turn_topic_word($T), self_word_match($W, $T).
+self_trait_pertinent(t($W, $R, $O)) :- self_trait(t($W, $R, $O)), self_trait_touches($O).
+materialized_view(self_trait_pertinent, 1).
+view_depends(self_trait_pertinent, turn_surface_token).
+view_depends(self_trait_pertinent, context_fact).
+self_has_pertinent_trait :- self_trait_pertinent($T).
+
+self_curiosity_verb(wonder).
+self_stance_pertinent(t($W, $R, $O)) :-
+    self_trait_pertinent(t($W, $R, $O)), naf(self_curiosity_verb($R)).
+self_has_pertinent_stance :- self_stance_pertinent($T).
+self_curiosity_pertinent(t($W, $R, $O)) :-
+    self_curiosity_verb($R), self_trait_pertinent(t($W, $R, $O)).
+self_has_pertinent_curiosity :- self_curiosity_pertinent($T).
+
+% ── 2. IL TRATTO DETTO DA PARROT0 ────────────────────────────────────────
+% «you are» detto dall'istruttore e' «I am» detto da parrot0; «your» e' «my».
+self_verb_said(are, am).
+self_verb_said(were, was).
+self_verb_first($R, $V) :- self_verb_said($R, $V).
+self_verb_first($R, $R) :- naf(self_verb_has_said($R)).
+self_verb_has_said($R) :- self_verb_said($R, $V).
+self_person_word("your", "my").
+self_person_word("yours", "mine").
+self_person_word("yourself", "myself").
+% e un nome proprio riprende la maiuscola che la lettura gli ha tolto.
+self_said_word($W, $X) :- self_person_word($W, $X).
+self_said_word($W, $X) :- proper_name($W), upcase_first($W, $X).
+self_trait_clause(t($W, $R, $O), $Clause) :-
+    self_verb_first($R, $Verb), words_of($O, $Said),
+    map_words($Said, self_said_word, $Object),
+    concat_atoms($Verb, " ", $A), concat_atoms($A, $Object, $Clause).
+self_world_open($W, $Open) :- self_world_opener($W, $Open).
+self_world_open($W, $Open) :-
+    naf(self_world_has_opener($W)), words_of($W, $Name),
+    concat_atoms("In my ", $Name, $A), concat_atoms($A, ", I ", $Open).
+self_world_has_opener($W) :- self_world_opener($W, $Open).
+self_trait_said(t($W, $R, $O), $Text) :-
+    self_world_open($W, $Open), self_trait_clause(t($W, $R, $O), $Clause),
+    concat_atoms($Open, $Clause, $Text).
+
+% ── 3. LA RISPOSTA: tratto + seguito ─────────────────────────────────────
+% Il contenuto viene dal mondo, non da una citta' o un alimento compilati
+% nella frase. Il seguito e' una curiosita' del carattere quando ce n'e' una
+% che tocca la domanda, altrimenti la domanda generica.
+response_template(imagined_trait_far, "I have not pictured that yet. ").
 response_template(imagined_trait_followup, ". What appeals to you about that?").
-self_imagination_reply($Text) :-
-    self_imagined_trait($R, $O), words_of($R, $Verb), words_of($O, $Object),
-    concat_atoms($Verb, " ", $A), concat_atoms($A, $Object, $Trait),
-    self_imagination_render($Trait, $Text).
-self_imagination_render($Trait, $Text) :-
-    response_template(imagined_trait_open, $Open),
-    response_template(imagined_trait_followup, $Follow),
-    concat_atoms($Open, $Trait, $Head), concat_atoms($Head, $Follow, $Text).
-response_template(self_question_unanswered, $Text) :- self_imagination_reply($Text).
-response_template(self_preference, $Text) :- self_imagination_reply($Text).
+response_template(real_trait_close, ".").
+response_template(imagined_curiosity_open, ". I ").
+response_template(imagined_curiosity_close, ". What do you think?").
+
+self_trait_followup($Text) :-
+    naf(self_has_pertinent_curiosity), response_template(imagined_trait_followup, $Text).
+self_trait_followup($Text) :-
+    self_curiosity_pertinent($T), self_trait_clause($T, $Clause),
+    response_template(imagined_curiosity_open, $Open),
+    response_template(imagined_curiosity_close, $Close),
+    concat_atoms($Open, $Clause, $A), concat_atoms($A, $Close, $Text).
+
+% vicino: un tratto che tocca la domanda. Tre casi esclusivi.
+%  (a) la toccano sia la realta' sia l'immaginario: parrot0 dice prima che
+%      cosa e' vero di lui, poi che cosa immagina («In reality, I cannot go
+%      outside. In my imagination, I love being outside early …»);
+%  (b) la tocca una posizione di un mondo solo: quella, con il suo seguito;
+%  (c) la tocca solo una curiosita': e' lei la risposta.
+self_real_pertinent(t(reality, $R, $O)) :- self_stance_pertinent(t(reality, $R, $O)).
+self_imagined_pertinent(t($W, $R, $O)) :-
+    self_stance_pertinent(t($W, $R, $O)), dif($W, reality).
+self_touched_both :- self_real_pertinent($A), self_imagined_pertinent($B).
+response_template(self_worlds_join, ". ").
+self_reply_near($Text) :-
+    self_real_pertinent($A), self_imagined_pertinent($B),
+    self_trait_said($A, $Real), self_trait_said($B, $Imagined),
+    response_template(self_worlds_join, $J),
+    concat_atoms($Real, $J, $X), concat_atoms($X, $Imagined, $Head),
+    self_trait_followup($Follow), concat_atoms($Head, $Follow, $Text).
+self_reply_near($Text) :-
+    naf(self_touched_both), self_imagined_pertinent($T), self_trait_said($T, $Head),
+    self_trait_followup($Follow), concat_atoms($Head, $Follow, $Text).
+% un fatto di realta' da solo non chiede «what appeals to you»: si chiude, o
+% lascia la parola a una curiosita' che tocca la domanda.
+self_reply_near($Text) :-
+    naf(self_touched_both), self_real_pertinent($T), self_trait_said($T, $Head),
+    self_real_followup($Follow), concat_atoms($Head, $Follow, $Text).
+self_real_followup($Text) :-
+    naf(self_has_pertinent_curiosity), response_template(real_trait_close, $Text).
+self_real_followup($Text) :- self_has_pertinent_curiosity, self_trait_followup($Text).
+self_reply_near($Text) :-
+    naf(self_has_pertinent_stance), self_curiosity_pertinent($T),
+    self_trait_said($T, $Head),
+    response_template(imagined_curiosity_close, $Close), concat_atoms($Head, $Close, $Text).
+% aperto: la domanda chiede che cosa piace in generale, ogni tratto
+% dell'immaginario risponde.
+self_reply_open($Text) :- self_reply_near($Text).
+self_reply_open($Text) :-
+    naf(self_has_pertinent_trait), self_trait(t(imagination, $R, $O)),
+    self_trait_said(t(imagination, $R, $O), $Head),
+    response_template(imagined_trait_followup, $Follow), concat_atoms($Head, $Follow, $Text).
+% lontano: nessun tratto tocca la domanda, e parrot0 lo dice prima di offrire
+% cio' che ha.
+self_reply_far($Text) :-
+    naf(self_has_pertinent_trait), self_trait(t(imagination, $R, $O)),
+    self_trait_said(t(imagination, $R, $O), $Said),
+    response_template(imagined_trait_far, $Far), concat_atoms($Far, $Said, $Head),
+    response_template(imagined_trait_followup, $Follow), concat_atoms($Head, $Follow, $Text).
+
+% ── 4. CHI LEGGE IL MONDO ────────────────────────────────────────────────
+% Le famiglie di risposta sul se'. La domanda aperta sulle preferenze prende
+% ogni tratto; la domanda in seconda persona che nessuno ha letto prende il
+% tratto vicino o dichiara la distanza; il «do you like …?» e la mossa
+% sociale leggono il mondo solo quando un tratto tocca la domanda, e
+% altrimenti restano le frasi oneste di prima (in responses.p0).
+response_template(self_preference, $Text) :- self_reply_open($Text).
+response_template(self_question_unanswered, $Text) :- self_reply_near($Text).
+response_template(self_question_unanswered, $Text) :- self_reply_far($Text).
+response_template(self_likes_polar, $Text) :- self_reply_near($Text).
+response_template(smalltalk_deflect, $Text) :- self_reply_near($Text).
 
 % Ritiro preciso, detto senza conoscere context_fact o holds_in.
 turn_form(forget_imagined_trait, 1, text("forget your imagined interest in")).
@@ -42,3 +224,39 @@ turn_form_mood(forget_imagined_trait, statement).
 turn_form_act(forget_imagined_trait, "op(retract_all, context_fact, [order, free, subject, object])").
 response_template(imagined_trait_forgotten, "I no longer hold that imagined interest in {object}.").
 turn_form_reply(forget_imagined_trait, imagined_trait_forgotten).
+% Il ritiro di una frase precisa, per ogni mondo del se': «Forget that in
+% reality you never travel.»
+turn_form(forget_self_world, 1, text("forget that")).
+turn_form(forget_self_world, 2, named(self_world_door, order)).
+turn_form(forget_self_world, 3, text("you")).
+turn_form(forget_self_world, 4, slot(relation)).
+turn_form(forget_self_world, 5, rest(object)).
+turn_form(forget_self_world, 6, bind(subject, you)).
+turn_form_priority(forget_self_world, early).
+turn_form_mood(forget_self_world, statement).
+turn_form_act(forget_self_world, "op(retract, context_fact, [order, relation, subject, object])").
+response_template(self_world_forgotten, "I no longer hold that in {order}: you {relation} {object}.").
+turn_form_reply(forget_self_world, self_world_forgotten).
+
+% Le altre voci che gia' rispondevano a una domanda rivolta a parrot0 — la
+% richiesta di un parere, il seguito sociale — leggono lo stesso mondo quando
+% un tratto tocca il turno. Nessuna pretesa nuova: cambia che cosa dice chi
+% aveva gia' il turno.
+response_template(opinion_request, $Text) :- self_reply_near($Text).
+response_template(smalltalk_continue, $Text) :- self_reply_near($Text).
+
+% «What do you think about X?» apre l'itinerario per chiarire un concetto
+% (dialogue-initiative). Se la domanda e' rivolta a parrot0 e lui ha una
+% posizione che tocca X, risponde la posizione: chi ha il carattere risponde
+% lui, come chi ha il piano insegnato (`dialogue_direct_plan`).
+self_turn_addressed($T) :- turn_word($T, $I, $W), second_person_form($W).
+self_asked_and_touched :- self_turn_addressed(current_turn), self_has_pertinent_trait.
+dialogue_excluded($T) :- self_turn_addressed($T), self_has_pertinent_trait.
+
+% «Have you ever been on a zeppelin?» veniva letta come una domanda polare su
+% un fatto del mondo («nothing I hold says you ever been on is zeppelin»). Se
+% la domanda e' rivolta a parrot0 e un suo tratto la tocca, risponde il tratto.
+response_template(no_support_either_way, $Text) :- self_asked_and_touched, self_reply_near($Text).
+response_template(no_support_relation, $Text) :- self_asked_and_touched, self_reply_near($Text).
+response_template(no_support_attribute, $Text) :- self_asked_and_touched, self_reply_near($Text).
+response_template(unary_polar_unknown, $Text) :- self_asked_and_touched, self_reply_near($Text).

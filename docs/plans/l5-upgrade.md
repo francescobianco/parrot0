@@ -15,7 +15,130 @@
 > ancora L5. Il commit `99332ea7` lo ha descritto come se fosse L5: la sua
 > descrizione è sbagliata, questo riquadro la corregge.
 
-## HANDOFF — 1 ottobre 2026, ore 22:51 — ripartire da qui
+## HANDOFF — 1 ottobre 2026, notte — l'imprint: ripartire da qui
+
+Lavoro chiesto da F. sul punto del §1: *«sei il suo istruttore ma anche
+forgiatore: gli devi dare un carattere, un imprint. Non e' un problema
+meccanico di leve fini, e' un problema organico»*, con la regola: **si accetta
+solo cio' che migliora un giro della [llm-challenge](llm-challenge.md); se
+l'evidenza non c'e', si committa lo stesso e lo si scrive qui.**
+
+### Verdetto del giro (giudice: l'agente)
+
+**Evidenza di miglioramento: solo su una conversazione su tre.** Il replay
+congelato «Giappone» sale; il replay congelato «parco» resta pari; la
+conversazione libera nuova **non mostra miglioramento**. Per la regola del
+giro (replay su **e** conversazione nuova non giu') il giro **non e' riuscito**:
+il lavoro e' committato come base, non come guadagno dimostrato.
+
+Scala: adeguata 1, muro onesto o risposta parziale ½, fuori tema −1, tetto 0;
+giudicata la risposta alla domanda rivolta a parrot0. I «Learned: …» sulle
+frasi di LFM sono identici prima e dopo e restano fuori dal conto.
+
+| conversazione (12 scambi) | prima | dopo | mediana | tetti di tempo |
+|---|---:|---:|---|---|
+| replay congelato «Giappone» (gli ingressi di `l5-duration-replay2`) | +0,42 | **+0,79** | 2,65 → 3,05 s | 0 → 0 |
+| replay congelato «parco» (gli ingressi di `l5-duration-transfer`) | +0,21 | +0,21 | 3,85 → 4,35 s | 0 → **1** |
+| talk libero «parco» con LFM (`l5-imprint-talk-park`), contro il talk libero di prima (`l5-duration-transfer`, traiettoria diversa) | +0,08 | **−0,13** | 5,70 → 4,40 s | 3 → 1 |
+
+Log in `docs/sessions/talk/2026-10-01-l5-imprint-*`; il «prima» e' la
+fotografia di `kb/` + `bin/` presa a inizio sessione (commit `53767c17`).
+
+- **Giappone, che cosa sale:** sei turni (5, 6, 7, 10, 11, 12) passano da
+  risposta rotta o generica a risposta pertinente. «Have you considered
+  visiting a historic temple or a serene garden?»: da «nothing I hold says you
+  considered visiting is historic temple…» a «In my imagination, I prefer
+  temples to museums. I wonder how old temples were built. What do you
+  think?». «What do you think about exploring a quiet shrine or a mossy
+  garden?»: da «I propose distinguishing the meaning of the words…» a «I
+  admire mossy gardens and quiet shrines».
+- **Parco congelato, perche' resta pari:** migliorano i turni 2, 4, 6, 9
+  («…or just curious?» → «I am curious about how things came to be»);
+  peggiorano il 3 («most fascinating about AI?» → «I find old maps
+  fascinating»: fuori tema), il 5 («What's on your mind now?» riceve la
+  premessa «I have not pictured that yet») e l'8 (da 9,1 s al tetto di 10 s).
+- **Talk libero, perche' non migliora:** i primi due turni sono del carattere,
+  poi la traiettoria entra in «How do you find that calm?» e tre volte
+  risponde un frasario d'analisi che non c'entra con questo lavoro («a causal
+  account turns on…», «a workable design turns on…»). In piu' lo stesso
+  tratto torna tre volte e una frase di realta' entra per una parola debole
+  («feels» → «In reality, I cannot feel the rain», tre volte).
+
+### Che cosa c'e' ora
+
+- **Il se' ha due mondi, e le parole che li aprono sono fatti.**
+  `self_world_door("in your imagination", imagination)` e `("in reality",
+  reality)` in `kb/core/self-imagination.p0`. La porta e' una `turn_form`
+  early che tiene il verbo **come e' stato detto** («would», «never»,
+  «cannot», «are»): «In reality, you never travel.» → `context_fact(reality,
+  never, you, travel)`. Ritiro preciso: «Forget that in reality you never
+  travel.».
+- **La scheda del carattere, detta in chat e salvata** (`kb/learning/learned.p0`):
+  12 tratti di realta' (veri: non ha corpo, non viaggia, impara solo
+  dall'insegnamento, e' stato creato da Francesco…) e 33 d'immaginario
+  (stipulati). Transcript: `docs/sessions/live/2026-10-01-l5-imprint-scheda.log`.
+- **Chi risponde sceglie il tratto che tocca la domanda** (una parola di
+  contenuto in comune, anche flessa), dichiara il mondo, e se realta' e
+  immaginario la toccano entrambi li dice in quest'ordine. Una curiosita'
+  («you wonder …») che tocca la domanda diventa il seguito. Se niente tocca:
+  «I have not pictured that yet.» e poi un tratto.
+- **Le voci che gia' avevano il turno leggono il mondo** quando un tratto
+  tocca la domanda: `self_preference`, `self_question_unanswered`,
+  `self_likes_polar`, `smalltalk_deflect`, `smalltalk_continue`,
+  `opinion_request`, `no_support_*`, `unary_polar_unknown`. E l'itinerario
+  «what do you think about X» cede (`dialogue_excluded`).
+- **Una porta in C, 11 righe, nessuna parola:** `adjunct_peel`
+  (`99-registry.c`) chiede `turn_opens_world/1` prima di sbucciare l'inciso
+  iniziale. Bilancio: C +11, KB circa +240 righe di regole e 45 fatti detti.
+- **Banco:** `tests/p0t/conversation/self_imprint.p0t` 21/21 (insegna, tocca,
+  dichiara la distanza, curiosita', due mondi, ritiro);
+  `context_layers.p0t` 28/28; `make soft-test` verde in 3 s. Il vecchio
+  `self_imagination.p0t` e' stato tolto: presupponeva tre soli tratti.
+
+### Il framework dell'imprint, com'e' emerso facendolo
+
+1. **Si parte dalla domanda che il dialogo rivolge a parrot0**, non dalla
+   frase che non regge: nei talk quasi ogni turno di LFM chiude con una
+   domanda a «you». La scheda si scrive sui temi di quelle domande.
+2. **Prima la realta', poi l'immaginario.** Un carattere onesto ha bisogno di
+   tutti e due: la risposta naturale nasce dalla loro giunzione («In reality,
+   I never travel. In my imagination, I picture travel as a slow journey…»).
+   Solo immaginario suona finto; solo realta' e' un muro.
+3. **Per tema, non per frase:** due o tre tratti che condividono le parole
+   del tema (una posizione, una ragione detta come altra posizione, una
+   curiosita'). La curiosita' e' cio' che da' l'iniziativa.
+4. **Che cosa la porta non regge oggi**, e come si aggira dicendo altrimenti:
+   «you» dentro il tratto (resterebbe «you» nella risposta); una relativa
+   («a program that reasons…» si spezza in due fatti); l'articolo in testa
+   all'oggetto cade («find bustling market tiring»: si dice al plurale);
+   «AI» in una frase inglese e' letta come l'articolo italiano «ai»;
+   «sparks» chiama il piano del guasto elettrico; «because» non entra.
+5. **Si prova con domande mai insegnate**, prese dai talk: vicina, lontana,
+   di scelta, di realta', e il ritiro.
+6. **Si giudica su replay congelato prima/dopo** (gli stessi ingressi) e su
+   un talk libero: il replay dice che cosa cambia, il talk libero dice dove
+   va la conversazione quando cambia.
+
+### Specie aperte, in ordine di peso sul talk
+
+1. **Tocco debole.** Una parola generica («feel», «fascinating», «quiet»)
+   basta a toccare un tratto. Manca un peso: il complemento conta piu' del
+   verbo («cannot feel THE RAIN»), e un tratto gia' detto non si ridice.
+2. **La domanda guarda solo la sua frase.** «Which aligns better with your
+   preference?» non vede i templi nominati nella frase prima dello stesso
+   turno, e riceve «I have not pictured that yet».
+3. **Frasari d'analisi che prendono «how do you find …», «what do you think
+   makes …»**: tre misclaim nel talk libero, nessuno legge il mondo del se'.
+4. **Ogni voce va collegata a mano** al mondo del se' (otto famiglie oggi):
+   e' la specializzazione che il piano vuole evitare. La casa giusta e' una
+   lettura sola «domanda rivolta a parrot0» sulla IR, e la porta giusta e'
+   `turn_world_report` (L4), che legge la clausola DENTRO il mondo.
+5. **Costo:** +0,4/0,5 s per turno; un turno gia' a 9 s ha toccato il tetto.
+6. **Non e' ancora L5** nel senso del riquadro in testa: i due mondi del se'
+   e le loro porte sono fatti scritti in `.p0`, non insegnati parlando;
+   «Which worlds do you know?» non ha risposta.
+
+## HANDOFF precedente — 1 ottobre 2026, ore 22:51 (storico)
 
 **Interruzione richiesta da F. per esaurimento token. Nessun commit eseguito.**
 Working tree inizialmente pulito; tutte le modifiche elencate sotto sono di
@@ -666,11 +789,11 @@ sintassi obbligatoria.
 | # | mondo | che cosa contiene | porta (esempio) | stato |
 |---|---|---|---|---|
 | 1 | il mondo di parrot0 | cio' che tiene per vero | «Rex is a dog.» | ✅ |
-| 2 | lo spazio immaginativo di parrot0 | pseudo-preferenze, gusti per gioco | «In your imagination, you prefer temples to museums.» | ◐ scritto, non letto |
-| 3 | il carattere di parrot0 | tratti, valori, modo di stare in conversazione | «You are curious and patient.» | ? |
+| 2 | lo spazio immaginativo di parrot0 | pseudo-preferenze, gusti per gioco | «In your imagination, you prefer temples to museums.» | ✅ scritto e letto per pertinenza (33 tratti) |
+| 3 | il carattere di parrot0 | tratti, valori, modo di stare in conversazione | «You are curious and patient.» | ✗ senza porta la prende il cambio di ruolo («I am Curious now»); ✅ con «In your imagination, you are curious about …» |
 | 4 | le capacita' di parrot0 | che cosa sa fare | «You can help compare options.» | ◐ (self-ability, frasi fisse) |
-| 5 | le assenze di parrot0 | corpo, esperienze, gusti veri, rete | «You have never travelled.» | ◐ (frasario) |
-| 6 | la storia di parrot0 | come e' nato, chi lo addestra | «You were built by Francesco.» | ? |
+| 5 | le assenze di parrot0 | corpo, esperienze, gusti veri, rete | «In reality, you never travel.» | ✅ con la porta «In reality» (senza porta: muro) |
+| 6 | la storia di parrot0 | come e' nato, chi lo addestra | «In reality, you were created by Francesco as an experiment.» | ✅ con la porta «In reality» |
 | 7 | le curiosita' di parrot0 | che cosa vorrebbe imparare | «You would like to learn how temples are built.» | ? |
 | 8 | i ricordi di questa conversazione | cio' che e' stato detto oggi | «What did I tell you about Osaka?» | ◐ (sessione come conoscenza) |
 | 9 | gli errori di parrot0 | cio' che ha sbagliato e corretto | «You were wrong about Osaka.» | ? |

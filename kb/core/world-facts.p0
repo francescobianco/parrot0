@@ -2844,3 +2844,4 @@ world_superlative_cue("largest stadium", largest, stadium).
 % piu' che per storia»). La provenienza resta nei fatti di provenienza.
 scientist($V1) :- physicist($V1).
 researcher($V1) :- scientist($V1).
+created_by(francesco, you, built).
