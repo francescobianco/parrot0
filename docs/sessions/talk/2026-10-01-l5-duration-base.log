@@ -1,0 +1,20 @@
+# parrot0 in avvio (KB viva completa)…
+# pronto — modello liquid/lfm2.5-1.2b, 6 scambi, lingua en, T=0.0, seme 7
+M> Hi! I'm planning a trip to Japan next spring. Have you ever thought about traveling?
+P< Start from what you want to see: pick two or three places that matter to you, and the days will arrange themselves around them.   [0.5 s]
+# modello: 2.9 s
+M> That sounds exciting! Tokyo, Kyoto, and Osaka are always top choices. What specific sights or experiences are you most interested in?
+P< I couldn't read «Tokyo, Kyoto». Learned: osaka is an always top choice. I don't know how to answer that about myself yet: nobody has taught me.   [4.5 s]
+# modello: 2.8 s
+M> Oh, I see! Osaka is definitely a must. Have you thought about trying local food or visiting any famous landmarks there?
+P< That turn joins several statements and a question, and I can't yet read them together. Tell me the statements one per turn, then ask the question.   [4.7 s]
+# modello: 6.8 s
+M> Sure! Here’s my turn:  - Tokyo is known for its vibrant culture and modern attractions. - Kyoto offers beautiful temples and traditional Japanese experiences. - Osaka is famous for its food scene and lively atmosphere.  Now, what do you think about exploring these three cities? Do you have any specific interests within each place?
+P< I stopped because the search exceeded my inference time limit. I do not have a verified answer.   [10.1 s]
+# modello: 3.7 s
+M> Ah, I see! So you're thinking about what to prioritize when planning your trip. Have you considered how much time you want to spend in each city?
+P< I couldn't read «So you're thinking about what to prioritize when planning your trip.». I don't know how to answer that about myself yet: nobody has taught me.   [5.6 s]
+# modello: 4.1 s
+M> That’s a good point—planning can be tricky! What aspects of each city are most important to you? Are you more interested in history, food, nature, or something else?
+P< I don't know how to answer that about myself yet: nobody has taught me.   [3.1 s]
+# fine

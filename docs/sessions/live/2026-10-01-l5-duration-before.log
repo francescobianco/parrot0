@@ -1,0 +1,12 @@
+# sessione: l5-dialogue-duration — 2026-10-01 22:42 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@590d98f6]
+# mode: conversational (tools off, network off) - 172270 facts, 6511 rules (3.78%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! L5: baseline 6 turni, primo muro al secondo. Provo il tratto immaginativo già previsto dal piano; verifico cosa scrive e chi lo legge.
+> In your imagination, you like quiet places.
+< Held, but only in imagination: you like quiet places.
+> /debug pred context_fact
+# /debug pred context_fact: 4 righe lette dall'insegnante, fuori dal transcript
+> What specific sights or experiences are you most interested in?
+< I don't know how to answer that about myself yet: nobody has taught me.

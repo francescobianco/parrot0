@@ -149,6 +149,8 @@ utterance(5, user, "What causes a segfault?").
 utterance(5, user, "Thermal expansion causes dimensional errors.").
 utterance(5, user, "if x leaks current then the RCD trips").
 utterance(5, user, "If you're stuck, just let me know when you're ready.").
+utterance(5, user, "Do you prefer temples or museums?").
+utterance(5, user, "Have you thought about trying local street food or visiting a traditional onsen?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -276,6 +278,7 @@ utterance(6, self, "Held: «dc» is short for «direct current».").
 utterance(6, self, "Slippery surfaces.").
 utterance(6, self, "Learned: thermal expansion causes dimensional errors.").
 utterance(6, self, "Learned rule: holds(residual_current_device_trips) :- leaks($V1, current).").
+utterance(6, self, "In my imagination, I like quiet places. What appeals to you about that?").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -806,7 +809,9 @@ utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "Does thermal expansion cause dimensional errors?").
 utterance(7, user, "Unplugging an appliance stops it from leaking current.").
 utterance(7, user, "How do I fix a null pointer?").
+utterance(7, user, "Forget your imagined interest in quiet places.").
 utterance(7, user, "Just let me know when you're ready.").
+utterance(7, user, "Have you thought about visiting quiet gardens?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
 utterance(26, self, "No.").
@@ -1337,8 +1342,16 @@ utterance(11, user, "What causes poor surface finish?").
 utterance(11, user, "travel time is a relation").
 utterance(8, self, "I'm not sure I followed. Can you say it another way?").
 utterance(9, user, "Let me know if you want more examples.").
+utterance(8, self, "I no longer hold that imagined interest in quiet places.").
+utterance(9, user, "What specific sights or experiences are you most interested in?").
+utterance(10, self, "I don't know how to answer that about myself yet: nobody has taught me.").
 utterance(10, self, "I don't understand that yet.").
+utterance(11, user, "In your imagination, you like quiet places.").
+utterance(8, self, "In my imagination, I prefer temples to museums. What appeals to you about that?").
+utterance(9, user, "Osaka feels peaceful with its food and culture. Have you thought about trying local street food or visiting a traditional onsen?").
+utterance(10, self, "In my imagination, I love reading in the rain. What appeals to you about that?").
 utterance(11, user, "xdebug for php").
+utterance(11, user, "Forget that Osaka feels peaceful.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
 utterance(10, self, "Hmm, I don't know about passive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a passive»; if passive is a word you want to talk ABOUT, say «the word passive is a …».").
@@ -2499,7 +2512,9 @@ utterance(396, self, "8.5 grams.").
 utterance(18, self, "Learned: noise level is a relation.").
 utterance(19, user, "The arrival time is the departure time plus the travel time.").
 utterance(12, self, "Hmm, I don't know about please yet. Want me to learn about it?").
+utterance(12, self, "Held, but only in imagination: you like quiet places.").
 utterance(20, self, "Held: the arrival time is the departure time plus the travel time.").
+utterance(12, self, "Hmm, I don't know about forget yet.").
 utterance(21, user, "Fast means a short travel time.").
 utterance(22, self, "Held: «fast» means a short travel time.").
 utterance(23, user, "Soon means an early arrival time.").
@@ -2514,9 +2529,13 @@ utterance(16, self, "Learned: rex is a dog.").
 utterance(27, user, "Quiet means a low noise level.").
 utterance(17, user, "Forget that a request asserts nothing.").
 utterance(28, self, "Held: «quiet» means a low noise level.").
+utterance(13, user, "In your imagination, you prefer temples to museums.").
 utterance(18, self, "Dropped: I no longer treat a request as asserting nothing.").
+utterance(14, self, "Held, but only in imagination: you prefer temples to museums.").
 utterance(19, user, "Please keep the story short.").
+utterance(15, user, "In your imagination, you love reading in the rain.").
 utterance(21, user, "A request asserts nothing.").
+utterance(16, self, "Held, but only in imagination: you love reading in the rain.").
 utterance(22, self, "Held: a request asserts nothing, so I won't learn facts from one.").
 utterance(23, user, "Please keep the poem short.").
 utterance(24, self, "Hmm, I don't know about poem short yet. Want me to learn about it?").
@@ -3251,6 +3270,8 @@ utterance(2, self, "Learned: backlash causes positioning errors.").
 utterance(2, self, "Held: «rcd» is short for «residual current device».").
 utterance(2, self, "I learned a candidate construction: @S leaves at @O maps to the departure time of @S is @O. Test me with new names before we call it understood.").
 utterance(2, self, "Learned the grammatical reading of «let me».").
+utterance(2, self, "Held, but only in imagination: you like quiet places.").
+utterance(2, self, "I don't know: nothing I hold says you thought about trying local street food or visiting is traditional onsen, and nothing says it isn't.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3470,6 +3491,8 @@ utterance(1, user, "Backlash causes positioning errors.").
 utterance(1, user, "RCD is short for residual current device.").
 utterance(1, user, "x leaves at y means the departure time of x is y").
 utterance(1, user, "the expression let me marks request pragmatics").
+utterance(1, user, "In your imagination, you like quiet places.").
+utterance(1, user, "Have you thought about trying local street food or visiting a traditional onsen?").
 utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
 utterance(173, user, "High-speed steel contains tungsten.").
@@ -3765,6 +3788,8 @@ utterance(4, self, "backlash.").
 utterance(4, self, "Learned: leaks is a relation verb.").
 utterance(4, self, "From now on I'll read «x takes y minutes» as «the travel time of x is y minutes».").
 utterance(4, self, "Held: a request asserts nothing, so I won't learn facts from one.").
+utterance(4, self, "In my imagination, I like quiet places. What appeals to you about that?").
+utterance(4, self, "Got it - «have you thought about» asks for the same thing as «what do you enjoy».").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3897,6 +3922,8 @@ utterance(3, user, "What causes positioning errors?").
 utterance(3, user, "leaks is a relation verb").
 utterance(3, user, "x takes y minutes means the travel time of x is y minutes").
 utterance(3, user, "A request asserts nothing.").
+utterance(3, user, "What specific sights or experiences are you most interested in?").
+utterance(3, user, "learn 'have you thought about' as another way to say 'what do you enjoy'").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

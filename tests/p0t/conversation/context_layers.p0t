@@ -1,0 +1,78 @@
+# L5: meccanica della pila sulla KB completa. I fatti inventati provano
+# ordine/copertura, NON connecting dots o conoscenza acquisita del mondo.
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test explicit_layers_preserve_source_and_functional_override]
+!assert context(l5_scene, hypothesis)
+!assert context(l5_upper, hypothesis)
+!assert context(l5_lower, hypothesis)
+!assert holds_in(l5_upper, fact(located_in, l5_fox, l5_garden))
+!assert holds_in(l5_lower, fact(located_in, l5_fox, l5_forest))
+!assert context_layer(l5_scene, l5_upper, 1)
+!assert context_layer(l5_scene, l5_lower, 2)
+!query context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_garden), l5_upper)
+!query! context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_forest), $Source)
+!query context_resolved_belief(l5_lower, fact(located_in, l5_fox, l5_forest), l5_lower)
+
+[test unrelated_multivalues_and_local_override]
+!assert holds_in(l5_upper, fact(l5_likes, l5_fox, l5_rain))
+!assert holds_in(l5_lower, fact(l5_likes, l5_fox, l5_sun))
+!query context_resolved_belief(l5_scene, fact(l5_likes, l5_fox, l5_rain), l5_upper)
+!query context_resolved_belief(l5_scene, fact(l5_likes, l5_fox, l5_sun), l5_lower)
+!assert holds_in(l5_scene, not(fact(l5_likes, l5_fox, l5_sun)))
+!query! context_resolved_belief(l5_scene, fact(l5_likes, l5_fox, l5_sun), $Source)
+!query context_resolved_belief(l5_scene, not(fact(l5_likes, l5_fox, l5_sun)), l5_scene)
+!forget holds_in(l5_scene, not(fact(l5_likes, l5_fox, l5_sun)))
+!query context_resolved_belief(l5_scene, fact(l5_likes, l5_fox, l5_sun), l5_lower)
+
+[test reorder_and_retract_without_rebuild]
+!forget context_layer(l5_scene, l5_upper, 1)
+!assert context_layer(l5_scene, l5_upper, 3)
+!query context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_forest), l5_lower)
+!query! context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_garden), $Source)
+!forget context_layer(l5_scene, l5_lower, 2)
+!query context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_garden), l5_upper)
+
+[test nested_shared_layer_cycle_and_equal_rank]
+!assert context(l5_outer, hypothesis)
+!assert context_layer(l5_outer, l5_scene, 1)
+!assert context_layer(l5_scene, l5_outer, 4)
+!query context_resolved_belief(l5_outer, fact(located_in, l5_fox, l5_garden), l5_upper)
+!query! context_resolved_belief(l5_outer, l5_absent, $Source)
+!assert context_layer(l5_scene, l5_lower, 3)
+!query context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_forest), l5_lower)
+!query context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_garden), l5_upper)
+
+[test precise_ablation_of_coverage_policy]
+!forget functional_relation(located_in)
+!assert context_layer(l5_scene, l5_lower, 1)
+!query context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_garden), l5_upper)
+!assert functional_relation(located_in)
+!query! context_resolved_belief(l5_scene, fact(located_in, l5_fox, l5_garden), $Source)
+
+[test natural_layer_door_and_retraction]
+!timeout 5
+> In the world atelier read the layer geography at priority 1.
+<~ Held: in atelier, I read geography at priority 1
+!query context_layer(atelier, geography, 1)
+> In the world atelier read the layer geography at priority 2.
+<~ Held: in atelier, I read geography at priority 2
+!query! context_layer(atelier, geography, 1)
+!query context_layer(atelier, geography, 2)
+> In the world atelier stop reading the layer geography.
+<~ I no longer use geography as a layer of atelier.
+!query! context_layer(atelier, geography, $N)
+
+[test surface_growth_and_ablation]
+!forget turn_form(teach_context_layer, 1, text("in the world"))
+!assert turn_form(teach_context_layer, 1, text("inside the world"))
+> Inside the world atelier read the layer geography at priority 3.
+<~ Held: in atelier, I read geography at priority 3
+!query context_layer(atelier, geography, 3)
+!forget turn_form(teach_context_layer, 1, text("inside the world"))
+!assert turn_form(teach_context_layer, 1, text("in the world"))
+> Inside the world atelier read the layer geography at priority 4.
+<! Held: in atelier, I read geography at priority 4
+!query! context_layer(atelier, geography, 4)

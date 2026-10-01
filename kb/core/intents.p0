@@ -526,6 +526,7 @@ intent_cue(self_preference, "have you been enjoying").
 intent_cue(self_preference, "il tuo preferito").
 intent_cue(self_preference, "la tua preferita").
 intent_cue(self_preference, "cosa ti piace").
+intent_cue(self_preference, "have you thought about").
 % Distinguish a preference question about an external, known topic from a
 % question about the agent's own private tastes.  The topic consumer is generic:
 % only the surface and topic facts vary in the KB.

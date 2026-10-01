@@ -1,5 +1,76 @@
 # Protocollo operativo di addestramento di parrot0
 
+## L5 — pratica della crescita organica (1 ottobre 2026)
+
+**Priorità di F.: prima la durata, poi i dettagli.** Il banco principale è il
+talk di [llm-challenge](docs/plans/llm-challenge.md). Un ciclo breve contiene
+dialogo → un intervento sul primo arresto → nuovo dialogo. Non subordinare
+il replay alla perfezione dell'architettura o alla chiusura di tutti i difetti.
+Misurare anzitutto scambi sostenuti senza muri, ripetizioni sterili o blocchi,
+e mosse con cui parrot0 dà un seguito. Forme imperfette e misclaim
+giustificabili sono debito osservato, non motivo automatico per arrestare la
+crescita; non vanno nascosti né promossi a fatti verificati. La correttezza
+fine si migliora sul dialogo che finalmente dura.
+
+Il [piano L5](docs/plans/l5-upgrade.md) contiene il contratto e l'handoff vivo.
+**Metodo operativo; le nuove porte L5 restano da verificare.** Non confondere
+una risposta di conferma, un fatto scritto e una capacità di rispondere.
+
+1. **Partire da un turno reale tenuto da parte.** Annotare frase, risposta,
+   strato cui appartiene, mondo in cui è detta e provenienza. Diagnosticare:
+   mondo sbagliato, forma non compresa, contenuto assente, porta assente oppure
+   consumatore che non legge il mondo. Non curare tutti i casi con altri fatti.
+2. **Insegnare per contatto nella KB viva completa.** Usare il processo chat
+   e `scripts/live-teach.sh`; lingua naturale, nessun predicato o comando di
+   asserzione nascosto nella lezione. Una porta mancante richiede un circuito
+   generale fondato sulla IR, non un lettore privato per il prompt.
+3. **Popolare con tratti che si compongono.** Il carattere è conoscenza
+   stipulata nell'immaginario, distinta da capacità ed esperienze reali.
+   I fatti del mondo richiedono verifica; credenze e fatti personali restano
+   attribuiti a chi parla. Non promuovere dati personali di prova nella base.
+4. **Provare subito chi legge.** Dopo la lezione porre una domanda nuova,
+   varianti della stessa classe e una domanda in un altro mondo. La risposta
+   deve esprimere un fatto utile e dichiarare l'impegno appropriato. Una
+   giunzione deve usare conoscenze reali preesistenti, non risultati iniettati.
+5. **Correggere e ritirare precisamente.** Il ritiro della lezione deve
+   toglierne l'effetto nei mondi che la usano e lasciare gli altri fatti vivi.
+   Ripetere domanda, contrasto e, quando si salva, riavvio. Una prova tecnica
+   assert/retract è una verifica meccanica, non insegnamento riuscito.
+6. **Massimizzare un circuito prima di aprirne un altro.** Variare relazione,
+   soggetto, lingua e distrattori; cercare consumatori della medesima lettura.
+   Registrare i limiti che restano, senza trasformarli in eccezioni compilate.
+7. **Salvare solo dopo l'audit.** Ispezionare il delta riga per riga: casa,
+   attribuzione, provenienza, residui di prova; poi verificare la persistenza.
+   Mantenere in testa al piano stato, file, comandi, risultati e prossimo passo,
+   così un'interruzione non perde né il lavoro né la sua evidenza.
+
+Per ogni nuova porta documentare qui una **frase pronunciabile verificata**,
+la domanda nuova che cambia, il contrasto, il ritiro e i limiti osservati.
+Gli esempi progettati di L5 non sono ancora ricette di addestramento garantite.
+
+**Porta verificata nel primo ciclo L5 (inglese):**
+
+```text
+In your imagination, you like quiet places.
+What specific sights or experiences are you most interested in?
+  → In my imagination, I like quiet places. What appeals to you about that?
+Forget your imagined interest in quiet places.
+```
+
+Il ritiro toglie quel contenuto dalla risposta; senza altri tratti torna il
+ripiego precedente. Anche `prefer temples to museums` e `love reading in the
+rain` sono stati insegnati e salvati parlando. La lettura del mondo
+immaginativo alimenta ora due famiglie di risposta (`self_preference` e il
+ripiego sulle domande del sé), senza asserire gusti reali. **Limiti osservati:**
+rotazione dei tratti invece della selezione pertinente, domande di seguito
+ancora generiche, altre famiglie del sé non collegate, resa italiana non
+estesa. Il replay va fatto con questi limiti visibili, non dopo averli chiusi.
+
+Nel secondo ciclo la lezione L2 `learn "have you thought about" as another
+way to say "what do you enjoy"` ha sbloccato l'invito a immaginare attività.
+È una lettura provvisoria utile nel talk, troppo larga per certificarla come
+sinonimia in ogni contesto: misurarne il trasferimento prima di estenderla.
+
 > **Questo file dice come si addestra parrot0.** Far crescere ciò che
 > l'addestramento *può raggiungere* — le strutture di KB, IR e mondo allargato
 > che decidono quanto in alto arriva una lezione — è l'altro mestiere, e sta in

@@ -1,5 +1,189 @@
 # L5 — la divinazione dei mondi
 
+## HANDOFF — 1 ottobre 2026, ore 22:51 — ripartire da qui
+
+**Interruzione richiesta da F. per esaurimento token. Nessun commit eseguito.**
+Working tree inizialmente pulito; tutte le modifiche elencate sotto sono di
+questa sessione. Letti MANTRA e PRINCIPLES. Nessun C modificato.
+
+### La priorità che comanda, corretta da F. durante il lavoro
+
+**Prima la durata del dialogo, poi i dettagli.** Sbloccare rapidamente i talk di
+[llm-challenge.md](llm-challenge.md) per costruire agency primordiale. Forme
+imperfette e misclaim giustificabili sono debito da osservare, non motivo per
+bloccare ogni avanzamento. Non nasconderli e non promuoverli a fatti verificati.
+**NON ripartire dalla pila dei mondi per completarla prima del prossimo talk.**
+L'approccio «fixare tutto e poi riprovare» non ha funzionato. Il ciclo voluto è:
+talk breve → primo arresto → una lezione/intervento → subito replay e altra
+apertura. Questa priorità è anche in testa a `LEARN_PROTOCOL.md` e
+`llm-challenge.md`; supera l'ordine storico del §8 e il vecchio primato del
+punteggio A/M della challenge.
+
+### Risultato concreto e limiti
+
+Prima: «In your imagination, you like quiet places.» scriveva un fatto ma
+«What specific sights or experiences are you most interested in?» rispondeva
+«nobody has taught me». Ora risponde **«In my imagination, I like quiet places.
+What appeals to you about that?»**. La domanda sulle preferenze usa lo stesso
+contenuto. Il ritiro naturale è stato verificato: senza altri tratti torna
+il ripiego precedente. Tre tratti insegnati parlando sono stati salvati e
+riletti al riavvio nei talk.
+
+Questo è uno **sblocco parziale**, non agency completa: il tratto ruota senza
+scegliere quello pertinente alla domanda; la domanda di seguito è generica;
+il tema non viene ancora mantenuto come scopo. Restano muri, tempi e risposte
+fuori tema. Il guadagno provato è il contenuto immaginativo che diventa parola,
+poi una lezione che fa proseguire il terzo turno del replay.
+
+### Implementazione e file
+
+- **Nuovo `kb/core/self-imagination.p0`**, incluso da `responses.p0`:
+  ponte dalla porta esistente `context_fact(imagination, R, you, O)` a
+  `holds_in(world_of(parrot0_imagination), fact(R, parrot0, O))` per gli
+  atteggiamenti `like`, `love`, `prefer`; contesto tipizzato `imagination`,
+  impegno `imagined_only`. I fatti non diventano gusti reali di parrot0.
+  `self_imagination_reply/1` compone la frase dal contenuto e da frame KB.
+  Le famiglie `self_question_unanswered` e `self_preference` la consultano;
+  i precedenti template inglesi restano sotto `naf(self_has_imagined_trait)`.
+  Porta di ritiro: **«Forget your imagined interest in quiet places.»**.
+  Il ponte è transitorio: la porta originaria non è ancora una lettura IR
+  universale. Resa italiana e altre famiglie del sé NON collegate.
+- **`kb/learning/learned.p0`:** tratti realmente insegnati e salvati:
+  `like … quiet places`, `prefer … temples to museums`,
+  `love … reading in the rain`; anche avanzamenti di `clock_carried`.
+- **Secondo ciclo, solo lezione L2:**
+  `learn "have you thought about" as another way to say "what do you enjoy"`.
+  Ha scritto **sia** `intent_cue(self_preference, "have you thought about")`
+  in `kb/core/intents.p0` **sia** `phrase_canon("have you thought about",
+  "what do you enjoy")` in `kb/core/spelling.p0`.
+  Verificati originale, variante sui giardini e turno composto. È una
+  lettura conversazionale provvisoria, NON una sinonimia universale:
+  **attenzione alla canonicalizzazione globale**. Il trasferimento dopo
+  questa seconda lezione resta da fare; non ampliarla senza un talk.
+- **`LEARN_PROTOCOL.md` in testa:** metodo organico, priorità alla durata,
+  ricetta verificata, ritiro e limiti. `llm-challenge.md` aggiornata in testa.
+- **Pila, lavoro iniziale PARCHEGGIATO:** `kb/core/context-scope.p0` contiene
+  `context_layer/3`, default dalla catena L4, lettura
+  `context_resolved_belief(Context, Proposition, Source)`, cammino con visitati,
+  copertura locale, priorità numerica (minore prima), pari priorità conservate,
+  multivalori e riuso di `functional_relation`/`supersession_exempt`.
+  Porte L2: «In the world atelier read the layer geography at priority 1.»
+  e «In the world atelier stop reading the layer geography.».
+  **Non consumata dal solver ordinario.** `kb_set_context` in `src/kb.c`
+  legge ancora un genitore e al massimo quattro contesti; `solve_contexts`
+  arriva dopo i fatti nudi. `context_visible_belief` resta l'inventario L4.
+  Non dichiarare completato §8.0 o la convergenza delle due letture.
+
+### Talk eseguiti (KB completa, LFM locale, T=0, seme 7)
+
+Tutti in `docs/sessions/talk/`; i talk NON salvano ciò che LFM dice.
+
+| log del 2026-10-01 | scambi | mediana P | tetti inferenza | esito |
+|---|---:|---:|---:|---|
+| `l5-duration-base.log` | 6 | 4,60 s | 1 | muro sul sé al 2, muro composto al 3, tetto al 4 |
+| `l5-duration-replay.log` | 6 | 4,65 s | 1 | tratto al 2; nuovo muro al 3; tetto al 5 |
+| `l5-duration-transfer.log` | 12 | 5,70 s | 3 | apertura parco, dopo il primo incremento; 3 risposte immaginative, ma continuità NON raggiunta |
+| `l5-duration-replay2.log` | **12, concluso** | **4,10 s** | **0** | dopo lezione L2: al 3 risponde in 2,6 s; al 4 nuovo muro «What sounds appealing?»; al 5 riprende con i templi |
+
+Non chiamare miglioramento globale questi risultati: il primo replay ha più
+turni con residui non letti (4/6 contro 2/6); la diversa traiettoria del modello
+non è un corpus identico. Il secondo incremento sblocca davvero il turno 3,
+ma non elimina il muro seguente. Valutare prima la durata utile, distinguendo
+un residuo su una premessa da una domanda principale lasciata senza seguito.
+
+### Stato finale dei processi e ripresa immediata
+
+**Aggiornamento durante la scrittura dell'handoff:** il replay 2 è TERMINATO,
+12 risposte e `# fine`: mediana 4,10 s, **zero tetti di inferenza**, cinque
+risposte immaginative e cinque turni con residui non letti. Restano muri sulle
+domande principali ai turni 4, 6 e 10; non è un dialogo senza muri, ma il
+blocco del turno 3 è superato e questa traiettoria non raggiunge più il tetto.
+La seconda lezione è dunque un miglioramento locale da confermare sul
+trasferimento, NON una prova di eliminazione generale dei timeout.
+
+Il replay è partito direttamente, non con `live-talk.sh` (PID storico
+1765240, sessione tool 16114). Nessuna sessione live-teach lasciata aperta:
+entrambe chiuse con `stop`. Il server dei test non è garantito vivo tra
+chiamate tool. Prima azione utile: leggere il replay completo e avviare il
+trasferimento dopo la seconda lezione.
+
+```sh
+tail -50 docs/sessions/talk/2026-10-01-l5-duration-replay2.log
+```
+
+Se va rilanciato, usare un **nome nuovo** di log (lo script accoda):
+
+```sh
+.venv/bin/python scripts/live-talk.py --turns 12 --temperature 0 \
+  --opener "Hi! I'm planning a trip to Japan next spring. Have you ever thought about traveling?" \
+  --log docs/sessions/talk/2026-10-01-l5-duration-replay3.log
+```
+
+**Prossimi passi, in ordine:**
+1. Giudicare il replay 2 concluso, poi trasferimento DOPO la seconda lezione
+   con apertura «Hey there! I just got back from a walk in the park. Do you
+   like being outside?» e nome `…-transfer2.log`.
+2. Scegliere il primo arresto che spezza davvero il dialogo. Il candidato già
+   visto è «What sounds appealing?» dopo l'offerta di luoghi tranquilli:
+   riferimento al tema senza seconda persona esplicita. Non aprire dieci fix.
+3. Provare una lezione nel processo vivo; se manca una porta, un solo innesto
+   generale, poi SUBITO altro talk. Non aspettare suite o pila completa.
+4. Prima di commit, completare l'audit del save sotto, aggiornare risultati
+   e limiti. Nessun commit/push fatto, nessuna richiesta di farlo da F.
+
+### Prove, transcript e audit da non perdere
+
+- `tests/p0t/conversation/self_imagination.p0t`: **12/12**; insegnamento,
+  lettura, isolamento dal fatto nudo, impegno e ritiro; ablazione precisa dei
+  tre tratti sulla KB completa. Budget locale 5 s per ciascun blocco: prima
+  alcuni blocchi ereditavano il default di 1 s e fallivano solo sul tempo
+  (risposte corrette, circa 1,2 s).
+- `tests/p0t/conversation/context_layers.p0t`: **28/28**; ordine, provenienza,
+  multivalori, negazione, ritiro, annidamento, ciclo, pari priorità, ablazione
+  della funzionalità, porta NL e sostituzione/ritiro della superficie.
+  Fatti inventati = prova meccanica, NON connecting dots. Prima la variante
+  della superficie falliva perché due pezzi `turn_form` allo stesso indice
+  non sono alternative: il test ora sostituisce e poi ripristina il pezzo.
+- Comando passato, tutto nella STESSA chiamata shell (il daemon avviato in una
+  chiamata separata non era più raggiungibile):
+
+```sh
+make test-engine && \
+  ./bin/parrot0 --test tests/p0t/conversation/self_imagination.p0t && \
+  ./bin/parrot0 --test tests/p0t/conversation/context_layers.p0t
+```
+
+I test verdi precedono il salvataggio della seconda lezione linguistica.
+Nessun `PARSE ERROR` nei log esaminati; `git diff --check` passato.
+Niente suite completa, niente `make soft-test` eseguito; nessun C cambiato.
+
+Transcript insegnamento, tutti in `docs/sessions/live/`:
+- `2026-10-01-l5-duration-before.log`: prova del mondo scritto ma muto,
+  archiviata prima del riavvio **senza save**.
+- `2026-10-01-2246.log`: nuovo consumer, insegnamento/ritiro/reinsegnamento
+  e save dei tre tratti.
+- `2026-10-01-2249.log`: seconda lezione, varianti e save.
+
+**Audit del save, parzialmente fatto:** oltre ai tratti/cue/canonicalizzazione,
+sono cambiati `kb/machinery/fact-provenance.p0`, `read-propositions.p0`,
+`transcripts.p0`, `gap-registry.p0`. Nel secondo giro ho provato inutilmente
+«Forget that Osaka feels peaceful.»: ha risposto «I don't know about forget»;
+il turno composto precedente NON aveva affermato il fatto, rispondeva già
+col tratto. Il save conserva però la lettura della frase di ritiro come
+`proposition(binary(feel), roles(subject(osaka), object(peaceful)))`, con
+source «forget that osaka feels peaceful», e il suo gap. **Non è stato
+verificato se queste letture possono trapelare come conoscenza**: ispezionare
+questo delta prima di commit e togliere gli eventuali residui di prova precisi,
+conservando i transcript come evidenza. Non cancellare la KB viva. I fatti
+immaginativi e la loro provenienza sono invece il risultato voluto.
+
+**Ancora fuori portata, non da spacciare per fatto:** S1–S20 sezionati,
+selezione pertinente dei tratti, giunzione Kyoto/preferenze, piani personali,
+convergenza generale di storia/stipulazioni/contesti, trasferimento completo
+della seconda lezione, assenza di muri lungo 12 turni.
+
+---
+
 > **In una frase.** Per parrot0 tutto e' mondo: il mondo vero, il senso comune,
 > il mondo di chi parla, quello delle persone che gli stanno vicino, lo spazio
 > immaginativo delle pseudo-preferenze di parrot0, la storia raccontata,

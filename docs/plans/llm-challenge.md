@@ -1,5 +1,13 @@
 # LLM challenge — un modello piccolo conduce, parrot0 risponde, si ripara, si rigioca
 
+> **Priorità aggiornata da F., 1 ottobre 2026:** prima conquistare la capacità
+> di condurre il dialogo senza muri, poi migliorarne i dettagli. Cicli brevi:
+> talk, intervento sul primo arresto, subito replay e nuova apertura. Forme
+> imperfette e misclaim giustificabili si registrano, senza farne un blocco
+> preventivo. Misura principale: scambi consecutivi sostenuti e iniziativa;
+> il punteggio storico A/M resta una misura secondaria. Non «fixare tutto e
+> poi riprovare». Handoff corrente: [L5](l5-upgrade.md).
+
 > **Handoff piu' recente, 30 settembre 2026:**
 > [anatomia KB, nuove baseline LFM e patch L4 aperta](l4-growth-handoff.md).
 > Ripartire da li': l'handoff del giro 1 sotto e' storico. Le nuove baseline

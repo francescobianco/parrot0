@@ -18,6 +18,7 @@ segment_role(mention, "battitura di").
 phrase_canon("è un errore di battitura di", "is a typo for").
 phrase_canon("e un errore di battitura di", "is a typo for").
 phrase_canon("i would like to know", "tell me").
+phrase_canon("have you thought about", "what do you enjoy").
 
 turn_form(teach_spelling, 1, slot(wrong)).
 turn_form(teach_spelling, 2, text("is a typo for")).

@@ -12,6 +12,7 @@
 % sa che cosa "machinery" significhi. Domani `:- file_attribute(sperimentale).`
 % funziona allo stesso modo, con zero C.
 :- file_attribute(machinery).
+:- include(self-imagination.p0).
 
 % parrot0 RESPONSE TEMPLATES — the agent's own phrasings as KNOWLEDGE, not C literals.
 %
@@ -74,8 +75,8 @@ response_template(self_location, "There's no weather where I am: I'm a program w
 
 % --- gen231 (LLMSCORE): honest reply to opinion/preference probes. No lived
 % experience, so no genuine favorites - engages rather than walling. ---
-response_template(self_preference, "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.").
-response_template(self_preference, "No genuine preferences here: I don't experience days or hobbies. What's your take?").
+response_template(self_preference, "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.") :- naf(self_has_imagined_trait).
+response_template(self_preference, "No genuine preferences here: I don't experience days or hobbies. What's your take?") :- naf(self_has_imagined_trait).
 
 % --- gen333 (LLMSCORE): wording for computed range counts and the explicit
 % no-overlap relationship. Values are filled by the fixed named-slot renderer;
@@ -490,7 +491,7 @@ response_template(smalltalk_deflect, "Not something I do myself, honestly -- but
 response_template(smalltalk_deflect, "I can't claim any of my own, but I'm curious -- what about you?").
 response_template(smalltalk_deflect, it, "Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.").
 response_template(smalltalk_deflect, it, "Non è una cosa che faccio io, ma dimmi -- e tu?").
-response_template(self_question_unanswered, "I don't know how to answer that about myself yet: nobody has taught me.").
+response_template(self_question_unanswered, "I don't know how to answer that about myself yet: nobody has taught me.") :- naf(self_has_imagined_trait).
 response_template(self_question_unanswered, it, "Non so ancora rispondere a questa domanda su di me: nessuno me l'ha insegnato.").
 response_template(self_likes_polar, "I don't have tastes of my own, so I can't honestly say I like it. Do you?").
 response_template(self_likes_polar, it, "Non ho gusti miei, quindi non posso dirti sinceramente che mi piace. A te piace?").

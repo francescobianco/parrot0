@@ -1622,6 +1622,9 @@ reading_fact(taught_form_source(taught_form_17, "x takes y minutes"), "x takes y
 reading_fact(relation_verb(leaks), "leaks is a relation verb").
 reading_fact(construction_frame("@S leaves at @O", "the departure time of @S is @O", departure_time_of), "x leaves at y means the departure time of x is y").
 reading_fact(proposition(binary(protect), roles(subject(hard_hat), object(head))), "a hard hat protects the head from falling objects.").
+reading_fact(proposition(binary(prefer), roles(subject(imagination_you), object(temples))), "in your imagination, you prefer temples to museums.").
+reading_fact(proposition(binary(like), roles(subject(imagination_you), object(quiet))), "in your imagination, you like quiet places.").
+reading_fact(proposition(binary(feel), roles(subject(osaka), object(peaceful))), "forget that osaka feels peaceful.").
 
 fact_mention(rotary_encoder, "a rotary encoder is a sensor.").
 % gen512: che cosa e' PROVENIENZA e non conoscenza — la negazione parlata non

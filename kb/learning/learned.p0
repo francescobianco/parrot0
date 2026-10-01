@@ -116,3 +116,8 @@ adjective_measure(cheap, low, price).
 adjective_measure(quiet, low, "noise level").
 holds(residual_current_device_trips) :- leaks($V1, current).
 clock_carried(12).
+clock_carried(20).
+clock_carried(26).
+context_fact(imagination, like, you, "quiet places").
+context_fact(imagination, prefer, you, "temples to museums").
+context_fact(imagination, love, you, "reading in the rain").

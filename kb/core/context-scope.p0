@@ -65,6 +65,70 @@ context_commitment($Context, $Commitment) :-
 
 context_kind($Context, $Kind) :- context($Context, $Kind).
 
+% L5 — pila esplicita, lettura con provenienza e copertura locale.
+% Numeri minori = strati superiori; a pari priorita' nessuna scelta arbitraria.
+% La catena L4 resta il default quando non e' stata insegnata una pila.
+% Non copia fatti, non restringe la KB del profilo. La vista storica
+% context_visible_belief resta un inventario, anche dei conflitti; questa e'
+% la vista risolta. Il solver dei fatti nudi deve ancora adottarla (piano L5).
+context_has_layers($C) :- context_layer($C, $L, $N).
+context_read_layer($C, $L, $N) :- context_layer($C, $L, $N).
+context_read_layer($C, $L, 0) :-
+    naf(context_has_layers($C)), context_parent($C, $L).
+
+context_resolved_belief($C, $P, $Source) :-
+    context_layer_walk($C, $P, $Source, nil).
+context_layer_walk($C, $P, $C, $Seen) :-
+    naf(member($C, $Seen)), context_effective_belief($C, $P).
+context_layer_walk($C, $P, $Source, $Seen) :-
+    naf(member($C, $Seen)), context_read_layer($C, $L, $N),
+    context_layer_walk($L, $P, $Source, cons($C, $Seen)),
+    naf(context_local_covers($C, $P)),
+    naf(context_layer_covers($C, $N, $P, cons($C, $Seen))).
+
+context_local_covers($C, $P) :-
+    context_effective_belief($C, $Q), context_proposition_covers($Q, $P).
+context_layer_covers($C, $N, $P, $Seen) :-
+    context_read_layer($C, $Higher, $M), lt($M, $N),
+    context_layer_walk($Higher, $Q, $Source, $Seen),
+    context_proposition_covers($Q, $P).
+
+% Identita', negazione e relazioni funzionali sono politiche interrogabili.
+% Relazioni multivalore conservano tutti gli oggetti; le eccezioni di
+% raffinamento (Roma/Lazio/Italia) riusano il contratto gia' esistente.
+context_proposition_covers($P, $P).
+context_proposition_covers(not($P), $P).
+context_proposition_covers($P, not($P)).
+context_proposition_covers($Q, $P) :- incompatible_propositions($Q, $P).
+context_proposition_covers(fact($R, $S, $New), fact($R, $S, $Old)) :-
+    functional_relation($R), dif($New, $Old),
+    naf(supersession_exempt($R, $New, $Old)).
+
+% Porte L2: chi insegna nomina mondi/strati, non predicati o tuple.
+% Una pila nuova si insegna senza C; il ritiro riattiva il default L4.
+response_template(context_layer_learned, "Held: in {subject}, I read {object} at priority {order}; lower numbers come first.").
+response_template(context_layer_forgotten, "I no longer use {object} as a layer of {subject}.").
+turn_form(teach_context_layer, 1, text("in the world")).
+turn_form(teach_context_layer, 2, slot(subject)).
+turn_form(teach_context_layer, 3, text("read the layer")).
+turn_form(teach_context_layer, 4, slot(object)).
+turn_form(teach_context_layer, 5, text("at priority")).
+turn_form(teach_context_layer, 6, slot(order)).
+turn_form_mood(teach_context_layer, statement).
+turn_form_priority(teach_context_layer, early).
+turn_form_act(teach_context_layer, "op(retract_all, context_layer, [subject, object, free])").
+turn_form_act(teach_context_layer, "op(assert, context_layer, [subject, object, order])").
+turn_form_reply(teach_context_layer, context_layer_learned).
+
+turn_form(forget_context_layer, 1, text("in the world")).
+turn_form(forget_context_layer, 2, slot(subject)).
+turn_form(forget_context_layer, 3, text("stop reading the layer")).
+turn_form(forget_context_layer, 4, rest(object)).
+turn_form_mood(forget_context_layer, statement).
+turn_form_priority(forget_context_layer, early).
+turn_form_act(forget_context_layer, "op(retract_all, context_layer, [subject, object, free])").
+turn_form_reply(forget_context_layer, context_layer_forgotten).
+
 % ── G5: DIRE DI NUOVO DOVE STA UNA COSA E' CORREGGERE, NON AGGIUNGERE ────────
 %
 % parrot0 dichiara gia' due metodi propri che riguardano questo, e fino al

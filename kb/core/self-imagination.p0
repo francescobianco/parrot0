@@ -1,0 +1,44 @@
+% L5: primo sblocco del talk, un tratto insegnato diventa una presa di parola.
+% Ponte transitorio dalla porta context_fact esistente, senza un lettore NL.
+% Limiti: il tratto non e' ancora scelto in base al tema della domanda;
+% resa inglese soltanto. Non pretende esperienza o risposta fattuale.
+:- file_attribute(machinery).
+
+context(world_of(parrot0_imagination), imagination).
+commitment_policy(imagination, imagined_only).
+self_imagination_owner(imagination, you).
+self_imagination_attitude(like).
+self_imagination_attitude(love).
+self_imagination_attitude(prefer).
+holds_in(world_of(parrot0_imagination), fact($R, parrot0, $O)) :-
+    self_imagination_owner($C, $S), context_fact($C, $R, $S, $O),
+    self_imagination_attitude($R).
+self_imagined_trait($R, $O) :-
+    holds_in(world_of(parrot0_imagination), fact($R, parrot0, $O)).
+self_has_imagined_trait :- self_imagined_trait($R, $O).
+
+% Il renderer e la rotazione esistono gia'. Il contenuto viene dal mondo,
+% non da una citta' o un alimento compilati nella frase di risposta.
+response_template(imagined_trait_open, "In my imagination, I ").
+response_template(imagined_trait_followup, ". What appeals to you about that?").
+self_imagination_reply($Text) :-
+    self_imagined_trait($R, $O), words_of($R, $Verb), words_of($O, $Object),
+    concat_atoms($Verb, " ", $A), concat_atoms($A, $Object, $Trait),
+    self_imagination_render($Trait, $Text).
+self_imagination_render($Trait, $Text) :-
+    response_template(imagined_trait_open, $Open),
+    response_template(imagined_trait_followup, $Follow),
+    concat_atoms($Open, $Trait, $Head), concat_atoms($Head, $Follow, $Text).
+response_template(self_question_unanswered, $Text) :- self_imagination_reply($Text).
+response_template(self_preference, $Text) :- self_imagination_reply($Text).
+
+% Ritiro preciso, detto senza conoscere context_fact o holds_in.
+turn_form(forget_imagined_trait, 1, text("forget your imagined interest in")).
+turn_form(forget_imagined_trait, 2, rest(object)).
+turn_form(forget_imagined_trait, 3, bind(order, imagination)).
+turn_form(forget_imagined_trait, 4, bind(subject, you)).
+turn_form_priority(forget_imagined_trait, early).
+turn_form_mood(forget_imagined_trait, statement).
+turn_form_act(forget_imagined_trait, "op(retract_all, context_fact, [order, free, subject, object])").
+response_template(imagined_trait_forgotten, "I no longer hold that imagined interest in {object}.").
+turn_form_reply(forget_imagined_trait, imagined_trait_forgotten).

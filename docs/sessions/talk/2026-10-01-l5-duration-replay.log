@@ -1,0 +1,20 @@
+# parrot0 in avvio (KB viva completa)…
+# pronto — modello liquid/lfm2.5-1.2b, 6 scambi, lingua en, T=0.0, seme 7
+M> Hi! I'm planning a trip to Japan next spring. Have you ever thought about traveling?
+P< Start from what you want to see: pick two or three places that matter to you, and the days will arrange themselves around them.   [0.5 s]
+# modello: 2.8 s
+M> That sounds exciting! Tokyo, Kyoto, and Osaka are always top choices. What specific sights or experiences are you most interested in?
+P< I couldn't read «Tokyo, Kyoto». Learned: osaka is an always top choice. In my imagination, I like quiet places. What appeals to you about that?   [4.6 s]
+# modello: 3.5 s
+M> Osaka feels peaceful with its food and culture—perfect for a quiet escape. Have you thought about trying local street food or visiting a traditional onsen?
+P< Learned: osaka feel peaceful. I couldn't read «Have you thought about trying local street food or visiting a traditional onsen?».   [4.4 s]
+# modello: 3.9 s
+M> Yes, I’ve been thinking about that! Osaka’s street food is amazing, and an onsen would be relaxing. What do you think about exploring hidden temples or parks there?
+P< That sounds nice -- tell me more about it. I couldn't read «Osaka's street food is amazing». I couldn't read «an onsen would be relaxing.». On exploring hidden temples or parks there: I propose distinguishing the meaning of the words from the claim we want to assess. Give one example that belongs to the idea and one that might sit at its boundary.   [4.7 s]
+# modello: 6.4 s
+M> Good question! The idea is about balancing genuine experiences with what you imagine. For example, a hidden temple in Osaka could be a real gem, but if you focus too much on "hidden" without checking reviews, it might not live up to expectations. What do you think?
+P< I stopped because the search exceeded my inference time limit. I do not have a verified answer.   [10.0 s]
+# modello: 5.1 s
+M> Oh no! That’s a bummer. Let’s try again—maybe narrowing down the details could help. What specific part of Osaka are you thinking about? Hidden temples or parks?
+P< All right, I won't look it up. I couldn't read «That's a bummer.». I couldn't read «Let's try again—maybe narrowing down the details could help.». are is part of parent: children need care they can rely on, especially when things are difficult.   [5.1 s]
+# fine
