@@ -1,5 +1,20 @@
 # L5 — la divinazione dei mondi
 
+> **Che cos'è L5 (correzione di F., 1 ottobre 2026).** L5 **non** è il mondo
+> immaginativo di parrot0. L5 è l'**individuazione delle categorie di mondi
+> supportati**, il loro trattamento e il loro **popolamento parlando** a
+> parrot0. Si addestra parrot0 *sui mondi stessi*, in linguaggio naturale:
+> **quali mondi esistono**, **di quali strati sono fatti** (§2-bis, §2-ter),
+> **quali cue avviano un mondo** (le porte, §5–§6). Il test operativo è quello
+> di sempre: domani parrot0 impara una nuova categoria di mondo, i suoi strati
+> e la sua porta parlando, senza ricompilare.
+>
+> Il mondo immaginativo (#2, §7.1, `kb/core/self-imagination.p0`) è **un
+> singolo membro** di questa tassonomia, usato come primo caso per sbloccare
+> un talk: il suo ponte è scritto a mano in KB, non insegnato, e quindi non è
+> ancora L5. Il commit `99332ea7` lo ha descritto come se fosse L5: la sua
+> descrizione è sbagliata, questo riquadro la corregge.
+
 ## HANDOFF — 1 ottobre 2026, ore 22:51 — ripartire da qui
 
 **Interruzione richiesta da F. per esaurimento token. Nessun commit eseguito.**
@@ -845,6 +860,11 @@ frasario, che resta come rete.
 
 0. **Sezionare il mondo vero in strati (§2-bis)** e fare della catena dei
    contesti una pila: e' la base su cui ogni generazione successiva scrive.
+0-bis. **Il cuore di L5: i mondi come conoscenza insegnata parlando.** Che
+   parrot0 sappia rispondere a «Which worlds do you know?», «What is a story
+   made of?», «Which words open a story?», e che una categoria nuova (strati
+   + cue) entri con una lezione. Ogni mondo dei punti seguenti va popolato
+   *attraverso* questa tassonomia, non con un ponte scritto a mano per mondo.
 1. **Il mondo immaginativo di parrot0 (#2–#7)**: e' quello che la challenge
    chiama di piu' (sei turni su dodici nel giro 7). Prima la domanda 5: chi
    risponde alle domande su di se' deve leggere il mondo, non il frasario.
