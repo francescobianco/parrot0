@@ -1,0 +1,57 @@
+# sessione: giro6-let-me — 2026-10-01 21:52 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@c2a7aab4]
+# mode: conversational (tools off, network off) - 172178 facts, 6500 rules (3.78%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Giro 6 llm-challenge. Specie: imperativo/richiesta letto come fatto («just let me know…» -> «Learned: just let me.», giro 5). La IR legge gia' «please», «could you» come request; «let me» non e' fra le superfici. Lezione in due tempi: superficie della lettura, poi la condotta della lettura.
+> If you're stuck, just let me know when you're ready.
+< Learned: just let me.
+> the expression let me marks request pragmatics
+< Learned the grammatical reading of «let me».
+> A request asserts nothing.
+< Held: a request asserts nothing, so I won't learn facts from one.
+> If you're stuck, just let me know when you're ready.
+< Learned: just let know ready.
+> Let me know if you want more examples.
+< I don't understand that yet.
+> Could you share the sentence with me.
+< I don't know how to answer that about myself yet: nobody has taught me.
+> Rex is a dog.
+< Learned: rex is a dog.
+> If you're stuck, just let me know when you're ready.
+< Learned: just let know ready.
+> /debug turn
+# /debug turn: 238 righe lette dall'insegnante, fuori dal transcript
+> If you're stuck, just let me know when you're ready.
+< Learned: just let know ready.
+> Just let me know when you're ready.
+< Learned: just let know ready.
+> /debug turn
+# /debug turn: 213 righe lette dall'insegnante, fuori dal transcript
+> /debug trace on
+# /debug trace on: 28 righe lette dall'insegnante, fuori dal transcript
+> Just let me know when you are free.
+< Alright — I am Free now.
+> /debug trace
+# /debug trace: 132 righe lette dall'insegnante, fuori dal transcript
+> Just let me know when you are set.
+< Alright — I am Set now.
+> /debug trace
+# /debug trace: 132 righe lette dall'insegnante, fuori dal transcript
+> Just let me know when you're ready.
+< Learned: just let know ready.
+> /debug trace
+# /debug trace: 127 righe lette dall'insegnante, fuori dal transcript
+> /debug depth 2
+# /debug depth 2: 1 righe lette dall'insegnante, fuori dal transcript
+> Just let me know when you're ready.
+< Learned: just let know ready.
+> /debug trace
+# /debug trace: 164 righe lette dall'insegnante, fuori dal transcript
+> /debug depth 3
+# /debug depth 3: 1 righe lette dall'insegnante, fuori dal transcript
+> Just let me know when you're done.
+< I don't understand that yet.
+> /debug trace
+# /debug trace: 797 righe lette dall'insegnante, fuori dal transcript
+! Sessione chiusa SENZA /save: la prima cura (lezione parlata) ha mostrato un secondo magazzino che non rispetta l'impegno (commit semantico dopo la risposta: know(just_let, ready) -> «Learned: just let know ready.»). Salvare avrebbe reso permanenti due fatti spazzatura. Cura in KB (input_assertion_commit_blocked sotto withheld_commitment), poi lezione ripetuta da capo.

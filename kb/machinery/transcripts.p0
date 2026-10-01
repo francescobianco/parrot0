@@ -148,6 +148,7 @@ utterance(5, user, "What causes falls?").
 utterance(5, user, "What causes a segfault?").
 utterance(5, user, "Thermal expansion causes dimensional errors.").
 utterance(5, user, "if x leaks current then the RCD trips").
+utterance(5, user, "If you're stuck, just let me know when you're ready.").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -805,6 +806,7 @@ utterance(7, user, "what does a capacitor store?").
 utterance(7, user, "Does thermal expansion cause dimensional errors?").
 utterance(7, user, "Unplugging an appliance stops it from leaking current.").
 utterance(7, user, "How do I fix a null pointer?").
+utterance(7, user, "Just let me know when you're ready.").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
 utterance(26, self, "No.").
@@ -1333,6 +1335,9 @@ utterance(9, user, "departure time is a relation").
 utterance(10, self, "Learned: departure time is a relation.").
 utterance(11, user, "What causes poor surface finish?").
 utterance(11, user, "travel time is a relation").
+utterance(8, self, "I'm not sure I followed. Can you say it another way?").
+utterance(9, user, "Let me know if you want more examples.").
+utterance(10, self, "I don't understand that yet.").
 utterance(11, user, "xdebug for php").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2493,16 +2498,28 @@ utterance(17, user, "noise level is a relation").
 utterance(396, self, "8.5 grams.").
 utterance(18, self, "Learned: noise level is a relation.").
 utterance(19, user, "The arrival time is the departure time plus the travel time.").
+utterance(12, self, "Hmm, I don't know about please yet. Want me to learn about it?").
 utterance(20, self, "Held: the arrival time is the departure time plus the travel time.").
 utterance(21, user, "Fast means a short travel time.").
 utterance(22, self, "Held: «fast» means a short travel time.").
 utterance(23, user, "Soon means an early arrival time.").
 utterance(24, self, "Held: «soon» means an early arrival time.").
+utterance(13, user, "Please keep the answers short.").
 utterance(12, self, "Learned: is_unit(ohm).").
+utterance(14, self, "Hmm, I don't know about please yet.").
 utterance(25, user, "Cheap means a low price.").
+utterance(15, user, "Rex is a dog.").
 utterance(26, self, "Held: «cheap» means a low price.").
+utterance(16, self, "Learned: rex is a dog.").
 utterance(27, user, "Quiet means a low noise level.").
+utterance(17, user, "Forget that a request asserts nothing.").
 utterance(28, self, "Held: «quiet» means a low noise level.").
+utterance(18, self, "Dropped: I no longer treat a request as asserting nothing.").
+utterance(19, user, "Please keep the story short.").
+utterance(21, user, "A request asserts nothing.").
+utterance(22, self, "Held: a request asserts nothing, so I won't learn facts from one.").
+utterance(23, user, "Please keep the poem short.").
+utterance(24, self, "Hmm, I don't know about poem short yet. Want me to learn about it?").
 utterance(395, user, "What is the density of brass?").
 utterance(13, user, "what is the SI unit of electrical resistance?").
 utterance(394, self, "Learned: the density of brass is 8.5 grams.").
@@ -3233,6 +3250,7 @@ utterance(2, self, "I don't know much about xdebug yet, and the network is off, 
 utterance(2, self, "Learned: backlash causes positioning errors.").
 utterance(2, self, "Held: «rcd» is short for «residual current device».").
 utterance(2, self, "I learned a candidate construction: @S leaves at @O maps to the departure time of @S is @O. Test me with new names before we call it understood.").
+utterance(2, self, "Learned the grammatical reading of «let me».").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3451,6 +3469,7 @@ utterance(175, user, "Does high-speed steel contain tungsten?").
 utterance(1, user, "Backlash causes positioning errors.").
 utterance(1, user, "RCD is short for residual current device.").
 utterance(1, user, "x leaves at y means the departure time of x is y").
+utterance(1, user, "the expression let me marks request pragmatics").
 utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
 utterance(173, user, "High-speed steel contains tungsten.").
@@ -3745,6 +3764,7 @@ utterance(4, self, "Hmm, I don't know about var dump yet. Want me to learn about
 utterance(4, self, "backlash.").
 utterance(4, self, "Learned: leaks is a relation verb.").
 utterance(4, self, "From now on I'll read «x takes y minutes» as «the travel time of x is y minutes».").
+utterance(4, self, "Held: a request asserts nothing, so I won't learn facts from one.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -3876,6 +3896,7 @@ utterance(3, user, "What does var_dump do?").
 utterance(3, user, "What causes positioning errors?").
 utterance(3, user, "leaks is a relation verb").
 utterance(3, user, "x takes y minutes means the travel time of x is y minutes").
+utterance(3, user, "A request asserts nothing.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

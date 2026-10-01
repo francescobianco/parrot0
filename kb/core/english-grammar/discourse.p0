@@ -395,6 +395,7 @@ expression_reading("such", pragmatics_uncertain_reference).
 expression_reading("the same", pragmatics_uncertain_reference).
 expression_reading("the other", pragmatics_uncertain_reference).
 expression_reading("respectively", pragmatics_uncertain_reference).
+expression_reading("let me", pragmatics_request).
 pragmatic_inference(some, not_all, defeasible).
 pragmatic_inference(or, exclusive_alternative, defeasible).
 pragmatic_inference("can you", request, context_required).
@@ -432,6 +433,7 @@ commitment_policy(nonuniversal_negation, retain_quantifier_scope).
 % (Non vale per `do_not_assert_actual` di «can», che resta un'abilita' leggibile.)
 commitment_policy(suggestion, proposal_only).
 machinery(assertion_withheld_reading).
+assertion_withheld_reading(request).
 assertion_withheld_reading(suggestion).
 
 % LA PORTA PARLATA (L4, 30 settembre 2026). Chi insegna dice la condotta con

@@ -75,6 +75,7 @@
 % english-grammar/constructions.p0, relazioni e procedure in core/procedures.p0,
 % nomi di classe accanto ai membri. Qui resta solo questa ricaduta.
 pending_gap_failed(forget).
+pending_gap_failed(please).
 contact_episode(triggers, causes, ep(missing_semicolon, parse_error, s)).
 contact_shape(triggers, causes, verb(cons(triggers, cons(a, cons(parse, nil))), @S causes @O)).
 contact_episode(symptom, causes, ep(missing_semicolon, parse_error, s)).
@@ -114,3 +115,4 @@ adjective_measure(soon, early, "arrival time").
 adjective_measure(cheap, low, price).
 adjective_measure(quiet, low, "noise level").
 holds(residual_current_device_trips) :- leaks($V1, current).
+clock_carried(12).

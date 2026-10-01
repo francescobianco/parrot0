@@ -1208,6 +1208,12 @@ input_assertion_commit_blocked($Scope) :- turn_outcome($Scope, rejected_assertio
 input_assertion_commit_blocked($Scope) :-
     grammatical_cue(input($Scope), $Span, polarity, negated).
 input_assertion_commit_blocked($Scope) :- input_unresolved_reference($Scope, $W).
+% L4 (1 ottobre 2026, llm-challenge giro 6) — ANCHE L'ARCHIVIO SEMANTICO
+% RISPETTA L'IMPEGNO. «Just let me know when you're ready.», insegnato «let me»
+% come richiesta e «A request asserts nothing.», i lettori cedevano ma il commit
+% dopo la risposta scriveva `know(just_let, ready)`, che tornava come «Learned:
+% just let know ready.». La stessa forza vale per ogni magazzino.
+input_assertion_commit_blocked($Scope) :- turn_illocution($Scope, withheld_commitment).
 after_reply_bookkeeper(input_assertion_commit).
 turn_after_reply($Scope, input_assertion_commit) :-
     input_recorded_bundle($Scope, $Assertions),

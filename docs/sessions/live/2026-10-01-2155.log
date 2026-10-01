@@ -1,0 +1,30 @@
+# sessione: giro6-let-me — 2026-10-01 21:54 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@c2a7aab4]
+# mode: conversational (tools off, network off) - 172178 facts, 6501 rules (3.78%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! Giro 6, ripresa pulita dopo la cura del commit semantico. Lezione in due tempi, poi uso, trasferimento, contrasto, ablazione, reinsegnamento.
+> the expression let me marks request pragmatics
+< Learned the grammatical reading of «let me».
+> A request asserts nothing.
+< Held: a request asserts nothing, so I won't learn facts from one.
+> If you're stuck, just let me know when you're ready.
+< I don't understand that yet.
+> Just let me know when you're ready.
+< I'm not sure I followed. Can you say it another way?
+> Let me know if you want more examples.
+< I don't understand that yet.
+> Please keep the answers short.
+< Hmm, I don't know about please yet.
+> Rex is a dog.
+< Learned: rex is a dog.
+> Forget that a request asserts nothing.
+< Dropped: I no longer treat a request as asserting nothing.
+> Please keep the story short.
+< Looking up please... Learned: please keep thè answers short.
+> A request asserts nothing.
+< Held: a request asserts nothing, so I won't learn facts from one.
+> Please keep the poem short.
+< Hmm, I don't know about poem short yet. Want me to learn about it?
+> /save
+# sessione chiusa 21:55
