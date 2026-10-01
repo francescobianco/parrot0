@@ -1,0 +1,36 @@
+# sessione: L5 imprint: il tocco debole — 2026-10-02 00:02 — KB viva, profilo agi, un solo processo
+# parrot0 [gen510-riparazioni@53767c17]
+# mode: conversational (tools off, network off) - 172856 facts, 6589 rules (3.81%)
+# say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+# parrot0 pronto
+! sonda: una classe di parole che non portano un argomento si puo' insegnare parlando?
+> feel is a light word.
+< Learned: feel is a light word.
+> fascinating is a light word.
+< Hmm, I don't know about fascinating yet. Want me to learn about it?
+> Is feel a light word?
+< Yes.
+> who answered?
+< The 'knowledge' module answered your last question.
+> /debug pred light_word
+# /debug pred light_word: 4 righe lette dall'insegnante, fuori dal transcript
+> /debug turn
+# /debug turn: 159 righe lette dall'insegnante, fuori dal transcript
+> the word fascinating is a light word.
+< Learned: fascinating is a light word.
+> seem is a light word.
+< I don't understand that yet.
+> sound is a light word.
+< I'm not sure I followed. Can you say it another way?
+> find is a light word.
+< Learned: find is a light word.
+> the word hear is a light word.
+< Learned: hear is a light word.
+> forget that hear is a light word.
+< I no longer treat «hear» as a light word.
+> /debug pred light_word
+# /debug pred light_word: 6 righe lette dall'insegnante, fuori dal transcript
+> the word hear is not a light word.
+< Learned: the word hear is not a light word.
+> /debug pred light_word
+# /debug pred light_word: 6 righe lette dall'insegnante, fuori dal transcript

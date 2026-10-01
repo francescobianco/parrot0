@@ -17,6 +17,9 @@
 %      al posto della domanda generica;
 %   4. le voci che gia' rispondevano alle domande rivolte a parrot0 leggono lo
 %      stesso mondo (§4).
+% 2 ottobre 2026 — il tocco ha un grado, una parola leggera (`light_word/1`,
+% insegnata in chat) non porta un argomento, e un tratto detto non si ridice
+% (§1-bis, §1-ter, §3-bis).
 % Limiti: la pertinenza e' una parola in comune, non un legame di senso (la
 % giunzione con i fatti del mondo vero e' il passo dopo); resa inglese
 % soltanto. Non pretende esperienza: ogni risposta dichiara il suo mondo.
@@ -72,13 +75,20 @@ self_has_trait :- self_trait($T).
 % curiosita' e' un tratto come gli altri, con un verbo che l'istruttore puo'
 % allargare: `self_curiosity_verb/1`.
 self_trait_word($O, $W) :- atom_words($O, $Ws), member($W, $Ws), content_word($W).
-self_word_match($A, $A).
-self_word_match($A, $B) :- finite_present_of($A, $B).
-self_word_match($A, $B) :- finite_present_of($B, $A).
-self_word_match($A, $B) :- verb_form_analysis($A, form($B, $K)).
-self_word_match($A, $B) :- verb_form_analysis($B, form($A, $K)).
-self_word_match($A, $B) :-
-    verb_form_analysis($A, form($R, $K)), verb_form_analysis($B, form($R, $J)).
+% Due parole si toccano quando hanno una CHIAVE in comune: la parola stessa,
+% il suo plurale, la radice se e' un verbo flesso (place/places,
+% travel/traveling). Le chiavi di un tratto cambiano solo quando cambia il
+% carattere, quindi si calcolano una volta (vista); quelle del turno sono
+% poche. Il confronto a coppie con la morfologia rifatta ogni volta costava
+% 4-6 s su un turno composto (misurato con /debug on, 2 ottobre 2026).
+self_word_key($W, $W).
+self_word_key($W, $K) :- concat_atoms($W, "s", $K).
+self_word_key($W, $K) :- y_to_ies($W, $K).
+self_word_key($W, $R) :- verb_form_analysis($W, form($R, $J)).
+self_trait_key($O, $K) :-
+    self_trait(t($W, $R, $O)), self_trait_word($O, $Word), self_word_key($Word, $K).
+materialized_view(self_trait_key, 2).
+view_depends(self_trait_key, context_fact).
 % La parola subito dopo «you» e' il verbo della domanda quando e' uno dei verbi
 % con cui il carattere stesso si dice («do you LIKE …», «what do you FIND …»):
 % non e' l'argomento, e non decide la pertinenza. «Do you travel?» resta una
@@ -87,29 +97,80 @@ self_trait_verb($V) :- self_trait(t($W, $V, $O)).
 self_asked_verb_at($I) :-
     is($P, sub($I, 1)), turn_word(current_turn, $P, $Y), second_person_form($Y),
     turn_word(current_turn, $I, $V), self_trait_verb($V).
-% Le due liste si calcolano UNA volta per turno (viste sui token del turno):
-% con quaranta tratti, chiederle a ogni guardia di ogni famiglia di risposta
+% ── 1-bis. IL PESO DEL TOCCO (2 ottobre 2026) ────────────────────────────
+% Nel giro dell'imprint una parola generica bastava a toccare il tratto
+% sbagliato: «Osaka FEELS peaceful» chiamava «In reality, I cannot feel the
+% rain», tre volte in un talk. Due cure, nessuna lista in questo file:
+%  (a) una PAROLA LEGGERA non porta un argomento. Quali siano e' conoscenza
+%      detta in chat: «the word feel is a light word» scrive `light_word/1`,
+%      «forget that feel is a light word» la ritira. Vale anche flessa.
+%  (b) il tocco ha un GRADO: quante parole del turno toccano il tratto. Fra i
+%      tratti toccati risponde quello toccato di piu'.
+% Le liste si calcolano UNA volta per turno (viste sui token del turno): con
+% quaranta tratti, chiederle a ogni guardia di ogni famiglia di risposta
 % portava un turno a 6 s e due al tetto di 10 (misurato l'1 ottobre 2026).
+self_light($W) :- light_word($W).
+self_light($W) :- verb_form_analysis($W, form($R, $K)), light_word($R).
 self_turn_topic_word($T) :-
-    turn_word(current_turn, $I, $T), content_word($T), naf(self_asked_verb_at($I)).
+    turn_word(current_turn, $I, $T), content_word($T), naf(self_asked_verb_at($I)),
+    naf(self_light($T)).
 materialized_view(self_turn_topic_word, 1).
 view_depends(self_turn_topic_word, turn_surface_token).
 view_depends(self_turn_topic_word, context_fact).
-self_trait_touches($O) :-
-    self_trait_word($O, $W), self_turn_topic_word($T), self_word_match($W, $T).
-self_trait_pertinent(t($W, $R, $O)) :- self_trait(t($W, $R, $O)), self_trait_touches($O).
-materialized_view(self_trait_pertinent, 1).
-view_depends(self_trait_pertinent, turn_surface_token).
-view_depends(self_trait_pertinent, context_fact).
+view_depends(self_turn_topic_word, light_word).
+self_turn_key($T, $K) :- self_turn_topic_word($T), self_word_key($T, $K).
+materialized_view(self_turn_key, 2).
+view_depends(self_turn_key, turn_surface_token).
+view_depends(self_turn_key, context_fact).
+view_depends(self_turn_key, light_word).
+self_trait_touched_by($O, $T) :- self_turn_key($T, $K), self_trait_key($O, $K).
+self_trait_score(t($W, $R, $O), $N) :-
+    self_trait(t($W, $R, $O)), findall($X, self_trait_touched_by($O, $X), $L),
+    list_len($L, $N), gt($N, 0).
+materialized_view(self_trait_score, 2).
+view_depends(self_trait_score, turn_surface_token).
+view_depends(self_trait_score, context_fact).
+view_depends(self_trait_score, light_word).
+self_trait_pertinent($T) :- self_trait_score($T, $N).
 self_has_pertinent_trait :- self_trait_pertinent($T).
 
+% ── 1-ter. CHE COSA DIRE ADESSO: il tratto piu' toccato e non ancora detto ──
+% Tre specie di tratto: cio' che e' vero (real), cio' che immagina (imagined),
+% cio' che si chiede (curiosity). Per ciascuna si sceglie UN tratto: il piu'
+% toccato fra quelli non ancora detti in questa conversazione. Cio' che parrot0
+% ha gia' detto e' un fatto della conversazione (`self_voiced/1`, scritto dopo
+% la risposta dal contabile `self_voice`), non si salva.
 self_curiosity_verb(wonder).
-self_stance_pertinent(t($W, $R, $O)) :-
-    self_trait_pertinent(t($W, $R, $O)), naf(self_curiosity_verb($R)).
-self_has_pertinent_stance :- self_stance_pertinent($T).
-self_curiosity_pertinent(t($W, $R, $O)) :-
-    self_curiosity_verb($R), self_trait_pertinent(t($W, $R, $O)).
-self_has_pertinent_curiosity :- self_curiosity_pertinent($T).
+self_trait_kind(t($W, $R, $O), curiosity) :- self_curiosity_verb($R).
+self_trait_kind(t(reality, $R, $O), real) :- naf(self_curiosity_verb($R)).
+self_trait_kind(t($W, $R, $O), imagined) :- dif($W, reality), naf(self_curiosity_verb($R)).
+machinery(self_voiced).
+turn_scratch(self_voiced).
+self_fresh($K, $T, $N) :-
+    self_trait_score($T, $N), self_trait_kind($T, $K), naf(self_voiced($T)).
+self_fresh_better($K, $N) :- self_fresh($K, $T, $M), gt($M, $N).
+self_candidate($K, $T) :- self_fresh($K, $T, $N), naf(self_fresh_better($K, $N)).
+% UNO solo, senza una lista lunga: un termine regge 512 byte, e trenta tratti
+% raccolti insieme non ci stanno (la scelta falliva in silenzio). Si sceglie
+% prima il verbo, poi l'oggetto fra quelli di quel verbo: due liste corte.
+self_first(cons($H, $Rest), $H).
+self_candidate_verb($K, $R) :- self_candidate($K, t($W, $R, $O)).
+self_candidate_object($K, $R, $O) :- self_candidate($K, t($W, $R, $O)).
+self_pick($K, t($W, $R, $O)) :-
+    findall($V, self_candidate_verb($K, $V), $Vs), self_first($Vs, $R),
+    findall($X, self_candidate_object($K, $R, $X), $Os), self_first($Os, $O),
+    self_candidate($K, t($W, $R, $O)).
+self_has_pick($K) :- self_fresh($K, $T, $N).
+self_has_fresh :- self_fresh($K, $T, $N).
+% lontano dalla domanda: il primo tratto dell'immaginario non ancora detto.
+self_unsaid_imagined(t(imagination, $R, $O)) :-
+    self_trait(t(imagination, $R, $O)), naf(self_curiosity_verb($R)),
+    naf(self_voiced(t(imagination, $R, $O))).
+self_unsaid_verb($R) :- self_unsaid_imagined(t($W, $R, $O)).
+self_unsaid_object($R, $O) :- self_unsaid_imagined(t($W, $R, $O)).
+self_far_pick(t(imagination, $R, $O)) :-
+    findall($V, self_unsaid_verb($V), $Vs), self_first($Vs, $R),
+    findall($X, self_unsaid_object($R, $X), $Os), self_first($Os, $O).
 
 % ── 2. IL TRATTO DETTO DA PARROT0 ────────────────────────────────────────
 % «you are» detto dall'istruttore e' «I am» detto da parrot0; «your» e' «my».
@@ -143,64 +204,89 @@ self_trait_said(t($W, $R, $O), $Text) :-
 % che tocca la domanda, altrimenti la domanda generica.
 response_template(imagined_trait_far, "I have not pictured that yet. ").
 response_template(imagined_trait_followup, ". What appeals to you about that?").
+response_template(imagined_trait_followup, ". What about you?").
 response_template(real_trait_close, ".").
 response_template(imagined_curiosity_open, ". I ").
 response_template(imagined_curiosity_close, ". What do you think?").
+response_template(imagined_trait_spent, "That is all I picture about that so far. What about you?").
+response_template(self_worlds_join, ". ").
 
+% il seguito di una posizione: la curiosita' scelta, o la domanda generica.
 self_trait_followup($Text) :-
-    naf(self_has_pertinent_curiosity), response_template(imagined_trait_followup, $Text).
+    naf(self_has_pick(curiosity)), response_template(imagined_trait_followup, $Text).
 self_trait_followup($Text) :-
-    self_curiosity_pertinent($T), self_trait_clause($T, $Clause),
+    self_pick(curiosity, $T), self_trait_clause($T, $Clause),
     response_template(imagined_curiosity_open, $Open),
     response_template(imagined_curiosity_close, $Close),
     concat_atoms($Open, $Clause, $A), concat_atoms($A, $Close, $Text).
+% un fatto di realta' da solo non chiede «what appeals to you»: si chiude, o
+% lascia la parola alla curiosita'.
+self_real_followup($Text) :-
+    naf(self_has_pick(curiosity)), response_template(real_trait_close, $Text).
+self_real_followup($Text) :- self_has_pick(curiosity), self_trait_followup($Text).
 
-% vicino: un tratto che tocca la domanda. Tre casi esclusivi.
-%  (a) la toccano sia la realta' sia l'immaginario: parrot0 dice prima che
-%      cosa e' vero di lui, poi che cosa immagina («In reality, I cannot go
-%      outside. In my imagination, I love being outside early …»);
-%  (b) la tocca una posizione di un mondo solo: quella, con il suo seguito;
-%  (c) la tocca solo una curiosita': e' lei la risposta.
-self_real_pertinent(t(reality, $R, $O)) :- self_stance_pertinent(t(reality, $R, $O)).
-self_imagined_pertinent(t($W, $R, $O)) :-
-    self_stance_pertinent(t($W, $R, $O)), dif($W, reality).
-self_touched_both :- self_real_pertinent($A), self_imagined_pertinent($B).
-response_template(self_worlds_join, ". ").
+% vicino: un tratto tocca la domanda. Casi esclusivi.
+%  (a) realta' e immaginario insieme: prima che cosa e' vero di lui, poi che
+%      cosa immagina («In reality, I cannot go outside. In my imagination, I
+%      love being outside early …»);
+%  (b) una posizione di un mondo solo, con il suo seguito;
+%  (c) solo una curiosita': e' lei la risposta;
+%  (d) tutto cio' che tocca la domanda e' gia' stato detto: parrot0 lo dice e
+%      ripassa la parola, invece di ripetersi.
 self_reply_near($Text) :-
-    self_real_pertinent($A), self_imagined_pertinent($B),
+    self_pick(real, $A), self_pick(imagined, $B),
     self_trait_said($A, $Real), self_trait_said($B, $Imagined),
     response_template(self_worlds_join, $J),
     concat_atoms($Real, $J, $X), concat_atoms($X, $Imagined, $Head),
     self_trait_followup($Follow), concat_atoms($Head, $Follow, $Text).
 self_reply_near($Text) :-
-    naf(self_touched_both), self_imagined_pertinent($T), self_trait_said($T, $Head),
+    naf(self_has_pick(real)), self_pick(imagined, $T), self_trait_said($T, $Head),
     self_trait_followup($Follow), concat_atoms($Head, $Follow, $Text).
-% un fatto di realta' da solo non chiede «what appeals to you»: si chiude, o
-% lascia la parola a una curiosita' che tocca la domanda.
 self_reply_near($Text) :-
-    naf(self_touched_both), self_real_pertinent($T), self_trait_said($T, $Head),
+    naf(self_has_pick(imagined)), self_pick(real, $T), self_trait_said($T, $Head),
     self_real_followup($Follow), concat_atoms($Head, $Follow, $Text).
-self_real_followup($Text) :-
-    naf(self_has_pertinent_curiosity), response_template(real_trait_close, $Text).
-self_real_followup($Text) :- self_has_pertinent_curiosity, self_trait_followup($Text).
 self_reply_near($Text) :-
-    naf(self_has_pertinent_stance), self_curiosity_pertinent($T),
+    naf(self_has_pick(real)), naf(self_has_pick(imagined)), self_pick(curiosity, $T),
     self_trait_said($T, $Head),
     response_template(imagined_curiosity_close, $Close), concat_atoms($Head, $Close, $Text).
-% aperto: la domanda chiede che cosa piace in generale, ogni tratto
-% dell'immaginario risponde.
+self_reply_near($Text) :-
+    self_has_pertinent_trait, naf(self_has_fresh),
+    response_template(imagined_trait_spent, $Text).
+% aperto: la domanda chiede che cosa piace in generale; risponde un tratto
+% dell'immaginario non ancora detto.
 self_reply_open($Text) :- self_reply_near($Text).
 self_reply_open($Text) :-
-    naf(self_has_pertinent_trait), self_trait(t(imagination, $R, $O)),
-    self_trait_said(t(imagination, $R, $O), $Head),
+    naf(self_has_pertinent_trait), self_far_pick($T), self_trait_said($T, $Head),
     response_template(imagined_trait_followup, $Follow), concat_atoms($Head, $Follow, $Text).
 % lontano: nessun tratto tocca la domanda, e parrot0 lo dice prima di offrire
 % cio' che ha.
 self_reply_far($Text) :-
-    naf(self_has_pertinent_trait), self_trait(t(imagination, $R, $O)),
-    self_trait_said(t(imagination, $R, $O), $Said),
+    naf(self_has_pertinent_trait), self_far_pick($T), self_trait_said($T, $Said),
     response_template(imagined_trait_far, $Far), concat_atoms($Far, $Said, $Head),
     response_template(imagined_trait_followup, $Follow), concat_atoms($Head, $Follow, $Text).
+
+% ── 3-bis. CIO' CHE E' STATO DETTO, dopo la risposta ──────────────────────
+% Se ha parlato una voce del se', i tratti scelti in questo turno sono detti.
+% La scelta e' una vista: il contabile la rilegge uguale a chi ha risposto.
+self_voice_family(self_preference).
+self_voice_family(self_question_unanswered).
+self_voice_family(self_likes_polar).
+self_voice_family(smalltalk_deflect).
+self_voice_family(smalltalk_continue).
+self_voice_family(opinion_request).
+self_voice_family(no_support_either_way).
+self_voice_family(no_support_relation).
+self_voice_family(no_support_attribute).
+self_voice_family(unary_polar_unknown).
+self_spoke($T) :- turn_said_by($T, template($F)), self_voice_family($F).
+self_kind_name(real). self_kind_name(imagined). self_kind_name(curiosity).
+self_said_now($X) :- self_kind_name($K), self_pick($K, $X).
+self_said_now($X) :- naf(self_has_pertinent_trait), self_far_pick($X).
+self_mark_voiced(nil).
+self_mark_voiced(cons($X, $Rest)) :- assert(self_voiced, $X), self_mark_voiced($Rest).
+after_reply_bookkeeper(self_voice).
+turn_after_reply($T, self_voice) :-
+    self_spoke($T), findall($X, self_said_now($X), $L), self_mark_voiced($L).
 
 % ── 4. CHI LEGGE IL MONDO ────────────────────────────────────────────────
 % Le famiglie di risposta sul se'. La domanda aperta sulle preferenze prende

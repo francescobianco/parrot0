@@ -203,6 +203,7 @@ semantic_proposition(proposition(binary(feel), roles(subject(cannot), object(rai
 semantic_proposition(proposition(binary(taste), roles(subject(cannot), object(food)))).
 semantic_proposition(proposition(binary(learn), roles(subject(reality), object(only)))).
 semantic_proposition(proposition(binary(have), roles(subject(reality), object(body)))).
+semantic_proposition(proposition(membership(is), roles(subject(fascinating), class(light)))).
 semantic_binding(binary(produce), fly_cutter, object(flat_surfaces)).
 proposition_source_record(proposition(binary(produce), roles(subject(fly_cutter), object(flat_surfaces))), source(inline, "a fly cutter produces flat surfaces."), provenance(language(en), range(0, 36))).
 semantic_binding(binary(measure), dial_indicator, object(displacement)).
@@ -487,6 +488,8 @@ proposition_source_record(proposition(binary(learn), roles(subject(reality), obj
 semantic_binding(binary(choose), imagination_you, object(kyoto)).
 proposition_source_record(proposition(binary(choose), roles(subject(imagination_you), object(kyoto))), source(inline, "in your imagination, you would choose kyoto."), provenance(language(en), range(0, 44))).
 proposition_source_record(proposition(binary(have), roles(subject(reality), object(body))), source(inline, "in reality, you have no body."), provenance(language(en), range(0, 29))).
+semantic_binding(membership(is), fascinating, class(light)).
+proposition_source_record(proposition(membership(is), roles(subject(fascinating), class(light))), source(inline, " fascinating is a light"), provenance(language(en), range(8, 23))).
 semantic_binding(binary(teach), socrates, object(plato)).
 proposition_source_record(proposition(binary(teach), roles(subject(socrates), object(plato))), source(inline, "socrates taught plato."), provenance(language(en), range(0, 22))).
 semantic_complement(binding(limit, kanban, work), in, progress).

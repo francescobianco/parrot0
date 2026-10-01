@@ -752,6 +752,8 @@ fact_source(relation_verb(leaks), leaks, "leaks is a relation verb").
 fact_source(taught_form_source(taught_form_17, "x takes y minutes"), taught_form_17, "x takes y minutes means the travel time of x is y minutes").
 fact_source(construction_frame("@S leaves at @O", "the departure time of @S is @O", departure_time_of), "@S leaves at @O", "x leaves at y means the departure time of x is y").
 fact_source(created_by(francesco, you, built), francesco, "you were built by francesco.").
+fact_source(light_word(fascinating), fascinating, "the word fascinating is a light word.").
+fact_source(light_word(feel), feel, "the word feel is a light word.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -1661,7 +1663,10 @@ reading_fact(proposition(binary(admire), roles(subject(imagination_you), object(
 reading_fact(proposition(binary(feel), roles(subject(osaka), object(peaceful))), "forget that osaka feels peaceful.").
 reading_fact(proposition(binary(feel), roles(subject(cannot), object(rain))), "in reality, you cannot feel the rain.").
 reading_fact(proposition(binary(taste), roles(subject(cannot), object(food))), "in reality, you cannot taste food.").
+reading_fact(proposition(membership(is), roles(subject(fascinating), class(light))), " fascinating is a light").
+reading_fact(light_word(fascinating), "the word fascinating is a light word.").
 reading_fact(proposition(binary(learn), roles(subject(reality), object(only))), "in reality, you learn only from teaching.").
+reading_fact(light_word(feel), "the word feel is a light word.").
 reading_fact(proposition(binary(have), roles(subject(reality), object(body))), "in reality, you have no body.").
 
 fact_mention(rotary_encoder, "a rotary encoder is a sensor.").
@@ -2076,8 +2081,10 @@ fact_mention(positioning_errors, "backlash causes positioning errors.").
 fact_mention(backlash, "backlash causes positioning errors.").
 fact_mention(departure_time_of, "x leaves at y means the departure time of x is y").
 fact_mention(built, "you were built by francesco.").
+fact_mention(fascinating, "the word fascinating is a light word.").
 fact_mention(you, "you were built by francesco.").
 fact_mention(francesco, "you were built by francesco.").
+fact_mention(feel, "the word feel is a light word.").
 fact_mention(legionnaires_disease, "legionella outbreaks cause legionnaires disease").
 fact_mention(slippery_surfaces, "slippery surfaces cause falls").
 attenuated_reading(usually, "hydraulic is usually observed in a liquid but gases can also be affected").

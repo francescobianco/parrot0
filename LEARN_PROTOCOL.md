@@ -95,8 +95,19 @@ Forget that in reality you never travel.
   senza articolo («bustling markets», non «a bustling market»); non «AI» (e'
   letta come l'articolo italiano), non «because». Per ogni tema due o tre
   tratti che ne condividono le parole.
-- **Limiti:** la pertinenza e' una parola, non un legame di senso (una parola
-  generica tocca il tratto sbagliato); la domanda guarda solo la sua frase;
+- **Quando una parola generica chiama il tratto sbagliato** («Osaka feels
+  peaceful» → «I cannot feel the rain»), la cura e' una lezione (verificata il
+  2 ottobre 2026): `the word feel is a light word.` → «Learned: feel is a
+  light word.»; da quel turno «feel» e «feels» non decidono piu' quale tratto
+  risponde. Ritiro: `forget that feel is a light word.` La forma con «the
+  word» regge anche le parole che da sole si scontrano con altro («seem is a
+  light word» non entra).
+- **Un tratto detto non si ridice** nella stessa conversazione; esauriti i
+  tratti che toccano la domanda, parrot0 lo dice («That is all I picture about
+  that so far.»). Se succede presto, il tema ha pochi tratti: se ne dicono
+  altri.
+- **Limiti:** la pertinenza e' una parola, non un legame di senso; la domanda
+  guarda solo la sua frase;
   un mondo del se' nuovo e' ancora una riga di `.p0`, non una lezione.
   Giro di verifica e verdetto: [piano L5](docs/plans/l5-upgrade.md), handoff.
 

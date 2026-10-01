@@ -16,6 +16,13 @@
 > evidenza di miglioramento su una conversazione su tre. Tabella, cause e
 > specie aperte nell'handoff di [L5](l5-upgrade.md).
 
+> **Giro del tocco debole, 2 ottobre 2026** (parole leggere insegnate in
+> chat, grado del tocco, un tratto detto non si ridice): replay congelato
+> «Giappone» +0,79 → +0,75, «parco» +0,21 → +0,42; talk libero nuovo −0,13 →
+> +0,50, zero tetti di tempo. **Giro riuscito**, con i limiti della misura
+> scritti nell'handoff di [L5](l5-upgrade.md) (giudizio dell'agente,
+> traiettorie diverse, tempi non confrontabili fra corse).
+
 > **Handoff piu' recente, 30 settembre 2026:**
 > [anatomia KB, nuove baseline LFM e patch L4 aperta](l4-growth-handoff.md).
 > Ripartire da li': l'handoff del giro 1 sotto e' storico. Le nuove baseline

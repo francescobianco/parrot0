@@ -153,6 +153,7 @@ utterance(5, user, "Do you prefer temples or museums?").
 utterance(5, user, "Have you thought about trying local street food or visiting a traditional onsen?").
 utterance(5, user, "What are you curious about?").
 utterance(5, user, "In reality, you have no body.").
+utterance(5, user, "Osaka feels peaceful with its food and culture. Have you thought about trying local street food?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -283,6 +284,7 @@ utterance(6, self, "Learned rule: holds(residual_current_device_trips) :- leaks(
 utterance(6, self, "In my imagination, I like quiet places. What appeals to you about that?").
 utterance(6, self, "I am parrot0.").
 utterance(6, self, "Held, but only in reality: you have no body.").
+utterance(6, self, "In reality, I cannot taste food. In my imagination, I enjoy simple food such as fresh warm bread. I wonder what street food tastes like. What do you think?").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -817,6 +819,7 @@ utterance(7, user, "Forget your imagined interest in quiet places.").
 utterance(7, user, "Just let me know when you're ready.").
 utterance(7, user, "What do you find most fascinating about AI?").
 utterance(7, user, "In reality, you never travel.").
+utterance(7, user, "What do you find most fascinating about machines?").
 utterance(7, user, "Have you thought about visiting quiet gardens?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1364,7 +1367,11 @@ utterance(8, self, "Held, but only in reality: you never travel.").
 utterance(9, user, "In reality, you live inside a computer.").
 utterance(10, self, "Held, but only in reality: you live inside a computer.").
 utterance(11, user, "What draws you to quiet places?").
+utterance(8, self, "In my imagination, I wonder whether a machine can have a character of its own. What do you think?").
+utterance(9, user, "Do you like being outside?").
+utterance(10, self, "In reality, I cannot go outside. In my imagination, I love being outside early in the morning. What appeals to you about that?").
 utterance(11, user, "In reality, you learn only from teaching.").
+utterance(11, user, "Do you like being outside?").
 utterance(11, user, "Forget that Osaka feels peaceful.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -2530,6 +2537,7 @@ utterance(12, self, "Held, but only in imagination: you like quiet places.").
 utterance(20, self, "Held: the arrival time is the departure time plus the travel time.").
 utterance(12, self, "In my imagination, I prefer temples to museums. What appeals to you about that?").
 utterance(12, self, "Held, but only in reality: you learn only from teaching.").
+utterance(12, self, "That is all I picture about that so far. What about you?").
 utterance(12, self, "Hmm, I don't know about forget yet.").
 utterance(21, user, "Fast means a short travel time.").
 utterance(22, self, "Held: «fast» means a short travel time.").
@@ -2569,14 +2577,17 @@ utterance(24, self, "Alright — I am Curious now.").
 utterance(13, user, "In reality, you cannot taste food.").
 utterance(24, self, "Hmm, I don't know about poem short yet. Want me to learn about it?").
 utterance(25, user, "In your imagination, you like quiet places because they let you think.").
+utterance(13, user, "Do you like being outside?").
 utterance(14, self, "Held, but only in reality: you cannot taste food.").
 utterance(26, self, "Hmm, I don't know about places yet. Want me to learn about it?").
 utterance(27, user, "In your imagination, you enjoy long walks.").
+utterance(14, self, "That is all I picture about that so far. What about you?").
 utterance(28, self, "Held, but only in imagination: you enjoys long walks.").
 utterance(15, user, "In reality, you cannot feel the rain.").
 utterance(29, user, "In your imagination, you would choose Kyoto.").
 utterance(395, user, "What is the density of brass?").
 utterance(13, user, "what is the SI unit of electrical resistance?").
+utterance(15, user, "What's on your mind now?").
 utterance(16, self, "Held, but only in reality: you cannot feel the rain.").
 utterance(394, self, "Learned: the density of brass is 8.5 grams.").
 utterance(31, user, "In your imagination, you wonder how people choose where to travel.").
@@ -2586,17 +2597,20 @@ utterance(32, self, "Held, but only in imagination: you wonder how people choose
 utterance(393, user, "The density of brass is 8.5 grams per cubic centimeter.").
 utterance(33, user, "What is your name?").
 utterance(18, self, "Held, but only in reality: you cannot go outside.").
+utterance(16, self, "I have not pictured that yet. In my imagination, I like quiet places. What appeals to you about that?").
 utterance(15, user, "the ohm measures electrical resistance").
 utterance(19, user, "In reality, you do not have feelings the way people do.").
 utterance(34, self, "I am parrot0.").
 utterance(20, self, "Held, but only in reality: you do not have feelings the way people do.").
 utterance(392, self, "0.7 millimeters.").
+utterance(17, user, "What's on your mind now?").
 utterance(21, user, "In reality, you were created by Francesco as an experiment.").
 utterance(35, user, "Who built you?").
 utterance(22, self, "Held, but only in reality: you were created by francesco as an experiment.").
 utterance(23, user, "in reality, you are an to the").
 utterance(24, self, "Held, but only in reality: you are to the.").
 utterance(16, self, "Hmm, I don't know about measures yet. Want me to learn about it? Or teach me: if «x measures y» says what you already say another way, say «x measures y means x <known verb> y»; if measures is something one thing does to another, say «measures is a relation verb».").
+utterance(18, self, "I have not pictured that yet. In my imagination, I prefer temples to museums. What about you?").
 utterance(36, self, "Francesco.").
 utterance(391, user, "What is the thread pitch of an M4 coarse thread?").
 utterance(25, user, "in reality, you reasons over a knowledge base.").
@@ -3478,6 +3492,7 @@ utterance(2, self, "Held, but only in imagination: you like quiet places.").
 utterance(2, self, "I don't know: nothing I hold says you thought about trying local street food or visiting is traditional onsen, and nothing says it isn't.").
 utterance(2, self, "I am parrot0.").
 utterance(2, self, "I no longer hold that imagined interest in of seeing the sea.").
+utterance(2, self, "Learned: feel is a light word.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3702,6 +3717,7 @@ utterance(1, user, "In your imagination, you like quiet places.").
 utterance(1, user, "Have you thought about trying local street food or visiting a traditional onsen?").
 utterance(1, user, "What are you like?").
 utterance(1, user, "Forget your imagined interest in of seeing the sea.").
+utterance(1, user, "the word feel is a light word.").
 utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
 utterance(173, user, "High-speed steel contains tungsten.").
@@ -4003,6 +4019,7 @@ utterance(4, self, "In my imagination, I like quiet places. What appeals to you 
 utterance(4, self, "Got it - «have you thought about» asks for the same thing as «what do you enjoy».").
 utterance(4, self, "I don't have tastes of my own, so I can't honestly say I like it. Do you?").
 utterance(4, self, "I no longer hold that imagined interest in long walks.").
+utterance(4, self, "Learned: fascinating is a light word.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -4141,6 +4158,7 @@ utterance(3, user, "What specific sights or experiences are you most interested 
 utterance(3, user, "learn 'have you thought about' as another way to say 'what do you enjoy'").
 utterance(3, user, "Do you like being outside?").
 utterance(3, user, "Forget your imagined interest in long walks.").
+utterance(3, user, "the word fascinating is a light word.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

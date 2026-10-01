@@ -53,8 +53,47 @@
 > In your imagination, you would love a zeppelin ride at dawn.
 <~ Held, but only in imagination
 > Have you ever been on a zeppelin?
-<~ In reality, I never ride zeppelins. In my imagination, I would love a zeppelin ride at dawn
+<~ In my imagination, I would love a zeppelin ride at dawn
+<! never ride
 > Forget that in your imagination you would love a zeppelin ride at dawn.
 > Forget that in reality you never ride zeppelins.
 <~ I no longer hold that in reality
 !query! self_trait(t(reality, never, "ride zeppelins"))
+
+[test the_stronger_touch_wins]
+!timeout 5
+> In your imagination, you admire painted lighthouses.
+<~ Held, but only in imagination
+> In your imagination, you love lighthouses on stormy cliffs.
+<~ Held, but only in imagination
+> What do you think of stormy cliffs and lighthouses?
+<~ I love lighthouses on stormy cliffs
+<! admire
+
+[test a_trait_is_not_said_twice]
+!timeout 5
+> Do you like lighthouses?
+<~ I admire painted lighthouses
+> Do you like lighthouses?
+<~ That is all I picture about that so far
+<! admire
+
+[test a_light_word_does_not_carry_the_topic]
+!timeout 5
+> In reality, you cannot hear the zeppelins.
+<~ Held, but only in reality
+> Did you hear about the dirigible?
+<~ In reality, I cannot hear the zeppelins
+> the word hear is a light word.
+<~ Learned
+> In reality, you cannot hear the dirigibles.
+> Did you hear the news?
+<! cannot hear
+> forget that hear is a light word.
+<~ I no longer treat
+> Did you hear the news?
+<~ In reality, I cannot hear
+> Forget that in reality you cannot hear the zeppelins.
+> Forget that in reality you cannot hear the dirigibles.
+> Forget that in your imagination you admire painted lighthouses.
+> Forget that in your imagination you love lighthouses on stormy cliffs.

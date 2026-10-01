@@ -15,7 +15,65 @@
 > ancora L5. Il commit `99332ea7` lo ha descritto come se fosse L5: la sua
 > descrizione è sbagliata, questo riquadro la corregge.
 
-## HANDOFF — 1 ottobre 2026, notte — l'imprint: ripartire da qui
+## HANDOFF — 2 ottobre 2026 — il tocco debole: ripartire da qui
+
+Secondo giro sull'imprint, sulla prima delle specie aperte qui sotto (F.: «vai
+con il tocco debole»). **Questo giro e' riuscito**: i replay salgono nel
+complesso e la conversazione nuova sale.
+
+| conversazione (12 scambi) | prima (`53767c17`) | imprint (`057c4c1c`) | tocco debole (oggi) |
+|---|---:|---:|---:|
+| replay congelato «Giappone» | +0,42 | +0,79 | +0,75 |
+| replay congelato «parco» | +0,21 | +0,21 | **+0,42** |
+| talk libero «parco» con LFM | +0,08 | −0,13 | **+0,50** |
+
+Stessa scala e stesso giudice del giro di ieri (sotto). Log:
+`docs/sessions/talk/2026-10-02-l5-tocco-*`. **Limiti della misura, da tenere
+in vista:** il punteggio e' un giudizio dell'agente; i tre talk liberi hanno
+tre traiettorie diverse (quello di oggi non e' passato per «How do you find
+that calm?», che ieri costava tre misclaim a un frasario estraneo); i tempi
+fra una corsa e l'altra non si confrontano (portatile a batteria: lo stesso
+stato rigirato a distanza di minuti da' mediana 4,35 o 7,6 s). Misura A/B
+nello stesso minuto: il lavoro di oggi costa +0,2/0,5 s nei turni in cui
+parla il se', niente negli altri.
+
+**Che cosa e' cambiato.**
+1. **Una parola leggera non porta un argomento, e si insegna in chat.** «the
+   word feel is a light word.» scrive `light_word(feel)`; «forget that feel is
+   a light word.» la ritira; vale anche flessa («feels»). Insegnate oggi:
+   `feel`, `fascinating`. La forma di lezione esisteva gia' (lettore X-is-a-Y):
+   non e' servita una porta nuova.
+2. **Il tocco ha un grado:** quante parole del turno toccano il tratto. Fra i
+   toccati risponde il piu' toccato («a rainy day at a café or under a tree?»
+   → «I love rainy days under a tree with a book», ieri «rainy evenings»).
+3. **Un tratto detto non si ridice.** Cio' che parrot0 ha detto e' un fatto
+   della conversazione (`self_voiced/1`, scritto dopo la risposta, non
+   salvato). Quando tutto cio' che tocca la domanda e' gia' stato detto:
+   «That is all I picture about that so far. What about you?».
+4. **Il confronto fra parole passa da chiavi calcolate una volta** (la parola,
+   il plurale, la radice del verbo): il confronto a coppie costava 4-6 s su un
+   turno composto.
+
+Solo KB (`kb/core/self-imagination.p0` §1-bis, §1-ter, §3-bis), zero C.
+Banco `self_imprint.p0t` 35/35 con l'ablazione della parola leggera;
+`context_layers.p0t` 28/28; `make soft-test` verde in 3 s.
+
+**Che cosa si vede adesso** (in ordine di peso sul talk di oggi):
+1. **Il carattere finisce.** Dopo sei-otto turni sullo stesso tema i tratti
+   che lo toccano sono tutti detti: quattro «That is all I picture…» su
+   dodici turni. Non e' un difetto del lettore: la scheda e' sottile per una
+   conversazione lunga. Servono piu' tratti per tema, e soprattutto le
+   ragioni («why») e la giunzione con i fatti del mondo vero.
+2. **Il se' parla due volte nello stesso turno composto** (turni 8 e 9 del
+   talk: «That is all I picture… I have not pictured that yet…»): ogni frase
+   del turno riceve la sua risposta, e due risposte del se' si contraddicono.
+3. **«That is all I picture…» scatta anche per un tocco debole** («make» →
+   «what makes a moment feel peaceful»): la cura e' la lezione («the word make
+   is a light word»), da dare quando si ripresenta.
+4. Restano le specie 2-6 dell'elenco di ieri (la domanda guarda solo la sua
+   frase; i frasari d'analisi; ogni voce collegata a mano; non ancora L5).
+
+## HANDOFF precedente — 1 ottobre 2026, notte — l'imprint
 
 Lavoro chiesto da F. sul punto del §1: *«sei il suo istruttore ma anche
 forgiatore: gli devi dare un carattere, un imprint. Non e' un problema
@@ -121,9 +179,8 @@ fotografia di `kb/` + `bin/` presa a inizio sessione (commit `53767c17`).
 
 ### Specie aperte, in ordine di peso sul talk
 
-1. **Tocco debole.** Una parola generica («feel», «fascinating», «quiet»)
-   basta a toccare un tratto. Manca un peso: il complemento conta piu' del
-   verbo («cannot feel THE RAIN»), e un tratto gia' detto non si ridice.
+1. ~~**Tocco debole.**~~ **Curato il 2 ottobre** (handoff in testa): parole
+   leggere insegnate in chat, grado del tocco, memoria del detto.
 2. **La domanda guarda solo la sua frase.** «Which aligns better with your
    preference?» non vede i templi nominati nella frase prima dello stesso
    turno, e riceve «I have not pictured that yet».

@@ -300,6 +300,9 @@ member_satisfies($Member, $Value) :- kb_fact($Pred, cons($Member, cons($Value, n
 % perche' `class_surface/2` da' alla classe la sua superficie pronunciata.
 machinery(exclusion_marker).
 class_surface(exclusion_marker, exclusion marker).
+% (2 ottobre 2026) «the word feel is a light word»: una parola che non porta un
+% argomento da sola (self-imagination.p0 §1-bis). I membri si dicono in chat.
+class_surface(light_word, light word).
 exclusion_marker("but do not mention").
 exclusion_marker("but not").
 exclusion_marker("other than").
