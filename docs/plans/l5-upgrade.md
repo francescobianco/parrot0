@@ -72,6 +72,107 @@ corretta:
    fatti del mondo), attribuiti per il mondo di chi parla e delle persone
    vicine. Lo stesso canale per tutti: il linguaggio naturale.
 
+## 2-bis. I mondi sono strati sovrapposti, e la colla sta negli strati condivisi
+
+> *«c'e' anche il problema di dove sta la grammatica, e questo e' semplice: i
+> mondi sono spazi costruiti da layer di mondi fondamentali sovrapposti. quello
+> che chiamiamo il mondo vero, o comunque tutti i mondi, li devi sezionare in
+> layer indipendenti che potranno poi portare i mondi a cui ci riferiamo. quei
+> sottomondi sono comunque considerabili mondi a se', ma l'idea e' quella di
+> pensare gia' ai mondi come strati. questo potra' creare quell'effetto umano
+> che per noi e' naturale, che e' la colla dei mondi, cioe' quella zona di
+> giunzione che tiene insieme mondi diversi e che li rende non separati.»*
+> — F., 1 ottobre 2026
+
+**Il punto.** Oggi la KB ha UN mondo monolitico (`context(world, world)`) e
+ogni altro contesto vi si appoggia con un solo genitore
+(`context_default_parent(Kind, world)`, [context-scope.p0](../../kb/core/context-scope.p0)):
+una catena, non una composizione. Il mondo vero va invece **sezionato in strati
+fondamentali indipendenti**; ogni mondo a cui ci riferiamo e' una **pila di
+strati** piu' uno strato suo, che puo' coprire (sovrascrivere localmente) gli
+strati di sotto. Ogni strato e' a sua volta un mondo interrogabile da solo.
+
+**Dove sta la grammatica.** In uno strato fondamentale, la **lingua**, che
+quasi ogni mondo condivide: la storia raccontata, il sogno, il mondo di Marco,
+l'immaginario di parrot0 parlano tutti la stessa lingua. Per questo una lezione
+di grammatica vale ovunque senza essere copiata: e' scritta una volta nello
+strato che tutti portano. Un mondo in un'altra lingua cambia quello strato e
+tiene gli altri.
+
+**La colla.** Due mondi diversi non sono separati perche' **condividono
+strati**. Nel mondo immaginativo di parrot0 «you like quiet places and old
+temples» (strato proprio) si compone con «Kyoto is famous for its temples»
+(strato della geografia e della cultura, condiviso col mondo vero), e la
+risposta «I'd choose Kyoto, for its temples» nasce nella **zona di
+giunzione**: nessuno dei due strati la contiene da solo. E' l'effetto umano di
+cui parla F.: si immagina dentro un mondo che resta fatto anche del mondo vero.
+La giunzione ha regole, e sono conoscenza:
+- **lettura:** una domanda in un mondo cerca nel suo strato proprio, poi negli
+  strati della pila, in ordine;
+- **copertura:** un fatto dello strato proprio copre lo stesso fatto degli
+  strati di sotto solo dentro quel mondo (la volpe insegna nella storia; fuori
+  dalla storia le volpi non insegnano);
+- **scrittura:** una frase nuova va nello strato a cui appartiene, non nel
+  mondo in cui e' stata detta («in the story the fox lives in Kyoto» non sposta
+  Kyoto; «Kyoto is in Japan», detta dentro la storia, e' geografia);
+- **impegno:** ogni strato porta la sua politica (vero, tipico, stipulato,
+  attribuito, immaginato) e la risposta la dichiara («in my imagination»,
+  «typically», «Marco thinks»).
+
+### Gli strati fondamentali (prima proposta)
+
+| strato | che cosa contiene | dove sta oggi, in parte |
+|---|---|---|
+| S1 **lingua** | grammatica, forme, letture, registro | `english-grammar/`, `grammar.p0`, `lexicon.p0` |
+| S2 **lessico e definizioni** | che cosa significano le parole | definizioni, `word_meaning` |
+| S3 **logica e numero** | inferenza, quantita', procedure di calcolo | `procedures.p0`, regole |
+| S4 **natura fisica** | materia, cause fisiche, meteo | fatti causali, `cause` |
+| S5 **vita e corpo** | organismi, bisogni, salute | biologia, salute |
+| S6 **senso comune** | il tipico e le sue eccezioni («people eat when hungry») | quasi assente |
+| S7 **convenzioni sociali** | saluti, cortesia, turni, ruoli | `reactions.p0`, `social` |
+| S8 **norme** | obblighi, permessi, leggi per luogo | politiche deontiche |
+| S9 **luoghi** | geografia e relazioni fra luoghi | `located_in`, paesi |
+| S10 **culture** | usi per popolo e luogo | — |
+| S11 **storia** | cio' che e' stato, per epoca | eventi, date |
+| S12 **qui e ora** | l'origo, il calendario | `origo.p0` |
+| S13 **scienza e tecnica** | teorie col loro grado, procedure tecniche | domini esperti |
+| S14 **finzione** | le regole del raccontare (personaggi, trama, coperture) | mondo della storia (gen431) |
+| S15 **il se' di parrot0** | capacita', assenze, storia, carattere | `self-ability`, frasario |
+| S16 **l'immaginario di parrot0** | pseudo-preferenze, curiosita', scelte per gioco | `context_fact(imagination, …)`, frasario |
+| S17 **la persona di chi parla** | fatti, gusti, piani, stati, credenze | `interlocutor_world` |
+| S18 **la cerchia di chi parla** | famiglia, amici, colleghi, animali | kin, mondo di chi parla |
+| S19 **la conversazione** | argomento, domande aperte, impegni, cio' che e' stato detto | `issues.p0`, sessione |
+| S20 **le fonti** | cio' che un testo, un autore, un altro modello affermano | documenti letti, `reported_belief` |
+
+### I mondi come pile (esempi)
+
+| mondo | pila di strati (dal piu' alto) |
+|---|---|
+| il mondo vero | S1–S13 |
+| il senso comune | S6 sopra S1–S5, S7 |
+| l'immaginario di parrot0 | S16, S15, poi il mondo vero |
+| il mondo di chi parla | S17, S18, poi il mondo vero |
+| il mondo di Marco | Marco (proprio), poi il mondo vero (cio' che Marco non contraddice) |
+| la storia raccontata | storia (proprio), S14, S1–S2, S6, S4–S5 (coperti dove la storia lo dice) |
+| il controfattuale | ipotesi (proprio), il mondo vero |
+| il sogno | sogno (proprio), S1–S2, S16 o S17 (chi sogna); S4 debole |
+| la conversazione | S19, S17, S15 |
+| l'altro modello (LFM) | cio' che afferma (proprio), S20 come fonte, non il mondo vero |
+
+**Conseguenze per il lavoro.**
+1. Ogni fatto della KB ha uno **strato di casa**. Non va dichiarato fatto per
+   fatto: si deriva dalla famiglia del predicato (la KB e' gia' organizzata per
+   somiglianza, memoria *KB by similarity*), con eccezioni dette parlando.
+2. La catena `context_parent` diventa una **pila ordinata**
+   (`context_layer(Mondo, Strato, Ordine)` o simile, nome da decidere
+   sull'innesto): piu' strati per mondo, non un genitore solo. Le politiche
+   d'impegno, il trasferimento, i ponti e la persistenza di L4 restano.
+3. Le porte scrivono in uno **strato**, non in un mondo: la domanda 1 del
+   framework (§3) diventa «a quale strato appartiene, e in quale mondo e'
+   stata detta?».
+4. Le domande su di se' leggono S16 e S15 prima del frasario, e la giunzione
+   con S9–S10 produce le risposte composte.
+
 ## 3. Il framework operativo: quattro domande su ogni turno
 
 Per ogni risposta della challenge che non regge, nell'ordine:
@@ -364,6 +465,8 @@ frasario, che resta come rete.
 
 ## 8. Ordine di lavoro
 
+0. **Sezionare il mondo vero in strati (§2-bis)** e fare della catena dei
+   contesti una pila: e' la base su cui ogni generazione successiva scrive.
 1. **Il mondo immaginativo di parrot0 (#2–#7)**: e' quello che la challenge
    chiama di piu' (sei turni su dodici nel giro 7). Prima la domanda 5: chi
    risponde alle domande su di se' deve leggere il mondo, non il frasario.
