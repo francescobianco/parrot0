@@ -95,5 +95,17 @@
 <~ In reality, I cannot hear
 > Forget that in reality you cannot hear the zeppelins.
 > Forget that in reality you cannot hear the dirigibles.
+
+[test a_question_inside_a_compound_turn_is_read_whole]
+# «that» + verbo dentro una DOMANDA non apre una relativa: la domanda si legge
+# come la stessa domanda da sola, e il se' risponde una volta.
+!timeout 8
+> In your imagination, you admire striped lighthouses.
+<~ Held, but only in imagination
+> That sounds lovely! What do you think makes that feel special about lighthouses?
+<~ I admire striped lighthouses
+<! I have not pictured that yet
+<! What do you think? In my
+> Forget that in your imagination you admire striped lighthouses.
 > Forget that in your imagination you admire painted lighthouses.
 > Forget that in your imagination you love lighthouses on stormy cliffs.

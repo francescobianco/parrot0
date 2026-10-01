@@ -15,7 +15,89 @@
 > ancora L5. Il commit `99332ea7` lo ha descritto come se fosse L5: la sua
 > descrizione è sbagliata, questo riquadro la corregge.
 
-## HANDOFF — 2 ottobre 2026 — il tocco debole: ripartire da qui
+## HANDOFF — 2 ottobre 2026, notte — ripartire da qui
+
+**Stato:** tre passi sull'imprint, tutti committati e pushati. F. ha chiuso la
+sessione dopo il terzo; il terzo **non ha ancora il suo giro completo**.
+
+| passo | commit | giro |
+|---|---|---|
+| 1. l'imprint: due mondi del se', scheda detta in chat | `057c4c1c` | non riuscito (1 conversazione su 3) |
+| 2. il tocco debole | `50435394` | riuscito (tabella sotto) |
+| 3. il se' parla una volta | questo commit | **solo un replay congelato**: risposte doppie 2 → 0 |
+
+### Passo 3 — il se' che parlava due volte (che cosa era, che cosa e' cambiato)
+
+**La causa non era nel lettore del se'.** In un turno di piu' frasi il lettore
+composto (`99-registry.c`) divide ogni frase in proposizioni: `relative_rewrite`
+leggeva «that» + verbo come una relativa e spezzava «What do you think makes
+that feel special?» in «What do you think makes.» + «you feel special?».
+Ogni pezzo riceveva la sua risposta: «That is all I picture… I have not
+pictured that yet…». Diagnosi con `PARROT0_TURN_LOG` (riga `read.relativa`).
+
+**La cura:** una domanda non si spezza in proposizioni, perche' non afferma.
+La decisione e' KB (`clause_reads_whole/1` in `grammar.p0`: la clausola finisce
+con un `question_closing_mark/1`); il lettore composto la chiede con la
+clausola fra virgolette, come gia' fa per gli elenchi, e la manda al lettore
+com'e'. **C +19 righe (un cancello, nessun segno nel C), KB +14.** La prosa che
+afferma si divide come prima («…ocean waters that provide few nutrients.» da'
+ancora due fatti). In chat, lezione: «the word make is a light word.».
+
+**Misura fatta:** replay congelato del talk libero di oggi
+(`2026-10-02-l5-una-voce-frozen-talk.log` contro
+`2026-10-02-l5-tocco-talk-park.log`): risposte doppie 2 → 0, «That is all I
+picture…» 4 → 2, zero tetti. Banco `self_imprint.p0t` 39/39 (il caso nuovo:
+`a_question_inside_a_compound_turn_is_read_whole`), `context_layers.p0t`
+28/28, `make soft-test` verde.
+
+**Misura NON fatta, da fare per prima:** i due replay congelati («Giappone»,
+«parco») e un talk libero nuovo. Il cancello cambia la lettura di OGNI domanda
+dentro un turno di piu' frasi, non solo quelle rivolte a parrot0: va guardato
+che le domande di contenuto nei turni composti non siano peggiorate.
+
+```sh
+T=docs/sessions/talk
+.venv/bin/python scripts/talk-replay.py $T/2026-10-01-l5-duration-replay2.log  --root . --out $T/AAAA-MM-GG-frozen-japan.log
+.venv/bin/python scripts/talk-replay.py $T/2026-10-01-l5-duration-transfer.log --root . --out $T/AAAA-MM-GG-frozen-park.log
+.venv/bin/python scripts/live-talk.py --turns 12 --temperature 0 \
+  --opener "Hey there! I just got back from a walk in the park. Do you like being outside?" \
+  --log $T/AAAA-MM-GG-talk-park.log
+```
+
+Confronto: `2026-10-02-l5-tocco-frozen-{japan,park}.log` e
+`2026-10-02-l5-tocco-talk-park.log`. Nei due turni toccati oggi il se' ora
+tace e risponde un'altra voce («I do not have personal opinions», «Nice -- how
+did that go?»): non e' piu' contraddittorio, ma non e' una risposta del
+carattere. E' la specie 1 qui sotto.
+
+### Da dove riprendere, in ordine
+
+1. **Giocare il giro del passo 3** (comandi sopra) e scriverne il verdetto qui.
+2. **Il carattere finisce** dopo sei-otto turni sullo stesso tema. Lavoro di
+   scheda, in chat: piu' tratti per tema, le ragioni, e la giunzione con i
+   fatti veri («Kyoto is famous for its old temples» + «you prefer temples»).
+3. **La domanda guarda solo la sua frase**: «Which aligns better with your
+   preference?» non vede i templi nominati nella frase prima. La struttura del
+   turno esterno e' gia' visibile alla KB durante le clausole (scope
+   `compound_outer`, `outer_turn_structure/2`): e' la strada.
+4. Le altre specie dell'handoff del 1 ottobre (frasari d'analisi; ogni voce
+   collegata a mano; non ancora L5 nel senso del riquadro in testa).
+
+**Regole di lavoro dette da F. in queste sessioni:** con parrot0 si parla solo
+in chat (`live-teach.sh`, `live-talk.py`, `talk-replay.py`), mai MCP
+(`p0t-echo.py` passa da MCP); la lentezza del boot non si insegue (era il
+portatile in risparmio energetico); un passo si accetta solo se un giro della
+llm-challenge migliora, altrimenti si committa e lo si scrive qui.
+
+**Trappole pagate:** i tempi fra corse diverse non si confrontano a batteria
+(A/B nello stesso minuto su due radici: `git archive HEAD kb | tar -x` da' una
+radice senza checkout); `findall` di trenta termini composti supera i 512 byte
+e fallisce in silenzio; la traccia di un turno si ferma a 4000 righe
+(`P0_TRACE_CAP`): per un turno composto si riproduce la frase da sola; una
+frase di prova detta in `live-teach` viene salvata allo `stop` (oggi tolta a
+mano `calming(soft_light)`).
+
+## HANDOFF precedente — 2 ottobre 2026 — il tocco debole
 
 Secondo giro sull'imprint, sulla prima delle specie aperte qui sotto (F.: «vai
 con il tocco debole»). **Questo giro e' riuscito**: i replay salgono nel

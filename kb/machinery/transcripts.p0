@@ -154,6 +154,7 @@ utterance(5, user, "Have you thought about trying local street food or visiting 
 utterance(5, user, "What are you curious about?").
 utterance(5, user, "In reality, you have no body.").
 utterance(5, user, "Osaka feels peaceful with its food and culture. Have you thought about trying local street food?").
+utterance(5, user, "What do you think makes that feel special?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -285,6 +286,7 @@ utterance(6, self, "In my imagination, I like quiet places. What appeals to you 
 utterance(6, self, "I am parrot0.").
 utterance(6, self, "Held, but only in reality: you have no body.").
 utterance(6, self, "In reality, I cannot taste food. In my imagination, I enjoy simple food such as fresh warm bread. I wonder what street food tastes like. What do you think?").
+utterance(6, self, "I can help compare the reasons and trade-offs, but I do not have personal opinions. What should we weigh first?").
 utterance(6, self, "I did not read that as one sentence: I derived it from what I hold — poorly maintained cooling towers causes legionella outbreaks (from the sentence «most legionella outbreaks result from poorly maintained cooling towers»); legionella outbreaks causes legionnaires disease (from the sentence «legionella outbreaks cause legionnaires disease»). The conclusion is mine.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -820,6 +822,7 @@ utterance(7, user, "Just let me know when you're ready.").
 utterance(7, user, "What do you find most fascinating about AI?").
 utterance(7, user, "In reality, you never travel.").
 utterance(7, user, "What do you find most fascinating about machines?").
+utterance(7, user, "Soft light is calming. What do you think makes that feel special?").
 utterance(7, user, "Have you thought about visiting quiet gardens?").
 utterance(7, user, "how do you act when the recipe is missing?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -1371,6 +1374,7 @@ utterance(8, self, "In my imagination, I wonder whether a machine can have a cha
 utterance(9, user, "Do you like being outside?").
 utterance(10, self, "In reality, I cannot go outside. In my imagination, I love being outside early in the morning. What appeals to you about that?").
 utterance(11, user, "In reality, you learn only from teaching.").
+utterance(8, self, "Learned: soft light is calming. I can help compare the reasons and trade-offs, but I do not have personal opinions. What should we weigh first?").
 utterance(11, user, "Do you like being outside?").
 utterance(11, user, "Forget that Osaka feels peaceful.").
 utterance(8, self, "I don't understand that yet.").
@@ -3493,6 +3497,7 @@ utterance(2, self, "I don't know: nothing I hold says you thought about trying l
 utterance(2, self, "I am parrot0.").
 utterance(2, self, "I no longer hold that imagined interest in of seeing the sea.").
 utterance(2, self, "Learned: feel is a light word.").
+utterance(2, self, "Learned: make is a light word.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -3718,6 +3723,7 @@ utterance(1, user, "Have you thought about trying local street food or visiting 
 utterance(1, user, "What are you like?").
 utterance(1, user, "Forget your imagined interest in of seeing the sea.").
 utterance(1, user, "the word feel is a light word.").
+utterance(1, user, "the word make is a light word.").
 utterance(174, self, "Learned: high-speed steel contains tungsten.").
 utterance(82, self, "Electrical resistance.").
 utterance(173, user, "High-speed steel contains tungsten.").
@@ -4020,6 +4026,7 @@ utterance(4, self, "Got it - «have you thought about» asks for the same thing 
 utterance(4, self, "I don't have tastes of my own, so I can't honestly say I like it. Do you?").
 utterance(4, self, "I no longer hold that imagined interest in long walks.").
 utterance(4, self, "Learned: fascinating is a light word.").
+utterance(4, self, "Learned: soft light is calming.").
 utterance(4, self, "Held: the safe internal temperature of chicken is 74 degrees.").
 utterance(4, self, "Held: never put butter on a burn.").
 utterance(3, user, "what is IMRAD?").
@@ -4159,6 +4166,7 @@ utterance(3, user, "learn 'have you thought about' as another way to say 'what d
 utterance(3, user, "Do you like being outside?").
 utterance(3, user, "Forget your imagined interest in long walks.").
 utterance(3, user, "the word fascinating is a light word.").
+utterance(3, user, "Soft light is calming.").
 utterance(3, user, "the safe internal temperature of chicken is 74 degrees").
 utterance(3, user, "never put butter on a burn").
 utterance(83, user, "the ohm measures what?").

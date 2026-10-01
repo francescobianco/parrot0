@@ -4684,6 +4684,20 @@ gerund_of($Root, $G) :- relation_verb($Root), concat_atoms($Root, "ing", $G).
 participial_opener(including, includes).
 participial_opener("such as", includes).
 participial_opener(incluso, includes).
+% ── 2 ottobre 2026 (L5) — UNA DOMANDA SI LEGGE INTERA ─────────────────────
+% Dentro un turno di piu' frasi il lettore divide una frase in proposizioni
+% (la relativa, le coordinate) e le legge una per una: e' giusto per la prosa,
+% che afferma. Una domanda non afferma: «What do you think makes that feel
+% special?» spezzata su «that» dava due mezze domande e due risposte. Il
+% lettore (99-registry.c) chiede qui, con la clausola fra virgolette, se va
+% letta com'e'. Il segno che chiude una domanda e' un fatto: una lingua con un
+% altro segno lo aggiunge.
+machinery(clause_reads_whole).
+machinery(question_closing_mark).
+question_closing_mark("?").
+clause_reads_whole($Text) :-
+    atom_words($Text, $Ws), last_word($Ws, $W), chars($W, $Cs), last_word($Cs, $C),
+    question_closing_mark($C).
 machinery(bare_relative_opener).
 machinery(relative_clause_verb).
 bare_relative_opener(that).

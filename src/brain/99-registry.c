@@ -7522,6 +7522,25 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
          * del genitore — altrimenti una cue del turno composto («can you»)
          * fa rivendicare a una facolta' una clausola che non la contiene. */
         char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
+        /* 2 ottobre 2026 (L5) — UNA DOMANDA NON SI SPEZZA IN PROPOSIZIONI.
+         * «…What do you think makes that feel special?» diventava «What do you
+         * think makes.» + «you feel special?»: la relativa e le coordinate qui
+         * sotto dividono una frase in proposizioni AFFERMATE, e una domanda non
+         * afferma niente. Ogni pezzo riceveva la sua risposta, e parrot0
+         * parlava due volte di se' contraddicendosi. Quale clausola si legga
+         * intera e' conoscenza (`clause_reads_whole/1`, grammar.p0): qui non
+         * c'e' nessun segno, si chiede alla KB e la clausola arriva al lettore
+         * com'e', come la stessa frase detta da sola. */
+        {
+            char cq[P0_TURN_MAX + 4];
+            snprintf(cq, sizeof cq, "\"%s\"", c);
+            const char *wq[1] = { cq };
+            if (!strchr(c, '"') && kb_query(b->kb, "clause_reads_whole", wq, 1)) {
+                p0_trace(b, "read.compound", "«%s» si legge intera\n", c);
+                brain_respond(b, c, sub, sizeof sub);
+                goto clause_done;
+            }
+        }
         /* gen513 — e se la frase porta una relativa, sono DUE proposizioni e si
          * leggono tutte e due. La seconda riceve il suo soggetto dalla IR
          * (`relative_rewrite`); se l'antecedente non si trova, non si riscrive

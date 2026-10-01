@@ -23,6 +23,11 @@
 > scritti nell'handoff di [L5](l5-upgrade.md) (giudizio dell'agente,
 > traiettorie diverse, tempi non confrontabili fra corse).
 
+> **Passo successivo, 2 ottobre 2026, notte** (una domanda dentro un turno di
+> piu' frasi si legge intera: il se' non risponde piu' due volte): misurato su
+> un solo replay congelato, risposte doppie 2 → 0. **Il giro completo non e'
+> stato giocato**: comandi e confronto nell'handoff di [L5](l5-upgrade.md).
+
 > **Handoff piu' recente, 30 settembre 2026:**
 > [anatomia KB, nuove baseline LFM e patch L4 aperta](l4-growth-handoff.md).
 > Ripartire da li': l'handoff del giro 1 sotto e' storico. Le nuove baseline
